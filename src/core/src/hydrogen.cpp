@@ -1530,13 +1530,15 @@ void audioEngine_startAudioDrivers()
 				if ( ( m_pAudioDriver = createDriver( "CoreAudio" ) ) == NULL ) {
 					if ( ( m_pAudioDriver = createDriver( "PortAudio" ) ) == NULL ) {
 						if ( ( m_pAudioDriver = createDriver( "Oss" ) ) == NULL ) {
-							audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-							___ERRORLOG( "Error starting audio driver" );
-							___ERRORLOG( "Using the NULL output audio driver" );
+							if ( ( m_pAudioDriver = createDriver( "PulseAudio" ) ) == NULL ) {
+								audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
+								___ERRORLOG( "Error starting audio driver" );
+								___ERRORLOG( "Using the NULL output audio driver" );
 
-							// use the NULL output driver
-							m_pAudioDriver = new NullDriver( audioEngine_process );
-							m_pAudioDriver->init( 0 );
+								// use the NULL output driver
+								m_pAudioDriver = new NullDriver( audioEngine_process );
+								m_pAudioDriver->init( 0 );
+							}
 						}
 					}
 				}
