@@ -52,16 +52,14 @@ int main(int argc, char** argv){
 	H2Core::Logger* logger = H2Core::Logger::get_instance();
 	H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
 
+	QApplication a(argc, argv);
+
 	H2Core::Filesystem::bootstrap( logger );
-
-
 
 	if (argc != 2) {
 		usage();
 	}
 	cout << "Hydrogen player starting..." << endl << endl;
-
-	QApplication a(argc, argv);
 
 	QString filename = argv[1];
 
