@@ -415,7 +415,13 @@ int main(int argc, char *argv[])
 
 #ifdef H2CORE_HAVE_NSMSESSION
 		H2Core::Hydrogen::get_instance()->startNsmClient();
-		songFilename = pPref->getNsmSongName();
+
+		QString NsmSongFilename = pPref->getNsmSongName();
+
+		if(!NsmSongFilename.isEmpty())
+		{
+			songFilename = NsmSongFilename;
+		}
 #endif
 
 		MainForm *pMainForm = new MainForm( pQApp, songFilename );
