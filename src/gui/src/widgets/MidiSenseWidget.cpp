@@ -31,15 +31,17 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, MidiAction* mi
 	m_DirectWrite = directWr;
 	m_pAction = midiAction;
 
-
 	setWindowTitle( "Waiting.." );
 	setFixedSize( 280, 100 );
+
+	bool midiOperable = false;
 	
 	m_pURLLabel = new QLabel( this );
 	m_pURLLabel->setAlignment( Qt::AlignCenter );
 
 	if(m_pAction != NULL){
 		m_pURLLabel->setText( "Waiting for midi input..." );
+		midiOperable = true;
 	} else {
 
 		/*
@@ -49,8 +51,10 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, MidiAction* mi
 
 		if(m_DirectWrite){
 			m_pURLLabel->setText( trUtf8("This element is not midi operable.") );
+			midiOperable = false;
 		} else {
 			m_pURLLabel->setText( trUtf8("Waiting for midi input...") );
+			midiOperable = true;
 		}
 	}
 	
@@ -65,11 +69,17 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, MidiAction* mi
 	m_LastMidiEventParameter = 0;
 	
 	m_pUpdateTimer = new QTimer( this );
-	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateMidi() ) );
 
-	m_pUpdateTimer->start( 100 );
+	if(midiOperable)
+	{
+		/*
+		 * If the widget is not midi operable, we can omit
+		 * starting the timer which listens to midi input..
+		 */
 
-
+		connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateMidi() ) );
+		m_pUpdateTimer->start( 100 );
+	}
 };
 
 MidiSenseWidget::~MidiSenseWidget(){
