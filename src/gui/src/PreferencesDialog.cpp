@@ -357,8 +357,12 @@ void PreferencesDialog::on_okBtn_clicked()
 	// JACK
 	pPref->m_bJackConnectDefaults = connectDefaultsCheckBox->isChecked();
 
+	/*
+	 * 0: Post-Fader
+	 * 1: Pre-Fader
+	 */
 
-	if (trackOutputComboBox->currentText() == "Post-Fader")
+	if (trackOutputComboBox->currentIndex() == Preferences::POST_FADER)
 	{
 		pPref->m_nJackTrackOutputMode = Preferences::POST_FADER;
 	} else {
