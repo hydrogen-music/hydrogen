@@ -250,6 +250,11 @@
         </item>
         <item>
          <property name="text">
+          <string>88200</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>96000</string>
          </property>
         </item>
