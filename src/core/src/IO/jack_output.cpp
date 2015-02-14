@@ -227,24 +227,18 @@ void JackOutput::locateInNCycles( unsigned long frame, int cycles_to_wait )
 /// Take beat-bar-tick info from the Jack system, and translate it to a new internal frame position and ticksize.
 void JackOutput::relocateBBT()
 {
+	Preferences* pPref = Preferences::get_instance();
+
 	//wolke if hydrogen is jack time master this is not relevant
-	if ( Preferences::get_instance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&
-		 m_transport.m_status != TransportInfo::ROLLING)
-	{
-		// have absolut nothing to do with the old ardour transport bug
-		m_transport.m_nFrames = Hydrogen::get_instance()->getHumantimeFrames() - getBufferSize();
+	if ( m_transport.m_status != TransportInfo::ROLLING
+	  || pPref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER
+	  || ! ( m_JackTransportPos.valid & JackPositionBBT )
+	) {
 		WARNINGLOG( "Relocate: Call it off" );
-		calculateFrameOffset();
 		return;
 	}
 
-	if ( m_transport.m_status != TransportInfo::ROLLING ||
-		 ! ( m_JackTransportPos.valid & JackPositionBBT ))
-	{
-		calculateFrameOffset();
-		return;
-	}
-
+	//WARNINGLOG( "Resyncing!" );
 	INFOLOG( "..." );
 
 	Hydrogen * H = Hydrogen::get_instance();
@@ -283,9 +277,6 @@ void JackOutput::relocateBBT()
 #endif
 
 	m_transport.m_nFrames = nNewFrames;
-
-	/// offset between jack- and internal position
-	calculateFrameOffset();
 }
 
 ///
@@ -296,38 +287,39 @@ void JackOutput::relocateBBT()
 
 void JackOutput::updateTransportInfo()
 {
-	if ( locate_countdown == 1 )
-		locate( locate_frame );
-	if ( locate_countdown > 0 )
-		locate_countdown--;
+		if ( locate_countdown == 1 )
+				locate( locate_frame );
+		if ( locate_countdown > 0 )
+				locate_countdown--;
 
-	if ( Preferences::get_instance()->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT   ) {
-		m_JackTransportState = jack_transport_query( client, &m_JackTransportPos );
+		if ( Preferences::get_instance()->m_bJackTransportMode !=  Preferences::USE_JACK_TRANSPORT   ) return;
+
+				m_JackTransportState = jack_transport_query( client, &m_JackTransportPos );
 
 
-		// update m_transport with jack-transport data
-		switch ( m_JackTransportState ) {
-			case JackTransportStopped:
-				m_transport.m_status = TransportInfo::STOPPED;
-				//infoLog( "[updateTransportInfo] STOPPED - frames: " + to_string(m_transportPos.frame) );
-				break;
+				// update m_transport with jack-transport data
+				switch ( m_JackTransportState ) {
+				case JackTransportStopped:
+						m_transport.m_status = TransportInfo::STOPPED;
+						//infoLog( "[updateTransportInfo] STOPPED - frames: " + to_string(m_transportPos.frame) );
+						break;
 
-			case JackTransportRolling:
-				if ( m_transport.m_status != TransportInfo::ROLLING && ( m_JackTransportPos.valid & JackPositionBBT ) ) {
-					must_relocate = 2;
-					//WARNINGLOG( "Jack transport starting: Resyncing in 2 x Buffersize!!" );
-				}
-				m_transport.m_status = TransportInfo::ROLLING;
-				//infoLog( "[updateTransportInfo] ROLLING - frames: " + to_string(m_transportPos.frame) );
-				break;
+				case JackTransportRolling:
+						if ( m_transport.m_status != TransportInfo::ROLLING && ( m_JackTransportPos.valid & JackPositionBBT ) ) {
+								must_relocate = 2;
+								//WARNINGLOG( "Jack transport starting: Resyncing in 2 x Buffersize!!" );
+						}
+						m_transport.m_status = TransportInfo::ROLLING;
+						//infoLog( "[updateTransportInfo] ROLLING - frames: " + to_string(m_transportPos.frame) );
+						break;
 
-			case JackTransportStarting:
-				m_transport.m_status = TransportInfo::STOPPED;
-				//infoLog( "[updateTransportInfo] STARTING (stopped) - frames: " + to_string(m_transportPos.frame) );
-				break;
+				case JackTransportStarting:
+						m_transport.m_status = TransportInfo::STOPPED;
+						//infoLog( "[updateTransportInfo] STARTING (stopped) - frames: " + to_string(m_transportPos.frame) );
+						break;
 
-			default:
-				ERRORLOG( "Unknown jack transport state" );
+				default:
+						ERRORLOG( "Unknown jack transport state" );
 		}
 
 
@@ -392,28 +384,25 @@ void JackOutput::updateTransportInfo()
 				} else {
 					///this is experimantal... but it works for the moment... fix me fix :-) wolke
 					// ... will this actually happen? keeping it for now ( jakob lund )
-					m_transport.m_nFrames = H->getHumantimeFrames() - getBufferSize();// have nothing to do with the old ardour transport bug
+					m_transport.m_nFrames = H->getHumantimeFrames();
 				}
 			}
 		}
 
 		// humantime fix
 		if ( H->getHumantimeFrames() != m_JackTransportPos.frame ) {
+			if ( must_relocate == 1 ) {
+				relocateBBT();
 
-			H->setHumantimeFrames(m_JackTransportPos.frame);
-			//WARNINGLOG("fix Humantime " + to_string (m_JackTransportPos.frame));
-		}
+				// offset between jack- and internal position
+				calculateFrameOffset();
 
-		if ( must_relocate == 1 ) {
-			//WARNINGLOG( "Resyncing!" );
-			relocateBBT();
-			if ( m_transport.m_status == TransportInfo::ROLLING ) {
-				H->triggerRelocateDuringPlay();
+				if ( m_transport.m_status == TransportInfo::ROLLING )
+					H->triggerRelocateDuringPlay();
 			}
-		}
 
-		if ( must_relocate > 0 ) must_relocate--;
-	}
+			if ( must_relocate > 0 ) must_relocate--;
+		}
 }
 
 float* JackOutput::getOut_L()
@@ -896,39 +885,49 @@ void JackOutput::jack_timebase_callback(jack_transport_state_t state,
 	if (! me) return;
 
 	Hydrogen * H = Hydrogen::get_instance();
+	Song* S = H->getSong();
+	if ( ! S ) return;
 
-	int ppos = H->getPatternPos();
-	if ( ppos < 0 ) ppos = 0;
-	double TPB = H->getTickForHumanPosition( ppos );
+	unsigned long PlayTick = ( pos->frame - me->bbt_frame_offset ) / me->m_transport.m_nTickSize;
+	pos->bar = H->getPosForTick ( PlayTick );
+
+	double TPB = H->getTickForHumanPosition( pos->bar );
 	if ( TPB < 1 ) return;
 
-	/* We'll cheat there is ticks_per_beat * beats_per_bar ticks in bar
-	   so every Hydrogen tick will be multipled by beats_per_bar ticks */
+	/* We'll cheat there is ticks_per_beat * 4 in bar
+	   so every Hydrogen tick will be multipled by 4 ticks */
 	pos->ticks_per_beat = TPB;
 	pos->valid = JackPositionBBT;
 	pos->beats_per_bar = TPB / 48;
 	pos->beat_type = 4.0;
-	pos->beats_per_minute = H->getNewBpmJTM();
+	pos->beats_per_minute = H->getTimelineBpm ( pos->bar );
+	pos->bar++;
+
+	// Probably there will never be an offset, cause we are the master ;-)
+#ifndef JACK_NO_BBT_OFFSET
+	pos->valid = static_cast<jack_position_bits_t> ( pos->valid | JackBBTFrameOffset );
+	pos->bbt_offset = 0;
+#endif
 
 	if (H->getHumantimeFrames() < 1) {
-		pos->bar = 1;
 		pos->beat = 1;
 		pos->tick = 0;
 		pos->bar_start_tick = 0;
 	} else {
-		pos->bar = ppos + 1;
+		/* how many ticks elpased from last bar ( where bar == pattern ) */
+		int32_t TicksFromBar = ( PlayTick % (int32_t) pos->ticks_per_beat ) * 4;
 
-		pos->tick = int32_t(H->getTickPosition()) * pos->beats_per_bar;
-		pos->beat = pos->tick / pos->ticks_per_beat;
+		pos->bar_start_tick = PlayTick - TicksFromBar;
 
-		/* Remove beats from ticks */
-		pos->tick -= pos->ticks_per_beat * pos->beat;
-
+		pos->beat = TicksFromBar / pos->ticks_per_beat;
 		pos->beat++;
-		pos->bar_start_tick = ppos * pos->beats_per_bar * pos->ticks_per_beat;
 
-		//printf ( "Bar %d, Beat %d, Tick %d, BPB %g, BarStartTick %g\n", pos->bar, pos->beat,
-		//pos->tick, pos->beats_per_bar, pos->bar_start_tick );
+		pos->tick = TicksFromBar % (int32_t) pos->ticks_per_beat;
+#if 0
+//		printf ( "\e[0K\rBar %d, Beat %d, Tick %d, BPB %g, BarStartTick %g",
+		printf ( "Bar %d, Beat %d, Tick %d, BPB %g, BarStartTick %g\n",
+			pos->bar, pos->beat,pos->tick, pos->beats_per_bar, pos->bar_start_tick );
+#endif
 	}
 }
 

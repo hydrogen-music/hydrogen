@@ -73,7 +73,7 @@ LocalFileMng::~LocalFileMng()
 
 QString LocalFileMng::getDrumkitNameForPattern( const QString& patternDir )
 {
-	QDomDocument doc = LocalFileMng::openXmlDocument( patternDir );
+	QDomDocument doc = openXmlDocument( patternDir );
 
 	QDomNode rootNode = doc.firstChildElement( "drumkit_pattern" );	// root element
 	if (  rootNode.isNull() ) {
@@ -834,13 +834,19 @@ int LocalFileMng::savePlayList( const std::string& filename)
 
 int LocalFileMng::loadPlayList( const std::string& filename)
 {
-	std::string playlistInfoFile = filename;
-	std::ifstream verify( playlistInfoFile.c_str() , std::ios::in | std::ios::binary );
-	if ( verify ) {
+	/* openXmlDocument can create new document ( which is bad idea anyway )
+	   We don't want create new playlist here , so we just open it for test ;-)
+	*/
+	QString Filename = QString( filename.c_str() );
+	QFile file( Filename );
+	if ( file.open(QIODevice::ReadOnly) ) {
+		file.close();
+	} else {
+		ERRORLOG( QString("Error reading playlist: can't open file %1").arg( Filename ) );
 		return 1;
 	}
 
-	QDomDocument doc = LocalFileMng::openXmlDocument( QString( filename.c_str() ) );
+	QDomDocument doc = openXmlDocument( Filename );
 
 	Hydrogen::get_instance()->m_PlayList.clear();
 
@@ -857,11 +863,11 @@ int LocalFileMng::loadPlayList( const std::string& filename)
 		SongReader reader;
 		while (  ! nextNode.isNull() ) {
 			Hydrogen::HPlayListNode playListItem;
-			playListItem.m_hFile = LocalFileMng::readXmlString( nextNode, "song", "" );
+			playListItem.m_hFile = readXmlString( nextNode, "song", "" );
 			QString FilePath = reader.getPath( playListItem.m_hFile );
 			playListItem.m_hFileExists = Filesystem::file_readable( FilePath );
 			playListItem.m_hScript = LocalFileMng::readXmlString( nextNode, "script", "" );
-			playListItem.m_hScriptEnabled = LocalFileMng::readXmlString( nextNode, "enabled", "" );
+			playListItem.m_hScriptEnabled = readXmlString( nextNode, "enabled", "" );
 
 			Hydrogen::get_instance()->m_PlayList.push_back( playListItem );
 			nextNode = nextNode.nextSiblingElement( "next" );
@@ -869,8 +875,6 @@ int LocalFileMng::loadPlayList( const std::string& filename)
 	}
 	return 0; // ok
 }
-
-
 
 /* New QtXml based methods */
 

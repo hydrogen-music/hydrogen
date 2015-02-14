@@ -32,6 +32,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/midi_map.h>
 
 using std::cout;
 using std::endl;
@@ -63,7 +64,7 @@ int main(int argc, char** argv){
 
 	QString filename = argv[1];
 
-
+	MidiMap::create_instance();
 	H2Core::Preferences::create_instance();
 	H2Core::Hydrogen::create_instance();
 	H2Core::Preferences *preferences = H2Core::Preferences::get_instance();
