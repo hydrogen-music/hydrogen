@@ -27,7 +27,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>35</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -59,7 +59,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>36</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -91,7 +91,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>38</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -123,7 +123,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>40</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -155,7 +155,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>39</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -187,7 +187,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>43</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -219,7 +219,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>45</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -251,7 +251,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>48</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -283,7 +283,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>42</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -315,7 +315,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>44</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -347,7 +347,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>46</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -379,7 +379,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>49</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -411,7 +411,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>70</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -443,7 +443,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>63</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -475,7 +475,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>75</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
@@ -507,7 +507,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
+   <midiOutNote>56</midiOutNote>
    <isStopNote>false</isStopNote>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>

@@ -31,7 +31,8 @@ configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
 	mkdir ../builddebian
-	cd ../builddebian; cmake .. -DCMAKE_INSTALL_PREFIX:PATH=$(CURDIR)/debian/hydrogen/usr
+	cd ../builddebian; cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+	
 	touch configure-stamp
 
 
@@ -63,7 +64,7 @@ install: build
 
 	mkdir -p $(CURDIR)/debian/hydrogen/usr/bin
 
-	cd ../builddebian; $(MAKE) install
+	cd ../builddebian; $(MAKE) install DESTDIR=../linux/debian/hydrogen
 	#remove not used .git dirs 
 	find $(CURDIR)/debian/hydrogen/ -name '.git' | xargs rm -rf 
 
@@ -82,17 +83,19 @@ binary-indep: build install docs docs_install
 binary-arch: build install
 	dh_testdir
 	dh_testroot
+	dh_install
 	dh_installchangelogs
 	dh_installdocs
 	dh_installman
 	dh_link
-	dh_strip
 	dh_compress
 	dh_compress -X.py
 	dh_fixperms
+	dh_strip
 	#dh_python
-	dh_installdeb
+	dh_makeshlibs
 	dh_shlibdeps
+	dh_installdeb
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

@@ -70,22 +70,24 @@ class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public H
 
 	private:
 		InstrumentEditor* m_pInstrumentEditor;
-		QString m_psamplefilename;
-		QStringList m_pselectedFile;
+		QString m_pSampleFilename;
+		QStringList m_pSelectedFile;
 
 		void browseTree( const QModelIndex& index );
 
 		void getEnvironment();
 		bool isFileSupported( QString filename );
-		bool singleClick;
-		QDirModel *model;
-		QTreeView *tree;
-		QModelIndex __index;
+
+		bool		m_SingleClick;
+		QDirModel *	m_pDirModel;
+		QTreeView *	m_pTree;
+
+		QModelIndex m_ModelIndex;
 
 
-		SampleWaveDisplay *m_pSampleWaveDisplay;
-		QString sEmptySampleFilename;
-		QStringList filters;
+		SampleWaveDisplay *	m_pSampleWaveDisplay;
+		QString				m_sEmptySampleFilename;
+		QStringList			m_Filters;
 
 
 

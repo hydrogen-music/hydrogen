@@ -20,7 +20,7 @@
  *
  */
 
-#include "OssDriver.h"
+#include <hydrogen/IO/OssDriver.h>
 
 // check if OSS support is enabled
 #ifdef H2CORE_HAVE_OSS

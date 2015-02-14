@@ -32,6 +32,8 @@
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/LocalFileMng.h>
+#include <hydrogen/timeline.h>
 using namespace H2Core;
 
 #include "UndoActions.h"
@@ -51,7 +53,9 @@ using namespace H2Core;
 #include "../SongPropertiesDialog.h"
 #include "../Skin.h"
 #include "../VirtualPatternDialog.h"
-#include <hydrogen/LocalFileMng.h>
+
+
+
 
 #ifdef WIN32
 #include <time.h>
@@ -977,11 +981,12 @@ void SongEditorPatternList::patternChangedEvent() {
 	update();
 	///here we check the timeline  && m_pSong->get_mode() == Song::SONG_MODE
 	Hydrogen *engine = Hydrogen::get_instance();
+	Timeline *pTimeline = engine->getTimeline();
 		if ( ( Preferences::get_instance()->getUseTimelineBpm() ) && ( engine->getSong()->get_mode() == Song::SONG_MODE ) ){
-		for ( int i = 0; i < static_cast<int>(engine->m_timelinevector.size()); i++){
-			if ( ( engine->m_timelinevector[i].m_htimelinebeat == engine->getPatternPos() )
-				&& ( engine->getNewBpmJTM() != engine->m_timelinevector[i].m_htimelinebpm ) ){
-				engine->setBPM( engine->m_timelinevector[i].m_htimelinebpm );
+		for ( int i = 0; i < static_cast<int>(pTimeline->m_timelinevector.size()); i++){
+			if ( ( pTimeline->m_timelinevector[i].m_htimelinebeat == engine->getPatternPos() )
+				&& ( engine->getNewBpmJTM() != pTimeline->m_timelinevector[i].m_htimelinebpm ) ){
+				engine->setBPM( pTimeline->m_timelinevector[i].m_htimelinebpm );
 			}//if
 		}//for
 	}//if
@@ -1020,8 +1025,8 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 ///
 void SongEditorPatternList::togglePattern( int row ) {
 
-	Hydrogen *engine = Hydrogen::get_instance();
-	engine->sequencer_setNextPattern( row, false, true );
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	pEngine->sequencer_setNextPattern( row );
 	createBackground();
 	update();
 }
@@ -1440,7 +1445,7 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	if ( pEngine->getSong()->get_mode() == Song::PATTERN_MODE ) {
-		pEngine->sequencer_setNextPattern( -1, false, false );	// reimposto il prossimo pattern a NULL, altrimenti viene scelto quello che sto distruggendo ora...
+		pEngine->sequencer_setNextPattern( -1 );	// reimposto il prossimo pattern a NULL, altrimenti viene scelto quello che sto distruggendo ora...
 	}
 
 	Song *song = pEngine->getSong();
@@ -1913,6 +1918,8 @@ void SongEditorPositionRuler::createBackground()
 	m_pBackgroundPixmap->fill( backgroundColor );
 
 	Preferences *pref = Preferences::get_instance();
+	Timeline * pTimeline = Hydrogen::get_instance()->getTimeline();
+
 	QString family = pref->getApplicationFontFamily();
 	int size = pref->getApplicationFontPointSize();
 	QFont font( family, size );
@@ -1924,8 +1931,8 @@ void SongEditorPositionRuler::createBackground()
 	char tmp[10];
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
 		uint x = 10 + i * m_nGridWidth;
-		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinetagvector.size()); t++){
-			if ( Hydrogen::get_instance()->m_timelinetagvector[t].m_htimelinetagbeat == i ) {
+		for ( int t = 0; t < static_cast<int>(pTimeline->m_timelinetagvector.size()); t++){
+			if ( pTimeline->m_timelinetagvector[t].m_htimelinetagbeat == i ) {
 				p.setPen( Qt::cyan );
 				p.drawText( x - m_nGridWidth / 2 , 12, m_nGridWidth * 2, height() , Qt::AlignCenter, "T");
 			}
@@ -1958,9 +1965,9 @@ void SongEditorPositionRuler::createBackground()
 		uint x = 10 + i * m_nGridWidth;
 		p.drawLine( x, 2, x, 5 );
 		p.drawLine( x, 19, x, 20 );
-		for ( int t = 0; t < static_cast<int>(Hydrogen::get_instance()->m_timelinevector.size()); t++){
-			if ( Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat == i ) {
-				sprintf( tempo, "%d",  ((int)Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebpm) );
+		for ( int t = 0; t < static_cast<int>(pTimeline->m_timelinevector.size()); t++){
+			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == i ) {
+				sprintf( tempo, "%d",  ((int)pTimeline->m_timelinevector[t].m_htimelinebpm) );
 				p.drawText( x - m_nGridWidth, 3, m_nGridWidth * 2, height() / 2 - 5, Qt::AlignCenter, tempo );
 			}
 		}
@@ -2133,25 +2140,26 @@ void SongEditorPositionRuler::updatePosition()
 void SongEditorPositionRuler::editTimeLineAction( int newPosition, float newBpm )
 {
 	Hydrogen* engine = Hydrogen::get_instance();
+	Timeline* pTimeline = engine->getTimeline();
 
 	//erase the value to set the new value
-	if( engine->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < engine->m_timelinevector.size(); t++){
-			if ( engine->m_timelinevector[t].m_htimelinebeat == newPosition -1 ) {
-				engine->m_timelinevector.erase( engine->m_timelinevector.begin() +  t);
+	if( pTimeline->m_timelinevector.size() >= 1 ){
+		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
+			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == newPosition -1 ) {
+				pTimeline->m_timelinevector.erase( pTimeline->m_timelinevector.begin() +  t);
 			}
 		}
 	}
 
-	Hydrogen::HTimelineVector tlvector;
+	Timeline::HTimelineVector tlvector;
 
 	tlvector.m_htimelinebeat = newPosition -1 ;
 
 	if( newBpm < 30.0 ) newBpm = 30.0;
 	if( newBpm > 500.0 ) newBpm = 500.0;
 	tlvector.m_htimelinebpm = newBpm;
-	engine->m_timelinevector.push_back( tlvector );
-	engine->sortTimelineVector();
+	pTimeline->m_timelinevector.push_back( tlvector );
+	pTimeline->sortTimelineVector();
 	createBackground();
 }
 
@@ -2160,11 +2168,13 @@ void SongEditorPositionRuler::editTimeLineAction( int newPosition, float newBpm 
 void SongEditorPositionRuler::deleteTimeLinePosition( int position )
 {
 	Hydrogen* engine = Hydrogen::get_instance();
+	Timeline* pTimeline = engine->getTimeline();
+
 	//erase the value to set the new value
-	if( engine->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < engine->m_timelinevector.size(); t++){
-			if ( engine->m_timelinevector[t].m_htimelinebeat == position -1 ) {
-				engine->m_timelinevector.erase( engine->m_timelinevector.begin() +  t);
+	if( pTimeline->m_timelinevector.size() >= 1 ){
+		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
+			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == position -1 ) {
+				pTimeline->m_timelinevector.erase( pTimeline->m_timelinevector.begin() +  t);
 			}
 		}
 	}
@@ -2175,21 +2185,22 @@ void SongEditorPositionRuler::deleteTimeLinePosition( int position )
 void SongEditorPositionRuler::editTagAction( QString text, int position, QString textToReplace)
 {
 	Hydrogen* engine = Hydrogen::get_instance();
+	Timeline* pTimeline = engine->getTimeline();
 
 	//check vector for old entries and remove them.
-	for( int i = 0; i < engine->m_timelinetagvector.size(); ++i ){
-		if( ( engine->m_timelinetagvector[i].m_htimelinetag == textToReplace ) &&
-			( engine->m_timelinetagvector[i].m_htimelinetagbeat == position ) ){
+	for( int i = 0; i < pTimeline->m_timelinetagvector.size(); ++i ){
+		if( ( pTimeline->m_timelinetagvector[i].m_htimelinetag == textToReplace ) &&
+			( pTimeline->m_timelinetagvector[i].m_htimelinetagbeat == position ) ){
 
-			engine->m_timelinetagvector.erase( engine->m_timelinetagvector.begin() + i );
+			pTimeline->m_timelinetagvector.erase( pTimeline->m_timelinetagvector.begin() + i );
 			break;
 		}
 	}
-	Hydrogen::HTimelineTagVector tlvector;
+	Timeline::HTimelineTagVector tlvector;
 	tlvector.m_htimelinetagbeat = position;
 	tlvector.m_htimelinetag = text;
-	engine->m_timelinetagvector.push_back( tlvector );
-	engine->sortTimelineTagVector();
+	pTimeline->m_timelinetagvector.push_back( tlvector );
+	pTimeline->sortTimelineTagVector();
 	createBackground();
 }
 
@@ -2197,14 +2208,16 @@ void SongEditorPositionRuler::deleteTagAction( QString text, int position )
 {
 
 	Hydrogen* engine = Hydrogen::get_instance();
-	for( int i = 0; i < engine->m_timelinetagvector.size(); ++i ){
-		if( ( engine->m_timelinetagvector[i].m_htimelinetag == text ) &&
-			( engine->m_timelinetagvector[i].m_htimelinetagbeat == position ) ){
+	Timeline* pTimeline = engine->getTimeline();
 
-			engine->m_timelinetagvector.erase( engine->m_timelinetagvector.begin() + i );
+	for( int i = 0; i < pTimeline->m_timelinetagvector.size(); ++i ){
+		if( ( pTimeline->m_timelinetagvector[i].m_htimelinetag == text ) &&
+			( pTimeline->m_timelinetagvector[i].m_htimelinetagbeat == position ) ){
+
+			pTimeline->m_timelinetagvector.erase( pTimeline->m_timelinetagvector.begin() + i );
 			break;
 		}
 	}
-	engine->sortTimelineTagVector();
+	pTimeline->sortTimelineTagVector();
 	createBackground();
 }

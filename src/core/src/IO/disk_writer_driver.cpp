@@ -20,13 +20,15 @@
  *
  */
 #include <unistd.h>
-#include "DiskWriterDriver.h"
+
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/timeline.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
+#include <hydrogen/IO/DiskWriterDriver.h>
 
 #include <pthread.h>
 #include <cassert>
@@ -166,12 +168,14 @@ void* diskWriterDriver_thread( void* param )
 
 				ticksize = pDriver->m_nSampleRate * 60.0 /  engine->getSong()->__bpm / engine->getSong()->__resolution;
 				// check pattern bpm if timeline bpm is in use
+				Timeline* pTimeline = engine->getTimeline();
 				if(Preferences::get_instance()->getUseTimelineBpm() ){
-						if( engine->m_timelinevector.size() >= 1 ){
+						if( pTimeline->m_timelinevector.size() >= 1 ){
 
-								for ( int t = 0; t < engine->m_timelinevector.size(); t++){
-										if(engine->m_timelinevector[t].m_htimelinebeat == patternposition && engine->m_timelinevector[t].m_htimelinebpm != validBpm){
-												validBpm =  engine->m_timelinevector[t].m_htimelinebpm;
+								for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
+										if(pTimeline->m_timelinevector[t].m_htimelinebeat == patternposition &&
+											pTimeline->m_timelinevector[t].m_htimelinebpm != validBpm){
+												validBpm =  pTimeline->m_timelinevector[t].m_htimelinebpm;
 										}
 
 								}
@@ -270,6 +274,9 @@ DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsign
 		, m_sFilename( sFilename )
 		, m_nSampleDepth ( nSampleDepth )
 		, m_processCallback( processCallback )
+		, m_nBufferSize( 0 )
+		, m_pOut_L( NULL )
+		, m_pOut_R( NULL )
 {
 	INFOLOG( "INIT" );
 }

@@ -56,7 +56,7 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 			QMessageBox::information( this, "Hydrogen", trUtf8 ( "Please supply at least a valid name"));
 			return;
         }
-    if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), false ) ) {
+    if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), false ) ) {
         QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
         return;
     }

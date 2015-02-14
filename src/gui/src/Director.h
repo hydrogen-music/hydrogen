@@ -29,6 +29,7 @@
 #include <hydrogen/object.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/timeline.h>
 #include "EventListener.h"
 
 
@@ -45,25 +46,23 @@ public:
 	virtual void paintEvent( QPaintEvent*);
 
 private slots:
-
 	void updateMetronomBackground();
-	//void updateBackground();
 
 
 private:
-	QTimer *timer;
-	QColor __color;
-	//		QPixmap *m_pBackground;
-	QPalette __blinkerPalette;
-	int p_counter;
-	int p_fadealpha;
-	float f_bpm;
-	int p_bar;
-	int p_wechselblink;
-	QString __TAG;
-	QString __TAG2;
-	QString __songName;
-	int p_tagbeat;
+	QTimer				*m_pTimer;
+	H2Core::Timeline	*m_pTimeline;
+	QColor				__color;
+	QPalette			__blinkerPalette;
+	int					m_nCounter;
+	int					m_nFadeAlpha;
+	float				m_fBpm;
+	int					m_nBar;
+	int					m_nFlashingArea;
+	QString				__TAG;
+	QString				__TAG2;
+	QString				__songName;
+	int					m_nTagbeat;
 
 };
 

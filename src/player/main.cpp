@@ -32,6 +32,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/midi_map.h>
 
 using std::cout;
 using std::endl;
@@ -44,7 +45,7 @@ void usage()
 	exit(1);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv){
 
 	unsigned logLevelOpt = H2Core::Logger::Error;
 	H2Core::Logger::create_instance();
@@ -52,22 +53,20 @@ int main(int argc, char** argv) {
 	H2Core::Logger* logger = H2Core::Logger::get_instance();
 	H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
 
+	QApplication a(argc, argv);
+
 	H2Core::Filesystem::bootstrap( logger );
-
-
 
 	if (argc != 2) {
 		usage();
 	}
 	cout << "Hydrogen player starting..." << endl << endl;
 
-	QApplication a(argc, argv);
-
 	QString filename = argv[1];
 
-
+	MidiMap::create_instance();
 	H2Core::Preferences::create_instance();
-        H2Core::Hydrogen::create_instance();
+	H2Core::Hydrogen::create_instance();
 	H2Core::Preferences *preferences = H2Core::Preferences::get_instance();
 
 	H2Core::Song *pSong = H2Core::Song::load( filename );
@@ -103,7 +102,7 @@ int main(int argc, char** argv) {
 				delete H2Core::Logger::get_instance();
 
 				std::cout << std::endl << std::endl << H2Core::Object::objects_count() << " alive objects" << std::endl << std::endl;
-                H2Core::Object::write_objects_map_to_cerr();
+				H2Core::Object::write_objects_map_to_cerr();
 
 				exit(0);
 				break;
@@ -126,7 +125,7 @@ int main(int argc, char** argv) {
 
 			case 'd':
 				cout << "DEBUG" << endl;
-                H2Core::Object::write_objects_map_to_cerr();
+				H2Core::Object::write_objects_map_to_cerr();
 				int nObj = H2Core::Object::objects_count();
 				std::cout << std::endl << std::endl << nObj << " alive objects" << std::endl << std::endl;
 				break;

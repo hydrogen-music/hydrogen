@@ -28,6 +28,7 @@
 
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_list.h>
 
 namespace H2Core
@@ -53,7 +54,6 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
 	  __cut_off( 1.0 ),
 	  __resonance( 0.0 ),
 	  __humanize_delay( 0 ),
-	  __sample_position( 0.0 ),
 	  __bpfb_l( 0.0 ),
 	  __bpfb_r( 0.0 ),
 	  __lpfb_l( 0.0 ),
@@ -66,6 +66,10 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
 	if ( __instrument != 0 ) {
 		__adsr = __instrument->copy_adsr();
 		__instrument_id = __instrument->get_id();
+		for (std::vector<InstrumentComponent*>::iterator it = __instrument->get_components()->begin() ; it !=__instrument->get_components()->end(); ++it) {
+            InstrumentComponent *pCompo = *it;
+            __samples_position[pCompo->get_drumkit_componentID()] = 0.0;
+		}
 	}
 
 	set_pan_l(pan_l);
@@ -89,7 +93,6 @@ Note::Note( Note* other, Instrument* instrument )
 	  __cut_off( other->get_cut_off() ),
 	  __resonance( other->get_resonance() ),
 	  __humanize_delay( other->get_humanize_delay() ),
-	  __sample_position( other->get_sample_position() ),
 	  __bpfb_l( other->get_bpfb_l() ),
 	  __bpfb_r( other->get_bpfb_r() ),
 	  __lpfb_l( other->get_lpfb_l() ),
@@ -103,6 +106,10 @@ Note::Note( Note* other, Instrument* instrument )
 	if ( __instrument != 0 ) {
 		__adsr = __instrument->copy_adsr();
 		__instrument_id = __instrument->get_id();
+		for (std::vector<InstrumentComponent*>::iterator it = __instrument->get_components()->begin() ; it !=__instrument->get_components()->end(); ++it) {
+            InstrumentComponent *pCompo = *it;
+            __samples_position[pCompo->get_drumkit_componentID()] = 0.0;
+        }
 	}
 }
 

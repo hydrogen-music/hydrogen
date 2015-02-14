@@ -35,8 +35,10 @@
 #endif
 
 #include <hydrogen/basics/sample.h>
+#include <hydrogen/basics/drumkit_component.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_layer.h>
 
 #include <hydrogen/helpers/xml.h>
@@ -48,7 +50,10 @@ namespace H2Core
 
 const char* Drumkit::__class_name = "Drumkit";
 
-Drumkit::Drumkit() : Object( __class_name ), __samples_loaded( false ), __instruments( 0 ) { }
+Drumkit::Drumkit() : Object( __class_name ), __samples_loaded( false ), __instruments( 0 ), __components( NULL )
+{
+    __components = new std::vector<DrumkitComponent*> ();
+}
 
 Drumkit::Drumkit( Drumkit* other ) :
 	Object( __class_name ),
@@ -57,13 +62,21 @@ Drumkit::Drumkit( Drumkit* other ) :
 	__author( other->get_author() ),
 	__info( other->get_info() ),
 	__license( other->get_license() ),
-	__samples_loaded( other->samples_loaded() )
+	__samples_loaded( other->samples_loaded() ),
+	__components( NULL )
 {
 	__instruments = new InstrumentList( other->get_instruments() );
+
+    __components = new std::vector<DrumkitComponent*> ();
+    __components->assign( other->get_components()->begin(), other->get_components()->end() );
+
 }
 
 Drumkit::~Drumkit()
 {
+    __components->clear();
+    delete __components;
+
 	if( __instruments ) delete __instruments;
 }
 
@@ -113,6 +126,28 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	drumkit->__author = node->read_string( "author", "undefined author" );
 	drumkit->__info = node->read_string( "info", "No information available." );
 	drumkit->__license = node->read_string( "license", "undefined license" );
+
+    XMLNode componentListNode = node->firstChildElement( "componentList" );
+	if ( ! componentListNode.isNull() ) {
+		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
+		while ( ! componentNode.isNull()  ) {
+            int id = componentNode.read_int( "id", -1 );			// instrument id
+			QString sName = componentNode.read_string( "name", "" );		// name
+			float fVolume = componentNode.read_float( "volume", 1.0 );	// volume
+			DrumkitComponent* pDrumkitComponent = new DrumkitComponent( id, sName );
+			pDrumkitComponent->set_volume( fVolume );
+
+            drumkit->get_components()->push_back(pDrumkitComponent);
+
+            componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
+		}
+	}
+	else {
+        WARNINGLOG( "componentList node not found" );
+        DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
+        drumkit->get_components()->push_back(pDrumkitComponent);
+	}
+
 	XMLNode instruments_node = node->firstChildElement( "instrumentList" );
 	if ( instruments_node.isNull() ) {
 		WARNINGLOG( "instrumentList node not found" );
@@ -141,7 +176,7 @@ void Drumkit::unload_samples( )
 	}
 }
 
-bool Drumkit::save( const QString& name, const QString& author, const QString& info, const QString& license, InstrumentList* instruments, bool overwrite )
+bool Drumkit::save( const QString& name, const QString& author, const QString& info, const QString& license, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite )
 {
 
 	Drumkit* drumkit = new Drumkit();
@@ -150,6 +185,12 @@ bool Drumkit::save( const QString& name, const QString& author, const QString& i
 	drumkit->set_info( info );
 	drumkit->set_license( license );
 	drumkit->set_instruments( new InstrumentList( instruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
+	std::vector<DrumkitComponent*>* p_copiedVector = new std::vector<DrumkitComponent*> ();
+	for (std::vector<DrumkitComponent*>::iterator it = components->begin() ; it != components->end(); ++it) {
+        DrumkitComponent* src_component = *it;
+        p_copiedVector->push_back( new DrumkitComponent( src_component ) );
+    }
+	drumkit->set_components( p_copiedVector );
 	bool ret = drumkit->save( overwrite );
 	delete drumkit;
 	return ret;
@@ -193,6 +234,12 @@ void Drumkit::save_to( XMLNode* node )
 	node->write_string( "author", __author );
 	node->write_string( "info", __info );
 	node->write_string( "license", __license );
+	XMLNode components_node = node->ownerDocument().createElement( "componentList" );
+	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+        DrumkitComponent* component = *it;
+        component->save_to( &components_node );
+    }
+	node->appendChild( components_node );
 	__instruments->save_to( node );
 }
 
@@ -206,33 +253,37 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 	InstrumentList* instruments = get_instruments();
 	for( int i = 0; i < instruments->size(); i++ ) {
 		Instrument* instrument = ( *instruments )[i];
-		for( int n = 0; n < MAX_LAYERS; n++ ) {
-			InstrumentLayer* layer = instrument->get_layer( n );
-			if( layer ) {
-				QString src = layer->get_sample()->get_filepath();
-				QString dst = dk_dir + "/" + layer->get_sample()->get_filename();
+		for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
+        InstrumentComponent* component = *it;
 
-				if( src != dst ) {
-					QString original_dst = dst;
+            for( int n = 0; n < MAX_LAYERS; n++ ) {
+                InstrumentLayer* layer = component->get_layer( n );
+                if( layer ) {
+                    QString src = layer->get_sample()->get_filepath();
+                    QString dst = dk_dir + "/" + layer->get_sample()->get_filename();
 
-					// If the destination path does not have an extension and there is a dot in the path, hell will break loose. QFileInfo maybe?
-					int insertPosition = original_dst.length();
-					if( original_dst.lastIndexOf(".") > 0 )
-						insertPosition = original_dst.lastIndexOf(".");
+                    if( src != dst ) {
+                        QString original_dst = dst;
 
-					// If the destination path already exists, try to use basename_1, basename_2, etc. instead of basename.
-					int tries = 0;
-					while( Filesystem::file_exists( dst )) {
-						tries++;
-						dst = original_dst;
-						dst.insert( insertPosition, QString("_%1").arg(tries) );
-					}
+                        // If the destination path does not have an extension and there is a dot in the path, hell will break loose. QFileInfo maybe?
+                        int insertPosition = original_dst.length();
+                        if( original_dst.lastIndexOf(".") > 0 )
+                            insertPosition = original_dst.lastIndexOf(".");
 
-					layer->get_sample()->set_filename( dst );
+                        // If the destination path already exists, try to use basename_1, basename_2, etc. instead of basename.
+                        int tries = 0;
+                        while( Filesystem::file_exists( dst )) {
+                            tries++;
+                            dst = original_dst;
+                            dst.insert( insertPosition, QString("_%1").arg(tries) );
+                        }
 
-					if( !Filesystem::file_copy( src, dst ) ) {
-						return false;
-					}
+                        layer->get_sample()->set_filename( dst );
+
+                        if( !Filesystem::file_copy( src, dst ) ) {
+                            return false;
+                        }
+                    }
 				}
 			}
 		}
@@ -244,6 +295,12 @@ void Drumkit::set_instruments( InstrumentList* instruments )
 {
 	if( __instruments!=0 ) delete __instruments;
 	__instruments = instruments;
+}
+
+void Drumkit::set_components( std::vector<DrumkitComponent*>* components )
+{
+    if( __components != 0 ) delete __components;
+    __components = components;
 }
 
 bool Drumkit::remove( const QString& dk_name )
@@ -276,15 +333,19 @@ void Drumkit::dump()
 				  .arg( __instruments->size()-1 )
 				  .arg( instrument->get_name() )
 				);
-		for ( int j=0; j<MAX_LAYERS; j++ ) {
-			InstrumentLayer* layer = instrument->get_layer( j );
-			if ( layer ) {
-				Sample* sample = layer->get_sample();
-				if ( sample ) {
-					DEBUGLOG( QString( "   |- %1 [%2]" ).arg( sample->get_filepath() ).arg( sample->is_empty() ) );
-				} else {
-					DEBUGLOG( "   |- NULL sample" );
-				}
+        for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
+            InstrumentComponent* component = *it;
+
+            for ( int j=0; j<MAX_LAYERS; j++ ) {
+                InstrumentLayer* layer = component->get_layer( j );
+                if ( layer ) {
+                    Sample* sample = layer->get_sample();
+                    if ( sample ) {
+                        DEBUGLOG( QString( "   |- %1 [%2]" ).arg( sample->get_filepath() ).arg( sample->is_empty() ) );
+                    } else {
+                        DEBUGLOG( "   |- NULL sample" );
+                    }
+                }
 			}
 		}
 	}
@@ -297,7 +358,7 @@ bool Drumkit::install( const QString& path )
 	int r;
 	struct archive* arch;
 	struct archive_entry* entry;
-	char newpath[1024];
+
 	arch = archive_read_new();
 
 #if ARCHIVE_VERSION_NUMBER < 3000000
@@ -333,8 +394,10 @@ bool Drumkit::install( const QString& path )
 			break;
 		}
 		QString np = dk_dir + archive_entry_pathname( entry );
-		strncpy( newpath, np.toLocal8Bit(), 1024 );
-		archive_entry_set_pathname( entry, newpath );
+
+		QByteArray newpath = np.toLocal8Bit();
+
+		archive_entry_set_pathname( entry, newpath.data() );
 		r = archive_read_extract( arch, entry, 0 );
 		if ( r == ARCHIVE_WARN ) {
 			_WARNINGLOG( QString( "archive_read_extract() [%1] %2" ).arg( archive_errno( arch ) ).arg( archive_error_string( arch ) ) );
@@ -373,9 +436,10 @@ bool Drumkit::install( const QString& path )
 	fclose( gzd_file );
 	// UNTAR
 	TAR* tar_file;
-	char tar_path[1024];
-	strncpy( tar_path, gzd_name.toLocal8Bit(), 1024 );
-	if ( tar_open( &tar_file, tar_path, NULL, O_RDONLY, 0,  TAR_GNU ) == -1 ) {
+
+	QByteArray tar_path = gzd_name.toLocal8Bit();
+
+	if ( tar_open( &tar_file, tar_path.data(), NULL, O_RDONLY, 0,  TAR_GNU ) == -1 ) {
 		_ERRORLOG( QString( "tar_open(): %1" ).arg( QString::fromLocal8Bit( strerror( errno ) ) ) );
 		return false;
 	}

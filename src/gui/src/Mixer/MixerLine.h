@@ -44,7 +44,7 @@ class Rotary;
 
 class InstrumentNameWidget : public PixmapWidget
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 	public:
 		InstrumentNameWidget(QWidget* parent);
@@ -64,10 +64,10 @@ class InstrumentNameWidget : public PixmapWidget
 		virtual void paintEvent(QPaintEvent *ev);
 
 	private:
-		int m_nWidgetWidth;
-		int m_nWidgetHeight;
-		QString m_sInstrName;
-		QFont m_mixerFont;
+		int			m_nWidgetWidth;
+		int			m_nWidgetHeight;
+		QString		m_sInstrName;
+		QFont		m_mixerFont;
 };
 
 
@@ -157,6 +157,93 @@ class MixerLine: public PixmapWidget
 
 		LCDDisplay *m_pPeakLCD;
 };
+
+class ComponentMixerLine: public PixmapWidget
+{
+    H2_OBJECT
+	Q_OBJECT
+	public:
+		ComponentMixerLine(QWidget* parent, int CompoID);
+		~ComponentMixerLine();
+
+		void updateMixerLine();
+
+		bool isMuteClicked();
+		void setMuteClicked(bool isClicked);
+
+		bool isSoloClicked();
+		void setSoloClicked(bool isClicked);
+
+		float getVolume();
+		void setVolume(float value);
+
+		void setPeak_L( float peak );
+		float getPeak_L();
+
+		void setPeak_R( float peak );
+		float getPeak_R();
+
+		void setName(QString name) {     m_pNameWidget->setText( name );        }
+		QString getName() {      return m_pNameWidget->text();        }
+
+		//float getPan();
+		//void setPan(float value);
+
+		int getCompoID(){ return __compoID; }
+
+		//int getActivity() {	return m_nActivity;	}
+		//void setActivity( uint value ) {	m_nActivity = value;	}
+
+		//void setPlayClicked( bool clicked );
+
+		//void setFXLevel( uint nFX, float fValue );
+		//float getFXLevel( uint nFX );
+
+		//void setSelected( bool bIsSelected );
+
+	signals:
+		void muteBtnClicked(ComponentMixerLine *ref);
+		void soloBtnClicked(ComponentMixerLine *ref);
+		void volumeChanged(ComponentMixerLine *ref);
+		//void instrumentNameClicked(MixerLine *ref);
+		//void instrumentNameSelected(MixerLine *ref);
+		//void noteOnClicked(MixerLine *ref);
+		//void noteOffClicked(MixerLine *ref);
+		//void panChanged(MixerLine *ref);
+		//void knobChanged(MixerLine *ref, int nKnob);
+
+	public slots:
+		void click(Button *ref);
+		//void rightClick(Button *ref);
+		void faderChanged(Fader *ref);
+		//void panChanged(Rotary *ref);
+		//void knobChanged(Knob *ref);
+		//void nameClicked();
+		//void nameSelected();
+
+	private:
+        int __compoID;
+		uint m_nWidth;
+		uint m_nHeight;
+		bool m_bIsSelected;
+
+		uint m_nActivity;
+		uint m_nPeakTimer;
+		float m_fMaxPeak;
+		float m_nFalloff;
+		Fader *m_pFader;
+		//Rotary *m_pPanRotary;
+		InstrumentNameWidget *m_pNameWidget;
+		ToggleButton *m_pMuteBtn;
+		ToggleButton *m_pSoloBtn;
+		//Button *m_pPlaySampleBtn;
+		//Button *m_pTriggerSampleLED;
+		//Knob *m_pKnob[MAX_FX];
+
+		LCDDisplay *m_pPeakLCD;
+};
+
+
 
 
 

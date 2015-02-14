@@ -33,6 +33,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/playlist.h>
+#include <hydrogen/timeline.h>
 #include <hydrogen/event_queue.h>
 
 #include "../widgets/Button.h"
@@ -67,7 +68,6 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 
 	// menubar
 	QMenuBar *m_pMenubar = new QMenuBar( this );
-//	setMenuBar( m_pMenubar );
 
 	// Playlist menu
 	QMenu *m_pPlaylistMenu = m_pMenubar->addMenu( trUtf8( "&Playlist" ) );
@@ -76,7 +76,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	m_pPlaylistMenu->addAction( trUtf8( "Add &current song to Playlist" ), this, SLOT( addCurrentSong() ), QKeySequence( "" ) );
 	m_pPlaylistMenu->addSeparator();				// -----
 	m_pPlaylistMenu->addAction( trUtf8( "&Remove selected song from Playlist" ), this, SLOT( removeFromList() ), QKeySequence( "" ) );
-		m_pPlaylistMenu->addAction( trUtf8( "&New Playlist" ), this, SLOT( clearPlaylist() ), QKeySequence( "" ) );
+	m_pPlaylistMenu->addAction( trUtf8( "&New Playlist" ), this, SLOT( clearPlaylist() ), QKeySequence( "" ) );
 	m_pPlaylistMenu->addSeparator();
 	m_pPlaylistMenu->addAction( trUtf8( "&Open Playlist" ), this, SLOT( loadList() ), QKeySequence( "" ) );
 	m_pPlaylistMenu->addSeparator();
@@ -791,7 +791,8 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 
 	m_pPlayBtn->setPressed(false);
 
-	engine->m_timelinetagvector.clear();
+	Timeline* pTimeline = engine->getTimeline();
+	pTimeline->m_timelinetagvector.clear();
 
 	Song *pSong = Song::load ( selected );
 	if ( pSong == NULL ){

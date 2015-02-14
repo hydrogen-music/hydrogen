@@ -23,6 +23,7 @@
 #define H2C_GLOBALS_H
 
 #define MAX_INSTRUMENTS         1000
+#define MAX_COMPONENTS          32
 
 #define MAX_NOTES               192
 
@@ -42,5 +43,11 @@
 #define TWOPI                   6.28318530717958647692
 
 #define UNUSED( v )             (v = v)
+
+// m_nBeatCounter
+//100,000 ms in 1 second.
+#define							US_DIVIDER .000001
+// ~m_nBeatCounter
+
 
 #endif // H2C_GLOBALS_H

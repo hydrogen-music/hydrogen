@@ -25,6 +25,7 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/note.h>
@@ -43,6 +44,7 @@ LayerPreview::LayerPreview( QWidget* pParent )
  : QWidget( pParent )
  , Object( __class_name )
  , m_pInstrument( NULL )
+ , m_nSelectedComponent( 0 )
  , m_nSelectedLayer( 0 )
  , m_bMouseGrab( false )
 {
@@ -78,6 +80,12 @@ LayerPreview::~ LayerPreview()
 }
 
 
+void LayerPreview::set_selected_component( int SelectedComponent )
+{
+    m_nSelectedComponent = SelectedComponent;
+}
+
+
 void LayerPreview::paintEvent(QPaintEvent *ev)
 {
 
@@ -87,9 +95,12 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	int nLayers = 0;
 	for ( int i = 0; i < MAX_LAYERS; i++ ) {
 		if ( m_pInstrument ) {
-			InstrumentLayer *pLayer = m_pInstrument->get_layer( i );
-			if ( pLayer ) {
-				nLayers++;
+			InstrumentComponent* p_compo = m_pInstrument->get_component(m_nSelectedComponent);
+            if(p_compo) {
+                InstrumentLayer *pLayer = p_compo->get_layer( i );
+                if ( pLayer ) {
+                    nLayers++;
+                }
 			}
 		}
 	}
@@ -99,36 +110,43 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 		int y = 20 + m_nLayerHeight * i;
 
 		if ( m_pInstrument ) {
-			InstrumentLayer *pLayer = m_pInstrument->get_layer( i );
+            InstrumentComponent* p_compo = m_pInstrument->get_component(m_nSelectedComponent);
+            if(p_compo) {
+                InstrumentLayer *pLayer = p_compo->get_layer( i );
 
-			if ( pLayer ) {
-				int x1 = (int)( pLayer->get_start_velocity() * width() );
-				int x2 = (int)( pLayer->get_end_velocity() * width() );
+                if ( pLayer ) {
+                    int x1 = (int)( pLayer->get_start_velocity() * width() );
+                    int x2 = (int)( pLayer->get_end_velocity() * width() );
 
-				int red = (int)( 128.0 / nLayers * nLayer );
-				int green = (int)( 134.0 / nLayers * nLayer );
-				int blue = (int)( 152.0 / nLayers * nLayer );
-				QColor layerColor( red, green, blue );
+                    int red = (int)( 128.0 / nLayers * nLayer );
+                    int green = (int)( 134.0 / nLayers * nLayer );
+                    int blue = (int)( 152.0 / nLayers * nLayer );
+                    QColor layerColor( red, green, blue );
 
-				p.fillRect( x1, 0, x2 - x1, 19, layerColor );
-				p.setPen( QColor( 230, 230, 230 ) );
-				p.drawText( x1, 0, x2 - x1, 20, Qt::AlignCenter, QString("%1").arg( i + 1 ) );
+                    p.fillRect( x1, 0, x2 - x1, 19, layerColor );
+                    p.setPen( QColor( 230, 230, 230 ) );
+                    p.drawText( x1, 0, x2 - x1, 20, Qt::AlignCenter, QString("%1").arg( i + 1 ) );
 
-				if ( m_nSelectedLayer == i ) {
-					p.setPen( QColor( 210, 0, 0 ) );
-				}
-				p.drawRect( x1, 1, x2 - x1 - 1, 18 );	// bordino in alto
+                    if ( m_nSelectedLayer == i ) {
+                        p.setPen( QColor( 210, 0, 0 ) );
+                    }
+                    p.drawRect( x1, 1, x2 - x1 - 1, 18 );	// bordino in alto
 
-				// layer view
-				p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 25, 44, 65 ) );
-				p.fillRect( x1, y, x2 - x1, m_nLayerHeight, QColor( 90, 160, 233 ) );
+                    // layer view
+                    p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 25, 44, 65 ) );
+                    p.fillRect( x1, y, x2 - x1, m_nLayerHeight, QColor( 90, 160, 233 ) );
 
-				nLayer++;
+                    nLayer++;
+                }
+                else {
+                    // layer view
+                    p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 59, 73, 96 ) );
+                }
 			}
-			else {
-				// layer view
-				p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 59, 73, 96 ) );
-			}
+            else {
+                // layer view
+                p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 59, 73, 96 ) );
+            }
 		}
 		else {
 			// layer view
@@ -171,13 +189,32 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	}
 	AudioEngine::get_instance()->unlock();
 
+	if ( m_pInstrument ) {
+        InstrumentComponent* p_tmpCompo = m_pInstrument->get_component( m_nSelectedComponent );
+        if(!p_tmpCompo) {
+            for(int i = 0 ; i<MAX_LAYERS ; i++) {
+                p_tmpCompo = m_pInstrument->get_component( i );
+                if(p_tmpCompo) {
+                    m_nSelectedComponent = i;
+                    break;
+                }
+            }
+        }
+    }
+
 	// select the last valid layer
 	if ( m_pInstrument ) {
 		for (int i = MAX_LAYERS - 1; i >= 0; i-- ) {
-			if ( m_pInstrument->get_layer( i ) ) {
-				m_nSelectedLayer = i;
-				break;
+            InstrumentComponent* p_compo = m_pInstrument->get_component(m_nSelectedComponent);
+            if ( p_compo ) {
+                if ( p_compo->get_layer( i ) ) {
+                    m_nSelectedLayer = i;
+                    break;
+                }
 			}
+            else {
+                m_nSelectedLayer = 0;
+            }
 		}
 	}
 	else {
@@ -198,21 +235,24 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 	 * We want the tooltip to still show if mouse pointer
 	 * is over an active layer's boundary
 	 */
-	InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
+    InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+    if ( pCompo ) {
+        InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
 
-	if ( pLayer ) {
-		int x1 = (int)( pLayer->get_start_velocity() * width() );
-		int x2 = (int)( pLayer->get_end_velocity() * width() );
+        if ( pLayer ) {
+            int x1 = (int)( pLayer->get_start_velocity() * width() );
+            int x2 = (int)( pLayer->get_end_velocity() * width() );
 
-		if ( ( ev->x() < x1  + 5 ) && ( ev->x() > x1 - 5 ) ){
-			setCursor( QCursor( Qt::SizeHorCursor ) );
-			showLayerStartVelocity(pLayer, ev);
-		}
-		else if ( ( ev->x() < x2 + 5 ) && ( ev->x() > x2 - 5 ) ){
-			setCursor( QCursor( Qt::SizeHorCursor ) );
-			showLayerEndVelocity(pLayer, ev);
-		}
-	}
+            if ( ( ev->x() < x1  + 5 ) && ( ev->x() > x1 - 5 ) ){
+                setCursor( QCursor( Qt::SizeHorCursor ) );
+                showLayerStartVelocity(pLayer, ev);
+            }
+            else if ( ( ev->x() < x2 + 5 ) && ( ev->x() > x2 - 5 ) ) {
+                setCursor( QCursor( Qt::SizeHorCursor ) );
+                showLayerEndVelocity(pLayer, ev);
+            }
+        }
+    }
 }
 
 
@@ -235,51 +275,55 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		AudioEngine::get_instance()->get_sampler()->note_on(note);
 
 		for ( int i = 0; i < MAX_LAYERS; i++ ) {
-			InstrumentLayer *pLayer = m_pInstrument->get_layer( i );
-			if ( pLayer ) {
-				if ( ( fVelocity > pLayer->get_start_velocity()) && ( fVelocity < pLayer->get_end_velocity() ) ) {
-					if ( i != m_nSelectedLayer ) {
-						m_nSelectedLayer = i;
-						update();
-						InstrumentEditorPanel::get_instance()->selectLayer( m_nSelectedLayer );
-					}
-					break;
-				}
-			}
+            InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+            if(pCompo){
+                InstrumentLayer *pLayer = pCompo->get_layer( i );
+                if ( pLayer ) {
+                    if ( ( fVelocity > pLayer->get_start_velocity()) && ( fVelocity < pLayer->get_end_velocity() ) ) {
+                        if ( i != m_nSelectedLayer ) {
+                            m_nSelectedLayer = i;
+                            update();
+                            InstrumentEditorPanel::get_instance()->selectLayer( m_nSelectedLayer );
+                        }
+                        break;
+                    }
+                }
+            }
 		}
 	}
 	else {
 		m_nSelectedLayer = ( ev->y() - 20 ) / m_nLayerHeight;
-		InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
 
 		update();
 		InstrumentEditorPanel::get_instance()->selectLayer( m_nSelectedLayer );
 
-		if ( m_pInstrument->get_layer( m_nSelectedLayer ) ) {
-			Note *note = new Note( m_pInstrument , nPosition, m_pInstrument->get_layer( m_nSelectedLayer )->get_end_velocity() - 0.01, fPan_L, fPan_R, nLength, fPitch );
-			AudioEngine::get_instance()->get_sampler()->note_on(note);
-		}
+        InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+        if(pCompo) {
+            InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
+            if ( pLayer ) {
+                Note *note = new Note( m_pInstrument , nPosition, m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer )->get_end_velocity() - 0.01, fPan_L, fPan_R, nLength, fPitch );
+                AudioEngine::get_instance()->get_sampler()->note_on(note);
 
-		if ( pLayer ) {
-			int x1 = (int)( pLayer->get_start_velocity() * width() );
-			int x2 = (int)( pLayer->get_end_velocity() * width() );
+                int x1 = (int)( pLayer->get_start_velocity() * width() );
+                int x2 = (int)( pLayer->get_end_velocity() * width() );
 
-			if ( ( ev->x() < x1  + 5 ) && ( ev->x() > x1 - 5 ) ){
-				setCursor( QCursor( Qt::SizeHorCursor ) );
-				m_bGrabLeft = true;
-				m_bMouseGrab = true;
-				showLayerStartVelocity(pLayer, ev);
-			}
-			else if ( ( ev->x() < x2 + 5 ) && ( ev->x() > x2 - 5 ) ){
-				setCursor( QCursor( Qt::SizeHorCursor ) );
-				m_bGrabLeft = false;
-				m_bMouseGrab = true;
-				showLayerEndVelocity(pLayer, ev);
-			}
-			else {
-				setCursor( QCursor( Qt::ArrowCursor ) );
-			}
-		}
+                if ( ( ev->x() < x1  + 5 ) && ( ev->x() > x1 - 5 ) ){
+                    setCursor( QCursor( Qt::SizeHorCursor ) );
+                    m_bGrabLeft = true;
+                    m_bMouseGrab = true;
+                    showLayerStartVelocity(pLayer, ev);
+                }
+                else if ( ( ev->x() < x2 + 5 ) && ( ev->x() > x2 - 5 ) ){
+                    setCursor( QCursor( Qt::SizeHorCursor ) );
+                    m_bGrabLeft = false;
+                    m_bMouseGrab = true;
+                    showLayerEndVelocity(pLayer, ev);
+                }
+                else {
+                    setCursor( QCursor( Qt::ArrowCursor ) );
+                }
+            }
+        }
 	}
 }
 
@@ -307,7 +351,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 		return;
 	}
 	if ( m_bMouseGrab ) {
-		InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
+		InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer );
 		if ( pLayer ) {
 			if ( m_bMouseGrab ) {
 				if ( m_bGrabLeft ) {
@@ -329,28 +373,35 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 	else {
 		m_nSelectedLayer = ( ev->y() - 20 ) / m_nLayerHeight;
 		if ( m_nSelectedLayer < MAX_LAYERS ) {
-			InstrumentLayer *pLayer = m_pInstrument->get_layer( m_nSelectedLayer );
-			if ( pLayer ) {
-				int x1 = (int)( pLayer->get_start_velocity() * width() );
-				int x2 = (int)( pLayer->get_end_velocity() * width() );
+            InstrumentComponent* p_compo = m_pInstrument->get_component(m_nSelectedComponent);
+            if(p_compo){
+                InstrumentLayer *pLayer = p_compo->get_layer( m_nSelectedLayer );
+                if ( pLayer ) {
+                    int x1 = (int)( pLayer->get_start_velocity() * width() );
+                    int x2 = (int)( pLayer->get_end_velocity() * width() );
 
-				if ( ( x < x1  + 5 ) && ( x > x1 - 5 ) ){
-					setCursor( QCursor( Qt::SizeHorCursor ) );
-					showLayerStartVelocity(pLayer, ev);
-				}
-				else if ( ( x < x2 + 5 ) && ( x > x2 - 5 ) ){
-					setCursor( QCursor( Qt::SizeHorCursor ) );
-					showLayerEndVelocity(pLayer, ev);
-				}
-				else {
-					setCursor( QCursor( Qt::ArrowCursor ) );
-					QToolTip::hideText();
-				}
+                    if ( ( x < x1  + 5 ) && ( x > x1 - 5 ) ){
+                        setCursor( QCursor( Qt::SizeHorCursor ) );
+                        showLayerStartVelocity(pLayer, ev);
+                    }
+                    else if ( ( x < x2 + 5 ) && ( x > x2 - 5 ) ){
+                        setCursor( QCursor( Qt::SizeHorCursor ) );
+                        showLayerEndVelocity(pLayer, ev);
+                    }
+                    else {
+                        setCursor( QCursor( Qt::ArrowCursor ) );
+                        QToolTip::hideText();
+                    }
+                }
+                else {
+                    setCursor( QCursor( Qt::ArrowCursor ) );
+                    QToolTip::hideText();
+                }
 			}
-			else {
-				setCursor( QCursor( Qt::ArrowCursor ) );
-				QToolTip::hideText();
-			}
+            else {
+                setCursor( QCursor( Qt::ArrowCursor ) );
+                QToolTip::hideText();
+            }
 		}
 	}
 }

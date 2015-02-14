@@ -27,7 +27,9 @@
 #include "SongEditorPanelTagWidget.h"
 #include "SongEditorPanel.h"
 #include "SongEditor.h"
+
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/timeline.h>
 
 namespace H2Core
 {
@@ -62,6 +64,7 @@ void SongEditorPanelTagWidget::a_itemIsChanged(QTableWidgetItem *item)
 void SongEditorPanelTagWidget::createTheTagTableWidget()
 {
 	Hydrogen* engine = Hydrogen::get_instance();
+	Timeline* pTimeline = engine->getTimeline();
 	int patterngroupvectorsize;
 	patterngroupvectorsize = engine->getSong()->get_pattern_group_vector()->size();
 	
@@ -70,7 +73,7 @@ void SongEditorPanelTagWidget::createTheTagTableWidget()
 		tagTableWidget->insertRow( i );
 	}
 
-	std::vector<Hydrogen::HTimelineTagVector> timelineTagVector = engine->m_timelinetagvector;
+	std::vector<Timeline::HTimelineTagVector> timelineTagVector = pTimeline->m_timelinetagvector;
 
 	//read the tag vector and fill all tags into items
 	if( timelineTagVector.size() > 0 ){
@@ -124,18 +127,20 @@ void SongEditorPanelTagWidget::on_CancelBtn_clicked()
 void SongEditorPanelTagWidget::on_okBtn_clicked()
 {
 	Hydrogen* engine = Hydrogen::get_instance();
+	Timeline* pTimeline = engine->getTimeline();
+
 	int patterngroupvectorsize;
 	patterngroupvectorsize = engine->getSong()->get_pattern_group_vector()->size();
 
 	//oldText list contains all old item values. we need them for undo an item 
 	QStringList oldText;
 
-	if(engine->m_timelinetagvector.size() > 0){
+	if(pTimeline->m_timelinetagvector.size() > 0){
 		for (int i = 0; i < patterngroupvectorsize; i++){
 			oldText << "";
 		}
-		for(int i = 0; i < engine->m_timelinetagvector.size(); ++i){
-			oldText.replace(engine->m_timelinetagvector[i].m_htimelinetagbeat , engine->m_timelinetagvector[i].m_htimelinetag);
+		for(int i = 0; i < pTimeline->m_timelinetagvector.size(); ++i){
+			oldText.replace(pTimeline->m_timelinetagvector[i].m_htimelinetagbeat , pTimeline->m_timelinetagvector[i].m_htimelinetag);
 		}
 	}
 

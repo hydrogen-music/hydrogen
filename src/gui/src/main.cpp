@@ -174,11 +174,11 @@ int main(int argc, char *argv[])
 		// Deal with the options
 		QString songFilename;
 #ifdef H2CORE_HAVE_JACKSESSION
-                QString sessionId;
+		QString sessionId;
 #endif
 		QString playlistFilename;
 		bool bNoSplash = false;
-        QString sys_data_path;
+		QString sys_data_path;
 		QString sSelectedDriver;
 		bool showVersionOpt = false;
 		unsigned logLevelOpt = H2Core::Logger::Error;
@@ -277,6 +277,7 @@ int main(int argc, char *argv[])
 		___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
 
 		H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
+		pPref->setH2ProcessName( QString(argv[0]) );
 
 #ifdef H2CORE_HAVE_LASH
 
@@ -397,18 +398,32 @@ int main(int argc, char *argv[])
 			pPref->m_sAudioDriver = "Jack";
 
 		}
+
 		/*
-				 * the use of applicationFilePath() make it
-				 * possible to use different executables.
-				 * for example if you start hydrogen from a local
-				 * build directory.
-				 */
+		 * the use of applicationFilePath() make it
+		 * possible to use different executables.
+		* for example if you start hydrogen from a local
+		* build directory.
+		*/
+
 		QString path = pQApp->applicationFilePath();
 		pPref->setJackSessionApplicationPath( path );
 #endif
 
 		// Hydrogen here to honor all preferences.
 		H2Core::Hydrogen::create_instance();
+
+#ifdef H2CORE_HAVE_NSMSESSION
+		H2Core::Hydrogen::get_instance()->startNsmClient();
+
+		QString NsmSongFilename = pPref->getNsmSongName();
+
+		if(!NsmSongFilename.isEmpty())
+		{
+			songFilename = NsmSongFilename;
+		}
+#endif
+
 		MainForm *pMainForm = new MainForm( pQApp, songFilename );
 		pMainForm->show();
 		pSplash->finish( pMainForm );

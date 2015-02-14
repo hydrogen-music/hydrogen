@@ -32,8 +32,7 @@
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/Preferences.h>
-
-#include "hydrogen/IO/CoreMidiDriver.h"
+#include <hydrogen/IO/CoreMidiDriver.h>
 
 #ifdef H2CORE_HAVE_COREMIDI
 

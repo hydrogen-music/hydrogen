@@ -22,7 +22,7 @@
 
 #include "../Skin.h"
 #include "MidiSenseWidget.h"
-#include "midiTable.h"
+#include "MidiTable.h"
 
 #include <hydrogen/midi_map.h>
 #include <hydrogen/Preferences.h>
@@ -59,15 +59,15 @@ MidiTable::~MidiTable()
 void MidiTable::midiSensePressed( int row ){
 
 	currentMidiAutosenseRow = row;
-	MidiSenseWidget mW( this );
-	mW.exec();
+	MidiSenseWidget midiSenseWidget( this );
+	midiSenseWidget.exec();
 
 	QComboBox * eventCombo =  dynamic_cast <QComboBox *> ( cellWidget( row, 1 ) );
 	QSpinBox * eventSpinner = dynamic_cast <QSpinBox *> ( cellWidget( row, 2 ) );
 
 
-	eventCombo->setCurrentIndex( eventCombo->findText( mW.lastMidiEvent ) );
-	eventSpinner->setValue( mW.lastMidiEventParameter );
+	eventCombo->setCurrentIndex( eventCombo->findText( midiSenseWidget.m_sLastMidiEvent ) );
+	eventSpinner->setValue( midiSenseWidget.m_LastMidiEventParameter );
 
 	m_pUpdateTimer->start( 100 );	
 }
@@ -90,7 +90,7 @@ void MidiTable::updateTable()
 
 void MidiTable::insertNewRow(QString actionString , QString eventString, int eventParameter , int actionParameter)
 {
-        MidiActionManager *aH = MidiActionManager::get_instance();
+	MidiActionManager *pActionHandler = MidiActionManager::get_instance();
 
 	insertRow( __row_count );
 	
@@ -108,15 +108,14 @@ void MidiTable::insertNewRow(QString actionString , QString eventString, int eve
 
 	connect(midiSenseButton, SIGNAL( clicked()), signalMapper, SLOT( map() ));
 	signalMapper->setMapping( midiSenseButton, oldRowCount );
-	connect( signalMapper, SIGNAL(mapped( int ) ),
-         this, SLOT( midiSensePressed(int) ) );
+	connect( signalMapper, SIGNAL(mapped( int ) ), this, SLOT( midiSensePressed(int) ) );
 	setCellWidget( oldRowCount, 0, midiSenseButton );
 
 
 
 	QComboBox *eventBox = new QComboBox();
 	connect( eventBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
-	eventBox->insertItems( oldRowCount , aH->getEventList() );
+	eventBox->insertItems( oldRowCount , pActionHandler->getEventList() );
 	eventBox->setCurrentIndex( eventBox->findText(eventString) );
 	setCellWidget( oldRowCount, 1, eventBox );
 	
@@ -129,7 +128,7 @@ void MidiTable::insertNewRow(QString actionString , QString eventString, int eve
 
 	QComboBox *actionBox = new QComboBox();
 	connect( actionBox , SIGNAL( currentIndexChanged( int ) ) , this , SLOT( updateTable() ) );
-	actionBox->insertItems( oldRowCount, aH->getActionList());
+	actionBox->insertItems( oldRowCount, pActionHandler->getActionList());
 	actionBox->setCurrentIndex ( actionBox->findText( actionString ) );
 	setCellWidget( oldRowCount , 3, actionBox );
 	
@@ -139,24 +138,22 @@ void MidiTable::insertNewRow(QString actionString , QString eventString, int eve
 	setCellWidget( oldRowCount , 4, actionParameterSpinner );
 	actionParameterSpinner->setValue( actionParameter);
 	actionParameterSpinner->setMaximum( 999 );
-
-
 }
 
 void MidiTable::setupMidiTable()
 {
-	MidiMap *mM = MidiMap::get_instance();
+	MidiMap *pMidiMap = MidiMap::get_instance();
 
 	QStringList items;
 	items << "" << trUtf8("Event")  <<  trUtf8("Param.")  <<  trUtf8("Action") <<  trUtf8("Param.") ;
 
 	setRowCount( 0 );
-    	setColumnCount( 5 );
+	setColumnCount( 5 );
 
 	verticalHeader()->hide();
 
 	setHorizontalHeaderLabels( items );
-    horizontalHeader()->setStretchLastSection(true);
+	horizontalHeader()->setStretchLastSection(true);
 
 	setColumnWidth( 0 , 25 );
 	setColumnWidth( 1 , 155 );
@@ -165,7 +162,7 @@ void MidiTable::setupMidiTable()
 	setColumnWidth( 4 , 73 );
 
 	bool ok;
-	std::map< QString , MidiAction* > mmcMap = mM->getMMCMap();
+	std::map< QString , MidiAction* > mmcMap = pMidiMap->getMMCMap();
 	std::map< QString , MidiAction* >::iterator dIter( mmcMap.begin() );
 	
 	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ) {
@@ -180,7 +177,7 @@ void MidiTable::setupMidiTable()
 	}
 
 	for( int note = 0; note < 128; note++ ) {
-		MidiAction * pAction = mM->getNoteAction( note );
+		MidiAction * pAction = pMidiMap->getNoteAction( note );
 		QString actionParameter;
 		int actionParameterInteger = 0;
 
@@ -188,26 +185,30 @@ void MidiTable::setupMidiTable()
 		actionParameterInteger = actionParameter.toInt(&ok,10);
 		
 
-		if ( pAction->getType() == "NOTHING" ) continue;
+		if ( pAction->getType() == "NOTHING" ){
+			continue;
+		}
 
 		insertNewRow(pAction->getType() , "NOTE" , note , actionParameterInteger );
 	}
 
 	for( int parameter = 0; parameter < 128; parameter++ ){
-		MidiAction * pAction = mM->getCCAction( parameter );
+		MidiAction * pAction = pMidiMap->getCCAction( parameter );
 		QString actionParameter;
 		int actionParameterInteger = 0;
 
 		actionParameter = pAction->getParameter1();
 		actionParameterInteger = actionParameter.toInt(&ok,10);
 
-		if ( pAction->getType() == "NOTHING" ) continue;
+		if ( pAction->getType() == "NOTHING" ){
+			continue;
+		}
 
 		insertNewRow(pAction->getType() , "CC" , parameter , actionParameterInteger );
 	}
 
 	{
-		MidiAction * pAction = mM->getPCAction();
+		MidiAction * pAction = pMidiMap->getPCAction();
 		if ( pAction->getType() != "NOTHING" ) {
 			QString actionParameter = pAction->getParameter1();
 			int actionParameterInteger = actionParameter.toInt(&ok,10);

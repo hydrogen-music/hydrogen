@@ -176,6 +176,8 @@ bool Filesystem::write_to_file( const QString& dst, const QString& content )
 	}
 	file.write( content.toUtf8().data() );
 	file.close();
+
+	return true;
 }
 
 bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwrite )

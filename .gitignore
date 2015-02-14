@@ -8,3 +8,4 @@ moc_*.cc
 /hydrogen
 *.cbp
 *.layout
+hydrogen.*

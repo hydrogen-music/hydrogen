@@ -39,6 +39,8 @@ Synth::Synth()
 	m_pOut_R = new float[ MAX_BUFFER_SIZE ];
 
 	m_fTheta = 0.0;
+
+	m_pAudioOutput = NULL;
 }
 
 

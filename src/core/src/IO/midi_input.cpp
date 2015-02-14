@@ -38,6 +38,8 @@ MidiInput::MidiInput( const char* class_name )
 		: Object( class_name )
 		, m_bActive( false )
 		, __hihat_cc_openess ( 127 )
+		, __noteOffTick( 0 )
+		, __noteOnTick( 0 )
 {
 	//INFOLOG( "INIT" );
 
@@ -181,8 +183,9 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 
 	aH->handleAction( pAction );
 
-	if(msg.m_nData1 == 04)
-        __hihat_cc_openess = msg.m_nData2;
+	if(msg.m_nData1 == 04){
+		__hihat_cc_openess = msg.m_nData2;
+	}
 
 	pEngine->lastMidiEvent = "CC";
 	pEngine->lastMidiEventParameter = msg.m_nData1;
@@ -227,7 +230,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 
 	if ( action && Preferences::get_instance()->m_bMidiDiscardNoteAfterAction)
 	{
-				return;
+		return;
 	}
 
 	bool bPatternSelect = false;
@@ -236,7 +239,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	if ( bPatternSelect ) {
 		int patternNumber = nNote - 36;
 		//INFOLOG( QString( "next pattern = %1" ).arg( patternNumber ) );
-		pEngine->sequencer_setNextPattern( patternNumber, false, false );
+		pEngine->sequencer_setNextPattern( patternNumber );
 
 	} else {
 		static const float fPan_L = 0.5f;
@@ -258,30 +261,30 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 				nInstrument = MAX_INSTRUMENTS - 1;
 		}
 
-        InstrumentList *instrList = pEngine->getSong()->get_instrument_list();
-        Instrument *instr = instrList->get( nInstrument );
-        /*
-        Only look to change instrument if the
-        current note is actually of hihat and
-        hihat openess is outside the instrument selected
-        */
-        if ( instr != NULL &&
-            instr->is_hihat() &&
-            ( __hihat_cc_openess < instr->get_lower_cc() || __hihat_cc_openess > instr->get_higher_cc() ) )
-        {
-            for(int i=0 ; i<=instrList->size() ; i++)
-            {
-                Instrument *instr_contestant = instrList->get( i );
-                if( instr_contestant != NULL &&
-                   instr_contestant->is_hihat() &&
-                   __hihat_cc_openess >= instr_contestant->get_lower_cc() &&
-                   __hihat_cc_openess <= instr_contestant->get_higher_cc() )
-                   {
-                       nInstrument = i;
-                       break;
-                   }
-            }
-        }
+		InstrumentList *instrList = pEngine->getSong()->get_instrument_list();
+		Instrument *instr = instrList->get( nInstrument );
+		/*
+		Only look to change instrument if the
+		current note is actually of hihat and
+		hihat openess is outside the instrument selected
+		*/
+		if ( instr != NULL &&
+			 instr->is_hihat() &&
+			 ( __hihat_cc_openess < instr->get_lower_cc() || __hihat_cc_openess > instr->get_higher_cc() ) )
+		{
+			for(int i=0 ; i<=instrList->size() ; i++)
+			{
+				Instrument *instr_contestant = instrList->get( i );
+				if( instr_contestant != NULL &&
+						instr_contestant->is_hihat() &&
+						__hihat_cc_openess >= instr_contestant->get_lower_cc() &&
+						__hihat_cc_openess <= instr_contestant->get_higher_cc() )
+				{
+					nInstrument = i;
+					break;
+				}
+			}
+		}
 
 		pEngine->addRealtimeNote( nInstrument, fVelocity, fPan_L, fPan_R, 0.0, false, true, nNote );
 	}

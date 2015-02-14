@@ -4,6 +4,7 @@
 	* The color of the SongEditors squares is now configurable
 	* Added support for midi cymbal choking
 	* Added support for midi hihat pressure control
+	* Added basic non session manager support
 	* New midi actions:
 		* SELECT_PREV_PATTERN_RELATIVE
 

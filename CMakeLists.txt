@@ -36,7 +36,7 @@ SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 # CONFIG OPTIONS
 #
 SET(WANT_LIBTAR TRUE)
-OPTION(WANT_DEBUG       "build with debug information" ON)
+OPTION(WANT_DEBUG           "Build with debug information" ON)
 
 IF(APPLE)
     OPTION(WANT_SHARED      "Build the core library shared." OFF)
@@ -44,13 +44,15 @@ ELSE()
     OPTION(WANT_SHARED      "Build the core library shared." ON)
 ENDIF()
 
-OPTION(WANT_LIBARCHIVE   "Enable use of libarchive instead of libtar" ON)
-OPTION(WANT_LADSPA       "Enable use of LADSPA plugins" ON)
+OPTION(WANT_LIBARCHIVE      "Enable use of libarchive instead of libtar" ON)
+OPTION(WANT_LADSPA          "Enable use of LADSPA plugins" ON)
 
 IF(APPLE)
+	OPTION(WANT_NSMSESSION  "Enable NSM Session integration" OFF)
 	OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" OFF)
 ELSE()
 	OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" ON)
+	OPTION(WANT_NSMSESSION  "Enable NSM Session integration" ON)
 ENDIF()
 
 IF("${CMAKE_SYSTEM_NAME}" MATCHES "NetBSD")
@@ -66,13 +68,13 @@ OPTION(WANT_PORTMIDI     "Include PortMidi support" OFF)
 OPTION(WANT_PULSEAUDIO   "Include PulseAudio support" ON)
 OPTION(WANT_LASH         "Include LASH (Linux Audio Session Handler) support" OFF)
 OPTION(WANT_LRDF         "Include LRDF (Lightweight Resource Description Framework with special support for LADSPA plugins) support" OFF)
-OPTION(WANT_RUBBERBAND   "Include RUbberBand (Audio Time Stretcher Library) support" OFF)
+OPTION(WANT_RUBBERBAND   "Include RubberBand (Audio Time Stretcher Library) support" OFF)
 IF(APPLE)
     OPTION(WANT_COREAUDIO   "Include CoreAudio support" ON)
     OPTION(WANT_COREMIDI    "Include CoreMidi support" ON)
-    OPTION(WANT_BUNDLE  "Build a MAC OSX bundle application" ON)
+    OPTION(WANT_BUNDLE      "Build a MAC OSX bundle application" ON)
 ENDIF()
-OPTION(WANT_CPPUNIT      "Include CppUnit test suite" ON)
+OPTION(WANT_CPPUNIT         "Include CppUnit test suite" ON)
 
 IF(WANT_DEBUG)
     SET(CMAKE_BUILD_TYPE Debug)
@@ -173,6 +175,8 @@ FIND_HELPER(LIBSNDFILE sndfile sndfile.h sndfile)
 FIND_HELPER(ALSA alsa alsa/asoundlib.h asound )
 FIND_LADSPA(LADSPA ladspa.h noise)
 
+FIND_HELPER(NSMSESSION liblo lo/lo.h lo)
+
 IF("${CMAKE_SYSTEM_NAME}" MATCHES "NetBSD")
 	FIND_HELPER(OSS oss sys/soundcard.h ossaudio )
 ELSE()
@@ -192,8 +196,14 @@ FIND_HELPER(PORTMIDI portmidi portmidi.h portmidi)
 FIND_HELPER(PULSEAUDIO pulseaudio pulse/pulseaudio.h pulse)
 FIND_HELPER(LASH lash-1.0 lash/lash.h lash)
 FIND_HELPER(LRDF lrdf lrdf.h lrdf)
+
+IF(LRDF_FOUND)
+	include_directories(${LRDF_INCLUDE_DIRS}) # see github issue 194
+ENDIF(LRDF_FOUND)
+
 FIND_HELPER(RUBBERBAND rubberband RubberBandStretcher.h rubberband)
 FIND_HELPER(CPPUNIT cppunit cppunit/TestCase.h cppunit)
+
 # CHECK FOR Qt4
 SET(QT_USE_QTNETWORK true)
 SET(QT_USE_QTXML true)
@@ -214,7 +224,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
+SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION NSMSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
 FOREACH( _pkg ${STATUS_LIST})
     COMPUTE_PKGS_FLAGS(${_pkg})
 ENDFOREACH()
@@ -267,6 +277,7 @@ COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}
 * ${purple}OSS${reset}                          : ${OSS_STATUS}
 * ${purple}JACK${reset}                         : ${JACK_STATUS}
 * ${purple}JACKSESSION${reset}                  : ${JACKSESSION_STATUS}
+* ${purple}NSM Session${reset}                  : ${NSMSESSION_STATUS}   
 * ${purple}CoreAudio${reset}                    : ${COREAUDIO_STATUS}
 * ${purple}CoreMidi${reset}                     : ${COREMIDI_STATUS}
 * ${purple}PortAudio${reset}                    : ${PORTAUDIO_STATUS}

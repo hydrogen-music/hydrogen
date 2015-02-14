@@ -98,18 +98,20 @@ void LadspaFXSelector::buildLadspaGroups()
 {
 #ifdef H2CORE_HAVE_LADSPA
 	m_pGroupsListView->clear();
-
-//	QTreeWidgetItem* pRootItem = new QTreeWidgetItem( );
-// 	pRootItem->setText( 0, trUtf8("Groups") );
-// 	m_pGroupsListView->addTopLevelItem( pRootItem );
-// 	m_pGroupsListView->setItemExpanded( pRootItem, true );
 	
 	H2Core::LadspaFXGroup* pFXGroup = Effects::get_instance()->getLadspaFXGroup();
-	for (uint i = 0; i < pFXGroup->getChildList().size(); i++) {
-		H2Core::LadspaFXGroup *pNewGroup = ( pFXGroup->getChildList() )[ i ];
-		addGroup( m_pGroupsListView, pNewGroup );
+
+	if(pFXGroup)
+	{
+		for (uint i = 0; i < pFXGroup->getChildList().size(); i++) {
+			H2Core::LadspaFXGroup *pNewGroup = ( pFXGroup->getChildList() )[ i ];
+			addGroup( m_pGroupsListView, pNewGroup );
+		}
+
+		m_pGroupsListView->setCurrentItem( m_pCurrentItem );
 	}
-	m_pGroupsListView->setCurrentItem( m_pCurrentItem );
+
+
 #endif
 }
 

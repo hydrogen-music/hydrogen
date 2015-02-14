@@ -57,16 +57,22 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void selectLayer( int nLayer );
 		void setFileforLayer(QString filename );
 
+        void selectComponent( int nComponent );
+
 		// implements EventListener interface
 		virtual void selectedInstrumentChangedEvent();
 		virtual void rubberbandbpmchangeEvent();
 		//~ implements EventListener interface
+		void update();
 
 	private slots:
 		void rotaryChanged(Rotary *ref);
 		void filterActiveBtnClicked(Button *ref);
 		void buttonClicked(Button*);
 		void labelClicked( ClickableLabel* pRef );
+		void labelCompoClicked( ClickableLabel* pRef );
+		void compoChangeAddDelete(QAction*);
+		void onClick(Button*);
 
 		void muteGroupBtnClicked(Button *pRef);
 		void onIsStopNoteCheckBoxClicked( bool on );
@@ -80,6 +86,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 	private:
 		H2Core::Instrument *m_pInstrument;
 		int m_nSelectedLayer;
+        int m_nSelectedComponent;
 
 		ToggleButton *m_pShowInstrumentBtn;
 		ToggleButton *m_pShowLayersBtn;
@@ -160,10 +167,19 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		//~ Layer properties
 
 
+		// Component
+		ClickableLabel *m_pCompoNameLbl;
+		Button *m_buttonDropDownCompo;
+		QStringList itemsCompo;
+		QMenu *popCompo;
 
+		Rotary *m_pCompoGainRotary;
+		LCDDisplay *m_pCompoGainLCD;
+		//~ Component
 
 		void loadLayer();
 		void setAutoVelocity();
+		int findFreeCompoID( int startingPoint = 0 );
 };
 
 

@@ -20,18 +20,20 @@
  *
  */
 
+#include <hydrogen/event_queue.h>
 #include <hydrogen/version.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/playlist.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/smf/SMF.h>
 #include <hydrogen/Preferences.h>
+#include <hydrogen/timeline.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/event_queue.h>
+
 
 #include "AboutDialog.h"
 #include "AudioEngineInfoForm.h"
@@ -100,13 +102,18 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	m_pQApp->processEvents();
 
 	// Load default song
-	Song *song = NULL;
+	Song *pSong = NULL;
+
 	if ( !songFilename.isEmpty() ) {
-		song = Song::load( songFilename );
-		if (song == NULL) {
-			//QMessageBox::warning( this, "Hydrogen", trUtf8("Error loading song.") );
-			song = Song::get_empty_song();
-			song->set_filename( "" );
+		pSong = Song::load( songFilename );
+
+		/*
+		 * If the song could not be loaded, create
+		 * a new one with the specified filename
+		 */
+		if (pSong == NULL) {
+			pSong = Song::get_empty_song();
+			pSong->set_filename( songFilename );
 		}
 	}
 	else {
@@ -114,20 +121,20 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 		bool restoreLastSong = pref->isRestoreLastSongEnabled();
 		QString filename = pref->getLastSongFilename();
 		if ( restoreLastSong && ( !filename.isEmpty() )) {
-			song = Song::load( filename );
-			if (song == NULL) {
+			pSong = Song::load( filename );
+			if (pSong == NULL) {
 				//QMessageBox::warning( this, "Hydrogen", trUtf8("Error restoring last song.") );
-				song = Song::get_empty_song();
-				song->set_filename( "" );
+				pSong = Song::get_empty_song();
+				pSong->set_filename( "" );
 			}
 		}
 		else {
-			song = Song::get_empty_song();
-			song->set_filename( "" );
+			pSong = Song::get_empty_song();
+			pSong->set_filename( "" );
 		}
 	}
 
-	h2app = new HydrogenApp( this, song );
+	h2app = new HydrogenApp( this, pSong );
 	h2app->addEventListener( this );
 	createMenuBar();
 
@@ -329,12 +336,12 @@ void MainForm::createMenuBar()
 	//~ Tools menu
 
 
-	Logger *l = Logger::get_instance();
-	if ( l->bit_mask() >= 1 ) {
+	Logger *pLogger = Logger::get_instance();
+	if ( pLogger->bit_mask() >= 1 ) {
 		// DEBUG menu
 		QMenu *m_pDebugMenu = m_pMenubar->addMenu( trUtf8("De&bug") );
 		m_pDebugMenu->addAction( trUtf8( "Show &audio engine info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
-		if(l->bit_mask() == 8) // hydrogen -V8 list object map in console
+		if(pLogger->bit_mask() == 8) // hydrogen -V8 list object map in console
 			m_pDebugMenu->addAction( trUtf8( "Print Objects" ), this, SLOT( action_debug_printObjects() ) );
 		//~ DEBUG menu
 	}
@@ -448,8 +455,9 @@ bool MainForm::action_file_exit()
 
 void MainForm::action_file_new()
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
-		Hydrogen::get_instance()->sequencer_stop();
+	Hydrogen * pEngine = Hydrogen::get_instance();
+	if ( (pEngine->getState() == STATE_PLAYING) ) {
+		pEngine->sequencer_stop();
 	}
 
 	bool proceed = handleUnsavedChanges();
@@ -458,14 +466,14 @@ void MainForm::action_file_new()
 	}
 
 	h2app->m_undoStack->clear();
-	Hydrogen::get_instance()->m_timelinevector.clear();
-	Song * song = Song::get_empty_song();
-	song->set_filename( "" );
-	h2app->setSong(song);
-	Hydrogen::get_instance()->setSelectedPatternNumber( 0 );
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
-	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
-	Hydrogen::get_instance()->m_timelinetagvector.clear();
+	pEngine->getTimeline()->m_timelinevector.clear();
+	Song * pSong = Song::get_empty_song();
+	pSong->set_filename( "" );
+	h2app->setSong(pSong);
+	pEngine->setSelectedPatternNumber( 0 );
+	h2app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	h2app->getSongEditorPanel()->updatePositionRuler();
+	pEngine->getTimeline()->m_timelinetagvector.clear();
 
 	// update director tags
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
@@ -477,8 +485,10 @@ void MainForm::action_file_new()
 
 void MainForm::action_file_save_as()
 {
-	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
-		Hydrogen::get_instance()->sequencer_stop();
+	Hydrogen* pEngine = Hydrogen::get_instance();
+
+	if ( pEngine->getState() == STATE_PLAYING ) {
+		  pEngine->sequencer_stop();
 	}
 
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
@@ -489,12 +499,12 @@ void MainForm::action_file_save_as()
 	fd.setWindowTitle( trUtf8( "Save song" ) );
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
 
-	Song *song = Hydrogen::get_instance()->getSong();
+	Song *song = pEngine->getSong();
 	QString defaultFilename;
 	QString lastFilename = song->get_filename();
 
 	if ( lastFilename.isEmpty() ) {
-		defaultFilename = Hydrogen::get_instance()->getSong()->__name;
+		defaultFilename = pEngine->getSong()->__name;
 		defaultFilename += ".h2song";
 	}
 	else {
@@ -525,8 +535,8 @@ void MainForm::action_file_save_as()
 
 void MainForm::action_file_save()
 {
-	Song *song = Hydrogen::get_instance()->getSong();
-	QString filename = song->get_filename();
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	QString filename = pSong->get_filename();
 
 	if ( filename.isEmpty() ) {
 		// just in case!
@@ -534,13 +544,13 @@ void MainForm::action_file_save()
 	}
 
 	bool saved = false;
-	saved = song->save( filename );
+	saved = pSong->save( filename );
 
 
 	if(! saved) {
 		QMessageBox::warning( this, "Hydrogen", trUtf8("Could not save song.") );
 	} else {
-		Preferences::get_instance()->setLastSongFilename( song->get_filename() );
+		Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
 
 		// add the new loaded song in the "last used song" vector
 		Preferences *pPref = Preferences::get_instance();
@@ -849,23 +859,13 @@ void MainForm::action_instruments_clearAll()
 	}
 
 	// Remove all layers
-	//	AudioEngine::get_instance()->lock( RIGHT_HERE );
+
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	InstrumentList* pList = pSong->get_instrument_list();
 	for (uint i = pList->size(); i > 0; i--) {
 		functionDeleteInstrument(i - 1);
-		/*
-		Instrument* pInstr = pList->get( i );
-		pInstr->set_name( (QString( trUtf8( "Instrument %1" ) ).arg( i + 1 )) );
-		// remove all layers
-		for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-			InstrumentLayer* pLayer = pInstr->get_layer( nLayer );
-			delete pLayer;
-			pInstr->set_layer( NULL, nLayer );
-				}
-			 */
 	}
-	//	AudioEngine::get_instance()->unlock();
+
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
@@ -1147,15 +1147,16 @@ void MainForm::openSongFile( const QString& sFilename )
 		engine->sequencer_stop();
 	}
 
-	engine->m_timelinetagvector.clear();
+	engine->getTimeline()->m_timelinetagvector.clear();
 
 	h2app->closeFXProperties();
-	LocalFileMng mng;
+
 	Song *pSong = Song::load( sFilename );
 	if ( pSong == NULL ) {
 		QMessageBox::information( this, "Hydrogen", trUtf8("Error loading song.") );
 		return;
 	}
+
 	h2app->m_undoStack->clear();
 
 	// add the new loaded song in the "last used song" vector
@@ -1169,7 +1170,6 @@ void MainForm::openSongFile( const QString& sFilename )
 	updateRecentUsedSongList();
 	engine->setSelectedPatternNumber( 0 );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
-	//	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 }
 
@@ -1323,17 +1323,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			onSaveAccelEvent();
 			return TRUE;
 			break;
-			/*
-				case  Qt::Key_T:
-					   if( engine->getSong()->get_mode() == Song::PATTERN_MODE ){
-						   engine->getSong()->set_mode( Song::SONG_MODE);
-					   }
-					   else if ( engine->getSong()->get_mode() == Song::SONG_MODE ) {
-						   engine->getSong()->set_mode( Song::PATTERN_MODE );
-					   }
-						return TRUE;
-						break;
-*/
+
 		case  Qt::Key_F5 :
 			if( engine->m_PlayList.size() == 0)
 				break;
@@ -1370,11 +1360,6 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			app->getSongEditorPanel()->updateAll();
 			return TRUE;
 			break;
-
-			// 	QAccel *a = new QAccel( this );
-			// 	a->connectItem( a->insertItem(Key_S + CTRL), this, SLOT( onSaveAccelEvent() ) );
-			// 	a->connectItem( a->insertItem(Key_O + CTRL), this, SLOT( onOpenAccelEvent() ) );
-
 		}
 
 		// virtual keyboard handling
@@ -1384,13 +1369,12 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			// insert note at the current column in time
 			// if event recording enabled
 			int row = (*found).second;
-			Hydrogen* engine = Hydrogen::get_instance();
 
 			float velocity = 0.8;
 			float pan_L = 0.5f;
 			float pan_R = 0.5f;
 
-			engine->addRealtimeNote (row, velocity, pan_L, pan_R, 0, NULL, NULL , row + 36);
+			engine->addRealtimeNote (row, velocity, pan_L, pan_R, 0, false, false , row + 36);
 
 			return TRUE; // eat event
 		}
@@ -1500,17 +1484,17 @@ void MainForm::playlistLoadSongEvent (int nIndex)
 
 	Song* pSong = Hydrogen::get_instance()->getSong();
 
-        h2app->getSongEditorPanel()->updateAll();
-        h2app->getPatternEditorPanel()->updateSLnameLabel();
+	h2app->getSongEditorPanel()->updateAll();
+	h2app->getPatternEditorPanel()->updateSLnameLabel();
 
-        QString songName( pSong->__name );
-        if( songName == "Untitled Song" && !pSong->get_filename().isEmpty() ){
-                songName = pSong->get_filename();
-                songName = songName.section( '/', -1 );
-        }
-        setWindowTitle( songName  );
+	QString songName( pSong->__name );
+	if( songName == "Untitled Song" && !pSong->get_filename().isEmpty() ){
+		songName = pSong->get_filename();
+		songName = songName.section( '/', -1 );
+	}
+	setWindowTitle( songName  );
 
-        h2app->getMainForm()->updateRecentUsedSongList();
+	h2app->getMainForm()->updateRecentUsedSongList();
 	h2app->closeFXProperties();
 	h2app->m_undoStack->clear();
 
@@ -1601,16 +1585,6 @@ void MainForm::onAutoSaveTimer()
 	pSong->save( getAutoSaveFilename() );
 
 	pSong->set_filename(sOldFilename);
-
-	/*
-	Song *pSong = h2app->getSong();
-	if (pSong->getFilename() == "") {
-		pSong->save( "autosave.h2song" );
-		return;
-	}
-
-	action_file_save();
-*/
 }
 
 

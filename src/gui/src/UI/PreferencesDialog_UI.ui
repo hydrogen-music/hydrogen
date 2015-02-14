@@ -1008,7 +1008,7 @@
   <customwidget>
    <class>MidiTable</class>
    <extends>QTableWidget</extends>
-   <header location="global">../src/widgets/midiTable.h</header>
+   <header location="global">../src/widgets/MidiTable.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

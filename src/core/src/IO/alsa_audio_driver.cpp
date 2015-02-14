@@ -20,7 +20,7 @@
  *
  */
 
-#include "AlsaAudioDriver.h"
+#include <hydrogen/IO/AlsaAudioDriver.h>
 
 #ifdef H2CORE_HAVE_ALSA
 
@@ -117,6 +117,8 @@ AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
 		, m_pOut_L( NULL )
 		, m_pOut_R( NULL )
 		, m_nXRuns( 0 )
+		, m_nBufferSize( 0 )
+		, m_pPlayback_handle( NULL )
 		, m_processCallback( processCallback )
 {
 	INFOLOG( "INIT" );

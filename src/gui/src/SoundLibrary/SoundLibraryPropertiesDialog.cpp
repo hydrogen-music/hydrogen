@@ -44,7 +44,7 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( trUtf8( "SoundLibrary Properties" ) );	
+	setWindowTitle( trUtf8( "SoundLibrary Properties" ) );
 	setFixedSize( width(), height() );
 	predrumkit = preDrumKit;
 
@@ -73,11 +73,11 @@ SoundLibraryPropertiesDialog::~SoundLibraryPropertiesDialog()
 
 void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 {
-	
+
 	bool reload = false;
-	 
+
 	if ( saveChanges_checkBox->isChecked() ){
-		//test if the drumkit is loaded 
+		//test if the drumkit is loaded
 		if ( Hydrogen::get_instance()->getCurrentDrumkitname() != drumkitinfo->get_name() ){
 			QMessageBox::information( this, "Hydrogen", trUtf8 ( "This is not possible, you can only save changes inside instruments to the current loaded sound library"));
 			saveChanges_checkBox->setChecked( false );
@@ -85,15 +85,15 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		}
 		reload = true;
 	}
-	
-	//load the selected drumkit to save it correct.... later the old drumkit will be reloaded 
+
+	//load the selected drumkit to save it correct.... later the old drumkit will be reloaded
 	if ( drumkitinfo != NULL && ( !saveChanges_checkBox->isChecked() ) ){
 		if ( Hydrogen::get_instance()->getCurrentDrumkitname() != drumkitinfo->get_name() ){
 			Hydrogen::get_instance()->loadDrumkit( drumkitinfo );
-			Hydrogen::get_instance()->getSong()->__is_modified = true;	
+			Hydrogen::get_instance()->getSong()->__is_modified = true;
 		}
 	}
-		
+
 	//check the drumkit name. if the name is a new one, one qmessagebox with question "are you sure" will displayed.
 	if ( nameTxt->text() != oldName  ){
 		int res = QMessageBox::information( this, "Hydrogen", tr( "Warning! Changing the drumkit name will result in creating a new drumkit with this name.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
@@ -101,16 +101,16 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 			return;
 		}
 		else
-		{	
+		{
 			reload = true;
 		}
 	}
 
-	//save the drumkit	
-	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), true ) ) {
+	//save the drumkit
+	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) ) {
         QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
     }
-	
+
 	//check the name and set the drumkitinfo to current drumkit
 	if ( drumkitinfo != NULL && !nameTxt->text().isEmpty() ){
 		drumkitinfo->set_name( nameTxt->text() );
@@ -118,9 +118,9 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		drumkitinfo->set_info( infoTxt->toHtml() );
 		drumkitinfo->set_license( licenseTxt->text() );
 	}
-	
 
-	//check pre loaded drumkit name  and reload the old drumkit 
+
+	//check pre loaded drumkit name  and reload the old drumkit
 	if ( predrumkit != NULL ){
 		if ( predrumkit->get_name() !=  Hydrogen::get_instance()->getCurrentDrumkitname() ){
 			Hydrogen::get_instance()->loadDrumkit( predrumkit );
@@ -135,7 +135,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	}
 
 	accept();
-	
+
 }
 
 }

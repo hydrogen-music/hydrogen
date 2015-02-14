@@ -33,12 +33,14 @@
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
+#include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
+#include <hydrogen/timeline.h>
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/sampler/Sampler.h>
@@ -68,14 +70,15 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	exportTypeCombo->addItem(trUtf8("Both"));
 
 	HydrogenApp::get_instance()->addEventListener( this );
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
 
 	m_pProgressBar->setValue( 0 );
 	sampleRateCombo->setCurrentIndex(1);
 	sampleDepthCombo->setCurrentIndex(1);
 
-	QString defaultFilename( Hydrogen::get_instance()->getSong()->get_filename() );
-	if( Hydrogen::get_instance()->getSong()->get_filename().isEmpty() )
-		defaultFilename = Hydrogen::get_instance()->getSong()->__name;
+	QString defaultFilename( pHydrogen->getSong()->get_filename() );
+	if( pHydrogen->getSong()->get_filename().isEmpty() )
+		defaultFilename = pHydrogen->getSong()->__name;
 	defaultFilename.replace( '*', "_" );
 	defaultFilename.replace( ".h2song", "" );
 	defaultFilename += ".wav";
@@ -99,7 +102,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 
 
 	// use of timeline
-	if( Hydrogen::get_instance()->m_timelinevector.size() > 0 ){
+	if( pHydrogen->getTimeline()->m_timelinevector.size() > 0 ){
 		toggleTimeLineBPMCheckBox->setChecked(Preferences::get_instance()->getUseTimelineBpm());
 		b_oldTimeLineBPMMode = Preferences::get_instance()->getUseTimelineBpm();
 		connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(togglTimeLineBPMMode( bool )));
@@ -199,8 +202,6 @@ void ExportSongDialog::on_okBtn_clicked()
 	Hydrogen* engine = Hydrogen::get_instance();
 
 	bool warn =  Preferences::get_instance()->getShowExportWarning();
-
-	std::vector<Hydrogen::HTimelineVector> timelineVector = engine->m_timelinevector;
 
 	/* 0: Export to single track
 		*  1: Export to multiple tracks
@@ -555,20 +556,22 @@ void ExportSongDialog::calculateRubberbandTime()
 	closeBtn->setEnabled(false);
 	resampleComboBox->setEnabled(false);
 	okBtn->setEnabled(false);
-	Hydrogen* engine = Hydrogen::get_instance();
-	float oldBPM = engine->getSong()->__bpm;
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Timeline* pTimeline = pHydrogen->getTimeline();
+
+	float oldBPM = pHydrogen->getSong()->__bpm;
 	float lowBPM = oldBPM;
 
-	if( engine->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < engine->m_timelinevector.size(); t++){
-			if(engine->m_timelinevector[t].m_htimelinebpm < lowBPM){
-				lowBPM =  engine->m_timelinevector[t].m_htimelinebpm;
+	if( pTimeline->m_timelinevector.size() >= 1 ){
+		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
+			if(pTimeline->m_timelinevector[t].m_htimelinebpm < lowBPM){
+				lowBPM =  pTimeline->m_timelinevector[t].m_htimelinebpm;
 			}
 
 		}
 	}
 
-	engine->setBPM(lowBPM);
+	pHydrogen->setBPM(lowBPM);
 	time_t sTime = time(NULL);
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *song = pEngine->getSong();
@@ -580,29 +583,32 @@ void ExportSongDialog::calculateRubberbandTime()
 			Instrument *pInstr = songInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){
-				for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-					InstrumentLayer *pLayer = pInstr->get_layer( nLayer );
-					if ( pLayer ) {
-						Sample *pSample = pLayer->get_sample();
-						if ( pSample ) {
-							if( pSample->get_rubberband().use ) {
-								Sample *newSample = Sample::load(
-											pSample->get_filepath(),
-											pSample->get_loops(),
-											pSample->get_rubberband(),
-											*pSample->get_velocity_envelope(),
-											*pSample->get_pan_envelope()
-											);
-								if( !newSample  ){
-									continue;
-								}
-								delete pSample;
-								// insert new sample from newInstrument
-								AudioEngine::get_instance()->lock( RIGHT_HERE );
-								pLayer->set_sample( newSample );
-								AudioEngine::get_instance()->unlock();
+                for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
+                    InstrumentComponent* pCompo = *it;
+                    for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+                        InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+                        if ( pLayer ) {
+                            Sample *pSample = pLayer->get_sample();
+                            if ( pSample ) {
+                                if( pSample->get_rubberband().use ) {
+                                    Sample *newSample = Sample::load(
+                                                pSample->get_filepath(),
+                                                pSample->get_loops(),
+                                                pSample->get_rubberband(),
+                                                *pSample->get_velocity_envelope(),
+                                                *pSample->get_pan_envelope()
+                                                );
+                                    if( !newSample  ){
+                                        continue;
+                                    }
+                                    delete pSample;
+                                    // insert new sample from newInstrument
+                                    AudioEngine::get_instance()->lock( RIGHT_HERE );
+                                    pLayer->set_sample( newSample );
+                                    AudioEngine::get_instance()->unlock();
 
-							}
+                                }
+                            }
 						}
 					}
 				}
@@ -610,7 +616,7 @@ void ExportSongDialog::calculateRubberbandTime()
 		}
 	}
 	Preferences::get_instance()->setRubberBandCalcTime(time(NULL) - sTime);
-	engine->setBPM(oldBPM);
+	pHydrogen->setBPM(oldBPM);
 	closeBtn->setEnabled(true);
 	resampleComboBox->setEnabled(true);
 	okBtn->setEnabled(true);
@@ -630,15 +636,18 @@ bool ExportSongDialog::checkUseOfRubberband()
 			Instrument *pInstr = songInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){
-				for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-					InstrumentLayer *pLayer = pInstr->get_layer( nLayer );
-					if ( pLayer ) {
-						Sample *pSample = pLayer->get_sample();
-						if ( pSample ) {
-							if( pSample->get_rubberband().use ) {
-								return true;
-							}
-						}
+                for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
+                    InstrumentComponent* pCompo = *it;
+                    for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+                        InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+                        if ( pLayer ) {
+                            Sample *pSample = pLayer->get_sample();
+                            if ( pSample ) {
+                                if( pSample->get_rubberband().use ) {
+                                    return true;
+                                }
+                            }
+                        }
 					}
 				}
 			}
