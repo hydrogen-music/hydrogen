@@ -22,17 +22,6 @@
 #ifndef H2C_GLOBALS_H
 #define H2C_GLOBALS_H
 
-#define MAX_INSTRUMENTS         1000
-#define MAX_COMPONENTS          32
-
-#define MAX_NOTES               192
-
-#define MAX_LAYERS              16
-
-#define MAX_FX		        4
-
-#define MAX_BUFFER_SIZE         8192
-
 #define MIDI_OUT_NOTE_MIN       0
 #define MIDI_OUT_NOTE_MAX       127
 #define MIDI_OUT_CHANNEL_MIN    -1
@@ -46,7 +35,7 @@
 
 // m_nBeatCounter
 //100,000 ms in 1 second.
-#define							US_DIVIDER .000001
+#define                         US_DIVIDER .000001
 // ~m_nBeatCounter
 
 
