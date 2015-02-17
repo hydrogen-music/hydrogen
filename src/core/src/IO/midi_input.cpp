@@ -299,8 +299,8 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 */
 void MidiInput::handlePolyphonicKeyPressureMessage( const MidiMessage& msg )
 {
-    if( msg.m_nData2 == 127 )
-        handleNoteOffMessage( msg, true );
+	if( msg.m_nData2 == 127 )
+		handleNoteOffMessage( msg, true );
 }
 
 void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
