@@ -109,7 +109,7 @@ void MidiSenseWidget::updateMidi(){
 			} else if( m_sLastMidiEvent.left(3) == "MMC" ){
 				pMidiMap->registerMMCEvent( m_sLastMidiEvent , pAction );
 			} else if( m_sLastMidiEvent.left(4) == "NOTE" ){
-				pMidiMap->registerNoteEvent( m_sLastMidiEvent.toInt() , pAction );
+				pMidiMap->registerNoteEvent( m_LastMidiEventParameter , pAction );
 			} else {
 				/* In all other cases, the midiMap cares for deleting the pointer */
 
