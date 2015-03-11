@@ -594,31 +594,8 @@ inline void audioEngine_process_transport()
 
 	m_pAudioDriver->updateTransportInfo();
 
-	/* Try start engine if it's not already started */
-	if ( m_audioEngineState == STATE_READY
-	  && m_pAudioDriver->m_transport.m_status == TransportInfo::ROLLING
-	) {
-		// false == no engine lock. Already locked
-		// this should set STATE_PLAYING
-		audioEngine_start( false, m_pAudioDriver->m_transport.m_nFrames );
-	}
-
-	// So, we are not playing even after attempt to start engine
-	if ( m_audioEngineState != STATE_PLAYING ) return;
-
-	/* Now we're playing */
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
-
-	// Update BPM
-	if ( pSong->__bpm != m_pAudioDriver->m_transport.m_nBPM ) {
-		___INFOLOG( QString( "song bpm: (%1) gets transport bpm: (%2)" )
-			.arg( pSong->__bpm )
-			.arg( m_pAudioDriver->m_transport.m_nBPM )
-		);
-
-		pHydrogen->setBPM ( m_pAudioDriver->m_transport.m_nBPM );
-	}
 
 	// Update frame position
 	// ??? audioEngine_seek returns IMMEDIATELY
@@ -626,11 +603,32 @@ inline void audioEngine_process_transport()
 	// audioEngine_seek( nNewFrames, true );
 	switch ( m_pAudioDriver->m_transport.m_status ) {
 	case TransportInfo::ROLLING:
+		if ( m_audioEngineState == STATE_READY ) {
+			// false == no engine lock. Already locked
+			// this should set STATE_PLAYING
+			audioEngine_start( false, m_pAudioDriver->m_transport.m_nFrames );
+		}
+
+		// So, we are not playing even after attempt to start engine
+		if ( m_audioEngineState != STATE_PLAYING ) return;
+
+		/* Now we're playing | Update BPM */
+		if ( pSong->__bpm != m_pAudioDriver->m_transport.m_nBPM ) {
+			___INFOLOG( QString( "song bpm: (%1) gets transport bpm: (%2)" )
+				.arg( pSong->__bpm )
+				.arg( m_pAudioDriver->m_transport.m_nBPM )
+			);
+			pHydrogen->setBPM ( m_pAudioDriver->m_transport.m_nBPM );
+		}
+
 		pHydrogen->setRealtimeFrames( m_pAudioDriver->m_transport.m_nFrames );
 		break;
 	case TransportInfo::STOPPED:
-		// false == no engine lock. Already locked
-		audioEngine_stop( false );
+		// So, we are not playing even after attempt to start engine
+		if ( m_audioEngineState == STATE_PLAYING ) {
+			// false == no engine lock. Already locked
+			audioEngine_stop( false );
+		}
 
 		// go ahead and increment the realtimeframes by buffersize
 		// to support our realtime keyboard and midi event timing
