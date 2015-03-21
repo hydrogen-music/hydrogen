@@ -120,10 +120,6 @@ MANDATORY_PKG(QT4)
 MANDATORY_PKG(Threads)
 MANDATORY_PKG(LIBSNDFILE)
 
-# TODO remove data from path
-SET(SYS_DATA_PATH "${CMAKE_INSTALL_PREFIX}/share/hydrogen/data")
-# TODO remove data from path, could be .config/hydrogen
-SET(USR_DATA_PATH ".hydrogen/data")
 IF(WIN32)
     SET(WANT_JACK FALSE)
     SET(Threads_PATH "C:/Program Files/GnuWin32")
@@ -131,12 +127,23 @@ IF(WIN32)
     SET(LIBSNDFILE_PATH "C:/Program Files/Mega-Nerd/libsndfile")
 ELSE(WIN32)
     IF(APPLE)
+		INCLUDE_DIRECTORIES("/opt/local/include")
         LINK_DIRECTORIES("/opt/local/lib")
+
+		#Without setting this, installation would go into /usr/local, which does not exist per default
+		SET(CMAKE_INSTALL_PREFIX "/usr" )
     ELSE(APPLE)
         SET(OSS_LIB_PATHS "/usr/lib${LIB_SUFFIX}/oss/lib" "/usr/local/lib${LIB_SUFFIX}/oss/lib" )
         SET(RUBBERBAND_INCLUDE_PATHS "/usr/include/rubberband" )
     ENDIF(APPLE)
 ENDIF(WIN32)
+
+#Installation paths 
+# TODO remove data from path
+SET(SYS_DATA_PATH "${CMAKE_INSTALL_PREFIX}/share/hydrogen/data")
+# TODO remove data from path, could be .config/hydrogen
+SET(USR_DATA_PATH ".hydrogen/data")
+
 
 SET(MAX_INSTRUMENTS 1000 CACHE STRING "Maximum number of instruments")
 SET(MAX_COMPONENTS  32   CACHE STRING "Maximum number of components")
