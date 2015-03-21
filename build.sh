@@ -21,6 +21,9 @@ MAKE_OPTS="-j 3"
 H2FLAGS="-V0xf"
 BUILD_DIR=./build
 
+
+PLATFORM_STR=`uname`
+
 [ -f cmake_opts ] && source cmake_opts
 
 function cmake_init() {
@@ -51,7 +54,15 @@ function cmake_make() {
     else
         make $MAKE_OPTS || exit 1
     fi
-    cp src/gui/hydrogen ..
+	
+	if [[ "$PLATFORM_STR" == 'Linux' ]]; then
+		cp src/gui/hydrogen ..
+	elif [[ "$PLATFORM_STR" == *BSD ]]; then
+		cp src/gui/hydrogen ..
+	elif [[ "$PLATFORM_STR" == 'Darwin' ]]; then
+		cp -rf src/gui/hydrogen.app ..
+	fi
+
     cd ..
 }
 
