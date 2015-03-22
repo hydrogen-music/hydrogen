@@ -502,6 +502,7 @@ Song* SongReader::readSong( const QString& filename )
 			QString sMidiOutNote = LocalFileMng::readXmlString( instrumentNode, "midiOutNote", "60", false, false );
 			int nMuteGroup = sMuteGroup.toInt();
 			bool isStopNote = LocalFileMng::readXmlBool( instrumentNode, "isStopNote", false );
+			bool isRoundRobin = LocalFileMng::readXmlBool( instrumentNode, "isRoundRobin", false );
 			int nMidiOutChannel = sMidiOutChannel.toInt();
 			int nMidiOutNote = sMidiOutNote.toInt();
 
@@ -530,6 +531,7 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_gain( fGain );
 			pInstrument->set_mute_group( nMuteGroup );
 			pInstrument->set_stop_notes( isStopNote );
+			pInstrument->set_round_robin( isRoundRobin );
 			pInstrument->set_midi_out_channel( nMidiOutChannel );
 			pInstrument->set_midi_out_note( nMidiOutNote );
 

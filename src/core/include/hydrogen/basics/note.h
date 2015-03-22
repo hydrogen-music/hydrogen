@@ -192,6 +192,13 @@ class Note : public H2Core::Object
 		float get_sample_position(int CompoID) ;
 		std::map<int, float> get_samples_position();
 
+		/*
+		 * round robin selected sample
+		 * */
+		std::map<int, int> get_samples_selected();
+		int get_sample_selected( int CompoID );
+		void update_sample_selected( int CompoID, int SampleSelected );
+
 		/**
 		 * __humanize_delay setter
 		 * \param value the new value
@@ -287,6 +294,7 @@ class Note : public H2Core::Object
 		float __cut_off;            ///< filter cutoff [0;1]
 		float __resonance;          ///< filter resonant frequency [0;1]
 		int __humanize_delay;       ///< used in "humanize" function
+		std::map< int, int > __samples_selected;      ///< selected samples during round robin process
 		std::map< int, float > __samples_position;    ///< place marker for overlapping process() cycles
 		float __bpfb_l;             ///< left band pass filter buffer
 		float __bpfb_r;             ///< right band pass filter buffer
@@ -386,6 +394,11 @@ inline bool Note::get_note_off() const
 	return __note_off;
 }
 
+inline std::map<int, int> Note::get_samples_selected()
+{
+	return __samples_selected;
+}
+
 inline std::map<int, float> Note::get_samples_position()
 {
     return __samples_position;
@@ -414,6 +427,11 @@ inline void Note::set_just_recorded( bool value )
 inline bool Note::get_just_recorded() const
 {
 	return __just_recorded;
+}
+
+inline int Note::get_sample_selected( int CompoID )
+{
+	return __samples_selected[ CompoID ];
 }
 
 inline float Note::get_sample_position( int CompoID )
@@ -507,7 +525,10 @@ inline void Note::set_midi_info( Key key, Octave octave, int msg )
 	__midi_msg = msg;
 }
 
-
+inline void Note::update_sample_selected( int CompoID, int SampleSelected )
+{
+	__samples_selected[ CompoID ] = SampleSelected;
+}
 
 inline float Note::update_sample_position( int CompoID, float incr )
 {

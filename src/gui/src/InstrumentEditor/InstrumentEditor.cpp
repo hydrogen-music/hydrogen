@@ -411,12 +411,17 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pCompoGainRotary->move( 199, 341 );
 
 
-	m_pLayerPitchCoarseLCD->move( 54, 400 + 3 );
-	m_pLayerPitchCoarseRotary->move( 102, 400 );
+	m_pLayerPitchCoarseLCD->move( 54, 391 + 3 );
+	m_pLayerPitchCoarseRotary->move( 102, 391 );
 
+	m_pLayerPitchFineLCD->move( 151, 391 + 3 );
+	m_pLayerPitchFineRotary->move( 199, 391 );
 
-	m_pLayerPitchFineLCD->move( 151, 400 + 3 );
-	m_pLayerPitchFineRotary->move( 199, 400 );
+	m_pRoundRobinCheckBox = new QCheckBox ( trUtf8( "" ), m_pLayerProp );
+	m_pRoundRobinCheckBox->move( 44, 435 );
+	m_pRoundRobinCheckBox->setToolTip( trUtf8( "Use Round Robin for same velocity layers" ) );
+	connect( m_pRoundRobinCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( pRoundRobinCheckBoxClicked( bool ) ) );
+
 	//~ Layer properties
 
 	m_nSelectedComponent = 0;
@@ -548,6 +553,8 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			QString sMidiOutNote = QString(noteStrs[note % 12]) + QString::number(octave);
 			m_pMidiOutNoteLCD->setText( sMidiOutNote );
 		}
+
+		m_pRoundRobinCheckBox->setChecked( m_pInstrument->is_round_robin() );
 
 		itemsCompo.clear();
 		std::vector<DrumkitComponent*>* compoList = Hydrogen::get_instance()->getSong()->get_components();
@@ -1271,6 +1278,14 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 		}
 	}
 
+}
+
+void InstrumentEditor::pRoundRobinCheckBoxClicked( bool on )
+{
+	assert( m_pInstrument );
+
+	m_pInstrument->set_round_robin( on );
+	selectedInstrumentChangedEvent();	// force an update
 }
 
 void InstrumentEditor::pIsHihatCheckBoxClicked( bool on )

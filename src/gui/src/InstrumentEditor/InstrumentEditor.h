@@ -74,6 +74,8 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void compoChangeAddDelete(QAction*);
 		void onClick(Button*);
 
+		void pRoundRobinCheckBoxClicked( bool on );
+
 		void muteGroupBtnClicked(Button *pRef);
 		void onIsStopNoteCheckBoxClicked( bool on );
 		void midiOutChannelBtnClicked(Button *pRef);
@@ -157,6 +159,8 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		LCDDisplay *m_pLayerPitchCoarseLCD;
 		LCDDisplay *m_pLayerPitchFineLCD;
+
+		QCheckBox *m_pRoundRobinCheckBox;
 
 		WaveDisplay *m_pWaveDisplay;
 

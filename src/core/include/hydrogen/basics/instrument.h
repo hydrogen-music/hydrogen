@@ -220,6 +220,9 @@ class Instrument : public H2Core::Object
 		/** get the stop notes of the instrument */
 		bool is_stop_notes() const;
 
+		void set_round_robin( bool round_robin );
+		bool is_round_robin() const;
+
 		void set_hihat( bool ishihat );
 		bool is_hihat() const;
 
@@ -257,6 +260,7 @@ class Instrument : public H2Core::Object
 		int __midi_out_note;		            ///< midi out note
 		int __midi_out_channel;		            ///< midi out channel
 		bool __stop_notes;		                ///< will the note automatically generate a note off after beeing on
+		bool __round_robin;						///< layers sharing the same velocity range will use round robin
 		bool __active;			                ///< is the instrument active?
 		bool __soloed;                          ///< is the instrument in solo mode?
 		bool __muted;                           ///< is the instrument muted?
@@ -503,6 +507,16 @@ inline void Instrument::set_stop_notes( bool stopnotes )
 inline bool Instrument::is_stop_notes() const
 {
 	return __stop_notes;
+}
+
+inline void Instrument::set_round_robin( bool round_robin )
+{
+	__round_robin = round_robin;
+}
+
+inline bool Instrument::is_round_robin() const
+{
+	return __round_robin;
 }
 
 inline void Instrument::set_hihat( bool ishihat )

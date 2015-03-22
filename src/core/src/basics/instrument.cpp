@@ -93,6 +93,7 @@ Instrument::Instrument( Instrument* other )
 	, __midi_out_note( other->get_midi_out_note() )
 	, __midi_out_channel( other->get_midi_out_channel() )
 	, __stop_notes( other->is_stop_notes() )
+	, __round_robin( other->is_round_robin() )
 	, __active( other->is_active() )
 	, __soloed( other->is_soloed() )
 	, __muted( other->is_muted() )
@@ -188,6 +189,7 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
 	this->set_midi_out_channel( instrument->get_midi_out_channel() );
 	this->set_midi_out_note( instrument->get_midi_out_note() );
 	this->set_stop_notes( instrument->is_stop_notes() );
+	this->set_round_robin( instrument->is_round_robin() );
 	this->set_hihat( instrument->is_hihat() );
 	this->set_lower_cc( instrument->get_lower_cc() );
 	this->set_higher_cc( instrument->get_higher_cc() );
@@ -232,6 +234,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	instrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
 	instrument->set_midi_out_note( node->read_int( "midiOutNote", instrument->__midi_out_note, true, false ) );
 	instrument->set_stop_notes( node->read_bool( "isStopNote", true ,false ) );
+	instrument->set_round_robin( node->read_bool( "isRoundRobin", false, true) );
 	instrument->set_hihat( node->read_bool( "isHihat", false, true ) );
 	instrument->set_lower_cc( node->read_int( "lower_cc", 0, true ) );
 	instrument->set_higher_cc( node->read_int( "higher_cc", 127, true ) );
@@ -291,6 +294,7 @@ void Instrument::save_to( XMLNode* node )
 	instrument_node.write_int( "midiOutChannel", __midi_out_channel );
 	instrument_node.write_int( "midiOutNote", __midi_out_note );
 	instrument_node.write_bool( "isStopNote", __stop_notes );
+	instrument_node.write_bool( "isRoundRobin", __round_robin );
 	instrument_node.write_bool( "isHihat", __hihat );
 	instrument_node.write_int( "lower_cc", __lower_cc );
 	instrument_node.write_int( "higher_cc", __higher_cc );

@@ -69,6 +69,7 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
 		for (std::vector<InstrumentComponent*>::iterator it = __instrument->get_components()->begin() ; it !=__instrument->get_components()->end(); ++it) {
             InstrumentComponent *pCompo = *it;
             __samples_position[pCompo->get_drumkit_componentID()] = 0.0;
+			__samples_selected[pCompo->get_drumkit_componentID()] = -1;
 		}
 	}
 
@@ -109,6 +110,7 @@ Note::Note( Note* other, Instrument* instrument )
 		for (std::vector<InstrumentComponent*>::iterator it = __instrument->get_components()->begin() ; it !=__instrument->get_components()->end(); ++it) {
             InstrumentComponent *pCompo = *it;
             __samples_position[pCompo->get_drumkit_componentID()] = 0.0;
+			__samples_selected[pCompo->get_drumkit_componentID()] = -1;
         }
 	}
 }

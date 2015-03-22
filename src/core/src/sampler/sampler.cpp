@@ -22,6 +22,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <cstdlib>
 
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/JackOutput.h>
@@ -246,6 +247,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 	}
 
     int p_returnValue = 0;
+	int p_alreadySelectedSample = -1;
 
 	for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it !=pInstr->get_components()->end(); ++it) {
         InstrumentComponent *pCompo = *it;
@@ -256,17 +258,61 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 
         // scelgo il sample da usare in base alla velocity
         Sample *pSample = NULL;
-        for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
-            InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
-            if ( pLayer == NULL ) continue;
+		if( !pInstr->is_round_robin() ) {
+			for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
+				InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+				if ( pLayer == NULL ) continue;
 
-            if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
-                pSample = pLayer->get_sample();
-                fLayerGain = pLayer->get_gain();
-                fLayerPitch = pLayer->get_pitch();
-                break;
-            }
+				if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
+					pSample = pLayer->get_sample();
+					fLayerGain = pLayer->get_gain();
+					fLayerPitch = pLayer->get_pitch();
+					break;
+				}
+			}
         }
+		else {
+			if( pNote->get_sample_selected( pCompo->get_drumkit_componentID() ) != -1 ) {
+				InstrumentLayer *pLayer = pCompo->get_layer( pNote->get_sample_selected( pCompo->get_drumkit_componentID() ) );
+
+				pSample = pLayer->get_sample();
+				fLayerGain = pLayer->get_gain();
+				fLayerPitch = pLayer->get_pitch();
+			}
+			else {
+				if( p_alreadySelectedSample != -1 ) {
+					InstrumentLayer *pLayer = pCompo->get_layer( pNote->get_sample_selected( pCompo->get_drumkit_componentID() ) );
+					if ( pLayer != NULL ) {
+						pSample = pLayer->get_sample();
+						fLayerGain = pLayer->get_gain();
+						fLayerPitch = pLayer->get_pitch();
+					}
+				}
+				if( !pSample ) {
+					int __possibleIndex[MAX_LAYERS];
+					int p_foundSamples = 0;
+					for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
+						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+						if ( pLayer == NULL ) continue;
+
+						if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
+							__possibleIndex[p_foundSamples] = nLayer;
+							p_foundSamples++;
+						}
+					}
+
+					if( p_foundSamples > 0 ) {
+						p_alreadySelectedSample = rand() % p_foundSamples;
+						pNote->update_sample_selected( pCompo->get_drumkit_componentID(), p_alreadySelectedSample );
+						InstrumentLayer *pLayer = pCompo->get_layer( p_alreadySelectedSample );
+
+						pSample = pLayer->get_sample();
+						fLayerGain = pLayer->get_gain();
+						fLayerPitch = pLayer->get_pitch();
+					}
+				}
+			}
+		}
         if ( !pSample ) {
             QString dummy = QString( "NULL sample for instrument %1. Note velocity: %2" ).arg( pInstr->get_name() ).arg( pNote->get_velocity() );
             WARNINGLOG( dummy );
