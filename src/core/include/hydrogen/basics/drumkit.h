@@ -106,11 +106,12 @@ class Drumkit : public H2Core::Object
 		 * \param author the author of the drumkit
 		 * \param info the info of the drumkit
 		 * \param license the license of the drumkit
+		 * \param image the image filename of the drumkit
 		 * \þaram instruments the instruments to be saved within the drumkit
 		 * \oaram overwrite allows to write over existing drumkit files
 		 * \return true on success
 		 */
-		static bool save( const QString& name, const QString& author, const QString& info, const QString& license, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite=false );
+		static bool save( const QString& name, const QString& author, const QString& info, const QString& license, const QString& image, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite=false );
 		/**
 		 * install a drumkit from a filename
 		 * \param path the path to the new drumkit archive
@@ -149,6 +150,10 @@ class Drumkit : public H2Core::Object
 		void set_license( const QString& license );
 		/** __license accessor */
 		const QString& get_license() const;
+		/** __image setter */
+		void set_image( const QString& image );
+		/** __image accessor */
+		const QString& get_image() const;
 		/** return true if the samples are loaded */
 		const bool samples_loaded() const;
 
@@ -163,6 +168,8 @@ class Drumkit : public H2Core::Object
 		QString __author;               ///< drumkit author
 		QString __info;                 ///< drumkit free text
 		QString __license;              ///< drumkit license description
+		QString __image;		///< drumkit image filename
+
 		bool __samples_loaded;          ///< true if the instrument samples are loaded
 		InstrumentList* __instruments;  ///< the list of instruments
 		/*
@@ -234,6 +241,16 @@ inline void Drumkit::set_license( const QString& license )
 inline const QString& Drumkit::get_license() const
 {
 	return __license;
+}
+
+inline void Drumkit::set_image( const QString& image )
+{
+	__image = image;
+}
+
+inline const QString& Drumkit::get_image() const
+{
+	return __image;
 }
 
 inline const bool Drumkit::samples_loaded() const

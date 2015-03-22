@@ -1,19 +1,20 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>SoundLibraryPropertiesDialog_UI</class>
- <widget class="QDialog" name="SoundLibraryPropertiesDialog_UI" >
-  <property name="geometry" >
+ <widget class="QDialog" name="SoundLibraryPropertiesDialog_UI">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>595</width>
-    <height>360</height>
+    <height>640</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QLabel" name="label" >
-   <property name="geometry" >
+  <widget class="QLabel" name="label">
+   <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
@@ -21,18 +22,18 @@
      <height>25</height>
     </rect>
    </property>
-   <property name="sizePolicy" >
-    <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Name</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_2" >
-   <property name="geometry" >
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
     <rect>
      <x>10</x>
      <y>40</y>
@@ -40,18 +41,18 @@
      <height>25</height>
     </rect>
    </property>
-   <property name="sizePolicy" >
-    <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Author</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_3" >
-   <property name="geometry" >
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
     <rect>
      <x>10</x>
      <y>100</y>
@@ -59,15 +60,15 @@
      <height>111</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Information</string>
    </property>
-   <property name="alignment" >
+   <property name="alignment">
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="authorTxt" >
-   <property name="geometry" >
+  <widget class="QLineEdit" name="authorTxt">
+   <property name="geometry">
     <rect>
      <x>111</x>
      <y>39</y>
@@ -75,21 +76,21 @@
      <height>22</height>
     </rect>
    </property>
-   <property name="sizePolicy" >
-    <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <property name="minimumSize" >
+   <property name="minimumSize">
     <size>
      <width>209</width>
      <height>0</height>
     </size>
    </property>
   </widget>
-  <widget class="QLineEdit" name="nameTxt" >
-   <property name="geometry" >
+  <widget class="QLineEdit" name="nameTxt">
+   <property name="geometry">
     <rect>
      <x>111</x>
      <y>11</y>
@@ -97,21 +98,21 @@
      <height>22</height>
     </rect>
    </property>
-   <property name="sizePolicy" >
-    <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <property name="minimumSize" >
+   <property name="minimumSize">
     <size>
      <width>209</width>
      <height>0</height>
     </size>
    </property>
   </widget>
-  <widget class="QTextEdit" name="infoTxt" >
-   <property name="geometry" >
+  <widget class="QTextEdit" name="infoTxt">
+   <property name="geometry">
     <rect>
      <x>111</x>
      <y>95</y>
@@ -119,12 +120,12 @@
      <height>192</height>
     </rect>
    </property>
-   <property name="acceptRichText" >
+   <property name="acceptRichText">
     <bool>false</bool>
    </property>
   </widget>
-  <widget class="QLabel" name="label_4" >
-   <property name="geometry" >
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
     <rect>
      <x>10</x>
      <y>70</y>
@@ -132,15 +133,15 @@
      <height>21</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>License</string>
    </property>
-   <property name="alignment" >
+   <property name="alignment">
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="licenseTxt" >
-   <property name="geometry" >
+  <widget class="QLineEdit" name="licenseTxt">
+   <property name="geometry">
     <rect>
      <x>111</x>
      <y>67</y>
@@ -148,59 +149,84 @@
      <height>22</height>
     </rect>
    </property>
-   <property name="sizePolicy" >
-    <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <property name="minimumSize" >
+   <property name="minimumSize">
     <size>
      <width>209</width>
      <height>0</height>
     </size>
    </property>
-   <property name="text" >
+   <property name="text">
     <string/>
    </property>
   </widget>
-  <widget class="QWidget" name="layoutWidget" >
-   <property name="geometry" >
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
     <rect>
      <x>420</x>
-     <y>320</y>
-     <width>162</width>
+     <y>610</y>
+     <width>168</width>
      <height>28</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" >
+   <layout class="QHBoxLayout">
     <item>
-     <widget class="QPushButton" name="saveBtn" >
-      <property name="text" >
+     <widget class="QPushButton" name="saveBtn">
+      <property name="text">
        <string>Save </string>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="m_cancelBtn" >
-      <property name="text" >
+     <widget class="QPushButton" name="m_cancelBtn">
+      <property name="text">
        <string>Cancel</string>
       </property>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QCheckBox" name="saveChanges_checkBox" >
-   <property name="geometry" >
+  <widget class="QCheckBox" name="saveChanges_checkBox">
+   <property name="geometry">
     <rect>
-     <x>111</x>
-     <y>293</y>
+     <x>10</x>
+     <y>580</y>
      <width>469</width>
      <height>21</height>
     </rect>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Save changes made to instruments into sound library</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="drumkitImageLabel">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>300</y>
+     <width>571</width>
+     <height>271</height>
+    </rect>
+   </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="scaledContents">
+    <bool>false</bool>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
  </widget>
@@ -221,11 +247,11 @@
    <receiver>SoundLibraryPropertiesDialog_UI</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>121</x>
      <y>220</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>51</x>
      <y>196</y>
     </hint>

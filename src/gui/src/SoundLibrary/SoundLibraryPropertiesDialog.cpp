@@ -23,6 +23,8 @@
 #include <QtGui>
 
 #include "../HydrogenApp.h"
+#include "../Skin.h"
+
 #include "SoundLibraryPropertiesDialog.h"
 #include "../InstrumentRack.h"
 #include "SoundLibraryPanel.h"
@@ -56,6 +58,11 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 		authorTxt->setText( QString( drumkitInfo->get_author() ) );
 		infoTxt->append( QString( drumkitInfo->get_info() ) );
 		licenseTxt->setText( QString( drumkitInfo->get_license() ) );
+		QPixmap *pixmap = new QPixmap (Skin::getImagePath() + "/splash/drummingTux.png");
+		drumkitImageLabel->setPixmap(*pixmap);
+		//drumkitImageLabel->setMask(pixmap.mask());
+		drumkitImageLabel->show();
+
 	}
 
 }
@@ -105,9 +112,10 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 			reload = true;
 		}
 	}
+int res = QMessageBox::information( this, "Hydrogen", drumkitinfo->get_image(), tr("&Ok"), tr("&Cancel"), 0, 1 );
 
 	//save the drumkit
-	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) ) {
+	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), drumkitinfo->get_image(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) ) {
         QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
     }
 

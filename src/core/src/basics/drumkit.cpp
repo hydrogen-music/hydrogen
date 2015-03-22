@@ -62,6 +62,7 @@ Drumkit::Drumkit( Drumkit* other ) :
 	__author( other->get_author() ),
 	__info( other->get_info() ),
 	__license( other->get_license() ),
+	__image( other->get_image() ),
 	__samples_loaded( other->samples_loaded() ),
 	__components( NULL )
 {
@@ -126,6 +127,10 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	drumkit->__author = node->read_string( "author", "undefined author" );
 	drumkit->__info = node->read_string( "info", "No information available." );
 	drumkit->__license = node->read_string( "license", "undefined license" );
+	drumkit->__image = node->read_string( "image", "" );
+
+	WARNINGLOG(QString("ZZZZ"));
+	WARNINGLOG(drumkit->__image);
 
     XMLNode componentListNode = node->firstChildElement( "componentList" );
 	if ( ! componentListNode.isNull() ) {
@@ -176,7 +181,7 @@ void Drumkit::unload_samples( )
 	}
 }
 
-bool Drumkit::save( const QString& name, const QString& author, const QString& info, const QString& license, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite )
+bool Drumkit::save( const QString& name, const QString& author, const QString& info, const QString& license, const QString& image, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite )
 {
 
 	Drumkit* drumkit = new Drumkit();
@@ -184,6 +189,7 @@ bool Drumkit::save( const QString& name, const QString& author, const QString& i
 	drumkit->set_author( author );
 	drumkit->set_info( info );
 	drumkit->set_license( license );
+	drumkit->set_image( image );
 	drumkit->set_instruments( new InstrumentList( instruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
 	std::vector<DrumkitComponent*>* p_copiedVector = new std::vector<DrumkitComponent*> ();
 	for (std::vector<DrumkitComponent*>::iterator it = components->begin() ; it != components->end(); ++it) {
@@ -234,6 +240,7 @@ void Drumkit::save_to( XMLNode* node )
 	node->write_string( "author", __author );
 	node->write_string( "info", __info );
 	node->write_string( "license", __license );
+	node->write_string( "image", __image );
 	XMLNode components_node = node->ownerDocument().createElement( "componentList" );
 	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
         DrumkitComponent* component = *it;
@@ -325,6 +332,7 @@ void Drumkit::dump()
 	DEBUGLOG( " |- Name = " + __name );
 	DEBUGLOG( " |- Author = " + __author );
 	DEBUGLOG( " |- Info = " + __info );
+	DEBUGLOG( " |- Image = " + __image );
 	DEBUGLOG( " |- Instrument list" );
 	for ( int i=0; i<__instruments->size(); i++ ) {
 		Instrument* instrument = ( *__instruments )[i];

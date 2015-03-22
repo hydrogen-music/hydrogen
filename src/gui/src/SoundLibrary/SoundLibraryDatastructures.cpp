@@ -160,6 +160,7 @@ SoundLibraryInfo::SoundLibraryInfo(const QString &path) : Object( __class_name )
 		setType( "pattern" );
 		setAuthor( LocalFileMng::readXmlString( rootNode,"author", "undefined author" ) );
 		setLicense( LocalFileMng::readXmlString( rootNode,"license", "undefined license" ) );
+		setImage( LocalFileMng::readXmlString( rootNode,"image", "" ) );
 
 		QDomNode patternNode = rootNode.firstChildElement( "pattern" );
 		setName( LocalFileMng::readXmlString( patternNode,"pattern_name", "" ) );

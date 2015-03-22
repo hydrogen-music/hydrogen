@@ -235,6 +235,11 @@ void SoundLibraryImportDialog::reloadRepositoryData()
 					soundLibInfo.setLicense( licenseNode.text() );
 				}
 
+				QDomElement imageNode = drumkitNode.firstChildElement( "image" );
+				if ( !imageNode.isNull() ) {
+					soundLibInfo.setImage( imageNode.text() );
+				}
+
 				m_soundLibraryList.push_back( soundLibInfo );
 			}
 		}
