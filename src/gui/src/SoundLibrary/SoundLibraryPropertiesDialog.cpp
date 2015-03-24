@@ -58,7 +58,9 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 		authorTxt->setText( QString( drumkitInfo->get_author() ) );
 		infoTxt->append( QString( drumkitInfo->get_info() ) );
 		licenseTxt->setText( QString( drumkitInfo->get_license() ) );
-		QPixmap *pixmap = new QPixmap (Skin::getImagePath() + "/splash/drummingTux.png");
+		QPixmap *pixmap = new QPixmap (drumkitInfo->get_path() + drumkitInfo->get_image());
+		// ->get_image() is empty! FIXME
+		WARNINGLOG("ZZZ IMAGE: " + drumkitInfo->get_path().toLocal8Bit() + drumkitInfo->get_image().toLocal8Bit());
 		drumkitImageLabel->setPixmap(*pixmap);
 		//drumkitImageLabel->setMask(pixmap.mask());
 		drumkitImageLabel->show();

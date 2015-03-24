@@ -127,10 +127,8 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	drumkit->__author = node->read_string( "author", "undefined author" );
 	drumkit->__info = node->read_string( "info", "No information available." );
 	drumkit->__license = node->read_string( "license", "undefined license" );
-	drumkit->__image = node->read_string( "image", "" );
+	drumkit->__image = node->read_string( "image", "", true, true );
 
-	WARNINGLOG(QString("ZZZZ"));
-	WARNINGLOG(drumkit->__image);
 
     XMLNode componentListNode = node->firstChildElement( "componentList" );
 	if ( ! componentListNode.isNull() ) {
@@ -190,6 +188,7 @@ bool Drumkit::save( const QString& name, const QString& author, const QString& i
 	drumkit->set_info( info );
 	drumkit->set_license( license );
 	drumkit->set_image( image );
+	WARNINGLOG("Image: " + image.toLocal8Bit());
 	drumkit->set_instruments( new InstrumentList( instruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
 	std::vector<DrumkitComponent*>* p_copiedVector = new std::vector<DrumkitComponent*> ();
 	for (std::vector<DrumkitComponent*>::iterator it = components->begin() ; it != components->end(); ++it) {

@@ -97,10 +97,6 @@ class SoundLibraryInfo :  public H2Core::Object
 			return m_sLicense;
 		}
 
-		QString getImage() const {
-			return m_sImage;
-		}
-
 		void setName( const QString& name ){
 			m_sName = name;
 		}
@@ -127,10 +123,6 @@ class SoundLibraryInfo :  public H2Core::Object
 
 		void setLicense( const QString& license ){
 			m_sLicense = license;
-		}
-
-		void setImage( const QString& image ){
-			m_sImage = image;
 		}
 
 		void setPath( const QString& path){
