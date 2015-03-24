@@ -58,11 +58,8 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 		authorTxt->setText( QString( drumkitInfo->get_author() ) );
 		infoTxt->append( QString( drumkitInfo->get_info() ) );
 		licenseTxt->setText( QString( drumkitInfo->get_license() ) );
-		QPixmap *pixmap = new QPixmap (drumkitInfo->get_path() + drumkitInfo->get_image());
-		// ->get_image() is empty! FIXME
-		WARNINGLOG("ZZZ IMAGE: " + drumkitInfo->get_path().toLocal8Bit() + drumkitInfo->get_image().toLocal8Bit());
+		QPixmap *pixmap = new QPixmap (drumkitInfo->get_path() + "/" + drumkitInfo->get_image());
 		drumkitImageLabel->setPixmap(*pixmap);
-		//drumkitImageLabel->setMask(pixmap.mask());
 		drumkitImageLabel->show();
 
 	}
@@ -114,7 +111,6 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 			reload = true;
 		}
 	}
-int res = QMessageBox::information( this, "Hydrogen", drumkitinfo->get_image(), tr("&Ok"), tr("&Cancel"), 0, 1 );
 
 	//save the drumkit
 	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), drumkitinfo->get_image(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) ) {
