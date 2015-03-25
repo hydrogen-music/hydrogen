@@ -114,7 +114,7 @@ class Drumkit : public H2Core::Object
 		 * \param author the author of the drumkit
 		 * \param info the info of the drumkit
 		 * \param license the license of the drumkit
-		 * \param image the image filename of the drumkit
+		 * \param image the image filename (with full path) of the drumkit
 		 * \þaram instruments the instruments to be saved within the drumkit
 		 * \oaram overwrite allows to write over existing drumkit files
 		 * \return true on success

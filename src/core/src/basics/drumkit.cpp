@@ -187,17 +187,17 @@ bool Drumkit::save( const QString& name, const QString& author, const QString& i
 	drumkit->set_author( author );
 	drumkit->set_info( info );
 	drumkit->set_license( license );
-        // save the original path
-        QFileInfo fi( image);
-        drumkit->set_path( fi.absolutePath() );
+	// save the original path
+	QFileInfo fi( image);
+	drumkit->set_path( fi.absolutePath() );
 	drumkit->set_image( fi.fileName() );
 
 	drumkit->set_instruments( new InstrumentList( instruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
 	std::vector<DrumkitComponent*>* p_copiedVector = new std::vector<DrumkitComponent*> ();
 	for (std::vector<DrumkitComponent*>::iterator it = components->begin() ; it != components->end(); ++it) {
-        DrumkitComponent* src_component = *it;
-        p_copiedVector->push_back( new DrumkitComponent( src_component ) );
-    }
+		DrumkitComponent* src_component = *it;
+		p_copiedVector->push_back( new DrumkitComponent( src_component ) );
+	}
 	drumkit->set_components( p_copiedVector );
 	bool ret = drumkit->save( overwrite );
 	delete drumkit;
