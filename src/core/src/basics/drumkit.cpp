@@ -187,7 +187,10 @@ bool Drumkit::save( const QString& name, const QString& author, const QString& i
 	drumkit->set_author( author );
 	drumkit->set_info( info );
 	drumkit->set_license( license );
-	drumkit->set_image( image );
+        // save the original path
+        QFileInfo fi( image);
+        drumkit->set_path( fi.absolutePath() );
+	drumkit->set_image( fi.fileName() );
 
 	drumkit->set_instruments( new InstrumentList( instruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
 	std::vector<DrumkitComponent*>* p_copiedVector = new std::vector<DrumkitComponent*> ();
@@ -293,6 +296,28 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 				}
 			}
 		}
+	}
+        if ( !save_image( dk_dir, overwrite ) ) {
+                return false;
+        }
+
+	return true;
+}
+
+bool Drumkit::save_image( const QString& dk_dir, bool overwrite )
+{
+	if ( __image.length() > 0 )
+	{
+		QString src = __path + "/" + __image;
+		QString dst = dk_dir + "/" + __image;
+		if ( Filesystem::file_exists ( src ) ) 
+                {
+                    if( !Filesystem::file_copy( src, dst ) ) 
+                    {
+                        ERRORLOG( QString( "Error copying %1 to %2").arg( src ).arg( dst ) );
+                        return false;
+                    }
+                }
 	}
 	return true;
 }

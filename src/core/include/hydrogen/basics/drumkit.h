@@ -101,6 +101,14 @@ class Drumkit : public H2Core::Object
 		 */
 		bool save_samples( const QString& dk_dir, bool overwrite=false );
 		/**
+		 * save the drumkit image into the new directory
+		 * \param dk_dir the directory to save the image into
+		 * \param overwrite allows to write over existing drumkit image file
+		 * \param orig_dir holds the directory we are copying image from
+		 * \return true on success
+		 */
+		bool save_image( const QString& dk_dir, bool overwrite=false );
+		/**
 		 * save a drumkit using given parameters and an instrument list
 		 * \param name the name of the drumkit
 		 * \param author the author of the drumkit
