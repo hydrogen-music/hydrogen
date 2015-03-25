@@ -58,7 +58,27 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 		authorTxt->setText( QString( drumkitInfo->get_author() ) );
 		infoTxt->append( QString( drumkitInfo->get_info() ) );
 		licenseTxt->setText( QString( drumkitInfo->get_license() ) );
+
 		QPixmap *pixmap = new QPixmap (drumkitInfo->get_path() + "/" + drumkitInfo->get_image());
+		// scale the image down to fit if required
+		int x = (int) drumkitImageLabel->size().width();
+		int y = drumkitImageLabel->size().height();
+		float labelAspect = (float) x / y;
+		float imageAspect = (float) pixmap->width() / pixmap->height();
+
+		if ( ( x < pixmap->width() ) || ( y < pixmap->height() ) )
+		{
+			if ( labelAspect >= imageAspect )
+			{
+				// image is taller or the same as label frame
+				*pixmap = pixmap->scaledToHeight( y );
+			}
+			else
+			{
+				// image is wider than label frame
+				*pixmap = pixmap->scaledToWidth( x );
+			}
+		}
 		drumkitImageLabel->setPixmap(*pixmap);
 		drumkitImageLabel->show();
 
