@@ -95,8 +95,6 @@ SoundLibraryPropertiesDialog::~SoundLibraryPropertiesDialog()
 
 }
 
-
-
 void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 {
 
