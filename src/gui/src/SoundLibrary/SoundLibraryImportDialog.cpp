@@ -436,6 +436,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 					{
 						// get the image from the local filesystem
 						QPixmap pixmap ( drumkitInfo->get_path() + "/" + drumkitInfo->get_image() );
+						INFOLOG("Loaded image " + drumkitInfo->get_image().toLocal8Bit() + " from local filesystem");
 						showImage( pixmap );
 					} 
 					else 
@@ -464,6 +465,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 						m_pImgCtrl = new FileDownloader( imageUrl, this );
 
 						connect(m_pImgCtrl, SIGNAL(imageDownloaded()), SLOT(loadImage()));
+						INFOLOG("Loading image " + info.getImage().toLocal8Bit() + " from remote server");
 					}
 				}
 
