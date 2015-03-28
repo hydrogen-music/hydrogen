@@ -58,6 +58,7 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 		authorTxt->setText( QString( drumkitInfo->get_author() ) );
 		infoTxt->append( QString( drumkitInfo->get_info() ) );
 		licenseTxt->setText( QString( drumkitInfo->get_license() ) );
+		imageText->setText( QString ( drumkitInfo->get_image() ) );
 
 		QPixmap *pixmap = new QPixmap (drumkitInfo->get_path() + "/" + drumkitInfo->get_image());
 		// scale the image down to fit if required
@@ -87,12 +88,62 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 }
 
 
-
-
 SoundLibraryPropertiesDialog::~SoundLibraryPropertiesDialog()
 {
 	INFOLOG( "DESTROY" );
 
+}
+
+void SoundLibraryPropertiesDialog::updateImage( QString& filename )
+{
+	QPixmap *pixmap = new QPixmap ( filename );
+	// scale the image down to fit if required
+	int x = (int) drumkitImageLabel->size().width();
+	int y = drumkitImageLabel->size().height();
+	float labelAspect = (float) x / y;
+	float imageAspect = (float) pixmap->width() / pixmap->height();
+
+	if ( ( x < pixmap->width() ) || ( y < pixmap->height() ) )
+	{
+		if ( labelAspect >= imageAspect )
+		{
+			// image is taller or the same as label frame
+			*pixmap = pixmap->scaledToHeight( y );
+		}
+		else
+		{
+			// image is wider than label frame
+			*pixmap = pixmap->scaledToWidth( x );
+		}
+	}
+	drumkitImageLabel->setPixmap(*pixmap);
+	drumkitImageLabel->show();
+
+}
+void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
+{
+	// Try to get the drumkit directory and open file browser
+	QString drumkitDir = Filesystem::drumkit_dir_search( nameTxt->text() ) + "/" + nameTxt->text();
+
+	QString fileName = QFileDialog::getOpenFileName(this, trUtf8("Open Image"), drumkitDir, trUtf8("Image Files (*.png *.jpg *.jpeg)"));
+
+	// If this file is in different directory copy it here
+	
+	QFile file( fileName );
+	QFileInfo fileInfo(file.fileName());
+	//ERRORLOG(fileInfo.dir().path().toLocal8Bit() + drumkitDir);
+	if ( fileInfo.dir().path() != drumkitDir )
+	{
+		INFOLOG("Copying " + fileName + " to " + drumkitDir.toLocal8Bit() );
+		if ( !QFile::copy( fileName, drumkitDir + "/" + fileInfo.fileName() ))
+		{
+			WARNINGLOG( "Could not copy " + fileInfo.fileName() + " to " + drumkitDir );
+		}
+
+	}
+	QString filename(fileInfo.fileName());
+	imageText->setText( filename );
+	updateImage( fileName );
 }
 
 void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
@@ -142,6 +193,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		drumkitinfo->set_author( authorTxt->text() );
 		drumkitinfo->set_info( infoTxt->toHtml() );
 		drumkitinfo->set_license( licenseTxt->text() );
+		drumkitinfo->set_image( imageText->text() );
 	}
 
 
