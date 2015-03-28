@@ -60,7 +60,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __midi_out_note( 36 + id )
 	, __midi_out_channel( -1 )
 	, __stop_notes( false )
-	, __round_robin( false )
+	, __sample_selection_alg( VELOCITY )
 	, __active( true )
 	, __soloed( false )
 	, __muted( false )
@@ -94,7 +94,7 @@ Instrument::Instrument( Instrument* other )
 	, __midi_out_note( other->get_midi_out_note() )
 	, __midi_out_channel( other->get_midi_out_channel() )
 	, __stop_notes( other->is_stop_notes() )
-	, __round_robin( other->is_round_robin() )
+	, __sample_selection_alg( other->sample_selection_alg() )
 	, __active( other->is_active() )
 	, __soloed( other->is_soloed() )
 	, __muted( other->is_muted() )
@@ -190,7 +190,7 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
 	this->set_midi_out_channel( instrument->get_midi_out_channel() );
 	this->set_midi_out_note( instrument->get_midi_out_note() );
 	this->set_stop_notes( instrument->is_stop_notes() );
-	this->set_round_robin( instrument->is_round_robin() );
+	this->set_sample_selection_alg( instrument->sample_selection_alg() );
 	this->set_hihat( instrument->is_hihat() );
 	this->set_lower_cc( instrument->get_lower_cc() );
 	this->set_higher_cc( instrument->get_higher_cc() );
@@ -235,7 +235,14 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	instrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
 	instrument->set_midi_out_note( node->read_int( "midiOutNote", instrument->__midi_out_note, true, false ) );
 	instrument->set_stop_notes( node->read_bool( "isStopNote", true ,false ) );
-	instrument->set_round_robin( node->read_bool( "isRoundRobin", false, true) );
+	QString p_read_sample_select_algo = node->read_string( "sampleSelectionAlgo", "VELOCITY" );
+	if ( p_read_sample_select_algo.compare("VELOCITY") == 0 )
+		instrument->set_sample_selection_alg( VELOCITY );
+	else if ( p_read_sample_select_algo.compare("ROUND_ROBIN") == 0 )
+			instrument->set_sample_selection_alg( ROUND_ROBIN );
+	else if ( p_read_sample_select_algo.compare("RANDOM") == 0 )
+			instrument->set_sample_selection_alg( RANDOM );
+
 	instrument->set_hihat( node->read_bool( "isHihat", false, true ) );
 	instrument->set_lower_cc( node->read_int( "lower_cc", 0, true ) );
 	instrument->set_higher_cc( node->read_int( "higher_cc", 127, true ) );
@@ -295,7 +302,18 @@ void Instrument::save_to( XMLNode* node )
 	instrument_node.write_int( "midiOutChannel", __midi_out_channel );
 	instrument_node.write_int( "midiOutNote", __midi_out_note );
 	instrument_node.write_bool( "isStopNote", __stop_notes );
-	instrument_node.write_bool( "isRoundRobin", __round_robin );
+	//instrument_node.write_bool( "isRoundRobin", __round_robin );
+	switch ( __sample_selection_alg ) {
+		case VELOCITY:
+			instrument_node.write_string( "sampleSelectionAlgo", "VELOCITY" );
+			break;
+		case RANDOM:
+			instrument_node.write_string( "sampleSelectionAlgo", "RANDOM" );
+			break;
+		case ROUND_ROBIN:
+			instrument_node.write_string( "sampleSelectionAlgo", "ROUND_ROBIN" );
+			break;
+	}
 	instrument_node.write_bool( "isHihat", __hihat );
 	instrument_node.write_int( "lower_cc", __lower_cc );
 	instrument_node.write_int( "higher_cc", __higher_cc );

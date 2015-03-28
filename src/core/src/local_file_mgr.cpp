@@ -1314,7 +1314,18 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 		LocalFileMng::writeXmlString( instrumentNode, "muteGroup", QString("%1").arg( instr->get_mute_group() ) );
 		LocalFileMng::writeXmlBool( instrumentNode, "isStopNote", instr->is_stop_notes() );
-		LocalFileMng::writeXmlBool( instrumentNode, "isRoundRobin", instr->is_round_robin() );
+		//LocalFileMng::writeXmlBool( instrumentNode, "isRoundRobin", instr->is_round_robin() );
+		switch ( instr->sample_selection_alg() ) {
+			case Instrument::VELOCITY:
+				LocalFileMng::writeXmlString( instrumentNode, "sampleSelectionAlgo", "VELOCITY" );
+				break;
+			case Instrument::RANDOM:
+				LocalFileMng::writeXmlString( instrumentNode, "sampleSelectionAlgo", "RANDOM" );
+				break;
+			case Instrument::ROUND_ROBIN:
+				LocalFileMng::writeXmlString( instrumentNode, "sampleSelectionAlgo", "ROUND_ROBIN" );
+				break;
+		}
 
 		LocalFileMng::writeXmlString( instrumentNode, "midiOutChannel", QString("%1").arg( instr->get_midi_out_channel() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "midiOutNote", QString("%1").arg( instr->get_midi_out_note() ) );

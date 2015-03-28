@@ -49,6 +49,12 @@ class Instrument : public H2Core::Object
 {
 		H2_OBJECT
 	public:
+		enum SampleSelectionAlgo {
+			VELOCITY,
+			RANDOM,
+			ROUND_ROBIN
+		};
+
 		/**
 		 * constructor
 		 * \param id the id of this instrument
@@ -220,8 +226,8 @@ class Instrument : public H2Core::Object
 		/** get the stop notes of the instrument */
 		bool is_stop_notes() const;
 
-		void set_round_robin( bool round_robin );
-		bool is_round_robin() const;
+		void set_sample_selection_alg( SampleSelectionAlgo selected_algo);
+		SampleSelectionAlgo sample_selection_alg() const;
 
 		void set_hihat( bool ishihat );
 		bool is_hihat() const;
@@ -260,7 +266,7 @@ class Instrument : public H2Core::Object
 		int __midi_out_note;		            ///< midi out note
 		int __midi_out_channel;		            ///< midi out channel
 		bool __stop_notes;		                ///< will the note automatically generate a note off after beeing on
-		bool __round_robin;						///< layers sharing the same velocity range will use round robin
+		SampleSelectionAlgo __sample_selection_alg;	///< how Hydrogen will chose the sample to use
 		bool __active;			                ///< is the instrument active?
 		bool __soloed;                          ///< is the instrument in solo mode?
 		bool __muted;                           ///< is the instrument muted?
@@ -509,14 +515,14 @@ inline bool Instrument::is_stop_notes() const
 	return __stop_notes;
 }
 
-inline void Instrument::set_round_robin( bool round_robin )
+inline void Instrument::set_sample_selection_alg( SampleSelectionAlgo selected_algo)
 {
-	__round_robin = round_robin;
+	__sample_selection_alg = selected_algo;
 }
 
-inline bool Instrument::is_round_robin() const
+inline Instrument::SampleSelectionAlgo Instrument::sample_selection_alg() const
 {
-	return __round_robin;
+	return __sample_selection_alg;
 }
 
 inline void Instrument::set_hihat( bool ishihat )

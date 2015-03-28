@@ -502,7 +502,9 @@ Song* SongReader::readSong( const QString& filename )
 			QString sMidiOutNote = LocalFileMng::readXmlString( instrumentNode, "midiOutNote", "60", false, false );
 			int nMuteGroup = sMuteGroup.toInt();
 			bool isStopNote = LocalFileMng::readXmlBool( instrumentNode, "isStopNote", false );
-			bool isRoundRobin = LocalFileMng::readXmlBool( instrumentNode, "isRoundRobin", false );
+			//bool isRoundRobin = LocalFileMng::readXmlBool( instrumentNode, "isRoundRobin", false );
+			QString p_read_sample_select_algo = LocalFileMng::readXmlString( instrumentNode, "sampleSelectionAlgo", "VELOCITY" );
+
 			int nMidiOutChannel = sMidiOutChannel.toInt();
 			int nMidiOutNote = sMidiOutNote.toInt();
 
@@ -531,7 +533,12 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_gain( fGain );
 			pInstrument->set_mute_group( nMuteGroup );
 			pInstrument->set_stop_notes( isStopNote );
-			pInstrument->set_round_robin( isRoundRobin );
+			if ( p_read_sample_select_algo.compare("VELOCITY") == 0 )
+				pInstrument->set_sample_selection_alg( Instrument::VELOCITY );
+			else if ( p_read_sample_select_algo.compare("ROUND_ROBIN") == 0 )
+				pInstrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
+			else if ( p_read_sample_select_algo.compare("RANDOM") == 0 )
+				pInstrument->set_sample_selection_alg( Instrument::RANDOM );
 			pInstrument->set_midi_out_channel( nMidiOutChannel );
 			pInstrument->set_midi_out_note( nMidiOutNote );
 

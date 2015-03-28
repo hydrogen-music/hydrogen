@@ -45,6 +45,7 @@ using namespace H2Core;
 #include "../widgets/ClickableLabel.h"
 #include "../widgets/Button.h"
 #include "../widgets/LCD.h"
+#include "../widgets/LCDCombo.h"
 #include "../widgets/Fader.h"
 #include "InstrumentEditor.h"
 #include "WaveDisplay.h"
@@ -417,10 +418,16 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerPitchFineLCD->move( 151, 391 + 3 );
 	m_pLayerPitchFineRotary->move( 199, 391 );
 
-	m_pRoundRobinCheckBox = new QCheckBox ( trUtf8( "" ), m_pLayerProp );
-	m_pRoundRobinCheckBox->move( 44, 435 );
-	m_pRoundRobinCheckBox->setToolTip( trUtf8( "Use Round Robin for same velocity layers" ) );
-	connect( m_pRoundRobinCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( pRoundRobinCheckBoxClicked( bool ) ) );
+	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, 25);
+	m_sampleSelectionAlg->move( 60, 434 );
+	m_sampleSelectionAlg->setToolTip( trUtf8("Select pattern size") );
+
+	m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
+	m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
+	m_sampleSelectionAlg->addItem( QString( "Random" ) );
+
+	m_sampleSelectionAlg->update();
+	connect( m_sampleSelectionAlg, SIGNAL( valueChanged( QString ) ), this, SLOT( pSampleSelectionChanged( QString ) ) );
 
 	//~ Layer properties
 
@@ -554,7 +561,22 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			m_pMidiOutNoteLCD->setText( sMidiOutNote );
 		}
 
-		m_pRoundRobinCheckBox->setChecked( m_pInstrument->is_round_robin() );
+		/*
+		 * m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
+		 * m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
+		 * m_sampleSelectionAlg->addItem( QString( "Random" ) );
+		 **/
+		switch ( m_pInstrument->sample_selection_alg() ) {
+			case Instrument::VELOCITY:
+				m_sampleSelectionAlg->set_text( "First in Velocity" );
+				break;
+			case Instrument::RANDOM:
+				m_sampleSelectionAlg->set_text( "Random" );
+				break;
+			case Instrument::ROUND_ROBIN:
+				m_sampleSelectionAlg->set_text( "Round Robin" );
+				break;
+		}
 
 		itemsCompo.clear();
 		std::vector<DrumkitComponent*>* compoList = Hydrogen::get_instance()->getSong()->get_components();
@@ -1280,11 +1302,23 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 
 }
 
-void InstrumentEditor::pRoundRobinCheckBoxClicked( bool on )
+void InstrumentEditor::pSampleSelectionChanged( QString selected )
 {
+	/*
+		"First in Velocity"
+		"Round Robin"
+		"Random"
+	*/
+
 	assert( m_pInstrument );
 
-	m_pInstrument->set_round_robin( on );
+	if ( selected.compare("First in Velocity") == 0 )
+		m_pInstrument->set_sample_selection_alg( Instrument::VELOCITY );
+	else if ( selected.compare("Round Robin") == 0 )
+		m_pInstrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
+	else if ( selected.compare("Random") == 0)
+		m_pInstrument->set_sample_selection_alg( Instrument::RANDOM );
+
 	selectedInstrumentChangedEvent();	// force an update
 }
 
