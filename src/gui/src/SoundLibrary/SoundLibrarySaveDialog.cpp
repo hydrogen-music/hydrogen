@@ -25,6 +25,9 @@
 #include <hydrogen/basics/drumkit.h>
 #include <QMessageBox>
 
+#include "../HydrogenApp.h"
+#include "../Skin.h"
+
 const char* SoundLibrarySaveDialog::__class_name = "SoundLibrarySaveDialog";
 
 SoundLibrarySaveDialog::SoundLibrarySaveDialog( QWidget* pParent )
@@ -47,17 +50,74 @@ SoundLibrarySaveDialog::~SoundLibrarySaveDialog()
 }
 
 
+void SoundLibrarySaveDialog::updateImage( QString& filename )
+{
+        QPixmap *pixmap = new QPixmap ( filename );
+        // scale the image down to fit if required
+        int x = (int) drumkitImageLabel->size().width();
+        int y = drumkitImageLabel->size().height();
+        float labelAspect = (float) x / y;
+        float imageAspect = (float) pixmap->width() / pixmap->height();
+
+        if ( ( x < pixmap->width() ) || ( y < pixmap->height() ) )
+        {
+                if ( labelAspect >= imageAspect )
+                {
+                        // image is taller or the same as label frame
+                        *pixmap = pixmap->scaledToHeight( y );
+                }
+                else
+                {
+                        // image is wider than label frame
+                        *pixmap = pixmap->scaledToWidth( x );
+                }
+        }
+        drumkitImageLabel->setPixmap(*pixmap);
+        drumkitImageLabel->show();
+
+}
+
+void SoundLibrarySaveDialog::on_imageBrowsePushButton_clicked()
+{
+        // Try to get the drumkit directory and open file browser
+	QString drumkitDir = H2Core::Filesystem::usr_drumkits_dir() + "/" + nameTxt->text();
+        QString fileName = QFileDialog::getOpenFileName(this, trUtf8("Open Image"), drumkitDir, trUtf8("Image Files (*.png *.jpg *.jpeg)"));
+
+        // If this file is in different directory copy it here
+
+        QFile file( fileName );
+        QFileInfo fileInfo(file.fileName());
+        ERRORLOG(fileInfo.dir().path().toLocal8Bit() + drumkitDir);
+        if ( fileInfo.dir().path() != drumkitDir )
+        {
+		QDir dir( drumkitDir );
+		if ( !dir.exists() )
+		{
+			dir.mkpath(".");
+		}
+		
+                INFOLOG("Copying " + fileName + " to " + drumkitDir.toLocal8Bit() );
+                if ( !QFile::copy( fileName, drumkitDir + "/" + fileInfo.fileName() ))
+                {
+                        WARNINGLOG( "Could not copy " + fileInfo.fileName() + " to " + drumkitDir );
+                }
+
+        }
+        QString filename(fileInfo.fileName());
+        imageText->setText( filename );
+        updateImage( fileName );
+}
+
 
 void SoundLibrarySaveDialog::on_saveBtn_clicked()
 {
-	INFOLOG( "!!!" );
-
 	if( nameTxt->text().isEmpty() ){
 			QMessageBox::information( this, "Hydrogen", trUtf8 ( "Please supply at least a valid name"));
 			return;
         }
-	// TODO: Make drumkit image editable - setting to "" for now
-    	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), "", H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), false ) ) {
+	
+	// Note: use full path for image - Drumkit->save() will handle copying it if need be
+    	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), H2Core::Filesystem::usr_drumkits_dir() + "/" + nameTxt->text() + "/" + imageText->text(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), false ) ) {
         QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
         return;
     }
