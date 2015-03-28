@@ -154,6 +154,32 @@ void SoundLibraryImportDialog::writeCachedData(const QString& fileName, const QS
 	outFile.close();
 }
 
+void SoundLibraryImportDialog::writeCachedImage( const QString& imageFile, QPixmap& pixmap )
+{
+	//QPixmap *pixmap = new QPixmap (drumkitInfo->get_path() + "/" + drumkitInfo->get_image());
+	QDir cacheDir ( H2Core::Filesystem::repositories_cache_dir() + "/images/" );
+
+	if ( !cacheDir.exists() )
+	{
+		INFOLOG("Making directory " + cacheDir.path().toLocal8Bit() );
+		if ( !cacheDir.mkpath( "." ) )
+		{
+			WARNINGLOG( "Unable to create image cache directory: " + cacheDir.path().toLocal8Bit() );
+			return;
+		}
+
+		QFile file( cacheDir.path() + "/" + imageFile );
+		file.open(QIODevice::WriteOnly);
+		pixmap.save(&file);
+		file.close();
+	}
+	QFile file( cacheDir.path() + "/" + imageFile );
+	file.open(QIODevice::WriteOnly);
+	pixmap.save(&file);
+	file.close();
+
+}
+
 QString SoundLibraryImportDialog::readCachedData(const QString& fileName)
 {
 	QString content;
@@ -175,6 +201,19 @@ QString SoundLibraryImportDialog::readCachedData(const QString& fileName)
 	content = document.toString();
 
 	return content;
+}
+
+QString SoundLibraryImportDialog::readCachedImage( const QString& imageFile )
+{
+	QDir cacheDir ( H2Core::Filesystem::repositories_cache_dir() + "/images/" );
+	QFile file( H2Core::Filesystem::repositories_cache_dir() + "/images/" + imageFile );
+
+	if ( !file.exists() )
+	{
+		return NULL;
+	}
+
+	return H2Core::Filesystem::repositories_cache_dir() + "/images/" + imageFile; 
 }
 
 void SoundLibraryImportDialog::reloadRepositoryData()
@@ -368,6 +407,7 @@ void SoundLibraryImportDialog::loadImage()
 	// TODO: Need to make sure that this isn't getting called after user clicks a different item!
 	pixmap.loadFromData(m_pImgCtrl->downloadedData());
 
+	writeCachedImage( drumkitImageLabel->text(), pixmap );
 	showImage( pixmap );
 }
 
@@ -423,6 +463,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 				// Load the drumkit image
 				// Clear any image first
 				drumkitImageLabel->setPixmap( NULL );
+				drumkitImageLabel->setText( info.getImage() );
 
 				if ( isSoundLibraryItemAlreadyInstalled( info ) )
 				{
@@ -446,28 +487,39 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 				}
 				else
 				{
-					// Get the drumkit's directory name from URL
-					//
-					// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php 
-					// and the image name from the XML is Roland_TR-808_drum_machine.jpg
-					// the URL for the image will be: http://www.hydrogen-music.org/feeds/images/Roland_TR-808_drum_machine.jpg
-
-					if ( info.getImage().length() > 0 )
+					// Try from the cache
+					QString cachedFile = readCachedImage( info.getImage() );
+					
+					if ( cachedFile.length() > 0 )
 					{
-						int lastSlash = info.getUrl().lastIndexOf( QString( "/" ));
+						INFOLOG( "Loaded image " + info.getImage().toLocal8Bit() + " from cache" );
+						QPixmap pixmap ( cachedFile );
+						showImage( pixmap );
+					}
+					else
+					{
+						// Get the drumkit's directory name from URL
+						//
+						// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php 
+						// and the image name from the XML is Roland_TR-808_drum_machine.jpg
+						// the URL for the image will be: http://www.hydrogen-music.org/feeds/images/Roland_TR-808_drum_machine.jpg
 
-						QUrl imageUrl;
-						imageUrl.setUrl ( repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) ) + QString( "/images/" ) + info.getImage() );
+						if ( info.getImage().length() > 0 )
+						{
+							int lastSlash = info.getUrl().lastIndexOf( QString( "/" ));
 
-						// TODO: If there's an image being loaded already abort it
+							QUrl imageUrl;
+							imageUrl.setUrl ( repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) ) + QString( "/images/" ) + info.getImage() );
 
-						m_pImgCtrl = new FileDownloader( imageUrl, this );
+							// TODO: If there's an image being loaded already abort it
 
-						connect(m_pImgCtrl, SIGNAL(imageDownloaded()), SLOT(loadImage()));
-						INFOLOG("Loading image " + info.getImage().toLocal8Bit() + " from remote server");
+							m_pImgCtrl = new FileDownloader( imageUrl, this );
+
+							connect(m_pImgCtrl, SIGNAL(imageDownloaded()), SLOT(loadImage()));
+							INFOLOG("Loading image " + info.getImage().toLocal8Bit() + " from remote server");
+						}
 					}
 				}
-
 				DownloadBtn->setEnabled( true );
 				return;
 			}
