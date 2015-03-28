@@ -76,6 +76,7 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 		void reloadRepositoryData();
 		void updateSoundLibraryList();
 		void updateRepositoryCombo();
+		void showImage( QPixmap pixmap );
 		FileDownloader *m_pImgCtrl;
 
 };

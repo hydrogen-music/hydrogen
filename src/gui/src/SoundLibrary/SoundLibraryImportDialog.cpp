@@ -368,7 +368,11 @@ void SoundLibraryImportDialog::loadImage()
 	// TODO: Need to make sure that this isn't getting called after user clicks a different item!
 	pixmap.loadFromData(m_pImgCtrl->downloadedData());
 
-	// scale the image down to fit if required
+	showImage( pixmap );
+}
+
+void SoundLibraryImportDialog::showImage( QPixmap pixmap )
+{
 	int x = (int) drumkitImageLabel->size().width();
 	int y = drumkitImageLabel->size().height();
 	float labelAspect = (float) x / y;
@@ -387,8 +391,8 @@ void SoundLibraryImportDialog::loadImage()
                         pixmap = pixmap.scaledToWidth( x );
                 }
         }
+	drumkitImageLabel->setPixmap( pixmap ); // TODO: Check if valid!
 
-	drumkitImageLabel->setPixmap( pixmap );	// TODO: Check if valid!
 }
 
 
@@ -419,24 +423,48 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 				// Download the drumkit image	===> TODO: If the kit is installed get the image from the local disk not from the remote server!
 				// Clear any image first
 				drumkitImageLabel->setPixmap( NULL );
-				// Get the drumkit's directory name from URL
-				//
-				// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php 
-				// and the image name from the XML is Roland_TR-808_drum_machine.jpg
-				// the URL for the image will be: http://www.hydrogen-music.org/feeds/images/Roland_TR-808_drum_machine.jpg
 
-				if ( info.getImage().length() > 0 )
+				if ( isSoundLibraryItemAlreadyInstalled( info ) )
 				{
-					int lastSlash = info.getUrl().lastIndexOf( QString( "/" ));
+					// get image file from local disk
+					// path is not set yet! ERRORLOG( "Path: " + info.getPath().toLocal8Bit() );
+					QString sName = QFileInfo( info.getUrl() ).fileName();
+					sName = sName.left( sName.lastIndexOf( "." ) );
 
-					QUrl imageUrl;
-					imageUrl.setUrl ( repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) ) + QString( "/images/" ) + info.getImage() );
+					H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load_by_name( sName, false );
+					if ( drumkitInfo ) 
+					{
+						// get the image from the local filesystem
+						QPixmap pixmap ( drumkitInfo->get_path() + "/" + drumkitInfo->get_image() );
+						showImage( pixmap );
+					} 
+					else 
+					{
+						___ERRORLOG ( "Error loading the drumkit" );
+					}
 
-					// TODO: If there's an image being loaded already abort it
+				}
+				else
+				{
+					// Get the drumkit's directory name from URL
+					//
+					// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php 
+					// and the image name from the XML is Roland_TR-808_drum_machine.jpg
+					// the URL for the image will be: http://www.hydrogen-music.org/feeds/images/Roland_TR-808_drum_machine.jpg
 
-					m_pImgCtrl = new FileDownloader( imageUrl, this );
+					if ( info.getImage().length() > 0 )
+					{
+						int lastSlash = info.getUrl().lastIndexOf( QString( "/" ));
 
-					connect(m_pImgCtrl, SIGNAL(imageDownloaded()), SLOT(loadImage()));
+						QUrl imageUrl;
+						imageUrl.setUrl ( repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) ) + QString( "/images/" ) + info.getImage() );
+
+						// TODO: If there's an image being loaded already abort it
+
+						m_pImgCtrl = new FileDownloader( imageUrl, this );
+
+						connect(m_pImgCtrl, SIGNAL(imageDownloaded()), SLOT(loadImage()));
+					}
 				}
 
 				DownloadBtn->setEnabled( true );
