@@ -43,7 +43,6 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 		~SoundLibraryImportDialog();
 
 	public slots:
-		void replyFinished (QNetworkReply *reply);
 		void loadImage();
 
 	signals:
@@ -77,7 +76,6 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 		void reloadRepositoryData();
 		void updateSoundLibraryList();
 		void updateRepositoryCombo();
-		QPixmap getLibraryItemImage( const QString& image );
 		FileDownloader *m_pImgCtrl;
 
 };

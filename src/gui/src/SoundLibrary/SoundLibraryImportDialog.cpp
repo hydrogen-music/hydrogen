@@ -368,59 +368,12 @@ void ImageDownloader::downloadImage ()
 	manager->get(QNetworkRequest(QUrl("http://localhost/wellersbay.png")));
 }
 
-void SoundLibraryImportDialog::replyFinished ( QNetworkReply *reply )
-{
-	if(reply->error())
-	{
-
-	}
-	else
-	{
-		QFile *file = new QFile("/home/pvint/H2Test2");
-		if(file->open(QFile::Append))
-		{
-			file->write(reply->readAll());
-			file->flush();
-			file->close();
-		}
-		delete file;
-	}
-}
-QPixmap SoundLibraryImportDialog::getLibraryItemImage( const QString& image )
-{
-	//QUrl imageUrl("http://localhost/wellersbay.png");
-	//FileDownloader *m_pImgCtrl = new FileDownloader( imageUrl, this );
-
-	QPixmap pixmap; // = new QPixmap ("/usr/local/share/hydrogen/data/drumkits/TR808EmulationKit/Roland_TR-808_drum_machine.jpg");
-	//pixmap->loadFromData(m_pImgCtrl->downloadedData());
-
-	// scale the image down to fit if required
-	int x = (int) drumkitImageLabel->size().width();
-	int y = drumkitImageLabel->size().height();
-	float labelAspect = (float) x / y;
-	float imageAspect = (float) pixmap.width() / pixmap.height();
-
-	if ( ( x < pixmap.width() ) || ( y < pixmap.height() ) )
-	{
-		if ( labelAspect >= imageAspect )
-		{
-			// image is taller or the same as label frame
-			pixmap = pixmap.scaledToHeight( y );
-		}
-		else
-		{
-			// image is wider than label frame
-			pixmap = pixmap.scaledToWidth( x );
-		}
-	}
-
-	return pixmap;
-}	
 
 void SoundLibraryImportDialog::loadImage()
 {
 	// FileDownloader emits imageDownloaded signal to call this slot
 	QPixmap pixmap;
+	// TODO: Need to make sure that this isn't getting called after user clicks a different item!
 	pixmap.loadFromData(m_pImgCtrl->downloadedData());
 
 	// scale the image down to fit if required
@@ -428,7 +381,7 @@ void SoundLibraryImportDialog::loadImage()
 	int y = drumkitImageLabel->size().height();
 	float labelAspect = (float) x / y;
 	float imageAspect = (float) pixmap.width() / pixmap.height();
-
+ERRORLOG( QString::number(pixmap.width()).toLocal8Bit());
 	if ( ( x < pixmap.width() ) || ( y < pixmap.height() ) )
 	{
                 if ( labelAspect >= imageAspect )
@@ -471,15 +424,34 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 
 				LicenseLbl->setText( trUtf8( "License: %1" ).arg( info.getLicense()) );
 
-				// Download the drumkit image
-				QUrl imageUrl("http://localhost/wellersbay.png");
-				m_pImgCtrl = new FileDownloader( imageUrl, this );
+				// Download the drumkit image	===> TODO: If the kit is installed get the image from the local disk not from the remote server!
+				// Clear any image first
+				drumkitImageLabel->setPixmap( NULL );
+				//QUrl imageUrl("http://earthobservatory.nasa.gov/Features/BlueMarble/Images/BlueMarble_2005_SAm_09_4096.png");
+				//QUrl imageUrl("http://hydrogen-music.org/hcms/sites/default/files/zeropoint_logo.png");
+				
+				// Get the drumkit's directory name from URL
+				// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php 
+				// and the image name from the XML is Roland_TR-808_drum_machine.jpg
+				// the URL for the image will be: http://www.hydrogen-music.org/feeds/drumkits//TR808EmulationKit/Roland_TR-808_drum_machine.jpg
 
-				connect(m_pImgCtrl, SIGNAL(imageDownloaded()), SLOT(loadImage()));
+				if ( info.getImage().length() > 0 )
+				{
+					int lastSlash = info.getUrl().lastIndexOf( QString( "/" ));
 
-				drumkitImageLabel->setPixmap(pixmap);
-				drumkitImageLabel->show();
+					QString kitDir = info.getUrl().mid( lastSlash, info.getUrl().length() - lastSlash - 10 ); // -10 for removing '.h2drumkit'
 
+					//QUrl imageUrl( repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) ) + "/drumkits" + kitDir + "/" + info.getImage());
+					// Skipping kitdir part - doesn't match with the directories in the .h2drumkit tarballs
+					QUrl imageUrl;
+					imageUrl.setUrl ( repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) ) + QString( "/images/" ) + info.getImage() );
+					ERRORLOG( ":" + imageUrl.toString() + ":");
+					// If there's an image being loaded already abort it
+
+					m_pImgCtrl = new FileDownloader( imageUrl, this );
+
+					connect(m_pImgCtrl, SIGNAL(imageDownloaded()), SLOT(loadImage()));
+				}
 
 				DownloadBtn->setEnabled( true );
 				return;
