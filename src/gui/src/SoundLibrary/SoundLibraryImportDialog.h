@@ -80,16 +80,4 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 
 };
 
-class ImageDownloader : public QObject { 
-	Q_OBJECT 
-	
-	public: 
-		explicit ImageDownloader(QObject *parent = 0); 
-		void downloadImage( ); 
-
-	signals: 
-		
-
-	private: QNetworkAccessManager *manager; 
-};
 #endif

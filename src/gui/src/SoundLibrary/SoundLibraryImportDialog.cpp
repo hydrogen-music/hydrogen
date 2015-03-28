@@ -361,14 +361,6 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	return false;
 }
 
-void ImageDownloader::downloadImage ()
-{
-	manager = new QNetworkAccessManager(this); 
-	connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
-	manager->get(QNetworkRequest(QUrl("http://localhost/wellersbay.png")));
-}
-
-
 void SoundLibraryImportDialog::loadImage()
 {
 	// FileDownloader emits imageDownloaded signal to call this slot
@@ -381,7 +373,7 @@ void SoundLibraryImportDialog::loadImage()
 	int y = drumkitImageLabel->size().height();
 	float labelAspect = (float) x / y;
 	float imageAspect = (float) pixmap.width() / pixmap.height();
-ERRORLOG( QString::number(pixmap.width()).toLocal8Bit());
+
 	if ( ( x < pixmap.width() ) || ( y < pixmap.height() ) )
 	{
                 if ( labelAspect >= imageAspect )
@@ -427,26 +419,20 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 				// Download the drumkit image	===> TODO: If the kit is installed get the image from the local disk not from the remote server!
 				// Clear any image first
 				drumkitImageLabel->setPixmap( NULL );
-				//QUrl imageUrl("http://earthobservatory.nasa.gov/Features/BlueMarble/Images/BlueMarble_2005_SAm_09_4096.png");
-				//QUrl imageUrl("http://hydrogen-music.org/hcms/sites/default/files/zeropoint_logo.png");
-				
 				// Get the drumkit's directory name from URL
+				//
 				// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php 
 				// and the image name from the XML is Roland_TR-808_drum_machine.jpg
-				// the URL for the image will be: http://www.hydrogen-music.org/feeds/drumkits//TR808EmulationKit/Roland_TR-808_drum_machine.jpg
+				// the URL for the image will be: http://www.hydrogen-music.org/feeds/images/Roland_TR-808_drum_machine.jpg
 
 				if ( info.getImage().length() > 0 )
 				{
 					int lastSlash = info.getUrl().lastIndexOf( QString( "/" ));
 
-					QString kitDir = info.getUrl().mid( lastSlash, info.getUrl().length() - lastSlash - 10 ); // -10 for removing '.h2drumkit'
-
-					//QUrl imageUrl( repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) ) + "/drumkits" + kitDir + "/" + info.getImage());
-					// Skipping kitdir part - doesn't match with the directories in the .h2drumkit tarballs
 					QUrl imageUrl;
 					imageUrl.setUrl ( repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) ) + QString( "/images/" ) + info.getImage() );
-					ERRORLOG( ":" + imageUrl.toString() + ":");
-					// If there's an image being loaded already abort it
+
+					// TODO: If there's an image being loaded already abort it
 
 					m_pImgCtrl = new FileDownloader( imageUrl, this );
 
