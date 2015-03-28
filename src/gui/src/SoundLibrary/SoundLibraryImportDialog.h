@@ -28,7 +28,6 @@
 #include <hydrogen/object.h>
 #include <hydrogen/Preferences.h>
 #include "SoundLibraryDatastructures.h"
-#include <QNetworkReply>
 #include "FileDownloader.h"
 
 ///

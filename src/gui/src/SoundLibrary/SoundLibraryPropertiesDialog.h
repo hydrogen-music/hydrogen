@@ -43,6 +43,7 @@ class SoundLibraryPropertiesDialog : public QDialog, public Ui_SoundLibraryPrope
 
 	private slots:
 			void on_saveBtn_clicked();
+
 	private:
 };
 

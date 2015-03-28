@@ -420,14 +420,13 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 
 				LicenseLbl->setText( trUtf8( "License: %1" ).arg( info.getLicense()) );
 
-				// Download the drumkit image	===> TODO: If the kit is installed get the image from the local disk not from the remote server!
+				// Load the drumkit image
 				// Clear any image first
 				drumkitImageLabel->setPixmap( NULL );
 
 				if ( isSoundLibraryItemAlreadyInstalled( info ) )
 				{
 					// get image file from local disk
-					// path is not set yet! ERRORLOG( "Path: " + info.getPath().toLocal8Bit() );
 					QString sName = QFileInfo( info.getUrl() ).fileName();
 					sName = sName.left( sName.lastIndexOf( "." ) );
 
