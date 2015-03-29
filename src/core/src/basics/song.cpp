@@ -76,6 +76,7 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 	, __swing_factor( 0.0 )
 	, __song_mode( PATTERN_MODE )
 	, __components( NULL )
+	, __latest_round_robin( 0 )
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( __name ) );
 
