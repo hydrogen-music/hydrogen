@@ -39,6 +39,7 @@ class Song;
 class Sample;
 class DrumkitComponent;
 class Instrument;
+struct SelectedLayerInfo;
 class InstrumentComponent;
 class AudioOutput;
 
@@ -202,6 +203,7 @@ private:
 	int __render_note_no_resample(
 		Sample *pSample,
 		Note *pNote,
+		SelectedLayerInfo *pSelectedLayerInfo,
 		InstrumentComponent *pCompo,
 		DrumkitComponent *pDrumCompo,
 		int nBufferSize,
@@ -216,6 +218,7 @@ private:
 	int __render_note_resample(
 		Sample *pSample,
 		Note *pNote,
+		SelectedLayerInfo *pSelectedLayerInfo,
 		InstrumentComponent *pCompo,
 		DrumkitComponent *pDrumCompo,
 		int nBufferSize,

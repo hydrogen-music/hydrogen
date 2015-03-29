@@ -585,6 +585,7 @@ Song* SongReader::readSong( const QString& filename )
                     int id = LocalFileMng::readXmlInt( componentNode, "component_id", 0 );
                     InstrumentComponent* pCompo = new InstrumentComponent( id );
                     float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
+					pCompo->set_gain( fGainCompo );
 
                     unsigned nLayer = 0;
                     QDomNode layerNode = componentNode.firstChildElement( "layer" );
@@ -671,6 +672,7 @@ Song* SongReader::readSong( const QString& filename )
                 if(!p_foundAtLeastOneComponent){
                     InstrumentComponent* pCompo = new InstrumentComponent( 0 );
                     float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
+					pCompo->set_gain( fGainCompo );
                     unsigned nLayer = 0;
                     QDomNode layerNode = instrumentNode.firstChildElement( "layer" );
                     while (  ! layerNode.isNull()  ) {
@@ -925,13 +927,13 @@ Song* SongReader::readSong( const QString& filename )
 		QDomNode fxNode = ladspaNode.firstChildElement( "fx" );
 		while (  !fxNode.isNull()  ) {
 			QString sName = LocalFileMng::readXmlString( fxNode, "name", "" );
-			QString sFilename = LocalFileMng::readXmlString( fxNode, "filename", "" );
-			bool bEnabled = LocalFileMng::readXmlBool( fxNode, "enabled", false );
-			float fVolume = LocalFileMng::readXmlFloat( fxNode, "volume", 1.0 );
 
 			if ( sName != "no plugin" ) {
 				// FIXME: il caricamento va fatto fare all'engine, solo lui sa il samplerate esatto
 #ifdef H2CORE_HAVE_LADSPA
+				QString sFilename = LocalFileMng::readXmlString( fxNode, "filename", "" );
+				bool bEnabled = LocalFileMng::readXmlBool( fxNode, "enabled", false );
+				float fVolume = LocalFileMng::readXmlFloat( fxNode, "volume", 1.0 );
 				LadspaFX* pFX = LadspaFX::load( sFilename, sName, 44100 );
 				Effects::get_instance()->setLadspaFX( pFX, nFX );
 				if ( pFX ) {
