@@ -16,9 +16,10 @@ public:
     virtual ~FileDownloader();
  
     QByteArray downloadedData() const;
+    QNetworkReply* reply();
  
 signals:
-        void imageDownloaded();
+        void imageDownloaded( );
  
 private slots:
  
@@ -29,6 +30,7 @@ private:
     QNetworkAccessManager m_WebCtrl;
  
     QByteArray m_DownloadedData;
+    QNetworkReply* m_Reply;
  
 };
  

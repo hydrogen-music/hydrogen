@@ -400,8 +400,17 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	return false;
 }
 
-void SoundLibraryImportDialog::loadImage()
+void SoundLibraryImportDialog::loadImage( )
 {
+	QVariant httpCode = m_pImgCtrl->reply()->attribute( QNetworkRequest::HttpStatusCodeAttribute );
+	if ( httpCode != "200" )
+	{
+		WARNINGLOG( "Error fetching image from remote server (HTTP " + httpCode.toString() + ")" );
+		return ;
+	}
+	
+	
+	
 	// FileDownloader emits imageDownloaded signal to call this slot
 	QPixmap pixmap;
 	// TODO: Need to make sure that this isn't getting called after user clicks a different item!
@@ -465,61 +474,70 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 				drumkitImageLabel->setPixmap( NULL );
 				drumkitImageLabel->setText( info.getImage() );
 
-				if ( isSoundLibraryItemAlreadyInstalled( info ) )
+				if ( info.getImage().length() > 0 )
 				{
-					// get image file from local disk
-					QString sName = QFileInfo( info.getUrl() ).fileName();
-					sName = sName.left( sName.lastIndexOf( "." ) );
+					if ( isSoundLibraryItemAlreadyInstalled( info ) )
+					{
+						// get image file from local disk
+						QString sName = QFileInfo( info.getUrl() ).fileName();
+						sName = sName.left( sName.lastIndexOf( "." ) );
 
-					H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load_by_name( sName, false );
-					if ( drumkitInfo ) 
-					{
-						// get the image from the local filesystem
-						QPixmap pixmap ( drumkitInfo->get_path() + "/" + drumkitInfo->get_image() );
-						INFOLOG("Loaded image " + drumkitInfo->get_image().toLocal8Bit() + " from local filesystem");
-						showImage( pixmap );
-					} 
-					else 
-					{
-						___ERRORLOG ( "Error loading the drumkit" );
-					}
+						H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load_by_name( sName, false );
+						if ( drumkitInfo ) 
+						{
+							// get the image from the local filesystem
+							QPixmap pixmap ( drumkitInfo->get_path() + "/" + drumkitInfo->get_image() );
+							INFOLOG("Loaded image " + drumkitInfo->get_image().toLocal8Bit() + " from local filesystem");
+							showImage( pixmap );
+						} 
+						else 
+						{
+							___ERRORLOG ( "Error loading the drumkit" );
+						}
 
-				}
-				else
-				{
-					// Try from the cache
-					QString cachedFile = readCachedImage( info.getImage() );
-					
-					if ( cachedFile.length() > 0 )
-					{
-						INFOLOG( "Loaded image " + info.getImage().toLocal8Bit() + " from cache" );
-						QPixmap pixmap ( cachedFile );
-						showImage( pixmap );
 					}
 					else
 					{
-						// Get the drumkit's directory name from URL
-						//
-						// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php 
-						// and the image name from the XML is Roland_TR-808_drum_machine.jpg
-						// the URL for the image will be: http://www.hydrogen-music.org/feeds/images/Roland_TR-808_drum_machine.jpg
-
-						if ( info.getImage().length() > 0 )
+						// Try from the cache
+						QString cachedFile = readCachedImage( info.getImage() );
+						
+						if ( cachedFile.length() > 0 )
 						{
-							int lastSlash = info.getUrl().lastIndexOf( QString( "/" ));
+							INFOLOG( "Loaded image " + info.getImage().toLocal8Bit() + " from cache (" + cachedFile + ")" );
+							QPixmap pixmap ( cachedFile );
+							showImage( pixmap );
+						}
+						else
+						{
+							// Get the drumkit's directory name from URL
+							//
+							// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php 
+							// and the image name from the XML is Roland_TR-808_drum_machine.jpg
+							// the URL for the image will be: http://www.hydrogen-music.org/feeds/images/Roland_TR-808_drum_machine.jpg
 
-							QUrl imageUrl;
-							imageUrl.setUrl ( repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) ) + QString( "/images/" ) + info.getImage() );
+							if ( info.getImage().length() > 0 )
+							{
+								int lastSlash = info.getUrl().lastIndexOf( QString( "/" ));
 
-							// TODO: If there's an image being loaded already abort it
+								QUrl imageUrl;
+								imageUrl.setUrl ( repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) ) + QString( "/images/" ) + info.getImage() );
 
-							m_pImgCtrl = new FileDownloader( imageUrl, this );
+								// TODO: If there's an image being loaded already abort it
 
-							connect(m_pImgCtrl, SIGNAL(imageDownloaded()), SLOT(loadImage()));
-							INFOLOG("Loading image " + info.getImage().toLocal8Bit() + " from remote server");
+								m_pImgCtrl = new FileDownloader( imageUrl, this );
+
+								connect(m_pImgCtrl, SIGNAL(imageDownloaded( )), SLOT(loadImage()));
+								INFOLOG("Loading image " + info.getImage().toLocal8Bit() + " from remote server");
+							}
 						}
 					}
 				}
+				else
+				{
+					// no image file specified in drumkit.xml
+					INFOLOG( "No image for this kit specified in drumkit.xml on remote server" );
+				}
+				
 				DownloadBtn->setEnabled( true );
 				return;
 			}

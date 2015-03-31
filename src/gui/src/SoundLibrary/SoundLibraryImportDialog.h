@@ -26,6 +26,8 @@
 
 #include "ui_SoundLibraryImportDialog_UI.h"
 #include <hydrogen/object.h>
+#include <QNetworkReply>
+
 #include <hydrogen/Preferences.h>
 #include "SoundLibraryDatastructures.h"
 #include "FileDownloader.h"
@@ -42,7 +44,7 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 		~SoundLibraryImportDialog();
 
 	public slots:
-		void loadImage();
+		void loadImage( );
 
 	signals:
 

@@ -22,10 +22,11 @@ FileDownloader::~FileDownloader()
  
 void FileDownloader::fileDownloaded(QNetworkReply* pReply)
 {
+	m_Reply = pReply;
 	m_DownloadedData = pReply->readAll();
 	//emit a signal
 	pReply->deleteLater();
-	emit imageDownloaded();
+	emit imageDownloaded( );
 }
  
 QByteArray FileDownloader::downloadedData() const
@@ -33,3 +34,7 @@ QByteArray FileDownloader::downloadedData() const
 	return m_DownloadedData;
 }
 
+QNetworkReply* FileDownloader::reply()
+{
+	return m_Reply;
+}
