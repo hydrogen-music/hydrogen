@@ -73,6 +73,7 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 		bool isSoundLibraryItemAlreadyInstalled( SoundLibraryInfo sInfo );
 		void writeCachedData(const QString& fileName, const QString& data);
 		void writeCachedImage( const QString& imageFile, QPixmap& pixmap );
+		void clearImageCache();
 		QString readCachedImage( const QString& imageFile );
 		QString readCachedData(const QString& fileName);
 		QString getCachedFilename();

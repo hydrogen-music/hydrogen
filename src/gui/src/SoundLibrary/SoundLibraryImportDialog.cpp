@@ -126,6 +126,20 @@ void SoundLibraryImportDialog::on_EditListBtn_clicked()
 	updateRepositoryCombo();
 }
 
+void SoundLibraryImportDialog::clearImageCache()
+{
+	QString cacheDir = H2Core::Filesystem::repositories_cache_dir() + "/images/" ;
+	INFOLOG("Deleting files from " + cacheDir.toLocal8Bit() );
+
+	QDir dir( cacheDir );
+	dir.setNameFilters(QStringList() << "*.*");
+	dir.setFilter(QDir::Files);
+	foreach(QString dirFile, dir.entryList())
+	{
+	    dir.remove(dirFile);
+	}
+}
+
 QString SoundLibraryImportDialog::getCachedFilename()
 {
 	QString cacheDir = H2Core::Filesystem::repositories_cache_dir();
@@ -367,6 +381,10 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 			pDrumkitItem->setText( 1, trUtf8( "New" ) );
 		}
 	}
+
+	// Also clear out the image cache
+	clearImageCache();
+
 }
 
 
