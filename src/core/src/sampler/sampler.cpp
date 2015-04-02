@@ -351,7 +351,6 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 
 						if( p_foundSamples > 0 ) {
 							p_roundRobinID = pInstr->get_id() * 10 + p_roundRobinID;
-							std::cerr<<pInstr->get_id()<< " " << p_roundRobinID<<std::endl;
 							int p_indexToUse = pSong->get_latest_round_robin(p_roundRobinID)+1;
 							if( p_indexToUse > p_foundSamples - 1)
 								p_indexToUse = 0;
