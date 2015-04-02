@@ -213,6 +213,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pInstrumentGain->move( 117, 100 );
 
 
+
+
 	m_pMuteGroupLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pMuteGroupLCD->move( 160, 105 );
 
@@ -242,6 +244,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pIsStopNoteCheckBox->move( 63, 138 );
 	m_pIsStopNoteCheckBox->setToolTip( trUtf8( "Stop the current playing instrument-note before trigger the next note sample." ) );
 	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
+
+	m_pIgnoreVelocity = new QCheckBox ( trUtf8( "" ), m_pInstrumentProp );
+	m_pIgnoreVelocity->move( 153, 138 );
+	m_pIgnoreVelocity->setToolTip( trUtf8( "Don't change the layers' gain based on velocity" ) );
+	connect( m_pIgnoreVelocity, SIGNAL( toggled( bool ) ), this, SLOT( onIsIgnoreVelocityCheckBoxClicked( bool ) ) );
 
 	//////////////////////////
 	// HiHat setup
@@ -524,6 +531,8 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 		//Stop Note
 		m_pIsStopNoteCheckBox->setChecked( m_pInstrument->is_stop_notes() );
+
+		m_pIgnoreVelocity->setChecked( m_pInstrument->get_ignore_velocity() );
 
 		// instr gain
 		char tmp[20];
@@ -1070,6 +1079,12 @@ void InstrumentEditor::muteGroupBtnClicked(Button *pRef)
 void InstrumentEditor::onIsStopNoteCheckBoxClicked( bool on )
 {
 	m_pInstrument->set_stop_notes( on );
+	selectedInstrumentChangedEvent();	// force an update
+}
+
+void InstrumentEditor::onIsIgnoreVelocityCheckBoxClicked( bool on )
+{
+	m_pInstrument->set_ignore_velocity( on );
 	selectedInstrumentChangedEvent();	// force an update
 }
 

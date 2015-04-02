@@ -221,6 +221,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	instrument->set_pan_l( node->read_float( "pan_L", 1.0f ) );
 	instrument->set_pan_r( node->read_float( "pan_R", 1.0f ) );
 	// may not exist, but can't be empty
+	instrument->set_ignore_velocity( node->read_bool( "ignoreVelocity", true, false ) );
 	instrument->set_filter_active( node->read_bool( "filterActive", true, false ) );
 	instrument->set_filter_cutoff( node->read_float( "filterCutoff", 1.0f, true, false ) );
 	instrument->set_filter_resonance( node->read_float( "filterResonance", 0.0f, true, false ) );
@@ -291,6 +292,7 @@ void Instrument::save_to( XMLNode* node )
 	instrument_node.write_float( "pan_R", __pan_r );
 	instrument_node.write_float( "randomPitchFactor", __random_pitch_factor );
 	instrument_node.write_float( "gain", __gain );
+	instrument_node.write_bool( "ignoreVelocity", __ignore_velocity );
 	instrument_node.write_bool( "filterActive", __filter_active );
 	instrument_node.write_float( "filterCutoff", __filter_cutoff );
 	instrument_node.write_float( "filterResonance", __filter_resonance );

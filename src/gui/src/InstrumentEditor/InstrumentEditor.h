@@ -77,6 +77,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		void muteGroupBtnClicked(Button *pRef);
 		void onIsStopNoteCheckBoxClicked( bool on );
+		void onIsIgnoreVelocityCheckBoxClicked( bool on);
 		void midiOutChannelBtnClicked(Button *pRef);
 		void midiOutNoteBtnClicked(Button *pRef);
 
@@ -116,6 +117,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		// Instrument gain
 		LCDDisplay *m_pInstrumentGainLCD;
 		Rotary *m_pInstrumentGain;
+		QCheckBox *m_pIgnoreVelocity;
 
 		// Instrument mute group
 		LCDDisplay *m_pMuteGroupLCD;

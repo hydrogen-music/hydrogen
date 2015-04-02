@@ -246,6 +246,9 @@ class Instrument : public H2Core::Object
 		std::vector<InstrumentComponent*>* get_components();
 		InstrumentComponent* get_component( int DrumkitComponentID );
 
+		void set_ignore_velocity( bool ignore_velocity );
+		bool get_ignore_velocity();
+
 
 
 	private:
@@ -275,8 +278,9 @@ class Instrument : public H2Core::Object
 		float __fx_level[MAX_FX];	            ///< Ladspa FX level array
 		bool __hihat;                           ///< the instrument is a hihat
 		int __lower_cc;                         ///< lower cc level
-        int __higher_cc;                        ///< higher cc level
+		int __higher_cc;                        ///< higher cc level
         std::vector<InstrumentComponent*>* __components;  ///< InstrumentLayer array
+		bool __ignore_velocity;					///< don't change the sample gain based on velocity
 };
 
 // DEFINITIONS
@@ -569,6 +573,16 @@ inline const QString& Instrument::get_drumkit_name() const
 inline std::vector<InstrumentComponent*>* Instrument::get_components()
 {
     return __components;
+}
+
+inline void Instrument::set_ignore_velocity( bool ignore_velocity )
+{
+	__ignore_velocity = ignore_velocity;
+}
+
+inline bool Instrument::get_ignore_velocity()
+{
+	return __ignore_velocity;
 }
 
 
