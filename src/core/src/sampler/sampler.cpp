@@ -337,24 +337,26 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 					if( !pSample ) {
 						int __possibleIndex[MAX_LAYERS];
 						int p_foundSamples = 0;
-						float p_roundRobinMinVelocity;
+						float p_roundRobinID;
 						for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == NULL ) continue;
 
 							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
 								__possibleIndex[p_foundSamples] = nLayer;
-								p_roundRobinMinVelocity = pLayer->get_start_velocity();
+								p_roundRobinID = pLayer->get_start_velocity();
 								p_foundSamples++;
 							}
 						}
 
 						if( p_foundSamples > 0 ) {
-							int p_indexToUse = pSong->get_latest_round_robin(p_roundRobinMinVelocity)+1;
+							p_roundRobinID = pInstr->get_id() * 10 + p_roundRobinID;
+							std::cerr<<pInstr->get_id()<< " " << p_roundRobinID<<std::endl;
+							int p_indexToUse = pSong->get_latest_round_robin(p_roundRobinID)+1;
 							if( p_indexToUse > p_foundSamples - 1)
 								p_indexToUse = 0;
 
-							pSong->set_latest_round_robin(p_roundRobinMinVelocity, p_indexToUse);
+							pSong->set_latest_round_robin(p_roundRobinID, p_indexToUse);
 							p_alreadySelectedLayer = __possibleIndex[p_indexToUse];
 
 							pSelectedLayer->SelectedLayer = p_alreadySelectedLayer;
