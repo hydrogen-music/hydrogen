@@ -251,6 +251,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 
 	for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it !=pInstr->get_components()->end(); ++it) {
         InstrumentComponent *pCompo = *it;
+
         DrumkitComponent* pMainCompo = pEngine->getSong()->get_component( pCompo->get_drumkit_componentID() );
 
         float fLayerGain = 1.0;
@@ -259,6 +260,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
         // scelgo il sample da usare in base alla velocity
         Sample *pSample = NULL;
 		SelectedLayerInfo *pSelectedLayer = pNote->get_layer_selected( pCompo->get_drumkit_componentID() );
+
 		if( pSelectedLayer->SelectedLayer != -1 ) {
 			InstrumentLayer *pLayer = pCompo->get_layer( pSelectedLayer->SelectedLayer );
 
@@ -275,6 +277,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 
 						if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
 							pSelectedLayer->SelectedLayer = nLayer;
+
 							pSample = pLayer->get_sample();
 							fLayerGain = pLayer->get_gain();
 							fLayerPitch = pLayer->get_pitch();
@@ -287,12 +290,14 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 					if( p_alreadySelectedLayer != -1 ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( p_alreadySelectedLayer );
 						if ( pLayer != NULL ) {
+							pSelectedLayer->SelectedLayer = p_alreadySelectedLayer;
+
 							pSample = pLayer->get_sample();
 							fLayerGain = pLayer->get_gain();
 							fLayerPitch = pLayer->get_pitch();
 						}
 					}
-					if( !pSample ) {
+					if( pSample == NULL ) {
 						int __possibleIndex[MAX_LAYERS];
 						int p_foundSamples = 0;
 						for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
@@ -307,7 +312,8 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 
 						if( p_foundSamples > 0 ) {
 							p_alreadySelectedLayer = __possibleIndex[rand() % p_foundSamples];
-							pNote->get_layer_selected( pCompo->get_drumkit_componentID() )->SelectedLayer = p_alreadySelectedLayer;
+							pSelectedLayer->SelectedLayer = p_alreadySelectedLayer;
+
 							InstrumentLayer *pLayer = pCompo->get_layer( p_alreadySelectedLayer );
 
 							pSample = pLayer->get_sample();
@@ -321,6 +327,8 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 					if( p_alreadySelectedLayer != -1 ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( p_alreadySelectedLayer );
 						if ( pLayer != NULL ) {
+							pSelectedLayer->SelectedLayer = p_alreadySelectedLayer;
+
 							pSample = pLayer->get_sample();
 							fLayerGain = pLayer->get_gain();
 							fLayerPitch = pLayer->get_pitch();
@@ -329,26 +337,29 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 					if( !pSample ) {
 						int __possibleIndex[MAX_LAYERS];
 						int p_foundSamples = 0;
+						float p_roundRobinMinVelocity;
 						for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == NULL ) continue;
 
 							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
 								__possibleIndex[p_foundSamples] = nLayer;
+								p_roundRobinMinVelocity = pLayer->get_start_velocity();
 								p_foundSamples++;
 							}
 						}
 
 						if( p_foundSamples > 0 ) {
-							int p_indexToUse = pSong->get_latest_round_robin()+1;
+							int p_indexToUse = pSong->get_latest_round_robin(p_roundRobinMinVelocity)+1;
 							if( p_indexToUse > p_foundSamples - 1)
 								p_indexToUse = 0;
 
-							pSong->set_latest_round_robin(p_indexToUse);
+							pSong->set_latest_round_robin(p_roundRobinMinVelocity, p_indexToUse);
 							p_alreadySelectedLayer = __possibleIndex[p_indexToUse];
-							pNote->get_layer_selected( pCompo->get_drumkit_componentID() )->SelectedLayer = p_alreadySelectedLayer;
-							InstrumentLayer *pLayer = pCompo->get_layer( p_alreadySelectedLayer );
 
+							pSelectedLayer->SelectedLayer = p_alreadySelectedLayer;
+
+							InstrumentLayer *pLayer = pCompo->get_layer( p_alreadySelectedLayer );
 							pSample = pLayer->get_sample();
 							fLayerGain = pLayer->get_gain();
 							fLayerPitch = pLayer->get_pitch();
