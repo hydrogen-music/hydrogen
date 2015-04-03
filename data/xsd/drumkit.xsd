@@ -109,6 +109,7 @@
             <xsd:element name="info"     type="xsd:string"/>
             <xsd:element name="license"  type="xsd:string"/>
             <xsd:element name="image"	 type="xsd:string"/>
+	    <xsd:element name="imageLicense"    type="xsd:string"/>
             <xsd:element name="componentList">
                 <xsd:complexType>
                     <xsd:sequence>

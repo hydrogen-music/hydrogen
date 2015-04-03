@@ -77,6 +77,7 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 		QString readCachedImage( const QString& imageFile );
 		QString readCachedData(const QString& fileName);
 		QString getCachedFilename();
+		QString getCachedImageFilename();
 		void reloadRepositoryData();
 		void updateSoundLibraryList();
 		void updateRepositoryCombo();

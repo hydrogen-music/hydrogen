@@ -208,9 +208,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>320</y>
+     <y>350</y>
      <width>571</width>
-     <height>251</height>
+     <height>221</height>
     </rect>
    </property>
    <property name="palette">
@@ -315,6 +315,47 @@
    </property>
    <property name="text">
     <string>Browse</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="imageLicenseText">
+   <property name="geometry">
+    <rect>
+     <x>111</x>
+     <y>320</y>
+     <width>471</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>209</width>
+     <height>0</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>320</y>
+     <width>91</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="text">
+    <string>Image License</string>
    </property>
   </widget>
  </widget>

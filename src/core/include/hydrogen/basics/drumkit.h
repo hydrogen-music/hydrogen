@@ -119,7 +119,7 @@ class Drumkit : public H2Core::Object
 		 * \oaram overwrite allows to write over existing drumkit files
 		 * \return true on success
 		 */
-		static bool save( const QString& name, const QString& author, const QString& info, const QString& license, const QString& image, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite=false );
+		static bool save( const QString& name, const QString& author, const QString& info, const QString& license, const QString& image, const QString& imageLicense, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite=false );
 		/**
 		 * install a drumkit from a filename
 		 * \param path the path to the new drumkit archive
@@ -162,6 +162,10 @@ class Drumkit : public H2Core::Object
 		void set_image( const QString& image );
 		/** __image accessor */
 		const QString& get_image() const;
+		/** __imageLicense setter */
+		void set_image_license( const QString& imageLicense );
+		/** __imageLicense accessor */
+		const QString& get_image_license() const;
 		/** return true if the samples are loaded */
 		const bool samples_loaded() const;
 
@@ -177,6 +181,7 @@ class Drumkit : public H2Core::Object
 		QString __info;                 ///< drumkit free text
 		QString __license;              ///< drumkit license description
 		QString __image;		///< drumkit image filename
+		QString __imageLicense;		///< drumkit image license
 
 		bool __samples_loaded;          ///< true if the instrument samples are loaded
 		InstrumentList* __instruments;  ///< the list of instruments
@@ -259,6 +264,16 @@ inline void Drumkit::set_image( const QString& image )
 inline const QString& Drumkit::get_image() const
 {
 	return __image;
+}
+
+inline void Drumkit::set_image_license( const QString& imageLicense )
+{
+	__imageLicense = imageLicense;
+}
+
+inline const QString& Drumkit::get_image_license() const
+{
+	return __imageLicense;
 }
 
 inline const bool Drumkit::samples_loaded() const

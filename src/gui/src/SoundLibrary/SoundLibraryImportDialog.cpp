@@ -128,15 +128,18 @@ void SoundLibraryImportDialog::on_EditListBtn_clicked()
 
 void SoundLibraryImportDialog::clearImageCache()
 {
-	QString cacheDir = H2Core::Filesystem::repositories_cache_dir() + "/images/" ;
-	INFOLOG("Deleting files from " + cacheDir.toLocal8Bit() );
+	QString cacheDir = H2Core::Filesystem::repositories_cache_dir() ;
+	INFOLOG("Deleting cached image files from " + cacheDir.toLocal8Bit() );
 
 	QDir dir( cacheDir );
-	dir.setNameFilters(QStringList() << "*.*");
+	dir.setNameFilters(QStringList() << "*.png");
 	dir.setFilter(QDir::Files);
 	foreach(QString dirFile, dir.entryList())
 	{
-	    dir.remove(dirFile);
+		if ( !dir.remove(dirFile) )
+		{
+			WARNINGLOG("Error removing image file(s) from cache.");
+		}
 	}
 }
 
@@ -147,6 +150,15 @@ QString SoundLibraryImportDialog::getCachedFilename()
 	QString cacheFile = cacheDir + "/" + serverMd5;
 	return cacheFile;
 }
+
+QString SoundLibraryImportDialog::getCachedImageFilename()
+{
+        QString cacheDir = H2Core::Filesystem::repositories_cache_dir();
+        QString kitNameMd5 = QString(QCryptographicHash::hash(( SoundLibraryNameLbl->text().toLatin1() ),QCryptographicHash::Md5).toHex());
+        QString cacheFile = cacheDir + "/" + kitNameMd5 + ".png";	
+        return cacheFile;
+}
+
 
 void SoundLibraryImportDialog::writeCachedData(const QString& fileName, const QString& data)
 {
@@ -170,28 +182,18 @@ void SoundLibraryImportDialog::writeCachedData(const QString& fileName, const QS
 
 void SoundLibraryImportDialog::writeCachedImage( const QString& imageFile, QPixmap& pixmap )
 {
-	//QPixmap *pixmap = new QPixmap (drumkitInfo->get_path() + "/" + drumkitInfo->get_image());
-	QDir cacheDir ( H2Core::Filesystem::repositories_cache_dir() + "/images/" );
+	QString cacheFile = getCachedImageFilename() ;
 
-	if ( !cacheDir.exists() )
+	QFile outFile( cacheFile );
+	if( !outFile.open( QIODevice::WriteOnly ) )
 	{
-		INFOLOG("Making directory " + cacheDir.path().toLocal8Bit() );
-		if ( !cacheDir.mkpath( "." ) )
-		{
-			WARNINGLOG( "Unable to create image cache directory: " + cacheDir.path().toLocal8Bit() );
-			return;
-		}
-
-		QFile file( cacheDir.path() + "/" + imageFile );
-		file.open(QIODevice::WriteOnly);
-		pixmap.save(&file);
-		file.close();
+		ERRORLOG( "Failed to open file for writing repository image cache." );
+		return;
 	}
-	QFile file( cacheDir.path() + "/" + imageFile );
-	file.open(QIODevice::WriteOnly);
-	pixmap.save(&file);
-	file.close();
+	
+	pixmap.save(&outFile);
 
+	outFile.close();
 }
 
 QString SoundLibraryImportDialog::readCachedData(const QString& fileName)
@@ -219,15 +221,16 @@ QString SoundLibraryImportDialog::readCachedData(const QString& fileName)
 
 QString SoundLibraryImportDialog::readCachedImage( const QString& imageFile )
 {
-	QDir cacheDir ( H2Core::Filesystem::repositories_cache_dir() + "/images/" );
-	QFile file( H2Core::Filesystem::repositories_cache_dir() + "/images/" + imageFile );
+	QString cacheFile = getCachedImageFilename() ;
 
-	if ( !file.exists() )
-	{
-		return NULL;
-	}
-
-	return H2Core::Filesystem::repositories_cache_dir() + "/images/" + imageFile; 
+        QFile file( cacheFile );
+        if( !file.exists() )
+        {       
+                // no image in cache, just return NULL
+                return NULL; 
+        }       
+        
+	return cacheFile;
 }
 
 void SoundLibraryImportDialog::reloadRepositoryData()
@@ -292,6 +295,12 @@ void SoundLibraryImportDialog::reloadRepositoryData()
 				if ( !imageNode.isNull() ) {
 					soundLibInfo.setImage( imageNode.text() );
 				}
+
+				QDomElement imageLicenseNode = drumkitNode.firstChildElement( "imageLicense" );
+				if ( !imageLicenseNode.isNull() ) {
+					soundLibInfo.setImageLicense( imageLicenseNode.text() );
+				}
+
 
 				m_soundLibraryList.push_back( soundLibInfo );
 			}
@@ -486,6 +495,8 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 				AuthorLbl->setText( trUtf8( "Author: %1" ).arg( info.getAuthor() ) );
 
 				LicenseLbl->setText( trUtf8( "License: %1" ).arg( info.getLicense()) );
+
+				ImageLicenseLbl->setText( trUtf8("Image License: %1" ).arg( info.getImageLicense() ) );
 
 				// Load the drumkit image
 				// Clear any image first

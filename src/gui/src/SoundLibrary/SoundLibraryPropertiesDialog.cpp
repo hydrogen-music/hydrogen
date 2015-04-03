@@ -59,6 +59,7 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 		infoTxt->append( QString( drumkitInfo->get_info() ) );
 		licenseTxt->setText( QString( drumkitInfo->get_license() ) );
 		imageText->setText( QString ( drumkitInfo->get_image() ) );
+		imageLicenseText->setText( QString ( drumkitInfo->get_image_license() ) );
 
 		QPixmap *pixmap = new QPixmap (drumkitInfo->get_path() + "/" + drumkitInfo->get_image());
 		// scale the image down to fit if required
@@ -120,6 +121,7 @@ void SoundLibraryPropertiesDialog::updateImage( QString& filename )
 	drumkitImageLabel->show();
 
 }
+
 void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
 {
 	// Try to get the drumkit directory and open file browser
@@ -183,7 +185,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 
 	//save the drumkit
 	// Note: The full path of the image is passed to make copying to a new drumkit easy
-	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), drumkitinfo->get_path() + "/" + drumkitinfo->get_image(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) ) {
+	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), drumkitinfo->get_path() + "/" + drumkitinfo->get_image(), drumkitinfo->get_image_license(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) ) {
         QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
     }
 
@@ -194,6 +196,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 		drumkitinfo->set_info( infoTxt->toHtml() );
 		drumkitinfo->set_license( licenseTxt->text() );
 		drumkitinfo->set_image( imageText->text() );
+		drumkitinfo->set_image_license( imageLicenseText->text() );
 	}
 
 
