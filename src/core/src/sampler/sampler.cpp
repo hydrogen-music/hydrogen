@@ -122,8 +122,7 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 	Note* pNote;
 	while ( i < __playing_notes_queue.size() ) {
 		pNote = __playing_notes_queue[ i ];		// recupero una nuova nota
-		unsigned res = __render_note( pNote, nFrames, pSong );
-		if ( res == 1 ) {	// la nota e' finita
+		if ( __render_note( pNote, nFrames, pSong ) ) {	// la nota e' finita
 			__playing_notes_queue.erase( __playing_notes_queue.begin() + i );
 			pNote->get_instrument()->dequeue();
 			__queuedNoteOffs.push_back( pNote );
@@ -223,9 +222,9 @@ void Sampler::note_off( Note* note )
 
 
 /// Render a note
-/// Return 0: the note is not ended
-/// Return 1: the note is ended
-unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
+/// Return false: the note is not ended
+/// Return true : the note is ended
+bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 {
 	//infoLog( "[renderNote] instr: " + pNote->getInstrument()->m_sName );
 	assert( pSong );
@@ -246,10 +245,11 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		return 1;
 	}
 
-    int p_returnValue = 0;
+	bool p_returnValues [pInstr->get_components()->size()];
+	int p_returnValueIndex = 0;
 	int p_alreadySelectedLayer = -1;
-
 	for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it !=pInstr->get_components()->end(); ++it) {
+		p_returnValues[p_returnValueIndex] = false;
         InstrumentComponent *pCompo = *it;
 
         DrumkitComponent* pMainCompo = pEngine->getSong()->get_component( pCompo->get_drumkit_componentID() );
@@ -260,6 +260,13 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
         // scelgo il sample da usare in base alla velocity
         Sample *pSample = NULL;
 		SelectedLayerInfo *pSelectedLayer = pNote->get_layer_selected( pCompo->get_drumkit_componentID() );
+
+		if ( !pSelectedLayer ) {
+			QString dummy = QString( "NULL Layer Informationfor instrument %1. Component: %2" ).arg( pInstr->get_name() ).arg( pCompo->get_drumkit_componentID() );
+			WARNINGLOG( dummy );
+			p_returnValues[p_returnValueIndex] = true;
+			continue;
+		}
 
 		if( pSelectedLayer->SelectedLayer != -1 ) {
 			InstrumentLayer *pLayer = pCompo->get_layer( pSelectedLayer->SelectedLayer );
@@ -372,13 +379,13 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
         if ( !pSample ) {
             QString dummy = QString( "NULL sample for instrument %1. Note velocity: %2" ).arg( pInstr->get_name() ).arg( pNote->get_velocity() );
             WARNINGLOG( dummy );
-            p_returnValue = 1;
+			p_returnValues[p_returnValueIndex] = true;
             continue;
         }
 
 		if ( pSelectedLayer->SamplePosition >= pSample->get_frames() ) {
             WARNINGLOG( "sample position out of bounds. The layer has been resized during note play?" );
-            p_returnValue = 1;
+			p_returnValues[p_returnValueIndex] = true;
             continue;
         }
 
@@ -393,8 +400,8 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
                 if ( noteStartInFramesNoHumanize > ( int )( nFramepos + nBufferSize ) ) {
                     // this note is not valid. it's in the future...let's skip it....
                     ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFramepos ).arg(noteStartInFramesNoHumanize ) );
-                    //pNote->dumpInfo();
-                    p_returnValue = 1;
+					//pNote->dumpInfo();
+					p_returnValues[p_returnValueIndex] = true;
                     continue;
                 }
                 // delay note execution
@@ -479,18 +486,19 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
             }
         }
 
-        if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == audio_output->getSampleRate() ) {	// NO RESAMPLE
-			if ( __render_note_no_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong ) == 1 )
-                p_returnValue = 1;
-        } else {	// RESAMPLE
-			if ( __render_note_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong ) == 1 )
-                p_returnValue = 1;
-        }
+		if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == audio_output->getSampleRate() ) // NO RESAMPLE
+			p_returnValues[p_returnValueIndex] = __render_note_no_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong );
+		else // RESAMPLE
+			p_returnValues[p_returnValueIndex] = __render_note_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong );
+
+		p_returnValueIndex++;
     }
-    return p_returnValue;
+	for ( unsigned i = 0 ; i < pInstr->get_components()->size() ; i++ )
+		if ( !p_returnValues[i] ) return false;
+	return true;
 }
 
-int Sampler::__render_note_no_resample(
+bool Sampler::__render_note_no_resample(
 	Sample *pSample,
 	Note *pNote,
 	SelectedLayerInfo *pSelectedLayerInfo,
@@ -506,7 +514,7 @@ int Sampler::__render_note_no_resample(
 )
 {
 	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
-	int retValue = 1; // the note is ended
+	bool retValue = true; // the note is ended
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
@@ -518,7 +526,7 @@ int Sampler::__render_note_no_resample(
 	if ( nAvail_bytes > nBufferSize - nInitialSilence ) {	// il sample e' piu' grande del buffersize
 		// imposto il numero dei bytes disponibili uguale al buffersize
 		nAvail_bytes = nBufferSize - nInitialSilence;
-		retValue = 0; // the note is not ended yet
+		retValue = false; // the note is not ended yet
 	}
 
 
@@ -564,7 +572,7 @@ int Sampler::__render_note_no_resample(
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pSelectedLayerInfo->SamplePosition ) ) {
 						if ( pNote->get_adsr()->release() == 0 ) {
-				retValue = 1;	// the note is ended
+				retValue = true;	// the note is ended
 			}
 		}
 
@@ -646,7 +654,7 @@ int Sampler::__render_note_no_resample(
 
 
 
-int Sampler::__render_note_resample(
+bool Sampler::__render_note_resample(
 	Sample *pSample,
 	Note *pNote,
 	SelectedLayerInfo *pSelectedLayerInfo,
@@ -678,11 +686,11 @@ int Sampler::__render_note_resample(
 	int nAvail_bytes = ( int )( ( float )( pSample->get_frames() - pSelectedLayerInfo->SamplePosition ) / fStep );
 
 
-	int retValue = 1; // the note is ended
+	bool retValue = true; // the note is ended
 	if ( nAvail_bytes > nBufferSize - nInitialSilence ) {	// il sample e' piu' grande del buffersize
 		// imposto il numero dei bytes disponibili uguale al buffersize
 		nAvail_bytes = nBufferSize - nInitialSilence;
-		retValue = 0; // the note is not ended yet
+		retValue = false; // the note is not ended yet
 	}
 
 	//	ADSR *pADSR = pNote->m_pADSR;
@@ -728,7 +736,7 @@ int Sampler::__render_note_resample(
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pSelectedLayerInfo->SamplePosition ) ) {
 						if ( pNote->get_adsr()->release() == 0 ) {
-				retValue = 1;	// the note is ended
+				retValue = true;	// the note is ended
 			}
 		}
 
