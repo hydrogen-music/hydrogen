@@ -247,7 +247,7 @@ class Instrument : public H2Core::Object
 		InstrumentComponent* get_component( int DrumkitComponentID );
 
 		void set_ignore_velocity( bool ignore_velocity );
-		bool get_ignore_velocity();
+		bool get_ignore_velocity() const;
 
 
 
@@ -580,7 +580,7 @@ inline void Instrument::set_ignore_velocity( bool ignore_velocity )
 	__ignore_velocity = ignore_velocity;
 }
 
-inline bool Instrument::get_ignore_velocity()
+inline bool Instrument::get_ignore_velocity() const
 {
 	return __ignore_velocity;
 }

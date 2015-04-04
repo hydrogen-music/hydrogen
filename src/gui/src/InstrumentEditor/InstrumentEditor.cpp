@@ -1078,12 +1078,16 @@ void InstrumentEditor::muteGroupBtnClicked(Button *pRef)
 
 void InstrumentEditor::onIsStopNoteCheckBoxClicked( bool on )
 {
+	assert( m_pInstrument );
+
 	m_pInstrument->set_stop_notes( on );
 	selectedInstrumentChangedEvent();	// force an update
 }
 
 void InstrumentEditor::onIsIgnoreVelocityCheckBoxClicked( bool on )
 {
+	assert( m_pInstrument );
+
 	m_pInstrument->set_ignore_velocity( on );
 	selectedInstrumentChangedEvent();	// force an update
 }

@@ -70,6 +70,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __lower_cc( 0 )
 	, __higher_cc( 127 )
 	, __components( NULL )
+	, __ignore_velocity( false )
 {
 	if ( __adsr==0 ) __adsr = new ADSR();
 	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = 0.0;
@@ -104,6 +105,7 @@ Instrument::Instrument( Instrument* other )
 	, __lower_cc( other->get_lower_cc() )
 	, __higher_cc( other->get_higher_cc() )
 	, __components( NULL )
+	, __ignore_velocity( other->get_ignore_velocity() )
 {
 	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = other->get_fx_level( i );
 
@@ -194,6 +196,7 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
 	this->set_hihat( instrument->is_hihat() );
 	this->set_lower_cc( instrument->get_lower_cc() );
 	this->set_higher_cc( instrument->get_higher_cc() );
+	this->set_ignore_velocity ( instrument->get_ignore_velocity() );
 	if ( is_live )
 		AudioEngine::get_instance()->unlock();
 }
