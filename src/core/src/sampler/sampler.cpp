@@ -849,7 +849,7 @@ bool Sampler::__render_note_resample(
 			float fFXCost_R = fLevel * masterVol;
 
 			int nBufferPos = nInitialBufferPos;
-			float fSamplePos = fInitialSamplePos;
+			float fSamplePos = pSelectedLayerInfo->SamplePosition;
 			for ( int i = 0; i < nAvail_bytes; ++i ) {
 				int nSamplePos = ( int )fSamplePos;
 				double fDiff = fSamplePos - nSamplePos;
