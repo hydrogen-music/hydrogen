@@ -229,8 +229,8 @@ class Instrument : public H2Core::Object
 		void set_sample_selection_alg( SampleSelectionAlgo selected_algo);
 		SampleSelectionAlgo sample_selection_alg() const;
 
-		void set_hihat( bool ishihat );
-		bool is_hihat() const;
+		void set_hihat_grp( int hihat_grp );
+		int get_hihat_grp() const;
 
 		void set_lower_cc( int message );
 		int get_lower_cc() const;
@@ -276,7 +276,7 @@ class Instrument : public H2Core::Object
 		int __mute_group;		                ///< mute group of the instrument
 		int __queued;                           ///< count the number of notes queued within Sampler::__playing_notes_queue or std::priority_queue m_songNoteQueue
 		float __fx_level[MAX_FX];	            ///< Ladspa FX level array
-		bool __hihat;                           ///< the instrument is a hihat
+		int __hihat_grp;                        ///< the instrument is part of a hihat grp
 		int __lower_cc;                         ///< lower cc level
 		int __higher_cc;                        ///< higher cc level
         std::vector<InstrumentComponent*>* __components;  ///< InstrumentLayer array
@@ -529,14 +529,14 @@ inline Instrument::SampleSelectionAlgo Instrument::sample_selection_alg() const
 	return __sample_selection_alg;
 }
 
-inline void Instrument::set_hihat( bool ishihat )
+inline void Instrument::set_hihat_grp( int hihat_grp )
 {
-    __hihat = ishihat;
+	__hihat_grp = hihat_grp;
 }
 
-inline bool Instrument::is_hihat() const
+inline int Instrument::get_hihat_grp() const
 {
-    return __hihat;
+	return __hihat_grp;
 }
 
 inline void Instrument::set_lower_cc( int message )

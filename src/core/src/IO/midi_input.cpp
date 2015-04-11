@@ -269,14 +269,14 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		hihat openess is outside the instrument selected
 		*/
 		if ( instr != NULL &&
-			 instr->is_hihat() &&
+			 instr->get_hihat_grp() >= 0 &&
 			 ( __hihat_cc_openess < instr->get_lower_cc() || __hihat_cc_openess > instr->get_higher_cc() ) )
 		{
 			for(int i=0 ; i<=instrList->size() ; i++)
 			{
 				Instrument *instr_contestant = instrList->get( i );
 				if( instr_contestant != NULL &&
-						instr_contestant->is_hihat() &&
+						instr->get_hihat_grp() == instr_contestant->get_hihat_grp() &&
 						__hihat_cc_openess >= instr_contestant->get_lower_cc() &&
 						__hihat_cc_openess <= instr_contestant->get_higher_cc() )
 				{

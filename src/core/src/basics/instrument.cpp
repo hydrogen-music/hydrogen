@@ -66,7 +66,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __muted( false )
 	, __mute_group( -1 )
 	, __queued( 0 )
-	, __hihat( false )
+	, __hihat_grp( -1 )
 	, __lower_cc( 0 )
 	, __higher_cc( 127 )
 	, __components( NULL )
@@ -101,7 +101,7 @@ Instrument::Instrument( Instrument* other )
 	, __muted( other->is_muted() )
 	, __mute_group( other->get_mute_group() )
 	, __queued( other->is_queued() )
-	, __hihat( other->is_hihat() )
+	, __hihat_grp( other->get_hihat_grp() )
 	, __lower_cc( other->get_lower_cc() )
 	, __higher_cc( other->get_higher_cc() )
 	, __components( NULL )
@@ -193,7 +193,7 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
 	this->set_midi_out_note( instrument->get_midi_out_note() );
 	this->set_stop_notes( instrument->is_stop_notes() );
 	this->set_sample_selection_alg( instrument->sample_selection_alg() );
-	this->set_hihat( instrument->is_hihat() );
+	this->set_hihat_grp( instrument->get_hihat_grp() );
 	this->set_lower_cc( instrument->get_lower_cc() );
 	this->set_higher_cc( instrument->get_higher_cc() );
 	this->set_ignore_velocity ( instrument->get_ignore_velocity() );
@@ -247,7 +247,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	else if ( p_read_sample_select_algo.compare("RANDOM") == 0 )
 			instrument->set_sample_selection_alg( RANDOM );
 
-	instrument->set_hihat( node->read_bool( "isHihat", false, true ) );
+	instrument->set_hihat_grp( node->read_int( "isHihat", -1, true ) );
 	instrument->set_lower_cc( node->read_int( "lower_cc", 0, true ) );
 	instrument->set_higher_cc( node->read_int( "higher_cc", 127, true ) );
 
@@ -319,7 +319,7 @@ void Instrument::save_to( XMLNode* node )
 			instrument_node.write_string( "sampleSelectionAlgo", "ROUND_ROBIN" );
 			break;
 	}
-	instrument_node.write_bool( "isHihat", __hihat );
+	instrument_node.write_int( "isHihat", __hihat_grp );
 	instrument_node.write_int( "lower_cc", __lower_cc );
 	instrument_node.write_int( "higher_cc", __higher_cc );
 	for ( int i=0; i<MAX_FX; i++ ) {

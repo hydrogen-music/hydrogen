@@ -38,7 +38,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>35</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -79,7 +79,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>36</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -120,7 +120,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>38</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -161,7 +161,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>40</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -202,7 +202,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>39</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -243,7 +243,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>43</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -284,7 +284,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>45</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -325,7 +325,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>48</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -366,7 +366,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>42</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -407,7 +407,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>44</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -448,7 +448,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>46</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -489,7 +489,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>49</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -530,7 +530,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>70</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -571,7 +571,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>63</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -612,7 +612,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>75</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -653,7 +653,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>56</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>

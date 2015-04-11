@@ -93,7 +93,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 					instrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
 				else if ( p_read_sample_select_algo.compare("RANDOM") == 0 )
 					instrument->set_sample_selection_alg( Instrument::RANDOM );
-				instrument->set_hihat( instrument_node.read_bool( "isHihat", false, true ) );
+				instrument->set_hihat_grp( instrument_node.read_int( "isHihat", -1, true ) );
                 instrument->set_lower_cc( instrument_node.read_int( "lower_cc", 0, true ) );
                 instrument->set_higher_cc( instrument_node.read_int( "higher_cc", 127, true ) );
 				for ( int i=0; i<MAX_FX; i++ ) {

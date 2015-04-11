@@ -516,7 +516,7 @@ Song* SongReader::readSong( const QString& filename )
 				continue;
 			}
 
-			bool bIsHiHat = LocalFileMng::readXmlBool( instrumentNode, "isHihat", false, true );
+			int iIsHiHat = LocalFileMng::readXmlInt( instrumentNode, "isHihat", -1, true );
 			int iLowerCC = LocalFileMng::readXmlInt( instrumentNode, "lower_cc", 0, true );
 			int iHigherCC = LocalFileMng::readXmlInt( instrumentNode, "higher_cc", 127, true );
 
@@ -539,7 +539,7 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_gain( fGain );
 			pInstrument->set_mute_group( nMuteGroup );
 			pInstrument->set_stop_notes( isStopNote );
-			pInstrument->set_hihat( bIsHiHat );
+			pInstrument->set_hihat_grp( iIsHiHat );
 			pInstrument->set_lower_cc( iLowerCC );
 			pInstrument->set_higher_cc( iHigherCC );
 			if ( p_read_sample_select_algo.compare("VELOCITY") == 0 )
