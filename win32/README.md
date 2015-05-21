@@ -11,7 +11,7 @@
                            libffi-dev libtool libtool-bin libltdl-dev \
                            libssl-dev libxml-parser-perl make openssl \
                            patch perl pkg-config scons sed unzip wget \
-			   xz-utils
+			   xz-utils libfftw3-dev libportaudio-dev
 
 #### On 64-bit Debian/Ubuntu (additional packages)
 
@@ -95,6 +95,8 @@ Then cross-compile gcc again.
     user    199m0.451s
     sys     15m14.591s
 
+    $ make portaudio portmidi fftw
+
 ### Cross-compiling Hydrogen
 
     $ cd $HYDROGEN
@@ -107,7 +109,7 @@ Then cross-compile gcc again.
     
     $ export HYDROGEN_BUILD=$PWD
     
-    $ cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake
+    $ cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake -DWANT_PORTAUDIO=1 -DWANT_PORTMIDI=1
 
     Edit *$HYDROGEN/src/core/include/hydrogen/hydrogen.h* and add the line *#include <hydrogen/timehelper.h>* at the end of the includes
     
