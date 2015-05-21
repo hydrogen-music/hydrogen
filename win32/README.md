@@ -8,9 +8,10 @@
 
     $ sudo apt-get install autoconf automake autopoint bash bison bzip2 \
                            cmake flex gettext git gcc g++ intltool \
-                           libffi-dev libtool libltdl-dev libssl-dev \
-                           libxml-parser-perl make openssl patch perl \
-                           pkg-config scons sed unzip wget xz-utils
+                           libffi-dev libtool libtool-bin libltdl-dev \
+                           libssl-dev libxml-parser-perl make openssl \
+                           patch perl pkg-config scons sed unzip wget \
+			   xz-utils
 
 #### On 64-bit Debian/Ubuntu (additional packages)
 
@@ -72,7 +73,7 @@ Most *make* operations below take a considerable amount of time. The lengthy one
 
 Edit *src/gcc.mk* and set the value of *$(PKG)_DEPS* as follows.
 
-    $(PKG)_DEPS     := binutils gcc-cloog gcc-gmp gcc-isl gcc-mpc gcc-mpfr winpthreads
+    $(PKG)_DEPS     := binutils gcc-gmp gcc-isl gcc-mpc gcc-mpfr winpthreads
 
 Also set the value of *--enable-threads* as follows.
 
@@ -107,6 +108,8 @@ Then cross-compile gcc again.
     $ export HYDROGEN_BUILD=$PWD
     
     $ cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake
+
+    Edit *$HYDROGEN/src/core/include/hydrogen/hydrogen.h* and add the line *#include <hydrogen/timehelper.h>* at the end of the includes
     
     $ make
 
