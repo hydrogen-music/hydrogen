@@ -32,5 +32,10 @@ cp $MXE/usr/i686-w64-mingw32.shared/bin/liblzma-5.dll .
 cp $MXE/usr/i686-w64-mingw32.shared/bin/libnettle-4-6.dll .
 cp $MXE/usr/i686-w64-mingw32.shared/bin/libxml2-2.dll .
 cp $MXE/usr/i686-w64-mingw32.shared/bin/libpng16-16.dll .
+cp $MXE/usr/i686-w64-mingw32.shared/bin/libportmidi.dll .
+cp $MXE/usr/i686-w64-mingw32.shared/bin/libportaudio2.dll .
+cp $MXE/usr/i686-w64-mingw32.shared/bin/libiconv-2.dll .
+cp $MXE/usr/i686-w64-mingw32.shared/bin/libfftw3-3.dll .
+cp $MXE/usr/i686-w64-mingw32.shared/bin/libiconv-2.dll .
 
 cp -r $HYDROGEN/data .
