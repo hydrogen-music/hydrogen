@@ -8,7 +8,7 @@ ERR_MSG=""
 clear
 
 while :
-do
+	do
 	# If error exists, display it
 	if [ "$ERR_MSG" != "" ]; then
 		echo "Error: $ERR_MSG"
@@ -42,11 +42,12 @@ do
 			mkdir ~/build/hydrogen_win32
 			cd ~/build/hydrogen_win32
 			export BUILD_DIR=$PWD
-			git clone -b master https://github.com/hydrogen-music/hydrogen.git
+			#git clone -b master https://github.com/hydrogen-music/hydrogen.git
+			https://github.com/mikotoiii/hydrogen.git
 			git clone -b master https://github.com/mxe/mxe.git
 			;;
 		3)	#Set the required variables
-			echo
+			echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction."
 			export HYDROGEN=~/build/hydrogen_win32/hydrogen
 			export MXE=~/build/hydrogen_win32/mxe
 			#Modify the files as needed
@@ -57,7 +58,7 @@ do
 			sed -i 's/binutils gcc-gmp gcc-isl gcc-mpc gcc-mpfr mingw-w64/binutils gcc-gmp gcc-isl gcc-mpc gcc-mpfr winpthreads/g' $MXE/src/gcc.mk
 			sed -i 's/--enable-threads=win32/--enable-threads=posix/g' $MXE/src/gcc.mk
 			make gcc
-			make qt libarchive libsndfile
+			make qt libarchive libsndfile portaudio portmidi fftw rubberband -j7 JOBS=7
 			mkdir $HYDROGEN/win32/windows_32_bit_build
 			export HYDROGEN_BUILD=$HYDROGEN/win32/windows_32_bit_build
 			cd $HYDROGEN_BUILD
@@ -66,7 +67,8 @@ do
 			sh ../create_bundle.sh
 			;;
 		4)	#Clean up the files
-			mv $HYDROGEN_BUILD/windows_32_bit_build $BUILD_DIR/windows_32_bit_build
+			echo "Now cleaning up the files. This process will move the built hydrogen into your home directory and delete the build files."
+			mv $HYDROGEN_BUILD/windows_32_bit_build ~/hydrogen_windows_32_bit_build
 			rm -rf $HYDROGEN
 			rm -rf $MXE
 			;;
