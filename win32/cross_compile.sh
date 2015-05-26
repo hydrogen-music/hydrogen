@@ -43,8 +43,9 @@ while :
 			cd ~/build/hydrogen_win32
 			export BUILD_DIR=$PWD
 			#git clone -b master https://github.com/hydrogen-music/hydrogen.git
-			https://github.com/mikotoiii/hydrogen.git
+			git clone -b master https://github.com/mikotoiii/hydrogen.git
 			git clone -b master https://github.com/mxe/mxe.git
+			git clone git://github.com/jackaudio/jack2.git
 			;;
 		3)	#Set the required variables
 			echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction."
@@ -64,9 +65,6 @@ while :
 			make gcc
 			#Build the dependancies for hydrogen
 			make qt libarchive libsndfile portaudio portmidi fftw rubberband -j7 JOBS=7
-			
-			#Jack is a requirement for the Windows Version, so we'll build it here.
-
 
 			#Build hydrogen itself now.
 			mkdir $HYDROGEN/win32/windows_32_bit_build

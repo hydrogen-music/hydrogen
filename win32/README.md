@@ -96,6 +96,12 @@ Then cross-compile gcc again.
     user    199m0.451s
     sys     15m14.591s
 
+### Cross-compiling Jack support
+    
+    Download and install Jack for Windows
+
+    Copy the files C:\Program Files (x86)\Jack\
+
 ### Cross-compiling Hydrogen
 
     $ cd $HYDROGEN
@@ -108,9 +114,7 @@ Then cross-compile gcc again.
     
     $ export HYDROGEN_BUILD=$PWD
     
-    $ cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake -DCMAKE_BUILD_TYPE="Pre-Release Alpha 1" -DWANT_DEBUG=1 -DWANT_JACK=1 -DWANT_LIBARCHIVE=1 -DWANT_RUBBERBAND=1 -DWANT_PORTAUDIO=1 -DWANT_PORTMIDI=1 -DWANT_LRDF=1 -DWANT_COREAUDIO=1 -DWANT_COREMIDI=1
-
-    Edit *$HYDROGEN/src/core/include/hydrogen/hydrogen.h* and add the line *#include <hydrogen/timehelper.h>* at the end of the includes
+    $ cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake"
     
     $ make
 
