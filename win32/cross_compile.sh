@@ -48,17 +48,27 @@ while :
 			;;
 		3)	#Set the required variables
 			echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction."
+			
 			export HYDROGEN=~/build/hydrogen_win32/hydrogen
 			export MXE=~/build/hydrogen_win32/mxe
-			#Modify the files as needed
+			#Modify the MXE Makefiles to allow for the cross compilation.
 			sed -i 's/i686-w64-mingw32.static/i686-w64-mingw32.shared/g' $MXE/Makefile
 			cd $MXE
+			#Make gcc and winpthreads. gcc will need to be rebuilt once winpthreads is built.
+			#Note: This needs to happen because winpthreads needs gcc to be built, but we need gcc built with winpthreads support to build hydrogen.
+			#	this creates a cyclical dependancy problem that there seems to be no way around.
 			make gcc
 			make winpthreads
 			sed -i 's/binutils gcc-gmp gcc-isl gcc-mpc gcc-mpfr mingw-w64/binutils gcc-gmp gcc-isl gcc-mpc gcc-mpfr winpthreads/g' $MXE/src/gcc.mk
 			sed -i 's/--enable-threads=win32/--enable-threads=posix/g' $MXE/src/gcc.mk
 			make gcc
+			#Build the dependancies for hydrogen
 			make qt libarchive libsndfile portaudio portmidi fftw rubberband -j7 JOBS=7
+			
+			#Jack is a requirement for the Windows Version, so we'll build it here.
+
+
+			#Build hydrogen itself now.
 			mkdir $HYDROGEN/win32/windows_32_bit_build
 			export HYDROGEN_BUILD=$HYDROGEN/win32/windows_32_bit_build
 			cd $HYDROGEN_BUILD

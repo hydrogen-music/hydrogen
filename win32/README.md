@@ -11,7 +11,8 @@
                            libffi-dev libtool libtool-bin libltdl-dev \
                            libssl-dev libxml-parser-perl make openssl \
                            patch perl pkg-config scons sed unzip wget \
-			   xz-utils libfftw3-dev libportaudio-dev ladspa-sdk
+                           xz-utils libfftw3-dev libportaudio-dev \
+                           ladspa-sdk gnulib
 
 #### On 64-bit Debian/Ubuntu (additional packages)
 
@@ -69,7 +70,7 @@ Most *make* operations below take a considerable amount of time. The lengthy one
 
     $ make winpthreads
 
-#### Configuring gcc and cross-compiling again
+#### Configuring gcc and cross-compile again
 
 Edit *src/gcc.mk* and set the value of *$(PKG)_DEPS* as follows.
 
@@ -89,13 +90,11 @@ Then cross-compile gcc again.
 
 #### Cross-compiling other packages
 
-    $ make qt libarchive libsndfile
+    $ make qt libarchive libsndfile portaudio portmidi fftw rubberband
 
     real    70m17.737s
     user    199m0.451s
     sys     15m14.591s
-
-    $ make portaudio portmidi fftw rubberband
 
 ### Cross-compiling Hydrogen
 
