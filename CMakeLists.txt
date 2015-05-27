@@ -131,7 +131,7 @@ MANDATORY_PKG(Threads)
 MANDATORY_PKG(LIBSNDFILE)
 
 IF(MINGW)
-    SET(WANT_JACK FALSE)
+    SET(WANT_JACK TRUE)
     SET(Threads_PATH "C:/Program Files/GnuWin32")
     SET(LIBARCHIVE_PATH "C:/Program Files/GnuWin32")
     SET(LIBSNDFILE_PATH "C:/Program Files/Mega-Nerd/libsndfile")
