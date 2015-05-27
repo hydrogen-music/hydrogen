@@ -100,7 +100,20 @@ Then cross-compile gcc again.
     
     Download and install Jack for Windows
 
-    Copy the files C:\Program Files (x86)\Jack\
+    Copy the file 
+	C:\Windows\System\liback.dll (on Windows XP)
+	 - or - 
+	C:\Windows\SysWow64\libjack.dll (on Windows 7-8-10)
+
+    to $MXE/usr/i686-w64-mingw32.shared/bin/
+
+    You will also need to copy or link the hydrogen source headers into the project.
+    
+    $ cd $HYDROGEN/../
+
+    $ git clone git://github.com/jackaudio/jack2.git
+
+    $ ln -s jack2/common/jack $MXE/usr/i686-w64-mingw32.shared/include/jack
 
 ### Cross-compiling Hydrogen
 
@@ -114,7 +127,7 @@ Then cross-compile gcc again.
     
     $ export HYDROGEN_BUILD=$PWD
     
-    $ cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake"
+    $ cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake -DWIN32=WIN32"
     
     $ make
 
