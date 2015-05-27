@@ -127,7 +127,7 @@ Then cross-compile gcc again.
     
     $ export HYDROGEN_BUILD=$PWD
     
-    $ cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake -DWIN32=WIN32"
+    $ cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake -DWIN32=WIN32
     
     $ make
 

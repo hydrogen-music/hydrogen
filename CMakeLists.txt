@@ -20,7 +20,7 @@ SET(VERSION_MAJOR "0")
 SET(VERSION_MINOR "9")
 SET(VERSION_PATCH "7")
 #SET(VERSION_SUFFIX "RC2")
-IF(WIN32)
+IF(MINGW)
 	SET(VERSION_SUFFIX "Windows Pre-release")
 ENDIF()
 
@@ -65,7 +65,7 @@ ELSE()
 ENDIF()
 
 OPTION(WANT_ALSA         "Include ALSA (Advanced Linux Sound Architecture) support" ON)
-IF(WIN32)
+IF(MINGW)
 	OPTION(WANT_JACK         "Include JACK (Jack Audio Connection Kit) support" ON)
 	OPTION(WANT_PORTAUDIO    "Include PortAudio support" ON)
 	OPTION(WANT_PORTMIDI     "Include PortMidi support" ON)
@@ -130,12 +130,12 @@ MANDATORY_PKG(QT4)
 MANDATORY_PKG(Threads)
 MANDATORY_PKG(LIBSNDFILE)
 
-IF(WIN32)
+IF(MINGW)
     SET(WANT_JACK FALSE)
     SET(Threads_PATH "C:/Program Files/GnuWin32")
     SET(LIBARCHIVE_PATH "C:/Program Files/GnuWin32")
     SET(LIBSNDFILE_PATH "C:/Program Files/Mega-Nerd/libsndfile")
-ELSE(WIN32)
+ELSE(MINGW)
     IF(APPLE)
 		INCLUDE_DIRECTORIES("/opt/local/include")
         LINK_DIRECTORIES("/opt/local/lib")
@@ -146,7 +146,7 @@ ELSE(WIN32)
         SET(OSS_LIB_PATHS "/usr/lib${LIB_SUFFIX}/oss/lib" "/usr/local/lib${LIB_SUFFIX}/oss/lib" )
         SET(RUBBERBAND_INCLUDE_PATHS "/usr/include/rubberband" )
     ENDIF(APPLE)
-ENDIF(WIN32)
+ENDIF(MINGW)
 
 #Installation paths 
 # TODO remove data from path
@@ -355,7 +355,7 @@ ADD_SUBDIRECTORY(src/synth)
 ADD_SUBDIRECTORY(src/gui)
 
 INSTALL(DIRECTORY data DESTINATION ${SYS_DATA_PATH}/.. PATTERN ".git" EXCLUDE)
-IF(NOT WIN32 AND NOT APPLE)
+IF(NOT MINGW AND NOT APPLE)
     INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
 ENDIF()
 
@@ -380,7 +380,7 @@ SET(CPACK_PACKAGE_INSTALL_DIRECTORY "Hydrogen ${VERSION}")
 
 
 
-IF(WIN32)
+IF(MINGW)
     # TODO
     #SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\nsis_branding.bmp")
     SET(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/data\\\\hydrogen.ico")
@@ -392,7 +392,7 @@ IF(WIN32)
     SET(CPACK_PACKAGE_EXECUTABLES "hydrogen-gui.exe;Advanced drum machine for GNU/Linux")
     SET(CPACK_NSIS_MENU_LINKS "hydrogen-gui.exe;Advanced drum machine for GNU/Linux")
     SET(CPACK_SOURCE_GENERATOR "ZIP")
-ELSE(WIN32)
+ELSE(MINGW)
     #apple stuff was moved to src/gui/CMakeLists.txt
 ENDIF()
 
