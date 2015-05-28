@@ -147,7 +147,7 @@ This creates a directory *hydrogen_windows_32_bit*, which you can copy to your W
 
 When copying the directory above to your Windows machine, you will get a copy conflict. This is because Windows' case-insensitivity is put to the test, since two files named *Director.png* and *director.png* exist in the same directory. Resolve the conflict in whichever way you wish, since the aforementioned files seem to be unused.
 
-Using the method described above, I experience Hydrogen crashing at startup. To fix this, download the precompiled libsndfile-1.dll from *http://www.mega-nerd.com/libsndfile/#Download* and put it in the Hydrogen directory.
+Using the method described above, You may experience Hydrogen crashing at startup. To fix this, download the precompiled libsndfile-1.dll from *http://www.mega-nerd.com/libsndfile/#Download* and put it in the Hydrogen directory.
 
 ### Bugs?
 
