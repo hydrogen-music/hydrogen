@@ -44,12 +44,8 @@ while :
 		2)	#download the proper git repositories
 			echo "This will clone the repositories for Hydrogen and MXE."
 			read -e -p "Enter the path where Hydrogen should be built: " -i "$HOME/build/hydrogen_win32/" CLONEPATH
-			if [ -d "$CLONEPATH" ]; then
-				cd "$CLONEPATH"
-			else
-				mkdir "$CLONEPATH"
-				cd "$CLONEPATH"
-			fi
+			mkdir -p "$CLONEPATH"
+			cd "$CLONEPATH"
 			export BUILD_DIR=$PWD
 			#git clone https://github.com/hydrogen-music/hydrogen.git
 			git clone https://github.com/mikotoiii/hydrogen.git
