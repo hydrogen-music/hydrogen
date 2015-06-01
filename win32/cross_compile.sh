@@ -56,10 +56,10 @@ while :
 		3)	#Set the required variables
 			echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
 			
-			export HYDROGEN=$CLONEPATH/hydrogen
-			if [ ! "$MXE_INSTALLED" == "1"]; then
+			export HYDROGEN="$CLONEPATH/hydrogen"
+			if [ ! "$MXE_INSTALLED" == "1" ]; then
 				if [ -z "$MXE" ]; then
-					export MXE=$CLONEPATH/mxe
+					export MXE="$CLONEPATH/mxe"
 				fi
 				# Ask if MXE should be installed
 				echo "Would you like to permenantly install MXE into /opt/mxe to save time for future builds?"
@@ -98,7 +98,7 @@ while :
 			sh ../create_bundle.sh
 
 			#Check if PERMENANT_INSTALL is set to 1, and copy the files over
-			if [ "$PERMENANT_INSTALL" == 1]; then
+			if [ "$PERMENANT_INSTALL" == "1" ]; then
 				sudo mv $MXE /opt/mxe
 			fi
 			;;
@@ -106,7 +106,7 @@ while :
 			echo "Now cleaning up the files. This process will move the built hydrogen into your home directory and delete the build files. If MXE was not permenantly installed, it will remove that too."
 			mv $HYDROGEN_BUILD/windows_32_bit_build $HOME/hydrogen_windows_32_bit_build
 			rm -rf $HYDROGEN
-			if [ ! "$MXE_INSTALLED" == 1]; then
+			if [ ! "$MXE_INSTALLED" == "1" ]; then
 				rm -rf $MXE
 			fi
 			;;
