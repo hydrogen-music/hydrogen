@@ -15,7 +15,7 @@ while :
 	#Check if there is a permenant installation of MXE. This will save a LOT of time.
 	if [ -d "/opt/mxe/" ]; then
 		# MXE is already installed
-		MXE_INSTALLED = 1
+		MXE_INSTALLED=1
 	fi
 
 	# Write out the menu options...
@@ -49,7 +49,7 @@ while :
 			export BUILD_DIR=$PWD
 			#git clone https://github.com/hydrogen-music/hydrogen.git
 			git clone https://github.com/mikotoiii/hydrogen.git
-			if [ "$MXE_INSTALLED" != "1" ]; then
+			if [ ! "$MXE_INSTALLED" == "1" ]; then
 				git clone https://github.com/mxe/mxe.git
 			fi
 			;;
@@ -57,7 +57,7 @@ while :
 			echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
 			
 			export HYDROGEN=$CLONEPATH/hydrogen
-			if [ "$MXE_INSTALLED" != "1"]; then
+			if [ ! "$MXE_INSTALLED" == "1"]; then
 				if [ -z "$MXE" ]; then
 					export MXE=$CLONEPATH/mxe
 				fi
@@ -106,7 +106,7 @@ while :
 			echo "Now cleaning up the files. This process will move the built hydrogen into your home directory and delete the build files. If MXE was not permenantly installed, it will remove that too."
 			mv $HYDROGEN_BUILD/windows_32_bit_build $HOME/hydrogen_windows_32_bit_build
 			rm -rf $HYDROGEN
-			if [ "$MXE_INSTALLED" != 1]; then
+			if [ ! "$MXE_INSTALLED" == 1]; then
 				rm -rf $MXE
 			fi
 			;;
