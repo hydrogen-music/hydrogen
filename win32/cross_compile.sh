@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Hydrogen Cross Compile Script
 
 # clear the screen
@@ -37,15 +37,19 @@ while :
 		1)	#Prepares the system by getting the necessary packages to perform the cross compile
 			echo "Now installing required packages"
 			sudo apt-get install autoconf automake autopoint bash bison bzip2 cmake flex gettext git gcc g++ intltool libffi-dev libtool libtool-bin libltdl-dev libssl-dev libxml-parser-perl make openssl patch perl pkg-config scons sed unzip wget xz-utils
-			if (uname -a | grep x86_64)
+			if (uname -a | grep x86_64); then
 				sudo apt-get install g++-multilib libc6-dev-i386
 			fi
 			;;
 		2)	#download the proper git repositories
 			echo "This will clone the repositories for Hydrogen and MXE."
-			read -e -p "Enter the path where Hydrogen should be built: " -i "~/build/hydrogen_win32" CLONEPATH
-			mkdir $CLONEPATH
-			cd $CLONEPATH
+			read -e -p "Enter the path where Hydrogen should be built: " -i "$HOME/build/hydrogen_win32/" CLONEPATH
+			if [ -d $CLONEPATH ]; then
+				cd $CLONEPATH
+			else
+				mkdir $CLONEPATH
+				cd $CLONEPATH
+			fi
 			export BUILD_DIR=$PWD
 			#git clone https://github.com/hydrogen-music/hydrogen.git
 			git clone https://github.com/mikotoiii/hydrogen.git
@@ -104,7 +108,7 @@ while :
 			;;
 		4)	#Clean up the files
 			echo "Now cleaning up the files. This process will move the built hydrogen into your home directory and delete the build files. If MXE was not permenantly installed, it will remove that too."
-			mv $HYDROGEN_BUILD/windows_32_bit_build ~/hydrogen_windows_32_bit_build
+			mv $HYDROGEN_BUILD/windows_32_bit_build $HOME/hydrogen_windows_32_bit_build
 			rm -rf $HYDROGEN
 			if [$MXE_INSTALLED != 1]; then
 				rm -rf $MXE
