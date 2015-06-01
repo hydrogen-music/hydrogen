@@ -57,7 +57,7 @@ while :
 			echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
 			
 			export HYDROGEN=$CLONEPATH/hydrogen
-			if [$MXE_INSTALLED != 1]; then
+			if [ "$MXE_INSTALLED" != "1"]; then
 				if [ -z "$MXE" ]; then
 					export MXE=$CLONEPATH/mxe
 				fi
