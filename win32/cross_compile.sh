@@ -23,9 +23,10 @@ while :
 	echo "Select an option:"
 	echo " 1: Prepare the system"
 	echo " 2: Clone required repositories"
-	echo " 3: Build Hydrogen" 
-	echo " 4: Clean up Files"
-	echo " 5: Exit"
+	echo " 3: Build Hydrogen"
+	echo " 4: Experimental 64 Bit Compiling"
+	echo " 5: Clean up Files"
+	echo " 6: Exit"
 
 	# Clear the error message
 	ERR_MSG=""
@@ -64,9 +65,9 @@ while :
 				# Ask if MXE should be installed
 				echo "Would you like to permenantly install MXE into /opt/mxe to save time for future builds?"
 				while true; do
-				    read -p "Do you wish to install this program?" yn
+				    read -p "Do you wish to install this program? (y / n)" yn
 				    case $yn in
-					[Yy]* ) PERMENANT_INSTALL=1; break;;
+					[Yy]* ) PERMENANT_INSTALL=1; export PATH=/opt/mxe/usr/bin:$PATH; break;;
 					[Nn]* ) exit;;
 					* ) echo "Please answer yes or no.";;
 				    esac
@@ -93,16 +94,33 @@ while :
 			mkdir $HYDROGEN/win32/windows_32_bit_build
 			export HYDROGEN_BUILD=$HYDROGEN/win32/windows_32_bit_build
 			cd $HYDROGEN_BUILD
+			while true; do	
+				read -p "would you like to build Hydrogen with Jack support? (y / n)" yn
+				case $yn in
+					[Yy]* ) echo "You will now need to copy the libjack.dll file from a Windows machine (C:\Windows\SysWow64\libjack.dll) to your mxe directory."; 
+						echo "We can try to automatically move the file to the proper location" 
+						read -e -p "Enter the path to libjack.dll: " -i "$HOME" LIBJACK_PATH
+						if [ -f $LIBJACK_PATH/libjack.dll ]; then
+							mv $LIBJACK_PATH/libjack.dll $MXE/usr/i686-w64-mingw32.shared/bin/
+						fi
+						break;;
+					[Nn]* ) exit;;
+					* ) echo "Please answer yes or no.";;
+				esac
+			done
 			cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake
 			make
 			sh ../create_bundle.sh
-
+			mv hydrogen_windows_32_bit $HOME/Hydrogen
 			#Check if PERMENANT_INSTALL is set to 1, and copy the files over
 			if [ "$PERMENANT_INSTALL" == "1" ]; then
 				sudo mv $MXE /opt/mxe
 			fi
 			;;
-		4)	#Clean up the files
+		4)	#Experimental 64 Bit Compiling
+			echo "Coming Soon"
+			;;
+		5)	#Clean up the files
 			echo "Now cleaning up the files. This process will move the built hydrogen into your home directory and delete the build files. If MXE was not permenantly installed, it will remove that too."
 			mv $HYDROGEN_BUILD/windows_32_bit_build $HOME/hydrogen_windows_32_bit_build
 			rm -rf $HYDROGEN
@@ -110,7 +128,7 @@ while :
 				rm -rf $MXE
 			fi
 			;;
-		5)	echo "Thank you for using the Hydrogen Cross Compiler. Goodbye."
+		6)	echo "Thank you for using the Hydrogen Cross Compiler. Goodbye."
 			exit
 			;;
 		*) ERR_MSG="Please enter a valid option"
