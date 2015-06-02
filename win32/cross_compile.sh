@@ -85,7 +85,7 @@ while :
 				sed -i 's/--enable-threads=win32/--enable-threads=posix/g' $MXE/src/gcc.mk
 				make gcc
 				#Build the dependancies for hydrogen
-				make qt libarchive libsndfile portaudio portmidi fftw rubberband -j7 JOBS=7
+				make qt libarchive libsndfile portaudio portmidi -j4 JOBS=4
 			else
 				export MXE=/opt/mxe
 			fi
@@ -111,6 +111,9 @@ while :
 			cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake
 			make
 			sh ../create_bundle.sh
+			if [ ! -d $HOME/Hydrogen ]; then
+				rm -rf $HOME/Hydrogen
+			fi
 			mv hydrogen_windows_32_bit $HOME/Hydrogen
 			#Check if PERMENANT_INSTALL is set to 1, and copy the files over
 			if [ "$PERMENANT_INSTALL" == "1" ]; then
