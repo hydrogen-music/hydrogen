@@ -88,7 +88,7 @@ while :
 				#Build the dependancies for hydrogen
 				make qt libarchive libsndfile portaudio portmidi -j4 JOBS=4
 			else
-				export MXE=/opt/mxe
+				export MXE="/opt/mxe"
 			fi
 
 			#Build hydrogen itself now.
@@ -148,5 +148,5 @@ while :
 	esac
 
 	# clear the screen again for re-display
-	clear
+	#clear
 done
