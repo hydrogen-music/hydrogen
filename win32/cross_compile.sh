@@ -92,11 +92,11 @@ while :
 			fi
 
 			#Build hydrogen itself now.
-			mkdir $HYDROGEN/win32/windows_32_bit_build
-			export HYDROGEN_BUILD=$HYDROGEN/win32/windows_32_bit_build
-			cd $HYDROGEN_BUILD
+			mkdir "$HYDROGEN/win32/windows_32_bit_build"
+			export HYDROGEN_BUILD="$HYDROGEN/win32/windows_32_bit_build"
+			cd "$HYDROGEN_BUILD"
 			while true; do	
-				read -p "would you like to build Hydrogen with Jack support? (y / n)" yn
+				read -p "would you like to build Hydrogen with Jack support? (y / n) Note: If you have libjack.dll already installed in mxe, you can answer no here." yn
 				case $yn in
 					[Yy]* ) echo "You will now need to copy the libjack.dll file from a Windows machine (C:\Windows\SysWow64\libjack.dll) to your mxe directory."; 
 						echo "We can try to automatically move the file to the proper location" 
@@ -105,7 +105,7 @@ while :
 							mv $LIBJACK_PATH/libjack.dll $MXE/usr/i686-w64-mingw32.shared/bin/
 						fi
 						break;;
-					[Nn]* ) exit;;
+					[Nn]* ) break;;
 					* ) echo "Please answer yes or no.";;
 				esac
 			done
