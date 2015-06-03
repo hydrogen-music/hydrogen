@@ -38,7 +38,7 @@ while :
 	case $SEL in
 		1)	#Prepares the system by getting the necessary packages to perform the cross compile
 			echo "Now installing required packages"
-			sudo apt-get install autoconf automake autopoint bash bison bzip2 cmake flex gettext git gcc g++ intltool libffi-dev libtool libtool-bin libltdl-dev libssl-dev libxml-parser-perl make openssl patch perl pkg-config scons sed unzip wget xz-utils
+			sudo apt-get install autoconf automake autopoint bash bison bzip2 cmake flex gettext git gcc g++ intltool libffi-dev libtool libtool-bin libltdl-dev libssl-dev libxml-parser-perl make openssl patch perl pkg-config scons sed unzip wget xz-utils nsis
 			if (uname -a | grep x86_64); then
 				sudo apt-get install g++-multilib libc6-dev-i386
 			fi
@@ -125,7 +125,13 @@ while :
 			echo "Coming Soon"
 			;;
 		5)	#Build Windows Installer
-			echo "Coming Soon"
+			cd $HOME/Hydrogen
+			cp -r $HYDROGEN ./src
+			mkdir jack_installer
+			cd jack_installer
+			wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_64_setup.exe
+			cd ..
+			makensis src/win32/make_installer.nis
 			;;
 		6)	#Clean up the files
 			echo "Now cleaning up the files. This process will move the built hydrogen into your home directory and delete the build files. If MXE was not permenantly installed, it will remove that too."
