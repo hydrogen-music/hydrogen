@@ -25,8 +25,9 @@ while :
 	echo " 2: Clone required repositories"
 	echo " 3: Build Hydrogen"
 	echo " 4: Experimental 64 Bit Compiling"
-	echo " 5: Clean up Files"
-	echo " 6: Exit"
+	echo " 5: Build Windows Installer"
+	echo " 6: Clean up Files"
+	echo " q: Exit"
 
 	# Clear the error message
 	ERR_MSG=""
@@ -123,7 +124,10 @@ while :
 		4)	#Experimental 64 Bit Compiling
 			echo "Coming Soon"
 			;;
-		5)	#Clean up the files
+		5)	#Build Windows Installer
+			echo "Coming Soon"
+			;;
+		6)	#Clean up the files
 			echo "Now cleaning up the files. This process will move the built hydrogen into your home directory and delete the build files. If MXE was not permenantly installed, it will remove that too."
 			mv $HYDROGEN_BUILD/windows_32_bit_build $HOME/hydrogen_windows_32_bit_build
 			rm -rf $HYDROGEN
@@ -131,7 +135,7 @@ while :
 				rm -rf $MXE
 			fi
 			;;
-		6)	echo "Thank you for using the Hydrogen Cross Compiler. Goodbye."
+		q)	echo "Thank you for using the Hydrogen Cross Compiler. Goodbye."
 			exit
 			;;
 		*) ERR_MSG="Please enter a valid option"

@@ -37,5 +37,6 @@ cp $MXE/usr/i686-w64-mingw32.shared/bin/libportaudio-2.dll .
 cp $MXE/usr/i686-w64-mingw32.shared/bin/libiconv-2.dll .
 cp $MXE/usr/i686-w64-mingw32.shared/bin/libfftw3-3.dll .
 cp $MXE/usr/i686-w64-mingw32.shared/bin/libiconv-2.dll .
+cp $MXE/usr/i686-w64-mingw32.shared/bin/libjack.dll .
 
 cp -r $HYDROGEN/data .
