@@ -46,33 +46,33 @@ while :
 		2)	#download the proper git repositories
 			echo "This will clone the repositories for Hydrogen and MXE."
 			read -e -p "Enter the path where Hydrogen should be built: " -i "$HOME/build/hydrogen_win32/" CLONEPATH
-			if [ ! -e "$CLONEPATH" ]; then
+			if [ ! -e "${CLONEPATH%/*}" ]; then
 				echo "Now downloading Hydrogen."
-				mkdir -p "$CLONEPATH"
-				cd "$CLONEPATH"
+				mkdir -p "${CLONEPATH%/*}"
+				cd "${CLONEPATH%/*}"
 				BUILD_DIR=$PWD
 				#git clone https://github.com/hydrogen-music/hydrogen.git
 				git clone https://github.com/mikotoiii/hydrogen.git
 			else 
-				echo "Hydrogen already downloaded to $CLONEPATH."
+				echo "Hydrogen already downloaded to ${CLONEPATH%/*}."
 			fi
 			if [ ! "$MXE_INSTALLED" == "1" ]; then
 				echo "Now downloading MXE."
 				git clone https://github.com/mxe/mxe.git
 			else
-				echo "MXE already downloaded to $CLONEPATH
+				echo "MXE already downloaded to $MXE"
 			fi
 			;;
 		3)	#Set the required variables
 			echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
-			if [ -z $CLONEPATH ]; then
+			if [ -z ${CLONEPATH%/*} ]; then
 				read -e -p "Enter the path to the Hydrogen download: " -i "$HOME/build/hydrogen_win32/" CLONEPATH
 			fi
-			HYDROGEN="$CLONEPATH/hydrogen"
+			HYDROGEN="${CLONEPATH%/*}/hydrogen"
 			echo "Checking for MXE."
 			if [ ! "$MXE_INSTALLED" == "1" ]; then
 				if [ -z "$MXE" ]; then
-					MXE="$CLONEPATH/mxe"
+					MXE="${CLONEPATH%/*}/mxe"
 				fi
 				# Ask if MXE should be installed
 				echo "MXE was not found. We will now build MXE."
