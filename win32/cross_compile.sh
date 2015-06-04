@@ -130,7 +130,7 @@ while :
 			else
 				echo "libjack.dll was found at $MXE/usr/i686-w64-mingw32.shared/bin/"
 			fi
-			cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake -DCMAKE_CXX_COMPILER=$MXE/usr/i686-w64-mingw32.shared/installed/gcc
+			cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake DCMAKE_C_COMPILER=$MXE/usr/i686-w64-mingw32.shared-gcc -DCMAKE_CXX_COMPILER=$MXE/usr/i686-w64-mingw32.shared-g++
 			make
 			sh ../create_bundle.sh
 			if [ ! -d $HOME/Hydrogen ]; then
