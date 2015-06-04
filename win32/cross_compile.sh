@@ -163,7 +163,9 @@ while :
 			;;
 		5)	#Build Windows Installer
 			cd $HOME/Hydrogen
-			cp -r $HYDROGEN ./src/Hydrogen
+			if [ ! -e sources ]; then
+				cp -r $HYDROGEN ./sources/
+			fi
 			if [ ! -e jack_installer ]; then
 				mkdir jack_installer
 			fi
@@ -188,7 +190,9 @@ while :
 			if [ ! -e "gpl-3.0.txt" ]; then
 				wget http://www.gnu.org/licenses/gpl-3.0.txt
 			fi
-			cp $HYDROGEN/win32/make_installer.nsi ./
+			if [ ! -e make_installer.nsi ]; then
+				cp $HYDROGEN/win32/make_installer.nsi ./
+			fi
 			makensis make_installer.nsi
 			;;
 		6)	#Clean up the files
