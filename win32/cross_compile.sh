@@ -193,6 +193,9 @@ while :
 			if [ ! -e make_installer.nsi ]; then
 				cp $HYDROGEN/win32/make_installer.nsi ./
 			fi
+			if [ ! -e "data/img/gray/h2-icon.ico" ]; then
+				convert data/img/gray/icon-16.png data/img/gray/h2-icon.ico
+			fi
 			makensis make_installer.nsi
 			;;
 		6)	#Clean up the files
