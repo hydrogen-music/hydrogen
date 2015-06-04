@@ -6,7 +6,7 @@
 !define COMPANYNAME "Hydrogen"
 !define DESCRIPTION "Hydrogen - Advanced Drum Machine"
 !define LOGO "data/img/gray/h2-icon.ico"
-# These three must be integers
+# These three must be integers 
 !define VERSIONMAJOR 0
 !define VERSIONMINOR 9
 !define VERSIONBUILD 7
