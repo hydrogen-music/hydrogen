@@ -1,6 +1,8 @@
 #!/bin/bash
 BUNDLE_DIR=hydrogen_windows_32_bit
-mkdir $BUNDLE_DIR
+if [ ! -e $BUNDLE_DIR ]; then
+	mkdir $BUNDLE_DIR
+fi
 cd $BUNDLE_DIR
 cp $HYDROGEN_BUILD/src/gui/hydrogen.exe .
 cp $HYDROGEN_BUILD/src/core/libhydrogen-core-0.9.7.dll .
@@ -35,8 +37,13 @@ cp $MXE/usr/i686-w64-mingw32.shared/bin/libpng16-16.dll .
 cp $MXE/usr/i686-w64-mingw32.shared/bin/libportmidi.dll .
 cp $MXE/usr/i686-w64-mingw32.shared/bin/libportaudio-2.dll .
 cp $MXE/usr/i686-w64-mingw32.shared/bin/libiconv-2.dll .
-cp $MXE/usr/i686-w64-mingw32.shared/bin/libfftw3-3.dll .
 cp $MXE/usr/i686-w64-mingw32.shared/bin/libiconv-2.dll .
 cp $MXE/usr/i686-w64-mingw32.shared/bin/libjack.dll .
+
+if [ ! -e rubberband ]; then
+	mkdir rubberband
+fi
+cp $MXE/usr/i686-w64-mingw32.shared/bin/libfftw3-3.dll rubberband/
+
 
 cp -r $HYDROGEN/data .

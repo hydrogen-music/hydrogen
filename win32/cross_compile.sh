@@ -108,7 +108,7 @@ while :
 				sed -i 's/--enable-threads=win32/--enable-threads=posix/g' $MXE/src/gcc.mk
 				make gcc
 				#Build the dependancies for hydrogen
-				make qt libarchive libsndfile portaudio portmidi -j4 JOBS=4
+				make qt libarchive libsndfile portaudio portmidi fftw rubberband -j4 JOBS=4
 			else
 				echo "MXE found at $MXE"
 			fi
@@ -164,9 +164,23 @@ while :
 		5)	#Build Windows Installer
 			cd $HOME/Hydrogen
 			cp -r $HYDROGEN ./src/Hydrogen
-			mkdir jack_installer
+			if [ ! -e jack_installer ]; then
+				mkdir jack_installer
+			fi
 			cd jack_installer
 			wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_64_setup.exe
+			cd ..
+			if [ ! -e plugins ]; then
+				mkdir plugins
+				cd plugins
+				if [ ! -e ladspaplugs ]; then
+					mkdir ladspaplugs
+				fi
+				cd ladspaplugs
+				wget http://downloads.sourceforge.net/audacity/LADSPA_plugins-win-0.4.15.exe
+				cd ..
+			fi
+			cd ..
 			cp $HYDROGEN/win32/make_installer.nsi ./
 			makensis make_installer.nsi
 			;;
