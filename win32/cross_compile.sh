@@ -64,6 +64,7 @@ while :
 				echo "MXE already downloaded to $MXE"
 			fi
 			if [ ! -e ${CLONEPATH%/*}/jack2 ]; then
+				echo "Now downloading jack."
 				git clone git://github.com/jackaudio/jack2.git
 			fi
 			;;
@@ -127,10 +128,11 @@ while :
 						[Yy]* ) echo "You will now need to copy the libjack.dll file from a Windows machine (C:\Windows\SysWow64\libjack.dll) to your mxe directory."; 
 							echo "We can try to automatically move the file to the proper location" 
 							read -e -p "Enter the path to libjack.dll: " -i "$HOME" LIBJACK_PATH
-							if [ -f $LIBJACK_PATH/libjack.dll ]; then
-								sudo cp $LIBJACK_PATH/libjack.dll $MXE/usr/i686-w64-mingw32.shared/bin/
-								sudo cp ${CLONEPATH%/*}/jack2/common/jack/jack.h $MXE/usr/i686-w64-mingw32.shared/include/
-								sudo cp ${CLONEPATH%/*}/jack2/common/jack/session.h $MXE/usr/i686-w64-mingw32.shared/include/
+							if [ -f $LIBJACK_PATH ]; then
+								sudo cp $LIBJACK_PATH $MXE/usr/i686-w64-mingw32.shared/bin/
+								#sudo cp ${CLONEPATH%/*}/jack2/common/jack/jack.h $MXE/usr/i686-w64-mingw32.shared/include/
+								#sudo cp ${CLONEPATH%/*}/jack2/common/jack/session.h $MXE/usr/i686-w64-mingw32.shared/include/
+								ln -s ${CLONEPATH%/*}/jack2/common/jack $MXE/usr/i686-w64-mingw32.shared/include/jack
 							fi
 							break;;
 						[Nn]* ) break;;
