@@ -48,7 +48,7 @@ while :
 			read -e -p "Enter the path where Hydrogen should be built: " -i "$HOME/build/hydrogen_win32/" CLONEPATH
 			mkdir -p "$CLONEPATH"
 			cd "$CLONEPATH"
-			export BUILD_DIR=$PWD
+			BUILD_DIR=$PWD
 			#git clone https://github.com/hydrogen-music/hydrogen.git
 			git clone https://github.com/mikotoiii/hydrogen.git
 			if [ ! "$MXE_INSTALLED" == "1" ]; then
@@ -58,17 +58,17 @@ while :
 		3)	#Set the required variables
 			echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
 			
-			export HYDROGEN="$CLONEPATH/hydrogen"
+			HYDROGEN="$CLONEPATH/hydrogen"
 			if [ ! "$MXE_INSTALLED" == "1" ]; then
 				if [ -z "$MXE" ]; then
-					export MXE="$CLONEPATH/mxe"
+					MXE="$CLONEPATH/mxe"
 				fi
 				# Ask if MXE should be installed
 				echo "Would you like to permenantly install MXE into /opt/mxe to save time for future builds?"
 				while true; do
 				    read -p "Do you wish to install this program? (y / n)" yn
 				    case $yn in
-					[Yy]* ) PERMENANT_INSTALL=1; export PATH=/opt/mxe/usr/bin:$PATH; break;;
+					[Yy]* ) PERMENANT_INSTALL=1; PATH=/opt/mxe/usr/bin:$PATH; break;;
 					[Nn]* ) exit;;
 					* ) echo "Please answer yes or no.";;
 				    esac
@@ -88,12 +88,12 @@ while :
 				#Build the dependancies for hydrogen
 				make qt libarchive libsndfile portaudio portmidi -j4 JOBS=4
 			else
-				export MXE="/opt/mxe"
+				MXE="/opt/mxe"
 			fi
 
 			#Build hydrogen itself now.
 			mkdir "$HYDROGEN/win32/windows_32_bit_build"
-			export HYDROGEN_BUILD="$HYDROGEN/win32/windows_32_bit_build"
+			HYDROGEN_BUILD="$HYDROGEN/win32/windows_32_bit_build"
 			cd "$HYDROGEN_BUILD"
 			while true; do	
 				read -p "would you like to build Hydrogen with Jack support? (y / n) Note: If you have libjack.dll already installed in mxe, you can answer no here." yn
@@ -126,12 +126,12 @@ while :
 			;;
 		5)	#Build Windows Installer
 			cd $HOME/Hydrogen
-			cp -r $HYDROGEN ./src
+			cp -r $HYDROGEN ./src/Hydrogen
 			mkdir jack_installer
 			cd jack_installer
 			wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_64_setup.exe
 			cd ..
-			makensis src/win32/make_installer.nis
+			makensis $HYDROGEN/win32/make_installer.nis
 			;;
 		6)	#Clean up the files
 			echo "Now cleaning up the files. This process will move the built hydrogen into your home directory and delete the build files. If MXE was not permenantly installed, it will remove that too."
