@@ -168,7 +168,9 @@ while :
 				mkdir jack_installer
 			fi
 			cd jack_installer
-			wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_64_setup.exe
+			if [ ! -e "Jack_v1.9.10_64_setup.exe" ]; then
+				wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_64_setup.exe
+			fi
 			cd ..
 			if [ ! -e plugins ]; then
 				mkdir plugins
@@ -177,10 +179,15 @@ while :
 					mkdir ladspaplugs
 				fi
 				cd ladspaplugs
-				wget http://downloads.sourceforge.net/audacity/LADSPA_plugins-win-0.4.15.exe
+				if [ ! -e "LADSPA_plugins-win-0.4.15.exe" ]; then
+					wget http://downloads.sourceforge.net/audacity/LADSPA_plugins-win-0.4.15.exe
+				fi
 				cd ..
 			fi
 			cd ..
+			if [ ! -e "gpl-3.0.txt" ]; then
+				wget http://www.gnu.org/licenses/gpl-3.0.txt
+			fi
 			cp $HYDROGEN/win32/make_installer.nsi ./
 			makensis make_installer.nsi
 			;;
@@ -188,6 +195,7 @@ while :
 			echo "Now cleaning up the files. This process will move the built hydrogen into your home directory and delete the build files. If MXE was not permenantly installed, it will remove that too."
 			mv $HYDROGEN_BUILD/windows_32_bit_build $HOME/hydrogen_windows_32_bit_build
 			rm -rf $HYDROGEN
+			rm -rf $HOME/Hydrogen
 			if [ ! "$MXE_INSTALLED" == "1" ]; then
 				rm -rf $MXE
 			fi
