@@ -47,19 +47,27 @@ while :
 			echo "This will clone the repositories for Hydrogen and MXE."
 			read -e -p "Enter the path where Hydrogen should be built: " -i "$HOME/build/hydrogen_win32/" CLONEPATH
 			if [ ! -e "$CLONEPATH" ]; then
+				echo "Now downloading Hydrogen."
 				mkdir -p "$CLONEPATH"
 				cd "$CLONEPATH"
 				BUILD_DIR=$PWD
 				#git clone https://github.com/hydrogen-music/hydrogen.git
 				git clone https://github.com/mikotoiii/hydrogen.git
+			else 
+				echo "Hydrogen already downloaded to $CLONEPATH."
 			fi
 			if [ ! "$MXE_INSTALLED" == "1" ]; then
+				echo "Now downloading MXE."
 				git clone https://github.com/mxe/mxe.git
+			else
+				echo "MXE already downloaded to $CLONEPATH
 			fi
 			;;
 		3)	#Set the required variables
 			echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
-			
+			if [ -z $CLONEPATH ]; then
+				read -e -p "Enter the path to the Hydrogen download: " -i "$HOME/build/hydrogen_win32/" CLONEPATH
+			fi
 			HYDROGEN="$CLONEPATH/hydrogen"
 			echo "Checking for MXE."
 			if [ ! "$MXE_INSTALLED" == "1" ]; then
@@ -93,6 +101,7 @@ while :
 				make qt libarchive libsndfile portaudio portmidi -j4 JOBS=4
 			else
 				MXE="/opt/mxe"
+				echo "MXE found at $MXE"
 			fi
 
 			#Build hydrogen itself now.
@@ -101,21 +110,26 @@ while :
 				mkdir "$HYDROGEN/win32/windows_32_bit_build"
 			fi
 			HYDROGEN_BUILD="$HYDROGEN/win32/windows_32_bit_build"
+			echo "We will now build Hydrogen at $HYDROGEN_BUILD"
 			cd "$HYDROGEN_BUILD"
-			while true; do	
-				read -p "would you like to build Hydrogen with Jack support? (y / n) Note: If you have libjack.dll already installed in mxe, you can answer no here." yn
-				case $yn in
-					[Yy]* ) echo "You will now need to copy the libjack.dll file from a Windows machine (C:\Windows\SysWow64\libjack.dll) to your mxe directory."; 
-						echo "We can try to automatically move the file to the proper location" 
-						read -e -p "Enter the path to libjack.dll: " -i "$HOME" LIBJACK_PATH
-						if [ -f $LIBJACK_PATH/libjack.dll ]; then
-							mv $LIBJACK_PATH/libjack.dll $MXE/usr/i686-w64-mingw32.shared/bin/
-						fi
-						break;;
-					[Nn]* ) break;;
-					* ) echo "Please answer yes or no.";;
-				esac
-			done
+			if [ ! -e "$MXE/usr/i686-w64-mingw32.shared/bin/libjack.dll" ]; then
+				while true; do	
+					read -p "would you like to build Hydrogen with Jack support? (y / n) Note: If you have libjack.dll already installed in mxe, you can answer no here." yn
+					case $yn in
+						[Yy]* ) echo "You will now need to copy the libjack.dll file from a Windows machine (C:\Windows\SysWow64\libjack.dll) to your mxe directory."; 
+							echo "We can try to automatically move the file to the proper location" 
+							read -e -p "Enter the path to libjack.dll: " -i "$HOME" LIBJACK_PATH
+							if [ -f $LIBJACK_PATH/libjack.dll ]; then
+								mv $LIBJACK_PATH/libjack.dll $MXE/usr/i686-w64-mingw32.shared/bin/
+							fi
+							break;;
+						[Nn]* ) break;;
+						* ) echo "Please answer yes or no.";;
+					esac
+				done
+			else
+				echo "libjack.dll was found at $MXE/usr/i686-w64-mingw32.shared/bin/"
+			fi
 			echo "$PWD"
 			cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake
 			make
