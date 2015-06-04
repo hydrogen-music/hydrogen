@@ -164,6 +164,7 @@ while :
 		5)	#Build Windows Installer
 			cd $HOME/Hydrogen
 			if [ ! -e sources ]; then
+				rm -rf $HYDROGEN/win32/windows_32_bit_build
 				cp -r $HYDROGEN ./sources/
 			fi
 			if [ ! -e jack_installer ]; then
@@ -193,8 +194,8 @@ while :
 			if [ ! -e make_installer.nsi ]; then
 				cp $HYDROGEN/win32/make_installer.nsi ./
 			fi
-			if [ ! -e "data/img/gray/h2-icon.ico" ]; then
-				convert ./data/img/gray/icon-16.png ./data/img/gray/h2-icon.ico
+			if [ ! -e "$HOME/Hydrogen/data/img/gray/h2-icon.ico" ]; then
+				convert $HOME/Hydrogen/data/img/gray/h2-icon.svg $HOME/Hydrogen/data/img/gray/h2-icon.ico
 			fi
 			makensis make_installer.nsi
 			;;
