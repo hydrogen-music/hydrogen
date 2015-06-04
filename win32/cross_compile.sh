@@ -81,7 +81,12 @@ while :
 				while true; do
 				    read -p "Do you wish to install this program? (y / n)" yn
 				    case $yn in
-					[Yy]* ) PERMENANT_INSTALL=1; PATH=/opt/mxe/usr/bin:$PATH; break;;
+					[Yy]* ) #move mxe files to /opt and build it there!
+						sudo mv $MXE /opt/mxe
+						cd /opt/mxe
+						MXE=/opt/mxe
+						PATH=/opt/mxe/usr/bin:$PATH;
+						break;;
 					[Nn]* ) exit;;
 					* ) echo "Please answer yes or no.";;
 				    esac
