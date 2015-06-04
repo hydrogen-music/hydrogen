@@ -16,6 +16,7 @@ while :
 	if [ -d "/opt/mxe/" ]; then
 		# MXE is already installed
 		MXE_INSTALLED=1
+		MXE=/opt/mxe
 	fi
 
 	# Write out the menu options...
@@ -100,16 +101,15 @@ while :
 				#Build the dependancies for hydrogen
 				make qt libarchive libsndfile portaudio portmidi -j4 JOBS=4
 			else
-				MXE="/opt/mxe"
 				echo "MXE found at $MXE"
 			fi
 
 			#Build hydrogen itself now.
 			echo "Now building Hydrogen."
-			if [ ! -e "$HYDROGEN" ]; then
+			HYDROGEN_BUILD="$HYDROGEN/win32/windows_32_bit_build"
+			if [ ! -e "$HYDROGEN_BUILD" ]; then
 				mkdir "$HYDROGEN/win32/windows_32_bit_build"
 			fi
-			HYDROGEN_BUILD="$HYDROGEN/win32/windows_32_bit_build"
 			echo "We will now build Hydrogen at $HYDROGEN_BUILD"
 			cd "$HYDROGEN_BUILD"
 			if [ ! -e "$MXE/usr/i686-w64-mingw32.shared/bin/libjack.dll" ]; then
