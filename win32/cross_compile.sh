@@ -129,9 +129,9 @@ while :
 							echo "We can try to automatically move the file to the proper location" 
 							read -e -p "Enter the path to libjack.dll: " -i "$HOME" LIBJACK_PATH
 							if [ -f $LIBJACK_PATH ]; then
-								sudo cp $LIBJACK_PATH $MXE/usr/i686-w64-mingw32.shared/bin/
-								#sudo cp ${CLONEPATH%/*}/jack2/common/jack/jack.h $MXE/usr/i686-w64-mingw32.shared/include/
-								#sudo cp ${CLONEPATH%/*}/jack2/common/jack/session.h $MXE/usr/i686-w64-mingw32.shared/include/
+								sudo cp $LIBJACK_PATH $MXE/usr/i686-w64-mingw32.shared/bin/	
+							fi
+							if [ ! -e $MXE/usr/i686-w64-mingw32.shared/include/jack ]; then
 								ln -s ${CLONEPATH%/*}/jack2/common/jack $MXE/usr/i686-w64-mingw32.shared/include/jack
 							fi
 							break;;
@@ -144,7 +144,8 @@ while :
 			fi
 			cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake
 			make
-			sh ../create_bundle.sh
+			cd ..
+			./create_bundle.sh
 			if [ ! -d $HOME/Hydrogen ]; then
 				rm -rf $HOME/Hydrogen
 			fi
@@ -163,8 +164,8 @@ while :
 			mkdir jack_installer
 			cd jack_installer
 			wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_64_setup.exe
-			cd ..
-			makensis $HYDROGEN/win32/make_installer.nis
+			cp $HYDROGEN/win32/make_installer.nsi ./
+			makensis make_installer.nsi
 			;;
 		6)	#Clean up the files
 			echo "Now cleaning up the files. This process will move the built hydrogen into your home directory and delete the build files. If MXE was not permenantly installed, it will remove that too."
