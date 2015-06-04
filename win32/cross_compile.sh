@@ -63,6 +63,9 @@ while :
 			else
 				echo "MXE already downloaded to $MXE"
 			fi
+			if [ ! -e ${CLONEPATH%/*}/jack2 ]
+				git clone git://github.com/jackaudio/jack2.git
+			fi
 			;;
 		3)	#Set the required variables
 			echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
@@ -125,7 +128,9 @@ while :
 							echo "We can try to automatically move the file to the proper location" 
 							read -e -p "Enter the path to libjack.dll: " -i "$HOME" LIBJACK_PATH
 							if [ -f $LIBJACK_PATH/libjack.dll ]; then
-								mv $LIBJACK_PATH/libjack.dll $MXE/usr/i686-w64-mingw32.shared/bin/
+								sudo cp $LIBJACK_PATH/libjack.dll $MXE/usr/i686-w64-mingw32.shared/bin/
+								sudo cp ${CLONEPATH%/*}/jack2/common/jack/jack.h $MXE/usr/i686-w64-mingw32.shared/include/
+								sudo cp ${CLONEPATH%/*}/jack2/common/jack/session.h $MXE/usr/i686-w64-mingw32.shared/include/
 							fi
 							break;;
 						[Nn]* ) break;;
