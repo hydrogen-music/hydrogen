@@ -46,11 +46,13 @@ while :
 		2)	#download the proper git repositories
 			echo "This will clone the repositories for Hydrogen and MXE."
 			read -e -p "Enter the path where Hydrogen should be built: " -i "$HOME/build/hydrogen_win32/" CLONEPATH
-			mkdir -p "$CLONEPATH"
-			cd "$CLONEPATH"
-			BUILD_DIR=$PWD
-			#git clone https://github.com/hydrogen-music/hydrogen.git
-			git clone https://github.com/mikotoiii/hydrogen.git
+			if [ ! -e "$CLONEPATH" ]; then
+				mkdir -p "$CLONEPATH"
+				cd "$CLONEPATH"
+				BUILD_DIR=$PWD
+				#git clone https://github.com/hydrogen-music/hydrogen.git
+				git clone https://github.com/mikotoiii/hydrogen.git
+			fi
 			if [ ! "$MXE_INSTALLED" == "1" ]; then
 				git clone https://github.com/mxe/mxe.git
 			fi
@@ -59,11 +61,13 @@ while :
 			echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
 			
 			HYDROGEN="$CLONEPATH/hydrogen"
+			echo "Checking for MXE."
 			if [ ! "$MXE_INSTALLED" == "1" ]; then
 				if [ -z "$MXE" ]; then
 					MXE="$CLONEPATH/mxe"
 				fi
 				# Ask if MXE should be installed
+				echo "MXE was not found. We will now build MXE."
 				echo "Would you like to permenantly install MXE into /opt/mxe to save time for future builds?"
 				while true; do
 				    read -p "Do you wish to install this program? (y / n)" yn
@@ -92,7 +96,10 @@ while :
 			fi
 
 			#Build hydrogen itself now.
-			mkdir "$HYDROGEN/win32/windows_32_bit_build"
+			echo "Now building Hydrogen."
+			if [ ! -e "$HYDROGEN" ]; then
+				mkdir "$HYDROGEN/win32/windows_32_bit_build"
+			fi
 			HYDROGEN_BUILD="$HYDROGEN/win32/windows_32_bit_build"
 			cd "$HYDROGEN_BUILD"
 			while true; do	
@@ -109,6 +116,7 @@ while :
 					* ) echo "Please answer yes or no.";;
 				esac
 			done
+			echo "$PWD"
 			cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake
 			make
 			sh ../create_bundle.sh
