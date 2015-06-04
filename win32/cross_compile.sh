@@ -63,7 +63,7 @@ while :
 			else
 				echo "MXE already downloaded to $MXE"
 			fi
-			if [ ! -e ${CLONEPATH%/*}/jack2 ]
+			if [ ! -e ${CLONEPATH%/*}/jack2 ]; then
 				git clone git://github.com/jackaudio/jack2.git
 			fi
 			;;
