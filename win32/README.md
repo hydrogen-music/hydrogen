@@ -2,6 +2,12 @@
 
 ## Cross-compiling on a Unix System
 
+### The easy way:
+
+	run the script cross_compile.sh located in the win32 folder.
+
+### The manual way: 
+
 ### Installing all necessary packages
 
 #### On Debian/Ubuntu

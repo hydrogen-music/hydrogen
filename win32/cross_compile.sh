@@ -81,7 +81,7 @@ while :
 				fi
 				# Ask if MXE should be installed
 				echo "MXE was not found. We will now build MXE."
-				echo "Would you like to permenantly install MXE into /opt/mxe to save time for future builds?"
+				echo "Would you like to permenantly install MXE into /opt/mxe to save time for future builds? (HIGHLY RECOMMENDED)"
 				while true; do
 				    read -p "Do you wish to install this program? (y / n)" yn
 				    case $yn in
@@ -97,7 +97,7 @@ while :
 				done
 
 				#Modify the MXE Makefiles to allow for the cross compilation.
-				sed -i 's/i686-w64-mingw32.static/i686-w64-mingw32.shared/g' $MXE/Makefile
+				sed -i 's/i686-w64-mingw32.static/i686-w64-mingw32.shared x86_64-w64-mingw32.shared/g' $MXE/Makefile
 				cd $MXE
 				#Make gcc and winpthreads. gcc will need to be rebuilt once winpthreads is built.
 				#Note: This needs to happen because winpthreads needs gcc to be built, but we need gcc built with winpthreads support to build hydrogen.

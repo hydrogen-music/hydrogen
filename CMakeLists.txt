@@ -358,6 +358,9 @@ INSTALL(DIRECTORY data DESTINATION ${SYS_DATA_PATH}/.. PATTERN ".git" EXCLUDE)
 IF(NOT MINGW AND NOT APPLE)
     INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
 ENDIF()
+IF(MINGW)
+	INSTALL(DIRECTORY "${CMAKE_SOURCE_DIR}/win32/
+ENDIF()
 
 #
 # CPack
@@ -381,9 +384,12 @@ SET(CPACK_PACKAGE_INSTALL_DIRECTORY "Hydrogen ${VERSION}")
 
 
 IF(MINGW)
-    # TODO
     #SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\nsis_branding.bmp")
-    SET(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/data\\\\hydrogen.ico")
+    INCLUDE(CPack)
+    SET(CPACK_GENERATOR "NSIS")
+    #Need the 2 following lines for the icon to work
+    SET(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/data\\\\h2-icon.ico")
+    SET(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}/data\\\\h2-icon.ico")
     SET(CPACK_NSIS_INSTALLED_ICON_NAME "hydrogen.exe")
     SET(CPACK_NSIS_DISPLAY_NAME "Hydrogen (Advanced drum machine for GNU/Linux)")
     SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.hydrogen-music.org/")
