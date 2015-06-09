@@ -353,13 +353,13 @@ ADD_SUBDIRECTORY(src/cli)
 ADD_SUBDIRECTORY(src/player)
 ADD_SUBDIRECTORY(src/synth)
 ADD_SUBDIRECTORY(src/gui)
-
-INSTALL(DIRECTORY data DESTINATION ${SYS_DATA_PATH}/.. PATTERN ".git" EXCLUDE)
+IF (MINGW)
+	INSTALL(DIRECTORY data DESTINATION . PATTERN ".git" EXCLUDE)
+ELSE()
+	INSTALL(DIRECTORY data DESTINATION ${SYS_DATA_PATH}/.. PATTERN ".git" EXCLUDE)
+ENDIF()
 IF(NOT MINGW AND NOT APPLE)
     INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
-ENDIF()
-IF(MINGW)
-	INSTALL(DIRECTORY "${CMAKE_SOURCE_DIR}/win32/
 ENDIF()
 
 #
@@ -371,22 +371,36 @@ SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Hydrogen : an advanced drum machine for G
 SET(CPACK_PACKAGE_VENDOR "Hydrogen Developers")
 SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/README.txt")
 SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING")
-
 SET(CPACK_PACKAGE_VERSION_MAJOR "${VERSION_MAJOR}")
 SET(CPACK_PACKAGE_VERSION_MINOR "${VERSION_MINOR}")
 SET(CPACK_PACKAGE_VERSION_PATCH "${VERSION_PATCH}")
 IF(VERSION_SUFFIX)
     SET(CPACK_PACKAGE_VERSION_PATCH "${VERSION_PATCH}-${VERSION_SUFFIX}")
 ENDIF(VERSION_SUFFIX)
-
-SET(CPACK_PACKAGE_INSTALL_DIRECTORY "Hydrogen ${VERSION}")
-
-
+SET(CPACK_PACKAGE_INSTALL_DIRECTORY "Hydrogen")
 
 IF(MINGW)
-    #SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\nsis_branding.bmp")
-    INCLUDE(CPack)
-    SET(CPACK_GENERATOR "NSIS")
+    #Add the ICON to the Executable
+    #SET(CMAKE_RC_LINK_EXECUTABLE "windres")
+    #ADD_EXECUTABLE(h2icon ${CMAKE_SOURCE_DIR}/windows/icon.rc)
+    #Set the other files that will be used in CPack
+    #Program Files for Hydrogen
+    SET(WINDOWS_DIR "${CMAKE_SOURCE_DIR}/windows")
+    INSTALL(FILES ${WINDOWS_DIR}/src/cli/h2cli.exe ${WINDOWS_DIR}/src/core/libhydrogen-core-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dll ${WINDOWS_DIR}/src/gui/hydrogen.exe ${WINDOWS_DIR}/src/player/h2player.exe ${WINDOWS_DIR}/src/synth/h2synth.exe DESTINATION .)
+    #DLL Files from the mxe /bin
+    SET(MXE_BIN "${SYS_DATA_PATH}/../../bin")
+    INSTALL(FILES ${MXE_BIN}/libsndfile-1.dll ${MXE_BIN}/libFLAC-8.dll ${MXE_BIN}/libogg-0.dll ${MXE_BIN}/libvorbis-0.dll ${MXE_BIN}/libvorbisenc-2.dll ${MXE_BIN}/zlib1.dll ${MXE_BIN}/libwinpthread-1.dll ${MXE_BIN}/libeay32.dll ${MXE_BIN}/ssleay32.dll ${MXE_BIN}/libarchive-13.dll ${MXE_BIN}/libbz2.dll ${MXE_BIN}/liblzma-5.dll ${MXE_BIN}/libnettle-4-6.dll ${MXE_BIN}/libxml2-2.dll ${MXE_BIN}/libpng16-16.dll ${MXE_BIN}/libportmidi.dll ${MXE_BIN}/libportaudio-2.dll ${MXE_BIN}/libiconv-2.dll ${MXE_BIN}/libiconv-2.dll ${MXE_BIN}/libjack.dll DESTINATION .)
+    #DLL Files for QT
+    SET(QT_BIN "${SYS_DATA_PATH}/../../qt/bin")
+    INSTALL(FILES ${QT_BIN}/QtCore4.dll ${QT_BIN}/QtXml4.dll ${QT_BIN}/QtXmlPatterns4.dll ${QT_BIN}/QtNetwork4.dll ${QT_BIN}/QtGui4.dll DESTINATION .)
+    #DLL Files for gcc and libc6
+    SET(GCC_BIN "${SYS_DATA_PATH}/../../../lib/gcc/i686-w64-mingw32.shared/5.1.0")
+    INSTALL(FILES ${GCC_BIN}/libgcc_s_sjlj-1.dll ${GCC_BIN}/libstdc++-6.dll DESTINATION .)
+    #Include source package
+    INSTALL(DIRECTORY ./source DESTINATION .)
+
+    #SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\h2-icon.ico")
+    #Begin NSIS Customizations
     #Need the 2 following lines for the icon to work
     SET(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/data\\\\h2-icon.ico")
     SET(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}/data\\\\h2-icon.ico")
@@ -397,7 +411,12 @@ IF(MINGW)
     SET(CPACK_NSIS_CONTACT "hydrogen-devel@lists.sourceforge.net")
     SET(CPACK_PACKAGE_EXECUTABLES "hydrogen-gui.exe;Advanced drum machine for GNU/Linux")
     SET(CPACK_NSIS_MENU_LINKS "hydrogen-gui.exe;Advanced drum machine for GNU/Linux")
-    SET(CPACK_SOURCE_GENERATOR "ZIP")
+    SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY ON)
+    #SET(CPACK_NSIS_MODIFY_PATH ON)
+    SET(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+    SET(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH} ${VERSION_SUFFIX}")
+    #SET(CPACK_SOURCE_GENERATOR "ZIP")
+    #end NSIS customizations
 ELSE(MINGW)
     #apple stuff was moved to src/gui/CMakeLists.txt
 ENDIF()
