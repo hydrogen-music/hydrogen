@@ -1,15 +1,16 @@
 #!/bin/bash
-BUNDLE_DIR=hydrogen_windows_32_bit
+LIB_DIR=libs
 if [ ! -e $BUNDLE_DIR ]; then
 	mkdir $BUNDLE_DIR
 fi
-cd $BUNDLE_DIR
+
 cp $HYDROGEN_BUILD/src/gui/hydrogen.exe .
 cp $HYDROGEN_BUILD/src/core/libhydrogen-core-0.9.7.dll .
 cp $HYDROGEN_BUILD/src/cli/h2cli.exe .
 cp $HYDROGEN_BUILD/src/player/h2player.exe .
 cp $HYDROGEN_BUILD/src/synth/h2synth.exe .
 
+cd $BUNDLE_DIR
 cp $MXE/usr/i686-w64-mingw32.shared/qt/bin/QtCore4.dll .
 cp $MXE/usr/i686-w64-mingw32.shared/qt/bin/QtXml4.dll .
 cp $MXE/usr/i686-w64-mingw32.shared/qt/bin/QtXmlPatterns4.dll .
@@ -45,5 +46,4 @@ if [ ! -e rubberband ]; then
 fi
 cp $MXE/usr/i686-w64-mingw32.shared/bin/libfftw3-3.dll rubberband/
 
-
-cp -r $HYDROGEN/data .
+#cp -r $HYDROGEN/data .
