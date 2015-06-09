@@ -61,7 +61,7 @@ build_hydrogen(){
 			read -p "would you like to build Hydrogen with Jack support? (y / n) Note: If you have libjack.dll or libjack64.dll already installed in mxe, you can answer no here." yn
 			case $yn in
 				[Yy]* ) echo "You will now need to copy the libjack.dll file from a Windows machine (C:\Windows\SysWow64\libjack.dll) to your mxe directory.";
-					echo "If you're building 64 bit, you will need to point the installer to libjack64.dll which can be found at (C:\Windows).
+					echo "If you're building 64 bit, you will need to point the installer to libjack64.dll which can be found at (C:\Windows)."
 					echo "We can try to automatically move the file to the proper location" 
 					read -e -p "Enter the path to libjack.dll: " -i "$HOME" LIBJACK_PATH
 					if [ -f $LIBJACK_PATH ]; then
@@ -88,7 +88,7 @@ build_hydrogen(){
 		mkdir jack_installer
 	fi
 	cd jack_installer
-	if [ $1 == "x86_64" ]
+	if [ $1 == "x86_64" ]; then
 		if [ ! -e "Jack_v1.9.10_64_setup.exe" ]; then
 			wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_64_setup.exe
 		fi
@@ -110,7 +110,8 @@ build_hydrogen(){
 		fi
 		cd ..
 	fi
-	cd ..
+	cd $CLONEPATH
+	echo $PWD
 	cpack -G NSIS
 	#Check if PERMENANT_INSTALL is set to 1, and copy the files over
 	if [ "$PERMENANT_INSTALL" == "1" ]; then
