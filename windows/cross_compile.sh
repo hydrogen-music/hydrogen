@@ -56,12 +56,12 @@ build_hydrogen(){
 	fi
 	echo "We will now build Hydrogen at $HYDROGEN_BUILD"
 	cd "$HYDROGEN_BUILD"
-	if [ ! -e "$MXE/usr/$1-w64-mingw32.shared/bin/libjack.dll" ] || [ ! -e "$MXE/usr/$1-w64-mingw32.shared/bin/libjack64.dll" ]; then
+	if [ ! -e "$MXE/usr/$1-w64-mingw32.shared/bin/libjack.dll" ]; then
 		while true; do	
-			read -p "would you like to build Hydrogen with Jack support? (y / n) Note: If you have libjack.dll or libjack64.dll already installed in mxe, you can answer no here." yn
+			read -p "would you like to build Hydrogen with Jack support? (y / n) Note: If you have libjack.dll already installed in mxe, you can answer no here." yn
 			case $yn in
 				[Yy]* ) echo "You will now need to copy the libjack.dll file from a Windows machine (C:\Windows\SysWow64\libjack.dll) to your mxe directory.";
-					echo "If you're building 64 bit, you will need to point the installer to libjack64.dll which can be found at (C:\Windows)."
+					echo "If you're building 64 bit, you will need to copy libjack64.dll and rename it to libjack.dll which can be found at (C:\Windows)."
 					echo "We can try to automatically move the file to the proper location" 
 					read -e -p "Enter the path to libjack.dll: " -i "$HOME" LIBJACK_PATH
 					if [ -f $LIBJACK_PATH ]; then
@@ -79,8 +79,12 @@ build_hydrogen(){
 		echo "libjack was found at $MXE/usr/$1-w64-mingw32.shared/bin/"
 	fi
 	cd ../..
-	cmake source -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake
-	#make
+	if [ -e CMakeCache.txt ]; then
+		echo "Previous build detected. We will now remove the caches so the project will build properly."
+		rm -rf _CPack_Packages CMakeFiles try
+		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
+	fi
+	cmake source -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2
 	export HYDROGEN
 	export HYDROGEN_BUILD
 	export MXE
@@ -189,45 +193,7 @@ while :
 			build_hydrogen i686
 			;;
 		4)	#Experimental 64 Bit Compiling
-			build_hydrogen x86_64
-			;;
-		5)	#Build Windows Installer
-			cd $HOME/Hydrogen
-			if [ ! -e sources ]; then
-				rm -rf $HYDROGEN/windows
-				cp -r $HYDROGEN ./sources/
-			fi
-			if [ ! -e jack_installer ]; then
-				mkdir jack_installer
-			fi
-			cd jack_installer
-			if [ ! -e "Jack_v1.9.10_64_setup.exe" ]; then
-				wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_64_setup.exe
-			fi
-			cd ..
-			if [ ! -e plugins ]; then
-				mkdir plugins
-				cd plugins
-				if [ ! -e ladspaplugs ]; then
-					mkdir ladspaplugs
-				fi
-				cd ladspaplugs
-				if [ ! -e "LADSPA_plugins-win-0.4.15.exe" ]; then
-					wget http://downloads.sourceforge.net/audacity/LADSPA_plugins-win-0.4.15.exe
-				fi
-				cd ..
-			fi
-			cd ..
-			if [ ! -e "gpl-3.0.txt" ]; then
-				wget http://www.gnu.org/licenses/gpl-3.0.txt
-			fi
-			if [ ! -e make_installer.nsi ]; then
-				cp $HYDROGEN/windows/make_installer.nsi ./
-			fi
-			if [ ! -e "$HOME/Hydrogen/data/img/gray/h2-icon.ico" ]; then
-				convert $HOME/Hydrogen/data/img/gray/h2-icon.svg $HOME/Hydrogen/data/img/gray/h2-icon.ico
-			fi
-			makensis make_installer.nsi
+			build_hydrogen x86_64 -DCMAKE_{C,CXX}_FLAGS=-m64
 			;;
 		6)	#Clean up the files
 			echo "Now cleaning up the files. This process will move the built hydrogen into your home directory and delete the build files. If MXE was not permenantly installed, it will remove that too."

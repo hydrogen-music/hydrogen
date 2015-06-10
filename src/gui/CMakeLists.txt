@@ -47,7 +47,7 @@ IF(APPLE)
 ENDIF()
 
 
-ADD_EXECUTABLE(hydrogen WIN32 MACOSX_BUNDLE ${hydrogen_SRCS} ${hydrogen_MOC} ${hydrogen_UIS_H})
+ADD_EXECUTABLE(hydrogen WIN32 MACOSX_BUNDLE ${hydrogen_SRCS} ${hydrogen_MOC} ${hydrogen_UIS_H} ${CMAKE_SOURCE_DIR}/windows/icon.rc)
 TARGET_LINK_LIBRARIES(hydrogen
     hydrogen-core-${VERSION}
     ${QT_QTGUI_LIBRARY}

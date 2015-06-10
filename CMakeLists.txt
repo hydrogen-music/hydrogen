@@ -380,13 +380,7 @@ ENDIF(VERSION_SUFFIX)
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "Hydrogen")
 
 IF(MINGW)
-    #set(CPACK_SET_DESTDIR true)
-    #Add the ICON to the Executable
-    #SET(CMAKE_RC_LINK_EXECUTABLE "windres")
-    #SET(ICON_RESOURCE "${CMAKE_SOURCE_DIR}/windows/icon.rc")
-    #ADD_EXECUTABLE(h2-icon ${ICON_RESOURCE})
     #Set the other files that will be used in CPack
-    #Allows the use of absolute paths
     #Program Files for Hydrogen
     SET(WINDOWS_DIR "..")
     INSTALL(FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/core/libhydrogen-core-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dll" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe" "${WINDOWS_DIR}/src/synth/h2synth.exe" DESTINATION ./)
@@ -404,23 +398,21 @@ IF(MINGW)
     INSTALL(DIRECTORY ../jack_installer DESTINATION ./)
     INSTALL(DIRECTORY ../plugins DESTINATION ./)
 
-    #SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\h2-icon.ico")
+    SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.bmp")
     #Begin NSIS Customizations
     #Need the 2 following lines for the icon to work
-    SET(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/data\\\\h2-icon.ico")
-    SET(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}/data\\\\h2-icon.ico")
+    SET(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.ico")
+    SET(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.ico")
     SET(CPACK_NSIS_INSTALLED_ICON_NAME "hydrogen.exe")
     SET(CPACK_NSIS_DISPLAY_NAME "Hydrogen (Advanced drum machine for GNU/Linux)")
     SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\www.hydrogen-music.org/")
     SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\www.hydrogen-music.org/")
     SET(CPACK_NSIS_CONTACT "hydrogen-devel@lists.sourceforge.net")
-    SET(CPACK_PACKAGE_EXECUTABLES "hydrogen-gui.exe;Advanced drum machine for GNU/Linux")
-    SET(CPACK_NSIS_MENU_LINKS "hydrogen-gui.exe;Advanced drum machine for GNU/Linux")
+    SET(CPACK_PACKAGE_EXECUTABLES "hydrogen.exe;Advanced drum machine for GNU/Linux")
+    SET(CPACK_NSIS_MENU_LINKS "hydrogen.exe;Advanced drum machine for GNU/Linux")
     SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY ON)
-    #SET(CPACK_NSIS_MODIFY_PATH ON)
     SET(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
     SET(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH} ${VERSION_SUFFIX}")
-    #SET(CPACK_SOURCE_GENERATOR "ZIP")
     #end NSIS customizations
 ELSE(MINGW)
     #apple stuff was moved to src/gui/CMakeLists.txt
