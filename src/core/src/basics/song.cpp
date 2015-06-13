@@ -41,6 +41,7 @@
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/note.h>
+#include <hydrogen/basics/automation_path.h>
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/hydrogen.h>
 
@@ -76,10 +77,13 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 	, __swing_factor( 0.0 )
 	, __song_mode( PATTERN_MODE )
 	, __components( NULL )
+	, __velocity_automation_path( NULL )
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( __name ) );
 
 	__components = new std::vector<DrumkitComponent*> ();
+
+	__velocity_automation_path = new AutomationPath(0.0f, 1.0f,  1.0f);
 
 	//m_bDelayFXEnabled = false;
 	//m_fDelayFXWetLevel = 0.8;
@@ -107,6 +111,8 @@ Song::~Song()
 	}
 
 	delete __instrument_list;
+
+	delete __velocity_automation_path;
 
 	INFOLOG( QString( "DESTROY '%1'" ).arg( __name ) );
 }
