@@ -137,16 +137,17 @@ while :
 
 			else 
 				if [ -f ${CLONEPATH%/*}/build.sh ]; then
-					mv -r ${CLONEPATH%/*} ${CLONEPATH%/*}/../hydrogen.tmp
+					mv ${CLONEPATH%/*} ${CLONEPATH%/*}/../hydrogen.tmp
 					mkdir -p ${CLONEPATH%/*}
 					mv ${CLONEPATH%/*}/../hydrogen.tmp ${CLONEPATH%/*}/source
-				echo "Hydrogen already downloaded to ${CLONEPATH%/*}."
-			fi
-			if [ ! -e ${CLONEPATH%/*}/source/jack2 ]; then
-				cd ${CLONEPATH%/*}/source
-				echo "Now downloading jack."
-				git clone git://github.com/jackaudio/jack2.git
-				cd ..
+					echo "Hydrogen already downloaded to ${CLONEPATH%/*}."
+				fi
+				if [ ! -e ${CLONEPATH%/*}/source/jack2 ]; then
+					cd ${CLONEPATH%/*}/source
+					echo "Now downloading jack."
+					git clone git://github.com/jackaudio/jack2.git
+					cd ..
+				fi
 			fi
 			;;
 		2)	#Set the required variables
