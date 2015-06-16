@@ -13,7 +13,7 @@ build_hydrogen(){
 	HYDROGEN="${CLONEPATH%/*}/source"
 	echo "Checking for MXE."
 	if [ -d /opt/mxe ]; then
-		if [ -d /opt/mxe/usr/i686-w64-mingw32.shared/gcc ] || [ -d /opt/mxe/usr/x86_64-w64-mingw32.shared/gcc ]; then
+		if [ -f /opt/mxe/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake ] || [ -f /opt/mxe/usr/x86_64-w64-mingw32.shared/share/cmake/mxe-conf.cmake ]; then
 			MXE_INSTALLED=1
 		fi
 	else

@@ -2,8 +2,8 @@
 #This script will try to install mxe for you.
 
 if [ -d /opt/mxe ]; then
-	if [ -d /opt/mxe/usr/i686-w64-mingw32.shared/gcc ] || [ -d /opt/mxe/usr/x86_64-w64-mingw32.shared/gcc ]; then
-		MXE_INSTALLED = 1
+	if [ -f /opt/mxe/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake ] || [ -f /opt/mxe/usr/x86_64-w64-mingw32.shared/share/cmake/mxe-conf.cmake ]; then
+		MXE_INSTALLED=1
 	fi
 fi
 
@@ -69,34 +69,34 @@ while :
 			if (uname -a | grep x86_64); then
 				sudo apt-get install g++-multilib libc6-dev-i386
 			fi
-			install_mxe()
+			install_mxe
 			;;
 		2)	#Fedora
 			echo "Now installing required packages"
 			yum install autoconf automake bash bison bzip2 cmake flex gcc-c++ gettext git gperf intltool make sed libffi-devel libtool openssl-devel patch perl pkgconfig python ruby scons unzip wget xz
-			install_mxe() EXCLUDE_PKGS='ocaml%'
+			install_mxe EXCLUDE_PKGS='ocaml%'
 			;;
 		3)	#FreeBSD
 			echo "FreeBSD is no longer fully supported. This may install the package; however, it may not work as expected. please visit http://mxe.cc/#requirements for more information."
 			echo "Now installing required packages"
 			pkg_add -r automake autoconf bash bison cmake coreutils flex gettext git glib20 gmake gperf gsed intltool libffi libtool openssl patch perl p5-XML-Parser pkgconf python ruby scons unzip wget
-			install_mxe() EXCLUDE_PKGS='ocaml%'
+			install_mxe EXCLUDE_PKGS='ocaml%'
 			;;
 		4)	#Frugalware
 			echo "Now installing required packages"
 			pacman-g2 -S autoconf automake bash bzip2 bison cmake flex gcc gettext git gperf intltool make sed libffi libtool openssl patch perl perl-xml-parser pkgconfig python ruby scons unzip wget xz xz-lzma
-			install_mxe() EXCLUDE_PKGS='ocaml%'
+			install_mxe EXCLUDE_PKGS='ocaml%'
 			;;
 		5)	#Gentoo
 			echo "Now installing required packages"
 			emerge sys-devel/autoconf sys-devel/automake app-shells/bash sys-devel/bison app-arch/bzip2 dev-util/cmake sys-devel/flex sys-devel/gcc sys-devel/gettext dev-vcs/git dev-util/gperf dev-util/intltool sys-devel/make sys-apps/sed dev-libs/libffi sys-devel/libtool dev-libs/openssl sys-devel/patch dev-lang/perl dev-perl/XML-Parser dev-util/pkgconfig dev-lang/python dev-lang/ruby dev-util/scons app-arch/unzip net-misc/wget app-arch/xz-utils
-			install_mxe()
+			install_mxe
 			;;
 		6)	#Mac OS X
 			echo "You may be prompted to install a java runtime - this is not required."
 			echo "Mac OS X versions ≤ 10.7 are no longer supported."
-			While :
-				do
+			while :
+                                do
 				echo "1) If you have macports installed select this."
 				echo "2) If you do NOT have macports installed, this will install Rudix and then install MXE."
 				read MAC
@@ -104,13 +104,13 @@ while :
 					1)#Macports IS installed
 						sudo port install glib2 intltool p5-xml-parser gpatch scons wget xz
 						make build-requirements
-						install_mxe()
+						install_mxe
 						;;
 					2)#Macports is NOT installed. Install Rudix
 						curl -s https://raw.githubusercontent.com/rudix-mac/rpm/2014.6/rudix.py | sudo python - install rudix
 						sudo rudix install glib pkg-config scons wget xz
 						make build-requirements
-						install_mxe()
+						install_mxe
 						;;
 				esac
 
@@ -122,7 +122,7 @@ while :
 			if (uname -a | grep x86_64); then
 				zypper install -R gcc-32bit glibc-devel-32bit libgcc46-32bit libgomp46-32bit libstdc++46-devel-32bit
 			fi
-			install_mxe()
+			install_mxe
 			;;
 		q)	echo "Thank you for using the MXE installer. Goodbye."
 			exit
