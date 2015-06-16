@@ -96,6 +96,13 @@ build_hydrogen(){
 	fi
 	cd $CLONEPATH
 	echo $PWD
+	if [ -e $HYDROGEN/mxe ]; then
+		if [ ! -h $HYDROGEN/mxe ]; then
+			rm -rf $HYDROGEN/mxe
+		fi
+	fi
+	ln -s $MXE/usr/$1-w64-mingw32.shared $HYDROGEN/mxe
+	ln -s $MXE/usr/lib/gcc $HYDROGEN/gcc
 	cpack -G NSIS
 }
 
