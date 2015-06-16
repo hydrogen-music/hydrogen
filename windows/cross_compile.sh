@@ -12,43 +12,16 @@ build_hydrogen(){
 	fi
 	HYDROGEN="${CLONEPATH%/*}/source"
 	echo "Checking for MXE."
-	if [ ! "$MXE_INSTALLED" == "1" ]; then
-		if [ -z "$MXE" ]; then
-			MXE="${CLONEPATH%/*}/mxe"
+	if [ -d /opt/mxe ]; then
+		if [ -d /opt/mxe/usr/i686-w64-mingw32.shared/gcc ] || [ -d /opt/mxe/usr/x86_64-w64-mingw32.shared/gcc ]; then
+			MXE_INSTALLED = 1
 		fi
-		# Ask if MXE should be installed
-		echo "MXE was not found. We will now build MXE."
-		echo "Would you like to permenantly install MXE into /opt/mxe to save time for future builds? (HIGHLY RECOMMENDED)"
-		while true; do
-		    read -p "Do you wish to install this program? (y / n)" yn
-		    case $yn in
-			[Yy]* ) #move mxe files to /opt and build it there!
-				sudo mv $MXE /opt/mxe
-				cd /opt/mxe
-				MXE=/opt/mxe
-				PATH=/opt/mxe/usr/bin:$PATH;
-				break;;
-			[Nn]* ) exit;;
-			* ) echo "Please answer yes or no.";;
-		    esac
-		done
-			#Modify the MXE Makefiles to allow for the cross compilation.
-		sed -i 's/i686-w64-mingw32.static/i686-w64-mingw32.shared x86_64-w64-mingw32.shared/g' $MXE/Makefile
-		cd $MXE
-		#Make gcc and winpthreads. gcc will need to be rebuilt once winpthreads is built.
-		#Note: This needs to happen because winpthreads needs gcc to be built, but we need gcc built with winpthreads support to build hydrogen.
-		#	this creates a cyclical dependancy problem that there seems to be no way around.
-		make gcc
-		make winpthreads
-		sed -i 's/binutils gcc-gmp gcc-isl gcc-mpc gcc-mpfr mingw-w64/binutils gcc-gmp gcc-isl gcc-mpc gcc-mpfr winpthreads/g' $MXE/src/gcc.mk
-		sed -i 's/--enable-threads=win32/--enable-threads=posix/g' $MXE/src/gcc.mk
-		make gcc
-		#Build the dependancies for hydrogen
-		make qt libarchive libsndfile portaudio portmidi fftw rubberband -j4 JOBS=4
 	else
-		echo "MXE found at $MXE"
+		echo "mxe was not found, please run the mxe_installer.sh script first."
+		exit
 	fi
-		#Build hydrogen itself now.
+	
+	#Build hydrogen itself now.
 	echo "Now building Hydrogen."
 	HYDROGEN_BUILD="$HYDROGEN/windows"
 	if [ ! -e "$HYDROGEN_BUILD" ]; then
@@ -117,10 +90,6 @@ build_hydrogen(){
 	cd $CLONEPATH
 	echo $PWD
 	cpack -G NSIS
-	#Check if PERMENANT_INSTALL is set to 1, and copy the files over
-	if [ "$PERMENANT_INSTALL" == "1" ]; then
-		sudo mv $MXE /opt/mxe
-	fi
 }
 
 
@@ -142,12 +111,9 @@ while :
 	# Write out the menu options...
 	echo "Welcome to the Hydrogen Cross Compiler. We will now compile Hydrogen for Windows."
 	echo "Select an option:"
-	echo " 1: Prepare the system"
-	echo " 2: Clone required repositories"
-	echo " 3: Build Hydrogen"
-	echo " 4: Experimental 64 Bit Compiling"
-	echo " 5: Build Windows Installer"
-	echo " 6: Clean up Files"
+	echo " 1: Clone required repositories"
+	echo " 2: Build Hydrogen"
+	echo " 3: Experimental 64 Bit Compiling"
 	echo " q: Exit"
 
 	# Clear the error message
@@ -158,14 +124,7 @@ while :
 	read SEL
 
 	case $SEL in
-		1)	#Prepares the system by getting the necessary packages to perform the cross compile
-			echo "Now installing required packages"
-			sudo apt-get install autoconf automake autopoint bash bison bzip2 cmake flex gettext git gcc g++ intltool libffi-dev libtool libtool-bin libltdl-dev libssl-dev libxml-parser-perl make openssl patch perl pkg-config scons sed unzip wget xz-utils nsis
-			if (uname -a | grep x86_64); then
-				sudo apt-get install g++-multilib libc6-dev-i386
-			fi
-			;;
-		2)	#download the proper git repositories
+		1)	#download the proper git repositories
 			echo "This will clone the repositories for Hydrogen and MXE."
 			read -e -p "Enter the path where Hydrogen should be built: " -i "$HOME/build/hydrogen/" CLONEPATH
 			if [ ! -e "${CLONEPATH%/*}" ]; then
@@ -178,31 +137,16 @@ while :
 			else 
 				echo "Hydrogen already downloaded to ${CLONEPATH%/*}."
 			fi
-			if [ ! "$MXE_INSTALLED" == "1" ]; then
-				echo "Now downloading MXE."
-				git clone https://github.com/mxe/mxe.git
-			else
-				echo "MXE already downloaded to $MXE"
-			fi
 			if [ ! -e ${CLONEPATH%/*}/jack2 ]; then
 				echo "Now downloading jack."
 				git clone git://github.com/jackaudio/jack2.git
 			fi
 			;;
-		3)	#Set the required variables
+		2)	#Set the required variables
 			build_hydrogen i686
 			;;
-		4)	#Experimental 64 Bit Compiling
+		3)	#Experimental 64 Bit Compiling
 			build_hydrogen x86_64 -DCMAKE_{C,CXX}_FLAGS=-m64
-			;;
-		6)	#Clean up the files
-			echo "Now cleaning up the files. This process will move the built hydrogen into your home directory and delete the build files. If MXE was not permenantly installed, it will remove that too."
-			mv $HYDROGEN_BUILD $HOME/hydrogen_windows_32_bit_build
-			rm -rf $HYDROGEN
-			rm -rf $HOME/Hydrogen
-			if [ ! "$MXE_INSTALLED" == "1" ]; then
-				rm -rf $MXE
-			fi
 			;;
 		q)	echo "Thank you for using the Hydrogen Cross Compiler. Goodbye."
 			exit
