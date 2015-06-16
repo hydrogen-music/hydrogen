@@ -15,6 +15,7 @@ build_hydrogen(){
 	if [ -d /opt/mxe ]; then
 		if [ -f /opt/mxe/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake ] || [ -f /opt/mxe/usr/x86_64-w64-mingw32.shared/share/cmake/mxe-conf.cmake ]; then
 			MXE_INSTALLED=1
+			MXE=/opt/mxe
 		fi
 	else
 		echo "mxe was not found, please run the mxe_installer.sh script first."
@@ -49,6 +50,12 @@ build_hydrogen(){
 			esac
 		done
 	else
+		if [ ! -h $MXE/usr/$1-w64-mingw32.shared/include/jack ]; then
+			if [ ! -e $MXE/usr/$1-w64-mingw32.shared/include/jack ]; then
+				rm $MXE/usr/$1-w64-mingw32.shared/include/jack
+			fi
+			ln -s ${CLONEPATH%/*}/jack2/common/jack $MXE/usr/$1-w64-mingw32.shared/include/jack
+		fi
 		echo "libjack was found at $MXE/usr/$1-w64-mingw32.shared/bin/"
 	fi
 	cd ../..
@@ -101,13 +108,6 @@ while :
 		echo ""
 	fi
 	
-	#Check if there is a permenant installation of MXE. This will save a LOT of time.
-	if [ -d "/opt/mxe/" ]; then
-		# MXE is already installed
-		MXE_INSTALLED=1
-		MXE=/opt/mxe
-	fi
-
 	# Write out the menu options...
 	echo "Welcome to the Hydrogen Cross Compiler. We will now compile Hydrogen for Windows."
 	echo "Select an option:"
@@ -125,7 +125,7 @@ while :
 
 	case $SEL in
 		1)	#download the proper git repositories
-			echo "This will clone the repositories for Hydrogen and MXE."
+			echo "This will clone the repositories for Hydrogen"
 			read -e -p "Enter the path where Hydrogen should be built: " -i "$HOME/build/hydrogen/" CLONEPATH
 			if [ ! -e "${CLONEPATH%/*}" ]; then
 				echo "Now downloading Hydrogen."
@@ -134,12 +134,19 @@ while :
 				BUILD_DIR=$PWD
 				#git clone https://github.com/hydrogen-music/hydrogen.git
 				git clone https://github.com/mikotoiii/hydrogen.git
+
 			else 
+				if [ -f ${CLONEPATH%/*}/build.sh ]; then
+					mv -r ${CLONEPATH%/*} ${CLONEPATH%/*}/../hydrogen.tmp
+					mkdir -p ${CLONEPATH%/*}
+					mv ${CLONEPATH%/*}/../hydrogen.tmp ${CLONEPATH%/*}/source
 				echo "Hydrogen already downloaded to ${CLONEPATH%/*}."
 			fi
-			if [ ! -e ${CLONEPATH%/*}/jack2 ]; then
+			if [ ! -e ${CLONEPATH%/*}/source/jack2 ]; then
+				cd ${CLONEPATH%/*}/source
 				echo "Now downloading jack."
 				git clone git://github.com/jackaudio/jack2.git
+				cd ..
 			fi
 			;;
 		2)	#Set the required variables
