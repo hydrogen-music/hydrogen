@@ -14,7 +14,7 @@ build_hydrogen(){
 	echo "Checking for MXE."
 	if [ -d /opt/mxe ]; then
 		if [ -d /opt/mxe/usr/i686-w64-mingw32.shared/gcc ] || [ -d /opt/mxe/usr/x86_64-w64-mingw32.shared/gcc ]; then
-			MXE_INSTALLED = 1
+			MXE_INSTALLED=1
 		fi
 	else
 		echo "mxe was not found, please run the mxe_installer.sh script first."

@@ -5,7 +5,7 @@ if [ -d /opt/mxe ]; then
 	if [ -d /opt/mxe/usr/i686-w64-mingw32.shared/gcc ] || [ -d /opt/mxe/usr/x86_64-w64-mingw32.shared/gcc ]; then
 		MXE_INSTALLED = 1
 	fi
-fi		
+fi
 
 install_mxe(){
 	if [ $MXE_INSTALLED == 1 ]; then
