@@ -3,30 +3,20 @@
 ## Cross-compiling on a Unix System
 
 ### The easy way:
+	run the script mxe_installer.sh located in the windows folder
 
-	run the script cross_compile.sh located in the win32 folder.
+	then,
+
+	run the script cross_compile.sh located in the windows folder.
 
 ### The manual way: 
 
 ### Installing all necessary packages
 
-#### On Debian/Ubuntu
 
-    $ sudo apt-get install autoconf automake autopoint bash bison bzip2 \
-                           cmake flex gettext git gcc g++ intltool \
-                           libffi-dev libtool libtool-bin libltdl-dev \
-                           libssl-dev libxml-parser-perl make openssl \
-                           patch perl pkg-config scons sed unzip wget \
-                           xz-utils libfftw3-dev libportaudio-dev \
-                           ladspa-sdk gnulib
+#### On *nix systems (OS X Included)
 
-#### On 64-bit Debian/Ubuntu (additional packages)
-
-    $ sudo apt-get install g++-multilib libc6-dev-i386
-
-#### On other Unix systems
-
-http://mxe.cc/#requirements
+Visit the page: http://mxe.cc/#requirements and install the pre-requesite packages.
 
 ### Cloning Hydrogen from the github repository
 
@@ -56,13 +46,19 @@ Clone the master branch, since it should be more up-to-date than the stable bran
 
     $ export MXE=$PWD
 
-Edit *Makefile* and set the value of *MXE_TARGETS* as follows (for 32-bit Windows target).
-
+Edit *Makefile* and set the value of *MXE_TARGETS* as follows ().
+    For 32-bit Windows target:
     MXE_TARGETS        := i686-w64-mingw32.shared
+
+    For 64-bit Windows target:
+    MXE_TARGETS        := x86_64-w64-mingw32.shared
+
+    For both 32 and 64 bit Windows target:
+    MXE_TARGETS        := i686-w64-mingw32.shared x86_64-w64-mingw32.shared
 
 ### Configuring and cross-compiling packages
 
-Most *make* operations below take a considerable amount of time. The lengthy ones have been timed, in order to give you a rough estimate. Adjust your completion expectations according to the values presented and your system capabilities. All operations in this section should be executed in the MXE root directory, where the *Makefile* resides. Packages along with their dependencies are downloaded and cross-compiled automatically as needed.
+Most *make* operations below take a considerable amount of time. The lengthy ones have been timed, in order to give you a rough estimate. If you're compiling both 32 and 64 bit versions then you will need to roughly double all the times listed below. Adjust your completion expectations according to the values presented and your system capabilities. All operations in this section should be executed in the MXE root directory, where the *Makefile* resides. Packages along with their dependencies are downloaded and cross-compiled automatically as needed.
 
 #### Cross-compiling gcc
 
@@ -77,6 +73,8 @@ Most *make* operations below take a considerable amount of time. The lengthy one
     $ make winpthreads
 
 #### Configuring gcc and cross-compile again
+
+There is a cyclical dependancy problem here that requires gcc to be built once normally, and then once with winpthreads. This is because winpthreads requires gcc to build, but we need gcc built with winpthreads support (which it doesn't have the first time you make it).
 
 Edit *src/gcc.mk* and set the value of *$(PKG)_DEPS* as follows.
 
@@ -96,64 +94,30 @@ Then cross-compile gcc again.
 
 #### Cross-compiling other packages
 
-    $ make qt libarchive libsndfile portaudio portmidi fftw rubberband
+    $ make qt libarchive libsndfile portaudio portmidi fftw rubberband jack
 
     real    70m17.737s
     user    199m0.451s
     sys     15m14.591s
 
-### Cross-compiling Jack support
-    
-    Download and install Jack for Windows
-
-    Copy the file 
-	C:\Windows\System\liback.dll (on Windows XP)
-	 - or - 
-	C:\Windows\SysWow64\libjack.dll (on Windows 7-8-10)
-
-    to $MXE/usr/i686-w64-mingw32.shared/bin/
-
-    You will also need to copy or link the hydrogen source headers into the project.
-    
-    $ cd $HYDROGEN/../
-
-    $ git clone git://github.com/jackaudio/jack2.git
-
-    $ ln -s jack2/common/jack $MXE/usr/i686-w64-mingw32.shared/include/jack
-
 ### Cross-compiling Hydrogen
+    You will want to change the CMAKE_TOOLCHAIN_FILE to reflect which version of hydrogen you want (i686 = 32bit, x86_64 = 64bit).
 
     $ cd $HYDROGEN
     
-    $ cd win32
+    $ cmake -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake
     
-    $ mkdir windows_32_bit_build
-    
-    $ cd windows_32_bit_build
-    
-    $ export HYDROGEN_BUILD=$PWD
-    
-    $ cmake ../.. -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake
-    
-    $ make
+    $ cpack
 
     real    4m32.063s
     user    4m14.671s
     sys     0m17.105s
 
-    $ cd ..
-
-### Creating the bundle
-
-    $ ./create_bundle.sh
-
-This creates a directory *hydrogen_windows_32_bit*, which you can copy to your Windows machine and launch Hydrogen!
+    cpack will create your installer for you, which you can then copy to a windows machine, and install. 
 
 ### Troubleshooting
 
-When copying the directory above to your Windows machine, you will get a copy conflict. This is because Windows' case-insensitivity is put to the test, since two files named *Director.png* and *director.png* exist in the same directory. Resolve the conflict in whichever way you wish, since the aforementioned files seem to be unused.
-
-Using the method described above, You may experience Hydrogen crashing at startup. To fix this, download the precompiled libsndfile-1.dll from *http://www.mega-nerd.com/libsndfile/#Download* and put it in the Hydrogen directory.
+Troubleshooting.
 
 ### Bugs?
 
