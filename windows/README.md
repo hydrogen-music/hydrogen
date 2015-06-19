@@ -28,7 +28,9 @@ If you have not already done it.
 
 Change to your Hydrogen directory.
 
-    $ cd hydrogen
+    $mv hydrogen source
+
+    $ cd source
     
     $ export HYDROGEN=$PWD
     
@@ -100,6 +102,12 @@ Then cross-compile gcc again.
     user    199m0.451s
     sys     15m14.591s
 
+    Due to a bug in jack, you will need to edit the portaudio.mk file and set jack as a dependancy, then rebuild portaudio
+    
+    $ sed -i 's/:= gcc/:= gcc jack/g' $MXE/src/portaudio.mk
+
+    $ make portaudio
+
 ### Cross-compiling Hydrogen
     You will want to change the CMAKE_TOOLCHAIN_FILE to reflect which version of hydrogen you want (i686 = 32bit, x86_64 = 64bit).
 
@@ -107,7 +115,7 @@ Then cross-compile gcc again.
     
     $ cmake -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake
     
-    $ cpack
+    $ cpack -G NSIS
 
     real    4m32.063s
     user    4m14.671s

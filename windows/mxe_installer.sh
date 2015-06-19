@@ -31,6 +31,8 @@ install_mxe(){
 	make gcc $1
 	#Build the dependancies for hydrogen
 	make qt libarchive libsndfile portaudio portmidi fftw rubberband jack -j4 JOBS=4 $1
+	sed -i 's/:= gcc/:= gcc jack/g' $MXE/src/portaudio.mk
+	make portaudio
 }
 
 while :

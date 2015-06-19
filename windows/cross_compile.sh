@@ -30,35 +30,6 @@ build_hydrogen(){
 	fi
 	echo "We will now build Hydrogen at $HYDROGEN_BUILD"
 	cd "$HYDROGEN_BUILD"
-	if [ ! -e "$MXE/usr/$1-w64-mingw32.shared/bin/libjack.dll" ]; then
-		while true; do	
-			read -p "would you like to build Hydrogen with Jack support? (y / n) Note: If you have libjack.dll already installed in mxe, you can answer no here." yn
-			case $yn in
-				[Yy]* ) echo "You will now need to copy the libjack.dll file from a Windows machine (C:\Windows\SysWow64\libjack.dll) to your mxe directory.";
-					echo "If you're building 64 bit, you will need to copy libjack64.dll and rename it to libjack.dll which can be found at (C:\Windows)."
-					echo "We can try to automatically move the file to the proper location" 
-					read -e -p "Enter the path to libjack.dll: " -i "$HOME" LIBJACK_PATH
-					if [ -f $LIBJACK_PATH ]; then
-						sudo cp $LIBJACK_PATH $MXE/usr/$1-w64-mingw32.shared/bin/	
-					fi
-					if [ ! -e $MXE/usr/$1-w64-mingw32.shared/include/jack ]; then
-						ln -s ${CLONEPATH%/*}/jack2/common/jack $MXE/usr/$1-w64-mingw32.shared/include/jack
-					fi
-					break;;
-				[Nn]* ) break;;
-				* ) echo "Please answer yes or no.";;
-			esac
-		done
-	else
-		if [ ! -h $MXE/usr/$1-w64-mingw32.shared/include/jack ]; then
-			if [ ! -e $MXE/usr/$1-w64-mingw32.shared/include/jack ]; then
-				rm $MXE/usr/$1-w64-mingw32.shared/include/jack
-			fi
-			ln -s ${CLONEPATH%/*}/jack2/common/jack $MXE/usr/$1-w64-mingw32.shared/include/jack
-		fi
-		echo "libjack was found at $MXE/usr/$1-w64-mingw32.shared/bin/"
-	fi
-	cd ../..
 	if [ -e CMakeCache.txt ]; then
 		echo "Previous build detected. We will now remove the caches so the project will build properly."
 		rm -rf _CPack_Packages CMakeFiles try
