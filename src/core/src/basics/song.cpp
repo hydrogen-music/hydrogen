@@ -42,6 +42,7 @@
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/automation_path.h>
+#include <hydrogen/automation_path_serializer.h>
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/hydrogen.h>
 
@@ -994,6 +995,31 @@ Song* SongReader::readSong( const QString& filename )
 	} else {
 		WARNINGLOG( "TagTimeLine node not found" );
 	}
+
+
+	// Automation Paths
+	QDomNode automationPathsNode = songNode.firstChildElement( "automationPaths" );
+	if ( !automationPathsNode.isNull() ) {
+		AutomationPathSerializer pathSerializer;
+
+		QDomElement pathNode = automationPathsNode.firstChildElement( "path" );
+		while( !pathNode.isNull()) {
+			QString sAdjust = pathNode.attribute( "adjust" );
+
+			// Select automation path to be read based on "adjust" attribute
+			AutomationPath *pPath = NULL;
+			if (sAdjust == "velocity") {
+				pPath = song->get_velocity_automation_path();
+			}
+
+			if (pPath) {
+				pathSerializer.read_automation_path( pathNode, *pPath );
+			}
+
+			pathNode = pathNode.nextSiblingElement( "path" );
+		}
+	}
+
 
 	song->__is_modified = false;
 	song->set_filename( FileName );

@@ -39,6 +39,7 @@
 #include <hydrogen/basics/drumkit.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/automation_path_serializer.h>
 #include <hydrogen/fx/Effects.h>
 
 #include <algorithm>
@@ -1534,6 +1535,20 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 		}
 	}
 	songNode.appendChild( timeLineTag );
+
+	// Automation Paths
+	QDomNode automationPathsTag = doc.createElement( "automationPaths" );
+	AutomationPath *pPath = song->get_velocity_automation_path();
+	if (pPath) {
+		QDomElement pathNode = doc.createElement("path");
+		pathNode.setAttribute("adjust", "velocity");
+
+		AutomationPathSerializer serializer;
+		serializer.write_automation_path(pathNode, *pPath);
+
+		automationPathsTag.appendChild(pathNode);
+	}
+	songNode.appendChild( automationPathsTag );
 
 	QFile file(filename);
 	if ( !file.open(QIODevice::WriteOnly) )
