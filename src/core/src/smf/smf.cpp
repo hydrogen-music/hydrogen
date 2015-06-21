@@ -26,6 +26,7 @@
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/automation_path.h>
 
 #include <fstream>
 
@@ -237,6 +238,8 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 	SMFTrack *pTrack1 = new SMFTrack( "Hydrogen song!!" );
 	smf.addTrack( pTrack1 );
 
+	AutomationPath *vp = pSong->get_velocity_automation_path();
+
 	InstrumentList *iList = pSong->get_instrument_list();
 	// ogni pattern sara' una diversa traccia
 	int nTick = 1;
@@ -263,8 +266,10 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 				FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
 					Note *pNote = it->second;
 					if ( pNote ) {
+						float fPos = nPatternList + (float)nNote/(float)nMaxPatternLength;
+						float velocity_adjustment = vp->get_value(fPos);
 						int nVelocity =
-							(int)( 127.0 * pNote->get_velocity() );
+							(int)( 127.0 * pNote->get_velocity() * velocity_adjustment );
 						int nInstr =
 							iList->index(pNote->get_instrument());
 						Instrument *pInstr = pNote->get_instrument();
