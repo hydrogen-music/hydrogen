@@ -46,4 +46,29 @@ void AutomationPath::add_point(float x, float y)
 	_points[x] = y;
 }
 
+
+bool operator==(const AutomationPath &lhs, const AutomationPath &rhs)
+{
+	return lhs._min == rhs._min
+		&& lhs._max == rhs._max
+		&& lhs._def == rhs._def
+		&& lhs._points == rhs._points;
 }
+
+
+bool operator!=(const AutomationPath &lhs, const AutomationPath &rhs)
+{
+	return !(lhs==rhs);
+}
+
+std::ostream &operator<< (std::ostream &o, const AutomationPath &p)
+{
+	o << "<AutomationPath("<<p.get_min()<<","<<p.get_max()<<","<<p.get_default()<<",[";
+	for (auto i = p.begin(); i != p.end(); ++i) {
+		o << "(" << i->first << "," << i->second << "),";
+	}
+	o << "]>";
+	return o;
+}
+
+} //namespace H2Core

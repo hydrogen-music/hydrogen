@@ -3,6 +3,24 @@
 
 using namespace H2Core;
 
+namespace CppUnit {
+template<>
+struct assertion_traits<std::pair<const float,float> >
+{
+	static bool equal(const std::pair<const float,float> &lhs, const std::pair<const float,float> &rhs)
+	{
+		return lhs == rhs;
+	}
+
+	static std::string toString(const std::pair<const float,float> &p)
+	{
+		std::stringstream o;
+		o << "(" << p.first << "," << p.second << ")";
+		return o.str();
+	}
+};
+}
+
 class AutomationPathTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE(AutomationPathTest);
 	CPPUNIT_TEST(testConstruction);
@@ -11,6 +29,11 @@ class AutomationPathTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testValueBeforeFirstPoint);
 	CPPUNIT_TEST(testValueAfterLastPoint);
 	CPPUNIT_TEST(testMidpointValue);
+	CPPUNIT_TEST(testEmptyPathsEqual);
+	CPPUNIT_TEST(testPathsEqual);
+	CPPUNIT_TEST(testEmptyPathsNotEqual);
+	CPPUNIT_TEST(testPathsNotEqual);
+	CPPUNIT_TEST(testIterator);
 	CPPUNIT_TEST_SUITE_END();
 
 	const double delta = 0.0001;
@@ -138,6 +161,76 @@ class AutomationPathTest : public CppUnit::TestCase {
 				0.3,
 				static_cast<double>(p.get_value(1.5f)),
 				delta);
+	}
+
+	
+	/* Test operator== and operator!= */
+	void testEmptyPathsEqual()
+	{
+		AutomationPath p1(-2.0f, 2.0f, 1.0f);
+		AutomationPath p2(-2.0f, 2.0f, 1.0f);
+
+		CPPUNIT_ASSERT(p1 == p2);
+		CPPUNIT_ASSERT(!(p1 != p2));
+	}
+
+	void testPathsEqual()
+	{
+		AutomationPath p1(-4.0f, 3.0f, 1.5f);
+		p1.add_point(1.0f, 0.0f);
+		p1.add_point(2.0f, 2.0f);
+
+		AutomationPath p2(-4.0f, 3.0f, 1.5f);
+		p2.add_point(1.0f, 0.0f);
+		p2.add_point(2.0f, 2.0f);
+
+		CPPUNIT_ASSERT(p1 == p2);
+		CPPUNIT_ASSERT(!(p1 != p2));
+	}
+
+	void testEmptyPathsNotEqual()
+	{
+		AutomationPath p1(-2.0f, 2.0f, 1.0f);
+		AutomationPath p2(-1.0f, 1.0f, 0.0f);
+
+		CPPUNIT_ASSERT(p1 != p2);
+		CPPUNIT_ASSERT(!(p1 == p2));
+	}
+
+	void testPathsNotEqual()
+	{
+		AutomationPath p1(-2.0f, 2.0f, 1.0f);
+		p1.add_point(1.0f, 0.0f);
+
+		AutomationPath p2(-2.0f, 2.0f, 1.0f);
+		p2.add_point(2.0f, 2.0f);
+
+		CPPUNIT_ASSERT(p1 != p2);
+		CPPUNIT_ASSERT(!(p1 == p2));
+	}
+
+	void testIterator()
+	{
+		typedef std::pair<const float,float> pair;
+		AutomationPath p(0.0f, 4.0f, 1.0f);
+		p.add_point(0.0f, 0.0f);
+		p.add_point(1.0f, 2.0f);
+		p.add_point(2.0f, 4.0f);
+
+		auto i = p.begin();
+		CPPUNIT_ASSERT(i != p.end());
+		CPPUNIT_ASSERT_EQUAL(pair(0.0f,0.0f), *i);
+
+		i++;
+		CPPUNIT_ASSERT(i != p.end());
+		CPPUNIT_ASSERT_EQUAL(pair(1.0f,2.0f), *i);
+
+		i++;
+		CPPUNIT_ASSERT(i != p.end());
+		CPPUNIT_ASSERT_EQUAL(pair(2.0f,4.0f), *i);
+
+		i++;
+		CPPUNIT_ASSERT(i == p.end());
 	}
 };
 
