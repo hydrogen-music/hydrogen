@@ -15,6 +15,12 @@ namespace H2Core
 class AutomationPath : private Object
 {
 	H2_OBJECT
+
+	public:
+	typedef std::map<float,float>::iterator iterator;
+	typedef std::map<float,float>::const_iterator const_iterator;
+
+	private:
 	
 	float _min;
 	float _max;
@@ -37,11 +43,13 @@ class AutomationPath : private Object
 	friend bool operator==(const AutomationPath &lhs, const AutomationPath &rhs);
 	friend bool operator!=(const AutomationPath &lhs, const AutomationPath &rhs);
 
-	std::map<float,float>::iterator begin() { return _points.begin(); }
-	std::map<float,float>::iterator end() { return _points.end(); }
-	std::map<float,float>::const_iterator begin() const { return _points.begin(); }
-	std::map<float,float>::const_iterator end() const { return _points.end(); }
+	iterator begin() { return _points.begin(); }
+	iterator end() { return _points.end(); }
+	const_iterator begin() const { return _points.begin(); }
+	const_iterator end() const { return _points.end(); }
 
+	iterator find(float x);
+	iterator move(iterator &in, float x, float y); 
 };
 
 std::ostream &operator<< (std::ostream &o, const AutomationPath &p);

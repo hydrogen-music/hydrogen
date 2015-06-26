@@ -34,6 +34,9 @@ class AutomationPathTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testEmptyPathsNotEqual);
 	CPPUNIT_TEST(testPathsNotEqual);
 	CPPUNIT_TEST(testIterator);
+	CPPUNIT_TEST(testFindPoint);
+	CPPUNIT_TEST(testFindNotFound);
+	CPPUNIT_TEST(testMovePoint);
 	CPPUNIT_TEST_SUITE_END();
 
 	const double delta = 0.0001;
@@ -231,6 +234,52 @@ class AutomationPathTest : public CppUnit::TestCase {
 
 		i++;
 		CPPUNIT_ASSERT(i == p.end());
+	}
+
+
+	void testFindPoint()
+	{
+		AutomationPath p(0.0f, 1.0f, 1.0f);
+		p.add_point(4.0f, 0.5f);
+
+		auto iter = p.find(4.0f);
+		CPPUNIT_ASSERT(iter == p.begin());
+
+		auto iter2 = p.find(4.4f);
+		CPPUNIT_ASSERT(iter2 == p.begin());
+
+		auto iter3 = p.find(3.6f);
+		CPPUNIT_ASSERT(iter3 == p.begin());
+	}
+
+
+	void testFindNotFound()
+	{
+		AutomationPath p(0.0f, 1.0f, 1.0f);
+		p.add_point(2.0f, 0.2f);
+
+		auto iter = p.find(1.4f);
+		CPPUNIT_ASSERT(iter == p.end());
+
+		auto iter2 = p.find(2.6f);
+		CPPUNIT_ASSERT(iter2 == p.end());
+	}
+
+
+	void testMovePoint()
+	{
+		typedef std::pair<const float,float> pair;
+		AutomationPath p(0.0f, 1.0f, 1.0f);
+		p.add_point(5.0f, 0.5f);
+
+		auto in = p.begin();
+		auto out = p.move(in, 6.0f, 1.0f);
+
+		CPPUNIT_ASSERT(out == p.begin());
+		CPPUNIT_ASSERT_EQUAL(
+				pair(6.0f, 1.0f),
+				*out
+		);
 	}
 };
 

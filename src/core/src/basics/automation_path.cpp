@@ -71,4 +71,32 @@ std::ostream &operator<< (std::ostream &o, const AutomationPath &p)
 	return o;
 }
 
+
+AutomationPath::iterator AutomationPath::find(float x)
+{
+	const float limit = 0.5f;
+
+	auto i = _points.lower_bound(x);
+
+	if (i != _points.end()) {
+		if( i->first - x <= limit)
+			return i;
+	}
+
+	--i;
+	if( x - i->first <= limit)
+		return i;
+
+	return _points.end();
+}
+
+
+AutomationPath::iterator AutomationPath::move(iterator &in, float x, float y)
+{
+	_points.erase(in);
+	auto rv = _points.insert(std::make_pair(x,y));
+	return rv.first;
+}
+
+
 } //namespace H2Core
