@@ -358,6 +358,10 @@ void SongEditorPanel::updateAll()
 	m_pSongEditor->createBackground();
 	m_pSongEditor->update();
 
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	m_pAutomationPathView->setAutomationPath (song->get_velocity_automation_path());
+
 	resyncExternalScrollBar();
 }
 
