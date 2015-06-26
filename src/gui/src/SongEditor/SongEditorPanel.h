@@ -34,6 +34,7 @@ class SongEditor;
 class SongEditorPatternList;
 class SongEditorPositionRuler;
 class ToggleButton;
+class AutomationPathView;
 
 
 enum SongEditorActionMode
@@ -101,6 +102,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		QScrollArea* m_pEditorScrollView;
 		QScrollArea* m_pPatternListScrollView;
 		QScrollArea* m_pPositionRulerScrollView;
+		QScrollArea* m_pAutomationPathScrollView;
 		QScrollBar *m_pVScrollBar;
 		QScrollBar *m_pHScrollBar;
 
@@ -108,6 +110,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		SongEditor* m_pSongEditor;
 		SongEditorPatternList *m_pPatternList;
 		SongEditorPositionRuler *m_pPositionRuler;
+		AutomationPathView *m_pAutomationPathView;
 
 		Button *m_pUpBtn;
 		Button *m_pDownBtn;

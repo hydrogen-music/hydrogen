@@ -25,6 +25,7 @@
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
 #include "../widgets/Button.h"
+#include "../widgets/AutomationPathView.h"
 #include "../widgets/PixmapWidget.h"
 #include "../Skin.h"
 
@@ -229,6 +230,14 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
 	m_pPositionRulerScrollView->setFixedHeight( 50 );
 
+	m_pAutomationPathScrollView = new QScrollArea( NULL );
+	m_pAutomationPathScrollView->setFrameShape( QFrame::NoFrame );
+	m_pAutomationPathScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pAutomationPathScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pAutomationPathView = new AutomationPathView( m_pAutomationPathScrollView->viewport() );
+	m_pAutomationPathScrollView->setWidget( m_pAutomationPathView );
+	m_pAutomationPathScrollView->setFixedHeight( 80 );
+
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, NULL );
 	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalScrollBar() ) );
 
@@ -243,9 +252,11 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	pGridLayout->addWidget( m_pPositionRulerScrollView, 0, 1 );
 	pGridLayout->addWidget( m_pPatternListScrollView, 1, 0 );
 	pGridLayout->addWidget( m_pEditorScrollView, 1, 1 );
-	pGridLayout->addWidget( m_pVScrollBar, 1, 2 );
+	pGridLayout->addWidget( m_pVScrollBar, 1, 2, 2, 1 );
 	//pGridLayout->addWidget( m_pHScrollBar, 2, 1 );
-	pGridLayout->addWidget( pHScrollbarPanel, 2, 1 );
+	pGridLayout->addWidget( m_pAutomationPathScrollView, 2, 1);
+	pGridLayout->addWidget( pHScrollbarPanel, 3, 1 );
+
 
 
 
@@ -328,6 +339,8 @@ void SongEditorPanel::syncToExternalScrollBar()
 {
 	m_pEditorScrollView->horizontalScrollBar()->setValue( m_pHScrollBar->value() );
 	m_pEditorScrollView->verticalScrollBar()->setValue( m_pVScrollBar->value() );
+	m_pAutomationPathScrollView->horizontalScrollBar()->setValue( m_pHScrollBar->value() );
+	m_pAutomationPathScrollView->verticalScrollBar()->setValue( m_pVScrollBar->value() );
 }
 
 
@@ -559,6 +572,7 @@ void SongEditorPanel::zoomInBtnPressed( Button* pBtn )
 	--width;
 	m_pSongEditor->setGridWidth (width);
 	m_pPositionRuler->setGridWidth (width);
+	m_pAutomationPathView->setGridWidth (width);
 
 	updateAll();
 }
@@ -571,6 +585,7 @@ void SongEditorPanel::zoomOutBtnPressed( Button* pBtn )
 	++width;
 	m_pSongEditor->setGridWidth (width);
 	m_pPositionRuler->setGridWidth (width);
+	m_pAutomationPathView->setGridWidth (width);
 	updateAll();
 }
 
