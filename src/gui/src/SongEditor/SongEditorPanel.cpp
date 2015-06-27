@@ -236,7 +236,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pAutomationPathScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pAutomationPathView = new AutomationPathView( m_pAutomationPathScrollView->viewport() );
 	m_pAutomationPathScrollView->setWidget( m_pAutomationPathView );
-	m_pAutomationPathScrollView->setFixedHeight( 80 );
+	m_pAutomationPathScrollView->setFixedHeight( 64 );
 
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, NULL );
 	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalScrollBar() ) );

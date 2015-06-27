@@ -98,6 +98,11 @@ std::pair<const float, float> AutomationPathView::locate(QMouseEvent *event) con
 void AutomationPathView::paintEvent(QPaintEvent *event)
 {
 	QPainter painter(this);
+	painter.setRenderHint(QPainter::Antialiasing);
+
+	QPen rulerPen(Qt::DotLine);
+	rulerPen.setColor(QColor(127, 133, 153));
+	painter.setPen(rulerPen);
 
 	/* Paint min, max  */
 	int contentHeight = height() - 2* m_nMarginHeight;
@@ -115,6 +120,9 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 
 	int slotWidth = 22;
 
+	QPen linePen(QColor(99, 165, 255));
+	linePen.setWidth(2);
+	painter.setPen(linePen);
 
 	std::pair<float, float> firstPoint = *_path->begin();
 	QPoint lastPoint = translatePoint(0,firstPoint.second);
@@ -129,6 +137,8 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	painter.drawLine(lastPoint, last);
 
 
+	painter.setBrush(QBrush(QColor(58,62,72)));
+
 	for (auto point : *_path) {
 
 		QPoint center = translatePoint(point);
@@ -136,6 +146,7 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 
 	}
 
+	/*
 	int x = m_nMarginWidth;
 	while(x < width()) {
 
@@ -143,6 +154,7 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 
 		x += m_nGridWidth;
 	}
+	*/
 }
 
 
@@ -214,5 +226,5 @@ void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
  **/
 void AutomationPathView::autoResize()
 {
-	resize ( 10 + m_nMaxPatternSequence * m_nGridWidth, 80 );
+	resize ( 10 + m_nMaxPatternSequence * m_nGridWidth, 64 );
 }
