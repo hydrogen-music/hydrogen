@@ -191,6 +191,8 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 	update();
 
 	m_bIsHolding = true;
+
+	emit valueChanged();
 }
 
 
@@ -202,6 +204,8 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
 {
 	m_bIsHolding = false;
+
+	emit valueChanged();
 }
 
 

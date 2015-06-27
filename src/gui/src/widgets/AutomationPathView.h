@@ -42,6 +42,9 @@ protected:
 	std::pair<const float, float> locate(QMouseEvent *) const;
 
 	void autoResize();
+
+signals:
+	void valueChanged();
 };
 
 #endif

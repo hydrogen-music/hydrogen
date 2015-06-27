@@ -90,6 +90,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void zoomInBtnPressed( Button* pBtn );
 		void zoomOutBtnPressed( Button* pBtn );
 
+		void automationPathChanged();
 
 	private:
 		SongEditorActionMode m_actionMode;

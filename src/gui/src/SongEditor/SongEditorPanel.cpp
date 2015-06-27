@@ -237,6 +237,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pAutomationPathView = new AutomationPathView( m_pAutomationPathScrollView->viewport() );
 	m_pAutomationPathScrollView->setWidget( m_pAutomationPathView );
 	m_pAutomationPathScrollView->setFixedHeight( 64 );
+	connect( m_pAutomationPathView, SIGNAL( valueChanged() ), this, SLOT( automationPathChanged() ) );
 
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, NULL );
 	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalScrollBar() ) );
@@ -599,4 +600,12 @@ void SongEditorPanel::selectedPatternChangedEvent()
 	resyncExternalScrollBar();
 	m_pModeActionBtn->setPressed(  Preferences::get_instance()->patternModePlaysSelected() );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
+}  
+
+
+void SongEditorPanel::automationPathChanged()
+{
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	song->__is_modified = true;
 }
