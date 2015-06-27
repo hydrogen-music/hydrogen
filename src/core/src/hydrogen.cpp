@@ -471,8 +471,11 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 	while ( !m_songNoteQueue.empty() ) {
 		Note *pNote = m_songNoteQueue.top();
 
-		float fPos = m_nSongPos + (pNote->get_position()%192) / 192.f;
-		float velocity_adjustment = vp->get_value(fPos);
+		float velocity_adjustment = 1.0f;
+		if ( pSong->get_mode() == Song::SONG_MODE ) {
+			float fPos = m_nSongPos + (pNote->get_position()%192) / 192.f;
+			velocity_adjustment = vp->get_value(fPos);
+		}
 
 		// verifico se la nota rientra in questo ciclo
 		unsigned int noteStartInFrames =
