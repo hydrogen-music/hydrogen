@@ -487,6 +487,13 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		if ( isNoteStart || isOldNote ) {
 			// Humanize - Velocity parameter
 
+			float rnd = (float)rand()/(float)RAND_MAX;
+			if (pNote->get_probability() < rnd) {
+				m_songNoteQueue.pop();
+				pNote->get_instrument()->dequeue();
+				continue;
+			}
+
 			if ( pSong->get_humanize_velocity_value() != 0 ) {
 				float random = pSong->get_humanize_velocity_value() * getGaussian( 0.2 );
 				pNote->set_velocity(
