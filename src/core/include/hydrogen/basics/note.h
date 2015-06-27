@@ -192,6 +192,10 @@ class Note : public H2Core::Object
 		float get_sample_position(int CompoID) ;
 		std::map<int, float> get_samples_position();
 
+
+        void set_probability( float value );
+        float get_probability() const;
+
 		/**
 		 * __humanize_delay setter
 		 * \param value the new value
@@ -296,6 +300,7 @@ class Note : public H2Core::Object
 		int __midi_msg;             ///< TODO
 		bool __note_off;            ///< note type on|off
 		bool __just_recorded;       ///< used in record+delete
+        float __probability;        ///< note probability
 		static const char* __key_str[]; ///< used to build QString from __key an __octave
 };
 
@@ -414,6 +419,16 @@ inline void Note::set_just_recorded( bool value )
 inline bool Note::get_just_recorded() const
 {
 	return __just_recorded;
+}
+
+inline float Note::get_probability() const
+{
+    return __probability;
+}
+
+inline void Note::set_probability( float value )
+{
+    __probability = value;
 }
 
 inline float Note::get_sample_position( int CompoID )

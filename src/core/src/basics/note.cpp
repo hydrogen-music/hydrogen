@@ -61,7 +61,8 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
 	  __pattern_idx( 0 ),
 	  __midi_msg( -1 ),
 	  __note_off( false ),
-	  __just_recorded( false )
+	  __just_recorded( false ),
+      __probability( 1.0f )
 {
 	if ( __instrument != 0 ) {
 		__adsr = __instrument->copy_adsr();
@@ -100,7 +101,8 @@ Note::Note( Note* other, Instrument* instrument )
 	  __pattern_idx( other->get_pattern_idx() ),
 	  __midi_msg( other->get_midi_msg() ),
 	  __note_off( other->get_note_off() ),
-	  __just_recorded( other->get_just_recorded() )
+	  __just_recorded( other->get_just_recorded() ),
+      __probability( other->get_probability() )
 {
 	if ( instrument != 0 ) __instrument = instrument;
 	if ( __instrument != 0 ) {
