@@ -84,7 +84,7 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 
 	__components = new std::vector<DrumkitComponent*> ();
 
-	__velocity_automation_path = new AutomationPath(0.0f, 1.0f,  1.0f);
+	__velocity_automation_path = new AutomationPath(0.0f, 1.5f,  1.0f);
 
 	//m_bDelayFXEnabled = false;
 	//m_fDelayFXWetLevel = 0.8;
