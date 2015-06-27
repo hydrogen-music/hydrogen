@@ -34,6 +34,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 	CPPUNIT_TEST(testEmptyPathsNotEqual);
 	CPPUNIT_TEST(testPathsNotEqual);
 	CPPUNIT_TEST(testIterator);
+	CPPUNIT_TEST(testFindPointInEmptyPath);
 	CPPUNIT_TEST(testFindPoint);
 	CPPUNIT_TEST(testFindNotFound);
 	CPPUNIT_TEST(testMovePoint);
@@ -48,6 +49,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 	{
 		AutomationPath p(0.2f, 0.8f, 0.6f);
 
+		CPPUNIT_ASSERT(p.empty());
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.2,
@@ -128,6 +130,8 @@ class AutomationPathTest : public CppUnit::TestCase {
 
 		p.add_point(1.0f, 0.5f);
 		p.add_point(2.0f, 0.7f);
+
+		CPPUNIT_ASSERT(! p.empty());
 
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(
 				0.5,
@@ -236,6 +240,17 @@ class AutomationPathTest : public CppUnit::TestCase {
 		CPPUNIT_ASSERT(i == p.end());
 	}
 
+
+	void testFindPointInEmptyPath()
+	{
+		AutomationPath p(0.0f, 1.0f, 1.0f);
+
+		auto iter = p.find(0.0f);
+		CPPUNIT_ASSERT(iter == p.end());
+
+		auto iter2 = p.find(22.0f);
+		CPPUNIT_ASSERT(iter2 == p.end());
+	}
 
 	void testFindPoint()
 	{

@@ -124,17 +124,23 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	linePen.setWidth(2);
 	painter.setPen(linePen);
 
-	std::pair<float, float> firstPoint = *_path->begin();
-	QPoint lastPoint = translatePoint(0,firstPoint.second);
-	lastPoint.setX(0);
+	if (_path->empty()) {
+		QPoint p = translatePoint(0,_path->get_default());
+
+		painter.drawLine(0, p.y(), width(), p.y());
+	} else {
+		std::pair<float, float> firstPoint = *_path->begin();
+		QPoint lastPoint = translatePoint(0,firstPoint.second);
+		lastPoint.setX(0);
 		
-	for (auto point : *_path) {
-		QPoint current = translatePoint(point);
-		painter.drawLine(lastPoint, current);
-		lastPoint = current;
+		for (auto point : *_path) {
+			QPoint current = translatePoint(point);
+			painter.drawLine(lastPoint, current);
+			lastPoint = current;
+		}
+		QPoint last(width(), lastPoint.y());
+		painter.drawLine(lastPoint, last);
 	}
-	QPoint last(width(), lastPoint.y());
-	painter.drawLine(lastPoint, last);
 
 
 	painter.setBrush(QBrush(QColor(58,62,72)));

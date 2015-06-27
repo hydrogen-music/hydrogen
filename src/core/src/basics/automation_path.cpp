@@ -76,6 +76,9 @@ AutomationPath::iterator AutomationPath::find(float x)
 {
 	const float limit = 0.5f;
 
+	if (_points.empty())
+		return _points.end();
+
 	auto i = _points.lower_bound(x);
 
 	if (i != _points.end()) {

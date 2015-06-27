@@ -32,6 +32,7 @@ class AutomationPath : private Object
 	
 	AutomationPath(float min, float max, float def);
 
+	bool empty() const noexcept { return _points.empty(); }
 	float get_min() const noexcept { return _min; }
 	float get_max() const noexcept { return _max; }
 	float get_default() const noexcept { return _def; }
