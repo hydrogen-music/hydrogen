@@ -208,6 +208,7 @@ void Note::save_to( XMLNode* node )
 	node->write_int( "length", __length );
 	node->write_int( "instrument", get_instrument()->get_id() );
 	node->write_bool( "note_off", __note_off );
+    node->write_float( "probability", __probability );
 }
 
 Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
@@ -226,6 +227,7 @@ Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 	note->set_note_off( node->read_bool( "note_off", false, false, false ) );
 	note->set_instrument_id( node->read_int( "instrument", EMPTY_INSTR_ID ) );
 	note->map_instrument( instruments );
+    note->set_probability( node->read_float( "probability", 1.0f ));
 	return note;
 }
 
