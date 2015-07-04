@@ -38,6 +38,7 @@ class Button;
 class ToggleButton;
 class ClickableLabel;
 class Rotary;
+class LCDCombo;
 class WaveDisplay;
 class LayerPreview;
 
@@ -76,12 +77,15 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		void muteGroupBtnClicked(Button *pRef);
 		void onIsStopNoteCheckBoxClicked( bool on );
+		void onIsIgnoreVelocityCheckBoxClicked( bool on);
 		void midiOutChannelBtnClicked(Button *pRef);
 		void midiOutNoteBtnClicked(Button *pRef);
 
-		void pIsHihatCheckBoxClicked( bool on);
+		void hihatGroupClicked(Button *pRef);
 		void hihatMinRangeBtnClicked(Button *pRef);
 		void hihatMaxRangeBtnClicked(Button *pRef);
+
+		void pSampleSelectionChanged( QString );
 
 	private:
 		H2Core::Instrument *m_pInstrument;
@@ -113,6 +117,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		// Instrument gain
 		LCDDisplay *m_pInstrumentGainLCD;
 		Rotary *m_pInstrumentGain;
+		QCheckBox *m_pIgnoreVelocity;
 
 		// Instrument mute group
 		LCDDisplay *m_pMuteGroupLCD;
@@ -130,7 +135,9 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		// Instrument hihat
 
-		QCheckBox *m_pIsHihat;
+		LCDDisplay *m_pHihatGroupLCD;
+		Button *m_pAddHihatGroupBtn;
+		Button *m_pDelHihatGroupBtn;
 
 		LCDDisplay *m_pHihatMinRangeLCD;
 		Button *m_pAddHihatMinRangeBtn;
@@ -157,6 +164,9 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		LCDDisplay *m_pLayerPitchCoarseLCD;
 		LCDDisplay *m_pLayerPitchFineLCD;
+
+		//LCDCombo *__pattern_size_combo;
+		LCDCombo *m_sampleSelectionAlg;
 
 		WaveDisplay *m_pWaveDisplay;
 

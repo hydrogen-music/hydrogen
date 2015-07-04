@@ -59,7 +59,8 @@ Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* da
 		0/0;
 	}
 	*/
-	assert( filepath.lastIndexOf( "/" ) >0 );
+
+	//assert( filepath.lastIndexOf( "/" ) >0 );
 }
 
 Sample::Sample( Sample* other ): Object( __class_name ),

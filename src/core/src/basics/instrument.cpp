@@ -60,15 +60,17 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __midi_out_note( 36 + id )
 	, __midi_out_channel( -1 )
 	, __stop_notes( false )
+	, __sample_selection_alg( VELOCITY )
 	, __active( true )
 	, __soloed( false )
 	, __muted( false )
 	, __mute_group( -1 )
 	, __queued( 0 )
-	, __hihat( false )
+	, __hihat_grp( -1 )
 	, __lower_cc( 0 )
 	, __higher_cc( 127 )
 	, __components( NULL )
+	, __ignore_velocity( false )
 {
 	if ( __adsr==0 ) __adsr = new ADSR();
 	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = 0.0;
@@ -93,15 +95,17 @@ Instrument::Instrument( Instrument* other )
 	, __midi_out_note( other->get_midi_out_note() )
 	, __midi_out_channel( other->get_midi_out_channel() )
 	, __stop_notes( other->is_stop_notes() )
+	, __sample_selection_alg( other->sample_selection_alg() )
 	, __active( other->is_active() )
 	, __soloed( other->is_soloed() )
 	, __muted( other->is_muted() )
 	, __mute_group( other->get_mute_group() )
 	, __queued( other->is_queued() )
-	, __hihat( other->is_hihat() )
+	, __hihat_grp( other->get_hihat_grp() )
 	, __lower_cc( other->get_lower_cc() )
 	, __higher_cc( other->get_higher_cc() )
 	, __components( NULL )
+	, __ignore_velocity( other->get_ignore_velocity() )
 {
 	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = other->get_fx_level( i );
 
@@ -188,9 +192,11 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
 	this->set_midi_out_channel( instrument->get_midi_out_channel() );
 	this->set_midi_out_note( instrument->get_midi_out_note() );
 	this->set_stop_notes( instrument->is_stop_notes() );
-	this->set_hihat( instrument->is_hihat() );
+	this->set_sample_selection_alg( instrument->sample_selection_alg() );
+	this->set_hihat_grp( instrument->get_hihat_grp() );
 	this->set_lower_cc( instrument->get_lower_cc() );
 	this->set_higher_cc( instrument->get_higher_cc() );
+	this->set_ignore_velocity ( instrument->get_ignore_velocity() );
 	if ( is_live )
 		AudioEngine::get_instance()->unlock();
 }
@@ -218,6 +224,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	instrument->set_pan_l( node->read_float( "pan_L", 1.0f ) );
 	instrument->set_pan_r( node->read_float( "pan_R", 1.0f ) );
 	// may not exist, but can't be empty
+	instrument->set_ignore_velocity( node->read_bool( "ignoreVelocity", true, false ) );
 	instrument->set_filter_active( node->read_bool( "filterActive", true, false ) );
 	instrument->set_filter_cutoff( node->read_float( "filterCutoff", 1.0f, true, false ) );
 	instrument->set_filter_resonance( node->read_float( "filterResonance", 0.0f, true, false ) );
@@ -232,7 +239,15 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	instrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
 	instrument->set_midi_out_note( node->read_int( "midiOutNote", instrument->__midi_out_note, true, false ) );
 	instrument->set_stop_notes( node->read_bool( "isStopNote", true ,false ) );
-	instrument->set_hihat( node->read_bool( "isHihat", false, true ) );
+	QString p_read_sample_select_algo = node->read_string( "sampleSelectionAlgo", "VELOCITY" );
+	if ( p_read_sample_select_algo.compare("VELOCITY") == 0 )
+		instrument->set_sample_selection_alg( VELOCITY );
+	else if ( p_read_sample_select_algo.compare("ROUND_ROBIN") == 0 )
+			instrument->set_sample_selection_alg( ROUND_ROBIN );
+	else if ( p_read_sample_select_algo.compare("RANDOM") == 0 )
+			instrument->set_sample_selection_alg( RANDOM );
+
+	instrument->set_hihat_grp( node->read_int( "isHihat", -1, true ) );
 	instrument->set_lower_cc( node->read_int( "lower_cc", 0, true ) );
 	instrument->set_higher_cc( node->read_int( "higher_cc", 127, true ) );
 
@@ -280,6 +295,7 @@ void Instrument::save_to( XMLNode* node )
 	instrument_node.write_float( "pan_R", __pan_r );
 	instrument_node.write_float( "randomPitchFactor", __random_pitch_factor );
 	instrument_node.write_float( "gain", __gain );
+	instrument_node.write_bool( "ignoreVelocity", __ignore_velocity );
 	instrument_node.write_bool( "filterActive", __filter_active );
 	instrument_node.write_float( "filterCutoff", __filter_cutoff );
 	instrument_node.write_float( "filterResonance", __filter_resonance );
@@ -291,7 +307,19 @@ void Instrument::save_to( XMLNode* node )
 	instrument_node.write_int( "midiOutChannel", __midi_out_channel );
 	instrument_node.write_int( "midiOutNote", __midi_out_note );
 	instrument_node.write_bool( "isStopNote", __stop_notes );
-	instrument_node.write_bool( "isHihat", __hihat );
+	//instrument_node.write_bool( "isRoundRobin", __round_robin );
+	switch ( __sample_selection_alg ) {
+		case VELOCITY:
+			instrument_node.write_string( "sampleSelectionAlgo", "VELOCITY" );
+			break;
+		case RANDOM:
+			instrument_node.write_string( "sampleSelectionAlgo", "RANDOM" );
+			break;
+		case ROUND_ROBIN:
+			instrument_node.write_string( "sampleSelectionAlgo", "ROUND_ROBIN" );
+			break;
+	}
+	instrument_node.write_int( "isHihat", __hihat_grp );
 	instrument_node.write_int( "lower_cc", __lower_cc );
 	instrument_node.write_int( "higher_cc", __higher_cc );
 	for ( int i=0; i<MAX_FX; i++ ) {
