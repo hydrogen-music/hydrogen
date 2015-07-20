@@ -179,7 +179,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		void loadLayer();
 		void setAutoVelocity();
-		int findFreeCompoID( int startingPoint = 0 );
+		int findFreeDrumkitComponentId( int startingPoint = 0 );
 };
 
 
