@@ -852,17 +852,17 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			if ( val_R > m_fMasterPeak_R )
 				m_fMasterPeak_R = val_R;
 
-            for (std::vector<DrumkitComponent*>::iterator it = pSong->get_components()->begin() ; it != pSong->get_components()->end(); ++it) {
-                DrumkitComponent* drumkit_component = *it;
+			for (std::vector<DrumkitComponent*>::iterator it = pSong->get_components()->begin() ; it != pSong->get_components()->end(); ++it) {
+				DrumkitComponent* drumkit_component = *it;
 
-                float compo_val_L = drumkit_component->get_out_L(i);
-                float compo_val_R = drumkit_component->get_out_R(i);
+				float compo_val_L = drumkit_component->get_out_L(i);
+				float compo_val_R = drumkit_component->get_out_R(i);
 
-                if( compo_val_L > drumkit_component->get_peak_l() )
-                    drumkit_component->set_peak_l( compo_val_L );
-                if( compo_val_R > drumkit_component->get_peak_r() )
-                    drumkit_component->set_peak_r( compo_val_R );
-            }
+				if( compo_val_L > drumkit_component->get_peak_l() )
+					drumkit_component->set_peak_l( compo_val_L );
+				if( compo_val_R > drumkit_component->get_peak_r() )
+					drumkit_component->set_peak_r( compo_val_R );
+			}
 		}
 	}
 
@@ -2424,13 +2424,13 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 	std::vector<DrumkitComponent*>* songCompoList= getSong()->get_components();
 	std::vector<DrumkitComponent*>* pDrumkitCompoList = drumkitInfo->get_components();
 
-    songCompoList->clear();
+	songCompoList->clear();
 	for (std::vector<DrumkitComponent*>::iterator it = pDrumkitCompoList->begin() ; it != pDrumkitCompoList->end(); ++it) {
-        DrumkitComponent* src_component = *it;
-        DrumkitComponent* p_newCompo = new DrumkitComponent( src_component->get_id(), src_component->get_name() );
-        p_newCompo->load_from( drumkitInfo, src_component );
+		DrumkitComponent* src_component = *it;
+		DrumkitComponent* p_newCompo = new DrumkitComponent( src_component->get_id(), src_component->get_name() );
+		p_newCompo->load_from( drumkitInfo, src_component );
 
-        songCompoList->push_back( p_newCompo );
+		songCompoList->push_back( p_newCompo );
 	}
 
 	//current instrument list
@@ -2545,13 +2545,13 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 		Instrument* pInstr = pList->get( 0 );
 		pInstr->set_name( (QString( "Instrument 1" )) );
 		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-            InstrumentComponent* pCompo = *it;
-            // remove all layers
-            for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-                InstrumentLayer* pLayer = pCompo->get_layer( nLayer );
-                delete pLayer;
-                pCompo->set_layer( NULL, nLayer );
-            }
+			InstrumentComponent* pCompo = *it;
+			// remove all layers
+			for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+				InstrumentLayer* pLayer = pCompo->get_layer( nLayer );
+				delete pLayer;
+				pCompo->set_layer( NULL, nLayer );
+			}
 		}
 		AudioEngine::get_instance()->unlock();
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );

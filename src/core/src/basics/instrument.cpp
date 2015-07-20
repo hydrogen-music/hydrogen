@@ -127,46 +127,46 @@ Instrument* Instrument::load_instrument( const QString& drumkit_name, const QStr
 
 void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_live )
 {
-    this->get_components()->clear();
+	this->get_components()->clear();
 
-    for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
-        InstrumentComponent* src_component = *it;
+	for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
+		InstrumentComponent* src_component = *it;
 
-        InstrumentComponent* my_component = new InstrumentComponent( src_component->get_drumkit_componentID() );
-        my_component->set_gain( src_component->get_gain() );
+		InstrumentComponent* my_component = new InstrumentComponent( src_component->get_drumkit_componentID() );
+		my_component->set_gain( src_component->get_gain() );
 
-        this->get_components()->push_back( my_component );
+		this->get_components()->push_back( my_component );
 
-        for ( int i=0; i<MAX_LAYERS; i++ ) {
-            InstrumentLayer* src_layer = src_component->get_layer( i );
-            InstrumentLayer* my_layer = my_component->get_layer( i );
+		for ( int i=0; i<MAX_LAYERS; i++ ) {
+			InstrumentLayer* src_layer = src_component->get_layer( i );
+			InstrumentLayer* my_layer = my_component->get_layer( i );
 
-            if( src_layer==0 ) {
-                if ( is_live )
-                    AudioEngine::get_instance()->lock( RIGHT_HERE );
-                my_component->set_layer( NULL, i );
-                if ( is_live )
-                    AudioEngine::get_instance()->unlock();
-            } else {
-                QString sample_path =  drumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
-                Sample* sample = Sample::load( sample_path );
-                if ( sample==0 ) {
-                    _ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." ).arg( sample_path ) );
-                    if ( is_live )
-                        AudioEngine::get_instance()->lock( RIGHT_HERE );
-                    my_component->set_layer( NULL, i );
-                    if ( is_live )
-                        AudioEngine::get_instance()->unlock();
-                } else {
-                    if ( is_live )
-                        AudioEngine::get_instance()->lock( RIGHT_HERE );
-                    my_component->set_layer( new InstrumentLayer( src_layer, sample ), i );
-                    if ( is_live )
-                        AudioEngine::get_instance()->unlock();
-                }
-            }
-            delete my_layer;
-        }
+			if( src_layer==0 ) {
+				if ( is_live )
+					AudioEngine::get_instance()->lock( RIGHT_HERE );
+				my_component->set_layer( NULL, i );
+				if ( is_live )
+					AudioEngine::get_instance()->unlock();
+			} else {
+				QString sample_path =  drumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
+				Sample* sample = Sample::load( sample_path );
+				if ( sample==0 ) {
+					_ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." ).arg( sample_path ) );
+					if ( is_live )
+						AudioEngine::get_instance()->lock( RIGHT_HERE );
+					my_component->set_layer( NULL, i );
+					if ( is_live )
+						AudioEngine::get_instance()->unlock();
+				} else {
+					if ( is_live )
+						AudioEngine::get_instance()->lock( RIGHT_HERE );
+					my_component->set_layer( new InstrumentLayer( src_layer, sample ), i );
+					if ( is_live )
+						AudioEngine::get_instance()->unlock();
+				}
+			}
+			delete my_layer;
+		}
 	}
 	if ( is_live )
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
@@ -242,31 +242,31 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	XMLNode component_node = node->firstChildElement( "instrumentComponent" );
 	while ( !component_node.isNull() ) {
 		instrument->get_components()->push_back( InstrumentComponent::load_from( &component_node, dk_path ) );
-        component_node = component_node.nextSiblingElement( "instrumentComponent" );
+		component_node = component_node.nextSiblingElement( "instrumentComponent" );
 	}
 	return instrument;
 }
 
 void Instrument::load_samples()
 {
-    for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
-        InstrumentComponent* component = *it;
-        for ( int i=0; i<MAX_LAYERS; i++ ) {
-            InstrumentLayer* layer = component->get_layer( i );
-                if( layer ) layer->load_sample( );
-        }
-    }
+	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
+		InstrumentComponent* component = *it;
+		for ( int i=0; i<MAX_LAYERS; i++ ) {
+			InstrumentLayer* layer = component->get_layer( i );
+			if( layer ) layer->load_sample( );
+		}
+	}
 }
 
 void Instrument::unload_samples()
 {
-    for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
-        InstrumentComponent* component = *it;
-        for ( int i=0; i<MAX_LAYERS; i++ ) {
-            InstrumentLayer* layer = component->get_layer( i );
-            if( layer ) layer->unload_sample();
-        }
-    }
+	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
+		InstrumentComponent* component = *it;
+		for ( int i=0; i<MAX_LAYERS; i++ ) {
+			InstrumentLayer* layer = component->get_layer( i );
+			if( layer ) layer->unload_sample();
+		}
+	}
 }
 
 void Instrument::save_to( XMLNode* node )
@@ -298,7 +298,7 @@ void Instrument::save_to( XMLNode* node )
 		instrument_node.write_float( QString( "FX%1Level" ).arg( i+1 ), __fx_level[i] );
 	}
 	for (std::vector<InstrumentComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-        InstrumentComponent* component = *it;
+		InstrumentComponent* component = *it;
 		component->save_to( &instrument_node );
 
 	}
@@ -313,12 +313,12 @@ void Instrument::set_adsr( ADSR* adsr )
 
 InstrumentComponent* Instrument::get_component( int DrumkitComponentID )
 {
-    for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
-         if( (*it)->get_drumkit_componentID() == DrumkitComponentID )
-             return *it;
-    }
+	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
+		if( (*it)->get_drumkit_componentID() == DrumkitComponentID )
+			return *it;
+	}
 
-    return NULL;
+	return NULL;
 }
 
 };

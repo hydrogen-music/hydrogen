@@ -265,8 +265,8 @@ class Instrument : public H2Core::Object
 		float __fx_level[MAX_FX];	            ///< Ladspa FX level array
 		bool __hihat;                           ///< the instrument is a hihat
 		int __lower_cc;                         ///< lower cc level
-        int __higher_cc;                        ///< higher cc level
-        std::vector<InstrumentComponent*>* __components;  ///< InstrumentLayer array
+		int __higher_cc;                        ///< higher cc level
+		std::vector<InstrumentComponent*>* __components;  ///< InstrumentLayer array
 };
 
 // DEFINITIONS
