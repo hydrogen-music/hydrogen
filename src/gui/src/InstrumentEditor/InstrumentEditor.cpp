@@ -1145,33 +1145,33 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		}
 	}
 	else if( p_selected.compare("delete") == 0 ) {
-		std::vector<DrumkitComponent*>* p_components = pEngine->getSong()->get_components();
-		if(p_components->size() == 1)
+		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->get_components();
+		if(pDrumkitComponents->size() == 1)
 			return;
 
-		DrumkitComponent* p_dmCompo = pEngine->getSong()->get_component( m_nSelectedComponent );
+		DrumkitComponent* pDrumkitComponent = pEngine->getSong()->get_component( m_nSelectedComponent );
 
-		InstrumentList* p_instruments = pEngine->getSong()->get_instrument_list();
-		for ( int n = ( int )p_instruments->size() - 1; n >= 0; n-- ) {
-			Instrument* p_instr = p_instruments->get( n );
-			for( int o = 0 ; o < p_instr->get_components()->size() ; o++ ) {
-				InstrumentComponent* p_instrCompo = p_instr->get_components()->at( o );
-				if( p_instrCompo->get_drumkit_componentID() == p_dmCompo->get_id() ) {
+		InstrumentList* pInstruments = pEngine->getSong()->get_instrument_list();
+		for ( int n = ( int )pInstruments->size() - 1; n >= 0; n-- ) {
+			Instrument* pInstrument = pInstruments->get( n );
+			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {
+				InstrumentComponent* p_instrCompo = pInstrument->get_components()->at( o );
+				if( p_instrCompo->get_drumkit_componentID() == pDrumkitComponent->get_id() ) {
 					for( int m = 0; m < MAX_LAYERS; m++ ) {
 						InstrumentLayer* layer = p_instrCompo->get_layer( m );
 						if( layer )
 							delete layer;
 					}
-					p_instr->get_components()->erase( p_instr->get_components()->begin() + o );;
+					pInstrument->get_components()->erase( pInstrument->get_components()->begin() + o );;
 					break;
 				}
 			}
 		}
 
-		for ( int n = 0 ; n < p_components->size() ; n++ ) {
-			DrumkitComponent* p_compo = p_components->at( n );
-			if( p_compo->get_id() == p_dmCompo->get_id() ) {
-				p_components->erase( p_components->begin() + n );
+		for ( int n = 0 ; n < pDrumkitComponents->size() ; n++ ) {
+			DrumkitComponent* pTmpDrumkitComponent = pDrumkitComponents->at( n );
+			if( pTmpDrumkitComponent->get_id() == pDrumkitComponent->get_id() ) {
+				pDrumkitComponents->erase( pDrumkitComponents->begin() + n );
 				break;
 			}
 		}
@@ -1187,12 +1187,12 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 	}
 	else {
 		m_nSelectedComponent = -1;
-		std::vector<DrumkitComponent*>* compoList = pEngine->getSong()->get_components();
-		for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
-			DrumkitComponent* p_compo = *it;
-			if( p_compo->get_name().compare( p_selected ) == 0) {
-				m_nSelectedComponent = p_compo->get_id();
-				m_pCompoNameLbl->setText( p_compo->get_name() );
+		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->get_components();
+		for (std::vector<DrumkitComponent*>::iterator it = pDrumkitComponents->begin() ; it != pDrumkitComponents->end(); ++it) {
+			DrumkitComponent* pDrumkitComponent = *it;
+			if( pDrumkitComponent->get_name().compare( p_selected ) == 0) {
+				m_nSelectedComponent = pDrumkitComponent->get_id();
+				m_pCompoNameLbl->setText( pDrumkitComponent->get_name() );
 				break;
 			}
 		}
@@ -1200,10 +1200,10 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		if( m_pInstrument && !m_pInstrument->get_component(m_nSelectedComponent)) {
 			INFOLOG("Component needs to be added");
 
-			InstrumentComponent* instrument_component = new InstrumentComponent( m_nSelectedComponent );
-			instrument_component->set_gain( 1.0f );
+			InstrumentComponent* pInstrComponent = new InstrumentComponent( m_nSelectedComponent );
+			pInstrComponent->set_gain( 1.0f );
 
-			m_pInstrument->get_components()->push_back( instrument_component );
+			m_pInstrument->get_components()->push_back( pInstrComponent );
 
 
 
