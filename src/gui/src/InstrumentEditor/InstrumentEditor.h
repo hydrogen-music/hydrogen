@@ -57,7 +57,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void selectLayer( int nLayer );
 		void setFileforLayer(QString filename );
 
-        void selectComponent( int nComponent );
+		void selectComponent( int nComponent );
 
 		// implements EventListener interface
 		virtual void selectedInstrumentChangedEvent();
@@ -86,7 +86,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 	private:
 		H2Core::Instrument *m_pInstrument;
 		int m_nSelectedLayer;
-        int m_nSelectedComponent;
+		int m_nSelectedComponent;
 
 		ToggleButton *m_pShowInstrumentBtn;
 		ToggleButton *m_pShowLayersBtn;

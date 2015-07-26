@@ -106,7 +106,7 @@ Instrument::Instrument( Instrument* other )
 	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = other->get_fx_level( i );
 
 	__components = new std::vector<InstrumentComponent*> ();
-    __components->assign( other->get_components()->begin(), other->get_components()->end() );
+	__components->assign( other->get_components()->begin(), other->get_components()->end() );
 }
 
 Instrument::~Instrument()
