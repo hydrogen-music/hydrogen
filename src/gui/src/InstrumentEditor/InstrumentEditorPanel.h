@@ -37,7 +37,7 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object, public Eve
 	public:
 		static InstrumentEditorPanel* get_instance();
 		~InstrumentEditorPanel();
-		void notifyOfDrumkitChange();
+
 		void selectLayer( int nLayer );
 		
 		int getSelectedLayer() {
@@ -45,7 +45,7 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object, public Eve
 		}
 
 	public slots:
-		void updateInstrumentEditor();
+		void notifyOfDrumkitChange();
 
 	private:
 		static InstrumentEditorPanel* m_pInstance;

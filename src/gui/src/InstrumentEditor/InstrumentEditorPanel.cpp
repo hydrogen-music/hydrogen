@@ -66,7 +66,7 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
 	m_pLayer = 0;
 
 	m_pUpdateTimer = new QTimer( this );
-	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateInstrumentEditor() ) );
+	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( notifyOfDrumkitChange() ) );
 	m_pUpdateTimer->start(50);
 
 	HydrogenApp::get_instance()->addEventListener( this );
