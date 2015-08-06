@@ -69,6 +69,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __lower_cc( 0 )
 	, __higher_cc( 127 )
 	, __components( NULL )
+	, __is_preview_instrument(false)
 {
 	if ( __adsr==0 ) __adsr = new ADSR();
 	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = 0.0;
@@ -102,6 +103,7 @@ Instrument::Instrument( Instrument* other )
 	, __lower_cc( other->get_lower_cc() )
 	, __higher_cc( other->get_higher_cc() )
 	, __components( NULL )
+	, __is_preview_instrument(false)
 {
 	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = other->get_fx_level( i );
 
@@ -120,47 +122,47 @@ Instrument::~Instrument()
 
 Instrument* Instrument::load_instrument( const QString& drumkit_name, const QString& instrument_name )
 {
-	Instrument* i = new Instrument();
-	i->load_from( drumkit_name, instrument_name, false );
-	return i;
+	Instrument* pInstrument = new Instrument();
+	pInstrument->load_from( drumkit_name, instrument_name, false );
+	return pInstrument;
 }
 
-void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_live )
+void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_live )
 {
 	this->get_components()->clear();
 
-	for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
-		InstrumentComponent* src_component = *it;
+	for (std::vector<InstrumentComponent*>::iterator it = pInstrument->get_components()->begin() ; it != pInstrument->get_components()->end(); ++it) {
+		InstrumentComponent* pSrcComponent = *it;
 
-		InstrumentComponent* my_component = new InstrumentComponent( src_component->get_drumkit_componentID() );
-		my_component->set_gain( src_component->get_gain() );
+		InstrumentComponent* pMyComponent = new InstrumentComponent( pSrcComponent->get_drumkit_componentID() );
+		pMyComponent->set_gain( pSrcComponent->get_gain() );
 
-		this->get_components()->push_back( my_component );
+		this->get_components()->push_back( pMyComponent );
 
 		for ( int i=0; i<MAX_LAYERS; i++ ) {
-			InstrumentLayer* src_layer = src_component->get_layer( i );
-			InstrumentLayer* my_layer = my_component->get_layer( i );
+			InstrumentLayer* src_layer = pSrcComponent->get_layer( i );
+			InstrumentLayer* my_layer = pMyComponent->get_layer( i );
 
 			if( src_layer==0 ) {
 				if ( is_live )
 					AudioEngine::get_instance()->lock( RIGHT_HERE );
-				my_component->set_layer( NULL, i );
+				pMyComponent->set_layer( NULL, i );
 				if ( is_live )
 					AudioEngine::get_instance()->unlock();
 			} else {
-				QString sample_path =  drumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
+				QString sample_path =  pDrumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
 				Sample* sample = Sample::load( sample_path );
 				if ( sample==0 ) {
 					_ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." ).arg( sample_path ) );
 					if ( is_live )
 						AudioEngine::get_instance()->lock( RIGHT_HERE );
-					my_component->set_layer( NULL, i );
+					pMyComponent->set_layer( NULL, i );
 					if ( is_live )
 						AudioEngine::get_instance()->unlock();
 				} else {
 					if ( is_live )
 						AudioEngine::get_instance()->lock( RIGHT_HERE );
-					my_component->set_layer( new InstrumentLayer( src_layer, sample ), i );
+					pMyComponent->set_layer( new InstrumentLayer( src_layer, sample ), i );
 					if ( is_live )
 						AudioEngine::get_instance()->unlock();
 				}
@@ -171,26 +173,26 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
 	if ( is_live )
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-	this->set_id( instrument->get_id() );
-	this->set_name( instrument->get_name() );
-	this->set_drumkit_name( drumkit->get_name() );
-	this->set_gain( instrument->get_gain() );
-	this->set_volume( instrument->get_volume() );
-	this->set_pan_l( instrument->get_pan_l() );
-	this->set_pan_r( instrument->get_pan_r() );
-	this->set_adsr( new ADSR( *( instrument->get_adsr() ) ) );
-	this->set_filter_active( instrument->is_filter_active() );
-	this->set_filter_cutoff( instrument->get_filter_cutoff() );
-	this->set_filter_resonance( instrument->get_filter_resonance() );
-	this->set_random_pitch_factor( instrument->get_random_pitch_factor() );
-	this->set_muted( instrument->is_muted() );
-	this->set_mute_group( instrument->get_mute_group() );
-	this->set_midi_out_channel( instrument->get_midi_out_channel() );
-	this->set_midi_out_note( instrument->get_midi_out_note() );
-	this->set_stop_notes( instrument->is_stop_notes() );
-	this->set_hihat( instrument->is_hihat() );
-	this->set_lower_cc( instrument->get_lower_cc() );
-	this->set_higher_cc( instrument->get_higher_cc() );
+	this->set_id( pInstrument->get_id() );
+	this->set_name( pInstrument->get_name() );
+	this->set_drumkit_name( pDrumkit->get_name() );
+	this->set_gain( pInstrument->get_gain() );
+	this->set_volume( pInstrument->get_volume() );
+	this->set_pan_l( pInstrument->get_pan_l() );
+	this->set_pan_r( pInstrument->get_pan_r() );
+	this->set_adsr( new ADSR( *( pInstrument->get_adsr() ) ) );
+	this->set_filter_active( pInstrument->is_filter_active() );
+	this->set_filter_cutoff( pInstrument->get_filter_cutoff() );
+	this->set_filter_resonance( pInstrument->get_filter_resonance() );
+	this->set_random_pitch_factor( pInstrument->get_random_pitch_factor() );
+	this->set_muted( pInstrument->is_muted() );
+	this->set_mute_group( pInstrument->get_mute_group() );
+	this->set_midi_out_channel( pInstrument->get_midi_out_channel() );
+	this->set_midi_out_note( pInstrument->get_midi_out_note() );
+	this->set_stop_notes( pInstrument->is_stop_notes() );
+	this->set_hihat( pInstrument->is_hihat() );
+	this->set_lower_cc( pInstrument->get_lower_cc() );
+	this->set_higher_cc( pInstrument->get_higher_cc() );
 	if ( is_live )
 		AudioEngine::get_instance()->unlock();
 }
@@ -198,8 +200,12 @@ void Instrument::load_from( Drumkit* drumkit, Instrument* instrument, bool is_li
 void Instrument::load_from( const QString& dk_name, const QString& instrument_name, bool is_live )
 {
 	Drumkit* drumkit = Drumkit::load_by_name( dk_name );
-	if ( ! drumkit ) return;
+	if ( ! drumkit ){
+		return;
+	}
+
 	assert( drumkit );
+
 	Instrument* instrument = drumkit->get_instruments()->find( instrument_name );
 	if ( instrument!=0 ) {
 		load_from( drumkit, instrument, is_live );
@@ -210,41 +216,45 @@ void Instrument::load_from( const QString& dk_name, const QString& instrument_na
 Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name )
 {
 	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
-	if ( id==EMPTY_INSTR_ID ) return 0;
-	Instrument* instrument = new Instrument( id, node->read_string( "name", "" ), 0 );
-	instrument->set_drumkit_name( dk_name );
-	instrument->set_volume( node->read_float( "volume", 1.0f ) );
-	instrument->set_muted( node->read_bool( "isMuted", false ) );
-	instrument->set_pan_l( node->read_float( "pan_L", 1.0f ) );
-	instrument->set_pan_r( node->read_float( "pan_R", 1.0f ) );
+	if ( id==EMPTY_INSTR_ID ){
+		return 0;
+	}
+
+	Instrument* pInstrument = new Instrument( id, node->read_string( "name", "" ), 0 );
+	pInstrument->set_drumkit_name( dk_name );
+	pInstrument->set_volume( node->read_float( "volume", 1.0f ) );
+	pInstrument->set_muted( node->read_bool( "isMuted", false ) );
+	pInstrument->set_pan_l( node->read_float( "pan_L", 1.0f ) );
+	pInstrument->set_pan_r( node->read_float( "pan_R", 1.0f ) );
 	// may not exist, but can't be empty
-	instrument->set_filter_active( node->read_bool( "filterActive", true, false ) );
-	instrument->set_filter_cutoff( node->read_float( "filterCutoff", 1.0f, true, false ) );
-	instrument->set_filter_resonance( node->read_float( "filterResonance", 0.0f, true, false ) );
-	instrument->set_random_pitch_factor( node->read_float( "randomPitchFactor", 0.0f, true, false ) );
+	pInstrument->set_filter_active( node->read_bool( "filterActive", true, false ) );
+	pInstrument->set_filter_cutoff( node->read_float( "filterCutoff", 1.0f, true, false ) );
+	pInstrument->set_filter_resonance( node->read_float( "filterResonance", 0.0f, true, false ) );
+	pInstrument->set_random_pitch_factor( node->read_float( "randomPitchFactor", 0.0f, true, false ) );
 	float attack = node->read_float( "Attack", 0.0f, true, false );
 	float decay = node->read_float( "Decay", 0.0f, true, false  );
 	float sustain = node->read_float( "Sustain", 1.0f, true, false );
 	float release = node->read_float( "Release", 1000.0f, true, false );
-	instrument->set_adsr( new ADSR( attack, decay, sustain, release ) );
-	instrument->set_gain( node->read_float( "gain", 1.0f, true, false ) );
-	instrument->set_mute_group( node->read_int( "muteGroup", -1, true, false ) );
-	instrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
-	instrument->set_midi_out_note( node->read_int( "midiOutNote", instrument->__midi_out_note, true, false ) );
-	instrument->set_stop_notes( node->read_bool( "isStopNote", true ,false ) );
-	instrument->set_hihat( node->read_bool( "isHihat", false, true ) );
-	instrument->set_lower_cc( node->read_int( "lower_cc", 0, true ) );
-	instrument->set_higher_cc( node->read_int( "higher_cc", 127, true ) );
+	pInstrument->set_adsr( new ADSR( attack, decay, sustain, release ) );
+	pInstrument->set_gain( node->read_float( "gain", 1.0f, true, false ) );
+	pInstrument->set_mute_group( node->read_int( "muteGroup", -1, true, false ) );
+	pInstrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
+	pInstrument->set_midi_out_note( node->read_int( "midiOutNote", pInstrument->__midi_out_note, true, false ) );
+	pInstrument->set_stop_notes( node->read_bool( "isStopNote", true ,false ) );
+	pInstrument->set_hihat( node->read_bool( "isHihat", false, true ) );
+	pInstrument->set_lower_cc( node->read_int( "lower_cc", 0, true ) );
+	pInstrument->set_higher_cc( node->read_int( "higher_cc", 127, true ) );
 
 	for ( int i=0; i<MAX_FX; i++ ) {
-		instrument->set_fx_level( node->read_float( QString( "FX%1Level" ).arg( i+1 ), 0.0 ), i );
+		pInstrument->set_fx_level( node->read_float( QString( "FX%1Level" ).arg( i+1 ), 0.0 ), i );
 	}
-	XMLNode component_node = node->firstChildElement( "instrumentComponent" );
-	while ( !component_node.isNull() ) {
-		instrument->get_components()->push_back( InstrumentComponent::load_from( &component_node, dk_path ) );
-		component_node = component_node.nextSiblingElement( "instrumentComponent" );
+
+	XMLNode ComponentNode = node->firstChildElement( "instrumentComponent" );
+	while ( !ComponentNode.isNull() ) {
+		pInstrument->get_components()->push_back( InstrumentComponent::load_from( &ComponentNode, dk_path ) );
+		ComponentNode = ComponentNode.nextSiblingElement( "instrumentComponent" );
 	}
-	return instrument;
+	return pInstrument;
 }
 
 void Instrument::load_samples()
@@ -271,38 +281,37 @@ void Instrument::unload_samples()
 
 void Instrument::save_to( XMLNode* node )
 {
-	XMLNode instrument_node = node->ownerDocument().createElement( "instrument" );
-	instrument_node.write_int( "id", __id );
-	instrument_node.write_string( "name", __name );
-	instrument_node.write_float( "volume", __volume );
-	instrument_node.write_bool( "isMuted", __muted );
-	instrument_node.write_float( "pan_L", __pan_l );
-	instrument_node.write_float( "pan_R", __pan_r );
-	instrument_node.write_float( "randomPitchFactor", __random_pitch_factor );
-	instrument_node.write_float( "gain", __gain );
-	instrument_node.write_bool( "filterActive", __filter_active );
-	instrument_node.write_float( "filterCutoff", __filter_cutoff );
-	instrument_node.write_float( "filterResonance", __filter_resonance );
-	instrument_node.write_float( "Attack", __adsr->get_attack() );
-	instrument_node.write_float( "Decay", __adsr->get_decay() );
-	instrument_node.write_float( "Sustain", __adsr->get_sustain() );
-	instrument_node.write_float( "Release", __adsr->get_release() );
-	instrument_node.write_int( "muteGroup", __mute_group );
-	instrument_node.write_int( "midiOutChannel", __midi_out_channel );
-	instrument_node.write_int( "midiOutNote", __midi_out_note );
-	instrument_node.write_bool( "isStopNote", __stop_notes );
-	instrument_node.write_bool( "isHihat", __hihat );
-	instrument_node.write_int( "lower_cc", __lower_cc );
-	instrument_node.write_int( "higher_cc", __higher_cc );
+	XMLNode InstrumentNode = node->ownerDocument().createElement( "instrument" );
+	InstrumentNode.write_int( "id", __id );
+	InstrumentNode.write_string( "name", __name );
+	InstrumentNode.write_float( "volume", __volume );
+	InstrumentNode.write_bool( "isMuted", __muted );
+	InstrumentNode.write_float( "pan_L", __pan_l );
+	InstrumentNode.write_float( "pan_R", __pan_r );
+	InstrumentNode.write_float( "randomPitchFactor", __random_pitch_factor );
+	InstrumentNode.write_float( "gain", __gain );
+	InstrumentNode.write_bool( "filterActive", __filter_active );
+	InstrumentNode.write_float( "filterCutoff", __filter_cutoff );
+	InstrumentNode.write_float( "filterResonance", __filter_resonance );
+	InstrumentNode.write_float( "Attack", __adsr->get_attack() );
+	InstrumentNode.write_float( "Decay", __adsr->get_decay() );
+	InstrumentNode.write_float( "Sustain", __adsr->get_sustain() );
+	InstrumentNode.write_float( "Release", __adsr->get_release() );
+	InstrumentNode.write_int( "muteGroup", __mute_group );
+	InstrumentNode.write_int( "midiOutChannel", __midi_out_channel );
+	InstrumentNode.write_int( "midiOutNote", __midi_out_note );
+	InstrumentNode.write_bool( "isStopNote", __stop_notes );
+	InstrumentNode.write_bool( "isHihat", __hihat );
+	InstrumentNode.write_int( "lower_cc", __lower_cc );
+	InstrumentNode.write_int( "higher_cc", __higher_cc );
 	for ( int i=0; i<MAX_FX; i++ ) {
-		instrument_node.write_float( QString( "FX%1Level" ).arg( i+1 ), __fx_level[i] );
+		InstrumentNode.write_float( QString( "FX%1Level" ).arg( i+1 ), __fx_level[i] );
 	}
 	for (std::vector<InstrumentComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-		InstrumentComponent* component = *it;
-		component->save_to( &instrument_node );
-
+		InstrumentComponent* pComponent = *it;
+		pComponent->save_to( &InstrumentNode );
 	}
-	node->appendChild( instrument_node );
+	node->appendChild( InstrumentNode );
 }
 
 void Instrument::set_adsr( ADSR* adsr )
