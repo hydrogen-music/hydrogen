@@ -69,6 +69,7 @@ Sampler::Sampler()
 	// instrument used in file preview
 	QString sEmptySampleFilename = Filesystem::empty_sample();
 	__preview_instrument = new Instrument( EMPTY_INSTR_ID, sEmptySampleFilename );
+	__preview_instrument->set_is_preview_instrument(true);
 	__preview_instrument->set_volume( 0.8 );
 	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( sEmptySampleFilename ) );
 	InstrumentComponent* pComponent = new InstrumentComponent( 0 );
@@ -249,7 +250,13 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 
 	for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it !=pInstr->get_components()->end(); ++it) {
 		InstrumentComponent *pCompo = *it;
-		DrumkitComponent* pMainCompo = pEngine->getSong()->get_component( pCompo->get_drumkit_componentID() );
+		DrumkitComponent* pMainCompo = 0;
+
+		if( pInstr->is_preview_instrument() ){
+			pMainCompo = pEngine->getSong()->get_components()->front();
+		} else {
+			pMainCompo = pEngine->getSong()->get_component( pCompo->get_drumkit_componentID() );
+		}
 
 		assert(pMainCompo);
 
@@ -861,6 +868,7 @@ void Sampler::preview_instrument( Instrument* instr )
 
 	pOldPreview = __preview_instrument;
 	__preview_instrument = instr;
+	instr->set_is_preview_instrument(true);
 
 	Note *pPreviewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, MAX_NOTES, 0 );
 
