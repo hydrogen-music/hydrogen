@@ -238,6 +238,10 @@ class Instrument : public H2Core::Object
 		void set_is_preview_instrument(bool isPreview);
 		bool is_preview_instrument() const;
 
+		/** Mark the instrument as metronome instrument */
+		void set_is_metronome_instrument(bool isMetronome);
+		bool is_metronome_instrument() const;
+
 		std::vector<InstrumentComponent*>* get_components();
 		InstrumentComponent* get_component( int DrumkitComponentID );
 
@@ -271,6 +275,7 @@ class Instrument : public H2Core::Object
 		int __lower_cc;                         ///< lower cc level
 		int __higher_cc;                        ///< higher cc level
 		bool __is_preview_instrument;			///< is the instrument an hydrogen preview instrument?
+		bool __is_metronome_instrument;			///< is the instrument an metronome instrument?
 		std::vector<InstrumentComponent*>* __components;  ///< InstrumentLayer array
 };
 
@@ -558,6 +563,16 @@ inline bool Instrument::is_preview_instrument() const
 inline void Instrument::set_is_preview_instrument(bool isPreview)
 {
 	__is_preview_instrument = isPreview;
+}
+
+inline bool Instrument::is_metronome_instrument() const
+{
+	return __is_metronome_instrument;
+}
+
+inline void Instrument::set_is_metronome_instrument(bool isMetronome)
+{
+	__is_metronome_instrument = isMetronome;
 }
 
 inline std::vector<InstrumentComponent*>* Instrument::get_components()

@@ -265,12 +265,10 @@ void audioEngine_init()
 	m_pMetronomeInstrument =
 			new Instrument( METRONOME_INSTR_ID, "metronome" );
 	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( sMetronomeFilename ) );
-    InstrumentComponent* pCompo = new InstrumentComponent( 0 );
-    pCompo->set_layer(
-                pLayer,
-				0
-				);
-    m_pMetronomeInstrument->get_components()->push_back( pCompo );
+	InstrumentComponent* pCompo = new InstrumentComponent( 0 );
+	pCompo->set_layer(pLayer, 0);
+	m_pMetronomeInstrument->get_components()->push_back( pCompo );
+	m_pMetronomeInstrument->set_is_metronome_instrument(true);
 
 	// Change the current audio engine state
 	m_audioEngineState = STATE_INITIALIZED;

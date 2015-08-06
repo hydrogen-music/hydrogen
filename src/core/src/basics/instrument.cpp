@@ -70,6 +70,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __higher_cc( 127 )
 	, __components( NULL )
 	, __is_preview_instrument(false)
+	, __is_metronome_instrument(false)
 {
 	if ( __adsr==0 ) __adsr = new ADSR();
 	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = 0.0;
@@ -104,6 +105,7 @@ Instrument::Instrument( Instrument* other )
 	, __higher_cc( other->get_higher_cc() )
 	, __components( NULL )
 	, __is_preview_instrument(false)
+	, __is_metronome_instrument(false)
 {
 	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = other->get_fx_level( i );
 

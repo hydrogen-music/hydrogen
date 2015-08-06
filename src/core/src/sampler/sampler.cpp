@@ -252,7 +252,8 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		InstrumentComponent *pCompo = *it;
 		DrumkitComponent* pMainCompo = 0;
 
-		if( pInstr->is_preview_instrument() ){
+		if(		pInstr->is_preview_instrument()
+			||	pInstr->is_metronome_instrument()){
 			pMainCompo = pEngine->getSong()->get_components()->front();
 		} else {
 			pMainCompo = pEngine->getSong()->get_component( pCompo->get_drumkit_componentID() );
