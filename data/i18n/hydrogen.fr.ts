@@ -962,7 +962,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Saving of this drumkit failed.</source>
-        <translation>La sauvegarde de ce kit de batterie à échouée</translation>
+        <translation>La sauvegarde de ce kit de batterie a échouée</translation>
     </message>
 </context>
 <context>
