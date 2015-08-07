@@ -57,7 +57,7 @@ InstrumentComponent::InstrumentComponent( InstrumentComponent* other )
 	for ( int i=0; i<MAX_LAYERS; i++ ) {
 		InstrumentLayer* other_layer = other->get_layer( i );
 		if ( other_layer ) {
-			__layers[i] = new InstrumentLayer( other_layer );
+			__layers[i] = new InstrumentLayer( other_layer, other_layer->get_sample());
 		} else {
 			__layers[i] = 0;
 		}
