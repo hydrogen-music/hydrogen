@@ -85,7 +85,7 @@ class DrumkitComponent : public H2Core::Object
 		float __peak_r;
 
 		float *__out_L;
-        float *__out_R;
+		float *__out_R;
 };
 
 // DEFINITIONS
@@ -112,12 +112,12 @@ inline int DrumkitComponent::get_id() const
 
 inline void DrumkitComponent::set_volume( float volume )
 {
-    __volume = volume;
+	__volume = volume;
 }
 
 inline float DrumkitComponent::get_volume() const
 {
-    return __volume;
+	return __volume;
 }
 
 inline void DrumkitComponent::set_muted( bool muted )
