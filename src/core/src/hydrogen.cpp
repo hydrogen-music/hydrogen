@@ -2405,37 +2405,35 @@ float Hydrogen::getMaxProcessTime()
 	return m_fMaxProcessTime;
 }
 
-int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
+int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo )
 {
-	assert ( drumkitInfo );
+	assert ( pDrumkitInfo );
 
 	int old_ae_state = m_audioEngineState;
 	if( m_audioEngineState >= STATE_READY ) {
 		m_audioEngineState = STATE_PREPARED;
 	}
 
-	INFOLOG( drumkitInfo->get_name() );
-	m_currentDrumkit = drumkitInfo->get_name();
-	LocalFileMng fileMng;
-	QString sDrumkitPath = Filesystem::drumkit_path_search( drumkitInfo->get_name() );
+	INFOLOG( pDrumkitInfo->get_name() );
+	m_currentDrumkit = pDrumkitInfo->get_name();
 
-	std::vector<DrumkitComponent*>* songCompoList= getSong()->get_components();
-	std::vector<DrumkitComponent*>* pDrumkitCompoList = drumkitInfo->get_components();
+	std::vector<DrumkitComponent*>* pSongCompoList= getSong()->get_components();
+	std::vector<DrumkitComponent*>* pDrumkitCompoList = pDrumkitInfo->get_components();
 
-	songCompoList->clear();
+	pSongCompoList->clear();
 	for (std::vector<DrumkitComponent*>::iterator it = pDrumkitCompoList->begin() ; it != pDrumkitCompoList->end(); ++it) {
-		DrumkitComponent* src_component = *it;
-		DrumkitComponent* p_newCompo = new DrumkitComponent( src_component->get_id(), src_component->get_name() );
-		p_newCompo->load_from( drumkitInfo, src_component );
+		DrumkitComponent* pSrcComponent = *it;
+		DrumkitComponent* pNewComponent = new DrumkitComponent( pSrcComponent->get_id(), pSrcComponent->get_name() );
+		pNewComponent->load_from( pSrcComponent );
 
-		songCompoList->push_back( p_newCompo );
+		pSongCompoList->push_back( pNewComponent );
 	}
 
 	//current instrument list
-	InstrumentList *songInstrList = getSong()->get_instrument_list();
+	InstrumentList *pSongInstrList = getSong()->get_instrument_list();
 
 	//new instrument list
-	InstrumentList *pDrumkitInstrList = drumkitInfo->get_instruments();
+	InstrumentList *pDrumkitInstrList = pDrumkitInfo->get_instruments();
 
 	/*
   If the old drumkit is bigger then the new drumkit,
@@ -2460,20 +2458,20 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
  */
 
 	//needed for the new delete function
-	int instrumentDiff =  songInstrList->size() - pDrumkitInstrList->size();
+	int instrumentDiff =  pSongInstrList->size() - pDrumkitInstrList->size();
 
 	for ( unsigned nInstr = 0; nInstr < pDrumkitInstrList->size(); ++nInstr ) {
 		Instrument *pInstr = NULL;
-		if ( nInstr < songInstrList->size() ) {
+		if ( nInstr < pSongInstrList->size() ) {
 			//instrument exists already
-			pInstr = songInstrList->get( nInstr );
+			pInstr = pSongInstrList->get( nInstr );
 			assert( pInstr );
 		} else {
 			pInstr = new Instrument();
 			// The instrument isn't playing yet; no need for locking
 			// :-) - Jakob Lund.  AudioEngine::get_instance()->lock(
 			// "Hydrogen::loadDrumkit" );
-			songInstrList->add( pInstr );
+			pSongInstrList->add( pInstr );
 			// AudioEngine::get_instance()->unlock();
 		}
 
@@ -2486,7 +2484,7 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 
 		// creo i nuovi layer in base al nuovo strumento
 		// Moved code from here right into the Instrument class - Jakob Lund.
-		pInstr->load_from( drumkitInfo, pNewInstr );
+		pInstr->load_from( pDrumkitInfo, pNewInstr );
 	}
 
 

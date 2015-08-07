@@ -96,7 +96,7 @@ float DrumkitComponent::get_out_R( int nBufferPos )
 	return __out_R[nBufferPos];
 }
 
-void DrumkitComponent::load_from( Drumkit* drumkit, DrumkitComponent* component, bool is_live )
+void DrumkitComponent::load_from( DrumkitComponent* component, bool is_live )
 {
 	if ( is_live ){
 		AudioEngine::get_instance()->lock( RIGHT_HERE );

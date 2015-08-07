@@ -113,9 +113,9 @@ public:
 
 	PatternList *	getNextPatterns();
 
-	int			getPatternPos();
+	int				getPatternPos();
 	void			setPatternPos( int pos );
-	int			getPosForTick( unsigned long TickPos );
+	int				getPosForTick( unsigned long TickPos );
 
 	void			triggerRelocateDuringPlay();
 
@@ -135,7 +135,7 @@ public:
 	float			getProcessTime();
 	float			getMaxProcessTime();
 
-	int				loadDrumkit( Drumkit *drumkitInfo );
+	int				loadDrumkit( Drumkit *pDrumkitInfo );
 
 	/// delete an instrument. If `conditional` is true, and there are patterns that
 	/// use this instrument, it's not deleted anyway
@@ -214,8 +214,8 @@ public:
 	void			ComputeHumantimeFrames(uint32_t nFrames);
 
 	void			__panic();
-	int			__get_selected_PatterNumber();
-	unsigned int		__getMidiRealtimeNoteTickPosition();
+	int				__get_selected_PatterNumber();
+	unsigned int	__getMidiRealtimeNoteTickPosition();
 
 	void			setTimelineBpm();
 	float			getTimelineBpm( int Beat );
