@@ -176,7 +176,7 @@ class Drumkit : public H2Core::Object
 		 * \param dk_path the directory holding the drumkit data
 		 */
 		static Drumkit* load_from( XMLNode* node, const QString& dk_path );
-    	std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
+		std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
 };
 
 // DEFINITIONS

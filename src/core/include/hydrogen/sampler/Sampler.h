@@ -96,7 +96,7 @@ private:
 	/// Instrument used for the preview feature.
 	Instrument* __preview_instrument;
 
-	bool __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
+	unsigned __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
 
 		InterpolateMode __interpolateMode;
 
@@ -200,7 +200,7 @@ private:
 				return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
 		};
 
-	bool __render_note_no_resample(
+	int __render_note_no_resample(
 		Sample *pSample,
 		Note *pNote,
 		SelectedLayerInfo *pSelectedLayerInfo,
@@ -215,7 +215,7 @@ private:
 		Song* pSong
 	);
 
-	bool __render_note_resample(
+	int __render_note_resample(
 		Sample *pSample,
 		Note *pNote,
 		SelectedLayerInfo *pSelectedLayerInfo,

@@ -186,10 +186,10 @@ class Song : public H2Core::Object
 		}
 
 		std::vector<DrumkitComponent*>* get_components() {
-            return __components;
-        }
+			return __components;
+		}
 
-        DrumkitComponent* get_component( int ID );
+		DrumkitComponent* get_component( int ID );
 
 		void readTempPatternList( QString filename );
 

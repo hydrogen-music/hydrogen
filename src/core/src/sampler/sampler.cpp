@@ -70,11 +70,12 @@ Sampler::Sampler()
 	// instrument used in file preview
 	QString sEmptySampleFilename = Filesystem::empty_sample();
 	__preview_instrument = new Instrument( EMPTY_INSTR_ID, sEmptySampleFilename );
+	__preview_instrument->set_is_preview_instrument(true);
 	__preview_instrument->set_volume( 0.8 );
 	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( sEmptySampleFilename ) );
-    InstrumentComponent* pCompo = new InstrumentComponent( 0 );
-    pCompo->set_layer( pLayer, 0 );
-    __preview_instrument->get_components()->push_back( pCompo );
+	InstrumentComponent* pComponent = new InstrumentComponent( 0 );
+	pComponent->set_layer( pLayer, 0 );
+	__preview_instrument->get_components()->push_back( pComponent );
 }
 
 
@@ -112,9 +113,9 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 	}
 
 	for (std::vector<DrumkitComponent*>::iterator it = pSong->get_components()->begin() ; it != pSong->get_components()->end(); ++it) {
-        DrumkitComponent* component = *it;
-        component->reset_outs(nFrames);
-    }
+		DrumkitComponent* component = *it;
+		component->reset_outs(nFrames);
+	}
 
 
 	// eseguo tutte le note nella lista di note in esecuzione
@@ -122,7 +123,8 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 	Note* pNote;
 	while ( i < __playing_notes_queue.size() ) {
 		pNote = __playing_notes_queue[ i ];		// recupero una nuova nota
-		if ( __render_note( pNote, nFrames, pSong ) ) {	// la nota e' finita
+		unsigned res = __render_note( pNote, nFrames, pSong );
+		if ( res == 1 ) {	// la nota e' finita
 			__playing_notes_queue.erase( __playing_notes_queue.begin() + i );
 			pNote->get_instrument()->dequeue();
 			__queuedNoteOffs.push_back( pNote );
@@ -222,9 +224,9 @@ void Sampler::note_off( Note* note )
 
 
 /// Render a note
-/// Return false: the note is not ended
-/// Return true : the note is ended
-bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
+/// Return 0: the note is not ended
+/// Return 1: the note is ended
+unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 {
 	//infoLog( "[renderNote] instr: " + pNote->getInstrument()->m_sName );
 	assert( pSong );
@@ -245,20 +247,29 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		return 1;
 	}
 
-	bool p_returnValues [pInstr->get_components()->size()];
+	int p_returnValues [pInstr->get_components()->size()];
 	int p_returnValueIndex = 0;
 	int p_alreadySelectedLayer = -1;
-	for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it !=pInstr->get_components()->end(); ++it) {
-		p_returnValues[p_returnValueIndex] = false;
-        InstrumentComponent *pCompo = *it;
 
+	for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it !=pInstr->get_components()->end(); ++it) {
+		p_returnValues[p_returnValueIndex] = 0;
+        InstrumentComponent *pCompo = *it;
         DrumkitComponent* pMainCompo = pEngine->getSong()->get_component( pCompo->get_drumkit_componentID() );
 
-        float fLayerGain = 1.0;
-        float fLayerPitch = 0.0;
+		if(		pInstr->is_preview_instrument()
+			||	pInstr->is_metronome_instrument()){
+			pMainCompo = pEngine->getSong()->get_components()->front();
+		} else {
+			pMainCompo = pEngine->getSong()->get_component( pCompo->get_drumkit_componentID() );
+		}
 
-        // scelgo il sample da usare in base alla velocity
-        Sample *pSample = NULL;
+		assert(pMainCompo);
+
+		float fLayerGain = 1.0;
+		float fLayerPitch = 0.0;
+
+		// scelgo il sample da usare in base alla velocity
+		Sample *pSample = NULL;
 		SelectedLayerInfo *pSelectedLayer = pNote->get_layer_selected( pCompo->get_drumkit_componentID() );
 
 		if ( !pSelectedLayer ) {
@@ -376,16 +387,16 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 					break;
 			}
 		}
-        if ( !pSample ) {
-            QString dummy = QString( "NULL sample for instrument %1. Note velocity: %2" ).arg( pInstr->get_name() ).arg( pNote->get_velocity() );
-            WARNINGLOG( dummy );
-			p_returnValues[p_returnValueIndex] = true;
-            continue;
-        }
+		if ( !pSample ) {
+			QString dummy = QString( "NULL sample for instrument %1. Note velocity: %2" ).arg( pInstr->get_name() ).arg( pNote->get_velocity() );
+			WARNINGLOG( dummy );
+			p_returnValues[p_returnValueIndex] = 1;
+			continue;
+		}
 
 		if ( pSelectedLayer->SamplePosition >= pSample->get_frames() ) {
             WARNINGLOG( "sample position out of bounds. The layer has been resized during note play?" );
-			p_returnValues[p_returnValueIndex] = true;
+			p_returnValues[p_returnValueIndex] = 1;
             continue;
         }
 
@@ -401,35 +412,37 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
                     // this note is not valid. it's in the future...let's skip it....
                     ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFramepos ).arg(noteStartInFramesNoHumanize ) );
 					//pNote->dumpInfo();
-					p_returnValues[p_returnValueIndex] = true;
+					p_returnValues[p_returnValueIndex] = 1;
                     continue;
                 }
                 // delay note execution
-                //INFOLOG( "Delaying note execution. noteStartInFrames: " + to_string( noteStartInFrames ) + ", nFramePos: " + to_string( nFramepos ) );
-                //return 0;
-                continue;
-            }
-        }
+				//INFOLOG( "Delaying note execution. noteStartInFrames: " + to_string( noteStartInFrames ) + ", nFramePos: " + to_string( nFramepos ) );
+				//return 0;
+				continue;
+			}
+		}
 
-        float cost_L = 1.0f;
-        float cost_R = 1.0f;
-        float cost_track_L = 1.0f;
-        float cost_track_R = 1.0f;
+		float cost_L = 1.0f;
+		float cost_R = 1.0f;
+		float cost_track_L = 1.0f;
+		float cost_track_R = 1.0f;
 
-        if ( pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {	// is instrument muted?
-            cost_L = 0.0;
-            cost_R = 0.0;
-            if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
-                // Post-Fader
-                cost_track_L = 0.0;
-                cost_track_R = 0.0;
-            }
+		assert(pMainCompo);
 
-        } else {	// Precompute some values...
+		if ( pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {	// is instrument muted?
+			cost_L = 0.0;
+			cost_R = 0.0;
+			if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
+				// Post-Fader
+				cost_track_L = 0.0;
+				cost_track_R = 0.0;
+			}
+
+		} else {	// Precompute some values...
 			if ( !pInstr->get_ignore_velocity() ) {
 				cost_L = cost_L * pNote->get_velocity();		// note velocity
 				cost_R = cost_R * pNote->get_velocity();		// note velocity
-			}
+			}            
             cost_L = cost_L * pNote->get_pan_l();		// note pan
             cost_L = cost_L * fLayerGain;				// layer gain
             cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
@@ -494,11 +507,11 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		p_returnValueIndex++;
     }
 	for ( unsigned i = 0 ; i < pInstr->get_components()->size() ; i++ )
-		if ( !p_returnValues[i] ) return false;
-	return true;
+		if ( !p_returnValues[i] ) return 0;
+	return 1;
 }
 
-bool Sampler::__render_note_no_resample(
+int Sampler::__render_note_no_resample(
 	Sample *pSample,
 	Note *pNote,
 	SelectedLayerInfo *pSelectedLayerInfo,
@@ -514,7 +527,7 @@ bool Sampler::__render_note_no_resample(
 )
 {
 	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
-	bool retValue = true; // the note is ended
+	int retValue = 1; // the note is ended
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
@@ -526,7 +539,7 @@ bool Sampler::__render_note_no_resample(
 	if ( nAvail_bytes > nBufferSize - nInitialSilence ) {	// il sample e' piu' grande del buffersize
 		// imposto il numero dei bytes disponibili uguale al buffersize
 		nAvail_bytes = nBufferSize - nInitialSilence;
-		retValue = false; // the note is not ended yet
+		retValue = 0; // the note is not ended yet
 	}
 
 
@@ -654,7 +667,7 @@ bool Sampler::__render_note_no_resample(
 
 
 
-bool Sampler::__render_note_resample(
+int Sampler::__render_note_resample(
 	Sample *pSample,
 	Note *pNote,
 	SelectedLayerInfo *pSelectedLayerInfo,
@@ -736,7 +749,7 @@ bool Sampler::__render_note_resample(
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pSelectedLayerInfo->SamplePosition ) ) {
 						if ( pNote->get_adsr()->release() == 0 ) {
-				retValue = true;	// the note is ended
+				retValue = 1;	// the note is ended
 			}
 		}
 
@@ -825,7 +838,7 @@ bool Sampler::__render_note_resample(
 
 		fSamplePos += fStep;
 	}
-	pSelectedLayerInfo->SamplePosition += nAvail_bytes * fStep;
+	pSelectedLayerInfo->SamplePosition += nAvail_bytes;
 	pNote->get_instrument()->set_peak_l( fInstrPeak_L );
 	pNote->get_instrument()->set_peak_r( fInstrPeak_R );
 
@@ -942,19 +955,19 @@ void Sampler::preview_sample( Sample* sample, int length )
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	for (std::vector<InstrumentComponent*>::iterator it = __preview_instrument->get_components()->begin() ; it != __preview_instrument->get_components()->end(); ++it) {
-        InstrumentComponent* pCompo = *it;
-        InstrumentLayer *pLayer = pCompo->get_layer( 0 );
+		InstrumentComponent* pComponent = *it;
+		InstrumentLayer *pLayer = pComponent->get_layer( 0 );
 
 
-        Sample *pOldSample = pLayer->get_sample();
-        pLayer->set_sample( sample );
+		Sample *pOldSample = pLayer->get_sample();
+		pLayer->set_sample( sample );
 
-        Note *previewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, length, 0 );
+		Note *pPreviewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, length, 0 );
 
-        stop_playing_notes( __preview_instrument );
-        note_on( previewNote );
-        delete pOldSample;
-    }
+		stop_playing_notes( __preview_instrument );
+		note_on( pPreviewNote );
+		delete pOldSample;
+	}
 
 	AudioEngine::get_instance()->unlock();
 }
@@ -970,6 +983,7 @@ void Sampler::preview_instrument( Instrument* instr )
 
 	pOldPreview = __preview_instrument;
 	__preview_instrument = instr;
+	instr->set_is_preview_instrument(true);
 
 	Note *pPreviewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, MAX_NOTES, 0 );
 
