@@ -1103,7 +1103,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Mute instrument</source>
-        <translation>Rendre l'instrument muet</translation>
+        <translation>Rendre l&apos;instrument muet</translation>
     </message>
     <message>
         <source>Solo</source>
@@ -1625,7 +1625,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Undo history</source>
-        <translation>Historique d'annulation</translation>
+        <translation>Historique d&apos;annulation</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -1642,7 +1642,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Input mode</source>
-        <translation>Mode d'entrée</translation>
+        <translation>Mode d&apos;entrée</translation>
     </message>
     <message>
         <source>Instrument</source>
@@ -2327,7 +2327,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>No song selected!</source>
-        <translation>Auncun morceau sélectionné !</translation>
+        <translation>Aucun morceau sélectionné !</translation>
     </message>
     <message>
         <source>Playlist: set song no. %1</source>
