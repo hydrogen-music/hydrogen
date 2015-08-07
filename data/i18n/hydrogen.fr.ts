@@ -818,7 +818,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Templates: </source>
-        <translation>Format:</translation>
+        <translation>Format :</translation>
     </message>
     <message>
         <source>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</source>
@@ -962,7 +962,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Saving of this drumkit failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>La sauvegarde de ce kit de batterie à échouée</translation>
     </message>
 </context>
 <context>
@@ -973,15 +973,15 @@ Are you sure?</source>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Éditeur de morceau</translation>
+        <translation>Éditeur de morceau</translation>
     </message>
     <message>
         <source>Instrument + Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Instrument + Motif</translation>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Mixage</translation>
+        <translation>Mixeur</translation>
     </message>
 </context>
 <context>
@@ -1103,11 +1103,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Mute instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Rendre l'instrument muet</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Solo</translation>
+        <translation>Solo</translation>
     </message>
 </context>
 <context>
@@ -1410,7 +1410,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Open &amp;Demo</source>
-        <translation>Ouvrir un &amp;demo</translation>
+        <translation>Ouvrir une &amp;démo</translation>
     </message>
     <message>
         <source>Open &amp;recent</source>
@@ -1625,36 +1625,36 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Undo history</source>
-        <translation type="unfinished"></translation>
+        <translation>Historique d'annulation</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>Annuler</translation>
         <extra-FILE>menu</extra-FILE>
     </message>
     <message>
         <source>Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>Annuler</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation type="unfinished"></translation>
+        <translation>Refaire</translation>
     </message>
     <message>
         <source>Input mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode d'entrée</translation>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished">Instrument</translation>
+        <translation>Instrument</translation>
     </message>
     <message>
         <source>Drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>Kit de batterie</translation>
     </message>
     <message>
         <source>Report bug</source>
-        <translation type="unfinished"></translation>
+        <translation>Rapporter un bogue</translation>
     </message>
 </context>
 <context>
@@ -1961,18 +1961,18 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Pattern description</source>
-        <translation type="unfinished"></translation>
+        <translation>Description du motif</translation>
     </message>
 </context>
 <context>
     <name>PianoRollEditor</name>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">Velocite</translation>
+        <translation>Vélocité</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Pan</translation>
+        <translation>Panoramique</translation>
     </message>
     <message>
         <source>Lead and Lag</source>
@@ -2327,7 +2327,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>No song selected!</source>
-        <translation>Auncun morceau sélectionné!</translation>
+        <translation>Auncun morceau sélectionné !</translation>
     </message>
     <message>
         <source>Playlist: set song no. %1</source>
@@ -2339,7 +2339,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>&amp;New Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Nouvelle liste de lecture</translation>
     </message>
 </context>
 <context>
@@ -3278,7 +3278,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Export Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter le motif</translation>
     </message>
 </context>
 <context>
@@ -3335,7 +3335,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Répertoire</translation>
     </message>
 </context>
 <context>
@@ -3624,7 +3624,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Saving of this drumkit failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>La sauvegarde de ce kit de batterie a échouée</translation>
     </message>
 </context>
 <context>
