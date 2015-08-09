@@ -613,6 +613,25 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>ComponentMixerLine</name>
+    <message>
+        <source>Mute</source>
+        <translation type="unfinished">Утишај</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation type="unfinished">Соло</translation>
+    </message>
+    <message>
+        <source>Component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument volume [%1]</source>
+        <translation type="unfinished">Поставите гласнођу инструмента [%1]</translation>
+    </message>
+</context>
+<context>
     <name>Director</name>
     <message>
         <source>Director</source>
@@ -905,6 +924,10 @@ Overwrite the existing file?</source>
         <source>Rubberband Batch</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>88200</source>
+        <translation type="unfinished">88200</translation>
+    </message>
 </context>
 <context>
     <name>FileBrowser</name>
@@ -1053,11 +1076,23 @@ Are you sure?</source>
         <translation>Слојеви</translation>
     </message>
     <message>
-        <source>Auto-Stop-Note</source>
+        <source>Stop the current playing instrument-note before trigger the next note sample.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Stop the current playing instrument-note before trigger the next note sample.</source>
+        <source>Set the instrument as part of a hihat set.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bank volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component name</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1702,6 +1737,17 @@ Do you want to save the changes?
     </message>
 </context>
 <context>
+    <name>MidiSenseWidget</name>
+    <message>
+        <source>This element is not midi operable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Waiting for midi input...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MidiTable</name>
     <message>
         <source>Event</source>
@@ -1776,6 +1822,27 @@ Do you want to save the changes?
     <message>
         <source>Set instr. pan [%1]</source>
         <translation>Распоред инстр. — пан. [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>PatternEditorInstrumentList</name>
+    <message>
+        <source>
+Would you like to merge or add the banks?
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Merge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished">&amp;Поништи</translation>
     </message>
 </context>
 <context>
@@ -2437,6 +2504,26 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>&lt;b&gt;PulseAudio Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;ПулсеАудио посредник&lt;/b&gt;&lt;br&gt;</translation>
     </message>
+    <message>
+        <source>Automatic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fixed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of steps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color (Hue value)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -2527,10 +2614,6 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Mixer font</source>
         <translation>Фонт миксете</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;After a font change the application must be restarted.&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Промене фонта су видљиве по поновном покретању програма.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Style</source>
@@ -2743,6 +2826,18 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>Tabbed</source>
         <translation>у посебним језичцима</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Coloring method for Song Editor elements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3154,10 +3249,6 @@ Are you sure?</source>
     <message>
         <source>single pattern mode</source>
         <translation>Режим једне мустре</translation>
-    </message>
-    <message>
-        <source>not_categorized</source>
-        <translation>не_сврстано</translation>
     </message>
     <message>
         <source>Pattern %1</source>
