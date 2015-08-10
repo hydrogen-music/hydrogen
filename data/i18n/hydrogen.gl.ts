@@ -613,6 +613,25 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>ComponentMixerLine</name>
+    <message>
+        <source>Mute</source>
+        <translation type="unfinished">Silencio</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation type="unfinished">Solo</translation>
+    </message>
+    <message>
+        <source>Component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument volume [%1]</source>
+        <translation type="unfinished">Estabelecer o volume do instrumento [%1]</translation>
+    </message>
+</context>
+<context>
     <name>Director</name>
     <message>
         <source>Director</source>
@@ -905,6 +924,10 @@ Sobrescribir o ficheiro existente?</translation>
         <source>Rubberband Batch</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>88200</source>
+        <translation type="unfinished">88200</translation>
+    </message>
 </context>
 <context>
     <name>FileBrowser</name>
@@ -1053,12 +1076,24 @@ Está seguro?</translation>
         <translation>Capas</translation>
     </message>
     <message>
-        <source>Auto-Stop-Note</source>
-        <translation>Nota de parada automática</translation>
-    </message>
-    <message>
         <source>Stop the current playing instrument-note before trigger the next note sample.</source>
         <translation>Deteña a nota do instrumento actual antes de disparar a seguinte nota da mostra.</translation>
+    </message>
+    <message>
+        <source>Set the instrument as part of a hihat set.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bank volume</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component name</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1707,6 +1742,17 @@ Quere gardar os cambios?
     </message>
 </context>
 <context>
+    <name>MidiSenseWidget</name>
+    <message>
+        <source>This element is not midi operable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Waiting for midi input...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MidiTable</name>
     <message>
         <source>Event</source>
@@ -1781,6 +1827,27 @@ Quere gardar os cambios?
     <message>
         <source>Set instr. pan [%1]</source>
         <translation>Estabelecer o panorama do instrumento [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>PatternEditorInstrumentList</name>
+    <message>
+        <source>
+Would you like to merge or add the banks?
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Merge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2442,6 +2509,26 @@ A ruta ao script e o nome do script non pode conter espazos en branco.</translat
         <source>&lt;b&gt;PulseAudio Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Controlador PulseAudio &lt;/b&gt;&lt;br&gt;</translation>
     </message>
+    <message>
+        <source>Automatic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fixed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of steps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color (Hue value)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -2500,10 +2587,6 @@ A ruta ao script e o nome do script non pode conter espazos en branco.</translat
     <message>
         <source>Mixer font</source>
         <translation>Tipo de letra para o mesturador</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;After a font change the application must be restarted.&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Reiniciar o aplicativo para usar o nuevo tipo de letra.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Style</source>
@@ -2748,6 +2831,18 @@ A ruta ao script e o nome do script non pode conter espazos en branco.</translat
     <message>
         <source>Tabbed</source>
         <translation>En páxinas</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Coloring method for Song Editor elements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3172,10 +3267,6 @@ Está seguro?</translation>
     <message>
         <source>single pattern mode</source>
         <translation>modo de patrón único</translation>
-    </message>
-    <message>
-        <source>not_categorized</source>
-        <translation>sen categoría</translation>
     </message>
     <message>
         <source>Pattern %1</source>
