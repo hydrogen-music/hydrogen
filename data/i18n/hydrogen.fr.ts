@@ -616,19 +616,19 @@ p, li { white-space: pre-wrap; }
     <name>ComponentMixerLine</name>
     <message>
         <source>Mute</source>
-        <translation type="unfinished">Muet</translation>
+        <translation>Muet</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Solo</translation>
+        <translation>Solo</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom du composant</translation>
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
-        <translation type="unfinished">Régler le volume de l&apos;instrument [%1]</translation>
+        <translation>Régler le volume de l&apos;instrument [%1]</translation>
     </message>
 </context>
 <context>
@@ -881,7 +881,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Interpolation: </source>
-        <translation type="unfinished"></translation>
+        <translation>Interpolation :</translation>
     </message>
     <message>
         <source>Choose type of interpolation methode</source>
@@ -917,7 +917,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>88200</source>
-        <translation type="unfinished">88200</translation>
+        <translation>88200</translation>
     </message>
     <message>
         <source>Enable use of rubberband&apos;s batch processor</source>
@@ -1083,15 +1083,15 @@ Are you sure?</source>
     </message>
     <message>
         <source>Bank volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Volume de la banque</translation>
     </message>
     <message>
         <source>New component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom du nouveau composant</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom du composant</translation>
     </message>
 </context>
 <context>
@@ -1146,19 +1146,19 @@ Are you sure?</source>
     </message>
     <message>
         <source>Copy notes ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Copier les notes...</translation>
     </message>
     <message>
         <source>Only for this pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Seulement pour ce motif</translation>
     </message>
     <message>
         <source>For all patterns</source>
-        <translation type="unfinished"></translation>
+        <translation>Pour tous les motifs</translation>
     </message>
     <message>
         <source>Paste notes ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Coller les notes...</translation>
     </message>
 </context>
 <context>
@@ -1743,11 +1743,11 @@ Voulez-vous sauvegarder les changements?
     <name>MidiSenseWidget</name>
     <message>
         <source>This element is not midi operable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cet élément n&apos;est pas opérable par MIDI</translation>
     </message>
     <message>
         <source>Waiting for midi input...</source>
-        <translation type="unfinished"></translation>
+        <translation>Attente d&apos;une entrée MIDI</translation>
     </message>
 </context>
 <context>
@@ -1830,22 +1830,20 @@ Voulez-vous sauvegarder les changements?
 <context>
     <name>PatternEditorInstrumentList</name>
     <message>
-        <source>
-Would you like to merge or add the banks?
-</source>
-        <translation type="unfinished"></translation>
+        <source>Would you like to merge or add the banks?</source>
+        <translation>Voulez-vous fusionner ou ajouter les banques ?</translation>
     </message>
     <message>
         <source>&amp;Merge</source>
-        <translation type="unfinished"></translation>
+        <translation>Fusionner</translation>
     </message>
     <message>
         <source>&amp;Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Annuler</translation>
     </message>
 </context>
 <context>
@@ -2422,11 +2420,11 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>File not found: </source>
-        <translation type="unfinished"></translation>
+        <translation>Fichier non-trouvé :</translation>
     </message>
     <message>
         <source>No valid song selected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Pas de morceau valide séléctionné !</translation>
     </message>
 </context>
 <context>
@@ -3650,16 +3648,17 @@ To delete this drumkit first load another drumkit.</source>
     </message>
     <message>
         <source>&quot;%1&quot;is a system drumkit and can&apos;t be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot;est un kit système et ne peut pas être effacé.</translation>
     </message>
     <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Attention, le kit &quot;%1&quot; va être effacé du disque.
+Êtes-vous certain ?</translation>
     </message>
     <message>
         <source>Drumkit deletion failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Échec de la suppression du kit.</translation>
     </message>
 </context>
 <context>
