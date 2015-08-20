@@ -28,8 +28,8 @@ build_hydrogen(){
 	if [ ! -e "$HYDROGEN_BUILD" ]; then
 		mkdir "$HYDROGEN/windows"
 	fi
-	echo "We will now build Hydrogen at $HYDROGEN_BUILD"
-	cd "$HYDROGEN_BUILD"
+	echo "We will now build Hydrogen at $HYDROGEN_BUILD/.."
+	cd "$HYDROGEN_BUILD/.."
 	if [ -e CMakeCache.txt ]; then
 		echo "Previous build detected. We will now remove the caches so the project will build properly."
 		rm -rf _CPack_Packages CMakeFiles try
@@ -73,8 +73,12 @@ build_hydrogen(){
 			rm -rf $HYDROGEN/mxe
 		fi
 	fi
-	ln -s $MXE/usr/$1-w64-mingw32.shared $HYDROGEN/mxe
-	ln -s $MXE/usr/lib/gcc $HYDROGEN/gcc
+	if [ ! -l $HODROGEN/mxe ]
+		ln -s $MXE/usr/$1-w64-mingw32.shared $HYDROGEN/mxe
+	fi
+	if [ ! -l $HYDROGEN/gcc ]
+		ln -s $MXE/usr/lib/gcc $HYDROGEN/gcc
+	fi
 	cpack -G NSIS
 }
 
