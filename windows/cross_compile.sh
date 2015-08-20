@@ -65,7 +65,8 @@ build_hydrogen(){
 		fi
 		cd ..
 	fi
-	cd $CLONEPATH
+	#cd $CLONEPATH
+	cd $HYDROGEN
 	echo $PWD
 	if [ -e $HYDROGEN/mxe ]; then
 		if [ ! -h $HYDROGEN/mxe ]; then
