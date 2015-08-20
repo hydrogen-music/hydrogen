@@ -40,7 +40,7 @@ build_hydrogen(){
 	export HYDROGEN
 	export HYDROGEN_BUILD
 	export MXE
-	cd ..
+	
 	if [ ! -e jack_installer ]; then
 		mkdir jack_installer
 	fi

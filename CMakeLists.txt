@@ -394,14 +394,14 @@ IF(MINGW)
     SET(GCC_BIN "gcc/i686-w64-mingw32.shared/5.1.0")
     INSTALL(FILES ${GCC_BIN}/libgcc_s_sjlj-1.dll ${GCC_BIN}/libstdc++-6.dll DESTINATION ./)
     #Include source package
-    INSTALL(DIRECTORY ../source DESTINATION ./ 
-	    PATTERN "mxe/*" EXCLUDE
-	    PATTERN "jack2/*" EXCLUDE
-	    PATTERN "gcc/*" EXCLUDE
-	    )
+    #INSTALL(DIRECTORY ../source DESTINATION ./ 
+#	    PATTERN "mxe/*" EXCLUDE
+#	    PATTERN "jack2/*" EXCLUDE
+#	    PATTERN "gcc/*" EXCLUDE
+#	    )
     
-    INSTALL(DIRECTORY ../jack_installer DESTINATION ./)
-    INSTALL(DIRECTORY ../plugins DESTINATION ./)
+    INSTALL(DIRECTORY windows/jack_installer DESTINATION ./)
+    INSTALL(DIRECTORY windows/plugins DESTINATION ./)
 
     SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.bmp")
     #Begin NSIS Customizations
