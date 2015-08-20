@@ -383,7 +383,7 @@ IF(MINGW)
     #Set the other files that will be used in CPack
     #Program Files for Hydrogen
     SET(WINDOWS_DIR "..")
-    INSTALL(FILES "src/cli/h2cli.exe" "src/core/libhydrogen-core-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dll" "src/gui/hydrogen.exe" "src/player/h2player.exe" "src/synth/h2synth.exe" DESTINATION ./)
+    INSTALL(FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/core/libhydrogen-core-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dll" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe" "${WINDOWS_DIR}/src/synth/h2synth.exe" DESTINATION ./)
     #DLL Files from the mxe /bin
     SET(MXE_BIN "mxe/bin")
     INSTALL(FILES ${MXE_BIN}/libsndfile-1.dll ${MXE_BIN}/libFLAC-8.dll ${MXE_BIN}/libogg-0.dll ${MXE_BIN}/libvorbis-0.dll ${MXE_BIN}/libvorbisenc-2.dll ${MXE_BIN}/zlib1.dll ${MXE_BIN}/libwinpthread-1.dll ${MXE_BIN}/libeay32.dll ${MXE_BIN}/ssleay32.dll ${MXE_BIN}/libarchive-13.dll ${MXE_BIN}/libbz2.dll ${MXE_BIN}/liblzma-5.dll ${MXE_BIN}/libnettle-4-6.dll ${MXE_BIN}/libxml2-2.dll ${MXE_BIN}/libpng16-16.dll ${MXE_BIN}/libportmidi.dll ${MXE_BIN}/libportaudio-2.dll ${MXE_BIN}/libiconv-2.dll ${MXE_BIN}/libiconv-2.dll ${MXE_BIN}/jack-0.dll DESTINATION ./)
@@ -400,8 +400,8 @@ IF(MINGW)
 	    PATTERN "gcc/*" EXCLUDE
 	    )
     
-    INSTALL(DIRECTORY jack_installer DESTINATION ./)
-    INSTALL(DIRECTORY plugins DESTINATION ./)
+    INSTALL(DIRECTORY ../jack_installer DESTINATION ./)
+    INSTALL(DIRECTORY ../plugins DESTINATION ./)
 
     SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.bmp")
     #Begin NSIS Customizations
