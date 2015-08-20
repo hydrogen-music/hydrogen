@@ -396,7 +396,7 @@ IF(MINGW)
     #Include source package
     INSTALL(DIRECTORY ../source DESTINATION ./ 
 	    PATTERN "mxe/*" EXCLUDE
-	    PATTERN "jack2/*"EXCLUDE
+	    PATTERN "jack2/*" EXCLUDE
 	    PATTERN "gcc/*" EXCLUDE
 	    )
     
