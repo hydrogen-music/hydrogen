@@ -29,13 +29,13 @@ build_hydrogen(){
 		mkdir "$HYDROGEN/windows"
 	fi
 	echo "We will now build Hydrogen at $HYDROGEN_BUILD/.."
-	cd "$HYDROGEN_BUILD/.."
-	if [ -e CMakeCache.txt ]; then
+	cd "$HYDROGEN_BUILD"
+	if [ -e ../CMakeCache.txt ]; then
 		echo "Previous build detected. We will now remove the caches so the project will build properly."
 		rm -rf _CPack_Packages CMakeFiles try
 		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
 	fi
-	cmake source -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2
+	cmake ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2
 	export HYDROGEN
 	export HYDROGEN_BUILD
 	export MXE
@@ -73,10 +73,10 @@ build_hydrogen(){
 			rm -rf $HYDROGEN/mxe
 		fi
 	fi
-	if [ ! -l $HODROGEN/mxe ]
+	if [ ! -l $HODROGEN/mxe ]; then
 		ln -s $MXE/usr/$1-w64-mingw32.shared $HYDROGEN/mxe
 	fi
-	if [ ! -l $HYDROGEN/gcc ]
+	if [ ! -l $HYDROGEN/gcc ]; then
 		ln -s $MXE/usr/lib/gcc $HYDROGEN/gcc
 	fi
 	cpack -G NSIS
@@ -125,13 +125,13 @@ while :
 					mv ${CLONEPATH%/*}/../hydrogen.tmp ${CLONEPATH%/*}/source
 					echo "Hydrogen already downloaded to ${CLONEPATH%/*}."
 				fi
-				if [ ! -e ${CLONEPATH%/*}/source/jack2 ]; then
+			fi
+			if [ ! -e ${CLONEPATH%/*}/source/jack2 ]; then
 					cd ${CLONEPATH%/*}/source
 					echo "Now downloading jack."
 					git clone git://github.com/jackaudio/jack2.git
 					cd ..
 				fi
-			fi
 			;;
 		2)	#Set the required variables
 			build_hydrogen i686
