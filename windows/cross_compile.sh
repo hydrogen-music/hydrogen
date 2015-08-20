@@ -35,10 +35,12 @@ build_hydrogen(){
 		rm -rf _CPack_Packages CMakeFiles try
 		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
 	fi
+
 	cmake ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2
 	export HYDROGEN
 	export HYDROGEN_BUILD
 	export MXE
+	cd ..
 	if [ ! -e jack_installer ]; then
 		mkdir jack_installer
 	fi
