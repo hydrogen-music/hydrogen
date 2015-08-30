@@ -124,8 +124,7 @@ while :
 				mkdir -p "${CLONEPATH%/*}"
 				cd "${CLONEPATH%/*}"
 				BUILD_DIR=$PWD
-				#git clone https://github.com/hydrogen-music/hydrogen.git
-				git clone https://github.com/mikotoiii/hydrogen.git
+				git clone https://github.com/hydrogen-music/hydrogen.git
 
 			else 
 				if [ -f ${CLONEPATH%/*}/build.sh ]; then
