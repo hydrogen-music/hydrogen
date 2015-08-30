@@ -386,12 +386,12 @@ IF(MINGW)
     INSTALL(FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/core/libhydrogen-core-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dll" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe" "${WINDOWS_DIR}/src/synth/h2synth.exe" DESTINATION ./)
     #DLL Files from the mxe /bin
     SET(MXE_BIN "mxe/bin")
-    INSTALL(FILES ${MXE_BIN}/libsndfile-1.dll ${MXE_BIN}/libFLAC-8.dll ${MXE_BIN}/libogg-0.dll ${MXE_BIN}/libvorbis-0.dll ${MXE_BIN}/libvorbisenc-2.dll ${MXE_BIN}/zlib1.dll ${MXE_BIN}/libwinpthread-1.dll ${MXE_BIN}/libeay32.dll ${MXE_BIN}/ssleay32.dll ${MXE_BIN}/libarchive-13.dll ${MXE_BIN}/libbz2.dll ${MXE_BIN}/liblzma-5.dll ${MXE_BIN}/libnettle-4-6.dll ${MXE_BIN}/libxml2-2.dll ${MXE_BIN}/libpng16-16.dll ${MXE_BIN}/libportmidi.dll ${MXE_BIN}/libportaudio-2.dll ${MXE_BIN}/libiconv-2.dll ${MXE_BIN}/libiconv-2.dll ${MXE_BIN}/jack-0.dll DESTINATION ./)
+	INSTALL(FILES ${MXE_BIN}/libgnurx-0.dll ${MXE_BIN}/libsndfile-1.dll ${MXE_BIN}/libFLAC-8.dll ${MXE_BIN}/libogg-0.dll ${MXE_BIN}/libvorbis-0.dll ${MXE_BIN}/libvorbisenc-2.dll ${MXE_BIN}/zlib1.dll ${MXE_BIN}/libwinpthread-1.dll ${MXE_BIN}/libeay32.dll ${MXE_BIN}/ssleay32.dll ${MXE_BIN}/libarchive-13.dll ${MXE_BIN}/libbz2.dll ${MXE_BIN}/liblzma-5.dll ${MXE_BIN}/libnettle-6-0.dll ${MXE_BIN}/libxml2-2.dll ${MXE_BIN}/libpng16-16.dll ${MXE_BIN}/libportmidi.dll ${MXE_BIN}/libportaudio-2.dll ${MXE_BIN}/libiconv-2.dll ${MXE_BIN}/libiconv-2.dll ${MXE_BIN}/jack-0.dll DESTINATION ./)
     #DLL Files for QT
     SET(QT_BIN "mxe/qt/bin")
     INSTALL(FILES ${QT_BIN}/QtCore4.dll ${QT_BIN}/QtXml4.dll ${QT_BIN}/QtXmlPatterns4.dll ${QT_BIN}/QtNetwork4.dll ${QT_BIN}/QtGui4.dll DESTINATION ./)
     #DLL Files for gcc and libc6
-    SET(GCC_BIN "gcc/i686-w64-mingw32.shared/5.1.0")
+    SET(GCC_BIN "gcc/i686-w64-mingw32.shared/5.2.0")
     INSTALL(FILES ${GCC_BIN}/libgcc_s_sjlj-1.dll ${GCC_BIN}/libstdc++-6.dll DESTINATION ./)
     #Include source package
     #INSTALL(DIRECTORY ../source DESTINATION ./ 

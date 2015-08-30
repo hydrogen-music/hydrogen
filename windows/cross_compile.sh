@@ -8,9 +8,16 @@ build_hydrogen(){
 	# Passes either i686 or x86_64 for 32 or 64 bit respectively.
 	echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
 	if [ -z ${CLONEPATH%/*} ]; then
-		read -e -p "Enter the path to the Hydrogen download: " -i "$HOME/build/hydrogen/" CLONEPATH
+		read -e -p "Enter the path to the Hydrogen download (with a trailing /): " -i "$HOME/build/hydrogen/" CLONEPATH
 	fi
-	HYDROGEN="${CLONEPATH%/*}/source"
+
+	HYDROGEN="${CLONEPATH}"
+	if [ ! -d $HYDROGEN ]; then
+		echo "Hydrogen source not found in $HYDROGEN."
+		exit
+	fi
+
+
 	echo "Checking for MXE."
 	if [ -d /opt/mxe ]; then
 		if [ -f /opt/mxe/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake ] || [ -f /opt/mxe/usr/x86_64-w64-mingw32.shared/share/cmake/mxe-conf.cmake ]; then
@@ -117,8 +124,7 @@ while :
 				mkdir -p "${CLONEPATH%/*}"
 				cd "${CLONEPATH%/*}"
 				BUILD_DIR=$PWD
-				#git clone https://github.com/hydrogen-music/hydrogen.git
-				git clone https://github.com/mikotoiii/hydrogen.git
+				git clone https://github.com/hydrogen-music/hydrogen.git
 
 			else 
 				if [ -f ${CLONEPATH%/*}/build.sh ]; then
