@@ -83,6 +83,8 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "Greg Bonik","gregory@bonik.org","pulseaudio coding" ) );
 	authorList.push_back( Author( "Jakob Lund", "jlund05@imada.sdu.dk", "coding" ) );
 	authorList.push_back( Author( "Jason Schaefer", "schaefer.jason@gmail.com", "patches, lead/lag feature" ) );
+	authorList.push_back( Author( "James Stone", "", "Bugfixes" ) );
+	authorList.push_back( Author( "Jay Alexander Fleming", "", "Serbian translation" ) );
 	authorList.push_back( Author( "Jesse Chappel", "", "JACK patches" ) );
 	authorList.push_back( Author( "J&#233;r&#233;my Zurcher", "", "coding") ); 
 	authorList.push_back( Author( "Jonas Melzer", "", "German manual" ) );
@@ -102,6 +104,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "Sebastian Moors (aka mauser)", "mauser@smoors.de", "coding" ) );
 	authorList.push_back( Author( "Sergio Gil Perez de la Manga", "", "Spanish translation" ) );
 	authorList.push_back( Author( "Simon Donike", "", "German translation" ) );
+	authorList.push_back( Author( "Steve Boyer", "", "Windows cross compilation scripts" ) );
 	authorList.push_back( Author( "Thijs Van Severen", "http://audio-and-linux.blogspot.be/", "manual, website, coding" ) ); 
 	authorList.push_back( Author( "Torben Hohn", "", "bugfixing, test" ) );
 	authorList.push_back( Author( "Yamasaki Yutaka", "yamasaki@good-day.co.jp", "Japanese translation" ) );
@@ -111,7 +114,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	QString sAuthors;
 	sAuthors += tr( "<b>Main coder and mantainer:</b><br>" );
 	sAuthors += "<ul><li><p>Alessandro Cominu (aka Comix) [2001-2008]</li>";
-	sAuthors += "<li><p>Michael Wolkstein (aka Wolke) [2008-now]</li>";
+	sAuthors += "<li><p>Michael Wolkstein (aka Wolke) [2008-2014]</li>";
 	sAuthors += "<li><p>Sebastian Moors (aka Mauser) [2008-now]</li></ul>";
 
 	sAuthors += "<b>Thanks to:</b>";
