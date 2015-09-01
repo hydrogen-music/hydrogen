@@ -549,7 +549,6 @@ int Sampler::__render_note_no_resample(
 	int nInitialSamplePos = ( int )pSelectedLayerInfo->SamplePosition;
 	int nSamplePos = nInitialSamplePos;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
-	int nInstrument = pSong->get_instrument_list()->index( pNote->get_instrument() );
 
 	float *pSample_data_L = pSample->get_data_l();
 	float *pSample_data_R = pSample->get_data_r();
@@ -561,14 +560,6 @@ int Sampler::__render_note_no_resample(
 	float fVal_L;
 	float fVal_R;
 
-	/*
-	 * nInstrument could be -1 if the instrument is not found in the current drumset.
-	 * This happens when someone is using the prelistening function of the soundlibrary.
-	 */
-
-	if( nInstrument < 0 ) {
-		nInstrument = 0;
-	}
 
 #ifdef H2CORE_HAVE_JACK
 	JackOutput* pJackOutput = 0;
@@ -644,8 +635,6 @@ int Sampler::__render_note_no_resample(
 			float *pBuf_L = pFX->m_pBuffer_L;
 			float *pBuf_R = pFX->m_pBuffer_R;
 
-//			float fFXCost_L = cost_L * fLevel;
-//			float fFXCost_R = cost_R * fLevel;
 			float fFXCost_L = fLevel * masterVol;
 			float fFXCost_R = fLevel * masterVol;
 
@@ -712,7 +701,6 @@ int Sampler::__render_note_resample(
 	//float fInitialSamplePos = pNote->get_sample_position( pCompo->get_drumkit_componentID() );
 	double fSamplePos = pSelectedLayerInfo->SamplePosition;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
-	int nInstrument = pSong->get_instrument_list()->index( pNote->get_instrument() );
 
 	float *pSample_data_L = pSample->get_data_l();
 	float *pSample_data_R = pSample->get_data_r();
@@ -725,14 +713,6 @@ int Sampler::__render_note_resample(
 	float fVal_R;
 	int nSampleFrames = pSample->get_frames();
 
-	/*
-	 * nInstrument could be -1 if the instrument is not found in the current drumset.
-	 * This happens when someone is using the prelistening function of the soundlibrary.
-	 */
-
-	if( nInstrument < 0 ) {
-		nInstrument = 0;
-	}
 
 #ifdef H2CORE_HAVE_JACK
 	JackOutput* pJackOutput = 0;
