@@ -59,6 +59,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "Antonio Piraino (aka Journeyman)", "http://www.storiepvtride.it", "Italian manual" ) );
 	authorList.push_back( Author( "Artemiy Pavlov (aka Artemio)", "www.artemiolabs.com", "drum kits, demo patterns, web site" ) );
 	authorList.push_back( Author( "Alexandre Prokoudine", "", "Russian translation" ) );
+	authorList.push_back( Author( "Aur&#233;lien Leblond", "", "coding, bug fixes" ) );
 	authorList.push_back( Author( "Ben Powers", "", "docs" ) );
 	authorList.push_back( Author( "Benjamin Flaming", "", "JACK patches, bug fix" ) );
 	authorList.push_back( Author( "Carlo Impagliazzo (aka Truijllo)", "", "testing, ideas.." ) );
