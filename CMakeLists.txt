@@ -402,6 +402,19 @@ IF(MINGW)
 
     SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.bmp")
     #Begin NSIS Customizations
+    # Installers for 32- vs. 64-bit CMake:
+    #  - Root install directory (displayed to end user at installer-run time)
+    #  - "NSIS package/display name" (text used in the installer GUI)
+    #  - Registry key used to store info about the installation
+    IF(CMAKE_CL_64)
+      SET(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
+      SET(CPACK_NSIS_PACKAGE_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY} (Win64)")
+      SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION} (Win64)")
+    ELSE()
+      SET(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
+      SET(CPACK_NSIS_PACKAGE_NAME "${CPACK_PACKAGE_INSTALL_DIRECTORY}")
+      SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION}")
+    ENDIF()
     #Need the 2 following lines for the icon to work
     SET(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.ico")
     SET(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.ico")
