@@ -106,6 +106,7 @@ while :
 	echo " 1: Clone required repositories"
 	echo " 2: Build Hydrogen 32Bit"
 	echo " 3: Build Hydrogen 64Bit"
+	echo " 4: Clean Cmake and CPack Cache Files"
 	echo " q: Exit"
 
 	# Clear the error message
@@ -147,6 +148,12 @@ while :
 		3)	#64 Bit Compiling
 			build_hydrogen x86_64 -DCMAKE_{C,CXX}_FLAGS=-m64 -DWIN64:BOOL=ON
 			;;
+		4)	#Clean CMake Files
+			cd $HYDROGEN_BUILD
+			rm -r CMakeCache.txt CMakeFiles cmake_install.cmake CPackConfig.cmake _CPack_Packages CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile src try uninstall.cmake
+			rm ../mxe ../gcc
+			;;
+
 		q)	echo "Thank you for using the Hydrogen Cross Compiler. Goodbye."
 			exit
 			;;
