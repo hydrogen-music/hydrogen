@@ -43,7 +43,7 @@ build_hydrogen(){
 		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
 	fi
 
-	cmake ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2
+	cmake $4 ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2 $3
 	export HYDROGEN
 	export HYDROGEN_BUILD
 	export MXE
@@ -82,7 +82,7 @@ build_hydrogen(){
 			rm -rf $HYDROGEN/mxe
 		fi
 	fi
-	if [ ! -e $HODROGEN/mxe ]; then
+	if [ ! -e $HYDROGEN/mxe ]; then
 		ln -s $MXE/usr/$1-w64-mingw32.shared $HYDROGEN/mxe
 	fi
 	if [ ! -e $HYDROGEN/gcc ]; then
@@ -104,8 +104,8 @@ while :
 	echo "Welcome to the Hydrogen Cross Compiler. We will now compile Hydrogen for Windows."
 	echo "Select an option:"
 	echo " 1: Clone required repositories"
-	echo " 2: Build Hydrogen"
-	echo " 3: Experimental 64 Bit Compiling"
+	echo " 2: Build Hydrogen 32Bit"
+	echo " 3: Build Hydrogen 64Bit"
 	echo " q: Exit"
 
 	# Clear the error message
@@ -141,11 +141,11 @@ while :
 					cd ..
 				fi
 			;;
-		2)	#Set the required variables
+		2)	#32 Bit Compiling
 			build_hydrogen i686
 			;;
-		3)	#Experimental 64 Bit Compiling
-			build_hydrogen x86_64 -DCMAKE_{C,CXX}_FLAGS=-m64
+		3)	#64 Bit Compiling
+			build_hydrogen x86_64 -DCMAKE_{C,CXX}_FLAGS=-m64 -DWIN64:BOOL=ON
 			;;
 		q)	echo "Thank you for using the Hydrogen Cross Compiler. Goodbye."
 			exit
