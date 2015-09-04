@@ -441,22 +441,12 @@ float* JackOutput::getTrackOut_R( unsigned nTrack )
 
 float* JackOutput::getTrackOut_L( Instrument * instr, InstrumentComponent * pCompo)
 {
-	map<string,int>::iterator it = track_map.find(instr->get_id()+"_"+pCompo->get_drumkit_componentID());
-	if(it != track_map.end())
-		return getTrackOut_L(it->second);
-
-	jack_default_audio_sample_t* out = 0;
-	return out;
+	return getTrackOut_L(track_map[instr->get_id()][pCompo->get_drumkit_componentID()]);
 }
 
 float* JackOutput::getTrackOut_R( Instrument * instr, InstrumentComponent * pCompo)
 {
-	map<string,int>::iterator it = track_map.find(instr->get_id()+"_"+pCompo->get_drumkit_componentID());
-	if(it != track_map.end())
-		return getTrackOut_R(it->second);
-
-	jack_default_audio_sample_t* out = 0;
-	return out;
+	return getTrackOut_R(track_map[instr->get_id()][pCompo->get_drumkit_componentID()]);
 }
 
 
@@ -653,14 +643,19 @@ void JackOutput::makeTrackOutputs( Song * song )
 	WARNINGLOG( QString( "Creating / renaming %1 ports" ).arg( nInstruments ) );
 
 	int p_trackCount = 0;
-	track_map.clear();
+
+	for( int i = 0 ; i < MAX_INSTRUMENTS ; i++ ){
+		for ( int j = 0 ; j < MAX_COMPONENTS ; j++ ){
+			track_map[i][j] = 0;
+		}
+	}
 
 	for ( int n = nInstruments - 1; n >= 0; n-- ) {
 		instr = instruments->get( n );
 		for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
 			InstrumentComponent* pCompo = *it;
 			setTrackOutput( p_trackCount, instr , pCompo, song);
-			track_map[instr->get_id() + "_" + pCompo->get_drumkit_componentID()] = p_trackCount;
+			track_map[instr->get_id()][pCompo->get_drumkit_componentID()] = p_trackCount;
 			p_trackCount++;
 		}
 	}
