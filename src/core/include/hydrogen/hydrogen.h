@@ -34,6 +34,7 @@
 #include <hydrogen/IO/MidiOutput.h>
 #include <hydrogen/basics/drumkit.h>
 #include <cassert>
+#include <hydrogen/timehelper.h>
 
 // Engine states  (It's ok to use ==, <, and > when testing)
 #define STATE_UNINITIALIZED	1     // Not even the constructors have been called.
