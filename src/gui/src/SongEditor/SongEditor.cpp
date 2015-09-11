@@ -1472,7 +1472,7 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	//~save pattern end
 
 	H2Core::Pattern *pattern = pSongPatternList->get( patternPosition );
-	INFOLOG( QString("[patternPopup_delete] Delete pattern: %1 @%2").arg(pattern->get_name()).arg( (long)pattern ) );
+	INFOLOG( QString("[patternPopup_delete] Delete pattern: %1 @%2").arg(pattern->get_name()).arg( (long long)pattern ) );
 	pSongPatternList->del(pattern);
 
 	vector<PatternList*> *patternGroupVect = song->get_pattern_group_vector();
