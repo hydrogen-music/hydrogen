@@ -20,13 +20,15 @@
  *
  */
 
-#include <hydrogen/basics/sample.h>
+
 
 #include <limits>
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/basics/sample.h>
+
 #ifdef H2CORE_HAVE_RUBBERBAND
 #include <rubberband/RubberBandStretcher.h>
 #define RUBBERBAND_BUFFER_OVERSIZE  500
@@ -89,6 +91,14 @@ Sample::~Sample()
 	if( __data_l!=0 ) delete[] __data_l;
 	if( __data_r!=0 ) delete[] __data_r;
 }
+
+void Sample::set_filename( const QString& filename )
+{
+	QFileInfo Filename = QFileInfo( filename );
+	QFileInfo Dest = QFileInfo( __filepath );
+	__filepath = QDir(Dest.absolutePath()).filePath( Filename.fileName() );
+}
+
 
 Sample* Sample::load( const QString& filepath )
 {

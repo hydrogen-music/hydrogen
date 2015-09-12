@@ -924,7 +924,7 @@ bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
 		return FALSE; // standard event processing
 	}
 
-	return NULL;
+	return FALSE;
 }
 
 bool PlaylistDialog::loadListByFileName( QString filename )

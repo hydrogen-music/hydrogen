@@ -141,7 +141,7 @@ private:
 	jack_port_t *			output_port_2;
 	QString					output_port_name_1;
 	QString					output_port_name_2;
-	std::map<string,int> 	track_map;
+	int						track_map[MAX_INSTRUMENTS][MAX_COMPONENTS];
 	int						track_port_count;
 	jack_port_t *			track_output_ports_L[MAX_INSTRUMENTS];
 	jack_port_t *			track_output_ports_R[MAX_INSTRUMENTS];
