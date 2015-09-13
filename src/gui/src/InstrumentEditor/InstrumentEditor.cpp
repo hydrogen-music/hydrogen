@@ -999,6 +999,9 @@ void InstrumentEditor::selectLayer( int nLayer )
 			m_pLayerGainRotary->setValue( 1.0 );
 			m_pLayerGainLCD->setText( "" );
 
+			m_pCompoGainRotary->setValue( 1.0 );
+			m_pCompoGainLCD->setText( "" );
+
 			// Layer PITCH
 			m_pLayerPitchCoarseRotary->setValue( 0.0 );
 			m_pLayerPitchFineRotary->setValue( 0.0 );
@@ -1013,6 +1016,9 @@ void InstrumentEditor::selectLayer( int nLayer )
 		// Layer GAIN
 		m_pLayerGainRotary->setValue( 1.0 );
 		m_pLayerGainLCD->setText( "" );
+
+		m_pCompoGainRotary->setValue( 1.0 );
+		m_pCompoGainLCD->setText( "" );
 
 		// Layer PITCH
 		m_pLayerPitchCoarseRotary->setValue( 0.0 );
