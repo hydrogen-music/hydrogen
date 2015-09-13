@@ -196,6 +196,7 @@ bool Sample::apply_loops( const Loops& lo )
 		ERRORLOG( QString( "count %1 < 0 is not allowed" ).arg( lo.count ) );
 		return false;
 	}
+	//if( lo == __loops ) return true;
 
 	bool full_loop = lo.start_frame==lo.loop_frame;
 	int full_length =  lo.end_frame - lo.start_frame;

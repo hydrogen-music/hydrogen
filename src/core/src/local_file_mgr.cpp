@@ -1294,6 +1294,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 		LocalFileMng::writeXmlString( instrumentNode, "pan_L", QString("%1").arg( instr->get_pan_l() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "pan_R", QString("%1").arg( instr->get_pan_r() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "gain", QString("%1").arg( instr->get_gain() ) );
+		LocalFileMng::writeXmlBool( instrumentNode, "ignoreVelocity", instr->get_ignore_velocity() );
 
 		LocalFileMng::writeXmlBool( instrumentNode, "filterActive", instr->is_filter_active() );
 		LocalFileMng::writeXmlString( instrumentNode, "filterCutoff", QString("%1").arg( instr->get_filter_cutoff() ) );
@@ -1314,6 +1315,18 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 		LocalFileMng::writeXmlString( instrumentNode, "muteGroup", QString("%1").arg( instr->get_mute_group() ) );
 		LocalFileMng::writeXmlBool( instrumentNode, "isStopNote", instr->is_stop_notes() );
+		//LocalFileMng::writeXmlBool( instrumentNode, "isRoundRobin", instr->is_round_robin() );
+		switch ( instr->sample_selection_alg() ) {
+			case Instrument::VELOCITY:
+				LocalFileMng::writeXmlString( instrumentNode, "sampleSelectionAlgo", "VELOCITY" );
+				break;
+			case Instrument::RANDOM:
+				LocalFileMng::writeXmlString( instrumentNode, "sampleSelectionAlgo", "RANDOM" );
+				break;
+			case Instrument::ROUND_ROBIN:
+				LocalFileMng::writeXmlString( instrumentNode, "sampleSelectionAlgo", "ROUND_ROBIN" );
+				break;
+		}
 
 		LocalFileMng::writeXmlString( instrumentNode, "midiOutChannel", QString("%1").arg( instr->get_midi_out_channel() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "midiOutNote", QString("%1").arg( instr->get_midi_out_note() ) );

@@ -74,6 +74,7 @@
             <xsd:element name="pan_R"            type="h2:psfloat"      default="1.0"/>
             <xsd:element name="randomPitchFactor" type="h2:psfloat"     default="0.0"/>
             <xsd:element name="gain"             type="xsd:float"       default="1.0"/>
+            <xsd:element name="ignoreVelocity"   type="h2:bool"         default="false"/>
             <xsd:element name="filterActive"     type="h2:bool"         default="false"/>
             <xsd:element name="filterCutoff"     type="h2:psfloat"      default="1.0"/>
             <xsd:element name="filterResonance"  type="h2:psfloat"      default="0.0"/>
@@ -85,6 +86,7 @@
             <xsd:element name="midiOutChannel"   type="xsd:integer"     default="-1" minOccurs="0"/>
             <xsd:element name="midiOutNote"      type="xsd:integer"     minOccurs="0"/>
             <xsd:element name="isStopNote"       type="h2:bool"         default="false" minOccurs="0"/>
+            <xsd:element name="sampleSelectionAlgo" type="xsd:string"   default="VELOCITY"/>
             <xsd:element name="isHihat"          type="h2:bool"         default="false"/>
             <xsd:element name="lower_cc"         type="xsd:integer"     default="0"/>
             <xsd:element name="higher_cc"        type="xsd:integer"     default="0"/>

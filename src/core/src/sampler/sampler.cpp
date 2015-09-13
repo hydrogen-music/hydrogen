@@ -22,6 +22,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <cstdlib>
 
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/JackOutput.h>
@@ -246,11 +247,14 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		return 1;
 	}
 
-	int nReturnValue = 0;
+	int p_returnValues [pInstr->get_components()->size()];
+	int p_returnValueIndex = 0;
+	int p_alreadySelectedLayer = -1;
 
 	for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it !=pInstr->get_components()->end(); ++it) {
-		InstrumentComponent *pCompo = *it;
-		DrumkitComponent* pMainCompo = 0;
+		p_returnValues[p_returnValueIndex] = 0;
+        InstrumentComponent *pCompo = *it;
+        DrumkitComponent* pMainCompo = pEngine->getSong()->get_component( pCompo->get_drumkit_componentID() );
 
 		if(		pInstr->is_preview_instrument()
 			||	pInstr->is_metronome_instrument()){
@@ -266,46 +270,152 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 
 		// scelgo il sample da usare in base alla velocity
 		Sample *pSample = NULL;
-		for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
-			InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
-			if ( pLayer == NULL ) continue;
+		SelectedLayerInfo *pSelectedLayer = pNote->get_layer_selected( pCompo->get_drumkit_componentID() );
 
-			if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
-				pSample = pLayer->get_sample();
-				fLayerGain = pLayer->get_gain();
-				fLayerPitch = pLayer->get_pitch();
-				break;
+		if ( !pSelectedLayer ) {
+			QString dummy = QString( "NULL Layer Informationfor instrument %1. Component: %2" ).arg( pInstr->get_name() ).arg( pCompo->get_drumkit_componentID() );
+			WARNINGLOG( dummy );
+			p_returnValues[p_returnValueIndex] = true;
+			continue;
+		}
+
+		if( pSelectedLayer->SelectedLayer != -1 ) {
+			InstrumentLayer *pLayer = pCompo->get_layer( pSelectedLayer->SelectedLayer );
+
+			pSample = pLayer->get_sample();
+			fLayerGain = pLayer->get_gain();
+			fLayerPitch = pLayer->get_pitch();
+		}
+		else {
+			switch ( pInstr->sample_selection_alg() ) {
+				case Instrument::VELOCITY:
+					for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
+						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+						if ( pLayer == NULL ) continue;
+
+						if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
+							pSelectedLayer->SelectedLayer = nLayer;
+
+							pSample = pLayer->get_sample();
+							fLayerGain = pLayer->get_gain();
+							fLayerPitch = pLayer->get_pitch();
+							break;
+						}
+					}
+					break;
+
+				case Instrument::RANDOM:
+					if( p_alreadySelectedLayer != -1 ) {
+						InstrumentLayer *pLayer = pCompo->get_layer( p_alreadySelectedLayer );
+						if ( pLayer != NULL ) {
+							pSelectedLayer->SelectedLayer = p_alreadySelectedLayer;
+
+							pSample = pLayer->get_sample();
+							fLayerGain = pLayer->get_gain();
+							fLayerPitch = pLayer->get_pitch();
+						}
+					}
+					if( pSample == NULL ) {
+						int __possibleIndex[MAX_LAYERS];
+						int p_foundSamples = 0;
+						for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
+							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+							if ( pLayer == NULL ) continue;
+
+							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
+								__possibleIndex[p_foundSamples] = nLayer;
+								p_foundSamples++;
+							}
+						}
+
+						if( p_foundSamples > 0 ) {
+							p_alreadySelectedLayer = __possibleIndex[rand() % p_foundSamples];
+							pSelectedLayer->SelectedLayer = p_alreadySelectedLayer;
+
+							InstrumentLayer *pLayer = pCompo->get_layer( p_alreadySelectedLayer );
+
+							pSample = pLayer->get_sample();
+							fLayerGain = pLayer->get_gain();
+							fLayerPitch = pLayer->get_pitch();
+						}
+					}
+					break;
+
+				case Instrument::ROUND_ROBIN:
+					if( p_alreadySelectedLayer != -1 ) {
+						InstrumentLayer *pLayer = pCompo->get_layer( p_alreadySelectedLayer );
+						if ( pLayer != NULL ) {
+							pSelectedLayer->SelectedLayer = p_alreadySelectedLayer;
+
+							pSample = pLayer->get_sample();
+							fLayerGain = pLayer->get_gain();
+							fLayerPitch = pLayer->get_pitch();
+						}
+					}
+					if( !pSample ) {
+						int __possibleIndex[MAX_LAYERS];
+						int p_foundSamples = 0;
+						float p_roundRobinID;
+						for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
+							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+							if ( pLayer == NULL ) continue;
+
+							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
+								__possibleIndex[p_foundSamples] = nLayer;
+								p_roundRobinID = pLayer->get_start_velocity();
+								p_foundSamples++;
+							}
+						}
+
+						if( p_foundSamples > 0 ) {
+							p_roundRobinID = pInstr->get_id() * 10 + p_roundRobinID;
+							int p_indexToUse = pSong->get_latest_round_robin(p_roundRobinID)+1;
+							if( p_indexToUse > p_foundSamples - 1)
+								p_indexToUse = 0;
+
+							pSong->set_latest_round_robin(p_roundRobinID, p_indexToUse);
+							p_alreadySelectedLayer = __possibleIndex[p_indexToUse];
+
+							pSelectedLayer->SelectedLayer = p_alreadySelectedLayer;
+
+							InstrumentLayer *pLayer = pCompo->get_layer( p_alreadySelectedLayer );
+							pSample = pLayer->get_sample();
+							fLayerGain = pLayer->get_gain();
+							fLayerPitch = pLayer->get_pitch();
+						}
+					}
+					break;
 			}
 		}
 		if ( !pSample ) {
 			QString dummy = QString( "NULL sample for instrument %1. Note velocity: %2" ).arg( pInstr->get_name() ).arg( pNote->get_velocity() );
 			WARNINGLOG( dummy );
-			nReturnValue = 1;
+			p_returnValues[p_returnValueIndex] = 1;
 			continue;
 		}
 
-		if ( pNote->get_sample_position( pCompo->get_drumkit_componentID() ) >= pSample->get_frames() ) {
-			WARNINGLOG( "sample position out of bounds. The layer has been resized during note play?" );
-			nReturnValue = 1;
-			continue;
-		}
+		if ( pSelectedLayer->SamplePosition >= pSample->get_frames() ) {
+            WARNINGLOG( "sample position out of bounds. The layer has been resized during note play?" );
+			p_returnValues[p_returnValueIndex] = 1;
+            continue;
+        }
 
-		int noteStartInFrames = ( int ) ( pNote->get_position() * audio_output->m_transport.m_nTickSize ) + pNote->get_humanize_delay();
+        int noteStartInFrames = ( int ) ( pNote->get_position() * audio_output->m_transport.m_nTickSize ) + pNote->get_humanize_delay();
 
-		int nInitialSilence = 0;
-		if ( noteStartInFrames > ( int ) nFramepos ) {	// scrivo silenzio prima dell'inizio della nota
-			nInitialSilence = noteStartInFrames - nFramepos;
-			int nFrames = nBufferSize - nInitialSilence;
-			if ( nFrames < 0 ) {
-				int noteStartInFramesNoHumanize = ( int )pNote->get_position() * audio_output->m_transport.m_nTickSize;
-				if ( noteStartInFramesNoHumanize > ( int )( nFramepos + nBufferSize ) ) {
-					// this note is not valid. it's in the future...let's skip it....
-					ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFramepos ).arg(noteStartInFramesNoHumanize ) );
+        int nInitialSilence = 0;
+        if ( noteStartInFrames > ( int ) nFramepos ) {	// scrivo silenzio prima dell'inizio della nota
+            nInitialSilence = noteStartInFrames - nFramepos;
+            int nFrames = nBufferSize - nInitialSilence;
+            if ( nFrames < 0 ) {
+                int noteStartInFramesNoHumanize = ( int )pNote->get_position() * audio_output->m_transport.m_nTickSize;
+                if ( noteStartInFramesNoHumanize > ( int )( nFramepos + nBufferSize ) ) {
+                    // this note is not valid. it's in the future...let's skip it....
+                    ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFramepos ).arg(noteStartInFramesNoHumanize ) );
 					//pNote->dumpInfo();
-					nReturnValue = 1;
-					continue;
-				}
-				// delay note execution
+					p_returnValues[p_returnValueIndex] = 1;
+                    continue;
+                }
+                // delay note execution
 				//INFOLOG( "Delaying note execution. noteStartInFrames: " + to_string( noteStartInFrames ) + ", nFramePos: " + to_string( nFramepos ) );
 				//return 0;
 				continue;
@@ -329,79 +439,82 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 			}
 
 		} else {	// Precompute some values...
-			cost_L = cost_L * pNote->get_velocity();		// note velocity
-			cost_L = cost_L * pNote->get_pan_l();		// note pan
-			cost_L = cost_L * fLayerGain;				// layer gain
-			cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
-			cost_L = cost_L * pInstr->get_gain();		// instrument gain
+			if ( !pInstr->get_ignore_velocity() ) {
+				cost_L = cost_L * pNote->get_velocity();		// note velocity
+				cost_R = cost_R * pNote->get_velocity();		// note velocity
+			}            
+            cost_L = cost_L * pNote->get_pan_l();		// note pan
+            cost_L = cost_L * fLayerGain;				// layer gain
+            cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
+            cost_L = cost_L * pInstr->get_gain();		// instrument gain
 
-			cost_L = cost_L * pCompo->get_gain();       // Component gain
-			cost_L = cost_L * pMainCompo->get_volume(); // Component volument
+            cost_L = cost_L * pCompo->get_gain();       // Component gain
+            cost_L = cost_L * pMainCompo->get_volume(); // Component volument
 
-			cost_L = cost_L * pInstr->get_volume();		// instrument volume
-			if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
-				// Post-Fader
-				cost_track_L = cost_L * 2;
-			}
-			cost_L = cost_L * pSong->get_volume();	// song volume
-			cost_L = cost_L * 2; // max pan is 0.5
+            cost_L = cost_L * pInstr->get_volume();		// instrument volume
+            if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
+                // Post-Fader
+                cost_track_L = cost_L * 2;
+            }
+            cost_L = cost_L * pSong->get_volume();	// song volume
+            cost_L = cost_L * 2; // max pan is 0.5
 
 
-			cost_R = cost_R * pNote->get_velocity();		// note velocity
 			cost_R = cost_R * pNote->get_pan_r();		// note pan
-			cost_R = cost_R * fLayerGain;				// layer gain
-			cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
-			cost_R = cost_R * pInstr->get_gain();		// instrument gain
+            cost_R = cost_R * fLayerGain;				// layer gain
+            cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
+            cost_R = cost_R * pInstr->get_gain();		// instrument gain
 
-			cost_R = cost_R * pCompo->get_gain();       // Component gain
-			cost_R = cost_R * pMainCompo->get_volume(); // Component volument
+            cost_R = cost_R * pCompo->get_gain();       // Component gain
+            cost_R = cost_R * pMainCompo->get_volume(); // Component volument
 
-			cost_R = cost_R * pInstr->get_volume();		// instrument volume
-			if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
-				// Post-Fader
-				cost_track_R = cost_R * 2;
-			}
-			cost_R = cost_R * pSong->get_volume();	// song pan
-			cost_R = cost_R * 2; // max pan is 0.5
-		}
+            cost_R = cost_R * pInstr->get_volume();		// instrument volume
+            if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
+            // Post-Fader
+                cost_track_R = cost_R * 2;
+            }
+            cost_R = cost_R * pSong->get_volume();	// song pan
+            cost_R = cost_R * 2; // max pan is 0.5
+        }
 
-		// direct track outputs only use velocity
-		if ( Preferences::get_instance()->m_nJackTrackOutputMode == 1 ) {
-			cost_track_L = cost_track_L * pNote->get_velocity();
-			cost_track_L = cost_track_L * fLayerGain;
-			cost_track_R = cost_track_L;
-		}
+        // direct track outputs only use velocity
+        if ( Preferences::get_instance()->m_nJackTrackOutputMode == 1 ) {
+            cost_track_L = cost_track_L * pNote->get_velocity();
+            cost_track_L = cost_track_L * fLayerGain;
+            cost_track_R = cost_track_L;
+        }
 
-		// Se non devo fare resample (drumkit) posso evitare di utilizzare i float e gestire il tutto in
-		// maniera ottimizzata
-		//	constant^12 = 2, so constant = 2^(1/12) = 1.059463.
-		//	float nStep = 1.0;1.0594630943593
+        // Se non devo fare resample (drumkit) posso evitare di utilizzare i float e gestire il tutto in
+        // maniera ottimizzata
+        //	constant^12 = 2, so constant = 2^(1/12) = 1.059463.
+        //	float nStep = 1.0;1.0594630943593
 
-		float fTotalPitch = pNote->get_total_pitch() + fLayerPitch;
+        float fTotalPitch = pNote->get_total_pitch() + fLayerPitch;
 
-		//_INFOLOG( "total pitch: " + to_string( fTotalPitch ) );
-		if( ( int )pNote->get_sample_position(pCompo->get_drumkit_componentID()) == 0 )
-		{
-			if( Hydrogen::get_instance()->getMidiOutput() != NULL ){
-				Hydrogen::get_instance()->getMidiOutput()->handleQueueNote( pNote );
-			}
-		}
+        //_INFOLOG( "total pitch: " + to_string( fTotalPitch ) );
+		if( ( int )pSelectedLayer->SamplePosition == 0 )
+        {
+            if( Hydrogen::get_instance()->getMidiOutput() != NULL ){
+                Hydrogen::get_instance()->getMidiOutput()->handleQueueNote( pNote );
+            }
+        }
 
-		if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == audio_output->getSampleRate() ) {	// NO RESAMPLE
-			if ( __render_note_no_resample( pSample, pNote, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong ) == 1 )
-				nReturnValue = 1;
-		} else {	// RESAMPLE
-			if ( __render_note_resample( pSample, pNote, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong ) == 1 )
-				nReturnValue = 1;
-		}
-	}
+		if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == audio_output->getSampleRate() ) // NO RESAMPLE
+			p_returnValues[p_returnValueIndex] = __render_note_no_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong );
+		else // RESAMPLE
+			p_returnValues[p_returnValueIndex] = __render_note_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong );
 
-	return nReturnValue;
+		p_returnValueIndex++;
+    }
+	for ( unsigned i = 0 ; i < pInstr->get_components()->size() ; i++ )
+		if ( !p_returnValues[i] ) return 0;
+	return 1;
 }
 
 int Sampler::__render_note_no_resample(
 	Sample *pSample,
 	Note *pNote,
+	SelectedLayerInfo *pSelectedLayerInfo,
 	InstrumentComponent *pCompo,
 	DrumkitComponent *pDrumCompo,
 	int nBufferSize,
@@ -421,7 +534,7 @@ int Sampler::__render_note_no_resample(
 		nNoteLength = ( int )( pNote->get_length() * pAudioOutput->m_transport.m_nTickSize );
 	}
 
-	int nAvail_bytes = pSample->get_frames() - ( int )pNote->get_sample_position(pCompo->get_drumkit_componentID());	// verifico il numero di frame disponibili ancora da eseguire
+	int nAvail_bytes = pSample->get_frames() - ( int )pSelectedLayerInfo->SamplePosition;	// verifico il numero di frame disponibili ancora da eseguire
 
 	if ( nAvail_bytes > nBufferSize - nInitialSilence ) {	// il sample e' piu' grande del buffersize
 		// imposto il numero dei bytes disponibili uguale al buffersize
@@ -433,7 +546,7 @@ int Sampler::__render_note_no_resample(
 	//ADSR *pADSR = pNote->m_pADSR;
 
 	int nInitialBufferPos = nInitialSilence;
-	int nInitialSamplePos = ( int )pNote->get_sample_position(pCompo->get_drumkit_componentID());
+	int nInitialSamplePos = ( int )pSelectedLayerInfo->SamplePosition;
 	int nSamplePos = nInitialSamplePos;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
 
@@ -461,9 +574,9 @@ int Sampler::__render_note_no_resample(
 #endif
 
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
-		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->get_sample_position(pCompo->get_drumkit_componentID()) )  ) {
+		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pSelectedLayerInfo->SamplePosition ) ) {
 						if ( pNote->get_adsr()->release() == 0 ) {
-				retValue = 1;	// the note is ended
+				retValue = true;	// the note is ended
 			}
 		}
 
@@ -504,7 +617,7 @@ int Sampler::__render_note_no_resample(
 
 		++nSamplePos;
 	}
-	pNote->update_sample_position( pCompo->get_drumkit_componentID(), nAvail_bytes );
+	pSelectedLayerInfo->SamplePosition += nAvail_bytes;
 	pNote->get_instrument()->set_peak_l( fInstrPeak_L );
 	pNote->get_instrument()->set_peak_r( fInstrPeak_R );
 
@@ -546,6 +659,7 @@ int Sampler::__render_note_no_resample(
 int Sampler::__render_note_resample(
 	Sample *pSample,
 	Note *pNote,
+	SelectedLayerInfo *pSelectedLayerInfo,
 	InstrumentComponent *pCompo,
 	DrumkitComponent *pDrumCompo,
 	int nBufferSize,
@@ -571,21 +685,21 @@ int Sampler::__render_note_resample(
 	fStep *= ( float )pSample->get_sample_rate() / pAudioOutput->getSampleRate(); // Adjust for audio driver sample rate
 
 	// verifico il numero di frame disponibili ancora da eseguire
-	int nAvail_bytes = ( int )( ( float )( pSample->get_frames() - pNote->get_sample_position( pCompo->get_drumkit_componentID() ) ) / fStep );
+	int nAvail_bytes = ( int )( ( float )( pSample->get_frames() - pSelectedLayerInfo->SamplePosition ) / fStep );
 
 
-	int retValue = 1; // the note is ended
+	bool retValue = true; // the note is ended
 	if ( nAvail_bytes > nBufferSize - nInitialSilence ) {	// il sample e' piu' grande del buffersize
 		// imposto il numero dei bytes disponibili uguale al buffersize
 		nAvail_bytes = nBufferSize - nInitialSilence;
-		retValue = 0; // the note is not ended yet
+		retValue = false; // the note is not ended yet
 	}
 
 	//	ADSR *pADSR = pNote->m_pADSR;
 
 	int nInitialBufferPos = nInitialSilence;
-	float fInitialSamplePos = pNote->get_sample_position( pCompo->get_drumkit_componentID() );
-	double fSamplePos = pNote->get_sample_position( pCompo->get_drumkit_componentID() );
+	//float fInitialSamplePos = pNote->get_sample_position( pCompo->get_drumkit_componentID() );
+	double fSamplePos = pSelectedLayerInfo->SamplePosition;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
 
 	float *pSample_data_L = pSample->get_data_l();
@@ -613,7 +727,7 @@ int Sampler::__render_note_resample(
 #endif
 
 	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
-		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pNote->get_sample_position( pCompo->get_drumkit_componentID() ) )  ) {
+		if ( ( nNoteLength != -1 ) && ( nNoteLength <= pSelectedLayerInfo->SamplePosition ) ) {
 						if ( pNote->get_adsr()->release() == 0 ) {
 				retValue = 1;	// the note is ended
 			}
@@ -704,7 +818,7 @@ int Sampler::__render_note_resample(
 
 		fSamplePos += fStep;
 	}
-	pNote->update_sample_position( pCompo->get_drumkit_componentID(), nAvail_bytes * fStep );
+	pSelectedLayerInfo->SamplePosition += nAvail_bytes;
 	pNote->get_instrument()->set_peak_l( fInstrPeak_L );
 	pNote->get_instrument()->set_peak_r( fInstrPeak_R );
 
@@ -728,7 +842,7 @@ int Sampler::__render_note_resample(
 			float fFXCost_R = fLevel * masterVol;
 
 			int nBufferPos = nInitialBufferPos;
-			float fSamplePos = fInitialSamplePos;
+			float fSamplePos = pSelectedLayerInfo->SamplePosition;
 			for ( int i = 0; i < nAvail_bytes; ++i ) {
 				int nSamplePos = ( int )fSamplePos;
 				double fDiff = fSamplePos - nSamplePos;

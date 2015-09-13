@@ -80,6 +80,7 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 	INFOLOG( QString( "INIT '%1'" ).arg( __name ) );
 
 	__components = new std::vector<DrumkitComponent*> ();
+	//__latest_round_robins = new std::map< float, int> ();
 
 	//m_bDelayFXEnabled = false;
 	//m_fDelayFXWetLevel = 0.8;
@@ -494,6 +495,7 @@ Song* SongReader::readSong( const QString& filename )
 
 			float fRandomPitchFactor = LocalFileMng::readXmlFloat( instrumentNode, "randomPitchFactor", 0.0f, false, false );
 
+			bool bIgnoreVelocity = LocalFileMng::readXmlBool( instrumentNode, "ignoreVelocity", false );
 			bool bFilterActive = LocalFileMng::readXmlBool( instrumentNode, "filterActive", false );
 			float fFilterCutoff = LocalFileMng::readXmlFloat( instrumentNode, "filterCutoff", 1.0f, false );
 			float fFilterResonance = LocalFileMng::readXmlFloat( instrumentNode, "filterResonance", 0.0f, false );
@@ -502,6 +504,9 @@ Song* SongReader::readSong( const QString& filename )
 			QString sMidiOutNote = LocalFileMng::readXmlString( instrumentNode, "midiOutNote", "60", false, false );
 			int nMuteGroup = sMuteGroup.toInt();
 			bool isStopNote = LocalFileMng::readXmlBool( instrumentNode, "isStopNote", false );
+			//bool isRoundRobin = LocalFileMng::readXmlBool( instrumentNode, "isRoundRobin", false );
+			QString p_read_sample_select_algo = LocalFileMng::readXmlString( instrumentNode, "sampleSelectionAlgo", "VELOCITY" );
+
 			int nMidiOutChannel = sMidiOutChannel.toInt();
 			int nMidiOutNote = sMidiOutNote.toInt();
 
@@ -511,6 +516,9 @@ Song* SongReader::readSong( const QString& filename )
 				continue;
 			}
 
+			bool bIsHiHat = LocalFileMng::readXmlBool( instrumentNode, "isHihat", false, true );
+			int iLowerCC = LocalFileMng::readXmlInt( instrumentNode, "lower_cc", 0, true );
+			int iHigherCC = LocalFileMng::readXmlInt( instrumentNode, "higher_cc", 127, true );
 
 			// create a new instrument
 			Instrument* pInstrument = new Instrument( id, sName, new ADSR( fAttack, fDecay, fSustain, fRelease ) );
@@ -519,6 +527,7 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_pan_l( fPan_L );
 			pInstrument->set_pan_r( fPan_R );
 			pInstrument->set_drumkit_name( sDrumkit );
+			pInstrument->set_ignore_velocity( bIgnoreVelocity );
 			pInstrument->set_fx_level( fFX1Level, 0 );
 			pInstrument->set_fx_level( fFX2Level, 1 );
 			pInstrument->set_fx_level( fFX3Level, 2 );
@@ -530,6 +539,15 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_gain( fGain );
 			pInstrument->set_mute_group( nMuteGroup );
 			pInstrument->set_stop_notes( isStopNote );
+			pInstrument->set_hihat( bIsHiHat );
+			pInstrument->set_lower_cc( iLowerCC );
+			pInstrument->set_higher_cc( iHigherCC );
+			if ( p_read_sample_select_algo.compare("VELOCITY") == 0 )
+				pInstrument->set_sample_selection_alg( Instrument::VELOCITY );
+			else if ( p_read_sample_select_algo.compare("ROUND_ROBIN") == 0 )
+				pInstrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
+			else if ( p_read_sample_select_algo.compare("RANDOM") == 0 )
+				pInstrument->set_sample_selection_alg( Instrument::RANDOM );
 			pInstrument->set_midi_out_channel( nMidiOutChannel );
 			pInstrument->set_midi_out_note( nMidiOutNote );
 
@@ -576,6 +594,7 @@ Song* SongReader::readSong( const QString& filename )
                     int id = LocalFileMng::readXmlInt( componentNode, "component_id", 0 );
                     InstrumentComponent* pCompo = new InstrumentComponent( id );
                     float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
+					pCompo->set_gain( fGainCompo );
 
                     unsigned nLayer = 0;
                     QDomNode layerNode = componentNode.firstChildElement( "layer" );
@@ -662,6 +681,7 @@ Song* SongReader::readSong( const QString& filename )
                 if(!p_foundAtLeastOneComponent){
                     InstrumentComponent* pCompo = new InstrumentComponent( 0 );
                     float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
+					pCompo->set_gain( fGainCompo );
                     unsigned nLayer = 0;
                     QDomNode layerNode = instrumentNode.firstChildElement( "layer" );
                     while (  ! layerNode.isNull()  ) {
@@ -916,13 +936,13 @@ Song* SongReader::readSong( const QString& filename )
 		QDomNode fxNode = ladspaNode.firstChildElement( "fx" );
 		while (  !fxNode.isNull()  ) {
 			QString sName = LocalFileMng::readXmlString( fxNode, "name", "" );
-			QString sFilename = LocalFileMng::readXmlString( fxNode, "filename", "" );
-			bool bEnabled = LocalFileMng::readXmlBool( fxNode, "enabled", false );
-			float fVolume = LocalFileMng::readXmlFloat( fxNode, "volume", 1.0 );
 
 			if ( sName != "no plugin" ) {
 				// FIXME: il caricamento va fatto fare all'engine, solo lui sa il samplerate esatto
 #ifdef H2CORE_HAVE_LADSPA
+				QString sFilename = LocalFileMng::readXmlString( fxNode, "filename", "" );
+				bool bEnabled = LocalFileMng::readXmlBool( fxNode, "enabled", false );
+				float fVolume = LocalFileMng::readXmlFloat( fxNode, "volume", 1.0 );
 				LadspaFX* pFX = LadspaFX::load( sFilename, sName, 44100 );
 				Effects::get_instance()->setLadspaFX( pFX, nFX );
 				if ( pFX ) {
