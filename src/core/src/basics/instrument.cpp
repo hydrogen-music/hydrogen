@@ -65,7 +65,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __muted( false )
 	, __mute_group( -1 )
 	, __queued( 0 )
-	, __hihat( false )
+	, __hihat_grp( -1 )
 	, __lower_cc( 0 )
 	, __higher_cc( 127 )
 	, __components( NULL )
@@ -100,7 +100,7 @@ Instrument::Instrument( Instrument* other )
 	, __muted( other->is_muted() )
 	, __mute_group( other->get_mute_group() )
 	, __queued( other->is_queued() )
-	, __hihat( other->is_hihat() )
+	, __hihat_grp( other->get_hihat_grp() )
 	, __lower_cc( other->get_lower_cc() )
 	, __higher_cc( other->get_higher_cc() )
 	, __components( NULL )
@@ -192,7 +192,7 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 	this->set_midi_out_channel( pInstrument->get_midi_out_channel() );
 	this->set_midi_out_note( pInstrument->get_midi_out_note() );
 	this->set_stop_notes( pInstrument->is_stop_notes() );
-	this->set_hihat( pInstrument->is_hihat() );
+	this->set_hihat_grp( pInstrument->get_hihat_grp() );
 	this->set_lower_cc( pInstrument->get_lower_cc() );
 	this->set_higher_cc( pInstrument->get_higher_cc() );
 	if ( is_live )
@@ -243,7 +243,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	pInstrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
 	pInstrument->set_midi_out_note( node->read_int( "midiOutNote", pInstrument->__midi_out_note, true, false ) );
 	pInstrument->set_stop_notes( node->read_bool( "isStopNote", true ,false ) );
-	pInstrument->set_hihat( node->read_bool( "isHihat", false, true ) );
+	pInstrument->set_hihat_grp( node->read_int( "isHihat", -1, true ) );
 	pInstrument->set_lower_cc( node->read_int( "lower_cc", 0, true ) );
 	pInstrument->set_higher_cc( node->read_int( "higher_cc", 127, true ) );
 
@@ -303,7 +303,7 @@ void Instrument::save_to( XMLNode* node )
 	InstrumentNode.write_int( "midiOutChannel", __midi_out_channel );
 	InstrumentNode.write_int( "midiOutNote", __midi_out_note );
 	InstrumentNode.write_bool( "isStopNote", __stop_notes );
-	InstrumentNode.write_bool( "isHihat", __hihat );
+	InstrumentNode.write_int( "isHihat", __hihat_grp );
 	InstrumentNode.write_int( "lower_cc", __lower_cc );
 	InstrumentNode.write_int( "higher_cc", __higher_cc );
 	for ( int i=0; i<MAX_FX; i++ ) {
