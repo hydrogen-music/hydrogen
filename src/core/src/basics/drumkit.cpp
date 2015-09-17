@@ -176,23 +176,30 @@ void Drumkit::unload_samples( )
 	}
 }
 
-bool Drumkit::save( const QString& name, const QString& author, const QString& info, const QString& license, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite )
+bool Drumkit::save( const QString&					name,
+					const QString&					author,
+					const QString&					info,
+					const QString&					license,
+					InstrumentList*					pInstruments,
+					std::vector<DrumkitComponent*>* pComponents,
+					bool overwrite )
 {
 
-	Drumkit* drumkit = new Drumkit();
-	drumkit->set_name( name );
-	drumkit->set_author( author );
-	drumkit->set_info( info );
-	drumkit->set_license( license );
-	drumkit->set_instruments( new InstrumentList( instruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
-	std::vector<DrumkitComponent*>* p_copiedVector = new std::vector<DrumkitComponent*> ();
-	for (std::vector<DrumkitComponent*>::iterator it = components->begin() ; it != components->end(); ++it) {
-		DrumkitComponent* src_component = *it;
-		p_copiedVector->push_back( new DrumkitComponent( src_component ) );
+	Drumkit* pDrumkit = new Drumkit();
+	pDrumkit->set_name( name );
+	pDrumkit->set_author( author );
+	pDrumkit->set_info( info );
+	pDrumkit->set_license( license );
+	pDrumkit->set_instruments( new InstrumentList( pInstruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
+	std::vector<DrumkitComponent*>* pCopiedVector = new std::vector<DrumkitComponent*> ();
+	for (std::vector<DrumkitComponent*>::iterator it = pComponents->begin() ; it != pComponents->end(); ++it) {
+		DrumkitComponent* pSrcComponent = *it;
+		pCopiedVector->push_back( new DrumkitComponent( pSrcComponent ) );
 	}
-	drumkit->set_components( p_copiedVector );
-	bool ret = drumkit->save( overwrite );
-	delete drumkit;
+	pDrumkit->set_components( pCopiedVector );
+	bool ret = pDrumkit->save( overwrite );
+	delete pDrumkit;
+
 	return ret;
 }
 
@@ -236,9 +243,9 @@ void Drumkit::save_to( XMLNode* node )
 	node->write_string( "license", __license );
 	XMLNode components_node = node->ownerDocument().createElement( "componentList" );
 	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-        DrumkitComponent* component = *it;
-        component->save_to( &components_node );
-    }
+		DrumkitComponent* pComponent = *it;
+		pComponent->save_to( &components_node );
+	}
 	node->appendChild( components_node );
 	__instruments->save_to( node );
 }
