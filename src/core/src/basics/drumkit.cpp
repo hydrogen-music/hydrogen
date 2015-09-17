@@ -52,7 +52,7 @@ const char* Drumkit::__class_name = "Drumkit";
 
 Drumkit::Drumkit() : Object( __class_name ), __samples_loaded( false ), __instruments( 0 ), __components( NULL )
 {
-    __components = new std::vector<DrumkitComponent*> ();
+	__components = new std::vector<DrumkitComponent*> ();
 }
 
 Drumkit::Drumkit( Drumkit* other ) :
@@ -67,15 +67,15 @@ Drumkit::Drumkit( Drumkit* other ) :
 {
 	__instruments = new InstrumentList( other->get_instruments() );
 
-    __components = new std::vector<DrumkitComponent*> ();
-    __components->assign( other->get_components()->begin(), other->get_components()->end() );
+	__components = new std::vector<DrumkitComponent*> ();
+	__components->assign( other->get_components()->begin(), other->get_components()->end() );
 
 }
 
 Drumkit::~Drumkit()
 {
-    __components->clear();
-    delete __components;
+	__components->clear();
+	delete __components;
 
 	if( __instruments ) delete __instruments;
 }
