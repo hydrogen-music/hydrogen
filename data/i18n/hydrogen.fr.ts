@@ -649,7 +649,7 @@ p, li { white-space: pre-wrap; }
     <name>DownloadWidget</name>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
-        <translation>(%1/%2 Kio) - EHA %3</translation>
+        <translation>(%1/%2 Kio) - temps estimé %3</translation>
     </message>
 </context>
 <context>
@@ -660,7 +660,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Load drumkit</source>
-        <translation>Charger kit de batterie</translation>
+        <translation>Charger un kit de batterie</translation>
     </message>
     <message>
         <source>### Drumkit author</source>
@@ -672,7 +672,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>### Drumkit info</source>
-        <translation>### Info du kit</translation>
+        <translation>### Informations du kit</translation>
     </message>
     <message>
         <source>Delete drumkit</source>
@@ -680,7 +680,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Save</source>
-        <translation>Enregistrer</translation>
+        <translation>Sauvegarder</translation>
     </message>
     <message>
         <source>Author</source>
@@ -688,7 +688,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Info</source>
-        <translation>Info</translation>
+        <translation>Informations</translation>
     </message>
     <message>
         <source>Drumkit name</source>
@@ -704,7 +704,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Browse</source>
-        <translation>Explorer...</translation>
+        <translation>Explorer</translation>
     </message>
     <message>
         <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
@@ -3506,7 +3506,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>SoundLibrary imported in %1</source>
-        <translation>La bibliothèque de sons est importés à %1</translation>
+        <translation>La bibliothèque de sons a été importée dans %1</translation>
     </message>
     <message>
         <source>An error occurred importing the SoundLibrary.</source>
