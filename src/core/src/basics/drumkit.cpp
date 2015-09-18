@@ -282,12 +282,16 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 						if( original_dst.lastIndexOf(".") > 0 )
 							insertPosition = original_dst.lastIndexOf(".");
 
-						// If the destination path already exists, try to use basename_1, basename_2, etc. instead of basename.
-						int tries = 0;
-						while( Filesystem::file_exists( dst, true )) {
-							tries++;
-							dst = original_dst;
-							dst.insert( insertPosition, QString("_%1").arg(tries) );
+
+						if(overwrite == false)
+						{
+							// If the destination path already exists, try to use basename_1, basename_2, etc. instead of basename.
+							int tries = 0;
+							while( Filesystem::file_exists( dst, true )) {
+								tries++;
+								dst = original_dst;
+								dst.insert( insertPosition, QString("_%1").arg(tries) );
+							}
 						}
 
 						layer->get_sample()->set_filename( dst );
