@@ -203,6 +203,11 @@ bool Drumkit::save( const QString&					name,
 	return ret;
 }
 
+bool Drumkit::user_drumkit_exists( const QString& name)
+{
+	return Filesystem::file_exists( QString( Filesystem::usr_drumkits_dir() + "/" + name + "/drumkit.xml") , true /*silent*/);
+}
+
 bool Drumkit::save( bool overwrite )
 {
 	return  save( QString( Filesystem::usr_drumkits_dir() + "/" + __name ), overwrite );
