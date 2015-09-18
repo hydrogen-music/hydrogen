@@ -284,7 +284,7 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 
 						// If the destination path already exists, try to use basename_1, basename_2, etc. instead of basename.
 						int tries = 0;
-						while( Filesystem::file_exists( dst )) {
+						while( Filesystem::file_exists( dst, true )) {
 							tries++;
 							dst = original_dst;
 							dst.insert( insertPosition, QString("_%1").arg(tries) );
