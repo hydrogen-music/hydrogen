@@ -624,7 +624,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		bool p_merge;
 
 		switch(QMessageBox::information( this, "Hydrogen",
-								 trUtf8("\nWould you like to merge or add the banks?\n"),
+								 trUtf8("\nWould you like to merge or add the components?\n"),
 								 trUtf8("&Merge"), trUtf8("&Add"), trUtf8("&Cancel"),
 								 0,      // Enter == button 0
 								 2 ) ) { // Escape == button 2
