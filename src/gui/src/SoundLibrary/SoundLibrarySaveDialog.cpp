@@ -46,17 +46,36 @@ SoundLibrarySaveDialog::~SoundLibrarySaveDialog()
 void SoundLibrarySaveDialog::on_saveBtn_clicked()
 {
 	if( nameTxt->text().isEmpty() ){
-			QMessageBox::information( this, "Hydrogen", trUtf8 ( "Please supply at least a valid name"));
-			return;
+		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Please supply at least a valid name"));
+		return;
 	}
+
+	bool Overwrite = false;
+
+	if(H2Core::Drumkit::user_drumkit_exists( nameTxt->text() )){
+		QMessageBox msgBox;
+		msgBox.setText(trUtf8("A library with the same name already exists. Do you want to overwrite the existing library?"));
+		msgBox.setIcon(QMessageBox::Warning);
+		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+		msgBox.setDefaultButton(QMessageBox::No);
+
+		int ret = msgBox.exec();
+
+		if(ret == QMessageBox::Yes){
+			Overwrite = true;
+		} else {
+			return;
+		}
+	}
+
 	if( !H2Core::Drumkit::save( nameTxt->text(),
 								authorTxt->text(),
 								infoTxt->toHtml(),
 								licenseTxt->text(),
 								H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(),
 								H2Core::Hydrogen::get_instance()->getSong()->get_components(),
-								false ) ) {
-		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
+								Overwrite ) ) {
+		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this library failed."));
 		return;
 	}
 	accept();
