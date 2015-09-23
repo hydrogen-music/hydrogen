@@ -3646,7 +3646,7 @@ Voulez-vous continuer?</translation>
 To delete this drumkit first load another drumkit.</source>
         <translation>Il n'est pas possible de supprimer le kit de batterie actuellement chargé :
   &quot;%1&quot;.
-Pour effacer ce kit de batterie, charger d&apos;abord un autre kit.
+Pour effacer ce kit de batterie, chargez d&apos;abord un autre kit.
         </translation>
     </message>
     <message>
