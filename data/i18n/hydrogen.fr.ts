@@ -1747,7 +1747,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Waiting for midi input...</source>
-        <translation>Attente d&apos;une entrée MIDI</translation>
+        <translation>Attente d&apos;une entrée MIDI...</translation>
     </message>
 </context>
 <context>
