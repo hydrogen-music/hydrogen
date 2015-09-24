@@ -2124,7 +2124,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Mixer</source>
-        <translation>Mixage</translation>
+        <translation>Mixeur</translation>
     </message>
     <message>
         <source>Show Instrument Rack</source>
