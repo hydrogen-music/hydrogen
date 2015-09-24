@@ -1743,11 +1743,11 @@ Voulez-vous sauvegarder les changements?
     <name>MidiSenseWidget</name>
     <message>
         <source>This element is not midi operable.</source>
-        <translation>Cet élément n&apos;est pas opérable par MIDI</translation>
+        <translation>Cet élément n&apos;est pas opérable par MIDI.</translation>
     </message>
     <message>
         <source>Waiting for midi input...</source>
-        <translation>Attente d&apos;une entrée MIDI</translation>
+        <translation>Attente d&apos;une entrée MIDI...</translation>
     </message>
 </context>
 <context>
@@ -3644,11 +3644,14 @@ Voulez-vous continuer?</translation>
         <source>It is not possible to delete the currently loaded drumkit: 
   &quot;%1&quot;.
 To delete this drumkit first load another drumkit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il n'est pas possible de supprimer le kit de batterie actuellement chargé :
+  &quot;%1&quot;.
+Pour effacer ce kit de batterie, chargez d&apos;abord un autre kit.
+        </translation>
     </message>
     <message>
         <source>&quot;%1&quot;is a system drumkit and can&apos;t be deleted.</source>
-        <translation>&quot;%1&quot;est un kit système et ne peut pas être effacé.</translation>
+        <translation>&quot;%1&quot; est un kit système et ne peut pas être effacé.</translation>
     </message>
     <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
