@@ -885,11 +885,11 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Choose type of interpolation methode</source>
-        <translation type="unfinished"></translation>
+        <translation>Choisir le type de méthode d'interpolation</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Linéaire</translation>
     </message>
     <message>
         <source>Cosine</source>
@@ -901,7 +901,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Cubic</source>
-        <translation type="unfinished"></translation>
+        <translation>Cubique</translation>
     </message>
     <message>
         <source>Hermite</source>
@@ -909,7 +909,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Enable tempo changing</source>
-        <translation type="unfinished"></translation>
+        <translation>Active les modifications de tempo</translation>
     </message>
     <message>
         <source>TimeLine BPM</source>
@@ -2200,19 +2200,19 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Record midi events = On</source>
-        <translation>Enregistrer les événements midi = On</translation>
+        <translation>Enregistrer les événements midi = actif</translation>
     </message>
     <message>
         <source>Record midi events = Off</source>
-        <translation>Enregistrer les événements midi = Off</translation>
+        <translation>Enregistrer les événements midi = inactif</translation>
     </message>
     <message>
         <source>Destructive mode = Off</source>
-        <translation>Mode destructif = Off</translation>
+        <translation>Mode destructif = inactif</translation>
     </message>
     <message>
         <source>Destructive mode = On</source>
-        <translation>Mode destructif = On</translation>
+        <translation>Mode destructif = actif</translation>
     </message>
     <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
@@ -2516,7 +2516,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>&lt;b&gt;PulseAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Pilote PulseAudio&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>Number of steps</source>
@@ -2799,7 +2799,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Linéaire</translation>
     </message>
     <message>
         <source>Cosine</source>
@@ -2811,7 +2811,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Cubic</source>
-        <translation type="unfinished"></translation>
+        <translation>Cubique</translation>
     </message>
     <message>
         <source>Hermite</source>
@@ -2819,15 +2819,15 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Default interface layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Agencement de l&apos;interface par défaut</translation>
     </message>
     <message>
         <source>Single pane</source>
-        <translation type="unfinished"></translation>
+        <translation>Tout-en-un</translation>
     </message>
     <message>
         <source>Tabbed</source>
-        <translation type="unfinished"></translation>
+        <translation>Plusieurs onglets</translation>
     </message>
     <message>
         <source>TextLabel</source>
