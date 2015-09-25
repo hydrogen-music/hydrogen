@@ -649,7 +649,7 @@ p, li { white-space: pre-wrap; }
     <name>DownloadWidget</name>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
-        <translation>(%1/%2 Kio) - EHA %3</translation>
+        <translation>(%1/%2 Kio) - temps estimé %3</translation>
     </message>
 </context>
 <context>
@@ -660,7 +660,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Load drumkit</source>
-        <translation>Charger kit de batterie</translation>
+        <translation>Charger un kit de batterie</translation>
     </message>
     <message>
         <source>### Drumkit author</source>
@@ -672,7 +672,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>### Drumkit info</source>
-        <translation>### Info du kit</translation>
+        <translation>### Informations du kit</translation>
     </message>
     <message>
         <source>Delete drumkit</source>
@@ -680,7 +680,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Save</source>
-        <translation>Enregistrer</translation>
+        <translation>Sauvegarder</translation>
     </message>
     <message>
         <source>Author</source>
@@ -688,7 +688,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Info</source>
-        <translation>Info</translation>
+        <translation>Informations</translation>
     </message>
     <message>
         <source>Drumkit name</source>
@@ -704,7 +704,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Browse</source>
-        <translation>Explorer...</translation>
+        <translation>Explorer</translation>
     </message>
     <message>
         <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
@@ -1011,7 +1011,7 @@ Are you sure?</source>
     <name>InstrumentEditor</name>
     <message>
         <source>Random pitch factor</source>
-        <translation>Hauteur aléatoire</translation>
+        <translation>Hauteur de tonalité aléatoire</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
@@ -1047,11 +1047,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Layer pitch (Coarse)</source>
-        <translation>Hauteur de la couche (brut)</translation>
+        <translation>Hauteur de tonalité de la couche (réglage grossier)</translation>
     </message>
     <message>
         <source>Layer pitch (Fine)</source>
-        <translation>Haute de la couche (fin)</translation>
+        <translation>Hauteur de tonalité de la couche (réglage fin)</translation>
     </message>
     <message>
         <source>Show instrument properties</source>
@@ -1079,7 +1079,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Set the instrument as part of a hihat set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Déclare l&apos;instrument en tant que partie d'un ensemble de charleston</translation>
     </message>
     <message>
         <source>Bank volume</source>
@@ -1165,7 +1165,7 @@ Are you sure?</source>
     <name>InstrumentRack</name>
     <message>
         <source>Show Instrument editor</source>
-        <translation>Afficher l&apos;éditeur d&apos;instruments</translation>
+        <translation>Afficher l&apos;éditeur d&apos;instrument</translation>
     </message>
     <message>
         <source>Instrument</source>
@@ -1188,7 +1188,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>FX bypass</source>
-        <translation>Dérivation de l&apos;effet</translation>
+        <translation>Court-circuiter l&apos;effet</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
@@ -1766,7 +1766,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>press button to record midi event</source>
-        <translation>Appuyer sur le bouton pour enregistrer les événements midi</translation>
+        <translation>Appuyer sur le bouton pour enregistrer les évènements midi</translation>
     </message>
 </context>
 <context>
@@ -1800,7 +1800,7 @@ Voulez-vous sauvegarder les changements?
     <name>MixerLine</name>
     <message>
         <source>Play sample</source>
-        <translation>Jouer échantillon</translation>
+        <translation>Jouer l&apos;échantillon</translation>
     </message>
     <message>
         <source>Mute</source>
@@ -1866,15 +1866,15 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Quantize keyboard/midi events to grid</source>
-        <translation>Quantifier les évenements clavier/MIDI sur la grille</translation>
+        <translation>Quantifier les évènements clavier/MIDI sur la grille</translation>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = On</source>
-        <translation>Quantifier les évenements clavier/MIDI entrant = Actif</translation>
+        <translation>Quantifier les évènements clavier/MIDI entrant = Actif</translation>
     </message>
     <message>
         <source>Select pattern size</source>
-        <translation>Sélectionner la grandeur du motif</translation>
+        <translation>Sélectionner la longueur du motif</translation>
     </message>
     <message>
         <source>Select grid resolution</source>
@@ -2092,7 +2092,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Jack-transport on/off</source>
-        <translation>Transport Jack on/off</translation>
+        <translation>Transport Jack actif/inactif</translation>
     </message>
     <message>
         <source>Jack-transport mode = On</source>
@@ -2112,7 +2112,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Play/ Pause</source>
-        <translation>Jouer/ Pause</translation>
+        <translation>Jouer/Pause</translation>
     </message>
     <message>
         <source>Fast Forward</source>
@@ -2124,7 +2124,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Mixer</source>
-        <translation>Mixage</translation>
+        <translation>Mixeur</translation>
     </message>
     <message>
         <source>Show Instrument Rack</source>
@@ -2156,7 +2156,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>BeatCounter Panel on</source>
-        <translation>Panneau du compteur BPM activé</translation>
+        <translation>Activation du panneau du compteur BPM</translation>
     </message>
     <message>
         <source>Set BPM / Set BPM and play</source>
@@ -2200,11 +2200,11 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Record midi events = On</source>
-        <translation>Enregistrer les événements midi = On</translation>
+        <translation>Enregistrer les évènements midi = On</translation>
     </message>
     <message>
         <source>Record midi events = Off</source>
-        <translation>Enregistrer les événements midi = Off</translation>
+        <translation>Enregistrer les évènements midi = Off</translation>
     </message>
     <message>
         <source>Destructive mode = Off</source>
@@ -2216,7 +2216,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
-        <translation>Recalcule l&apos;échantillon modifié par Rubberband si le bpm change</translation>
+        <translation>Recalcule les échantillons modifiés par Rubberband si le BPM change</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband ON</source>
@@ -2228,7 +2228,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Switch metronome on/off</source>
-        <translation type="unfinished"></translation>
+        <translation>Active/désactive le métronome</translation>
     </message>
 </context>
 <context>
@@ -2504,15 +2504,15 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatique</translation>
     </message>
     <message>
         <source>Steps</source>
-        <translation type="unfinished"></translation>
+        <translation>Par pas</translation>
     </message>
     <message>
         <source>Fixed</source>
-        <translation type="unfinished"></translation>
+        <translation>Fixe</translation>
     </message>
     <message>
         <source>&lt;b&gt;PulseAudio Driver&lt;/b&gt;&lt;br&gt;</source>
@@ -2524,7 +2524,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Color (Hue value)</source>
-        <translation type="unfinished"></translation>
+        <translation>Couleur (valeur Hue)</translation>
     </message>
 </context>
 <context>
@@ -2819,15 +2819,15 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Default interface layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Agencement de l&apos;interface par défaut</translation>
     </message>
     <message>
         <source>Single pane</source>
-        <translation type="unfinished"></translation>
+        <translation>Tout-en-un</translation>
     </message>
     <message>
         <source>Tabbed</source>
-        <translation type="unfinished"></translation>
+        <translation>Plusieurs onglets</translation>
     </message>
     <message>
         <source>TextLabel</source>
@@ -2835,11 +2835,11 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Coloring method for Song Editor elements</source>
-        <translation type="unfinished"></translation>
+        <translation>Méthode de colorisation des éléments de l'éditeur de morceau</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Après avoir modifié une police ou l'agencement de l'interface, l&apos;application doit être redémarrée.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -3257,7 +3257,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Enable time line edit</source>
-        <translation>Active l&apos;édition de la TimeLine</translation>
+        <translation>Active l&apos;édition de la ligne de temps</translation>
     </message>
     <message>
         <source>Pattern %1</source>
@@ -3506,7 +3506,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>SoundLibrary imported in %1</source>
-        <translation>La bibliothèque de sons est importés à %1</translation>
+        <translation>La bibliothèque de sons a été importée dans %1</translation>
     </message>
     <message>
         <source>An error occurred importing the SoundLibrary.</source>
