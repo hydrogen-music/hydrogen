@@ -74,7 +74,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	);
 	m_pMuteBtn->move( 145, 5 );
 	m_pMuteBtn->setPressed(false);
-    m_pMuteBtn->setToolTip( trUtf8("Mute instrument") );
+	m_pMuteBtn->setToolTip( trUtf8("Mute instrument") );
 	connect(m_pMuteBtn, SIGNAL(clicked(Button*)), this, SLOT(muteClicked()));
 
 	m_pSoloBtn = new ToggleButton(
@@ -86,7 +86,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	);
 	m_pSoloBtn->move( 163, 5 );
 	m_pSoloBtn->setPressed(false);
-    m_pSoloBtn->setToolTip( trUtf8("Solo") );
+	m_pSoloBtn->setToolTip( trUtf8("Solo") );
 	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(soloClicked()));
 
 
@@ -241,8 +241,8 @@ void InstrumentLine::functionClearNotes()
 	Instrument *pSelectedInstrument = pEngine->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
 
 	std::list< Note* > noteList;
-    const Pattern::notes_t* notes = pPattern->get_notes();
-    FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+	const Pattern::notes_t* notes = pPattern->get_notes();
+	FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 		Note *pNote = it->second;
 		assert( pNote );
 		if ( pNote->get_instrument() == pSelectedInstrument ) {
@@ -355,8 +355,8 @@ void InstrumentLine::functionFillNotes( int every )
 
 			for (int i = 0; i < nPatternSize; i += nResolution) {
 				bool noteAlreadyPresent = false;
-                const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-                FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
+				FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
 					Note *pNote = it->second;
 					if ( pNote->get_instrument() == instrRef ) {
 						// note already exists
@@ -409,8 +409,8 @@ void InstrumentLine::functionRandomizeVelocity()
 			Instrument *instrRef = (pSong->get_instrument_list())->get( nSelectedInstrument );
 
 			for (int i = 0; i < nPatternSize; i += nResolution) {
-                const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-                FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
+				FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
 					Note *pNote = it->second;
 					if ( pNote->get_instrument() == instrRef ) {
 						float fVal = ( rand() % 100 ) / 100.0;
@@ -608,8 +608,9 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 		int nTargetInstrument = event->pos().y() / m_nGridHeight;
 
-		if( nTargetInstrument > engine->getSong()->get_instrument_list()->size() )
+		if( nTargetInstrument > engine->getSong()->get_instrument_list()->size() ){
 			nTargetInstrument = engine->getSong()->get_instrument_list()->size() - 1;
+		}
 
 		if ( nSourceInstrument == nTargetInstrument ) {
 			event->acceptProposedAction();
@@ -632,10 +633,10 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 								 0,      // Enter == button 0
 								 2 ) ) { // Escape == button 2
 		case 0:
-            p_merge = true;
+			p_merge = true;
 			break;
 		case 1:
-            p_merge = false;
+			p_merge = false;
 			break;
 		case 2: // Cancel clicked or Alt+C pressed or Escape pressed
 			return;
@@ -657,8 +658,9 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		if (  event->pos().x() > 181 ) nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
 
 		Hydrogen *engine = Hydrogen::get_instance();
-		if( nTargetInstrument > engine->getSong()->get_instrument_list()->size() )
+		if( nTargetInstrument > engine->getSong()->get_instrument_list()->size() ){
 			nTargetInstrument = engine->getSong()->get_instrument_list()->size();
+		}
 
 		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitName, sInstrumentName, nTargetInstrument, p_merge );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
