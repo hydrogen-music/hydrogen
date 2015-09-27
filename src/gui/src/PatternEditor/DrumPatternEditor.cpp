@@ -1343,6 +1343,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 
 		// select the new instrument
 		pEngine->setSelectedInstrumentNumber(nTargetInstrument);
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 		updateEditor();
 }
 
