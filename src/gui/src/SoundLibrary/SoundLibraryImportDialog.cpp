@@ -108,12 +108,16 @@ void SoundLibraryImportDialog::updateRepositoryCombo()
 void SoundLibraryImportDialog::onRepositoryComboBoxIndexChanged(int i)
 {
 	UNUSED(i);
-	QString cacheFile = getCachedFilename();
-	if( !H2Core::Filesystem::file_exists( cacheFile ) )
+
+	if(!repositoryCombo->currentText().isEmpty())
 	{
-		SoundLibraryImportDialog::on_UpdateListBtn_clicked();
+		QString cacheFile = getCachedFilename();
+		if( !H2Core::Filesystem::file_exists( cacheFile, true ) )
+		{
+			SoundLibraryImportDialog::on_UpdateListBtn_clicked();
+		}
+		reloadRepositoryData();
 	}
-	reloadRepositoryData();
 }
 
 ///
@@ -429,13 +433,13 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 				dl.exec();
 
 
-				QString redirect_url = dl.get_redirect_url();
-				if (redirect_url == "" ) {
+				QUrl redirect_url = dl.get_redirect_url();
+				if (redirect_url.isEmpty() ) {
 					// ok, we have all data
 					break;
 				}
 				else {
-					sURL = redirect_url;
+					sURL = redirect_url.toEncoded();
 				}
 			}
 
