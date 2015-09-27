@@ -608,6 +608,9 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 
 		int nTargetInstrument = event->pos().y() / m_nGridHeight;
 
+		if( nTargetInstrument > engine->getSong()->get_instrument_list()->size() )
+			nTargetInstrument = engine->getSong()->get_instrument_list()->size() - 1;
+
 		if ( nSourceInstrument == nTargetInstrument ) {
 			event->acceptProposedAction();
 			return;
@@ -652,6 +655,10 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		    Because the right part of the grid starts above the name column, we have to subtract the difference
 		*/
 		if (  event->pos().x() > 181 ) nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
+
+		Hydrogen *engine = Hydrogen::get_instance();
+		if( nTargetInstrument > engine->getSong()->get_instrument_list()->size() )
+			nTargetInstrument = engine->getSong()->get_instrument_list()->size();
 
 		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitName, sInstrumentName, nTargetInstrument, p_merge );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
