@@ -1241,10 +1241,24 @@ void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,  in
 }
 
 
-void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument )
+void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument, std::vector<int>* AddedComponents )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	pEngine->removeInstrument( nTargetInstrument, false );
+
+	std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->get_components();
+
+	for (std::vector<int>::iterator it = AddedComponents->begin() ; it != AddedComponents->end(); ++it) {
+		int p_compoID = *it;
+
+		for ( int n = 0 ; n < pDrumkitComponents->size() ; n++ ) {
+			DrumkitComponent* pTmpDrumkitComponent = pDrumkitComponents->at( n );
+			if( pTmpDrumkitComponent->get_id() == p_compoID ) {
+				pDrumkitComponents->erase( pDrumkitComponents->begin() + n );
+				break;
+			}
+		}
+	}
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 #ifdef H2CORE_HAVE_JACK
@@ -1256,7 +1270,7 @@ void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument
 }
 
 
-void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, bool Merge )
+void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, bool Merge, std::vector<int>* AddedComponents)
 {
 		Instrument *pNewInstrument = Instrument::load_instrument( sDrumkitName, sInstrumentName );
 		if( pNewInstrument == NULL ) return;
@@ -1281,6 +1295,8 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 
 			if ( p_newID == -1 ) {
 				p_newID = findFreeCompoID();
+
+				AddedComponents->push_back( p_newID );
 
 				p_compo->set_id( p_newID );
 				p_compo->set_name( renameCompo( p_compo->get_name() ) );
