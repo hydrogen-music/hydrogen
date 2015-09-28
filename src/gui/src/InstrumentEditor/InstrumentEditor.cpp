@@ -562,6 +562,17 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 		update();
 
+		bool p_found = false;
+		for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
+			DrumkitComponent* p_compo = *it;
+			if ( p_compo->get_id() == m_nSelectedComponent ) {
+				p_found = true;
+				break;
+			}
+		}
+		if ( !p_found )
+			m_nSelectedComponent = compoList->front()->get_id();
+
 		DrumkitComponent* p_tmpCompo = Hydrogen::get_instance()->getSong()->get_component( m_nSelectedComponent );
 
 		assert(p_tmpCompo);
