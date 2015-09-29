@@ -47,7 +47,6 @@ Playlist::Playlist()
 	//_INFOLOG( "[Playlist]" );
 	__instance = this;
 	__filename = "";
-//	__playlistName = "";
 	selectedSongNumber = -1;
 	activeSongNumber = -1;
 }
