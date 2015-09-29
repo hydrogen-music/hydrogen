@@ -49,9 +49,6 @@ class Playlist :  public H2Core::Object
 		bool loadSong (int SongNumber); /* Call from main (e.g. GUI) thread */
 		void setSelectedSongNr( int songNumber);
 
-		int selectedSongNumber;
-		int activeSongNumber;
-
 		int getSelectedSongNr();
 		void setActiveSongNumber( int ActiveSongNumber);
 		int getActiveSongNumber();
@@ -70,6 +67,9 @@ class Playlist :  public H2Core::Object
 	private:
 		static Playlist* __instance;
 		QString __filename;
+
+		int m_nSelectedSongNumber;
+		int m_nActiveSongNumber;
 
 		/// Constructor
 		Playlist();
