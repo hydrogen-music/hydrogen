@@ -58,6 +58,7 @@
 #include "SoundLibrary/SoundLibraryImportDialog.h"
 #include "SoundLibrary/SoundLibrarySaveDialog.h"
 #include "SoundLibrary/SoundLibraryExportDialog.h"
+#include "SoundLibrary/SoundLibraryPropertiesDialog.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 
 #include <QtGui>
@@ -292,16 +293,34 @@ void MainForm::createMenuBar()
 	m_pUndoMenu->addAction( trUtf8( "Redo" ), this, SLOT( action_redo() ), QKeySequence( "Shift+Ctrl+Z" ) );
 	m_pUndoMenu->addAction( trUtf8( "Undo history" ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
 
+	// BANK MENU
+	QMenu *m_pBanksMenu = m_pMenubar->addMenu( trUtf8( "&Banks" ) );
+	m_pBanksMenu->addAction( trUtf8( "New" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
+	m_pBanksMenu->addAction( trUtf8( "Open" ) );
+	m_pBanksMenu->addAction( trUtf8( "Properties" ), this, SLOT( action_banks_properties() ), QKeySequence( "" ) );
+
+	m_pBanksMenu->addSeparator();				// -----
+
+	m_pBanksMenu->addAction( trUtf8( "Save" ) );
+	m_pBanksMenu->addAction( trUtf8( "Save As" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
+
+	m_pBanksMenu->addSeparator();				// -----
+
+	m_pBanksMenu->addAction( trUtf8( "Export" ), this, SLOT( action_instruments_exportLibrary() ), QKeySequence( "" ) );
+	m_pBanksMenu->addAction( trUtf8( "Import" ) );
+	m_pBanksMenu->addAction( trUtf8( "Online import" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
+
 	// INSTRUMENTS MENU
 	QMenu *m_pInstrumentsMenu = m_pMenubar->addMenu( trUtf8( "I&nstruments" ) );
 	m_pInstrumentsMenu->addAction( trUtf8( "&Add instrument" ), this, SLOT( action_instruments_addInstrument() ), QKeySequence( "" ) );
 	m_pInstrumentsMenu->addAction( trUtf8( "&Clear all" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
-	m_pInstrumentsMenu->addAction( trUtf8( "&Save library" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
-	m_pInstrumentsMenu->addAction( trUtf8( "&Export library" ), this, SLOT( action_instruments_exportLibrary() ), QKeySequence( "" ) );
-	m_pInstrumentsMenu->addAction( trUtf8( "&Import library" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
+	//m_pInstrumentsMenu->addAction( trUtf8( "&Save library" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
+	//m_pInstrumentsMenu->addAction( trUtf8( "&Export library" ), this, SLOT( action_instruments_exportLibrary() ), QKeySequence( "" ) );
+	//m_pInstrumentsMenu->addAction( trUtf8( "&Import library" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
 
+	m_pInstrumentsMenu->addSeparator();				// -----
 
-
+	m_pInstrumentsMenu->addAction( trUtf8( "Add component" ) );
 
 	// Tools menu
 	QMenu *m_pToolsMenu = m_pMenubar->addMenu( trUtf8( "&Tools" ));
@@ -1696,6 +1715,46 @@ bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 		return FALSE;
 
 	return TRUE;
+}
+
+void MainForm::action_banks_properties()
+{
+	QString sDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitname();
+	Drumkit *drumkitInfo = NULL;
+
+	//User drumkit list
+	QStringList usr_dks = Filesystem::usr_drumkits_list();
+	for (int i = 0; i < usr_dks.size(); ++i) {
+		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks[i];
+		Drumkit *pInfo = Drumkit::load( absPath );
+		if (pInfo) {
+			if ( QString(pInfo->get_name() ) == sDrumkitName ){
+				drumkitInfo = pInfo;
+				break;
+			}
+		}
+	}
+
+	//System drumkit list
+	QStringList sys_dks = Filesystem::sys_drumkits_list();
+	for (int i = 0; i < sys_dks.size(); ++i) {
+		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sys_dks[i];
+		Drumkit *pInfo = Drumkit::load( absPath );
+		if (pInfo) {
+			if ( QString( pInfo->get_name() ) == sDrumkitName ){
+				drumkitInfo = pInfo;
+				break;
+			}
+		}
+	}
+
+
+
+	assert( drumkitInfo );
+
+	//open the soundlibrary save dialog
+	SoundLibraryPropertiesDialog dialog( this , drumkitInfo, drumkitInfo );
+	dialog.exec();
 }
 
 

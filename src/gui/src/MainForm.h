@@ -86,6 +86,7 @@ public slots:
 		void action_instruments_exportLibrary();
 		void action_instruments_importLibrary();
 
+		void action_banks_properties();
 
 		void action_window_showMixer();
 		void action_window_showPlaylistDialog();
