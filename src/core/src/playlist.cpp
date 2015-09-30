@@ -47,9 +47,8 @@ Playlist::Playlist()
 	//_INFOLOG( "[Playlist]" );
 	__instance = this;
 	__filename = "";
-//	__playlistName = "";
-	selectedSongNumber = -1;
-	activeSongNumber = -1;
+	m_nSelectedSongNumber = -1;
+	m_nActiveSongNumber = -1;
 }
 
 Playlist::~Playlist()
@@ -70,8 +69,9 @@ bool Playlist::save( const QString& filename )
 	set_filename( filename );
 
 	LocalFileMng fileMng;
-	if ( fileMng.savePlayList( filename.toLocal8Bit().constData() ) == 0 )
+	if ( fileMng.savePlayList( filename.toLocal8Bit().constData() ) == 0 ){
 		return true;
+	}
 
 	return false;
 }
@@ -82,9 +82,9 @@ Playlist* Playlist::load( const QString& filename )
 	int ret = fileMng.loadPlayList( filename.toLocal8Bit().constData() );
 
 	if ( ret == 0 ) {
-		Playlist* P = get_instance();
-		P->set_filename( filename );
-		return P;
+		Playlist* pPlaylist = get_instance();
+		pPlaylist->set_filename( filename );
+		return pPlaylist;
 	}
 	return NULL;
 }
@@ -95,13 +95,16 @@ bool Playlist::loadSong (int songNumber)
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Preferences *pPref = Preferences::get_instance();
 
-	if ( pHydrogen->getState() == STATE_PLAYING )
+	if ( pHydrogen->getState() == STATE_PLAYING ){
 		pHydrogen->sequencer_stop();
+	}
 
 	/* Load Song from file */
 	QString selected = pHydrogen->m_PlayList[ songNumber ].m_hFile;
 	Song *pSong = Song::load( selected );
-	if ( ! pSong ) return false;
+	if ( ! pSong ){
+		return false;
+	}
 
 	setSelectedSongNr( songNumber );
 	setActiveSongNumber( songNumber );
@@ -124,8 +127,9 @@ void Playlist::setNextSongByNumber(int songNumber)
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 
 	int playlist_size = pHydrogen->m_PlayList.size();
-	if ( songNumber > playlist_size - 1 || playlist_size == 0 )
+	if ( songNumber > playlist_size - 1 || playlist_size == 0 ){
 		return;
+	}
 
 	/* NOTE: we are in MIDI thread and can't just call loadSong from here :( */
 	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber);
@@ -133,24 +137,24 @@ void Playlist::setNextSongByNumber(int songNumber)
 
 void Playlist::setSelectedSongNr( int songNumber )
 {
-	selectedSongNumber = songNumber;
+	m_nSelectedSongNumber = songNumber;
 }
 
 
 int Playlist::getSelectedSongNr()
 {
-	return selectedSongNumber;
+	return m_nSelectedSongNumber;
 }
 
 void Playlist::setActiveSongNumber( int ActiveSongNumber)
 {
-	activeSongNumber = ActiveSongNumber ;
+	m_nActiveSongNumber = ActiveSongNumber ;
 }
 
 
 int Playlist::getActiveSongNumber()
 {
-	return activeSongNumber;
+	return m_nActiveSongNumber;
 }
 
 void Playlist::execScript( int index)
@@ -161,8 +165,9 @@ void Playlist::execScript( int index)
 	file = Hydrogen::get_instance()->m_PlayList[ index ].m_hScript;
 	script = Hydrogen::get_instance()->m_PlayList[ index ].m_hScriptEnabled;
 
-	if( !QFile( file ).exists()  || script == "Script not used")
+	if( !QFile( file ).exists()  || script == "Script not used"){
 		return;
+	}
 
 	int ret = std::system( file.toLocal8Bit() );
 
