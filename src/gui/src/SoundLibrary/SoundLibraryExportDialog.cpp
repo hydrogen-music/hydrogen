@@ -30,6 +30,7 @@
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/drumkit_component.h>
 #include <QFileDialog>
 #include <memory>
 #include <QtGui>
@@ -175,6 +176,24 @@ void SoundLibraryExportDialog::on_browseBtn_clicked()
 	}
 }
 
+void SoundLibraryExportDialog::on_cancelBtn_clicked()
+{
+	accept();
+}
+
+void SoundLibraryExportDialog::on_drumkitList_currentIndexChanged( QString str )
+{
+	componentList->clear();
+
+	QStringList p_compoList = kit_components[str];
+
+	for (QStringList::iterator it = p_compoList.begin() ; it != p_compoList.end(); ++it) {
+		QString p_compoName = *it;
+
+		componentList->addItem( p_compoName );
+	}
+}
+
 void SoundLibraryExportDialog::updateDrumkitList()
 {
 	INFOLOG( "[updateDrumkitList]" );
@@ -194,6 +213,12 @@ void SoundLibraryExportDialog::updateDrumkitList()
 		if (info) {
 			drumkitInfoList.push_back( info );
 			drumkitList->addItem( info->get_name() );
+			QStringList p_components;
+			for (std::vector<DrumkitComponent*>::iterator it = info->get_components()->begin() ; it != info->get_components()->end(); ++it) {
+				DrumkitComponent* p_compo = *it;
+				p_components.append(p_compo->get_name());
+			}
+			kit_components[info->get_name()] = p_components;
 		}
 	}
 
@@ -204,6 +229,12 @@ void SoundLibraryExportDialog::updateDrumkitList()
 		if (info) {
 			drumkitInfoList.push_back( info );
 			drumkitList->addItem( info->get_name() );
+			QStringList p_components;
+			for (std::vector<DrumkitComponent*>::iterator it = info->get_components()->begin() ; it != info->get_components()->end(); ++it) {
+				DrumkitComponent* p_compo = *it;
+				p_components.append(p_compo->get_name());
+			}
+			kit_components[info->get_name()] = p_components;
 		}
 	}
 
@@ -213,8 +244,12 @@ void SoundLibraryExportDialog::updateDrumkitList()
 	 */
 
 	int index = drumkitList->findText( preselectedKit );
-	if ( index >= 0)
+	if ( index >= 0) {
 		drumkitList->setCurrentIndex( index );
-	else
+	}
+	else {
 		drumkitList->setCurrentIndex( 0 );
+	}
+
+	on_drumkitList_currentIndexChanged( drumkitList->currentText() );
 }
