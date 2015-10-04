@@ -528,7 +528,7 @@ void MainForm::action_file_save_as()
 		action_file_save();
 	}
 	h2app->setScrollStatusBarMessage( trUtf8("Song saved as.") + QString(" Into: ") + defaultFilename, 2000 );
-	h2app->setWindowTitle();
+	h2app->updateWindowTitle();
 }
 
 

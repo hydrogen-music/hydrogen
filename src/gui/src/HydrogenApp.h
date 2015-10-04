@@ -97,7 +97,7 @@ class HydrogenApp : public QObject, public H2Core::Object
 
 		void setStatusBarMessage( const QString& msg, int msec = 0 );
 		void setScrollStatusBarMessage( const QString& msg, int msec = 0, bool test = true );
-		void setWindowTitle();
+		void updateWindowTitle();
 
 #ifdef H2CORE_HAVE_LADSPA
 		LadspaFXProperties* getLadspaFXProperties(uint nFX) {	return m_pLadspaFXProperties[nFX];	}

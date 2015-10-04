@@ -92,7 +92,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	//setup the undo stack
 	m_undoStack = new QUndoStack( this );
 
-	setWindowTitle();
+	updateWindowTitle();
 
 	Preferences *pPref = Preferences::get_instance();
 
@@ -314,7 +314,7 @@ void HydrogenApp::setSong(Song* song)
 	m_pSongEditorPanel->updateAll();
 	m_pPatternEditorPanel->updateSLnameLabel();
 
-	setWindowTitle();
+	updateWindowTitle();
 
 	m_pMainForm->updateRecentUsedSongList();
 }
@@ -373,7 +373,7 @@ void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 	getPlayerControl()->showMessage( msg, msec );
 }
 
-void HydrogenApp::setWindowTitle()
+void HydrogenApp::updateWindowTitle()
 {
 	Song *pSong = 	Hydrogen::get_instance()->getSong();
 	assert(pSong);
@@ -496,7 +496,7 @@ void HydrogenApp::enableDestructiveRecMode(){
 
 void HydrogenApp::songModifiedEvent()
 {
-	setWindowTitle();
+	updateWindowTitle();
 }
 
 void HydrogenApp::onEventQueueTimer()
