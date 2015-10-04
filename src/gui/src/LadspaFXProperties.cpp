@@ -384,7 +384,7 @@ void LadspaFXProperties::removeFXBtnClicked()
 {
 #ifdef H2CORE_HAVE_LADSPA
 	Song *pSong = (Hydrogen::get_instance() )->getSong();
-	pSong->__is_modified = true;
+	pSong->set_is_modified( true );
 	Effects::get_instance()->setLadspaFX( NULL, m_nLadspaFX );
 	Hydrogen::get_instance()->restartLadspaFX();
 	updateControls();	

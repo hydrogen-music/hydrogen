@@ -125,7 +125,7 @@ void AudioEngineInfoForm::updateInfo()
 		songStateLbl->setText( "NULL song" );
 	}
 	else {
-		if (pSong->__is_modified) {
+		if (pSong->get_is_modified()) {
 			songStateLbl->setText( "Modified" );
 		}
 		else {

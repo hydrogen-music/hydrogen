@@ -174,7 +174,7 @@ Song* Song::get_default_song()
 	patternSequence->add( emptyPattern );
 	pPatternGroupVector->push_back( patternSequence );
 	song->set_pattern_group_vector( pPatternGroupVector );
-	song->__is_modified = false;
+	song->set_is_modified( false );
 	song->set_filename( "empty_song" );
 
 	return song;
@@ -1002,7 +1002,7 @@ Song* SongReader::readSong( const QString& filename )
 		WARNINGLOG( "TagTimeLine node not found" );
 	}
 
-	song->__is_modified = false;
+	song->set_is_modified( false );
 	song->set_filename( FileName );
 
 	return song;

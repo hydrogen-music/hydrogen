@@ -386,7 +386,7 @@ void HydrogenApp::updateWindowTitle()
 		qsSongName = pSong->get_filename();
 	}
 
-	if(pSong->__is_modified){
+	if(pSong->get_is_modified()){
 		title = qsSongName + " (" + QString(trUtf8("modified")) + ")";
 	} else {
 		title = qsSongName;

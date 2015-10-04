@@ -1612,7 +1612,7 @@ bool MainForm::handleUnsavedChanges()
 {
 	bool done = false;
 	bool rv = true;
-	while ( !done && Hydrogen::get_instance()->getSong()->__is_modified ) {
+	while ( !done && Hydrogen::get_instance()->getSong()->get_is_modified() ) {
 		switch(
 			   QMessageBox::information( this, "Hydrogen",
 										 trUtf8("\nThe document contains unsaved changes.\n"
