@@ -164,7 +164,7 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 			m_pInputControlLabel[ i ]->setText( sValue );
 		}
 	}
-	pSong->__is_modified = true;
+	pSong->set_is_modified( true );
 #endif
 }
 
@@ -364,7 +364,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 				}
 			}
 			Song *pSong = (Hydrogen::get_instance() )->getSong();
-			pSong->__is_modified = true;
+			pSong->set_is_modified(true);
 
 			Effects::get_instance()->setLadspaFX( pFX, m_nLadspaFX );
 

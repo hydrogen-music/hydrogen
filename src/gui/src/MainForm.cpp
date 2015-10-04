@@ -528,7 +528,7 @@ void MainForm::action_file_save_as()
 		action_file_save();
 	}
 	h2app->setScrollStatusBarMessage( trUtf8("Song saved as.") + QString(" Into: ") + defaultFilename, 2000 );
-	h2app->setWindowTitle( filename );
+	h2app->setWindowTitle();
 }
 
 
@@ -709,11 +709,11 @@ void MainForm::action_file_open() {
 void MainForm::action_file_openPattern()
 {
 
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	PatternList *pPatternList = song->get_pattern_list();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	PatternList *pPatternList = pSong->get_pattern_list();
 
-	Instrument *instr = song->get_instrument_list()->get ( 0 );
+	Instrument *instr = pSong->get_instrument_list()->get ( 0 );
 	assert ( instr );
 
 	QDir dirPattern( Preferences::get_instance()->getDataDirectory() + "/patterns" );
@@ -732,8 +732,6 @@ void MainForm::action_file_openPattern()
 	}
 	QString patternname = filename;
 
-
-	LocalFileMng mng;
 	LocalFileMng fileMng;
 	Pattern* err = fileMng.loadPattern ( patternname );
 	if ( err == 0 )
@@ -745,7 +743,8 @@ void MainForm::action_file_openPattern()
 	{
 		H2Core::Pattern *pNewPattern = err;
 		pPatternList->add ( pNewPattern );
-		song->__is_modified = true;
+		pSong->set_is_modified( true );
+		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
 	}
 
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
@@ -1519,7 +1518,7 @@ void MainForm::action_file_songProperties()
 {
 	SongPropertiesDialog *pDialog = new SongPropertiesDialog( this );
 	if ( pDialog->exec() == QDialog::Accepted ) {
-		Hydrogen::get_instance()->getSong()->__is_modified = true;
+		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 	}
 	delete pDialog;
 }

@@ -24,10 +24,10 @@
 
 #include <cassert>
 
-#include <hydrogen/basics/adsr.h>
+
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
-
+#include <hydrogen/event_queue.h>
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/timeline.h>
@@ -219,6 +219,19 @@ void Song::set_swing_factor( float factor )
 	__swing_factor = factor;
 }
 
+void Song::set_is_modified(bool is_modified){
+	bool Notify = false;
+
+	if(__is_modified != is_modified){
+		Notify = true;
+	}
+
+	__is_modified = is_modified;
+
+	if(Notify){
+		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
+	}
+}
 
 void Song::readTempPatternList( QString filename )
 {

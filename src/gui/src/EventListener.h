@@ -29,6 +29,7 @@ class EventListener
 		virtual void stateChangedEvent(int nState) { UNUSED( nState ); }
 		virtual void patternChangedEvent() {}
 		virtual void patternModifiedEvent() {}
+		virtual void songModifiedEvent() {}
 		virtual void selectedPatternChangedEvent() {}
 		virtual void selectedInstrumentChangedEvent() {}
 		virtual void midiActivityEvent() {}

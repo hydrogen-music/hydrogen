@@ -185,6 +185,8 @@ class Song : public H2Core::Object
 			__song_mode = mode;
 		}
 
+		void set_is_modified(bool is_modified);
+
 		std::vector<DrumkitComponent*>* get_components() {
 			return __components;
 		}

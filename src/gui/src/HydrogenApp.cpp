@@ -92,14 +92,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	//setup the undo stack
 	m_undoStack = new QUndoStack( this );
 
-	// set initial title
-	QString qsSongName( pFirstSong->__name );
-	if( qsSongName == "Untitled Song" && !pFirstSong->get_filename().isEmpty() ){
-		qsSongName = pFirstSong->get_filename();
-		qsSongName = qsSongName.section( '/', -1 );
-	}
-
-	setWindowTitle( qsSongName  );
+	setWindowTitle();
 
 	Preferences *pPref = Preferences::get_instance();
 
@@ -321,12 +314,7 @@ void HydrogenApp::setSong(Song* song)
 	m_pSongEditorPanel->updateAll();
 	m_pPatternEditorPanel->updateSLnameLabel();
 
-	QString songName( song->__name );
-	if( songName == "Untitled Song" && !song->get_filename().isEmpty() ){
-		songName = song->get_filename();
-		songName = songName.section( '/', -1 );
-	}
-	setWindowTitle( songName  );
+	setWindowTitle();
 
 	m_pMainForm->updateRecentUsedSongList();
 }
@@ -385,7 +373,28 @@ void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 	getPlayerControl()->showMessage( msg, msec );
 }
 
-void HydrogenApp::setWindowTitle( const QString& title){
+void HydrogenApp::setWindowTitle()
+{
+	Song *pSong = 	Hydrogen::get_instance()->getSong();
+	assert(pSong);
+
+	QString title;
+
+	// special handling for initial title
+	QString qsSongName( pSong->__name );
+
+	if( qsSongName == "Untitled Song" && !pSong->get_filename().isEmpty() ){
+		qsSongName = qsSongName.section( '/', -1 );
+	} else {
+		qsSongName = pSong->get_filename();
+	}
+
+	if(pSong->__is_modified){
+		title = qsSongName + " (" + QString(trUtf8("modified")) + ")";
+	} else {
+		title = qsSongName;
+	}
+
 	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) + QString( " - " ) + title ) );
 }
 
@@ -485,6 +494,10 @@ void HydrogenApp::enableDestructiveRecMode(){
 	m_pPatternEditorPanel->displayorHidePrePostCB();
 }
 
+void HydrogenApp::songModifiedEvent()
+{
+	setWindowTitle();
+}
 
 void HydrogenApp::onEventQueueTimer()
 {
@@ -507,6 +520,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_PATTERN_MODIFIED:
 				pListener->patternModifiedEvent();
+				break;
+
+			case EVENT_SONG_MODIFIED:
+				songModifiedEvent();
 				break;
 
 			case EVENT_SELECTED_PATTERN_CHANGED:

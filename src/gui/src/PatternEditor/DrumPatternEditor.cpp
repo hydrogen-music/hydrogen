@@ -328,7 +328,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 			AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
 		}
 	}
-	pSong->__is_modified = true;
+	pSong->set_is_modified( true );
 	AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
 	// update the selected line
@@ -434,7 +434,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		}
 		m_pDraggedNote->set_length( nLen * fStep);
 
-		Hydrogen::get_instance()->getSong()->__is_modified = true;
+		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
 		//__draw_pattern();
@@ -916,9 +916,10 @@ void DrumPatternEditor::undoRedoAction( int column,
 			pNote->set_lead_lag( leadLag );
 		}
 		else if ( mode == "NOTEKEY" ){
-            pNote->set_key_octave( (Note::Key)noteKeyVal, (Note::Octave)octaveKeyVal );
+			pNote->set_key_octave( (Note::Key)noteKeyVal, (Note::Octave)octaveKeyVal );
 		}
-		pSong->__is_modified = true;
+
+		pSong->set_is_modified( true );
 		break;
 	}
 	updateEditor();
@@ -1237,7 +1238,7 @@ void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,  in
 		AudioEngine::get_instance()->unlock();
 		engine->setSelectedInstrumentNumber( nTargetInstrument );
 
-		pSong->__is_modified = true;
+		pSong->set_is_modified( true );
 }
 
 
