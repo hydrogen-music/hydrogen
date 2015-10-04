@@ -111,9 +111,6 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	
 	m_pPlaylistDialog = new PlaylistDialog( 0 );
 	m_pDirector = new Director( 0 );
-//	m_pSampleEditor = new SampleEditor( 0 );
-	
-        showInfoSplash();	// First time information
 }
 
 
@@ -439,50 +436,6 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedLayer )
 	m_pSampleEditor = new SampleEditor( 0, mSelectedLayer, name );
 	m_pSampleEditor->show();
 	QApplication::restoreOverrideCursor();
-}
-
-
-
-void HydrogenApp::showInfoSplash()
-{
-	QString sDocPath = H2Core::Filesystem::doc_dir().append("/infoSplash");
-
-	QDir dir(sDocPath);
-	if ( !dir.exists() ) {
-		ERRORLOG( QString("[showInfoSplash] Directory ").append( sDocPath ).append( " not found." ) );
-		return;
-	}
-
-	QString sFilename;
-	int nNewsID = 0;
-	QFileInfoList list = dir.entryInfoList();
-
-	for ( int i =0; i < list.size(); ++i ) {
-		QString sFile = list.at( i ).fileName();
-
-		if ( sFile == "." || sFile == ".." ) {
-			continue;
-		}
-
-		int nPos = sFile.lastIndexOf( "-" );
-		QString sNewsID = sFile.mid( nPos + 1, sFile.length() - nPos - 1 );
-		int nID = sNewsID.toInt();
-		if ( nID > nNewsID ) {
-			sFilename = sFile;
-		}
-		//		INFOLOG( "news: " + sFilename + " id: " + sNewsID );
-	}
-	INFOLOG( "[showInfoSplash] Selected news: " + sFilename );
-
-	QString sLastRead = Preferences::get_instance()->getLastNews();
-	if ( sLastRead != sFilename && !sFilename.isEmpty() ) {
-		QString sDocURI = sDocPath;
-		sDocURI.append( "/" ).append( sFilename );
-		SimpleHTMLBrowser *m_pFirstTimeInfo = new SimpleHTMLBrowser( m_pMainForm, sDocPath, sDocURI, SimpleHTMLBrowser::WELCOME );
-		if ( m_pFirstTimeInfo->exec() == QDialog::Accepted ) {
-			Preferences::get_instance()->setLastNews( sFilename );
-		}
-	}
 }
 
 void HydrogenApp::onDrumkitLoad( QString name ){

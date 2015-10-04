@@ -145,7 +145,6 @@ class HydrogenApp : public QObject, public H2Core::Object
 
 		void setupSinglePanedInterface();
 		virtual void songModifiedEvent();
-		void showInfoSplash();
 };
 
 
