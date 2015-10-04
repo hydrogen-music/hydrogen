@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="fr_FR">
+<TS version="2.1" language="fr_FR">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -646,6 +646,13 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>Download</name>
+    <message>
+        <source>Importing item failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DownloadWidget</name>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
@@ -1079,11 +1086,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Set the instrument as part of a hihat set.</source>
-        <translation>Déclare l&apos;instrument en tant que partie d'un ensemble de charleston</translation>
-    </message>
-    <message>
-        <source>Bank volume</source>
-        <translation>Volume de la banque</translation>
+        <translation>Déclare l&apos;instrument en tant que partie d&apos;un ensemble de charleston</translation>
     </message>
     <message>
         <source>New component name</source>
@@ -1092,6 +1095,18 @@ Are you sure?</source>
     <message>
         <source>Component name</source>
         <translation>Nom du composant</translation>
+    </message>
+    <message>
+        <source>Midi out channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi out note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component volume</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1825,25 +1840,6 @@ Voulez-vous sauvegarder les changements?
     <message>
         <source>Set instr. pan [%1]</source>
         <translation>Régler l&apos;effet pan. de l&apos;instrument [%1]</translation>
-    </message>
-</context>
-<context>
-    <name>PatternEditorInstrumentList</name>
-    <message>
-        <source>Would you like to merge or add the banks?</source>
-        <translation>Voulez-vous fusionner ou ajouter les banques ?</translation>
-    </message>
-    <message>
-        <source>&amp;Merge</source>
-        <translation>Fusionner</translation>
-    </message>
-    <message>
-        <source>&amp;Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>Annuler</translation>
     </message>
 </context>
 <context>
@@ -2835,11 +2831,11 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Coloring method for Song Editor elements</source>
-        <translation>Méthode de colorisation des éléments de l'éditeur de morceau</translation>
+        <translation>Méthode de colorisation des éléments de l&apos;éditeur de morceau</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Après avoir modifié une police ou l'agencement de l'interface, l&apos;application doit être redémarrée.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Après avoir modifié une police ou l&apos;agencement de l&apos;interface, l&apos;application doit être redémarrée.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -3737,8 +3733,12 @@ Are you sure?</source>
         <translation>S&apos;il vous plaît, mettez au moins un nom valide</translation>
     </message>
     <message>
-        <source>Saving of this drumkit failed.</source>
-        <translation>La sauvegarde de ce kit de batterie a échouée</translation>
+        <source>A library with the same name already exists. Do you want to overwrite the existing library?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this library failed.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
