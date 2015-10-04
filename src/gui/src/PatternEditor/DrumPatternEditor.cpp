@@ -1270,7 +1270,7 @@ void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument
 }
 
 
-void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, bool Merge, std::vector<int>* AddedComponents)
+void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, std::vector<int>* AddedComponents)
 {
 		Instrument *pNewInstrument = Instrument::load_instrument( sDrumkitName, sInstrumentName );
 		if( pNewInstrument == NULL ){
@@ -1294,9 +1294,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 			int OldID = pComponent->get_id();
 			int NewID = -1;
 
-			if ( Merge ){
-				NewID = findExistingCompo( pComponent->get_name() );
-			}
+			NewID = findExistingCompo( pComponent->get_name() );
 
 			if ( NewID == -1 ) {
 				NewID = findFreeCompoID();
