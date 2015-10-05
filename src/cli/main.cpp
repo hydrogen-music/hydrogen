@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
 		if ( ! outFilename.isEmpty() ) {
 			pHydrogen->startExportSong ( outFilename, rate, bits );
 			cout << "Export Progress ... ";
-			bool ExportMode = true;
+			ExportMode = true;
 		}
 
 		// Interactive mode

@@ -12,7 +12,7 @@ install_mxe(){
 		echo "mxe detected at /opt/mxe"
 		exit
 	fi
-	mkdir -r $HOME/build
+	mkdir -p $HOME/build
 	cd $HOME/build
 	git clone https://github.com/mxe/mxe.git
 	sudo cp -pr mxe /opt/mxe
