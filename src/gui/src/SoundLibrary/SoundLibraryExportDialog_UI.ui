@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="title">
-    <string>GroupBox</string>
+    <string>Drumkit</string>
    </property>
    <widget class="QComboBox" name="drumkitList">
     <property name="geometry">
@@ -123,7 +123,7 @@
    <widget class="QPushButton" name="browseBtn">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>380</x>
       <y>20</y>
       <width>85</width>
       <height>27</height>
