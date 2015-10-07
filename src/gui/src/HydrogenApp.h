@@ -97,7 +97,7 @@ class HydrogenApp : public QObject, public H2Core::Object
 
 		void setStatusBarMessage( const QString& msg, int msec = 0 );
 		void setScrollStatusBarMessage( const QString& msg, int msec = 0, bool test = true );
-		void setWindowTitle( const QString& title);
+		void updateWindowTitle();
 
 #ifdef H2CORE_HAVE_LADSPA
 		LadspaFXProperties* getLadspaFXProperties(uint nFX) {	return m_pLadspaFXProperties[nFX];	}
@@ -115,6 +115,7 @@ class HydrogenApp : public QObject, public H2Core::Object
 	public slots:
 		void onEventQueueTimer();
 		void currentTabChanged(int);
+
 
 	private:
 		static HydrogenApp *m_pInstance;	///< HydrogenApp instance
@@ -142,9 +143,8 @@ class HydrogenApp : public QObject, public H2Core::Object
 		// implement EngineListener interface
 		void engineError(uint nErrorCode);
 
-		//void setupTopLevelInterface();
 		void setupSinglePanedInterface();
-		void showInfoSplash();
+		virtual void songModifiedEvent();
 };
 
 

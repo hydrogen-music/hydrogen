@@ -913,7 +913,7 @@ void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 			HydrogenApp::get_instance()->getLadspaFXProperties(nFX)->show();
 		}
 	}
-	Hydrogen::get_instance()->getSong()->__is_modified = true;
+	Hydrogen::get_instance()->getSong()->set_is_modified( true );
 #endif
 }
 
@@ -923,7 +923,7 @@ void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
 {
 #ifdef H2CORE_HAVE_LADSPA
 	Song *pSong = (Hydrogen::get_instance() )->getSong();
-	pSong->__is_modified = true;
+	pSong->set_is_modified( true );
 
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		if (ref == m_pLadspaFXLine[ nFX ] ) {

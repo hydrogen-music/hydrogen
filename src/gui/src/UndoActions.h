@@ -821,12 +821,11 @@ private:
 class SE_dragInstrumentAction : public QUndoCommand
 {
 public:
-	SE_dragInstrumentAction(  QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, bool Merge  ){
+	SE_dragInstrumentAction(  QString sDrumkitName, QString sInstrumentName, int nTargetInstrument){
 		setText( QString( "Drop instrument" ) );
 		__sDrumkitName = sDrumkitName;
 		__sInstrumentName = sInstrumentName;
 		__nTargetInstrument = nTargetInstrument;
-		__bMerge = Merge;
 		__addedComponents = new std::vector<int>();
 	}
 	virtual void undo()
@@ -839,13 +838,12 @@ public:
 	{
 		//qDebug() << "drop Instrument Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitName, __sInstrumentName, __nTargetInstrument, __bMerge, __addedComponents );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitName, __sInstrumentName, __nTargetInstrument, __addedComponents );
 	}
 private:
 	QString __sDrumkitName;
 	QString __sInstrumentName;
 	int __nTargetInstrument;
-	bool __bMerge;
 	std::vector<int>* __addedComponents;
 };
 
