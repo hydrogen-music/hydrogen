@@ -62,7 +62,7 @@ class Song : public H2Core::Object
 		bool __is_muted;
 		unsigned __resolution;		///< Resolution of the song (number of ticks per quarter)
 		float __bpm;			///< Beats per minute
-		bool __is_modified;
+
 		QString __name;		///< song name
 		QString __author;	///< author of the song
 		QString __license;	///< license of the song
@@ -185,6 +185,12 @@ class Song : public H2Core::Object
 			__song_mode = mode;
 		}
 
+		void set_is_modified(bool is_modified);
+
+		bool get_is_modified(){
+			return __is_modified;
+		}
+
 		std::vector<DrumkitComponent*>* get_components() {
 			return __components;
 		}
@@ -205,22 +211,21 @@ class Song : public H2Core::Object
 
 
 	private:
-		float __volume;						///< volume of the song (0.0..1.0)
-		float __metronome_volume;				///< Metronome volume
-		QString __notes;
-		PatternList* __pattern_list;				///< Pattern list
-		std::vector<PatternList*>* __pattern_group_sequence;	///< Sequence of pattern groups
-		InstrumentList* __instrument_list;			///< Instrument list
-		std::vector<DrumkitComponent*>* __components;            ///< list of drumkit component
-		QString __filename;
-		bool __is_loop_enabled;
-		float __humanize_time_value;
-		float __humanize_velocity_value;
-		float __swing_factor;
-
-		std::map< float, int> __latest_round_robins;
-
-		SongMode __song_mode;
+		float								__volume;						///< volume of the song (0.0..1.0)
+		float								__metronome_volume;				///< Metronome volume
+		QString								__notes;
+		PatternList*						__pattern_list;				///< Pattern list
+		std::vector<PatternList*>*			__pattern_group_sequence;	///< Sequence of pattern groups
+		InstrumentList*						__instrument_list;			///< Instrument list
+		std::vector<DrumkitComponent*>*		__components;            ///< list of drumkit component
+		QString								__filename;
+		bool								__is_loop_enabled;
+		float								__humanize_time_value;
+		float								__humanize_velocity_value;
+		float								__swing_factor;
+		bool								__is_modified;
+		std::map< float, int> 				__latest_round_robins;
+		SongMode							__song_mode;
 };
 
 

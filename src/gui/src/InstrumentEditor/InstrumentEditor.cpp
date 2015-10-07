@@ -108,6 +108,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_pMidiOutChannelLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pMidiOutChannelLCD->move( 67, 261 );
+	m_pMidiOutChannelLCD->setToolTip(QString(trUtf8("Midi out channel")));
+
 
 	m_pAddMidiOutChannelBtn = new Button(
 								  m_pInstrumentProp,
@@ -131,6 +133,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pDelMidiOutChannelBtn->move( 109, 269 );
 	connect( m_pDelMidiOutChannelBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutChannelBtnClicked(Button*) ) );
 
+
 	///
 	m_pMidiOutNoteLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pMidiOutNoteLCD->move( 160, 261 );
@@ -142,6 +145,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 							   "/lcd/LCDSpinBox_up_over.png",
 							   QSize( 16, 8 )
 							   );
+	m_pMidiOutNoteLCD->setToolTip(QString(trUtf8("Midi out note")));
+
 
 	m_pAddMidiOutNoteBtn->move( 202, 260 );
 	connect( m_pAddMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );

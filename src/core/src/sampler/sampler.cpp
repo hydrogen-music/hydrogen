@@ -1018,7 +1018,7 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 									if ( ticks >  patternsize )
 										ticks = patternsize - noteOnTick;
 									pNote->set_length( ticks );
-									Hydrogen::get_instance()->getSong()->__is_modified = true;
+									Hydrogen::get_instance()->getSong()->set_is_modified( true );
 									AudioEngine::get_instance()->unlock(); // unlock the audio engine
 								}
 							}else
@@ -1029,7 +1029,7 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 									if ( ticks >  patternsize )
 										ticks = patternsize - noteOnTick;
 									pNote->set_length( ticks );
-									Hydrogen::get_instance()->getSong()->__is_modified = true;
+									Hydrogen::get_instance()->getSong()->set_is_modified( true );
 									AudioEngine::get_instance()->unlock(); // unlock the audio engine
 								}
 							}
@@ -1038,6 +1038,7 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 				}
 			}
 		}
+
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
 }
 

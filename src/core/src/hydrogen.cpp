@@ -2567,7 +2567,7 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 	// delete the instrument from the instruments list
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	getSong()->get_instrument_list()->del( instrumentnumber );
-	getSong()->__is_modified = true;
+	getSong()->set_is_modified( true );
 	AudioEngine::get_instance()->unlock();
 
 	// At this point the instrument has been removed from both the
