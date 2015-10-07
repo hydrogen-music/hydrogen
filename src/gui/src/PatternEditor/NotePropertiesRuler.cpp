@@ -191,7 +191,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			}
 		}
 
-		pSong->__is_modified = true;
+		pSong->set_is_modified( true );
 		startUndoAction();
 		updateEditor();
 		break;
@@ -425,7 +425,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				
 			__columnCheckOnXmouseMouve = column;
 	
-			pSong->__is_modified = true;
+			pSong->set_is_modified( true );
 			updateEditor();
 			break;
 		}
