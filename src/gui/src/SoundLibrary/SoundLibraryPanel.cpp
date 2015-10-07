@@ -487,7 +487,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
-	Hydrogen::get_instance()->getSong()->__is_modified = true;
+	Hydrogen::get_instance()->getSong()->set_is_modified( true );
 	HydrogenApp::get_instance()->onDrumkitLoad( drumkitInfo->get_name() );
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
@@ -719,7 +719,7 @@ void SoundLibraryPanel::on_patternLoadAction()
 	}
 	else {
 		pPatternList->add ( pErr );
-		pSong->__is_modified = true;
+		pSong->set_is_modified( true );
 	}
 
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();

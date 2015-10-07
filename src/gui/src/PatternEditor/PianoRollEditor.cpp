@@ -688,7 +688,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 			AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
 		}
 	}
-	pSong->__is_modified = true;
+	pSong->set_is_modified( true );
 	AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
 	updateEditor();
@@ -734,7 +734,7 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 		}
 		m_pDraggedNote->set_length( nLen * fStep);
 
-		Hydrogen::get_instance()->getSong()->__is_modified = true;
+		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
 		//__draw_pattern();
@@ -769,7 +769,7 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 
 		__velocity = val;
 
-		Hydrogen::get_instance()->getSong()->__is_modified = true;
+		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
 		//__draw_pattern();
@@ -810,7 +810,7 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 		__pan_L = pan_L;
 		__pan_R = pan_R;
 
-		Hydrogen::get_instance()->getSong()->__is_modified = true;
+		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
 		//__draw_pattern();
@@ -856,7 +856,7 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 			HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
 		}
 
-		Hydrogen::get_instance()->getSong()->__is_modified = true;
+		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
 		//__draw_pattern();

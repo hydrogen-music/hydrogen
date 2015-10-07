@@ -97,8 +97,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		void functionRandomVelocityAction( QStringList noteVeloValue, int nSelectedInstrument, int selectedPatternNumber );
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
 		void functionDropInstrumentUndoAction( int nTargetInstrument, std::vector<int>* AddedComponents );
-		void functionDropInstrumentRedoAction( QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, bool Merge, std::vector<int>* AddedComponents );
-       		void functionDeleteInstrumentUndoAction(  std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString instrumentName, QString drumkitName );
+		void functionDropInstrumentRedoAction(QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, std::vector<int>* AddedComponents );
+		void functionDeleteInstrumentUndoAction(  std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString instrumentName, QString drumkitName );
 		void functionAddEmptyInstrumentUndo();
 		void functionAddEmptyInstrumentRedo();
 		void functionPasteNotesRedoAction(std::list<H2Core::Pattern*> & changeList, std::list<H2Core::Pattern*> & appliedList);
@@ -114,10 +114,6 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		uint m_nResolution;
 		bool m_bUseTriplets;
 
-		//QPixmap *m_pBackground;
-		//QPixmap *m_pTemp;
-
-		// usati per la lunghezza della nota
 		bool m_bRightBtnPressed;
 		H2Core::Note *m_pDraggedNote;
 		//~

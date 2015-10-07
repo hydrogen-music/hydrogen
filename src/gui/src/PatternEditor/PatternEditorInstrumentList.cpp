@@ -625,24 +625,6 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 	if( sText.startsWith("importInstrument:") ) {
 		//an instrument was dragged from the soundlibrary browser to the patterneditor
 
-		bool p_merge;
-
-		switch(QMessageBox::information( this, "Hydrogen",
-								 trUtf8("\nWould you like to merge or add the components?\n"),
-								 trUtf8("&Merge"), trUtf8("&Add"), trUtf8("&Cancel"),
-								 0,      // Enter == button 0
-								 2 ) ) { // Escape == button 2
-		case 0:
-			p_merge = true;
-			break;
-		case 1:
-			p_merge = false;
-			break;
-		case 2: // Cancel clicked or Alt+C pressed or Escape pressed
-			return;
-			break;
-		}
-
 		sText = sText.remove(0,QString("importInstrument:").length());
 
 		QStringList tokens = sText.split( "::" );
@@ -662,7 +644,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 			nTargetInstrument = engine->getSong()->get_instrument_list()->size();
 		}
 
-		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitName, sInstrumentName, nTargetInstrument, p_merge );
+		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitName, sInstrumentName, nTargetInstrument);
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 
 		event->acceptProposedAction();
