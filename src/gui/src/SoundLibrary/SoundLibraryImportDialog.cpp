@@ -428,6 +428,8 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 				sLocalFile = dataDir + "patterns/" + QFileInfo( sURL ).fileName();
 			}
 
+			bool Error = false;
+
 			for ( int i = 0; i < 30; ++i ) {
 				DownloadWidget dl( this, trUtf8( "Downloading SoundLibrary..." ), sURL, sLocalFile );
 				dl.exec();
@@ -436,29 +438,39 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 				QUrl redirect_url = dl.get_redirect_url();
 				if (redirect_url.isEmpty() ) {
 					// ok, we have all data
+					Error = dl.get_error();
 					break;
 				}
 				else {
 					sURL = redirect_url.toEncoded();
+					Error = dl.get_error();
 				}
 			}
 
 
-			// install the new soundlibrary
-			try {
-				if ( sType == "drumkit" ) {
-					H2Core::Drumkit::install( sLocalFile );
-					QApplication::restoreOverrideCursor();
-					QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ) ).arg( dataDir ) );
-				}
+			//No 'else', error message has been already displayed by DL widget
+			if(!Error)
+			{
+				// install the new soundlibrary
+				try {
+					if ( sType == "drumkit" ) {
+						H2Core::Drumkit::install( sLocalFile );
+						QApplication::restoreOverrideCursor();
+						QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ) ).arg( dataDir ) );
+					}
 
-				if ( sType == "song" || sType == "pattern") {
+					if ( sType == "song" || sType == "pattern") {
+						QApplication::restoreOverrideCursor();
+					}
+				}
+				catch( H2Core::H2Exception ex ) {
 					QApplication::restoreOverrideCursor();
+					QMessageBox::warning( this, "Hydrogen", trUtf8( "An error occurred importing the SoundLibrary."  ) );
 				}
 			}
-			catch( H2Core::H2Exception ex ) {
+			else
+			{
 				QApplication::restoreOverrideCursor();
-				QMessageBox::warning( this, "Hydrogen", trUtf8( "An error occurred importing the SoundLibrary."  ) );
 			}
 
 			QApplication::setOverrideCursor(Qt::WaitCursor);
