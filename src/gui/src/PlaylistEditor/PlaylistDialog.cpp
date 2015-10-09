@@ -502,6 +502,8 @@ void PlaylistDialog::saveListAs()
 		return;
 	}
 
+	Playlist::get_instance()->setIsModified(false);
+
 	setWindowTitle ( trUtf8 ( "Playlist Browser" ) + QString(" - ") + filename );
 }
 
@@ -516,6 +518,8 @@ void PlaylistDialog::saveList()
 	if ( ! pPlaylist->save ( pPlaylist->get_filename() ) ){
 		return;
 	}
+
+	Playlist::get_instance()->setIsModified(false);
 }
 
 void PlaylistDialog::loadScript()
@@ -870,6 +874,8 @@ void PlaylistDialog::updatePlayListVector()
 		playListItem.m_hScriptEnabled = execval;
 
 		Hydrogen::get_instance()->m_PlayList.push_back( playListItem );
+
+		Playlist::get_instance()->setIsModified(true);
 	}
 	timer->start( 1000 );
 }
