@@ -194,6 +194,14 @@ void SoundLibraryExportDialog::on_drumkitList_currentIndexChanged( QString str )
 	}
 }
 
+void SoundLibraryExportDialog::on_versionList_currentIndexChanged( QString str )
+{
+	if( str.toStdString() == "0.9.7 and higher" )
+		componentList->setEnabled( false );
+	else if( str.toStdString() == "0.9.6 and lower" )
+		componentList->setEnabled(  true );
+}
+
 void SoundLibraryExportDialog::updateDrumkitList()
 {
 	INFOLOG( "[updateDrumkitList]" );
@@ -252,4 +260,5 @@ void SoundLibraryExportDialog::updateDrumkitList()
 	}
 
 	on_drumkitList_currentIndexChanged( drumkitList->currentText() );
+	on_versionList_currentIndexChanged( versionList->currentText() );
 }

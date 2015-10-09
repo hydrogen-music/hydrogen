@@ -157,7 +157,7 @@
     </item>
    </widget>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>170</x>
@@ -183,7 +183,7 @@
     <item>
      <widget class="QPushButton" name="cancelBtn">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="text">
        <string>Cancel</string>
