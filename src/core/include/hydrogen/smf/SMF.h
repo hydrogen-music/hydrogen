@@ -55,7 +55,8 @@ class SMFTrack : public SMFBase, public H2Core::Object
 {
 	H2_OBJECT
 public:
-	SMFTrack( const QString& sTrackName );
+
+	SMFTrack();
 	~SMFTrack();
 
 	void addEvent( SMFEvent *pEvent );

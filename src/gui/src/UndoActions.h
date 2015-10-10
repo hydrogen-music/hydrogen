@@ -821,30 +821,30 @@ private:
 class SE_dragInstrumentAction : public QUndoCommand
 {
 public:
-	SE_dragInstrumentAction(  QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, bool Merge  ){
+	SE_dragInstrumentAction(  QString sDrumkitName, QString sInstrumentName, int nTargetInstrument){
 		setText( QString( "Drop instrument" ) );
 		__sDrumkitName = sDrumkitName;
 		__sInstrumentName = sInstrumentName;
 		__nTargetInstrument = nTargetInstrument;
-		__bMerge = Merge;
+		__addedComponents = new std::vector<int>();
 	}
 	virtual void undo()
 	{
 		//qDebug() << "drop Instrument Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nTargetInstrument );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nTargetInstrument, __addedComponents );
 	}
 	virtual void redo()
 	{
 		//qDebug() << "drop Instrument Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitName, __sInstrumentName, __nTargetInstrument, __bMerge );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitName, __sInstrumentName, __nTargetInstrument, __addedComponents );
 	}
 private:
 	QString __sDrumkitName;
 	QString __sInstrumentName;
 	int __nTargetInstrument;
-	bool __bMerge;
+	std::vector<int>* __addedComponents;
 };
 
 
@@ -886,7 +886,7 @@ public:
 		//qDebug() << "delete Instrument Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		//delete an instrument from list
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nSelectedInstrument );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nSelectedInstrument, new std::vector<int>() );
 	}
 private:
 	std::list< H2Core::Note* > __noteList;

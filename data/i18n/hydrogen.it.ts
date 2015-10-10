@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="it_IT">
+<TS version="2.1" language="it_IT">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -646,6 +646,13 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>Download</name>
+    <message>
+        <source>Importing item failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DownloadWidget</name>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
@@ -1084,15 +1091,23 @@ Sei sicuro?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Bank volume</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>New component name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi out channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi out note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component volume</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1801,27 +1816,6 @@ Vuoi salvare i cambiamenti?</translation>
     <message>
         <source>Set instr. pan [%1]</source>
         <translation>Pan strumento [%1]</translation>
-    </message>
-</context>
-<context>
-    <name>PatternEditorInstrumentList</name>
-    <message>
-        <source>
-Would you like to merge or add the banks?
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Merge</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Add</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Annulla</translation>
     </message>
 </context>
 <context>
@@ -3701,8 +3695,12 @@ Are you sure?</source>
         <translation>Fornisci un nome valido</translation>
     </message>
     <message>
-        <source>Saving of this drumkit failed.</source>
-        <translation>Salvataggio drumkit fallito.</translation>
+        <source>A library with the same name already exists. Do you want to overwrite the existing library?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this library failed.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

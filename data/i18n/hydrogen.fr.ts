@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="fr_FR">
+<TS version="2.1" language="fr_FR">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -646,6 +646,13 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>Download</name>
+    <message>
+        <source>Importing item failed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DownloadWidget</name>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
@@ -1011,7 +1018,7 @@ Are you sure?</source>
     <name>InstrumentEditor</name>
     <message>
         <source>Random pitch factor</source>
-        <translation>Hauteur aléatoire</translation>
+        <translation>Hauteur de tonalité aléatoire</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
@@ -1047,11 +1054,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Layer pitch (Coarse)</source>
-        <translation>Hauteur de la couche (brut)</translation>
+        <translation>Hauteur de tonalité de la couche (réglage grossier)</translation>
     </message>
     <message>
         <source>Layer pitch (Fine)</source>
-        <translation>Haute de la couche (fin)</translation>
+        <translation>Hauteur de tonalité de la couche (réglage fin)</translation>
     </message>
     <message>
         <source>Show instrument properties</source>
@@ -1079,11 +1086,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Set the instrument as part of a hihat set.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Bank volume</source>
-        <translation>Volume de la banque</translation>
+        <translation>Déclare l&apos;instrument en tant que partie d&apos;un ensemble de charleston</translation>
     </message>
     <message>
         <source>New component name</source>
@@ -1092,6 +1095,18 @@ Are you sure?</source>
     <message>
         <source>Component name</source>
         <translation>Nom du composant</translation>
+    </message>
+    <message>
+        <source>Midi out channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi out note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component volume</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1165,7 +1180,7 @@ Are you sure?</source>
     <name>InstrumentRack</name>
     <message>
         <source>Show Instrument editor</source>
-        <translation>Afficher l&apos;éditeur d&apos;instruments</translation>
+        <translation>Afficher l&apos;éditeur d&apos;instrument</translation>
     </message>
     <message>
         <source>Instrument</source>
@@ -1188,7 +1203,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>FX bypass</source>
-        <translation>Dérivation de l&apos;effet</translation>
+        <translation>Court-circuiter l&apos;effet</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
@@ -1766,7 +1781,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>press button to record midi event</source>
-        <translation>Appuyer sur le bouton pour enregistrer les événements midi</translation>
+        <translation>Appuyer sur le bouton pour enregistrer les évènements midi</translation>
     </message>
 </context>
 <context>
@@ -1800,7 +1815,7 @@ Voulez-vous sauvegarder les changements?
     <name>MixerLine</name>
     <message>
         <source>Play sample</source>
-        <translation>Jouer échantillon</translation>
+        <translation>Jouer l&apos;échantillon</translation>
     </message>
     <message>
         <source>Mute</source>
@@ -1828,25 +1843,6 @@ Voulez-vous sauvegarder les changements?
     </message>
 </context>
 <context>
-    <name>PatternEditorInstrumentList</name>
-    <message>
-        <source>Would you like to merge or add the banks?</source>
-        <translation>Voulez-vous fusionner ou ajouter les banques ?</translation>
-    </message>
-    <message>
-        <source>&amp;Merge</source>
-        <translation>Fusionner</translation>
-    </message>
-    <message>
-        <source>&amp;Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-</context>
-<context>
     <name>PatternEditorPanel</name>
     <message>
         <source>Hear new notes</source>
@@ -1866,15 +1862,15 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Quantize keyboard/midi events to grid</source>
-        <translation>Quantifier les évenements clavier/MIDI sur la grille</translation>
+        <translation>Quantifier les évènements clavier/MIDI sur la grille</translation>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = On</source>
-        <translation>Quantifier les évenements clavier/MIDI entrant = Actif</translation>
+        <translation>Quantifier les évènements clavier/MIDI entrant = Actif</translation>
     </message>
     <message>
         <source>Select pattern size</source>
-        <translation>Sélectionner la grandeur du motif</translation>
+        <translation>Sélectionner la longueur du motif</translation>
     </message>
     <message>
         <source>Select grid resolution</source>
@@ -2092,7 +2088,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Jack-transport on/off</source>
-        <translation>Transport Jack on/off</translation>
+        <translation>Transport Jack actif/inactif</translation>
     </message>
     <message>
         <source>Jack-transport mode = On</source>
@@ -2112,7 +2108,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Play/ Pause</source>
-        <translation>Jouer/ Pause</translation>
+        <translation>Jouer/Pause</translation>
     </message>
     <message>
         <source>Fast Forward</source>
@@ -2124,7 +2120,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Mixer</source>
-        <translation>Mixage</translation>
+        <translation>Mixeur</translation>
     </message>
     <message>
         <source>Show Instrument Rack</source>
@@ -2156,7 +2152,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>BeatCounter Panel on</source>
-        <translation>Panneau du compteur BPM activé</translation>
+        <translation>Activation du panneau du compteur BPM</translation>
     </message>
     <message>
         <source>Set BPM / Set BPM and play</source>
@@ -2200,11 +2196,11 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Record midi events = On</source>
-        <translation>Enregistrer les événements midi = On</translation>
+        <translation>Enregistrer les évènements midi = On</translation>
     </message>
     <message>
         <source>Record midi events = Off</source>
-        <translation>Enregistrer les événements midi = Off</translation>
+        <translation>Enregistrer les évènements midi = Off</translation>
     </message>
     <message>
         <source>Destructive mode = Off</source>
@@ -2216,7 +2212,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
-        <translation>Recalcule l&apos;échantillon modifié par Rubberband si le bpm change</translation>
+        <translation>Recalcule les échantillons modifiés par Rubberband si le BPM change</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband ON</source>
@@ -2228,7 +2224,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Switch metronome on/off</source>
-        <translation type="unfinished"></translation>
+        <translation>Active/désactive le métronome</translation>
     </message>
 </context>
 <context>
@@ -2504,15 +2500,15 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatique</translation>
     </message>
     <message>
         <source>Steps</source>
-        <translation type="unfinished"></translation>
+        <translation>Par pas</translation>
     </message>
     <message>
         <source>Fixed</source>
-        <translation type="unfinished"></translation>
+        <translation>Fixe</translation>
     </message>
     <message>
         <source>&lt;b&gt;PulseAudio Driver&lt;/b&gt;&lt;br&gt;</source>
@@ -2524,7 +2520,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Color (Hue value)</source>
-        <translation type="unfinished"></translation>
+        <translation>Couleur (valeur Hue)</translation>
     </message>
 </context>
 <context>
@@ -2819,15 +2815,15 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Default interface layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Agencement de l&apos;interface par défaut</translation>
     </message>
     <message>
         <source>Single pane</source>
-        <translation type="unfinished"></translation>
+        <translation>Tout-en-un</translation>
     </message>
     <message>
         <source>Tabbed</source>
-        <translation type="unfinished"></translation>
+        <translation>Plusieurs onglets</translation>
     </message>
     <message>
         <source>TextLabel</source>
@@ -2835,11 +2831,11 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Coloring method for Song Editor elements</source>
-        <translation type="unfinished"></translation>
+        <translation>Méthode de colorisation des éléments de l&apos;éditeur de morceau</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Après avoir modifié une police ou l&apos;agencement de l&apos;interface, l&apos;application doit être redémarrée.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -3257,7 +3253,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Enable time line edit</source>
-        <translation>Active l&apos;édition de la TimeLine</translation>
+        <translation>Active l&apos;édition de la ligne de temps</translation>
     </message>
     <message>
         <source>Pattern %1</source>
@@ -3737,8 +3733,12 @@ Are you sure?</source>
         <translation>S&apos;il vous plaît, mettez au moins un nom valide</translation>
     </message>
     <message>
-        <source>Saving of this drumkit failed.</source>
-        <translation>La sauvegarde de ce kit de batterie a échouée</translation>
+        <source>A library with the same name already exists. Do you want to overwrite the existing library?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this library failed.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
