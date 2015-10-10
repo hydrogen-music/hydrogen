@@ -60,6 +60,14 @@ class Playlist :  public H2Core::Object
 		void set_filename( const QString& filename ) {
 			__filename = filename;
 		}
+
+		void setIsModified(bool IsModified){
+			m_bIsModified = IsModified;
+		}
+
+		bool getIsModified(){
+			return m_bIsModified;
+		}
 		
 		static Playlist* load( const QString& filename );
 		bool save( const QString& filename );
@@ -70,6 +78,8 @@ class Playlist :  public H2Core::Object
 
 		int m_nSelectedSongNumber;
 		int m_nActiveSongNumber;
+
+		bool m_bIsModified;
 
 		/// Constructor
 		Playlist();

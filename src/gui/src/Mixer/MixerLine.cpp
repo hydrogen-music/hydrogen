@@ -981,27 +981,10 @@ FxMixerLine::FxMixerLine(QWidget* parent)
 	setMinimumSize( m_nWidth, m_nHeight );
 	setMaximumSize( m_nWidth, m_nHeight );
 	resize( m_nWidth, m_nHeight );
-//	QPalette defaultPalette;
-//	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
-//	this->setPalette( defaultPalette );
 	m_fMaxPeak = 0.0;
 
 	// MixerLine Background image
 	setPixmap( "/mixerPanel/mixerline_background.png" );
-
-	// MixerLine LABEL Background image
-//	QPixmap mixerLineLabelBackground;
-//	ok = mixerLineLabelBackground.load(Skin::getImagePath() + "/mixerPanel/mixerline_label_background.png");
-//	if( ok == false ){
-//		ERRORLOG( "Error loading pixmap" );
-//	}
-
-//	QPixmap textBackground;
-//	ok = textBackground.load( Skin::getImagePath() + "/mixerPanel/mixerline_text_background.png" );
-//	if( ok == false ){
-//		ERRORLOG( "Error loading pixmap" );
-//	}
-
 
 	// active button
 	activeBtn = new ToggleButton(
@@ -1345,9 +1328,6 @@ void LadspaFXMixerLine::rotaryChanged(Rotary *ref)
 {
 	UNUSED( ref );
 	m_fMaxPeak = 0.0;
-//	char tmp[20];
-//	sprintf(tmp, "%#.1f", fMaxPeak);
-//	m_pVolumeLbl->setText(tmp);
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	pSong->set_is_modified( true );
@@ -1360,11 +1340,6 @@ void LadspaFXMixerLine::setPeaks( float fPeak_L, float fPeak_R )
 {
 	UNUSED( fPeak_L );
 	UNUSED( fPeak_R );
-/*
-	m_pPeakmeter->setPeak_L( fPeak_L );
-	m_pPeakmeter->setPeak_R( fPeak_R );
-	m_pPeakmeter->updateFader();
-*/
 }
 
 
@@ -1373,10 +1348,6 @@ void LadspaFXMixerLine::getPeaks( float *fPeak_L, float *fPeak_R )
 {
 	UNUSED( fPeak_L );
 	UNUSED( fPeak_R );
-/*
-	(*fPeak_L) = m_pFader->getPeak_L();
-	(*fPeak_R) = m_pFader->getPeak_R();
-*/
 }
 
 
@@ -1391,5 +1362,4 @@ float LadspaFXMixerLine::getVolume()
 void LadspaFXMixerLine::setVolume(float value)
 {
 	m_pRotary->setValue( value );
-// 	m_pRotary->updateRotary();
 }
