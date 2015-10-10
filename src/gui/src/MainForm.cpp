@@ -1660,6 +1660,31 @@ bool MainForm::handleUnsavedChanges()
 			break;
 		}
 	}
+
+	if(rv != false)
+	{
+		while ( !done && Playlist::get_instance()->getIsModified() ) {
+			switch(
+				   QMessageBox::information( this, "Hydrogen",
+											 trUtf8("\nThe playlist contains unsaved changes.\n"
+													"Do you want to discard the changes?\n"),
+											trUtf8("&Discard"), trUtf8("&Cancel"),
+											 0,      // Enter == button 0
+											 2 ) ) { // Escape == button 1
+			case 0: // Discard clicked or Alt+D pressed
+				// don't save but exit
+				done = true;
+				break;
+			case 1: // Cancel clicked or Alt+C pressed or Escape pressed
+				// don't exit
+				done = true;
+				rv = false;
+				break;
+			}
+		}
+	}
+
+
 	return rv;
 }
 
