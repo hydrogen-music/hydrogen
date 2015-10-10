@@ -349,7 +349,6 @@ bool SampleEditor::getCloseQuestion()
 
 void SampleEditor::createNewLayer()
 {
-
 	if ( !m_pSampleEditorStatus ){
 
 		Sample *editSample = Sample::load( m_samplename, __loops, __rubberband, *m_pTargetSampleView->get_velocity(), *m_pTargetSampleView->get_pan() );
@@ -387,8 +386,7 @@ void SampleEditor::createNewLayer()
 
 		AudioEngine::get_instance()->unlock();
 		m_pTargetSampleView->updateDisplay( pLayer );
-		}
-
+	}
 }
 
 
@@ -698,7 +696,6 @@ void SampleEditor::createPositionsRulerPath()
 		if ( __loops.start_frame != __loops.loop_frame ){
 			copy( loopFrames, loopFrames+loopLength ,tempFrames+ tempdataend );
 		}
-
 	}
 
 
@@ -706,9 +703,13 @@ void SampleEditor::createPositionsRulerPath()
 		reverse( tempFrames + __loops.loop_frame, tempFrames + newLength);
 	}
 
+	if(m_pPositionsRulerPath)
+	{
+		delete[] m_pPositionsRulerPath;
+	}
+
 	m_pPositionsRulerPath = tempFrames;
 
-	delete[] tempFrames;
 	delete[] loopFrames;
 	delete[] normalFrames;
 }

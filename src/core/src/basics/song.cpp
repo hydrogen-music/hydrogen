@@ -199,12 +199,12 @@ Song* Song::get_empty_song()
 
 DrumkitComponent* Song::get_component( int ID )
 {
-    for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-        if( (*it)->get_id() == ID )
-            return *it;
-    }
+	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+		if( (*it)->get_id() == ID )
+			return *it;
+	}
 
-    return NULL;
+	return NULL;
 }
 
 

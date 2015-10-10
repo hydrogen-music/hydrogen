@@ -72,6 +72,15 @@ class Drumkit : public H2Core::Object
 		 * unload the instrument samples
 		 */
 		void unload_samples();
+
+		/**
+		 * check if a user drumkit with the given name
+		 * already exists
+		 * \param dk_path Drumkit path
+		 * \return true on success
+		 */
+		static bool user_drumkit_exists( const QString& dk_path );
+
 		/**
 		 * save a drumkit, xml file and samples
 		 * \param overwrite allows to write over existing drumkit files
@@ -196,7 +205,7 @@ class Drumkit : public H2Core::Object
 		 * \param dk_path the directory holding the drumkit data
 		 */
 		static Drumkit* load_from( XMLNode* node, const QString& dk_path );
-    	std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
+		std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
 };
 
 // DEFINITIONS

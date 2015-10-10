@@ -40,15 +40,13 @@ SoundLibrarySaveDialog::SoundLibrarySaveDialog( QWidget* pParent )
 	setFixedSize( width(), height() );
 }
 
-
-
-
 SoundLibrarySaveDialog::~SoundLibrarySaveDialog()
 {
 	INFOLOG( "DESTROY" );
 
 }
 
+<<<<<<< HEAD
 
 void SoundLibrarySaveDialog::updateImage( QString& filename )
 {
@@ -111,16 +109,47 @@ void SoundLibrarySaveDialog::on_imageBrowsePushButton_clicked()
 
 void SoundLibrarySaveDialog::on_saveBtn_clicked()
 {
+=======
+void SoundLibrarySaveDialog::on_saveBtn_clicked()
+{
+>>>>>>> upstream/master
 	if( nameTxt->text().isEmpty() ){
-			QMessageBox::information( this, "Hydrogen", trUtf8 ( "Please supply at least a valid name"));
+		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Please supply at least a valid name"));
+		return;
+	}
+
+	bool Overwrite = false;
+
+	if(H2Core::Drumkit::user_drumkit_exists( nameTxt->text() )){
+		QMessageBox msgBox;
+		msgBox.setText(trUtf8("A library with the same name already exists. Do you want to overwrite the existing library?"));
+		msgBox.setIcon(QMessageBox::Warning);
+		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+		msgBox.setDefaultButton(QMessageBox::No);
+
+		int ret = msgBox.exec();
+
+		if(ret == QMessageBox::Yes){
+			Overwrite = true;
+		} else {
 			return;
-        }
-	
+		}
+	}
+
 	// Note: use full path for image - Drumkit->save() will handle copying it if need be
-    	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), H2Core::Filesystem::usr_drumkits_dir() + "/" + nameTxt->text() + "/" + imageText->text(), imageLicenseText->text(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), false ) ) {
-        QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
-        return;
-    }
+	if( !H2Core::Drumkit::save( nameTxt->text(),
+								authorTxt->text(),
+								infoTxt->toHtml(),
+								licenseTxt->text(),
+								H2Core::Filesystem::usr_drumkits_dir() + "/" + nameTxt->text() + "/" + imageText->text(),
+								imageLicenseText->text(),
+								H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(),
+								H2Core::Hydrogen::get_instance()->getSong()->get_components(),
+								Overwrite ) ) {
+		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this library failed."));
+		return;
+	}
+
 	accept();
 }
 

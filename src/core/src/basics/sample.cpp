@@ -20,13 +20,15 @@
  *
  */
 
-#include <hydrogen/basics/sample.h>
+
 
 #include <limits>
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/basics/sample.h>
+
 #ifdef H2CORE_HAVE_RUBBERBAND
 #include <rubberband/RubberBandStretcher.h>
 #define RUBBERBAND_BUFFER_OVERSIZE  500
@@ -52,36 +54,36 @@ Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* da
 	__data_r( data_r ),
 	__is_modified( false )
 {
-	/*
-	if( !(filepath.lastIndexOf( "/" ) >0) ) {
-		ERRORLOG( QString( "sample path : %1 is not ok" ).arg( filepath ) );
-		sleep(1);
-		0/0;
-	}
-	*/
 	assert( filepath.lastIndexOf( "/" ) >0 );
 }
 
-Sample::Sample( Sample* other ): Object( __class_name ),
-	__filepath( other->get_filepath() ),
-	__frames( other->get_frames() ),
-	__sample_rate( other->get_sample_rate() ),
+Sample::Sample( Sample* pOther ): Object( __class_name ),
+	__filepath( pOther->get_filepath() ),
+	__frames( pOther->get_frames() ),
+	__sample_rate( pOther->get_sample_rate() ),
 	__data_l( 0 ),
 	__data_r( 0 ),
-	__is_modified( other->get_is_modified() ),
-	__loops( other->__loops ),
-	__rubberband( other->__rubberband )
+	__is_modified( pOther->get_is_modified() ),
+	__loops( pOther->__loops ),
+	__rubberband( pOther->__rubberband )
 {
 	__data_l = new float[__frames];
 	__data_r = new float[__frames];
-	memcpy( __data_l, other->get_data_l(), __frames );
-	memcpy( __data_r, other->get_data_r(), __frames );
-	EnvelopePoint pt;
-	PanEnvelope* pan = other->get_pan_envelope();
-	for( int i=0; i<pan->size(); i++ ) __pan_envelope.push_back( pan->at( i ) );
-	PanEnvelope* velocity = other->get_velocity_envelope();
-	for( int i=0; i<velocity->size(); i++ ) __velocity_envelope.push_back( velocity->at( i ) );
+	memcpy( __data_l, pOther->get_data_l(), __frames );
+	memcpy( __data_r, pOther->get_data_r(), __frames );
 
+	PanEnvelope* pPan = pOther->get_pan_envelope();
+	for( int i=0; i<pPan->size(); i++ )
+	{
+		__pan_envelope.push_back( pPan->at( i ) );
+	}
+
+
+	PanEnvelope* pVelocity = pOther->get_velocity_envelope();
+	for( int i=0; i<pVelocity->size(); i++ )
+	{
+		__velocity_envelope.push_back( pVelocity->at( i ) );
+	}
 }
 
 Sample::~Sample()
@@ -89,6 +91,14 @@ Sample::~Sample()
 	if( __data_l!=0 ) delete[] __data_l;
 	if( __data_r!=0 ) delete[] __data_r;
 }
+
+void Sample::set_filename( const QString& filename )
+{
+	QFileInfo Filename = QFileInfo( filename );
+	QFileInfo Dest = QFileInfo( __filepath );
+	__filepath = QDir(Dest.absolutePath()).filePath( Filename.fileName() );
+}
+
 
 Sample* Sample::load( const QString& filepath )
 {
@@ -186,7 +196,6 @@ bool Sample::apply_loops( const Loops& lo )
 		ERRORLOG( QString( "count %1 < 0 is not allowed" ).arg( lo.count ) );
 		return false;
 	}
-	//if( lo == __loops ) return true;
 
 	bool full_loop = lo.start_frame==lo.loop_frame;
 	int full_length =  lo.end_frame - lo.start_frame;

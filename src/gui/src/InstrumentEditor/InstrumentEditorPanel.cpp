@@ -24,6 +24,8 @@
 #include <QPixmap>
 #include <QGridLayout>
 
+#include <hydrogen/hydrogen.h>
+#include <hydrogen/basics/drumkit_component.h>
 
 #include "InstrumentEditorPanel.h"
 #include "../Skin.h"
@@ -71,8 +73,11 @@ InstrumentEditorPanel::~InstrumentEditorPanel()
 }
 
 
-void InstrumentEditorPanel::updateInstrumentEditor()
+void InstrumentEditorPanel::notifyOfDrumkitChange()
 {
+	std::vector<H2Core::DrumkitComponent*>* pComponentList = H2Core::Hydrogen::get_instance()->getSong()->get_components();
+
+	m_pInstrumentEditor->selectComponent(pComponentList->front()->get_id());
 	m_pInstrumentEditor->selectedInstrumentChangedEvent();
 }
 
