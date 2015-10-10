@@ -46,7 +46,6 @@ SoundLibrarySaveDialog::~SoundLibrarySaveDialog()
 
 }
 
-<<<<<<< HEAD
 
 void SoundLibrarySaveDialog::updateImage( QString& filename )
 {
@@ -109,10 +108,6 @@ void SoundLibrarySaveDialog::on_imageBrowsePushButton_clicked()
 
 void SoundLibrarySaveDialog::on_saveBtn_clicked()
 {
-=======
-void SoundLibrarySaveDialog::on_saveBtn_clicked()
-{
->>>>>>> upstream/master
 	if( nameTxt->text().isEmpty() ){
 		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Please supply at least a valid name"));
 		return;
