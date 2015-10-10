@@ -48,6 +48,7 @@ Playlist::Playlist()
 	__filename = "";
 	m_nSelectedSongNumber = -1;
 	m_nActiveSongNumber = -1;
+	m_bIsModified = false;
 }
 
 Playlist::~Playlist()
