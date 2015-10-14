@@ -330,14 +330,41 @@ void PlaylistDialog::removeFromList()
 
 void PlaylistDialog::clearPlaylist()
 {
-	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
+	bool DiscardChanges = false;
+	bool IsModified = Playlist::get_instance()->getIsModified();
 
-	m_pPlaylist->clear();
-	Hydrogen::get_instance()->m_PlayList.clear();
-	Playlist::get_instance()->setSelectedSongNr( -1 );
-	Playlist::get_instance()->setActiveSongNumber( -1 );
-	Playlist::get_instance()->set_filename ( "" );
-	setWindowTitle ( trUtf8 ( "Playlist Browser" ) );
+	if( IsModified )
+	{
+		switch(QMessageBox::information( this, "Hydrogen",
+										 trUtf8("\nThe current playlist contains unsaved changes.\n"
+												"Do you want to discard the changes?\n"),
+										trUtf8("&Discard"), trUtf8("&Cancel"),
+										 0,      // Enter == button 0
+										 2 ) ) { // Escape == button 1
+		case 0: // Discard clicked or Alt+D pressed
+			// don't save but exit
+			DiscardChanges = true;
+			break;
+		case 1: // Cancel clicked or Alt+C pressed or Escape pressed
+			// don't exit
+			DiscardChanges = false;
+			break;
+		}
+	}
+
+	if(!IsModified || (IsModified && DiscardChanges))
+	{
+		QTreeWidget* m_pPlaylist = m_pPlaylistTree;
+
+		m_pPlaylist->clear();
+		Hydrogen::get_instance()->m_PlayList.clear();
+		Playlist::get_instance()->setSelectedSongNr( -1 );
+		Playlist::get_instance()->setActiveSongNumber( -1 );
+		Playlist::get_instance()->set_filename ( "" );
+		setWindowTitle ( trUtf8 ( "Playlist Browser" ) );
+
+		Playlist::get_instance()->setIsModified(false);
+	}
 	return;
 }
 
@@ -352,7 +379,6 @@ void PlaylistDialog::updatePlayListNode ( QString file )
 
 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 	m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
-
 }
 
 void PlaylistDialog::loadList()
