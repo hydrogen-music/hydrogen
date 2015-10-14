@@ -226,7 +226,7 @@ bool Drumkit::save( const QString& dk_dir, bool overwrite )
 	return ret;
 }
 
-bool Drumkit::save_file( const QString& dk_path, bool overwrite )
+bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_id )
 {
 	INFOLOG( QString( "Saving drumkit definition into %1" ).arg( dk_path ) );
 	if( Filesystem::file_exists( dk_path, true ) && !overwrite ) {
@@ -236,11 +236,11 @@ bool Drumkit::save_file( const QString& dk_path, bool overwrite )
 	XMLDoc doc;
 	doc.set_root( "drumkit_info", "drumkit" );
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
-	save_to( &root );
+	save_to( &root, component_id );
 	return doc.write( dk_path );
 }
 
-void Drumkit::save_to( XMLNode* node )
+void Drumkit::save_to( XMLNode* node, int component_id )
 {
 	node->write_string( "name", __name );
 	node->write_string( "author", __author );

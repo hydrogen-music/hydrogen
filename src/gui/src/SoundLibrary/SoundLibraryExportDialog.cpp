@@ -82,6 +82,17 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QString drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
 	QString saveDir = drumkitPathTxt->text();
 
+	if( versionList->currentText().toStdString() == "0.9.6 and lower" ) {
+		for (uint i = 0; i < drumkitInfoList.size(); i++ ) {
+			Drumkit* info = drumkitInfoList[i];
+			if( info->get_name().compare( drumkitName ) == 0 ) {
+				QString* temporaryDrumkitXML = new QString("/temp/");
+				info->save_file( *temporaryDrumkitXML, true, -1 );
+				break;
+			}
+		}
+	}
+
 #if defined(H2CORE_HAVE_LIBARCHIVE)
 	QString fullDir = drumkitDir + "/" + drumkitName;
 	QDir sourceDir(fullDir);
