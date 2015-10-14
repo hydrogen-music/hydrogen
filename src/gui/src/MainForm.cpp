@@ -1646,8 +1646,8 @@ bool MainForm::handleUnsavedChanges()
 	{
 		while ( !done && Playlist::get_instance()->getIsModified() ) {
 			switch(
-				   QMessageBox::information( this, "Hydrogen",
-											 trUtf8("\nThe playlist contains unsaved changes.\n"
+					QMessageBox::information( this, "Hydrogen",
+											 trUtf8("\nThe current playlist contains unsaved changes.\n"
 													"Do you want to discard the changes?\n"),
 											trUtf8("&Discard"), trUtf8("&Cancel"),
 											 0,      // Enter == button 0
