@@ -2663,7 +2663,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Ignore note-off</source>
-        <translation>Ignorer les fins de note</translation>
+        <translation>Ignorer les fins de note (note-off)</translation>
     </message>
     <message>
         <source>1</source>
