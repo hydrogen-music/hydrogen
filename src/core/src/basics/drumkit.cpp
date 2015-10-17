@@ -246,13 +246,15 @@ void Drumkit::save_to( XMLNode* node, int component_id )
 	node->write_string( "author", __author );
 	node->write_string( "info", __info );
 	node->write_string( "license", __license );
-	XMLNode components_node = node->ownerDocument().createElement( "componentList" );
-	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-		DrumkitComponent* pComponent = *it;
-		pComponent->save_to( &components_node );
+	if( component_id == -1 ) {
+		XMLNode components_node = node->ownerDocument().createElement( "componentList" );
+		for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+			DrumkitComponent* pComponent = *it;
+			pComponent->save_to( &components_node );
+		}
+		node->appendChild( components_node );
 	}
-	node->appendChild( components_node );
-	__instruments->save_to( node );
+	__instruments->save_to( node, component_id );
 }
 
 bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )

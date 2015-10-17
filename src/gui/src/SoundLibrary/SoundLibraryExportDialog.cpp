@@ -86,8 +86,16 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		for (uint i = 0; i < drumkitInfoList.size(); i++ ) {
 			Drumkit* info = drumkitInfoList[i];
 			if( info->get_name().compare( drumkitName ) == 0 ) {
-				QString* temporaryDrumkitXML = new QString("/temp/");
-				info->save_file( *temporaryDrumkitXML, true, -1 );
+				QString temporaryDrumkitXML = QString("/tmp/hydrogen/drumkit.xml");
+				INFOLOG( "[ExportSoundLibrary]" );
+				INFOLOG( "Saving temporary file into: " + temporaryDrumkitXML );
+				int componentID = -1;
+				for (std::vector<DrumkitComponent*>::iterator it = info->get_components()->begin() ; it != info->get_components()->end(); ++it) {
+					DrumkitComponent* pComponent = *it;
+					if( pComponent->get_name().compare( componentList->currentText() ) == 0)
+						componentID = pComponent->get_id();
+				}
+				info->save_file( temporaryDrumkitXML, true, componentID );
 				break;
 			}
 		}
