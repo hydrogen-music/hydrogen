@@ -99,7 +99,7 @@ void AudioEngineInfoForm::hideEvent ( QHideEvent* )
 void AudioEngineInfoForm::updateInfo()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *song = pEngine->getSong();
+	Song *pSong = pEngine->getSong();
 
 	// Song position
 	QString sSongPos = "N/A";
@@ -121,11 +121,11 @@ void AudioEngineInfoForm::updateInfo()
 	processTimeLbl->setText(tmp);
 
 	// Song state
-	if (song == NULL) {
+	if (pSong == NULL) {
 		songStateLbl->setText( "NULL song" );
 	}
 	else {
-		if (song->__is_modified) {
+		if (pSong->get_is_modified()) {
 			songStateLbl->setText( "Modified" );
 		}
 		else {
@@ -194,8 +194,6 @@ void AudioEngineInfoForm::updateInfo()
 		m_pSelectedInstrLbl->setText( QString("%1").arg(nSelectedInstrumentNumber) );
 	}
 
-
-	QString currentPatternName;
 	PatternList *pPatternList = Hydrogen::get_instance()->getCurrentPatternList();
 	if (pPatternList) {
 		currentPatternLbl->setText( QString::number(pPatternList->size()) );

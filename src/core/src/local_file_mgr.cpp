@@ -1551,7 +1551,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	if( rv ) {
 		WARNINGLOG("File save reported an error.");
 	} else {
-		song->__is_modified = false;
+		song->set_is_modified( false );
 		INFOLOG("Save was successful.");
 	}
 
