@@ -45,11 +45,15 @@ class SoundLibraryExportDialog : public QDialog, public Ui_SoundLibraryExportDia
 private slots:
 	void on_exportBtn_clicked();
 	void on_browseBtn_clicked();
+	void on_cancelBtn_clicked();
+	void on_versionList_currentIndexChanged( QString str );
+	void on_drumkitList_currentIndexChanged( QString str );
 	void on_drumkitPathTxt_textChanged( QString str );
 	void updateDrumkitList();
 private:
 	std::vector<H2Core::Drumkit*> drumkitInfoList;
 	QString preselectedKit;
+	QHash<QString, QStringList> kit_components;
 };
 
 
