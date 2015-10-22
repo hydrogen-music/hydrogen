@@ -30,6 +30,9 @@
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/instrument_layer.h>
+#include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/drumkit_component.h>
 #include <QFileDialog>
 #include <memory>
@@ -82,18 +85,21 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QString drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
 	QString saveDir = drumkitPathTxt->text();
 
+	int componentID = -1;
+	Drumkit* info;
 	if( versionList->currentText().toStdString() == "0.9.6 and lower" ) {
 		for (uint i = 0; i < drumkitInfoList.size(); i++ ) {
-			Drumkit* info = drumkitInfoList[i];
+			info = drumkitInfoList[i];
 			if( info->get_name().compare( drumkitName ) == 0 ) {
 				QString temporaryDrumkitXML = QString("/tmp/hydrogen/drumkit.xml");
 				INFOLOG( "[ExportSoundLibrary]" );
 				INFOLOG( "Saving temporary file into: " + temporaryDrumkitXML );
-				int componentID = -1;
 				for (std::vector<DrumkitComponent*>::iterator it = info->get_components()->begin() ; it != info->get_components()->end(); ++it) {
 					DrumkitComponent* pComponent = *it;
-					if( pComponent->get_name().compare( componentList->currentText() ) == 0)
+					if( pComponent->get_name().compare( componentList->currentText() ) == 0) {
 						componentID = pComponent->get_id();
+						break;
+					}
 				}
 				info->save_file( temporaryDrumkitXML, true, componentID );
 				break;
@@ -130,6 +136,37 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	for (int i = 0; i < filesList.size(); i++) {
 		QString filename = fullDir + "/" + filesList.at(i);
 		QString targetFilename = drumkitName + "/" + filesList.at(i);
+
+		if( versionList->currentText().toStdString() == "0.9.6 and lower" ) {
+			if( filesList.at(i).compare( QString("drumkit.xml") ) == 0 ) {
+				filename = QString("/tmp/hydrogen/drumkit.xml");
+			}
+			else {
+				bool bFoundFileInRightComponent = false;
+				for( int j = 0; j < info->get_instruments()->size() ; j++){
+					InstrumentList instrList = info->get_instruments();
+					Instrument* instr = instrList[j];
+					for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
+						InstrumentComponent* component = *it;
+						if( component->get_drumkit_componentID() == componentID ){
+							for( int n = 0; n < MAX_LAYERS; n++ ) {
+								InstrumentLayer* layer = component->get_layer( n );
+								if( layer ) {
+									 if( layer->get_sample()->get_filename().compare(filesList.at(i)) == 0 ) {
+										 bFoundFileInRightComponent = true;
+										 break;
+									 }
+								}
+							}
+						}
+					}
+				}
+				if( !bFoundFileInRightComponent )
+					continue;
+			}
+		}
+
+
 		stat(filename.toUtf8().constData(), &st);
 		entry = archive_entry_new();
 		archive_entry_set_pathname(entry, targetFilename.toUtf8().constData());
