@@ -87,7 +87,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 
 	int componentID = -1;
 	Drumkit* info;
-	if( versionList->currentText().toStdString() == "0.9.6 and lower" ) {
+	if( versionList->currentIndex() == 1 ) {
 		for (uint i = 0; i < drumkitInfoList.size(); i++ ) {
 			info = drumkitInfoList[i];
 			if( info->get_name().compare( drumkitName ) == 0 ) {
@@ -137,7 +137,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		QString filename = fullDir + "/" + filesList.at(i);
 		QString targetFilename = drumkitName + "/" + filesList.at(i);
 
-		if( versionList->currentText().toStdString() == "0.9.6 and lower" ) {
+		if( versionList->currentIndex() == 1 ) {
 			if( filesList.at(i).compare( QString("drumkit.xml") ) == 0 ) {
 				filename = QString("/tmp/hydrogen/drumkit.xml");
 			}
@@ -250,11 +250,11 @@ void SoundLibraryExportDialog::on_drumkitList_currentIndexChanged( QString str )
 	}
 }
 
-void SoundLibraryExportDialog::on_versionList_currentIndexChanged( QString str )
+void SoundLibraryExportDialog::on_versionList_currentIndexChanged( int index )
 {
-	if( str.toStdString() == "0.9.7 and higher" )
+	if( index == 1 )
 		componentList->setEnabled( false );
-	else if( str.toStdString() == "0.9.6 and lower" )
+	else if( index == 2 )
 		componentList->setEnabled(  true );
 }
 
@@ -316,5 +316,5 @@ void SoundLibraryExportDialog::updateDrumkitList()
 	}
 
 	on_drumkitList_currentIndexChanged( drumkitList->currentText() );
-	on_versionList_currentIndexChanged( versionList->currentText() );
+	on_versionList_currentIndexChanged( 0 );
 }
