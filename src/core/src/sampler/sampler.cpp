@@ -247,12 +247,12 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		return 1;
 	}
 
-	int p_returnValues [pInstr->get_components()->size()];
-	int p_returnValueIndex = 0;
-	int p_alreadySelectedLayer = -1;
+	int nReturnValues [pInstr->get_components()->size()];
+	int nReturnValueIndex = 0;
+	int nAlreadySelectedLayer = -1;
 
 	for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it !=pInstr->get_components()->end(); ++it) {
-		p_returnValues[p_returnValueIndex] = 0;
+		nReturnValues[nReturnValueIndex] = 0;
         InstrumentComponent *pCompo = *it;
         DrumkitComponent* pMainCompo = pEngine->getSong()->get_component( pCompo->get_drumkit_componentID() );
 
@@ -275,7 +275,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		if ( !pSelectedLayer ) {
 			QString dummy = QString( "NULL Layer Informationfor instrument %1. Component: %2" ).arg( pInstr->get_name() ).arg( pCompo->get_drumkit_componentID() );
 			WARNINGLOG( dummy );
-			p_returnValues[p_returnValueIndex] = true;
+			nReturnValues[nReturnValueIndex] = true;
 			continue;
 		}
 
@@ -305,10 +305,10 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 					break;
 
 				case Instrument::RANDOM:
-					if( p_alreadySelectedLayer != -1 ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( p_alreadySelectedLayer );
+					if( nAlreadySelectedLayer != -1 ) {
+						InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
 						if ( pLayer != NULL ) {
-							pSelectedLayer->SelectedLayer = p_alreadySelectedLayer;
+							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
 							pSample = pLayer->get_sample();
 							fLayerGain = pLayer->get_gain();
@@ -317,22 +317,22 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 					}
 					if( pSample == NULL ) {
 						int __possibleIndex[MAX_LAYERS];
-						int p_foundSamples = 0;
+						int __poundSamples = 0;
 						for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == NULL ) continue;
 
 							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
-								__possibleIndex[p_foundSamples] = nLayer;
-								p_foundSamples++;
+								__possibleIndex[__poundSamples] = nLayer;
+								__poundSamples++;
 							}
 						}
 
-						if( p_foundSamples > 0 ) {
-							p_alreadySelectedLayer = __possibleIndex[rand() % p_foundSamples];
-							pSelectedLayer->SelectedLayer = p_alreadySelectedLayer;
+						if( __poundSamples > 0 ) {
+							nAlreadySelectedLayer = __possibleIndex[rand() % __poundSamples];
+							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
-							InstrumentLayer *pLayer = pCompo->get_layer( p_alreadySelectedLayer );
+							InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
 
 							pSample = pLayer->get_sample();
 							fLayerGain = pLayer->get_gain();
@@ -342,10 +342,10 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 					break;
 
 				case Instrument::ROUND_ROBIN:
-					if( p_alreadySelectedLayer != -1 ) {
-						InstrumentLayer *pLayer = pCompo->get_layer( p_alreadySelectedLayer );
+					if( nAlreadySelectedLayer != -1 ) {
+						InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
 						if ( pLayer != NULL ) {
-							pSelectedLayer->SelectedLayer = p_alreadySelectedLayer;
+							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
 							pSample = pLayer->get_sample();
 							fLayerGain = pLayer->get_gain();
@@ -354,31 +354,31 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 					}
 					if( !pSample ) {
 						int __possibleIndex[MAX_LAYERS];
-						int p_foundSamples = 0;
-						float p_roundRobinID;
+						int __foundSamples = 0;
+						float __roundRobinID;
 						for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == NULL ) continue;
 
 							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
-								__possibleIndex[p_foundSamples] = nLayer;
-								p_roundRobinID = pLayer->get_start_velocity();
-								p_foundSamples++;
+								__possibleIndex[__foundSamples] = nLayer;
+								__roundRobinID = pLayer->get_start_velocity();
+								__foundSamples++;
 							}
 						}
 
-						if( p_foundSamples > 0 ) {
-							p_roundRobinID = pInstr->get_id() * 10 + p_roundRobinID;
-							int p_indexToUse = pSong->get_latest_round_robin(p_roundRobinID)+1;
-							if( p_indexToUse > p_foundSamples - 1)
+						if( __foundSamples > 0 ) {
+							__roundRobinID = pInstr->get_id() * 10 + __roundRobinID;
+							int p_indexToUse = pSong->get_latest_round_robin(__roundRobinID)+1;
+							if( p_indexToUse > __foundSamples - 1)
 								p_indexToUse = 0;
 
-							pSong->set_latest_round_robin(p_roundRobinID, p_indexToUse);
-							p_alreadySelectedLayer = __possibleIndex[p_indexToUse];
+							pSong->set_latest_round_robin(__roundRobinID, p_indexToUse);
+							nAlreadySelectedLayer = __possibleIndex[p_indexToUse];
 
-							pSelectedLayer->SelectedLayer = p_alreadySelectedLayer;
+							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
-							InstrumentLayer *pLayer = pCompo->get_layer( p_alreadySelectedLayer );
+							InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
 							pSample = pLayer->get_sample();
 							fLayerGain = pLayer->get_gain();
 							fLayerPitch = pLayer->get_pitch();
@@ -390,13 +390,13 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 		if ( !pSample ) {
 			QString dummy = QString( "NULL sample for instrument %1. Note velocity: %2" ).arg( pInstr->get_name() ).arg( pNote->get_velocity() );
 			WARNINGLOG( dummy );
-			p_returnValues[p_returnValueIndex] = 1;
+			nReturnValues[nReturnValueIndex] = 1;
 			continue;
 		}
 
 		if ( pSelectedLayer->SamplePosition >= pSample->get_frames() ) {
             WARNINGLOG( "sample position out of bounds. The layer has been resized during note play?" );
-			p_returnValues[p_returnValueIndex] = 1;
+			nReturnValues[nReturnValueIndex] = 1;
             continue;
         }
 
@@ -412,7 +412,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
                     // this note is not valid. it's in the future...let's skip it....
                     ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFramepos ).arg(noteStartInFramesNoHumanize ) );
 					//pNote->dumpInfo();
-					p_returnValues[p_returnValueIndex] = 1;
+					nReturnValues[nReturnValueIndex] = 1;
                     continue;
                 }
                 // delay note execution
@@ -500,14 +500,14 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
         }
 
 		if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == audio_output->getSampleRate() ) // NO RESAMPLE
-			p_returnValues[p_returnValueIndex] = __render_note_no_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong );
+			nReturnValues[nReturnValueIndex] = __render_note_no_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong );
 		else // RESAMPLE
-			p_returnValues[p_returnValueIndex] = __render_note_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong );
+			nReturnValues[nReturnValueIndex] = __render_note_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong );
 
-		p_returnValueIndex++;
+		nReturnValueIndex++;
     }
 	for ( unsigned i = 0 ; i < pInstr->get_components()->size() ; i++ )
-		if ( !p_returnValues[i] ) return 0;
+		if ( !nReturnValues[i] ) return 0;
 	return 1;
 }
 

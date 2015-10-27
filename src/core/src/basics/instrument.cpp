@@ -250,12 +250,12 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	pInstrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
 	pInstrument->set_midi_out_note( node->read_int( "midiOutNote", pInstrument->__midi_out_note, true, false ) );
 	pInstrument->set_stop_notes( node->read_bool( "isStopNote", true ,false ) );
-	QString p_read_sample_select_algo = node->read_string( "sampleSelectionAlgo", "VELOCITY" );
-	if ( p_read_sample_select_algo.compare("VELOCITY") == 0 )
+	QString sRead_sample_select_algo = node->read_string( "sampleSelectionAlgo", "VELOCITY" );
+	if ( sRead_sample_select_algo.compare("VELOCITY") == 0 )
 		pInstrument->set_sample_selection_alg( VELOCITY );
-	else if ( p_read_sample_select_algo.compare("ROUND_ROBIN") == 0 )
+	else if ( sRead_sample_select_algo.compare("ROUND_ROBIN") == 0 )
 			pInstrument->set_sample_selection_alg( ROUND_ROBIN );
-	else if ( p_read_sample_select_algo.compare("RANDOM") == 0 )
+	else if ( sRead_sample_select_algo.compare("RANDOM") == 0 )
 			pInstrument->set_sample_selection_alg( RANDOM );
 
 	pInstrument->set_hihat( node->read_bool( "isHihat", false, true ) );

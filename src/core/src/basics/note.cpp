@@ -70,11 +70,11 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
 		for (std::vector<InstrumentComponent*>::iterator it = __instrument->get_components()->begin() ; it !=__instrument->get_components()->end(); ++it) {
             InstrumentComponent *pCompo = *it;
 
-			SelectedLayerInfo *p_sampleInfo = new SelectedLayerInfo;
-			p_sampleInfo->SelectedLayer = -1;
-			p_sampleInfo->SamplePosition = 0;
+			SelectedLayerInfo *sampleInfo = new SelectedLayerInfo;
+			sampleInfo->SelectedLayer = -1;
+			sampleInfo->SamplePosition = 0;
 
-			__layers_selected[ pCompo->get_drumkit_componentID() ] = p_sampleInfo;
+			__layers_selected[ pCompo->get_drumkit_componentID() ] = sampleInfo;
 		}
 	}
 
@@ -116,11 +116,11 @@ Note::Note( Note* other, Instrument* instrument )
 		for (std::vector<InstrumentComponent*>::iterator it = __instrument->get_components()->begin() ; it !=__instrument->get_components()->end(); ++it) {
             InstrumentComponent *pCompo = *it;
 
-			SelectedLayerInfo *p_sampleInfo = new SelectedLayerInfo;
-			p_sampleInfo->SelectedLayer = -1;
-			p_sampleInfo->SamplePosition = 0;
+			SelectedLayerInfo *sampleInfo = new SelectedLayerInfo;
+			sampleInfo->SelectedLayer = -1;
+			sampleInfo->SamplePosition = 0;
 
-			__layers_selected[ pCompo->get_drumkit_componentID() ] = p_sampleInfo;
+			__layers_selected[ pCompo->get_drumkit_componentID() ] = sampleInfo;
         }
 	}
 }
