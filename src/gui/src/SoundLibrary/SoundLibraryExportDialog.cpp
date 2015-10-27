@@ -85,13 +85,16 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QString drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
 	QString saveDir = drumkitPathTxt->text();
 
+	Preferences *pref = Preferences::get_instance();
+	QDir qdTempFolder( pref->getTmpDirectory() );
+
 	int componentID = -1;
 	Drumkit* info;
 	if( versionList->currentIndex() == 1 ) {
 		for (uint i = 0; i < drumkitInfoList.size(); i++ ) {
 			info = drumkitInfoList[i];
 			if( info->get_name().compare( drumkitName ) == 0 ) {
-				QString temporaryDrumkitXML = QString("/tmp/hydrogen/drumkit.xml");
+				QString temporaryDrumkitXML = qdTempFolder.filePath( "drumkit.xml" );
 				INFOLOG( "[ExportSoundLibrary]" );
 				INFOLOG( "Saving temporary file into: " + temporaryDrumkitXML );
 				for (std::vector<DrumkitComponent*>::iterator it = info->get_components()->begin() ; it != info->get_components()->end(); ++it) {
@@ -139,7 +142,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 
 		if( versionList->currentIndex() == 1 ) {
 			if( filesList.at(i).compare( QString("drumkit.xml") ) == 0 ) {
-				filename = QString("/tmp/hydrogen/drumkit.xml");
+				filename = qdTempFolder.filePath( "drumkit.xml" );
 			}
 			else {
 				bool bFoundFileInRightComponent = false;
