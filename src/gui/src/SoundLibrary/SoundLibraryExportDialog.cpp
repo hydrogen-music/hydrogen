@@ -255,9 +255,9 @@ void SoundLibraryExportDialog::on_drumkitList_currentIndexChanged( QString str )
 
 void SoundLibraryExportDialog::on_versionList_currentIndexChanged( int index )
 {
-	if( index == 1 )
+	if( index == 0 )
 		componentList->setEnabled( false );
-	else if( index == 2 )
+	else if( index == 1 )
 		componentList->setEnabled(  true );
 }
 
