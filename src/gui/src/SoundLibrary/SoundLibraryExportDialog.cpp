@@ -85,13 +85,16 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QString drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
 	QString saveDir = drumkitPathTxt->text();
 
+	Preferences *pref = Preferences::get_instance();
+	QDir qdTempFolder( pref->getTmpDirectory() );
+
 	int componentID = -1;
 	Drumkit* info;
-	if( versionList->currentText().toStdString() == "0.9.6 and lower" ) {
+	if( versionList->currentIndex() == 1 ) {
 		for (uint i = 0; i < drumkitInfoList.size(); i++ ) {
 			info = drumkitInfoList[i];
 			if( info->get_name().compare( drumkitName ) == 0 ) {
-				QString temporaryDrumkitXML = QString("/tmp/hydrogen/drumkit.xml");
+				QString temporaryDrumkitXML = qdTempFolder.filePath( "drumkit.xml" );
 				INFOLOG( "[ExportSoundLibrary]" );
 				INFOLOG( "Saving temporary file into: " + temporaryDrumkitXML );
 				for (std::vector<DrumkitComponent*>::iterator it = info->get_components()->begin() ; it != info->get_components()->end(); ++it) {
@@ -137,9 +140,9 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		QString filename = fullDir + "/" + filesList.at(i);
 		QString targetFilename = drumkitName + "/" + filesList.at(i);
 
-		if( versionList->currentText().toStdString() == "0.9.6 and lower" ) {
+		if( versionList->currentIndex() == 1 ) {
 			if( filesList.at(i).compare( QString("drumkit.xml") ) == 0 ) {
-				filename = QString("/tmp/hydrogen/drumkit.xml");
+				filename = qdTempFolder.filePath( "drumkit.xml" );
 			}
 			else {
 				bool bFoundFileInRightComponent = false;
@@ -250,11 +253,11 @@ void SoundLibraryExportDialog::on_drumkitList_currentIndexChanged( QString str )
 	}
 }
 
-void SoundLibraryExportDialog::on_versionList_currentIndexChanged( QString str )
+void SoundLibraryExportDialog::on_versionList_currentIndexChanged( int index )
 {
-	if( str.toStdString() == "0.9.7 and higher" )
+	if( index == 0 )
 		componentList->setEnabled( false );
-	else if( str.toStdString() == "0.9.6 and lower" )
+	else if( index == 1 )
 		componentList->setEnabled(  true );
 }
 
@@ -316,5 +319,5 @@ void SoundLibraryExportDialog::updateDrumkitList()
 	}
 
 	on_drumkitList_currentIndexChanged( drumkitList->currentText() );
-	on_versionList_currentIndexChanged( versionList->currentText() );
+	on_versionList_currentIndexChanged( 0 );
 }
