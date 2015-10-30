@@ -306,7 +306,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 "/lcd/LCDSpinBox_up_over.png",
 								 QSize( 16, 8 )
 								 );
-	m_pAddHihatMaxRangeBtn->move( 202, 242 );
+	m_pAddHihatMaxRangeBtn->move( 202, 342 );
 	connect( m_pAddHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
 
 	m_pDelHihatMaxRangeBtn = new Button(
