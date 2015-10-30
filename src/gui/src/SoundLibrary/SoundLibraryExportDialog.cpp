@@ -87,6 +87,8 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 
 	Preferences *pref = Preferences::get_instance();
 	QDir qdTempFolder( pref->getTmpDirectory() );
+	bool TmpFileCreated = false;
+
 
 	int componentID = -1;
 	Drumkit* info;
@@ -97,6 +99,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 				QString temporaryDrumkitXML = qdTempFolder.filePath( "drumkit.xml" );
 				INFOLOG( "[ExportSoundLibrary]" );
 				INFOLOG( "Saving temporary file into: " + temporaryDrumkitXML );
+				TmpFileCreated = true;
 				for (std::vector<DrumkitComponent*>::iterator it = info->get_components()->begin() ; it != info->get_components()->end(); ++it) {
 					DrumkitComponent* pComponent = *it;
 					if( pComponent->get_name().compare( componentList->currentText() ) == 0) {
@@ -125,6 +128,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	char buff[8192];
 	int len;
 	int fd;
+
 
 	a = archive_write_new();
 
@@ -199,8 +203,43 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QApplication::restoreOverrideCursor();
 	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
 #elif !defined(WIN32)
-	QString cmd = QString( "cd " ) + drumkitDir + "; tar czf \"" + saveDir + "/" + drumkitName + ".h2drumkit\" -- \"" + drumkitName + "\"";
-	int ret = system( cmd.toLocal8Bit() );
+
+
+	if(TmpFileCreated)
+	{
+		/*
+		 * If a temporary drumkit.xml has been created:
+		 * 1. move the original drumkit.xml to drumkit_backup.xml
+		 * 2. copy the temporary file to drumkitDir/drumkit.xml
+		 * 3. export the drumkit
+		 * 4. move the drumkit_backup.xml to drumkit.xml
+		 */ 
+
+		int ret = 0;
+		
+		//1.
+		QString cmd = QString( "cd " ) + drumkitDir + "; " + "cp " + drumkitName + "/drumkit.xml " + drumkitName + "/drumkit_097.xml"; 
+		ret = system( cmd.toLocal8Bit() );
+		
+		
+		//2.
+		cmd = QString( "cd " ) + drumkitDir + "; " + "mv " + qdTempFolder.filePath( "drumkit.xml" ) + " " + drumkitName + "/drumkit.xml"; 
+		ret = system( cmd.toLocal8Bit() );
+		
+		//3.
+		cmd =  QString( "cd " ) + drumkitDir + ";" + "tar czf \"" + saveDir + "/" + drumkitName + ".h2drumkit\" -- \"" + drumkitName + "\"";
+		ret = system( cmd.toLocal8Bit() );
+
+		//4.
+		cmd = QString( "cd " ) + drumkitDir + "; " + "mv " + drumkitName + "/drumkit_097.xml " + drumkitName + "/drumkit.xml"; 
+		ret = system( cmd.toLocal8Bit() );
+
+	} else {
+		QString cmd =  QString( "cd " ) + drumkitDir + ";" + "tar czf \"" + saveDir + "/" + drumkitName + ".h2drumkit\" -- \"" + drumkitName + "\"";
+		int ret = system( cmd.toLocal8Bit() );
+	}
+
+
 
 	QApplication::restoreOverrideCursor();
 	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
