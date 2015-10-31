@@ -64,6 +64,9 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 		void rightClicked(Button *pBtn);
 		void mousePress(Button *pBtn);
 
+	protected slots:
+		void buttonPressed_timer_timeout();
+
 	protected:
 		bool m_bPressed;
 
@@ -83,6 +86,9 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 		void enterEvent(QEvent *ev);
 		void leaveEvent(QEvent *ev);
 		void paintEvent( QPaintEvent* ev);
+
+		QTimer *m_timer;
+		int m_timerTimeout;
 
 		bool loadImage( const QString& sFilename, QPixmap& pixmap );
 };
