@@ -785,7 +785,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 					Sample* pSample = pLayer->get_sample();
 					if( pSample == NULL) return;
 					QString name = pSample->get_filepath();
-					HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedLayer );
+					HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
 				}
 			}
 		}
