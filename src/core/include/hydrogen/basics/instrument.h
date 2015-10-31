@@ -98,7 +98,7 @@ class Instrument : public H2Core::Object
 		 * save the intrument within the given XMLNode
 		 * \param node the XMLNode to feed
 		 */
-		void save_to( XMLNode* node );
+		void save_to( XMLNode* node, int component_id );
 		/**
 		 * load an instrument from an XMLNode
 		 * \param node the XMLDode to read from
