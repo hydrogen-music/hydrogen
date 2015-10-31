@@ -226,7 +226,7 @@ bool Drumkit::save( const QString& dk_dir, bool overwrite )
 	return ret;
 }
 
-bool Drumkit::save_file( const QString& dk_path, bool overwrite )
+bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_id )
 {
 	INFOLOG( QString( "Saving drumkit definition into %1" ).arg( dk_path ) );
 	if( Filesystem::file_exists( dk_path, true ) && !overwrite ) {
@@ -236,23 +236,25 @@ bool Drumkit::save_file( const QString& dk_path, bool overwrite )
 	XMLDoc doc;
 	doc.set_root( "drumkit_info", "drumkit" );
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
-	save_to( &root );
+	save_to( &root, component_id );
 	return doc.write( dk_path );
 }
 
-void Drumkit::save_to( XMLNode* node )
+void Drumkit::save_to( XMLNode* node, int component_id )
 {
 	node->write_string( "name", __name );
 	node->write_string( "author", __author );
 	node->write_string( "info", __info );
 	node->write_string( "license", __license );
-	XMLNode components_node = node->ownerDocument().createElement( "componentList" );
-	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-		DrumkitComponent* pComponent = *it;
-		pComponent->save_to( &components_node );
+	if( component_id == -1 ) {
+		XMLNode components_node = node->ownerDocument().createElement( "componentList" );
+		for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+			DrumkitComponent* pComponent = *it;
+			pComponent->save_to( &components_node );
+		}
+		node->appendChild( components_node );
 	}
-	node->appendChild( components_node );
-	__instruments->save_to( node );
+	__instruments->save_to( node, component_id );
 }
 
 bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
