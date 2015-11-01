@@ -186,7 +186,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	//save the drumkit
 	// Note: The full path of the image is passed to make copying to a new drumkit easy
 	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), drumkitinfo->get_path() + "/" + drumkitinfo->get_image(), drumkitinfo->get_image_license(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) ) {
-        	QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
+		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
 	}
 
 	//check the name and set the drumkitinfo to current drumkit

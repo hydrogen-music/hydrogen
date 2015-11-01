@@ -157,10 +157,10 @@ QString SoundLibraryImportDialog::getCachedFilename()
 
 QString SoundLibraryImportDialog::getCachedImageFilename()
 {
-        QString cacheDir = H2Core::Filesystem::repositories_cache_dir();
-        QString kitNameMd5 = QString(QCryptographicHash::hash(( SoundLibraryNameLbl->text().toLatin1() ),QCryptographicHash::Md5).toHex());
-        QString cacheFile = cacheDir + "/" + kitNameMd5 + ".png";	
-        return cacheFile;
+	QString cacheDir = H2Core::Filesystem::repositories_cache_dir();
+	QString kitNameMd5 = QString(QCryptographicHash::hash(( SoundLibraryNameLbl->text().toLatin1() ),QCryptographicHash::Md5).toHex());
+	QString cacheFile = cacheDir + "/" + kitNameMd5 + ".png";	
+	return cacheFile;
 }
 
 
@@ -227,13 +227,13 @@ QString SoundLibraryImportDialog::readCachedImage( const QString& imageFile )
 {
 	QString cacheFile = getCachedImageFilename() ;
 
-        QFile file( cacheFile );
-        if( !file.exists() )
-        {       
-                // no image in cache, just return NULL
-                return NULL; 
-        }       
-        
+	QFile file( cacheFile );
+	if( !file.exists() )
+	{       
+		// no image in cache, just return NULL
+		return NULL; 
+	}       
+	
 	return cacheFile;
 }
 
@@ -334,7 +334,7 @@ void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 	 *
 	 * CACHE_DIR
 	 *     +-----repositories
-	 *           +-----serverlist_$(md5(SERVER_NAME))
+	 *	   +-----serverlist_$(md5(SERVER_NAME))
 	 */
 
 
@@ -460,17 +460,17 @@ void SoundLibraryImportDialog::showImage( QPixmap pixmap )
 
 	if ( ( x < pixmap.width() ) || ( y < pixmap.height() ) )
 	{
-                if ( labelAspect >= imageAspect )
-                {
-                        // image is taller or the same as label frame
-                        pixmap = pixmap.scaledToHeight( y );
-                }
-                else
-                {
-                        // image is wider than label frame
-                        pixmap = pixmap.scaledToWidth( x );
-                }
-        }
+		if ( labelAspect >= imageAspect )
+		{
+			// image is taller or the same as label frame
+			pixmap = pixmap.scaledToHeight( y );
+		}
+		else
+		{
+			// image is wider than label frame
+			pixmap = pixmap.scaledToWidth( x );
+		}
+	}
 	drumkitImageLabel->setPixmap( pixmap ); // TODO: Check if valid!
 
 }
