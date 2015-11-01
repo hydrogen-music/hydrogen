@@ -308,8 +308,8 @@ void MainForm::createMenuBar()
 	m_pBanksMenu->addSeparator();				// -----
 
 	m_pBanksMenu->addAction( trUtf8( "Export" ), this, SLOT( action_instruments_exportLibrary() ), QKeySequence( "" ) );
-	m_pBanksMenu->addAction( trUtf8( "Import" ) );
-	m_pBanksMenu->addAction( trUtf8( "Online import" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
+	m_pBanksMenu->addAction( trUtf8( "Import" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
+	m_pBanksMenu->addAction( trUtf8( "Online import" ), this, SLOT( action_instruments_onlineImportLibrary() ), QKeySequence( "" ) );
 
 	// INSTRUMENTS MENU
 	QMenu *m_pInstrumentsMenu = m_pMenubar->addMenu( trUtf8( "I&nstruments" ) );
@@ -934,7 +934,14 @@ void MainForm::action_instruments_exportLibrary()
 
 void MainForm::action_instruments_importLibrary()
 {
-	SoundLibraryImportDialog dialog( this );
+	SoundLibraryImportDialog dialog( this, false );
+	dialog.exec();
+}
+
+
+void MainForm::action_instruments_onlineImportLibrary()
+{
+	SoundLibraryImportDialog dialog( this, true );
 	dialog.exec();
 }
 
@@ -984,6 +991,9 @@ void MainForm::action_instruments_saveLibrary()
 	else {
 		action_instruments_saveAsLibrary();
 	}
+
+	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
+	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 }
 
 

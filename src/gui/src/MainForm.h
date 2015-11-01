@@ -86,6 +86,7 @@ public slots:
 		void action_instruments_saveAsLibrary();
 		void action_instruments_exportLibrary();
 		void action_instruments_importLibrary();
+		void action_instruments_onlineImportLibrary();
 
 		void action_banks_properties();
 		void action_banks_open();

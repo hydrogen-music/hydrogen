@@ -37,7 +37,7 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
     H2_OBJECT
 	Q_OBJECT
 	public:
-		SoundLibraryImportDialog( QWidget* pParent );
+		SoundLibraryImportDialog( QWidget* pParent, bool OnlineImport );
 		~SoundLibraryImportDialog();
 
 	private slots:
