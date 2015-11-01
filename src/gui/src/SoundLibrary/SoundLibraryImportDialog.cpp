@@ -431,21 +431,12 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	return false;
 }
 
-void SoundLibraryImportDialog::loadImage( )
+void SoundLibraryImportDialog::loadImage(QString img )
 {
-	QVariant httpCode = m_pImgCtrl->reply()->attribute( QNetworkRequest::HttpStatusCodeAttribute );
-	if ( httpCode != "200" )
-	{
-		WARNINGLOG( "Error fetching image from remote server (HTTP " + httpCode.toString() + ")" );
-		return ;
-	}
-	
-	
-	
-	// FileDownloader emits imageDownloaded signal to call this slot
 	QPixmap pixmap;
 	// TODO: Need to make sure that this isn't getting called after user clicks a different item!
-	pixmap.loadFromData(m_pImgCtrl->downloadedData());
+	//pixmap.loadFromData(m_pImgCtrl->downloadedData());
+	pixmap.load( img ) ;
 
 	writeCachedImage( drumkitImageLabel->text(), pixmap );
 	showImage( pixmap );
@@ -536,9 +527,9 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 						
 						if ( cachedFile.length() > 0 )
 						{
-							INFOLOG( "Loaded image " + info.getImage().toLocal8Bit() + " from cache (" + cachedFile + ")" );
 							QPixmap pixmap ( cachedFile );
 							showImage( pixmap );
+							INFOLOG( "Loaded image " + info.getImage().toLocal8Bit() + " from cache (" + cachedFile + ")" );
 						}
 						else
 						{
@@ -552,15 +543,17 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 							{
 								int lastSlash = info.getUrl().lastIndexOf( QString( "/" ));
 
-								QUrl imageUrl;
-								imageUrl.setUrl ( repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) ) + QString( "/images/" ) + info.getImage() );
+								QString imageUrl;
+								QString sLocalFile;
+								imageUrl = repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) ) + QString( "/images/" ) + info.getImage() ;
+								sLocalFile = QDir::tempPath() + "/" + QFileInfo( imageUrl ).fileName();
 
-								// TODO: If there's an image being loaded already abort it
+								DownloadWidget dl( this, trUtf8( "" ), imageUrl, sLocalFile );
+								dl.exec();
 
-								m_pImgCtrl = new FileDownloader( imageUrl, this );
-
-								connect(m_pImgCtrl, SIGNAL(imageDownloaded( )), SLOT(loadImage()));
-								INFOLOG("Loading image " + info.getImage().toLocal8Bit() + " from remote server");
+								loadImage( sLocalFile );
+								// Delete the temporary file
+								QFile::remove( sLocalFile );
 							}
 						}
 					}

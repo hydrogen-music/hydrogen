@@ -30,7 +30,6 @@
 
 #include <hydrogen/Preferences.h>
 #include "SoundLibraryDatastructures.h"
-#include "FileDownloader.h"
 
 ///
 /// This dialog is used to import a SoundLibrary file from a local file or via HTTP.
@@ -42,9 +41,6 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 	public:
 		SoundLibraryImportDialog( QWidget* pParent );
 		~SoundLibraryImportDialog();
-
-	public slots:
-		void loadImage( );
 
 	signals:
 
@@ -82,7 +78,7 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 		void updateSoundLibraryList();
 		void updateRepositoryCombo();
 		void showImage( QPixmap pixmap );
-		FileDownloader *m_pImgCtrl;
+		void loadImage( QString img );
 
 };
 
