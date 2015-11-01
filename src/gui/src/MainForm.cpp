@@ -302,8 +302,8 @@ void MainForm::createMenuBar()
 
 	m_pBanksMenu->addSeparator();				// -----
 
-	m_pBanksMenu->addAction( trUtf8( "Save" ) );
-	m_pBanksMenu->addAction( trUtf8( "Save As" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
+	m_pBanksMenu->addAction( trUtf8( "Save" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
+	m_pBanksMenu->addAction( trUtf8( "Save As" ), this, SLOT( action_instruments_saveAsLibrary() ), QKeySequence( "" ) );
 
 	m_pBanksMenu->addSeparator();				// -----
 
@@ -939,8 +939,55 @@ void MainForm::action_instruments_importLibrary()
 }
 
 
-
 void MainForm::action_instruments_saveLibrary()
+{
+	QString sDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitname();
+	Drumkit *drumkitInfo = NULL;
+
+	//User drumkit list
+	QStringList usr_dks = Filesystem::usr_drumkits_list();
+	for (int i = 0; i < usr_dks.size(); ++i) {
+		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks[i];
+		Drumkit *pInfo = Drumkit::load( absPath );
+		if (pInfo) {
+			if ( QString(pInfo->get_name() ) == sDrumkitName ){
+				drumkitInfo = pInfo;
+				break;
+			}
+		}
+	}
+
+	//System drumkit list
+	QStringList sys_dks = Filesystem::sys_drumkits_list();
+	for (int i = 0; i < sys_dks.size(); ++i) {
+		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sys_dks[i];
+		Drumkit *pInfo = Drumkit::load( absPath );
+		if (pInfo) {
+			if ( QString( pInfo->get_name() ) == sDrumkitName ){
+				drumkitInfo = pInfo;
+				break;
+			}
+		}
+	}
+
+	if ( drumkitInfo != NULL ){
+		if( !H2Core::Drumkit::save( QString( drumkitInfo->get_name() ),
+									QString( drumkitInfo->get_author() ),
+									QString( drumkitInfo->get_info() ),
+									QString( drumkitInfo->get_license() ),
+									H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(),
+									H2Core::Hydrogen::get_instance()->getSong()->get_components(),
+									true ) ) {
+			QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this library failed."));
+		}
+	}
+	else {
+		action_instruments_saveAsLibrary();
+	}
+}
+
+
+void MainForm::action_instruments_saveAsLibrary()
 {
 	SoundLibrarySaveDialog dialog( this );
 	dialog.exec();

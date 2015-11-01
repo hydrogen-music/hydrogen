@@ -83,6 +83,7 @@ public slots:
 		void action_instruments_addInstrument();
 		void action_instruments_clearAll();
 		void action_instruments_saveLibrary();
+		void action_instruments_saveAsLibrary();
 		void action_instruments_exportLibrary();
 		void action_instruments_importLibrary();
 
