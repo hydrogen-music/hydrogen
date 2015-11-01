@@ -141,33 +141,11 @@
         <item>
          <layout class="QHBoxLayout">
           <item>
-           <widget class="QLabel" name="SoundLibraryInfoLbl">
-            <property name="text">
-             <string>Sound library Info</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-            </property>
-            <property name="wordWrap">
+           <widget class="QTextEdit" name="SoundLibraryInfoLbl">
+            <property name="readOnly">
              <bool>true</bool>
             </property>
-            <property name="margin">
-             <number>-1</number>
-            </property>
            </widget>
-          </item>
-          <item>
-           <spacer>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </item>
@@ -296,7 +274,7 @@
          <x>10</x>
          <y>10</y>
          <width>721</width>
-         <height>68</height>
+         <height>74</height>
         </rect>
        </property>
        <layout class="QGridLayout">
