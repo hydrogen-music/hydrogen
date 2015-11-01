@@ -63,7 +63,7 @@ using namespace H2Core;
 
 const char* SoundLibraryPanel::__class_name = "SoundLibraryPanel";
 
-SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
+SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  : QWidget( pParent )
  , Object( __class_name )
  , __sound_library_tree( NULL )
@@ -109,8 +109,10 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
 	connect( __sound_library_tree, SIGNAL( currentItemChanged ( QTreeWidgetItem*, QTreeWidgetItem* ) ), this, SLOT( on_DrumkitList_ItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ) );
 	connect( __sound_library_tree, SIGNAL( itemActivated ( QTreeWidgetItem*, int ) ), this, SLOT( on_DrumkitList_itemActivated( QTreeWidgetItem*, int ) ) );
 	connect( __sound_library_tree, SIGNAL( leftClicked(QPoint) ), this, SLOT( on_DrumkitList_leftClicked(QPoint)) );
-	connect( __sound_library_tree, SIGNAL( rightClicked(QPoint) ), this, SLOT( on_DrumkitList_rightClicked(QPoint)) );
-	connect( __sound_library_tree, SIGNAL( onMouseMove( QMouseEvent* ) ), this, SLOT( on_DrumkitList_mouseMove( QMouseEvent* ) ) );
+	if( !bInItsOwnDialog ) {
+		connect( __sound_library_tree, SIGNAL( rightClicked(QPoint) ), this, SLOT( on_DrumkitList_rightClicked(QPoint)) );
+		connect( __sound_library_tree, SIGNAL( onMouseMove( QMouseEvent* ) ), this, SLOT( on_DrumkitList_mouseMove( QMouseEvent* ) ) );
+	}
 
 
 	// LAYOUT
@@ -288,8 +290,15 @@ void SoundLibraryPanel::updateDrumkitList()
 
 void SoundLibraryPanel::on_DrumkitList_ItemChanged( QTreeWidgetItem * current, QTreeWidgetItem * previous )
 {
-	UNUSED( current );
 	UNUSED( previous );
+
+	if ( current->parent() == __system_drumkits_item ||
+		 current->parent() == __user_drumkits_item  )
+		   emit item_changed( true );
+
+	else
+		emit item_changed( false );
+
 	test_expandedItems();
 }
 
@@ -308,6 +317,7 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 		// e' stato selezionato un drumkit
 	}
 	else {
+
 		// e' stato selezionato uno strumento
 		QString selectedName = item->text(0);
 		if( item->text(0) == "Patterns" ) return;

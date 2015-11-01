@@ -57,6 +57,7 @@
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "SoundLibrary/SoundLibraryImportDialog.h"
 #include "SoundLibrary/SoundLibrarySaveDialog.h"
+#include "SoundLibrary/SoundLibraryOpenDialog.h"
 #include "SoundLibrary/SoundLibraryExportDialog.h"
 #include "SoundLibrary/SoundLibraryPropertiesDialog.h"
 #include "PlaylistEditor/PlaylistDialog.h"
@@ -296,7 +297,7 @@ void MainForm::createMenuBar()
 	// BANK MENU
 	QMenu *m_pBanksMenu = m_pMenubar->addMenu( trUtf8( "&Banks" ) );
 	m_pBanksMenu->addAction( trUtf8( "New" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
-	m_pBanksMenu->addAction( trUtf8( "Open" ) );
+	m_pBanksMenu->addAction( trUtf8( "Open" ), this, SLOT( action_banks_open() ), QKeySequence( "" ) );
 	m_pBanksMenu->addAction( trUtf8( "Properties" ), this, SLOT( action_banks_properties() ), QKeySequence( "" ) );
 
 	m_pBanksMenu->addSeparator();				// -----
@@ -856,6 +857,12 @@ void MainForm::action_instruments_addInstrument()
 	HydrogenApp::get_instance()->m_undoStack->push( action );
 }
 
+
+void MainForm::action_banks_open()
+{
+	SoundLibraryOpenDialog dialog( this );
+	dialog.exec();
+}
 
 
 void MainForm::action_instruments_clearAll()
