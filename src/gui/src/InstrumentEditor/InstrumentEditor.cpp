@@ -1000,6 +1000,12 @@ void InstrumentEditor::selectLayer( int nLayer )
 			sprintf( tmp, "%#.2f", pLayer->get_gain() );
 			m_pLayerGainLCD->setText( tmp );
 
+			//Component GAIN
+			char tmp2[20];
+			sprintf( tmp2, "%#.2f", pComponent->get_gain());
+			m_pCompoGainRotary->setValue( pComponent->get_gain() / 5.0);
+			m_pCompoGainLCD->setText( tmp2 );
+
 			// Layer PITCH
 			int nCoarsePitch = (int) ::round(pLayer->get_pitch());
 			float fFinePitch = pLayer->get_pitch() - nCoarsePitch;
@@ -1015,6 +1021,10 @@ void InstrumentEditor::selectLayer( int nLayer )
 			m_pLayerGainRotary->setValue( 1.0 );
 			m_pLayerGainLCD->setText( "" );
 
+			//Component GAIN
+			m_pCompoGainRotary->setValue( 1.0 );
+			m_pCompoGainLCD->setText( "" );
+
 			// Layer PITCH
 			m_pLayerPitchCoarseRotary->setValue( 0.0 );
 			m_pLayerPitchFineRotary->setValue( 0.0 );
@@ -1029,6 +1039,9 @@ void InstrumentEditor::selectLayer( int nLayer )
 		// Layer GAIN
 		m_pLayerGainRotary->setValue( 1.0 );
 		m_pLayerGainLCD->setText( "" );
+
+		m_pCompoGainRotary->setValue( 1.0 );
+		m_pCompoGainLCD->setText( "" );
 
 		// Layer PITCH
 		m_pLayerPitchCoarseRotary->setValue( 0.0 );

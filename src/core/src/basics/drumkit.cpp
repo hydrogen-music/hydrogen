@@ -63,7 +63,7 @@ Drumkit::Drumkit( Drumkit* other ) :
 	__info( other->get_info() ),
 	__license( other->get_license() ),
 	__image( other->get_image() ),
-        __imageLicense( other->get_image_license() ),
+	__imageLicense( other->get_image_license() ),
 	__samples_loaded( other->samples_loaded() ),
 	__components( NULL )
 {
@@ -129,7 +129,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	drumkit->__info = node->read_string( "info", "No information available." );
 	drumkit->__license = node->read_string( "license", "undefined license" );
 	drumkit->__image = node->read_string( "image", "" );
-        drumkit->__imageLicense = node->read_string( "imageLicense", "undefined license" );
+	drumkit->__imageLicense = node->read_string( "imageLicense", "undefined license" );
 
 
 	XMLNode componentListNode = node->firstChildElement( "componentList" );
@@ -202,7 +202,7 @@ bool Drumkit::save( const QString&					name,
 	QFileInfo fi( image);
 	pDrumkit->set_path( fi.absolutePath() );
 	pDrumkit->set_image( fi.fileName() );
-        pDrumkit->set_image_license( imageLicense );
+	pDrumkit->set_image_license( imageLicense );
 
 
 	pDrumkit->set_instruments( new InstrumentList( pInstruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
@@ -241,7 +241,7 @@ bool Drumkit::save( const QString& dk_dir, bool overwrite )
 	return ret;
 }
 
-bool Drumkit::save_file( const QString& dk_path, bool overwrite )
+bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_id )
 {
 	INFOLOG( QString( "Saving drumkit definition into %1" ).arg( dk_path ) );
 	if( Filesystem::file_exists( dk_path, true ) && !overwrite ) {
@@ -251,26 +251,27 @@ bool Drumkit::save_file( const QString& dk_path, bool overwrite )
 	XMLDoc doc;
 	doc.set_root( "drumkit_info", "drumkit" );
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
-	save_to( &root );
+	save_to( &root, component_id );
 	return doc.write( dk_path );
 }
 
-void Drumkit::save_to( XMLNode* node )
+void Drumkit::save_to( XMLNode* node, int component_id )
 {
 	node->write_string( "name", __name );
 	node->write_string( "author", __author );
 	node->write_string( "info", __info );
 	node->write_string( "license", __license );
-	node->write_string( "image", __image );
-        node->write_string( "imageLicense", __imageLicense );
+	node->write_string( "imageLicense", __imageLicense );
 
-	XMLNode components_node = node->ownerDocument().createElement( "componentList" );
-	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-		DrumkitComponent* pComponent = *it;
-		pComponent->save_to( &components_node );
+	if( component_id == -1 ) {
+		XMLNode components_node = node->ownerDocument().createElement( "componentList" );
+		for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+			DrumkitComponent* pComponent = *it;
+			pComponent->save_to( &components_node );
+		}
+		node->appendChild( components_node );
 	}
-	node->appendChild( components_node );
-	__instruments->save_to( node );
+	__instruments->save_to( node, component_id );
 }
 
 bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
@@ -322,9 +323,9 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 			}
 		}
 	}
-        if ( !save_image( dk_dir, overwrite ) ) {
-                return false;
-        }
+	if ( !save_image( dk_dir, overwrite ) ) {
+		return false;
+	}
 
 	return true;
 }
@@ -336,13 +337,13 @@ bool Drumkit::save_image( const QString& dk_dir, bool overwrite )
 		QString src = __path + "/" + __image;
 		QString dst = dk_dir + "/" + __image;
 		if ( Filesystem::file_exists ( src ) ) 
-                {
-                    if( !Filesystem::file_copy( src, dst ) ) 
-                    {
-                        ERRORLOG( QString( "Error copying %1 to %2").arg( src ).arg( dst ) );
-                        return false;
-                    }
-                }
+		{
+			if( !Filesystem::file_copy( src, dst ) ) 
+			{
+				ERRORLOG( QString( "Error copying %1 to %2").arg( src ).arg( dst ) );
+				return false;
+			}
+		}
 	}
 	return true;
 }
@@ -382,7 +383,7 @@ void Drumkit::dump()
 	DEBUGLOG( " |- Author = " + __author );
 	DEBUGLOG( " |- Info = " + __info );
 	DEBUGLOG( " |- Image = " + __image );
-        DEBUGLOG( " |- Image = " + __imageLicense );
+	DEBUGLOG( " |- Image = " + __imageLicense );
 
 	DEBUGLOG( " |- Instrument list" );
 	for ( int i=0; i<__instruments->size(); i++ ) {

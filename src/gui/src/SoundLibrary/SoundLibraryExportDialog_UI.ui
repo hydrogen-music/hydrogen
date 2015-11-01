@@ -1,71 +1,199 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>SoundLibraryExportDialog_UI</class>
- <widget class="QDialog" name="SoundLibraryExportDialog_UI" >
-  <property name="geometry" >
+ <widget class="QDialog" name="SoundLibraryExportDialog_UI">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>396</width>
-    <height>87</height>
+    <width>503</width>
+    <height>281</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QPushButton" name="browseBtn" >
-   <property name="geometry" >
+  <widget class="QGroupBox" name="drumkitGroubox">
+   <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>10</y>
-     <width>100</width>
-     <height>24</height>
+     <x>10</x>
+     <y>120</y>
+     <width>481</width>
+     <height>101</height>
     </rect>
    </property>
-   <property name="text" >
-    <string>Browse</string>
+   <property name="title">
+    <string>Drumkit</string>
    </property>
-   <property name="autoDefault" >
-    <bool>false</bool>
-   </property>
+   <widget class="QComboBox" name="drumkitList">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>20</y>
+      <width>371</width>
+      <height>28</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="componentList">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>60</y>
+      <width>371</width>
+      <height>28</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelDrumkit">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Drumkit</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelComponent">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Component</string>
+    </property>
+   </widget>
   </widget>
-  <widget class="QLineEdit" name="drumkitPathTxt" >
-   <property name="geometry" >
+  <widget class="QGroupBox" name="exportGroupbox">
+   <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>10</y>
-     <width>251</width>
-     <height>28</height>
+     <x>10</x>
+     <y>9</y>
+     <width>481</width>
+     <height>101</height>
     </rect>
    </property>
-  </widget>
-  <widget class="QComboBox" name="drumkitList" >
-   <property name="geometry" >
-    <rect>
-     <x>20</x>
-     <y>50</y>
-     <width>251</width>
-     <height>28</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="exportBtn" >
-   <property name="enabled" >
-    <bool>false</bool>
-   </property>
-   <property name="geometry" >
-    <rect>
-     <x>290</x>
-     <y>50</y>
-     <width>100</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <property name="text" >
+   <property name="title">
     <string>Export</string>
    </property>
-   <property name="autoDefault" >
-    <bool>false</bool>
+   <widget class="QLabel" name="labelPath">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Path</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelVersion">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Version</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="drumkitPathTxt">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>20</y>
+      <width>271</width>
+      <height>28</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="browseBtn">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>20</y>
+      <width>85</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Browse...</string>
+    </property>
+    <property name="autoDefault">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="versionList">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>60</y>
+      <width>371</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>0.9.7 and higher</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>0.9.6 and lower</string>
+     </property>
+    </item>
+   </widget>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>240</y>
+     <width>178</width>
+     <height>29</height>
+    </rect>
    </property>
+   <layout class="QHBoxLayout" name="horizontalLayoutBtns">
+    <item>
+     <widget class="QPushButton" name="exportBtn">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Export</string>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="cancelBtn">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>Cancel</string>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>
