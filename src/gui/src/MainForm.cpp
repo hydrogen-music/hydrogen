@@ -992,7 +992,7 @@ void MainForm::action_instruments_saveLibrary()
 		action_instruments_saveAsLibrary();
 	}
 
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
+	//HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 }
 
