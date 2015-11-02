@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="it_IT">
+<TS version="2.1" language="it_IT">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -613,6 +613,25 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>ComponentMixerLine</name>
+    <message>
+        <source>Mute</source>
+        <translation type="unfinished">Escludi</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation type="unfinished">Solo</translation>
+    </message>
+    <message>
+        <source>Component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument volume [%1]</source>
+        <translation type="unfinished">Volume strumento [%1]</translation>
+    </message>
+</context>
+<context>
     <name>Director</name>
     <message>
         <source>Director</source>
@@ -624,6 +643,13 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Dialog</source>
         <translation>Dialogo</translation>
+    </message>
+</context>
+<context>
+    <name>Download</name>
+    <message>
+        <source>Importing item failed: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -898,12 +924,16 @@ Sovrascrivere il file esistente?</translation>
         <translation>Linea BPM</translation>
     </message>
     <message>
-        <source>Enable use of rubberband batch processor</source>
-        <translation>Abilita il rubberband batch processor</translation>
+        <source>88200</source>
+        <translation type="unfinished">88200</translation>
     </message>
     <message>
-        <source>Rubberbad Batch</source>
-        <translation>Rubberbad Batch</translation>
+        <source>Enable use of rubberband&apos;s batch processor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rubberband Batch</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1057,8 +1087,28 @@ Sei sicuro?</translation>
         <translation>Ferma la riproduzione della nota-strumento prima di riprodurre la prossima.</translation>
     </message>
     <message>
-        <source>Auto-Stop-Note</source>
-        <translation>Ferma automaticamente la nota</translation>
+        <source>Set the instrument as part of a hihat set.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi out channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi out note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component volume</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1110,6 +1160,22 @@ Sei sicuro?</translation>
     <message>
         <source>Solo</source>
         <translation>Solo</translation>
+    </message>
+    <message>
+        <source>Copy notes ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only for this pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>For all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paste notes ...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1330,11 +1396,8 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>LayerPreview</name>
     <message>
-        <source>Layer %1: Min. velocity = %2, Max. velocity = %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Velocity = %1</source>
+        <source>Dec. = %1
+MIDI = %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1665,6 +1728,17 @@ Vuoi salvare i cambiamenti?</translation>
     <message>
         <source>Set swing factor [%1]</source>
         <translation>Fattore di swing [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>MidiSenseWidget</name>
+    <message>
+        <source>This element is not midi operable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Waiting for midi input...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2304,10 +2378,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <translation>Browser della Playlist</translation>
     </message>
     <message>
-        <source>No song selected!</source>
-        <translation>Nessuna canzone selezionata!</translation>
-    </message>
-    <message>
         <source>Playlist: set song no. %1</source>
         <translation>Playlist: imposta canzone n. %1</translation>
     </message>
@@ -2318,6 +2388,14 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     <message>
         <source>&amp;New Playlist</source>
         <translation>&amp;Nuova Playlist</translation>
+    </message>
+    <message>
+        <source>File not found: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No valid song selected!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2395,6 +2473,30 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
         <source>&amp;Cancel</source>
         <translation>&amp;Annulla</translation>
     </message>
+    <message>
+        <source>Automatic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fixed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;PulseAudio Driver&lt;/b&gt;&lt;br&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of steps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color (Hue value)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -2445,10 +2547,6 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     <message>
         <source>Select font</source>
         <translation>Seleziona caratteri</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;After a font change the application must be restarted.&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Riavviare l&apos;applicazione per usare i nuovi caratteri.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Polyphony</source>
@@ -2701,6 +2799,18 @@ Il percorso dello script o il suo nome non devono contenere spazi.</translation>
     <message>
         <source>Tabbed</source>
         <translation>Tab</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Coloring method for Song Editor elements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3102,10 +3212,6 @@ Confermi?</translation>
     <message>
         <source>single pattern mode</source>
         <translation>Modalità pattern singolo</translation>
-    </message>
-    <message>
-        <source>not_categorized</source>
-        <translation>Nessuna categoria</translation>
     </message>
     <message>
         <source>Enable time line edit</source>
@@ -3589,8 +3695,12 @@ Are you sure?</source>
         <translation>Fornisci un nome valido</translation>
     </message>
     <message>
-        <source>Saving of this drumkit failed.</source>
-        <translation>Salvataggio drumkit fallito.</translation>
+        <source>A library with the same name already exists. Do you want to overwrite the existing library?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this library failed.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

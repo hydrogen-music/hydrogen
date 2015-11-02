@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0">
+<TS version="2.1">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -613,6 +613,25 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>ComponentMixerLine</name>
+    <message>
+        <source>Mute</source>
+        <translation type="unfinished">Escludi</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation type="unfinished">Solo</translation>
+    </message>
+    <message>
+        <source>Component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument volume [%1]</source>
+        <translation type="unfinished">Volume strumento [%1]</translation>
+    </message>
+</context>
+<context>
     <name>Director</name>
     <message>
         <source>Director</source>
@@ -624,6 +643,13 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Dialog</source>
         <translation type="unfinished">Dijalog</translation>
+    </message>
+</context>
+<context>
+    <name>Download</name>
+    <message>
+        <source>Importing item failed: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -897,11 +923,15 @@ Overwrite the existing file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enable use of rubberband batch processor</source>
+        <source>88200</source>
+        <translation type="unfinished">88200</translation>
+    </message>
+    <message>
+        <source>Enable use of rubberband&apos;s batch processor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Rubberbad Batch</source>
+        <source>Rubberband Batch</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1056,7 +1086,27 @@ Jesi li siguran da to želiš napraviti?</translation>
         <translation></translation>
     </message>
     <message>
-        <source>Auto-Stop-Note</source>
+        <source>Set the instrument as part of a hihat set.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi out channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi out note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component volume</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1109,6 +1159,22 @@ Jesi li siguran da to želiš napraviti?</translation>
     <message>
         <source>Solo</source>
         <translation type="unfinished">Solo</translation>
+    </message>
+    <message>
+        <source>Copy notes ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only for this pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>For all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paste notes ...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1329,11 +1395,8 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>LayerPreview</name>
     <message>
-        <source>Layer %1: Min. velocity = %2, Max. velocity = %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Velocity = %1</source>
+        <source>Dec. = %1
+MIDI = %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1662,6 +1725,17 @@ Do you want to save the changes?
     <message>
         <source>Set swing factor [%1]</source>
         <translation>Swing faktor [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>MidiSenseWidget</name>
+    <message>
+        <source>This element is not midi operable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Waiting for midi input...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2301,10 +2375,6 @@ Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No song selected!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Playlist: set song no. %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2314,6 +2384,14 @@ Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
     </message>
     <message>
         <source>&amp;New Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File not found: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No valid song selected!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2391,6 +2469,30 @@ Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
         <source>Please restart hydrogen to enable/disable LASH support</source>
         <translation>Restartaj hydrogen kako bi se uključila/isključila LASH podrška</translation>
     </message>
+    <message>
+        <source>Automatic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fixed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;PulseAudio Driver&lt;/b&gt;&lt;br&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of steps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color (Hue value)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -2441,10 +2543,6 @@ Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
     <message>
         <source>Select font</source>
         <translation>Odaberi font</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;After a font change the application must be restarted.&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Nakon promjene fonta aplikacija mora biti restartana.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Polyphony</source>
@@ -2696,6 +2794,18 @@ Adresa skripte i njezino ime ne smiju sadržavati razmake.</translation>
     </message>
     <message>
         <source>Tabbed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Coloring method for Song Editor elements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3104,10 +3214,6 @@ Da li to želiš napraviti?</translation>
     <message>
         <source>single pattern mode</source>
         <translation>Pojedinačni Mod uzoraka</translation>
-    </message>
-    <message>
-        <source>not_categorized</source>
-        <translation>Nije kategorizirano</translation>
     </message>
 </context>
 <context>
@@ -3582,7 +3688,11 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Saving of this drumkit failed.</source>
+        <source>A library with the same name already exists. Do you want to overwrite the existing library?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this library failed.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

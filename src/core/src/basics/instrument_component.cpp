@@ -57,7 +57,7 @@ InstrumentComponent::InstrumentComponent( InstrumentComponent* other )
 	for ( int i=0; i<MAX_LAYERS; i++ ) {
 		InstrumentLayer* other_layer = other->get_layer( i );
 		if ( other_layer ) {
-			__layers[i] = new InstrumentLayer( other_layer );
+			__layers[i] = new InstrumentLayer( other_layer, other_layer->get_sample());
 		} else {
 			__layers[i] = 0;
 		}
@@ -93,18 +93,25 @@ InstrumentComponent* InstrumentComponent::load_from( XMLNode* node, const QStrin
 	return instrument_component;
 }
 
-void InstrumentComponent::save_to( XMLNode* node )
+void InstrumentComponent::save_to( XMLNode* node, int component_id )
 {
-	XMLNode component_node = node->ownerDocument().createElement( "instrumentComponent" );
-	component_node.write_int( "component_id", __related_drumkit_componentID );
-	component_node.write_float( "gain", __gain );
+	XMLNode component_node;
+	if( component_id == -1 ){
+		component_node = node->ownerDocument().createElement( "instrumentComponent" );
+		component_node.write_int( "component_id", __related_drumkit_componentID );
+		component_node.write_float( "gain", __gain );
+	}
 	for ( int n = 0; n < MAX_LAYERS; n++ ) {
 		InstrumentLayer* layer = get_layer( n );
 		if( layer ) {
-			layer->save_to( &component_node );
+			if( component_id == -1 )
+				layer->save_to( &component_node );
+			else
+				layer->save_to( node );
 		}
 	}
-	node->appendChild( component_node );
+	if( component_id == -1 )
+		node->appendChild( component_node );
 }
 
 };

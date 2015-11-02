@@ -1395,6 +1395,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 		LocalFileMng::writeXmlString( patternNode, "name", pat->get_name() );
 		LocalFileMng::writeXmlString( patternNode, "category", pat->get_category() );
 		LocalFileMng::writeXmlString( patternNode, "size", QString("%1").arg( pat->get_length() ) );
+		LocalFileMng::writeXmlString( patternNode, "info", pat->get_info() );
 
 		QDomNode noteListNode = doc.createElement( "noteList" );
 		const Pattern::notes_t* notes = pat->get_notes();
@@ -1550,7 +1551,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	if( rv ) {
 		WARNINGLOG("File save reported an error.");
 	} else {
-		song->__is_modified = false;
+		song->set_is_modified( false );
 		INFOLOG("Save was successful.");
 	}
 

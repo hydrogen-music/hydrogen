@@ -92,14 +92,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	//setup the undo stack
 	m_undoStack = new QUndoStack( this );
 
-	// set initial title
-	QString qsSongName( pFirstSong->__name );
-	if( qsSongName == "Untitled Song" && !pFirstSong->get_filename().isEmpty() ){
-		qsSongName = pFirstSong->get_filename();
-		qsSongName = qsSongName.section( '/', -1 );
-	}
-
-	setWindowTitle( qsSongName  );
+	updateWindowTitle();
 
 	Preferences *pPref = Preferences::get_instance();
 
@@ -118,9 +111,6 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	
 	m_pPlaylistDialog = new PlaylistDialog( 0 );
 	m_pDirector = new Director( 0 );
-//	m_pSampleEditor = new SampleEditor( 0 );
-	
-        showInfoSplash();	// First time information
 }
 
 
@@ -321,12 +311,7 @@ void HydrogenApp::setSong(Song* song)
 	m_pSongEditorPanel->updateAll();
 	m_pPatternEditorPanel->updateSLnameLabel();
 
-	QString songName( song->__name );
-	if( songName == "Untitled Song" && !song->get_filename().isEmpty() ){
-		songName = song->get_filename();
-		songName = songName.section( '/', -1 );
-	}
-	setWindowTitle( songName  );
+	updateWindowTitle();
 
 	m_pMainForm->updateRecentUsedSongList();
 }
@@ -385,7 +370,26 @@ void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 	getPlayerControl()->showMessage( msg, msec );
 }
 
-void HydrogenApp::setWindowTitle( const QString& title){
+void HydrogenApp::updateWindowTitle()
+{
+	Song *pSong = 	Hydrogen::get_instance()->getSong();
+	assert(pSong);
+
+	QString title;
+
+	// special handling for initial title
+	QString qsSongName( pSong->__name );
+
+	if( qsSongName == "Untitled Song" && !pSong->get_filename().isEmpty() ){
+		qsSongName = qsSongName.section( '/', -1 );
+	}
+
+	if(pSong->get_is_modified()){
+		title = qsSongName + " (" + QString(trUtf8("modified")) + ")";
+	} else {
+		title = qsSongName;
+	}
+
 	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) + QString( " - " ) + title ) );
 }
 
@@ -432,50 +436,6 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedLayer )
 	QApplication::restoreOverrideCursor();
 }
 
-
-
-void HydrogenApp::showInfoSplash()
-{
-	QString sDocPath = H2Core::Filesystem::doc_dir().append("/infoSplash");
-
-	QDir dir(sDocPath);
-	if ( !dir.exists() ) {
-		ERRORLOG( QString("[showInfoSplash] Directory ").append( sDocPath ).append( " not found." ) );
-		return;
-	}
-
-	QString sFilename;
-	int nNewsID = 0;
-	QFileInfoList list = dir.entryInfoList();
-
-	for ( int i =0; i < list.size(); ++i ) {
-		QString sFile = list.at( i ).fileName();
-
-		if ( sFile == "." || sFile == ".." ) {
-			continue;
-		}
-
-		int nPos = sFile.lastIndexOf( "-" );
-		QString sNewsID = sFile.mid( nPos + 1, sFile.length() - nPos - 1 );
-		int nID = sNewsID.toInt();
-		if ( nID > nNewsID ) {
-			sFilename = sFile;
-		}
-		//		INFOLOG( "news: " + sFilename + " id: " + sNewsID );
-	}
-	INFOLOG( "[showInfoSplash] Selected news: " + sFilename );
-
-	QString sLastRead = Preferences::get_instance()->getLastNews();
-	if ( sLastRead != sFilename && !sFilename.isEmpty() ) {
-		QString sDocURI = sDocPath;
-		sDocURI.append( "/" ).append( sFilename );
-		SimpleHTMLBrowser *m_pFirstTimeInfo = new SimpleHTMLBrowser( m_pMainForm, sDocPath, sDocURI, SimpleHTMLBrowser::WELCOME );
-		if ( m_pFirstTimeInfo->exec() == QDialog::Accepted ) {
-			Preferences::get_instance()->setLastNews( sFilename );
-		}
-	}
-}
-
 void HydrogenApp::onDrumkitLoad( QString name ){
 	setStatusBarMessage( trUtf8( "Drumkit loaded: [%1]" ).arg( name ), 2000 );
 	m_pPatternEditorPanel->updateSLnameLabel( );
@@ -485,6 +445,10 @@ void HydrogenApp::enableDestructiveRecMode(){
 	m_pPatternEditorPanel->displayorHidePrePostCB();
 }
 
+void HydrogenApp::songModifiedEvent()
+{
+	updateWindowTitle();
+}
 
 void HydrogenApp::onEventQueueTimer()
 {
@@ -507,6 +471,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_PATTERN_MODIFIED:
 				pListener->patternModifiedEvent();
+				break;
+
+			case EVENT_SONG_MODIFIED:
+				songModifiedEvent();
 				break;
 
 			case EVENT_SELECTED_PATTERN_CHANGED:

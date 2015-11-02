@@ -98,7 +98,7 @@ class Instrument : public H2Core::Object
 		 * save the intrument within the given XMLNode
 		 * \param node the XMLNode to feed
 		 */
-		void save_to( XMLNode* node );
+		void save_to( XMLNode* node, int component_id );
 		/**
 		 * load an instrument from an XMLNode
 		 * \param node the XMLDode to read from
@@ -234,6 +234,14 @@ class Instrument : public H2Core::Object
 		///< get the name of the related drumkits
 		const QString& get_drumkit_name() const;
 
+		/** Mark the instrument as hydrogen's preview instrument */
+		void set_is_preview_instrument(bool isPreview);
+		bool is_preview_instrument() const;
+
+		/** Mark the instrument as metronome instrument */
+		void set_is_metronome_instrument(bool isMetronome);
+		bool is_metronome_instrument() const;
+
 		std::vector<InstrumentComponent*>* get_components();
 		InstrumentComponent* get_component( int DrumkitComponentID );
 
@@ -265,8 +273,10 @@ class Instrument : public H2Core::Object
 		float __fx_level[MAX_FX];	            ///< Ladspa FX level array
 		bool __hihat;                           ///< the instrument is a hihat
 		int __lower_cc;                         ///< lower cc level
-        int __higher_cc;                        ///< higher cc level
-        std::vector<InstrumentComponent*>* __components;  ///< InstrumentLayer array
+		int __higher_cc;                        ///< higher cc level
+		bool __is_preview_instrument;			///< is the instrument an hydrogen preview instrument?
+		bool __is_metronome_instrument;			///< is the instrument an metronome instrument?
+		std::vector<InstrumentComponent*>* __components;  ///< InstrumentLayer array
 };
 
 // DEFINITIONS
@@ -507,34 +517,33 @@ inline bool Instrument::is_stop_notes() const
 
 inline void Instrument::set_hihat( bool ishihat )
 {
-    __hihat = ishihat;
+	__hihat = ishihat;
 }
 
 inline bool Instrument::is_hihat() const
 {
-    return __hihat;
+	return __hihat;
 }
 
 inline void Instrument::set_lower_cc( int message )
 {
-    __lower_cc = message;
+	__lower_cc = message;
 }
 
 inline int Instrument::get_lower_cc() const
 {
-    return __lower_cc;
+	return __lower_cc;
 }
 
 inline void Instrument::set_higher_cc( int message )
 {
-    __higher_cc = message;
+	__higher_cc = message;
 }
 
 inline int Instrument::get_higher_cc() const
 {
-    return __higher_cc;
+	return __higher_cc;
 }
-
 
 inline void Instrument::set_drumkit_name( const QString& name )
 {
@@ -546,9 +555,29 @@ inline const QString& Instrument::get_drumkit_name() const
 	return __drumkit_name;
 }
 
+inline bool Instrument::is_preview_instrument() const
+{
+	return __is_preview_instrument;
+}
+
+inline void Instrument::set_is_preview_instrument(bool isPreview)
+{
+	__is_preview_instrument = isPreview;
+}
+
+inline bool Instrument::is_metronome_instrument() const
+{
+	return __is_metronome_instrument;
+}
+
+inline void Instrument::set_is_metronome_instrument(bool isMetronome)
+{
+	__is_metronome_instrument = isMetronome;
+}
+
 inline std::vector<InstrumentComponent*>* Instrument::get_components()
 {
-    return __components;
+	return __components;
 }
 
 

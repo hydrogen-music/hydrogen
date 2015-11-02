@@ -113,7 +113,11 @@ Then cross-compile gcc again.
 
     $ cd $HYDROGEN
     
+    For 32 bit compilations use
     $ cmake -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake
+
+    For 64 bit compilations use
+    $ cmake -DWIN64:BOOL=ON ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake -DCMAKE_{C,CXX}_FLAGS=-m64
     
     $ cpack -G NSIS
 

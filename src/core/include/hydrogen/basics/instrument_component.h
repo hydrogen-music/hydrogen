@@ -45,7 +45,7 @@ class InstrumentComponent : public H2Core::Object
 		InstrumentComponent( InstrumentComponent* other );
 		~InstrumentComponent();
 
-		void save_to( XMLNode* node );
+		void save_to( XMLNode* node, int component_id );
 		static InstrumentComponent* load_from( XMLNode* node, const QString& dk_path );
 
 		InstrumentLayer* operator[]( int idx );
@@ -77,16 +77,6 @@ class InstrumentComponent : public H2Core::Object
 
 // DEFINITIONS
 
-//inline void InstrumentComponent::set_name( const QString& name )
-//{
-//	__name = name;
-//}
-
-//inline const QString& InstrumentComponent::get_name() const
-//{
-//	return __name;
-//}
-
 inline void InstrumentComponent::set_drumkit_componentID( int related_drumkit_componentID )
 {
 	__related_drumkit_componentID = related_drumkit_componentID;
@@ -106,16 +96,6 @@ inline float InstrumentComponent::get_gain() const
 {
 	return __gain;
 }
-
-//inline void InstrumentComponent::set_volume( float volume )
-//{
-//    __volume = volume;
-//}
-
-//inline float InstrumentComponent::get_volume() const
-//{
-//    return __volume;
-//}
 
 inline InstrumentLayer* InstrumentComponent::operator[]( int idx )
 {
