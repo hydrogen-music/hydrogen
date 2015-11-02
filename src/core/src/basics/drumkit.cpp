@@ -52,7 +52,7 @@ const char* Drumkit::__class_name = "Drumkit";
 
 Drumkit::Drumkit() : Object( __class_name ), __samples_loaded( false ), __instruments( 0 ), __components( NULL )
 {
-    __components = new std::vector<DrumkitComponent*> ();
+	__components = new std::vector<DrumkitComponent*> ();
 }
 
 Drumkit::Drumkit( Drumkit* other ) :
@@ -67,15 +67,15 @@ Drumkit::Drumkit( Drumkit* other ) :
 {
 	__instruments = new InstrumentList( other->get_instruments() );
 
-    __components = new std::vector<DrumkitComponent*> ();
-    __components->assign( other->get_components()->begin(), other->get_components()->end() );
+	__components = new std::vector<DrumkitComponent*> ();
+	__components->assign( other->get_components()->begin(), other->get_components()->end() );
 
 }
 
 Drumkit::~Drumkit()
 {
-    __components->clear();
-    delete __components;
+	__components->clear();
+	delete __components;
 
 	if( __instruments ) delete __instruments;
 }
@@ -176,24 +176,36 @@ void Drumkit::unload_samples( )
 	}
 }
 
-bool Drumkit::save( const QString& name, const QString& author, const QString& info, const QString& license, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite )
+bool Drumkit::save( const QString&					name,
+					const QString&					author,
+					const QString&					info,
+					const QString&					license,
+					InstrumentList*					pInstruments,
+					std::vector<DrumkitComponent*>* pComponents,
+					bool overwrite )
 {
 
-	Drumkit* drumkit = new Drumkit();
-	drumkit->set_name( name );
-	drumkit->set_author( author );
-	drumkit->set_info( info );
-	drumkit->set_license( license );
-	drumkit->set_instruments( new InstrumentList( instruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
-	std::vector<DrumkitComponent*>* p_copiedVector = new std::vector<DrumkitComponent*> ();
-	for (std::vector<DrumkitComponent*>::iterator it = components->begin() ; it != components->end(); ++it) {
-		DrumkitComponent* src_component = *it;
-		p_copiedVector->push_back( new DrumkitComponent( src_component ) );
+	Drumkit* pDrumkit = new Drumkit();
+	pDrumkit->set_name( name );
+	pDrumkit->set_author( author );
+	pDrumkit->set_info( info );
+	pDrumkit->set_license( license );
+	pDrumkit->set_instruments( new InstrumentList( pInstruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
+	std::vector<DrumkitComponent*>* pCopiedVector = new std::vector<DrumkitComponent*> ();
+	for (std::vector<DrumkitComponent*>::iterator it = pComponents->begin() ; it != pComponents->end(); ++it) {
+		DrumkitComponent* pSrcComponent = *it;
+		pCopiedVector->push_back( new DrumkitComponent( pSrcComponent ) );
 	}
-	drumkit->set_components( p_copiedVector );
-	bool ret = drumkit->save( overwrite );
-	delete drumkit;
+	pDrumkit->set_components( pCopiedVector );
+	bool ret = pDrumkit->save( overwrite );
+	delete pDrumkit;
+
 	return ret;
+}
+
+bool Drumkit::user_drumkit_exists( const QString& name)
+{
+	return Filesystem::file_exists( QString( Filesystem::usr_drumkits_dir() + "/" + name + "/drumkit.xml") , true /*silent*/);
 }
 
 bool Drumkit::save( bool overwrite )
@@ -214,7 +226,7 @@ bool Drumkit::save( const QString& dk_dir, bool overwrite )
 	return ret;
 }
 
-bool Drumkit::save_file( const QString& dk_path, bool overwrite )
+bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_id )
 {
 	INFOLOG( QString( "Saving drumkit definition into %1" ).arg( dk_path ) );
 	if( Filesystem::file_exists( dk_path, true ) && !overwrite ) {
@@ -224,23 +236,25 @@ bool Drumkit::save_file( const QString& dk_path, bool overwrite )
 	XMLDoc doc;
 	doc.set_root( "drumkit_info", "drumkit" );
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
-	save_to( &root );
+	save_to( &root, component_id );
 	return doc.write( dk_path );
 }
 
-void Drumkit::save_to( XMLNode* node )
+void Drumkit::save_to( XMLNode* node, int component_id )
 {
 	node->write_string( "name", __name );
 	node->write_string( "author", __author );
 	node->write_string( "info", __info );
 	node->write_string( "license", __license );
-	XMLNode components_node = node->ownerDocument().createElement( "componentList" );
-	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-        DrumkitComponent* component = *it;
-        component->save_to( &components_node );
-    }
-	node->appendChild( components_node );
-	__instruments->save_to( node );
+	if( component_id == -1 ) {
+		XMLNode components_node = node->ownerDocument().createElement( "componentList" );
+		for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+			DrumkitComponent* pComponent = *it;
+			pComponent->save_to( &components_node );
+		}
+		node->appendChild( components_node );
+	}
+	__instruments->save_to( node, component_id );
 }
 
 bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
@@ -270,12 +284,16 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 						if( original_dst.lastIndexOf(".") > 0 )
 							insertPosition = original_dst.lastIndexOf(".");
 
-						// If the destination path already exists, try to use basename_1, basename_2, etc. instead of basename.
-						int tries = 0;
-						while( Filesystem::file_exists( dst )) {
-							tries++;
-							dst = original_dst;
-							dst.insert( insertPosition, QString("_%1").arg(tries) );
+
+						if(overwrite == false)
+						{
+							// If the destination path already exists, try to use basename_1, basename_2, etc. instead of basename.
+							int tries = 0;
+							while( Filesystem::file_exists( dst, true )) {
+								tries++;
+								dst = original_dst;
+								dst.insert( insertPosition, QString("_%1").arg(tries) );
+							}
 						}
 
 						layer->get_sample()->set_filename( dst );

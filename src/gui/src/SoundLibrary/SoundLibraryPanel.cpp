@@ -200,8 +200,8 @@ void SoundLibraryPanel::updateDrumkitList()
 	}
 
 	//System drumkit list
-    QStringList sys_dks = Filesystem::sys_drumkits_list();
-    for (int i = 0; i < sys_dks.size(); ++i) {
+	QStringList sys_dks = Filesystem::sys_drumkits_list();
+	for (int i = 0; i < sys_dks.size(); ++i) {
 		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sys_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {
@@ -487,7 +487,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
-	Hydrogen::get_instance()->getSong()->__is_modified = true;
+	Hydrogen::get_instance()->getSong()->set_is_modified( true );
 	HydrogenApp::get_instance()->onDrumkitLoad( drumkitInfo->get_name() );
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
@@ -656,9 +656,9 @@ void SoundLibraryPanel::on_songLoadAction()
 	QString sFilename = sDirectory + "/" + songName + ".h2song";
 	
 
-	Hydrogen *engine = Hydrogen::get_instance();
-	if ( engine->getState() == STATE_PLAYING ) {
-                engine->sequencer_stop();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getState() == STATE_PLAYING ) {
+		pHydrogen->sequencer_stop();
 	}
 
 	Song *pSong = Song::load( sFilename );
@@ -674,12 +674,12 @@ void SoundLibraryPanel::on_songLoadAction()
 	recentFiles.insert( recentFiles.begin(), sFilename );
 	pPref->setRecentFiles( recentFiles );
 
-	HydrogenApp* h2app = HydrogenApp::get_instance();
+	HydrogenApp* pH2App = HydrogenApp::get_instance();
 
-	h2app->setSong( pSong );
+	pH2App->setSong( pSong );
 
 	//updateRecentUsedSongList();
-	engine->setSelectedPatternNumber( 0 );
+	pHydrogen->setSelectedPatternNumber( 0 );
 }
 
 
@@ -690,9 +690,9 @@ void SoundLibraryPanel::on_patternLoadAction()
 
 	QString patternName = __sound_library_tree->currentItem()->text( 0 ) + ".h2pattern";
 	QString drumkitname = __sound_library_tree->currentItem()->toolTip ( 0 );
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	PatternList *pPatternList = song->get_pattern_list();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
+	PatternList *pPatternList = pSong->get_pattern_list();
 	
 	QString sDirectory;
 
@@ -712,15 +712,14 @@ void SoundLibraryPanel::on_patternLoadAction()
 		} 
 	}
 
-	Pattern* err = mng.loadPattern (sDirectory );
+	Pattern* pErr = mng.loadPattern (sDirectory );
 
-	if ( err == 0 ) {
+	if ( pErr == 0 ) {
 		ERRORLOG( "Error loading the pattern" );
 	}
 	else {
-		H2Core::Pattern *pNewPattern = err;
-		pPatternList->add ( pNewPattern );
-		song->__is_modified = true;
+		pPatternList->add ( pErr );
+		pSong->set_is_modified( true );
 	}
 
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();

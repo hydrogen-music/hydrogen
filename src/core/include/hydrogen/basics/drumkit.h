@@ -72,6 +72,15 @@ class Drumkit : public H2Core::Object
 		 * unload the instrument samples
 		 */
 		void unload_samples();
+
+		/**
+		 * check if a user drumkit with the given name
+		 * already exists
+		 * \param dk_path Drumkit path
+		 * \return true on success
+		 */
+		static bool user_drumkit_exists( const QString& dk_path );
+
 		/**
 		 * save a drumkit, xml file and samples
 		 * \param overwrite allows to write over existing drumkit files
@@ -90,9 +99,10 @@ class Drumkit : public H2Core::Object
 		 * save a drumkit into an xml file
 		 * \param dk_path the path to save the drumkit into
 		 * \param overwrite allows to write over existing drumkit file
+		 * \param component_id to chose the component to save or -1 for all
 		 * \return true on success
 		 */
-		bool save_file( const QString& dk_path, bool overwrite=false );
+		bool save_file( const QString& dk_path, bool overwrite=false, int component_id=-1 );
 		/**
 		 * save a drumkit instruments samples into a directory
 		 * \param dk_dir the directory to save the samples into
@@ -169,7 +179,7 @@ class Drumkit : public H2Core::Object
 		 * save the drumkit within the given XMLNode
 		 * \param node the XMLNode to feed
 		 */
-		void save_to( XMLNode* node );
+		void save_to( XMLNode* node, int component_id=-1 );
 		/**
 		 * load a drumkit from an XMLNode
 		 * \param node the XMLDode to read from

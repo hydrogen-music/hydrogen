@@ -107,6 +107,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_pMidiOutChannelLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pMidiOutChannelLCD->move( 67, 261 );
+	m_pMidiOutChannelLCD->setToolTip(QString(trUtf8("Midi out channel")));
+
 
 	m_pAddMidiOutChannelBtn = new Button(
 								  m_pInstrumentProp,
@@ -130,6 +132,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pDelMidiOutChannelBtn->move( 109, 269 );
 	connect( m_pDelMidiOutChannelBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutChannelBtnClicked(Button*) ) );
 
+
 	///
 	m_pMidiOutNoteLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pMidiOutNoteLCD->move( 160, 261 );
@@ -141,6 +144,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 							   "/lcd/LCDSpinBox_up_over.png",
 							   QSize( 16, 8 )
 							   );
+	m_pMidiOutNoteLCD->setToolTip(QString(trUtf8("Midi out note")));
+
 
 	m_pAddMidiOutNoteBtn->move( 202, 260 );
 	connect( m_pAddMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );
@@ -387,7 +392,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pLayerGainRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	m_pCompoGainLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pCompoGainRotary = new Rotary( m_pLayerProp,  Rotary::TYPE_NORMAL, trUtf8( "Bank volume" ), false, false );
+	m_pCompoGainRotary = new Rotary( m_pLayerProp,  Rotary::TYPE_NORMAL, trUtf8( "Component volume" ), false, false );
 	connect( m_pCompoGainRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	m_pLayerPitchCoarseLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
@@ -561,6 +566,17 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		itemsCompo.append("rename");
 
 		update();
+
+		bool p_found = false;
+		for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
+			DrumkitComponent* p_compo = *it;
+			if ( p_compo->get_id() == m_nSelectedComponent ) {
+				p_found = true;
+				break;
+			}
+		}
+		if ( !p_found )
+			m_nSelectedComponent = compoList->front()->get_id();
 
 		DrumkitComponent* p_tmpCompo = Hydrogen::get_instance()->getSong()->get_component( m_nSelectedComponent );
 
@@ -984,6 +1000,12 @@ void InstrumentEditor::selectLayer( int nLayer )
 			sprintf( tmp, "%#.2f", pLayer->get_gain() );
 			m_pLayerGainLCD->setText( tmp );
 
+			//Component GAIN
+			char tmp2[20];
+			sprintf( tmp2, "%#.2f", pComponent->get_gain());
+			m_pCompoGainRotary->setValue( pComponent->get_gain() / 5.0);
+			m_pCompoGainLCD->setText( tmp2 );
+
 			// Layer PITCH
 			int nCoarsePitch = (int) ::round(pLayer->get_pitch());
 			float fFinePitch = pLayer->get_pitch() - nCoarsePitch;
@@ -999,6 +1021,10 @@ void InstrumentEditor::selectLayer( int nLayer )
 			m_pLayerGainRotary->setValue( 1.0 );
 			m_pLayerGainLCD->setText( "" );
 
+			//Component GAIN
+			m_pCompoGainRotary->setValue( 1.0 );
+			m_pCompoGainLCD->setText( "" );
+
 			// Layer PITCH
 			m_pLayerPitchCoarseRotary->setValue( 0.0 );
 			m_pLayerPitchFineRotary->setValue( 0.0 );
@@ -1013,6 +1039,9 @@ void InstrumentEditor::selectLayer( int nLayer )
 		// Layer GAIN
 		m_pLayerGainRotary->setValue( 1.0 );
 		m_pLayerGainLCD->setText( "" );
+
+		m_pCompoGainRotary->setValue( 1.0 );
+		m_pCompoGainLCD->setText( "" );
 
 		// Layer PITCH
 		m_pLayerPitchCoarseRotary->setValue( 0.0 );

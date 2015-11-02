@@ -222,11 +222,11 @@ void MixerLine::click(Button *ref) {
 	Song *song = (Hydrogen::get_instance())->getSong();
 
 	if (ref == m_pMuteBtn) {
-		song->__is_modified = true;
+		song->set_is_modified(true);
 		emit muteBtnClicked(this);
 	}
 	else if (ref == m_pSoloBtn) {
-		song->__is_modified = true;
+		song->set_is_modified(true);
 		emit soloBtnClicked(this);
 	}
 	else if (ref == m_pPlaySampleBtn) {
@@ -248,8 +248,8 @@ void MixerLine::rightClick(Button *ref)
 
 void MixerLine::faderChanged(Fader *ref)
 {
-	Song *song = (Hydrogen::get_instance())->getSong();
-	song->__is_modified = true;
+	Song *pSong = (Hydrogen::get_instance())->getSong();
+	pSong->set_is_modified( true );
 	emit volumeChanged(this);
 
 	double value = (double) ref->getValue();
@@ -375,7 +375,7 @@ void MixerLine::nameSelected() {
 void MixerLine::panChanged(Rotary *ref)
 {
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	pSong->__is_modified = true;
+	pSong->set_is_modified( true );
 	emit panChanged( this );
 
 	float panValue = ref->getValue();
@@ -597,14 +597,14 @@ void ComponentMixerLine::updateMixerLine()
 
 
 void ComponentMixerLine::click(Button *ref) {
-	Song *song = (Hydrogen::get_instance())->getSong();
+	Song *pSong = (Hydrogen::get_instance())->getSong();
 
 	if (ref == m_pMuteBtn) {
-		song->__is_modified = true;
+		pSong->set_is_modified( true );
 		emit muteBtnClicked(this);
 	}
 	else if (ref == m_pSoloBtn) {
-		song->__is_modified = true;
+		pSong->set_is_modified( true );
 		emit soloBtnClicked(this);
 	}
 }
@@ -612,8 +612,8 @@ void ComponentMixerLine::click(Button *ref) {
 
 void ComponentMixerLine::faderChanged(Fader *ref)
 {
-	Song *song = (Hydrogen::get_instance())->getSong();
-	song->__is_modified = true;
+	Song *pSong = (Hydrogen::get_instance())->getSong();
+	pSong->set_is_modified( true );
 	emit volumeChanged(this);
 
 	double value = (double) ref->getValue();
@@ -816,8 +816,8 @@ void MasterMixerLine::faderChanged(MasterFader *ref)
 
 	emit volumeChanged(this);
 
-	Song *song = Hydrogen::get_instance()->getSong();
-	song->__is_modified = true;
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	pSong->set_is_modified( true );
 
 	double value = (double) ref->getValue();
 	( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Set master volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
@@ -981,27 +981,10 @@ FxMixerLine::FxMixerLine(QWidget* parent)
 	setMinimumSize( m_nWidth, m_nHeight );
 	setMaximumSize( m_nWidth, m_nHeight );
 	resize( m_nWidth, m_nHeight );
-//	QPalette defaultPalette;
-//	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
-//	this->setPalette( defaultPalette );
 	m_fMaxPeak = 0.0;
 
 	// MixerLine Background image
 	setPixmap( "/mixerPanel/mixerline_background.png" );
-
-	// MixerLine LABEL Background image
-//	QPixmap mixerLineLabelBackground;
-//	ok = mixerLineLabelBackground.load(Skin::getImagePath() + "/mixerPanel/mixerline_label_background.png");
-//	if( ok == false ){
-//		ERRORLOG( "Error loading pixmap" );
-//	}
-
-//	QPixmap textBackground;
-//	ok = textBackground.load( Skin::getImagePath() + "/mixerPanel/mixerline_text_background.png" );
-//	if( ok == false ){
-//		ERRORLOG( "Error loading pixmap" );
-//	}
-
 
 	// active button
 	activeBtn = new ToggleButton(
@@ -1046,10 +1029,10 @@ FxMixerLine::~FxMixerLine()
 
 
 void FxMixerLine::click(Button *ref) {
-	Song *song = Hydrogen::get_instance()->getSong();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 
 	if (ref == activeBtn ) {
-		song->__is_modified = true;
+		pSong->set_is_modified( true );
 		emit activeBtnClicked( this );
 	}
 }
@@ -1072,8 +1055,8 @@ void FxMixerLine::faderChanged(Fader *ref)
 	}
 
 
-	Song *song = Hydrogen::get_instance()->getSong();
-	song->__is_modified = true;
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	pSong->set_is_modified( true );
 	emit volumeChanged( this );
 
 }
@@ -1345,12 +1328,9 @@ void LadspaFXMixerLine::rotaryChanged(Rotary *ref)
 {
 	UNUSED( ref );
 	m_fMaxPeak = 0.0;
-//	char tmp[20];
-//	sprintf(tmp, "%#.1f", fMaxPeak);
-//	m_pVolumeLbl->setText(tmp);
 
-	Song *song = Hydrogen::get_instance()->getSong();
-	song->__is_modified = true;
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	pSong->set_is_modified( true );
 	emit volumeChanged(this);
 }
 
@@ -1360,11 +1340,6 @@ void LadspaFXMixerLine::setPeaks( float fPeak_L, float fPeak_R )
 {
 	UNUSED( fPeak_L );
 	UNUSED( fPeak_R );
-/*
-	m_pPeakmeter->setPeak_L( fPeak_L );
-	m_pPeakmeter->setPeak_R( fPeak_R );
-	m_pPeakmeter->updateFader();
-*/
 }
 
 
@@ -1373,10 +1348,6 @@ void LadspaFXMixerLine::getPeaks( float *fPeak_L, float *fPeak_R )
 {
 	UNUSED( fPeak_L );
 	UNUSED( fPeak_R );
-/*
-	(*fPeak_L) = m_pFader->getPeak_L();
-	(*fPeak_R) = m_pFader->getPeak_R();
-*/
 }
 
 
@@ -1391,5 +1362,4 @@ float LadspaFXMixerLine::getVolume()
 void LadspaFXMixerLine::setVolume(float value)
 {
 	m_pRotary->setValue( value );
-// 	m_pRotary->updateRotary();
 }

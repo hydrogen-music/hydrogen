@@ -19,6 +19,12 @@
      <property name="dragDropMode">
       <enum>QAbstractItemView::InternalMove</enum>
      </property>
+     <attribute name="horizontalHeaderDefaultSectionSize">
+      <number>100</number>
+     </attribute>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
      <column>
       <property name="text">
        <string>Tag</string>

@@ -24,6 +24,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <QNetworkReply>
 
 const char* Download::__class_name = "Download";
 
@@ -36,15 +37,16 @@ Download::Download( QWidget* pParent, const QString& download_url, const QString
 		, __bytes_total( 0 )
 		, __remote_url( download_url )
 		, __local_file( local_file )
+		, __reply(0)
+		, __error(false)
 {
 	if ( !__local_file.isEmpty() ) {
-		INFOLOG( QString( "Downloading '%1' in '%2'" ).arg( __remote_url ).arg( __local_file ) );
-
+		INFOLOG( QString( "Downloading '%1' in '%2'" ).arg( __remote_url.toString() ).arg( __local_file ) );
 	} else {
-		INFOLOG( QString( "Downloading '%1'" ).arg( __remote_url ) );
+		INFOLOG( QString( "Downloading '%1'" ).arg( __remote_url.toString() ) );
 	}
 
-	QUrl url( __remote_url );
+	__http_client = new QNetworkAccessManager(this);
 
 	QString sEnvHttpProxy		= QString( getenv( "http_proxy" ) );
 	int     nEnvHttpPort		= 0;
@@ -54,25 +56,27 @@ Download::Download( QWidget* pParent, const QString& download_url, const QString
 	nEnvHttpPort	= sEnvHttpProxy.right( sEnvHttpProxy.length() - sEnvHttpProxy.indexOf(':') - 1 ).toInt();
 	sEnvHttpProxy	= sEnvHttpProxy.left( sEnvHttpProxy.indexOf(':') );
 
-	connect( &__http_client, SIGNAL( done( bool ) ), this, SLOT( __fetch_done( bool ) ) );
-	connect( &__http_client, SIGNAL( dataReadProgress( int, int ) ), this, SLOT( __fetch_progress( int, int ) ) );
-	connect( &__http_client, SIGNAL( requestFinished( int, bool ) ), this, SLOT( __http_request_finished( int, bool ) ) );
-	connect( &__http_client, SIGNAL( responseHeaderReceived( const QHttpResponseHeader& ) ), SLOT( __header_received( const QHttpResponseHeader& ) ) );
-
-	QString sPath = url.path();
-	sPath = sPath.replace( " ", "%20" );
-
-	QHttpRequestHeader header( "GET", sPath );
-	header.setValue( "Host", url.host() );
-
 	__time.start();
 
 	if ( ( !sEnvHttpProxy.isNull() ) && ( nEnvHttpPort != 0 ) ) {
-		__http_client.setProxy( sEnvHttpProxy, nEnvHttpPort, sEnvHttpUser, sEnvHttpPassword );
+		QNetworkProxy proxy;
+		proxy.setType( QNetworkProxy::DefaultProxy );
+		proxy.setHostName( sEnvHttpProxy );
+		proxy.setPort( nEnvHttpPort );
+		proxy.setUser( sEnvHttpUser );
+		proxy.setPassword( sEnvHttpPassword );
+		__http_client->setProxy(proxy);
 	}
 
-	__http_client.setHost( url.host() );
-	__http_client.request( header );
+	QNetworkRequest getReq;
+	getReq.setUrl( __remote_url );
+	ERRORLOG(__remote_url.toString());
+	getReq.setRawHeader( "User-Agent" , "Hydrogen" );
+
+	__reply = __http_client->get( getReq );
+
+	connect(__reply, SIGNAL(finished()),this, SLOT(finished()));
+	connect(__reply, SIGNAL(downloadProgress(qint64,qint64)), this, SLOT(downloadProgress(qint64,qint64)));
 }
 
 
@@ -81,35 +85,46 @@ Download::~Download()
 {
 }
 
-
-
 /// TODO: devo salvare il file sul disco su una dir temporanea e poi spostarlo se e' tutto ok.
-void Download::__fetch_done( bool bError )
+void Download::finished()
 {
-	if ( bError ) {
-		ERRORLOG( "Error retrieving the resource." );
+	if ( __reply->error() ) {
+		__error = true;
+		ERRORLOG(QString( trUtf8( "Importing item failed: %1" ) ).arg( __reply->errorString() ));
+		QMessageBox::information( this, "Hydrogen", QString( trUtf8( "Importing item failed: %1" ) ).arg( __reply->errorString() ) );
 		reject();
 		return;
 	}
 
-	if ( !__redirect_url.isEmpty() ) {
-		reject();
-		return;
+
+	int StatusAttribute = __reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+	if(StatusAttribute >= 200 && StatusAttribute < 300){
+		//do nothing, handling will be done later..
+	} else if(StatusAttribute >= 300 && StatusAttribute < 400){
+		QVariant RedirectAttribute = __reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+
+		if ( RedirectAttribute != 0 ) {
+
+			__redirect_url = __remote_url.resolved(RedirectAttribute.toUrl());
+			__reply->deleteLater();
+
+			reject();
+			return;
+		}
 	}
 
 	INFOLOG( "Download completed. " );
 
 	if ( __local_file.isEmpty() ) {
 		// store the text received only when not using the file.
-		__feed_xml_string = __http_client.readAll();
+		__feed_xml_string = QString( __reply->readAll() );
 	} else {
 		QFile file( __local_file );
 
 		if ( !file.open( QIODevice::WriteOnly ) ) {
 			ERRORLOG( QString( "Unable to save %1" ).arg( __local_file ) );
-
 		} else {
-			file.write( __http_client.readAll() );
+			file.write(__reply->readAll());
 			file.flush();
 			file.close();
 		}
@@ -119,34 +134,12 @@ void Download::__fetch_done( bool bError )
 
 
 
-void Download::__fetch_progress ( int done, int total )
+void Download::downloadProgress( qint64 done, qint64 total )
 {
 	__bytes_current = done;
 	__bytes_total = total;
 
 	__download_percent = ( float )done / ( float )total * 100.0;
-}
-
-
-
-void Download::__http_request_finished( int requestId, bool error )
-{
-	if ( error ) {
-		ERRORLOG( "Error: " + __http_client.errorString() );
-		return;
-	}
-}
-
-
-
-void Download::__header_received( const QHttpResponseHeader& res )
-{
-	//INFOLOG( "Header received: " + to_string( res.statusCode() ) );
-	if ( ( res.statusCode() == 301 ) || ( res.statusCode() == 302 ) || ( res.statusCode() == 307 ) ) {
-		__redirect_url = res.value( "location" );
-		INFOLOG( "Received redirect to: " + __redirect_url );
-		//__http_client.abort();
-	}
 }
 
 
@@ -176,7 +169,6 @@ DownloadWidget::DownloadWidget( QWidget* parent, const QString& title, const QSt
 	__progress_bar->setMaximum( 100 );
 
 	__eta_label = new QLabel( NULL );
-// __eta_label->setFont( boldFont );
 	__eta_label->setAlignment( Qt::AlignHCenter );
 
 
