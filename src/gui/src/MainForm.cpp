@@ -33,6 +33,7 @@
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
+#include <hydrogen/basics/drumkit_component.h>
 
 
 #include "AboutDialog.h"
@@ -321,7 +322,7 @@ void MainForm::createMenuBar()
 
 	m_pInstrumentsMenu->addSeparator();				// -----
 
-	m_pInstrumentsMenu->addAction( trUtf8( "Add component" ) );
+	m_pInstrumentsMenu->addAction( trUtf8( "Add component" ), this, SLOT( action_instruments_addComponent() ), QKeySequence( "" ) );
 
 	// Tools menu
 	QMenu *m_pToolsMenu = m_pMenubar->addMenu( trUtf8( "&Tools" ));
@@ -855,6 +856,34 @@ void MainForm::action_instruments_addInstrument()
 {
 	SE_mainMenuAddInstrumentAction *action = new SE_mainMenuAddInstrumentAction();
 	HydrogenApp::get_instance()->m_undoStack->push( action );
+}
+
+
+void MainForm::action_instruments_addComponent()
+{
+	bool bIsOkPressed;
+	QString sNewName = QInputDialog::getText( this, "Hydrogen", trUtf8( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
+	if ( bIsOkPressed  ) {
+		Hydrogen *pEngine = Hydrogen::get_instance();
+
+		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( InstrumentEditor::findFreeDrumkitComponentId(), sNewName );
+		pEngine->getSong()->get_components()->push_back( pDrumkitComponent );
+
+		//m_nSelectedComponent = pDrumkitComponent->get_id();
+		//m_pLayerPreview->set_selected_component( pDrumkitComponent->get_id() );
+
+		selectedInstrumentChangedEvent();
+
+		// this will force an update...
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+
+#ifdef H2CORE_HAVE_JACK
+		pEngine->renameJackPorts(pEngine->getSong());
+#endif
+	}
+	else {
+		// user entered nothing or pressed Cancel
+	}
 }
 
 
