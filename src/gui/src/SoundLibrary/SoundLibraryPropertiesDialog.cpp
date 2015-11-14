@@ -60,6 +60,8 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 		licenseTxt->setText( QString( drumkitInfo->get_license() ) );
 		imageText->setText( QString ( drumkitInfo->get_image() ) );
 		imageLicenseText->setText( QString ( drumkitInfo->get_image_license() ) );
+		// Licence with attribution is often too long...
+		imageLicenseText->setToolTip( QString( drumkitInfo->get_image_license() ) );
 
 		QPixmap *pixmap = new QPixmap (drumkitInfo->get_path() + "/" + drumkitInfo->get_image());
 		// scale the image down to fit if required
