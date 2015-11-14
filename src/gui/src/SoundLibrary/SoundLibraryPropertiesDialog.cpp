@@ -129,6 +129,12 @@ void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
 
 	QString fileName = QFileDialog::getOpenFileName(this, trUtf8("Open Image"), drumkitDir, trUtf8("Image Files (*.png *.jpg *.jpeg)"));
 
+	// If cancel was clicked just abort
+	if ( fileName == NULL )
+	{
+		return;
+	}
+
 	// If this file is in different directory copy it here
 	
 	QFile file( fileName );
