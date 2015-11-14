@@ -199,7 +199,7 @@ bool Drumkit::save( const QString&					name,
 	pDrumkit->set_license( license );
 	
 	// save the original path
-	QFileInfo fi( image);
+	QFileInfo fi( image );
 	pDrumkit->set_path( fi.absolutePath() );
 	pDrumkit->set_image( fi.fileName() );
 	pDrumkit->set_image_license( imageLicense );
@@ -261,6 +261,7 @@ void Drumkit::save_to( XMLNode* node, int component_id )
 	node->write_string( "author", __author );
 	node->write_string( "info", __info );
 	node->write_string( "license", __license );
+	node->write_string( "image", __image );
 	node->write_string( "imageLicense", __imageLicense );
 
 	if( component_id == -1 ) {

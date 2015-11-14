@@ -151,6 +151,7 @@ void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
 	}
 	QString filename(fileInfo.fileName());
 	imageText->setText( filename );
+	drumkitinfo->set_image( filename );
 	updateImage( fileName );
 }
 
@@ -188,7 +189,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 			reload = true;
 		}
 	}
-
+	
 	//save the drumkit
 	// Note: The full path of the image is passed to make copying to a new drumkit easy
 	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), drumkitinfo->get_path() + "/" + drumkitinfo->get_image(), drumkitinfo->get_image_license(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) ) {
