@@ -57,7 +57,7 @@
      <x>10</x>
      <y>100</y>
      <width>91</width>
-     <height>111</height>
+     <height>116</height>
     </rect>
    </property>
    <property name="text">
@@ -70,7 +70,7 @@
   <widget class="QLineEdit" name="authorTxt">
    <property name="geometry">
     <rect>
-     <x>111</x>
+     <x>116</x>
      <y>39</y>
      <width>471</width>
      <height>22</height>
@@ -92,7 +92,7 @@
   <widget class="QLineEdit" name="nameTxt">
    <property name="geometry">
     <rect>
-     <x>111</x>
+     <x>116</x>
      <y>11</y>
      <width>471</width>
      <height>22</height>
@@ -114,7 +114,7 @@
   <widget class="QTextEdit" name="infoTxt">
    <property name="geometry">
     <rect>
-     <x>111</x>
+     <x>116</x>
      <y>95</y>
      <width>471</width>
      <height>191</height>
@@ -143,7 +143,7 @@
   <widget class="QLineEdit" name="licenseTxt">
    <property name="geometry">
     <rect>
-     <x>111</x>
+     <x>116</x>
      <y>67</y>
      <width>471</width>
      <height>22</height>
@@ -282,7 +282,7 @@
   <widget class="QLineEdit" name="imageText">
    <property name="geometry">
     <rect>
-     <x>111</x>
+     <x>116</x>
      <y>292</y>
      <width>371</width>
      <height>22</height>
@@ -320,7 +320,7 @@
   <widget class="QLineEdit" name="imageLicenseText">
    <property name="geometry">
     <rect>
-     <x>111</x>
+     <x>116</x>
      <y>320</y>
      <width>471</width>
      <height>25</height>
