@@ -489,7 +489,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 
 				AuthorLbl->setText( trUtf8( "Author: %1" ).arg( info.getAuthor() ) );
 
-				LicenseLbl->setText( trUtf8( "License: %1" ).arg( info.getLicense()) );
+				LicenseLbl->setText( trUtf8( "Drumkit License: %1" ).arg( info.getLicense()) );
 
 				ImageLicenseLbl->setText( trUtf8("Image License: %1" ).arg( info.getImageLicense() ) );
 

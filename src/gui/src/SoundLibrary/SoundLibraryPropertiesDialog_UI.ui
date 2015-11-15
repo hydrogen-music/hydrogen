@@ -18,7 +18,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>91</width>
+     <width>111</width>
      <height>25</height>
     </rect>
    </property>
@@ -37,7 +37,7 @@
     <rect>
      <x>10</x>
      <y>40</y>
-     <width>91</width>
+     <width>111</width>
      <height>25</height>
     </rect>
    </property>
@@ -56,8 +56,8 @@
     <rect>
      <x>10</x>
      <y>100</y>
-     <width>91</width>
-     <height>116</height>
+     <width>111</width>
+     <height>120</height>
     </rect>
    </property>
    <property name="text">
@@ -70,9 +70,9 @@
   <widget class="QLineEdit" name="authorTxt">
    <property name="geometry">
     <rect>
-     <x>116</x>
+     <x>120</x>
      <y>39</y>
-     <width>471</width>
+     <width>467</width>
      <height>22</height>
     </rect>
    </property>
@@ -92,9 +92,9 @@
   <widget class="QLineEdit" name="nameTxt">
    <property name="geometry">
     <rect>
-     <x>116</x>
+     <x>120</x>
      <y>11</y>
-     <width>471</width>
+     <width>467</width>
      <height>22</height>
     </rect>
    </property>
@@ -114,9 +114,9 @@
   <widget class="QTextEdit" name="infoTxt">
    <property name="geometry">
     <rect>
-     <x>116</x>
+     <x>120</x>
      <y>95</y>
-     <width>471</width>
+     <width>467</width>
      <height>191</height>
     </rect>
    </property>
@@ -129,12 +129,12 @@
     <rect>
      <x>10</x>
      <y>70</y>
-     <width>91</width>
+     <width>111</width>
      <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string>License</string>
+    <string>Drumkit License</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -143,9 +143,9 @@
   <widget class="QLineEdit" name="licenseTxt">
    <property name="geometry">
     <rect>
-     <x>116</x>
+     <x>120</x>
      <y>67</y>
-     <width>471</width>
+     <width>467</width>
      <height>22</height>
     </rect>
    </property>
@@ -170,7 +170,7 @@
     <rect>
      <x>410</x>
      <y>600</y>
-     <width>171</width>
+     <width>176</width>
      <height>41</height>
     </rect>
    </property>
@@ -270,8 +270,8 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>292</y>
-     <width>57</width>
+     <y>296</y>
+     <width>111</width>
      <height>14</height>
     </rect>
    </property>
@@ -282,9 +282,9 @@
   <widget class="QLineEdit" name="imageText">
    <property name="geometry">
     <rect>
-     <x>116</x>
+     <x>120</x>
      <y>292</y>
-     <width>371</width>
+     <width>378</width>
      <height>22</height>
     </rect>
    </property>
@@ -307,9 +307,9 @@
   <widget class="QPushButton" name="imageBrowsePushButton">
    <property name="geometry">
     <rect>
-     <x>500</x>
-     <y>290</y>
-     <width>81</width>
+     <x>506</x>
+     <y>292</y>
+     <width>80</width>
      <height>21</height>
     </rect>
    </property>
@@ -320,9 +320,9 @@
   <widget class="QLineEdit" name="imageLicenseText">
    <property name="geometry">
     <rect>
-     <x>116</x>
+     <x>120</x>
      <y>320</y>
-     <width>471</width>
+     <width>467</width>
      <height>25</height>
     </rect>
    </property>
@@ -343,8 +343,8 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>320</y>
-     <width>91</width>
+     <y>322</y>
+     <width>111</width>
      <height>25</height>
     </rect>
    </property>
