@@ -545,7 +545,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 
 								QString imageUrl;
 								QString sLocalFile;
-								imageUrl = repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) ) + QString( "/images/" ) + info.getImage() ;
+								imageUrl = repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) + 1 ) + info.getImage() ;
 								sLocalFile = QDir::tempPath() + "/" + QFileInfo( imageUrl ).fileName();
 
 								DownloadWidget dl( this, trUtf8( "" ), imageUrl, sLocalFile );
