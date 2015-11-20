@@ -132,6 +132,8 @@ void SoundLibraryImportDialog::on_EditListBtn_clicked()
 
 void SoundLibraryImportDialog::clearImageCache()
 {
+	// Note: After a kit is installed the list refreshes and this gets called to 
+	// clear the image cache - maybe we want to keep the cache in this case?
 	QString cacheDir = H2Core::Filesystem::repositories_cache_dir() ;
 	INFOLOG("Deleting cached image files from " + cacheDir.toLocal8Bit() );
 
