@@ -335,22 +335,24 @@ PlayerControl::PlayerControl(QWidget *parent)
 			"/lcd/LCDSpinBox_up_on.png",
 			"/lcd/LCDSpinBox_up_off.png",
 			"/lcd/LCDSpinBox_up_over.png",
-			QSize(16, 8)
+			QSize(16, 8),
+			false,
+			true
 	);
 	m_pBPMUpBtn->move( 12, 5 );
 	connect( m_pBPMUpBtn, SIGNAL( clicked( Button* ) ), this, SLOT(bpmButtonClicked( Button* ) ) );
-	connect( m_pBPMUpBtn, SIGNAL( mousePress( Button* ) ), this, SLOT(bpmButtonPressed( Button* ) ) );
 
 	m_pBPMDownBtn = new Button(
 			pBPMPanel,
 			"/lcd/LCDSpinBox_down_on.png",
 			"/lcd/LCDSpinBox_down_off.png",
 			"/lcd/LCDSpinBox_down_over.png",
-			QSize(16, 8)
+			QSize(16, 8),
+			false,
+			true
 	);
 	m_pBPMDownBtn->move( 12, 14 );
 	connect( m_pBPMDownBtn, SIGNAL( clicked( Button* ) ), this, SLOT(bpmButtonClicked( Button* ) ) );
-	connect( m_pBPMDownBtn, SIGNAL( mousePress( Button* ) ), this, SLOT(bpmButtonPressed( Button* ) ) );
 
 	m_pRubberBPMChange = new ToggleButton(
 			pBPMPanel,
@@ -483,9 +485,6 @@ PlayerControl::PlayerControl(QWidget *parent)
 	QTimer *timer = new QTimer( this );
 	connect(timer, SIGNAL(timeout()), this, SLOT(updatePlayerControl()));
 	timer->start(100);	// update player control at 10 fps
-
-	m_pBPMTimer = new QTimer( this );
-	connect(m_pBPMTimer, SIGNAL(timeout()), this, SLOT(onBpmTimerEvent()));
 
 	m_pStatusTimer = new QTimer( this );
 	connect( m_pStatusTimer, SIGNAL( timeout() ), this, SLOT( onStatusTimerEvent() ) );
@@ -982,34 +981,12 @@ void PlayerControl::bpmClicked()
 }
 
 
-void PlayerControl::bpmButtonPressed( Button* pBtn)
+void PlayerControl::bpmButtonClicked( Button* pBtn )
 {
-	if ( pBtn == m_pBPMUpBtn ) {
+	if ( pBtn == m_pBPMUpBtn )
 		m_pLCDBPMSpinbox->upBtnClicked();
-		m_nBPMIncrement = 1;
-	}
-	else {
+	else
 		m_pLCDBPMSpinbox->downBtnClicked();
-		m_nBPMIncrement = -1;
-	}
-	m_pBPMTimer->start( 100 );
-}
-
-
-void PlayerControl::bpmButtonClicked( Button* )
-{
-	m_pBPMTimer->stop();
-}
-
-
-void PlayerControl::onBpmTimerEvent()
-{
-	if (m_nBPMIncrement == 1) {
-		m_pLCDBPMSpinbox->upBtnClicked();
-	}
-	else {
-		m_pLCDBPMSpinbox->downBtnClicked();
-	}
 }
 
 
