@@ -142,7 +142,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 							   "/lcd/LCDSpinBox_up_on.png",
 							   "/lcd/LCDSpinBox_up_off.png",
 							   "/lcd/LCDSpinBox_up_over.png",
-							   QSize( 16, 8 )
+							   QSize( 16, 8 ),
+							   false,
+							   true
 							   );
 	m_pMidiOutNoteLCD->setToolTip(QString(trUtf8("Midi out note")));
 
@@ -156,7 +158,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 							   "/lcd/LCDSpinBox_down_on.png",
 							   "/lcd/LCDSpinBox_down_off.png",
 							   "/lcd/LCDSpinBox_down_over.png",
-							   QSize(16,8)
+							   QSize(16,8),
+							   false,
+							   true
 							   );
 	m_pDelMidiOutNoteBtn->move( 202, 269 );
 	connect( m_pDelMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );
@@ -280,7 +284,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 "/lcd/LCDSpinBox_up_on.png",
 								 "/lcd/LCDSpinBox_up_off.png",
 								 "/lcd/LCDSpinBox_up_over.png",
-								 QSize( 16, 8 )
+								 QSize( 16, 8 ),
+								 false,
+								 true
 								 );
 	m_pAddHihatMinRangeBtn->move( 109, 342 );
 	connect( m_pAddHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
@@ -290,7 +296,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 "/lcd/LCDSpinBox_down_on.png",
 								 "/lcd/LCDSpinBox_down_off.png",
 								 "/lcd/LCDSpinBox_down_over.png",
-								 QSize(16,8)
+								 QSize(16,8),
+								 false,
+								 true
 								 );
 	m_pDelHihatMinRangeBtn->move( 109, 351 );
 	connect( m_pDelHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
@@ -304,7 +312,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 "/lcd/LCDSpinBox_up_on.png",
 								 "/lcd/LCDSpinBox_up_off.png",
 								 "/lcd/LCDSpinBox_up_over.png",
-								 QSize( 16, 8 )
+								 QSize( 16, 8 ),
+								 false,
+								 true
 								 );
 	m_pAddHihatMaxRangeBtn->move( 202, 342 );
 	connect( m_pAddHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
@@ -314,7 +324,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 "/lcd/LCDSpinBox_down_on.png",
 								 "/lcd/LCDSpinBox_down_off.png",
 								 "/lcd/LCDSpinBox_down_over.png",
-								 QSize(16,8)
+								 QSize(16,8),
+								 false,
+								 true
 								 );
 	m_pDelHihatMaxRangeBtn->move( 202, 351 );
 	connect( m_pDelHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
