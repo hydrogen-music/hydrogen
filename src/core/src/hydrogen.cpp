@@ -2487,14 +2487,17 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo )
 		pInstr->load_from( pDrumkitInfo, pNewInstr );
 	}
 
-
 	//wolke: new delete funktion
 	if ( instrumentDiff >=0 ) {
+		int p;	// last position in instrument list
+		p = getSong()->get_instrument_list()->size() - 1;
+
 		for ( int i = 0; i < instrumentDiff ; i++ ){
 			removeInstrument(
-						getSong()->get_instrument_list()->size() - 1,
+						p - i,
 						true
 						);
+
 		}
 	}
 
@@ -2528,6 +2531,7 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 			if( pPatternList
 					->get( nPattern )
 					->references( pInstr ) ) {
+				DEBUGLOG("Keeping instrument #" + QString::number( instrumentnumber ) );
 				return;
 			}
 		}
@@ -2561,12 +2565,15 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 		 >= (int)getSong()->get_instrument_list()->size() - 1 ) {
 		Hydrogen::get_instance()
 				->setSelectedInstrumentNumber(
-					std::max(0, instrumentnumber - 1)
+					std::max(0, instrumentnumber - 1 )
 					);
 	}
+	//
 	// delete the instrument from the instruments list
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	getSong()->get_instrument_list()->del( instrumentnumber );
+	// Ensure the selected instrument is not a deleted one
+	setSelectedInstrumentNumber( instrumentnumber - 1 );
 	getSong()->set_is_modified( true );
 	AudioEngine::get_instance()->unlock();
 
