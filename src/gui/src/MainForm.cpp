@@ -1443,6 +1443,19 @@ void MainForm::action_file_export_lilypond()
 	if ( ( ( Hydrogen::get_instance() )->getState() == STATE_PLAYING ) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
+	switch ( QMessageBox::information(
+	        this,
+	        "Hydrogen",
+	        trUtf8( "\nThe LilyPond export is an experimental feature.\n"
+	                "It should work like a charm provided that you use the "
+	                "GM-kit, and that you do not use triplet\n" ),
+	        trUtf8( "Ok" ),
+	        trUtf8( "&Cancel" ),
+	        0,
+	        2 ) ) {
+	case 1:
+	case 2: return;
+	}
 
 	QFileDialog fd( this );
 	fd.setFileMode( QFileDialog::AnyFile );
