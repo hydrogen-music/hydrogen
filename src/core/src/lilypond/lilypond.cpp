@@ -25,8 +25,6 @@
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/pattern.h>
 
-#include <fstream>
-
 /*
  * Header of LilyPond file
  * It contains the notation style (states the position of notes), and for this
@@ -106,6 +104,7 @@ void H2Core::LilyPond::write( const QString &sFilename ) const {
 	        "quavers two by two\n";
 	file << "        \\drummode {\n";
 	file << "            \\tempo 4 = " << static_cast<int>( m_fBPM ) << "\n\n";
+	writeMeasures( file );
 	file << "\n        }\n";
 	file << "    >>\n";
 	file << "}\n";
@@ -139,4 +138,138 @@ void H2Core::LilyPond::addPattern( const Pattern &pattern, notes_t &notes ) {
 			}
 		}
 	}
+}
+
+void H2Core::LilyPond::writeMeasures( std::ofstream &stream ) const {
+	unsigned nSignature = 0; ///< Numerator of the time signature
+	for ( unsigned nMeasure = 0; nMeasure < m_measures.size(); nMeasure++ ) {
+		// Start a new measure
+		stream << "\n            % Measure " << nMeasure + 1 << "\n";
+		unsigned nNewSignature = m_measures[ nMeasure ].size() / 48;
+		if ( nSignature != nNewSignature ) { // Display time signature change
+			nSignature = nNewSignature;
+			stream << "            \\time " << nSignature << "/4\n";
+		}
+
+		// Display the notes
+		stream << "            << {\n";
+		writeUpper( stream, nMeasure );
+		stream << "            } \\\\ {\n";
+		writeLower( stream, nMeasure );
+		stream << "            } >>\n";
+	}
+}
+
+void H2Core::LilyPond::writeUpper( std::ofstream &stream,
+                                   unsigned nMeasure ) const {
+	// On the upper voice, we want only cymbals and mid and high toms
+	std::vector<int> whiteList;
+	whiteList.push_back( 6 );  // Closed HH
+	whiteList.push_back( 7 );  // Tom Mid
+	whiteList.push_back( 9 );  // Tom Hi
+	whiteList.push_back( 10 ); // Open HH
+	whiteList.push_back( 11 ); // Cowbell
+	whiteList.push_back( 12 ); // Ride Jazz
+	whiteList.push_back( 13 ); // Crash
+	whiteList.push_back( 14 ); // Ride Rock
+	whiteList.push_back( 15 ); // Crash Jazz
+	writeVoice( stream, nMeasure, whiteList );
+}
+
+void H2Core::LilyPond::writeLower( std::ofstream &stream,
+                                   unsigned nMeasure ) const {
+	std::vector<int> whiteList;
+	whiteList.push_back( 0 ); // Kick
+	whiteList.push_back( 1 ); // Stick
+	whiteList.push_back( 2 ); // Snare Jazz
+	whiteList.push_back( 3 ); // Hand Clap
+	whiteList.push_back( 4 ); // Snare Jazz
+	whiteList.push_back( 5 ); // Tom Low
+	whiteList.push_back( 8 ); // Pedal HH
+	writeVoice( stream, nMeasure, whiteList );
+}
+
+///< Mapping of GM-kit instrument to LilyPond names
+static const char *const sNames[] = { "bd",   "wbl",   "sn",    "mar",
+	                                  "sn",   "tomfh", "hh",    "toml",
+	                                  "hhp",  "tomh",  "hho",   "cb",
+	                                  "cymr", "cymc",  "cymra", "cymca" };
+
+///< Write group of note (may also be a rest or a single note)
+static void writeNote( std::ofstream &stream, const std::vector<int> &notes ) {
+	switch ( notes.size() ) {
+	case 0: stream << "r"; break;
+	case 1: stream << sNames[ notes[ 0 ] ]; break;
+	default:
+		stream << "<";
+		for ( unsigned i = 0; i < notes.size(); i++ ) {
+			stream << sNames[ notes[ i ] ] << " ";
+		}
+		stream << ">";
+	}
+}
+
+///< Write duration in LilyPond format, from number of 1/48th of a beat
+static void writeDuration( std::ofstream &stream, unsigned duration ) {
+	if ( 48 % duration == 0 ) {
+		// This is a basic note
+		if ( duration % 2 ) {
+			return; // TODO Triplet, unsupported yet
+		}
+		stream << 4 * 48 / duration;
+
+	} else if ( duration % 3 == 0 && 48 % ( duration * 2 / 3 ) == 0 ) {
+		// This is a dotted note
+		if ( duration % 2 ) {
+			return; // TODO Triplet, unsupported yet
+		}
+		stream << 4 * 48 / ( duration * 2 / 3 ) << ".";
+
+	} else {
+		// Neither basic nor dotted, we have to split it and add a rest
+		for ( int pow = 3; pow >= 0; --pow ) {
+			if ( 3 * ( 1 << pow ) < duration ) {
+				stream << 8 * ( 3 - pow ) << " r";
+				writeDuration( stream, duration - 3 * ( 1 << pow ) );
+				break;
+			}
+		}
+	}
+}
+
+void H2Core::LilyPond::writeVoice( std::ofstream &stream,
+                                   unsigned nMeasure,
+                                   const std::vector<int> &whiteList ) const {
+	stream << "                ";
+	const notes_t &measure = m_measures[ nMeasure ];
+	for ( unsigned nStart = 0; nStart < measure.size(); nStart += 48 ) {
+		unsigned lastNote = nStart;
+		for ( unsigned nTime = nStart; nTime < nStart + 48; nTime++ ) {
+			// Get notes played at this current time
+			std::vector<int> notes;
+			const std::vector<std::pair<int, float> > &input = measure[ nTime ];
+			for ( unsigned nNote = 0; nNote < input.size(); nNote++ ) {
+				if ( std::find( whiteList.begin(),
+				                whiteList.end(),
+				                input[ nNote ].first ) != whiteList.end() ) {
+					notes.push_back( input[ nNote ].first );
+				}
+			}
+
+			// Write them if there are any
+			if ( !notes.empty() || nTime == nStart ) {
+				// First write duration of last note
+				if ( nTime != nStart ) {
+					writeDuration( stream, nTime - lastNote );
+					lastNote = nTime;
+				}
+
+				// Then write next note
+				stream << " ";
+				writeNote( stream, notes );
+			}
+		}
+		writeDuration( stream, nStart + 48 - lastNote );
+	}
+	stream << "\n";
 }

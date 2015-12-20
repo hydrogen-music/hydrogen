@@ -25,6 +25,7 @@
 
 #include <QString>
 
+#include <fstream>
 #include <utility>
 #include <vector>
 
@@ -74,6 +75,25 @@ private:
 	 * @param notes   where to store the information to
 	 */
 	static void addPattern( const Pattern &pattern, notes_t &notes );
+
+	/// Write measures in LilyPond format to stream
+	void writeMeasures( std::ofstream &stream ) const;
+
+	/// Write upper voice of given measure to stream
+	void writeUpper( std::ofstream &stream, unsigned nMeasure ) const;
+
+	/// Write lower voice of given measure to stream
+	void writeLower( std::ofstream &stream, unsigned nMeasure ) const;
+
+	/*
+	 * Write voice of given measure to stream, ignore certain notes
+	 * @param stream    the stream to write to
+	 * @param nMeasure  the measure to write
+	 * @param whiteList the list of notes to consider, the other are ignored
+	 */
+	void writeVoice( std::ofstream &stream,
+	                 unsigned nMeasure,
+	                 const std::vector<int> &whiteList ) const;
 
 	std::vector<notes_t> m_measures; ///< Representation of the song
 	QString m_sName;                 ///< Name of the song
