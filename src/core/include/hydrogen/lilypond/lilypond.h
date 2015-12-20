@@ -23,10 +23,15 @@
 #ifndef LILYPOND_H
 #define LILYPOND_H
 
-class QString;
+#include <QString>
+
+#include <utility>
+#include <vector>
 
 namespace H2Core {
 
+class Pattern;
+class PatternList;
 class Song;
 
 /// A class to convert a Hydrogen song to LilyPond format
@@ -45,6 +50,35 @@ public:
 	 * @param sFilename name of output file
 	 */
 	void write( const QString &sFilename ) const;
+
+private:
+	/*
+	 * This structure represents the notes in a measure.
+	 * A measure is a vector containing the notes in it.
+	 * The index in the main vector is 1/48th of a beat.
+	 * An element in the main vector is the list of notes at this moment.
+	 * A note is represented by its intrument and its velocity.
+	 */
+	typedef std::vector<std::vector<std::pair<int, float> > > notes_t;
+
+	/*
+	 * Retreive the information in a PatternList
+	 * @param list  the PatternList where the information is
+	 * @param notes where to store the information to
+	 */
+	static void addPatternList( const PatternList &list, notes_t &notes );
+
+	/*
+	 * Retreive the information in a Pattern
+	 * @param pattern the Pattern where the information is
+	 * @param notes   where to store the information to
+	 */
+	static void addPattern( const Pattern &pattern, notes_t &notes );
+
+	std::vector<notes_t> m_measures; ///< Representation of the song
+	QString m_sName;                 ///< Name of the song
+	QString m_sAuthor;               ///< Author of the song
+	float m_fBPM;                    ///< BPM of the song
 };
 }
 
