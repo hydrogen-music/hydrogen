@@ -133,7 +133,7 @@ class InstrumentList : public H2Core::Object
 		 * save the intrument list within the given XMLNode
 		 * \param node the XMLNode to feed
 		 */
-		void save_to( XMLNode* node );
+		void save_to( XMLNode* node, int component_id );
 		/**
 		 * load an instrument list from an XMLNode
 		 * \param node the XMLDode to read from

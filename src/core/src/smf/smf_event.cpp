@@ -21,6 +21,7 @@
  */
 
 #include <hydrogen/smf/SMFEvent.h>
+#include <hydrogen/timehelper.h>
 
 namespace H2Core
 {
