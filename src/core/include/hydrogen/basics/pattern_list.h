@@ -78,6 +78,7 @@ class PatternList : public H2Core::Object
 		 * \param idx the index to get the pattern from
 		 */
 		Pattern* get( int idx );
+		const Pattern* get( int idx ) const;
 		/**
 		 * remove the pattern at a given index, does not delete it
 		 * \param idx the index
