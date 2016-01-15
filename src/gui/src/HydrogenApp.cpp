@@ -381,7 +381,7 @@ void HydrogenApp::updateWindowTitle()
 	QString qsSongName( pSong->__name );
 
 	if( qsSongName == "Untitled Song" && !pSong->get_filename().isEmpty() ){
-		qsSongName = qsSongName.section( '/', -1 );
+        qsSongName = pSong->get_filename().section( '/', -1);
 	}
 
 	if(pSong->get_is_modified()){
