@@ -117,6 +117,13 @@ class Note : public H2Core::Object
 		/** __instrument_id accessor */
 		int get_instrument_id() const;
 		/**
+		 * __specific_compo_id setter
+		 * \param value the new value
+		 */
+		void set_specific_compo_id( int value );
+		/** __specific_compo_id accessor */
+		int get_specific_compo_id() const;
+		/**
 		 * __position setter
 		 * \param value the new value
 		 */
@@ -274,6 +281,7 @@ class Note : public H2Core::Object
 	private:
 		Instrument* __instrument;   ///< the instrument to be played by this note
 		int __instrument_id;        ///< the id of the instrument played by this note
+		int __specific_compo_id;    ///< play a specific component, -1 if playing all
 		int __position;             ///< note position inside the pattern
 		float __velocity;           ///< velocity (intensity) of the note [0;1]
 		float __pan_l;              ///< pan of the note (left volume) [0;0.5]
@@ -324,6 +332,16 @@ inline void Note::set_instrument_id( int value )
 inline int Note::get_instrument_id() const
 {
 	return __instrument_id;
+}
+
+inline void Note::set_specific_compo_id( int value )
+{
+	__specific_compo_id = value;
+}
+
+inline int Note::get_specific_compo_id() const
+{
+	return __specific_compo_id;
 }
 
 inline void Note::set_position( int value )
