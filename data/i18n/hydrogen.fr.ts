@@ -908,7 +908,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Cubic</source>
-        <translation>Linéaire</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Hermite</source>
@@ -928,7 +928,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Enable use of rubberband&apos;s batch processor</source>
-        <translation type="unfinished"></translation>
+        <translation>Autorise l&apos;utilisation du traitement en lot de rubberband</translation>
     </message>
     <message>
         <source>Rubberband Batch</source>
@@ -2516,7 +2516,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Number of steps</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de pas</translation>
     </message>
     <message>
         <source>Color (Hue value)</source>
@@ -2901,7 +2901,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>pingpong</source>
-        <translation>pingpong</translation>
+        <translation>ping-pong</translation>
     </message>
     <message>
         <source>loops</source>

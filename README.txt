@@ -35,6 +35,7 @@ Features:
 	* Import/export of drumkits.
 	* Export song to wav, aiff, flac or file.
 	* Export song to midi file.
+	* Export song to LilyPond format.
 
 Installation:
 	See the INSTALL.txt file.
