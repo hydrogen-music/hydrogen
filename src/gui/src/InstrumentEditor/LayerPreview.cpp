@@ -272,6 +272,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		float fVelocity = (float)ev->x() / (float)width();
 
 		Note *note = new Note( m_pInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
+		note->set_specific_compo_id( m_nSelectedComponent );
 		AudioEngine::get_instance()->get_sampler()->note_on(note);
 
 		for ( int i = 0; i < MAX_LAYERS; i++ ) {
@@ -302,6 +303,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
             InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
             if ( pLayer ) {
                 Note *note = new Note( m_pInstrument , nPosition, m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer )->get_end_velocity() - 0.01, fPan_L, fPan_R, nLength, fPitch );
+				note->set_specific_compo_id( m_nSelectedComponent );
                 AudioEngine::get_instance()->get_sampler()->note_on(note);
 
                 int x1 = (int)( pLayer->get_start_velocity() * width() );

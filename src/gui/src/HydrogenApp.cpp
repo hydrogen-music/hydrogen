@@ -420,7 +420,7 @@ void HydrogenApp::showDirector()
 }
 
 
-void HydrogenApp::showSampleEditor( QString name, int mSelectedLayer )
+void HydrogenApp::showSampleEditor( QString name, int mSelectedComponemt, int mSelectedLayer )
 {
 
 	if ( m_pSampleEditor ){
@@ -431,7 +431,7 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedLayer )
 		QApplication::restoreOverrideCursor();
 	}
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	m_pSampleEditor = new SampleEditor( 0, mSelectedLayer, name );
+	m_pSampleEditor = new SampleEditor( 0, mSelectedComponemt, mSelectedLayer, name );
 	m_pSampleEditor->show();
 	QApplication::restoreOverrideCursor();
 }

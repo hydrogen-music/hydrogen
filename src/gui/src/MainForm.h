@@ -75,6 +75,7 @@ public slots:
 
 		void action_file_export();
 		void action_file_export_midi();
+		void action_file_export_lilypond();
 		void action_file_songProperties();
 
 		void action_help_about();

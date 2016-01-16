@@ -112,6 +112,11 @@ class Song : public H2Core::Object
 		std::vector<PatternList*>* get_pattern_group_vector() {
 			return __pattern_group_sequence;
 		}
+
+		const std::vector<PatternList*>* get_pattern_group_vector() const {
+			return __pattern_group_sequence;
+		}
+
 		void set_pattern_group_vector( std::vector<PatternList*>* vect ) {
 			__pattern_group_sequence = vect;
 		}
