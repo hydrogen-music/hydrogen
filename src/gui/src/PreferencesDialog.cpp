@@ -273,8 +273,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	sBmaxBars->setValue( pPref->getMaxBars() );
 
-	QString pathtoRubberband = pPref->m_rubberBandCLIexecutable;
+    dataDirectoryLineEdit->setText( pPref->getDataDirectory() );
 
+	QString pathtoRubberband = pPref->m_rubberBandCLIexecutable;
 
 	rubberbandLineEdit->setText( pathtoRubberband );
 
@@ -440,6 +441,9 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->setRestoreLastSongEnabled( restoreLastUsedSongCheckbox->isChecked() );
 	pPref->setRestoreLastPlaylistEnabled( restoreLastUsedPlaylistCheckbox->isChecked() );
 	pPref->m_bsetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref.
+
+    // Path to data directory
+    pPref->setDataDirectory( dataDirectoryLineEdit->text() );
 
 	//path to rubberband
 	pPref-> m_rubberBandCLIexecutable = rubberbandLineEdit->text();

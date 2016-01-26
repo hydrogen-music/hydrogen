@@ -761,6 +761,8 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
 	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );
 
+    LocalFileMng::writeXmlString( rootNode, "dataDirectory", m_sDataDirectory);
+
 	//show development version warning
 	LocalFileMng::writeXmlString( rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );
 
