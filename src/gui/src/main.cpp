@@ -263,13 +263,14 @@ int main(int argc, char *argv[])
 		H2Core::Logger::set_bit_mask( logLevelOpt );
 		H2Core::Logger* logger = H2Core::Logger::get_instance();
 		H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
-		if(sys_data_path.length()==0 ) {
+        H2Core::Preferences::create_instance();
+        if(sys_data_path.length()==0 ) {
 			H2Core::Filesystem::bootstrap( logger );
 		} else {
 			H2Core::Filesystem::bootstrap( logger, sys_data_path );
 		}
 		MidiMap::create_instance();
-		H2Core::Preferences::create_instance();
+
 		// See below for H2Core::Hydrogen.
 
 

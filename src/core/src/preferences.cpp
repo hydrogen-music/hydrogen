@@ -60,7 +60,7 @@ const char* Preferences::__class_name = "Preferences";
 
 Preferences::Preferences()
 		: Object( __class_name )
-		, demoPath( Filesystem::demos_dir()+"/")
+        //, demoPath( Filesystem::demos_dir()+"/")
 		, m_sLastNews( "" )
 {
 	__instance = this;
@@ -310,7 +310,6 @@ void Preferences::loadPreferences( bool bGlobal )
 
 	QString sPreferencesDirectory;
 	QString sPreferencesFilename;
-	QString sDataDirectory;
 	if ( bGlobal ) {
 		sPreferencesDirectory = Filesystem::sys_data_path();
 		sPreferencesFilename = sPreferencesDirectory + "/hydrogen.default.conf";
@@ -318,7 +317,6 @@ void Preferences::loadPreferences( bool bGlobal )
 	} else {
 		sPreferencesFilename = m_sPreferencesFilename;
 		sPreferencesDirectory = m_sPreferencesDirectory;
-		sDataDirectory = QDir::homePath().append( "/.hydrogen/data" );
 		INFOLOG( "Loading preferences file (USER) [" + sPreferencesFilename + "]" );
 
 
@@ -335,33 +333,7 @@ void Preferences::loadPreferences( bool bGlobal )
 		}
 	}
 
-	// data directory exists?
-	QDir dataDir( sDataDirectory );
-	if ( !dataDir.exists() ) {
-		WARNINGLOG( "Data directory not found." );
-		createDataDirectory();
-	}
 
-	// soundLibrary directory exists?
-	QString sDir = sDataDirectory;
-	QString sDrumkitDir;
-	QString sSongDir;
-	QString sPatternDir;
-
-	INFOLOG( "Creating soundLibrary directories in " + sDir );
-
-	sDrumkitDir = sDir + "/drumkits";
-	sSongDir = sDir + "/songs";
-	sPatternDir = sDir + "/patterns";
-
-	QDir drumkitDir( sDrumkitDir );
-	QDir songDir( sSongDir );
-	QDir patternDir( sPatternDir );
-
-	if ( ! drumkitDir.exists() || ! songDir.exists() || ! patternDir.exists() )
-	{
-		createSoundLibraryDirectories();
-	}
 
 	// pref file exists?
 	std::ifstream input( sPreferencesFilename.toLocal8Bit() , std::ios::in | std::ios::binary );
@@ -380,7 +352,38 @@ void Preferences::loadPreferences( bool bGlobal )
 			}
 
 			//////// GENERAL ///////////
-			//m_sLadspaPath = LocalFileMng::readXmlString( this, rootNode, "ladspaPath", m_sLadspaPath );
+
+            /* Get Data Directory */
+            m_sDataDirectory = LocalFileMng::readXmlString( rootNode, "dataDirectory", m_sDataDirectory );
+            // data directory exists?
+            QDir dataDir( m_sDataDirectory );
+            if ( !dataDir.exists() ) {
+                WARNINGLOG( "Data directory not found." );
+                createDataDirectory();
+            }
+
+            // soundLibrary directory exists?
+            QString sDir = m_sDataDirectory;
+            QString sDrumkitDir;
+            QString sSongDir;
+            QString sPatternDir;
+
+            INFOLOG( "Creating soundLibrary directories in " + sDir );
+
+            sDrumkitDir = sDir + "/drumkits";
+            sSongDir = sDir + "/songs";
+            sPatternDir = sDir + "/patterns";
+
+            QDir drumkitDir( sDrumkitDir );
+            QDir songDir( sSongDir );
+            QDir patternDir( sPatternDir );
+
+            if ( ! drumkitDir.exists() || ! songDir.exists() || ! patternDir.exists() )
+            {
+                createSoundLibraryDirectories();
+            }
+
+            //m_sLadspaPath = LocalFileMng::readXmlString( this, rootNode, "ladspaPath", m_sLadspaPath );
 			m_bShowDevelWarning = LocalFileMng::readXmlBool( rootNode, "showDevelWarning", m_bShowDevelWarning );
 			m_brestoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", m_brestoreLastSong );
 			m_brestoreLastPlaylist = LocalFileMng::readXmlBool( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist );
@@ -762,7 +765,6 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );
 
     LocalFileMng::writeXmlString( rootNode, "dataDirectory", m_sDataDirectory);
-
 	//show development version warning
 	LocalFileMng::writeXmlString( rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );
 

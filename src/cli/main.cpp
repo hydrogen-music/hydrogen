@@ -201,9 +201,10 @@ int main(int argc, char *argv[])
 		// Man your battle stations... this is not a drill.
 		Logger* logger = Logger::bootstrap( Logger::parse_log_level( logLevelOpt ) );
 		Object::bootstrap( logger, logger->should_log( Logger::Debug ) );
-		Filesystem::bootstrap( logger );
+        Preferences::create_instance();
+        Filesystem::bootstrap( logger );
 		MidiMap::create_instance();
-		Preferences::create_instance();
+
 		Preferences* preferences = Preferences::get_instance();
 		// See below for Hydrogen.
 

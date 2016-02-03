@@ -42,6 +42,8 @@
 #include <hydrogen/sampler/Sampler.h>
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
+#include "InstrumentRack.h"
+#include "SoundLibrary/SoundLibraryPanel.h"
 
 
 using namespace H2Core;
@@ -443,9 +445,17 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->m_bsetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref.
 
     // Path to data directory
-    pPref->setDataDirectory( dataDirectoryLineEdit->text() );
+	HydrogenApp *pH2App = HydrogenApp::get_instance();
+	if (  pPref->getDataDirectory().compare( dataDirectoryLineEdit->text()) != 0  ){
+		pPref->setDataDirectory( dataDirectoryLineEdit->text() );
+		// reload the drumkit list from the new directory
+		pH2App->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+	}
 
 	//path to rubberband
+
+
+
 	pPref-> m_rubberBandCLIexecutable = rubberbandLineEdit->text();
 
 	//check preferences
@@ -480,11 +490,9 @@ void PreferencesDialog::on_okBtn_clicked()
 			break;
 	}
 
-	HydrogenApp *pH2App = HydrogenApp::get_instance();
 	SongEditorPanel* pSongEditorPanel = pH2App->getSongEditorPanel();
 	SongEditor * pSongEditor = pSongEditorPanel->getSongEditor();
 	pSongEditor->updateEditorandSetTrue();
-
 	pPref->savePreferences();
 
 
