@@ -1782,8 +1782,8 @@ The LilyPond export is an experimental feature.
 It should work like a charm provided that you use the GM-kit, and that you do not use triplet
 </source>
         <translation>
-L'export LilyPond est une fonctionnalité expérimentale.
-Ça devrait fonctionner comme un charme tant que vous utilisez le GM-kit, et que vous n'utilisez pas de triolet
+L&apos;export LilyPond est une fonctionnalité expérimentale.
+Ça devrait fonctionner comme un charme tant que vous utilisez le GM-kit, et que vous n&apos;utilisez pas de triolet
 </translation>
     </message>
     <message>
@@ -2505,22 +2505,22 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
         <translation>Pas de morceau valide séléctionné !</translation>
     </message>
     <message>
-        <source>
-The current playlist contains unsaved changes.
-Do you want to discard the changes?
-    </source>
-    <translation>
-La liste de lecture courante contient des modifications non-sauvegardées.
-Voulez-vous abandonner ces changements ?
-</translation>
-    </message>
-    <message>
         <source>&amp;Discard</source>
         <translation>Aband&amp;onner</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
         <translation>Annuler (&amp;C)</translation>
+    </message>
+    <message>
+        <source>
+The current playlist contains unsaved changes.
+Do you want to discard the changes?
+</source>
+        <translation type="unfinished">
+La liste de lecture courante contient des modifications non-sauvegardées.
+Voulez-vous abandonner ces changements ?
+</translation>
     </message>
 </context>
 <context>
