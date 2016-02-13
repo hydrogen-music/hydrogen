@@ -649,42 +649,42 @@ p, li { white-space: pre-wrap; }
     <name>DonationDialog</name>
     <message>
         <source>Donations</source>
-        <translation type="unfinished"></translation>
+        <translation>Dons</translation>
     </message>
 </context>
 <context>
     <name>DonationDialog_UI</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Forme</translation>
+        <translation>Forme</translation>
     </message>
     <message>
         <source>Donate!</source>
-        <translation type="unfinished"></translation>
+        <translation>Donner !</translation>
     </message>
     <message>
         <source>Choose random entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Choisir au hasard</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is development by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the developers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen est un logiciel à source ouverte dont le développement est fait par plusieurs personnes durant leur temps libre. En faisant un don, vous pouvez dire &amp;quot;merci&amp;quot; aux développeurs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Person&amp;1</source>
-        <translation type="unfinished"></translation>
+        <translation>Personne&amp;1</translation>
     </message>
     <message>
         <source>Person&amp;2</source>
-        <translation type="unfinished"></translation>
+        <translation>Personne&amp;2</translation>
     </message>
     <message>
         <source>Person&amp;3</source>
-        <translation type="unfinished"></translation>
+        <translation>Personne&amp;3</translation>
     </message>
     <message>
         <source>Person&amp;4</source>
-        <translation type="unfinished"></translation>
+        <translation>Personne&amp;4</translation>
     </message>
 </context>
 <context>
@@ -950,7 +950,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Cubic</source>
-        <translation type="unfinished">Cubique</translation>
+        <translation>Cubique</translation>
     </message>
     <message>
         <source>Hermite</source>
@@ -1057,7 +1057,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>modified</source>
-        <translation type="unfinished"></translation>
+        <translation>modifié</translation>
     </message>
 </context>
 <context>
@@ -1770,33 +1770,39 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Export &amp;LilyPond file</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter le morceau en fichier LilyPond...</translation>
     </message>
     <message>
         <source>Donate</source>
-        <translation type="unfinished"></translation>
+        <translation>Donner</translation>
     </message>
     <message>
         <source>
 The LilyPond export is an experimental feature.
 It should work like a charm provided that you use the GM-kit, and that you do not use triplet
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+L'export LilyPond est une fonctionnalité expérimentale.
+Ça devrait fonctionner comme un charme tant que vous utilisez le GM-kit, et que vous n'utilisez pas de triolet
+</translation>
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichier LilyPond (*.ly)</translation>
     </message>
     <message>
         <source>Export LilyPond file</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter un fichier LilyPond</translation>
     </message>
     <message>
         <source>
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+La liste de lecture courante contient des modifications non-sauvegardées.
+Voulez-vous abandonner ces changements ?
+</translation>
     </message>
 </context>
 <context>
@@ -2502,16 +2508,19 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
         <source>
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
-</source>
-        <translation type="unfinished"></translation>
+    </source>
+    <translation>
+La liste de lecture courante contient des modifications non-sauvegardées.
+Voulez-vous abandonner ces changements ?
+</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
-        <translation type="unfinished">&amp;Détruire</translation>
+        <translation>Aband&amp;onner</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Annuler (&amp;C)</translation>
     </message>
 </context>
 <context>
@@ -3550,35 +3559,35 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Drumkit</source>
-        <translation type="unfinished">Kit de batterie</translation>
+        <translation>Kit de batterie</translation>
     </message>
     <message>
         <source>Component</source>
-        <translation type="unfinished"></translation>
+        <translation>Composant</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Chemin</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Version</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Explorer...</translation>
+        <translation>Explorer...</translation>
     </message>
     <message>
         <source>0.9.7 and higher</source>
-        <translation type="unfinished"></translation>
+        <translation>0.9.7 et supérieur</translation>
     </message>
     <message>
         <source>0.9.6 and lower</source>
-        <translation type="unfinished"></translation>
+        <translation>0.9.6 et inférieur lower</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
 </context>
 <context>
