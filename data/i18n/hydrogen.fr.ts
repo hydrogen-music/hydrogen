@@ -646,6 +646,48 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>DonationDialog</name>
+    <message>
+        <source>Donations</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DonationDialog_UI</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished">Forme</translation>
+    </message>
+    <message>
+        <source>Donate!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose random entry.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is development by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the developers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person&amp;1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person&amp;2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person&amp;3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person&amp;4</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Download</name>
     <message>
         <source>Importing item failed: %1</source>
@@ -892,7 +934,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Choose type of interpolation methode</source>
-        <translation>Choisir le type de méthode d'interpolation</translation>
+        <translation>Choisir le type de méthode d&apos;interpolation</translation>
     </message>
     <message>
         <source>Linear</source>
@@ -908,7 +950,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Cubic</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Cubique</translation>
     </message>
     <message>
         <source>Hermite</source>
@@ -1012,6 +1054,10 @@ Are you sure?</source>
     <message>
         <source>Mixer</source>
         <translation>Mixeur</translation>
+    </message>
+    <message>
+        <source>modified</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1722,6 +1768,36 @@ Voulez-vous sauvegarder les changements?
         <source>Report bug</source>
         <translation>Rapporter un bogue</translation>
     </message>
+    <message>
+        <source>Export &amp;LilyPond file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Donate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GM-kit, and that you do not use triplet
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LilyPond file (*.ly)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export LilyPond file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The current playlist contains unsaved changes.
+Do you want to discard the changes?
+</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -2421,6 +2497,21 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     <message>
         <source>No valid song selected!</source>
         <translation>Pas de morceau valide séléctionné !</translation>
+    </message>
+    <message>
+        <source>
+The current playlist contains unsaved changes.
+Do you want to discard the changes?
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Discard</source>
+        <translation type="unfinished">&amp;Détruire</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3454,12 +3545,40 @@ Overwrite the existing pattern?</source>
         <translation>Dialogue</translation>
     </message>
     <message>
-        <source>Browse</source>
-        <translation>Explorer</translation>
-    </message>
-    <message>
         <source>Export</source>
         <translation>Exporter</translation>
+    </message>
+    <message>
+        <source>Drumkit</source>
+        <translation type="unfinished">Kit de batterie</translation>
+    </message>
+    <message>
+        <source>Component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation type="unfinished">Explorer...</translation>
+    </message>
+    <message>
+        <source>0.9.7 and higher</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0.9.6 and lower</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Annuler</translation>
     </message>
 </context>
 <context>
@@ -3640,11 +3759,11 @@ Voulez-vous continuer?</translation>
         <source>It is not possible to delete the currently loaded drumkit: 
   &quot;%1&quot;.
 To delete this drumkit first load another drumkit.</source>
-        <translation>Il n'est pas possible de supprimer le kit de batterie actuellement chargé :
+        <translation>Il n&apos;est pas possible de supprimer le kit de batterie actuellement chargé :
   &quot;%1&quot;.
 Pour effacer ce kit de batterie, chargez d&apos;abord un autre kit.
         </translation>
-        </message>
+    </message>
     <message>
         <source>&quot;%1&quot;is a system drumkit and can&apos;t be deleted.</source>
         <translation>&quot;%1&quot; est un kit système et ne peut pas être effacé.</translation>
