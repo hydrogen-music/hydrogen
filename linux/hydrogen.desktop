@@ -24,6 +24,7 @@ Version=1.0
 
 Type=Application
 Categories=Application;AudioVideo;Sound;Audio;Qt;
+Keywords=audio;sound;jackd;sampler;drum;
 
 MimeType=text/xml
 
