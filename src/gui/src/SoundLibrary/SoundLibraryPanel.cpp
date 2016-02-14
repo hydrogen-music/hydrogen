@@ -475,6 +475,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 			break;
 		}
 	}
+	
 	for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
 		Drumkit *pInfo = __user_drumkit_info_list[i];
 		if ( pInfo->get_name() == sDrumkitName ) {
@@ -482,11 +483,51 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 			break;
 		}
 	}
+
+	InstrumentList *pSongInstrList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+	InstrumentList *pDrumkitInstrList = drumkitInfo->get_instruments();
+
+	int oldCount = pSongInstrList->size();
+	int newCount = pDrumkitInstrList->size();
+
+	bool conditionalLoad = true;
+
+	if ( newCount < oldCount )
+	{
+		QMessageBox msgBox;
+		msgBox.setWindowTitle("Hydrogen");
+		msgBox.setIcon( QMessageBox::Warning );
+		msgBox.setText( tr( "The existing kit has %1 instruments but the one being loaded has %2.\nThe first %2 instruments will be replaced, if any of the remaining %3 have notes, they can be saved or discarded.\n").arg( QString::number( oldCount ),QString::number( newCount ), QString::number( oldCount - newCount ) ) );
+		msgBox.setStandardButtons(QMessageBox::Save);
+		msgBox.addButton(QMessageBox::Discard);
+		msgBox.addButton(QMessageBox::Cancel);
+		msgBox.setDefaultButton(QMessageBox::Cancel);
+		
+		switch ( msgBox.exec() )
+		{
+			case QMessageBox::Save:
+				// Save old instruments with notes
+				conditionalLoad = true;
+				break;
+
+			case QMessageBox::Discard:
+				// discard extra instruments
+				conditionalLoad = false;
+				break;
+
+			case QMessageBox::Cancel:
+				// Cancel
+				return;
+		}
+	}
+
+
 	assert( drumkitInfo );
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
+
+	Hydrogen::get_instance()->loadDrumkit( drumkitInfo, conditionalLoad );
 	Hydrogen::get_instance()->getSong()->set_is_modified( true );
 	HydrogenApp::get_instance()->onDrumkitLoad( drumkitInfo->get_name() );
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();

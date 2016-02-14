@@ -2405,7 +2405,14 @@ float Hydrogen::getMaxProcessTime()
 	return m_fMaxProcessTime;
 }
 
+
+// Setting conditional to true will keep instruments that have notes if new kit has less instruments than the old one
 int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo )
+{
+	return loadDrumkit( pDrumkitInfo, true );
+}
+
+int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 {
 	assert ( pDrumkitInfo );
 
@@ -2495,7 +2502,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo )
 		for ( int i = 0; i < instrumentDiff ; i++ ){
 			removeInstrument(
 						p - i,
-						true
+						conditional
 						);
 
 		}

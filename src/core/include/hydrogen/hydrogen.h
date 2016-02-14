@@ -136,7 +136,8 @@ public:
 	float			getProcessTime();
 	float			getMaxProcessTime();
 
-	int				loadDrumkit( Drumkit *pDrumkitInfo );
+	int			loadDrumkit( Drumkit *pDrumkitInfo );
+	int			loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
 
 	/// delete an instrument. If `conditional` is true, and there are patterns that
 	/// use this instrument, it's not deleted anyway
