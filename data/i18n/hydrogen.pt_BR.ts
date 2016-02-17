@@ -646,6 +646,48 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>DonationDialog</name>
+    <message>
+        <source>Donations</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DonationDialog_UI</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Donate!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose random entry.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is development by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the developers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person&amp;1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person&amp;2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person&amp;3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person&amp;4</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Download</name>
     <message>
         <source>Importing item failed: %1</source>
@@ -1013,6 +1055,10 @@ Are you sure?</source>
     <message>
         <source>Mixer</source>
         <translation type="unfinished">Mixer</translation>
+    </message>
+    <message>
+        <source>modified</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1692,6 +1738,36 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Report bug</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export &amp;LilyPond file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Donate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GM-kit, and that you do not use triplet
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LilyPond file (*.ly)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export LilyPond file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The current playlist contains unsaved changes.
+Do you want to discard the changes?
+</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2390,6 +2466,21 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>No valid song selected!</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The current playlist contains unsaved changes.
+Do you want to discard the changes?
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Discard</source>
+        <translation type="unfinished">&amp;Descartar</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished">&amp;Cancelar</translation>
     </message>
 </context>
 <context>
@@ -3406,12 +3497,40 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Browse</source>
-        <translation type="unfinished">Procurar</translation>
-    </message>
-    <message>
         <source>Export</source>
         <translation type="unfinished">Exportar</translation>
+    </message>
+    <message>
+        <source>Drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation type="unfinished">Procurar...</translation>
+    </message>
+    <message>
+        <source>0.9.7 and higher</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0.9.6 and lower</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Cancelar</translation>
     </message>
 </context>
 <context>
