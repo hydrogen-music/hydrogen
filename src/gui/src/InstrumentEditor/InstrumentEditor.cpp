@@ -254,7 +254,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	// HiHat setup
 
 	m_pHihatGroupLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pHihatGroupLCD->move( 67, 307 );
+	m_pHihatGroupLCD->move( 27, 307 );
 
 	m_pAddHihatGroupBtn = new Button(
 					m_pInstrumentProp,
@@ -263,7 +263,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 					"/lcd/LCDSpinBox_up_over.png",
 					QSize( 16, 8 )
 					);
-	m_pAddHihatGroupBtn->move( 109, 306 );
+	m_pAddHihatGroupBtn->move( 69, 306 );
 	connect( m_pAddHihatGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatGroupClicked(Button*) ) );
 
 	m_pDelHihatGroupBtn = new Button(
@@ -273,11 +273,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 					"/lcd/LCDSpinBox_down_over.png",
 					QSize(16,8)
 					);
-	m_pDelHihatGroupBtn->move( 109, 315 );
+	m_pDelHihatGroupBtn->move( 69, 315 );
 	connect( m_pDelHihatGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatGroupClicked(Button*) ) );
 
 	m_pHihatMinRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pHihatMinRangeLCD->move( 67, 343 );
+	m_pHihatMinRangeLCD->move( 137, 307 );
 
 	m_pAddHihatMinRangeBtn = new Button(
 								 m_pInstrumentProp,
@@ -288,7 +288,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 false,
 								 true
 								 );
-	m_pAddHihatMinRangeBtn->move( 109, 342 );
+	m_pAddHihatMinRangeBtn->move( 179, 306 );
 	connect( m_pAddHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
 
 	m_pDelHihatMinRangeBtn = new Button(
@@ -300,12 +300,12 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 false,
 								 true
 								 );
-	m_pDelHihatMinRangeBtn->move( 109, 351 );
+	m_pDelHihatMinRangeBtn->move( 179, 315 );
 	connect( m_pDelHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
 
 
 	m_pHihatMaxRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pHihatMaxRangeLCD->move( 160, 343 );
+	m_pHihatMaxRangeLCD->move( 202, 307 );
 
 	m_pAddHihatMaxRangeBtn = new Button(
 								 m_pInstrumentProp,
@@ -316,7 +316,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 false,
 								 true
 								 );
-	m_pAddHihatMaxRangeBtn->move( 202, 342 );
+	m_pAddHihatMaxRangeBtn->move( 244, 306 );
 	connect( m_pAddHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
 
 	m_pDelHihatMaxRangeBtn = new Button(
@@ -328,7 +328,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 false,
 								 true
 								 );
-	m_pDelHihatMaxRangeBtn->move( 202, 351 );
+	m_pDelHihatMaxRangeBtn->move( 244, 315 );
 	connect( m_pDelHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
 
 	//
