@@ -42,6 +42,8 @@
 #include <hydrogen/sampler/Sampler.h>
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
+#include "InstrumentRack.h"
+#include "SoundLibrary/SoundLibraryPanel.h"
 
 
 using namespace H2Core;
@@ -273,8 +275,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	sBmaxBars->setValue( pPref->getMaxBars() );
 
-	QString pathtoRubberband = pPref->m_rubberBandCLIexecutable;
+    dataDirectoryLineEdit->setText( pPref->getDataDirectory() );
 
+	QString pathtoRubberband = pPref->m_rubberBandCLIexecutable;
 
 	rubberbandLineEdit->setText( pathtoRubberband );
 
@@ -441,7 +444,18 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->setRestoreLastPlaylistEnabled( restoreLastUsedPlaylistCheckbox->isChecked() );
 	pPref->m_bsetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref.
 
+    // Path to data directory
+	HydrogenApp *pH2App = HydrogenApp::get_instance();
+	if (  pPref->getDataDirectory().compare( dataDirectoryLineEdit->text()) != 0  ){
+		pPref->setDataDirectory( dataDirectoryLineEdit->text() );
+		// reload the drumkit list from the new directory
+		pH2App->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+	}
+
 	//path to rubberband
+
+
+
 	pPref-> m_rubberBandCLIexecutable = rubberbandLineEdit->text();
 
 	//check preferences
@@ -476,11 +490,9 @@ void PreferencesDialog::on_okBtn_clicked()
 			break;
 	}
 
-	HydrogenApp *pH2App = HydrogenApp::get_instance();
 	SongEditorPanel* pSongEditorPanel = pH2App->getSongEditorPanel();
 	SongEditor * pSongEditor = pSongEditorPanel->getSongEditor();
 	pSongEditor->updateEditorandSetTrue();
-
 	pPref->savePreferences();
 
 

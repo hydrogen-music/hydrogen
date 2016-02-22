@@ -234,7 +234,6 @@ class Filesystem : public H2Core::Object
 		static bool check_permissions( const QString& path, const int perms, bool silent );
 
 		static QString __sys_data_path;     ///< the path to the system files
-		static QString __usr_data_path;     ///< the path to the user files
 };
 
 };

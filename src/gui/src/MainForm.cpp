@@ -779,8 +779,8 @@ void MainForm::action_file_openDemo()
 	fd.setWindowTitle( trUtf8( "Open song" ) );
 	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
-	fd.setDirectory( QString( Preferences::get_instance()->getDemoPath() ) );
-
+    //fd.setDirectory( QString( Preferences::get_instance()->getDemoPath() ) );
+    fd.setDirectory( QString ( Filesystem::demos_dir() ) );
 
 	QString filename;
 	if (fd.exec() == QDialog::Accepted) {

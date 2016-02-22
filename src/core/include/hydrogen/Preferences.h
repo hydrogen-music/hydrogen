@@ -248,7 +248,12 @@ public:
 	const QString& getDemoPath() {
 		return demoPath;
 	}
-	const QString& getDataDirectory() {
+
+        void setDataDirectory( QString directory ){
+            m_sDataDirectory = directory;
+        }
+
+        const QString& getDataDirectory() {
 		return m_sDataDirectory;
 	}
 

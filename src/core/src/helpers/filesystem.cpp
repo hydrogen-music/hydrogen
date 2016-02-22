@@ -1,6 +1,7 @@
 
 #include <hydrogen/config.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/Preferences.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -44,7 +45,6 @@ namespace H2Core
 Logger* Filesystem::__logger = 0;
 const char* Filesystem::__class_name = "Filesystem";
 QString Filesystem::__sys_data_path;
-QString Filesystem::__usr_data_path;
 
 /* TODO QCoreApplication is not instanciated */
 bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
@@ -67,8 +67,7 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 	__sys_data_path = QCoreApplication::applicationDirPath().append( "/data" ) ;
 	__usr_data_path = QDir::homePath().append( "/.hydrogen/data" ) ;
 #else
-	__sys_data_path = SYS_DATA_PATH;
-	__usr_data_path = QDir::homePath().append( "/"USR_DATA_PATH );
+    __sys_data_path = SYS_DATA_PATH;
 #endif
 	if( sys_path!=0 ) __sys_data_path = sys_path;
 
@@ -275,14 +274,14 @@ bool Filesystem::check_sys_paths()
 
 bool Filesystem::check_usr_paths()
 {
-	if( !path_usable( __usr_data_path ) ) return false;
+    if( !path_usable( Preferences::get_instance()->getDataDirectory() ) ) return false;
 	if( !path_usable( songs_dir() ) ) return false;
 	if( !path_usable( patterns_dir() ) ) return false;
 	if( !path_usable( playlists_dir() ) ) return false;
 	if( !path_usable( usr_drumkits_dir() ) ) return false;
 	if( !path_usable( cache_dir() ) ) return false;
 	if( !path_usable( repositories_cache_dir() ) ) return false;
-	INFOLOG( QString( "user path %1 is usable." ).arg( __usr_data_path ) );
+    INFOLOG( QString( "user path %1 is usable." ).arg( Preferences::get_instance()->getDataDirectory()) );
 	return true;
 }
 
@@ -292,7 +291,7 @@ QString Filesystem::sys_data_path()
 }
 QString Filesystem::usr_data_path()
 {
-	return __usr_data_path;
+    return Preferences::get_instance()->getDataDirectory();
 }
 
 // FILES
@@ -302,7 +301,7 @@ QString Filesystem::sys_core_config()
 }
 QString Filesystem::usr_core_config()
 {
-	return __usr_data_path + CORE_CONFIG;
+    return usr_data_path() + CORE_CONFIG;
 }
 QString Filesystem::sys_gui_config()
 {
@@ -310,7 +309,7 @@ QString Filesystem::sys_gui_config()
 }
 QString Filesystem::usr_gui_config()
 {
-	return __usr_data_path + GUI_CONFIG;
+    return usr_data_path() + GUI_CONFIG;
 }
 QString Filesystem::empty_sample()
 {
@@ -326,7 +325,7 @@ QString Filesystem::click_file()
 }
 QString Filesystem::usr_click_file()
 {
-	if( file_readable( __usr_data_path + CLICK_SAMPLE, true ) ) return __usr_data_path + CLICK_SAMPLE;
+    if( file_readable( usr_data_path() + CLICK_SAMPLE, true ) ) return usr_data_path() + CLICK_SAMPLE;
 	return click_file();
 }
 QString Filesystem::drumkit_xsd( )
@@ -357,31 +356,31 @@ QString Filesystem::i18n_dir()
 }
 QString Filesystem::songs_dir()
 {
-	return __usr_data_path + SONGS;
+    return usr_data_path() + SONGS;
 }
 QString Filesystem::patterns_dir()
 {
-	return __usr_data_path + PATTERNS;
+    return usr_data_path() + PATTERNS;
 }
 QString Filesystem::sys_drumkits_dir()
 {
-	return __sys_data_path + DRUMKITS;
+    return usr_data_path() + DRUMKITS;
 }
 QString Filesystem::usr_drumkits_dir()
 {
-	return __usr_data_path + DRUMKITS;
+    return usr_data_path() + DRUMKITS;
 }
 QString Filesystem::playlists_dir()
 {
-	return __usr_data_path + PLAYLISTS;
+    return usr_data_path() + PLAYLISTS;
 }
 QString Filesystem::cache_dir()
 {
-	return __usr_data_path + CACHE;
+    return usr_data_path() + CACHE;
 }
 QString Filesystem::repositories_cache_dir()
 {
-	return __usr_data_path + CACHE + REPOSITORIES;
+    return usr_data_path() + CACHE + REPOSITORIES;
 }
 QString Filesystem::demos_dir()
 {
