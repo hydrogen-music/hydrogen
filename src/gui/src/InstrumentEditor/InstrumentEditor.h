@@ -81,7 +81,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void midiOutChannelBtnClicked(Button *pRef);
 		void midiOutNoteBtnClicked(Button *pRef);
 
-		void pIsHihatCheckBoxClicked( bool on);
+		void hihatGroupClicked(Button *pRef);
 		void hihatMinRangeBtnClicked(Button *pRef);
 		void hihatMaxRangeBtnClicked(Button *pRef);
 
@@ -132,7 +132,9 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		// Instrument hihat
 
-		QCheckBox *m_pIsHihat;
+		LCDDisplay *m_pHihatGroupLCD;
+		Button *m_pAddHihatGroupBtn;
+		Button *m_pDelHihatGroupBtn;
 
 		LCDDisplay *m_pHihatMinRangeLCD;
 		Button *m_pAddHihatMinRangeBtn;

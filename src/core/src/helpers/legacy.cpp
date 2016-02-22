@@ -84,9 +84,9 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				instrument->set_midi_out_channel( instrument_node.read_int( "midiOutChannel", -1, true, false ) );
 				instrument->set_midi_out_note( instrument_node.read_int( "midiOutNote", MIDI_MIDDLE_C, true, false ) );
 				instrument->set_stop_notes( instrument_node.read_bool( "isStopNote", true ,false ) );
-				instrument->set_hihat( instrument_node.read_bool( "isHihat", false, true ) );
-                instrument->set_lower_cc( instrument_node.read_int( "lower_cc", 0, true ) );
-                instrument->set_higher_cc( instrument_node.read_int( "higher_cc", 127, true ) );
+				instrument->set_hihat_grp( instrument_node.read_int( "isHihat", -1, true ) );
+				instrument->set_lower_cc( instrument_node.read_int( "lower_cc", 0, true ) );
+				instrument->set_higher_cc( instrument_node.read_int( "higher_cc", 127, true ) );
 				for ( int i=0; i<MAX_FX; i++ ) {
 					instrument->set_fx_level( instrument_node.read_float( QString( "FX%1Level" ).arg( i+1 ), 0.0 ), i );
 				}
