@@ -1318,6 +1318,9 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 		LocalFileMng::writeXmlString( instrumentNode, "midiOutChannel", QString("%1").arg( instr->get_midi_out_channel() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "midiOutNote", QString("%1").arg( instr->get_midi_out_note() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "isHihat", QString("%1").arg( instr->get_hihat_grp() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "lower_cc", QString("%1").arg( instr->get_lower_cc() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "higher_cc", QString("%1").arg( instr->get_higher_cc() ) );
 
         for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
             InstrumentComponent* pComponent = *it;
@@ -1396,6 +1399,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 		LocalFileMng::writeXmlString( patternNode, "name", pat->get_name() );
 		LocalFileMng::writeXmlString( patternNode, "category", pat->get_category() );
 		LocalFileMng::writeXmlString( patternNode, "size", QString("%1").arg( pat->get_length() ) );
+		LocalFileMng::writeXmlString( patternNode, "info", pat->get_info() );
 
 		QDomNode noteListNode = doc.createElement( "noteList" );
 		const Pattern::notes_t* notes = pat->get_notes();
@@ -1565,7 +1569,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	if( rv ) {
 		WARNINGLOG("File save reported an error.");
 	} else {
-		song->__is_modified = false;
+		song->set_is_modified( false );
 		INFOLOG("Save was successful.");
 	}
 

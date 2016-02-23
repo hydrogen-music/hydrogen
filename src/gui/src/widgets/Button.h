@@ -49,7 +49,8 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 				const QString& sOffImg,
 				const QString& sOverImg,
 				QSize size,
-				bool use_skin_style = false
+				bool use_skin_style = false,
+				bool enable_press_hold = false
 		);
 		virtual ~Button();
 
@@ -64,6 +65,9 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 		void rightClicked(Button *pBtn);
 		void mousePress(Button *pBtn);
 
+	protected slots:
+		void buttonPressed_timer_timeout();
+
 	protected:
 		bool m_bPressed;
 
@@ -77,12 +81,16 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 	private:
 		bool m_bMouseOver;
 		bool __use_skin_style;
+		bool __enable_press_hold;
 
 		void mousePressEvent(QMouseEvent *ev);
 		void mouseReleaseEvent(QMouseEvent *ev);
 		void enterEvent(QEvent *ev);
 		void leaveEvent(QEvent *ev);
 		void paintEvent( QPaintEvent* ev);
+
+		QTimer *m_timer;
+		int m_timerTimeout;
 
 		bool loadImage( const QString& sFilename, QPixmap& pixmap );
 };

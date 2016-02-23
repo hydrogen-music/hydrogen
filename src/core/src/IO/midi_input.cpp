@@ -114,9 +114,8 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 				break;
 
 		case MidiMessage::PROGRAM_CHANGE:
-				INFOLOG( QString( "[handleMidiMessage] PROGRAM_CHANGE event, seting next pattern to %1" )
+				INFOLOG( QString( "[handleMidiMessage] PROGRAM_CHANGE Value: %1" )
 					.arg( msg.m_nData1 ) );
-//				Hydrogen::get_instance()->sequencer_setNextPattern(msg.m_nData1, false, false);
 				handleProgramChangeMessage( msg );
 				break;
 
@@ -193,7 +192,6 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 
 void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 {
-	INFOLOG( QString( "[handleMidiMessage] PROGRAM_CHANGE Value: %1" ).arg( msg.m_nData1 ) );
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	MidiActionManager *aH = MidiActionManager::get_instance();
 	MidiMap *mM = MidiMap::get_instance();
@@ -204,7 +202,7 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 	aH->handleAction( pAction );
 
 	pEngine->lastMidiEvent = "PROGRAM_CHANGE";
-	pEngine->lastMidiEventParameter = msg.m_nData1;
+	pEngine->lastMidiEventParameter = 0;
 }
 
 void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
@@ -269,14 +267,14 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		hihat openess is outside the instrument selected
 		*/
 		if ( instr != NULL &&
-			 instr->is_hihat() &&
+			 instr->get_hihat_grp() >= 0 &&
 			 ( __hihat_cc_openess < instr->get_lower_cc() || __hihat_cc_openess > instr->get_higher_cc() ) )
 		{
 			for(int i=0 ; i<=instrList->size() ; i++)
 			{
 				Instrument *instr_contestant = instrList->get( i );
 				if( instr_contestant != NULL &&
-						instr_contestant->is_hihat() &&
+						instr->get_hihat_grp() == instr_contestant->get_hihat_grp() &&
 						__hihat_cc_openess >= instr_contestant->get_lower_cc() &&
 						__hihat_cc_openess <= instr_contestant->get_higher_cc() )
 				{

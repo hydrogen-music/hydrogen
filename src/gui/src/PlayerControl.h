@@ -106,13 +106,11 @@ class PlayerControl : public QLabel, public H2Core::Object
 		//~ jack time master
 		void bpmChanged();
 		void bpmButtonClicked( Button *pRef );
-		void bpmButtonPressed( Button* pBtn);
 		void bpmClicked();
 		void FFWDBtnClicked(Button *pRef);
 		void RewindBtnClicked(Button *pRef);
 		void songLoopBtnClicked(Button* ref);
 		void metronomeButtonClicked(Button* ref);
-		void onBpmTimerEvent();
 		void onStatusTimerEvent();
 		void onScrollTimerEvent();
 		void showButtonClicked( Button* pRef );
@@ -183,10 +181,6 @@ class PlayerControl : public QLabel, public H2Core::Object
 
 		MetronomeWidget *m_pMetronomeWidget;
 		ToggleButton *m_pMetronomeBtn;
-
-		QTimer *m_pBPMTimer;
-
-		int m_nBPMIncrement;
 
 		ToggleButton *m_pShowMixerBtn;
 		ToggleButton *m_pShowInstrumentRackBtn;

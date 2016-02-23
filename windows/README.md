@@ -1,0 +1,136 @@
+# Building for Windows
+
+## Cross-compiling on a Unix System
+
+### The easy way:
+	run the script mxe_installer.sh located in the windows folder
+
+	then,
+
+	run the script cross_compile.sh located in the windows folder.
+
+### The manual way: 
+
+### Installing all necessary packages
+
+
+#### On *nix systems (OS X Included)
+
+Visit the page: http://mxe.cc/#requirements and install the pre-requesite packages.
+
+### Cloning Hydrogen from the github repository
+
+If you have not already done it.
+
+    $ git clone -b master https://github.com/hydrogen-music/hydrogen.git
+
+### Setting the Hydrogen environment variable
+
+Change to your Hydrogen directory.
+
+    $mv hydrogen source
+
+    $ cd source
+    
+    $ export HYDROGEN=$PWD
+    
+    $ cd ..
+
+### Cloning MXE from the github repository
+
+Clone the master branch, since it should be more up-to-date than the stable branch.
+
+    $ git clone -b master https://github.com/mxe/mxe.git
+
+### Configuring MXE
+
+    $ cd mxe
+
+    $ export MXE=$PWD
+
+Edit *Makefile* and set the value of *MXE_TARGETS* as follows ().
+    For 32-bit Windows target:
+    MXE_TARGETS        := i686-w64-mingw32.shared
+
+    For 64-bit Windows target:
+    MXE_TARGETS        := x86_64-w64-mingw32.shared
+
+    For both 32 and 64 bit Windows target:
+    MXE_TARGETS        := i686-w64-mingw32.shared x86_64-w64-mingw32.shared
+
+### Configuring and cross-compiling packages
+
+Most *make* operations below take a considerable amount of time. The lengthy ones have been timed, in order to give you a rough estimate. If you're compiling both 32 and 64 bit versions then you will need to roughly double all the times listed below. Adjust your completion expectations according to the values presented and your system capabilities. All operations in this section should be executed in the MXE root directory, where the *Makefile* resides. Packages along with their dependencies are downloaded and cross-compiled automatically as needed.
+
+#### Cross-compiling gcc
+
+    $ make gcc
+
+    real    13m10.244s
+    user    30m51.456s
+    sys     4m17.841s
+
+#### Cross-compiling winpthreads
+
+    $ make winpthreads
+
+#### Configuring gcc and cross-compile again
+
+There is a cyclical dependancy problem here that requires gcc to be built once normally, and then once with winpthreads. This is because winpthreads requires gcc to build, but we need gcc built with winpthreads support (which it doesn't have the first time you make it).
+
+Edit *src/gcc.mk* and set the value of *$(PKG)_DEPS* as follows.
+
+    $(PKG)_DEPS     := binutils gcc-gmp gcc-isl gcc-mpc gcc-mpfr winpthreads
+
+Also set the value of *--enable-threads* as follows.
+
+    --enable-threads=posix
+
+Then cross-compile gcc again.
+
+    $ make gcc
+
+    real    8m32.152s
+    user    24m34.296s
+    sys     2m47.471s
+
+#### Cross-compiling other packages
+
+    $ make qt libarchive libsndfile portaudio portmidi fftw rubberband jack
+
+    real    70m17.737s
+    user    199m0.451s
+    sys     15m14.591s
+
+    Due to a bug in jack, you will need to edit the portaudio.mk file and set jack as a dependancy, then rebuild portaudio
+    
+    $ sed -i 's/:= gcc/:= gcc jack/g' $MXE/src/portaudio.mk
+
+    $ make portaudio
+
+### Cross-compiling Hydrogen
+    You will want to change the CMAKE_TOOLCHAIN_FILE to reflect which version of hydrogen you want (i686 = 32bit, x86_64 = 64bit).
+
+    $ cd $HYDROGEN
+    
+    For 32 bit compilations use
+    $ cmake -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake
+
+    For 64 bit compilations use
+    $ cmake -DWIN64:BOOL=ON ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake -DCMAKE_{C,CXX}_FLAGS=-m64
+    
+    $ cpack -G NSIS
+
+    real    4m32.063s
+    user    4m14.671s
+    sys     0m17.105s
+
+    cpack will create your installer for you, which you can then copy to a windows machine, and install. 
+
+### Troubleshooting
+
+Troubleshooting.
+
+### Bugs?
+
+Bugs.

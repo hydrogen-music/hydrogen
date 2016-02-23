@@ -100,12 +100,53 @@ class SMFTrackNameMetaEvent : public SMFEvent
 	H2_OBJECT
 public:
 	SMFTrackNameMetaEvent( const QString& sTrackName, unsigned nDeltaTime );
-
 	virtual std::vector<char> getBuffer();
 
 private:
 	QString m_sTrackName;
 
+};
+
+
+
+class SMFSetTempoMetaEvent : public SMFEvent
+{
+	H2_OBJECT
+public:
+	SMFSetTempoMetaEvent( float fBPM, unsigned nDeltaTime );
+	virtual std::vector<char> getBuffer();
+
+private:
+	unsigned m_fBPM;
+
+};
+
+
+
+class SMFCopyRightNoticeMetaEvent : public SMFEvent
+{
+	H2_OBJECT
+public:
+	SMFCopyRightNoticeMetaEvent( const QString& sAuthor, unsigned nDeltaTime );
+	virtual std::vector<char> getBuffer();
+
+private:
+	QString m_sAuthor;
+
+};
+
+
+
+class SMFTimeSignatureMetaEvent : public SMFEvent
+{
+	H2_OBJECT
+public:
+	SMFTimeSignatureMetaEvent( unsigned nBeats, unsigned nNote , unsigned nMTPMC , unsigned nTSNP24 , unsigned nTicks );
+	virtual std::vector<char> getBuffer();
+	// MTPMC = MIDI ticks per metronome click
+	// TSNP24 = Thirty Second Notes Per 24 MIDI Ticks.
+private:
+	unsigned m_nBeats, m_nNote, m_nMTPMC , m_nTSNP24 , m_nTicks;
 };
 
 

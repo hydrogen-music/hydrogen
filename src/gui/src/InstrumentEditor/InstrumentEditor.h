@@ -57,7 +57,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void selectLayer( int nLayer );
 		void setFileforLayer(QString filename );
 
-        void selectComponent( int nComponent );
+		void selectComponent( int nComponent );
 
 		// implements EventListener interface
 		virtual void selectedInstrumentChangedEvent();
@@ -79,14 +79,14 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void midiOutChannelBtnClicked(Button *pRef);
 		void midiOutNoteBtnClicked(Button *pRef);
 
-		void pIsHihatCheckBoxClicked( bool on);
+		void hihatGroupClicked(Button *pRef);
 		void hihatMinRangeBtnClicked(Button *pRef);
 		void hihatMaxRangeBtnClicked(Button *pRef);
 
 	private:
 		H2Core::Instrument *m_pInstrument;
 		int m_nSelectedLayer;
-        int m_nSelectedComponent;
+		int m_nSelectedComponent;
 
 		ToggleButton *m_pShowInstrumentBtn;
 		ToggleButton *m_pShowLayersBtn;
@@ -130,7 +130,9 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		// Instrument hihat
 
-		QCheckBox *m_pIsHihat;
+		LCDDisplay *m_pHihatGroupLCD;
+		Button *m_pAddHihatGroupBtn;
+		Button *m_pDelHihatGroupBtn;
 
 		LCDDisplay *m_pHihatMinRangeLCD;
 		Button *m_pAddHihatMinRangeBtn;
@@ -179,7 +181,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		void loadLayer();
 		void setAutoVelocity();
-		int findFreeCompoID( int startingPoint = 0 );
+		int findFreeDrumkitComponentId( int startingPoint = 0 );
 };
 
 

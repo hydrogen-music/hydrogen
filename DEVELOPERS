@@ -82,18 +82,18 @@ just a little bit better if reformat the code to fit your style.
 
 4. Use curly braces for all if statements, even one liners. We don't need to minimize the lines of code :)
 
-Good: if(a){
+Good: if( a ){
         doB();
       }
 
-Error prone: if(a) doB();
+Error prone: if( a ) doB();
 
-     if(a)
+     if( a )
         doB();
 
 5. Method names follow the camel case naming scheme, starting with a lowercase letter.
 
-  Example: void doB(int* myArgument);
+  Example: void doB( int * myArgument );
 
 6. Use speaking and self-explaining names for your variables (exception: loop-variables). We don't need to use short
 likes i,n,aux etc...

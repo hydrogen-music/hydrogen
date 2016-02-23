@@ -266,12 +266,10 @@ void audioEngine_init()
 	m_pMetronomeInstrument =
 			new Instrument( METRONOME_INSTR_ID, "metronome" );
 	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( sMetronomeFilename ) );
-    InstrumentComponent* pCompo = new InstrumentComponent( 0 );
-    pCompo->set_layer(
-                pLayer,
-				0
-				);
-    m_pMetronomeInstrument->get_components()->push_back( pCompo );
+	InstrumentComponent* pCompo = new InstrumentComponent( 0 );
+	pCompo->set_layer(pLayer, 0);
+	m_pMetronomeInstrument->get_components()->push_back( pCompo );
+	m_pMetronomeInstrument->set_is_metronome_instrument(true);
 
 	// Change the current audio engine state
 	m_audioEngineState = STATE_INITIALIZED;
@@ -863,17 +861,17 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			if ( val_R > m_fMasterPeak_R )
 				m_fMasterPeak_R = val_R;
 
-            for (std::vector<DrumkitComponent*>::iterator it = pSong->get_components()->begin() ; it != pSong->get_components()->end(); ++it) {
-                DrumkitComponent* drumkit_component = *it;
+			for (std::vector<DrumkitComponent*>::iterator it = pSong->get_components()->begin() ; it != pSong->get_components()->end(); ++it) {
+				DrumkitComponent* drumkit_component = *it;
 
-                float compo_val_L = drumkit_component->get_out_L(i);
-                float compo_val_R = drumkit_component->get_out_R(i);
+				float compo_val_L = drumkit_component->get_out_L(i);
+				float compo_val_R = drumkit_component->get_out_R(i);
 
-                if( compo_val_L > drumkit_component->get_peak_l() )
-                    drumkit_component->set_peak_l( compo_val_L );
-                if( compo_val_R > drumkit_component->get_peak_r() )
-                    drumkit_component->set_peak_r( compo_val_R );
-            }
+				if( compo_val_L > drumkit_component->get_peak_l() )
+					drumkit_component->set_peak_l( compo_val_L );
+				if( compo_val_R > drumkit_component->get_peak_r() )
+					drumkit_component->set_peak_r( compo_val_R );
+			}
 		}
 	}
 
@@ -2418,37 +2416,35 @@ float Hydrogen::getMaxProcessTime()
 	return m_fMaxProcessTime;
 }
 
-int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
+int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo )
 {
-	assert ( drumkitInfo );
+	assert ( pDrumkitInfo );
 
 	int old_ae_state = m_audioEngineState;
 	if( m_audioEngineState >= STATE_READY ) {
 		m_audioEngineState = STATE_PREPARED;
 	}
 
-	INFOLOG( drumkitInfo->get_name() );
-	m_currentDrumkit = drumkitInfo->get_name();
-	LocalFileMng fileMng;
-	QString sDrumkitPath = Filesystem::drumkit_path_search( drumkitInfo->get_name() );
+	INFOLOG( pDrumkitInfo->get_name() );
+	m_currentDrumkit = pDrumkitInfo->get_name();
 
-	std::vector<DrumkitComponent*>* songCompoList= getSong()->get_components();
-	std::vector<DrumkitComponent*>* pDrumkitCompoList = drumkitInfo->get_components();
+	std::vector<DrumkitComponent*>* pSongCompoList= getSong()->get_components();
+	std::vector<DrumkitComponent*>* pDrumkitCompoList = pDrumkitInfo->get_components();
 
-    songCompoList->clear();
+	pSongCompoList->clear();
 	for (std::vector<DrumkitComponent*>::iterator it = pDrumkitCompoList->begin() ; it != pDrumkitCompoList->end(); ++it) {
-        DrumkitComponent* src_component = *it;
-        DrumkitComponent* p_newCompo = new DrumkitComponent( src_component->get_id(), src_component->get_name() );
-        p_newCompo->load_from( drumkitInfo, src_component );
+		DrumkitComponent* pSrcComponent = *it;
+		DrumkitComponent* pNewComponent = new DrumkitComponent( pSrcComponent->get_id(), pSrcComponent->get_name() );
+		pNewComponent->load_from( pSrcComponent );
 
-        songCompoList->push_back( p_newCompo );
+		pSongCompoList->push_back( pNewComponent );
 	}
 
 	//current instrument list
-	InstrumentList *songInstrList = getSong()->get_instrument_list();
+	InstrumentList *pSongInstrList = getSong()->get_instrument_list();
 
 	//new instrument list
-	InstrumentList *pDrumkitInstrList = drumkitInfo->get_instruments();
+	InstrumentList *pDrumkitInstrList = pDrumkitInfo->get_instruments();
 
 	/*
   If the old drumkit is bigger then the new drumkit,
@@ -2473,20 +2469,20 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
  */
 
 	//needed for the new delete function
-	int instrumentDiff =  songInstrList->size() - pDrumkitInstrList->size();
+	int instrumentDiff =  pSongInstrList->size() - pDrumkitInstrList->size();
 
 	for ( unsigned nInstr = 0; nInstr < pDrumkitInstrList->size(); ++nInstr ) {
 		Instrument *pInstr = NULL;
-		if ( nInstr < songInstrList->size() ) {
+		if ( nInstr < pSongInstrList->size() ) {
 			//instrument exists already
-			pInstr = songInstrList->get( nInstr );
+			pInstr = pSongInstrList->get( nInstr );
 			assert( pInstr );
 		} else {
 			pInstr = new Instrument();
 			// The instrument isn't playing yet; no need for locking
 			// :-) - Jakob Lund.  AudioEngine::get_instance()->lock(
 			// "Hydrogen::loadDrumkit" );
-			songInstrList->add( pInstr );
+			pSongInstrList->add( pInstr );
 			// AudioEngine::get_instance()->unlock();
 		}
 
@@ -2499,7 +2495,7 @@ int Hydrogen::loadDrumkit( Drumkit *drumkitInfo )
 
 		// creo i nuovi layer in base al nuovo strumento
 		// Moved code from here right into the Instrument class - Jakob Lund.
-		pInstr->load_from( drumkitInfo, pNewInstr );
+		pInstr->load_from( pDrumkitInfo, pNewInstr );
 	}
 
 
@@ -2556,13 +2552,13 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 		Instrument* pInstr = pList->get( 0 );
 		pInstr->set_name( (QString( "Instrument 1" )) );
 		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
-            InstrumentComponent* pCompo = *it;
-            // remove all layers
-            for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-                InstrumentLayer* pLayer = pCompo->get_layer( nLayer );
-                delete pLayer;
-                pCompo->set_layer( NULL, nLayer );
-            }
+			InstrumentComponent* pCompo = *it;
+			// remove all layers
+			for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+				InstrumentLayer* pLayer = pCompo->get_layer( nLayer );
+				delete pLayer;
+				pCompo->set_layer( NULL, nLayer );
+			}
 		}
 		AudioEngine::get_instance()->unlock();
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
@@ -2582,7 +2578,7 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 	// delete the instrument from the instruments list
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	getSong()->get_instrument_list()->del( instrumentnumber );
-	getSong()->__is_modified = true;
+	getSong()->set_is_modified( true );
 	AudioEngine::get_instance()->unlock();
 
 	// At this point the instrument has been removed from both the

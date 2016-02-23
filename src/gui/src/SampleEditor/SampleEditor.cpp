@@ -49,7 +49,7 @@ using namespace std;
 
 const char* SampleEditor::__class_name = "SampleEditor";
 
-SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamplefilename )
+SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSelectedLayer, QString mSamplefilename )
 		: QDialog ( pParent )
 		, Object ( __class_name )
 {
@@ -64,6 +64,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedLayer, QString mSamp
 	m_pSampleEditorStatus = true;
 	m_pSampleFromFile = NULL;
 	m_pSelectedLayer = nSelectedLayer;
+	m_pSelectedComponent = nSelectedComponent;
 	m_samplename = mSamplefilename;
 	m_pZoomfactor = 1;
 	m_pDetailFrame = 0;
@@ -349,7 +350,6 @@ bool SampleEditor::getCloseQuestion()
 
 void SampleEditor::createNewLayer()
 {
-
 	if ( !m_pSampleEditorStatus ){
 
 		Sample *editSample = Sample::load( m_samplename, __loops, __rubberband, *m_pTargetSampleView->get_velocity(), *m_pTargetSampleView->get_pan() );
@@ -387,8 +387,7 @@ void SampleEditor::createNewLayer()
 
 		AudioEngine::get_instance()->unlock();
 		m_pTargetSampleView->updateDisplay( pLayer );
-		}
-
+	}
 }
 
 
@@ -518,7 +517,9 @@ void SampleEditor::on_PlayPushButton_clicked()
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	Instrument *pInstr = pSong->get_instrument_list()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
-	Note *pNote = new Note( pInstr, 0, pInstr->get_component(0)->get_layer( selectedLayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
+
+	Note *pNote = new Note( pInstr, 0, pInstr->get_component( m_pSelectedComponent )->get_layer( selectedLayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
+	pNote->set_specific_compo_id( m_pSelectedComponent );
 	AudioEngine::get_instance()->get_sampler()->note_on(pNote);
 
 	setSamplelengthFrames();
@@ -698,7 +699,6 @@ void SampleEditor::createPositionsRulerPath()
 		if ( __loops.start_frame != __loops.loop_frame ){
 			copy( loopFrames, loopFrames+loopLength ,tempFrames+ tempdataend );
 		}
-
 	}
 
 
@@ -706,9 +706,13 @@ void SampleEditor::createPositionsRulerPath()
 		reverse( tempFrames + __loops.loop_frame, tempFrames + newLength);
 	}
 
+	if(m_pPositionsRulerPath)
+	{
+		delete[] m_pPositionsRulerPath;
+	}
+
 	m_pPositionsRulerPath = tempFrames;
 
-	delete[] tempFrames;
 	delete[] loopFrames;
 	delete[] normalFrames;
 }

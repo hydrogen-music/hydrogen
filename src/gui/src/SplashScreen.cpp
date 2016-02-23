@@ -33,13 +33,11 @@
 const char* SplashScreen::__class_name = "SplashScreen";
 
 SplashScreen::SplashScreen()
-// : QWidget( NULL, Qt::SplashScreen )
  : QSplashScreen( NULL )
  , Object( __class_name )
 {
 	//INFOLOG( "SplashScreen" );
 
-	//resize(width, height);
 	setFixedSize(width, height);
 
 	m_pBackground = new QPixmap( Skin::getImagePath() + "/splash/splash.png" );
@@ -56,7 +54,6 @@ SplashScreen::SplashScreen()
 	QString version = QString( "v%1 (%2)" ).arg( H2Core::get_version().c_str() ).arg( __DATE__ );
 	p.drawText( 5, 5, width - 10, 40, Qt::AlignRight | Qt::AlignTop, version );
 
-//	p.drawText( 5, height - 45, width - 10, 40, Qt::AlignHCenter | Qt::AlignBottom, QString( trUtf8( "Modules: %1" ) ).arg( COMPILED_FEATURES ) );
 	p.end();
 
 	setPixmap( *m_pBackground );

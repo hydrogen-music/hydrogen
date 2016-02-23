@@ -61,8 +61,8 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		void noteOffClicked(MixerLine* ref);
 		void muteClicked(MixerLine* ref);
 		void muteClicked(ComponentMixerLine* ref);
-                void unmuteAll( bool findSelectedInstr);
-                void unmuteAll( int selectedInstr);
+		void unmuteAll( bool findSelectedInstr);
+		void unmuteAll( int selectedInstr);
 		void soloClicked(MixerLine* ref);
 		void soloClicked(ComponentMixerLine* ref);
 		void volumeChanged(MixerLine* ref);

@@ -24,10 +24,10 @@
 
 #include <cassert>
 
-#include <hydrogen/basics/adsr.h>
+
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
-
+#include <hydrogen/event_queue.h>
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/timeline.h>
@@ -181,7 +181,7 @@ Song* Song::get_default_song()
 	patternSequence->add( emptyPattern );
 	pPatternGroupVector->push_back( patternSequence );
 	song->set_pattern_group_vector( pPatternGroupVector );
-	song->__is_modified = false;
+	song->set_is_modified( false );
 	song->set_filename( "empty_song" );
 
 	return song;
@@ -206,12 +206,12 @@ Song* Song::get_empty_song()
 
 DrumkitComponent* Song::get_component( int ID )
 {
-    for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-        if( (*it)->get_id() == ID )
-            return *it;
-    }
+	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+		if( (*it)->get_id() == ID )
+			return *it;
+	}
 
-    return NULL;
+	return NULL;
 }
 
 
@@ -226,6 +226,19 @@ void Song::set_swing_factor( float factor )
 	__swing_factor = factor;
 }
 
+void Song::set_is_modified(bool is_modified){
+	bool Notify = false;
+
+	if(__is_modified != is_modified){
+		Notify = true;
+	}
+
+	__is_modified = is_modified;
+
+	if(Notify){
+		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
+	}
+}
 
 void Song::readTempPatternList( QString filename )
 {
@@ -518,6 +531,9 @@ Song* SongReader::readSong( const QString& filename )
 				continue;
 			}
 
+			int iIsHiHat = LocalFileMng::readXmlInt( instrumentNode, "isHihat", -1, true );
+			int iLowerCC = LocalFileMng::readXmlInt( instrumentNode, "lower_cc", 0, true );
+			int iHigherCC = LocalFileMng::readXmlInt( instrumentNode, "higher_cc", 127, true );
 
 			// create a new instrument
 			Instrument* pInstrument = new Instrument( id, sName, new ADSR( fAttack, fDecay, fSustain, fRelease ) );
@@ -537,6 +553,9 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_gain( fGain );
 			pInstrument->set_mute_group( nMuteGroup );
 			pInstrument->set_stop_notes( isStopNote );
+			pInstrument->set_hihat_grp( iIsHiHat );
+			pInstrument->set_lower_cc( iLowerCC );
+			pInstrument->set_higher_cc( iHigherCC );
 			pInstrument->set_midi_out_channel( nMidiOutChannel );
 			pInstrument->set_midi_out_note( nMidiOutNote );
 
@@ -996,7 +1015,6 @@ Song* SongReader::readSong( const QString& filename )
 		WARNINGLOG( "TagTimeLine node not found" );
 	}
 
-
 	// Automation Paths
 	QDomNode automationPathsNode = songNode.firstChildElement( "automationPaths" );
 	if ( !automationPathsNode.isNull() ) {
@@ -1020,8 +1038,7 @@ Song* SongReader::readSong( const QString& filename )
 		}
 	}
 
-
-	song->__is_modified = false;
+	song->set_is_modified( false );
 	song->set_filename( FileName );
 
 	return song;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0">
+<TS version="2.1">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -613,6 +613,25 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>ComponentMixerLine</name>
+    <message>
+        <source>Mute</source>
+        <translation type="unfinished">Wyciszenie</translation>
+    </message>
+    <message>
+        <source>Solo</source>
+        <translation type="unfinished">Solo</translation>
+    </message>
+    <message>
+        <source>Component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set instrument volume [%1]</source>
+        <translation type="unfinished">Ustawia głośność instrumentu [%1]</translation>
+    </message>
+</context>
+<context>
     <name>Director</name>
     <message>
         <source>Director</source>
@@ -624,6 +643,55 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Dialog</source>
         <translation type="unfinished">Dialog</translation>
+    </message>
+</context>
+<context>
+    <name>DonationDialog</name>
+    <message>
+        <source>Donations</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DonationDialog_UI</name>
+    <message>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Donate!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose random entry.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is development by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the developers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person&amp;1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person&amp;2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person&amp;3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Person&amp;4</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Download</name>
+    <message>
+        <source>Importing item failed: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -895,11 +963,15 @@ Overwrite the existing file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enable use of rubberband batch processor</source>
+        <source>88200</source>
+        <translation type="unfinished">88200</translation>
+    </message>
+    <message>
+        <source>Enable use of rubberband&apos;s batch processor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Rubberbad Batch</source>
+        <source>Rubberband Batch</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -981,6 +1053,10 @@ Are you sure?</source>
         <source>Mixer</source>
         <translation type="unfinished">Mikser</translation>
     </message>
+    <message>
+        <source>modified</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InstrumentEditor</name>
@@ -1053,7 +1129,27 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Auto-Stop-Note</source>
+        <source>Set the instrument as part of a hihat set.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi out channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi out note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component volume</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1106,6 +1202,22 @@ Are you sure?</source>
     <message>
         <source>Solo</source>
         <translation type="unfinished">Solo</translation>
+    </message>
+    <message>
+        <source>Copy notes ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only for this pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>For all patterns</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paste notes ...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1323,11 +1435,8 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>LayerPreview</name>
     <message>
-        <source>Layer %1: Min. velocity = %2, Max. velocity = %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Velocity = %1</source>
+        <source>Dec. = %1
+MIDI = %2</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1626,6 +1735,36 @@ Do you want to save the changes?
         <source>Report bug</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Export &amp;LilyPond file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Donate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GM-kit, and that you do not use triplet
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LilyPond file (*.ly)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export LilyPond file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The current playlist contains unsaved changes.
+Do you want to discard the changes?
+</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -1656,6 +1795,17 @@ Do you want to save the changes?
     <message>
         <source>Set swing factor [%1]</source>
         <translation>Ustawia współczynnik swingowania [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>MidiSenseWidget</name>
+    <message>
+        <source>This element is not midi operable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Waiting for midi input...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2291,10 +2441,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No song selected!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Playlist: set song no. %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2305,6 +2451,29 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>&amp;New Playlist</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File not found: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No valid song selected!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The current playlist contains unsaved changes.
+Do you want to discard the changes?
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Discard</source>
+        <translation type="unfinished">&amp;Porzuć</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished">&amp;Anuluj</translation>
     </message>
 </context>
 <context>
@@ -2380,6 +2549,30 @@ The path to the script and the scriptname must without whitespaces.</source>
     <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;Anuluj</translation>
+    </message>
+    <message>
+        <source>Automatic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Steps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fixed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;PulseAudio Driver&lt;/b&gt;&lt;br&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of steps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color (Hue value)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2593,10 +2786,6 @@ The path to the script and the scriptname must without whitespaces.</source>
         <translation>Czcionka miksera</translation>
     </message>
     <message>
-        <source>&lt;i&gt;After a font change the application must be restarted.&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Po zmianie czcionki program musi zostać ponownie uruchomiony.&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Restart output</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2686,6 +2875,18 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Tabbed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Coloring method for Song Editor elements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3088,10 +3289,6 @@ Kontynuować?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>not_categorized</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Enable time line edit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3294,12 +3491,40 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished">Dialog</translation>
     </message>
     <message>
-        <source>Browse</source>
-        <translation type="unfinished">Przeglądaj</translation>
-    </message>
-    <message>
         <source>Export</source>
         <translation type="unfinished">Eksportuj</translation>
+    </message>
+    <message>
+        <source>Drumkit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation type="unfinished">Przeglądaj...</translation>
+    </message>
+    <message>
+        <source>0.9.7 and higher</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0.9.6 and lower</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Anuluj</translation>
     </message>
 </context>
 <context>
@@ -3571,7 +3796,11 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Saving of this drumkit failed.</source>
+        <source>A library with the same name already exists. Do you want to overwrite the existing library?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this library failed.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

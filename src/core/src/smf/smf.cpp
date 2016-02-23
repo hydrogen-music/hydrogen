@@ -75,12 +75,11 @@ vector<char> SMFHeader::getBuffer()
 
 const char* SMFTrack::__class_name = "SMFTrack";
 
-SMFTrack::SMFTrack( const QString& sTrackName )
+//SMFTrack::SMFTrack( const QString& sTrackName )
+SMFTrack::SMFTrack()
 		: Object( __class_name )
 {
 	INFOLOG( "INIT" );
-
-	addEvent( new SMFTrackNameMetaEvent( sTrackName, 0 ) );
 }
 
 
@@ -235,7 +234,20 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 	vector<SMFEvent*> eventList;
 
 	SMF smf;
-	SMFTrack *pTrack1 = new SMFTrack( "Hydrogen song!!" );
+
+
+	// Standard MIDI format 1 files should have the first track being the tempo map
+	// which is a track that contains global meta events only.
+	SMFTrack *pTrack0 = new SMFTrack();
+	pTrack0->addEvent( new SMFCopyRightNoticeMetaEvent( pSong->__author , 0 ) );
+	pTrack0->addEvent( new SMFTrackNameMetaEvent( pSong->__name , 0 ) );
+	pTrack0->addEvent( new SMFSetTempoMetaEvent( pSong->__bpm , 0 ) );
+	pTrack0->addEvent( new SMFTimeSignatureMetaEvent( 4 , 4 , 24 , 8 , 0 ) );
+	smf.addTrack( pTrack0 );
+
+	
+	// Standard MIDI Format 1 files should have note events in tracks =>2
+	SMFTrack *pTrack1 = new SMFTrack();
 	smf.addTrack( pTrack1 );
 
 	AutomationPath *vp = pSong->get_velocity_automation_path();
@@ -270,10 +282,11 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 						float velocity_adjustment = vp->get_value(fPos);
 						int nVelocity =
 							(int)( 127.0 * pNote->get_velocity() * velocity_adjustment );
-						int nInstr =
-							iList->index(pNote->get_instrument());
+						
+						int nInstr = iList->index(pNote->get_instrument());
 						Instrument *pInstr = pNote->get_instrument();
 						int nPitch = pInstr->get_midi_out_note();
+						
 						eventList.push_back(
 							new SMFNoteOnEvent(
 								nStartTicks + nNote,

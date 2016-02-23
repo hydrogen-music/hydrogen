@@ -401,7 +401,7 @@ void SongEditorPanel::addEmptyPattern( QString newPatternName ,QString newPatter
 	Song *song = engine->getSong();
 	PatternList *patternList = song->get_pattern_list();
 	patternList->insert( idx, new Pattern( newPatternName, newPatternInfo, newPatternCategory ) );
-	song->__is_modified = true;
+	song->set_is_modified( true );
 	updateAll();
 }
 
@@ -414,7 +414,7 @@ void SongEditorPanel::revertaddEmptyPattern( int idx )
 	if( idx == engine->getSelectedPatternNumber() ) engine->setSelectedPatternNumber( idx -1 );
 	patternList->del( pattern );
 	delete pattern;
-	song->__is_modified = true;
+	song->set_is_modified( true );
 	updateAll();
 }
 
@@ -607,5 +607,5 @@ void SongEditorPanel::automationPathChanged()
 {
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *song = engine->getSong();
-	song->__is_modified = true;
+	song->set_is_modified(true);
 }
