@@ -102,4 +102,12 @@ AutomationPath::iterator AutomationPath::move(iterator &in, float x, float y)
 }
 
 
+void AutomationPath::remove_point(float x)
+{
+	auto it = find(x);
+	if (it != _points.end()) {
+		_points.erase(it);
+	}
+}
+
 } //namespace H2Core

@@ -40,6 +40,7 @@ class AutomationPath : private Object
 	float get_value(float x) const noexcept;
 
 	void add_point(float x, float y);
+	void remove_point(float x);
 
 	friend bool operator==(const AutomationPath &lhs, const AutomationPath &rhs);
 	friend bool operator!=(const AutomationPath &lhs, const AutomationPath &rhs);
