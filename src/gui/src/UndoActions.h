@@ -1285,4 +1285,37 @@ private:
 	float __y;
 };
 
+
+class SE_automationPathRemovePointAction : public QUndoCommand
+{
+public:
+	SE_automationPathRemovePointAction( H2Core::AutomationPath *path, float x, float y)
+	{
+		setText( QString( "Remove point" ) );
+		__path = path;
+		__x = x;
+		__y = y;
+	}
+
+	virtual void redo()
+	{
+		__path->remove_point( __x );
+
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+	}
+
+	virtual void undo()
+	{
+		__path->add_point( __x, __y );
+
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+	}
+private:
+	H2Core::AutomationPath* __path;
+	float __x;
+	float __y;
+};
+
 #endif // UNDOACTIONS_H

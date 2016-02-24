@@ -623,4 +623,7 @@ void SongEditorPanel::automationPathPointAdded(float x, float y)
 
 void SongEditorPanel::automationPathPointRemoved(float x, float y)
 {
+	H2Core::AutomationPath *path = m_pAutomationPathView->getAutomationPath();
+	SE_automationPathRemovePointAction *undo_action = new SE_automationPathRemovePointAction(path, x, y);
+	HydrogenApp::get_instance()->m_undoStack->push( undo_action );
 }
