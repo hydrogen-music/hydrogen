@@ -15,6 +15,7 @@ AutomationPathView::AutomationPathView(QWidget *parent)
 	  m_nMarginHeight(4),
 	  m_bIsHolding(false)
 {
+	setFocusPolicy( Qt::ClickFocus );
 	Preferences *pref = Preferences::get_instance();
 	m_nMaxPatternSequence = pref->getMaxBars();
 
@@ -230,6 +231,33 @@ void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 	}
 
 	update();
+}
+
+
+/**
+ * \brief Handler for key presses
+ *
+ * Removed selected point
+ */
+void AutomationPathView::keyPressEvent(QKeyEvent *event)
+{
+	if ( event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace ) {
+		if ( _path && _selectedPoint != _path->end() ) {
+			float x = _selectedPoint->first;
+			float y = _selectedPoint->second;
+			_path->remove_point(_selectedPoint->first);
+			_selectedPoint = _path->end();
+
+			emit pointRemoved( x, y );
+			update();
+			emit valueChanged();
+
+			event->accept();
+			return;
+		}
+	}
+
+	event->ignore();
 }
 
 
