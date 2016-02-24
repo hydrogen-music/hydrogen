@@ -238,6 +238,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pAutomationPathScrollView->setWidget( m_pAutomationPathView );
 	m_pAutomationPathScrollView->setFixedHeight( 64 );
 	connect( m_pAutomationPathView, SIGNAL( valueChanged() ), this, SLOT( automationPathChanged() ) );
+	connect( m_pAutomationPathView, SIGNAL( pointAdded(float, float) ), this, SLOT( automationPathPointAdded(float,float) ) );
+	connect( m_pAutomationPathView, SIGNAL( pointRemoved(float, float) ), this, SLOT( automationPathPointRemoved(float,float) ) );
 
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, NULL );
 	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalScrollBar() ) );
@@ -608,4 +610,17 @@ void SongEditorPanel::automationPathChanged()
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *song = engine->getSong();
 	song->set_is_modified(true);
+}
+
+
+void SongEditorPanel::automationPathPointAdded(float x, float y)
+{
+	H2Core::AutomationPath *path = m_pAutomationPathView->getAutomationPath();
+	SE_automationPathAddPointAction *undo_action = new SE_automationPathAddPointAction(path, x, y);
+	HydrogenApp::get_instance()->m_undoStack->push( undo_action );
+}
+
+
+void SongEditorPanel::automationPathPointRemoved(float x, float y)
+{
 }

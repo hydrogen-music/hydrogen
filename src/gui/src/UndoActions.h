@@ -7,6 +7,7 @@
 #include <QPoint>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/pattern.h>
+#include <hydrogen/basics/automation_path.h>
 
 #include "HydrogenApp.h"
 #include "SongEditor/SongEditor.h"
@@ -17,6 +18,7 @@
 #include "PatternEditor/DrumPatternEditor.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "PatternEditor/NotePropertiesRuler.h"
+#include "widgets/AutomationPathView.h"
 
 
 //=====================================================================================================================================
@@ -1249,5 +1251,38 @@ private:
 //~Note Properties Ruler commands
 //=====================================================================================================================================
 
+
+
+class SE_automationPathAddPointAction : public QUndoCommand
+{
+public:
+	SE_automationPathAddPointAction( H2Core::AutomationPath *path, float x, float y)
+	{
+		setText( QString( "Add point" ) );
+		__path = path;
+		__x = x;
+		__y = y;
+	}
+
+	virtual void undo()
+	{
+		__path->remove_point( __x );
+
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+	}
+
+	virtual void redo()
+	{
+		__path->add_point( __x, __y );
+
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+	}
+private:
+	H2Core::AutomationPath* __path;
+	float __x;
+	float __y;
+};
 
 #endif // UNDOACTIONS_H

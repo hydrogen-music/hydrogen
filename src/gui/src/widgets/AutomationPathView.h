@@ -45,6 +45,9 @@ protected:
 
 signals:
 	void valueChanged();
+
+	void pointAdded(float x, float y);
+	void pointRemoved(float x, float y);
 };
 
 #endif

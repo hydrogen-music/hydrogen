@@ -184,6 +184,8 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 	if (_selectedPoint == _path->end()) {
 		_path->add_point(x, y);	
 		_selectedPoint = _path->find(x);
+
+		emit pointAdded(x, y);
 	} else {
 		_selectedPoint = _path->move(_selectedPoint, x, y);
 	}

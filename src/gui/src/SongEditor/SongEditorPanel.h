@@ -56,6 +56,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		SongEditor* getSongEditor(){ return m_pSongEditor; }
 		SongEditorPatternList* getSongEditorPatternList(){ return m_pPatternList; }
 		SongEditorPositionRuler* getSongEditorPositionRuler(){ return m_pPositionRuler; }
+		AutomationPathView* getAutomationPathView() const { return m_pAutomationPathView; }
 
 		void updateAll();
 		void updatePositionRuler();
@@ -91,6 +92,8 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void zoomOutBtnPressed( Button* pBtn );
 
 		void automationPathChanged();
+		void automationPathPointAdded(float x, float y);
+		void automationPathPointRemoved(float x, float y);
 
 	private:
 		SongEditorActionMode m_actionMode;
