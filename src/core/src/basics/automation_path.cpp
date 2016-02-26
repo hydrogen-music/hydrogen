@@ -15,6 +15,13 @@ AutomationPath::AutomationPath(float min, float max, float def)
 {
 }
 
+
+/**
+ * \brief Get value at given location
+ * \param x Location
+ *
+ * If location is between points, value is computed
+ **/
 float AutomationPath::get_value(float x) const noexcept
 {
 	if (_points.empty())
@@ -41,12 +48,24 @@ float AutomationPath::get_value(float x) const noexcept
 	return y1 + (y2-y1)*d;
 }
 
+
+/**
+ * \brief Add a point to path
+ * \param x X coordinate
+ * \param y Y coordinate
+ **/
 void AutomationPath::add_point(float x, float y)
 {
 	_points[x] = y;
 }
 
 
+/**
+ * \brief Compare two paths
+ *
+ * Two paths are considered equal, if they have the same settings
+ * (min, max, default) and points in the same places.
+ */
 bool operator==(const AutomationPath &lhs, const AutomationPath &rhs)
 {
 	return lhs._min == rhs._min
@@ -72,6 +91,12 @@ std::ostream &operator<< (std::ostream &o, const AutomationPath &p)
 }
 
 
+/**
+ * \brief Find point in specific location
+ *
+ * If point is faound, iterator pointing to it is returned.
+ * Otherwise, AutomationPath::end() is returned.
+ **/
 AutomationPath::iterator AutomationPath::find(float x)
 {
 	const float limit = 0.5f;
@@ -94,6 +119,12 @@ AutomationPath::iterator AutomationPath::find(float x)
 }
 
 
+/**
+ * \brief Move point to other location
+ * \param in Iterator pointing to point to be moved
+ * \param x Destination X coordinate
+ * \param y Destination Y coordinate
+ **/
 AutomationPath::iterator AutomationPath::move(iterator &in, float x, float y)
 {
 	_points.erase(in);
@@ -102,6 +133,10 @@ AutomationPath::iterator AutomationPath::move(iterator &in, float x, float y)
 }
 
 
+/**
+ * \brief Remove point from path
+ * \param x Point location
+ **/
 void AutomationPath::remove_point(float x)
 {
 	auto it = find(x);
