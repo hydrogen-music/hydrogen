@@ -186,9 +186,12 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 		_path->add_point(x, y);	
 		_selectedPoint = _path->find(x);
 
-		emit pointAdded(x, y);
+		m_bPointAdded = true;
 	} else {
 		_selectedPoint = _path->move(_selectedPoint, x, y);
+		m_fOriginX = x;
+		m_fOriginY = y;
+		m_bPointAdded = false;
 	}
 
 	update();
@@ -207,6 +210,14 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
 {
 	m_bIsHolding = false;
+
+	auto p = locate(event);
+	float x = p.first;
+	float y = p.second;
+	if (m_bPointAdded) 
+		emit pointAdded(x, y);
+	else
+		emit pointMoved(m_fOriginX, m_fOriginY, x, y);
 
 	emit valueChanged();
 }
