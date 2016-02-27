@@ -250,10 +250,10 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pIsStopNoteCheckBox->setToolTip( trUtf8( "Stop the current playing instrument-note before trigger the next note sample." ) );
 	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
 
-	m_pIgnoreVelocity = new QCheckBox ( trUtf8( "" ), m_pInstrumentProp );
-	m_pIgnoreVelocity->move( 153, 138 );
-	m_pIgnoreVelocity->setToolTip( trUtf8( "Don't change the layers' gain based on velocity" ) );
-	connect( m_pIgnoreVelocity, SIGNAL( toggled( bool ) ), this, SLOT( onIsIgnoreVelocityCheckBoxClicked( bool ) ) );
+	m_pApplyVelocity = new QCheckBox ( trUtf8( "" ), m_pInstrumentProp );
+	m_pApplyVelocity->move( 153, 138 );
+	m_pApplyVelocity->setToolTip( trUtf8( "Don't change the layers' gain based on velocity" ) );
+	connect( m_pApplyVelocity, SIGNAL( toggled( bool ) ), this, SLOT( onIsApplyVelocityCheckBoxClicked( bool ) ) );
 
 	//////////////////////////
 	// HiHat setup
@@ -550,6 +550,9 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 		//Stop Note
 		m_pIsStopNoteCheckBox->setChecked( m_pInstrument->is_stop_notes() );
+
+		//Ignore Velocity
+		m_pApplyVelocity->setChecked( m_pInstrument->get_apply_velocity() );
 
 		// instr gain
 		char tmp[20];
@@ -1114,11 +1117,11 @@ void InstrumentEditor::onIsStopNoteCheckBoxClicked( bool on )
 	selectedInstrumentChangedEvent();	// force an update
 }
 
-void InstrumentEditor::onIsIgnoreVelocityCheckBoxClicked( bool on )
+void InstrumentEditor::onIsApplyVelocityCheckBoxClicked( bool on )
 {
 	assert( m_pInstrument );
 
-	m_pInstrument->set_ignore_velocity( on );
+	m_pInstrument->set_apply_velocity( on );
 	selectedInstrumentChangedEvent();	// force an update
 }
 

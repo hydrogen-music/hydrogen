@@ -71,7 +71,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __components( NULL )
 	, __is_preview_instrument(false)
 	, __is_metronome_instrument(false)
-	, __ignore_velocity( false )
+	, __apply_velocity( true )
 {
 	if ( __adsr==0 ) __adsr = new ADSR();
 	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = 0.0;
@@ -107,7 +107,7 @@ Instrument::Instrument( Instrument* other )
 	, __components( NULL )
 	, __is_preview_instrument(false)
 	, __is_metronome_instrument(false)
-	, __ignore_velocity( other->get_ignore_velocity() )
+	, __apply_velocity( other->get_apply_velocity() )
 {
 	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = other->get_fx_level( i );
 
@@ -197,7 +197,7 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 	this->set_hihat_grp( pInstrument->get_hihat_grp() );
 	this->set_lower_cc( pInstrument->get_lower_cc() );
 	this->set_higher_cc( pInstrument->get_higher_cc() );
-	this->set_ignore_velocity ( pInstrument->get_ignore_velocity() );
+	this->set_apply_velocity ( pInstrument->get_apply_velocity() );
 	if ( is_live )
 		AudioEngine::get_instance()->unlock();
 }
@@ -232,7 +232,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	pInstrument->set_pan_l( node->read_float( "pan_L", 1.0f ) );
 	pInstrument->set_pan_r( node->read_float( "pan_R", 1.0f ) );
 	// may not exist, but can't be empty
-	pInstrument->set_ignore_velocity( node->read_bool( "ignoreVelocity", true, false ) );
+	pInstrument->set_apply_velocity( node->read_bool( "applyVelocity", true, false ) );
 	pInstrument->set_filter_active( node->read_bool( "filterActive", true, false ) );
 	pInstrument->set_filter_cutoff( node->read_float( "filterCutoff", 1.0f, true, false ) );
 	pInstrument->set_filter_resonance( node->read_float( "filterResonance", 0.0f, true, false ) );
@@ -296,7 +296,7 @@ void Instrument::save_to( XMLNode* node, int component_id )
 	InstrumentNode.write_float( "pan_R", __pan_r );
 	InstrumentNode.write_float( "randomPitchFactor", __random_pitch_factor );
 	InstrumentNode.write_float( "gain", __gain );
-	InstrumentNode.write_bool( "ignoreVelocity", __ignore_velocity );
+	InstrumentNode.write_bool( "applyVelocity", __apply_velocity );
 	InstrumentNode.write_bool( "filterActive", __filter_active );
 	InstrumentNode.write_float( "filterCutoff", __filter_cutoff );
 	InstrumentNode.write_float( "filterResonance", __filter_resonance );

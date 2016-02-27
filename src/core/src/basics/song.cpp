@@ -507,7 +507,7 @@ Song* SongReader::readSong( const QString& filename )
 
 			float fRandomPitchFactor = LocalFileMng::readXmlFloat( instrumentNode, "randomPitchFactor", 0.0f, false, false );
 
-			bool bIgnoreVelocity = LocalFileMng::readXmlBool( instrumentNode, "ignoreVelocity", false );
+			bool bApplyVelocity = LocalFileMng::readXmlBool( instrumentNode, "applyVelocity", false );
 			bool bFilterActive = LocalFileMng::readXmlBool( instrumentNode, "filterActive", false );
 			float fFilterCutoff = LocalFileMng::readXmlFloat( instrumentNode, "filterCutoff", 1.0f, false );
 			float fFilterResonance = LocalFileMng::readXmlFloat( instrumentNode, "filterResonance", 0.0f, false );
@@ -536,7 +536,7 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_pan_l( fPan_L );
 			pInstrument->set_pan_r( fPan_R );
 			pInstrument->set_drumkit_name( sDrumkit );
-			pInstrument->set_ignore_velocity( bIgnoreVelocity );
+			pInstrument->set_apply_velocity( bApplyVelocity );
 			pInstrument->set_fx_level( fFX1Level, 0 );
 			pInstrument->set_fx_level( fFX2Level, 1 );
 			pInstrument->set_fx_level( fFX3Level, 2 );

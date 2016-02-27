@@ -332,7 +332,7 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 			}
 
 		} else {	// Precompute some values...
-			if ( !pInstr->get_ignore_velocity() ) {
+			if ( pInstr->get_apply_velocity() ) {
 				cost_L = cost_L * pNote->get_velocity();		// note velocity
 				cost_R = cost_R * pNote->get_velocity();		// note velocity
 			}            
