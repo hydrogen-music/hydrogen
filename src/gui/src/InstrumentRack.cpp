@@ -36,7 +36,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 {
 	INFOLOG( "INIT" );
 
-	resize( 290, 515 );
+	resize( 290, 405 );
 	setMinimumSize( width(), height() );
 	setFixedWidth( width() );
 

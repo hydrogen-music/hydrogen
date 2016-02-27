@@ -70,7 +70,6 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				instrument->set_pan_l( instrument_node.read_float( "pan_L", 1.0f ) );
 				instrument->set_pan_r( instrument_node.read_float( "pan_R", 1.0f ) );
 				// may not exist, but can't be empty
-				instrument->set_ignore_velocity( instrument_node.read_bool( "ignoreVelocity", true, false ) );
 				instrument->set_filter_active( instrument_node.read_bool( "filterActive", true, false ) );
 				instrument->set_filter_cutoff( instrument_node.read_float( "filterCutoff", 1.0f, true, false ) );
 				instrument->set_filter_resonance( instrument_node.read_float( "filterResonance", 0.0f, true, false ) );
@@ -92,9 +91,9 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 					instrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
 				else if ( read_sample_select_algo.compare("RANDOM") == 0 )
 					instrument->set_sample_selection_alg( Instrument::RANDOM );
-				instrument->set_hihat( instrument_node.read_bool( "isHihat", false, true ) );
-                instrument->set_lower_cc( instrument_node.read_int( "lower_cc", 0, true ) );
-                instrument->set_higher_cc( instrument_node.read_int( "higher_cc", 127, true ) );
+				instrument->set_hihat_grp( instrument_node.read_int( "isHihat", -1, true ) );
+				instrument->set_lower_cc( instrument_node.read_int( "lower_cc", 0, true ) );
+				instrument->set_higher_cc( instrument_node.read_int( "higher_cc", 127, true ) );
 				for ( int i=0; i<MAX_FX; i++ ) {
 					instrument->set_fx_level( instrument_node.read_float( QString( "FX%1Level" ).arg( i+1 ), 0.0 ), i );
 				}

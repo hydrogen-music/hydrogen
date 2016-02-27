@@ -1294,7 +1294,6 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 		LocalFileMng::writeXmlString( instrumentNode, "pan_L", QString("%1").arg( instr->get_pan_l() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "pan_R", QString("%1").arg( instr->get_pan_r() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "gain", QString("%1").arg( instr->get_gain() ) );
-		LocalFileMng::writeXmlBool( instrumentNode, "ignoreVelocity", instr->get_ignore_velocity() );
 
 		LocalFileMng::writeXmlBool( instrumentNode, "filterActive", instr->is_filter_active() );
 		LocalFileMng::writeXmlString( instrumentNode, "filterCutoff", QString("%1").arg( instr->get_filter_cutoff() ) );
@@ -1329,6 +1328,9 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 		LocalFileMng::writeXmlString( instrumentNode, "midiOutChannel", QString("%1").arg( instr->get_midi_out_channel() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "midiOutNote", QString("%1").arg( instr->get_midi_out_note() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "isHihat", QString("%1").arg( instr->get_hihat_grp() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "lower_cc", QString("%1").arg( instr->get_lower_cc() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "higher_cc", QString("%1").arg( instr->get_higher_cc() ) );
 
         for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
             InstrumentComponent* pComponent = *it;
