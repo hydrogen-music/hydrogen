@@ -245,6 +245,8 @@ class Instrument : public H2Core::Object
 		std::vector<InstrumentComponent*>* get_components();
 		InstrumentComponent* get_component( int DrumkitComponentID );
 
+		void set_ignore_velocity( bool ignore_velocity );
+		bool get_ignore_velocity() const;
 
 
 	private:
@@ -277,6 +279,7 @@ class Instrument : public H2Core::Object
 		bool __is_preview_instrument;			///< is the instrument an hydrogen preview instrument?
 		bool __is_metronome_instrument;			///< is the instrument an metronome instrument?
 		std::vector<InstrumentComponent*>* __components;  ///< InstrumentLayer array
+                bool __ignore_velocity;			///< don't change the sample gain based on velocity
 };
 
 // DEFINITIONS
@@ -578,6 +581,16 @@ inline void Instrument::set_is_metronome_instrument(bool isMetronome)
 inline std::vector<InstrumentComponent*>* Instrument::get_components()
 {
 	return __components;
+}
+
+inline void Instrument::set_ignore_velocity( bool ignore_velocity )
+{
+	__ignore_velocity = ignore_velocity;
+}
+
+inline bool Instrument::get_ignore_velocity() const
+{
+	return __ignore_velocity;
 }
 
 

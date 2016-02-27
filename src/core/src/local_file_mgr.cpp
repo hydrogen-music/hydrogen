@@ -1294,6 +1294,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 		LocalFileMng::writeXmlString( instrumentNode, "pan_L", QString("%1").arg( instr->get_pan_l() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "pan_R", QString("%1").arg( instr->get_pan_r() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "gain", QString("%1").arg( instr->get_gain() ) );
+		LocalFileMng::writeXmlBool( instrumentNode, "ignoreVelocity", instr->get_ignore_velocity() );
 
 		LocalFileMng::writeXmlBool( instrumentNode, "filterActive", instr->is_filter_active() );
 		LocalFileMng::writeXmlString( instrumentNode, "filterCutoff", QString("%1").arg( instr->get_filter_cutoff() ) );
