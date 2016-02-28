@@ -4,23 +4,27 @@ Name[de]=Hydrogen Drumsequencer
 Name[ru]=Драм-машина Hydrogen
 Name[hu]=Hydrogen Dobgép
 Name[tr]=Hydrogen Davul Makinası
+Name[fr]=Boîte à rythme Hydrogen
 
 Comment=Create drum sequences
 Comment[de]=Schlagzeugsequenzen erstellen
 Comment[ru]=Создание партий ударных инструментов
 Comment[hu]=Dobszekvenciákat lehet vele készíteni
 Comment[tr]=Davul partisyonu yaz
+Comment[fr]=Créer des séquences rythmiques
 
 GenericName=Drum Machine
 GenericName[de]=Drumsequencer
 GenericName[ru]=Драм-машина
 GenericName[tr]=Davul Makinası
+GenericName[fr]=Boîte à rythme
 
 Encoding=UTF-8
 Version=1.0
 
 Type=Application
 Categories=Application;AudioVideo;Sound;Audio;Qt;
+Keywords=audio;sound;jackd;sampler;drum;
 
 MimeType=text/xml
 

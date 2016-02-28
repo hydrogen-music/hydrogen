@@ -295,12 +295,6 @@ inline const QString Sample::get_filename() const
 	return __filepath.section( "/", -1 );
 }
 
-inline void Sample::set_filename( const QString& filename )
-{
-	__filepath.chop( __filepath.section( "/", -1 ).length());
-	__filepath.append( filename );
-}
-
 inline void Sample::Sample::set_frames( int frames )
 {
 	__frames = frames;

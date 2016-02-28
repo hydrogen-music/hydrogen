@@ -42,7 +42,7 @@ class ToggleButton;
 
 class SoundLibraryPanel : public QWidget, private H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 Q_OBJECT
 public:
 	SoundLibraryPanel( QWidget* parent );

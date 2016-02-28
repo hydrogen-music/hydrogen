@@ -31,8 +31,8 @@
 
 class Download : public QDialog, public H2Core::Object
 {
-    H2_OBJECT
-Q_OBJECT
+	H2_OBJECT
+	Q_OBJECT
 
 public:
 	Download( QWidget* parent, const QString& download_url, const QString& local_file );
@@ -40,40 +40,45 @@ public:
 
 	int get_percent_done() {	return (int)__download_percent;	}
 	const QString& get_xml_content() {	return __feed_xml_string;	}
+	bool get_error() { return __error; }
 
 private slots:
-	void __fetch_done( bool bError );
-	void __fetch_progress( int done, int total );
-	void __http_request_finished( int requestId, bool error );
-	void __header_received( const QHttpResponseHeader& res );
+	void	finished();
+	void	downloadProgress( qint64 done, qint64 total );
 
 protected:
-	QHttp __http_client;
-	QTime __time;
+	QNetworkAccessManager*	__http_client;
+	QNetworkReply*			__reply;
 
-	float __download_percent;
-	int __eta;
-	int __bytes_current;
-	int __bytes_total;
-	QString __remote_url;
-	QString __local_file;
-	QString __feed_xml_string;
+	QTime					__time;
 
-	QString __redirect_url;
+	float					__download_percent;
+	int						__eta;
+	qint64					__bytes_current;
+	qint64					__bytes_total;
+
+
+	QUrl					__redirect_url;
+	QUrl					__remote_url;
+
+	QString					__local_file;
+	QString					__feed_xml_string;
+
+	bool					__error;
 };
 
 
 
 class DownloadWidget : public Download
 {
-    H2_OBJECT
-Q_OBJECT
+	H2_OBJECT
+	Q_OBJECT
 
 public:
 	DownloadWidget( QWidget* parent, const QString& title, const QString& download_url, const QString& local_file = "" );
 	~DownloadWidget();
 
-	QString get_redirect_url() {	return __redirect_url;	}
+	QUrl get_redirect_url() {	return __redirect_url;	}
 
 private slots:
 	void updateStats();

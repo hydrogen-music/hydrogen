@@ -1,0 +1,3 @@
+#include "winuser.h"
+1 RT_MANIFEST "hydrogen.exe.manifest"
+3 ICON "../data/img/h2-icon.ico"

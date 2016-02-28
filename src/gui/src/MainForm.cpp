@@ -34,9 +34,11 @@
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
 
+#include <hydrogen/lilypond/lilypond.h>
 
 #include "AboutDialog.h"
 #include "AudioEngineInfoForm.h"
+#include "DonationDialog.h"
 #include "ExportSongDialog.h"
 #include "HydrogenApp.h"
 #include "InstrumentRack.h"
@@ -274,6 +276,7 @@ void MainForm::createMenuBar()
 
 	m_pFileMenu->addAction( trUtf8( "Export &MIDI file" ), this, SLOT( action_file_export_midi() ), QKeySequence( "Ctrl+M" ) );
 	m_pFileMenu->addAction( trUtf8( "&Export song" ), this, SLOT( action_file_export() ), QKeySequence( "Ctrl+E" ) );
+	m_pFileMenu->addAction( trUtf8( "Export &LilyPond file" ), this, SLOT( action_file_export_lilypond() ), QKeySequence( "Ctrl+L" ) );
 
 
 #ifndef Q_OS_MACX
@@ -352,6 +355,7 @@ void MainForm::createMenuBar()
 	m_pInfoMenu->addSeparator();
 	m_pInfoMenu->addAction( trUtf8("&About"), this, SLOT( action_help_about() ), QKeySequence( trUtf8("", "Info|About") ) );
 	m_pInfoMenu->addAction( trUtf8("Report bug"), this, SLOT( action_report_bug() ));
+	m_pInfoMenu->addAction( trUtf8("Donate"), this, SLOT( action_donate() ));
 	//~ INFO menu
 }
 
@@ -439,6 +443,11 @@ void MainForm::onLashPollTimer()
 #endif
 }
 
+void MainForm::action_donate()
+{
+	DonationDialog *dialog = new DonationDialog( NULL );
+	dialog->exec();
+}
 
 /// return true if the app needs to be closed.
 bool MainForm::action_file_exit()
@@ -528,7 +537,7 @@ void MainForm::action_file_save_as()
 		action_file_save();
 	}
 	h2app->setScrollStatusBarMessage( trUtf8("Song saved as.") + QString(" Into: ") + defaultFilename, 2000 );
-	h2app->setWindowTitle( filename );
+	h2app->updateWindowTitle();
 }
 
 
@@ -709,11 +718,11 @@ void MainForm::action_file_open() {
 void MainForm::action_file_openPattern()
 {
 
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	PatternList *pPatternList = song->get_pattern_list();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	PatternList *pPatternList = pSong->get_pattern_list();
 
-	Instrument *instr = song->get_instrument_list()->get ( 0 );
+	Instrument *instr = pSong->get_instrument_list()->get ( 0 );
 	assert ( instr );
 
 	QDir dirPattern( Preferences::get_instance()->getDataDirectory() + "/patterns" );
@@ -732,8 +741,6 @@ void MainForm::action_file_openPattern()
 	}
 	QString patternname = filename;
 
-
-	LocalFileMng mng;
 	LocalFileMng fileMng;
 	Pattern* err = fileMng.loadPattern ( patternname );
 	if ( err == 0 )
@@ -745,7 +752,8 @@ void MainForm::action_file_openPattern()
 	{
 		H2Core::Pattern *pNewPattern = err;
 		pPatternList->add ( pNewPattern );
-		song->__is_modified = true;
+		pSong->set_is_modified( true );
+		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
 	}
 
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
@@ -1437,7 +1445,50 @@ void MainForm::action_file_export_midi()
 	}
 }
 
+void MainForm::action_file_export_lilypond()
+{
+	if ( ( ( Hydrogen::get_instance() )->getState() == STATE_PLAYING ) ) {
+		Hydrogen::get_instance()->sequencer_stop();
+	}
+	switch ( QMessageBox::information(
+	        this,
+	        "Hydrogen",
+	        trUtf8( "\nThe LilyPond export is an experimental feature.\n"
+	                "It should work like a charm provided that you use the "
+	                "GM-kit, and that you do not use triplet\n" ),
+	        trUtf8( "Ok" ),
+	        trUtf8( "&Cancel" ),
+	        0,
+	        2 ) ) {
+	case 1:
+	case 2: return;
+	}
 
+	QFileDialog fd( this );
+	fd.setFileMode( QFileDialog::AnyFile );
+	fd.setFilter( trUtf8( "LilyPond file (*.ly)" ) );
+	fd.setDirectory( QDir::homePath() );
+	fd.setWindowTitle( trUtf8( "Export LilyPond file" ) );
+	fd.setAcceptMode( QFileDialog::AcceptSave );
+	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+
+	QString sFilename;
+	if ( fd.exec() == QDialog::Accepted ) {
+		sFilename = fd.selectedFiles().first();
+	}
+
+	if ( !sFilename.isEmpty() ) {
+		if ( sFilename.endsWith( ".ly" ) == false ) {
+			sFilename += ".ly";
+		}
+
+		Song *pSong = Hydrogen::get_instance()->getSong();
+
+		LilyPond ly;
+		ly.extractData( *pSong );
+		ly.write( sFilename );
+	}
+}
 
 void MainForm::errorEvent( int nErrorCode )
 {
@@ -1519,7 +1570,7 @@ void MainForm::action_file_songProperties()
 {
 	SongPropertiesDialog *pDialog = new SongPropertiesDialog( this );
 	if ( pDialog->exec() == QDialog::Accepted ) {
-		Hydrogen::get_instance()->getSong()->__is_modified = true;
+		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 	}
 	delete pDialog;
 }
@@ -1613,7 +1664,7 @@ bool MainForm::handleUnsavedChanges()
 {
 	bool done = false;
 	bool rv = true;
-	while ( !done && Hydrogen::get_instance()->getSong()->__is_modified ) {
+	while ( !done && Hydrogen::get_instance()->getSong()->get_is_modified() ) {
 		switch(
 			   QMessageBox::information( this, "Hydrogen",
 										 trUtf8("\nThe document contains unsaved changes.\n"
@@ -1642,6 +1693,31 @@ bool MainForm::handleUnsavedChanges()
 			break;
 		}
 	}
+
+	if(rv != false)
+	{
+		while ( !done && Playlist::get_instance()->getIsModified() ) {
+			switch(
+					QMessageBox::information( this, "Hydrogen",
+											 trUtf8("\nThe current playlist contains unsaved changes.\n"
+													"Do you want to discard the changes?\n"),
+											trUtf8("&Discard"), trUtf8("&Cancel"),
+											 0,      // Enter == button 0
+											 2 ) ) { // Escape == button 1
+			case 0: // Discard clicked or Alt+D pressed
+				// don't save but exit
+				done = true;
+				break;
+			case 1: // Cancel clicked or Alt+C pressed or Escape pressed
+				// don't exit
+				done = true;
+				rv = false;
+				break;
+			}
+		}
+	}
+
+
 	return rv;
 }
 
@@ -1697,6 +1773,5 @@ bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 
 	return TRUE;
 }
-
 
 

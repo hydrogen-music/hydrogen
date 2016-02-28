@@ -21,6 +21,7 @@
  */
 
 #include <hydrogen/smf/SMFEvent.h>
+#include <hydrogen/timehelper.h>
 
 namespace H2Core
 {
@@ -116,6 +117,110 @@ std::vector<char> SMFTrackNameMetaEvent::getBuffer()
 	return buf.getBuffer();
 }
 
+// ::::::::::::::::::
+
+const char* SMFSetTempoMetaEvent::__class_name = "SMFSetTempoMetaEvent";
+
+SMFSetTempoMetaEvent::SMFSetTempoMetaEvent( float fBPM, unsigned nTicks )
+		: SMFEvent( __class_name, nTicks )
+		, m_fBPM( fBPM )
+{
+	// it's always at the start of the song
+	m_nDeltaTime = 0;
+}
+
+
+std::vector<char> SMFSetTempoMetaEvent::getBuffer()
+{
+	SMFBuffer buf;
+	long msPerBeat;
+	
+	msPerBeat = long( 60000000 / m_fBPM ); // 60 seconds * mills \ BPM
+	
+	buf.writeVarLen( m_nDeltaTime );
+	buf.writeByte( 0xFF );
+	buf.writeByte( SET_TEMPO );
+	buf.writeByte( 0x03 );	// Length 
+	
+	buf.writeByte( msPerBeat >> 16 );
+	buf.writeByte( msPerBeat >> 8 );
+	buf.writeByte( msPerBeat );
+	
+	return buf.getBuffer();
+}
+
+// ::::::::::::::::::
+
+const char* SMFCopyRightNoticeMetaEvent::__class_name = "SMFCopyRightNoticeMetaEvent";
+
+SMFCopyRightNoticeMetaEvent::SMFCopyRightNoticeMetaEvent( const QString& sAuthor, unsigned nTicks )
+		: SMFEvent( __class_name, nTicks )
+		, m_sAuthor( sAuthor )
+{
+	// it's always at the start of the song
+	m_nDeltaTime = 0;
+}
+
+
+std::vector<char> SMFCopyRightNoticeMetaEvent::getBuffer()
+{
+	SMFBuffer buf;
+	QString sCopyRightString;
+	
+	time_t now = time(0);
+	tm *ltm = localtime(&now);						// Extract the local system time.
+	
+	// Construct the copyright string in the form "(C) [Author] [CurrentYear]"
+	sCopyRightString.append("(C) ");				// Start with the copyright symbol and a seperator space.
+	sCopyRightString.append( m_sAuthor );			// add the author
+	sCopyRightString.append(" ");					// add a seperator space
+	sCopyRightString.append( QString::number( 1900 + ltm->tm_year, 10 ) );	// and finish with the year.
+	
+	buf.writeVarLen( m_nDeltaTime );
+	buf.writeByte( 0xFF );
+	buf.writeByte( COPYRIGHT_NOTICE );
+	buf.writeString( sCopyRightString );
+
+	return buf.getBuffer();
+}
+
+// ::::::::::::::::::
+		
+const char* SMFTimeSignatureMetaEvent::__class_name = "SMFTimeSignatureMetaEvent";
+
+SMFTimeSignatureMetaEvent::SMFTimeSignatureMetaEvent( unsigned nBeats, unsigned nNote , unsigned nMTPMC , unsigned nTSNP24 , unsigned nTicks )
+		: SMFEvent( __class_name, nTicks )
+		, m_nBeats( nBeats )
+		, m_nNote( nNote )
+		, m_nMTPMC( nMTPMC )
+		, m_nTSNP24( nTSNP24 )
+		, m_nTicks( nTicks )
+
+{
+	// it's always at the start of the song
+	m_nDeltaTime = 0;
+}
+
+
+std::vector<char> SMFTimeSignatureMetaEvent::getBuffer()
+{
+	SMFBuffer buf;
+	
+	unsigned nBeatsCopy = m_nNote , Note2Log =  0;	// Copy Nbeats as the process to generate Note2Log alters the value.
+	
+	while (nBeatsCopy >>= 1) ++Note2Log;			// Generate a log to base 2 of the note value, so 8 (as in 6/8) becomes 3
+	
+	buf.writeVarLen( m_nDeltaTime );
+	buf.writeByte( 0xFF );
+	buf.writeByte( TIME_SIGNATURE );
+	buf.writeByte( 0x04 );		// Event length in bytes.
+	buf.writeByte( m_nBeats );	// Top line of time signature, eg 6 for 6/8 time
+	buf.writeByte( Note2Log );	// Bottom line of time signature expressed as Log2 of the Note value. 
+	buf.writeByte( m_nMTPMC );	// MIDI Ticks per Metronome click, normally 24 ( i.e. each quarter note ).
+	buf.writeByte( m_nTSNP24 );	// Thirty Second Notes ( as in 1/32 ) per 24 MIDI clocks, normally 8.
+
+	return buf.getBuffer();
+}
 
 // :::::::::::::
 

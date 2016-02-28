@@ -53,7 +53,7 @@ namespace H2Core
 ///
 class PatternEditorPanel : public QWidget, public EventListener, public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 
 	public:
@@ -68,7 +68,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		NotePropertiesRuler* getProbabilityEditor() {	return m_pNoteProbabilityEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 		PianoRollEditor* getPianoRollEditor() {		return m_pPianoRollEditor;	}
-                QString getPropertiesComboText(){ return __pPropertiesCombo->getText(); }
+		QString getPropertiesComboText(){ return __pPropertiesCombo->getText(); }
 
 		void updateSLnameLabel();
 		void displayorHidePrePostCB();
@@ -105,77 +105,77 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void recPostDeleteSelect( int index );
 
 	private:
-		H2Core::Pattern *m_pPattern;
-		QPixmap m_backgroundPixmap;
-		QLabel *pSLlabel;
+		H2Core::Pattern *	m_pPattern;
+		QPixmap				m_backgroundPixmap;
+		QLabel *			pSLlabel;
 
 		// Editor top
-		LCDCombo *__pattern_size_combo;
-		LCDCombo *__resolution_combo;
-		ToggleButton *__show_drum_btn;
-		ToggleButton *__show_piano_btn;
-		QComboBox *__recpredelete;
-		QComboBox *__recpostdelete;
+		LCDCombo *			__pattern_size_combo;
+		LCDCombo *			__resolution_combo;
+		ToggleButton *		__show_drum_btn;
+		ToggleButton *		__show_piano_btn;
+		QComboBox *			__recpredelete;
+		QComboBox *			__recpostdelete;
 
 
 		// ~Editor top
 
-                //note properties combo
-		LCDCombo * __pPropertiesCombo;
+		//note properties combo
+		LCDCombo *			__pPropertiesCombo;
 
 		// drum editor
-		QScrollArea* m_pEditorScrollView;
-		DrumPatternEditor *m_pDrumPatternEditor;
+		QScrollArea*		m_pEditorScrollView;
+		DrumPatternEditor *	m_pDrumPatternEditor;
 
 		// piano roll editor
-		QScrollArea* m_pPianoRollInternScrollView;
-		QScrollArea* m_pPianoRollScrollView;
-		PianoRollEditor *m_pPianoRollEditor;
+		QScrollArea*		m_pPianoRollInternScrollView;
+		QScrollArea*		m_pPianoRollScrollView;
+		PianoRollEditor *	m_pPianoRollEditor;
 
 		// ruler
-		QScrollArea* m_pRulerScrollView;
+		QScrollArea*		m_pRulerScrollView;
 		PatternEditorRuler *m_pPatternEditorRuler;
 
 		// instr list
-		QScrollArea* m_pInstrListScrollView;
+		QScrollArea*		m_pInstrListScrollView;
 		PatternEditorInstrumentList  *m_pInstrumentList;
 
 		// note velocity editor
-		QScrollArea* m_pNoteVelocityScrollView;
+		QScrollArea*		m_pNoteVelocityScrollView;
 		NotePropertiesRuler *m_pNoteVelocityEditor;
 
 		// note pan editor
-		QScrollArea* m_pNotePanScrollView;
+		QScrollArea*		m_pNotePanScrollView;
 		NotePropertiesRuler *m_pNotePanEditor;
 
 		// note leadlag editor
-		QScrollArea* m_pNoteLeadLagScrollView;
+		QScrollArea*		m_pNoteLeadLagScrollView;
 		NotePropertiesRuler *m_pNoteLeadLagEditor;
 
 		// note notekey editor
-		QScrollArea* m_pNoteNoteKeyScrollView;
+		QScrollArea*		m_pNoteNoteKeyScrollView;
 		NotePropertiesRuler *m_pNoteNoteKeyEditor;
 
 		// note probability editor
-		QScrollArea* m_pNoteProbabilityScrollView;
+		QScrollArea *       m_pNoteProbabilityScrollView;
 		NotePropertiesRuler *m_pNoteProbabilityEditor;
 
-		QScrollBar *m_pPatternEditorHScrollBar;
-		QScrollBar *m_pPatternEditorVScrollBar;
+		QScrollBar *		m_pPatternEditorHScrollBar;
+		QScrollBar *		m_pPatternEditorVScrollBar;
 
 		// TOOLBAR
-		QLabel *m_pPatternNameLbl;
+		QLabel *			m_pPatternNameLbl;
 
 
 
-		Button *m_pRandomVelocityBtn;
+		Button *			m_pRandomVelocityBtn;
 		//~ TOOLBAR
 
 
-		Button *sizeDropdownBtn;
-		Button *resDropdownBtn;
+		Button *			sizeDropdownBtn;
+		Button *			resDropdownBtn;
  
-		bool m_bEnablePatternResize;
+		bool				m_bEnablePatternResize;
 
 
 		virtual void dragEnterEvent(QDragEnterEvent *event);

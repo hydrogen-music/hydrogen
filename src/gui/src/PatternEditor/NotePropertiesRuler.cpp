@@ -205,11 +205,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			pNote->set_probability(val);
 			__probability = val;
 
-			char valueChar[100];
-			sprintf( valueChar, "%#.2f",  val);
-			( HydrogenApp::get_instance() )->setStatusBarMessage( QString("Set note probability [%1]").arg( valueChar ), 2000 );
 		}
-		pSong->__is_modified = true;
+		pSong->set_is_modified( true );
 		startUndoAction();
 		updateEditor();
 		break;
@@ -458,7 +455,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				
 			__columnCheckOnXmouseMouve = column;
 	
-			pSong->__is_modified = true;
+			pSong->set_is_modified( true );
 			updateEditor();
 			break;
 		}
