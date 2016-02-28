@@ -336,7 +336,6 @@ unsigned Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong 
 				cost_L = cost_L * pNote->get_velocity();		// note velocity
 				cost_R = cost_R * pNote->get_velocity();		// note velocity
 			}            
-			cost_L = cost_L * pNote->get_velocity();		// note velocity
 			cost_L = cost_L * pNote->get_pan_l();		// note pan
 			cost_L = cost_L * fLayerGain;				// layer gain
 			cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
