@@ -88,6 +88,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 								float pan_L,
 								float pan_R,
 								float leadLag,
+								float probability,
 								int noteKeyVal,
 								int octaveKeyVal );
 		void functionClearNotesRedoAction( int nSelectedInstrument, int selectedPatternNumber );

@@ -485,6 +485,8 @@ void NotePropertiesRuler::startUndoAction()
 											   __oldPan_R,
 											   __leadLag,
 											   __oldLeadLag,
+											   __probability,
+											   __oldProbability,
 											   __noteKeyVal,
 											   __oldNoteKeyVal,
 											   __octaveKeyVal,
