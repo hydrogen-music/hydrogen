@@ -104,7 +104,7 @@ ELSE()
 ENDIF()
 
 #SET(CMAKE_CXX_FLAGS "-fno-implement-inlines -finline-small-functions -findirect-inlining -fpartial-inlining")
-SET(CMAKE_CXX_FLAGS "-O2 -std=c++11 -Wno-deprecated-register")
+SET(CMAKE_CXX_FLAGS "-O2 -std=gnu++11 -Wno-deprecated-register")
 IF (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-implement-inlines")
 ENDIF()
