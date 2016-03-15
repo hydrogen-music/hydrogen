@@ -3583,7 +3583,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>0.9.6 and lower</source>
-        <translation>0.9.6 et inférieur lower</translation>
+        <translation>0.9.6 et inférieur</translation>
     </message>
     <message>
         <source>Cancel</source>
