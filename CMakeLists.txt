@@ -104,10 +104,9 @@ ELSE()
 ENDIF()
 
 #SET(CMAKE_CXX_FLAGS "-fno-implement-inlines -finline-small-functions -findirect-inlining -fpartial-inlining")
-IF(APPLE)
-	SET(CMAKE_CXX_FLAGS "-O2")
-ELSE()
-	SET(CMAKE_CXX_FLAGS "-O2 -fno-implement-inlines")
+SET(CMAKE_CXX_FLAGS "-O2 -std=gnu++11 -Wno-deprecated-register")
+IF (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-implement-inlines")
 ENDIF()
 
 SET(CMAKE_CXX_FLAGS_RELEASE "")

@@ -4,8 +4,10 @@
 	* The color of the SongEditors squares is now configurable
 	* Added support for midi cymbal choking
 	* Added support for midi hihat pressure control
+	* Added hihat pressure groups
 	* Added basic non session manager support
 	* Added instrument components
+    * Basic lilypond export
 	* New windows cross compilation script
 	* New midi actions:
 		* SELECT_PREV_PATTERN_RELATIVE
