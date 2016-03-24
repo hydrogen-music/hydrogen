@@ -196,7 +196,7 @@ public:
 	std::list<QString> sServerList;
 	std::list<QString> m_patternCategories;
 
-	//___ audio engine properties ___
+	//	audio engine properties ___
 	QString m_sAudioDriver;		///< Audio Driver
 	bool m_bUseMetronome;		///< Use metronome?
 	float m_fMetronomeVolume;	///< Metronome volume FIXME: remove this volume!!
@@ -204,34 +204,35 @@ public:
 	unsigned m_nBufferSize;		///< Audio buffer size
 	unsigned m_nSampleRate;		///< Audio sample rate
 
-	//___ oss driver properties ___
+	//	OSS driver properties ___
 	QString m_sOSSDevice;		///< Device used for output
 
-	//___ MIDI Driver properties
+	//	MIDI Driver properties
 	QString m_sMidiDriver;
 	QString m_sMidiPortName;
 	int m_nMidiChannelFilter;
 	bool m_bMidiNoteOffIgnore;
 	bool m_bMidiDiscardNoteAfterAction;
 
-	//___  alsa audio driver properties ___
+	//	alsa audio driver properties ___
 	QString m_sAlsaAudioDevice;
 
-	//___  jack driver properties ___
+	//	jack driver properties ___
 	QString m_sJackPortName1;
 	QString m_sJackPortName2;
-	int m_bJackTransportMode;
-	bool m_bJackConnectDefaults;
-	bool m_bJackTrackOuts;
-	int m_nJackTrackOutputMode;
+	int		m_bJackTransportMode;
+	bool	m_bJackConnectDefaults;
+	bool	m_bJackTrackOuts;
+	int		m_nJackTrackOutputMode;
 	//jack time master
-	int m_bJackMasterMode ;
-	//~ jack time master
+	int		m_bJackMasterMode ;
+	//~ jack driver properties
+
 	///Default text editor (used by Playlisteditor)
-	QString m_sDefaultEditor;
+	QString		m_sDefaultEditor;
 
 	///Rubberband CLI
-	QString m_rubberBandCLIexecutable;
+	QString		m_rubberBandCLIexecutable;
 
 	/// Returns an instance of PreferencesMng class
 	static void create_instance();
@@ -664,28 +665,30 @@ private:
 
 	//___ General properties ___
 	QString m_sH2ProcessName; //Name of hydrogen's main process
-	int __rubberBandCalcTime;
-	bool m_useTheRubberbandBpmChangeEvent; ///rubberband bpm change queue
-	bool m_bPatternModePlaysSelected; /// Behaviour of Pattern Mode
-	bool m_brestoreLastSong;		///< Restore last song?
-	bool m_brestoreLastPlaylist;
-	bool m_bUseLash;
-	bool m_bShowDevelWarning;	///< Show development version warning?
-	bool m_bShowExportWarning;
+	int		__rubberBandCalcTime;
+	bool	m_useTheRubberbandBpmChangeEvent; ///rubberband bpm change queue
+	bool	m_bPatternModePlaysSelected; /// Behaviour of Pattern Mode
+	bool	m_brestoreLastSong;		///< Restore last song?
+	bool	m_brestoreLastPlaylist;
+	bool	m_bUseLash;
+	bool	m_bShowDevelWarning;	///< Show development version warning?
+	bool	m_bShowExportWarning;
 	QString m_lastSongFilename;	///< Last song used
 	QString m_lastPlaylistFilename;
-	bool hearNewNotes;
-	std::vector<QString> m_recentFiles;
-	QStringList m_recentFX;
-	std::vector<QString> m_ladspaPathVect;
-	bool quantizeEvents;
-	bool recordEvents;
-	bool destructiveRecord;
-	bool readPrefFileforotherplaces;
-	int punchInPos;
-	int punchOutPos;
+
+	bool	quantizeEvents;
+	bool	recordEvents;
+	bool	destructiveRecord;
+	bool	readPrefFileforotherplaces;
+	int		punchInPos;
+	int		punchOutPos;
 	QString m_sLastNews;
-	int maxBars;
+	int		maxBars;
+	bool	hearNewNotes;
+
+	QStringList m_recentFX;
+	std::vector<QString> m_recentFiles;
+	std::vector<QString> m_ladspaPathVect;
 
 #ifdef H2CORE_HAVE_JACKSESSION
 		QString jackSessionUUID;
@@ -702,17 +705,17 @@ private:
 
 	//___ GUI properties ___
 	QString m_sQTStyle;
-	int m_nLastOpenTab;
+	int		m_nLastOpenTab;
 
 	QString applicationFontFamily;
-	int applicationFontPointSize;
+	int		applicationFontPointSize;
 	QString mixerFontFamily;
-	int mixerFontPointSize;
-	float mixerFalloffSpeed;
-	int m_nPatternEditorGridResolution;
-	bool m_bPatternEditorUsingTriplets;
-	bool m_bShowInstrumentPeaks;
-	bool m_bIsFXTabVisible;
+	int		mixerFontPointSize;
+	float	mixerFalloffSpeed;
+	int		m_nPatternEditorGridResolution;
+	bool	m_bPatternEditorUsingTriplets;
+	bool	m_bShowInstrumentPeaks;
+	bool	m_bIsFXTabVisible;
 	unsigned m_nPatternEditorGridHeight;
 	unsigned m_nPatternEditorGridWidth;
 	WindowProperties mainFormProperties;
