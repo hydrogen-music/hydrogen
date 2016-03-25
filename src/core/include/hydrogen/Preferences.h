@@ -291,6 +291,10 @@ public:
 		m_brestoreLastPlaylist = restore;
 	}
 
+	void setUseRelativeFilenamesForPlaylists( bool value ) {
+		m_bUseRelativeFilenamesForPlaylists= value;
+	}
+
 	void setShowDevelWarning( bool value ) {
 		m_bShowDevelWarning = value;
 	}
@@ -305,6 +309,10 @@ public:
 
 	bool isRestoreLastPlaylistEnabled() {
 		return m_brestoreLastPlaylist;
+	}
+
+	bool isPlaylistUsingRelativeFilenames() {
+		return m_bUseRelativeFilenamesForPlaylists;
 	}
 
 	void setLastSongFilename( const QString& filename ) {
@@ -470,13 +478,6 @@ public:
 	}
 	void setFXTabVisible( bool value ) {
 		m_bIsFXTabVisible = value;
-	}
-
-	bool isPlaylistUsingRelativeFilenames() {
-		return m_bUseRelativeFilenamesForPlaylists;
-	}
-	void setUseRelativeFilenamesForPlaylists( bool value ) {
-		m_bUseRelativeFilenamesForPlaylists= value;
 	}
 
 	unsigned getPatternEditorGridHeight() {
