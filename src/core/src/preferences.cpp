@@ -229,6 +229,7 @@ Preferences::Preferences()
 	quantizeEvents = true;
 	recordEvents = false;
 	m_sLastNews = QString("-");
+	m_bUseRelativeFilenamesForPlaylists = false;
 
 	//___ GUI properties ___
 	m_sQTStyle = "Plastique";
@@ -320,8 +321,6 @@ void Preferences::loadPreferences( bool bGlobal )
 		sPreferencesDirectory = m_sPreferencesDirectory;
 		sDataDirectory = QDir::homePath().append( "/.hydrogen/data" );
 		INFOLOG( "Loading preferences file (USER) [" + sPreferencesFilename + "]" );
-
-
 	}
 
 	// preferences directory exists?
@@ -384,16 +383,17 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_bShowDevelWarning = LocalFileMng::readXmlBool( rootNode, "showDevelWarning", m_bShowDevelWarning );
 			m_brestoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", m_brestoreLastSong );
 			m_brestoreLastPlaylist = LocalFileMng::readXmlBool( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist );
-			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", TRUE );
-			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", FALSE );
-						__useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
+			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", true );
+			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", false );
+			__useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
 			maxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
-						m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
-						m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
+			m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
+			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
+			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
 
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
-					   m_useTheRubberbandBpmChangeEvent = LocalFileMng::readXmlBool( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent );
+			m_useTheRubberbandBpmChangeEvent = LocalFileMng::readXmlBool( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent );
 			m_nRecPreDelete = LocalFileMng::readXmlInt( rootNode, "preDelete", 0 );
 			m_nRecPostDelete = LocalFileMng::readXmlInt( rootNode, "postDelete", 0 );
 
@@ -728,7 +728,6 @@ void Preferences::loadPreferences( bool bGlobal )
 ///
 void Preferences::savePreferences()
 {
-	//string prefDir = QDir::homePath().append("/.hydrogen").toLocal8Bit().constData();
 	QString filename = m_sPreferencesFilename;
 
 	INFOLOG( "Saving preferences file: " + filename );
@@ -760,6 +759,7 @@ void Preferences::savePreferences()
 
 	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
 	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );
+	LocalFileMng::writeXmlString( rootNode, "useRelativeFilenamesForPlaylists", m_bUseRelativeFilenamesForPlaylists ? "true": "false" );
 
 	//show development version warning
 	LocalFileMng::writeXmlString( rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );

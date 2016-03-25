@@ -472,6 +472,13 @@ public:
 		m_bIsFXTabVisible = value;
 	}
 
+	bool isPlaylistUsingRelativeFilenames() {
+		return m_bUseRelativeFilenamesForPlaylists;
+	}
+	void setUseRelativeFilenamesForPlaylists( bool value ) {
+		m_bUseRelativeFilenamesForPlaylists= value;
+	}
+
 	unsigned getPatternEditorGridHeight() {
 		return m_nPatternEditorGridHeight;
 	}
@@ -716,6 +723,7 @@ private:
 	bool	m_bPatternEditorUsingTriplets;
 	bool	m_bShowInstrumentPeaks;
 	bool	m_bIsFXTabVisible;
+	bool	m_bUseRelativeFilenamesForPlaylists;
 	unsigned m_nPatternEditorGridHeight;
 	unsigned m_nPatternEditorGridWidth;
 	WindowProperties mainFormProperties;
