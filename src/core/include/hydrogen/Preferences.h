@@ -24,7 +24,6 @@
 #define PREFERENCES_H
 
 #include <list>
-//#include <string>
 #include <vector>
 #include <cassert>
 
@@ -158,588 +157,339 @@ public:
 			UI_LAYOUT_TABBED
 	};
 
-	int m_nDefaultUILayout;
 
+	QString				m_sPreferencesFilename;
+	QString				m_sPreferencesDirectory;
 
-	QString m_sPreferencesFilename;
-	QString m_sPreferencesDirectory;
+	QString				__lastspatternDirectory;
+	QString				__lastsampleDirectory; // audio file browser
+	bool				__playsamplesonclicking; // audio file browser
 
-	QString __lastspatternDirectory;
-	QString __lastsampleDirectory; // audio file browser
-	bool __playsamplesonclicking; // audio file browser
+	bool				__playselectedinstrument; // midi keys and keys play instrument or drumset
 
-	bool __playselectedinstrument; // midi keys and keys play instrument or drumset
+	int					m_nRecPreDelete; //index of record note pre delete function 0 = off
+	int					m_nRecPostDelete;
 
-	int m_nRecPreDelete; //index of record note pre delete function 0 = off
-	int m_nRecPostDelete;
-
-	bool m_bFollowPlayhead;
-
-
+	bool				m_bFollowPlayhead;
 
 	// switch to enable / disable lash, only on h2 startup
-	bool m_brestartLash;
-	bool m_bsetLash;
+	bool				m_brestartLash;
+	bool				m_bsetLash;
 
 	//soundlibrarypanel expand song and pattern item
-	bool __expandSongItem;
-	bool __expandPatternItem;
+	bool				__expandSongItem;
+	bool				__expandPatternItem;
 
 	//beatcounter
-	bool m_bbc;
-	bool m_mmcsetplay;
+	bool				m_bbc;
+	bool				m_mmcsetplay;
 
-	int m_countOffset;
-	int m_startOffset;
+	int					m_countOffset;
+	int					m_startOffset;
 	//~ beatcounter
 
 	std::list<QString> sServerList;
 	std::list<QString> m_patternCategories;
 
 	//	audio engine properties ___
-	QString m_sAudioDriver;		///< Audio Driver
-	bool m_bUseMetronome;		///< Use metronome?
-	float m_fMetronomeVolume;	///< Metronome volume FIXME: remove this volume!!
-	unsigned m_nMaxNotes;		///< max notes
-	unsigned m_nBufferSize;		///< Audio buffer size
-	unsigned m_nSampleRate;		///< Audio sample rate
+	QString				m_sAudioDriver;		///< Audio Driver
+	bool				m_bUseMetronome;		///< Use metronome?
+	float				m_fMetronomeVolume;	///< Metronome volume FIXME: remove this volume!!
+	unsigned			m_nMaxNotes;		///< max notes
+	unsigned			m_nBufferSize;		///< Audio buffer size
+	unsigned			m_nSampleRate;		///< Audio sample rate
 
 	//	OSS driver properties ___
-	QString m_sOSSDevice;		///< Device used for output
+	QString				m_sOSSDevice;		///< Device used for output
 
 	//	MIDI Driver properties
-	QString m_sMidiDriver;
-	QString m_sMidiPortName;
-	int m_nMidiChannelFilter;
-	bool m_bMidiNoteOffIgnore;
-	bool m_bMidiDiscardNoteAfterAction;
+	QString				m_sMidiDriver;
+	QString				m_sMidiPortName;
+	int					m_nMidiChannelFilter;
+	bool				m_bMidiNoteOffIgnore;
+	bool				m_bMidiDiscardNoteAfterAction;
 
 	//	alsa audio driver properties ___
-	QString m_sAlsaAudioDevice;
+	QString				m_sAlsaAudioDevice;
 
 	//	jack driver properties ___
-	QString m_sJackPortName1;
-	QString m_sJackPortName2;
-	int		m_bJackTransportMode;
-	bool	m_bJackConnectDefaults;
-	bool	m_bJackTrackOuts;
-	int		m_nJackTrackOutputMode;
+	QString				m_sJackPortName1;
+	QString				m_sJackPortName2;
+	int					m_bJackTransportMode;
+	bool				m_bJackConnectDefaults;
+	bool				m_bJackTrackOuts;
+	int					m_nJackTrackOutputMode;
 	//jack time master
-	int		m_bJackMasterMode ;
+	int					m_bJackMasterMode ;
 	//~ jack driver properties
 
 	///Default text editor (used by Playlisteditor)
-	QString		m_sDefaultEditor;
+	QString				m_sDefaultEditor;
 
 	///Rubberband CLI
-	QString		m_rubberBandCLIexecutable;
+	QString				m_rubberBandCLIexecutable;
 
 	/// Returns an instance of PreferencesMng class
-	static void create_instance();
+	static void			create_instance();
 	static Preferences* get_instance() { assert(__instance); return __instance; }
 
 	~Preferences();
 
 	/// Load the preferences file
-	void loadPreferences( bool bGlobal );
+	void				loadPreferences( bool bGlobal );
 
 	/// Save the preferences file
-	void savePreferences();
+	void				savePreferences();
 
-	const QString& getDemoPath() {
-		return demoPath;
-	}
-	const QString& getDataDirectory() {
-		return m_sDataDirectory;
-	}
+	const QString&		getDemoPath();
+	const QString&		getDataDirectory();
+	const QString&		getTmpDirectory();
 
-	const QString& getTmpDirectory(){
-		return m_sTmpDirectory;
-	}
+	const QString&		getDefaultEditor();
+	void				setDefaultEditor( QString editor);
 
-	const QString& getDefaultEditor() {
-		return m_sDefaultEditor;
-	}
+	int					getDefaultUILayout();
+	void				setDefaultUILayout( int layout);
 
-	void setDefaultEditor( QString editor){
-		m_sDefaultEditor = editor;
-	}
-
-		int getDefaultUILayout(){
-			return m_nDefaultUILayout;
-		}
-
-		void setDefaultUILayout( int layout){
-				m_nDefaultUILayout = layout;
-		}
-
-	void setShowExportWarning( bool value ) {
-		m_bShowExportWarning = value;
-	}
-
-	bool getShowExportWarning() {
-		return m_bShowExportWarning;
-	}
+	void				setShowExportWarning( bool value );
+	bool				getShowExportWarning();
 
 
 	// General
-	void setRestoreLastSongEnabled( bool restore ) {
-		m_brestoreLastSong = restore;
-	}
+	void				setRestoreLastSongEnabled( bool restore );
+	void				setRestoreLastPlaylistEnabled( bool restore );
+	void				setUseRelativeFilenamesForPlaylists( bool value );
 
-	void setRestoreLastPlaylistEnabled( bool restore ) {
-		m_brestoreLastPlaylist = restore;
-	}
+	void				setShowDevelWarning( bool value );
+	bool				getShowDevelWarning();
 
-	void setUseRelativeFilenamesForPlaylists( bool value ) {
-		m_bUseRelativeFilenamesForPlaylists= value;
-	}
+	bool				isRestoreLastSongEnabled();
+	bool				isRestoreLastPlaylistEnabled();
+	bool				isPlaylistUsingRelativeFilenames();
 
-	void setShowDevelWarning( bool value ) {
-		m_bShowDevelWarning = value;
-	}
+	void				setLastSongFilename( const QString& filename );
+	const QString&		getLastSongFilename();
 
-	bool getShowDevelWarning() {
-		return m_bShowDevelWarning;
-	}
+	void				setLastPlaylistFilename( const QString& filename );
+	const QString&		getLastPlaylistFilename();
 
-	bool isRestoreLastSongEnabled() {
-		return m_brestoreLastSong;
-	}
+	void				setHearNewNotes( bool value );
+	bool				getHearNewNotes();
 
-	bool isRestoreLastPlaylistEnabled() {
-		return m_brestoreLastPlaylist;
-	}
+	void				setRecordEvents( bool value );
+	bool				getRecordEvents();
 
-	bool isPlaylistUsingRelativeFilenames() {
-		return m_bUseRelativeFilenamesForPlaylists;
-	}
+	void				setDestructiveRecord ( bool value );
+	bool				getDestructiveRecord();
 
-	void setLastSongFilename( const QString& filename ) {
-		m_lastSongFilename = filename;
-	}
-	const QString& getLastSongFilename() {
-		return m_lastSongFilename;
-	}
+	void				setPunchInPos ( unsigned pos );
+	int					getPunchInPos();
 
-	void setLastPlaylistFilename( const QString& filename ) {
-		m_lastPlaylistFilename = filename;
-	}
-	const QString& getLastPlaylistFilename() {
-		return m_lastPlaylistFilename;
-	}
+	void				setPunchOutPos ( unsigned pos );
+	int					getPunchOutPos();
 
-	void setHearNewNotes( bool value ) {
-		hearNewNotes = value;
-	}
-	bool getHearNewNotes() {
-		return hearNewNotes;
-	}
+	bool				inPunchArea (int pos);
+	void				unsetPunchArea ();
 
-	void setRecordEvents( bool value ) {
-		recordEvents = value;
-	}
-	bool getRecordEvents() {
-		return recordEvents;
-	}
+	void				setQuantizeEvents( bool value );
+	bool				getQuantizeEvents();
 
-	void setDestructiveRecord ( bool value ) {
-		destructiveRecord = value;
-	}
-	bool getDestructiveRecord() {
-		return destructiveRecord;
-	}
+	std::vector<QString> getRecentFiles();
+	void				setRecentFiles( std::vector<QString> recentFiles );
 
-	void setPunchInPos ( unsigned pos ) {
-		punchInPos = pos;
-	}
-	int getPunchInPos() {
-		return punchInPos;
-	}
+	QStringList			getRecentFX();
+	void				setMostRecentFX( QString );
 
-	void setPunchOutPos ( unsigned pos ) {
-		punchOutPos = pos;
-	}
-	int getPunchOutPos() {
-		return punchOutPos;
-	}
-
-	bool inPunchArea (int pos) {
-		// Return true if punch area not defined
-		if ( punchInPos <= punchOutPos ) {
-			if ( pos < punchInPos || punchOutPos < pos ) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	void unsetPunchArea () {
-		punchInPos = 0;
-		punchOutPos = -1;
-	}
-
-	void setQuantizeEvents( bool value ) {
-		quantizeEvents = value;
-	}
-	bool getQuantizeEvents() {
-		return quantizeEvents;
-	}
-
-	std::vector<QString> getRecentFiles() {
-		return m_recentFiles;
-	}
-	void setRecentFiles( std::vector<QString> recentFiles );
-
-	QStringList getRecentFX() {
-		return m_recentFX;
-	}
-	void setMostRecentFX( QString );
-
-	std::vector<QString> getLadspaPath() {
-		return m_ladspaPathVect;
-	}
-	void setLadspaPath( std::vector<QString> pathVect ) {
-		m_ladspaPathVect = pathVect;
-	}
-
-	QString getLastNews() {
-		return m_sLastNews;
-	}
-	void setLastNews( const QString& sNews ) {
-		m_sLastNews = sNews;
-	}
+	std::vector<QString> getLadspaPath();
+	void				setLadspaPath( std::vector<QString> pathVect );
 
 
 	// GUI Properties
-	const QString& getQTStyle() {
-		return m_sQTStyle;
-	}
-	void setQTStyle( const QString& sStyle ) {
-		m_sQTStyle = sStyle;
-	}
+	const QString&		getQTStyle();
+	void				setQTStyle( const QString& sStyle );
 
 
-	const QString& getApplicationFontFamily() {
-		return applicationFontFamily;
-	}
-	void setApplicationFontFamily( const QString& family ) {
-		applicationFontFamily = family;
-	}
+	const QString&		getApplicationFontFamily();
+	void				setApplicationFontFamily( const QString& family );
 
-	int getApplicationFontPointSize() {
-		return applicationFontPointSize;
-	}
-	void setApplicationFontPointSize( int size ) {
-		applicationFontPointSize = size;
-	}
+	int					getApplicationFontPointSize();
+	void				setApplicationFontPointSize( int size );
 
-	QString getMixerFontFamily() {
-		return mixerFontFamily;
-	}
-	void setMixerFontFamily( const QString& family ) {
-		mixerFontFamily = family;
-	}
-	int getMixerFontPointSize() {
-		return mixerFontPointSize;
-	}
-	void setMixerFontPointSize( int size ) {
-		mixerFontPointSize = size;
-	}
-	float getMixerFalloffSpeed() {
-		return mixerFalloffSpeed;
-	}
-	void setMixerFalloffSpeed( float value ) {
-		mixerFalloffSpeed = value;
-	}
-	bool showInstrumentPeaks() {
-		return m_bShowInstrumentPeaks;
-	}
-	void setInstrumentPeaks( bool value ) {
-		m_bShowInstrumentPeaks = value;
-	}
+	QString				getMixerFontFamily();
+	void				setMixerFontFamily( const QString& family );
+	int					getMixerFontPointSize();
+	void				setMixerFontPointSize( int size );
+	float				getMixerFalloffSpeed();
+	void				setMixerFalloffSpeed( float value );
+	bool				showInstrumentPeaks();
+	void				setInstrumentPeaks( bool value );
 
-	int getPatternEditorGridResolution() {
-		return m_nPatternEditorGridResolution;
-	}
-	void setPatternEditorGridResolution( int value ) {
-		m_nPatternEditorGridResolution = value;
-	}
+	int					getPatternEditorGridResolution();
+	void				setPatternEditorGridResolution( int value );
 
-	bool isPatternEditorUsingTriplets() {
-		return m_bPatternEditorUsingTriplets;
-	}
-	void setPatternEditorUsingTriplets( bool value ) {
-		m_bPatternEditorUsingTriplets = value;
-	}
+	bool				isPatternEditorUsingTriplets();
+	void				setPatternEditorUsingTriplets( bool value );
 
-	bool isFXTabVisible() {
-		return m_bIsFXTabVisible;
-	}
-	void setFXTabVisible( bool value ) {
-		m_bIsFXTabVisible = value;
-	}
+	bool				isFXTabVisible();
+	void				setFXTabVisible( bool value );
 
-	unsigned getPatternEditorGridHeight() {
-		return m_nPatternEditorGridHeight;
-	}
-	void setPatternEditorGridHeight( unsigned value ) {
-		m_nPatternEditorGridHeight = value;
-	}
+	unsigned			getPatternEditorGridHeight();
+	void				setPatternEditorGridHeight( unsigned value );
 
-	unsigned getPatternEditorGridWidth() {
-		return m_nPatternEditorGridWidth;
-	}
-	void setPatternEditorGridWidth( unsigned value ) {
-		m_nPatternEditorGridWidth = value;
-	}
+	unsigned			getPatternEditorGridWidth();
+	void				setPatternEditorGridWidth( unsigned value );
 
-	void setColoringMethodAuxValue( int value ){
-		m_nColoringMethodAuxValue = value;
-	}
+	void				setColoringMethodAuxValue( int value );
+	int					getColoringMethodAuxValue() const;
 
-	int getColoringMethodAuxValue() const{
-		return m_nColoringMethodAuxValue;
-	}
+	void				setColoringMethod( int value );
+	int					getColoringMethod() const;
 
-	void setColoringMethod( int value ){
-		m_nColoringMethod = value;
-	}
+	WindowProperties	getMainFormProperties();
+	void				setMainFormProperties( const WindowProperties& prop );
 
-	int getColoringMethod() const{
-		return m_nColoringMethod;
-	}
+	WindowProperties	getMixerProperties();
+	void				setMixerProperties( const WindowProperties& prop );
 
-	WindowProperties getMainFormProperties() {
-		return mainFormProperties;
-	}
-	void setMainFormProperties( const WindowProperties& prop ) {
-		mainFormProperties = prop;
-	}
+	WindowProperties	getPatternEditorProperties();
+	void				setPatternEditorProperties( const WindowProperties& prop );
 
-	WindowProperties getMixerProperties() {
-		return mixerProperties;
-	}
-	void setMixerProperties( const WindowProperties& prop ) {
-		mixerProperties = prop;
-	}
+	WindowProperties	getSongEditorProperties();
+	void				setSongEditorProperties( const WindowProperties& prop );
 
-	WindowProperties getPatternEditorProperties() {
-		return patternEditorProperties;
-	}
-	void setPatternEditorProperties( const WindowProperties& prop ) {
-		patternEditorProperties = prop;
-	}
+	WindowProperties	getAudioEngineInfoProperties();
+	void				setAudioEngineInfoProperties( const WindowProperties& prop );
 
-	WindowProperties getSongEditorProperties() {
-		return songEditorProperties;
-	}
-	void setSongEditorProperties( const WindowProperties& prop ) {
-		songEditorProperties = prop;
-	}
+	WindowProperties	getLadspaProperties( unsigned nFX );
+	void				setLadspaProperties( unsigned nFX, const WindowProperties& prop );
 
+	UIStyle*			getDefaultUIStyle();
 
-	WindowProperties getAudioEngineInfoProperties() {
-		return audioEngineInfoProperties;
-	}
-	void setAudioEngineInfoProperties( const WindowProperties& prop ) {
-		audioEngineInfoProperties = prop;
-	}
+	bool				patternModePlaysSelected();
+	void				setPatternModePlaysSelected( bool b );
+	bool				useLash();
+	void				setUseLash( bool b );
 
-	WindowProperties getLadspaProperties( unsigned nFX ) {
-		return m_ladspaProperties[nFX];
-	}
-	void setLadspaProperties( unsigned nFX, const WindowProperties& prop ) {
-		m_ladspaProperties[nFX] = prop;
-	}
+	void				setMaxBars( int bars );
+	int					getMaxBars();
 
-	UIStyle* getDefaultUIStyle() {
-		return m_pDefaultUIStyle;
-	}
-
-	bool patternModePlaysSelected() {
-		return m_bPatternModePlaysSelected;
-	}
-	void setPatternModePlaysSelected( bool b ) {
-		m_bPatternModePlaysSelected = b;
-	}
-
-	bool useLash(){
-		return m_bUseLash;
-	}
-	void setUseLash( bool b ){
-		m_bUseLash = b;
-	}
-
-	void setMaxBars( int bars ){
-		maxBars = bars;
-	}
-
-	int getMaxBars(){
-		return maxBars;
-	}
-
-	void setWaitForSessionHandler(bool value){
-		waitingForSessionHandler = value;
-	}
-
-	bool getWaitForSessionHandler(){
-			return waitingForSessionHandler;
-	}
+	void				setWaitForSessionHandler(bool value);
+	bool				getWaitForSessionHandler();
 
 #ifdef H2CORE_HAVE_JACKSESSION
-	QString getJackSessionUUID(){
-		return jackSessionUUID;
-	}
+	QString				getJackSessionUUID();
+	void				setJackSessionUUID( QString uuid );
 
-	void setJackSessionUUID( QString uuid ){
-		jackSessionUUID = uuid;
-	}
-
-	QString getJackSessionApplicationPath(){
-		return jackSessionApplicationPath;
-	}
-
-	void setJackSessionApplicationPath( QString path ){
-		jackSessionApplicationPath = path;
-	}
+	QString				getJackSessionApplicationPath();
+	void				setJackSessionApplicationPath( QString path );
 
 #endif
 
 
 #ifdef H2CORE_HAVE_NSMSESSION
-	void setNsmClientId(const QString& nsmClientId){
-		m_sNsmClientId = nsmClientId;
-	}
+	void				setNsmClientId(const QString& nsmClientId);
+	QString				getNsmClientId(void);
 
-	QString getNsmClientId(void){
-		return m_sNsmClientId;
-	}
-
-	void setNsmSongName(const QString& nsmSongName){
-		m_sNsmSongName = nsmSongName;
-	}
-
-	QString getNsmSongName(void){
-		return m_sNsmSongName;
-	}
+	void				setNsmSongName(const QString& nsmSongName);
+	QString				getNsmSongName(void);
 
 #endif
 
-	bool getUseTimelineBpm(){
-		return __useTimelineBpm;
-	}
-	void setUseTimelineBpm( bool val ){
-		__useTimelineBpm = val;
-	}
+	bool				getUseTimelineBpm();
+	void				setUseTimelineBpm( bool val );
 
-	int getRubberBandCalcTime(){
-		return __rubberBandCalcTime;
-	}
-	void setRubberBandCalcTime( int val ){
-		__rubberBandCalcTime = val;
-	}
+	int					getRubberBandCalcTime();
+	void				setRubberBandCalcTime( int val );
 
-	int getRubberBandBatchMode(){
-		return m_useTheRubberbandBpmChangeEvent;
-	}
-	void setRubberBandBatchMode( int val ){
-		m_useTheRubberbandBpmChangeEvent = val;
-	}
+	int					getRubberBandBatchMode();
+	void				setRubberBandBatchMode( int val );
 
-	int getLastOpenTab(){
-		return m_nLastOpenTab;
-	}
-	void setLastOpenTab(int n){
-		m_nLastOpenTab = n;
-	}
+	int					getLastOpenTab();
+	void				setLastOpenTab(int n);
 
-	void setH2ProcessName(const QString& processName){
-		m_sH2ProcessName = processName;
-	}
+	void				setH2ProcessName(const QString& processName);
 
-	QString getH2ProcessName() {
-		return m_sH2ProcessName;
-	}
+	QString				getH2ProcessName();
 
 private:
-	static Preferences *__instance;
+	static Preferences *	__instance;
 
-	QString m_sDataDirectory;
-	QString m_sTmpDirectory;
+	QString				m_sDataDirectory;
+	QString				m_sTmpDirectory;
 
 	/** directory of demo songs */
-	QString demoPath;
+	QString				demoPath;
 
 	//___ General properties ___
-	QString m_sH2ProcessName; //Name of hydrogen's main process
-	int		__rubberBandCalcTime;
-	bool	m_useTheRubberbandBpmChangeEvent; ///rubberband bpm change queue
-	bool	m_bPatternModePlaysSelected; /// Behaviour of Pattern Mode
-	bool	m_brestoreLastSong;		///< Restore last song?
-	bool	m_brestoreLastPlaylist;
-	bool	m_bUseLash;
-	bool	m_bShowDevelWarning;	///< Show development version warning?
-	bool	m_bShowExportWarning;
-	QString m_lastSongFilename;	///< Last song used
-	QString m_lastPlaylistFilename;
+	QString				m_sH2ProcessName; //Name of hydrogen's main process
+	int					__rubberBandCalcTime;
+	bool				m_useTheRubberbandBpmChangeEvent; ///rubberband bpm change queue
+	bool				m_bPatternModePlaysSelected; /// Behaviour of Pattern Mode
+	bool				m_brestoreLastSong;		///< Restore last song?
+	bool				m_brestoreLastPlaylist;
+	bool				m_bUseLash;
+	bool				m_bShowDevelWarning;	///< Show development version warning?
+	bool				m_bShowExportWarning;
+	QString				m_lastSongFilename;	///< Last song used
+	QString				m_lastPlaylistFilename;
 
-	bool	quantizeEvents;
-	bool	recordEvents;
-	bool	destructiveRecord;
-	bool	readPrefFileforotherplaces;
-	int		punchInPos;
-	int		punchOutPos;
-	QString m_sLastNews;
-	int		maxBars;
-	bool	hearNewNotes;
+	bool				quantizeEvents;
+	bool				recordEvents;
+	bool				destructiveRecord;
+	bool				readPrefFileforotherplaces;
+	int					punchInPos;
+	int					punchOutPos;
+	int					maxBars;
+	bool				hearNewNotes;
 
-	QStringList m_recentFX;
+	QStringList			m_recentFX;
 	std::vector<QString> m_recentFiles;
 	std::vector<QString> m_ladspaPathVect;
 
 #ifdef H2CORE_HAVE_JACKSESSION
-		QString jackSessionUUID;
-		QString jackSessionApplicationPath;
+		QString			jackSessionUUID;
+		QString			jackSessionApplicationPath;
 #endif
 
 #ifdef H2CORE_HAVE_NSMSESSION
-		QString m_sNsmClientId;
-		QString m_sNsmSongName;
+		QString			m_sNsmClientId;
+		QString			m_sNsmSongName;
 #endif
 
-	bool waitingForSessionHandler;
-	bool __useTimelineBpm;
+	bool				waitingForSessionHandler;
+	bool				__useTimelineBpm;
 
 	//___ GUI properties ___
-	QString m_sQTStyle;
-	int		m_nLastOpenTab;
+	QString				m_sQTStyle;
+	int					m_nLastOpenTab;
+	int					m_nDefaultUILayout;
 
-	QString applicationFontFamily;
-	int		applicationFontPointSize;
-	QString mixerFontFamily;
-	int		mixerFontPointSize;
-	float	mixerFalloffSpeed;
-	int		m_nPatternEditorGridResolution;
-	bool	m_bPatternEditorUsingTriplets;
-	bool	m_bShowInstrumentPeaks;
-	bool	m_bIsFXTabVisible;
-	bool	m_bUseRelativeFilenamesForPlaylists;
-	unsigned m_nPatternEditorGridHeight;
-	unsigned m_nPatternEditorGridWidth;
-	WindowProperties mainFormProperties;
-	WindowProperties mixerProperties;
-	WindowProperties patternEditorProperties;
-	WindowProperties songEditorProperties;
-	WindowProperties drumkitManagerProperties;
-	WindowProperties audioEngineInfoProperties;
-	WindowProperties m_ladspaProperties[MAX_FX];
 
-	UIStyle*  m_pDefaultUIStyle;
+	QString				applicationFontFamily;
+	int					applicationFontPointSize;
+	QString				mixerFontFamily;
+	int					mixerFontPointSize;
+	float				mixerFalloffSpeed;
+	int					m_nPatternEditorGridResolution;
+	bool				m_bPatternEditorUsingTriplets;
+	bool				m_bShowInstrumentPeaks;
+	bool				m_bIsFXTabVisible;
+	bool				m_bUseRelativeFilenamesForPlaylists;
+	unsigned			m_nPatternEditorGridHeight;
+	unsigned			m_nPatternEditorGridWidth;
+	WindowProperties	mainFormProperties;
+	WindowProperties	mixerProperties;
+	WindowProperties	patternEditorProperties;
+	WindowProperties	songEditorProperties;
+	WindowProperties	drumkitManagerProperties;
+	WindowProperties	audioEngineInfoProperties;
+	WindowProperties	m_ladspaProperties[MAX_FX];
+
+	UIStyle*			 m_pDefaultUIStyle;
 
 	//Appearence: SongEditor coloring
-	int m_nColoringMethod;
-	int m_nColoringMethodAuxValue;
+	int					m_nColoringMethod;
+	int					m_nColoringMethodAuxValue;
 
 	Preferences();
 
@@ -758,6 +508,416 @@ private:
 	void writeUIStyle( QDomNode parent );
 	void readUIStyle( QDomNode parent );
 };
+
+
+inline const QString& Preferences::getDemoPath() {
+	return demoPath;
+}
+inline const QString& Preferences::getDataDirectory() {
+	return m_sDataDirectory;
+}
+
+inline const QString& Preferences::getTmpDirectory(){
+	return m_sTmpDirectory;
+}
+
+inline const QString& Preferences::getDefaultEditor() {
+	return m_sDefaultEditor;
+}
+
+inline void Preferences::setDefaultEditor( QString editor){
+	m_sDefaultEditor = editor;
+}
+
+inline int Preferences::getDefaultUILayout(){
+	return m_nDefaultUILayout;
+}
+
+inline void Preferences::setDefaultUILayout( int layout){
+	m_nDefaultUILayout = layout;
+}
+
+inline void Preferences::setShowExportWarning( bool value ) {
+	m_bShowExportWarning = value;
+}
+
+inline bool Preferences::getShowExportWarning() {
+	return m_bShowExportWarning;
+}
+
+
+// General
+inline void Preferences::setRestoreLastSongEnabled( bool restore ) {
+	m_brestoreLastSong = restore;
+}
+
+inline void Preferences::setRestoreLastPlaylistEnabled( bool restore ) {
+	m_brestoreLastPlaylist = restore;
+}
+
+inline void Preferences::setUseRelativeFilenamesForPlaylists( bool value ) {
+	m_bUseRelativeFilenamesForPlaylists= value;
+}
+
+inline void Preferences::setShowDevelWarning( bool value ) {
+	m_bShowDevelWarning = value;
+}
+
+inline bool Preferences::getShowDevelWarning() {
+	return m_bShowDevelWarning;
+}
+
+inline bool Preferences::isRestoreLastSongEnabled() {
+	return m_brestoreLastSong;
+}
+
+inline bool Preferences::isRestoreLastPlaylistEnabled() {
+	return m_brestoreLastPlaylist;
+}
+
+inline bool Preferences::isPlaylistUsingRelativeFilenames() {
+	return m_bUseRelativeFilenamesForPlaylists;
+}
+
+inline void Preferences::setLastSongFilename( const QString& filename ) {
+	m_lastSongFilename = filename;
+}
+inline const QString& Preferences::getLastSongFilename() {
+	return m_lastSongFilename;
+}
+
+inline void Preferences::setLastPlaylistFilename( const QString& filename ) {
+	m_lastPlaylistFilename = filename;
+}
+inline const QString& Preferences::getLastPlaylistFilename() {
+	return m_lastPlaylistFilename;
+}
+
+inline void Preferences::setHearNewNotes( bool value ) {
+	hearNewNotes = value;
+}
+inline bool Preferences::getHearNewNotes() {
+	return hearNewNotes;
+}
+
+inline void Preferences::setRecordEvents( bool value ) {
+	recordEvents = value;
+}
+inline bool Preferences::getRecordEvents() {
+	return recordEvents;
+}
+
+inline void Preferences::setDestructiveRecord ( bool value ) {
+	destructiveRecord = value;
+}
+inline bool Preferences::getDestructiveRecord() {
+	return destructiveRecord;
+}
+
+inline void Preferences::setPunchInPos ( unsigned pos ) {
+	punchInPos = pos;
+}
+inline int Preferences::getPunchInPos() {
+	return punchInPos;
+}
+
+inline void Preferences::setPunchOutPos ( unsigned pos ) {
+	punchOutPos = pos;
+}
+inline int Preferences::getPunchOutPos() {
+	return punchOutPos;
+}
+
+inline bool Preferences::inPunchArea (int pos) {
+	// Return true if punch area not defined
+	if ( punchInPos <= punchOutPos ) {
+		if ( pos < punchInPos || punchOutPos < pos ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+inline void Preferences::unsetPunchArea () {
+	punchInPos = 0;
+	punchOutPos = -1;
+}
+
+inline void Preferences::setQuantizeEvents( bool value ) {
+	quantizeEvents = value;
+}
+inline bool Preferences::getQuantizeEvents() {
+	return quantizeEvents;
+}
+
+inline std::vector<QString> Preferences::getRecentFiles() {
+	return m_recentFiles;
+}
+
+inline QStringList Preferences::getRecentFX() {
+	return m_recentFX;
+}
+
+inline std::vector<QString> Preferences::getLadspaPath() {
+	return m_ladspaPathVect;
+}
+inline void Preferences::setLadspaPath( std::vector<QString> pathVect ) {
+	m_ladspaPathVect = pathVect;
+}
+
+
+// GUI Properties
+inline const QString& Preferences::getQTStyle() {
+	return m_sQTStyle;
+}
+inline void Preferences::setQTStyle( const QString& sStyle ) {
+	m_sQTStyle = sStyle;
+}
+
+
+inline const QString& Preferences::getApplicationFontFamily() {
+	return applicationFontFamily;
+}
+inline void Preferences::setApplicationFontFamily( const QString& family ) {
+	applicationFontFamily = family;
+}
+
+inline int Preferences::getApplicationFontPointSize() {
+	return applicationFontPointSize;
+}
+inline void Preferences::setApplicationFontPointSize( int size ) {
+	applicationFontPointSize = size;
+}
+
+inline QString Preferences::getMixerFontFamily() {
+	return mixerFontFamily;
+}
+inline void Preferences::setMixerFontFamily( const QString& family ) {
+	mixerFontFamily = family;
+}
+inline int Preferences::getMixerFontPointSize() {
+	return mixerFontPointSize;
+}
+inline void Preferences::setMixerFontPointSize( int size ) {
+	mixerFontPointSize = size;
+}
+inline float Preferences::getMixerFalloffSpeed() {
+	return mixerFalloffSpeed;
+}
+inline void Preferences::setMixerFalloffSpeed( float value ) {
+	mixerFalloffSpeed = value;
+}
+inline bool Preferences::showInstrumentPeaks() {
+	return m_bShowInstrumentPeaks;
+}
+inline void Preferences::setInstrumentPeaks( bool value ) {
+	m_bShowInstrumentPeaks = value;
+}
+
+inline int Preferences::getPatternEditorGridResolution() {
+	return m_nPatternEditorGridResolution;
+}
+inline void Preferences::setPatternEditorGridResolution( int value ) {
+	m_nPatternEditorGridResolution = value;
+}
+
+inline bool Preferences::isPatternEditorUsingTriplets() {
+	return m_bPatternEditorUsingTriplets;
+}
+inline void Preferences::setPatternEditorUsingTriplets( bool value ) {
+	m_bPatternEditorUsingTriplets = value;
+}
+
+inline bool Preferences::isFXTabVisible() {
+	return m_bIsFXTabVisible;
+}
+inline void Preferences::setFXTabVisible( bool value ) {
+	m_bIsFXTabVisible = value;
+}
+
+inline unsigned Preferences::getPatternEditorGridHeight() {
+	return m_nPatternEditorGridHeight;
+}
+inline void Preferences::setPatternEditorGridHeight( unsigned value ) {
+	m_nPatternEditorGridHeight = value;
+}
+
+inline unsigned Preferences::getPatternEditorGridWidth() {
+	return m_nPatternEditorGridWidth;
+}
+inline void Preferences::setPatternEditorGridWidth( unsigned value ) {
+	m_nPatternEditorGridWidth = value;
+}
+
+inline void Preferences::setColoringMethodAuxValue( int value ){
+	m_nColoringMethodAuxValue = value;
+}
+
+inline int Preferences::getColoringMethodAuxValue() const{
+	return m_nColoringMethodAuxValue;
+}
+
+inline void Preferences::setColoringMethod( int value ){
+	m_nColoringMethod = value;
+}
+
+inline int Preferences::getColoringMethod() const{
+	return m_nColoringMethod;
+}
+
+inline WindowProperties Preferences::getMainFormProperties() {
+	return mainFormProperties;
+}
+inline void Preferences::setMainFormProperties( const WindowProperties& prop ) {
+	mainFormProperties = prop;
+}
+
+inline WindowProperties Preferences::getMixerProperties() {
+	return mixerProperties;
+}
+inline void Preferences::setMixerProperties( const WindowProperties& prop ) {
+	mixerProperties = prop;
+}
+
+inline WindowProperties Preferences::getPatternEditorProperties() {
+	return patternEditorProperties;
+}
+inline void Preferences::setPatternEditorProperties( const WindowProperties& prop ) {
+	patternEditorProperties = prop;
+}
+
+inline WindowProperties Preferences::getSongEditorProperties() {
+	return songEditorProperties;
+}
+inline void Preferences::setSongEditorProperties( const WindowProperties& prop ) {
+	songEditorProperties = prop;
+}
+
+
+inline WindowProperties Preferences::getAudioEngineInfoProperties() {
+	return audioEngineInfoProperties;
+}
+inline void Preferences::setAudioEngineInfoProperties( const WindowProperties& prop ) {
+	audioEngineInfoProperties = prop;
+}
+
+inline WindowProperties Preferences::getLadspaProperties( unsigned nFX ) {
+	return m_ladspaProperties[nFX];
+}
+inline void Preferences::setLadspaProperties( unsigned nFX, const WindowProperties& prop ) {
+	m_ladspaProperties[nFX] = prop;
+}
+
+inline UIStyle* Preferences::getDefaultUIStyle() {
+	return m_pDefaultUIStyle;
+}
+
+inline bool Preferences::patternModePlaysSelected() {
+	return m_bPatternModePlaysSelected;
+}
+inline void Preferences::setPatternModePlaysSelected( bool b ) {
+	m_bPatternModePlaysSelected = b;
+}
+
+inline bool Preferences::useLash(){
+	return m_bUseLash;
+}
+inline void Preferences::setUseLash( bool b ){
+	m_bUseLash = b;
+}
+
+inline void Preferences::setMaxBars( int bars ){
+	maxBars = bars;
+}
+
+inline int Preferences::getMaxBars(){
+	return maxBars;
+}
+
+inline void Preferences::setWaitForSessionHandler(bool value){
+	waitingForSessionHandler = value;
+}
+
+inline bool Preferences::getWaitForSessionHandler(){
+		return waitingForSessionHandler;
+}
+
+#ifdef H2CORE_HAVE_JACKSESSION
+inline QString Preferences::getJackSessionUUID(){
+	return jackSessionUUID;
+}
+
+inline void Preferences::setJackSessionUUID( QString uuid ){
+	jackSessionUUID = uuid;
+}
+
+inline QString Preferences::getJackSessionApplicationPath(){
+	return jackSessionApplicationPath;
+}
+
+inline void Preferences::setJackSessionApplicationPath( QString path ){
+	jackSessionApplicationPath = path;
+}
+
+#endif
+
+
+#ifdef H2CORE_HAVE_NSMSESSION
+inline void Preferences::setNsmClientId(const QString& nsmClientId){
+	m_sNsmClientId = nsmClientId;
+}
+
+inline QString Preferences::getNsmClientId(void){
+	return m_sNsmClientId;
+}
+
+inline void Preferences::setNsmSongName(const QString& nsmSongName){
+	m_sNsmSongName = nsmSongName;
+}
+
+inline QString Preferences::getNsmSongName(void){
+	return m_sNsmSongName;
+}
+
+#endif
+
+inline bool Preferences::getUseTimelineBpm(){
+	return __useTimelineBpm;
+}
+inline void Preferences::setUseTimelineBpm( bool val ){
+	__useTimelineBpm = val;
+}
+
+inline int Preferences::getRubberBandCalcTime(){
+	return __rubberBandCalcTime;
+}
+inline void Preferences::setRubberBandCalcTime( int val ){
+	__rubberBandCalcTime = val;
+}
+
+inline int Preferences::getRubberBandBatchMode(){
+	return m_useTheRubberbandBpmChangeEvent;
+}
+inline void Preferences::setRubberBandBatchMode( int val ){
+	m_useTheRubberbandBpmChangeEvent = val;
+}
+
+inline int Preferences::getLastOpenTab(){
+	return m_nLastOpenTab;
+}
+inline void Preferences::setLastOpenTab(int n){
+	m_nLastOpenTab = n;
+}
+
+inline void Preferences::setH2ProcessName(const QString& processName){
+	m_sH2ProcessName = processName;
+}
+
+inline QString Preferences::getH2ProcessName() {
+	return m_sH2ProcessName;
+}
+
+
 
 };
 

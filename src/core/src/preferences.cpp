@@ -61,7 +61,6 @@ const char* Preferences::__class_name = "Preferences";
 Preferences::Preferences()
 		: Object( __class_name )
 		, demoPath( Filesystem::demos_dir()+"/")
-		, m_sLastNews( "" )
 {
 	__instance = this;
 	INFOLOG( "INIT" );
@@ -80,12 +79,9 @@ Preferences::Preferences()
 	//server list
 	std::list<QString> sServerList;
 
-//	//musicCategories
-//	std::list<QString> m_musicCategories;
-
 	//rubberband bpm change queue
 	m_useTheRubberbandBpmChangeEvent = false;
-		__rubberBandCalcTime = 5;
+	__rubberBandCalcTime = 5;
 
 	QString rubberBandCLIPath = getenv( "PATH" );
 	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linx use ":" as seperator. maybe windows and osx use other seperators
@@ -130,10 +126,8 @@ Preferences::Preferences()
 	}
 
 
-
-
 	m_pDefaultUIStyle = new UIStyle();
-		m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
+	m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
 
 #ifdef Q_OS_MACX
 	m_sPreferencesFilename = QDir::homePath().append( "/Library/Application Support/Hydrogen/hydrogen.conf" );
@@ -161,7 +155,7 @@ Preferences::Preferences()
 
 	__expandSongItem = true; //SoundLibraryPanel
 	__expandPatternItem = true; //SoundLibraryPanel
-		__useTimelineBpm = false;		// use timeline
+	__useTimelineBpm = false;		// use timeline
 
 
 	/////////////////////////////////////////////////////////////////////////
@@ -228,7 +222,6 @@ Preferences::Preferences()
 	// NONE: m_ladspaPathVect;
 	quantizeEvents = true;
 	recordEvents = false;
-	m_sLastNews = QString("-");
 	m_bUseRelativeFilenamesForPlaylists = false;
 
 	//___ GUI properties ___
@@ -459,9 +452,6 @@ void Preferences::loadPreferences( bool bGlobal )
 				WARNINGLOG( "patternCategories node not found" );
 			}
 
-
-
-			m_sLastNews = LocalFileMng::readXmlString( rootNode, "lastNews", "-", true );
 
 			/////////////// AUDIO ENGINE //////////////
 			QDomNode audioEngineNode = rootNode.firstChildElement( "audio_engine" );
@@ -819,10 +809,6 @@ void Preferences::savePreferences()
 	}
 	rootNode.appendChild( patternCategoriesNode );
 
-
-
-
-	LocalFileMng::writeXmlString( rootNode, "lastNews", m_sLastNews );
 
 
 	//---- AUDIO ENGINE ----
