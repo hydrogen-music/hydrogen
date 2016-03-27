@@ -133,6 +133,17 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__resolution_combo->addItem( "16T" );
 	__resolution_combo->addItem( "32T" );
 	__resolution_combo->addSeparator();
+	__resolution_combo->addItem("2Q");
+	__resolution_combo->addItem("4Q");
+	__resolution_combo->addItem("8Q");
+	__resolution_combo->addItem("16Q");
+	__resolution_combo->addSeparator();
+	__resolution_combo->addItem("8S");
+	__resolution_combo->addItem("16S");
+	__resolution_combo->addSeparator();
+	__resolution_combo->addItem("8N");
+	__resolution_combo->addItem("16N");
+	__resolution_combo->addSeparator();
 	__resolution_combo->addItem( "off" );
 	__resolution_combo->update();
 	__resolution_combo->move( 121, 2 );
@@ -463,7 +474,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// restore grid resolution
 	int nIndex;
-	if ( pPref->isPatternEditorUsingTriplets() == false ) {
+	if ( pPref->isPatternEditorUsingTriplets() == false
+			 && pPref->isPatternEditorUsingQuintuplets() == false
+			 && pPref->isPatternEditorUsingSeptuplets() == false
+			 && pPref->isPatternEditorUsing9tuplets() == false) {
 		switch ( pPref->getPatternEditorGridResolution() ) {
 			case 4:
 				__resolution_combo->set_text( "4" );
@@ -496,7 +510,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				nIndex = 0;
 		}
 	}
-	else {
+	else if ( pPref->isPatternEditorUsingTriplets() ){
 		switch ( pPref->getPatternEditorGridResolution() ) {
 			case 8:
 				__resolution_combo->set_text( "4T" );
@@ -524,6 +538,74 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				nIndex = 5;
 		}
 	}
+
+	else if ( pPref->isPatternEditorUsingQuintuplets() ){
+		switch ( pPref->getPatternEditorGridResolution() ) {
+		  case 4:
+			  __resolution_combo->set_text( "2Q" );
+				nIndex = 9;
+				break;
+				
+			case 8:
+				__resolution_combo->set_text( "4Q" );
+				nIndex = 10;
+				break;
+
+			case 16:
+				__resolution_combo->set_text( "8Q" );
+				nIndex = 11;
+				break;
+
+			case 32:
+				__resolution_combo->set_text( "16Q" );
+				nIndex = 12;
+				break;
+
+			default:
+				ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
+				__resolution_combo->set_text( "4Q" );
+				nIndex = 10;
+		}
+	}
+
+	else if ( pPref->isPatternEditorUsingSeptuplets() ){
+		switch ( pPref->getPatternEditorGridResolution() ) {
+		  case 16:
+			  __resolution_combo->set_text( "8S" );
+				nIndex = 13;
+				break;
+				
+			case 32:
+				__resolution_combo->set_text( "16S" );
+				nIndex = 14;
+				break;
+
+			default:
+				ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
+				__resolution_combo->set_text( "8S" );
+				nIndex = 13;
+		}
+	}
+
+	else if ( pPref->isPatternEditorUsing9tuplets() ){
+		switch ( pPref->getPatternEditorGridResolution() ) {
+		  case 16:
+			  __resolution_combo->set_text( "8N" );
+				nIndex = 15;
+				break;
+				
+			case 32:
+				__resolution_combo->set_text( "16N" );
+				nIndex = 16;
+				break;
+
+			default:
+				ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
+				__resolution_combo->set_text( "8N" );
+				nIndex = 15;
+		}
+	}
+	
 	gridResolutionChanged(__resolution_combo->getText());
 
 	//set pre delete
@@ -600,9 +682,30 @@ void PatternEditorPanel::gridResolutionChanged( QString str )
 {
 	int nResolution;
 	bool bUseTriplets = false;
+	bool bUseQuintuplets = false;
+	bool bUseSeptuplets = false;
+	bool bUse9tuplets = false;
 
 	if ( str.contains( "off" ) ) {
 		nResolution=MAX_NOTES;
+	}
+	else if ( str.contains( "Q" ) ) {
+		bUseQuintuplets = true;
+		QString temp = str;
+		temp.chop( 1 );
+		nResolution = temp.toInt() * 2;
+	}
+	else if ( str.contains( "S" ) ) {
+		bUseSeptuplets = true;
+		QString temp = str;
+		temp.chop( 1 );
+		nResolution = temp.toInt() * 2;
+	}
+	else if ( str.contains( "N" ) ) {
+		bUse9tuplets = true;
+		QString temp = str;
+		temp.chop( 1 );
+		nResolution = temp.toInt() * 2;
 	}
 	else if ( str.contains( "T" ) ) {
 		bUseTriplets = true;
@@ -615,11 +718,14 @@ void PatternEditorPanel::gridResolutionChanged( QString str )
 	}
 
 	//INFOLOG( to_string( nResolution ) );
-	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
+	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets, bUseQuintuplets, bUseSeptuplets, bUse9tuplets );
 	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
 
 	Preferences::get_instance()->setPatternEditorGridResolution( nResolution );
 	Preferences::get_instance()->setPatternEditorUsingTriplets( bUseTriplets );
+	Preferences::get_instance()->setPatternEditorUsingQuintuplets( bUseQuintuplets );
+	Preferences::get_instance()->setPatternEditorUsingSeptuplets( bUseSeptuplets );
+	Preferences::get_instance()->setPatternEditorUsing9tuplets( bUse9tuplets );
 }
 
 

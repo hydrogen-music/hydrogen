@@ -58,6 +58,9 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  , Object( __class_name )
  , m_nResolution( 8 )
  , m_bUseTriplets( false )
+ , m_bUseQuintuplets( false )
+ , m_bUseSeptuplets( false )
+ , m_bUse9tuplets( false )
  , m_bRightBtnPressed( false )
  , m_pDraggedNote( NULL )
  , m_pPattern( NULL )
@@ -128,6 +131,15 @@ int DrumPatternEditor::getColumn(QMouseEvent *ev)
 	int nBase;
 	if (m_bUseTriplets) {
 		nBase = 3;
+	}
+	else if (m_bUseQuintuplets) {
+		nBase = 5;
+	}
+	else if (m_bUseSeptuplets) {
+		nBase = 7;
+	}
+	else if (m_bUse9tuplets) {
+		nBase = 9;
 	}
 	else {
 		nBase = 4;
@@ -646,6 +658,15 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 	if (m_bUseTriplets) {
 		nBase = 3;
 	}
+	else if (m_bUseQuintuplets) {
+		nBase = 5;
+	}
+	else if (m_bUseSeptuplets) {
+		nBase = 7;
+	}
+	else if (m_bUse9tuplets) {
+		nBase = 9;
+	}
 	else {
 		nBase = 4;
 	}
@@ -660,7 +681,7 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
 	}
-	if (!m_bUseTriplets) {
+	if (!m_bUseTriplets && !m_bUseQuintuplets && !m_bUseSeptuplets && !m_bUse9tuplets) {
 		for ( int i = 0; i < nNotes + 1; i++ ) {
 			uint x = 20 + i * m_nGridWidth;
 
@@ -700,11 +721,25 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 		uint nCounter = 0;
 		int nSize = 4 * MAX_NOTES / (nBase * m_nResolution);
 
+		int tuplet_size;
+		if(m_bUseTriplets) {
+			tuplet_size = 3;
+		}
+		else if (m_bUseQuintuplets) {
+			tuplet_size = 5;
+		}
+		else if (m_bUseSeptuplets) {
+			tuplet_size = 7;
+		}
+		else if (m_bUse9tuplets) {
+			tuplet_size = 9;
+		}
+
 		for ( int i = 0; i < nNotes + 1; i++ ) {
 			uint x = 20 + i * m_nGridWidth;
 
 			if ( (i % nSize) == 0) {
-				if ((nCounter % 3) == 0) {
+				if ((nCounter % tuplet_size) == 0) {
 					p.setPen( QPen( res_1, 0 ) );
 				}
 				else {
@@ -806,10 +841,13 @@ void DrumPatternEditor::hideEvent ( QHideEvent *ev )
 
 
 
-void DrumPatternEditor::setResolution(uint res, bool bUseTriplets)
+void DrumPatternEditor::setResolution(uint res, bool bUseTriplets, bool bUseQuintuplets, bool bUseSeptuplets, bool bUse9tuplets)
 {
 	this->m_nResolution = res;
 	this->m_bUseTriplets = bUseTriplets;
+	this->m_bUseQuintuplets = bUseQuintuplets;
+	this->m_bUseSeptuplets = bUseSeptuplets;
+	this->m_bUse9tuplets = bUse9tuplets;
 
 	// redraw all
 	update( 0, 0, width(), height() );
