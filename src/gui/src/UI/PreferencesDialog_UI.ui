@@ -69,6 +69,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="useRelativePlaylistPathsCheckbox">
+         <property name="text">
+          <string>Use relative paths for playlist</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="useLashCheckbox">
          <property name="text">
           <string>Use lash</string>

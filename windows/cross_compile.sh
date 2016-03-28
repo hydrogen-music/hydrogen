@@ -70,7 +70,7 @@ build_hydrogen(){
 		fi
 		cd ladspaplugs
 		if [ ! -e "LADSPA_plugins-win-0.4.15.exe" ]; then
-			wget http://downloads.sourceforge.net/audacity/LADSPA_plugins-win-0.4.15.exe
+			wget http://sourceforge.net/projects/audacity/files/audacity/2.0.5/LADSPA_plugins-win-0.4.15.exe
 		fi
 		cd ..
 	fi
