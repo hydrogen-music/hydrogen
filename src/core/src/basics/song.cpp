@@ -583,6 +583,7 @@ Song* SongReader::readSong( const QString& filename )
 					int id = LocalFileMng::readXmlInt( componentNode, "component_id", 0 );
 					InstrumentComponent* pCompo = new InstrumentComponent( id );
 					float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
+					pCompo->set_gain( fGainCompo );
 
 					unsigned nLayer = 0;
 					QDomNode layerNode = componentNode.firstChildElement( "layer" );
@@ -669,6 +670,8 @@ Song* SongReader::readSong( const QString& filename )
 				if(!p_foundAtLeastOneComponent){
 					InstrumentComponent* pCompo = new InstrumentComponent( 0 );
 					float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
+					pCompo->set_gain( fGainCompo );
+
 					unsigned nLayer = 0;
 					QDomNode layerNode = instrumentNode.firstChildElement( "layer" );
 					while (  ! layerNode.isNull()  ) {
