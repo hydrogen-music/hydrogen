@@ -886,7 +886,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Templates: </source>
-        <translation>Format :</translation>
+        <translation>Format : </translation>
     </message>
     <message>
         <source>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</source>
@@ -930,7 +930,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Interpolation: </source>
-        <translation>Interpolation :</translation>
+        <translation>Interpolation : </translation>
     </message>
     <message>
         <source>Choose type of interpolation methode</source>
@@ -2498,7 +2498,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>File not found: </source>
-        <translation>Fichier non-trouvé :</translation>
+        <translation>Fichier non-trouvé : </translation>
     </message>
     <message>
         <source>No valid song selected!</source>
@@ -3583,7 +3583,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>0.9.6 and lower</source>
-        <translation>0.9.6 et inférieur lower</translation>
+        <translation>0.9.6 et inférieur</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -3606,7 +3606,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Updating SoundLibrary list...</source>
-        <translation>Mise à jour de la liste de la bibliothèque de sons.</translation>
+        <translation>Mise à jour de la liste de la bibliothèque de sons...</translation>
     </message>
     <message>
         <source>Installed</source>
@@ -3618,7 +3618,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Author: %1</source>
-        <translation>Auteur: %1</translation>
+        <translation>Auteur : %1</translation>
     </message>
     <message>
         <source>Downloading SoundLibrary...</source>
@@ -3650,7 +3650,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>License: %1</source>
-        <translation>Licence: %1</translation>
+        <translation>Licence : %1</translation>
     </message>
 </context>
 <context>
@@ -3768,7 +3768,7 @@ Voulez-vous continuer?</translation>
         <source>It is not possible to delete the currently loaded drumkit: 
   &quot;%1&quot;.
 To delete this drumkit first load another drumkit.</source>
-        <translation>Il n&apos;est pas possible de supprimer le kit de batterie actuellement chargé :
+        <translation>Il n&apos;est pas possible de supprimer le kit de batterie actuellement chargé : 
   &quot;%1&quot;.
 Pour effacer ce kit de batterie, chargez d&apos;abord un autre kit.
         </translation>

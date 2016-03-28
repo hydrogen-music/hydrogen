@@ -80,11 +80,6 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 	INFOLOG( QString( "INIT '%1'" ).arg( __name ) );
 
 	__components = new std::vector<DrumkitComponent*> ();
-
-	//m_bDelayFXEnabled = false;
-	//m_fDelayFXWetLevel = 0.8;
-	//m_fDelayFXFeedback = 0.5;
-	//m_nDelayFXTime = MAX_NOTES / 8;
 }
 
 
@@ -95,7 +90,7 @@ Song::~Song()
 	delete __pattern_list;
 
 	__components->clear();
-    delete __components;
+	delete __components;
 
 	if ( __pattern_group_sequence ) {
 		for ( unsigned i = 0; i < __pattern_group_sequence->size(); ++i ) {
@@ -447,31 +442,24 @@ Song* SongReader::readSong( const QString& filename )
 	song->set_humanize_velocity_value( fHumanizeVelocityValue );
 	song->set_swing_factor( fSwingFactor );
 
-	/*
-	song->m_bDelayFXEnabled = LocalFileMng::readXmlBool( songNode, "delayFXEnabled", false, false );
-	song->m_fDelayFXWetLevel = LocalFileMng::readXmlFloat( songNode, "delayFXWetLevel", 1.0, false, false );
-	song->m_fDelayFXFeedback= LocalFileMng::readXmlFloat( songNode, "delayFXFeedback", 0.4, false, false );
-	song->m_nDelayFXTime = LocalFileMng::readXmlInt( songNode, "delayFXTime", MAX_NOTES / 4, false, false );
-	*/
-
 	QDomNode componentListNode = songNode.firstChildElement( "componentList" );
 	if ( ( ! componentListNode.isNull()  ) ) {
 		QDomNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
-            int id = LocalFileMng::readXmlInt( componentNode, "id", -1 );			// instrument id
+			int id = LocalFileMng::readXmlInt( componentNode, "id", -1 );			// instrument id
 			QString sName = LocalFileMng::readXmlString( componentNode, "name", "" );		// name
 			float fVolume = LocalFileMng::readXmlFloat( componentNode, "volume", 1.0 );	// volume
 			DrumkitComponent* pDrumkitComponent = new DrumkitComponent( id, sName );
 			pDrumkitComponent->set_volume( fVolume );
 
-            song->get_components()->push_back(pDrumkitComponent);
+			song->get_components()->push_back(pDrumkitComponent);
 
-            componentNode = ( QDomNode ) componentNode.nextSiblingElement( "drumkitComponent" );
+			componentNode = ( QDomNode ) componentNode.nextSiblingElement( "drumkitComponent" );
 		}
 	}
 	else {
-        DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
-        song->get_components()->push_back(pDrumkitComponent);
+		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
+		song->get_components()->push_back(pDrumkitComponent);
 	}
 
 	//  Instrument List
@@ -590,179 +578,182 @@ Song* SongReader::readSong( const QString& filename )
 			else {
 				bool p_foundAtLeastOneComponent = false;
 				QDomNode componentNode = instrumentNode.firstChildElement( "instrumentComponent" );
-                while (  ! componentNode.isNull()  ) {
-                    p_foundAtLeastOneComponent = true;
-                    int id = LocalFileMng::readXmlInt( componentNode, "component_id", 0 );
-                    InstrumentComponent* pCompo = new InstrumentComponent( id );
-                    float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
+				while (  ! componentNode.isNull()  ) {
+					p_foundAtLeastOneComponent = true;
+					int id = LocalFileMng::readXmlInt( componentNode, "component_id", 0 );
+					InstrumentComponent* pCompo = new InstrumentComponent( id );
+					float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
+					pCompo->set_gain( fGainCompo );
 
-                    unsigned nLayer = 0;
-                    QDomNode layerNode = componentNode.firstChildElement( "layer" );
-                    while (  ! layerNode.isNull()  ) {
-                        if ( nLayer >= MAX_LAYERS ) {
-                            ERRORLOG( "nLayer > MAX_LAYERS" );
-                            continue;
-                        }
-                        //bool sIsModified = false;
-                        QString sFilename = LocalFileMng::readXmlString( layerNode, "filename", "" );
-                        bool sIsModified = LocalFileMng::readXmlBool( layerNode, "ismodified", false );
-                        Sample::Loops lo;
-                        lo.mode = Sample::parse_loop_mode( LocalFileMng::readXmlString( layerNode, "smode", "forward" ) );
-                        lo.start_frame = LocalFileMng::readXmlInt( layerNode, "startframe", 0 );
-                        lo.loop_frame = LocalFileMng::readXmlInt( layerNode, "loopframe", 0 );
-                        lo.count = LocalFileMng::readXmlInt( layerNode, "loops", 0 );
-                        lo.end_frame = LocalFileMng::readXmlInt( layerNode, "endframe", 0 );
-                        Sample::Rubberband ro;
-                        ro.use = LocalFileMng::readXmlInt( layerNode, "userubber", 0, false );
-                        ro.divider = LocalFileMng::readXmlFloat( layerNode, "rubberdivider", 0.0 );
-                        ro.c_settings = LocalFileMng::readXmlInt( layerNode, "rubberCsettings", 1 );
-                        ro.pitch = LocalFileMng::readXmlFloat( layerNode, "rubberPitch", 0.0 );
+					unsigned nLayer = 0;
+					QDomNode layerNode = componentNode.firstChildElement( "layer" );
+					while (  ! layerNode.isNull()  ) {
+						if ( nLayer >= MAX_LAYERS ) {
+							ERRORLOG( "nLayer > MAX_LAYERS" );
+							continue;
+						}
+						//bool sIsModified = false;
+						QString sFilename = LocalFileMng::readXmlString( layerNode, "filename", "" );
+						bool sIsModified = LocalFileMng::readXmlBool( layerNode, "ismodified", false );
+						Sample::Loops lo;
+						lo.mode = Sample::parse_loop_mode( LocalFileMng::readXmlString( layerNode, "smode", "forward" ) );
+						lo.start_frame = LocalFileMng::readXmlInt( layerNode, "startframe", 0 );
+						lo.loop_frame = LocalFileMng::readXmlInt( layerNode, "loopframe", 0 );
+						lo.count = LocalFileMng::readXmlInt( layerNode, "loops", 0 );
+						lo.end_frame = LocalFileMng::readXmlInt( layerNode, "endframe", 0 );
+						Sample::Rubberband ro;
+						ro.use = LocalFileMng::readXmlInt( layerNode, "userubber", 0, false );
+						ro.divider = LocalFileMng::readXmlFloat( layerNode, "rubberdivider", 0.0 );
+						ro.c_settings = LocalFileMng::readXmlInt( layerNode, "rubberCsettings", 1 );
+						ro.pitch = LocalFileMng::readXmlFloat( layerNode, "rubberPitch", 0.0 );
 
-                        float fMin = LocalFileMng::readXmlFloat( layerNode, "min", 0.0 );
-                        float fMax = LocalFileMng::readXmlFloat( layerNode, "max", 1.0 );
-                        float fGain = LocalFileMng::readXmlFloat( layerNode, "gain", 1.0 );
-                        float fPitch = LocalFileMng::readXmlFloat( layerNode, "pitch", 0.0, false, false );
+						float fMin = LocalFileMng::readXmlFloat( layerNode, "min", 0.0 );
+						float fMax = LocalFileMng::readXmlFloat( layerNode, "max", 1.0 );
+						float fGain = LocalFileMng::readXmlFloat( layerNode, "gain", 1.0 );
+						float fPitch = LocalFileMng::readXmlFloat( layerNode, "pitch", 0.0, false, false );
 
-                        if ( !QFile( sFilename ).exists() && !drumkitPath.isEmpty() ) {
-                            sFilename = drumkitPath + "/" + sFilename;
-                        }
+						if ( !QFile( sFilename ).exists() && !drumkitPath.isEmpty() ) {
+							sFilename = drumkitPath + "/" + sFilename;
+						}
 
-                        QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
-                        //test the path. if test fails, disable rubberband
-                        if ( QFile( program ).exists() == false ) {
-                            ro.use = false;
-                        }
+						QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
+						//test the path. if test fails, disable rubberband
+						if ( QFile( program ).exists() == false ) {
+							ro.use = false;
+						}
 
-                        Sample* pSample = NULL;
-                        if ( !sIsModified ) {
-                            pSample = Sample::load( sFilename );
-                        } else {
-                            Sample::EnvelopePoint pt;
+						Sample* pSample = NULL;
+						if ( !sIsModified ) {
+							pSample = Sample::load( sFilename );
+						} else {
+							Sample::EnvelopePoint pt;
 
-                            Sample::VelocityEnvelope velocity;
-                            QDomNode volumeNode = layerNode.firstChildElement( "volume" );
-                            while (  ! volumeNode.isNull()  ) {
-                                pt.frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
-                                pt.value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
-                                velocity.push_back( pt );
-                                volumeNode = volumeNode.nextSiblingElement( "volume" );
-                                //ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
-                            }
+							Sample::VelocityEnvelope velocity;
+							QDomNode volumeNode = layerNode.firstChildElement( "volume" );
+							while (  ! volumeNode.isNull()  ) {
+								pt.frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
+								pt.value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
+								velocity.push_back( pt );
+								volumeNode = volumeNode.nextSiblingElement( "volume" );
+								//ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
+							}
 
-                            Sample::VelocityEnvelope pan;
-                            QDomNode  panNode = layerNode.firstChildElement( "pan" );
-                            while (  ! panNode.isNull()  ) {
-                                pt.frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
-                                pt.value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
-                                pan.push_back( pt );
-                                panNode = panNode.nextSiblingElement( "pan" );
-                            }
+							Sample::VelocityEnvelope pan;
+							QDomNode  panNode = layerNode.firstChildElement( "pan" );
+							while (  ! panNode.isNull()  ) {
+								pt.frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
+								pt.value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
+								pan.push_back( pt );
+								panNode = panNode.nextSiblingElement( "pan" );
+							}
 
-                            pSample = Sample::load( sFilename, lo, ro, velocity, pan );
-                        }
-                        if ( pSample == NULL ) {
-                            ERRORLOG( "Error loading sample: " + sFilename + " not found" );
-                            pInstrument->set_muted( true );
-                        }
-                        InstrumentLayer* pLayer = new InstrumentLayer( pSample );
-                        pLayer->set_start_velocity( fMin );
-                        pLayer->set_end_velocity( fMax );
-                        pLayer->set_gain( fGain );
-                        pLayer->set_pitch( fPitch );
-                        pCompo->set_layer( pLayer, nLayer );
-                        nLayer++;
+							pSample = Sample::load( sFilename, lo, ro, velocity, pan );
+						}
+						if ( pSample == NULL ) {
+							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
+							pInstrument->set_muted( true );
+						}
+						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
+						pLayer->set_start_velocity( fMin );
+						pLayer->set_end_velocity( fMax );
+						pLayer->set_gain( fGain );
+						pLayer->set_pitch( fPitch );
+						pCompo->set_layer( pLayer, nLayer );
+						nLayer++;
 
-                        layerNode = ( QDomNode ) layerNode.nextSiblingElement( "layer" );
-                    }
+						layerNode = ( QDomNode ) layerNode.nextSiblingElement( "layer" );
+					}
 
-                    pInstrument->get_components()->push_back( pCompo );
-                    componentNode = ( QDomNode ) componentNode.nextSiblingElement( "instrumentComponent" );
-                }
-                if(!p_foundAtLeastOneComponent){
-                    InstrumentComponent* pCompo = new InstrumentComponent( 0 );
-                    float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
-                    unsigned nLayer = 0;
-                    QDomNode layerNode = instrumentNode.firstChildElement( "layer" );
-                    while (  ! layerNode.isNull()  ) {
-                        if ( nLayer >= MAX_LAYERS ) {
-                            ERRORLOG( "nLayer > MAX_LAYERS" );
-                            continue;
-                        }
-                        QString sFilename = LocalFileMng::readXmlString( layerNode, "filename", "" );
-                        bool sIsModified = LocalFileMng::readXmlBool( layerNode, "ismodified", false );
-                        Sample::Loops lo;
-                        lo.mode = Sample::parse_loop_mode( LocalFileMng::readXmlString( layerNode, "smode", "forward" ) );
-                        lo.start_frame = LocalFileMng::readXmlInt( layerNode, "startframe", 0 );
-                        lo.loop_frame = LocalFileMng::readXmlInt( layerNode, "loopframe", 0 );
-                        lo.count = LocalFileMng::readXmlInt( layerNode, "loops", 0 );
-                        lo.end_frame = LocalFileMng::readXmlInt( layerNode, "endframe", 0 );
-                        Sample::Rubberband ro;
-                        ro.use = LocalFileMng::readXmlInt( layerNode, "userubber", 0, false );
-                        ro.divider = LocalFileMng::readXmlFloat( layerNode, "rubberdivider", 0.0 );
-                        ro.c_settings = LocalFileMng::readXmlInt( layerNode, "rubberCsettings", 1 );
-                        ro.pitch = LocalFileMng::readXmlFloat( layerNode, "rubberPitch", 0.0 );
+					pInstrument->get_components()->push_back( pCompo );
+					componentNode = ( QDomNode ) componentNode.nextSiblingElement( "instrumentComponent" );
+				}
+				if(!p_foundAtLeastOneComponent){
+					InstrumentComponent* pCompo = new InstrumentComponent( 0 );
+					float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
+					pCompo->set_gain( fGainCompo );
 
-                        float fMin = LocalFileMng::readXmlFloat( layerNode, "min", 0.0 );
-                        float fMax = LocalFileMng::readXmlFloat( layerNode, "max", 1.0 );
-                        float fGain = LocalFileMng::readXmlFloat( layerNode, "gain", 1.0 );
-                        float fPitch = LocalFileMng::readXmlFloat( layerNode, "pitch", 0.0, false, false );
+					unsigned nLayer = 0;
+					QDomNode layerNode = instrumentNode.firstChildElement( "layer" );
+					while (  ! layerNode.isNull()  ) {
+						if ( nLayer >= MAX_LAYERS ) {
+							ERRORLOG( "nLayer > MAX_LAYERS" );
+							continue;
+						}
+						QString sFilename = LocalFileMng::readXmlString( layerNode, "filename", "" );
+						bool sIsModified = LocalFileMng::readXmlBool( layerNode, "ismodified", false );
+						Sample::Loops lo;
+						lo.mode = Sample::parse_loop_mode( LocalFileMng::readXmlString( layerNode, "smode", "forward" ) );
+						lo.start_frame = LocalFileMng::readXmlInt( layerNode, "startframe", 0 );
+						lo.loop_frame = LocalFileMng::readXmlInt( layerNode, "loopframe", 0 );
+						lo.count = LocalFileMng::readXmlInt( layerNode, "loops", 0 );
+						lo.end_frame = LocalFileMng::readXmlInt( layerNode, "endframe", 0 );
+						Sample::Rubberband ro;
+						ro.use = LocalFileMng::readXmlInt( layerNode, "userubber", 0, false );
+						ro.divider = LocalFileMng::readXmlFloat( layerNode, "rubberdivider", 0.0 );
+						ro.c_settings = LocalFileMng::readXmlInt( layerNode, "rubberCsettings", 1 );
+						ro.pitch = LocalFileMng::readXmlFloat( layerNode, "rubberPitch", 0.0 );
 
-                        if ( !QFile( sFilename ).exists() && !drumkitPath.isEmpty() ) {
-                            sFilename = drumkitPath + "/" + sFilename;
-                        }
+						float fMin = LocalFileMng::readXmlFloat( layerNode, "min", 0.0 );
+						float fMax = LocalFileMng::readXmlFloat( layerNode, "max", 1.0 );
+						float fGain = LocalFileMng::readXmlFloat( layerNode, "gain", 1.0 );
+						float fPitch = LocalFileMng::readXmlFloat( layerNode, "pitch", 0.0, false, false );
 
-                        QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
-                        //test the path. if test fails, disable rubberband
-                        if ( QFile( program ).exists() == false ) {
-                            ro.use = false;
-                        }
+						if ( !QFile( sFilename ).exists() && !drumkitPath.isEmpty() ) {
+							sFilename = drumkitPath + "/" + sFilename;
+						}
 
-                        Sample* pSample = NULL;
-                        if ( !sIsModified ) {
-                            pSample = Sample::load( sFilename );
-                        } else {
-                            Sample::EnvelopePoint pt;
+						QString program = Preferences::get_instance()->m_rubberBandCLIexecutable;
+						//test the path. if test fails, disable rubberband
+						if ( QFile( program ).exists() == false ) {
+							ro.use = false;
+						}
 
-                            Sample::VelocityEnvelope velocity;
-                            QDomNode volumeNode = layerNode.firstChildElement( "volume" );
-                            while (  ! volumeNode.isNull()  ) {
-                                pt.frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
-                                pt.value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
-                                velocity.push_back( pt );
-                                volumeNode = volumeNode.nextSiblingElement( "volume" );
-                                //ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
-                            }
+						Sample* pSample = NULL;
+						if ( !sIsModified ) {
+							pSample = Sample::load( sFilename );
+						} else {
+							Sample::EnvelopePoint pt;
 
-                            Sample::VelocityEnvelope pan;
-                            QDomNode  panNode = layerNode.firstChildElement( "pan" );
-                            while (  ! panNode.isNull()  ) {
-                                pt.frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
-                                pt.value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
-                                pan.push_back( pt );
-                                panNode = panNode.nextSiblingElement( "pan" );
-                            }
+							Sample::VelocityEnvelope velocity;
+							QDomNode volumeNode = layerNode.firstChildElement( "volume" );
+							while (  ! volumeNode.isNull()  ) {
+								pt.frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
+								pt.value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
+								velocity.push_back( pt );
+								volumeNode = volumeNode.nextSiblingElement( "volume" );
+								//ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
+							}
 
-                            pSample = Sample::load( sFilename, lo, ro, velocity, pan );
-                        }
-                        if ( pSample == NULL ) {
-                            ERRORLOG( "Error loading sample: " + sFilename + " not found" );
-                            pInstrument->set_muted( true );
-                        }
-                        InstrumentLayer* pLayer = new InstrumentLayer( pSample );
-                        pLayer->set_start_velocity( fMin );
-                        pLayer->set_end_velocity( fMax );
-                        pLayer->set_gain( fGain );
-                        pLayer->set_pitch( fPitch );
-                        pCompo->set_layer( pLayer, nLayer );
-                        nLayer++;
+							Sample::VelocityEnvelope pan;
+							QDomNode  panNode = layerNode.firstChildElement( "pan" );
+							while (  ! panNode.isNull()  ) {
+								pt.frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
+								pt.value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
+								pan.push_back( pt );
+								panNode = panNode.nextSiblingElement( "pan" );
+							}
 
-                        layerNode = ( QDomNode ) layerNode.nextSiblingElement( "layer" );
-                    }
-                    pInstrument->get_components()->push_back( pCompo );
-                }
-            }
-            instrumentList->add( pInstrument );
-            instrumentNode = ( QDomNode ) instrumentNode.nextSiblingElement( "instrument" );
+							pSample = Sample::load( sFilename, lo, ro, velocity, pan );
+						}
+						if ( pSample == NULL ) {
+							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
+							pInstrument->set_muted( true );
+						}
+						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
+						pLayer->set_start_velocity( fMin );
+						pLayer->set_end_velocity( fMax );
+						pLayer->set_gain( fGain );
+						pLayer->set_pitch( fPitch );
+						pCompo->set_layer( pLayer, nLayer );
+						nLayer++;
+
+						layerNode = ( QDomNode ) layerNode.nextSiblingElement( "layer" );
+					}
+					pInstrument->get_components()->push_back( pCompo );
+				}
+			}
+			instrumentList->add( pInstrument );
+			instrumentNode = ( QDomNode ) instrumentNode.nextSiblingElement( "instrument" );
 		}
 
 		if ( instrumentList_count == 0 ) {
@@ -960,11 +951,6 @@ Song* SongReader::readSong( const QString& filename )
 						}
 						inputControlNode = ( QDomNode ) inputControlNode.nextSiblingElement( "inputControlPort" );
 					}
-
-					/*
-					TiXmlNode* outputControlNode;
-					for ( outputControlNode = fxNode->FirstChild( "outputControlPort" ); outputControlNode; outputControlNode = outputControlNode->NextSibling( "outputControlPort" ) ) {
-					}*/
 				}
 #endif
 			}
