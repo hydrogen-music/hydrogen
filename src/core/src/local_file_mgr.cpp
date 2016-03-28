@@ -780,11 +780,16 @@ int  LocalFileMng::mergeAllPatternList( std::vector<QString> current )
  * \return Returns an Errorcode.
  */
 
-int LocalFileMng::savePlayList( const std::string& filename)
+int LocalFileMng::savePlayList( const std::string& playListFilename)
 {
+	Preferences *pPref = H2Core::Preferences::get_instance();
+	bool		useRelativePathNames = pPref->isPlaylistUsingRelativeFilenames();
 
-	std::string name = filename.c_str();
+	QString		qFileName = QString::fromStdString( playListFilename );
+	QFileInfo	fileInfo( qFileName );
+	QDir		playlistDir = fileInfo.absoluteDir();
 
+	std::string name = playListFilename.c_str();
 	std::string realname = name.substr(name.rfind("/")+1);
 
 	QDomDocument doc;
@@ -799,7 +804,14 @@ int LocalFileMng::savePlayList( const std::string& filename)
 	for ( uint i = 0; i < Hydrogen::get_instance()->m_PlayList.size(); ++i ){
 		QDomNode nextNode = doc.createElement( "next" );
 
-		LocalFileMng::writeXmlString ( nextNode, "song", Hydrogen::get_instance()->m_PlayList[i].m_hFile );
+		QString playlistItemFilename;
+		if(useRelativePathNames){
+			playlistItemFilename = playlistDir.relativeFilePath(Hydrogen::get_instance()->m_PlayList[i].m_hFile);
+		} else {
+			playlistItemFilename = Hydrogen::get_instance()->m_PlayList[i].m_hFile;
+		}
+
+		LocalFileMng::writeXmlString ( nextNode, "song", playlistItemFilename);
 		LocalFileMng::writeXmlString ( nextNode, "script", Hydrogen::get_instance()->m_PlayList[i].m_hScript );
 		LocalFileMng::writeXmlString ( nextNode, "enabled", Hydrogen::get_instance()->m_PlayList[i].m_hScriptEnabled );
 
@@ -810,7 +822,7 @@ int LocalFileMng::savePlayList( const std::string& filename)
 	doc.appendChild( rootNode );
 
 	int rv = 0;
-	QFile file( filename.c_str() );
+	QFile file( playListFilename.c_str() );
 	if ( !file.open(QIODevice::WriteOnly) )
 		rv = 1;
 
@@ -823,7 +835,6 @@ int LocalFileMng::savePlayList( const std::string& filename)
 	file.close();
 
 	return rv; // ok
-
 }
 
 /**
@@ -837,7 +848,10 @@ int LocalFileMng::loadPlayList( const std::string& filename)
 	/* openXmlDocument can create new document ( which is bad idea anyway )
 	   We don't want create new playlist here , so we just open it for test ;-)
 	*/
-	QString Filename = QString( filename.c_str() );
+	QString		Filename = QString( filename.c_str() );
+	QFileInfo	playlistFileInfo( Filename );
+	QDir		playlistDir = playlistFileInfo.absoluteDir();
+
 	QFile file( Filename );
 	if ( file.open(QIODevice::ReadOnly) ) {
 		file.close();
@@ -863,7 +877,11 @@ int LocalFileMng::loadPlayList( const std::string& filename)
 		SongReader reader;
 		while (  ! nextNode.isNull() ) {
 			Hydrogen::HPlayListNode playListItem;
-			playListItem.m_hFile = readXmlString( nextNode, "song", "" );
+			QString playlistItemPath = readXmlString( nextNode, "song", "" );
+
+			QFileInfo playlistItemInfo (playlistDir, playlistItemPath);
+			playListItem.m_hFile = playlistItemInfo.absoluteFilePath();
+
 			QString FilePath = reader.getPath( playListItem.m_hFile );
 			playListItem.m_hFileExists = Filesystem::file_readable( FilePath );
 			playListItem.m_hScript = LocalFileMng::readXmlString( nextNode, "script", "" );
