@@ -203,6 +203,7 @@ ELSE()
 ENDIF()
 
 FIND_HELPER(JACK jack jack/jack.h jack)
+CHECK_LIBRARY_EXISTS(jack jack_port_rename "" HAVE_JACK_PORT_RENAME)
 FIND_HELPER(JACKSESSION jack jack/session.h jack)
 IF(APPLE)
     FIND_LIBRARY(AUDIOUNIT_LIBRARY AudioUnit)
