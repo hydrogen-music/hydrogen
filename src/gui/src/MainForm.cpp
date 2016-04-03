@@ -376,7 +376,7 @@ void MainForm::createMenuBar()
 	m_pInfoMenu->addSeparator();
 	m_pInfoMenu->addAction( trUtf8("&About"), this, SLOT( action_help_about() ), QKeySequence( trUtf8("", "Info|About") ) );
 	m_pInfoMenu->addAction( trUtf8("Report bug"), this, SLOT( action_report_bug() ));
-	m_pInfoMenu->addAction( trUtf8("Donate"), this, SLOT( action_donate() ));
+	//m_pInfoMenu->addAction( trUtf8("Donate"), this, SLOT( action_donate() ));
 	//~ INFO menu
 }
 
