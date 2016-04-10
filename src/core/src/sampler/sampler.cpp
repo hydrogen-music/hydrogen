@@ -441,7 +441,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 			}
 
 		} else {	// Precompute some values...
-			
+			cost_L = cost_L * pNote->get_velocity();	// note velocity
             cost_L = cost_L * pNote->get_pan_l();		// note pan
             cost_L = cost_L * fLayerGain;				// layer gain
             cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
@@ -458,7 +458,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
             cost_L = cost_L * pSong->get_volume();	// song volume
             cost_L = cost_L * 2; // max pan is 0.5
 
-
+			cost_R = cost_R * pNote->get_velocity();	// note velocity
 			cost_R = cost_R * pNote->get_pan_r();		// note pan
             cost_R = cost_R * fLayerGain;				// layer gain
             cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
