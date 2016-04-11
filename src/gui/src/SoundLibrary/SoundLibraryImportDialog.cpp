@@ -436,8 +436,6 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 void SoundLibraryImportDialog::loadImage(QString img )
 {
 	QPixmap pixmap;
-	// TODO: Need to make sure that this isn't getting called after user clicks a different item!
-	//pixmap.loadFromData(m_pImgCtrl->downloadedData());
 	pixmap.load( img ) ;
 
 	writeCachedImage( drumkitImageLabel->text(), pixmap );
