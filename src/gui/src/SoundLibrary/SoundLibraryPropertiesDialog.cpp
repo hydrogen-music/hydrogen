@@ -141,7 +141,7 @@ void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
 	
 	QFile file( fileName );
 	QFileInfo fileInfo(file.fileName());
-	//ERRORLOG(fileInfo.dir().path().toLocal8Bit() + drumkitDir);
+
 	if ( fileInfo.dir().path() != drumkitDir )
 	{
 		INFOLOG("Copying " + fileName + " to " + drumkitDir.toLocal8Bit() );
