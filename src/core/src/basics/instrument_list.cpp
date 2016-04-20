@@ -166,6 +166,14 @@ Instrument*  InstrumentList::find( const QString& name )
 	return 0;
 }
 
+Instrument*  InstrumentList::findMidiNote( const int note )
+{
+	for( int i=0; i<__instruments.size(); i++ ) {
+		if ( __instruments[i]->get_midi_out_note()==note ) return __instruments[i];
+	}
+	return 0;
+}
+
 Instrument* InstrumentList::del( int idx )
 {
 	assert( idx >= 0 && idx < __instruments.size() );
