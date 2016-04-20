@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>559</width>
-    <height>448</height>
+    <height>451</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
@@ -679,6 +679,17 @@
             <widget class="QCheckBox" name="m_pIgnoreNoteOffCheckBox">
              <property name="text">
               <string>Ignore note-off</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <widget class="QCheckBox" name="m_pFixedMapping">
+             <property name="text">
+              <string>Use output note as input note</string>
              </property>
             </widget>
            </item>
