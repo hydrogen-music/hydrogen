@@ -391,18 +391,19 @@ void JackOutput::updateTransportInfo()
 
 		// humantime fix
 		if ( H->getHumantimeFrames() != m_JackTransportPos.frame ) {
-			if ( must_relocate == 1 ) {
-				relocateBBT();
-
-				// offset between jack- and internal position
-				calculateFrameOffset();
-
-				if ( m_transport.m_status == TransportInfo::ROLLING )
-					H->triggerRelocateDuringPlay();
-			}
-
-			if ( must_relocate > 0 ) must_relocate--;
+			H->setHumantimeFrames(m_JackTransportPos.frame);
+			//WARNINGLOG("fix Humantime " + to_string (m_JackTransportPos.frame));
 		}
+
+		if ( must_relocate == 1 ) {
+			//WARNINGLOG( "Resyncing!" );
+			relocateBBT();
+			if ( m_transport.m_status == TransportInfo::ROLLING ) {
+				H->triggerRelocateDuringPlay();
+			}
+		}
+
+		if ( must_relocate > 0 ) must_relocate--;
 }
 
 float* JackOutput::getOut_L()
