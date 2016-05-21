@@ -703,8 +703,13 @@ void JackOutput::setTrackOutput( int n, Instrument * instr, InstrumentComponent 
 	DrumkitComponent* p_dmCompo = song->get_component( compo->get_drumkit_componentID() );
 	chName = QString( "Track_%1_%2_%3_" ).arg( n + 1 ).arg( instr->get_name() ).arg( p_dmCompo->get_name() );
 
+#ifdef HAVE_JACK_PORT_RENAME
+	jack_port_rename( client, track_output_ports_L[n], ( chName + "L" ).toLocal8Bit() );
+	jack_port_rename( client, track_output_ports_R[n], ( chName + "R" ).toLocal8Bit() );
+#else
 	jack_port_set_name( track_output_ports_L[n], ( chName + "L" ).toLocal8Bit() );
 	jack_port_set_name( track_output_ports_R[n], ( chName + "R" ).toLocal8Bit() );
+#endif
 }
 
 void JackOutput::play()
