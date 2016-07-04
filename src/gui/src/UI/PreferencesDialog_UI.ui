@@ -29,7 +29,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
@@ -835,6 +835,9 @@
            <property name="frameShape">
             <enum>QFrame::Box</enum>
            </property>
+           <property name="lineWidth">
+            <number>0</number>
+           </property>
            <property name="midLineWidth">
             <number>0</number>
            </property>
@@ -842,7 +845,7 @@
             <string>Default interface layout</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
            <property name="margin">
             <number>0</number>
