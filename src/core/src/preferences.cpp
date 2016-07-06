@@ -248,8 +248,8 @@ Preferences::Preferences()
 	m_ladspaProperties[2].set(2, 20, 0, 0, false);
 	m_ladspaProperties[3].set(2, 20, 0, 0, false);
 
-	m_nColoringMethod = 0;
-	m_nColoringMethodAuxValue = 0;
+	m_nColoringMethod = 2;
+	m_nColoringMethodAuxValue = 213;
 
 
 	UIStyle* uis = m_pDefaultUIStyle;
@@ -619,8 +619,8 @@ void Preferences::loadPreferences( bool bGlobal )
 				}
 
 				//SongEditor coloring
-				m_nColoringMethod = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethod", 0 );
-				m_nColoringMethodAuxValue = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethodAuxValue", 0 );
+				m_nColoringMethod = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethod", 2 );
+				m_nColoringMethodAuxValue = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethodAuxValue", 213 );
 
 			}
 
@@ -942,25 +942,26 @@ void Preferences::savePreferences()
 
 		//beatcounter
 		QString bcMode;
-			if ( m_bbc == BC_OFF ) {
-				bcMode = "BC_OFF";
-			} else if ( m_bbc  == BC_ON ) {
-				bcMode = "BC_ON";
-			}
-			LocalFileMng::writeXmlString( guiNode, "bc", bcMode );
+
+		if ( m_bbc == BC_OFF ) {
+			bcMode = "BC_OFF";
+		} else if ( m_bbc  == BC_ON ) {
+			bcMode = "BC_ON";
+		}
+		LocalFileMng::writeXmlString( guiNode, "bc", bcMode );
 
 
 
 		QString setPlay;
-			if ( m_mmcsetplay == SET_PLAY_OFF ) {
-				setPlay = "SET_PLAY_OFF";
-			} else if ( m_mmcsetplay == SET_PLAY_ON ) {
-				setPlay = "SET_PLAY_ON";
-			}
-			LocalFileMng::writeXmlString( guiNode, "setplay", setPlay );
+		if ( m_mmcsetplay == SET_PLAY_OFF ) {
+			setPlay = "SET_PLAY_OFF";
+		} else if ( m_mmcsetplay == SET_PLAY_ON ) {
+			setPlay = "SET_PLAY_ON";
+		}
+		LocalFileMng::writeXmlString( guiNode, "setplay", setPlay );
 
-			LocalFileMng::writeXmlString( guiNode, "countoffset", QString("%1").arg(m_countOffset) );
-			LocalFileMng::writeXmlString( guiNode, "playoffset", QString("%1").arg(m_startOffset) );
+		LocalFileMng::writeXmlString( guiNode, "countoffset", QString("%1").arg(m_countOffset) );
+		LocalFileMng::writeXmlString( guiNode, "playoffset", QString("%1").arg(m_startOffset) );
 		//~ beatcounter
 
 
@@ -989,7 +990,7 @@ void Preferences::savePreferences()
 	rootNode.appendChild( filesNode );
 
 	MidiMap * mM = MidiMap::get_instance();
-		std::map< QString, MidiAction* > mmcMap = mM->getMMCMap();
+	std::map< QString, MidiAction* > mmcMap = mM->getMMCMap();
 
 	//---- MidiMap ----
 	QDomNode midiEventMapNode = doc.createElement( "midiEventMap" );
