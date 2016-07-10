@@ -190,6 +190,7 @@ Preferences::Preferences()
 	m_sMidiPortName = QString("None");
 	m_nMidiChannelFilter = -1;
 	m_bMidiNoteOffIgnore = false;
+	m_bMidiFixedMapping = false;
 	m_bMidiDiscardNoteAfterAction = false;
 
 	//___  alsa audio driver properties ___
@@ -525,6 +526,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_sMidiPortName = LocalFileMng::readXmlString( midiDriverNode, "port_name", "None" );
 					m_nMidiChannelFilter = LocalFileMng::readXmlInt( midiDriverNode, "channel_filter", -1 );
 					m_bMidiNoteOffIgnore = LocalFileMng::readXmlBool( midiDriverNode, "ignore_note_off", true );
+					m_bMidiFixedMapping = LocalFileMng::readXmlBool( midiDriverNode, "fixed_mapping", false, true );
 				}
 
 
@@ -899,6 +901,14 @@ void Preferences::savePreferences()
 				LocalFileMng::writeXmlString( midiDriverNode, "discard_note_after_action", "true" );
 			} else {
 				LocalFileMng::writeXmlString( midiDriverNode, "discard_note_after_action", "false" );
+			}
+
+			if ( m_bMidiFixedMapping ) {
+				LocalFileMng::writeXmlString( midiDriverNode, "fixed_mapping", "true" );
+				INFOLOG("Saving fixed mapping\n");
+			} else {
+				LocalFileMng::writeXmlString( midiDriverNode, "fixed_mapping", "false" );
+				INFOLOG("Saving fixed mapping false\n");
 			}
 		}
 		audioEngineNode.appendChild( midiDriverNode );
