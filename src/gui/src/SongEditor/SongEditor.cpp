@@ -829,8 +829,14 @@ void SongEditor::drawPattern( int pos, int number, bool invertColour )
 	int coloringMethodAuxValue = pref->getColoringMethodAuxValue();
 	int steps = 1;
 
-	//valid values: 0:300, see http://qt-project.org/doc/qt-4.8/qcolor.html#the-hsv-color-model
-	int hue = 0;
+	/*
+	 * This coloring of the song editor "squares" is done using the hsv color model,
+	 * see http://qt-project.org/doc/qt-4.8/qcolor.html#the-hsv-color-model for details.
+	 *
+	 * The default color of the cubes in rgb is 97,167,251.
+	 * The hsv equivalent is 213,156,249.
+	 */
+	int hue = 213;
 
 	Song* song = Hydrogen::get_instance()->getSong();
 	PatternList *patList = song->get_pattern_list();
@@ -847,20 +853,23 @@ void SongEditor::drawPattern( int pos, int number, bool invertColour )
 				steps = 1;
 			}
 
-			hue = (number % steps) * (300 / steps);
+			hue = ((number % steps) * (300 / steps) + 213) % 300;
+			patternColor.setHsv( hue , 156 , 249);
 			break;
 		case 1:
 			//Steps
 			steps = coloringMethodAuxValue;
-			hue = (number % steps) * (300 / steps);
+			hue = ((number % steps) * (300 / steps) + 213) % 300;
+			patternColor.setHsv( hue , 156, 249);
 			break;
 		case 2:
 			//Fixed color
 			hue = coloringMethodAuxValue;
+			patternColor.setHsv( hue , 156, 249);
 			break;
 	}
 
-	patternColor.setHsv( hue , 255, 200);
+
 
 	if (true == invertColour) {
 		patternColor = patternColor.darker(200);
