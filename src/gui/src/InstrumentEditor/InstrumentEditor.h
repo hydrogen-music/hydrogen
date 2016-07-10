@@ -38,6 +38,7 @@ class Button;
 class ToggleButton;
 class ClickableLabel;
 class Rotary;
+class LCDCombo;
 class WaveDisplay;
 class LayerPreview;
 
@@ -83,6 +84,8 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void hihatMinRangeBtnClicked(Button *pRef);
 		void hihatMaxRangeBtnClicked(Button *pRef);
 
+		void pSampleSelectionChanged( QString );
+
 	private:
 		H2Core::Instrument *m_pInstrument;
 		int m_nSelectedLayer;
@@ -113,6 +116,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		// Instrument gain
 		LCDDisplay *m_pInstrumentGainLCD;
 		Rotary *m_pInstrumentGain;
+		QCheckBox *m_pIgnoreVelocity;
 
 		// Instrument mute group
 		LCDDisplay *m_pMuteGroupLCD;
@@ -159,6 +163,9 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		LCDDisplay *m_pLayerPitchCoarseLCD;
 		LCDDisplay *m_pLayerPitchFineLCD;
+
+		//LCDCombo *__pattern_size_combo;
+		LCDCombo *m_sampleSelectionAlg;
 
 		WaveDisplay *m_pWaveDisplay;
 

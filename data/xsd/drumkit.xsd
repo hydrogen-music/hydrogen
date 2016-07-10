@@ -85,6 +85,7 @@
             <xsd:element name="midiOutChannel"   type="xsd:integer"     default="-1" minOccurs="0"/>
             <xsd:element name="midiOutNote"      type="xsd:integer"     minOccurs="0"/>
             <xsd:element name="isStopNote"       type="h2:bool"         default="false" minOccurs="0"/>
+            <xsd:element name="sampleSelectionAlgo" type="xsd:string"   default="VELOCITY"/>
             <xsd:element name="isHihat"          type="xsd:integer"     default="-1"/>
             <xsd:element name="lower_cc"         type="xsd:integer"     default="0"/>
             <xsd:element name="higher_cc"        type="xsd:integer"     default="0"/>
