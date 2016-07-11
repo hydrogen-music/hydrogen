@@ -250,6 +250,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	pInstrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
 	pInstrument->set_midi_out_note( node->read_int( "midiOutNote", pInstrument->__midi_out_note, true, false ) );
 	pInstrument->set_stop_notes( node->read_bool( "isStopNote", true ,false ) );
+
 	QString sRead_sample_select_algo = node->read_string( "sampleSelectionAlgo", "VELOCITY" );
 	if ( sRead_sample_select_algo.compare("VELOCITY") == 0 )
 		pInstrument->set_sample_selection_alg( VELOCITY );
@@ -319,7 +320,7 @@ void Instrument::save_to( XMLNode* node, int component_id )
 	InstrumentNode.write_int( "midiOutChannel", __midi_out_channel );
 	InstrumentNode.write_int( "midiOutNote", __midi_out_note );
 	InstrumentNode.write_bool( "isStopNote", __stop_notes );
-	//instrument_node.write_bool( "isRoundRobin", __round_robin );
+
 	switch ( __sample_selection_alg ) {
 		case VELOCITY:
 			InstrumentNode.write_string( "sampleSelectionAlgo", "VELOCITY" );
@@ -331,9 +332,11 @@ void Instrument::save_to( XMLNode* node, int component_id )
 			InstrumentNode.write_string( "sampleSelectionAlgo", "ROUND_ROBIN" );
 			break;
 	}
+
 	InstrumentNode.write_int( "isHihat", __hihat_grp );
 	InstrumentNode.write_int( "lower_cc", __lower_cc );
 	InstrumentNode.write_int( "higher_cc", __higher_cc );
+
 	for ( int i=0; i<MAX_FX; i++ ) {
 		InstrumentNode.write_float( QString( "FX%1Level" ).arg( i+1 ), __fx_level[i] );
 	}
@@ -342,6 +345,7 @@ void Instrument::save_to( XMLNode* node, int component_id )
 		if( component_id == -1 || pComponent->get_drumkit_componentID() == component_id )
 			pComponent->save_to( &InstrumentNode, component_id );
 	}
+
 	node->appendChild( InstrumentNode );
 }
 
