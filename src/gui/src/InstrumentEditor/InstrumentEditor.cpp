@@ -45,6 +45,7 @@ using namespace H2Core;
 #include "../widgets/ClickableLabel.h"
 #include "../widgets/Button.h"
 #include "../widgets/LCD.h"
+#include "../widgets/LCDCombo.h"
 #include "../widgets/Fader.h"
 #include "InstrumentEditor.h"
 #include "WaveDisplay.h"
@@ -449,12 +450,23 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pCompoGainRotary->move( 199, 341 );
 
 
-	m_pLayerPitchCoarseLCD->move( 54, 400 + 3 );
-	m_pLayerPitchCoarseRotary->move( 102, 400 );
+	m_pLayerPitchCoarseLCD->move( 54, 391 + 3 );
+	m_pLayerPitchCoarseRotary->move( 102, 391 );
 
+	m_pLayerPitchFineLCD->move( 151, 391 + 3 );
+	m_pLayerPitchFineRotary->move( 199, 391 );
 
-	m_pLayerPitchFineLCD->move( 151, 400 + 3 );
-	m_pLayerPitchFineRotary->move( 199, 400 );
+	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, 25);
+	m_sampleSelectionAlg->move( 60, 434 );
+	m_sampleSelectionAlg->setToolTip( trUtf8("Select pattern size") );
+
+	m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
+	m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
+	m_sampleSelectionAlg->addItem( QString( "Random" ) );
+
+	m_sampleSelectionAlg->update();
+	connect( m_sampleSelectionAlg, SIGNAL( valueChanged( QString ) ), this, SLOT( pSampleSelectionChanged( QString ) ) );
+
 	//~ Layer properties
 
 	//component handling
@@ -592,6 +604,23 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			const char *noteStrs[12] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 			QString sMidiOutNote = QString(noteStrs[note % 12]) + QString::number(octave);
 			m_pMidiOutNoteLCD->setText( sMidiOutNote );
+		}
+
+		/*
+		 * m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
+		 * m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
+		 * m_sampleSelectionAlg->addItem( QString( "Random" ) );
+		 **/
+		switch ( m_pInstrument->sample_selection_alg() ) {
+			case Instrument::VELOCITY:
+				m_sampleSelectionAlg->set_text( "First in Velocity" );
+				break;
+			case Instrument::RANDOM:
+				m_sampleSelectionAlg->set_text( "Random" );
+				break;
+			case Instrument::ROUND_ROBIN:
+				m_sampleSelectionAlg->set_text( "Round Robin" );
+				break;
 		}
 
 		itemsCompo.clear();
@@ -1354,6 +1383,26 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 		}
 	}
 
+}
+
+void InstrumentEditor::pSampleSelectionChanged( QString selected )
+{
+	/*
+		"First in Velocity"
+		"Round Robin"
+		"Random"
+	*/
+
+	assert( m_pInstrument );
+
+	if ( selected.compare("First in Velocity") == 0 )
+		m_pInstrument->set_sample_selection_alg( Instrument::VELOCITY );
+	else if ( selected.compare("Round Robin") == 0 )
+		m_pInstrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
+	else if ( selected.compare("Random") == 0)
+		m_pInstrument->set_sample_selection_alg( Instrument::RANDOM );
+
+	selectedInstrumentChangedEvent();	// force an update
 }
 
 void InstrumentEditor::hihatGroupClicked(Button *pRef)

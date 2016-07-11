@@ -189,6 +189,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	}
 	AudioEngine::get_instance()->unlock();
 
+	/*
 	if ( m_pInstrument ) {
         InstrumentComponent* p_tmpCompo = m_pInstrument->get_component( m_nSelectedComponent );
         if(!p_tmpCompo) {
@@ -201,6 +202,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
             }
         }
     }
+	*/
 
 	// select the last valid layer
 	if ( m_pInstrument ) {

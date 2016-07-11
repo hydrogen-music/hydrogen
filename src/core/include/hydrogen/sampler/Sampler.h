@@ -39,6 +39,7 @@ class Song;
 class Sample;
 class DrumkitComponent;
 class Instrument;
+struct SelectedLayerInfo;
 class InstrumentComponent;
 class AudioOutput;
 
@@ -95,7 +96,7 @@ private:
 	/// Instrument used for the preview feature.
 	Instrument* __preview_instrument;
 
-	unsigned __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
+	bool __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
 
 		InterpolateMode __interpolateMode;
 
@@ -199,9 +200,10 @@ private:
 				return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
 		};
 
-	int __render_note_no_resample(
+	bool __render_note_no_resample(
 		Sample *pSample,
 		Note *pNote,
+		SelectedLayerInfo *pSelectedLayerInfo,
 		InstrumentComponent *pCompo,
 		DrumkitComponent *pDrumCompo,
 		int nBufferSize,
@@ -213,9 +215,10 @@ private:
 		Song* pSong
 	);
 
-	int __render_note_resample(
+	bool __render_note_resample(
 		Sample *pSample,
 		Note *pNote,
+		SelectedLayerInfo *pSelectedLayerInfo,
 		InstrumentComponent *pCompo,
 		DrumkitComponent *pDrumCompo,
 		int nBufferSize,
