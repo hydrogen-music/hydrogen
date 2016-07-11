@@ -245,6 +245,8 @@ class Instrument : public H2Core::Object
 		std::vector<InstrumentComponent*>* get_components();
 		InstrumentComponent* get_component( int DrumkitComponentID );
 
+		void set_apply_velocity( bool apply_velocity );
+		bool get_apply_velocity() const;
 
 
 	private:
@@ -277,6 +279,7 @@ class Instrument : public H2Core::Object
 		bool __is_preview_instrument;			///< is the instrument an hydrogen preview instrument?
 		bool __is_metronome_instrument;			///< is the instrument an metronome instrument?
 		std::vector<InstrumentComponent*>* __components;  ///< InstrumentLayer array
+		bool __apply_velocity;			///< change the sample gain based on velocity
 };
 
 // DEFINITIONS
@@ -578,6 +581,16 @@ inline void Instrument::set_is_metronome_instrument(bool isMetronome)
 inline std::vector<InstrumentComponent*>* Instrument::get_components()
 {
 	return __components;
+}
+
+inline void Instrument::set_apply_velocity( bool apply_velocity )
+{
+	__apply_velocity = apply_velocity;
+}
+
+inline bool Instrument::get_apply_velocity() const
+{
+	return __apply_velocity;
 }
 
 

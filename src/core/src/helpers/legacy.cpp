@@ -70,6 +70,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				instrument->set_pan_l( instrument_node.read_float( "pan_L", 1.0f ) );
 				instrument->set_pan_r( instrument_node.read_float( "pan_R", 1.0f ) );
 				// may not exist, but can't be empty
+				instrument->set_apply_velocity( instrument_node.read_bool( "applyVelocity", true, false ) );
 				instrument->set_filter_active( instrument_node.read_bool( "filterActive", true, false ) );
 				instrument->set_filter_cutoff( instrument_node.read_float( "filterCutoff", 1.0f, true, false ) );
 				instrument->set_filter_resonance( instrument_node.read_float( "filterResonance", 0.0f, true, false ) );
