@@ -25,7 +25,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -66,7 +66,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -107,7 +107,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -148,7 +148,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -189,7 +189,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -230,7 +230,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -271,7 +271,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>0.78</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -312,7 +312,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -353,7 +353,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>0.78</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -394,7 +394,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>0.42</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -435,7 +435,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>0.84</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -476,7 +476,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -517,7 +517,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -558,7 +558,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>0.88</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -599,7 +599,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -640,7 +640,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>0.78</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
