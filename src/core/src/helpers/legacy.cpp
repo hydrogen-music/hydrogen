@@ -46,6 +46,9 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 	drumkit->set_author( root.read_string( "author", "undefined author" ) );
 	drumkit->set_info( root.read_string( "info", "defaultInfo" ) );
 	drumkit->set_license( root.read_string( "license", "undefined license" ) );
+	drumkit->set_image( root.read_string( "image", "" ) );
+	drumkit->set_image_license( root.read_string( "imageLicense", "undefined license" ) );
+
 	XMLNode instruments_node = root.firstChildElement( "instrumentList" );
 	if ( instruments_node.isNull() ) {
 		WARNINGLOG( "instrumentList node not found" );
