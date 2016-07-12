@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>SoundLibraryImportDialog_UI</class>
- <widget class="QDialog" name="SoundLibraryImportDialog_UI" >
-  <property name="geometry" >
+ <widget class="QDialog" name="SoundLibraryImportDialog_UI">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,21 +10,21 @@
     <height>688</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QVBoxLayout">
    <item>
-    <widget class="QTabWidget" name="tabWidget" >
-     <property name="currentIndex" >
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="Internet" >
-      <attribute name="title" >
+     <widget class="QWidget" name="Internet">
+      <attribute name="title">
        <string>Internet</string>
       </attribute>
-      <widget class="QWidget" name="layoutWidget" >
-       <property name="geometry" >
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
         <rect>
          <x>9</x>
          <y>9</y>
@@ -31,18 +32,18 @@
          <height>588</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout" >
+       <layout class="QVBoxLayout">
         <item>
-         <widget class="QComboBox" name="repositoryCombo" />
+         <widget class="QComboBox" name="repositoryCombo"/>
         </item>
         <item>
-         <layout class="QHBoxLayout" >
+         <layout class="QHBoxLayout">
           <item>
            <spacer>
-            <property name="orientation" >
+            <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>40</width>
               <height>20</height>
@@ -51,25 +52,25 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="UpdateListBtn" >
-            <property name="text" >
+           <widget class="QPushButton" name="UpdateListBtn">
+            <property name="text">
              <string>Update list</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="EditListBtn" >
-            <property name="text" >
+           <widget class="QPushButton" name="EditListBtn">
+            <property name="text">
              <string>Edit server list</string>
             </property>
            </widget>
           </item>
           <item>
            <spacer>
-            <property name="orientation" >
+            <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0">
              <size>
               <width>40</width>
               <height>20</height>
@@ -80,21 +81,21 @@
          </layout>
         </item>
         <item>
-         <widget class="QTreeWidget" name="m_pDrumkitTree" >
-          <property name="alternatingRowColors" >
+         <widget class="QTreeWidget" name="m_pDrumkitTree">
+          <property name="alternatingRowColors">
            <bool>true</bool>
           </property>
-          <property name="indentation" >
+          <property name="indentation">
            <number>15</number>
           </property>
-          <property name="rootIsDecorated" >
+          <property name="rootIsDecorated">
            <bool>false</bool>
           </property>
-          <property name="itemsExpandable" >
+          <property name="itemsExpandable">
            <bool>false</bool>
           </property>
           <column>
-           <property name="text" >
+           <property name="text">
             <string>1</string>
            </property>
           </column>
@@ -102,8 +103,8 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="" >
-       <property name="geometry" >
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
         <rect>
          <x>390</x>
          <y>9</y>
@@ -111,97 +112,141 @@
          <height>588</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout" >
+       <layout class="QVBoxLayout">
         <item>
-         <widget class="QLabel" name="SoundLibraryNameLbl" >
-          <property name="maximumSize" >
+         <widget class="QLabel" name="SoundLibraryNameLbl">
+          <property name="maximumSize">
            <size>
             <width>16777215</width>
             <height>50</height>
            </size>
           </property>
-          <property name="font" >
+          <property name="font">
            <font>
             <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
-          <property name="text" >
+          <property name="text">
            <string>Sound Library Name</string>
           </property>
-          <property name="alignment" >
+          <property name="alignment">
            <set>Qt::AlignCenter</set>
           </property>
-          <property name="wordWrap" >
+          <property name="wordWrap">
            <bool>true</bool>
           </property>
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" >
+         <layout class="QHBoxLayout">
           <item>
-           <widget class="QLabel" name="SoundLibraryInfoLbl" >
-            <property name="text" >
-             <string>Sound library Info</string>
-            </property>
-            <property name="alignment" >
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-            </property>
-            <property name="wordWrap" >
+           <widget class="QTextEdit" name="SoundLibraryInfoLbl">
+            <property name="readOnly">
              <bool>true</bool>
             </property>
-            <property name="margin" >
-             <number>-1</number>
-            </property>
            </widget>
-          </item>
-          <item>
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </item>
         <item>
-         <widget class="QLabel" name="LicenseLbl" >
-          <property name="maximumSize" >
+         <widget class="QLabel" name="drumkitImageLabel">
+          <property name="minimumSize">
            <size>
-            <width>16777215</width>
-            <height>30</height>
+            <width>0</width>
+            <height>200</height>
            </size>
           </property>
-          <property name="text" >
-           <string>License...</string>
+          <property name="palette">
+           <palette>
+            <active>
+             <colorrole role="WindowText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="0">
+                <red>34</red>
+                <green>31</green>
+                <blue>30</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </active>
+            <inactive>
+             <colorrole role="WindowText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="0">
+                <red>34</red>
+                <green>31</green>
+                <blue>30</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </inactive>
+            <disabled>
+             <colorrole role="WindowText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>144</red>
+                <green>141</green>
+                <blue>139</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </disabled>
+           </palette>
+          </property>
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="AuthorLbl" >
-          <property name="maximumSize" >
+         <widget class="QLabel" name="ImageLicenseLbl">
+          <property name="maximumSize">
            <size>
             <width>16777215</width>
             <height>30</height>
            </size>
           </property>
-          <property name="text" >
+          <property name="text">
+           <string>Image License...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="LicenseLbl">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Drumkit License...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="AuthorLbl">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="text">
            <string>Author...</string>
           </property>
          </widget>
         </item>
         <item>
          <spacer>
-          <property name="orientation" >
+          <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <property name="sizeHint" >
+          <property name="sizeHint" stdset="0">
            <size>
             <width>372</width>
             <height>21</height>
@@ -210,8 +255,8 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="DownloadBtn" >
-          <property name="text" >
+         <widget class="QPushButton" name="DownloadBtn">
+          <property name="text">
            <string>Download and install</string>
           </property>
          </widget>
@@ -219,64 +264,52 @@
        </layout>
       </widget>
      </widget>
-     <widget class="QWidget" name="tab_2" >
-      <attribute name="title" >
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
        <string>Local file</string>
       </attribute>
-      <widget class="QWidget" name="widget_2" >
-       <property name="geometry" >
+      <widget class="QWidget" name="widget_2">
+       <property name="geometry">
         <rect>
          <x>10</x>
          <y>10</y>
          <width>721</width>
-         <height>68</height>
+         <height>74</height>
         </rect>
        </property>
-       <layout class="QGridLayout" >
-        <property name="leftMargin" >
+       <layout class="QGridLayout">
+        <property name="margin">
          <number>0</number>
         </property>
-        <property name="topMargin" >
-         <number>0</number>
-        </property>
-        <property name="rightMargin" >
-         <number>0</number>
-        </property>
-        <property name="bottomMargin" >
-         <number>0</number>
-        </property>
-        <property name="horizontalSpacing" >
+        <property name="spacing">
          <number>6</number>
         </property>
-        <property name="verticalSpacing" >
-         <number>6</number>
-        </property>
-        <item row="0" column="1" >
-         <widget class="QPushButton" name="BrowseBtn" >
-          <property name="text" >
+        <item row="0" column="1">
+         <widget class="QPushButton" name="BrowseBtn">
+          <property name="text">
            <string>Browse...</string>
           </property>
-          <property name="flat" >
+          <property name="flat">
            <bool>false</bool>
           </property>
          </widget>
         </item>
-        <item row="1" column="1" >
-         <widget class="QPushButton" name="InstallBtn" >
-          <property name="text" >
+        <item row="1" column="1">
+         <widget class="QPushButton" name="InstallBtn">
+          <property name="text">
            <string>Install</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="0" >
-         <widget class="QLineEdit" name="SoundLibraryPathTxt" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Maximum" hsizetype="Expanding" >
+        <item row="0" column="0">
+         <widget class="QLineEdit" name="SoundLibraryPathTxt">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="readOnly" >
+          <property name="readOnly">
            <bool>true</bool>
           </property>
          </widget>
@@ -287,13 +320,13 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" >
+    <layout class="QHBoxLayout">
      <item>
       <spacer>
-       <property name="orientation" >
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
          <height>20</height>
@@ -302,18 +335,18 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="close_btn" >
-       <property name="text" >
+      <widget class="QPushButton" name="close_btn">
+       <property name="text">
         <string>Close</string>
        </property>
       </widget>
      </item>
      <item>
       <spacer>
-       <property name="orientation" >
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
          <height>20</height>

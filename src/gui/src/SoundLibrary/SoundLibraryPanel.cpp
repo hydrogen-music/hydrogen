@@ -178,8 +178,8 @@ void SoundLibraryPanel::updateDrumkitList()
 	__user_drumkit_info_list.clear();
 
 	//User drumkit list
-    QStringList usr_dks = Filesystem::usr_drumkits_list();
-    for (int i = 0; i < usr_dks.size(); ++i) {
+	QStringList usr_dks = Filesystem::usr_drumkits_list();
+	for (int i = 0; i < usr_dks.size(); ++i) {
 		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {

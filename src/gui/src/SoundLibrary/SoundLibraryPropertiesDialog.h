@@ -42,9 +42,11 @@ class SoundLibraryPropertiesDialog : public QDialog, public Ui_SoundLibraryPrope
 		~SoundLibraryPropertiesDialog();
 
 	private slots:
-			void on_saveBtn_clicked();
+		void on_saveBtn_clicked();
+		void on_imageBrowsePushButton_clicked();
 
 	private:
+		void updateImage( QString& filename );
 };
 
 }
