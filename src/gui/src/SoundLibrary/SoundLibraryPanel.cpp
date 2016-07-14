@@ -521,7 +521,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 			QMessageBox msgBox;
 			msgBox.setWindowTitle("Hydrogen");
 			msgBox.setIcon( QMessageBox::Warning );
-			msgBox.setText( tr( "The existing kit has %1 instruments but the one being loaded has %2.\nThe first %2 instruments will be replaced, if any of the remaining %3 have notes, they can be saved or discarded.\n").arg( QString::number( oldCount ),QString::number( newCount ), QString::number( oldCount - newCount ) ) );
+			msgBox.setText( tr( "The existing kit has %1 instruments but the new one only has %2.\nThe first %2 instruments will be replaced with the new intruments and will keep their notes, but some of the remaining instruments have notes.\nWould you like them to be saved or discarded?\n").arg( QString::number( oldCount ),QString::number( newCount ), QString::number( oldCount - newCount ) ) );
 			msgBox.setStandardButtons(QMessageBox::Save);
 			msgBox.addButton(QMessageBox::Discard);
 			msgBox.addButton(QMessageBox::Cancel);
