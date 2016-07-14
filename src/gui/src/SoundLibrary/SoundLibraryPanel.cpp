@@ -490,34 +490,59 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	int oldCount = pSongInstrList->size();
 	int newCount = pDrumkitInstrList->size();
 
-	bool conditionalLoad = true;
+	bool conditionalLoad = false;
+	bool hasNotes = false;
+
+	DEBUGLOG("Old kit has " + QString::number( oldCount ) + " intruments, new one has " + QString::number( newCount ) );
 
 	if ( newCount < oldCount )
 	{
-		QMessageBox msgBox;
-		msgBox.setWindowTitle("Hydrogen");
-		msgBox.setIcon( QMessageBox::Warning );
-		msgBox.setText( tr( "The existing kit has %1 instruments but the one being loaded has %2.\nThe first %2 instruments will be replaced, if any of the remaining %3 have notes, they can be saved or discarded.\n").arg( QString::number( oldCount ),QString::number( newCount ), QString::number( oldCount - newCount ) ) );
-		msgBox.setStandardButtons(QMessageBox::Save);
-		msgBox.addButton(QMessageBox::Discard);
-		msgBox.addButton(QMessageBox::Cancel);
-		msgBox.setDefaultButton(QMessageBox::Cancel);
-		
-		switch ( msgBox.exec() )
+		// Check if any of the instruments that will be removed have notes
+		//for (std::vector<Instrument*>::iterator it = pSongInstrList->get_components()->begin() ; it != pSongInstrList->get_components()->end(); ++it) {
+		for ( int i = 0; i < pSongInstrList->size(); i++)
 		{
-			case QMessageBox::Save:
-				// Save old instruments with notes
-				conditionalLoad = true;
-				break;
+			
+			if ( i >= newCount )
+			{
+				DEBUGLOG("Checking if Instrument " + QString::number( i ) + " has notes..." );
 
-			case QMessageBox::Discard:
-				// discard extra instruments
-				conditionalLoad = false;
-				break;
+				if ( Hydrogen::get_instance()->instrumentHasNotes( pSongInstrList->get( i ) ) )
+				{
+					hasNotes = true;
+					DEBUGLOG("Instrument " + QString::number( i ) + " has notes" );
 
-			case QMessageBox::Cancel:
-				// Cancel
-				return;
+				}
+			}
+
+		}
+	
+		if ( hasNotes )
+		{
+			QMessageBox msgBox;
+			msgBox.setWindowTitle("Hydrogen");
+			msgBox.setIcon( QMessageBox::Warning );
+			msgBox.setText( tr( "The existing kit has %1 instruments but the one being loaded has %2.\nThe first %2 instruments will be replaced, if any of the remaining %3 have notes, they can be saved or discarded.\n").arg( QString::number( oldCount ),QString::number( newCount ), QString::number( oldCount - newCount ) ) );
+			msgBox.setStandardButtons(QMessageBox::Save);
+			msgBox.addButton(QMessageBox::Discard);
+			msgBox.addButton(QMessageBox::Cancel);
+			msgBox.setDefaultButton(QMessageBox::Cancel);
+			
+			switch ( msgBox.exec() )
+			{
+				case QMessageBox::Save:
+					// Save old instruments with notes
+					conditionalLoad = true;
+					break;
+
+				case QMessageBox::Discard:
+					// discard extra instruments
+					conditionalLoad = false;
+					break;
+
+				case QMessageBox::Cancel:
+					// Cancel
+					return;
+			}
 		}
 	}
 
