@@ -2501,7 +2501,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 
 		for ( int i = 0; i < instrumentDiff ; i++ ){
 			removeInstrument(
-						p - i,
+						getSong()->get_instrument_list()->size() - 1,
 						conditional
 						);
 
@@ -2517,6 +2517,25 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	m_audioEngineState = old_ae_state;
 
 	return 0;	//ok
+}
+
+// This will check if an instrument has any notes
+bool Hydrogen::instrumentHasNotes( Instrument *pInst )
+{
+	Song* pSong = getSong();
+	PatternList* pPatternList = pSong->get_pattern_list();
+
+	for ( int nPattern = 0 ; nPattern < (int)pPatternList->size() ; ++nPattern ) 
+	{
+		if( pPatternList->get( nPattern )->references( pInst ) )
+		{
+			DEBUGLOG("Instrument " + pInst->get_name() + " has notes" );
+			return true;
+		}
+	}
+
+	// no notes for this instrument
+	return false;
 }
 
 //this is also a new function and will used from the new delete function in
