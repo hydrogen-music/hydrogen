@@ -270,7 +270,7 @@ void SoundLibraryPanel::updateDrumkitList()
 			for( mapIterator=allPatternDirList->begin(); mapIterator != allPatternDirList->end(); mapIterator++ )
 			{
 				QString patternCategory = (*mapIterator)->getCategory();
-				if ( patternCategory == categoryName || patternCategory.isEmpty() && categoryName == "No category" ){
+				if ( (patternCategory == categoryName) || (patternCategory.isEmpty() && categoryName == "No category") ){
 					QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
 					pPatternItem->setText( 0, (*mapIterator)->getName());
 					pPatternItem->setText( 1, (*mapIterator)->getPath() );
