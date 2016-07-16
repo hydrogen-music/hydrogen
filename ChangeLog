@@ -9,7 +9,9 @@
 	* Added instrument components
     * Basic lilypond export
 	* New windows cross compilation script
-	* New midi actions:
+    * Support for soundlibrary images
+	* Configurable sample selection algorithm
+    * New midi actions:
 		* SELECT_PREV_PATTERN_RELATIVE
 
 2014-08-03 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
