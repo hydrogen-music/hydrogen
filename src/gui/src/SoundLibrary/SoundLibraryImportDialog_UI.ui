@@ -23,7 +23,7 @@
       <attribute name="title">
        <string>Internet</string>
       </attribute>
-      <widget class="QWidget" name="layoutWidget">
+      <widget class="QWidget" name="layoutWidget1">
        <property name="geometry">
         <rect>
          <x>9</x>
@@ -32,14 +32,14 @@
          <height>588</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout">
+       <layout class="QVBoxLayout" name="TreeLayout">
         <item>
          <widget class="QComboBox" name="repositoryCombo"/>
         </item>
         <item>
-         <layout class="QHBoxLayout">
+         <layout class="QHBoxLayout" name="controlLayout">
           <item>
-           <spacer>
+           <spacer name="lSpacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -66,7 +66,7 @@
            </widget>
           </item>
           <item>
-           <spacer>
+           <spacer name="rSpacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -107,12 +107,12 @@
        <property name="geometry">
         <rect>
          <x>390</x>
-         <y>9</y>
+         <y>86</y>
          <width>374</width>
-         <height>588</height>
+         <height>511</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout">
+       <layout class="QVBoxLayout" name="propertiesLayout">
         <item>
          <widget class="QLabel" name="SoundLibraryNameLbl">
           <property name="maximumSize">
@@ -139,7 +139,7 @@
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout">
+         <layout class="QHBoxLayout" name="imageLayout">
           <item>
            <widget class="QTextEdit" name="SoundLibraryInfoLbl">
             <property name="readOnly">
@@ -242,7 +242,7 @@
          </widget>
         </item>
         <item>
-         <spacer>
+         <spacer name="centerSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -277,13 +277,7 @@
          <height>74</height>
         </rect>
        </property>
-       <layout class="QGridLayout">
-        <property name="margin">
-         <number>0</number>
-        </property>
-        <property name="spacing">
-         <number>6</number>
-        </property>
+       <layout class="QGridLayout" name="localLayout">
         <item row="0" column="1">
          <widget class="QPushButton" name="BrowseBtn">
           <property name="text">
@@ -320,9 +314,9 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout">
+    <layout class="QHBoxLayout" name="bottomLayout">
      <item>
-      <spacer>
+      <spacer name="spacerLClose">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -342,7 +336,7 @@
       </widget>
      </item>
      <item>
-      <spacer>
+      <spacer name="spsacerRClose">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
