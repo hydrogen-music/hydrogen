@@ -8,6 +8,8 @@ p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'Lucida Grande'; font-size:10pt; font-weight:400; font-style:normal;">
 &lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">GeneralMIDI acoustic drum set made of samples from Roland XV-5080 synth module. Thanks to L.-E. Johansson for samples.&lt;/p>&lt;/body>&lt;/html></info>
  <license>undefined license</license>
+ <image></image>
+ <imageLicense></imageLicense>
  <componentList>
   <drumkitComponent>
    <id>0</id>
