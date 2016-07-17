@@ -1,0 +1,50 @@
+---
+layout: post
+title:  "Hydrogen 0.9.6 released"
+date:   2014-08-24 22:47:00 +0200
+categories: jekyll update
+---
+
+For those of you that are not subscribed to the development mailing list, here you can find the official release message as posted by Sebastian (aka Mauser) on August 4th
+
+Hi everyone,
+
+ 
+
+i'm happy to announce the final release of Hydrogen 0.9.6. I'm pretty sure that most of the users are already working with a 0.9.6-beta version, but here again is a small list of the most important changes in 0.9.6:
+
+         * new build system (cmake)
+
+         * add undo for song/pattern editor
+
+         * jack-session support
+
+         * jack-midi support
+
+         * several bug fixes
+
+         * tabbed interface
+
+         * several small changes to the GUI
+
+         * improve ExportSong add use of TimeLineBPM,
+
+           RubberbandBatch processor and different types of resample interpolation
+
+ 
+
+The release can be downloaded via github: https://github.com/hydrogen-music/hydrogen/archive/0.9.6.tar.gz
+
+ 
+
+At this time, this is a linux-only release. Installers for Windows / OSX may follow in the future.
+
+ 
+
+Big thanks to all those wonderful people who made this release happen and who are keeping this project alive!
+
+ 
+
+Best regards,
+
+Sebastian

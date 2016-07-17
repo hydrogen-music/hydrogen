@@ -1,0 +1,45 @@
+---
+layout: default
+---
+
+<!-- http://www.seanbuscay.com/blog/jekyll-teaser-pager-and-read-more/ -->
+{% for post in site.posts %}
+<div class="panel panel-default">
+	  <div class="panel-body">
+	  <h3 class="media-heading"><a class="text-dblue" href="{{ post.url }}">{{ post.title }}</a></h3>
+	  <time class="media-meta text-muted" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %-d, %Y" }}</time>
+	  {{ post.excerpt }} 
+	  {% capture content_words %} 
+	  {{ post.content | number_of_words }} 
+	  {% endcapture %} 
+	  {% capture excerpt_words %} 
+	  {{ post.excerpt | number_of_words }} 
+	  {% endcapture %} 
+	  {% if excerpt_words != content_words %}
+	  <p><a class="btn btn-sm btn-primary" href="{{ post.url }}/#read-more" role="button">Read more <i class="fa fa-arrow-circle-right"></i></a>
+	  </p>
+	  {% endif %}
+	  </div>
+	  <div class="panel-footer">
+		  <i class="fa fa-tags text-primary"></i>
+		  {% assign taglist = post.tags | sort %}
+		  {% for tag in taglist | order: descending %}
+		  <small>
+			  <a class="text-dblue" href="/tags/#{{ tag | cgi_escape }}" title="View posts tagged with &quot;{{ tag }}&quot;">{{ tag }}</a>
+			  {% if forloop.last != true %}, {% endif %}
+		  </small> 
+		  {% endfor %}
+	  </div>
+</div>
+{% endfor %} {% if paginator.total_pages > 1 %}
+<ul class="pager">
+	{% if paginator.previous_page %}
+	<li class="previous"><a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&larr; Previous page</a>
+	</li>
+	{% endif %} 
+	{% if paginator.next_page %}
+	<li class="next"><a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">Next page &rarr;</a>
+	</li>
+	{% endif %}
+</ul>
+{% endif %}
