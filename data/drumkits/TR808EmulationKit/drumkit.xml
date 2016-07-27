@@ -8,6 +8,8 @@ p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'Lucida Grande'; font-size:10pt; font-weight:400; font-style:normal;">
 &lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">This drum kit contains 16 original sounds that were synthesized from scratch (using only basic synth waves, like sine, noise etc.). It simulates the sounds of the legendary Roland TR-808 Rhythm Composer. More kits from ArtemioLabs: http://artemiolabs.com/downloads/audio/hydrogen/&lt;/p>&lt;/body>&lt;/html></info>
  <license>GPL</license>
+ <image></image>
+ <imageLicense></imageLicense>
  <componentList>
   <drumkitComponent>
    <id>0</id>
@@ -25,7 +27,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -38,7 +40,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>35</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -66,7 +68,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -79,7 +81,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>36</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -107,7 +109,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -120,7 +122,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>38</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -148,7 +150,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -161,7 +163,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>40</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -189,7 +191,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -202,7 +204,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>39</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -230,7 +232,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>0.52</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -243,7 +245,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>43</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -271,7 +273,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -284,7 +286,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>45</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -312,7 +314,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -325,7 +327,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>48</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -353,7 +355,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -366,7 +368,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>42</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -394,7 +396,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -407,7 +409,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>44</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -435,7 +437,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -448,7 +450,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>46</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -476,7 +478,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -489,7 +491,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>49</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -517,7 +519,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -530,7 +532,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>70</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -558,7 +560,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -571,7 +573,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>63</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -599,7 +601,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -612,7 +614,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>75</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
@@ -640,7 +642,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
-   <ignoreVelocity>false</ignoreVelocity>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -653,7 +655,7 @@ p, li { white-space: pre-wrap; }
    <midiOutNote>56</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
-   <isHihat>false</isHihat>
+   <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>

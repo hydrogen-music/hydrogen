@@ -26,6 +26,8 @@
 
 #include "ui_SoundLibraryImportDialog_UI.h"
 #include <hydrogen/object.h>
+#include <QNetworkReply>
+
 #include <hydrogen/Preferences.h>
 #include "SoundLibraryDatastructures.h"
 
@@ -40,6 +42,8 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 		SoundLibraryImportDialog( QWidget* pParent, bool OnlineImport );
 		~SoundLibraryImportDialog();
 
+	signals:
+
 	private slots:
 		void on_EditListBtn_clicked();
 		void on_UpdateListBtn_clicked();
@@ -52,6 +56,8 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 		void soundLibraryItemChanged( QTreeWidgetItem*, QTreeWidgetItem* );
 		void onRepositoryComboBoxIndexChanged(int);
 
+
+
 	private:
 		std::vector<SoundLibraryInfo> m_soundLibraryList;
 		H2Core::Preferences *pPref;
@@ -62,12 +68,18 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 
 		bool isSoundLibraryItemAlreadyInstalled( SoundLibraryInfo sInfo );
 		void writeCachedData(const QString& fileName, const QString& data);
+		void writeCachedImage( const QString& imageFile, QPixmap& pixmap );
+		void clearImageCache();
+		QString readCachedImage( const QString& imageFile );
 		QString readCachedData(const QString& fileName);
 		QString getCachedFilename();
+		QString getCachedImageFilename();
 		void reloadRepositoryData();
 		void updateSoundLibraryList();
 		void updateRepositoryCombo();
-};
+		void showImage( QPixmap pixmap );
+		void loadImage( QString img );
 
+};
 
 #endif
