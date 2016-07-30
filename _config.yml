@@ -14,6 +14,8 @@ baseurl: "/hydrogen" # the subpath of your site, e.g. /blog
 url: "http://hydrogen-music.com" # the base hostname & protocol for your site
 github_username:  hydrogen-music/hydrogen
 
+permalink: /hydrogen/:title
+
 #Seperator
 excerpt_separator: "\n\n"
 

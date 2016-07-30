@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Screenshots
+showInTopMenu: true
 permalink: /screenshots/
 ---
 Main Window

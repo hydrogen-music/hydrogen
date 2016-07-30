@@ -1,6 +1,7 @@
 ---
 layout: page
 title: Features
+showInTopMenu: true
 permalink: /features/
 ---
 

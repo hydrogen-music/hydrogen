@@ -1,6 +1,7 @@
 ---
 layout: page                                                                                                                                                                                                 
 title: How to contribute
+showInTopMenu: false
 permalink: /contribution/
 ---
 
