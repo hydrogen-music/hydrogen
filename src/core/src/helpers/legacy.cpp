@@ -24,7 +24,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 	if ( version_older_than( 0, 9, 8 ) ) {
 		ERRORLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
 	} else {
-		ERRORLOG( QString( "loading drumkit with legacy code" ) );
+		WARNINGLOG( QString( "loading drumkit with legacy code" ) );
 	}
 	XMLDoc doc;
 	if( !doc.read( dk_path ) ) {
