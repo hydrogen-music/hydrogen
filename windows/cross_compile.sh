@@ -4,6 +4,90 @@
 # clear the screen
 clear
 
+
+show_interactive_menu(){
+	while :
+	do
+		# If error exists, display it
+		if [ "$ERR_MSG" != "" ]; then
+			echo "Error: $ERR_MSG"
+			echo ""
+		fi
+
+		# Write out the menu options...
+		echo "Welcome to the Hydrogen Cross Compiler. We will now compile Hydrogen for Windows."
+		echo "Select an option:"
+		echo " 1: Clone required repositories"
+		echo " 2: Build Hydrogen 32Bit"
+		echo " 3: Build Hydrogen 64Bit"
+		echo " 4: Clean Cmake and CPack Cache Files"
+		echo " q: Exit"
+
+		# Clear the error message
+		ERR_MSG=""
+
+
+		# Read the user input
+		read SEL
+
+		case $SEL in
+			1)	#download the proper git repositories
+				echo "This will clone the repositories for Hydrogen"
+				read -e -p "Enter the path where Hydrogen should be built: " -i "$HOME/build/hydrogen/" CLONEPATH
+				if [ ! -e "${CLONEPATH%/*}" ]; then
+					echo "Now downloading Hydrogen."
+					mkdir -p "${CLONEPATH%/*}"
+					cd "${CLONEPATH%/*}"
+					BUILD_DIR=$PWD
+					git clone https://github.com/hydrogen-music/hydrogen.git
+
+				else 
+					if [ -f ${CLONEPATH%/*}/build.sh ]; then
+						mv ${CLONEPATH%/*} ${CLONEPATH%/*}/../hydrogen.tmp
+						mkdir -p ${CLONEPATH%/*}
+						mv ${CLONEPATH%/*}/../hydrogen.tmp ${CLONEPATH%/*}/source
+						echo "Hydrogen already downloaded to ${CLONEPATH%/*}."
+					fi
+				fi
+				if [ ! -e ${CLONEPATH%/*}/source/jack2 ]; then
+					cd ${CLONEPATH%/*}/source
+					echo "Now downloading jack."
+					git clone git://github.com/jackaudio/jack2.git
+					cd ..
+				fi
+				;;
+			2)	#32 Bit Compiling
+				build_32bit
+				;;
+			3)	#64 Bit Compiling
+				build_64bit
+				;;
+			4)	#Clean CMake Files
+				cd $HYDROGEN_BUILD
+				rm -r CMakeCache.txt CMakeFiles cmake_install.cmake CPackConfig.cmake _CPack_Packages CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile src try uninstall.cmake
+				rm ../mxe ../gcc
+				;;
+
+			q)	echo "Thank you for using the Hydrogen Cross Compiler. Goodbye."
+				exit
+				;;
+			*) ERR_MSG="Please enter a valid option"
+		esac
+
+		# clear the screen again for re-display
+		#clear
+	done
+}
+
+
+build_32bit(){
+			build_hydrogen i686
+}
+
+build_64bit(){
+			build_hydrogen x86_64 -DCMAKE_{C,CXX}_FLAGS=-m64 -DWIN64:BOOL=ON
+}
+
 build_hydrogen(){
 	# Passes either i686 or x86_64 for 32 or 64 bit respectively.
 	echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
@@ -91,75 +175,29 @@ build_hydrogen(){
 	cpack -G NSIS
 }
 
+usage(){
+	echo -e "Usage: \n\t-i:  Use interactive mode \n\t-b Build hydrogen. Valid values: i686 (default) or x86_64."
+}
 
-while :
-	do
-	# If error exists, display it
-	if [ "$ERR_MSG" != "" ]; then
-		echo "Error: $ERR_MSG"
-		echo ""
-	fi
-	
-	# Write out the menu options...
-	echo "Welcome to the Hydrogen Cross Compiler. We will now compile Hydrogen for Windows."
-	echo "Select an option:"
-	echo " 1: Clone required repositories"
-	echo " 2: Build Hydrogen 32Bit"
-	echo " 3: Build Hydrogen 64Bit"
-	echo " 4: Clean Cmake and CPack Cache Files"
-	echo " q: Exit"
 
-	# Clear the error message
-	ERR_MSG=""
+while getopts ":b:i:" o; do
+    case "${o}" in
+        b)
+            arch=${OPTARG}
 
-	
-	# Read the user input
-	read SEL
-
-	case $SEL in
-		1)	#download the proper git repositories
-			echo "This will clone the repositories for Hydrogen"
-			read -e -p "Enter the path where Hydrogen should be built: " -i "$HOME/build/hydrogen/" CLONEPATH
-			if [ ! -e "${CLONEPATH%/*}" ]; then
-				echo "Now downloading Hydrogen."
-				mkdir -p "${CLONEPATH%/*}"
-				cd "${CLONEPATH%/*}"
-				BUILD_DIR=$PWD
-				git clone https://github.com/hydrogen-music/hydrogen.git
-
-			else 
-				if [ -f ${CLONEPATH%/*}/build.sh ]; then
-					mv ${CLONEPATH%/*} ${CLONEPATH%/*}/../hydrogen.tmp
-					mkdir -p ${CLONEPATH%/*}
-					mv ${CLONEPATH%/*}/../hydrogen.tmp ${CLONEPATH%/*}/source
-					echo "Hydrogen already downloaded to ${CLONEPATH%/*}."
-				fi
+			if [ "$arch" != "64" ]; then
+				build_32bit
+			else
+				build_64bit
 			fi
-			if [ ! -e ${CLONEPATH%/*}/source/jack2 ]; then
-					cd ${CLONEPATH%/*}/source
-					echo "Now downloading jack."
-					git clone git://github.com/jackaudio/jack2.git
-					cd ..
-				fi
-			;;
-		2)	#32 Bit Compiling
-			build_hydrogen i686
-			;;
-		3)	#64 Bit Compiling
-			build_hydrogen x86_64 -DCMAKE_{C,CXX}_FLAGS=-m64 -DWIN64:BOOL=ON
-			;;
-		4)	#Clean CMake Files
-			cd $HYDROGEN_BUILD
-			rm -r CMakeCache.txt CMakeFiles cmake_install.cmake CPackConfig.cmake _CPack_Packages CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile src try uninstall.cmake
-			rm ../mxe ../gcc
-			;;
 
-		q)	echo "Thank you for using the Hydrogen Cross Compiler. Goodbye."
-			exit
-			;;
-		*) ERR_MSG="Please enter a valid option"
-	esac
-
-	# clear the screen again for re-display
-	#clear
+            ;;
+        i)
+            show_interactive_menu
+            ;;
+        *)
+            usage
+            ;;
+    esac
 done
+shift $((OPTIND-1))
