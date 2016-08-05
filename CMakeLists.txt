@@ -279,7 +279,8 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * System data path             : ${SYS_DATA_PATH}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
-* macosx bundle                : ${H2CORE_HAVE_BUNDLE}\n"
+* macosx bundle                : ${H2CORE_HAVE_BUNDLE}
+* fat build                    : ${WANT_FAT_BUILD}\n"
 )
 
 COLOR_MESSAGE("${cyan}Main librarires${reset}
@@ -380,6 +381,7 @@ SET(CPACK_PACKAGE_INSTALL_DIRECTORY "Hydrogen")
 IF(MINGW)
     #Set the other files that will be used in CPack
     SET(WIN64 "OFF" CACHE BOOL "Windows 64 Bit")
+	SET(CPACK_STRIP_FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe" "${WINDOWS_DIR}/src/synth/h2synth.exe")
     #Program Files for Hydrogen
     SET(WINDOWS_DIR "windows")
     INSTALL(FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/core/libhydrogen-core-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dll" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe" "${WINDOWS_DIR}/src/synth/h2synth.exe" DESTINATION ./)
@@ -401,9 +403,11 @@ IF(MINGW)
     ELSE()
 	INSTALL(FILES ${GCC_BIN}/libgcc_s_sjlj-1.dll ${GCC_BIN}/libstdc++-6.dll DESTINATION ./)
     ENDIF()
-    
-    INSTALL(DIRECTORY windows/jack_installer DESTINATION ./)
-    INSTALL(DIRECTORY windows/plugins DESTINATION ./)
+   
+	IF(WANT_FAT_BUILD)
+		INSTALL(DIRECTORY windows/jack_installer DESTINATION ./)
+		INSTALL(DIRECTORY windows/plugins DESTINATION ./)
+	ENDIF()
 
     SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.bmp")
     #Begin NSIS Customizations
@@ -413,15 +417,16 @@ IF(MINGW)
     #  - Registry key used to store info about the installation
     IF(WIN64)
         SET(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
-	SET(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION} 64Bit")
-	SET(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win64")
-	#SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION} 64Bit")
+		SET(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION} 64Bit")
+		SET(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win64")
+		#SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION} 64Bit")
     ELSE()
-	SET(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
-	SET(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION}")
-	SET(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win32")
-	#SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION}")
+		SET(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
+		SET(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION}")
+		SET(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win32")
+		#SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION}")
     ENDIF()
+
     #Need the 2 following lines for the icon to work
     SET(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.ico")
     SET(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.ico")
