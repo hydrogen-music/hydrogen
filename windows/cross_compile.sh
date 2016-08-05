@@ -1,11 +1,12 @@
 #!/bin/bash
 # Hydrogen Cross Compile Script
 
-# clear the screen
-clear
-
+FATBUILD=false
 
 show_interactive_menu(){
+	#clear the screen
+	clear
+	
 	while :
 	do
 		# If error exists, display it
@@ -90,17 +91,18 @@ build_64bit(){
 
 build_hydrogen(){
 	# Passes either i686 or x86_64 for 32 or 64 bit respectively.
-	echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
-	if [ -z ${CLONEPATH%/*} ]; then
-		read -e -p "Enter the path to the Hydrogen download (with a trailing /): " -i "$HOME/build/hydrogen/" CLONEPATH
-	fi
+	if [ -z "$HYDROGEN" ] || [ ! -d $HYDROGEN ]; then
+		echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
+		if [ -z ${CLONEPATH%/*} ]; then
+			read -e -p "Enter the path to the Hydrogen download (with a trailing /): " -i "$HOME/build/hydrogen/" CLONEPATH
+		fi
 
-	HYDROGEN="${CLONEPATH}"
-	if [ ! -d $HYDROGEN ]; then
-		echo "Hydrogen source not found in $HYDROGEN."
-		exit
+		HYDROGEN="${CLONEPATH}"
+		if [ ! -d $HYDROGEN ]; then
+			echo "Hydrogen source not found in $HYDROGEN."
+			exit
+		fi
 	fi
-
 
 	echo "Checking for MXE."
 	if [ -d /opt/mxe ]; then
@@ -127,40 +129,46 @@ build_hydrogen(){
 		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
 	fi
 
-	cmake $4 ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2 $3
+	cmake $4 ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2 $3 -DWANT_FAT_BUILD:BOOL=$FATBUILD
+	
 	export HYDROGEN
 	export HYDROGEN_BUILD
 	export MXE
 	
-	if [ ! -e jack_installer ]; then
-		mkdir jack_installer
-	fi
-	cd jack_installer
-	if [ $1 == "x86_64" ]; then
-		if [ ! -e "Jack_v1.9.10_64_setup.exe" ]; then
-			wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_64_setup.exe
+
+	#Bundle jack_installer if wanted..
+	if [ $FATBUILD = true ]; then
+		if [ ! -e jack_installer ]; then
+			mkdir jack_installer
 		fi
-	else
-		if [ ! -e "Jack_v1.9.10_32_setup.exe" ]; then
-			wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_32_setup.exe
+		cd jack_installer
+		if [ $1 == "x86_64" ]; then
+			if [ ! -e "Jack_v1.9.10_64_setup.exe" ]; then
+				wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_64_setup.exe
+			fi
+		else
+			if [ ! -e "Jack_v1.9.10_32_setup.exe" ]; then
+				wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_32_setup.exe
+			fi
 		fi
-	fi
-	cd ..
-	if [ ! -e plugins ]; then
-		mkdir plugins
-		cd plugins
-		if [ ! -e ladspaplugs ]; then
-			mkdir ladspaplugs
-		fi
-		cd ladspaplugs
-		if [ ! -e "LADSPA_plugins-win-0.4.15.exe" ]; then
-			wget http://sourceforge.net/projects/audacity/files/audacity/2.0.5/LADSPA_plugins-win-0.4.15.exe
-		fi
+
 		cd ..
+		if [ ! -e plugins ]; then
+			mkdir plugins
+			cd plugins
+			if [ ! -e ladspaplugs ]; then
+				mkdir ladspaplugs
+			fi
+			cd ladspaplugs
+			if [ ! -e "LADSPA_plugins-win-0.4.15.exe" ]; then
+				wget http://sourceforge.net/projects/audacity/files/audacity/2.0.5/LADSPA_plugins-win-0.4.15.exe
+			fi
+			cd ..
+		fi
 	fi
-	#cd $CLONEPATH
+
 	cd $HYDROGEN_BUILD
-	echo $PWD
+	
 	if [ -e $HYDROGEN/mxe ]; then
 		if [ ! -h $HYDROGEN/mxe ]; then
 			rm -rf $HYDROGEN/mxe
@@ -176,13 +184,27 @@ build_hydrogen(){
 }
 
 usage(){
-	echo -e "Usage: \n\t-i:  Use interactive mode \n\t-b Build hydrogen. Valid values: i686 (default) or x86_64."
+	echo -e "\nManual mode:\t\tcross_compile.sh [-f] [-d SOURCE_DIR] -b i686|x86_64"
+	echo -e "Interactive mode:\tcross_compile.sh -i"
+	echo -e "Usage: \n\t-i:\tUse interactive mode \n\t-b:\tBuild hydrogen. Valid values: i686 or x86_64 \n\t-f:\tFat build (includes Jack and Ladspa installers). Only useful in combination with -b."
 }
 
+fatbuild=false
 
-while getopts ":b:i:" o; do
+while getopts "d:fb:i" o; do
     case "${o}" in
-        b)
+		d)
+			HYDROGEN=${OPTARG}
+			if [ ! -d $HYDROGEN ]; then
+				echo "Hydrogen source not found in $HYDROGEN."
+				exit
+			fi
+			;;
+		f)
+			FATBUILD=true
+			echo "FATBUILD=$FATBUILD"
+			;;
+		b)
             arch=${OPTARG}
 
 			if [ "$arch" != "64" ]; then
