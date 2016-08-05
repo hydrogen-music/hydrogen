@@ -202,7 +202,6 @@ while getopts "d:fb:i" o; do
 			;;
 		f)
 			FATBUILD=true
-			echo "FATBUILD=$FATBUILD"
 			;;
 		b)
             arch=${OPTARG}
