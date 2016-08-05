@@ -391,17 +391,19 @@ IF(MINGW)
     #DLL Files for QT
     SET(QT_BIN "mxe/qt/bin")
     INSTALL(FILES ${QT_BIN}/QtCore4.dll ${QT_BIN}/QtXml4.dll ${QT_BIN}/QtXmlPatterns4.dll ${QT_BIN}/QtNetwork4.dll ${QT_BIN}/QtGui4.dll DESTINATION ./)
-    #DLL Files for gcc and libc6
+
+#DLL Files for gcc and libc6
     IF (WIN64)
-	SET(GCC_MXE_DIR "gcc/x86_64-w64-mingw32.shared/5.2.0")
+		SET(GCC_MXE_DIR "gcc/x86_64-w64-mingw32.shared/5.2.0")
     ELSE()
-	SET(GCC_MXE_DIR "gcc/i686-w64-mingw32.shared/5.2.0")
+		SET(GCC_MXE_DIR "gcc/i686-w64-mingw32.shared/5.2.0")
     ENDIF()
+
     SET(GCC_BIN ${GCC_MXE_DIR})
     IF(WIN64)
-	INSTALL(FILES ${GCC_BIN}/libgcc_s_seh-1.dll ${GCC_BIN}/libstdc++-6.dll DESTINATION ./)
+		INSTALL(FILES ${GCC_BIN}/libgcc_s_seh-1.dll ${GCC_BIN}/libstdc++-6.dll DESTINATION ./)
     ELSE()
-	INSTALL(FILES ${GCC_BIN}/libgcc_s_sjlj-1.dll ${GCC_BIN}/libstdc++-6.dll DESTINATION ./)
+		INSTALL(FILES ${GCC_BIN}/libgcc_s_sjlj-1.dll ${GCC_BIN}/libstdc++-6.dll DESTINATION ./)
     ENDIF()
    
 	IF(WANT_FAT_BUILD)
