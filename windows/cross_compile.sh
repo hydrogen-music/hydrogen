@@ -1,22 +1,108 @@
 #!/bin/bash
 # Hydrogen Cross Compile Script
 
-# clear the screen
-clear
+FATBUILD=false
+
+show_interactive_menu(){
+	#clear the screen
+	clear
+	
+	while :
+	do
+		# If error exists, display it
+		if [ "$ERR_MSG" != "" ]; then
+			echo "Error: $ERR_MSG"
+			echo ""
+		fi
+
+		# Write out the menu options...
+		echo "Welcome to the Hydrogen Cross Compiler. We will now compile Hydrogen for Windows."
+		echo "Select an option:"
+		echo " 1: Clone required repositories"
+		echo " 2: Build Hydrogen 32Bit"
+		echo " 3: Build Hydrogen 64Bit"
+		echo " 4: Clean Cmake and CPack Cache Files"
+		echo " q: Exit"
+
+		# Clear the error message
+		ERR_MSG=""
+
+
+		# Read the user input
+		read SEL
+
+		case $SEL in
+			1)	#download the proper git repositories
+				echo "This will clone the repositories for Hydrogen"
+				read -e -p "Enter the path where Hydrogen should be built: " -i "$HOME/build/hydrogen/" CLONEPATH
+				if [ ! -e "${CLONEPATH%/*}" ]; then
+					echo "Now downloading Hydrogen."
+					mkdir -p "${CLONEPATH%/*}"
+					cd "${CLONEPATH%/*}"
+					BUILD_DIR=$PWD
+					git clone https://github.com/hydrogen-music/hydrogen.git
+
+				else 
+					if [ -f ${CLONEPATH%/*}/build.sh ]; then
+						mv ${CLONEPATH%/*} ${CLONEPATH%/*}/../hydrogen.tmp
+						mkdir -p ${CLONEPATH%/*}
+						mv ${CLONEPATH%/*}/../hydrogen.tmp ${CLONEPATH%/*}/source
+						echo "Hydrogen already downloaded to ${CLONEPATH%/*}."
+					fi
+				fi
+				if [ ! -e ${CLONEPATH%/*}/source/jack2 ]; then
+					cd ${CLONEPATH%/*}/source
+					echo "Now downloading jack."
+					git clone git://github.com/jackaudio/jack2.git
+					cd ..
+				fi
+				;;
+			2)	#32 Bit Compiling
+				build_32bit
+				;;
+			3)	#64 Bit Compiling
+				build_64bit
+				;;
+			4)	#Clean CMake Files
+				cd $HYDROGEN_BUILD
+				rm -r CMakeCache.txt CMakeFiles cmake_install.cmake CPackConfig.cmake _CPack_Packages CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile src try uninstall.cmake
+				rm ../mxe ../gcc
+				;;
+
+			q)	echo "Thank you for using the Hydrogen Cross Compiler. Goodbye."
+				exit
+				;;
+			*) ERR_MSG="Please enter a valid option"
+		esac
+
+		# clear the screen again for re-display
+		#clear
+	done
+}
+
+
+build_32bit(){
+			build_hydrogen i686
+}
+
+build_64bit(){
+			build_hydrogen x86_64 -DCMAKE_{C,CXX}_FLAGS=-m64 -DWIN64:BOOL=ON
+}
 
 build_hydrogen(){
 	# Passes either i686 or x86_64 for 32 or 64 bit respectively.
-	echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
-	if [ -z ${CLONEPATH%/*} ]; then
-		read -e -p "Enter the path to the Hydrogen download (with a trailing /): " -i "$HOME/build/hydrogen/" CLONEPATH
-	fi
+	if [ -z "$HYDROGEN" ] || [ ! -d $HYDROGEN ]; then
+		echo "Now starting the building of Hydrogen for Windows. This will take quite a while and requires no interaction after the intial questions."
+		if [ -z ${CLONEPATH%/*} ]; then
+			read -e -p "Enter the path to the Hydrogen download (with a trailing /): " -i "$HOME/build/hydrogen/" CLONEPATH
+		fi
 
-	HYDROGEN="${CLONEPATH}"
-	if [ ! -d $HYDROGEN ]; then
-		echo "Hydrogen source not found in $HYDROGEN."
-		exit
+		HYDROGEN="${CLONEPATH}"
+		if [ ! -d $HYDROGEN ]; then
+			echo "Hydrogen source not found in $HYDROGEN."
+			exit
+		fi
 	fi
-
 
 	echo "Checking for MXE."
 	if [ -d /opt/mxe ]; then
@@ -43,40 +129,46 @@ build_hydrogen(){
 		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
 	fi
 
-	cmake $4 ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2 $3
+	cmake $4 ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2 $3 -DWANT_FAT_BUILD:BOOL=$FATBUILD
+	
 	export HYDROGEN
 	export HYDROGEN_BUILD
 	export MXE
 	
-	if [ ! -e jack_installer ]; then
-		mkdir jack_installer
-	fi
-	cd jack_installer
-	if [ $1 == "x86_64" ]; then
-		if [ ! -e "Jack_v1.9.10_64_setup.exe" ]; then
-			wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_64_setup.exe
+
+	#Bundle jack_installer if wanted..
+	if [ $FATBUILD = true ]; then
+		if [ ! -e jack_installer ]; then
+			mkdir jack_installer
 		fi
-	else
-		if [ ! -e "Jack_v1.9.10_32_setup.exe" ]; then
-			wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_32_setup.exe
+		cd jack_installer
+		if [ $1 == "x86_64" ]; then
+			if [ ! -e "Jack_v1.9.10_64_setup.exe" ]; then
+				wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_64_setup.exe
+			fi
+		else
+			if [ ! -e "Jack_v1.9.10_32_setup.exe" ]; then
+				wget https://dl.dropboxusercontent.com/u/28869550/Jack_v1.9.10_32_setup.exe
+			fi
 		fi
-	fi
-	cd ..
-	if [ ! -e plugins ]; then
-		mkdir plugins
-		cd plugins
-		if [ ! -e ladspaplugs ]; then
-			mkdir ladspaplugs
-		fi
-		cd ladspaplugs
-		if [ ! -e "LADSPA_plugins-win-0.4.15.exe" ]; then
-			wget http://sourceforge.net/projects/audacity/files/audacity/2.0.5/LADSPA_plugins-win-0.4.15.exe
-		fi
+
 		cd ..
+		if [ ! -e plugins ]; then
+			mkdir plugins
+			cd plugins
+			if [ ! -e ladspaplugs ]; then
+				mkdir ladspaplugs
+			fi
+			cd ladspaplugs
+			if [ ! -e "LADSPA_plugins-win-0.4.15.exe" ]; then
+				wget http://sourceforge.net/projects/audacity/files/audacity/2.0.5/LADSPA_plugins-win-0.4.15.exe
+			fi
+			cd ..
+		fi
 	fi
-	#cd $CLONEPATH
+
 	cd $HYDROGEN_BUILD
-	echo $PWD
+	
 	if [ -e $HYDROGEN/mxe ]; then
 		if [ ! -h $HYDROGEN/mxe ]; then
 			rm -rf $HYDROGEN/mxe
@@ -91,75 +183,42 @@ build_hydrogen(){
 	cpack -G NSIS
 }
 
+usage(){
+	echo -e "\nManual mode:\t\tcross_compile.sh [-f] [-d SOURCE_DIR] -b i686|x86_64"
+	echo -e "Interactive mode:\tcross_compile.sh -i"
+	echo -e "Usage: \n\t-i:\tUse interactive mode \n\t-b:\tBuild hydrogen. Valid values: i686 or x86_64 \n\t-f:\tFat build (includes Jack and Ladspa installers). Only useful in combination with -b."
+}
 
-while :
-	do
-	# If error exists, display it
-	if [ "$ERR_MSG" != "" ]; then
-		echo "Error: $ERR_MSG"
-		echo ""
-	fi
-	
-	# Write out the menu options...
-	echo "Welcome to the Hydrogen Cross Compiler. We will now compile Hydrogen for Windows."
-	echo "Select an option:"
-	echo " 1: Clone required repositories"
-	echo " 2: Build Hydrogen 32Bit"
-	echo " 3: Build Hydrogen 64Bit"
-	echo " 4: Clean Cmake and CPack Cache Files"
-	echo " q: Exit"
+fatbuild=false
 
-	# Clear the error message
-	ERR_MSG=""
-
-	
-	# Read the user input
-	read SEL
-
-	case $SEL in
-		1)	#download the proper git repositories
-			echo "This will clone the repositories for Hydrogen"
-			read -e -p "Enter the path where Hydrogen should be built: " -i "$HOME/build/hydrogen/" CLONEPATH
-			if [ ! -e "${CLONEPATH%/*}" ]; then
-				echo "Now downloading Hydrogen."
-				mkdir -p "${CLONEPATH%/*}"
-				cd "${CLONEPATH%/*}"
-				BUILD_DIR=$PWD
-				git clone https://github.com/hydrogen-music/hydrogen.git
-
-			else 
-				if [ -f ${CLONEPATH%/*}/build.sh ]; then
-					mv ${CLONEPATH%/*} ${CLONEPATH%/*}/../hydrogen.tmp
-					mkdir -p ${CLONEPATH%/*}
-					mv ${CLONEPATH%/*}/../hydrogen.tmp ${CLONEPATH%/*}/source
-					echo "Hydrogen already downloaded to ${CLONEPATH%/*}."
-				fi
+while getopts "d:fb:i" o; do
+    case "${o}" in
+		d)
+			HYDROGEN=${OPTARG}
+			if [ ! -d $HYDROGEN ]; then
+				echo "Hydrogen source not found in $HYDROGEN."
+				exit
 			fi
-			if [ ! -e ${CLONEPATH%/*}/source/jack2 ]; then
-					cd ${CLONEPATH%/*}/source
-					echo "Now downloading jack."
-					git clone git://github.com/jackaudio/jack2.git
-					cd ..
-				fi
 			;;
-		2)	#32 Bit Compiling
-			build_hydrogen i686
+		f)
+			FATBUILD=true
 			;;
-		3)	#64 Bit Compiling
-			build_hydrogen x86_64 -DCMAKE_{C,CXX}_FLAGS=-m64 -DWIN64:BOOL=ON
-			;;
-		4)	#Clean CMake Files
-			cd $HYDROGEN_BUILD
-			rm -r CMakeCache.txt CMakeFiles cmake_install.cmake CPackConfig.cmake _CPack_Packages CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile src try uninstall.cmake
-			rm ../mxe ../gcc
-			;;
+		b)
+            arch=${OPTARG}
 
-		q)	echo "Thank you for using the Hydrogen Cross Compiler. Goodbye."
-			exit
-			;;
-		*) ERR_MSG="Please enter a valid option"
-	esac
+			if [ "$arch" != "64" ]; then
+				build_32bit
+			else
+				build_64bit
+			fi
 
-	# clear the screen again for re-display
-	#clear
+            ;;
+        i)
+            show_interactive_menu
+            ;;
+        *)
+            usage
+            ;;
+    esac
 done
+shift $((OPTIND-1))

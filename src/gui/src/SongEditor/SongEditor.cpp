@@ -1076,7 +1076,6 @@ void SongEditorPatternList::inlineEditingEntered()
 												  line->text(), patternBeingEdited->get_info(), patternBeingEdited->get_category(), nSelectedPattern );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
-// 	patternBeingEdited = NULL;
 }
 
 
@@ -1165,12 +1164,7 @@ void SongEditorPatternList::createBackground()
 
 		// Text
 		bool bNext = false, bActive = false;
-/*		for (uint j = 0; j < pCurrentPatternList->size(); j++) {
-			if ( pPattern == pCurrentPatternList->get(j) ) {
-				bActive = true;
-				break;
-			}
-		}*/
+
 		if ( pCurrentPatternList->index( pPattern ) != -1 ) bActive = true;
 		if ( pEngine->getNextPatterns()->index( pPattern ) != -1 ) bNext = true;
 
@@ -1186,7 +1180,6 @@ void SongEditorPatternList::createBackground()
 			p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_off_Pixmap );
 		}
 		else if (bActive) {
-//			p.drawText( 5, text_y - 1 - m_nGridHeight, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, ">" );
 
 			//mark active pattern with triangular
 			if( ! pref->patternModePlaysSelected() ){
@@ -1753,7 +1746,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 {
 	QString sText = event->mimeData()->text();
 
-	if( sText.startsWith("Songs:") || sText.startsWith("move instrument:") ){
+	if( sText.startsWith("Songs:") || sText.startsWith("move instrument:") || sText.startsWith("importInstrument:")){
 		event->acceptProposedAction();
 		return;
 	}
@@ -1771,11 +1764,9 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 
 		SE_movePatternListItemAction *action = new SE_movePatternListItemAction( nSourcePattern , nTargetPattern ) ;
 		HydrogenApp::get_instance()->m_undoStack->push( action );
-		//movePatternLine( nSourcePattern , nTargetPattern );
 
 		event->acceptProposedAction();
 	}else {
-
 		QStringList tokens = sText.split( "::" );
 		QString sPatternName = tokens.at( 1 );
 

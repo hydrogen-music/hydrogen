@@ -73,7 +73,7 @@
 #endif
 
 #ifdef H2CORE_HAVE_LASH
-#include <lash-1.0/lash/lash.h>
+#include <lash/lash.h>
 #include <hydrogen/LashClient.h>
 #endif
 

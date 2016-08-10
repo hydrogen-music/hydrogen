@@ -27,7 +27,7 @@
 #ifndef LASH_CLIENT
 #define LASH_CLIENT
 
-#include <lash-1.0/lash/lash.h>
+#include <lash/lash.h>
 
 #include <string>
 #include <cassert>
