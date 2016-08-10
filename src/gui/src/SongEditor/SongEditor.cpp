@@ -1753,7 +1753,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 {
 	QString sText = event->mimeData()->text();
 
-	if( sText.startsWith("Songs:") || sText.startsWith("move instrument:") ){
+	if( sText.startsWith("Songs:") || sText.startsWith("move instrument:") || sText.startsWith("importInstrument:")){
 		event->acceptProposedAction();
 		return;
 	}
@@ -1775,6 +1775,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 
 		event->acceptProposedAction();
 	}else {
+		qDebug() << "MIME text: " << sText;
 
 		QStringList tokens = sText.split( "::" );
 		QString sPatternName = tokens.at( 1 );
