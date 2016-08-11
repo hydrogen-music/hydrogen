@@ -366,7 +366,7 @@ msgid ""
 msgstr ""
 "La compiation avec cmake peut être réalisée facilement en utilsant le script "
 "make_helper. Décompressez le tarball ou allez au répertoire où la copie "
-"subversion a été vérifiée et lancer le script make_helper sans aucun argumen "
+"subversion a été vérifiée et lancer le script make_helper sans aucun argument "
 "pour afficher l'aide :"
 
 #. Tag: screen
@@ -543,8 +543,8 @@ msgstr ""
 "Nous pouvons sélectionner certaines fonctionnalités d'Hydrogen comme \"Créer "
 "une sortie par instrument\", ceci créera 1 sortie par instrument que vous "
 "pourrez connecter à n'importe quelle autre application compatible JACK. Ceci "
-"peut être utile si vous voulez ajouter des effets à une seul instrument avec "
-"Jack-rack par exemple. 'Connecter à la paire de sortie par défaut' connecte "
+"peut être utile si vous voulez ajouter des effets à un seul instrument avec "
+"Jack-rack par exemple. \"Connecter à la paire de sortie par défaut\" connecte "
 "la sortie aux ports par défaut : désélectionnez-la si vous voulez connecter "
 "les sorties JACK vers d'autres ports sans avoir à les déconnecter avant."
 
@@ -734,7 +734,7 @@ msgid ""
 "Note that the Audio Engine tab is only available if Hydrogen was complied "
 "with debug support."
 msgstr ""
-"Notez que l'onglet \"Moteur Audio\" est disponible seulement si Hydrogen a "
+"Notez que l'onglet Moteur Audio est disponible seulement si Hydrogen a "
 "été compilé avec le support debug."
 
 #. Tag: title
@@ -839,7 +839,7 @@ msgid ""
 "name, author, license and generic notes"
 msgstr ""
 "<emphasis>Propriétés</emphasis> - Paramétrer les propriétés générales du "
-"morceau comme le nom, l'autheur, licence et des notes générales"
+"morceau comme le nom, l'auteur, licence et des notes générales"
 
 #. Tag: para
 #: manual.docbook:393
@@ -937,7 +937,7 @@ msgid ""
 "and drumkit (sound libraries) functions."
 msgstr ""
 "<emphasis role=\"bold\">Instruments</emphasis>: ce menu offre des fonctions "
-"d'instruments et des kit de batterie (bibliothèques de sons)."
+"d'instruments et des kits de batterie (bibliothèques de sons)."
 
 #. Tag: para
 #: manual.docbook:439
@@ -980,7 +980,7 @@ msgid ""
 "<emphasis>$HOME/.hydrogen/data/library_name</emphasis>"
 msgstr ""
 "<emphasis>Exporter la bibliothèque</emphasis> - Compresse tous les "
-"échantillons d'instruments et les paramètres dans un kit de batterie dans in "
+"échantillons d'instruments et les paramètres dans un kit de batterie dans "
 "<emphasis>$HOME/.hydrogen/data/library_name</emphasis>"
 
 #. Tag: para
@@ -1362,8 +1362,8 @@ msgstr ""
 "(<emphasis>Play</emphasis>, NdT : Jouer), le morceau va paramétrer le "
 "nouveau tempo et démarrera la lecture automatiquement après que vous ayez "
 "tapé le bon nombre de pulsation (s'il n'est pas déjà démarré, bien sûr). Ce "
-"faisant, si votr Compteur de Tempo est sélectionné à 4/4, vous pouvez taper "
-"1-2-3-4, et démarrer à la prochaine pulsation Lorsqu'il affiche "
+"faisant, si votre Compteur de Tempo est paramétré à 4/4, vous pouvez taper "
+"1-2-3-4, et démarrer à la prochaine pulsation. Lorsqu'il affiche "
 "<guilabel>S</guilabel> (pour <emphasis>Set BPM</emphasis>, NdT : Paramétrer "
 "le BPM), le démarrage automatique est désactivé."
 
@@ -1549,7 +1549,7 @@ msgstr "Active le Mode Dessin."
 msgid ""
 "Switch from \"Single pattern mode\" to \"Stacked pattern mode\" and back.."
 msgstr ""
-"Bascule du \"mode à un motif\" versle \"mode en pile de motif\" et "
+"Bascule du \"mode à un motif\" vers le \"mode en pile de motif\" et "
 "inversement.."
 
 #. Tag: para
