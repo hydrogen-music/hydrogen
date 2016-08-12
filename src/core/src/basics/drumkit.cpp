@@ -62,6 +62,8 @@ Drumkit::Drumkit( Drumkit* other ) :
 	__author( other->get_author() ),
 	__info( other->get_info() ),
 	__license( other->get_license() ),
+	__image( other->get_image() ),
+	__imageLicense( other->get_image_license() ),
 	__samples_loaded( other->samples_loaded() ),
 	__components( NULL )
 {
@@ -126,6 +128,9 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	drumkit->__author = node->read_string( "author", "undefined author" );
 	drumkit->__info = node->read_string( "info", "No information available." );
 	drumkit->__license = node->read_string( "license", "undefined license" );
+	drumkit->__image = node->read_string( "image", "" );
+	drumkit->__imageLicense = node->read_string( "imageLicense", "undefined license" );
+
 
 	XMLNode componentListNode = node->firstChildElement( "componentList" );
 	if ( ! componentListNode.isNull() ) {
@@ -180,6 +185,8 @@ bool Drumkit::save( const QString&					name,
 					const QString&					author,
 					const QString&					info,
 					const QString&					license,
+					const QString& 					image,
+					const QString& 					imageLicense,
 					InstrumentList*					pInstruments,
 					std::vector<DrumkitComponent*>* pComponents,
 					bool overwrite )
@@ -190,6 +197,14 @@ bool Drumkit::save( const QString&					name,
 	pDrumkit->set_author( author );
 	pDrumkit->set_info( info );
 	pDrumkit->set_license( license );
+	
+	// save the original path
+	QFileInfo fi( image );
+	pDrumkit->set_path( fi.absolutePath() );
+	pDrumkit->set_image( fi.fileName() );
+	pDrumkit->set_image_license( imageLicense );
+
+
 	pDrumkit->set_instruments( new InstrumentList( pInstruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
 	std::vector<DrumkitComponent*>* pCopiedVector = new std::vector<DrumkitComponent*> ();
 	for (std::vector<DrumkitComponent*>::iterator it = pComponents->begin() ; it != pComponents->end(); ++it) {
@@ -246,6 +261,9 @@ void Drumkit::save_to( XMLNode* node, int component_id )
 	node->write_string( "author", __author );
 	node->write_string( "info", __info );
 	node->write_string( "license", __license );
+	node->write_string( "image", __image );
+	node->write_string( "imageLicense", __imageLicense );
+
 	if( component_id == -1 ) {
 		XMLNode components_node = node->ownerDocument().createElement( "componentList" );
 		for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
@@ -306,6 +324,28 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 			}
 		}
 	}
+	if ( !save_image( dk_dir, overwrite ) ) {
+		return false;
+	}
+
+	return true;
+}
+
+bool Drumkit::save_image( const QString& dk_dir, bool overwrite )
+{
+	if ( __image.length() > 0 )
+	{
+		QString src = __path + "/" + __image;
+		QString dst = dk_dir + "/" + __image;
+		if ( Filesystem::file_exists ( src ) ) 
+		{
+			if( !Filesystem::file_copy( src, dst ) ) 
+			{
+				ERRORLOG( QString( "Error copying %1 to %2").arg( src ).arg( dst ) );
+				return false;
+			}
+		}
+	}
 	return true;
 }
 
@@ -343,6 +383,9 @@ void Drumkit::dump()
 	DEBUGLOG( " |- Name = " + __name );
 	DEBUGLOG( " |- Author = " + __author );
 	DEBUGLOG( " |- Info = " + __info );
+	DEBUGLOG( " |- Image = " + __image );
+	DEBUGLOG( " |- Image = " + __imageLicense );
+
 	DEBUGLOG( " |- Instrument list" );
 	for ( int i=0; i<__instruments->size(); i++ ) {
 		Instrument* instrument = ( *__instruments )[i];

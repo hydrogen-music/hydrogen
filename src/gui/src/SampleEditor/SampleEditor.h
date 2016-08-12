@@ -48,7 +48,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 	Q_OBJECT
 	public:
 		
-		SampleEditor( QWidget* pParent, int nSelectedLayer, QString nSampleFilename );
+		SampleEditor( QWidget* pParent, int nSelectedComponent, int nSelectedLayer, QString nSampleFilename );
 		~SampleEditor();
 
 		void setSampleName( QString name);
@@ -84,6 +84,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 
 		H2Core::Sample *m_pSampleFromFile;
 		int m_pSelectedLayer;
+		int m_pSelectedComponent;
 		QString m_samplename;
 	
 		double m_divider;

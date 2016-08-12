@@ -8,6 +8,15 @@ p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'Lucida Grande'; font-size:10pt; font-weight:400; font-style:normal;">
 &lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">This drum kit contains 16 original sounds that were synthesized from scratch (using only basic synth waves, like sine, noise etc.). It simulates the sounds of the legendary Roland TR-808 Rhythm Composer. More kits from ArtemioLabs: http://artemiolabs.com/downloads/audio/hydrogen/&lt;/p>&lt;/body>&lt;/html></info>
  <license>GPL</license>
+ <image></image>
+ <imageLicense></imageLicense>
+ <componentList>
+  <drumkitComponent>
+   <id>0</id>
+   <name>Main</name>
+   <volume>1</volume>
+  </drumkitComponent>
+ </componentList>
  <instrumentList>
   <instrument>
    <id>0</id>
@@ -18,6 +27,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -29,17 +39,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>35</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Kick_Long.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Kick_Long.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>1</id>
@@ -50,6 +68,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -61,17 +80,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>36</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Kick_Short.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Kick_Short.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>2</id>
@@ -82,6 +109,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -93,17 +121,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>38</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Snare_1.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Snare_1.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>3</id>
@@ -114,6 +150,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -125,17 +162,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>40</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Snare_2.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Snare_2.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>4</id>
@@ -146,6 +191,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -157,17 +203,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>39</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Clap.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Clap.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>5</id>
@@ -178,6 +232,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>0.52</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -189,17 +244,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>43</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Tom_Low.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Tom_Low.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>6</id>
@@ -210,6 +273,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -221,17 +285,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>45</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Tom_Mid.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Tom_Mid.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>7</id>
@@ -242,6 +314,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -253,17 +326,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>48</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Tom_Hi.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Tom_Hi.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>8</id>
@@ -274,6 +355,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -285,17 +367,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>42</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Hat_Closed.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Hat_Closed.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>9</id>
@@ -306,6 +396,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -317,17 +408,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>44</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Hat_Pedal.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Hat_Pedal.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>10</id>
@@ -338,6 +437,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -349,17 +449,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>46</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Hat_Open.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Hat_Open.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>11</id>
@@ -370,6 +478,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -381,17 +490,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>49</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Cymbal.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Cymbal.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>12</id>
@@ -402,6 +519,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -413,17 +531,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>70</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Shaker.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Shaker.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>13</id>
@@ -434,6 +560,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -445,17 +572,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>63</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Conga.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Conga.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>14</id>
@@ -466,6 +601,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -477,17 +613,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>75</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Clave.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Clave.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
   <instrument>
    <id>15</id>
@@ -498,6 +642,7 @@ p, li { white-space: pre-wrap; }
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
@@ -509,17 +654,25 @@ p, li { white-space: pre-wrap; }
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>56</midiOutNote>
    <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
    <FX1Level>0</FX1Level>
    <FX2Level>0</FX2Level>
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
-   <layer>
-    <filename>808_Cowbell.flac</filename>
-    <min>0</min>
-    <max>1</max>
+   <instrumentComponent>
+    <component_id>0</component_id>
     <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
+    <layer>
+     <filename>808_Cowbell.flac</filename>
+     <min>0</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+   </instrumentComponent>
   </instrument>
  </instrumentList>
 </drumkit_info>

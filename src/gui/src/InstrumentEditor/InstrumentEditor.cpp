@@ -45,6 +45,7 @@ using namespace H2Core;
 #include "../widgets/ClickableLabel.h"
 #include "../widgets/Button.h"
 #include "../widgets/LCD.h"
+#include "../widgets/LCDCombo.h"
 #include "../widgets/Fader.h"
 #include "InstrumentEditor.h"
 #include "WaveDisplay.h"
@@ -250,17 +251,39 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pIsStopNoteCheckBox->setToolTip( trUtf8( "Stop the current playing instrument-note before trigger the next note sample." ) );
 	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
 
+	m_pApplyVelocity = new QCheckBox ( trUtf8( "" ), m_pInstrumentProp );
+	m_pApplyVelocity->move( 153, 138 );
+	m_pApplyVelocity->setToolTip( trUtf8( "Don't change the layers' gain based on velocity" ) );
+	connect( m_pApplyVelocity, SIGNAL( toggled( bool ) ), this, SLOT( onIsApplyVelocityCheckBoxClicked( bool ) ) );
+
 	//////////////////////////
 	// HiHat setup
 
-	m_pIsHihat = new QCheckBox ( trUtf8( "" ), m_pInstrumentProp );
-	m_pIsHihat->move( 63, 304 );
-	m_pIsHihat->setToolTip( trUtf8( "Set the instrument as part of a hihat set." ) );
-	connect( m_pIsHihat, SIGNAL( toggled( bool ) ), this, SLOT( pIsHihatCheckBoxClicked( bool ) ) );
+	m_pHihatGroupLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
+	m_pHihatGroupLCD->move( 27, 307 );
 
+	m_pAddHihatGroupBtn = new Button(
+					m_pInstrumentProp,
+					"/lcd/LCDSpinBox_up_on.png",
+					"/lcd/LCDSpinBox_up_off.png",
+					"/lcd/LCDSpinBox_up_over.png",
+					QSize( 16, 8 )
+					);
+	m_pAddHihatGroupBtn->move( 69, 306 );
+	connect( m_pAddHihatGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatGroupClicked(Button*) ) );
+
+	m_pDelHihatGroupBtn = new Button(
+					m_pInstrumentProp,
+					"/lcd/LCDSpinBox_down_on.png",
+					"/lcd/LCDSpinBox_down_off.png",
+					"/lcd/LCDSpinBox_down_over.png",
+					QSize(16,8)
+					);
+	m_pDelHihatGroupBtn->move( 69, 315 );
+	connect( m_pDelHihatGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatGroupClicked(Button*) ) );
 
 	m_pHihatMinRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pHihatMinRangeLCD->move( 67, 320 );
+	m_pHihatMinRangeLCD->move( 137, 307 );
 
 	m_pAddHihatMinRangeBtn = new Button(
 								 m_pInstrumentProp,
@@ -271,7 +294,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 false,
 								 true
 								 );
-	m_pAddHihatMinRangeBtn->move( 109, 319 );
+	m_pAddHihatMinRangeBtn->move( 179, 306 );
 	connect( m_pAddHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
 
 	m_pDelHihatMinRangeBtn = new Button(
@@ -283,12 +306,12 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 false,
 								 true
 								 );
-	m_pDelHihatMinRangeBtn->move( 109, 328 );
+	m_pDelHihatMinRangeBtn->move( 179, 315 );
 	connect( m_pDelHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
 
 
 	m_pHihatMaxRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pHihatMaxRangeLCD->move( 160, 320 );
+	m_pHihatMaxRangeLCD->move( 202, 307 );
 
 	m_pAddHihatMaxRangeBtn = new Button(
 								 m_pInstrumentProp,
@@ -299,7 +322,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 false,
 								 true
 								 );
-	m_pAddHihatMaxRangeBtn->move( 202, 319 );
+	m_pAddHihatMaxRangeBtn->move( 244, 306 );
 	connect( m_pAddHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
 
 	m_pDelHihatMaxRangeBtn = new Button(
@@ -311,7 +334,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 false,
 								 true
 								 );
-	m_pDelHihatMaxRangeBtn->move( 202, 328 );
+	m_pDelHihatMaxRangeBtn->move( 244, 315 );
 	connect( m_pDelHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
 
 	//
@@ -427,12 +450,23 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pCompoGainRotary->move( 199, 341 );
 
 
-	m_pLayerPitchCoarseLCD->move( 54, 400 + 3 );
-	m_pLayerPitchCoarseRotary->move( 102, 400 );
+	m_pLayerPitchCoarseLCD->move( 54, 391 + 3 );
+	m_pLayerPitchCoarseRotary->move( 102, 391 );
 
+	m_pLayerPitchFineLCD->move( 151, 391 + 3 );
+	m_pLayerPitchFineRotary->move( 199, 391 );
 
-	m_pLayerPitchFineLCD->move( 151, 400 + 3 );
-	m_pLayerPitchFineRotary->move( 199, 400 );
+	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, 25);
+	m_sampleSelectionAlg->move( 60, 434 );
+	m_sampleSelectionAlg->setToolTip( trUtf8("Select pattern size") );
+
+	m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
+	m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
+	m_sampleSelectionAlg->addItem( QString( "Random" ) );
+
+	m_sampleSelectionAlg->update();
+	connect( m_sampleSelectionAlg, SIGNAL( valueChanged( QString ) ), this, SLOT( pSampleSelectionChanged( QString ) ) );
+
 	//~ Layer properties
 
 	//component handling
@@ -529,6 +563,9 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		//Stop Note
 		m_pIsStopNoteCheckBox->setChecked( m_pInstrument->is_stop_notes() );
 
+		//Ignore Velocity
+		m_pApplyVelocity->setChecked( m_pInstrument->get_apply_velocity() );
+
 		// instr gain
 		char tmp[20];
 		sprintf( tmp, "%#.2f", m_pInstrument->get_gain());
@@ -550,7 +587,11 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pMidiOutChannelLCD->setText( sMidiOutChannel );
 
 		// hihat
-		m_pIsHihat->setChecked( m_pInstrument->is_hihat() );
+		QString sHHGroup = QString("%1").arg( m_pInstrument->get_hihat_grp() );
+		if (m_pInstrument->get_hihat_grp() == -1 ) {
+			sHHGroup = "Off";
+		}
+		m_pHihatGroupLCD->setText( sHHGroup );
 		QString sHiHatMinRange = QString("%1").arg( m_pInstrument->get_lower_cc() );
 		m_pHihatMinRangeLCD->setText( sHiHatMinRange );
 		QString sHiHatMaxRange = QString("%1").arg( m_pInstrument->get_higher_cc() );
@@ -563,6 +604,23 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			const char *noteStrs[12] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 			QString sMidiOutNote = QString(noteStrs[note % 12]) + QString::number(octave);
 			m_pMidiOutNoteLCD->setText( sMidiOutNote );
+		}
+
+		/*
+		 * m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
+		 * m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
+		 * m_sampleSelectionAlg->addItem( QString( "Random" ) );
+		 **/
+		switch ( m_pInstrument->sample_selection_alg() ) {
+			case Instrument::VELOCITY:
+				m_sampleSelectionAlg->set_text( "First in Velocity" );
+				break;
+			case Instrument::RANDOM:
+				m_sampleSelectionAlg->set_text( "Random" );
+				break;
+			case Instrument::ROUND_ROBIN:
+				m_sampleSelectionAlg->set_text( "Round Robin" );
+				break;
 		}
 
 		itemsCompo.clear();
@@ -797,7 +855,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 					Sample* pSample = pLayer->get_sample();
 					if( pSample == NULL) return;
 					QString name = pSample->get_filepath();
-					HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedLayer );
+					HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
 				}
 			}
 		}
@@ -1088,6 +1146,14 @@ void InstrumentEditor::onIsStopNoteCheckBoxClicked( bool on )
 	selectedInstrumentChangedEvent();	// force an update
 }
 
+void InstrumentEditor::onIsApplyVelocityCheckBoxClicked( bool on )
+{
+	assert( m_pInstrument );
+
+	m_pInstrument->set_apply_velocity( on );
+	selectedInstrumentChangedEvent();	// force an update
+}
+
 void InstrumentEditor::midiOutChannelBtnClicked(Button *pRef)
 {
 	assert( m_pInstrument );
@@ -1319,12 +1385,36 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 
 }
 
-void InstrumentEditor::pIsHihatCheckBoxClicked( bool on )
+void InstrumentEditor::pSampleSelectionChanged( QString selected )
+{
+	/*
+		"First in Velocity"
+		"Round Robin"
+		"Random"
+	*/
+
+	assert( m_pInstrument );
+
+	if ( selected.compare("First in Velocity") == 0 )
+		m_pInstrument->set_sample_selection_alg( Instrument::VELOCITY );
+	else if ( selected.compare("Round Robin") == 0 )
+		m_pInstrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
+	else if ( selected.compare("Random") == 0)
+		m_pInstrument->set_sample_selection_alg( Instrument::RANDOM );
+
+	selectedInstrumentChangedEvent();	// force an update
+}
+
+void InstrumentEditor::hihatGroupClicked(Button *pRef)
 {
 	assert( m_pInstrument );
 
-	m_pInstrument->set_hihat( on );
-	selectedInstrumentChangedEvent();	// force an update
+	if ( pRef == m_pAddHihatGroupBtn && m_pInstrument->get_hihat_grp() < 32 )
+		m_pInstrument->set_hihat_grp( m_pInstrument->get_hihat_grp() + 1 );
+	else if ( pRef == m_pDelHihatGroupBtn && m_pInstrument->get_hihat_grp() > -1 )
+		m_pInstrument->set_hihat_grp( m_pInstrument->get_hihat_grp() - 1 );
+
+	selectedInstrumentChangedEvent();   // force an update
 }
 
 void InstrumentEditor::hihatMinRangeBtnClicked(Button *pRef)

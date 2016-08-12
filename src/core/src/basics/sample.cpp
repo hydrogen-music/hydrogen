@@ -196,6 +196,7 @@ bool Sample::apply_loops( const Loops& lo )
 		ERRORLOG( QString( "count %1 < 0 is not allowed" ).arg( lo.count ) );
 		return false;
 	}
+	//if( lo == __loops ) return true;
 
 	bool full_loop = lo.start_frame==lo.loop_frame;
 	int full_length =  lo.end_frame - lo.start_frame;
@@ -512,7 +513,8 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 
 Sample::Loops::LoopMode Sample::parse_loop_mode( const QString& string )
 {
-	char* mode = string.toLocal8Bit().data();
+	QByteArray byteArray =	string.toLocal8Bit();
+	char* mode = byteArray.data();
 	for( int i=Loops::FORWARD; i<=Loops::PINGPONG; i++ ) {
 		if( 0 == strncasecmp( mode, __loop_modes[i], sizeof( __loop_modes[i] ) ) ) return ( Loops::LoopMode )i;
 	}

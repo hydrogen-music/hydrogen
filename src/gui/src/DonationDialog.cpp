@@ -20,34 +20,30 @@
  *
  */
 
-#ifndef SOUND_LIBRARY_PROPERTIES_DIALOG_H
-#define SOUND_LIBRARY_PROPERTIES_DIALOG_H
+#include <hydrogen/version.h>
+#include "DonationDialog.h"
+#include "Skin.h"
 
-#include "ui_SoundLibraryPropertiesDialog_UI.h"
-#include <hydrogen/object.h>
+#include <hydrogen/globals.h>
 
-///
-///
-namespace H2Core
+
+DonationDialog::DonationDialog(QWidget* parent)
+ : QDialog( parent )
 {
+	setupUi( this );
 
-class Drumkit;
-
-class SoundLibraryPropertiesDialog : public QDialog, public Ui_SoundLibraryPropertiesDialog_UI, public H2Core::Object
-{
-	H2_OBJECT
-	Q_OBJECT
-	public:
-		SoundLibraryPropertiesDialog( QWidget* pParent , Drumkit *drumkitInfo, Drumkit *preDrumKit );
-		~SoundLibraryPropertiesDialog();
-
-	private slots:
-		void on_saveBtn_clicked();
-		void on_imageBrowsePushButton_clicked();
-
-	private:
-		void updateImage( QString& filename );
-};
-
+	setWindowTitle( tr( "Donations" ) );
+	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 }
-#endif
+
+DonationDialog::~DonationDialog()
+{
+}
+
+/**
+ * Close the dialog
+ */
+void DonationDialog::on_okBtn_clicked()
+{
+	accept();
+}

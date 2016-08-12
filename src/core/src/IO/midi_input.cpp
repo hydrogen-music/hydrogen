@@ -243,38 +243,43 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		static const float fPan_L = 0.5f;
 		static const float fPan_R = 0.5f;
 
+
 		int nInstrument = nNote - 36;
-		if ( nInstrument < 0 ) {
-				if(Preferences::get_instance()->__playselectedinstrument)
-				{
-					//we're in instrument mode -> we accept all notes
-				} else {
-					//we're in drumkit mode, lets drop everything < 36
-					nInstrument = 0;
-					return;
-				}
-
-		}
-		if ( nInstrument > ( MAX_INSTRUMENTS -1 ) ) {
-				nInstrument = MAX_INSTRUMENTS - 1;
-		}
-
 		InstrumentList *instrList = pEngine->getSong()->get_instrument_list();
-		Instrument *instr = instrList->get( nInstrument );
+		Instrument *pInstr = NULL;
+		if ( Preferences::get_instance()->__playselectedinstrument ){
+			nInstrument = pEngine->getSelectedInstrumentNumber();
+			pInstr= instrList->get( pEngine->getSelectedInstrumentNumber());
+		}
+		else if(Preferences::get_instance()->m_bMidiFixedMapping ){
+			pInstr = instrList->findMidiNote( nNote );
+			if(pInstr == NULL) {
+				ERRORLOG( QString( "Can't find correponding Intrument for note %1" ).arg( nNote ));
+				return;
+			}
+			nInstrument = instrList->index(pInstr);
+		} else {
+			if(nInstrument < 0) {
+				//Drop everything < 36
+				return;
+			}
+			pInstr = instrList->get(nInstrument);
+		}
+
 		/*
 		Only look to change instrument if the
 		current note is actually of hihat and
 		hihat openess is outside the instrument selected
 		*/
-		if ( instr != NULL &&
-			 instr->is_hihat() &&
-			 ( __hihat_cc_openess < instr->get_lower_cc() || __hihat_cc_openess > instr->get_higher_cc() ) )
+		if ( pInstr != NULL &&
+			 pInstr->get_hihat_grp() >= 0 &&
+			 ( __hihat_cc_openess < pInstr->get_lower_cc() || __hihat_cc_openess > pInstr->get_higher_cc() ) )
 		{
 			for(int i=0 ; i<=instrList->size() ; i++)
 			{
 				Instrument *instr_contestant = instrList->get( i );
 				if( instr_contestant != NULL &&
-						instr_contestant->is_hihat() &&
+						pInstr->get_hihat_grp() == instr_contestant->get_hihat_grp() &&
 						__hihat_cc_openess >= instr_contestant->get_lower_cc() &&
 						__hihat_cc_openess <= instr_contestant->get_higher_cc() )
 				{
@@ -317,22 +322,34 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	int nNote = msg.m_nData1;
 	//float fVelocity = msg.m_nData2 / 127.0; //we need this in future to controll release velocity
 	int nInstrument = nNote - 36;
-	if ( nInstrument < 0 ) {
-		nInstrument = 0;
-	}
-	if ( nInstrument > ( MAX_INSTRUMENTS -1 ) ) {
-		nInstrument = MAX_INSTRUMENTS - 1;
-	}
-	Instrument *pInstr = pSong->get_instrument_list()->get( nInstrument );
-
-	float fStep = pow( 1.0594630943593, (nNote -36) );
-	if ( !Preferences::get_instance()->__playselectedinstrument )
-		fStep = 1;
+	Instrument *pInstr = NULL;
 
 	if ( Preferences::get_instance()->__playselectedinstrument ){
 		nInstrument = pEngine->getSelectedInstrumentNumber();
-		pInstr= pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber());
+		pInstr = pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber());
+	} else if( Preferences::get_instance()->m_bMidiFixedMapping ) {
+		pInstr = pSong->get_instrument_list()->findMidiNote( nNote );
+
+		if(pInstr == NULL) {
+			ERRORLOG( QString( "Note %1 not found" ).arg( nNote ));
+			return;
+		}
+		nInstrument = pSong->get_instrument_list()->index(pInstr);
 	}
+	else {
+		if(nInstrument < 0) {
+			//Drop everything < 36
+			return;
+		}
+		pInstr =  pSong->get_instrument_list()->get(nInstrument);
+	}
+
+
+	float fStep = pow( 1.0594630943593, (nNote) );
+	if ( !Preferences::get_instance()->__playselectedinstrument )
+		fStep = 1;
+
+
 
 	bool use_note_off = AudioEngine::get_instance()->get_sampler()->is_instrument_playing( pInstr );
 	if(use_note_off){

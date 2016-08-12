@@ -30,7 +30,7 @@
 
 #ifdef H2CORE_HAVE_LASH
 
-#include <lash-1.0/lash/lash.h>
+#include <lash/lash.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/h2_exception.h>
 

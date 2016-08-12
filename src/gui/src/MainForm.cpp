@@ -34,9 +34,11 @@
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
 
+#include <hydrogen/lilypond/lilypond.h>
 
 #include "AboutDialog.h"
 #include "AudioEngineInfoForm.h"
+#include "DonationDialog.h"
 #include "ExportSongDialog.h"
 #include "HydrogenApp.h"
 #include "InstrumentRack.h"
@@ -68,7 +70,7 @@
 #endif
 
 #ifdef H2CORE_HAVE_LASH
-#include <lash-1.0/lash/lash.h>
+#include <lash/lash.h>
 #include <hydrogen/LashClient.h>
 #endif
 
@@ -248,7 +250,7 @@ void MainForm::createMenuBar()
 	setMenuBar( m_pMenubar );
 
 	// FILE menu
-	QMenu *m_pFileMenu = m_pMenubar->addMenu( trUtf8( "&Project" ) );
+	QMenu *m_pFileMenu = m_pMenubar->addMenu( trUtf8( "Pro&ject" ) );
 
 	m_pFileMenu->addAction( trUtf8( "&New" ), this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
 	m_pFileMenu->addAction( trUtf8( "Show &info" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
@@ -274,6 +276,7 @@ void MainForm::createMenuBar()
 
 	m_pFileMenu->addAction( trUtf8( "Export &MIDI file" ), this, SLOT( action_file_export_midi() ), QKeySequence( "Ctrl+M" ) );
 	m_pFileMenu->addAction( trUtf8( "&Export song" ), this, SLOT( action_file_export() ), QKeySequence( "Ctrl+E" ) );
+	m_pFileMenu->addAction( trUtf8( "Export &LilyPond file" ), this, SLOT( action_file_export_lilypond() ), QKeySequence( "Ctrl+L" ) );
 
 
 #ifndef Q_OS_MACX
@@ -352,6 +355,7 @@ void MainForm::createMenuBar()
 	m_pInfoMenu->addSeparator();
 	m_pInfoMenu->addAction( trUtf8("&About"), this, SLOT( action_help_about() ), QKeySequence( trUtf8("", "Info|About") ) );
 	m_pInfoMenu->addAction( trUtf8("Report bug"), this, SLOT( action_report_bug() ));
+	//m_pInfoMenu->addAction( trUtf8("Donate"), this, SLOT( action_donate() ));
 	//~ INFO menu
 }
 
@@ -439,6 +443,11 @@ void MainForm::onLashPollTimer()
 #endif
 }
 
+void MainForm::action_donate()
+{
+	DonationDialog *dialog = new DonationDialog( NULL );
+	dialog->exec();
+}
 
 /// return true if the app needs to be closed.
 bool MainForm::action_file_exit()
@@ -1436,7 +1445,50 @@ void MainForm::action_file_export_midi()
 	}
 }
 
+void MainForm::action_file_export_lilypond()
+{
+	if ( ( ( Hydrogen::get_instance() )->getState() == STATE_PLAYING ) ) {
+		Hydrogen::get_instance()->sequencer_stop();
+	}
+	switch ( QMessageBox::information(
+	        this,
+	        "Hydrogen",
+	        trUtf8( "\nThe LilyPond export is an experimental feature.\n"
+	                "It should work like a charm provided that you use the "
+	                "GM-kit, and that you do not use triplet\n" ),
+	        trUtf8( "Ok" ),
+	        trUtf8( "&Cancel" ),
+	        0,
+	        2 ) ) {
+	case 1:
+	case 2: return;
+	}
 
+	QFileDialog fd( this );
+	fd.setFileMode( QFileDialog::AnyFile );
+	fd.setFilter( trUtf8( "LilyPond file (*.ly)" ) );
+	fd.setDirectory( QDir::homePath() );
+	fd.setWindowTitle( trUtf8( "Export LilyPond file" ) );
+	fd.setAcceptMode( QFileDialog::AcceptSave );
+	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+
+	QString sFilename;
+	if ( fd.exec() == QDialog::Accepted ) {
+		sFilename = fd.selectedFiles().first();
+	}
+
+	if ( !sFilename.isEmpty() ) {
+		if ( sFilename.endsWith( ".ly" ) == false ) {
+			sFilename += ".ly";
+		}
+
+		Song *pSong = Hydrogen::get_instance()->getSong();
+
+		LilyPond ly;
+		ly.extractData( *pSong );
+		ly.write( sFilename );
+	}
+}
 
 void MainForm::errorEvent( int nErrorCode )
 {
@@ -1721,6 +1773,5 @@ bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 
 	return TRUE;
 }
-
 
 
