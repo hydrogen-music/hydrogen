@@ -219,7 +219,7 @@ FIND_HELPER(LRDF lrdf lrdf.h lrdf)
 FIND_HELPER(RAPTOR raptor2 raptor.h raptor)
 
 IF(LRDF_FOUND)
-	include_directories(${PC_LRDF_INCLUDE_DIRS}) # see github issue 194
+	include_directories(${LRDF_INCLUDE_DIRS}) # see github issue 194
 ENDIF(LRDF_FOUND)
 
 FIND_HELPER(RUBBERBAND rubberband RubberBandStretcher.h rubberband)
