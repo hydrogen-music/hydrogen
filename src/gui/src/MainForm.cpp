@@ -1020,6 +1020,8 @@ void MainForm::action_instruments_saveLibrary()
 									QString( drumkitInfo->get_author() ),
 									QString( drumkitInfo->get_info() ),
 									QString( drumkitInfo->get_license() ),
+									QString( drumkitInfo->get_image() ),
+									QString( drumkitInfo->get_image_license() ),
 									H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(),
 									H2Core::Hydrogen::get_instance()->getSong()->get_components(),
 									true ) ) {
