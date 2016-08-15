@@ -160,7 +160,7 @@ void NsmClient::createInitialClient()
 	}
 	else
 	{
-		___ERRORLOG("No NSM URL available: no NSM management\n");
+		___WARNINGLOG("No NSM URL available: no NSM management\n");
 	}
 }
 #endif /* H2CORE_HAVE_NSMSESSION */

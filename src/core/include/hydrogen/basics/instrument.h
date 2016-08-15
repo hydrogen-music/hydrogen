@@ -49,6 +49,12 @@ class Instrument : public H2Core::Object
 {
 		H2_OBJECT
 	public:
+		enum SampleSelectionAlgo {
+			VELOCITY,
+			RANDOM,
+			ROUND_ROBIN
+		};
+
 		/**
 		 * constructor
 		 * \param id the id of this instrument
@@ -220,6 +226,9 @@ class Instrument : public H2Core::Object
 		/** get the stop notes of the instrument */
 		bool is_stop_notes() const;
 
+		void set_sample_selection_alg( SampleSelectionAlgo selected_algo);
+		SampleSelectionAlgo sample_selection_alg() const;
+
 		void set_hihat_grp( int hihat_grp );
 		int get_hihat_grp() const;
 
@@ -245,6 +254,8 @@ class Instrument : public H2Core::Object
 		std::vector<InstrumentComponent*>* get_components();
 		InstrumentComponent* get_component( int DrumkitComponentID );
 
+		void set_apply_velocity( bool apply_velocity );
+		bool get_apply_velocity() const;
 
 
 	private:
@@ -265,6 +276,7 @@ class Instrument : public H2Core::Object
 		int __midi_out_note;		            ///< midi out note
 		int __midi_out_channel;		            ///< midi out channel
 		bool __stop_notes;		                ///< will the note automatically generate a note off after beeing on
+		SampleSelectionAlgo __sample_selection_alg;	///< how Hydrogen will chose the sample to use
 		bool __active;			                ///< is the instrument active?
 		bool __soloed;                          ///< is the instrument in solo mode?
 		bool __muted;                           ///< is the instrument muted?
@@ -277,6 +289,7 @@ class Instrument : public H2Core::Object
 		bool __is_preview_instrument;			///< is the instrument an hydrogen preview instrument?
 		bool __is_metronome_instrument;			///< is the instrument an metronome instrument?
 		std::vector<InstrumentComponent*>* __components;  ///< InstrumentLayer array
+		bool __apply_velocity;			///< change the sample gain based on velocity
 };
 
 // DEFINITIONS
@@ -515,6 +528,16 @@ inline bool Instrument::is_stop_notes() const
 	return __stop_notes;
 }
 
+inline void Instrument::set_sample_selection_alg( SampleSelectionAlgo selected_algo)
+{
+	__sample_selection_alg = selected_algo;
+}
+
+inline Instrument::SampleSelectionAlgo Instrument::sample_selection_alg() const
+{
+	return __sample_selection_alg;
+}
+
 inline void Instrument::set_hihat_grp( int hihat_grp )
 {
 	__hihat_grp = hihat_grp;
@@ -578,6 +601,16 @@ inline void Instrument::set_is_metronome_instrument(bool isMetronome)
 inline std::vector<InstrumentComponent*>* Instrument::get_components()
 {
 	return __components;
+}
+
+inline void Instrument::set_apply_velocity( bool apply_velocity )
+{
+	__apply_velocity = apply_velocity;
+}
+
+inline bool Instrument::get_apply_velocity() const
+{
+	return __apply_velocity;
 }
 
 

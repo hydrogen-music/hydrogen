@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>559</width>
-    <height>448</height>
+    <height>451</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -65,6 +65,13 @@
          </property>
          <property name="shortcut">
           <string>Alt+R</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="useRelativePlaylistPathsCheckbox">
+         <property name="text">
+          <string>Use relative paths for playlist</string>
          </property>
         </widget>
        </item>
@@ -677,6 +684,17 @@
            </item>
           </layout>
          </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <widget class="QCheckBox" name="m_pFixedMapping">
+             <property name="text">
+              <string>Use output note as input note</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
         </layout>
        </item>
        <item>
@@ -828,6 +846,9 @@
            <property name="frameShape">
             <enum>QFrame::Box</enum>
            </property>
+           <property name="lineWidth">
+            <number>0</number>
+           </property>
            <property name="midLineWidth">
             <number>0</number>
            </property>
@@ -835,7 +856,7 @@
             <string>Default interface layout</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
            <property name="margin">
             <number>0</number>

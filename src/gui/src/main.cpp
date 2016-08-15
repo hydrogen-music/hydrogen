@@ -487,7 +487,7 @@ void showInfo()
 {
 	cout << "\nHydrogen " + H2Core::get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << endl;
 	cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
-	cout << "Copyright 2008-2015 The hydrogen development team" << endl;
+	cout << "Copyright 2008-2016 The hydrogen development team" << endl;
 
 	if ( H2Core::Object::count_active() ) {
 		cout << "\nObject counting = active" << endl;

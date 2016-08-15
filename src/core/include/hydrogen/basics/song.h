@@ -209,6 +209,16 @@ class Song : public H2Core::Object
 
 		void readTempPatternList( QString filename );
 
+		int get_latest_round_robin( float start_velocity ) {
+			if ( __latest_round_robins.find(start_velocity) == __latest_round_robins.end() )
+				return 0;
+			else
+				return __latest_round_robins[start_velocity];
+		}
+		void set_latest_round_robin( float start_velocity, int latest_round_robin ) {
+			__latest_round_robins[start_velocity] = latest_round_robin;
+		}
+
 
 	private:
 		float								__volume;						///< volume of the song (0.0..1.0)
@@ -224,6 +234,7 @@ class Song : public H2Core::Object
 		float								__humanize_velocity_value;
 		float								__swing_factor;
 		bool								__is_modified;
+		std::map< float, int> 				__latest_round_robins;
 		SongMode							__song_mode;
 		AutomationPath*                     __velocity_automation_path;
 };

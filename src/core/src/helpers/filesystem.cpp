@@ -68,7 +68,7 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 	__usr_data_path = QDir::homePath().append( "/.hydrogen/data" ) ;
 #else
 	__sys_data_path = SYS_DATA_PATH;
-	__usr_data_path = QDir::homePath().append( "/"USR_DATA_PATH );
+	__usr_data_path = QDir::homePath().append( "/" USR_DATA_PATH );
 #endif
 	if( sys_path!=0 ) __sys_data_path = sys_path;
 
@@ -183,7 +183,7 @@ bool Filesystem::write_to_file( const QString& dst, const QString& content )
 bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwrite )
 {
 	if( file_exists( dst, true ) && !overwrite ) {
-		WARNINGLOG( QString( "do not overwrite %1 with %2 has it already exists" ).arg( dst ).arg( src ) );
+		WARNINGLOG( QString( "do not overwrite %1 with %2 as it already exists" ).arg( dst ).arg( src ) );
 		return true;
 	}
 	if ( !file_readable( src ) ) {
