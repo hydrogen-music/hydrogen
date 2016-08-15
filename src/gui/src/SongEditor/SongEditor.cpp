@@ -829,8 +829,14 @@ void SongEditor::drawPattern( int pos, int number, bool invertColour )
 	int coloringMethodAuxValue = pref->getColoringMethodAuxValue();
 	int steps = 1;
 
-	//valid values: 0:300, see http://qt-project.org/doc/qt-4.8/qcolor.html#the-hsv-color-model
-	int hue = 0;
+	/*
+	 * This coloring of the song editor "squares" is done using the hsv color model,
+	 * see http://qt-project.org/doc/qt-4.8/qcolor.html#the-hsv-color-model for details.
+	 *
+	 * The default color of the cubes in rgb is 97,167,251.
+	 * The hsv equivalent is 213,156,249.
+	 */
+	int hue = 213;
 
 	Song* song = Hydrogen::get_instance()->getSong();
 	PatternList *patList = song->get_pattern_list();
@@ -847,20 +853,23 @@ void SongEditor::drawPattern( int pos, int number, bool invertColour )
 				steps = 1;
 			}
 
-			hue = (number % steps) * (300 / steps);
+			hue = ((number % steps) * (300 / steps) + 213) % 300;
+			patternColor.setHsv( hue , 156 , 249);
 			break;
 		case 1:
 			//Steps
 			steps = coloringMethodAuxValue;
-			hue = (number % steps) * (300 / steps);
+			hue = ((number % steps) * (300 / steps) + 213) % 300;
+			patternColor.setHsv( hue , 156, 249);
 			break;
 		case 2:
 			//Fixed color
 			hue = coloringMethodAuxValue;
+			patternColor.setHsv( hue , 156, 249);
 			break;
 	}
 
-	patternColor.setHsv( hue , 255, 200);
+
 
 	if (true == invertColour) {
 		patternColor = patternColor.darker(200);
@@ -1067,7 +1076,6 @@ void SongEditorPatternList::inlineEditingEntered()
 												  line->text(), patternBeingEdited->get_info(), patternBeingEdited->get_category(), nSelectedPattern );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
-// 	patternBeingEdited = NULL;
 }
 
 
@@ -1156,12 +1164,7 @@ void SongEditorPatternList::createBackground()
 
 		// Text
 		bool bNext = false, bActive = false;
-/*		for (uint j = 0; j < pCurrentPatternList->size(); j++) {
-			if ( pPattern == pCurrentPatternList->get(j) ) {
-				bActive = true;
-				break;
-			}
-		}*/
+
 		if ( pCurrentPatternList->index( pPattern ) != -1 ) bActive = true;
 		if ( pEngine->getNextPatterns()->index( pPattern ) != -1 ) bNext = true;
 
@@ -1177,7 +1180,6 @@ void SongEditorPatternList::createBackground()
 			p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_off_Pixmap );
 		}
 		else if (bActive) {
-//			p.drawText( 5, text_y - 1 - m_nGridHeight, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, ">" );
 
 			//mark active pattern with triangular
 			if( ! pref->patternModePlaysSelected() ){
@@ -1744,7 +1746,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 {
 	QString sText = event->mimeData()->text();
 
-	if( sText.startsWith("Songs:") || sText.startsWith("move instrument:") ){
+	if( sText.startsWith("Songs:") || sText.startsWith("move instrument:") || sText.startsWith("importInstrument:")){
 		event->acceptProposedAction();
 		return;
 	}
@@ -1762,11 +1764,9 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 
 		SE_movePatternListItemAction *action = new SE_movePatternListItemAction( nSourcePattern , nTargetPattern ) ;
 		HydrogenApp::get_instance()->m_undoStack->push( action );
-		//movePatternLine( nSourcePattern , nTargetPattern );
 
 		event->acceptProposedAction();
 	}else {
-
 		QStringList tokens = sText.split( "::" );
 		QString sPatternName = tokens.at( 1 );
 

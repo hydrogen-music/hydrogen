@@ -1496,8 +1496,8 @@ void audioEngine_startAudioDrivers()
 
 
 	QString sAudioDriver = preferencesMng->m_sAudioDriver;
-	//	sAudioDriver = "Auto";
 	if ( sAudioDriver == "Auto" ) {
+	#ifndef WIN32
 		if ( ( m_pAudioDriver = createDriver( "Jack" ) ) == NULL ) {
 			if ( ( m_pAudioDriver = createDriver( "Alsa" ) ) == NULL ) {
 				if ( ( m_pAudioDriver = createDriver( "CoreAudio" ) ) == NULL ) {
@@ -1517,6 +1517,28 @@ void audioEngine_startAudioDrivers()
 				}
 			}
 		}
+	#else
+		//On Windows systems, use PortAudio is the prioritized backend
+		if ( ( m_pAudioDriver = createDriver( "PortAudio" ) ) == NULL ) {
+			if ( ( m_pAudioDriver = createDriver( "Alsa" ) ) == NULL ) {
+				if ( ( m_pAudioDriver = createDriver( "CoreAudio" ) ) == NULL ) {
+					if ( ( m_pAudioDriver = createDriver( "Jack" ) ) == NULL ) {
+						if ( ( m_pAudioDriver = createDriver( "Oss" ) ) == NULL ) {
+							if ( ( m_pAudioDriver = createDriver( "PulseAudio" ) ) == NULL ) {
+								audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
+								___ERRORLOG( "Error starting audio driver" );
+								___ERRORLOG( "Using the NULL output audio driver" );
+
+								// use the NULL output driver
+								m_pAudioDriver = new NullDriver( audioEngine_process );
+								m_pAudioDriver->init( 0 );
+							}
+						}
+					}
+				}
+			}
+		}
+	#endif
 	} else {
 		m_pAudioDriver = createDriver( sAudioDriver );
 		if ( m_pAudioDriver == NULL ) {

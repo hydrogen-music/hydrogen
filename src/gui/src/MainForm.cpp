@@ -70,7 +70,7 @@
 #endif
 
 #ifdef H2CORE_HAVE_LASH
-#include <lash-1.0/lash/lash.h>
+#include <lash/lash.h>
 #include <hydrogen/LashClient.h>
 #endif
 
@@ -250,7 +250,7 @@ void MainForm::createMenuBar()
 	setMenuBar( m_pMenubar );
 
 	// FILE menu
-	QMenu *m_pFileMenu = m_pMenubar->addMenu( trUtf8( "&Project" ) );
+	QMenu *m_pFileMenu = m_pMenubar->addMenu( trUtf8( "Pro&ject" ) );
 
 	m_pFileMenu->addAction( trUtf8( "&New" ), this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
 	m_pFileMenu->addAction( trUtf8( "Show &info" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
@@ -355,7 +355,7 @@ void MainForm::createMenuBar()
 	m_pInfoMenu->addSeparator();
 	m_pInfoMenu->addAction( trUtf8("&About"), this, SLOT( action_help_about() ), QKeySequence( trUtf8("", "Info|About") ) );
 	m_pInfoMenu->addAction( trUtf8("Report bug"), this, SLOT( action_report_bug() ));
-	m_pInfoMenu->addAction( trUtf8("Donate"), this, SLOT( action_donate() ));
+	//m_pInfoMenu->addAction( trUtf8("Donate"), this, SLOT( action_donate() ));
 	//~ INFO menu
 }
 

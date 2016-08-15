@@ -52,6 +52,11 @@ class ADSR;
 class Instrument;
 class InstrumentList;
 
+struct SelectedLayerInfo {
+	int SelectedLayer;		///< selected layer during layer selection
+	float SamplePosition;	///< place marker for overlapping process() cycles
+};
+
 /**
  * A note plays an associated instrument with a velocity left and right pan
  */
@@ -195,9 +200,11 @@ class Note : public H2Core::Object
 		void set_just_recorded( bool value );
 		/** __just_recorder accessor */
 		bool get_just_recorded() const;
-		/** __sample_position accessor */
-		float get_sample_position(int CompoID) ;
-		std::map<int, float> get_samples_position();
+
+		/*
+		 * selected sample
+		 * */
+		SelectedLayerInfo* get_layer_selected( int CompoID );
 
 
         void set_probability( float value );
@@ -262,12 +269,6 @@ class Note : public H2Core::Object
 		/** call get value on adsr */
 		//float get_adsr_value(float v) const     { return __adsr->get_value( v ); }
 
-		/**
-		 * update sample_position with increment
-		 * \param incr the value to add to current sample position
-		 */
-		float update_sample_position( int CompoID, float incr );
-
 		/** return true if instrument, key and octave matches with internal
 		 * \param instrument the instrument to match with __instrument
 		 * \param key the key to match with __key
@@ -299,7 +300,7 @@ class Note : public H2Core::Object
 		float __cut_off;            ///< filter cutoff [0;1]
 		float __resonance;          ///< filter resonant frequency [0;1]
 		int __humanize_delay;       ///< used in "humanize" function
-		std::map< int, float > __samples_position;    ///< place marker for overlapping process() cycles
+		std::map< int, SelectedLayerInfo* > __layers_selected;
 		float __bpfb_l;             ///< left band pass filter buffer
 		float __bpfb_r;             ///< right band pass filter buffer
 		float __lpfb_l;             ///< left low pass filter buffer
@@ -409,11 +410,6 @@ inline bool Note::get_note_off() const
 	return __note_off;
 }
 
-inline std::map<int, float> Note::get_samples_position()
-{
-    return __samples_position;
-}
-
 inline int Note::get_midi_msg() const
 {
 	return __midi_msg;
@@ -449,9 +445,9 @@ inline void Note::set_probability( float value )
     __probability = value;
 }
 
-inline float Note::get_sample_position( int CompoID )
+inline SelectedLayerInfo* Note::get_layer_selected( int CompoID )
 {
-	return __samples_position[ CompoID ];
+	return __layers_selected[ CompoID ];
 }
 
 inline void Note::set_humanize_delay( int value )
@@ -538,14 +534,6 @@ inline void Note::set_midi_info( Key key, Octave octave, int msg )
 	if( key>=KEY_MIN && key<=KEY_MAX ) __key = key;
 	if( octave>=OCTAVE_MIN && octave<=OCTAVE_MAX ) __octave = octave;
 	__midi_msg = msg;
-}
-
-
-
-inline float Note::update_sample_position( int CompoID, float incr )
-{
-	__samples_position[ CompoID ] += incr;
-	return __samples_position[ CompoID ];
 }
 
 inline bool Note::match( Instrument* instrument, Key key, Octave octave ) const

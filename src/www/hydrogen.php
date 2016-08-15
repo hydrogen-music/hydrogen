@@ -67,6 +67,7 @@
 		$url = $_SERVER [ 'SERVER_NAME' ] ;
 		$dir = dirname ( $_SERVER['PHP_SELF'] ) ;
 		$url = "http://$url$dir";
+		$drumkitImageUrl = $url + '/' + $drumkitImageDir;
 	}
 
 	$author = "";
@@ -123,6 +124,16 @@
 
 	/* Start of drumkit listing */
 	$dir = "./";
+	$hasImages = false;
+	if ($imageDirHandle = opendir( $drumkitImageDir ) ) {
+		$hasImages = true;
+		$imageFiles[] = array();
+		while ( ( $f = readdir($imageDirHandle ) ) !== false ) {
+		      $imageFiles[] = $file;
+		}
+		closedir($dh);
+	}
+
 	if ($dh = opendir( $dir ) ) {
         	while ( ( $file = readdir( $dh ) ) !== false) {
 			$extension = array_pop( explode( ".", $file ) );
@@ -143,6 +154,25 @@
 				print "\t\t<url>" . $url.$file ."</url>\n";
 				print "\t\t<author>$author</author>\n";
 				print "\t\t<info>$info</info>\n";
+				// Get image
+				// Possible method: Have image filename same as basename of drumkit file.
+				// ie: for DeathMetal.h2drumkit, image file would be DeathMetal.jpeg
+				//     and allow for .png as well (non-case sensitive extension)
+				//	The drumkit filenames need to be unique, and this would force the 
+				//     images to be unique names but be consistant.
+				//     use regex like: /.*\.(?:jpeg|jpg|png)/i
+				//
+				//	Go through all files in image directory named $basename.* and 
+				//	see if there's a regex match, if so use that image file
+				if ( $hasImages )
+				{
+					// search $imageFiles array for basename that matches with extension that matches regex					
+					$images = preg_grep( "/.*\.(?:jpeg|jpg|png)/i", $imageFiles );
+					if ( count( $images ) ) {
+						// if there's more than one match we'll just use the first
+						print "\t\t<image>" . $drumkitImageUrl . "/" . $images[0] . "</image>";
+					}
+				}
 				print "\t</drumkit>\n";
 			}
         	}

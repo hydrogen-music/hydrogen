@@ -24,7 +24,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 	if ( version_older_than( 0, 9, 8 ) ) {
 		ERRORLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
 	} else {
-		ERRORLOG( QString( "loading drumkit with legacy code" ) );
+		WARNINGLOG( QString( "loading drumkit with legacy code" ) );
 	}
 	XMLDoc doc;
 	if( !doc.read( dk_path ) ) {
@@ -46,6 +46,9 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 	drumkit->set_author( root.read_string( "author", "undefined author" ) );
 	drumkit->set_info( root.read_string( "info", "defaultInfo" ) );
 	drumkit->set_license( root.read_string( "license", "undefined license" ) );
+	drumkit->set_image( root.read_string( "image", "" ) );
+	drumkit->set_image_license( root.read_string( "imageLicense", "undefined license" ) );
+
 	XMLNode instruments_node = root.firstChildElement( "instrumentList" );
 	if ( instruments_node.isNull() ) {
 		WARNINGLOG( "instrumentList node not found" );
@@ -70,6 +73,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				instrument->set_pan_l( instrument_node.read_float( "pan_L", 1.0f ) );
 				instrument->set_pan_r( instrument_node.read_float( "pan_R", 1.0f ) );
 				// may not exist, but can't be empty
+				instrument->set_apply_velocity( instrument_node.read_bool( "applyVelocity", true, false ) );
 				instrument->set_filter_active( instrument_node.read_bool( "filterActive", true, false ) );
 				instrument->set_filter_cutoff( instrument_node.read_float( "filterCutoff", 1.0f, true, false ) );
 				instrument->set_filter_resonance( instrument_node.read_float( "filterResonance", 0.0f, true, false ) );
@@ -84,6 +88,13 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				instrument->set_midi_out_channel( instrument_node.read_int( "midiOutChannel", -1, true, false ) );
 				instrument->set_midi_out_note( instrument_node.read_int( "midiOutNote", MIDI_MIDDLE_C, true, false ) );
 				instrument->set_stop_notes( instrument_node.read_bool( "isStopNote", true ,false ) );
+				QString read_sample_select_algo = instrument_node.read_string( "sampleSelectionAlgo", "VELOCITY" );
+				if ( read_sample_select_algo.compare("VELOCITY") == 0)
+					instrument->set_sample_selection_alg( Instrument::VELOCITY );
+				else if ( read_sample_select_algo.compare("ROUND_ROBIN") == 0 )
+					instrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
+				else if ( read_sample_select_algo.compare("RANDOM") == 0 )
+					instrument->set_sample_selection_alg( Instrument::RANDOM );
 				instrument->set_hihat_grp( instrument_node.read_int( "isHihat", -1, true ) );
 				instrument->set_lower_cc( instrument_node.read_int( "lower_cc", 0, true ) );
 				instrument->set_higher_cc( instrument_node.read_int( "higher_cc", 127, true ) );

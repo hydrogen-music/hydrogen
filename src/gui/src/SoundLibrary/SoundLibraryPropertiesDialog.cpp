@@ -23,6 +23,8 @@
 #include <QtGui>
 
 #include "../HydrogenApp.h"
+#include "../Skin.h"
+
 #include "SoundLibraryPropertiesDialog.h"
 #include "../InstrumentRack.h"
 #include "SoundLibraryPanel.h"
@@ -56,11 +58,37 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 		authorTxt->setText( QString( drumkitInfo->get_author() ) );
 		infoTxt->append( QString( drumkitInfo->get_info() ) );
 		licenseTxt->setText( QString( drumkitInfo->get_license() ) );
+		imageText->setText( QString ( drumkitInfo->get_image() ) );
+		imageLicenseText->setText( QString ( drumkitInfo->get_image_license() ) );
+		// Licence with attribution is often too long...
+		imageLicenseText->setToolTip( QString( drumkitInfo->get_image_license() ) );
+
+		QPixmap *pixmap = new QPixmap (drumkitInfo->get_path() + "/" + drumkitInfo->get_image());
+		// scale the image down to fit if required
+		int x = (int) drumkitImageLabel->size().width();
+		int y = drumkitImageLabel->size().height();
+		float labelAspect = (float) x / y;
+		float imageAspect = (float) pixmap->width() / pixmap->height();
+
+		if ( ( x < pixmap->width() ) || ( y < pixmap->height() ) )
+		{
+			if ( labelAspect >= imageAspect )
+			{
+				// image is taller or the same as label frame
+				*pixmap = pixmap->scaledToHeight( y );
+			}
+			else
+			{
+				// image is wider than label frame
+				*pixmap = pixmap->scaledToWidth( x );
+			}
+		}
+		drumkitImageLabel->setPixmap(*pixmap);
+		drumkitImageLabel->show();
+
 	}
 
 }
-
-
 
 
 SoundLibraryPropertiesDialog::~SoundLibraryPropertiesDialog()
@@ -69,7 +97,65 @@ SoundLibraryPropertiesDialog::~SoundLibraryPropertiesDialog()
 
 }
 
+void SoundLibraryPropertiesDialog::updateImage( QString& filename )
+{
+	QPixmap *pixmap = new QPixmap ( filename );
+	// scale the image down to fit if required
+	int x = (int) drumkitImageLabel->size().width();
+	int y = drumkitImageLabel->size().height();
+	float labelAspect = (float) x / y;
+	float imageAspect = (float) pixmap->width() / pixmap->height();
 
+	if ( ( x < pixmap->width() ) || ( y < pixmap->height() ) )
+	{
+		if ( labelAspect >= imageAspect )
+		{
+			// image is taller or the same as label frame
+			*pixmap = pixmap->scaledToHeight( y );
+		}
+		else
+		{
+			// image is wider than label frame
+			*pixmap = pixmap->scaledToWidth( x );
+		}
+	}
+	drumkitImageLabel->setPixmap(*pixmap);
+	drumkitImageLabel->show();
+
+}
+
+void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
+{
+	// Try to get the drumkit directory and open file browser
+	QString drumkitDir = Filesystem::drumkit_dir_search( nameTxt->text() ) + "/" + nameTxt->text();
+
+	QString fileName = QFileDialog::getOpenFileName(this, trUtf8("Open Image"), drumkitDir, trUtf8("Image Files (*.png *.jpg *.jpeg)"));
+
+	// If cancel was clicked just abort
+	if ( fileName == NULL )
+	{
+		return;
+	}
+
+	// If this file is in different directory copy it here
+	
+	QFile file( fileName );
+	QFileInfo fileInfo(file.fileName());
+
+	if ( fileInfo.dir().path() != drumkitDir )
+	{
+		INFOLOG("Copying " + fileName + " to " + drumkitDir.toLocal8Bit() );
+		if ( !QFile::copy( fileName, drumkitDir + "/" + fileInfo.fileName() ))
+		{
+			WARNINGLOG( "Could not copy " + fileInfo.fileName() + " to " + drumkitDir );
+		}
+
+	}
+	QString filename(fileInfo.fileName());
+	imageText->setText( filename );
+	drumkitinfo->set_image( filename );
+	updateImage( fileName );
+}
 
 void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 {
@@ -105,18 +191,22 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 			reload = true;
 		}
 	}
-
-	//save the drumkit
-	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) ) {
-		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
-	}
-
+	
 	//check the name and set the drumkitinfo to current drumkit
 	if ( drumkitinfo != NULL && !nameTxt->text().isEmpty() ){
 		drumkitinfo->set_name( nameTxt->text() );
 		drumkitinfo->set_author( authorTxt->text() );
 		drumkitinfo->set_info( infoTxt->toHtml() );
 		drumkitinfo->set_license( licenseTxt->text() );
+		drumkitinfo->set_image( imageText->text() );
+		drumkitinfo->set_image_license( imageLicenseText->text() );
+	}
+
+	//save the drumkit
+	// Note: The full path of the image is passed to make copying to a new drumkit easy
+	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), drumkitinfo->get_path() + "/" + drumkitinfo->get_image(), drumkitinfo->get_image_license(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) ) 
+	{
+		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
 	}
 
 
