@@ -295,7 +295,7 @@ class AutomationPathTest : public CppUnit::TestCase {
 		AutomationPath p(0.0f, 1.0f, 1.0f);
 		p.add_point(2.0f, 0.2f);
 
-		auto iter = p.find(1.4f);
+		auto iter = p.find(1.3f);
 		CPPUNIT_ASSERT(iter == p.end());
 
 		auto iter2 = p.find(2.6f);
