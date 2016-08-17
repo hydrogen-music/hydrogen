@@ -1,6 +1,8 @@
 #!/bin/bash
 #This script will try to install mxe for you.
 
+MXE_INSTALLED=0
+
 if [ -d /opt/mxe ]; then
 	if [ -f /opt/mxe/usr/i686-w64-mingw32.shared/share/cmake/mxe-conf.cmake ] || [ -f /opt/mxe/usr/x86_64-w64-mingw32.shared/share/cmake/mxe-conf.cmake ]; then
 		MXE_INSTALLED=1
