@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="it_IT">
+<TS version="2.0" language="it_IT">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -667,23 +667,15 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is development by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the developers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the involved persons.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Person&amp;1</source>
+        <source>Sebastian Moors (aka mauser): Maintainer / Developer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Person&amp;2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Person&amp;3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Person&amp;4</source>
+        <source>Michael Wolkstein (aka wolke): Forum hosting</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -699,87 +691,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
         <translation>(%1/%2 Kib) - ETA %3</translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitManager_UI</name>
-    <message>
-        <source>Form1</source>
-        <translation>Form1</translation>
-    </message>
-    <message>
-        <source>Load</source>
-        <translation>Apri</translation>
-    </message>
-    <message>
-        <source>### Drumkit author</source>
-        <translation>### Autore drumkit</translation>
-    </message>
-    <message>
-        <source>Delete drumkit</source>
-        <translation>Elimina drumkit</translation>
-    </message>
-    <message>
-        <source>### Drumkit name</source>
-        <translation>### Nome drumkit</translation>
-    </message>
-    <message>
-        <source>### Drumkit info</source>
-        <translation>### Informazioni drumkit</translation>
-    </message>
-    <message>
-        <source>Load drumkit</source>
-        <translation>Apri drumkit</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Salva</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>Autore</translation>
-    </message>
-    <message>
-        <source>Info</source>
-        <translation>Informazioni</translation>
-    </message>
-    <message>
-        <source>Drumkit name</source>
-        <translation>Nome drumkit</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>Importa</translation>
-    </message>
-    <message>
-        <source>Drumkit filename</source>
-        <translation>Nome file drumkit</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Cerca</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;
-Download more drumkits at &lt;br&gt;
-http://www.hydrogen-music.org
-&lt;/b&gt;</source>
-        <translation>&lt;b&gt;
-Scarica drumkit aggiuntivi da&lt;br&gt;
-http://www.hydrogen-music.org
-&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
-        <translation>### Il drumkit sarà installato in</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Esporta</translation>
-    </message>
-    <message>
-        <source>Drumkit directory</source>
-        <translation>Directory destinazione</translation>
     </message>
 </context>
 <context>
@@ -1038,6 +949,14 @@ Sei sicuro?</translation>
         <source>Saving of this drumkit failed.</source>
         <translation>Salvataggio del drumkit fallito.</translation>
     </message>
+    <message>
+        <source>Open Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image Files (*.png *.jpg *.jpeg)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HydrogenApp</name>
@@ -1133,10 +1052,6 @@ Sei sicuro?</translation>
         <translation>Ferma la riproduzione della nota-strumento prima di riprodurre la prossima.</translation>
     </message>
     <message>
-        <source>Set the instrument as part of a hihat set.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>New component name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1155,6 +1070,14 @@ Sei sicuro?</translation>
     <message>
         <source>Component volume</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Don&apos;t change the layers&apos; gain based on velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select pattern size</source>
+        <translation type="unfinished">Seleziona la dimensione del pattern</translation>
     </message>
 </context>
 <context>
@@ -1570,10 +1493,6 @@ MIDI = %2</source>
         <translation>&amp;Debug</translation>
     </message>
     <message>
-        <source>&amp;Project</source>
-        <translation>&amp;Progetto</translation>
-    </message>
-    <message>
         <source>&amp;Tools</source>
         <translation>&amp;Strumenti</translation>
     </message>
@@ -1772,6 +1691,10 @@ It should work like a charm provided that you use the GM-kit, and that you do no
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pro&amp;ject</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2903,6 +2826,14 @@ Do you want to discard the changes?
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Use relative paths for playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use output note as input note</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
@@ -3603,8 +3534,12 @@ Sovrascrivere il modello esistente?</translation>
         <translation>Pattern</translation>
     </message>
     <message>
-        <source>License: %1</source>
-        <translation>Licenza: %1</translation>
+        <source>Drumkit License: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image License: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3624,10 +3559,6 @@ Sovrascrivere il modello esistente?</translation>
     <message>
         <source>Sound Library Name</source>
         <translation>Nome libreria</translation>
-    </message>
-    <message>
-        <source>Sound library Info</source>
-        <translation>Informazioni su libreria</translation>
     </message>
     <message>
         <source>Author...</source>
@@ -3654,16 +3585,24 @@ Sovrascrivere il modello esistente?</translation>
         <translation>1</translation>
     </message>
     <message>
-        <source>License...</source>
-        <translation>Licenza...</translation>
-    </message>
-    <message>
         <source>Edit server list</source>
         <translation>Modifica lista server</translation>
     </message>
     <message>
         <source>Close</source>
         <translation>Chiudi</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image License...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit License...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3757,10 +3696,6 @@ Are you sure?</source>
         <translation>Informazioni</translation>
     </message>
     <message>
-        <source>License</source>
-        <translation>Licenza</translation>
-    </message>
-    <message>
         <source>Save </source>
         <translation>Salva</translation>
     </message>
@@ -3771,6 +3706,22 @@ Are you sure?</source>
     <message>
         <source>Save changes made to instruments into sound library</source>
         <translation>Salva le modifiche fatte agli strumenti nella libreria suoni</translation>
+    </message>
+    <message>
+        <source>Drumkit License</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation type="unfinished">Cerca</translation>
+    </message>
+    <message>
+        <source>Image License</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3821,6 +3772,14 @@ Are you sure?</source>
         <source>Saving of this library failed.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Open Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image Files (*.png *.jpg *.jpeg)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog_UI</name>
@@ -3851,6 +3810,18 @@ Are you sure?</source>
     <message>
         <source>Save </source>
         <translation>Salva</translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation type="unfinished">Cerca</translation>
+    </message>
+    <message>
+        <source>Image License</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

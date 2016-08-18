@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="sr">
+<TS version="2.0" language="sr">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -667,23 +667,15 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is development by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the developers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the involved persons.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Person&amp;1</source>
+        <source>Sebastian Moors (aka mauser): Maintainer / Developer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Person&amp;2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Person&amp;3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Person&amp;4</source>
+        <source>Michael Wolkstein (aka wolke): Forum hosting</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -699,87 +691,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
         <translation>(%1/%2 KiB) - ETA %3</translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitManager_UI</name>
-    <message>
-        <source>Form1</source>
-        <translation>Формулар1</translation>
-    </message>
-    <message>
-        <source>Load</source>
-        <translation>Учитај</translation>
-    </message>
-    <message>
-        <source>Load drumkit</source>
-        <translation>Учитај бубњеве</translation>
-    </message>
-    <message>
-        <source>### Drumkit author</source>
-        <translation>### Створитељ бубњева</translation>
-    </message>
-    <message>
-        <source>### Drumkit name</source>
-        <translation>### Назив бубњева</translation>
-    </message>
-    <message>
-        <source>### Drumkit info</source>
-        <translation>### Подаци о бубњевима</translation>
-    </message>
-    <message>
-        <source>Delete drumkit</source>
-        <translation>Уклони бубњеве</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Сачувај</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>Аутор</translation>
-    </message>
-    <message>
-        <source>Info</source>
-        <translation>Подаци</translation>
-    </message>
-    <message>
-        <source>Drumkit name</source>
-        <translation>Назив бубњева</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>Увези</translation>
-    </message>
-    <message>
-        <source>Drumkit filename</source>
-        <translation>Датотека бубњева</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Разгледај</translation>
-    </message>
-    <message>
-        <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
-        <translation>### Бубњеви ће бити инсталирани zncxbmzbxcmznxbcmz</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Извоз</translation>
-    </message>
-    <message>
-        <source>Drumkit directory</source>
-        <translation>Директоријум бубњева</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;
-Download more drumkits at &lt;br&gt;
-http://www.hydrogen-music.org
-&lt;/b&gt;</source>
-        <translation>&lt;b&gt;
-Преузмите још бубњева са: &lt;br&gt;
-http://www.hydrogen-music.org
-&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -1038,6 +949,14 @@ Are you sure?</source>
         <source>Saving of this drumkit failed.</source>
         <translation>Није успело чување ових бубњева.</translation>
     </message>
+    <message>
+        <source>Open Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image Files (*.png *.jpg *.jpeg)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HydrogenApp</name>
@@ -1133,10 +1052,6 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set the instrument as part of a hihat set.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>New component name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1155,6 +1070,14 @@ Are you sure?</source>
     <message>
         <source>Component volume</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Don&apos;t change the layers&apos; gain based on velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select pattern size</source>
+        <translation type="unfinished">Одабери величину мустре</translation>
     </message>
 </context>
 <context>
@@ -1591,10 +1514,6 @@ MIDI = %2</source>
         <translation>O прогр&amp;аму</translation>
     </message>
     <message>
-        <source>&amp;Project</source>
-        <translation>&amp;Пројекат</translation>
-    </message>
-    <message>
         <source>&amp;Export song</source>
         <translation>Изв&amp;ези песму</translation>
     </message>
@@ -1793,6 +1712,10 @@ It should work like a charm provided that you use the GM-kit, and that you do no
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pro&amp;ject</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2924,6 +2847,14 @@ Do you want to discard the changes?
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Use relative paths for playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use output note as input note</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
@@ -3634,8 +3565,12 @@ Overwrite the existing pattern?</source>
         <translation>Песме</translation>
     </message>
     <message>
-        <source>License: %1</source>
-        <translation>Лиценца: %1</translation>
+        <source>Drumkit License: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image License: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3661,10 +3596,6 @@ Overwrite the existing pattern?</source>
         <translation>Назив бубњева</translation>
     </message>
     <message>
-        <source>Sound library Info</source>
-        <translation>Подаци о бубњевима</translation>
-    </message>
-    <message>
         <source>Author...</source>
         <translation>Аутор...</translation>
     </message>
@@ -3685,16 +3616,24 @@ Overwrite the existing pattern?</source>
         <translation>Инсталирај</translation>
     </message>
     <message>
-        <source>License...</source>
-        <translation>Лиценца...</translation>
-    </message>
-    <message>
         <source>Edit server list</source>
         <translation>Уреди списак сервера</translation>
     </message>
     <message>
         <source>Close</source>
         <translation>Затвори</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image License...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit License...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3775,10 +3714,6 @@ Are you sure?</source>
 <context>
     <name>SoundLibraryPropertiesDialog_UI</name>
     <message>
-        <source>License</source>
-        <translation>Лиценца</translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation>Назив</translation>
     </message>
@@ -3805,6 +3740,22 @@ Are you sure?</source>
     <message>
         <source>Save changes made to instruments into sound library</source>
         <translation>Сачувај измењени инструмент у бубњеве</translation>
+    </message>
+    <message>
+        <source>Drumkit License</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation type="unfinished">Разгледај</translation>
+    </message>
+    <message>
+        <source>Image License</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3855,6 +3806,14 @@ Are you sure?</source>
         <source>Saving of this library failed.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Open Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image Files (*.png *.jpg *.jpeg)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog_UI</name>
@@ -3885,6 +3844,18 @@ Are you sure?</source>
     <message>
         <source>Save </source>
         <translation>Сачувај </translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation type="unfinished">Разгледај</translation>
+    </message>
+    <message>
+        <source>Image License</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

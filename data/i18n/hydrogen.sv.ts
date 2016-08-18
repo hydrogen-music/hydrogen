@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1">
+<TS version="2.0">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -667,23 +667,15 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is development by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the developers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the involved persons.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Person&amp;1</source>
+        <source>Sebastian Moors (aka mauser): Maintainer / Developer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Person&amp;2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Person&amp;3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Person&amp;4</source>
+        <source>Michael Wolkstein (aka wolke): Forum hosting</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -698,87 +690,6 @@ p, li { white-space: pre-wrap; }
     <name>DownloadWidget</name>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitManager_UI</name>
-    <message>
-        <source>Load</source>
-        <translation type="unfinished">Ladda</translation>
-    </message>
-    <message>
-        <source>Load drumkit</source>
-        <translation type="unfinished">Ladda drumkit</translation>
-    </message>
-    <message>
-        <source>Delete drumkit</source>
-        <translation type="unfinished">Ta bort drumkit</translation>
-    </message>
-    <message>
-        <source>### Drumkit author</source>
-        <translation type="unfinished">### Drumkit upphovsman</translation>
-    </message>
-    <message>
-        <source>### Drumkit name</source>
-        <translation type="unfinished">### Drumkit namn</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="unfinished">Spara</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation type="unfinished">Upphovsman</translation>
-    </message>
-    <message>
-        <source>Drumkit name</source>
-        <translation type="unfinished">Drumkit namn</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation type="unfinished">Importera</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation type="unfinished">Bläddra</translation>
-    </message>
-    <message>
-        <source>Drumkit filename</source>
-        <translation type="unfinished">Drumkit filnamn</translation>
-    </message>
-    <message>
-        <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
-        <translation type="unfinished">### Detta drumkit kommer att installeras zncxbmzbxcmznxbcmz</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;
-Download more drumkits at &lt;br&gt;
-http://www.hydrogen-music.org
-&lt;/b&gt;</source>
-        <translation type="unfinished">&lt;b&gt;
-Ladda ner mer drumkit på &lt;br&gt;
-http://www.hydrogen-music.org
-&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="unfinished">Exportera</translation>
-    </message>
-    <message>
-        <source>Drumkit directory</source>
-        <translation type="unfinished">Drumkit katalog</translation>
-    </message>
-    <message>
-        <source>Form1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>### Drumkit info</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1036,6 +947,14 @@ Are you sure?</source>
         <source>Saving of this drumkit failed.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Open Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image Files (*.png *.jpg *.jpeg)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HydrogenApp</name>
@@ -1131,10 +1050,6 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Set the instrument as part of a hihat set.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>New component name</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1153,6 +1068,14 @@ Are you sure?</source>
     <message>
         <source>Component volume</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Don&apos;t change the layers&apos; gain based on velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select pattern size</source>
+        <translation type="unfinished">Välj mönster storlek</translation>
     </message>
 </context>
 <context>
@@ -1554,10 +1477,6 @@ MIDI = %2</source>
         <translation type="unfinished">Jack drivrutin: fel i port register</translation>
     </message>
     <message>
-        <source>&amp;Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Save &amp;as...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1762,6 +1681,10 @@ It should work like a charm provided that you use the GM-kit, and that you do no
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pro&amp;ject</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2888,6 +2811,14 @@ Do you want to discard the changes?
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Use relative paths for playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use output note as input note</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
@@ -3585,7 +3516,11 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished">Mönster</translation>
     </message>
     <message>
-        <source>License: %1</source>
+        <source>Drumkit License: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image License: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3605,10 +3540,6 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Sound Library Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sound library Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3636,15 +3567,23 @@ Overwrite the existing pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>License...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Edit server list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image License...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit License...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3738,10 +3677,6 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>License</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Save </source>
         <translation type="unfinished"></translation>
     </message>
@@ -3751,6 +3686,22 @@ Are you sure?</source>
     </message>
     <message>
         <source>Save changes made to instruments into sound library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit License</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation type="unfinished">Bläddra</translation>
+    </message>
+    <message>
+        <source>Image License</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3802,6 +3753,14 @@ Are you sure?</source>
         <source>Saving of this library failed.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Open Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image Files (*.png *.jpg *.jpeg)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog_UI</name>
@@ -3831,6 +3790,18 @@ Are you sure?</source>
     </message>
     <message>
         <source>Save </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation type="unfinished">Bläddra</translation>
+    </message>
+    <message>
+        <source>Image License</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

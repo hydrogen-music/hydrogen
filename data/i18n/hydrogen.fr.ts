@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr_FR">
+<TS version="2.0" language="fr_FR">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -667,24 +667,16 @@ p, li { white-space: pre-wrap; }
         <translation>Choisir au hasard</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is development by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the developers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen est un logiciel à source ouverte dont le développement est fait par plusieurs personnes durant leur temps libre. En faisant un don, vous pouvez dire &amp;quot;merci&amp;quot; aux développeurs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the involved persons.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Person&amp;1</source>
-        <translation>Personne&amp;1</translation>
+        <source>Sebastian Moors (aka mauser): Maintainer / Developer</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Person&amp;2</source>
-        <translation>Personne&amp;2</translation>
-    </message>
-    <message>
-        <source>Person&amp;3</source>
-        <translation>Personne&amp;3</translation>
-    </message>
-    <message>
-        <source>Person&amp;4</source>
-        <translation>Personne&amp;4</translation>
+        <source>Michael Wolkstein (aka wolke): Forum hosting</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -699,84 +691,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
         <translation>(%1/%2 Kio) - temps estimé %3</translation>
-    </message>
-</context>
-<context>
-    <name>DrumkitManager_UI</name>
-    <message>
-        <source>Load</source>
-        <translation>Charger</translation>
-    </message>
-    <message>
-        <source>Load drumkit</source>
-        <translation>Charger un kit de batterie</translation>
-    </message>
-    <message>
-        <source>### Drumkit author</source>
-        <translation>### Auteur du kit</translation>
-    </message>
-    <message>
-        <source>### Drumkit name</source>
-        <translation>### Nom du kit</translation>
-    </message>
-    <message>
-        <source>### Drumkit info</source>
-        <translation>### Informations du kit</translation>
-    </message>
-    <message>
-        <source>Delete drumkit</source>
-        <translation>Effacer le kit</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Sauvegarder</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>Auteur</translation>
-    </message>
-    <message>
-        <source>Info</source>
-        <translation>Informations</translation>
-    </message>
-    <message>
-        <source>Drumkit name</source>
-        <translation>Nom du kit</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>Importer</translation>
-    </message>
-    <message>
-        <source>Drumkit filename</source>
-        <translation>Nom de fichier du kit</translation>
-    </message>
-    <message>
-        <source>Browse</source>
-        <translation>Explorer</translation>
-    </message>
-    <message>
-        <source>### The drumkit will be installed zncxbmzbxcmznxbcmz</source>
-        <translation>### Le kit sera installé comme zncxbmzbxcmznxbcmz</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation>Exporter</translation>
-    </message>
-    <message>
-        <source>Drumkit directory</source>
-        <translation>Répertoire du kit</translation>
-    </message>
-    <message>
-        <source>Form1</source>
-        <translation>Form1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;
-Download more drumkits at &lt;br&gt;
-http://www.hydrogen-music.org
-&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Télécharger plus de kits de batterie sur le site &lt;br&gt;http://www.hydrogen-music.org&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -1036,6 +950,14 @@ Are you sure?</source>
         <source>Saving of this drumkit failed.</source>
         <translation>La sauvegarde de ce kit de batterie a échouée</translation>
     </message>
+    <message>
+        <source>Open Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image Files (*.png *.jpg *.jpeg)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HydrogenApp</name>
@@ -1131,10 +1053,6 @@ Are you sure?</source>
         <translation>Arrêter la note actuelle avant de déclencher l&apos;échantillon suivant.</translation>
     </message>
     <message>
-        <source>Set the instrument as part of a hihat set.</source>
-        <translation>Déclare l&apos;instrument en tant que partie d&apos;un ensemble de charleston</translation>
-    </message>
-    <message>
         <source>New component name</source>
         <translation>Nom du nouveau composant</translation>
     </message>
@@ -1153,6 +1071,14 @@ Are you sure?</source>
     <message>
         <source>Component volume</source>
         <translation>Volume du composant</translation>
+    </message>
+    <message>
+        <source>Don&apos;t change the layers&apos; gain based on velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select pattern size</source>
+        <translation type="unfinished">Sélectionner la longueur du motif</translation>
     </message>
 </context>
 <context>
@@ -1585,10 +1511,6 @@ MIDI = %2</translation>
         <translation>Pilote jack : impossible d&apos;authentifier le client</translation>
     </message>
     <message>
-        <source>&amp;Project</source>
-        <translation>&amp;Projet</translation>
-    </message>
-    <message>
         <source>&amp;Export song</source>
         <translation>&amp;Exporter le morceau en fichier WAV...</translation>
     </message>
@@ -1803,6 +1725,10 @@ Do you want to discard the changes?
 La liste de lecture courante contient des modifications non-sauvegardées.
 Voulez-vous abandonner ces changements ?
 </translation>
+    </message>
+    <message>
+        <source>Pro&amp;ject</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2937,6 +2863,14 @@ Voulez-vous abandonner ces changements ?
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Après avoir modifié une police ou l&apos;agencement de l&apos;interface, l&apos;application doit être redémarrée.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
+    <message>
+        <source>Use relative paths for playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use output note as input note</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
@@ -3649,8 +3583,12 @@ Overwrite the existing pattern?</source>
         <translation>Motifs</translation>
     </message>
     <message>
-        <source>License: %1</source>
-        <translation>Licence : %1</translation>
+        <source>Drumkit License: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image License: %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3670,10 +3608,6 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Sound Library Name</source>
         <translation>Nom de la bibliothèque de sons</translation>
-    </message>
-    <message>
-        <source>Sound library Info</source>
-        <translation>Information de la bibliothèque de sons</translation>
     </message>
     <message>
         <source>Author...</source>
@@ -3700,16 +3634,24 @@ Overwrite the existing pattern?</source>
         <translation>1</translation>
     </message>
     <message>
-        <source>License...</source>
-        <translation>Licence...</translation>
-    </message>
-    <message>
         <source>Edit server list</source>
         <translation>Éditer la liste des serveurs</translation>
     </message>
     <message>
         <source>Close</source>
         <translation>Fermer</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished">Label de texte</translation>
+    </message>
+    <message>
+        <source>Image License...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drumkit License...</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3807,10 +3749,6 @@ Are you sure?</source>
         <translation>Information</translation>
     </message>
     <message>
-        <source>License</source>
-        <translation>Licence</translation>
-    </message>
-    <message>
         <source>Save </source>
         <translation>Enregistrer </translation>
     </message>
@@ -3821,6 +3759,22 @@ Are you sure?</source>
     <message>
         <source>Save changes made to instruments into sound library</source>
         <translation>Enregistrer les changements appliqués aux instruments dans la bibliothèque de sons</translation>
+    </message>
+    <message>
+        <source>Drumkit License</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation type="unfinished">Explorer</translation>
+    </message>
+    <message>
+        <source>Image License</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3871,6 +3825,14 @@ Are you sure?</source>
         <source>Saving of this library failed.</source>
         <translation>La sauvegarde de cette bibliothèque a échouée</translation>
     </message>
+    <message>
+        <source>Open Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Image Files (*.png *.jpg *.jpeg)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog_UI</name>
@@ -3901,6 +3863,18 @@ Are you sure?</source>
     <message>
         <source>Save </source>
         <translation>Enregistrer</translation>
+    </message>
+    <message>
+        <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation type="unfinished">Explorer</translation>
+    </message>
+    <message>
+        <source>Image License</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
