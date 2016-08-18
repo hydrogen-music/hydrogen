@@ -668,15 +668,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the involved persons.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen est un projet à source ouverte qui est développé par plusieurs personnes sur leurs temps libres. En faisant un don, vous pouvez dire &amp;quot;merci à vous&amp;quot; aux personnes impliquées.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Sebastian Moors (aka mauser): Maintainer / Developer</source>
-        <translation type="unfinished"></translation>
+        <translation>Sebastian Moors (dit : mauser) : mainteneur / développeur</translation>
     </message>
     <message>
         <source>Michael Wolkstein (aka wolke): Forum hosting</source>
-        <translation type="unfinished"></translation>
+        <translation>Michael Wolkstein (dit : wolke) : hébergement des forums</translation>
     </message>
 </context>
 <context>
@@ -952,11 +952,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Ouvrir une image</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichiers d&poas;images (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
@@ -1074,11 +1074,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Don&apos;t change the layers&apos; gain based on velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne pas modifier le gain de la couche basé sur la vélocité</translation>
     </message>
     <message>
         <source>Select pattern size</source>
-        <translation type="unfinished">Sélectionner la longueur du motif</translation>
+        <translation>Sélectionner la taille du motif</translation>
     </message>
 </context>
 <context>
@@ -1728,7 +1728,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Pro&amp;ject</source>
-        <translation type="unfinished"></translation>
+        <translation>Pro&amp;jet</translation>
     </message>
 </context>
 <context>
@@ -1777,7 +1777,7 @@ Voulez-vous abandonner ces changements ?
     <name>MidiTable</name>
     <message>
         <source>Event</source>
-        <translation>Évènements</translation>
+        <translation>Événements</translation>
     </message>
     <message>
         <source>Param.</source>
@@ -1789,7 +1789,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>press button to record midi event</source>
-        <translation>Appuyer sur le bouton pour enregistrer les évènements midi</translation>
+        <translation>Appuyer sur le bouton pour enregistrer les événements midi</translation>
     </message>
 </context>
 <context>
@@ -1870,11 +1870,11 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Quantize keyboard/midi events to grid</source>
-        <translation>Quantifier les évènements clavier/MIDI sur la grille</translation>
+        <translation>Quantifier les événements clavier/MIDI sur la grille</translation>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = On</source>
-        <translation>Quantifier les évènements clavier/MIDI entrant = Actif</translation>
+        <translation>Quantifier les événements clavier/MIDI entrant = Actif</translation>
     </message>
     <message>
         <source>Select pattern size</source>
@@ -1930,7 +1930,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
-        <translation>Quantifier les évènements entrant du clavier/midi = Inactif</translation>
+        <translation>Quantifier les événements entrant du clavier/midi = Inactif</translation>
     </message>
     <message>
         <source>NoteKey</source>
@@ -2204,11 +2204,11 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Record midi events = On</source>
-        <translation>Enregistrer les évènements midi = actif</translation>
+        <translation>Enregistrer les événements midi = actif</translation>
     </message>
     <message>
         <source>Record midi events = Off</source>
-        <translation>Enregistrer les évènements midi = inactif</translation>
+        <translation>Enregistrer les événements midi = inactif</translation>
     </message>
     <message>
         <source>Destructive mode = Off</source>
@@ -2443,8 +2443,8 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
 </source>
-        <translation type="unfinished">
-La liste de lecture courante contient des modifications non-sauvegardées.
+        <translation>
+La liste de lecture actuelle contient des modifications non-sauvegardées.
 Voulez-vous abandonner ces changements ?
 </translation>
     </message>
@@ -2865,11 +2865,11 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Use relative paths for playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Utiliser des chemins relatifs pour la liste de lecture</translation>
     </message>
     <message>
         <source>Use output note as input note</source>
-        <translation type="unfinished"></translation>
+        <translation>Utiliser la note de sortie en tant que note d&apos;entrée</translation>
     </message>
 </context>
 <context>
@@ -2923,15 +2923,15 @@ Are you sure?</source>
     </message>
     <message>
         <source>set processing</source>
-        <translation type="unfinished"></translation>
+        <translation>paramètrer le traitement</translation>
     </message>
     <message>
         <source>forward</source>
-        <translation type="unfinished">faire suivre</translation>
+        <translation>faire suivre</translation>
     </message>
     <message>
         <source>reverse</source>
-        <translation type="unfinished">renversement</translation>
+        <translation>renversement</translation>
     </message>
     <message>
         <source>pingpong</source>
@@ -3165,7 +3165,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Crispness: </source>
-        <translation type="unfinished"></translation>
+        <translation>Croustillance :</translation>
     </message>
     <message>
         <source>Start</source>
@@ -3584,11 +3584,11 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Drumkit License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Licence du kit de batterie : %1</translation>
     </message>
     <message>
         <source>Image License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Licence de l&apos;image : %1</translation>
     </message>
 </context>
 <context>
@@ -3643,15 +3643,15 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished">Label de texte</translation>
+        <translation>Label de texte</translation>
     </message>
     <message>
         <source>Image License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Licence de l&apos;image...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Licence du kit de batterie...</translation>
     </message>
 </context>
 <context>
@@ -3762,19 +3762,19 @@ Are you sure?</source>
     </message>
     <message>
         <source>Drumkit License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licence du kit de batterie</translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Image</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Explorer</translation>
+        <translation>Naviguer</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licence de l&poas;image</translation>
     </message>
 </context>
 <context>
@@ -3827,11 +3827,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Ouvrir l&apos;image</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichiers d&apos;images (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
@@ -3866,15 +3866,15 @@ Are you sure?</source>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Image</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Explorer</translation>
+        <translation>Naviguer</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licence de l&apos;image</translation>
     </message>
 </context>
 <context>
