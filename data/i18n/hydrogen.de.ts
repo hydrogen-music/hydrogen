@@ -683,7 +683,7 @@ p, li { white-space: pre-wrap; }
     <name>Download</name>
     <message>
         <source>Importing item failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Importieren von Objekt fehlgeschlagen: %1</translation>
     </message>
 </context>
 <context>
@@ -1077,7 +1077,7 @@ Sind sie sicher?
     </message>
     <message>
         <source>Select pattern size</source>
-        <translation type="unfinished">Patternlänge wählen</translation>
+        <translation>Patternlänge wählen</translation>
     </message>
 </context>
 <context>
@@ -1646,7 +1646,7 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Input mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Eingabe Modus</translation>
     </message>
     <message>
         <source>Instrument</source>
@@ -1662,11 +1662,11 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Export &amp;LilyPond file</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportiere &amp;LilyPond Datei </translation>
     </message>
     <message>
         <source>Donate</source>
-        <translation type="unfinished"></translation>
+        <translation>Spenden</translation>
     </message>
     <message>
         <source>
@@ -1677,11 +1677,11 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
-        <translation type="unfinished"></translation>
+        <translation>LilyPond Datei (*.ly)</translation>
     </message>
     <message>
         <source>Export LilyPond file</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportiere LilyPond Datei</translation>
     </message>
     <message>
         <source>
@@ -1692,7 +1692,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Pro&amp;ject</source>
-        <translation type="unfinished"></translation>
+        <translation>Pro&amp;jekt</translation>
     </message>
 </context>
 <context>
@@ -1731,11 +1731,11 @@ Do you want to discard the changes?
     <name>MidiSenseWidget</name>
     <message>
         <source>This element is not midi operable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieses Element kann nicht per MIDI angesprochen werden.</translation>
     </message>
     <message>
         <source>Waiting for midi input...</source>
-        <translation type="unfinished"></translation>
+        <translation>Warte auf MIDI Daten... </translation>
     </message>
 </context>
 <context>
