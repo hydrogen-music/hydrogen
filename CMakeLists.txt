@@ -216,10 +216,7 @@ FIND_HELPER(PORTMIDI portmidi portmidi.h portmidi)
 FIND_HELPER(PULSEAUDIO pulseaudio pulse/pulseaudio.h pulse)
 FIND_HELPER(LASH lash-1.0 lash/lash.h lash)
 FIND_HELPER(LRDF lrdf lrdf.h lrdf)
-
-IF(LRDF_FOUND)
-	include_directories(${LRDF_INCLUDE_DIRS}) # see github issue 194
-ENDIF(LRDF_FOUND)
+FIND_HELPER(RAPTOR raptor2 raptor.h raptor)
 
 FIND_HELPER(RUBBERBAND rubberband RubberBandStretcher.h rubberband)
 FIND_HELPER(CPPUNIT cppunit cppunit/TestCase.h cppunit)
