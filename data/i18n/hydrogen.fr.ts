@@ -13,15 +13,15 @@
     </message>
     <message>
         <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Site Web&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;Site internet&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Mailing lists&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Liste de discussion&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;Listes de discussion&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Main coder and mantainer:&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Programmeur et responsable principal:&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;Programmeur et responsable principal :&lt;/b&gt;&lt;br&gt;</translation>
     </message>
 </context>
 <context>
@@ -956,7 +956,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation>Fichiers d&poas;images (*.png *.jpg *.jpeg)</translation>
+        <translation>Fichiers d&apos;images (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
@@ -3774,7 +3774,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Image License</source>
-        <translation>Licence de l&poas;image</translation>
+        <translation>Licence de l&apos;image</translation>
     </message>
 </context>
 <context>
