@@ -956,7 +956,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation>Fichiers d&poas;images (*.png *.jpg *.jpeg)</translation>
+        <translation>Fichiers d&apos;images (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
@@ -3774,7 +3774,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Image License</source>
-        <translation>Licence de l&poas;image</translation>
+        <translation>Licence de l&apos;image</translation>
     </message>
 </context>
 <context>
