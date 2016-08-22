@@ -493,7 +493,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	bool conditionalLoad = false;
 	bool hasNotes = false;
 
-	DEBUGLOG("Old kit has " + QString::number( oldCount ) + " intruments, new one has " + QString::number( newCount ) );
+	INFOLOG("Old kit has " + QString::number( oldCount ) + " intruments, new one has " + QString::number( newCount ) );
 
 	if ( newCount < oldCount )
 	{
@@ -504,12 +504,12 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 			
 			if ( i >= newCount )
 			{
-				DEBUGLOG("Checking if Instrument " + QString::number( i ) + " has notes..." );
+				INFOLOG("Checking if Instrument " + QString::number( i ) + " has notes..." );
 
 				if ( Hydrogen::get_instance()->instrumentHasNotes( pSongInstrList->get( i ) ) )
 				{
 					hasNotes = true;
-					DEBUGLOG("Instrument " + QString::number( i ) + " has notes" );
+					INFOLOG("Instrument " + QString::number( i ) + " has notes" );
 
 				}
 			}
