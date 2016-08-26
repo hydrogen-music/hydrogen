@@ -158,7 +158,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 	int nColumn = getColumn( ev );
 	int nRealColumn = 0;
 	if( ev->x() > 20 ) {
-		nRealColumn = (ev->x() - 20) / static_cast<float>(m_nGridWidth);
+		nRealColumn = ev->x() / static_cast<float>(m_nGridWidth) - 20;
 	}
 	if ( nColumn >= (int)m_pPattern->get_length() ) {
 		update( 0, 0, width(), height() );
