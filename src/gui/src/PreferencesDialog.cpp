@@ -119,6 +119,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 
 	m_pIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
+	m_pDiscardMidiMsgCheckbox->setChecked( pPref->m_bMidiDiscardNoteAfterAction );
 	m_pFixedMapping->setChecked( pPref->m_bMidiFixedMapping );
 
 	updateDriverInfo();
@@ -410,6 +411,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	pPref->m_bMidiNoteOffIgnore = m_pIgnoreNoteOffCheckBox->isChecked();
 	pPref->m_bMidiFixedMapping = m_pFixedMapping->isChecked();
+	pPref->m_bMidiDiscardNoteAfterAction = m_pDiscardMidiMsgCheckbox->isChecked();
 
 	// Mixer falloff
 	QString falloffStr = mixerFalloffComboBox->currentText();
