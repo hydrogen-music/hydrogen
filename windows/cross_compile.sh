@@ -191,7 +191,7 @@ usage(){
 
 fatbuild=false
 
-while getopts "d:fb:i" o; do
+while getopts "d:fb:i:" o; do
     case "${o}" in
 		d)
 			HYDROGEN=${OPTARG}
@@ -221,4 +221,5 @@ while getopts "d:fb:i" o; do
             ;;
     esac
 done
+if [ $OPTIND -eq 1 ]; then usage; fi
 shift $((OPTIND-1))
