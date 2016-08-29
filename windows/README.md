@@ -7,7 +7,7 @@
 
 	then,
 
-	run the script cross_compile.sh located in the windows folder.
+	run the script cross_compile.sh with the -i switch (./cross_compile -i)located in the windows folder.
 
 ### The manual way: 
 
