@@ -3,13 +3,23 @@
 ## Cross-compiling on a Unix System
 
 ### The easy way:
+#### Interactive method
 	run the script mxe_installer.sh located in the windows folder
 
 	then,
 
-	run the script cross_compile.sh with the -i switch (./cross_compile -i)located in the windows folder.
+	run the script cross_compile.sh with the -i switch located in the windows folder.
+	
+	$./cross_compile.sh -i
+#### Manual package
+	Simply run the script with the -b switch and pass in the architecture you want to build, either i686 or x86_64
+	
+	If you want the "fat" package, which bundles with the jack installer, and the ladspa plugins, then pass in the -f as well.
 
-### The manual way: 
+	$./cross_compile.sh -b x86_64
+
+### The manual way:
+
 
 ### Installing all necessary packages
 
