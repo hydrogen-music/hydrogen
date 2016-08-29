@@ -376,11 +376,6 @@ ENDIF(VERSION_SUFFIX)
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "Hydrogen")
 
 IF(MINGW)
-    #Read in the filenames from the files created by cross_compile.sh
-    FILE(READ libs.txt mylibs)
-    FILE(READ qtlibs.txt myqtlibs)
-    FILE(READ gccversion.txt mygccversion)
-    FILE(READ gcclibs.txt mygcclibs)
     #Set the other files that will be used in CPack
     SET(WIN64 "OFF" CACHE BOOL "Windows 64 Bit")
 	SET(CPACK_STRIP_FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe" "${WINDOWS_DIR}/src/synth/h2synth.exe")
@@ -390,24 +385,6 @@ IF(MINGW)
     #Install files from the extralibs dir
     INSTALL(DIRECTORY ${WINDOWS_DIR}/extralibs/ DESTINATION ./)
 
-    #DLL Files from the mxe /bin
-#    SET(MXE_BIN "mxe/bin")
-    
-#    INSTALL(FILES ${mylibs} DESTINATION ./)
-    #DLL Files for QT
-    #SET(QT_BIN "mxe/qt/bin")
-    #INSTALL(FILES ${myqtlibs} DESTINATION ./)
-
-#DLL Files for gcc and libc6
-    #IF (WIN64)
-#		SET(GCC_MXE_DIR "gcc/x86_64-w64-mingw32.shared/${mygccversion}")
-#    ELSE()
-#		SET(GCC_MXE_DIR "gcc/i686-w64-mingw32.shared/${mygccversion}")
-#    ENDIF()
-
-#    SET(GCC_BIN ${GCC_MXE_DIR})
-#    INSTALL(FILES ${mygccfiles} DESTINATION ./)
-   
 	IF(WANT_FAT_BUILD)
 		INSTALL(DIRECTORY windows/jack_installer DESTINATION ./)
 		INSTALL(DIRECTORY windows/plugins DESTINATION ./)
