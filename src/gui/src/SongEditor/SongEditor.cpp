@@ -1264,7 +1264,7 @@ void SongEditorPatternList::patternPopup_load()
 	QDir dirPattern( Preferences::get_instance()->getDataDirectory() + "/patterns" );
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::ExistingFile);
-	fd.setFilter( trUtf8("Hydrogen Pattern (*.h2pattern)") );
+	fd.setNameFilter( trUtf8("Hydrogen Pattern (*.h2pattern)") );
 	fd.setDirectory(dirPattern );
 
 	fd.setWindowTitle( trUtf8( "Open Pattern" ) );

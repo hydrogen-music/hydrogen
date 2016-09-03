@@ -63,6 +63,9 @@
 #include "PlaylistEditor/PlaylistDialog.h"
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 #ifndef WIN32
 #include <sys/time.h>
@@ -503,7 +506,7 @@ void MainForm::action_file_save_as()
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	QFileDialog fd(this);
 	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setFilter( trUtf8("Hydrogen Song (*.h2song)") );
+	fd.setNameFilter( trUtf8("Hydrogen Song (*.h2song)") );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setWindowTitle( trUtf8( "Save song" ) );
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
@@ -625,7 +628,7 @@ void MainForm::action_file_export_pattern_as()
 
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::AnyFile );
-	fd.setFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
+	fd.setNameFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
 	fd.setAcceptMode ( QFileDialog::AcceptSave );
 	fd.setWindowTitle ( trUtf8 ( "Save Pattern as ..." ) );
 	fd.setDirectory ( dir );
@@ -695,7 +698,7 @@ void MainForm::action_file_open() {
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::ExistingFile);
-	fd.setFilter( trUtf8("Hydrogen Song (*.h2song)") );
+	fd.setNameFilter( trUtf8("Hydrogen Song (*.h2song)") );
 	fd.setDirectory( lastUsedDir );
 
 	fd.setWindowTitle( trUtf8( "Open song" ) );
@@ -728,7 +731,7 @@ void MainForm::action_file_openPattern()
 	QDir dirPattern( Preferences::get_instance()->getDataDirectory() + "/patterns" );
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFile );
-	fd.setFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
+	fd.setNameFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
 	fd.setDirectory ( dirPattern );
 
 	fd.setWindowTitle ( trUtf8 ( "Open Pattern" ) );
@@ -774,7 +777,7 @@ void MainForm::action_file_openDemo()
 	h2app->m_undoStack->clear();
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::ExistingFile);
-	fd.setFilter( trUtf8("Hydrogen Song (*.h2song)") );
+	fd.setNameFilter( trUtf8("Hydrogen Song (*.h2song)") );
 
 	fd.setWindowTitle( trUtf8( "Open song" ) );
 	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
@@ -1299,37 +1302,37 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		switch (k->key()) {
 		case Qt::Key_Space:
 			onPlayStopAccelEvent();
-			return TRUE; // eat event
+			return true; // eat event
 
 
 		case Qt::Key_Comma:
 			engine->handleBeatCounter();
-			return TRUE; // eat even
+			return true; // eat even
 			break;
 
 		case Qt::Key_Backspace:
 			onRestartAccelEvent();
-			return TRUE; // eat event
+			return true; // eat event
 			break;
 
 		case Qt::Key_Plus:
 			onBPMPlusAccelEvent();
-			return TRUE; // eat event
+			return true; // eat event
 			break;
 
 		case Qt::Key_Minus:
 			onBPMMinusAccelEvent();
-			return TRUE; // eat event
+			return true; // eat event
 			break;
 
 		case Qt::Key_Backslash:
 			engine->onTapTempoAccelEvent();
-			return TRUE; // eat event
+			return true; // eat event
 			break;
 
 		case  Qt::Key_S | Qt::CTRL:
 			onSaveAccelEvent();
-			return TRUE;
+			return true;
 			break;
 
 		case  Qt::Key_F5 :
@@ -1347,17 +1350,17 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		case  Qt::Key_F12 : //panic button stop all playing notes
 			engine->__panic();
 			//				QMessageBox::information( this, "Hydrogen", trUtf8( "Panic" ) );
-			return TRUE;
+			return true;
 			break;
 
 		case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
 			engine->setPatternPos( Hydrogen::get_instance()->getPatternPos() - 1 );
-			return TRUE;
+			return true;
 			break;
 
 		case  Qt::Key_F10 : // Qt::Key_Right do not work. Some ideas ?
 			engine->setPatternPos( Hydrogen::get_instance()->getPatternPos() + 1 );
-			return TRUE;
+			return true;
 			break;
 
 		case Qt::Key_L :
@@ -1366,7 +1369,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			app->setStatusBarMessage( msg, 5000 );
 			app->getSongEditorPanel()->setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
 			app->getSongEditorPanel()->updateAll();
-			return TRUE;
+			return true;
 			break;
 		}
 
@@ -1384,14 +1387,14 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 
 			engine->addRealtimeNote (row, velocity, pan_L, pan_R, 0, false, false , row + 36);
 
-			return TRUE; // eat event
+			return true; // eat event
 		}
 		else {
-			return FALSE; // let it go
+			return false; // let it go
 		}
 	}
 	else {
-		return FALSE; // standard event processing
+		return false; // standard event processing
 	}
 }
 
@@ -1419,7 +1422,7 @@ void MainForm::action_file_export_midi()
 
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::AnyFile);
-	fd.setFilter( trUtf8("Midi file (*.mid)") );
+	fd.setNameFilter( trUtf8("Midi file (*.mid)") );
 	fd.setDirectory( QDir::homePath() );
 	fd.setWindowTitle( trUtf8( "Export MIDI file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
@@ -1466,7 +1469,7 @@ void MainForm::action_file_export_lilypond()
 
 	QFileDialog fd( this );
 	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setFilter( trUtf8( "LilyPond file (*.ly)" ) );
+	fd.setNameFilter( trUtf8( "LilyPond file (*.ly)" ) );
 	fd.setDirectory( QDir::homePath() );
 	fd.setWindowTitle( trUtf8( "Export LilyPond file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
@@ -1769,9 +1772,9 @@ bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 		Playlist::get_instance()->setNextSongByNumber( songnumber + step );
 	}
 	else
-		return FALSE;
+		return false;
 
-	return TRUE;
+	return true;
 }
 
 

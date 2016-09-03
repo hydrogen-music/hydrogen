@@ -37,6 +37,9 @@
 #include <QFileDialog>
 #include <memory>
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 #if defined(H2CORE_HAVE_LIBARCHIVE)
 #include <archive.h>
 #include <archive_entry.h>

@@ -42,7 +42,7 @@
 #include "hydrogen/helpers/filesystem.h"
 
 #include <QDir>
-#include <QApplication>
+//#include <QApplication>
 
 namespace H2Core
 {
