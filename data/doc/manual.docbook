@@ -26,12 +26,12 @@
 
     </authorgroup>
 
-    <date>22/may/2005</date>
+    <date>06/september/2016</date>
 
     <abstract>
       <para>Hydrogen is a software synthesizer which can be used alone,
       emulating a drum machine based on patterns, or via an external MIDI
-      keyboard/sequencer software. Hydrogen compiles on Linux and Mac OS X.</para>
+      keyboard/sequencer software. Hydrogen compiles on Linux, Mac OS X and Windows.</para>
     </abstract>
   </bookinfo>
 
@@ -68,7 +68,7 @@
 
       <itemizedlist mark="opencircle">
         <listitem>
-          <para>qt (&gt;= 4.0) at <ulink url="http://www.qt.io">http://www.qt.io</ulink></para>
+          <para>qt (&gt;= 4.3) at <ulink url="http://www.qt.io">http://www.qt.io</ulink></para>
         </listitem>
         <listitem>
           <para>libsndfile at <ulink url="http://www.mega-nerd.com/libsndfile/">http://www.mega-nerd.com/libsndfile/</ulink></para>
@@ -85,6 +85,10 @@
         <listitem>
           <para>PortAudio at <ulink url="http://www.portaudio.com">http://www.portaudio.com</ulink>
           (only if you wish to use PortAudio as audio driver)</para>
+        </listitem>
+        <listitem>
+          <para>PulseAudio at <ulink url="http://www.pulseaudio.org">http://www.pulseaudio.org</ulink>
+          (only if you wish to use PulseAudio as audio driver)</para>
         </listitem>
         <listitem>
           <para>Flac at <ulink url="http://flac.sf.net">http://flac.sf.net</ulink> (only if you
@@ -110,7 +114,7 @@
       <screen>
         <prompt>$</prompt> <command>apt-get install libqt4-dev g++ libasound2-dev \
         libjack-dev liblrdf0-dev libflac++-dev libtar-dev libsndfile1-dev \
-        liblash-dev libportaudio-dev libportmidi-dev </command>
+        liblash-dev libportaudio-dev libportmidi-dev libpulse-dev</command>
       </screen>
 
     </section>
@@ -120,10 +124,8 @@
     <section id="sect.compilation">
       <title>Build</title>
 
-      <para>Depending on the branch you are compiling you will need to use Scons or Cmake.  Check the INSTALL.txt and the README.txt files for more info (located in the top level dir once you downloaded the sources).</para>
+      <para>Depending on the branch you are compiling you will need to use cmake. Check the INSTALL.txt and the README.txt files for more info (located in the top level dir once you downloaded the sources).</para>
       
-      <section id="sect.compilation.cmake">
-        <title>Using cmake (since 0.9.6)</title>
 
         <para>Compiling with cmake can be done easily by using the build.sh script. Go to the directory where the git repository
         was cloned and run the build.sh script without any arguments to display the help :</para>
@@ -154,9 +156,6 @@
         <screen>
            <prompt>$</prompt> <command>./build.sh m</command>
         </screen>              
-      
-      </section>
-      
       
     </section>
 
