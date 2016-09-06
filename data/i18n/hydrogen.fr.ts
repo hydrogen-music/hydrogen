@@ -323,7 +323,7 @@
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the involved persons.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen est un projet à source ouverte qui est développé par plusieurs personnes sur leurs temps libres. En faisant un don, vous pouvez dire &amp;quot;merci à vous&amp;quot; aux personnes impliquées.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen est un projet à source ouverte qui est développé par plusieurs personnes sur leur temps libre. En faisant un don, vous pouvez dire &amp;quot;merci à vous&amp;quot; aux personnes impliquées.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Sebastian Moors (aka mauser): Maintainer / Developer</source>
