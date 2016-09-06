@@ -48,9 +48,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	about += "http://www.hydrogen-music.org<br><br>";
 	about += tr( "<b>Project page</b><br>");
 	about += "http://sourceforge.net/projects/hydrogen<br><br>";
-	about += tr( "<b>Mailing lists</b><br>");
-	about += "http://lists.sourceforge.net/lists/listinfo/hydrogen-users<br>";
-	about += "http://lists.sourceforge.net/lists/listinfo/hydrogen-announce<br>";
+	about += tr( "<b>Development mailing list</b><br>");
 	about += "http://lists.sourceforge.net/lists/listinfo/hydrogen-devel<br>";
 	aboutTxt->setText( about );
 
