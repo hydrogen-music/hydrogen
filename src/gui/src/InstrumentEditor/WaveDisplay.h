@@ -40,14 +40,23 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		WaveDisplay(QWidget* pParent);
 		~WaveDisplay();
 
-		void updateDisplay( H2Core::InstrumentLayer *pLayer );
+		void		updateDisplay( H2Core::InstrumentLayer *pLayer );
 
-		void paintEvent(QPaintEvent *ev);
+		void		paintEvent( QPaintEvent *ev );
+		void		resizeEvent( QResizeEvent * event );
 
 	private:
-		QPixmap m_background;
-		QString m_sSampleName;
-		int *m_pPeakData;
+		QPixmap						m_background;
+		QString						m_sSampleName;
+		int *						m_pPeakData;
+		
+		/*
+		 * Used to re-initialise m_pPeakData if width has changed 
+		 */
+		
+		int							m_nCurrentWidth;
+		
+		H2Core::InstrumentLayer *	m_pLayer;
 };
 
 

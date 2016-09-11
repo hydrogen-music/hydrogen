@@ -39,17 +39,14 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 	setAttribute(Qt::WA_NoBackground);
 
 	//INFOLOG( "INIT" );
-	int w = 277;
-	int h = 58;
-	resize( w, h );
 
-	bool ok = m_background.load( Skin::getImagePath() + "/waveDisplay/background.png" );
+	bool ok = m_background.load( Skin::getImagePath() + "/waveDisplay/bgsamplewavedisplay.png" );
 	if( ok == false ){
 		ERRORLOG( "Error loading pixmap" );
 	}
 
-	m_pPeakData = new int[ w ];
-
+	m_pLayer = 0;
+	m_pPeakData = new int[ width() ];
 }
 
 
@@ -66,10 +63,18 @@ WaveDisplay::~WaveDisplay()
 
 void WaveDisplay::paintEvent(QPaintEvent *ev)
 {
+	UNUSED(ev);
+	
 	QPainter painter( this );
 	painter.setRenderHint( QPainter::Antialiasing );
-	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
 
+	QBrush brush = QBrush(Qt::red, m_background);
+	brush.setStyle(Qt::TexturePattern);
+	painter.setBrush(brush);
+	painter.drawRect(0, 0, width(), height());
+	
+	
+	
 	painter.setPen( QColor( 102, 150, 205 ) );
 	int VCenter = height() / 2;
 	for ( int x = 0; x < width(); x++ ) {
@@ -82,13 +87,31 @@ void WaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.setFont( font );
 	painter.setPen( QColor( 255 , 255, 255, 200 ) );
 	painter.drawText( 0, 0, width(), 20, Qt::AlignCenter, m_sSampleName );
+	
+}
+
+void WaveDisplay::resizeEvent(QResizeEvent * event)
+{
+	updateDisplay(m_pLayer);
 }
 
 
 
 void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
+	if(width() != m_nCurrentWidth){
+		delete[] m_pPeakData;
+		m_pPeakData = new int[ width() ];
+		
+		m_nCurrentWidth = width();
+	}
+	
+	if(!pLayer){
+		return;
+	}
+	
 	if ( pLayer && pLayer->get_sample() ) {
+		m_pLayer = pLayer;
 		m_sSampleName = pLayer->get_sample()->get_filename();
 
 //		INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
@@ -117,11 +140,14 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		}
 	}
 	else {
+		
 		m_sSampleName = "-";
 		for ( int i =0; i < width(); ++i ){
 			m_pPeakData[ i ] = 0;
 		}
+		
 	}
+	
 
 	update();
 }
