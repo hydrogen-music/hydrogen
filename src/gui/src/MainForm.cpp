@@ -309,6 +309,12 @@ void MainForm::createMenuBar()
 	// Tools menu
 	QMenu *m_pToolsMenu = m_pMenubar->addMenu( trUtf8( "&Tools" ));
 
+
+	m_pToolsMenu->addAction( trUtf8("Select playback track"), this, SLOT( action_window_showPlaybackDialog() ), QKeySequence( "" ) );
+	m_pToolsMenu->addAction( trUtf8("Toggle playback state"), this, SLOT( action_window_togglePlayback() ), QKeySequence( "" ) );
+	m_pFileMenu->addSeparator();	// -----
+
+
 	m_pToolsMenu->addAction( trUtf8("Playlist &editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
 	m_pToolsMenu->addAction( trUtf8("Director"), this, SLOT( action_window_show_DirectorWidget() ), QKeySequence( "Alt+D" ) );
 
@@ -801,7 +807,40 @@ void MainForm::showPreferencesDialog()
 	h2app->showPreferencesDialog();
 }
 
+void MainForm::action_window_togglePlayback()
+{
+	Hydrogen* pEngine = Hydrogen::get_instance();
+	if ( (pEngine->getState() == STATE_PLAYING) ) {
+		pEngine->sequencer_stop();
+	}
 
+	bool bState = pEngine->getPlaybackTrackState();
+	pEngine->setPlaybackTrackState(!bState);
+}
+
+void MainForm::action_window_showPlaybackDialog()
+{
+	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+		Hydrogen::get_instance()->sequencer_stop();
+	}
+
+	QFileDialog fd(this);
+	fd.setFileMode(QFileDialog::ExistingFile);
+
+	fd.setWindowTitle( trUtf8( "Select playback track" ) );
+	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+
+	QString filename;
+	if (fd.exec() == QDialog::Accepted) {
+		filename = fd.selectedFiles().first();
+	}
+
+	if ( !filename.isEmpty() ) {
+		Hydrogen::get_instance()->loadPlaybackTrack( filename );
+	}
+	
+	h2app->getSongEditorPanel()->updateAll();
+}
 
 void MainForm::action_window_showPlaylistDialog()
 {
