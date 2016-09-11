@@ -40,10 +40,24 @@ DonationDialog::~DonationDialog()
 {
 }
 
-/**
- * Close the dialog
- */
-void DonationDialog::on_okBtn_clicked()
+
+void DonationDialog::on_randomizeBtn_clicked()
 {
+	int r = rand() % 2;
+	
+	if( r == 0 ) {
+		radioButton->setChecked(true);
+	} else {
+		radioButton_2->setChecked(true);
+	}
+}
+
+void DonationDialog::on_donateBtn_clicked()
+{
+	if(radioButton->isChecked()) {
+		QDesktopServices::openUrl(QUrl::fromEncoded("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=sebastian%2emoors%40gmail%2ecom&lc=DE&item_name=Hydrogen%20donation&no_note=0&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest"));
+	} else {
+		QDesktopServices::openUrl(QUrl::fromEncoded("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=m%2ewolkstein%40gmx%2ede&lc=DE&item_name=Hydrogen%20donation&no_note=0&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest"));
+	}
 	accept();
 }

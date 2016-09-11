@@ -46,9 +46,11 @@ void* loggerThread_func( void* param ) {
 	if ( param == 0 ) return 0;
 	Logger* logger = ( Logger* )param;
 #ifdef WIN32
+#  ifdef H2CORE_HAVE_DEBUG
 	::AllocConsole();
 //	::SetConsoleTitle( "Hydrogen debug log" );
 	freopen( "CONOUT$", "wt", stdout );
+#  endif
 #endif
 	FILE* log_file = 0;
 	if ( logger->__use_file ) {

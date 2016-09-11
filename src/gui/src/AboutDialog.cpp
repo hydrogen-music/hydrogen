@@ -112,12 +112,12 @@ AboutDialog::AboutDialog(QWidget* parent)
 	
 
 	QString sAuthors;
-	sAuthors += tr( "<b>Main coder and mantainer:</b><br>" );
+	sAuthors += tr( "<b>Main coder and maintainer:</b><br>" );
 	sAuthors += "<ul><li><p>Alessandro Cominu (aka Comix) [2001-2008]</li>";
 	sAuthors += "<li><p>Michael Wolkstein (aka Wolke) [2008-2014]</li>";
 	sAuthors += "<li><p>Sebastian Moors (aka Mauser) [2008-now]</li></ul>";
 
-	sAuthors += "<b>Thanks to:</b>";
+	sAuthors += tr( "<b>Thanks to:</b>" );
 
 	sAuthors += "<ul>";
 

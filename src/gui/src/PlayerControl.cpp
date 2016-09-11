@@ -508,6 +508,7 @@ void PlayerControl::updatePlayerControl()
 {
 	Preferences *pPref = Preferences::get_instance();
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
+
 	m_pShowMixerBtn->setPressed( pH2App->getMixer()->isVisible() );
 	m_pShowInstrumentRackBtn->setPressed( pH2App->getInstrumentRack()->isVisible() );
 
@@ -576,7 +577,9 @@ void PlayerControl::updatePlayerControl()
 
 
 #ifdef H2CORE_HAVE_JACK
-	if ( pPref->m_sAudioDriver == "Jack" ) {
+	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
+
+	if ( p_Driver && strncmp(p_Driver->class_name(), "JackOutput", 10) == 0){
 		m_pJackTransportBtn->show();
 		switch ( pPref->m_bJackTransportMode ) {
 			case Preferences::NO_JACK_TRANSPORT:
@@ -677,12 +680,6 @@ void PlayerControl::updatePlayerControl()
 
 	}
 	//~ beatcounter
-
-	//timeline check
-//	if( Preferences::get_instance()->__usetimeline ){
-//		m_pRubberBPMChange->setPressed( false );
-//		Preferences::get_instance()->m_useTheRubberbandBpmChangeEvent = false;
-//	}
 }
 
 
@@ -769,7 +766,6 @@ void PlayerControl::liveModeBtnClicked(Button* ref)
 
 	m_pEngine->sequencer_stop();
 	m_pEngine->getSong()->set_mode( Song::PATTERN_MODE );
-	//m_pEngine->sequencer_setNextPattern( m_pEngine->getSelectedPatternNumber() );	// imposto il pattern correntemente selezionato come il prossimo da suonare
 	m_pSongModeBtn->setPressed(false);
 	m_pLiveModeBtn->setPressed(true);
 	(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Pattern mode selected."), 5000);
@@ -906,8 +902,9 @@ void PlayerControl::bctButtonClicked( Button* tBtn)
 void PlayerControl::jackTransportBtnClicked( Button* )
 {
 	Preferences *pPref = Preferences::get_instance();
+	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if (pPref->m_sAudioDriver != "Jack") {
+	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackOutput", 10) == 0 ) ){
 		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}
@@ -934,8 +931,9 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 {
 #ifdef H2CORE_HAVE_JACK
 	Preferences *pPref = Preferences::get_instance();
+	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if (pPref->m_sAudioDriver != "Jack") {
+	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackOutput", 10) == 0 ) ){
 		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}
@@ -953,7 +951,6 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 		pPref->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
 		AudioEngine::get_instance()->unlock();
 		(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8(" Jack-Time-Master mode = Off"), 5000);
-		//m_pControlsBBTPanel->hide();
 		Hydrogen::get_instance()->offJackMaster();
 	}
 #endif
