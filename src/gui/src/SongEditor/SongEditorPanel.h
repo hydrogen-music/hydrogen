@@ -26,6 +26,7 @@
 
 #include "../EventListener.h"
 #include <hydrogen/object.h>
+#include "../InstrumentEditor/WaveDisplay.h"
 
 #include <QtGui>
 
@@ -108,6 +109,8 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		SongEditor* m_pSongEditor;
 		SongEditorPatternList *m_pPatternList;
 		SongEditorPositionRuler *m_pPositionRuler;
+		WaveDisplay* m_pWaveDisplay;
+
 
 		Button *m_pUpBtn;
 		Button *m_pDownBtn;

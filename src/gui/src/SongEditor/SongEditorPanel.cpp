@@ -1,4 +1,4 @@
-/*
+	/*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
@@ -34,7 +34,7 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/audio_engine.h>
-#include <hydrogen/basics/pattern.h>
+#include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/pattern_list.h>
 #ifdef WIN32
 #include <time.h>
@@ -225,13 +225,24 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPositionRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPositionRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pPositionRuler = new SongEditorPositionRuler( m_pPositionRulerScrollView->viewport() );
-	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
 	m_pPositionRulerScrollView->setFixedHeight( 50 );
+
+
+	m_pPositionRuler = new SongEditorPositionRuler( NULL );
+	m_pWaveDisplay = new WaveDisplay( m_pPositionRulerScrollView->viewport() );
+
+	InstrumentComponent *pCompo = AudioEngine::get_instance()->get_sampler()->__preview_instrument->get_components()->front();
+	
+	assert(pCompo);
+	
+	m_pWaveDisplay->updateDisplay( pCompo->get_layer(0) );
+
+	m_pPositionRulerScrollView->setWidgetResizable(true);
+	m_pPositionRulerScrollView->setWidget( m_pWaveDisplay );
+	
 
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, NULL );
 	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalScrollBar() ) );
-
 
 
 	// ok...let's build the layout
@@ -246,7 +257,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	pGridLayout->addWidget( m_pVScrollBar, 1, 2 );
 	//pGridLayout->addWidget( m_pHScrollBar, 2, 1 );
 	pGridLayout->addWidget( pHScrollbarPanel, 2, 1 );
-
 
 
 	this->setLayout( pGridLayout );
@@ -337,6 +347,11 @@ void SongEditorPanel::syncToExternalScrollBar()
 ///
 void SongEditorPanel::updateAll()
 {
+	InstrumentComponent *pCompo = AudioEngine::get_instance()->get_sampler()->__playback_instrument->get_components()->front();
+
+	m_pWaveDisplay->updateDisplay( pCompo->get_layer(0) );
+
+
 	m_pPatternList->createBackground();
 	m_pPatternList->update();
 
