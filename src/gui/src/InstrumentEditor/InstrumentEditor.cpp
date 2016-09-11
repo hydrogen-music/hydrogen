@@ -383,6 +383,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	// Waveform display
 	m_pWaveDisplay = new WaveDisplay( m_pLayerProp );
+	m_pWaveDisplay->resize( 277, 58 );
 	m_pWaveDisplay->updateDisplay( NULL );
 	m_pWaveDisplay->move( 5, 241 );
 
