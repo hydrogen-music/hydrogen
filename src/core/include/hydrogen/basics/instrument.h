@@ -30,6 +30,7 @@
 
 #define EMPTY_INSTR_ID          -1
 #define METRONOME_INSTR_ID      -2
+#define PLAYBACK_INSTR_ID       -3
 
 namespace H2Core
 {

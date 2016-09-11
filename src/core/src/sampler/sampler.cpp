@@ -72,10 +72,23 @@ Sampler::Sampler()
 	__preview_instrument = new Instrument( EMPTY_INSTR_ID, sEmptySampleFilename );
 	__preview_instrument->set_is_preview_instrument(true);
 	__preview_instrument->set_volume( 0.8 );
+
 	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( sEmptySampleFilename ) );
 	InstrumentComponent* pComponent = new InstrumentComponent( 0 );
+
 	pComponent->set_layer( pLayer, 0 );
 	__preview_instrument->get_components()->push_back( pComponent );
+
+	// dummy instrument used for playback track
+	__playback_instrument = new Instrument( PLAYBACK_INSTR_ID, sEmptySampleFilename );
+	__playback_instrument->set_volume( 0.8 );
+
+	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( Sample::load( sEmptySampleFilename ) );
+	InstrumentComponent* pPlaybackTrackComponent = new InstrumentComponent( 0 );
+	pPlaybackTrackComponent->set_layer( pPlaybackTrackLayer, 0 );
+
+	__playback_instrument->get_components()->push_back( pPlaybackTrackComponent );
+	__playBackSamplePosition = 0;
 }
 
 
@@ -88,6 +101,10 @@ Sampler::~Sampler()
 
 	delete __preview_instrument;
 	__preview_instrument = NULL;
+
+
+	delete __playback_instrument;
+	__playback_instrument = NULL;
 }
 
 // perche' viene passata anche la canzone? E' davvero necessaria?
@@ -148,6 +165,7 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 		pNote = NULL;
 	}//while
 
+	processPlaybackTrack(nFrames);
 }
 
 
@@ -509,6 +527,89 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 	}
 	for ( unsigned i = 0 ; i < pInstr->get_components()->size() ; i++ )
 		if ( !nReturnValues[i] ) return false;
+	return true;
+}
+
+bool Sampler::processPlaybackTrack(int nBufferSize)
+{
+	Hydrogen* pEngine = Hydrogen::get_instance();
+	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
+	Song* pSong = pEngine->getSong();
+
+	if(!pSong->get_playback_track_enabled()){
+		return false;
+	}
+
+	if (pEngine->getState() != STATE_PLAYING){
+		return false;
+	}
+
+	if(pSong->get_mode() != Song::SONG_MODE)
+	{
+		return false;
+	}
+
+
+	InstrumentComponent *pCompo = __playback_instrument->get_components()->front();
+
+	Sample *pSample = pCompo->get_layer(0)->get_sample();
+
+	//std::cout<<"Start processPlaybackTrack\n" << std::flush;
+
+	float fVal_L;
+	float fVal_R;
+
+	float *pSample_data_L = pSample->get_data_l();
+	float *pSample_data_R = pSample->get_data_r();
+
+	assert(pSample);
+
+	__playBackSamplePosition = pAudioOutput->m_transport.m_nFrames;
+
+	int nAvail_bytes = pSample->get_frames() - ( int )__playBackSamplePosition;
+
+	int nInitialSilence = 0;
+	if ( nAvail_bytes > nBufferSize - nInitialSilence ) {
+		nAvail_bytes = nBufferSize - nInitialSilence;
+	}
+
+
+	int nInitialSamplePos = ( int )__playBackSamplePosition;
+	int nSamplePos = nInitialSamplePos;
+
+	int nInitialBufferPos = nInitialSilence;
+	int nTimes = nInitialBufferPos + nAvail_bytes;
+
+	if(__playBackSamplePosition > pSample->get_frames()){
+		//playback track has ended..
+		return true;
+	}
+
+
+	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
+		fVal_L = pSample_data_L[ nSamplePos ];
+		fVal_R = pSample_data_R[ nSamplePos ];
+
+		fVal_L = fVal_L * 1.0f; //costr
+		fVal_R = fVal_R * 1.0f; //cost l
+
+		//pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
+
+		// to main mix
+		__main_out_L[nBufferPos] += fVal_L;
+		__main_out_R[nBufferPos] += fVal_R;
+
+		++nSamplePos;
+	}
+
+	//__playBackSamplePosition += nAvail_bytes;
+
+
+
+
+	//std::cout<<"AudioOutPut.m_nFrames" << 	pAudioOutput->m_transport.m_nFrames << "\n" << std::flush;
+	//std::cout<<"Sample pos" << __playBackSamplePosition << "\n" << std::flush;
+
 	return true;
 }
 
@@ -1053,6 +1154,17 @@ bool Sampler::is_instrument_playing( Instrument* instrument )
 		}
 	}
 	return false;
+}
+
+void Sampler::reinitialize_playback_track()
+{
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song* pSong = pEngine->getSong();
+
+	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( Sample::load( pSong->get_playback_track_filename() ) );
+
+	__playback_instrument->get_components()->front()->set_layer(pPlaybackTrackLayer, 0);
+	__playBackSamplePosition = 0;
 }
 
 };
