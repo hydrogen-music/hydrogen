@@ -1,4 +1,4 @@
-/*
+    /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
@@ -214,6 +214,21 @@ class Song : public H2Core::Object
 			__latest_round_robins[start_velocity] = latest_round_robin;
 		}
 
+		QString&	get_playback_track_filename(){
+			return __playback_track_filename;
+		}
+		void	set_playback_track_filename( QString filename){
+			__playback_track_filename = filename;
+		}
+
+		bool	get_playback_track_enabled(){
+			return __playback_track_enabled;
+		}
+		void	set_playback_track_enabled( bool enabled){
+			__playback_track_enabled = enabled;
+		}
+
+
 
 	private:
 		float								__volume;						///< volume of the song (0.0..1.0)
@@ -231,6 +246,8 @@ class Song : public H2Core::Object
 		bool								__is_modified;
 		std::map< float, int> 				__latest_round_robins;
 		SongMode							__song_mode;
+		QString								__playback_track_filename;
+		bool								__playback_track_enabled;
 };
 
 

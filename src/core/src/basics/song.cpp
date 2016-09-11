@@ -428,6 +428,9 @@ Song* SongReader::readSong( const QString& filename )
 		nMode = Song::SONG_MODE;
 	}
 
+	QString sPlaybackTrack( LocalFileMng::readXmlString( songNode, "playbackTrackFilename", "" ) );
+	bool bPlaybackTrackEnabled = LocalFileMng::readXmlBool( songNode, "playbackTrackEnabled", false );
+
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
@@ -441,6 +444,8 @@ Song* SongReader::readSong( const QString& filename )
 	song->set_humanize_time_value( fHumanizeTimeValue );
 	song->set_humanize_velocity_value( fHumanizeVelocityValue );
 	song->set_swing_factor( fSwingFactor );
+	song->set_playback_track_filename(sPlaybackTrack);
+	song->set_playback_track_enabled(bPlaybackTrackEnabled);
 
 	QDomNode componentListNode = songNode.firstChildElement( "componentList" );
 	if ( ( ! componentListNode.isNull()  ) ) {
