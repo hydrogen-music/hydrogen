@@ -258,7 +258,7 @@ ENDIF()
 SET(LIBRUBBERBAND_MSG "The use of librubberband2 is marked as experimental.
 *				 Because the current implementation produce wrong timing!
 *				 So long this bug isn't solved, please disable this option.
-*				 If rubberband-cli is installed, the hydrogen rubberband-fuction
+*				 If rubberband-cli is installed, the hydrogen rubberband-function
 *				 will work properly as expected.")
 
 #
