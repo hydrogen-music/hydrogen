@@ -536,25 +536,15 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
 	Song* pSong = pEngine->getSong();
 
-	if(!pSong->get_playback_track_enabled()){
-		return false;
-	}
-
-	if (pEngine->getState() != STATE_PLAYING){
-		return false;
-	}
-
-	if(pSong->get_mode() != Song::SONG_MODE)
+	if(   !pSong->get_playback_track_enabled()
+	   || pEngine->getState() != STATE_PLAYING
+	   || pSong->get_mode() != Song::SONG_MODE)
 	{
 		return false;
 	}
 
-
 	InstrumentComponent *pCompo = __playback_instrument->get_components()->front();
-
 	Sample *pSample = pCompo->get_layer(0)->get_sample();
-
-	//std::cout<<"Start processPlaybackTrack\n" << std::flush;
 
 	float fVal_L;
 	float fVal_R;
@@ -564,51 +554,117 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 
 	assert(pSample);
 
-	__playBackSamplePosition = pAudioOutput->m_transport.m_nFrames;
+	int nAvail_bytes = 0; 
+	int	nInitialBufferPos = 0;
 
-	int nAvail_bytes = pSample->get_frames() - ( int )__playBackSamplePosition;
+	if(pSample->get_sample_rate() == pAudioOutput->getSampleRate()){
+		//No resampling	
+		__playBackSamplePosition = pAudioOutput->m_transport.m_nFrames;
+	
+		nAvail_bytes = pSample->get_frames() - ( int )__playBackSamplePosition;
+		
+		if ( nAvail_bytes > nBufferSize ) {
+			nAvail_bytes = nBufferSize;
+		}
 
-	int nInitialSilence = 0;
-	if ( nAvail_bytes > nBufferSize - nInitialSilence ) {
-		nAvail_bytes = nBufferSize - nInitialSilence;
+		int nInitialSamplePos = ( int ) __playBackSamplePosition;
+		int nSamplePos = nInitialSamplePos;
+	
+		int nTimes = nInitialBufferPos + nAvail_bytes;
+	
+		if(__playBackSamplePosition > pSample->get_frames()){
+			//playback track has ended..
+			return true;
+		}
+	
+		for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
+			fVal_L = pSample_data_L[ nSamplePos ];
+			fVal_R = pSample_data_R[ nSamplePos ];
+	
+			fVal_L = fVal_L * 1.0f; //costr
+			fVal_R = fVal_R * 1.0f; //cost l
+	
+			//pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
+	
+			// to main mix
+			__main_out_L[nBufferPos] += fVal_L;
+			__main_out_R[nBufferPos] += fVal_R;
+	
+			++nSamplePos;
+		}
+	} else {
+		//Perform resampling
+		double	fSamplePos = 0;
+		int		nSampleFrames = pSample->get_frames();
+		float	fStep = 1.0594630943593;
+		fStep *= ( float )pSample->get_sample_rate() / pAudioOutput->getSampleRate(); // Adjust for audio driver sample rate
+		
+		
+		if(pAudioOutput->m_transport.m_nFrames == 0){
+			fSamplePos = 0;
+		} else {
+			fSamplePos = ( (pAudioOutput->m_transport.m_nFrames/nBufferSize) * (nBufferSize * fStep));
+		}
+		
+		nAvail_bytes = ( int )( ( float )( pSample->get_frames() - fSamplePos ) / fStep );
+	
+		if ( nAvail_bytes > nBufferSize ) {
+			nAvail_bytes = nBufferSize;
+		}
+
+		int nTimes = nInitialBufferPos + nAvail_bytes;
+	
+		for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
+			int nSamplePos = ( int ) fSamplePos;
+			double fDiff = fSamplePos - nSamplePos;
+			if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
+				//we reach the last audioframe.
+				//set this last frame to zero do nothin wrong.
+							fVal_L = 0.0;
+							fVal_R = 0.0;
+			} else {
+				// some interpolation methods need 4 frames data.
+					float last_l;
+					float last_r;
+					if ( ( nSamplePos + 2 ) >= nSampleFrames ) {
+						last_l = 0.0;
+						last_r = 0.0;
+					} else {
+						last_l =  pSample_data_L[nSamplePos + 2];
+						last_r =  pSample_data_R[nSamplePos + 2];
+					}
+	
+					switch( __interpolateMode ){
+	
+							case LINEAR:
+									fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
+									fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
+									break;
+							case COSINE:
+									fVal_L = cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+									fVal_R = cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+									break;
+							case THIRD:
+									fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+									fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+									break;
+							case CUBIC:
+									fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+									fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+									break;
+							case HERMITE:
+									fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+									fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+									break;
+					}
+			}
+
+			__main_out_L[nBufferPos] += fVal_L;
+			__main_out_R[nBufferPos] += fVal_R;
+
+			fSamplePos += fStep;
+		} //for
 	}
-
-
-	int nInitialSamplePos = ( int )__playBackSamplePosition;
-	int nSamplePos = nInitialSamplePos;
-
-	int nInitialBufferPos = nInitialSilence;
-	int nTimes = nInitialBufferPos + nAvail_bytes;
-
-	if(__playBackSamplePosition > pSample->get_frames()){
-		//playback track has ended..
-		return true;
-	}
-
-
-	for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
-		fVal_L = pSample_data_L[ nSamplePos ];
-		fVal_R = pSample_data_R[ nSamplePos ];
-
-		fVal_L = fVal_L * 1.0f; //costr
-		fVal_R = fVal_R * 1.0f; //cost l
-
-		//pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
-
-		// to main mix
-		__main_out_L[nBufferPos] += fVal_L;
-		__main_out_R[nBufferPos] += fVal_R;
-
-		++nSamplePos;
-	}
-
-	//__playBackSamplePosition += nAvail_bytes;
-
-
-
-
-	//std::cout<<"AudioOutPut.m_nFrames" << 	pAudioOutput->m_transport.m_nFrames << "\n" << std::flush;
-	//std::cout<<"Sample pos" << __playBackSamplePosition << "\n" << std::flush;
 
 	return true;
 }
