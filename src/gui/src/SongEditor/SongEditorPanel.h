@@ -46,7 +46,7 @@ enum SongEditorActionMode
 
 class SongEditorPanel : public QWidget, public EventListener, public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 
 	public:
@@ -94,42 +94,42 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 
 
 	private:
-		SongEditorActionMode m_actionMode;
+		SongEditorActionMode	m_actionMode;
 
-		uint m_nInitialWidth;
-		uint m_nInitialHeight;
+		uint					m_nInitialWidth;
+		uint					m_nInitialHeight;
 
-		static const int m_nPatternListWidth = 200;
+		static const int		m_nPatternListWidth = 200;
 
-		QScrollArea* m_pEditorScrollView;
-		QScrollArea* m_pPatternListScrollView;
-		QScrollArea* m_pPositionRulerScrollView;
-		QScrollBar *m_pVScrollBar;
-		QScrollBar *m_pHScrollBar;
+		QScrollArea*			m_pEditorScrollView;
+		QScrollArea*			m_pPatternListScrollView;
+		QScrollArea*			m_pPositionRulerScrollView;
+		QScrollBar *			m_pVScrollBar;
+		QScrollBar *			m_pHScrollBar;
 		
-		QStackedWidget* m_pWidgetStack;
+		QStackedWidget*			m_pWidgetStack;
 
 
-		SongEditor* m_pSongEditor;
-		SongEditorPatternList *m_pPatternList;
+		SongEditor*				m_pSongEditor;
+		SongEditorPatternList *	m_pPatternList;
 		SongEditorPositionRuler *m_pPositionRuler;
-		WaveDisplay* m_pWaveDisplay;
+		WaveDisplay*			 m_pWaveDisplay;
 
 
-		Button *m_pUpBtn;
-		Button *m_pDownBtn;
-		Button *m_pClearPatternSeqBtn;
-		ToggleButton *m_pPointerActionBtn;
-		ToggleButton *m_pModeActionBtn;
-		ToggleButton *m_pDrawActionBtn;
-		ToggleButton *m_pTagbarToggleBtn;
+		Button *				m_pUpBtn;
+		Button *				m_pDownBtn;
+		Button *				m_pClearPatternSeqBtn;
+		ToggleButton *			m_pPointerActionBtn;
+		ToggleButton *			m_pModeActionBtn;
+		ToggleButton *			m_pDrawActionBtn;
+		ToggleButton *			m_pTagbarToggleBtn;
 		
-		ToggleButton *m_pTimeLineToggleBtn;
-		ToggleButton *m_pPlaybackToggleBtn;
-		ToggleButton *m_pViewTimeLineToggleBtn;
-		ToggleButton *m_pViewPlaybackToggleBtn;
+		ToggleButton *			m_pTimeLineToggleBtn;
+		ToggleButton *			m_pPlaybackToggleBtn;
+		ToggleButton *			m_pViewTimeLineToggleBtn;
+		ToggleButton *			m_pViewPlaybackToggleBtn;
 
-		QTimer* m_pTimer;
+		QTimer*					m_pTimer;
 
 
 		virtual void resizeEvent( QResizeEvent *ev );
