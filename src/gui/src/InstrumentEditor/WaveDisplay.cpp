@@ -87,7 +87,6 @@ void WaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.setFont( font );
 	painter.setPen( QColor( 255 , 255, 255, 200 ) );
 	painter.drawText( 0, 0, width(), 20, Qt::AlignCenter, m_sSampleName );
-	
 }
 
 void WaveDisplay::resizeEvent(QResizeEvent * event)
@@ -99,15 +98,19 @@ void WaveDisplay::resizeEvent(QResizeEvent * event)
 
 void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
-	if(width() != m_nCurrentWidth){
-		delete[] m_pPeakData;
-		m_pPeakData = new int[ width() ];
-		
-		m_nCurrentWidth = width();
+	int currentWidth = width();
+	
+	
+	if(!pLayer || currentWidth <= 0){
+		return;
 	}
 	
-	if(!pLayer){
-		return;
+	
+	if(currentWidth != m_nCurrentWidth){
+		delete[] m_pPeakData;
+		m_pPeakData = new int[ currentWidth ];
+		
+		m_nCurrentWidth = currentWidth;
 	}
 	
 	if ( pLayer && pLayer->get_sample() ) {
@@ -117,7 +120,7 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 //		INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
 
 		int nSampleLength = pLayer->get_sample()->get_frames();
-		float nScaleFactor = nSampleLength / width();
+		float nScaleFactor = nSampleLength / m_nCurrentWidth;
 
 		float fGain = height() / 2.0 * pLayer->get_gain();
 
@@ -142,12 +145,11 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 	else {
 		
 		m_sSampleName = "-";
-		for ( int i =0; i < width(); ++i ){
+		for ( int i =0; i < m_nCurrentWidth; ++i ){
 			m_pPeakData[ i ] = 0;
 		}
 		
 	}
-	
 
 	update();
 }
