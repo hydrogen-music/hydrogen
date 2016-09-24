@@ -85,6 +85,8 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void pointerActionBtnPressed( Button* pBtn );
 		void drawActionBtnPressed( Button* pBtn );
 		void timeLineBtnPressed( Button* pBtn );
+		void viewTimeLineBtnPressed( Button* pBtn );
+		void viewPlaybackTrackBtnPressed( Button* pBtn );
 		void modeActionBtnPressed( );
 
 		void zoomInBtnPressed( Button* pBtn );
@@ -104,6 +106,8 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		QScrollArea* m_pPositionRulerScrollView;
 		QScrollBar *m_pVScrollBar;
 		QScrollBar *m_pHScrollBar;
+		
+		QStackedWidget* m_pWidgetStack;
 
 
 		SongEditor* m_pSongEditor;
@@ -118,8 +122,12 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		ToggleButton *m_pPointerActionBtn;
 		ToggleButton *m_pModeActionBtn;
 		ToggleButton *m_pDrawActionBtn;
-		ToggleButton *m_pTimeLineToggleBtn;
 		ToggleButton *m_pTagbarToggleBtn;
+		
+		ToggleButton *m_pTimeLineToggleBtn;
+		ToggleButton *m_pPlaybackToggleBtn;
+		ToggleButton *m_pViewTimeLineToggleBtn;
+		ToggleButton *m_pViewPlaybackToggleBtn;
 
 		QTimer* m_pTimer;
 

@@ -71,6 +71,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
 	m_pTimeLineToggleBtn->setPressed( Preferences::get_instance()->getUseTimelineBpm() );
+	
+
 
 
 	// clear sequence button
@@ -184,9 +186,36 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	);
 	connect( pZoomOutBtn, SIGNAL( clicked( Button* ) ), this, SLOT( zoomInBtnPressed(Button* ) ) );
 
+	// playback view track toggle button
+	m_pViewPlaybackToggleBtn = new ToggleButton(
+			NULL,
+			"/songEditor/btn_minus_on.png",
+			"/songEditor/btn_minus_off.png",
+			"/songEditor/btn_minus_over.png",
+			QSize( 19, 13 )
+	);
+	m_pViewPlaybackToggleBtn->setToolTip( trUtf8( "View playback track") );
+	connect( m_pViewPlaybackToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( viewPlaybackTrackBtnPressed(Button* ) ) );
+	m_pViewPlaybackToggleBtn->setPressed( false );
+	
+	// timeline view toggle button
+	m_pViewTimeLineToggleBtn = new ToggleButton(
+			NULL,
+			"/songEditor/btn_minus_on.png",
+			"/songEditor/btn_minus_off.png",
+			"/songEditor/btn_minus_over.png",
+			QSize( 19, 13 )
+	);
+	m_pViewTimeLineToggleBtn->setToolTip( trUtf8( "View timeline") );
+	connect( m_pViewTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( viewTimeLineBtnPressed(Button* ) ) );
+	m_pViewTimeLineToggleBtn->setPressed( true );
+	
+	
 	QHBoxLayout *pHZoomLayout = new QHBoxLayout();
 	pHZoomLayout->setSpacing( 0 );
 	pHZoomLayout->setMargin( 0 );
+	pHZoomLayout->addWidget( m_pViewPlaybackToggleBtn );
+	pHZoomLayout->addWidget( m_pViewTimeLineToggleBtn );
 	pHZoomLayout->addWidget( m_pHScrollBar );
 	pHZoomLayout->addWidget( pZoomInBtn );
 	pHZoomLayout->addWidget( pZoomOutBtn );
@@ -194,7 +223,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	QWidget *pHScrollbarPanel = new QWidget();
 	pHScrollbarPanel->setLayout( pHZoomLayout );
 
-//~ ZOOM
+	//~ ZOOM
 
 	// PATTERN LIST
 	m_pPatternListScrollView = new QScrollArea( NULL );
@@ -227,18 +256,20 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPositionRulerScrollView->setFixedHeight( 50 );
 
+	m_pWidgetStack = new QStackedWidget( m_pPositionRulerScrollView );
 
 	m_pPositionRuler = new SongEditorPositionRuler( NULL );
+	
 	m_pWaveDisplay = new WaveDisplay( m_pPositionRulerScrollView->viewport() );
-
 	InstrumentComponent *pCompo = AudioEngine::get_instance()->get_sampler()->__preview_instrument->get_components()->front();
-	
 	assert(pCompo);
-	
 	m_pWaveDisplay->updateDisplay( pCompo->get_layer(0) );
-
+	
+	m_pWidgetStack->addWidget( m_pPositionRuler );
+	m_pWidgetStack->addWidget( m_pWaveDisplay );
+	
 	m_pPositionRulerScrollView->setWidgetResizable(true);
-	m_pPositionRulerScrollView->setWidget( m_pWaveDisplay );
+	m_pPositionRulerScrollView->setWidget( m_pWidgetStack );
 	
 
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, NULL );
@@ -298,7 +329,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 		int x = -pos.x();
 		int w = m_pPositionRulerScrollView->viewport()->width();
 
-//		int x = m_pPositionRulerScrollView->contentsX();
+//		int x = m_pPositionRulerScrollView->contentsX();	
 //		int w = m_pPositionRulerScrollView->visibleWidth();
 		int nPlayHeadPosition = Hydrogen::get_instance()->getPatternPos() * m_pSongEditor->getGridWidth();
 
@@ -534,14 +565,41 @@ void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 void SongEditorPanel::timeLineBtnPressed( Button* pBtn )
 {
 	if( m_pTimeLineToggleBtn->isPressed() ){
-		Preferences::get_instance()->setUseTimelineBpm( true );
+		Preferences::get_instance()->setUseTimelineBpm( false );
 		Hydrogen::get_instance()->setTimelineBpm();
 	}
 	else
 	{
-		Preferences::get_instance()->setUseTimelineBpm( false );
+		Preferences::get_instance()->setUseTimelineBpm( true );
 	}
-	m_pPositionRuler->createBackground();
+	
+	m_pPositionRuler->createBackground();	
+}
+
+void SongEditorPanel::viewPlaybackTrackBtnPressed( Button* pBtn )
+{
+	if( pBtn->isPressed() ){
+		m_pWidgetStack->setCurrentWidget( m_pWaveDisplay );
+		m_pViewTimeLineToggleBtn->setPressed(false);
+	}
+	else
+	{
+		m_pWidgetStack->setCurrentWidget( m_pPositionRuler );
+		m_pViewTimeLineToggleBtn->setPressed(true);
+	}
+}
+
+void SongEditorPanel::viewTimeLineBtnPressed( Button* pBtn )
+{
+	if( pBtn->isPressed() ){
+		m_pWidgetStack->setCurrentWidget( m_pPositionRuler );
+		m_pViewPlaybackToggleBtn->setPressed(false);
+	}
+	else
+	{
+		m_pWidgetStack->setCurrentWidget( m_pWaveDisplay );
+		m_pViewPlaybackToggleBtn->setPressed(true);
+	}
 }
 
 
