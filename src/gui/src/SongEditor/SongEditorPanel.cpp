@@ -286,7 +286,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	pGridLayout->addWidget( m_pPatternListScrollView, 1, 0 );
 	pGridLayout->addWidget( m_pEditorScrollView, 1, 1 );
 	pGridLayout->addWidget( m_pVScrollBar, 1, 2 );
-	//pGridLayout->addWidget( m_pHScrollBar, 2, 1 );
 	pGridLayout->addWidget( pHScrollbarPanel, 2, 1 );
 
 
@@ -329,8 +328,6 @@ void SongEditorPanel::updatePlayHeadPosition()
 		int x = -pos.x();
 		int w = m_pPositionRulerScrollView->viewport()->width();
 
-//		int x = m_pPositionRulerScrollView->contentsX();	
-//		int w = m_pPositionRulerScrollView->visibleWidth();
 		int nPlayHeadPosition = Hydrogen::get_instance()->getPatternPos() * m_pSongEditor->getGridWidth();
 
 		if ( nPlayHeadPosition > ( x + w - 50 ) ) {
