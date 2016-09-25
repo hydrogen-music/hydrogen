@@ -594,11 +594,13 @@ void SongEditorPanel::viewTimeLineBtnPressed( Button* pBtn )
 {
 	if( pBtn->isPressed() ){
 		m_pWidgetStack->setCurrentWidget( m_pPositionRuler );
+		m_pTimeLineToggleBtn->show();
 		m_pViewPlaybackToggleBtn->setPressed(false);
 	}
 	else
 	{
 		m_pWidgetStack->setCurrentWidget( m_pWaveDisplay );
+		m_pTimeLineToggleBtn->hide();
 		m_pViewPlaybackToggleBtn->setPressed(true);
 	}
 }
