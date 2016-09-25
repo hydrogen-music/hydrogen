@@ -87,6 +87,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void timeLineBtnPressed( Button* pBtn );
 		void viewTimeLineBtnPressed( Button* pBtn );
 		void viewPlaybackTrackBtnPressed( Button* pBtn );
+		void mutePlaybackTrackBtnPressed( Button* pBtn );
 		void modeActionBtnPressed( );
 
 		void zoomInBtnPressed( Button* pBtn );
@@ -128,6 +129,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		ToggleButton *			m_pPlaybackToggleBtn;
 		ToggleButton *			m_pViewTimeLineToggleBtn;
 		ToggleButton *			m_pViewPlaybackToggleBtn;
+		ToggleButton *			m_pMutePlaybackToggleBtn;
 
 		QTimer*					m_pTimer;
 
