@@ -214,6 +214,20 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pMutePlaybackToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( mutePlaybackTrackBtnPressed(Button* ) ) );
 	m_pMutePlaybackToggleBtn->setPressed( !pEngine->getPlaybackTrackState() );
 	
+	// edit playback track toggle button
+	m_pEditPlaybackBtn = new Button(
+			pBackPanel,
+			"/mixerPanel/edit_on.png",
+			"/mixerPanel/edit_off.png",
+			"/mixerPanel/edit_over.png",
+			QSize( 42, 13 )
+	);
+	m_pEditPlaybackBtn->setToolTip( trUtf8( "Choose playback track") );
+	m_pEditPlaybackBtn->move( 90, 6 );
+	m_pEditPlaybackBtn->hide();
+	connect( m_pEditPlaybackBtn, SIGNAL( clicked( Button* ) ), this, SLOT( editPlaybackTrackBtnPressed(Button* ) ) );
+	m_pEditPlaybackBtn->setPressed( false );
+
 	// timeline view toggle button
 	m_pViewTimeLineToggleBtn = new ToggleButton(
 			NULL,
@@ -597,6 +611,7 @@ void SongEditorPanel::viewPlaybackTrackBtnPressed( Button* pBtn )
 		m_pWidgetStack->setCurrentWidget( m_pWaveDisplay );
 		m_pTimeLineToggleBtn->hide();
 		m_pMutePlaybackToggleBtn->show();
+		m_pEditPlaybackBtn->show();
 		m_pViewTimeLineToggleBtn->setPressed(false);
 	}
 	else
@@ -604,6 +619,7 @@ void SongEditorPanel::viewPlaybackTrackBtnPressed( Button* pBtn )
 		m_pWidgetStack->setCurrentWidget( m_pPositionRuler );
 		m_pTimeLineToggleBtn->show();
 		m_pMutePlaybackToggleBtn->hide();
+		m_pEditPlaybackBtn->hide();
 		m_pViewTimeLineToggleBtn->setPressed(true);
 	}
 }
@@ -614,6 +630,7 @@ void SongEditorPanel::viewTimeLineBtnPressed( Button* pBtn )
 		m_pWidgetStack->setCurrentWidget( m_pPositionRuler );
 		m_pTimeLineToggleBtn->show();
 		m_pMutePlaybackToggleBtn->hide();
+		m_pEditPlaybackBtn->hide();
 		m_pViewPlaybackToggleBtn->setPressed(false);
 	}
 	else
@@ -621,6 +638,7 @@ void SongEditorPanel::viewTimeLineBtnPressed( Button* pBtn )
 		m_pWidgetStack->setCurrentWidget( m_pWaveDisplay );
 		m_pTimeLineToggleBtn->hide();
 		m_pMutePlaybackToggleBtn->show();
+		m_pEditPlaybackBtn->show();
 		m_pViewPlaybackToggleBtn->setPressed(true);
 	}
 }
@@ -641,6 +659,29 @@ void SongEditorPanel::mutePlaybackTrackBtnPressed( Button* pBtn )
 	}
 }
 
+void SongEditorPanel::editPlaybackTrackBtnPressed( Button* pBtn )
+{
+	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
+		Hydrogen::get_instance()->sequencer_stop();
+	}
+
+	QFileDialog fd(this);
+	fd.setFileMode(QFileDialog::ExistingFile);
+
+	fd.setWindowTitle( trUtf8( "Select playback track" ) );
+	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+
+	QString filename;
+	if (fd.exec() == QDialog::Accepted) {
+		filename = fd.selectedFiles().first();
+	}
+
+	if ( !filename.isEmpty() ) {
+		Hydrogen::get_instance()->loadPlaybackTrack( filename );
+	}
+	
+	updateAll();
+}
 
 void SongEditorPanel::modeActionBtnPressed( )
 {
