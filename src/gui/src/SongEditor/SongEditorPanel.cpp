@@ -189,9 +189,9 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// playback view track toggle button
 	m_pViewPlaybackToggleBtn = new ToggleButton(
 			NULL,
-			"/songEditor/btn_minus_on.png",
-			"/songEditor/btn_minus_off.png",
-			"/songEditor/btn_minus_over.png",
+			"/songEditor/btn_viewPL_on.png",
+			"/songEditor/btn_viewPL_off.png",
+			"/songEditor/btn_viewPL_over.png",
 			QSize( 19, 13 )
 	);
 	m_pViewPlaybackToggleBtn->setToolTip( trUtf8( "View playback track") );
@@ -201,9 +201,9 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	// timeline view toggle button
 	m_pViewTimeLineToggleBtn = new ToggleButton(
 			NULL,
-			"/songEditor/btn_minus_on.png",
-			"/songEditor/btn_minus_off.png",
-			"/songEditor/btn_minus_over.png",
+			"/songEditor/btn_viewTL_on.png",
+			"/songEditor/btn_viewTL_off.png",
+			"/songEditor/btn_viewTL_over.png",
 			QSize( 19, 13 )
 	);
 	m_pViewTimeLineToggleBtn->setToolTip( trUtf8( "View timeline") );
