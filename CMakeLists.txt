@@ -37,7 +37,7 @@ SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 #
 SET(WANT_LIBTAR TRUE)
 OPTION(WANT_DEBUG           "Build with debug information" ON)
-OPTION(WANT_QT5             "Build with Qt5" OFF)
+OPTION(WANT_QT5             "Build with Qt5" ON)
 
 IF(APPLE)
     OPTION(WANT_SHARED      "Build the core library shared." OFF)
