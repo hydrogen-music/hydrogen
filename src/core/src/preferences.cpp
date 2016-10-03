@@ -42,7 +42,7 @@
 #include "hydrogen/helpers/filesystem.h"
 
 #include <QDir>
-#include <QApplication>
+//#include <QApplication>
 
 namespace H2Core
 {
@@ -226,7 +226,7 @@ Preferences::Preferences()
 	m_bUseRelativeFilenamesForPlaylists = false;
 
 	//___ GUI properties ___
-	m_sQTStyle = "Plastique";
+	m_sQTStyle = "Fusion";
 	applicationFontFamily = "Lucida Grande";
 	applicationFontPointSize = 10;
 	mixerFontFamily = "Lucida Grande";
@@ -543,6 +543,10 @@ void Preferences::loadPreferences( bool bGlobal )
 			} else {
 				// QT Style
 				m_sQTStyle = LocalFileMng::readXmlString( guiNode, "QTStyle", m_sQTStyle, true );
+
+				if(m_sQTStyle == "Plastique"){
+					m_sQTStyle = "Fusion";
+				}
 
 				// Application font family
 				applicationFontFamily = LocalFileMng::readXmlString( guiNode, "application_font_family", applicationFontFamily );

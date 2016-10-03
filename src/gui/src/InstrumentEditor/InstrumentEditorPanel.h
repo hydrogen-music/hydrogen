@@ -24,6 +24,9 @@
 #define INSTRUMENT_EDITOR_PANEL_H
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 #include <hydrogen/object.h>
 #include "InstrumentEditor.h"
 

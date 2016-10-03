@@ -25,6 +25,9 @@
 
 #include <QtNetwork>
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 #include <map>
 #include <unistd.h>
@@ -148,7 +151,7 @@ public slots:
 		QAction *m_pRecentFileAction3;
 		QAction *m_pRecentFileAction4;
 
-		QHttp m_http;
+//		QHttp m_http;
 
 		QTimer m_autosaveTimer;
 

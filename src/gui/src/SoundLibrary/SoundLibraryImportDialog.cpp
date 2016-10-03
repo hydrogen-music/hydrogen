@@ -495,7 +495,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 
 				// Load the drumkit image
 				// Clear any image first
-				drumkitImageLabel->setPixmap( NULL );
+				drumkitImageLabel->setPixmap( QPixmap() );
 				drumkitImageLabel->setText( info.getImage() );
 
 				if ( info.getImage().length() > 0 )
@@ -676,7 +676,7 @@ void SoundLibraryImportDialog::on_BrowseBtn_clicked()
 
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::ExistingFile);
-	fd.setFilter( "Hydrogen drumkit (*.h2drumkit)" );
+	fd.setNameFilter( "Hydrogen drumkit (*.h2drumkit)" );
 	fd.setDirectory( lastUsedDir );
 
 	fd.setWindowTitle( trUtf8( "Import drumkit" ) );

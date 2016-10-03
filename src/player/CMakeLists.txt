@@ -8,10 +8,17 @@ INCLUDE_DIRECTORIES(
 )
 
 ADD_EXECUTABLE(h2player WIN32 MACOSX_BUNDLE ${h2player_SRCS} )
-TARGET_LINK_LIBRARIES(h2player
-    hydrogen-core-${VERSION}
-    ${QT_QTGUI_LIBRARY}
-)
+IF(WANT_QT5)
+	TARGET_LINK_LIBRARIES(h2player
+		hydrogen-core-${VERSION}
+		Qt5::Widgets
+	)
+ELSE()
+	TARGET_LINK_LIBRARIES(h2player
+		hydrogen-core-${VERSION}
+		${QT_QTGUI_LIBRARY}
+	)
+ENDIF()
 
 ADD_DEPENDENCIES(h2player hydrogen-core-${VERSION})
 
