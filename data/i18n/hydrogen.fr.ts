@@ -21,11 +21,11 @@
     </message>
     <message>
         <source>&lt;b&gt;Main coder and maintainer:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Codeurs et mainteneurs principaux :&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Thanks to:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Merci à to :&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -511,7 +511,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Cosinus</translation>
     </message>
     <message>
         <source>Third</source>
@@ -2480,7 +2480,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Cosinus</translation>
     </message>
     <message>
         <source>Third</source>
@@ -3389,11 +3389,14 @@ Are you sure?</source>
 The first %2 instruments will be replaced with the new intruments and will keep their notes, but some of the remaining instruments have notes.
 Would you like to keep or discard the remaining instruments and notes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Le kit existant possède %1 instruments mais le nouveau en a seulement %2.
+Les %2 premiers instruments seront remplacés avec les nouveaux instruments et conserveront leurs notes, mais certains des instruments restant possèdent des notes.
+Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
+</translation>
     </message>
     <message>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Conserver</translation>
     </message>
 </context>
 <context>
