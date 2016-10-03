@@ -2,7 +2,7 @@
 # CMAKE SETUP
 #
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 # The CMake Policy mechanism is designed to help keep existing projects building as new versions of CMake introduce changes in behavior.
 # http://www.cmake.org/cmake/help/cmake2.6docs.html#command:cmake_policy
@@ -37,6 +37,7 @@ SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 #
 SET(WANT_LIBTAR TRUE)
 OPTION(WANT_DEBUG           "Build with debug information" ON)
+OPTION(WANT_QT5             "Build with Qt5" OFF)
 
 IF(APPLE)
     OPTION(WANT_SHARED      "Build the core library shared." OFF)
@@ -122,9 +123,20 @@ ENDIF()
 # MANDATORY PKGS AND DEFAULT OPTIONS
 #
 INCLUDE(StatusSupportOptions)
-MANDATORY_PKG(QT4)
 MANDATORY_PKG(Threads)
 MANDATORY_PKG(LIBSNDFILE)
+
+IF(WANT_QT5)
+	FIND_PACKAGE(Qt5Widgets REQUIRED)
+	FIND_PACKAGE(Qt5Xml REQUIRED)
+	FIND_PACKAGE(Qt5XmlPatterns REQUIRED)
+ELSE()
+	MANDATORY_PKG(QT4)
+	SET(QT_USE_QTXML true)
+	SET(QT_USE_QTGUI true)
+	SET(QT_USE_QTXMLPATTERNS true)
+	FIND_PACKAGE(Qt4 4.3.0 REQUIRED)
+ENDIF()
 
 IF(MINGW)
     SET(WANT_JACK TRUE)
@@ -221,12 +233,12 @@ FIND_HELPER(RAPTOR raptor2 raptor.h raptor)
 FIND_HELPER(RUBBERBAND rubberband RubberBandStretcher.h rubberband)
 FIND_HELPER(CPPUNIT cppunit cppunit/TestCase.h cppunit)
 
-# CHECK FOR Qt4
-SET(QT_USE_QTNETWORK true)
-SET(QT_USE_QTXML true)
-SET(QT_USE_QTGUI true)
-SET(QT_USE_QTXMLPATTERNS true)
-FIND_PACKAGE(Qt4 4.3.0 REQUIRED)
+
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Instruct CMake to run moc automatically when needed.
+#set(CMAKE_AUTOMOC ON)
+
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
@@ -280,9 +292,13 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * fat build                    : ${WANT_FAT_BUILD}\n"
 )
 
-COLOR_MESSAGE("${cyan}Main librarires${reset}
-* ${purple}libQt${reset}                        : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
-* ${purple}libsndfile${reset}                   : ${LIBSNDFILE_STATUS}
+COLOR_MESSAGE("${cyan}Main librarires${reset}")
+IF(WANT_QT5)
+	COLOR_MESSAGE("* ${purple}libQt${reset}                        : ${Qt5Widgets_VERSION}")
+ELSE()
+	COLOR_MESSAGE("* ${purple}libQt${reset}                        : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}")
+ENDIF()
+COLOR_MESSAGE("* ${purple}libsndfile${reset}                   : ${LIBSNDFILE_STATUS}
 *                                ${LIBSNDFILE_MSG}
 * ${purple}libtar${reset}                       : ${LIBTAR_STATUS}
 * ${purple}libarchive${reset}                   : ${LIBARCHIVE_STATUS}
