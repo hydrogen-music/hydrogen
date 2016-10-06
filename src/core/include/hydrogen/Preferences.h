@@ -209,6 +209,10 @@ public:
 	bool				m_bMidiNoteOffIgnore;
 	bool				m_bMidiFixedMapping;
 	bool				m_bMidiDiscardNoteAfterAction;
+	
+	// OSC Server properties
+	bool				m_bOscServerEnabled;
+	int					m_nOscServerPort;
 
 	//	alsa audio driver properties ___
 	QString				m_sAlsaAudioDevice;
@@ -383,7 +387,6 @@ public:
 
 	QString				getJackSessionApplicationPath();
 	void				setJackSessionApplicationPath( QString path );
-
 #endif
 
 
@@ -393,8 +396,13 @@ public:
 
 	void				setNsmSongName(const QString& nsmSongName);
 	QString				getNsmSongName(void);
-
 #endif
+
+	bool				getOscServerEnabled();
+	void				setOscServerEnabled( bool val );
+
+	int					getOscServerPort();
+	void				setOscServerPort( int oscPort );
 
 	bool				getUseTimelineBpm();
 	void				setUseTimelineBpm( bool val );
@@ -881,6 +889,22 @@ inline QString Preferences::getNsmSongName(void){
 }
 
 #endif
+
+inline bool Preferences::getOscServerEnabled(){
+	return m_bOscServerEnabled;
+}
+
+inline void Preferences::setOscServerEnabled( bool val ){
+	m_bOscServerEnabled = val;
+}
+
+inline int Preferences::getOscServerPort(){
+	return m_nOscServerPort;
+}
+
+inline void Preferences::setOscServerPort( int oscPort ){
+	m_nOscServerPort = oscPort;
+}
 
 inline bool Preferences::getUseTimelineBpm(){
 	return __useTimelineBpm;

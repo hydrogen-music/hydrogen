@@ -205,6 +205,10 @@ Preferences::Preferences()
 	m_nJackTrackOutputMode = 0;
 	m_bJackMasterMode = false ;
 
+	// OSC configuration
+	m_bOscServerEnabled = false;
+	m_nOscServerPort = 9000;
+
 	// None: m_sDefaultEditor;
 	// SEE ABOVE: m_sDataDirectory
 	// SEE ABOVE: demoPath
@@ -531,8 +535,15 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_bMidiFixedMapping = LocalFileMng::readXmlBool( midiDriverNode, "fixed_mapping", false, true );
 				}
 
-
-
+				/// OSC Server ///
+				QDomNode oscServerNode = audioEngineNode.firstChildElement( "osc_server" );
+				if ( oscServerNode.isNull() ) {
+					WARNINGLOG( "osc_server node not found" );
+					recreate = true;
+				} else {
+					m_bOscServerEnabled = LocalFileMng::readXmlBool( midiDriverNode, "oscServerEnabled", false );
+					m_nOscServerPort = LocalFileMng::readXmlInt( midiDriverNode, "oscServerPort", 9000 );
+				}
 			}
 
 			/////////////// GUI //////////////
