@@ -70,6 +70,7 @@
 
 #ifdef H2CORE_HAVE_NSMSESSION
 #include <hydrogen/nsm_client.h>
+#include <hydrogen/osc_server.h>
 #endif
 
 #include <hydrogen/IO/AudioOutput.h>
@@ -1760,6 +1761,7 @@ void Hydrogen::create_instance()
 
 #ifdef H2CORE_HAVE_NSMSESSION
 	NsmClient::create_instance();
+	OscServer::create_instance();
 #endif
 
 	if ( __instance == 0 ) {
@@ -3284,6 +3286,11 @@ void Hydrogen::setTimelineBpm()
 	setNewBpmJTM( RealtimeBPM );
 }
 
+void startOsc()
+{
+	
+}
+
 #ifdef H2CORE_HAVE_NSMSESSION
 void Hydrogen::startNsmClient()
 {
@@ -3292,6 +3299,12 @@ void Hydrogen::startNsmClient()
 
 	if(pNsmClient){
 		pNsmClient->createInitialClient();
+	}
+
+
+	OscServer* pOscServer = OscServer::get_instance();
+	if(pOscServer){
+		pOscServer->start();
 	}
 }
 #endif
