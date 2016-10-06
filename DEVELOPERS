@@ -12,10 +12,12 @@ order to make a release has several, easy-to-forget steps.  They are:
 
      b. Update linux/debian/changelog
 
+	 c. Update linux/hydrogen.1
+
   2. Remove the 'developer warning': in data/hydrogen.default.conf
      change hydrogen_preferences/showDevelWarning to "false".
 
-  3. Commit your changes to trunk.
+  3. Commit your changes.
 
   4. Make a tarball of the release (gzipped).  Use gzip instead of
      bzip2 for the folks on Windows.  Tarballs should be named:
