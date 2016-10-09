@@ -153,13 +153,13 @@ void PortMidiDriver::open()
 		}
 
 		if ( info->input == TRUE ) {
-			if ( info->name == sMidiPortName.toLocal8Bit().constData() ) {
+			if ( strcmp( info->name, sMidiPortName.toLocal8Bit().constData() ) == 0 ) {
 				nDeviceId = i;
 			}
 		}
 
 		if ( info->output == TRUE ) {
-			if ( info->name == sMidiPortName.toStdString() ) {
+			if ( strcmp( info->name, sMidiPortName.toLocal8Bit().constData() ) == 0 ) {
 				nOutDeviceId = i;
 			}
 		}

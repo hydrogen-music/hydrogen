@@ -381,9 +381,7 @@ void HydrogenApp::updateWindowTitle()
 	QString qsSongName( pSong->__name );
 
 	if( qsSongName == "Untitled Song" && !pSong->get_filename().isEmpty() ){
-		qsSongName = qsSongName.section( '/', -1 );
-	} else {
-		qsSongName = pSong->get_filename();
+		qsSongName = pSong->get_filename().section( '/', -1 );
 	}
 
 	if(pSong->get_is_modified()){
@@ -422,7 +420,7 @@ void HydrogenApp::showDirector()
 }
 
 
-void HydrogenApp::showSampleEditor( QString name, int mSelectedLayer )
+void HydrogenApp::showSampleEditor( QString name, int mSelectedComponemt, int mSelectedLayer )
 {
 
 	if ( m_pSampleEditor ){
@@ -433,7 +431,7 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedLayer )
 		QApplication::restoreOverrideCursor();
 	}
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	m_pSampleEditor = new SampleEditor( 0, mSelectedLayer, name );
+	m_pSampleEditor = new SampleEditor( 0, mSelectedComponemt, mSelectedLayer, name );
 	m_pSampleEditor->show();
 	QApplication::restoreOverrideCursor();
 }

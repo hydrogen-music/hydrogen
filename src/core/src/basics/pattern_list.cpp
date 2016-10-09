@@ -97,6 +97,16 @@ Pattern* PatternList::get( int idx )
 	return __patterns[idx];
 }
 
+const Pattern* PatternList::get( int idx ) const
+{
+	if ( idx < 0 || idx >= __patterns.size() ) {
+		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
+		return 0;
+	}
+	assert( idx >= 0 && idx < __patterns.size() );
+	return __patterns[idx];
+}
+
 int PatternList::index( Pattern* pattern )
 {
 	for( int i=0; i<__patterns.size(); i++ ) {

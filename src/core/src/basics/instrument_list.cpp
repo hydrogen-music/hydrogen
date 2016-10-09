@@ -86,11 +86,11 @@ InstrumentList* InstrumentList::load_from( XMLNode* node, const QString& dk_path
 	return instruments;
 }
 
-void InstrumentList::save_to( XMLNode* node )
+void InstrumentList::save_to( XMLNode* node, int component_id )
 {
 	XMLNode instruments_node = node->ownerDocument().createElement( "instrumentList" );
 	for ( int i = 0; i < size(); i++ ) {
-		( *this )[i]->save_to( &instruments_node );
+		( *this )[i]->save_to( &instruments_node, component_id );
 	}
 	node->appendChild( instruments_node );
 }
@@ -162,6 +162,14 @@ Instrument*  InstrumentList::find( const QString& name )
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
 		if ( __instruments[i]->get_name()==name ) return __instruments[i];
+	}
+	return 0;
+}
+
+Instrument*  InstrumentList::findMidiNote( const int note )
+{
+	for( int i=0; i<__instruments.size(); i++ ) {
+		if ( __instruments[i]->get_midi_out_note()==note ) return __instruments[i];
 	}
 	return 0;
 }

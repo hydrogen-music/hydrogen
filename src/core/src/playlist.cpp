@@ -39,16 +39,16 @@ const char* Playlist::__class_name = "Playlist";
 Playlist::Playlist()
 	: Object( __class_name )
 {
-	if ( __instance ) {class HydrogenApp;
-
+	if ( __instance ) {
 		_ERRORLOG( "Playlist in use" );
-	}class HydrogenApp;
+	}
 
 	//_INFOLOG( "[Playlist]" );
 	__instance = this;
 	__filename = "";
 	m_nSelectedSongNumber = -1;
 	m_nActiveSongNumber = -1;
+	m_bIsModified = false;
 }
 
 Playlist::~Playlist()

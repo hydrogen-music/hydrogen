@@ -809,7 +809,7 @@ bool setSong( int songnumber, Hydrogen * pEngine ) {
 
 bool MidiActionManager::playlist_song(MidiAction * pAction, Hydrogen* pEngine, targeted_element ) {
 	bool ok;
-	int songnumber = pAction->getParameter2().toInt(&ok,10);
+	int songnumber = pAction->getParameter1().toInt(&ok,10);
 	return setSong( songnumber, pEngine );
 }
 

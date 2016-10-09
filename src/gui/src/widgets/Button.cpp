@@ -36,7 +36,7 @@
 
 const char* Button::__class_name = "Button";
 
-Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffImage, const QString& sOverImage, QSize size, bool use_skin_style )
+Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffImage, const QString& sOverImage, QSize size, bool use_skin_style, bool enable_press_hold )
  : QWidget( pParent )
  , Object( __class_name )
  , m_bPressed( false )
@@ -45,6 +45,7 @@ Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffI
  , m_overPixmap( size )
  , m_bMouseOver( false )
  , __use_skin_style(use_skin_style)
+ , __enable_press_hold(enable_press_hold)
 {
 	// draw the background: slower but useful with transparent images!
 	//setAttribute(Qt::WA_NoBackground);
@@ -66,6 +67,10 @@ Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffI
 	}
 
     this->setStyleSheet("font-size: 9px; font-weight: bold;");
+
+	m_timerTimeout = 0;
+	m_timer = new QTimer(this);
+	connect(m_timer, SIGNAL(timeout()), this, SLOT(buttonPressed_timer_timeout()));
 }
 
 
@@ -127,6 +132,11 @@ void Button::mousePressEvent(QMouseEvent*ev) {
     m_bPressed = true;
     update();
     emit mousePress(this);
+
+	if ( ev->button() == Qt::LeftButton && __enable_press_hold) {
+		m_timerTimeout = 2000;
+		buttonPressed_timer_timeout();
+	}
 }
 
 
@@ -136,13 +146,27 @@ void Button::mouseReleaseEvent(QMouseEvent* ev)
 	setPressed( false );
 
 	if (ev->button() == Qt::LeftButton) {
-		emit clicked(this);
+		if(__enable_press_hold)
+			m_timer->stop();
+		else
+			emit clicked(this);
 	}
 	else if (ev->button() == Qt::RightButton) {
 		emit rightClicked(this);
 	}
 
 }
+
+
+void Button::buttonPressed_timer_timeout()
+{
+	emit clicked(this);
+
+	if(m_timerTimeout > 100)
+		m_timerTimeout = m_timerTimeout / 2;
+	m_timer->start(m_timerTimeout);
+}
+
 
 void Button::setFontSize(int size)
 {
@@ -275,7 +299,7 @@ void Button::setText( const QString& sText )
 
 
 ToggleButton::ToggleButton( QWidget *pParent, const QString& sOnImg, const QString& sOffImg, const QString& sOverImg, QSize size, bool use_skin_style )
- : Button( pParent, sOnImg, sOffImg, sOverImg, size, use_skin_style )
+ : Button( pParent, sOnImg, sOffImg, sOverImg, size, use_skin_style, false )
 {
 }
 

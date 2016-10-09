@@ -38,10 +38,12 @@ class SoundLibrarySaveDialog : public QDialog, public Ui_SoundLibrarySaveDialog_
 		~SoundLibrarySaveDialog();
 
 	private slots:
-			void on_saveBtn_clicked();
-
+		void on_saveBtn_clicked();
+		void on_imageBrowsePushButton_clicked();
 
 	private:
+		void updateImage( QString& filename );
+
 };
 
 

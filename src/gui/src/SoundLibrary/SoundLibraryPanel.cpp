@@ -178,8 +178,8 @@ void SoundLibraryPanel::updateDrumkitList()
 	__user_drumkit_info_list.clear();
 
 	//User drumkit list
-    QStringList usr_dks = Filesystem::usr_drumkits_list();
-    for (int i = 0; i < usr_dks.size(); ++i) {
+	QStringList usr_dks = Filesystem::usr_drumkits_list();
+	for (int i = 0; i < usr_dks.size(); ++i) {
 		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {
@@ -270,7 +270,7 @@ void SoundLibraryPanel::updateDrumkitList()
 			for( mapIterator=allPatternDirList->begin(); mapIterator != allPatternDirList->end(); mapIterator++ )
 			{
 				QString patternCategory = (*mapIterator)->getCategory();
-				if ( patternCategory == categoryName || patternCategory.isEmpty() && categoryName == "No category" ){
+				if ( (patternCategory == categoryName) || (patternCategory.isEmpty() && categoryName == "No category") ){
 					QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
 					pPatternItem->setText( 0, (*mapIterator)->getName());
 					pPatternItem->setText( 1, (*mapIterator)->getPath() );
@@ -475,6 +475,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 			break;
 		}
 	}
+	
 	for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
 		Drumkit *pInfo = __user_drumkit_info_list[i];
 		if ( pInfo->get_name() == sDrumkitName ) {
@@ -482,11 +483,77 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 			break;
 		}
 	}
+
+	InstrumentList *pSongInstrList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+	InstrumentList *pDrumkitInstrList = drumkitInfo->get_instruments();
+
+	int oldCount = pSongInstrList->size();
+	int newCount = pDrumkitInstrList->size();
+
+	bool conditionalLoad = false;
+	bool hasNotes = false;
+
+	INFOLOG("Old kit has " + QString::number( oldCount ) + " intruments, new one has " + QString::number( newCount ) );
+
+	if ( newCount < oldCount )
+	{
+		// Check if any of the instruments that will be removed have notes
+		for ( int i = 0; i < pSongInstrList->size(); i++)
+		{
+			
+			if ( i >= newCount )
+			{
+				INFOLOG("Checking if Instrument " + QString::number( i ) + " has notes..." );
+
+				if ( Hydrogen::get_instance()->instrumentHasNotes( pSongInstrList->get( i ) ) )
+				{
+					hasNotes = true;
+					INFOLOG("Instrument " + QString::number( i ) + " has notes" );
+
+				}
+			}
+
+		}
+	
+		if ( hasNotes )
+		{
+			QMessageBox msgBox;
+			msgBox.setWindowTitle("Hydrogen");
+			msgBox.setIcon( QMessageBox::Warning );
+			msgBox.setText( tr( "The existing kit has %1 instruments but the new one only has %2.\nThe first %2 instruments will be replaced with the new intruments and will keep their notes, but some of the remaining instruments have notes.\nWould you like to keep or discard the remaining instruments and notes?\n").arg( QString::number( oldCount ),QString::number( newCount ) ) );
+
+			msgBox.setStandardButtons(QMessageBox::Save);
+			msgBox.setButtonText(QMessageBox::Save, trUtf8("Keep"));
+			msgBox.addButton(QMessageBox::Discard);
+			msgBox.addButton(QMessageBox::Cancel);
+			msgBox.setDefaultButton(QMessageBox::Cancel);
+			
+			switch ( msgBox.exec() )
+			{
+				case QMessageBox::Save:
+					// Save old instruments with notes
+					conditionalLoad = true;
+					break;
+
+				case QMessageBox::Discard:
+					// discard extra instruments
+					conditionalLoad = false;
+					break;
+
+				case QMessageBox::Cancel:
+					// Cancel
+					return;
+			}
+		}
+	}
+
+
 	assert( drumkitInfo );
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
+
+	Hydrogen::get_instance()->loadDrumkit( drumkitInfo, conditionalLoad );
 	Hydrogen::get_instance()->getSong()->set_is_modified( true );
 	HydrogenApp::get_instance()->onDrumkitLoad( drumkitInfo->get_name() );
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();

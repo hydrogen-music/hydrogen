@@ -48,7 +48,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	about += "http://www.hydrogen-music.org<br><br>";
 	about += tr( "<b>Project page</b><br>");
 	about += "http://sourceforge.net/projects/hydrogen<br><br>";
-	about += tr( "<b>Mailing lists</b><br>");
+	about += tr( "<b>Development mailing list</b><br>");
 	about += "http://lists.sourceforge.net/lists/listinfo/hydrogen-devel<br>";
 	aboutTxt->setText( about );
 
@@ -112,12 +112,12 @@ AboutDialog::AboutDialog(QWidget* parent)
 	
 
 	QString sAuthors;
-	sAuthors += tr( "<b>Main coder and mantainer:</b><br>" );
+	sAuthors += tr( "<b>Main coder and maintainer:</b><br>" );
 	sAuthors += "<ul><li><p>Alessandro Cominu (aka Comix) [2001-2008]</li>";
 	sAuthors += "<li><p>Michael Wolkstein (aka Wolke) [2008-2014]</li>";
 	sAuthors += "<li><p>Sebastian Moors (aka Mauser) [2008-now]</li></ul>";
 
-	sAuthors += "<b>Thanks to:</b>";
+	sAuthors += tr( "<b>Thanks to:</b>" );
 
 	sAuthors += "<ul>";
 

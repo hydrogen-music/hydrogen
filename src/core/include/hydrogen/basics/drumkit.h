@@ -99,9 +99,10 @@ class Drumkit : public H2Core::Object
 		 * save a drumkit into an xml file
 		 * \param dk_path the path to save the drumkit into
 		 * \param overwrite allows to write over existing drumkit file
+		 * \param component_id to chose the component to save or -1 for all
 		 * \return true on success
 		 */
-		bool save_file( const QString& dk_path, bool overwrite=false );
+		bool save_file( const QString& dk_path, bool overwrite=false, int component_id=-1 );
 		/**
 		 * save a drumkit instruments samples into a directory
 		 * \param dk_dir the directory to save the samples into
@@ -110,16 +111,25 @@ class Drumkit : public H2Core::Object
 		 */
 		bool save_samples( const QString& dk_dir, bool overwrite=false );
 		/**
+		 * save the drumkit image into the new directory
+		 * \param dk_dir the directory to save the image into
+		 * \param overwrite allows to write over existing drumkit image file
+		 * \param orig_dir holds the directory we are copying image from
+		 * \return true on success
+		 */
+		bool save_image( const QString& dk_dir, bool overwrite=false );
+		/**
 		 * save a drumkit using given parameters and an instrument list
 		 * \param name the name of the drumkit
 		 * \param author the author of the drumkit
 		 * \param info the info of the drumkit
 		 * \param license the license of the drumkit
+		 * \param image the image filename (with full path) of the drumkit
 		 * \þaram instruments the instruments to be saved within the drumkit
 		 * \oaram overwrite allows to write over existing drumkit files
 		 * \return true on success
 		 */
-		static bool save( const QString& name, const QString& author, const QString& info, const QString& license, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite=false );
+		static bool save( const QString& name, const QString& author, const QString& info, const QString& license, const QString& image, const QString& imageLicense, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite=false );
 		/**
 		 * install a drumkit from a filename
 		 * \param path the path to the new drumkit archive
@@ -158,6 +168,14 @@ class Drumkit : public H2Core::Object
 		void set_license( const QString& license );
 		/** __license accessor */
 		const QString& get_license() const;
+		/** __image setter */
+		void set_image( const QString& image );
+		/** __image accessor */
+		const QString& get_image() const;
+		/** __imageLicense setter */
+		void set_image_license( const QString& imageLicense );
+		/** __imageLicense accessor */
+		const QString& get_image_license() const;
 		/** return true if the samples are loaded */
 		const bool samples_loaded() const;
 
@@ -172,13 +190,16 @@ class Drumkit : public H2Core::Object
 		QString __author;               ///< drumkit author
 		QString __info;                 ///< drumkit free text
 		QString __license;              ///< drumkit license description
+		QString __image;		///< drumkit image filename
+		QString __imageLicense;		///< drumkit image license
+
 		bool __samples_loaded;          ///< true if the instrument samples are loaded
 		InstrumentList* __instruments;  ///< the list of instruments
 		/*
 		 * save the drumkit within the given XMLNode
 		 * \param node the XMLNode to feed
 		 */
-		void save_to( XMLNode* node );
+		void save_to( XMLNode* node, int component_id=-1 );
 		/**
 		 * load a drumkit from an XMLNode
 		 * \param node the XMLDode to read from
@@ -243,6 +264,26 @@ inline void Drumkit::set_license( const QString& license )
 inline const QString& Drumkit::get_license() const
 {
 	return __license;
+}
+
+inline void Drumkit::set_image( const QString& image )
+{
+	__image = image;
+}
+
+inline const QString& Drumkit::get_image() const
+{
+	return __image;
+}
+
+inline void Drumkit::set_image_license( const QString& imageLicense )
+{
+	__imageLicense = imageLicense;
+}
+
+inline const QString& Drumkit::get_image_license() const
+{
+	return __imageLicense;
 }
 
 inline const bool Drumkit::samples_loaded() const

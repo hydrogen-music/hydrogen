@@ -26,14 +26,12 @@
 
     </authorgroup>
 
-    <date>22/may/2005</date>
+    <date>06/september/2016</date>
 
     <abstract>
       <para>Hydrogen is a software synthesizer which can be used alone,
       emulating a drum machine based on patterns, or via an external MIDI
-      keyboard/sequencer software. Hydrogen compiles on Linux/x86 and Mac OS X,
-      although the latter is still experimental, so ask in the developers
-      mailing list for further details.</para>
+      keyboard/sequencer software. Hydrogen compiles on Linux, Mac OS X and Windows.</para>
     </abstract>
   </bookinfo>
 
@@ -51,7 +49,7 @@
 
       <para>
         You can download Hydrogen from 
-        <ulink url="http://www.hydrogen-music.org/?p=download">http://www.hydrogen-music.org</ulink>.  
+        <ulink url="http://www.hydrogen-music.org/hcms/node/21">http://www.hydrogen-music.org</ulink>.  
         On the 'Downloads' page you can find several binaries (installers) for Linux, Mac and Windows.  (note that some versions may not be available for Windows and Mac)
       </para>
 
@@ -63,14 +61,14 @@
 
         A certain release can be fetched with:
 
-        <screen><prompt>$</prompt> <command>git checkout tags/0.9.5</command></screen>
+        <screen><prompt>$</prompt> <command>git checkout tags/0.9.6</command></screen>
       </para>
 
       <para>Compiling Hydrogen depends on the following libraries:</para>
 
       <itemizedlist mark="opencircle">
         <listitem>
-          <para>qt (&gt;= 4.0) at <ulink url="http://www.trolltech.com">http://www.trolltech.com</ulink></para>
+          <para>qt (&gt;= 4.3) at <ulink url="http://www.qt.io">http://www.qt.io</ulink></para>
         </listitem>
         <listitem>
           <para>libsndfile at <ulink url="http://www.mega-nerd.com/libsndfile/">http://www.mega-nerd.com/libsndfile/</ulink></para>
@@ -87,6 +85,10 @@
         <listitem>
           <para>PortAudio at <ulink url="http://www.portaudio.com">http://www.portaudio.com</ulink>
           (only if you wish to use PortAudio as audio driver)</para>
+        </listitem>
+        <listitem>
+          <para>PulseAudio at <ulink url="http://www.pulseaudio.org">http://www.pulseaudio.org</ulink>
+          (only if you wish to use PulseAudio as audio driver)</para>
         </listitem>
         <listitem>
           <para>Flac at <ulink url="http://flac.sf.net">http://flac.sf.net</ulink> (only if you
@@ -112,7 +114,7 @@
       <screen>
         <prompt>$</prompt> <command>apt-get install libqt4-dev g++ libasound2-dev \
         libjack-dev liblrdf0-dev libflac++-dev libtar-dev libsndfile1-dev \
-        liblash-dev libportaudio-dev libportmidi-dev </command>
+        liblash-dev libportaudio-dev libportmidi-dev libpulse-dev</command>
       </screen>
 
     </section>
@@ -122,50 +124,8 @@
     <section id="sect.compilation">
       <title>Build</title>
 
-      <para>Depending on the branch you are compiling you will need to use Scons or Cmake.  Check the INSTALL.txt and the README.txt files for more info (located in the top level dir once you downloaded the sources).</para>
+      <para>Depending on the branch you are compiling you will need to use cmake. Check the INSTALL.txt and the README.txt files for more info (located in the top level dir once you downloaded the sources).</para>
       
-      <section id="sect.compilation.scons">
-        <title>Using scons (pre-0.9.6)</title>
-
-        <para>Decompress the tarball or go to the directory where the git repository
-        was cloned:</para>
-
-        <screen>
-          <prompt>$</prompt> <command>cd hydrogen-*</command>
-          <prompt>$</prompt> <command>scons</command>
-          <prompt>$</prompt> <command>su -c "scons install"</command>
-        </screen>
-
-        <para>Before compiling, check for additional options with:</para>
-
-        <screen>
-          <prompt>$</prompt> <command>scons --help</command>
-        </screen>
-
-        <para>If you want to use features which are not enabled by default (for
-        instance PortAudio), you can enable them with:</para>
-
-        <screen>
-          <prompt>$</prompt> <command>scons portaudio=1</command>
-        </screen>
-
-        <para>Namely, if you get some error while running Hydrogen and you want
-        to report it remember to configure hydrogen with:</para>
-
-        <screen>
-          <prompt>$</prompt> <command>scons debug=1</command>
-        </screen>
-
-        <para>To clean up compiled code:</para>
-
-        <screen>
-          <prompt>$</prompt> <command>scons -c</command>
-        </screen>
-      </section>
-      
-      
-      <section id="sect.compilation.cmake">
-        <title>Using cmake (0.9.6 and up)</title>
 
         <para>Compiling with cmake can be done easily by using the build.sh script. Go to the directory where the git repository
         was cloned and run the build.sh script without any arguments to display the help :</para>
@@ -195,24 +155,7 @@
       
         <screen>
            <prompt>$</prompt> <command>./build.sh m</command>
-        </screen>      
-      
-        <!--
-          <prompt>$</prompt> <command>used builder : cmake</command>
-          <prompt>$</prompt> <command>usage ./make_helper [cmds list]</command>
-          <prompt>$</prompt> <command>cmds may be</command>
-          <prompt>$</prompt> <command>   r or rm     => all built, temp and cache files</command>
-          <prompt>$</prompt> <command>   c or clean  => remove cache files</command>
-          <prompt>$</prompt> <command>   m or make   => launch the build process</command>
-          <prompt>$</prompt> <command>   d or doc    => build html documentation</command>
-          <prompt>$</prompt> <command>   h or help   => show the build options</command>
-          <prompt>$</prompt> <command>   x or exec   => execute hydrogen</command>
-        -->
-        
-        
-      
-      </section>
-      
+        </screen>              
       
     </section>
 
@@ -935,8 +878,8 @@
             <imagedata fileref="img/btn_select.png" format="PNG"/>
             </imageobject></inlinemediaobject> Enable Select Mode.  This mode allows 
             you to select a part of the song and delete/move/copy it.</para>
-            <para>Once you have selected a part of your song you can <emphasis role=
-            "bold">delete</emphasis> it by pressing the Delete button.  You can <emphasis
+		<para>Once you have selected a part of your song you can <emphasis role="bold">delete</emphasis> 
+			it by pressing the Delete button.  You can <emphasis
              role="bold">move</emphasis> it by simply dragging your selection
             to another location, and you can also <emphasis role="bold">copy</emphasis>
              you selection by Ctrl-dragging it to a new location.
@@ -1752,9 +1695,7 @@
        will enable/disable the VU meters.
        
        <note>
-       <para>The VU meter fall off speed can be configured in the preferences window (see
-       <xref linkend ="sect.preferences.appearance_tab"/>)
-       </para>
+       <para>The VU meter fall off speed can be configured in the preferences window (see <xref linkend="sect.preferences.appearance_tab"/>)</para>
        </note>
        
        </para>

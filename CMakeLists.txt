@@ -19,7 +19,7 @@ PROJECT(hydrogen)
 SET(VERSION_MAJOR "0")
 SET(VERSION_MINOR "9")
 SET(VERSION_PATCH "7")
-#SET(VERSION_SUFFIX "RC2")
+SET(VERSION_SUFFIX "rc1")
 
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
@@ -104,10 +104,9 @@ ELSE()
 ENDIF()
 
 #SET(CMAKE_CXX_FLAGS "-fno-implement-inlines -finline-small-functions -findirect-inlining -fpartial-inlining")
-IF(APPLE)
-	SET(CMAKE_CXX_FLAGS "-O2")
-ELSE()
-	SET(CMAKE_CXX_FLAGS "-O2 -fno-implement-inlines")
+SET(CMAKE_CXX_FLAGS "-O2 -std=gnu++11 -Wno-deprecated-register")
+IF (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-implement-inlines")
 ENDIF()
 
 SET(CMAKE_CXX_FLAGS_RELEASE "")
@@ -204,6 +203,7 @@ ELSE()
 ENDIF()
 
 FIND_HELPER(JACK jack jack/jack.h jack)
+CHECK_LIBRARY_EXISTS(jack jack_port_rename "" HAVE_JACK_PORT_RENAME)
 FIND_HELPER(JACKSESSION jack jack/session.h jack)
 IF(APPLE)
     FIND_LIBRARY(AUDIOUNIT_LIBRARY AudioUnit)
@@ -216,10 +216,7 @@ FIND_HELPER(PORTMIDI portmidi portmidi.h portmidi)
 FIND_HELPER(PULSEAUDIO pulseaudio pulse/pulseaudio.h pulse)
 FIND_HELPER(LASH lash-1.0 lash/lash.h lash)
 FIND_HELPER(LRDF lrdf lrdf.h lrdf)
-
-IF(LRDF_FOUND)
-	include_directories(${LRDF_INCLUDE_DIRS}) # see github issue 194
-ENDIF(LRDF_FOUND)
+FIND_HELPER(RAPTOR raptor2 raptor.h raptor)
 
 FIND_HELPER(RUBBERBAND rubberband RubberBandStretcher.h rubberband)
 FIND_HELPER(CPPUNIT cppunit cppunit/TestCase.h cppunit)
@@ -244,7 +241,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION NSMSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
+SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION NSMSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RAPTOR RUBBERBAND CPPUNIT )
 FOREACH( _pkg ${STATUS_LIST})
     COMPUTE_PKGS_FLAGS(${_pkg})
 ENDFOREACH()
@@ -261,7 +258,7 @@ ENDIF()
 SET(LIBRUBBERBAND_MSG "The use of librubberband2 is marked as experimental.
 *				 Because the current implementation produce wrong timing!
 *				 So long this bug isn't solved, please disable this option.
-*				 If rubberband-cli is installed, the hydrogen rubberband-fuction
+*				 If rubberband-cli is installed, the hydrogen rubberband-function
 *				 will work properly as expected.")
 
 #
@@ -279,7 +276,8 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * System data path             : ${SYS_DATA_PATH}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
-* macosx bundle                : ${H2CORE_HAVE_BUNDLE}\n"
+* macosx bundle                : ${H2CORE_HAVE_BUNDLE}
+* fat build                    : ${WANT_FAT_BUILD}\n"
 )
 
 COLOR_MESSAGE("${cyan}Main librarires${reset}
@@ -356,7 +354,9 @@ ELSE()
 	INSTALL(DIRECTORY data DESTINATION ${SYS_DATA_PATH}/.. PATTERN ".git" EXCLUDE)
 ENDIF()
 IF(NOT MINGW AND NOT APPLE)
-    INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_PREFIX}/share/appdata")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.1 DESTINATION "${CMAKE_INSTALL_PREFIX}/man/man1")
 ENDIF()
 
 #
@@ -379,30 +379,17 @@ SET(CPACK_PACKAGE_INSTALL_DIRECTORY "Hydrogen")
 IF(MINGW)
     #Set the other files that will be used in CPack
     SET(WIN64 "OFF" CACHE BOOL "Windows 64 Bit")
+	SET(CPACK_STRIP_FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe" "${WINDOWS_DIR}/src/synth/h2synth.exe")
     #Program Files for Hydrogen
     SET(WINDOWS_DIR "windows")
     INSTALL(FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/core/libhydrogen-core-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dll" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe" "${WINDOWS_DIR}/src/synth/h2synth.exe" DESTINATION ./)
-    #DLL Files from the mxe /bin
-    SET(MXE_BIN "mxe/bin")
-    INSTALL(FILES ${MXE_BIN}/libgnurx-0.dll ${MXE_BIN}/libsndfile-1.dll ${MXE_BIN}/libFLAC-8.dll ${MXE_BIN}/libogg-0.dll ${MXE_BIN}/libvorbis-0.dll ${MXE_BIN}/libvorbisenc-2.dll ${MXE_BIN}/zlib1.dll ${MXE_BIN}/libwinpthread-1.dll ${MXE_BIN}/libeay32.dll ${MXE_BIN}/ssleay32.dll ${MXE_BIN}/libarchive-13.dll ${MXE_BIN}/libbz2.dll ${MXE_BIN}/liblzma-5.dll ${MXE_BIN}/libnettle-6-0.dll ${MXE_BIN}/libxml2-2.dll ${MXE_BIN}/libpng16-16.dll ${MXE_BIN}/libportmidi.dll ${MXE_BIN}/libportaudio-2.dll ${MXE_BIN}/libiconv-2.dll ${MXE_BIN}/libiconv-2.dll ${MXE_BIN}/jack-0.dll DESTINATION ./)
-    #DLL Files for QT
-    SET(QT_BIN "mxe/qt/bin")
-    INSTALL(FILES ${QT_BIN}/QtCore4.dll ${QT_BIN}/QtXml4.dll ${QT_BIN}/QtXmlPatterns4.dll ${QT_BIN}/QtNetwork4.dll ${QT_BIN}/QtGui4.dll DESTINATION ./)
-    #DLL Files for gcc and libc6
-    IF (WIN64)
-	SET(GCC_MXE_DIR "gcc/x86_64-w64-mingw32.shared/5.2.0")
-    ELSE()
-	SET(GCC_MXE_DIR "gcc/i686-w64-mingw32.shared/5.2.0")
-    ENDIF()
-    SET(GCC_BIN ${GCC_MXE_DIR})
-    IF(WIN64)
-	INSTALL(FILES ${GCC_BIN}/libgcc_s_seh-1.dll ${GCC_BIN}/libstdc++-6.dll DESTINATION ./)
-    ELSE()
-	INSTALL(FILES ${GCC_BIN}/libgcc_s_sjlj-1.dll ${GCC_BIN}/libstdc++-6.dll DESTINATION ./)
-    ENDIF()
-    
-    INSTALL(DIRECTORY windows/jack_installer DESTINATION ./)
-    INSTALL(DIRECTORY windows/plugins DESTINATION ./)
+    #Install files from the extralibs dir
+    INSTALL(DIRECTORY ${WINDOWS_DIR}/extralibs/ DESTINATION ./)
+
+	IF(WANT_FAT_BUILD)
+		INSTALL(DIRECTORY windows/jack_installer DESTINATION ./)
+		INSTALL(DIRECTORY windows/plugins DESTINATION ./)
+	ENDIF()
 
     SET(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.bmp")
     #Begin NSIS Customizations
@@ -412,15 +399,16 @@ IF(MINGW)
     #  - Registry key used to store info about the installation
     IF(WIN64)
         SET(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
-	SET(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION} 64Bit")
-	SET(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win64")
-	#SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION} 64Bit")
+		SET(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION} 64Bit")
+		SET(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win64")
+		#SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION} 64Bit")
     ELSE()
-	SET(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
-	SET(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION}")
-	SET(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win32")
-	#SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION}")
+		SET(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES")
+		SET(CPACK_NSIS_PACKAGE_NAME "Hydrogen - ${DISPLAY_VERSION}")
+		SET(CPACK_PACKAGE_FILE_NAME "Hydrogen-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-win32")
+		#SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "${CPACK_PACKAGE_NAME}${CPACK_PACKAGE_VERSION}")
     ENDIF()
+
     #Need the 2 following lines for the icon to work
     SET(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.ico")
     SET(CPACK_NSIS_MUI_UNIICON "${CMAKE_SOURCE_DIR}/data\\\\img\\\\h2-icon.ico")

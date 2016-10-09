@@ -61,7 +61,6 @@ const char* Preferences::__class_name = "Preferences";
 Preferences::Preferences()
 		: Object( __class_name )
 		, demoPath( Filesystem::demos_dir()+"/")
-		, m_sLastNews( "" )
 {
 	__instance = this;
 	INFOLOG( "INIT" );
@@ -80,12 +79,9 @@ Preferences::Preferences()
 	//server list
 	std::list<QString> sServerList;
 
-//	//musicCategories
-//	std::list<QString> m_musicCategories;
-
 	//rubberband bpm change queue
 	m_useTheRubberbandBpmChangeEvent = false;
-		__rubberBandCalcTime = 5;
+	__rubberBandCalcTime = 5;
 
 	QString rubberBandCLIPath = getenv( "PATH" );
 	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linx use ":" as seperator. maybe windows and osx use other seperators
@@ -130,10 +126,8 @@ Preferences::Preferences()
 	}
 
 
-
-
 	m_pDefaultUIStyle = new UIStyle();
-		m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
+	m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
 
 #ifdef Q_OS_MACX
 	m_sPreferencesFilename = QDir::homePath().append( "/Library/Application Support/Hydrogen/hydrogen.conf" );
@@ -161,7 +155,7 @@ Preferences::Preferences()
 
 	__expandSongItem = true; //SoundLibraryPanel
 	__expandPatternItem = true; //SoundLibraryPanel
-		__useTimelineBpm = false;		// use timeline
+	__useTimelineBpm = false;		// use timeline
 
 
 	/////////////////////////////////////////////////////////////////////////
@@ -196,6 +190,7 @@ Preferences::Preferences()
 	m_sMidiPortName = QString("None");
 	m_nMidiChannelFilter = -1;
 	m_bMidiNoteOffIgnore = false;
+	m_bMidiFixedMapping = false;
 	m_bMidiDiscardNoteAfterAction = false;
 
 	//___  alsa audio driver properties ___
@@ -228,7 +223,7 @@ Preferences::Preferences()
 	// NONE: m_ladspaPathVect;
 	quantizeEvents = true;
 	recordEvents = false;
-	m_sLastNews = QString("-");
+	m_bUseRelativeFilenamesForPlaylists = false;
 
 	//___ GUI properties ___
 	m_sQTStyle = "Plastique";
@@ -254,8 +249,8 @@ Preferences::Preferences()
 	m_ladspaProperties[2].set(2, 20, 0, 0, false);
 	m_ladspaProperties[3].set(2, 20, 0, 0, false);
 
-	m_nColoringMethod = 0;
-	m_nColoringMethodAuxValue = 0;
+	m_nColoringMethod = 2;
+	m_nColoringMethodAuxValue = 213;
 
 
 	UIStyle* uis = m_pDefaultUIStyle;
@@ -320,8 +315,6 @@ void Preferences::loadPreferences( bool bGlobal )
 		sPreferencesDirectory = m_sPreferencesDirectory;
 		sDataDirectory = QDir::homePath().append( "/.hydrogen/data" );
 		INFOLOG( "Loading preferences file (USER) [" + sPreferencesFilename + "]" );
-
-
 	}
 
 	// preferences directory exists?
@@ -381,19 +374,21 @@ void Preferences::loadPreferences( bool bGlobal )
 
 			//////// GENERAL ///////////
 			//m_sLadspaPath = LocalFileMng::readXmlString( this, rootNode, "ladspaPath", m_sLadspaPath );
+			__playselectedinstrument = LocalFileMng::readXmlBool( rootNode, "instrumentInputMode", __playselectedinstrument );
 			m_bShowDevelWarning = LocalFileMng::readXmlBool( rootNode, "showDevelWarning", m_bShowDevelWarning );
 			m_brestoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", m_brestoreLastSong );
 			m_brestoreLastPlaylist = LocalFileMng::readXmlBool( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist );
-			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", TRUE );
-			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", FALSE );
-						__useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
+			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", true );
+			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", false );
+			__useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
 			maxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
-						m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
-						m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
+			m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
+			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
+			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
 
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
-					   m_useTheRubberbandBpmChangeEvent = LocalFileMng::readXmlBool( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent );
+			m_useTheRubberbandBpmChangeEvent = LocalFileMng::readXmlBool( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent );
 			m_nRecPreDelete = LocalFileMng::readXmlInt( rootNode, "preDelete", 0 );
 			m_nRecPostDelete = LocalFileMng::readXmlInt( rootNode, "postDelete", 0 );
 
@@ -459,9 +454,6 @@ void Preferences::loadPreferences( bool bGlobal )
 				WARNINGLOG( "patternCategories node not found" );
 			}
 
-
-
-			m_sLastNews = LocalFileMng::readXmlString( rootNode, "lastNews", "-", true );
 
 			/////////////// AUDIO ENGINE //////////////
 			QDomNode audioEngineNode = rootNode.firstChildElement( "audio_engine" );
@@ -535,6 +527,8 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_sMidiPortName = LocalFileMng::readXmlString( midiDriverNode, "port_name", "None" );
 					m_nMidiChannelFilter = LocalFileMng::readXmlInt( midiDriverNode, "channel_filter", -1 );
 					m_bMidiNoteOffIgnore = LocalFileMng::readXmlBool( midiDriverNode, "ignore_note_off", true );
+					m_bMidiDiscardNoteAfterAction = LocalFileMng::readXmlBool( midiDriverNode, "discard_note_after_action", true);
+					m_bMidiFixedMapping = LocalFileMng::readXmlBool( midiDriverNode, "fixed_mapping", false, true );
 				}
 
 
@@ -629,8 +623,8 @@ void Preferences::loadPreferences( bool bGlobal )
 				}
 
 				//SongEditor coloring
-				m_nColoringMethod = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethod", 0 );
-				m_nColoringMethodAuxValue = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethodAuxValue", 0 );
+				m_nColoringMethod = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethod", 2 );
+				m_nColoringMethodAuxValue = LocalFileMng::readXmlInt( guiNode, "SongEditor_ColoringMethodAuxValue", 213 );
 
 			}
 
@@ -728,7 +722,6 @@ void Preferences::loadPreferences( bool bGlobal )
 ///
 void Preferences::savePreferences()
 {
-	//string prefDir = QDir::homePath().append("/.hydrogen").toLocal8Bit().constData();
 	QString filename = m_sPreferencesFilename;
 
 	INFOLOG( "Saving preferences file: " + filename );
@@ -760,7 +753,11 @@ void Preferences::savePreferences()
 
 	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
 	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );
-
+	LocalFileMng::writeXmlString( rootNode, "useRelativeFilenamesForPlaylists", m_bUseRelativeFilenamesForPlaylists ? "true": "false" );
+	
+	// instrument input mode
+	LocalFileMng::writeXmlString( rootNode, "instrumentInputMode", __playselectedinstrument ? "true": "false" );
+	
 	//show development version warning
 	LocalFileMng::writeXmlString( rootNode, "showDevelWarning", m_bShowDevelWarning ? "true": "false" );
 
@@ -819,10 +816,6 @@ void Preferences::savePreferences()
 	}
 	rootNode.appendChild( patternCategoriesNode );
 
-
-
-
-	LocalFileMng::writeXmlString( rootNode, "lastNews", m_sLastNews );
 
 
 	//---- AUDIO ENGINE ----
@@ -914,6 +907,14 @@ void Preferences::savePreferences()
 			} else {
 				LocalFileMng::writeXmlString( midiDriverNode, "discard_note_after_action", "false" );
 			}
+
+			if ( m_bMidiFixedMapping ) {
+				LocalFileMng::writeXmlString( midiDriverNode, "fixed_mapping", "true" );
+				INFOLOG("Saving fixed mapping\n");
+			} else {
+				LocalFileMng::writeXmlString( midiDriverNode, "fixed_mapping", "false" );
+				INFOLOG("Saving fixed mapping false\n");
+			}
 		}
 		audioEngineNode.appendChild( midiDriverNode );
 
@@ -956,25 +957,26 @@ void Preferences::savePreferences()
 
 		//beatcounter
 		QString bcMode;
-			if ( m_bbc == BC_OFF ) {
-				bcMode = "BC_OFF";
-			} else if ( m_bbc  == BC_ON ) {
-				bcMode = "BC_ON";
-			}
-			LocalFileMng::writeXmlString( guiNode, "bc", bcMode );
+
+		if ( m_bbc == BC_OFF ) {
+			bcMode = "BC_OFF";
+		} else if ( m_bbc  == BC_ON ) {
+			bcMode = "BC_ON";
+		}
+		LocalFileMng::writeXmlString( guiNode, "bc", bcMode );
 
 
 
 		QString setPlay;
-			if ( m_mmcsetplay == SET_PLAY_OFF ) {
-				setPlay = "SET_PLAY_OFF";
-			} else if ( m_mmcsetplay == SET_PLAY_ON ) {
-				setPlay = "SET_PLAY_ON";
-			}
-			LocalFileMng::writeXmlString( guiNode, "setplay", setPlay );
+		if ( m_mmcsetplay == SET_PLAY_OFF ) {
+			setPlay = "SET_PLAY_OFF";
+		} else if ( m_mmcsetplay == SET_PLAY_ON ) {
+			setPlay = "SET_PLAY_ON";
+		}
+		LocalFileMng::writeXmlString( guiNode, "setplay", setPlay );
 
-			LocalFileMng::writeXmlString( guiNode, "countoffset", QString("%1").arg(m_countOffset) );
-			LocalFileMng::writeXmlString( guiNode, "playoffset", QString("%1").arg(m_startOffset) );
+		LocalFileMng::writeXmlString( guiNode, "countoffset", QString("%1").arg(m_countOffset) );
+		LocalFileMng::writeXmlString( guiNode, "playoffset", QString("%1").arg(m_startOffset) );
 		//~ beatcounter
 
 
@@ -1003,7 +1005,7 @@ void Preferences::savePreferences()
 	rootNode.appendChild( filesNode );
 
 	MidiMap * mM = MidiMap::get_instance();
-		std::map< QString, MidiAction* > mmcMap = mM->getMMCMap();
+	std::map< QString, MidiAction* > mmcMap = mM->getMMCMap();
 
 	//---- MidiMap ----
 	QDomNode midiEventMapNode = doc.createElement( "midiEventMap" );

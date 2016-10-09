@@ -130,6 +130,25 @@ void SoundLibraryImportDialog::on_EditListBtn_clicked()
 	updateRepositoryCombo();
 }
 
+void SoundLibraryImportDialog::clearImageCache()
+{
+	// Note: After a kit is installed the list refreshes and this gets called to 
+	// clear the image cache - maybe we want to keep the cache in this case?
+	QString cacheDir = H2Core::Filesystem::repositories_cache_dir() ;
+	INFOLOG("Deleting cached image files from " + cacheDir.toLocal8Bit() );
+
+	QDir dir( cacheDir );
+	dir.setNameFilters(QStringList() << "*.png");
+	dir.setFilter(QDir::Files);
+	foreach(QString dirFile, dir.entryList())
+	{
+		if ( !dir.remove(dirFile) )
+		{
+			WARNINGLOG("Error removing image file(s) from cache.");
+		}
+	}
+}
+
 QString SoundLibraryImportDialog::getCachedFilename()
 {
 	QString cacheDir = H2Core::Filesystem::repositories_cache_dir();
@@ -137,6 +156,15 @@ QString SoundLibraryImportDialog::getCachedFilename()
 	QString cacheFile = cacheDir + "/" + serverMd5;
 	return cacheFile;
 }
+
+QString SoundLibraryImportDialog::getCachedImageFilename()
+{
+	QString cacheDir = H2Core::Filesystem::repositories_cache_dir();
+	QString kitNameMd5 = QString(QCryptographicHash::hash(( SoundLibraryNameLbl->text().toLatin1() ),QCryptographicHash::Md5).toHex());
+	QString cacheFile = cacheDir + "/" + kitNameMd5 + ".png";	
+	return cacheFile;
+}
+
 
 void SoundLibraryImportDialog::writeCachedData(const QString& fileName, const QString& data)
 {
@@ -154,6 +182,22 @@ void SoundLibraryImportDialog::writeCachedData(const QString& fileName, const QS
 
 	QTextStream stream( &outFile );
 	stream << data;
+
+	outFile.close();
+}
+
+void SoundLibraryImportDialog::writeCachedImage( const QString& imageFile, QPixmap& pixmap )
+{
+	QString cacheFile = getCachedImageFilename() ;
+
+	QFile outFile( cacheFile );
+	if( !outFile.open( QIODevice::WriteOnly ) )
+	{
+		ERRORLOG( "Failed to open file for writing repository image cache." );
+		return;
+	}
+	
+	pixmap.save(&outFile);
 
 	outFile.close();
 }
@@ -179,6 +223,20 @@ QString SoundLibraryImportDialog::readCachedData(const QString& fileName)
 	content = document.toString();
 
 	return content;
+}
+
+QString SoundLibraryImportDialog::readCachedImage( const QString& imageFile )
+{
+	QString cacheFile = getCachedImageFilename() ;
+
+	QFile file( cacheFile );
+	if( !file.exists() )
+	{       
+		// no image in cache, just return NULL
+		return NULL; 
+	}       
+	
+	return cacheFile;
 }
 
 void SoundLibraryImportDialog::reloadRepositoryData()
@@ -239,6 +297,17 @@ void SoundLibraryImportDialog::reloadRepositoryData()
 					soundLibInfo.setLicense( licenseNode.text() );
 				}
 
+				QDomElement imageNode = drumkitNode.firstChildElement( "image" );
+				if ( !imageNode.isNull() ) {
+					soundLibInfo.setImage( imageNode.text() );
+				}
+
+				QDomElement imageLicenseNode = drumkitNode.firstChildElement( "imageLicense" );
+				if ( !imageLicenseNode.isNull() ) {
+					soundLibInfo.setImageLicense( imageLicenseNode.text() );
+				}
+
+
 				m_soundLibraryList.push_back( soundLibInfo );
 			}
 		}
@@ -267,7 +336,7 @@ void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 	 *
 	 * CACHE_DIR
 	 *     +-----repositories
-	 *           +-----serverlist_$(md5(SERVER_NAME))
+	 *	   +-----serverlist_$(md5(SERVER_NAME))
 	 */
 
 
@@ -327,6 +396,10 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 			pDrumkitItem->setText( 1, trUtf8( "New" ) );
 		}
 	}
+
+	// Also clear out the image cache
+	clearImageCache();
+
 }
 
 
@@ -360,7 +433,38 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	return false;
 }
 
+void SoundLibraryImportDialog::loadImage(QString img )
+{
+	QPixmap pixmap;
+	pixmap.load( img ) ;
 
+	writeCachedImage( drumkitImageLabel->text(), pixmap );
+	showImage( pixmap );
+}
+
+void SoundLibraryImportDialog::showImage( QPixmap pixmap )
+{
+	int x = (int) drumkitImageLabel->size().width();
+	int y = drumkitImageLabel->size().height();
+	float labelAspect = (float) x / y;
+	float imageAspect = (float) pixmap.width() / pixmap.height();
+
+	if ( ( x < pixmap.width() ) || ( y < pixmap.height() ) )
+	{
+		if ( labelAspect >= imageAspect )
+		{
+			// image is taller or the same as label frame
+			pixmap = pixmap.scaledToHeight( y );
+		}
+		else
+		{
+			// image is wider than label frame
+			pixmap = pixmap.scaledToWidth( x );
+		}
+	}
+	drumkitImageLabel->setPixmap( pixmap ); // TODO: Check if valid!
+
+}
 
 
 void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous  )
@@ -385,9 +489,81 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 
 				AuthorLbl->setText( trUtf8( "Author: %1" ).arg( info.getAuthor() ) );
 
-				LicenseLbl->setText( trUtf8( "License: %1" ).arg( info.getLicense()) );
+				LicenseLbl->setText( trUtf8( "Drumkit License: %1" ).arg( info.getLicense()) );
 
+				ImageLicenseLbl->setText( trUtf8("Image License: %1" ).arg( info.getImageLicense() ) );
 
+				// Load the drumkit image
+				// Clear any image first
+				drumkitImageLabel->setPixmap( NULL );
+				drumkitImageLabel->setText( info.getImage() );
+
+				if ( info.getImage().length() > 0 )
+				{
+					if ( isSoundLibraryItemAlreadyInstalled( info ) )
+					{
+						// get image file from local disk
+						QString sName = QFileInfo( info.getUrl() ).fileName();
+						sName = sName.left( sName.lastIndexOf( "." ) );
+
+						H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load_by_name( sName, false );
+						if ( drumkitInfo ) 
+						{
+							// get the image from the local filesystem
+							QPixmap pixmap ( drumkitInfo->get_path() + "/" + drumkitInfo->get_image() );
+							INFOLOG("Loaded image " + drumkitInfo->get_image().toLocal8Bit() + " from local filesystem");
+							showImage( pixmap );
+						} 
+						else 
+						{
+							___ERRORLOG ( "Error loading the drumkit" );
+						}
+
+					}
+					else
+					{
+						// Try from the cache
+						QString cachedFile = readCachedImage( info.getImage() );
+						
+						if ( cachedFile.length() > 0 )
+						{
+							QPixmap pixmap ( cachedFile );
+							showImage( pixmap );
+							INFOLOG( "Loaded image " + info.getImage().toLocal8Bit() + " from cache (" + cachedFile + ")" );
+						}
+						else
+						{
+							// Get the drumkit's directory name from URL
+							//
+							// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php 
+							// and the image name from the XML is Roland_TR-808_drum_machine.jpg
+							// the URL for the image will be: http://www.hydrogen-music.org/feeds/images/Roland_TR-808_drum_machine.jpg
+
+							if ( info.getImage().length() > 0 )
+							{
+								int lastSlash = info.getUrl().lastIndexOf( QString( "/" ));
+
+								QString imageUrl;
+								QString sLocalFile;
+								imageUrl = repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) + 1 ) + info.getImage() ;
+								sLocalFile = QDir::tempPath() + "/" + QFileInfo( imageUrl ).fileName();
+
+								DownloadWidget dl( this, trUtf8( "" ), imageUrl, sLocalFile );
+								dl.exec();
+
+								loadImage( sLocalFile );
+								// Delete the temporary file
+								QFile::remove( sLocalFile );
+							}
+						}
+					}
+				}
+				else
+				{
+					// no image file specified in drumkit.xml
+					INFOLOG( "No image for this kit specified in drumkit.xml on remote server" );
+				}
+				
 				DownloadBtn->setEnabled( true );
 				return;
 			}
@@ -428,6 +604,8 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 				sLocalFile = dataDir + "patterns/" + QFileInfo( sURL ).fileName();
 			}
 
+			bool Error = false;
+
 			for ( int i = 0; i < 30; ++i ) {
 				DownloadWidget dl( this, trUtf8( "Downloading SoundLibrary..." ), sURL, sLocalFile );
 				dl.exec();
@@ -436,29 +614,39 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 				QUrl redirect_url = dl.get_redirect_url();
 				if (redirect_url.isEmpty() ) {
 					// ok, we have all data
+					Error = dl.get_error();
 					break;
 				}
 				else {
 					sURL = redirect_url.toEncoded();
+					Error = dl.get_error();
 				}
 			}
 
 
-			// install the new soundlibrary
-			try {
-				if ( sType == "drumkit" ) {
-					H2Core::Drumkit::install( sLocalFile );
-					QApplication::restoreOverrideCursor();
-					QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ) ).arg( dataDir ) );
-				}
+			//No 'else', error message has been already displayed by DL widget
+			if(!Error)
+			{
+				// install the new soundlibrary
+				try {
+					if ( sType == "drumkit" ) {
+						H2Core::Drumkit::install( sLocalFile );
+						QApplication::restoreOverrideCursor();
+						QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ) ).arg( dataDir ) );
+					}
 
-				if ( sType == "song" || sType == "pattern") {
+					if ( sType == "song" || sType == "pattern") {
+						QApplication::restoreOverrideCursor();
+					}
+				}
+				catch( H2Core::H2Exception ex ) {
 					QApplication::restoreOverrideCursor();
+					QMessageBox::warning( this, "Hydrogen", trUtf8( "An error occurred importing the SoundLibrary."  ) );
 				}
 			}
-			catch( H2Core::H2Exception ex ) {
+			else
+			{
 				QApplication::restoreOverrideCursor();
-				QMessageBox::warning( this, "Hydrogen", trUtf8( "An error occurred importing the SoundLibrary."  ) );
 			}
 
 			QApplication::setOverrideCursor(Qt::WaitCursor);

@@ -109,6 +109,12 @@ class InstrumentList : public H2Core::Object
 		 */
 		Instrument* find( const QString& name );
 		/**
+		 * find an intrument which play the given midi note
+		 * \param note the Midi note of the instrument to find
+		 * \return 0 if not found
+		 */
+		Instrument* findMidiNote( const int note );
+		/**
 		 * swap the instruments of two different indexes
 		 * \param idx_a the first index
 		 * \param idx_b the second index
@@ -133,7 +139,7 @@ class InstrumentList : public H2Core::Object
 		 * save the intrument list within the given XMLNode
 		 * \param node the XMLNode to feed
 		 */
-		void save_to( XMLNode* node );
+		void save_to( XMLNode* node, int component_id );
 		/**
 		 * load an instrument list from an XMLNode
 		 * \param node the XMLDode to read from
