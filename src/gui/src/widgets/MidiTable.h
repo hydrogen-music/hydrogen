@@ -40,7 +40,7 @@ class MidiTable : public QTableWidget, public H2Core::Object
 
 		void setupMidiTable();
 		void saveMidiTable();
-		void insertNewRow(QString, QString, int, int);
+		void insertNewRow(QString, QString, int, int, int, int);
 
 	private slots:
 		void updateTable();

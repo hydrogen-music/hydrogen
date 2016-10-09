@@ -124,15 +124,16 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	connect( m_pPanRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( panChanged(Rotary*) ) );
 	pAction = new MidiAction("PAN_ABSOLUTE");
 	pAction->setParameter1( QString::number(nInstr ));
-	pAction->setParameter2( QString::number( 1 ));
+	pAction->setValue( QString::number( 1 ));
 	m_pPanRotary->setAction(pAction);
 
 	// FX send
 	uint y = 0;
 	for (uint i = 0; i < MAX_FX; i++) {
 		m_pKnob[i] = new Knob(this);
-		pAction = new MidiAction(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number(i+1) ));
+		pAction = new MidiAction(QString( "EFFECT_LEVEL_ABSOLUTE" ));
 		pAction->setParameter1( QString::number( nInstr ) );
+		pAction->setParameter2( QString::number(i+1) );
 		m_pKnob[i]->setAction( pAction );
 		if ( (i % 2) == 0 ) {
 			m_pKnob[i]->move( 9, 63 + (20 * y) );

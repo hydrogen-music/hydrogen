@@ -178,7 +178,7 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 	MidiMap *mM = MidiMap::get_instance();
 
 	MidiAction *pAction = mM->getCCAction( msg.m_nData1 );
-	pAction->setParameter2( QString::number( msg.m_nData2 ) );
+	pAction->setValue( QString::number( msg.m_nData2 ) );
 
 	aH->handleAction( pAction );
 
@@ -197,7 +197,7 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 	MidiMap *mM = MidiMap::get_instance();
 
 	MidiAction *pAction = mM->getPCAction();
-	pAction->setParameter2( QString::number( msg.m_nData1 ) );
+	pAction->setValue( QString::number( msg.m_nData1 ) );
 
 	aH->handleAction( pAction );
 
