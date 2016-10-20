@@ -797,7 +797,6 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 
 MasterMixerLine::~MasterMixerLine()
 {
-//	cout << "MixerLine destroy" << endl;
 	m_fMaxPeak = 0.0;
 }
 
@@ -930,6 +929,7 @@ void MasterMixerLine::updateMixerLine()
 		m_pHumanizeTimeRotary->setValue( pSong->get_humanize_time_value() );
 		m_pHumanizeVelocityRotary->setValue( pSong->get_humanize_velocity_value() );
 		m_pSwingRotary->setValue( pSong->get_swing_factor() );
+		m_pMuteBtn->setPressed( pSong->__is_muted );
 	}
 	else {
 		WARNINGLOG( "pSong == NULL ");

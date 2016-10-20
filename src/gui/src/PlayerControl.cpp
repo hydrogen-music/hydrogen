@@ -902,8 +902,9 @@ void PlayerControl::bctButtonClicked( Button* tBtn)
 void PlayerControl::jackTransportBtnClicked( Button* )
 {
 	Preferences *pPref = Preferences::get_instance();
+	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if (pPref->m_sAudioDriver != "Jack") {
+	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackOutput", 10) == 0 ) ){
 		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}
@@ -930,8 +931,9 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 {
 #ifdef H2CORE_HAVE_JACK
 	Preferences *pPref = Preferences::get_instance();
+	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if (pPref->m_sAudioDriver != "Jack") {
+	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackOutput", 10) == 0 ) ){
 		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}

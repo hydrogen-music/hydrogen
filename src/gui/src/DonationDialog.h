@@ -36,7 +36,8 @@ public:
 	~DonationDialog();
 
 private slots:
-	void on_okBtn_clicked();
+	void on_randomizeBtn_clicked();
+	void on_donateBtn_clicked();
 
 private:
 
