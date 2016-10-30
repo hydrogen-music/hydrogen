@@ -8,11 +8,12 @@ Transitioning the code to remove some of the development hooks in
 order to make a release has several, easy-to-forget steps.  They are:
 
   1. Set the version
-     a. Configure the correct verion in CMakeLists.txt
+     a. Configure the correct version in CMakeLists.txt
 
      b. Update linux/debian/changelog
 
-	 c. Update linux/hydrogen.1
+     c. Check if nothing has changed and update version and date in
+        linux/hydrogen.1 
 
   2. Remove the 'developer warning': in data/hydrogen.default.conf
      change hydrogen_preferences/showDevelWarning to "false".
