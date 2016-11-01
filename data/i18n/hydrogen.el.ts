@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="el_GR">
+<TS version="2.1" language="el_GR">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -16,16 +16,16 @@
         <translation>&lt;b&gt;Σελίδα του εγχειρήματος&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Mailing lists&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Κατάσιχα ταχυδρομίου&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Main coder and maintainer:&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Κύριος προγραμματιστής και συντηρητής:&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Thanks to:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Ευχαριστίες στους:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1160,7 +1160,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Director</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Καθοδηγητής</translation>
     </message>
     <message>
         <source>&amp;Mixer</source>
@@ -1176,7 +1176,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Όργανο</translation>
     </message>
     <message>
         <source>Drumkit</source>
@@ -1472,7 +1472,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Mute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Σίγηση</translation>
     </message>
     <message>
         <source>Solo</source>
@@ -1488,7 +1488,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Όρισε την ένταση του οργάνου [%1]</translation>
     </message>
     <message>
         <source>Set instr. pan [%1]</source>
@@ -1777,7 +1777,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Μίκτης</translation>
     </message>
     <message>
         <source>Show Instrument Rack</source>
@@ -2122,7 +2122,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Εντάξει</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -2464,23 +2464,23 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Γραμμική</translation>
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Συνημίτονου</translation>
     </message>
     <message>
         <source>Third</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Τρίτη</translation>
     </message>
     <message>
         <source>Cubic</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Κυβική</translation>
     </message>
     <message>
         <source>Hermite</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Του Χερμάιτ</translation>
     </message>
     <message>
         <source>Default interface layout</source>
@@ -2514,6 +2514,10 @@ Do you want to discard the changes?
         <source>Use output note as input note</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Discard midi messages after action has been triggered</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
@@ -2524,7 +2528,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Εντάξει</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -2871,7 +2875,7 @@ p, li { white-space: pre-wrap; }
     <name>SongEditorPanel</name>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Επεξεργαστής Τραγουδιού</translation>
     </message>
     <message>
         <source>Enable time line edit</source>
@@ -2916,7 +2920,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Εντάξει</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -3042,7 +3046,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Εντάξει</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -3169,7 +3173,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Sound library</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Βιβλιοθήκη ήχων</translation>
     </message>
     <message>
         <source>Status</source>
@@ -3327,7 +3331,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Εντάξει</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -3470,11 +3474,11 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Άνοιγμα Εικόνας</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Αρχεία Εικόνας (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
@@ -3524,7 +3528,7 @@ Would you like to keep or discard the remaining instruments and notes?
     <name>SoundLibraryTree</name>
     <message>
         <source>Sound library</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Βιβλιοθήκη ήχων</translation>
     </message>
 </context>
 <context>
