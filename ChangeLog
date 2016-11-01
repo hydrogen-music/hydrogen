@@ -1,5 +1,4 @@
-
-2015-xx-xx the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+2016-11-01 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 0.9.7
 	* The color of the SongEditors squares is now configurable
 	* Added support for midi cymbal choking
@@ -7,11 +6,12 @@
 	* Added hihat pressure groups
 	* Added basic non session manager support
 	* Added instrument components
-    * Basic lilypond export
+	* Basic lilypond export
 	* New windows cross compilation script
-    * Support for soundlibrary images
+	* Support for soundlibrary images
 	* Configurable sample selection algorithm
-    * New midi actions:
+	* Support for soundlibraries with images
+	* New midi action:
 		* SELECT_PREV_PATTERN_RELATIVE
 
 2014-08-03 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
