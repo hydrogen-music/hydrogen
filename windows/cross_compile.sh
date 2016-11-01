@@ -88,6 +88,52 @@ build_32bit(){
 build_64bit(){
 			build_hydrogen x86_64 -DCMAKE_{C,CXX}_FLAGS=-m64 -DWIN64:BOOL=ON
 }
+mxe_files(){
+			# This will search for the required files to package and put their names into a file to be read by cmake.
+			# This is necessary due to version differences with the libraries and compilers that mxe uses across build systems.
+
+	#set the dir to search
+	if [ "$1" == "64" ]; then
+	    mxedir="/opt/mxe/usr/x86_64-w64-mingw32.shared/bin"
+	    qtdir="$mxedir/../qt/bin"
+	    gccdir="/opt/mxe/usr/lib/gcc/x86_64-w64-mingw32.shared"
+	else
+	    mxedir="/opt/mxe/usr/i686-w64-mingw32.shared/bin"
+	    qtdir="$mxedir/../qt/bin"
+	    gccdir="/opt/mxe/usr/lib/gcc/i686-w64-mingw32.shared"
+	fi
+	
+	hydrogendir=`pwd`
+	extralibs="$hydrogendir/extralibs"
+	mkdir $extralibs
+	
+	#Make arrays for the filenames to loop through.
+	declare -a libs=("libgnurx" "libsndfile" "libFLAC" "libogg" "libvorbis" "libvorbisenc" "zlib1" "libwinpthread" "libeay32" "ssleay32" "libarchive" "libbz2" "liblzma" "libnettle" "libxml2" "libpng16" "libportmidi" "libportaudio" "libiconv" "libiconv" "jack")
+	declare -a qtlibs=("QtCore4" "QtXml4" "QtXmlPatterns4" "QtNetwork4" "QtGui4")
+	declare -a gcclibs=("libgcc" "libstdc++")
+	#loop through the libs, and put them into a text file.
+	cd $mxedir
+	for mylibs in "${libs[@]}"
+	do
+		cp `ls -v $mylibs*dll| tail -n 1` $extralibs
+	done
+	#loop through the qt files and put them into a text file
+	cd $qtdir
+	for myqtlibs in "${qtlibs[@]}"
+	do
+		cp `ls -v $myqtlibs*dll| tail -n 1` $extralibs
+		spa=" "
+	done
+	#find the latest gcc dir from mxe
+	cd $gccdir
+	echo `ls -v | tail -n 1` > $hydrogendir/../gccversion.txt
+	#loop through the gcclibs
+	cd $mxedir
+	for mygcclibs in "${gcclibs[@]}"
+	do
+		cp `ls -v $mygcclibs*dll| tail -n 1` $extralibs
+	done
+}
 
 build_hydrogen(){
 	# Passes either i686 or x86_64 for 32 or 64 bit respectively.
@@ -117,9 +163,9 @@ build_hydrogen(){
 	
 	#Build hydrogen itself now.
 	echo "Now building Hydrogen."
-	HYDROGEN_BUILD="$HYDROGEN/windows"
+	HYDROGEN_BUILD=$HYDROGEN"windows"
 	if [ ! -e "$HYDROGEN_BUILD" ]; then
-		mkdir "$HYDROGEN/windows"
+		mkdir $HYDROGEN"windows"
 	fi
 	echo "We will now build Hydrogen at $HYDROGEN_BUILD"
 	cd "$HYDROGEN_BUILD"
@@ -174,6 +220,9 @@ build_hydrogen(){
 			rm -rf $HYDROGEN/mxe
 		fi
 	fi
+	if [ -e $HYDROGEN/extralibs ]; then
+		rm -rf $HYDROGEN/extralibs
+	fi
 	if [ ! -e $HYDROGEN/mxe ]; then
 		ln -s $MXE/usr/$1-w64-mingw32.shared $HYDROGEN/mxe
 	fi
@@ -206,9 +255,11 @@ while getopts "d:fb:i" o; do
 		b)
             arch=${OPTARG}
 
-			if [ "$arch" != "64" ]; then
+			if [ "$arch" != "x86_64" ]; then
+				mxe_files 32
 				build_32bit
 			else
+				mxe_files 64
 				build_64bit
 			fi
 
@@ -221,4 +272,5 @@ while getopts "d:fb:i" o; do
             ;;
     esac
 done
+if [ $OPTIND -eq 1 ]; then usage; fi
 shift $((OPTIND-1))

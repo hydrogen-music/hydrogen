@@ -19,17 +19,19 @@ PROJECT(hydrogen)
 SET(VERSION_MAJOR "0")
 SET(VERSION_MINOR "9")
 SET(VERSION_PATCH "7")
-#SET(VERSION_SUFFIX "beta2")
+#SET(VERSION_SUFFIX "rc1")
 
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
+SET(DISPLAY_VERSION "${VERSION}")
 
-IF(VERSION_SUFFIX)
-	SET(DISPLAY_VERSION "${VERSION}-${VERSION_SUFFIX}")
-ELSE() 
-	EXECUTE_PROCESS(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE GIT_REVISION )
-	SET(DISPLAY_VERSION "${VERSION}-${GIT_REVISION}")
-ENDIF(VERSION_SUFFIX)
+#IF(VERSION_SUFFIX)
+#	SET(DISPLAY_VERSION "${VERSION}-${VERSION_SUFFIX}")
+#ELSE() 
+#	EXECUTE_PROCESS(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE GIT_REVISION )
+#	SET(DISPLAY_VERSION "${VERSION}-${GIT_REVISION}")
+#ENDIF(VERSION_SUFFIX)
+
 SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 
 #
@@ -241,7 +243,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION NSMSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
+SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION NSMSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RAPTOR RUBBERBAND CPPUNIT )
 FOREACH( _pkg ${STATUS_LIST})
     COMPUTE_PKGS_FLAGS(${_pkg})
 ENDFOREACH()
@@ -251,14 +253,14 @@ STRING( COMPARE GREATER "${LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_PREV}" LIB
 IF(LIBSNDFILE_VERSION_OK)
     SET(LIBSNDFILE_MSG "libsndfile supports FLAC and OGG sound file formats")
 ELSE()
-    SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support LFAC and OGG sound file formats")
+    SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support FLAC and OGG sound file formats")
 ENDIF()
 
 # RUBBERBAND information
 SET(LIBRUBBERBAND_MSG "The use of librubberband2 is marked as experimental.
 *				 Because the current implementation produce wrong timing!
 *				 So long this bug isn't solved, please disable this option.
-*				 If rubberband-cli is installed, the hydrogen rubberband-fuction
+*				 If rubberband-cli is installed, the hydrogen rubberband-function
 *				 will work properly as expected.")
 
 #
@@ -354,8 +356,9 @@ ELSE()
 	INSTALL(DIRECTORY data DESTINATION ${SYS_DATA_PATH}/.. PATTERN ".git" EXCLUDE)
 ENDIF()
 IF(NOT MINGW AND NOT APPLE)
-    INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_PREFIX}/share/appdata")
-   	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_PREFIX}/share/appdata")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.1 DESTINATION "${CMAKE_INSTALL_PREFIX}/man/man1")
 ENDIF()
 
 #
@@ -382,27 +385,9 @@ IF(MINGW)
     #Program Files for Hydrogen
     SET(WINDOWS_DIR "windows")
     INSTALL(FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/core/libhydrogen-core-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dll" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe" "${WINDOWS_DIR}/src/synth/h2synth.exe" DESTINATION ./)
-    #DLL Files from the mxe /bin
-    SET(MXE_BIN "mxe/bin")
-    INSTALL(FILES ${MXE_BIN}/libgnurx-0.dll ${MXE_BIN}/libsndfile-1.dll ${MXE_BIN}/libFLAC-8.dll ${MXE_BIN}/libogg-0.dll ${MXE_BIN}/libvorbis-0.dll ${MXE_BIN}/libvorbisenc-2.dll ${MXE_BIN}/zlib1.dll ${MXE_BIN}/libwinpthread-1.dll ${MXE_BIN}/libeay32.dll ${MXE_BIN}/ssleay32.dll ${MXE_BIN}/libarchive-13.dll ${MXE_BIN}/libbz2.dll ${MXE_BIN}/liblzma-5.dll ${MXE_BIN}/libnettle-6-0.dll ${MXE_BIN}/libxml2-2.dll ${MXE_BIN}/libpng16-16.dll ${MXE_BIN}/libportmidi.dll ${MXE_BIN}/libportaudio-2.dll ${MXE_BIN}/libiconv-2.dll ${MXE_BIN}/libiconv-2.dll ${MXE_BIN}/jack-0.dll DESTINATION ./)
-    #DLL Files for QT
-    SET(QT_BIN "mxe/qt/bin")
-    INSTALL(FILES ${QT_BIN}/QtCore4.dll ${QT_BIN}/QtXml4.dll ${QT_BIN}/QtXmlPatterns4.dll ${QT_BIN}/QtNetwork4.dll ${QT_BIN}/QtGui4.dll DESTINATION ./)
+    #Install files from the extralibs dir
+    INSTALL(DIRECTORY ${WINDOWS_DIR}/extralibs/ DESTINATION ./)
 
-#DLL Files for gcc and libc6
-    IF (WIN64)
-		SET(GCC_MXE_DIR "gcc/x86_64-w64-mingw32.shared/5.2.0")
-    ELSE()
-		SET(GCC_MXE_DIR "gcc/i686-w64-mingw32.shared/5.2.0")
-    ENDIF()
-
-    SET(GCC_BIN ${GCC_MXE_DIR})
-    IF(WIN64)
-		INSTALL(FILES ${GCC_BIN}/libgcc_s_seh-1.dll ${GCC_BIN}/libstdc++-6.dll DESTINATION ./)
-    ELSE()
-		INSTALL(FILES ${GCC_BIN}/libgcc_s_sjlj-1.dll ${GCC_BIN}/libstdc++-6.dll DESTINATION ./)
-    ENDIF()
-   
 	IF(WANT_FAT_BUILD)
 		INSTALL(DIRECTORY windows/jack_installer DESTINATION ./)
 		INSTALL(DIRECTORY windows/plugins DESTINATION ./)

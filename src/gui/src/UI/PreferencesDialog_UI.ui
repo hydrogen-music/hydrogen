@@ -685,6 +685,13 @@
           </layout>
          </item>
          <item>
+          <widget class="QCheckBox" name="m_pDiscardMidiMsgCheckbox">
+           <property name="text">
+            <string>Discard midi messages after action has been triggered</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_8">
            <item>
             <widget class="QCheckBox" name="m_pFixedMapping">

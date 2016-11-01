@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="fr_FR">
+<TS version="2.1" language="fr_FR">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -16,15 +16,15 @@
         <translation>&lt;b&gt;Site internet&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Mailing lists&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Listes de discussion&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Main coder and maintainer:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Codeurs et mainteneurs principaux :&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Thanks to:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Merci à to :&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -323,7 +323,7 @@
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the involved persons.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen est un projet à source ouverte qui est développé par plusieurs personnes sur leurs temps libres. En faisant un don, vous pouvez dire &amp;quot;merci à vous&amp;quot; aux personnes impliquées.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen est un projet à source ouverte qui est développé par plusieurs personnes sur leur temps libre. En faisant un don, vous pouvez dire &amp;quot;merci à vous&amp;quot; aux personnes impliquées.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Sebastian Moors (aka mauser): Maintainer / Developer</source>
@@ -511,7 +511,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Cosinus</translation>
     </message>
     <message>
         <source>Third</source>
@@ -2480,7 +2480,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Cosinus</translation>
     </message>
     <message>
         <source>Third</source>
@@ -2525,6 +2525,10 @@ Voulez-vous abandonner ces changements ?
     <message>
         <source>Use output note as input note</source>
         <translation>Utiliser la note de sortie en tant que note d&apos;entrée</translation>
+    </message>
+    <message>
+        <source>Discard midi messages after action has been triggered</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3389,11 +3393,14 @@ Are you sure?</source>
 The first %2 instruments will be replaced with the new intruments and will keep their notes, but some of the remaining instruments have notes.
 Would you like to keep or discard the remaining instruments and notes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Le kit existant possède %1 instruments mais le nouveau en a seulement %2.
+Les %2 premiers instruments seront remplacés avec les nouveaux instruments et conserveront leurs notes, mais certains des instruments restant possèdent des notes.
+Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
+</translation>
     </message>
     <message>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Conserver</translation>
     </message>
 </context>
 <context>

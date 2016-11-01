@@ -766,7 +766,7 @@ bool MidiActionManager::handleAction( MidiAction * pAction ){
 
 	if( sActionString == "PLAYLIST_SONG"){
 		bool ok;
-		int songnumber = pAction->getParameter2().toInt(&ok,10);
+		int songnumber = pAction->getParameter1().toInt(&ok,10);
 		return setSong( songnumber );
 	}
 

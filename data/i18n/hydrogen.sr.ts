@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="sr">
+<TS version="2.1" language="sr">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -16,15 +16,15 @@
         <translation>&lt;b&gt;Веб страна&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Mailing lists&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Дописне листе&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Main coder and maintainer:&lt;/b&gt;&lt;br&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;b&gt;Thanks to:&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2508,6 +2508,10 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Use output note as input note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Discard midi messages after action has been triggered</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
