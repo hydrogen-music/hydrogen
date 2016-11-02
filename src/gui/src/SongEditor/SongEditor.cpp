@@ -2142,16 +2142,26 @@ void SongEditorPositionRuler::editTimeLineAction( int newPosition, float newBpm 
 	Hydrogen* engine = Hydrogen::get_instance();
 	Timeline* pTimeline = engine->getTimeline();
 
+	Timeline::HTimelineVector tlvector;
+
 	//erase the value to set the new value
 	if( pTimeline->m_timelinevector.size() >= 1 ){
+		// Check first if there is a marker in the first position on the timeline
+		// If there is not, add one with the current BPM (See bug #416) - Paul Vint
+		
 		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
 			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == newPosition -1 ) {
 				pTimeline->m_timelinevector.erase( pTimeline->m_timelinevector.begin() +  t);
 			}
 		}
 	}
-
-	Timeline::HTimelineVector tlvector;
+	else {
+		// If this is the first BPM marker, place one on bar 1 with the song's BPM
+		// (See bug #416) - Paul Vint
+		tlvector.m_htimelinebeat = 0;
+		tlvector.m_htimelinebpm = Hydrogen::get_instance()->getSong()->__bpm;
+		pTimeline->m_timelinevector.push_back( tlvector );
+	}
 
 	tlvector.m_htimelinebeat = newPosition -1 ;
 
