@@ -2146,9 +2146,6 @@ void SongEditorPositionRuler::editTimeLineAction( int newPosition, float newBpm 
 
 	//erase the value to set the new value
 	if( pTimeline->m_timelinevector.size() >= 1 ){
-		// Check first if there is a marker in the first position on the timeline
-		// If there is not, add one with the current BPM (See bug #416) - Paul Vint
-		
 		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
 			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == newPosition -1 ) {
 				pTimeline->m_timelinevector.erase( pTimeline->m_timelinevector.begin() +  t);
