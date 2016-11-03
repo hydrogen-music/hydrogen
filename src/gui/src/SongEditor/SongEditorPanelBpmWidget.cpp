@@ -104,7 +104,6 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 		}
 	}
 
-
 	SE_editTimeLineAction *action = new SE_editTimeLineAction( lineEditBeat->text().toInt(), oldBpm, QString( lineEditBpm->text() ).toFloat() );
 	HydrogenApp::get_instance()->m_undoStack->push( action );
 	accept();
@@ -113,6 +112,13 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 
 void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 {
+	// Do not allow deleting the BPM marker at position 0
+	if ( QString( lineEditBeat->text() ).toInt() == 1 )
+	{
+		QMessageBox::information( this, "Hydrogen", "You cannot delete the BPM marker for the first bar." );
+		return;
+	}
+
 	Hydrogen* engine = Hydrogen::get_instance();
 	Timeline* pTimeline = engine->getTimeline();
 

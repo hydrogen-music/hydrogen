@@ -2148,6 +2148,16 @@ void SongEditorPositionRuler::editTimeLineAction( int newPosition, float newBpm 
 	if( pTimeline->m_timelinevector.size() >= 1 ){
 		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
 			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == newPosition -1 ) {
+				// If we are changing the value in bar 1, change the song's BPM as well
+				if ( newPosition == 1 ) {
+					// This is kinda ugly - duplicated code from PlayerControl.cpp
+					engine->getSong()->set_is_modified( true );
+
+					AudioEngine::get_instance()->lock( RIGHT_HERE );
+					engine->setBPM( newBpm );
+					AudioEngine::get_instance()->unlock();
+				}
+
 				pTimeline->m_timelinevector.erase( pTimeline->m_timelinevector.begin() +  t);
 			}
 		}

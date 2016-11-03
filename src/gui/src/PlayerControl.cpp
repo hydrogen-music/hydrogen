@@ -33,6 +33,7 @@
 #include "widgets/PixmapWidget.h"
 
 #include "Mixer/Mixer.h"
+#include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
@@ -970,6 +971,26 @@ void PlayerControl::bpmClicked()
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		m_pEngine->setBPM( fNewVal );
+		// If there is a BPM Marker at bar 1 update it as well
+		Hydrogen* engine = Hydrogen::get_instance();
+		Timeline* pTimeline = engine->getTimeline();
+		std::vector<Timeline::HTimelineVector> timelineVector = pTimeline->m_timelinevector;
+
+		if( timelineVector.size() > 0 ) {
+			if( pTimeline->m_timelinevector.size() >= 1 ){
+				for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
+					if ( pTimeline->m_timelinevector[t].m_htimelinebeat == 0 ) {
+						pTimeline->m_timelinevector[t].m_htimelinebpm = fNewVal;
+
+						// This is a bit of an ogly way to update the BPM timeline
+						HydrogenApp* h2app = HydrogenApp::get_instance();
+						SongEditorPositionRuler* pRuler = h2app->getSongEditorPanel()->getSongEditorPositionRuler();
+						pRuler->createBackground();
+					}
+				}
+			}
+		}
+
 		AudioEngine::get_instance()->unlock();
 	}
 	else {
