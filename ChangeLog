@@ -11,7 +11,8 @@
 	* Support for soundlibrary images
 	* Configurable sample selection algorithm
 	* Support for soundlibraries with images
-	* New midi action:
+	* Donation dialog
+*	 New midi action:
 		* SELECT_PREV_PATTERN_RELATIVE
 
 2014-08-03 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
