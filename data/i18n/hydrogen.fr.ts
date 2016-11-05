@@ -25,7 +25,7 @@
     </message>
     <message>
         <source>&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Liste de discussion pour le développement&lt;/b&gt;&lt;br&gt;</translation>
     </message>
 </context>
 <context>
@@ -1643,11 +1643,11 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>From:</source>
-        <translation>De:</translation>
+        <translation>De :</translation>
     </message>
     <message>
         <source>To:</source>
-        <translation>À:</translation>
+        <translation>À :</translation>
     </message>
     <message>
         <source>OK</source>
@@ -2051,7 +2051,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Please save your song first</source>
-        <translation>Merci de sauvegarder votre morceau d&apos;abord</translation>
+        <translation>Veuillez sauvegarder votre morceau d&apos;abord</translation>
     </message>
     <message>
         <source>WARNING, the new file is executable by the owner of the file!</source>
@@ -2067,7 +2067,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Playlist: set song no. %1</source>
-        <translation>Liste: choisir le morceau #%1 </translation>
+        <translation>Liste : choisir le morceau #%1 </translation>
     </message>
     <message>
         <source>no Script</source>
@@ -2528,7 +2528,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Discard midi messages after action has been triggered</source>
-        <translation type="unfinished"></translation>
+        <translation>Abandonner les messages MIDI après que l&apos;action ait été déclenchée</translation>
     </message>
 </context>
 <context>
