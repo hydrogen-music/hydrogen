@@ -69,6 +69,8 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		//~ implements EventListener interface
 		void update();
 
+		static int findFreeDrumkitComponentId( int startingPoint = 0 );
+
 	private slots:
 		void rotaryChanged(Rotary *ref);
 		void filterActiveBtnClicked(Button *ref);
@@ -193,7 +195,6 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		void loadLayer();
 		void setAutoVelocity();
-		int findFreeDrumkitComponentId( int startingPoint = 0 );
 };
 
 

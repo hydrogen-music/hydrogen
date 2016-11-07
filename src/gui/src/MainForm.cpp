@@ -33,6 +33,7 @@
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
+#include <hydrogen/basics/drumkit_component.h>
 
 #include <hydrogen/lilypond/lilypond.h>
 
@@ -59,7 +60,9 @@
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "SoundLibrary/SoundLibraryImportDialog.h"
 #include "SoundLibrary/SoundLibrarySaveDialog.h"
+#include "SoundLibrary/SoundLibraryOpenDialog.h"
 #include "SoundLibrary/SoundLibraryExportDialog.h"
+#include "SoundLibrary/SoundLibraryPropertiesDialog.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 
 #include <QtGui>
@@ -298,16 +301,34 @@ void MainForm::createMenuBar()
 	m_pUndoMenu->addAction( trUtf8( "Redo" ), this, SLOT( action_redo() ), QKeySequence( "Shift+Ctrl+Z" ) );
 	m_pUndoMenu->addAction( trUtf8( "Undo history" ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
 
+	// BANK MENU
+	QMenu *m_pBanksMenu = m_pMenubar->addMenu( trUtf8( "&Banks" ) );
+	m_pBanksMenu->addAction( trUtf8( "New" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
+	m_pBanksMenu->addAction( trUtf8( "Open" ), this, SLOT( action_banks_open() ), QKeySequence( "" ) );
+	m_pBanksMenu->addAction( trUtf8( "Properties" ), this, SLOT( action_banks_properties() ), QKeySequence( "" ) );
+
+	m_pBanksMenu->addSeparator();				// -----
+
+	m_pBanksMenu->addAction( trUtf8( "Save" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
+	m_pBanksMenu->addAction( trUtf8( "Save As" ), this, SLOT( action_instruments_saveAsLibrary() ), QKeySequence( "" ) );
+
+	m_pBanksMenu->addSeparator();				// -----
+
+	m_pBanksMenu->addAction( trUtf8( "Export" ), this, SLOT( action_instruments_exportLibrary() ), QKeySequence( "" ) );
+	m_pBanksMenu->addAction( trUtf8( "Import" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
+	m_pBanksMenu->addAction( trUtf8( "Online import" ), this, SLOT( action_instruments_onlineImportLibrary() ), QKeySequence( "" ) );
+
 	// INSTRUMENTS MENU
 	QMenu *m_pInstrumentsMenu = m_pMenubar->addMenu( trUtf8( "I&nstruments" ) );
 	m_pInstrumentsMenu->addAction( trUtf8( "&Add instrument" ), this, SLOT( action_instruments_addInstrument() ), QKeySequence( "" ) );
 	m_pInstrumentsMenu->addAction( trUtf8( "&Clear all" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
-	m_pInstrumentsMenu->addAction( trUtf8( "&Save library" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
-	m_pInstrumentsMenu->addAction( trUtf8( "&Export library" ), this, SLOT( action_instruments_exportLibrary() ), QKeySequence( "" ) );
-	m_pInstrumentsMenu->addAction( trUtf8( "&Import library" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
+	//m_pInstrumentsMenu->addAction( trUtf8( "&Save library" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
+	//m_pInstrumentsMenu->addAction( trUtf8( "&Export library" ), this, SLOT( action_instruments_exportLibrary() ), QKeySequence( "" ) );
+	//m_pInstrumentsMenu->addAction( trUtf8( "&Import library" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
 
+	m_pInstrumentsMenu->addSeparator();				// -----
 
-
+	m_pInstrumentsMenu->addAction( trUtf8( "Add component" ), this, SLOT( action_instruments_addComponent() ), QKeySequence( "" ) );
 
 	// Tools menu
 	QMenu *m_pToolsMenu = m_pMenubar->addMenu( trUtf8( "&Tools" ));
@@ -850,6 +871,40 @@ void MainForm::action_instruments_addInstrument()
 }
 
 
+void MainForm::action_instruments_addComponent()
+{
+	bool bIsOkPressed;
+	QString sNewName = QInputDialog::getText( this, "Hydrogen", trUtf8( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
+	if ( bIsOkPressed  ) {
+		Hydrogen *pEngine = Hydrogen::get_instance();
+
+		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( InstrumentEditor::findFreeDrumkitComponentId(), sNewName );
+		pEngine->getSong()->get_components()->push_back( pDrumkitComponent );
+
+		//m_nSelectedComponent = pDrumkitComponent->get_id();
+		//m_pLayerPreview->set_selected_component( pDrumkitComponent->get_id() );
+
+		selectedInstrumentChangedEvent();
+
+		// this will force an update...
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+
+#ifdef H2CORE_HAVE_JACK
+		pEngine->renameJackPorts(pEngine->getSong());
+#endif
+	}
+	else {
+		// user entered nothing or pressed Cancel
+	}
+}
+
+
+void MainForm::action_banks_open()
+{
+	SoundLibraryOpenDialog dialog( this );
+	dialog.exec();
+}
+
 
 void MainForm::action_instruments_clearAll()
 {
@@ -920,13 +975,72 @@ void MainForm::action_instruments_exportLibrary()
 
 void MainForm::action_instruments_importLibrary()
 {
-	SoundLibraryImportDialog dialog( this );
+	SoundLibraryImportDialog dialog( this, false );
 	dialog.exec();
 }
 
 
+void MainForm::action_instruments_onlineImportLibrary()
+{
+	SoundLibraryImportDialog dialog( this, true );
+	dialog.exec();
+}
+
 
 void MainForm::action_instruments_saveLibrary()
+{
+	QString sDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitname();
+	Drumkit *drumkitInfo = NULL;
+
+	//User drumkit list
+	QStringList usr_dks = Filesystem::usr_drumkits_list();
+	for (int i = 0; i < usr_dks.size(); ++i) {
+		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks[i];
+		Drumkit *pInfo = Drumkit::load( absPath );
+		if (pInfo) {
+			if ( QString(pInfo->get_name() ) == sDrumkitName ){
+				drumkitInfo = pInfo;
+				break;
+			}
+		}
+	}
+
+	//System drumkit list
+	QStringList sys_dks = Filesystem::sys_drumkits_list();
+	for (int i = 0; i < sys_dks.size(); ++i) {
+		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sys_dks[i];
+		Drumkit *pInfo = Drumkit::load( absPath );
+		if (pInfo) {
+			if ( QString( pInfo->get_name() ) == sDrumkitName ){
+				drumkitInfo = pInfo;
+				break;
+			}
+		}
+	}
+
+	if ( drumkitInfo != NULL ){
+		if( !H2Core::Drumkit::save( QString( drumkitInfo->get_name() ),
+									QString( drumkitInfo->get_author() ),
+									QString( drumkitInfo->get_info() ),
+									QString( drumkitInfo->get_license() ),
+									QString( drumkitInfo->get_image() ),
+									QString( drumkitInfo->get_image_license() ),
+									H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(),
+									H2Core::Hydrogen::get_instance()->getSong()->get_components(),
+									true ) ) {
+			QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this library failed."));
+		}
+	}
+	else {
+		action_instruments_saveAsLibrary();
+	}
+
+	//HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
+	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+}
+
+
+void MainForm::action_instruments_saveAsLibrary()
 {
 	SoundLibrarySaveDialog dialog( this );
 	dialog.exec();
@@ -1775,6 +1889,46 @@ bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 		return false;
 
 	return true;
+}
+
+void MainForm::action_banks_properties()
+{
+	QString sDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitname();
+	Drumkit *drumkitInfo = NULL;
+
+	//User drumkit list
+	QStringList usr_dks = Filesystem::usr_drumkits_list();
+	for (int i = 0; i < usr_dks.size(); ++i) {
+		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks[i];
+		Drumkit *pInfo = Drumkit::load( absPath );
+		if (pInfo) {
+			if ( QString(pInfo->get_name() ) == sDrumkitName ){
+				drumkitInfo = pInfo;
+				break;
+			}
+		}
+	}
+
+	//System drumkit list
+	QStringList sys_dks = Filesystem::sys_drumkits_list();
+	for (int i = 0; i < sys_dks.size(); ++i) {
+		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sys_dks[i];
+		Drumkit *pInfo = Drumkit::load( absPath );
+		if (pInfo) {
+			if ( QString( pInfo->get_name() ) == sDrumkitName ){
+				drumkitInfo = pInfo;
+				break;
+			}
+		}
+	}
+
+
+
+	assert( drumkitInfo );
+
+	//open the soundlibrary save dialog
+	SoundLibraryPropertiesDialog dialog( this , drumkitInfo, drumkitInfo );
+	dialog.exec();
 }
 
 

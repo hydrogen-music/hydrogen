@@ -83,7 +83,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 	InstrumentEditorPanel::get_instance()->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
-	m_pSoundLibraryPanel = new SoundLibraryPanel( NULL );
+	m_pSoundLibraryPanel = new SoundLibraryPanel( NULL, false );
 
 	// LAYOUT
 	QGridLayout *pGrid = new QGridLayout();
