@@ -65,6 +65,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		NotePropertiesRuler* getPanEditor() {	return m_pNotePanEditor;	}
 		NotePropertiesRuler* getLeadLagEditor() {	return m_pNoteLeadLagEditor;	}
 		NotePropertiesRuler* getNoteKeyEditor() {	return m_pNoteNoteKeyEditor;	}
+		NotePropertiesRuler* getProbabilityEditor() {	return m_pNoteProbabilityEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 		PianoRollEditor* getPianoRollEditor() {		return m_pPianoRollEditor;	}
 		QString getPropertiesComboText(){ return __pPropertiesCombo->getText(); }
@@ -154,6 +155,10 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		// note notekey editor
 		QScrollArea*		m_pNoteNoteKeyScrollView;
 		NotePropertiesRuler *m_pNoteNoteKeyEditor;
+
+		// note probability editor
+		QScrollArea *       m_pNoteProbabilityScrollView;
+		NotePropertiesRuler *m_pNoteProbabilityEditor;
 
 		QScrollBar *		m_pPatternEditorHScrollBar;
 		QScrollBar *		m_pPatternEditorVScrollBar;
