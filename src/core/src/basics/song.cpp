@@ -1041,6 +1041,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 			float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
 			int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
 			float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
+			float fProbability = LocalFileMng::readXmlFloat( noteNode, "probability", 1.0 , false , false );
 			QString sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
 			QString nNoteOff = LocalFileMng::readXmlString( noteNode, "note_off", "false", false, false );
 
@@ -1063,6 +1064,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 			pNote->set_key_octave( sKey );
 			pNote->set_lead_lag( fLeadLag );
 			pNote->set_note_off( noteoff );
+			pNote->set_probability( fProbability );
 			pPattern->insert_note( pNote );
 
 			noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );

@@ -1169,6 +1169,8 @@ public:
 					   float oldPan_R,
 					   float leadLag,
 					   float oldLeadLag,
+					   float probability,
+					   float oldProbability,
 					   int noteKeyVal,
 					   int oldNoteKeyVal,
 					   int octaveKeyVal,
@@ -1176,7 +1178,7 @@ public:
 	{
 
 
-		setText( QString( "Edit note property" ) );
+		setText( QString( "Edit note property " + mode.toLower() ) );
 		__undoColumn = undoColumn;
 		__mode = mode;
 		__nSelectedPatternNumber = nSelectedPatternNumber;
@@ -1189,6 +1191,8 @@ public:
 		__oldPan_R = oldPan_R;
 		__leadLag = leadLag;
 		__oldLeadLag = oldLeadLag;
+		__probability = probability;
+		__oldProbability = oldProbability;
 		__noteKeyVal = noteKeyVal;
 		__oldNoteKeyVal = oldNoteKeyVal;
 		__octaveKeyVal = octaveKeyVal;
@@ -1208,6 +1212,7 @@ public:
 											__oldPan_L,
 											__oldPan_R,
 											__oldLeadLag,
+											__oldProbability,
 											__oldNoteKeyVal,
 											__oldOctaveKeyVal );
 	}
@@ -1223,6 +1228,7 @@ public:
 											__pan_L,
 											__pan_R,
 											__leadLag,
+											__probability,
 											__noteKeyVal,
 											__octaveKeyVal );
 	}
@@ -1241,6 +1247,8 @@ private:
 	float __oldPan_R;
 	float __leadLag;
 	float __oldLeadLag;
+	float __probability;
+	float __oldProbability;
 	int __noteKeyVal;
 	int __oldNoteKeyVal;
 	int __octaveKeyVal;
