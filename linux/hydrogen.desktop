@@ -1,11 +1,5 @@
 [Desktop Entry]
-Name=Hydrogen Drum Machine
-Name[de]=Hydrogen Drumsequencer
-Name[ru]=Драм-машина Hydrogen
-Name[hu]=Hydrogen Dobgép
-Name[tr]=Hydrogen Davul Makinası
-Name[fr]=Boîte à rythme Hydrogen
-
+Name=Hydrogen
 Comment=Create drum sequences
 Comment[de]=Schlagzeugsequenzen erstellen
 Comment[ru]=Создание партий ударных инструментов
@@ -19,16 +13,14 @@ GenericName[ru]=Драм-машина
 GenericName[tr]=Davul Makinası
 GenericName[fr]=Boîte à rythme
 
-Encoding=UTF-8
 Version=1.0
 
 Type=Application
-Categories=Application;AudioVideo;Sound;Audio;Qt;
+Categories=AudioVideo;Audio;Qt;
 Keywords=audio;sound;jackd;sampler;drum;
 
-MimeType=text/xml
+MimeType=text/xml;
 
-FilePattern=hydrogen
 Exec=hydrogen %F
 TryExec=hydrogen
 Terminal=false
