@@ -1084,7 +1084,7 @@ bool LocalFileMng::checkTinyXMLCompatMode( const QString& filename )
 		return false;
 	} else  {
 		_WARNINGLOG( QString("File '%1' is being read in "
-							 "TinyXML compatability mode")
+							 "TinyXML compatibility mode")
 					 .arg(filename) );
 		return true;
 	}

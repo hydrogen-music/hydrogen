@@ -102,7 +102,7 @@ Preferences::Preferences()
 
 	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
 	if ( ladpath ) {
-		INFOLOG( "Found LADSPA_PATH enviroment variable" );
+		INFOLOG( "Found LADSPA_PATH environment variable" );
 		QString sLadspaPath = QString::fromLocal8Bit(ladpath);
 		int pos;
 		while ( ( pos = sLadspaPath.indexOf( ":" ) ) != -1 ) {

@@ -506,7 +506,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	bool conditionalLoad = false;
 	bool hasNotes = false;
 
-	INFOLOG("Old kit has " + QString::number( oldCount ) + " intruments, new one has " + QString::number( newCount ) );
+	INFOLOG("Old kit has " + QString::number( oldCount ) + " instruments, new one has " + QString::number( newCount ) );
 
 	if ( newCount < oldCount )
 	{
@@ -533,7 +533,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 			QMessageBox msgBox;
 			msgBox.setWindowTitle("Hydrogen");
 			msgBox.setIcon( QMessageBox::Warning );
-			msgBox.setText( tr( "The existing kit has %1 instruments but the new one only has %2.\nThe first %2 instruments will be replaced with the new intruments and will keep their notes, but some of the remaining instruments have notes.\nWould you like to keep or discard the remaining instruments and notes?\n").arg( QString::number( oldCount ),QString::number( newCount ) ) );
+			msgBox.setText( tr( "The existing kit has %1 instruments but the new one only has %2.\nThe first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.\nWould you like to keep or discard the remaining instruments and notes?\n").arg( QString::number( oldCount ),QString::number( newCount ) ) );
 
 			msgBox.setStandardButtons(QMessageBox::Save);
 			msgBox.setButtonText(QMessageBox::Save, trUtf8("Keep"));

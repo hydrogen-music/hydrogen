@@ -152,13 +152,13 @@ int JackOutput::connect()
 		INFOLOG( "Could not connect so saved out-ports. Connecting to first pair of in-ports" );
 		const char ** portnames = jack_get_ports ( client, NULL, NULL, JackPortIsInput );
 		if ( !portnames || !portnames[0] || !portnames[1] ) {
-			ERRORLOG( "Could't locate two Jack input port" );
+			ERRORLOG( "Couldn't locate two Jack input port" );
 			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
 			return 2;
 		}
 		if ( jack_connect( client, jack_port_name( output_port_1 ), portnames[0] ) != 0 ||
 			 jack_connect( client, jack_port_name( output_port_2 ), portnames[1] ) != 0 ) {
-			ERRORLOG( "Could't connect to first pair of Jack input ports" );
+			ERRORLOG( "Couldn't connect to first pair of Jack input ports" );
 			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
 			return 2;
 		}

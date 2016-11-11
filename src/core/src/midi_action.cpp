@@ -54,7 +54,7 @@ using namespace H2Core;
 * in midi_input.cpp .
 *
 * Each action has two independ parameters. The two parameters are optional and
-* can be used to carry additional informations, which mean
+* can be used to carry additional information, which mean
 * only something to this very Action. They can have totally different meanings for other Actions.
 * Example: parameter1 is the Mixer strip and parameter 2 a multiplier for the volume change on this strip
 *

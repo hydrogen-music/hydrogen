@@ -30,7 +30,7 @@
  * It contains the notation style (states the position of notes), and for this
  * it follows the "Guide to Standardized Drumset Notation" by Norman Weinberg.
  *
- * Note that the GM-kit uses two unconventionnal intruments: "Stick" and
+ * Note that the GM-kit uses two unconventionnal instruments: "Stick" and
  * "Hand Clap", so for those I did what I could and used the recommended
  * triangle notehead to distinguish them for drum and cymbal notation.
  */
