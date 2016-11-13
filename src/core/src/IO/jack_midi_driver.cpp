@@ -311,7 +311,7 @@ JackMidiDriver::JackMidiDriver()
 	output_port = 0;
 	input_port = 0;
 
-	QString jackMidiClientId = "hydrogen";
+	QString jackMidiClientId = "Hydrogen";
 
 #ifdef H2CORE_HAVE_NSMSESSION
 	Preferences* pref = Preferences::get_instance();
