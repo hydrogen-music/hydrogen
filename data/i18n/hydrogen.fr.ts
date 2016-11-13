@@ -370,7 +370,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Export to separate tracks</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode multipistes</translation>
     </message>
 </context>
 <context>
@@ -1375,51 +1375,51 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>&amp;Drumkits</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Kits de batterie</translation>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished">Nouveau</translation>
+        <translation>Nouveau</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Ouvrir</translation>
+        <translation>Ouvrir</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Propriétés</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder sous</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Exporter</translation>
+        <translation>Exporter</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importer</translation>
     </message>
     <message>
         <source>Online import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importer en ligne</translation>
     </message>
     <message>
         <source>Add component</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajouter un composant</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished">Nom du composant</translation>
+        <translation>Nom du composant</translation>
     </message>
     <message>
         <source>Saving of this library failed.</source>
-        <translation type="unfinished">La sauvegarde de cette bibliothèque a échouée</translation>
+        <translation>La sauvegarde de cette bibliothèque a échouée</translation>
     </message>
 </context>
 <context>
@@ -1645,7 +1645,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Probability</source>
-        <translation type="unfinished"></translation>
+        <translation>Probabilité</translation>
     </message>
 </context>
 <context>
@@ -2512,7 +2512,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Interpolate resampling</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpoler le ré-échantillonnage</translation>
     </message>
     <message>
         <source>Linear</source>
@@ -3344,7 +3344,7 @@ Overwrite the existing pattern?</source>
     <name>SoundLibraryOpenDialog</name>
     <message>
         <source>Open Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Ouvrir une bibliothèque de son</translation>
     </message>
 </context>
 <context>
@@ -3431,7 +3431,10 @@ Are you sure?</source>
 The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
 Would you like to keep or discard the remaining instruments and notes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Le kit existant possède %1 instruments mais le nouveau en a seulement %2.
+Les %2 premiers instruments seront remplacés avec les nouveaux instruments et conserveront leurs notes, mais certains des instruments restant possèdent des notes.
+Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
+</translation>
     </message>
 </context>
 <context>
