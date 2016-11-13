@@ -25,7 +25,7 @@
 #include <cstdlib>
 
 #include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/IO/JackOutput.h>
+#include <hydrogen/IO/JackAudioDriver.h>
 
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/audio_engine.h>
@@ -563,14 +563,14 @@ bool Sampler::__render_note_no_resample(
 
 
 #ifdef H2CORE_HAVE_JACK
-	JackOutput* pJackOutput = 0;
+	JackAudioDriver* pJackAudioDriver = 0;
 	float *		pTrackOutL = 0;
 	float *		pTrackOutR = 0;
 
 	if( pAudioOutput->has_track_outs()
-	&& (pJackOutput = dynamic_cast<JackOutput*>(pAudioOutput)) ) {
-		 pTrackOutL = pJackOutput->getTrackOut_L( pNote->get_instrument(), pCompo );
-		pTrackOutR = pJackOutput->getTrackOut_R( pNote->get_instrument(), pCompo );
+	&& (pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput)) ) {
+		 pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
+		pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
 	}
 #endif
 
@@ -716,14 +716,14 @@ bool Sampler::__render_note_resample(
 
 
 #ifdef H2CORE_HAVE_JACK
-	JackOutput* pJackOutput = 0;
+	JackAudioDriver* pJackAudioDriver = 0;
 	float *		pTrackOutL = 0;
 	float *		pTrackOutR = 0;
 
 	if( pAudioOutput->has_track_outs()
-	&& (pJackOutput = dynamic_cast<JackOutput*>(pAudioOutput)) ) {
-				pTrackOutL = pJackOutput->getTrackOut_L( pNote->get_instrument(), pCompo );
-				pTrackOutR = pJackOutput->getTrackOut_R( pNote->get_instrument(), pCompo );
+	&& (pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput)) ) {
+				pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
+				pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
 	}
 #endif
 

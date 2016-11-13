@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/IO/JackOutput.h>
+#include <hydrogen/IO/JackAudioDriver.h>
 #ifdef H2CORE_HAVE_JACK
 
 #include <sys/types.h>
@@ -51,7 +51,7 @@ namespace H2Core
 
 unsigned long	jack_server_sampleRate = 0;
 jack_nframes_t	jack_server_bufferSize = 0;
-JackOutput *	jackDriverInstance = NULL;
+JackAudioDriver *	jackDriverInstance = NULL;
 
 int jackDriverSampleRate( jack_nframes_t nframes, void *param )
 {
@@ -79,9 +79,9 @@ void jackDriverShutdown( void *arg )
 }
 
 
-const char* JackOutput::__class_name = "JackOutput";
+const char* JackAudioDriver::__class_name = "JackAudioDriver";
 
-JackOutput::JackOutput( JackProcessCallback processCallback )
+JackAudioDriver::JackAudioDriver( JackProcessCallback processCallback )
 	: AudioOutput( __class_name )
 {
 	INFOLOG( "INIT" );
@@ -99,7 +99,7 @@ JackOutput::JackOutput( JackProcessCallback processCallback )
 	memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
 }
 
-JackOutput::~JackOutput()
+JackAudioDriver::~JackAudioDriver()
 {
 	INFOLOG( "DESTROY" );
 	disconnect();
@@ -110,7 +110,7 @@ JackOutput::~JackOutput()
 // return 2: cannot connect output port
 // return 3: Jack server not running
 // return 4: output port = NULL
-int JackOutput::connect()
+int JackAudioDriver::connect()
 {
 	INFOLOG( "connect" );
 
@@ -168,7 +168,7 @@ int JackOutput::connect()
 	return 0;
 }
 
-void JackOutput::disconnect()
+void JackAudioDriver::disconnect()
 {
 	INFOLOG( "disconnect" );
 
@@ -186,7 +186,7 @@ void JackOutput::disconnect()
 	client = NULL;
 }
 
-void JackOutput::deactivate()
+void JackAudioDriver::deactivate()
 {
 	INFOLOG( "[deactivate]" );
 	if ( client ) {
@@ -200,17 +200,17 @@ void JackOutput::deactivate()
 	memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
 }
 
-unsigned JackOutput::getBufferSize()
+unsigned JackAudioDriver::getBufferSize()
 {
 	return jack_server_bufferSize;
 }
 
-unsigned JackOutput::getSampleRate()
+unsigned JackAudioDriver::getSampleRate()
 {
 	return jack_server_sampleRate;
 }
 
-void JackOutput::calculateFrameOffset()
+void JackAudioDriver::calculateFrameOffset()
 {
 	bbt_frame_offset = m_JackTransportPos.frame - m_transport.m_nFrames;
 }
@@ -218,14 +218,14 @@ void JackOutput::calculateFrameOffset()
 int oldpo = 0;
 //int changer = 0;
 
-void JackOutput::locateInNCycles( unsigned long frame, int cycles_to_wait )
+void JackAudioDriver::locateInNCycles( unsigned long frame, int cycles_to_wait )
 {
 	locate_countdown = cycles_to_wait;
 	locate_frame = frame;
 }
 
 /// Take beat-bar-tick info from the Jack system, and translate it to a new internal frame position and ticksize.
-void JackOutput::relocateBBT()
+void JackAudioDriver::relocateBBT()
 {
 	Preferences* pPref = Preferences::get_instance();
 
@@ -285,7 +285,7 @@ void JackOutput::relocateBBT()
 /// The code must therefore wait one cycle before syncing up with timebase_master.
 ///
 
-void JackOutput::updateTransportInfo()
+void JackAudioDriver::updateTransportInfo()
 {
 		if ( locate_countdown == 1 )
 				locate( locate_frame );
@@ -406,19 +406,19 @@ void JackOutput::updateTransportInfo()
 		if ( must_relocate > 0 ) must_relocate--;
 }
 
-float* JackOutput::getOut_L()
+float* JackAudioDriver::getOut_L()
 {
 	jack_default_audio_sample_t *out = ( jack_default_audio_sample_t * ) jack_port_get_buffer ( output_port_1, jack_server_bufferSize );
 	return out;
 }
 
-float* JackOutput::getOut_R()
+float* JackAudioDriver::getOut_R()
 {
 	jack_default_audio_sample_t *out = ( jack_default_audio_sample_t * ) jack_port_get_buffer ( output_port_2, jack_server_bufferSize );
 	return out;
 }
 
-float* JackOutput::getTrackOut_L( unsigned nTrack )
+float* JackAudioDriver::getTrackOut_L( unsigned nTrack )
 {
 	if(nTrack > (unsigned)track_port_count ) return 0;
 	jack_port_t *p = track_output_ports_L[nTrack];
@@ -429,7 +429,7 @@ float* JackOutput::getTrackOut_L( unsigned nTrack )
 	return out;
 }
 
-float* JackOutput::getTrackOut_R( unsigned nTrack )
+float* JackAudioDriver::getTrackOut_R( unsigned nTrack )
 {
 	if(nTrack > (unsigned)track_port_count ) return 0;
 	jack_port_t *p = track_output_ports_R[nTrack];
@@ -440,12 +440,12 @@ float* JackOutput::getTrackOut_R( unsigned nTrack )
 	return out;
 }
 
-float* JackOutput::getTrackOut_L( Instrument * instr, InstrumentComponent * pCompo)
+float* JackAudioDriver::getTrackOut_L( Instrument * instr, InstrumentComponent * pCompo)
 {
 	return getTrackOut_L(track_map[instr->get_id()][pCompo->get_drumkit_componentID()]);
 }
 
-float* JackOutput::getTrackOut_R( Instrument * instr, InstrumentComponent * pCompo)
+float* JackAudioDriver::getTrackOut_R( Instrument * instr, InstrumentComponent * pCompo)
 {
 	return getTrackOut_R(track_map[instr->get_id()][pCompo->get_drumkit_componentID()]);
 }
@@ -467,7 +467,7 @@ float* JackOutput::getTrackOut_R( Instrument * instr, InstrumentComponent * pCom
 	tries = 0;				\
 }
 
-int JackOutput::init( unsigned /*nBufferSize*/ )
+int JackAudioDriver::init( unsigned /*nBufferSize*/ )
 {
 	Preferences* pref = Preferences::get_instance();
 	output_port_name_1 = pref->m_sJackPortName1;
@@ -628,7 +628,7 @@ int JackOutput::init( unsigned /*nBufferSize*/ )
 /**
  * Make sure the number of track outputs match the instruments in @a song , and name the ports.
  */
-void JackOutput::makeTrackOutputs( Song * song )
+void JackAudioDriver::makeTrackOutputs( Song * song )
 {
 
 	/// Disable Track Outputs
@@ -678,7 +678,7 @@ void JackOutput::makeTrackOutputs( Song * song )
  * Give the @a n 'th port the name of @a instr .
  * If the n'th port doesn't exist, new ports up to n are created.
  */
-void JackOutput::setTrackOutput( int n, Instrument * instr, InstrumentComponent * compo, Song * song )
+void JackAudioDriver::setTrackOutput( int n, Instrument * instr, InstrumentComponent * compo, Song * song )
 {
 	QString chName;
 
@@ -712,7 +712,7 @@ void JackOutput::setTrackOutput( int n, Instrument * instr, InstrumentComponent 
 #endif
 }
 
-void JackOutput::play()
+void JackAudioDriver::play()
 {
 	Preferences* P = Preferences::get_instance();
 	if ( P->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ||
@@ -727,7 +727,7 @@ void JackOutput::play()
 	}
 }
 
-void JackOutput::stop()
+void JackAudioDriver::stop()
 {
 	if ( ( Preferences::get_instance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT || Preferences::get_instance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
 		if ( client ) {
@@ -739,7 +739,7 @@ void JackOutput::stop()
 	}
 }
 
-void JackOutput::locate( unsigned long nFrame )
+void JackAudioDriver::locate( unsigned long nFrame )
 {
 	if ( ( Preferences::get_instance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT /*|| Preferences::get_instance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER*/ ) {
 		if ( client ) {
@@ -751,22 +751,22 @@ void JackOutput::locate( unsigned long nFrame )
 	}
 }
 
-void JackOutput::setBpm( float fBPM )
+void JackAudioDriver::setBpm( float fBPM )
 {
 	WARNINGLOG( QString( "setBpm: %1" ).arg( fBPM ) );
 	m_transport.m_nBPM = fBPM;
 }
 
-int JackOutput::getNumTracks()
+int JackAudioDriver::getNumTracks()
 {
 	//	INFOLOG( "get num tracks()" );
 	return track_port_count;
 }
 
 #ifdef H2CORE_HAVE_JACKSESSION
-void JackOutput::jack_session_callback(jack_session_event_t *event, void *arg)
+void JackAudioDriver::jack_session_callback(jack_session_event_t *event, void *arg)
 {
-	JackOutput *me = static_cast<JackOutput*>(arg);
+	JackAudioDriver *me = static_cast<JackAudioDriver*>(arg);
 	if(me) me->jack_session_callback_impl(event);
 }
 
@@ -774,7 +774,7 @@ static QString baseName ( QString path ) {
 	return QFileInfo( path ).fileName();
 }
 
-void JackOutput::jack_session_callback_impl(jack_session_event_t *event)
+void JackAudioDriver::jack_session_callback_impl(jack_session_event_t *event)
 {
 	INFOLOG("jack session calback");
 	enum session_events{
@@ -856,7 +856,7 @@ void JackOutput::jack_session_callback_impl(jack_session_event_t *event)
 #endif
 
 //beginn jack time master
-void JackOutput::initTimeMaster()
+void JackAudioDriver::initTimeMaster()
 {
 	if ( ! client ) return;
 
@@ -869,20 +869,20 @@ void JackOutput::initTimeMaster()
 	}
 }
 
-void JackOutput::com_release()
+void JackAudioDriver::com_release()
 {
 	if ( client == NULL) return;
 
 	jack_release_timebase(client);
 }
 
-void JackOutput::jack_timebase_callback(jack_transport_state_t state,
+void JackAudioDriver::jack_timebase_callback(jack_transport_state_t state,
 										jack_nframes_t nframes,
 										jack_position_t *pos,
 										int new_pos,
 										void *arg)
 {
-	JackOutput *me = static_cast<JackOutput*>(arg);
+	JackAudioDriver *me = static_cast<JackAudioDriver*>(arg);
 	if (! me) return;
 
 	Hydrogen * H = Hydrogen::get_instance();

@@ -39,7 +39,7 @@
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/audio_engine.h>
-#include <hydrogen/IO/JackOutput.h>
+#include <hydrogen/IO/JackAudioDriver.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/event_queue.h>
 using namespace H2Core;
@@ -579,7 +579,7 @@ void PlayerControl::updatePlayerControl()
 #ifdef H2CORE_HAVE_JACK
 	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if ( p_Driver && strncmp(p_Driver->class_name(), "JackOutput", 10) == 0){
+	if ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0){
 		m_pJackTransportBtn->show();
 		switch ( pPref->m_bJackTransportMode ) {
 			case Preferences::NO_JACK_TRANSPORT:
@@ -904,7 +904,7 @@ void PlayerControl::jackTransportBtnClicked( Button* )
 	Preferences *pPref = Preferences::get_instance();
 	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackOutput", 10) == 0 ) ){
+	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0 ) ){
 		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}
@@ -933,7 +933,7 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 	Preferences *pPref = Preferences::get_instance();
 	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackOutput", 10) == 0 ) ){
+	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0 ) ){
 		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}
