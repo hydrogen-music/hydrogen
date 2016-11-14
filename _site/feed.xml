@@ -4,11 +4,11 @@
     <title>Hydrogen</title>
     <description>The digital home of the advanced drum machine.
 </description>
-    <link>http://hydrogen-music.com/hydrogen/</link>
-    <atom:link href="http://hydrogen-music.com/hydrogen/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sat, 30 Jul 2016 13:13:37 +0200</pubDate>
-    <lastBuildDate>Sat, 30 Jul 2016 13:13:37 +0200</lastBuildDate>
-    <generator>Jekyll v3.1.6</generator>
+    <link>http://hydrogen-music.com/</link>
+    <atom:link href="http://hydrogen-music.com/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Mon, 14 Nov 2016 10:34:01 -0400</pubDate>
+    <lastBuildDate>Mon, 14 Nov 2016 10:34:01 -0400</lastBuildDate>
+    <generator>Jekyll v3.2.1</generator>
     
       <item>
         <title>14 ways to contribute to Hydrogen !</title>
@@ -24,9 +24,9 @@ There you can find -surprise, surprise- 14 different ways you can contribute to 
 
 &lt;p&gt;The Hydrogen team&lt;/p&gt;
 </description>
-        <pubDate>Sun, 14 Dec 2014 16:12:19 +0100</pubDate>
-        <link>http://hydrogen-music.com/hydrogen/hydrogen/contribution</link>
-        <guid isPermaLink="true">http://hydrogen-music.com/hydrogen/hydrogen/contribution</guid>
+        <pubDate>Sun, 14 Dec 2014 11:12:19 -0400</pubDate>
+        <link>http://hydrogen-music.com/contribution</link>
+        <guid isPermaLink="true">http://hydrogen-music.com/contribution</guid>
         
         
       </item>
@@ -69,9 +69,9 @@ There you can find -surprise, surprise- 14 different ways you can contribute to 
 
 &lt;p&gt;Sebastian&lt;/p&gt;
 </description>
-        <pubDate>Sun, 24 Aug 2014 22:47:00 +0200</pubDate>
-        <link>http://hydrogen-music.com/hydrogen/hydrogen/release</link>
-        <guid isPermaLink="true">http://hydrogen-music.com/hydrogen/hydrogen/release</guid>
+        <pubDate>Sun, 24 Aug 2014 17:47:00 -0300</pubDate>
+        <link>http://hydrogen-music.com/release</link>
+        <guid isPermaLink="true">http://hydrogen-music.com/release</guid>
         
         
         <category>jekyll</category>

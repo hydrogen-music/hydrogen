@@ -10,14 +10,17 @@ title: Hydrogen
 email: info@hydrogen-music.com
 description: > # this means to ignore newlines until "baseurl:"
     The digital home of the advanced drum machine.
-baseurl: "/hydrogen" # the subpath of your site, e.g. /blog
+#baseurl: "/hydrogen" # the subpath of your site, e.g. /blog
+baseurl: "" # the subpath of your site, e.g. /blog
 url: "http://hydrogen-music.com" # the base hostname & protocol for your site
 github_username:  hydrogen-music/hydrogen
 
-permalink: /hydrogen/:title
+#permalink: /hydrogen/:title
+permalink: :title
 
 #Seperator
 excerpt_separator: "\n\n"
 
 # Build settings
 markdown: kramdown
+#theme: hydrogen

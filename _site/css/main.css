@@ -264,24 +264,25 @@ pre {
  * Page content
  */
 .page-content {
-  padding: 30px 0; }
-
-.page-heading {
-  font-size: 20px; }
-
-.post-list {
-  margin-left: 0;
-  list-style: none; }
-  .post-list > li {
-    margin-bottom: 30px; }
-
-.post-meta {
-  font-size: 14px;
-  color: #828282; }
-
-.post-link {
-  display: block;
-  font-size: 24px; }
+  padding: 30px 0;
+  width: 80%;
+  float: left; }
+  .page-content .page-heading {
+    font-size: 20px; }
+  .page-content .post-list {
+    margin-left: 0;
+    list-style: none; }
+    .page-content .post-list > li {
+      margin-bottom: 30px; }
+  .page-content .post-meta {
+    font-size: 14px;
+    color: #828282; }
+  .page-content .post-link {
+    display: block;
+    font-size: 24px; }
+  @media screen and (max-width: 600px) {
+    .page-content {
+      width: 100%; } }
 
 /**
  * Posts
@@ -314,6 +315,22 @@ pre {
     @media screen and (max-width: 1000px) {
       .post-content h4 {
         font-size: 18px; } }
+
+/*
+ * Right Nav
+ */
+.rightNav {
+  width: 20%;
+  float: left;
+  padding-top: 5%; }
+  @media screen and (max-width: 600px) {
+    .rightNav {
+      display: none; } }
+  .rightNav li {
+    list-style: none; }
+
+.clearfix {
+  clear: both; }
 
 /**
  * Syntax highlighting styles
