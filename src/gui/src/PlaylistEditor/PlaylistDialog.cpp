@@ -458,7 +458,7 @@ void PlaylistDialog::newScript()
 	filename = fd.selectedFiles().first();
 
 	if( filename.contains(" ", Qt::CaseInsensitive)){
-		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Script name or path to the script contains whitespaces.\nIMPORTANT\nThe path to the script and the scriptname must without whitespaces.") );
+		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Script name or path to the script contains whitespaces.\nIMPORTANT\nThe path to the script and the scriptname must be without whitespaces.") );
 		return;
 	}
 
