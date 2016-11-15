@@ -372,6 +372,7 @@ ENDIF()
 IF(NOT MINGW AND NOT APPLE)
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_PREFIX}/share/appdata")
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "/usr/share/pixmaps")
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.1 DESTINATION "${CMAKE_INSTALL_PREFIX}/man/man1")
 ENDIF()
 
