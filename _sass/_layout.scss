@@ -251,21 +251,6 @@
     }
 }
 
-/*
- * Right Nav
- */
-.rightNav{
-    width: 20%;
-    float: left;
-    padding-top: 5%;
-    @include media-query($on-palm) {
-        
-        display: none;
-    }
-    li{
-        list-style: none;
-    }
-}
 .clearfix{
     clear: both;
 }
