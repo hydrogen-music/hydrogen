@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html prefix="og: http://ogp.me/ns#">
 
   <head>
   <meta charset="utf-8">
@@ -7,12 +7,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Hydrogen</title>
-  <meta name="description" content="The digital home of the advanced drum machine.
+  <meta property="og:type" content="website" />
+  <meta property="og:description" content="The digital home of the advanced drum machine.
 ">
+  <meta property="og:image" content="http://mikotoiii.github.io/hydrogen/images/icon256.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="256" />
+  <meta property="og:image:height" content="256" />
 
-  <link rel="stylesheet" href="/hydrogen/css/main.css">
-  <link rel="canonical" href="http://hydrogen-music.com/hydrogen/">
-  <link rel="alternate" type="application/rss+xml" title="Hydrogen" href="http://hydrogen-music.com/hydrogen/feed.xml">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://hydrogen-music.com/">
+  <link rel="alternate" type="application/rss+xml" title="Hydrogen" href="http://hydrogen-music.com/feed.xml">
+  <link rel="shortcut icon" type="image/png" href="/images/icon48.png">
 </head>
 
 
@@ -22,7 +28,7 @@
 
   <div class="wrapper">
 
-    <a class="site-title" href="/hydrogen/">Hydrogen</a>
+    <a class="site-title" href="/"><img class="logoImg" src="/images/icon48.png" />Hydrogen</a>
 
     <nav class="site-nav">
       <a href="#" class="menu-icon">
@@ -41,25 +47,25 @@
         
           
 			
-				 <a class="page-link" href="/hydrogen/devzone/">Developer Zone</a>
+				 <a class="page-link" href="/devzone/">Developer Zone</a>
 			
           
         
           
 			
-				 <a class="page-link" href="/hydrogen/doc/">Documentation</a>
+				 <a class="page-link" href="/doc/">Documentation</a>
 			
           
         
           
 			
-				 <a class="page-link" href="/hydrogen/downloads/">Downloads</a>
+				 <a class="page-link" href="/downloads/">Downloads</a>
 			
           
         
           
 			
-				 <a class="page-link" href="/hydrogen/features/">Features</a>
+				 <a class="page-link" href="/features/">Features</a>
 			
           
         
@@ -71,10 +77,11 @@
         
           
 			
-				 <a class="page-link" href="/hydrogen/screenshots/">Screenshots</a>
+				 <a class="page-link" href="/screenshots/">Screenshots</a>
 			
           
         
+        <a class="page-link" href="http://www.hydrogen-music.org/hcms/forum">Forums</a>
       </div>
     </nav>
 
@@ -82,15 +89,14 @@
 
 </header>
 
-
     <div class="page-content">
       <div class="wrapper">
         <!-- http://www.seanbuscay.com/blog/jekyll-teaser-pager-and-read-more/ -->
 
 <div class="panel panel-default">
 	  <div class="panel-body">
-	  <h3 class="media-heading"><a class="text-dblue" href="/hydrogen/contribution">14 ways to contribute to Hydrogen !</a></h3>
-	  <time class="media-meta text-muted" datetime="2014-12-14T16:12:19+01:00">Dec 14, 2014</time>
+	  <h3 class="media-heading"><a class="text-dblue" href="/contribution">14 ways to contribute to Hydrogen !</a></h3>
+	  <time class="media-meta text-muted" datetime="2014-12-14T11:12:19-04:00">Dec 14, 2014</time>
 	  <p>The Hydrogen team is happy to announce the ‘14 ways to contribute to Hydrogen’ campaign!<br />
 With this ‘campaign’ we are hoping to get some motivated people on board
 Experienced programmers are of course very welcome, but we also want to make it as easy as possible for <em>anyone</em> to get involved in the project
@@ -101,7 +107,7 @@ There you can find -surprise, surprise- 14 different ways you can contribute to 
 	   
 	   
 	  
-	  <p><a class="btn btn-sm btn-primary" href="/hydrogen/contribution/#read-more" role="button">Read more <i class="fa fa-arrow-circle-right"></i></a>
+	  <p><a class="btn btn-sm btn-primary" href="/contribution/#read-more" role="button">Read more <i class="fa fa-arrow-circle-right"></i></a>
 	  </p>
 	  
 	  </div>
@@ -114,15 +120,15 @@ There you can find -surprise, surprise- 14 different ways you can contribute to 
 
 <div class="panel panel-default">
 	  <div class="panel-body">
-	  <h3 class="media-heading"><a class="text-dblue" href="/hydrogen/release">Hydrogen 0.9.6 released</a></h3>
-	  <time class="media-meta text-muted" datetime="2014-08-24T22:47:00+02:00">Aug 24, 2014</time>
+	  <h3 class="media-heading"><a class="text-dblue" href="/release">Hydrogen 0.9.6 released</a></h3>
+	  <time class="media-meta text-muted" datetime="2014-08-24T17:47:00-03:00">Aug 24, 2014</time>
 	  <p>For those of you that are not subscribed to the development mailing list, here you can find the official release message as posted by Sebastian (aka Mauser) on August 4th</p>
 
  
 	   
 	   
 	  
-	  <p><a class="btn btn-sm btn-primary" href="/hydrogen/release/#read-more" role="button">Read more <i class="fa fa-arrow-circle-right"></i></a>
+	  <p><a class="btn btn-sm btn-primary" href="/release/#read-more" role="button">Read more <i class="fa fa-arrow-circle-right"></i></a>
 	  </p>
 	  
 	  </div>
@@ -141,12 +147,13 @@ There you can find -surprise, surprise- 14 different ways you can contribute to 
 
   <div class="wrapper">
 
-    <h2 class="footer-heading">Hydrogen</h2>
+    <!--<h2 class="footer-heading">Hydrogen</h2>-->
 
     <div class="footer-col-wrapper">
       <div class="footer-col footer-col-1">
         <ul class="contact-list">
-          <li>Hydrogen</li>
+          <!--<li>Hydrogen</li>-->
+          <li>Email:</li>
           <li><a href="mailto:info@hydrogen-music.com">info@hydrogen-music.com</a></li>
         </ul>
       </div>
@@ -166,8 +173,11 @@ There you can find -surprise, surprise- 14 different ways you can contribute to 
       </div>
 
       <div class="footer-col footer-col-3">
-        <p>The digital home of the advanced drum machine.
-</p>
+          <ul class="footer-list">
+              <li>Hydrogen</li>
+              <li>The digital home of the advanced drum machine.
+</li>
+              <li><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=m.wolkstein@gmx.de&item_name=Donate%20a%20beer%20or%20two%20via%20Paypal.">If you liked hydrogen, buy us some beer</a></li>          </ul>
       </div>
     </div>
 

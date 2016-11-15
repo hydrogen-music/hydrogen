@@ -147,10 +147,14 @@ pre {
 /**
  * Site header
  */
+.logoImg {
+  padding-right: 10px; }
+
 .site-header {
   border-top: 5px solid #424242;
   border-bottom: 1px solid #e8e8e8;
   min-height: 56px;
+  background-color: #CCCFDC;
   position: relative; }
 
 .site-title {
@@ -213,14 +217,16 @@ pre {
  */
 .site-footer {
   border-top: 1px solid #e8e8e8;
-  padding: 30px 0; }
+  padding: 30px 0;
+  background: #CCCFDC; }
 
 .footer-heading {
   font-size: 18px;
   margin-bottom: 15px; }
 
 .contact-list,
-.social-media-list {
+.social-media-list,
+.footer-list {
   list-style: none;
   margin-left: 0; }
 
@@ -265,23 +271,22 @@ pre {
  */
 .page-content {
   padding: 30px 0; }
-
-.page-heading {
-  font-size: 20px; }
-
-.post-list {
-  margin-left: 0;
-  list-style: none; }
-  .post-list > li {
-    margin-bottom: 30px; }
-
-.post-meta {
-  font-size: 14px;
-  color: #828282; }
-
-.post-link {
-  display: block;
-  font-size: 24px; }
+  .page-content .page-heading {
+    font-size: 20px; }
+  .page-content .post-list {
+    margin-left: 0;
+    list-style: none; }
+    .page-content .post-list > li {
+      margin-bottom: 30px; }
+  .page-content .post-meta {
+    font-size: 14px;
+    color: #828282; }
+  .page-content .post-link {
+    display: block;
+    font-size: 24px; }
+  @media screen and (max-width: 600px) {
+    .page-content {
+      width: 100%; } }
 
 /**
  * Posts
@@ -314,6 +319,9 @@ pre {
     @media screen and (max-width: 1000px) {
       .post-content h4 {
         font-size: 18px; } }
+
+.clearfix {
+  clear: both; }
 
 /**
  * Syntax highlighting styles

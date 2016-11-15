@@ -2,12 +2,13 @@
 
   <div class="wrapper">
 
-    <h2 class="footer-heading">{{ site.title }}</h2>
+    <!--<h2 class="footer-heading">{{ site.title }}</h2>-->
 
     <div class="footer-col-wrapper">
       <div class="footer-col footer-col-1">
         <ul class="contact-list">
-          <li>{{ site.title }}</li>
+          <!--<li>{{ site.title }}</li>-->
+          <li>Email:</li>
           <li><a href="mailto:{{ site.email }}">{{ site.email }}</a></li>
         </ul>
       </div>
@@ -29,7 +30,10 @@
       </div>
 
       <div class="footer-col footer-col-3">
-        <p>{{ site.description }}</p>
+          <ul class="footer-list">
+              <li>{{ site.title }}</li>
+              <li>{{ site.description }}</li>
+              <li><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=m.wolkstein@gmx.de&item_name=Donate%20a%20beer%20or%20two%20via%20Paypal.">If you liked hydrogen, buy us some beer</a></li>          </ul>
       </div>
     </div>
 
