@@ -17,8 +17,8 @@ At the moment there are no beta versions of 1.0 available for Windows.
 
 Most recent version: Hydrogen 0.9.7
 
-* [Windows installer 64-Bit](https://sourceforge.net/projects/hydrogen/files/Hydrogen/0.9.7%20Binaries/Hydrogen-0.9.7-rc1-win64.exe/download)
-* [Windows installer 32-Bit](https://sourceforge.net/projects/hydrogen/files/Hydrogen/0.9.7%20Binaries/Hydrogen-0.9.7-win32.exe/download)
+* [Windows installer 64-Bit](https://sourceforge.net/projects/hydrogen/files/Hydrogen/0.9.7%20Binaries/Hydrogen-0.9.7-rc1-win64.exe/download) (0.9.7 RC-1)
+* [Windows installer 32-Bit](https://sourceforge.net/projects/hydrogen/files/Hydrogen/0.9.7%20Binaries/Hydrogen-0.9.7-win32.exe/download) (0.9.7 Full Release)
 
 Older versions:
 
