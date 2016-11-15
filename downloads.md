@@ -27,15 +27,14 @@ Older versions:
 
  
 # Mac OS X:
-
+MacOS X binaries (0.9.7 RC-1): 
+* [OS X (Intel)](https://sourceforge.net/projects/hydrogen/files/Hydrogen/0.9.7%20Binaries/hydrogen-0.9.7-rc1.dmg/download)
  
 MacOS X binaries (0.9.6 beta1): 
-
-* [OS X (Intel)](https://sourceforge.net/projects/hydrogen/files/Hydrogen/0.9.7%20Binaries/hydrogen-0.9.7-rc1.dmg/download)
+* [OS X (Intel)](http://sourceforge.net/projects/hydrogen/files/Hydrogen/0.9.6%20Binaries/hydrogen-0.9.6-beta1.dmg/download) 
 
 Older MacOS X binaries (0.9.5 beta1): 
 
-* [OS X (Intel)](http://sourceforge.net/projects/hydrogen/files/Hydrogen/0.9.6%20Binaries/hydrogen-0.9.6-beta1.dmg/download) 
  * [OS_X_x86_64.dmg](http://sourceforge.net/projects/hydrogen/files/Hydrogen/0.9.5%20Binaries/hydrogen_0.9.5-beta1_x86_64.dmg/download)
  * [OS X_ppc.dmg](http://sourceforge.net/projects/hydrogen/files/Hydrogen/0.9.5%20Binaries/Hydrogen_0.9.5-beta1_ppc.dmg/download)
  * [OS X_i386.dmg](http://sourceforge.net/projects/hydrogen/files/Hydrogen/0.9.5%20Binaries/hydrogen_0.9.5-beta1_i386.dmg/download)
