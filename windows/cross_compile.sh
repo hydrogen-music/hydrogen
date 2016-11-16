@@ -2,6 +2,7 @@
 # Hydrogen Cross Compile Script
 
 FATBUILD=false
+OLDBUILD=false
 
 show_interactive_menu(){
 	#clear the screen
@@ -117,13 +118,15 @@ mxe_files(){
 	do
 		cp `ls -v $mylibs*dll| tail -n 1` $extralibs
 	done
-	#loop through the qt files and put them into a text file
-	cd $qtdir
-	for myqtlibs in "${qtlibs[@]}"
-	do
-		cp `ls -v $myqtlibs*dll| tail -n 1` $extralibs
-		spa=" "
-	done
+        if [ $OLDBUILD = true ]; then
+            #loop through the qt files and put them into a text file
+            cd $qtdir
+            for myqtlibs in "${qtlibs[@]}"
+            do
+                    cp `ls -v $myqtlibs*dll| tail -n 1` $extralibs
+                    spa=" "
+            done
+        fi
 	#find the latest gcc dir from mxe
 	cd $gccdir
 	echo `ls -v | tail -n 1` > $hydrogendir/../gccversion.txt
@@ -175,7 +178,7 @@ build_hydrogen(){
 		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
 	fi
 
-	cmake $4 ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2 $3 -DWANT_FAT_BUILD:BOOL=$FATBUILD -DWANT_DEBUG:BOOL=OFF
+	cmake $4 ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2 $3 -DWANT_FAT_BUILD:BOOL=$FATBUILD -DWANT_DEBUG:BOOL=OFF -DWANT_OLD_BUILD:BOOL=$OLDBUILD
 	
 	export HYDROGEN
 	export HYDROGEN_BUILD
@@ -235,37 +238,39 @@ build_hydrogen(){
 usage(){
 	echo -e "\nManual mode:\t\tcross_compile.sh [-f] [-d SOURCE_DIR] -b i686|x86_64"
 	echo -e "Interactive mode:\tcross_compile.sh -i"
-	echo -e "Usage: \n\t-i:\tUse interactive mode \n\t-b:\tBuild hydrogen. Valid values: i686 or x86_64 \n\t-f:\tFat build (includes Jack and Ladspa installers). Only useful in combination with -b."
+	echo -e "Usage: \n\t-i:\tUse interactive mode \n\t-b:\tBuild hydrogen. Valid values: i686 or x86_64 \n\t-f:\tFat build (includes Jack and Ladspa installers). Only useful in combination with -b \n\t-o:\tOld build uses QT4 to build hydrogen instead of the new QT5"
 }
 
 fatbuild=false
 
-while getopts "d:fb:i" o; do
+while getopts "d:fb:i:o" o; do
     case "${o}" in
-		d)
-			HYDROGEN=${OPTARG}
-			if [ ! -d $HYDROGEN ]; then
-				echo "Hydrogen source not found in $HYDROGEN."
-				exit
-			fi
-			;;
-		f)
-			FATBUILD=true
-			;;
-		b)
+	d)
+            HYDROGEN=${OPTARG}
+            if [ ! -d $HYDROGEN ]; then
+		echo "Hydrogen source not found in $HYDROGEN."
+		exit
+		fi
+            ;;
+	f)
+            FATBUILD=true
+            ;;
+	b)
             arch=${OPTARG}
 
-			if [ "$arch" != "x86_64" ]; then
-				mxe_files 32
-				build_32bit
-			else
-				mxe_files 64
-				build_64bit
-			fi
-
+            if [ "$arch" != "x86_64" ]; then
+                mxe_files 32
+		build_32bit
+            else
+		mxe_files 64
+                build_64bit
+            fi
             ;;
         i)
             show_interactive_menu
+            ;;
+        o)
+            OLDBUILD=true
             ;;
         *)
             usage
