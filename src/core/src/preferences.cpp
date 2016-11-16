@@ -724,7 +724,7 @@ void Preferences::loadPreferences( bool bGlobal )
 
 
 	// The preferences file should be recreated?
-	if ( recreate == true ) {
+	if ( recreate == true && !bGlobal ) {
 		WARNINGLOG( "Recreating configuration file." );
 		savePreferences();
 	}
