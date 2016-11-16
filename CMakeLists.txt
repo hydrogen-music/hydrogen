@@ -37,7 +37,7 @@ SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 #
 SET(WANT_LIBTAR TRUE)
 OPTION(WANT_DEBUG           "Build with debug information" ON)
-IF(WANT_OLD_BUILD FALSE)
+IF(NOT WANT_OLD_BUILD)
     OPTION(WANT_QT5             "Build with Qt5" ON)
 ENDIF()
 IF(APPLE)
