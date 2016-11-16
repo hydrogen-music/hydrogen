@@ -336,6 +336,10 @@ void MainForm::createMenuBar()
 	m_pViewMenu->addAction( trUtf8("&Mixer"), this, SLOT( action_window_showMixer() ), QKeySequence( "Alt+M" ) );
 
 	m_pViewMenu->addAction( trUtf8("&Instrument Rack"), this, SLOT( action_window_showDrumkitManagerPanel() ), QKeySequence( "Alt+I" ) );
+	
+	m_pViewMenu->addSeparator();				// -----
+	
+	m_pViewMenu->addAction( trUtf8("Full screen"), this, SLOT( action_window_toggleFullscreen() ), QKeySequence( "Alt+F" ) );
 
 
 	// Options menu
@@ -835,6 +839,15 @@ void MainForm::action_window_show_DirectorWidget()
 {
 
 	h2app->showDirector();
+}
+
+void MainForm::action_window_toggleFullscreen()
+{
+	if( this->isFullScreen() ){
+		this->showNormal();
+	} else {
+		this->showFullScreen();
+	}
 }
 
 void MainForm::action_window_showMixer()
