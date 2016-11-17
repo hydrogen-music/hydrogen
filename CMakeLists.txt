@@ -37,8 +37,9 @@ SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 #
 SET(WANT_LIBTAR TRUE)
 OPTION(WANT_DEBUG           "Build with debug information" ON)
-OPTION(WANT_QT5             "Build with Qt5" ON)
-
+IF(NOT WANT_OLD_BUILD)
+    OPTION(WANT_QT5             "Build with Qt5" ON)
+ENDIF()
 IF(APPLE)
     OPTION(WANT_SHARED      "Build the core library shared." OFF)
 ELSE()
@@ -289,7 +290,8 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}
-* fat build                    : ${WANT_FAT_BUILD}\n"
+* fat build                    : ${WANT_FAT_BUILD}
+* old build                    : ${WANT_OLD_BUILD}\n"
 )
 
 COLOR_MESSAGE("${cyan}Main librarires${reset}")
