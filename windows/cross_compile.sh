@@ -119,9 +119,12 @@ mxe_files(){
             declare -a qtlibs=("QtCore4" "QtXml4" "QtXmlPatterns4" "QtNetwork4" "QtGui4")
             qtdir="$mxedir/../qt/bin"
         else
-            declare -a qtlibs=("Qt5Core" "Qt5Xml" "Qt5XmlPatterns" "Qt5Network" "Qt5Gui" "Qt5Widgets")
+            declare -a qtlibs=("Qt5Core" "Qt5Xml." "Qt5XmlPatterns" "Qt5Network" "Qt5Gui" "Qt5Widgets")
             libs+=("libpcre-1" "libpcre16-0" "libharfbuzz-0" "libfreetype-6" "libglib-2" "libintl-8")
             qtdir="$mxedir/../qt5/bin"
+            platforms="$extralibs/platforms"
+            mkdir -p $platforms
+            cp "$qtdir/../plugins/platforms/qwindows.dll" "$platforms/"
         fi
         #loop through the libs, and put them into a text file.
 	cd $mxedir
@@ -156,6 +159,7 @@ setqt5(){
         qtprefix="-DCMAKE_PREFIX_PATH=$qt5dir"
     fi
 }
+
 cleanbuild(){
     if [ -d windows ]; then
         cd windows
@@ -266,13 +270,13 @@ build_hydrogen(){
 usage(){
 	echo -e "\nManual mode:\t\tcross_compile.sh [-f] [-d SOURCE_DIR] [-c] -b i686|x86_64"
 	echo -e "Interactive mode:\tcross_compile.sh -i"
-	echo -e "Usage: \n\t-i:\tUse interactive mode \n\t-b:\tBuild hydrogen. Valid values: i686 or x86_64 \n\t-f:\tFat build (includes Jack and Ladspa installers). Only useful in combination with -b \n\t-o:\tOld build uses QT4 to build hydrogen instead of the new QT5"
+	echo -e "Usage: \n\t-i:\tUse interactive mode \n\t-b:\tBuild hydrogen. Valid values: i686 or x86_64 \n\t-f:\tFat build (includes Jack and Ladspa installers). Only useful in combination with -b \n\t-o:\tOld build uses QT4 to build hydrogen instead of the new QT5 \n\t-c:\tClean the CMake files from the windows directory. Used if building fails, or compiling a different version.\n\t-r:\tBuild release packages. This will build both the 32 bit and 64 bit installers for releases."
 }
 
 fatbuild=false
 
-while getopts "d:fob:i:c" v; do
-    case "${v}" in
+while getopts "d:fob:icr" o; do
+    case "${o}" in
 	d)
             HYDROGEN=${OPTARG}
             if [ ! -d $HYDROGEN ]; then
@@ -304,6 +308,16 @@ while getopts "d:fob:i:c" v; do
             ;;
         c)
             cleanbuild
+            ;;
+        r)
+            cleanbuild
+            mxe_files 32
+            setqt5
+            build_32bit
+            cleanbuild
+            mxe_files 64
+            setqt5
+            build_64bit
             ;;
         *)
             usage
