@@ -1879,6 +1879,10 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	}
 
 	update();
+	
+	// Force a BPM marker at position 0
+	// See issue #416 - Paul Vint
+	editTimeLineAction( 1,Hydrogen::get_instance()->getSong()->__bpm );
 
 	m_pTimer = new QTimer(this);
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updatePosition()));
@@ -1953,10 +1957,11 @@ void SongEditorPositionRuler::createBackground()
 	}
 
 
-//draw tempo content
-		if(pref->getUseTimelineBpm()){
+	//draw tempo content
+	if(pref->getUseTimelineBpm()){
 		p.setPen( textColor );
-	}else
+	}
+	else
 	{
 		p.setPen( textColorAlpha );
 	}
