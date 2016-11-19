@@ -982,7 +982,7 @@ void PlayerControl::bpmClicked()
 					if ( pTimeline->m_timelinevector[t].m_htimelinebeat == 0 ) {
 						pTimeline->m_timelinevector[t].m_htimelinebpm = fNewVal;
 
-						// This is a bit of an ogly way to update the BPM timeline
+						// This is a bit of an ugly way to update the BPM timeline
 						HydrogenApp* h2app = HydrogenApp::get_instance();
 						SongEditorPositionRuler* pRuler = h2app->getSongEditorPanel()->getSongEditorPositionRuler();
 						pRuler->createBackground();
