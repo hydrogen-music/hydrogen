@@ -70,6 +70,8 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 	{
 		lineEditBpm->setText( QString("%1").arg( engine->getNewBpmJTM() ) );
 	}
+
+	lineEditBpm->selectAll();
 }
 
 
