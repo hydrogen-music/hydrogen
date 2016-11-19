@@ -132,7 +132,7 @@ int DrumPatternEditor::getColumn(QMouseEvent *ev)
 	else {
 		nBase = 4;
 	}
-	int nWidth = (m_nGridWidth * 4 * MAX_NOTES) / (nBase * m_nResolution);
+	float nWidth = (m_nGridWidth * 4 * MAX_NOTES) / (nBase * m_nResolution);
 
 	int x = ev->x();
 	int nColumn;
