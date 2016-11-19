@@ -58,20 +58,21 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 //			ERRORLOG(QString("%1 %2").arg(Hydrogen::get_instance()->m_timelinevector[t].m_htimelinebeat).arg(m_stimelineposition));
 			if ( timelineVector[t].m_htimelinebeat == m_stimelineposition ) {
 				lineEditBpm->setText( QString("%1").arg( timelineVector[t].m_htimelinebpm ) );
+				lineEditBpm->selectAll();
 				deleteBtn->setEnabled ( true );
 				return;
 			}
 			else
 			{
 				lineEditBpm->setText( QString("%1").arg( engine->getNewBpmJTM()) );
+				lineEditBpm->selectAll();
 			}
 		}
 	}else
 	{
 		lineEditBpm->setText( QString("%1").arg( engine->getNewBpmJTM() ) );
+		lineEditBpm->selectAll();
 	}
-
-	lineEditBpm->selectAll();
 }
 
 
