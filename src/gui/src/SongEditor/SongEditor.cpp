@@ -2147,6 +2147,9 @@ void SongEditorPositionRuler::editTimeLineAction( int newPosition, float newBpm 
 	Hydrogen* engine = Hydrogen::get_instance();
 	Timeline* pTimeline = engine->getTimeline();
 
+	if( newBpm < 30.0 ) newBpm = 30.0;
+	if( newBpm > 500.0 ) newBpm = 500.0;
+
 	Timeline::HTimelineVector tlvector;
 
 	//erase the value to set the new value
@@ -2177,8 +2180,6 @@ void SongEditorPositionRuler::editTimeLineAction( int newPosition, float newBpm 
 
 	tlvector.m_htimelinebeat = newPosition -1 ;
 
-	if( newBpm < 30.0 ) newBpm = 30.0;
-	if( newBpm > 500.0 ) newBpm = 500.0;
 	tlvector.m_htimelinebpm = newBpm;
 	pTimeline->m_timelinevector.push_back( tlvector );
 	pTimeline->sortTimelineVector();
