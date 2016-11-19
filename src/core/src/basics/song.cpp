@@ -975,8 +975,9 @@ Song* SongReader::readSong( const QString& filename )
 	pTimeline->m_timelinevector.clear();
 	Timeline::HTimelineVector tlvector;
 	QDomNode bpmTimeLine = songNode.firstChildElement( "BPMTimeLine" );
+
+	QDomNode newBPMNode = bpmTimeLine.firstChildElement( "newBPM" );
 	if ( !bpmTimeLine.isNull() ) {
-		QDomNode newBPMNode = bpmTimeLine.firstChildElement( "newBPM" );
 		while( !newBPMNode.isNull() ) {
 			tlvector.m_htimelinebeat = LocalFileMng::readXmlInt( newBPMNode, "BAR", 0 );
 			tlvector.m_htimelinebpm = LocalFileMng::readXmlFloat( newBPMNode, "BPM", 120.0 );
@@ -985,7 +986,12 @@ Song* SongReader::readSong( const QString& filename )
 			newBPMNode = newBPMNode.nextSiblingElement( "newBPM" );
 		}
 	} else {
-		WARNINGLOG( "bpmTimeLine node not found" );
+		// Adding BPM marker on the first bar
+		// See issue 416 - Paul Vint
+		WARNINGLOG( "bpmTimeLine node not found - adding node at bar 1" );
+		tlvector.m_htimelinebeat = 0;
+		tlvector.m_htimelinebpm = fBpm;
+		pTimeline->m_timelinevector.push_back( tlvector );
 	}
 
 	pTimeline->m_timelinetagvector.clear();
