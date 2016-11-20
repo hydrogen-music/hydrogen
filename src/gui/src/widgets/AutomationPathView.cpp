@@ -164,12 +164,15 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	}
 
 
+	QPen circlePen(QColor(99, 165, 255));
+	circlePen.setWidth(1);
+	painter.setPen(circlePen);
 	painter.setBrush(QBrush(QColor(58,62,72)));
 
 	for (auto point : *_path) {
 
 		QPoint center = translatePoint(point);
-		painter.drawEllipse(center, 4, 4);
+		painter.drawEllipse(center, 3, 3);
 
 	}
 
