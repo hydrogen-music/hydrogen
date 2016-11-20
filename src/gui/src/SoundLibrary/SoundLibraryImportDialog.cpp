@@ -47,7 +47,7 @@
 
 const char* SoundLibraryImportDialog::__class_name = "SoundLibraryImportDialog";
 
-SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent )
+SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool OnlineImport )
  : QDialog( pParent )
  , Object( __class_name )
 {
@@ -72,6 +72,11 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent )
 	InstallBtn->setEnabled (false );
 
 	updateRepositoryCombo();
+
+	if( OnlineImport)
+		 tabWidget->setCurrentIndex( 0 );
+	else
+		 tabWidget->setCurrentIndex( 1 );
 }
 
 
@@ -495,7 +500,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 
 				// Load the drumkit image
 				// Clear any image first
-				drumkitImageLabel->setPixmap( NULL );
+				drumkitImageLabel->setPixmap( QPixmap() );
 				drumkitImageLabel->setText( info.getImage() );
 
 				if ( info.getImage().length() > 0 )
@@ -676,7 +681,7 @@ void SoundLibraryImportDialog::on_BrowseBtn_clicked()
 
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::ExistingFile);
-	fd.setFilter( "Hydrogen drumkit (*.h2drumkit)" );
+	fd.setNameFilter( "Hydrogen drumkit (*.h2drumkit)" );
 	fd.setDirectory( lastUsedDir );
 
 	fd.setWindowTitle( trUtf8( "Import drumkit" ) );

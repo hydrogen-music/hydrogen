@@ -32,7 +32,12 @@
 #include <iostream>
 #include <vector>
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
  #include <QStringList>
+
+//#include <QUndoStack>
 
 namespace H2Core
 {

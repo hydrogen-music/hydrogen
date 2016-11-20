@@ -25,6 +25,9 @@
 
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 #include <vector>
 
@@ -45,12 +48,15 @@ class SoundLibraryPanel : public QWidget, private H2Core::Object
 	H2_OBJECT
 Q_OBJECT
 public:
-	SoundLibraryPanel( QWidget* parent );
+	SoundLibraryPanel( QWidget* parent, bool bInItsOwnDialog );
 	~SoundLibraryPanel();
 
 	void updateDrumkitList();
 	void test_expandedItems();
 	void update_background_color();
+
+public slots:
+	void on_drumkitLoadAction();
 
 private slots:
 	void on_DrumkitList_ItemChanged( QTreeWidgetItem* current, QTreeWidgetItem* previous );
@@ -59,7 +65,6 @@ private slots:
 	void on_DrumkitList_rightClicked( QPoint pos );
 	void on_DrumkitList_mouseMove( QMouseEvent* event );
 
-	void on_drumkitLoadAction();
 	void on_drumkitDeleteAction();
 	void on_drumkitPropertiesAction();
 	void on_drumkitExportAction();
@@ -67,6 +72,9 @@ private slots:
 	void on_songLoadAction();
 	void on_patternLoadAction();
 	void on_patternDeleteAction();
+
+signals:
+	void item_changed(bool bDrumkitSelected);
 
 private:
 	SoundLibraryTree *__sound_library_tree;

@@ -25,6 +25,9 @@
 
 #include <QtNetwork>
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 #include <map>
 #include <unistd.h>
@@ -85,9 +88,14 @@ public slots:
 		void action_instruments_addInstrument();
 		void action_instruments_clearAll();
 		void action_instruments_saveLibrary();
+		void action_instruments_saveAsLibrary();
 		void action_instruments_exportLibrary();
 		void action_instruments_importLibrary();
+		void action_instruments_onlineImportLibrary();
+		void action_instruments_addComponent();
 
+		void action_banks_properties();
+		void action_banks_open();
 
 		void action_window_showMixer();
 		void action_window_showPlaylistDialog();
@@ -95,6 +103,7 @@ public slots:
 		void action_window_showSongEditor();
 		void action_window_showPatternEditor();
 		void action_window_showDrumkitManagerPanel();
+		void action_window_toggleFullscreen();
 
 		void action_debug_printObjects();
 		void action_debug_showAudioEngineInfo();
@@ -148,7 +157,7 @@ public slots:
 		QAction *m_pRecentFileAction3;
 		QAction *m_pRecentFileAction4;
 
-		QHttp m_http;
+//		QHttp m_http;
 
 		QTimer m_autosaveTimer;
 

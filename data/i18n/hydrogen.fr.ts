@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="fr_FR">
+<TS version="2.1" language="fr_FR">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -16,16 +16,16 @@
         <translation>&lt;b&gt;Site internet&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Mailing lists&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Listes de discussion&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Main coder and maintainer:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Codeurs et mainteneurs principaux :&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Thanks to:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Merci à to :&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Liste de discussion pour le développement&lt;/b&gt;&lt;br&gt;</translation>
     </message>
 </context>
 <context>
@@ -323,7 +323,7 @@
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the involved persons.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen est un projet à source ouverte qui est développé par plusieurs personnes sur leurs temps libres. En faisant un don, vous pouvez dire &amp;quot;merci à vous&amp;quot; aux personnes impliquées.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen est un projet à source ouverte qui est développé par plusieurs personnes sur leur temps libre. En faisant un don, vous pouvez dire &amp;quot;merci à vous&amp;quot; aux personnes impliquées.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Sebastian Moors (aka mauser): Maintainer / Developer</source>
@@ -365,12 +365,12 @@ Overwrite the existing file?</source>
         <translation>Mode piste unique</translation>
     </message>
     <message>
-        <source>Export to seperate tracks</source>
-        <translation>Mode multipistes</translation>
-    </message>
-    <message>
         <source>Both</source>
         <translation>Mode combiné</translation>
+    </message>
+    <message>
+        <source>Export to separate tracks</source>
+        <translation>Mode multipistes</translation>
     </message>
 </context>
 <context>
@@ -511,7 +511,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Cosinus</translation>
     </message>
     <message>
         <source>Third</source>
@@ -1266,20 +1266,8 @@ MIDI = %2</translation>
         <translation>Effacer &amp;tout</translation>
     </message>
     <message>
-        <source>&amp;Save library</source>
-        <translation>Enregi&amp;strer la bibliothèque...</translation>
-    </message>
-    <message>
-        <source>&amp;Export library</source>
-        <translation>&amp;Exporter une bibliothèque...</translation>
-    </message>
-    <message>
         <source>Playlist &amp;editor</source>
         <translation>&amp;Navigateur de liste de lecture...</translation>
-    </message>
-    <message>
-        <source>&amp;Import library</source>
-        <translation>&amp;Importer une bibliothèque...</translation>
     </message>
     <message>
         <source></source>
@@ -1384,6 +1372,54 @@ Voulez-vous abandonner ces changements ?
     <message>
         <source>Pro&amp;ject</source>
         <translation>Pro&amp;jet</translation>
+    </message>
+    <message>
+        <source>&amp;Drumkits</source>
+        <translation>&amp;Kits de batterie</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Nouveau</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Ouvrir</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation>Propriétés</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Sauvegarder</translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation>Sauvegarder sous</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Exporter</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importer</translation>
+    </message>
+    <message>
+        <source>Online import</source>
+        <translation>Importer en ligne</translation>
+    </message>
+    <message>
+        <source>Add component</source>
+        <translation>Ajouter un composant</translation>
+    </message>
+    <message>
+        <source>Component name</source>
+        <translation>Nom du composant</translation>
+    </message>
+    <message>
+        <source>Saving of this library failed.</source>
+        <translation>La sauvegarde de cette bibliothèque a échouée</translation>
     </message>
 </context>
 <context>
@@ -1607,6 +1643,10 @@ Voulez-vous abandonner ces changements ?
         <source>Show drum editor</source>
         <translation>Afficher l&apos;éditeur de batterie</translation>
     </message>
+    <message>
+        <source>Probability</source>
+        <translation>Probabilité</translation>
+    </message>
 </context>
 <context>
     <name>PatternFillDialog</name>
@@ -1643,11 +1683,11 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>From:</source>
-        <translation>De:</translation>
+        <translation>De :</translation>
     </message>
     <message>
         <source>To:</source>
-        <translation>À:</translation>
+        <translation>À :</translation>
     </message>
     <message>
         <source>OK</source>
@@ -2051,7 +2091,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Please save your song first</source>
-        <translation>Merci de sauvegarder votre morceau d&apos;abord</translation>
+        <translation>Veuillez sauvegarder votre morceau d&apos;abord</translation>
     </message>
     <message>
         <source>WARNING, the new file is executable by the owner of the file!</source>
@@ -2067,7 +2107,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>Playlist: set song no. %1</source>
-        <translation>Liste: choisir le morceau #%1 </translation>
+        <translation>Liste : choisir le morceau #%1 </translation>
     </message>
     <message>
         <source>no Script</source>
@@ -2472,7 +2512,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Interpolate resampling</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpoler le ré-échantillonnage</translation>
     </message>
     <message>
         <source>Linear</source>
@@ -2480,7 +2520,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Cosinus</translation>
     </message>
     <message>
         <source>Third</source>
@@ -2525,6 +2565,10 @@ Voulez-vous abandonner ces changements ?
     <message>
         <source>Use output note as input note</source>
         <translation>Utiliser la note de sortie en tant que note d&apos;entrée</translation>
+    </message>
+    <message>
+        <source>Discard midi messages after action has been triggered</source>
+        <translation>Abandonner les messages MIDI après que l&apos;action ait été déclenchée</translation>
     </message>
 </context>
 <context>
@@ -2619,36 +2663,6 @@ Are you sure?</source>
     <message>
         <source>panorama</source>
         <translation>panoramique</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&quot;Crispness&quot; levels:&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   equivalent to --no-transients --no-lamination --window-long&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   equivalent to --no-transients --no-lamination&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   equivalent to --no-transients&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   equivalent to --bl-transients&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;more informations about you can find here:&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt;Niveaux de &quot;croustillance&quot; : &lt;/p&gt;
-&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt; 0 équivaut à --no-transients --no-lamination --window-long&lt;/p&gt;
-&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt; 1 équivalent à --no-transients --no-lamination&lt;/p&gt;
-&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt; 2 équivalent à --no-transients&lt;/p&gt;
-&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt; 3, équivalent à --bl-transients&lt;/p&gt;
-&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt; 4 options de traitement par défaut &lt;/p&gt;
-&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt; 5 équivalent à --no-lamination --window-short (peut-être bon pour la batterie) &lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty;margin: 0px;-qt-block-indent:0;text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt;Vous pouvez trouver plus d&apos;informations ici (en anglais seulement): &lt;/p&gt;
-&lt;p style=&quot;margin:0px;-qt-block-indent:0;text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/&quot;&gt;&lt;span style=&quot;text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>0</source>
@@ -2859,6 +2873,23 @@ p, li { white-space: pre-wrap; }
     <message>
         <source> Pitch (Semitone,Cent)</source>
         <translation>Hauteur (Demi-ton, Pourcent)</translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&quot;Crispness&quot; levels:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   equivalent to --no-transients --no-lamination --window-long&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   equivalent to --no-transients --no-lamination&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   equivalent to --no-transients&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   equivalent to --bl-transients&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;more information about you can find here:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3310,6 +3341,13 @@ Overwrite the existing pattern?</source>
     </message>
 </context>
 <context>
+    <name>SoundLibraryOpenDialog</name>
+    <message>
+        <source>Open Sound Library</source>
+        <translation>Ouvrir une bibliothèque de son</translation>
+    </message>
+</context>
+<context>
     <name>SoundLibraryPanel</name>
     <message>
         <source>Load</source>
@@ -3385,15 +3423,18 @@ Are you sure?</source>
         <translation>Échec de la suppression du kit.</translation>
     </message>
     <message>
-        <source>The existing kit has %1 instruments but the new one only has %2.
-The first %2 instruments will be replaced with the new intruments and will keep their notes, but some of the remaining instruments have notes.
-Would you like to keep or discard the remaining instruments and notes?
-</source>
-        <translation type="unfinished"></translation>
+        <source>Keep</source>
+        <translation>Conserver</translation>
     </message>
     <message>
-        <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <source>The existing kit has %1 instruments but the new one only has %2.
+The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
+Would you like to keep or discard the remaining instruments and notes?
+</source>
+        <translation>Le kit existant possède %1 instruments mais le nouveau en a seulement %2.
+Les %2 premiers instruments seront remplacés avec les nouveaux instruments et conserveront leurs notes, mais certains des instruments restant possèdent des notes.
+Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
+</translation>
     </message>
 </context>
 <context>

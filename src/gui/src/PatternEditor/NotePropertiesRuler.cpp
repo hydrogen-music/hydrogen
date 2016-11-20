@@ -66,6 +66,9 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	else if ( m_mode == NOTEKEY ) {
 		m_nEditorHeight = 210;
 	}
+	if (m_mode == PROBABILITY ) {
+		m_nEditorHeight = 100;
+	}
 
 	resize( m_nEditorWidth, m_nEditorHeight );
 	setMinimumSize( m_nEditorWidth, m_nEditorHeight );
@@ -190,7 +193,19 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 				HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
 			}
 		}
+		else if ( m_mode == PROBABILITY && !pNote->get_note_off() ) {
+			float val = pNote->get_probability() + delta;
+			if (val > 1.0) {
+				val = 1.0;
+			}
+			else if (val < 0.0) {
+				val = 0.0;
+			}
 
+			pNote->set_probability(val);
+			__probability = val;
+
+		}
 		pSong->set_is_modified( true );
 		startUndoAction();
 		updateEditor();
@@ -278,6 +293,11 @@ void NotePropertiesRuler::pressAction( int x, int y)
 			__mode = "NOTEKEY";
 		__oldOctaveKeyVal = pNote->get_octave();
 		__oldNoteKeyVal = pNote->get_key();
+		}
+		else if ( m_mode == PROBABILITY && !pNote->get_note_off() ) {
+			__oldProbability = pNote->get_probability();
+			__mode = "PROBABILITY";
+
 		}
 
 	}
@@ -415,7 +435,17 @@ void NotePropertiesRuler::pressAction( int x, int y)
 					__noteKeyVal = pNote->get_key();
 				}
 			}
-	
+			else if ( m_mode == PROBABILITY && !pNote->get_note_off() ) {
+				if( columnChange ){
+					__oldProbability = pNote->get_probability();
+				}
+				pNote->set_probability( val );
+				__probability = val;
+				char valueChar[100];
+				sprintf( valueChar, "%#.2f",  val);
+				HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note probability [%1]").arg( valueChar ), 2000 );
+			}
+
 	
 			if( columnChange ){
 				__columnCheckOnXmouseMouve = column;
@@ -455,6 +485,8 @@ void NotePropertiesRuler::startUndoAction()
 											   __oldPan_R,
 											   __leadLag,
 											   __oldLeadLag,
+											   __probability,
+											   __oldProbability,
 											   __noteKeyVal,
 											   __oldNoteKeyVal,
 											   __octaveKeyVal,
@@ -610,8 +642,16 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 				}
 				uint x_pos = 20 + pos * m_nGridWidth;
 				uint line_end = height();
-				uint velocity = (uint)(pNote->get_velocity() * height());
-				uint line_start = line_end - velocity;
+
+
+				uint value;
+				if ( m_mode == VELOCITY ) {
+					value = (uint)(pNote->get_velocity() * height());
+				}
+				else if ( m_mode == PROBABILITY ) {
+					value = (uint)(pNote->get_probability() * height());
+				}
+				uint line_start = line_end - value;
 				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
 				int nLineWidth = 3;
 				p.fillRect( x_pos - 1 + xoffset, line_start, nLineWidth,  line_end - line_start , centerColor );
@@ -1189,7 +1229,7 @@ void NotePropertiesRuler::updateEditor()
 	delete m_pBackground;
 	m_pBackground = new QPixmap( editorWidth, m_nEditorHeight );
 
-	if ( m_mode == VELOCITY ) {
+	if ( m_mode == VELOCITY || m_mode == PROBABILITY ) {
 		createVelocityBackground( m_pBackground );
 	}
 	else if ( m_mode == PAN ) {

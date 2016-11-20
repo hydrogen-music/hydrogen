@@ -9,6 +9,9 @@ using namespace std;
 #include <hydrogen/basics/note.h>
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 int main( int argc, char* argv[] )
 {

@@ -49,7 +49,7 @@
 #include <sys/stat.h>
 
 #include <QDir>
-#include <QApplication>
+//#include <QCoreApplication>
 #include <QVector>
 #include <QDomDocument>
 #include <QLocale>
@@ -138,6 +138,7 @@ Pattern* LocalFileMng::loadPattern( const QString& directory )
 			float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
 			int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
 			float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
+			float fProbability = LocalFileMng::readXmlFloat( noteNode, "probability", 1.0 , false , false );
 			QString sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
 			QString nNoteOff = LocalFileMng::readXmlString( noteNode, "note_off", "false", false, false );
 			int instrId = LocalFileMng::readXmlInt( noteNode, "instrument", 0, true );
@@ -157,6 +158,7 @@ Pattern* LocalFileMng::loadPattern( const QString& directory )
 			pNote->set_key_octave( sKey );
 			pNote->set_lead_lag(fLeadLag);
 			pNote->set_note_off( noteoff );
+			pNote->set_probability( fProbability );
 			pPattern->insert_note( pNote );
 			noteNode = noteNode.nextSiblingElement( "note" );
 		}
@@ -222,6 +224,7 @@ QString LocalFileMng::copyInstrumentLineToString(Song *song, int selectedPattern
 				writeXmlString( noteNode, "pan_L", QString("%1").arg( pNote->get_pan_l() ) );
 				writeXmlString( noteNode, "pan_R", QString("%1").arg( pNote->get_pan_r() ) );
 				writeXmlString( noteNode, "pitch", QString("%1").arg( pNote->get_pitch() ) );
+				writeXmlString( noteNode, "probability", QString("%1").arg( pNote->get_probability() ) );
 
 				writeXmlString( noteNode, "key", pNote->key_to_string() );
 
@@ -323,6 +326,7 @@ bool LocalFileMng::pasteInstrumentLineFromString(Song *song, const QString & ser
 						float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
 						int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
 						float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
+						float fProbability = LocalFileMng::readXmlFloat( noteNode, "probability", 1.0 , false , false );
 						QString sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
 						QString nNoteOff = LocalFileMng::readXmlString( noteNode, "note_off", "false", false, false );
 
@@ -332,6 +336,7 @@ bool LocalFileMng::pasteInstrumentLineFromString(Song *song, const QString & ser
 						pNote->set_key_octave( sKey );
 						pNote->set_lead_lag( fLeadLag );
 						pNote->set_note_off( noteoff );
+						pNote->set_probability( fProbability );
 						pat->insert_note( pNote ); // Add note to created pattern
 
 						noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );
@@ -435,6 +440,7 @@ int LocalFileMng::savePattern( Song *song , const QString& drumkit_name, int sel
 		writeXmlString( noteNode, "pan_L", QString("%1").arg( pNote->get_pan_l() ) );
 		writeXmlString( noteNode, "pan_R", QString("%1").arg( pNote->get_pan_r() ) );
 		writeXmlString( noteNode, "pitch", QString("%1").arg( pNote->get_pitch() ) );
+		writeXmlString( noteNode, "probability", QString("%1").arg( pNote->get_probability() ) );
 
 		writeXmlString( noteNode, "key", pNote->key_to_string() );
 
@@ -1079,7 +1085,7 @@ bool LocalFileMng::checkTinyXMLCompatMode( const QString& filename )
 		return false;
 	} else  {
 		_WARNINGLOG( QString("File '%1' is being read in "
-							 "TinyXML compatability mode")
+							 "TinyXML compatibility mode")
 					 .arg(filename) );
 		return true;
 	}
@@ -1444,6 +1450,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			LocalFileMng::writeXmlString( noteNode, "pan_L", QString("%1").arg( pNote->get_pan_l() ) );
 			LocalFileMng::writeXmlString( noteNode, "pan_R", QString("%1").arg( pNote->get_pan_r() ) );
 			LocalFileMng::writeXmlString( noteNode, "pitch", QString("%1").arg( pNote->get_pitch() ) );
+			LocalFileMng::writeXmlString( noteNode, "probability", QString("%1").arg( pNote->get_probability() ) );
 
 			LocalFileMng::writeXmlString( noteNode, "key", pNote->key_to_string() );
 
