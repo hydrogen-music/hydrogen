@@ -232,6 +232,9 @@ void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
 {
 	m_bIsHolding = false;
 
+	if (! checkBounds(event) || !_path)
+		return;
+
 	auto p = locate(event);
 	float x = p.first;
 	float y = p.second;
