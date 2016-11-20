@@ -26,6 +26,9 @@
 #include <hydrogen/basics/automation_path.h>
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 class AutomationPathView : public QWidget, public H2Core::Object
 {
