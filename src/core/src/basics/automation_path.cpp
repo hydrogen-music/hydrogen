@@ -21,8 +21,6 @@
  */
 #include <hydrogen/basics/automation_path.h>
 
-#include <iostream>
-
 namespace H2Core
 {
 

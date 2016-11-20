@@ -22,7 +22,6 @@
 #include "AutomationPathView.h"
 #include <hydrogen/Preferences.h>
 #include "../SongEditor/SongEditor.h"
-#include <iostream>
 
 const char* AutomationPathView::__class_name = "AutomationPathView";
 
