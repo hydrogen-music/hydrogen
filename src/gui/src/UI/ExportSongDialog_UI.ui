@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>495</width>
-    <height>336</height>
+    <width>582</width>
+    <height>325</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>290</y>
-     <width>461</width>
+     <y>280</y>
+     <width>541</width>
      <height>28</height>
     </rect>
    </property>
@@ -86,8 +86,8 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>200</y>
-     <width>471</width>
+     <y>190</y>
+     <width>561</width>
      <height>81</height>
     </rect>
    </property>
@@ -124,7 +124,7 @@
      <rect>
       <x>100</x>
       <y>40</y>
-      <width>361</width>
+      <width>441</width>
       <height>23</height>
      </rect>
     </property>
@@ -152,7 +152,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>20</y>
+     <y>10</y>
      <width>440</width>
      <height>24</height>
     </rect>
@@ -165,23 +165,23 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>50</y>
-     <width>351</width>
+     <y>40</y>
+     <width>421</width>
      <height>24</height>
     </rect>
    </property>
    <property name="readOnly">
     <bool>false</bool>
    </property>
-   <property name="placeholderText" stdset="0">
+   <property name="placeholderText">
     <string notr="true"/>
    </property>
   </widget>
   <widget class="QPushButton" name="browseBtn">
    <property name="geometry">
     <rect>
-     <x>379</x>
-     <y>50</y>
+     <x>460</x>
+     <y>40</y>
      <width>101</width>
      <height>24</height>
     </rect>
@@ -197,8 +197,8 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>128</y>
-     <width>461</width>
+     <y>118</y>
+     <width>551</width>
      <height>31</height>
     </rect>
    </property>
@@ -353,8 +353,8 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>90</y>
-     <width>461</width>
+     <y>80</y>
+     <width>551</width>
      <height>33</height>
     </rect>
    </property>
@@ -426,8 +426,8 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>165</y>
-     <width>461</width>
+     <y>155</y>
+     <width>551</width>
      <height>31</height>
     </rect>
    </property>
@@ -537,6 +537,15 @@
     </item>
    </layout>
   </widget>
+  <zorder>layout2</zorder>
+  <zorder>groupBox</zorder>
+  <zorder>TextLabel1</zorder>
+  <zorder>exportNameTxt</zorder>
+  <zorder>browseBtn</zorder>
+  <zorder>layoutWidget2</zorder>
+  <zorder>layoutWidget0</zorder>
+  <zorder>layoutWidget</zorder>
+  <zorder>templateCombo</zorder>
  </widget>
  <layoutdefault spacing="0" margin="0"/>
  <resources/>
