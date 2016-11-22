@@ -120,6 +120,11 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 
 	__rubberband.pitch = 0.0;
 
+	// External editor
+	// Get externalEditor from preferences
+	// Create button menu for launching that editor or choosing another
+	// Maybe better to just have a separate "select editor" button?
+	
 }
 
 
@@ -165,6 +170,7 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 
 void SampleEditor::getAllFrameInfos()
 {
+	ERRORLOG("XXXX");
 	H2Core::Instrument *pInstrument = NULL;
 	Sample* pSample = NULL;
 	Song *pSong = Hydrogen::get_instance()->getSong();
@@ -305,7 +311,19 @@ void SampleEditor::openDisplays()
 
 }
 
+void SampleEditor::on_externalEditorPushButton_clicked()
+{
+	ERRORLOG(m_samplename);
+	QProcess *m_extEditorProcess = new QProcess();
+	m_extEditorProcess->setWorkingDirectory("/home/pvint");
+	m_extEditorProcess->start(QString("/usr/bin/audacity"), QStringList() << m_samplename );
+}
 
+void SampleEditor::on_reloadToolButton_clicked()
+{
+	DEBUGLOG( "Reloading " + m_samplename );
+	m_pMainSampleWaveDisplay->updateDisplay( m_samplename );
+}
 
 void SampleEditor::on_ClosePushButton_clicked()
 {

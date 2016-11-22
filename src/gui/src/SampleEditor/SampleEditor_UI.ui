@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>862</width>
+    <width>860</width>
     <height>545</height>
    </rect>
   </property>
@@ -36,7 +36,7 @@
    <property name="geometry">
     <rect>
      <x>770</x>
-     <y>295</y>
+     <y>280</y>
      <width>81</width>
      <height>26</height>
     </rect>
@@ -48,10 +48,10 @@
   <widget class="QWidget" name="layoutWidget_1">
    <property name="geometry">
     <rect>
-     <x>14</x>
-     <y>295</y>
+     <x>10</x>
+     <y>280</y>
      <width>701</width>
-     <height>30</height>
+     <height>33</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="spinboxesLayout">
@@ -228,7 +228,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>836</width>
+     <width>838</width>
      <height>267</height>
     </rect>
    </property>
@@ -296,7 +296,7 @@ p, li { white-space: pre-wrap; }
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>330</y>
+     <y>320</y>
      <width>841</width>
      <height>71</height>
     </rect>
@@ -312,8 +312,8 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>821</width>
-      <height>53</height>
+      <width>662</width>
+      <height>60</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -545,7 +545,7 @@ p, li { white-space: pre-wrap; }
          </property>
          <property name="minimumSize">
           <size>
-           <width>150</width>
+           <width>100</width>
            <height>0</height>
           </size>
          </property>
@@ -682,14 +682,53 @@ p, li { white-space: pre-wrap; }
      </item>
     </layout>
    </widget>
+   <widget class="QPushButton" name="externalEditorPushButton">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>32</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Choose Editor</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="extEditorLabel">
+    <property name="geometry">
+     <rect>
+      <x>690</x>
+      <y>10</y>
+      <width>131</width>
+      <height>17</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Open in external editor:</string>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="reloadToolButton">
+    <property name="geometry">
+     <rect>
+      <x>800</x>
+      <y>30</y>
+      <width>32</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>R</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QWidget" name="layoutWidget_4">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>410</y>
+     <y>390</y>
      <width>841</width>
-     <height>30</height>
+     <height>35</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -784,11 +823,11 @@ p, li { white-space: pre-wrap; }
     </item>
    </layout>
   </widget>
+  <zorder>layoutWidget_4</zorder>
   <zorder>targetSampleView</zorder>
   <zorder>ClosePushButton</zorder>
   <zorder>layoutWidget_1</zorder>
   <zorder>layoutWidget_2</zorder>
-  <zorder>layoutWidget_3</zorder>
   <zorder>RubberbandCframe</zorder>
  </widget>
  <tabstops>

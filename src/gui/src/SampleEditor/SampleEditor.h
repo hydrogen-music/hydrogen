@@ -27,6 +27,7 @@
 #include "../InstrumentEditor/InstrumentEditor.h"
 
 #include <QDialog>
+#include <QProcess>
 #include <hydrogen/object.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/basics/song.h>
@@ -68,6 +69,8 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		void valueChangedrubberbandCsettingscomboBox( const QString );
 		void valueChangedpitchdoubleSpinBox( double );
 		void on_ClosePushButton_clicked();
+		void on_reloadToolButton_clicked();
+		void on_externalEditorPushButton_clicked();
 		void on_PrevChangesPushButton_clicked();
 		void valueChangedStartFrameSpinBox( int );
 		void valueChangedLoopFrameSpinBox( int );
@@ -122,6 +125,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		unsigned *m_pPositionsRulerPath;
 		bool m_pPlayButton;
 		float m_pRatio;
+		QString m_externalEditor;
 		H2Core::Sample::Loops __loops;
 		H2Core::Sample::Rubberband __rubberband;
 		
