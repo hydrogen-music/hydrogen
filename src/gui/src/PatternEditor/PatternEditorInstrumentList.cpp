@@ -122,8 +122,8 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addMenu( m_pPastePopupSub );
 
 	m_pFunctionPopup->addSeparator();
-	m_pFunctionPopup->addAction( trUtf8( "Delete instrument" ), this, SLOT( functionDeleteInstrument() ) );
 	m_pFunctionPopup->addAction( trUtf8( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
+	m_pFunctionPopup->addAction( trUtf8( "Delete instrument" ), this, SLOT( functionDeleteInstrument() ) );
 
 	m_bIsSelected = true;
 	setSelected(false);
