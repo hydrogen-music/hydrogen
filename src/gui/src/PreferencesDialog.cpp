@@ -276,8 +276,11 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	sBmaxBars->setValue( pPref->getMaxBars() );
 
-	QString pathtoRubberband = pPref->m_rubberBandCLIexecutable;
+	QString pathToExternalEditor = pPref->m_externalEditorExecutable;
 
+	externalEditorLineEdit->setText( pathToExternalEditor );
+
+	QString pathtoRubberband = pPref->m_rubberBandCLIexecutable;
 
 	rubberbandLineEdit->setText( pathtoRubberband );
 
@@ -449,6 +452,10 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	//path to rubberband
 	pPref-> m_rubberBandCLIexecutable = rubberbandLineEdit->text();
+
+	// path to external audio editor
+	pPref->m_externalEditorExecutable = externalEditorLineEdit->text();
+ERRORLOG(externalEditorLineEdit->text());
 
 	//check preferences
 	if ( pPref->m_brestartLash == true ){

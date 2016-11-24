@@ -315,8 +315,9 @@ void SampleEditor::on_externalEditorPushButton_clicked()
 {
 	ERRORLOG(m_samplename);
 	QProcess *m_extEditorProcess = new QProcess();
-	m_extEditorProcess->setWorkingDirectory("/home/pvint");
-	m_extEditorProcess->start(QString("/usr/bin/audacity"), QStringList() << m_samplename );
+	//m_extEditorProcess->setWorkingDirectory("/home/pvint");
+	QString program = Preferences::get_instance()->m_externalEditorExecutable;
+	m_extEditorProcess->start( program, QStringList() << m_samplename );
 }
 
 void SampleEditor::on_reloadToolButton_clicked()

@@ -234,6 +234,9 @@ public:
 	///Rubberband CLI
 	QString				m_rubberBandCLIexecutable;
 
+	// External audio editor for editing samples (ie: audacity)
+	QString				m_externalEditorExecutable;
+
 	/// Returns an instance of PreferencesMng class
 	static void			create_instance();
 	static Preferences* get_instance() { assert(__instance); return __instance; }
@@ -267,6 +270,9 @@ public:
 
 	void				setShowDevelWarning( bool value );
 	bool				getShowDevelWarning();
+
+	void				setShowExternalEditorWarning( bool value );
+	bool				getShowExternalEditorWarning();
 
 	bool				isRestoreLastSongEnabled();
 	bool				isRestoreLastPlaylistEnabled();

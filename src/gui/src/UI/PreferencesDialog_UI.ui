@@ -83,6 +83,20 @@
         </widget>
        </item>
        <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
+         <item>
+          <widget class="QLabel" name="externalEditorLabel">
+           <property name="text">
+            <string>External Audio Editor</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="externalEditorLineEdit"/>
+         </item>
+        </layout>
+       </item>
+       <item>
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -90,7 +104,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>114</height>
+           <height>40</height>
           </size>
          </property>
         </spacer>

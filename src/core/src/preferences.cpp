@@ -411,6 +411,9 @@ void Preferences::loadPreferences( bool bGlobal )
 				}
 			}
 
+			// External audio editor
+			m_externalEditorExecutable = LocalFileMng::readXmlString( rootNode, "path_to_externalEditor", m_externalEditorExecutable );
+
 			QDomNode pRecentUsedSongsNode = rootNode.firstChildElement( "recentUsedSongs" );
 			if ( !pRecentUsedSongsNode.isNull() ) {
 				QDomElement pSongElement = pRecentUsedSongsNode.firstChildElement( "song" );
@@ -788,6 +791,11 @@ void Preferences::savePreferences()
 		m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
 	}
 	LocalFileMng::writeXmlString( rootNode, "path_to_rubberband", QString(m_rubberBandCLIexecutable));
+
+	if ( QFile( m_externalEditorExecutable ).exists() == false ) {
+		m_externalEditorExecutable = "Path to external audio editor";
+	}
+	LocalFileMng::writeXmlString( rootNode, "path_to_externalEditor", QString(m_externalEditorExecutable));
 
 	// Recent used songs
 	QDomNode recentUsedSongsNode = doc.createElement( "recentUsedSongs" );
