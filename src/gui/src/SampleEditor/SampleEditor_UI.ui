@@ -691,8 +691,11 @@ p, li { white-space: pre-wrap; }
       <height>31</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>Set the editor in Preferences-&gt;General</string>
+    </property>
     <property name="text">
-     <string>Choose Editor</string>
+     <string>Edit sample</string>
     </property>
    </widget>
    <widget class="QLabel" name="extEditorLabel">

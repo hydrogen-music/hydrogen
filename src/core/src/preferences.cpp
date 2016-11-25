@@ -792,9 +792,6 @@ void Preferences::savePreferences()
 	}
 	LocalFileMng::writeXmlString( rootNode, "path_to_rubberband", QString(m_rubberBandCLIexecutable));
 
-	if ( QFile( m_externalEditorExecutable ).exists() == false ) {
-		m_externalEditorExecutable = "Path to external audio editor";
-	}
 	LocalFileMng::writeXmlString( rootNode, "path_to_externalEditor", QString(m_externalEditorExecutable));
 
 	// Recent used songs

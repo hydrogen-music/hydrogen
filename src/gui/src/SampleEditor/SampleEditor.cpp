@@ -124,6 +124,21 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	// Get externalEditor from preferences
 	// Create button menu for launching that editor or choosing another
 	// Maybe better to just have a separate "select editor" button?
+	QString editorExecutable = Preferences::get_instance()->m_externalEditorExecutable;
+	if ( !editorExecutable.isEmpty() )
+	{
+		// Should check to see if it is a valid executable
+		externalEditorPushButton->setEnabled( true );
+		// Capitalize the first letter to make the button look better
+		editorExecutable = QFileInfo( editorExecutable ).baseName() ;
+		editorExecutable = editorExecutable.left(1).toUpper() + editorExecutable.mid(1);
+		externalEditorPushButton->setText( tr( "Edit with " ) + editorExecutable );
+	}
+	else
+	{
+		externalEditorPushButton->setEnabled( false );
+		externalEditorPushButton->setText( tr( "Editor not selected" ) );
+	}
 	
 }
 
@@ -313,10 +328,14 @@ void SampleEditor::openDisplays()
 
 void SampleEditor::on_externalEditorPushButton_clicked()
 {
-	ERRORLOG(m_samplename);
 	QProcess *m_extEditorProcess = new QProcess();
-	//m_extEditorProcess->setWorkingDirectory("/home/pvint");
+
+	QString dir = QFileInfo(m_samplename).absolutePath();
+	m_extEditorProcess->setWorkingDirectory( dir );
+
 	QString program = Preferences::get_instance()->m_externalEditorExecutable;
+
+	INFOLOG( "Launching " + program + " to edit " + m_samplename + " in directory " + dir );
 	m_extEditorProcess->start( program, QStringList() << m_samplename );
 }
 
