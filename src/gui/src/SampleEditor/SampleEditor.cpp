@@ -125,9 +125,8 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	// Create button menu for launching that editor or choosing another
 	// Maybe better to just have a separate "select editor" button?
 	QString editorExecutable = Preferences::get_instance()->m_externalEditorExecutable;
-	if ( !editorExecutable.isEmpty() )
+	if ( !editorExecutable.isEmpty() && QFile( editorExecutable ).exists() ) 
 	{
-		// Should check to see if it is a valid executable
 		externalEditorPushButton->setEnabled( true );
 		// Capitalize the first letter to make the button look better
 		editorExecutable = QFileInfo( editorExecutable ).baseName() ;
