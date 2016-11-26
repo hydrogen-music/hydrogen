@@ -53,28 +53,6 @@
 
 #include <signal.h>
 #include <iostream>
-using namespace std;
-
-#define HAS_ARG 1
-static struct option long_opts[] = {
-	{"data", required_argument, NULL, 'P'},
-	{"driver", required_argument, NULL, 'd'},
-	{"song", required_argument, NULL, 's'},
-#ifdef H2CORE_HAVE_JACKSESSION
-        {"jacksessionid", required_argument, NULL, 'S'},
-#endif
-	{"playlist", required_argument, NULL, 'p'},
-	{"version", 0, NULL, 'v'},
-	{"nosplash", 0, NULL, 'n'},
-	{"verbose", optional_argument, NULL, 'V'},
-	{"help", 0, NULL, 'h'},
-	{"install", required_argument, NULL, 'i'},
-	{"drumkit", required_argument, NULL, 'k'},
-	{0, 0, 0, 0},
-};
-
-#define NELEM(a) ( sizeof(a)/sizeof((a)[0]) )
-
 
 //
 // Set the palette used in the application
@@ -217,7 +195,7 @@ int main(int argc, char *argv[])
 				QString sessionId;
 		#endif
 		
-		cout << aboutText.toStdString();
+		std::cout << aboutText.toStdString();
 		
 		setup_unix_signal_handlers();
 
@@ -423,7 +401,7 @@ int main(int argc, char *argv[])
 		delete MidiActionManager::get_instance();
 
 		___INFOLOG( "Quitting..." );
-		cout << "\nBye..." << endl;
+		std::cout << "\nBye..." << endl;
 		delete H2Core::Logger::get_instance();
 
 		if (H2Core::Object::count_active()) {
