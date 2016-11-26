@@ -455,7 +455,6 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	// path to external audio editor
 	pPref->m_externalEditorExecutable = externalEditorLineEdit->text();
-ERRORLOG(externalEditorLineEdit->text());
 
 	//check preferences
 	if ( pPref->m_brestartLash == true ){
@@ -506,6 +505,15 @@ ERRORLOG(externalEditorLineEdit->text());
 	accept();
 }
 
+void PreferencesDialog::on_externalEditorBrowsePushButton_clicked()
+{
+	QString editorFile = QFileDialog::getOpenFileName(this, tr("Select editor"));
+
+	if ( !editorFile.isEmpty() )
+	{
+		externalEditorLineEdit->setText( editorFile );
+	}
+}
 
 void PreferencesDialog::on_driverComboBox_activated( int index )
 {

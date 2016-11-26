@@ -686,7 +686,7 @@ p, li { white-space: pre-wrap; }
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>32</y>
+      <y>10</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -698,27 +698,17 @@ p, li { white-space: pre-wrap; }
      <string>Edit sample</string>
     </property>
    </widget>
-   <widget class="QLabel" name="extEditorLabel">
-    <property name="geometry">
-     <rect>
-      <x>690</x>
-      <y>10</y>
-      <width>131</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Open in external editor:</string>
-    </property>
-   </widget>
    <widget class="QToolButton" name="reloadToolButton">
     <property name="geometry">
      <rect>
       <x>800</x>
-      <y>30</y>
+      <y>10</y>
       <width>32</width>
-      <height>33</height>
+      <height>31</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>Reload the file after editing</string>
     </property>
     <property name="text">
      <string>R</string>

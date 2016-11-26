@@ -25,6 +25,7 @@
 #include "../InstrumentEditor/InstrumentEditor.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
 #include "../widgets/Button.h"
+#include "../Skin.h"
 
 #include "MainSampleWaveDisplay.h"
 #include "DetailWaveDisplay.h"
@@ -138,6 +139,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 		externalEditorPushButton->setEnabled( false );
 		externalEditorPushButton->setText( tr( "Editor not selected" ) );
 	}
+	reloadToolButton->setIcon(QIcon(Skin::getImagePath() + "/view-refresh.png"));
 	
 }
 
@@ -184,7 +186,6 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 
 void SampleEditor::getAllFrameInfos()
 {
-	ERRORLOG("XXXX");
 	H2Core::Instrument *pInstrument = NULL;
 	Sample* pSample = NULL;
 	Song *pSong = Hydrogen::get_instance()->getSong();
@@ -334,6 +335,16 @@ void SampleEditor::on_externalEditorPushButton_clicked()
 
 	QString program = Preferences::get_instance()->m_externalEditorExecutable;
 
+	// Verify that the user can write to the file
+	if ( !QFileInfo(m_samplename).isWritable() )
+	{
+		int err = QMessageBox::information( this, "Hydrogen", tr( "You do not have permissions to write to the file %1\nEdit anyway?").arg( m_samplename ), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		if ( err == 1 )
+		{
+			return;
+		}
+	}
+
 	INFOLOG( "Launching " + program + " to edit " + m_samplename + " in directory " + dir );
 	m_extEditorProcess->start( program, QStringList() << m_samplename );
 }
@@ -342,6 +353,7 @@ void SampleEditor::on_reloadToolButton_clicked()
 {
 	DEBUGLOG( "Reloading " + m_samplename );
 	m_pMainSampleWaveDisplay->updateDisplay( m_samplename );
+	m_pSampleAdjustView->updateDisplay( m_samplename );
 }
 
 void SampleEditor::on_ClosePushButton_clicked()

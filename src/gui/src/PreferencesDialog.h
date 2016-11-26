@@ -42,6 +42,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 	private slots:
 		void on_okBtn_clicked();
 		void on_cancelBtn_clicked();
+		void on_externalEditorBrowsePushButton_clicked();
 		void on_selectApplicationFontBtn_clicked();
 		void on_selectMixerFontBtn_clicked();
 		void on_restartDriverBtn_clicked();

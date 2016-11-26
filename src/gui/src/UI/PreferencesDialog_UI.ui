@@ -94,6 +94,13 @@
          <item>
           <widget class="QLineEdit" name="externalEditorLineEdit"/>
          </item>
+         <item>
+          <widget class="QPushButton" name="externalEditorBrowsePushButton">
+           <property name="text">
+            <string>Browse</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
