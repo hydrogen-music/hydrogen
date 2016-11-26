@@ -195,19 +195,19 @@ int main(int argc, char *argv[])
 		// Evaluate the options
 		parser.process(*pQApp);
 		QString sSelectedDriver = parser.value( audioDriverOption );
-		QString drumkitName = parser.value( installDrumkitOption );
+		QString sDrumkitName = parser.value( installDrumkitOption );
 		bool	bNoSplash = parser.isSet( noSplashScreenOption );
-		QString playlistFilename = parser.value( playlistFileNameOption );
-		QString sys_data_path = parser.value( systemDataPathOption );
-		QString songFilename = parser.value ( songFileOption );
-		QString drumkitToLoad = parser.value( kitOption );
-		QString verbosityString = parser.value( verboseOption );
+		QString sPlaylistFilename = parser.value( playlistFileNameOption );
+		QString sSysDataPath = parser.value( systemDataPathOption );
+		QString sSongFilename = parser.value ( songFileOption );
+		QString sDrumkitToLoad = parser.value( kitOption );
+		QString sVerbosityString = parser.value( verboseOption );
 		
 		unsigned logLevelOpt = H2Core::Logger::Error;
 		if( parser.isSet(verboseOption) ){
-			if( !verbosityString.isEmpty() )
+			if( !sVerbosityString.isEmpty() )
 			{
-				logLevelOpt =  H2Core::Logger::parse_log_level( verbosityString.toLocal8Bit() );
+				logLevelOpt =  H2Core::Logger::parse_log_level( sVerbosityString.toLocal8Bit() );
 			} else {
 				logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
 			}
@@ -217,6 +217,7 @@ int main(int argc, char *argv[])
 				QString sessionId;
 		#endif
 		
+		cout << aboutText.toStdString();
 		
 		setup_unix_signal_handlers();
 
@@ -225,10 +226,10 @@ int main(int argc, char *argv[])
 		H2Core::Logger::set_bit_mask( logLevelOpt );
 		H2Core::Logger* logger = H2Core::Logger::get_instance();
 		H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
-		if(sys_data_path.length()==0 ) {
+		if(sSysDataPath.length()==0 ) {
 			H2Core::Filesystem::bootstrap( logger );
 		} else {
-			H2Core::Filesystem::bootstrap( logger, sys_data_path );
+			H2Core::Filesystem::bootstrap( logger, sSysDataPath );
 		}
 		MidiMap::create_instance();
 		H2Core::Preferences::create_instance();
@@ -247,8 +248,8 @@ int main(int argc, char *argv[])
 		LashClient* lashClient = LashClient::get_instance();
 
 #endif
-		if( ! drumkitName.isEmpty() ){
-			H2Core::Drumkit::install( drumkitName );
+		if( ! sDrumkitName.isEmpty() ){
+			H2Core::Drumkit::install( sDrumkitName );
 			exit(0);
 		}
 		
@@ -334,13 +335,13 @@ int main(int argc, char *argv[])
 					songFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
 					songFilename.append("/hydrogen.h2song");
 
-					//        				H2Core::Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
+					//H2Core::Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
 
 					lash_event_destroy(lash_event);
 				}
 				else if (lash_event)
 				{
-					//        				H2Core::Logger::get_instance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
+					//H2Core::Logger::get_instance()->log("[LASH] ERROR: Instead of restore file got event: " + lash_event_get_type(lash_event));
 					lash_event_destroy(lash_event);
 				}
 			}
@@ -352,11 +353,11 @@ int main(int argc, char *argv[])
 			pPref->setJackSessionUUID( sessionId );
 
 			/*
-					 * imo, jack sessions use jack as default audio driver.
-					 * hydrogen remember last used audiodriver.
-					 * here we make it save that hydrogen start in a jacksession case
-					 * every time with jack as audio driver
-					 */
+			 * imo, jack sessions use jack as default audio driver.
+			 * hydrogen remember last used audiodriver.
+			 * here we make it save that hydrogen start in a jacksession case
+			 * every time with jack as audio driver
+			 */
 			pPref->m_sAudioDriver = "Jack";
 
 		}
@@ -364,9 +365,9 @@ int main(int argc, char *argv[])
 		/*
 		 * the use of applicationFilePath() make it
 		 * possible to use different executables.
-		* for example if you start hydrogen from a local
-		* build directory.
-		*/
+		 * for example if you start hydrogen from a local
+		 * build directory.
+		 */
 
 		QString path = pQApp->applicationFilePath();
 		pPref->setJackSessionApplicationPath( path );
@@ -382,16 +383,16 @@ int main(int argc, char *argv[])
 
 		if(!NsmSongFilename.isEmpty())
 		{
-			songFilename = NsmSongFilename;
+			sSongFilename = NsmSongFilename;
 		}
 #endif
 
-		MainForm *pMainForm = new MainForm( pQApp, songFilename );
+		MainForm *pMainForm = new MainForm( pQApp, sSongFilename );
 		pMainForm->show();
 		pSplash->finish( pMainForm );
 
-		if( ! playlistFilename.isEmpty() ){
-			bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( playlistFilename );
+		if( ! sPlaylistFilename.isEmpty() ){
+			bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( sPlaylistFilename );
 			if ( loadlist ){
 				Playlist::get_instance()->setNextSongByNumber( 0 );
 			} else {
@@ -399,8 +400,8 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if( ! drumkitToLoad.isEmpty() ) {
-			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load_by_name( drumkitToLoad, true );
+		if( ! sDrumkitToLoad.isEmpty() ) {
+			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load_by_name( sDrumkitToLoad, true );
 			if ( drumkitInfo ) {
 				H2Core::Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
 				HydrogenApp::get_instance()->onDrumkitLoad( drumkitInfo->get_name() );
