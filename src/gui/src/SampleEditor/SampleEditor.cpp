@@ -332,6 +332,11 @@ void SampleEditor::on_externalEditorPushButton_clicked()
 
 	QString dir = QFileInfo(m_samplename).absolutePath();
 	m_extEditorProcess->setWorkingDirectory( dir );
+	
+	// Properly set the CWD
+	QDir currentDir = QDir::current();
+	QDir::setCurrent( QFileInfo(m_samplename).absolutePath() );
+
 
 	QString program = Preferences::get_instance()->m_externalEditorExecutable;
 
@@ -347,6 +352,9 @@ void SampleEditor::on_externalEditorPushButton_clicked()
 
 	INFOLOG( "Launching " + program + " to edit " + m_samplename + " in directory " + dir );
 	m_extEditorProcess->start( program, QStringList() << m_samplename );
+
+	// reset the CWD
+	QDir::setCurrent( currentDir.absolutePath() );
 }
 
 void SampleEditor::on_reloadToolButton_clicked()
