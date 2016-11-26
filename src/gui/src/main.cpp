@@ -55,10 +55,6 @@
 #include <iostream>
 using namespace std;
 
-void showInfo();
-void showUsage();
-
-
 #define HAS_ARG 1
 static struct option long_opts[] = {
 	{"data", required_argument, NULL, 'P'},
@@ -156,110 +152,73 @@ static int setup_unix_signal_handlers()
 
 int main(int argc, char *argv[])
 {
-	try {
-		// Options...
-		char *cp;
-		struct option *op;
-		char opts[NELEM(long_opts) * 3 + 1];
-
-		// Build up the short option QString
-		cp = opts;
-		for (op = long_opts; op < &long_opts[NELEM(long_opts)]; op++) {
-			*cp++ = op->val;
-			if (op->has_arg)
-				*cp++ = ':';
-			if (op->has_arg == optional_argument )
-				*cp++ = ':';  // gets another one
-		}
-
-		QApplication* pQApp = new QApplication(argc, argv);
-
-		// Deal with the options
-		QString songFilename;
-#ifdef H2CORE_HAVE_JACKSESSION
-		QString sessionId;
-#endif
-		QString playlistFilename;
-		bool bNoSplash = false;
-		QString sys_data_path;
-		QString sSelectedDriver;
-		bool showVersionOpt = false;
+	try {	
+		QApplication* pQApp = new QApplication( argc, argv );
+		pQApp->setApplicationName( "Hydrogen" );
+		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
+		
+		QCommandLineParser parser;
+		
+		QString aboutText = QString( "\nHydrogen " ) + QString::fromStdString( H2Core::get_version() )  + QString( " [" ) + QString::fromStdString( __DATE__ ) + QString( "]  [http://www.hydrogen-music.org]" ) + 
+		QString( "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2016 The hydrogen development team" ) + 
+		QString( "\nHydrogen comes with ABSOLUTELY NO WARRANTY\nThis is free software, and you are welcome to redistribute it under certain conditions. See the file COPYING for details.\n" );
+		
+		parser.setApplicationDescription( aboutText );
+		
+		QCommandLineOption audioDriverOption( QStringList() << "d" << "driver", "Use the selected audio driver (jack, alsa, oss)", "Audiodriver");
+		QCommandLineOption installDrumkitOption( QStringList() << "i" << "install", "Install a drumkit (*.h2drumkit)" , "File");
+		QCommandLineOption noSplashScreenOption( QStringList() << "n" << "nosplash", "Hide splash screen" );
+		QCommandLineOption playlistFileNameOption( QStringList() << "p" << "playlist", "Load a playlist (*.h2playlist) at startup", "File" );
+		QCommandLineOption systemDataPathOption( QStringList() << "P" << "data", "Use an alternate system data path", "Path" );
+		QCommandLineOption songFileOption( QStringList() << "s" << "song", "Load a song (*.h2song) at startup", "File" );
+		QCommandLineOption kitOption( QStringList() << "k" << "kit", "Load a drumkit at startup", "DrumkitName" );
+		QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH","Level");
+		
+		parser.addHelpOption();
+		parser.addVersionOption();
+		parser.addOption( audioDriverOption );
+		parser.addOption( installDrumkitOption );
+		parser.addOption( noSplashScreenOption );
+		parser.addOption( playlistFileNameOption );
+		parser.addOption( systemDataPathOption );
+		parser.addOption( songFileOption );
+		parser.addOption( kitOption );
+		parser.addOption( verboseOption );
+		
+		
+		//Conditional options
+		#ifdef H2CORE_HAVE_JACKSESSION 
+			QCommandLineOption jackSessionOption(QStringList() << "S" << "jacksessionid", "ID - Start a JackSessionHandler session");
+			parser.addOption(jackSessionOption);
+		#endif
+			
+		// Evaluate the options
+		parser.process(*pQApp);
+		QString sSelectedDriver = parser.value( audioDriverOption );
+		QString drumkitName = parser.value( installDrumkitOption );
+		bool	bNoSplash = parser.isSet( noSplashScreenOption );
+		QString playlistFilename = parser.value( playlistFileNameOption );
+		QString sys_data_path = parser.value( systemDataPathOption );
+		QString songFilename = parser.value ( songFileOption );
+		QString drumkitToLoad = parser.value( kitOption );
+		QString verbosityString = parser.value( verboseOption );
+		
 		unsigned logLevelOpt = H2Core::Logger::Error;
-		QString drumkitName;
-		QString drumkitToLoad;
-		bool showHelpOpt = false;
-
-		int c;
-		for (;;) {
-			c = getopt_long(argc, argv, opts, long_opts, NULL);
-			if (c == -1)
-				break;
-
-			switch(c) {
-			case 'P':
-				sys_data_path = QString::fromLocal8Bit(optarg);
-				break;
-
-				case 'd':
-					sSelectedDriver = QString::fromLocal8Bit(optarg);
-					break;
-
-				case 's':
-					songFilename = QString::fromLocal8Bit(optarg);
-					break;
-#ifdef H2CORE_HAVE_JACKSESSION
-			case 'S':
-				sessionId = QString::fromLocal8Bit(optarg);
-				break;
-#endif
-
-				case 'p':
-					playlistFilename = QString::fromLocal8Bit(optarg);
-					break;
-
-				case 'k':
-					//load Drumkit
-					drumkitToLoad = QString::fromLocal8Bit(optarg);
-					break;
-
-				case 'v':
-					showVersionOpt = true;
-					break;
-
-				case 'i':
-					//install h2drumkit
-					drumkitName = QString::fromLocal8Bit( optarg );
-					break;
-
-				case 'V':
-					if( optarg ) {
-						logLevelOpt = H2Core::Logger::parse_log_level( optarg );
-					} else {
-						logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
-					}
-					break;
-				case 'n':
-					bNoSplash = true;
-					break;
-
-				case 'h':
-				case '?':
-					showHelpOpt = true;
-					break;
+		if( parser.isSet(verboseOption) ){
+			if( !verbosityString.isEmpty() )
+			{
+				logLevelOpt =  H2Core::Logger::parse_log_level( verbosityString.toLocal8Bit() );
+			} else {
+				logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
 			}
 		}
-
+		
+		#ifdef H2CORE_HAVE_JACKSESSION
+				QString sessionId;
+		#endif
+		
+		
 		setup_unix_signal_handlers();
-
-		if( showVersionOpt ) {
-			std::cout << H2Core::get_version() << std::endl;
-			exit(0);
-		}
-		showInfo();
-		if( showHelpOpt ) {
-			showUsage();
-			exit(0);
-		}
 
 		// Man your battle stations... this is not a drill.
 		H2Core::Logger::create_instance();
@@ -479,57 +438,5 @@ int main(int argc, char *argv[])
 	}
 
 	return 0;
-}
-
-
-
-/**
- * Show some information
- */
-void showInfo()
-{
-	cout << "\nHydrogen " + H2Core::get_version() + " [" + __DATE__ + "]  [http://www.hydrogen-music.org]" << endl;
-	cout << "Copyright 2002-2008 Alessandro Cominu" << endl;
-	cout << "Copyright 2008-2016 The hydrogen development team" << endl;
-
-	if ( H2Core::Object::count_active() ) {
-		cout << "\nObject counting = active" << endl;
-	}
-
-	cout << "\nHydrogen comes with ABSOLUTELY NO WARRANTY" << endl;
-	cout << "This is free software, and you are welcome to redistribute it" << endl;
-	cout << "under certain conditions. See the file COPYING for details\n" << endl;
-}
-
-
-
-/**
- * Show the correct usage
- */
-void showUsage()
-{
-	std::cout << "Usage: hydrogen [-v] [-h] -s file" << std::endl;
-	std::cout << "   -P, --data PATH - Use an alternate system data path" << std::endl;
-	std::cout << "   -d, --driver AUDIODRIVER - Use the selected audio driver (jack, alsa, oss)" << std::endl;
-	std::cout << "   -s, --song FILE - Load a song (*.h2song) at startup" << std::endl;
-
-#ifdef H2CORE_HAVE_JACKSESSION
-	std::cout << "   -S, --jacksessionid ID - Start a JackSessionHandler session" << std::endl;
-#endif
-
-	std::cout << "   -p, --playlist FILE - Load a playlist (*.h2playlist) at startup" << std::endl;
-	std::cout << "   -k, --kit drumkit_name - Load a drumkit at startup" << std::endl;
-	std::cout << "   -i, --install FILE - install a drumkit (*.h2drumkit)" << std::endl;
-#ifdef H2CORE_HAVE_LASH
-	std::cout << "   --lash-no-start-server - If LASH server not running, don't start" << endl
-			  << "                            it (LASH 0.5.3 and later)." << std::endl;
-	std::cout << "   --lash-no-autoresume - Tell LASH server not to assume I'm returning" << std::endl
-			  << "                          from a crash." << std::endl;
-#endif
-	std::cout << "   -n, --nosplash - Hide splash screen" << std::endl;
-	std::cout << "   -V[Level], --verbose[=Level] - Print a lot of debugging info" << std::endl;
-	std::cout << "                 Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH" << std::endl;
-	std::cout << "   -v, --version - Show version info" << std::endl;
-	std::cout << "   -h, --help - Show this help message" << std::endl;
 }
 
