@@ -33,7 +33,7 @@
 ///
 /// Container for the Instrument Editor (Singleton).
 ///
-class InstrumentEditorPanel : public QWidget, private H2Core::Object, public EventListener
+class InstrumentEditorPanel : public QWidget, private H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
@@ -56,7 +56,6 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object, public Eve
 
 		InstrumentEditorPanel( QWidget *pParent );
 		int m_pLayer;
-		QTimer *m_pUpdateTimer;
 };
 
 #endif
