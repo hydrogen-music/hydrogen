@@ -330,7 +330,7 @@ void SampleEditor::on_externalEditorPushButton_clicked()
 {
 	// Verify that the editor is set
 	QString program = Preferences::get_instance()->m_externalEditorExecutable;
-	DEBUGLOG( program + " " + QString::number(QFileInfo( program ).isExecutable()) + QString::number(QFileInfo( program ).isDir()) + QString::number(QFileInfo( program ).isFile()));
+
 	if ( !QFileInfo( program ).isExecutable() || !QFileInfo( program ).isFile() ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "External editor is not set or is not valid.\nPlease set the external editor path in Preferences->General." ) );
 		return;
