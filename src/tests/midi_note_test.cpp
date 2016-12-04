@@ -88,8 +88,9 @@ class MidiNoteTest : public CppUnit::TestCase {
 		CPPUNIT_ASSERT_EQUAL( 16, instruments->size() );
 
 		ASSERT_INSTRUMENT_MIDI_NOTE( "Kick",       36, instruments->get(0) );
-		ASSERT_INSTRUMENT_MIDI_NOTE( "Snare Jazz", 37, instruments->get(1) );
-		ASSERT_INSTRUMENT_MIDI_NOTE( "Hand Clap",  38, instruments->get(2) );
+		ASSERT_INSTRUMENT_MIDI_NOTE( "Stick",      37, instruments->get(1) );
+		ASSERT_INSTRUMENT_MIDI_NOTE( "Snare Jazz", 38, instruments->get(2) );
+		ASSERT_INSTRUMENT_MIDI_NOTE( "Hand Clap",  39, instruments->get(3) );
 		ASSERT_INSTRUMENT_MIDI_NOTE( "Closed HH",  42, instruments->get(6) );
 	}
 

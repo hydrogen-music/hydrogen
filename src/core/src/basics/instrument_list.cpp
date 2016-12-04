@@ -217,6 +217,13 @@ void InstrumentList::move( int idx_a, int idx_b )
 	__instruments.insert( __instruments.begin() + idx_b, tmp );
 }
 
+void InstrumentList::fix_issue_307()
+{
+    if ( has_all_midi_notes_same() ) {
+        WARNINGLOG( "Same MIDI note assigned to every instrument. Assigning default values." );
+        set_default_midi_out_notes();
+    }
+}
 
 bool InstrumentList::has_all_midi_notes_same() const
 {
