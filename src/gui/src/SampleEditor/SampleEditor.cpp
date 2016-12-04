@@ -136,7 +136,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	}
 	else
 	{
-		externalEditorPushButton->setEnabled( false );
+		//externalEditorPushButton->setEnabled( false );
 		externalEditorPushButton->setText( tr( "Editor not selected" ) );
 	}
 	reloadToolButton->setIcon(QIcon(Skin::getImagePath() + "/view-refresh.png"));
@@ -328,6 +328,14 @@ void SampleEditor::openDisplays()
 
 void SampleEditor::on_externalEditorPushButton_clicked()
 {
+	// Verify that the editor is set
+	QString program = Preferences::get_instance()->m_externalEditorExecutable;
+	DEBUGLOG( program + " " + QString::number(QFileInfo( program ).isExecutable()) + QString::number(QFileInfo( program ).isDir()) + QString::number(QFileInfo( program ).isFile()));
+	if ( !QFileInfo( program ).isExecutable() || !QFileInfo( program ).isFile() ) {
+		QMessageBox::warning( this, "Hydrogen", tr( "External editor is not set or is not valid.\nPlease set the external editor path in Preferences->General." ) );
+		return;
+	}
+
 	QProcess *m_extEditorProcess = new QProcess();
 
 	QString dir = QFileInfo(m_samplename).absolutePath();
@@ -336,9 +344,6 @@ void SampleEditor::on_externalEditorPushButton_clicked()
 	// Properly set the CWD
 	QDir currentDir = QDir::current();
 	QDir::setCurrent( QFileInfo(m_samplename).absolutePath() );
-
-
-	QString program = Preferences::get_instance()->m_externalEditorExecutable;
 
 	// Verify that the user can write to the file
 	if ( !QFileInfo(m_samplename).isWritable() )
