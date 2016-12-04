@@ -148,6 +148,18 @@ class InstrumentList : public H2Core::Object
 		 */
 		static InstrumentList* load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
 
+        /**
+         * Check if all instruments have assigned the same
+         * MIDI out note
+         */
+        bool has_all_midi_notes_same() const;
+
+        /**
+         * Set each instrument consecuteve MIDI
+         * out notes, starting from 36
+         */
+        void set_default_midi_out_notes();
+
 	private:
 		std::vector<Instrument*> __instruments;            ///< the list of instruments
 };
