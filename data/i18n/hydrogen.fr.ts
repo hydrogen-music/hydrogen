@@ -2508,7 +2508,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>&amp;Reopen last used playlist</source>
-        <translation>&amp;Ré-ouvrir la dernière Liste de Lecture utilisée</translation>
+        <translation>&amp;Ré-ouvrir la dernière liste de lecture utilisée</translation>
     </message>
     <message>
         <source>Interpolate resampling</source>
