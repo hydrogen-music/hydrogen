@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>595</width>
+    <width>602</width>
     <height>595</height>
    </rect>
   </property>
@@ -101,12 +101,12 @@
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>10</x>
      <y>11</y>
-     <width>591</width>
+     <width>581</width>
      <height>311</height>
     </rect>
    </property>
