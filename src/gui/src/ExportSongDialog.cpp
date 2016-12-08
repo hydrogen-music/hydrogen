@@ -122,6 +122,9 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	if(b_oldRubberbandBatchMode){
 		calculateRubberbandTime();
 	}
+
+	// Have the dialog find the best size
+	adjustSize();
 }
 
 

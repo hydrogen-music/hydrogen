@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>559</width>
+    <width>624</width>
     <height>451</height>
    </rect>
   </property>
@@ -29,7 +29,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
@@ -360,7 +360,7 @@
            <item>
             <widget class="QCheckBox" name="trackOutsCheckBox">
              <property name="text">
-              <string>create per-instrument outputs</string>
+              <string>Create per-instrument outputs</string>
              </property>
              <property name="shortcut">
               <string>Alt+D</string>

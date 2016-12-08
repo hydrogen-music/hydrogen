@@ -165,11 +165,11 @@
     </message>
     <message>
         <source>Size: %1 bytes</source>
-        <translation>Taille: %1 bytes</translation>
+        <translation>Taille : %1 bytes</translation>
     </message>
     <message>
         <source>Samplerate: %1</source>
-        <translation>Fréquence: %1 Hz</translation>
+        <translation>Fréquence : %1 Hz</translation>
     </message>
     <message>
         <source> s</source>
@@ -177,19 +177,19 @@
     </message>
     <message>
         <source>Name:</source>
-        <translation>Nom:</translation>
+        <translation>Nom :</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation>Taille:</translation>
+        <translation>Taille :</translation>
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation>Taux d&apos;échantillonage:</translation>
+        <translation>Taux d&apos;échantillonage :</translation>
     </message>
     <message>
         <source>Sample length: </source>
-        <translation>Durée:</translation>
+        <translation>Longueur d'échantillon : </translation>
     </message>
     <message>
         <source>Please do not preview samples which are longer than 10 minutes!</source>
@@ -197,7 +197,7 @@
     </message>
     <message>
         <source>Sample length:</source>
-        <translation>Durée:</translation>
+        <translation>Longueur d'échantillon :</translation>
     </message>
 </context>
 <context>
@@ -212,15 +212,15 @@
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation>Fréquence:</translation>
+        <translation>Taux d'échantillonnage :</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation>Taille:</translation>
+        <translation>Taille :</translation>
     </message>
     <message>
         <source>Length:</source>
-        <translation>Durée:</translation>
+        <translation>Durée :</translation>
     </message>
     <message>
         <source>Pla&amp;y samples by clicking</source>
@@ -2508,7 +2508,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>&amp;Reopen last used playlist</source>
-        <translation>&amp;Ré-ouvrir la dernière Liste de Lecture utilisée</translation>
+        <translation>&amp;Ré-ouvrir la dernière liste de lecture utilisée</translation>
     </message>
     <message>
         <source>Interpolate resampling</source>
