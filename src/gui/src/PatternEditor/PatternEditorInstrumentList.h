@@ -28,6 +28,9 @@
 #include <hydrogen/globals.h>
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 #include <hydrogen/object.h>
 #include "../widgets/PixmapWidget.h"
@@ -72,6 +75,7 @@ class InstrumentLine : public PixmapWidget
 
 		void functionRandomizeVelocity();
 		void functionDeleteInstrument();
+		void functionRenameInstrument();
 		void muteClicked();
 		void soloClicked();
 

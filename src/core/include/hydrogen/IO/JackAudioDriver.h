@@ -54,14 +54,14 @@ class InstrumentComponent;
 ///
 /// Jack (Jack Audio Connection Kit) server driver.
 ///
-class JackOutput : public AudioOutput
+class JackAudioDriver : public AudioOutput
 {
 	H2_OBJECT
 public:
 	jack_client_t *client;
 
-	JackOutput( JackProcessCallback processCallback );
-	~JackOutput();
+	JackAudioDriver( JackProcessCallback processCallback );
+	~JackAudioDriver();
 
 	int connect();
 	void disconnect();
@@ -161,11 +161,11 @@ private:
 
 namespace H2Core {
 
-class JackOutput : public NullDriver
+class JackAudioDriver : public NullDriver
 {
 	H2_OBJECT
 public:
-	JackOutput( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+	JackAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 
 };
 

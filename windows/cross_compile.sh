@@ -2,6 +2,7 @@
 # Hydrogen Cross Compile Script
 
 FATBUILD=false
+OLDBUILD=false
 
 show_interactive_menu(){
 	#clear the screen
@@ -95,35 +96,49 @@ mxe_files(){
 	#set the dir to search
 	if [ "$1" == "64" ]; then
 	    mxedir="/opt/mxe/usr/x86_64-w64-mingw32.shared/bin"
-	    qtdir="$mxedir/../qt/bin"
 	    gccdir="/opt/mxe/usr/lib/gcc/x86_64-w64-mingw32.shared"
 	else
 	    mxedir="/opt/mxe/usr/i686-w64-mingw32.shared/bin"
-	    qtdir="$mxedir/../qt/bin"
 	    gccdir="/opt/mxe/usr/lib/gcc/i686-w64-mingw32.shared"
 	fi
-	
-	hydrogendir=`pwd`
+	if [ -d windows ]; then
+            hydrogendir=`pwd`"/windows"
+        else
+            hydrogendir=`pwd`
+        fi
 	extralibs="$hydrogendir/extralibs"
-	mkdir $extralibs
+	
+        mkdir $extralibs
 	
 	#Make arrays for the filenames to loop through.
 	declare -a libs=("libgnurx" "libsndfile" "libFLAC" "libogg" "libvorbis" "libvorbisenc" "zlib1" "libwinpthread" "libeay32" "ssleay32" "libarchive" "libbz2" "liblzma" "libnettle" "libxml2" "libpng16" "libportmidi" "libportaudio" "libiconv" "libiconv" "jack")
-	declare -a qtlibs=("QtCore4" "QtXml4" "QtXmlPatterns4" "QtNetwork4" "QtGui4")
 	declare -a gcclibs=("libgcc" "libstdc++")
-	#loop through the libs, and put them into a text file.
+	
+        #special stuff for qt5 handling
+        if [ $OLDBUILD == true ]; then
+            declare -a qtlibs=("QtCore4" "QtXml4" "QtXmlPatterns4" "QtNetwork4" "QtGui4")
+            qtdir="$mxedir/../qt/bin"
+        else
+            declare -a qtlibs=("Qt5Core" "Qt5Xml." "Qt5XmlPatterns" "Qt5Network" "Qt5Gui" "Qt5Widgets")
+            libs+=("libpcre-1" "libpcre16-0" "libharfbuzz-0" "libfreetype-6" "libglib-2" "libintl-8")
+            qtdir="$mxedir/../qt5/bin"
+            platforms="$extralibs/platforms"
+            mkdir -p $platforms
+            cp "$qtdir/../plugins/platforms/qwindows.dll" "$platforms/"
+        fi
+        #loop through the libs, and put them into a text file.
 	cd $mxedir
 	for mylibs in "${libs[@]}"
 	do
 		cp `ls -v $mylibs*dll| tail -n 1` $extralibs
 	done
-	#loop through the qt files and put them into a text file
-	cd $qtdir
-	for myqtlibs in "${qtlibs[@]}"
-	do
-		cp `ls -v $myqtlibs*dll| tail -n 1` $extralibs
-		spa=" "
-	done
+        #loop through the qt files and put them into a text file
+        cd $qtdir
+        for myqtlibs in "${qtlibs[@]}"
+        do
+            cp `ls -v $myqtlibs*dll| tail -n 1` $extralibs
+            spa=" "
+        done
 	#find the latest gcc dir from mxe
 	cd $gccdir
 	echo `ls -v | tail -n 1` > $hydrogendir/../gccversion.txt
@@ -131,8 +146,28 @@ mxe_files(){
 	cd $mxedir
 	for mygcclibs in "${gcclibs[@]}"
 	do
-		cp `ls -v $mygcclibs*dll| tail -n 1` $extralibs
+            cp `ls -v $mygcclibs*dll| tail -n 1` $extralibs
 	done
+}
+setqt5(){
+    if [ "$1" == "64" ]; then
+        qt5dir="/opt/mxe/usr/x86_64-w64-mingw32.shared/qt5/lib/cmake"
+    else
+        qt5dir="/opt/mxe/usr/i686-w64-mingw32.shared/qt5/lib/cmake"
+    fi
+    if [ $OLDBUILD != true ]; then
+        qtprefix="-DCMAKE_PREFIX_PATH=$qt5dir"
+    fi
+}
+
+cleanbuild(){
+    if [ -d windows ]; then
+        cd windows
+    fi
+    if [ -f CMakeCache.txt ]; then
+        rm -rf _CPack_Packages CMakeFiles try src extralibs
+        rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
+    fi
 }
 
 build_hydrogen(){
@@ -175,7 +210,7 @@ build_hydrogen(){
 		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
 	fi
 
-	cmake $4 ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2 $3 -DWANT_FAT_BUILD:BOOL=$FATBUILD -DWANT_DEBUG:BOOL=OFF
+	cmake $4 ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2 $3 -DWANT_FAT_BUILD:BOOL=$FATBUILD -DWANT_DEBUG:BOOL=OFF -DWANT_OLD_BUILD:BOOL=$OLDBUILD
 	
 	export HYDROGEN
 	export HYDROGEN_BUILD
@@ -233,39 +268,56 @@ build_hydrogen(){
 }
 
 usage(){
-	echo -e "\nManual mode:\t\tcross_compile.sh [-f] [-d SOURCE_DIR] -b i686|x86_64"
+	echo -e "\nManual mode:\t\tcross_compile.sh [-f] [-d SOURCE_DIR] [-c] -b i686|x86_64"
 	echo -e "Interactive mode:\tcross_compile.sh -i"
-	echo -e "Usage: \n\t-i:\tUse interactive mode \n\t-b:\tBuild hydrogen. Valid values: i686 or x86_64 \n\t-f:\tFat build (includes Jack and Ladspa installers). Only useful in combination with -b."
+	echo -e "Usage: \n\t-i:\tUse interactive mode \n\t-b:\tBuild hydrogen. Valid values: i686 or x86_64 \n\t-f:\tFat build (includes Jack and Ladspa installers). Only useful in combination with -b \n\t-o:\tOld build uses QT4 to build hydrogen instead of the new QT5 \n\t-c:\tClean the CMake files from the windows directory. Used if building fails, or compiling a different version.\n\t-r:\tBuild release packages. This will build both the 32 bit and 64 bit installers for releases."
 }
 
 fatbuild=false
 
-while getopts "d:fb:i" o; do
+while getopts "d:fob:icr" o; do
     case "${o}" in
-		d)
-			HYDROGEN=${OPTARG}
-			if [ ! -d $HYDROGEN ]; then
-				echo "Hydrogen source not found in $HYDROGEN."
-				exit
-			fi
-			;;
-		f)
-			FATBUILD=true
-			;;
-		b)
+	d)
+            HYDROGEN=${OPTARG}
+            if [ ! -d $HYDROGEN ]; then
+		echo "Hydrogen source not found in $HYDROGEN."
+		exit
+            fi
+            ;;
+	f)
+            FATBUILD=true
+            ;;
+	b)
             arch=${OPTARG}
 
-			if [ "$arch" != "x86_64" ]; then
-				mxe_files 32
-				build_32bit
-			else
-				mxe_files 64
-				build_64bit
-			fi
-
+            if [ "$arch" != "x86_64" ]; then
+                mxe_files 32
+                setqt5
+		build_32bit
+            else
+		mxe_files 64
+                setqt5
+                build_64bit
+            fi
             ;;
         i)
             show_interactive_menu
+            ;;
+        o)
+            OLDBUILD=true
+            ;;
+        c)
+            cleanbuild
+            ;;
+        r)
+            cleanbuild
+            mxe_files 32
+            setqt5
+            build_32bit
+            cleanbuild
+            mxe_files 64
+            setqt5
+            build_64bit
             ;;
         *)
             usage

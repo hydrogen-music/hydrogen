@@ -27,6 +27,9 @@
 #include "MidiSenseWidget.h"
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 #include <hydrogen/globals.h>
 
 const char* Fader::__class_name = "Fader";

@@ -37,12 +37,16 @@ using namespace H2Core;
 
 #include "UndoActions.h"
 #include "PatternEditorPanel.h"
+#include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "DrumPatternEditor.h"
 #include "../HydrogenApp.h"
 #include "../Mixer/Mixer.h"
 #include "../widgets/Button.h"
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 #include <QClipboard>
 #include <cassert>
 
@@ -118,6 +122,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addMenu( m_pPastePopupSub );
 
 	m_pFunctionPopup->addSeparator();
+	m_pFunctionPopup->addAction( trUtf8( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
 	m_pFunctionPopup->addAction( trUtf8( "Delete instrument" ), this, SLOT( functionDeleteInstrument() ) );
 
 	m_bIsSelected = true;
@@ -434,7 +439,36 @@ void InstrumentLine::functionRandomizeVelocity()
 
 
 
+void InstrumentLine::functionRenameInstrument()
+{
+	// This code is pretty much a duplicate of void InstrumentEditor::labelClicked
+	// in InstrumentEditor.cpp
+	Hydrogen * pEngine = Hydrogen::get_instance();
+	Instrument *pSelectedInstrument = pEngine->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
 
+	QString sOldName = pSelectedInstrument->get_name();
+	bool bIsOkPressed;
+	QString sNewName = QInputDialog::getText( this, "Hydrogen", trUtf8( "New instrument name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
+	if ( bIsOkPressed  ) {
+		pSelectedInstrument->set_name( sNewName );
+
+#ifdef H2CORE_HAVE_JACK
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		Hydrogen *engine = Hydrogen::get_instance();
+		engine->renameJackPorts(engine->getSong());
+		AudioEngine::get_instance()->unlock();
+#endif
+
+		// this will force an update...
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+
+	}
+	else 
+	{
+		// user entered nothing or pressed Cancel
+	}
+
+}
 
 void InstrumentLine::functionDeleteInstrument()
 {

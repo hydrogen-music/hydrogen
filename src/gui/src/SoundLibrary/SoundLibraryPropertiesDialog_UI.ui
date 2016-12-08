@@ -66,6 +66,9 @@
    <property name="alignment">
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
    </property>
+   <property name="wordWrap">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QLineEdit" name="authorTxt">
    <property name="geometry">
@@ -130,14 +133,17 @@
      <x>10</x>
      <y>70</y>
      <width>111</width>
-     <height>21</height>
+     <height>41</height>
     </rect>
    </property>
    <property name="text">
     <string>Drumkit License</string>
    </property>
    <property name="alignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QLineEdit" name="licenseTxt">
@@ -169,7 +175,7 @@
    <property name="geometry">
     <rect>
      <x>410</x>
-     <y>600</y>
+     <y>610</y>
      <width>176</width>
      <height>41</height>
     </rect>
@@ -196,8 +202,8 @@
     <rect>
      <x>10</x>
      <y>580</y>
-     <width>469</width>
-     <height>21</height>
+     <width>571</width>
+     <height>31</height>
     </rect>
    </property>
    <property name="text">
@@ -343,9 +349,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>322</y>
+     <y>316</y>
      <width>111</width>
-     <height>25</height>
+     <height>31</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -356,6 +362,9 @@
    </property>
    <property name="text">
     <string>Image License</string>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
    </property>
   </widget>
  </widget>

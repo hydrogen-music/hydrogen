@@ -42,7 +42,7 @@
 #include "hydrogen/helpers/filesystem.h"
 
 #include <QDir>
-#include <QApplication>
+//#include <QApplication>
 
 namespace H2Core
 {
@@ -102,7 +102,7 @@ Preferences::Preferences()
 
 	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
 	if ( ladpath ) {
-		INFOLOG( "Found LADSPA_PATH enviroment variable" );
+		INFOLOG( "Found LADSPA_PATH environment variable" );
 		QString sLadspaPath = QString::fromLocal8Bit(ladpath);
 		int pos;
 		while ( ( pos = sLadspaPath.indexOf( ":" ) ) != -1 ) {
@@ -205,6 +205,10 @@ Preferences::Preferences()
 	m_nJackTrackOutputMode = 0;
 	m_bJackMasterMode = false ;
 
+	// OSC configuration
+	m_bOscServerEnabled = false;
+	m_nOscServerPort = 9000;
+
 	// None: m_sDefaultEditor;
 	// SEE ABOVE: m_sDataDirectory
 	// SEE ABOVE: demoPath
@@ -226,7 +230,7 @@ Preferences::Preferences()
 	m_bUseRelativeFilenamesForPlaylists = false;
 
 	//___ GUI properties ___
-	m_sQTStyle = "Plastique";
+	m_sQTStyle = "Fusion";
 	applicationFontFamily = "Lucida Grande";
 	applicationFontPointSize = 10;
 	mixerFontFamily = "Lucida Grande";
@@ -531,8 +535,15 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_bMidiFixedMapping = LocalFileMng::readXmlBool( midiDriverNode, "fixed_mapping", false, true );
 				}
 
-
-
+				/// OSC Server ///
+				QDomNode oscServerNode = audioEngineNode.firstChildElement( "osc_server" );
+				if ( oscServerNode.isNull() ) {
+					WARNINGLOG( "osc_server node not found" );
+					recreate = true;
+				} else {
+					m_bOscServerEnabled = LocalFileMng::readXmlBool( midiDriverNode, "oscServerEnabled", false );
+					m_nOscServerPort = LocalFileMng::readXmlInt( midiDriverNode, "oscServerPort", 9000 );
+				}
 			}
 
 			/////////////// GUI //////////////
@@ -543,6 +554,10 @@ void Preferences::loadPreferences( bool bGlobal )
 			} else {
 				// QT Style
 				m_sQTStyle = LocalFileMng::readXmlString( guiNode, "QTStyle", m_sQTStyle, true );
+
+				if(m_sQTStyle == "Plastique"){
+					m_sQTStyle = "Fusion";
+				}
 
 				// Application font family
 				applicationFontFamily = LocalFileMng::readXmlString( guiNode, "application_font_family", applicationFontFamily );
@@ -709,7 +724,7 @@ void Preferences::loadPreferences( bool bGlobal )
 
 
 	// The preferences file should be recreated?
-	if ( recreate == true ) {
+	if ( recreate == true && !bGlobal ) {
 		WARNINGLOG( "Recreating configuration file." );
 		savePreferences();
 	}

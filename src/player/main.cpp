@@ -37,7 +37,7 @@
 using std::cout;
 using std::endl;
 
-#include <QApplication>
+#include <QCoreApplication>
 
 void usage()
 {
@@ -53,7 +53,7 @@ int main(int argc, char** argv){
 	H2Core::Logger* logger = H2Core::Logger::get_instance();
 	H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
 
-	QApplication a(argc, argv);
+	QCoreApplication a(argc, argv);
 
 	H2Core::Filesystem::bootstrap( logger );
 

@@ -92,7 +92,7 @@ void DrumPatternEditor::updateEditor()
 	// check engine state
 	int state = engine->getState();
 	if ( (state != STATE_READY) && (state != STATE_PLAYING) ) {
-		ERRORLOG( "FIXME: skipping pattern editor update (state shoud be READY or PLAYING)" );
+		ERRORLOG( "FIXME: skipping pattern editor update (state should be READY or PLAYING)" );
 		return;
 	}
 
@@ -132,7 +132,7 @@ int DrumPatternEditor::getColumn(QMouseEvent *ev)
 	else {
 		nBase = 4;
 	}
-	int nWidth = (m_nGridWidth * 4 * MAX_NOTES) / (nBase * m_nResolution);
+	float nWidth = (m_nGridWidth * 4 * MAX_NOTES) / (nBase * m_nResolution);
 
 	int x = ev->x();
 	int nColumn;
@@ -881,6 +881,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 					float pan_L,
 					float pan_R,
 					float leadLag,
+					float probability,
 					int noteKeyVal,
 					int octaveKeyVal)
 {
@@ -918,6 +919,9 @@ void DrumPatternEditor::undoRedoAction( int column,
 		else if ( mode == "NOTEKEY" ){
 			pNote->set_key_octave( (Note::Key)noteKeyVal, (Note::Octave)octaveKeyVal );
 		}
+		else if ( mode == "PROBABILITY" ){
+			pNote->set_probability( probability );
+		}
 
 		pSong->set_is_modified( true );
 		break;
@@ -928,6 +932,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
 	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
 	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+	m_pPatternEditorPanel->getProbabilityEditor()->updateEditor();
 
 }
 

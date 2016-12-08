@@ -32,7 +32,7 @@ install_mxe(){
 	sed -i 's/--enable-threads=win32/--enable-threads=posix/g' $MXE/src/gcc.mk
 	make gcc $1
 	#Build the dependancies for hydrogen
-	make qt libarchive libsndfile portaudio portmidi fftw rubberband jack -j4 JOBS=4 $1
+	make qt libarchive libsndfile portaudio portmidi fftw rubberband jack qt5 -j4 JOBS=4 $1
 	sed -i 's/:= gcc/:= gcc jack/g' $MXE/src/portaudio.mk
 	make portaudio
 }

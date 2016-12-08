@@ -2,7 +2,7 @@
 # CMAKE SETUP
 #
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
 SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 # The CMake Policy mechanism is designed to help keep existing projects building as new versions of CMake introduce changes in behavior.
 # http://www.cmake.org/cmake/help/cmake2.6docs.html#command:cmake_policy
@@ -16,13 +16,12 @@ ENDIF()
 # PROJECT INFO
 #
 PROJECT(hydrogen)
-SET(VERSION_MAJOR "0")
-SET(VERSION_MINOR "9")
-SET(VERSION_PATCH "7")
-#SET(VERSION_SUFFIX "beta3")
+SET(VERSION_MAJOR "1")
+SET(VERSION_MINOR "0")
+SET(VERSION_PATCH "0")
+#SET(VERSION_SUFFIX "rc1")
 
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
-
 
 IF(VERSION_SUFFIX)
 	SET(DISPLAY_VERSION "${VERSION}-${VERSION_SUFFIX}")
@@ -30,6 +29,7 @@ ELSE()
 	EXECUTE_PROCESS(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE GIT_REVISION )
 	SET(DISPLAY_VERSION "${VERSION}-${GIT_REVISION}")
 ENDIF(VERSION_SUFFIX)
+
 SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 
 #
@@ -37,7 +37,9 @@ SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 #
 SET(WANT_LIBTAR TRUE)
 OPTION(WANT_DEBUG           "Build with debug information" ON)
-
+IF(NOT WANT_OLD_BUILD)
+    OPTION(WANT_QT5             "Build with Qt5" ON)
+ENDIF()
 IF(APPLE)
     OPTION(WANT_SHARED      "Build the core library shared." OFF)
 ELSE()
@@ -103,8 +105,12 @@ ELSE()
     SET(H2CORE_LIBRARY_TYPE STATIC)
 ENDIF()
 
-#SET(CMAKE_CXX_FLAGS "-fno-implement-inlines -finline-small-functions -findirect-inlining -fpartial-inlining")
-SET(CMAKE_CXX_FLAGS "-O2 -std=gnu++11 -Wno-deprecated-register")
+IF(WANT_DEBUG)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -std=gnu++11 -Wno-deprecated-register")
+ELSE()
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=gnu++11 -Wno-deprecated-register")
+ENDIF()
+
 IF (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-implement-inlines")
 ENDIF()
@@ -122,9 +128,20 @@ ENDIF()
 # MANDATORY PKGS AND DEFAULT OPTIONS
 #
 INCLUDE(StatusSupportOptions)
-MANDATORY_PKG(QT4)
 MANDATORY_PKG(Threads)
 MANDATORY_PKG(LIBSNDFILE)
+
+IF(WANT_QT5)
+	FIND_PACKAGE(Qt5Widgets REQUIRED)
+	FIND_PACKAGE(Qt5Xml REQUIRED)
+	FIND_PACKAGE(Qt5XmlPatterns REQUIRED)
+ELSE()
+	MANDATORY_PKG(QT4)
+	SET(QT_USE_QTXML true)
+	SET(QT_USE_QTGUI true)
+	SET(QT_USE_QTXMLPATTERNS true)
+	FIND_PACKAGE(Qt4 4.3.0 REQUIRED)
+ENDIF()
 
 IF(MINGW)
     SET(WANT_JACK TRUE)
@@ -221,12 +238,12 @@ FIND_HELPER(RAPTOR raptor2 raptor.h raptor)
 FIND_HELPER(RUBBERBAND rubberband RubberBandStretcher.h rubberband)
 FIND_HELPER(CPPUNIT cppunit cppunit/TestCase.h cppunit)
 
-# CHECK FOR Qt4
-SET(QT_USE_QTNETWORK true)
-SET(QT_USE_QTXML true)
-SET(QT_USE_QTGUI true)
-SET(QT_USE_QTXMLPATTERNS true)
-FIND_PACKAGE(Qt4 4.3.0 REQUIRED)
+
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Instruct CMake to run moc automatically when needed.
+#set(CMAKE_AUTOMOC ON)
+
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
@@ -251,14 +268,14 @@ STRING( COMPARE GREATER "${LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_PREV}" LIB
 IF(LIBSNDFILE_VERSION_OK)
     SET(LIBSNDFILE_MSG "libsndfile supports FLAC and OGG sound file formats")
 ELSE()
-    SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support LFAC and OGG sound file formats")
+    SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support FLAC and OGG sound file formats")
 ENDIF()
 
 # RUBBERBAND information
 SET(LIBRUBBERBAND_MSG "The use of librubberband2 is marked as experimental.
 *				 Because the current implementation produce wrong timing!
 *				 So long this bug isn't solved, please disable this option.
-*				 If rubberband-cli is installed, the hydrogen rubberband-fuction
+*				 If rubberband-cli is installed, the hydrogen rubberband-function
 *				 will work properly as expected.")
 
 #
@@ -277,12 +294,17 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}
-* fat build                    : ${WANT_FAT_BUILD}\n"
+* fat build                    : ${WANT_FAT_BUILD}
+* old build                    : ${WANT_OLD_BUILD}\n"
 )
 
-COLOR_MESSAGE("${cyan}Main librarires${reset}
-* ${purple}libQt${reset}                        : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
-* ${purple}libsndfile${reset}                   : ${LIBSNDFILE_STATUS}
+COLOR_MESSAGE("${cyan}Main librarires${reset}")
+IF(WANT_QT5)
+	COLOR_MESSAGE("* ${purple}libQt${reset}                        : ${Qt5Widgets_VERSION}")
+ELSE()
+	COLOR_MESSAGE("* ${purple}libQt${reset}                        : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}")
+ENDIF()
+COLOR_MESSAGE("* ${purple}libsndfile${reset}                   : ${LIBSNDFILE_STATUS}
 *                                ${LIBSNDFILE_MSG}
 * ${purple}libtar${reset}                       : ${LIBTAR_STATUS}
 * ${purple}libarchive${reset}                   : ${LIBARCHIVE_STATUS}
@@ -354,8 +376,10 @@ ELSE()
 	INSTALL(DIRECTORY data DESTINATION ${SYS_DATA_PATH}/.. PATTERN ".git" EXCLUDE)
 ENDIF()
 IF(NOT MINGW AND NOT APPLE)
-    INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_PREFIX}/share/appdata")
-   	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_PREFIX}/share/appdata")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "/usr/share/pixmaps")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.1 DESTINATION "${CMAKE_INSTALL_PREFIX}/man/man1")
 ENDIF()
 
 #

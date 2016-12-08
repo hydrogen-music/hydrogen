@@ -275,6 +275,11 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 				FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
 					Note *pNote = it->second;
 					if ( pNote ) {
+						float rnd = (float)rand()/(float)RAND_MAX;
+						if ( pNote->get_probability() < rnd ) {
+							continue;
+						}
+
 						int nVelocity =
 							(int)( 127.0 * pNote->get_velocity() );
 						

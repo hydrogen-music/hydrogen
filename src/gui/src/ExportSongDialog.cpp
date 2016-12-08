@@ -66,7 +66,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	setWindowTitle( trUtf8( "Export song" ) );
 
 	exportTypeCombo->addItem(trUtf8("Export to a single track"));
-	exportTypeCombo->addItem(trUtf8("Export to seperate tracks"));
+	exportTypeCombo->addItem(trUtf8("Export to separate tracks"));
 	exportTypeCombo->addItem(trUtf8("Both"));
 
 	HydrogenApp::get_instance()->addEventListener( this );
@@ -122,6 +122,9 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	if(b_oldRubberbandBatchMode){
 		calculateRubberbandTime();
 	}
+
+	// Have the dialog find the best size
+	adjustSize();
 }
 
 
