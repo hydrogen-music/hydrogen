@@ -309,11 +309,11 @@ int main(int argc, char *argv[])
 					// notify client that this project was not a new one
 					lashClient->setNewProject(false);
 
-					songFilename = "";
-					songFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
-					songFilename.append("/hydrogen.h2song");
+					sSongFilename = "";
+					sSongFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
+					sSongFilename.append("/hydrogen.h2song");
 
-					//H2Core::Logger::get_instance()->log("[LASH] Restore file: " + songFilename);
+					//H2Core::Logger::get_instance()->log("[LASH] Restore file: " + sSongFilename);
 
 					lash_event_destroy(lash_event);
 				}
