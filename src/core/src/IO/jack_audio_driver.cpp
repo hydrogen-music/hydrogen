@@ -152,7 +152,7 @@ int JackAudioDriver::connect()
 		INFOLOG( "Could not connect so saved out-ports. Connecting to first pair of in-ports" );
 		const char ** portnames = jack_get_ports ( client, NULL, NULL, JackPortIsInput );
 		if ( !portnames || !portnames[0] || !portnames[1] ) {
-			ERRORLOG( "Couldn't locate two Jack input port" );
+			ERRORLOG( "Couldn't locate two Jack input ports" );
 			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
 			return 2;
 		}

@@ -51,7 +51,7 @@
      <x>14</x>
      <y>295</y>
      <width>701</width>
-     <height>30</height>
+     <height>33</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="spinboxesLayout">
@@ -130,7 +130,7 @@ p, li { white-space: pre-wrap; }
      <widget class="QComboBox" name="ProcessingTypeComboBox">
       <property name="minimumSize">
        <size>
-        <width>82</width>
+        <width>86</width>
         <height>0</height>
        </size>
       </property>
@@ -228,7 +228,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>836</width>
+     <width>838</width>
      <height>267</height>
     </rect>
    </property>
@@ -313,7 +313,7 @@ p, li { white-space: pre-wrap; }
       <x>10</x>
       <y>10</y>
       <width>821</width>
-      <height>53</height>
+      <height>60</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -641,7 +641,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;more information about you can find here:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;you can find more information here:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <item>
@@ -689,7 +689,7 @@ p, li { white-space: pre-wrap; }
      <x>10</x>
      <y>410</y>
      <width>841</width>
-     <height>30</height>
+     <height>35</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -760,10 +760,23 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item>
+     <spacer name="horizontalSpacer_6">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
      <widget class="QComboBox" name="EditTypeComboBox">
       <property name="minimumSize">
        <size>
-        <width>60</width>
+        <width>80</width>
         <height>0</height>
        </size>
       </property>
@@ -784,11 +797,11 @@ p, li { white-space: pre-wrap; }
     </item>
    </layout>
   </widget>
+  <zorder>layoutWidget_4</zorder>
   <zorder>targetSampleView</zorder>
   <zorder>ClosePushButton</zorder>
   <zorder>layoutWidget_1</zorder>
   <zorder>layoutWidget_2</zorder>
-  <zorder>layoutWidget_3</zorder>
   <zorder>RubberbandCframe</zorder>
  </widget>
  <tabstops>

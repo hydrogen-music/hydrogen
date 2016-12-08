@@ -139,27 +139,27 @@ public slots:
 		bool handleUnsavedChanges();
 
 	private:
-		HydrogenApp* h2app;
+		HydrogenApp*	h2app;
 
 		static int sigusr1Fd[2];
 		QSocketNotifier *snUsr1;
 
 		void functionDeleteInstrument(int instrument);
 
-		QMenu *m_pInputModeMenu;
-		QAction *m_pInstrumentAction;
-		QAction *m_pDrumkitAction;
+		QMenu *		m_pInputModeMenu;
+		QAction *	m_pInstrumentAction;
+		QAction *	m_pDrumkitAction;
 
-		QMenu *m_pRecentFilesMenu;
-		QAction *m_pRecentFileAction0;
-		QAction *m_pRecentFileAction1;
-		QAction *m_pRecentFileAction2;
-		QAction *m_pRecentFileAction3;
-		QAction *m_pRecentFileAction4;
+		QMenu *		m_pRecentFilesMenu;
+		QAction *	m_pRecentFileAction0;
+		QAction *	m_pRecentFileAction1;
+		QAction *	m_pRecentFileAction2;
+		QAction *	m_pRecentFileAction3;
+		QAction *	m_pRecentFileAction4;
+		
+		QUndoView *	undoView;///debug only
 
-//		QHttp m_http;
-
-		QTimer m_autosaveTimer;
+		QTimer		m_autosaveTimer;
 
 		/** Create the menubar */
 		void createMenuBar();
@@ -176,9 +176,9 @@ public slots:
 	#ifdef H2CORE_HAVE_LASH
 		QTimer *lashPollTimer;
 	#endif
-		QUndoView *undoView;///debug only
 
-                bool handleSelectNextPrevSongOnPlaylist(int step);
+
+		bool handleSelectNextPrevSongOnPlaylist(int step);
 
 };
 
