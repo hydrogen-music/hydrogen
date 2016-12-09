@@ -179,6 +179,9 @@ public:
 	int				getSelectedInstrumentNumber();
 	void			setSelectedInstrumentNumber( int nInstrument );
 
+
+	void			refreshInstrumentParameters( int nInstrument );
+
 #ifdef H2CORE_HAVE_JACK
 	void			renameJackPorts(Song* pSong);
 #endif
