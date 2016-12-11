@@ -302,7 +302,7 @@ void MainForm::createMenuBar()
 	m_pUndoMenu->addAction( trUtf8( "Undo history" ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
 
 	// DRUMKITS MENU
-	QMenu *m_pDrumkitsMenu = m_pMenubar->addMenu( trUtf8( "&Drumkits" ) );
+	QMenu *m_pDrumkitsMenu = m_pMenubar->addMenu( trUtf8( "Drum&kits" ) );
 	m_pDrumkitsMenu->addAction( trUtf8( "New" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
 	m_pDrumkitsMenu->addAction( trUtf8( "Open" ), this, SLOT( action_banks_open() ), QKeySequence( "" ) );
 	m_pDrumkitsMenu->addAction( trUtf8( "Properties" ), this, SLOT( action_banks_properties() ), QKeySequence( "" ) );
