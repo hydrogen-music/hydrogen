@@ -187,6 +187,9 @@ public:
 	int					m_countOffset;
 	int					m_startOffset;
 	//~ beatcounter
+	
+	// Autosave interval
+	int				m_autosaveInterval;
 
 	std::list<QString> sServerList;
 	std::list<QString> m_patternCategories;

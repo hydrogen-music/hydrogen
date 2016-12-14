@@ -276,6 +276,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	sBmaxBars->setValue( pPref->getMaxBars() );
 
+	// TODO - make it update the timer! - Paul Vint - 20161213
+	sBautosaveInterval->setValue( pPref->m_autosaveInterval );
+
 	QString pathtoRubberband = pPref->m_rubberBandCLIexecutable;
 
 
@@ -457,6 +460,8 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	pPref->m_countOffset = sBcountOffset->value();
 	pPref->m_startOffset = sBstartOffset->value();
+
+	pPref->m_autosaveInterval = sBautosaveInterval->value();
 
 	pPref->setMaxBars( sBmaxBars->value() );
 

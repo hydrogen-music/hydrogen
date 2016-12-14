@@ -166,7 +166,16 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	showDevelWarning();
 
 	connect( &m_autosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
-	m_autosaveTimer.start( 60 * 1000 );
+	//
+	// Get the timeout value from prefs - 0=disable autosave
+	Preferences *pref = Preferences::get_instance();
+	int autosaveInterval = pref->m_autosaveInterval;
+	DEBUGLOG( "Autosave interval = " + QString::number( autosaveInterval ) );
+
+	if ( autosaveInterval > 0 )
+	{
+		m_autosaveTimer.start( autosaveInterval * 60 * 1000 );
+	}
 
 
 #ifdef H2CORE_HAVE_LASH

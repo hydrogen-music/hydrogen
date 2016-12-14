@@ -171,6 +171,8 @@ Preferences::Preferences()
 	m_countOffset = 0;  // beatcounter
 	m_startOffset = 0;  // beatcounter
 
+	m_autosaveInterval = 1;	// Autosave interval in minutes
+
 	sServerList.push_back( QString("http://www.hydrogen-music.org/feeds/drumkit_list.php") );
 	m_patternCategories.push_back( QString("not_categorized") );
 
@@ -620,6 +622,9 @@ void Preferences::loadPreferences( bool bGlobal )
 
 				//~ beatcounter
 
+				// Autosave interval in minutes
+				m_autosaveInterval = LocalFileMng::readXmlInt( guiNode, "autosave", 1 );
+				
 				//SoundLibraryPanel expand items
 				__expandSongItem = LocalFileMng::readXmlBool( guiNode, "expandSongItem", __expandSongItem );
 				__expandPatternItem = LocalFileMng::readXmlBool( guiNode, "expandPatternItem", __expandPatternItem );
@@ -994,6 +999,7 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( guiNode, "playoffset", QString("%1").arg(m_startOffset) );
 		//~ beatcounter
 
+		LocalFileMng::writeXmlString( guiNode, "autosave", QString( "%1" ).arg( m_autosaveInterval ) );
 
 		//SoundLibraryPanel expand items
 		LocalFileMng::writeXmlString( guiNode, "expandSongItem", __expandSongItem ? "true": "false" );
