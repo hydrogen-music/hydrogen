@@ -1759,6 +1759,14 @@ void MainForm::onAutoSaveTimer()
 {
 	//INFOLOG( "[onAutoSaveTimer]" );
 	Song *pSong = Hydrogen::get_instance()->getSong();
+
+	// Only autosave if song is modified
+	if ( !pSong->get_is_modified() ) 
+	{
+		DEBUGLOG( "Song is not modified. Skipping autosave" );
+		return;
+	}
+
 	assert( pSong );
 	QString sOldFilename = pSong->get_filename();
 
