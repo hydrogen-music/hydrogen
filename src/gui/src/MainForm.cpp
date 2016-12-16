@@ -142,6 +142,8 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 		}
 	}
 
+	showDevelWarning();
+
 	h2app = new HydrogenApp( this, pSong );
 	h2app->addEventListener( this );
 	createMenuBar();
@@ -162,8 +164,6 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	h2app->getDirector()->installEventFilter(this);
 	//	h2app->getPlayListDialog()->installEventFilter(this);
 	installEventFilter( this );
-
-	showDevelWarning();
 
 	connect( &m_autosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
 	m_autosaveTimer.start( 60 * 1000 );
