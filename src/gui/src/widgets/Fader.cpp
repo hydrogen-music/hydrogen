@@ -34,7 +34,7 @@
 
 const char* Fader::__class_name = "Fader";
 
-Fader::Fader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob )
+Fader::Fader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob)
  : QWidget( pParent )
  , Object( __class_name )
  , m_bWithoutKnob( bWithoutKnob )
@@ -48,6 +48,7 @@ Fader::Fader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob )
  , m_fMaxValue( 1.0 )
 {
 	setAttribute( Qt::WA_NoBackground );
+	
 	setMinimumSize( 23, 116 );
 	setMaximumSize( 23, 116);
 	resize( 23, 116 );
@@ -86,6 +87,8 @@ Fader::~Fader()
 void Fader::mouseMoveEvent( QMouseEvent *ev )
 {
 	float fVal = (float)( height() - ev->y() ) / (float)height();
+	qDebug() <<"H/ev/FVal: " << height() << ev->y() << fVal;
+	
 	fVal = fVal * ( m_fMaxValue - m_fMinValue );
 
 	fVal = fVal + m_fMinValue;
@@ -278,7 +281,117 @@ void Fader::setMinPeak( float fMin )
 }
 
 
+//////////////////////////////////
 
+VerticalFader::VerticalFader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob)
+ : Fader( pParent, bUseIntSteps, bWithoutKnob )
+{
+	
+	m_bWithoutKnob = bWithoutKnob;
+	m_bUseIntSteps = bUseIntSteps;
+	m_fPeakValue_L = 0.0;
+	m_fPeakValue_R = 0.0;
+	m_fMinPeak = 0.01f;
+	m_fMaxPeak = 1.0;
+	m_fValue = 0.0;
+	m_fMinValue = 0.0;
+	m_fMaxValue = 1.0;
+	
+	setAttribute( Qt::WA_NoBackground );
+	
+	setMinimumSize( 116, 23 );
+	setMaximumSize( 116, 23);
+	resize( 116, 23 );
+	
+	QMatrix matrix;
+	matrix.rotate(90);
+	
+
+	// Background image
+	QString background_path = Skin::getImagePath() + "/mixerPanel/fader_background.png";
+	bool ok = m_back.load( background_path );
+	m_back=m_back.transformed(matrix);
+	if( ok == false ) {
+		ERRORLOG("Fader: Error loading pixmap");
+	}
+
+	// Leds image
+	QString leds_path = Skin::getImagePath()  + "/mixerPanel/fader_leds.png";
+	ok = m_leds.load( leds_path );
+	m_leds=m_leds.transformed(matrix);
+	
+	if( ok == false ){
+		ERRORLOG( "Error loading pixmap" );
+	}
+
+	// Knob image
+	QString knob_path = Skin::getImagePath() + "/mixerPanel/fader_knob.png";
+	ok = m_knob.load( knob_path );
+	m_knob = m_knob.transformed(matrix);
+	if( ok == false ){
+		ERRORLOG( "Error loading pixmap" );
+	}
+}
+
+
+VerticalFader::~VerticalFader()
+{
+//	infoLog( "[~MasterFader]" );
+}
+
+void VerticalFader::mouseMoveEvent( QMouseEvent *ev )
+{
+	float fVal = (float)( ev->x()  ) / (float)width();
+
+	qDebug() <<"H/ev/FVal: " << width() << ev->x() << fVal;
+	
+	fVal = fVal * ( m_fMaxValue - m_fMinValue );
+
+	fVal = fVal + m_fMinValue;
+
+	setValue( fVal );
+	emit valueChanged(this);
+}
+
+void VerticalFader::paintEvent( QPaintEvent *ev)
+{
+	UNUSED( ev );
+	QPainter painter(this);
+
+	// background
+	painter.drawPixmap( ev->rect(), m_back, ev->rect() );
+
+
+	float realPeak_L = m_fPeakValue_L - m_fMinPeak;
+	int peak_L = 116 - ( realPeak_L / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
+	
+	if ( peak_L > 116 ) {
+		peak_L = 116;
+	}
+	painter.drawPixmap( QRect( 0, 0, 116 - peak_L, 11 ), m_leds, QRect( 0, 0, 116 - peak_L, 11 ) );
+
+
+	float realPeak_R = m_fPeakValue_R - m_fMinPeak;
+	int peak_R = 116 - ( realPeak_R / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
+	if ( peak_R > 116 ) {
+		peak_R = 116;
+	}
+	painter.drawPixmap( QRect( 0, 11, 116 - peak_R, 11 ), m_leds, QRect( 0, 11, 116 - peak_R, 11 ) );
+
+	if ( m_bWithoutKnob == false ) {
+		// knob
+		static const uint knob_height = 15;
+		static const uint knob_width = 29;
+
+		float fRange = m_fMaxValue - m_fMinValue;
+
+		float realVal = m_fValue - m_fMinValue;
+
+		uint knob_x = (uint)( 116.0 - ( 101 * ( 1-realVal / fRange ) ) );
+
+		painter.drawPixmap( QRect(knob_x - knob_height, 4 , knob_width, knob_height), m_knob, QRect( 0, 0, knob_width, knob_height ) );
+	}
+}
 
 //////////////////////////////////
 
