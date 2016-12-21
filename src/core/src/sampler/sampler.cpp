@@ -551,6 +551,9 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 
 	float *pSample_data_L = pSample->get_data_l();
 	float *pSample_data_R = pSample->get_data_r();
+	
+	float fInstrPeak_L = __playback_instrument->get_peak_l(); // this value will be reset to 0 by the mixer..
+	float fInstrPeak_R = __playback_instrument->get_peak_r(); // this value will be reset to 0 by the mixer..
 
 	assert(pSample);
 
@@ -587,9 +590,16 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 			//pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
 	
 			// to main mix
+			if ( fVal_L > fInstrPeak_L ) {
+				fInstrPeak_L = fVal_L;
+			}
+			if ( fVal_R > fInstrPeak_R ) {
+				fInstrPeak_R = fVal_R;
+			}
+			
 			__main_out_L[nBufferPos] += fVal_L;
 			__main_out_R[nBufferPos] += fVal_R;
-	
+			
 			++nSamplePos;
 		}
 	} else {
@@ -658,13 +668,24 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 									break;
 					}
 			}
+			
+			if ( fVal_L > fInstrPeak_L ) {
+				fInstrPeak_L = fVal_L;
+			}
+			if ( fVal_R > fInstrPeak_R ) {
+				fInstrPeak_R = fVal_R;
+			}
 
 			__main_out_L[nBufferPos] += fVal_L;
 			__main_out_R[nBufferPos] += fVal_R;
 
+
 			fSamplePos += fStep;
 		} //for
 	}
+	
+	__playback_instrument->set_peak_l( fInstrPeak_L );
+	__playback_instrument->set_peak_r( fInstrPeak_R );
 
 	return true;
 }
