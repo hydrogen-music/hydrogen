@@ -2919,6 +2919,11 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument )
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
+void Hydrogen::refreshInstrumentParameters( int nInstrument )
+{
+	EventQueue::get_instance()->push_event( EVENT_PARAMETERS_INSTRUMENT_CHANGED, -1 );
+}
+
 #ifdef H2CORE_HAVE_JACK
 void Hydrogen::renameJackPorts( Song *pSong )
 {

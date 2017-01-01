@@ -357,6 +357,7 @@ bool MidiActionManager::effect_level_absolute(MidiAction * pAction, Hydrogen* pE
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int fx_param = pAction->getParameter2().toInt(&ok,10);
+
 	pEngine->setSelectedInstrumentNumber( nLine );
 
 	Song *song = pEngine->getSong();
@@ -606,6 +607,7 @@ bool MidiActionManager::gain_level_absolute(MidiAction * pAction, Hydrogen* pEng
 	int gain_param = pAction->getParameter2().toInt(&ok,10);
 
 	pEngine->setSelectedInstrumentNumber( nLine );
+
 	Song *song = pEngine->getSong();
 	InstrumentList *instrList = song->get_instrument_list();
 
@@ -614,7 +616,12 @@ bool MidiActionManager::gain_level_absolute(MidiAction * pAction, Hydrogen* pEng
 		return false;
 	}
 
-	InstrumentLayer* layer = instr->get_component( nSample._id )->get_layer( nSample._subId );
+	InstrumentComponent* component =  instr->get_component( nSample._id );
+	if( component == 0) {
+		return false;
+	}
+
+	InstrumentLayer* layer = component->get_layer( nSample._subId );
 	if( layer == 0 ) {
 		return false;
 	}
@@ -627,6 +634,8 @@ bool MidiActionManager::gain_level_absolute(MidiAction * pAction, Hydrogen* pEng
 
 	pEngine->setSelectedInstrumentNumber( nLine );
 
+	pEngine->refreshInstrumentParameters( nLine );
+
 	return true;
 }
 
@@ -636,6 +645,7 @@ bool MidiActionManager::pitch_level_absolute(MidiAction * pAction, Hydrogen* pEn
 	int pitch_param = pAction->getParameter2().toInt(&ok,10);
 
 	pEngine->setSelectedInstrumentNumber( nLine );
+
 	Song *song = pEngine->getSong();
 	InstrumentList *instrList = song->get_instrument_list();
 
@@ -644,7 +654,12 @@ bool MidiActionManager::pitch_level_absolute(MidiAction * pAction, Hydrogen* pEn
 		return false;
 	}
 
-	InstrumentLayer* layer = instr->get_component( nSample._id )->get_layer( nSample._subId );
+	InstrumentComponent* component =  instr->get_component( nSample._id );
+	if( component == 0) {
+		return false;
+	}
+
+	InstrumentLayer* layer = component->get_layer( nSample._subId );
 	if( layer == 0 ) {
 		return false;
 	}
@@ -657,6 +672,8 @@ bool MidiActionManager::pitch_level_absolute(MidiAction * pAction, Hydrogen* pEn
 
 	pEngine->setSelectedInstrumentNumber( nLine );
 
+	pEngine->refreshInstrumentParameters( nLine );
+
 	return true;
 }
 
@@ -666,6 +683,7 @@ bool MidiActionManager::filter_cutoff_level_absolute(MidiAction * pAction, Hydro
 	int filter_cutoff_param = pAction->getParameter2().toInt(&ok,10);
 
 	pEngine->setSelectedInstrumentNumber( nLine );
+
 	Song *song = pEngine->getSong();
 	InstrumentList *instrList = song->get_instrument_list();
 
@@ -681,7 +699,9 @@ bool MidiActionManager::filter_cutoff_level_absolute(MidiAction * pAction, Hydro
 		instr->set_filter_cutoff( 0 );
 	}
 
-	pEngine->setSelectedInstrumentNumber(nLine);
+	pEngine->setSelectedInstrumentNumber( nLine );
+
+	pEngine->refreshInstrumentParameters( nLine );
 
 	return true;
 }
