@@ -217,17 +217,23 @@ class Song : public H2Core::Object
 		QString&	get_playback_track_filename(){
 			return __playback_track_filename;
 		}
-		void	set_playback_track_filename( QString filename){
+		void	set_playback_track_filename( QString filename ){
 			__playback_track_filename = filename;
 		}
 
 		bool	get_playback_track_enabled(){
 			return __playback_track_enabled;
 		}
-		void	set_playback_track_enabled( bool enabled){
+		void	set_playback_track_enabled( bool enabled ){
 			__playback_track_enabled = enabled;
 		}
-
+		
+		float	get_playback_track_volume(){
+			return __playback_track_volume;
+		}
+		void	set_playback_track_volume( float volume ){
+			__playback_track_volume = volume;
+		}
 
 
 	private:
@@ -248,6 +254,7 @@ class Song : public H2Core::Object
 		SongMode							__song_mode;
 		QString								__playback_track_filename;
 		bool								__playback_track_enabled;
+		float								__playback_track_volume;
 };
 
 
