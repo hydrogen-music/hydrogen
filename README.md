@@ -7,7 +7,7 @@ It's main goal is to bring professional yet simple and intuitive pattern-based d
 
 General
 
- * Very user-friendly, modular, fast and intuitive graphical interface based on QT 4.
+ * Very user-friendly, modular, fast and intuitive graphical interface based on QT 5.
  * Sample-based stereo audio engine, with import of sound samples in wav, au and aiff formats 
  * Support of samples in compressed FLAC file.
 
@@ -34,8 +34,8 @@ Sequencer and mixer
 
 Other
  
-* JACK, ALSA, PortAudio and OSS audio drivers.
-* ALSA MIDI and PortMidi input with assignable midi-in channel (1..16, ALL).
+* JACK, ALSA, PulseAudio, PortAudio, CoreAudio and OSS audio drivers.
+* ALSA MIDI, JACK MIDI, CoreMidi and PortMidi input with assignable midi-in channel (1..16, ALL).
 * Import/export of drumkits.
 * Export song to wav, aiff, flac or file.
 * Export song to midi file.

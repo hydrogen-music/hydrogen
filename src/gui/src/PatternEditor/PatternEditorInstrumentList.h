@@ -75,6 +75,7 @@ class InstrumentLine : public PixmapWidget
 
 		void functionRandomizeVelocity();
 		void functionDeleteInstrument();
+		void functionRenameInstrument();
 		void muteClicked();
 		void soloClicked();
 

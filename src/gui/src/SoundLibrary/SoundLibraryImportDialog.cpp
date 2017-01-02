@@ -47,7 +47,7 @@
 
 const char* SoundLibraryImportDialog::__class_name = "SoundLibraryImportDialog";
 
-SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent )
+SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool OnlineImport )
  : QDialog( pParent )
  , Object( __class_name )
 {
@@ -72,6 +72,11 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent )
 	InstallBtn->setEnabled (false );
 
 	updateRepositoryCombo();
+
+	if( OnlineImport)
+		 tabWidget->setCurrentIndex( 0 );
+	else
+		 tabWidget->setCurrentIndex( 1 );
 }
 
 

@@ -32,6 +32,7 @@
             <xs:element name="pan_L"       type="psfloat"   default="0.5"/>     <!-- maxINclusive="0.5" -->
             <xs:element name="pan_R"       type="psfloat"   default="0.5"/>     <!-- maxInclusive="0.5" -->
             <xs:element name="pitch"       type="xs:float"    default="0.0"/>
+            <xs:element name="probability" type="xs:float"    default="1.0"/>
             <xs:element name="key"         type="xs:string"   default="C0"/>
             <xs:element name="length"      type="xs:integer"   default="-1"/>
             <xs:element name="instrument"  type="xs:integer"/>

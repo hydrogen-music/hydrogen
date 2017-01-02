@@ -159,7 +159,7 @@ bool XMLDoc::write( const QString& filepath )
 {
 	QFile file( filepath );
 	if ( !file.open( QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate ) ) {
-		ERRORLOG( QString( "Unable to open %1 for writting" ).arg( filepath ) );
+		ERRORLOG( QString( "Unable to open %1 for writing" ).arg( filepath ) );
 		return false;
 	}
 	QTextStream out( &file );

@@ -254,7 +254,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		else if(Preferences::get_instance()->m_bMidiFixedMapping ){
 			pInstr = instrList->findMidiNote( nNote );
 			if(pInstr == NULL) {
-				ERRORLOG( QString( "Can't find correponding Intrument for note %1" ).arg( nNote ));
+				ERRORLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
 				return;
 			}
 			nInstrument = instrList->index(pInstr);

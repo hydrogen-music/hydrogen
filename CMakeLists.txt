@@ -16,13 +16,12 @@ ENDIF()
 # PROJECT INFO
 #
 PROJECT(hydrogen)
-SET(VERSION_MAJOR "0")
-SET(VERSION_MINOR "9")
-SET(VERSION_PATCH "7")
-SET(VERSION_SUFFIX "rc1")
+SET(VERSION_MAJOR "1")
+SET(VERSION_MINOR "0")
+SET(VERSION_PATCH "0")
+#SET(VERSION_SUFFIX "rc1")
 
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
-
 
 IF(VERSION_SUFFIX)
 	SET(DISPLAY_VERSION "${VERSION}-${VERSION_SUFFIX}")
@@ -30,6 +29,7 @@ ELSE()
 	EXECUTE_PROCESS(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE GIT_REVISION )
 	SET(DISPLAY_VERSION "${VERSION}-${GIT_REVISION}")
 ENDIF(VERSION_SUFFIX)
+
 SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 
 #
@@ -37,8 +37,9 @@ SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 #
 SET(WANT_LIBTAR TRUE)
 OPTION(WANT_DEBUG           "Build with debug information" ON)
-OPTION(WANT_QT5             "Build with Qt5" ON)
-
+IF(NOT WANT_OLD_BUILD)
+    OPTION(WANT_QT5             "Build with Qt5" ON)
+ENDIF()
 IF(APPLE)
     OPTION(WANT_SHARED      "Build the core library shared." OFF)
 ELSE()
@@ -104,8 +105,12 @@ ELSE()
     SET(H2CORE_LIBRARY_TYPE STATIC)
 ENDIF()
 
-#SET(CMAKE_CXX_FLAGS "-fno-implement-inlines -finline-small-functions -findirect-inlining -fpartial-inlining")
-SET(CMAKE_CXX_FLAGS "-O2 -std=gnu++11 -Wno-deprecated-register")
+IF(WANT_DEBUG)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -std=gnu++11 -Wno-deprecated-register")
+ELSE()
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=gnu++11 -Wno-deprecated-register")
+ENDIF()
+
 IF (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-implement-inlines")
 ENDIF()
@@ -263,7 +268,7 @@ STRING( COMPARE GREATER "${LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_PREV}" LIB
 IF(LIBSNDFILE_VERSION_OK)
     SET(LIBSNDFILE_MSG "libsndfile supports FLAC and OGG sound file formats")
 ELSE()
-    SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support LFAC and OGG sound file formats")
+    SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support FLAC and OGG sound file formats")
 ENDIF()
 
 # RUBBERBAND information
@@ -289,7 +294,8 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}
-* fat build                    : ${WANT_FAT_BUILD}\n"
+* fat build                    : ${WANT_FAT_BUILD}
+* old build                    : ${WANT_OLD_BUILD}\n"
 )
 
 COLOR_MESSAGE("${cyan}Main librarires${reset}")
@@ -372,6 +378,7 @@ ENDIF()
 IF(NOT MINGW AND NOT APPLE)
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_PREFIX}/share/appdata")
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "/usr/share/pixmaps")
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.1 DESTINATION "${CMAKE_INSTALL_PREFIX}/man/man1")
 ENDIF()
 

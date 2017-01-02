@@ -582,12 +582,16 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		}
 		m_pMuteGroupLCD->setText( sMuteGroup );
 
-		// midi out
+		// midi out channel
 		QString sMidiOutChannel = QString("%1").arg( m_pInstrument->get_midi_out_channel()+1);
 		if (m_pInstrument->get_midi_out_channel() == -1 ) {
 			sMidiOutChannel = "Off";
 		}
 		m_pMidiOutChannelLCD->setText( sMidiOutChannel );
+
+		//midi out note
+		QString sMidiOutNote = QString("%1").arg( m_pInstrument->get_midi_out_note() );
+		m_pMidiOutNoteLCD->setText( sMidiOutNote );
 
 		// hihat
 		QString sHHGroup = QString("%1").arg( m_pInstrument->get_hihat_grp() );
@@ -599,15 +603,6 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pHihatMinRangeLCD->setText( sHiHatMinRange );
 		QString sHiHatMaxRange = QString("%1").arg( m_pInstrument->get_higher_cc() );
 		m_pHihatMaxRangeLCD->setText( sHiHatMaxRange );
-
-		//Convert note id into notation
-		{
-			int note = m_pInstrument->get_midi_out_note();
-			int octave = (note / 12) - 2;
-			const char *noteStrs[12] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
-			QString sMidiOutNote = QString(noteStrs[note % 12]) + QString::number(octave);
-			m_pMidiOutNoteLCD->setText( sMidiOutNote );
-		}
 
 		/*
 		 * m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );

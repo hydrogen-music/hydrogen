@@ -20,46 +20,36 @@
  *
  */
 
-#ifndef INSTRUMENT_EDITOR_PANEL_H
-#define INSTRUMENT_EDITOR_PANEL_H
+#ifndef SOUND_LIBRARY_OPEN_DIALOG_H
+#define SOUND_LIBRARY_OPEN_DIALOG_H
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000
-#  include <QtWidgets>
+	#include <QtWidgets>
 #endif
-#include <hydrogen/object.h>
-#include "InstrumentEditor.h"
-#include "../EventListener.h"
 
-///
-/// Container for the Instrument Editor (Singleton).
-///
-class InstrumentEditorPanel : public QWidget, private H2Core::Object, public EventListener
+#include "SoundLibraryDatastructures.h"
+
+class SoundLibraryPanel;
+
+class SoundLibraryOpenDialog : public QDialog, public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 	public:
-		static InstrumentEditorPanel* get_instance();
-		~InstrumentEditorPanel();
+		SoundLibraryOpenDialog( QWidget* pParent );
+		~SoundLibraryOpenDialog();
 
-		virtual void parametersInstrumentChangedEvent();
+	private slots:
+		void on_soundLib_item_changed( bool bDrumkitSelected );
 
-		void selectLayer( int nLayer );
-		
-		int getSelectedLayer() {
-			return m_pLayer;
-		}
-
-	public slots:
-		void notifyOfDrumkitChange();
+		void on_cancel_btn_clicked();
+		void on_open_btn_clicked();
 
 	private:
-		static InstrumentEditorPanel* m_pInstance;
-		InstrumentEditor* m_pInstrumentEditor;
-
-		InstrumentEditorPanel( QWidget *pParent );
-		int m_pLayer;
+		SoundLibraryPanel* p_soundLib;
+		QPushButton* p_btnOk;
+		QPushButton* p_btnCancel;
 };
 
 #endif
-

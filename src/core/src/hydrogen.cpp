@@ -74,7 +74,7 @@
 #endif
 
 #include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/IO/JackOutput.h>
+#include <hydrogen/IO/JackAudioDriver.h>
 #include <hydrogen/IO/NullDriver.h>
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
@@ -439,10 +439,10 @@ inline void audioEngine_process_checkBPMChanged(Song* pSong)
 	m_pAudioDriver->m_transport.m_nFrames = ceil(fTickNumber) * fNewTickSize;
 
 #ifdef H2CORE_HAVE_JACK
-	if ( JackOutput::class_name() == m_pAudioDriver->class_name()
+	if ( JackAudioDriver::class_name() == m_pAudioDriver->class_name()
 		&& m_audioEngineState == STATE_PLAYING )
 	{
-		static_cast< JackOutput* >( m_pAudioDriver )->calculateFrameOffset();
+		static_cast< JackAudioDriver* >( m_pAudioDriver )->calculateFrameOffset();
 	}
 #endif
 	EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
@@ -485,6 +485,13 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 		if ( isNoteStart || isOldNote ) {
 			// Humanize - Velocity parameter
+
+			float rnd = (float)rand()/(float)RAND_MAX;
+			if (pNote->get_probability() < rnd) {
+				m_songNoteQueue.pop();
+				pNote->get_instrument()->dequeue();
+				continue;
+			}
 
 			if ( pSong->get_humanize_velocity_value() != 0 ) {
 				float random = pSong->get_humanize_velocity_value() * getGaussian( 0.2 );
@@ -678,7 +685,7 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 	}
 
 #ifdef H2CORE_HAVE_JACK
-	JackOutput* jo = dynamic_cast<JackOutput*>(m_pAudioDriver);
+	JackAudioDriver * jo = dynamic_cast<JackAudioDriver*>(m_pAudioDriver);
 	if( jo && jo->has_track_outs() ) {
 		float* buf;
 		int k;
@@ -769,11 +776,11 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		}
 
 #ifdef H2CORE_HAVE_JACK
-		else if ( m_pAudioDriver->class_name() == JackOutput::class_name() )
+		else if ( m_pAudioDriver->class_name() == JackAudioDriver::class_name() )
 		{
 			// Do something clever :-s ... Jakob Lund
 			// Mainly to keep sync with Ardour.
-			static_cast<JackOutput*>(m_pAudioDriver)->locateInNCycles( 0 );
+			static_cast<JackAudioDriver*>(m_pAudioDriver)->locateInNCycles( 0 );
 		}
 #endif
 
@@ -941,8 +948,8 @@ void audioEngine_renameJackPorts(Song * pSong)
 	// renames jack ports
 	if ( ! pSong ) return;
 
-	if ( m_pAudioDriver->class_name() == JackOutput::class_name() ) {
-		static_cast< JackOutput* >( m_pAudioDriver )->makeTrackOutputs( pSong );
+	if ( m_pAudioDriver->class_name() == JackAudioDriver::class_name() ) {
+		static_cast< JackAudioDriver* >( m_pAudioDriver )->makeTrackOutputs( pSong );
 	}
 #endif
 }
@@ -1400,13 +1407,13 @@ AudioOutput* createDriver( const QString& sDriver )
 			pDriver = NULL;
 		}
 	} else if ( sDriver == "Jack" ) {
-		pDriver = new JackOutput( audioEngine_process );
+		pDriver = new JackAudioDriver( audioEngine_process );
 		if ( pDriver->class_name() == NullDriver::class_name() ) {
 			delete pDriver;
 			pDriver = NULL;
 		} else {
 #ifdef H2CORE_HAVE_JACK
-			static_cast<JackOutput*>(pDriver)->setConnectDefaults(
+			static_cast<JackAudioDriver*>(pDriver)->setConnectDefaults(
 						Preferences::get_instance()->m_bJackConnectDefaults
 						);
 #endif
@@ -2912,6 +2919,11 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument )
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 }
 
+void Hydrogen::refreshInstrumentParameters( int nInstrument )
+{
+	EventQueue::get_instance()->push_event( EVENT_PARAMETERS_INSTRUMENT_CHANGED, -1 );
+}
+
 #ifdef H2CORE_HAVE_JACK
 void Hydrogen::renameJackPorts( Song *pSong )
 {
@@ -3076,15 +3088,15 @@ void Hydrogen::setHumantimeFrames(unsigned long hframes)
 #ifdef H2CORE_HAVE_JACK
 void Hydrogen::offJackMaster()
 {
-	if ( m_pAudioDriver->class_name() == JackOutput::class_name() ) {
-		static_cast< JackOutput* >( m_pAudioDriver )->com_release();
+	if ( m_pAudioDriver->class_name() == JackAudioDriver::class_name() ) {
+		static_cast< JackAudioDriver* >( m_pAudioDriver )->com_release();
 	}
 }
 
 void Hydrogen::onJackMaster()
 {
-	if ( m_pAudioDriver->class_name() == JackOutput::class_name() ) {
-		static_cast< JackOutput* >( m_pAudioDriver )->initTimeMaster();
+	if ( m_pAudioDriver->class_name() == JackAudioDriver::class_name() ) {
+		static_cast< JackAudioDriver* >( m_pAudioDriver )->initTimeMaster();
 	}
 }
 

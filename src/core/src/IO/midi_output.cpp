@@ -45,20 +45,4 @@ MidiOutput::~MidiOutput()
 	//INFOLOG( "DESTROY" );
 }
 
-/*
-void MidiOutput::queueMidiMessage( const MidiMessage& msg )
-{
-	m_pendingMessages.push_back(msg);
-}
-
-bool MidiOutput::hasQueuedMessages()
-{
-	return !m_pendingMessages.empty();
-}
-
-void MidiOutput::processQueuedMessages()
-{
-	/// Do something...
-}
-*/
 };

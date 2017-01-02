@@ -154,6 +154,7 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 			accept();
 		}else
 		{
+			event->ignore();
 			return;
 		}
 	}else

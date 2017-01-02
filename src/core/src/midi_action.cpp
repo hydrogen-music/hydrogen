@@ -54,7 +54,7 @@ using namespace H2Core;
 * in midi_input.cpp .
 *
 * Each action has two independ parameters. The two parameters are optional and
-* can be used to carry additional informations, which mean
+* can be used to carry additional information, which mean
 * only something to this very Action. They can have totally different meanings for other Actions.
 * Example: parameter1 is the Mixer strip and parameter 2 a multiplier for the volume change on this strip
 *
@@ -329,6 +329,7 @@ bool MidiActionManager::effect_level_absolute(MidiAction * pAction, Hydrogen* pE
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int fx_param = pAction->getValue().toInt(&ok,10);
 	int fx_id = pAction->getParameter2().toInt(&ok,10);
+
 	pEngine->setSelectedInstrumentNumber( nLine );
 
 	Song *song = pEngine->getSong();
@@ -580,6 +581,7 @@ bool MidiActionManager::gain_level_absolute(MidiAction * pAction, Hydrogen* pEng
 	int layer_id = pAction->getParameter3().toInt(&ok,10);
 
 	pEngine->setSelectedInstrumentNumber( nLine );
+
 	Song *song = pEngine->getSong();
 	InstrumentList *instrList = song->get_instrument_list();
 
@@ -588,7 +590,12 @@ bool MidiActionManager::gain_level_absolute(MidiAction * pAction, Hydrogen* pEng
 		return false;
 	}
 
-	InstrumentLayer* layer = instr->get_component( component_id )->get_layer( layer_id );
+	InstrumentComponent* component =  instr->get_component( component_id );
+	if( component == 0) {
+		return false;
+	}
+
+	InstrumentLayer* layer = component->get_layer( layer_id );
 	if( layer == 0 ) {
 		return false;
 	}
@@ -601,6 +608,8 @@ bool MidiActionManager::gain_level_absolute(MidiAction * pAction, Hydrogen* pEng
 
 	pEngine->setSelectedInstrumentNumber( nLine );
 
+	pEngine->refreshInstrumentParameters( nLine );
+
 	return true;
 }
 
@@ -612,6 +621,7 @@ bool MidiActionManager::pitch_level_absolute(MidiAction * pAction, Hydrogen* pEn
 	int layer_id = pAction->getParameter3().toInt(&ok,10);
 
 	pEngine->setSelectedInstrumentNumber( nLine );
+
 	Song *song = pEngine->getSong();
 	InstrumentList *instrList = song->get_instrument_list();
 
@@ -620,7 +630,12 @@ bool MidiActionManager::pitch_level_absolute(MidiAction * pAction, Hydrogen* pEn
 		return false;
 	}
 
-	InstrumentLayer* layer = instr->get_component( component_id )->get_layer( layer_id );
+	InstrumentComponent* component =  instr->get_component( component_id );
+	if( component == 0) {
+		return false;
+	}
+
+	InstrumentLayer* layer = component->get_layer( layer_id );
 	if( layer == 0 ) {
 		return false;
 	}
@@ -633,6 +648,8 @@ bool MidiActionManager::pitch_level_absolute(MidiAction * pAction, Hydrogen* pEn
 
 	pEngine->setSelectedInstrumentNumber( nLine );
 
+	pEngine->refreshInstrumentParameters( nLine );
+
 	return true;
 }
 
@@ -642,6 +659,7 @@ bool MidiActionManager::filter_cutoff_level_absolute(MidiAction * pAction, Hydro
 	int filter_cutoff_param = pAction->getValue().toInt(&ok,10);
 
 	pEngine->setSelectedInstrumentNumber( nLine );
+
 	Song *song = pEngine->getSong();
 	InstrumentList *instrList = song->get_instrument_list();
 
@@ -657,7 +675,9 @@ bool MidiActionManager::filter_cutoff_level_absolute(MidiAction * pAction, Hydro
 		instr->set_filter_cutoff( 0 );
 	}
 
-	pEngine->setSelectedInstrumentNumber(nLine);
+	pEngine->setSelectedInstrumentNumber( nLine );
+
+	pEngine->refreshInstrumentParameters( nLine );
 
 	return true;
 }

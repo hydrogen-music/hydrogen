@@ -106,7 +106,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 					DEBUGLOG( "Using back compatibility code. filename node found" );
 					QString sFilename = instrument_node.read_string( "filename", "" );
 					if( sFilename.isEmpty() ) {
-						ERRORLOG( "filename back compability node is empty" );
+						ERRORLOG( "filename back compatibility node is empty" );
 					} else {
 
 						Sample* sample = new Sample( dk_path+"/"+sFilename );
