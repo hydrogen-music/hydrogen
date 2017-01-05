@@ -208,7 +208,8 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	undoView->setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	//restore last playlist
-	if( Preferences::get_instance()->isRestoreLastPlaylistEnabled() ){
+	if(		Preferences::get_instance()->isRestoreLastPlaylistEnabled() 
+		&& !Preferences::get_instance()->getLastPlaylistFilename().isEmpty() ){
 		bool loadlist = h2app->getPlayListDialog()->loadListByFileName( Preferences::get_instance()->getLastPlaylistFilename() );
 		if( !loadlist ){
 			_ERRORLOG ( "Error loading the playlist" );
