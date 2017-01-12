@@ -23,7 +23,6 @@
 #include <QFileDialog>
 #include <QProgressBar>
 #include <QLabel>
-#include <QPixmap>
 
 #include "ExportSongDialog.h"
 #include "Skin.h"
@@ -77,8 +76,9 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	sampleDepthCombo->setCurrentIndex(1);
 
 	QString defaultFilename( pHydrogen->getSong()->get_filename() );
-	if( pHydrogen->getSong()->get_filename().isEmpty() )
+	if( pHydrogen->getSong()->get_filename().isEmpty() ){
 		defaultFilename = pHydrogen->getSong()->__name;
+	}
 	defaultFilename.replace( '*', "_" );
 	defaultFilename.replace( ".h2song", "" );
 	defaultFilename += ".wav";
@@ -135,8 +135,6 @@ ExportSongDialog::~ExportSongDialog()
 }
 
 
-
-/// \todo: memorizzare l'ultima directory usata
 void ExportSongDialog::on_browseBtn_clicked()
 {
 	static QString lastUsedDir = QDir::homePath();
@@ -198,7 +196,7 @@ void ExportSongDialog::on_okBtn_clicked()
 
 	m_bOverwriteFiles = false;
 
-	/* 0: Export to single track
+	   /*  0: Export to single track
 		*  1: Export to multiple tracks
 		*  2: Export to both
 		*/
@@ -240,7 +238,7 @@ void ExportSongDialog::exportTracks()
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if( m_nInstrument <= pSong->get_instrument_list()->size() -1 ){
 
-		bool instrumentexists = false;
+		bool instrumentExists = false;
 		//if a instrument contains no notes we jump to the next instrument
 		unsigned nPatterns = pSong->get_pattern_list()->size();
 		for ( unsigned i = 0; i < nPatterns; i++ ) {
@@ -251,14 +249,14 @@ void ExportSongDialog::exportTracks()
 				assert( pNote );
 
 				if( pNote->get_instrument()->get_name() == Hydrogen::get_instance()->getSong()->get_instrument_list()->get(m_nInstrument)->get_name() ){
-					instrumentexists = true;
+					instrumentExists = true;
 					break;
 				}
 
 			}
 		}
 
-		if( !instrumentexists ){
+		if( !instrumentExists ){
 			if( m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->size() -1 ){
 				m_bExportTrackouts = false;
 				HydrogenApp::get_instance()->getMixer()->unmuteAll( true );
@@ -287,7 +285,6 @@ void ExportSongDialog::exportTracks()
 			if (res == QMessageBox::YesToAll ) m_bOverwriteFiles = true;
 		}
 
-		//Hydrogen::get_instance()->stopExportSong();
 		Hydrogen::get_instance()->stopExportSong( false );
 		m_bExporting = false;
 		HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrument );
@@ -432,7 +429,6 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 
 	exportNameTxt->setText(filename);
 
-
 }
 
 
@@ -569,10 +565,10 @@ void ExportSongDialog::calculateRubberbandTime()
 	pHydrogen->setBPM(lowBPM);
 	time_t sTime = time(NULL);
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *song = pEngine->getSong();
-	assert(song);
-	if(song){
-		InstrumentList *songInstrList = song->get_instrument_list();
+	Song *pSong = pEngine->getSong();
+	assert(pSong);
+	if(pSong){
+		InstrumentList *songInstrList = pSong->get_instrument_list();
 		assert(songInstrList);
 		for ( unsigned nInstr = 0; nInstr < songInstrList->size(); ++nInstr ) {
 			Instrument *pInstr = songInstrList->get( nInstr );
@@ -586,20 +582,20 @@ void ExportSongDialog::calculateRubberbandTime()
 							Sample *pSample = pLayer->get_sample();
 							if ( pSample ) {
 								if( pSample->get_rubberband().use ) {
-									Sample *newSample = Sample::load(
+									Sample *pNewSample = Sample::load(
 												pSample->get_filepath(),
 												pSample->get_loops(),
 												pSample->get_rubberband(),
 												*pSample->get_velocity_envelope(),
 												*pSample->get_pan_envelope()
 												);
-									if( !newSample  ){
+									if( !pNewSample ){
 										continue;
 									}
 									delete pSample;
 									// insert new sample from newInstrument
 									AudioEngine::get_instance()->lock( RIGHT_HERE );
-									pLayer->set_sample( newSample );
+									pLayer->set_sample( pNewSample );
 									AudioEngine::get_instance()->unlock();
 									
 								}
@@ -610,8 +606,11 @@ void ExportSongDialog::calculateRubberbandTime()
 			}
 		}
 	}
+	
 	Preferences::get_instance()->setRubberBandCalcTime(time(NULL) - sTime);
+	
 	pHydrogen->setBPM(oldBPM);
+	
 	closeBtn->setEnabled(true);
 	resampleComboBox->setEnabled(true);
 	okBtn->setEnabled(true);
