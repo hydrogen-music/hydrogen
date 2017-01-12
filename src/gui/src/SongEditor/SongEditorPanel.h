@@ -38,7 +38,7 @@ class SongEditor;
 class SongEditorPatternList;
 class SongEditorPositionRuler;
 class ToggleButton;
-
+class Fader;
 
 enum SongEditorActionMode
 {
@@ -83,6 +83,8 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void upBtnClicked( Button* );
 		void downBtnClicked( Button* );
 		void clearSequence( Button* );
+		
+		void updatePlaybackFaderPeaks();
 		void updatePlayHeadPosition();
 
 		void pointerActionBtnPressed( Button* pBtn );
@@ -96,6 +98,8 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 
 		void zoomInBtnPressed( Button* pBtn );
 		void zoomOutBtnPressed( Button* pBtn );
+		
+		void faderChanged(Fader* pFader);
 
 
 	private:
@@ -129,6 +133,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		ToggleButton *			m_pDrawActionBtn;
 		ToggleButton *			m_pTagbarToggleBtn;
 		
+		Fader*					m_pPlaybackTrackFader;
 		ToggleButton *			m_pTimeLineToggleBtn;
 		ToggleButton *			m_pPlaybackToggleBtn;
 		ToggleButton *			m_pViewTimeLineToggleBtn;

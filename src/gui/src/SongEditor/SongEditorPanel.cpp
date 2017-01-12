@@ -25,6 +25,7 @@
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
 #include "../widgets/Button.h"
+#include "../widgets/Fader.h"
 #include "../widgets/PixmapWidget.h"
 #include "../Skin.h"
 
@@ -44,6 +45,7 @@ using namespace std;
 
 const char* SongEditorPanel::__class_name = "SongEditorPanel";
 
+
 SongEditorPanel::SongEditorPanel(QWidget *pParent)
  : QWidget( pParent )
  , Object( __class_name )
@@ -52,7 +54,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_nInitialWidth = 600;
 	m_nInitialHeight = 250;
 
-	Hydrogen* pEngine = Hydrogen::get_instance();
+	Hydrogen*	pEngine = Hydrogen::get_instance();
+	Song*		pSong = pEngine->getSong();
 
 	setWindowTitle( trUtf8( "Song Editor" ) );
 
@@ -199,6 +202,15 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pViewPlaybackToggleBtn->setToolTip( trUtf8( "View playback track") );
 	connect( m_pViewPlaybackToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( viewPlaybackTrackBtnPressed(Button* ) ) );
 	m_pViewPlaybackToggleBtn->setPressed( false );
+	
+	// Playback Fader
+	m_pPlaybackTrackFader = new VerticalFader( pBackPanel, false, false );
+	m_pPlaybackTrackFader->move( 6, 2 );
+	m_pPlaybackTrackFader->setMinValue( 0.0 );
+	m_pPlaybackTrackFader->setMaxValue( 1.5 );
+	m_pPlaybackTrackFader->setValue( pSong->get_playback_track_volume() );
+	m_pPlaybackTrackFader->hide();
+	connect( m_pPlaybackTrackFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
 
 	// mute playback track toggle button
 	m_pMutePlaybackToggleBtn = new ToggleButton(
@@ -209,10 +221,10 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize( 42, 13 )
 	);
 	m_pMutePlaybackToggleBtn->setToolTip( trUtf8( "Mute playback track") );
-	m_pMutePlaybackToggleBtn->move( 133, 6 );
+	m_pMutePlaybackToggleBtn->move( 151, 6 );
 	m_pMutePlaybackToggleBtn->hide();
 	connect( m_pMutePlaybackToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( mutePlaybackTrackBtnPressed(Button* ) ) );
-	m_pMutePlaybackToggleBtn->setPressed( !pEngine->getPlaybackTrackState() );
+	m_pMutePlaybackToggleBtn->setPressed( !pSong->get_playback_track_enabled() );
 	
 	// edit playback track toggle button
 	m_pEditPlaybackBtn = new Button(
@@ -223,7 +235,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize( 42, 13 )
 	);
 	m_pEditPlaybackBtn->setToolTip( trUtf8( "Choose playback track") );
-	m_pEditPlaybackBtn->move( 90, 6 );
+	m_pEditPlaybackBtn->move( 124, 6 );
 	m_pEditPlaybackBtn->hide();
 	connect( m_pEditPlaybackBtn, SIGNAL( clicked( Button* ) ), this, SLOT( editPlaybackTrackBtnPressed(Button* ) ) );
 	m_pEditPlaybackBtn->setPressed( false );
@@ -332,7 +344,10 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	HydrogenApp::get_instance()->addEventListener( this );
 
 	m_pTimer = new QTimer(this);
+	
 	connect(m_pTimer, SIGNAL(timeout()), this, SLOT( updatePlayHeadPosition() ) );
+	connect(m_pTimer, SIGNAL(timeout()), this, SLOT( updatePlaybackFaderPeaks() ) );
+	
 	m_pTimer->start(100);
 }
 
@@ -371,7 +386,44 @@ void SongEditorPanel::updatePlayHeadPosition()
 	}
 }
 
+void SongEditorPanel::updatePlaybackFaderPeaks()
+{
+	Sampler*		pSampler = AudioEngine::get_instance()->get_sampler();
+	Preferences *	pPref = Preferences::get_instance();
+	Instrument*		pInstrument = pSampler->__playback_instrument;
 
+	
+	bool bShowPeaks = pPref->showInstrumentPeaks();
+	float fallOff = pPref->getMixerFalloffSpeed();
+	
+	// fader
+	float fOldPeak_L = m_pPlaybackTrackFader->getPeak_L();
+	float fOldPeak_R = m_pPlaybackTrackFader->getPeak_R();
+	
+	float fNewPeak_L = pInstrument->get_peak_l();
+	pInstrument->set_peak_l( 0.0f );	// reset instrument peak
+
+	float fNewPeak_R = pInstrument->get_peak_r();
+	pInstrument->set_peak_r( 0.0f );	// reset instrument peak
+
+	if (!bShowPeaks) {
+		fNewPeak_L = 0.0f;
+		fNewPeak_R = 0.0f;
+	}
+
+	if ( fNewPeak_L >= fOldPeak_L) {	// LEFT peak
+		m_pPlaybackTrackFader->setPeak_L( fNewPeak_L );
+	}
+	else {
+		m_pPlaybackTrackFader->setPeak_L( fOldPeak_L / fallOff );
+	}
+	if ( fNewPeak_R >= fOldPeak_R) {	// Right peak
+		m_pPlaybackTrackFader->setPeak_R( fNewPeak_R );
+	}
+	else {
+		m_pPlaybackTrackFader->setPeak_R( fOldPeak_R / fallOff );
+	}
+}
 
 void SongEditorPanel::on_patternListScroll()
 {
@@ -612,6 +664,7 @@ void SongEditorPanel::viewPlaybackTrackBtnPressed( Button* pBtn )
 		m_pTimeLineToggleBtn->hide();
 		m_pMutePlaybackToggleBtn->show();
 		m_pEditPlaybackBtn->show();
+		m_pPlaybackTrackFader->show();
 		m_pViewTimeLineToggleBtn->setPressed(false);
 	}
 	else
@@ -620,6 +673,7 @@ void SongEditorPanel::viewPlaybackTrackBtnPressed( Button* pBtn )
 		m_pTimeLineToggleBtn->show();
 		m_pMutePlaybackToggleBtn->hide();
 		m_pEditPlaybackBtn->hide();
+		m_pPlaybackTrackFader->hide();
 		m_pViewTimeLineToggleBtn->setPressed(true);
 	}
 }
@@ -631,6 +685,7 @@ void SongEditorPanel::viewTimeLineBtnPressed( Button* pBtn )
 		m_pTimeLineToggleBtn->show();
 		m_pMutePlaybackToggleBtn->hide();
 		m_pEditPlaybackBtn->hide();
+		m_pPlaybackTrackFader->hide();
 		m_pViewPlaybackToggleBtn->setPressed(false);
 	}
 	else
@@ -639,6 +694,7 @@ void SongEditorPanel::viewTimeLineBtnPressed( Button* pBtn )
 		m_pTimeLineToggleBtn->hide();
 		m_pMutePlaybackToggleBtn->show();
 		m_pEditPlaybackBtn->show();
+		m_pPlaybackTrackFader->show();
 		m_pViewPlaybackToggleBtn->setPressed(true);
 	}
 }
@@ -725,6 +781,34 @@ void SongEditorPanel::zoomOutBtnPressed( Button* pBtn )
 	m_pSongEditor->setGridWidth (width);
 	m_pPositionRuler->setGridWidth (width);
 	updateAll();
+}
+
+void SongEditorPanel::faderChanged(Fader *pFader)
+{
+	UNUSED( pFader );
+	
+	Hydrogen *	pHydrogen = Hydrogen::get_instance();
+	Song*		pSong = pHydrogen->getSong();
+	
+	int maxLength = 0;
+
+	for(int i=0; i < pHydrogen->getCurrentPatternList()->size(); i++)
+	{
+		H2Core::Pattern *pPattern = pHydrogen->getCurrentPatternList()->get( i );
+
+		if (pPattern != NULL)
+		{
+			if(pPattern->get_length() > maxLength)
+			{
+				maxLength = pPattern->get_length();
+			}
+		}
+	}
+	
+	
+	if( pSong ){
+		pSong->set_playback_track_volume( pFader->getValue() );
+	}
 }
 
 
