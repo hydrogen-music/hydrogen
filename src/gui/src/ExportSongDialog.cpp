@@ -180,8 +180,8 @@ void ExportSongDialog::on_browseBtn_clicked()
 	if( filename.endsWith( ".ogg" ) || filename.endsWith( ".OGG" ) ){
 		sampleRateCombo->hide();
 		sampleDepthCombo->hide();
-		label->hide();
-		label_2->hide();
+		sampleRateLable->hide();
+		sampleDepthLable->hide();
 	}
 
 }
@@ -238,25 +238,25 @@ void ExportSongDialog::exportTracks()
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if( m_nInstrument <= pSong->get_instrument_list()->size() -1 ){
 
-		bool instrumentExists = false;
+		bool bInstrumentHasNotes = false;
 		//if a instrument contains no notes we jump to the next instrument
 		unsigned nPatterns = pSong->get_pattern_list()->size();
 		for ( unsigned i = 0; i < nPatterns; i++ ) {
-			Pattern *pat = pSong->get_pattern_list()->get( i );
-			const Pattern::notes_t* notes = pat->get_notes();
+			Pattern *pPattern = pSong->get_pattern_list()->get( i );
+			const Pattern::notes_t* notes = pPattern->get_notes();
 			FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 				Note *pNote = it->second;
 				assert( pNote );
 
 				if( pNote->get_instrument()->get_name() == Hydrogen::get_instance()->getSong()->get_instrument_list()->get(m_nInstrument)->get_name() ){
-					instrumentExists = true;
+					bInstrumentHasNotes = true;
 					break;
 				}
 
 			}
 		}
 
-		if( !instrumentExists ){
+		if( !bInstrumentHasNotes ){
 			if( m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->size() -1 ){
 				m_bExportTrackouts = false;
 				HydrogenApp::get_instance()->getMixer()->unmuteAll( true );
@@ -412,8 +412,8 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 	case 9:
 		sampleRateCombo->hide();
 		sampleDepthCombo->hide();
-		label->hide();
-		label_2->hide();
+		sampleRateLable->hide();
+		sampleDepthLable->hide();
 		filename += ".ogg";
 		m_sExtension = ".ogg";
 		break;
@@ -448,22 +448,22 @@ void ExportSongDialog::on_exportNameTxt_textChanged( const QString& )
 		}
 	}
 	else if( filename.endsWith( ".flac" ) || filename.endsWith( ".FLAC" ) ){
-		label->show();
-		label_2->show();
+		sampleRateLable->show();
+		sampleDepthLable->show();
 		if( templateCombo->currentIndex() != 8 ){
 			templateCombo->setCurrentIndex( 8 );//flac
 		}
 	}
 	else if( filename.endsWith( ".aiff" ) || filename.endsWith( ".AIFF" ) ){
-		label->show();
-		label_2->show();
+		sampleRateLable->show();
+		sampleDepthLable->show();
 		if( templateCombo->currentIndex() < 5 || templateCombo->currentIndex() > 7 ){
 			templateCombo->setCurrentIndex( 5 );//aiff
 		}
 	}
 	else if( filename.endsWith( ".wav" ) || filename.endsWith( ".WAV" ) ){
-		label->show();
-		label_2->show();
+		sampleRateLable->show();
+		sampleDepthLable->show();
 		if( templateCombo->currentIndex() > 4 ){
 			templateCombo->setCurrentIndex( 0 );//wav
 
