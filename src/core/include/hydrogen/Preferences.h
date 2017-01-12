@@ -256,10 +256,6 @@ public:
 	int					getDefaultUILayout();
 	void				setDefaultUILayout( int layout);
 
-	void				setShowExportWarning( bool value );
-	bool				getShowExportWarning();
-
-
 	// General
 	void				setRestoreLastSongEnabled( bool restore );
 	void				setRestoreLastPlaylistEnabled( bool restore );
@@ -438,7 +434,6 @@ private:
 	bool				m_brestoreLastPlaylist;
 	bool				m_bUseLash;
 	bool				m_bShowDevelWarning;	///< Show development version warning?
-	bool				m_bShowExportWarning;
 	QString				m_lastSongFilename;	///< Last song used
 	QString				m_lastPlaylistFilename;
 
@@ -544,14 +539,6 @@ inline int Preferences::getDefaultUILayout(){
 
 inline void Preferences::setDefaultUILayout( int layout){
 	m_nDefaultUILayout = layout;
-}
-
-inline void Preferences::setShowExportWarning( bool value ) {
-	m_bShowExportWarning = value;
-}
-
-inline bool Preferences::getShowExportWarning() {
-	return m_bShowExportWarning;
 }
 
 

@@ -219,7 +219,6 @@ Preferences::Preferences()
 	m_brestoreLastPlaylist = false;
 	m_bUseLash = false;
 	m_bShowDevelWarning = false;
-	m_bShowExportWarning = false;
 	// NONE: lastSongFilename;
 	hearNewNotes = true;
 	// NONE: m_recentFiles;

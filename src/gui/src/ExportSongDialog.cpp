@@ -198,14 +198,6 @@ void ExportSongDialog::on_okBtn_clicked()
 
 	m_bOverwriteFiles = false;
 
-	/* If the song has a tempo change, notify the user
-	 *  that hydrogen is unable export songs with
-	 *  tempo changes correctly
-	 **/
-	Hydrogen* engine = Hydrogen::get_instance();
-
-	bool warn =  Preferences::get_instance()->getShowExportWarning();
-
 	/* 0: Export to single track
 		*  1: Export to multiple tracks
 		*  2: Export to both
