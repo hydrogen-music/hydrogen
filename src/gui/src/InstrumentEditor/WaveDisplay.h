@@ -49,7 +49,7 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		void		resizeEvent( QResizeEvent * event );
 
 	private:
-		QPixmap						m_background;
+		QPixmap						m_Background;
 		QString						m_sSampleName;
 		int *						m_pPeakData;
 		

@@ -40,7 +40,7 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 
 	//INFOLOG( "INIT" );
 
-	bool ok = m_background.load( Skin::getImagePath() + "/waveDisplay/bgsamplewavedisplay.png" );
+	bool ok = m_Background.load( Skin::getImagePath() + "/waveDisplay/bgsamplewavedisplay.png" );
 	if( ok == false ){
 		ERRORLOG( "Error loading pixmap" );
 	}
@@ -68,7 +68,7 @@ void WaveDisplay::paintEvent(QPaintEvent *ev)
 	QPainter painter( this );
 	painter.setRenderHint( QPainter::Antialiasing );
 
-	QBrush brush = QBrush(Qt::red, m_background);
+	QBrush brush = QBrush(Qt::red, m_Background);
 	brush.setStyle(Qt::TexturePattern);
 	painter.setBrush(brush);
 	painter.drawRect(0, 0, width(), height());
