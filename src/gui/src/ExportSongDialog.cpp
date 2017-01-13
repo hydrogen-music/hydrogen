@@ -172,7 +172,6 @@ void ExportSongDialog::on_browseBtn_clicked()
 
 	if ( ! filename.isEmpty() ) {
 		lastUsedDir = fd.directory().absolutePath();
-		QString sNewFilename = filename;
 
 		//this second extension check is mostly important if you leave a dot
 		//without a regular extionsion in a filename
@@ -214,7 +213,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		if ( QFile( filename ).exists() == true && b_QfileDialog == false ) {
 
 			int res;
-			if( exportTypeCombo->currentIndex() == 0 ){
+			if( exportTypeCombo->currentIndex() == EXPORT_TO_SINGLE_TRACK ){
 				res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), QMessageBox::Yes | QMessageBox::No );
 			} else {
 				res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll);
@@ -247,6 +246,8 @@ bool ExportSongDialog::currentInstrumentHasNotes()
 	Song *pSong = pEngine->getSong();
 	unsigned nPatterns = pSong->get_pattern_list()->size();
 	
+	bool bInstrumentHasNotes = false;
+	
 	for ( unsigned i = 0; i < nPatterns; i++ ) {
 		Pattern *pPattern = pSong->get_pattern_list()->get( i );
 		const Pattern::notes_t* notes = pPattern->get_notes();
@@ -259,7 +260,9 @@ bool ExportSongDialog::currentInstrumentHasNotes()
 				break;
 			}
 		}
-	}	
+	}
+	
+	return bInstrumentHasNotes;
 }
 
 void ExportSongDialog::exportTracks()
