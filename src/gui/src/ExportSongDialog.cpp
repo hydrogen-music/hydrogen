@@ -310,7 +310,7 @@ void ExportSongDialog::exportTracks()
 
 		pEngine->startExportSong( filename, sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt() );
 
-		if(! (m_nInstrument == pSong->get_instrument_list()->size() - 1)){
+		if(! (m_nInstrument == pSong->get_instrument_list()->size()) ){
 			m_nInstrument++;
 		}
 	}
@@ -497,7 +497,7 @@ void ExportSongDialog::progressEvent( int nValue )
 
 		m_bExporting = false;
 
-		if( m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->size() -1 ){
+		if( m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->size()){
 			HydrogenApp::get_instance()->getMixer()->unmuteAll( false );
 			m_nInstrument = 0;
 			m_bExportTrackouts = false;
