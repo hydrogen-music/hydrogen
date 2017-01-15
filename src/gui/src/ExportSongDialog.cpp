@@ -31,6 +31,7 @@
 
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/pattern.h>
+#include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument.h>
@@ -255,7 +256,7 @@ bool ExportSongDialog::currentInstrumentHasNotes()
 			Note *pNote = it->second;
 			assert( pNote );
 
-			if( pNote->get_instrument()->get_name() == pSong->get_instrument_list()->get(m_nInstrument)->get_name() ){
+			if( pNote->get_instrument()->get_id() == pSong->get_instrument_list()->get(m_nInstrument)->get_id() ){
 				bInstrumentHasNotes = true;
 				break;
 			}
@@ -263,6 +264,28 @@ bool ExportSongDialog::currentInstrumentHasNotes()
 	}
 	
 	return bInstrumentHasNotes;
+}
+
+QString ExportSongDialog::findUniqueExportFilenameForInstrument(Instrument* pInstrument)
+{
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	QString uniqueInstrumentName;
+	
+	int instrumentOccurence = 0;
+	for(int i=0; i  < pSong->get_instrument_list()->size(); i++ ){
+		if( pSong->get_instrument_list()->get(m_nInstrument)->get_name() == pInstrument->get_name()){
+			instrumentOccurence++;
+		}
+	}
+	
+	if(instrumentOccurence >= 2){
+		uniqueInstrumentName = pInstrument->get_name() + QString("_") + QString::number( pInstrument->get_id() );
+	} else {
+		uniqueInstrumentName = pInstrument->get_name();
+	}
+	
+	return uniqueInstrumentName;
 }
 
 void ExportSongDialog::exportTracks()
@@ -294,7 +317,7 @@ void ExportSongDialog::exportTracks()
 		if( !filenameList.isEmpty() ){
 			firstItem = filenameList.first();
 		}
-		QString newItem = firstItem + "-" + pSong->get_instrument_list()->get(m_nInstrument)->get_name();
+		QString newItem = firstItem + "-" + findUniqueExportFilenameForInstrument( pSong->get_instrument_list()->get(m_nInstrument) );
 
 		QString filename = newItem.append(m_sExtension);
 

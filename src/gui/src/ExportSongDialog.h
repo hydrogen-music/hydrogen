@@ -29,6 +29,10 @@
 #include "EventListener.h"
 #include <hydrogen/object.h>
 
+namespace H2Core {
+	class Instrument;
+}
+
 ///
 /// Dialog for exporting song
 ///
@@ -63,6 +67,7 @@ private:
 	bool checkUseOfRubberband();
 	
 	bool currentInstrumentHasNotes();
+	QString findUniqueExportFilenameForInstrument(H2Core::Instrument* pInstrument);
 
 
 	void exportTracks();
@@ -75,8 +80,6 @@ private:
 	bool b_oldRubberbandBatchMode;
 	bool b_oldTimeLineBPMMode;
 	int m_oldInterpolation;
-
-
 };
 
 
