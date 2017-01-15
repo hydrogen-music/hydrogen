@@ -2321,8 +2321,17 @@ void Hydrogen::startExportSong( const QString& filename, int sampleRate, int sam
 
 	unsigned nSamplerate = (unsigned) sampleRate;
 
-	// stop all audio drivers
-	audioEngine_stopAudioDrivers();
+	if(!(    m_pAudioDriver == nullptr
+		 && m_audioEngineState == STATE_INITIALIZED )){
+		/*
+		 *  Stop all audio drivers.
+		 * 
+		 *  If we're in STATE_INITIALIZED and the diskwriter is active,
+		 *  then we're in the middle of an multritrack export session and
+		 *  there is no need to stop the current driver. 
+		 */
+		audioEngine_stopAudioDrivers();
+	}
 
 	m_pAudioDriver = new DiskWriterDriver( audioEngine_process, nSamplerate, filename, sampleDepth );
 
@@ -2357,7 +2366,6 @@ void Hydrogen::stopExportSong( bool reconnectOldDriver )
 		return;
 	}
 
-	// audioEngine_stopAudioDrivers();
 	m_pAudioDriver->disconnect();
 
 	m_audioEngineState = STATE_INITIALIZED;
@@ -2374,7 +2382,9 @@ void Hydrogen::stopExportSong( bool reconnectOldDriver )
 	m_nSongPos = -1;
 	m_nPatternTickPosition = 0;
 
-	if ( ! reconnectOldDriver) return;
+	if ( ! reconnectOldDriver){
+		return;
+	}
 
 	audioEngine_startAudioDrivers();
 
