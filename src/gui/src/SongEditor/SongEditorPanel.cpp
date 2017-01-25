@@ -24,8 +24,9 @@
 #include "../HydrogenApp.h"
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
-#include "../widgets/Button.h"
 #include "../widgets/AutomationPathView.h"
+#include "../widgets/Button.h"
+#include "../widgets/LCDCombo.h"
 #include "../widgets/PixmapWidget.h"
 #include "../Skin.h"
 
@@ -242,6 +243,12 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pAutomationPathView, SIGNAL( pointRemoved(float, float) ), this, SLOT( automationPathPointRemoved(float,float) ) );
 	connect( m_pAutomationPathView, SIGNAL( pointMoved(float, float, float, float) ), this, SLOT( automationPathPointMoved(float,float, float, float) ) );
 
+	auto pAutomationCombo = new LCDCombo( NULL, 22 );
+	pAutomationCombo->setToolTip( trUtf8("Adjust parameter values in time") );
+	pAutomationCombo->addItem( trUtf8("Velocity") );
+	pAutomationCombo->set_text( trUtf8("Velocity") );
+	pAutomationCombo->update();
+
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, NULL );
 	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalScrollBar() ) );
 
@@ -259,6 +266,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	pGridLayout->addWidget( m_pVScrollBar, 1, 2, 2, 1 );
 	//pGridLayout->addWidget( m_pHScrollBar, 2, 1 );
 	pGridLayout->addWidget( m_pAutomationPathScrollView, 2, 1);
+	pGridLayout->addWidget( pAutomationCombo, 2, 0, Qt::AlignTop | Qt::AlignRight );
 	pGridLayout->addWidget( pHScrollbarPanel, 3, 1 );
 
 
