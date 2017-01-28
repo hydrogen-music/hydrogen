@@ -9,19 +9,12 @@ INCLUDE_DIRECTORIES(
 )
 
 ADD_EXECUTABLE(h2cli WIN32 MACOSX_BUNDLE ${h2cli_SRCS} )
-IF(WANT_QT5)
-	TARGET_LINK_LIBRARIES(h2cli
-		hydrogen-core-${VERSION}
-		Qt5::Widgets
-		${LASH_LIBRARIES}
-	)
-ELSE()
-	TARGET_LINK_LIBRARIES(h2cli
-		hydrogen-core-${VERSION}
-		${QT_QTGUI_LIBRARY}
-		${LASH_LIBRARIES}
-	)
-ENDIF()
+
+TARGET_LINK_LIBRARIES(h2cli
+	hydrogen-core-${VERSION}
+	Qt5::Widgets
+	${LASH_LIBRARIES}
+)
 
 ADD_DEPENDENCIES(h2cli hydrogen-core-${VERSION})
 

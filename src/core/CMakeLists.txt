@@ -49,19 +49,11 @@ TARGET_LINK_LIBRARIES(hydrogen-core-${VERSION}
     ${NSMSESSION_LIBRARIES}
 )
 
-IF(WANT_QT5)
-	TARGET_LINK_LIBRARIES(hydrogen-core-${VERSION}
-		Qt5::Core
-		Qt5::Xml
-		Qt5::XmlPatterns
-	)
-ELSE()
-	TARGET_LINK_LIBRARIES(hydrogen-core-${VERSION}
-		${QT_QTCORE_LIBRARY}
-		${QT_QTXML_LIBRARY}
-		${QT_QTXMLPATTERNS_LIBRARY}
-	)
-ENDIF()
+TARGET_LINK_LIBRARIES(hydrogen-core-${VERSION}
+	Qt5::Core
+	Qt5::Xml
+	Qt5::XmlPatterns
+)
 
 #SET_TARGET_PROPERTIES(hydrogen-core-${VERSION} PROPERTIES PUBLIC_HEADER   "${hydrogen_INCLUDES}" )
 
