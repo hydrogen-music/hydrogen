@@ -106,9 +106,9 @@ ELSE()
 ENDIF()
 
 IF(WANT_DEBUG)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -std=gnu++11 -Wno-deprecated-register")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -std=gnu++11")
 ELSE()
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=gnu++11 -Wno-deprecated-register")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=gnu++11")
 ENDIF()
 
 IF (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
