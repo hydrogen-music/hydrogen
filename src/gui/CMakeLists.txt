@@ -12,13 +12,8 @@ FOREACH( _file ${hydrogen_H} ${hydrogen_SRCS})
     ENDIF()
 ENDFOREACH()
 
-IF(WANT_QT5)
-	QT5_WRAP_UI(hydrogen_UIS_H ${hydrogen_UIS})             # ui_ files are generated in CMAKE_CURRENT_BINARY_DIR
-	QT5_WRAP_CPP(hydrogen_MOC ${hydrogen_H} OPTIONS -nw) 
-ELSE()
-	QT4_WRAP_UI(hydrogen_UIS_H ${hydrogen_UIS})             # ui_ files are generated in CMAKE_CURRENT_BINARY_DIR
-	QT4_WRAP_CPP(hydrogen_MOC ${hydrogen_H} OPTIONS -nw) 
-ENDIF()
+QT5_WRAP_UI(hydrogen_UIS_H ${hydrogen_UIS})             # ui_ files are generated in CMAKE_CURRENT_BINARY_DIR
+QT5_WRAP_CPP(hydrogen_MOC ${hydrogen_H} OPTIONS -nw) 
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_BINARY_DIR}                 # ui_ headers
@@ -54,20 +49,11 @@ ENDIF()
 
 ADD_EXECUTABLE(hydrogen WIN32 MACOSX_BUNDLE ${hydrogen_SRCS} ${hydrogen_MOC} ${hydrogen_UIS_H} ${CMAKE_SOURCE_DIR}/windows/icon.rc)
 
-IF(WANT_QT5)
-	TARGET_LINK_LIBRARIES(hydrogen
-		hydrogen-core-${VERSION}
-		Qt5::Widgets
-	)
-	qt5_use_modules(hydrogen Widgets)
-ELSE()
-	TARGET_LINK_LIBRARIES(hydrogen
-		hydrogen-core-${VERSION}
-		${QT_QTGUI_LIBRARY}
-		${QT_QTNETWORK_LIBRARY}
-	)
-ENDIF()
-
+TARGET_LINK_LIBRARIES(hydrogen
+	hydrogen-core-${VERSION}
+	Qt5::Widgets
+)
+qt5_use_modules(hydrogen Widgets)
 ADD_DEPENDENCIES(hydrogen hydrogen-core-${VERSION})
 
 INSTALL(TARGETS hydrogen RUNTIME DESTINATION bin BUNDLE DESTINATION bin )
