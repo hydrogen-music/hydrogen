@@ -111,7 +111,7 @@ std::ostream &operator<< (std::ostream &o, const AutomationPath &p)
 
 
 /**
- * \brief Find point in specific location
+ * \brief Find point near specific location
  *
  * If point is faound, iterator pointing to it is returned.
  * Otherwise, AutomationPath::end() is returned.
@@ -130,9 +130,13 @@ AutomationPath::iterator AutomationPath::find(float x)
 			return i;
 	}
 
-	--i;
-	if( x - i->first <= limit)
-		return i;
+	/* If there is a point before, check whether
+	 * it is a close match */
+	if (i != _points.begin()) {
+		--i;
+		if( x - i->first <= limit)
+			return i;
+	}
 
 	return _points.end();
 }
