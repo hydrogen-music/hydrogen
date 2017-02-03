@@ -1089,7 +1089,14 @@ void SongEditorPatternList::inlineEditingFinished()
 void SongEditorPatternList::paintEvent( QPaintEvent *ev )
 {
 	QPainter painter(this);
-	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, ev->rect() );
+	qreal pixelRatio = painter.device()->devicePixelRatio();
+	QRectF srcRect(
+			pixelRatio * ev->rect().x(),
+			pixelRatio * ev->rect().y(),
+			pixelRatio * ev->rect().width(),
+			pixelRatio * ev->rect().height()
+	);
+	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
 }
 
 
@@ -1132,7 +1139,9 @@ void SongEditorPatternList::createBackground()
 			newHeight = 1;	// the pixmap should not be empty
 		}
 		delete m_pBackgroundPixmap;
-		m_pBackgroundPixmap = new QPixmap( m_nWidth, newHeight );	// initialize the pixmap
+		qreal pixelRatio = qApp->devicePixelRatio();
+		m_pBackgroundPixmap = new QPixmap( m_nWidth  * pixelRatio , newHeight * pixelRatio );	// initialize the pixmap
+		m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 		this->resize( m_nWidth, newHeight );
 	}
 	m_pBackgroundPixmap->fill( Qt::black );
