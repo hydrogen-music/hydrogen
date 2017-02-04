@@ -95,7 +95,6 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	, Object( __class_name )
 {
 	setMinimumSize( QSize( 1000, 500 ) );
-	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 #ifndef WIN32
 	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigusr1Fd))
@@ -205,7 +204,6 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 
 	undoView = new QUndoView(h2app->m_undoStack);
 	undoView->setWindowTitle(tr("Undo history"));
-	undoView->setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	//restore last playlist
 	if(		Preferences::get_instance()->isRestoreLastPlaylistEnabled() 
@@ -805,7 +803,6 @@ void MainForm::action_file_openDemo()
 	fd.setNameFilter( trUtf8("Hydrogen Song (*.h2song)") );
 
 	fd.setWindowTitle( trUtf8( "Open song" ) );
-	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	fd.setDirectory( QString( Preferences::get_instance()->getDemoPath() ) );
 
@@ -1553,7 +1550,6 @@ void MainForm::action_file_export_midi()
 	fd.setDirectory( QDir::homePath() );
 	fd.setWindowTitle( trUtf8( "Export MIDI file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	QString sFilename;
 	if ( fd.exec() == QDialog::Accepted ) {
@@ -1600,7 +1596,6 @@ void MainForm::action_file_export_lilypond()
 	fd.setDirectory( QDir::homePath() );
 	fd.setWindowTitle( trUtf8( "Export LilyPond file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	QString sFilename;
 	if ( fd.exec() == QDialog::Accepted ) {

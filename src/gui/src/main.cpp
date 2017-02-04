@@ -33,6 +33,7 @@
 #include "HydrogenApp.h"
 #include "MainForm.h"
 #include "PlaylistEditor/PlaylistDialog.h"
+#include "Skin.h"
 
 #ifdef H2CORE_HAVE_LASH
 #include <hydrogen/LashClient.h>
@@ -125,6 +126,21 @@ static int setup_unix_signal_handlers()
 		return 1;
 
 	return 0;
+#endif
+}
+
+static void setApplicationIcon(QApplication *app)
+{
+#if !defined(Q_OS_MACOS) && !defined(Q_OS_WIN)
+	/* macOS uses icons from .icns file and Windows use icons from .ico
+	   file. On other platforms, manually specify icons to use */
+	QIcon icon;
+	icon.addFile(Skin::getImagePath() + "/icon16.png", QSize(16, 16));
+	icon.addFile(Skin::getImagePath() + "/icon24.png", QSize(24, 24));
+	icon.addFile(Skin::getImagePath() + "/icon32.png", QSize(32, 32));
+	icon.addFile(Skin::getImagePath() + "/icon48.png", QSize(48, 48));
+	icon.addFile(Skin::getImagePath() + "/icon64.png", QSize(64, 64));
+	app->setWindowIcon(icon);
 #endif
 }
 
@@ -289,6 +305,7 @@ int main(int argc, char *argv[])
 		}
 
 		setPalette( pQApp );
+		setApplicationIcon(pQApp);
 
 		SplashScreen *pSplash = new SplashScreen();
 

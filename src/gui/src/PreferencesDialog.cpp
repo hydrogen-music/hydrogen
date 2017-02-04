@@ -55,7 +55,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	setupUi( this );
 
 	setWindowTitle( trUtf8( "Preferences" ) );
-	setWindowIcon( QPixmap( Skin::getImagePath()  + "/icon16.png" ) );
 
 	setMinimumSize( width(), height() );
 
