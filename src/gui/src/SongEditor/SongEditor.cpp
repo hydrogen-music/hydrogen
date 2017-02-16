@@ -1184,30 +1184,22 @@ void SongEditorPatternList::createBackground()
 
 		uint text_y = i * m_nGridHeight;
 		
-		//  p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_pending_Pixmap );
-		//	p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_off_Pixmap );
-		//	p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_on_Pixmap );
-		//	p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_pending_Pixmap );
-		
 		if ( pEngine->getSong()->get_mode() == Song::PATTERN_MODE ) {
 		
 			if (bNext && bActive) {
 				p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_off_Pixmap );
-				INFOLOG( QString( "in bNext AND bActive true. text_y = %1, patternID = %2" ).arg( text_y ).arg(i) );
-		//		p.drawText( 20, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, "B" );
+				//INFOLOG( QString( "in bNext AND bActive true. text_y = %1, patternID = %2" ).arg( text_y ).arg(i) );
 			}
 			
 			else {
 				if (bNext) {
 					p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_pending_Pixmap );
 					INFOLOG( QString( "in bNext true. text_y = %1, patternID = %2" ).arg( text_y ).arg(i) );
-				//	p.drawText( 20, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, "N" );
 				}
 				
 				if (bActive) {
 					p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_on_Pixmap );
 					INFOLOG( QString( "in bActive true. text_y = %1, patternID = %2" ).arg( text_y ).arg(i) );
-				//	p.drawText( 20, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, "A" );
 				}
 			}
 		}
