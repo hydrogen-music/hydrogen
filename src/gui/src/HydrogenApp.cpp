@@ -483,6 +483,10 @@ void HydrogenApp::onEventQueueTimer()
 			case EVENT_SELECTED_PATTERN_CHANGED:
 				pListener->selectedPatternChangedEvent();
 				break;
+				
+			case EVENT_ACTIVE_PATTERNS_CHANGED:
+				pListener->activePatternsChangedEvent();
+				break;
 
 			case EVENT_SELECTED_INSTRUMENT_CHANGED:
 				pListener->selectedInstrumentChangedEvent();

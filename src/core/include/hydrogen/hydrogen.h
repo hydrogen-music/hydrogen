@@ -181,6 +181,8 @@ public:
 
 
 	void			refreshInstrumentParameters( int nInstrument );
+	
+	void			refreshActivePatternIndicator( int nInstrument );
 
 #ifdef H2CORE_HAVE_JACK
 	void			renameJackPorts(Song* pSong);

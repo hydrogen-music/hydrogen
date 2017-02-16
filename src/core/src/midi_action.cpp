@@ -289,6 +289,10 @@ bool MidiActionManager::select_next_pattern(MidiAction * pAction, Hydrogen* pEng
 	else {
 		pEngine->sequencer_setNextPattern( row );
 	}
+	
+	//pListener->patternChangedEvent();
+	pEngine->refreshActivePatternIndicator( row );
+	
 	return true;
 }
 
