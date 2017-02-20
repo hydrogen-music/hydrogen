@@ -416,9 +416,25 @@ public:
 
 	QString				getH2ProcessName();
 
+	int					getExportSampleDepth() const;
+	void				setExportSampleDepth( int nExportSampleDepth );
+	
+	int					getExportSampleRate() const;
+	void				setExportSampleRate( int nExportSampleRate );
+
+	
+	int					getExportMode() const;
+	void				setExportMode(int nExportMode);
+	
+	QString				getExportDirectory() const;
+	void				setExportDirectory( const QString &sExportDirectory );
+	
+	int					getExportTemplate() const;
+	void				setExportTemplate( int nExportTemplate );
+	
 private:
 	static Preferences *	__instance;
-
+	
 	QString				m_sDataDirectory;
 	QString				m_sTmpDirectory;
 
@@ -495,6 +511,14 @@ private:
 	int					m_nColoringMethod;
 	int					m_nColoringMethodAuxValue;
 
+	//Export dialog
+	QString				m_sExportDirectory;
+	int					m_nExportMode;
+	int					m_nExportSampleRate;
+	int					m_nExportSampleDepth;
+	int					m_nExportTemplate;
+	//~ Export dialog 
+	
 	Preferences();
 
 	/// Create preferences directory
@@ -514,10 +538,60 @@ private:
 };
 
 
+inline int Preferences::getExportSampleDepth() const
+{
+	return m_nExportSampleDepth;
+}
+
+inline void Preferences::setExportSampleDepth(int ExportSampleDepth)
+{
+	m_nExportSampleDepth = ExportSampleDepth;
+}
+
+inline int Preferences::getExportSampleRate() const
+{
+	return m_nExportSampleRate;
+}
+
+inline int Preferences::getExportMode() const
+{
+	return m_nExportMode;
+}
+
+inline void Preferences::setExportMode(int ExportMode)
+{
+	m_nExportMode = ExportMode;
+}
+
+inline QString Preferences::getExportDirectory() const
+{
+	return m_sExportDirectory;
+}
+
+inline void Preferences::setExportDirectory(const QString &ExportDirectory)
+{
+	m_sExportDirectory = ExportDirectory;
+}
+
+inline void Preferences::setExportSampleRate(int ExportSampleRate)
+{
+	m_nExportSampleRate = ExportSampleRate;
+}
+
+inline int Preferences::getExportTemplate() const
+{
+	return m_nExportTemplate;
+}
+
+inline void Preferences::setExportTemplate(int ExportTemplate)
+{
+	m_nExportTemplate = ExportTemplate;
+}
+
 inline const QString& Preferences::getDemoPath() {
 	return demoPath;
 }
-inline const QString& Preferences::getDataDirectory() {
+inline const QString& Preferences::getDataDirectory(){
 	return m_sDataDirectory;
 }
 
