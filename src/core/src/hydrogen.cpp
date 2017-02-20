@@ -2301,15 +2301,15 @@ void Hydrogen::restartDrivers()
 	audioEngine_restartAudioDrivers();
 }
 
-/// Export a song to a wav file
-void Hydrogen::startExportSong( const QString& filename, int sampleRate, int sampleDepth )
+void Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 {
 	if ( getState() == STATE_PLAYING ) {
 		sequencer_stop();
 	}
-
+	
+	unsigned nSamplerate = (unsigned) sampleRate;
+	
 	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
-	Preferences *pPref = Preferences::get_instance();
 
 	Song* pSong = getSong();
 	
@@ -2318,29 +2318,52 @@ void Hydrogen::startExportSong( const QString& filename, int sampleRate, int sam
 
 	pSong->set_mode( Song::SONG_MODE );
 	pSong->set_loop_enabled( true );
+	
+	/*
+	 * Currently an audio driver is loaded
+	 * which is not the DiskWriter driver.
+	 * Stop the current driver and fire up the DiskWriter.
+	 */
+	audioEngine_stopAudioDrivers();
 
-	unsigned nSamplerate = (unsigned) sampleRate;
+	m_pAudioDriver = new DiskWriterDriver( audioEngine_process, nSamplerate, sampleDepth );
+	
+	m_bExportSessionIsActive = true;
+}
 
-	if(!(    m_pAudioDriver == nullptr
-		 && m_audioEngineState == STATE_INITIALIZED )){
-		/*
-		 *  Stop all audio drivers.
-		 * 
-		 *  If we're in STATE_INITIALIZED and the diskwriter is active,
-		 *  then we're in the middle of an multritrack export session and
-		 *  there is no need to stop the current driver. 
-		 */
-		audioEngine_stopAudioDrivers();
+void Hydrogen::stopExportSession()
+{
+	m_bExportSessionIsActive = false;
+	
+ 	audioEngine_stopAudioDrivers();
+	
+	delete m_pAudioDriver;
+	m_pAudioDriver = nullptr;
+	
+	Song* pSong = getSong();
+	pSong->set_mode( m_oldEngineMode );
+	pSong->set_loop_enabled( m_bOldLoopEnabled );
+	
+	audioEngine_startAudioDrivers();
+
+	if ( m_pAudioDriver ) {
+		m_pAudioDriver->setBpm( pSong->__bpm );
+	} else {
+		ERRORLOG( "m_pAudioDriver = NULL" );
 	}
+}
 
-	m_pAudioDriver = new DiskWriterDriver( audioEngine_process, nSamplerate, filename, sampleDepth );
-
+/// Export a song to a wav file
+void Hydrogen::startExportSong( const QString& filename)
+{
 	// reset
 	m_pAudioDriver->m_transport.m_nFrames = 0; // reset total frames
 	m_nSongPos = 0;
 	m_nPatternTickPosition = 0;
 	m_audioEngineState = STATE_PLAYING;
 	m_nPatternStartTick = -1;
+
+	Preferences *pPref = Preferences::get_instance();
 
 	int res = m_pAudioDriver->init( pPref->m_nBufferSize );
 	if ( res != 0 ) {
@@ -2354,45 +2377,27 @@ void Hydrogen::startExportSong( const QString& filename, int sampleRate, int sam
 
 	audioEngine_seek( 0, false );
 
+	DiskWriterDriver* pDiskWriterDriver = (DiskWriterDriver*) m_pAudioDriver;
+	pDiskWriterDriver->setFileName( filename );
+	
 	res = m_pAudioDriver->connect();
 	if ( res != 0 ) {
 		ERRORLOG( "Error starting disk writer driver [DiskWriterDriver::connect()]" );
 	}
 }
 
-void Hydrogen::stopExportSong( bool reconnectOldDriver )
+void Hydrogen::stopExportSong()
 {
 	if ( m_pAudioDriver->class_name() != DiskWriterDriver::class_name() ) {
 		return;
 	}
 
+	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+	
 	m_pAudioDriver->disconnect();
-
-	m_audioEngineState = STATE_INITIALIZED;
-	delete m_pAudioDriver;
-	m_pAudioDriver = NULL;
-
-	m_pMainBuffer_L = NULL;
-	m_pMainBuffer_R = NULL;
-
-	Song* pSong = getSong();
-	pSong->set_mode( m_oldEngineMode );
-	pSong->set_loop_enabled( m_bOldLoopEnabled );
 
 	m_nSongPos = -1;
 	m_nPatternTickPosition = 0;
-
-	if ( ! reconnectOldDriver){
-		return;
-	}
-
-	audioEngine_startAudioDrivers();
-
-	if ( m_pAudioDriver ) {
-		m_pAudioDriver->setBpm( pSong->__bpm );
-	} else {
-		ERRORLOG( "m_pAudioDriver = NULL" );
-	}
 }
 
 /// Used to display audio driver info

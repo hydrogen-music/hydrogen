@@ -199,13 +199,12 @@ void ExportSongDialog::on_okBtn_clicked()
 	if ( m_bExporting ) {
 		return;
 	}
+	
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	InstrumentList *pInstrumentList = pSong->get_instrument_list();
 
 	m_bOverwriteFiles = false;
-
-	/*  0: Export to single track
-	 *  1: Export to multiple tracks
-	 *  2: Export to both
-	 */
 
 	if( exportTypeCombo->currentIndex() == EXPORT_TO_SINGLE_TRACK || exportTypeCombo->currentIndex() == EXPORT_TO_BOTH ){
 		m_bExportTrackouts = false;
@@ -220,21 +219,33 @@ void ExportSongDialog::on_okBtn_clicked()
 				res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll);
 			}
 
-			if (res == QMessageBox::YesToAll ) m_bOverwriteFiles = true;
-			if (res == QMessageBox::No ) return;
-
+			if (res == QMessageBox::YesToAll ){
+				m_bOverwriteFiles = true;
+			}
+			
+			if (res == QMessageBox::No ) {
+				return;
+			}
 		}
 
 		if( exportTypeCombo->currentIndex() == EXPORT_TO_BOTH ){
 			m_bExportTrackouts = true;
 		}
-		Hydrogen::get_instance()->startExportSong( filename, sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt() );
+		
+		/* arm all tracks for export */
+		for (auto i = 0; i < pInstrumentList->size(); i++) {
+			pInstrumentList->get(i)->set_currently_exported( true );
+		}
+		
+		pEngine->startExportSession( sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
+		pEngine->startExportSong( filename );
 
 		return;
 	}
 
 	if( exportTypeCombo->currentIndex() == EXPORT_TO_SEPARATE_TRACKS ){
 		m_bExportTrackouts = true;
+		pEngine->startExportSession(sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
 		exportTracks();
 		return;
 	}
@@ -292,16 +303,16 @@ void ExportSongDialog::exportTracks()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
+	InstrumentList *pInstrumentList = pSong->get_instrument_list();
 	
-	if( m_nInstrument < pSong->get_instrument_list()->size() ){
+	if( m_nInstrument < pInstrumentList->size() ){
 		
 		//if a instrument contains no notes we jump to the next instrument
 		bool bInstrumentHasNotes = currentInstrumentHasNotes();
 
 		if( !bInstrumentHasNotes ){
-			if( m_nInstrument == pSong->get_instrument_list()->size() -1 ){
+			if( m_nInstrument == pInstrumentList->size() -1 ){
 				m_bExportTrackouts = false;
-				HydrogenApp::get_instance()->getMixer()->unmuteAll( true );
 				m_nInstrument = 0;
 				return;
 			} else {
@@ -317,23 +328,30 @@ void ExportSongDialog::exportTracks()
 		if( !filenameList.isEmpty() ){
 			firstItem = filenameList.first();
 		}
-		QString newItem = firstItem + "-" + findUniqueExportFilenameForInstrument( pSong->get_instrument_list()->get(m_nInstrument) );
+		QString newItem = firstItem + "-" + findUniqueExportFilenameForInstrument( pInstrumentList->get( m_nInstrument ) );
 
-		QString filename = newItem.append(m_sExtension);
+		QString filename = newItem.append( m_sExtension );
 
 		if ( QFile( filename ).exists() == true && b_QfileDialog == false && !m_bOverwriteFiles) {
 			int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll );
 			if (res == QMessageBox::No ) return;
 			if (res == QMessageBox::YesToAll ) m_bOverwriteFiles = true;
 		}
+		
+		if( m_nInstrument > 0 ){
+			pEngine->stopExportSong();
+			m_bExporting = false;
+		}
+		
+		for (auto i = 0; i < pInstrumentList->size(); i++) {
+			pInstrumentList->get(i)->set_currently_exported( false );
+		}
+		
+		pSong->get_instrument_list()->get(m_nInstrument)->set_currently_exported( true );
+		
+		pEngine->startExportSong( filename );
 
-		pEngine->stopExportSong( false );
-		m_bExporting = false;
-		HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrument );
-
-		pEngine->startExportSong( filename, sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt() );
-
-		if(! (m_nInstrument == pSong->get_instrument_list()->size()) ){
+		if(! (m_nInstrument == pInstrumentList->size()) ){
 			m_nInstrument++;
 		}
 	}
@@ -342,8 +360,12 @@ void ExportSongDialog::exportTracks()
 
 void ExportSongDialog::on_closeBtn_clicked()
 {
-	Hydrogen::get_instance()->stopExportSong( true );
+	
+	Hydrogen::get_instance()->stopExportSong();
+	Hydrogen::get_instance()->stopExportSession();
+	
 	m_bExporting = false;
+	
 	if(Preferences::get_instance()->getRubberBandBatchMode()){
 		EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
 	}
@@ -521,7 +543,6 @@ void ExportSongDialog::progressEvent( int nValue )
 		m_bExporting = false;
 
 		if( m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->size()){
-			HydrogenApp::get_instance()->getMixer()->unmuteAll( false );
 			m_nInstrument = 0;
 			m_bExportTrackouts = false;
 		}

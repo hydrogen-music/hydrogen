@@ -221,6 +221,9 @@ void* diskWriterDriver_thread( void* param )
 			};
 			
 			frameNumber += usedBuffer;
+			
+			//pDriver->m_transport.m_nFrames = frameNumber;
+			
 			int ret = pDriver->m_processCallback( usedBuffer, NULL );
 			
 			for ( unsigned i = 0; i < usedBuffer; i++ ) {
@@ -271,10 +274,9 @@ void* diskWriterDriver_thread( void* param )
 
 const char* DiskWriterDriver::__class_name = "DiskWriterDriver";
 
-DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, const QString& sFilename, int nSampleDepth )
+DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, int nSampleDepth )
 		: AudioOutput( __class_name )
 		, m_nSampleRate( nSamplerate )
-		, m_sFilename( sFilename )
 		, m_nSampleDepth ( nSampleDepth )
 		, m_processCallback( processCallback )
 		, m_nBufferSize( 0 )
@@ -305,24 +307,21 @@ int DiskWriterDriver::init( unsigned nBufferSize )
 }
 
 
-
 ///
 /// Connect
 /// return 0: Ok
 ///
 int DiskWriterDriver::connect()
 {
-	INFOLOG( "[connect]" );
-
+	INFOLOG( "[startExport]" );
+	
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
 
 	pthread_create( &diskWriterDriverThread, &attr, diskWriterDriver_thread, this );
-
-		return 0;
-
+	
+	return 0;
 }
-
 
 
 /// disconnect
