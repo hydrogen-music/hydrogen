@@ -256,6 +256,9 @@ class Instrument : public H2Core::Object
 
 		void set_apply_velocity( bool apply_velocity );
 		bool get_apply_velocity() const;
+		
+		bool is_currently_exported() const;
+		void set_currently_exported( bool isCurrentlyExported );
 
 
 	private:
@@ -290,6 +293,7 @@ class Instrument : public H2Core::Object
 		bool __is_metronome_instrument;			///< is the instrument an metronome instrument?
 		std::vector<InstrumentComponent*>* __components;  ///< InstrumentLayer array
 		bool __apply_velocity;			///< change the sample gain based on velocity
+		bool __current_instr_for_export;		///< is the instrument currently beeing exported?
 };
 
 // DEFINITIONS
@@ -613,6 +617,15 @@ inline bool Instrument::get_apply_velocity() const
 	return __apply_velocity;
 }
 
+inline bool Instrument::is_currently_exported() const
+{
+	return __current_instr_for_export;
+}
+
+inline void Instrument::set_currently_exported( bool isCurrentlyExported )
+{
+	__current_instr_for_export = isCurrentlyExported;
+}
 
 };
 
