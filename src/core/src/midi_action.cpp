@@ -280,7 +280,7 @@ bool MidiActionManager::tap_tempo(MidiAction * , Hydrogen* pEngine, targeted_ele
 bool MidiActionManager::select_next_pattern(MidiAction * pAction, Hydrogen* pEngine, targeted_element ) {
 	bool ok;
 	int row = pAction->getParameter1().toInt(&ok,10);
-	if( row> pEngine->getSong()->get_pattern_list()->size() -1 ) {
+	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
 		return false;
 	}
 	if(Preferences::get_instance()->patternModePlaysSelected()) {
@@ -298,7 +298,7 @@ bool MidiActionManager::select_next_pattern_relative(MidiAction * pAction, Hydro
 		return true;
 	}
 	int row = pEngine->getSelectedPatternNumber() + pAction->getParameter1().toInt(&ok,10);
-	if( row> pEngine->getSong()->get_pattern_list()->size() -1 ) {
+	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
 		return false;
 	}
 
@@ -309,7 +309,7 @@ bool MidiActionManager::select_next_pattern_relative(MidiAction * pAction, Hydro
 bool MidiActionManager::select_next_pattern_cc_absolute(MidiAction * pAction, Hydrogen* pEngine, targeted_element ) {
 	bool ok;
 	int row = pAction->getParameter2().toInt(&ok,10);
-	if( row> pEngine->getSong()->get_pattern_list()->size() -1 ) {
+	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
 		return false;
 	}
 	if(Preferences::get_instance()->patternModePlaysSelected()) {
@@ -788,6 +788,8 @@ bool MidiActionManager::bpm_increase(MidiAction * pAction, Hydrogen* pEngine, ta
 		pEngine->setBPM( pSong->__bpm + 1*mult );
 	}
 	AudioEngine::get_instance()->unlock();
+	
+	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 
 	return true;
 }
@@ -803,6 +805,8 @@ bool MidiActionManager::bpm_decrease(MidiAction * pAction, Hydrogen* pEngine, ta
 		pEngine->setBPM( pSong->__bpm - 1*mult );
 	}
 	AudioEngine::get_instance()->unlock();
+	
+	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
 
 	return true;
 }

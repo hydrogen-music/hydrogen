@@ -531,6 +531,10 @@ void HydrogenApp::onEventQueueTimer()
 			case EVENT_UNDO_REDO:
 				pListener->undoRedoActionEvent( event.value );
 				break;
+				
+			case EVENT_TEMPO_CHANGED:
+				pListener->tempoChangedEvent( event.value );
+				break;
 
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
