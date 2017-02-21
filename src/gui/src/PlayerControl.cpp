@@ -55,6 +55,8 @@ PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
  , Object( __class_name )
 {
+	HydrogenApp::get_instance()->addEventListener( this );
+	
 	// Background image
 	setPixmap( QPixmap( Skin::getImagePath() + "/playerControlPanel/background.png" ) );
 	setScaledContents( true );
@@ -1094,6 +1096,19 @@ void PlayerControl::resetStatusLabel()
 {
 	m_pStatusTimer->stop();
 	m_pStatusLabel->setText( "" );
+}
+
+void PlayerControl::tempoChangedEvent( int nValue )
+{
+	/*
+	 * This is an external tempo change, triggered
+	 * via a midi or osc message.
+	 * 
+	 * Just update the GUI using the current tempo 
+	 * of the song.
+	 */
+	
+	m_pLCDBPMSpinbox->setValue( m_pEngine->getSong()->__bpm );
 }
 
 //::::::::::::::::::::::::::::::::::::::::::::::::
