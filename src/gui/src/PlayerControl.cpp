@@ -754,6 +754,8 @@ void PlayerControl::songModeBtnClicked(Button* ref)
 	m_pSongModeBtn->setPressed(true);
 	m_pLiveModeBtn->setPressed(false);
 	(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Song mode selected."), 5000);
+	// update pattern indicators when switching to song mode
+	EventQueue::get_instance()->push_event( EVENT_ACTIVE_PATTERNS_CHANGED, -1 );
 }
 
 
@@ -769,6 +771,8 @@ void PlayerControl::liveModeBtnClicked(Button* ref)
 	m_pSongModeBtn->setPressed(false);
 	m_pLiveModeBtn->setPressed(true);
 	(HydrogenApp::get_instance())->setStatusBarMessage(trUtf8("Pattern mode selected."), 5000);
+	// update pattern indicators when switching to live/pattern mode
+	EventQueue::get_instance()->push_event( EVENT_ACTIVE_PATTERNS_CHANGED, -1 );
 }
 
 
