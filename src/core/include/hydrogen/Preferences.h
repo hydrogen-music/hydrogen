@@ -389,7 +389,7 @@ public:
 #endif
 
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 	void				setNsmClientId(const QString& nsmClientId);
 	QString				getNsmClientId(void);
 
@@ -474,7 +474,7 @@ private:
 		QString			jackSessionApplicationPath;
 #endif
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 		QString			m_sNsmClientId;
 		QString			m_sNsmSongName;
 #endif
@@ -944,7 +944,7 @@ inline void Preferences::setJackSessionApplicationPath( QString path ){
 #endif
 
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 inline void Preferences::setNsmClientId(const QString& nsmClientId){
 	m_sNsmClientId = nsmClientId;
 }

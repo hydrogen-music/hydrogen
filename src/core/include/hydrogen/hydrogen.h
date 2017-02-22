@@ -183,7 +183,7 @@ public:
 	void			renameJackPorts(Song* pSong);
 #endif
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 	void			startNsmClient();
 #endif
 

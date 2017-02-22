@@ -23,7 +23,7 @@
 #ifndef OSC_SERVER_H
 #define OSC_SERVER_H
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 
 #include <lo/lo.h>
 
@@ -109,6 +109,6 @@ class OscServer : public H2Core::Object
 		lo::ServerThread *m_pServerThread;
 };
 
-#endif /* H2CORE_HAVE_NSMSESSION */
+#endif /* H2CORE_HAVE_OSC */
 
 #endif // OSC_SERVER_H

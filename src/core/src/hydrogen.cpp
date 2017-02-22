@@ -69,7 +69,7 @@
 #include <hydrogen/playlist.h>
 #include <hydrogen/timeline.h>
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 #include <hydrogen/nsm_client.h>
 #include <hydrogen/osc_server.h>
 #endif
@@ -1745,7 +1745,7 @@ Hydrogen::~Hydrogen()
 {
 	INFOLOG( "[~Hydrogen]" );
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 	NsmClient* pNsmClient = NsmClient::get_instance();
 
 	if(pNsmClient){
@@ -1777,7 +1777,7 @@ void Hydrogen::create_instance()
 	EventQueue::create_instance();
 	MidiActionManager::create_instance();
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 	NsmClient::create_instance();
 	OscServer::create_instance();
 #endif
@@ -3328,7 +3328,7 @@ void startOsc()
 	
 }
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 void Hydrogen::startNsmClient()
 {
 	//NSM has to be started before jack driver gets created

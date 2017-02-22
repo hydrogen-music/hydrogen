@@ -475,7 +475,7 @@ int JackAudioDriver::init( unsigned /*nBufferSize*/ )
 
 	QString sClientName = "Hydrogen";
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 	QString nsmClientId = pref->getNsmClientId();
 
 	if(!nsmClientId.isEmpty()){

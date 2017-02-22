@@ -27,8 +27,8 @@
 #include <pthread.h>
 #include <unistd.h>
 
-//currently H2CORE_HAVE_NSMSESSION means: liblo is present..
-#ifdef H2CORE_HAVE_NSMSESSION
+//currently H2CORE_HAVE_OSC means: liblo is present..
+#ifdef H2CORE_HAVE_OSC
 
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
@@ -561,5 +561,5 @@ OscServer::~OscServer()
 }
 
 
-#endif /* H2CORE_HAVE_NSMSESSION */
+#endif /* H2CORE_HAVE_OSC */
 
