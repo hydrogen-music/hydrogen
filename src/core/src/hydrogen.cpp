@@ -54,6 +54,7 @@
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/sample.h>
+#include <hydrogen/basics/automation_path.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
@@ -462,9 +463,18 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		framepos = pHydrogen->getRealtimeFrames();
 	}
 
+	AutomationPath *vp = pSong->get_velocity_automation_path();
+	
+
 	// reading from m_songNoteQueue
 	while ( !m_songNoteQueue.empty() ) {
 		Note *pNote = m_songNoteQueue.top();
+
+		float velocity_adjustment = 1.0f;
+		if ( pSong->get_mode() == Song::SONG_MODE ) {
+			float fPos = m_nSongPos + (pNote->get_position()%192) / 192.f;
+			velocity_adjustment = vp->get_value(fPos);
+		}
 
 		// verifico se la nota rientra in questo ciclo
 		unsigned int noteStartInFrames =
@@ -485,6 +495,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 		if ( isNoteStart || isOldNote ) {
 			// Humanize - Velocity parameter
+			pNote->set_velocity( pNote->get_velocity() * velocity_adjustment );
 
 			float rnd = (float)rand()/(float)RAND_MAX;
 			if (pNote->get_probability() < rnd) {

@@ -41,6 +41,8 @@
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/note.h>
+#include <hydrogen/basics/automation_path.h>
+#include <hydrogen/automation_path_serializer.h>
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/hydrogen.h>
 
@@ -76,10 +78,12 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 	, __swing_factor( 0.0 )
 	, __song_mode( PATTERN_MODE )
 	, __components( NULL )
+	, __velocity_automation_path( NULL )
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( __name ) );
 
 	__components = new std::vector<DrumkitComponent*> ();
+	__velocity_automation_path = new AutomationPath(0.0f, 1.5f,  1.0f);
 }
 
 
@@ -102,6 +106,8 @@ Song::~Song()
 	}
 
 	delete __instrument_list;
+
+	delete __velocity_automation_path;
 
 	INFOLOG( QString( "DESTROY '%1'" ).arg( __name ) );
 }
@@ -1002,6 +1008,29 @@ Song* SongReader::readSong( const QString& filename )
 		}
 	} else {
 		WARNINGLOG( "TagTimeLine node not found" );
+	}
+
+	// Automation Paths
+	QDomNode automationPathsNode = songNode.firstChildElement( "automationPaths" );
+	if ( !automationPathsNode.isNull() ) {
+		AutomationPathSerializer pathSerializer;
+
+		QDomElement pathNode = automationPathsNode.firstChildElement( "path" );
+		while( !pathNode.isNull()) {
+			QString sAdjust = pathNode.attribute( "adjust" );
+
+			// Select automation path to be read based on "adjust" attribute
+			AutomationPath *pPath = NULL;
+			if (sAdjust == "velocity") {
+				pPath = song->get_velocity_automation_path();
+			}
+
+			if (pPath) {
+				pathSerializer.read_automation_path( pathNode, *pPath );
+			}
+
+			pathNode = pathNode.nextSiblingElement( "path" );
+		}
 	}
 
 	song->set_is_modified( false );
