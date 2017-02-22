@@ -53,6 +53,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 {
 	m_nInitialWidth = 600;
 	m_nInitialHeight = 250;
+	m_bShowAutomationPathView = false;
 
 	setWindowTitle( trUtf8( "Song Editor" ) );
 
@@ -243,11 +244,11 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pAutomationPathView, SIGNAL( pointRemoved(float, float) ), this, SLOT( automationPathPointRemoved(float,float) ) );
 	connect( m_pAutomationPathView, SIGNAL( pointMoved(float, float, float, float) ), this, SLOT( automationPathPointMoved(float,float, float, float) ) );
 
-	auto pAutomationCombo = new LCDCombo( NULL, 22 );
-	pAutomationCombo->setToolTip( trUtf8("Adjust parameter values in time") );
-	pAutomationCombo->addItem( trUtf8("Velocity") );
-	pAutomationCombo->set_text( trUtf8("Velocity") );
-	pAutomationCombo->update();
+	m_pAutomationCombo = new LCDCombo( NULL, 22 );
+	m_pAutomationCombo->setToolTip( trUtf8("Adjust parameter values in time") );
+	m_pAutomationCombo->addItem( trUtf8("Velocity") );
+	m_pAutomationCombo->set_text( trUtf8("Velocity") );
+	m_pAutomationCombo->update();
 
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, NULL );
 	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalScrollBar() ) );
@@ -266,12 +267,14 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	pGridLayout->addWidget( m_pVScrollBar, 1, 2, 2, 1 );
 	//pGridLayout->addWidget( m_pHScrollBar, 2, 1 );
 	pGridLayout->addWidget( m_pAutomationPathScrollView, 2, 1);
-	pGridLayout->addWidget( pAutomationCombo, 2, 0, Qt::AlignTop | Qt::AlignRight );
+	pGridLayout->addWidget( m_pAutomationCombo, 2, 0, Qt::AlignTop | Qt::AlignRight );
 	pGridLayout->addWidget( pHScrollbarPanel, 3, 1 );
 
-
-
-
+	if( !m_bShowAutomationPathView ){
+		m_pAutomationPathScrollView->hide();
+		m_pAutomationCombo->hide();
+	}
+	
 	this->setLayout( pGridLayout );
 	QPalette defaultPalette;
 	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
@@ -644,3 +647,18 @@ void SongEditorPanel::automationPathPointMoved(float ox, float oy, float tx, flo
 	SE_automationPathMovePointAction *undo_action = new SE_automationPathMovePointAction(path, ox, oy, tx, ty);
 	HydrogenApp::get_instance()->m_undoStack->push( undo_action );
 }
+
+void SongEditorPanel::toggleAutomationAreaVisibility()
+{
+	if(!m_bShowAutomationPathView)
+	{
+		m_pAutomationPathScrollView->show();
+		m_pAutomationCombo->show();
+		m_bShowAutomationPathView = true;
+	} else {
+		m_pAutomationPathScrollView->hide();
+		m_pAutomationCombo->hide();
+		m_bShowAutomationPathView = false;
+	}
+}
+

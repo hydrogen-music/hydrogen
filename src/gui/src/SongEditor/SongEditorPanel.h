@@ -38,6 +38,7 @@ class SongEditorPatternList;
 class SongEditorPositionRuler;
 class ToggleButton;
 class AutomationPathView;
+class LCDCombo;
 
 
 enum SongEditorActionMode
@@ -65,7 +66,8 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void updatePositionRuler();
 		void setModeActionBtn( bool mode );
 		SongEditorActionMode getActionMode() {	return m_actionMode;	}
-
+		void toggleAutomationAreaVisibility();
+		
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
 		void restoreGroupVector( QString filename );
@@ -118,7 +120,10 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		SongEditor* m_pSongEditor;
 		SongEditorPatternList *m_pPatternList;
 		SongEditorPositionRuler *m_pPositionRuler;
+		
 		AutomationPathView *m_pAutomationPathView;
+		LCDCombo*			m_pAutomationCombo;
+		bool				m_bShowAutomationPathView;
 
 		Button *m_pUpBtn;
 		Button *m_pDownBtn;

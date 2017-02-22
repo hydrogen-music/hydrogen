@@ -338,6 +338,8 @@ void MainForm::createMenuBar()
 
 	m_pViewMenu->addAction( trUtf8("&Instrument Rack"), this, SLOT( action_window_showDrumkitManagerPanel() ), QKeySequence( "Alt+I" ) );
 	
+	m_pViewMenu->addAction( trUtf8("&Automation path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
+	
 	m_pViewMenu->addSeparator();				// -----
 	
 	m_pViewMenu->addAction( trUtf8("Full screen"), this, SLOT( action_window_toggleFullscreen() ), QKeySequence( "Alt+F" ) );
@@ -873,6 +875,11 @@ void MainForm::action_window_showSongEditor()
 {
 	bool isVisible = h2app->getSongEditorPanel()->isVisible();
 	h2app->getSongEditorPanel()->setHidden( isVisible );
+}
+
+void MainForm::action_window_showAutomationArea()
+{
+	h2app->getSongEditorPanel()->toggleAutomationAreaVisibility();
 }
 
 
