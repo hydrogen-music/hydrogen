@@ -44,25 +44,53 @@ const char* OscServer::__class_name = "OscServer";
 
 /* catch any incoming messages and display them. returning 1 means that the
  * message has not been fully handled and the server should try other methods */
-int OscServer::generic_handler(const char *path, const char *types, lo_arg ** argv,
-							   int argc, void *data, void *user_data)
+int OscServer::generic_handler(const char *	path, 
+							   const char *	types,
+							   lo_arg **	argv,
+							   int			argc, 
+							   void *		data, 
+							   void *		user_data)
 {
 	//First we're trying to map TouchOSC messages from multi-fader widgets
 	QString oscPath(path);
-	QRegExp rxlen("/Hydrogen/STRIP_VOLUME_ABSOLUTE/(\\d+)");
-	int pos = rxlen.indexIn(oscPath);
+	QRegExp rxStripVol("/Hydrogen/STRIP_VOLUME_ABSOLUTE/(\\d+)");
+	int pos = rxStripVol.indexIn(oscPath);
 	if (pos > -1) {
 		if(argc == 1){
-			int value = rxlen.cap(1).toInt();
-			
-			//Those fader groups are 1-based, where as we adress faders 0-based.
-			value -= 1;
-			
+			int value = rxStripVol.cap(1).toInt() -1;
 			STRIP_VOLUME_ABSOLUTE_Handler( QString::number( value ) , QString::number( argv[0]->f, 'f', 0) );
 		}
 	}
 	
-	//Second, do some debugging output..
+	QRegExp rxStripPanAbs("/Hydrogen/PAN_ABSOLUTE/(\\d+)");
+	pos = rxStripPanAbs.indexIn(oscPath);
+	if (pos > -1) {
+		if(argc == 1){
+			int value = rxStripPanAbs.cap(1).toInt() - 1;
+			PAN_ABSOLUTE_Handler( QString::number( value ) , QString::number( argv[0]->f, 'f', 0) );
+		}
+	}
+	
+	QRegExp rxStripPanRel("/Hydrogen/PAN_RELATIVE/(\\d+)");
+	pos = rxStripPanRel.indexIn(oscPath);
+	if (pos > -1) {
+		if(argc == 1){
+			int value = rxStripPanRel.cap(1).toInt() - 1;
+			PAN_RELATIVE_Handler( QString::number( value ) , QString::number( argv[0]->f, 'f', 0) );
+		}
+	}
+	
+	QRegExp rxStripFilterCutoffAbs("/Hydrogen/FILTER_CUTOFF_LEVEL_ABSOLUTE/(\\d+)");
+	pos = rxStripFilterCutoffAbs.indexIn(oscPath);
+	if (pos > -1) {
+		if(argc == 1){
+			int value = rxStripFilterCutoffAbs.cap(1).toInt() - 1;
+			FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( QString::number( value ) , QString::number( argv[0]->f, 'f', 0) );
+		}
+	}
+	
+	/*
+	 //Remove block comment to enable OSC debug output.. TODO: integrate this in our logging system.
 	printf("path: <%s>\n", path);
 	int i;
 	for (i = 0; i < argc; i++) {
@@ -72,6 +100,7 @@ int OscServer::generic_handler(const char *path, const char *types, lo_arg ** ar
 	}
 	printf("\n");
 	fflush(stdout);
+	*/
 	
 	return 1;
 }
@@ -138,7 +167,34 @@ void OscServer::PAUSE_Handler(lo_arg **argv,int i)
 
 void OscServer::RECORD_READY_Handler(lo_arg **argv,int i)
 {
-	MidiAction* pAction = new MidiAction("PAUSE");
+	MidiAction* pAction = new MidiAction("RECORD_READY");
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::RECORD_STROBE_TOGGLE_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("RECORD/STROBE_TOGGLE");
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::RECORD_STROBE_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("RECORD_STROBE");
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::RECORD_EXIT_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("RECORD_EXIT");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	pActionManager->handleAction(pAction);
@@ -222,11 +278,31 @@ void OscServer::MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv,int i)
 	delete pAction;
 }
 
+void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("MASTER_VOLUME_RELATIVE");
+	pAction->setParameter2( QString::number( argv[0]->f, 'f', 0));
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
 void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(QString param1, QString param2)
 {
 	MidiAction* pAction = new MidiAction("STRIP_VOLUME_ABSOLUTE");
 	pAction->setParameter1( param1 );
 	pAction->setParameter2( param2 );
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::STRIP_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("STRIP_VOLUME_RELATIVE");
+	pAction->setParameter2( QString::number( argv[0]->f, 'f', 0));
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	pActionManager->handleAction(pAction);
@@ -248,6 +324,135 @@ void OscServer::SELECT_NEXT_PATTERN_PROMPTLY_Handler(lo_arg **argv,int i)
 {
 	MidiAction* pAction = new MidiAction("SELECT_NEXT_PATTERN_PROMPTLY");
 	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("SELECT_AND_PLAY_PATTERN");
+	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::PAN_ABSOLUTE_Handler(QString param1, QString param2)
+{
+	MidiAction* pAction = new MidiAction("PAN_ABSOLUTE");
+	pAction->setParameter1( param1 );
+	pAction->setParameter2( param2 );
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::PAN_RELATIVE_Handler(QString param1, QString param2)
+{
+	MidiAction* pAction = new MidiAction("PAN_RELATIVE");
+	pAction->setParameter1( param1 );
+	pAction->setParameter2( param2 );
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(QString param1, QString param2)
+{
+	MidiAction* pAction = new MidiAction("FILTER_CUTOFF_LEVEL_ABSOLUTE");
+	pAction->setParameter1( param1 );
+	pAction->setParameter2( param2 );
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::BEATCOUNTER_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("BEATCOUNTER");
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+
+void OscServer::TAP_TEMPO_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("TAP_TEMPO");
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::PLAYLIST_SONG_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("PLAYLIST_SONG");
+	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();	
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::PLAYLIST_NEXT_SONG_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("PLAYLIST_NEXT_SONG");
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::PLAYLIST_PREV_SONG_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("PLAYLIST_PREV_SONG");
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::TOGGLE_METRONOME_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("TOGGLE_METRONOME");
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::SELECT_INSTRUMENT_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("SELECT_INSTRUMENT");
+	pAction->setParameter2(  QString::number( argv[0]->f, 'f', 0 ) );
+
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();	
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::UNDO_ACTION_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("UNDO_ACTION");
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	pActionManager->handleAction(pAction);
+	delete pAction;
+}
+
+void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
+{
+	MidiAction* pAction = new MidiAction("REDO_ACTION");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	pActionManager->handleAction(pAction);
@@ -285,6 +490,16 @@ void OscServer::start()
 
 	m_pServerThread->add_method("/Hydrogen/RECORD_READY", "", RECORD_READY_Handler);
 	m_pServerThread->add_method("/Hydrogen/RECORD_READY", "f", RECORD_READY_Handler);
+
+	m_pServerThread->add_method("/Hydrogen/RECORD_STROBE_TOGGLE", "", RECORD_STROBE_TOGGLE_Handler);
+	m_pServerThread->add_method("/Hydrogen/RECORD_STROBE_TOGGLE", "f", RECORD_STROBE_TOGGLE_Handler);
+	
+	m_pServerThread->add_method("/Hydrogen/RECORD_STROBE", "", RECORD_STROBE_Handler);
+	m_pServerThread->add_method("/Hydrogen/RECORD_STROBE", "f", RECORD_STROBE_Handler);
+	
+	m_pServerThread->add_method("/Hydrogen/RECORD_EXIT", "", RECORD_EXIT_Handler);
+	m_pServerThread->add_method("/Hydrogen/RECORD_EXIT", "f", RECORD_EXIT_Handler);
+	
 	
 	m_pServerThread->add_method("/Hydrogen/MUTE", "", MUTE_Handler);
 	m_pServerThread->add_method("/Hydrogen/MUTE", "f", MUTE_Handler);
@@ -305,22 +520,34 @@ void OscServer::start()
 
 	m_pServerThread->add_method("/Hydrogen/BPM_INCR", "f", BPM_INCR_Handler);
 
-/*	
-	m_pServerThread->add_method("/Hydrogen/RECORD_STROBE_TOGGLE", "", RECORD_STROBE_TOGGLE_Handler);
-	m_pServerThread->add_method("/Hydrogen/RECORD_STROBE_TOGGLE", "f", RECORD_STROBE_TOGGLE_Handler);
-
-	m_pServerThread->add_method("/Hydrogen/RECORD_STROBE", "", RECORD_STROBE_Handler);
-	m_pServerThread->add_method("/Hydrogen/RECORD_STROBE", "f", RECORD_STROBE_Handler);
-*/
 	m_pServerThread->add_method("/Hydrogen/MASTER_VOLUME_ABSOLUTE", "f", MASTER_VOLUME_ABSOLUTE_Handler);
+	m_pServerThread->add_method("/Hydrogen/MASTER_VOLUME_RELATIVE", "f", MASTER_VOLUME_RELATIVE_Handler);
 	
-	//This is handled by the generic handler.
-	//m_pServerThread->add_method("/Hydrogen/STRIP_VOLUME_ABSOLUTE", "f", STRIP_VOLUME_ABSOLUTE_Handler);
+	m_pServerThread->add_method("/Hydrogen/STRIP_VOLUME_RELATIVE", "f", STRIP_VOLUME_RELATIVE_Handler);
 
 	m_pServerThread->add_method("/Hydrogen/SELECT_NEXT_PATTERN", "f", SELECT_NEXT_PATTERN_Handler);
 	m_pServerThread->add_method("/Hydrogen/SELECT_NEXT_PATTERN_PROMPTLY", "f", SELECT_NEXT_PATTERN_PROMPTLY_Handler);
 	m_pServerThread->add_method("/Hydrogen/SELECT_AND_PLAY_PATTERN", "f", SELECT_AND_PLAY_PATTERN_Handler);
-
+	
+	m_pServerThread->add_method("/Hydrogen/BEATCOUNTER", "", BEATCOUNTER_Handler);
+	m_pServerThread->add_method("/Hydrogen/BEATCOUNTER", "f", BEATCOUNTER_Handler);
+	
+	m_pServerThread->add_method("/Hydrogen/TAP_TEMPO", "", TAP_TEMPO_Handler);
+	m_pServerThread->add_method("/Hydrogen/TAP_TEMPO", "f", TAP_TEMPO_Handler);
+	
+	m_pServerThread->add_method("/Hydrogen/PLAYLIST_SONG", "f", PLAYLIST_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/PLAYLIST_NEXT_SONG", "", PLAYLIST_NEXT_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/PLAYLIST_NEXT_SONG", "f", PLAYLIST_NEXT_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/PLAYLIST_PREV_SONG", "", PLAYLIST_PREV_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/PLAYLIST_PREV_SONG", "f", PLAYLIST_PREV_SONG_Handler);
+	
+	m_pServerThread->add_method("/Hydrogen/TOGGLE_METRONOME", "", TOGGLE_METRONOME_Handler);
+	m_pServerThread->add_method("/Hydrogen/TOGGLE_METRONOME", "f", TOGGLE_METRONOME_Handler);
+	
+	m_pServerThread->add_method("/Hydrogen/SELECT_INSTRUMENT", "f", SELECT_INSTRUMENT_Handler);
+	
+	m_pServerThread->add_method("/Hydrogen/UNDO_ACTION", "", UNDO_ACTION_Handler);
+	m_pServerThread->add_method("/Hydrogen/REDO_ACTION", "f", REDO_ACTION_Handler);
 	
 	/*
 	 * Start the server.

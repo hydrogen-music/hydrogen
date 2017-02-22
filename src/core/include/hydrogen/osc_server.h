@@ -88,9 +88,9 @@ class OscServer : public H2Core::Object
 		static void SELECT_NEXT_PATTERN_PROMPTLY_Handler(lo_arg **argv, int i);
 		static void SELECT_NEXT_PATTERN_RELATIVE_Handler(lo_arg **argv, int i);
 		static void SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv, int i);
-		static void PAN_RELATIVE_Handler(lo_arg **argv, int i);
-		static void PAN_ABSOLUTE_Handler(lo_arg **argv, int i);
-		static void FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(lo_arg **argv, int i);
+		static void PAN_RELATIVE_Handler(QString param1, QString param2);
+		static void PAN_ABSOLUTE_Handler(QString param1, QString param2);
+		static void FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(QString param1, QString param2);
 		static void BEATCOUNTER_Handler(lo_arg **argv, int i);
 		static void TAP_TEMPO_Handler(lo_arg **argv, int i);
 		static void PLAYLIST_SONG_Handler(lo_arg **argv, int i);
