@@ -123,7 +123,6 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		
 		AutomationPathView *m_pAutomationPathView;
 		LCDCombo*			m_pAutomationCombo;
-		bool				m_bShowAutomationPathView;
 
 		Button *m_pUpBtn;
 		Button *m_pDownBtn;

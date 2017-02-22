@@ -333,6 +333,9 @@ public:
 
 	bool				isFXTabVisible();
 	void				setFXTabVisible( bool value );
+	
+	bool				getShowAutomationArea();
+	void				setShowAutomationArea( bool value );
 
 	unsigned			getPatternEditorGridHeight();
 	void				setPatternEditorGridHeight( unsigned value );
@@ -494,6 +497,7 @@ private:
 	bool				m_bPatternEditorUsingTriplets;
 	bool				m_bShowInstrumentPeaks;
 	bool				m_bIsFXTabVisible;
+	bool				m_bShowAutomationArea;
 	bool				m_bUseRelativeFilenamesForPlaylists;
 	unsigned			m_nPatternEditorGridHeight;
 	unsigned			m_nPatternEditorGridWidth;
@@ -804,6 +808,14 @@ inline bool Preferences::isFXTabVisible() {
 inline void Preferences::setFXTabVisible( bool value ) {
 	m_bIsFXTabVisible = value;
 }
+
+inline bool Preferences::getShowAutomationArea() {
+	return m_bShowAutomationArea;
+}
+inline void Preferences::setShowAutomationArea( bool value ) {
+	m_bShowAutomationArea = value;
+}
+
 
 inline unsigned Preferences::getPatternEditorGridHeight() {
 	return m_nPatternEditorGridHeight;

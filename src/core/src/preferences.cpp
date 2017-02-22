@@ -245,6 +245,7 @@ Preferences::Preferences()
 	m_bPatternEditorUsingTriplets = false;
 	m_bShowInstrumentPeaks = true;
 	m_bIsFXTabVisible = true;
+	m_bShowAutomationArea = false;
 	m_nPatternEditorGridHeight = 21;
 	m_nPatternEditorGridWidth = 3;
 	mainFormProperties.set(0, 0, 1000, 700, true);
@@ -582,8 +583,10 @@ void Preferences::loadPreferences( bool bGlobal )
 				// pattern editor grid resolution
 				m_nPatternEditorGridResolution = LocalFileMng::readXmlInt( guiNode, "patternEditorGridResolution", m_nPatternEditorGridResolution );
 				m_bPatternEditorUsingTriplets = LocalFileMng::readXmlBool( guiNode, "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets );
+				
 				m_bShowInstrumentPeaks = LocalFileMng::readXmlBool( guiNode, "showInstrumentPeaks", m_bShowInstrumentPeaks );
 				m_bIsFXTabVisible = LocalFileMng::readXmlBool( guiNode, "isFXTabVisible", m_bIsFXTabVisible );
+				m_bShowAutomationArea = LocalFileMng::readXmlBool( guiNode, "showAutomationArea", m_bShowAutomationArea );
 
 
 				// pattern editor grid height
@@ -962,7 +965,7 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlBool( guiNode, "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets );
 		LocalFileMng::writeXmlBool( guiNode, "showInstrumentPeaks", m_bShowInstrumentPeaks );
 		LocalFileMng::writeXmlBool( guiNode, "isFXTabVisible", m_bIsFXTabVisible );
-
+		LocalFileMng::writeXmlBool( guiNode, "showAutomationArea", m_bShowAutomationArea );
 
 		// MainForm window properties
 		writeWindowProperties( guiNode, "mainForm_properties", mainFormProperties );

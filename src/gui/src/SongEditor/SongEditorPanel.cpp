@@ -53,7 +53,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 {
 	m_nInitialWidth = 600;
 	m_nInitialHeight = 250;
-	m_bShowAutomationPathView = false;
+	
+	Preferences *pPref = Preferences::get_instance();
 
 	setWindowTitle( trUtf8( "Song Editor" ) );
 
@@ -73,7 +74,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pTimeLineToggleBtn->move( 133, 6 );
 	m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
-	m_pTimeLineToggleBtn->setPressed( Preferences::get_instance()->getUseTimelineBpm() );
+	m_pTimeLineToggleBtn->setPressed( pPref->getUseTimelineBpm() );
 
 
 	// clear sequence button
@@ -158,7 +159,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	);
 	m_pModeActionBtn->move( 169, 5 + 25 );
 	m_pModeActionBtn->setToolTip( trUtf8( "stacked mode") );
-	m_pModeActionBtn->setPressed(  Preferences::get_instance()->patternModePlaysSelected() );
+	m_pModeActionBtn->setPressed(  pPref->patternModePlaysSelected() );
 	connect( m_pModeActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( modeActionBtnPressed() ) );
 
 // ZOOM
@@ -270,7 +271,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	pGridLayout->addWidget( m_pAutomationCombo, 2, 0, Qt::AlignTop | Qt::AlignRight );
 	pGridLayout->addWidget( pHScrollbarPanel, 3, 1 );
 
-	if( !m_bShowAutomationPathView ){
+	if( !pPref->getShowAutomationArea() ){
 		m_pAutomationPathScrollView->hide();
 		m_pAutomationCombo->hide();
 	}
@@ -650,15 +651,17 @@ void SongEditorPanel::automationPathPointMoved(float ox, float oy, float tx, flo
 
 void SongEditorPanel::toggleAutomationAreaVisibility()
 {
-	if(!m_bShowAutomationPathView)
+	Preferences *pPref = Preferences::get_instance();
+	
+	if(!pPref->getShowAutomationArea())
 	{
 		m_pAutomationPathScrollView->show();
 		m_pAutomationCombo->show();
-		m_bShowAutomationPathView = true;
+		pPref->setShowAutomationArea( true );
 	} else {
 		m_pAutomationPathScrollView->hide();
 		m_pAutomationCombo->hide();
-		m_bShowAutomationPathView = false;
+		pPref->setShowAutomationArea( false );
 	}
 }
 
