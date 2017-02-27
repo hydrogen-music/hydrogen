@@ -49,6 +49,7 @@ using namespace H2Core;
 #endif
 #include <QClipboard>
 #include <cassert>
+#include <algorithm> // for std::min
 
 using namespace std;
 
@@ -199,7 +200,8 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
 
 	if ( ev->button() == Qt::LeftButton ) {
-		const float velocity = 0.8f;
+		const int width = m_pMuteBtn->x() - 5; // clickable field width
+		const float velocity = std::min((float)ev->x()/(float)width, 1.0f);
 		const float pan_L = 0.5f;
 		const float pan_R = 0.5f;
 		const int nLength = -1;
