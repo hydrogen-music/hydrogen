@@ -36,10 +36,10 @@ class AutomationPathView : public QWidget, public H2Core::Object
 	H2_OBJECT
 
 	H2Core::AutomationPath *_path;
-	unsigned m_nGridWidth;   /** < Width of song grid cell size - in order to properly align AutomationPathView and SongEditor */
-	unsigned m_nMarginWidth; /** < Width of an empty space on the left side */
-	unsigned m_nMarginHeight;/** < Height of top and bottom margins */
-	unsigned m_nMaxPatternSequence;
+	int m_nGridWidth;   /** < Width of song grid cell size - in order to properly align AutomationPathView and SongEditor */
+	int m_nMarginWidth; /** < Width of an empty space on the left side */
+	int m_nMarginHeight;/** < Height of top and bottom margins */
+	int m_nMaxPatternSequence;
 
 	bool m_bIsHolding; /** < Whether any points are being dragged */
 	bool m_bPointAdded;/** < Whether a new point was added during mouse move */
