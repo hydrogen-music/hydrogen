@@ -1877,7 +1877,9 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	resize( m_nInitialWidth, m_nHeight );
 	setFixedHeight( m_nHeight );
 
-	m_pBackgroundPixmap = new QPixmap( m_nInitialWidth, m_nHeight );	// initialize the pixmap
+	qreal pixelRatio = devicePixelRatio();
+	m_pBackgroundPixmap = new QPixmap( m_nInitialWidth * pixelRatio, m_nHeight * pixelRatio );	// initialize the pixmap
+	m_pBackgroundPixmap->setDevicePixelRatio( pixelRatio );
 
 	createBackground();	// create m_backgroundPixmap pixmap
 
@@ -2118,7 +2120,14 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	}
 
 	QPainter painter(this);
-	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, ev->rect() );
+	qreal pixelRatio = devicePixelRatio();
+	QRectF srcRect(
+			pixelRatio * ev->rect().x(),
+			pixelRatio * ev->rect().y(),
+			pixelRatio * ev->rect().width(),
+			pixelRatio * ev->rect().height()
+	);
+	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
 
 	if (fPos != -1) {
 		uint x = (int)( 10 + fPos * m_nGridWidth - 11 / 2 );
