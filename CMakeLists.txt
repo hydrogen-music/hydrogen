@@ -37,9 +37,6 @@ SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 #
 SET(WANT_LIBTAR TRUE)
 OPTION(WANT_DEBUG           "Build with debug information" ON)
-IF(NOT WANT_OLD_BUILD)
-    OPTION(WANT_QT5             "Build with Qt5" ON)
-ENDIF()
 IF(APPLE)
     OPTION(WANT_SHARED      "Build the core library shared." OFF)
 ELSE()
@@ -50,11 +47,11 @@ OPTION(WANT_LIBARCHIVE      "Enable use of libarchive instead of libtar" ON)
 OPTION(WANT_LADSPA          "Enable use of LADSPA plugins" ON)
 
 IF(APPLE)
-	OPTION(WANT_NSMSESSION  "Enable NSM Session integration" OFF)
+	OPTION(WANT_OSC  "Enable OSC support" OFF)
 	OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" OFF)
 ELSE()
 	OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" ON)
-	OPTION(WANT_NSMSESSION  "Enable NSM Session integration" ON)
+	OPTION(WANT_OSC  "Enable OSC support" ON)
 ENDIF()
 
 IF("${CMAKE_SYSTEM_NAME}" MATCHES "NetBSD")
@@ -106,9 +103,9 @@ ELSE()
 ENDIF()
 
 IF(WANT_DEBUG)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -std=gnu++11 -Wno-deprecated-register")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -std=gnu++11")
 ELSE()
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=gnu++11 -Wno-deprecated-register")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=gnu++11")
 ENDIF()
 
 IF (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -131,17 +128,9 @@ INCLUDE(StatusSupportOptions)
 MANDATORY_PKG(Threads)
 MANDATORY_PKG(LIBSNDFILE)
 
-IF(WANT_QT5)
-	FIND_PACKAGE(Qt5Widgets REQUIRED)
-	FIND_PACKAGE(Qt5Xml REQUIRED)
-	FIND_PACKAGE(Qt5XmlPatterns REQUIRED)
-ELSE()
-	MANDATORY_PKG(QT4)
-	SET(QT_USE_QTXML true)
-	SET(QT_USE_QTGUI true)
-	SET(QT_USE_QTXMLPATTERNS true)
-	FIND_PACKAGE(Qt4 4.3.0 REQUIRED)
-ENDIF()
+FIND_PACKAGE(Qt5Widgets REQUIRED)
+FIND_PACKAGE(Qt5Xml REQUIRED)
+FIND_PACKAGE(Qt5XmlPatterns REQUIRED)
 
 IF(MINGW)
     SET(WANT_JACK TRUE)
@@ -211,7 +200,7 @@ FIND_HELPER(LIBSNDFILE sndfile sndfile.h sndfile)
 FIND_HELPER(ALSA alsa alsa/asoundlib.h asound )
 FIND_LADSPA(LADSPA ladspa.h noise)
 
-FIND_HELPER(NSMSESSION liblo lo/lo.h lo)
+FIND_HELPER(OSC liblo lo/lo.h lo)
 
 IF("${CMAKE_SYSTEM_NAME}" MATCHES "NetBSD")
 	FIND_HELPER(OSS oss sys/soundcard.h ossaudio )
@@ -258,7 +247,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION NSMSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RAPTOR RUBBERBAND CPPUNIT )
+SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RAPTOR RUBBERBAND CPPUNIT )
 FOREACH( _pkg ${STATUS_LIST})
     COMPUTE_PKGS_FLAGS(${_pkg})
 ENDFOREACH()
@@ -294,16 +283,11 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}
-* fat build                    : ${WANT_FAT_BUILD}
-* old build                    : ${WANT_OLD_BUILD}\n"
+* fat build                    : ${WANT_FAT_BUILD}\n"
 )
 
 COLOR_MESSAGE("${cyan}Main librarires${reset}")
-IF(WANT_QT5)
-	COLOR_MESSAGE("* ${purple}libQt${reset}                        : ${Qt5Widgets_VERSION}")
-ELSE()
-	COLOR_MESSAGE("* ${purple}libQt${reset}                        : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}")
-ENDIF()
+COLOR_MESSAGE("* ${purple}libQt${reset}                        : ${Qt5Widgets_VERSION}")
 COLOR_MESSAGE("* ${purple}libsndfile${reset}                   : ${LIBSNDFILE_STATUS}
 *                                ${LIBSNDFILE_MSG}
 * ${purple}libtar${reset}                       : ${LIBTAR_STATUS}
@@ -317,7 +301,7 @@ COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}
 * ${purple}OSS${reset}                          : ${OSS_STATUS}
 * ${purple}JACK${reset}                         : ${JACK_STATUS}
 * ${purple}JACKSESSION${reset}                  : ${JACKSESSION_STATUS}
-* ${purple}NSM Session${reset}                  : ${NSMSESSION_STATUS}   
+* ${purple}OSC${reset}                  : ${OSC_STATUS}   
 * ${purple}CoreAudio${reset}                    : ${COREAUDIO_STATUS}
 * ${purple}CoreMidi${reset}                     : ${COREMIDI_STATUS}
 * ${purple}PortAudio${reset}                    : ${PORTAUDIO_STATUS}

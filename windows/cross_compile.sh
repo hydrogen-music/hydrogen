@@ -2,7 +2,6 @@
 # Hydrogen Cross Compile Script
 
 FATBUILD=false
-OLDBUILD=false
 
 show_interactive_menu(){
 	#clear the screen
@@ -111,22 +110,18 @@ mxe_files(){
         mkdir $extralibs
 	
 	#Make arrays for the filenames to loop through.
-	declare -a libs=("libgnurx" "libsndfile" "libFLAC" "libogg" "libvorbis" "libvorbisenc" "zlib1" "libwinpthread" "libeay32" "ssleay32" "libarchive" "libbz2" "liblzma" "libnettle" "libxml2" "libpng16" "libportmidi" "libportaudio" "libiconv" "libiconv" "jack")
+	declare -a libs=("liblzo2-2" "libgnurx" "libsndfile" "libFLAC" "libogg" "libvorbis" "libvorbisenc" "zlib1" "libwinpthread" "libeay32" "ssleay32" "libarchive" "libbz2" "liblzma" "libnettle" "libxml2" "libpng16" "libportmidi" "libportaudio" "libiconv" "libiconv" "jack")
 	declare -a gcclibs=("libgcc" "libstdc++")
 	
-        #special stuff for qt5 handling
-        if [ $OLDBUILD == true ]; then
-            declare -a qtlibs=("QtCore4" "QtXml4" "QtXmlPatterns4" "QtNetwork4" "QtGui4")
-            qtdir="$mxedir/../qt/bin"
-        else
-            declare -a qtlibs=("Qt5Core" "Qt5Xml." "Qt5XmlPatterns" "Qt5Network" "Qt5Gui" "Qt5Widgets")
-            libs+=("libpcre-1" "libpcre16-0" "libharfbuzz-0" "libfreetype-6" "libglib-2" "libintl-8")
-            qtdir="$mxedir/../qt5/bin"
-            platforms="$extralibs/platforms"
-            mkdir -p $platforms
-            cp "$qtdir/../plugins/platforms/qwindows.dll" "$platforms/"
-        fi
-        #loop through the libs, and put them into a text file.
+    #special stuff for qt5 handling
+    declare -a qtlibs=("Qt5Core" "Qt5Xml." "Qt5XmlPatterns" "Qt5Network" "Qt5Gui" "Qt5Widgets")
+    libs+=("libpcre-1" "libpcre16-0" "libharfbuzz-0" "libfreetype-6" "libglib-2" "libintl-8")
+    qtdir="$mxedir/../qt5/bin"
+    platforms="$extralibs/platforms"
+	mkdir -p $platforms
+    cp "$qtdir/../plugins/platforms/qwindows.dll" "$platforms/"
+    
+	#loop through the libs, and put them into a text file.
 	cd $mxedir
 	for mylibs in "${libs[@]}"
 	do
@@ -270,7 +265,7 @@ build_hydrogen(){
 usage(){
 	echo -e "\nManual mode:\t\tcross_compile.sh [-f] [-d SOURCE_DIR] [-c] -b i686|x86_64"
 	echo -e "Interactive mode:\tcross_compile.sh -i"
-	echo -e "Usage: \n\t-i:\tUse interactive mode \n\t-b:\tBuild hydrogen. Valid values: i686 or x86_64 \n\t-f:\tFat build (includes Jack and Ladspa installers). Only useful in combination with -b \n\t-o:\tOld build uses QT4 to build hydrogen instead of the new QT5 \n\t-c:\tClean the CMake files from the windows directory. Used if building fails, or compiling a different version.\n\t-r:\tBuild release packages. This will build both the 32 bit and 64 bit installers for releases."
+	echo -e "Usage: \n\t-i:\tUse interactive mode \n\t-b:\tBuild hydrogen. Valid values: i686 or x86_64 \n\t-f:\tFat build (includes Jack and Ladspa installers). Only useful in combination with -b \n\t-c:\tClean the CMake files from the windows directory. Used if building fails, or compiling a different version.\n\t-r:\tBuild release packages. This will build both the 32 bit and 64 bit installers for releases."
 }
 
 fatbuild=false
@@ -302,9 +297,6 @@ while getopts "d:fob:icr" o; do
             ;;
         i)
             show_interactive_menu
-            ;;
-        o)
-            OLDBUILD=true
             ;;
         c)
             cleanbuild

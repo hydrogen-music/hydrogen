@@ -124,9 +124,6 @@ public:
 
 	void			restartDrivers();
 
-	void			startExportSong( const QString& filename, int rate, int depth  );
-	void			stopExportSong( bool reconnectOldDriver );
-
 	AudioOutput*	getAudioOutput();
 	MidiInput*		getMidiInput();
 	MidiOutput*		getMidiOutput();
@@ -136,8 +133,8 @@ public:
 	float			getProcessTime();
 	float			getMaxProcessTime();
 
-	int			loadDrumkit( Drumkit *pDrumkitInfo );
-	int			loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
+	int				loadDrumkit( Drumkit *pDrumkitInfo );
+	int				loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
 
 	//  Test if an instrument has notes in the pattern (used to test before deleting an insturment)
 	bool 			instrumentHasNotes( Instrument *pInst );
@@ -186,7 +183,7 @@ public:
 	void			renameJackPorts(Song* pSong);
 #endif
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 	void			startNsmClient();
 #endif
 
@@ -228,6 +225,13 @@ public:
 	void			setTimelineBpm();
 	float			getTimelineBpm( int Beat );
 	Timeline*		getTimeline() const;
+	
+	//export management
+	bool			getIsExportSessionActive() const;
+	void			startExportSession( int rate, int depth );
+	void			stopExportSession();
+	void			startExportSong( const QString& filename );
+	void			stopExportSong();
 
 	///midi lookuptable
 	int m_nInstrumentLookupTable[MAX_INSTRUMENTS];
@@ -260,10 +264,13 @@ private:
 	// used for song export
 	Song::SongMode	m_oldEngineMode;
 	bool			m_bOldLoopEnabled;
+	bool			m_bExportSessionIsActive;
+	
 
 	//Timline information
 	Timeline*		m_pTimeline;
-
+	
+	
 	std::list<Instrument*> __instrument_death_row; /// Deleting instruments too soon leads to potential crashes.
 
 
@@ -286,6 +293,11 @@ inline Timeline* Hydrogen::getTimeline() const
 inline const QString& Hydrogen::getCurrentDrumkitname()
 {
 	return m_currentDrumkit;
+}
+
+inline bool Hydrogen::getIsExportSessionActive() const
+{
+	return m_bExportSessionIsActive;
 }
 
 inline void Hydrogen::setCurrentDrumkitname( const QString& currentdrumkitname )

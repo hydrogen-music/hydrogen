@@ -136,12 +136,12 @@ HydrogenApp::~HydrogenApp()
 
 	delete SoundLibraryDatabase::get_instance();
 
-	Hydrogen *engine = Hydrogen::get_instance();
-	if (engine) {
-		H2Core::Song * song = engine->getSong();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	if (pEngine) {
+		H2Core::Song * pSong = pEngine->getSong();
 		// Hydrogen calls removeSong on from its destructor, so here we just delete the objects:
-		delete engine;
-		delete song;
+		delete pEngine;
+		delete pSong;
 	}
 
 	#ifdef H2CORE_HAVE_LADSPA
@@ -530,6 +530,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_UNDO_REDO:
 				pListener->undoRedoActionEvent( event.value );
+				break;
+				
+			case EVENT_TEMPO_CHANGED:
+				pListener->tempoChangedEvent( event.value );
 				break;
 
 			default:

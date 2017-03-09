@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
+ * Copyright(c) 2015-2016 by Przemysław Sitek
  *
  * http://www.hydrogen-music.org
  *
@@ -19,48 +19,30 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
-#ifndef NSM_CLIENT_H
-#define NSM_CLIENT_H
-
-#ifdef H2CORE_HAVE_OSC
+#ifndef AUTOMATION_PATH_SERIALIZER_H
+#define AUTOMATION_PATH_SERIALIZER_H
 
 #include <hydrogen/object.h>
-#include <cassert>
+#include <hydrogen/basics/automation_path.h>
 
+#include <QDomDocument>
 
-/**
-* @class NsmClient
-*
-* @brief Non session manager client implementation
-*
-*
-* @author Sebastian Moors
-*
-*/
+namespace H2Core
+{
 
-class NsmClient : public H2Core::Object
+class AutomationPathSerializer : private Object
 {
 	H2_OBJECT
-	public:
 
-		static NsmClient* __instance;
-		~NsmClient();
+public:
+	AutomationPathSerializer();
 
-		pthread_t m_NsmThread;
-
-		static void create_instance();
-		static NsmClient* get_instance() { assert(__instance); return __instance; }
-
-		void createInitialClient();
-
-		void shutdown();
-
-	private:
-		NsmClient();
+	void read_automation_path(const QDomNode &node, AutomationPath &path);
+	void write_automation_path(QDomNode &node, const AutomationPath &path);
 
 };
 
-#endif /* H2CORE_HAVE_OSC */
 
-#endif // NSM_CLIENT_H
+}
+
+#endif

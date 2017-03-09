@@ -354,7 +354,7 @@ int main(int argc, char *argv[])
 		// Hydrogen here to honor all preferences.
 		H2Core::Hydrogen::create_instance();
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 		H2Core::Hydrogen::get_instance()->startNsmClient();
 
 		QString NsmSongFilename = pPref->getNsmSongName();

@@ -208,7 +208,8 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	undoView->setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	//restore last playlist
-	if( Preferences::get_instance()->isRestoreLastPlaylistEnabled() ){
+	if(		Preferences::get_instance()->isRestoreLastPlaylistEnabled() 
+		&& !Preferences::get_instance()->getLastPlaylistFilename().isEmpty() ){
 		bool loadlist = h2app->getPlayListDialog()->loadListByFileName( Preferences::get_instance()->getLastPlaylistFilename() );
 		if( !loadlist ){
 			_ERRORLOG ( "Error loading the playlist" );
@@ -336,6 +337,8 @@ void MainForm::createMenuBar()
 	m_pViewMenu->addAction( trUtf8("&Mixer"), this, SLOT( action_window_showMixer() ), QKeySequence( "Alt+M" ) );
 
 	m_pViewMenu->addAction( trUtf8("&Instrument Rack"), this, SLOT( action_window_showDrumkitManagerPanel() ), QKeySequence( "Alt+I" ) );
+	
+	m_pViewMenu->addAction( trUtf8("&Automation path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
 	
 	m_pViewMenu->addSeparator();				// -----
 	
@@ -872,6 +875,11 @@ void MainForm::action_window_showSongEditor()
 {
 	bool isVisible = h2app->getSongEditorPanel()->isVisible();
 	h2app->getSongEditorPanel()->setHidden( isVisible );
+}
+
+void MainForm::action_window_showAutomationArea()
+{
+	h2app->getSongEditorPanel()->toggleAutomationAreaVisibility();
 }
 
 

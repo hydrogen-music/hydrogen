@@ -313,7 +313,7 @@ JackMidiDriver::JackMidiDriver()
 
 	QString jackMidiClientId = "Hydrogen";
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 	Preferences* pref = Preferences::get_instance();
 	QString nsmClientId = pref->getNsmClientId();
 

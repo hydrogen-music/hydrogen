@@ -23,7 +23,7 @@
 #ifndef OSC_SERVER_H
 #define OSC_SERVER_H
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 
 #include <lo/lo.h>
 
@@ -82,15 +82,15 @@ class OscServer : public H2Core::Object
 		static void MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv, int i);
 		static void MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv, int i);
 		static void STRIP_VOLUME_RELATIVE_Handler(lo_arg **argv, int i);
-		static void STRIP_VOLUME_ABSOLUTE_Handler(lo_arg **argv, int i);
+		static void STRIP_VOLUME_ABSOLUTE_Handler(QString param1, QString param2);
 		static void SELECT_NEXT_PATTERN_Handler(lo_arg **argv, int i);
 		static void SELECT_NEXT_PATTERN_CC_ABSOLUTE_Handler(lo_arg **argv, int i);
 		static void SELECT_NEXT_PATTERN_PROMPTLY_Handler(lo_arg **argv, int i);
 		static void SELECT_NEXT_PATTERN_RELATIVE_Handler(lo_arg **argv, int i);
 		static void SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv, int i);
-		static void PAN_RELATIVE_Handler(lo_arg **argv, int i);
-		static void PAN_ABSOLUTE_Handler(lo_arg **argv, int i);
-		static void FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(lo_arg **argv, int i);
+		static void PAN_RELATIVE_Handler(QString param1, QString param2);
+		static void PAN_ABSOLUTE_Handler(QString param1, QString param2);
+		static void FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(QString param1, QString param2);
 		static void BEATCOUNTER_Handler(lo_arg **argv, int i);
 		static void TAP_TEMPO_Handler(lo_arg **argv, int i);
 		static void PLAYLIST_SONG_Handler(lo_arg **argv, int i);
@@ -100,7 +100,8 @@ class OscServer : public H2Core::Object
 		static void SELECT_INSTRUMENT_Handler(lo_arg **argv, int i);
 		static void UNDO_ACTION_Handler(lo_arg **argv, int i);
 		static void REDO_ACTION_Handler(lo_arg **argv, int i);
-
+		static int  generic_handler(const char *path, const char *types, lo_arg ** argv,
+								int argc, void *data, void *user_data);
 
 	private:
 		OscServer();
@@ -108,6 +109,6 @@ class OscServer : public H2Core::Object
 		lo::ServerThread *m_pServerThread;
 };
 
-#endif /* H2CORE_HAVE_NSMSESSION */
+#endif /* H2CORE_HAVE_OSC */
 
 #endif // OSC_SERVER_H

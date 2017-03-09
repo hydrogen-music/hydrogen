@@ -24,7 +24,9 @@
 #include "../HydrogenApp.h"
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
+#include "../widgets/AutomationPathView.h"
 #include "../widgets/Button.h"
+#include "../widgets/LCDCombo.h"
 #include "../widgets/PixmapWidget.h"
 #include "../Skin.h"
 
@@ -51,6 +53,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 {
 	m_nInitialWidth = 600;
 	m_nInitialHeight = 250;
+	
+	Preferences *pPref = Preferences::get_instance();
 
 	setWindowTitle( trUtf8( "Song Editor" ) );
 
@@ -70,7 +74,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pTimeLineToggleBtn->move( 133, 6 );
 	m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
-	m_pTimeLineToggleBtn->setPressed( Preferences::get_instance()->getUseTimelineBpm() );
+	m_pTimeLineToggleBtn->setPressed( pPref->getUseTimelineBpm() );
 
 
 	// clear sequence button
@@ -155,7 +159,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	);
 	m_pModeActionBtn->move( 169, 5 + 25 );
 	m_pModeActionBtn->setToolTip( trUtf8( "stacked mode") );
-	m_pModeActionBtn->setPressed(  Preferences::get_instance()->patternModePlaysSelected() );
+	m_pModeActionBtn->setPressed(  pPref->patternModePlaysSelected() );
 	connect( m_pModeActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( modeActionBtnPressed() ) );
 
 // ZOOM
@@ -229,6 +233,24 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
 	m_pPositionRulerScrollView->setFixedHeight( 50 );
 
+	m_pAutomationPathScrollView = new QScrollArea( NULL );
+	m_pAutomationPathScrollView->setFrameShape( QFrame::NoFrame );
+	m_pAutomationPathScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pAutomationPathScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pAutomationPathView = new AutomationPathView( m_pAutomationPathScrollView->viewport() );
+	m_pAutomationPathScrollView->setWidget( m_pAutomationPathView );
+	m_pAutomationPathScrollView->setFixedHeight( 64 );
+	connect( m_pAutomationPathView, SIGNAL( valueChanged() ), this, SLOT( automationPathChanged() ) );
+	connect( m_pAutomationPathView, SIGNAL( pointAdded(float, float) ), this, SLOT( automationPathPointAdded(float,float) ) );
+	connect( m_pAutomationPathView, SIGNAL( pointRemoved(float, float) ), this, SLOT( automationPathPointRemoved(float,float) ) );
+	connect( m_pAutomationPathView, SIGNAL( pointMoved(float, float, float, float) ), this, SLOT( automationPathPointMoved(float,float, float, float) ) );
+
+	m_pAutomationCombo = new LCDCombo( NULL, 22 );
+	m_pAutomationCombo->setToolTip( trUtf8("Adjust parameter values in time") );
+	m_pAutomationCombo->addItem( trUtf8("Velocity") );
+	m_pAutomationCombo->set_text( trUtf8("Velocity") );
+	m_pAutomationCombo->update();
+
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, NULL );
 	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalScrollBar() ) );
 
@@ -243,12 +265,17 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	pGridLayout->addWidget( m_pPositionRulerScrollView, 0, 1 );
 	pGridLayout->addWidget( m_pPatternListScrollView, 1, 0 );
 	pGridLayout->addWidget( m_pEditorScrollView, 1, 1 );
-	pGridLayout->addWidget( m_pVScrollBar, 1, 2 );
+	pGridLayout->addWidget( m_pVScrollBar, 1, 2, 2, 1 );
 	//pGridLayout->addWidget( m_pHScrollBar, 2, 1 );
-	pGridLayout->addWidget( pHScrollbarPanel, 2, 1 );
+	pGridLayout->addWidget( m_pAutomationPathScrollView, 2, 1);
+	pGridLayout->addWidget( m_pAutomationCombo, 2, 0, Qt::AlignTop | Qt::AlignRight );
+	pGridLayout->addWidget( pHScrollbarPanel, 3, 1 );
 
-
-
+	if( !pPref->getShowAutomationArea() ){
+		m_pAutomationPathScrollView->hide();
+		m_pAutomationCombo->hide();
+	}
+	
 	this->setLayout( pGridLayout );
 	QPalette defaultPalette;
 	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
@@ -328,6 +355,8 @@ void SongEditorPanel::syncToExternalScrollBar()
 {
 	m_pEditorScrollView->horizontalScrollBar()->setValue( m_pHScrollBar->value() );
 	m_pEditorScrollView->verticalScrollBar()->setValue( m_pVScrollBar->value() );
+	m_pAutomationPathScrollView->horizontalScrollBar()->setValue( m_pHScrollBar->value() );
+	m_pAutomationPathScrollView->verticalScrollBar()->setValue( m_pVScrollBar->value() );
 }
 
 
@@ -344,6 +373,10 @@ void SongEditorPanel::updateAll()
 
 	m_pSongEditor->createBackground();
 	m_pSongEditor->update();
+
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	m_pAutomationPathView->setAutomationPath (song->get_velocity_automation_path());
 
 	resyncExternalScrollBar();
 }
@@ -559,6 +592,7 @@ void SongEditorPanel::zoomInBtnPressed( Button* pBtn )
 	--width;
 	m_pSongEditor->setGridWidth (width);
 	m_pPositionRuler->setGridWidth (width);
+	m_pAutomationPathView->setGridWidth (width);
 
 	updateAll();
 }
@@ -571,6 +605,7 @@ void SongEditorPanel::zoomOutBtnPressed( Button* pBtn )
 	++width;
 	m_pSongEditor->setGridWidth (width);
 	m_pPositionRuler->setGridWidth (width);
+	m_pAutomationPathView->setGridWidth (width);
 	updateAll();
 }
 
@@ -580,4 +615,53 @@ void SongEditorPanel::selectedPatternChangedEvent()
 	resyncExternalScrollBar();
 	m_pModeActionBtn->setPressed(  Preferences::get_instance()->patternModePlaysSelected() );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
+}  
+
+
+void SongEditorPanel::automationPathChanged()
+{
+	Hydrogen *engine = Hydrogen::get_instance();
+	Song *song = engine->getSong();
+	song->set_is_modified(true);
 }
+
+
+void SongEditorPanel::automationPathPointAdded(float x, float y)
+{
+	H2Core::AutomationPath *path = m_pAutomationPathView->getAutomationPath();
+	SE_automationPathAddPointAction *undo_action = new SE_automationPathAddPointAction(path, x, y);
+	HydrogenApp::get_instance()->m_undoStack->push( undo_action );
+}
+
+
+void SongEditorPanel::automationPathPointRemoved(float x, float y)
+{
+	H2Core::AutomationPath *path = m_pAutomationPathView->getAutomationPath();
+	SE_automationPathRemovePointAction *undo_action = new SE_automationPathRemovePointAction(path, x, y);
+	HydrogenApp::get_instance()->m_undoStack->push( undo_action );
+}
+
+
+void SongEditorPanel::automationPathPointMoved(float ox, float oy, float tx, float ty)
+{
+	H2Core::AutomationPath *path = m_pAutomationPathView->getAutomationPath();
+	SE_automationPathMovePointAction *undo_action = new SE_automationPathMovePointAction(path, ox, oy, tx, ty);
+	HydrogenApp::get_instance()->m_undoStack->push( undo_action );
+}
+
+void SongEditorPanel::toggleAutomationAreaVisibility()
+{
+	Preferences *pPref = Preferences::get_instance();
+	
+	if(!pPref->getShowAutomationArea())
+	{
+		m_pAutomationPathScrollView->show();
+		m_pAutomationCombo->show();
+		pPref->setShowAutomationArea( true );
+	} else {
+		m_pAutomationPathScrollView->hide();
+		m_pAutomationCombo->hide();
+		pPref->setShowAutomationArea( false );
+	}
+}
+

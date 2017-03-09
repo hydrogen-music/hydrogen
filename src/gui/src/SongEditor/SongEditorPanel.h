@@ -37,6 +37,8 @@ class SongEditor;
 class SongEditorPatternList;
 class SongEditorPositionRuler;
 class ToggleButton;
+class AutomationPathView;
+class LCDCombo;
 
 
 enum SongEditorActionMode
@@ -58,12 +60,14 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		SongEditor* getSongEditor(){ return m_pSongEditor; }
 		SongEditorPatternList* getSongEditorPatternList(){ return m_pPatternList; }
 		SongEditorPositionRuler* getSongEditorPositionRuler(){ return m_pPositionRuler; }
+		AutomationPathView* getAutomationPathView() const { return m_pAutomationPathView; }
 
 		void updateAll();
 		void updatePositionRuler();
 		void setModeActionBtn( bool mode );
 		SongEditorActionMode getActionMode() {	return m_actionMode;	}
-
+		void toggleAutomationAreaVisibility();
+		
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
 		void restoreGroupVector( QString filename );
@@ -92,6 +96,10 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void zoomInBtnPressed( Button* pBtn );
 		void zoomOutBtnPressed( Button* pBtn );
 
+		void automationPathChanged();
+		void automationPathPointAdded(float x, float y);
+		void automationPathPointRemoved(float x, float y);
+		void automationPathPointMoved(float ox, float oy, float tx, float ty);
 
 	private:
 		SongEditorActionMode m_actionMode;
@@ -104,6 +112,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		QScrollArea* m_pEditorScrollView;
 		QScrollArea* m_pPatternListScrollView;
 		QScrollArea* m_pPositionRulerScrollView;
+		QScrollArea* m_pAutomationPathScrollView;
 		QScrollBar *m_pVScrollBar;
 		QScrollBar *m_pHScrollBar;
 
@@ -111,6 +120,9 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		SongEditor* m_pSongEditor;
 		SongEditorPatternList *m_pPatternList;
 		SongEditorPositionRuler *m_pPositionRuler;
+		
+		AutomationPathView *m_pAutomationPathView;
+		LCDCombo*			m_pAutomationCombo;
 
 		Button *m_pUpBtn;
 		Button *m_pDownBtn;
