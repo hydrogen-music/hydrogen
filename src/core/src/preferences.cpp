@@ -541,14 +541,14 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_bMidiFixedMapping = LocalFileMng::readXmlBool( midiDriverNode, "fixed_mapping", false, true );
 				}
 
-				/// OSC Server ///
-				QDomNode oscServerNode = audioEngineNode.firstChildElement( "osc_server" );
+				/// OSC ///
+				QDomNode oscServerNode = audioEngineNode.firstChildElement( "osc_configuration" );
 				if ( oscServerNode.isNull() ) {
-					WARNINGLOG( "osc_server node not found" );
+					WARNINGLOG( "osc_configuration node not found" );
 					recreate = true;
 				} else {
-					m_bOscServerEnabled = LocalFileMng::readXmlBool( midiDriverNode, "oscServerEnabled", false );
-					m_nOscServerPort = LocalFileMng::readXmlInt( midiDriverNode, "oscServerPort", 9000 );
+					m_bOscServerEnabled = LocalFileMng::readXmlBool( oscServerNode, "oscEnabled", false );
+					m_nOscServerPort = LocalFileMng::readXmlInt( oscServerNode, "oscServerPort", 9000 );
 				}
 			}
 
@@ -944,9 +944,20 @@ void Preferences::savePreferences()
 			}
 		}
 		audioEngineNode.appendChild( midiDriverNode );
+		
+		/// OSC ///
+		QDomNode oscNode = doc.createElement( "osc_configuration" );
+		{
+			LocalFileMng::writeXmlString( oscNode, "oscServerPort", QString("%1").arg( m_nOscServerPort ) );
 
-
-
+			if ( m_bOscServerEnabled ) {
+				LocalFileMng::writeXmlString( oscNode, "oscEnabled", "true" );
+			} else {
+				LocalFileMng::writeXmlString( oscNode, "oscEnabled", "false" );
+			}
+		}
+		audioEngineNode.appendChild( oscNode );
+		
 	}
 	rootNode.appendChild( audioEngineNode );
 
