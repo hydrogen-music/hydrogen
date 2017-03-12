@@ -255,6 +255,10 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		midiPortChannelComboBox->setCurrentIndex( pPref->m_nMidiChannelFilter + 1 );
 	}
 
+	//OSC tab
+	enableOscCheckbox->setChecked( pPref->getOscServerEnabled() );
+	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
+	oscWidget->setEnabled( pPref->getOscServerEnabled() );
 
 	// General tab
 	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
@@ -440,7 +444,10 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 	pPref->m_nMidiChannelFilter = midiPortChannelComboBox->currentIndex() - 1;
 
-
+	//OSC tab
+	pPref->setOscServerEnabled( enableOscCheckbox->isChecked() );
+	pPref->setOscServerPort( pPref->getOscServerPort() );
+	
 	// General tab
 	pPref->setRestoreLastSongEnabled( restoreLastUsedSongCheckbox->isChecked() );
 	pPref->setRestoreLastPlaylistEnabled( restoreLastUsedPlaylistCheckbox->isChecked() );
