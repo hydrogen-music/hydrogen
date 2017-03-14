@@ -131,9 +131,6 @@ static int setup_unix_signal_handlers()
 
 static void setApplicationIcon(QApplication *app)
 {
-#if !defined(Q_OS_MACOS) && !defined(Q_OS_WIN)
-	/* macOS uses icons from .icns file and Windows use icons from .ico
-	   file. On other platforms, manually specify icons to use */
 	QIcon icon;
 	icon.addFile(Skin::getImagePath() + "/icon16.png", QSize(16, 16));
 	icon.addFile(Skin::getImagePath() + "/icon24.png", QSize(24, 24));
@@ -141,7 +138,6 @@ static void setApplicationIcon(QApplication *app)
 	icon.addFile(Skin::getImagePath() + "/icon48.png", QSize(48, 48));
 	icon.addFile(Skin::getImagePath() + "/icon64.png", QSize(64, 64));
 	app->setWindowIcon(icon);
-#endif
 }
 
 int main(int argc, char *argv[])
