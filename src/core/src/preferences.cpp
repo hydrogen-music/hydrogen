@@ -722,9 +722,10 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString event = pMidiEventNode.firstChildElement("pcEvent").text();
 						QString s_action = pMidiEventNode.firstChildElement("action").text();
 						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
+						QString s_eventParameter = pMidiEventNode.firstChildElement("eventParameter").text();
 						Action * pAction = new Action( s_action );
 						pAction->setParameter1( s_param );
-						mM->registerPCEvent( pAction );
+						mM->registerPCEvent(s_eventParameter.toInt(), pAction );
 					}
 
 					pMidiEventNode = pMidiEventNode.nextSiblingElement( "midiEvent" );
@@ -1113,12 +1114,14 @@ void Preferences::savePreferences()
 		}
 	}
 
+	for( int parameter=0; parameter < 128; parameter++ )
 	{
-		Action * pAction = mM->getPCAction();
+		Action * pAction = mM->getPCAction( parameter );
 		if( pAction != NULL && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
 			LocalFileMng::writeXmlString( midiEventNode, "pcEvent" , QString("PROGRAM_CHANGE") );
+			LocalFileMng::writeXmlString( midiEventNode, "eventParameter" , QString::number( parameter ) );
 			LocalFileMng::writeXmlString( midiEventNode, "action" , pAction->getType() );
 			LocalFileMng::writeXmlString( midiEventNode, "parameter" , pAction->getParameter1() );
 			midiEventMapNode.appendChild( midiEventNode );

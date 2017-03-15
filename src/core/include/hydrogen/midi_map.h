@@ -48,14 +48,14 @@ class MidiMap : public H2Core::Object
 		void registerMMCEvent( QString, Action* );
 		void registerNoteEvent( int , Action* );
 		void registerCCEvent( int , Action* );
-		void registerPCEvent( Action* );
+		void registerPCEvent( int, Action* );
 
 		map_t getMMCMap();
 
 		Action* getMMCAction( QString );
 		Action* getNoteAction( int note );
 		Action* getCCAction( int parameter );
-		Action* getPCAction();
+		Action* getPCAction( int program );
 		
 		int findCCValueByActionParam1( QString actionType, QString param1 );
 		int findCCValueByActionType( QString actionType );
@@ -66,7 +66,7 @@ class MidiMap : public H2Core::Object
 
 		Action* __note_array[ 128 ];
 		Action* __cc_array[ 128 ];
-		Action* __pc_action;
+		Action* __pc_array[ 128 ];
 
 		map_t mmcMap;
 		QMutex __mutex;
