@@ -766,8 +766,6 @@ Song* SongReader::readSong( const QString& filename )
 			instrumentNode = ( QDomNode ) instrumentNode.nextSiblingElement( "instrument" );
 		}
 
-		instrumentList->fix_issue_307();
-
 		if ( instrumentList_count == 0 ) {
 			WARNINGLOG( "0 instruments?" );
 		}

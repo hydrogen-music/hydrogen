@@ -175,7 +175,6 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 			}
 			instrument_node = instrument_node.nextSiblingElement( "instrument" );
 		}
-		instruments->fix_issue_307();
 		drumkit->set_instruments( instruments );
 	}
 	return drumkit;
