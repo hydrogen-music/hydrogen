@@ -1322,6 +1322,7 @@ void MainForm::checkMidiSetup()
 	if ( pSong->get_instrument_list()->has_all_midi_notes_same() ) {
 		WARNINGLOG( "Incorrect MIDI setup" );
 
+		infobar->reset();
 		infobar->setTitle( trUtf8("Incorrect MIDI setup") );
 		infobar->setText( trUtf8("MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Fix this by assigning default values?") );
 		QPushButton *fix = infobar->addButton( trUtf8("Set default values") );
