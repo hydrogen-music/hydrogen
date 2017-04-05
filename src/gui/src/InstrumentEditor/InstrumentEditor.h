@@ -92,6 +92,8 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		void pSampleSelectionChanged( QString );
 
+		void waveDisplayDoubleClicked( QWidget *pRef );
+
 	private:
 		H2Core::Instrument *m_pInstrument;
 		int m_nSelectedLayer;
