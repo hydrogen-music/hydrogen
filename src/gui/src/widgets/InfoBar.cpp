@@ -27,6 +27,8 @@
 #include <QPushButton>
 #include <QStyle>
 
+#include "../Skin.h"
+
 InfoBar::InfoBar( QWidget *parent )
 	: QWidget( parent )
 {
@@ -58,8 +60,7 @@ void InfoBar::createLayout()
 void InfoBar::createIcon()
 {
 	QLabel *icon = new QLabel();
-	QIcon qicon = style()->standardIcon( QStyle::SP_MessageBoxWarning );
-	icon->setPixmap( qicon.pixmap( 32, 32 ) );
+	icon->setPixmap( QPixmap( Skin::getImagePath() + "/warning.png" ) );
 	m_pLayout->addWidget( icon );
 }
 
