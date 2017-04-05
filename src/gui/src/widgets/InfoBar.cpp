@@ -20,7 +20,7 @@
  *
  */
 
-#include "infobar.h"
+#include "InfoBar.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
