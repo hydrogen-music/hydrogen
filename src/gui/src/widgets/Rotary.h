@@ -77,6 +77,10 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 				return m_fValue;
 		}
 
+		void setDefaultValue( float fDefaultValue );
+		float getDefaultValue();
+		void resetValueToDefault();
+
 	signals:
 		void valueChanged(Rotary *ref);
 
@@ -92,6 +96,7 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 		float m_fMin;
 		float m_fMax;
 		float m_fValue;
+		float m_fDefaultValue;
 
 		float m_fMousePressValue;
 		float m_fMousePressY;

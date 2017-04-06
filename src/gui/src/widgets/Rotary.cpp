@@ -83,7 +83,15 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
 
 	m_nWidgetWidth = 28;
 	m_nWidgetHeight = 26;
-	m_fValue = 0.0;
+
+	if (bUseIntSteps) {
+		m_fDefaultValue = (int) ( type == TYPE_CENTER ? ( ( m_fMax - m_fMin ) / 2.0 ) : m_fMin );
+	}
+	else {
+		m_fDefaultValue = ( type == TYPE_CENTER ? ( ( m_fMax - m_fMin ) / 2.0 ) : m_fMin );
+	}
+
+	m_fValue = m_fDefaultValue;
 
 	if ( m_background_normal == NULL ) {
 		m_background_normal = new QPixmap();
@@ -173,6 +181,11 @@ void Rotary::setValue( float fValue )
 void Rotary::mousePressEvent(QMouseEvent *ev)
 {
 	setCursor( QCursor( Qt::SizeVerCursor ) );
+
+	if (ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier) {
+		resetValueToDefault();
+		emit valueChanged(this);
+	}
 
 	m_fMousePressValue = m_fValue;
 	m_fMousePressY = ev->y();
@@ -268,4 +281,33 @@ void Rotary::setMax( float fMax )
 float Rotary::getMax()
 {
 	return m_fMax;
+}
+
+
+void Rotary::setDefaultValue( float fDefaultValue )
+{
+	if ( fDefaultValue == m_fDefaultValue ) {
+		return;
+	}
+
+	if ( fDefaultValue < m_fMin ) {
+		fDefaultValue = m_fMin;
+	}
+	else if ( fDefaultValue > m_fMax ) {
+		fDefaultValue = m_fMax;
+	}
+
+	if ( fDefaultValue != m_fDefaultValue ) {
+		m_fDefaultValue = fDefaultValue;
+	}
+}
+
+float Rotary::getDefaultValue()
+{
+	return m_fDefaultValue;
+}
+
+void Rotary::resetValueToDefault()
+{
+	setValue(m_fDefaultValue);
 }

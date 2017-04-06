@@ -53,6 +53,9 @@ class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 		void setValue( float fVal );
 		float getValue();
 
+		void setDefaultValue( float fDefaultValue );
+		float getDefaultValue() { return m_fDefaultValue; }
+		void resetValueToDefault();
 
 		void setMaxPeak( float fMax );
 		void setMinPeak( float fMin );
@@ -65,6 +68,7 @@ class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseMoveEvent(QMouseEvent *ev);
+		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void wheelEvent( QWheelEvent *ev );
 		virtual void paintEvent(QPaintEvent *ev);
 
@@ -74,6 +78,7 @@ class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 	private:
 		bool m_bWithoutKnob;
 		bool m_bUseIntSteps;
+		bool m_ignoreMouseMove;
 
 		float m_fPeakValue_L;
 		float m_fPeakValue_R;
@@ -83,6 +88,7 @@ class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 		float m_fValue;
 		float m_fMinValue;
 		float m_fMaxValue;
+		float m_fDefaultValue;
 
 		QPixmap m_back;
 		QPixmap m_leds;
@@ -109,6 +115,10 @@ class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 		void setValue( float newValue );
 		float getValue();
 
+		void setDefaultValue( float fDefaultValue );
+		float getDefaultValue() { return m_fDefaultValue; }
+		void resetValueToDefault();
+
 		void setPeak_L( float peak );
 		float getPeak_L() {	return m_fPeakValue_L;	}
 
@@ -117,6 +127,7 @@ class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 
 		virtual void mousePressEvent( QMouseEvent *ev );
 		virtual void mouseMoveEvent( QMouseEvent *ev );
+		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void paintEvent( QPaintEvent *ev );
 		virtual void wheelEvent( QWheelEvent *ev );
 
@@ -125,12 +136,15 @@ class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 
 	private:
 		bool m_bWithoutKnob;
+		bool m_ignoreMouseMove;
+
 		float m_fPeakValue_L;
 		float m_fPeakValue_R;
 
 		float m_fValue;
 		float m_fMin;
 		float m_fMax;
+		float m_fDefaultValue;
 
 		QPixmap m_back;
 		QPixmap m_leds;
@@ -152,6 +166,11 @@ class Knob : public QWidget, public H2Core::Object, public MidiLearnable
 		void setValue( float fValue );
 		float getValue() {	return m_fValue;	}
 
+		void setDefaultValue( float fDefaultValue );
+		float getDefaultValue() { return m_fDefaultValue; }
+		void resetValueToDefault();
+
+
 	signals:
 		void valueChanged( Knob *ref );
 
@@ -162,6 +181,7 @@ class Knob : public QWidget, public H2Core::Object, public MidiLearnable
 		int m_nWidgetHeight;
 
 		float m_fValue;
+		float m_fDefaultValue;
 		float m_fMousePressValue;
 		float m_fMousePressY;
 
