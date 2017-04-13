@@ -795,20 +795,26 @@ void InstrumentEditor::filterActiveBtnClicked(Button *ref)
 
 void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 {		
-	if ( m_pInstrument ) {
-		InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
-		if( pCompo ) {
-			H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
-			if ( pLayer ) {
-				Sample* pSample = pLayer->get_sample();
-				if( pSample == NULL) return;
-				QString name = pSample->get_filepath();
-				HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
-			}
-			else {
-				loadLayer();
-			}	
+	if ( !m_pInstrument ) {
+		return;
+	}
+	
+	InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+	if( !pCompo ) {
+		return;
+	}
+			
+	H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
+	if ( pLayer ) {
+		Sample* pSample = pLayer->get_sample();
+		
+		if( pSample ) {
+			QString name = pSample->get_filepath();
+			HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
 		}
+	}
+	else {
+		loadLayer();
 	}
 }
 
