@@ -87,15 +87,17 @@ Fader::~Fader()
 
 void Fader::mouseMoveEvent( QMouseEvent *ev )
 {
-	if ( !m_ignoreMouseMove ) {
-		float fVal = (float)( height() - ev->y() ) / (float)height();
-		fVal = fVal * ( m_fMaxValue - m_fMinValue );
-
-		fVal = fVal + m_fMinValue;
-
-		setValue( fVal );
-		emit valueChanged(this);
+	if ( m_ignoreMouseMove ) {
+		return;
 	}
+
+	float fVal = (float)( height() - ev->y() ) / (float)height();
+	fVal = fVal * ( m_fMaxValue - m_fMinValue );
+
+	fVal = fVal + m_fMinValue;
+
+	setValue( fVal );
+	emit valueChanged(this);
 }
 
 
@@ -397,13 +399,15 @@ void MasterFader::wheelEvent ( QWheelEvent *ev )
 
 void MasterFader::mouseMoveEvent( QMouseEvent *ev )
 {
-	if ( !m_ignoreMouseMove ) {
-		float fVal = (float)( height() - ev->y() ) / (float)height();
-		fVal = fVal * ( m_fMax - m_fMin );
-
-		setValue( fVal );
-		emit valueChanged(this);
+	if ( m_ignoreMouseMove ) {
+		return;
 	}
+
+	float fVal = (float)( height() - ev->y() ) / (float)height();
+	fVal = fVal * ( m_fMax - m_fMin );
+
+	setValue( fVal );
+	emit valueChanged(this);
 }
 
 
