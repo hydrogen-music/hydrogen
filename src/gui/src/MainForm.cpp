@@ -1324,7 +1324,7 @@ void MainForm::checkMidiSetup()
 
 		infobar->reset();
 		infobar->setTitle( trUtf8("Incorrect MIDI setup") );
-		infobar->setText( trUtf8("MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Fix this by assigning default values?") );
+		infobar->setText( trUtf8("MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?") );
 		QPushButton *fix = infobar->addButton( trUtf8("Set default values") );
 		QObject::connect( fix, SIGNAL(clicked()), this, SLOT(onFixMidiSetup()) );
 		infobar->show();

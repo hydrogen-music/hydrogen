@@ -68,6 +68,7 @@ void InfoBar::createIcon()
 void InfoBar::createLabel()
 {
 	m_pLabel = new QLabel();
+	m_pLabel->setWordWrap( true );
 	m_pLayout->addWidget( m_pLabel, 1 );
 
 	QFont font = m_pLabel->font();
