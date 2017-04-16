@@ -46,6 +46,10 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		void updateDisplay( H2Core::InstrumentLayer *pLayer );
 
 		void paintEvent(QPaintEvent *ev);
+		void mouseDoubleClickEvent(QMouseEvent *ev);
+
+	signals:
+		void doubleClicked(QWidget *pWidget);
 
 	private:
 		QPixmap m_background;
