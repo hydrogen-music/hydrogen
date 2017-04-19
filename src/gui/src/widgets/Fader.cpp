@@ -112,7 +112,7 @@ void Fader::mousePressEvent(QMouseEvent *ev)
 	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
 		MidiSenseWidget midiSense( this, true, this->getAction() );
 		midiSense.exec();
-	} 
+	}
 	else {
 		mouseMoveEvent(ev);
 	}
@@ -141,7 +141,7 @@ void Fader::wheelEvent ( QWheelEvent *ev )
 	}
 	else {
 		float step = ( m_fMaxValue - m_fMinValue ) / 50.0;
- 
+
 		if ( ev->delta() > 0 ) {
 			setValue( m_fValue + step );
 		}
@@ -697,7 +697,7 @@ void Knob::mousePressEvent(QMouseEvent *ev)
 	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
 		MidiSenseWidget midiSense( this, true, this->getAction() );
 		midiSense.exec();
-    } 
+    }
 	else {
 	    setCursor( QCursor( Qt::SizeVerCursor ) );
 		m_fMousePressValue = m_fValue;
@@ -717,7 +717,7 @@ void Knob::mouseReleaseEvent( QMouseEvent *ev )
 
 
 
- void Knob::mouseMoveEvent( QMouseEvent *ev ) 
+ void Knob::mouseMoveEvent( QMouseEvent *ev )
  {
 	if ( m_bIgnoreMouseMove ) {
 		return;
