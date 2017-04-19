@@ -75,6 +75,7 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
  , m_fMousePressValue( 0.0 )
  , m_fMousePressY( 0.0 )
  , m_bShowValueToolTip( bUseValueTip )
+ , m_bIgnoreMouseMove( false )
 {
 	setAttribute(Qt::WA_NoBackground);
 	setToolTip( sToolTip );
@@ -182,7 +183,7 @@ void Rotary::mousePressEvent(QMouseEvent *ev)
 {
 	if (ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier) {
 		resetValueToDefault();
-		m_ignoreMouseMove = true;
+		m_bIgnoreMouseMove = true;
 		emit valueChanged(this);
 	}
 	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
@@ -213,7 +214,7 @@ void Rotary::mouseReleaseEvent( QMouseEvent *ev )
 	setCursor( QCursor( Qt::ArrowCursor ) );
 	m_pValueToolTip->hide();
 
-	m_ignoreMouseMove = false;
+	m_bIgnoreMouseMove = false;
 }
 
 
@@ -245,7 +246,7 @@ void Rotary::wheelEvent ( QWheelEvent *ev )
 
  void Rotary::mouseMoveEvent( QMouseEvent *ev ) 
  {
-	if ( m_ignoreMouseMove ) {
+	if ( m_bIgnoreMouseMove ) {
 		return;
 	}
 

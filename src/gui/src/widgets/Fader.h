@@ -78,7 +78,7 @@ class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 	private:
 		bool m_bWithoutKnob;
 		bool m_bUseIntSteps;
-		bool m_ignoreMouseMove;
+		bool m_bIgnoreMouseMove;
 
 		float m_fPeakValue_L;
 		float m_fPeakValue_R;
@@ -136,7 +136,7 @@ class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 
 	private:
 		bool m_bWithoutKnob;
-		bool m_ignoreMouseMove;
+		bool m_bIgnoreMouseMove;
 
 		float m_fPeakValue_L;
 		float m_fPeakValue_R;
@@ -176,7 +176,7 @@ class Knob : public QWidget, public H2Core::Object, public MidiLearnable
 
 	private:
 		static QPixmap *m_background;
-		bool m_ignoreMouseMove;
+		bool m_bIgnoreMouseMove;
 
 		int m_nWidgetWidth;
 		int m_nWidgetHeight;

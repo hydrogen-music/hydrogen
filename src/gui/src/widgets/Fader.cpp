@@ -47,7 +47,7 @@ Fader::Fader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob )
  , m_fMinValue( 0.0 )
  , m_fMaxValue( 1.0 )
  , m_fDefaultValue( m_fMaxValue )
- , m_ignoreMouseMove( false )
+ , m_bIgnoreMouseMove( false )
 {
 	setAttribute( Qt::WA_NoBackground );
 	setMinimumSize( 23, 116 );
@@ -87,7 +87,7 @@ Fader::~Fader()
 
 void Fader::mouseMoveEvent( QMouseEvent *ev )
 {
-	if ( m_ignoreMouseMove ) {
+	if ( m_bIgnoreMouseMove ) {
 		return;
 	}
 
@@ -106,7 +106,7 @@ void Fader::mousePressEvent(QMouseEvent *ev)
 {
 	if  ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
 		resetValueToDefault();
-		m_ignoreMouseMove = true;
+		m_bIgnoreMouseMove = true;
 		emit valueChanged(this);
 	}
 	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
@@ -122,7 +122,7 @@ void Fader::mousePressEvent(QMouseEvent *ev)
 
 void Fader::mouseReleaseEvent(QMouseEvent *ev)
 {
-	m_ignoreMouseMove = false;
+	m_bIgnoreMouseMove = false;
 }
 
 
@@ -141,7 +141,7 @@ void Fader::wheelEvent ( QWheelEvent *ev )
 	}
 	else {
 		float step = ( m_fMaxValue - m_fMinValue ) / 50.0;
-
+ 
 		if ( ev->delta() > 0 ) {
 			setValue( m_fValue + step );
 		}
@@ -342,6 +342,7 @@ MasterFader::MasterFader(QWidget *pParent, bool bWithoutKnob)
  , m_fMin( 0.0 )
  , m_fMax( 1.0 )
  , m_fDefaultValue( m_fMax )
+ , m_bIgnoreMouseMove( false )
 {
 	setAttribute(Qt::WA_NoBackground);
 
@@ -399,7 +400,7 @@ void MasterFader::wheelEvent ( QWheelEvent *ev )
 
 void MasterFader::mouseMoveEvent( QMouseEvent *ev )
 {
-	if ( m_ignoreMouseMove ) {
+	if ( m_bIgnoreMouseMove ) {
 		return;
 	}
 
@@ -414,7 +415,7 @@ void MasterFader::mouseMoveEvent( QMouseEvent *ev )
 
 void MasterFader::mouseReleaseEvent(QMouseEvent *ev)
 {
-	m_ignoreMouseMove = false;
+	m_bIgnoreMouseMove = false;
 }
 
 
@@ -423,7 +424,7 @@ void MasterFader::mousePressEvent(QMouseEvent *ev)
 {
 	if  ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
 		resetValueToDefault();
-		m_ignoreMouseMove = true;
+		m_bIgnoreMouseMove = true;
 		emit valueChanged(this);
 	}
 	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
@@ -598,6 +599,7 @@ Knob::Knob( QWidget* pParent )
 	m_fDefaultValue = 0.0;
 	m_fMousePressValue = 0.0;
 	m_fMousePressY = 0.0;
+	m_bIgnoreMouseMove = false;
 
 	if ( m_background == NULL ) {
 		QString sBackground_path = Skin::getImagePath() + "/mixerPanel/knob_images.png";
@@ -689,7 +691,7 @@ void Knob::mousePressEvent(QMouseEvent *ev)
 {
     if  ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
 		resetValueToDefault();
-		m_ignoreMouseMove = true;
+		m_bIgnoreMouseMove = true;
 		emit valueChanged(this);
 	}
 	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
@@ -710,14 +712,14 @@ void Knob::mouseReleaseEvent( QMouseEvent *ev )
 	UNUSED( ev );
 	setCursor( QCursor( Qt::ArrowCursor ) );
 
-	m_ignoreMouseMove = false;
+	m_bIgnoreMouseMove = false;
 }
 
 
 
  void Knob::mouseMoveEvent( QMouseEvent *ev ) 
  {
-	if ( m_ignoreMouseMove ) {
+	if ( m_bIgnoreMouseMove ) {
 		return;
 	}
 

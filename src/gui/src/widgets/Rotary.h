@@ -86,7 +86,7 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 
 	private:
 		bool m_bUseIntSteps;
-		bool m_ignoreMouseMove;
+		bool m_bIgnoreMouseMove;
 
 		RotaryType m_type;
 		static QPixmap* m_background_normal;
