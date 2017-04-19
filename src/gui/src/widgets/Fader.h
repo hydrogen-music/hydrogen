@@ -176,6 +176,7 @@ class Knob : public QWidget, public H2Core::Object, public MidiLearnable
 
 	private:
 		static QPixmap *m_background;
+		bool m_ignoreMouseMove;
 
 		int m_nWidgetWidth;
 		int m_nWidgetHeight;

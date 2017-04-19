@@ -180,25 +180,26 @@ void Rotary::setValue( float fValue )
 
 void Rotary::mousePressEvent(QMouseEvent *ev)
 {
-	setCursor( QCursor( Qt::SizeVerCursor ) );
-
 	if (ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier) {
 		resetValueToDefault();
+		m_ignoreMouseMove = true;
 		emit valueChanged(this);
 	}
-
-	m_fMousePressValue = m_fValue;
-	m_fMousePressY = ev->y();
-
-	if ( m_bShowValueToolTip ) {
-		char tmp[20];
-		sprintf( tmp, "%#.2f", m_fValue );
-		m_pValueToolTip->showTip( mapToGlobal( QPoint( -38, 1 ) ), QString( tmp ) );
-	}
-
-	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
+	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
 		MidiSenseWidget midiSense( this, true, this->getAction() );
 		midiSense.exec();
+	}
+	else {
+		setCursor( QCursor( Qt::SizeVerCursor ) );
+
+		m_fMousePressValue = m_fValue;
+		m_fMousePressY = ev->y();
+
+		if ( m_bShowValueToolTip ) {
+			char tmp[20];
+			sprintf( tmp, "%#.2f", m_fValue );
+			m_pValueToolTip->showTip( mapToGlobal( QPoint( -38, 1 ) ), QString( tmp ) );
+		}
 	}
 }
 
@@ -208,9 +209,11 @@ void Rotary::mousePressEvent(QMouseEvent *ev)
 void Rotary::mouseReleaseEvent( QMouseEvent *ev )
 {
 	UNUSED( ev );
-
+	
 	setCursor( QCursor( Qt::ArrowCursor ) );
 	m_pValueToolTip->hide();
+
+	m_ignoreMouseMove = false;
 }
 
 
@@ -240,7 +243,12 @@ void Rotary::wheelEvent ( QWheelEvent *ev )
 
 
 
- void Rotary::mouseMoveEvent( QMouseEvent *ev ) {
+ void Rotary::mouseMoveEvent( QMouseEvent *ev ) 
+ {
+	if ( m_ignoreMouseMove ) {
+		return;
+	}
+
 	float fRange = fabs( m_fMax ) + fabs( m_fMin );
 
 	float deltaY = ev->y() - m_fMousePressY;

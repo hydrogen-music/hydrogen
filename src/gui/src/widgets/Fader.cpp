@@ -104,15 +104,15 @@ void Fader::mouseMoveEvent( QMouseEvent *ev )
 
 void Fader::mousePressEvent(QMouseEvent *ev)
 {
-	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
-		MidiSenseWidget midiSense( this, true, this->getAction() );
-		midiSense.exec();
-	} 
-	else if  ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
+	if  ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
 		resetValueToDefault();
 		m_ignoreMouseMove = true;
 		emit valueChanged(this);
 	}
+	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
+		MidiSenseWidget midiSense( this, true, this->getAction() );
+		midiSense.exec();
+	} 
 	else {
 		mouseMoveEvent(ev);
 	}
@@ -421,14 +421,14 @@ void MasterFader::mouseReleaseEvent(QMouseEvent *ev)
 
 void MasterFader::mousePressEvent(QMouseEvent *ev)
 {
-	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
-		MidiSenseWidget midiSense( this, true, this->getAction() );
-		midiSense.exec();
-	}
-	else if  ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
+	if  ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
 		resetValueToDefault();
 		m_ignoreMouseMove = true;
 		emit valueChanged(this);
+	}
+	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
+		MidiSenseWidget midiSense( this, true, this->getAction() );
+		midiSense.exec();
 	}
 	else {
 		mouseMoveEvent(ev);
@@ -687,19 +687,20 @@ void Knob::resetValueToDefault()
 
 void Knob::mousePressEvent(QMouseEvent *ev)
 {
-    if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
-	MidiSenseWidget midiSense( this, true, this->getAction() );
-	midiSense.exec();
-    } 
-	else if  ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
+    if  ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
 		resetValueToDefault();
+		m_ignoreMouseMove = true;
 		emit valueChanged(this);
 	}
-
-    setCursor( QCursor( Qt::SizeVerCursor ) );
-
-	m_fMousePressValue = m_fValue;
-	m_fMousePressY = ev->y();
+	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
+		MidiSenseWidget midiSense( this, true, this->getAction() );
+		midiSense.exec();
+    } 
+	else {
+	    setCursor( QCursor( Qt::SizeVerCursor ) );
+		m_fMousePressValue = m_fValue;
+		m_fMousePressY = ev->y();
+	}
 }
 
 
@@ -708,11 +709,18 @@ void Knob::mouseReleaseEvent( QMouseEvent *ev )
 {
 	UNUSED( ev );
 	setCursor( QCursor( Qt::ArrowCursor ) );
+
+	m_ignoreMouseMove = false;
 }
 
 
 
- void Knob::mouseMoveEvent( QMouseEvent *ev ) {
+ void Knob::mouseMoveEvent( QMouseEvent *ev ) 
+ {
+	if ( m_ignoreMouseMove ) {
+		return;
+	}
+
 	float y = ev->y() - m_fMousePressY;
 	float fNewValue = m_fMousePressValue - ( y / 100.0 );
 	setValue( fNewValue );
