@@ -195,12 +195,12 @@ void Rotary::mousePressEvent(QMouseEvent *ev)
 
 		m_fMousePressValue = m_fValue;
 		m_fMousePressY = ev->y();
-
-		if ( m_bShowValueToolTip ) {
-			char tmp[20];
-			sprintf( tmp, "%#.2f", m_fValue );
-			m_pValueToolTip->showTip( mapToGlobal( QPoint( -38, 1 ) ), QString( tmp ) );
-		}
+	}
+	
+	if ( m_bShowValueToolTip ) {
+		char tmp[20];
+		sprintf( tmp, "%#.2f", m_fValue );
+		m_pValueToolTip->showTip( mapToGlobal( QPoint( -38, 1 ) ), QString( tmp ) );
 	}
 }
 
