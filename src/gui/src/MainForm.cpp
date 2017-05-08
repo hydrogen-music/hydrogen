@@ -781,6 +781,11 @@ void MainForm::action_file_openPattern()
 	else
 	{
 		H2Core::Pattern *pNewPattern = err;
+		
+		if(!pPatternList->check_name( pNewPattern->get_name() ) ){
+			pNewPattern->set_name( pPatternList->find_unused_pattern_name( pNewPattern->get_name() ) );
+		}
+		
 		pPatternList->add ( pNewPattern );
 		pSong->set_is_modified( true );
 		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );

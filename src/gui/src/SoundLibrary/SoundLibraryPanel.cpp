@@ -294,14 +294,18 @@ void SoundLibraryPanel::updateDrumkitList()
 void SoundLibraryPanel::on_DrumkitList_ItemChanged( QTreeWidgetItem * current, QTreeWidgetItem * previous )
 {
 	UNUSED( previous );
+	
+	if( current == nullptr ){
+		return;
+	}
 
 	if ( current->parent() == __system_drumkits_item ||
-		 current->parent() == __user_drumkits_item  )
-		   emit item_changed( true );
-
-	else
+		 current->parent() == __user_drumkits_item  ){
+			emit item_changed( true );
+	} else {
 		emit item_changed( false );
-
+	}
+	
 	test_expandedItems();
 }
 

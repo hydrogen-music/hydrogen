@@ -1049,14 +1049,14 @@ void SongEditorPatternList::mouseDoubleClickEvent( QMouseEvent *ev )
 
 void SongEditorPatternList::inlineEditPatternName( int row )
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	PatternList *patternList = song->get_pattern_list();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	PatternList *pPatternList = pSong->get_pattern_list();
 
-	if ( row >= (int)patternList->size() ) {
+	if ( row >= (int)pPatternList->size() ) {
 		return;
 	}
-	patternBeingEdited = patternList->get( row );
+	patternBeingEdited = pPatternList->get( row );
 	line->setGeometry( 23, row * m_nGridHeight , m_nWidth - 23, m_nGridHeight  );
 	line->setText( patternBeingEdited->get_name() );
 	line->selectAll();
@@ -1067,15 +1067,23 @@ void SongEditorPatternList::inlineEditPatternName( int row )
 void SongEditorPatternList::inlineEditingEntered()
 {
 	assert( patternBeingEdited != NULL );
-	if ( PatternPropertiesDialog::nameCheck( line->text() ) )
-	{
-		Hydrogen *pEngine = Hydrogen::get_instance();
-		int nSelectedPattern = pEngine->getSelectedPatternNumber();
+	
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	PatternList *pPatternList = pSong->get_pattern_list();
+	
+	/*
+	 * Make sure that the entered pattern name is unique.
+	 * If it is not, use an unused patten name. 
+	 */
+	
+	QString patternName = pPatternList->find_unused_pattern_name( line->text() );
 
-		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  patternBeingEdited->get_name() , patternBeingEdited->get_info(), patternBeingEdited->get_category(),
-												  line->text(), patternBeingEdited->get_info(), patternBeingEdited->get_category(), nSelectedPattern );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
-	}
+	int nSelectedPattern = pEngine->getSelectedPatternNumber();
+
+	SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  patternBeingEdited->get_name() , patternBeingEdited->get_info(), patternBeingEdited->get_category(),
+												patternName, patternBeingEdited->get_info(), patternBeingEdited->get_category(), nSelectedPattern );
+	HydrogenApp::get_instance()->m_undoStack->push( action );
 }
 
 
@@ -1279,31 +1287,32 @@ void SongEditorPatternList::patternPopup_load()
 	}
 
 	//create a unique sequencefilename
-	time_t thetime;
-	thetime = time(NULL);
+	time_t currentTime;
+	currentTime = time(NULL);
 
-	QString sequenceFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
-	SE_loadPatternAction *action = new SE_loadPatternAction(  filename, oldPatternName, sequenceFilename, tmpselectedpatternpos, false );
+	QString sequenceFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(currentTime)+ QString( "SEQ.xml" );
+	SE_loadPatternAction *action = new SE_loadPatternAction( filename, oldPatternName, sequenceFilename, tmpselectedpatternpos, false );
 	hydrogenApp->addTemporaryFile( sequenceFilename );
 	hydrogenApp->m_undoStack->push( action );
-
-
-
 }
 
 void SongEditorPatternList::loadPatternAction( QString afilename, int position)
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	PatternList *pPatternList = song->get_pattern_list();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	PatternList *pPatternList = pSong->get_pattern_list();
 
-	LocalFileMng mng;
 	LocalFileMng fileMng;
 	Pattern* err = fileMng.loadPattern( afilename );
 	if ( err == 0 ) {
 		_ERRORLOG( "Error loading the pattern" );
 	}else{
 		H2Core::Pattern *pNewPattern = err;
+		
+		if(!pPatternList->check_name( pNewPattern->get_name() ) ){
+			pNewPattern->set_name( pPatternList->find_unused_pattern_name( pNewPattern->get_name() ) );
+		}
+		
 		pPatternList->add( pNewPattern );
 		for (int nPatr = pPatternList->size() +1 ; nPatr >= position; nPatr--) {
 			H2Core::Pattern *pPattern = pPatternList->get(nPatr - 1);
@@ -1311,8 +1320,8 @@ void SongEditorPatternList::loadPatternAction( QString afilename, int position)
 		}
 		pPatternList->replace( position, pNewPattern );
 
-		engine->setSelectedPatternNumber( position );
-		song->set_is_modified( true );
+		pEngine->setSelectedPatternNumber( position );
+		pSong->set_is_modified( true );
 		createBackground();
 		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 	}
