@@ -102,6 +102,7 @@ public:
 	QString sName;
 	bool isToggle;
 	bool m_bIsInteger;
+	LADSPA_Data fDefaultValue;
 	LADSPA_Data fControlValue;
 	LADSPA_Data fLowerBound;
 	LADSPA_Data fUpperBound;
