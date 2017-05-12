@@ -1,2 +1,10 @@
-language: cpp
-script: mkdir build && cd build && cmake .. && make
+addons:
+  apt:
+    packages:
+    - cmake
+
+language:
+  - cpp
+
+script:
+  - mkdir build && cd build && cmake .. && make
