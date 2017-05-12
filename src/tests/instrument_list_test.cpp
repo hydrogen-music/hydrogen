@@ -8,12 +8,24 @@ using namespace H2Core;
 
 class InstrumentListTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( InstrumentListTest );
+	CPPUNIT_TEST( test_one_instrument );
 	CPPUNIT_TEST( test1 );
 	CPPUNIT_TEST( test2 );
 	CPPUNIT_TEST( test3 );
 	CPPUNIT_TEST_SUITE_END();
 	
 	public:
+	void test_one_instrument()
+	{
+		InstrumentList list;
+		Instrument *kick = new Instrument(EMPTY_INSTR_ID, "Kick");
+		kick->set_midi_out_note(42);
+		list.add(kick);
+
+		CPPUNIT_ASSERT( !list.has_all_midi_notes_same() );
+	}
+
+
 	void test1()
 	{
 		InstrumentList list;

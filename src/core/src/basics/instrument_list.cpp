@@ -227,6 +227,9 @@ void InstrumentList::fix_issue_307()
 
 bool InstrumentList::has_all_midi_notes_same() const
 {
+    if (__instruments.size() < 2)
+        return false;
+
     std::set<int> notes;
 	for( int i=0; i<__instruments.size(); i++ ) {
         auto instr = __instruments[i];
