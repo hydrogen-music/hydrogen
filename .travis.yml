@@ -1,7 +1,10 @@
 addons:
   apt:
+    sources:
+      - kalakris-cmake
     packages:
-    - cmake
+      - cmake
+      - cmake-data
 
 language:
   - cpp
