@@ -10,6 +10,7 @@ addons:
       - libarchive-dev
       - libsndfile1-dev
       - libasound2-dev
+      - libjack-jackd2-dev
 
 language:
   - cpp
