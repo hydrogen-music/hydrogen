@@ -8,6 +8,7 @@ addons:
       - qt5-default
       - libqt5xmlpatterns5-dev
       - libarchive-dev
+      - libsndfile1-dev
 
 language:
   - cpp
