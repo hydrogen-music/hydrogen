@@ -5,6 +5,7 @@ addons:
     packages:
       - cmake
       - cmake-data
+      - qt5-default
 
 language:
   - cpp
