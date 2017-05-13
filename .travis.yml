@@ -1,7 +1,7 @@
 dist:
   - trusty
 sudo:
-  - false
+  - required
 addons:
   apt:
     packages:
@@ -13,7 +13,9 @@ addons:
       - libjack-jackd2-dev
       - liblo-dev
       - libpulse-dev
-
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install ladspa-sdk -y
 language:
   - cpp
 
