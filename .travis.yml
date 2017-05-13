@@ -12,6 +12,7 @@ addons:
       - libasound2-dev
       - libjack-jackd2-dev
       - liblo-dev
+      - libpulse-dev
 
 language:
   - cpp
