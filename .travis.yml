@@ -9,6 +9,7 @@ addons:
       - libqt5xmlpatterns5-dev
       - libarchive-dev
       - libsndfile1-dev
+      - libasound2-dev
 
 language:
   - cpp
