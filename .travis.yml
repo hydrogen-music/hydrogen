@@ -7,6 +7,7 @@ addons:
     packages:
       - qt5-default
       - libqt5xmlpatterns5-dev
+      - libarchive-dev
 
 language:
   - cpp
