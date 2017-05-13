@@ -6,6 +6,7 @@ addons:
   apt:
     packages:
       - qt5-default
+      - libqt5xmlpatterns5-dev
 
 language:
   - cpp
