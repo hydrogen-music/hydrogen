@@ -1,12 +1,10 @@
+dist:
+  - trusty
+sudo:
+  - false
 addons:
   apt:
-    sources:
-      - kalakris-cmake
-      - debian-sid
     packages:
-      - cmake
-      - cmake-data
-      - debian-archive-keyring
       - qt5-default
 
 language:
