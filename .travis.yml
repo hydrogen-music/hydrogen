@@ -2,6 +2,7 @@ addons:
   apt:
     sources:
       - kalakris-cmake
+      - debian-sid
     packages:
       - cmake
       - cmake-data
