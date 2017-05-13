@@ -6,6 +6,7 @@ addons:
     packages:
       - cmake
       - cmake-data
+      - debian-archive-keyring
       - qt5-default
 
 language:
