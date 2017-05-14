@@ -1,3 +1,5 @@
+language: cpp
+
 env:
   global:
     - MAKEFLAGS="-j 2"
