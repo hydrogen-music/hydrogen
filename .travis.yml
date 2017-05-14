@@ -23,8 +23,8 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install ladspa-sdk -y; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt5; export CMAKE_PREFIX_PATH="$(brew --prefix qt5)"; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libarchive; export PKG_CONFIG_PATH="$(brew --prefix libarchive)/lib/pkgconfig"; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libsndfile jack liblo cppunit; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libarchive; export PKG_CONFIG_PATH="$(brew --prefix libarchive)/lib/pkgconfig"; export LDFLAGS="-L$(brew --prefix libarchive)/lib"; export CPPFLAGS="-I$(brew --prefix libarchive)/include"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libsndfile jack cppunit; fi
 language:
   - cpp
 
