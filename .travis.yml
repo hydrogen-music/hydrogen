@@ -1,7 +1,11 @@
-dist:
-  - trusty
-sudo:
-  - required
+matrix:
+  include:
+    - os: linux
+      dist:
+        - trusty
+      sudo:
+        - required
+    - os: osx
 addons:
   apt:
     packages:
@@ -15,8 +19,8 @@ addons:
       - libpulse-dev
       - libcppunit-dev
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install ladspa-sdk -y
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install ladspa-sdk -y; fi
 language:
   - cpp
 
