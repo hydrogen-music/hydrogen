@@ -1,10 +1,8 @@
 matrix:
   include:
     - os: linux
-      dist:
-        - trusty
-      sudo:
-        - required
+      dist: trusty
+      sudo: required
     - os: osx
 addons:
   apt:
