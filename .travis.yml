@@ -1,3 +1,8 @@
+env:
+  global:
+   # COVERITY_SCAN_TOKEN
+   - secure: "3wUCEMjkdvYNPhJTYulyIc95JOxLM0R767Y3JbISFT2rHlveQoyOjvmvRDtTAMMsNzPpZGL3TDhbHPf4NX3p08rnVM0koSxxIqV4EiRhVqaxVwrxrr/qiKY6Fw0XeCtUr8ZJg8/Y6DUalf+CVqpuHj6BV6bnR9rjCG14pHfSAJ0="
+    
 dist:
   - trusty
 sudo:
@@ -14,9 +19,19 @@ addons:
       - liblo-dev
       - libpulse-dev
       - libcppunit-dev
+  coverity_scan:
+    project:
+      name: "hydrogen-music/hydrogen"
+      description: "hydrogen source code repository"
+    notification_email: mauser@smoors.de
+    build_command_prepend: "mkdir build && cd build && cmake .."
+    build_command:   "make"
+    branch_pattern: coverity_scan
+      
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install ladspa-sdk -y
+  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 language:
   - cpp
 
