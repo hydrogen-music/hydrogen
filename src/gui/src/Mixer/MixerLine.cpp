@@ -1279,6 +1279,7 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 
 	// m_pRotary
 	m_pRotary = new Rotary( this,  Rotary::TYPE_NORMAL, trUtf8( "Effect return" ), false, false );
+	m_pRotary->setDefaultValue( m_pRotary->getMax() );
 	m_pRotary->move( 132, 4 );
 	connect( m_pRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 }

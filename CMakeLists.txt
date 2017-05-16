@@ -313,6 +313,7 @@ COLOR_MESSAGE("${cyan}Usefull extensions${reset}
 -----------------------------------------
 * ${purple}LASH${reset}                         : ${LASH_STATUS}
 * ${purple}LRDF${reset}                         : ${LRDF_STATUS}
+* ${purple}RAPTOR${reset}                       : ${RAPTOR_STATUS}
 * ${purple}RUBBERBAND${reset}                   : ${RUBBERBAND_STATUS}
 *                                ${LIBRUBBERBAND_MSG}\n"
 )
