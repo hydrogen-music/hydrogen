@@ -26,7 +26,7 @@ addons:
     notification_email: mauser@smoors.de
     build_command_prepend: "mkdir build && cd build && cmake .."
     build_command:   "make"
-    branch_pattern: coverity_scan
+    branch_pattern: coverity-scan
       
 before_install:
   - sudo apt-get update -qq
