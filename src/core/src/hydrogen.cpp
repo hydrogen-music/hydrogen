@@ -1725,6 +1725,7 @@ Hydrogen::Hydrogen()
 
 	__song = NULL;
 
+	m_bExportSessionIsActive = false;
 	m_pTimeline = new Timeline();
 
 	hydrogenInstance = this;
