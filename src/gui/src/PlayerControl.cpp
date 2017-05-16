@@ -117,7 +117,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	connect(m_pRecBtn, SIGNAL(clicked(Button*)), this, SLOT(recBtnClicked(Button*)));
 	connect(m_pRecBtn, SIGNAL(rightClicked(Button*)), this, SLOT(recBtnRightClicked(Button*)));
 
-	MidiAction* pAction = new MidiAction("RECORD_READY");
+	Action* pAction = new Action("RECORD_READY");
 	m_pRecBtn->setAction( pAction );
 
 
@@ -151,7 +151,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pPlayBtn->setToolTip( trUtf8("Play/ Pause") );
 	connect(m_pPlayBtn, SIGNAL(clicked(Button*)), this, SLOT(playBtnClicked(Button*)));
 
-	pAction = new MidiAction("PLAY");
+	pAction = new Action("PLAY");
 	m_pPlayBtn->setAction( pAction );
 
 
@@ -166,7 +166,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pStopBtn->move(254, 17);
 	m_pStopBtn->setToolTip( trUtf8("Stop") );
 	connect(m_pStopBtn, SIGNAL(clicked(Button*)), this, SLOT(stopBtnClicked(Button*)));
-	pAction = new MidiAction("STOP");
+	pAction = new Action("STOP");
 	m_pStopBtn->setAction( pAction );
 
 	// Fast forward button
@@ -390,7 +390,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pMetronomeBtn->move( 10, 26 );
 	m_pMetronomeBtn->setToolTip( trUtf8("Switch metronome on/off") );
 	connect( m_pMetronomeBtn, SIGNAL( clicked( Button* ) ), this, SLOT(metronomeButtonClicked( Button* ) ) );
-		pAction = new MidiAction("TOGGLE_METRONOME");
+		pAction = new Action("TOGGLE_METRONOME");
 		m_pMetronomeBtn->setAction( pAction );
 
 //~ BPM
