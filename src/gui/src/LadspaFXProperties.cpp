@@ -54,7 +54,6 @@ LadspaFXProperties::LadspaFXProperties(QWidget* parent, uint nLadspaFX)
 	resize( 500, 200 );
 	setMinimumSize( width(), height() );
 	setFixedHeight( height() );
-	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	QHBoxLayout *hbox = new QHBoxLayout();
 	hbox->setSpacing( 0 );

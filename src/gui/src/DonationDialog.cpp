@@ -33,7 +33,6 @@ DonationDialog::DonationDialog(QWidget* parent)
 	setupUi( this );
 
 	setWindowTitle( tr( "Donations" ) );
-	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 }
 
 DonationDialog::~DonationDialog()

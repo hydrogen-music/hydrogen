@@ -47,7 +47,6 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 	setFixedSize( width(), height() );
 
 	setWindowTitle( trUtf8( "Select LADSPA FX" ) );
-	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	m_sSelectedPluginName = "";
 
