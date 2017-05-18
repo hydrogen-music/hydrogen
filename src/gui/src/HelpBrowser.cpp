@@ -39,8 +39,6 @@ SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath
  , m_sDataPath( sDataPath )
  , m_sFilename( sFilename )
 {
-	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
-
 	if (m_type == MANUAL ) {
 		setWindowTitle( trUtf8( "Manual" ) );
 		resize( 800, 600 );
@@ -73,8 +71,6 @@ SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath
 	m_pBrowser->setReadOnly( true );
 	m_pBrowser->setSearchPaths( QStringList( m_sDataPath ) );
 	//m_pBrowser->setStyleSheet("background-color:#000000;");
-
-	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	QFile file( m_sFilename.toLocal8Bit() ); // Read the text from a file
 	if ( file.open( QIODevice::ReadOnly ) ) {
