@@ -126,3 +126,9 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 	update();
 }
 
+void WaveDisplay::mouseDoubleClickEvent(QMouseEvent *ev)
+{
+	if (ev->button() == Qt::LeftButton) {
+	    emit doubleClicked(this);
+	}	
+}

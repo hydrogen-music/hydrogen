@@ -41,7 +41,7 @@
 using namespace H2Core;
 
 /**
-* @class MidiAction
+* @class Action
 *
 * @brief This class represents a midi action.
 *
@@ -62,9 +62,9 @@ using namespace H2Core;
 *
 */
 
-const char* MidiAction::__class_name = "MidiAction";
+const char* Action::__class_name = "MidiAction";
 
-MidiAction::MidiAction( QString typeString ) : Object( __class_name ) {
+Action::Action( QString typeString ) : Object( __class_name ) {
 	type = typeString;
 	QString parameter1 = "0";
 	QString parameter2 = "0";
@@ -177,7 +177,7 @@ void MidiActionManager::create_instance() {
 	}
 }
 
-bool MidiActionManager::play(MidiAction * , Hydrogen* pEngine ) {
+bool MidiActionManager::play(Action * , Hydrogen* pEngine ) {
 	int nState = pEngine->getState();
 	if ( nState == STATE_READY ) {
 		pEngine->sequencer_play();
@@ -185,19 +185,19 @@ bool MidiActionManager::play(MidiAction * , Hydrogen* pEngine ) {
 	return true;
 }
 
-bool MidiActionManager::pause(MidiAction * , Hydrogen* pEngine ) {
+bool MidiActionManager::pause(Action * , Hydrogen* pEngine ) {
 	pEngine->sequencer_stop();
 	return true;
 }
 
-bool MidiActionManager::stop(MidiAction * , Hydrogen* pEngine ) {
+bool MidiActionManager::stop(Action * , Hydrogen* pEngine ) {
 	pEngine->sequencer_stop();
 	pEngine->setPatternPos( 0 );
 	pEngine->setTimelineBpm();
 	return true;
 }
 
-bool MidiActionManager::play_stop_pause_toggle(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::play_stop_pause_toggle(Action * pAction, Hydrogen* pEngine ) {
 	QString sActionString = pAction->getType();
 	int nState = pEngine->getState();
 	switch ( nState )
@@ -222,33 +222,33 @@ bool MidiActionManager::play_stop_pause_toggle(MidiAction * pAction, Hydrogen* p
 	return true;
 }
 
-bool MidiActionManager::mute(MidiAction * , Hydrogen* pEngine ) {
+bool MidiActionManager::mute(Action * , Hydrogen* pEngine ) {
 	//mutes the master, not a single strip
 	pEngine->getSong()->__is_muted = true;
 	return true;
 }
 
-bool MidiActionManager::unmute(MidiAction * , Hydrogen* pEngine ) {
+bool MidiActionManager::unmute(Action * , Hydrogen* pEngine ) {
 	pEngine->getSong()->__is_muted = false;
 	return true;
 }
 
-bool MidiActionManager::mute_toggle(MidiAction * , Hydrogen* pEngine ) {
+bool MidiActionManager::mute_toggle(Action * , Hydrogen* pEngine ) {
 	pEngine->getSong()->__is_muted = !Hydrogen::get_instance()->getSong()->__is_muted;
 	return true;
 }
 
-bool MidiActionManager::beatcounter(MidiAction * , Hydrogen* pEngine ) {
+bool MidiActionManager::beatcounter(Action * , Hydrogen* pEngine ) {
 	pEngine->handleBeatCounter();
 	return true;
 }
 
-bool MidiActionManager::tap_tempo(MidiAction * , Hydrogen* pEngine ) {
+bool MidiActionManager::tap_tempo(Action * , Hydrogen* pEngine ) {
 	pEngine->onTapTempoAccelEvent();
 	return true;
 }
 
-bool MidiActionManager::select_next_pattern(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::select_next_pattern(Action * pAction, Hydrogen* pEngine ) {
 	bool ok;
 	int row = pAction->getParameter1().toInt(&ok,10);
 	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
@@ -263,7 +263,7 @@ bool MidiActionManager::select_next_pattern(MidiAction * pAction, Hydrogen* pEng
 	return true;
 }
 
-bool MidiActionManager::select_next_pattern_relative(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::select_next_pattern_relative(Action * pAction, Hydrogen* pEngine ) {
 	bool ok;
 	if(!Preferences::get_instance()->patternModePlaysSelected()) {
 		return true;
@@ -277,7 +277,7 @@ bool MidiActionManager::select_next_pattern_relative(MidiAction * pAction, Hydro
 	return true;
 }
 
-bool MidiActionManager::select_next_pattern_cc_absolute(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::select_next_pattern_cc_absolute(Action * pAction, Hydrogen* pEngine ) {
 	bool ok;
 	int row = pAction->getValue().toInt(&ok,10);
 	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
@@ -292,7 +292,7 @@ bool MidiActionManager::select_next_pattern_cc_absolute(MidiAction * pAction, Hy
 	return true;
 }
 
-bool MidiActionManager::select_next_pattern_promptly(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::select_next_pattern_promptly(Action * pAction, Hydrogen* pEngine ) {
 	// obsolete, use SELECT_NEXT_PATTERN_CC_ABSOLUT instead
 	bool ok;
 	int row = pAction->getValue().toInt(&ok,10);
@@ -300,7 +300,7 @@ bool MidiActionManager::select_next_pattern_promptly(MidiAction * pAction, Hydro
 	return true;
 }
 
-bool MidiActionManager::select_and_play_pattern(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::select_and_play_pattern(Action * pAction, Hydrogen* pEngine ) {
 	bool ok;
 	int row = pAction->getParameter1().toInt(&ok,10);
 	pEngine->setSelectedPatternNumber( row );
@@ -314,7 +314,7 @@ bool MidiActionManager::select_and_play_pattern(MidiAction * pAction, Hydrogen* 
 	return true;
 }
 
-bool MidiActionManager::select_instrument(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::select_instrument(Action * pAction, Hydrogen* pEngine ) {
 	bool ok;
 	int  instrument_number = pAction->getValue().toInt(&ok,10) ;
 	if ( pEngine->getSong()->get_instrument_list()->size() < instrument_number ) {
@@ -324,7 +324,7 @@ bool MidiActionManager::select_instrument(MidiAction * pAction, Hydrogen* pEngin
 	return true;
 }
 
-bool MidiActionManager::effect_level_absolute(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::effect_level_absolute(Action * pAction, Hydrogen* pEngine ) {
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int fx_param = pAction->getValue().toInt(&ok,10);
@@ -350,12 +350,12 @@ bool MidiActionManager::effect_level_absolute(MidiAction * pAction, Hydrogen* pE
 	return true;
 }
 
-bool MidiActionManager::effect_level_relative(MidiAction * , Hydrogen*  ) {
+bool MidiActionManager::effect_level_relative(Action * , Hydrogen*  ) {
 	//empty ?
 	return true;
 }
 
-bool MidiActionManager::master_volume_absolute(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::master_volume_absolute(Action * pAction, Hydrogen* pEngine ) {
 	//sets the volume of a master output to a given level (percentage)
 
 	bool ok;
@@ -372,7 +372,7 @@ bool MidiActionManager::master_volume_absolute(MidiAction * pAction, Hydrogen* p
 	return true;
 }
 
-bool MidiActionManager::master_volume_relative(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::master_volume_relative(Action * pAction, Hydrogen* pEngine ) {
 	//increments/decrements the volume of the whole song
 
 	bool ok;
@@ -395,7 +395,7 @@ bool MidiActionManager::master_volume_relative(MidiAction * pAction, Hydrogen* p
 	return true;
 }
 
-bool MidiActionManager::strip_volume_absolute(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::strip_volume_absolute(Action * pAction, Hydrogen* pEngine ) {
 	//sets the volume of a mixer strip to a given level (percentage)
 
 	bool ok;
@@ -424,7 +424,7 @@ bool MidiActionManager::strip_volume_absolute(MidiAction * pAction, Hydrogen* pE
 	return true;
 }
 
-bool MidiActionManager::strip_volume_relative(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::strip_volume_relative(Action * pAction, Hydrogen* pEngine ) {
 	//increments/decrements the volume of one mixer strip
 
 	bool ok;
@@ -459,7 +459,7 @@ bool MidiActionManager::strip_volume_relative(MidiAction * pAction, Hydrogen* pE
 	return true;
 }
 
-bool MidiActionManager::pan_absolute(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pEngine ) {
 	// sets the absolute panning of a given mixer channel
 
 	bool ok;
@@ -514,7 +514,7 @@ bool MidiActionManager::pan_absolute(MidiAction * pAction, Hydrogen* pEngine ) {
 	return true;
 }
 
-bool MidiActionManager::pan_relative(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::pan_relative(Action * pAction, Hydrogen* pEngine ) {
 	// changes the panning of a given mixer channel
 	// this is useful if the panning is set by a rotary control knob
 
@@ -573,7 +573,7 @@ bool MidiActionManager::pan_relative(MidiAction * pAction, Hydrogen* pEngine ) {
 	return true;
 }
 
-bool MidiActionManager::gain_level_absolute(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::gain_level_absolute(Action * pAction, Hydrogen* pEngine ) {
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int gain_param = pAction->getValue().toInt(&ok,10);
@@ -613,7 +613,7 @@ bool MidiActionManager::gain_level_absolute(MidiAction * pAction, Hydrogen* pEng
 	return true;
 }
 
-bool MidiActionManager::pitch_level_absolute(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::pitch_level_absolute(Action * pAction, Hydrogen* pEngine ) {
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pitch_param = pAction->getValue().toInt(&ok,10);
@@ -653,7 +653,7 @@ bool MidiActionManager::pitch_level_absolute(MidiAction * pAction, Hydrogen* pEn
 	return true;
 }
 
-bool MidiActionManager::filter_cutoff_level_absolute(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::filter_cutoff_level_absolute(Action * pAction, Hydrogen* pEngine ) {
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int filter_cutoff_param = pAction->getValue().toInt(&ok,10);
@@ -682,7 +682,7 @@ bool MidiActionManager::filter_cutoff_level_absolute(MidiAction * pAction, Hydro
 	return true;
 }
 
-bool MidiActionManager::bpm_cc_relative(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::bpm_cc_relative(Action * pAction, Hydrogen* pEngine ) {
 	/*
 	 * increments/decrements the BPM
 	 * this is useful if the bpm is set by a rotary control knob
@@ -718,7 +718,7 @@ bool MidiActionManager::bpm_cc_relative(MidiAction * pAction, Hydrogen* pEngine 
 	return true;
 }
 
-bool MidiActionManager::bpm_fine_cc_relative(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::bpm_fine_cc_relative(Action * pAction, Hydrogen* pEngine ) {
 	/*
 	 * increments/decrements the BPM
 	 * this is useful if the bpm is set by a rotary control knob
@@ -753,7 +753,7 @@ bool MidiActionManager::bpm_fine_cc_relative(MidiAction * pAction, Hydrogen* pEn
 	return true;
 }
 
-bool MidiActionManager::bpm_increase(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::bpm_increase(Action * pAction, Hydrogen* pEngine ) {
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	bool ok;
@@ -770,7 +770,7 @@ bool MidiActionManager::bpm_increase(MidiAction * pAction, Hydrogen* pEngine ) {
 	return true;
 }
 
-bool MidiActionManager::bpm_decrease(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::bpm_decrease(Action * pAction, Hydrogen* pEngine ) {
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	bool ok;
@@ -787,13 +787,13 @@ bool MidiActionManager::bpm_decrease(MidiAction * pAction, Hydrogen* pEngine ) {
 	return true;
 }
 
-bool MidiActionManager::next_bar(MidiAction * , Hydrogen* pEngine ) {
+bool MidiActionManager::next_bar(Action * , Hydrogen* pEngine ) {
 	pEngine->setPatternPos(pEngine->getPatternPos() +1 );
 	pEngine->setTimelineBpm();
 	return true;
 }
 
-bool MidiActionManager::previous_bar(MidiAction * , Hydrogen* pEngine ) {
+bool MidiActionManager::previous_bar(Action * , Hydrogen* pEngine ) {
 	pEngine->setPatternPos(pEngine->getPatternPos() -1 );
 	pEngine->setTimelineBpm();
 	return true;
@@ -807,23 +807,23 @@ bool setSong( int songnumber, Hydrogen * pEngine ) {
 	return true;
 }
 
-bool MidiActionManager::playlist_song(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::playlist_song(Action * pAction, Hydrogen* pEngine ) {
 	bool ok;
 	int songnumber = pAction->getValue().toInt(&ok,10);
 	return setSong( songnumber, pEngine );
 }
 
-bool MidiActionManager::playlist_next_song(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::playlist_next_song(Action * pAction, Hydrogen* pEngine ) {
 	int songnumber = Playlist::get_instance()->getActiveSongNumber();
 	return setSong( ++songnumber, pEngine );
 }
 
-bool MidiActionManager::playlist_previous_song(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::playlist_previous_song(Action * pAction, Hydrogen* pEngine ) {
 	int songnumber = Playlist::get_instance()->getActiveSongNumber();
 	return setSong( --songnumber, pEngine );
 }
 
-bool MidiActionManager::record_ready(MidiAction * pAction, Hydrogen* pEngine ) {
+bool MidiActionManager::record_ready(Action * pAction, Hydrogen* pEngine ) {
 	if ( pEngine->getState() != STATE_PLAYING ) {
 		if (!Preferences::get_instance()->getRecordEvents()) {
 			Preferences::get_instance()->setRecordEvents(true);
@@ -835,7 +835,7 @@ bool MidiActionManager::record_ready(MidiAction * pAction, Hydrogen* pEngine ) {
 	return true;
 }
 
-bool MidiActionManager::record_strobe_toggle(MidiAction * , Hydrogen*  ) {
+bool MidiActionManager::record_strobe_toggle(Action * , Hydrogen*  ) {
 	if (!Preferences::get_instance()->getRecordEvents()) {
 		Preferences::get_instance()->setRecordEvents(true);
 	}
@@ -845,31 +845,31 @@ bool MidiActionManager::record_strobe_toggle(MidiAction * , Hydrogen*  ) {
 	return true;
 }
 
-bool MidiActionManager::record_strobe(MidiAction * , Hydrogen*  ) {
+bool MidiActionManager::record_strobe(Action * , Hydrogen*  ) {
 	if (!Preferences::get_instance()->getRecordEvents()) {
 		Preferences::get_instance()->setRecordEvents(true);
 	}
 	return true;
 }
 
-bool MidiActionManager::record_exit(MidiAction * , Hydrogen*  ) {
+bool MidiActionManager::record_exit(Action * , Hydrogen*  ) {
 	if (Preferences::get_instance()->getRecordEvents()) {
 		Preferences::get_instance()->setRecordEvents(false);
 	}
 	return true;
 }
 
-bool MidiActionManager::toggle_metronome(MidiAction * , Hydrogen*  ) {
+bool MidiActionManager::toggle_metronome(Action * , Hydrogen*  ) {
 	Preferences::get_instance()->m_bUseMetronome = !Preferences::get_instance()->m_bUseMetronome;
 	return true;
 }
 
-bool MidiActionManager::undo_action(MidiAction * , Hydrogen*  ) {
+bool MidiActionManager::undo_action(Action * , Hydrogen*  ) {
 	EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 0);// 0 = undo
 	return true;
 }
 
-bool MidiActionManager::redo_action(MidiAction * , Hydrogen*  ) {
+bool MidiActionManager::redo_action(Action * , Hydrogen*  ) {
 	EventQueue::get_instance()->push_event( EVENT_UNDO_REDO, 1);// 1 = redo
 	return true;
 }
@@ -878,7 +878,7 @@ bool MidiActionManager::redo_action(MidiAction * , Hydrogen*  ) {
  * The handleAction method is the heart of the MidiActionManager class.
  * It executes the operations that are needed to carry the desired action.
  */
-bool MidiActionManager::handleAction( MidiAction * pAction ) {
+bool MidiActionManager::handleAction( Action * pAction ) {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	/*

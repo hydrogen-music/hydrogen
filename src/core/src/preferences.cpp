@@ -541,14 +541,14 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_bMidiFixedMapping = LocalFileMng::readXmlBool( midiDriverNode, "fixed_mapping", false, true );
 				}
 
-				/// OSC Server ///
-				QDomNode oscServerNode = audioEngineNode.firstChildElement( "osc_server" );
+				/// OSC ///
+				QDomNode oscServerNode = audioEngineNode.firstChildElement( "osc_configuration" );
 				if ( oscServerNode.isNull() ) {
-					WARNINGLOG( "osc_server node not found" );
+					WARNINGLOG( "osc_configuration node not found" );
 					recreate = true;
 				} else {
-					m_bOscServerEnabled = LocalFileMng::readXmlBool( midiDriverNode, "oscServerEnabled", false );
-					m_nOscServerPort = LocalFileMng::readXmlInt( midiDriverNode, "oscServerPort", 9000 );
+					m_bOscServerEnabled = LocalFileMng::readXmlBool( oscServerNode, "oscEnabled", false );
+					m_nOscServerPort = LocalFileMng::readXmlInt( oscServerNode, "oscServerPort", 9000 );
 				}
 			}
 
@@ -680,7 +680,7 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString s_action = pMidiEventNode.firstChildElement("action").text();
 						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
 
-												MidiAction* pAction = new MidiAction( s_action );
+												Action* pAction = new Action( s_action );
 						pAction->setParameter1( s_param );
 						mM->registerMMCEvent(event, pAction);
 					}
@@ -690,7 +690,7 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString s_action = pMidiEventNode.firstChildElement("action").text();
 						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
 						QString s_eventParameter = pMidiEventNode.firstChildElement("eventParameter").text();
-						MidiAction* pAction = new MidiAction( s_action );
+						Action* pAction = new Action( s_action );
 						pAction->setParameter1( s_param );
 						mM->registerNoteEvent(s_eventParameter.toInt(), pAction);
 					}
@@ -700,7 +700,7 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString s_action = pMidiEventNode.firstChildElement("action").text();
 						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
 						QString s_eventParameter = pMidiEventNode.firstChildElement("eventParameter").text();
-						MidiAction * pAction = new MidiAction( s_action );
+						Action * pAction = new Action( s_action );
 						pAction->setParameter1( s_param );
 						mM->registerCCEvent( s_eventParameter.toInt(), pAction );
 					}
@@ -709,7 +709,7 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString event = pMidiEventNode.firstChildElement("pcEvent").text();
 						QString s_action = pMidiEventNode.firstChildElement("action").text();
 						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
-						MidiAction * pAction = new MidiAction( s_action );
+						Action * pAction = new Action( s_action );
 						pAction->setParameter1( s_param );
 						mM->registerPCEvent( pAction );
 					}
@@ -944,9 +944,20 @@ void Preferences::savePreferences()
 			}
 		}
 		audioEngineNode.appendChild( midiDriverNode );
+		
+		/// OSC ///
+		QDomNode oscNode = doc.createElement( "osc_configuration" );
+		{
+			LocalFileMng::writeXmlString( oscNode, "oscServerPort", QString("%1").arg( m_nOscServerPort ) );
 
-
-
+			if ( m_bOscServerEnabled ) {
+				LocalFileMng::writeXmlString( oscNode, "oscEnabled", "true" );
+			} else {
+				LocalFileMng::writeXmlString( oscNode, "oscEnabled", "false" );
+			}
+		}
+		audioEngineNode.appendChild( oscNode );
+		
 	}
 	rootNode.appendChild( audioEngineNode );
 
@@ -1037,15 +1048,15 @@ void Preferences::savePreferences()
 	rootNode.appendChild( filesNode );
 
 	MidiMap * mM = MidiMap::get_instance();
-	std::map< QString, MidiAction* > mmcMap = mM->getMMCMap();
+	std::map< QString, Action* > mmcMap = mM->getMMCMap();
 
 	//---- MidiMap ----
 	QDomNode midiEventMapNode = doc.createElement( "midiEventMap" );
 
-		std::map< QString, MidiAction* >::iterator dIter( mmcMap.begin() );
+		std::map< QString, Action* >::iterator dIter( mmcMap.begin() );
 	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ){
 		QString event = dIter->first;
-		MidiAction * pAction = dIter->second;
+		Action * pAction = dIter->second;
 		if ( pAction->getType() != "NOTHING" ){
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
@@ -1058,7 +1069,7 @@ void Preferences::savePreferences()
 	}
 
 	for( int note=0; note < 128; note++ ){
-		MidiAction * pAction = mM->getNoteAction( note );
+		Action * pAction = mM->getNoteAction( note );
 		if( pAction != NULL && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
@@ -1071,7 +1082,7 @@ void Preferences::savePreferences()
 	}
 
 	for( int parameter=0; parameter < 128; parameter++ ){
-		MidiAction * pAction = mM->getCCAction( parameter );
+		Action * pAction = mM->getCCAction( parameter );
 		if( pAction != NULL && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
@@ -1084,7 +1095,7 @@ void Preferences::savePreferences()
 	}
 
 	{
-		MidiAction * pAction = mM->getPCAction();
+		Action * pAction = mM->getPCAction();
 		if( pAction != NULL && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 

@@ -3,7 +3,7 @@
 Hydrogen is an advanced drum machine for GNU/Linux, Mac and Windows.
 It's main goal is to bring professional yet simple and intuitive pattern-based drum programming.
 
-###Features
+### Features
 
 General
 

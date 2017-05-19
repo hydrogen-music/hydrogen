@@ -29,13 +29,13 @@
 
 #include <QtCore/QMutex>
 
-class MidiAction;
+class Action;
 
 class MidiMap : public H2Core::Object
 {
 	H2_OBJECT
 	public:
-		typedef std::map< QString, MidiAction* > map_t;
+		typedef std::map< QString, Action* > map_t;
 		static MidiMap* __instance;
 		~MidiMap();
 
@@ -45,25 +45,25 @@ class MidiMap : public H2Core::Object
 
 		void reset();  // Reinitializes the object.
 
-		void registerMMCEvent( QString, MidiAction* );
-		void registerNoteEvent( int , MidiAction* );
-		void registerCCEvent( int , MidiAction* );
-		void registerPCEvent( MidiAction* );
+		void registerMMCEvent( QString, Action* );
+		void registerNoteEvent( int , Action* );
+		void registerCCEvent( int , Action* );
+		void registerPCEvent( Action* );
 
 		map_t getMMCMap();
 
-		MidiAction* getMMCAction( QString );
-		MidiAction* getNoteAction( int note );
-		MidiAction* getCCAction( int parameter );
-		MidiAction* getPCAction();
+		Action* getMMCAction( QString );
+		Action* getNoteAction( int note );
+		Action* getCCAction( int parameter );
+		Action* getPCAction();
 
 		void setupNoteArray();
 	private:
 		MidiMap();
 
-		MidiAction* __note_array[ 128 ];
-		MidiAction* __cc_array[ 128 ];
-		MidiAction* __pc_action;
+		Action* __note_array[ 128 ];
+		Action* __cc_array[ 128 ];
+		Action* __pc_action;
 
 		map_t mmcMap;
 		QMutex __mutex;

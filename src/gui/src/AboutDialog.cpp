@@ -36,7 +36,6 @@ AboutDialog::AboutDialog(QWidget* parent)
 	setupUi( this );
 
 	setWindowTitle( tr( "About" ) );
-	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	setMinimumSize( width(), height() );
 	setMaximumSize( width(), height() );

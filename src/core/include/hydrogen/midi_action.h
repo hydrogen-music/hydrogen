@@ -29,10 +29,10 @@
 using namespace std;
 
 
-class MidiAction : public H2Core::Object {
+class Action : public H2Core::Object {
 	H2_OBJECT
 	public:
-		MidiAction( QString );
+		Action( QString );
 
 		void setParameter1( QString text ){
 			parameter1 = text;
@@ -91,57 +91,57 @@ class MidiActionManager : public H2Core::Object
 
 		QStringList actionList;
 
-		typedef bool (MidiActionManager::*action_f)(MidiAction * , H2Core::Hydrogen * );
+		typedef bool (MidiActionManager::*action_f)(Action * , H2Core::Hydrogen * );
 		map<string, action_f> actionMap;
-		bool play(MidiAction * , H2Core::Hydrogen * );
-		bool play_stop_pause_toggle(MidiAction * , H2Core::Hydrogen * );
-		bool stop(MidiAction * , H2Core::Hydrogen * );
-		bool pause(MidiAction * , H2Core::Hydrogen * );
-		bool record_ready(MidiAction * , H2Core::Hydrogen * );
-		bool record_strobe_toggle(MidiAction * , H2Core::Hydrogen * );
-		bool record_strobe(MidiAction * , H2Core::Hydrogen * );
-		bool record_exit(MidiAction * , H2Core::Hydrogen * );
-		bool mute(MidiAction * , H2Core::Hydrogen * );
-		bool unmute(MidiAction * , H2Core::Hydrogen * );
-		bool mute_toggle(MidiAction * , H2Core::Hydrogen * );
-		bool next_bar(MidiAction * , H2Core::Hydrogen * );
-		bool previous_bar(MidiAction * , H2Core::Hydrogen * );
-		bool bpm_increase(MidiAction * , H2Core::Hydrogen * );
-		bool bpm_decrease(MidiAction * , H2Core::Hydrogen * );
-		bool bpm_cc_relative(MidiAction * , H2Core::Hydrogen * );
-		bool bpm_fine_cc_relative(MidiAction * , H2Core::Hydrogen * );
-		bool master_volume_relative(MidiAction * , H2Core::Hydrogen *);
-		bool master_volume_absolute(MidiAction * , H2Core::Hydrogen * );
-		bool strip_volume_relative(MidiAction * , H2Core::Hydrogen * );
-		bool strip_volume_absolute(MidiAction * , H2Core::Hydrogen * );
-		bool effect_level_relative(MidiAction * , H2Core::Hydrogen * );
-		bool effect_level_absolute(MidiAction * , H2Core::Hydrogen * );
-		bool select_next_pattern(MidiAction * , H2Core::Hydrogen * );
-		bool select_next_pattern_cc_absolute(MidiAction * , H2Core::Hydrogen * );
-		bool select_next_pattern_promptly(MidiAction * , H2Core::Hydrogen * );
-		bool select_next_pattern_relative(MidiAction * , H2Core::Hydrogen * );
-		bool select_and_play_pattern(MidiAction * , H2Core::Hydrogen * );
-		bool pan_relative(MidiAction * , H2Core::Hydrogen * );
-		bool pan_absolute(MidiAction * , H2Core::Hydrogen * );
-		bool filter_cutoff_level_absolute(MidiAction * , H2Core::Hydrogen * );
-		bool beatcounter(MidiAction * , H2Core::Hydrogen * );
-		bool tap_tempo(MidiAction * , H2Core::Hydrogen * );
-		bool playlist_song(MidiAction * , H2Core::Hydrogen * );
-		bool playlist_next_song(MidiAction * , H2Core::Hydrogen * );
-		bool playlist_previous_song(MidiAction * , H2Core::Hydrogen * );
-		bool toggle_metronome(MidiAction * , H2Core::Hydrogen * );
-		bool select_instrument(MidiAction * , H2Core::Hydrogen * );
-		bool undo_action(MidiAction * , H2Core::Hydrogen * );
-		bool redo_action(MidiAction * , H2Core::Hydrogen * );
-		bool gain_level_absolute(MidiAction * , H2Core::Hydrogen * );
-		bool pitch_level_absolute(MidiAction * , H2Core::Hydrogen * );
+		bool play(Action * , H2Core::Hydrogen * );
+		bool play_stop_pause_toggle(Action * , H2Core::Hydrogen * );
+		bool stop(Action * , H2Core::Hydrogen * );
+		bool pause(Action * , H2Core::Hydrogen * );
+		bool record_ready(Action * , H2Core::Hydrogen * );
+		bool record_strobe_toggle(Action * , H2Core::Hydrogen * );
+		bool record_strobe(Action * , H2Core::Hydrogen * );
+		bool record_exit(Action * , H2Core::Hydrogen * );
+		bool mute(Action * , H2Core::Hydrogen * );
+		bool unmute(Action * , H2Core::Hydrogen * );
+		bool mute_toggle(Action * , H2Core::Hydrogen * );
+		bool next_bar(Action * , H2Core::Hydrogen * );
+		bool previous_bar(Action * , H2Core::Hydrogen * );
+		bool bpm_increase(Action * , H2Core::Hydrogen * );
+		bool bpm_decrease(Action * , H2Core::Hydrogen * );
+		bool bpm_cc_relative(Action * , H2Core::Hydrogen * );
+		bool bpm_fine_cc_relative(Action * , H2Core::Hydrogen * );
+		bool master_volume_relative(Action * , H2Core::Hydrogen *);
+		bool master_volume_absolute(Action * , H2Core::Hydrogen * );
+		bool strip_volume_relative(Action * , H2Core::Hydrogen * );
+		bool strip_volume_absolute(Action * , H2Core::Hydrogen * );
+		bool effect_level_relative(Action * , H2Core::Hydrogen * );
+		bool effect_level_absolute(Action * , H2Core::Hydrogen * );
+		bool select_next_pattern(Action * , H2Core::Hydrogen * );
+		bool select_next_pattern_cc_absolute(Action * , H2Core::Hydrogen * );
+		bool select_next_pattern_promptly(Action * , H2Core::Hydrogen * );
+		bool select_next_pattern_relative(Action * , H2Core::Hydrogen * );
+		bool select_and_play_pattern(Action * , H2Core::Hydrogen * );
+		bool pan_relative(Action * , H2Core::Hydrogen * );
+		bool pan_absolute(Action * , H2Core::Hydrogen * );
+		bool filter_cutoff_level_absolute(Action * , H2Core::Hydrogen * );
+		bool beatcounter(Action * , H2Core::Hydrogen * );
+		bool tap_tempo(Action * , H2Core::Hydrogen * );
+		bool playlist_song(Action * , H2Core::Hydrogen * );
+		bool playlist_next_song(Action * , H2Core::Hydrogen * );
+		bool playlist_previous_song(Action * , H2Core::Hydrogen * );
+		bool toggle_metronome(Action * , H2Core::Hydrogen * );
+		bool select_instrument(Action * , H2Core::Hydrogen * );
+		bool undo_action(Action * , H2Core::Hydrogen * );
+		bool redo_action(Action * , H2Core::Hydrogen * );
+		bool gain_level_absolute(Action * , H2Core::Hydrogen * );
+		bool pitch_level_absolute(Action * , H2Core::Hydrogen * );
 
 		QStringList eventList;
 
 		int m_nLastBpmChangeCCParameter;
 
 	public:
-		bool handleAction( MidiAction * );
+		bool handleAction( Action * );
 
 		static void create_instance();
 		static MidiActionManager* get_instance() { assert(__instance); return __instance; }

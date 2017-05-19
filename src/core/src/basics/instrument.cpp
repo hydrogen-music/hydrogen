@@ -111,6 +111,7 @@ Instrument::Instrument( Instrument* other )
 	, __is_preview_instrument(false)
 	, __is_metronome_instrument(false)
 	, __apply_velocity( other->get_apply_velocity() )
+	, __current_instr_for_export(false)
 {
 	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = other->get_fx_level( i );
 

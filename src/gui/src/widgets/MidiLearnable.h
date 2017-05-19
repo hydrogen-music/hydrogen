@@ -43,17 +43,17 @@ public:
 	if( m_action != NULL) delete m_action;
     }
 
-    void setAction( MidiAction *action ){
+    void setAction( Action *action ){
 	m_action = action;
     }
 
-    MidiAction* getAction(){
+    Action* getAction(){
 	return m_action;
     }
 
 
 private:
-    MidiAction *m_action;
+    Action *m_action;
 };
 
 #endif // MIDILEARNABLE_H

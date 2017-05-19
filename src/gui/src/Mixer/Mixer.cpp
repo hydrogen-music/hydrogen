@@ -57,7 +57,6 @@ Mixer::Mixer( QWidget* pParent )
 	setMaximumHeight( 284 );
 	setMinimumHeight( 284 );
 	setFixedHeight( 284 );
-	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 // fader Panel
 	m_pFaderHBox = new QHBoxLayout();

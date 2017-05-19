@@ -177,11 +177,11 @@ void MidiTable::setupMidiTable()
 	setColumnWidth( 6 , 73 );
 
 	bool ok;
-	std::map< QString , MidiAction* > mmcMap = pMidiMap->getMMCMap();
-	std::map< QString , MidiAction* >::iterator dIter( mmcMap.begin() );
+	std::map< QString , Action* > mmcMap = pMidiMap->getMMCMap();
+	std::map< QString , Action* >::iterator dIter( mmcMap.begin() );
 	
 	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ) {
-		MidiAction * pAction = dIter->second;
+		Action * pAction = dIter->second;
 		int actionParameterInteger1 = pAction->getParameter1().toInt(&ok,10);
 		int actionParameterInteger2 = pAction->getParameter2().toInt(&ok,10);
 		int actionParameterInteger3 = pAction->getParameter3().toInt(&ok,10);
@@ -190,7 +190,7 @@ void MidiTable::setupMidiTable()
 	}
 
 	for( int note = 0; note < 128; note++ ) {
-		MidiAction * pAction = pMidiMap->getNoteAction( note );
+		Action * pAction = pMidiMap->getNoteAction( note );
 		int actionParameterInteger1 = pAction->getParameter1().toInt(&ok,10);
 		int actionParameterInteger2 = pAction->getParameter2().toInt(&ok,10);
 		int actionParameterInteger3 = pAction->getParameter3().toInt(&ok,10);
@@ -203,7 +203,7 @@ void MidiTable::setupMidiTable()
 	}
 
 	for( int parameter = 0; parameter < 128; parameter++ ){
-		MidiAction * pAction = pMidiMap->getCCAction( parameter );
+		Action * pAction = pMidiMap->getCCAction( parameter );
 		int actionParameterInteger1 = pAction->getParameter1().toInt(&ok,10);
 		int actionParameterInteger2 = pAction->getParameter2().toInt(&ok,10);
 		int actionParameterInteger3 = pAction->getParameter3().toInt(&ok,10);
@@ -216,7 +216,7 @@ void MidiTable::setupMidiTable()
 	}
 
 	{
-		MidiAction * pAction = pMidiMap->getPCAction();
+		Action * pAction = pMidiMap->getPCAction();
 		if ( pAction->getType() != "NOTHING" ) {
 			int actionParameterInteger1 = pAction->getParameter1().toInt(&ok,10);
 			int actionParameterInteger2 = pAction->getParameter2().toInt(&ok,10);
@@ -251,7 +251,7 @@ void MidiTable::saveMidiTable()
 
 			actionString = actionCombo->currentText();
 		
-			MidiAction* pAction = new MidiAction( actionString );
+			Action* pAction = new Action( actionString );
 
 			if( actionSpinner1->cleanText() != ""){
 				pAction->setParameter1( actionSpinner1->cleanText() );
