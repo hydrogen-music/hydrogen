@@ -1,7 +1,16 @@
-dist:
-  - trusty
-sudo:
-  - required
+language: cpp
+
+env:
+  global:
+    - MAKEFLAGS="-j 2"
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+    - os: osx
+
 addons:
   apt:
     packages:
@@ -14,11 +23,20 @@ addons:
       - liblo-dev
       - libpulse-dev
       - libcppunit-dev
+
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install ladspa-sdk -y
-language:
-  - cpp
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install ladspa-sdk -y; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew install qt5;
+      export CMAKE_PREFIX_PATH="$(brew --prefix qt5)";
+    fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew install libarchive;
+      export PKG_CONFIG_PATH="$(brew --prefix libarchive)/lib/pkgconfig";
+    fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libsndfile jack pulseaudio cppunit; fi
 
 script:
   - mkdir build && cd build && cmake .. && make

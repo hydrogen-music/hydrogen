@@ -22,6 +22,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_BINARY_DIR}/src/core/include        # generated config.h
     ${LASH_INCLUDE_DIR}
     ${QT_INCLUDES}
+    ${LIBARCHIVE_INCLUDE_DIR}
 )
 
 IF(APPLE)
