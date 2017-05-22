@@ -960,6 +960,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_labelBackgroundSelected.load( Skin::getImagePath() + "/songEditor/songEditorLabelSBG.png" );
 	m_playingPattern_on_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_on.png" );
 	m_playingPattern_off_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_off.png" );
+	m_playingPattern_pending_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_pending.png" );
 
 	m_pPatternPopup = new QMenu( this );
 	m_pPatternPopup->addAction( trUtf8("Copy"),  this, SLOT( patternPopup_copy() ) );
@@ -1119,6 +1120,12 @@ void SongEditorPatternList::updateEditor()
 }
 
 
+void SongEditorPatternList::activePatternsChangedEvent()
+{
+	createBackground();
+	update();
+}
+
 
 void SongEditorPatternList::createBackground()
 {
@@ -1193,14 +1200,24 @@ void SongEditorPatternList::createBackground()
 		}
 
 		uint text_y = i * m_nGridHeight;
-		if ( bNext ) {
-			p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_off_Pixmap );
-		}
-		else if (bActive) {
-
-			//mark active pattern with triangular
-			if( ! pref->patternModePlaysSelected() ){
-				p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_on_Pixmap );
+		
+		if ( pEngine->getSong()->get_mode() == Song::PATTERN_MODE ) {
+		
+			if (bNext && bActive) {
+				p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_off_Pixmap );
+				//INFOLOG( QString( "in bNext AND bActive true. text_y = %1, patternID = %2" ).arg( text_y ).arg(i) );
+			}
+			
+			else {
+				if (bNext) {
+					p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_pending_Pixmap );
+					INFOLOG( QString( "in bNext true. text_y = %1, patternID = %2" ).arg( text_y ).arg(i) );
+				}
+				
+				if (bActive) {
+					p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_on_Pixmap );
+					INFOLOG( QString( "in bActive true. text_y = %1, patternID = %2" ).arg( text_y ).arg(i) );
+				}
 			}
 		}
 

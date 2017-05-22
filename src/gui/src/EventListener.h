@@ -31,6 +31,7 @@ class EventListener
 		virtual void patternModifiedEvent() {}
 		virtual void songModifiedEvent() {}
 		virtual void selectedPatternChangedEvent() {}
+		virtual void activePatternsChangedEvent() {}
 		virtual void selectedInstrumentChangedEvent() {}
 		virtual void parametersInstrumentChangedEvent() {}
 		virtual void midiActivityEvent() {}

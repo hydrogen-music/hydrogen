@@ -78,6 +78,7 @@ class SongEditor : public QWidget, public H2Core::Object
 		void addPattern( int nColumn, int nRow);
 		void deletePattern( int nColumn, int nRow, unsigned nColumnIndex);
 		void clearThePatternSequenseVector( QString filename );
+		void activePatternsChangedEvent();
 		void updateEditorandSetTrue();
                 void movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, std::vector<QPoint> m_existingCells, bool bIsCtrlPressed, bool undo);
 
@@ -128,6 +129,7 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		SongEditorPatternList( QWidget *parent );
 		~SongEditorPatternList();
 
+		void activePatternsChangedEvent();
 		void updateEditor();
 		void createBackground();
 		void movePatternLine( int, int );
@@ -166,6 +168,7 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		QPixmap m_labelBackgroundSelected;
 		QPixmap m_playingPattern_on_Pixmap;
 		QPixmap m_playingPattern_off_Pixmap;
+		QPixmap m_playingPattern_pending_Pixmap;
 
 		QMenu *m_pPatternPopup;
 		QLineEdit *line;
