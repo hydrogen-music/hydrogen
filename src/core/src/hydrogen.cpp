@@ -1741,11 +1741,13 @@ Hydrogen::Hydrogen()
 		m_nInstrumentLookupTable[i] = i;
 	}
 
+#ifdef H2CORE_HAVE_OSC
 	if( Preferences::get_instance()->getOscServerEnabled() )
 	{
 		OscServer* pOscServer = OscServer::get_instance();
 		pOscServer->start();
 	}
+#endif
 }
 
 Hydrogen::~Hydrogen()
