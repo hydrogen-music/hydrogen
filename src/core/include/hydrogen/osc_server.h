@@ -29,6 +29,7 @@
 
 
 #include <hydrogen/object.h>
+#include <hydrogen/Preferences.h>
 #include <cassert>
 
 
@@ -56,7 +57,7 @@ class OscServer : public H2Core::Object
 		~OscServer();
 	
 		
-		static void create_instance();
+		static void create_instance(H2Core::Preferences* pPreferences);
 		static OscServer* get_instance() { assert(__instance); return __instance; }
 
 		static QString qPrettyPrint(lo_type type,void * data);
@@ -106,9 +107,10 @@ class OscServer : public H2Core::Object
 								int argc, void *data, void *user_data);
 
 	private:
-		OscServer();
+		OscServer(H2Core::Preferences* pPreferences);
 
-		lo::ServerThread *m_pServerThread;
+		lo::ServerThread*		m_pServerThread;
+		H2Core::Preferences*	m_pPreferences;
 };
 
 #endif /* H2CORE_HAVE_OSC */

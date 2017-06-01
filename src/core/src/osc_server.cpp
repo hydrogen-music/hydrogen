@@ -204,17 +204,19 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer()
+OscServer::OscServer( H2Core::Preferences * pPreferences )
 	: Object( __class_name )
 {
-	m_pServerThread = new lo::ServerThread(9000);
-	INFOLOG("Osc server started");
+	m_pPreferences = pPreferences;
+	int port = m_pPreferences->getOscServerPort();
+
+	m_pServerThread = new lo::ServerThread( port );
 }
 
-void OscServer::create_instance()
+void OscServer::create_instance( H2Core::Preferences* pPreferences )
 {
 	if( __instance == 0 ) {
-		__instance = new OscServer;
+		__instance = new OscServer( pPreferences );
 	}
 }
 
@@ -651,6 +653,9 @@ void OscServer::start()
 	 * Start the server.
 	 */
 	m_pServerThread->start();
+
+
+	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->getOscServerPort() ));
 }
 
 OscServer::~OscServer()

@@ -184,6 +184,7 @@ public:
 #endif
 
 #ifdef H2CORE_HAVE_OSC
+	void			startOscServer();
 	void			startNsmClient();
 #endif
 

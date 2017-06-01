@@ -1741,7 +1741,11 @@ Hydrogen::Hydrogen()
 		m_nInstrumentLookupTable[i] = i;
 	}
 
-
+	if( Preferences::get_instance()->getOscServerEnabled() )
+	{
+		OscServer* pOscServer = OscServer::get_instance();
+		pOscServer->start();
+	}
 }
 
 Hydrogen::~Hydrogen()
@@ -1782,7 +1786,7 @@ void Hydrogen::create_instance()
 
 #ifdef H2CORE_HAVE_OSC
 	NsmClient::create_instance();
-	OscServer::create_instance();
+	OscServer::create_instance( Preferences::get_instance() );
 #endif
 
 	if ( __instance == 0 ) {
@@ -3326,12 +3330,16 @@ void Hydrogen::setTimelineBpm()
 	setNewBpmJTM( RealtimeBPM );
 }
 
-void startOsc()
+#ifdef H2CORE_HAVE_OSC
+void startOscServer()
 {
+	OscServer* pOscServer = OscServer::get_instance();
 	
+	if(pOscServer){
+		pOscServer->start();
+	}
 }
 
-#ifdef H2CORE_HAVE_OSC
 void Hydrogen::startNsmClient()
 {
 	//NSM has to be started before jack driver gets created
@@ -3339,12 +3347,6 @@ void Hydrogen::startNsmClient()
 
 	if(pNsmClient){
 		pNsmClient->createInitialClient();
-	}
-
-
-	OscServer* pOscServer = OscServer::get_instance();
-	if(pOscServer){
-		pOscServer->start();
 	}
 }
 #endif
