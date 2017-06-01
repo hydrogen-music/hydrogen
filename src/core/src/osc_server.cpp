@@ -42,6 +42,107 @@
 OscServer * OscServer::__instance = 0;
 const char* OscServer::__class_name = "OscServer";
 
+
+QString OscServer::qPrettyPrint(lo_type type,void * data)
+{
+	QString formattedString;
+
+	typedef union {
+	     int32_t  i;
+	     float    f;
+	     char     c;
+	     uint32_t nl;
+	 } h2_pcast32;
+
+	typedef union {
+		int64_t    i;
+		double     f;
+		uint64_t   nl;
+		lo_timetag tt;
+	} h2_pcast64;
+
+
+	h2_pcast32 val32;
+	h2_pcast64 val64;
+	int size;
+	int i;
+
+	size = lo_arg_size(type, data);
+	if (size == 4 || type == LO_BLOB) {
+			val32.nl = *(int32_t *)data;
+	} else if (size == 8) {
+			val64.nl = *(int64_t *)data;
+	}
+
+	switch (type) {
+		case LO_INT32:
+			formattedString = QString("%1").arg(val32.i);
+			break;
+
+		case LO_FLOAT:
+			formattedString = QString("%1").arg(val32.f);
+			break;
+
+		case LO_STRING:
+			formattedString = QString("%1").arg( (char *) data );
+			break;
+
+		case LO_BLOB:
+			//not supported by Hydrogen
+			formattedString = QString("BLOB");
+			break;
+
+		case LO_INT64:
+			formattedString = QString("%1").arg(val64.i);
+			break;
+
+		case LO_TIMETAG:
+			formattedString = QString("%1.%2").arg(val64.tt.sec).arg(val64.tt.frac);
+			break;
+
+		case LO_DOUBLE:
+			formattedString = QString("%1").arg(val64.f);
+			break;
+
+		case LO_SYMBOL:
+			formattedString = QString("%1").arg( (char *) data );
+			break;
+
+		case LO_CHAR:
+			formattedString = QString("%1").arg( QLatin1Char((char) val32.c ));
+			break;
+
+		case LO_MIDI:
+			//not supported by Hydrogen
+			formattedString = QString("MIDI");
+			break;
+
+		case LO_TRUE:
+			formattedString = QString("#T");
+			break;
+
+		case LO_FALSE:
+			formattedString = QString("#F");
+			break;
+
+		case LO_NIL:
+			formattedString = QString("#NIL");
+			break;
+
+		case LO_INFINITUM:
+			formattedString = QString("#INF");
+			break;
+
+		default:
+			formattedString = QString("Unhandled type:").arg(type);
+			break;
+	}
+
+	return formattedString;
+
+}
+
+
 /* catch any incoming messages and display them. returning 1 means that the
  * message has not been fully handled and the server should try other methods */
 int OscServer::generic_handler(const char *	path, 
@@ -52,55 +153,51 @@ int OscServer::generic_handler(const char *	path,
 							   void *		user_data)
 {
 	//First we're trying to map TouchOSC messages from multi-fader widgets
-	QString oscPath(path);
-	QRegExp rxStripVol("/Hydrogen/STRIP_VOLUME_ABSOLUTE/(\\d+)");
-	int pos = rxStripVol.indexIn(oscPath);
-	if (pos > -1) {
-		if(argc == 1){
+	QString oscPath( path );
+	QRegExp rxStripVol( "/Hydrogen/STRIP_VOLUME_ABSOLUTE/(\\d+)" );
+	int pos = rxStripVol.indexIn( oscPath );
+	if ( pos > -1 ) {
+		if( argc == 1 ){
 			int value = rxStripVol.cap(1).toInt() -1;
 			STRIP_VOLUME_ABSOLUTE_Handler( QString::number( value ) , QString::number( argv[0]->f, 'f', 0) );
 		}
 	}
 	
-	QRegExp rxStripPanAbs("/Hydrogen/PAN_ABSOLUTE/(\\d+)");
-	pos = rxStripPanAbs.indexIn(oscPath);
-	if (pos > -1) {
-		if(argc == 1){
+	QRegExp rxStripPanAbs( "/Hydrogen/PAN_ABSOLUTE/(\\d+)" );
+	pos = rxStripPanAbs.indexIn( oscPath );
+	if ( pos > -1 ) {
+		if( argc == 1 ){
 			int value = rxStripPanAbs.cap(1).toInt() - 1;
 			PAN_ABSOLUTE_Handler( QString::number( value ) , QString::number( argv[0]->f, 'f', 0) );
 		}
 	}
 	
-	QRegExp rxStripPanRel("/Hydrogen/PAN_RELATIVE/(\\d+)");
-	pos = rxStripPanRel.indexIn(oscPath);
-	if (pos > -1) {
-		if(argc == 1){
+	QRegExp rxStripPanRel( "/Hydrogen/PAN_RELATIVE/(\\d+)" );
+	pos = rxStripPanRel.indexIn( oscPath );
+	if ( pos > -1 ) {
+		if( argc == 1 ){
 			int value = rxStripPanRel.cap(1).toInt() - 1;
 			PAN_RELATIVE_Handler( QString::number( value ) , QString::number( argv[0]->f, 'f', 0) );
 		}
 	}
 	
-	QRegExp rxStripFilterCutoffAbs("/Hydrogen/FILTER_CUTOFF_LEVEL_ABSOLUTE/(\\d+)");
-	pos = rxStripFilterCutoffAbs.indexIn(oscPath);
-	if (pos > -1) {
-		if(argc == 1){
+	QRegExp rxStripFilterCutoffAbs( "/Hydrogen/FILTER_CUTOFF_LEVEL_ABSOLUTE/(\\d+)" );
+	pos = rxStripFilterCutoffAbs.indexIn( oscPath );
+	if ( pos > -1 ) {
+		if( argc == 1 ){
 			int value = rxStripFilterCutoffAbs.cap(1).toInt() - 1;
 			FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( QString::number( value ) , QString::number( argv[0]->f, 'f', 0) );
 		}
 	}
 	
-	/*
-	 //Remove block comment to enable OSC debug output.. TODO: integrate this in our logging system.
-	printf("path: <%s>\n", path);
+
+	INFOLOG( QString( "Incoming OSC Message for path %1" ).arg( path ) );
 	int i;
 	for (i = 0; i < argc; i++) {
-		printf("arg %d '%c' ", i, types[i]);
-		lo_arg_pp((lo_type)types[i], argv[i]);
-		printf("\n");
+		QString formattedArgument = qPrettyPrint( (lo_type)types[i], argv[i] );
+		INFOLOG(QString("Argument %1: %2 %3").arg(i).arg(types[i]).arg(formattedArgument));
 	}
-	printf("\n");
-	fflush(stdout);
-	*/
+	
 	
 	return 1;
 }
@@ -111,6 +208,7 @@ OscServer::OscServer()
 	: Object( __class_name )
 {
 	m_pServerThread = new lo::ServerThread(9000);
+	INFOLOG("Osc server started");
 }
 
 void OscServer::create_instance()
