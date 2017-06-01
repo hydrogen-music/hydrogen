@@ -59,6 +59,8 @@ class OscServer : public H2Core::Object
 		static void create_instance();
 		static OscServer* get_instance() { assert(__instance); return __instance; }
 
+		static QString qPrettyPrint(lo_type type,void * data);
+
 		void start();
 
 		static void PLAY_TOGGLE_Handler(lo_arg **argv, int i);
