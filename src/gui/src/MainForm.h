@@ -134,6 +134,7 @@ public slots:
 	private slots:
 		void onAutoSaveTimer();
 		void onPlaylistDisplayTimer();
+		void onFixMidiSetup();
 
 	protected:
 		// Returns true if handled, false if aborted.
@@ -167,6 +168,7 @@ public slots:
 
 		void closeAll();
 		void openSongFile( const QString& sFilename );
+		void checkMidiSetup();
 
 		bool eventFilter( QObject *o, QEvent *e );
 
