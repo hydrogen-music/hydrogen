@@ -148,6 +148,28 @@ class InstrumentList : public H2Core::Object
 		 */
 		static InstrumentList* load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );
 
+        /**
+         * Fix GitHub issue #307, so called "Hi Bongo fiasco".
+         *
+         * Check whether the same MIDI note is assignedto every
+         * instrument - that condition makes MIDI export unusable.
+         * When so, assign each instrument consecutive MIDI note
+         * starting from 36.
+         */
+        void fix_issue_307();
+
+        /**
+         * Check if all instruments have assigned the same
+         * MIDI out note
+         */
+        bool has_all_midi_notes_same() const;
+
+        /**
+         * Set each instrument consecuteve MIDI
+         * out notes, starting from 36
+         */
+        void set_default_midi_out_notes();
+
 	private:
 		std::vector<Instrument*> __instruments;            ///< the list of instruments
 };

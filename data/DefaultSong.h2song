@@ -48,7 +48,7 @@
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>35</midiOutNote>
+   <midiOutNote>36</midiOutNote>
    <isHihat>-1</isHihat>
    <lower_cc>0</lower_cc>
    <higher_cc>127</higher_cc>
