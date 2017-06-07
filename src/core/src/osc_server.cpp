@@ -610,6 +610,19 @@ void OscServer::handleAction( Action* pAction )
 			lo_send_message(clientAddress, "/Hydrogen/TOGGLE_METRONOME", reply);
 		}
 	}
+	
+	if( pAction->getType() == "MUTE_TOGGLE"){
+		bool ok;
+		float param1 = pAction->getParameter1().toFloat(&ok);
+
+		lo_message reply = lo_message_new();
+		lo_message_add_float(reply, param1);
+
+		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
+			lo_address clientAddress = *it;
+			lo_send_message(clientAddress, "/Hydrogen/MUTE_TOGGLE", reply);
+		}
+	}
 }
 
 

@@ -804,7 +804,7 @@ MasterMixerLine::~MasterMixerLine()
 
 void MasterMixerLine::muteClicked(Button* pBtn)
 {
-	Hydrogen::get_instance()->getSong()->__is_muted = pBtn->isPressed();
+	Hydrogen::get_instance()->getCoreActionController()->setMasterIsMuted( pBtn->isPressed() );
 }
 
 

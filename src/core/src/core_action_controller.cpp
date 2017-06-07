@@ -22,6 +22,7 @@
 
 #include <hydrogen/core_action_controller.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/Preferences.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/osc_server.h>
@@ -90,6 +91,19 @@ void CoreActionController::setMetronomeIsActive( bool isActive ){
 #endif
 }
 
+void CoreActionController::setMasterIsMuted( bool isMuted ){
+	Hydrogen::get_instance()->getSong()->__is_muted = isMuted;
+	
+#ifdef H2CORE_HAVE_OSC
+	Action* pFeedbackAction = new Action( "MUTE_TOGGLE" );
+	
+	pFeedbackAction->setParameter1( QString("%1").arg( (int) isMuted ) );
+	OscServer::handleAction( pFeedbackAction );
+	
+	delete pFeedbackAction;
+#endif
+}
+
 void CoreActionController::initExternalControlInterfaces()
 {
 	/*
@@ -110,6 +124,9 @@ void CoreActionController::initExternalControlInterfaces()
 	
 	//TOGGLE_METRONOME
 	setMetronomeIsActive( Preferences::get_instance()->m_bUseMetronome );
+	
+	//MUTE_TOGGLE
+	setMasterIsMuted( Hydrogen::get_instance()->getSong()->__is_muted );
 }
 
 }
