@@ -1727,6 +1727,7 @@ Hydrogen::Hydrogen()
 
 	m_bExportSessionIsActive = false;
 	m_pTimeline = new Timeline();
+	m_pCoreActionController = new CoreActionController();
 
 	hydrogenInstance = this;
 
@@ -1741,7 +1742,13 @@ Hydrogen::Hydrogen()
 		m_nInstrumentLookupTable[i] = i;
 	}
 
-
+#ifdef H2CORE_HAVE_OSC
+	if( Preferences::get_instance()->getOscServerEnabled() )
+	{
+		OscServer* pOscServer = OscServer::get_instance();
+		pOscServer->start();
+	}
+#endif
 }
 
 Hydrogen::~Hydrogen()
@@ -1765,6 +1772,7 @@ Hydrogen::~Hydrogen()
 	audioEngine_destroy();
 	__kill_instruments();
 
+	delete m_pCoreActionController;
 	delete m_pTimeline;
 
 	__instance = NULL;
@@ -1782,7 +1790,7 @@ void Hydrogen::create_instance()
 
 #ifdef H2CORE_HAVE_OSC
 	NsmClient::create_instance();
-	OscServer::create_instance();
+	OscServer::create_instance( Preferences::get_instance() );
 #endif
 
 	if ( __instance == 0 ) {
@@ -1853,6 +1861,8 @@ void Hydrogen::setSong( Song *pSong )
 	audioEngine_setSong ( pSong );
 
 	__song = pSong;
+	
+	m_pCoreActionController->initExternalControlInterfaces();
 }
 
 /* Mean: remove current song from memory */
@@ -2574,6 +2584,8 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 #endif
 
 	m_audioEngineState = old_ae_state;
+	
+	m_pCoreActionController->initExternalControlInterfaces();
 
 	return 0;	//ok
 }
@@ -3326,12 +3338,16 @@ void Hydrogen::setTimelineBpm()
 	setNewBpmJTM( RealtimeBPM );
 }
 
-void startOsc()
+#ifdef H2CORE_HAVE_OSC
+void startOscServer()
 {
+	OscServer* pOscServer = OscServer::get_instance();
 	
+	if(pOscServer){
+		pOscServer->start();
+	}
 }
 
-#ifdef H2CORE_HAVE_OSC
 void Hydrogen::startNsmClient()
 {
 	//NSM has to be started before jack driver gets created
@@ -3339,12 +3355,6 @@ void Hydrogen::startNsmClient()
 
 	if(pNsmClient){
 		pNsmClient->createInitialClient();
-	}
-
-
-	OscServer* pOscServer = OscServer::get_instance();
-	if(pOscServer){
-		pOscServer->start();
 	}
 }
 #endif

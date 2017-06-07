@@ -37,7 +37,7 @@ p, li { white-space: pre-wrap; }
    <Release>1000</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>35</midiOutNote>
+   <midiOutNote>36</midiOutNote>
    <isStopNote>false</isStopNote>
    <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
    <isHihat>-1</isHihat>

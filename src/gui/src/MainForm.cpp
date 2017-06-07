@@ -50,6 +50,7 @@
 #include "LadspaFXProperties.h"
 #include "SongPropertiesDialog.h"
 #include "UndoActions.h"
+#include "widgets/InfoBar.h"
 
 #include "Director.h"
 #include "Mixer/Mixer.h"
@@ -146,6 +147,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	h2app = new HydrogenApp( this, pSong );
 	h2app->addEventListener( this );
 	createMenuBar();
+	checkMidiSetup();
 
 	h2app->setStatusBarMessage( trUtf8("Hydrogen Ready."), 10000 );
 
@@ -1318,8 +1320,40 @@ void MainForm::openSongFile( const QString& sFilename )
 	engine->setSelectedPatternNumber( 0 );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
+
+	checkMidiSetup();
 }
 
+
+void MainForm::checkMidiSetup()
+{
+	InfoBar *infobar = h2app->getInfoBar();
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong->get_instrument_list()->has_all_midi_notes_same() ) {
+		WARNINGLOG( "Incorrect MIDI setup" );
+
+		infobar->reset();
+		infobar->setTitle( trUtf8("MIDI setup advice") );
+		infobar->setText( trUtf8("MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?") );
+		QPushButton *fix = infobar->addButton( trUtf8("Set default values") );
+		QObject::connect( fix, SIGNAL(clicked()), this, SLOT(onFixMidiSetup()) );
+		infobar->show();
+	} else {
+		infobar->hide();
+	}
+}
+
+
+void MainForm::onFixMidiSetup()
+{
+	INFOLOG( "Fixing MIDI setup" );
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	pSong->get_instrument_list()->set_default_midi_out_notes();
+	pSong->set_is_modified( true );
+
+	InfoBar *infobar = h2app->getInfoBar();
+	infobar->hide();
+}
 
 
 void MainForm::initKeyInstMap()

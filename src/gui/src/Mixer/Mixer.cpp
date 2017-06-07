@@ -402,32 +402,22 @@ uint Mixer::findCompoMixerLineByRef(ComponentMixerLine* ref)
 }
 
 
-
-
 void Mixer::volumeChanged(MixerLine* ref)
 {
-	int nLine = findMixerLineByRef(ref);
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
-
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	InstrumentList *instrList = pSong->get_instrument_list();
-
-	Instrument *pInstr = instrList->get(nLine);
-
-	pInstr->set_volume( ref->getVolume() );
-
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	CoreActionController* pController = pEngine->getCoreActionController();
+	
+	int nLine = findMixerLineByRef(ref);
+	pController->setStripVolume( nLine, ref->getVolume() );
 }
-
-
-
 
 void Mixer::masterVolumeChanged(MasterMixerLine* ref)
 {
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	CoreActionController* pController = pEngine->getCoreActionController();
+
 	float Volume = ref->getVolume();
-	Song *pSong = Hydrogen::get_instance()->getSong();
-	pSong->set_volume(Volume);
+	pController->setMasterVolume( Volume );
 }
 
 

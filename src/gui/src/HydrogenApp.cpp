@@ -50,6 +50,7 @@
 #include "Mixer/MixerLine.h"
 #include "UndoActions.h"
 
+#include "widgets/InfoBar.h"
 
 
 #include <QtGui>
@@ -226,9 +227,14 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// LAYOUT!!
 	QVBoxLayout *pMainVBox = new QVBoxLayout();
-	pMainVBox->setSpacing( 5 );
+	pMainVBox->setSpacing( 1 );
 	pMainVBox->setMargin( 0 );
 	pMainVBox->addWidget( m_pPlayerControl );
+
+	m_pInfoBar = new InfoBar();
+	m_pInfoBar->hide();
+	pMainVBox->addWidget( m_pInfoBar );
+	pMainVBox->addSpacing( 3 );
 
 	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
 		pMainVBox->addWidget( pSplitter );
