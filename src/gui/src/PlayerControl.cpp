@@ -1023,7 +1023,10 @@ void PlayerControl::songLoopBtnClicked( Button* )
 
 void PlayerControl::metronomeButtonClicked(Button* ref)
 {
-	Preferences::get_instance()->m_bUseMetronome = ref->isPressed();
+	Hydrogen*	pEngine = Hydrogen::get_instance();
+	CoreActionController* pController = pEngine->getCoreActionController();
+	
+	pController->setMetronomeIsActive( ref->isPressed() );
 }
 
 

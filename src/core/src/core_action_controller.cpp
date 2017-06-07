@@ -77,23 +77,39 @@ void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
 #endif
 }
 
+void CoreActionController::setMetronomeIsActive( bool isActive ){
+	Preferences::get_instance()->m_bUseMetronome = isActive;
+	
+#ifdef H2CORE_HAVE_OSC
+	Action* pFeedbackAction = new Action( "TOGGLE_METRONOME" );
+	
+	pFeedbackAction->setParameter1( QString("%1").arg( (int) isActive ) );
+	OscServer::handleAction( pFeedbackAction );
+	
+	delete pFeedbackAction;
+#endif
+}
+
 void CoreActionController::initExternalControlInterfaces()
 {
 	/*
 	 * Push the current state of Hydrogen to the attached control interfaces (e.g. OSC clients)
 	 */
 	
-	//"MASTER_VOLUME_ABSOLUTE"
+	//MASTER_VOLUME_ABSOLUTE
 	Hydrogen* pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	setMasterVolume( pSong->get_volume() );
 	
-	//"STRIP_VOLUME_ABSOLUTE"
+	//STRIP_VOLUME_ABSOLUTE
 	InstrumentList *instrList = pSong->get_instrument_list();
 	for(int i=0; i < instrList->size(); i++){
 			Instrument *pInstr = instrList->get( i );
 			setStripVolume( i, pInstr->get_volume() );
 	}
+	
+	//TOGGLE_METRONOME
+	setMetronomeIsActive( Preferences::get_instance()->m_bUseMetronome );
 }
 
 }

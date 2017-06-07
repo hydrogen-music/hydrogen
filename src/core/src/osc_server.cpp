@@ -597,6 +597,19 @@ void OscServer::handleAction( Action* pAction )
 			lo_send_message(clientAddress, c_str2, reply);
 		}
 	}
+	
+	if( pAction->getType() == "TOGGLE_METRONOME"){
+		bool ok;
+		float param1 = pAction->getParameter1().toFloat(&ok);
+
+		lo_message reply = lo_message_new();
+		lo_message_add_float(reply, param1);
+
+		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
+			lo_address clientAddress = *it;
+			lo_send_message(clientAddress, "/Hydrogen/TOGGLE_METRONOME", reply);
+		}
+	}
 }
 
 

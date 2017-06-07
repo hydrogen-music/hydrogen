@@ -37,6 +37,7 @@ class CoreActionController : public H2Core::Object {
 	
 		void setMasterVolume( float masterVolumeValue );
 		void setStripVolume( int nString, float masterVolumeValue );
+		void setMetronomeIsActive( bool isActive );
 		
 		void initExternalControlInterfaces();
 };
