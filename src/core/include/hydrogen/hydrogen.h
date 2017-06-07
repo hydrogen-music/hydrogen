@@ -33,6 +33,7 @@
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
 #include <hydrogen/basics/drumkit.h>
+#include <hydrogen/core_action_controller.h>
 #include <cassert>
 #include <hydrogen/timehelper.h>
 
@@ -233,6 +234,8 @@ public:
 	void			stopExportSession();
 	void			startExportSong( const QString& filename );
 	void			stopExportSong();
+	
+	CoreActionController* getCoreActionController() const;
 
 	///midi lookuptable
 	int m_nInstrumentLookupTable[MAX_INSTRUMENTS];
@@ -271,6 +274,8 @@ private:
 	//Timline information
 	Timeline*		m_pTimeline;
 	
+	CoreActionController* m_pCoreActionController;
+	
 	
 	std::list<Instrument*> __instrument_death_row; /// Deleting instruments too soon leads to potential crashes.
 
@@ -290,6 +295,12 @@ inline Timeline* Hydrogen::getTimeline() const
 {
 	return m_pTimeline;
 }
+
+inline CoreActionController* Hydrogen::getCoreActionController() const
+{
+	return m_pCoreActionController;
+}
+
 
 inline const QString& Hydrogen::getCurrentDrumkitname()
 {

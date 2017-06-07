@@ -38,7 +38,6 @@
 *
 * @brief Osc Server implementation
 *
-*
 * @author Sebastian Moors
 *
 */
@@ -47,6 +46,16 @@ namespace lo
 {
 	class ServerThread;
 }
+
+class OscClientInfo : public H2Core::Object
+{
+	H2_OBJECT
+	public:
+		int port;
+		QString address;
+		QString protocol;
+};
+
 
 class OscServer : public H2Core::Object
 {
@@ -61,10 +70,12 @@ class OscServer : public H2Core::Object
 		static OscServer* get_instance() { assert(__instance); return __instance; }
 
 		static QString qPrettyPrint(lo_type type,void * data);
+		
 
 		void start();
+		static void handleAction(Action* pAction);
 
-		static void PLAY_TOGGLE_Handler(lo_arg **argv, int i);
+		static void PLAY_Handler(lo_arg **argv, int i);
 		static void PLAY_STOP_TOGGLE_Handler(lo_arg **argv, int i);
 		static void PLAY_PAUSE_TOGGLE_Handler(lo_arg **argv, int i);
 		static void STOP_Handler(lo_arg **argv, int i);
@@ -85,7 +96,7 @@ class OscServer : public H2Core::Object
 		static void MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv, int i);
 		static void MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv, int i);
 		static void STRIP_VOLUME_RELATIVE_Handler(lo_arg **argv, int i);
-		static void STRIP_VOLUME_ABSOLUTE_Handler(QString param1, QString param2);
+		static void STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2);
 		static void SELECT_NEXT_PATTERN_Handler(lo_arg **argv, int i);
 		static void SELECT_NEXT_PATTERN_CC_ABSOLUTE_Handler(lo_arg **argv, int i);
 		static void SELECT_NEXT_PATTERN_PROMPTLY_Handler(lo_arg **argv, int i);
@@ -109,8 +120,9 @@ class OscServer : public H2Core::Object
 	private:
 		OscServer(H2Core::Preferences* pPreferences);
 
-		lo::ServerThread*		m_pServerThread;
-		H2Core::Preferences*	m_pPreferences;
+		lo::ServerThread*				m_pServerThread;
+		H2Core::Preferences*			m_pPreferences;
+		static std::list<lo_address>	m_pClientRegistry;
 };
 
 #endif /* H2CORE_HAVE_OSC */

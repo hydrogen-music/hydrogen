@@ -1727,6 +1727,7 @@ Hydrogen::Hydrogen()
 
 	m_bExportSessionIsActive = false;
 	m_pTimeline = new Timeline();
+	m_pCoreActionController = new CoreActionController();
 
 	hydrogenInstance = this;
 
@@ -1771,6 +1772,7 @@ Hydrogen::~Hydrogen()
 	audioEngine_destroy();
 	__kill_instruments();
 
+	delete m_pCoreActionController;
 	delete m_pTimeline;
 
 	__instance = NULL;
@@ -1859,6 +1861,8 @@ void Hydrogen::setSong( Song *pSong )
 	audioEngine_setSong ( pSong );
 
 	__song = pSong;
+	
+	m_pCoreActionController->initExternalControlInterfaces();
 }
 
 /* Mean: remove current song from memory */
@@ -2580,6 +2584,8 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 #endif
 
 	m_audioEngineState = old_ae_state;
+	
+	m_pCoreActionController->initExternalControlInterfaces();
 
 	return 0;	//ok
 }

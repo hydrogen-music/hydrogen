@@ -41,7 +41,7 @@
 
 OscServer * OscServer::__instance = 0;
 const char* OscServer::__class_name = "OscServer";
-
+std::list<lo_address> OscServer::m_pClientRegistry;
 
 QString OscServer::qPrettyPrint(lo_type type,void * data)
 {
@@ -152,6 +152,8 @@ int OscServer::generic_handler(const char *	path,
 							   void *		data, 
 							   void *		user_data)
 {
+	INFOLOG("GENERIC HANDLER");
+
 	//First we're trying to map TouchOSC messages from multi-fader widgets
 	QString oscPath( path );
 	QRegExp rxStripVol( "/Hydrogen/STRIP_VOLUME_ABSOLUTE/(\\d+)" );
@@ -159,7 +161,7 @@ int OscServer::generic_handler(const char *	path,
 	if ( pos > -1 ) {
 		if( argc == 1 ){
 			int value = rxStripVol.cap(1).toInt() -1;
-			STRIP_VOLUME_ABSOLUTE_Handler( QString::number( value ) , QString::number( argv[0]->f, 'f', 0) );
+			STRIP_VOLUME_ABSOLUTE_Handler( value , argv[0]->f );
 		}
 	}
 	
@@ -220,9 +222,9 @@ void OscServer::create_instance( H2Core::Preferences* pPreferences )
 	}
 }
 
-void OscServer::PLAY_TOGGLE_Handler(lo_arg **argv,int i)
+void OscServer::PLAY_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("PLAY_TOGGLE");
+	Action* pAction = new Action("PLAY");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	pActionManager->handleAction(pAction);
@@ -370,12 +372,10 @@ void OscServer::BPM_DECR_Handler(lo_arg **argv,int i)
 
 void OscServer::MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("MASTER_VOLUME_ABSOLUTE");
-	pAction->setParameter2( QString::number( argv[0]->f, 'f', 0));
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
+	H2Core::CoreActionController* pController = pEngine->getCoreActionController();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pController->setMasterVolume( argv[0]->f );
 }
 
 void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
@@ -388,15 +388,12 @@ void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 	delete pAction;
 }
 
-void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(QString param1, QString param2)
+void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 {
-	Action* pAction = new Action("STRIP_VOLUME_ABSOLUTE");
-	pAction->setParameter1( param1 );
-	pAction->setParameter2( param2 );
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
+	H2Core::CoreActionController* pController = pEngine->getCoreActionController();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pController->setStripVolume( param1, param2 );
 }
 
 void OscServer::STRIP_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
@@ -559,22 +556,95 @@ void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
 	delete pAction;
 }
 
+
+bool IsLoAddressEqual( lo_address first, lo_address second )
+{
+	bool portEqual = ( strcmp( lo_address_get_port( first ), lo_address_get_port( second ) ) == 0);
+	bool hostEqual = ( strcmp( lo_address_get_hostname( first ), lo_address_get_hostname( second ) ) == 0);
+	bool protoEqual = ( lo_address_get_protocol( first ) == lo_address_get_protocol( second ) );
+	
+	return portEqual && hostEqual && protoEqual;
+}
+
+
+void OscServer::handleAction( Action* pAction )
+{
+	if( pAction->getType() == "MASTER_VOLUME_ABSOLUTE"){
+		bool ok;
+		float param2 = pAction->getParameter2().toFloat(&ok);
+			
+		lo_message reply = lo_message_new();
+		lo_message_add_float(reply, param2);
+
+		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
+			lo_address clientAddress = *it;
+			lo_send_message(clientAddress, "/Hydrogen/MASTER_VOLUME_ABSOLUTE" , reply);
+		}
+	}
+	
+	if( pAction->getType() == "STRIP_VOLUME_ABSOLUTE"){
+		bool ok;
+		float param2 = pAction->getParameter2().toFloat(&ok);
+
+		lo_message reply = lo_message_new();
+		lo_message_add_float(reply, param2);
+
+		QByteArray ba = QString("/Hydrogen/STRIP_VOLUME_ABSOLUTE/%1").arg(pAction->getParameter1()).toLatin1();
+		const char *c_str2 = ba.data();
+
+		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
+			lo_address clientAddress = *it;
+			lo_send_message(clientAddress, c_str2, reply);
+		}
+	}
+}
+
+
 void OscServer::start()
 {
 	if (!m_pServerThread->is_valid()) {
 		ERRORLOG("Failed to start OSC server.");
-		return ;
+		return;
 	}
 
-	
 	/*
 	 *  Register all handler functions
 	 */
+
+	//This handler is responsible for registering clients
+	m_pServerThread->add_method(NULL, NULL, [&](lo_message msg){
+									INFOLOG("OSC REGISTER HANDLER");
+									lo_address a = lo_message_get_source(msg);
+
+									bool AddressRegistered = false;
+									for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
+										lo_address b = *it;
+										if( IsLoAddressEqual(a,b) ) {
+											AddressRegistered = true;
+											break;
+										}
+									}
+
+									if( !AddressRegistered ){
+										INFOLOG("REGISTERING CLIENT");
+										lo_address newAddr = lo_address_new_with_proto(	lo_address_get_protocol( a ), 
+																						lo_address_get_hostname( a ),
+																						lo_address_get_port( a ) );
+										m_pClientRegistry.push_back( newAddr );
+										
+										H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
+										H2Core::CoreActionController* pController = pEngine->getCoreActionController();
+										
+										pController->initExternalControlInterfaces();
+									}
+
+									return 1; 
+								});
+
 	m_pServerThread->add_method(NULL, NULL, generic_handler, NULL);
-	//lo_server_add_method(m_pServerThread, NULL, NULL, generic_handler, NULL);
-	
-	m_pServerThread->add_method("/Hydrogen/PLAY_TOGGLE", "", PLAY_TOGGLE_Handler);
-	m_pServerThread->add_method("/Hydrogen/PLAY_TOGGLE", "f", PLAY_TOGGLE_Handler);
+
+	m_pServerThread->add_method("/Hydrogen/PLAY", "", PLAY_Handler);
+	m_pServerThread->add_method("/Hydrogen/PLAY", "f", PLAY_Handler);
 
 	m_pServerThread->add_method("/Hydrogen/PLAY_STOP_TOGGLE", "", PLAY_STOP_TOGGLE_Handler);
 	m_pServerThread->add_method("/Hydrogen/PLAY_STOP_TOGGLE", "f", PLAY_STOP_TOGGLE_Handler);
