@@ -25,6 +25,8 @@
 #include <hydrogen/helpers/xml.h>
 #include <hydrogen/basics/instrument.h>
 
+#include <set>
+
 namespace H2Core
 {
 
@@ -213,6 +215,34 @@ void InstrumentList::move( int idx_a, int idx_b )
 	Instrument* tmp = __instruments[idx_a];
 	__instruments.erase( __instruments.begin() + idx_a );
 	__instruments.insert( __instruments.begin() + idx_b, tmp );
+}
+
+void InstrumentList::fix_issue_307()
+{
+    if ( has_all_midi_notes_same() ) {
+        WARNINGLOG( "Same MIDI note assigned to every instrument. Assigning default values." );
+        set_default_midi_out_notes();
+    }
+}
+
+bool InstrumentList::has_all_midi_notes_same() const
+{
+    if (__instruments.size() < 2)
+        return false;
+
+    std::set<int> notes;
+	for( int i=0; i<__instruments.size(); i++ ) {
+        auto instr = __instruments[i];
+        notes.insert( instr->get_midi_out_note() );
+    }
+    return notes.size() == 1;
+}
+
+void InstrumentList::set_default_midi_out_notes()
+{
+	for( int i=0; i<__instruments.size(); i++ ) {
+        __instruments[i]->set_midi_out_note( i + 36 );
+    }
 }
 
 };

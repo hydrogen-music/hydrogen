@@ -224,17 +224,17 @@ bool MidiActionManager::play_stop_pause_toggle(Action * pAction, Hydrogen* pEngi
 
 bool MidiActionManager::mute(Action * , Hydrogen* pEngine ) {
 	//mutes the master, not a single strip
-	pEngine->getSong()->__is_muted = true;
+	pEngine->getCoreActionController()->setMasterIsMuted( true );
 	return true;
 }
 
 bool MidiActionManager::unmute(Action * , Hydrogen* pEngine ) {
-	pEngine->getSong()->__is_muted = false;
+	pEngine->getCoreActionController()->setMasterIsMuted( false );
 	return true;
 }
 
 bool MidiActionManager::mute_toggle(Action * , Hydrogen* pEngine ) {
-	pEngine->getSong()->__is_muted = !Hydrogen::get_instance()->getSong()->__is_muted;
+	pEngine->getCoreActionController()->setMasterIsMuted( !Hydrogen::get_instance()->getSong()->__is_muted );
 	return true;
 }
 
