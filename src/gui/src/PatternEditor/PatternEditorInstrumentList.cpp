@@ -177,12 +177,13 @@ void InstrumentLine::setSoloed( bool soloed )
 
 void InstrumentLine::muteClicked()
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+	Instrument *pInstr = pInstrList->get( m_nInstrumentNumber );
 
-	Instrument *pInstr = instrList->get(m_nInstrumentNumber);
-	pInstr->set_muted( !pInstr->is_muted());
+	CoreActionController* pCoreActionController = pEngine->getCoreActionController();
+	pCoreActionController->setStripIsMuted( m_nInstrumentNumber, !pInstr->is_muted() );
 }
 
 
