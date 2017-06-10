@@ -9,12 +9,11 @@
 
 #include "test_helper.h"
 
-void setupEnvironment()
+void setupEnvironment(unsigned log_level)
 {
 	TestHelper::create_instance();
 	TestHelper* test_helper = TestHelper::get_instance();
 
-    int log_level = H2Core::Logger::Debug | H2Core::Logger::Info | H2Core::Logger::Warning | H2Core::Logger::Error;
     /* Logger */
     H2Core::Logger* logger = H2Core::Logger::bootstrap( log_level );
     /* Object */
@@ -36,7 +35,24 @@ void setupEnvironment()
 int main( int argc, char **argv)
 {
 	QCoreApplication app(argc, argv);
-	setupEnvironment();
+
+	QCommandLineParser parser;
+	QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH","Level");
+	parser.addHelpOption();
+	parser.addOption( verboseOption );
+	parser.process(app);
+	QString sVerbosityString = parser.value( verboseOption );
+	unsigned logLevelOpt = H2Core::Logger::None;
+	if( parser.isSet(verboseOption) ){
+		if( !sVerbosityString.isEmpty() )
+		{
+			logLevelOpt =  H2Core::Logger::parse_log_level( sVerbosityString.toLocal8Bit() );
+		} else {
+			logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
+		}
+	}
+
+	setupEnvironment(logLevelOpt);
 
 	CppUnit::TextUi::TestRunner runner;
 	CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry();
