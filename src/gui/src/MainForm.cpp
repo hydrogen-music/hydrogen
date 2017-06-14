@@ -50,6 +50,7 @@
 #include "LadspaFXProperties.h"
 #include "SongPropertiesDialog.h"
 #include "UndoActions.h"
+#include "widgets/InfoBar.h"
 
 #include "Director.h"
 #include "Mixer/Mixer.h"
@@ -95,7 +96,6 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	, Object( __class_name )
 {
 	setMinimumSize( QSize( 1000, 500 ) );
-	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 #ifndef WIN32
 	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigusr1Fd))
@@ -142,9 +142,12 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 		}
 	}
 
+	showDevelWarning();
+
 	h2app = new HydrogenApp( this, pSong );
 	h2app->addEventListener( this );
 	createMenuBar();
+	checkMidiSetup();
 
 	h2app->setStatusBarMessage( trUtf8("Hydrogen Ready."), 10000 );
 
@@ -162,8 +165,6 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	h2app->getDirector()->installEventFilter(this);
 	//	h2app->getPlayListDialog()->installEventFilter(this);
 	installEventFilter( this );
-
-	showDevelWarning();
 
 	connect( &m_autosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
 	m_autosaveTimer.start( 60 * 1000 );
@@ -205,10 +206,10 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 
 	undoView = new QUndoView(h2app->m_undoStack);
 	undoView->setWindowTitle(tr("Undo history"));
-	undoView->setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	//restore last playlist
-	if( Preferences::get_instance()->isRestoreLastPlaylistEnabled() ){
+	if(		Preferences::get_instance()->isRestoreLastPlaylistEnabled() 
+		&& !Preferences::get_instance()->getLastPlaylistFilename().isEmpty() ){
 		bool loadlist = h2app->getPlayListDialog()->loadListByFileName( Preferences::get_instance()->getLastPlaylistFilename() );
 		if( !loadlist ){
 			_ERRORLOG ( "Error loading the playlist" );
@@ -302,7 +303,7 @@ void MainForm::createMenuBar()
 	m_pUndoMenu->addAction( trUtf8( "Undo history" ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
 
 	// DRUMKITS MENU
-	QMenu *m_pDrumkitsMenu = m_pMenubar->addMenu( trUtf8( "&Drumkits" ) );
+	QMenu *m_pDrumkitsMenu = m_pMenubar->addMenu( trUtf8( "Drum&kits" ) );
 	m_pDrumkitsMenu->addAction( trUtf8( "New" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
 	m_pDrumkitsMenu->addAction( trUtf8( "Open" ), this, SLOT( action_banks_open() ), QKeySequence( "" ) );
 	m_pDrumkitsMenu->addAction( trUtf8( "Properties" ), this, SLOT( action_banks_properties() ), QKeySequence( "" ) );
@@ -345,6 +346,8 @@ void MainForm::createMenuBar()
 
 
 	m_pViewMenu->addAction( trUtf8("&Instrument Rack"), this, SLOT( action_window_showDrumkitManagerPanel() ), QKeySequence( "Alt+I" ) );
+	
+	m_pViewMenu->addAction( trUtf8("&Automation path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
 	
 	m_pViewMenu->addSeparator();				// -----
 	
@@ -787,6 +790,11 @@ void MainForm::action_file_openPattern()
 	else
 	{
 		H2Core::Pattern *pNewPattern = err;
+		
+		if(!pPatternList->check_name( pNewPattern->get_name() ) ){
+			pNewPattern->set_name( pPatternList->find_unused_pattern_name( pNewPattern->get_name() ) );
+		}
+		
 		pPatternList->add ( pNewPattern );
 		pSong->set_is_modified( true );
 		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
@@ -813,7 +821,6 @@ void MainForm::action_file_openDemo()
 	fd.setNameFilter( trUtf8("Hydrogen Song (*.h2song)") );
 
 	fd.setWindowTitle( trUtf8( "Open song" ) );
-	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	fd.setDirectory( QString( Preferences::get_instance()->getDemoPath() ) );
 
@@ -914,6 +921,11 @@ void MainForm::action_window_showSongEditor()
 {
 	bool isVisible = h2app->getSongEditorPanel()->isVisible();
 	h2app->getSongEditorPanel()->setHidden( isVisible );
+}
+
+void MainForm::action_window_showAutomationArea()
+{
+	h2app->getSongEditorPanel()->toggleAutomationAreaVisibility();
 }
 
 
@@ -1350,8 +1362,40 @@ void MainForm::openSongFile( const QString& sFilename )
 	engine->setSelectedPatternNumber( 0 );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
+
+	checkMidiSetup();
 }
 
+
+void MainForm::checkMidiSetup()
+{
+	InfoBar *infobar = h2app->getInfoBar();
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong->get_instrument_list()->has_all_midi_notes_same() ) {
+		WARNINGLOG( "Incorrect MIDI setup" );
+
+		infobar->reset();
+		infobar->setTitle( trUtf8("MIDI setup advice") );
+		infobar->setText( trUtf8("MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?") );
+		QPushButton *fix = infobar->addButton( trUtf8("Set default values") );
+		QObject::connect( fix, SIGNAL(clicked()), this, SLOT(onFixMidiSetup()) );
+		infobar->show();
+	} else {
+		infobar->hide();
+	}
+}
+
+
+void MainForm::onFixMidiSetup()
+{
+	INFOLOG( "Fixing MIDI setup" );
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	pSong->get_instrument_list()->set_default_midi_out_notes();
+	pSong->set_is_modified( true );
+
+	InfoBar *infobar = h2app->getInfoBar();
+	infobar->hide();
+}
 
 
 void MainForm::initKeyInstMap()
@@ -1594,7 +1638,6 @@ void MainForm::action_file_export_midi()
 	fd.setDirectory( QDir::homePath() );
 	fd.setWindowTitle( trUtf8( "Export MIDI file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	QString sFilename;
 	if ( fd.exec() == QDialog::Accepted ) {
@@ -1641,7 +1684,6 @@ void MainForm::action_file_export_lilypond()
 	fd.setDirectory( QDir::homePath() );
 	fd.setWindowTitle( trUtf8( "Export LilyPond file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	QString sFilename;
 	if ( fd.exec() == QDialog::Accepted ) {

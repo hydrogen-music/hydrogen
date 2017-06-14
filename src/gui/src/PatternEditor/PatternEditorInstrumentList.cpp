@@ -49,6 +49,7 @@ using namespace H2Core;
 #endif
 #include <QClipboard>
 #include <cassert>
+#include <algorithm> // for std::min
 
 using namespace std;
 
@@ -176,12 +177,13 @@ void InstrumentLine::setSoloed( bool soloed )
 
 void InstrumentLine::muteClicked()
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+	Instrument *pInstr = pInstrList->get( m_nInstrumentNumber );
 
-	Instrument *pInstr = instrList->get(m_nInstrumentNumber);
-	pInstr->set_muted( !pInstr->is_muted());
+	CoreActionController* pCoreActionController = pEngine->getCoreActionController();
+	pCoreActionController->setStripIsMuted( m_nInstrumentNumber, !pInstr->is_muted() );
 }
 
 
@@ -199,7 +201,8 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
 
 	if ( ev->button() == Qt::LeftButton ) {
-		const float velocity = 0.8f;
+		const int width = m_pMuteBtn->x() - 5; // clickable field width
+		const float velocity = std::min((float)ev->x()/(float)width, 1.0f);
 		const float pan_L = 0.5f;
 		const float pan_R = 0.5f;
 		const int nLength = -1;

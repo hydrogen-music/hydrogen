@@ -63,14 +63,14 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
 	  __midi_msg( -1 ),
 	  __note_off( false ),
 	  __just_recorded( false ),
-      __probability( 1.0f )
+	  __probability( 1.0f )
 {
 	if ( __instrument != 0 ) {
 		__adsr = __instrument->copy_adsr();
 		__instrument_id = __instrument->get_id();
 
 		for (std::vector<InstrumentComponent*>::iterator it = __instrument->get_components()->begin() ; it !=__instrument->get_components()->end(); ++it) {
-            InstrumentComponent *pCompo = *it;
+			InstrumentComponent *pCompo = *it;
 
 			SelectedLayerInfo *sampleInfo = new SelectedLayerInfo;
 			sampleInfo->SelectedLayer = -1;
@@ -110,7 +110,7 @@ Note::Note( Note* other, Instrument* instrument )
 	  __midi_msg( other->get_midi_msg() ),
 	  __note_off( other->get_note_off() ),
 	  __just_recorded( other->get_just_recorded() ),
-      __probability( other->get_probability() )
+	  __probability( other->get_probability() )
 {
 	if ( instrument != 0 ) __instrument = instrument;
 	if ( __instrument != 0 ) {
@@ -118,14 +118,14 @@ Note::Note( Note* other, Instrument* instrument )
 		__instrument_id = __instrument->get_id();
 
 		for (std::vector<InstrumentComponent*>::iterator it = __instrument->get_components()->begin() ; it !=__instrument->get_components()->end(); ++it) {
-            InstrumentComponent *pCompo = *it;
+			InstrumentComponent *pCompo = *it;
 
 			SelectedLayerInfo *sampleInfo = new SelectedLayerInfo;
 			sampleInfo->SelectedLayer = -1;
 			sampleInfo->SamplePosition = 0;
 
 			__layers_selected[ pCompo->get_drumkit_componentID() ] = sampleInfo;
-        }
+		}
 	}
 }
 
@@ -222,7 +222,7 @@ void Note::save_to( XMLNode* node )
 	node->write_int( "length", __length );
 	node->write_int( "instrument", get_instrument()->get_id() );
 	node->write_bool( "note_off", __note_off );
-    node->write_float( "probability", __probability );
+	node->write_float( "probability", __probability );
 }
 
 Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
@@ -241,7 +241,8 @@ Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 	note->set_note_off( node->read_bool( "note_off", false, false, false ) );
 	note->set_instrument_id( node->read_int( "instrument", EMPTY_INSTR_ID ) );
 	note->map_instrument( instruments );
-    note->set_probability( node->read_float( "probability", 1.0f ));
+	note->set_probability( node->read_float( "probability", 1.0f ));
+	
 	return note;
 }
 

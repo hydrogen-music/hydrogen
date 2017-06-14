@@ -33,6 +33,7 @@
 #include "HydrogenApp.h"
 #include "MainForm.h"
 #include "PlaylistEditor/PlaylistDialog.h"
+#include "Skin.h"
 
 #ifdef H2CORE_HAVE_LASH
 #include <hydrogen/LashClient.h>
@@ -126,6 +127,17 @@ static int setup_unix_signal_handlers()
 
 	return 0;
 #endif
+}
+
+static void setApplicationIcon(QApplication *app)
+{
+	QIcon icon;
+	icon.addFile(Skin::getImagePath() + "/icon16.png", QSize(16, 16));
+	icon.addFile(Skin::getImagePath() + "/icon24.png", QSize(24, 24));
+	icon.addFile(Skin::getImagePath() + "/icon32.png", QSize(32, 32));
+	icon.addFile(Skin::getImagePath() + "/icon48.png", QSize(48, 48));
+	icon.addFile(Skin::getImagePath() + "/icon64.png", QSize(64, 64));
+	app->setWindowIcon(icon);
 }
 
 int main(int argc, char *argv[])
@@ -289,6 +301,7 @@ int main(int argc, char *argv[])
 		}
 
 		setPalette( pQApp );
+		setApplicationIcon(pQApp);
 
 		SplashScreen *pSplash = new SplashScreen();
 
@@ -354,7 +367,7 @@ int main(int argc, char *argv[])
 		// Hydrogen here to honor all preferences.
 		H2Core::Hydrogen::create_instance();
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 		H2Core::Hydrogen::get_instance()->startNsmClient();
 
 		QString NsmSongFilename = pPref->getNsmSongName();

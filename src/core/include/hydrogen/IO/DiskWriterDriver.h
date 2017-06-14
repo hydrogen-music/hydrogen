@@ -43,15 +43,15 @@ class DiskWriterDriver : public AudioOutput
 	H2_OBJECT
 	public:
 
-		unsigned m_nSampleRate;
-		QString m_sFilename;
-		unsigned m_nBufferSize;
-		int m_nSampleDepth;
-		audioProcessCallback m_processCallback;
-		float* m_pOut_L;
-		float* m_pOut_R;
+		unsigned				m_nSampleRate;
+		QString					m_sFilename;
+		unsigned				m_nBufferSize;
+		int						m_nSampleDepth;
+		audioProcessCallback	m_processCallback;
+		float*					m_pOut_L;
+		float*					m_pOut_R;
 
-		DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, const QString& sFilename, int nSampleDepth );
+		DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, int nSampleDepth );
 		~DiskWriterDriver();
 
 		int init( unsigned nBufferSize );
@@ -61,18 +61,23 @@ class DiskWriterDriver : public AudioOutput
 
 		void write( float* buffer_L, float* buffer_R, unsigned int bufferSize );
 
-				void audioEngine_process_checkBPMChanged();
+		void audioEngine_process_checkBPMChanged();
 
 		unsigned getBufferSize() {
 			return m_nBufferSize;
 		}
 
 		unsigned getSampleRate();
+		
 		float* getOut_L() {
 			return m_pOut_L;
 		}
 		float* getOut_R() {
 			return m_pOut_R;
+		}
+		
+		void  setFileName( const QString& sFilename ){
+			m_sFilename = sFilename;
 		}
 
 		virtual void play();
@@ -80,6 +85,9 @@ class DiskWriterDriver : public AudioOutput
 		virtual void locate( unsigned long nFrame );
 		virtual void updateTransportInfo();
 		virtual void setBpm( float fBPM );
+		
+
+		
 
 	private:
 

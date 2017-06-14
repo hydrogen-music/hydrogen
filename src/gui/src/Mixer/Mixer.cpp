@@ -57,7 +57,6 @@ Mixer::Mixer( QWidget* pParent )
 	setMaximumHeight( 284 );
 	setMinimumHeight( 284 );
 	setFixedHeight( 284 );
-	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 // fader Panel
 	m_pFaderHBox = new QHBoxLayout();
@@ -206,16 +205,13 @@ ComponentMixerLine* Mixer::createComponentMixerLine( int theCompoID )
 void Mixer::muteClicked(MixerLine* ref)
 {
 	int nLine = findMixerLineByRef(ref);
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 	bool isMuteClicked = ref->isMuteClicked();
-
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
-
-	Instrument *pInstr = instrList->get(nLine);
-	pInstr->set_muted( isMuteClicked);
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	CoreActionController* pController = pEngine->getCoreActionController();
+	pEngine->setSelectedInstrumentNumber( nLine );
+	
+	pController->setStripIsMuted( nLine, isMuteClicked );
 }
 
 void Mixer::muteClicked(ComponentMixerLine* ref)
@@ -297,30 +293,18 @@ void Mixer::unmuteAll( int selectedInstrument )
 void Mixer::soloClicked(MixerLine* ref)
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
+	CoreActionController* pController = pEngine->getCoreActionController();
 	Song *pSong = pEngine->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 	int nInstruments = pInstrList->size();
 
 	int nLine = findMixerLineByRef(ref);
-	pEngine->setSelectedInstrumentNumber( nLine );
-	bool isSoloClicked = ref->isSoloClicked();
+	
+	pController->setStripIsSoloed( nLine, ref->isSoloClicked() );
 
-	if (isSoloClicked) {
-		for ( int i = 0; i < nInstruments; ++i ) {
-			m_pMixerLine[i]->setSoloClicked( false );
-			m_pMixerLine[i]->setMuteClicked( true );
-			pInstrList->get( i )->set_muted( true );
-		}
-		m_pMixerLine[nLine]->setSoloClicked( true );
-		m_pMixerLine[nLine]->setMuteClicked( false );
-		pInstrList->get( nLine )->set_muted( false );
-	}
-	else {
-		for ( int i = 0; i < nInstruments; ++i ) {
-			m_pMixerLine[i]->setMuteClicked( false );
-			m_pMixerLine[i]->setSoloClicked( false );
-			pInstrList->get( i )->set_muted( false );
-		}
+	for ( int i = 0; i < nInstruments; ++i ) {
+			m_pMixerLine[i]->setSoloClicked( pInstrList->get(i)->is_soloed() );
+			m_pMixerLine[i]->setMuteClicked( pInstrList->get(i)->is_muted() );
 	}
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
@@ -403,32 +387,22 @@ uint Mixer::findCompoMixerLineByRef(ComponentMixerLine* ref)
 }
 
 
-
-
 void Mixer::volumeChanged(MixerLine* ref)
 {
-	int nLine = findMixerLineByRef(ref);
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
-
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	InstrumentList *instrList = pSong->get_instrument_list();
-
-	Instrument *pInstr = instrList->get(nLine);
-
-	pInstr->set_volume( ref->getVolume() );
-
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	CoreActionController* pController = pEngine->getCoreActionController();
+	
+	int nLine = findMixerLineByRef(ref);
+	pController->setStripVolume( nLine, ref->getVolume() );
 }
-
-
-
 
 void Mixer::masterVolumeChanged(MasterMixerLine* ref)
 {
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	CoreActionController* pController = pEngine->getCoreActionController();
+
 	float Volume = ref->getVolume();
-	Song *pSong = Hydrogen::get_instance()->getSong();
-	pSong->set_volume(Volume);
+	pController->setMasterVolume( Volume );
 }
 
 
@@ -771,33 +745,13 @@ void Mixer::nameSelected(MixerLine* ref)
 
 
 void Mixer::panChanged(MixerLine* ref) {
-	float panValue = ref->getPan();
-
-	float pan_L;
-	float pan_R;
-
-	if (panValue >= 0.5) {
-		pan_L = (1.0 - panValue) * 2;
-		pan_R = 1.0;
-	}
-	else {
-		pan_L = 1.0;
-		pan_R = panValue * 2;
-	}
-
-	int nLine = findMixerLineByRef(ref);
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
+	float	panValue = ref->getPan();
+	int		nLine = findMixerLineByRef(ref);
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	CoreActionController* pController = pEngine->getCoreActionController();
 
-	Instrument *pInstr = pInstrList->get(nLine);
-	pInstr->set_pan_l( pan_L );
-	pInstr->set_pan_r( pan_R );
-
-
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	pController->setStripPan( nLine, panValue );
 }
 
 

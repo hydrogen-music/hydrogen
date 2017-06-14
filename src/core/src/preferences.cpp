@@ -156,6 +156,12 @@ Preferences::Preferences()
 	__expandSongItem = true; //SoundLibraryPanel
 	__expandPatternItem = true; //SoundLibraryPanel
 	__useTimelineBpm = false;		// use timeline
+	
+	//export dialog
+	m_sExportDirectory = QDir::homePath();
+	m_nExportMode = 0;
+	m_nExportSampleRate = 44100;
+	m_nExportSampleDepth = 0;
 
 
 	/////////////////////////////////////////////////////////////////////////
@@ -219,7 +225,6 @@ Preferences::Preferences()
 	m_brestoreLastPlaylist = false;
 	m_bUseLash = false;
 	m_bShowDevelWarning = false;
-	m_bShowExportWarning = false;
 	// NONE: lastSongFilename;
 	hearNewNotes = true;
 	// NONE: m_recentFiles;
@@ -240,6 +245,7 @@ Preferences::Preferences()
 	m_bPatternEditorUsingTriplets = false;
 	m_bShowInstrumentPeaks = true;
 	m_bIsFXTabVisible = true;
+	m_bShowAutomationArea = false;
 	m_nPatternEditorGridHeight = 21;
 	m_nPatternEditorGridWidth = 3;
 	mainFormProperties.set(0, 0, 1000, 700, true);
@@ -535,14 +541,14 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_bMidiFixedMapping = LocalFileMng::readXmlBool( midiDriverNode, "fixed_mapping", false, true );
 				}
 
-				/// OSC Server ///
-				QDomNode oscServerNode = audioEngineNode.firstChildElement( "osc_server" );
+				/// OSC ///
+				QDomNode oscServerNode = audioEngineNode.firstChildElement( "osc_configuration" );
 				if ( oscServerNode.isNull() ) {
-					WARNINGLOG( "osc_server node not found" );
+					WARNINGLOG( "osc_configuration node not found" );
 					recreate = true;
 				} else {
-					m_bOscServerEnabled = LocalFileMng::readXmlBool( midiDriverNode, "oscServerEnabled", false );
-					m_nOscServerPort = LocalFileMng::readXmlInt( midiDriverNode, "oscServerPort", 9000 );
+					m_bOscServerEnabled = LocalFileMng::readXmlBool( oscServerNode, "oscEnabled", false );
+					m_nOscServerPort = LocalFileMng::readXmlInt( oscServerNode, "oscServerPort", 9000 );
 				}
 			}
 
@@ -577,8 +583,10 @@ void Preferences::loadPreferences( bool bGlobal )
 				// pattern editor grid resolution
 				m_nPatternEditorGridResolution = LocalFileMng::readXmlInt( guiNode, "patternEditorGridResolution", m_nPatternEditorGridResolution );
 				m_bPatternEditorUsingTriplets = LocalFileMng::readXmlBool( guiNode, "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets );
+				
 				m_bShowInstrumentPeaks = LocalFileMng::readXmlBool( guiNode, "showInstrumentPeaks", m_bShowInstrumentPeaks );
 				m_bIsFXTabVisible = LocalFileMng::readXmlBool( guiNode, "isFXTabVisible", m_bIsFXTabVisible );
+				m_bShowAutomationArea = LocalFileMng::readXmlBool( guiNode, "showAutomationArea", m_bShowAutomationArea );
 
 
 				// pattern editor grid height
@@ -594,8 +602,12 @@ void Preferences::loadPreferences( bool bGlobal )
 				setSongEditorProperties( readWindowProperties( guiNode, "songEditor_properties", songEditorProperties ) );
 				setAudioEngineInfoProperties( readWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties ) );
 
-
-
+				//export dialog properties
+				m_nExportTemplate = LocalFileMng::readXmlInt( guiNode, "exportDialogTemplate", 0 );
+				m_nExportSampleRate = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleRate", 44100 );
+				m_nExportSampleDepth = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleDepth", 0 );
+				m_sExportDirectory = LocalFileMng::readXmlString( guiNode, "exportDialogDirectory", QDir::homePath() );
+					
 				m_bFollowPlayhead = LocalFileMng::readXmlBool( guiNode, "followPlayhead", true );
 
 
@@ -668,7 +680,7 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString s_action = pMidiEventNode.firstChildElement("action").text();
 						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
 
-												MidiAction* pAction = new MidiAction( s_action );
+												Action* pAction = new Action( s_action );
 						pAction->setParameter1( s_param );
 						mM->registerMMCEvent(event, pAction);
 					}
@@ -678,7 +690,7 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString s_action = pMidiEventNode.firstChildElement("action").text();
 						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
 						QString s_eventParameter = pMidiEventNode.firstChildElement("eventParameter").text();
-						MidiAction* pAction = new MidiAction( s_action );
+						Action* pAction = new Action( s_action );
 						pAction->setParameter1( s_param );
 						mM->registerNoteEvent(s_eventParameter.toInt(), pAction);
 					}
@@ -688,7 +700,7 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString s_action = pMidiEventNode.firstChildElement("action").text();
 						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
 						QString s_eventParameter = pMidiEventNode.firstChildElement("eventParameter").text();
-						MidiAction * pAction = new MidiAction( s_action );
+						Action * pAction = new Action( s_action );
 						pAction->setParameter1( s_param );
 						mM->registerCCEvent( s_eventParameter.toInt(), pAction );
 					}
@@ -697,7 +709,7 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString event = pMidiEventNode.firstChildElement("pcEvent").text();
 						QString s_action = pMidiEventNode.firstChildElement("action").text();
 						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
-						MidiAction * pAction = new MidiAction( s_action );
+						Action * pAction = new Action( s_action );
 						pAction->setParameter1( s_param );
 						mM->registerPCEvent( pAction );
 					}
@@ -932,9 +944,20 @@ void Preferences::savePreferences()
 			}
 		}
 		audioEngineNode.appendChild( midiDriverNode );
+		
+		/// OSC ///
+		QDomNode oscNode = doc.createElement( "osc_configuration" );
+		{
+			LocalFileMng::writeXmlString( oscNode, "oscServerPort", QString("%1").arg( m_nOscServerPort ) );
 
-
-
+			if ( m_bOscServerEnabled ) {
+				LocalFileMng::writeXmlString( oscNode, "oscEnabled", "true" );
+			} else {
+				LocalFileMng::writeXmlString( oscNode, "oscEnabled", "false" );
+			}
+		}
+		audioEngineNode.appendChild( oscNode );
+		
 	}
 	rootNode.appendChild( audioEngineNode );
 
@@ -953,7 +976,7 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlBool( guiNode, "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets );
 		LocalFileMng::writeXmlBool( guiNode, "showInstrumentPeaks", m_bShowInstrumentPeaks );
 		LocalFileMng::writeXmlBool( guiNode, "isFXTabVisible", m_bIsFXTabVisible );
-
+		LocalFileMng::writeXmlBool( guiNode, "showAutomationArea", m_bShowAutomationArea );
 
 		// MainForm window properties
 		writeWindowProperties( guiNode, "mainForm_properties", mainFormProperties );
@@ -966,8 +989,13 @@ void Preferences::savePreferences()
 			QString sNode = QString("ladspaFX_properties%1").arg( nFX );
 			writeWindowProperties( guiNode, sNode, m_ladspaProperties[nFX] );
 		}
-
-		LocalFileMng::writeXmlBool( guiNode, "followPlayhead", m_bFollowPlayhead );
+		
+		
+		//ExportSongDialog
+		LocalFileMng::writeXmlString( guiNode, "exportDialogTemplate", QString("%1").arg( m_nExportTemplate ) );
+		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleRate",  QString("%1").arg( m_nExportSampleRate ) );
+		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleDepth", QString("%1").arg( m_nExportSampleDepth ) );
+		LocalFileMng::writeXmlString( guiNode, "exportDialogDirectory", m_sExportDirectory );
 
 
 		//beatcounter
@@ -1020,15 +1048,15 @@ void Preferences::savePreferences()
 	rootNode.appendChild( filesNode );
 
 	MidiMap * mM = MidiMap::get_instance();
-	std::map< QString, MidiAction* > mmcMap = mM->getMMCMap();
+	std::map< QString, Action* > mmcMap = mM->getMMCMap();
 
 	//---- MidiMap ----
 	QDomNode midiEventMapNode = doc.createElement( "midiEventMap" );
 
-		std::map< QString, MidiAction* >::iterator dIter( mmcMap.begin() );
+		std::map< QString, Action* >::iterator dIter( mmcMap.begin() );
 	for( dIter = mmcMap.begin(); dIter != mmcMap.end(); dIter++ ){
 		QString event = dIter->first;
-		MidiAction * pAction = dIter->second;
+		Action * pAction = dIter->second;
 		if ( pAction->getType() != "NOTHING" ){
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
@@ -1041,7 +1069,7 @@ void Preferences::savePreferences()
 	}
 
 	for( int note=0; note < 128; note++ ){
-		MidiAction * pAction = mM->getNoteAction( note );
+		Action * pAction = mM->getNoteAction( note );
 		if( pAction != NULL && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
@@ -1054,7 +1082,7 @@ void Preferences::savePreferences()
 	}
 
 	for( int parameter=0; parameter < 128; parameter++ ){
-		MidiAction * pAction = mM->getCCAction( parameter );
+		Action * pAction = mM->getCCAction( parameter );
 		if( pAction != NULL && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
@@ -1067,7 +1095,7 @@ void Preferences::savePreferences()
 	}
 
 	{
-		MidiAction * pAction = mM->getPCAction();
+		Action * pAction = mM->getPCAction();
 		if( pAction != NULL && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 

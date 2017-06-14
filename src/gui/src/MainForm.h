@@ -105,6 +105,7 @@ public slots:
 		void action_window_showDrumkitManagerPanel();
 		void action_window_showPlaybackDialog();
 		void action_window_togglePlayback();
+		void action_window_showAutomationArea();
 		void action_window_toggleFullscreen();
 
 		void action_debug_printObjects();
@@ -135,6 +136,7 @@ public slots:
 	private slots:
 		void onAutoSaveTimer();
 		void onPlaylistDisplayTimer();
+		void onFixMidiSetup();
 
 	protected:
 		// Returns true if handled, false if aborted.
@@ -168,6 +170,7 @@ public slots:
 
 		void closeAll();
 		void openSongFile( const QString& sFilename );
+		void checkMidiSetup();
 
 		bool eventFilter( QObject *o, QEvent *e );
 

@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>601</width>
-    <height>377</height>
+    <width>701</width>
+    <height>420</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -57,7 +57,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Export filename</string>
+          <string>Export directory:</string>
          </property>
         </widget>
        </item>
@@ -103,8 +103,8 @@
          </item>
         </layout>
        </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_3">
+       <item row="2" column="0">
+        <widget class="QLabel" name="templateLabel">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -116,7 +116,7 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
+       <item row="2" column="1">
         <widget class="QComboBox" name="templateCombo">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -176,8 +176,8 @@
          </item>
         </widget>
        </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label">
+       <item row="3" column="0">
+        <widget class="QLabel" name="sampleRateLable">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -189,7 +189,7 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
+       <item row="3" column="1">
         <widget class="QComboBox" name="sampleRateCombo">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -235,8 +235,8 @@
          </item>
         </widget>
        </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_2">
+       <item row="4" column="0">
+        <widget class="QLabel" name="sampleDepthLable">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -248,7 +248,7 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
+       <item row="4" column="1">
         <widget class="QComboBox" name="sampleDepthCombo">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -284,7 +284,7 @@
          </item>
         </widget>
        </item>
-       <item row="7" column="0">
+       <item row="6" column="0">
         <widget class="QLabel" name="resapelingLbl">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -309,7 +309,7 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="1">
+       <item row="6" column="1">
         <widget class="QComboBox" name="resampleComboBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -353,7 +353,24 @@
          </item>
         </widget>
        </item>
-       <item row="12" column="0">
+       <item row="8" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Modus:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QComboBox" name="exportTypeCombo">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="1">
         <widget class="QCheckBox" name="toggleTimeLineBPMCheckBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -371,11 +388,20 @@
        </item>
        <item row="12" column="1">
         <widget class="QCheckBox" name="toggleRubberbandCheckBox">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>22</height>
+          </size>
          </property>
          <property name="toolTip">
           <string>Enable use of rubberband's batch processor</string>
@@ -385,42 +411,7 @@
          </property>
         </widget>
        </item>
-       <item row="13" column="0">
-        <widget class="QComboBox" name="exportTypeCombo">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item row="15" column="0">
-        <widget class="QPushButton" name="okBtn">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>25</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>&amp;Export</string>
-         </property>
-         <property name="shortcut">
-          <string>Alt+E</string>
-         </property>
-        </widget>
-       </item>
-       <item row="15" column="1">
+       <item row="16" column="1">
         <widget class="QProgressBar" name="m_pProgressBar">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -433,8 +424,33 @@
          </property>
         </widget>
        </item>
-       <item row="16" column="1">
+       <item row="18" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QPushButton" name="okBtn">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>&amp;Export</string>
+           </property>
+           <property name="shortcut">
+            <string>Alt+E</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">

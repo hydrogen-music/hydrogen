@@ -47,7 +47,7 @@
 
 const char* SoundLibraryImportDialog::__class_name = "SoundLibraryImportDialog";
 
-SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool OnlineImport )
+SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool bOnlineImport )
  : QDialog( pParent )
  , Object( __class_name )
 {
@@ -73,10 +73,11 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool Onlin
 
 	updateRepositoryCombo();
 
-	if( OnlineImport)
+	if( bOnlineImport){
 		 tabWidget->setCurrentIndex( 0 );
-	else
+	} else {
 		 tabWidget->setCurrentIndex( 1 );
+	}
 }
 
 

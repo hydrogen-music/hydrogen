@@ -49,6 +49,8 @@ DrumkitComponent::DrumkitComponent( const int id, const QString& name )
 	, __soloed( false )
 	, __out_L( NULL )
 	, __out_R( NULL )
+	, __peak_l( 0.0 )
+	, __peak_r( 0.0 )
 {
 	__out_L = new float[ MAX_BUFFER_SIZE ];
 	__out_R = new float[ MAX_BUFFER_SIZE ];
@@ -63,6 +65,8 @@ DrumkitComponent::DrumkitComponent( DrumkitComponent* other )
 	, __soloed( other->__soloed )
 	, __out_L( NULL )
 	, __out_R( NULL )
+	, __peak_l( 0.0 )
+	, __peak_r( 0.0 )
 {
 	__out_L = new float[ MAX_BUFFER_SIZE ];
 	__out_R = new float[ MAX_BUFFER_SIZE ];

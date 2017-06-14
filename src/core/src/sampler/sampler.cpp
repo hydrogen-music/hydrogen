@@ -448,8 +448,17 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		float cost_track_R = 1.0f;
 
 		assert(pMainCompo);
-
-		if ( pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {	// is instrument muted?
+		
+		bool isMutedForExport = (pEngine->getIsExportSessionActive() && !pInstr->is_currently_exported());
+		
+		/*
+		 *  Is instrument muted?
+		 * 
+		 *  This can be the case either if the song, instrument or component is muted or if we're in an
+		 *  export session and we're doing per-instruments exports, but this instrument is not currently 
+		 *  beeing exported.
+		 */
+		if ( isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {	
 			cost_L = 0.0;
 			cost_R = 0.0;
 			if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {

@@ -29,6 +29,7 @@
 
 #include "InstrumentEditorPanel.h"
 #include "../Skin.h"
+#include "../HydrogenApp.h"
 
 
 InstrumentEditorPanel* InstrumentEditorPanel::m_pInstance = NULL;
@@ -63,6 +64,8 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
 
 	this->setLayout( vbox );
 	m_pLayer = 0;
+
+	HydrogenApp::get_instance()->addEventListener(this);
 }
 
 
@@ -72,6 +75,10 @@ InstrumentEditorPanel::~InstrumentEditorPanel()
 	INFOLOG( "DESTROY" );
 }
 
+void InstrumentEditorPanel::parametersInstrumentChangedEvent()
+{
+	notifyOfDrumkitChange();
+}
 
 void InstrumentEditorPanel::notifyOfDrumkitChange()
 {

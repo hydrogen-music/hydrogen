@@ -55,7 +55,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	setupUi( this );
 
 	setWindowTitle( trUtf8( "Preferences" ) );
-	setWindowIcon( QPixmap( Skin::getImagePath()  + "/icon16.png" ) );
 
 	setMinimumSize( width(), height() );
 
@@ -255,6 +254,13 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		midiPortChannelComboBox->setCurrentIndex( pPref->m_nMidiChannelFilter + 1 );
 	}
 
+	//OSC tab
+	enableOscCheckbox->setChecked( pPref->getOscServerEnabled() );
+	connect(enableOscCheckbox, SIGNAL(toggled(bool)), this, SLOT(toggleOscCheckBox( bool )));
+	
+	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
+	oscWidget->setEnabled( pPref->getOscServerEnabled() );
+	
 
 	// General tab
 	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
@@ -440,7 +446,10 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 	pPref->m_nMidiChannelFilter = midiPortChannelComboBox->currentIndex() - 1;
 
-
+	//OSC tab
+	pPref->setOscServerEnabled( enableOscCheckbox->isChecked() );
+	pPref->setOscServerPort( incomingOscPortSpinBox->value() );
+	
 	// General tab
 	pPref->setRestoreLastSongEnabled( restoreLastUsedSongCheckbox->isChecked() );
 	pPref->setRestoreLastPlaylistEnabled( restoreLastUsedPlaylistCheckbox->isChecked() );
@@ -806,4 +815,9 @@ void PreferencesDialog::toggleTrackOutsCheckBox(bool toggled)
 {
 	Preferences::get_instance()->m_bJackTrackOuts = toggled;
 	m_bNeedDriverRestart = true;
+}
+
+void PreferencesDialog::toggleOscCheckBox(bool toggled)
+{
+	oscWidget->setEnabled( toggled );
 }

@@ -54,6 +54,7 @@
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/sample.h>
+#include <hydrogen/basics/automation_path.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
@@ -68,7 +69,7 @@
 #include <hydrogen/playlist.h>
 #include <hydrogen/timeline.h>
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 #include <hydrogen/nsm_client.h>
 #include <hydrogen/osc_server.h>
 #endif
@@ -462,9 +463,18 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		framepos = pHydrogen->getRealtimeFrames();
 	}
 
+	AutomationPath *vp = pSong->get_velocity_automation_path();
+	
+
 	// reading from m_songNoteQueue
 	while ( !m_songNoteQueue.empty() ) {
 		Note *pNote = m_songNoteQueue.top();
+
+		float velocity_adjustment = 1.0f;
+		if ( pSong->get_mode() == Song::SONG_MODE ) {
+			float fPos = m_nSongPos + (pNote->get_position()%192) / 192.f;
+			velocity_adjustment = vp->get_value(fPos);
+		}
 
 		// verifico se la nota rientra in questo ciclo
 		unsigned int noteStartInFrames =
@@ -485,6 +495,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 		if ( isNoteStart || isOldNote ) {
 			// Humanize - Velocity parameter
+			pNote->set_velocity( pNote->get_velocity() * velocity_adjustment );
 
 			float rnd = (float)rand()/(float)RAND_MAX;
 			if (pNote->get_probability() < rnd) {
@@ -1570,7 +1581,9 @@ void audioEngine_startAudioDrivers()
 #endif
 	} else if ( preferencesMng->m_sMidiDriver == "CoreMidi" ) {
 #ifdef H2CORE_HAVE_COREMIDI
-		m_pMidiDriver = new CoreMidiDriver();
+		CoreMidiDriver *coreMidiDriver = new CoreMidiDriver();
+		m_pMidiDriver = coreMidiDriver;
+		m_pMidiDriverOut = coreMidiDriver;
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif
@@ -1712,7 +1725,9 @@ Hydrogen::Hydrogen()
 
 	__song = NULL;
 
+	m_bExportSessionIsActive = false;
 	m_pTimeline = new Timeline();
+	m_pCoreActionController = new CoreActionController();
 
 	hydrogenInstance = this;
 
@@ -1727,14 +1742,20 @@ Hydrogen::Hydrogen()
 		m_nInstrumentLookupTable[i] = i;
 	}
 
-
+#ifdef H2CORE_HAVE_OSC
+	if( Preferences::get_instance()->getOscServerEnabled() )
+	{
+		OscServer* pOscServer = OscServer::get_instance();
+		pOscServer->start();
+	}
+#endif
 }
 
 Hydrogen::~Hydrogen()
 {
 	INFOLOG( "[~Hydrogen]" );
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 	NsmClient* pNsmClient = NsmClient::get_instance();
 
 	if(pNsmClient){
@@ -1751,6 +1772,7 @@ Hydrogen::~Hydrogen()
 	audioEngine_destroy();
 	__kill_instruments();
 
+	delete m_pCoreActionController;
 	delete m_pTimeline;
 
 	__instance = NULL;
@@ -1766,9 +1788,9 @@ void Hydrogen::create_instance()
 	EventQueue::create_instance();
 	MidiActionManager::create_instance();
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 	NsmClient::create_instance();
-	OscServer::create_instance();
+	OscServer::create_instance( Preferences::get_instance() );
 #endif
 
 	if ( __instance == 0 ) {
@@ -1856,6 +1878,8 @@ void Hydrogen::setSong( Song *pSong )
 
 	//load new playback track information
 	AudioEngine::get_instance()->get_sampler()->reinitialize_playback_track();
+	
+	m_pCoreActionController->initExternalControlInterfaces();
 }
 
 /* Mean: remove current song from memory */
@@ -2318,38 +2342,69 @@ void Hydrogen::restartDrivers()
 	audioEngine_restartAudioDrivers();
 }
 
-/// Export a song to a wav file, returns the elapsed time in mSec
-void Hydrogen::startExportSong( const QString& filename, int rate, int depth )
+void Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 {
 	if ( getState() == STATE_PLAYING ) {
 		sequencer_stop();
 	}
-
+	
+	unsigned nSamplerate = (unsigned) sampleRate;
+	
 	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
-	Preferences *pPref = Preferences::get_instance();
 
 	Song* pSong = getSong();
+	
 	m_oldEngineMode = pSong->get_mode();
 	m_bOldLoopEnabled = pSong->is_loop_enabled();
 
 	pSong->set_mode( Song::SONG_MODE );
 	pSong->set_loop_enabled( true );
-	// unsigned nSamplerate = m_pAudioDriver->getSampleRate();
-	unsigned nSamplerate = (unsigned)rate;
-	// stop all audio drivers
+	
+	/*
+	 * Currently an audio driver is loaded
+	 * which is not the DiskWriter driver.
+	 * Stop the current driver and fire up the DiskWriter.
+	 */
 	audioEngine_stopAudioDrivers();
 
-	/* FIXME: Questo codice fa davvero schifo.... */
+	m_pAudioDriver = new DiskWriterDriver( audioEngine_process, nSamplerate, sampleDepth );
+	
+	m_bExportSessionIsActive = true;
+}
 
-	m_pAudioDriver = new DiskWriterDriver( audioEngine_process, nSamplerate, filename, depth );
+void Hydrogen::stopExportSession()
+{
+	m_bExportSessionIsActive = false;
+	
+ 	audioEngine_stopAudioDrivers();
+	
+	delete m_pAudioDriver;
+	m_pAudioDriver = nullptr;
+	
+	Song* pSong = getSong();
+	pSong->set_mode( m_oldEngineMode );
+	pSong->set_loop_enabled( m_bOldLoopEnabled );
+	
+	audioEngine_startAudioDrivers();
 
+	if ( m_pAudioDriver ) {
+		m_pAudioDriver->setBpm( pSong->__bpm );
+	} else {
+		ERRORLOG( "m_pAudioDriver = NULL" );
+	}
+}
+
+/// Export a song to a wav file
+void Hydrogen::startExportSong( const QString& filename)
+{
 	// reset
 	m_pAudioDriver->m_transport.m_nFrames = 0; // reset total frames
-	//m_pAudioDriver->setBpm( pSong->__bpm );
 	m_nSongPos = 0;
 	m_nPatternTickPosition = 0;
 	m_audioEngineState = STATE_PLAYING;
 	m_nPatternStartTick = -1;
+
+	Preferences *pPref = Preferences::get_instance();
 
 	int res = m_pAudioDriver->init( pPref->m_nBufferSize );
 	if ( res != 0 ) {
@@ -2363,44 +2418,27 @@ void Hydrogen::startExportSong( const QString& filename, int rate, int depth )
 
 	audioEngine_seek( 0, false );
 
+	DiskWriterDriver* pDiskWriterDriver = (DiskWriterDriver*) m_pAudioDriver;
+	pDiskWriterDriver->setFileName( filename );
+	
 	res = m_pAudioDriver->connect();
 	if ( res != 0 ) {
 		ERRORLOG( "Error starting disk writer driver [DiskWriterDriver::connect()]" );
 	}
 }
 
-void Hydrogen::stopExportSong( bool reconnectOldDriver )
+void Hydrogen::stopExportSong()
 {
 	if ( m_pAudioDriver->class_name() != DiskWriterDriver::class_name() ) {
 		return;
 	}
 
-	// audioEngine_stopAudioDrivers();
+	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+	
 	m_pAudioDriver->disconnect();
-
-	m_audioEngineState = STATE_INITIALIZED;
-	delete m_pAudioDriver;
-	m_pAudioDriver = NULL;
-
-	m_pMainBuffer_L = NULL;
-	m_pMainBuffer_R = NULL;
-
-	Song* pSong = getSong();
-	pSong->set_mode( m_oldEngineMode );
-	pSong->set_loop_enabled( m_bOldLoopEnabled );
 
 	m_nSongPos = -1;
 	m_nPatternTickPosition = 0;
-
-	if ( ! reconnectOldDriver) return;
-
-	audioEngine_startAudioDrivers();
-
-	if ( m_pAudioDriver ) {
-		m_pAudioDriver->setBpm( pSong->__bpm );
-	} else {
-		ERRORLOG( "m_pAudioDriver = NULL" );
-	}
 }
 
 /// Used to display audio driver info
@@ -2563,6 +2601,8 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 #endif
 
 	m_audioEngineState = old_ae_state;
+	
+	m_pCoreActionController->initExternalControlInterfaces();
 
 	return 0;	//ok
 }
@@ -2934,6 +2974,11 @@ void Hydrogen::setSelectedInstrumentNumber( int nInstrument )
 
 	m_nSelectedInstrumentNumber = nInstrument;
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+}
+
+void Hydrogen::refreshInstrumentParameters( int nInstrument )
+{
+	EventQueue::get_instance()->push_event( EVENT_PARAMETERS_INSTRUMENT_CHANGED, -1 );
 }
 
 #ifdef H2CORE_HAVE_JACK
@@ -3310,12 +3355,16 @@ void Hydrogen::setTimelineBpm()
 	setNewBpmJTM( RealtimeBPM );
 }
 
-void startOsc()
+#ifdef H2CORE_HAVE_OSC
+void startOscServer()
 {
+	OscServer* pOscServer = OscServer::get_instance();
 	
+	if(pOscServer){
+		pOscServer->start();
+	}
 }
 
-#ifdef H2CORE_HAVE_NSMSESSION
 void Hydrogen::startNsmClient()
 {
 	//NSM has to be started before jack driver gets created
@@ -3323,12 +3372,6 @@ void Hydrogen::startNsmClient()
 
 	if(pNsmClient){
 		pNsmClient->createInitialClient();
-	}
-
-
-	OscServer* pOscServer = OscServer::get_instance();
-	if(pOscServer){
-		pOscServer->start();
 	}
 }
 #endif

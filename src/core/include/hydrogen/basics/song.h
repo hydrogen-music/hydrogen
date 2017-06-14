@@ -45,6 +45,7 @@ class Pattern;
 class Song;
 class DrumkitComponent;
 class PatternList;
+class AutomationPath;
 
 /**
 \ingroup H2CORE
@@ -200,7 +201,11 @@ class Song : public H2Core::Object
 			return __components;
 		}
 
-		DrumkitComponent* get_component( int ID );
+		AutomationPath *get_velocity_automation_path() const {
+			return __velocity_automation_path;
+		}
+
+        DrumkitComponent* get_component( int ID );
 
 		void readTempPatternList( QString filename );
 
@@ -255,6 +260,7 @@ class Song : public H2Core::Object
 		QString								__playback_track_filename;
 		bool								__playback_track_enabled;
 		float								__playback_track_volume;
+		AutomationPath*                     __velocity_automation_path;
 };
 
 

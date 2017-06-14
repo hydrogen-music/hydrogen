@@ -47,6 +47,10 @@ class WaveDisplay : public QWidget, public H2Core::Object
 
 		void		paintEvent( QPaintEvent *ev );
 		void		resizeEvent( QResizeEvent * event );
+		void		mouseDoubleClickEvent(QMouseEvent *ev);
+
+	signals:
+		void doubleClicked(QWidget *pWidget);
 
 	private:
 		QPixmap						m_Background;

@@ -50,6 +50,7 @@
 #include "Mixer/MixerLine.h"
 #include "UndoActions.h"
 
+#include "widgets/InfoBar.h"
 
 
 #include <QtGui>
@@ -136,12 +137,12 @@ HydrogenApp::~HydrogenApp()
 
 	delete SoundLibraryDatabase::get_instance();
 
-	Hydrogen *engine = Hydrogen::get_instance();
-	if (engine) {
-		H2Core::Song * song = engine->getSong();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	if (pEngine) {
+		H2Core::Song * pSong = pEngine->getSong();
 		// Hydrogen calls removeSong on from its destructor, so here we just delete the objects:
-		delete engine;
-		delete song;
+		delete pEngine;
+		delete pSong;
 	}
 
 	#ifdef H2CORE_HAVE_LADSPA
@@ -226,9 +227,14 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// LAYOUT!!
 	QVBoxLayout *pMainVBox = new QVBoxLayout();
-	pMainVBox->setSpacing( 5 );
+	pMainVBox->setSpacing( 1 );
 	pMainVBox->setMargin( 0 );
 	pMainVBox->addWidget( m_pPlayerControl );
+
+	m_pInfoBar = new InfoBar();
+	m_pInfoBar->hide();
+	pMainVBox->addWidget( m_pInfoBar );
+	pMainVBox->addSpacing( 3 );
 
 	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
 		pMainVBox->addWidget( pSplitter );
@@ -488,6 +494,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->selectedInstrumentChangedEvent();
 				break;
 
+			case EVENT_PARAMETERS_INSTRUMENT_CHANGED:
+				pListener->parametersInstrumentChangedEvent();
+				break;
+
 			case EVENT_MIDI_ACTIVITY:
 				pListener->midiActivityEvent();
 				break;
@@ -526,6 +536,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_UNDO_REDO:
 				pListener->undoRedoActionEvent( event.value );
+				break;
+				
+			case EVENT_TEMPO_CHANGED:
+				pListener->tempoChangedEvent( event.value );
 				break;
 
 			default:
