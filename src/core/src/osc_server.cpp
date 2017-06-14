@@ -619,6 +619,8 @@ void OscServer::handleAction( Action* pAction )
 			lo_address clientAddress = *it;
 			lo_send_message(clientAddress, "/Hydrogen/MASTER_VOLUME_ABSOLUTE" , reply);
 		}
+		
+		lo_message_free( reply );
 	}
 	
 	if( pAction->getType() == "STRIP_VOLUME_ABSOLUTE"){
@@ -635,6 +637,8 @@ void OscServer::handleAction( Action* pAction )
 			lo_address clientAddress = *it;
 			lo_send_message(clientAddress, c_str2, reply);
 		}
+		
+		lo_message_free( reply );
 	}
 	
 	if( pAction->getType() == "TOGGLE_METRONOME"){
@@ -648,6 +652,8 @@ void OscServer::handleAction( Action* pAction )
 			lo_address clientAddress = *it;
 			lo_send_message(clientAddress, "/Hydrogen/TOGGLE_METRONOME", reply);
 		}
+		
+		lo_message_free( reply );
 	}
 	
 	if( pAction->getType() == "MUTE_TOGGLE"){
@@ -661,6 +667,8 @@ void OscServer::handleAction( Action* pAction )
 			lo_address clientAddress = *it;
 			lo_send_message(clientAddress, "/Hydrogen/MUTE_TOGGLE", reply);
 		}
+		
+		lo_message_free( reply );
 	}
 	
 	if( pAction->getType() == "STRIP_MUTE_TOGGLE"){
@@ -677,6 +685,8 @@ void OscServer::handleAction( Action* pAction )
 			lo_address clientAddress = *it;
 			lo_send_message(clientAddress, c_str2, reply);
 		}
+		
+		lo_message_free( reply );
 	}
 	
 	if( pAction->getType() == "STRIP_SOLO_TOGGLE"){
@@ -693,6 +703,8 @@ void OscServer::handleAction( Action* pAction )
 			lo_address clientAddress = *it;
 			lo_send_message(clientAddress, c_str2, reply);
 		}
+		
+		lo_message_free( reply );
 	}
 	
 	if( pAction->getType() == "PAN_ABSOLUTE"){
@@ -709,6 +721,8 @@ void OscServer::handleAction( Action* pAction )
 			lo_address clientAddress = *it;
 			lo_send_message(clientAddress, c_str2, reply);
 		}
+		
+		lo_message_free( reply );
 	}
 }
 
@@ -845,6 +859,10 @@ void OscServer::start()
 
 OscServer::~OscServer()
 {
+	for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
+		lo_address_free( *it );
+	}
+
 	__instance = NULL;
 }
 
