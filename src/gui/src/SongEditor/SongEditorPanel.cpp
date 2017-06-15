@@ -823,22 +823,6 @@ void SongEditorPanel::faderChanged(Fader *pFader)
 	Hydrogen *	pHydrogen = Hydrogen::get_instance();
 	Song*		pSong = pHydrogen->getSong();
 	
-	int maxLength = 0;
-
-	for(int i=0; i < pHydrogen->getCurrentPatternList()->size(); i++)
-	{
-		H2Core::Pattern *pPattern = pHydrogen->getCurrentPatternList()->get( i );
-
-		if (pPattern != NULL)
-		{
-			if(pPattern->get_length() > maxLength)
-			{
-				maxLength = pPattern->get_length();
-			}
-		}
-	}
-	
-	
 	if( pSong ){
 		pSong->set_playback_track_volume( pFader->getValue() );
 	}
