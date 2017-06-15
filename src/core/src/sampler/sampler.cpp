@@ -593,8 +593,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 			fVal_L = pSample_data_L[ nSamplePos ];
 			fVal_R = pSample_data_R[ nSamplePos ];
 	
-			fVal_L = fVal_L * 1.0f; //costr
-			fVal_R = fVal_R * 1.0f; //cost l
+			fVal_L = fVal_L * 1.0f * pSong->get_playback_track_volume(); //costr
+			fVal_R = fVal_R * 1.0f * pSong->get_playback_track_volume(); //cost l
 	
 			//pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
 	
