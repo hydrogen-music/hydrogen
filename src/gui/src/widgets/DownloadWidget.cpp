@@ -70,7 +70,6 @@ Download::Download( QWidget* pParent, const QString& download_url, const QString
 
 	QNetworkRequest getReq;
 	getReq.setUrl( __remote_url );
-	ERRORLOG(__remote_url.toString());
 	getReq.setRawHeader( "User-Agent" , "Hydrogen" );
 
 	__reply = __http_client->get( getReq );
