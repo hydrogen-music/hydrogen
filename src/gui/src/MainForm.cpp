@@ -334,7 +334,6 @@ void MainForm::createMenuBar()
 	m_pViewMenu->addAction( trUtf8("Playlist &editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
 	m_pViewMenu->addAction( trUtf8("Director"), this, SLOT( action_window_show_DirectorWidget() ), QKeySequence( "Alt+D" ) );
 
-	m_pViewMenu->addAction( trUtf8("Select playback track"), this, SLOT( action_window_showPlaybackDialog() ), QKeySequence( "" ) );
 	m_pViewMenu->addAction( trUtf8("Toggle playback state"), this, SLOT( action_window_togglePlayback() ), QKeySequence( "" ) );
 	m_pFileMenu->addSeparator();	// -----
 
