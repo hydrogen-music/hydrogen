@@ -103,8 +103,6 @@ public slots:
 		void action_window_showSongEditor();
 		void action_window_showPatternEditor();
 		void action_window_showDrumkitManagerPanel();
-		void action_window_showPlaybackDialog();
-		void action_window_togglePlayback();
 		void action_window_showAutomationArea();
 		void action_window_toggleFullscreen();
 
