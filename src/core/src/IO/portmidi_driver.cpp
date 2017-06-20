@@ -133,6 +133,10 @@ PortMidiDriver::~PortMidiDriver()
 	Pm_Terminate();
 }
 
+void PortMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
+{
+	//UNSUPPORTED
+}
 
 
 

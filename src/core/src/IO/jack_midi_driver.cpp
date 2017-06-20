@@ -198,6 +198,12 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 	}
 }
 
+void 
+JackMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
+{
+	//UNSUPPORTED
+}
+
 void
 JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
 {
