@@ -161,6 +161,39 @@ void MidiMap::registerCCEvent( int parameter , Action * pAction ){
 	}
 }
 
+int MidiMap::findCCValueByActionParam1( QString actionType, QString param1 )
+{
+	int nParam = -1;
+
+	for(int i=0; i < 128; i++)
+	{
+		Action* pTmpAction = __cc_array[i];
+		
+		if(    pTmpAction->getType() == actionType 
+			&& pTmpAction->getParameter1() == param1 ){
+			nParam = i;
+		}
+	}
+	
+	return nParam;
+}
+
+int MidiMap::findCCValueByActionType( QString actionType )
+{
+	int nParam = -1;
+
+	for(int i=0; i < 128; i++)
+	{
+		Action* pTmpAction = __cc_array[i];
+		
+		if( pTmpAction->getType() == actionType ){
+			nParam = i;
+		}
+	}
+	
+	return nParam;
+}
+
 /**
  * Sets up the relation between a program change and an action
  */
