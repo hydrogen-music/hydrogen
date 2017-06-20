@@ -27,7 +27,10 @@
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/osc_server.h>
 #include <hydrogen/midi_action.h>
+#include <hydrogen/midi_map.h>
 
+#include <hydrogen/IO/AlsaMidiDriver.h>
+#include <hydrogen/IO/MidiOutput.h>
 
 namespace H2Core
 {
@@ -54,6 +57,15 @@ void CoreActionController::setMasterVolume( float masterVolumeValue )
 	OscServer::handleAction( pFeedbackAction );
 	delete pFeedbackAction;
 #endif
+	
+	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
+	MidiMap*	pMidiMap = MidiMap::get_instance();
+	
+	int ccParamValue = pMidiMap->findCCValueByActionType( QString("MASTER_VOLUME_ABSOLUTE"));
+	
+	if( ccParamValue >= 0 ){
+		pMidiDriver->handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127, 0);
+	}
 }
 
 void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
@@ -76,10 +88,20 @@ void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
 	
 	delete pFeedbackAction;
 #endif
+
+	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
+	MidiMap*	pMidiMap = MidiMap::get_instance();
+	
+	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"), QString("%1").arg( nStrip ) );
+	
+	if( ccParamValue >= 0 ){
+		pMidiDriver->handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127, 0);
+	}
 }
 
 void CoreActionController::setMetronomeIsActive( bool isActive ){
 	Preferences::get_instance()->m_bUseMetronome = isActive;
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	
 #ifdef H2CORE_HAVE_OSC
 	Action* pFeedbackAction = new Action( "TOGGLE_METRONOME" );
@@ -89,10 +111,20 @@ void CoreActionController::setMetronomeIsActive( bool isActive ){
 	
 	delete pFeedbackAction;
 #endif
+	
+	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
+	MidiMap*	pMidiMap = MidiMap::get_instance();
+	
+	int ccParamValue = pMidiMap->findCCValueByActionType( QString("TOGGLE_METRONOME"));
+	
+	if( ccParamValue >= 0 ){
+		pMidiDriver->handleOutgoingControlChange( ccParamValue, (int) isActive * 127 , 0);
+	}
 }
 
 void CoreActionController::setMasterIsMuted( bool isMuted ){
-	Hydrogen::get_instance()->getSong()->__is_muted = isMuted;
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	pEngine->getSong()->__is_muted = isMuted;
 	
 #ifdef H2CORE_HAVE_OSC
 	Action* pFeedbackAction = new Action( "MUTE_TOGGLE" );
@@ -102,6 +134,15 @@ void CoreActionController::setMasterIsMuted( bool isMuted ){
 	
 	delete pFeedbackAction;
 #endif
+	
+	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
+	MidiMap*	pMidiMap = MidiMap::get_instance();
+	
+	int ccParamValue = pMidiMap->findCCValueByActionType( QString("MUTE_TOGGLE"));
+	
+	if( ccParamValue >= 0 ){
+		pMidiDriver->handleOutgoingControlChange( ccParamValue, (int) isMuted * 127 , 0);
+	}
 }
 
 void CoreActionController::setStripIsMuted( int nStrip, bool isMuted ){
@@ -121,6 +162,15 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted ){
 	
 	delete pFeedbackAction;
 #endif
+	
+	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
+	MidiMap*	pMidiMap = MidiMap::get_instance();
+	
+	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_MUTE_TOGGLE"), QString("%1").arg( nStrip ) );
+	
+	if( ccParamValue >= 0 ){
+		pMidiDriver->handleOutgoingControlChange( ccParamValue, ((int) isMuted) * 127, 0);
+	}
 }
 
 void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed ){
@@ -149,6 +199,15 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed ){
 	
 	delete pFeedbackAction;
 #endif
+	
+	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
+	MidiMap*	pMidiMap = MidiMap::get_instance();
+	
+	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_SOLO_TOGGLE"), QString("%1").arg( nStrip ) );
+	
+	if( ccParamValue >= 0 ){
+		pMidiDriver->handleOutgoingControlChange( ccParamValue, ((int) isSoloed) * 127, 0);
+	}
 }
 
 
@@ -189,6 +248,15 @@ void CoreActionController::setStripPan( int nStrip, float panValue )
 	
 	delete pFeedbackAction;
 #endif
+	
+	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
+	MidiMap*	pMidiMap = MidiMap::get_instance();
+	
+	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
+	
+	if( ccParamValue >= 0 ){
+		pMidiDriver->handleOutgoingControlChange( ccParamValue, panValue * 127, 0);
+	}
 }
 
 void CoreActionController::initExternalControlInterfaces()
