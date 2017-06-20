@@ -90,6 +90,8 @@ class MidiActionManager : public H2Core::Object
 		bool mute(Action * , H2Core::Hydrogen * , targeted_element );
 		bool unmute(Action * , H2Core::Hydrogen * , targeted_element );
 		bool mute_toggle(Action * , H2Core::Hydrogen * , targeted_element );
+		bool strip_mute_toggle(Action * , H2Core::Hydrogen * , targeted_element );
+		bool strip_solo_toggle(Action * , H2Core::Hydrogen * , targeted_element );
 		bool next_bar(Action * , H2Core::Hydrogen * , targeted_element );
 		bool previous_bar(Action * , H2Core::Hydrogen * , targeted_element );
 		bool bpm_increase(Action * , H2Core::Hydrogen * , targeted_element );
