@@ -237,6 +237,12 @@ public:
 	
 	CoreActionController* getCoreActionController() const;
 
+	///playback track
+	void			setPlaybackTrackState(bool);
+	bool			getPlaybackTrackState();
+	void			loadPlaybackTrack(QString filename);
+
+
 	///midi lookuptable
 	int m_nInstrumentLookupTable[MAX_INSTRUMENTS];
 
@@ -316,6 +322,20 @@ inline void Hydrogen::setCurrentDrumkitname( const QString& currentdrumkitname )
 {
 	this->m_currentDrumkit = currentdrumkitname;
 }
+
+inline bool Hydrogen::getPlaybackTrackState()
+{
+	Song* pSong = getSong();
+	bool  bState;
+
+	if(!pSong){
+		bState = false;
+	} else {
+		bState = pSong->get_playback_track_enabled();
+	}
+	return 	bState;
+}
+
 
 };
 
