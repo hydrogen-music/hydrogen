@@ -829,7 +829,7 @@ p, li { white-space: pre-wrap; }
    <pan_L>0.5</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
+   <gain>0.6</gain>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
