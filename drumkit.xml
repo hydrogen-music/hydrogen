@@ -822,12 +822,12 @@ p, li { white-space: pre-wrap; }
    </layer>
   </instrument>
   <instrument>
-   <id>14</id>
-   <name>Crash Flink</name>
-   <volume>0.517241</volume>
+   <id>15</id>
+   <name>Ride 2</name>
+   <volume>1</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.74</pan_R>
+   <pan_L>0.5</pan_L>
+   <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <filterActive>false</filterActive>
@@ -846,42 +846,42 @@ p, li { white-space: pre-wrap; }
    <FX3Level>0</FX3Level>
    <FX4Level>0</FX4Level>
    <layer>
-    <filename>CrashFlink-Softest.wav</filename>
-    <min>0</min>
-    <max>0.206522</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>CrashFlink-Soft.wav</filename>
-    <min>0.202899</min>
-    <max>0.42029</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>CrashFlink-Med.wav</filename>
-    <min>0.42029</min>
-    <max>0.612319</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>CrashFlink-Hard.wav</filename>
-    <min>0.612319</min>
-    <max>0.800725</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>CrashFlink-Hardest.wav</filename>
-    <min>0.797101</min>
+    <filename>24Ride-5.wav</filename>
+    <min>0.8</min>
     <max>1</max>
     <gain>1</gain>
     <pitch>0</pitch>
    </layer>
+   <layer>
+    <filename>24Ride-4.wav</filename>
+    <min>0.6</min>
+    <max>0.8</max>
+    <gain>1</gain>
+    <pitch>0</pitch>
+   </layer>
+   <layer>
+    <filename>24Ride-3.wav</filename>
+    <min>0.4</min>
+    <max>0.6</max>
+    <gain>1</gain>
+    <pitch>0</pitch>
+   </layer>
+   <layer>
+    <filename>24Ride-2.wav</filename>
+    <min>0.2</min>
+    <max>0.4</max>
+    <gain>1</gain>
+    <pitch>0</pitch>
+   </layer>
+   <layer>
+    <filename>24Ride-1.wav</filename>
+    <min>0</min>
+    <max>0.2</max>
+    <gain>1</gain>
+    <pitch>0</pitch>
+   </layer>
   </instrument>
-  <instrument>
+    <instrument>
    <id>15</id>
    <name>Splash</name>
    <volume>0.543103</volume>
