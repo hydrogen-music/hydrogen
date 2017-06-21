@@ -93,7 +93,6 @@ void Fader::mouseMoveEvent( QMouseEvent *ev )
 	}
 
 	float fVal = (float)( height() - ev->y() ) / (float)height();
-	qDebug() <<"H/ev/FVal: " << height() << ev->y() << fVal;
 	
 	fVal = fVal * ( m_fMaxValue - m_fMinValue );
 
