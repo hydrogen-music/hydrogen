@@ -547,6 +547,7 @@ int JackAudioDriver::init( unsigned /*nBufferSize*/ )
 				break;
 			case JackVersionError:
 				CLIENT_FAILURE("client/server protocol version mismatch");
+				break;
 			default:
 				if (status) {
 					ERRORLOG("Unknown status with JACK server.");

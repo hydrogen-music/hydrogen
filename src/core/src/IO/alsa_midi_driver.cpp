@@ -477,6 +477,25 @@ void AlsaMidiDriver::handleQueueNote(Note* pNote)
 	snd_seq_drain_output(seq_handle);
 }
 
+
+void AlsaMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
+{
+	snd_seq_event_t ev;
+	snd_seq_ev_clear(&ev);
+	
+	ev.type = SND_SEQ_EVENT_CONTROLLER;
+
+	snd_seq_ev_set_source(&ev, outPortId);
+	snd_seq_ev_set_subs(&ev);
+	snd_seq_ev_set_direct(&ev);
+	
+	ev.data.control.param = param;
+	ev.data.control.value = value;
+	ev.data.control.channel = channel;
+	
+	snd_seq_event_output_direct(seq_handle, &ev);
+}
+
 void AlsaMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 {
 	if ( seq_handle == NULL ) {

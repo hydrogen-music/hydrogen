@@ -108,6 +108,8 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 	actionMap.insert(make_pair("MUTE", &MidiActionManager::mute));
 	actionMap.insert(make_pair("UNMUTE", &MidiActionManager::unmute));
 	actionMap.insert(make_pair("MUTE_TOGGLE", &MidiActionManager::mute_toggle));
+	actionMap.insert(make_pair("STRIP_MUTE_TOGGLE", &MidiActionManager::strip_mute_toggle));
+	actionMap.insert(make_pair("STRIP_SOLO_TOGGLE", &MidiActionManager::strip_solo_toggle));	
 	actionMap.insert(make_pair(">>_NEXT_BAR", &MidiActionManager::next_bar));
 	actionMap.insert(make_pair("<<_PREVIOUS_BAR", &MidiActionManager::previous_bar));
 	actionMap.insert(make_pair("BPM_INCR", &MidiActionManager::bpm_increase));
@@ -235,6 +237,42 @@ bool MidiActionManager::unmute(Action * , Hydrogen* pEngine ) {
 
 bool MidiActionManager::mute_toggle(Action * , Hydrogen* pEngine ) {
 	pEngine->getCoreActionController()->setMasterIsMuted( !Hydrogen::get_instance()->getSong()->__is_muted );
+	return true;
+}
+
+bool MidiActionManager::strip_mute_toggle(Action * pAction, Hydrogen* pEngine ) {
+	
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+
+	Song *pSong = pEngine->getSong();
+	InstrumentList *instrList = pSong->get_instrument_list();
+
+	Instrument *pInstr = instrList->get( nLine );
+
+	if ( pInstr == NULL) {
+		return false;
+	}
+	
+	pEngine->getCoreActionController()->setStripIsMuted( nLine, !pInstr->is_muted() );
+	return true;
+}
+
+bool MidiActionManager::strip_solo_toggle(Action * pAction, Hydrogen* pEngine ) {
+	
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+
+	Song *pSong = pEngine->getSong();
+	InstrumentList *instrList = pSong->get_instrument_list();
+
+	Instrument *pInstr = instrList->get( nLine );
+
+	if ( pInstr == NULL) {
+		return false;
+	}
+	
+	pEngine->getCoreActionController()->setStripIsSoloed( nLine, !pInstr->is_soloed() );
 	return true;
 }
 

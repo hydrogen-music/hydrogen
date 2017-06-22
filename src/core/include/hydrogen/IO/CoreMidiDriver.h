@@ -54,6 +54,7 @@ public:
 	virtual void handleQueueNote(Note* pNote);
 	virtual void handleQueueNoteOff( int channel, int key, int velocity );
 	virtual void handleQueueAllNoteOff();
+	virtual void handleOutgoingControlChange( int param, int value, int channel );
 
 	MIDIClientRef  h2MIDIClient;
 	ItemCount cmSources;

@@ -45,6 +45,7 @@ public:
 	virtual void handleQueueNote(Note* pNote) = 0;
 	virtual void handleQueueNoteOff( int channel, int key, int velocity ) = 0;
 	virtual void handleQueueAllNoteOff() = 0;
+	virtual void handleOutgoingControlChange( int param, int value, int channel ) = 0;
 };
 
 };

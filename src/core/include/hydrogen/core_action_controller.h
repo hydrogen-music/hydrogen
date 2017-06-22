@@ -36,9 +36,12 @@ class CoreActionController : public H2Core::Object {
 		~CoreActionController();
 	
 		void setMasterVolume( float masterVolumeValue );
-		void setStripVolume( int nString, float masterVolumeValue );
+		void setStripVolume( int nStrip, float masterVolumeValue );
+		void setStripPan( int nStrip, float panValue );
 		void setMetronomeIsActive( bool isActive );
 		void setMasterIsMuted( bool isMuted );
+		void setStripIsMuted( int nStrip, bool isMuted );
+		void setStripIsSoloed( int nStrip, bool isSoloed );
 		
 		void initExternalControlInterfaces();
 };

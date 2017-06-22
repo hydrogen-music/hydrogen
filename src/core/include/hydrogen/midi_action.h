@@ -104,6 +104,8 @@ class MidiActionManager : public H2Core::Object
 		bool mute(Action * , H2Core::Hydrogen * );
 		bool unmute(Action * , H2Core::Hydrogen * );
 		bool mute_toggle(Action * , H2Core::Hydrogen * );
+		bool strip_mute_toggle(Action * , H2Core::Hydrogen * );
+		bool strip_solo_toggle(Action * , H2Core::Hydrogen * );
 		bool next_bar(Action * , H2Core::Hydrogen * );
 		bool previous_bar(Action * , H2Core::Hydrogen * );
 		bool bpm_increase(Action * , H2Core::Hydrogen * );
