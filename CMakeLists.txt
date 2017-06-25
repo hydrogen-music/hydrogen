@@ -25,7 +25,7 @@ SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 IF(VERSION_SUFFIX)
 	SET(DISPLAY_VERSION "${VERSION}-${VERSION_SUFFIX}")
-ELSE()
+ELSE() 
 	EXECUTE_PROCESS(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE GIT_REVISION )
 	SET(DISPLAY_VERSION "${VERSION}-${GIT_REVISION}")
 ENDIF(VERSION_SUFFIX)
@@ -151,7 +151,7 @@ ELSE(MINGW)
     ENDIF(APPLE)
 ENDIF(MINGW)
 
-#Installation paths
+#Installation paths 
 # TODO remove data from path
 SET(SYS_DATA_PATH "${CMAKE_INSTALL_PREFIX}/share/hydrogen/data")
 # TODO remove data from path, could be .config/hydrogen
@@ -222,7 +222,8 @@ FIND_HELPER(PORTAUDIO portaudio-2.0 portaudio.h portaudio)
 FIND_HELPER(PORTMIDI portmidi portmidi.h portmidi)
 FIND_HELPER(PULSEAUDIO pulseaudio pulse/pulseaudio.h pulse)
 FIND_HELPER(LASH lash-1.0 lash/lash.h lash)
-FIND_HELPER(LRDF lrdf lrdf/lrdf.h lrdf)
+FIND_HELPER(LRDF lrdf lrdf.h lrdf)
+FIND_HELPER(RAPTOR raptor2 raptor.h raptor)
 
 FIND_HELPER(RUBBERBAND rubberband RubberBandStretcher.h rubberband)
 FIND_HELPER(CPPUNIT cppunit cppunit/TestCase.h cppunit)
@@ -301,7 +302,7 @@ COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}
 * ${purple}OSS${reset}                          : ${OSS_STATUS}
 * ${purple}JACK${reset}                         : ${JACK_STATUS}
 * ${purple}JACKSESSION${reset}                  : ${JACKSESSION_STATUS}
-* ${purple}OSC${reset}                  : ${OSC_STATUS}
+* ${purple}OSC${reset}                  : ${OSC_STATUS}   
 * ${purple}CoreAudio${reset}                    : ${COREAUDIO_STATUS}
 * ${purple}CoreMidi${reset}                     : ${COREMIDI_STATUS}
 * ${purple}PortAudio${reset}                    : ${PORTAUDIO_STATUS}
