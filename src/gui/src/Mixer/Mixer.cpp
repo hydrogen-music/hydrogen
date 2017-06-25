@@ -25,6 +25,7 @@
 
 #include "../Skin.h"
 #include "../HydrogenApp.h"
+#include "../MainForm.h"
 #include "../LadspaFXProperties.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
 #include "../widgets/Button.h"
@@ -186,6 +187,11 @@ MixerLine* Mixer::createMixerLine( int nInstr )
 	return pMixerLine;
 }
 
+void Mixer::closeEvent( QCloseEvent* ev )
+{
+  HydrogenApp::get_instance()->showMixer(false);
+}
+
 
 ComponentMixerLine* Mixer::createComponentMixerLine( int theCompoID )
 {
@@ -206,11 +212,11 @@ void Mixer::muteClicked(MixerLine* ref)
 {
 	int nLine = findMixerLineByRef(ref);
 	bool isMuteClicked = ref->isMuteClicked();
-	
+
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	CoreActionController* pController = pEngine->getCoreActionController();
 	pEngine->setSelectedInstrumentNumber( nLine );
-	
+
 	pController->setStripIsMuted( nLine, isMuteClicked );
 }
 
@@ -299,7 +305,7 @@ void Mixer::soloClicked(MixerLine* ref)
 	int nInstruments = pInstrList->size();
 
 	int nLine = findMixerLineByRef(ref);
-	
+
 	pController->setStripIsSoloed( nLine, ref->isSoloClicked() );
 
 	for ( int i = 0; i < nInstruments; ++i ) {
@@ -391,7 +397,7 @@ void Mixer::volumeChanged(MixerLine* ref)
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	CoreActionController* pController = pEngine->getCoreActionController();
-	
+
 	int nLine = findMixerLineByRef(ref);
 	pController->setStripVolume( nLine, ref->getVolume() );
 }
