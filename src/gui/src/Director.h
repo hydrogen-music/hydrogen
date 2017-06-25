@@ -44,6 +44,8 @@ public:
 
 	virtual void metronomeEvent( int nValue );
 	virtual void paintEvent( QPaintEvent*);
+	void keyPressEvent( QKeyEvent* ev );
+	void closeEvent( QCloseEvent* ev );
 
 private slots:
 	void updateMetronomBackground();
@@ -68,4 +70,3 @@ private:
 
 
 #endif
-

@@ -260,6 +260,18 @@ PlaylistDialog::~PlaylistDialog()
 	INFOLOG ( "DESTROY" );
 }
 
+void PlaylistDialog::keyPressEvent( QKeyEvent* ev )
+{
+	if(ev->key() == Qt::Key_Escape) {
+		HydrogenApp::get_instance()->showPlaylistDialog();
+	}
+}
+
+void PlaylistDialog::closeEvent( QCloseEvent* ev )
+{
+  HydrogenApp::get_instance()->showPlaylistDialog();
+}
+
 void PlaylistDialog::addSong()
 {
 	static QString songDir = Preferences::get_instance()->getDataDirectory()  + "/songs";;
