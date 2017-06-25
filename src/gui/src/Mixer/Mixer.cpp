@@ -25,7 +25,6 @@
 
 #include "../Skin.h"
 #include "../HydrogenApp.h"
-#include "../MainForm.h"
 #include "../LadspaFXProperties.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
 #include "../widgets/Button.h"
