@@ -334,7 +334,14 @@ void MainForm::createMenuBar()
 	m_pViewMenu->addAction( trUtf8("Playlist &editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
 	m_pViewMenu->addAction( trUtf8("Director"), this, SLOT( action_window_show_DirectorWidget() ), QKeySequence( "Alt+D" ) );
 
+	m_pFileMenu->addSeparator();	// -----
+
+
+	m_pViewMenu->addAction( trUtf8("Playlist &editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
+	m_pViewMenu->addAction( trUtf8("Director"), this, SLOT( action_window_show_DirectorWidget() ), QKeySequence( "Alt+D" ) );
+
 	m_pViewMenu->addAction( trUtf8("&Mixer"), this, SLOT( action_window_showMixer() ), QKeySequence( "Alt+M" ) );
+
 
 	m_pViewMenu->addAction( trUtf8("&Instrument Rack"), this, SLOT( action_window_showDrumkitManagerPanel() ), QKeySequence( "Alt+I" ) );
 	
@@ -834,8 +841,6 @@ void MainForm::showPreferencesDialog()
 {
 	h2app->showPreferencesDialog();
 }
-
-
 
 void MainForm::action_window_showPlaylistDialog()
 {

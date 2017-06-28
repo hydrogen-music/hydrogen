@@ -326,6 +326,12 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 	}
 }
 
+void CoreMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
+{
+	//UNSUPPORTED
+}
+
+
 void CoreMidiDriver::sendMidiPacket (MIDIPacketList *packetList)
 {
 	OSStatus err = noErr;

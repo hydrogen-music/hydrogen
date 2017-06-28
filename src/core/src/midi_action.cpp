@@ -107,6 +107,8 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 	actionMap.insert(make_pair("MUTE", make_pair(&MidiActionManager::mute, empty)));
 	actionMap.insert(make_pair("UNMUTE", make_pair(&MidiActionManager::unmute, empty)));
 	actionMap.insert(make_pair("MUTE_TOGGLE", make_pair(&MidiActionManager::mute_toggle, empty)));
+	actionMap.insert(make_pair("STRIP_MUTE_TOGGLE", make_pair(&MidiActionManager::strip_mute_toggle, empty)));
+	actionMap.insert(make_pair("STRIP_SOLO_TOGGLE", make_pair(&MidiActionManager::strip_solo_toggle, empty)));	
 	actionMap.insert(make_pair(">>_NEXT_BAR", make_pair(&MidiActionManager::next_bar, empty)));
 	actionMap.insert(make_pair("<<_PREVIOUS_BAR", make_pair(&MidiActionManager::previous_bar, empty)));
 	actionMap.insert(make_pair("BPM_INCR", make_pair(&MidiActionManager::bpm_increase, empty)));
@@ -264,6 +266,42 @@ bool MidiActionManager::unmute(Action * , Hydrogen* pEngine, targeted_element ) 
 
 bool MidiActionManager::mute_toggle(Action * , Hydrogen* pEngine, targeted_element ) {
 	pEngine->getCoreActionController()->setMasterIsMuted( !Hydrogen::get_instance()->getSong()->__is_muted );
+	return true;
+}
+
+bool MidiActionManager::strip_mute_toggle(Action * pAction, Hydrogen* pEngine, targeted_element ) {
+	
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+
+	Song *pSong = pEngine->getSong();
+	InstrumentList *instrList = pSong->get_instrument_list();
+
+	Instrument *pInstr = instrList->get( nLine );
+
+	if ( pInstr == NULL) {
+		return false;
+	}
+	
+	pEngine->getCoreActionController()->setStripIsMuted( nLine, !pInstr->is_muted() );
+	return true;
+}
+
+bool MidiActionManager::strip_solo_toggle(Action * pAction, Hydrogen* pEngine, targeted_element ) {
+	
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+
+	Song *pSong = pEngine->getSong();
+	InstrumentList *instrList = pSong->get_instrument_list();
+
+	Instrument *pInstr = instrList->get( nLine );
+
+	if ( pInstr == NULL) {
+		return false;
+	}
+	
+	pEngine->getCoreActionController()->setStripIsSoloed( nLine, !pInstr->is_soloed() );
 	return true;
 }
 

@@ -180,7 +180,6 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 
 		virtual void patternChangedEvent();
 		void mouseMoveEvent(QMouseEvent *event);
-		//void movePatternLine(int,int);
 		QPoint __drag_start_position;
 
 };
@@ -213,19 +212,21 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 		void updatePosition();
 
 	private:
-		QTimer *m_pTimer;
-		uint m_nGridWidth;
-		uint m_nMaxPatternSequence;
-		uint m_nInitialWidth;
-		static const uint m_nHeight = 50;
+		QTimer *			m_pTimer;
+		uint				m_nGridWidth;
+		uint				m_nMaxPatternSequence;
+		uint				m_nInitialWidth;
+		static const uint	m_nHeight = 50;
 
-		QPixmap *m_pBackgroundPixmap;
-		QPixmap m_tickPositionPixmap;
+		QPixmap *			m_pBackgroundPixmap;
+		QPixmap				m_tickPositionPixmap;
+		bool				m_bRightBtnPressed;
+		
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mousePressEvent( QMouseEvent *ev );
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void paintEvent( QPaintEvent *ev );
-                bool m_bRightBtnPressed;
+
 };
 
 

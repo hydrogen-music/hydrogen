@@ -26,6 +26,7 @@
 
 #include "../EventListener.h"
 #include <hydrogen/object.h>
+#include "../InstrumentEditor/WaveDisplay.h"
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000
@@ -37,9 +38,9 @@ class SongEditor;
 class SongEditorPatternList;
 class SongEditorPositionRuler;
 class ToggleButton;
+class Fader;
 class AutomationPathView;
 class LCDCombo;
-
 
 enum SongEditorActionMode
 {
@@ -50,7 +51,7 @@ enum SongEditorActionMode
 
 class SongEditorPanel : public QWidget, public EventListener, public H2Core::Object
 {
-    H2_OBJECT
+	H2_OBJECT
 	Q_OBJECT
 
 	public:
@@ -86,15 +87,23 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void upBtnClicked( Button* );
 		void downBtnClicked( Button* );
 		void clearSequence( Button* );
+		
+		void updatePlaybackFaderPeaks();
 		void updatePlayHeadPosition();
 
 		void pointerActionBtnPressed( Button* pBtn );
 		void drawActionBtnPressed( Button* pBtn );
 		void timeLineBtnPressed( Button* pBtn );
+		void viewTimeLineBtnPressed( Button* pBtn );
+		void viewPlaybackTrackBtnPressed( Button* pBtn );
+		void mutePlaybackTrackBtnPressed( Button* pBtn );
+		void editPlaybackTrackBtnPressed( Button* pBtn );
 		void modeActionBtnPressed( );
 
 		void zoomInBtnPressed( Button* pBtn );
 		void zoomOutBtnPressed( Button* pBtn );
+		
+		void faderChanged(Fader* pFader);
 
 		void automationPathChanged();
 		void automationPathPointAdded(float x, float y);
@@ -102,38 +111,49 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void automationPathPointMoved(float ox, float oy, float tx, float ty);
 
 	private:
-		SongEditorActionMode m_actionMode;
+		SongEditorActionMode	m_actionMode;
 
-		uint m_nInitialWidth;
-		uint m_nInitialHeight;
+		uint					m_nInitialWidth;
+		uint					m_nInitialHeight;
 
-		static const int m_nPatternListWidth = 200;
+		static const int		m_nPatternListWidth = 200;
 
-		QScrollArea* m_pEditorScrollView;
-		QScrollArea* m_pPatternListScrollView;
-		QScrollArea* m_pPositionRulerScrollView;
-		QScrollArea* m_pAutomationPathScrollView;
-		QScrollBar *m_pVScrollBar;
-		QScrollBar *m_pHScrollBar;
-
-
-		SongEditor* m_pSongEditor;
-		SongEditorPatternList *m_pPatternList;
-		SongEditorPositionRuler *m_pPositionRuler;
+		QScrollArea*			m_pEditorScrollView;
+		QScrollArea*			m_pPatternListScrollView;
+		QScrollArea*			m_pPositionRulerScrollView;
+		QScrollBar *			m_pVScrollBar;
+		QScrollBar *			m_pHScrollBar;
 		
-		AutomationPathView *m_pAutomationPathView;
-		LCDCombo*			m_pAutomationCombo;
+		QStackedWidget*			m_pWidgetStack;
+		QScrollArea*			m_pAutomationPathScrollView;
 
-		Button *m_pUpBtn;
-		Button *m_pDownBtn;
-		Button *m_pClearPatternSeqBtn;
-		ToggleButton *m_pPointerActionBtn;
-		ToggleButton *m_pModeActionBtn;
-		ToggleButton *m_pDrawActionBtn;
-		ToggleButton *m_pTimeLineToggleBtn;
-		ToggleButton *m_pTagbarToggleBtn;
 
-		QTimer* m_pTimer;
+		SongEditor*				m_pSongEditor;
+		SongEditorPatternList *	m_pPatternList;
+		SongEditorPositionRuler *m_pPositionRuler;
+		WaveDisplay*			 m_pWaveDisplay;
+
+
+		Button *				m_pUpBtn;
+		Button *				m_pDownBtn;
+		Button *				m_pClearPatternSeqBtn;
+		ToggleButton *			m_pPointerActionBtn;
+		ToggleButton *			m_pModeActionBtn;
+		ToggleButton *			m_pDrawActionBtn;
+		ToggleButton *			m_pTagbarToggleBtn;
+		
+		Fader*					m_pPlaybackTrackFader;
+		ToggleButton *			m_pTimeLineToggleBtn;
+		ToggleButton *			m_pPlaybackToggleBtn;
+		ToggleButton *			m_pViewTimeLineToggleBtn;
+		ToggleButton *			m_pViewPlaybackToggleBtn;
+		ToggleButton *			m_pMutePlaybackToggleBtn;
+		Button *				m_pEditPlaybackBtn;
+
+		QTimer*					m_pTimer;
+		
+		AutomationPathView *	m_pAutomationPathView;
+		LCDCombo*				m_pAutomationCombo;
 
 
 		virtual void resizeEvent( QResizeEvent *ev );
