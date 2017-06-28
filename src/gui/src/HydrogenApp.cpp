@@ -342,7 +342,7 @@ void HydrogenApp::showMixer(bool show)
 		m_pMixer->setVisible( show );
 	}
 
-  m_pMainForm->update_mixer_checkbox();
+	m_pMainForm->update_mixer_checkbox();
 }
 
 void HydrogenApp::showInstrumentPanel(bool show)
@@ -362,7 +362,7 @@ void HydrogenApp::showInstrumentPanel(bool show)
 	} else {
 		getInstrumentRack()->setHidden( show );
 	}
-    m_pMainForm->update_instrument_checkbox( !show );
+		m_pMainForm->update_instrument_checkbox( !show );
 }
 
 
@@ -420,23 +420,23 @@ void HydrogenApp::showAudioEngineInfoForm()
 
 void HydrogenApp::showPlaylistDialog()
 {
-  if ( m_pPlaylistDialog->isVisible() ) {
-    m_pPlaylistDialog->hide();
-  } else {
-    m_pPlaylistDialog->show();
-  }
-  m_pMainForm->update_playlist_checkbox();
+	if ( m_pPlaylistDialog->isVisible() ) {
+		m_pPlaylistDialog->hide();
+	} else {
+		m_pPlaylistDialog->show();
+	}
+	m_pMainForm->update_playlist_checkbox();
 }
 
 
 void HydrogenApp::showDirector()
 {
-  if ( m_pDirector->isVisible() ) {
-    m_pDirector->hide();
-  } else {
-    m_pDirector->show();
-  }
-  m_pMainForm->update_director_checkbox();
+	if ( m_pDirector->isVisible() ) {
+		m_pDirector->hide();
+	} else {
+		m_pDirector->show();
+	}
+	m_pMainForm->update_director_checkbox();
 }
 
 

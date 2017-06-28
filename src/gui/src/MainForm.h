@@ -45,7 +45,7 @@ class QUndoView;///debug only
 ///
 class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 {
-    H2_OBJECT
+		H2_OBJECT
 	Q_OBJECT
 
 	public:
@@ -106,10 +106,10 @@ public slots:
 		void action_window_showAutomationArea();
 		void action_window_toggleFullscreen();
 
-    void update_mixer_checkbox();
-    void update_instrument_checkbox( bool show );
-    void update_director_checkbox();
-    void update_playlist_checkbox();
+		void update_mixer_checkbox();
+		void update_instrument_checkbox( bool show );
+		void update_director_checkbox();
+		void update_playlist_checkbox();
 
 		void action_debug_printObjects();
 		void action_debug_showAudioEngineInfo();
@@ -154,10 +154,10 @@ public slots:
 		void functionDeleteInstrument(int instrument);
 
 		QMenu *		m_pInputModeMenu;
-    QAction *	m_pViewPlaylistEditorAction;
-    QAction *	m_pViewDirectorAction;
-    QAction *	m_pViewMixerAction;
-    QAction *	m_pViewMixerInstrumentRackAction;
+		QAction *	m_pViewPlaylistEditorAction;
+		QAction *	m_pViewDirectorAction;
+		QAction *	m_pViewMixerAction;
+		QAction *	m_pViewMixerInstrumentRackAction;
 		QAction *	m_pInstrumentAction;
 		QAction *	m_pDrumkitAction;
 

@@ -188,7 +188,7 @@ MixerLine* Mixer::createMixerLine( int nInstr )
 
 void Mixer::closeEvent( QCloseEvent* ev )
 {
-  HydrogenApp::get_instance()->showMixer(false);
+	HydrogenApp::get_instance()->showMixer(false);
 }
 
 
@@ -230,7 +230,7 @@ void Mixer::muteClicked(ComponentMixerLine* ref)
 
 void Mixer::soloClicked(ComponentMixerLine* ref)
 {
-    Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	std::vector<DrumkitComponent*> pCompoList = *(pSong->get_components());
 	int nComponents = pCompoList.size();

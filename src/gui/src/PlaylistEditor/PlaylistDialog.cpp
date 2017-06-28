@@ -269,7 +269,7 @@ void PlaylistDialog::keyPressEvent( QKeyEvent* ev )
 
 void PlaylistDialog::closeEvent( QCloseEvent* ev )
 {
-  HydrogenApp::get_instance()->showPlaylistDialog();
+	HydrogenApp::get_instance()->showPlaylistDialog();
 }
 
 void PlaylistDialog::addSong()

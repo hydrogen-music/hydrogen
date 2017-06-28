@@ -534,7 +534,7 @@ void MainForm::action_file_save_as()
 	Hydrogen* pEngine = Hydrogen::get_instance();
 
 	if ( pEngine->getState() == STATE_PLAYING ) {
-		  pEngine->sequencer_stop();
+			pEngine->sequencer_stop();
 	}
 
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
@@ -956,7 +956,7 @@ void MainForm::action_banks_open()
 void MainForm::action_instruments_clearAll()
 {
 	switch(
-		   QMessageBox::information( this,
+			 QMessageBox::information( this,
 									 "Hydrogen",
 									 trUtf8("Clear all instruments?"),
 									 trUtf8("Ok"),
@@ -1651,15 +1651,15 @@ void MainForm::action_file_export_lilypond()
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 	switch ( QMessageBox::information(
-	        this,
-	        "Hydrogen",
-	        trUtf8( "\nThe LilyPond export is an experimental feature.\n"
-	                "It should work like a charm provided that you use the "
-	                "GM-kit, and that you do not use triplet\n" ),
-	        trUtf8( "Ok" ),
-	        trUtf8( "&Cancel" ),
-	        0,
-	        2 ) ) {
+					this,
+					"Hydrogen",
+					trUtf8( "\nThe LilyPond export is an experimental feature.\n"
+									"It should work like a charm provided that you use the "
+									"GM-kit, and that you do not use triplet\n" ),
+					trUtf8( "Ok" ),
+					trUtf8( "&Cancel" ),
+					0,
+					2 ) ) {
 	case 1:
 	case 2: return;
 	}
@@ -1865,7 +1865,7 @@ bool MainForm::handleUnsavedChanges()
 	bool rv = true;
 	while ( !done && Hydrogen::get_instance()->getSong()->get_is_modified() ) {
 		switch(
-			   QMessageBox::information( this, "Hydrogen",
+				 QMessageBox::information( this, "Hydrogen",
 										 trUtf8("\nThe document contains unsaved changes.\n"
 												"Do you want to save the changes?\n"),
 										 trUtf8("&Save"), trUtf8("&Discard"), trUtf8("&Cancel"),

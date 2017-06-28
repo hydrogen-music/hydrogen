@@ -100,7 +100,7 @@ void Director::keyPressEvent( QKeyEvent* ev )
 
 void Director::closeEvent( QCloseEvent* ev )
 {
-  HydrogenApp::get_instance()->showDirector();
+	HydrogenApp::get_instance()->showDirector();
 }
 
 
