@@ -42,17 +42,19 @@ class PixmapWidget;
 class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public H2Core::Object
 
 {
-    H2_OBJECT
+		H2_OBJECT
 	Q_OBJECT
 	public:
-		
+
 		PlaylistDialog( QWidget* pParent );
 		~PlaylistDialog();
 
-		bool loadListByFileName( QString filename);	
+		bool loadListByFileName( QString filename);
 
 
 	private slots:
+		void keyPressEvent( QKeyEvent* ev );
+		void closeEvent( QCloseEvent* ev );
 		void addSong();
 		void addCurrentSong();
 		void removeFromList();

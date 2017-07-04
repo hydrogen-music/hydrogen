@@ -208,7 +208,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	undoView->setWindowTitle(tr("Undo history"));
 
 	//restore last playlist
-	if(		Preferences::get_instance()->isRestoreLastPlaylistEnabled() 
+	if(		Preferences::get_instance()->isRestoreLastPlaylistEnabled()
 		&& !Preferences::get_instance()->getLastPlaylistFilename().isEmpty() ){
 		bool loadlist = h2app->getPlayListDialog()->loadListByFileName( Preferences::get_instance()->getLastPlaylistFilename() );
 		if( !loadlist ){
@@ -331,24 +331,24 @@ void MainForm::createMenuBar()
 	// VIEW MENU
 	QMenu *m_pViewMenu = m_pMenubar->addMenu( trUtf8( "&View" ) );
 
-	m_pViewMenu->addAction( trUtf8("Playlist &editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
-	m_pViewMenu->addAction( trUtf8("Director"), this, SLOT( action_window_show_DirectorWidget() ), QKeySequence( "Alt+D" ) );
+	m_pViewPlaylistEditorAction = m_pViewMenu->addAction( trUtf8("Playlist &editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
+	m_pViewPlaylistEditorAction->setCheckable( true );
+	m_pViewDirectorAction = m_pViewMenu->addAction( trUtf8("Director"), this, SLOT( action_window_show_DirectorWidget() ), QKeySequence( "Alt+D" ) );
+	m_pViewDirectorAction->setCheckable( true );
 
-	m_pFileMenu->addSeparator();	// -----
+	m_pFileMenu->addSeparator();
+	m_pViewMixerAction = m_pViewMenu->addAction( trUtf8("&Mixer"), this, SLOT( action_window_showMixer() ), QKeySequence( "Alt+M" ) );
+	m_pViewMixerAction->setCheckable( true );
+	update_mixer_checkbox();						// if checkbox need to be checked.
 
+	m_pViewMixerInstrumentRackAction = m_pViewMenu->addAction( trUtf8("&Instrument Rack"), this, SLOT( action_window_showDrumkitManagerPanel() ), QKeySequence( "Alt+I" ) );
+	m_pViewMixerInstrumentRackAction->setCheckable( true );
+	update_instrument_checkbox( true );	// check it as Instrument panel is always open on start
 
-	m_pViewMenu->addAction( trUtf8("Playlist &editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
-	m_pViewMenu->addAction( trUtf8("Director"), this, SLOT( action_window_show_DirectorWidget() ), QKeySequence( "Alt+D" ) );
-
-	m_pViewMenu->addAction( trUtf8("&Mixer"), this, SLOT( action_window_showMixer() ), QKeySequence( "Alt+M" ) );
-
-
-	m_pViewMenu->addAction( trUtf8("&Instrument Rack"), this, SLOT( action_window_showDrumkitManagerPanel() ), QKeySequence( "Alt+I" ) );
-	
 	m_pViewMenu->addAction( trUtf8("&Automation path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
-	
+
 	m_pViewMenu->addSeparator();				// -----
-	
+
 	m_pViewMenu->addAction( trUtf8("Full screen"), this, SLOT( action_window_toggleFullscreen() ), QKeySequence( "Alt+F" ) );
 
 
@@ -534,7 +534,7 @@ void MainForm::action_file_save_as()
 	Hydrogen* pEngine = Hydrogen::get_instance();
 
 	if ( pEngine->getState() == STATE_PLAYING ) {
-		  pEngine->sequencer_stop();
+			pEngine->sequencer_stop();
 	}
 
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
@@ -788,11 +788,11 @@ void MainForm::action_file_openPattern()
 	else
 	{
 		H2Core::Pattern *pNewPattern = err;
-		
+
 		if(!pPatternList->check_name( pNewPattern->get_name() ) ){
 			pNewPattern->set_name( pPatternList->find_unused_pattern_name( pNewPattern->get_name() ) );
 		}
-		
+
 		pPatternList->add ( pNewPattern );
 		pSong->set_is_modified( true );
 		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
@@ -847,10 +847,23 @@ void MainForm::action_window_showPlaylistDialog()
 	h2app->showPlaylistDialog();
 }
 
+// function to update director status in menu bar
+void MainForm::update_playlist_checkbox()
+{
+	bool isVisible = HydrogenApp::get_instance()->getPlayListDialog()->isVisible();
+	m_pViewPlaylistEditorAction->setChecked( isVisible );
+}
+
 void MainForm::action_window_show_DirectorWidget()
 {
-
 	h2app->showDirector();
+}
+
+// function to update director status in menu bar
+void MainForm::update_director_checkbox()
+{
+	bool isVisible = HydrogenApp::get_instance()->getDirector()->isVisible();
+	m_pViewDirectorAction->setChecked( isVisible );
 }
 
 void MainForm::action_window_toggleFullscreen()
@@ -868,7 +881,12 @@ void MainForm::action_window_showMixer()
 	h2app->showMixer( !isVisible );
 }
 
-
+// function to update mixer status in menu bar
+void MainForm::update_mixer_checkbox()
+{
+	bool isVisible = HydrogenApp::get_instance()->getMixer()->isVisible();
+	m_pViewMixerAction->setChecked( isVisible );
+}
 
 void MainForm::action_debug_showAudioEngineInfo()
 {
@@ -938,7 +956,7 @@ void MainForm::action_banks_open()
 void MainForm::action_instruments_clearAll()
 {
 	switch(
-		   QMessageBox::information( this,
+			 QMessageBox::information( this,
 									 "Hydrogen",
 									 trUtf8("Clear all instruments?"),
 									 trUtf8("Ok"),
@@ -1088,6 +1106,7 @@ void MainForm::action_instruments_saveAsLibrary()
 ///
 void MainForm::closeEvent( QCloseEvent* ev )
 {
+
 	if ( action_file_exit() == false ) {
 		// don't close!!!
 		ev->ignore();
@@ -1115,9 +1134,13 @@ void MainForm::action_window_showDrumkitManagerPanel()
 {
 	InstrumentRack *pPanel = HydrogenApp::get_instance()->getInstrumentRack();
 	pPanel->setHidden( pPanel->isVisible() );
+	update_instrument_checkbox( pPanel->isVisible() );
 }
 
-
+void MainForm::update_instrument_checkbox( bool show )
+{
+	m_pViewMixerInstrumentRackAction->setChecked( show );
+}
 
 
 void MainForm::closeAll() {
@@ -1628,15 +1651,15 @@ void MainForm::action_file_export_lilypond()
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 	switch ( QMessageBox::information(
-	        this,
-	        "Hydrogen",
-	        trUtf8( "\nThe LilyPond export is an experimental feature.\n"
-	                "It should work like a charm provided that you use the "
-	                "GM-kit, and that you do not use triplet\n" ),
-	        trUtf8( "Ok" ),
-	        trUtf8( "&Cancel" ),
-	        0,
-	        2 ) ) {
+					this,
+					"Hydrogen",
+					trUtf8( "\nThe LilyPond export is an experimental feature.\n"
+									"It should work like a charm provided that you use the "
+									"GM-kit, and that you do not use triplet\n" ),
+					trUtf8( "Ok" ),
+					trUtf8( "&Cancel" ),
+					0,
+					2 ) ) {
 	case 1:
 	case 2: return;
 	}
@@ -1842,7 +1865,7 @@ bool MainForm::handleUnsavedChanges()
 	bool rv = true;
 	while ( !done && Hydrogen::get_instance()->getSong()->get_is_modified() ) {
 		switch(
-			   QMessageBox::information( this, "Hydrogen",
+				 QMessageBox::information( this, "Hydrogen",
 										 trUtf8("\nThe document contains unsaved changes.\n"
 												"Do you want to save the changes?\n"),
 										 trUtf8("&Save"), trUtf8("&Discard"), trUtf8("&Cancel"),
@@ -1989,5 +2012,3 @@ void MainForm::action_banks_properties()
 	SoundLibraryPropertiesDialog dialog( this , drumkitInfo, drumkitInfo );
 	dialog.exec();
 }
-
-
