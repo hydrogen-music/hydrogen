@@ -186,6 +186,11 @@ MixerLine* Mixer::createMixerLine( int nInstr )
 	return pMixerLine;
 }
 
+void Mixer::closeEvent( QCloseEvent* ev )
+{
+	HydrogenApp::get_instance()->showMixer(false);
+}
+
 
 ComponentMixerLine* Mixer::createComponentMixerLine( int theCompoID )
 {
@@ -206,11 +211,11 @@ void Mixer::muteClicked(MixerLine* ref)
 {
 	int nLine = findMixerLineByRef(ref);
 	bool isMuteClicked = ref->isMuteClicked();
-	
+
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	CoreActionController* pController = pEngine->getCoreActionController();
 	pEngine->setSelectedInstrumentNumber( nLine );
-	
+
 	pController->setStripIsMuted( nLine, isMuteClicked );
 }
 
@@ -225,7 +230,7 @@ void Mixer::muteClicked(ComponentMixerLine* ref)
 
 void Mixer::soloClicked(ComponentMixerLine* ref)
 {
-    Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	std::vector<DrumkitComponent*> pCompoList = *(pSong->get_components());
 	int nComponents = pCompoList.size();
@@ -299,7 +304,7 @@ void Mixer::soloClicked(MixerLine* ref)
 	int nInstruments = pInstrList->size();
 
 	int nLine = findMixerLineByRef(ref);
-	
+
 	pController->setStripIsSoloed( nLine, ref->isSoloClicked() );
 
 	for ( int i = 0; i < nInstruments; ++i ) {
@@ -391,7 +396,7 @@ void Mixer::volumeChanged(MixerLine* ref)
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	CoreActionController* pController = pEngine->getCoreActionController();
-	
+
 	int nLine = findMixerLineByRef(ref);
 	pController->setStripVolume( nLine, ref->getVolume() );
 }
