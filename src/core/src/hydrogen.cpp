@@ -1575,7 +1575,9 @@ void audioEngine_startAudioDrivers()
 #endif
 	} else if ( preferencesMng->m_sMidiDriver == "PortMidi" ) {
 #ifdef H2CORE_HAVE_PORTMIDI
-		m_pMidiDriver = new PortMidiDriver();
+		PortMidiDriver* pPortMidiDriver = new PortMidiDriver();
+		m_pMidiDriver = pPortMidiDriver;
+		m_pMidiDriverOut = pPortMidiDriver;
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif
