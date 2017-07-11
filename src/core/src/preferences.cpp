@@ -539,6 +539,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_bMidiNoteOffIgnore = LocalFileMng::readXmlBool( midiDriverNode, "ignore_note_off", true );
 					m_bMidiDiscardNoteAfterAction = LocalFileMng::readXmlBool( midiDriverNode, "discard_note_after_action", true);
 					m_bMidiFixedMapping = LocalFileMng::readXmlBool( midiDriverNode, "fixed_mapping", false, true );
+					m_bEnableMidiFeedback = LocalFileMng::readXmlBool( midiDriverNode, "enable_midi_feedback", false, true );
 				}
 
 				/// OSC ///
@@ -927,6 +928,12 @@ void Preferences::savePreferences()
 				LocalFileMng::writeXmlString( midiDriverNode, "ignore_note_off", "true" );
 			} else {
 				LocalFileMng::writeXmlString( midiDriverNode, "ignore_note_off", "false" );
+			}
+			
+			if ( m_bEnableMidiFeedback ) {
+				LocalFileMng::writeXmlString( midiDriverNode, "enable_midi_feedback", "true" );
+			} else {
+				LocalFileMng::writeXmlString( midiDriverNode, "enable_midi_feedback", "false" );
 			}
 
 			if ( m_bMidiDiscardNoteAfterAction ) {

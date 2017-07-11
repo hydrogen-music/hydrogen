@@ -209,6 +209,7 @@ public:
 	bool				m_bMidiNoteOffIgnore;
 	bool				m_bMidiFixedMapping;
 	bool				m_bMidiDiscardNoteAfterAction;
+	bool				m_bEnableMidiFeedback;
 	
 	// OSC Server properties
 	bool				m_bOscServerEnabled;
