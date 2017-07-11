@@ -328,7 +328,25 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 
 void CoreMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
 {
-	//UNSUPPORTED
+	if (cmH2Dst == NULL ) {
+		ERRORLOG( "cmH2Dst = NULL " );
+		return;
+	}
+
+	if (channel < 0) {
+		return;
+	}
+
+	MIDIPacketList packetList;
+	packetList.numPackets = 1;
+
+	packetList.packet->timeStamp = 0;
+	packetList.packet->length = 3;
+	packetList.packet->data[0] = 0xB0 | channel;
+	packetList.packet->data[1] = param;
+	packetList.packet->data[2] = value;
+
+	sendMidiPacket ( &packetList );
 }
 
 
