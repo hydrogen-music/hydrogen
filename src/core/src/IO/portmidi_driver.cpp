@@ -135,7 +135,21 @@ PortMidiDriver::~PortMidiDriver()
 
 void PortMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
 {
-	//UNSUPPORTED
+	if ( m_pMidiOut == NULL ) {
+		ERRORLOG( "m_pMidiOut = NULL " );
+		return;
+	}
+
+	if (channel < 0) {
+		return;
+	}
+
+	PmEvent event;
+	event.timestamp = 0;
+
+	//Control change
+	event.message = Pm_Message(0xB0 | channel, param, value);
+	Pm_Write(m_pMidiOut, &event, 1);
 }
 
 
