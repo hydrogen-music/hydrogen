@@ -63,7 +63,7 @@ void CoreActionController::setMasterVolume( float masterVolumeValue )
 	
 	int ccParamValue = pMidiMap->findCCValueByActionType( QString("MASTER_VOLUME_ABSOLUTE"));
 	
-	if( ccParamValue >= 0 ){
+	if( pMidiDriver && ccParamValue >= 0 ){
 		pMidiDriver->handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127, 0);
 	}
 }
@@ -94,7 +94,7 @@ void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
-	if( ccParamValue >= 0 ){
+	if( pMidiDriver && ccParamValue >= 0 ){
 		pMidiDriver->handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127, 0);
 	}
 }
@@ -117,7 +117,7 @@ void CoreActionController::setMetronomeIsActive( bool isActive ){
 	
 	int ccParamValue = pMidiMap->findCCValueByActionType( QString("TOGGLE_METRONOME"));
 	
-	if( ccParamValue >= 0 ){
+	if( pMidiDriver && ccParamValue >= 0 ){
 		pMidiDriver->handleOutgoingControlChange( ccParamValue, (int) isActive * 127 , 0);
 	}
 }
@@ -140,7 +140,7 @@ void CoreActionController::setMasterIsMuted( bool isMuted ){
 	
 	int ccParamValue = pMidiMap->findCCValueByActionType( QString("MUTE_TOGGLE"));
 	
-	if( ccParamValue >= 0 ){
+	if( pMidiDriver && ccParamValue >= 0 ){
 		pMidiDriver->handleOutgoingControlChange( ccParamValue, (int) isMuted * 127 , 0);
 	}
 }
@@ -168,7 +168,7 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted ){
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_MUTE_TOGGLE"), QString("%1").arg( nStrip ) );
 	
-	if( ccParamValue >= 0 ){
+	if( pMidiDriver && ccParamValue >= 0 ){
 		pMidiDriver->handleOutgoingControlChange( ccParamValue, ((int) isMuted) * 127, 0);
 	}
 }
@@ -205,7 +205,7 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed ){
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_SOLO_TOGGLE"), QString("%1").arg( nStrip ) );
 	
-	if( ccParamValue >= 0 ){
+	if( pMidiDriver && ccParamValue >= 0 ){
 		pMidiDriver->handleOutgoingControlChange( ccParamValue, ((int) isSoloed) * 127, 0);
 	}
 }
@@ -254,7 +254,7 @@ void CoreActionController::setStripPan( int nStrip, float panValue )
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
-	if( ccParamValue >= 0 ){
+	if( pMidiDriver && ccParamValue >= 0 ){
 		pMidiDriver->handleOutgoingControlChange( ccParamValue, panValue * 127, 0);
 	}
 }
