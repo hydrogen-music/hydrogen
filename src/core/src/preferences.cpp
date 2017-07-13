@@ -100,6 +100,23 @@ Preferences::Preferences()
 		}
 	}
 
+	m_pDefaultUIStyle = new UIStyle();
+	m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
+
+#ifdef Q_OS_MACX
+	m_sPreferencesFilename = QDir::homePath().append( "/Library/Application Support/Hydrogen/hydrogen.conf" );
+	m_sPreferencesDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/" );
+	m_sDataDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/data/" );
+#else
+	m_sPreferencesFilename = QDir::homePath().append( "/.hydrogen/hydrogen.conf" );
+	m_sPreferencesDirectory = QDir::homePath().append( "/.hydrogen/" );
+	m_sDataDirectory = QDir::homePath().append( "/.hydrogen/data/" );
+#endif
+	m_sTmpDirectory = QDir::tempPath().append( "/hydrogen/" );
+	if ( !QDir(m_sTmpDirectory).exists() ) {
+		QDir(m_sTmpDirectory).mkdir( m_sTmpDirectory );// create the tmp directory
+	}
+	
 	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
 	if ( ladpath ) {
 		INFOLOG( "Found LADSPA_PATH environment variable" );
@@ -124,24 +141,11 @@ Preferences::Preferences()
 #endif
 
 	}
-
-
-	m_pDefaultUIStyle = new UIStyle();
-	m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
-
-#ifdef Q_OS_MACX
-	m_sPreferencesFilename = QDir::homePath().append( "/Library/Application Support/Hydrogen/hydrogen.conf" );
-	m_sPreferencesDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/" );
-	m_sDataDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/data/" );
-#else
-	m_sPreferencesFilename = QDir::homePath().append( "/.hydrogen/hydrogen.conf" );
-	m_sPreferencesDirectory = QDir::homePath().append( "/.hydrogen/" );
-	m_sDataDirectory = QDir::homePath().append( "/.hydrogen/data/" );
-#endif
-	m_sTmpDirectory = QDir::tempPath().append( "/hydrogen/" );
-	if ( !QDir(m_sTmpDirectory).exists() ) {
-		QDir(m_sTmpDirectory).mkdir( m_sTmpDirectory );// create the tmp directory
-	}
+	
+	/*
+	 *  Add .hydrogen/data/plugins to ladspa search path, no matter where LADSPA_PATH points to..
+	 */
+	m_ladspaPathVect.push_back( m_sDataDirectory.append("plugins") );
 
 	__lastspatternDirectory = QDir::homePath();
 	__lastsampleDirectory = QDir::homePath(); //audio file browser
