@@ -150,9 +150,8 @@ setqt5(){
     else
         qt5dir="/opt/mxe/usr/i686-w64-mingw32.shared/qt5/lib/cmake"
     fi
-    if [ $OLDBUILD != true ]; then
-        qtprefix="-DCMAKE_PREFIX_PATH=$qt5dir"
-    fi
+    
+	qtprefix="-DCMAKE_PREFIX_PATH=$qt5dir"
 }
 
 cleanbuild(){
@@ -205,8 +204,10 @@ build_hydrogen(){
 		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
 	fi
 
-	cmake $4 ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2 $3 -DWANT_FAT_BUILD:BOOL=$FATBUILD -DWANT_DEBUG:BOOL=OFF -DWANT_OLD_BUILD:BOOL=$OLDBUILD
-	
+	cmake $4 ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2 $3 -DWANT_FAT_BUILD:BOOL=$FATBUILD -DWANT_DEBUG:BOOL=OFF
+
+	exit
+
 	export HYDROGEN
 	export HYDROGEN_BUILD
 	export MXE
@@ -286,10 +287,12 @@ while getopts "d:fob:icr" o; do
             arch=${OPTARG}
 
             if [ "$arch" != "x86_64" ]; then
-                mxe_files 32
+				cleanbuild
+				mxe_files 32
                 setqt5
 		build_32bit
             else
+				cleanbuild
 		mxe_files 64
                 setqt5
                 build_64bit
