@@ -123,6 +123,8 @@ const char* PortMidiDriver::__class_name = "PortMidiDriver";
 PortMidiDriver::PortMidiDriver()
 		: MidiInput( __class_name ), MidiOutput( __class_name ), Object( __class_name )
 		, m_bRunning( false )
+		, m_pMidiIn( nullptr )
+		, m_pMidiOut( nullptr )
 {
 	Pm_Initialize();
 }
