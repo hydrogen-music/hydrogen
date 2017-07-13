@@ -84,7 +84,7 @@ Preferences::Preferences()
 	__rubberBandCalcTime = 5;
 
 	QString rubberBandCLIPath = getenv( "PATH" );
-	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linx use ":" as seperator. maybe windows and osx use other seperators
+	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linux use ":" as seperator. maybe windows and osx use other seperators
 
 	//find the Rubberband-CLI in system env
 	//if this fails a second test will check individual user settings
@@ -145,7 +145,7 @@ Preferences::Preferences()
 	/*
 	 *  Add .hydrogen/data/plugins to ladspa search path, no matter where LADSPA_PATH points to..
 	 */
-	m_ladspaPathVect.push_back( m_sDataDirectory.append("plugins") );
+	m_ladspaPathVect.push_back( QString( m_sDataDirectory + "plugins" ) );
 
 	__lastspatternDirectory = QDir::homePath();
 	__lastsampleDirectory = QDir::homePath(); //audio file browser
@@ -1167,6 +1167,7 @@ void Preferences::createSoundLibraryDirectories()
 	QString sSongDir;
 	QString sPatternDir;
 	QString sPlaylistDir;
+	QString sPluginsDir;
 
 	INFOLOG( "Creating soundLibrary directories in " + sDir );
 
@@ -1174,12 +1175,14 @@ void Preferences::createSoundLibraryDirectories()
 	sSongDir = sDir + "/songs";
 	sPatternDir = sDir + "/patterns";
 	sPlaylistDir = sDir + "/playlists";
+	sPluginsDir = sDir + "/plugins";
 
 	QDir dir;
 	dir.mkdir( sDrumkitDir );
 	dir.mkdir( sSongDir );
 	dir.mkdir( sPatternDir );
 	dir.mkdir( sPlaylistDir );
+	dir.mkdir( sPluginsDir );
 }
 
 
