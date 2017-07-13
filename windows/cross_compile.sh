@@ -207,8 +207,6 @@ build_hydrogen(){
 
 	cmake $4 ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2 $3 -DWANT_FAT_BUILD:BOOL=$FATBUILD -DWANT_DEBUG:BOOL=OFF
 
-	exit
-
 	export HYDROGEN
 	export HYDROGEN_BUILD
 	export MXE
