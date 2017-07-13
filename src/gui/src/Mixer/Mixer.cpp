@@ -840,6 +840,8 @@ void Mixer::ladspaActiveBtnClicked( LadspaFXMixerLine* ref )
 			break;
 		}
 	}
+#else
+	QMessageBox::critical( this, "Hydrogen", trUtf8("LADSPA effects are not available in this version of Hydrogen.") );
 #endif
 }
 
@@ -856,6 +858,8 @@ void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 		}
 	}
 	Hydrogen::get_instance()->getSong()->set_is_modified( true );
+#else
+	QMessageBox::critical( this, "Hydrogen", trUtf8("LADSPA effects are not available in this version of Hydrogen.") );
 #endif
 }
 
