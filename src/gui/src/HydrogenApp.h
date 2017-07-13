@@ -64,7 +64,7 @@ class InfoBar;
 
 class HydrogenApp : public QObject, public H2Core::Object
 {
-    H2_OBJECT
+		H2_OBJECT
 	Q_OBJECT
 	public:
 		HydrogenApp( MainForm* pMainForm, H2Core::Song *pFirstSong );
@@ -77,6 +77,7 @@ class HydrogenApp : public QObject, public H2Core::Object
 		void setSong( H2Core::Song* pSong );
 
 		void showPreferencesDialog();
+		void updateMixerCheckbox();
 		void showMixer(bool bShow);
 		void showInstrumentPanel(bool);
 		void showAudioEngineInfoForm();

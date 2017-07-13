@@ -56,6 +56,9 @@ class MidiMap : public H2Core::Object
 		Action* getNoteAction( int note );
 		Action* getCCAction( int parameter );
 		Action* getPCAction();
+		
+		int findCCValueByActionParam1( QString actionType, QString param1 );
+		int findCCValueByActionType( QString actionType );
 
 		void setupNoteArray();
 	private:

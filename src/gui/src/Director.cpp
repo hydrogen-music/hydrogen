@@ -35,15 +35,15 @@
  **	-------------------------------------------
  **	|                                           |
  **	|                 song name                 |
- **	|                                           |	
+ **	|                                           |
  **	-------------------------------------------
  **	|                     |                     |
- **	|        Bar          |       Beat          |	
- **	|                     |                     |	
+ **	|        Bar          |       Beat          |
+ **	|                     |                     |
  **	-------------------------------------------
  **	|                                           |
  **	|            current bar tag                |
- **	|                                           |	
+ **	|                                           |
  **	-------------------------------------------
  **	|                                           |
  **	|              next bar tag                 |
@@ -91,13 +91,27 @@ Director::~Director()
 	//INFOLOG ( "DESTROY" );
 }
 
+void Director::keyPressEvent( QKeyEvent* ev )
+{
+	if(ev->key() == Qt::Key_Escape) {
+		HydrogenApp::get_instance()->showDirector();
+	}
+}
+
+void Director::closeEvent( QCloseEvent* ev )
+{
+	HydrogenApp::get_instance()->showDirector();
+}
+
+
+
 
 void Director::metronomeEvent( int nValue )
 {
 
 	//load a new song
 	if( nValue == 3 ){
-		
+
 		//update songname
 		QStringList list = Hydrogen::get_instance()->getSong()->get_filename().split("/");
 
@@ -109,7 +123,7 @@ void Director::metronomeEvent( int nValue )
 				__songName = QString("Untitled Song");
 			}
 		}
-		
+
 		update();
 		return;
 	}

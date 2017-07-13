@@ -75,7 +75,7 @@ class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 	signals:
 		void valueChanged(Fader *ref);
 
-	private:
+	protected:
 		bool m_bWithoutKnob;
 		bool m_bUseIntSteps;
 		bool m_bIgnoreMouseMove;
@@ -95,7 +95,20 @@ class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 		QPixmap m_knob;
 };
 
-
+class VerticalFader : public Fader
+{
+	Q_OBJECT
+	
+public:
+		VerticalFader(QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob );
+		~VerticalFader();
+		
+		virtual void paintEvent(QPaintEvent *ev);
+		virtual void mouseMoveEvent(QMouseEvent *ev);
+		
+		
+	
+};
 
 
 class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable

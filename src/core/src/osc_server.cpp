@@ -170,7 +170,11 @@ int OscServer::generic_handler(const char *	path,
 	if ( pos > -1 ) {
 		if( argc == 1 ){
 			int value = rxStripPanAbs.cap(1).toInt() - 1;
-			PAN_ABSOLUTE_Handler( QString::number( value ) , QString::number( argv[0]->f, 'f', 0) );
+			
+			H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
+			H2Core::CoreActionController* pController = pEngine->getCoreActionController();
+		
+			pController->setStripPan( value, argv[0]->f );
 		}
 	}
 	
@@ -192,6 +196,41 @@ int OscServer::generic_handler(const char *	path,
 		}
 	}
 	
+	QRegExp rxStripMute( "/Hydrogen/STRIP_MUTE_TOGGLE/(\\d+)" );
+	pos = rxStripMute.indexIn( oscPath );
+	if ( pos > -1 ) {
+		if( argc == 1 ){
+			int value = rxStripMute.cap(1).toInt() - 1;
+			
+			H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
+			H2Core::CoreActionController* pController = pEngine->getCoreActionController();
+			
+			bool isMuted = false;
+			if(argv[0]->f != 0){
+				isMuted = true;
+			}
+		
+			pController->setStripIsMuted( value, isMuted );
+		}
+	}
+	
+	QRegExp rxStripSolo( "/Hydrogen/STRIP_SOLO_TOGGLE/(\\d+)" );
+	pos = rxStripSolo.indexIn( oscPath );
+	if ( pos > -1 ) {
+		if( argc == 1 ){
+			int value = rxStripSolo.cap(1).toInt() - 1;
+			
+			H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
+			H2Core::CoreActionController* pController = pEngine->getCoreActionController();
+			
+			bool isSoloed = false;
+			if(argv[0]->f != 0){
+				isSoloed = true;
+			}
+		
+			pController->setStripIsSoloed( value, isSoloed );
+		}
+	}
 
 	INFOLOG( QString( "Incoming OSC Message for path %1" ).arg( path ) );
 	int i;
@@ -580,6 +619,8 @@ void OscServer::handleAction( Action* pAction )
 			lo_address clientAddress = *it;
 			lo_send_message(clientAddress, "/Hydrogen/MASTER_VOLUME_ABSOLUTE" , reply);
 		}
+		
+		lo_message_free( reply );
 	}
 	
 	if( pAction->getType() == "STRIP_VOLUME_ABSOLUTE"){
@@ -596,6 +637,8 @@ void OscServer::handleAction( Action* pAction )
 			lo_address clientAddress = *it;
 			lo_send_message(clientAddress, c_str2, reply);
 		}
+		
+		lo_message_free( reply );
 	}
 	
 	if( pAction->getType() == "TOGGLE_METRONOME"){
@@ -609,6 +652,8 @@ void OscServer::handleAction( Action* pAction )
 			lo_address clientAddress = *it;
 			lo_send_message(clientAddress, "/Hydrogen/TOGGLE_METRONOME", reply);
 		}
+		
+		lo_message_free( reply );
 	}
 	
 	if( pAction->getType() == "MUTE_TOGGLE"){
@@ -622,6 +667,62 @@ void OscServer::handleAction( Action* pAction )
 			lo_address clientAddress = *it;
 			lo_send_message(clientAddress, "/Hydrogen/MUTE_TOGGLE", reply);
 		}
+		
+		lo_message_free( reply );
+	}
+	
+	if( pAction->getType() == "STRIP_MUTE_TOGGLE"){
+		bool ok;
+		float param2 = pAction->getParameter2().toFloat(&ok);
+
+		lo_message reply = lo_message_new();
+		lo_message_add_float(reply, param2);
+
+		QByteArray ba = QString("/Hydrogen/STRIP_MUTE_TOGGLE/%1").arg(pAction->getParameter1()).toLatin1();
+		const char *c_str2 = ba.data();
+
+		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
+			lo_address clientAddress = *it;
+			lo_send_message(clientAddress, c_str2, reply);
+		}
+		
+		lo_message_free( reply );
+	}
+	
+	if( pAction->getType() == "STRIP_SOLO_TOGGLE"){
+		bool ok;
+		float param2 = pAction->getParameter2().toFloat(&ok);
+
+		lo_message reply = lo_message_new();
+		lo_message_add_float(reply, param2);
+
+		QByteArray ba = QString("/Hydrogen/STRIP_SOLO_TOGGLE/%1").arg(pAction->getParameter1()).toLatin1();
+		const char *c_str2 = ba.data();
+
+		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
+			lo_address clientAddress = *it;
+			lo_send_message(clientAddress, c_str2, reply);
+		}
+		
+		lo_message_free( reply );
+	}
+	
+	if( pAction->getType() == "PAN_ABSOLUTE"){
+		bool ok;
+		float param2 = pAction->getParameter2().toFloat(&ok);
+
+		lo_message reply = lo_message_new();
+		lo_message_add_float(reply, param2);
+
+		QByteArray ba = QString("/Hydrogen/PAN_ABSOLUTE/%1").arg(pAction->getParameter1()).toLatin1();
+		const char *c_str2 = ba.data();
+
+		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
+			lo_address clientAddress = *it;
+			lo_send_message(clientAddress, c_str2, reply);
+		}
+		
+		lo_message_free( reply );
 	}
 }
 
@@ -758,6 +859,10 @@ void OscServer::start()
 
 OscServer::~OscServer()
 {
+	for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
+		lo_address_free( *it );
+	}
+
 	__instance = NULL;
 }
 

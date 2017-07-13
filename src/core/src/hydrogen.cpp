@@ -1575,7 +1575,9 @@ void audioEngine_startAudioDrivers()
 #endif
 	} else if ( preferencesMng->m_sMidiDriver == "PortMidi" ) {
 #ifdef H2CORE_HAVE_PORTMIDI
-		m_pMidiDriver = new PortMidiDriver();
+		PortMidiDriver* pPortMidiDriver = new PortMidiDriver();
+		m_pMidiDriver = pPortMidiDriver;
+		m_pMidiDriverOut = pPortMidiDriver;
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif
@@ -1833,6 +1835,20 @@ void Hydrogen::sequencer_stop()
 	Preferences::get_instance()->setRecordEvents(false);
 }
 
+void Hydrogen::setPlaybackTrackState(bool state)
+{
+	Song* pSong = getSong();
+	pSong->set_playback_track_enabled(state);
+}
+
+void Hydrogen::loadPlaybackTrack(QString filename)
+{
+	Song* pSong = getSong();
+	pSong->set_playback_track_filename(filename);
+
+	AudioEngine::get_instance()->get_sampler()->reinitialize_playback_track();
+}
+
 void Hydrogen::setSong( Song *pSong )
 {
 	assert ( pSong );
@@ -1861,6 +1877,9 @@ void Hydrogen::setSong( Song *pSong )
 	audioEngine_setSong ( pSong );
 
 	__song = pSong;
+
+	//load new playback track information
+	AudioEngine::get_instance()->get_sampler()->reinitialize_playback_track();
 	
 	m_pCoreActionController->initExternalControlInterfaces();
 }

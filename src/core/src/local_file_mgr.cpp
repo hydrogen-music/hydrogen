@@ -1235,7 +1235,12 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	LocalFileMng::writeXmlString( songNode, "license", song->get_license() );
 	LocalFileMng::writeXmlBool( songNode, "loopEnabled", song->is_loop_enabled() );
 	LocalFileMng::writeXmlBool( songNode, "patternModeMode", Preferences::get_instance()->patternModePlaysSelected());
+	
+	LocalFileMng::writeXmlString( songNode, "playbackTrackFilename", QString("%1").arg( song->get_playback_track_filename() ) );
+	LocalFileMng::writeXmlBool( songNode, "playbackTrackEnabled", song->get_playback_track_enabled() );
+	LocalFileMng::writeXmlString( songNode, "playbackTrackVolume", QString("%1").arg( song->get_playback_track_volume() ) );
 
+	
 	if ( song->get_mode() == Song::SONG_MODE ) {
 		LocalFileMng::writeXmlString( songNode, "mode", QString( "song" ) );
 	} else {

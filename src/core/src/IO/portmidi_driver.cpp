@@ -123,6 +123,8 @@ const char* PortMidiDriver::__class_name = "PortMidiDriver";
 PortMidiDriver::PortMidiDriver()
 		: MidiInput( __class_name ), MidiOutput( __class_name ), Object( __class_name )
 		, m_bRunning( false )
+		, m_pMidiIn( nullptr )
+		, m_pMidiOut( nullptr )
 {
 	Pm_Initialize();
 }
@@ -133,6 +135,24 @@ PortMidiDriver::~PortMidiDriver()
 	Pm_Terminate();
 }
 
+void PortMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
+{
+	if ( m_pMidiOut == NULL ) {
+		ERRORLOG( "m_pMidiOut = NULL " );
+		return;
+	}
+
+	if (channel < 0) {
+		return;
+	}
+
+	PmEvent event;
+	event.timestamp = 0;
+
+	//Control change
+	event.message = Pm_Message(0xB0 | channel, param, value);
+	Pm_Write(m_pMidiOut, &event, 1);
+}
 
 
 

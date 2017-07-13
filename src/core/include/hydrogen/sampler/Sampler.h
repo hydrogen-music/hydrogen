@@ -89,12 +89,25 @@ public:
 
 		InterpolateMode getInterpolateMode(){ return __interpolateMode; }
 
+		/// Instrument used for the playback track feature.
+		Instrument* __playback_instrument;
+
+
+		/// Instrument used for the preview feature.
+		Instrument* __preview_instrument;
+
+		void reinitialize_playback_track();
+
 private:
 	std::vector<Note*> __playing_notes_queue;
 	std::vector<Note*> __queuedNoteOffs;
 
-	/// Instrument used for the preview feature.
-	Instrument* __preview_instrument;
+
+
+
+	bool processPlaybackTrack(int nBufferSize);
+
+	int __playBackSamplePosition;
 
 	bool __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
 

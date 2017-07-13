@@ -84,7 +84,7 @@ Preferences::Preferences()
 	__rubberBandCalcTime = 5;
 
 	QString rubberBandCLIPath = getenv( "PATH" );
-	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linx use ":" as seperator. maybe windows and osx use other seperators
+	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linux use ":" as seperator. maybe windows and osx use other seperators
 
 	//find the Rubberband-CLI in system env
 	//if this fails a second test will check individual user settings
@@ -100,6 +100,23 @@ Preferences::Preferences()
 		}
 	}
 
+	m_pDefaultUIStyle = new UIStyle();
+	m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
+
+#ifdef Q_OS_MACX
+	m_sPreferencesFilename = QDir::homePath().append( "/Library/Application Support/Hydrogen/hydrogen.conf" );
+	m_sPreferencesDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/" );
+	m_sDataDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/data/" );
+#else
+	m_sPreferencesFilename = QDir::homePath().append( "/.hydrogen/hydrogen.conf" );
+	m_sPreferencesDirectory = QDir::homePath().append( "/.hydrogen/" );
+	m_sDataDirectory = QDir::homePath().append( "/.hydrogen/data/" );
+#endif
+	m_sTmpDirectory = QDir::tempPath().append( "/hydrogen/" );
+	if ( !QDir(m_sTmpDirectory).exists() ) {
+		QDir(m_sTmpDirectory).mkdir( m_sTmpDirectory );// create the tmp directory
+	}
+	
 	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
 	if ( ladpath ) {
 		INFOLOG( "Found LADSPA_PATH environment variable" );
@@ -124,24 +141,11 @@ Preferences::Preferences()
 #endif
 
 	}
-
-
-	m_pDefaultUIStyle = new UIStyle();
-	m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
-
-#ifdef Q_OS_MACX
-	m_sPreferencesFilename = QDir::homePath().append( "/Library/Application Support/Hydrogen/hydrogen.conf" );
-	m_sPreferencesDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/" );
-	m_sDataDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/data/" );
-#else
-	m_sPreferencesFilename = QDir::homePath().append( "/.hydrogen/hydrogen.conf" );
-	m_sPreferencesDirectory = QDir::homePath().append( "/.hydrogen/" );
-	m_sDataDirectory = QDir::homePath().append( "/.hydrogen/data/" );
-#endif
-	m_sTmpDirectory = QDir::tempPath().append( "/hydrogen/" );
-	if ( !QDir(m_sTmpDirectory).exists() ) {
-		QDir(m_sTmpDirectory).mkdir( m_sTmpDirectory );// create the tmp directory
-	}
+	
+	/*
+	 *  Add .hydrogen/data/plugins to ladspa search path, no matter where LADSPA_PATH points to..
+	 */
+	m_ladspaPathVect.push_back( QString( m_sDataDirectory + "plugins" ) );
 
 	__lastspatternDirectory = QDir::homePath();
 	__lastsampleDirectory = QDir::homePath(); //audio file browser
@@ -539,6 +543,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_bMidiNoteOffIgnore = LocalFileMng::readXmlBool( midiDriverNode, "ignore_note_off", true );
 					m_bMidiDiscardNoteAfterAction = LocalFileMng::readXmlBool( midiDriverNode, "discard_note_after_action", true);
 					m_bMidiFixedMapping = LocalFileMng::readXmlBool( midiDriverNode, "fixed_mapping", false, true );
+					m_bEnableMidiFeedback = LocalFileMng::readXmlBool( midiDriverNode, "enable_midi_feedback", false, true );
 				}
 
 				/// OSC ///
@@ -928,6 +933,12 @@ void Preferences::savePreferences()
 			} else {
 				LocalFileMng::writeXmlString( midiDriverNode, "ignore_note_off", "false" );
 			}
+			
+			if ( m_bEnableMidiFeedback ) {
+				LocalFileMng::writeXmlString( midiDriverNode, "enable_midi_feedback", "true" );
+			} else {
+				LocalFileMng::writeXmlString( midiDriverNode, "enable_midi_feedback", "false" );
+			}
 
 			if ( m_bMidiDiscardNoteAfterAction ) {
 				LocalFileMng::writeXmlString( midiDriverNode, "discard_note_after_action", "true" );
@@ -1156,6 +1167,7 @@ void Preferences::createSoundLibraryDirectories()
 	QString sSongDir;
 	QString sPatternDir;
 	QString sPlaylistDir;
+	QString sPluginsDir;
 
 	INFOLOG( "Creating soundLibrary directories in " + sDir );
 
@@ -1163,12 +1175,14 @@ void Preferences::createSoundLibraryDirectories()
 	sSongDir = sDir + "/songs";
 	sPatternDir = sDir + "/patterns";
 	sPlaylistDir = sDir + "/playlists";
+	sPluginsDir = sDir + "/plugins";
 
 	QDir dir;
 	dir.mkdir( sDrumkitDir );
 	dir.mkdir( sSongDir );
 	dir.mkdir( sPatternDir );
 	dir.mkdir( sPlaylistDir );
+	dir.mkdir( sPluginsDir );
 }
 
 
