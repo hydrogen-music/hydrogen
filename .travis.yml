@@ -22,6 +22,8 @@ addons:
       - libjack-jackd2-dev
       - liblo-dev
       - libpulse-dev
+      - libportmidi-dev
+      - portaudio19-dev
       - libcppunit-dev
 
 before_install:
