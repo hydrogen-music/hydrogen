@@ -22,7 +22,7 @@ const char* Legacy::__class_name = "Legacy";
 
 Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 	if ( version_older_than( 0, 9, 8 ) ) {
-		ERRORLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
+		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
 	} else {
 		WARNINGLOG( QString( "loading drumkit with legacy code" ) );
 	}
