@@ -582,7 +582,7 @@ p, li { white-space: pre-wrap; }
    </layer>
   </instrument>
   <instrument>
-   <id>21</id>
+   <id>10</id>
    <name>Hat Open</name>
    <volume>0.698276</volume>
    <isMuted>false</isMuted>
@@ -822,7 +822,7 @@ p, li { white-space: pre-wrap; }
    </layer>
   </instrument>
   <instrument>
-   <id>15</id>
+   <id>14</id>
    <name>Ride 2</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
@@ -942,67 +942,7 @@ p, li { white-space: pre-wrap; }
    </layer>
   </instrument>
   <instrument>
-   <id>19</id>
-   <name>Splash Choke</name>
-   <volume>1</volume>
-   <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <layer>
-    <filename>SplashChoke-Softest.wav</filename>
-    <min>0</min>
-    <max>0.188406</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>SplashChoke-Soft.wav</filename>
-    <min>0.188406</min>
-    <max>0.369565</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>SplashChoke-Med.wav</filename>
-    <min>0.376812</min>
-    <max>0.59058</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>SplashChoke-Hard.wav</filename>
-    <min>0.594203</min>
-    <max>0.771739</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>SplashChoke-Hardest.wav</filename>
-    <min>0.768116</min>
-    <max>1</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-  </instrument>
-  <instrument>
-   <id>20</id>
+   <id>16</id>
    <name>Hat Semi-Open</name>
    <volume>0.69</volume>
    <isMuted>false</isMuted>
@@ -1056,126 +996,6 @@ p, li { white-space: pre-wrap; }
    <layer>
     <filename>HatSemiOpen-Hardest.wav</filename>
     <min>0.782609</min>
-    <max>1</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-  </instrument>
- <instrument>
-   <id>10</id>
-   <name>Hat Swish</name>
-   <volume>0.44431</volume>
-   <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.48</pan_R>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <layer>
-    <filename>HatSwish-Softest.wav</filename>
-    <min>0</min>
-    <max>0.163043</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>HatSwish-Soft.wav</filename>
-    <min>0.166667</min>
-    <max>0.358696</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>HatSwish-Med.wav</filename>
-    <min>0.355072</min>
-    <max>0.554348</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>HatSwish-Hard.wav</filename>
-    <min>0.557971</min>
-    <max>0.753623</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>HatSwish-Hardest.wav</filename>
-    <min>0.757246</min>
-    <max>1</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-  </instrument>
-  <instrument>
-   <id>16</id>
-   <name>Hat Choke</name>
-   <volume>1</volume>
-   <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <layer>
-    <filename>HatChoke-Softest.wav</filename>
-    <min>0</min>
-    <max>0.192029</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>HatChoke-Soft.wav</filename>
-    <min>0.195652</min>
-    <max>0.373188</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>HatChoke-Med.wav</filename>
-    <min>0.376812</min>
-    <max>0.572464</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>HatChoke-Hard.wav</filename>
-    <min>0.572464</min>
-    <max>0.793478</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>HatChoke-Hardest.wav</filename>
-    <min>0.789855</min>
     <max>1</max>
     <gain>1</gain>
     <pitch>0</pitch>
@@ -1241,66 +1061,5 @@ p, li { white-space: pre-wrap; }
     <pitch>0</pitch>
    </layer>
   </instrument>
-  <instrument>
-   <id>18</id>
-   <name>Ride Flink</name>
-   <volume>0.517241</volume>
-   <isMuted>false</isMuted>
-   <pan_L>0.56</pan_L>
-   <pan_R>1</pan_R>
-   <randomPitchFactor>0</randomPitchFactor>
-   <gain>1</gain>
-   <filterActive>false</filterActive>
-   <filterCutoff>1</filterCutoff>
-   <filterResonance>0</filterResonance>
-   <Attack>0</Attack>
-   <Decay>0</Decay>
-   <Sustain>1</Sustain>
-   <Release>1000</Release>
-   <muteGroup>-1</muteGroup>
-   <midiOutChannel>-1</midiOutChannel>
-   <midiOutNote>60</midiOutNote>
-   <isStopNote>false</isStopNote>
-   <FX1Level>0</FX1Level>
-   <FX2Level>0</FX2Level>
-   <FX3Level>0</FX3Level>
-   <FX4Level>0</FX4Level>
-   <layer>
-    <filename>RideFlink-Softest.wav</filename>
-    <min>0</min>
-    <max>0.188406</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>RideFlink-Soft.wav</filename>
-    <min>0.188406</min>
-    <max>0.351449</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>RideFlink-Med.wav</filename>
-    <min>0.355072</min>
-    <max>0.583333</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>RideFlink-Hard.wav</filename>
-    <min>0.57971</min>
-    <max>0.768116</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-   <layer>
-    <filename>RideFlink-Hardest.wav</filename>
-    <min>0.771739</min>
-    <max>1</max>
-    <gain>1</gain>
-    <pitch>0</pitch>
-   </layer>
-  </instrument>
-
  </instrumentList>
 </drumkit_info>
