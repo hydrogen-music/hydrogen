@@ -34,6 +34,7 @@ const char* WaveDisplay::__class_name = "WaveDisplay";
 WaveDisplay::WaveDisplay(QWidget* pParent)
  : QWidget( pParent )
  , Object( __class_name )
+ , m_nCurrentWidth( 0 )
  , m_sSampleName( "" )
 {
 	setAttribute(Qt::WA_NoBackground);
@@ -120,7 +121,7 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 //		INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
 
 		int nSampleLength = pLayer->get_sample()->get_frames();
-		float nScaleFactor = nSampleLength / m_nCurrentWidth;
+		int nScaleFactor = nSampleLength / m_nCurrentWidth;
 
 		float fGain = height() / 2.0 * pLayer->get_gain();
 

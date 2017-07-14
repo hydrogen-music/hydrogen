@@ -264,7 +264,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		return 1;
 	}
 
-	bool nReturnValues [pInstr->get_components()->size()];
+	bool nReturnValues [pInstr->get_components()->size()] = {false};
 	int nReturnValueIndex = 0;
 	int nAlreadySelectedLayer = -1;
 
