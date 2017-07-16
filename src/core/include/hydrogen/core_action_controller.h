@@ -44,6 +44,7 @@ class CoreActionController : public H2Core::Object {
 		void setStripIsSoloed( int nStrip, bool isSoloed );
 		
 		void initExternalControlInterfaces();
+		void handleOutgoingControlChange( int param, int value, int channel);
 };
 
 }

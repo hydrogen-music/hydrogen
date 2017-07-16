@@ -66,7 +66,7 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		static const int m_nKeys = 24;
 		static const int m_nBasePitch = 12;
 
-		NotePropertiesMode m_mode;
+		NotePropertiesMode m_Mode;
 
 		PatternEditorPanel *m_pPatternEditorPanel;
 		H2Core::Pattern *m_pPattern;

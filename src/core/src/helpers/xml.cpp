@@ -138,7 +138,7 @@ bool XMLDoc::read( const QString& filepath, const QString& schemapath )
 	if ( schema_usable ) {
 		QXmlSchemaValidator validator( schema );
 		if ( !validator.validate( &file, QUrl::fromLocalFile( file.fileName() ) ) ) {
-			ERRORLOG( QString( "XML document %1 is not valid (%2), loading may fail" ).arg( filepath ).arg( schemapath ) );
+			WARNINGLOG( QString( "XML document %1 is not valid (%2), loading may fail" ).arg( filepath ).arg( schemapath ) );
 			file.close();
 			return false;
 		} else {

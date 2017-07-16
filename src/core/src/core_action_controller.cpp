@@ -58,14 +58,11 @@ void CoreActionController::setMasterVolume( float masterVolumeValue )
 	delete pFeedbackAction;
 #endif
 	
-	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
 	int ccParamValue = pMidiMap->findCCValueByActionType( QString("MASTER_VOLUME_ABSOLUTE"));
 	
-	if( ccParamValue >= 0 ){
-		pMidiDriver->handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127, 0);
-	}
+	handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127, 0);
 }
 
 void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
@@ -89,14 +86,13 @@ void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
 	delete pFeedbackAction;
 #endif
 
-	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
-	if( ccParamValue >= 0 ){
-		pMidiDriver->handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127, 0);
-	}
+
+	handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127, 0);
+
 }
 
 void CoreActionController::setMetronomeIsActive( bool isActive ){
@@ -112,14 +108,11 @@ void CoreActionController::setMetronomeIsActive( bool isActive ){
 	delete pFeedbackAction;
 #endif
 	
-	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
 	int ccParamValue = pMidiMap->findCCValueByActionType( QString("TOGGLE_METRONOME"));
 	
-	if( ccParamValue >= 0 ){
-		pMidiDriver->handleOutgoingControlChange( ccParamValue, (int) isActive * 127 , 0);
-	}
+	handleOutgoingControlChange( ccParamValue, (int) isActive * 127 , 0);
 }
 
 void CoreActionController::setMasterIsMuted( bool isMuted ){
@@ -134,15 +127,12 @@ void CoreActionController::setMasterIsMuted( bool isMuted ){
 	
 	delete pFeedbackAction;
 #endif
-	
-	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
+
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
 	int ccParamValue = pMidiMap->findCCValueByActionType( QString("MUTE_TOGGLE"));
-	
-	if( ccParamValue >= 0 ){
-		pMidiDriver->handleOutgoingControlChange( ccParamValue, (int) isMuted * 127 , 0);
-	}
+
+	handleOutgoingControlChange( ccParamValue, (int) isMuted * 127 , 0);
 }
 
 void CoreActionController::setStripIsMuted( int nStrip, bool isMuted ){
@@ -162,15 +152,12 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted ){
 	
 	delete pFeedbackAction;
 #endif
-	
-	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
+
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_MUTE_TOGGLE"), QString("%1").arg( nStrip ) );
 	
-	if( ccParamValue >= 0 ){
-		pMidiDriver->handleOutgoingControlChange( ccParamValue, ((int) isMuted) * 127, 0);
-	}
+	handleOutgoingControlChange( ccParamValue, ((int) isMuted) * 127, 0);
 }
 
 void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed ){
@@ -200,14 +187,11 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed ){
 	delete pFeedbackAction;
 #endif
 	
-	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_SOLO_TOGGLE"), QString("%1").arg( nStrip ) );
 	
-	if( ccParamValue >= 0 ){
-		pMidiDriver->handleOutgoingControlChange( ccParamValue, ((int) isSoloed) * 127, 0);
-	}
+	handleOutgoingControlChange( ccParamValue, ((int) isSoloed) * 127, 0);
 }
 
 
@@ -249,13 +233,30 @@ void CoreActionController::setStripPan( int nStrip, float panValue )
 	delete pFeedbackAction;
 #endif
 	
-	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
-	if( ccParamValue >= 0 ){
-		pMidiDriver->handleOutgoingControlChange( ccParamValue, panValue * 127, 0);
+
+	handleOutgoingControlChange( ccParamValue, panValue * 127, 0);
+}
+
+void CoreActionController::handleOutgoingControlChange(int param, int value, int channel)
+{
+	Preferences *pPref = Preferences::get_instance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
+	
+	if( pMidiDriver == nullptr ){
+		return;
+	}
+	
+	if( pPref->m_bEnableMidiFeedback == false){
+		return;
+	}
+	
+	if( param >= 0 ){
+		pMidiDriver->handleOutgoingControlChange( param, value, channel);
 	}
 }
 
