@@ -7,12 +7,32 @@
 #include <QtCore/QTextStream>
 #include <QtXmlPatterns/QXmlSchema>
 #include <QtXmlPatterns/QXmlSchemaValidator>
+#include <QAbstractMessageHandler>
 
 #define XMLNS_BASE "http://www.hydrogen-music.org/"
 #define XMLNS_XSI "http://www.w3.org/2001/XMLSchema-instance"
 
 namespace H2Core
 {
+
+class SilentMessageHandler : public QAbstractMessageHandler
+{
+public:
+    SilentMessageHandler()
+        : QAbstractMessageHandler(0)
+    {
+    }
+
+protected:
+    virtual void handleMessage(QtMsgType type, const QString &description,
+                               const QUrl &identifier, const QSourceLocation &sourceLocation)
+    {
+        Q_UNUSED(type);
+        Q_UNUSED(identifier);
+    }
+
+};
+
 
 const char* XMLNode::__class_name ="XMLNode";
 
@@ -114,8 +134,12 @@ XMLDoc::XMLDoc( ) : Object( __class_name ) { }
 
 bool XMLDoc::read( const QString& filepath, const QString& schemapath )
 {
+	SilentMessageHandler Handler;
 	QXmlSchema schema;
+	schema.setMessageHandler( &Handler );
+	
 	bool schema_usable = false;
+	
 	if( schemapath!=0 ) {
 		QFile file( schemapath );
 		if ( !file.open( QIODevice::ReadOnly ) ) {
@@ -130,11 +154,13 @@ bool XMLDoc::read( const QString& filepath, const QString& schemapath )
 			}
 		}
 	}
+	
 	QFile file( filepath );
 	if ( !file.open( QIODevice::ReadOnly ) ) {
 		ERRORLOG( QString( "Unable to open %1 for reading" ).arg( filepath ) );
 		return false;
 	}
+	
 	if ( schema_usable ) {
 		QXmlSchemaValidator validator( schema );
 		if ( !validator.validate( &file, QUrl::fromLocalFile( file.fileName() ) ) ) {
@@ -146,12 +172,14 @@ bool XMLDoc::read( const QString& filepath, const QString& schemapath )
 		}
 		file.seek( 0 );
 	}
+	
 	if( !setContent( &file ) ) {
 		ERRORLOG( QString( "Unable to read XML document %1" ).arg( filepath ) );
 		file.close();
 		return false;
 	}
 	file.close();
+	
 	return true;
 }
 
@@ -186,5 +214,3 @@ void XMLDoc::set_root( const QString& node_name, const QString& xmlns )
 }
 
 };
-
-/* vim: set softtabstop=4 expandtab: */
