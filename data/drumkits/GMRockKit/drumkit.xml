@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <drumkit_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit">
- <name>DefaultAcousticKit</name>
+ <name>GMRockKit</name>
  <author>Glen MacArthur / Sebastian Moors</author>
  <info>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 &lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
