@@ -147,7 +147,6 @@ ELSE(MINGW)
 		SET(CMAKE_INSTALL_PREFIX "/usr" )
     ELSE(APPLE)
         SET(OSS_LIB_PATHS "/usr/lib${LIB_SUFFIX}/oss/lib" "/usr/local/lib${LIB_SUFFIX}/oss/lib" )
-        SET(RUBBERBAND_INCLUDE_PATHS "/usr/include/rubberband" )
     ENDIF(APPLE)
 ENDIF(MINGW)
 
@@ -222,9 +221,9 @@ FIND_HELPER(PORTAUDIO portaudio-2.0 portaudio.h portaudio)
 FIND_HELPER(PORTMIDI portmidi portmidi.h portmidi)
 FIND_HELPER(PULSEAUDIO pulseaudio pulse/pulseaudio.h pulse)
 FIND_HELPER(LASH lash-1.0 lash/lash.h lash)
-FIND_HELPER(LRDF lrdf lrdf/lrdf.h lrdf)
+FIND_HELPER(LRDF lrdf lrdf.h lrdf)
 
-FIND_HELPER(RUBBERBAND rubberband RubberBandStretcher.h rubberband)
+FIND_HELPER(RUBBERBAND rubberband rubberband/RubberBandStretcher.h rubberband)
 FIND_HELPER(CPPUNIT cppunit cppunit/TestCase.h cppunit)
 
 
