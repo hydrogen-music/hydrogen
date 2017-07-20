@@ -39,6 +39,7 @@ $CMD ../../data/i18n/hydrogen.cs.ts
 $CMD ../../data/i18n/hydrogen.el.ts
 $CMD ../../data/i18n/hydrogen.gl.ts
 $CMD ../../data/i18n/hydrogen.sr.ts
+$CMD ../../data/i18n/hydrogen.ca.ts
 
 echo "Creating *.qm files"
 cd ../../data/i18n
