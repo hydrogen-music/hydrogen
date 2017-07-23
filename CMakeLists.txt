@@ -219,7 +219,7 @@ IF(APPLE)
 ENDIF()
 FIND_HELPER(PORTAUDIO portaudio-2.0 portaudio.h portaudio)
 FIND_HELPER(PORTMIDI portmidi portmidi.h portmidi)
-FIND_HELPER(PULSEAUDIO pulseaudio pulse/pulseaudio.h pulse)
+FIND_HELPER(PULSEAUDIO libpulse pulse/pulseaudio.h pulse)
 FIND_HELPER(LASH lash-1.0 lash/lash.h lash)
 FIND_HELPER(LRDF lrdf lrdf.h lrdf)
 

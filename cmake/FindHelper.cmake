@@ -23,10 +23,10 @@ macro(FIND_HELPER prefix pkg_name header lib)
             FIND_PACKAGE(PkgConfig)
         endif()
         if(PKG_CONFIG_FOUND)
-            pkg_check_modules(PC_${prefix} ${pkg_name})
+            pkg_check_modules(${prefix} ${pkg_name})
             #MESSAGE(STATUS  " LDFLAGS       ${${prefix}_LDFLAGS}" )
             #MESSAGE(STATUS  " CFLAGS        ${${prefix}_CFLAGS}" )
-            #MESSAGE(STATUS  " INCLUDEDIRS   ${${prefix}_INCLUDE_DIRS}" )
+            #MESSAGE(STATUS  " INCLUDE_DIRS  ${${prefix}_INCLUDE_DIRS}" )
             set(${prefix}_DEFINITIONS ${prefix}_CFLAGS_OTHER )
         else()
             MESSAGE(STATUS "Checking for module '${pkg_name}'")
@@ -36,13 +36,13 @@ macro(FIND_HELPER prefix pkg_name header lib)
 
         find_path(${prefix}_INCLUDE_DIR
             NAMES ${header}
-            HINTS ${PC_${prefix}_INCLUDE_DIRS} ${PC_${prefix}_INCLUDEDIR} ${PC_${prefix}_INCLUDE_PATHS}
+            HINTS ${${prefix}_INCLUDE_DIRS} ${${prefix}_INCLUDEDIR} ${${prefix}_INCLUDE_PATHS}
             ENV ${prefix}_INCLUDE
         )
 
         find_library(${prefix}_LIBRARIES
             NAMES ${lib}
-            HINTS ${PC_${prefix}_LIBDIR} ${PC_${prefix}_LIBRARY_DIRS} ${PC_${prefix}_LIB_PATHS}
+            HINTS ${${prefix}_LIBDIR} ${${prefix}_LIBRARY_DIRS} ${${prefix}_LIB_PATHS}
             ENV ${prefix}_PATH
         )
     endif()
