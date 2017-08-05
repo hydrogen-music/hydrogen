@@ -20,9 +20,9 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}/src             # gui headers
     ${CMAKE_SOURCE_DIR}/src/core/include        # core headers
     ${CMAKE_BINARY_DIR}/src/core/include        # generated config.h
-    ${LASH_INCLUDE_DIR}
     ${QT_INCLUDES}
-    ${LIBARCHIVE_INCLUDE_DIR}
+    ${LASH_INCLUDE_DIRS}
+    ${LIBARCHIVE_INCLUDE_DIRS}
 )
 
 IF(APPLE)
