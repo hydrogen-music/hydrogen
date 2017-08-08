@@ -414,6 +414,10 @@ void Mixer::masterVolumeChanged(MasterMixerLine* ref)
 
 void Mixer::updateMixer()
 {
+	if( !this->isVisible() ){
+		return;
+	}
+	
 	Preferences *pPref = Preferences::get_instance();
 	bool bShowPeaks = pPref->showInstrumentPeaks();
 
