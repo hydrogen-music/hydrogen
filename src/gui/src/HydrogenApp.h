@@ -85,23 +85,20 @@ class HydrogenApp : public QObject, public H2Core::Object
 		void showDirector();
 		void showSampleEditor( QString name, int mSelectedComponemt, int mSelectedLayer );
 
-		Mixer* getMixer() {	return m_pMixer;	}
-		MainForm* getMainForm() {	return m_pMainForm;	}
-		SongEditorPanel* getSongEditorPanel() {	return m_pSongEditorPanel;	}
-		AudioEngineInfoForm* getAudioEngineInfoForm() {	return m_pAudioEngineInfoForm;	}
-		PlaylistDialog* getPlayListDialog() {	return m_pPlaylistDialog;	}
-		Director* getDirector() { return m_pDirector; }
-		SampleEditor* getSampleEditor() {  return m_pSampleEditor;	}
-		SimpleHTMLBrowser* getHelpBrowser() {	return m_pHelpBrowser;	}
-		PatternEditorPanel* getPatternEditorPanel() {	return m_pPatternEditorPanel;	}
-		PlayerControl* getPlayerControl() {	return m_pPlayerControl;	}
-		InstrumentRack* getInstrumentRack(){	return m_pInstrumentRack;	}
-		InfoBar *getInfoBar() const { return m_pInfoBar; }
+		Mixer*					getMixer();
+		MainForm*				getMainForm();
+		SongEditorPanel*		getSongEditorPanel();
+		AudioEngineInfoForm*	getAudioEngineInfoForm();
+		PlaylistDialog*			getPlayListDialog();
+		Director*				getDirector();
+		SampleEditor*			getSampleEditor();
+		SimpleHTMLBrowser*		getHelpBrowser();
+		PatternEditorPanel*		getPatternEditorPanel();
+		PlayerControl*			getPlayerControl();
+		InstrumentRack*			getInstrumentRack();
+		InfoBar *				getInfoBar() const;
 
-		QUndoStack*  m_undoStack;
-		QTabWidget *pTab;
-		QSplitter *pSplitter;
-
+		QUndoStack*		m_undoStack;
 
 		void setStatusBarMessage( const QString& msg, int msec = 0 );
 		void setScrollStatusBarMessage( const QString& msg, int msec = 0, bool test = true );
@@ -126,28 +123,30 @@ class HydrogenApp : public QObject, public H2Core::Object
 
 
 	private:
-		static HydrogenApp *m_pInstance;	///< HydrogenApp instance
+		static HydrogenApp *		m_pInstance;	///< HydrogenApp instance
 
 #ifdef H2CORE_HAVE_LADSPA
-		LadspaFXProperties *m_pLadspaFXProperties[MAX_FX];
+		LadspaFXProperties *		m_pLadspaFXProperties[MAX_FX];
 #endif
 
-		MainForm *m_pMainForm;
-		Mixer *m_pMixer;
-		PatternEditorPanel* m_pPatternEditorPanel;
-		AudioEngineInfoForm *m_pAudioEngineInfoForm;
-		SongEditorPanel *m_pSongEditorPanel;
-		SimpleHTMLBrowser *m_pHelpBrowser;
-		SimpleHTMLBrowser *m_pFirstTimeInfo;
-		InstrumentRack* m_pInstrumentRack;
-		PlayerControl *m_pPlayerControl;
-		PlaylistDialog *m_pPlaylistDialog;
-		SampleEditor *m_pSampleEditor;
-		InfoBar *m_pInfoBar;
-		Director *m_pDirector;
-		QTimer *m_pEventQueueTimer;
-		std::vector<EventListener*> m_eventListeners;
-		QStringList temporaryFileList;
+		MainForm *					m_pMainForm;
+		Mixer *						m_pMixer;
+		PatternEditorPanel*			m_pPatternEditorPanel;
+		AudioEngineInfoForm *		m_pAudioEngineInfoForm;
+		SongEditorPanel *			m_pSongEditorPanel;
+		SimpleHTMLBrowser *			m_pHelpBrowser;
+		SimpleHTMLBrowser *			m_pFirstTimeInfo;
+		InstrumentRack*				m_pInstrumentRack;
+		PlayerControl *				m_pPlayerControl;
+		PlaylistDialog *			m_pPlaylistDialog;
+		SampleEditor *				m_pSampleEditor;
+		InfoBar *					m_pInfoBar;
+		Director *					m_pDirector;
+		QTimer *					m_pEventQueueTimer;
+		std::vector<EventListener*> m_EventListeners;
+		QStringList					m_TemporaryFileList;
+		QTabWidget *				m_pTab;
+		QSplitter *					m_pSplitter;
 
 		// implement EngineListener interface
 		void engineError(uint nErrorCode);
@@ -156,5 +155,65 @@ class HydrogenApp : public QObject, public H2Core::Object
 		virtual void songModifiedEvent();
 };
 
+
+inline Mixer* HydrogenApp::getMixer() 
+{
+	return m_pMixer;	
+}
+
+inline MainForm* HydrogenApp::getMainForm() 
+{	
+	return m_pMainForm;	
+}
+
+inline SongEditorPanel* HydrogenApp::getSongEditorPanel() 
+{
+	return m_pSongEditorPanel;
+}
+
+inline AudioEngineInfoForm* HydrogenApp::getAudioEngineInfoForm()
+{
+	return m_pAudioEngineInfoForm;
+}
+
+inline PlaylistDialog* HydrogenApp::getPlayListDialog() 
+{
+	return m_pPlaylistDialog;
+}
+
+inline Director* HydrogenApp::getDirector() 
+{ 
+	return m_pDirector; 
+}
+
+inline SampleEditor* HydrogenApp::getSampleEditor()
+{ 
+	return m_pSampleEditor;	
+}
+
+inline SimpleHTMLBrowser* HydrogenApp::getHelpBrowser() 
+{
+	return m_pHelpBrowser;
+}
+
+inline PatternEditorPanel* HydrogenApp::getPatternEditorPanel() 
+{
+	return m_pPatternEditorPanel;
+}
+
+inline PlayerControl* HydrogenApp::getPlayerControl() 
+{
+	return m_pPlayerControl;
+}
+
+inline InstrumentRack* HydrogenApp::getInstrumentRack()
+{
+	return m_pInstrumentRack;
+}
+
+inline InfoBar* HydrogenApp::getInfoBar() const
+{ 
+	return m_pInfoBar;
+}
 
 #endif
