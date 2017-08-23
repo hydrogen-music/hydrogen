@@ -496,8 +496,8 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			// Humanize - Velocity parameter
 			pNote->set_velocity( pNote->get_velocity() * velocity_adjustment );
 
-			float rnd = (float)rand()/(float)RAND_MAX;
-			if (pNote->get_probability() < rnd) {
+			float threshold = pSong->get_threshold();
+			if (pNote->get_probability() < threshold) {
 				m_songNoteQueue.pop();
 				pNote->get_instrument()->dequeue();
 				continue;

@@ -292,6 +292,7 @@ class Song : public H2Core::Object
 		{
 			__playback_track_volume = volume;
 		}
+		float get_threshold() const;
 
 
 	private:
