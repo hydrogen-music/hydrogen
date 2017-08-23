@@ -271,6 +271,9 @@ class MasterMixerLine: public PixmapWidget
 		Rotary *		m_pHumanizeTimeRotary;
 		Rotary *		m_pHumanizeVelocityRotary;
 
+		Rotary *        m_pFillValueRotary;
+		Rotary *        m_pFillRandomizeRotary;
+
 		ToggleButton *	m_pMuteBtn;
 };
 
