@@ -226,7 +226,23 @@ class Song : public H2Core::Object
 			return __velocity_automation_path;
 		}
 
-		DrumkitComponent* get_component( int ID );
+		float get_fill_value() const {
+			return __fill_value;
+		}
+
+		void set_fill_value(float fill_value) {
+			__fill_value = fill_value;
+		}
+
+		float get_fill_randomize() const {
+			return __fill_randomize;
+		}
+
+		void set_fill_randomize(float fill_randomize) {
+			__fill_randomize = fill_randomize;
+		}
+
+        DrumkitComponent* get_component( int ID );
 
 		void readTempPatternList( const QString& filename );
 		bool writeTempPatternList( const QString& filename );
@@ -297,7 +313,10 @@ class Song : public H2Core::Object
 		QString								__playback_track_filename;
 		bool								__playback_track_enabled;
 		float								__playback_track_volume;
-		AutomationPath*						__velocity_automation_path;
+		AutomationPath*                     __velocity_automation_path;
+
+		float                               __fill_value;
+		float                               __fill_randomize;
 };
 
 

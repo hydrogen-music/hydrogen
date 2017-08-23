@@ -82,6 +82,8 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 	, __playback_track_enabled( false )
 	, __playback_track_volume( 0.0 )
 	, __velocity_automation_path( NULL )
+	, __fill_value(0.5)
+	, __fill_randomize(1)
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( __name ) );
 
