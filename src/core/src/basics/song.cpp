@@ -83,7 +83,7 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 	, __playback_track_volume( 0.0 )
 	, __velocity_automation_path( NULL )
 	, __fill_value(0.5)
-	, __fill_randomize(1)
+	, __fill_randomize(0)
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( __name ) );
 
@@ -639,6 +639,8 @@ Song* SongReader::readSong( const QString& filename )
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
+	float fFillValue = LocalFileMng::readXmlFloat( songNode, "fillValue", 0.5 );
+	float fFillRandomize = LocalFileMng::readXmlFloat( songNode, "fillRandomize", 1.0 );
 
 	song = new Song( sName, sAuthor, fBpm, fVolume );
 	song->set_metronome_volume( fMetronomeVolume );
@@ -649,6 +651,8 @@ Song* SongReader::readSong( const QString& filename )
 	song->set_humanize_time_value( fHumanizeTimeValue );
 	song->set_humanize_velocity_value( fHumanizeVelocityValue );
 	song->set_swing_factor( fSwingFactor );
+	song->set_fill_value( fFillValue );
+	song->set_fill_randomize( fFillRandomize );
 	song->set_playback_track_filename( sPlaybackTrack );
 	song->set_playback_track_enabled( bPlaybackTrackEnabled );
 	song->set_playback_track_volume( fPlaybackTrackVolume );
