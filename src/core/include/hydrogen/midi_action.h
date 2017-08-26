@@ -123,6 +123,11 @@ class MidiActionManager : public H2Core::Object
 		bool redo_action(Action * , H2Core::Hydrogen * , targeted_element );
 		bool gain_level_absolute(Action * , H2Core::Hydrogen * , targeted_element );
 		bool pitch_level_absolute(Action * , H2Core::Hydrogen * , targeted_element );
+		bool humanize_velocity_absolute(Action * , H2Core::Hydrogen * , targeted_element );
+		bool humanize_time_absolute(Action * , H2Core::Hydrogen * , targeted_element );
+		bool swing_absolute(Action * , H2Core::Hydrogen * , targeted_element );
+		bool fill_value_absolute(Action * , H2Core::Hydrogen * , targeted_element );
+		bool fill_randomize_absolute(Action * , H2Core::Hydrogen * , targeted_element );
 
 		QStringList eventList;
 

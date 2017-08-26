@@ -119,6 +119,13 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 	actionMap.insert(make_pair("MASTER_VOLUME_ABSOLUTE", make_pair(&MidiActionManager::master_volume_absolute, empty)));
 	actionMap.insert(make_pair("STRIP_VOLUME_RELATIVE", make_pair(&MidiActionManager::strip_volume_relative, empty)));
 	actionMap.insert(make_pair("STRIP_VOLUME_ABSOLUTE", make_pair(&MidiActionManager::strip_volume_absolute, empty)));
+
+	actionMap.insert(make_pair("HUMANIZE_VELOCITY_ABSOLUTE", make_pair(&MidiActionManager::humanize_velocity_absolute, empty)));
+	actionMap.insert(make_pair("HUMANIZE_TIME_ABSOLUTE", make_pair(&MidiActionManager::humanize_time_absolute, empty)));
+	actionMap.insert(make_pair("SWING_ABSOLUTE", make_pair(&MidiActionManager::swing_absolute, empty)));
+	actionMap.insert(make_pair("FILL_VALUE_ABSOLUTE", make_pair(&MidiActionManager::fill_value_absolute, empty)));
+	actionMap.insert(make_pair("FILL_RANDOMIZE_ABSOLUTE", make_pair(&MidiActionManager::fill_randomize_absolute, empty)));
+
 	for(int i = 0; i < MAX_FX; ++i) {
 		targeted_element effect = {i,0};
 		ostringstream toChar;
@@ -436,6 +443,46 @@ bool MidiActionManager::master_volume_absolute(Action * pAction, Hydrogen* pEngi
 	}
 
 	return true;
+}
+
+bool MidiActionManager::humanize_velocity_absolute(Action * pAction, H2Core::Hydrogen* pEngine , targeted_element ) {
+	bool ok;
+	int value = pAction->getParameter2().toInt(&ok,10);
+
+	Song *song = pEngine->getSong();
+	song->set_humanize_velocity_value( value / 127.0 );
+}
+
+bool MidiActionManager::humanize_time_absolute(Action *pAction , H2Core::Hydrogen* pEngine , targeted_element ) {
+	bool ok;
+	int value = pAction->getParameter2().toInt(&ok,10);
+
+	Song *song = pEngine->getSong();
+	song->set_humanize_time_value( value / 127.0 );
+}
+
+bool MidiActionManager::swing_absolute(Action *pAction , H2Core::Hydrogen* pEngine , targeted_element ) {
+	bool ok;
+	int value = pAction->getParameter2().toInt(&ok,10);
+
+	Song *song = pEngine->getSong();
+	song->set_swing_factor( value / 127.0 );
+}
+
+bool MidiActionManager::fill_value_absolute(Action *pAction , H2Core::Hydrogen* pEngine , targeted_element ) {
+	bool ok;
+	int value = pAction->getParameter2().toInt(&ok,10);
+
+	Song *song = pEngine->getSong();
+	song->set_fill_value( value / 127.0 );
+}
+
+bool MidiActionManager::fill_randomize_absolute(Action *pAction , H2Core::Hydrogen* pEngine , targeted_element ) {
+	bool ok;
+	int value = pAction->getParameter2().toInt(&ok,10);
+
+	Song *song = pEngine->getSong();
+	song->set_fill_randomize( value / 127.0 );
 }
 
 bool MidiActionManager::master_volume_relative(Action * pAction, Hydrogen* pEngine, targeted_element ) {
