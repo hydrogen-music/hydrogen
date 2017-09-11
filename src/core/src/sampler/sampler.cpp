@@ -816,8 +816,10 @@ bool Sampler::__render_note_no_resample(
 
 
 #ifdef H2CORE_HAVE_LADSPA
-		float masterVol =  pSong->get_volume();
 	// LADSPA
+    // change the below return logic if you add code after that ifdef
+    if (pNote->get_instrument()->is_muted()) return retValue;
+    float masterVol =  pSong->get_volume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 
@@ -1019,6 +1021,8 @@ bool Sampler::__render_note_resample(
 
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
+    // change the below return logic if you add code after that ifdef
+    if (pNote->get_instrument()->is_muted()) return retValue;
 	float masterVol = pSong->get_volume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
