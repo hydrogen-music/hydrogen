@@ -265,11 +265,11 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 	}
 
 	bool nReturnValues [pInstr->get_components()->size()];
-	
+
 	for(int i = 0; i < pInstr->get_components()->size(); i++){
 		nReturnValues[i] = false;
 	}
-	
+
 	int nReturnValueIndex = 0;
 	int nAlreadySelectedLayer = -1;
 
@@ -453,17 +453,17 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		float cost_track_R = 1.0f;
 
 		assert(pMainCompo);
-		
+
 		bool isMutedForExport = (pEngine->getIsExportSessionActive() && !pInstr->is_currently_exported());
-		
+
 		/*
 		 *  Is instrument muted?
-		 * 
+		 *
 		 *  This can be the case either if the song, instrument or component is muted or if we're in an
-		 *  export session and we're doing per-instruments exports, but this instrument is not currently 
+		 *  export session and we're doing per-instruments exports, but this instrument is not currently
 		 *  beeing exported.
 		 */
-		if ( isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {	
+		if ( isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {
 			cost_L = 0.0;
 			cost_R = 0.0;
 			if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
@@ -565,44 +565,44 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 
 	float *pSample_data_L = pSample->get_data_l();
 	float *pSample_data_R = pSample->get_data_r();
-	
+
 	float fInstrPeak_L = __playback_instrument->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = __playback_instrument->get_peak_r(); // this value will be reset to 0 by the mixer..
 
 	assert(pSample);
 
-	int nAvail_bytes = 0; 
+	int nAvail_bytes = 0;
 	int	nInitialBufferPos = 0;
 
 	if(pSample->get_sample_rate() == pAudioOutput->getSampleRate()){
-		//No resampling	
+		//No resampling
 		__playBackSamplePosition = pAudioOutput->m_transport.m_nFrames;
-	
+
 		nAvail_bytes = pSample->get_frames() - ( int )__playBackSamplePosition;
-		
+
 		if ( nAvail_bytes > nBufferSize ) {
 			nAvail_bytes = nBufferSize;
 		}
 
 		int nInitialSamplePos = ( int ) __playBackSamplePosition;
 		int nSamplePos = nInitialSamplePos;
-	
+
 		int nTimes = nInitialBufferPos + nAvail_bytes;
-	
+
 		if(__playBackSamplePosition > pSample->get_frames()){
 			//playback track has ended..
 			return true;
 		}
-	
+
 		for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 			fVal_L = pSample_data_L[ nSamplePos ];
 			fVal_R = pSample_data_R[ nSamplePos ];
-	
+
 			fVal_L = fVal_L * 1.0f * pSong->get_playback_track_volume(); //costr
 			fVal_R = fVal_R * 1.0f * pSong->get_playback_track_volume(); //cost l
-	
+
 			//pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
-	
+
 			// to main mix
 			if ( fVal_L > fInstrPeak_L ) {
 				fInstrPeak_L = fVal_L;
@@ -610,10 +610,10 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 			if ( fVal_R > fInstrPeak_R ) {
 				fInstrPeak_R = fVal_R;
 			}
-			
+
 			__main_out_L[nBufferPos] += fVal_L;
 			__main_out_R[nBufferPos] += fVal_R;
-			
+
 			++nSamplePos;
 		}
 	} else {
@@ -622,22 +622,22 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		int		nSampleFrames = pSample->get_frames();
 		float	fStep = 1.0594630943593;
 		fStep *= ( float )pSample->get_sample_rate() / pAudioOutput->getSampleRate(); // Adjust for audio driver sample rate
-		
-		
+
+
 		if(pAudioOutput->m_transport.m_nFrames == 0){
 			fSamplePos = 0;
 		} else {
 			fSamplePos = ( (pAudioOutput->m_transport.m_nFrames/nBufferSize) * (nBufferSize * fStep));
 		}
-		
+
 		nAvail_bytes = ( int )( ( float )( pSample->get_frames() - fSamplePos ) / fStep );
-	
+
 		if ( nAvail_bytes > nBufferSize ) {
 			nAvail_bytes = nBufferSize;
 		}
 
 		int nTimes = nInitialBufferPos + nAvail_bytes;
-	
+
 		for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
 			int nSamplePos = ( int ) fSamplePos;
 			double fDiff = fSamplePos - nSamplePos;
@@ -657,9 +657,9 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 						last_l =  pSample_data_L[nSamplePos + 2];
 						last_r =  pSample_data_R[nSamplePos + 2];
 					}
-	
+
 					switch( __interpolateMode ){
-	
+
 							case LINEAR:
 									fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
 									fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
@@ -682,7 +682,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 									break;
 					}
 			}
-			
+
 			if ( fVal_L > fInstrPeak_L ) {
 				fInstrPeak_L = fVal_L;
 			}
@@ -697,7 +697,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 			fSamplePos += fStep;
 		} //for
 	}
-	
+
 	__playback_instrument->set_peak_l( fInstrPeak_L );
 	__playback_instrument->set_peak_r( fInstrPeak_R );
 
@@ -823,7 +823,13 @@ bool Sampler::__render_note_no_resample(
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 
-		float fLevel = pNote->get_instrument()->get_fx_level( nFX );
+		float fLevel;
+		if ( pNote->get_instrument()->is_muted() ) {
+			fLevel = 0;
+		}
+		else {
+			fLevel = pNote->get_instrument()->get_fx_level( nFX );
+		}
 
 		if ( ( pFX ) && ( fLevel != 0.0 ) ) {
 			fLevel = fLevel * pFX->getVolume();
@@ -1263,4 +1269,3 @@ void Sampler::reinitialize_playback_track()
 }
 
 };
-
