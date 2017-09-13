@@ -120,6 +120,9 @@ for arg in $@; do
             cmd="cmake_rm";;
         m|make)
             cmd="cmake_make";;
+        mm)
+            CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            cmd="cmake_make";;
         g|graph)
             cmd="cmake_graph";;
         d|doc)
