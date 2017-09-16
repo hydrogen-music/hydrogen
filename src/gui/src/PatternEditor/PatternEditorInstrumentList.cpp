@@ -107,6 +107,8 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/4 notes" ), this, SLOT( functionFillEveryFourNotes() ) );
 	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/6 notes" ), this, SLOT( functionFillEverySixNotes() ) );
 	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/8 notes" ), this, SLOT( functionFillEveryEightNotes() ) );
+	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/12 notes" ), this, SLOT( functionFillEveryTwelveNotes() ) );
+	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/16 notes" ), this, SLOT( functionFillEverySixteenNotes() ) );
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
 	m_pFunctionPopup->addAction( trUtf8( "Randomize velocity" ), this, SLOT( functionRandomizeVelocity() ) );
@@ -332,6 +334,8 @@ void InstrumentLine::functionFillEveryThreeNotes(){ functionFillNotes(3); }
 void InstrumentLine::functionFillEveryFourNotes(){ functionFillNotes(4); }
 void InstrumentLine::functionFillEverySixNotes(){ functionFillNotes(6); }
 void InstrumentLine::functionFillEveryEightNotes(){ functionFillNotes(8); }
+void InstrumentLine::functionFillEveryTwelveNotes(){ functionFillNotes(12); }
+void InstrumentLine::functionFillEverySixteenNotes(){ functionFillNotes(16); }
 
 void InstrumentLine::functionFillNotes( int every )
 {
