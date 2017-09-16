@@ -1383,8 +1383,10 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 			Instrument *pInstr = songInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){
+				InstrumentComponent* pInstrumentComponent = pInstr->get_component(m_nSelectedComponent);
+				if (!pInstrumentComponent) continue; // regular case when you have a new component empty
 				for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-					InstrumentLayer *pLayer = pInstr->get_component(m_nSelectedComponent)->get_layer( nLayer );
+					InstrumentLayer *pLayer = pInstrumentComponent->get_layer( nLayer );
 					if ( pLayer ) {
 						Sample *pSample = pLayer->get_sample();
 						if ( pSample ) {
