@@ -17,6 +17,7 @@ macro(FIND_HELPER prefix pkg_name header lib)
     if(${prefix}_INCLUDE_DIRS AND ${prefix}_LIBRARIES)
         # use cached variables
         set(${prefix}_FIND_QUIETLY TRUE)
+        set(${prefix}_FOUND TRUE)
     else()
         # use pkg-config if available to set find_path and find_library hints
         if(NOT WIN32)
