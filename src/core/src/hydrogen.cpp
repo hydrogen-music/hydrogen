@@ -2635,6 +2635,8 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 	Song* pSong = getSong();
 	Instrument *pInstr = pSong->get_instrument_list()->get( instrumentnumber );
 
+	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
 
 	PatternList* pPatternList = pSong->get_pattern_list();
 
@@ -2663,7 +2665,7 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
 			InstrumentComponent* pCompo = *it;
 			// remove all layers
-			for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+			for ( int nLayer = 0; nLayer < MaxLayers; nLayer++ ) {
 				InstrumentLayer* pLayer = pCompo->get_layer( nLayer );
 				delete pLayer;
 				pCompo->set_layer( NULL, nLayer );

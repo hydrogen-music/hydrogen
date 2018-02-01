@@ -283,6 +283,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	sBmaxBars->setValue( pPref->getMaxBars() );
 
+	// max layers
+	sBmaxLayers->setValue( pPref->getMaxLayers() );
+
 	QString pathtoRubberband = pPref->m_rubberBandCLIexecutable;
 
 
@@ -470,6 +473,9 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->m_startOffset = sBstartOffset->value();
 
 	pPref->setMaxBars( sBmaxBars->value() );
+
+	// maxLayers
+	pPref->setMaxLayers ( sBmaxLayers->value() );
 
 	Hydrogen::get_instance()->setBcOffsetAdjust();
 

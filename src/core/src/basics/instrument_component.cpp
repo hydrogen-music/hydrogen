@@ -24,6 +24,8 @@
 
 #include <cassert>
 
+#include <hydrogen/Preferences.h>
+
 #include <hydrogen/audio_engine.h>
 
 #include <hydrogen/helpers/xml.h>
@@ -46,7 +48,9 @@ InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
 	, __related_drumkit_componentID( related_drumkit_componentID )
 	, __gain( 1.0 )
 {
-	for ( int i=0; i<MAX_LAYERS; i++ ) __layers[i] = NULL;
+        Preferences *pref = Preferences::get_instance();
+
+	for ( int i=0; i<pref->getMaxLayers(); i++ ) __layers[i] = NULL;
 }
 
 InstrumentComponent::InstrumentComponent( InstrumentComponent* other )
@@ -54,7 +58,9 @@ InstrumentComponent::InstrumentComponent( InstrumentComponent* other )
 	, __related_drumkit_componentID( other->__related_drumkit_componentID )
 	, __gain( other->__gain )
 {
-	for ( int i=0; i<MAX_LAYERS; i++ ) {
+	Preferences *pref = Preferences::get_instance();
+
+	for ( int i=0; i<pref->getMaxLayers(); i++ ) {
 		InstrumentLayer* other_layer = other->get_layer( i );
 		if ( other_layer ) {
 			__layers[i] = new InstrumentLayer( other_layer, other_layer->get_sample());
@@ -66,7 +72,9 @@ InstrumentComponent::InstrumentComponent( InstrumentComponent* other )
 
 InstrumentComponent::~InstrumentComponent()
 {
-	for ( int i=0; i<MAX_LAYERS; i++ ) {
+        Preferences *pref = Preferences::get_instance();
+
+	for ( int i=0; i<pref->getMaxLayers(); i++ ) {
 		delete __layers[i];
 		__layers[i] = 0;
 	}
@@ -81,9 +89,10 @@ InstrumentComponent* InstrumentComponent::load_from( XMLNode* node, const QStrin
 	instrument_component->set_gain( node->read_float( "gain", 1.0f, true, false ) );
 	XMLNode layer_node = node->firstChildElement( "layer" );
 	int n = 0;
+        Preferences *pref = Preferences::get_instance();
 	while ( !layer_node.isNull() ) {
-		if ( n >= MAX_LAYERS ) {
-			ERRORLOG( QString( "n >= MAX_LAYERS (%1)" ).arg( MAX_LAYERS ) );
+		if ( n >= pref->getMaxLayers() ) {
+			ERRORLOG( QString( "n >= MaxLayers (%1)" ).arg( pref->getMaxLayers() ) );
 			break;
 		}
 		instrument_component->set_layer( InstrumentLayer::load_from( &layer_node, dk_path ), n );
@@ -101,7 +110,10 @@ void InstrumentComponent::save_to( XMLNode* node, int component_id )
 		component_node.write_int( "component_id", __related_drumkit_componentID );
 		component_node.write_float( "gain", __gain );
 	}
-	for ( int n = 0; n < MAX_LAYERS; n++ ) {
+
+        Preferences *pref = Preferences::get_instance();
+
+	for ( int n = 0; n < pref->getMaxLayers(); n++ ) {
 		InstrumentLayer* layer = get_layer( n );
 		if( layer ) {
 			if( component_id == -1 )

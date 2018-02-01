@@ -63,6 +63,7 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 		H2Core::Instrument *m_pInstrument;
 		int m_nSelectedLayer;
 		int m_nSelectedComponent;
+		unsigned m_nMaxLayers;
 		bool m_bMouseGrab;
 		bool m_bGrabLeft;
 

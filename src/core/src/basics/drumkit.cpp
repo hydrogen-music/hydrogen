@@ -22,6 +22,7 @@
 
 #include <hydrogen/basics/drumkit.h>
 #include <hydrogen/config.h>
+#include <hydrogen/Preferences.h>
 #ifdef H2CORE_HAVE_LIBARCHIVE
 #include <archive.h>
 #include <archive_entry.h>
@@ -282,13 +283,16 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 		return false;
 	}
 
+	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
+
 	InstrumentList* instruments = get_instruments();
 	for( int i = 0; i < instruments->size(); i++ ) {
 		Instrument* instrument = ( *instruments )[i];
 		for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
 			InstrumentComponent* component = *it;
 
-			for( int n = 0; n < MAX_LAYERS; n++ ) {
+			for( int n = 0; n < MaxLayers; n++ ) {
 				InstrumentLayer* layer = component->get_layer( n );
 				if( layer ) {
 					QString src = layer->get_sample()->get_filepath();
@@ -378,6 +382,9 @@ bool Drumkit::remove( const QString& dk_name )
 
 void Drumkit::dump()
 {
+	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
+
 	DEBUGLOG( "Drumkit dump" );
 	DEBUGLOG( " |- Path = " + __path );
 	DEBUGLOG( " |- Name = " + __name );
@@ -397,7 +404,7 @@ void Drumkit::dump()
 		for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
 			InstrumentComponent* component = *it;
 
-			for ( int j=0; j<MAX_LAYERS; j++ ) {
+			for ( int j=0; j<MaxLayers; j++ ) {
 				InstrumentLayer* layer = component->get_layer( j );
 				if ( layer ) {
 					Sample* sample = layer->get_sample();

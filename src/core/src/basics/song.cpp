@@ -420,6 +420,9 @@ Song* SongReader::readSong( const QString& filename )
 		WARNINGLOG( "Song [" + FileName + "] saved with version " + m_sSongVersion );
 	}
 
+	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
+
 	float fBpm = LocalFileMng::readXmlFloat( songNode, "bpm", 120 );
 	Hydrogen::get_instance()->setNewBpmJTM( fBpm );
 	float fVolume = LocalFileMng::readXmlFloat( songNode, "volume", 0.5 );
@@ -614,8 +617,8 @@ Song* SongReader::readSong( const QString& filename )
 					unsigned nLayer = 0;
 					QDomNode layerNode = componentNode.firstChildElement( "layer" );
 					while (  ! layerNode.isNull()  ) {
-						if ( nLayer >= MAX_LAYERS ) {
-							ERRORLOG( "nLayer > MAX_LAYERS" );
+						if ( nLayer >= MaxLayers ) {
+							ERRORLOG( "nLayer > MaxLayers" );
 							continue;
 						}
 						//bool sIsModified = false;
@@ -701,8 +704,8 @@ Song* SongReader::readSong( const QString& filename )
 					unsigned nLayer = 0;
 					QDomNode layerNode = instrumentNode.firstChildElement( "layer" );
 					while (  ! layerNode.isNull()  ) {
-						if ( nLayer >= MAX_LAYERS ) {
-							ERRORLOG( "nLayer > MAX_LAYERS" );
+						if ( nLayer >= MaxLayers ) {
+							ERRORLOG( "nLayer > MaxLayers" );
 							continue;
 						}
 						QString sFilename = LocalFileMng::readXmlString( layerNode, "filename", "" );

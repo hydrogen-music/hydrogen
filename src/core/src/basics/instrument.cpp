@@ -20,6 +20,8 @@
  *
  */
 
+#include <hydrogen/Preferences.h>
+
 #include <hydrogen/basics/instrument.h>
 
 #include <cassert>
@@ -139,6 +141,9 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 {
 	this->get_components()->clear();
 
+	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
+
 	for (std::vector<InstrumentComponent*>::iterator it = pInstrument->get_components()->begin() ; it != pInstrument->get_components()->end(); ++it) {
 		InstrumentComponent* pSrcComponent = *it;
 
@@ -147,7 +152,7 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 
 		this->get_components()->push_back( pMyComponent );
 
-		for ( int i=0; i<MAX_LAYERS; i++ ) {
+		for ( int i=0; i<MaxLayers; i++ ) {
 			InstrumentLayer* src_layer = pSrcComponent->get_layer( i );
 			InstrumentLayer* my_layer = pMyComponent->get_layer( i );
 
@@ -279,9 +284,12 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 
 void Instrument::load_samples()
 {
+	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
+
 	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
 		InstrumentComponent* component = *it;
-		for ( int i=0; i<MAX_LAYERS; i++ ) {
+		for ( int i=0; i<MaxLayers; i++ ) {
 			InstrumentLayer* layer = component->get_layer( i );
 			if( layer ) layer->load_sample( );
 		}
@@ -290,9 +298,12 @@ void Instrument::load_samples()
 
 void Instrument::unload_samples()
 {
+	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
+
 	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
 		InstrumentComponent* component = *it;
-		for ( int i=0; i<MAX_LAYERS; i++ ) {
+		for ( int i=0; i<MaxLayers; i++ ) {
 			InstrumentLayer* layer = component->get_layer( i );
 			if( layer ) layer->unload_sample();
 		}

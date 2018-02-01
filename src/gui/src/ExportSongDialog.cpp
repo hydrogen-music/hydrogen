@@ -609,6 +609,9 @@ void ExportSongDialog::calculateRubberbandTime()
 	closeBtn->setEnabled(false);
 	resampleComboBox->setEnabled(false);
 	okBtn->setEnabled(false);
+
+	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
 	
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Timeline* pTimeline = pEngine->getTimeline();
@@ -640,7 +643,7 @@ void ExportSongDialog::calculateRubberbandTime()
 			if ( pInstr ){
 				for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
 					InstrumentComponent* pCompo = *it;
-					for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+					for ( int nLayer = 0; nLayer < MaxLayers; nLayer++ ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
 							Sample *pSample = pLayer->get_sample();
@@ -683,6 +686,9 @@ void ExportSongDialog::calculateRubberbandTime()
 
 bool ExportSongDialog::checkUseOfRubberband()
 {
+	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
+
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	assert(pSong);
@@ -696,7 +702,7 @@ bool ExportSongDialog::checkUseOfRubberband()
 			if ( pInstr ){
 				for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
 					InstrumentComponent* pCompo = *it;
-					for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+					for ( int nLayer = 0; nLayer < MaxLayers; nLayer++ ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
 							Sample *pSample = pLayer->get_sample();
