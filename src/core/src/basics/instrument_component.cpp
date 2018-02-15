@@ -42,6 +42,7 @@ namespace H2Core
 {
 
 const char* InstrumentComponent::__class_name = "InstrumentComponent";
+uint InstrumentComponent::maxLayers = 8192;
 
 InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
 	: Object( __class_name )
@@ -49,8 +50,10 @@ InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
 	, __gain( 1.0 )
 {
         Preferences *pref = Preferences::get_instance();
+	maxLayers = pref->getMaxLayers();
+	__layers.resize(maxLayers);
 
-	for ( int i=0; i<pref->getMaxLayers(); i++ ) __layers[i] = NULL;
+	for ( int i=0; i<maxLayers; i++ ) __layers[i] = NULL;
 }
 
 InstrumentComponent::InstrumentComponent( InstrumentComponent* other )
@@ -59,12 +62,16 @@ InstrumentComponent::InstrumentComponent( InstrumentComponent* other )
 	, __gain( other->__gain )
 {
 	Preferences *pref = Preferences::get_instance();
+	maxLayers = pref->getMaxLayers();
+        __layers.resize(maxLayers);
 
-	for ( int i=0; i<pref->getMaxLayers(); i++ ) {
+	for ( int i=0; i<maxLayers; i++ ) {
 		InstrumentLayer* other_layer = other->get_layer( i );
 		if ( other_layer ) {
+
 			__layers[i] = new InstrumentLayer( other_layer, other_layer->get_sample());
 		} else {
+
 			__layers[i] = 0;
 		}
 	}
@@ -74,7 +81,7 @@ InstrumentComponent::~InstrumentComponent()
 {
         Preferences *pref = Preferences::get_instance();
 
-	for ( int i=0; i<pref->getMaxLayers(); i++ ) {
+	for ( int i=0; i<maxLayers; i++ ) {
 		delete __layers[i];
 		__layers[i] = 0;
 	}
@@ -91,8 +98,8 @@ InstrumentComponent* InstrumentComponent::load_from( XMLNode* node, const QStrin
 	int n = 0;
         Preferences *pref = Preferences::get_instance();
 	while ( !layer_node.isNull() ) {
-		if ( n >= pref->getMaxLayers() ) {
-			ERRORLOG( QString( "n >= MaxLayers (%1)" ).arg( pref->getMaxLayers() ) );
+		if ( n >= maxLayers ) {
+			ERRORLOG( QString( "n >= maxLayers (%1)" ).arg( pref->getMaxLayers() ) );
 			break;
 		}
 		instrument_component->set_layer( InstrumentLayer::load_from( &layer_node, dk_path ), n );
@@ -113,7 +120,7 @@ void InstrumentComponent::save_to( XMLNode* node, int component_id )
 
         Preferences *pref = Preferences::get_instance();
 
-	for ( int n = 0; n < pref->getMaxLayers(); n++ ) {
+	for ( int n = 0; n < maxLayers; n++ ) {
 		InstrumentLayer* layer = get_layer( n );
 		if( layer ) {
 			if( component_id == -1 )
