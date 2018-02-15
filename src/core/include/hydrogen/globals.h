@@ -27,6 +27,9 @@
 #define MIDI_OUT_CHANNEL_MIN    -1
 #define MIDI_OUT_CHANNEL_MAX    15
 
+#define MIN_BPM                  10
+#define MAX_BPM                 400
+
 #define SAMPLE_CHANNELS         2
 
 #define TWOPI                   6.28318530717958647692

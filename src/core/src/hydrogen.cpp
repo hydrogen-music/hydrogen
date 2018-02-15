@@ -3079,8 +3079,8 @@ void Hydrogen::handleBeatCounter()
 					(float) ((int) (60 / m_nBeatDiffAverage * 100))
 					/ 100;
 			AudioEngine::get_instance()->lock( RIGHT_HERE );
-			if ( m_fBeatCountBpm > 500)
-				m_fBeatCountBpm = 500;
+			if ( m_fBeatCountBpm > MAX_BPM)
+				m_fBeatCountBpm = MAX_BPM;
 			setBPM( m_fBeatCountBpm );
 			AudioEngine::get_instance()->unlock();
 			if (Preferences::get_instance()->m_mmcsetplay
