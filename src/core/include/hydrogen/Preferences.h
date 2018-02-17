@@ -305,7 +305,7 @@ public:
 	std::vector<QString> getLadspaPath();
 	void				setLadspaPath( std::vector<QString> pathVect );
 
-	int					getMaxLayers();
+	int				getMaxLayers();
 	void				setMaxLayers(int value);
 
 	// GUI Properties

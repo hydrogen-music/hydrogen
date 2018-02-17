@@ -42,7 +42,7 @@ namespace H2Core
 {
 
 const char* InstrumentComponent::__class_name = "InstrumentComponent";
-uint InstrumentComponent::maxLayers = 8192;
+unsigned int InstrumentComponent::maxLayers;
 
 InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
 	: Object( __class_name )

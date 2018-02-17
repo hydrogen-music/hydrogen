@@ -68,12 +68,13 @@ class InstrumentComponent : public H2Core::Object
 		//void set_volume( float volume );
 		//float get_volume() const;
 
+
 	private:
 		int __related_drumkit_componentID;
 		//QString __name;
 		float __gain;
 		//float __volume;
-		static uint maxLayers;
+		static unsigned int maxLayers;
 		std::vector<InstrumentLayer*> __layers;
 };
 
