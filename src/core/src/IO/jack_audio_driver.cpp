@@ -600,7 +600,7 @@ int JackAudioDriver::init( unsigned /*nBufferSize*/ )
 	}
 
 #ifdef H2CORE_HAVE_LASH
-	if ( pref->useLash() ){
+	if ( pPref->useLash() ){
 		LashClient* lashClient = LashClient::get_instance();
 		if (lashClient->isConnected()) {
 			lashClient->setJackClientName(sClientName.toLocal8Bit().constData());
