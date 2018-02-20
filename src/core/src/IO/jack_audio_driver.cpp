@@ -51,11 +51,11 @@ namespace H2Core
 
 unsigned long	jack_server_sampleRate = 0;
 jack_nframes_t	jack_server_bufferSize = 0;
-JackAudioDriver *	jackDriverInstance = NULL;
+JackAudioDriver *	pJackDriverInstance = nullptr;
 
 int jackDriverSampleRate( jack_nframes_t nframes, void *param )
 {
-	Object* __object = ( Object* )param;
+	Object* __object = ( Object* )param; 
 	QString msg = QString("Jack SampleRate changed: the sample rate is now %1/sec").arg( QString::number( (int) nframes ) );
 	__INFOLOG( msg );
 	jack_server_sampleRate = nframes;
@@ -64,8 +64,7 @@ int jackDriverSampleRate( jack_nframes_t nframes, void *param )
 
 int jackDriverBufferSize( jack_nframes_t nframes, void * /*arg*/ )
 {
-	/* This function does _NOT_ have to be realtime safe.
-	 */
+	// This function does _NOT_ have to be realtime safe.
 	jack_server_bufferSize = nframes;
 	return 0;
 }
@@ -73,8 +72,8 @@ int jackDriverBufferSize( jack_nframes_t nframes, void * /*arg*/ )
 void jackDriverShutdown( void *arg )
 {
 	UNUSED( arg );
-	//	jackDriverInstance->deactivate();
-	jackDriverInstance->client = NULL;
+
+	pJackDriverInstance->m_pClient = nullptr;
 	Hydrogen::get_instance()->raiseError( Hydrogen::JACK_SERVER_SHUTDOWN );
 }
 
@@ -87,7 +86,7 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback processCallback )
 	INFOLOG( "INIT" );
 	__track_out_enabled = Preferences::get_instance()->m_bJackTrackOuts;	// allow per-track output
 
-	jackDriverInstance = this;
+	pJackDriverInstance = this;
 	this->processCallback = processCallback;
 
 	must_relocate = 0;
@@ -114,7 +113,7 @@ int JackAudioDriver::connect()
 {
 	INFOLOG( "connect" );
 
-	if ( jack_activate ( client ) ) {
+	if ( jack_activate ( m_pClient ) ) {
 		Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_ACTIVATE_CLIENT );
 		return 1;
 	}
@@ -142,22 +141,21 @@ int JackAudioDriver::connect()
 #endif
 
 	if ( connect_output_ports ) {
-		//	if ( m_bConnectOutFlag ) {
 		// connect the ports
-		if ( jack_connect( client, jack_port_name( output_port_1 ), output_port_name_1.toLocal8Bit() ) == 0 &&
-			 jack_connect ( client, jack_port_name( output_port_2 ), output_port_name_2.toLocal8Bit() ) == 0 ) {
+		if ( jack_connect( m_pClient, jack_port_name( output_port_1 ), output_port_name_1.toLocal8Bit() ) == 0 &&
+			 jack_connect ( m_pClient, jack_port_name( output_port_2 ), output_port_name_2.toLocal8Bit() ) == 0 ) {
 			return 0;
 		}
 
 		INFOLOG( "Could not connect so saved out-ports. Connecting to first pair of in-ports" );
-		const char ** portnames = jack_get_ports ( client, NULL, NULL, JackPortIsInput );
+		const char ** portnames = jack_get_ports ( m_pClient, NULL, NULL, JackPortIsInput );
 		if ( !portnames || !portnames[0] || !portnames[1] ) {
 			ERRORLOG( "Couldn't locate two Jack input ports" );
 			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
 			return 2;
 		}
-		if ( jack_connect( client, jack_port_name( output_port_1 ), portnames[0] ) != 0 ||
-			 jack_connect( client, jack_port_name( output_port_2 ), portnames[1] ) != 0 ) {
+		if ( jack_connect( m_pClient, jack_port_name( output_port_1 ), portnames[0] ) != 0 ||
+			 jack_connect( m_pClient, jack_port_name( output_port_2 ), portnames[1] ) != 0 ) {
 			ERRORLOG( "Couldn't connect to first pair of Jack input ports" );
 			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
 			return 2;
@@ -173,8 +171,8 @@ void JackAudioDriver::disconnect()
 	INFOLOG( "disconnect" );
 
 	deactivate();
-	jack_client_t *oldClient = client;
-	client = NULL;
+	jack_client_t *oldClient = m_pClient;
+	m_pClient = NULL;
 	if ( oldClient ) {
 		INFOLOG( "calling jack_client_close" );
 		int res = jack_client_close( oldClient );
@@ -183,15 +181,15 @@ void JackAudioDriver::disconnect()
 			// FIXME: raise exception
 		}
 	}
-	client = NULL;
+	m_pClient = NULL;
 }
 
 void JackAudioDriver::deactivate()
 {
 	INFOLOG( "[deactivate]" );
-	if ( client ) {
+	if ( m_pClient ) {
 		INFOLOG( "calling jack_deactivate" );
-		int res = jack_deactivate( client );
+		int res = jack_deactivate( m_pClient );
 		if ( res ) {
 			ERRORLOG( "Error in jack_deactivate" );
 		}
@@ -294,7 +292,7 @@ void JackAudioDriver::updateTransportInfo()
 
 		if ( Preferences::get_instance()->m_bJackTransportMode !=  Preferences::USE_JACK_TRANSPORT   ) return;
 
-				m_JackTransportState = jack_transport_query( client, &m_JackTransportPos );
+				m_JackTransportState = jack_transport_query( m_pClient, &m_JackTransportPos );
 
 
 				// update m_transport with jack-transport data
@@ -453,51 +451,51 @@ float* JackAudioDriver::getTrackOut_R( Instrument * instr, InstrumentComponent *
 
 #define CLIENT_FAILURE(msg) {						\
 	ERRORLOG("Could not connect to JACK server (" msg ")"); \
-	if (client) {						\
+	if (m_pClient) {						\
 	ERRORLOG("...but JACK returned a non-null pointer?"); \
-	(client) = 0;					\
+	(m_pClient) = nullptr;					\
 }							\
-	if (tries) ERRORLOG("...trying again.");		\
+	if (nTries) ERRORLOG("...trying again.");		\
 }
 
 
 #define CLIENT_SUCCESS(msg) {				\
-	assert(client);				\
+	assert(m_pClient);				\
 	INFOLOG(msg);				\
-	tries = 0;				\
+	nTries = 0;				\
 }
 
 int JackAudioDriver::init( unsigned /*nBufferSize*/ )
 {
-	Preferences* pref = Preferences::get_instance();
-	output_port_name_1 = pref->m_sJackPortName1;
-	output_port_name_2 = pref->m_sJackPortName2;
+	Preferences* pPref = Preferences::get_instance();
+	output_port_name_1 = pPref->m_sJackPortName1;
+	output_port_name_2 = pPref->m_sJackPortName2;
 
 	QString sClientName = "Hydrogen";
 
 #ifdef H2CORE_HAVE_OSC
-	QString nsmClientId = pref->getNsmClientId();
+	QString sNsmClientId = pPref->getNsmClientId();
 
-	if(!nsmClientId.isEmpty()){
-		sClientName = nsmClientId;
+	if(!sNsmClientId.isEmpty()){
+		sClientName = sNsmClientId;
 	}
 #endif
 
 
 	jack_status_t status;
-	int tries = 2;  // Sometimes jackd doesn't stop and start fast enough.
-	while ( tries > 0 ) {
-		--tries;
+	int nTries = 2;  // Sometimes jackd doesn't stop and start fast enough.
+	while ( nTries > 0 ) {
+		--nTries;
 
 #ifdef H2CORE_HAVE_JACKSESSION
-		if (pref->getJackSessionUUID().isEmpty()){
-			client = jack_client_open(
+		if (pPref->getJackSessionUUID().isEmpty()){
+			m_pClient = jack_client_open(
 						 sClientName.toLocal8Bit(),
 						 JackNullOption,
 						 &status);
 		} else {
-			const QByteArray uuid = pref->getJackSessionUUID().toLocal8Bit();
-			client = jack_client_open(
+			const QByteArray uuid = pPref->getJackSessionUUID().toLocal8Bit();
+			m_pClient = jack_client_open(
 						 sClientName.toLocal8Bit(),
 						 JackSessionID,
 						 &status,
@@ -517,8 +515,8 @@ int JackAudioDriver::init( unsigned /*nBufferSize*/ )
 				CLIENT_FAILURE("invalid option");
 				break;
 			case JackNameNotUnique:
-				if (client) {
-					sClientName = jack_get_client_name(client);
+				if (m_pClient) {
+					sClientName = jack_get_client_name(m_pClient);
 					CLIENT_SUCCESS(QString("Jack assigned the client name '%1'").arg(sClientName));
 				} else {
 					CLIENT_FAILURE("name not unique");
@@ -551,7 +549,7 @@ int JackAudioDriver::init( unsigned /*nBufferSize*/ )
 			default:
 				if (status) {
 					ERRORLOG("Unknown status with JACK server.");
-					if (client) {
+					if (m_pClient) {
 						CLIENT_SUCCESS("Client pointer is *not* null..."
 									   " assuming we're OK");
 					}
@@ -561,51 +559,45 @@ int JackAudioDriver::init( unsigned /*nBufferSize*/ )
 		}
 	}
 
-	if (client == 0) return -1;
+	if (m_pClient == 0) return -1;
 
 	// Here, client should either be valid, or NULL.
-	jack_server_sampleRate = jack_get_sample_rate ( client );
-	jack_server_bufferSize = jack_get_buffer_size ( client );
+	jack_server_sampleRate = jack_get_sample_rate ( m_pClient );
+	jack_server_bufferSize = jack_get_buffer_size ( m_pClient );
 
-	pref->m_nSampleRate = jack_server_sampleRate;
-	pref->m_nBufferSize = jack_server_bufferSize;
+	pPref->m_nSampleRate = jack_server_sampleRate;
+	pPref->m_nBufferSize = jack_server_bufferSize;
 
 	/* tell the JACK server to call `process()' whenever
 	   there is work to be done.
 	*/
-	jack_set_process_callback ( client, this->processCallback, 0 );
+	jack_set_process_callback ( m_pClient, this->processCallback, 0 );
 
 	/* tell the JACK server to call `srate()' whenever
 	   the sample rate of the system changes.
 	*/
-	jack_set_sample_rate_callback ( client, jackDriverSampleRate, this );
+	jack_set_sample_rate_callback ( m_pClient, jackDriverSampleRate, this );
 
 	/* tell JACK server to update us if the buffer size
 	   (frames per process cycle) changes.
 	*/
-	jack_set_buffer_size_callback ( client, jackDriverBufferSize, 0 );
+	jack_set_buffer_size_callback ( m_pClient, jackDriverBufferSize, 0 );
 
 	/* tell the JACK server to call `jack_shutdown()' if
 	   it ever shuts down, either entirely, or if it
 	   just decides to stop calling us.
 	*/
-	jack_on_shutdown ( client, jackDriverShutdown, 0 );
+	jack_on_shutdown ( m_pClient, jackDriverShutdown, 0 );
 
 	/* create two ports */
-	output_port_1 = jack_port_register ( client, "out_L", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
-	output_port_2 = jack_port_register ( client, "out_R", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+	output_port_1 = jack_port_register ( m_pClient, "out_L", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+	output_port_2 = jack_port_register ( m_pClient, "out_R", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 
-	Hydrogen *H = Hydrogen::get_instance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	if ( ( output_port_1 == NULL ) || ( output_port_2 == NULL ) ) {
-		H->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
+		pEngine->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
 		return 4;
 	}
-
-	// clear buffers
-	//	jack_default_audio_sample_t *out_L = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port_1, jack_server_bufferSize);
-	//	jack_default_audio_sample_t *out_R = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port_2, jack_server_bufferSize);
-	//	memset( out_L, 0, nBufferSize * sizeof( float ) );
-	//	memset( out_R, 0, nBufferSize * sizeof( float ) );
 
 #ifdef H2CORE_HAVE_LASH
 	if ( pref->useLash() ){
@@ -617,10 +609,10 @@ int JackAudioDriver::init( unsigned /*nBufferSize*/ )
 #endif
 
 #ifdef H2CORE_HAVE_JACKSESSION
-	jack_set_session_callback (client, jack_session_callback, (void*)this);
+	jack_set_session_callback (m_pClient, jack_session_callback, (void*)this);
 #endif
 
-	if ( pref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER )
+	if ( pPref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER )
 		initTimeMaster();
 
 	return 0;
@@ -629,7 +621,7 @@ int JackAudioDriver::init( unsigned /*nBufferSize*/ )
 /**
  * Make sure the number of track outputs match the instruments in @a song , and name the ports.
  */
-void JackAudioDriver::makeTrackOutputs( Song * song )
+void JackAudioDriver::makeTrackOutputs( Song * pSong )
 {
 
 	/// Disable Track Outputs
@@ -637,14 +629,14 @@ void JackAudioDriver::makeTrackOutputs( Song * song )
 		return;
 	///
 
-	InstrumentList * instruments = song->get_instrument_list();
-	Instrument * instr;
-	int nInstruments = ( int )instruments->size();
+	InstrumentList * pInstruments = pSong->get_instrument_list();
+	Instrument * pInstr;
+	int nInstruments = ( int ) pInstruments->size();
 
 	// create dedicated channel output ports
 	WARNINGLOG( QString( "Creating / renaming %1 ports" ).arg( nInstruments ) );
 
-	int p_trackCount = 0;
+	int nTrackCount = 0;
 
 	for( int i = 0 ; i < MAX_INSTRUMENTS ; i++ ){
 		for ( int j = 0 ; j < MAX_COMPONENTS ; j++ ){
@@ -653,26 +645,26 @@ void JackAudioDriver::makeTrackOutputs( Song * song )
 	}
 
 	for ( int n = nInstruments - 1; n >= 0; n-- ) {
-		instr = instruments->get( n );
-		for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
+		pInstr = pInstruments->get( n );
+		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
 			InstrumentComponent* pCompo = *it;
-			setTrackOutput( p_trackCount, instr , pCompo, song);
-			track_map[instr->get_id()][pCompo->get_drumkit_componentID()] = p_trackCount;
-			p_trackCount++;
+			setTrackOutput( nTrackCount, pInstr , pCompo, pSong);
+			track_map[pInstr->get_id()][pCompo->get_drumkit_componentID()] = nTrackCount;
+			nTrackCount++;
 		}
 	}
 	// clean up unused ports
 	jack_port_t *p_L, *p_R;
-	for ( int n = p_trackCount; n < track_port_count; n++ ) {
+	for ( int n = nTrackCount; n < track_port_count; n++ ) {
 		p_L = track_output_ports_L[n];
 		p_R = track_output_ports_R[n];
 		track_output_ports_L[n] = 0;
-		jack_port_unregister( client, p_L );
+		jack_port_unregister( m_pClient, p_L );
 		track_output_ports_R[n] = 0;
-		jack_port_unregister( client, p_R );
+		jack_port_unregister( m_pClient, p_R );
 	}
 
-	track_port_count = p_trackCount;
+	track_port_count = nTrackCount;
 }
 
 /**
@@ -686,10 +678,10 @@ void JackAudioDriver::setTrackOutput( int n, Instrument * instr, InstrumentCompo
 	if ( track_port_count <= n ) { // need to create more ports
 		for ( int m = track_port_count; m <= n; m++ ) {
 			chName = QString( "Track_%1_" ).arg( m + 1 );
-			track_output_ports_L[m] = jack_port_register ( client, ( chName + "L" ).toLocal8Bit(),
+			track_output_ports_L[m] = jack_port_register ( m_pClient, ( chName + "L" ).toLocal8Bit(),
 														   JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 
-			track_output_ports_R[m] = jack_port_register ( client, ( chName + "R" ).toLocal8Bit(),
+			track_output_ports_R[m] = jack_port_register ( m_pClient, ( chName + "R" ).toLocal8Bit(),
 														   JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 
 			if ( ! track_output_ports_R[m] || ! track_output_ports_L[m] ) {
@@ -700,13 +692,12 @@ void JackAudioDriver::setTrackOutput( int n, Instrument * instr, InstrumentCompo
 	}
 
 	// Now we're sure there is an n'th port, rename it.
-	//DrumkitComponent* p_dmCompo = Hydrogen::get_instance()->getSong()->get_component( compo->get_drumkit_componentID() );
-	DrumkitComponent* p_dmCompo = song->get_component( compo->get_drumkit_componentID() );
-	chName = QString( "Track_%1_%2_%3_" ).arg( n + 1 ).arg( instr->get_name() ).arg( p_dmCompo->get_name() );
+	DrumkitComponent* pDrumkitComponent = song->get_component( compo->get_drumkit_componentID() );
+	chName = QString( "Track_%1_%2_%3_" ).arg( n + 1 ).arg( instr->get_name() ).arg( pDrumkitComponent->get_name() );
 
 #ifdef HAVE_JACK_PORT_RENAME
-	jack_port_rename( client, track_output_ports_L[n], ( chName + "L" ).toLocal8Bit() );
-	jack_port_rename( client, track_output_ports_R[n], ( chName + "R" ).toLocal8Bit() );
+	jack_port_rename( m_pClient, track_output_ports_L[n], ( chName + "L" ).toLocal8Bit() );
+	jack_port_rename( m_pClient, track_output_ports_R[n], ( chName + "R" ).toLocal8Bit() );
 #else
 	jack_port_set_name( track_output_ports_L[n], ( chName + "L" ).toLocal8Bit() );
 	jack_port_set_name( track_output_ports_R[n], ( chName + "R" ).toLocal8Bit() );
@@ -719,9 +710,9 @@ void JackAudioDriver::play()
 	if ( P->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ||
 		 P->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER
 		 ) {
-		if ( client ) {
+		if ( m_pClient ) {
 			INFOLOG( "jack_transport_start()" );
-			jack_transport_start( client );
+			jack_transport_start( m_pClient );
 		}
 	} else {
 		m_transport.m_status = TransportInfo::ROLLING;
@@ -731,9 +722,9 @@ void JackAudioDriver::play()
 void JackAudioDriver::stop()
 {
 	if ( ( Preferences::get_instance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT || Preferences::get_instance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
-		if ( client ) {
+		if ( m_pClient ) {
 			INFOLOG( "jack_transport_stop()" );
-			jack_transport_stop( client );
+			jack_transport_stop( m_pClient );
 		}
 	} else {
 		m_transport.m_status = TransportInfo::STOPPED;
@@ -743,9 +734,9 @@ void JackAudioDriver::stop()
 void JackAudioDriver::locate( unsigned long nFrame )
 {
 	if ( ( Preferences::get_instance() )->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT /*|| Preferences::get_instance()->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER*/ ) {
-		if ( client ) {
+		if ( m_pClient ) {
 			WARNINGLOG( QString( "Calling jack_transport_locate(%1)" ).arg( nFrame ) );
-			jack_transport_locate( client, nFrame );
+			jack_transport_locate( m_pClient, nFrame );
 		}
 	} else {
 		m_transport.m_nFrames = nFrame;
@@ -851,7 +842,7 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t *event)
 	}
 
 	ev->command_line = strdup( retval.toUtf8().constData() );
-	jack_session_reply (client, ev );
+	jack_session_reply (m_pClient, ev );
 	jack_session_event_free (ev);
 }
 #endif
@@ -859,22 +850,22 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t *event)
 //beginn jack time master
 void JackAudioDriver::initTimeMaster()
 {
-	if ( ! client ) return;
+	if ( ! m_pClient ) return;
 
 	Preferences* pref = Preferences::get_instance();
 	if ( pref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER) {
-		int ret = jack_set_timebase_callback(client, m_bCond, jack_timebase_callback, this);
+		int ret = jack_set_timebase_callback(m_pClient, m_bCond, jack_timebase_callback, this);
 		if (ret != 0) pref->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
 	} else {
-		jack_release_timebase(client);
+		jack_release_timebase(m_pClient);
 	}
 }
 
 void JackAudioDriver::com_release()
 {
-	if ( client == NULL) return;
+	if ( m_pClient == NULL) return;
 
-	jack_release_timebase(client);
+	jack_release_timebase(m_pClient);
 }
 
 void JackAudioDriver::jack_timebase_callback(jack_transport_state_t state,
