@@ -58,7 +58,7 @@ class JackAudioDriver : public AudioOutput
 {
 	H2_OBJECT
 public:
-	jack_client_t *client;
+	jack_client_t *m_pClient;
 
 	JackAudioDriver( JackProcessCallback processCallback );
 	~JackAudioDriver();
