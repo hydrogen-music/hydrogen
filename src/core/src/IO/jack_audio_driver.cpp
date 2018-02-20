@@ -643,8 +643,8 @@ void JackAudioDriver::makeTrackOutputs( Song * pSong )
 			track_map[i][j] = 0;
 		}
 	}
-
-	for ( int n = nInstruments - 1; n >= 0; n-- ) {
+	
+	for ( int n = 0; n <= nInstruments - 1; n++ ) {
 		pInstr = pInstruments->get( n );
 		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
 			InstrumentComponent* pCompo = *it;
