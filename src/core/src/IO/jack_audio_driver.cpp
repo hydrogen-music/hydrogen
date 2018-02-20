@@ -502,7 +502,7 @@ int JackAudioDriver::init( unsigned /*nBufferSize*/ )
 						 uuid.constData());
 		}
 #else
-		client = jack_client_open(
+		m_pClient = jack_client_open(
 					 sClientName.toLocal8Bit(),
 					 JackNullOption,
 					 &status);
