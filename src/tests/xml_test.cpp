@@ -20,7 +20,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( XmlTest );
 
 static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
 {
-	Preferences *pref = Preferences::get_instance();
+	H2Core::Preferences *pref = H2Core::Preferences::get_instance();
 	unsigned MaxLayers = pref->getMaxLayers();
 
 	int count = 0;
