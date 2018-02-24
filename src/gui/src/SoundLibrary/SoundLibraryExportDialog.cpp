@@ -89,6 +89,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QString saveDir = drumkitPathTxt->text();
 
 	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
 	QDir qdTempFolder( pref->getTmpDirectory() );
 	bool TmpFileCreated = false;
 
@@ -117,6 +118,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	}
 
 #if defined(H2CORE_HAVE_LIBARCHIVE)
+
 	QString fullDir = drumkitDir + "/" + drumkitName;
 	QDir sourceDir(fullDir);
 
