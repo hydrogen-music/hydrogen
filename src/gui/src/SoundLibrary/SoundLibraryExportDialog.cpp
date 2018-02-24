@@ -117,9 +117,6 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	}
 
 #if defined(H2CORE_HAVE_LIBARCHIVE)
-	Preferences *pref = Preferences::get_instance();
-	unsigned MaxLayers = pref->getMaxLayers();
-
 	QString fullDir = drumkitDir + "/" + drumkitName;
 	QDir sourceDir(fullDir);
 
