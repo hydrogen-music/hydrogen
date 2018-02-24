@@ -27,6 +27,7 @@
 
 #include <math.h>
 #include <assert.h>
+#include <vector>
 
 #include <hydrogen/basics/song.h>
 #include <hydrogen/hydrogen.h>
@@ -1002,7 +1003,7 @@ void InstrumentEditor::loadLayer()
 
 void InstrumentEditor::setAutoVelocity()
 {
-	int layerInUse[ m_nMaxLayers ] = {0};
+	std::vector<int> layerInUse( m_nMaxLayers, 0 );
 	int layers = 0;
 	for ( int i = 0; i < m_nMaxLayers ; i++ ) {
 		InstrumentLayer *pLayers = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
