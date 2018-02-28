@@ -608,6 +608,13 @@ bool IsLoAddressEqual( lo_address first, lo_address second )
 
 void OscServer::handleAction( Action* pAction )
 {
+	H2Core::Preferences * pPref = H2Core::Preferences::get_instance();
+	
+	if( !pPref->getOscFeedbackEnabled() ){
+		return;
+	}
+	
+	
 	if( pAction->getType() == "MASTER_VOLUME_ABSOLUTE"){
 		bool ok;
 		float param2 = pAction->getParameter2().toFloat(&ok);
