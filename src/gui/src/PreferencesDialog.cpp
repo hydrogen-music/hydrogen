@@ -257,6 +257,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	//OSC tab
 	enableOscCheckbox->setChecked( pPref->getOscServerEnabled() );
+	enableOscFeedbackCheckbox->setChecked( pPref->getOscFeedbackEnabled() );
 	connect(enableOscCheckbox, SIGNAL(toggled(bool)), this, SLOT(toggleOscCheckBox( bool )));
 	
 	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
@@ -450,6 +451,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	//OSC tab
 	pPref->setOscServerEnabled( enableOscCheckbox->isChecked() );
+	pPref->setOscFeedbackEnabled( enableOscFeedbackCheckbox->isChecked() );
 	pPref->setOscServerPort( incomingOscPortSpinBox->value() );
 	
 	// General tab

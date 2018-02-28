@@ -225,6 +225,7 @@ Preferences::Preferences()
 
 	// OSC configuration
 	m_bOscServerEnabled = false;
+	m_bOscFeedbackEnabled = true;
 	m_nOscServerPort = 9000;
 
 	// None: m_sDefaultEditor;
@@ -561,6 +562,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					recreate = true;
 				} else {
 					m_bOscServerEnabled = LocalFileMng::readXmlBool( oscServerNode, "oscEnabled", false );
+					m_bOscFeedbackEnabled = LocalFileMng::readXmlBool( oscServerNode, "oscFeedbackEnabled", true );
 					m_nOscServerPort = LocalFileMng::readXmlInt( oscServerNode, "oscServerPort", 9000 );
 				}
 			}
@@ -973,6 +975,12 @@ void Preferences::savePreferences()
 				LocalFileMng::writeXmlString( oscNode, "oscEnabled", "true" );
 			} else {
 				LocalFileMng::writeXmlString( oscNode, "oscEnabled", "false" );
+			}
+			
+			if ( m_bOscFeedbackEnabled ) {
+				LocalFileMng::writeXmlString( oscNode, "oscFeedbackEnabled", "true" );
+			} else {
+				LocalFileMng::writeXmlString( oscNode, "oscFeedbackEnabled", "false" );
 			}
 		}
 		audioEngineNode.appendChild( oscNode );
