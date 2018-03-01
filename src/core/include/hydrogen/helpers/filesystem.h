@@ -137,6 +137,8 @@ class Filesystem : public H2Core::Object
 		/* SONGS */
 		/** returns a list of existing songs */
 		static QStringList songs_list( );
+		/** returns a list of existing songs, excluding the autosaved one */
+		static QStringList songs_list_cleared( );
 		/**
 		 * returns true if the song file exists
 		 * \param sg_name the song name

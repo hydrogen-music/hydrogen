@@ -227,7 +227,7 @@ void SoundLibraryPanel::updateDrumkitList()
 	}
 	
 	//Songlist
-	QStringList songs = Filesystem::songs_list();
+	QStringList songs = Filesystem::songs_list_cleared();
 	if ( songs.size() > 0 ) {
 		__song_item = new QTreeWidgetItem( __sound_library_tree );
 		__song_item->setText( 0, trUtf8( "Songs" ) );

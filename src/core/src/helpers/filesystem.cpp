@@ -37,6 +37,7 @@
 #define DRUMKIT_XSD     "drumkit.xsd"
 #define DRUMPAT_XSD     "drumkit_pattern.xsd"
 #define PATTERN_XSD     "pattern.xsd"
+#define AUTOSAVE        "autosave"
 
 namespace H2Core
 {
@@ -494,6 +495,17 @@ QStringList Filesystem::songs_list( )
 {
 	return QDir( songs_dir() ).entryList( QStringList( SONG_FILTER ), QDir::Files | QDir::NoDotAndDotDot );
 }
+
+QStringList Filesystem::songs_list_cleared( )
+{
+    QStringList result;
+    foreach (const QString &str, songs_list()) {
+        if (!str.contains(AUTOSAVE))
+            result += str;
+    }
+    return result;
+}
+
 bool Filesystem::song_exists( const QString& sg_name )
 {
 	return QDir( songs_dir() ).exists( sg_name );
