@@ -482,7 +482,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 			cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
 			cost_L = cost_L * pInstr->get_gain();		// instrument gain
 
-			cost_L = cost_L * pCompo->get_gain();       // Component gain
+			cost_L = cost_L * pCompo->get_gain();		// Component gain
 			cost_L = cost_L * pMainCompo->get_volume(); // Component volument
 
 			cost_L = cost_L * pInstr->get_volume();		// instrument volume
@@ -498,7 +498,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 			cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
 			cost_R = cost_R * pInstr->get_gain();		// instrument gain
 
-			cost_R = cost_R * pCompo->get_gain();       // Component gain
+			cost_R = cost_R * pCompo->get_gain();		// Component gain
 			cost_R = cost_R * pMainCompo->get_volume(); // Component volument
 
 			cost_R = cost_R * pInstr->get_volume();		// instrument volume
@@ -817,9 +817,9 @@ bool Sampler::__render_note_no_resample(
 
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
-    // change the below return logic if you add code after that ifdef
-    if (pNote->get_instrument()->is_muted()) return retValue;
-    float masterVol =  pSong->get_volume();
+	// change the below return logic if you add code after that ifdef
+	if (pNote->get_instrument()->is_muted()) return retValue;
+	float masterVol =  pSong->get_volume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 
@@ -1021,8 +1021,8 @@ bool Sampler::__render_note_resample(
 
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
-    // change the below return logic if you add code after that ifdef
-    if (pNote->get_instrument()->is_muted()) return retValue;
+	// change the below return logic if you add code after that ifdef
+	if (pNote->get_instrument()->is_muted()) return retValue;
 	float masterVol = pSong->get_volume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );

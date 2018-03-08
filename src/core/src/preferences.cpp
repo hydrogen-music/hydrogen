@@ -46,7 +46,7 @@
 
 static bool shouldRemove(QString& first, QString& second)
 {
-    return (first.compare(second) == 0);
+	return (first.compare(second) == 0);
 };
 
 namespace H2Core
@@ -149,11 +149,11 @@ Preferences::Preferences()
 	/*
 	 *  Add .hydrogen/data/plugins to ladspa search path, no matter where LADSPA_PATH points to..
 	 */
-    m_ladspaPathVect.push_back( QFileInfo(m_sDataDirectory, "plugins").canonicalFilePath() );
-    std::sort(m_ladspaPathVect.begin(), m_ladspaPathVect.end());
+	m_ladspaPathVect.push_back( QFileInfo(m_sDataDirectory, "plugins").canonicalFilePath() );
+	std::sort(m_ladspaPathVect.begin(), m_ladspaPathVect.end());
 
-    auto last = std::unique(m_ladspaPathVect.begin(), m_ladspaPathVect.end(), shouldRemove);
-    m_ladspaPathVect.erase(last, m_ladspaPathVect.end());
+	auto last = std::unique(m_ladspaPathVect.begin(), m_ladspaPathVect.end(), shouldRemove);
+	m_ladspaPathVect.erase(last, m_ladspaPathVect.end());
 
 	__lastspatternDirectory = QDir::homePath();
 	__lastsampleDirectory = QDir::homePath(); //audio file browser

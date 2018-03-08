@@ -1,4 +1,4 @@
-    /*
+/*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
@@ -205,7 +205,7 @@ class Song : public H2Core::Object
 			return __velocity_automation_path;
 		}
 
-        DrumkitComponent* get_component( int ID );
+		DrumkitComponent* get_component( int ID );
 
 		void readTempPatternList( QString filename );
 
@@ -242,13 +242,13 @@ class Song : public H2Core::Object
 
 
 	private:
-		float								__volume;						///< volume of the song (0.0..1.0)
-		float								__metronome_volume;				///< Metronome volume
+		float								__volume;					///< volume of the song (0.0..1.0)
+		float								__metronome_volume;			///< Metronome volume
 		QString								__notes;
 		PatternList*						__pattern_list;				///< Pattern list
 		std::vector<PatternList*>*			__pattern_group_sequence;	///< Sequence of pattern groups
 		InstrumentList*						__instrument_list;			///< Instrument list
-		std::vector<DrumkitComponent*>*		__components;            ///< list of drumkit component
+		std::vector<DrumkitComponent*>*		__components;				///< list of drumkit component
 		QString								__filename;
 		bool								__is_loop_enabled;
 		float								__humanize_time_value;
@@ -260,7 +260,7 @@ class Song : public H2Core::Object
 		QString								__playback_track_filename;
 		bool								__playback_track_enabled;
 		float								__playback_track_volume;
-		AutomationPath*                     __velocity_automation_path;
+		AutomationPath*						__velocity_automation_path;
 };
 
 

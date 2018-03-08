@@ -93,7 +93,7 @@ public:
 	float* getTrackOut_L( unsigned nTrack );
 	float* getTrackOut_R( unsigned nTrack );
 	float* getTrackOut_L( Instrument *, InstrumentComponent * );
-    float* getTrackOut_R( Instrument *, InstrumentComponent * );
+	float* getTrackOut_R( Instrument *, InstrumentComponent * );
 
 	int init( unsigned bufferSize );
 

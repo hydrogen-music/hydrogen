@@ -498,12 +498,12 @@ QStringList Filesystem::songs_list( )
 
 QStringList Filesystem::songs_list_cleared( )
 {
-    QStringList result;
-    foreach (const QString &str, songs_list()) {
-        if (!str.contains(AUTOSAVE))
-            result += str;
-    }
-    return result;
+	QStringList result;
+	foreach (const QString &str, songs_list()) {
+		if (!str.contains(AUTOSAVE))
+			result += str;
+	}
+	return result;
 }
 
 bool Filesystem::song_exists( const QString& sg_name )

@@ -18,18 +18,18 @@ namespace H2Core
 class SilentMessageHandler : public QAbstractMessageHandler
 {
 public:
-    SilentMessageHandler()
-        : QAbstractMessageHandler(0)
-    {
-    }
+	SilentMessageHandler()
+		: QAbstractMessageHandler(0)
+	{
+	}
 
 protected:
-    virtual void handleMessage(QtMsgType type, const QString &description,
-                               const QUrl &identifier, const QSourceLocation &sourceLocation)
-    {
-        Q_UNUSED(type);
-        Q_UNUSED(identifier);
-    }
+	virtual void handleMessage(QtMsgType type, const QString &description,
+			const QUrl &identifier, const QSourceLocation &sourceLocation)
+	{
+		Q_UNUSED(type);
+		Q_UNUSED(identifier);
+	}
 
 };
 

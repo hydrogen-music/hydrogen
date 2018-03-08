@@ -185,15 +185,15 @@ class Drumkit : public H2Core::Object
 		void set_components( std::vector<DrumkitComponent*>* components );
 
 	private:
-		QString __path;                 ///< absolute drumkit path
-		QString __name;                 ///< drumkit name
-		QString __author;               ///< drumkit author
-		QString __info;                 ///< drumkit free text
-		QString __license;              ///< drumkit license description
-		QString __image;		///< drumkit image filename
-		QString __imageLicense;		///< drumkit image license
+		QString __path;					///< absolute drumkit path
+		QString __name;					///< drumkit name
+		QString __author;				///< drumkit author
+		QString __info;					///< drumkit free text
+		QString __license;				///< drumkit license description
+		QString __image;				///< drumkit image filename
+		QString __imageLicense;			///< drumkit image license
 
-		bool __samples_loaded;          ///< true if the instrument samples are loaded
+		bool __samples_loaded;			///< true if the instrument samples are loaded
 		InstrumentList* __instruments;  ///< the list of instruments
 		/*
 		 * save the drumkit within the given XMLNode
@@ -293,7 +293,7 @@ inline const bool Drumkit::samples_loaded() const
 
 inline std::vector<DrumkitComponent*>* Drumkit::get_components()
 {
-    return __components;
+	return __components;
 }
 
 };
