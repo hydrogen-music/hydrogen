@@ -17,6 +17,17 @@ function error {
 function usage {
 	echo "Usage: build_dmg.sh [-v] [hydrogen.app] [hydrogen.dmg]"
 }
+function show_help {
+	cat<<EOF
+Build Hydrogen .dmg image
+
+Usage: build_dmg.sh [-v] [hydrogen.app] [hydrogen.dmg]
+
+  -v Be verbose
+  -h Show this help message
+
+EOF
+}
 function verify_app {
 	APP="$1"
 	if [ ! -d "$APP" ]; then
@@ -27,11 +38,15 @@ function verify_app {
 	fi
 }
 
-while getopts ":v" opt; do
+while getopts ":vh" opt; do
 	case $opt in
 		v)
 			echo "Enabling verbose mode"
 			VERBOSE=1
+			;;
+		h)
+			show_help
+			exit
 			;;
 		\?)
 			echo "Unknown option: $OPTARG"
