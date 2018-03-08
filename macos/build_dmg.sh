@@ -4,6 +4,7 @@ DMG_ROOT=`mktemp -d`
 SRC_APP="hydrogen.app"
 DMG_PATH="Hydrogen.dmg"
 VERBOSE=0
+OPEN=0
 
 function verbose {
 	if (( $VERBOSE )); then
@@ -15,16 +16,17 @@ function error {
 	exit 1
 }
 function usage {
-	echo "Usage: build_dmg.sh [-v] [hydrogen.app] [hydrogen.dmg]"
+	echo "Usage: build_dmg.sh [-vho] [hydrogen.app] [hydrogen.dmg]"
 }
 function show_help {
 	cat<<EOF
 Build Hydrogen .dmg image
 
-Usage: build_dmg.sh [-v] [hydrogen.app] [hydrogen.dmg]
+Usage: build_dmg.sh [-vho] [hydrogen.app] [hydrogen.dmg]
 
   -v Be verbose
   -h Show this help message
+  -o Open image afterwards
 
 EOF
 }
@@ -38,7 +40,7 @@ function verify_app {
 	fi
 }
 
-while getopts ":vh" opt; do
+while getopts ":vho" opt; do
 	case $opt in
 		v)
 			echo "Enabling verbose mode"
@@ -47,6 +49,9 @@ while getopts ":vh" opt; do
 		h)
 			show_help
 			exit
+			;;
+		o)
+			OPEN=1
 			;;
 		\?)
 			echo "Unknown option: $OPTARG"
@@ -92,3 +97,7 @@ hdiutil create -srcfolder "$DMG_ROOT" -volname "Hydrogen" -fs HFS+ -format UDZO 
 
 verbose "Cleaning up"
 rm -rf "$DMG_ROOT"
+
+if (( $OPEN )); then
+	open "$DMG_PATH"
+fi
