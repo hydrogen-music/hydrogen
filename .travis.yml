@@ -56,4 +56,5 @@ deploy:
   file: Hydrogen.dmg
   skip_cleanup: true
   on:
+    condition: "$TRAVIS_OS_NAME" == "osx"
     all_branches: true
