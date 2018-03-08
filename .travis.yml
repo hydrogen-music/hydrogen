@@ -46,7 +46,13 @@ before_install:
 script:
   - mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PATH="$(brew --prefix qt5)/bin:$PATH" ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen.dmg; fi
+  - pwd
+  - ls
 
+before_deploy:
+  - pwd
+  - ls
+  - ls build || true
 deploy:
   provider: releases
   api_key:
