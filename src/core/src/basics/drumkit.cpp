@@ -526,4 +526,4 @@ bool Drumkit::install( const QString& path )
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

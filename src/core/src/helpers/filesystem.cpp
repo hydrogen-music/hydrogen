@@ -537,4 +537,4 @@ void Filesystem::info()
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

@@ -243,4 +243,4 @@ QString PatternList::find_unused_pattern_name( QString sourceName )
 
 
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

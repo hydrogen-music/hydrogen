@@ -564,4 +564,4 @@ inline void Note::compute_lr_values( float* val_l, float* val_r )
 
 #endif // H2C_NOTE_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

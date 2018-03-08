@@ -369,4 +369,4 @@ InstrumentComponent* Instrument::get_component( int DrumkitComponentID )
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

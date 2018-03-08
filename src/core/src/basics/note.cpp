@@ -248,4 +248,4 @@ Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

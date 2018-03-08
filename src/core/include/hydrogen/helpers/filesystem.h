@@ -243,4 +243,4 @@ class Filesystem : public H2Core::Object
 
 #endif  // H2C_FILESYSTEM_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

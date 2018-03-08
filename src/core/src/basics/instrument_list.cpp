@@ -247,4 +247,4 @@ void InstrumentList::set_default_midi_out_notes()
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

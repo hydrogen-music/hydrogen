@@ -708,4 +708,4 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options( cons
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

@@ -634,4 +634,4 @@ inline void Instrument::set_currently_exported( bool isCurrentlyExported )
 
 #endif // H2C_INSTRUMENT_H
 
-/* vim: set softtabstop=4 expandtab:  */
+/* vim: set softtabstop=4 noexpandtab:  */

@@ -300,4 +300,4 @@ inline std::vector<DrumkitComponent*>* Drumkit::get_components()
 
 #endif // H2C_DRUMKIT_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

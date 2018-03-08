@@ -2069,4 +2069,4 @@ inline float convex_exponant( float value ) { return compute_exponant( value, co
 
 #endif //H2C_EXPONENTIAL_TABLES_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */
