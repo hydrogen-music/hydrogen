@@ -45,4 +45,4 @@ before_install:
 
 script:
   - mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then macos/build_dmg.sh -v build/src/gui/hydrogen.app; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ../macos/build_dmg.sh -v src/gui/hydrogen.app; fi
