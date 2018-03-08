@@ -203,6 +203,44 @@ void PatternList::virtual_pattern_del( Pattern* pattern )
 	for( int i=0; i<__patterns.size(); i++ ) __patterns[i]->virtual_patterns_del( pattern );
 }
 
-};
+bool PatternList::check_name( QString patternName )
+{
+	if (patternName == "") {
+		return false;
+	}
+	
+	for (uint i = 0; i < __patterns.size(); i++) {
+		if ( __patterns[i]->get_name() == patternName) {
+			return false;
+		}
+	}
+	return true;
+}
 
-/* vim: set softtabstop=4 expandtab: */
+QString PatternList::find_unused_pattern_name( QString sourceName )
+{
+	QString unusedPatternNameCandidate;
+	
+	if( sourceName.isEmpty() ){
+		sourceName = "Pattern 11";
+	}
+	
+	int i = 1;
+	QString suffix = "";
+	unusedPatternNameCandidate = sourceName;
+	
+	while( !check_name( unusedPatternNameCandidate + suffix ) ){
+		suffix = " #" + QString::number(i);
+		i++;
+	}
+	
+	unusedPatternNameCandidate += suffix;
+	
+	return unusedPatternNameCandidate;
+}
+
+}
+
+
+
+/* vim: set softtabstop=4 noexpandtab: */

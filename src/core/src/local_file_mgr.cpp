@@ -39,6 +39,7 @@
 #include <hydrogen/basics/drumkit.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/automation_path_serializer.h>
 #include <hydrogen/fx/Effects.h>
 
 #include <algorithm>
@@ -477,45 +478,6 @@ int LocalFileMng::savePattern( Song *song , const QString& drumkit_name, int sel
 
 	return rv; // ok
 }
-
-
-
-
-void LocalFileMng::fileCopy( const QString& sOrigFilename, const QString& sDestFilename )
-{
-	// TODO: use QT copy functions
-
-	INFOLOG( sOrigFilename + " --> " + sDestFilename );
-
-	if ( sOrigFilename == sDestFilename ) {
-		return;
-	}
-
-	FILE *inputFile = fopen( sOrigFilename.toLocal8Bit(), "rb" );
-	if ( inputFile == NULL ) {
-		ERRORLOG( "Error opening " + sOrigFilename );
-		return;
-	}
-
-	FILE *outputFile = fopen( sDestFilename.toLocal8Bit(), "wb" );
-	if ( outputFile == NULL ) {
-		ERRORLOG( "Error opening " + sDestFilename );
-		fclose( inputFile );
-		return;
-	}
-
-	const int bufferSize = 512;
-	char buffer[ bufferSize ];
-	while ( feof( inputFile ) == 0 ) {
-		size_t read = fread( buffer, sizeof( char ), bufferSize, inputFile );
-		fwrite( buffer, sizeof( char ), read, outputFile );
-	}
-
-	fclose( inputFile );
-	fclose( outputFile );
-}
-
-
 
 std::vector<QString> LocalFileMng::getSongList()
 {
@@ -1273,7 +1235,12 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	LocalFileMng::writeXmlString( songNode, "license", song->get_license() );
 	LocalFileMng::writeXmlBool( songNode, "loopEnabled", song->is_loop_enabled() );
 	LocalFileMng::writeXmlBool( songNode, "patternModeMode", Preferences::get_instance()->patternModePlaysSelected());
+	
+	LocalFileMng::writeXmlString( songNode, "playbackTrackFilename", QString("%1").arg( song->get_playback_track_filename() ) );
+	LocalFileMng::writeXmlBool( songNode, "playbackTrackEnabled", song->get_playback_track_enabled() );
+	LocalFileMng::writeXmlString( songNode, "playbackTrackVolume", QString("%1").arg( song->get_playback_track_volume() ) );
 
+	
 	if ( song->get_mode() == Song::SONG_MODE ) {
 		LocalFileMng::writeXmlString( songNode, "mode", QString( "song" ) );
 	} else {
@@ -1575,6 +1542,20 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 		}
 	}
 	songNode.appendChild( timeLineTag );
+
+	// Automation Paths
+	QDomNode automationPathsTag = doc.createElement( "automationPaths" );
+	AutomationPath *pPath = song->get_velocity_automation_path();
+	if (pPath) {
+		QDomElement pathNode = doc.createElement("path");
+		pathNode.setAttribute("adjust", "velocity");
+
+		AutomationPathSerializer serializer;
+		serializer.write_automation_path(pathNode, *pPath);
+
+		automationPathsTag.appendChild(pathNode);
+	}
+	songNode.appendChild( automationPathsTag );
 
 	QFile file(filename);
 	if ( !file.open(QIODevice::WriteOnly) )

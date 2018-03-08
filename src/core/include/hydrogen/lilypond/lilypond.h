@@ -95,11 +95,11 @@ private:
 	                 unsigned nMeasure,
 	                 const std::vector<int> &whiteList ) const;
 
-	std::vector<notes_t> m_measures; ///< Representation of the song
-	QString m_sName;                 ///< Name of the song
-	QString m_sAuthor;               ///< Author of the song
-	float m_fBPM;                    ///< BPM of the song
-};
+	std::vector<notes_t>	m_Measures;		///< Representation of the song
+	QString					m_sName;		///< Name of the song
+	QString					m_sAuthor;		///< Author of the song
+	float					m_fBPM;			///< BPM of the song
+};	
 }
 
 #endif // LILYPOND_H

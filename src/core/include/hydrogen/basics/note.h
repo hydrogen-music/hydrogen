@@ -207,8 +207,8 @@ class Note : public H2Core::Object
 		SelectedLayerInfo* get_layer_selected( int CompoID );
 
 
-        void set_probability( float value );
-        float get_probability() const;
+		void set_probability( float value );
+		float get_probability() const;
 
 		/**
 		 * __humanize_delay setter
@@ -284,32 +284,32 @@ class Note : public H2Core::Object
 		void compute_lr_values( float* val_l, float* val_r );
 
 	private:
-		Instrument* __instrument;   ///< the instrument to be played by this note
-		int __instrument_id;        ///< the id of the instrument played by this note
-		int __specific_compo_id;    ///< play a specific component, -1 if playing all
-		int __position;             ///< note position inside the pattern
-		float __velocity;           ///< velocity (intensity) of the note [0;1]
-		float __pan_l;              ///< pan of the note (left volume) [0;0.5]
-		float __pan_r;              ///< pan of the note (right volume) [0;0.5]
-		int __length;               ///< the length of the note
-		float __pitch;              ///< the frequency of the note
-		Key __key;                  ///< the key, [0;11]==[C;B]
-		Octave __octave;            ///< the octave [-3;3]
-		ADSR* __adsr;               ///< attack decay sustain release
-		float __lead_lag;           ///< lead or lag offset of the note
-		float __cut_off;            ///< filter cutoff [0;1]
-		float __resonance;          ///< filter resonant frequency [0;1]
-		int __humanize_delay;       ///< used in "humanize" function
+		Instrument*		__instrument;   ///< the instrument to be played by this note
+		int				__instrument_id;        ///< the id of the instrument played by this note
+		int				__specific_compo_id;    ///< play a specific component, -1 if playing all
+		int				__position;             ///< note position inside the pattern
+		float			__velocity;           ///< velocity (intensity) of the note [0;1]
+		float			__pan_l;              ///< pan of the note (left volume) [0;0.5]
+		float			__pan_r;              ///< pan of the note (right volume) [0;0.5]
+		int				__length;               ///< the length of the note
+		float			__pitch;              ///< the frequency of the note
+		Key				__key;                  ///< the key, [0;11]==[C;B]
+		Octave			 __octave;            ///< the octave [-3;3]
+		ADSR*			__adsr;               ///< attack decay sustain release
+		float			__lead_lag;           ///< lead or lag offset of the note
+		float			__cut_off;            ///< filter cutoff [0;1]
+		float			__resonance;          ///< filter resonant frequency [0;1]
+		int				__humanize_delay;       ///< used in "humanize" function
 		std::map< int, SelectedLayerInfo* > __layers_selected;
-		float __bpfb_l;             ///< left band pass filter buffer
-		float __bpfb_r;             ///< right band pass filter buffer
-		float __lpfb_l;             ///< left low pass filter buffer
-		float __lpfb_r;             ///< right low pass filter buffer
-		int __pattern_idx;          ///< index of the pattern holding this note for undo actions
-		int __midi_msg;             ///< TODO
-		bool __note_off;            ///< note type on|off
-		bool __just_recorded;       ///< used in record+delete
-        float __probability;        ///< note probability
+		float			__bpfb_l;             ///< left band pass filter buffer
+		float			__bpfb_r;             ///< right band pass filter buffer
+		float			__lpfb_l;             ///< left low pass filter buffer
+		float			__lpfb_r;             ///< right low pass filter buffer
+		int				__pattern_idx;          ///< index of the pattern holding this note for undo actions
+		int				__midi_msg;             ///< TODO
+		bool			__note_off;            ///< note type on|off
+		bool			__just_recorded;       ///< used in record+delete
+		float			__probability;        ///< note probability
 		static const char* __key_str[]; ///< used to build QString from __key an __octave
 };
 
@@ -437,12 +437,12 @@ inline bool Note::get_just_recorded() const
 
 inline float Note::get_probability() const
 {
-    return __probability;
+	return __probability;
 }
 
 inline void Note::set_probability( float value )
 {
-    __probability = value;
+	__probability = value;
 }
 
 inline SelectedLayerInfo* Note::get_layer_selected( int CompoID )
@@ -564,4 +564,4 @@ inline void Note::compute_lr_values( float* val_l, float* val_r )
 
 #endif // H2C_NOTE_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

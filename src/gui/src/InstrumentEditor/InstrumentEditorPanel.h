@@ -29,6 +29,7 @@
 #endif
 #include <hydrogen/object.h>
 #include "InstrumentEditor.h"
+#include "../EventListener.h"
 
 ///
 /// Container for the Instrument Editor (Singleton).
@@ -40,6 +41,8 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object, public Eve
 	public:
 		static InstrumentEditorPanel* get_instance();
 		~InstrumentEditorPanel();
+
+		virtual void parametersInstrumentChangedEvent();
 
 		void selectLayer( int nLayer );
 		
@@ -56,7 +59,6 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object, public Eve
 
 		InstrumentEditorPanel( QWidget *pParent );
 		int m_pLayer;
-		QTimer *m_pUpdateTimer;
 };
 
 #endif

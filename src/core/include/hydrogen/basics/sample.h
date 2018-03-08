@@ -369,4 +369,4 @@ inline Sample::Rubberband Sample::get_rubberband() const
 
 #endif // H2C_SAMPLE_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

@@ -96,18 +96,25 @@ function cmake_pkg() {
     echo -e " * execute hydrogen\n" && cd $BUILD_DIR && make package_source && cd .. || exit 1
 }
 
+function zoop() {
+    cmake_make
+    LD_PRELOAD=$(find $BUILD_DIR -name 'libhydrogen-core*' | head -n 1) $BUILD_DIR/src/gui/hydrogen
+}
+
 if [ $# -eq 0 ]; then
     echo "usage $0 [cmds list]"
     echo "cmds may be"
     echo "   r[m]     => all built, temp and cache files"
     echo "   c[lean]  => remove cache files"
     echo "   m[ake]   => launch the build process"
+    echo "   mm       => launch the build process using ccache"
     echo "   d[oc]    => build html documentation"
     echo "   g[raph]  => draw a dependecies graph"
     echo "   h[elp]   => show the build options"
     echo "   x|exec   => execute hydrogen"
     echo "   t[ests]  => execute tests"
     echo "   p[kg]    => build source package"
+    echo "   z        => build using ccache and run from tree"
     echo "ex: $0 r m pkg x"
     exit 1
 fi
@@ -119,6 +126,9 @@ for arg in $@; do
         r|rm)
             cmd="cmake_rm";;
         m|make)
+            cmd="cmake_make";;
+        mm)
+            CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
             cmd="cmake_make";;
         g|graph)
             cmd="cmake_graph";;
@@ -132,6 +142,8 @@ for arg in $@; do
             cmd="cmake_tests";;
         p|pkg)
             cmd="cmake_pkg";;
+        z)
+            cmd="zoop";;
         *)
          echo "unknown command ${arg}" && exit 1
      esac

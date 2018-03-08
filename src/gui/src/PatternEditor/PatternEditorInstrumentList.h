@@ -66,6 +66,8 @@ class InstrumentLine : public PixmapWidget
 		void functionFillEveryFourNotes();
 		void functionFillEverySixNotes();
 		void functionFillEveryEightNotes();
+		void functionFillEveryTwelveNotes();
+		void functionFillEverySixteenNotes();
 		void functionFillNotes( int every );
 		void functionCopyInstrumentPattern();
 		void functionCopyAllInstrumentPatterns();
@@ -75,6 +77,7 @@ class InstrumentLine : public PixmapWidget
 
 		void functionRandomizeVelocity();
 		void functionDeleteInstrument();
+		void functionRenameInstrument();
 		void muteClicked();
 		void soloClicked();
 

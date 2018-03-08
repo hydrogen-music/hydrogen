@@ -354,9 +354,11 @@ int main(int argc, char *argv[])
 
 		signal(SIGINT, signal_handler);
 
+		
 		bool ExportMode = false;
 		if ( ! outFilename.isEmpty() ) {
-			pHydrogen->startExportSong ( outFilename, rate, bits );
+			pHydrogen->startExportSession(rate, bits);
+			pHydrogen->startExportSong( outFilename );
 			cout << "Export Progress ... ";
 			ExportMode = true;
 		}
@@ -375,6 +377,7 @@ int main(int argc, char *argv[])
 				if ( event.value < 100 ) {
 					cout << "\rExport Progress ... " << event.value << "%";
 				} else {
+					pHydrogen->stopExportSession();
 					cout << "\rExport Progress ... DONE" << endl;
 					quit = true;
 				}

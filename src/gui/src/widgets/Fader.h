@@ -53,6 +53,9 @@ class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 		void setValue( float fVal );
 		float getValue();
 
+		void setDefaultValue( float fDefaultValue );
+		float getDefaultValue() { return m_fDefaultValue; }
+		void resetValueToDefault();
 
 		void setMaxPeak( float fMax );
 		void setMinPeak( float fMin );
@@ -65,15 +68,17 @@ class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseMoveEvent(QMouseEvent *ev);
+		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void wheelEvent( QWheelEvent *ev );
 		virtual void paintEvent(QPaintEvent *ev);
 
 	signals:
 		void valueChanged(Fader *ref);
 
-	private:
+	protected:
 		bool m_bWithoutKnob;
 		bool m_bUseIntSteps;
+		bool m_bIgnoreMouseMove;
 
 		float m_fPeakValue_L;
 		float m_fPeakValue_R;
@@ -83,13 +88,27 @@ class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 		float m_fValue;
 		float m_fMinValue;
 		float m_fMaxValue;
+		float m_fDefaultValue;
 
 		QPixmap m_back;
 		QPixmap m_leds;
 		QPixmap m_knob;
 };
 
-
+class VerticalFader : public Fader
+{
+	Q_OBJECT
+	
+public:
+		VerticalFader(QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob );
+		~VerticalFader();
+		
+		virtual void paintEvent(QPaintEvent *ev);
+		virtual void mouseMoveEvent(QMouseEvent *ev);
+		
+		
+	
+};
 
 
 class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
@@ -109,6 +128,10 @@ class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 		void setValue( float newValue );
 		float getValue();
 
+		void setDefaultValue( float fDefaultValue );
+		float getDefaultValue() { return m_fDefaultValue; }
+		void resetValueToDefault();
+
 		void setPeak_L( float peak );
 		float getPeak_L() {	return m_fPeakValue_L;	}
 
@@ -117,6 +140,7 @@ class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 
 		virtual void mousePressEvent( QMouseEvent *ev );
 		virtual void mouseMoveEvent( QMouseEvent *ev );
+		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void paintEvent( QPaintEvent *ev );
 		virtual void wheelEvent( QWheelEvent *ev );
 
@@ -125,12 +149,15 @@ class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 
 	private:
 		bool m_bWithoutKnob;
+		bool m_bIgnoreMouseMove;
+
 		float m_fPeakValue_L;
 		float m_fPeakValue_R;
 
 		float m_fValue;
 		float m_fMin;
 		float m_fMax;
+		float m_fDefaultValue;
 
 		QPixmap m_back;
 		QPixmap m_leds;
@@ -152,16 +179,23 @@ class Knob : public QWidget, public H2Core::Object, public MidiLearnable
 		void setValue( float fValue );
 		float getValue() {	return m_fValue;	}
 
+		void setDefaultValue( float fDefaultValue );
+		float getDefaultValue() { return m_fDefaultValue; }
+		void resetValueToDefault();
+
+
 	signals:
 		void valueChanged( Knob *ref );
 
 	private:
 		static QPixmap *m_background;
+		bool m_bIgnoreMouseMove;
 
 		int m_nWidgetWidth;
 		int m_nWidgetHeight;
 
 		float m_fValue;
+		float m_fDefaultValue;
 		float m_fMousePressValue;
 		float m_fMousePressY;
 

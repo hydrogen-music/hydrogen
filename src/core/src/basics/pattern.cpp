@@ -279,4 +279,4 @@ void Pattern::extand_with_flattened_virtual_patterns( PatternList* patterns )
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

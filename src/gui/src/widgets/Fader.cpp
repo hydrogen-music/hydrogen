@@ -34,7 +34,7 @@
 
 const char* Fader::__class_name = "Fader";
 
-Fader::Fader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob )
+Fader::Fader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob)
  : QWidget( pParent )
  , Object( __class_name )
  , m_bWithoutKnob( bWithoutKnob )
@@ -46,8 +46,11 @@ Fader::Fader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob )
  , m_fValue( 0.0 )
  , m_fMinValue( 0.0 )
  , m_fMaxValue( 1.0 )
+ , m_fDefaultValue( m_fMaxValue )
+ , m_bIgnoreMouseMove( false )
 {
 	setAttribute( Qt::WA_NoBackground );
+	
 	setMinimumSize( 23, 116 );
 	setMaximumSize( 23, 116);
 	resize( 23, 116 );
@@ -85,7 +88,12 @@ Fader::~Fader()
 
 void Fader::mouseMoveEvent( QMouseEvent *ev )
 {
+	if ( m_bIgnoreMouseMove ) {
+		return;
+	}
+
 	float fVal = (float)( height() - ev->y() ) / (float)height();
+	
 	fVal = fVal * ( m_fMaxValue - m_fMinValue );
 
 	fVal = fVal + m_fMinValue;
@@ -98,10 +106,25 @@ void Fader::mouseMoveEvent( QMouseEvent *ev )
 
 void Fader::mousePressEvent(QMouseEvent *ev)
 {
-	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
+	if  ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
+		resetValueToDefault();
+		m_bIgnoreMouseMove = true;
+		emit valueChanged(this);
+	}
+	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
 		MidiSenseWidget midiSense( this, true, this->getAction() );
 		midiSense.exec();
 	}
+	else {
+		mouseMoveEvent(ev);
+	}
+}
+
+
+
+void Fader::mouseReleaseEvent(QMouseEvent *ev)
+{
+	m_bIgnoreMouseMove = false;
 }
 
 
@@ -161,6 +184,33 @@ void Fader::setValue( float fVal )
 float Fader::getValue()
 {
 	return m_fValue;
+}
+
+
+
+void Fader::setDefaultValue( float fDefaultValue )
+{
+	if ( fDefaultValue == m_fDefaultValue ) {
+		return;
+	}
+
+	if ( fDefaultValue < m_fMinValue ) {
+		fDefaultValue = m_fMinValue;
+	}
+	else if ( fDefaultValue > m_fMaxValue ) {
+		fDefaultValue = m_fMaxValue;
+	}
+
+	if ( fDefaultValue != m_fDefaultValue ) {
+		m_fDefaultValue = fDefaultValue;
+	}
+}
+
+
+
+void Fader::resetValueToDefault()
+{
+	setValue(m_fDefaultValue);
 }
 
 
@@ -278,7 +328,117 @@ void Fader::setMinPeak( float fMin )
 }
 
 
+//////////////////////////////////
 
+VerticalFader::VerticalFader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob)
+ : Fader( pParent, bUseIntSteps, bWithoutKnob )
+{
+	
+	m_bWithoutKnob = bWithoutKnob;
+	m_bUseIntSteps = bUseIntSteps;
+	m_fPeakValue_L = 0.0;
+	m_fPeakValue_R = 0.0;
+	m_fMinPeak = 0.01f;
+	m_fMaxPeak = 1.0;
+	m_fValue = 0.0;
+	m_fMinValue = 0.0;
+	m_fMaxValue = 1.0;
+	
+	setAttribute( Qt::WA_NoBackground );
+	
+	setMinimumSize( 116, 23 );
+	setMaximumSize( 116, 23);
+	resize( 116, 23 );
+	
+	QMatrix matrix;
+	matrix.rotate(90);
+	
+
+	// Background image
+	QString background_path = Skin::getImagePath() + "/mixerPanel/fader_background.png";
+	bool ok = m_back.load( background_path );
+	m_back=m_back.transformed(matrix);
+	if( ok == false ) {
+		ERRORLOG("Fader: Error loading pixmap");
+	}
+
+	// Leds image
+	QString leds_path = Skin::getImagePath()  + "/mixerPanel/fader_leds.png";
+	ok = m_leds.load( leds_path );
+	m_leds=m_leds.transformed(matrix);
+	
+	if( ok == false ){
+		ERRORLOG( "Error loading pixmap" );
+	}
+
+	// Knob image
+	QString knob_path = Skin::getImagePath() + "/mixerPanel/fader_knob.png";
+	ok = m_knob.load( knob_path );
+	m_knob = m_knob.transformed(matrix);
+	if( ok == false ){
+		ERRORLOG( "Error loading pixmap" );
+	}
+}
+
+
+VerticalFader::~VerticalFader()
+{
+//	infoLog( "[~MasterFader]" );
+}
+
+void VerticalFader::mouseMoveEvent( QMouseEvent *ev )
+{
+	float fVal = (float)( ev->x()  ) / (float)width();
+
+	qDebug() <<"H/ev/FVal: " << width() << ev->x() << fVal;
+	
+	fVal = fVal * ( m_fMaxValue - m_fMinValue );
+
+	fVal = fVal + m_fMinValue;
+
+	setValue( fVal );
+	emit valueChanged(this);
+}
+
+void VerticalFader::paintEvent( QPaintEvent *ev)
+{
+	UNUSED( ev );
+	QPainter painter(this);
+
+	// background
+	painter.drawPixmap( ev->rect(), m_back, ev->rect() );
+
+
+	float realPeak_L = m_fPeakValue_L - m_fMinPeak;
+	int peak_L = 116 - ( realPeak_L / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
+	
+	if ( peak_L > 116 ) {
+		peak_L = 116;
+	}
+	painter.drawPixmap( QRect( 0, 0, 116 - peak_L, 11 ), m_leds, QRect( 0, 0, 116 - peak_L, 11 ) );
+
+
+	float realPeak_R = m_fPeakValue_R - m_fMinPeak;
+	int peak_R = 116 - ( realPeak_R / ( m_fMaxPeak - m_fMinPeak ) ) * 116.0;
+	if ( peak_R > 116 ) {
+		peak_R = 116;
+	}
+	painter.drawPixmap( QRect( 0, 11, 116 - peak_R, 11 ), m_leds, QRect( 0, 11, 116 - peak_R, 11 ) );
+
+	if ( m_bWithoutKnob == false ) {
+		// knob
+		static const uint knob_height = 15;
+		static const uint knob_width = 29;
+
+		float fRange = m_fMaxValue - m_fMinValue;
+
+		float realVal = m_fValue - m_fMinValue;
+
+		uint knob_x = (uint)( 116.0 - ( 101 * ( 1-realVal / fRange ) ) );
+
+		painter.drawPixmap( QRect(knob_x - knob_height, 4 , knob_width, knob_height), m_knob, QRect( 0, 0, knob_width, knob_height ) );
+	}
+}
 
 //////////////////////////////////
 
@@ -293,6 +453,8 @@ MasterFader::MasterFader(QWidget *pParent, bool bWithoutKnob)
  , m_fValue( 0.0 )
  , m_fMin( 0.0 )
  , m_fMax( 1.0 )
+ , m_fDefaultValue( m_fMax )
+ , m_bIgnoreMouseMove( false )
 {
 	setAttribute(Qt::WA_NoBackground);
 
@@ -350,6 +512,10 @@ void MasterFader::wheelEvent ( QWheelEvent *ev )
 
 void MasterFader::mouseMoveEvent( QMouseEvent *ev )
 {
+	if ( m_bIgnoreMouseMove ) {
+		return;
+	}
+
 	float fVal = (float)( height() - ev->y() ) / (float)height();
 	fVal = fVal * ( m_fMax - m_fMin );
 
@@ -359,11 +525,26 @@ void MasterFader::mouseMoveEvent( QMouseEvent *ev )
 
 
 
+void MasterFader::mouseReleaseEvent(QMouseEvent *ev)
+{
+	m_bIgnoreMouseMove = false;
+}
+
+
+
 void MasterFader::mousePressEvent(QMouseEvent *ev)
 {
-	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
+	if  ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
+		resetValueToDefault();
+		m_bIgnoreMouseMove = true;
+		emit valueChanged(this);
+	}
+	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
 		MidiSenseWidget midiSense( this, true, this->getAction() );
 		midiSense.exec();
+	}
+	else {
+		mouseMoveEvent(ev);
 	}
 }
 
@@ -389,6 +570,33 @@ void MasterFader::setValue( float newValue )
 float MasterFader::getValue()
 {
 	return m_fValue;
+}
+
+
+
+void MasterFader::setDefaultValue( float fDefaultValue )
+{
+	if ( fDefaultValue == m_fDefaultValue ) {
+		return;
+	}
+
+	if ( fDefaultValue < m_fMin ) {
+		fDefaultValue = m_fMin;
+	}
+	else if ( fDefaultValue > m_fMax ) {
+		fDefaultValue = m_fMax;
+	}
+
+	if ( fDefaultValue != m_fDefaultValue ) {
+		m_fDefaultValue = fDefaultValue;
+	}
+}
+
+
+
+void MasterFader::resetValueToDefault()
+{
+	setValue(m_fDefaultValue);
 }
 
 
@@ -500,8 +708,10 @@ Knob::Knob( QWidget* pParent )
 	m_nWidgetWidth = 18;
 	m_nWidgetHeight = 18;
 	m_fValue = 0.0;
+	m_fDefaultValue = 0.0;
 	m_fMousePressValue = 0.0;
 	m_fMousePressY = 0.0;
+	m_bIgnoreMouseMove = false;
 
 	if ( m_background == NULL ) {
 		QString sBackground_path = Skin::getImagePath() + "/mixerPanel/knob_images.png";
@@ -562,17 +772,49 @@ void Knob::setValue( float fValue )
 
 
 
+void Knob::setDefaultValue( float fDefaultValue )
+{
+	if ( fDefaultValue == m_fDefaultValue ) {
+		return;
+	}
+
+	if ( fDefaultValue < 0.0 ) {
+		fDefaultValue = 0.0;
+	}
+	else if ( fDefaultValue > 1.0 ) {
+		fDefaultValue = 1.0;
+	}
+
+	if ( fDefaultValue != m_fDefaultValue ) {
+		m_fDefaultValue = fDefaultValue;
+	}
+}
+
+
+
+void Knob::resetValueToDefault()
+{
+	setValue(m_fDefaultValue);
+}
+
+
+
 void Knob::mousePressEvent(QMouseEvent *ev)
 {
-    if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
-	MidiSenseWidget midiSense( this, true, this->getAction() );
-	midiSense.exec();
+    if  ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier ) {
+		resetValueToDefault();
+		m_bIgnoreMouseMove = true;
+		emit valueChanged(this);
+	}
+	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
+		MidiSenseWidget midiSense( this, true, this->getAction() );
+		midiSense.exec();
     }
-
-    setCursor( QCursor( Qt::SizeVerCursor ) );
-
-	m_fMousePressValue = m_fValue;
-	m_fMousePressY = ev->y();
+	else {
+	    setCursor( QCursor( Qt::SizeVerCursor ) );
+		m_fMousePressValue = m_fValue;
+		m_fMousePressY = ev->y();
+	}
 }
 
 
@@ -581,11 +823,18 @@ void Knob::mouseReleaseEvent( QMouseEvent *ev )
 {
 	UNUSED( ev );
 	setCursor( QCursor( Qt::ArrowCursor ) );
+
+	m_bIgnoreMouseMove = false;
 }
 
 
 
- void Knob::mouseMoveEvent( QMouseEvent *ev ) {
+ void Knob::mouseMoveEvent( QMouseEvent *ev )
+ {
+	if ( m_bIgnoreMouseMove ) {
+		return;
+	}
+
 	float y = ev->y() - m_fMousePressY;
 	float fNewValue = m_fMousePressValue - ( y / 100.0 );
 	setValue( fNewValue );

@@ -87,6 +87,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 
 	setWindowTitle ( QString( "SampleEditor " + newfilename) );
 	setFixedSize ( width(), height() );
+	setModal ( true );
 
 	//this new sample give us the not changed real samplelength
 	m_pSampleFromFile = Sample::load( mSamplefilename );
@@ -154,6 +155,7 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 			accept();
 		}else
 		{
+			event->ignore();
 			return;
 		}
 	}else

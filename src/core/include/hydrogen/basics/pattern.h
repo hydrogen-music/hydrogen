@@ -306,4 +306,4 @@ inline void Pattern::flattened_virtual_patterns_clear()
 
 #endif // H2C_PATTERN_H
 
-/* vim: set softtabstop=4 expandtab:  */
+/* vim: set softtabstop=4 noexpandtab:  */

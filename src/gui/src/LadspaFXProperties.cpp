@@ -54,7 +54,6 @@ LadspaFXProperties::LadspaFXProperties(QWidget* parent, uint nLadspaFX)
 	resize( 500, 200 );
 	setMinimumSize( width(), height() );
 	setFixedHeight( height() );
-	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	QHBoxLayout *hbox = new QHBoxLayout();
 	hbox->setSpacing( 0 );
@@ -289,6 +288,7 @@ void LadspaFXProperties::updateControls()
 			pFader->setValue( pControlPort->fControlValue );
 			pFader->setPeak_L( pControlPort->fControlValue );
 			pFader->setPeak_R( pControlPort->fControlValue );
+			pFader->setDefaultValue( pControlPort->fDefaultValue );
 
 			//float fInterval = pControlPort->fUpperBound - pControlPort->fLowerBound;
 			//float fValue = ( pControlPort->fControlValue - pControlPort->fLowerBound ) / fInterval;
@@ -327,6 +327,7 @@ void LadspaFXProperties::updateControls()
 			pFader->setValue( pControl->fControlValue );
 			pFader->setPeak_L( pControl->fControlValue );
 			pFader->setPeak_R( pControl->fControlValue );
+			pFader->setDefaultValue( pControl->fDefaultValue );
 
 			m_pOutputControlFaders.push_back( pFader );
 		}

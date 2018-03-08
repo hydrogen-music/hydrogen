@@ -109,8 +109,24 @@ CoreMidiDriver::CoreMidiDriver()
 
 	QString sMidiPortName = Preferences::get_instance()->m_sMidiPortName;
 	err = MIDIClientCreate ( CFSTR( "h2MIDIClient" ), NULL, NULL, &h2MIDIClient );
+	if ( err != noErr ) {
+		ERRORLOG( QString( "Cannot create CoreMIDI client: %1" ).arg( err )); 
+	}
+
 	err = MIDIInputPortCreate ( h2MIDIClient, CFSTR( "h2InputPort" ), midiProc, this, &h2InputRef );
+	if ( err != noErr ) {
+		ERRORLOG( QString( "Cannot create CoreMIDI input port: %1" ).arg( err )); 
+	}
+
 	err = MIDIOutputPortCreate ( h2MIDIClient, CFSTR( "h2OutputPort" ), &h2OutputRef );
+	if ( err != noErr ) {
+		ERRORLOG( QString( "Cannot create CoreMIDI output port: %1" ).arg( err )); 
+	}
+
+	err = MIDISourceCreate ( h2MIDIClient, CFSTR( "Hydrogen" ), &h2VirtualOut );
+	if ( err != noErr ) {
+		ERRORLOG( QString( "Cannot create CoreMIDI virtual output: %1" ).arg( err )); 
+	}
 }
 
 
@@ -178,6 +194,7 @@ void CoreMidiDriver::close()
 	OSStatus err = noErr;
 	err = MIDIPortDisconnectSource( h2InputRef, cmH2Src );
 	err = MIDIPortDispose( h2InputRef );
+	err = MIDIEndpointDispose( h2VirtualOut );
 	//err = MIDIPortDisconnectSource( h2OutputRef, cmH2Dst );
 	//err = MIDIPortDispose( h2OutputRef );
 	err = MIDIClientDispose( h2MIDIClient );
@@ -241,14 +258,13 @@ void CoreMidiDriver::handleQueueNote(Note* pNote)
 	packetList.packet->data[1] = key;
 	packetList.packet->data[2] = velocity;
 
-
-	MIDISend(h2OutputRef, cmH2Dst, &packetList);
+	sendMidiPacket ( &packetList );
 
 	packetList.packet->data[0] = 0x90 | channel;
 	packetList.packet->data[1] = key;
 	packetList.packet->data[2] = velocity;
 
-	MIDISend(h2OutputRef, cmH2Dst, &packetList);
+	sendMidiPacket ( &packetList );
 }
 
 void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
@@ -275,8 +291,7 @@ void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 	packetList.packet->data[1] = key;
 	packetList.packet->data[2] = velocity;
 
-
-	MIDISend(h2OutputRef, cmH2Dst, &packetList);
+	sendMidiPacket ( &packetList );
 }
 
 void CoreMidiDriver::handleQueueAllNoteOff()
@@ -307,8 +322,46 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 		packetList.packet->data[1] = key;
 		packetList.packet->data[2] = 0;
 
-		MIDISend(h2OutputRef, cmH2Dst, &packetList);
+		sendMidiPacket ( &packetList );
+	}
+}
 
+void CoreMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
+{
+	if (cmH2Dst == NULL ) {
+		ERRORLOG( "cmH2Dst = NULL " );
+		return;
+	}
+
+	if (channel < 0) {
+		return;
+	}
+
+	MIDIPacketList packetList;
+	packetList.numPackets = 1;
+
+	packetList.packet->timeStamp = 0;
+	packetList.packet->length = 3;
+	packetList.packet->data[0] = 0xB0 | channel;
+	packetList.packet->data[1] = param;
+	packetList.packet->data[2] = value;
+
+	sendMidiPacket ( &packetList );
+}
+
+
+void CoreMidiDriver::sendMidiPacket (MIDIPacketList *packetList)
+{
+	OSStatus err = noErr;
+
+	err = MIDISend(h2OutputRef, cmH2Dst, packetList);
+	if ( err != noErr ) {
+		ERRORLOG( QString( "Cannot send MIDI packet to output port: %1" ).arg( err )); 
+	}
+
+	err = MIDIReceived(h2VirtualOut, packetList);
+	if ( err != noErr ) {
+		ERRORLOG( QString( "Cannot send MIDI packet to virtual output: %1" ).arg( err )); 
 	}
 }
 

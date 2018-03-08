@@ -326,6 +326,7 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 			pControl->fLowerBound = fMin;
 			pControl->fUpperBound = fMax;
 			pControl->fControlValue = fDefault;
+			pControl->fDefaultValue = fDefault;
 			pControl->isToggle = isToggle;
 			pControl->m_bIsInteger = isInteger;
 
@@ -361,6 +362,7 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 			pControl->fLowerBound = fMin;
 			pControl->fUpperBound = fMax;
 			pControl->fControlValue = fDefault;
+			pControl->fDefaultValue = fDefault;
 			//pFX->infoLog( "[LadspaFX::load] Output control port\t[" + sName + "]\tmin=" + to_string(fMin) + ",\tmax=" + to_string(fMax) + ",\tcontrolValue=" + to_string(pControl->fControlValue) );
 
 			pFX->outputControlPorts.push_back( pControl );

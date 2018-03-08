@@ -139,6 +139,16 @@ class PatternList : public H2Core::Object
 		 * \param pattern the pattern to remove where it's found
 		 */
 		void virtual_pattern_del( Pattern* pattern );
+		/**
+		 * check if a pattern with name patternName already exists in this list
+		 * \param patternName name of a pattern to check
+		 */
+		bool check_name( QString patternName );
+		/**
+		 * find unused patternName
+		 * \param sourceName base name to start with
+		 */
+		QString find_unused_pattern_name( QString sourceName );
 
 	private:
 		std::vector<Pattern*> __patterns;            ///< the list of patterns
@@ -160,4 +170,4 @@ inline void PatternList::clear()
 
 #endif // H2C_PATTERN_LIST_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

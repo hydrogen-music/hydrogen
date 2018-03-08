@@ -25,7 +25,7 @@ SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 IF(VERSION_SUFFIX)
 	SET(DISPLAY_VERSION "${VERSION}-${VERSION_SUFFIX}")
-ELSE() 
+ELSE()
 	EXECUTE_PROCESS(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE GIT_REVISION )
 	SET(DISPLAY_VERSION "${VERSION}-${GIT_REVISION}")
 ENDIF(VERSION_SUFFIX)
@@ -37,24 +37,23 @@ SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 #
 SET(WANT_LIBTAR TRUE)
 OPTION(WANT_DEBUG           "Build with debug information" ON)
-IF(NOT WANT_OLD_BUILD)
-    OPTION(WANT_QT5             "Build with Qt5" ON)
-ENDIF()
 IF(APPLE)
     OPTION(WANT_SHARED      "Build the core library shared." OFF)
+    OPTION(WANT_ALSA        "Include ALSA (Advanced Linux Sound Architecture) support" OFF)
 ELSE()
     OPTION(WANT_SHARED      "Build the core library shared." ON)
+    OPTION(WANT_ALSA        "Include ALSA (Advanced Linux Sound Architecture) support" ON)
 ENDIF()
 
 OPTION(WANT_LIBARCHIVE      "Enable use of libarchive instead of libtar" ON)
 OPTION(WANT_LADSPA          "Enable use of LADSPA plugins" ON)
 
 IF(APPLE)
-	OPTION(WANT_NSMSESSION  "Enable NSM Session integration" OFF)
+	OPTION(WANT_OSC  "Enable OSC support" OFF)
 	OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" OFF)
 ELSE()
 	OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" ON)
-	OPTION(WANT_NSMSESSION  "Enable NSM Session integration" ON)
+	OPTION(WANT_OSC  "Enable OSC support" ON)
 ENDIF()
 
 IF("${CMAKE_SYSTEM_NAME}" MATCHES "NetBSD")
@@ -63,7 +62,6 @@ ELSE()
 	OPTION(WANT_OSS          "Include OSS (Open Sound System) support" OFF)
 ENDIF()
 
-OPTION(WANT_ALSA         "Include ALSA (Advanced Linux Sound Architecture) support" ON)
 IF(MINGW)
 	OPTION(WANT_JACK         "Include JACK (Jack Audio Connection Kit) support" ON)
 	OPTION(WANT_PORTAUDIO    "Include PortAudio support" ON)
@@ -105,8 +103,12 @@ ELSE()
     SET(H2CORE_LIBRARY_TYPE STATIC)
 ENDIF()
 
-#SET(CMAKE_CXX_FLAGS "-fno-implement-inlines -finline-small-functions -findirect-inlining -fpartial-inlining")
-SET(CMAKE_CXX_FLAGS "-O2 -std=gnu++11 -Wno-deprecated-register")
+IF(WANT_DEBUG)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -std=gnu++11")
+ELSE()
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=gnu++11")
+ENDIF()
+
 IF (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-implement-inlines")
 ENDIF()
@@ -127,17 +129,9 @@ INCLUDE(StatusSupportOptions)
 MANDATORY_PKG(Threads)
 MANDATORY_PKG(LIBSNDFILE)
 
-IF(WANT_QT5)
-	FIND_PACKAGE(Qt5Widgets REQUIRED)
-	FIND_PACKAGE(Qt5Xml REQUIRED)
-	FIND_PACKAGE(Qt5XmlPatterns REQUIRED)
-ELSE()
-	MANDATORY_PKG(QT4)
-	SET(QT_USE_QTXML true)
-	SET(QT_USE_QTGUI true)
-	SET(QT_USE_QTXMLPATTERNS true)
-	FIND_PACKAGE(Qt4 4.3.0 REQUIRED)
-ENDIF()
+FIND_PACKAGE(Qt5Widgets REQUIRED)
+FIND_PACKAGE(Qt5Xml REQUIRED)
+FIND_PACKAGE(Qt5XmlPatterns REQUIRED)
 
 IF(MINGW)
     SET(WANT_JACK TRUE)
@@ -153,11 +147,10 @@ ELSE(MINGW)
 		SET(CMAKE_INSTALL_PREFIX "/usr" )
     ELSE(APPLE)
         SET(OSS_LIB_PATHS "/usr/lib${LIB_SUFFIX}/oss/lib" "/usr/local/lib${LIB_SUFFIX}/oss/lib" )
-        SET(RUBBERBAND_INCLUDE_PATHS "/usr/include/rubberband" )
     ENDIF(APPLE)
 ENDIF(MINGW)
 
-#Installation paths 
+#Installation paths
 # TODO remove data from path
 SET(SYS_DATA_PATH "${CMAKE_INSTALL_PREFIX}/share/hydrogen/data")
 # TODO remove data from path, could be .config/hydrogen
@@ -207,7 +200,7 @@ FIND_HELPER(LIBSNDFILE sndfile sndfile.h sndfile)
 FIND_HELPER(ALSA alsa alsa/asoundlib.h asound )
 FIND_LADSPA(LADSPA ladspa.h noise)
 
-FIND_HELPER(NSMSESSION liblo lo/lo.h lo)
+FIND_HELPER(OSC liblo lo/lo.h lo)
 
 IF("${CMAKE_SYSTEM_NAME}" MATCHES "NetBSD")
 	FIND_HELPER(OSS oss sys/soundcard.h ossaudio )
@@ -226,12 +219,11 @@ IF(APPLE)
 ENDIF()
 FIND_HELPER(PORTAUDIO portaudio-2.0 portaudio.h portaudio)
 FIND_HELPER(PORTMIDI portmidi portmidi.h portmidi)
-FIND_HELPER(PULSEAUDIO pulseaudio pulse/pulseaudio.h pulse)
+FIND_HELPER(PULSEAUDIO libpulse pulse/pulseaudio.h pulse)
 FIND_HELPER(LASH lash-1.0 lash/lash.h lash)
 FIND_HELPER(LRDF lrdf lrdf.h lrdf)
-FIND_HELPER(RAPTOR raptor2 raptor.h raptor)
 
-FIND_HELPER(RUBBERBAND rubberband RubberBandStretcher.h rubberband)
+FIND_HELPER(RUBBERBAND rubberband rubberband/RubberBandStretcher.h rubberband)
 FIND_HELPER(CPPUNIT cppunit cppunit/TestCase.h cppunit)
 
 
@@ -254,7 +246,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION NSMSESSION COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RAPTOR RUBBERBAND CPPUNIT )
+SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
 FOREACH( _pkg ${STATUS_LIST})
     COMPUTE_PKGS_FLAGS(${_pkg})
 ENDFOREACH()
@@ -290,16 +282,11 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}
-* fat build                    : ${WANT_FAT_BUILD}
-* old build                    : ${WANT_OLD_BUILD}\n"
+* fat build                    : ${WANT_FAT_BUILD}\n"
 )
 
 COLOR_MESSAGE("${cyan}Main librarires${reset}")
-IF(WANT_QT5)
-	COLOR_MESSAGE("* ${purple}libQt${reset}                        : ${Qt5Widgets_VERSION}")
-ELSE()
-	COLOR_MESSAGE("* ${purple}libQt${reset}                        : ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}")
-ENDIF()
+COLOR_MESSAGE("* ${purple}libQt${reset}                        : ${Qt5Widgets_VERSION}")
 COLOR_MESSAGE("* ${purple}libsndfile${reset}                   : ${LIBSNDFILE_STATUS}
 *                                ${LIBSNDFILE_MSG}
 * ${purple}libtar${reset}                       : ${LIBTAR_STATUS}
@@ -313,7 +300,7 @@ COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}
 * ${purple}OSS${reset}                          : ${OSS_STATUS}
 * ${purple}JACK${reset}                         : ${JACK_STATUS}
 * ${purple}JACKSESSION${reset}                  : ${JACKSESSION_STATUS}
-* ${purple}NSM Session${reset}                  : ${NSMSESSION_STATUS}   
+* ${purple}OSC${reset}                          : ${OSC_STATUS}
 * ${purple}CoreAudio${reset}                    : ${COREAUDIO_STATUS}
 * ${purple}CoreMidi${reset}                     : ${COREMIDI_STATUS}
 * ${purple}PortAudio${reset}                    : ${PORTAUDIO_STATUS}
@@ -364,7 +351,6 @@ IF(H2CORE_HAVE_CPPUNIT)
 ENDIF()
 ADD_SUBDIRECTORY(src/cli)
 ADD_SUBDIRECTORY(src/player)
-ADD_SUBDIRECTORY(src/synth)
 ADD_SUBDIRECTORY(src/gui)
 IF (MINGW)
 	INSTALL(DIRECTORY data DESTINATION . PATTERN ".git" EXCLUDE)
@@ -398,10 +384,10 @@ SET(CPACK_PACKAGE_INSTALL_DIRECTORY "Hydrogen")
 IF(MINGW)
     #Set the other files that will be used in CPack
     SET(WIN64 "OFF" CACHE BOOL "Windows 64 Bit")
-	SET(CPACK_STRIP_FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe" "${WINDOWS_DIR}/src/synth/h2synth.exe")
+	SET(CPACK_STRIP_FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe")
     #Program Files for Hydrogen
     SET(WINDOWS_DIR "windows")
-    INSTALL(FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/core/libhydrogen-core-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dll" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe" "${WINDOWS_DIR}/src/synth/h2synth.exe" DESTINATION ./)
+    INSTALL(FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/core/libhydrogen-core-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dll" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe" DESTINATION ./)
     #Install files from the extralibs dir
     INSTALL(DIRECTORY ${WINDOWS_DIR}/extralibs/ DESTINATION ./)
 

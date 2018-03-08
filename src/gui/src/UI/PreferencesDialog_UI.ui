@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>559</width>
-    <height>451</height>
+    <width>664</width>
+    <height>555</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,11 +25,14 @@
      <property name="toolTip">
       <string/>
      </property>
+     <property name="locale">
+      <locale language="German" country="Germany"/>
+     </property>
      <property name="tabShape">
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
@@ -360,7 +363,7 @@
            <item>
             <widget class="QCheckBox" name="trackOutsCheckBox">
              <property name="text">
-              <string>create per-instrument outputs</string>
+              <string>Create per-instrument outputs</string>
              </property>
              <property name="shortcut">
               <string>Alt+D</string>
@@ -685,6 +688,13 @@
           </layout>
          </item>
          <item>
+          <widget class="QCheckBox" name="m_pEnableMidiFeedbackCheckBox">
+           <property name="text">
+            <string>Enable feedback</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QCheckBox" name="m_pDiscardMidiMsgCheckbox">
            <property name="text">
             <string>Discard midi messages after action has been triggered</string>
@@ -708,6 +718,108 @@
         <widget class="MidiTable" name="midiTable"/>
        </item>
       </layout>
+     </widget>
+     <widget class="QWidget" name="tab_5">
+      <attribute name="title">
+       <string>&amp;OSC</string>
+      </attribute>
+      <widget class="QWidget" name="oscWidget" native="true">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>441</width>
+         <height>121</height>
+        </rect>
+       </property>
+       <widget class="QWidget" name="gridLayoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>441</width>
+          <height>89</height>
+         </rect>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="2" column="2">
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Incoming port</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QSpinBox" name="incomingOscPortSpinBox">
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="maximum">
+            <number>20000</number>
+           </property>
+           <property name="value">
+            <number>9000</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <item>
+            <widget class="QCheckBox" name="enableOscFeedbackCheckbox">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Enable OSC &amp;feedback</string>
+             </property>
+             <property name="shortcut">
+              <string>Alt+R</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QCheckBox" name="enableOscCheckbox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>166</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>&amp;Enable OSC support</string>
+       </property>
+       <property name="shortcut">
+        <string>Alt+R</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="tab_4">
       <attribute name="title">

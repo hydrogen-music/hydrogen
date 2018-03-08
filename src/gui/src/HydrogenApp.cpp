@@ -50,6 +50,7 @@
 #include "Mixer/MixerLine.h"
 #include "UndoActions.h"
 
+#include "widgets/InfoBar.h"
 
 
 #include <QtGui>
@@ -111,7 +112,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	else {
 		m_pAudioEngineInfoForm->hide();
 	}
-	
+
 	m_pPlaylistDialog = new PlaylistDialog( 0 );
 	m_pDirector = new Director( 0 );
 }
@@ -136,12 +137,12 @@ HydrogenApp::~HydrogenApp()
 
 	delete SoundLibraryDatabase::get_instance();
 
-	Hydrogen *engine = Hydrogen::get_instance();
-	if (engine) {
-		H2Core::Song * song = engine->getSong();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	if (pEngine) {
+		H2Core::Song * pSong = pEngine->getSong();
 		// Hydrogen calls removeSong on from its destructor, so here we just delete the objects:
-		delete engine;
-		delete song;
+		delete pEngine;
+		delete pSong;
 	}
 
 	#ifdef H2CORE_HAVE_LADSPA
@@ -149,7 +150,7 @@ HydrogenApp::~HydrogenApp()
 		delete m_pLadspaFXProperties[nFX];
 	}
 	#endif
-	
+
 }
 
 
@@ -175,26 +176,26 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pMainForm->resize( mainFormProp.width, mainFormProp.height );
 	m_pMainForm->move( mainFormProp.x, mainFormProp.y );
 
-	pSplitter = new QSplitter( NULL );
-	pSplitter->setOrientation( Qt::Vertical );
-	pSplitter->setOpaqueResize( true );
+	m_pSplitter = new QSplitter( NULL );
+	m_pSplitter->setOrientation( Qt::Vertical );
+	m_pSplitter->setOpaqueResize( true );
 
-	pTab = new QTabWidget( NULL );
+	m_pTab = new QTabWidget( NULL );
 
 	// SONG EDITOR
 	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
-		m_pSongEditorPanel = new SongEditorPanel( pSplitter );
+		m_pSongEditorPanel = new SongEditorPanel( m_pSplitter );
 	else
-		m_pSongEditorPanel = new SongEditorPanel( pTab );
+		m_pSongEditorPanel = new SongEditorPanel( m_pTab );
 
 	WindowProperties songEditorProp = pPref->getSongEditorProperties();
 	m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED)
-		pTab->addTab( m_pSongEditorPanel, trUtf8("Song Editor") );
+		m_pTab->addTab( m_pSongEditorPanel, trUtf8("Song Editor") );
 
 	// this HBox will contain the InstrumentRack and the Pattern editor
-	QWidget *pSouthPanel = new QWidget( pSplitter );
+	QWidget *pSouthPanel = new QWidget( m_pSplitter );
 	QHBoxLayout *pEditorHBox = new QHBoxLayout();
 	pEditorHBox->setSpacing( 5 );
 	pEditorHBox->setMargin( 0 );
@@ -204,9 +205,9 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pInstrumentRack = new InstrumentRack( NULL );
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED ){
-		pTab->setMovable( false );
-		pTab->setTabsClosable( false );
-		pTab->addTab( pSouthPanel, trUtf8( "Instrument + Pattern") );
+		m_pTab->setMovable( false );
+		m_pTab->setTabsClosable( false );
+		m_pTab->addTab( pSouthPanel, trUtf8( "Instrument + Pattern") );
 	}
 
 	// PATTERN EDITOR
@@ -226,14 +227,19 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// LAYOUT!!
 	QVBoxLayout *pMainVBox = new QVBoxLayout();
-	pMainVBox->setSpacing( 5 );
+	pMainVBox->setSpacing( 1 );
 	pMainVBox->setMargin( 0 );
 	pMainVBox->addWidget( m_pPlayerControl );
 
+	m_pInfoBar = new InfoBar();
+	m_pInfoBar->hide();
+	pMainVBox->addWidget( m_pInfoBar );
+	pMainVBox->addSpacing( 3 );
+
 	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
-		pMainVBox->addWidget( pSplitter );
+		pMainVBox->addWidget( m_pSplitter );
 	else {
-		pMainVBox->addWidget( pTab );
+		pMainVBox->addWidget( m_pTab );
 
 	}
 
@@ -250,7 +256,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pMixer->move( mixerProp.x, mixerProp.y );
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED){
-		pTab->addTab(m_pMixer,trUtf8("Mixer"));
+		m_pTab->addTab(m_pMixer,trUtf8("Mixer"));
 	}
 
 	m_pMixer->updateMixer();
@@ -285,8 +291,8 @@ void HydrogenApp::setupSinglePanedInterface()
 #endif
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED){
-		pTab->setCurrentIndex( Preferences::get_instance()->getLastOpenTab() );
-		QObject::connect(pTab, SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
+		m_pTab->setCurrentIndex( Preferences::get_instance()->getLastOpenTab() );
+		QObject::connect(m_pTab, SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
 	}
 }
 
@@ -331,10 +337,12 @@ void HydrogenApp::showMixer(bool show)
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED )
 	{
-		pTab->setCurrentIndex( 2 );
+		m_pTab->setCurrentIndex( 2 );
 	} else {
 		m_pMixer->setVisible( show );
 	}
+
+	m_pMainForm->update_mixer_checkbox();
 }
 
 void HydrogenApp::showInstrumentPanel(bool show)
@@ -349,11 +357,12 @@ void HydrogenApp::showInstrumentPanel(bool show)
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED )
 	{
-		pTab->setCurrentIndex( 1 );
+		m_pTab->setCurrentIndex( 1 );
 		getInstrumentRack()->setHidden( show );
 	} else {
 		getInstrumentRack()->setHidden( show );
 	}
+		m_pMainForm->update_instrument_checkbox( !show );
 }
 
 
@@ -411,15 +420,23 @@ void HydrogenApp::showAudioEngineInfoForm()
 
 void HydrogenApp::showPlaylistDialog()
 {
-	m_pPlaylistDialog->hide();
-	m_pPlaylistDialog->show();
+	if ( m_pPlaylistDialog->isVisible() ) {
+		m_pPlaylistDialog->hide();
+	} else {
+		m_pPlaylistDialog->show();
+	}
+	m_pMainForm->update_playlist_checkbox();
 }
 
 
 void HydrogenApp::showDirector()
 {
-	m_pDirector->hide();
-	m_pDirector->show();
+	if ( m_pDirector->isVisible() ) {
+		m_pDirector->hide();
+	} else {
+		m_pDirector->show();
+	}
+	m_pMainForm->update_director_checkbox();
 }
 
 
@@ -460,8 +477,8 @@ void HydrogenApp::onEventQueueTimer()
 
 	Event event;
 	while ( ( event = pQueue->pop_event() ).type != EVENT_NONE ) {
-		for (int i = 0; i < (int)m_eventListeners.size(); i++ ) {
-			EventListener *pListener = m_eventListeners[ i ];
+		for (int i = 0; i < (int)m_EventListeners.size(); i++ ) {
+			EventListener *pListener = m_EventListeners[ i ];
 
 			switch ( event.type ) {
 			case EVENT_STATE:
@@ -486,6 +503,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_SELECTED_INSTRUMENT_CHANGED:
 				pListener->selectedInstrumentChangedEvent();
+				break;
+
+			case EVENT_PARAMETERS_INSTRUMENT_CHANGED:
+				pListener->parametersInstrumentChangedEvent();
 				break;
 
 			case EVENT_MIDI_ACTIVITY:
@@ -528,6 +549,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->undoRedoActionEvent( event.value );
 				break;
 
+			case EVENT_TEMPO_CHANGED:
+				pListener->tempoChangedEvent( event.value );
+				break;
+
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}
@@ -568,16 +593,16 @@ void HydrogenApp::onEventQueueTimer()
 void HydrogenApp::addEventListener( EventListener* pListener )
 {
 	if (pListener) {
-		m_eventListeners.push_back( pListener );
+		m_EventListeners.push_back( pListener );
 	}
 }
 
 
 void HydrogenApp::removeEventListener( EventListener* pListener )
 {
-	for ( uint i = 0; i < m_eventListeners.size(); i++ ) {
-		if ( pListener == m_eventListeners[ i ] ) {
-			m_eventListeners.erase( m_eventListeners.begin() + i );
+	for ( uint i = 0; i < m_EventListeners.size(); i++ ) {
+		if ( pListener == m_EventListeners[ i ] ) {
+			m_EventListeners.erase( m_EventListeners.begin() + i );
 		}
 	}
 }
@@ -588,7 +613,7 @@ void HydrogenApp::removeEventListener( EventListener* pListener )
  */
 void HydrogenApp::addTemporaryFile( const QString& path)
 {
-	temporaryFileList.append( path );
+	m_TemporaryFileList.append( path );
 }
 
 
@@ -598,10 +623,9 @@ void HydrogenApp::addTemporaryFile( const QString& path)
  */
 void HydrogenApp::cleanupTemporaryFiles()
 {
-	for (int i = 0; i < temporaryFileList.size(); ++i){
-		Filesystem::rm( temporaryFileList[i] );
+	for (int i = 0; i < m_TemporaryFileList.size(); ++i){
+		Filesystem::rm( m_TemporaryFileList[i] );
 	}
 
 	Filesystem::rm( Preferences::get_instance()->getTmpDirectory() );
 }
-

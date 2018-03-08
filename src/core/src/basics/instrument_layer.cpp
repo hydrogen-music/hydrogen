@@ -97,4 +97,4 @@ void InstrumentLayer::save_to( XMLNode* node )
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

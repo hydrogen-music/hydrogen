@@ -83,7 +83,7 @@ class MetronomeWidget : public QWidget,public EventListener, public H2Core::Obje
 ///
 /// Player control panel
 ///
-class PlayerControl : public QLabel, public H2Core::Object
+class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 {
     H2_OBJECT
 	Q_OBJECT
@@ -94,6 +94,8 @@ class PlayerControl : public QLabel, public H2Core::Object
 		void showMessage( const QString& msg, int msec );
 		void showScrollMessage( const QString& msg, int msec, bool test );
 		void resetStatusLabel();
+		
+		virtual void tempoChangedEvent( int nValue );
 
 	private slots:
 		void recBtnClicked(Button* ref);
@@ -102,7 +104,7 @@ class PlayerControl : public QLabel, public H2Core::Object
 		void stopBtnClicked(Button* ref);
 		void updatePlayerControl();
 		void songModeBtnClicked(Button* ref);
-                void liveModeBtnClicked(Button* ref);
+		void liveModeBtnClicked(Button* ref);
 		void jackTransportBtnClicked(Button* ref);
 		//jack time master
 		void jackMasterBtnClicked(Button* ref);
@@ -142,7 +144,7 @@ class PlayerControl : public QLabel, public H2Core::Object
 		ToggleButton *m_pSongLoopBtn;
 
 		ToggleButton *m_pSongModeBtn;
-                ToggleButton *m_pLiveModeBtn;
+		ToggleButton *m_pLiveModeBtn;
 
 		//beatcounter
 		ToggleButton *m_pBConoffBtn;

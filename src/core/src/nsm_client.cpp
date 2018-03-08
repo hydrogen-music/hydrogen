@@ -27,7 +27,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 
 #include "hydrogen/nsm_client.h"
 #include "hydrogen/nsm.h"
@@ -163,5 +163,5 @@ void NsmClient::createInitialClient()
 		___WARNINGLOG("No NSM URL available: no NSM management\n");
 	}
 }
-#endif /* H2CORE_HAVE_NSMSESSION */
+#endif /* H2CORE_HAVE_OSC */
 

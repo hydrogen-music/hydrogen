@@ -116,4 +116,4 @@ void InstrumentComponent::save_to( XMLNode* node, int component_id )
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

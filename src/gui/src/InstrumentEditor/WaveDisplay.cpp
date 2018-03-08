@@ -34,22 +34,20 @@ const char* WaveDisplay::__class_name = "WaveDisplay";
 WaveDisplay::WaveDisplay(QWidget* pParent)
  : QWidget( pParent )
  , Object( __class_name )
+ , m_nCurrentWidth( 0 )
  , m_sSampleName( "" )
 {
 	setAttribute(Qt::WA_NoBackground);
 
 	//INFOLOG( "INIT" );
-	int w = 277;
-	int h = 58;
-	resize( w, h );
 
-	bool ok = m_background.load( Skin::getImagePath() + "/waveDisplay/background.png" );
+	bool ok = m_Background.load( Skin::getImagePath() + "/waveDisplay/bgsamplewavedisplay.png" );
 	if( ok == false ){
 		ERRORLOG( "Error loading pixmap" );
 	}
 
-	m_pPeakData = new int[ w ];
-
+	m_pLayer = 0;
+	m_pPeakData = new int[ width() ];
 }
 
 
@@ -66,10 +64,18 @@ WaveDisplay::~WaveDisplay()
 
 void WaveDisplay::paintEvent(QPaintEvent *ev)
 {
+	UNUSED(ev);
+	
 	QPainter painter( this );
 	painter.setRenderHint( QPainter::Antialiasing );
-	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
 
+	QBrush brush = QBrush(Qt::red, m_Background);
+	brush.setStyle(Qt::TexturePattern);
+	painter.setBrush(brush);
+	painter.drawRect(0, 0, width(), height());
+	
+	
+	
 	painter.setPen( QColor( 102, 150, 205 ) );
 	int VCenter = height() / 2;
 	for ( int x = 0; x < width(); x++ ) {
@@ -84,17 +90,38 @@ void WaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.drawText( 0, 0, width(), 20, Qt::AlignCenter, m_sSampleName );
 }
 
+void WaveDisplay::resizeEvent(QResizeEvent * event)
+{
+	updateDisplay(m_pLayer);
+}
+
 
 
 void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
+	int currentWidth = width();
+	
+	
+	if(!pLayer || currentWidth <= 0){
+		return;
+	}
+	
+	
+	if(currentWidth != m_nCurrentWidth){
+		delete[] m_pPeakData;
+		m_pPeakData = new int[ currentWidth ];
+		
+		m_nCurrentWidth = currentWidth;
+	}
+	
 	if ( pLayer && pLayer->get_sample() ) {
+		m_pLayer = pLayer;
 		m_sSampleName = pLayer->get_sample()->get_filename();
 
 //		INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
 
 		int nSampleLength = pLayer->get_sample()->get_frames();
-		float nScaleFactor = nSampleLength / width();
+		int nScaleFactor = nSampleLength / m_nCurrentWidth;
 
 		float fGain = height() / 2.0 * pLayer->get_gain();
 
@@ -117,12 +144,20 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		}
 	}
 	else {
+		
 		m_sSampleName = "-";
-		for ( int i =0; i < width(); ++i ){
+		for ( int i =0; i < m_nCurrentWidth; ++i ){
 			m_pPeakData[ i ] = 0;
 		}
+		
 	}
 
 	update();
 }
 
+void WaveDisplay::mouseDoubleClickEvent(QMouseEvent *ev)
+{
+	if (ev->button() == Qt::LeftButton) {
+	    emit doubleClicked(this);
+	}	
+}

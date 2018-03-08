@@ -209,9 +209,11 @@ public:
 	bool				m_bMidiNoteOffIgnore;
 	bool				m_bMidiFixedMapping;
 	bool				m_bMidiDiscardNoteAfterAction;
+	bool				m_bEnableMidiFeedback;
 	
 	// OSC Server properties
 	bool				m_bOscServerEnabled;
+	bool				m_bOscFeedbackEnabled;
 	int					m_nOscServerPort;
 
 	//	alsa audio driver properties ___
@@ -255,10 +257,6 @@ public:
 
 	int					getDefaultUILayout();
 	void				setDefaultUILayout( int layout);
-
-	void				setShowExportWarning( bool value );
-	bool				getShowExportWarning();
-
 
 	// General
 	void				setRestoreLastSongEnabled( bool restore );
@@ -337,6 +335,9 @@ public:
 
 	bool				isFXTabVisible();
 	void				setFXTabVisible( bool value );
+	
+	bool				getShowAutomationArea();
+	void				setShowAutomationArea( bool value );
 
 	unsigned			getPatternEditorGridHeight();
 	void				setPatternEditorGridHeight( unsigned value );
@@ -390,7 +391,7 @@ public:
 #endif
 
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 	void				setNsmClientId(const QString& nsmClientId);
 	QString				getNsmClientId(void);
 
@@ -400,7 +401,10 @@ public:
 
 	bool				getOscServerEnabled();
 	void				setOscServerEnabled( bool val );
-
+	
+	bool				getOscFeedbackEnabled();
+	void				setOscFeedbackEnabled( bool val );
+	
 	int					getOscServerPort();
 	void				setOscServerPort( int oscPort );
 
@@ -420,9 +424,25 @@ public:
 
 	QString				getH2ProcessName();
 
+	int					getExportSampleDepth() const;
+	void				setExportSampleDepth( int nExportSampleDepth );
+	
+	int					getExportSampleRate() const;
+	void				setExportSampleRate( int nExportSampleRate );
+
+	
+	int					getExportMode() const;
+	void				setExportMode(int nExportMode);
+	
+	QString				getExportDirectory() const;
+	void				setExportDirectory( const QString &sExportDirectory );
+	
+	int					getExportTemplate() const;
+	void				setExportTemplate( int nExportTemplate );
+	
 private:
 	static Preferences *	__instance;
-
+	
 	QString				m_sDataDirectory;
 	QString				m_sTmpDirectory;
 
@@ -438,7 +458,6 @@ private:
 	bool				m_brestoreLastPlaylist;
 	bool				m_bUseLash;
 	bool				m_bShowDevelWarning;	///< Show development version warning?
-	bool				m_bShowExportWarning;
 	QString				m_lastSongFilename;	///< Last song used
 	QString				m_lastPlaylistFilename;
 
@@ -460,7 +479,7 @@ private:
 		QString			jackSessionApplicationPath;
 #endif
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 		QString			m_sNsmClientId;
 		QString			m_sNsmSongName;
 #endif
@@ -483,6 +502,7 @@ private:
 	bool				m_bPatternEditorUsingTriplets;
 	bool				m_bShowInstrumentPeaks;
 	bool				m_bIsFXTabVisible;
+	bool				m_bShowAutomationArea;
 	bool				m_bUseRelativeFilenamesForPlaylists;
 	unsigned			m_nPatternEditorGridHeight;
 	unsigned			m_nPatternEditorGridWidth;
@@ -500,6 +520,14 @@ private:
 	int					m_nColoringMethod;
 	int					m_nColoringMethodAuxValue;
 
+	//Export dialog
+	QString				m_sExportDirectory;
+	int					m_nExportMode;
+	int					m_nExportSampleRate;
+	int					m_nExportSampleDepth;
+	int					m_nExportTemplate;
+	//~ Export dialog 
+	
 	Preferences();
 
 	/// Create preferences directory
@@ -519,10 +547,60 @@ private:
 };
 
 
+inline int Preferences::getExportSampleDepth() const
+{
+	return m_nExportSampleDepth;
+}
+
+inline void Preferences::setExportSampleDepth(int ExportSampleDepth)
+{
+	m_nExportSampleDepth = ExportSampleDepth;
+}
+
+inline int Preferences::getExportSampleRate() const
+{
+	return m_nExportSampleRate;
+}
+
+inline int Preferences::getExportMode() const
+{
+	return m_nExportMode;
+}
+
+inline void Preferences::setExportMode(int ExportMode)
+{
+	m_nExportMode = ExportMode;
+}
+
+inline QString Preferences::getExportDirectory() const
+{
+	return m_sExportDirectory;
+}
+
+inline void Preferences::setExportDirectory(const QString &ExportDirectory)
+{
+	m_sExportDirectory = ExportDirectory;
+}
+
+inline void Preferences::setExportSampleRate(int ExportSampleRate)
+{
+	m_nExportSampleRate = ExportSampleRate;
+}
+
+inline int Preferences::getExportTemplate() const
+{
+	return m_nExportTemplate;
+}
+
+inline void Preferences::setExportTemplate(int ExportTemplate)
+{
+	m_nExportTemplate = ExportTemplate;
+}
+
 inline const QString& Preferences::getDemoPath() {
 	return demoPath;
 }
-inline const QString& Preferences::getDataDirectory() {
+inline const QString& Preferences::getDataDirectory(){
 	return m_sDataDirectory;
 }
 
@@ -544,14 +622,6 @@ inline int Preferences::getDefaultUILayout(){
 
 inline void Preferences::setDefaultUILayout( int layout){
 	m_nDefaultUILayout = layout;
-}
-
-inline void Preferences::setShowExportWarning( bool value ) {
-	m_bShowExportWarning = value;
-}
-
-inline bool Preferences::getShowExportWarning() {
-	return m_bShowExportWarning;
 }
 
 
@@ -744,6 +814,14 @@ inline void Preferences::setFXTabVisible( bool value ) {
 	m_bIsFXTabVisible = value;
 }
 
+inline bool Preferences::getShowAutomationArea() {
+	return m_bShowAutomationArea;
+}
+inline void Preferences::setShowAutomationArea( bool value ) {
+	m_bShowAutomationArea = value;
+}
+
+
 inline unsigned Preferences::getPatternEditorGridHeight() {
 	return m_nPatternEditorGridHeight;
 }
@@ -871,7 +949,7 @@ inline void Preferences::setJackSessionApplicationPath( QString path ){
 #endif
 
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 inline void Preferences::setNsmClientId(const QString& nsmClientId){
 	m_sNsmClientId = nsmClientId;
 }
@@ -896,6 +974,13 @@ inline bool Preferences::getOscServerEnabled(){
 
 inline void Preferences::setOscServerEnabled( bool val ){
 	m_bOscServerEnabled = val;
+}
+inline bool Preferences::getOscFeedbackEnabled(){
+	return m_bOscFeedbackEnabled;
+}
+
+inline void Preferences::setOscFeedbackEnabled( bool val ){
+	m_bOscFeedbackEnabled = val;
 }
 
 inline int Preferences::getOscServerPort(){

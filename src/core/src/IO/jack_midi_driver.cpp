@@ -114,8 +114,8 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 			msg.m_type = MidiMessage::NOTE_ON;
 			msg.m_nData1 = buffer[1];
 			msg.m_nData2 = buffer[2];
-						msg.m_nChannel = buffer[0] & 0xF;
-						handleMidiMessage(msg);
+			msg.m_nChannel = buffer[0] & 0xF;
+			handleMidiMessage(msg);
 			break;
 		case 0xA:	 /* aftertouch */
 			msg.m_type = MidiMessage::POLYPHONIC_KEY_PRESSURE;
@@ -196,6 +196,28 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 			break;
 		}
 	}
+}
+
+void 
+JackMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
+{
+	uint8_t buffer[4];	
+	
+	if (channel < 0 || channel > 15)
+		return;
+	
+	if (param < 0 || param > 127)
+		return;
+
+	if (value < 0 || value > 127)
+		return;
+
+	buffer[0] = 0xB0 | channel;	/* note off */
+	buffer[1] = param;
+	buffer[2] = value;
+	buffer[3] = 0;
+
+	JackMidiOutEvent(buffer, 3);
 }
 
 void
@@ -313,7 +335,7 @@ JackMidiDriver::JackMidiDriver()
 
 	QString jackMidiClientId = "Hydrogen";
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 	Preferences* pref = Preferences::get_instance();
 	QString nsmClientId = pref->getNsmClientId();
 
@@ -455,7 +477,7 @@ JackMidiDriver::handleQueueNoteOff(int channel, int key, int vel)
 	if (vel < 0 || vel > 127)
 		return;
 
-		buffer[0] = 0x80 | channel;	/* note off */
+	buffer[0] = 0x80 | channel;	/* note off */
 	buffer[1] = key;
 	buffer[2] = 0;
 	buffer[3] = 0;

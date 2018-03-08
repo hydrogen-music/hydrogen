@@ -227,7 +227,7 @@ void SoundLibraryPanel::updateDrumkitList()
 	}
 	
 	//Songlist
-	QStringList songs = Filesystem::songs_list();
+	QStringList songs = Filesystem::songs_list_cleared();
 	if ( songs.size() > 0 ) {
 		__song_item = new QTreeWidgetItem( __sound_library_tree );
 		__song_item->setText( 0, trUtf8( "Songs" ) );
@@ -294,14 +294,18 @@ void SoundLibraryPanel::updateDrumkitList()
 void SoundLibraryPanel::on_DrumkitList_ItemChanged( QTreeWidgetItem * current, QTreeWidgetItem * previous )
 {
 	UNUSED( previous );
+	
+	if( current == nullptr ){
+		return;
+	}
 
 	if ( current->parent() == __system_drumkits_item ||
-		 current->parent() == __user_drumkits_item  )
-		   emit item_changed( true );
-
-	else
+		 current->parent() == __user_drumkits_item  ){
+			emit item_changed( true );
+	} else {
 		emit item_changed( false );
-
+	}
+	
 	test_expandedItems();
 }
 
