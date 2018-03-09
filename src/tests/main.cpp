@@ -59,5 +59,5 @@ int main( int argc, char **argv)
 	runner.addTest( registry.makeTest() );
 	bool wasSuccessful = runner.run( "", false );
 
-	return wasSuccessful;
+	return wasSuccessful ? 0 : 1;
 }
