@@ -7,6 +7,7 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument.h>
+#include <hydrogen/smf/SMF.h>
 #include "test_helper.h"
 
 #include <chrono>
@@ -51,6 +52,15 @@ void exportSong( const QString &songFile, const QString &fileName )
 	___INFOLOG( QString("Export took %1 seconds").arg(t) );
 }
 
+void exportMIDI( const QString &songFile, const QString &fileName )
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = Song::load( songFile );
+	CPPUNIT_ASSERT( pSong != NULL );
+
+	SMFWriter writer;
+	writer.save( fileName, pSong );
+}
 
 void checkFilesEqual(const QString &expected, const QString &actual, CppUnit::SourceLine sourceLine)
 {
@@ -70,18 +80,30 @@ void checkFilesEqual(const QString &expected, const QString &actual, CppUnit::So
 
 class FunctionalTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( FunctionalTest );
-	CPPUNIT_TEST( testExport );
+	CPPUNIT_TEST( testExportAudio );
+	CPPUNIT_TEST( testExportMIDI );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
 
-	void testExport()
+	void testExportAudio()
 	{
 		auto songFile = H2TEST_FILE("functional/test.h2song");
 		auto outFile = Filesystem::tmp_file("test.wav");
 		auto refFile = H2TEST_FILE("functional/test.ref.wav");
-		
+
 		exportSong( songFile, outFile );
+		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
+		Filesystem::rm( outFile );
+	}
+
+	void testExportMIDI()
+	{
+		auto songFile = H2TEST_FILE("functional/test.h2song");
+		auto outFile = Filesystem::tmp_file("test.mid");
+		auto refFile = H2TEST_FILE("functional/test.ref.mid");
+
+		exportMIDI( songFile, outFile );
 		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
 		Filesystem::rm( outFile );
 	}
