@@ -76,12 +76,4 @@ void H2Test::checkFilesEqual(const QString &expected, const QString &actual, Cpp
 		offset += r1;
 		remaining -= r1;
 	}
-
-	if ( code != 0 ) {
-		CppUnit::Message msg(
-			"files differ",
-			std::string("Expected: ") + expected.toStdString(),
-			std::string("Actual  : ") + actual.toStdString() );
-		throw CppUnit::Exception(msg, sourceLine);
-	}
 }
