@@ -24,7 +24,7 @@
 
 #include <QFile>
 
-static constexpr qint64 BUFFER_SIZE = 5;
+static constexpr qint64 BUFFER_SIZE = 4096;
 
 
 void H2Test::checkFilesEqual(const QString &expected, const QString &actual, CppUnit::SourceLine sourceLine)
@@ -60,7 +60,10 @@ void H2Test::checkFilesEqual(const QString &expected, const QString &actual, Cpp
 
 		qint64 toRead = qMin( remaining, (qint64)BUFFER_SIZE );
 		auto r1 = f1.read( buf1, toRead );
+		if ( r1 != toRead ) throw CppUnit::Exception( CppUnit::Message( "Short read or read error" ), sourceLine );
+
 		auto r2 = f2.read( buf2, toRead );
+		if ( r2 != toRead ) throw CppUnit::Exception( CppUnit::Message( "Short read or read error" ), sourceLine );
 
 		for (int i = 0; i < r1; i++) {
 			if ( buf1[i] != buf2[i] ) {

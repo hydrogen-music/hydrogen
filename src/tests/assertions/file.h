@@ -32,6 +32,9 @@ namespace H2Test {
 
 }
 
+/**
+ * \brief Assert that two files' contents are the same
+ **/
 #define H2TEST_ASSERT_FILES_EQUAL(expected, actual) \
 	H2Test::checkFilesEqual(expected, actual, CPPUNIT_SOURCELINE())
 
