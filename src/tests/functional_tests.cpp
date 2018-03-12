@@ -37,7 +37,11 @@
 
 using namespace H2Core;
 
-
+/**
+ * \brief Export Hydrogon song to audio file
+ * \param songFile Path to Hydrogen file
+ * \param fileName Output file name
+ **/
 void exportSong( const QString &songFile, const QString &fileName )
 {
 	auto t0 = std::chrono::high_resolution_clock::now();
@@ -72,17 +76,28 @@ void exportSong( const QString &songFile, const QString &fileName )
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();
-	___INFOLOG( QString("Export took %1 seconds").arg(t) );
+	___INFOLOG( QString("Audio export took %1 seconds").arg(t) );
 }
 
+/**
+ * \brief Export Hydrogon song to MIDI file
+ * \param songFile Path to Hydrogen file
+ * \param fileName Output file name
+ **/
 void exportMIDI( const QString &songFile, const QString &fileName )
 {
+	auto t0 = std::chrono::high_resolution_clock::now();
+
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = Song::load( songFile );
 	CPPUNIT_ASSERT( pSong != NULL );
 
 	SMFWriter writer;
 	writer.save( fileName, pSong );
+
+	auto t1 = std::chrono::high_resolution_clock::now();
+	double t = std::chrono::duration<double>( t1 - t0 ).count();
+	___INFOLOG( QString("MIDI export took %1 seconds").arg(t) );
 }
 
 
