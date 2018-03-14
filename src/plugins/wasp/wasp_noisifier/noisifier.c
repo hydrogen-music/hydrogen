@@ -38,7 +38,7 @@ typedef struct {
 	LADSPA_Data * m_pfOutputBuffer1;
 	LADSPA_Data * m_pfInputBuffer2;
 	LADSPA_Data * m_pfOutputBuffer2;
-  
+
 	int m_fStep;
 	LADSPA_Data m_fNoise1;
 	LADSPA_Data m_fNoise2;
@@ -84,13 +84,13 @@ void connectPortToNoisifier(LADSPA_Handle Instance, unsigned long Port, LADSPA_D
 		    psNoisifier->m_pfOutputBuffer2 = DataLocation;
     		break;
   }
-  
+
 }
 
 /* Noisifier mono */
 
 void runMonoNoisifier(LADSPA_Handle Instance, unsigned long SampleCount) {
-  
+
 	LADSPA_Data * pfInput;
 	LADSPA_Data * pfOutput;
 	LADSPA_Data fType;
@@ -184,7 +184,7 @@ void runMonoNoisifier(LADSPA_Handle Instance, unsigned long SampleCount) {
 /* Noisifier stereo */
 
 void runStereoNoisifier(LADSPA_Handle Instance, unsigned long SampleCount) {
-  
+
 	LADSPA_Data * pfInput;
 	LADSPA_Data * pfOutput;
 	LADSPA_Data fType;
@@ -235,7 +235,7 @@ void runStereoNoisifier(LADSPA_Handle Instance, unsigned long SampleCount) {
 		
 	pfInput = psNoisifier->m_pfInputBuffer1;
 	pfOutput = psNoisifier->m_pfOutputBuffer1;
-  
+
 	for (lSampleIndex = 0; lSampleIndex < SampleCount; lSampleIndex++){
 		
 		inputData = *(pfInput++);
@@ -279,7 +279,7 @@ void runStereoNoisifier(LADSPA_Handle Instance, unsigned long SampleCount) {
 	
 	pfInput = psNoisifier->m_pfInputBuffer2;
 	pfOutput = psNoisifier->m_pfOutputBuffer2;
-  
+
 	for (lSampleIndex = 0; lSampleIndex < SampleCount; lSampleIndex++){
 	
 		inputData = *(pfInput++);
@@ -342,18 +342,18 @@ void _init() {
 
   g_psMonoDescriptor
     = (LADSPA_Descriptor *)malloc(sizeof(LADSPA_Descriptor));
-  g_psStereoDescriptor 
+  g_psStereoDescriptor
     = (LADSPA_Descriptor *)malloc(sizeof(LADSPA_Descriptor));
 
   if (g_psMonoDescriptor) {
-  
+
     g_psMonoDescriptor->UniqueID
       = 2543;
     g_psMonoDescriptor->Label
       = strdup("NoisifierM");
     g_psMonoDescriptor->Properties
       = LADSPA_PROPERTY_HARD_RT_CAPABLE;
-    g_psMonoDescriptor->Name 
+    g_psMonoDescriptor->Name
       = strdup("Noisifier (mono)");
     g_psMonoDescriptor->Maker
       = strdup("Artemiy Pavlov");
@@ -365,7 +365,7 @@ void _init() {
       = (LADSPA_PortDescriptor *)calloc(5, sizeof(LADSPA_PortDescriptor));
     g_psMonoDescriptor->PortDescriptors
       = (const LADSPA_PortDescriptor *)piPortDescriptors;
-	  
+	
 	piPortDescriptors[NOISIFIER_TYPE]
 	= LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	piPortDescriptors[NOISIFIER_DENSITY]
@@ -376,12 +376,12 @@ void _init() {
 	= LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO;
 	piPortDescriptors[NOISIFIER_OUTPUT1]
 	= LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
-	  
+	
 	pcPortNames
 	= (char **)calloc(5, sizeof(char *));
-	g_psMonoDescriptor->PortNames 
+	g_psMonoDescriptor->PortNames
 	= (const char **)pcPortNames;
-	  
+	
 	pcPortNames[NOISIFIER_TYPE]
 	= strdup("Noise Type");
 	pcPortNames[NOISIFIER_DENSITY]
@@ -392,14 +392,14 @@ void _init() {
 	= strdup("Input");
 	pcPortNames[NOISIFIER_OUTPUT1]
 	= strdup("Output");
-	  
+	
     psPortRangeHints = ((LADSPA_PortRangeHint *)
 		calloc(5, sizeof(LADSPA_PortRangeHint)));
     g_psMonoDescriptor->PortRangeHints
 	= (const LADSPA_PortRangeHint *)psPortRangeHints;
-	  
+	
 	psPortRangeHints[NOISIFIER_TYPE].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_INTEGER
 	| LADSPA_HINT_DEFAULT_1);
@@ -407,33 +407,33 @@ void _init() {
 	= 1;
 	psPortRangeHints[NOISIFIER_TYPE].UpperBound
 	= 2;
-	  
+	
 	psPortRangeHints[NOISIFIER_DENSITY].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_1);
 	psPortRangeHints[NOISIFIER_DENSITY].LowerBound
 	= 0;
 	psPortRangeHints[NOISIFIER_DENSITY].UpperBound
 	= 1;
-	 
+	
 	psPortRangeHints[NOISIFIER_BALANCE].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_0);
 	psPortRangeHints[NOISIFIER_BALANCE].LowerBound
 	= 0;
 	psPortRangeHints[NOISIFIER_BALANCE].UpperBound
 	= 1;
-	 
+	
 	psPortRangeHints[NOISIFIER_INPUT1].HintDescriptor
 	= 0;
 	psPortRangeHints[NOISIFIER_OUTPUT1].HintDescriptor
 	= 0;
-	  
-	g_psMonoDescriptor->instantiate 
+	
+	g_psMonoDescriptor->instantiate
 	= instantiateNoisifier;
-	g_psMonoDescriptor->connect_port 
+	g_psMonoDescriptor->connect_port
 	= connectPortToNoisifier;
 	g_psMonoDescriptor->activate
 	= NULL;
@@ -448,7 +448,7 @@ void _init() {
 	g_psMonoDescriptor->cleanup
 	= cleanupNoisifier;
   }
-  
+
   if (g_psStereoDescriptor) {
 
 	g_psStereoDescriptor->UniqueID
@@ -457,7 +457,7 @@ void _init() {
 	= strdup("NoisifierS");
 	g_psStereoDescriptor->Properties
 	= LADSPA_PROPERTY_HARD_RT_CAPABLE;
-	g_psStereoDescriptor->Name 
+	g_psStereoDescriptor->Name
 	= strdup("Noisifier (stereo)");
 	g_psStereoDescriptor->Maker
 	= strdup("Artemiy Pavlov");
@@ -469,7 +469,7 @@ void _init() {
 	= (LADSPA_PortDescriptor *)calloc(7, sizeof(LADSPA_PortDescriptor));
 	g_psStereoDescriptor->PortDescriptors
 	= (const LADSPA_PortDescriptor *)piPortDescriptors;
-	  
+	
 	piPortDescriptors[NOISIFIER_TYPE]
 	= LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	piPortDescriptors[NOISIFIER_DENSITY]
@@ -484,12 +484,12 @@ void _init() {
 	= LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO;
 	piPortDescriptors[NOISIFIER_OUTPUT2]
 	= LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
-	  
+	
     pcPortNames
       = (char **)calloc(7, sizeof(char *));
-    g_psStereoDescriptor->PortNames 
+    g_psStereoDescriptor->PortNames
       = (const char **)pcPortNames;
-	  
+	
     pcPortNames[NOISIFIER_TYPE]
       = strdup("Noise Type");
 	pcPortNames[NOISIFIER_DENSITY]
@@ -504,14 +504,14 @@ void _init() {
       = strdup("Input R");
     pcPortNames[NOISIFIER_OUTPUT2]
       = strdup("Output R");
-	  
-    psPortRangeHints = ((LADSPA_PortRangeHint *) 
+	
+    psPortRangeHints = ((LADSPA_PortRangeHint *)
 		calloc(7, sizeof(LADSPA_PortRangeHint)));
     g_psStereoDescriptor->PortRangeHints
 	= (const LADSPA_PortRangeHint *)psPortRangeHints;
-	  
+	
 	psPortRangeHints[NOISIFIER_TYPE].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_INTEGER
 	| LADSPA_HINT_DEFAULT_1);
@@ -519,25 +519,25 @@ void _init() {
 	= 1;
 	psPortRangeHints[NOISIFIER_TYPE].UpperBound
 	= 2;
-	  
+	
 	psPortRangeHints[NOISIFIER_DENSITY].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_1);
 	psPortRangeHints[NOISIFIER_DENSITY].LowerBound
 	= 0;
 	psPortRangeHints[NOISIFIER_DENSITY].UpperBound
 	= 1;
-	  
+	
 	psPortRangeHints[NOISIFIER_BALANCE].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_0);
 	psPortRangeHints[NOISIFIER_BALANCE].LowerBound
 	= 0;
 	psPortRangeHints[NOISIFIER_BALANCE].UpperBound
 	= 1;
-	  
+	
 	psPortRangeHints[NOISIFIER_INPUT1].HintDescriptor
 	 = 0;
 	psPortRangeHints[NOISIFIER_OUTPUT1].HintDescriptor
@@ -546,10 +546,10 @@ void _init() {
 	= 0;
 	psPortRangeHints[NOISIFIER_OUTPUT2].HintDescriptor
 	= 0;
-	  
-	g_psStereoDescriptor->instantiate 
+	
+	g_psStereoDescriptor->instantiate
 	= instantiateNoisifier;
-	g_psStereoDescriptor->connect_port 
+	g_psStereoDescriptor->connect_port
 	= connectPortToNoisifier;
 	g_psStereoDescriptor->activate
 	= NULL;
@@ -591,10 +591,10 @@ void _fini() {
 
 #ifdef WIN32
 	#define _DLL_EXPORT_ __declspec(dllexport)
-	int bIsFirstTime = 1; 
+	int bIsFirstTime = 1;
 	void _init(); // forward declaration
 #else
-	#define _DLL_EXPORT_ 
+	#define _DLL_EXPORT_
 #endif
 
 

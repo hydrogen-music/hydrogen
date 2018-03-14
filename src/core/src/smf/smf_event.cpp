@@ -140,7 +140,7 @@ std::vector<char> SMFSetTempoMetaEvent::getBuffer()
 	buf.writeVarLen( m_nDeltaTime );
 	buf.writeByte( 0xFF );
 	buf.writeByte( SET_TEMPO );
-	buf.writeByte( 0x03 );	// Length 
+	buf.writeByte( 0x03 );	// Length
 	
 	buf.writeByte( msPerBeat >> 16 );
 	buf.writeByte( msPerBeat >> 8 );
@@ -215,7 +215,7 @@ std::vector<char> SMFTimeSignatureMetaEvent::getBuffer()
 	buf.writeByte( TIME_SIGNATURE );
 	buf.writeByte( 0x04 );		// Event length in bytes.
 	buf.writeByte( m_nBeats );	// Top line of time signature, eg 6 for 6/8 time
-	buf.writeByte( Note2Log );	// Bottom line of time signature expressed as Log2 of the Note value. 
+	buf.writeByte( Note2Log );	// Bottom line of time signature expressed as Log2 of the Note value.
 	buf.writeByte( m_nMTPMC );	// MIDI Ticks per Metronome click, normally 24 ( i.e. each quarter note ).
 	buf.writeByte( m_nTSNP24 );	// Thirty Second Notes ( as in 1/32 ) per 24 MIDI clocks, normally 8.
 

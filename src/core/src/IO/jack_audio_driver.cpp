@@ -55,7 +55,7 @@ JackAudioDriver *	pJackDriverInstance = nullptr;
 
 int jackDriverSampleRate( jack_nframes_t nframes, void *param )
 {
-	Object* __object = ( Object* )param; 
+	Object* __object = ( Object* )param;
 	QString msg = QString("Jack SampleRate changed: the sample rate is now %1/sec").arg( QString::number( (int) nframes ) );
 	__INFOLOG( msg );
 	jack_server_sampleRate = nframes;

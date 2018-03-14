@@ -1,6 +1,6 @@
 /*
  * Hydrogen
- * Copyright(c) 2002-2016 by the Hydrogen Team 
+ * Copyright(c) 2002-2016 by the Hydrogen Team
  *
  * http://www.hydrogen-music.org
  *

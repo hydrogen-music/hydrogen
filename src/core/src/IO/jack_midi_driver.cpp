@@ -198,7 +198,7 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 	}
 }
 
-void 
+void
 JackMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
 {
 	uint8_t buffer[4];	

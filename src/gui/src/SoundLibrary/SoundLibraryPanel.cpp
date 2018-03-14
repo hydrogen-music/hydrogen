@@ -44,7 +44,7 @@
 #include "../PatternEditor/DrumPatternEditor.h"
 #include "../PatternEditor/PatternEditorInstrumentList.h"
 #include "../InstrumentRack.h"
-#include "../InstrumentEditor/InstrumentEditorPanel.h" 
+#include "../InstrumentEditor/InstrumentEditorPanel.h"
 
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/basics/adsr.h>
@@ -609,7 +609,7 @@ void SoundLibraryPanel::restore_background_color()
 void SoundLibraryPanel::change_background_color()
 {
 	QString curlib =  Hydrogen::get_instance()->getCurrentDrumkitname();
- 
+
 	for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
 		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == curlib ){
 			( __system_drumkits_item->child( i ) )->setBackgroundColor ( 0, QColor( 50, 50, 50)  );
@@ -719,7 +719,7 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 	}
 	assert( preDrumkitInfo );
 	
-	//open the soundlibrary save dialog 
+	//open the soundlibrary save dialog
 	SoundLibraryPropertiesDialog dialog( this , drumkitInfo, preDrumkitInfo );
 	dialog.exec();
 }
@@ -793,7 +793,7 @@ void SoundLibraryPanel::on_patternLoadAction()
 		QString testName = allPatternDirList[i];
 		if( testName.contains( patternName ) && testName.contains( drumkitname )){
 			sDirectory = allPatternDirList[i];		
-		} 
+		}
 	}
 
 	Pattern* pErr = mng.loadPattern (sDirectory );

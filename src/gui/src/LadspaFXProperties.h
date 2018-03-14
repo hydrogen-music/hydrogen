@@ -72,7 +72,7 @@ class LadspaFXProperties : public QWidget, public H2Core::Object {
 
 		QPushButton *m_pSelectFXBtn;
 		QPushButton *m_pActivateBtn;
-		QPushButton *m_pRemoveFXBtn; 
+		QPushButton *m_pRemoveFXBtn;
 
 		QTimer* m_pTimer;
 };

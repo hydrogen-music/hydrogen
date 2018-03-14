@@ -138,7 +138,7 @@ void SoundLibraryImportDialog::on_EditListBtn_clicked()
 
 void SoundLibraryImportDialog::clearImageCache()
 {
-	// Note: After a kit is installed the list refreshes and this gets called to 
+	// Note: After a kit is installed the list refreshes and this gets called to
 	// clear the image cache - maybe we want to keep the cache in this case?
 	QString cacheDir = H2Core::Filesystem::repositories_cache_dir() ;
 	INFOLOG("Deleting cached image files from " + cacheDir.toLocal8Bit() );
@@ -237,10 +237,10 @@ QString SoundLibraryImportDialog::readCachedImage( const QString& imageFile )
 
 	QFile file( cacheFile );
 	if( !file.exists() )
-	{       
+	{
 		// no image in cache, just return NULL
-		return NULL; 
-	}       
+		return NULL;
+	}
 	
 	return cacheFile;
 }
@@ -513,14 +513,14 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 						sName = sName.left( sName.lastIndexOf( "." ) );
 
 						H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load_by_name( sName, false );
-						if ( drumkitInfo ) 
+						if ( drumkitInfo )
 						{
 							// get the image from the local filesystem
 							QPixmap pixmap ( drumkitInfo->get_path() + "/" + drumkitInfo->get_image() );
 							INFOLOG("Loaded image " + drumkitInfo->get_image().toLocal8Bit() + " from local filesystem");
 							showImage( pixmap );
-						} 
-						else 
+						}
+						else
 						{
 							___ERRORLOG ( "Error loading the drumkit" );
 						}
@@ -541,7 +541,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 						{
 							// Get the drumkit's directory name from URL
 							//
-							// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php 
+							// Example: if the server repo URL is: http://www.hydrogen-music.org/feeds/drumkit_list.php
 							// and the image name from the XML is Roland_TR-808_drum_machine.jpg
 							// the URL for the image will be: http://www.hydrogen-music.org/feeds/images/Roland_TR-808_drum_machine.jpg
 

@@ -458,9 +458,9 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		
 		/*
 		 *  Is instrument muted?
-		 * 
+		 *
 		 *  This can be the case either if the song, instrument or component is muted or if we're in an
-		 *  export session and we're doing per-instruments exports, but this instrument is not currently 
+		 *  export session and we're doing per-instruments exports, but this instrument is not currently
 		 *  beeing exported.
 		 */
 		if ( isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {	
@@ -571,7 +571,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 
 	assert(pSample);
 
-	int nAvail_bytes = 0; 
+	int nAvail_bytes = 0;
 	int	nInitialBufferPos = 0;
 
 	if(pSample->get_sample_rate() == pAudioOutput->getSampleRate()){

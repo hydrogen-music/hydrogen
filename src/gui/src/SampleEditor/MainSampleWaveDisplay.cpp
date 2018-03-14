@@ -101,7 +101,7 @@ void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 	if ( width() >= m_pSampleLength  ) issmaller = true;
 
 	for ( int x = 25; x < width() -25; x++ ) {
-		if ( !issmaller || x <= m_pSampleLength){ 
+		if ( !issmaller || x <= m_pSampleLength){
 			painter.drawLine( x, -m_pPeakDatal[x -25] +VCenterl, x, -m_pPeakDatal[x -24] +VCenterl  );
 			painter.drawLine( x, -m_pPeakDatar[x -25] +VCenterr, x, -m_pPeakDatar[x -24] +VCenterr  );	
 		}else
@@ -161,7 +161,7 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 		int nSampleLength = pNewSample->get_frames();
 		m_pSampleLength = nSampleLength;
 		float nScaleFactor = nSampleLength / (width() -50);
-		if ( nScaleFactor < 1 ){ 
+		if ( nScaleFactor < 1 ){
 			nScaleFactor = 1;
 		}
 
@@ -232,7 +232,7 @@ void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 	if  (ev->y()>=200 ) {
 		m_pStartFramePosition = ev->x() ;
 		__startsliderismoved = true;
-		if ( m_pStartFramePosition > m_pLoopFramePosition ){ 
+		if ( m_pStartFramePosition > m_pLoopFramePosition ){
 			m_pLoopFramePosition = m_pStartFramePosition;
 			__loopsliderismoved = true;
 		}

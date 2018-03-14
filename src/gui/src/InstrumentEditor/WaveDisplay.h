@@ -58,7 +58,7 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		int *						m_pPeakData;
 		
 		/*
-		 * Used to re-initialise m_pPeakData if width has changed 
+		 * Used to re-initialise m_pPeakData if width has changed
 		 */
 		
 		int							m_nCurrentWidth;

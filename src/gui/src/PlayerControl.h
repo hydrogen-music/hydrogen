@@ -193,7 +193,7 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		LCDDisplay *m_pStatusLabel;
 		QTimer *m_pStatusTimer;
 		QTimer *m_pScrollTimer;
-		QString m_pScrollMessage; 
+		QString m_pScrollMessage;
 };
 
 

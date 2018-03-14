@@ -337,9 +337,9 @@ bool Drumkit::save_image( const QString& dk_dir, bool overwrite )
 	{
 		QString src = __path + "/" + __image;
 		QString dst = dk_dir + "/" + __image;
-		if ( Filesystem::file_exists ( src ) ) 
+		if ( Filesystem::file_exists ( src ) )
 		{
-			if( !Filesystem::file_copy( src, dst ) ) 
+			if( !Filesystem::file_copy( src, dst ) )
 			{
 				ERRORLOG( QString( "Error copying %1 to %2").arg( src ).arg( dst ) );
 				return false;

@@ -244,7 +244,7 @@ void Rotary::wheelEvent ( QWheelEvent *ev )
 
 
 
- void Rotary::mouseMoveEvent( QMouseEvent *ev ) 
+ void Rotary::mouseMoveEvent( QMouseEvent *ev )
  {
 	if ( m_bIgnoreMouseMove ) {
 		return;

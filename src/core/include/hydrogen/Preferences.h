@@ -526,7 +526,7 @@ private:
 	int					m_nExportSampleRate;
 	int					m_nExportSampleDepth;
 	int					m_nExportTemplate;
-	//~ Export dialog 
+	//~ Export dialog
 	
 	Preferences();
 
