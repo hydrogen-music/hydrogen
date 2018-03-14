@@ -89,119 +89,149 @@ class Song : public H2Core::Object
 		*/
 		void purge_instrument( Instrument* I );
 
-		void set_volume( float volume ) {
+		void set_volume( float volume )
+		{
 			__volume = volume;
 		}
-		float get_volume() {
+		float get_volume()
+		{
 			return __volume;
 		}
 
-		void set_metronome_volume( float volume ) {
+		void set_metronome_volume( float volume )
+		{
 			__metronome_volume = volume;
 		}
-		float get_metronome_volume() {
+		float get_metronome_volume()
+		{
 			return __metronome_volume;
 		}
 
-		PatternList* get_pattern_list() {
+		PatternList* get_pattern_list()
+		{
 			return __pattern_list;
 		}
-		void set_pattern_list( PatternList* pattern_list ) {
+		void set_pattern_list( PatternList* pattern_list )
+		{
 			__pattern_list = pattern_list;
 		}
 
-		std::vector<PatternList*>* get_pattern_group_vector() {
+		std::vector<PatternList*>* get_pattern_group_vector()
+		{
 			return __pattern_group_sequence;
 		}
 
-		const std::vector<PatternList*>* get_pattern_group_vector() const {
+		const std::vector<PatternList*>* get_pattern_group_vector() const
+		{
 			return __pattern_group_sequence;
 		}
 
-		void set_pattern_group_vector( std::vector<PatternList*>* vect ) {
+		void set_pattern_group_vector( std::vector<PatternList*>* vect )
+		{
 			__pattern_group_sequence = vect;
 		}
 
 		static Song* load( const QString& sFilename );
 		bool save( const QString& sFilename );
 
-		InstrumentList* get_instrument_list() {
+		InstrumentList* get_instrument_list()
+		{
 			return __instrument_list;
 		}
-		void set_instrument_list( InstrumentList* list ) {
+		void set_instrument_list( InstrumentList* list )
+		{
 			__instrument_list = list;
 		}
 
 
-		void set_notes( const QString& notes ) {
+		void set_notes( const QString& notes )
+		{
 			__notes = notes;
 		}
-		const QString& get_notes() {
+		const QString& get_notes()
+		{
 			return __notes;
 		}
 
-		void set_license( const QString& license ) {
+		void set_license( const QString& license )
+		{
 			__license = license;
 		}
-		const QString& get_license() {
+		const QString& get_license()
+		{
 			return __license;
 		}
 
-		const QString& get_author() {
+		const QString& get_author()
+		{
 			return __author;
 		}
 
-		const QString& get_filename() {
+		const QString& get_filename()
+		{
 			return __filename;
 		}
-		void set_filename( const QString& filename ) {
+		void set_filename( const QString& filename )
+		{
 			__filename = filename;
 		}
 
-		bool is_loop_enabled() {
+		bool is_loop_enabled()
+		{
 			return __is_loop_enabled;
 		}
-		void set_loop_enabled( bool enabled ) {
+		void set_loop_enabled( bool enabled )
+		{
 			__is_loop_enabled = enabled;
 		}
 
-		float get_humanize_time_value() {
+		float get_humanize_time_value()
+		{
 			return __humanize_time_value;
 		}
-		void set_humanize_time_value( float value ) {
+		void set_humanize_time_value( float value )
+		{
 			__humanize_time_value = value;
 		}
 
-		float get_humanize_velocity_value() {
+		float get_humanize_velocity_value()
+		{
 			return __humanize_velocity_value;
 		}
-		void set_humanize_velocity_value( float value ) {
+		void set_humanize_velocity_value( float value )
+		{
 			__humanize_velocity_value = value;
 		}
 
-		float get_swing_factor() {
+		float get_swing_factor()
+		{
 			return __swing_factor;
 		}
 		void set_swing_factor( float factor );
 
-		SongMode get_mode() {
+		SongMode get_mode()
+		{
 			return __song_mode;
 		}
-		void set_mode( SongMode mode ) {
+		void set_mode( SongMode mode )
+		{
 			__song_mode = mode;
 		}
 
 		void set_is_modified(bool is_modified);
 
-		bool get_is_modified(){
+		bool get_is_modified()
+		{
 			return __is_modified;
 		}
 
-		std::vector<DrumkitComponent*>* get_components() {
+		std::vector<DrumkitComponent*>* get_components()
+		{
 			return __components;
 		}
 
-		AutomationPath *get_velocity_automation_path() const {
+		AutomationPath *get_velocity_automation_path() const
+		{
 			return __velocity_automation_path;
 		}
 
@@ -209,34 +239,42 @@ class Song : public H2Core::Object
 
 		void readTempPatternList( QString filename );
 
-		int get_latest_round_robin( float start_velocity ) {
+		int get_latest_round_robin( float start_velocity )
+		{
 			if ( __latest_round_robins.find(start_velocity) == __latest_round_robins.end() )
 				return 0;
 			else
 				return __latest_round_robins[start_velocity];
 		}
-		void set_latest_round_robin( float start_velocity, int latest_round_robin ) {
+		void set_latest_round_robin( float start_velocity, int latest_round_robin )
+		{
 			__latest_round_robins[start_velocity] = latest_round_robin;
 		}
 
-		QString&	get_playback_track_filename(){
+		QString&	get_playback_track_filename()
+		{
 			return __playback_track_filename;
 		}
-		void	set_playback_track_filename( QString filename ){
+		void	set_playback_track_filename( QString filename )
+		{
 			__playback_track_filename = filename;
 		}
 
-		bool	get_playback_track_enabled(){
+		bool	get_playback_track_enabled()
+		{
 			return __playback_track_enabled;
 		}
-		void	set_playback_track_enabled( bool enabled ){
+		void	set_playback_track_enabled( bool enabled )
+		{
 			__playback_track_enabled = enabled;
 		}
-		
-		float	get_playback_track_volume(){
+
+		float	get_playback_track_volume()
+		{
 			return __playback_track_volume;
 		}
-		void	set_playback_track_volume( float volume ){
+		void	set_playback_track_volume( float volume )
+		{
 			__playback_track_volume = volume;
 		}
 
