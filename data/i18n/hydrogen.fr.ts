@@ -1219,7 +1219,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
-        <translation>Vous utiliser une version d&apos;Hydrogen en développement.&lt;br&gt; Merci de nous aider en envoyant des suggestions ou des problèmes sur la &lt;a href=&quot;http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel&quot;&gt;liste de discussion d&apos;Hydrogen&lt;/a&gt;.&lt;br&gt;&lt;br&gt;Merci!</translation>
+        <translation>Vous utiliser une version d&apos;Hydrogen en développement.&lt;br&gt; Merci de nous aider en envoyant des suggestions ou des problèmes sur la &lt;a href=&quot;http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel&quot;&gt;liste de discussion d&apos;Hydrogen&lt;/a&gt;.&lt;br&gt;&lt;br&gt;Merci !</translation>
     </message>
     <message>
         <source>Could not save song.</source>
