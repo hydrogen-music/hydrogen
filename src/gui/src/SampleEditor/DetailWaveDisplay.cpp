@@ -111,7 +111,7 @@ void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 		_color = QColor( 93, 170, 254 );
 	else if ( m_pType == "End" )
 		_color = QColor( 217, 68, 0 );
-	else 
+	else
 		_color = QColor(  255, 255, 255 );
 
 	painter.setPen( QPen( _color, 1, Qt::SolidLine ) );

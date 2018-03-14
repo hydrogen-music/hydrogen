@@ -1106,8 +1106,8 @@ void PlayerControl::tempoChangedEvent( int nValue )
 	/*
 	 * This is an external tempo change, triggered
 	 * via a midi or osc message.
-	 * 
-	 * Just update the GUI using the current tempo 
+	 *
+	 * Just update the GUI using the current tempo
 	 * of the song.
 	 */
 	

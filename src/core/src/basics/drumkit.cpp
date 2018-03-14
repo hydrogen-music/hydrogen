@@ -146,8 +146,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 
 			componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
 		}
-	}
-	else {
+	} else {
 		WARNINGLOG( "componentList node not found" );
 		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
 		drumkit->get_components()->push_back(pDrumkitComponent);
@@ -182,14 +181,14 @@ void Drumkit::unload_samples( )
 }
 
 bool Drumkit::save( const QString&					name,
-					const QString&					author,
-					const QString&					info,
-					const QString&					license,
-					const QString& 					image,
-					const QString& 					imageLicense,
-					InstrumentList*					pInstruments,
-					std::vector<DrumkitComponent*>* pComponents,
-					bool overwrite )
+                    const QString&					author,
+                    const QString&					info,
+                    const QString&					license,
+                    const QString& 					image,
+                    const QString& 					imageLicense,
+                    InstrumentList*					pInstruments,
+                    std::vector<DrumkitComponent*>* pComponents,
+                    bool overwrite )
 {
 
 	Drumkit* pDrumkit = new Drumkit();
@@ -197,7 +196,7 @@ bool Drumkit::save( const QString&					name,
 	pDrumkit->set_author( author );
 	pDrumkit->set_info( info );
 	pDrumkit->set_license( license );
-	
+
 	// save the original path
 	QFileInfo fi( image );
 	pDrumkit->set_path( fi.absolutePath() );
@@ -220,7 +219,7 @@ bool Drumkit::save( const QString&					name,
 
 bool Drumkit::user_drumkit_exists( const QString& name)
 {
-	return Filesystem::file_exists( QString( Filesystem::usr_drumkits_dir() + "/" + name + "/drumkit.xml") , true /*silent*/);
+	return Filesystem::file_exists( QString( Filesystem::usr_drumkits_dir() + "/" + name + "/drumkit.xml"), true /*silent*/);
 }
 
 bool Drumkit::save( bool overwrite )
@@ -303,8 +302,7 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 							insertPosition = original_dst.lastIndexOf(".");
 
 
-						if(overwrite == false)
-						{
+						if(overwrite == false) {
 							// If the destination path already exists, try to use basename_1, basename_2, etc. instead of basename.
 							int tries = 0;
 							while( Filesystem::file_exists( dst, true )) {
@@ -333,14 +331,11 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 
 bool Drumkit::save_image( const QString& dk_dir, bool overwrite )
 {
-	if ( __image.length() > 0 )
-	{
+	if ( __image.length() > 0 ) {
 		QString src = __path + "/" + __image;
 		QString dst = dk_dir + "/" + __image;
-		if ( Filesystem::file_exists ( src ) ) 
-		{
-			if( !Filesystem::file_copy( src, dst ) ) 
-			{
+		if ( Filesystem::file_exists ( src ) ) {
+			if( !Filesystem::file_copy( src, dst ) ) {
 				ERRORLOG( QString( "Error copying %1 to %2").arg( src ).arg( dst ) );
 				return false;
 			}
@@ -390,10 +385,10 @@ void Drumkit::dump()
 	for ( int i=0; i<__instruments->size(); i++ ) {
 		Instrument* instrument = ( *__instruments )[i];
 		DEBUGLOG( QString( "  |- (%1 of %2) Name = %3" )
-				  .arg( i )
-				  .arg( __instruments->size()-1 )
-				  .arg( instrument->get_name() )
-				);
+		          .arg( i )
+		          .arg( __instruments->size()-1 )
+		          .arg( instrument->get_name() )
+		        );
 		for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
 			InstrumentComponent* component = *it;
 
@@ -438,11 +433,11 @@ bool Drumkit::install( const QString& path )
 		_ERRORLOG( QString( "archive_read_open_file() [%1] %2" ).arg( archive_errno( arch ) ).arg( archive_error_string( arch ) ) );
 		archive_read_close( arch );
 
-		#if ARCHIVE_VERSION_NUMBER < 3000000
-			archive_read_finish( arch );
-		#else
-			archive_read_free( arch );
-		#endif
+#if ARCHIVE_VERSION_NUMBER < 3000000
+		archive_read_finish( arch );
+#else
+		archive_read_free( arch );
+#endif
 
 		return false;
 	}
@@ -470,11 +465,11 @@ bool Drumkit::install( const QString& path )
 	}
 	archive_read_close( arch );
 
-	#if ARCHIVE_VERSION_NUMBER < 3000000
-		archive_read_finish( arch );
-	#else
-		archive_read_free( arch );
-	#endif
+#if ARCHIVE_VERSION_NUMBER < 3000000
+	archive_read_finish( arch );
+#else
+	archive_read_free( arch );
+#endif
 
 	return ret;
 #else // H2CORE_HAVE_LIBARCHIVE

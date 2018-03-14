@@ -169,7 +169,7 @@ int MidiMap::findCCValueByActionParam1( QString actionType, QString param1 )
 	{
 		Action* pTmpAction = __cc_array[i];
 		
-		if(    pTmpAction->getType() == actionType 
+		if(    pTmpAction->getType() == actionType
 			&& pTmpAction->getParameter1() == param1 ){
 			nParam = i;
 		}

@@ -98,11 +98,11 @@ typedef int (nsm_broadcast_callback)( const char *, lo_message m, void *userdata
 struct _nsm_client_t
 {
     const char *nsm_url;
-    
+
     lo_server _server;
     lo_server_thread _st;
     lo_address nsm_addr;
-    
+
     int nsm_is_active;
     char *nsm_client_id;
     char *_session_manager_name;
@@ -160,12 +160,12 @@ nsm_new ( void )
 
     nsm->nsm_is_active = 0;
     nsm->nsm_client_id = 0;
-    
+
     nsm->_server = 0;
     nsm->_st = 0;
     nsm->nsm_addr = 0;
     nsm->_session_manager_name = 0;
-    
+
     nsm->open = 0;
     nsm->save = 0;
     nsm->active = 0;
@@ -179,7 +179,7 @@ nsm_new ( void )
 /* CLIENT TO SERVER INFORMATIONAL MESSAGES */
 /*******************************************/
 
-NSM_EXPORT 
+NSM_EXPORT
 void
 nsm_send_is_dirty ( nsm_client_t *nsm )
 {
@@ -187,7 +187,7 @@ nsm_send_is_dirty ( nsm_client_t *nsm )
         lo_send_from( _NSM()->nsm_addr, _NSM()->_server, LO_TT_IMMEDIATE, "/nsm/client/is_dirty", "" );
 }
 
-NSM_EXPORT 
+NSM_EXPORT
 void
 nsm_send_is_clean ( nsm_client_t *nsm )
 {
@@ -195,7 +195,7 @@ nsm_send_is_clean ( nsm_client_t *nsm )
         lo_send_from( _NSM()->nsm_addr, _NSM()->_server, LO_TT_IMMEDIATE, "/nsm/client/is_clean", "" );
 }
 
-NSM_EXPORT 
+NSM_EXPORT
 void
 nsm_send_progress ( nsm_client_t *nsm, float p )
 {
@@ -203,7 +203,7 @@ nsm_send_progress ( nsm_client_t *nsm, float p )
         lo_send_from( _NSM()->nsm_addr, _NSM()->_server, LO_TT_IMMEDIATE, "/nsm/client/progress", "f", p );
 }
 
-NSM_EXPORT 
+NSM_EXPORT
 void
 nsm_send_message ( nsm_client_t *nsm, int priority, const char *msg )
 {
@@ -215,15 +215,15 @@ NSM_EXPORT void
 nsm_send_announce ( nsm_client_t *nsm, const char *app_name, const char *capabilities, const char *process_name )
 {
     lo_address to = lo_address_new_from_url( _NSM()->nsm_url );
-    
+
     if ( ! to )
     {
         fprintf( stderr, "NSM: Bad address!" );
         return;
     }
-    
+
     int pid = (int)getpid();
-    
+
     lo_send_from( to, _NSM()->_server, LO_TT_IMMEDIATE, "/nsm/server/announce", "sssiii",
                   app_name,
                   capabilities,
@@ -231,11 +231,11 @@ nsm_send_announce ( nsm_client_t *nsm, const char *app_name, const char *capabil
                   NSM_API_VERSION_MAJOR,
                   NSM_API_VERSION_MINOR,
                   pid );
-    
+
     lo_address_free( to );
 }
 
-NSM_EXPORT void 
+NSM_EXPORT void
 nsm_send_broadcast ( nsm_client_t *nsm, lo_message msg )
 {
    if ( _NSM()->nsm_is_active )
@@ -282,12 +282,12 @@ nsm_free ( nsm_client_t *nsm )
 {
     if ( _NSM()->_st )
         nsm_thread_stop( nsm );
-    
+
     if ( _NSM()->_st )
         lo_server_thread_free( _NSM()->_st );
     else
         lo_server_free( _NSM()->_server );
-    
+
     free( _NSM() );
 }
 
@@ -358,24 +358,24 @@ NSM_EXPORT int _nsm_osc_open ( const char *path, const char *types, lo_arg **arg
     (void) msg;
 
     char *out_msg = NULL;
-    
+
     struct _nsm_client_t *nsm = (struct _nsm_client_t*)user_data;
-    
+
     nsm->nsm_client_id = strdup( &argv[2]->s );
-    
+
     if ( ! nsm->open )
         return 0;
 
     int r = nsm->open( &argv[0]->s, &argv[1]->s, &argv[2]->s, &out_msg, nsm->open_userdata );
-    
+
     if ( r )
         OSC_REPLY_ERR( r, ( out_msg ? out_msg : "") );
     else
         OSC_REPLY( "OK" );
-    
+
     if ( out_msg )
         free( out_msg );
-    
+
     return 0;
 }
 
@@ -387,14 +387,14 @@ NSM_EXPORT int _nsm_osc_save ( const char *path, const char *types, lo_arg **arg
     (void) msg;
 
     char *out_msg = NULL;
-    
+
     struct _nsm_client_t *nsm = (struct _nsm_client_t*)user_data;
 
     if ( ! nsm->save )
         return 0;
 
     int r = nsm->save(&out_msg, nsm->save_userdata );
-    
+
     if ( r )
     {
         OSC_REPLY_ERR( r, ( out_msg ? out_msg : "") );
@@ -405,7 +405,7 @@ NSM_EXPORT int _nsm_osc_save ( const char *path, const char *types, lo_arg **arg
     }
     if ( out_msg )
         free( out_msg );
-    
+
     return 0;
 }
 
@@ -417,18 +417,18 @@ NSM_EXPORT int _nsm_osc_announce_reply ( const char *path, const char *types, lo
 
     if ( strcmp( &argv[0]->s, "/nsm/server/announce" ) )
         return -1;
-    
+
     struct _nsm_client_t *nsm = (struct _nsm_client_t*)user_data;
 
     fprintf( stderr, "NSM: Successfully registered. NSM says: %s", &argv[1]->s );
 
     nsm->nsm_is_active = 1;
     nsm->_session_manager_name = strdup( &argv[2]->s );
-    nsm->nsm_addr = lo_address_new_from_url( lo_address_get_url( lo_message_get_source( msg ) ));   
-    
+    nsm->nsm_addr = lo_address_new_from_url( lo_address_get_url( lo_message_get_source( msg ) ));
+
     if ( nsm->active )
         nsm->active( nsm->nsm_is_active, nsm->active_userdata );
-    
+
     return 0;
 }
 
@@ -447,7 +447,7 @@ NSM_EXPORT int _nsm_osc_error ( const char *path, const char *types, lo_arg **ar
     fprintf( stderr, "NSM: Failed to register with NSM server: %s", &argv[2]->s );
 
     nsm->nsm_is_active = 0;
-        
+
     if ( nsm->active )
         nsm->active( nsm->nsm_is_active, nsm->active_userdata );
 
@@ -466,7 +466,7 @@ NSM_EXPORT int _nsm_osc_session_is_loaded ( const char *path, const char *types,
 
     if ( ! nsm->session_is_loaded )
         return 0;
-    
+
     nsm->session_is_loaded( nsm->session_is_loaded_userdata );
 
     return 0;
@@ -482,7 +482,7 @@ NSM_EXPORT int _nsm_osc_broadcast ( const char *path, const char *types, lo_arg 
 
     if ( ! nsm->broadcast )
         return 0;
-    
+
     return nsm->broadcast( path, msg, nsm->broadcast_userdata );
 }
 
@@ -526,7 +526,7 @@ nsm_init_thread ( nsm_client_t *nsm, const char *nsm_url )
 
     _NSM()->_st = lo_server_thread_new_with_proto( NULL, proto, NULL );
     _NSM()->_server = lo_server_thread_get_server( _NSM()->_st );
-    
+
     if ( ! _NSM()->_server )
         return -1;
 

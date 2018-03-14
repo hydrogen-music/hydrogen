@@ -95,9 +95,9 @@ LadspaFXProperties::LadspaFXProperties(QWidget* parent, uint nLadspaFX)
 	m_pSelectFXBtn->resize( 100, 24 );
 	connect( m_pSelectFXBtn, SIGNAL(clicked()), this, SLOT(selectFXBtnClicked()) );
 
-	m_pRemoveFXBtn = new QPushButton( trUtf8("Remove FX"), this); 
-	m_pRemoveFXBtn->move( 280, 10 ); 
-	m_pRemoveFXBtn->resize( 100, 24 ); 
+	m_pRemoveFXBtn = new QPushButton( trUtf8("Remove FX"), this);
+	m_pRemoveFXBtn->move( 280, 10 );
+	m_pRemoveFXBtn->resize( 100, 24 );
 	connect( m_pRemoveFXBtn, SIGNAL(clicked()), this, SLOT(removeFXBtnClicked()) );
 
 

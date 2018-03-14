@@ -57,7 +57,7 @@ void PatternEditorPanel::updateSLnameLabel( )
 	font.setBold( true );
 	pSLlabel->setFont( font );
 	pSLlabel->setText( Hydrogen::get_instance()->m_currentDrumkit  );
-} 
+}
 
 const char* PatternEditorPanel::__class_name = "PatternEditorPanel";
 
@@ -99,7 +99,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pSLlabel->setFixedSize( 170, 20 );
 	pSLlabel->move( 10, 3 );
 	pSLlabel->setToolTip( trUtf8("Loaded Soundlibrary") );
-	editor_top_hbox->addWidget( pSLlabel ); 
+	editor_top_hbox->addWidget( pSLlabel );
 
 //wolke some background images back_size_res
 	PixmapWidget *pSizeResol = new PixmapWidget( NULL );
@@ -973,7 +973,7 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 		m_pNoteNoteKeyScrollView->hide();
 		m_pNoteLeadLagScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
- 
+
 		m_pNoteLeadLagEditor->updateEditor();
 	}
 	else if ( text == trUtf8( "NoteKey" ) ) {
@@ -982,7 +982,7 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 		m_pNoteLeadLagScrollView->hide();
 		m_pNoteNoteKeyScrollView->show();
 		m_pNoteProbabilityScrollView->hide();
- 
+
 		m_pNoteNoteKeyEditor->updateEditor();
 	}
 	else if ( text == trUtf8( "Probability" ) ) {

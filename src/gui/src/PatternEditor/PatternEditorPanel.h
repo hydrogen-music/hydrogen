@@ -174,7 +174,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		Button *			sizeDropdownBtn;
 		Button *			resDropdownBtn;
- 
+
 		bool				m_bEnablePatternResize;
 
 

@@ -156,17 +156,17 @@ class HydrogenApp : public QObject, public H2Core::Object
 };
 
 
-inline Mixer* HydrogenApp::getMixer() 
+inline Mixer* HydrogenApp::getMixer()
 {
 	return m_pMixer;	
 }
 
-inline MainForm* HydrogenApp::getMainForm() 
+inline MainForm* HydrogenApp::getMainForm()
 {	
 	return m_pMainForm;	
 }
 
-inline SongEditorPanel* HydrogenApp::getSongEditorPanel() 
+inline SongEditorPanel* HydrogenApp::getSongEditorPanel()
 {
 	return m_pSongEditorPanel;
 }
@@ -176,32 +176,32 @@ inline AudioEngineInfoForm* HydrogenApp::getAudioEngineInfoForm()
 	return m_pAudioEngineInfoForm;
 }
 
-inline PlaylistDialog* HydrogenApp::getPlayListDialog() 
+inline PlaylistDialog* HydrogenApp::getPlayListDialog()
 {
 	return m_pPlaylistDialog;
 }
 
-inline Director* HydrogenApp::getDirector() 
-{ 
-	return m_pDirector; 
+inline Director* HydrogenApp::getDirector()
+{
+	return m_pDirector;
 }
 
 inline SampleEditor* HydrogenApp::getSampleEditor()
-{ 
+{
 	return m_pSampleEditor;	
 }
 
-inline SimpleHTMLBrowser* HydrogenApp::getHelpBrowser() 
+inline SimpleHTMLBrowser* HydrogenApp::getHelpBrowser()
 {
 	return m_pHelpBrowser;
 }
 
-inline PatternEditorPanel* HydrogenApp::getPatternEditorPanel() 
+inline PatternEditorPanel* HydrogenApp::getPatternEditorPanel()
 {
 	return m_pPatternEditorPanel;
 }
 
-inline PlayerControl* HydrogenApp::getPlayerControl() 
+inline PlayerControl* HydrogenApp::getPlayerControl()
 {
 	return m_pPlayerControl;
 }
@@ -212,7 +212,7 @@ inline InstrumentRack* HydrogenApp::getInstrumentRack()
 }
 
 inline InfoBar* HydrogenApp::getInfoBar() const
-{ 
+{
 	return m_pInfoBar;
 }
 

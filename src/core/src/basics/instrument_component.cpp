@@ -96,7 +96,7 @@ InstrumentComponent* InstrumentComponent::load_from( XMLNode* node, const QStrin
 void InstrumentComponent::save_to( XMLNode* node, int component_id )
 {
 	XMLNode component_node;
-	if( component_id == -1 ){
+	if( component_id == -1 ) {
 		component_node = node->ownerDocument().createElement( "instrumentComponent" );
 		component_node.write_int( "component_id", __related_drumkit_componentID );
 		component_node.write_float( "gain", __gain );

@@ -110,22 +110,22 @@ CoreMidiDriver::CoreMidiDriver()
 	QString sMidiPortName = Preferences::get_instance()->m_sMidiPortName;
 	err = MIDIClientCreate ( CFSTR( "h2MIDIClient" ), NULL, NULL, &h2MIDIClient );
 	if ( err != noErr ) {
-		ERRORLOG( QString( "Cannot create CoreMIDI client: %1" ).arg( err )); 
+		ERRORLOG( QString( "Cannot create CoreMIDI client: %1" ).arg( err ));
 	}
 
 	err = MIDIInputPortCreate ( h2MIDIClient, CFSTR( "h2InputPort" ), midiProc, this, &h2InputRef );
 	if ( err != noErr ) {
-		ERRORLOG( QString( "Cannot create CoreMIDI input port: %1" ).arg( err )); 
+		ERRORLOG( QString( "Cannot create CoreMIDI input port: %1" ).arg( err ));
 	}
 
 	err = MIDIOutputPortCreate ( h2MIDIClient, CFSTR( "h2OutputPort" ), &h2OutputRef );
 	if ( err != noErr ) {
-		ERRORLOG( QString( "Cannot create CoreMIDI output port: %1" ).arg( err )); 
+		ERRORLOG( QString( "Cannot create CoreMIDI output port: %1" ).arg( err ));
 	}
 
 	err = MIDISourceCreate ( h2MIDIClient, CFSTR( "Hydrogen" ), &h2VirtualOut );
 	if ( err != noErr ) {
-		ERRORLOG( QString( "Cannot create CoreMIDI virtual output: %1" ).arg( err )); 
+		ERRORLOG( QString( "Cannot create CoreMIDI virtual output: %1" ).arg( err ));
 	}
 }
 
@@ -356,12 +356,12 @@ void CoreMidiDriver::sendMidiPacket (MIDIPacketList *packetList)
 
 	err = MIDISend(h2OutputRef, cmH2Dst, packetList);
 	if ( err != noErr ) {
-		ERRORLOG( QString( "Cannot send MIDI packet to output port: %1" ).arg( err )); 
+		ERRORLOG( QString( "Cannot send MIDI packet to output port: %1" ).arg( err ));
 	}
 
 	err = MIDIReceived(h2VirtualOut, packetList);
 	if ( err != noErr ) {
-		ERRORLOG( QString( "Cannot send MIDI packet to virtual output: %1" ).arg( err )); 
+		ERRORLOG( QString( "Cannot send MIDI packet to virtual output: %1" ).arg( err ));
 	}
 }
 

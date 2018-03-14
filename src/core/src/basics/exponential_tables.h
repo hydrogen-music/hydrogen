@@ -2,10 +2,14 @@
 #ifndef H2C_EXPONENTIAL_TABLES_H
 #define H2C_EXPONENTIAL_TABLES_H
 
-static inline float compute_exponant( const float input, const float* table, const int table_size ) {
+static inline float compute_exponant( const float input, const float* table, const int table_size )
+{
 	int idx = ( int )( input * table_size );
-	if ( idx < 0 ) { idx = 0; }
-	else if ( idx >= table_size ) { idx = table_size-1; }
+	if ( idx < 0 ) {
+		idx = 0;
+	} else if ( idx >= table_size ) {
+		idx = table_size-1;
+	}
 	return ( table[idx] * input ) / ( ( float )(idx+1) / ( float )table_size );
 };
 
@@ -1036,7 +1040,10 @@ static float concave_exponant_table[4096] = {
 	0.99536131683317, 0.99602315129226, 0.9966852638582, 0.99734765457984,
 	0.998010323506, 0.99867327068553, 0.99933649616726, 1,
 };
-inline float concave_exponant( float value ) { return compute_exponant( value, concave_exponant_table, concave_exponant_table_size ); }
+inline float concave_exponant( float value )
+{
+	return compute_exponant( value, concave_exponant_table, concave_exponant_table_size );
+}
 
 static int convex_exponant_table_size = 4096;
 static float convex_exponant_table[4096] = {
@@ -2065,7 +2072,10 @@ static float convex_exponant_table[4096] = {
 	0.99937095987962, 0.99946086440801, 0.99955075504248, 0.99964063178859,
 	0.99973049465185, 0.99982034363783, 0.99991017875203, 1,
 };
-inline float convex_exponant( float value ) { return compute_exponant( value, convex_exponant_table, convex_exponant_table_size ); }
+inline float convex_exponant( float value )
+{
+	return compute_exponant( value, convex_exponant_table, convex_exponant_table_size );
+}
 
 #endif //H2C_EXPONENTIAL_TABLES_H
 

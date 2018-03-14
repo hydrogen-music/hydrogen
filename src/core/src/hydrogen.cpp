@@ -1207,7 +1207,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 		}
 
 		// metronome
-		// if (  ( m_nPatternStartTick == tick ) || ( ( tick - m_nPatternStartTick ) % 48 == 0 ) ) 
+		// if (  ( m_nPatternStartTick == tick ) || ( ( tick - m_nPatternStartTick ) % 48 == 0 ) )
 		if ( m_nPatternTickPosition % 48 == 0 ) {
 			float fPitch;
 			float fVelocity;
@@ -2615,7 +2615,7 @@ bool Hydrogen::instrumentHasNotes( Instrument *pInst )
 	Song* pSong = getSong();
 	PatternList* pPatternList = pSong->get_pattern_list();
 
-	for ( int nPattern = 0 ; nPattern < (int)pPatternList->size() ; ++nPattern ) 
+	for ( int nPattern = 0 ; nPattern < (int)pPatternList->size() ; ++nPattern )
 	{
 		if( pPatternList->get( nPattern )->references( pInst ) )
 		{

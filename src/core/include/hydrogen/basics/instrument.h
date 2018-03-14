@@ -257,7 +257,7 @@ class Instrument : public H2Core::Object
 
 		void set_apply_velocity( bool apply_velocity );
 		bool get_apply_velocity() const;
-		
+
 		bool is_currently_exported() const;
 		void set_currently_exported( bool isCurrentlyExported );
 

@@ -216,17 +216,17 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		 * 2. copy the temporary file to drumkitDir/drumkit.xml
 		 * 3. export the drumkit
 		 * 4. move the drumkit_backup.xml to drumkit.xml
-		 */ 
+		 */
 
 		int ret = 0;
 		
 		//1.
-		QString cmd = QString( "cd " ) + drumkitDir + "; " + "cp " + drumkitName + "/drumkit.xml " + drumkitName + "/drumkit_097.xml"; 
+		QString cmd = QString( "cd " ) + drumkitDir + "; " + "cp " + drumkitName + "/drumkit.xml " + drumkitName + "/drumkit_097.xml";
 		ret = system( cmd.toLocal8Bit() );
 		
 		
 		//2.
-		cmd = QString( "cd " ) + drumkitDir + "; " + "mv " + qdTempFolder.filePath( "drumkit.xml" ) + " " + drumkitName + "/drumkit.xml"; 
+		cmd = QString( "cd " ) + drumkitDir + "; " + "mv " + qdTempFolder.filePath( "drumkit.xml" ) + " " + drumkitName + "/drumkit.xml";
 		ret = system( cmd.toLocal8Bit() );
 		
 		//3.
@@ -234,7 +234,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		ret = system( cmd.toLocal8Bit() );
 
 		//4.
-		cmd = QString( "cd " ) + drumkitDir + "; " + "mv " + drumkitName + "/drumkit_097.xml " + drumkitName + "/drumkit.xml"; 
+		cmd = QString( "cd " ) + drumkitDir + "; " + "mv " + drumkitName + "/drumkit_097.xml " + drumkitName + "/drumkit.xml";
 		ret = system( cmd.toLocal8Bit() );
 
 	} else {
