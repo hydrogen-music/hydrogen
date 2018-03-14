@@ -507,7 +507,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Third</source>
-        <translation type="unfinished"></translation>
+        <translation>Troisième</translation>
     </message>
     <message>
         <source>Cubic</source>
@@ -535,19 +535,19 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Rubberband Batch</source>
-        <translation type="unfinished"></translation>
+        <translation>Traitement en lot Rubberband</translation>
     </message>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialogue</translation>
+        <translation>Dialogue</translation>
     </message>
     <message>
         <source>Export directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter le répertoire : </translation>
     </message>
     <message>
         <source>Modus:</source>
-        <translation type="unfinished"></translation>
+        <translation>Méthode : </translation>
     </message>
 </context>
 <context>
@@ -808,11 +808,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Rename instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Renommer l&apos;instrument</translation>
     </message>
     <message>
         <source>New instrument name</source>
-        <translation type="unfinished">Nom du nouvel instrument</translation>
+        <translation>Nom du nouvel instrument</translation>
     </message>
 </context>
 <context>
@@ -1427,35 +1427,35 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Drum&amp;kits</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Kits de batterie</translation>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation type="unfinished"></translation>
+        <translation>Affichage (&amp;v)</translation>
     </message>
     <message>
         <source>&amp;Automation path</source>
-        <translation type="unfinished"></translation>
+        <translation>Chemin d&amp;automation</translation>
     </message>
     <message>
         <source>Full screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Plein écran</translation>
     </message>
     <message>
         <source>&amp;Options</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Options</translation>
     </message>
     <message>
         <source>MIDI setup advice</source>
-        <translation type="unfinished"></translation>
+        <translation>Conseil de paramétrage MIDI</translation>
     </message>
     <message>
         <source>MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?</source>
-        <translation type="unfinished"></translation>
+        <translation>Les notes de sortie MIDI se sont pas configurées pour ce kit de batterie et donc, exporter ce morceau dans un fichier MIDI pourrait échouer. Souhaitez-vous qu&apos;Hydrogen corrige automatiquement ceci en assignant des valeurs par défaut ?</translation>
     </message>
     <message>
         <source>Set default values</source>
-        <translation type="unfinished"></translation>
+        <translation>Paramètre les valeurs par défaut</translation>
     </message>
 </context>
 <context>
@@ -1547,7 +1547,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation type="unfinished"></translation>
+        <translation>Les effets LADSPA ne sont pas disponibles dans cette version d&apos;Hydrogen.</translation>
     </message>
 </context>
 <context>
@@ -2187,7 +2187,9 @@ Voulez-vous abandonner ces changements ?
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>Le nom du script ou le chemin vers le script contient des espaces.
+IMPORTANT
+Le chemin vers le script et le nom du script doivent être sans espaces.</translation>
     </message>
 </context>
 <context>
@@ -2566,7 +2568,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Third</source>
-        <translation type="unfinished"></translation>
+        <translation>Troisième</translation>
     </message>
     <message>
         <source>Cubic</source>
@@ -2614,27 +2616,27 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Create per-instrument outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Créer une sortie par instrument</translation>
     </message>
     <message>
         <source>Enable feedback</source>
-        <translation type="unfinished"></translation>
+        <translation>Activer la boucle de retour</translation>
     </message>
     <message>
         <source>&amp;OSC</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;OSC</translation>
     </message>
     <message>
         <source>&amp;Enable OSC support</source>
-        <translation type="unfinished"></translation>
+        <translation>Activ&amp;e le support OSC</translation>
     </message>
     <message>
         <source>Incoming port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port entrant</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Le port qui sera utilisé pour recevoir les messages OSC entrant&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -3047,31 +3049,31 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>View playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher la piste de lecture</translation>
     </message>
     <message>
         <source>Mute playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Silencer la piste de lecture</translation>
     </message>
     <message>
         <source>Choose playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Choisir la piste de lecture</translation>
     </message>
     <message>
         <source>View timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Afficher la ligne de temps</translation>
     </message>
     <message>
         <source>Adjust parameter values in time</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajuster les valeurs des paramètre dans le temps</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Vélocité</translation>
     </message>
     <message>
         <source>Select playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Paramètre la piste de lecture</translation>
     </message>
 </context>
 <context>
