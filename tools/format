@@ -1,0 +1,26 @@
+#! /bin/bash
+
+if [ $# -eq 0 ]; then
+	echo "usage : $0 [git] [FILE] [DIR]"
+	echo
+	echo "    git  : will format all modified files"
+	echo "    DIR  : will recursively format .h and .cpp files within the given directory"
+	echo "    FILE : will format the given file"
+	exit 1
+fi
+
+ASTYLEOPTS="--indent=tab=4 --style=linux --suffix=none"
+
+for path in $@
+do
+	if [ "$path" == "git" ]
+	then
+		git status --porcelain src/ | awk 'match($1, "M"){print $2}' | while read file
+		do
+			astyle $ASTYLEOPTS $file
+		done
+	else
+		[ -f "$path" ] && astyle $ASTYLEOPTS $path
+		[ -d "$path" ] && astyle $ASTYLEOPTS -R "$path/*.h,*.cpp"
+	fi
+done
