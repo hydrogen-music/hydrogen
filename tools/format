@@ -9,7 +9,7 @@ if [ $# -eq 0 ]; then
 	exit 1
 fi
 
-ASTYLEOPTS="--indent=tab=4 --style=linux --suffix=none"
+ASTYLEOPTS="--indent=tab=4 --style=linux --suffix=none --indent-classes"
 
 for path in $@
 do
