@@ -105,6 +105,7 @@ class FunctionalTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( FunctionalTest );
 	CPPUNIT_TEST( testExportAudio );
 	CPPUNIT_TEST( testExportMIDI );
+	CPPUNIT_TEST( testExportMuteGroupsAudio );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -130,5 +131,17 @@ class FunctionalTest : public CppUnit::TestCase {
 		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
 		Filesystem::rm( outFile );
 	}
+
+	void testExportMuteGroupsAudio()
+	{
+		auto songFile = H2TEST_FILE("functional/mutegroups.h2song");
+		auto outFile = Filesystem::tmp_file("mutegroups.wav");
+		auto refFile = H2TEST_FILE("functional/mutegroups.ref.wav");
+
+		exportSong( songFile, outFile );
+		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
+		Filesystem::rm( outFile );
+	}
+
 };
 CPPUNIT_TEST_SUITE_REGISTRATION( FunctionalTest );
