@@ -402,7 +402,7 @@ Overwrite the existing file?</source>
     <message>
         <source>Samplerate in Hz:</source>
         <translatorcomment>L&apos;ancienne étiquette &quot;Taux d&apos;échantillonnage en Hz:&quot; était beaucoup trop longue</translatorcomment>
-        <translation>Fréquence:</translation>
+        <translation>Fréquence :</translation>
     </message>
     <message>
         <source>22050</source>
@@ -427,7 +427,7 @@ Overwrite the existing file?</source>
     <message>
         <source>SampleDepth in Bit:</source>
         <translatorcomment>L&apos;ancienne étiquette &quot;Profondeur d&apos;échantillonnage en Bit:&quot; était beaucoup trop longue</translatorcomment>
-        <translation>Résolution:</translation>
+        <translation>Résolution :</translation>
     </message>
     <message>
         <source>8</source>
@@ -1099,7 +1099,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation>Exporter le fichier MIDI</translation>
+        <translation>Exporter en fichier MIDI</translation>
     </message>
     <message>
         <source>Midi file (*.mid)</source>
@@ -1211,7 +1211,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Clear all instruments?</source>
-        <translation>Effacer tous les instruments?</translation>
+        <translation>Effacer tous les instruments ?</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -1356,7 +1356,7 @@ It should work like a charm provided that you use the GM-kit, and that you do no
 </source>
         <translation>
 L&apos;export LilyPond est une fonctionnalité expérimentale.
-Ça devrait fonctionner comme un charme tant que vous utilisez le GM-kit, et que vous n&apos;utilisez pas de triolet
+Ça devrait fonctionner comme un charme tant que vous utilisez le GM-kit, et que vous n&apos;utilisez pas de triolet.
 </translation>
     </message>
     <message>
@@ -1990,7 +1990,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>No Song selected!</source>
-        <translation>Aucun morceau n&apos;est sélectionné!</translation>
+        <translation>Aucun morceau n&apos;est sélectionné !</translation>
     </message>
     <message>
         <source>Load Playlist</source>
@@ -2006,7 +2006,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>No Song in List or no Song selected!</source>
-        <translation>Aucun morceau dans la liste ou aucun morceau de sélectionné!</translation>
+        <translation>Aucun morceau dans la liste ou aucun morceau de sélectionné !</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
@@ -2024,10 +2024,9 @@ Voulez-vous abandonner ces changements ?
         <source>No Default Editor Set. Please set your Default Editor
 Do not use a console based Editor
 Sorry, but this will not work for the moment.</source>
-        <translation>Aucun éditeur par défaut de régler. Veuillez régler l&apos;éditeur par défaut.
-
-N&apos;utiliser pas un éditeur en mode console.
-Désolé, mais un éditeur en mode console ne fonctionnera pas présentement.</translation>
+        <translation>Aucun éditeur par défaut de réglé. Veuillez régler l&apos;éditeur par défaut.
+N&apos;utilisez pas un éditeur en mode console.
+Désolé, mais un éditeur en mode console ne fonctionne pas pour l&apos;instant.</translation>
     </message>
     <message>
         <source>Set your Default Editor</source>
@@ -2035,7 +2034,7 @@ Désolé, mais un éditeur en mode console ne fonctionnera pas présentement.</t
     </message>
     <message>
         <source>No Script selected!</source>
-        <translation>Aucun script de sélectionné!</translation>
+        <translation>Aucun script de sélectionné !</translation>
     </message>
     <message>
         <source>Error loading song.</source>
@@ -2163,7 +2162,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>No valid song selected!</source>
-        <translation>Pas de morceau valide séléctionné !</translation>
+        <translation>Pas de morceau valide sélectionné !</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
@@ -2171,7 +2170,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>Annuler (&amp;C)</translation>
+        <translation>Ann&amp;uler</translation>
     </message>
     <message>
         <source>
