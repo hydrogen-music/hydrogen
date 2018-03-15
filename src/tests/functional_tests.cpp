@@ -143,5 +143,27 @@ class FunctionalTest : public CppUnit::TestCase {
 		Filesystem::rm( outFile );
 	}
 
+	void testExportVelocityAutomationAudio()
+	{
+		auto songFile = H2TEST_FILE("functional/velocityautomation.h2song");
+		auto outFile = Filesystem::tmp_file("velocityautomation.wav");
+		auto refFile = H2TEST_FILE("functional/velocityautomation.ref.wav");
+
+		exportSong( songFile, outFile );
+		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
+		Filesystem::rm( outFile );
+	}
+
+	void testExportVelocityAutomationMIDI()
+	{
+		auto songFile = H2TEST_FILE("functional/velocityautomation.h2song");
+		auto outFile = Filesystem::tmp_file("velocityautomation.mid");
+		auto refFile = H2TEST_FILE("functional/velocityautomation.ref.mid");
+
+		exportMIDI( songFile, outFile );
+		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
+		Filesystem::rm( outFile );
+	}
+
 };
 CPPUNIT_TEST_SUITE_REGISTRATION( FunctionalTest );
