@@ -106,6 +106,8 @@ class FunctionalTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testExportAudio );
 	CPPUNIT_TEST( testExportMIDI );
 	CPPUNIT_TEST( testExportMuteGroupsAudio );
+	CPPUNIT_TEST( testExportVelocityAutomationAudio );
+	CPPUNIT_TEST( testExportVelocityAutomationMIDI );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
