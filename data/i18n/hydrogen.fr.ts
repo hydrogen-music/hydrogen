@@ -598,7 +598,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
-        <translation>Cette action est impossible, vous pouvez enregistrer les changements des instruments seulement dans la bibliothèque de sons en cours.</translation>
+        <translation>Cette action est impossible, vous pouvez sauvegarder les changements des instruments seulement dans la bibliothèque de sons en cours.</translation>
     </message>
     <message>
         <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
@@ -1075,7 +1075,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation>Enregi&amp;strer</translation>
+        <translation>&amp;Sauvegarder</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
@@ -1091,7 +1091,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Save song</source>
-        <translation>Enregistrer le morceau</translation>
+        <translation>Sauvegarder le morceau</translation>
     </message>
     <message>
         <source>Open song</source>
@@ -1123,7 +1123,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Save &amp;as...</source>
-        <translation>En&amp;registrer sous...</translation>
+        <translation>Sauveg&amp;arder sous...</translation>
     </message>
     <message>
         <source>Export &amp;MIDI file</source>
@@ -1199,11 +1199,11 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>&amp;Info</source>
-        <translation>&amp;Information</translation>
+        <translation>&amp;Informations</translation>
     </message>
     <message>
         <source>Song saved.</source>
-        <translation>Morceau enregistré.</translation>
+        <translation>Morceau sauvegardé.</translation>
     </message>
     <message>
         <source>Unknown error %1</source>
@@ -1223,7 +1223,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Could not save song.</source>
-        <translation>Impossible d&apos;enregistrer le morceau.</translation>
+        <translation>Impossible de sauvegarder le morceau.</translation>
     </message>
     <message>
         <source>Open &amp;Pattern</source>
@@ -1235,11 +1235,11 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
-        <translation>Enre&amp;gistrer le motif sous...</translation>
+        <translation>Sauvegarder le motif sous...</translation>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation>Motif enregistré.</translation>
+        <translation>Motif sauvegardé.</translation>
     </message>
     <message>
         <source>Open Pattern</source>
@@ -1284,7 +1284,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Song saved as.</source>
-        <translation>Enregistré le morceau sous.</translation>
+        <translation>Morceau sauvegardé sous.</translation>
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
@@ -1314,7 +1314,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation>Annuler</translation>
+        <translation>&amp;Annuler</translation>
         <extra-FILE>menu</extra-FILE>
     </message>
     <message>
@@ -1431,11 +1431,11 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>&amp;View</source>
-        <translation>Affichage (&amp;v)</translation>
+        <translation>A&amp;ffichage</translation>
     </message>
     <message>
         <source>&amp;Automation path</source>
-        <translation>Chemin d&amp;automation</translation>
+        <translation>Chemin d&apos;&amp;automation</translation>
     </message>
     <message>
         <source>Full screen</source>
@@ -2002,7 +2002,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Save Playlist</source>
-        <translation>Enregistrer la liste</translation>
+        <translation>Sauvegarder la liste</translation>
     </message>
     <message>
         <source>No Song in List or no Song selected!</source>
@@ -2087,11 +2087,11 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>&amp;Save Playlist</source>
-        <translation>Enregi&amp;strer</translation>
+        <translation>&amp;Sauvegarder la liste</translation>
     </message>
     <message>
         <source>Save Playlist &amp;as</source>
-        <translation>Enregistrer so&amp;us...</translation>
+        <translation>S&amp;auvegarder sous...</translation>
     </message>
     <message>
         <source>&amp;Scripts</source>
@@ -3162,7 +3162,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Save Pattern</source>
-        <translation>Enregistrer un motif</translation>
+        <translation>Sauvegarder un motif</translation>
     </message>
     <message>
         <source>Load Pattern</source>
