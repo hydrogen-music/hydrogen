@@ -81,8 +81,8 @@ In order to build from source, you will need the following libraries
 installed on your system, and the development header files:
 
 	REQUIRED
-	* Qt 4 Library (>=4.4.0, 4.3.x might work, 4.2.x won't)
-	* Qt 4 SDK (moc, uic, etc.)
+	* Qt 5 Library
+	* Qt 5 SDK (moc, uic, etc.)
 	* GNU g++ compiler (>=4.0, 3.x might work)
         * cmake (>=2.6)
         * libsndfile >=1.0.18
@@ -111,6 +111,20 @@ installed on your system, and the development header files:
 	  librubberband2 . rubberband works properly even if this option
 	  is disabled. if available, hydrogen locate an installed
 	  rubberband-cli binary.
+
+	REQUIRED PACKAGES IN DEBIAN-BASED SYSTEMS
+	qt5-default libqt5xmlpatterns5-dev libarchive-dev
+	libsndfile1-dev libasound2-dev liblo-dev libpulse-dev
+	libcppunit-dev liblrdf-dev liblash-compat-dev
+	librubberband-dev
+
+	In addition, either the libjack-jackd2-dev or libjack-dev
+	package must be present. Which one to pick depends on whether
+	JACK2 or JACK1 is installed on your system. If none is
+	present, you are free to choose one of them. 
+
+	ON OS X USING BREW
+	libsndfile jack pulseaudio cppunit libarchive qt5
 
 On a single, 500MHz processor Hydrogen takes about 1.5 hours to build.
 
