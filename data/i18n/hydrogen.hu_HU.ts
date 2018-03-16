@@ -1321,13 +1321,6 @@ Do you want to save the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>
-The LilyPond export is an experimental feature.
-It should work like a charm provided that you use the GM-kit, and that you do not use triplet
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>LilyPond file (*.ly)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1422,6 +1415,13 @@ Do you want to discard the changes?
         <source>Set default values</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GM-kit, and that you do not use triplet.
+</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -1513,6 +1513,10 @@ Do you want to discard the changes?
     <message>
         <source>LADSPA effects are not available in this version of Hydrogen.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation type="unfinished">Keverő</translation>
     </message>
 </context>
 <context>
@@ -3489,6 +3493,10 @@ Are you sure?</source>
 The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
 Would you like to keep or discard the remaining instruments and notes?
 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Double click to expand the list</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

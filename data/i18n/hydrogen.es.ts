@@ -1333,15 +1333,6 @@ El documento contiene cambios sin guardar.
         <translation>Donar</translation>
     </message>
     <message>
-        <source>
-The LilyPond export is an experimental feature.
-It should work like a charm provided that you use the GM-kit, and that you do not use triplet
-</source>
-        <translation>
-La exportación de LilyPond es experimental.
-Debería funcionar perfectamente mientras uses el GM-kit y no uses tripletes</translation>
-    </message>
-    <message>
         <source>LilyPond file (*.ly)</source>
         <translation>Archivo LilyPond (*.ly)</translation>
     </message>
@@ -1439,6 +1430,13 @@ La list de reproducción actual contiene cambios sin guardar.
         <source>Set default values</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GM-kit, and that you do not use triplet.
+</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -1530,6 +1528,10 @@ La list de reproducción actual contiene cambios sin guardar.
     <message>
         <source>LADSPA effects are not available in this version of Hydrogen.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation type="unfinished">Mezclador</translation>
     </message>
 </context>
 <context>
@@ -3535,6 +3537,10 @@ Would you like to keep or discard the remaining instruments and notes?
 Los primeros %2 instrumentos serán reemplazados con nuevos instrumentos y mantendrán sus notas, pero algunos de los instrumentos restantes tienen notas.
 ¿Quiere guardar o descartar los instrumentos y notas restantes?
 </translation>
+    </message>
+    <message>
+        <source>Double click to expand the list</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -1413,13 +1413,6 @@ Vols desar les modificacions?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>
-The LilyPond export is an experimental feature.
-It should work like a charm provided that you use the GM-kit, and that you do not use triplet
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>LilyPond file (*.ly)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1431,6 +1424,13 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <source>
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GM-kit, and that you do not use triplet.
 </source>
         <translation type="unfinished"></translation>
     </message>
@@ -1525,6 +1525,10 @@ Do you want to discard the changes?
     <message>
         <source>LADSPA effects are not available in this version of Hydrogen.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation type="unfinished">Mesclador</translation>
     </message>
 </context>
 <context>
@@ -3507,6 +3511,10 @@ Are you sure?</source>
     </message>
     <message>
         <source>Drumkit deletion failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Double click to expand the list</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

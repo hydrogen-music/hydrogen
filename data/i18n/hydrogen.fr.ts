@@ -1358,16 +1358,6 @@ Voulez-vous sauvegarder les changements?
         <translation>Donner</translation>
     </message>
     <message>
-        <source>
-The LilyPond export is an experimental feature.
-It should work like a charm provided that you use the GM-kit, and that you do not use triplet
-</source>
-        <translation>
-L&apos;export LilyPond est une fonctionnalité expérimentale.
-Ça devrait fonctionner comme un charme tant que vous utilisez le GM-kit, et que vous n&apos;utilisez pas de triolet.
-</translation>
-    </message>
-    <message>
         <source>LilyPond file (*.ly)</source>
         <translation>Fichier LilyPond (*.ly)</translation>
     </message>
@@ -1465,6 +1455,13 @@ Voulez-vous abandonner ces changements ?
         <source>Set default values</source>
         <translation>Paramètre les valeurs par défaut</translation>
     </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GM-kit, and that you do not use triplet.
+</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -1556,6 +1553,10 @@ Voulez-vous abandonner ces changements ?
     <message>
         <source>LADSPA effects are not available in this version of Hydrogen.</source>
         <translation>Les effets LADSPA ne sont pas disponibles dans cette version d&apos;Hydrogen.</translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation type="unfinished">Mixeur</translation>
     </message>
 </context>
 <context>
@@ -3554,6 +3555,10 @@ Would you like to keep or discard the remaining instruments and notes?
 Les %2 premiers instruments seront remplacés avec les nouveaux instruments et conserveront leurs notes, mais certains des instruments restant possèdent des notes.
 Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
 </translation>
+    </message>
+    <message>
+        <source>Double click to expand the list</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
