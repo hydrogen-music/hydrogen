@@ -814,6 +814,14 @@ Are you sure?</source>
         <source>New instrument name</source>
         <translation type="unfinished">新しいインストルメント名</translation>
     </message>
+    <message>
+        <source>Fill 1/12 notes</source>
+        <translation type="unfinished">ノートを8つおきに挿入 {1/12 ?}</translation>
+    </message>
+    <message>
+        <source>Fill 1/16 notes</source>
+        <translation type="unfinished">ノートを8つおきに挿入 {1/16 ?}</translation>
+    </message>
 </context>
 <context>
     <name>InstrumentRack</name>
@@ -2175,6 +2183,10 @@ IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Hydrogen playlist (*.h2playlist)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
@@ -2620,6 +2632,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable OSC &amp;feedback</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3436,6 +3452,14 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Open Sound Library</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation type="unfinished">読み込み</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">キャンセル</translation>
     </message>
 </context>
 <context>

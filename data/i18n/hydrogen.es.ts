@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="es_ES" sourcelanguage="en_GB">
+<TS version="2.1" language="es_ES" sourcelanguage="en_GB">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -376,14 +376,6 @@ Sobreescribir el archivo existente?</translation>
 <context>
     <name>ExportSongDialog_UI</name>
     <message>
-        <source>Export filename</source>
-        <translation>Nombre de archivo a exportar</translation>
-    </message>
-    <message>
-        <source>Export Whole Song to WAV</source>
-        <translation>Exportar Canción Entera a WAV</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
     </message>
@@ -542,6 +534,18 @@ Sobreescribir el archivo existente?</translation>
     <message>
         <source>Rubberband Batch</source>
         <translation>Rubberband Lote</translation>
+    </message>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Diálogo</translation>
+    </message>
+    <message>
+        <source>Export directory:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modus:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -800,6 +804,22 @@ Are you sure?</source>
     <message>
         <source>Paste notes ...</source>
         <translation>Pegar notas ...</translation>
+    </message>
+    <message>
+        <source>Fill 1/12 notes</source>
+        <translation type="unfinished">Llena notas 1/8 {1/12 ?}</translation>
+    </message>
+    <message>
+        <source>Fill 1/16 notes</source>
+        <translation type="unfinished">Llena notas 1/8 {1/16 ?}</translation>
+    </message>
+    <message>
+        <source>Rename instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New instrument name</source>
+        <translation type="unfinished">Nombre de instrumento nuevo</translation>
     </message>
 </context>
 <context>
@@ -1153,10 +1173,6 @@ MIDI = %2</translation>
         <translation>Gu&amp;ardar como...</translation>
     </message>
     <message>
-        <source>&amp;Tools</source>
-        <translation>Herramien&amp;tas</translation>
-    </message>
-    <message>
         <source>&amp;Mixer</source>
         <translation>&amp;Mezclador</translation>
     </message>
@@ -1348,10 +1364,6 @@ La list de reproducción actual contiene cambios sin guardar.
         <translation>Pro&amp;yecto</translation>
     </message>
     <message>
-        <source>&amp;Drumkits</source>
-        <translation>&amp;Drumkits</translation>
-    </message>
-    <message>
         <source>New</source>
         <translation>Nuevo</translation>
     </message>
@@ -1394,6 +1406,38 @@ La list de reproducción actual contiene cambios sin guardar.
     <message>
         <source>Saving of this library failed.</source>
         <translation>Error al guardar esta librería.</translation>
+    </message>
+    <message>
+        <source>Drum&amp;kits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Automation path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI setup advice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set default values</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1482,6 +1526,10 @@ La list de reproducción actual contiene cambios sin guardar.
     <message>
         <source>Set LADSPA FX ( %1 ) volume</source>
         <translation>Volumen Efecto LADSPA ( %1 )</translation>
+    </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2116,6 +2164,16 @@ La lista de reproducción actual contiene cambios sin guardar.
         <source>&amp;Cancel</source>
         <translation>&amp;Cancelar</translation>
     </message>
+    <message>
+        <source>Hydrogen playlist (*.h2playlist)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must be without whitespaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
@@ -2467,10 +2525,6 @@ La lista de reproducción actual contiene cambios sin guardar.
         <translation>Compensación del arranque del contador de pulsaciones en ms    </translation>
     </message>
     <message>
-        <source>create per-instrument outputs</source>
-        <translation>Crear salidas para cada instrumento</translation>
-    </message>
-    <message>
         <source>Path to the Rubberband command-line utility</source>
         <translation>Ruta a la utlidad de línea de comandos Rubberband</translation>
     </message>
@@ -2541,6 +2595,34 @@ La lista de reproducción actual contiene cambios sin guardar.
     <message>
         <source>Discard midi messages after action has been triggered</source>
         <translation>Descartar mensajes midi tras activar acción</translation>
+    </message>
+    <message>
+        <source>Create per-instrument outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;OSC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incoming port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable OSC &amp;feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Enable OSC support</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2869,22 +2951,9 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;more information about you can find here:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;you can find more information here:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Niveles de &quot;Nitidez&quot;:&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   equivalente a --no-transitorios --no-laminación --ventana larga&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   equivalente a --no-transitorios --no-laminación&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   equivalente a --no-transitorios&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   equivalente a --bl-transitorios&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   opciones procesamiento por defecto&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalente a --no-laminación --ventana corta (podría ser bueno para percusión)&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;puedes encontrar más información aquí:&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2973,6 +3042,34 @@ Are you sure?</source>
     <message>
         <source>Pattern %1</source>
         <translation>Patrón %1</translation>
+    </message>
+    <message>
+        <source>View playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>View timeline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust parameter values in time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished">Intensidad</translation>
+    </message>
+    <message>
+        <source>Select playback track</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3341,6 +3438,14 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Open Sound Library</source>
         <translation>Abrir Biblioteca de Sonido</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation type="unfinished">Cargar</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Cancelar</translation>
     </message>
 </context>
 <context>
