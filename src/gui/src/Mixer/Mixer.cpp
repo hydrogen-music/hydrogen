@@ -53,7 +53,7 @@ Mixer::Mixer( QWidget* pParent )
  : QWidget( pParent )
  , Object( __class_name )
 {
-	setWindowTitle( trUtf8( __class_name ) );
+	setWindowTitle( trUtf8( "Mixer" ) );
 	setMaximumHeight( 284 );
 	setMinimumHeight( 284 );
 	setFixedHeight( 284 );
