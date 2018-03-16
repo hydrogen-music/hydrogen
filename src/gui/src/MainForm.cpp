@@ -1655,7 +1655,7 @@ void MainForm::action_file_export_lilypond()
 					"Hydrogen",
 					trUtf8( "\nThe LilyPond export is an experimental feature.\n"
 									"It should work like a charm provided that you use the "
-									"GM-kit, and that you do not use triplet\n" ),
+									"GM-kit, and that you do not use triplet.\n" ),
 					trUtf8( "Ok" ),
 					trUtf8( "&Cancel" ),
 					0,
