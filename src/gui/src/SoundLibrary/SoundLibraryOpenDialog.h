@@ -47,9 +47,9 @@ class SoundLibraryOpenDialog : public QDialog, public H2Core::Object
 		void on_open_btn_clicked();
 
 	private:
-		SoundLibraryPanel* p_soundLib;
-		QPushButton* p_btnOk;
-		QPushButton* p_btnCancel;
+		SoundLibraryPanel*	m_pSoundLibraryPanel;
+		QPushButton*		m_pOkBtn;
+		QPushButton*		m_pCancelBtn;
 };
 
 #endif
