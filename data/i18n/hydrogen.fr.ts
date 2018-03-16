@@ -402,7 +402,7 @@ Overwrite the existing file?</source>
     <message>
         <source>Samplerate in Hz:</source>
         <translatorcomment>L&apos;ancienne étiquette &quot;Taux d&apos;échantillonnage en Hz:&quot; était beaucoup trop longue</translatorcomment>
-        <translation>Fréquence:</translation>
+        <translation>Fréquence :</translation>
     </message>
     <message>
         <source>22050</source>
@@ -427,7 +427,7 @@ Overwrite the existing file?</source>
     <message>
         <source>SampleDepth in Bit:</source>
         <translatorcomment>L&apos;ancienne étiquette &quot;Profondeur d&apos;échantillonnage en Bit:&quot; était beaucoup trop longue</translatorcomment>
-        <translation>Résolution:</translation>
+        <translation>Résolution :</translation>
     </message>
     <message>
         <source>8</source>
@@ -598,7 +598,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
-        <translation>Cette action est impossible, vous pouvez enregistrer les changements des instruments seulement dans la bibliothèque de sons en cours.</translation>
+        <translation>Cette action est impossible, vous pouvez sauvegarder les changements des instruments seulement dans la bibliothèque de sons en cours.</translation>
     </message>
     <message>
         <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
@@ -1083,7 +1083,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation>Enregi&amp;strer</translation>
+        <translation>&amp;Sauvegarder</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
@@ -1099,7 +1099,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Save song</source>
-        <translation>Enregistrer le morceau</translation>
+        <translation>Sauvegarder le morceau</translation>
     </message>
     <message>
         <source>Open song</source>
@@ -1107,7 +1107,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation>Exporter le fichier MIDI</translation>
+        <translation>Exporter en fichier MIDI</translation>
     </message>
     <message>
         <source>Midi file (*.mid)</source>
@@ -1131,7 +1131,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Save &amp;as...</source>
-        <translation>En&amp;registrer sous...</translation>
+        <translation>Sauveg&amp;arder sous...</translation>
     </message>
     <message>
         <source>Export &amp;MIDI file</source>
@@ -1207,11 +1207,11 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>&amp;Info</source>
-        <translation>&amp;Information</translation>
+        <translation>&amp;Informations</translation>
     </message>
     <message>
         <source>Song saved.</source>
-        <translation>Morceau enregistré.</translation>
+        <translation>Morceau sauvegardé.</translation>
     </message>
     <message>
         <source>Unknown error %1</source>
@@ -1219,7 +1219,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Clear all instruments?</source>
-        <translation>Effacer tous les instruments?</translation>
+        <translation>Effacer tous les instruments ?</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -1231,7 +1231,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Could not save song.</source>
-        <translation>Impossible d&apos;enregistrer le morceau.</translation>
+        <translation>Impossible de sauvegarder le morceau.</translation>
     </message>
     <message>
         <source>Open &amp;Pattern</source>
@@ -1243,11 +1243,11 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
-        <translation>Enre&amp;gistrer le motif sous...</translation>
+        <translation>Sauvegarder le motif sous...</translation>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation>Motif enregistré.</translation>
+        <translation>Motif sauvegardé.</translation>
     </message>
     <message>
         <source>Open Pattern</source>
@@ -1292,7 +1292,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Song saved as.</source>
-        <translation>Enregistré le morceau sous.</translation>
+        <translation>Morceau sauvegardé sous.</translation>
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
@@ -1322,7 +1322,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation>Annuler</translation>
+        <translation>&amp;Annuler</translation>
         <extra-FILE>menu</extra-FILE>
     </message>
     <message>
@@ -1364,7 +1364,7 @@ It should work like a charm provided that you use the GM-kit, and that you do no
 </source>
         <translation>
 L&apos;export LilyPond est une fonctionnalité expérimentale.
-Ça devrait fonctionner comme un charme tant que vous utilisez le GM-kit, et que vous n&apos;utilisez pas de triolet
+Ça devrait fonctionner comme un charme tant que vous utilisez le GM-kit, et que vous n&apos;utilisez pas de triolet.
 </translation>
     </message>
     <message>
@@ -1439,11 +1439,11 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>&amp;View</source>
-        <translation>Affichage (&amp;v)</translation>
+        <translation>A&amp;ffichage</translation>
     </message>
     <message>
         <source>&amp;Automation path</source>
-        <translation>Chemin d&amp;automation</translation>
+        <translation>Chemin d&apos;&amp;automation</translation>
     </message>
     <message>
         <source>Full screen</source>
@@ -1998,7 +1998,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>No Song selected!</source>
-        <translation>Aucun morceau n&apos;est sélectionné!</translation>
+        <translation>Aucun morceau n&apos;est sélectionné !</translation>
     </message>
     <message>
         <source>Load Playlist</source>
@@ -2010,11 +2010,11 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Save Playlist</source>
-        <translation>Enregistrer la liste</translation>
+        <translation>Sauvegarder la liste</translation>
     </message>
     <message>
         <source>No Song in List or no Song selected!</source>
-        <translation>Aucun morceau dans la liste ou aucun morceau de sélectionné!</translation>
+        <translation>Aucun morceau dans la liste ou aucun morceau de sélectionné !</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
@@ -2032,10 +2032,9 @@ Voulez-vous abandonner ces changements ?
         <source>No Default Editor Set. Please set your Default Editor
 Do not use a console based Editor
 Sorry, but this will not work for the moment.</source>
-        <translation>Aucun éditeur par défaut de régler. Veuillez régler l&apos;éditeur par défaut.
-
-N&apos;utiliser pas un éditeur en mode console.
-Désolé, mais un éditeur en mode console ne fonctionnera pas présentement.</translation>
+        <translation>Aucun éditeur par défaut de réglé. Veuillez régler l&apos;éditeur par défaut.
+N&apos;utilisez pas un éditeur en mode console.
+Désolé, mais un éditeur en mode console ne fonctionne pas pour l&apos;instant.</translation>
     </message>
     <message>
         <source>Set your Default Editor</source>
@@ -2043,7 +2042,7 @@ Désolé, mais un éditeur en mode console ne fonctionnera pas présentement.</t
     </message>
     <message>
         <source>No Script selected!</source>
-        <translation>Aucun script de sélectionné!</translation>
+        <translation>Aucun script de sélectionné !</translation>
     </message>
     <message>
         <source>Error loading song.</source>
@@ -2095,11 +2094,11 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>&amp;Save Playlist</source>
-        <translation>Enregi&amp;strer</translation>
+        <translation>&amp;Sauvegarder la liste</translation>
     </message>
     <message>
         <source>Save Playlist &amp;as</source>
-        <translation>Enregistrer so&amp;us...</translation>
+        <translation>S&amp;auvegarder sous...</translation>
     </message>
     <message>
         <source>&amp;Scripts</source>
@@ -2171,7 +2170,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>No valid song selected!</source>
-        <translation>Pas de morceau valide séléctionné !</translation>
+        <translation>Pas de morceau valide sélectionné !</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
@@ -2179,7 +2178,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>Annuler (&amp;C)</translation>
+        <translation>Ann&amp;uler</translation>
     </message>
     <message>
         <source>
@@ -3178,7 +3177,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Save Pattern</source>
-        <translation>Enregistrer un motif</translation>
+        <translation>Sauvegarder un motif</translation>
     </message>
     <message>
         <source>Load Pattern</source>
