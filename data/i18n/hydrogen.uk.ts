@@ -114,11 +114,11 @@
     </message>
     <message>
         <source>Patterns</source>
-        <translation>Паттернів</translation>
+        <translation>Патернів</translation>
     </message>
     <message>
         <source>Selected pattern</source>
-        <translation>Вибраний паттерн</translation>
+        <translation>Вибраний патерн</translation>
     </message>
     <message>
         <source>Selected instrument</source>
@@ -290,7 +290,7 @@
     <name>Director</name>
     <message>
         <source>Director</source>
-        <translation>Дирижер</translation>
+        <translation>Диригент</translation>
     </message>
 </context>
 <context>
@@ -370,7 +370,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Export to separate tracks</source>
-        <translation type="unfinished"></translation>
+        <translation>Експортувати в окремі доріжки</translation>
     </message>
 </context>
 <context>
@@ -505,7 +505,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Third</source>
-        <translation type="unfinished"></translation>
+        <translation>За Тейлором</translation>
     </message>
     <message>
         <source>Cubic</source>
@@ -537,15 +537,15 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Діалог</translation>
+        <translation>Діалог</translation>
     </message>
     <message>
         <source>Export directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Тека для експорту:</translation>
     </message>
     <message>
         <source>Modus:</source>
-        <translation type="unfinished"></translation>
+        <translation>Спосіб:</translation>
     </message>
 </context>
 <context>
@@ -629,7 +629,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Instrument + Pattern</source>
-        <translation>Інструмент + паттерн</translation>
+        <translation>Інструмент + патерн</translation>
     </message>
     <message>
         <source>Mixer</source>
@@ -736,7 +736,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Select pattern size</source>
-        <translation>Вибрати розмір паттерна</translation>
+        <translation>Вибрати розмір патерна</translation>
     </message>
 </context>
 <context>
@@ -807,19 +807,19 @@ Are you sure?</source>
     </message>
     <message>
         <source>Fill 1/12 notes</source>
-        <translation type="unfinished">Заповнити 1/8 {1/12 ?}</translation>
+        <translation>Заповнити 1/12</translation>
     </message>
     <message>
         <source>Fill 1/16 notes</source>
-        <translation type="unfinished">Заповнити 1/8 {1/16 ?}</translation>
+        <translation>Заповнити 1/16</translation>
     </message>
     <message>
         <source>Rename instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Перейменувати інструмент</translation>
     </message>
     <message>
         <source>New instrument name</source>
-        <translation type="unfinished">Нова назва інструмента</translation>
+        <translation>Нова назва інструмента</translation>
     </message>
 </context>
 <context>
@@ -857,7 +857,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Effect return</source>
-        <translation>Повернення еффекту</translation>
+        <translation>Повернення ефекту</translation>
     </message>
 </context>
 <context>
@@ -1230,7 +1230,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
-        <translation>Ви користуєтеся нестабільною версією Hydrogen. Допоможіть нам покращити її, надлаючи до списка розсилання hydrogen-devel свої звіти про помилки і пропозиції. &lt;br&gt;&lt;br&gt;Дякуємо!</translation>
+        <translation>Ви користуєтеся нестабільною версією Hydrogen. Допоможіть нам покращити її, надаючи до списку розсилання hydrogen-devel свої звіти про помилки і пропозиції. &lt;br&gt;&lt;br&gt;Дякуємо!</translation>
     </message>
     <message>
         <source>Don&apos;t show this message anymore</source>
@@ -1238,23 +1238,23 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Open &amp;Pattern</source>
-        <translation>Відкрити &amp;паттерн</translation>
+        <translation>Відкрити &amp;патерн</translation>
     </message>
     <message>
         <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Паттерн Hydrogen (*.h2pattern)</translation>
+        <translation>Патерн Hydrogen (*.h2pattern)</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
-        <translation>Зберегти паттерн як...</translation>
+        <translation>Зберегти патерн як...</translation>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation>Паттерн збережено.</translation>
+        <translation>Патерн збережено.</translation>
     </message>
     <message>
         <source>Open Pattern</source>
-        <translation>Відкрити паттерн</translation>
+        <translation>Відкрити патерн</translation>
     </message>
     <message>
         <source>Show &amp;info</source>
@@ -1262,7 +1262,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Expor&amp;t pattern as...</source>
-        <translation>Е&amp;кспортувати паттерн як...</translation>
+        <translation>Е&amp;кспортувати патерн як...</translation>
     </message>
     <message>
         <source>I&amp;nstruments</source>
@@ -1294,7 +1294,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Could not export pattern.</source>
-        <translation>Не вдалось експортувати паттерн.</translation>
+        <translation>Не вдалось експортувати патерн.</translation>
     </message>
     <message>
         <source>
@@ -1313,7 +1313,7 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Director</source>
-        <translation>Дирижер</translation>
+        <translation>Диригент</translation>
     </message>
     <message>
         <source>Undo history</source>
@@ -1380,86 +1380,89 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Drum&amp;kits</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Набори перкусії</translation>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished">Нова</translation>
+        <translation>Створити</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Відкрити</translation>
+        <translation>Відкрити</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation type="unfinished">Властивості</translation>
+        <translation>Властивості</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Зберегти</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished"></translation>
+        <translation>Зберегти як</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Експорт</translation>
+        <translation>Експортувати</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Імпортувати</translation>
     </message>
     <message>
         <source>Online import</source>
-        <translation type="unfinished"></translation>
+        <translation>Імпортувати онлайн</translation>
     </message>
     <message>
         <source>Add component</source>
-        <translation type="unfinished"></translation>
+        <translation>Додати компонент</translation>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Перегляд</translation>
     </message>
     <message>
         <source>&amp;Automation path</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Шлях автоматизації</translation>
     </message>
     <message>
         <source>Full screen</source>
-        <translation type="unfinished"></translation>
+        <translation>На весь екран</translation>
     </message>
     <message>
         <source>&amp;Options</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Параметри</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished">Назва компонента</translation>
+        <translation>Назва компонента</translation>
     </message>
     <message>
         <source>Saving of this library failed.</source>
-        <translation type="unfinished">Не вдалось зберегти цю бібліотеку.</translation>
+        <translation>Не вдалось зберегти цю бібліотеку.</translation>
     </message>
     <message>
         <source>MIDI setup advice</source>
-        <translation type="unfinished"></translation>
+        <translation>Порада з налаштування MIDI</translation>
     </message>
     <message>
         <source>MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?</source>
-        <translation type="unfinished"></translation>
+        <translation>Для цього набору перкусії не налаштовані вихідні ноти MIDI, тому експорт цієї композиції у файл MIDI може бути невдалим. Бажаєте, щоб Hydrogen автоматично виправив це, призначивши типові значення?</translation>
     </message>
     <message>
         <source>Set default values</source>
-        <translation type="unfinished"></translation>
+        <translation>Встановити типові значення</translation>
     </message>
     <message>
         <source>
 The LilyPond export is an experimental feature.
 It should work like a charm provided that you use the GM-kit, and that you do not use triplet.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Можливість експорту у формат LilyPond - експериментальна.
+Вона має гарно працювати, якщо ви використовуєте GM-kit, і не використовуєте тріолі.
+</translation>
     </message>
 </context>
 <context>
@@ -1551,11 +1554,11 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation type="unfinished"></translation>
+        <translation>В цій версії Hydrogen не доступні ефекти LADSPA.</translation>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Мікшер</translation>
+        <translation>Мікшер</translation>
     </message>
 </context>
 <context>
@@ -1605,7 +1608,7 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>Pattern editor - %1</source>
-        <translation>Редактор паттернів — %1</translation>
+        <translation>Редактор патернів — %1</translation>
     </message>
     <message>
         <source>Quantize keyboard/midi events to grid</source>
@@ -1629,11 +1632,11 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>Is not possible to change the pattern size when playing.</source>
-        <translation>Під час відтворення розмір паттерна змінювати не можна.</translation>
+        <translation>Під час відтворення розмір патерна змінювати не можна.</translation>
     </message>
     <message>
         <source>Select pattern size</source>
-        <translation>Вибрати розмір паттерна</translation>
+        <translation>Вибрати розмір патерна</translation>
     </message>
     <message>
         <source>Select grid resolution</source>
@@ -1641,7 +1644,7 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>No pattern selected</source>
-        <translation>Не вибрано жодного паттерна</translation>
+        <translation>Не вибрано жодного патерна</translation>
     </message>
     <message>
         <source>Select note properties</source>
@@ -1693,14 +1696,14 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>Probability</source>
-        <translation type="unfinished"></translation>
+        <translation>Ймовірність</translation>
     </message>
 </context>
 <context>
     <name>PatternFillDialog</name>
     <message>
         <source>Fill with selected pattern</source>
-        <translation>Заповнити вибраним паттерном</translation>
+        <translation>Заповнити вибраним патерном</translation>
     </message>
 </context>
 <context>
@@ -1746,7 +1749,7 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     <name>PatternPropertiesDialog</name>
     <message>
         <source>Pattern properties</source>
-        <translation>Властивості паттерна</translation>
+        <translation>Властивості патерна</translation>
     </message>
     <message>
         <source>%1#2</source>
@@ -1777,7 +1780,7 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>New Pattern Name</source>
-        <translation>Нова назва паттерна</translation>
+        <translation>Нова назва патерна</translation>
     </message>
     <message>
         <source>Form1</source>
@@ -1785,11 +1788,11 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>Pattern category</source>
-        <translation>Категорія паттерна</translation>
+        <translation>Категорія патерна</translation>
     </message>
     <message>
         <source>Pattern description</source>
-        <translation>Опис паттерна</translation>
+        <translation>Опис патерна</translation>
     </message>
 </context>
 <context>
@@ -1831,11 +1834,11 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>Pattern Mode</source>
-        <translation>Режим паттерна</translation>
+        <translation>Режим патерна</translation>
     </message>
     <message>
         <source>Pattern mode selected.</source>
-        <translation>Вибрано режим паттерна.</translation>
+        <translation>Вибрано режим патерна.</translation>
     </message>
     <message>
         <source>Jack-transport on/off</source>
@@ -2033,7 +2036,7 @@ It should work like a charm provided that you use the GM-kit, and that you do no
 Do not use a console based Editor
 Sorry, but this will not work for the moment.</source>
         <translation>Не задано типового редактора. Задайте типовий редактор.
-Не викорисотвуйте редактор на базі консолі.
+Не використовуйте редактор на базі консолі.
 На жаль, наразі це не працює.</translation>
     </message>
     <message>
@@ -2192,13 +2195,15 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Hydrogen playlist (*.h2playlist)</source>
-        <translation type="unfinished"></translation>
+        <translation>Список відтворення Hydrogen (*.h2playlist)</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>Назва сценарію або шлях до нього містить пропуски.
+ВАЖЛИВО
+Назва сценарію і шлях до нього не повинні містити пропусків.</translation>
     </message>
 </context>
 <context>
@@ -2577,7 +2582,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Third</source>
-        <translation type="unfinished"></translation>
+        <translation>За Тейлором</translation>
     </message>
     <message>
         <source>Cubic</source>
@@ -2625,31 +2630,31 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Create per-instrument outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Вивести кожен інструмент окремо</translation>
     </message>
     <message>
         <source>Enable feedback</source>
-        <translation type="unfinished"></translation>
+        <translation>Увімкнути зворотний зв&apos;язок</translation>
     </message>
     <message>
         <source>&amp;OSC</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;OSC</translation>
     </message>
     <message>
         <source>Incoming port</source>
-        <translation type="unfinished"></translation>
+        <translation>Вхідний порт</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Порт, який використовується для отримання повідомлень OSC&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable OSC &amp;feedback</source>
-        <translation type="unfinished"></translation>
+        <translation>Увімкнути зворотний зв&apos;язок OSC</translation>
     </message>
     <message>
         <source>&amp;Enable OSC support</source>
-        <translation type="unfinished"></translation>
+        <translation>Увімкнути підтримку OSC</translation>
     </message>
 </context>
 <context>
@@ -2980,7 +2985,20 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;you can find more information here:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Рівні &quot;чіткості&quot;:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   еквівалентно --no-transients --no-lamination --window-long&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   еквівалентно --no-transients --no-lamination&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   еквівалентно --no-transients&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   еквівалентно --bl-transients&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   типові параметри обробки&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   еквівалентно --no-lamination --window-short (може підійти для барабанів)&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Більше про це можна прочитати тут:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -3010,19 +3028,19 @@ p, li { white-space: pre-wrap; }
     <name>SongEditorPanel</name>
     <message>
         <source>Create new pattern</source>
-        <translation>Створити новий паттерн</translation>
+        <translation>Створити новий патерн</translation>
     </message>
     <message>
         <source>Move the selected pattern down</source>
-        <translation>Опустити вибраний паттерн</translation>
+        <translation>Опустити вибраний патерн</translation>
     </message>
     <message>
         <source>Move the selected pattern up</source>
-        <translation>Підняти вибраний паттерн</translation>
+        <translation>Підняти вибраний патерн</translation>
     </message>
     <message>
         <source>Clear pattern sequence</source>
-        <translation>Стерти дані паттерна</translation>
+        <translation>Стерти дані патерна</translation>
     </message>
     <message>
         <source>Song Editor</source>
@@ -3039,7 +3057,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
-        <translation>Увага, всю послідовність паттернів буде видалено.
+        <translation>Увага, всю послідовність патернів буде видалено.
 Ви впевнені?</translation>
     </message>
     <message>
@@ -3056,15 +3074,15 @@ Are you sure?</source>
     </message>
     <message>
         <source>stacked pattern mode</source>
-        <translation>режим стеку паттернів</translation>
+        <translation>режим стеку патернів</translation>
     </message>
     <message>
         <source>single pattern mode</source>
-        <translation>режим одного паттерна</translation>
+        <translation>режим одного патерна</translation>
     </message>
     <message>
         <source>Pattern %1</source>
-        <translation>Паттерн %1</translation>
+        <translation>Патерн %1</translation>
     </message>
     <message>
         <source>Enable time line edit</source>
@@ -3072,31 +3090,31 @@ Are you sure?</source>
     </message>
     <message>
         <source>View playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати доріжку, що відтворюється</translation>
     </message>
     <message>
         <source>Mute playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Приглушити доріжку, що відтворюється</translation>
     </message>
     <message>
         <source>Choose playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Вибрати доріжку, що відтворюється</translation>
     </message>
     <message>
         <source>View timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати шкалу часу</translation>
     </message>
     <message>
         <source>Adjust parameter values in time</source>
-        <translation type="unfinished"></translation>
+        <translation>Змінювати з часом значення параметрів</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">Сила натиску</translation>
+        <translation>Сила натиску</translation>
     </message>
     <message>
         <source>Select playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Вибрати доріжку, що відтворюється</translation>
     </message>
 </context>
 <context>
@@ -3185,23 +3203,23 @@ Are you sure?</source>
     </message>
     <message>
         <source>Save Pattern</source>
-        <translation>Зберегти паттерн</translation>
+        <translation>Зберегти патерн</translation>
     </message>
     <message>
         <source>Load Pattern</source>
-        <translation>Завантажити паттерн</translation>
+        <translation>Завантажити патерн</translation>
     </message>
     <message>
         <source>Open Pattern</source>
-        <translation>Відкрити паттерн</translation>
+        <translation>Відкрити патерн</translation>
     </message>
     <message>
         <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Паттерн Hydrogen (*.h2pattern)</translation>
+        <translation>Патерн Hydrogen (*.h2pattern)</translation>
     </message>
     <message>
         <source>Pattern 1</source>
-        <translation>Паттерн 1</translation>
+        <translation>Патерн 1</translation>
     </message>
     <message>
         <source>not_categorized</source>
@@ -3209,12 +3227,12 @@ Are you sure?</source>
     </message>
     <message>
         <source>Virtual Pattern</source>
-        <translation>Віртуальний паттерн</translation>
+        <translation>Віртуальний патерн</translation>
     </message>
     <message>
         <source>The pattern-file exists. 
 Overwrite the existing pattern?</source>
-        <translation>Такий файл паттерну вже є.
+        <translation>Такий файл патерна вже є.
 Перезаписати його?</translation>
     </message>
     <message>
@@ -3227,7 +3245,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Export Pattern</source>
-        <translation>Експортувати паттерн</translation>
+        <translation>Експортувати патерн</translation>
     </message>
 </context>
 <context>
@@ -3346,7 +3364,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Updating SoundLibrary list...</source>
-        <translation>Оновлення списка звукових бібліотек...</translation>
+        <translation>Оновлення списку звукових бібліотек...</translation>
     </message>
     <message>
         <source>Installed</source>
@@ -3386,7 +3404,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Patterns</source>
-        <translation>Паттернів</translation>
+        <translation>Патернів</translation>
     </message>
     <message>
         <source>Drumkit License: %1</source>
@@ -3464,15 +3482,15 @@ Overwrite the existing pattern?</source>
     <name>SoundLibraryOpenDialog</name>
     <message>
         <source>Open Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Відкрити бібліотеку звуків</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished">Завантажити</translation>
+        <translation>Завантажити</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Скасувати</translation>
+        <translation>Скасувати</translation>
     </message>
 </context>
 <context>
@@ -3511,7 +3529,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Patterns</source>
-        <translation>Паттернів</translation>
+        <translation>Патернів</translation>
     </message>
     <message>
         <source>Error loading song.</source>
@@ -3524,7 +3542,7 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Warning, the selected pattern will be deleted from disk.
 Are you sure?</source>
-        <translation>Попередження: вибраний паттерн буде видалено з диску.
+        <translation>Попередження: вибраний патерн буде видалено з диска.
 Ви впевнені?</translation>
     </message>
     <message>
@@ -3537,7 +3555,7 @@ To delete this drumkit first load another drumkit.</source>
     </message>
     <message>
         <source>&quot;%1&quot;is a system drumkit and can&apos;t be deleted.</source>
-        <translation>&quot;%1&quot; - сиситемний набір, тому не може бути видалений.</translation>
+        <translation>&quot;%1&quot; - системний набір, тому не може бути видалений.</translation>
     </message>
     <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
@@ -3558,11 +3576,14 @@ Are you sure?</source>
 The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
 Would you like to keep or discard the remaining instruments and notes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Наявний набір має %1 інструментів, а новий - лише %2.
+Перші %2 інструментів буде замінено новими інструментами і будуть збережені їхні ноти, .але деякі з решти інструментів мають ноти.
+Залишити чи вилучити решту інструментів і нот?
+</translation>
     </message>
     <message>
         <source>Double click to expand the list</source>
-        <translation type="unfinished"></translation>
+        <translation>Двічі клацніть, щоб розширити список</translation>
     </message>
 </context>
 <context>
@@ -3723,7 +3744,7 @@ Would you like to keep or discard the remaining instruments and notes?
     <name>VirtualPatternDialog</name>
     <message>
         <source>Select virtual pattern</source>
-        <translation>Виберіть віртуальний паттерн</translation>
+        <translation>Виберіть віртуальний патерн</translation>
     </message>
 </context>
 <context>
