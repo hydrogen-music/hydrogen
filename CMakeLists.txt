@@ -63,14 +63,13 @@ ELSE()
 ENDIF()
 
 IF(MINGW)
-	OPTION(WANT_JACK         "Include JACK (Jack Audio Connection Kit) support" ON)
 	OPTION(WANT_PORTAUDIO    "Include PortAudio support" ON)
 	OPTION(WANT_PORTMIDI     "Include PortMidi support" ON)
 ELSE()
-	OPTION(WANT_JACK         "Include JACK (Jack Audio Connection Kit) support" ON)
 	OPTION(WANT_PORTAUDIO    "Include PortAudio support" OFF)
 	OPTION(WANT_PORTMIDI     "Include PortMidi support" OFF)
 ENDIF()
+OPTION(WANT_JACK         "Include JACK (Jack Audio Connection Kit) support" ON)
 OPTION(WANT_PULSEAUDIO   "Include PulseAudio support" ON)
 OPTION(WANT_LASH         "Include LASH (Linux Audio Session Handler) support" OFF)
 OPTION(WANT_LRDF         "Include LRDF (Lightweight Resource Description Framework with special support for LADSPA plugins) support" OFF)
@@ -133,22 +132,17 @@ FIND_PACKAGE(Qt5Widgets REQUIRED)
 FIND_PACKAGE(Qt5Xml REQUIRED)
 FIND_PACKAGE(Qt5XmlPatterns REQUIRED)
 
-IF(MINGW)
-    SET(WANT_JACK TRUE)
-    SET(Threads_PATH "C:/Program Files/GnuWin32")
-    SET(LIBARCHIVE_PATH "C:/Program Files/GnuWin32")
-    SET(LIBSNDFILE_PATH "C:/Program Files/Mega-Nerd/libsndfile")
-ELSE(MINGW)
-    IF(APPLE)
-		INCLUDE_DIRECTORIES("/opt/local/include")
-        LINK_DIRECTORIES("/opt/local/lib")
 
-		#Without setting this, installation would go into /usr/local, which does not exist per default
-		SET(CMAKE_INSTALL_PREFIX "/usr" )
-    ELSE(APPLE)
-        SET(OSS_LIB_PATHS "/usr/lib${LIB_SUFFIX}/oss/lib" "/usr/local/lib${LIB_SUFFIX}/oss/lib" )
-    ENDIF(APPLE)
-ENDIF(MINGW)
+IF(APPLE)
+    INCLUDE_DIRECTORIES("/opt/local/include")
+    LINK_DIRECTORIES("/opt/local/lib")
+
+    #Without setting this, installation would go into /usr/local, which does not exist per default
+    SET(CMAKE_INSTALL_PREFIX "/usr" )
+ELSE(APPLE)
+    SET(OSS_LIB_PATHS "/usr/lib${LIB_SUFFIX}/oss/lib" "/usr/local/lib${LIB_SUFFIX}/oss/lib" )
+ENDIF(APPLE)
+
 
 #Installation paths
 # TODO remove data from path
