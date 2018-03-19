@@ -1253,10 +1253,15 @@ bool Sampler::is_instrument_playing( Instrument* instrument )
 
 void Sampler::reinitialize_playback_track()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song* pSong = pEngine->getSong();
+	Hydrogen*	pEngine = Hydrogen::get_instance();
+	Song*		pSong = pEngine->getSong();
+	Sample*		pSample = nullptr;
 
-	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( Sample::load( pSong->get_playback_track_filename() ) );
+	if(!pSong->get_playback_track_filename().isEmpty()){
+		pSample = Sample::load( pSong->get_playback_track_filename() );
+	}
+	
+	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( pSample );
 
 	__playback_instrument->get_components()->front()->set_layer(pPlaybackTrackLayer, 0);
 	__playBackSamplePosition = 0;

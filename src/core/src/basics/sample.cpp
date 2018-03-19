@@ -100,21 +100,27 @@ void Sample::set_filename( const QString& filename )
 
 Sample* Sample::load( const QString& filepath )
 {
+	Sample* pSample = nullptr;
+	
 	if( !Filesystem::file_readable( filepath ) ) {
 		ERRORLOG( QString( "Unable to read %1" ).arg( filepath ) );
-		return 0;
+	} else {
+		pSample = new Sample( filepath );
+		pSample->load();
 	}
-	Sample* sample = new Sample( filepath );
-	sample->load();
-	return sample;
+	
+	return pSample;
 }
 
 Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan )
 {
-	Sample* sample = Sample::load( filepath );
-	if( !sample ) return 0;
-	sample->apply( loops, rubber, velocity, pan );
-	return sample;
+	Sample* pSample = Sample::load( filepath );
+	
+	if( pSample ){
+		pSample->apply( loops, rubber, velocity, pan );
+	}
+
+	return pSample;
 }
 
 void Sample::apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan )
