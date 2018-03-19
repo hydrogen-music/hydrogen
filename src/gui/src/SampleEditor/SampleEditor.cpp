@@ -190,7 +190,7 @@ void SampleEditor::getAllFrameInfos()
 		pSample = pLayer->get_sample();
 	}
 
-//this values are needed if we restore a sample from from disk if a new song with sample changes will load
+//this values are needed if we restore a sample from disk if a new song with sample changes will load
 	m_sample_is_modified = pSample->get_is_modified();
 	m_pSamplerate = pSample->get_sample_rate();
 	__loops = pSample->get_loops();

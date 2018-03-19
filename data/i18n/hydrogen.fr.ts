@@ -816,11 +816,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Fill 1/12 notes</source>
-        <translation type="unfinished">Remplir une note sur 8 {1/12 ?}</translation>
+        <translation>Remplir une note sur 12</translation>
     </message>
     <message>
         <source>Fill 1/16 notes</source>
-        <translation type="unfinished">Remplir une note sur 8 {1/16 ?}</translation>
+        <translation>Remplir une note sur 16</translation>
     </message>
 </context>
 <context>
@@ -1460,7 +1460,10 @@ Voulez-vous abandonner ces changements ?
 The LilyPond export is an experimental feature.
 It should work like a charm provided that you use the GM-kit, and that you do not use triplet.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+L&apos;export LilyPond est une fonctionnalité expérimentale.
+Ça devrait fonctionner comme un charme tant que vous utilisez le GM-kit, et que vous n&apos;utilisez pas de triolet.
+</translation>
     </message>
 </context>
 <context>
@@ -1556,7 +1559,7 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Mixeur</translation>
+        <translation>Mixeur</translation>
     </message>
 </context>
 <context>
@@ -2201,7 +2204,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Hydrogen playlist (*.h2playlist)</source>
-        <translation type="unfinished"></translation>
+        <translation>Liste de lecture Hydrogen (*.h2playlist)</translation>
     </message>
 </context>
 <context>
@@ -2652,7 +2655,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Enable OSC &amp;feedback</source>
-        <translation type="unfinished"></translation>
+        <translation>Activer la &amp;boucle de retour OSC</translation>
     </message>
 </context>
 <context>
@@ -3460,11 +3463,11 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished">Charger</translation>
+        <translation>Charger</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Annuler</translation>
+        <translation>Annuler</translation>
     </message>
 </context>
 <context>
@@ -3558,7 +3561,7 @@ Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
     </message>
     <message>
         <source>Double click to expand the list</source>
-        <translation type="unfinished"></translation>
+        <translation>Double-clic pour étendre la liste</translation>
     </message>
 </context>
 <context>
