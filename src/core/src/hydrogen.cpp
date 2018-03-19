@@ -116,7 +116,7 @@ QMutex					mutex_OutputPointer;     ///< Mutex for audio output pointer, allows 
 MidiInput *				m_pMidiDriver = NULL;	///< MIDI input
 MidiOutput *			m_pMidiDriverOut = NULL;	///< MIDI output
 
-// overload the the > operator of Note objects for priority_queue
+// overload the > operator of Note objects for priority_queue
 struct compare_pNotes {
 	bool operator() (Note* pNote1, Note* pNote2) {
 		return (pNote1->get_humanize_delay()
