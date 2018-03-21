@@ -72,7 +72,7 @@ class AutomationPath : private Object
 	const_iterator end() const { return _points.end(); }
 
 	iterator find(float x);
-	iterator move(iterator &in, float x, float y); 
+	iterator move(iterator &in, float x, float y);
 };
 
 std::ostream &operator<< (std::ostream &o, const AutomationPath &p);

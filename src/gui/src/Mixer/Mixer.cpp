@@ -53,7 +53,7 @@ Mixer::Mixer( QWidget* pParent )
  : QWidget( pParent )
  , Object( __class_name )
 {
-	setWindowTitle( trUtf8( __class_name ) );
+	setWindowTitle( trUtf8( "Mixer" ) );
 	setMaximumHeight( 284 );
 	setMinimumHeight( 284 );
 	setFixedHeight( 284 );
@@ -63,12 +63,12 @@ Mixer::Mixer( QWidget* pParent )
 	m_pFaderHBox->setSpacing( 0 );
 	m_pFaderHBox->setMargin( 0 );
 
-	m_pFaderPanel = new QWidget( NULL );
+	m_pFaderPanel = new QWidget( nullptr );
 	m_pFaderPanel->resize( MIXER_STRIP_WIDTH * MAX_INSTRUMENTS, height() );
 
 	m_pFaderPanel->setLayout( m_pFaderHBox );
 
-	m_pFaderScrollArea = new QScrollArea( NULL );
+	m_pFaderScrollArea = new QScrollArea( nullptr );
 	m_pFaderScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pFaderScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pFaderScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
@@ -76,14 +76,14 @@ Mixer::Mixer( QWidget* pParent )
 	m_pFaderScrollArea->setWidget( m_pFaderPanel );
 
 	for ( uint i = 0; i < MAX_INSTRUMENTS; ++i ) {
-		m_pMixerLine[ i ] = NULL;
+		m_pMixerLine[ i ] = nullptr;
 	}
 
 //~ fader panel
 
 
 // fX frame
-	m_pFXFrame = new PixmapWidget( NULL );
+	m_pFXFrame = new PixmapWidget( nullptr );
 	m_pFXFrame->setFixedSize( 213, height() );
 	m_pFXFrame->setPixmap( "/mixerPanel/background_FX.png" );
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
@@ -104,7 +104,7 @@ Mixer::Mixer( QWidget* pParent )
 
 
 // Master frame
-	m_pMasterLine = new MasterMixerLine( NULL );
+	m_pMasterLine = new MasterMixerLine( nullptr );
 	m_pMasterLine->move( 0, 0 );
 	connect( m_pMasterLine, SIGNAL( volumeChanged(MasterMixerLine*) ), this, SLOT( masterVolumeChanged(MasterMixerLine*) ) );
 
@@ -125,8 +125,6 @@ Mixer::Mixer( QWidget* pParent )
 	m_pShowFXPanelBtn->hide();
 #endif
 
-
-
 	m_pShowPeaksBtn = new ToggleButton(
 			m_pMasterLine,
 			"/mixerPanel/showPeaks_on.png",
@@ -139,8 +137,6 @@ Mixer::Mixer( QWidget* pParent )
 	m_pShowPeaksBtn->setToolTip( trUtf8( "Show instrument peaks" ) );
 	connect( m_pShowPeaksBtn, SIGNAL(clicked(Button*)), this, SLOT( showPeaksBtnClicked(Button*)));
 //~ Master frame
-
-
 
 
 	// LAYOUT!
@@ -168,7 +164,7 @@ Mixer::~Mixer()
 
 MixerLine* Mixer::createMixerLine( int nInstr )
 {
-	MixerLine *pMixerLine = new MixerLine( 0 , nInstr);
+	MixerLine *pMixerLine = new MixerLine( nullptr , nInstr);
 	pMixerLine->setVolume( 0.2 );
 	pMixerLine->setMuteClicked( false );
 	pMixerLine->setSoloClicked( false );
@@ -194,7 +190,7 @@ void Mixer::closeEvent( QCloseEvent* ev )
 
 ComponentMixerLine* Mixer::createComponentMixerLine( int theCompoID )
 {
-	ComponentMixerLine *pMixerLine = new ComponentMixerLine( 0 , theCompoID);
+	ComponentMixerLine *pMixerLine = new ComponentMixerLine( nullptr , theCompoID);
 	pMixerLine->setVolume( 0.2 );
 	pMixerLine->setMuteClicked( false );
 	pMixerLine->setSoloClicked( false );
@@ -308,8 +304,10 @@ void Mixer::soloClicked(MixerLine* ref)
 	pController->setStripIsSoloed( nLine, ref->isSoloClicked() );
 
 	for ( int i = 0; i < nInstruments; ++i ) {
-			m_pMixerLine[i]->setSoloClicked( pInstrList->get(i)->is_soloed() );
-			m_pMixerLine[i]->setMuteClicked( pInstrList->get(i)->is_muted() );
+			if( m_pMixerLine[i] ){
+				m_pMixerLine[i]->setSoloClicked( pInstrList->get(i)->is_soloed() );
+				m_pMixerLine[i]->setMuteClicked( pInstrList->get(i)->is_muted() );
+			}
 	}
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
@@ -320,14 +318,19 @@ void Mixer::soloClicked(MixerLine* ref)
 /// used in PatternEditorInstrumentList
 void Mixer::soloClicked(uint nLine)
 {
-	MixerLine * L = m_pMixerLine[ nLine ];
-	L->setSoloClicked( !L->isSoloClicked() );
-	soloClicked( L );
+	MixerLine * pMixerLine = m_pMixerLine[ nLine ];
+
+	if( pMixerLine ){
+		pMixerLine->setSoloClicked( !pMixerLine->isSoloClicked() );
+		soloClicked( pMixerLine );
+	}
+	
+
 }
 
 bool Mixer::isSoloClicked( uint n )
 {
-	if ( n >= MAX_INSTRUMENTS || m_pMixerLine[ n ] == NULL ) {
+	if ( n >= MAX_INSTRUMENTS || m_pMixerLine[ n ] == nullptr ) {
 		return false;
 	}
 	return m_pMixerLine[ n ]->isSoloClicked();
@@ -434,7 +437,7 @@ void Mixer::updateMixer()
 		if ( nInstr >= nInstruments ) {	// unused instrument! let's hide and destroy the mixerline!
 			if ( m_pMixerLine[ nInstr ] ) {
 				delete m_pMixerLine[ nInstr ];
-				m_pMixerLine[ nInstr ] = NULL;
+				m_pMixerLine[ nInstr ] = nullptr;
 
 				int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
 				if ( m_pFaderPanel->width() != newWidth ) {
@@ -444,7 +447,7 @@ void Mixer::updateMixer()
 			continue;
 		}
 		else {
-			if ( m_pMixerLine[ nInstr ] == NULL ) {
+			if ( m_pMixerLine[ nInstr ] == nullptr ) {
 				// the mixerline doesn't exists..I'll create a new one!
 				m_pMixerLine[ nInstr ] = createMixerLine( nInstr );
 				m_pFaderHBox->insertWidget( nInstr, m_pMixerLine[ nInstr ] );
@@ -805,7 +808,7 @@ void Mixer::showFXPanelClicked(Button* ref)
 		Preferences::get_instance()->setFXTabVisible( false );
 	}
 
-	resizeEvent( NULL ); 	// force an update
+	resizeEvent( nullptr ); 	// force an update
 }
 
 

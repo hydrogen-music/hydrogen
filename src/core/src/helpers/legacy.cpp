@@ -187,4 +187,4 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

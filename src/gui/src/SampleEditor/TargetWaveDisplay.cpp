@@ -127,19 +127,19 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.drawLine( m_nLocator, 4, m_nLocator, height() -4);
 
 	//volume line
-	//first rect 
+	//first rect
 	painter.setPen( QPen(QColor( 255, 255, 255, 200 ) ,1 , Qt::SolidLine) );
 	painter.setBrush(QColor( 99, 160, 233 ));
 	painter.drawRect ( __velocity[0].frame - 12/2, __velocity[0].value  - 6/2, 12, 6 );
-	//last rect 
+	//last rect
 	painter.drawRect ( __velocity[__velocity.size() -1].frame - 12/2, __velocity[__velocity.size() -1].value  - 6/2, 12, 6 );
 
 	//pan line
-	//first rect 
+	//first rect
 	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine) );
 	painter.setBrush(QColor( 77, 189, 55 ));
 	painter.drawRect ( __pan[0].frame - 12/2, __pan[0].value  - 6/2, 12, 6 );
-	//last rect 
+	//last rect
 	painter.drawRect ( __pan[__pan.size() -1].frame - 12/2, __pan[__pan.size() -1].value  - 6/2, 12, 6 );
 
 

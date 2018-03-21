@@ -17,15 +17,15 @@
     </message>
     <message>
         <source>&lt;b&gt;Main coder and maintainer:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Главни програмер и одржавалац:&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Thanks to:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Захваљујемо:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Дописна листа програмера&lt;/b&gt;&lt;br&gt;</translation>
     </message>
 </context>
 <context>
@@ -114,7 +114,7 @@
     </message>
     <message>
         <source>Selected instrument</source>
-        <translation>Одабрани инструмент</translation>
+        <translation>Одабрани инструменат</translation>
     </message>
     <message>
         <source>Form1</source>
@@ -134,7 +134,7 @@
     </message>
     <message>
         <source>Synth</source>
-        <translation>Синтисајзер</translation>
+        <translation>Синтесајзер</translation>
     </message>
     <message>
         <source>Sequencer</source>
@@ -142,11 +142,11 @@
     </message>
     <message>
         <source>MIDI input</source>
-        <translation>МИДИ улаз</translation>
+        <translation>Миди-улаз</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation>Име</translation>
+        <translation>Назив</translation>
     </message>
     <message>
         <source>Audio output</source>
@@ -189,15 +189,15 @@
     </message>
     <message>
         <source>Sample length: </source>
-        <translation>Трајање семпла: </translation>
+        <translation>Трајање узорка: </translation>
     </message>
     <message>
         <source>Please do not preview samples which are longer than 10 minutes!</source>
-        <translation>Не користите преслушавање за семплове који су дужи од 10 минута!</translation>
+        <translation>Не преслушајте узорке који трају дуже од 10 минута!</translation>
     </message>
     <message>
         <source>Sample length:</source>
-        <translation>Трајање семпла:</translation>
+        <translation>Трајање узорка:</translation>
     </message>
 </context>
 <context>
@@ -224,7 +224,7 @@
     </message>
     <message>
         <source>Pla&amp;y samples by clicking</source>
-        <translation>Кликом на њих засвирај сем&amp;плове</translation>
+        <translation>Кликом на њих засвирај &amp;узорке</translation>
     </message>
     <message>
         <source>&amp;Up</source>
@@ -232,15 +232,15 @@
     </message>
     <message>
         <source>&amp;Home</source>
-        <translation>&amp;Личне...</translation>
+        <translation>&amp;Главни директоријум</translation>
     </message>
     <message>
         <source>&amp;Play Sample</source>
-        <translation>Свирај сем&amp;пл</translation>
+        <translation>Свирај &amp;узорак</translation>
     </message>
     <message>
         <source>&amp;Filename to instrument name</source>
-        <translation>&amp;Име датотеке у назив инструмента</translation>
+        <translation>&amp;Назив датотеке у назив инструмента</translation>
     </message>
     <message>
         <source>Open</source>
@@ -271,19 +271,19 @@
     <name>ComponentMixerLine</name>
     <message>
         <source>Mute</source>
-        <translation type="unfinished">Утишај</translation>
+        <translation>Утишај</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Соло</translation>
+        <translation>Соло</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Назив компоненте</translation>
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
-        <translation type="unfinished">Поставите гласнођу инструмента [%1]</translation>
+        <translation>Постави гласнођу инструмента [%1]</translation>
     </message>
 </context>
 <context>
@@ -304,48 +304,48 @@
     <name>DonationDialog</name>
     <message>
         <source>Donations</source>
-        <translation type="unfinished"></translation>
+        <translation>Новчани помагачи</translation>
     </message>
 </context>
 <context>
     <name>DonationDialog_UI</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Формулар</translation>
+        <translation>Формулар</translation>
     </message>
     <message>
         <source>Donate!</source>
-        <translation type="unfinished"></translation>
+        <translation>Приложите!</translation>
     </message>
     <message>
         <source>Choose random entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Одабери случајан унос.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the involved persons.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Хидроген је пројекат отвореног кода који развијају многи људи у своје слободно време. Одужите се овим људима у виду &amp;quot;новчаног прилога&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Sebastian Moors (aka mauser): Maintainer / Developer</source>
-        <translation type="unfinished"></translation>
+        <translation>Себастијан Мурс (познат и као „mauser“): Одржавалац и програмер</translation>
     </message>
     <message>
         <source>Michael Wolkstein (aka wolke): Forum hosting</source>
-        <translation type="unfinished"></translation>
+        <translation>Михаел Волкштајн (познат и као „wolke“): Услуга прог. форума</translation>
     </message>
 </context>
 <context>
     <name>Download</name>
     <message>
         <source>Importing item failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Није успео увоз ставке: %1</translation>
     </message>
 </context>
 <context>
     <name>DownloadWidget</name>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
-        <translation>(%1/%2 KiB) - ETA %3</translation>
+        <translation>(%1/%2 КиБ) — још %3</translation>
     </message>
 </context>
 <context>
@@ -370,22 +370,14 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Export to separate tracks</source>
-        <translation type="unfinished"></translation>
+        <translation>Извези као подвојене траке</translation>
     </message>
 </context>
 <context>
     <name>ExportSongDialog_UI</name>
     <message>
-        <source>Export filename</source>
-        <translation>Име датотеке при извозу</translation>
-    </message>
-    <message>
         <source>&amp;Export</source>
         <translation>&amp;Извези</translation>
-    </message>
-    <message>
-        <source>Export Whole Song to WAV</source>
-        <translation>Извези целу песму у несажету датотеку</translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -517,38 +509,50 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Cubic</source>
-        <translation type="unfinished">Кубично</translation>
+        <translation>Кубично</translation>
     </message>
     <message>
         <source>Hermite</source>
-        <translation type="unfinished">Хермит</translation>
+        <translation>Хермит</translation>
     </message>
     <message>
         <source>Enable tempo changing</source>
-        <translation type="unfinished"></translation>
+        <translation>Омогући промену темпа</translation>
     </message>
     <message>
         <source>TimeLine BPM</source>
-        <translation type="unfinished"></translation>
+        <translation>Врем линија — о/м</translation>
     </message>
     <message>
         <source>Enable use of rubberband&apos;s batch processor</source>
-        <translation type="unfinished"></translation>
+        <translation>Омогући употребу „rubberband“-ове скупне обраде</translation>
     </message>
     <message>
         <source>Rubberband Batch</source>
-        <translation type="unfinished"></translation>
+        <translation>Рабербендова скупна обрада</translation>
     </message>
     <message>
         <source>88200</source>
-        <translation type="unfinished">88200</translation>
+        <translation>88200</translation>
+    </message>
+    <message>
+        <source>Dialog</source>
+        <translation>Прозорче</translation>
+    </message>
+    <message>
+        <source>Export directory:</source>
+        <translation>Одредиште:</translation>
+    </message>
+    <message>
+        <source>Modus:</source>
+        <translation type="unfinished">Modus:</translation>
     </message>
 </context>
 <context>
     <name>FileBrowser</name>
     <message>
         <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
-        <translation>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</translation>
+        <translation type="unfinished">%1&lt;br&gt;%2 kHz&lt;br&gt;%3 %4</translation>
     </message>
 </context>
 <context>
@@ -566,7 +570,7 @@ Overwrite the existing file?</source>
     <name>H2Core::SongEditorPanelBpmWidget</name>
     <message>
         <source>BPM</source>
-        <translation>BPM</translation>
+        <translation>о/м</translation>
     </message>
 </context>
 <context>
@@ -606,11 +610,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Отвори слику</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Датотеке са сликама (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
@@ -625,7 +629,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Instrument + Pattern</source>
-        <translation>Инструмент + Мустра</translation>
+        <translation>Инструменат + Мустра</translation>
     </message>
     <message>
         <source>Mixer</source>
@@ -633,22 +637,22 @@ Are you sure?</source>
     </message>
     <message>
         <source>modified</source>
-        <translation type="unfinished"></translation>
+        <translation>измењено</translation>
     </message>
 </context>
 <context>
     <name>InstrumentEditor</name>
     <message>
         <source>Random pitch factor</source>
-        <translation>Коефицијент насумичне промене корака учестаности</translation>
+        <translation>Коефицијенат насумичне промене корака учестаности</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
-        <translation>Гранични филтер</translation>
+        <translation>Гранични филтар</translation>
     </message>
     <message>
         <source>Filter resonance</source>
-        <translation>Резонантни филтер</translation>
+        <translation>Резонантни филтар</translation>
     </message>
     <message>
         <source>Attack</source>
@@ -692,7 +696,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>New instrument name</source>
-        <translation>Натив новог инструмента</translation>
+        <translation>Назив новог инструмента</translation>
     </message>
     <message>
         <source>General</source>
@@ -704,35 +708,35 @@ Are you sure?</source>
     </message>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample.</source>
-        <translation type="unfinished"></translation>
+        <translation>Заустави ноту инструмента која се свира пре но се засвира нови нови узорак ноте.</translation>
     </message>
     <message>
         <source>New component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Назив нове компоненте</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Назив компоненте</translation>
     </message>
     <message>
         <source>Midi out channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Изл. миди-канал</translation>
     </message>
     <message>
         <source>Midi out note</source>
-        <translation type="unfinished"></translation>
+        <translation>Изл. миди-нота</translation>
     </message>
     <message>
         <source>Component volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Гласноћа компоненте</translation>
     </message>
     <message>
         <source>Don&apos;t change the layers&apos; gain based on velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Не мењај појачање слојева засновано на јачини удара</translation>
     </message>
     <message>
         <source>Select pattern size</source>
-        <translation type="unfinished">Одабери величину мустре</translation>
+        <translation>Одабери величину узорка</translation>
     </message>
 </context>
 <context>
@@ -747,11 +751,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Delete instrument</source>
-        <translation>Обриши инструмент</translation>
+        <translation>Обриши инструменат</translation>
     </message>
     <message>
         <source>Mute instrument</source>
-        <translation>Утишај инструмент</translation>
+        <translation>Утишај инструменат</translation>
     </message>
     <message>
         <source>Solo</source>
@@ -801,6 +805,22 @@ Are you sure?</source>
         <source>Paste notes ...</source>
         <translation>Убаци ноте...</translation>
     </message>
+    <message>
+        <source>Rename instrument</source>
+        <translation>Преименуј инструменат</translation>
+    </message>
+    <message>
+        <source>New instrument name</source>
+        <translation>Назив новог инструмента</translation>
+    </message>
+    <message>
+        <source>Fill 1/12 notes</source>
+        <translation>сваки дванаести</translation>
+    </message>
+    <message>
+        <source>Fill 1/16 notes</source>
+        <translation>сваки шеснаести</translation>
+    </message>
 </context>
 <context>
     <name>InstrumentRack</name>
@@ -810,7 +830,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Instrument</source>
-        <translation>Инструмент</translation>
+        <translation>Инструменат</translation>
     </message>
     <message>
         <source>Show sound library</source>
@@ -887,7 +907,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Not supported</source>
-        <translation>Није подржан</translation>
+        <translation>Неподржано</translation>
     </message>
     <message>
         <source>Select LADSPA FX</source>
@@ -895,7 +915,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Recently Used</source>
-        <translation>Скоро коришћени</translation>
+        <translation>Скоро коришћено</translation>
     </message>
     <message>
         <source>Alphabetic List</source>
@@ -903,7 +923,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Categorized</source>
-        <translation>Разврстани</translation>
+        <translation>Разврстано</translation>
     </message>
 </context>
 <context>
@@ -1074,19 +1094,19 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Jack driver: server shutdown</source>
-        <translation>„JACK“ посредник: није покренут сервер</translation>
+        <translation>Џек-посредник: није покренут сервер</translation>
     </message>
     <message>
         <source>Jack driver: cannot activate client</source>
-        <translation>„JACK“ посредник: Не могу да активирам клијента</translation>
+        <translation>Џек-посредник: Не могу да активирам клијента</translation>
     </message>
     <message>
         <source>Jack driver: cannot connect output port</source>
-        <translation>„JACK“ посредник: Не могу да повежем излазни порт</translation>
+        <translation>Џек-посредник: Не могу да повежем излазни порт</translation>
     </message>
     <message>
         <source>Jack driver: error in port register</source>
-        <translation>„JACK“ посредник: Грешка у регистру порта</translation>
+        <translation>Џек-посредник: Грешка у регистру порта</translation>
     </message>
     <message>
         <source>Error loading song.</source>
@@ -1118,11 +1138,11 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation>Извези МИДИ датотеку</translation>
+        <translation>Извези Миди-датотеку</translation>
     </message>
     <message>
         <source>Midi file (*.mid)</source>
-        <translation>МИДИ датотека</translation>
+        <translation>Миди-датотека (*.mid)</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -1146,7 +1166,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Export &amp;MIDI file</source>
-        <translation>Извези &amp;МИДИ датотеку</translation>
+        <translation>Извези &amp;Миди-датотеку</translation>
     </message>
     <message>
         <source>&amp;Preferences</source>
@@ -1173,10 +1193,6 @@ MIDI = %2</source>
         <translation>Изв&amp;ези песму</translation>
     </message>
     <message>
-        <source>&amp;Tools</source>
-        <translation>&amp;Алати</translation>
-    </message>
-    <message>
         <source>&amp;Mixer</source>
         <translation>&amp;Миксета</translation>
     </message>
@@ -1186,7 +1202,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>De&amp;bug</source>
-        <translation>Де&amp;баговање</translation>
+        <translation>Решавање про&amp;блема</translation>
     </message>
     <message>
         <source>Print Objects</source>
@@ -1218,7 +1234,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Бубњарске мустре</translation>
+        <translation>Бубњарска мустра (*.h2pattern)</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
@@ -1250,7 +1266,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>&amp;Add instrument</source>
-        <translation>Дод&amp;ај инструмент</translation>
+        <translation>Дод&amp;ај инструменат</translation>
     </message>
     <message>
         <source>&amp;Clear all</source>
@@ -1309,7 +1325,7 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Instrument</source>
-        <translation>Инструмент</translation>
+        <translation>Инструменат</translation>
     </message>
     <message>
         <source>Drumkit</source>
@@ -1329,85 +1345,119 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Export &amp;LilyPond file</source>
-        <translation type="unfinished"></translation>
+        <translation>Извези у &amp;лилипонд-датотеку</translation>
     </message>
     <message>
         <source>Donate</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-The LilyPond export is an experimental feature.
-It should work like a charm provided that you use the GM-kit, and that you do not use triplet
-</source>
-        <translation type="unfinished"></translation>
+        <translation>Приложите</translation>
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
-        <translation type="unfinished"></translation>
+        <translation>Лилипонд-датотека (*.ly)</translation>
     </message>
     <message>
         <source>Export LilyPond file</source>
-        <translation type="unfinished"></translation>
+        <translation>Извези у лилипонд-датотеку</translation>
     </message>
     <message>
         <source>
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Текућа листа песама садржи неке несачуване податке.
+Желите ли да одбаците ове измене?
+</translation>
     </message>
     <message>
         <source>Pro&amp;ject</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Drumkits</source>
-        <translation type="unfinished"></translation>
+        <translation>Про&amp;јекат</translation>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished">Нов</translation>
+        <translation>Нов</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Отвори</translation>
+        <translation>Отвори</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation type="unfinished">Особине</translation>
+        <translation>Особине</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Сачувај</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished"></translation>
+        <translation>Сачувај као</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Извоз</translation>
+        <translation>Извоз</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Увоз</translation>
     </message>
     <message>
         <source>Online import</source>
-        <translation type="unfinished"></translation>
+        <translation>Увоз са мреже</translation>
     </message>
     <message>
         <source>Add component</source>
-        <translation type="unfinished"></translation>
+        <translation>Додај компоненту</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Назив компоненте</translation>
     </message>
     <message>
         <source>Saving of this library failed.</source>
+        <translation>Није успело чување ових бубњева.</translation>
+    </message>
+    <message>
+        <source>Drum&amp;kits</source>
+        <translation>Бу&amp;бњеви</translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation>П&amp;реглед</translation>
+    </message>
+    <message>
+        <source>&amp;Automation path</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>Преко целог екрана</translation>
+    </message>
+    <message>
+        <source>&amp;Options</source>
+        <translation>&amp;Опције</translation>
+    </message>
+    <message>
+        <source>MIDI setup advice</source>
+        <translation>Миди-поставке — Обавештење</translation>
+    </message>
+    <message>
+        <source>MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?</source>
+        <translation>Нису преподешене изл. миди-ноте за ове бубњеве па би извоз ове песме у миди-датотеку био неуспешан. Желите ли да програм ово разреши придруживањем уобичајених вредности?</translation>
+    </message>
+    <message>
+        <source>Set default values</source>
+        <translation>Постави уобичајене вредности</translation>
+    </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GM-kit, and that you do not use triplet.
+</source>
+        <translation>
+Лилипонд-извоз је у фази испробавања.
+Ово ће радити ваљано ако употребљавате опште миди бубњеве (енг. „GM-kit“) и ако не употребљавате триплете.
+</translation>
     </message>
 </context>
 <context>
@@ -1422,7 +1472,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Set humanize velocity parameter [%1]</source>
-        <translation>Поставите вредност за уљуднију јачину удараца</translation>
+        <translation>Поставите вредност за уљуднију јачину удараца [%1]</translation>
     </message>
     <message>
         <source>Set swing factor [%1]</source>
@@ -1438,18 +1488,18 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Swing</source>
-        <translation>Свинг</translation>
+        <translation>Напетост (Свинг)</translation>
     </message>
 </context>
 <context>
     <name>MidiSenseWidget</name>
     <message>
         <source>This element is not midi operable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Овај елеменат није употребљив за миди.</translation>
     </message>
     <message>
         <source>Waiting for midi input...</source>
-        <translation type="unfinished"></translation>
+        <translation>Ослушкујем на миди-улазу...</translation>
     </message>
 </context>
 <context>
@@ -1468,7 +1518,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>press button to record midi event</source>
-        <translation>Притисните ово дугме да би снимили МИДИ догађаје</translation>
+        <translation>Притисните ово дугме да би снимили Миди-догађаје</translation>
     </message>
 </context>
 <context>
@@ -1497,12 +1547,20 @@ Do you want to discard the changes?
         <source>Set LADSPA FX ( %1 ) volume</source>
         <translation>Поставите гласноћу ЛАДСПА еф.  ( %1 )</translation>
     </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation>У овом издању програма нису доступи ЛАДСПА-ефекти.</translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation>Миксета</translation>
+    </message>
 </context>
 <context>
     <name>MixerLine</name>
     <message>
         <source>Play sample</source>
-        <translation>Свирај семпл</translation>
+        <translation>Свирај узорак</translation>
     </message>
     <message>
         <source>Mute</source>
@@ -1518,7 +1576,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Instrument name (double click to edit)</source>
-        <translation>Назив инструмента (двоклик уа уређивање)</translation>
+        <translation>Назив инструмента (двоклик за уређивање)</translation>
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
@@ -1569,11 +1627,11 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Zoom in</source>
-        <translation>Увеличај</translation>
+        <translation>Приближи</translation>
     </message>
     <message>
         <source>Zoom out</source>
-        <translation>Умањи</translation>
+        <translation>Удаљи</translation>
     </message>
     <message>
         <source>No pattern selected</source>
@@ -1613,7 +1671,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Show piano roll editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Прикажи уредника са клав. диркама</translation>
     </message>
     <message>
         <source>destructive mode pre delete settings</source>
@@ -1625,7 +1683,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>NoteKey</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Висина ноте</translation>
     </message>
     <message>
         <source>Show drum editor</source>
@@ -1640,7 +1698,7 @@ Do you want to discard the changes?
     <name>PatternFillDialog</name>
     <message>
         <source>Fill with selected pattern</source>
-        <translation>Попуни одабраном мустром</translation>
+        <translation>Попуна одабраном мустром</translation>
     </message>
 </context>
 <context>
@@ -1667,7 +1725,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation>О&amp;чисти</translation>
+        <translation>У&amp;клони</translation>
     </message>
     <message>
         <source>From:</source>
@@ -1783,15 +1841,15 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Jack-transport on/off</source>
-        <translation>„JACK“-транспорт укљ/искљ</translation>
+        <translation>Џек-транспорт укљ/искљ</translation>
     </message>
     <message>
         <source>Jack-transport mode = On</source>
-        <translation>„JACK“-транспорт режим = УКЉ</translation>
+        <translation>Џек-транспорт режим = УКЉ</translation>
     </message>
     <message>
         <source>Jack-transport mode = Off</source>
-        <translation>„JACK“-транспорт режим = ИСКЉ</translation>
+        <translation>Џек-транспорт режим = ИСКЉ</translation>
     </message>
     <message>
         <source>Show mixer</source>
@@ -1803,7 +1861,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Play/ Pause</source>
-        <translation>Пусти / пауза</translation>
+        <translation>Свирај/Заустави</translation>
     </message>
     <message>
         <source>Fast Forward</source>
@@ -1827,11 +1885,11 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>JACK-transport will work only with JACK driver.</source>
-        <translation>„JACK“-транспорт неће радити без „JACK“-посредника.</translation>
+        <translation>Џек-транспорт неће радити без Џек-посредника.</translation>
     </message>
     <message>
         <source>New BPM value</source>
-        <translation>BPM — нова вредност</translation>
+        <translation>Број о/м</translation>
     </message>
     <message>
         <source>Loop song = On</source>
@@ -1843,39 +1901,39 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>BeatCounter Panel on</source>
-        <translation type="unfinished"></translation>
+        <translation>Укљ. пано бројача откуцаја</translation>
     </message>
     <message>
         <source>Set BPM / Set BPM and play</source>
-        <translation type="unfinished"></translation>
+        <translation>Постави о/м — Постави о/м и свирај</translation>
     </message>
     <message>
         <source>Jack-Time-Master on/off</source>
-        <translation>Џеков управник времена укљ/искљ.</translation>
+        <translation> Укљ/Искљ. Џеков управник времена</translation>
     </message>
     <message>
         <source> BC Panel on</source>
-        <translation type="unfinished"></translation>
+        <translation> Укљ. пано бројача откуцаја</translation>
     </message>
     <message>
         <source> BC Panel off</source>
-        <translation type="unfinished"></translation>
+        <translation> Искљ. пано бројача откуцаја</translation>
     </message>
     <message>
         <source> Count BPM and start PLAY</source>
-        <translation> Израчунај „BPM“ и репродукуј</translation>
+        <translation> Израчунај број о/м и свирај</translation>
     </message>
     <message>
         <source> Count and set BPM</source>
-        <translation> Израчунај и постави „BPM“</translation>
+        <translation> Израчунај и постави број о/м</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = On</source>
-        <translation>Режим Џековог управника времена = Укљ.</translation>
+        <translation>Режим Џековог управника времена = УКЉ</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = Off</source>
-        <translation>Режим Џековог управника времена = Искљ.</translation>
+        <translation>Режим Џековог управника времена = ИСКЉ</translation>
     </message>
     <message>
         <source>Record</source>
@@ -1887,7 +1945,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
-        <translation type="unfinished"></translation>
+        <translation>Уколико се мења број о/м прерачунај рабербендове измењене узорке</translation>
     </message>
     <message>
         <source>Switch metronome on/off</source>
@@ -1895,27 +1953,27 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Record midi events = On</source>
-        <translation>Снимај МИДИ догађаје = Укљ.</translation>
+        <translation>Снимај Миди-догађаје = УКЉ</translation>
     </message>
     <message>
         <source>Record midi events = Off</source>
-        <translation>Снимај МИДИ догађаје = Искљ.</translation>
+        <translation>Снимај Миди-догађаје = ИСКЉ</translation>
     </message>
     <message>
         <source>Destructive mode = Off</source>
-        <translation>Деструктивни режим = Укљ.</translation>
+        <translation>Деструктивни режим = ИСКЉ</translation>
     </message>
     <message>
         <source>Destructive mode = On</source>
-        <translation>Деструктивни режим = Искљ.</translation>
+        <translation>Деструктивни режим = УКЉ</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband ON</source>
-        <translation type="unfinished"></translation>
+        <translation>Укљ. прерачунавање свих рабербендових измењених узорака</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
-        <translation type="unfinished"></translation>
+        <translation>Искљ. прерачунавање свих рабербендових измењених узорака</translation>
     </message>
 </context>
 <context>
@@ -2020,9 +2078,9 @@ Sorry, but this will not work for the moment.</source>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must without whitespaces.</source>
-        <translation>Име скрипте или путања до ње садржи празнине (размак).
+        <translation>Назив скрипте или путања до ње садржи празнине (размак).
 ВАЖНО
-Име скрипте или путања до ње не смеју садржавати празнине (размаке).</translation>
+Назив скрипте или путања до ње не смеју садржавати празнине (размаке).</translation>
     </message>
     <message>
         <source>No Script!</source>
@@ -2117,15 +2175,30 @@ The path to the script and the scriptname must without whitespaces.</source>
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+Текућа листа песама садржи неке несачуване податке.
+Желите ли да одбаците ове измене?
+</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
-        <translation type="unfinished">&amp;Одбаци</translation>
+        <translation>&amp;Одбаци</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Поништи</translation>
+        <translation>&amp;Поништи</translation>
+    </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must be without whitespaces.</source>
+        <translation>Назив скрипте или путања до ње садржи празнине (размак).
+ВАЖНО
+Назив скрипте или путања до ње не смеју садржавати празнине (размаке).</translation>
+    </message>
+    <message>
+        <source>Hydrogen playlist (*.h2playlist)</source>
+        <translation>Бубњарска листа (*.h2playlist)</translation>
     </message>
 </context>
 <context>
@@ -2167,7 +2240,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</source>
-        <translation>&lt;b&gt;JACK Driver&lt;/b&gt;&lt;br&gt;„Џек аудио конекшн кит“ је звучни посредник са минималним кашњењем у преносу података </translation>
+        <translation>&lt;b&gt;JACK Driver&lt;/b&gt;&lt;br&gt;„Џек-посредник“ је звучни посредник са минималним кашњењем у преносу података </translation>
     </message>
     <message>
         <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
@@ -2175,7 +2248,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;АЛСА посредник&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;АЛСА-посредник&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
@@ -2209,23 +2282,23 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Сам одлучи</translation>
     </message>
     <message>
         <source>Steps</source>
-        <translation type="unfinished"></translation>
+        <translation>У корацима</translation>
     </message>
     <message>
         <source>Fixed</source>
-        <translation type="unfinished"></translation>
+        <translation>Једнообразно</translation>
     </message>
     <message>
         <source>Number of steps</source>
-        <translation type="unfinished"></translation>
+        <translation>Број корака</translation>
     </message>
     <message>
         <source>Color (Hue value)</source>
-        <translation type="unfinished"></translation>
+        <translation>Нијанса боје</translation>
     </message>
 </context>
 <context>
@@ -2256,7 +2329,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Midi driver</source>
-        <translation>МИДИ посредник</translation>
+        <translation>Миди-посредник</translation>
     </message>
     <message>
         <source>Alt+C</source>
@@ -2308,19 +2381,19 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Application font</source>
-        <translation>Фонт програма</translation>
+        <translation>Словолик у програму</translation>
     </message>
     <message>
         <source>Select font</source>
-        <translation>Изабери фонт</translation>
+        <translation>Одабери словолик</translation>
     </message>
     <message>
         <source>Mixer font</source>
-        <translation>Фонт миксете</translation>
+        <translation>Словолик у миксети</translation>
     </message>
     <message>
         <source>Style</source>
-        <translation>Стил</translation>
+        <translation>Изглед</translation>
     </message>
     <message>
         <source>88200</source>
@@ -2368,7 +2441,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>&amp;Midi System</source>
-        <translation>&amp;МИДИ систем</translation>
+        <translation>&amp;Миди-систем</translation>
     </message>
     <message>
         <source>Ignore note-off</source>
@@ -2464,35 +2537,31 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</source>
-        <translation type="unfinished"></translation>
+        <translation>Најпре прилагоди врем. разлику између кашњења окидача клавијатуре (контролера) и прорачунатог броја о/м</translation>
     </message>
     <message>
         <source>Beat counter drift compensation in 1/10 ms   </source>
-        <translation type="unfinished"></translation>
+        <translation>Исправка помераја бројача откуцаја у 1/10 мс   </translation>
     </message>
     <message>
         <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
-        <translation type="unfinished"></translation>
+        <translation>2. корак — прилагоди помак између задњег окидача клавијатуре (контролера) и одложеног покретања секвенцера </translation>
     </message>
     <message>
         <source>Beat counter start offset in ms    </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>create per-instrument outputs</source>
-        <translation>створи излазе по инструменту</translation>
+        <translation>Почетни помак бројача откуцаја у мс    </translation>
     </message>
     <message>
         <source>Path to the Rubberband command-line utility</source>
-        <translation type="unfinished"></translation>
+        <translation>Путања до програма рабербенд (ориг. „Rubberband“)</translation>
     </message>
     <message>
         <source>Maximum number of bars</source>
-        <translation type="unfinished"></translation>
+        <translation>Највећи број тактова</translation>
     </message>
     <message>
         <source>&amp;Reopen last used playlist</source>
-        <translation>Обнови последњу ко&amp;ришћену песму</translation>
+        <translation>Обнови последњу ко&amp;ришћену листу</translation>
     </message>
     <message>
         <source>Interpolate resampling</source>
@@ -2532,27 +2601,55 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>СловнОзнака</translation>
     </message>
     <message>
         <source>Coloring method for Song Editor elements</source>
-        <translation type="unfinished"></translation>
+        <translation>Боја елемената Уредника песме</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;По промени словолика и окружења поново покрените програм.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use relative paths for playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Користи релативне путање за листе</translation>
     </message>
     <message>
         <source>Use output note as input note</source>
-        <translation type="unfinished"></translation>
+        <translation>Користи излазну ноту као улазну</translation>
     </message>
     <message>
         <source>Discard midi messages after action has been triggered</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Одбаци миди-поруке након окинуте радње</translation>
+    </message>
+    <message>
+        <source>Create per-instrument outputs</source>
+        <translation>Стварај излазе по инструменту</translation>
+    </message>
+    <message>
+        <source>Enable feedback</source>
+        <translation type="unfinished">Омогући повратну везу</translation>
+    </message>
+    <message>
+        <source>&amp;OSC</source>
+        <translation type="unfinished">&amp;ОЗК</translation>
+    </message>
+    <message>
+        <source>&amp;Enable OSC support</source>
+        <translation type="unfinished">Омогући-подршку за ОЗ&amp;К (ориг. „OSC“)</translation>
+    </message>
+    <message>
+        <source>Incoming port</source>
+        <translation>Улазни прикључак</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Прикључак за пријем ОЗК-порука (ориг. „OSC messages“)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Enable OSC &amp;feedback</source>
+        <translation type="unfinished">Омогући повратну &amp;везу за ОЗК</translation>
     </message>
 </context>
 <context>
@@ -2574,7 +2671,7 @@ Are you sure?</source>
     <message>
         <source>Close dialog! maybe there is some unsaved work on sample.
 Are you sure?</source>
-        <translation>Завршно прозорче! Можда имате несачуваних измена на семплу.
+        <translation>Завршно прозорче! Можда имате несачуваних измена на узорку.
 Да ли сте сигурни?</translation>
     </message>
 </context>
@@ -2594,7 +2691,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Adjust sample start frame</source>
-        <translation>Прилагоди почетни оквир семпла</translation>
+        <translation>Прилагоди почетни оквир узорка</translation>
     </message>
     <message>
         <source>Loop</source>
@@ -2602,7 +2699,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Adjust sample loop begin frame</source>
-        <translation>Прилагоди почетни оквир петље семпла</translation>
+        <translation>Прилагоди почетни оквир петље узорка</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -2658,19 +2755,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Adjust sample end &amp; loop end frame</source>
-        <translation>Прилагоди последње оквир петље и семпла</translation>
+        <translation>Прилагоди последње оквир петље и узорка</translation>
     </message>
     <message>
         <source>&quot;Rubberband Audio Processor&quot; : Change the tempo (sample length) and pitch of audio.</source>
-        <translation type="unfinished"></translation>
+        <translation>„Rubberband Audio Processor“: Промена темпа (трајања узорка) и висине тона звука.</translation>
     </message>
     <message>
         <source>Sample length to beat:</source>
-        <translation type="unfinished"></translation>
+        <translation>Трајање узорка у доба:</translation>
     </message>
     <message>
         <source>off</source>
-        <translation>искљ.</translation>
+        <translation>искљ</translation>
     </message>
     <message>
         <source>1/64</source>
@@ -2826,15 +2923,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source> Pitch (Semitone,Cent)</source>
-        <translation type="unfinished"></translation>
+        <translation> Висина тона (полутон, стоти)</translation>
     </message>
     <message>
         <source>Pitch the sample in semitones, cents</source>
-        <translation type="unfinished"></translation>
+        <translation>Промена висине тона узорка у полутоновима или стотима</translation>
     </message>
     <message>
         <source>Crispness: </source>
-        <translation type="unfinished"></translation>
+        <translation>Јасноћа: </translation>
     </message>
     <message>
         <source>0</source>
@@ -2846,15 +2943,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Play</source>
-        <translation>&amp;Пусти</translation>
+        <translation>&amp;Свирај</translation>
     </message>
     <message>
         <source>P&amp;lay original sample</source>
-        <translation>Пусти семп&amp;л</translation>
+        <translation>Свирај изворни &amp;узорак</translation>
     </message>
     <message>
         <source>new sample length:</source>
-        <translation>Ново трајање семпла:</translation>
+        <translation>Ново трајање узорка:</translation>
     </message>
     <message>
         <source>fade-out type</source>
@@ -2881,9 +2978,22 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;more information about you can find here:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;you can find more information here:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Нивои јасноће (ориг. „Crispness“):&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   одговара „--no-transients --no-lamination --window-long“&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   одговара „--no-transients --no-lamination“&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   одговара „--no-transients“&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   одговара „--bl-transients“&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   подразумеване поставке обраде&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   одговара „--no-lamination --window-short“ (можда корисно за бубњеве)&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Више информација о овој теми на адреси:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -2973,6 +3083,34 @@ Are you sure?</source>
         <source>Enable time line edit</source>
         <translation>Омогући уређивање временске линије</translation>
     </message>
+    <message>
+        <source>View playback track</source>
+        <translation>Прикажи траку која свира</translation>
+    </message>
+    <message>
+        <source>Mute playback track</source>
+        <translation>Утишај траку која свира</translation>
+    </message>
+    <message>
+        <source>Choose playback track</source>
+        <translation>Одабери траку за свирање</translation>
+    </message>
+    <message>
+        <source>View timeline</source>
+        <translation>Прикажи временску линију</translation>
+    </message>
+    <message>
+        <source>Adjust parameter values in time</source>
+        <translation>Временско прилагођавање вредности параметра</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation>Јачина удара</translation>
+    </message>
+    <message>
+        <source>Select playback track</source>
+        <translation>Одабери траку за свирање</translation>
+    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -2982,7 +3120,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Edit the bpm value for current beat</source>
-        <translation type="unfinished"></translation>
+        <translation>Уреди број о/м за текуће доба</translation>
     </message>
     <message>
         <source>500,55</source>
@@ -2990,7 +3128,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Edit beat in timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Уреди доба на врем. линији</translation>
     </message>
     <message>
         <source>500</source>
@@ -2998,19 +3136,19 @@ Are you sure?</source>
     </message>
     <message>
         <source>Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Такт</translation>
     </message>
     <message>
         <source>BPM</source>
-        <translation>BPM</translation>
+        <translation>о/м</translation>
     </message>
     <message>
         <source>Delete this BPM Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Уклони ову ознаку броја о/м</translation>
     </message>
     <message>
         <source>Delete BPM Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Уклони ознаку броја о/м</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -3064,7 +3202,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Копирај</translation>
+        <translation>Умножи</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -3174,35 +3312,35 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Drumkit</source>
-        <translation type="unfinished">Бубњеви</translation>
+        <translation>Бубњеви</translation>
     </message>
     <message>
         <source>Component</source>
-        <translation type="unfinished"></translation>
+        <translation>Компонента</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Путања</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Издање</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Разгледај...</translation>
+        <translation>Разгледај...</translation>
     </message>
     <message>
         <source>0.9.7 and higher</source>
-        <translation type="unfinished"></translation>
+        <translation>0.9.7 и новије</translation>
     </message>
     <message>
         <source>0.9.6 and lower</source>
-        <translation type="unfinished"></translation>
+        <translation>0.9.6 и старије</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Поништи</translation>
+        <translation>Поништи</translation>
     </message>
 </context>
 <context>
@@ -3265,11 +3403,11 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Drumkit License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Лиценца за бубњеве: %1</translation>
     </message>
     <message>
         <source>Image License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Лиценца за слику: %1</translation>
     </message>
 </context>
 <context>
@@ -3284,7 +3422,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Internet</source>
-        <translation>Интернет</translation>
+        <translation>Мрежа</translation>
     </message>
     <message>
         <source>Update list</source>
@@ -3304,7 +3442,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Local file</source>
-        <translation>Локална датотекa</translation>
+        <translation>Локална датотека</translation>
     </message>
     <message>
         <source>Browse...</source>
@@ -3324,22 +3462,30 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>СловнаОзнака</translation>
     </message>
     <message>
         <source>Image License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Лиценца за слику...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Лиценца за бубњеве...</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryOpenDialog</name>
     <message>
         <source>Open Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Отвори бубњеве</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Учитај</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Поништи</translation>
     </message>
 </context>
 <context>
@@ -3410,7 +3556,7 @@ To delete this drumkit first load another drumkit.</source>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
 Are you sure?</source>
         <translation>ПАЖЊА: „%1“ ће бити уклоњени са диска.
-Дда ли сте сигурни?</translation>
+Да ли сте сигурни?</translation>
     </message>
     <message>
         <source>Drumkit deletion failed.</source>
@@ -3418,14 +3564,21 @@ Are you sure?</source>
     </message>
     <message>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Задржи</translation>
     </message>
     <message>
         <source>The existing kit has %1 instruments but the new one only has %2.
 The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
 Would you like to keep or discard the remaining instruments and notes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Постојећи бубњеви садрже %1, а ови нови само %2 инструмента.
+Првих %2 биће замењено новим инструментима уз задржавање њ. нота, али неки од преосталих инструмената садрже ноте.
+Желите ли да задржите ове преостале инструменте и ноте?
+</translation>
+    </message>
+    <message>
+        <source>Double click to expand the list</source>
+        <translation>Двоклик за проширење ове листе</translation>
     </message>
 </context>
 <context>
@@ -3448,7 +3601,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Information</source>
-        <translation>Информација</translation>
+        <translation>Подаци</translation>
     </message>
     <message>
         <source>Save </source>
@@ -3456,23 +3609,23 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Save changes made to instruments into sound library</source>
-        <translation>Сачувај измењени инструмент у бубњеве</translation>
+        <translation>Сачувај измењени инструменат у бубњеве</translation>
     </message>
     <message>
         <source>Drumkit License</source>
-        <translation type="unfinished"></translation>
+        <translation>Лиценца за бубњеве</translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Слика</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Разгледај</translation>
+        <translation>Разгледај</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Лиценца за слику</translation>
     </message>
 </context>
 <context>
@@ -3513,23 +3666,23 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Please supply at least a valid name</source>
-        <translation>Унесите бар ваљано име</translation>
+        <translation>Унесите бар ваљан назив</translation>
     </message>
     <message>
         <source>A library with the same name already exists. Do you want to overwrite the existing library?</source>
-        <translation type="unfinished"></translation>
+        <translation>Бубњеви са оваквим називом већ постоје. Желите ли да препишем преко њих?</translation>
     </message>
     <message>
         <source>Saving of this library failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Није успело чување ових бубњева.</translation>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Отвори слику</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Датотеке са сликама (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
@@ -3556,7 +3709,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Information</source>
-        <translation>Информација</translation>
+        <translation>Подаци</translation>
     </message>
     <message>
         <source>Save </source>
@@ -3564,15 +3717,15 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Слика</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Разгледај</translation>
+        <translation>Разгледај</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Лиценца за слику</translation>
     </message>
 </context>
 <context>

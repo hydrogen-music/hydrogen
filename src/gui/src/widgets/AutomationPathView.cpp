@@ -240,7 +240,7 @@ void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
 	auto p = locate(event);
 	float x = p.first;
 	float y = p.second;
-	if (m_bPointAdded) 
+	if (m_bPointAdded)
 		emit pointAdded(x, y);
 	else
 		emit pointMoved(m_fOriginX, m_fOriginY, x, y);

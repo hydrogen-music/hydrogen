@@ -111,7 +111,7 @@ void PianoRollEditor::updateEditor()
 
 
 //eventlistener
-void PianoRollEditor::patternModifiedEvent() 
+void PianoRollEditor::patternModifiedEvent()
 {
 	updateEditor();
 }
@@ -730,7 +730,7 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 		if(nLen > -1){
 			fStep = pow( 1.0594630943593, ( double )fNotePitch );
 		} else {
-			fStep = 1.0; 
+			fStep = 1.0;
 		}
 		m_pDraggedNote->set_length( nLen * fStep);
 

@@ -218,7 +218,7 @@ void CoreActionController::setStripPan( int nStrip, float panValue )
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 
 	Instrument *pInstr = pInstrList->get( nStrip );
-	pInstr->set_pan_l( pan_L ); 
+	pInstr->set_pan_l( pan_L );
 	pInstr->set_pan_r( pan_R );
 
 	pEngine->setSelectedInstrumentNumber( nStrip );

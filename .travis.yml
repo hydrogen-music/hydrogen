@@ -2,7 +2,7 @@ env:
   global:
    # COVERITY_SCAN_TOKEN
    - secure: "3wUCEMjkdvYNPhJTYulyIc95JOxLM0R767Y3JbISFT2rHlveQoyOjvmvRDtTAMMsNzPpZGL3TDhbHPf4NX3p08rnVM0koSxxIqV4EiRhVqaxVwrxrr/qiKY6Fw0XeCtUr8ZJg8/Y6DUalf+CVqpuHj6BV6bnR9rjCG14pHfSAJ0="
-    
+
 dist:
   - trusty
 sudo:
@@ -18,8 +18,14 @@ addons:
       - libjack-jackd2-dev
       - liblo-dev
       - libpulse-dev
+      - libportmidi-dev
+      - portaudio19-dev
       - libcppunit-dev
-  coverity_scan:
+      - liblrdf-dev
+      - liblash-compat-dev
+      - librubberband-dev
+
+coverity_scan:
     project:
       name: "hydrogen-music/hydrogen"
       description: "hydrogen source code repository"
@@ -27,7 +33,7 @@ addons:
     build_command_prepend: "mkdir build && cd build && cmake .."
     build_command:   "make"
     branch_pattern: coverity-scan
-      
+
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install ladspa-sdk -y
@@ -36,4 +42,4 @@ language:
   - cpp
 
 script:
-  - mkdir build && cd build && cmake .. && make
+  - mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make

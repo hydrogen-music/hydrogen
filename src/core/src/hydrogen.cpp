@@ -116,7 +116,7 @@ QMutex					mutex_OutputPointer;     ///< Mutex for audio output pointer, allows 
 MidiInput *				m_pMidiDriver = NULL;	///< MIDI input
 MidiOutput *			m_pMidiDriverOut = NULL;	///< MIDI output
 
-// overload the the > operator of Note objects for priority_queue
+// overload the > operator of Note objects for priority_queue
 struct compare_pNotes {
 	bool operator() (Note* pNote1, Note* pNote2) {
 		return (pNote1->get_humanize_delay()
@@ -1207,7 +1207,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 		}
 
 		// metronome
-		// if (  ( m_nPatternStartTick == tick ) || ( ( tick - m_nPatternStartTick ) % 48 == 0 ) ) 
+		// if (  ( m_nPatternStartTick == tick ) || ( ( tick - m_nPatternStartTick ) % 48 == 0 ) )
 		if ( m_nPatternTickPosition % 48 == 0 ) {
 			float fPitch;
 			float fVelocity;
@@ -2615,7 +2615,7 @@ bool Hydrogen::instrumentHasNotes( Instrument *pInst )
 	Song* pSong = getSong();
 	PatternList* pPatternList = pSong->get_pattern_list();
 
-	for ( int nPattern = 0 ; nPattern < (int)pPatternList->size() ; ++nPattern ) 
+	for ( int nPattern = 0 ; nPattern < (int)pPatternList->size() ; ++nPattern )
 	{
 		if( pPatternList->get( nPattern )->references( pInst ) )
 		{
@@ -3079,8 +3079,8 @@ void Hydrogen::handleBeatCounter()
 					(float) ((int) (60 / m_nBeatDiffAverage * 100))
 					/ 100;
 			AudioEngine::get_instance()->lock( RIGHT_HERE );
-			if ( m_fBeatCountBpm > 500)
-				m_fBeatCountBpm = 500;
+			if ( m_fBeatCountBpm > MAX_BPM)
+				m_fBeatCountBpm = MAX_BPM;
 			setBPM( m_fBeatCountBpm );
 			AudioEngine::get_instance()->unlock();
 			if (Preferences::get_instance()->m_mmcsetplay

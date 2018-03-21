@@ -25,7 +25,7 @@
   <instrument>
    <id>0</id>
    <name>Kick</name>
-   <drumkit>GMkit</drumkit>
+   <drumkit>GMRockKit</drumkit>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
@@ -56,7 +56,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>kick_Dry_b.flac</filename>
+     <filename>Kick-Softest.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -68,6 +68,74 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
+     <max>0.202899</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Kick-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.202899</min>
+     <max>0.376812</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Kick-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.369565</min>
+     <max>0.731884</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Kick-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.731884</min>
+     <max>0.865942</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Kick-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.855072</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -77,11 +145,11 @@
   <instrument>
    <id>1</id>
    <name>Stick</name>
-   <drumkit>GMkit</drumkit>
-   <volume>0.69</volume>
+   <drumkit>GMRockKit</drumkit>
+   <volume>0.99569</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan_R>0.7</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -108,7 +176,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>stick_Woody.flac</filename>
+     <filename>SideStick-Softest.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -120,6 +188,74 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
+     <max>0.181159</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>SideStick-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.188406</min>
+     <max>0.398551</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>SideStick-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.402174</min>
+     <max>0.597826</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>SideStick-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.597826</min>
+     <max>0.782609</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>SideStick-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.768116</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -128,12 +264,12 @@
   </instrument>
   <instrument>
    <id>2</id>
-   <name>Snare Jazz</name>
-   <drumkit>GMkit</drumkit>
-   <volume>1</volume>
+   <name>Snare</name>
+   <drumkit>GMRockKit</drumkit>
+   <volume>1.02155</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan_R>0.7</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -160,7 +296,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>sn_Jazz_c.flac</filename>
+     <filename>Snare-Softest.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -172,6 +308,74 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
+     <max>0.206522</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Snare-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.202899</min>
+     <max>0.380435</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Snare-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.376812</min>
+     <max>0.572464</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Snare-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.568841</min>
+     <max>0.782609</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Snare-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.782609</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -181,10 +385,10 @@
   <instrument>
    <id>3</id>
    <name>Hand Clap</name>
-   <drumkit>GMkit</drumkit>
-   <volume>0.88</volume>
+   <drumkit>GMRockKit</drumkit>
+   <volume>1.02155</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
+   <pan_L>0.7</pan_L>
    <pan_R>1</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -212,7 +416,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>clap_Dry_c.flac</filename>
+     <filename>HandClap.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -232,12 +436,12 @@
   </instrument>
   <instrument>
    <id>4</id>
-   <name>Snare Rock</name>
-   <drumkit>GMkit</drumkit>
+   <name>Snare Rimshot</name>
+   <drumkit>GMRockKit</drumkit>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan_R>0.7</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -264,7 +468,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>sn_Wet_b.flac</filename>
+     <filename>SnareRimshot-Softest.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -276,6 +480,74 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
+     <max>0.192029</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>SnareRimshot-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.188406</min>
+     <max>0.387681</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>SnareRimshot-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.380435</min>
+     <max>0.597826</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>SnareRimshot-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.594203</min>
+     <max>0.731884</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>SnareRimshot-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.728261</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -284,9 +556,9 @@
   </instrument>
   <instrument>
    <id>5</id>
-   <name>Tom Low</name>
-   <drumkit>GMkit</drumkit>
-   <volume>0.96</volume>
+   <name>Floor Tom</name>
+   <drumkit>GMRockKit</drumkit>
+   <volume>1.04741</volume>
    <isMuted>false</isMuted>
    <pan_L>0.44</pan_L>
    <pan_R>1</pan_R>
@@ -316,7 +588,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>tom_Rock_lo.flac</filename>
+     <filename>TomFloor-Softest.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -328,6 +600,74 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
+     <max>0.199275</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>TomFloor-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.199275</min>
+     <max>0.391304</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>TomFloor-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.394928</min>
+     <max>0.608696</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>TomFloor-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.608696</min>
+     <max>0.786232</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>TomFloor-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.786232</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -336,12 +676,12 @@
   </instrument>
   <instrument>
    <id>6</id>
-   <name>Closed HH</name>
-   <drumkit>GMkit</drumkit>
-   <volume>0.89</volume>
+   <name>Hat Closed</name>
+   <drumkit>GMRockKit</drumkit>
+   <volume>0.685345</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
-   <pan_R>0.78</pan_R>
+   <pan_R>0.48</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -368,7 +708,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>hhc_Dry_a.flac</filename>
+     <filename>HatClosed-Softest.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -380,6 +720,74 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
+     <max>0.173913</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatClosed-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.173913</min>
+     <max>0.376812</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatClosed-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.373188</min>
+     <max>0.572464</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatClosed-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.576087</min>
+     <max>0.786232</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatClosed-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.786232</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -388,11 +796,11 @@
   </instrument>
   <instrument>
    <id>7</id>
-   <name>Tom Mid</name>
-   <drumkit>GMkit</drumkit>
+   <name>Tom 2</name>
+   <drumkit>GMRockKit</drumkit>
    <volume>1</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.8</pan_L>
+   <pan_L>0.76</pan_L>
    <pan_R>1</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -420,7 +828,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>tom_Rock_mid.flac</filename>
+     <filename>Tom2-Softest.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -432,6 +840,74 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
+     <max>0.177536</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Tom2-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.177536</min>
+     <max>0.376812</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Tom2-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.373188</min>
+     <max>0.572464</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Tom2-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.576087</min>
+     <max>0.786232</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Tom2-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.782609</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -440,12 +916,12 @@
   </instrument>
   <instrument>
    <id>8</id>
-   <name>Pedal HH</name>
-   <drumkit>GMkit</drumkit>
-   <volume>0.89</volume>
+   <name>Hat Pedal</name>
+   <drumkit>GMRockKit</drumkit>
+   <volume>0.685345</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
-   <pan_R>0.78</pan_R>
+   <pan_R>0.48</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -472,7 +948,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>hhp_Dry_a.flac</filename>
+     <filename>HatPedal-Softest.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -484,6 +960,74 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
+     <max>0.206522</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatPedal-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.210145</min>
+     <max>0.391304</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatPedal-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.384058</min>
+     <max>0.59058</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatPedal-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.594203</min>
+     <max>0.793478</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatPedal-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.797101</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -492,12 +1036,12 @@
   </instrument>
   <instrument>
    <id>9</id>
-   <name>Tom Hi</name>
-   <drumkit>GMkit</drumkit>
+   <name>Tom 1</name>
+   <drumkit>GMRockKit</drumkit>
    <volume>1</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
-   <pan_R>0.42</pan_R>
+   <pan_R>0.8</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -524,7 +1068,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>tom_Rock_hi.flac</filename>
+     <filename>Tom1-Softest.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -536,6 +1080,74 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
+     <max>0.202899</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Tom1-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.202899</min>
+     <max>0.398551</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Tom1-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.394928</min>
+     <max>0.601449</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Tom1-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.605072</min>
+     <max>0.789855</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Tom1-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.786232</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -544,12 +1156,12 @@
   </instrument>
   <instrument>
    <id>10</id>
-   <name>Open HH</name>
-   <drumkit>GMkit</drumkit>
-   <volume>0.8</volume>
+   <name>Hat Open</name>
+   <drumkit>GMRockKit</drumkit>
+   <volume>0.698276</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
-   <pan_R>0.84</pan_R>
+   <pan_R>0.48</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -576,7 +1188,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>hhc_Rock_b.flac</filename>
+     <filename>HatOpen-Softest.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -588,6 +1200,74 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
+     <max>0.202899</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatOpen-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.202899</min>
+     <max>0.394928</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatOpen-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.398551</min>
+     <max>0.601449</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatOpen-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.605072</min>
+     <max>0.793478</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatOpen-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.797101</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -597,11 +1277,11 @@
   <instrument>
    <id>11</id>
    <name>Cowbell</name>
-   <drumkit>GMkit</drumkit>
-   <volume>0.8</volume>
+   <drumkit>GMRockKit</drumkit>
+   <volume>0.568965</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
-   <pan_R>1</pan_R>
+   <pan_R>0.32</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -628,7 +1308,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>misc_Cowbell.flac</filename>
+     <filename>Cowbell-Softest.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -640,6 +1320,74 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
+     <max>0.199275</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Cowbell-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.184783</min>
+     <max>0.384058</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Cowbell-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.384058</min>
+     <max>0.57971</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Cowbell-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.576087</min>
+     <max>0.778986</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Cowbell-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.782609</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -648,11 +1396,11 @@
   </instrument>
   <instrument>
    <id>12</id>
-   <name>Ride Jazz</name>
-   <drumkit>GMkit</drumkit>
-   <volume>0.8</volume>
+   <name>Ride</name>
+   <drumkit>GMRockKit</drumkit>
+   <volume>0.633621</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
+   <pan_L>0.56</pan_L>
    <pan_R>1</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -680,7 +1428,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>cym_Jazz.flac</filename>
+     <filename>Ride-Softest.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -692,6 +1440,74 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
+     <max>0.195652</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Ride-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.195652</min>
+     <max>0.373188</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Ride-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.376812</min>
+     <max>0.576087</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Ride-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.572464</min>
+     <max>0.775362</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Ride-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.782609</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -701,11 +1517,11 @@
   <instrument>
    <id>13</id>
    <name>Crash</name>
-   <drumkit>GMkit</drumkit>
-   <volume>0.69</volume>
+   <drumkit>GMRockKit</drumkit>
+   <volume>0.517241</volume>
    <isMuted>false</isMuted>
    <pan_L>1</pan_L>
-   <pan_R>0.88</pan_R>
+   <pan_R>0.74</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -732,7 +1548,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>cra_Rock_a.flac</filename>
+     <filename>Crash-Softest.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -744,6 +1560,74 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
+     <max>0.195652</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Crash-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.199275</min>
+     <max>0.380435</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Crash-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.384058</min>
+     <max>0.586957</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Crash-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.59058</min>
+     <max>0.782609</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Crash-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.789855</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
@@ -752,13 +1636,13 @@
   </instrument>
   <instrument>
    <id>14</id>
-   <name>Ride Rock</name>
-   <drumkit>GMkit</drumkit>
-   <volume>0.8</volume>
+   <name>Ride 2</name>
+   <drumkit>GMRockKit</drumkit>
+   <volume>1</volume>
    <isMuted>false</isMuted>
-   <pan_L>0.58</pan_L>
+   <pan_L>0.5</pan_L>
    <pan_R>1</pan_R>
-   <gain>1</gain>
+   <gain>0.6</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
@@ -784,7 +1668,75 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>cym_Rock_b.flac</filename>
+     <filename>24Ride-5.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.8</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>24Ride-4.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.6</min>
+     <max>0.8</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>24Ride-3.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.4</min>
+     <max>0.6</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>24Ride-2.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.2</min>
+     <max>0.4</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>24Ride-1.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -796,7 +1748,7 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
-     <max>1</max>
+     <max>0.2</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
@@ -804,12 +1756,12 @@
   </instrument>
   <instrument>
    <id>15</id>
-   <name>Crash Jazz</name>
-   <drumkit>GMkit</drumkit>
-   <volume>0.77</volume>
+   <name>Splash</name>
+   <drumkit>GMRockKit</drumkit>
+   <volume>0.543103</volume>
    <isMuted>false</isMuted>
-   <pan_L>1</pan_L>
-   <pan_R>0.78</pan_R>
+   <pan_L>0.98</pan_L>
+   <pan_R>1</pan_R>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
    <filterActive>false</filterActive>
@@ -836,7 +1788,7 @@
     <component_id>0</component_id>
     <gain>1</gain>
     <layer>
-     <filename>cra_Jazz.flac</filename>
+     <filename>Splash-Softest.wav</filename>
      <ismodified>false</ismodified>
      <smode>forward</smode>
      <startframe>0</startframe>
@@ -848,10 +1800,148 @@
      <rubberCsettings>4</rubberCsettings>
      <rubberPitch>1</rubberPitch>
      <min>0</min>
+     <max>0.195652</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Splash-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.195652</min>
+     <max>0.362319</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Splash-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.362319</min>
+     <max>0.565217</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Splash-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.568841</min>
+     <max>0.753623</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Splash-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.75</min>
      <max>1</max>
      <gain>1</gain>
      <pitch>0</pitch>
     </layer>
+   </instrumentComponent>
+  </instrument>
+  <instrument>
+   <id>16</id>
+   <name>Hat Semi-Open</name>
+   <drumkit>GMRockKit</drumkit>
+   <volume>0.69</volume>
+   <isMuted>false</isMuted>
+   <pan_L>1</pan_L>
+   <pan_R>0.48</pan_R>
+   <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
+   <filterActive>false</filterActive>
+   <filterCutoff>1</filterCutoff>
+   <filterResonance>0</filterResonance>
+   <FX1Level>0</FX1Level>
+   <FX2Level>0</FX2Level>
+   <FX3Level>0</FX3Level>
+   <FX4Level>0</FX4Level>
+   <Attack>0</Attack>
+   <Decay>0</Decay>
+   <Sustain>1</Sustain>
+   <Release>1000</Release>
+   <randomPitchFactor>0</randomPitchFactor>
+   <muteGroup>-1</muteGroup>
+   <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <midiOutChannel>-1</midiOutChannel>
+   <midiOutNote>82</midiOutNote>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
+   <instrumentComponent>
+    <component_id>0</component_id>
+    <gain>1</gain>
+   </instrumentComponent>
+  </instrument>
+  <instrument>
+   <id>17</id>
+   <name>Bell</name>
+   <drumkit>GMRockKit</drumkit>
+   <volume>0.534828</volume>
+   <isMuted>false</isMuted>
+   <pan_L>0.56</pan_L>
+   <pan_R>1</pan_R>
+   <gain>1</gain>
+   <applyVelocity>true</applyVelocity>
+   <filterActive>false</filterActive>
+   <filterCutoff>1</filterCutoff>
+   <filterResonance>0</filterResonance>
+   <FX1Level>0</FX1Level>
+   <FX2Level>0</FX2Level>
+   <FX3Level>0</FX3Level>
+   <FX4Level>0</FX4Level>
+   <Attack>0</Attack>
+   <Decay>0</Decay>
+   <Sustain>1</Sustain>
+   <Release>1000</Release>
+   <randomPitchFactor>0</randomPitchFactor>
+   <muteGroup>-1</muteGroup>
+   <isStopNote>false</isStopNote>
+   <sampleSelectionAlgo>VELOCITY</sampleSelectionAlgo>
+   <midiOutChannel>-1</midiOutChannel>
+   <midiOutNote>81</midiOutNote>
+   <isHihat>-1</isHihat>
+   <lower_cc>0</lower_cc>
+   <higher_cc>127</higher_cc>
+   <instrumentComponent>
+    <component_id>0</component_id>
+    <gain>1</gain>
    </instrumentComponent>
   </instrument>
  </instrumentList>
@@ -961,4 +2051,7 @@
  </ladspa>
  <BPMTimeLine/>
  <timeLineTag/>
+ <automationPaths>
+  <path adjust="velocity"/>
+ </automationPaths>
 </song>

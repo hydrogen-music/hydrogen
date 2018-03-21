@@ -170,4 +170,4 @@ inline void PatternList::clear()
 
 #endif // H2C_PATTERN_LIST_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

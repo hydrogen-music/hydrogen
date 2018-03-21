@@ -27,11 +27,11 @@
 		drumkits with other people. It generates a xml-file which can be used
 		with the hydrogen soundlibrary.
 
-		Just place this script in one directory with all your drumkits, songs 
+		Just place this script in one directory with all your drumkits, songs
 		and patterns and make it available via a webserver.
 
 		Songs and patterns could be parsed in place. Since drumkits are archives,
-		we cannot parse the files at runtime. Therefore, just the name and the url of the drumkit will be used. 
+		we cannot parse the files at runtime. Therefore, just the name and the url of the drumkit will be used.
 		If you want additional informations ( such as author / info ) take a look
 		at the metaInfo.inc file (the file has to be in the same directory as this script).
 		
@@ -42,7 +42,7 @@
 		metaInfo.inc holds meta informations about the drumkits, namely:
 		
 		- url
-		- author 
+		- author
 		- info
 		- name
 
@@ -58,7 +58,7 @@
 		preg_match( "/". $tag . "(.*)</" , $xml , $found );
 		if( ISSET( $found[1] ) ) {
 			return $found[1];
-		} 
+		}
 	}
 
 
@@ -158,11 +158,11 @@
 				// Possible method: Have image filename same as basename of drumkit file.
 				// ie: for DeathMetal.h2drumkit, image file would be DeathMetal.jpeg
 				//     and allow for .png as well (non-case sensitive extension)
-				//	The drumkit filenames need to be unique, and this would force the 
+				//	The drumkit filenames need to be unique, and this would force the
 				//     images to be unique names but be consistant.
 				//     use regex like: /.*\.(?:jpeg|jpg|png)/i
 				//
-				//	Go through all files in image directory named $basename.* and 
+				//	Go through all files in image directory named $basename.* and
 				//	see if there's a regex match, if so use that image file
 				if ( $hasImages )
 				{

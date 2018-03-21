@@ -210,7 +210,7 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 void Instrument::load_from( const QString& dk_name, const QString& instrument_name, bool is_live )
 {
 	Drumkit* drumkit = Drumkit::load_by_name( dk_name );
-	if ( ! drumkit ){
+	if ( ! drumkit ) {
 		return;
 	}
 
@@ -226,7 +226,7 @@ void Instrument::load_from( const QString& dk_name, const QString& instrument_na
 Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name )
 {
 	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
-	if ( id==EMPTY_INSTR_ID ){
+	if ( id==EMPTY_INSTR_ID ) {
 		return 0;
 	}
 
@@ -251,15 +251,15 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	pInstrument->set_mute_group( node->read_int( "muteGroup", -1, true, false ) );
 	pInstrument->set_midi_out_channel( node->read_int( "midiOutChannel", -1, true, false ) );
 	pInstrument->set_midi_out_note( node->read_int( "midiOutNote", pInstrument->__midi_out_note, true, false ) );
-	pInstrument->set_stop_notes( node->read_bool( "isStopNote", true ,false ) );
+	pInstrument->set_stop_notes( node->read_bool( "isStopNote", true,false ) );
 
 	QString sRead_sample_select_algo = node->read_string( "sampleSelectionAlgo", "VELOCITY" );
 	if ( sRead_sample_select_algo.compare("VELOCITY") == 0 )
 		pInstrument->set_sample_selection_alg( VELOCITY );
 	else if ( sRead_sample_select_algo.compare("ROUND_ROBIN") == 0 )
-			pInstrument->set_sample_selection_alg( ROUND_ROBIN );
+		pInstrument->set_sample_selection_alg( ROUND_ROBIN );
 	else if ( sRead_sample_select_algo.compare("RANDOM") == 0 )
-			pInstrument->set_sample_selection_alg( RANDOM );
+		pInstrument->set_sample_selection_alg( RANDOM );
 
 	pInstrument->set_hihat_grp( node->read_int( "isHihat", -1, true ) );
 	pInstrument->set_lower_cc( node->read_int( "lower_cc", 0, true ) );
@@ -324,15 +324,15 @@ void Instrument::save_to( XMLNode* node, int component_id )
 	InstrumentNode.write_bool( "isStopNote", __stop_notes );
 
 	switch ( __sample_selection_alg ) {
-		case VELOCITY:
-			InstrumentNode.write_string( "sampleSelectionAlgo", "VELOCITY" );
-			break;
-		case RANDOM:
-			InstrumentNode.write_string( "sampleSelectionAlgo", "RANDOM" );
-			break;
-		case ROUND_ROBIN:
-			InstrumentNode.write_string( "sampleSelectionAlgo", "ROUND_ROBIN" );
-			break;
+	case VELOCITY:
+		InstrumentNode.write_string( "sampleSelectionAlgo", "VELOCITY" );
+		break;
+	case RANDOM:
+		InstrumentNode.write_string( "sampleSelectionAlgo", "RANDOM" );
+		break;
+	case ROUND_ROBIN:
+		InstrumentNode.write_string( "sampleSelectionAlgo", "ROUND_ROBIN" );
+		break;
 	}
 
 	InstrumentNode.write_int( "isHihat", __hihat_grp );
@@ -369,4 +369,4 @@ InstrumentComponent* Instrument::get_component( int DrumkitComponentID )
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

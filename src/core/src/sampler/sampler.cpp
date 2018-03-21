@@ -458,9 +458,9 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		
 		/*
 		 *  Is instrument muted?
-		 * 
+		 *
 		 *  This can be the case either if the song, instrument or component is muted or if we're in an
-		 *  export session and we're doing per-instruments exports, but this instrument is not currently 
+		 *  export session and we're doing per-instruments exports, but this instrument is not currently
 		 *  beeing exported.
 		 */
 		if ( isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {	
@@ -482,7 +482,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 			cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
 			cost_L = cost_L * pInstr->get_gain();		// instrument gain
 
-			cost_L = cost_L * pCompo->get_gain();       // Component gain
+			cost_L = cost_L * pCompo->get_gain();		// Component gain
 			cost_L = cost_L * pMainCompo->get_volume(); // Component volument
 
 			cost_L = cost_L * pInstr->get_volume();		// instrument volume
@@ -498,7 +498,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 			cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
 			cost_R = cost_R * pInstr->get_gain();		// instrument gain
 
-			cost_R = cost_R * pCompo->get_gain();       // Component gain
+			cost_R = cost_R * pCompo->get_gain();		// Component gain
 			cost_R = cost_R * pMainCompo->get_volume(); // Component volument
 
 			cost_R = cost_R * pInstr->get_volume();		// instrument volume
@@ -571,7 +571,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 
 	assert(pSample);
 
-	int nAvail_bytes = 0; 
+	int nAvail_bytes = 0;
 	int	nInitialBufferPos = 0;
 
 	if(pSample->get_sample_rate() == pAudioOutput->getSampleRate()){
@@ -816,8 +816,10 @@ bool Sampler::__render_note_no_resample(
 
 
 #ifdef H2CORE_HAVE_LADSPA
-		float masterVol =  pSong->get_volume();
 	// LADSPA
+	// change the below return logic if you add code after that ifdef
+	if (pNote->get_instrument()->is_muted()) return retValue;
+	float masterVol =  pSong->get_volume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 
@@ -1019,6 +1021,8 @@ bool Sampler::__render_note_resample(
 
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
+	// change the below return logic if you add code after that ifdef
+	if (pNote->get_instrument()->is_muted()) return retValue;
 	float masterVol = pSong->get_volume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
@@ -1249,10 +1253,15 @@ bool Sampler::is_instrument_playing( Instrument* instrument )
 
 void Sampler::reinitialize_playback_track()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song* pSong = pEngine->getSong();
+	Hydrogen*	pEngine = Hydrogen::get_instance();
+	Song*		pSong = pEngine->getSong();
+	Sample*		pSample = nullptr;
 
-	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( Sample::load( pSong->get_playback_track_filename() ) );
+	if(!pSong->get_playback_track_filename().isEmpty()){
+		pSample = Sample::load( pSong->get_playback_track_filename() );
+	}
+	
+	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( pSample );
 
 	__playback_instrument->get_components()->front()->set_layer(pPlaybackTrackLayer, 0);
 	__playBackSamplePosition = 0;

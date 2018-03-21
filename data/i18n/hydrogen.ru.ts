@@ -376,14 +376,6 @@ Overwrite the existing file?</source>
 <context>
     <name>ExportSongDialog_UI</name>
     <message>
-        <source>Export filename</source>
-        <translation>Имя экспортируемого файла</translation>
-    </message>
-    <message>
-        <source>Export Whole Song to WAV</source>
-        <translation>Экспортировать всю композицию в WAV</translation>
-    </message>
-    <message>
         <source>Alt+C</source>
         <translation>Alt+т</translation>
     </message>
@@ -542,6 +534,18 @@ Overwrite the existing file?</source>
     <message>
         <source>88200</source>
         <translation type="unfinished">88200</translation>
+    </message>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Диалог</translation>
+    </message>
+    <message>
+        <source>Export directory:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modus:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -800,6 +804,22 @@ Are you sure?</source>
     <message>
         <source>Paste notes ...</source>
         <translation>Вставить ноты...</translation>
+    </message>
+    <message>
+        <source>Rename instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New instrument name</source>
+        <translation type="unfinished">Новое название инструмента</translation>
+    </message>
+    <message>
+        <source>Fill 1/12 notes</source>
+        <translation type="unfinished">Заполнить 1/8 {1/12 ?}</translation>
+    </message>
+    <message>
+        <source>Fill 1/16 notes</source>
+        <translation type="unfinished">Заполнить 1/8 {1/16 ?}</translation>
     </message>
 </context>
 <context>
@@ -1172,10 +1192,6 @@ MIDI = %2</source>
         <translation>Отла&amp;дка</translation>
     </message>
     <message>
-        <source>&amp;Tools</source>
-        <translation>С&amp;ервис</translation>
-    </message>
-    <message>
         <source>&amp;Mixer</source>
         <translation>&amp;Микшер</translation>
     </message>
@@ -1340,13 +1356,6 @@ Do you want to save the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>
-The LilyPond export is an experimental feature.
-It should work like a charm provided that you use the GM-kit, and that you do not use triplet
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>LilyPond file (*.ly)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1363,10 +1372,6 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Pro&amp;ject</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Drumkits</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1411,6 +1416,45 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Saving of this library failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drum&amp;kits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Automation path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI setup advice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set default values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GM-kit, and that you do not use triplet.
+</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1500,6 +1544,14 @@ Do you want to discard the changes?
     <message>
         <source>Set LADSPA FX ( %1 ) volume</source>
         <translation>Установить уровень эффекта LADSPA %1</translation>
+    </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation type="unfinished">Микшер</translation>
     </message>
 </context>
 <context>
@@ -2128,6 +2180,16 @@ Do you want to discard the changes?
         <source>&amp;Cancel</source>
         <translation type="unfinished">О&amp;тменить</translation>
     </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must be without whitespaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen playlist (*.h2playlist)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
@@ -2480,10 +2542,6 @@ Do you want to discard the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>create per-instrument outputs</source>
-        <translation>Раздельные выходы для инструментов</translation>
-    </message>
-    <message>
         <source>Path to the Rubberband command-line utility</source>
         <translation type="unfinished">Расположение утилиты Rubberband</translation>
     </message>
@@ -2553,6 +2611,34 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Discard midi messages after action has been triggered</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create per-instrument outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;OSC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Enable OSC support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incoming port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable OSC &amp;feedback</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2877,7 +2963,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;more information about you can find here:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;you can find more information here:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2968,6 +3054,34 @@ Are you sure?</source>
     </message>
     <message>
         <source>Enable time line edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>View playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>View timeline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust parameter values in time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished">Сила нажатия</translation>
+    </message>
+    <message>
+        <source>Select playback track</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3338,6 +3452,14 @@ Overwrite the existing pattern?</source>
         <source>Open Sound Library</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Load</source>
+        <translation type="unfinished">Загрузить</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Отменить</translation>
+    </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
@@ -3419,6 +3541,10 @@ Are you sure?</source>
 The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
 Would you like to keep or discard the remaining instruments and notes?
 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Double click to expand the list</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

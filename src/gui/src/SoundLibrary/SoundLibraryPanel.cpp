@@ -44,7 +44,7 @@
 #include "../PatternEditor/DrumPatternEditor.h"
 #include "../PatternEditor/PatternEditorInstrumentList.h"
 #include "../InstrumentRack.h"
-#include "../InstrumentEditor/InstrumentEditorPanel.h" 
+#include "../InstrumentEditor/InstrumentEditorPanel.h"
 
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/basics/adsr.h>
@@ -227,11 +227,11 @@ void SoundLibraryPanel::updateDrumkitList()
 	}
 	
 	//Songlist
-	QStringList songs = Filesystem::songs_list();
+	QStringList songs = Filesystem::songs_list_cleared();
 	if ( songs.size() > 0 ) {
 		__song_item = new QTreeWidgetItem( __sound_library_tree );
 		__song_item->setText( 0, trUtf8( "Songs" ) );
-		__song_item->setToolTip( 0, "double click to expand the list" );
+		__song_item->setToolTip( 0, trUtf8("Double click to expand the list") );
 		__sound_library_tree->setItemExpanded( __song_item, __expand_songs_list );
 		for (uint i = 0; i < songs.size(); i++) {
 			QTreeWidgetItem* pSongItem = new QTreeWidgetItem( __song_item );
@@ -248,7 +248,7 @@ void SoundLibraryPanel::updateDrumkitList()
 		
 		__pattern_item = new QTreeWidgetItem( __sound_library_tree );
 		__pattern_item->setText( 0, trUtf8( "Patterns" ) );
-		__pattern_item->setToolTip( 0, "double click to expand the list" );
+		__pattern_item->setToolTip( 0, trUtf8("Double click to expand the list") );
 		__sound_library_tree->setItemExpanded( __pattern_item, __expand_pattern_list );
 			
 		//this is to push the mng.getPatternList in all patterns/drumkit dirs
@@ -609,7 +609,7 @@ void SoundLibraryPanel::restore_background_color()
 void SoundLibraryPanel::change_background_color()
 {
 	QString curlib =  Hydrogen::get_instance()->getCurrentDrumkitname();
- 
+
 	for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
 		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == curlib ){
 			( __system_drumkits_item->child( i ) )->setBackgroundColor ( 0, QColor( 50, 50, 50)  );
@@ -719,7 +719,7 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 	}
 	assert( preDrumkitInfo );
 	
-	//open the soundlibrary save dialog 
+	//open the soundlibrary save dialog
 	SoundLibraryPropertiesDialog dialog( this , drumkitInfo, preDrumkitInfo );
 	dialog.exec();
 }
@@ -793,7 +793,7 @@ void SoundLibraryPanel::on_patternLoadAction()
 		QString testName = allPatternDirList[i];
 		if( testName.contains( patternName ) && testName.contains( drumkitname )){
 			sDirectory = allPatternDirList[i];		
-		} 
+		}
 	}
 
 	Pattern* pErr = mng.loadPattern (sDirectory );

@@ -213,6 +213,7 @@ public:
 	
 	// OSC Server properties
 	bool				m_bOscServerEnabled;
+	bool				m_bOscFeedbackEnabled;
 	int					m_nOscServerPort;
 
 	//	alsa audio driver properties ___
@@ -400,7 +401,10 @@ public:
 
 	bool				getOscServerEnabled();
 	void				setOscServerEnabled( bool val );
-
+	
+	bool				getOscFeedbackEnabled();
+	void				setOscFeedbackEnabled( bool val );
+	
 	int					getOscServerPort();
 	void				setOscServerPort( int oscPort );
 
@@ -522,7 +526,7 @@ private:
 	int					m_nExportSampleRate;
 	int					m_nExportSampleDepth;
 	int					m_nExportTemplate;
-	//~ Export dialog 
+	//~ Export dialog
 	
 	Preferences();
 
@@ -970,6 +974,13 @@ inline bool Preferences::getOscServerEnabled(){
 
 inline void Preferences::setOscServerEnabled( bool val ){
 	m_bOscServerEnabled = val;
+}
+inline bool Preferences::getOscFeedbackEnabled(){
+	return m_bOscFeedbackEnabled;
+}
+
+inline void Preferences::setOscFeedbackEnabled( bool val ){
+	m_bOscFeedbackEnabled = val;
 }
 
 inline int Preferences::getOscServerPort(){

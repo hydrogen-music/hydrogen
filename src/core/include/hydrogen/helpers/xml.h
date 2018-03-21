@@ -126,4 +126,4 @@ class XMLDoc : public H2Core::Object, public QDomDocument
 
 #endif  // H2C_XML_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

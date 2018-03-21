@@ -33,4 +33,4 @@ class Legacy : public H2Core::Object {
 
 #endif  // H2C_LEGACY_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

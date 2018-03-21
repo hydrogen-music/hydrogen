@@ -244,4 +244,4 @@ int Logger::hextoi( const char* str, long len ) {
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

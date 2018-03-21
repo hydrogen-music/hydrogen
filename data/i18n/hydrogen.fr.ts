@@ -189,7 +189,7 @@
     </message>
     <message>
         <source>Sample length: </source>
-        <translation>Longueur d'échantillon : </translation>
+        <translation>Longueur d&apos;échantillon : </translation>
     </message>
     <message>
         <source>Please do not preview samples which are longer than 10 minutes!</source>
@@ -197,7 +197,7 @@
     </message>
     <message>
         <source>Sample length:</source>
-        <translation>Longueur d'échantillon :</translation>
+        <translation>Longueur d&apos;échantillon :</translation>
     </message>
 </context>
 <context>
@@ -212,7 +212,7 @@
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation>Taux d'échantillonnage :</translation>
+        <translation>Taux d&apos;échantillonnage :</translation>
     </message>
     <message>
         <source>Size:</source>
@@ -376,16 +376,8 @@ Overwrite the existing file?</source>
 <context>
     <name>ExportSongDialog_UI</name>
     <message>
-        <source>Export filename</source>
-        <translation>Exporter avec le nom</translation>
-    </message>
-    <message>
         <source>&amp;Export</source>
         <translation>&amp;Exporter</translation>
-    </message>
-    <message>
-        <source>Export Whole Song to WAV</source>
-        <translation>Exporter tout le morceau en fichier .wav</translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -410,7 +402,7 @@ Overwrite the existing file?</source>
     <message>
         <source>Samplerate in Hz:</source>
         <translatorcomment>L&apos;ancienne étiquette &quot;Taux d&apos;échantillonnage en Hz:&quot; était beaucoup trop longue</translatorcomment>
-        <translation>Fréquence:</translation>
+        <translation>Fréquence :</translation>
     </message>
     <message>
         <source>22050</source>
@@ -435,7 +427,7 @@ Overwrite the existing file?</source>
     <message>
         <source>SampleDepth in Bit:</source>
         <translatorcomment>L&apos;ancienne étiquette &quot;Profondeur d&apos;échantillonnage en Bit:&quot; était beaucoup trop longue</translatorcomment>
-        <translation>Résolution:</translation>
+        <translation>Résolution :</translation>
     </message>
     <message>
         <source>8</source>
@@ -515,7 +507,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Third</source>
-        <translation type="unfinished"></translation>
+        <translation>Troisième</translation>
     </message>
     <message>
         <source>Cubic</source>
@@ -543,7 +535,19 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Rubberband Batch</source>
-        <translation type="unfinished"></translation>
+        <translation>Traitement en lot Rubberband</translation>
+    </message>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialogue</translation>
+    </message>
+    <message>
+        <source>Export directory:</source>
+        <translation>Exporter le répertoire : </translation>
+    </message>
+    <message>
+        <source>Modus:</source>
+        <translation>Méthode : </translation>
     </message>
 </context>
 <context>
@@ -594,7 +598,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
-        <translation>Cette action est impossible, vous pouvez enregistrer les changements des instruments seulement dans la bibliothèque de sons en cours.</translation>
+        <translation>Cette action est impossible, vous pouvez sauvegarder les changements des instruments seulement dans la bibliothèque de sons en cours.</translation>
     </message>
     <message>
         <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
@@ -801,6 +805,22 @@ Are you sure?</source>
     <message>
         <source>Paste notes ...</source>
         <translation>Coller les notes...</translation>
+    </message>
+    <message>
+        <source>Rename instrument</source>
+        <translation>Renommer l&apos;instrument</translation>
+    </message>
+    <message>
+        <source>New instrument name</source>
+        <translation>Nom du nouvel instrument</translation>
+    </message>
+    <message>
+        <source>Fill 1/12 notes</source>
+        <translation>Remplir une note sur 12</translation>
+    </message>
+    <message>
+        <source>Fill 1/16 notes</source>
+        <translation>Remplir une note sur 16</translation>
     </message>
 </context>
 <context>
@@ -1063,7 +1083,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>&amp;Save</source>
-        <translation>Enregi&amp;strer</translation>
+        <translation>&amp;Sauvegarder</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
@@ -1079,7 +1099,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Save song</source>
-        <translation>Enregistrer le morceau</translation>
+        <translation>Sauvegarder le morceau</translation>
     </message>
     <message>
         <source>Open song</source>
@@ -1087,7 +1107,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation>Exporter le fichier MIDI</translation>
+        <translation>Exporter en fichier MIDI</translation>
     </message>
     <message>
         <source>Midi file (*.mid)</source>
@@ -1111,7 +1131,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Save &amp;as...</source>
-        <translation>En&amp;registrer sous...</translation>
+        <translation>Sauveg&amp;arder sous...</translation>
     </message>
     <message>
         <source>Export &amp;MIDI file</source>
@@ -1170,10 +1190,6 @@ MIDI = %2</translation>
         <translation>&amp;Exporter le morceau en fichier WAV...</translation>
     </message>
     <message>
-        <source>&amp;Tools</source>
-        <translation>&amp;Outils</translation>
-    </message>
-    <message>
         <source>&amp;Mixer</source>
         <translation>&amp;Table de mixage...</translation>
     </message>
@@ -1191,11 +1207,11 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>&amp;Info</source>
-        <translation>&amp;Information</translation>
+        <translation>&amp;Informations</translation>
     </message>
     <message>
         <source>Song saved.</source>
-        <translation>Morceau enregistré.</translation>
+        <translation>Morceau sauvegardé.</translation>
     </message>
     <message>
         <source>Unknown error %1</source>
@@ -1203,7 +1219,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Clear all instruments?</source>
-        <translation>Effacer tous les instruments?</translation>
+        <translation>Effacer tous les instruments ?</translation>
     </message>
     <message>
         <source>Ok</source>
@@ -1211,11 +1227,11 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
-        <translation>Vous utiliser une version d&apos;Hydrogen en développement.&lt;br&gt; Merci de nous aider en envoyant des suggestions ou des problèmes sur la &lt;a href=&quot;http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel&quot;&gt;liste de discussion d&apos;Hydrogen&lt;/a&gt;.&lt;br&gt;&lt;br&gt;Merci!</translation>
+        <translation>Vous utiliser une version d&apos;Hydrogen en développement.&lt;br&gt; Merci de nous aider en envoyant des suggestions ou des problèmes sur la &lt;a href=&quot;http://lists.sourceforge.net/mailman/listinfo/hydrogen-devel&quot;&gt;liste de discussion d&apos;Hydrogen&lt;/a&gt;.&lt;br&gt;&lt;br&gt;Merci !</translation>
     </message>
     <message>
         <source>Could not save song.</source>
-        <translation>Impossible d&apos;enregistrer le morceau.</translation>
+        <translation>Impossible de sauvegarder le morceau.</translation>
     </message>
     <message>
         <source>Open &amp;Pattern</source>
@@ -1227,11 +1243,11 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
-        <translation>Enre&amp;gistrer le motif sous...</translation>
+        <translation>Sauvegarder le motif sous...</translation>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation>Motif enregistré.</translation>
+        <translation>Motif sauvegardé.</translation>
     </message>
     <message>
         <source>Open Pattern</source>
@@ -1276,7 +1292,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Song saved as.</source>
-        <translation>Enregistré le morceau sous.</translation>
+        <translation>Morceau sauvegardé sous.</translation>
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
@@ -1306,7 +1322,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation>Annuler</translation>
+        <translation>&amp;Annuler</translation>
         <extra-FILE>menu</extra-FILE>
     </message>
     <message>
@@ -1342,16 +1358,6 @@ Voulez-vous sauvegarder les changements?
         <translation>Donner</translation>
     </message>
     <message>
-        <source>
-The LilyPond export is an experimental feature.
-It should work like a charm provided that you use the GM-kit, and that you do not use triplet
-</source>
-        <translation>
-L&apos;export LilyPond est une fonctionnalité expérimentale.
-Ça devrait fonctionner comme un charme tant que vous utilisez le GM-kit, et que vous n&apos;utilisez pas de triolet
-</translation>
-    </message>
-    <message>
         <source>LilyPond file (*.ly)</source>
         <translation>Fichier LilyPond (*.ly)</translation>
     </message>
@@ -1372,10 +1378,6 @@ Voulez-vous abandonner ces changements ?
     <message>
         <source>Pro&amp;ject</source>
         <translation>Pro&amp;jet</translation>
-    </message>
-    <message>
-        <source>&amp;Drumkits</source>
-        <translation>&amp;Kits de batterie</translation>
     </message>
     <message>
         <source>New</source>
@@ -1420,6 +1422,48 @@ Voulez-vous abandonner ces changements ?
     <message>
         <source>Saving of this library failed.</source>
         <translation>La sauvegarde de cette bibliothèque a échouée</translation>
+    </message>
+    <message>
+        <source>Drum&amp;kits</source>
+        <translation>&amp;Kits de batterie</translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation>A&amp;ffichage</translation>
+    </message>
+    <message>
+        <source>&amp;Automation path</source>
+        <translation>Chemin d&apos;&amp;automation</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>Plein écran</translation>
+    </message>
+    <message>
+        <source>&amp;Options</source>
+        <translation>&amp;Options</translation>
+    </message>
+    <message>
+        <source>MIDI setup advice</source>
+        <translation>Conseil de paramétrage MIDI</translation>
+    </message>
+    <message>
+        <source>MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?</source>
+        <translation>Les notes de sortie MIDI se sont pas configurées pour ce kit de batterie et donc, exporter ce morceau dans un fichier MIDI pourrait échouer. Souhaitez-vous qu&apos;Hydrogen corrige automatiquement ceci en assignant des valeurs par défaut ?</translation>
+    </message>
+    <message>
+        <source>Set default values</source>
+        <translation>Paramètre les valeurs par défaut</translation>
+    </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GM-kit, and that you do not use triplet.
+</source>
+        <translation>
+L&apos;export LilyPond est une fonctionnalité expérimentale.
+Ça devrait fonctionner comme un charme tant que vous utilisez le GM-kit, et que vous n&apos;utilisez pas de triolet.
+</translation>
     </message>
 </context>
 <context>
@@ -1508,6 +1552,14 @@ Voulez-vous abandonner ces changements ?
     <message>
         <source>Set LADSPA FX ( %1 ) volume</source>
         <translation>Régler le volume de l&apos;effet LADSPA (%1)</translation>
+    </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation>Les effets LADSPA ne sont pas disponibles dans cette version d&apos;Hydrogen.</translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation>Mixeur</translation>
     </message>
 </context>
 <context>
@@ -1950,7 +2002,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>No Song selected!</source>
-        <translation>Aucun morceau n&apos;est sélectionné!</translation>
+        <translation>Aucun morceau n&apos;est sélectionné !</translation>
     </message>
     <message>
         <source>Load Playlist</source>
@@ -1962,11 +2014,11 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Save Playlist</source>
-        <translation>Enregistrer la liste</translation>
+        <translation>Sauvegarder la liste</translation>
     </message>
     <message>
         <source>No Song in List or no Song selected!</source>
-        <translation>Aucun morceau dans la liste ou aucun morceau de sélectionné!</translation>
+        <translation>Aucun morceau dans la liste ou aucun morceau de sélectionné !</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
@@ -1984,10 +2036,9 @@ Voulez-vous abandonner ces changements ?
         <source>No Default Editor Set. Please set your Default Editor
 Do not use a console based Editor
 Sorry, but this will not work for the moment.</source>
-        <translation>Aucun éditeur par défaut de régler. Veuillez régler l&apos;éditeur par défaut.
-
-N&apos;utiliser pas un éditeur en mode console.
-Désolé, mais un éditeur en mode console ne fonctionnera pas présentement.</translation>
+        <translation>Aucun éditeur par défaut de réglé. Veuillez régler l&apos;éditeur par défaut.
+N&apos;utilisez pas un éditeur en mode console.
+Désolé, mais un éditeur en mode console ne fonctionne pas pour l&apos;instant.</translation>
     </message>
     <message>
         <source>Set your Default Editor</source>
@@ -1995,7 +2046,7 @@ Désolé, mais un éditeur en mode console ne fonctionnera pas présentement.</t
     </message>
     <message>
         <source>No Script selected!</source>
-        <translation>Aucun script de sélectionné!</translation>
+        <translation>Aucun script de sélectionné !</translation>
     </message>
     <message>
         <source>Error loading song.</source>
@@ -2047,11 +2098,11 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>&amp;Save Playlist</source>
-        <translation>Enregi&amp;strer</translation>
+        <translation>&amp;Sauvegarder la liste</translation>
     </message>
     <message>
         <source>Save Playlist &amp;as</source>
-        <translation>Enregistrer so&amp;us...</translation>
+        <translation>S&amp;auvegarder sous...</translation>
     </message>
     <message>
         <source>&amp;Scripts</source>
@@ -2123,7 +2174,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>No valid song selected!</source>
-        <translation>Pas de morceau valide séléctionné !</translation>
+        <translation>Pas de morceau valide sélectionné !</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
@@ -2131,7 +2182,7 @@ Le chemin d&apos;accès au script et le nom du script ne doivent pas contenir d&
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>Annuler (&amp;C)</translation>
+        <translation>Ann&amp;uler</translation>
     </message>
     <message>
         <source>
@@ -2142,6 +2193,18 @@ Do you want to discard the changes?
 La liste de lecture actuelle contient des modifications non-sauvegardées.
 Voulez-vous abandonner ces changements ?
 </translation>
+    </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must be without whitespaces.</source>
+        <translation>Le nom du script ou le chemin vers le script contient des espaces.
+IMPORTANT
+Le chemin vers le script et le nom du script doivent être sans espaces.</translation>
+    </message>
+    <message>
+        <source>Hydrogen playlist (*.h2playlist)</source>
+        <translation>Liste de lecture Hydrogen (*.h2playlist)</translation>
     </message>
 </context>
 <context>
@@ -2495,10 +2558,6 @@ Voulez-vous abandonner ces changements ?
         <translation>Début en ms du compteur de battement   </translation>
     </message>
     <message>
-        <source>create per-instrument outputs</source>
-        <translation>Créer des sorties (jack) pour chaque instrument</translation>
-    </message>
-    <message>
         <source>Path to the Rubberband command-line utility</source>
         <translation>Chemin vers l&apos;utilitaire en ligne de commande Rubberband</translation>
     </message>
@@ -2524,7 +2583,7 @@ Voulez-vous abandonner ces changements ?
     </message>
     <message>
         <source>Third</source>
-        <translation type="unfinished"></translation>
+        <translation>Troisième</translation>
     </message>
     <message>
         <source>Cubic</source>
@@ -2569,6 +2628,34 @@ Voulez-vous abandonner ces changements ?
     <message>
         <source>Discard midi messages after action has been triggered</source>
         <translation>Abandonner les messages MIDI après que l&apos;action ait été déclenchée</translation>
+    </message>
+    <message>
+        <source>Create per-instrument outputs</source>
+        <translation>Créer une sortie par instrument</translation>
+    </message>
+    <message>
+        <source>Enable feedback</source>
+        <translation>Activer la boucle de retour</translation>
+    </message>
+    <message>
+        <source>&amp;OSC</source>
+        <translation>&amp;OSC</translation>
+    </message>
+    <message>
+        <source>&amp;Enable OSC support</source>
+        <translation>Activ&amp;e le support OSC</translation>
+    </message>
+    <message>
+        <source>Incoming port</source>
+        <translation>Port entrant</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Le port qui sera utilisé pour recevoir les messages OSC entrant&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Enable OSC &amp;feedback</source>
+        <translation>Activer la &amp;boucle de retour OSC</translation>
     </message>
 </context>
 <context>
@@ -2887,7 +2974,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;more information about you can find here:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;you can find more information here:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2979,6 +3066,34 @@ Voulez-vous continuer?</translation>
         <source>Pattern %1</source>
         <translation>Motif %1</translation>
     </message>
+    <message>
+        <source>View playback track</source>
+        <translation>Afficher la piste de lecture</translation>
+    </message>
+    <message>
+        <source>Mute playback track</source>
+        <translation>Silencer la piste de lecture</translation>
+    </message>
+    <message>
+        <source>Choose playback track</source>
+        <translation>Choisir la piste de lecture</translation>
+    </message>
+    <message>
+        <source>View timeline</source>
+        <translation>Afficher la ligne de temps</translation>
+    </message>
+    <message>
+        <source>Adjust parameter values in time</source>
+        <translation>Ajuster les valeurs des paramètre dans le temps</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation>Vélocité</translation>
+    </message>
+    <message>
+        <source>Select playback track</source>
+        <translation>Paramètre la piste de lecture</translation>
+    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -3066,7 +3181,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Save Pattern</source>
-        <translation>Enregistrer un motif</translation>
+        <translation>Sauvegarder un motif</translation>
     </message>
     <message>
         <source>Load Pattern</source>
@@ -3346,6 +3461,14 @@ Overwrite the existing pattern?</source>
         <source>Open Sound Library</source>
         <translation>Ouvrir une bibliothèque de son</translation>
     </message>
+    <message>
+        <source>Load</source>
+        <translation>Charger</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
@@ -3435,6 +3558,10 @@ Would you like to keep or discard the remaining instruments and notes?
 Les %2 premiers instruments seront remplacés avec les nouveaux instruments et conserveront leurs notes, mais certains des instruments restant possèdent des notes.
 Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
 </translation>
+    </message>
+    <message>
+        <source>Double click to expand the list</source>
+        <translation>Double-clic pour étendre la liste</translation>
     </message>
 </context>
 <context>

@@ -56,8 +56,8 @@ using namespace std;
 const char* InstrumentLine::__class_name = "InstrumentLine";
 
 InstrumentLine::InstrumentLine(QWidget* pParent)
-  : PixmapWidget(pParent, __class_name)
-  , m_bIsSelected(false)
+	: PixmapWidget(pParent, __class_name)
+	, m_bIsSelected(false)
 {
 	int h = Preferences::get_instance()->getPatternEditorGridHeight();
 	setFixedSize(181, h);
@@ -107,6 +107,8 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/4 notes" ), this, SLOT( functionFillEveryFourNotes() ) );
 	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/6 notes" ), this, SLOT( functionFillEverySixNotes() ) );
 	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/8 notes" ), this, SLOT( functionFillEveryEightNotes() ) );
+	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/12 notes" ), this, SLOT( functionFillEveryTwelveNotes() ) );
+	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/16 notes" ), this, SLOT( functionFillEverySixteenNotes() ) );
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
 	m_pFunctionPopup->addAction( trUtf8( "Randomize velocity" ), this, SLOT( functionRandomizeVelocity() ) );
@@ -332,6 +334,8 @@ void InstrumentLine::functionFillEveryThreeNotes(){ functionFillNotes(3); }
 void InstrumentLine::functionFillEveryFourNotes(){ functionFillNotes(4); }
 void InstrumentLine::functionFillEverySixNotes(){ functionFillNotes(6); }
 void InstrumentLine::functionFillEveryEightNotes(){ functionFillNotes(8); }
+void InstrumentLine::functionFillEveryTwelveNotes(){ functionFillNotes(12); }
+void InstrumentLine::functionFillEverySixteenNotes(){ functionFillNotes(16); }
 
 void InstrumentLine::functionFillNotes( int every )
 {
@@ -406,7 +410,7 @@ void InstrumentLine::functionRandomizeVelocity()
 	Song *pSong = pEngine->getSong();
 
 	QStringList noteVeloValue;
- 	QStringList oldNoteVeloValue;
+	QStringList oldNoteVeloValue;
 
 	Pattern* pCurrentPattern = getCurrentPattern();
 	if (pCurrentPattern != NULL) {
@@ -466,7 +470,7 @@ void InstrumentLine::functionRenameInstrument()
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
 	}
-	else 
+	else
 	{
 		// user entered nothing or pressed Cancel
 	}
@@ -513,7 +517,7 @@ PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, Patte
 {
 	//INFOLOG("INIT");
 	m_pPattern = NULL;
- 	m_pPatternEditorPanel = pPatternEditorPanel;
+	m_pPatternEditorPanel = pPatternEditorPanel;
 
 	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
 
@@ -643,9 +647,14 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		Hydrogen *engine = Hydrogen::get_instance();
 		int nSourceInstrument = engine->getSelectedInstrumentNumber();
 
-		int nTargetInstrument = event->pos().y() / m_nGridHeight;
+		// Starting point for instument list is 50 lower than
+		// on the drum pattern editor
 
-		if( nTargetInstrument > engine->getSong()->get_instrument_list()->size() ){
+		int pos_y = ( event->pos().x() >= m_nEditorWidth ) ? event->pos().y() - 50 : event->pos().y();
+
+		int nTargetInstrument = pos_y / m_nGridHeight;
+
+		if( nTargetInstrument >= engine->getSong()->get_instrument_list()->size() ){
 			nTargetInstrument = engine->getSong()->get_instrument_list()->size() - 1;
 		}
 
@@ -671,8 +680,8 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		int nTargetInstrument = event->pos().y() / m_nGridHeight;
 
 		/*
-		    "X > 181": border between the instrument names on the left and the grid
-		    Because the right part of the grid starts above the name column, we have to subtract the difference
+				"X > 181": border between the instrument names on the left and the grid
+				Because the right part of the grid starts above the name column, we have to subtract the difference
 		*/
 		if (  event->pos().x() > 181 ) nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
 
@@ -726,6 +735,3 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 	// propago l'evento
 	QWidget::mouseMoveEvent(event);
 }
-
-
-

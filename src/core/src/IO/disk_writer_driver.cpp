@@ -213,7 +213,7 @@ void* diskWriterDriver_thread( void* param )
 			
 			int usedBuffer = pDriver->m_nBufferSize;
 			
-			//this will calculate the the size from -last- (end of pattern) used frame buffer,
+			//this will calculate the size from -last- (end of pattern) used frame buffer,
 			//which is mostly smaller than pDriver->m_nBufferSize
 			if( patternLengthInFrames - frameNumber <  pDriver->m_nBufferSize ){
 				lastRun = patternLengthInFrames - frameNumber;

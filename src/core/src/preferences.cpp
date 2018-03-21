@@ -44,6 +44,11 @@
 #include <QDir>
 //#include <QApplication>
 
+static bool shouldRemove(QString& first, QString& second)
+{
+	return (first.compare(second) == 0);
+};
+
 namespace H2Core
 {
 
@@ -124,28 +129,31 @@ Preferences::Preferences()
 		int pos;
 		while ( ( pos = sLadspaPath.indexOf( ":" ) ) != -1 ) {
 			QString sPath = sLadspaPath.left( pos );
-			m_ladspaPathVect.push_back( sPath );
+			m_ladspaPathVect.push_back( QFileInfo(sPath).canonicalFilePath() );
 			sLadspaPath = sLadspaPath.mid( pos + 1, sLadspaPath.length() );
 		}
-		m_ladspaPathVect.push_back( sLadspaPath );
+		m_ladspaPathVect.push_back( QFileInfo(sLadspaPath).canonicalFilePath());
 	} else {
 #ifdef Q_OS_MACX
-		m_ladspaPathVect.push_back( qApp->applicationDirPath() + "/../Resources/plugins" );
-		m_ladspaPathVect.push_back( "/Library/Audio/Plug-Ins/LADSPA/" );
-		m_ladspaPathVect.push_back( QDir::homePath().append( "/Library/Audio/Plug-Ins/LADSPA" ));
+		m_ladspaPathVect.push_back( QFileInfo(qApp->applicationDirPath(), "/../Resources/plugins").canonicalFilePath() );
+		m_ladspaPathVect.push_back( QFileInfo("/Library/Audio/Plug-Ins/LADSPA/").canonicalFilePath() );
+		m_ladspaPathVect.push_back( QFileInfo(QDir::homePath(), "/Library/Audio/Plug-Ins/LADSPA").canonicalFilePath() );
 #else
-		m_ladspaPathVect.push_back( "/usr/lib/ladspa" );
-		m_ladspaPathVect.push_back( "/usr/local/lib/ladspa" );
-		m_ladspaPathVect.push_back( "/usr/lib64/ladspa" );
-		m_ladspaPathVect.push_back( "/usr/local/lib64/ladspa" );
+		m_ladspaPathVect.push_back( QFileInfo("/usr/lib/ladspa").canonicalFilePath() );
+		m_ladspaPathVect.push_back( QFileInfo("/usr/local/lib/ladspa").canonicalFilePath() );
+		m_ladspaPathVect.push_back( QFileInfo("/usr/lib64/ladspa").canonicalFilePath() );
+		m_ladspaPathVect.push_back( QFileInfo("/usr/local/lib64/ladspa").canonicalFilePath() );
 #endif
-
 	}
 	
 	/*
 	 *  Add .hydrogen/data/plugins to ladspa search path, no matter where LADSPA_PATH points to..
 	 */
-	m_ladspaPathVect.push_back( QString( m_sDataDirectory + "plugins" ) );
+	m_ladspaPathVect.push_back( QFileInfo(m_sDataDirectory, "plugins").canonicalFilePath() );
+	std::sort(m_ladspaPathVect.begin(), m_ladspaPathVect.end());
+
+	auto last = std::unique(m_ladspaPathVect.begin(), m_ladspaPathVect.end(), shouldRemove);
+	m_ladspaPathVect.erase(last, m_ladspaPathVect.end());
 
 	__lastspatternDirectory = QDir::homePath();
 	__lastsampleDirectory = QDir::homePath(); //audio file browser
@@ -217,6 +225,7 @@ Preferences::Preferences()
 
 	// OSC configuration
 	m_bOscServerEnabled = false;
+	m_bOscFeedbackEnabled = true;
 	m_nOscServerPort = 9000;
 
 	// None: m_sDefaultEditor;
@@ -553,6 +562,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					recreate = true;
 				} else {
 					m_bOscServerEnabled = LocalFileMng::readXmlBool( oscServerNode, "oscEnabled", false );
+					m_bOscFeedbackEnabled = LocalFileMng::readXmlBool( oscServerNode, "oscFeedbackEnabled", true );
 					m_nOscServerPort = LocalFileMng::readXmlInt( oscServerNode, "oscServerPort", 9000 );
 				}
 			}
@@ -965,6 +975,12 @@ void Preferences::savePreferences()
 				LocalFileMng::writeXmlString( oscNode, "oscEnabled", "true" );
 			} else {
 				LocalFileMng::writeXmlString( oscNode, "oscEnabled", "false" );
+			}
+			
+			if ( m_bOscFeedbackEnabled ) {
+				LocalFileMng::writeXmlString( oscNode, "oscFeedbackEnabled", "true" );
+			} else {
+				LocalFileMng::writeXmlString( oscNode, "oscFeedbackEnabled", "false" );
 			}
 		}
 		audioEngineNode.appendChild( oscNode );

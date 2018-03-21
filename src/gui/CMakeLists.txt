@@ -13,16 +13,16 @@ FOREACH( _file ${hydrogen_H} ${hydrogen_SRCS})
 ENDFOREACH()
 
 QT5_WRAP_UI(hydrogen_UIS_H ${hydrogen_UIS})             # ui_ files are generated in CMAKE_CURRENT_BINARY_DIR
-QT5_WRAP_CPP(hydrogen_MOC ${hydrogen_H} OPTIONS -nw) 
+QT5_WRAP_CPP(hydrogen_MOC ${hydrogen_H} OPTIONS -nw)
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_BINARY_DIR}                 # ui_ headers
     ${CMAKE_CURRENT_SOURCE_DIR}/src             # gui headers
     ${CMAKE_SOURCE_DIR}/src/core/include        # core headers
     ${CMAKE_BINARY_DIR}/src/core/include        # generated config.h
-    ${LASH_INCLUDE_DIR}
     ${QT_INCLUDES}
-    ${LIBARCHIVE_INCLUDE_DIR}
+    ${LASH_INCLUDE_DIRS}
+    ${LIBARCHIVE_INCLUDE_DIRS}
 )
 
 IF(APPLE)

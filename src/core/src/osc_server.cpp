@@ -145,11 +145,11 @@ QString OscServer::qPrettyPrint(lo_type type,void * data)
 
 /* catch any incoming messages and display them. returning 1 means that the
  * message has not been fully handled and the server should try other methods */
-int OscServer::generic_handler(const char *	path, 
+int OscServer::generic_handler(const char *	path,
 							   const char *	types,
 							   lo_arg **	argv,
-							   int			argc, 
-							   void *		data, 
+							   int			argc,
+							   void *		data,
 							   void *		user_data)
 {
 	INFOLOG("GENERIC HANDLER");
@@ -608,6 +608,13 @@ bool IsLoAddressEqual( lo_address first, lo_address second )
 
 void OscServer::handleAction( Action* pAction )
 {
+	H2Core::Preferences * pPref = H2Core::Preferences::get_instance();
+	
+	if( !pPref->getOscFeedbackEnabled() ){
+		return;
+	}
+	
+	
 	if( pAction->getType() == "MASTER_VOLUME_ABSOLUTE"){
 		bool ok;
 		float param2 = pAction->getParameter2().toFloat(&ok);
@@ -754,7 +761,7 @@ void OscServer::start()
 
 									if( !AddressRegistered ){
 										INFOLOG("REGISTERING CLIENT");
-										lo_address newAddr = lo_address_new_with_proto(	lo_address_get_protocol( a ), 
+										lo_address newAddr = lo_address_new_with_proto(	lo_address_get_protocol( a ),
 																						lo_address_get_hostname( a ),
 																						lo_address_get_port( a ) );
 										m_pClientRegistry.push_back( newAddr );
@@ -765,7 +772,7 @@ void OscServer::start()
 										pController->initExternalControlInterfaces();
 									}
 
-									return 1; 
+									return 1;
 								});
 
 	m_pServerThread->add_method(NULL, NULL, generic_handler, NULL);

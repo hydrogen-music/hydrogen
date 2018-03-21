@@ -58,7 +58,7 @@ class JackAudioDriver : public AudioOutput
 {
 	H2_OBJECT
 public:
-	jack_client_t *client;
+	jack_client_t *m_pClient;
 
 	JackAudioDriver( JackProcessCallback processCallback );
 	~JackAudioDriver();
@@ -93,7 +93,7 @@ public:
 	float* getTrackOut_L( unsigned nTrack );
 	float* getTrackOut_R( unsigned nTrack );
 	float* getTrackOut_L( Instrument *, InstrumentComponent * );
-    float* getTrackOut_R( Instrument *, InstrumentComponent * );
+	float* getTrackOut_R( Instrument *, InstrumentComponent * );
 
 	int init( unsigned bufferSize );
 

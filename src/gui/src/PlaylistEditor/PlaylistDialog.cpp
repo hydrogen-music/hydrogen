@@ -399,7 +399,7 @@ void PlaylistDialog::loadList()
 
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFile );
-	fd.setNameFilter ( "Hydrogen playlist (*.h2playlist)" );
+	fd.setNameFilter ( trUtf8("Hydrogen playlist (*.h2playlist)") );
 	fd.setDirectory ( sDirectory );
 	fd.setWindowTitle ( trUtf8 ( "Load Playlist" ) );
 
