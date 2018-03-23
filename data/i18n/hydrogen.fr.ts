@@ -543,7 +543,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Export directory:</source>
-        <translation>Exporter le répertoire : </translation>
+        <translation>Répertoire d&apos;exportation : </translation>
     </message>
     <message>
         <source>Modus:</source>
