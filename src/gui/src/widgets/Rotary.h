@@ -27,6 +27,9 @@
 #include "MidiSenseWidget.h"
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 class LCDDisplay;
 
@@ -74,11 +77,17 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 				return m_fValue;
 		}
 
+		void setDefaultValue( float fDefaultValue );
+		float getDefaultValue();
+		void resetValueToDefault();
+
 	signals:
 		void valueChanged(Rotary *ref);
 
 	private:
 		bool m_bUseIntSteps;
+		bool m_bIgnoreMouseMove;
+
 		RotaryType m_type;
 		static QPixmap* m_background_normal;
 		static QPixmap* m_background_center;
@@ -89,6 +98,7 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 		float m_fMin;
 		float m_fMax;
 		float m_fValue;
+		float m_fDefaultValue;
 
 		float m_fMousePressValue;
 		float m_fMousePressY;

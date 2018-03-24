@@ -24,6 +24,9 @@
 #define DETAIL_WAVE_DISPLAY
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 #include <hydrogen/object.h>
 
 namespace H2Core
@@ -50,7 +53,7 @@ class DetailWaveDisplay : public QWidget, public H2Core::Object
 		QString m_sSampleName;
 		int *m_pPeakDatal;
 		int *m_pPeakDatar;
-		int m_pDetailSamplePosition; 
+		int m_pDetailSamplePosition;
 		int m_pNormalImageDetailFrames;
 		float m_pZoomFactor;
 		QString m_pType;

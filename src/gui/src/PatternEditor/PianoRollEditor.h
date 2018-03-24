@@ -27,6 +27,9 @@
 #include "../EventListener.h"
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 namespace H2Core
 {
@@ -74,7 +77,7 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 						float velocity,
 						float pan_L,
 						float pan_R,
-						float leadLag, 
+						float leadLag,
 						int pressedLine );
                 void editNoteLengthAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine );
 

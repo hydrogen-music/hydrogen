@@ -137,13 +137,13 @@ void connectPortToXShaper(LADSPA_Handle Instance, unsigned long Port, LADSPA_Dat
 		    psXShaper->m_pfOutputBuffer2 = DataLocation;
     		break;
   }
-  
+
 }
 
 /* XShaper mono */
 
 void runMonoXShaper(LADSPA_Handle Instance, unsigned long SampleCount) {
-  
+
 	/* audio i/o */
 	
 	unsigned long fSampleRate;
@@ -448,7 +448,7 @@ void runMonoXShaper(LADSPA_Handle Instance, unsigned long SampleCount) {
 /* XShaper stereo */
 
 void runStereoXShaper(LADSPA_Handle Instance, unsigned long SampleCount) {
-  
+
 	/* audio i/o */
 	
 	unsigned long fSampleRate;
@@ -624,7 +624,7 @@ void runStereoXShaper(LADSPA_Handle Instance, unsigned long SampleCount) {
 	
 	pfInput = psXShaper->m_pfInputBuffer1;
 	pfOutput = psXShaper->m_pfOutputBuffer1;
-  
+
 	for (lSampleIndex = 0; lSampleIndex < SampleCount; lSampleIndex++){
 		
 		fGain = fGain + dGain;
@@ -889,18 +889,18 @@ void _init() {
 
   g_psMonoDescriptor
     = (LADSPA_Descriptor *)malloc(sizeof(LADSPA_Descriptor));
-  g_psStereoDescriptor 
+  g_psStereoDescriptor
     = (LADSPA_Descriptor *)malloc(sizeof(LADSPA_Descriptor));
 
   if (g_psMonoDescriptor) {
-  
+
     g_psMonoDescriptor->UniqueID
       = 2547;
     g_psMonoDescriptor->Label
       = strdup("XShaperM");
     g_psMonoDescriptor->Properties
       = LADSPA_PROPERTY_HARD_RT_CAPABLE;
-    g_psMonoDescriptor->Name 
+    g_psMonoDescriptor->Name
       = strdup("X-Shaper (mono)");
     g_psMonoDescriptor->Maker
       = strdup("Artemiy Pavlov");
@@ -912,7 +912,7 @@ void _init() {
       = (LADSPA_PortDescriptor *)calloc(12, sizeof(LADSPA_PortDescriptor));
     g_psMonoDescriptor->PortDescriptors
       = (const LADSPA_PortDescriptor *)piPortDescriptors;
-	  
+	
 	piPortDescriptors[XSHAPER_GAIN]
 	= LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	piPortDescriptors[XSHAPER_TYPE]
@@ -937,12 +937,12 @@ void _init() {
 	= LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO;
 	piPortDescriptors[XSHAPER_OUTPUT1]
 	= LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
-	  
+	
 	pcPortNames
 	= (char **)calloc(12, sizeof(char *));
-	g_psMonoDescriptor->PortNames 
+	g_psMonoDescriptor->PortNames
 	= (const char **)pcPortNames;
-	  
+	
 	pcPortNames[XSHAPER_GAIN]
 	= strdup("Gain");
 	pcPortNames[XSHAPER_TYPE]
@@ -967,23 +967,23 @@ void _init() {
 	= strdup("Input");
 	pcPortNames[XSHAPER_OUTPUT1]
 	= strdup("Output");
-	  
+	
     psPortRangeHints = ((LADSPA_PortRangeHint *)
 		calloc(12, sizeof(LADSPA_PortRangeHint)));
     g_psMonoDescriptor->PortRangeHints
       = (const LADSPA_PortRangeHint *)psPortRangeHints;
 	
 	psPortRangeHints[XSHAPER_GAIN].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_1);
 	psPortRangeHints[XSHAPER_GAIN].LowerBound
 	= 0;
 	psPortRangeHints[XSHAPER_GAIN].UpperBound
 	= 1;
-	    
+	
 	psPortRangeHints[XSHAPER_TYPE].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_INTEGER
 	| LADSPA_HINT_DEFAULT_1);
@@ -991,18 +991,18 @@ void _init() {
 	= 1;
 	psPortRangeHints[XSHAPER_TYPE].UpperBound
 	= XSHAPER_TYPES;
-	 
+	
 	psPortRangeHints[XSHAPER_CURVE].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_0);
 	psPortRangeHints[XSHAPER_CURVE].LowerBound
 	= 0;
 	psPortRangeHints[XSHAPER_CURVE].UpperBound
 	= 1;
-	 
+	
 	psPortRangeHints[XSHAPER_AMOUNT].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_1);
 	psPortRangeHints[XSHAPER_AMOUNT].LowerBound
@@ -1011,7 +1011,7 @@ void _init() {
 	= 1;
 	
 	psPortRangeHints[XSHAPER_LFO1FORM].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_INTEGER
 	| LADSPA_HINT_DEFAULT_1);
@@ -1021,7 +1021,7 @@ void _init() {
 	= XSHAPER_LFOTYPES;
 	
 	psPortRangeHints[XSHAPER_LFO1RATE].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_1);
 	psPortRangeHints[XSHAPER_LFO1RATE].LowerBound
@@ -1030,7 +1030,7 @@ void _init() {
 	= 10;
 	
 	psPortRangeHints[XSHAPER_LFO1DEPTH].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_0);
 	psPortRangeHints[XSHAPER_LFO1DEPTH].LowerBound
@@ -1039,7 +1039,7 @@ void _init() {
 	= 1;
 	
 	psPortRangeHints[XSHAPER_LFO2FORM].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_INTEGER
 	| LADSPA_HINT_DEFAULT_1);
@@ -1049,7 +1049,7 @@ void _init() {
 	= XSHAPER_LFOTYPES;
 	
 	psPortRangeHints[XSHAPER_LFO2RATE].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_1);
 	psPortRangeHints[XSHAPER_LFO2RATE].LowerBound
@@ -1058,22 +1058,22 @@ void _init() {
 	= 10;
 	
 	psPortRangeHints[XSHAPER_LFO2DEPTH].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_0);
 	psPortRangeHints[XSHAPER_LFO2DEPTH].LowerBound
 	= -1;
 	psPortRangeHints[XSHAPER_LFO2DEPTH].UpperBound
 	= 1;
-	 
+	
 	psPortRangeHints[XSHAPER_INPUT1].HintDescriptor
 	 = 0;
     psPortRangeHints[XSHAPER_OUTPUT1].HintDescriptor
 	 = 0;
-	  
-    g_psMonoDescriptor->instantiate 
+	
+    g_psMonoDescriptor->instantiate
       = instantiateXShaper;
-    g_psMonoDescriptor->connect_port 
+    g_psMonoDescriptor->connect_port
       = connectPortToXShaper;
     g_psMonoDescriptor->activate
       = NULL;
@@ -1088,16 +1088,16 @@ void _init() {
     g_psMonoDescriptor->cleanup
       = cleanupXShaper;
   }
-  
+
   if (g_psStereoDescriptor) {
-    
+
     g_psStereoDescriptor->UniqueID
       = 2548;
     g_psStereoDescriptor->Label
       = strdup("XShaperS");
     g_psStereoDescriptor->Properties
       = LADSPA_PROPERTY_HARD_RT_CAPABLE;
-    g_psStereoDescriptor->Name 
+    g_psStereoDescriptor->Name
       = strdup("X-Shaper (stereo)");
     g_psStereoDescriptor->Maker
       = strdup("Artemiy Pavlov");
@@ -1109,7 +1109,7 @@ void _init() {
       = (LADSPA_PortDescriptor *)calloc(14, sizeof(LADSPA_PortDescriptor));
     g_psStereoDescriptor->PortDescriptors
       = (const LADSPA_PortDescriptor *)piPortDescriptors;
-	 
+	
 	piPortDescriptors[XSHAPER_GAIN]
 	= LADSPA_PORT_INPUT | LADSPA_PORT_CONTROL;
 	piPortDescriptors[XSHAPER_TYPE]
@@ -1138,10 +1138,10 @@ void _init() {
 	= LADSPA_PORT_INPUT | LADSPA_PORT_AUDIO;
 	piPortDescriptors[XSHAPER_OUTPUT2]
 	= LADSPA_PORT_OUTPUT | LADSPA_PORT_AUDIO;
-	  
+	
 	pcPortNames
 	= (char **)calloc(14, sizeof(char *));
-	g_psStereoDescriptor->PortNames 
+	g_psStereoDescriptor->PortNames
 	= (const char **)pcPortNames;
 	
 	pcPortNames[XSHAPER_GAIN]
@@ -1172,23 +1172,23 @@ void _init() {
 	= strdup("Input R");
 	pcPortNames[XSHAPER_OUTPUT2]
 	= strdup("Output R");
-	  
+	
     psPortRangeHints = ((LADSPA_PortRangeHint *)
 			calloc(14, sizeof(LADSPA_PortRangeHint)));
     g_psStereoDescriptor->PortRangeHints
       = (const LADSPA_PortRangeHint *)psPortRangeHints;
 	
 	psPortRangeHints[XSHAPER_GAIN].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_1);
 	psPortRangeHints[XSHAPER_GAIN].LowerBound
 	= 0;
 	psPortRangeHints[XSHAPER_GAIN].UpperBound
 	= 1;
-	  
+	
    psPortRangeHints[XSHAPER_TYPE].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_INTEGER
 	| LADSPA_HINT_DEFAULT_1);
@@ -1196,18 +1196,18 @@ void _init() {
 	= 1;
 	psPortRangeHints[XSHAPER_TYPE].UpperBound
 	= XSHAPER_TYPES;
-	 
+	
 	psPortRangeHints[XSHAPER_CURVE].HintDescriptor
-      = (LADSPA_HINT_BOUNDED_BELOW 
+      = (LADSPA_HINT_BOUNDED_BELOW
 	 | LADSPA_HINT_BOUNDED_ABOVE
-	 | LADSPA_HINT_DEFAULT_0);    
+	 | LADSPA_HINT_DEFAULT_0);
 	psPortRangeHints[XSHAPER_CURVE].LowerBound
 	 = 0;
 	psPortRangeHints[XSHAPER_CURVE].UpperBound
 	 = 1;
-	 
+	
 	psPortRangeHints[XSHAPER_AMOUNT].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_1);
 	psPortRangeHints[XSHAPER_AMOUNT].LowerBound
@@ -1216,7 +1216,7 @@ void _init() {
 	= 1;
 	
 	psPortRangeHints[XSHAPER_LFO1FORM].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_INTEGER
 	| LADSPA_HINT_DEFAULT_1);
@@ -1226,7 +1226,7 @@ void _init() {
 	= XSHAPER_LFOTYPES;
 	
 	psPortRangeHints[XSHAPER_LFO1RATE].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_1);
 	psPortRangeHints[XSHAPER_LFO1RATE].LowerBound
@@ -1235,7 +1235,7 @@ void _init() {
 	= 10;
 	
 	psPortRangeHints[XSHAPER_LFO1DEPTH].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_0);
 	psPortRangeHints[XSHAPER_LFO1DEPTH].LowerBound
@@ -1244,7 +1244,7 @@ void _init() {
 	= 1;
 	
 	psPortRangeHints[XSHAPER_LFO2FORM].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_INTEGER
 	| LADSPA_HINT_DEFAULT_1);
@@ -1254,7 +1254,7 @@ void _init() {
 	= XSHAPER_LFOTYPES;
 	
 	psPortRangeHints[XSHAPER_LFO2RATE].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_1);
 	psPortRangeHints[XSHAPER_LFO2RATE].LowerBound
@@ -1263,14 +1263,14 @@ void _init() {
 	= 10;
 	
 	psPortRangeHints[XSHAPER_LFO2DEPTH].HintDescriptor
-	= (LADSPA_HINT_BOUNDED_BELOW 
+	= (LADSPA_HINT_BOUNDED_BELOW
 	| LADSPA_HINT_BOUNDED_ABOVE
 	| LADSPA_HINT_DEFAULT_0);
 	psPortRangeHints[XSHAPER_LFO2DEPTH].LowerBound
 	= -1;
 	psPortRangeHints[XSHAPER_LFO2DEPTH].UpperBound
 	= 1;
-	  
+	
 	psPortRangeHints[XSHAPER_INPUT1].HintDescriptor
 	 = 0;
     psPortRangeHints[XSHAPER_OUTPUT1].HintDescriptor
@@ -1279,10 +1279,10 @@ void _init() {
 	 = 0;
     psPortRangeHints[XSHAPER_OUTPUT2].HintDescriptor
 	 = 0;
-	  
-    g_psStereoDescriptor->instantiate 
+	
+    g_psStereoDescriptor->instantiate
       = instantiateXShaper;
-    g_psStereoDescriptor->connect_port 
+    g_psStereoDescriptor->connect_port
       = connectPortToXShaper;
     g_psStereoDescriptor->activate
       = NULL;
@@ -1323,10 +1323,10 @@ void _fini() {
 
 #ifdef WIN32
 	#define _DLL_EXPORT_ __declspec(dllexport)
-	int bIsFirstTime = 1; 
+	int bIsFirstTime = 1;
 	void _init(); // forward declaration
 #else
-	#define _DLL_EXPORT_ 
+	#define _DLL_EXPORT_
 #endif
 
 

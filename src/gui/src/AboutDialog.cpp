@@ -36,7 +36,6 @@ AboutDialog::AboutDialog(QWidget* parent)
 	setupUi( this );
 
 	setWindowTitle( tr( "About" ) );
-	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	setMinimumSize( width(), height() );
 	setMaximumSize( width(), height() );
@@ -48,7 +47,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	about += "http://www.hydrogen-music.org<br><br>";
 	about += tr( "<b>Project page</b><br>");
 	about += "http://sourceforge.net/projects/hydrogen<br><br>";
-	about += tr( "<b>Mailing lists</b><br>");
+	about += tr( "<b>Development mailing list</b><br>");
 	about += "http://lists.sourceforge.net/lists/listinfo/hydrogen-devel<br>";
 	aboutTxt->setText( about );
 
@@ -86,7 +85,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "James Stone", "", "Bugfixes" ) );
 	authorList.push_back( Author( "Jay Alexander Fleming", "", "Serbian translation" ) );
 	authorList.push_back( Author( "Jesse Chappel", "", "JACK patches" ) );
-	authorList.push_back( Author( "J&#233;r&#233;my Zurcher", "", "coding") ); 
+	authorList.push_back( Author( "J&#233;r&#233;my Zurcher", "", "coding") );
 	authorList.push_back( Author( "Jonas Melzer", "", "German manual" ) );
 	authorList.push_back( Author( "Jonathan Dempsey", "jonathandempsey@fastmail.fm", "Mac OSX port" ) );
 	authorList.push_back( Author( "Kevin Dahan (aka Unet)", "", "French translation" ) );
@@ -105,7 +104,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "Sergio Gil Perez de la Manga", "", "Spanish translation" ) );
 	authorList.push_back( Author( "Simon Donike", "", "German translation" ) );
 	authorList.push_back( Author( "Steve Boyer", "", "Windows cross compilation scripts" ) );
-	authorList.push_back( Author( "Thijs Van Severen", "http://audio-and-linux.blogspot.be/", "manual, website, coding" ) ); 
+	authorList.push_back( Author( "Thijs Van Severen", "http://audio-and-linux.blogspot.be/", "manual, website, coding" ) );
 	authorList.push_back( Author( "Torben Hohn", "", "bugfixing, test" ) );
 	authorList.push_back( Author( "Yamasaki Yutaka", "yamasaki@good-day.co.jp", "Japanese translation" ) );
 	authorList.push_back( Author( "Willie Sippel", "willie@zeitgeistmedia.net", "GUI graphics, coding" ) );

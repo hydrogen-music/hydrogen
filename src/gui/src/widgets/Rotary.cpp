@@ -75,6 +75,7 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
  , m_fMousePressValue( 0.0 )
  , m_fMousePressY( 0.0 )
  , m_bShowValueToolTip( bUseValueTip )
+ , m_bIgnoreMouseMove( false )
 {
 	setAttribute(Qt::WA_NoBackground);
 	setToolTip( sToolTip );
@@ -83,7 +84,15 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
 
 	m_nWidgetWidth = 28;
 	m_nWidgetHeight = 26;
-	m_fValue = 0.0;
+
+	if (bUseIntSteps) {
+		m_fDefaultValue = (int) ( type == TYPE_CENTER ? ( ( m_fMax - m_fMin ) / 2.0 ) : m_fMin );
+	}
+	else {
+		m_fDefaultValue = ( type == TYPE_CENTER ? ( ( m_fMax - m_fMin ) / 2.0 ) : m_fMin );
+	}
+
+	m_fValue = m_fDefaultValue;
 
 	if ( m_background_normal == NULL ) {
 		m_background_normal = new QPixmap();
@@ -172,20 +181,26 @@ void Rotary::setValue( float fValue )
 
 void Rotary::mousePressEvent(QMouseEvent *ev)
 {
-	setCursor( QCursor( Qt::SizeVerCursor ) );
+	if (ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ControlModifier) {
+		resetValueToDefault();
+		m_bIgnoreMouseMove = true;
+		emit valueChanged(this);
+	}
+	else if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ) {
+		MidiSenseWidget midiSense( this, true, this->getAction() );
+		midiSense.exec();
+	}
+	else {
+		setCursor( QCursor( Qt::SizeVerCursor ) );
 
-	m_fMousePressValue = m_fValue;
-	m_fMousePressY = ev->y();
-
+		m_fMousePressValue = m_fValue;
+		m_fMousePressY = ev->y();
+	}
+	
 	if ( m_bShowValueToolTip ) {
 		char tmp[20];
 		sprintf( tmp, "%#.2f", m_fValue );
 		m_pValueToolTip->showTip( mapToGlobal( QPoint( -38, 1 ) ), QString( tmp ) );
-	}
-
-	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
-		MidiSenseWidget midiSense( this, true, this->getAction() );
-		midiSense.exec();
 	}
 }
 
@@ -195,9 +210,11 @@ void Rotary::mousePressEvent(QMouseEvent *ev)
 void Rotary::mouseReleaseEvent( QMouseEvent *ev )
 {
 	UNUSED( ev );
-
+	
 	setCursor( QCursor( Qt::ArrowCursor ) );
 	m_pValueToolTip->hide();
+
+	m_bIgnoreMouseMove = false;
 }
 
 
@@ -227,7 +244,12 @@ void Rotary::wheelEvent ( QWheelEvent *ev )
 
 
 
- void Rotary::mouseMoveEvent( QMouseEvent *ev ) {
+ void Rotary::mouseMoveEvent( QMouseEvent *ev )
+ {
+	if ( m_bIgnoreMouseMove ) {
+		return;
+	}
+
 	float fRange = fabs( m_fMax ) + fabs( m_fMin );
 
 	float deltaY = ev->y() - m_fMousePressY;
@@ -268,4 +290,33 @@ void Rotary::setMax( float fMax )
 float Rotary::getMax()
 {
 	return m_fMax;
+}
+
+
+void Rotary::setDefaultValue( float fDefaultValue )
+{
+	if ( fDefaultValue == m_fDefaultValue ) {
+		return;
+	}
+
+	if ( fDefaultValue < m_fMin ) {
+		fDefaultValue = m_fMin;
+	}
+	else if ( fDefaultValue > m_fMax ) {
+		fDefaultValue = m_fMax;
+	}
+
+	if ( fDefaultValue != m_fDefaultValue ) {
+		m_fDefaultValue = fDefaultValue;
+	}
+}
+
+float Rotary::getDefaultValue()
+{
+	return m_fDefaultValue;
+}
+
+void Rotary::resetValueToDefault()
+{
+	setValue(m_fDefaultValue);
 }

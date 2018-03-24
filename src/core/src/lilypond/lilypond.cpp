@@ -30,7 +30,7 @@
  * It contains the notation style (states the position of notes), and for this
  * it follows the "Guide to Standardized Drumset Notation" by Norman Weinberg.
  *
- * Note that the GM-kit uses two unconventionnal intruments: "Stick" and
+ * Note that the GM-kit uses two unconventionnal instruments: "Stick" and
  * "Hand Clap", so for those I did what I could and used the recommended
  * triangle notehead to distinguish them for drum and cymbal notation.
  */
@@ -57,7 +57,9 @@ static const char *sHeader =
         "     ))\n"
         "\n";
 
-H2Core::LilyPond::LilyPond() {
+H2Core::LilyPond::LilyPond() :
+	m_fBPM( 0 )
+{
 }
 
 void H2Core::LilyPond::extractData( const Song &song ) {
@@ -69,14 +71,14 @@ void H2Core::LilyPond::extractData( const Song &song ) {
 	// Get the main information about the music
 	const std::vector<PatternList *> *group = song.get_pattern_group_vector();
 	if ( !group ) {
-		m_measures.clear();
+		m_Measures.clear();
 		return;
 	}
 	unsigned nSize = group->size();
-	m_measures = std::vector<notes_t>( nSize );
+	m_Measures = std::vector<notes_t>( nSize );
 	for ( unsigned nPatternList = 0; nPatternList < nSize; nPatternList++ ) {
 		if ( PatternList *pPatternList = ( *group )[ nPatternList ] ) {
-			addPatternList( *pPatternList, m_measures[ nPatternList ] );
+			addPatternList( *pPatternList, m_Measures[ nPatternList ] );
 		}
 	}
 }
@@ -142,10 +144,10 @@ void H2Core::LilyPond::addPattern( const Pattern &pattern, notes_t &notes ) {
 
 void H2Core::LilyPond::writeMeasures( std::ofstream &stream ) const {
 	unsigned nSignature = 0; ///< Numerator of the time signature
-	for ( unsigned nMeasure = 0; nMeasure < m_measures.size(); nMeasure++ ) {
+	for ( unsigned nMeasure = 0; nMeasure < m_Measures.size(); nMeasure++ ) {
 		// Start a new measure
 		stream << "\n            % Measure " << nMeasure + 1 << "\n";
-		unsigned nNewSignature = m_measures[ nMeasure ].size() / 48;
+		unsigned nNewSignature = m_Measures[ nMeasure ].size() / 48;
 		if ( nSignature != nNewSignature ) { // Display time signature change
 			nSignature = nNewSignature;
 			stream << "            \\time " << nSignature << "/4\n";
@@ -241,7 +243,7 @@ void H2Core::LilyPond::writeVoice( std::ofstream &stream,
                                    unsigned nMeasure,
                                    const std::vector<int> &whiteList ) const {
 	stream << "                ";
-	const notes_t &measure = m_measures[ nMeasure ];
+	const notes_t &measure = m_Measures[ nMeasure ];
 	for ( unsigned nStart = 0; nStart < measure.size(); nStart += 48 ) {
 		unsigned lastNote = nStart;
 		for ( unsigned nTime = nStart; nTime < nStart + 48; nTime++ ) {

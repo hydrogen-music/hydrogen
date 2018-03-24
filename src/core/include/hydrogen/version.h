@@ -18,4 +18,4 @@ bool version_older_than( int major, int minor, int patch );
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

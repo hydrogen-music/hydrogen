@@ -26,6 +26,9 @@
 
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 #include <hydrogen/object.h>
 #include <hydrogen/globals.h>
@@ -78,23 +81,24 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		void ladspaActiveBtnClicked( LadspaFXMixerLine* ref );
 		void ladspaEditBtnClicked( LadspaFXMixerLine *ref );
 		void ladspaVolumeChanged( LadspaFXMixerLine* ref);
+		void closeEvent(QCloseEvent *event);
 
 	private:
-		QHBoxLayout *m_pFaderHBox;
-		LadspaFXMixerLine *m_pLadspaFXLine[MAX_FX];
+		QHBoxLayout *			m_pFaderHBox;
+		LadspaFXMixerLine *		m_pLadspaFXLine[MAX_FX];
 
-		QScrollArea* m_pFaderScrollArea;
-		ToggleButton *m_pShowFXPanelBtn;
-		ToggleButton *m_pShowPeaksBtn;
-		MasterMixerLine *m_pMasterLine;
+		QScrollArea*			m_pFaderScrollArea;
+		ToggleButton *			m_pShowFXPanelBtn;
+		ToggleButton *			m_pShowPeaksBtn;
+		MasterMixerLine *		m_pMasterLine;
 
-		QWidget *m_pFaderPanel;
-		MixerLine *m_pMixerLine[MAX_INSTRUMENTS];
+		QWidget *				m_pFaderPanel;
+		MixerLine *				m_pMixerLine[MAX_INSTRUMENTS];
 		std::map<int, ComponentMixerLine*> m_pComponentMixerLine;
 
-		PixmapWidget *m_pFXFrame;
+		PixmapWidget *			m_pFXFrame;
 
-		QTimer *m_pUpdateTimer;
+		QTimer *				m_pUpdateTimer;
 
 		uint findMixerLineByRef(MixerLine* ref);
 		uint findCompoMixerLineByRef(ComponentMixerLine* ref);

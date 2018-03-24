@@ -31,7 +31,7 @@
 #define LOGGER_SLEEP Sleep( 100 )
 #else
 #include <unistd.h>
-#define LOGGER_SLEEP usleep( 1000000 )
+#define LOGGER_SLEEP do { usleep( 500000 ); usleep( 500000 ); } while (0)
 #endif
 
 namespace H2Core {
@@ -244,4 +244,4 @@ int Logger::hextoi( const char* str, long len ) {
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

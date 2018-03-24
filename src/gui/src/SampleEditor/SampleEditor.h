@@ -105,7 +105,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 	
 		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
 		TargetWaveDisplay *m_pTargetSampleView;
-		DetailWaveDisplay *m_pSampleAdjustView; 
+		DetailWaveDisplay *m_pSampleAdjustView;
 
 		float m_pZoomfactor;
 		unsigned m_pDetailFrame;

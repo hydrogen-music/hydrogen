@@ -1,4 +1,22 @@
 #! /bin/bash
 
+RESET="\033[0m"
+RED="\033[0;31m"
+BROWN="\033[0;33m"
+PURPLE="\033[0;35m"
+
+echo "remove vim backup files"
 find . -name "*~" -o -name "*.orig" | xargs rm 2>/dev/null
 
+echo -e "clean trailing spaces : \n"
+for f in $(ack --flush -l ' $' src)
+do
+	echo -e "$BROWN$f$RESET"
+	ack ' $' $f
+    echo -ne "\n$PURPLE* $BROWN$1 ${RED}let sed fix it? $RESET[yN] "
+    read RET
+    if [ "$RET" = "Y" -o "$RET" = "y" ]; then
+		sed -i 's/ *$//' $f && echo "   done"
+    fi
+	echo
+done

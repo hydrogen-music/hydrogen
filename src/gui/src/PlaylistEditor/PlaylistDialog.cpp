@@ -260,13 +260,25 @@ PlaylistDialog::~PlaylistDialog()
 	INFOLOG ( "DESTROY" );
 }
 
+void PlaylistDialog::keyPressEvent( QKeyEvent* ev )
+{
+	if(ev->key() == Qt::Key_Escape) {
+		HydrogenApp::get_instance()->showPlaylistDialog();
+	}
+}
+
+void PlaylistDialog::closeEvent( QCloseEvent* ev )
+{
+	HydrogenApp::get_instance()->showPlaylistDialog();
+}
+
 void PlaylistDialog::addSong()
 {
 	static QString songDir = Preferences::get_instance()->getDataDirectory()  + "/songs";;
 
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFiles );
-	fd.setFilter ( "Hydrogen song (*.h2song)" );
+	fd.setNameFilter ( "Hydrogen song (*.h2song)" );
 	fd.setDirectory ( songDir );
 
 	fd.setWindowTitle ( trUtf8 ( "Add Song to PlayList" ) );
@@ -387,7 +399,7 @@ void PlaylistDialog::loadList()
 
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFile );
-	fd.setFilter ( "Hydrogen playlist (*.h2playlist)" );
+	fd.setNameFilter ( trUtf8("Hydrogen playlist (*.h2playlist)") );
 	fd.setDirectory ( sDirectory );
 	fd.setWindowTitle ( trUtf8 ( "Load Playlist" ) );
 
@@ -441,7 +453,7 @@ void PlaylistDialog::newScript()
 	QString sDirectory = ( Preferences::get_instance()->getDataDirectory()  + "scripts/");
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::AnyFile );
-	fd.setFilter ( trUtf8 ( "Hydrogen Scripts (*.sh)" ) );
+	fd.setNameFilter ( trUtf8 ( "Hydrogen Scripts (*.sh)" ) );
 	fd.setAcceptMode ( QFileDialog::AcceptSave );
 	fd.setWindowTitle ( trUtf8 ( "New Script" ) );
 	fd.setDirectory ( sDirectory );
@@ -458,7 +470,7 @@ void PlaylistDialog::newScript()
 	filename = fd.selectedFiles().first();
 
 	if( filename.contains(" ", Qt::CaseInsensitive)){
-		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Script name or path to the script contains whitespaces.\nIMPORTANT\nThe path to the script and the scriptname must without whitespaces.") );
+		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Script name or path to the script contains whitespaces.\nIMPORTANT\nThe path to the script and the scriptname must be without whitespaces.") );
 		return;
 	}
 
@@ -498,7 +510,7 @@ void PlaylistDialog::newScript()
 
 	char *ofile;
 	ofile = new char[openfile.length() + 1];
-	strcpy(ofile, openfile.toAscii());
+	strcpy(ofile, openfile.toLatin1());
 	int ret = std::system( ofile );
 	delete [] ofile;
 	return;
@@ -509,7 +521,7 @@ void PlaylistDialog::saveListAs()
 	QString sDirectory =  Preferences::get_instance()->getDataDirectory()  + "playlists/";
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::AnyFile );
-	fd.setFilter ( trUtf8 ( "Hydrogen Playlist (*.h2playlist)" ) );
+	fd.setNameFilter ( trUtf8 ( "Hydrogen Playlist (*.h2playlist)" ) );
 	fd.setAcceptMode ( QFileDialog::AcceptSave );
 	fd.setWindowTitle ( trUtf8 ( "Save Playlist" ) );
 	fd.setDirectory ( sDirectory );
@@ -562,7 +574,7 @@ void PlaylistDialog::loadScript()
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFile );
 	fd.setDirectory ( lastUsedDir );
-	fd.setFilter ( trUtf8 ( "Hydrogen Playlist (*.sh)" ) );
+	fd.setNameFilter ( trUtf8 ( "Hydrogen Playlist (*.sh)" ) );
 	fd.setWindowTitle ( trUtf8 ( "Add Script to selected Song" ) );
 
 	QString filename;
@@ -644,7 +656,7 @@ void PlaylistDialog::editScript()
 
 	char *file;
 	file = new char[ filename.length() + 1 ];
-	strcpy( file , filename.toAscii() );
+	strcpy( file , filename.toLatin1() );
 	int ret = std::system( file );
 	delete [] file;
 	return;
@@ -868,7 +880,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 
 	char *file;
 	file = new char[ selected.length() + 1 ];
-	strcpy( file , selected.toAscii() );
+	strcpy( file , selected.toLatin1() );
 	int ret = std::system( file );
 	delete [] file;
 	return;
@@ -947,21 +959,21 @@ bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
 				break;
 
 			Playlist::get_instance()->setNextSongByNumber(Playlist::get_instance()->getActiveSongNumber()-1);
-			return TRUE;
+			return true;
 			break;
 		case  Qt::Key_F6 :
 			if( Hydrogen::get_instance()->m_PlayList.size() == 0
 					|| Playlist::get_instance()->getActiveSongNumber() >= Hydrogen::get_instance()->m_PlayList.size() -1)
 				break;
 			Playlist::get_instance()->setNextSongByNumber(Playlist::get_instance()->getActiveSongNumber()+1);
-			return TRUE;
+			return true;
 			break;
 		}
 	} else {
-		return FALSE; // standard event processing
+		return false; // standard event processing
 	}
 
-	return FALSE;
+	return false;
 }
 
 bool PlaylistDialog::loadListByFileName( QString filename )

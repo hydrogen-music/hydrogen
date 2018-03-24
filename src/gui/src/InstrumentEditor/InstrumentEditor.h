@@ -25,6 +25,9 @@
 
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/object.h>
@@ -66,6 +69,8 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		//~ implements EventListener interface
 		void update();
 
+		static int findFreeDrumkitComponentId( int startingPoint = 0 );
+
 	private slots:
 		void rotaryChanged(Rotary *ref);
 		void filterActiveBtnClicked(Button *ref);
@@ -86,6 +91,8 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void hihatMaxRangeBtnClicked(Button *pRef);
 
 		void pSampleSelectionChanged( QString );
+
+		void waveDisplayDoubleClicked( QWidget *pRef );
 
 	private:
 		H2Core::Instrument *m_pInstrument;
@@ -190,7 +197,6 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		void loadLayer();
 		void setAutoVelocity();
-		int findFreeDrumkitComponentId( int startingPoint = 0 );
 };
 
 

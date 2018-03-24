@@ -1,13 +1,19 @@
-# Hydrogen        Drum machine
+# Hydrogen drum machine
+
+[![Travis Build Status](https://travis-ci.org/hydrogen-music/hydrogen.svg?branch=master)](https://travis-ci.org/hydrogen-music/hydrogen)
+[![Coverity Scan Build](https://scan.coverity.com/projects/2965/badge.svg?flat=1)](https://scan.coverity.com/projects/2965)
+
+
+
 
 Hydrogen is an advanced drum machine for GNU/Linux, Mac and Windows.
 It's main goal is to bring professional yet simple and intuitive pattern-based drum programming.
 
-###Features
+### Features
 
 General
 
- * Very user-friendly, modular, fast and intuitive graphical interface based on QT 4.
+ * Very user-friendly, modular, fast and intuitive graphical interface based on QT 5.
  * Sample-based stereo audio engine, with import of sound samples in wav, au and aiff formats 
  * Support of samples in compressed FLAC file.
 
@@ -34,8 +40,8 @@ Sequencer and mixer
 
 Other
  
-* JACK, ALSA, PortAudio and OSS audio drivers.
-* ALSA MIDI and PortMidi input with assignable midi-in channel (1..16, ALL).
+* JACK, ALSA, PulseAudio, PortAudio, CoreAudio and OSS audio drivers.
+* ALSA MIDI, JACK MIDI, CoreMidi and PortMidi input with assignable midi-in channel (1..16, ALL).
 * Import/export of drumkits.
 * Export song to wav, aiff, flac or file.
 * Export song to midi file.

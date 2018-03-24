@@ -57,7 +57,7 @@ void PatternEditorPanel::updateSLnameLabel( )
 	font.setBold( true );
 	pSLlabel->setFont( font );
 	pSLlabel->setText( Hydrogen::get_instance()->m_currentDrumkit  );
-} 
+}
 
 const char* PatternEditorPanel::__class_name = "PatternEditorPanel";
 
@@ -99,7 +99,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pSLlabel->setFixedSize( 170, 20 );
 	pSLlabel->move( 10, 3 );
 	pSLlabel->setToolTip( trUtf8("Loaded Soundlibrary") );
-	editor_top_hbox->addWidget( pSLlabel ); 
+	editor_top_hbox->addWidget( pSLlabel );
 
 //wolke some background images back_size_res
 	PixmapWidget *pSizeResol = new PixmapWidget( NULL );
@@ -369,6 +369,17 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 //~ NOTE_NOTEKEY EDITOR
 
+// NOTE_PROBABILITY EDITOR
+	m_pNoteProbabilityScrollView = new QScrollArea( NULL );
+	m_pNoteProbabilityScrollView->setFrameShape( QFrame::NoFrame );
+	m_pNoteProbabilityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteProbabilityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pNoteProbabilityEditor = new NotePropertiesRuler( m_pNoteProbabilityScrollView->viewport(), this, NotePropertiesRuler::PROBABILITY );
+	m_pNoteProbabilityScrollView->setWidget( m_pNoteProbabilityEditor );
+	m_pNoteProbabilityScrollView->setFixedHeight( 100 );
+//~ NOTE_PROBABILITY EDITOR
+
+
 
 	// external horizontal scrollbar
 	m_pPatternEditorHScrollBar = new QScrollBar( Qt::Horizontal , NULL  );
@@ -421,6 +432,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__pPropertiesCombo->addItem( trUtf8("Pan") );
 	__pPropertiesCombo->addItem( trUtf8("Lead and Lag") );
 	__pPropertiesCombo->addItem( trUtf8("NoteKey") );
+	__pPropertiesCombo->addItem( trUtf8("Probability") );
 	__pPropertiesCombo->update();
 	connect( __pPropertiesCombo, SIGNAL(valueChanged(QString)), this, SLOT(propertiesComboChanged(QString)));
 
@@ -452,6 +464,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pGrid->addWidget( m_pNotePanScrollView, 4, 1 );
 	pGrid->addWidget( m_pNoteLeadLagScrollView, 4, 1 );
 	pGrid->addWidget( m_pNoteNoteKeyScrollView, 4, 1 );
+	pGrid->addWidget( m_pNoteProbabilityScrollView, 4, 1 );
 
 	pGrid->addWidget( pPropertiesPanel, 4, 0 );
 	pGrid->setRowStretch( 2, 100 );
@@ -583,6 +596,9 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar(int)
 
 	// notekey ruler
 	m_pNoteNoteKeyScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
+
+	// Probability ruler
+	m_pNoteProbabilityScrollView->horizontalScrollBar()->setValue( m_pPatternEditorHScrollBar->value() );
 }
 
 
@@ -793,6 +809,7 @@ void PatternEditorPanel::zoomInBtnClicked(Button *ref)
 	m_pNoteVelocityEditor->zoomIn();
 	m_pNoteLeadLagEditor->zoomIn();
 	m_pNoteNoteKeyEditor->zoomIn();
+	m_pNoteProbabilityEditor->zoomIn();
 	m_pNotePanEditor->zoomIn();
 	m_pPianoRollEditor->zoom_in();		
 
@@ -809,6 +826,7 @@ void PatternEditorPanel::zoomOutBtnClicked(Button *ref)
 	m_pNoteVelocityEditor->zoomOut();
 	m_pNoteLeadLagEditor->zoomOut();
 	m_pNoteNoteKeyEditor->zoomOut();
+	m_pNoteProbabilityEditor->zoomOut();
 	m_pNotePanEditor->zoomOut();
 	m_pPianoRollEditor->zoom_out();	
 
@@ -853,6 +871,7 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 	m_pNotePanEditor->updateEditor();
 	m_pNoteLeadLagEditor->updateEditor();
 	m_pNoteNoteKeyEditor->updateEditor();
+	m_pNoteProbabilityEditor->updateEditor();
 	m_pPianoRollEditor->updateEditor();
 
 	resizeEvent( NULL );
@@ -935,6 +954,7 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 		m_pNoteLeadLagScrollView->hide();
 		m_pNoteNoteKeyScrollView->hide();
 		m_pNoteVelocityScrollView->show();
+		m_pNoteProbabilityScrollView->hide();
 
 		m_pNoteVelocityEditor->updateEditor();
 	}
@@ -943,7 +963,7 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 		m_pNoteLeadLagScrollView->hide();
 		m_pNoteNoteKeyScrollView->hide();
 		m_pNotePanScrollView->show();
-
+		m_pNoteProbabilityScrollView->hide();
 
 		m_pNotePanEditor->updateEditor();
 	}
@@ -952,8 +972,8 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 		m_pNotePanScrollView->hide();
 		m_pNoteNoteKeyScrollView->hide();
 		m_pNoteLeadLagScrollView->show();
+		m_pNoteProbabilityScrollView->hide();
 
- 
 		m_pNoteLeadLagEditor->updateEditor();
 	}
 	else if ( text == trUtf8( "NoteKey" ) ) {
@@ -961,8 +981,18 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 		m_pNotePanScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
 		m_pNoteNoteKeyScrollView->show();
- 
+		m_pNoteProbabilityScrollView->hide();
+
 		m_pNoteNoteKeyEditor->updateEditor();
+	}
+	else if ( text == trUtf8( "Probability" ) ) {
+		m_pNotePanScrollView->hide();
+		m_pNoteLeadLagScrollView->hide();
+		m_pNoteNoteKeyScrollView->hide();
+		m_pNoteVelocityScrollView->hide();
+		m_pNoteProbabilityScrollView->show();
+
+		m_pNoteProbabilityEditor->updateEditor();
 	}
 	else if ( text == trUtf8( "Cutoff" ) ) {
 	}

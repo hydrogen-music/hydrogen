@@ -133,4 +133,4 @@ class Logger {
 
 #endif // H2C_LOGGER_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

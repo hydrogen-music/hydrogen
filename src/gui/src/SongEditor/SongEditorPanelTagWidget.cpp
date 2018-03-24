@@ -21,6 +21,9 @@
  */
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 #include "UndoActions.h"
 #include "../HydrogenApp.h"
@@ -132,7 +135,7 @@ void SongEditorPanelTagWidget::on_okBtn_clicked()
 	int patterngroupvectorsize;
 	patterngroupvectorsize = engine->getSong()->get_pattern_group_vector()->size();
 
-	//oldText list contains all old item values. we need them for undo an item 
+	//oldText list contains all old item values. we need them for undo an item
 	QStringList oldText;
 
 	if(pTimeline->m_timelinetagvector.size() > 0){

@@ -55,7 +55,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	setupUi( this );
 
 	setWindowTitle( trUtf8( "Preferences" ) );
-	setWindowIcon( QPixmap( Skin::getImagePath()  + "/icon16.png" ) );
 
 	setMinimumSize( width(), height() );
 
@@ -119,6 +118,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 
 	m_pIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
+	m_pEnableMidiFeedbackCheckBox->setChecked( pPref->m_bEnableMidiFeedback );
+	m_pDiscardMidiMsgCheckbox->setChecked( pPref->m_bMidiDiscardNoteAfterAction );
 	m_pFixedMapping->setChecked( pPref->m_bMidiFixedMapping );
 
 	updateDriverInfo();
@@ -254,6 +255,14 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		midiPortChannelComboBox->setCurrentIndex( pPref->m_nMidiChannelFilter + 1 );
 	}
 
+	//OSC tab
+	enableOscCheckbox->setChecked( pPref->getOscServerEnabled() );
+	enableOscFeedbackCheckbox->setChecked( pPref->getOscFeedbackEnabled() );
+	connect(enableOscCheckbox, SIGNAL(toggled(bool)), this, SLOT(toggleOscCheckBox( bool )));
+	
+	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
+	oscWidget->setEnabled( pPref->getOscServerEnabled() );
+	
 
 	// General tab
 	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
@@ -410,7 +419,9 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	pPref->m_bMidiNoteOffIgnore = m_pIgnoreNoteOffCheckBox->isChecked();
 	pPref->m_bMidiFixedMapping = m_pFixedMapping->isChecked();
-
+	pPref->m_bMidiDiscardNoteAfterAction = m_pDiscardMidiMsgCheckbox->isChecked();
+	pPref->m_bEnableMidiFeedback = m_pEnableMidiFeedbackCheckBox->isChecked();
+			
 	// Mixer falloff
 	QString falloffStr = mixerFalloffComboBox->currentText();
 	if ( falloffStr== trUtf8("Slow") ) {
@@ -438,7 +449,11 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 	pPref->m_nMidiChannelFilter = midiPortChannelComboBox->currentIndex() - 1;
 
-
+	//OSC tab
+	pPref->setOscServerEnabled( enableOscCheckbox->isChecked() );
+	pPref->setOscFeedbackEnabled( enableOscFeedbackCheckbox->isChecked() );
+	pPref->setOscServerPort( incomingOscPortSpinBox->value() );
+	
 	// General tab
 	pPref->setRestoreLastSongEnabled( restoreLastUsedSongCheckbox->isChecked() );
 	pPref->setRestoreLastPlaylistEnabled( restoreLastUsedPlaylistCheckbox->isChecked() );
@@ -804,4 +819,9 @@ void PreferencesDialog::toggleTrackOutsCheckBox(bool toggled)
 {
 	Preferences::get_instance()->m_bJackTrackOuts = toggled;
 	m_bNeedDriverRestart = true;
+}
+
+void PreferencesDialog::toggleOscCheckBox(bool toggled)
+{
+	oscWidget->setEnabled( toggled );
 }

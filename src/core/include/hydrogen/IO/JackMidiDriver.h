@@ -60,9 +60,11 @@ public:
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
 	void JackMidiWrite(jack_nframes_t nframes);
 	void JackMidiRead(jack_nframes_t nframes);
-		virtual void handleQueueNote(Note* pNote);
-		virtual void handleQueueNoteOff( int channel, int key, int velocity );
-		virtual void handleQueueAllNoteOff();
+	
+	virtual void handleQueueNote(Note* pNote);
+	virtual void handleQueueNoteOff( int channel, int key, int velocity );
+	virtual void handleQueueAllNoteOff();
+	virtual void handleOutgoingControlChange( int param, int value, int channel );
 
 private:
 	void JackMidiOutEvent(uint8_t *buf, uint8_t len);

@@ -26,6 +26,9 @@
 #include "../EventListener.h"
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 #include <hydrogen/object.h>
 
@@ -46,7 +49,8 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 			VELOCITY,
 			PAN,
 			LEADLAG,
-			NOTEKEY
+			NOTEKEY,
+			PROBABILITY
 		};
 
 		NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode );
@@ -62,7 +66,7 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		static const int m_nKeys = 24;
 		static const int m_nBasePitch = 12;
 
-		NotePropertiesMode m_mode;
+		NotePropertiesMode m_Mode;
 
 		PatternEditorPanel *m_pPatternEditorPanel;
 		H2Core::Pattern *m_pPattern;
@@ -100,6 +104,8 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		float __oldPan_R;
 		float __leadLag;
 		float __oldLeadLag;
+		float __probability;
+		float __oldProbability;
 		int __noteKeyVal;
 		int __oldNoteKeyVal;
 		int __octaveKeyVal;

@@ -2,11 +2,15 @@
 #define UNDOACTIONS_H
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 #include <QDebug>
 #include <QUndoCommand>
 #include <QPoint>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/pattern.h>
+#include <hydrogen/basics/automation_path.h>
 
 #include "HydrogenApp.h"
 #include "SongEditor/SongEditor.h"
@@ -17,6 +21,7 @@
 #include "PatternEditor/DrumPatternEditor.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "PatternEditor/NotePropertiesRuler.h"
+#include "widgets/AutomationPathView.h"
 
 
 //=====================================================================================================================================
@@ -1166,6 +1171,8 @@ public:
 					   float oldPan_R,
 					   float leadLag,
 					   float oldLeadLag,
+					   float probability,
+					   float oldProbability,
 					   int noteKeyVal,
 					   int oldNoteKeyVal,
 					   int octaveKeyVal,
@@ -1173,7 +1180,7 @@ public:
 	{
 
 
-		setText( QString( "Edit note property" ) );
+		setText( QString( "Edit note property " + mode.toLower() ) );
 		__undoColumn = undoColumn;
 		__mode = mode;
 		__nSelectedPatternNumber = nSelectedPatternNumber;
@@ -1186,6 +1193,8 @@ public:
 		__oldPan_R = oldPan_R;
 		__leadLag = leadLag;
 		__oldLeadLag = oldLeadLag;
+		__probability = probability;
+		__oldProbability = oldProbability;
 		__noteKeyVal = noteKeyVal;
 		__oldNoteKeyVal = oldNoteKeyVal;
 		__octaveKeyVal = octaveKeyVal;
@@ -1205,6 +1214,7 @@ public:
 											__oldPan_L,
 											__oldPan_R,
 											__oldLeadLag,
+											__oldProbability,
 											__oldNoteKeyVal,
 											__oldOctaveKeyVal );
 	}
@@ -1220,6 +1230,7 @@ public:
 											__pan_L,
 											__pan_R,
 											__leadLag,
+											__probability,
 											__noteKeyVal,
 											__octaveKeyVal );
 	}
@@ -1238,6 +1249,8 @@ private:
 	float __oldPan_R;
 	float __leadLag;
 	float __oldLeadLag;
+	float __probability;
+	float __oldProbability;
 	int __noteKeyVal;
 	int __oldNoteKeyVal;
 	int __octaveKeyVal;
@@ -1249,5 +1262,110 @@ private:
 //~Note Properties Ruler commands
 //=====================================================================================================================================
 
+
+
+class SE_automationPathAddPointAction : public QUndoCommand
+{
+public:
+	SE_automationPathAddPointAction( H2Core::AutomationPath *path, float x, float y)
+	{
+		setText( QString( "Add point" ) );
+		__path = path;
+		__x = x;
+		__y = y;
+	}
+
+	virtual void undo()
+	{
+		__path->remove_point( __x );
+
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+	}
+
+	virtual void redo()
+	{
+		__path->add_point( __x, __y );
+
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+	}
+private:
+	H2Core::AutomationPath* __path;
+	float __x;
+	float __y;
+};
+
+
+class SE_automationPathRemovePointAction : public QUndoCommand
+{
+public:
+	SE_automationPathRemovePointAction( H2Core::AutomationPath *path, float x, float y)
+	{
+		setText( QString( "Remove point" ) );
+		__path = path;
+		__x = x;
+		__y = y;
+	}
+
+	virtual void redo()
+	{
+		__path->remove_point( __x );
+
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+	}
+
+	virtual void undo()
+	{
+		__path->add_point( __x, __y );
+
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+	}
+private:
+	H2Core::AutomationPath* __path;
+	float __x;
+	float __y;
+};
+
+
+class SE_automationPathMovePointAction : public QUndoCommand
+{
+public:
+	SE_automationPathMovePointAction( H2Core::AutomationPath *path, float ox, float oy, float tx, float ty)
+	{
+		setText( QString( "Move point" ) );
+		__path = path;
+		__ox = ox;
+		__oy = oy;
+		__tx = tx;
+		__ty = ty;
+	}
+
+	virtual void redo()
+	{
+		__path->remove_point( __ox );
+		__path->add_point( __tx, __ty );
+
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+	}
+
+	virtual void undo()
+	{
+		__path->remove_point( __tx );
+		__path->add_point( __ox, __oy );
+
+		HydrogenApp* h2app = HydrogenApp::get_instance();
+		h2app->getSongEditorPanel()->getAutomationPathView()->update();
+	}
+private:
+	H2Core::AutomationPath* __path;
+	float __ox;
+	float __oy;
+	float __tx;
+	float __ty;
+};
 
 #endif // UNDOACTIONS_H

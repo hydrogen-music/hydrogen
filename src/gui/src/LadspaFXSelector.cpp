@@ -47,7 +47,6 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 	setFixedSize( width(), height() );
 
 	setWindowTitle( trUtf8( "Select LADSPA FX" ) );
-	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 	m_sSelectedPluginName = "";
 
@@ -176,7 +175,7 @@ void LadspaFXSelector::pluginSelected()
 #ifdef H2CORE_HAVE_LADSPA
 	//INFOLOG( "[pluginSelected]" );
 	//
-        
+
 	if ( m_pPluginsListBox->selectedItems().isEmpty() ) return;
 
 	QString sSelected = m_pPluginsListBox->currentItem()->text();

@@ -63,7 +63,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_bIsSelected = false;
 	m_nPeakTimer = 0;
 
-	MidiAction* pAction;
+	Action* pAction;
 
 	resize( m_nWidth, m_nHeight );
 	setFixedSize( m_nWidth, m_nHeight );
@@ -122,7 +122,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pPanRotary = new Rotary( this, Rotary::TYPE_CENTER, trUtf8( "Pan" ), false, true);
 	m_pPanRotary->move( 14, 32 );
 	connect( m_pPanRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( panChanged(Rotary*) ) );
-	pAction = new MidiAction("PAN_ABSOLUTE");
+	pAction = new Action("PAN_ABSOLUTE");
 	pAction->setParameter1( QString::number(nInstr ));
 	pAction->setParameter2( QString::number( 1 ));
 	m_pPanRotary->setAction(pAction);
@@ -131,7 +131,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	uint y = 0;
 	for (uint i = 0; i < MAX_FX; i++) {
 		m_pKnob[i] = new Knob(this);
-		pAction = new MidiAction(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number(i+1) ));
+		pAction = new Action(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number(i+1) ));
 		pAction->setParameter1( QString::number( nInstr ) );
 		m_pKnob[i]->setAction( pAction );
 		if ( (i % 2) == 0 ) {
@@ -144,11 +144,11 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 		connect( m_pKnob[i], SIGNAL( valueChanged(Knob*) ), this, SLOT( knobChanged(Knob*) ) );
 	}
 
-	Preferences *pref = Preferences::get_instance();
+	Preferences *pPref = Preferences::get_instance();
 
-	float m_fFalloffTemp = pref->getMixerFalloffSpeed();
-	m_fFalloffTemp = (m_fFalloffTemp * 20) - 2;
-	m_nFalloff = (int)m_fFalloffTemp;
+	float fFalloffTemp = pPref->getMixerFalloffSpeed();
+	fFalloffTemp = (fFalloffTemp * 20) - 2;
+	m_nFalloff = (int)fFalloffTemp;
 
 	QPixmap textBackground;
 	bool ok = textBackground.load( Skin::getImagePath() + "/mixerPanel/mixerline_text_background.png" );
@@ -170,7 +170,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pFader->setMaxValue( 1.5 );
 	connect( m_pFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
 
-	pAction = new MidiAction("STRIP_VOLUME_ABSOLUTE");
+	pAction = new Action("STRIP_VOLUME_ABSOLUTE");
 	pAction->setParameter1( QString::number(nInstr) );
 	m_pFader->setAction( pAction );
 
@@ -183,15 +183,11 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pPeakLCD->setPalette( lcdPalette );
 }
 
-
-
 MixerLine::~MixerLine()
 {
 //	INFOLOG( "DESTROY" );
 	//delete m_pFader;
 }
-
-
 
 void MixerLine::updateMixerLine()
 {
@@ -216,8 +212,6 @@ void MixerLine::updateMixerLine()
 	m_nPeakTimer++;
 }
 
-
-
 void MixerLine::click(Button *ref) {
 	Song *song = (Hydrogen::get_instance())->getSong();
 
@@ -234,8 +228,6 @@ void MixerLine::click(Button *ref) {
 	}
 }
 
-
-
 void MixerLine::rightClick(Button *ref)
 {
 	if (ref == m_pPlaySampleBtn) {
@@ -243,8 +235,6 @@ void MixerLine::rightClick(Button *ref)
 	}
 
 }
-
-
 
 void MixerLine::faderChanged(Fader *ref)
 {
@@ -256,45 +246,31 @@ void MixerLine::faderChanged(Fader *ref)
 	( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Set instrument volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
 }
 
-
-
 bool MixerLine::isMuteClicked() {
 	return m_pMuteBtn->isPressed();
 }
-
-
 
 void MixerLine::setMuteClicked(bool isClicked) {
 	m_pMuteBtn->setPressed(isClicked);
 }
 
-
-
 bool MixerLine::isSoloClicked() {
 	return m_pSoloBtn->isPressed();
 }
 
-
-
 void MixerLine::setSoloClicked(bool isClicked) {
 	m_pSoloBtn->setPressed(isClicked);
 }
-
-
 
 float MixerLine::getVolume()
 {
 	return m_pFader->getValue();
 }
 
-
-
 void MixerLine::setVolume( float value )
 {
 	m_pFader->setValue( value );
 }
-
-
 
 void MixerLine::setPeak_L( float peak ) {
 	if (peak != getPeak_L() ) {
@@ -318,13 +294,9 @@ void MixerLine::setPeak_L( float peak ) {
 	}
 }
 
-
-
 float MixerLine::getPeak_L() {
 	return m_pFader->getPeak_L();
 }
-
-
 
 void MixerLine::setPeak_R( float peak ) {
 	if (peak != getPeak_R() ) {
@@ -348,29 +320,17 @@ void MixerLine::setPeak_R( float peak ) {
 	}
 }
 
-
-
 float MixerLine::getPeak_R() {
 	return m_pFader->getPeak_R();
 }
-
-
-
-
 
 void MixerLine::nameClicked() {
 	emit instrumentNameClicked(this);
 }
 
-
-
 void MixerLine::nameSelected() {
 	emit instrumentNameSelected(this);
 }
-
-
-
-
 
 void MixerLine::panChanged(Rotary *ref)
 {
@@ -395,14 +355,10 @@ void MixerLine::panChanged(Rotary *ref)
 	m_pPanRotary->setToolTip( QString("Pan ") + QString( m_pFaderPos ) );
 }
 
-
-
 float MixerLine::getPan()
 {
 	return m_pPanRotary->getValue();
 }
-
-
 
 void MixerLine::setPan(float fValue)
 {
@@ -422,11 +378,9 @@ void MixerLine::setPan(float fValue)
 	}
 }
 
-
 void MixerLine::setPlayClicked( bool clicked ) {
 	m_pTriggerSampleLED->setPressed( clicked );
 }
-
 
 void MixerLine::knobChanged(Knob* pRef)
 {
@@ -438,7 +392,6 @@ void MixerLine::knobChanged(Knob* pRef)
 		}
 	}
 }
-
 
 void MixerLine::setFXLevel( uint nFX, float fValue )
 {
@@ -457,7 +410,6 @@ float MixerLine::getFXLevel(uint nFX)
 	}
 	return m_pKnob[nFX]->getValue();
 }
-
 
 void MixerLine::setSelected( bool bIsSelected )
 {
@@ -483,7 +435,7 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 {
 //	INFOLOG( "INIT" );
 
-    __compoID = CompoID;
+	__compoID = CompoID;
 
 	m_nWidth = MIXERLINE_WIDTH;
 	m_nHeight = MIXERLINE_HEIGHT;
@@ -521,14 +473,11 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 	m_pSoloBtn->setToolTip( trUtf8( "Solo" ) );
 	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(click(Button*)));
 
-	Preferences *pref = Preferences::get_instance();
+	Preferences *pPref = Preferences::get_instance();
 
-	QString family = pref->getMixerFontFamily();
-	int size = pref->getMixerFontPointSize();
-	QFont mixerFont( family, size );
-	float m_fFalloffTemp = pref->getMixerFalloffSpeed();
-	m_fFalloffTemp = (m_fFalloffTemp * 20) - 2;
-	m_nFalloff = (int)m_fFalloffTemp;
+	float fFalloffTemp = pPref->getMixerFalloffSpeed();
+	fFalloffTemp = (fFalloffTemp * 20) - 2;
+	m_nFalloff = (int)fFalloffTemp;
 
 	QPixmap textBackground;
 	bool ok = textBackground.load( Skin::getImagePath() + "/mixerPanel/mixerline_text_background.png" );
@@ -569,8 +518,6 @@ ComponentMixerLine::~ComponentMixerLine()
 	//delete m_pFader;
 }
 
-
-
 void ComponentMixerLine::updateMixerLine()
 {
 	if ( m_nPeakTimer > m_nFalloff ) {
@@ -594,8 +541,6 @@ void ComponentMixerLine::updateMixerLine()
 	m_nPeakTimer++;
 }
 
-
-
 void ComponentMixerLine::click(Button *ref) {
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 
@@ -609,7 +554,6 @@ void ComponentMixerLine::click(Button *ref) {
 	}
 }
 
-
 void ComponentMixerLine::faderChanged(Fader *ref)
 {
 	Song *pSong = (Hydrogen::get_instance())->getSong();
@@ -620,45 +564,31 @@ void ComponentMixerLine::faderChanged(Fader *ref)
 	( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Set instrument volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
 }
 
-
-
 bool ComponentMixerLine::isMuteClicked() {
 	return m_pMuteBtn->isPressed();
 }
-
-
 
 void ComponentMixerLine::setMuteClicked(bool isClicked) {
 	m_pMuteBtn->setPressed(isClicked);
 }
 
-
-
 bool ComponentMixerLine::isSoloClicked() {
 	return m_pSoloBtn->isPressed();
 }
 
-
-
 void ComponentMixerLine::setSoloClicked(bool isClicked) {
 	m_pSoloBtn->setPressed(isClicked);
 }
-
-
 
 float ComponentMixerLine::getVolume()
 {
 	return m_pFader->getValue();
 }
 
-
-
 void ComponentMixerLine::setVolume( float value )
 {
 	m_pFader->setValue( value );
 }
-
-
 
 void ComponentMixerLine::setPeak_L( float peak ) {
 	if (peak != getPeak_L() ) {
@@ -682,13 +612,9 @@ void ComponentMixerLine::setPeak_L( float peak ) {
 	}
 }
 
-
-
 float ComponentMixerLine::getPeak_L() {
 	return m_pFader->getPeak_L();
 }
-
-
 
 void ComponentMixerLine::setPeak_R( float peak ) {
 	if (peak != getPeak_R() ) {
@@ -712,17 +638,12 @@ void ComponentMixerLine::setPeak_R( float peak ) {
 	}
 }
 
-
-
 float ComponentMixerLine::getPeak_R() {
 	return m_pFader->getPeak_R();
 }
 
 
-
 // ::::::::::::::::::::::::::::
-
-
 const char* MasterMixerLine::__class_name = "MasterMixerLine";
 
 MasterMixerLine::MasterMixerLine(QWidget* parent)
@@ -742,12 +663,11 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	// Background image
 	setPixmap( "/mixerPanel/masterMixerline_background.png" );
 
-	Preferences *pref = Preferences::get_instance();
-	int size = pref->getMixerFontPointSize();
-	QString family = pref->getMixerFontFamily();
-	float m_fFalloffTemp = pref->getMixerFalloffSpeed();
-	m_fFalloffTemp = (m_fFalloffTemp * 20) - 2;
-	m_nFalloff = (int)m_fFalloffTemp;
+	Preferences *pPref = Preferences::get_instance();
+
+	float fFalloffTemp = pPref->getMixerFalloffSpeed();
+	fFalloffTemp = (fFalloffTemp * 20) - 2;
+	m_nFalloff = (int)fFalloffTemp;
 
 	m_pMasterFader = new MasterFader( this );
 	m_pMasterFader->setMin( 0.0 );
@@ -755,10 +675,8 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pMasterFader->move( 24, MASTERMIXERLINE_FADER_H );
 	connect( m_pMasterFader, SIGNAL( valueChanged(MasterFader*) ), this, SLOT( faderChanged(MasterFader*) ) );
 
-	MidiAction* pAction = new MidiAction("MASTER_VOLUME_ABSOLUTE");
+	Action* pAction = new Action("MASTER_VOLUME_ABSOLUTE");
 	m_pMasterFader->setAction( pAction );
-
-	QFont mixerFont( family, size );
 
 	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
 	m_pPeakLCD->move( 23, 53 );
@@ -789,25 +707,18 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	);
 	m_pMuteBtn->move( 20, 32 );
 	connect( m_pMuteBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteClicked(Button*) ) );
-	m_pMuteBtn->setAction( new MidiAction("MUTE_TOGGLE"));
+	m_pMuteBtn->setAction( new Action("MUTE_TOGGLE"));
 }
-
-
-
 
 MasterMixerLine::~MasterMixerLine()
 {
 	m_fMaxPeak = 0.0;
 }
 
-
-
 void MasterMixerLine::muteClicked(Button* pBtn)
 {
-	Hydrogen::get_instance()->getSong()->__is_muted = pBtn->isPressed();
+	Hydrogen::get_instance()->getCoreActionController()->setMasterIsMuted( pBtn->isPressed() );
 }
-
-
 
 void MasterMixerLine::faderChanged(MasterFader *ref)
 {
@@ -822,22 +733,15 @@ void MasterMixerLine::faderChanged(MasterFader *ref)
 	( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Set master volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
 }
 
-
-
-
 float MasterMixerLine::getVolume()
 {
 	return m_pMasterFader->getValue();
 }
 
-
-
 void MasterMixerLine::setVolume( float value )
 {
 	m_pMasterFader->setValue( value );
 }
-
-
 
 void MasterMixerLine::setPeak_L(float peak)
 {
@@ -862,14 +766,9 @@ void MasterMixerLine::setPeak_L(float peak)
 	}
 }
 
-
-
-
 float MasterMixerLine::getPeak_L() {
 	return m_pMasterFader->getPeak_L();
 }
-
-
 
 void MasterMixerLine::setPeak_R(float peak) {
 	if ( peak != getPeak_R() ) {
@@ -893,13 +792,9 @@ void MasterMixerLine::setPeak_R(float peak) {
 	}
 }
 
-
-
 float MasterMixerLine::getPeak_R() {
 	return m_pMasterFader->getPeak_R();
 }
-
-
 
 void MasterMixerLine::updateMixerLine()
 {
@@ -936,7 +831,6 @@ void MasterMixerLine::updateMixerLine()
 	}
 }
 
-
 void MasterMixerLine::rotaryChanged( Rotary *pRef )
 {
 	QString sMsg;
@@ -965,9 +859,6 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 
 	( HydrogenApp::get_instance() )->setStatusBarMessage( sMsg, 2000 );
 }
-
-
-
 
 /////////////////////////////////////////
 
@@ -998,17 +889,10 @@ FxMixerLine::FxMixerLine(QWidget* parent)
 	activeBtn->setToolTip( trUtf8( "FX on/off") );
 	connect( activeBtn, SIGNAL( clicked(Button*) ), this, SLOT( click(Button*) ) );
 
-	Preferences *pref = Preferences::get_instance();
-
 	// m_pFader
 	m_pFader = new Fader( this, false, false );
 	m_pFader->move( 22, 106 );
 	connect( m_pFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
-
-	QString family = pref->getMixerFontFamily();
-	int size = pref->getMixerFontPointSize();
-	QFont mixerFont( family, size );
-
 
 	m_pNameWidget = new InstrumentNameWidget( this );
 	m_pNameWidget->move( 2, 106 );
@@ -1054,28 +938,20 @@ void FxMixerLine::faderChanged(Fader *ref)
 		m_pPeakLCD->setSmallBlue();
 	}
 
-
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	pSong->set_is_modified( true );
 	emit volumeChanged( this );
-
 }
-
-
 
 float FxMixerLine::getVolume()
 {
 	return m_pFader->getValue();
 }
 
-
-
 void FxMixerLine::setVolume( float value )
 {
 	m_pFader->setValue( value );
 }
-
-
 
 void FxMixerLine::setPeak_L( float peak )
 {
@@ -1097,15 +973,10 @@ void FxMixerLine::setPeak_L( float peak )
 	}
 }
 
-
-
 float FxMixerLine::getPeak_L()
 {
 	return m_pFader->getPeak_L();
 }
-
-
-
 
 void FxMixerLine::setPeak_R(float peak)
 {
@@ -1127,34 +998,20 @@ void FxMixerLine::setPeak_R(float peak)
 	}
 }
 
-
-
-
 float FxMixerLine::getPeak_R()
 {
 	return m_pFader->getPeak_R();
 }
-
-
-
 
 bool FxMixerLine::isFxActive()
 {
 	return activeBtn->isPressed();
 }
 
-
-
-
 void FxMixerLine::setFxActive( bool active )
 {
 	activeBtn->setPressed( active );
 }
-
-
-
-
-
 
 ////////////////////////////////
 
@@ -1165,9 +1022,9 @@ InstrumentNameWidget::InstrumentNameWidget(QWidget* parent)
 	m_nWidgetWidth = 17;
 	m_nWidgetHeight = 116;
 
-	Preferences *pref = Preferences::get_instance();
-	QString family = pref->getMixerFontFamily();
-	int size = pref->getMixerFontPointSize();
+	Preferences *pPref = Preferences::get_instance();
+	QString family = pPref->getMixerFontFamily();
+	int size = pPref->getMixerFontPointSize();
 	m_mixerFont.setFamily( family );
 	m_mixerFont.setPointSize( size );
 
@@ -1175,9 +1032,6 @@ InstrumentNameWidget::InstrumentNameWidget(QWidget* parent)
 
 	this->resize( m_nWidgetWidth, m_nWidgetHeight );
 }
-
-
-
 
 InstrumentNameWidget::~InstrumentNameWidget()
 {
@@ -1198,9 +1052,6 @@ void InstrumentNameWidget::paintEvent( QPaintEvent* ev )
 	p.drawText( -m_nWidgetHeight + 5, 0, m_nWidgetHeight - 10, m_nWidgetWidth, Qt::AlignVCenter, m_sInstrName );
 }
 
-
-
-
 void InstrumentNameWidget::setText( QString text )
 {
 	if (m_sInstrName != text ) {
@@ -1209,14 +1060,10 @@ void InstrumentNameWidget::setText( QString text )
 	}
 }
 
-
-
 QString InstrumentNameWidget::text()
 {
 	return m_sInstrName;
 }
-
-
 
 void InstrumentNameWidget::mousePressEvent( QMouseEvent * e )
 {
@@ -1224,15 +1071,11 @@ void InstrumentNameWidget::mousePressEvent( QMouseEvent * e )
 	emit clicked();
 }
 
-
-
 void InstrumentNameWidget::mouseDoubleClickEvent( QMouseEvent * e )
 {
 	UNUSED( e );
 	emit doubleClicked();
 }
-
-
 
 // :::::::::::::::::::::
 
@@ -1279,6 +1122,7 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 
 	// m_pRotary
 	m_pRotary = new Rotary( this,  Rotary::TYPE_NORMAL, trUtf8( "Effect return" ), false, false );
+	m_pRotary->setDefaultValue( m_pRotary->getMax() );
 	m_pRotary->move( 132, 4 );
 	connect( m_pRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 }
@@ -1289,8 +1133,6 @@ LadspaFXMixerLine::~LadspaFXMixerLine()
 {
 //	infoLog( "DESTROY" );
 }
-
-
 
 void LadspaFXMixerLine::setName(QString name)
 {
@@ -1307,22 +1149,15 @@ void LadspaFXMixerLine::click(Button *ref)
 	}
 }
 
-
-
 bool LadspaFXMixerLine::isFxActive()
 {
 	return !m_pActiveBtn->isPressed();
 }
 
-
-
-
 void LadspaFXMixerLine::setFxActive( bool active )
 {
 	m_pActiveBtn->setPressed( !active );
 }
-
-
 
 void LadspaFXMixerLine::rotaryChanged(Rotary *ref)
 {
@@ -1334,15 +1169,11 @@ void LadspaFXMixerLine::rotaryChanged(Rotary *ref)
 	emit volumeChanged(this);
 }
 
-
-
 void LadspaFXMixerLine::setPeaks( float fPeak_L, float fPeak_R )
 {
 	UNUSED( fPeak_L );
 	UNUSED( fPeak_R );
 }
-
-
 
 void LadspaFXMixerLine::getPeaks( float *fPeak_L, float *fPeak_R )
 {
@@ -1350,13 +1181,10 @@ void LadspaFXMixerLine::getPeaks( float *fPeak_L, float *fPeak_R )
 	UNUSED( fPeak_R );
 }
 
-
-
 float LadspaFXMixerLine::getVolume()
 {
 	return m_pRotary->getValue();
 }
-
 
 
 void LadspaFXMixerLine::setVolume(float value)

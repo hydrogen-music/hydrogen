@@ -25,7 +25,7 @@
 #include <cstdlib>
 
 #include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/IO/JackOutput.h>
+#include <hydrogen/IO/JackAudioDriver.h>
 
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/audio_engine.h>
@@ -72,10 +72,23 @@ Sampler::Sampler()
 	__preview_instrument = new Instrument( EMPTY_INSTR_ID, sEmptySampleFilename );
 	__preview_instrument->set_is_preview_instrument(true);
 	__preview_instrument->set_volume( 0.8 );
+
 	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( sEmptySampleFilename ) );
 	InstrumentComponent* pComponent = new InstrumentComponent( 0 );
+
 	pComponent->set_layer( pLayer, 0 );
 	__preview_instrument->get_components()->push_back( pComponent );
+
+	// dummy instrument used for playback track
+	__playback_instrument = new Instrument( PLAYBACK_INSTR_ID, sEmptySampleFilename );
+	__playback_instrument->set_volume( 0.8 );
+
+	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( Sample::load( sEmptySampleFilename ) );
+	InstrumentComponent* pPlaybackTrackComponent = new InstrumentComponent( 0 );
+	pPlaybackTrackComponent->set_layer( pPlaybackTrackLayer, 0 );
+
+	__playback_instrument->get_components()->push_back( pPlaybackTrackComponent );
+	__playBackSamplePosition = 0;
 }
 
 
@@ -88,6 +101,10 @@ Sampler::~Sampler()
 
 	delete __preview_instrument;
 	__preview_instrument = NULL;
+
+
+	delete __playback_instrument;
+	__playback_instrument = NULL;
 }
 
 // perche' viene passata anche la canzone? E' davvero necessaria?
@@ -148,6 +165,7 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 		pNote = NULL;
 	}//while
 
+	processPlaybackTrack(nFrames);
 }
 
 
@@ -247,6 +265,11 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 	}
 
 	bool nReturnValues [pInstr->get_components()->size()];
+	
+	for(int i = 0; i < pInstr->get_components()->size(); i++){
+		nReturnValues[i] = false;
+	}
+	
 	int nReturnValueIndex = 0;
 	int nAlreadySelectedLayer = -1;
 
@@ -430,8 +453,17 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		float cost_track_R = 1.0f;
 
 		assert(pMainCompo);
-
-		if ( pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {	// is instrument muted?
+		
+		bool isMutedForExport = (pEngine->getIsExportSessionActive() && !pInstr->is_currently_exported());
+		
+		/*
+		 *  Is instrument muted?
+		 *
+		 *  This can be the case either if the song, instrument or component is muted or if we're in an
+		 *  export session and we're doing per-instruments exports, but this instrument is not currently
+		 *  beeing exported.
+		 */
+		if ( isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {	
 			cost_L = 0.0;
 			cost_R = 0.0;
 			if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
@@ -450,7 +482,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 			cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
 			cost_L = cost_L * pInstr->get_gain();		// instrument gain
 
-			cost_L = cost_L * pCompo->get_gain();       // Component gain
+			cost_L = cost_L * pCompo->get_gain();		// Component gain
 			cost_L = cost_L * pMainCompo->get_volume(); // Component volument
 
 			cost_L = cost_L * pInstr->get_volume();		// instrument volume
@@ -466,7 +498,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 			cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
 			cost_R = cost_R * pInstr->get_gain();		// instrument gain
 
-			cost_R = cost_R * pCompo->get_gain();       // Component gain
+			cost_R = cost_R * pCompo->get_gain();		// Component gain
 			cost_R = cost_R * pMainCompo->get_volume(); // Component volument
 
 			cost_R = cost_R * pInstr->get_volume();		// instrument volume
@@ -509,6 +541,166 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 	}
 	for ( unsigned i = 0 ; i < pInstr->get_components()->size() ; i++ )
 		if ( !nReturnValues[i] ) return false;
+	return true;
+}
+
+bool Sampler::processPlaybackTrack(int nBufferSize)
+{
+	Hydrogen* pEngine = Hydrogen::get_instance();
+	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
+	Song* pSong = pEngine->getSong();
+
+	if(   !pSong->get_playback_track_enabled()
+	   || pEngine->getState() != STATE_PLAYING
+	   || pSong->get_mode() != Song::SONG_MODE)
+	{
+		return false;
+	}
+
+	InstrumentComponent *pCompo = __playback_instrument->get_components()->front();
+	Sample *pSample = pCompo->get_layer(0)->get_sample();
+
+	float fVal_L;
+	float fVal_R;
+
+	float *pSample_data_L = pSample->get_data_l();
+	float *pSample_data_R = pSample->get_data_r();
+	
+	float fInstrPeak_L = __playback_instrument->get_peak_l(); // this value will be reset to 0 by the mixer..
+	float fInstrPeak_R = __playback_instrument->get_peak_r(); // this value will be reset to 0 by the mixer..
+
+	assert(pSample);
+
+	int nAvail_bytes = 0;
+	int	nInitialBufferPos = 0;
+
+	if(pSample->get_sample_rate() == pAudioOutput->getSampleRate()){
+		//No resampling	
+		__playBackSamplePosition = pAudioOutput->m_transport.m_nFrames;
+	
+		nAvail_bytes = pSample->get_frames() - ( int )__playBackSamplePosition;
+		
+		if ( nAvail_bytes > nBufferSize ) {
+			nAvail_bytes = nBufferSize;
+		}
+
+		int nInitialSamplePos = ( int ) __playBackSamplePosition;
+		int nSamplePos = nInitialSamplePos;
+	
+		int nTimes = nInitialBufferPos + nAvail_bytes;
+	
+		if(__playBackSamplePosition > pSample->get_frames()){
+			//playback track has ended..
+			return true;
+		}
+	
+		for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
+			fVal_L = pSample_data_L[ nSamplePos ];
+			fVal_R = pSample_data_R[ nSamplePos ];
+	
+			fVal_L = fVal_L * 1.0f * pSong->get_playback_track_volume(); //costr
+			fVal_R = fVal_R * 1.0f * pSong->get_playback_track_volume(); //cost l
+	
+			//pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
+	
+			// to main mix
+			if ( fVal_L > fInstrPeak_L ) {
+				fInstrPeak_L = fVal_L;
+			}
+			if ( fVal_R > fInstrPeak_R ) {
+				fInstrPeak_R = fVal_R;
+			}
+			
+			__main_out_L[nBufferPos] += fVal_L;
+			__main_out_R[nBufferPos] += fVal_R;
+			
+			++nSamplePos;
+		}
+	} else {
+		//Perform resampling
+		double	fSamplePos = 0;
+		int		nSampleFrames = pSample->get_frames();
+		float	fStep = 1.0594630943593;
+		fStep *= ( float )pSample->get_sample_rate() / pAudioOutput->getSampleRate(); // Adjust for audio driver sample rate
+		
+		
+		if(pAudioOutput->m_transport.m_nFrames == 0){
+			fSamplePos = 0;
+		} else {
+			fSamplePos = ( (pAudioOutput->m_transport.m_nFrames/nBufferSize) * (nBufferSize * fStep));
+		}
+		
+		nAvail_bytes = ( int )( ( float )( pSample->get_frames() - fSamplePos ) / fStep );
+	
+		if ( nAvail_bytes > nBufferSize ) {
+			nAvail_bytes = nBufferSize;
+		}
+
+		int nTimes = nInitialBufferPos + nAvail_bytes;
+	
+		for ( int nBufferPos = nInitialBufferPos; nBufferPos < nTimes; ++nBufferPos ) {
+			int nSamplePos = ( int ) fSamplePos;
+			double fDiff = fSamplePos - nSamplePos;
+			if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
+				//we reach the last audioframe.
+				//set this last frame to zero do nothin wrong.
+							fVal_L = 0.0;
+							fVal_R = 0.0;
+			} else {
+				// some interpolation methods need 4 frames data.
+					float last_l;
+					float last_r;
+					if ( ( nSamplePos + 2 ) >= nSampleFrames ) {
+						last_l = 0.0;
+						last_r = 0.0;
+					} else {
+						last_l =  pSample_data_L[nSamplePos + 2];
+						last_r =  pSample_data_R[nSamplePos + 2];
+					}
+	
+					switch( __interpolateMode ){
+	
+							case LINEAR:
+									fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
+									fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
+									break;
+							case COSINE:
+									fVal_L = cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+									fVal_R = cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+									break;
+							case THIRD:
+									fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+									fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+									break;
+							case CUBIC:
+									fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+									fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+									break;
+							case HERMITE:
+									fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+									fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+									break;
+					}
+			}
+			
+			if ( fVal_L > fInstrPeak_L ) {
+				fInstrPeak_L = fVal_L;
+			}
+			if ( fVal_R > fInstrPeak_R ) {
+				fInstrPeak_R = fVal_R;
+			}
+
+			__main_out_L[nBufferPos] += fVal_L;
+			__main_out_R[nBufferPos] += fVal_R;
+
+
+			fSamplePos += fStep;
+		} //for
+	}
+	
+	__playback_instrument->set_peak_l( fInstrPeak_L );
+	__playback_instrument->set_peak_r( fInstrPeak_R );
+
 	return true;
 }
 
@@ -563,14 +755,14 @@ bool Sampler::__render_note_no_resample(
 
 
 #ifdef H2CORE_HAVE_JACK
-	JackOutput* pJackOutput = 0;
+	JackAudioDriver* pJackAudioDriver = 0;
 	float *		pTrackOutL = 0;
 	float *		pTrackOutR = 0;
 
 	if( pAudioOutput->has_track_outs()
-	&& (pJackOutput = dynamic_cast<JackOutput*>(pAudioOutput)) ) {
-		 pTrackOutL = pJackOutput->getTrackOut_L( pNote->get_instrument(), pCompo );
-		pTrackOutR = pJackOutput->getTrackOut_R( pNote->get_instrument(), pCompo );
+	&& (pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput)) ) {
+		 pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
+		pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
 	}
 #endif
 
@@ -624,8 +816,10 @@ bool Sampler::__render_note_no_resample(
 
 
 #ifdef H2CORE_HAVE_LADSPA
-		float masterVol =  pSong->get_volume();
 	// LADSPA
+	// change the below return logic if you add code after that ifdef
+	if (pNote->get_instrument()->is_muted() || pSong->__is_muted) return retValue;
+	float masterVol =  pSong->get_volume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 
@@ -716,14 +910,14 @@ bool Sampler::__render_note_resample(
 
 
 #ifdef H2CORE_HAVE_JACK
-	JackOutput* pJackOutput = 0;
+	JackAudioDriver* pJackAudioDriver = 0;
 	float *		pTrackOutL = 0;
 	float *		pTrackOutR = 0;
 
 	if( pAudioOutput->has_track_outs()
-	&& (pJackOutput = dynamic_cast<JackOutput*>(pAudioOutput)) ) {
-				pTrackOutL = pJackOutput->getTrackOut_L( pNote->get_instrument(), pCompo );
-				pTrackOutR = pJackOutput->getTrackOut_R( pNote->get_instrument(), pCompo );
+	&& (pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput)) ) {
+				pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
+				pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
 	}
 #endif
 
@@ -827,6 +1021,8 @@ bool Sampler::__render_note_resample(
 
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
+	// change the below return logic if you add code after that ifdef
+	if (pNote->get_instrument()->is_muted() || pSong->__is_muted) return retValue;
 	float masterVol = pSong->get_volume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
@@ -1053,6 +1249,22 @@ bool Sampler::is_instrument_playing( Instrument* instrument )
 		}
 	}
 	return false;
+}
+
+void Sampler::reinitialize_playback_track()
+{
+	Hydrogen*	pEngine = Hydrogen::get_instance();
+	Song*		pSong = pEngine->getSong();
+	Sample*		pSample = nullptr;
+
+	if(!pSong->get_playback_track_filename().isEmpty()){
+		pSample = Sample::load( pSong->get_playback_track_filename() );
+	}
+	
+	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( pSample );
+
+	__playback_instrument->get_components()->front()->set_layer(pPlaybackTrackLayer, 0);
+	__playBackSamplePosition = 0;
 }
 
 };

@@ -23,7 +23,7 @@
 #ifndef NSM_CLIENT_H
 #define NSM_CLIENT_H
 
-#ifdef H2CORE_HAVE_NSMSESSION
+#ifdef H2CORE_HAVE_OSC
 
 #include <hydrogen/object.h>
 #include <cassert>
@@ -61,6 +61,6 @@ class NsmClient : public H2Core::Object
 
 };
 
-#endif /* H2CORE_HAVE_NSMSESSION */
+#endif /* H2CORE_HAVE_OSC */
 
 #endif // NSM_CLIENT_H

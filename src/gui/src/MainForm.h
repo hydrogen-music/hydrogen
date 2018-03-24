@@ -25,6 +25,9 @@
 
 #include <QtNetwork>
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 #include <map>
 #include <unistd.h>
@@ -42,7 +45,7 @@ class QUndoView;///debug only
 ///
 class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 {
-    H2_OBJECT
+		H2_OBJECT
 	Q_OBJECT
 
 	public:
@@ -85,9 +88,14 @@ public slots:
 		void action_instruments_addInstrument();
 		void action_instruments_clearAll();
 		void action_instruments_saveLibrary();
+		void action_instruments_saveAsLibrary();
 		void action_instruments_exportLibrary();
 		void action_instruments_importLibrary();
+		void action_instruments_onlineImportLibrary();
+		void action_instruments_addComponent();
 
+		void action_banks_properties();
+		void action_banks_open();
 
 		void action_window_showMixer();
 		void action_window_showPlaylistDialog();
@@ -95,6 +103,13 @@ public slots:
 		void action_window_showSongEditor();
 		void action_window_showPatternEditor();
 		void action_window_showDrumkitManagerPanel();
+		void action_window_showAutomationArea();
+		void action_window_toggleFullscreen();
+
+		void update_mixer_checkbox();
+		void update_instrument_checkbox( bool show );
+		void update_director_checkbox();
+		void update_playlist_checkbox();
 
 		void action_debug_printObjects();
 		void action_debug_showAudioEngineInfo();
@@ -124,39 +139,45 @@ public slots:
 	private slots:
 		void onAutoSaveTimer();
 		void onPlaylistDisplayTimer();
+		void onFixMidiSetup();
 
 	protected:
 		// Returns true if handled, false if aborted.
 		bool handleUnsavedChanges();
 
 	private:
-		HydrogenApp* h2app;
+		HydrogenApp*	h2app;
 
 		static int sigusr1Fd[2];
 		QSocketNotifier *snUsr1;
 
 		void functionDeleteInstrument(int instrument);
 
-		QMenu *m_pInputModeMenu;
-		QAction *m_pInstrumentAction;
-		QAction *m_pDrumkitAction;
+		QMenu *		m_pInputModeMenu;
+		QAction *	m_pViewPlaylistEditorAction;
+		QAction *	m_pViewDirectorAction;
+		QAction *	m_pViewMixerAction;
+		QAction *	m_pViewMixerInstrumentRackAction;
+		QAction *	m_pInstrumentAction;
+		QAction *	m_pDrumkitAction;
 
-		QMenu *m_pRecentFilesMenu;
-		QAction *m_pRecentFileAction0;
-		QAction *m_pRecentFileAction1;
-		QAction *m_pRecentFileAction2;
-		QAction *m_pRecentFileAction3;
-		QAction *m_pRecentFileAction4;
+		QMenu *		m_pRecentFilesMenu;
+		QAction *	m_pRecentFileAction0;
+		QAction *	m_pRecentFileAction1;
+		QAction *	m_pRecentFileAction2;
+		QAction *	m_pRecentFileAction3;
+		QAction *	m_pRecentFileAction4;
 
-		QHttp m_http;
+		QUndoView *	undoView;///debug only
 
-		QTimer m_autosaveTimer;
+		QTimer		m_autosaveTimer;
 
 		/** Create the menubar */
 		void createMenuBar();
 
 		void closeAll();
 		void openSongFile( const QString& sFilename );
+		void checkMidiSetup();
 
 		bool eventFilter( QObject *o, QEvent *e );
 
@@ -167,9 +188,9 @@ public slots:
 	#ifdef H2CORE_HAVE_LASH
 		QTimer *lashPollTimer;
 	#endif
-		QUndoView *undoView;///debug only
 
-                bool handleSelectNextPrevSongOnPlaylist(int step);
+
+		bool handleSelectNextPrevSongOnPlaylist(int step);
 
 };
 

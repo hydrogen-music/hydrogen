@@ -49,6 +49,8 @@ DrumkitComponent::DrumkitComponent( const int id, const QString& name )
 	, __soloed( false )
 	, __out_L( NULL )
 	, __out_R( NULL )
+	, __peak_l( 0.0 )
+	, __peak_r( 0.0 )
 {
 	__out_L = new float[ MAX_BUFFER_SIZE ];
 	__out_R = new float[ MAX_BUFFER_SIZE ];
@@ -63,6 +65,8 @@ DrumkitComponent::DrumkitComponent( DrumkitComponent* other )
 	, __soloed( other->__soloed )
 	, __out_L( NULL )
 	, __out_R( NULL )
+	, __peak_l( 0.0 )
+	, __peak_r( 0.0 )
 {
 	__out_L = new float[ MAX_BUFFER_SIZE ];
 	__out_R = new float[ MAX_BUFFER_SIZE ];
@@ -98,7 +102,7 @@ float DrumkitComponent::get_out_R( int nBufferPos )
 
 void DrumkitComponent::load_from( DrumkitComponent* component, bool is_live )
 {
-	if ( is_live ){
+	if ( is_live ) {
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 	}
 
@@ -107,7 +111,7 @@ void DrumkitComponent::load_from( DrumkitComponent* component, bool is_live )
 	this->set_muted( component->is_muted() );
 	this->set_volume( component->get_volume() );
 
-	if ( is_live ){
+	if ( is_live ) {
 		AudioEngine::get_instance()->unlock();
 	}
 }
@@ -115,7 +119,7 @@ void DrumkitComponent::load_from( DrumkitComponent* component, bool is_live )
 DrumkitComponent* DrumkitComponent::load_from( XMLNode* node, const QString& dk_path )
 {
 	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
-	if ( id==EMPTY_INSTR_ID ){
+	if ( id==EMPTY_INSTR_ID ) {
 		return 0;
 	}
 

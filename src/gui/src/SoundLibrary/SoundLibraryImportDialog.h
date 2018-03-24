@@ -39,7 +39,7 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
     H2_OBJECT
 	Q_OBJECT
 	public:
-		SoundLibraryImportDialog( QWidget* pParent );
+		SoundLibraryImportDialog( QWidget* pParent, bool bOnlineImport );
 		~SoundLibraryImportDialog();
 
 	signals:
@@ -60,7 +60,6 @@ class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDia
 
 	private:
 		std::vector<SoundLibraryInfo> m_soundLibraryList;
-		H2Core::Preferences *pPref;
 
 		QTreeWidgetItem* m_pDrumkitsItem;
 		QTreeWidgetItem* m_pSongItem;

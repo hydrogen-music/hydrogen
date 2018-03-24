@@ -23,6 +23,9 @@
 #define MIDISENSE_WIDGET_H
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 #include <hydrogen/object.h>
 #include <hydrogen/midi_action.h>
@@ -33,7 +36,7 @@ class MidiSenseWidget : public QDialog ,public H2Core::Object
 	Q_OBJECT
 
 	public:
-		MidiSenseWidget(QWidget*,bool m_DirectWrite = false , MidiAction* m_pAction = NULL);
+		MidiSenseWidget(QWidget*,bool m_DirectWrite = false , Action* m_pAction = NULL);
 		~MidiSenseWidget();
 
 		QString		m_sLastMidiEvent;
@@ -45,7 +48,7 @@ class MidiSenseWidget : public QDialog ,public H2Core::Object
 	private:
 		QTimer*		m_pUpdateTimer;
 		QLabel*		m_pURLLabel;
-		MidiAction* m_pAction;
+		Action* m_pAction;
 		bool		m_DirectWrite;
 };
 

@@ -162,4 +162,4 @@ inline float ADSR::get_release()
 
 #endif // H2C_ADRS_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

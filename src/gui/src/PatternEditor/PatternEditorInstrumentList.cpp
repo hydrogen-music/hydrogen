@@ -37,22 +37,27 @@ using namespace H2Core;
 
 #include "UndoActions.h"
 #include "PatternEditorPanel.h"
+#include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "DrumPatternEditor.h"
 #include "../HydrogenApp.h"
 #include "../Mixer/Mixer.h"
 #include "../widgets/Button.h"
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 #include <QClipboard>
 #include <cassert>
+#include <algorithm> // for std::min
 
 using namespace std;
 
 const char* InstrumentLine::__class_name = "InstrumentLine";
 
 InstrumentLine::InstrumentLine(QWidget* pParent)
-  : PixmapWidget(pParent, __class_name)
-  , m_bIsSelected(false)
+	: PixmapWidget(pParent, __class_name)
+	, m_bIsSelected(false)
 {
 	int h = Preferences::get_instance()->getPatternEditorGridHeight();
 	setFixedSize(181, h);
@@ -102,6 +107,8 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/4 notes" ), this, SLOT( functionFillEveryFourNotes() ) );
 	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/6 notes" ), this, SLOT( functionFillEverySixNotes() ) );
 	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/8 notes" ), this, SLOT( functionFillEveryEightNotes() ) );
+	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/12 notes" ), this, SLOT( functionFillEveryTwelveNotes() ) );
+	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/16 notes" ), this, SLOT( functionFillEverySixteenNotes() ) );
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
 	m_pFunctionPopup->addAction( trUtf8( "Randomize velocity" ), this, SLOT( functionRandomizeVelocity() ) );
@@ -118,6 +125,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addMenu( m_pPastePopupSub );
 
 	m_pFunctionPopup->addSeparator();
+	m_pFunctionPopup->addAction( trUtf8( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
 	m_pFunctionPopup->addAction( trUtf8( "Delete instrument" ), this, SLOT( functionDeleteInstrument() ) );
 
 	m_bIsSelected = true;
@@ -171,12 +179,13 @@ void InstrumentLine::setSoloed( bool soloed )
 
 void InstrumentLine::muteClicked()
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+	Instrument *pInstr = pInstrList->get( m_nInstrumentNumber );
 
-	Instrument *pInstr = instrList->get(m_nInstrumentNumber);
-	pInstr->set_muted( !pInstr->is_muted());
+	CoreActionController* pCoreActionController = pEngine->getCoreActionController();
+	pCoreActionController->setStripIsMuted( m_nInstrumentNumber, !pInstr->is_muted() );
 }
 
 
@@ -194,7 +203,8 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
 
 	if ( ev->button() == Qt::LeftButton ) {
-		const float velocity = 0.8f;
+		const int width = m_pMuteBtn->x() - 5; // clickable field width
+		const float velocity = std::min((float)ev->x()/(float)width, 1.0f);
 		const float pan_L = 0.5f;
 		const float pan_R = 0.5f;
 		const int nLength = -1;
@@ -324,6 +334,8 @@ void InstrumentLine::functionFillEveryThreeNotes(){ functionFillNotes(3); }
 void InstrumentLine::functionFillEveryFourNotes(){ functionFillNotes(4); }
 void InstrumentLine::functionFillEverySixNotes(){ functionFillNotes(6); }
 void InstrumentLine::functionFillEveryEightNotes(){ functionFillNotes(8); }
+void InstrumentLine::functionFillEveryTwelveNotes(){ functionFillNotes(12); }
+void InstrumentLine::functionFillEverySixteenNotes(){ functionFillNotes(16); }
 
 void InstrumentLine::functionFillNotes( int every )
 {
@@ -398,7 +410,7 @@ void InstrumentLine::functionRandomizeVelocity()
 	Song *pSong = pEngine->getSong();
 
 	QStringList noteVeloValue;
- 	QStringList oldNoteVeloValue;
+	QStringList oldNoteVeloValue;
 
 	Pattern* pCurrentPattern = getCurrentPattern();
 	if (pCurrentPattern != NULL) {
@@ -434,7 +446,36 @@ void InstrumentLine::functionRandomizeVelocity()
 
 
 
+void InstrumentLine::functionRenameInstrument()
+{
+	// This code is pretty much a duplicate of void InstrumentEditor::labelClicked
+	// in InstrumentEditor.cpp
+	Hydrogen * pEngine = Hydrogen::get_instance();
+	Instrument *pSelectedInstrument = pEngine->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
 
+	QString sOldName = pSelectedInstrument->get_name();
+	bool bIsOkPressed;
+	QString sNewName = QInputDialog::getText( this, "Hydrogen", trUtf8( "New instrument name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
+	if ( bIsOkPressed  ) {
+		pSelectedInstrument->set_name( sNewName );
+
+#ifdef H2CORE_HAVE_JACK
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		Hydrogen *engine = Hydrogen::get_instance();
+		engine->renameJackPorts(engine->getSong());
+		AudioEngine::get_instance()->unlock();
+#endif
+
+		// this will force an update...
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+
+	}
+	else
+	{
+		// user entered nothing or pressed Cancel
+	}
+
+}
 
 void InstrumentLine::functionDeleteInstrument()
 {
@@ -476,7 +517,7 @@ PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, Patte
 {
 	//INFOLOG("INIT");
 	m_pPattern = NULL;
- 	m_pPatternEditorPanel = pPatternEditorPanel;
+	m_pPatternEditorPanel = pPatternEditorPanel;
 
 	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
 
@@ -606,9 +647,14 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		Hydrogen *engine = Hydrogen::get_instance();
 		int nSourceInstrument = engine->getSelectedInstrumentNumber();
 
-		int nTargetInstrument = event->pos().y() / m_nGridHeight;
+		// Starting point for instument list is 50 lower than
+		// on the drum pattern editor
 
-		if( nTargetInstrument > engine->getSong()->get_instrument_list()->size() ){
+		int pos_y = ( event->pos().x() >= m_nEditorWidth ) ? event->pos().y() - 50 : event->pos().y();
+
+		int nTargetInstrument = pos_y / m_nGridHeight;
+
+		if( nTargetInstrument >= engine->getSong()->get_instrument_list()->size() ){
 			nTargetInstrument = engine->getSong()->get_instrument_list()->size() - 1;
 		}
 
@@ -634,8 +680,8 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		int nTargetInstrument = event->pos().y() / m_nGridHeight;
 
 		/*
-		    "X > 181": border between the instrument names on the left and the grid
-		    Because the right part of the grid starts above the name column, we have to subtract the difference
+				"X > 181": border between the instrument names on the left and the grid
+				Because the right part of the grid starts above the name column, we have to subtract the difference
 		*/
 		if (  event->pos().x() > 181 ) nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
 
@@ -689,6 +735,3 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 	// propago l'evento
 	QWidget::mouseMoveEvent(event);
 }
-
-
-

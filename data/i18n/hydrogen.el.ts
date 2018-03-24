@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="el_GR">
+<TS version="2.1" language="el_GR">
 <context>
     <name>AboutDialog</name>
     <message>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Σχετικά με</translation>
     </message>
     <message>
         <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Ιστότοπος&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Mailing lists&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Σελίδα του εγχειρήματος&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Main coder and maintainer:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Κύριος προγραμματιστής και συντηρητής:&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Thanks to:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Ευχαριστίες στους:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -63,7 +63,7 @@
     <name>AudioEngineInfoForm</name>
     <message>
         <source>Audio Engine Info</source>
-        <translation type="unfinished"></translation>
+        <translation>Πληροφορίες Μηχανής Ήχου</translation>
     </message>
 </context>
 <context>
@@ -162,19 +162,19 @@
     <name>AudioFileBrowser</name>
     <message>
         <source>Audio File Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Πλοηγός Αρχείων Ήχου</translation>
     </message>
     <message>
         <source>Size: %1 bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Μέγεθος: %1 μπάιτια</translation>
     </message>
     <message>
         <source>Samplerate: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ρυθμός δειγματοληψίας:%1</translation>
     </message>
     <message>
         <source>Sample length: </source>
-        <translation type="unfinished"></translation>
+        <translation>Διάρκεια δείγματος: </translation>
     </message>
     <message>
         <source> s</source>
@@ -182,23 +182,23 @@
     </message>
     <message>
         <source>Please do not preview samples which are longer than 10 minutes!</source>
-        <translation type="unfinished"></translation>
+        <translation>Παρακαλώ, μην προακούς δείγματα τα οποία είναι μεγαλύτερα των 10 λεπτών.</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Όνομα:</translation>
+        <translation>Όνομα:</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation type="unfinished">Μέγεθος:</translation>
+        <translation>Μέγεθος:</translation>
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation type="unfinished">Ρυθμός δειγματοληψίας:</translation>
+        <translation>Ρυθμός δειγματοληψίας:</translation>
     </message>
     <message>
         <source>Sample length:</source>
-        <translation type="unfinished"></translation>
+        <translation>Διάρκεια δείγματος:</translation>
     </message>
 </context>
 <context>
@@ -272,7 +272,7 @@
     <name>ComponentMixerLine</name>
     <message>
         <source>Mute</source>
-        <translation type="unfinished"></translation>
+        <translation>Σίγηση</translation>
     </message>
     <message>
         <source>Solo</source>
@@ -280,18 +280,18 @@
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Όνομα του στοιχείου</translation>
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
-        <translation type="unfinished"></translation>
+        <translation>Όρισε την ένταση του οργάνου [%1]</translation>
     </message>
 </context>
 <context>
     <name>Director</name>
     <message>
         <source>Director</source>
-        <translation type="unfinished"></translation>
+        <translation>Καθοδηγητής</translation>
     </message>
 </context>
 <context>
@@ -305,22 +305,22 @@
     <name>DonationDialog</name>
     <message>
         <source>Donations</source>
-        <translation type="unfinished"></translation>
+        <translation>Δωρεές</translation>
     </message>
 </context>
 <context>
     <name>DonationDialog_UI</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Έντυπο</translation>
     </message>
     <message>
         <source>Donate!</source>
-        <translation type="unfinished"></translation>
+        <translation>Να γίνει δωρεά!</translation>
     </message>
     <message>
         <source>Choose random entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Επέλεξε τυχαία εισαγωγή.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the involved persons.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -339,50 +339,42 @@
     <name>Download</name>
     <message>
         <source>Importing item failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Αποτυχία εισαγωγής αντικειμένου: %1</translation>
     </message>
 </context>
 <context>
     <name>DownloadWidget</name>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
-        <translation type="unfinished"></translation>
+        <translation>(%1/%2 ΧίλιοΜπ) - Εκτ.Χρ. %3</translation>
     </message>
 </context>
 <context>
     <name>ExportSongDialog</name>
     <message>
         <source>Export song</source>
-        <translation type="unfinished"></translation>
+        <translation>Εξαγωγή τραγουδιού</translation>
     </message>
     <message>
         <source>Export to a single track</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export to seperate tracks</source>
-        <translation type="unfinished"></translation>
+        <translation>Εξαγωγή σε ένα κανάλι</translation>
     </message>
     <message>
         <source>Both</source>
-        <translation type="unfinished"></translation>
+        <translation>Καί τα δύο</translation>
     </message>
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
+        <translation>Το αρχείο % υπάρχει. Να επανογραφεί;</translation>
+    </message>
+    <message>
+        <source>Export to separate tracks</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ExportSongDialog_UI</name>
-    <message>
-        <source>Export filename</source>
-        <translation>Όνομα του αρχείου εξαγωγής</translation>
-    </message>
-    <message>
-        <source>Export Whole Song to WAV</source>
-        <translation>Εξαγωγή Ολόκληρου του Τραγουδιού σε WAV</translation>
-    </message>
     <message>
         <source>&amp;Export</source>
         <translation>&amp;Εξαγωγή</translation>
@@ -497,43 +489,43 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Interpolation: </source>
-        <translation type="unfinished"></translation>
+        <translation>Επανασύνθεση: </translation>
     </message>
     <message>
         <source>Choose type of interpolation methode</source>
-        <translation type="unfinished"></translation>
+        <translation>Επέλεξε τη μέθοδο επανασύνθεσης</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Γραμμική</translation>
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Συνημίτονου</translation>
     </message>
     <message>
         <source>Third</source>
-        <translation type="unfinished"></translation>
+        <translation>Τρίτη</translation>
     </message>
     <message>
         <source>Cubic</source>
-        <translation type="unfinished"></translation>
+        <translation>Κυβική</translation>
     </message>
     <message>
         <source>Hermite</source>
-        <translation type="unfinished"></translation>
+        <translation>Του Χερμάιτ</translation>
     </message>
     <message>
         <source>Enable tempo changing</source>
-        <translation type="unfinished"></translation>
+        <translation>Ενεργοποίηση της αλλαγής της ταχύτητας</translation>
     </message>
     <message>
         <source>TimeLine BPM</source>
-        <translation type="unfinished"></translation>
+        <translation>Χτ.ΑνάΛεπ. του Χρονογράμματος</translation>
     </message>
     <message>
         <source>88200</source>
-        <translation type="unfinished">88200</translation>
+        <translation>88200</translation>
     </message>
     <message>
         <source>Enable use of rubberband&apos;s batch processor</source>
@@ -543,127 +535,140 @@ Overwrite the existing file?</source>
         <source>Rubberband Batch</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Διάλογος</translation>
+    </message>
+    <message>
+        <source>Export directory:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modus:</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FileBrowser</name>
     <message>
         <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
-        <translation type="unfinished"></translation>
+        <translation>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</translation>
     </message>
 </context>
 <context>
     <name>FxMixerLine</name>
     <message>
         <source>FX on/off</source>
-        <translation type="unfinished"></translation>
+        <translation>FX ενεργοποιημένα ή όχι</translation>
     </message>
     <message>
         <source>Master output</source>
-        <translation type="unfinished"></translation>
+        <translation>Κύρια εξαγωγή</translation>
     </message>
 </context>
 <context>
     <name>H2Core::SongEditorPanelBpmWidget</name>
     <message>
         <source>BPM</source>
-        <translation type="unfinished">Χτ.ΑνάΛεπ.</translation>
+        <translation>Χτ.ΑνάΛεπ.</translation>
     </message>
 </context>
 <context>
     <name>H2Core::SongEditorPanelTagWidget</name>
     <message>
         <source>Tag</source>
-        <translation type="unfinished">Ετικέτα</translation>
+        <translation>Ετικέτα</translation>
     </message>
 </context>
 <context>
     <name>H2Core::SoundLibraryPropertiesDialog</name>
     <message>
         <source>SoundLibrary Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Ιδιότητες της ΒιβλιοθήκηςΉχων</translation>
     </message>
     <message>
         <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Αυτό δεν είναι δυνατό. Μπορείς, μονάχα, να αποθηκεύσεις αλλαγές μέσα σε όργανα στην τωρινή φορτωμένη βιβλιοθήκη ήχων</translation>
     </message>
     <message>
         <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Προειδοποίηση: Η αλλαγή του ονόματος της ομάδας κρουστών, θα έχει σαν αποτέλεσμα τη δημιουργία μιας νέας ομάδας κρουστών, με αυτό το νέο όνομα.
+Είσαι σίγουρος;</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Εντάξει</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">Α&amp;κύρωση</translation>
+        <translation>Α&amp;κύρωση</translation>
     </message>
     <message>
         <source>Saving of this drumkit failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Αποτυχία αποθήκευσης αυτής της ομάδας κρουστών</translation>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Άνοιγμα Εικόνας</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Αρχεία Εικόνας (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
     <name>HydrogenApp</name>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Επεξεργαστής Τραγουδιού</translation>
     </message>
     <message>
         <source>Instrument + Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Όργανο + Μήτρα</translation>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished"></translation>
+        <translation>Μίκτης</translation>
     </message>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation type="unfinished"></translation>
+        <translation>Φορτώθηκε η ομάδα κρουστών: [%1]</translation>
     </message>
     <message>
         <source>modified</source>
-        <translation type="unfinished"></translation>
+        <translation>μετατράπηκε</translation>
     </message>
 </context>
 <context>
     <name>InstrumentEditor</name>
     <message>
         <source>General</source>
-        <translation type="unfinished"></translation>
+        <translation>Γενικά</translation>
     </message>
     <message>
         <source>Show instrument properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Εμφάνιση των ιδιοτήτων του οργάνου</translation>
     </message>
     <message>
         <source>Layers</source>
-        <translation type="unfinished"></translation>
+        <translation>Στρώματα</translation>
     </message>
     <message>
         <source>Show layers properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Εμφάνιση των ιδιοτήτων των στρωμάτων</translation>
     </message>
     <message>
         <source>Random pitch factor</source>
-        <translation type="unfinished"></translation>
+        <translation>Παράγοντας τυχαίας τονικότητας</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
-        <translation type="unfinished"></translation>
+        <translation>Αποκοπή Φίλτρου</translation>
     </message>
     <message>
         <source>Filter resonance</source>
-        <translation type="unfinished"></translation>
+        <translation>Αντίχηση φίλτρου</translation>
     </message>
     <message>
         <source>Attack</source>
@@ -671,59 +676,59 @@ Are you sure?</source>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished"></translation>
+        <translation>Πτώση</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Διάρκεια</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished"></translation>
+        <translation>Απελευθέρωση</translation>
     </message>
     <message>
         <source>Instrument gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Ένταση οργάνου</translation>
     </message>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample.</source>
-        <translation type="unfinished"></translation>
+        <translation>Σταμάτημα του τωρινού αναπαραγώμενου στίγματος του οργάνου, πριν την εκτέλεση του επόμενου δείγματος του στίγματος.</translation>
     </message>
     <message>
         <source>Layer gain</source>
-        <translation type="unfinished"></translation>
+        <translation>Ένταση στρώματος</translation>
     </message>
     <message>
         <source>Layer pitch (Coarse)</source>
-        <translation type="unfinished"></translation>
+        <translation>Τόνος στρώματος (Τραχύς)</translation>
     </message>
     <message>
         <source>Layer pitch (Fine)</source>
-        <translation type="unfinished"></translation>
+        <translation>Τόνος του στρώματος (Φίνος)</translation>
     </message>
     <message>
         <source>New instrument name</source>
-        <translation type="unfinished"></translation>
+        <translation>Όνομα του νέου οργάνου</translation>
     </message>
     <message>
         <source>New component name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Όνομα του νέου </translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Όνομα </translation>
     </message>
     <message>
         <source>Midi out channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Κανάλι εξόδου ΜΙΝΤΙ</translation>
     </message>
     <message>
         <source>Midi out note</source>
-        <translation type="unfinished"></translation>
+        <translation>Στίγμα εξόδου ΜΙΝΤΙ</translation>
     </message>
     <message>
         <source>Component volume</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ένταση</translation>
     </message>
     <message>
         <source>Don&apos;t change the layers&apos; gain based on velocity</source>
@@ -738,7 +743,7 @@ Are you sure?</source>
     <name>InstrumentLine</name>
     <message>
         <source>Mute instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Σίγηση οργάνου</translation>
     </message>
     <message>
         <source>Solo</source>
@@ -746,35 +751,35 @@ Are you sure?</source>
     </message>
     <message>
         <source>Clear notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Καθάρισμα των στιγμάτων</translation>
     </message>
     <message>
         <source>Fill notes ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Συμπλήρωμα στιγμάτων ...</translation>
     </message>
     <message>
         <source>Fill all notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Συμπλήρωμα όλων των στιγμάτων</translation>
     </message>
     <message>
         <source>Fill 1/2 notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Συμπλήρωμα 1/2 στιγμάτων</translation>
     </message>
     <message>
         <source>Fill 1/3 notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Συμπλήρωμα 1/3 στιγμάτων</translation>
     </message>
     <message>
         <source>Fill 1/4 notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Συμπλήρωμα 1/4 στιγμάτων</translation>
     </message>
     <message>
         <source>Fill 1/6 notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Συμπλήρωμα 1/6 στιγμάτων</translation>
     </message>
     <message>
         <source>Fill 1/8 notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Συμπλήρωμα 1/8 στιγμάτων</translation>
     </message>
     <message>
         <source>Randomize velocity</source>
@@ -782,11 +787,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Delete instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Διαγραφή οργάνου</translation>
     </message>
     <message>
         <source>Copy notes ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Αντογραφή στιγμάτων ...</translation>
     </message>
     <message>
         <source>Only for this pattern</source>
@@ -798,111 +803,127 @@ Are you sure?</source>
     </message>
     <message>
         <source>Paste notes ...</source>
+        <translation>Επικόλληση στιγμάτων ...</translation>
+    </message>
+    <message>
+        <source>Rename instrument</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New instrument name</source>
+        <translation type="unfinished">Όνομα του νέου οργάνου</translation>
+    </message>
+    <message>
+        <source>Fill 1/12 notes</source>
+        <translation type="unfinished">Συμπλήρωμα 1/8 στιγμάτων {1/12 ?}</translation>
+    </message>
+    <message>
+        <source>Fill 1/16 notes</source>
+        <translation type="unfinished">Συμπλήρωμα 1/8 στιγμάτων {1/16 ?}</translation>
     </message>
 </context>
 <context>
     <name>InstrumentRack</name>
     <message>
         <source>Show Instrument editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Εμφάνιση του επεξεργαστή οργάνου</translation>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Όργανο</translation>
     </message>
     <message>
         <source>Show sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Εμφάνιση της βιβλιοθήκης ήχων</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Βιβλιοθήκη ήχων</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXMixerLine</name>
     <message>
         <source>FX bypass</source>
-        <translation type="unfinished"></translation>
+        <translation>Παράκαμψη FX</translation>
     </message>
     <message>
         <source>Edit FX parameters</source>
-        <translation type="unfinished"></translation>
+        <translation>Επεξεργασία των παραμέτρων FX</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
-        <translation type="unfinished"></translation>
+        <translation>Όνομα του Ladspa FX</translation>
     </message>
     <message>
         <source>Effect return</source>
-        <translation type="unfinished"></translation>
+        <translation>Επιστροφή του εφέ</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
     <message>
         <source>Select FX</source>
-        <translation type="unfinished"></translation>
+        <translation>Επιλογή FX</translation>
     </message>
     <message>
         <source>Remove FX</source>
-        <translation type="unfinished"></translation>
+        <translation>Απομάκρυνση FX</translation>
     </message>
     <message>
         <source>Activate</source>
-        <translation type="unfinished"></translation>
+        <translation>Ενεργοποίηση</translation>
     </message>
     <message>
         <source>[%1] LADSPA FX Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>[%1] Ιδιώτητες LADSPA FX</translation>
     </message>
     <message>
         <source>Deactivate</source>
-        <translation type="unfinished"></translation>
+        <translation>Απενεργποίηση</translation>
     </message>
     <message>
         <source>LADSPA FX %1 Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>LADSPA FX %1 Ιδιώτητες</translation>
     </message>
     <message>
         <source>No plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Κανένα ένθεμα</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXSelector</name>
     <message>
         <source>Select LADSPA FX</source>
-        <translation type="unfinished"></translation>
+        <translation>Επιλογή LADSPA FX</translation>
     </message>
     <message>
         <source>Groups</source>
-        <translation type="unfinished"></translation>
+        <translation>Ομάδες</translation>
     </message>
     <message>
         <source>Alphabetic List</source>
-        <translation type="unfinished"></translation>
+        <translation>Αλφαβητικό Κατάστιχο</translation>
     </message>
     <message>
         <source>Categorized</source>
-        <translation type="unfinished"></translation>
+        <translation>Ανά Κατηγορία</translation>
     </message>
     <message>
         <source>Recently Used</source>
-        <translation type="unfinished"></translation>
+        <translation>Πρόσφατα Χρησιμοποιημένα</translation>
     </message>
     <message>
         <source>Stereo</source>
-        <translation type="unfinished"></translation>
+        <translation>Στερεοφωνικά</translation>
     </message>
     <message>
         <source>Mono</source>
-        <translation type="unfinished"></translation>
+        <translation>Μονοφωνικά</translation>
     </message>
     <message>
         <source>Not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>Δεν υποστηρίζονται</translation>
     </message>
 </context>
 <context>
@@ -1138,28 +1159,12 @@ MIDI = %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Save library</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Export library</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Import library</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Tools</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Playlist &amp;editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Director</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Καθοδηγητής</translation>
     </message>
     <message>
         <source>&amp;Mixer</source>
@@ -1175,7 +1180,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Όργανο</translation>
     </message>
     <message>
         <source>Drumkit</source>
@@ -1349,13 +1354,6 @@ Do you want to save the changes?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>
-The LilyPond export is an experimental feature.
-It should work like a charm provided that you use the GM-kit, and that you do not use triplet
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>LilyPond file (*.ly)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1372,6 +1370,89 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Pro&amp;ject</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation type="unfinished">Άνοιγμα</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Εξαγωγή</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Online import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this library failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drum&amp;kits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Automation path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI setup advice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set default values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GM-kit, and that you do not use triplet.
+</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1462,6 +1543,14 @@ Do you want to discard the changes?
         <source>Set LADSPA FX ( %1 ) volume</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation type="unfinished">Μίκτης</translation>
+    </message>
 </context>
 <context>
     <name>MixerLine</name>
@@ -1471,7 +1560,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Mute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Σίγηση</translation>
     </message>
     <message>
         <source>Solo</source>
@@ -1487,7 +1576,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Όρισε την ένταση του οργάνου [%1]</translation>
     </message>
     <message>
         <source>Set instr. pan [%1]</source>
@@ -1594,6 +1683,10 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Resonance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Probability</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1752,7 +1845,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Set BPM / Set BPM and play</source>
-        <translation type="unfinished"></translation>
+        <translation>Όρισε τους Χτ.ΑνάΛεπ. ή Ορισμός των Χτ.ΑνάΛεπ. και αναπαραγωγή</translation>
     </message>
     <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
@@ -1776,7 +1869,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Μίκτης</translation>
     </message>
     <message>
         <source>Show Instrument Rack</source>
@@ -1832,11 +1925,11 @@ Do you want to discard the changes?
     </message>
     <message>
         <source> Count BPM and start PLAY</source>
-        <translation type="unfinished"></translation>
+        <translation>Μέτρημα των Χτ.ΑνάΛεπ. και εκκίνηση της ΑΝΑΠΑΡΑΓΩΓΗΣ</translation>
     </message>
     <message>
         <source> Count and set BPM</source>
-        <translation type="unfinished"></translation>
+        <translation>Μέτρημα και οσρισμός των Χτ.ΑνάΛεπ.</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband ON</source>
@@ -1868,7 +1961,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>New BPM value</source>
-        <translation type="unfinished"></translation>
+        <translation>Νέα tim;h Χτ.ΑνάΛεπ.</translation>
     </message>
     <message>
         <source>Loop song = On</source>
@@ -2084,6 +2177,16 @@ Do you want to discard the changes?
         <source>&amp;Cancel</source>
         <translation type="unfinished">Α&amp;κύρωση</translation>
     </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must be without whitespaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen playlist (*.h2playlist)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
@@ -2121,7 +2224,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Εντάξει</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -2440,11 +2543,6 @@ Do you want to discard the changes?
 σε χιλδευτ.   </translation>
     </message>
     <message>
-        <source>create per-instrument outputs</source>
-        <translation>Δημιουργία ξεχωριστού αποτελέσματος 
-εξόδου, για κάθε όργανο</translation>
-    </message>
-    <message>
         <source>Path to the Rubberband command-line utility</source>
         <translation>Διαδρομή του εργαλείου γραμμής εντολών Rubberband</translation>
     </message>
@@ -2463,23 +2561,23 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Γραμμική</translation>
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Συνημίτονου</translation>
     </message>
     <message>
         <source>Third</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Τρίτη</translation>
     </message>
     <message>
         <source>Cubic</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Κυβική</translation>
     </message>
     <message>
         <source>Hermite</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Του Χερμάιτ</translation>
     </message>
     <message>
         <source>Default interface layout</source>
@@ -2513,6 +2611,38 @@ Do you want to discard the changes?
         <source>Use output note as input note</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Discard midi messages after action has been triggered</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create per-instrument outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;OSC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Enable OSC support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incoming port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable OSC &amp;feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
@@ -2523,7 +2653,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Εντάξει</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -2774,23 +2904,6 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&quot;Crispness&quot; levels:&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   equivalent to --no-transients --no-lamination --window-long&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   equivalent to --no-transients --no-lamination&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   equivalent to --no-transients&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   equivalent to --bl-transients&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;more informations about you can find here:&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>0</source>
         <translation>0</translation>
     </message>
@@ -2842,6 +2955,23 @@ p, li { white-space: pre-wrap; }
         <source> Pitch (Semitone,Cent)</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&quot;Crispness&quot; levels:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   equivalent to --no-transients --no-lamination --window-long&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   equivalent to --no-transients --no-lamination&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   equivalent to --no-transients&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   equivalent to --bl-transients&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;you can find more information here:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SimpleHTMLBrowser</name>
@@ -2870,7 +3000,7 @@ p, li { white-space: pre-wrap; }
     <name>SongEditorPanel</name>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Επεξεργαστής Τραγουδιού</translation>
     </message>
     <message>
         <source>Enable time line edit</source>
@@ -2915,7 +3045,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Εντάξει</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -2927,6 +3057,34 @@ Are you sure?</source>
     </message>
     <message>
         <source>single pattern mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>View playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>View timeline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust parameter values in time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select playback track</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3041,7 +3199,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Εντάξει</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -3168,7 +3326,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Sound library</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Βιβλιοθήκη ήχων</translation>
     </message>
     <message>
         <source>Status</source>
@@ -3220,11 +3378,11 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Drumkit License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Άδεια της Ομάδας Κρουστών: %1</translation>
     </message>
     <message>
         <source>Image License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Άδεια της Εικόνας: %1</translation>
     </message>
 </context>
 <context>
@@ -3283,11 +3441,26 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Image License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Άδεια της Εικόνας...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
+        <translation>Άδεια της Ομάδας Κρουστών...</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryOpenDialog</name>
+    <message>
+        <source>Open Sound Library</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Ακύρωση</translation>
     </message>
 </context>
 <context>
@@ -3326,7 +3499,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp;Εντάξει</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -3361,14 +3534,18 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Keep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The existing kit has %1 instruments but the new one only has %2.
-The first %2 instruments will be replaced with the new intruments and will keep their notes, but some of the remaining instruments have notes.
+The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
 Would you like to keep or discard the remaining instruments and notes?
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Keep</source>
+        <source>Double click to expand the list</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3404,7 +3581,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Drumkit License</source>
-        <translation type="unfinished"></translation>
+        <translation>Άδεια της Ομάδας Κρουστών</translation>
     </message>
     <message>
         <source>Image</source>
@@ -3416,7 +3593,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Άδεια της Εικόνας</translation>
     </message>
 </context>
 <context>
@@ -3469,11 +3646,11 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Άνοιγμα Εικόνας</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Αρχεία Εικόνας (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
@@ -3516,14 +3693,14 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Άδεια της Εικόνας</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryTree</name>
     <message>
         <source>Sound library</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Βιβλιοθήκη ήχων</translation>
     </message>
 </context>
 <context>

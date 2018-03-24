@@ -23,6 +23,9 @@
 #include "SoundLibraryPanel.h"
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 
 #include "SoundLibraryDatastructures.h"
 #include "SoundLibraryTree.h"
@@ -41,7 +44,7 @@
 #include "../PatternEditor/DrumPatternEditor.h"
 #include "../PatternEditor/PatternEditorInstrumentList.h"
 #include "../InstrumentRack.h"
-#include "../InstrumentEditor/InstrumentEditorPanel.h" 
+#include "../InstrumentEditor/InstrumentEditorPanel.h"
 
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/basics/adsr.h>
@@ -63,7 +66,7 @@ using namespace H2Core;
 
 const char* SoundLibraryPanel::__class_name = "SoundLibraryPanel";
 
-SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
+SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  : QWidget( pParent )
  , Object( __class_name )
  , __sound_library_tree( NULL )
@@ -109,8 +112,10 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent )
 	connect( __sound_library_tree, SIGNAL( currentItemChanged ( QTreeWidgetItem*, QTreeWidgetItem* ) ), this, SLOT( on_DrumkitList_ItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ) );
 	connect( __sound_library_tree, SIGNAL( itemActivated ( QTreeWidgetItem*, int ) ), this, SLOT( on_DrumkitList_itemActivated( QTreeWidgetItem*, int ) ) );
 	connect( __sound_library_tree, SIGNAL( leftClicked(QPoint) ), this, SLOT( on_DrumkitList_leftClicked(QPoint)) );
-	connect( __sound_library_tree, SIGNAL( rightClicked(QPoint) ), this, SLOT( on_DrumkitList_rightClicked(QPoint)) );
-	connect( __sound_library_tree, SIGNAL( onMouseMove( QMouseEvent* ) ), this, SLOT( on_DrumkitList_mouseMove( QMouseEvent* ) ) );
+	if( !bInItsOwnDialog ) {
+		connect( __sound_library_tree, SIGNAL( rightClicked(QPoint) ), this, SLOT( on_DrumkitList_rightClicked(QPoint)) );
+		connect( __sound_library_tree, SIGNAL( onMouseMove( QMouseEvent* ) ), this, SLOT( on_DrumkitList_mouseMove( QMouseEvent* ) ) );
+	}
 
 
 	// LAYOUT
@@ -222,11 +227,11 @@ void SoundLibraryPanel::updateDrumkitList()
 	}
 	
 	//Songlist
-	QStringList songs = Filesystem::songs_list();
+	QStringList songs = Filesystem::songs_list_cleared();
 	if ( songs.size() > 0 ) {
 		__song_item = new QTreeWidgetItem( __sound_library_tree );
 		__song_item->setText( 0, trUtf8( "Songs" ) );
-		__song_item->setToolTip( 0, "double click to expand the list" );
+		__song_item->setToolTip( 0, trUtf8("Double click to expand the list") );
 		__sound_library_tree->setItemExpanded( __song_item, __expand_songs_list );
 		for (uint i = 0; i < songs.size(); i++) {
 			QTreeWidgetItem* pSongItem = new QTreeWidgetItem( __song_item );
@@ -243,7 +248,7 @@ void SoundLibraryPanel::updateDrumkitList()
 		
 		__pattern_item = new QTreeWidgetItem( __sound_library_tree );
 		__pattern_item->setText( 0, trUtf8( "Patterns" ) );
-		__pattern_item->setToolTip( 0, "double click to expand the list" );
+		__pattern_item->setToolTip( 0, trUtf8("Double click to expand the list") );
 		__sound_library_tree->setItemExpanded( __pattern_item, __expand_pattern_list );
 			
 		//this is to push the mng.getPatternList in all patterns/drumkit dirs
@@ -288,8 +293,19 @@ void SoundLibraryPanel::updateDrumkitList()
 
 void SoundLibraryPanel::on_DrumkitList_ItemChanged( QTreeWidgetItem * current, QTreeWidgetItem * previous )
 {
-	UNUSED( current );
 	UNUSED( previous );
+	
+	if( current == nullptr ){
+		return;
+	}
+
+	if ( current->parent() == __system_drumkits_item ||
+		 current->parent() == __user_drumkits_item  ){
+			emit item_changed( true );
+	} else {
+		emit item_changed( false );
+	}
+	
 	test_expandedItems();
 }
 
@@ -308,6 +324,7 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 		// e' stato selezionato un drumkit
 	}
 	else {
+
 		// e' stato selezionato uno strumento
 		QString selectedName = item->text(0);
 		if( item->text(0) == "Patterns" ) return;
@@ -493,7 +510,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	bool conditionalLoad = false;
 	bool hasNotes = false;
 
-	INFOLOG("Old kit has " + QString::number( oldCount ) + " intruments, new one has " + QString::number( newCount ) );
+	INFOLOG("Old kit has " + QString::number( oldCount ) + " instruments, new one has " + QString::number( newCount ) );
 
 	if ( newCount < oldCount )
 	{
@@ -520,7 +537,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 			QMessageBox msgBox;
 			msgBox.setWindowTitle("Hydrogen");
 			msgBox.setIcon( QMessageBox::Warning );
-			msgBox.setText( tr( "The existing kit has %1 instruments but the new one only has %2.\nThe first %2 instruments will be replaced with the new intruments and will keep their notes, but some of the remaining instruments have notes.\nWould you like to keep or discard the remaining instruments and notes?\n").arg( QString::number( oldCount ),QString::number( newCount ) ) );
+			msgBox.setText( tr( "The existing kit has %1 instruments but the new one only has %2.\nThe first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.\nWould you like to keep or discard the remaining instruments and notes?\n").arg( QString::number( oldCount ),QString::number( newCount ) ) );
 
 			msgBox.setStandardButtons(QMessageBox::Save);
 			msgBox.setButtonText(QMessageBox::Save, trUtf8("Keep"));
@@ -592,7 +609,7 @@ void SoundLibraryPanel::restore_background_color()
 void SoundLibraryPanel::change_background_color()
 {
 	QString curlib =  Hydrogen::get_instance()->getCurrentDrumkitname();
- 
+
 	for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
 		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == curlib ){
 			( __system_drumkits_item->child( i ) )->setBackgroundColor ( 0, QColor( 50, 50, 50)  );
@@ -702,7 +719,7 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 	}
 	assert( preDrumkitInfo );
 	
-	//open the soundlibrary save dialog 
+	//open the soundlibrary save dialog
 	SoundLibraryPropertiesDialog dialog( this , drumkitInfo, preDrumkitInfo );
 	dialog.exec();
 }
@@ -776,7 +793,7 @@ void SoundLibraryPanel::on_patternLoadAction()
 		QString testName = allPatternDirList[i];
 		if( testName.contains( patternName ) && testName.contains( drumkitname )){
 			sDirectory = allPatternDirList[i];		
-		} 
+		}
 	}
 
 	Pattern* pErr = mng.loadPattern (sDirectory );

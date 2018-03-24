@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="it_IT">
+<TS version="2.1" language="it_IT">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -16,15 +16,15 @@
         <translation>&lt;b&gt;Sito web&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Mailing lists&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Mailing list&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Main coder and maintainer:&lt;/b&gt;&lt;br&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;b&gt;Thanks to:&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -365,24 +365,16 @@ Sovrascrivere il file esistente?</translation>
         <translation>Esporta su una traccia singola</translation>
     </message>
     <message>
-        <source>Export to seperate tracks</source>
-        <translation>Esporta in tracce separate</translation>
-    </message>
-    <message>
         <source>Both</source>
         <translation>Entrambi</translation>
+    </message>
+    <message>
+        <source>Export to separate tracks</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ExportSongDialog_UI</name>
-    <message>
-        <source>Export filename</source>
-        <translation>Filename per esportazione</translation>
-    </message>
-    <message>
-        <source>Export Whole Song to WAV</source>
-        <translation>Esporta l&apos;intera canzone come file WAV</translation>
-    </message>
     <message>
         <source>&amp;Export</source>
         <translation>&amp;Esporta</translation>
@@ -541,6 +533,18 @@ Sovrascrivere il file esistente?</translation>
     </message>
     <message>
         <source>Rubberband Batch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialogo</translation>
+    </message>
+    <message>
+        <source>Export directory:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modus:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -800,6 +804,22 @@ Sei sicuro?</translation>
     <message>
         <source>Paste notes ...</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename instrument</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New instrument name</source>
+        <translation type="unfinished">Nuovo nome dello strumento</translation>
+    </message>
+    <message>
+        <source>Fill 1/12 notes</source>
+        <translation type="unfinished">Riempi 1/8 note {1/12 ?}</translation>
+    </message>
+    <message>
+        <source>Fill 1/16 notes</source>
+        <translation type="unfinished">Riempi 1/8 note {1/16 ?}</translation>
     </message>
 </context>
 <context>
@@ -1148,10 +1168,6 @@ MIDI = %2</source>
         <translation>&amp;Debug</translation>
     </message>
     <message>
-        <source>&amp;Tools</source>
-        <translation>&amp;Strumenti</translation>
-    </message>
-    <message>
         <source>&amp;Mixer</source>
         <translation>&amp;Mixer</translation>
     </message>
@@ -1240,20 +1256,8 @@ MIDI = %2</source>
         <translation>&amp;Elimina tutti</translation>
     </message>
     <message>
-        <source>&amp;Save library</source>
-        <translation>&amp;Salva libreria</translation>
-    </message>
-    <message>
-        <source>&amp;Export library</source>
-        <translation>&amp;Esporta libreria</translation>
-    </message>
-    <message>
         <source>Playlist &amp;editor</source>
         <translation>Playlist &amp;editor</translation>
-    </message>
-    <message>
-        <source>&amp;Import library</source>
-        <translation>&amp;Importa libreria</translation>
     </message>
     <message>
         <source></source>
@@ -1327,13 +1331,6 @@ Vuoi salvare i cambiamenti?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>
-The LilyPond export is an experimental feature.
-It should work like a charm provided that you use the GM-kit, and that you do not use triplet
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>LilyPond file (*.ly)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1350,6 +1347,89 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Pro&amp;ject</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation type="unfinished">Nuovo</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation type="unfinished">Apri</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation type="unfinished">Proprietà</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Esporta</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Online import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add component</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Component name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving of this library failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drum&amp;kits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Automation path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI setup advice</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Set default values</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GM-kit, and that you do not use triplet.
+</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1439,6 +1519,14 @@ Do you want to discard the changes?
     <message>
         <source>Set LADSPA FX ( %1 ) volume</source>
         <translation>Imposta volume effetto LADSPA ( %1 )</translation>
+    </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation type="unfinished">Mixer</translation>
     </message>
 </context>
 <context>
@@ -1573,6 +1661,10 @@ Do you want to discard the changes?
     <message>
         <source>Show drum editor</source>
         <translation>Mostra editor batteria</translation>
+    </message>
+    <message>
+        <source>Probability</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2066,6 +2158,16 @@ Do you want to discard the changes?
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;Annulla</translation>
     </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must be without whitespaces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hydrogen playlist (*.h2playlist)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
@@ -2418,10 +2520,6 @@ Do you want to discard the changes?
         <translation>Il conta battiti in izza in ms </translation>
     </message>
     <message>
-        <source>create per-instrument outputs</source>
-        <translation>crea output per ogni strumento</translation>
-    </message>
-    <message>
         <source>Path to the Rubberband command-line utility</source>
         <translation>Percorso per l&apos;utility Rubberband</translation>
     </message>
@@ -2487,6 +2585,38 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Use output note as input note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Discard midi messages after action has been triggered</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create per-instrument outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;OSC</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Enable OSC support</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Incoming port</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable OSC &amp;feedback</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2752,23 +2882,6 @@ Sei sicuro?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&quot;Crispness&quot; levels:&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   equivalent to --no-transients --no-lamination --window-long&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   equivalent to --no-transients --no-lamination&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   equivalent to --no-transients&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   equivalent to --bl-transients&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;more informations about you can find here:&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>0</source>
         <translation>0</translation>
     </message>
@@ -2809,6 +2922,23 @@ p, li { white-space: pre-wrap; }
     <message>
         <source> Pitch (Semitone,Cent)</source>
         <translation> Intonazione (Semitoni,Cent)</translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&quot;Crispness&quot; levels:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   equivalent to --no-transients --no-lamination --window-long&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   equivalent to --no-transients --no-lamination&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   equivalent to --no-transients&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   equivalent to --bl-transients&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;you can find more information here:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2897,6 +3027,34 @@ Confermi?</translation>
     <message>
         <source>Pattern %1</source>
         <translation>Modello %1</translation>
+    </message>
+    <message>
+        <source>View playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>View timeline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Adjust parameter values in time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation type="unfinished">Velocità</translation>
+    </message>
+    <message>
+        <source>Select playback track</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3261,6 +3419,21 @@ Sovrascrivere il modello esistente?</translation>
     </message>
 </context>
 <context>
+    <name>SoundLibraryOpenDialog</name>
+    <message>
+        <source>Open Sound Library</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation type="unfinished">Apri</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished">Annulla</translation>
+    </message>
+</context>
+<context>
     <name>SoundLibraryPanel</name>
     <message>
         <source>Load</source>
@@ -3332,14 +3505,18 @@ Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Keep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The existing kit has %1 instruments but the new one only has %2.
-The first %2 instruments will be replaced with the new intruments and will keep their notes, but some of the remaining instruments have notes.
+The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
 Would you like to keep or discard the remaining instruments and notes?
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Keep</source>
+        <source>Double click to expand the list</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

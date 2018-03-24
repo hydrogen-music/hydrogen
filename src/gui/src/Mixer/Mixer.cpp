@@ -53,23 +53,22 @@ Mixer::Mixer( QWidget* pParent )
  : QWidget( pParent )
  , Object( __class_name )
 {
-	setWindowTitle( trUtf8( __class_name ) );
+	setWindowTitle( trUtf8( "Mixer" ) );
 	setMaximumHeight( 284 );
 	setMinimumHeight( 284 );
 	setFixedHeight( 284 );
-	setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 
 // fader Panel
 	m_pFaderHBox = new QHBoxLayout();
 	m_pFaderHBox->setSpacing( 0 );
 	m_pFaderHBox->setMargin( 0 );
 
-	m_pFaderPanel = new QWidget( NULL );
+	m_pFaderPanel = new QWidget( nullptr );
 	m_pFaderPanel->resize( MIXER_STRIP_WIDTH * MAX_INSTRUMENTS, height() );
 
 	m_pFaderPanel->setLayout( m_pFaderHBox );
 
-	m_pFaderScrollArea = new QScrollArea( NULL );
+	m_pFaderScrollArea = new QScrollArea( nullptr );
 	m_pFaderScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pFaderScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pFaderScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
@@ -77,14 +76,14 @@ Mixer::Mixer( QWidget* pParent )
 	m_pFaderScrollArea->setWidget( m_pFaderPanel );
 
 	for ( uint i = 0; i < MAX_INSTRUMENTS; ++i ) {
-		m_pMixerLine[ i ] = NULL;
+		m_pMixerLine[ i ] = nullptr;
 	}
 
 //~ fader panel
 
 
 // fX frame
-	m_pFXFrame = new PixmapWidget( NULL );
+	m_pFXFrame = new PixmapWidget( nullptr );
 	m_pFXFrame->setFixedSize( 213, height() );
 	m_pFXFrame->setPixmap( "/mixerPanel/background_FX.png" );
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
@@ -105,7 +104,7 @@ Mixer::Mixer( QWidget* pParent )
 
 
 // Master frame
-	m_pMasterLine = new MasterMixerLine( NULL );
+	m_pMasterLine = new MasterMixerLine( nullptr );
 	m_pMasterLine->move( 0, 0 );
 	connect( m_pMasterLine, SIGNAL( volumeChanged(MasterMixerLine*) ), this, SLOT( masterVolumeChanged(MasterMixerLine*) ) );
 
@@ -126,8 +125,6 @@ Mixer::Mixer( QWidget* pParent )
 	m_pShowFXPanelBtn->hide();
 #endif
 
-
-
 	m_pShowPeaksBtn = new ToggleButton(
 			m_pMasterLine,
 			"/mixerPanel/showPeaks_on.png",
@@ -140,8 +137,6 @@ Mixer::Mixer( QWidget* pParent )
 	m_pShowPeaksBtn->setToolTip( trUtf8( "Show instrument peaks" ) );
 	connect( m_pShowPeaksBtn, SIGNAL(clicked(Button*)), this, SLOT( showPeaksBtnClicked(Button*)));
 //~ Master frame
-
-
 
 
 	// LAYOUT!
@@ -169,7 +164,7 @@ Mixer::~Mixer()
 
 MixerLine* Mixer::createMixerLine( int nInstr )
 {
-	MixerLine *pMixerLine = new MixerLine( 0 , nInstr);
+	MixerLine *pMixerLine = new MixerLine( nullptr , nInstr);
 	pMixerLine->setVolume( 0.2 );
 	pMixerLine->setMuteClicked( false );
 	pMixerLine->setSoloClicked( false );
@@ -187,10 +182,15 @@ MixerLine* Mixer::createMixerLine( int nInstr )
 	return pMixerLine;
 }
 
+void Mixer::closeEvent( QCloseEvent* ev )
+{
+	HydrogenApp::get_instance()->showMixer(false);
+}
+
 
 ComponentMixerLine* Mixer::createComponentMixerLine( int theCompoID )
 {
-	ComponentMixerLine *pMixerLine = new ComponentMixerLine( 0 , theCompoID);
+	ComponentMixerLine *pMixerLine = new ComponentMixerLine( nullptr , theCompoID);
 	pMixerLine->setVolume( 0.2 );
 	pMixerLine->setMuteClicked( false );
 	pMixerLine->setSoloClicked( false );
@@ -206,16 +206,13 @@ ComponentMixerLine* Mixer::createComponentMixerLine( int theCompoID )
 void Mixer::muteClicked(MixerLine* ref)
 {
 	int nLine = findMixerLineByRef(ref);
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 	bool isMuteClicked = ref->isMuteClicked();
 
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	CoreActionController* pController = pEngine->getCoreActionController();
+	pEngine->setSelectedInstrumentNumber( nLine );
 
-	Instrument *pInstr = instrList->get(nLine);
-	pInstr->set_muted( isMuteClicked);
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	pController->setStripIsMuted( nLine, isMuteClicked );
 }
 
 void Mixer::muteClicked(ComponentMixerLine* ref)
@@ -229,7 +226,7 @@ void Mixer::muteClicked(ComponentMixerLine* ref)
 
 void Mixer::soloClicked(ComponentMixerLine* ref)
 {
-    Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	std::vector<DrumkitComponent*> pCompoList = *(pSong->get_components());
 	int nComponents = pCompoList.size();
@@ -297,30 +294,20 @@ void Mixer::unmuteAll( int selectedInstrument )
 void Mixer::soloClicked(MixerLine* ref)
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
+	CoreActionController* pController = pEngine->getCoreActionController();
 	Song *pSong = pEngine->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 	int nInstruments = pInstrList->size();
 
 	int nLine = findMixerLineByRef(ref);
-	pEngine->setSelectedInstrumentNumber( nLine );
-	bool isSoloClicked = ref->isSoloClicked();
 
-	if (isSoloClicked) {
-		for ( int i = 0; i < nInstruments; ++i ) {
-			m_pMixerLine[i]->setSoloClicked( false );
-			m_pMixerLine[i]->setMuteClicked( true );
-			pInstrList->get( i )->set_muted( true );
-		}
-		m_pMixerLine[nLine]->setSoloClicked( true );
-		m_pMixerLine[nLine]->setMuteClicked( false );
-		pInstrList->get( nLine )->set_muted( false );
-	}
-	else {
-		for ( int i = 0; i < nInstruments; ++i ) {
-			m_pMixerLine[i]->setMuteClicked( false );
-			m_pMixerLine[i]->setSoloClicked( false );
-			pInstrList->get( i )->set_muted( false );
-		}
+	pController->setStripIsSoloed( nLine, ref->isSoloClicked() );
+
+	for ( int i = 0; i < nInstruments; ++i ) {
+			if( m_pMixerLine[i] ){
+				m_pMixerLine[i]->setSoloClicked( pInstrList->get(i)->is_soloed() );
+				m_pMixerLine[i]->setMuteClicked( pInstrList->get(i)->is_muted() );
+			}
 	}
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
@@ -331,14 +318,19 @@ void Mixer::soloClicked(MixerLine* ref)
 /// used in PatternEditorInstrumentList
 void Mixer::soloClicked(uint nLine)
 {
-	MixerLine * L = m_pMixerLine[ nLine ];
-	L->setSoloClicked( !L->isSoloClicked() );
-	soloClicked( L );
+	MixerLine * pMixerLine = m_pMixerLine[ nLine ];
+
+	if( pMixerLine ){
+		pMixerLine->setSoloClicked( !pMixerLine->isSoloClicked() );
+		soloClicked( pMixerLine );
+	}
+	
+
 }
 
 bool Mixer::isSoloClicked( uint n )
 {
-	if ( n >= MAX_INSTRUMENTS || m_pMixerLine[ n ] == NULL ) {
+	if ( n >= MAX_INSTRUMENTS || m_pMixerLine[ n ] == nullptr ) {
 		return false;
 	}
 	return m_pMixerLine[ n ]->isSoloClicked();
@@ -403,32 +395,22 @@ uint Mixer::findCompoMixerLineByRef(ComponentMixerLine* ref)
 }
 
 
-
-
 void Mixer::volumeChanged(MixerLine* ref)
 {
-	int nLine = findMixerLineByRef(ref);
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
-
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	InstrumentList *instrList = pSong->get_instrument_list();
+	CoreActionController* pController = pEngine->getCoreActionController();
 
-	Instrument *pInstr = instrList->get(nLine);
-
-	pInstr->set_volume( ref->getVolume() );
-
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	int nLine = findMixerLineByRef(ref);
+	pController->setStripVolume( nLine, ref->getVolume() );
 }
-
-
-
 
 void Mixer::masterVolumeChanged(MasterMixerLine* ref)
 {
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	CoreActionController* pController = pEngine->getCoreActionController();
+
 	float Volume = ref->getVolume();
-	Song *pSong = Hydrogen::get_instance()->getSong();
-	pSong->set_volume(Volume);
+	pController->setMasterVolume( Volume );
 }
 
 
@@ -455,7 +437,7 @@ void Mixer::updateMixer()
 		if ( nInstr >= nInstruments ) {	// unused instrument! let's hide and destroy the mixerline!
 			if ( m_pMixerLine[ nInstr ] ) {
 				delete m_pMixerLine[ nInstr ];
-				m_pMixerLine[ nInstr ] = NULL;
+				m_pMixerLine[ nInstr ] = nullptr;
 
 				int newWidth = MIXER_STRIP_WIDTH * ( nInstruments + nCompo );
 				if ( m_pFaderPanel->width() != newWidth ) {
@@ -465,7 +447,7 @@ void Mixer::updateMixer()
 			continue;
 		}
 		else {
-			if ( m_pMixerLine[ nInstr ] == NULL ) {
+			if ( m_pMixerLine[ nInstr ] == nullptr ) {
 				// the mixerline doesn't exists..I'll create a new one!
 				m_pMixerLine[ nInstr ] = createMixerLine( nInstr );
 				m_pFaderHBox->insertWidget( nInstr, m_pMixerLine[ nInstr ] );
@@ -771,33 +753,13 @@ void Mixer::nameSelected(MixerLine* ref)
 
 
 void Mixer::panChanged(MixerLine* ref) {
-	float panValue = ref->getPan();
-
-	float pan_L;
-	float pan_R;
-
-	if (panValue >= 0.5) {
-		pan_L = (1.0 - panValue) * 2;
-		pan_R = 1.0;
-	}
-	else {
-		pan_L = 1.0;
-		pan_R = panValue * 2;
-	}
-
-	int nLine = findMixerLineByRef(ref);
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
+	float	panValue = ref->getPan();
+	int		nLine = findMixerLineByRef(ref);
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	CoreActionController* pController = pEngine->getCoreActionController();
 
-	Instrument *pInstr = pInstrList->get(nLine);
-	pInstr->set_pan_l( pan_L );
-	pInstr->set_pan_r( pan_R );
-
-
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	pController->setStripPan( nLine, panValue );
 }
 
 
@@ -846,7 +808,7 @@ void Mixer::showFXPanelClicked(Button* ref)
 		Preferences::get_instance()->setFXTabVisible( false );
 	}
 
-	resizeEvent( NULL ); 	// force an update
+	resizeEvent( nullptr ); 	// force an update
 }
 
 
@@ -881,6 +843,8 @@ void Mixer::ladspaActiveBtnClicked( LadspaFXMixerLine* ref )
 			break;
 		}
 	}
+#else
+	QMessageBox::critical( this, "Hydrogen", trUtf8("LADSPA effects are not available in this version of Hydrogen.") );
 #endif
 }
 
@@ -897,6 +861,8 @@ void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 		}
 	}
 	Hydrogen::get_instance()->getSong()->set_is_modified( true );
+#else
+	QMessageBox::critical( this, "Hydrogen", trUtf8("LADSPA effects are not available in this version of Hydrogen.") );
 #endif
 }
 

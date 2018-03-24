@@ -90,7 +90,7 @@
     <rect>
      <x>10</x>
      <y>530</y>
-     <width>216</width>
+     <width>341</width>
      <height>21</height>
     </rect>
    </property>
@@ -104,7 +104,7 @@
      <x>10</x>
      <y>10</y>
      <width>801</width>
-     <height>28</height>
+     <height>35</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -178,43 +178,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="layoutWidget4">
-   <property name="geometry">
-    <rect>
-     <x>550</x>
-     <y>490</y>
-     <width>261</width>
-     <height>56</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout_2">
-    <item>
-     <widget class="QCheckBox" name="useNameCheckBox">
-      <property name="text">
-       <string>&amp;Filename to instrument name</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
-      <item>
-       <widget class="QPushButton" name="openBTN">
-        <property name="text">
-         <string>Open</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="cancelBTN">
-        <property name="text">
-         <string>Cancel</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-   </layout>
-  </widget>
   <widget class="QToolButton" name="m_pStopBtn">
    <property name="geometry">
     <rect>
@@ -233,7 +196,7 @@
     <rect>
      <x>360</x>
      <y>530</y>
-     <width>171</width>
+     <width>251</width>
      <height>21</height>
     </rect>
    </property>
@@ -242,6 +205,45 @@
    </property>
    <property name="text">
     <string>Set automatic velocity</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="cancelBTN">
+   <property name="geometry">
+    <rect>
+     <x>718</x>
+     <y>520</y>
+     <width>91</width>
+     <height>33</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Cancel</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="openBTN">
+   <property name="geometry">
+    <rect>
+     <x>620</x>
+     <y>520</y>
+     <width>91</width>
+     <height>33</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="useNameCheckBox">
+   <property name="geometry">
+    <rect>
+     <x>520</x>
+     <y>490</y>
+     <width>291</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&amp;Filename to instrument name</string>
    </property>
   </widget>
  </widget>
@@ -254,11 +256,8 @@
   <tabstop>filelineedit</tabstop>
   <tabstop>m_pPlayBtn</tabstop>
   <tabstop>m_pStopBtn</tabstop>
-  <tabstop>useNameCheckBox</tabstop>
   <tabstop>playSamplescheckBox</tabstop>
   <tabstop>autoVelCheckBox</tabstop>
-  <tabstop>openBTN</tabstop>
-  <tabstop>cancelBTN</tabstop>
  </tabstops>
  <resources/>
  <connections/>

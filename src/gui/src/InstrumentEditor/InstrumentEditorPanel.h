@@ -24,13 +24,17 @@
 #define INSTRUMENT_EDITOR_PANEL_H
 
 #include <QtGui>
+#if QT_VERSION >= 0x050000
+#  include <QtWidgets>
+#endif
 #include <hydrogen/object.h>
 #include "InstrumentEditor.h"
+#include "../EventListener.h"
 
 ///
 /// Container for the Instrument Editor (Singleton).
 ///
-class InstrumentEditorPanel : public QWidget, private H2Core::Object
+class InstrumentEditorPanel : public QWidget, private H2Core::Object, public EventListener
 {
     H2_OBJECT
 	Q_OBJECT
@@ -38,12 +42,16 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object
 		static InstrumentEditorPanel* get_instance();
 		~InstrumentEditorPanel();
 
-		void notifyOfDrumkitChange();
+		virtual void parametersInstrumentChangedEvent();
+
 		void selectLayer( int nLayer );
 		
 		int getSelectedLayer() {
 			return m_pLayer;
 		}
+
+	public slots:
+		void notifyOfDrumkitChange();
 
 	private:
 		static InstrumentEditorPanel* m_pInstance;
@@ -51,7 +59,6 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object
 
 		InstrumentEditorPanel( QWidget *pParent );
 		int m_pLayer;
-		
 };
 
 #endif

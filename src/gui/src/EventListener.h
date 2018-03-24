@@ -32,6 +32,7 @@ class EventListener
 		virtual void songModifiedEvent() {}
 		virtual void selectedPatternChangedEvent() {}
 		virtual void selectedInstrumentChangedEvent() {}
+		virtual void parametersInstrumentChangedEvent() {}
 		virtual void midiActivityEvent() {}
 		virtual void noteOnEvent( int nInstrument ) { UNUSED( nInstrument ); }
 		virtual void XRunEvent() {}
@@ -42,6 +43,7 @@ class EventListener
 		virtual void jacksessionEvent( int nValue) { UNUSED( nValue ); }
 		virtual void playlistLoadSongEvent( int nIndex ){ UNUSED( nIndex ); }
 		virtual void undoRedoActionEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void tempoChangedEvent( int nValue ){ UNUSED( nValue ); }
 
 		virtual ~EventListener() {}
 };

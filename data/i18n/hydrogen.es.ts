@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.0">
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE TS []>
+<TS version="2.1" language="es_ES" sourcelanguage="en_GB">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -16,23 +16,23 @@
         <translation>&lt;b&gt;Página web&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Mailing lists&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Listas de correo&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Main coder and maintainer:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Programador y mantenedeor principal:&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Thanks to:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Gracias a:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;b&gt;Lista correo desarrolladores&lt;/b&gt;&lt;br&gt;</translation>
     </message>
 </context>
 <context>
     <name>AboutDialog_UI</name>
     <message>
         <source>###</source>
-        <translation></translation>
+        <translation>###</translation>
     </message>
     <message>
         <source>About Hydrogen</source>
@@ -98,15 +98,15 @@
     </message>
     <message>
         <source>###</source>
-        <translation></translation>
+        <translation>###</translation>
     </message>
     <message>
         <source>Frames</source>
-        <translation>Marcos</translation>
+        <translation>Muestras</translation>
     </message>
     <message>
         <source>Ticks</source>
-        <translation>Partes</translation>
+        <translation>Ticks</translation>
     </message>
     <message>
         <source>Song position</source>
@@ -271,81 +271,81 @@
     <name>ComponentMixerLine</name>
     <message>
         <source>Mute</source>
-        <translation type="unfinished">Silencio</translation>
+        <translation>Silencio</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Solo</translation>
+        <translation>Solo</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre componente</translation>
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
-        <translation type="unfinished">Fijar volumen del instrumento [%1]</translation>
+        <translation>Fijar volumen del instrumento [%1]</translation>
     </message>
 </context>
 <context>
     <name>Director</name>
     <message>
         <source>Director</source>
-        <translation type="unfinished"></translation>
+        <translation>Director</translation>
     </message>
 </context>
 <context>
     <name>Director_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Diálogo</translation>
+        <translation>Diálogo</translation>
     </message>
 </context>
 <context>
     <name>DonationDialog</name>
     <message>
         <source>Donations</source>
-        <translation type="unfinished"></translation>
+        <translation>Donaciones</translation>
     </message>
 </context>
 <context>
     <name>DonationDialog_UI</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Forma</translation>
+        <translation>Forma</translation>
     </message>
     <message>
         <source>Donate!</source>
-        <translation type="unfinished"></translation>
+        <translation>Dona!</translation>
     </message>
     <message>
         <source>Choose random entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Escoge entrada al azar.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the involved persons.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen es un proyecto de código abierto desarrollado por múltiples personas en su tiempo libre. Al hacer un donativo puede mostrar su agradecimiento a las personas involucradas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Sebastian Moors (aka mauser): Maintainer / Developer</source>
-        <translation type="unfinished"></translation>
+        <translation>Sebastian Moors (alias mauser): Mantenedor / Programador</translation>
     </message>
     <message>
         <source>Michael Wolkstein (aka wolke): Forum hosting</source>
-        <translation type="unfinished"></translation>
+        <translation>Michael Wolkstein (alias wolke): Hosting del foro</translation>
     </message>
 </context>
 <context>
     <name>Download</name>
     <message>
         <source>Importing item failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Error al importar elemento: %1</translation>
     </message>
 </context>
 <context>
     <name>DownloadWidget</name>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
-        <translation></translation>
+        <translation>(%1/%2 KiB) - ETA %3</translation>
     </message>
 </context>
 <context>
@@ -357,32 +357,24 @@
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
-        <translation>El archivo %1 ya existe. 
-Sobreescribir el archivo existente?</translation>
+        <translation>El archivo %1 existe. 
+¿Sobreescribir el archivo existente?</translation>
     </message>
     <message>
         <source>Export to a single track</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export to seperate tracks</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar a pista única</translation>
     </message>
     <message>
         <source>Both</source>
-        <translation type="unfinished"></translation>
+        <translation>Ambos</translation>
+    </message>
+    <message>
+        <source>Export to separate tracks</source>
+        <translation>Exportar a pistas separadas</translation>
     </message>
 </context>
 <context>
     <name>ExportSongDialog_UI</name>
-    <message>
-        <source>Export filename</source>
-        <translation>Nombre de archivo a exportar</translation>
-    </message>
-    <message>
-        <source>Export Whole Song to WAV</source>
-        <translation>Exportar Canción Entera a WAV</translation>
-    </message>
     <message>
         <source>Alt+C</source>
         <translation>Alt+C</translation>
@@ -413,7 +405,7 @@ Sobreescribir el archivo existente?</translation>
     </message>
     <message>
         <source>22050</source>
-        <translation></translation>
+        <translation>22050</translation>
     </message>
     <message>
         <source>44100</source>
@@ -429,7 +421,7 @@ Sobreescribir el archivo existente?</translation>
     </message>
     <message>
         <source>192000</source>
-        <translation></translation>
+        <translation>192000</translation>
     </message>
     <message>
         <source>SampleDepth in Bit:</source>
@@ -437,7 +429,7 @@ Sobreescribir el archivo existente?</translation>
     </message>
     <message>
         <source>8</source>
-        <translation></translation>
+        <translation>8</translation>
     </message>
     <message>
         <source>16</source>
@@ -445,11 +437,11 @@ Sobreescribir el archivo existente?</translation>
     </message>
     <message>
         <source>24</source>
-        <translation></translation>
+        <translation>24</translation>
     </message>
     <message>
         <source>32</source>
-        <translation></translation>
+        <translation>32</translation>
     </message>
     <message>
         <source>Templates: </source>
@@ -469,11 +461,11 @@ Sobreescribir el archivo existente?</translation>
     </message>
     <message>
         <source>WAV LOFI &quot;22.05kHz, 8 bit PCM </source>
-        <translation></translation>
+        <translation>WAV LOFI &quot;22.05kHz, 8 bit PCM </translation>
     </message>
     <message>
         <source>WAV best Mixdown quality &quot;96 kHz, 32 bit PCM&quot;</source>
-        <translation>WAV mejor calidad Mezcla &quot;96 kHz, 32 bit PCM&quot;</translation>
+        <translation>WAV mejor calidad Mixdown &quot;96 kHz, 32 bit PCM&quot;</translation>
     </message>
     <message>
         <source>AIFF in CD quality &quot;41 kHz, 16 bit PCM&quot;</source>
@@ -497,51 +489,63 @@ Sobreescribir el archivo existente?</translation>
     </message>
     <message>
         <source>Interpolation: </source>
-        <translation type="unfinished"></translation>
+        <translation>Interpolación: </translation>
     </message>
     <message>
         <source>Choose type of interpolation methode</source>
-        <translation type="unfinished"></translation>
+        <translation>Elige método de interpolación</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Lineal</translation>
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Coseno</translation>
     </message>
     <message>
         <source>Third</source>
-        <translation type="unfinished"></translation>
+        <translation>Tercio</translation>
     </message>
     <message>
         <source>Cubic</source>
-        <translation type="unfinished"></translation>
+        <translation>Cúbico</translation>
     </message>
     <message>
         <source>Hermite</source>
-        <translation type="unfinished"></translation>
+        <translation>Hermite</translation>
     </message>
     <message>
         <source>Enable tempo changing</source>
-        <translation type="unfinished"></translation>
+        <translation>Activar cambio tempo</translation>
     </message>
     <message>
         <source>TimeLine BPM</source>
-        <translation type="unfinished"></translation>
+        <translation>Cronograma PPM</translation>
     </message>
     <message>
         <source>88200</source>
-        <translation type="unfinished">88200</translation>
+        <translation>88200</translation>
     </message>
     <message>
         <source>Enable use of rubberband&apos;s batch processor</source>
-        <translation type="unfinished"></translation>
+        <translation>Activar uso del procesador en lotes de rubberband</translation>
     </message>
     <message>
         <source>Rubberband Batch</source>
-        <translation type="unfinished"></translation>
+        <translation>Rubberband Lote</translation>
+    </message>
+    <message>
+        <source>Dialog</source>
+        <translation>Diálogo</translation>
+    </message>
+    <message>
+        <source>Export directory:</source>
+        <translation>Exportar directorio:</translation>
+    </message>
+    <message>
+        <source>Modus:</source>
+        <translation>Modus:</translation>
     </message>
 </context>
 <context>
@@ -592,25 +596,25 @@ Sobreescribir el archivo existente?</translation>
     </message>
     <message>
         <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
-        <translation>Esto no es posible, sólo puede guardar las modificaciones de los instrumentos en la biblioteca de sonidos cargada actualmente</translation>
+        <translation>Esto no es posible, solo puede guardar las modificaciones de los instrumentos en la biblioteca de sonidos cargada actualmente</translation>
     </message>
     <message>
         <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
 Are you sure?</source>
-        <translation>¡Advertencia! Si modifica el nombre del drumkit se creará otro con este nombre
-¿Está segur@?</translation>
+        <translation>¡Atención! Cambiar el nombre del drumkit resultará en la creación de otro drumkit con este nombre.
+¿Seguir?</translation>
     </message>
     <message>
         <source>Saving of this drumkit failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Error al guardar drumkit.</translation>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir Imagen</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivos de Imagen (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
@@ -621,19 +625,19 @@ Are you sure?</source>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Editor de canciones</translation>
+        <translation>Editor de canciones</translation>
     </message>
     <message>
         <source>Instrument + Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Instrumento + Patrón</translation>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Mezclador</translation>
+        <translation>Mezclador</translation>
     </message>
     <message>
         <source>modified</source>
-        <translation type="unfinished"></translation>
+        <translation>modificado</translation>
     </message>
 </context>
 <context>
@@ -648,11 +652,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Random pitch factor</source>
-        <translation>Factor aleatorio de tono </translation>
+        <translation>Factor aleatorio de tono</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
-        <translation>Filtro de Corte </translation>
+        <translation>Filtro de Corte</translation>
     </message>
     <message>
         <source>Filter resonance</source>
@@ -660,7 +664,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Attack</source>
-        <translation>Ataque </translation>
+        <translation>Ataque</translation>
     </message>
     <message>
         <source>Decay</source>
@@ -708,31 +712,31 @@ Are you sure?</source>
     </message>
     <message>
         <source>New component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre nuevo componente</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre componente</translation>
     </message>
     <message>
         <source>Midi out channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Canal salida Midi</translation>
     </message>
     <message>
         <source>Midi out note</source>
-        <translation type="unfinished"></translation>
+        <translation>Nota salida Midi</translation>
     </message>
     <message>
         <source>Component volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Volumen componente</translation>
     </message>
     <message>
         <source>Don&apos;t change the layers&apos; gain based on velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>No cambiar ganancia de capas basado en la velocidad</translation>
     </message>
     <message>
         <source>Select pattern size</source>
-        <translation type="unfinished">Seleccionar tamaño del patrón</translation>
+        <translation>Seleccionar tamaño del patrón</translation>
     </message>
 </context>
 <context>
@@ -779,34 +783,50 @@ Are you sure?</source>
     </message>
     <message>
         <source>Mute instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Silenciar instrumento</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Solo</translation>
+        <translation>Solo</translation>
     </message>
     <message>
         <source>Copy notes ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar notas ...</translation>
     </message>
     <message>
         <source>Only for this pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Solo para este patrón</translation>
     </message>
     <message>
         <source>For all patterns</source>
-        <translation type="unfinished"></translation>
+        <translation>Para todos los patrones</translation>
     </message>
     <message>
         <source>Paste notes ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Pegar notas ...</translation>
+    </message>
+    <message>
+        <source>Fill 1/12 notes</source>
+        <translation>Llenar notas 1/12</translation>
+    </message>
+    <message>
+        <source>Fill 1/16 notes</source>
+        <translation>Llenar notas 1/16</translation>
+    </message>
+    <message>
+        <source>Rename instrument</source>
+        <translation>Renombrar instrumento</translation>
+    </message>
+    <message>
+        <source>New instrument name</source>
+        <translation>Nombre de instrumento nuevo</translation>
     </message>
 </context>
 <context>
     <name>InstrumentRack</name>
     <message>
         <source>Show Instrument editor</source>
-        <translation>Ver editor de instrumento</translation>
+        <translation>Ver editor de instrumentos</translation>
     </message>
     <message>
         <source>Instrument</source>
@@ -814,11 +834,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Show sound library</source>
-        <translation>Ver biblioteca de sonido</translation>
+        <translation>Ver biblioteca de sonidos</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation>Biblioteca de sonido</translation>
+        <translation>Biblioteca de sonidos</translation>
     </message>
 </context>
 <context>
@@ -833,11 +853,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Ladspa FX name</source>
-        <translation>Nombre de efecto Ladspa </translation>
+        <translation>Nombre de efecto Ladspa</translation>
     </message>
     <message>
         <source>Effect return</source>
-        <translation>Retorno de efectos </translation>
+        <translation>Retorno de efectos</translation>
     </message>
 </context>
 <context>
@@ -868,7 +888,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Remove FX</source>
-        <translation type="unfinished"></translation>
+        <translation>Quitar efectos</translation>
     </message>
 </context>
 <context>
@@ -950,7 +970,11 @@ Are you sure?</source>
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Nombre:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>### fx name
@@ -964,7 +988,11 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Label:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Etiqueta:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -972,7 +1000,11 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Type:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Tipo:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -980,7 +1012,11 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -988,7 +1024,11 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Maker:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Creador:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>### FX maker
@@ -1004,7 +1044,11 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copyright:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Copyright:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>### copyright
@@ -1022,7 +1066,8 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Dec. = %1
 MIDI = %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Dec. = %1
+MIDI = %2</translation>
     </message>
 </context>
 <context>
@@ -1133,7 +1178,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Jack driver: cannot connect output port</source>
-        <translation>Controlador Jack no se puede conectar al puerto de salida</translation>
+        <translation>Controlador Jack: no se puede conectar al puerto de salida</translation>
     </message>
     <message>
         <source>Jack driver: error in port register</source>
@@ -1150,10 +1195,6 @@ MIDI = %2</source>
     <message>
         <source>Save &amp;as...</source>
         <translation>Gu&amp;ardar como...</translation>
-    </message>
-    <message>
-        <source>&amp;Tools</source>
-        <translation>Herramien&amp;tas</translation>
     </message>
     <message>
         <source>&amp;Mixer</source>
@@ -1217,7 +1258,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Playlist: Set song No. %1</source>
-        <translation>Lista de Reproducción: Fijar nº canción %1</translation>
+        <translation>Playlist: Set song No. %1</translation>
     </message>
     <message>
         <source>Show &amp;info</source>
@@ -1240,20 +1281,8 @@ MIDI = %2</source>
         <translation>&amp;Limpiar todo</translation>
     </message>
     <message>
-        <source>&amp;Save library</source>
-        <translation>&amp;Guardar biblioteca</translation>
-    </message>
-    <message>
-        <source>&amp;Export library</source>
-        <translation>&amp;Exportar biblioteca</translation>
-    </message>
-    <message>
         <source>Playlist &amp;editor</source>
-        <translation>&amp;Editor lista de reproducción</translation>
-    </message>
-    <message>
-        <source>&amp;Import library</source>
-        <translation>&amp;Importar biblioteca</translation>
+        <translation>&amp;Editor playlist</translation>
     </message>
     <message>
         <source></source>
@@ -1266,7 +1295,7 @@ MIDI = %2</source>
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
-        <translation>Lista de Reproducción: Canción Nº. %1</translation>
+        <translation>Playlist: Canción nº %1</translation>
     </message>
     <message>
         <source>Could not export pattern.</source>
@@ -1284,74 +1313,156 @@ El documento contiene cambios sin guardar.
     </message>
     <message>
         <source>Director</source>
-        <translation></translation>
+        <translation>Director</translation>
     </message>
     <message>
         <source>Undo history</source>
-        <translation type="unfinished"></translation>
+        <translation>Deshacer historial</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Deshacer</translation>
         <extra-FILE>menu</extra-FILE>
     </message>
     <message>
         <source>Undo</source>
-        <translation type="unfinished"></translation>
+        <translation>Deshacer</translation>
     </message>
     <message>
         <source>Redo</source>
-        <translation type="unfinished"></translation>
+        <translation>Rehacer</translation>
     </message>
     <message>
         <source>Input mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo entrada</translation>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished">Instrumento</translation>
+        <translation>Instrumento</translation>
     </message>
     <message>
         <source>Drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>Drumkit</translation>
     </message>
     <message>
         <source>Report bug</source>
-        <translation type="unfinished"></translation>
+        <translation>Reportar bug</translation>
     </message>
     <message>
         <source>Export &amp;LilyPond file</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar archivo &amp;LilyPond</translation>
     </message>
     <message>
         <source>Donate</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>
-The LilyPond export is an experimental feature.
-It should work like a charm provided that you use the GM-kit, and that you do not use triplet
-</source>
-        <translation type="unfinished"></translation>
+        <translation>Donar</translation>
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivo LilyPond (*.ly)</translation>
     </message>
     <message>
         <source>Export LilyPond file</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar archivo LilyPond</translation>
     </message>
     <message>
         <source>
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+El playlist actual contiene cambios sin guardar.
+¿Quiere descartar los cambios?
+</translation>
     </message>
     <message>
         <source>Pro&amp;ject</source>
-        <translation type="unfinished"></translation>
+        <translation>Pro&amp;yecto</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Nuevo</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Abrir</translation>
+    </message>
+    <message>
+        <source>Properties</source>
+        <translation>Propiedades</translation>
+    </message>
+    <message>
+        <source>Save</source>
+        <translation>Guardar</translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation>Guardar como</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation>Exportar</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Importar</translation>
+    </message>
+    <message>
+        <source>Online import</source>
+        <translation>Importar online</translation>
+    </message>
+    <message>
+        <source>Add component</source>
+        <translation>Añadir componente</translation>
+    </message>
+    <message>
+        <source>Component name</source>
+        <translation>Nombre componente</translation>
+    </message>
+    <message>
+        <source>Saving of this library failed.</source>
+        <translation>Error al guardar esta biblioteca.</translation>
+    </message>
+    <message>
+        <source>Drum&amp;kits</source>
+        <translation>Drum&amp;kits</translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation>&amp;Ver</translation>
+    </message>
+    <message>
+        <source>&amp;Automation path</source>
+        <translation>&amp;Ruta automatización</translation>
+    </message>
+    <message>
+        <source>Full screen</source>
+        <translation>Pantalla completa</translation>
+    </message>
+    <message>
+        <source>&amp;Options</source>
+        <translation>&amp;Opciones</translation>
+    </message>
+    <message>
+        <source>MIDI setup advice</source>
+        <translation>Consejo configuración MIDI</translation>
+    </message>
+    <message>
+        <source>MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?</source>
+        <translation>Las notas de salida MIDI no están configuradas para este drumkit, por tanto exportar esta canción a un archivo MIDI puede fallar. ¿Quiere que Hydrogen arregle esto automáticamente asignando valores por defecto?</translation>
+    </message>
+    <message>
+        <source>Set default values</source>
+        <translation>Asignar valores por defecto</translation>
+    </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GM-kit, and that you do not use triplet.
+</source>
+        <translation>
+La exportación LilyPond es una herramienta experimental.
+Debería funcionar correctamente mientras utilice el GM-kit, y no use tresillos.
+</translation>
     </message>
 </context>
 <context>
@@ -1389,11 +1500,11 @@ Do you want to discard the changes?
     <name>MidiSenseWidget</name>
     <message>
         <source>This element is not midi operable.</source>
-        <translation type="unfinished"></translation>
+        <translation>Este elemento no puede operar con midi.</translation>
     </message>
     <message>
         <source>Waiting for midi input...</source>
-        <translation type="unfinished"></translation>
+        <translation>Esperando entrada midi...</translation>
     </message>
 </context>
 <context>
@@ -1435,11 +1546,19 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Set FX %1 level </source>
-        <translation>Nivel Efecto %1</translation>
+        <translation>Nivel Efecto %1 </translation>
     </message>
     <message>
         <source>Set LADSPA FX ( %1 ) volume</source>
         <translation>Volumen Efecto LADSPA ( %1 )</translation>
+    </message>
+    <message>
+        <source>LADSPA effects are not available in this version of Hydrogen.</source>
+        <translation>Los efectos LADSPA no están disponibles en esta versión de Hydrogen.</translation>
+    </message>
+    <message>
+        <source>Mixer</source>
+        <translation>Mezclador</translation>
     </message>
 </context>
 <context>
@@ -1470,7 +1589,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Set instr. pan [%1]</source>
-        <translation>Fijar balance instr. [%1]</translation>
+        <translation>Estab. paneo instr. [%1]</translation>
     </message>
 </context>
 <context>
@@ -1553,7 +1672,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Loaded Soundlibrary</source>
-        <translation>Biblioteca de sonido cargado</translation>
+        <translation>Biblioteca de Sonidos cargado</translation>
     </message>
     <message>
         <source>NoteKey</source>
@@ -1574,6 +1693,10 @@ Do you want to discard the changes?
     <message>
         <source>Show drum editor</source>
         <translation>Mostrar drum editor</translation>
+    </message>
+    <message>
+        <source>Probability</source>
+        <translation>Probabilidad</translation>
     </message>
 </context>
 <context>
@@ -1607,11 +1730,11 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>To:</source>
-        <translation>A: </translation>
+        <translation>A:</translation>
     </message>
     <message>
         <source>From:</source>
-        <translation>De: </translation>
+        <translation>De:</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -1630,11 +1753,11 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>%1#2</source>
-        <translation></translation>
+        <translation>%1#2</translation>
     </message>
     <message>
         <source>%1</source>
-        <translation></translation>
+        <translation>%1</translation>
     </message>
 </context>
 <context>
@@ -1669,22 +1792,22 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Pattern description</source>
-        <translation type="unfinished"></translation>
+        <translation>Descripción patrón</translation>
     </message>
 </context>
 <context>
     <name>PianoRollEditor</name>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">Intensidad</translation>
+        <translation>Intensidad</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished">Balance</translation>
+        <translation>Balance</translation>
     </message>
     <message>
         <source>Lead and Lag</source>
-        <translation type="unfinished">Desfase Negativo y Positivo</translation>
+        <translation>Desfase Negativo y Positivo</translation>
     </message>
 </context>
 <context>
@@ -1795,27 +1918,27 @@ Do you want to discard the changes?
     </message>
     <message>
         <source> BC Panel on</source>
-        <translation>Panel CP sí</translation>
+        <translation> Panel CP sí</translation>
     </message>
     <message>
         <source> BC Panel off</source>
-        <translation>Panel CP no</translation>
+        <translation> Panel CP no</translation>
     </message>
     <message>
         <source> Count BPM and start PLAY</source>
-        <translation>Contar PPM y REPRODUCIR</translation>
+        <translation> Contar PPM y REPRODUCIR</translation>
     </message>
     <message>
         <source> Count and set BPM</source>
-        <translation>Contar y fijar PPM</translation>
+        <translation> Contar y fijar PPM</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = On</source>
-        <translation>Modo Jack-Time-Master = Sí</translation>
+        <translation> Modo Jack-Time-Master = Sí</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = Off</source>
-        <translation>Modo Jack-Time-Master = no</translation>
+        <translation> Modo Jack-Time-Master = no</translation>
     </message>
     <message>
         <source>Record</source>
@@ -1855,7 +1978,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Switch metronome on/off</source>
-        <translation type="unfinished"></translation>
+        <translation>Encender/apagar metrónomo</translation>
     </message>
 </context>
 <context>
@@ -1874,7 +1997,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Add Song to PlayList</source>
-        <translation>Añadir canción a Lista de Reproducción</translation>
+        <translation>Añadir canción al Playlist</translation>
     </message>
     <message>
         <source>No Song selected!</source>
@@ -1882,15 +2005,15 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Load Playlist</source>
-        <translation>Cargar Lista de Reproducción</translation>
+        <translation>Cargar Playlist</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.h2playlist)</source>
-        <translation>Lista de Reproducción Hydrogen (*.h2playlist)</translation>
+        <translation>Playlist Hydrogen (*.h2playlist)</translation>
     </message>
     <message>
         <source>Save Playlist</source>
-        <translation>Guardar Lista de Reproducción</translation>
+        <translation>Guardar Playlist</translation>
     </message>
     <message>
         <source>No Song in List or no Song selected!</source>
@@ -1898,7 +2021,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
-        <translation>Lista de Reproducción Hydrogen (*.sh)</translation>
+        <translation>Playlist Hydrogen (*.sh)</translation>
     </message>
     <message>
         <source>Add Script to selected Song</source>
@@ -1912,9 +2035,9 @@ Do you want to discard the changes?
         <source>No Default Editor Set. Please set your Default Editor
 Do not use a console based Editor
 Sorry, but this will not work for the moment.</source>
-        <translation>No se ha fijado ningún Editor por Defecto. Por favor fije su Editor por Defecto
-No utilice un Editor basado en una consola
-Lamentablemente esto no funcionará por el momento.</translation>
+        <translation>No se ha Fijado un Editor por Defecto. For favor fije su Editor por Defecto
+No utilice un Editor de consola
+Lo sentimos, pero por ahora no funciona.</translation>
     </message>
     <message>
         <source>Set your Default Editor</source>
@@ -1938,15 +2061,15 @@ Lamentablemente esto no funcionará por el momento.</translation>
     </message>
     <message>
         <source>New Script</source>
-        <translation>Script Nuevo </translation>
+        <translation>Script Nuevo</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must without whitespaces.</source>
-        <translation>El nombre o la ruta del Script contiene espacios en blanco
+        <translation>El nombre o la ruta del script contiene espacios en blanco.
 IMPORTANTE
-La ruta al script y el nombre del mismo no deben contener espacios en blanco.</translation>
+La ruta al script y el nombre no pueden contener espacios en blanco.</translation>
     </message>
     <message>
         <source>No Script!</source>
@@ -1954,35 +2077,35 @@ La ruta al script y el nombre del mismo no deben contener espacios en blanco.</t
     </message>
     <message>
         <source>&amp;Playlist</source>
-        <translation>&amp;Lista de Reproducción</translation>
+        <translation>&amp;Playlist</translation>
     </message>
     <message>
         <source>Add song to Play&amp;list</source>
-        <translation>Añadir canción a Lista de Repro&amp;ducción</translation>
+        <translation>Añadir canción al Play&amp;list</translation>
     </message>
     <message>
         <source>Add &amp;current song to Playlist</source>
-        <translation>Añadir canción &amp;actual a Lista de Reproducción</translation>
+        <translation>Añadir canción &amp;actual al Playlist</translation>
     </message>
     <message>
         <source>&amp;Remove selected song from Playlist</source>
-        <translation>&amp;Quitar canción seleccionada de Lista de Reproducción</translation>
+        <translation>&amp;Quitar canción seleccionada del Playlist</translation>
     </message>
     <message>
         <source>&amp;Open Playlist</source>
-        <translation>&amp;Abrir Lista de Reproducción</translation>
+        <translation>&amp;Abrir Playlist</translation>
     </message>
     <message>
         <source>&amp;Save Playlist</source>
-        <translation>&amp;Guardar Lista de Reproducción</translation>
+        <translation>&amp;Guardar Playlist</translation>
     </message>
     <message>
         <source>Save Playlist &amp;as</source>
-        <translation>Guardar Lista de Reproducción &amp;como</translation>
+        <translation>Guardar Playlist &amp;como</translation>
     </message>
     <message>
         <source>&amp;Scripts</source>
-        <translation></translation>
+        <translation>&amp;Scripts</translation>
     </message>
     <message>
         <source>&amp;Add Script to selected song</source>
@@ -2022,7 +2145,7 @@ La ruta al script y el nombre del mismo no deben contener espacios en blanco.</t
     </message>
     <message>
         <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation>¡ATENCIÓN, el nuevo archivo es ejecutable por el dueño de la canción!</translation>
+        <translation>¡ATENCIÓN, el nuevo archivo es ejecutable por el dueño del archivo!</translation>
     </message>
     <message>
         <source>Pause.</source>
@@ -2030,49 +2153,64 @@ La ruta al script y el nombre del mismo no deben contener espacios en blanco.</t
     </message>
     <message>
         <source>Playlist Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Navegador playlist</translation>
     </message>
     <message>
         <source>Playlist: set song no. %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Playlist: fijar canción nº %1</translation>
     </message>
     <message>
         <source>no Script</source>
-        <translation type="unfinished"></translation>
+        <translation>no Script</translation>
     </message>
     <message>
         <source>&amp;New Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nuevo playlist</translation>
     </message>
     <message>
         <source>File not found: </source>
-        <translation type="unfinished"></translation>
+        <translation>Archivo no encontrado: </translation>
     </message>
     <message>
         <source>No valid song selected!</source>
-        <translation type="unfinished"></translation>
+        <translation>No se ha seleccionado una canción válida!</translation>
     </message>
     <message>
         <source>
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+El playlist actual contiene cambios sin guardar.
+¿Quiere descartar los cambios?
+</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
-        <translation type="unfinished">&amp;Descartar</translation>
+        <translation>&amp;Descartar</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
+    </message>
+    <message>
+        <source>Hydrogen playlist (*.h2playlist)</source>
+        <translation>Playlist Hydrogen (*.h2playlist)</translation>
+    </message>
+    <message>
+        <source>Script name or path to the script contains whitespaces.
+IMPORTANT
+The path to the script and the scriptname must be without whitespaces.</source>
+        <translation>El nombre o la ruta del script contiene espacios en blanco.
+IMPORTANTE
+La ruta al script y al nombre del script no pueden contener espacios en blanco.</translation>
     </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
     <message>
         <source>PlayList Browser</source>
-        <translation>Navegador Listas de Reproducción</translation>
+        <translation>Navegador Playlist</translation>
     </message>
     <message>
         <source>Song list</source>
@@ -2098,8 +2236,8 @@ Do you want to discard the changes?
         <translation>&lt;b&gt;Sistema Open Sound&lt;/b&gt;&lt;br&gt;Controlador de audio simple [/dev/dsp]</translation>
     </message>
     <message>
-        <source>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Not compiled&lt;/font&gt;&lt;/b&gt;</source>
-        <translation>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;No compilado&lt;/font&gt;&lt;/b&gt;</translation>
+        <source>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Not compiled&lt;/font>&lt;/b&gt;</source>
+        <translation>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;No compilado&lt;/font>&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</source>
@@ -2132,39 +2270,40 @@ Do you want to discard the changes?
     <message>
         <source>Driver restart required.
  Restart driver?</source>
-        <translation type="unfinished"></translation>
+        <translation>Debe reiniciarse el controlador
+ ¿Reiniciar controlador?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished">&amp;Aceptar</translation>
+        <translation>&amp;Aceptar</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Automático</translation>
     </message>
     <message>
         <source>Steps</source>
-        <translation type="unfinished"></translation>
+        <translation>Pasos</translation>
     </message>
     <message>
         <source>Fixed</source>
-        <translation type="unfinished"></translation>
+        <translation>Fijo</translation>
     </message>
     <message>
         <source>&lt;b&gt;PulseAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Controlador PulseAudio&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>Number of steps</source>
-        <translation type="unfinished"></translation>
+        <translation>Número de pasos</translation>
     </message>
     <message>
         <source>Color (Hue value)</source>
-        <translation type="unfinished"></translation>
+        <translation>Color (Tono valor)</translation>
     </message>
 </context>
 <context>
@@ -2175,7 +2314,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Device</source>
-        <translation>Dispositivo de sonido</translation>
+        <translation>Dispositivo</translation>
     </message>
     <message>
         <source>Input</source>
@@ -2231,7 +2370,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>###</source>
-        <translation></translation>
+        <translation>###</translation>
     </message>
     <message>
         <source>1</source>
@@ -2263,7 +2402,7 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>8</source>
-        <translation></translation>
+        <translation>8</translation>
     </message>
     <message>
         <source>9</source>
@@ -2418,12 +2557,8 @@ Do you want to discard the changes?
         <translation>Compensación del arranque del contador de pulsaciones en ms    </translation>
     </message>
     <message>
-        <source>create per-instrument outputs</source>
-        <translation>Crear salidas para cada instrumento</translation>
-    </message>
-    <message>
         <source>Path to the Rubberband command-line utility</source>
-        <translation>Ruta a la utlidad de línea de comandos Rubberband</translation>
+        <translation>Ruta a la utilidad de línea de comandos Rubberband</translation>
     </message>
     <message>
         <source>Maximum number of bars</source>
@@ -2431,63 +2566,95 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>&amp;Reopen last used playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Reabrir último playlist utilizado</translation>
     </message>
     <message>
         <source>Interpolate resampling</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpolar resampleo</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Lineal</translation>
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Coseno</translation>
     </message>
     <message>
         <source>Third</source>
-        <translation type="unfinished"></translation>
+        <translation>Tercio</translation>
     </message>
     <message>
         <source>Cubic</source>
-        <translation type="unfinished"></translation>
+        <translation>Cúbico</translation>
     </message>
     <message>
         <source>Hermite</source>
-        <translation type="unfinished"></translation>
+        <translation>Hermite</translation>
     </message>
     <message>
         <source>Default interface layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Formato interfaz por defecto</translation>
     </message>
     <message>
         <source>Single pane</source>
-        <translation type="unfinished"></translation>
+        <translation>Ventana única</translation>
     </message>
     <message>
         <source>Tabbed</source>
-        <translation type="unfinished"></translation>
+        <translation>Pestañas</translation>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiqueta Texto</translation>
     </message>
     <message>
         <source>Coloring method for Song Editor elements</source>
-        <translation type="unfinished"></translation>
+        <translation>Método coloreo para elementos Editor Canciones</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Tras cambiar una fuente o el formato de interfaz se debe reiniciar la aplicación.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use relative paths for playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Use rutas relativas para playlist</translation>
     </message>
     <message>
         <source>Use output note as input note</source>
-        <translation type="unfinished"></translation>
+        <translation>Usar nota de salida como nota de entrada</translation>
+    </message>
+    <message>
+        <source>Discard midi messages after action has been triggered</source>
+        <translation>Descartar mensajes midi tras activar acción</translation>
+    </message>
+    <message>
+        <source>Create per-instrument outputs</source>
+        <translation>Crear salidas para cada instrumento</translation>
+    </message>
+    <message>
+        <source>Enable feedback</source>
+        <translation>Activar feedback</translation>
+    </message>
+    <message>
+        <source>&amp;OSC</source>
+        <translation>&amp;OSC</translation>
+    </message>
+    <message>
+        <source>Incoming port</source>
+        <translation>Puerto de entrada</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Puerto que se utilizará para recibir mensajes OSC entrantes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Enable OSC &amp;feedback</source>
+        <translation>Activar OSC &amp;feedback</translation>
+    </message>
+    <message>
+        <source>&amp;Enable OSC support</source>
+        <translation>&amp;Activar soporte OSC</translation>
     </message>
 </context>
 <context>
@@ -2496,7 +2663,7 @@ Do you want to discard the changes?
         <source>Unsaved changes left. This changes will be lost. 
 Are you sure?</source>
         <translation>Quedan cambios sin guardar. Estos cambios se perderán. 
-¿Está segur@?</translation>
+¿Seguir?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
@@ -2509,8 +2676,8 @@ Are you sure?</source>
     <message>
         <source>Close dialog! maybe there is some unsaved work on sample.
 Are you sure?</source>
-        <translation>¡Cierre el diálogo! Quizá quede trabajo sobre el sample sin guardar.
-¿Está segur@?</translation>
+        <translation>¡Cerrar diálogo! quizá haya trabajo sin guardar en el sample.
+¿Seguir?</translation>
     </message>
 </context>
 <context>
@@ -2553,11 +2720,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>pingpong</source>
-        <translation></translation>
+        <translation>pingpong</translation>
     </message>
     <message>
         <source>loops</source>
-        <translation></translation>
+        <translation>loops</translation>
     </message>
     <message>
         <source>Adjust sample end &amp; loop end frame</source>
@@ -2581,7 +2748,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>panorama</source>
-        <translation></translation>
+        <translation>panorama</translation>
     </message>
     <message>
         <source>Sample length to beat:</source>
@@ -2593,27 +2760,27 @@ Are you sure?</source>
     </message>
     <message>
         <source>1/64</source>
-        <translation></translation>
+        <translation>1/64</translation>
     </message>
     <message>
         <source>1/32</source>
-        <translation></translation>
+        <translation>1/32</translation>
     </message>
     <message>
         <source>1/16</source>
-        <translation></translation>
+        <translation>1/16</translation>
     </message>
     <message>
         <source>1/8</source>
-        <translation></translation>
+        <translation>1/8</translation>
     </message>
     <message>
         <source>1/4</source>
-        <translation></translation>
+        <translation>1/4</translation>
     </message>
     <message>
         <source>1/2</source>
-        <translation></translation>
+        <translation>1/2</translation>
     </message>
     <message>
         <source>1</source>
@@ -2645,7 +2812,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>8</source>
-        <translation></translation>
+        <translation>8</translation>
     </message>
     <message>
         <source>9</source>
@@ -2681,67 +2848,67 @@ Are you sure?</source>
     </message>
     <message>
         <source>17</source>
-        <translation></translation>
+        <translation>17</translation>
     </message>
     <message>
         <source>18</source>
-        <translation></translation>
+        <translation>18</translation>
     </message>
     <message>
         <source>19</source>
-        <translation></translation>
+        <translation>19</translation>
     </message>
     <message>
         <source>20</source>
-        <translation></translation>
+        <translation>20</translation>
     </message>
     <message>
         <source>21</source>
-        <translation></translation>
+        <translation>21</translation>
     </message>
     <message>
         <source>22</source>
-        <translation></translation>
+        <translation>22</translation>
     </message>
     <message>
         <source>23</source>
-        <translation></translation>
+        <translation>23</translation>
     </message>
     <message>
         <source>24</source>
-        <translation></translation>
+        <translation>24</translation>
     </message>
     <message>
         <source>25</source>
-        <translation></translation>
+        <translation>25</translation>
     </message>
     <message>
         <source>26</source>
-        <translation></translation>
+        <translation>26</translation>
     </message>
     <message>
         <source>27</source>
-        <translation></translation>
+        <translation>27</translation>
     </message>
     <message>
         <source>28</source>
-        <translation></translation>
+        <translation>28</translation>
     </message>
     <message>
         <source>29</source>
-        <translation></translation>
+        <translation>29</translation>
     </message>
     <message>
         <source>30</source>
-        <translation></translation>
+        <translation>30</translation>
     </message>
     <message>
         <source>31</source>
-        <translation></translation>
+        <translation>31</translation>
     </message>
     <message>
         <source>32</source>
-        <translation></translation>
+        <translation>32</translation>
     </message>
     <message>
         <source>Pitch the sample in semitones, cents</source>
@@ -2750,6 +2917,58 @@ Are you sure?</source>
     <message>
         <source>Crispness: </source>
         <translation>Nitidez: </translation>
+    </message>
+    <message>
+        <source>0</source>
+        <translation>0</translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation>Empezar</translation>
+    </message>
+    <message>
+        <source>Loop</source>
+        <translation>Loop</translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;mode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;modo&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Count&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Recuento&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>End</source>
+        <translation>Fin</translation>
+    </message>
+    <message>
+        <source>&quot;Rubberband Audio Processor&quot; : Change the tempo (sample length) and pitch of audio.</source>
+        <translation>&quot;Procesador Audio Rubberband&quot; : Cambiar el tempo (longitud sample) y tono de audio.</translation>
+    </message>
+    <message>
+        <source> Pitch (Semitone,Cent)</source>
+        <translation> Tono (Semitono,Cent)</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -2764,51 +2983,22 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;more informations about you can find here:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;you can find more information here:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>0</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Start</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Loop</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;mode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Count&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>End</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&quot;Rubberband Audio Processor&quot; : Change the tempo (sample length) and pitch of audio.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> Pitch (Semitone,Cent)</source>
-        <translation type="unfinished"></translation>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&quot;Nitidez&quot; levels:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   equivalente a --no-transitorios --no-laminación --ventana-larga&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   equivalente a --no-transitorios --no-laminación&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   equivalente a --no-transitorios&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   equivalente a --bl-transitorios&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   opciones de procesamiento por defecto&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalente a --no-laminación --ventana-corta (puede estar bien para baterías)&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;puede encontrar más información aquí:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -2831,7 +3021,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Documentation index</source>
-        <translation>Indice de documentación</translation>
+        <translation>Índice de documentación</translation>
     </message>
 </context>
 <context>
@@ -2862,13 +3052,13 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Draw mode</source>
-        <translation>Modo de dibujo</translation>
+        <translation>Modo dibujo</translation>
     </message>
     <message>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
-        <translation>Advertencia, esto borrará su secuencia de patrones.
-¿Está segur@?</translation>
+        <translation>Atención, esto borrará tu secuencia de patrones.
+¿Seguir?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
@@ -2898,6 +3088,34 @@ Are you sure?</source>
         <source>Pattern %1</source>
         <translation>Patrón %1</translation>
     </message>
+    <message>
+        <source>View playback track</source>
+        <translation>Ver pista reproducción</translation>
+    </message>
+    <message>
+        <source>Mute playback track</source>
+        <translation>Silenciar pista reproducción</translation>
+    </message>
+    <message>
+        <source>Choose playback track</source>
+        <translation>Seleccionar pista reproducción</translation>
+    </message>
+    <message>
+        <source>View timeline</source>
+        <translation>Ver timeline</translation>
+    </message>
+    <message>
+        <source>Adjust parameter values in time</source>
+        <translation>Ajustar valores de parámetros en tiempo</translation>
+    </message>
+    <message>
+        <source>Velocity</source>
+        <translation>Intensidad</translation>
+    </message>
+    <message>
+        <source>Select playback track</source>
+        <translation>Seleccionar pista reproducción</translation>
+    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -2911,7 +3129,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>500,55</source>
-        <translation></translation>
+        <translation>500,55</translation>
     </message>
     <message>
         <source>Edit beat in timeline</source>
@@ -2919,7 +3137,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>500</source>
-        <translation></translation>
+        <translation>500</translation>
     </message>
     <message>
         <source>Bar</source>
@@ -3014,8 +3232,8 @@ Are you sure?</source>
     <message>
         <source>The pattern-file exists. 
 Overwrite the existing pattern?</source>
-        <translation>El archivo de patrón ya existe. 
-¿Sobreescribir el patrón existente?</translation>
+        <translation>El archivo de patrones existe. 
+¿Sobreescribir el patron actual?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
@@ -3027,7 +3245,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Export Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar Patrón</translation>
     </message>
 </context>
 <context>
@@ -3069,7 +3287,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation></translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <source>License</source>
@@ -3084,7 +3302,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Directorio</translation>
     </message>
 </context>
 <context>
@@ -3099,46 +3317,46 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>Drumkit</translation>
     </message>
     <message>
         <source>Component</source>
-        <translation type="unfinished"></translation>
+        <translation>Componente</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Ruta</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versión</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Examinar...</translation>
+        <translation>Examinar...</translation>
     </message>
     <message>
         <source>0.9.7 and higher</source>
-        <translation type="unfinished"></translation>
+        <translation>0.9.7 y siguientes</translation>
     </message>
     <message>
         <source>0.9.6 and lower</source>
-        <translation type="unfinished"></translation>
+        <translation>0.9.6 y anteriores</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryImportDialog</name>
     <message>
         <source>Sound Library import</source>
-        <translation>Importación de biblioteca de sonido</translation>
+        <translation>Importar de Biblioteca de Sonidos</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation>Biblioteca de sonido</translation>
+        <translation>Biblioteca de sonidos</translation>
     </message>
     <message>
         <source>Status</source>
@@ -3146,7 +3364,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Updating SoundLibrary list...</source>
-        <translation>Actualizando lista de biblioteca de sonido...</translation>
+        <translation>Actualizando lista de Biblioteca de Sonidos...</translation>
     </message>
     <message>
         <source>Installed</source>
@@ -3154,7 +3372,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>New</source>
-        <translation>Nueva </translation>
+        <translation>Nuevo</translation>
     </message>
     <message>
         <source>Author: %1</source>
@@ -3162,15 +3380,15 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Downloading SoundLibrary...</source>
-        <translation>Descargando Biblioteca de Sonido...</translation>
+        <translation>Descargando Biblioteca de Sonidos...</translation>
     </message>
     <message>
         <source>SoundLibrary imported in %1</source>
-        <translation>Biblioteca de sonido importada en %1</translation>
+        <translation>Biblioteca de Sonidos importada en %1</translation>
     </message>
     <message>
         <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Ocurrió un error al importar la Biblioteca de sonido.</translation>
+        <translation>Ocurrió un error al importar la Biblioteca de Sonidos.</translation>
     </message>
     <message>
         <source>Import drumkit</source>
@@ -3190,11 +3408,11 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Drumkit License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Licencia Drumkit: %1</translation>
     </message>
     <message>
         <source>Image License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Licencia Imagen: %1</translation>
     </message>
 </context>
 <context>
@@ -3213,7 +3431,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Sound Library Name</source>
-        <translation>Nombre de biblioteca de sonido</translation>
+        <translation>Nombre de Biblioteca de Sonidos</translation>
     </message>
     <message>
         <source>Author...</source>
@@ -3249,15 +3467,30 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiqueta Texto</translation>
     </message>
     <message>
         <source>Image License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Licencia Imagen...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Licencia Drumkit...</translation>
+    </message>
+</context>
+<context>
+    <name>SoundLibraryOpenDialog</name>
+    <message>
+        <source>Open Sound Library</source>
+        <translation>Abrir Biblioteca de Sonidos</translation>
+    </message>
+    <message>
+        <source>Load</source>
+        <translation>Cargar</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Cancelar</translation>
     </message>
 </context>
 <context>
@@ -3276,11 +3509,11 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>System drumkits</source>
-        <translation>Drumkits de sistema</translation>
+        <translation>Drumkits del sistema</translation>
     </message>
     <message>
         <source>User drumkits</source>
-        <translation>Drumkits de usuario</translation>
+        <translation>Drumkits del usuario</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
@@ -3310,37 +3543,47 @@ Overwrite the existing pattern?</source>
         <source>Warning, the selected pattern will be deleted from disk.
 Are you sure?</source>
         <translation>Atención, el patrón seleccionado se borrará del disco.
-¿Está segur@?</translation>
+¿Seguir?</translation>
     </message>
     <message>
         <source>It is not possible to delete the currently loaded drumkit: 
   &quot;%1&quot;.
 To delete this drumkit first load another drumkit.</source>
-        <translation type="unfinished"></translation>
+        <translation>No es posible borrar el drumkit cargado actualmente: 
+  &quot;%1&quot;.
+Para borrar este, primero cargue otro drumkit.</translation>
     </message>
     <message>
         <source>&quot;%1&quot;is a system drumkit and can&apos;t be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot;es un drumkit del sistema y no puede ser borrado.</translation>
     </message>
     <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Atención, el drumkit &quot;%1&quot; será borrado del disco.
+¿Seguir?</translation>
     </message>
     <message>
         <source>Drumkit deletion failed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The existing kit has %1 instruments but the new one only has %2.
-The first %2 instruments will be replaced with the new intruments and will keep their notes, but some of the remaining instruments have notes.
-Would you like to keep or discard the remaining instruments and notes?
-</source>
-        <translation type="unfinished"></translation>
+        <translation>Error al borrar drumkit.</translation>
     </message>
     <message>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar</translation>
+    </message>
+    <message>
+        <source>The existing kit has %1 instruments but the new one only has %2.
+The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
+Would you like to keep or discard the remaining instruments and notes?
+</source>
+        <translation>El kit existente tiene %1 instrumentos pero el nuevo solo tiene %2.
+Los primeros %2 instrumentos serán reemplazados con los nuevos intrumentos y mantendrán sus notas, pero algunos de los instrumentos restantes tienen notas.
+¿Quiere mantener o descartar los instrumentos y las notas restantes?
+</translation>
+    </message>
+    <message>
+        <source>Double click to expand the list</source>
+        <translation>Hacer doble clic para expandir la lista</translation>
     </message>
 </context>
 <context>
@@ -3363,7 +3606,7 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Save </source>
-        <translation>Guardar</translation>
+        <translation>Guardar </translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -3375,19 +3618,19 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Drumkit License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licencia Drumkit</translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Imagen</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Examinar</translation>
+        <translation>Examinar</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licencia Imagen</translation>
     </message>
 </context>
 <context>
@@ -3424,7 +3667,7 @@ Would you like to keep or discard the remaining instruments and notes?
     <name>SoundLibrarySaveDialog</name>
     <message>
         <source>Save Sound Library</source>
-        <translation>Guardar Biblioteca de sonido</translation>
+        <translation>Guardar Biblioteca de sonidos</translation>
     </message>
     <message>
         <source>Please supply at least a valid name</source>
@@ -3432,19 +3675,19 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>A library with the same name already exists. Do you want to overwrite the existing library?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ya existe una biblioteca con el mismo nombre. ¿Quiere sobreescribir la biblioteca existente?</translation>
     </message>
     <message>
         <source>Saving of this library failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Error al guardar esta biblioteca.</translation>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir Imagen</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivos de Imagen (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
@@ -3475,26 +3718,26 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Save </source>
-        <translation>Guardar</translation>
+        <translation>Guardar </translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Imagen</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Examinar</translation>
+        <translation>Examinar</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licencia Imagen</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryTree</name>
     <message>
         <source>Sound library</source>
-        <translation>Biblioteca de sonido</translation>
+        <translation>Biblioteca de sonidos</translation>
     </message>
 </context>
 <context>

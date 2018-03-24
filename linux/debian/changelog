@@ -1,8 +1,30 @@
-hydrogen (0.9.7-alpha) unstable; urgency=low
-  * Release 0.9.7
-  * midi hihat support
-  * midi cymbal choke support
-  * coloring of song editor squares
+hydrogen (1.0.0-beta) unstable; urgency=low
+    * Release 1.0
+    * QT5 support
+    * Midi feedback
+    * OSC support (incl. feedback)
+    * Playback track
+    * Menu redesign
+    * Note probability property
+    * Velocity automation
+    * Full screen mode 
+
+
+    * Release 0.9.7
+    * The color of the SongEditors squares is now configurable
+    * Added support for midi cymbal choking
+    * Added support for midi hihat pressure control
+    * Added hihat pressure groups
+    * Added basic non session manager support
+    * Added instrument components
+    * Basic lilypond export
+    * New windows cross compilation script
+    * Support for soundlibrary images
+    * Configurable sample selection algorithm
+    * Support for soundlibraries with images
+    * Donation dialog
+    * New midi action:
+      * SELECT_PREV_PATTERN_RELATIVE
 
   * Release 0.9.6
   * new build system (cmake)

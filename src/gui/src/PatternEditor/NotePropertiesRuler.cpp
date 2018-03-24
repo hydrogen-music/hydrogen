@@ -44,7 +44,7 @@ const char* NotePropertiesRuler::__class_name = "NotePropertiesRuler";
 NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode )
  : QWidget( parent )
  , Object( __class_name )
- , m_mode( mode )
+ , m_Mode( mode )
  , m_pPatternEditorPanel( pPatternEditorPanel )
  , m_pPattern( NULL )
 {
@@ -54,17 +54,20 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	m_nGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
 	m_nEditorWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
 
-	if (m_mode == VELOCITY ) {
+	if (m_Mode == VELOCITY ) {
 		m_nEditorHeight = 100;
 	}
-	else if ( m_mode == PAN ) {
+	else if ( m_Mode == PAN ) {
 		m_nEditorHeight = 100;
 	}
-	else if ( m_mode == LEADLAG ) {
+	else if ( m_Mode == LEADLAG ) {
 		m_nEditorHeight = 100;
 	}
-	else if ( m_mode == NOTEKEY ) {
+	else if ( m_Mode == NOTEKEY ) {
 		m_nEditorHeight = 210;
+	}
+	if (m_Mode == PROBABILITY ) {
+		m_nEditorHeight = 100;
 	}
 
 	resize( m_nEditorWidth, m_nEditorHeight );
@@ -98,7 +101,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	float delta;
 	if (ev->modifiers() == Qt::ControlModifier) {
 		delta = 0.01; // fine control
-	} else { 
+	} else {
 		delta = 0.05; // course control
 	}
 		
@@ -132,7 +135,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 			continue;
 		}
-		if ( m_mode == VELOCITY && !pNote->get_note_off() ) {
+		if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
 			float val = pNote->get_velocity() + delta;
 			if (val > 1.0) {
 				val = 1.0;
@@ -148,7 +151,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			sprintf( valueChar, "%#.2f",  val);
 			( HydrogenApp::get_instance() )->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
 		}
-                else if ( m_mode == PAN && !pNote->get_note_off() ){
+                else if ( m_Mode == PAN && !pNote->get_note_off() ){
 			float pan_L, pan_R;
 
 			float val = (pNote->get_pan_r() - pNote->get_pan_l() + 0.5) + delta;
@@ -170,7 +173,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			pNote->set_pan_l(pan_L);
 			pNote->set_pan_r(pan_R);
 		}
-		else if ( m_mode == LEADLAG ){
+		else if ( m_Mode == LEADLAG ){
 			float val = (pNote->get_lead_lag() - 1.0)/-2.0 + delta;
 			if (val > 1.0) {
 				val = 1.0;
@@ -190,7 +193,19 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 				HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
 			}
 		}
+		else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
+			float val = pNote->get_probability() + delta;
+			if (val > 1.0) {
+				val = 1.0;
+			}
+			else if (val < 0.0) {
+				val = 0.0;
+			}
 
+			pNote->set_probability(val);
+			__probability = val;
+
+		}
 		pSong->set_is_modified( true );
 		startUndoAction();
 		updateEditor();
@@ -257,27 +272,32 @@ void NotePropertiesRuler::pressAction( int x, int y)
 			continue;
 		}
 
-		if ( m_mode == VELOCITY && !pNote->get_note_off() ) {
+		if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
 			__oldVelocity = pNote->get_velocity();
 			__mode = "VELOCITY";
 
 		}
-		else if ( m_mode == PAN && !pNote->get_note_off() ){
+		else if ( m_Mode == PAN && !pNote->get_note_off() ){
 
 			__oldPan_L = pNote->get_pan_l();
 			__oldPan_R = pNote->get_pan_r();
 			__mode = "PAN";
 		}
-		else if ( m_mode == LEADLAG ){
+		else if ( m_Mode == LEADLAG ){
 			
 			__oldLeadLag = pNote->get_lead_lag();
 			__mode = "LEADLAG";
 		}
 
-		else if ( m_mode == NOTEKEY ){
+		else if ( m_Mode == NOTEKEY ){
 			__mode = "NOTEKEY";
 		__oldOctaveKeyVal = pNote->get_octave();
 		__oldNoteKeyVal = pNote->get_key();
+		}
+		else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
+			__oldProbability = pNote->get_probability();
+			__mode = "PROBABILITY";
+
 		}
 
 	}
@@ -337,7 +357,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 				continue;
 			}
-			if ( m_mode == VELOCITY && !pNote->get_note_off() ) {
+			if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
 				if( columnChange ){
 					__oldVelocity = pNote->get_velocity();
 				}
@@ -347,7 +367,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				sprintf( valueChar, "%#.2f",  val);
 				HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
 			}
-			else if ( m_mode == PAN && !pNote->get_note_off() ){
+			else if ( m_Mode == PAN && !pNote->get_note_off() ){
 				float pan_L, pan_R;
 				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 					val = 0.5;
@@ -370,7 +390,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				__pan_L = pan_L;
 				__pan_R = pan_R;
 			}
-			else if ( m_mode == LEADLAG ){
+			else if ( m_Mode == LEADLAG ){
 				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 					pNote->set_lead_lag(0.0);
 					__leadLag = 0.0;
@@ -395,7 +415,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				}
 			}
 	
-			else if ( m_mode == NOTEKEY ){
+			else if ( m_Mode == NOTEKEY ){
 				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 					;
 				} else {
@@ -415,7 +435,17 @@ void NotePropertiesRuler::pressAction( int x, int y)
 					__noteKeyVal = pNote->get_key();
 				}
 			}
-	
+			else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
+				if( columnChange ){
+					__oldProbability = pNote->get_probability();
+				}
+				pNote->set_probability( val );
+				__probability = val;
+				char valueChar[100];
+				sprintf( valueChar, "%#.2f",  val);
+				HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note probability [%1]").arg( valueChar ), 2000 );
+			}
+
 	
 			if( columnChange ){
 				__columnCheckOnXmouseMouve = column;
@@ -455,6 +485,8 @@ void NotePropertiesRuler::startUndoAction()
 											   __oldPan_R,
 											   __leadLag,
 											   __oldLeadLag,
+											   __probability,
+											   __oldProbability,
 											   __noteKeyVal,
 											   __oldNoteKeyVal,
 											   __octaveKeyVal,
@@ -610,8 +642,16 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 				}
 				uint x_pos = 20 + pos * m_nGridWidth;
 				uint line_end = height();
-				uint velocity = (uint)(pNote->get_velocity() * height());
-				uint line_start = line_end - velocity;
+
+
+				uint value = 0;
+				if ( m_Mode == VELOCITY ) {
+					value = (uint)(pNote->get_velocity() * height());
+				}
+				else if ( m_Mode == PROBABILITY ) {
+					value = (uint)(pNote->get_probability() * height());
+				}
+				uint line_start = line_end - value;
 				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
 				int nLineWidth = 3;
 				p.fillRect( x_pos - 1 + xoffset, line_start, nLineWidth,  line_end - line_start , centerColor );
@@ -788,13 +828,13 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 	p.drawLine(0, m_nEditorHeight - 1, m_nEditorWidth, m_nEditorHeight - 1);
 }
 
-void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap) 
+void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 {
-	if ( !isVisible() ) {   
+	if ( !isVisible() ) {
 		return;
 	}
- 
- 
+
+
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	
 	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
@@ -809,30 +849,30 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 			(int)( pStyle->m_patternEditor_backgroundColor.getGreen() * ( 1 - 0.3 ) ),
 			(int)( pStyle->m_patternEditor_backgroundColor.getBlue() * ( 1 - 0.3 ) )
 	);
- 
+
 	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() );
 	QColor res_2( pStyle->m_patternEditor_line2Color.getRed(), pStyle->m_patternEditor_line2Color.getGreen(), pStyle->m_patternEditor_line2Color.getBlue() );
 	QColor res_3( pStyle->m_patternEditor_line3Color.getRed(), pStyle->m_patternEditor_line3Color.getGreen(), pStyle->m_patternEditor_line3Color.getBlue() );
 	QColor res_4( pStyle->m_patternEditor_line4Color.getRed(), pStyle->m_patternEditor_line4Color.getGreen(), pStyle->m_patternEditor_line4Color.getBlue() );
 	QColor res_5( pStyle->m_patternEditor_line5Color.getRed(), pStyle->m_patternEditor_line5Color.getGreen(), pStyle->m_patternEditor_line5Color.getBlue() );
- 
+
 	QPainter p( pixmap );
- 
+
 	p.fillRect( 0, 0, width(), height(), QColor(0, 0, 0) );
- 
+
 	unsigned nNotes = MAX_NOTES;
 	if (m_pPattern) {
 		nNotes = m_pPattern->get_length();
 	}
 	p.fillRect( 0, 0, 20 + nNotes * m_nGridWidth, height(), backgroundColor );
- 
- 
+
+
 	// central line
 	p.setPen( horizLinesColor );
 	p.drawLine(0, height() / 2.0, m_nEditorWidth, height() / 2.0);
- 
- 
- 
+
+
+
 	// vertical lines
 	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
 	int nBase;
@@ -842,20 +882,20 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 	else {
 		nBase = 4;
 	}
- 
+
 	int n4th = 4 * MAX_NOTES / (nBase * 4);
 	int n8th = 4 * MAX_NOTES / (nBase * 8);
 	int n16th = 4 * MAX_NOTES / (nBase * 16);
 	int n32th = 4 * MAX_NOTES / (nBase * 32);
 	int n64th = 4 * MAX_NOTES / (nBase * 64);
- 
+
 	int nResolution = pPatternEditor->getResolution();
- 
+
 	if ( !pPatternEditor->isUsingTriplets() ) {
- 
+
 		for (uint i = 0; i < nNotes + 1; i++) {
 			uint x = 20 + i * m_nGridWidth;
- 
+
 			if ( (i % n4th) == 0 ) {
 				if (nResolution >= 4) {
 					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
@@ -891,10 +931,10 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 	else {  // Triplets
 		uint nCounter = 0;
 		int nSize = 4 * MAX_NOTES / (nBase * nResolution);
- 
+
 		for (uint i = 0; i < nNotes + 1; i++) {
 			uint x = 20 + i * m_nGridWidth;
- 
+
 			if ( (i % nSize) == 0) {
 				if ((nCounter % 3) == 0) {
 					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
@@ -907,7 +947,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 			}
 		}
 	}
- 
+
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
@@ -963,7 +1003,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
  			}
 		}
 	}
- 
+
 	p.setPen(res_1);
 	p.drawLine(0, 0, m_nEditorWidth, 0);
 	p.drawLine(0, m_nEditorHeight - 1, m_nEditorWidth, m_nEditorHeight - 1);
@@ -1018,8 +1058,8 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 	for (unsigned y = 90; y < 210; y = y + 10 ) {
 		p.setPen( QPen( QColor( 255, 255, 255 ), 9, Qt::SolidLine, Qt::FlatCap) );
-		if ( y == 100 ||y == 120 ||y == 140 ||y == 170 ||y == 190) 
-			p.setPen( QPen( QColor( 0, 0, 0 ), 7, Qt::SolidLine, Qt::FlatCap ) ); 
+		if ( y == 100 ||y == 120 ||y == 140 ||y == 170 ||y == 190)
+			p.setPen( QPen( QColor( 0, 0, 0 ), 7, Qt::SolidLine, Qt::FlatCap ) );
 		p.drawLine(20, y, 20 + nNotes * m_nGridWidth, y);
 	}
 
@@ -1123,7 +1163,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		}
 	}
 
-//paint the note 
+//paint the note
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
@@ -1189,16 +1229,16 @@ void NotePropertiesRuler::updateEditor()
 	delete m_pBackground;
 	m_pBackground = new QPixmap( editorWidth, m_nEditorHeight );
 
-	if ( m_mode == VELOCITY ) {
+	if ( m_Mode == VELOCITY || m_Mode == PROBABILITY ) {
 		createVelocityBackground( m_pBackground );
 	}
-	else if ( m_mode == PAN ) {
+	else if ( m_Mode == PAN ) {
 		createPanBackground( m_pBackground );
 	}
-	else if ( m_mode == LEADLAG ) {
+	else if ( m_Mode == LEADLAG ) {
 		createLeadLagBackground( m_pBackground );
 	}
-	else if ( m_mode == NOTEKEY ) {
+	else if ( m_Mode == NOTEKEY ) {
 		createNoteKeyBackground( m_pBackground );
 	}
 

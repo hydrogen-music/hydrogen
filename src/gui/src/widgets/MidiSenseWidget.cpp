@@ -26,7 +26,7 @@
 
 const char* MidiSenseWidget::__class_name = "MidiSenseWidget";
 
-MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, MidiAction* midiAction): QDialog( pParent ) , Object(__class_name)
+MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* midiAction): QDialog( pParent ) , Object(__class_name)
 {
 	m_DirectWrite = directWr;
 	m_pAction = midiAction;
@@ -100,7 +100,7 @@ void MidiSenseWidget::updateMidi(){
 
 			assert(m_pAction);
 
-			MidiAction* pAction = new MidiAction( m_pAction->getType() );
+			Action* pAction = new Action( m_pAction->getType() );
 
 			pAction->setParameter1( m_pAction->getParameter1() );
 

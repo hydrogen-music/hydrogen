@@ -72,27 +72,26 @@ public:
 	static void writeXmlString( QDomNode parent, const QString& name, const QString& text );
 	static void writeXmlBool( QDomNode parent, const QString& name, bool value );
 
-	Pattern* loadPattern( const QString& directory );
-	int savePattern( Song *song , const QString& drumkit_name, int selectedpattern , const QString& patternname, const QString& realpatternname, int mode);
+	Pattern*	loadPattern( const QString& directory );
+	int			savePattern( Song *song , const QString& drumkit_name, int selectedpattern , const QString& patternname, const QString& realpatternname, int mode);
 
 	int savePlayList( const std::string& patternname );
 	int loadPlayList( const std::string& patternname);
 	
-	static QString copyInstrumentLineToString(Song *song, int selectedPattern, int selectedInstrument);
-	static bool pasteInstrumentLineFromString(Song *song, const QString & serialized, int selectedPattern, int selectedInstrument, std::list< Pattern* > & patterns);
+	static QString	copyInstrumentLineToString(Song *song, int selectedPattern, int selectedInstrument);
+	static bool		pasteInstrumentLineFromString(Song *song, const QString & serialized, int selectedPattern, int selectedInstrument, std::list< Pattern* > & patterns);
 
 	int writeTempPatternList( Song *song, const QString& filename);//used for undo/redo
 
-	static QString readXmlString( QDomNode , const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
-	static float readXmlFloat( QDomNode , const QString& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
-	static int readXmlInt( QDomNode , const QString& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
-	static bool readXmlBool( QDomNode , const QString& nodeName, bool defaultValue, bool bShouldExists = true , bool tinyXmlCompatMode = false );
-	static void convertFromTinyXMLString( QByteArray* str );
-	static bool checkTinyXMLCompatMode( const QString& filename );
+	static QString	readXmlString( QDomNode , const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
+	static float	readXmlFloat( QDomNode , const QString& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
+	static int		readXmlInt( QDomNode , const QString& nodeName, int defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
+	static bool		readXmlBool( QDomNode , const QString& nodeName, bool defaultValue, bool bShouldExists = true , bool tinyXmlCompatMode = false );
+	static void		convertFromTinyXMLString( QByteArray* str );
+	static bool		checkTinyXMLCompatMode( const QString& filename );
 	static QDomDocument openXmlDocument( const QString& filename );
 
 private:
-	void fileCopy( const QString& sOrigFilename, const QString& sDestFilename );
 	std::vector<QString> m_allPatternList;
 };
 

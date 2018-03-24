@@ -29,10 +29,10 @@
 using namespace std;
 
 
-class MidiAction : public H2Core::Object {
+class Action : public H2Core::Object {
 	H2_OBJECT
 	public:
-		MidiAction( QString );
+		Action( QString );
 
 		void setParameter1( QString text ){
 			parameter1 = text;
@@ -60,20 +60,76 @@ class MidiAction : public H2Core::Object {
 		QString parameter2;
 };
 
-bool setAbsoluteFXLevel( int nLine, int fx_channel , int fx_param);
+namespace H2Core
+{
+	class Hydrogen;
+}
 
 class MidiActionManager : public H2Core::Object
 {
 	H2_OBJECT
 	private:
 		static MidiActionManager *__instance;
+
 		QStringList actionList;
+		struct targeted_element {
+			int _id;
+			int _subId;
+		};
+		typedef bool (MidiActionManager::*action_f)(Action * , H2Core::Hydrogen * , targeted_element );
+		map<string, pair<action_f, targeted_element> > actionMap;
+
+		bool play(Action * , H2Core::Hydrogen * , targeted_element );
+		bool play_stop_pause_toggle(Action * , H2Core::Hydrogen * , targeted_element );
+		bool stop(Action * , H2Core::Hydrogen * , targeted_element );
+		bool pause(Action * , H2Core::Hydrogen * , targeted_element );
+		bool record_ready(Action * , H2Core::Hydrogen * , targeted_element );
+		bool record_strobe_toggle(Action * , H2Core::Hydrogen * , targeted_element );
+		bool record_strobe(Action * , H2Core::Hydrogen * , targeted_element );
+		bool record_exit(Action * , H2Core::Hydrogen * , targeted_element );
+		bool mute(Action * , H2Core::Hydrogen * , targeted_element );
+		bool unmute(Action * , H2Core::Hydrogen * , targeted_element );
+		bool mute_toggle(Action * , H2Core::Hydrogen * , targeted_element );
+		bool strip_mute_toggle(Action * , H2Core::Hydrogen * , targeted_element );
+		bool strip_solo_toggle(Action * , H2Core::Hydrogen * , targeted_element );
+		bool next_bar(Action * , H2Core::Hydrogen * , targeted_element );
+		bool previous_bar(Action * , H2Core::Hydrogen * , targeted_element );
+		bool bpm_increase(Action * , H2Core::Hydrogen * , targeted_element );
+		bool bpm_decrease(Action * , H2Core::Hydrogen * , targeted_element );
+		bool bpm_cc_relative(Action * , H2Core::Hydrogen * , targeted_element );
+		bool bpm_fine_cc_relative(Action * , H2Core::Hydrogen * , targeted_element );
+		bool master_volume_relative(Action * , H2Core::Hydrogen * , targeted_element );
+		bool master_volume_absolute(Action * , H2Core::Hydrogen * , targeted_element );
+		bool strip_volume_relative(Action * , H2Core::Hydrogen * , targeted_element );
+		bool strip_volume_absolute(Action * , H2Core::Hydrogen * , targeted_element );
+		bool effect_level_relative(Action * , H2Core::Hydrogen * , targeted_element );
+		bool effect_level_absolute(Action * , H2Core::Hydrogen * , targeted_element );
+		bool select_next_pattern(Action * , H2Core::Hydrogen * , targeted_element );
+		bool select_next_pattern_cc_absolute(Action * , H2Core::Hydrogen * , targeted_element );
+		bool select_next_pattern_promptly(Action * , H2Core::Hydrogen * , targeted_element );
+		bool select_next_pattern_relative(Action * , H2Core::Hydrogen * , targeted_element );
+		bool select_and_play_pattern(Action * , H2Core::Hydrogen * , targeted_element );
+		bool pan_relative(Action * , H2Core::Hydrogen * , targeted_element );
+		bool pan_absolute(Action * , H2Core::Hydrogen * , targeted_element );
+		bool filter_cutoff_level_absolute(Action * , H2Core::Hydrogen * , targeted_element );
+		bool beatcounter(Action * , H2Core::Hydrogen * , targeted_element );
+		bool tap_tempo(Action * , H2Core::Hydrogen * , targeted_element );
+		bool playlist_song(Action * , H2Core::Hydrogen * , targeted_element );
+		bool playlist_next_song(Action * , H2Core::Hydrogen * , targeted_element );
+		bool playlist_previous_song(Action * , H2Core::Hydrogen * , targeted_element );
+		bool toggle_metronome(Action * , H2Core::Hydrogen * , targeted_element );
+		bool select_instrument(Action * , H2Core::Hydrogen * , targeted_element );
+		bool undo_action(Action * , H2Core::Hydrogen * , targeted_element );
+		bool redo_action(Action * , H2Core::Hydrogen * , targeted_element );
+		bool gain_level_absolute(Action * , H2Core::Hydrogen * , targeted_element );
+		bool pitch_level_absolute(Action * , H2Core::Hydrogen * , targeted_element );
+
 		QStringList eventList;
 
 		int m_nLastBpmChangeCCParameter;
 
 	public:
-		bool handleAction( MidiAction * );
+		bool handleAction( Action * );
 
 		static void create_instance();
 		static MidiActionManager* get_instance() { assert(__instance); return __instance; }

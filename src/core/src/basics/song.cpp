@@ -41,6 +41,8 @@
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/note.h>
+#include <hydrogen/basics/automation_path.h>
+#include <hydrogen/automation_path_serializer.h>
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/hydrogen.h>
 
@@ -76,10 +78,14 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 	, __swing_factor( 0.0 )
 	, __song_mode( PATTERN_MODE )
 	, __components( NULL )
+	, __playback_track_enabled( false )
+	, __playback_track_volume( 0.0 )
+	, __velocity_automation_path( NULL )
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( __name ) );
 
 	__components = new std::vector<DrumkitComponent*> ();
+	__velocity_automation_path = new AutomationPath(0.0f, 1.5f,  1.0f);
 }
 
 
@@ -102,6 +108,8 @@ Song::~Song()
 	}
 
 	delete __instrument_list;
+
+	delete __velocity_automation_path;
 
 	INFOLOG( QString( "DESTROY '%1'" ).arg( __name ) );
 }
@@ -214,16 +222,17 @@ void Song::set_swing_factor( float factor )
 	__swing_factor = factor;
 }
 
-void Song::set_is_modified(bool is_modified){
+void Song::set_is_modified(bool is_modified)
+{
 	bool Notify = false;
 
-	if(__is_modified != is_modified){
+	if(__is_modified != is_modified) {
 		Notify = true;
 	}
 
 	__is_modified = is_modified;
 
-	if(Notify){
+	if(Notify) {
 		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
 	}
 }
@@ -405,7 +414,7 @@ Song* SongReader::readSong( const QString& filename )
 
 	QDomNode songNode = nodeList.at( 0 );
 
-	m_sSongVersion = LocalFileMng::readXmlString( songNode , "version", "Unknown version" );
+	m_sSongVersion = LocalFileMng::readXmlString( songNode, "version", "Unknown version" );
 
 	if ( m_sSongVersion != QString( get_version().c_str() ) ) {
 		WARNINGLOG( "Trying to load a song created with a different version of hydrogen." );
@@ -428,6 +437,11 @@ Song* SongReader::readSong( const QString& filename )
 		nMode = Song::SONG_MODE;
 	}
 
+	QString sPlaybackTrack( LocalFileMng::readXmlString( songNode, "playbackTrackFilename", "" ) );
+	bool bPlaybackTrackEnabled = LocalFileMng::readXmlBool( songNode, "playbackTrackEnabled", false );
+	float fPlaybackTrackVolume = LocalFileMng::readXmlFloat( songNode, "playbackTrackVolume", 0.0 );
+
+
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
@@ -441,6 +455,9 @@ Song* SongReader::readSong( const QString& filename )
 	song->set_humanize_time_value( fHumanizeTimeValue );
 	song->set_humanize_velocity_value( fHumanizeVelocityValue );
 	song->set_swing_factor( fSwingFactor );
+	song->set_playback_track_filename( sPlaybackTrack );
+	song->set_playback_track_enabled( bPlaybackTrackEnabled );
+	song->set_playback_track_volume( fPlaybackTrackVolume );
 
 	QDomNode componentListNode = songNode.firstChildElement( "componentList" );
 	if ( ( ! componentListNode.isNull()  ) ) {
@@ -456,8 +473,7 @@ Song* SongReader::readSong( const QString& filename )
 
 			componentNode = ( QDomNode ) componentNode.nextSiblingElement( "drumkitComponent" );
 		}
-	}
-	else {
+	} else {
 		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
 		song->get_components()->push_back(pDrumkitComponent);
 	}
@@ -677,7 +693,7 @@ Song* SongReader::readSong( const QString& filename )
 					pInstrument->get_components()->push_back( pCompo );
 					componentNode = ( QDomNode ) componentNode.nextSiblingElement( "instrumentComponent" );
 				}
-				if(!p_foundAtLeastOneComponent){
+				if(!p_foundAtLeastOneComponent) {
 					InstrumentComponent* pCompo = new InstrumentComponent( 0 );
 					float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
 					pCompo->set_gain( fGainCompo );
@@ -1004,6 +1020,29 @@ Song* SongReader::readSong( const QString& filename )
 		WARNINGLOG( "TagTimeLine node not found" );
 	}
 
+	// Automation Paths
+	QDomNode automationPathsNode = songNode.firstChildElement( "automationPaths" );
+	if ( !automationPathsNode.isNull() ) {
+		AutomationPathSerializer pathSerializer;
+
+		QDomElement pathNode = automationPathsNode.firstChildElement( "path" );
+		while( !pathNode.isNull()) {
+			QString sAdjust = pathNode.attribute( "adjust" );
+
+			// Select automation path to be read based on "adjust" attribute
+			AutomationPath *pPath = NULL;
+			if (sAdjust == "velocity") {
+				pPath = song->get_velocity_automation_path();
+			}
+
+			if (pPath) {
+				pathSerializer.read_automation_path( pathNode, *pPath );
+			}
+
+			pathNode = pathNode.nextSiblingElement( "path" );
+		}
+	}
+
 	song->set_is_modified( false );
 	song->set_filename( FileName );
 
@@ -1017,9 +1056,9 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 	QString sName;	// name
 	sName = LocalFileMng::readXmlString( pattern, "name", sName );
 	QString sInfo;
-	sInfo = LocalFileMng::readXmlString( pattern, "info", sInfo ,false ,false );
+	sInfo = LocalFileMng::readXmlString( pattern, "info", sInfo,false,false );
 	QString sCategory; // category
-	sCategory = LocalFileMng::readXmlString( pattern, "category", sCategory ,false ,false );
+	sCategory = LocalFileMng::readXmlString( pattern, "category", sCategory,false,false );
 
 	int nSize = -1;
 	nSize = LocalFileMng::readXmlInt( pattern, "size", nSize, false, false );
@@ -1035,12 +1074,13 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 			Note* pNote = NULL;
 
 			unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
-			float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0 , false , false );
+			float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0, false, false );
 			float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
 			float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
 			float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
 			int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
 			float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
+			float fProbability = LocalFileMng::readXmlFloat( noteNode, "probability", 1.0, false, false );
 			QString sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
 			QString nNoteOff = LocalFileMng::readXmlString( noteNode, "note_off", "false", false, false );
 
@@ -1063,6 +1103,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 			pNote->set_key_octave( sKey );
 			pNote->set_lead_lag( fLeadLag );
 			pNote->set_note_off( noteoff );
+			pNote->set_probability( fProbability );
 			pPattern->insert_note( pNote );
 
 			noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );
@@ -1083,7 +1124,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 				Note* pNote = NULL;
 
 				unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
-				float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0 , false , false );
+				float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0, false, false );
 				float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
 				float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
 				float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );

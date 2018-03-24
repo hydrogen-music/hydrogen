@@ -87,6 +87,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 
 	setWindowTitle ( QString( "SampleEditor " + newfilename) );
 	setFixedSize ( width(), height() );
+	setModal ( true );
 
 	//this new sample give us the not changed real samplelength
 	m_pSampleFromFile = Sample::load( mSamplefilename );
@@ -154,6 +155,7 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 			accept();
 		}else
 		{
+			event->ignore();
 			return;
 		}
 	}else
@@ -188,7 +190,7 @@ void SampleEditor::getAllFrameInfos()
 		pSample = pLayer->get_sample();
 	}
 
-//this values are needed if we restore a sample from from disk if a new song with sample changes will load
+//this values are needed if we restore a sample from disk if a new song with sample changes will load
 	m_sample_is_modified = pSample->get_is_modified();
 	m_pSamplerate = pSample->get_sample_rate();
 	__loops = pSample->get_loops();
