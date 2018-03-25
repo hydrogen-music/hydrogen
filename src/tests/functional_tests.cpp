@@ -32,6 +32,7 @@
 #include <hydrogen/smf/SMF.h>
 #include "test_helper.h"
 #include "assertions/file.h"
+#include "assertions/audiofile.h"
 
 #include <chrono>
 
@@ -119,7 +120,7 @@ class FunctionalTest : public CppUnit::TestCase {
 		auto refFile = H2TEST_FILE("functional/test.ref.wav");
 
 		exportSong( songFile, outFile );
-		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
+		H2TEST_ASSERT_AUDIO_FILES_EQUAL( refFile, outFile );
 		Filesystem::rm( outFile );
 	}
 
@@ -141,7 +142,7 @@ class FunctionalTest : public CppUnit::TestCase {
 		auto refFile = H2TEST_FILE("functional/mutegroups.ref.wav");
 
 		exportSong( songFile, outFile );
-		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
+		H2TEST_ASSERT_AUDIO_FILES_EQUAL( refFile, outFile );
 		Filesystem::rm( outFile );
 	}
 
@@ -152,7 +153,7 @@ class FunctionalTest : public CppUnit::TestCase {
 		auto refFile = H2TEST_FILE("functional/velocityautomation.ref.wav");
 
 		exportSong( songFile, outFile );
-		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
+		H2TEST_ASSERT_AUDIO_FILES_EQUAL( refFile, outFile );
 		Filesystem::rm( outFile );
 	}
 
