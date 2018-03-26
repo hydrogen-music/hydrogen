@@ -37,7 +37,6 @@ LCDCombo::LCDCombo(QWidget *pParent, int digits)
 {
 	INFOLOG( "INIT" );
 
-	QStringList items;
 	display = new LCDDisplay( this, LCDDigit::SMALL_BLUE, digits, false);
 	button = new Button( this,
 			"/patternEditor/btn_dropdown_on.png",
