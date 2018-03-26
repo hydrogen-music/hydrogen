@@ -92,6 +92,7 @@ bool LCDCombo::addItem( const QString &text )
 		actions.append( pop->addAction(text) );
 		return true;
 	}else{
+		WARNINGLOG(QString( "'%1' is > %2").arg( text ).arg( size ) );
 		return false;
 	}
 }
