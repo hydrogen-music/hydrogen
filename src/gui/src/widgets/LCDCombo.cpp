@@ -88,15 +88,6 @@ void LCDCombo::onClick(Button*)
 	pop->popup( display->mapToGlobal( QPoint( 1, display->height() + 2 ) ) );
 }
 
-
-
-int LCDCombo::length()
-{
-	return size;
-}
-
-
-
 void LCDCombo::update()
 {
 	//INFOLOG ( "update: "+toString(items.size()) );
@@ -111,15 +102,6 @@ void LCDCombo::update()
 	}
 
 }
-
-
-
-int LCDCombo::count()
-{
-	return items.size();
-}
-
-
 
 bool LCDCombo::addItem( const QString &text )
 {
@@ -139,18 +121,6 @@ void LCDCombo::addSeparator()
 {
 	items.append( SEPARATOR );
 }
-
-
-
-inline void LCDCombo::insertItem( int index, const QString &text )
-{
-	if(text.size()<=length()){
-		items.insert(index,text);
-		update();
-	}
-}
-
-
 
 void LCDCombo::mousePressEvent(QMouseEvent *ev)
 {

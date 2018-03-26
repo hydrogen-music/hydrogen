@@ -42,13 +42,10 @@ class LCDCombo : public QWidget, public H2Core::Object
 		LCDCombo(QWidget *pParent, int digits = 5);
 		~LCDCombo();
 
-		int count();
-		int length();
 		void update();
 		QString getText();
 		bool addItem(const QString &text );
 		void addSeparator();
-		inline void insertItem(int index, const QString &text );
 		void set_text( const QString &text );
 		void set_text( const QString &text, bool );
 
