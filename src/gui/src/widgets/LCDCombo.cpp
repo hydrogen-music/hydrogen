@@ -30,56 +30,48 @@
 
 const char* LCDCombo::__class_name = "LCDCombo";
 
-LCDCombo::LCDCombo(QWidget *pParent, int digits)
- : QWidget(pParent)
- , Object( __class_name )
+LCDCombo::LCDCombo( QWidget *pParent, int digits )
+	: QWidget(pParent)
+	, Object( __class_name )
 {
 	INFOLOG( "INIT" );
 
-	display = new LCDDisplay( this, LCDDigit::SMALL_BLUE, digits, false);
+	display = new LCDDisplay( this, LCDDigit::SMALL_BLUE, digits, false );
 	button = new Button( this,
-			"/patternEditor/btn_dropdown_on.png",
-			"/patternEditor/btn_dropdown_off.png",
-			"/patternEditor/btn_dropdown_over.png",
-			QSize(13, 13)
-	);
+	                     "/patternEditor/btn_dropdown_on.png",
+	                     "/patternEditor/btn_dropdown_off.png",
+	                     "/patternEditor/btn_dropdown_over.png",
+	                     QSize(13, 13)
+	                   );
 	pop = new QMenu( this );
 	size = digits;
 	active = 0;
 
-	button->move( ( digits * 8 ) + 5 , 1 );
+	button->move( ( digits * 8 ) + 5, 1 );
 	setFixedSize( ( digits * 8 ) + 17, display->height() );
 
 	connect( button, SIGNAL( clicked( Button* ) ), this, SLOT( onClick( Button* ) ) );
-
 	connect( pop, SIGNAL( triggered(QAction*) ), this, SLOT( changeText(QAction*) ) );
 }
-
-
-
 
 LCDCombo::~LCDCombo()
 {
 }
-
 
 QString LCDCombo::getText()
 {
 	return display->getText();
 };
 
-
-void LCDCombo::changeText(QAction* pAction)
+void LCDCombo::changeText( QAction* pAction )
 {
-	//_WARNINGLOG("triggered");
-// 	display->setText(pAction->text());
-// 	emit valueChanged( pAction->text() );
+	// WARNINGLOG("triggered");
+	// display->setText(pAction->text());
+	// emit valueChanged( pAction->text() );
 	set_text( pAction->text() );
 }
 
-
-
-void LCDCombo::onClick(Button*)
+void LCDCombo::onClick( Button* )
 {
 	pop->popup( display->mapToGlobal( QPoint( 1, display->height() + 2 ) ) );
 }
@@ -87,24 +79,21 @@ void LCDCombo::onClick(Button*)
 bool LCDCombo::addItem( const QString &text )
 {
 	//INFOLOG( "add item" );
-
-	if ( text.size() <= size ){
-		actions.append( pop->addAction(text) );
+	if ( text.size() <= size ) {
+		actions.append( pop->addAction( text ) );
 		return true;
-	}else{
+	} else {
 		WARNINGLOG(QString( "'%1' is > %2").arg( text ).arg( size ) );
 		return false;
 	}
 }
-
-
 
 void LCDCombo::addSeparator()
 {
 	actions.append( pop->addSeparator() );
 }
 
-void LCDCombo::mousePressEvent(QMouseEvent *ev)
+void LCDCombo::mousePressEvent( QMouseEvent *ev )
 {
 	UNUSED( ev );
 	pop->popup( display->mapToGlobal( QPoint( 1, display->height() + 2 ) ) );
@@ -121,13 +110,12 @@ void LCDCombo::wheelEvent( QWheelEvent * ev )
 	set_text( actions.at( active )->text() );
 }
 
-
-void LCDCombo::set_text( const QString &text)
+void LCDCombo::set_text( const QString &text )
 {
 	set_text(text, true);
 }
 
-void LCDCombo::set_text( const QString &text, bool emit_on_change)
+void LCDCombo::set_text( const QString &text, bool emit_on_change )
 {
 	if (display->getText() == text) {
 		return;
@@ -138,9 +126,7 @@ void LCDCombo::set_text( const QString &text, bool emit_on_change)
 		if ( actions.at(i)->text() == text )
 			active = i;
 	}
-	
-	if(emit_on_change)
+
+	if (emit_on_change)
 		emit valueChanged( text );
 }
-
-
