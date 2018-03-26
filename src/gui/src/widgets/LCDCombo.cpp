@@ -89,7 +89,7 @@ bool LCDCombo::addItem( const QString &text )
 	//INFOLOG( "add item" );
 
 	if ( text.size() <= size ){
-		items.append( pop->addAction(text) );
+		actions.append( pop->addAction(text) );
 		return true;
 	}else{
 		return false;
@@ -100,7 +100,7 @@ bool LCDCombo::addItem( const QString &text )
 
 void LCDCombo::addSeparator()
 {
-	items.append( pop->addSeparator() );
+	actions.append( pop->addSeparator() );
 }
 
 void LCDCombo::mousePressEvent(QMouseEvent *ev)
@@ -112,12 +112,12 @@ void LCDCombo::mousePressEvent(QMouseEvent *ev)
 void LCDCombo::wheelEvent( QWheelEvent * ev )
 {
 	ev->ignore();
-	const int n = items.size();
+	const int n = actions.size();
 	const int d = ( ev->delta() > 0 ) ? -1: 1;
 	active = ( n + active + d ) % n;
-	if ( items.at( active )->isSeparator() )
+	if ( actions.at( active )->isSeparator() )
 		active = ( n + active + d ) % n;
-	set_text( items.at( active )->text() );
+	set_text( actions.at( active )->text() );
 }
 
 
@@ -133,8 +133,8 @@ void LCDCombo::set_text( const QString &text, bool emit_on_change)
 	}
 	//INFOLOG( text );
 	display->setText( text );
-	for ( int i = 0; i < items.size(); i++ ) {
-		if ( items.at(i)->text() == text )
+	for ( int i = 0; i < actions.size(); i++ ) {
+		if ( actions.at(i)->text() == text )
 			active = i;
 	}
 	

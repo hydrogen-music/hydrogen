@@ -57,7 +57,7 @@ class LCDCombo : public QWidget, public H2Core::Object
 		void valueChanged( QString str );
 
 	private:
-		QList<QAction*> items;
+		QList<QAction*> actions;
 		LCDDisplay *display;
 		Button *button;
 		QMenu *pop;
