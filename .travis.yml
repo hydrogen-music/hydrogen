@@ -28,6 +28,11 @@ addons:
       - liblrdf-dev
       - liblash-compat-dev
       - librubberband-dev
+  artifacts:
+#    s3_region: "eu-central-1"
+    paths:
+      - "build/CMakeFiles/CMakeOutput.log"
+      - "/tmp/hydrogen"
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq; fi
@@ -45,4 +50,5 @@ before_install:
 
 script:
   - mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
-  - src/tests/tests
+  - TMPDIR=/tmp src/tests/tests
+
