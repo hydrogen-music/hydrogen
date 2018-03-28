@@ -115,7 +115,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	for ( int i = 1; i <= 32; i++) {
 		__pattern_size_combo->addItem( QString( "%1" ).arg( i ) );
 	}
-	__pattern_size_combo->update();
+	// is triggered from inside selectedPatternChangedEvent()
 	connect(__pattern_size_combo, SIGNAL( valueChanged( QString ) ), this, SLOT( patternSizeChanged(QString) ) );
 
 
@@ -134,8 +134,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__resolution_combo->addItem( "32T" );
 	__resolution_combo->addSeparator();
 	__resolution_combo->addItem( "off" );
-	__resolution_combo->update();
 	__resolution_combo->move( 121, 2 );
+	// is triggered from inside PatternEditorPanel()
 	connect(__resolution_combo, SIGNAL(valueChanged(QString)), this, SLOT(gridResolutionChanged(QString)));
 
 
@@ -433,7 +433,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__pPropertiesCombo->addItem( trUtf8("Lead and Lag") );
 	__pPropertiesCombo->addItem( trUtf8("NoteKey") );
 	__pPropertiesCombo->addItem( trUtf8("Probability") );
-	__pPropertiesCombo->update();
+	// is triggered here below
 	connect( __pPropertiesCombo, SIGNAL(valueChanged(QString)), this, SLOT(propertiesComboChanged(QString)));
 
 	pPropertiesVBox->addWidget( __pPropertiesCombo );
@@ -515,9 +515,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
-	selectedPatternChangedEvent(); // force an update
-
-	__pPropertiesCombo->set_text( trUtf8("Velocity"));
+	// update
+	__pPropertiesCombo->select( 0 );
+	selectedPatternChangedEvent();
 }
 
 
@@ -616,12 +616,7 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 		// update pattern size combobox
 		int nPatternSize = m_pPattern->get_length();
 		int nEighth = MAX_NOTES / 8;
-		for ( int i = 1; i <= 32; i++ ) {
-			if ( nPatternSize == nEighth * i ) {
-				__pattern_size_combo->set_text( QString( "%1" ).arg( i ) );
-				break;
-			}
-		}
+		__pattern_size_combo->select( (nPatternSize / nEighth) - 1 );
 	}
 	else {
 		m_pPattern = NULL;
@@ -812,13 +807,11 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 		return;
 	}
 
-
 	if ( !m_bEnablePatternResize ) {
-		__pattern_size_combo->set_text(QString::number(m_pPattern->get_length() / nEighth ),false);
+		__pattern_size_combo->select( ((m_pPattern->get_length() / nEighth) - 1), false );
 		QMessageBox::information( this, "Hydrogen", trUtf8( "Is not possible to change the pattern size when playing." ) );
 		return;
 	}
-
 
 	if ( nSelected > 0 && nSelected <= 32 ) {
 		m_pPattern->set_length( nEighth * nSelected );
