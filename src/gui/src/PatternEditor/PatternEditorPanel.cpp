@@ -116,7 +116,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		__pattern_size_combo->addItem( QString( "%1" ).arg( i ) );
 	}
 	// is triggered from inside selectedPatternChangedEvent()
-	connect(__pattern_size_combo, SIGNAL( valueChanged( QString ) ), this, SLOT( patternSizeChanged(QString) ) );
+	connect(__pattern_size_combo, SIGNAL( valueChanged( int ) ), this, SLOT( patternSizeChanged( int ) ) );
 
 
 	// GRID resolution
@@ -136,7 +136,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__resolution_combo->addItem( "off" );
 	__resolution_combo->move( 121, 2 );
 	// is triggered from inside PatternEditorPanel()
-	connect(__resolution_combo, SIGNAL(valueChanged(QString)), this, SLOT(gridResolutionChanged(QString)));
+	connect(__resolution_combo, SIGNAL(valueChanged( int )), this, SLOT(gridResolutionChanged( int )));
 
 
 	PixmapWidget *pRec = new PixmapWidget( NULL );
@@ -433,8 +433,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__pPropertiesCombo->addItem( trUtf8("Lead and Lag") );
 	__pPropertiesCombo->addItem( trUtf8("NoteKey") );
 	__pPropertiesCombo->addItem( trUtf8("Probability") );
+	/* __pPropertiesCombo->addItem( trUtf8("Cutoff") ); */
+	/* __pPropertiesCombo->addItem( trUtf8("Resonance") ); */
 	// is triggered here below
-	connect( __pPropertiesCombo, SIGNAL(valueChanged(QString)), this, SLOT(propertiesComboChanged(QString)));
+	connect( __pPropertiesCombo, SIGNAL(valueChanged( int )), this, SLOT(propertiesComboChanged( int )));
 
 	pPropertiesVBox->addWidget( __pPropertiesCombo );
 
@@ -573,25 +575,23 @@ void PatternEditorPanel::on_patternEditorScroll(int nValue)
 
 
 
-void PatternEditorPanel::gridResolutionChanged( QString str )
+void PatternEditorPanel::gridResolutionChanged( int nSelected )
 {
 	int nResolution;
 	bool bUseTriplets = false;
 
-	if ( str.contains( "off" ) ) {
-		nResolution=MAX_NOTES;
+	if ( nSelected == 11 ) {
+		nResolution = MAX_NOTES;
 	}
-	else if ( str.contains( "T" ) ) {
+	else if ( nSelected > 4 ) {
 		bUseTriplets = true;
-		QString temp = str;
-		temp.chop( 1 );
-		nResolution = temp.toInt() * 2;
+		nResolution = 0x1 << (nSelected - 3);
 	}
 	else {
-		nResolution = str.toInt();
+		nResolution = 0x1 << (nSelected + 2);
 	}
 
-	//INFOLOG( to_string( nResolution ) );
+	// INFOLOG( QString("idx %1 -> %2 resolution").arg( nSelected ).arg( nResolution ) );
 	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
 	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
 
@@ -791,21 +791,15 @@ void PatternEditorPanel::zoomOutBtnClicked(Button *ref)
 
 
 
-void PatternEditorPanel::patternSizeChanged( QString str )
+void PatternEditorPanel::patternSizeChanged( int nSelected )
 {
-	INFOLOG( "pattern size changed" );
-
-	uint nEighth = MAX_NOTES / 8;
-	int nSelected = str.toInt();
+	// INFOLOG( QString("idx %1 -> %2 eigth").arg( nSelected ).arg( ( MAX_NOTES / 8 ) * ( nSelected + 1 ) ) );
 
 	if ( !m_pPattern ) {
 		return;
 	}
 
-	if ( m_pPattern->get_length() == nEighth * nSelected ) {
-		// non e' necessario aggiornare
-		return;
-	}
+	int nEighth = MAX_NOTES / 8;
 
 	if ( !m_bEnablePatternResize ) {
 		__pattern_size_combo->select( ((m_pPattern->get_length() / nEighth) - 1), false );
@@ -813,12 +807,7 @@ void PatternEditorPanel::patternSizeChanged( QString str )
 		return;
 	}
 
-	if ( nSelected > 0 && nSelected <= 32 ) {
-		m_pPattern->set_length( nEighth * nSelected );
-	}
-	else {
-		ERRORLOG( QString("[patternSizeChanged] Unhandled case %1").arg( nSelected ) );
-	}
+	m_pPattern->set_length( nEighth * ( nSelected + 1 ) );
 
 	m_pPatternEditorRuler->updateEditor( true );	// redraw all
 	m_pNoteVelocityEditor->updateEditor();
@@ -901,9 +890,9 @@ void PatternEditorPanel::dropEvent(QDropEvent *event)
 
 
 
-void PatternEditorPanel::propertiesComboChanged( QString text )
+void PatternEditorPanel::propertiesComboChanged( int nSelected )
 {
-	if ( text == trUtf8( "Velocity" ) ) {
+	if ( nSelected == 0 ) {				// Velocity
 		m_pNotePanScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
 		m_pNoteNoteKeyScrollView->hide();
@@ -912,7 +901,7 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 
 		m_pNoteVelocityEditor->updateEditor();
 	}
-	else if ( text == trUtf8( "Pan" ) ) {
+	else if ( nSelected == 1 ) {		// Pan
 		m_pNoteVelocityScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
 		m_pNoteNoteKeyScrollView->hide();
@@ -921,7 +910,7 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 
 		m_pNotePanEditor->updateEditor();
 	}
-	else if ( text == trUtf8( "Lead and Lag" ) ) {
+	else if ( nSelected == 2 ) {		// Lead and Lag
 		m_pNoteVelocityScrollView->hide();
 		m_pNotePanScrollView->hide();
 		m_pNoteNoteKeyScrollView->hide();
@@ -930,7 +919,7 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 
 		m_pNoteLeadLagEditor->updateEditor();
 	}
-	else if ( text == trUtf8( "NoteKey" ) ) {
+	else if ( nSelected == 3 ) {		// NoteKey
 		m_pNoteVelocityScrollView->hide();
 		m_pNotePanScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
@@ -939,7 +928,7 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 
 		m_pNoteNoteKeyEditor->updateEditor();
 	}
-	else if ( text == trUtf8( "Probability" ) ) {
+	else if ( nSelected == 4 ) {		// Probability
 		m_pNotePanScrollView->hide();
 		m_pNoteLeadLagScrollView->hide();
 		m_pNoteNoteKeyScrollView->hide();
@@ -948,12 +937,14 @@ void PatternEditorPanel::propertiesComboChanged( QString text )
 
 		m_pNoteProbabilityEditor->updateEditor();
 	}
-	else if ( text == trUtf8( "Cutoff" ) ) {
+	/*
+	else if ( nSelected == 5 ) {		// Cutoff
 	}
-	else if ( text == trUtf8( "Resonance" ) ) {
+	else if ( nSelected == 6 ) {		// Resonance
 	}
+	*/
 	else {
-		ERRORLOG( "Unknown text: " + text );
+		ERRORLOG( QString("unhandeled value : %1").arg(nSelected) );
 	}
 }
 

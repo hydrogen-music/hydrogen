@@ -129,7 +129,6 @@ bool LCDCombo::select( int idx, bool emitValueChanged )
 
 	active = idx;
 	display->setText( actions.at( idx )->text() );
-	// TODO valueChanged( int ) -> change moc file
 	if ( emitValueChanged )
-		emit valueChanged( actions.at( idx )->text() );
+		emit valueChanged( idx );
 }

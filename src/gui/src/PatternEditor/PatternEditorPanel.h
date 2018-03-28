@@ -81,9 +81,9 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		//~ Implements EventListener interface
 
 	private slots:
-		void gridResolutionChanged( QString text );
-		void propertiesComboChanged( QString text );
-		void patternSizeChanged( QString text );
+		void gridResolutionChanged( int nSelected );
+		void propertiesComboChanged( int nSelected );
+		void patternSizeChanged( int nSelected );
 
 		void hearNotesBtnClick(Button *ref);
 		void quantizeEventsBtnClick(Button *ref);

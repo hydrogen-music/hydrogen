@@ -55,7 +55,7 @@ class LCDCombo : public QWidget, public H2Core::Object
 		void onClick( Button* );
 
 	signals:
-		void valueChanged( QString str );
+		void valueChanged( int idx );
 
 	private:
 		QList<QAction*> actions;
