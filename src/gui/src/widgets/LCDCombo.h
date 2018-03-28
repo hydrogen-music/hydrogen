@@ -45,6 +45,9 @@ class LCDCombo : public QWidget, public H2Core::Object
 		QString getText();
 		bool addItem( const QString &text );
 		void addSeparator();
+		int selected();
+		bool select(int idx );
+		bool select(int idx, bool emitValueChanged );
 		void set_text( const QString &text );
 		void set_text( const QString &text, bool );
 

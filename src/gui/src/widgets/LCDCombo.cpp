@@ -45,7 +45,7 @@ LCDCombo::LCDCombo( QWidget *pParent, int digits )
 	                   );
 	pop = new QMenu( this );
 	size = digits;
-	active = 0;
+	active = -1;
 
 	button->move( ( digits * 8 ) + 5, 1 );
 	setFixedSize( ( digits * 8 ) + 17, display->height() );
@@ -108,6 +108,31 @@ void LCDCombo::wheelEvent( QWheelEvent * ev )
 	if ( actions.at( active )->isSeparator() )
 		active = ( n + active + d ) % n;
 	set_text( actions.at( active )->text() );
+}
+
+int LCDCombo::selected()
+{
+	return active;
+}
+
+bool LCDCombo::select( int idx )
+{
+	select(idx, true);
+}
+
+bool LCDCombo::select( int idx, bool emitValueChanged )
+{
+	if (active == idx)
+		return false;
+
+	if (idx < 0 || idx >= actions.size())
+		return false;
+
+	active = idx;
+	display->setText( actions.at( idx )->text() );
+	// TODO valueChanged( int ) -> change moc file
+	if ( emitValueChanged )
+		emit valueChanged( actions.at( idx )->text() );
 }
 
 void LCDCombo::set_text( const QString &text )
