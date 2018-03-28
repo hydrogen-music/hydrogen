@@ -471,73 +471,34 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pMainPanel->setLayout( pGrid );
 
 
-
-
-
 	// restore grid resolution
 	int nIndex;
-	if ( pPref->isPatternEditorUsingTriplets() == false ) {
-		switch ( pPref->getPatternEditorGridResolution() ) {
-			case 4:
-				__resolution_combo->set_text( "4" );
-				nIndex = 0;
-				break;
-
-			case 8:
-				__resolution_combo->set_text( "8" );
-				nIndex = 1;
-				break;
-
-			case 16:
-				__resolution_combo->set_text( "16" );
-				nIndex = 2;
-				break;
-
-			case 32:
-				__resolution_combo->set_text( "32" );
-				nIndex = 3;
-				break;
-
-			case 64:
-				__resolution_combo->set_text( "64" );
-				nIndex = 4;
-				break;
-
+	int nRes = pPref->getPatternEditorGridResolution();
+	if (nRes == MAX_NOTES) {
+		nIndex = 11;
+	} else if ( pPref->isPatternEditorUsingTriplets() == false ) {
+		switch ( nRes ) {
+			case  4: nIndex = 0; break;
+			case  8: nIndex = 1; break;
+			case 16: nIndex = 2; break;
+			case 32: nIndex = 3; break;
+			case 64: nIndex = 4; break;
 			default:
-				ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
-				__resolution_combo->set_text( "4" );
 				nIndex = 0;
+				ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
 		}
-	}
-	else {
-		switch ( pPref->getPatternEditorGridResolution() ) {
-			case 8:
-				__resolution_combo->set_text( "4T" );
-				nIndex = 5;
-				break;
-
-			case 16:
-				__resolution_combo->set_text( "8T" );
+	} else {
+		switch ( nRes ) {
+			case  8: nIndex = 6; break;
+			case 16: nIndex = 7; break;
+			case 32: nIndex = 8; break;
+			case 64: nIndex = 9; break;
+			default:
 				nIndex = 6;
-				break;
-
-			case 32:
-				__resolution_combo->set_text( "16T" );
-				nIndex = 7;
-				break;
-
-			case 64:
-				__resolution_combo->set_text( "32T" );
-				nIndex = 8;
-				break;
-
-			default:
 				ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
-				__resolution_combo->set_text( "4T" );
-				nIndex = 5;
 		}
 	}
-	gridResolutionChanged(__resolution_combo->getText());
+	__resolution_combo->select( nIndex );
 
 	//set pre delete
 	__recpredelete->setCurrentIndex(pPref->m_nRecPreDelete);
