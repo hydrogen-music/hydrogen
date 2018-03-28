@@ -65,10 +65,7 @@ QString LCDCombo::getText()
 
 void LCDCombo::changeText( QAction* pAction )
 {
-	// WARNINGLOG("triggered");
-	// display->setText(pAction->text());
-	// emit valueChanged( pAction->text() );
-	set_text( pAction->text() );
+	select( actions.indexOf(pAction) );
 }
 
 void LCDCombo::onClick( Button* )
@@ -104,10 +101,10 @@ void LCDCombo::wheelEvent( QWheelEvent * ev )
 	ev->ignore();
 	const int n = actions.size();
 	const int d = ( ev->delta() > 0 ) ? -1: 1;
-	active = ( n + active + d ) % n;
-	if ( actions.at( active )->isSeparator() )
-		active = ( n + active + d ) % n;
-	set_text( actions.at( active )->text() );
+	int next = ( n + active + d ) % n;
+	if ( actions.at( next )->isSeparator() )
+		next = ( n + next + d ) % n;
+	select( next );
 }
 
 int LCDCombo::selected()
@@ -135,25 +132,4 @@ bool LCDCombo::select( int idx, bool emitValueChanged )
 	// TODO valueChanged( int ) -> change moc file
 	if ( emitValueChanged )
 		emit valueChanged( actions.at( idx )->text() );
-}
-
-void LCDCombo::set_text( const QString &text )
-{
-	set_text(text, true);
-}
-
-void LCDCombo::set_text( const QString &text, bool emit_on_change )
-{
-	if (display->getText() == text) {
-		return;
-	}
-	//INFOLOG( text );
-	display->setText( text );
-	for ( int i = 0; i < actions.size(); i++ ) {
-		if ( actions.at(i)->text() == text )
-			active = i;
-	}
-
-	if (emit_on_change)
-		emit valueChanged( text );
 }
