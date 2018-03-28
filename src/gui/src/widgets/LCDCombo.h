@@ -42,7 +42,6 @@ class LCDCombo : public QWidget, public H2Core::Object
 		LCDCombo( QWidget *pParent, int digits = 5 );
 		~LCDCombo();
 
-		QString getText();
 		bool addItem( const QString &text );
 		void addSeparator();
 		int selected();

@@ -58,11 +58,6 @@ LCDCombo::~LCDCombo()
 {
 }
 
-QString LCDCombo::getText()
-{
-	return display->getText();
-};
-
 void LCDCombo::changeText( QAction* pAction )
 {
 	select( actions.indexOf(pAction) );
