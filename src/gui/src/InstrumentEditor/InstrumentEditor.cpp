@@ -470,12 +470,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, 25);
 	m_sampleSelectionAlg->move( 60, 434 );
 	m_sampleSelectionAlg->setToolTip( trUtf8("Select pattern size") );
-
 	m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
 	m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
 	m_sampleSelectionAlg->addItem( QString( "Random" ) );
-
-	m_sampleSelectionAlg->update();
 	connect( m_sampleSelectionAlg, SIGNAL( valueChanged( QString ) ), this, SLOT( pSampleSelectionChanged( QString ) ) );
 
 	//~ Layer properties
