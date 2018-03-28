@@ -330,8 +330,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pAutomationCombo = new LCDCombo( NULL, 22 );
 	m_pAutomationCombo->setToolTip( trUtf8("Adjust parameter values in time") );
 	m_pAutomationCombo->addItem( trUtf8("Velocity") );
-	m_pAutomationCombo->set_text( trUtf8("Velocity") );
-	m_pAutomationCombo->update();
+	m_pAutomationCombo->select( 0 );
 
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, NULL );
 	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalScrollBar() ) );
