@@ -125,8 +125,10 @@ bool LCDCombo::select( int idx, bool emitValueChanged )
 	if (active == idx)
 		return false;
 
-	if (idx < 0 || idx >= actions.size())
+	if (idx < 0 || idx >= actions.size()) {
+		WARNINGLOG(QString("out of index %1 >= %2").arg(idx).arg(actions.size()));
 		return false;
+	}
 
 	active = idx;
 	display->setText( actions.at( idx )->text() );
