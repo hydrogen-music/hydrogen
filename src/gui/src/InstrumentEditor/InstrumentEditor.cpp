@@ -612,22 +612,8 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		QString sHiHatMaxRange = QString("%1").arg( m_pInstrument->get_higher_cc() );
 		m_pHihatMaxRangeLCD->setText( sHiHatMaxRange );
 
-		/*
-		 * m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
-		 * m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
-		 * m_sampleSelectionAlg->addItem( QString( "Random" ) );
-		 **/
-		switch ( m_pInstrument->sample_selection_alg() ) {
-			case Instrument::VELOCITY:
-				m_sampleSelectionAlg->set_text( "First in Velocity" );
-				break;
-			case Instrument::RANDOM:
-				m_sampleSelectionAlg->set_text( "Random" );
-				break;
-			case Instrument::ROUND_ROBIN:
-				m_sampleSelectionAlg->set_text( "Round Robin" );
-				break;
-		}
+		// see instrument.h
+		m_sampleSelectionAlg->select( m_pInstrument->sample_selection_alg(), false);
 
 		itemsCompo.clear();
 		std::vector<DrumkitComponent*>* compoList = Hydrogen::get_instance()->getSong()->get_components();
