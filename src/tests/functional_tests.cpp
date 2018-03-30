@@ -117,7 +117,7 @@ class FunctionalTest : public CppUnit::TestCase {
 	{
 		auto songFile = H2TEST_FILE("functional/test.h2song");
 		auto outFile = Filesystem::tmp_file("test.wav");
-		auto refFile = H2TEST_FILE("functional/test.ref.wav");
+		auto refFile = H2TEST_FILE("functional/test.ref.flac");
 
 		exportSong( songFile, outFile );
 		H2TEST_ASSERT_AUDIO_FILES_EQUAL( refFile, outFile );
@@ -139,7 +139,7 @@ class FunctionalTest : public CppUnit::TestCase {
 	{
 		auto songFile = H2TEST_FILE("functional/mutegroups.h2song");
 		auto outFile = Filesystem::tmp_file("mutegroups.wav");
-		auto refFile = H2TEST_FILE("functional/mutegroups.ref.wav");
+		auto refFile = H2TEST_FILE("functional/mutegroups.ref.flac");
 
 		exportSong( songFile, outFile );
 		H2TEST_ASSERT_AUDIO_FILES_EQUAL( refFile, outFile );
@@ -150,7 +150,7 @@ class FunctionalTest : public CppUnit::TestCase {
 	{
 		auto songFile = H2TEST_FILE("functional/velocityautomation.h2song");
 		auto outFile = Filesystem::tmp_file("velocityautomation.wav");
-		auto refFile = H2TEST_FILE("functional/velocityautomation.ref.wav");
+		auto refFile = H2TEST_FILE("functional/velocityautomation.ref.flac");
 
 		exportSong( songFile, outFile );
 		H2TEST_ASSERT_AUDIO_FILES_EQUAL( refFile, outFile );
