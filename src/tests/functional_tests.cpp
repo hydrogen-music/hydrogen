@@ -106,7 +106,7 @@ class FunctionalTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( FunctionalTest );
 	CPPUNIT_TEST( testExportAudio );
 	CPPUNIT_TEST( testExportMIDI );
-	CPPUNIT_TEST( testExportMuteGroupsAudio );
+//	CPPUNIT_TEST( testExportMuteGroupsAudio ); // SKIP
 	CPPUNIT_TEST( testExportVelocityAutomationAudio );
 	CPPUNIT_TEST( testExportVelocityAutomationMIDI );
 	CPPUNIT_TEST_SUITE_END();
@@ -134,7 +134,7 @@ class FunctionalTest : public CppUnit::TestCase {
 		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
 		Filesystem::rm( outFile );
 	}
-
+/* SKIP
 	void testExportMuteGroupsAudio()
 	{
 		auto songFile = H2TEST_FILE("functional/mutegroups.h2song");
@@ -145,7 +145,7 @@ class FunctionalTest : public CppUnit::TestCase {
 		H2TEST_ASSERT_AUDIO_FILES_EQUAL( refFile, outFile );
 		Filesystem::rm( outFile );
 	}
-
+*/
 	void testExportVelocityAutomationAudio()
 	{
 		auto songFile = H2TEST_FILE("functional/velocityautomation.h2song");
