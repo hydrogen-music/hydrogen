@@ -35,6 +35,7 @@
 #include "assertions/audiofile.h"
 
 #include <chrono>
+#include <memory>
 
 using namespace H2Core;
 
@@ -90,11 +91,11 @@ void exportMIDI( const QString &songFile, const QString &fileName )
 	auto t0 = std::chrono::high_resolution_clock::now();
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = Song::load( songFile );
+	std::unique_ptr<Song> pSong { Song::load( songFile ) };
 	CPPUNIT_ASSERT( pSong != NULL );
 
 	SMFWriter writer;
-	writer.save( fileName, pSong );
+	writer.save( fileName, pSong.get() );
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();
