@@ -11,11 +11,11 @@
 
 void setupEnvironment(unsigned log_level)
 {
-	TestHelper::create_instance();
-	TestHelper* test_helper = TestHelper::get_instance();
-
     /* Logger */
     H2Core::Logger* logger = H2Core::Logger::bootstrap( log_level );
+	/* Test helper */
+	TestHelper::create_instance();
+	TestHelper* test_helper = TestHelper::get_instance();
     /* Object */
     H2Core::Object::bootstrap( logger, logger->should_log( H2Core::Logger::Debug ) );
     /* Filesystem */
