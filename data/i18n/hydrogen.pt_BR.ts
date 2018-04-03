@@ -9,23 +9,23 @@
     </message>
     <message>
         <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished">&lt;b&gt;P�ina do projeto&lt;/b&gt;&lt;br&gt;</translation>
+        <translation type="unfinished">&lt;b&gt;Página do projeto&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Site</translation>
     </message>
     <message>
         <source>&lt;b&gt;Main coder and maintainer:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Principal codificador e mantenedor</translation>
     </message>
     <message>
         <source>&lt;b&gt;Thanks to:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Obrigado a</translation>
     </message>
     <message>
         <source>&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Lista de email dos desenvolvedores</translation>
     </message>
 </context>
 <context>
@@ -44,7 +44,7 @@
     </message>
     <message>
         <source>&amp;License</source>
-        <translation type="unfinished">&amp;Licen�</translation>
+        <translation type="unfinished">&amp;Licença</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -56,14 +56,14 @@
     </message>
     <message>
         <source>###</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">###</translation>
     </message>
 </context>
 <context>
     <name>AudioEngineInfoForm</name>
     <message>
         <source>Audio Engine Info</source>
-        <translation type="unfinished">Informa�es sobre Mecanismo de �dio</translation>
+        <translation type="unfinished">Informações sobre Motor de Áudio</translation>
     </message>
 </context>
 <context>
@@ -78,7 +78,7 @@
     </message>
     <message>
         <source>Audio engine state</source>
-        <translation type="unfinished">Estado do Mecanismo de �dio</translation>
+        <translation type="unfinished">Estado do Motor de Áudio</translation>
     </message>
     <message>
         <source>Playing notes</source>
@@ -90,15 +90,15 @@
     </message>
     <message>
         <source>Song position</source>
-        <translation type="unfinished">Posi�o na msica</translation>
+        <translation type="unfinished">Posição na música</translation>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished">Padr�s</translation>
+        <translation type="unfinished">Padrões</translation>
     </message>
     <message>
         <source>Song state</source>
-        <translation type="unfinished">Estado da msica</translation>
+        <translation type="unfinished">Estado da música</translation>
     </message>
     <message>
         <source>Frames</source>
@@ -106,11 +106,11 @@
     </message>
     <message>
         <source>Ticks</source>
-        <translation type="unfinished">Marca�es</translation>
+        <translation type="unfinished">Marcações</translation>
     </message>
     <message>
         <source>Selected pattern</source>
-        <translation type="unfinished">Padr� selecionado</translation>
+        <translation type="unfinished">Padrão selecionado</translation>
     </message>
     <message>
         <source>Selected instrument</source>
@@ -122,50 +122,50 @@
     </message>
     <message>
         <source>Form1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Forma1</translation>
     </message>
     <message>
         <source>###</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">###</translation>
     </message>
     <message>
         <source>Sampler</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Amostrador</translation>
     </message>
     <message>
         <source>Synth</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sintetizador</translation>
     </message>
     <message>
         <source>Sequencer</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Sequenciador</translation>
     </message>
     <message>
         <source>MIDI input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Entrada MIDI</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nome</translation>
     </message>
     <message>
         <source>Audio output</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Saída de Áudio</translation>
     </message>
     <message>
         <source>Realtime frames</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Quadros em tempo real</translation>
     </message>
 </context>
 <context>
     <name>AudioFileBrowser</name>
     <message>
         <source>Audio File Browser</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Navegador de arquivos de Áudio</translation>
     </message>
     <message>
         <source>Size: %1 bytes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">%1 bytes</translation>
     </message>
     <message>
         <source>Samplerate: %1</source>
@@ -177,54 +177,54 @@
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nome:</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tamanho:</translation>
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Taxa de amostragem:</translation>
     </message>
     <message>
         <source>Sample length: </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Comprimento da amostra:</translation>
     </message>
     <message>
         <source>Please do not preview samples which are longer than 10 minutes!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Por favor, não visualize amostras mais longas que 10 minutos!</translation>
     </message>
     <message>
         <source>Sample length:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Comprimento da amostra:</translation>
     </message>
 </context>
 <context>
     <name>AudioFileBrowser_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Diálogo</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Abrir</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nome:</translation>
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Taxa de amostragem:</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tamanho:</translation>
     </message>
     <message>
         <source>Length:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Comprimento</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -232,11 +232,11 @@
     </message>
     <message>
         <source>Pla&amp;y samples by clicking</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Reproduz&amp;a amostras clicando</translation>
     </message>
     <message>
         <source>&amp;Up</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Acima</translation>
     </message>
     <message>
         <source>&amp;Home</source>
@@ -244,27 +244,27 @@
     </message>
     <message>
         <source>&amp;Play Sample</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tocar</translation>
     </message>
     <message>
         <source>&amp;Filename to instrument name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">&amp; Nome do arquivo para nome do instrumento</translation>
     </message>
     <message>
         <source>&amp;Stop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Parar</translation>
     </message>
     <message>
         <source>View hidden folders</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Visualizar arquivos ocultos</translation>
     </message>
     <message>
         <source>Be careful, this change all Layer velocity settings </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tome cuidado, isto muda todos os ajustes na velocidade da camada </translation>
     </message>
     <message>
         <source>Set automatic velocity</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Definir velocidade automática</translation>
     </message>
 </context>
 <context>
@@ -279,7 +279,7 @@
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nome do componente</translation>
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
@@ -290,36 +290,36 @@
     <name>Director</name>
     <message>
         <source>Director</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Diretor</translation>
     </message>
 </context>
 <context>
     <name>Director_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Diálogo</translation>
     </message>
 </context>
 <context>
     <name>DonationDialog</name>
     <message>
         <source>Donations</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Doações</translation>
     </message>
 </context>
 <context>
     <name>DonationDialog_UI</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Forma</translation>
     </message>
     <message>
         <source>Donate!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Doe!</translation>
     </message>
     <message>
         <source>Choose random entry.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Escolha uma entrada aleatória.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the involved persons.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
