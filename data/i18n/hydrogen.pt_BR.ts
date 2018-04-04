@@ -493,296 +493,297 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>Choose type of interpolation methode</source>
-        <translation type="unfinished"></translation>
+        <translation>Escolha tipo de método de interpolação</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Linear</translation>
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Cossena</translation>
     </message>
     <message>
         <source>Third</source>
-        <translation type="unfinished"></translation>
+        <translation>Terceira</translation>
     </message>
     <message>
         <source>Cubic</source>
-        <translation type="unfinished"></translation>
+        <translation>Cubica</translation>
     </message>
     <message>
         <source>Hermite</source>
-        <translation type="unfinished"></translation>
+        <translation>Hermite</translation>
     </message>
     <message>
         <source>Enable tempo changing</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilitar mudança de tempo</translation>
     </message>
     <message>
         <source>TimeLine BPM</source>
-        <translation type="unfinished"></translation>
+        <translation>Linha do tempo BPM</translation>
     </message>
     <message>
         <source>88200</source>
-        <translation type="unfinished"></translation>
+        <translation>88200</translation>
     </message>
     <message>
         <source>Enable use of rubberband&apos;s batch processor</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilitar o uso de processador Rubberband&apos;s em lote</translation>
     </message>
     <message>
         <source>Rubberband Batch</source>
-        <translation type="unfinished"></translation>
+        <translation>Lote Rubberband</translation>
     </message>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diálogo</translation>
     </message>
     <message>
         <source>Export directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar diretório:</translation>
     </message>
     <message>
         <source>Modus:</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo:</translation>
     </message>
 </context>
 <context>
     <name>FileBrowser</name>
     <message>
         <source>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</source>
-        <translation type="unfinished"></translation>
+        <translation>%1&lt;br&gt;%2 KHz&lt;br&gt;%3 %4</translation>
     </message>
 </context>
 <context>
     <name>FxMixerLine</name>
     <message>
         <source>FX on/off</source>
-        <translation type="unfinished">FX lig/des</translation>
+        <translation>Efeitos lig/des</translation>
     </message>
     <message>
         <source>Master output</source>
-        <translation type="unfinished">Sa�a master</translation>
+        <translation>Saída master</translation>
     </message>
 </context>
 <context>
     <name>H2Core::SongEditorPanelBpmWidget</name>
     <message>
         <source>BPM</source>
-        <translation type="unfinished"></translation>
+        <translation>BPM</translation>
     </message>
 </context>
 <context>
     <name>H2Core::SongEditorPanelTagWidget</name>
     <message>
         <source>Tag</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiquetar</translation>
     </message>
 </context>
 <context>
     <name>H2Core::SoundLibraryPropertiesDialog</name>
     <message>
         <source>SoundLibrary Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Propriedades da biblioteca de som</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ok</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Cancelar</translation>
+        <translation&amp;Cancelar</translation>
     </message>
     <message>
         <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Isto não é possível, você pode salvar mudanças apenas em instrumentos para a biblioteca de som carregada atualmente</translation>
     </message>
     <message>
         <source>Warning! Changing the drumkit name will result in creating a new drumkit with this name.
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Atenção! Mudar o nome do drumkit resultará na criação de um novo drumkit com este nome.
+Está certo disto?</translation>
     </message>
     <message>
         <source>Saving of this drumkit failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erro ao salvar este drumkit.</translation>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir imagem</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Arquivos de Imagem (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
     <name>HydrogenApp</name>
     <message>
         <source>Drumkit loaded: [%1]</source>
-        <translation type="unfinished">Kit de Bateria carregado: [%1]</translation>
+        <translation>Drumkit carregado: [%1]</translation>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Editor de msica</translation>
+        <translation>Editor de música</translation>
     </message>
     <message>
         <source>Instrument + Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Instrumento + Padrão</translation>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Mixer</translation>
+        <translation>Mixer</translation>
     </message>
     <message>
         <source>modified</source>
-        <translation type="unfinished"></translation>
+        <translation>modificado</translation>
     </message>
 </context>
 <context>
     <name>InstrumentEditor</name>
     <message>
         <source>Show instrument properties</source>
-        <translation type="unfinished">Exibir propriedades do instrumento</translation>
+        <translation>Exibir propriedades do instrumento</translation>
     </message>
     <message>
         <source>Show layers properties</source>
-        <translation type="unfinished">Exibir propriedades das camadas</translation>
+        <translation>Exibir propriedades das camadas</translation>
     </message>
     <message>
         <source>Random pitch factor</source>
-        <translation type="unfinished">Fator aleat�io de pitch</translation>
+        <translation>Tom aleatório</translation>
     </message>
     <message>
         <source>Filter Cutoff</source>
-        <translation type="unfinished">Filtro Cutoff</translation>
+        <translation>Filtro de corte</translation>
     </message>
     <message>
         <source>Filter resonance</source>
-        <translation type="unfinished">Filtro de resson�cia</translation>
+        <translation>Filtro de ressonância</translation>
     </message>
     <message>
         <source>Attack</source>
-        <translation type="unfinished">Ataque</translation>
+        <translation>Ataque</translation>
     </message>
     <message>
         <source>Decay</source>
-        <translation type="unfinished">Decaimento</translation>
+        <translation>Decaimento</translation>
     </message>
     <message>
         <source>Sustain</source>
-        <translation type="unfinished">Sustenta�o</translation>
+        <translation>Sustentação</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Libera�o</translation>
+        <translation type="unfinished">Liberação</translation>
     </message>
     <message>
         <source>Layer gain</source>
-        <translation type="unfinished">Ganho na camada</translation>
+        <translation>Ganho na camada</translation>
     </message>
     <message>
         <source>New instrument name</source>
-        <translation type="unfinished">Novo nome para o instrumento</translation>
+        <translation>Novo nome para o instrumento</translation>
     </message>
     <message>
         <source>Instrument gain</source>
-        <translation type="unfinished">Ganho do instrumento</translation>
+        <translation>Ganho do instrumento</translation>
     </message>
     <message>
         <source>Layer pitch (Coarse)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tom da camada (Grosseiro)</translation>
     </message>
     <message>
         <source>Layer pitch (Fine)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tom da camada (Fino)</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Geral</translation>
+        <translation>Geral</translation>
     </message>
     <message>
         <source>Layers</source>
-        <translation type="unfinished"></translation>
+        <translation>Camadas</translation>
     </message>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pare o instrumento-nota atual antes de reproduzir a próxima nota.</translation>
     </message>
     <message>
         <source>New component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Novo nome do componente</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nnome do componente</translation>
     </message>
     <message>
         <source>Midi out channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Canal de saída MIDI</translation>
     </message>
     <message>
         <source>Midi out note</source>
-        <translation type="unfinished"></translation>
+        <translation>Nota de saída MIDI</translation>
     </message>
     <message>
         <source>Component volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Volume do componente</translation>
     </message>
     <message>
         <source>Don&apos;t change the layers&apos; gain based on velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Não mude o ganho das camadas baseado em velocidade</translation>
     </message>
     <message>
         <source>Select pattern size</source>
-        <translation type="unfinished">Selecionar tamanho do padr�</translation>
+        <translation>Selecionar tamanho do padrão</translation>
     </message>
 </context>
 <context>
     <name>InstrumentLine</name>
     <message>
         <source>Clear notes</source>
-        <translation type="unfinished">Limpar notas</translation>
+        <translation>Limpar notas</translation>
     </message>
     <message>
         <source>Randomize velocity</source>
-        <translation type="unfinished">Randomizar velocidade</translation>
+        <translation>Randomizar velocidade</translation>
     </message>
     <message>
         <source>Delete instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Deletar instrumento</translation>
     </message>
     <message>
         <source>Fill notes ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Preencher notas ...</translation>
     </message>
     <message>
         <source>Fill all notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Preencher todas as notas</translation>
     </message>
     <message>
         <source>Fill 1/2 notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Preencha uma nota em 2</translation>
     </message>
     <message>
         <source>Fill 1/3 notes</source>
-        <translation type="unfinished"></translation>
+        <translationPreencha uma nota em 3</translation>
     </message>
     <message>
         <source>Fill 1/4 notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Preencha uma nota em 4</translation>
     </message>
     <message>
         <source>Fill 1/6 notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Preencha uma nota em 6</translation>
     </message>
     <message>
         <source>Fill 1/8 notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Preencha uma nota em 8</translation>
     </message>
     <message>
         <source>Mute instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Mutar instrumento</translation>
     </message>
     <message>
         <source>Solo</source>
@@ -790,92 +791,92 @@ Are you sure?</source>
     </message>
     <message>
         <source>Copy notes ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar notas ...</translation>
     </message>
     <message>
         <source>Only for this pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Apenas deste padrão</translation>
     </message>
     <message>
         <source>For all patterns</source>
-        <translation type="unfinished"></translation>
+        <translation>Para todos os padrões</translation>
     </message>
     <message>
         <source>Paste notes ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Colar notas ...</translation>
     </message>
     <message>
         <source>Rename instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Renomear instrumento</translation>
     </message>
     <message>
         <source>New instrument name</source>
-        <translation type="unfinished">Novo nome para o instrumento</translation>
+        <translation>Novo nome para o instrumento</translation>
     </message>
     <message>
         <source>Fill 1/12 notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Preencha uma nota em 12</translation>
     </message>
     <message>
         <source>Fill 1/16 notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Preencha uma nota em 16</translation>
     </message>
 </context>
 <context>
     <name>InstrumentRack</name>
     <message>
         <source>Show Instrument editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar editor de instrumento</translation>
     </message>
     <message>
         <source>Instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>Instrumento</translation>
     </message>
     <message>
         <source>Show sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar biblioteca de instrumento</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Biblioteca de som</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXMixerLine</name>
     <message>
         <source>Edit FX parameters</source>
-        <translation type="unfinished">Editar par�etros FX</translation>
+        <translation>Editar parâmetros de efeitos</translation>
     </message>
     <message>
         <source>Effect return</source>
-        <translation type="unfinished">Efeito de retorno</translation>
+        <translation>Retorno de feito</translation>
     </message>
     <message>
         <source>FX bypass</source>
-        <translation type="unfinished"></translation>
+        <translation>Bypass de efeito</translation>
     </message>
     <message>
         <source>Ladspa FX name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome do efeito LADSPA</translation>
     </message>
 </context>
 <context>
     <name>LadspaFXProperties</name>
     <message>
         <source>Select FX</source>
-        <translation type="unfinished">Selecionar FX</translation>
+        <translation>Selecionar efeito</translation>
     </message>
     <message>
         <source>Activate</source>
-        <translation type="unfinished">Ativar</translation>
+        <translation>Ativar</translation>
     </message>
     <message>
         <source>[%1] LADSPA FX Properties</source>
-        <translation type="unfinished">[%1] Propriedades LADSPA FX</translation>
+        <translation>[%1] Propriedades de efeito LADSPA</translation>
     </message>
     <message>
         <source>Deactivate</source>
-        <translation type="unfinished">Desativar</translation>
+        <translation>Desativar</translation>
     </message>
     <message>
         <source>LADSPA FX %1 Properties</source>
