@@ -461,35 +461,35 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>WAV LOFI &quot;22.05kHz, 8 bit PCM </source>
-        <translation>WAV baixa fidelidade &quot;22.05kHz, 8 bit PCM </translation>
+        <translation>WAV em baixa fidelidade &quot;22.05kHz, 8 bit PCM </translation>
     </message>
     <message>
         <source>WAV best Mixdown quality &quot;96 kHz, 32 bit PCM&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>WAV em melhor qualidade para Mixagem &quot;96 kHz, 32 bit PCM&quot;</translation>
     </message>
     <message>
         <source>AIFF in CD quality &quot;41 kHz, 16 bit PCM&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>AIFF em qualidade de CD &quot;41 kHz, 16 bit PCM&quot;</translation>
     </message>
     <message>
         <source>AIFF in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>AIFF em qualidade ADAT &quot;48 kHz, 16 bit PCM&quot;</translation>
     </message>
     <message>
         <source>AIFF in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>AIFF em melhor qualidade &quot;48 kHz, 24 bit PCM&quot;</translation>
     </message>
     <message>
         <source>FLAC lossless compressor in good quality &quot;48 kHz&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>FLAC compressão sem perdas em boa qualidade &quot;48 kHz&quot;</translation>
     </message>
     <message>
         <source>OGG Vorbis loosely compressed in good quality &quot;VBR&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>OGG Vorbis pouco comprimido em boa qualidade &quot;VBR&quot;</translation>
     </message>
     <message>
         <source>Interpolation: </source>
-        <translation type="unfinished"></translation>
+        <translation>Interpolação: </translation>
     </message>
     <message>
         <source>Choose type of interpolation methode</source>
