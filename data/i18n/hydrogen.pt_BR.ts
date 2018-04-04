@@ -5,273 +5,273 @@
     <name>AboutDialog</name>
     <message>
         <source>About</source>
-        <translation type="unfinished">Sobre</translation>
+        <translation>Sobre</translation>
     </message>
     <message>
         <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished">&lt;b&gt;Página do projeto&lt;/b&gt;&lt;br&gt;</translation>
+        <translation>&lt;b&gt;Página do projeto&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished">Site</translation>
+        <translation>&lt;b&gt;Site&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Main coder and maintainer:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished">Principal codificador e mantenedor</translation>
+        <translation>&lt;b&gt;Principal codificador e mantenedor:&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Thanks to:&lt;/b&gt;</source>
-        <translation type="unfinished">Obrigado a</translation>
+        <translation>&lt;b&gt;Obrigado a&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished">Lista de email dos desenvolvedores</translation>
+        <translation>&lt;b&gt;Lista de email dos desenvolvedores&lt;/b&gt;&lt;br&gt;</translation>
     </message>
 </context>
 <context>
     <name>AboutDialog_UI</name>
     <message>
         <source>About Hydrogen</source>
-        <translation type="unfinished">Sobre Hydrogen</translation>
+        <translation>Sobre Hydrogen</translation>
     </message>
     <message>
         <source>A&amp;bout</source>
-        <translation type="unfinished">S&amp;obre</translation>
+        <translation>S&amp;obre</translation>
     </message>
     <message>
         <source>&amp;Authors</source>
-        <translation type="unfinished">&amp;Autores</translation>
+        <translation>&amp;Autores</translation>
     </message>
     <message>
         <source>&amp;License</source>
-        <translation type="unfinished">&amp;Licença</translation>
+        <translation>&amp;Licença</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished">Alt+O</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <source>###</source>
-        <translation type="unfinished">###</translation>
+        <translation>###</translation>
     </message>
 </context>
 <context>
     <name>AudioEngineInfoForm</name>
     <message>
         <source>Audio Engine Info</source>
-        <translation type="unfinished">Informações sobre Motor de Áudio</translation>
+        <translation>Informações sobre Motor de Áudio</translation>
     </message>
 </context>
 <context>
     <name>AudioEngineInfoForm_UI</name>
     <message>
         <source>Sample rate</source>
-        <translation type="unfinished">Taxa de amostragem</translation>
+        <translation>Taxa de amostragem</translation>
     </message>
     <message>
         <source>Buffer size</source>
-        <translation type="unfinished">Tamanho do buffer</translation>
+        <translation>Tamanho do buffer</translation>
     </message>
     <message>
         <source>Audio engine state</source>
-        <translation type="unfinished">Estado do Motor de Áudio</translation>
+        <translation>Estado do Motor de Áudio</translation>
     </message>
     <message>
         <source>Playing notes</source>
-        <translation type="unfinished">Reproduzindo notas</translation>
+        <translation>Reproduzindo notas</translation>
     </message>
     <message>
         <source>Process time</source>
-        <translation type="unfinished">Tempo de processamento</translation>
+        <translation>Tempo de processamento</translation>
     </message>
     <message>
         <source>Song position</source>
-        <translation type="unfinished">Posição na música</translation>
+        <translation>Posição na música</translation>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished">Padrões</translation>
+        <translation>Padrões</translation>
     </message>
     <message>
         <source>Song state</source>
-        <translation type="unfinished">Estado da música</translation>
+        <translation>Estado da música</translation>
     </message>
     <message>
         <source>Frames</source>
-        <translation type="unfinished">Quadros</translation>
+        <translation>Quadros</translation>
     </message>
     <message>
         <source>Ticks</source>
-        <translation type="unfinished">Marcações</translation>
+        <translation>Marcações</translation>
     </message>
     <message>
         <source>Selected pattern</source>
-        <translation type="unfinished">Padrão selecionado</translation>
+        <translation>Padrão selecionado</translation>
     </message>
     <message>
         <source>Selected instrument</source>
-        <translation type="unfinished">Instrumento selecionado</translation>
+        <translation>Instrumento selecionado</translation>
     </message>
     <message>
         <source>Connected to</source>
-        <translation type="unfinished">Conectado a </translation>
+        <translation>Conectado a </translation>
     </message>
     <message>
         <source>Form1</source>
-        <translation type="unfinished">Forma1</translation>
+        <translation>Forma1</translation>
     </message>
     <message>
         <source>###</source>
-        <translation type="unfinished">###</translation>
+        <translation>###</translation>
     </message>
     <message>
         <source>Sampler</source>
-        <translation type="unfinished">Amostrador</translation>
+        <translation>Amostrador</translation>
     </message>
     <message>
         <source>Synth</source>
-        <translation type="unfinished">Sintetizador</translation>
+        <translation>Sintetizador</translation>
     </message>
     <message>
         <source>Sequencer</source>
-        <translation type="unfinished">Sequenciador</translation>
+        <translation>Sequenciador</translation>
     </message>
     <message>
         <source>MIDI input</source>
-        <translation type="unfinished">Entrada MIDI</translation>
+        <translation>Entrada MIDI</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nome</translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>Audio output</source>
-        <translation type="unfinished">Saída de Áudio</translation>
+        <translation>Saída de Áudio</translation>
     </message>
     <message>
         <source>Realtime frames</source>
-        <translation type="unfinished">Quadros em tempo real</translation>
+        <translation>Quadros em tempo real</translation>
     </message>
 </context>
 <context>
     <name>AudioFileBrowser</name>
     <message>
         <source>Audio File Browser</source>
-        <translation type="unfinished">Navegador de arquivos de Áudio</translation>
+        <translation>Navegador de arquivos de Áudio</translation>
     </message>
     <message>
         <source>Size: %1 bytes</source>
-        <translation type="unfinished">%1 bytes</translation>
+        <translation>Tamanho: %1 bytes</translation>
     </message>
     <message>
         <source>Samplerate: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de amostragem: 1%</translation>
     </message>
     <message>
         <source> s</source>
-        <translation type="unfinished"></translation>
+        <translation> s</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Nome:</translation>
+        <translation>Nome:</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation type="unfinished">Tamanho:</translation>
+        <translation>Tamanho:</translation>
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation type="unfinished">Taxa de amostragem:</translation>
+        <translation>Taxa de amostragem:</translation>
     </message>
     <message>
         <source>Sample length: </source>
-        <translation type="unfinished">Comprimento da amostra:</translation>
+        <translation>Comprimento da amostra:</translation>
     </message>
     <message>
         <source>Please do not preview samples which are longer than 10 minutes!</source>
-        <translation type="unfinished">Por favor, não visualize amostras mais longas que 10 minutos!</translation>
+        <translation>Por favor, não visualize amostras mais longas que 10 minutos!</translation>
     </message>
     <message>
         <source>Sample length:</source>
-        <translation type="unfinished">Comprimento da amostra:</translation>
+        <translation>Comprimento da amostra:</translation>
     </message>
 </context>
 <context>
     <name>AudioFileBrowser_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Diálogo</translation>
+        <translation>Diálogo</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Abrir</translation>
+        <translation>Abrir</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Nome:</translation>
+        <translation>Nome:</translation>
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation type="unfinished">Taxa de amostragem:</translation>
+        <translation>Taxa de amostragem:</translation>
     </message>
     <message>
         <source>Size:</source>
-        <translation type="unfinished">Tamanho:</translation>
+        <translation>Tamanho:</translation>
     </message>
     <message>
         <source>Length:</source>
-        <translation type="unfinished">Comprimento</translation>
+        <translation>Comprimento</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
     <message>
         <source>Pla&amp;y samples by clicking</source>
-        <translation type="unfinished">Reproduz&amp;a amostras clicando</translation>
+        <translation>Reproduz&amp;a amostras clicando</translation>
     </message>
     <message>
         <source>&amp;Up</source>
-        <translation type="unfinished">Acima</translation>
+        <translation>Acima</translation>
     </message>
     <message>
         <source>&amp;Home</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&amp;Play Sample</source>
-        <translation type="unfinished">Tocar</translation>
+        <translation>Tocar</translation>
     </message>
     <message>
         <source>&amp;Filename to instrument name</source>
-        <translation type="unfinished">&amp; Nome do arquivo para nome do instrumento</translation>
+        <translation>&amp; Nome do arquivo para nome do instrumento</translation>
     </message>
     <message>
         <source>&amp;Stop</source>
-        <translation type="unfinished">Parar</translation>
+        <translation>Parar</translation>
     </message>
     <message>
         <source>View hidden folders</source>
-        <translation type="unfinished">Visualizar arquivos ocultos</translation>
+        <translation>Visualizar arquivos ocultos</translation>
     </message>
     <message>
         <source>Be careful, this change all Layer velocity settings </source>
-        <translation type="unfinished">Tome cuidado, isto muda todos os ajustes na velocidade da camada </translation>
+        <translation>Tome cuidado, isto muda todos os ajustes na velocidade da camada </translation>
     </message>
     <message>
         <source>Set automatic velocity</source>
-        <translation type="unfinished">Definir velocidade automática</translation>
+        <translation>Definir velocidade automática</translation>
     </message>
 </context>
 <context>
     <name>ComponentMixerLine</name>
     <message>
         <source>Mute</source>
-        <translation type="unfinished">Mudo</translation>
+        <translation>Mudo</translation>
     </message>
     <message>
         <source>Solo</source>
