@@ -338,26 +338,27 @@
     <name>Download</name>
     <message>
         <source>Importing item failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Falha ao importar um item: %1</translation>
     </message>
 </context>
 <context>
     <name>DownloadWidget</name>
     <message>
         <source>(%1/%2 KiB) - ETA %3</source>
-        <translation type="unfinished"></translation>
+        <translation>(%1/%2 KiB) - ETA %3</translation>
     </message>
 </context>
 <context>
     <name>ExportSongDialog</name>
     <message>
         <source>Export song</source>
-        <translation type="unfinished">Exportar msica</translation>
+        <translation>Exportar música</translation>
     </message>
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
-        <translation type="unfinished"></translation>
+        <translation>O arquivo %1 já existe. 
+Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>Export to a single track</source>
