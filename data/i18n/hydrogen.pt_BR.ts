@@ -275,63 +275,63 @@
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Solo</translation>
+        <translation>Solo</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished">Nome do componente</translation>
+        <translation>Nome do componente</translation>
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
-        <translation type="unfinished">Ajustar volume do instrumento [%1]</translation>
+        <translation>Ajustar volume do instrumento [%1]</translation>
     </message>
 </context>
 <context>
     <name>Director</name>
     <message>
         <source>Director</source>
-        <translation type="unfinished">Diretor</translation>
+        <translation>Diretor</translation>
     </message>
 </context>
 <context>
     <name>Director_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Diálogo</translation>
+        <translation>Diálogo</translation>
     </message>
 </context>
 <context>
     <name>DonationDialog</name>
     <message>
         <source>Donations</source>
-        <translation type="unfinished">Doações</translation>
+        <translation>Doações</translation>
     </message>
 </context>
 <context>
     <name>DonationDialog_UI</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished">Forma</translation>
+        <translation>Forma</translation>
     </message>
     <message>
         <source>Donate!</source>
-        <translation type="unfinished">Doe!</translation>
+        <translation>Doe!</translation>
     </message>
     <message>
         <source>Choose random entry.</source>
-        <translation type="unfinished">Escolha uma entrada aleatória.</translation>
+        <translation>Escolha uma entrada aleatória.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the involved persons.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen é um projeto de código aberto que é desenvolvido por várias pessoas em seu tempo livre. Fazendo uma doação você pode dizer &amp;quot;obrigado(a)&amp;quot; às pessoas envolvidas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Sebastian Moors (aka mauser): Maintainer / Developer</source>
-        <translation type="unfinished"></translation>
+        <translation>Sebastian Moors (aka mauser): Mantenedor principal</translation>
     </message>
     <message>
         <source>Michael Wolkstein (aka wolke): Forum hosting</source>
-        <translation type="unfinished"></translation>
+        <translation>Michael Wolkstein (aka wolke): Hospedagem de fórum</translation>
     </message>
 </context>
 <context>
