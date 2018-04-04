@@ -449,19 +449,19 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>WAV em qualidade de CD  &quot;44,1kHz, 16 bit PCM&quot;</translation>
     </message>
     <message>
         <source>WAV in ADAT quality &quot;48 kHz, 16 bit PCM&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>WAV em qualidade ADAT &quot;48 kHz, 16 bit PCM&quot;</translation>
     </message>
     <message>
         <source>WAV in better quality &quot;48 kHz, 24 bit PCM&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>WAV em melhor qualidade &quot;48 kHz, 24 bit PCM&quot;</translation>
     </message>
     <message>
         <source>WAV LOFI &quot;22.05kHz, 8 bit PCM </source>
-        <translation type="unfinished"></translation>
+        <translation>WAV baixa fidelidade &quot;22.05kHz, 8 bit PCM </translation>
     </message>
     <message>
         <source>WAV best Mixdown quality &quot;96 kHz, 32 bit PCM&quot;</source>
