@@ -1702,14 +1702,14 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     <name>PatternFillDialog</name>
     <message>
         <source>Fill with selected pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Preencher com padrão selecionado</translation>
     </message>
 </context>
 <context>
     <name>PatternFillDialog_UI</name>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
     <message>
         <source>Form 1</source>
