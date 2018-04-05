@@ -1460,7 +1460,7 @@ It should work like a charm provided that you use the GM-kit, and that you do no
 </source>
         <translation>
 A exportação LilyPond é uma ferramenta experimental.
-
+Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto você não use trios.
 </translation>
     </message>
 </context>
@@ -1468,23 +1468,23 @@ A exportação LilyPond é uma ferramenta experimental.
     <name>MasterMixerLine</name>
     <message>
         <source>Set master volume [%1]</source>
-        <translation type="unfinished">Ajustar volume mestre [%1]</translation>
+        <translation>Ajustar volume principal [%1]</translation>
     </message>
     <message>
         <source>Swing</source>
-        <translation type="unfinished">Swing</translation>
+        <translation>Swing</translation>
     </message>
     <message>
         <source>Humanize time</source>
-        <translation type="unfinished">Temporiza�o humana</translation>
+        <translation>Humanizar tempo</translation>
     </message>
     <message>
         <source>Humanize velocity</source>
-        <translation type="unfinished">Velocidade humana</translation>
+        <translation>Humanizar velocidade</translation>
     </message>
     <message>
         <source>Set humanize time parameter [%1]</source>
-        <translation type="unfinished">Ajustar o parmetro de temporiza�o humana [%1]</translation>
+        <translation>Ajustar o parâmetro de humanização de tempo [%1]</translation>
     </message>
     <message>
         <source>Set humanize velocity parameter [%1]</source>
