@@ -1447,11 +1447,11 @@ Deseja descartar as mudanças?
     </message>
     <message>
         <source>MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?</source>
-        <translation type="unfinished"></translation>
+        <translation>Notas de saída MIDI não estão configuradas para este drumkit, portanto, a exportação desta música para o arquivo MIDI pode falhar. Você gostaria que o Hydrogen corrigisse automaticamente isso atribuindo valores padrão?</translation>
     </message>
     <message>
         <source>Set default values</source>
-        <translation type="unfinished"></translation>
+        <translation>Definir valores padrão</translation>
     </message>
     <message>
         <source>
@@ -1488,215 +1488,214 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     </message>
     <message>
         <source>Set humanize velocity parameter [%1]</source>
-        <translation type="unfinished">Ajustar o parmetro de velocidade humana [%1]</translation>
+        <translation>Ajustar o parmetro de humanização de velocidade [%1]</translation>
     </message>
     <message>
         <source>Set swing factor [%1]</source>
-        <translation type="unfinished">Ajustar o fator de swing [%1]</translation>
+        <translation>Ajustar o fator de swing [%1]</translation>
     </message>
 </context>
 <context>
     <name>MidiSenseWidget</name>
     <message>
-        <source>This element is not midi operable.</source>
-        <translation type="unfinished"></translation>
+        <source>This element is not MIDI operable.</source>
+        <translation>Este não é um elemento midi operável.</translation>
     </message>
     <message>
         <source>Waiting for midi input...</source>
-        <translation type="unfinished"></translation>
+        <translation>Esperando pela entrada MIDI</translation>
     </message>
 </context>
 <context>
     <name>MidiTable</name>
     <message>
         <source>Event</source>
-        <translation type="unfinished"></translation>
+        <translation>Evento</translation>
     </message>
     <message>
         <source>Param.</source>
-        <translation type="unfinished"></translation>
+        <translation>Param.</translation>
     </message>
     <message>
         <source>Action</source>
-        <translation type="unfinished"></translation>
+        <translation>Ação</translation>
     </message>
     <message>
         <source>press button to record midi event</source>
-        <translation type="unfinished"></translation>
+        <translation>pressione o botão para gravar evento MIDI</translation>
     </message>
 </context>
 <context>
     <name>Mixer</name>
     <message>
         <source>Show FX panel</source>
-        <translation type="unfinished">Exibir Painel FX</translation>
+        <translation>Exibir painel de efeitos</translation>
     </message>
     <message>
         <source>Show instrument peaks</source>
-        <translation type="unfinished">Exibir picos dos instrumentos</translation>
+        <translation>Mostrar picos dos instrumentos</translation>
     </message>
     <message>
         <source>Set FX %1 level </source>
-        <translation type="unfinished">Ajustar n�el FX %1</translation>
+        <translation>Ajustar nível %1 de efeito</translation>
     </message>
     <message>
         <source>Show instrument peaks = On</source>
-        <translation type="unfinished">Exibir picos dos instrumentos = Lig</translation>
+        <translation>Mostrar picos dos instrumentos = Lig.</translation>
     </message>
     <message>
         <source>Show instrument peaks = Off</source>
-        <translation type="unfinished">Exibir picos dos instrumentos = Des</translation>
+        <translation>Mostrar picos dos instrumentos = Des.</translation>
     </message>
     <message>
         <source>Set LADSPA FX ( %1 ) volume</source>
-        <translation type="unfinished">Ajustar LADSPA FX ( %1 )</translation>
+        <translation>Ajustar volume do efeito LADSPA ( %1 )</translation>
     </message>
     <message>
         <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation type="unfinished"></translation>
+        <translation>Efeitos LADSPA não estão disponíveis nesta versão do HYdrogen.</translation>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Mixer</translation>
+        <translation>Mixer</translation>
     </message>
 </context>
 <context>
     <name>MixerLine</name>
     <message>
         <source>Play sample</source>
-        <translation type="unfinished">Executar exemplo</translation>
+        <translation>Executar amostra</translation>
     </message>
     <message>
         <source>Mute</source>
-        <translation type="unfinished">Mudo</translation>
+        <translation>Mudo</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Solo</translation>
+        <translation>Solo</translation>
     </message>
     <message>
         <source>Instrument name (double click to edit)</source>
-        <translation type="unfinished">Nome do instrumento (clique duplo para editar)</translation>
+        <translation>Nome do instrumento (clique duplo para editar)</translation>
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
-        <translation type="unfinished">Ajustar volume do instrumento [%1]</translation>
+        <translation>Ajustar volume [%1] do instrumento</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished"></translation>
+        <translation>Pan</translation>
     </message>
     <message>
         <source>Set instr. pan [%1]</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustar o pan do instrumento [%1]</translation>
     </message>
 </context>
 <context>
     <name>PatternEditorPanel</name>
     <message>
         <source>Hear new notes</source>
-        <translation type="unfinished">Ouvir novas notas</translation>
+        <translation>Ouvir novas notas</translation>
     </message>
     <message>
         <source>Quantize keyboard/midi events to grid</source>
-        <translation type="unfinished">Quantizar eventos do teclado/midi para grade</translation>
+        <translation>Quantizar eventos do teclado/midi para grade</translation>
     </message>
     <message>
         <source>Pattern editor - %1</source>
-        <translation type="unfinished">Editor de padres - %1</translation>
+        <translation>Editor de padrões - %1</translation>
     </message>
     <message>
         <source>Hear new notes = On</source>
-        <translation type="unfinished">Ouvir novas notas = Lig</translation>
+        <translation>Ouvir novas notas = Lig.</translation>
     </message>
     <message>
         <source>Hear new notes = Off</source>
-        <translation type="unfinished">Ouvir novas notas = Des</translation>
+        <translation>Ouvir novas notas = Des.</translation>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = On</source>
-        <translation type="unfinished">Quantizar eventos de entrada do teclado = Lig</translation>
+        <translation>Quantizar eventos de teclado/MIDI que entram = Lig.</translation>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
-        <translation type="unfinished">Quantizar eventos de entrada do teclado = Lig</translation>
+        <translation>Quantizar eventos de teclado/MIDI que entram = Des.</translation>
     </message>
     <message>
         <source>Zoom in</source>
-        <translation type="unfinished">Zoom in</translation>
+        <translation>Mais zoom</translation>
     </message>
     <message>
         <source>Zoom out</source>
-        <translation type="unfinished">Zoom out</translation>
+        <translation>Menos zoom</translation>
     </message>
     <message>
         <source>Is not possible to change the pattern size when playing.</source>
-        <translation type="unfinished">N� �poss�el mudar o tamanho do padr�
-	que estiver tocando</translation>
+        <translation>Não é possível mudar o tamanho do padrão enquanto estiver tocando.</translation>
     </message>
     <message>
         <source>Select pattern size</source>
-        <translation type="unfinished">Selecionar tamanho do padr�</translation>
+        <translation>Selecionar tamanho do padrão</translation>
     </message>
     <message>
         <source>Select grid resolution</source>
-        <translation type="unfinished">Selecionar resolu�o da grade</translation>
+        <translation>Selecionar resolução da grade</translation>
     </message>
     <message>
         <source>No pattern selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Nenhum padrão selecionado</translation>
     </message>
     <message>
         <source>Select note properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecionar propriedades da nota</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocidade</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished"></translation>
+        <translation>Pan</translation>
     </message>
     <message>
         <source>Cutoff</source>
-        <translation type="unfinished"></translation>
+        <translation>Corte</translation>
     </message>
     <message>
         <source>Resonance</source>
-        <translation type="unfinished"></translation>
+        <translation>Ressonância</translation>
     </message>
     <message>
         <source>Lead and Lag</source>
-        <translation type="unfinished"></translation>
+        <translation>Condução e atraso</translation>
     </message>
     <message>
         <source>Loaded Soundlibrary</source>
-        <translation type="unfinished"></translation>
+        <translation>Biblioteca de som carregada</translation>
     </message>
     <message>
         <source>NoteKey</source>
-        <translation type="unfinished"></translation>
+        <translation>Nota da clave</translation>
     </message>
     <message>
         <source>destructive mode pre delete settings</source>
-        <translation type="unfinished"></translation>
+        <translation>modo destrutivo, configurações pré-deletadas</translation>
     </message>
     <message>
         <source>destructive mode post delete settings</source>
-        <translation type="unfinished"></translation>
+        <translation>modo destrutivo, configurações pós-deletadas</translation>
     </message>
     <message>
         <source>Show piano roll editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar editor de piano automático</translation>
     </message>
     <message>
         <source>Show drum editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar editor de bateria</translation>
     </message>
     <message>
         <source>Probability</source>
-        <translation type="unfinished"></translation>
+        <translation>Probabilidade</translation>
     </message>
 </context>
 <context>
