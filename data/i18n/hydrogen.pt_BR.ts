@@ -1458,7 +1458,10 @@ Deseja descartar as mudanças?
 The LilyPond export is an experimental feature.
 It should work like a charm provided that you use the GM-kit, and that you do not use triplet.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+A exportação LilyPond é uma ferramenta experimental.
+
+</translation>
     </message>
 </context>
 <context>
