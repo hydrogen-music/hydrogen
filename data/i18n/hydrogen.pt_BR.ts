@@ -826,7 +826,7 @@ Está certo disto?</translation>
     <name>InstrumentRack</name>
     <message>
         <source>Show Instrument editor</source>
-        <translation>Mostrar editor de instrumento</translation>
+        <translation>Exibir editor de instrumento</translation>
     </message>
     <message>
         <source>Instrument</source>
@@ -834,7 +834,7 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>Show sound library</source>
-        <translation>Mostrar biblioteca de instrumento</translation>
+        <translation>Exibir biblioteca de instrumento</translation>
     </message>
     <message>
         <source>Sound library</source>
@@ -1253,7 +1253,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Don&apos;t show this message anymore</source>
-        <translation>Não mostrar mais esta mensagem</translation>
+        <translation>Não exibir mais esta mensagem</translation>
     </message>
     <message>
         <source>Playlist: Set song No. %1</source>
@@ -1261,7 +1261,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Show &amp;info</source>
-        <translation>Mostrar &amp;informações</translation>
+        <translation>Exibir &amp;informações</translation>
     </message>
     <message>
         <source>Expor&amp;t pattern as...</source>
@@ -1687,11 +1687,11 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     </message>
     <message>
         <source>Show piano roll editor</source>
-        <translation>Mostrar editor de piano automático</translation>
+        <translation>Exibir editor de piano automático</translation>
     </message>
     <message>
         <source>Show drum editor</source>
-        <translation>Mostrar editor de bateria</translation>
+        <translation>Exibir editor de bateria</translation>
     </message>
     <message>
         <source>Probability</source>
@@ -1878,39 +1878,39 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     </message>
     <message>
         <source>Loop song</source>
-        <translation type="unfinished">Loop</translation>
+        <translation>Repetir música</translation>
     </message>
     <message>
         <source>Loop song = On</source>
-        <translation type="unfinished">Loop = Lig</translation>
+        <translation>Repetir música = Lig.</translation>
     </message>
     <message>
         <source>Loop song = Off</source>
-        <translation type="unfinished">Loop = Off</translation>
+        <translation>Repetir música = Des.</translation>
     </message>
     <message>
         <source>Show mixer</source>
-        <translation type="unfinished">Exibir mixador</translation>
+        <translation>Exibir mixer</translation>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Mixer</translation>
+        <translation>Mixer</translation>
     </message>
     <message>
         <source>Show Instrument Rack</source>
-        <translation type="unfinished"></translation>
+        <translation>Exibir Rack de Instrumentos </translation>
     </message>
     <message>
         <source>Instrument rack</source>
-        <translation type="unfinished"></translation>
+        <translation>Rack de instrumentos</translation>
     </message>
     <message>
         <source>BeatCounter Panel on</source>
-        <translation type="unfinished"></translation>
+        <translation>Painel do metrônomo LIG</translation>
     </message>
     <message>
         <source>Set BPM / Set BPM and play</source>
-        <translation type="unfinished"></translation>
+        <translation>Definir BPM / definir BPM e executar</translation>
     </message>
     <message>
         <source>Jack-Time-Master on/off</source>
