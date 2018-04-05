@@ -1667,7 +1667,7 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     </message>
     <message>
         <source>Lead and Lag</source>
-        <translation>Condução e atraso</translation>
+        <translation>Adiantar/atrasar</translation>
     </message>
     <message>
         <source>Loaded Soundlibrary</source>
@@ -1713,168 +1713,168 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     </message>
     <message>
         <source>Form 1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>&amp;Fill</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Preencher</translation>
     </message>
     <message>
         <source>Alt+F</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+F</translation>
     </message>
     <message>
         <source>&amp;Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Limpar</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
     <message>
         <source>From:</source>
-        <translation type="unfinished"></translation>
+        <translation>De:</translation>
     </message>
     <message>
         <source>To:</source>
-        <translation type="unfinished"></translation>
+        <translation>Para:</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
     <name>PatternPropertiesDialog</name>
     <message>
         <source>Pattern properties</source>
-        <translation type="unfinished">Propriedades do padr�</translation>
+        <translation>Propriedades do padrão</translation>
     </message>
     <message>
         <source>%1#2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1#2</translation>
     </message>
     <message>
         <source>%1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1</translation>
     </message>
 </context>
 <context>
     <name>PatternPropertiesDialog_UI</name>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished">Alt+O</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <source>New Pattern Name</source>
-        <translation type="unfinished">Nome do novo padr�</translation>
+        <translation>Nome do novo padrão</translation>
     </message>
     <message>
         <source>Form1</source>
-        <translation type="unfinished"></translation>
+        <translation>Forma1</translation>
     </message>
     <message>
         <source>Pattern category</source>
-        <translation type="unfinished"></translation>
+        <translation>Categoria do padrão</translation>
     </message>
     <message>
         <source>Pattern description</source>
-        <translation type="unfinished"></translation>
+        <translation>Descrição do padrão</translation>
     </message>
 </context>
 <context>
     <name>PianoRollEditor</name>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocidade</translation>
     </message>
     <message>
         <source>Pan</source>
-        <translation type="unfinished"></translation>
+        <translation>Pan</translation>
     </message>
     <message>
         <source>Lead and Lag</source>
-        <translation type="unfinished"></translation>
+        <translation>Adiantar/atrasar</translation>
     </message>
 </context>
 <context>
     <name>PlayerControl</name>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Parar</translation>
+        <translation>Parar</translation>
     </message>
     <message>
         <source>Song Mode</source>
-        <translation type="unfinished">Modo msica</translation>
+        <translation>Modo música</translation>
     </message>
     <message>
         <source>Pattern Mode</source>
-        <translation type="unfinished">Modo padr�s</translation>
+        <translation>Modo padrão</translation>
     </message>
     <message>
         <source>Jack-transport on/off</source>
-        <translation type="unfinished">Jack-transport lig/des</translation>
+        <translation>Jack-transport lig/des</translation>
     </message>
     <message>
         <source>Playing.</source>
-        <translation type="unfinished">Executando.</translation>
+        <translation>Executando.</translation>
     </message>
     <message>
         <source>Stopped.</source>
-        <translation type="unfinished">Parado.</translation>
+        <translation>Parado.</translation>
     </message>
     <message>
         <source>Song mode selected.</source>
-        <translation type="unfinished">Modo msica selecionado.</translation>
+        <translation>Modo música selecionado.</translation>
     </message>
     <message>
         <source>Pattern mode selected.</source>
-        <translation type="unfinished">Modo padr�s selecionado.</translation>
+        <translation>Modo padrão selecionado.</translation>
     </message>
     <message>
         <source>Jack-transport mode = On</source>
-        <translation type="unfinished">Modo Jack-transport = Lig</translation>
+        <translation>Modo Jack-transport = Lig.</translation>
     </message>
     <message>
         <source>Jack-transport mode = Off</source>
-        <translation type="unfinished">Modo Jack-transport = Des</translation>
+        <translation>Modo Jack-transport = Des.</translation>
     </message>
     <message>
         <source>New BPM value</source>
-        <translation type="unfinished">Novo valor de BPM</translation>
+        <translation>Novo valor de BPM</translation>
     </message>
     <message>
         <source>Rewind</source>
-        <translation type="unfinished">Voltar</translation>
+        <translation>Voltar</translation>
     </message>
     <message>
         <source>Play/ Pause</source>
-        <translation type="unfinished">Executar/Pausar</translation>
+        <translation>Executar/Pausar</translation>
     </message>
     <message>
         <source>Fast Forward</source>
-        <translation type="unfinished">Avan� r�ido</translation>
+        <translation>Avanço rápido</translation>
     </message>
     <message>
         <source>Pause.</source>
-        <translation type="unfinished">Pausar.</translation>
+        <translation>Pausar.</translation>
     </message>
     <message>
         <source>JACK-transport will work only with JACK driver.</source>
-        <translation type="unfinished">Transporte-JACK somente ir�funcionar com
-	o controlador JACK.</translation>
+        <translation>JACK-transport somente funcionará com
+	o driver JACK.</translation>
     </message>
     <message>
         <source>Loop song</source>
