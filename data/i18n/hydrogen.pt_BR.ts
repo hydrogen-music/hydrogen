@@ -1257,55 +1257,58 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Playlist: Set song No. %1</source>
-        <translation>Lista de reprodução: Definir música Nº %1.</translation>
+        <translation>Lista de reprodução: Definir música Nº %1</translation>
     </message>
     <message>
         <source>Show &amp;info</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar &amp;informações</translation>
     </message>
     <message>
         <source>Expor&amp;t pattern as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporta&amp;r padrão como...</translation>
     </message>
     <message>
         <source>I&amp;nstruments</source>
-        <translation type="unfinished"></translation>
+        <translation>I&amp;nstrumentos</translation>
     </message>
     <message>
         <source>&amp;Add instrument</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Adicionar instrumento</translation>
     </message>
     <message>
         <source>&amp;Clear all</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Limpar tudo</translation>
     </message>
     <message>
         <source>Playlist &amp;editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Editor de &amp;Lista de reprodução</translation>
     </message>
     <message>
         <source></source>
         <comment>Info|About</comment>
-        <translation></translation>
+        <translation>Info|Sobre</translation>
     </message>
     <message>
         <source>Song saved as.</source>
-        <translation type="unfinished"></translation>
+        <translation>Música salva como.</translation>
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista de reprodução: Música Nº %1</translation>
     </message>
     <message>
         <source>Could not export pattern.</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível exportar padrão.</translation>
     </message>
     <message>
         <source>
 The document contains unsaved changes.
 Do you want to save the changes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>
+The document contains unsaved changes.
+Do you want to save the changes?
+</translation>
     </message>
     <message>
         <source>Director</source>
