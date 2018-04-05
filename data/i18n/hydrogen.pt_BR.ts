@@ -1117,35 +1117,35 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished">&amp;Novo</translation>
+        <translation>&amp;Novo</translation>
     </message>
     <message>
         <source>&amp;Open</source>
-        <translation type="unfinished">&amp;Abrir</translation>
+        <translation>&amp;Abrir</translation>
     </message>
     <message>
         <source>Open &amp;Demo</source>
-        <translation type="unfinished">Abrir &amp;Demo</translation>
+        <translation>Abrir &amp;Demo</translation>
     </message>
     <message>
         <source>Open &amp;recent</source>
-        <translation type="unfinished">Abrir &amp;recente</translation>
+        <translation>Abrir &amp;recente</translation>
     </message>
     <message>
         <source>Export &amp;MIDI file</source>
-        <translation type="unfinished">Exportar para arquivo &amp;MIDI</translation>
+        <translation>Exportar para arquivo &amp;MIDI</translation>
     </message>
     <message>
         <source>&amp;Preferences</source>
-        <translation type="unfinished">&amp;Prefer�cias</translation>
+        <translation>&amp;Preferências</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation type="unfinished">&amp;Sair</translation>
+        <translation>&amp;Sair</translation>
     </message>
     <message>
         <source>Show &amp;audio engine info</source>
-        <translation type="unfinished">Exibir informa�es do &amp;mecanismo de �dio</translation>
+        <translation####################################>Exibir informa�es do &amp;mecanismo de �dio</translation>
     </message>
     <message>
         <source>&amp;User manual</source>
