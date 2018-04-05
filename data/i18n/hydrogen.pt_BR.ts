@@ -529,7 +529,7 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>Enable use of rubberband&apos;s batch processor</source>
-        <translation>Habilitar o uso de processador Rubberband&apos;s em lote</translation>
+        <translation>Habilitar o uso de processador Rubberband em lote</translation>
     </message>
     <message>
         <source>Rubberband Batch</source>
@@ -1145,95 +1145,95 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Show &amp;audio engine info</source>
-        <translation####################################>Exibir informa�es do &amp;mecanismo de �dio</translation>
+        <translation>Exibir informações do &amp;mecanismo de áudio</translation>
     </message>
     <message>
         <source>&amp;User manual</source>
-        <translation type="unfinished">&amp;Manual do usu�io</translation>
+        <translation>&amp;Manual do usuário</translation>
     </message>
     <message>
         <source>&amp;About</source>
-        <translation type="unfinished">&amp;Sobre</translation>
+        <translation>&amp;Sobre</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
         <source>Unknown audio driver</source>
-        <translation type="unfinished">Driver de �dio desconhecido</translation>
+        <translation>Driver de áudio desconhecido</translation>
     </message>
     <message>
         <source>Error starting audio driver</source>
-        <translation type="unfinished">Erro ao iniciar driver de �dio</translation>
+        <translation>Erro ao iniciar driver de áudio</translation>
     </message>
     <message>
         <source>Jack driver: server shutdown</source>
-        <translation type="unfinished">Driver Jack: servidor finalizado</translation>
+        <translation>Driver Jack: servidor finalizado</translation>
     </message>
     <message>
         <source>Jack driver: cannot activate client</source>
-        <translation type="unfinished">Driver Jack: n� foi possvel ativar cliente</translation>
+        <translation>Driver Jack: não foi possvel ativar cliente</translation>
     </message>
     <message>
         <source>Jack driver: cannot connect output port</source>
-        <translation type="unfinished">Driver Jack: n� foi possvel conectar na porta</translation>
+        <translation>Driver Jack: não foi possvel conectar na porta de saída</translation>
     </message>
     <message>
         <source>Jack driver: error in port register</source>
-        <translation type="unfinished">Driver Jack: Erro no registro da porta</translation>
+        <translation>Driver Jack: Erro no registro da porta</translation>
     </message>
     <message>
         <source>&amp;Export song</source>
-        <translation type="unfinished">&amp;Exportar msica</translation>
+        <translation>&amp;Exportar música</translation>
     </message>
     <message>
         <source>De&amp;bug</source>
-        <translation type="unfinished">De&amp;bug</translation>
+        <translation>De&amp;purar</translation>
     </message>
     <message>
         <source>Save &amp;as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvar %amp;como...</translation>
     </message>
     <message>
         <source>&amp;Mixer</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Mixer</translation>
     </message>
     <message>
         <source>&amp;Instrument Rack</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Rack de instrumentos</translation>
     </message>
     <message>
         <source>&amp;Info</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Info</translation>
     </message>
     <message>
         <source>Song saved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Música salva.</translation>
     </message>
     <message>
         <source>Unknown error %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Erro desconhecido %1</translation>
     </message>
     <message>
         <source>Clear all instruments?</source>
-        <translation type="unfinished"></translation>
+        <translation>Limpar todos os instrumentos?</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">Ok</translation>
+        <translation>Ok</translation>
     </message>
     <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
-        <translation type="unfinished"></translation>
+        <translation>Você está usando uma versão em desenvolvimento do Hydrogen, por favor nos ajude reportando bugs ou sugestões na lista de e-mail de desenvolvedores.&lt;br&gt;&lt;br&gt; Obrigado!</translation>
     </message>
     <message>
         <source>Could not save song.</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível salvar a música.</translation>
     </message>
     <message>
         <source>Open &amp;Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir &amp;Padrão</translation>
     </message>
     <message>
         <source>Hydrogen Pattern (*.h2pattern)</source>
