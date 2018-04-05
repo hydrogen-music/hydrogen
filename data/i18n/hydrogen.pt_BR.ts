@@ -1431,19 +1431,19 @@ Deseja descartar as mudanças?
     </message>
     <message>
         <source>&amp;Automation path</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Caminho de automação</translation>
     </message>
     <message>
         <source>Full screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Tela cheia</translation>
     </message>
     <message>
         <source>&amp;Options</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Opções</translation>
     </message>
     <message>
         <source>MIDI setup advice</source>
-        <translation type="unfinished"></translation>
+        <translation>Recomendação de configuração MIDI</translation>
     </message>
     <message>
         <source>MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?</source>
