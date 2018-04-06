@@ -1934,35 +1934,35 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     </message>
     <message>
         <source> Jack-Time-Master mode = On</source>
-        <translation></translation>
+        <translation>Tempo master do Jack = Lig.</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo master do Jack = Des.</translation>
     </message>
     <message>
         <source>Record</source>
-        <translation type="unfinished"></translation>
+        <translation>Gravar</translation>
     </message>
     <message>
         <source>Destructive Record</source>
-        <translation type="unfinished"></translation>
+        <translation>Gravação destrutiva</translation>
     </message>
     <message>
         <source>Record midi events = On</source>
-        <translation type="unfinished"></translation>
+        <translation>Gravar eventos MIDI = Lig.</translation>
     </message>
     <message>
         <source>Record midi events = Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Gravar eventos MIDI = Des.</translation>
     </message>
     <message>
         <source>Destructive mode = Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo destrutivo = Des.</translation>
     </message>
     <message>
         <source>Destructive mode = On</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo destrutivo = Lig.</translation>
     </message>
     <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
