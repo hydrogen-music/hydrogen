@@ -244,7 +244,7 @@
     </message>
     <message>
         <source>&amp;Play Sample</source>
-        <translation>Tocar</translation>
+        <translation>Executar Amostra</translation>
     </message>
     <message>
         <source>&amp;Filename to instrument name</source>
@@ -1145,7 +1145,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Show &amp;audio engine info</source>
-        <translation>Exibir informações do &amp;mecanismo de áudio</translation>
+        <translation>Exibir informações do &amp;motor de áudio</translation>
     </message>
     <message>
         <source>&amp;User manual</source>
@@ -1857,11 +1857,11 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     </message>
     <message>
         <source>Rewind</source>
-        <translation>Voltar</translation>
+        <translation>Rebobinar</translation>
     </message>
     <message>
         <source>Play/ Pause</source>
-        <translation>Executar/Pausar</translation>
+        <translation>Executar/ Pausar</translation>
     </message>
     <message>
         <source>Fast Forward</source>
@@ -2109,179 +2109,184 @@ O caminho do script e o nome do script devem estar sem espaços em branco.</tran
     </message>
     <message>
         <source>&amp;Add Script to selected song</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar script à música selecionada</translation>
     </message>
     <message>
         <source>&amp;Edit selected Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar Script selecionado</translation>
     </message>
     <message>
         <source>&amp;Remove selected Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Remover Script selecionado</translation>
     </message>
     <message>
         <source>&amp;Create a new Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Criar novo Script</translation>
     </message>
     <message>
         <source>Rewind</source>
-        <translation type="unfinished">Voltar</translation>
+        <translation>Rebobinar</translation>
     </message>
     <message>
         <source>Play/ Pause/ Load selected song</source>
-        <translation type="unfinished"></translation>
+        <translation>Executar/ Pausar/ Carregar música selecionada</translation>
     </message>
     <message>
         <source>Stop</source>
-        <translation type="unfinished">Parar</translation>
+        <translation>Parar</translation>
     </message>
     <message>
         <source>Fast Forward</source>
-        <translation type="unfinished">Avan� r�ido</translation>
+        <translation>Avançar rápido</translation>
     </message>
     <message>
         <source>Please save your song first</source>
-        <translation type="unfinished"></translation>
+        <translation>Por favor, salve sua música primeiro</translation>
     </message>
     <message>
         <source>WARNING, the new file is executable by the owner of the file!</source>
-        <translation type="unfinished"></translation>
+        <translation>AVISO, o novo arquivo é executável pelo proprietário do arquivo!</translation>
     </message>
     <message>
         <source>Pause.</source>
-        <translation type="unfinished">Pausar.</translation>
+        <translation>Pausar.</translation>
     </message>
     <message>
         <source>Playlist Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Navegador da Lista de Reprodução</translation>
     </message>
     <message>
         <source>Playlist: set song no. %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista de Reprodução: definir música nº %1</translation>
     </message>
     <message>
         <source>no Script</source>
-        <translation type="unfinished"></translation>
+        <translation>sem Script</translation>
     </message>
     <message>
         <source>&amp;New Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Nova Lista de Reprodução</translation>
     </message>
     <message>
         <source>File not found: </source>
-        <translation type="unfinished"></translation>
+        <translation>Arquivo não encontrado</translation>
     </message>
     <message>
         <source>No valid song selected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nenhuma música válida selecionada!</translation>
     </message>
     <message>
         <source>
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>A presente Lista de Reprodução contém mudanças não salvas.
+Deseja descartar as mudanças?
+</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
-        <translation type="unfinished">&amp;Descartar</translation>
+        <translation>&amp;Descartar</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome do script ou o caminho para o script contém espaços em branco.
+IMPORTANTE
+O caminho para o script e o nome do script não devem conter espaços em branco.</translation>
     </message>
     <message>
         <source>Hydrogen playlist (*.h2playlist)</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista de Reprodução do Hydrogen (*.h2playlist)</translation>
     </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
     <message>
         <source>PlayList Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Navegador da Lista de Reprodução</translation>
     </message>
     <message>
         <source>Song list</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista de músicas</translation>
     </message>
 </context>
 <context>
     <name>PreferencesDialog</name>
     <message>
         <source>Preferences</source>
-        <translation type="unfinished">Prefer�cias</translation>
+        <translation>Preferências</translation>
     </message>
     <message>
         <source>Slow</source>
-        <translation type="unfinished">Lento</translation>
+        <translation>Lento</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
+        <translation>Normal</translation>
     </message>
     <message>
         <source>Fast</source>
-        <translation type="unfinished">R�ido</translation>
+        <translation>Rápido</translation>
     </message>
     <message>
         <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
-        <translation type="unfinished">&lt;b&gt;Abrir Sistema de Som&lt;/b&gt;&lt;br&gt;Driver de �dio simples [/dev/dsp]</translation>
+        <translation>&lt;b&gt;Abrir Sistema de Som&lt;/b&gt;&lt;br&gt;Driver de áudio simples [/dev/dsp]</translation>
     </message>
     <message>
         <source>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Not compiled&lt;/font&gt;&lt;/b&gt;</source>
-        <translation type="unfinished">&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;N� compilado&lt;/font&gt;&lt;/b&gt;</translation>
+        <translation>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Não compilado&lt;/font&gt;&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</source>
-        <translation type="unfinished">&lt;b&gt;Driver kit de conex� com Jack Audio&lt;/b&gt;&lt;br&gt;Driver de �dio de baixa lat�cia</translation>
+        <translation>&lt;b&gt;Driver kit de conexão Jack Audio&lt;/b&gt;&lt;br&gt;Driver de áudio de baixa latência</translation>
     </message>
     <message>
         <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished">Controlador ALSA</translation>
+        <translation>&lt;b&gt;Driver ALSA&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
-        <translation type="unfinished">Sele�o autom�ica de controlador</translation>
+        <translation>&lt;b&gt;Seleção automática de driver&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished">Controlador PortAudio</translation>
+        <translation>Driver PortAudio</translation>
     </message>
     <message>
         <source>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Driver CoreAudio</translation>
     </message>
     <message>
         <source>Please restart hydrogen to enable/disable LASH support</source>
-        <translation type="unfinished"></translation>
+        <translation>Por favor, reinicie o Hydrogen para habilitar/desabilitar o suporte ao LASH</translation>
     </message>
     <message>
         <source>Driver restart required.
  Restart driver?</source>
-        <translation type="unfinished"></translation>
+        <translation>Reinicialização do driver necessária.
+ Reiniciar driver?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ok</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished"></translation>
+        <translation>Automático</translation>
     </message>
     <message>
         <source>Steps</source>
-        <translation type="unfinished"></translation>
+        <translation>Passos</translation>
     </message>
     <message>
         <source>Fixed</source>
