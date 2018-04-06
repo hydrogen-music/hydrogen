@@ -1930,11 +1930,11 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     </message>
     <message>
         <source> Count and set BPM</source>
-        <translation type="unfinished"></translation>
+        <translation>Contar e definir BPM</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = On</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = Off</source>
