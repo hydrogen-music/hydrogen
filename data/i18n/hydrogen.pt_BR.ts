@@ -1906,7 +1906,7 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     </message>
     <message>
         <source>BeatCounter Panel on</source>
-        <translation>Painel do metrônomo LIG</translation>
+        <translation>Painel do Contador de Batidas Lig.</translation>
     </message>
     <message>
         <source>Set BPM / Set BPM and play</source>
@@ -1914,15 +1914,15 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     </message>
     <message>
         <source>Jack-Time-Master on/off</source>
-        <translation type="unfinished"></translation>
+        <translation>Tempo Master do Jack Lig./Des.</translation>
     </message>
     <message>
         <source> BC Panel on</source>
-        <translation type="unfinished"></translation>
+        <translation>Painel do CB Lig.</translation>
     </message>
     <message>
         <source> BC Panel off</source>
-        <translation type="unfinished"></translation>
+        <translation>Painel do CB Des.</translation>
     </message>
     <message>
         <source> Count BPM and start PLAY</source>
