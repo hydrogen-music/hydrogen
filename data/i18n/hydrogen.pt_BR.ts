@@ -1966,142 +1966,146 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     </message>
     <message>
         <source>Recalculate Rubberband modified samples if bpm will change</source>
-        <translation type="unfinished"></translation>
+        <translation>Recalcular amostras modificadas pelo Rubberband caso o BPM mude</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband ON</source>
-        <translation type="unfinished"></translation>
+        <translation>Recalcular todas as amostras usando Rubberband LIG</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
-        <translation type="unfinished"></translation>
+        <translation>Recalcular todas as amostras usando Rubberband DES</translation>
     </message>
     <message>
         <source>Switch metronome on/off</source>
-        <translation type="unfinished"></translation>
+        <translation>Metrônomo Lig./Des.</translation>
     </message>
 </context>
 <context>
     <name>PlaylistDialog</name>
     <message>
         <source>Song list</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista de músicas</translation>
     </message>
     <message>
         <source>Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Script</translation>
     </message>
     <message>
         <source>exec Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Executar Script</translation>
     </message>
     <message>
         <source>Add Song to PlayList</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar música à Lista de Reprodução</translation>
     </message>
     <message>
         <source>No Song selected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nenhuma música selecionada!</translation>
     </message>
     <message>
         <source>Load Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Carregar Lista de Reprodução</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.h2playlist)</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista de Reprodução do Hydrogen(*.h2playlist)</translation>
     </message>
     <message>
         <source>Save Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvar Lista de Reprodução</translation>
     </message>
     <message>
         <source>No Song in List or no Song selected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nenhuma música na Lista ou nenhuma Música selecionada!</translation>
     </message>
     <message>
         <source>Hydrogen Playlist (*.sh)</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista de Reprodução do Hydrogen (*.sh)</translation>
     </message>
     <message>
         <source>Add Script to selected Song</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar Script à Música selecionada</translation>
     </message>
     <message>
         <source>No Script in use!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nenhum Scripr em uso!</translation>
     </message>
     <message>
         <source>No Default Editor Set. Please set your Default Editor
 Do not use a console based Editor
 Sorry, but this will not work for the moment.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sem Editor Padrão definido. Por favor, defina seu Editor Padrão
+Não use um Editor baseado em console
+Desculpe, mas isto não funcionará no momento.</translation>
     </message>
     <message>
         <source>Set your Default Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Definir Editor Padrão</translation>
     </message>
     <message>
         <source>No Script selected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nenhum Script selecionado!</translation>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished">Erro carregando msica.</translation>
+        <translation>Erro ao carregar música.</translation>
     </message>
     <message>
         <source>sort</source>
-        <translation type="unfinished"></translation>
+        <translation>ordenar</translation>
     </message>
     <message>
         <source>Hydrogen Scripts (*.sh)</source>
-        <translation type="unfinished"></translation>
+        <translation>Scripts do Hydrogen (*.sh)</translation>
     </message>
     <message>
         <source>New Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Novo Script</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must without whitespaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome do script ou caminho do script contém espaços em branco.
+IMPORTANTE
+O caminho do script e o nome do script devem estar sem espaços em branco.</translation>
     </message>
     <message>
         <source>No Script!</source>
-        <translation type="unfinished"></translation>
+        <translation>Sem Script!</translation>
     </message>
     <message>
         <source>&amp;Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Lista de reprodução</translation>
     </message>
     <message>
         <source>Add song to Play&amp;list</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar música à Lista de Reprodução</translation>
     </message>
     <message>
         <source>Add &amp;current song to Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar música atual à Lista de Reprodução</translation>
     </message>
     <message>
         <source>&amp;Remove selected song from Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Remover música selecionada da Lista de Reprodução</translation>
     </message>
     <message>
         <source>&amp;Open Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir Lista de Reprodução</translation>
     </message>
     <message>
         <source>&amp;Save Playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvar Lista de Reprodução</translation>
     </message>
     <message>
         <source>Save Playlist &amp;as</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvar Lista de Reprodução como</translation>
     </message>
     <message>
         <source>&amp;Scripts</source>
-        <translation type="unfinished"></translation>
+        <translation>Scripts</translation>
     </message>
     <message>
         <source>&amp;Add Script to selected song</source>
