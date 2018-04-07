@@ -50,8 +50,10 @@ function cmake_make() {
     cmake_init
     echo -e " * cmake make\n" && cd $BUILD_DIR || exit 1
     if [ $VERBOSE -eq 1 ]; then
+        VERBOSE=1 make translations $MAKE_OPTS || exit 1
         VERBOSE=1 make $MAKE_OPTS || exit 1
     else
+        make translations $MAKE_OPTS || exit 1
         make $MAKE_OPTS || exit 1
     fi
 	
