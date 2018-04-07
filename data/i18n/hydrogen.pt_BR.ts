@@ -2256,11 +2256,11 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation>Driver PortAudio</translation>
+        <translation>&lt;b&gt;Driver PortAudio&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation>Driver CoreAudio</translation>
+        <translation>&lt;b&gt;Driver CoreAudio&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>Please restart hydrogen to enable/disable LASH support</source>
@@ -2290,370 +2290,370 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Fixed</source>
-        <translation type="unfinished"></translation>
+        <translation>Fixo</translation>
     </message>
     <message>
         <source>&lt;b&gt;PulseAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Driver PulseAudio</translation>
     </message>
     <message>
         <source>Number of steps</source>
-        <translation type="unfinished"></translation>
+        <translation>Número de passos</translation>
     </message>
     <message>
         <source>Color (Hue value)</source>
-        <translation type="unfinished"></translation>
+        <translation>Cor (valor da Matiz)</translation>
     </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
     <message>
         <source>Polyphony</source>
-        <translation type="unfinished">Polifonia</translation>
+        <translation>Polifonia</translation>
     </message>
     <message>
         <source>Device</source>
-        <translation type="unfinished">Dispositivo</translation>
+        <translation>Dispositivo</translation>
     </message>
     <message>
         <source>Buffer size</source>
-        <translation type="unfinished">Tamanho do buffer</translation>
+        <translation>Tamanho do buffer</translation>
     </message>
     <message>
         <source>Sample rate</source>
-        <translation type="unfinished">Taxa de amostragem</translation>
+        <translation>Taxa de amostragem</translation>
     </message>
     <message>
         <source>Input</source>
-        <translation type="unfinished">Entrada</translation>
+        <translation>Entrada</translation>
     </message>
     <message>
         <source>Channel</source>
-        <translation type="unfinished">Canal</translation>
+        <translation>Canal</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Todos</translation>
+        <translation>Todos</translation>
     </message>
     <message>
         <source>Application font</source>
-        <translation type="unfinished">Fonta da aplica�o</translation>
+        <translation>Fonte da aplicação</translation>
     </message>
     <message>
         <source>Style</source>
-        <translation type="unfinished">Estilo</translation>
+        <translation>Estilo</translation>
     </message>
     <message>
         <source>Select font</source>
-        <translation type="unfinished">Selecionar fontes</translation>
+        <translation>Selecionar fontes</translation>
     </message>
     <message>
         <source>Slow</source>
-        <translation type="unfinished">Lento</translation>
+        <translation>Lento</translation>
     </message>
     <message>
         <source>Normal</source>
-        <translation type="unfinished">Normal</translation>
+        <translation>Normal</translation>
     </message>
     <message>
         <source>Fast</source>
-        <translation type="unfinished">Rpido</translation>
+        <translation>Rápido</translation>
     </message>
     <message>
         <source>Mixer font</source>
-        <translation type="unfinished">Fonte do Mixer</translation>
+        <translation>Fonte do Mixer</translation>
     </message>
     <message>
         <source>Meters falloff speed</source>
-        <translation type="unfinished">Medidores de velocidade de queda</translation>
+        <translation>Medidores de velocidade de queda</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
         <source>&amp;General</source>
-        <translation type="unfinished">&amp;Geral</translation>
+        <translation>&amp;Geral</translation>
     </message>
     <message>
         <source>Audio &amp;System</source>
-        <translation type="unfinished">&amp;Sistema de �dio</translation>
+        <translation>&amp;Sistema de áudio</translation>
     </message>
     <message>
         <source>Metronome volume</source>
-        <translation type="unfinished">Volume do metr�omo</translation>
+        <translation>Volume do metrônomo</translation>
     </message>
     <message>
         <source>Connect to &amp;Default Output Pair</source>
-        <translation type="unfinished">Conectar ao par de sa�a &amp;padr�</translation>
+        <translation>Conectar ao par de saída &amp;padrão</translation>
     </message>
     <message>
         <source>Alt+D</source>
-        <translation type="unfinished">Alt+P</translation>
+        <translation>Alt+D</translation>
     </message>
     <message>
         <source>&amp;Midi System</source>
-        <translation type="unfinished">Sistema midi</translation>
+        <translation>&amp;Sistema midi</translation>
     </message>
     <message>
         <source>Midi driver</source>
-        <translation type="unfinished">Controlador de Midi</translation>
+        <translation>Driver de Midi</translation>
     </message>
     <message>
         <source>Ignore note-off</source>
-        <translation type="unfinished">Ignorar nota desligada</translation>
+        <translation>Ignorar nota desligada</translation>
     </message>
     <message>
         <source>&amp;Appearance</source>
-        <translation type="unfinished">&amp;Apar�cia</translation>
+        <translation>&amp;Aparência</translation>
     </message>
     <message>
         <source>Form1</source>
-        <translation type="unfinished"></translation>
+        <translation>Form1</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
     <message>
         <source>&amp;OK</source>
-        <translation type="unfinished">&amp;OK</translation>
+        <translation>&amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished">Alt+O</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <source>&amp;Reopen last used song</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Reabrir última música usada</translation>
     </message>
     <message>
         <source>Alt+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Alt+R</translation>
     </message>
     <message>
         <source>###</source>
-        <translation type="unfinished"></translation>
+        <translation>###</translation>
     </message>
     <message>
         <source>44100</source>
-        <translation type="unfinished"></translation>
+        <translation>44100</translation>
     </message>
     <message>
         <source>48000</source>
-        <translation type="unfinished"></translation>
+        <translation>48000</translation>
     </message>
     <message>
         <source>88200</source>
-        <translation type="unfinished"></translation>
+        <translation>88200</translation>
     </message>
     <message>
         <source>96000</source>
-        <translation type="unfinished"></translation>
+        <translation>96000</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>2</source>
-        <translation type="unfinished"></translation>
+        <translation>2</translation>
     </message>
     <message>
         <source>3</source>
-        <translation type="unfinished"></translation>
+        <translation>3</translation>
     </message>
     <message>
         <source>4</source>
-        <translation type="unfinished"></translation>
+        <translation>4</translation>
     </message>
     <message>
         <source>5</source>
-        <translation type="unfinished"></translation>
+        <translation>5</translation>
     </message>
     <message>
         <source>6</source>
-        <translation type="unfinished"></translation>
+        <translation>6</translation>
     </message>
     <message>
         <source>7</source>
-        <translation type="unfinished"></translation>
+        <translation>7</translation>
     </message>
     <message>
         <source>8</source>
-        <translation type="unfinished"></translation>
+        <translation>8</translation>
     </message>
     <message>
         <source>9</source>
-        <translation type="unfinished"></translation>
+        <translation>9</translation>
     </message>
     <message>
         <source>10</source>
-        <translation type="unfinished"></translation>
+        <translation>10</translation>
     </message>
     <message>
         <source>11</source>
-        <translation type="unfinished"></translation>
+        <translation>11</translation>
     </message>
     <message>
         <source>12</source>
-        <translation type="unfinished"></translation>
+        <translation>12</translation>
     </message>
     <message>
         <source>13</source>
-        <translation type="unfinished"></translation>
+        <translation>13</translation>
     </message>
     <message>
         <source>14</source>
-        <translation type="unfinished"></translation>
+        <translation>14</translation>
     </message>
     <message>
         <source>15</source>
-        <translation type="unfinished"></translation>
+        <translation>15</translation>
     </message>
     <message>
         <source>16</source>
-        <translation type="unfinished"></translation>
+        <translation>16</translation>
     </message>
     <message>
         <source>Restart output</source>
-        <translation type="unfinished"></translation>
+        <translation>Reiniciar saída</translation>
     </message>
     <message>
         <source>Audio output details</source>
-        <translation type="unfinished"></translation>
+        <translation>Detalhes da saída de áudio</translation>
     </message>
     <message>
         <source>Post-Fader</source>
-        <translation type="unfinished"></translation>
+        <translation>Pós-Fader</translation>
     </message>
     <message>
         <source>Pre-Fader</source>
-        <translation type="unfinished"></translation>
+        <translation>Pré-Fader</translation>
     </message>
     <message>
         <source>Track output</source>
-        <translation type="unfinished"></translation>
+        <translation>Saída da faixa</translation>
     </message>
     <message>
         <source>Use lash</source>
-        <translation type="unfinished"></translation>
+        <translation>Use LASH</translation>
     </message>
     <message>
         <source>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</source>
-        <translation type="unfinished"></translation>
+        <translation>Primeiro passo, ajuste a diferença de sincronismo entre a latência do acionador do controlador/teclado e o BPM computado.</translation>
     </message>
     <message>
         <source>Beat counter drift compensation in 1/10 ms   </source>
-        <translation type="unfinished"></translation>
+        <translation>Compensação de desvio do Contador de Batidas em 1/10 ms</translation>
     </message>
     <message>
         <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
-        <translation type="unfinished"></translation>
+        <translation>Segundo passo, ajuste a compensação entre o último acionador do controlador/teclado e a partida do sequenciador deferida.</translation>
     </message>
     <message>
         <source>Beat counter start offset in ms    </source>
-        <translation type="unfinished"></translation>
+        <translation>Compensação de início do Contador de Batidas em ms    </translation>
     </message>
     <message>
         <source>Path to the Rubberband command-line utility</source>
-        <translation type="unfinished"></translation>
+        <translation>Caminho para o utilitário de linha de comando Rubberband</translation>
     </message>
     <message>
         <source>Maximum number of bars</source>
-        <translation type="unfinished"></translation>
+        <translation>Número máximo de barras</translation>
     </message>
     <message>
         <source>&amp;Reopen last used playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Reabrir a última Lista de Reprodução usada</translation>
     </message>
     <message>
         <source>Interpolate resampling</source>
-        <translation type="unfinished"></translation>
+        <translation>Interpolar a reamostragem</translation>
     </message>
     <message>
         <source>Linear</source>
-        <translation type="unfinished"></translation>
+        <translation>Linear</translation>
     </message>
     <message>
         <source>Cosine</source>
-        <translation type="unfinished"></translation>
+        <translation>Coseno</translation>
     </message>
     <message>
         <source>Third</source>
-        <translation type="unfinished"></translation>
+        <translation>Terceira</translation>
     </message>
     <message>
         <source>Cubic</source>
-        <translation type="unfinished"></translation>
+        <translation>Cúbica</translation>
     </message>
     <message>
         <source>Hermite</source>
-        <translation type="unfinished"></translation>
+        <translation>Hermite</translation>
     </message>
     <message>
         <source>Default interface layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Layout de interface padrão</translation>
     </message>
     <message>
         <source>Single pane</source>
-        <translation type="unfinished"></translation>
+        <translation>Único painel</translation>
     </message>
     <message>
         <source>Tabbed</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabbed</translation>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>TextoEtiqueta</translation>
     </message>
     <message>
         <source>Coloring method for Song Editor elements</source>
-        <translation type="unfinished"></translation>
+        <translation> Método de coloração para elementos do Editor de Músicas</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;After changing a font or the interface layout the application must be restarted.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Depois de alterar uma fonte ou o layout da interface, o aplicativo deve ser reiniciado.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Use relative paths for playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Use caminhos relativos para Lista de Reprodução</translation>
     </message>
     <message>
         <source>Use output note as input note</source>
-        <translation type="unfinished"></translation>
+        <translation>Use a nota de saída como nota de entrada</translation>
     </message>
     <message>
         <source>Discard midi messages after action has been triggered</source>
-        <translation type="unfinished"></translation>
+        <translation>Descartar mensagens midi após a ação ter sido disparada</translation>
     </message>
     <message>
         <source>Create per-instrument outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Criar saídas por instrumento</translation>
     </message>
     <message>
         <source>Enable feedback</source>
-        <translation type="unfinished"></translation>
+        <translation>Ativar feedback</translation>
     </message>
     <message>
         <source>&amp;OSC</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;OSC</translation>
     </message>
     <message>
         <source>&amp;Enable OSC support</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Habilitar suporte OSC</translation>
     </message>
     <message>
         <source>Incoming port</source>
-        <translation type="unfinished"></translation>
+        <translation>Porta de entrada</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Porta que será usada para receber mensagens OSC de entrada&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable OSC &amp;feedback</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilitar fedback OSC</translation>
     </message>
 </context>
 <context>
@@ -2661,27 +2661,29 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <message>
         <source>Unsaved changes left. This changes will be lost. 
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Mudanças não salvas deixadas. Estas mudanças serão perdidas.
+Está certo disto?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ok</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
         <source>Close dialog! maybe there is some unsaved work on sample.
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Fechar caixa de diálogo! Talvez haja algum trabalho não salvo na amostra.
+Está certo disto?</translation>
     </message>
 </context>
 <context>
     <name>SampleEditor_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diálogo</translation>
     </message>
     <message>
         <source>P&amp;lay original sample</source>
