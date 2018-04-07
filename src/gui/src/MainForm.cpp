@@ -758,6 +758,7 @@ void MainForm::action_file_openPattern()
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
+	int selectedPatternPosition = pEngine->getSelectedPatternNumber();
 
 	Instrument *instr = pSong->get_instrument_list()->get ( 0 );
 	assert ( instr );
@@ -793,7 +794,8 @@ void MainForm::action_file_openPattern()
 			pNewPattern->set_name( pPatternList->find_unused_pattern_name( pNewPattern->get_name() ) );
 		}
 
-		pPatternList->add ( pNewPattern );
+		pPatternList->insert( selectedPatternPosition + 1, pNewPattern );
+		pEngine->setSelectedPatternNumber( selectedPatternPosition + 1 );
 		pSong->set_is_modified( true );
 		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
 	}
