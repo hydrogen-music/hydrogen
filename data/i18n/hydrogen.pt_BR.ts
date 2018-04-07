@@ -2687,227 +2687,227 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>P&amp;lay original sample</source>
-        <translation type="unfinished"></translation>
+        <translation>R&amp;eproduzir amostra original</translation>
     </message>
     <message>
         <source>&amp;Apply Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Aplicar Mudanças</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Fechar</translation>
+        <translation>&amp;Fechar</translation>
     </message>
     <message>
         <source>Adjust sample start frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajuste o quadro inicial da amostra</translation>
     </message>
     <message>
         <source>Adjust sample loop begin frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustar o quadro inicial do loop de amostra</translation>
     </message>
     <message>
         <source>set processing</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustar processamento</translation>
     </message>
     <message>
         <source>forward</source>
-        <translation type="unfinished"></translation>
+        <translation>Para frente</translation>
     </message>
     <message>
         <source>reverse</source>
-        <translation type="unfinished"></translation>
+        <translation>Reverso</translation>
     </message>
     <message>
         <source>pingpong</source>
-        <translation type="unfinished"></translation>
+        <translation>pingpong</translation>
     </message>
     <message>
         <source>loops</source>
-        <translation type="unfinished"></translation>
+        <translation>loops</translation>
     </message>
     <message>
         <source>Adjust sample end &amp; loop end frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustar o quadro final do loop &amp; final da amostra</translation>
     </message>
     <message>
         <source>&amp;Play</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Reproduzir</translation>
     </message>
     <message>
         <source>new sample length:</source>
-        <translation type="unfinished"></translation>
+        <translation>novo comprimento da amostra:</translation>
     </message>
     <message>
         <source>fade-out type</source>
-        <translation type="unfinished"></translation>
+        <translation>tipo de fade-out</translation>
     </message>
     <message>
         <source>volume</source>
-        <translation type="unfinished"></translation>
+        <translation>volume</translation>
     </message>
     <message>
         <source>panorama</source>
-        <translation type="unfinished"></translation>
+        <translation>panorama</translation>
     </message>
     <message>
         <source>Sample length to beat:</source>
-        <translation type="unfinished"></translation>
+        <translation>Comprimento da amostra a bater:</translation>
     </message>
     <message>
         <source>off</source>
-        <translation type="unfinished"></translation>
+        <translation>Desligado</translation>
     </message>
     <message>
         <source>1/64</source>
-        <translation type="unfinished"></translation>
+        <translation>1/64</translation>
     </message>
     <message>
         <source>1/32</source>
-        <translation type="unfinished"></translation>
+        <translation>1/32</translation>
     </message>
     <message>
         <source>1/16</source>
-        <translation type="unfinished"></translation>
+        <translation1/16</translation>
     </message>
     <message>
         <source>1/8</source>
-        <translation type="unfinished"></translation>
+        <translation>1/8</translation>
     </message>
     <message>
         <source>1/4</source>
-        <translation type="unfinished"></translation>
+        <translation>1/4></translation>
     </message>
     <message>
         <source>1/2</source>
-        <translation type="unfinished"></translation>
+        <translation>1/2</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>2</source>
-        <translation type="unfinished"></translation>
+        <translation>2</translation>
     </message>
     <message>
         <source>3</source>
-        <translation type="unfinished"></translation>
+        <translation>3</translation>
     </message>
     <message>
         <source>4</source>
-        <translation type="unfinished"></translation>
+        <translation>4</translation>
     </message>
     <message>
         <source>5</source>
-        <translation type="unfinished"></translation>
+        <translation>5</translation>
     </message>
     <message>
         <source>6</source>
-        <translation type="unfinished"></translation>
+        <translation>6</translation>
     </message>
     <message>
         <source>7</source>
-        <translation type="unfinished"></translation>
+        <translation>7</translation>
     </message>
     <message>
         <source>8</source>
-        <translation type="unfinished"></translation>
+        <translation>8</translation>
     </message>
     <message>
         <source>9</source>
-        <translation type="unfinished"></translation>
+        <translation>9</translation>
     </message>
     <message>
         <source>10</source>
-        <translation type="unfinished"></translation>
+        <translation>10</translation>
     </message>
     <message>
         <source>11</source>
-        <translation type="unfinished"></translation>
+        <translation>11</translation>
     </message>
     <message>
         <source>12</source>
-        <translation type="unfinished"></translation>
+        <translation>12</translation>
     </message>
     <message>
         <source>13</source>
-        <translation type="unfinished"></translation>
+        <translation>13</translation>
     </message>
     <message>
         <source>14</source>
-        <translation type="unfinished"></translation>
+        <translation>14</translation>
     </message>
     <message>
         <source>15</source>
-        <translation type="unfinished"></translation>
+        <translation>15</translation>
     </message>
     <message>
         <source>16</source>
-        <translation type="unfinished"></translation>
+        <translation>16</translation>
     </message>
     <message>
         <source>17</source>
-        <translation type="unfinished"></translation>
+        <translation>17</translation>
     </message>
     <message>
         <source>18</source>
-        <translation type="unfinished"></translation>
+        <translation>18</translation>
     </message>
     <message>
         <source>19</source>
-        <translation type="unfinished"></translation>
+        <translation>19</translation>
     </message>
     <message>
         <source>20</source>
-        <translation type="unfinished"></translation>
+        <translation>20</translation>
     </message>
     <message>
         <source>21</source>
-        <translation type="unfinished"></translation>
+        <translation>21</translation>
     </message>
     <message>
         <source>22</source>
-        <translation type="unfinished"></translation>
+        <translation>22</translation>
     </message>
     <message>
         <source>23</source>
-        <translation type="unfinished"></translation>
+        <translation>23</translation>
     </message>
     <message>
         <source>24</source>
-        <translation type="unfinished"></translation>
+        <translation>24</translation>
     </message>
     <message>
         <source>25</source>
-        <translation type="unfinished"></translation>
+        <translation>25</translation>
     </message>
     <message>
         <source>26</source>
-        <translation type="unfinished"></translation>
+        <translation>26</translation>
     </message>
     <message>
         <source>27</source>
-        <translation type="unfinished"></translation>
+        <translation>27</translation>
     </message>
     <message>
         <source>28</source>
-        <translation type="unfinished"></translation>
+        <translation>28</translation>
     </message>
     <message>
         <source>29</source>
-        <translation type="unfinished"></translation>
+        <translation>29</translation>
     </message>
     <message>
         <source>30</source>
-        <translation type="unfinished"></translation>
+        <translation>30</translation>
     </message>
     <message>
         <source>31</source>
-        <translation type="unfinished"></translation>
+        <translation>31</translation>
     </message>
     <message>
         <source>32</source>
-        <translation type="unfinished"></translation>
+        <translation>32</translation>
     </message>
     <message>
         <source>Pitch the sample in semitones, cents</source>
