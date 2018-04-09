@@ -864,92 +864,72 @@ int LocalFileMng::loadPlayList( const std::string& filename)
 
 /* New QtXml based methods */
 
-QString LocalFileMng::readXmlString( QDomNode node , const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
+QString LocalFileMng::processNode( QDomNode node, const QString& nodeName, bool bCanBeEmpty, bool bShouldExists )
 {
 	QDomElement element = node.firstChildElement( nodeName );
 
-	if( !node.isNull() && !element.isNull() ){
-		if(  !element.text().isEmpty() ){
-			return element.text();
+	if ( !node.isNull() && !element.isNull() ) {
+		QString text = element.text();
+		if( !text.isEmpty() ) {
+			return text;
 		} else {
 			if ( !bCanBeEmpty ) {
-				_WARNINGLOG( "Using default value in " + nodeName );
+				_WARNINGLOG( "node '" + nodeName + "' is empty" );
 			}
-			return defaultValue;
 		}
 	} else {
-		if(  bShouldExists ){
-			_WARNINGLOG( "'" + nodeName + "' node not found" );
-
+		if (  bShouldExists ) {
+			_WARNINGLOG( "node '" + nodeName + "' is not found" );
 		}
+	}
+	return NULL;
+}
+
+QString LocalFileMng::readXmlString( QDomNode node , const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
+{
+	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
+	if ( text == NULL ) {
+		_WARNINGLOG( QString( "\tusing default value : '%1'" ).arg( defaultValue  ) );
 		return defaultValue;
+	} else {
+		return text;
 	}
 }
 
 float LocalFileMng::readXmlFloat( QDomNode node , const QString& nodeName, float defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
-	QLocale c_locale = QLocale::c();
-	QDomElement element = node.firstChildElement( nodeName );
-
-	if( !node.isNull() && !element.isNull() ){
-		if(  !element.text().isEmpty() ){
-			return c_locale.toFloat(element.text());
-		} else {
-			if ( !bCanBeEmpty ) {
-				_WARNINGLOG( "Using default value in " + nodeName );
-			}
-			return defaultValue;
-		}
-	} else {
-		if(  bShouldExists ){
-			_WARNINGLOG( "'" + nodeName + "' node not found" );
-		}
+	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
+	if ( text == NULL ) {
+		_WARNINGLOG( QString( "\tusing default value : '%1'" ).arg( defaultValue  ) );
 		return defaultValue;
+	} else {
+		return QLocale::c().toFloat( text );
 	}
 }
 
 int LocalFileMng::readXmlInt( QDomNode node , const QString& nodeName, int defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
-	QLocale c_locale = QLocale::c();
-	QDomElement element = node.firstChildElement( nodeName );
-
-	if( !node.isNull() && !element.isNull() ){
-		if(  !element.text().isEmpty() ){
-			return c_locale.toInt( element.text() );
-		} else {
-			if ( !bCanBeEmpty ) {
-				_WARNINGLOG( "Using default value in " + nodeName );
-			}
-			return defaultValue;
-		}
-	} else {
-		if(  bShouldExists ){
-			_WARNINGLOG( "'" + nodeName + "' node not found" );
-		}
+	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
+	if ( text == NULL ) {
+		_WARNINGLOG( QString( "\tusing default value : '%1'" ).arg( defaultValue  ) );
 		return defaultValue;
+	} else {
+		return QLocale::c().toInt( text );
 	}
 }
 
 bool LocalFileMng::readXmlBool( QDomNode node , const QString& nodeName, bool defaultValue, bool bShouldExists, bool tinyXmlCompatMode)
 {
-	QDomElement element = node.firstChildElement( nodeName );
-
-	if( !node.isNull() && !element.isNull() ){
-		if(  !element.text().isEmpty() ){
-			if( element.text() == "true"){
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			_WARNINGLOG( "Using default value in " + nodeName );
-			return defaultValue;
-		}
-	} else {
-		if(  bShouldExists ){
-			_WARNINGLOG( "'" + nodeName + "' node not found" );
-		}
+	QString text = processNode( node, nodeName, bShouldExists, bShouldExists );
+	if ( text == NULL ) {
+		_WARNINGLOG( QString( "\tusing default value : '%1'" ).arg( defaultValue  ) );
 		return defaultValue;
+	} else {
+		if ( text == "true") {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
 

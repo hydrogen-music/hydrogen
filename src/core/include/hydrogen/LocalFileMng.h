@@ -93,6 +93,7 @@ public:
 
 private:
 	std::vector<QString> m_allPatternList;
+	static QString processNode( QDomNode node, const QString& nodeName, bool bCanBeEmpty, bool bShouldExists );
 };
 
 
