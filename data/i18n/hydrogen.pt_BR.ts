@@ -3481,38 +3481,38 @@ Sobrescrever o padrão existente?</translation>
     <name>SoundLibraryOpenDialog</name>
     <message>
         <source>Open Sound Library</source>
-        <translation>Biblioteca Open Sound</translation>
+        <translation>Abrir Biblioteca de Som</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished">Carregar</translation>
+        <translation>Carregar</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryPanel</name>
     <message>
         <source>Load</source>
-        <translation type="unfinished">Carregar</translation>
+        <translation>Carregar</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Exportar</translation>
+        <translation>Exportar</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Remover</translation>
+        <translation>Remover</translation>
     </message>
     <message>
         <source>System drumkits</source>
-        <translation type="unfinished"></translation>
+        <translation>Drumkits do sistema</translation>
     </message>
     <message>
         <source>User drumkits</source>
-        <translation type="unfinished"></translation>
+        <translation>Drumkits do usuário</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
