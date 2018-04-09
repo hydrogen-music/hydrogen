@@ -3520,28 +3520,29 @@ Sobrescrever o padrão existente?</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
         <source>Songs</source>
-        <translation type="unfinished"></translation>
+        <translation>Músicas</translation>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished">Padr�s</translation>
+        <translation>Padrões</translation>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation type="unfinished">Erro carregando msica.</translation>
+        <translation>Erro carregando música.</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation type="unfinished">Propriedades</translation>
+        <translation>Propriedades</translation>
     </message>
     <message>
         <source>Warning, the selected pattern will be deleted from disk.
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Aviso, o padrão selecionado será deletado do disco.
+Está certo disto?</translation>
     </message>
     <message>
         <source>It is not possible to delete the currently loaded drumkit: 
