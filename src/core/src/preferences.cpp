@@ -1024,6 +1024,7 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleDepth", QString("%1").arg( m_nExportSampleDepth ) );
 		LocalFileMng::writeXmlString( guiNode, "exportDialogDirectory", m_sExportDirectory );
 
+		LocalFileMng::writeXmlBool( guiNode, "followPlayhead", m_bFollowPlayhead );
 
 		//beatcounter
 		QString bcMode;
