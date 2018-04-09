@@ -3548,211 +3548,217 @@ Está certo disto?</translation>
         <source>It is not possible to delete the currently loaded drumkit: 
   &quot;%1&quot;.
 To delete this drumkit first load another drumkit.</source>
-        <translation></translation>
+        <translation>Não é possível deletar o drumkit carregado atualmente: 
+  &quot;%1&quot;.
+Para deletar este drumkit, carregue antes outro drumkit.
+</translation>
     </message>
     <message>
         <source>&quot;%1&quot;is a system drumkit and can&apos;t be deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot;é um drumkit do sistema e não pode ser deletado.</translation>
     </message>
     <message>
         <source>Warning, the &quot;%1&quot; drumkit will be deleted from disk.
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Aviso, o drumkit &quot;%1&quot; drumkit será deletado do disco.
+Está certo disto?</translation>
     </message>
     <message>
         <source>Drumkit deletion failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Remoção do drumkit falhou.</translation>
     </message>
     <message>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Manter</translation>
     </message>
     <message>
         <source>The existing kit has %1 instruments but the new one only has %2.
 The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
 Would you like to keep or discard the remaining instruments and notes?
 </source>
-        <translation type="unfinished"></translation>
+        <translation>O kit existente possui %1 instrumentos, mas o novo possui apenas %2.
+Os primeiros %2 instrumentos serão substituídos pelos novos instrumentos e manterão suas notas, mas alguns dos instrumentos restantes têm notas.
+Você gostaria de manter ou descartar os instrumentos e anotações restantes?</translation>
     </message>
     <message>
         <source>Double click to expand the list</source>
-        <translation type="unfinished"></translation>
+        <translation>Clique duplo pra expandir a lista</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryPropertiesDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diálogo</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Autor</translation>
+        <translation>Autor</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informação</translation>
     </message>
     <message>
         <source>Save </source>
-        <translation type="unfinished"></translation>
+        <translation>Salvar </translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
     <message>
         <source>Save changes made to instruments into sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvar mudanças feitas a instrumentos na biblioteca de som</translation>
     </message>
     <message>
         <source>Drumkit License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licença do drumkit</translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Imagem</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Procurar</translation>
+        <translation>Procurar</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licença da imagem</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryRepositoryDialog</name>
     <message>
         <source>Edit repository settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar configurações do repositório</translation>
     </message>
     <message>
         <source>Edit server list</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar lista dos servidores</translation>
     </message>
     <message>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryRepositoryDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diálogo</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Remover</translation>
+        <translation>Remover</translation>
     </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog</name>
     <message>
         <source>Save Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvar biblioteca de Som</translation>
     </message>
     <message>
         <source>Please supply at least a valid name</source>
-        <translation type="unfinished"></translation>
+        <translation>Por favor, forneça pelo menos um nome válido</translation>
     </message>
     <message>
         <source>A library with the same name already exists. Do you want to overwrite the existing library?</source>
-        <translation type="unfinished"></translation>
+        <translation>Uma biblioteca com o mesmo nome já existe. Deseja sobrescrever a biblioteca existente?</translation>
     </message>
     <message>
         <source>Saving of this library failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Falha ao salvar esta biblioteca.</translation>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir Imagem</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Arquivos de imagens (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
     <name>SoundLibrarySaveDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diálogo</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Autor</translation>
+        <translation>Autor</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Informação</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
     <message>
         <source>License</source>
-        <translation type="unfinished">Lincen�</translation>
+        <translation>Lincença</translation>
     </message>
     <message>
         <source>Save </source>
-        <translation type="unfinished"></translation>
+        <translation>Salvar </translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Imagem</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Procurar</translation>
+        <translation>Procurar</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Licença da Imagem</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryTree</name>
     <message>
         <source>Sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Biblioteca de Som</translation>
     </message>
 </context>
 <context>
     <name>VirtualPatternDialog</name>
     <message>
         <source>Select virtual pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecione um padrão virtual</translation>
     </message>
 </context>
 <context>
     <name>VirtualPatternDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diálogo</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
 </context>
 </TS>
