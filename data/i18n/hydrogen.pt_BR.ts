@@ -517,7 +517,7 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>Enable tempo changing</source>
-        <translation>Habilitar mudança de tempo</translation>
+        <translation>Ativar mudança de tempo</translation>
     </message>
     <message>
         <source>TimeLine BPM</source>
@@ -529,7 +529,7 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>Enable use of rubberband&apos;s batch processor</source>
-        <translation>Habilitar o uso de processador Rubberband em lote</translation>
+        <translation>Ativar o uso de processador Rubberband em lote</translation>
     </message>
     <message>
         <source>Rubberband Batch</source>
@@ -783,7 +783,7 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>Mute instrument</source>
-        <translation>Mutar instrumento</translation>
+        <translation>Silenciar instrumento</translation>
     </message>
     <message>
         <source>Solo</source>
@@ -2264,7 +2264,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Please restart hydrogen to enable/disable LASH support</source>
-        <translation>Por favor, reinicie o Hydrogen para habilitar/desabilitar o suporte ao LASH</translation>
+        <translation>Por favor, reinicie o Hydrogen para ativar/desativar o suporte ao LASH</translation>
     </message>
     <message>
         <source>Driver restart required.
@@ -2641,7 +2641,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>&amp;Enable OSC support</source>
-        <translation>&amp;Habilitar suporte OSC</translation>
+        <translation>&amp;Ativar suporte OSC</translation>
     </message>
     <message>
         <source>Incoming port</source>
@@ -2653,7 +2653,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Enable OSC &amp;feedback</source>
-        <translation>Habilitar fedback OSC</translation>
+        <translation>Ativar fedback OSC</translation>
     </message>
 </context>
 <context>
@@ -2911,23 +2911,23 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>Pitch the sample in semitones, cents</source>
-        <translation type="unfinished"></translation>
+        <translation>Afina a amostra em semitons, cents</translation>
     </message>
     <message>
         <source>Crispness: </source>
-        <translation type="unfinished"></translation>
+        <translation>Nitidez: </translation>
     </message>
     <message>
         <source>0</source>
-        <translation type="unfinished"></translation>
+        <translation>0</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Iniciar</translation>
     </message>
     <message>
         <source>Loop</source>
-        <translation type="unfinished"></translation>
+        <translation>Loop</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -2936,7 +2936,12 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;mode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;mode&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -2945,19 +2950,24 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Count&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans&apos;; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Loop&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;Count&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>End</source>
-        <translation type="unfinished"></translation>
+        <translation>Fim</translation>
     </message>
     <message>
         <source>&quot;Rubberband Audio Processor&quot; : Change the tempo (sample length) and pitch of audio.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Processador de Audio Rubberband&quot; Mude o tempo (comprimento da amostra) e o tom do audio.</translation>
     </message>
     <message>
         <source> Pitch (Semitone,Cent)</source>
-        <translation type="unfinished"></translation>
+        <translation>Afinação (Semiton, Cent)</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -2974,489 +2984,504 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;you can find more information here:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&quot;Crispness&quot; levels:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  0   equivalent to --no-transients --no-lamination --window-long&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  1   equivalent to --no-transients --no-lamination&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  2   equivalent to --no-transients&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  3   equivalent to --bl-transients&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  4   default processing options&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;  5   equivalent to --no-lamination --window-short (may be good for drums)&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;você pode achar mais informação aqui:&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;http://www.breakfastquay.com/rubberband/ &quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.breakfastquay.com/rubberband/ &lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
     <name>SimpleHTMLBrowser</name>
     <message>
         <source>Manual</source>
-        <translation type="unfinished">Manual</translation>
+        <translation>Manual</translation>
     </message>
     <message>
         <source>Welcome to Hydrogen</source>
-        <translation type="unfinished">Bem vindo ao Hydrogen</translation>
+        <translation>Bem-vindo ao Hydrogen</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">Ok</translation>
+        <translation>Ok</translation>
     </message>
     <message>
         <source>Documentation index</source>
-        <translation type="unfinished">�dice de documenta�o</translation>
+        <translation>Índice de documentação</translation>
     </message>
     <message>
         <source>Don&apos;t show this message anymore</source>
-        <translation type="unfinished"></translation>
+        <translation>Não mostrar mais esta mensagem</translation>
     </message>
 </context>
 <context>
     <name>SongEditorPanel</name>
     <message>
         <source>Song Editor</source>
-        <translation type="unfinished">Editor de msica</translation>
+        <translation>Editor de música</translation>
     </message>
     <message>
         <source>Create new pattern</source>
-        <translation type="unfinished">Criar novo padr�</translation>
+        <translation>Criar novo padrão</translation>
     </message>
     <message>
         <source>Move the selected pattern down</source>
-        <translation type="unfinished">Mover o padr� selecionado para baixo</translation>
+        <translation>Mover o padrão selecionado para baixo</translation>
     </message>
     <message>
         <source>Move the selected pattern up</source>
-        <translation type="unfinished">Mover o padr� selecionado para cima</translation>
+        <translation>Mover o padrão selecionado para cima</translation>
     </message>
     <message>
         <source>Clear pattern sequence</source>
-        <translation type="unfinished">Limpar sequ�cia de padr�s</translation>
+        <translation>Limpar sequência de padrões</translation>
     </message>
     <message>
         <source>Select mode</source>
-        <translation type="unfinished">Selecionar modo</translation>
+        <translation>Selecionar modo</translation>
     </message>
     <message>
         <source>Draw mode</source>
-        <translation type="unfinished">Modo desenho</translation>
+        <translation>Modo desenho</translation>
     </message>
     <message>
         <source>Warning, this will erase your pattern sequence.
 Are you sure?</source>
-        <translation type="unfinished">Aten�o, a sequ�cia de padr�s ser�apagada</translation>
+        <translation>Atenção, isto apagará sua sequência de padrões
+Está certo disto?</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ok</translation>
     </message>
     <message>
         <source>stacked mode</source>
-        <translation type="unfinished"></translation>
+        <translation>modo empilhado</translation>
     </message>
     <message>
         <source>stacked pattern mode</source>
-        <translation type="unfinished"></translation>
+        <translation>modo padrão empilhado</translation>
     </message>
     <message>
         <source>single pattern mode</source>
-        <translation type="unfinished"></translation>
+        <translation>modo padrão único</translation>
     </message>
     <message>
         <source>Enable time line edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Ativar edição de linha do tempo</translation>
     </message>
     <message>
         <source>Pattern %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Padrão %1</translation>
     </message>
     <message>
         <source>View playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizar faixa de reprodução</translation>
     </message>
     <message>
         <source>Mute playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Silenciar faixa de reprodução</translation>
     </message>
     <message>
         <source>Choose playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Escolher faixa de reprodução</translation>
     </message>
     <message>
         <source>View timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Visualizar linha do tempo</translation>
     </message>
     <message>
         <source>Adjust parameter values in time</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustar valores dos parâmetros no tempo</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocidade</translation>
     </message>
     <message>
         <source>Select playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecionar faixa de reprodução</translation>
     </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Forma</translation>
     </message>
     <message>
         <source>Edit the bpm value for current beat</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar o valor do BPM para batida atual</translation>
     </message>
     <message>
         <source>500,55</source>
-        <translation type="unfinished"></translation>
+        <translation>500,55</translation>
     </message>
     <message>
         <source>Edit beat in timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar batida na linha do tempo</translation>
     </message>
     <message>
         <source>500</source>
-        <translation type="unfinished"></translation>
+        <translation>500</translation>
     </message>
     <message>
         <source>Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Barra</translation>
     </message>
     <message>
         <source>BPM</source>
-        <translation type="unfinished"></translation>
+        <translation>BPM</translation>
     </message>
     <message>
         <source>Delete this BPM Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Deletar este Marcador de BPM</translation>
     </message>
     <message>
         <source>Delete BPM Marker</source>
-        <translation type="unfinished"></translation>
+        <translation>Deletar Marcador de BPM</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">Ok</translation>
+        <translation>Ok</translation>
     </message>
 </context>
 <context>
     <name>SongEditorPanelTagWidget_UI</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation>Forma</translation>
     </message>
     <message>
         <source>Tag</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiqueta</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">Ok</translation>
+        <translation>Ok</translation>
     </message>
 </context>
 <context>
     <name>SongEditorPatternList</name>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Copiar</translation>
+        <translation>Copiar</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Remover</translation>
+        <translation>Remover</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation type="unfinished">Propriedades</translation>
+        <translation>Propriedades</translation>
     </message>
     <message>
         <source>Fill/Clear ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Preencher/Limpar ...</translation>
     </message>
     <message>
         <source>Save Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvar Padrão</translation>
     </message>
     <message>
         <source>Load Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Carregar Padrão</translation>
     </message>
     <message>
         <source>Open Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir Padrão</translation>
     </message>
     <message>
         <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation type="unfinished"></translation>
+        <translation>Padrão Hydrogen (*.h2pattern)</translation>
     </message>
     <message>
         <source>Virtual Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Padrão Virtual</translation>
     </message>
     <message>
         <source>Pattern 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Padrão 1</translation>
     </message>
     <message>
         <source>not_categorized</source>
-        <translation type="unfinished"></translation>
+        <translation>não_categorizado</translation>
     </message>
     <message>
         <source>The pattern-file exists. 
 Overwrite the existing pattern?</source>
-        <translation type="unfinished"></translation>
+        <translation>O padrão-arquivo existe.
+Sobrescrever o padrão existente?</translation>
     </message>
     <message>
         <source>&amp;Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Ok</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
         <source>Export Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar Padrão</translation>
     </message>
 </context>
 <context>
     <name>SongPropertiesDialog</name>
     <message>
         <source>Song properties</source>
-        <translation type="unfinished">Propriedades da msica</translation>
+        <translation>Propriedades da música</translation>
     </message>
 </context>
 <context>
     <name>SongPropertiesDialog_UI</name>
     <message>
         <source>Song name</source>
-        <translation type="unfinished">Nome da msica</translation>
+        <translation>Nome da música</translation>
     </message>
     <message>
         <source>Author</source>
-        <translation type="unfinished">Autor</translation>
+        <translation>Autor</translation>
     </message>
     <message>
         <source>Notes</source>
-        <translation type="unfinished">Notas</translation>
+        <translation>Notas</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
         <source>Form1</source>
-        <translation type="unfinished"></translation>
+        <translation>Form1</translation>
     </message>
     <message>
         <source> &amp;OK</source>
-        <translation type="unfinished"></translation>
+        <translation> &amp;OK</translation>
     </message>
     <message>
         <source>Alt+O</source>
-        <translation type="unfinished">Alt+O</translation>
+        <translation>Alt+O</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
     <message>
         <source>License</source>
-        <translation type="unfinished">Lincen�</translation>
+        <translation>Lincença</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryExportDialog</name>
     <message>
         <source>Export Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar biblioteca de som</translation>
     </message>
     <message>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Diretório</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryExportDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diálogo</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">Exportar</translation>
+        <translation>Exportar</translation>
     </message>
     <message>
         <source>Drumkit</source>
-        <translation type="unfinished"></translation>
+        <translation>Drumkit</translation>
     </message>
     <message>
         <source>Component</source>
-        <translation type="unfinished"></translation>
+        <translation>Component</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Caminho</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Versão</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Procurar...</translation>
+        <translation>Procurar...</translation>
     </message>
     <message>
         <source>0.9.7 and higher</source>
-        <translation type="unfinished"></translation>
+        <translation>0.9.7 e mais recente</translation>
     </message>
     <message>
         <source>0.9.6 and lower</source>
-        <translation type="unfinished"></translation>
+        <translation>0.9.6 e mais antiga</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryImportDialog</name>
     <message>
         <source>Sound Library import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importar biblioteca de som</translation>
     </message>
     <message>
         <source>Sound library</source>
-        <translation type="unfinished"></translation>
+        <translation>Biblioteca de som</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
         <source>Updating SoundLibrary list...</source>
-        <translation type="unfinished"></translation>
+        <translation>Atualizando lista de Bibliotecas de Som</translation>
     </message>
     <message>
         <source>Installed</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalado</translation>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished">Novo</translation>
+        <translation>Novo</translation>
     </message>
     <message>
         <source>Author: %1</source>
-        <translation type="unfinished">Autor: %1</translation>
+        <translation>Autor: %1</translation>
     </message>
     <message>
         <source>Downloading SoundLibrary...</source>
-        <translation type="unfinished"></translation>
+        <translation>Baixando Biblioteca de Som</translation>
     </message>
     <message>
         <source>Import drumkit</source>
-        <translation type="unfinished">Importar Kit de Bateria</translation>
+        <translation>Importar drumkit</translation>
     </message>
     <message>
         <source>SoundLibrary imported in %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Biblioteca de som importada em %1</translation>
     </message>
     <message>
         <source>An error occurred importing the SoundLibrary.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocorreu um erro ao importar Biblioteca de Som</translation>
     </message>
     <message>
         <source>Drumkits</source>
-        <translation type="unfinished"></translation>
+        <translation>Drumkits</translation>
     </message>
     <message>
         <source>Songs</source>
-        <translation type="unfinished"></translation>
+        <translation>Músicas</translation>
     </message>
     <message>
         <source>Patterns</source>
-        <translation type="unfinished">Padr�s</translation>
+        <translation>Padrões</translation>
     </message>
     <message>
         <source>Drumkit License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Licença do drukit</translation>
     </message>
     <message>
         <source>Image License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Licença da imagem: %1</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryImportDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Diálogo</translation>
     </message>
     <message>
         <source>Internet</source>
-        <translation type="unfinished"></translation>
+        <translation>Internet</translation>
     </message>
     <message>
         <source>Update list</source>
-        <translation type="unfinished"></translation>
+        <translation>Atualizar lista</translation>
     </message>
     <message>
         <source>Sound Library Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome da Biblioteca de Som</translation>
     </message>
     <message>
         <source>Author...</source>
-        <translation type="unfinished"></translation>
+        <translation>Autor...</translation>
     </message>
     <message>
         <source>Download and install</source>
-        <translation type="unfinished"></translation>
+        <translation>Baixar e instalar</translation>
     </message>
     <message>
         <source>Local file</source>
-        <translation type="unfinished"></translation>
+        <translation>Arquivo local</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Procurar...</translation>
+        <translation>Procurar...</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalar</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>Edit server list</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar lista de servidores</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Fechar</translation>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>Rótulo de texto</translation>
     </message>
     <message>
         <source>Image License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Licença da imagem...</translation>
     </message>
     <message>
         <source>Drumkit License...</source>
-        <translation type="unfinished"></translation>
+        <translation>Licença do Drumkit...</translation>
     </message>
 </context>
 <context>
     <name>SoundLibraryOpenDialog</name>
     <message>
         <source>Open Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Biblioteca Open Sound</translation>
     </message>
     <message>
         <source>Load</source>
