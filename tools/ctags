@@ -1,0 +1,4 @@
+#! /bin/bash
+OUTF=.tags
+[ -f $OUTF ] && rm $OUTF
+ctags --tag-relative=yes -h ".h.cpp" -R -o $OUTF src
