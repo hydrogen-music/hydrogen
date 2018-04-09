@@ -889,7 +889,7 @@ QString LocalFileMng::readXmlString( QDomNode node , const QString& nodeName, co
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
 	if ( text == NULL ) {
-		_WARNINGLOG( QString( "\tusing default value : '%1'" ).arg( defaultValue ) );
+		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ) );
 		return defaultValue;
 	} else {
 		return text;
@@ -900,7 +900,7 @@ float LocalFileMng::readXmlFloat( QDomNode node , const QString& nodeName, float
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
 	if ( text == NULL ) {
-		_WARNINGLOG( QString( "\tusing default value : '%1'" ).arg( defaultValue ) );
+		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ));
 		return defaultValue;
 	} else {
 		return QLocale::c().toFloat( text );
@@ -911,7 +911,7 @@ int LocalFileMng::readXmlInt( QDomNode node , const QString& nodeName, int defau
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
 	if ( text == NULL ) {
-		_WARNINGLOG( QString( "\tusing default value : '%1'" ).arg( defaultValue ) );
+		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ));
 		return defaultValue;
 	} else {
 		return QLocale::c().toInt( text );
@@ -922,7 +922,7 @@ bool LocalFileMng::readXmlBool( QDomNode node , const QString& nodeName, bool de
 {
 	QString text = processNode( node, nodeName, bShouldExists, bShouldExists );
 	if ( text == NULL ) {
-		_WARNINGLOG( QString( "\tusing default value : '%1'" ).arg( defaultValue ? "true" : "false" ) );
+		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ? "true" : "false" ).arg( nodeName ) );
 		return defaultValue;
 	} else {
 		if ( text == "true") {
