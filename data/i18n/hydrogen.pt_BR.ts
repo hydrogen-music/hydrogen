@@ -592,7 +592,7 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation&amp;Cancelar</translation>
+        <translation>&amp;Cancelar</translation>
     </message>
     <message>
         <source>This is not possible, you can only save changes inside instruments to the current loaded sound library</source>
