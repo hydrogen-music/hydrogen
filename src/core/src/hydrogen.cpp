@@ -1765,6 +1765,13 @@ Hydrogen::~Hydrogen()
 	if(pNsmClient){
 		pNsmClient->shutdown();
 	}
+	delete pNsmClient;
+#endif
+#ifdef H2CORE_HAVE_OSC
+	OscServer* pOscServer = OscServer::get_instance();
+	if(pNsmClient){
+		delete pOscServer;
+	}
 #endif
 
 
