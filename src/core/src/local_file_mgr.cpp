@@ -1198,6 +1198,8 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	// FIXME: verificare che il file non sia gia' esistente
 	// FIXME: effettuare copia di backup per il file gia' esistente
 
+	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
 
 	QDomDocument doc;
 	QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
@@ -1312,7 +1314,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			LocalFileMng::writeXmlString( componentNode, "component_id", QString("%1").arg( pComponent->get_drumkit_componentID() ) );
 			LocalFileMng::writeXmlString( componentNode, "gain", QString("%1").arg( pComponent->get_gain() ) );
 
-			for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+			for ( unsigned nLayer = 0; nLayer < MaxLayers; nLayer++ ) {
 				InstrumentLayer *pLayer = pComponent->get_layer( nLayer );
 
 				if ( pLayer == NULL ) continue;

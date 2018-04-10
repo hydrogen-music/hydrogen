@@ -89,6 +89,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QString saveDir = drumkitPathTxt->text();
 
 	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
 	QDir qdTempFolder( pref->getTmpDirectory() );
 	bool TmpFileCreated = false;
 
@@ -117,6 +118,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	}
 
 #if defined(H2CORE_HAVE_LIBARCHIVE)
+
 	QString fullDir = drumkitDir + "/" + drumkitName;
 	QDir sourceDir(fullDir);
 
@@ -159,7 +161,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 					for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
 						InstrumentComponent* component = *it;
 						if( component->get_drumkit_componentID() == componentID ){
-							for( int n = 0; n < MAX_LAYERS; n++ ) {
+							for( int n = 0; n < MaxLayers; n++ ) {
 								InstrumentLayer* layer = component->get_layer( n );
 								if( layer ) {
 									 if( layer->get_sample()->get_filename().compare(filesList.at(i)) == 0 ) {

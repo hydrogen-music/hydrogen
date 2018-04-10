@@ -1,6 +1,7 @@
 
 #include <hydrogen/helpers/legacy.h>
 
+#include <hydrogen/Preferences.h>
 #include <hydrogen/version.h>
 #include <hydrogen/helpers/xml.h>
 #include <hydrogen/basics/song.h>
@@ -48,6 +49,9 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 	pDrumkit->set_license( root.read_string( "license", "undefined license" ) );
 	pDrumkit->set_image( root.read_string( "image", "" ) );
 	pDrumkit->set_image_license( root.read_string( "imageLicense", "undefined license" ) );
+
+	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
 
 	XMLNode instruments_node = root.firstChildElement( "instrumentList" );
 	if ( instruments_node.isNull() ) {
@@ -150,8 +154,8 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 
 					XMLNode layer_node = instrument_node.firstChildElement( "layer" );
 					while ( !layer_node.isNull() ) {
-						if ( n >= MAX_LAYERS ) {
-							ERRORLOG( QString( "n >= MAX_LAYERS (%1)" ).arg( MAX_LAYERS ) );
+						if ( n >= MaxLayers ) {
+							ERRORLOG( QString( "n >= MaxLayeres (%1)" ).arg( MaxLayers ) );
 							break;
 						}
 						Sample* pSample = new Sample( dk_path+"/"+layer_node.read_string( "filename", "" ) );

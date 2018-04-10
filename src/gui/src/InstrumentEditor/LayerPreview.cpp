@@ -27,6 +27,7 @@
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/song.h>
+#include <hydrogen/Preferences.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_list.h>
@@ -58,10 +59,13 @@ LayerPreview::LayerPreview( QWidget* pParent )
 	setMouseTracking( true );
 
 //
+	Preferences *pref = Preferences::get_instance();
+	m_nMaxLayers = pref->getMaxLayers();
+
 	int w = 276;
-	if( MAX_LAYERS > 16)
+	if( m_nMaxLayers > 16)
 		w = 261;
-	int h = 20 + m_nLayerHeight * MAX_LAYERS;
+	int h = 20 + m_nLayerHeight * m_nMaxLayers;
 	resize( w, h );
 
 	m_speakerPixmap.load( Skin::getImagePath() + "/instrumentEditor/speaker.png" );
@@ -96,7 +100,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	p.fillRect( ev->rect(), QColor( 58, 62, 72 ) );
 
 	int nLayers = 0;
-	for ( int i = 0; i < MAX_LAYERS; i++ ) {
+	for ( int i = 0; i < m_nMaxLayers; i++ ) {
 		if ( m_pInstrument ) {
 			InstrumentComponent* p_compo = m_pInstrument->get_component(m_nSelectedComponent);
             if(p_compo) {
@@ -109,10 +113,11 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	}
 
 	int nLayer = 0;
-	for ( int i = MAX_LAYERS - 1; i >= 0; i-- ) {
+	for ( int i = m_nMaxLayers - 1; i >= 0; i-- ) {
 		int y = 20 + m_nLayerHeight * i;
+        QString filename = "<none>";
 
-		if ( m_pInstrument ) {
+        if ( m_pInstrument ) {
             InstrumentComponent* p_compo = m_pInstrument->get_component(m_nSelectedComponent);
             if(p_compo) {
                 InstrumentLayer *pLayer = p_compo->get_layer( i );
@@ -139,24 +144,31 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
                     p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 25, 44, 65 ) );
                     p.fillRect( x1, y, x2 - x1, m_nLayerHeight, QColor( 90, 160, 233 ) );
 
+                    // show numbers and filenames within layers
+                    Sample* pSample = pLayer->get_sample();
+                    if( pSample != NULL) { filename = pSample->get_filename(); }
+					
                     nLayer++;
                 }
                 else {
                     // layer view
                     p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 59, 73, 96 ) );
                 }
-			}
+            }
             else {
                 // layer view
                 p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 59, 73, 96 ) );
             }
-		}
+        }
 		else {
 			// layer view
 			p.fillRect( 0, y, width(), m_nLayerHeight, QColor( 59, 73, 96 ) );
 		}
 		p.setPen( QColor( 128, 134, 152 ) );
 		p.drawRect( 0, y, width() - 1, m_nLayerHeight );
+
+        // show numbers and filenames within layers
+        p.drawText( 10, y + 1, width() - 10, 20, Qt::AlignLeft, QString("%1: %2").arg(i + 1).arg(filename) );
 	}
 
 	// selected layer
@@ -196,7 +208,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	if ( m_pInstrument ) {
         InstrumentComponent* p_tmpCompo = m_pInstrument->get_component( m_nSelectedComponent );
         if(!p_tmpCompo) {
-            for(int i = 0 ; i<MAX_LAYERS ; i++) {
+            for(int i = 0 ; i<m_nMaxLayers ; i++) {
                 p_tmpCompo = m_pInstrument->get_component( i );
                 if(p_tmpCompo) {
                     m_nSelectedComponent = i;
@@ -209,7 +221,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 
 	// select the last valid layer
 	if ( m_pInstrument ) {
-		for (int i = MAX_LAYERS - 1; i >= 0; i-- ) {
+		for (int i = m_nMaxLayers - 1; i >= 0; i-- ) {
             InstrumentComponent* p_compo = m_pInstrument->get_component(m_nSelectedComponent);
             if ( p_compo ) {
                 if ( p_compo->get_layer( i ) ) {
@@ -280,7 +292,7 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 		note->set_specific_compo_id( m_nSelectedComponent );
 		AudioEngine::get_instance()->get_sampler()->note_on(note);
 
-		for ( int i = 0; i < MAX_LAYERS; i++ ) {
+		for ( int i = 0; i < m_nMaxLayers; i++ ) {
             InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);
             if(pCompo){
                 InstrumentLayer *pLayer = pCompo->get_layer( i );
@@ -379,7 +391,7 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 	}
 	else {
 		m_nSelectedLayer = ( ev->y() - 20 ) / m_nLayerHeight;
-		if ( m_nSelectedLayer < MAX_LAYERS ) {
+		if ( m_nSelectedLayer < m_nMaxLayers ) {
             InstrumentComponent* p_compo = m_pInstrument->get_component(m_nSelectedComponent);
             if(p_compo){
                 InstrumentLayer *pLayer = p_compo->get_layer( m_nSelectedLayer );

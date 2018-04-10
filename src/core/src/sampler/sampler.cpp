@@ -247,6 +247,9 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 {
 	//infoLog( "[renderNote] instr: " + pNote->getInstrument()->m_sName );
 	assert( pSong );
+	
+	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
 
 	unsigned int nFramepos;
 	Hydrogen* pEngine = Hydrogen::get_instance();
@@ -314,7 +317,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		else {
 			switch ( pInstr->sample_selection_alg() ) {
 				case Instrument::VELOCITY:
-					for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
+					for ( unsigned nLayer = 0; nLayer < MaxLayers; ++nLayer ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer == NULL ) continue;
 
@@ -341,9 +344,9 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 						}
 					}
 					if( pSample == NULL ) {
-						int __possibleIndex[MAX_LAYERS];
+						int __possibleIndex[MaxLayers];
 						int __poundSamples = 0;
-						for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
+						for ( unsigned nLayer = 0; nLayer < MaxLayers; ++nLayer ) {
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == NULL ) continue;
 
@@ -378,10 +381,10 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 						}
 					}
 					if( !pSample ) {
-						int __possibleIndex[MAX_LAYERS];
+						int __possibleIndex[MaxLayers];
 						int __foundSamples = 0;
 						float __roundRobinID;
-						for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
+						for ( unsigned nLayer = 0; nLayer < MaxLayers; ++nLayer ) {
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == NULL ) continue;
 

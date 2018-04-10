@@ -98,6 +98,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		H2Core::Instrument *m_pInstrument;
 		int m_nSelectedLayer;
 		int m_nSelectedComponent;
+		unsigned m_nMaxLayers;
 
 		ToggleButton *m_pShowInstrumentBtn;
 		ToggleButton *m_pShowLayersBtn;

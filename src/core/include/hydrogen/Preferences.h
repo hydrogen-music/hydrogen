@@ -306,6 +306,8 @@ public:
 	std::vector<QString> getLadspaPath();
 	void				setLadspaPath( std::vector<QString> pathVect );
 
+	int				getMaxLayers();
+	void				setMaxLayers(int value);
 
 	// GUI Properties
 	const QString&		getQTStyle();
@@ -468,6 +470,7 @@ private:
 	int					punchInPos;
 	int					punchOutPos;
 	int					maxBars;
+	int					maxLayers;
 	bool				hearNewNotes;
 
 	QStringList			m_recentFX;
@@ -919,6 +922,14 @@ inline void Preferences::setMaxBars( int bars ){
 
 inline int Preferences::getMaxBars(){
 	return maxBars;
+}
+
+inline void Preferences::setMaxLayers( int layers ){
+	maxLayers = layers;
+}
+
+inline int Preferences::getMaxLayers(){
+	return maxLayers;
 }
 
 inline void Preferences::setWaitForSessionHandler(bool value){

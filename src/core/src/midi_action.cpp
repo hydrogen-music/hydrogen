@@ -89,6 +89,9 @@ const char* MidiActionManager::__class_name = "ActionManager";
 MidiActionManager::MidiActionManager() : Object( __class_name ) {
 	__instance = this;
 
+	Preferences *pref = Preferences::get_instance();
+	unsigned MaxLayers = pref->getMaxLayers();
+
 	m_nLastBpmChangeCCParameter = -1;
 	/*
 		the actionMap holds all Action identifiers which hydrogen is able to interpret.
@@ -135,7 +138,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 	for(int i = 0; i < MAX_COMPONENTS; ++i) {
 		ostringstream componentToChar;
 		componentToChar << (i+1);
-		for(int j = 0; j < MAX_LAYERS; ++j) {
+		for(int j = 0; j < MaxLayers; ++j) {
 			targeted_element sample = {i,j};
 			ostringstream toChar;
 			toChar << (j+1);

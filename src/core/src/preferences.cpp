@@ -405,6 +405,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", false );
 			__useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
 			maxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
+			maxLayers = LocalFileMng::readXmlInt( rootNode, "maxLayers", 16 );
 			m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
 			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
@@ -787,6 +788,8 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "useTimeLine", __useTimelineBpm ? "true": "false" );
 
 	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( maxBars ) );
+
+	LocalFileMng::writeXmlString( rootNode, "maxLayers", QString::number( maxLayers ) );
 
 	LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( m_nDefaultUILayout ) );
 	LocalFileMng::writeXmlString( rootNode, "lastOpenTab", QString::number( m_nLastOpenTab ) );
