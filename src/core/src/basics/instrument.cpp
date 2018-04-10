@@ -121,7 +121,9 @@ Instrument::Instrument( Instrument* other )
 
 Instrument::~Instrument()
 {
-	__components->clear();
+	for (std::vector<InstrumentComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+		delete *it;
+	}
 	delete __components;
 
 	delete __adsr;
