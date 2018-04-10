@@ -76,7 +76,9 @@ Drumkit::Drumkit( Drumkit* other ) :
 
 Drumkit::~Drumkit()
 {
-	__components->clear();
+	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+		delete *it;
+	}
 	delete __components;
 
 	if( __instruments ) delete __instruments;
