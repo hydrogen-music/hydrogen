@@ -21,7 +21,7 @@
     </message>
     <message>
         <source>&lt;b&gt;Thanks to:&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Obrigado a&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Obrigado a:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
