@@ -381,7 +381,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pLayerScrollArea->move( 6, 44 );
 	m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	if ( MAX_LAYERS > 16)
+	if ( InstrumentComponent::getMaxLayers() > 16)
 		m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
 	m_pLayerScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pLayerScrollArea->setMaximumHeight( 182 );
@@ -846,7 +846,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 				}
 
 				int p_count = 0;
-				for( int n = 0; n < MAX_LAYERS; n++ ) {
+				for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 					InstrumentLayer* layer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( n );
 					if( layer )
 						p_count++;
@@ -918,7 +918,7 @@ void InstrumentEditor::loadLayer()
 		for(int i=2;i < filename.size();++i)
 		{
 			selectedLayer = m_nSelectedLayer + i - 2;
-			if( ( i-2 >= MAX_LAYERS ) || ( selectedLayer + 1  > MAX_LAYERS ) ) break;
+			if( ( i-2 >= InstrumentComponent::getMaxLayers() ) || ( selectedLayer + 1  > InstrumentComponent::getMaxLayers() ) ) break;
 
 			Sample *newSample = Sample::load( filename[i] );
 
@@ -981,9 +981,9 @@ void InstrumentEditor::loadLayer()
 
 void InstrumentEditor::setAutoVelocity()
 {
-	int layerInUse[ MAX_LAYERS ] = {0};
+	int layerInUse[ InstrumentComponent::getMaxLayers() ] = {0};
 	int layers = 0;
-	for ( int i = 0; i < MAX_LAYERS ; i++ ) {
+	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 		InstrumentLayer *pLayers = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
 		if ( pLayers ) {
 			layers++;
@@ -993,7 +993,7 @@ void InstrumentEditor::setAutoVelocity()
 
 	float velocityrange = 1.0 / layers;
 
-	for ( int i = 0; i < MAX_LAYERS ; i++ ) {
+	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 		if ( layerInUse[i] == i ){
 			layers--;
 			InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
@@ -1283,7 +1283,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {
 				InstrumentComponent* pInstrumentComponent = pInstrument->get_components()->at( o );
 				if( pInstrumentComponent->get_drumkit_componentID() == pDrumkitComponent->get_id() ) {
-					for( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+					for( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 						InstrumentLayer* pLayer = pInstrumentComponent->get_layer( nLayer );
 						if( pLayer )
 							delete pLayer;
@@ -1368,7 +1368,7 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 			if ( pInstr ){
 				InstrumentComponent* pInstrumentComponent = pInstr->get_component(m_nSelectedComponent);
 				if (!pInstrumentComponent) continue; // regular case when you have a new component empty
-				for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+				for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 					InstrumentLayer *pLayer = pInstrumentComponent->get_layer( nLayer );
 					if ( pLayer ) {
 						Sample *pSample = pLayer->get_sample();

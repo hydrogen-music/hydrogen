@@ -150,8 +150,8 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 
 					XMLNode layer_node = instrument_node.firstChildElement( "layer" );
 					while ( !layer_node.isNull() ) {
-						if ( n >= MAX_LAYERS ) {
-							ERRORLOG( QString( "n >= MAX_LAYERS (%1)" ).arg( MAX_LAYERS ) );
+						if ( n >= InstrumentComponent::getMaxLayers() ) {
+							ERRORLOG( QString( "n (%1) > maxLayers (%2)" ).arg ( n ).arg( InstrumentComponent::getMaxLayers() ) );
 							break;
 						}
 						Sample* pSample = new Sample( dk_path+"/"+layer_node.read_string( "filename", "" ) );

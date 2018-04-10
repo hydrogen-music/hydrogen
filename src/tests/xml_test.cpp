@@ -19,13 +19,14 @@ CPPUNIT_TEST_SUITE_REGISTRATION( XmlTest );
 static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
 {
 	int count = 0;
+	H2Core::InstrumentComponent::setMaxLayers( 16 );
 	H2Core::InstrumentList* instruments = dk->get_instruments();
 	for( int i=0; i<instruments->size(); i++ ) {
 		count++;
 		H2Core::Instrument* pInstr = ( *instruments )[i];
 		for (std::vector<H2Core::InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
 			H2Core::InstrumentComponent* pComponent = *it;
-			for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+			for ( int nLayer = 0; nLayer < H2Core::InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				H2Core::InstrumentLayer* pLayer = pComponent->get_layer( nLayer );
 				if( pLayer ) {
 					H2Core::Sample* pSample = pLayer->get_sample();
