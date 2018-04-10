@@ -522,8 +522,8 @@ void SongEditorPanel::newPatBtnClicked( Button* btn )
 	PatternPropertiesDialog *pDialog = new PatternPropertiesDialog( this, pNewPattern, 0, true );
 
 	if ( pDialog->exec() == QDialog::Accepted ) {
-		SE_addEmptyPatternAction*action =
-				new SE_addEmptyPatternAction( pNewPattern->get_name() , pNewPattern->get_info(), pNewPattern->get_category(), pEngine->getSelectedPatternNumber()+1);
+		SE_insertPatternAction*action =
+				new SE_insertPatternAction( pEngine->getSelectedPatternNumber() + 1, new Pattern( pNewPattern->get_name() , pNewPattern->get_info(), pNewPattern->get_category() ) );
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
 
@@ -532,13 +532,14 @@ void SongEditorPanel::newPatBtnClicked( Button* btn )
 }
 
 
-void SongEditorPanel::addEmptyPattern( QString newPatternName ,QString newPatternInfo, QString newPatternCategory, int idx )
+void SongEditorPanel::insertPattern( int idx, Pattern* pPattern )
 {
 	Hydrogen	*pEngine = Hydrogen::get_instance();
 	Song		*pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
-	
-	pPatternList->insert( idx, new Pattern( newPatternName, newPatternInfo, newPatternCategory ) );
+
+	pPatternList->insert( idx, pPattern );
+	pEngine->setSelectedPatternNumber( idx );
 	pSong->set_is_modified( true );
 	updateAll();
 }

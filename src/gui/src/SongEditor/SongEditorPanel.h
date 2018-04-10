@@ -26,6 +26,7 @@
 
 #include "../EventListener.h"
 #include <hydrogen/object.h>
+#include <hydrogen/basics/pattern.h>
 #include "../InstrumentEditor/WaveDisplay.h"
 
 #include <QtGui>
@@ -74,7 +75,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void restoreGroupVector( QString filename );
 		//~ Implements EventListener interface	
 		///< an empty new pattern will be added to pattern list at idx
-		void addEmptyPattern( QString newPatternName, QString newPatternInfo, QString newPatternCategory, int idx  );
+		void insertPattern( int idx, H2Core::Pattern* pPattern );
 		///< pattern at idx within pattern list will be destroyed
 		void deletePattern( int idx );
 
