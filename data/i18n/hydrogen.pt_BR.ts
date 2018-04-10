@@ -767,7 +767,7 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>Fill 1/3 notes</source>
-        <translationPreencha uma nota em 3</translation>
+        <translation>Preencha uma nota em 3</translation>
     </message>
     <message>
         <source>Fill 1/4 notes</source>
