@@ -111,6 +111,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	int nLayer = 0;
 	for ( int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
 		int y = 20 + m_nLayerHeight * i;
+		QString label = "< - >";
 
 		if ( m_pInstrument ) {
             InstrumentComponent* p_compo = m_pInstrument->get_component(m_nSelectedComponent);
@@ -118,6 +119,11 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
                 InstrumentLayer *pLayer = p_compo->get_layer( i );
 
                 if ( pLayer ) {
+					Sample* pSample = pLayer->get_sample();
+					if( pSample != NULL) {
+						label = pSample->get_filename();
+					}
+
                     int x1 = (int)( pLayer->get_start_velocity() * width() );
                     int x2 = (int)( pLayer->get_end_velocity() * width() );
 
@@ -157,6 +163,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 		}
 		p.setPen( QColor( 128, 134, 152 ) );
 		p.drawRect( 0, y, width() - 1, m_nLayerHeight );
+		p.drawText( 10, y, width() - 10, 20, Qt::AlignLeft, QString( "%1: %2" ).arg( i + 1 ).arg( label ) );
 	}
 
 	// selected layer
