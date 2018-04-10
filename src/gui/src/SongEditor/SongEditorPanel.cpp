@@ -543,7 +543,7 @@ void SongEditorPanel::addEmptyPattern( QString newPatternName ,QString newPatter
 	updateAll();
 }
 
-void SongEditorPanel::revertaddEmptyPattern( int idx )
+void SongEditorPanel::deletePattern( int idx )
 {
 	Hydrogen	*pEngine = Hydrogen::get_instance();
 	Song		*pSong = 	pEngine->getSong();

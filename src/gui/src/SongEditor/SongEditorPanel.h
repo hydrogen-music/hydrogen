@@ -76,7 +76,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		///< an empty new pattern will be added to pattern list at idx
 		void addEmptyPattern( QString newPatternName, QString newPatternInfo, QString newPatternCategory, int idx  );
 		///< pattern at idx within pattern list will be destroyed
-		void revertaddEmptyPattern( int idx );
+		void deletePattern( int idx );
 
 	private slots:
 		void on_patternListScroll();
