@@ -130,7 +130,7 @@
     </message>
     <message>
         <source>Sampler</source>
-        <translation>Amostrador</translation>
+        <translation>Sampler</translation>
     </message>
     <message>
         <source>Synth</source>
@@ -161,7 +161,7 @@
     <name>AudioFileBrowser</name>
     <message>
         <source>Audio File Browser</source>
-        <translation>Navegador de arquivos de Áudio</translation>
+        <translation>Navegador de Arquivos de Áudio</translation>
     </message>
     <message>
         <source>Size: %1 bytes</source>
@@ -189,7 +189,7 @@
     </message>
     <message>
         <source>Sample length: </source>
-        <translation>Comprimento da amostra:</translation>
+        <translation>Comprimento da amostra: </translation>
     </message>
     <message>
         <source>Please do not preview samples which are longer than 10 minutes!</source>
@@ -224,7 +224,7 @@
     </message>
     <message>
         <source>Length:</source>
-        <translation>Comprimento</translation>
+        <translation>Comprimento:</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -236,11 +236,11 @@
     </message>
     <message>
         <source>&amp;Up</source>
-        <translation>Acima</translation>
+        <translation>&amp;Acima</translation>
     </message>
     <message>
         <source>&amp;Home</source>
-        <translation></translation>
+        <translation>&amp;Começo</translation>
     </message>
     <message>
         <source>&amp;Play Sample</source>
@@ -248,11 +248,11 @@
     </message>
     <message>
         <source>&amp;Filename to instrument name</source>
-        <translation>&amp; Nome do arquivo para nome do instrumento</translation>
+        <translation>&amp;Nome do arquivo para nome do instrumento</translation>
     </message>
     <message>
         <source>&amp;Stop</source>
-        <translation>Parar</translation>
+        <translation>&amp;Parar</translation>
     </message>
     <message>
         <source>View hidden folders</source>
@@ -260,7 +260,7 @@
     </message>
     <message>
         <source>Be careful, this change all Layer velocity settings </source>
-        <translation>Tome cuidado, isto muda todos os ajustes na velocidade da camada </translation>
+        <translation>Tome cuidado, isto muda todos os ajustes na velocidade da Camada </translation>
     </message>
     <message>
         <source>Set automatic velocity</source>
