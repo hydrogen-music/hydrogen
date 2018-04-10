@@ -381,7 +381,7 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>&amp;Browse...</source>
-        <translation>&amp;Explorar...</translation>
+        <translation>&amp;Navegar...</translation>
     </message>
     <message>
         <source>&amp;Close</source>
@@ -393,11 +393,11 @@ Sobrescrever o arquivo existente?</translation>
     </message>
     <message>
         <source>Alt+E</source>
-        <translation>Alt+H</translation>
+        <translation>Alt+E</translation>
     </message>
     <message>
         <source>Alt+B</source>
-        <translation></translation>
+        <translation>Alt+B</translation>
     </message>
     <message>
         <source>Samplerate in Hz:</source>
