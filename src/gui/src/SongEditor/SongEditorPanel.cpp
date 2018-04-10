@@ -732,18 +732,24 @@ void SongEditorPanel::viewTimeLineBtnPressed( Button* pBtn )
 
 void SongEditorPanel::mutePlaybackTrackBtnPressed( Button* pBtn )
 {
-	if(pBtn->isPressed())
-	{
-		Hydrogen* pEngine = Hydrogen::get_instance();
+	Hydrogen* pEngine = Hydrogen::get_instance();
+	Song* pSong = pEngine->getSong();
+	bool state = true;
 
-		bool bState = pEngine->getPlaybackTrackState();
-		pEngine->setPlaybackTrackState(false);
-	} else {
-		Hydrogen* pEngine = Hydrogen::get_instance();
-
-		bool bState = pEngine->getPlaybackTrackState();
-		pEngine->setPlaybackTrackState(true);
+	if ( state && pSong == NULL ) {
+		state = false;
 	}
+
+	if ( state && pSong->get_playback_track_filename() == NULL ) {
+		state = false;
+	}
+
+	if ( state ) {
+		state = !pBtn->isPressed();
+	}
+
+	pEngine->setPlaybackTrackState( state );
+	m_pMutePlaybackToggleBtn->setPressed( !state );
 }
 
 void SongEditorPanel::editPlaybackTrackBtnPressed( Button* pBtn )
