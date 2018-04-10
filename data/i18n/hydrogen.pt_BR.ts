@@ -161,7 +161,7 @@
     <name>AudioFileBrowser</name>
     <message>
         <source>Audio File Browser</source>
-        <translation>Navegador de Arquivos de Áudio</translation>
+        <translation>Buscador de Arquivos de Áudio</translation>
     </message>
     <message>
         <source>Size: %1 bytes</source>
@@ -2153,7 +2153,7 @@ O caminho do script e o nome do script devem estar sem espaços em branco.</tran
     </message>
     <message>
         <source>Playlist Browser</source>
-        <translation>Navegador da Lista de Reprodução</translation>
+        <translation>Buscador da Lista de Reprodução</translation>
     </message>
     <message>
         <source>Playlist: set song no. %1</source>
@@ -2210,7 +2210,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     <name>PlaylistDialog_UI</name>
     <message>
         <source>PlayList Browser</source>
-        <translation>Navegador da Lista de Reprodução</translation>
+        <translation>Buscador da Lista de Reprodução</translation>
     </message>
     <message>
         <source>Song list</source>
