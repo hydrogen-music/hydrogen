@@ -118,7 +118,7 @@
     </message>
     <message>
         <source>Connected to</source>
-        <translation>Conectado a </translation>
+        <translation>Conectado a</translation>
     </message>
     <message>
         <source>Form1</source>
