@@ -135,7 +135,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 	for(int i = 0; i < MAX_COMPONENTS; ++i) {
 		ostringstream componentToChar;
 		componentToChar << (i+1);
-		for(int j = 0; j < MAX_LAYERS; ++j) {
+		for(int j = 0; j < InstrumentComponent::getMaxLayers(); ++j ) {
 			targeted_element sample = {i,j};
 			ostringstream toChar;
 			toChar << (j+1);

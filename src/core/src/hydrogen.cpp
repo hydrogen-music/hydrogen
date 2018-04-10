@@ -1731,11 +1731,13 @@ Hydrogen::Hydrogen()
 	m_pTimeline = new Timeline();
 	m_pCoreActionController = new CoreActionController();
 
+
 	hydrogenInstance = this;
 
 	initBeatcounter();
-	// 	__instance = this;
+	InstrumentComponent::setMaxLayers( Preferences::get_instance()->getMaxLayers() );
 	audioEngine_init();
+
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
 
@@ -2663,7 +2665,7 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
 			InstrumentComponent* pCompo = *it;
 			// remove all layers
-			for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+			for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				InstrumentLayer* pLayer = pCompo->get_layer( nLayer );
 				delete pLayer;
 				pCompo->set_layer( NULL, nLayer );

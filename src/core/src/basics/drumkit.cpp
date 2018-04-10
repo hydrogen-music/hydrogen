@@ -287,7 +287,7 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 		for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
 			InstrumentComponent* component = *it;
 
-			for( int n = 0; n < MAX_LAYERS; n++ ) {
+			for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 				InstrumentLayer* layer = component->get_layer( n );
 				if( layer ) {
 					QString src = layer->get_sample()->get_filepath();
@@ -392,7 +392,7 @@ void Drumkit::dump()
 		for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
 			InstrumentComponent* component = *it;
 
-			for ( int j=0; j<MAX_LAYERS; j++ ) {
+			for ( int j = 0; j < InstrumentComponent::getMaxLayers(); j++ ) {
 				InstrumentLayer* layer = component->get_layer( j );
 				if ( layer ) {
 					Sample* sample = layer->get_sample();

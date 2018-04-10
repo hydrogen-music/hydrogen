@@ -1312,7 +1312,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 			LocalFileMng::writeXmlString( componentNode, "component_id", QString("%1").arg( pComponent->get_drumkit_componentID() ) );
 			LocalFileMng::writeXmlString( componentNode, "gain", QString("%1").arg( pComponent->get_gain() ) );
 
-			for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+			for ( unsigned nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				InstrumentLayer *pLayer = pComponent->get_layer( nLayer );
 
 				if ( pLayer == NULL ) continue;

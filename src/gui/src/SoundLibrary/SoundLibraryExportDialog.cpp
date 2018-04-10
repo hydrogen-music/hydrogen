@@ -159,7 +159,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 					for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
 						InstrumentComponent* component = *it;
 						if( component->get_drumkit_componentID() == componentID ){
-							for( int n = 0; n < MAX_LAYERS; n++ ) {
+							for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 								InstrumentLayer* layer = component->get_layer( n );
 								if( layer ) {
 									 if( layer->get_sample()->get_filename().compare(filesList.at(i)) == 0 ) {

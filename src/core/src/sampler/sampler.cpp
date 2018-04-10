@@ -67,6 +67,8 @@ Sampler::Sampler()
 	__main_out_L = new float[ MAX_BUFFER_SIZE ];
 	__main_out_R = new float[ MAX_BUFFER_SIZE ];
 
+	__maxLayers = InstrumentComponent::getMaxLayers();
+
 	// instrument used in file preview
 	QString sEmptySampleFilename = Filesystem::empty_sample();
 	__preview_instrument = new Instrument( EMPTY_INSTR_ID, sEmptySampleFilename );
@@ -314,7 +316,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		else {
 			switch ( pInstr->sample_selection_alg() ) {
 				case Instrument::VELOCITY:
-					for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
+					for ( unsigned nLayer = 0; nLayer < __maxLayers; ++nLayer ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer == NULL ) continue;
 
@@ -341,9 +343,9 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 						}
 					}
 					if( pSample == NULL ) {
-						int __possibleIndex[MAX_LAYERS];
+						int __possibleIndex[ __maxLayers ];
 						int __poundSamples = 0;
-						for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
+						for ( unsigned nLayer = 0; nLayer < __maxLayers; ++nLayer ) {
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == NULL ) continue;
 
@@ -378,10 +380,10 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 						}
 					}
 					if( !pSample ) {
-						int __possibleIndex[MAX_LAYERS];
+						int __possibleIndex[ __maxLayers ];
 						int __foundSamples = 0;
 						float __roundRobinID;
-						for ( unsigned nLayer = 0; nLayer < MAX_LAYERS; ++nLayer ) {
+						for ( unsigned nLayer = 0; nLayer < __maxLayers; ++nLayer ) {
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == NULL ) continue;
 

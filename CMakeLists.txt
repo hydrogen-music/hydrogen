@@ -155,7 +155,6 @@ SET(USR_DATA_PATH ".hydrogen/data")
 SET(MAX_INSTRUMENTS 1000 CACHE STRING "Maximum number of instruments")
 SET(MAX_COMPONENTS  32   CACHE STRING "Maximum number of components")
 SET(MAX_NOTES       192  CACHE STRING "Maximum number of notes")
-SET(MAX_LAYERS      16   CACHE STRING "Maximum number of layers")
 SET(MAX_FX          4    CACHE STRING "Maximum number of effects")
 SET(MAX_BUFFER_SIZE 8192 CACHE STRING "Maximum size of buffer")
 
