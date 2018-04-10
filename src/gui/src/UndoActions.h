@@ -235,6 +235,10 @@ public:
 		__patternPosition = patternPosition;
 		__newPattern =  new H2Core::Pattern( pPattern );
 	}
+	~SE_insertPatternAction()
+	{
+		delete __newPattern;
+	}
 	virtual void undo()
 	{
 		//qDebug() << "Add pattern undo";
