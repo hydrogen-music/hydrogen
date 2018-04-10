@@ -716,7 +716,7 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation>Nnome do componente</translation>
+        <translation>Nome do componente</translation>
     </message>
     <message>
         <source>Midi out channel</source>
@@ -834,7 +834,7 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>Show sound library</source>
-        <translation>Exibir biblioteca de instrumento</translation>
+        <translation>Exibir biblioteca de som</translation>
     </message>
     <message>
         <source>Sound library</source>
@@ -1081,7 +1081,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation>Exportar aquivo de MIDI</translation>
+        <translation>Exportar aquivo MIDI</translation>
     </message>
     <message>
         <source>Print Objects</source>
@@ -1306,8 +1306,8 @@ The document contains unsaved changes.
 Do you want to save the changes?
 </source>
         <translation>
-The document contains unsaved changes.
-Do you want to save the changes?
+Este documento contém mudanças não salvas.
+Deseja salvar as mudanças?
 </translation>
     </message>
     <message>
@@ -1553,7 +1553,7 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     </message>
     <message>
         <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>Efeitos LADSPA não estão disponíveis nesta versão do HYdrogen.</translation>
+        <translation>Efeitos LADSPA não estão disponíveis nesta versão do Hydrogen.</translation>
     </message>
     <message>
         <source>Mixer</source>
@@ -1713,7 +1713,7 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     </message>
     <message>
         <source>Form 1</source>
-        <translation></translation>
+        <translation>Forma 1</translation>
     </message>
     <message>
         <source>&amp;Fill</source>
@@ -2097,31 +2097,31 @@ O caminho do script e o nome do script devem estar sem espaços em branco.</tran
     </message>
     <message>
         <source>&amp;Save Playlist</source>
-        <translation>Salvar Lista de Reprodução</translation>
+        <translation>&amp;Salvar Lista de Reprodução</translation>
     </message>
     <message>
         <source>Save Playlist &amp;as</source>
-        <translation>Salvar Lista de Reprodução como</translation>
+        <translation>Salvar Lista de Reprodução &amp;como</translation>
     </message>
     <message>
         <source>&amp;Scripts</source>
-        <translation>Scripts</translation>
+        <translation>&amp;Scripts</translation>
     </message>
     <message>
         <source>&amp;Add Script to selected song</source>
-        <translation>Adicionar script à música selecionada</translation>
+        <translation>&amp;&amp;Adicionar script à música selecionada</translation>
     </message>
     <message>
         <source>&amp;Edit selected Script</source>
-        <translation>Editar Script selecionado</translation>
+        <translation>&amp;Editar Script selecionado</translation>
     </message>
     <message>
         <source>&amp;Remove selected Script</source>
-        <translation>Remover Script selecionado</translation>
+        <translation>&amp;Remover Script selecionado</translation>
     </message>
     <message>
         <source>&amp;Create a new Script</source>
-        <translation>Criar novo Script</translation>
+        <translation>&amp;Criar novo Script</translation>
     </message>
     <message>
         <source>Rewind</source>
@@ -2165,7 +2165,7 @@ O caminho do script e o nome do script devem estar sem espaços em branco.</tran
     </message>
     <message>
         <source>&amp;New Playlist</source>
-        <translation>Nova Lista de Reprodução</translation>
+        <translation>&amp;Nova Lista de Reprodução</translation>
     </message>
     <message>
         <source>File not found: </source>
@@ -2180,7 +2180,8 @@ O caminho do script e o nome do script devem estar sem espaços em branco.</tran
 The current playlist contains unsaved changes.
 Do you want to discard the changes?
 </source>
-        <translation>A presente Lista de Reprodução contém mudanças não salvas.
+        <translation>
+A presente Lista de Reprodução contém mudanças não salvas.
 Deseja descartar as mudanças?
 </translation>
     </message>
@@ -2294,7 +2295,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>&lt;b&gt;PulseAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation>Driver PulseAudio</translation>
+        <translation>&lt;b&gt;Driver PulseAudio&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>Number of steps</source>
@@ -2377,7 +2378,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Audio &amp;System</source>
-        <translation>&amp;Sistema de áudio</translation>
+        <translation>Sistema de &amp;áudio</translation>
     </message>
     <message>
         <source>Metronome volume</source>
@@ -2545,7 +2546,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Beat counter drift compensation in 1/10 ms   </source>
-        <translation>Compensação de desvio do Contador de Batidas em 1/10 ms</translation>
+        <translation>Compensação de desvio do Contador de Batidas em 1/10 ms   </translation>
     </message>
     <message>
         <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
@@ -2601,7 +2602,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Tabbed</source>
-        <translation>Tabbed</translation>
+        <translation>Com abas</translation>
     </message>
     <message>
         <source>TextLabel</source>
@@ -2625,7 +2626,7 @@ O caminho para o script e o nome do script não devem conter espaços em branco.
     </message>
     <message>
         <source>Discard midi messages after action has been triggered</source>
-        <translation>Descartar mensagens midi após a ação ter sido disparada</translation>
+        <translation>Descartar mensagens MIDI após a ação ter sido disparada</translation>
     </message>
     <message>
         <source>Create per-instrument outputs</source>
@@ -2719,7 +2720,7 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>pingpong</source>
-        <translation>pingpong</translation>
+        <translation>pingue-pongue</translation>
     </message>
     <message>
         <source>loops</source>
@@ -2755,7 +2756,7 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>off</source>
-        <translation>Desligado</translation>
+        <translation>desligado</translation>
     </message>
     <message>
         <source>1/64</source>
@@ -3363,7 +3364,7 @@ Sobrescrever o padrão existente?</translation>
     </message>
     <message>
         <source>Updating SoundLibrary list...</source>
-        <translation>Atualizando lista de Bibliotecas de Som</translation>
+        <translation>Atualizando lista de Bibliotecas de Som...</translation>
     </message>
     <message>
         <source>Installed</source>
@@ -3391,7 +3392,7 @@ Sobrescrever o padrão existente?</translation>
     </message>
     <message>
         <source>An error occurred importing the SoundLibrary.</source>
-        <translation>Ocorreu um erro ao importar Biblioteca de Som</translation>
+        <translation>Ocorreu um erro ao importar Biblioteca de Som.</translation>
     </message>
     <message>
         <source>Drumkits</source>
@@ -3407,7 +3408,7 @@ Sobrescrever o padrão existente?</translation>
     </message>
     <message>
         <source>Drumkit License: %1</source>
-        <translation>Licença do drukit</translation>
+        <translation>Licença do drumkit: %1</translation>
     </message>
     <message>
         <source>Image License: %1</source>
@@ -3532,7 +3533,7 @@ Sobrescrever o padrão existente?</translation>
     </message>
     <message>
         <source>Error loading song.</source>
-        <translation>Erro carregando música.</translation>
+        <translation>Erro ao carregar música.</translation>
     </message>
     <message>
         <source>Properties</source>
@@ -3550,8 +3551,7 @@ Está certo disto?</translation>
 To delete this drumkit first load another drumkit.</source>
         <translation>Não é possível deletar o drumkit carregado atualmente: 
   &quot;%1&quot;.
-Para deletar este drumkit, carregue antes outro drumkit.
-</translation>
+Para deletar este drumkit, carregue antes outro drumkit.</translation>
     </message>
     <message>
         <source>&quot;%1&quot;is a system drumkit and can&apos;t be deleted.</source>
@@ -3578,7 +3578,8 @@ Would you like to keep or discard the remaining instruments and notes?
 </source>
         <translation>O kit existente possui %1 instrumentos, mas o novo possui apenas %2.
 Os primeiros %2 instrumentos serão substituídos pelos novos instrumentos e manterão suas notas, mas alguns dos instrumentos restantes têm notas.
-Você gostaria de manter ou descartar os instrumentos e anotações restantes?</translation>
+Você gostaria de manter ou descartar os instrumentos e anotações restantes?
+</translation>
     </message>
     <message>
         <source>Double click to expand the list</source>
