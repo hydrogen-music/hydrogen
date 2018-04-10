@@ -793,14 +793,10 @@ void MainForm::action_file_openPattern()
 		if(!pPatternList->check_name( pNewPattern->get_name() ) ){
 			pNewPattern->set_name( pPatternList->find_unused_pattern_name( pNewPattern->get_name() ) );
 		}
-
-		pPatternList->insert( selectedPatternPosition + 1, pNewPattern );
-		pEngine->setSelectedPatternNumber( selectedPatternPosition + 1 );
-		pSong->set_is_modified( true );
-		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
+		SE_insertPatternAction*action =
+				new SE_insertPatternAction( selectedPatternPosition + 1, pNewPattern );
+		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
-
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
 
 /// \todo parametrizzare il metodo action_file_open ed eliminare il seguente...
