@@ -109,7 +109,7 @@ int LCDCombo::selected()
 
 bool LCDCombo::select( int idx )
 {
-	select(idx, true);
+	return select(idx, true);
 }
 
 bool LCDCombo::select( int idx, bool emitValueChanged )
@@ -126,4 +126,5 @@ bool LCDCombo::select( int idx, bool emitValueChanged )
 	display->setText( actions.at( idx )->text() );
 	if ( emitValueChanged )
 		emit valueChanged( idx );
+	return true;
 }
