@@ -733,22 +733,9 @@ void SongEditorPanel::viewTimeLineBtnPressed( Button* pBtn )
 void SongEditorPanel::mutePlaybackTrackBtnPressed( Button* pBtn )
 {
 	Hydrogen* pEngine = Hydrogen::get_instance();
-	Song* pSong = pEngine->getSong();
-	bool state = true;
 
-	if ( state && pSong == NULL ) {
-		state = false;
-	}
-
-	if ( state && pSong->get_playback_track_filename() == NULL ) {
-		state = false;
-	}
-
-	if ( state ) {
-		state = !pBtn->isPressed();
-	}
-
-	pEngine->setPlaybackTrackState( state );
+	bool state = !pBtn->isPressed();
+	state = pEngine->setPlaybackTrackState( state );
 	m_pMutePlaybackToggleBtn->setPressed( !state );
 }
 

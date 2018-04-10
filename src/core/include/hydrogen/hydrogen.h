@@ -238,7 +238,7 @@ public:
 	CoreActionController* getCoreActionController() const;
 
 	///playback track
-	void			setPlaybackTrackState(bool);
+	bool			setPlaybackTrackState(bool);
 	bool			getPlaybackTrackState();
 	void			loadPlaybackTrack(QString filename);
 

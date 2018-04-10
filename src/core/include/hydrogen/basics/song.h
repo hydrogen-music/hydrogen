@@ -264,9 +264,13 @@ class Song : public H2Core::Object
 		{
 			return __playback_track_enabled;
 		}
-		void	set_playback_track_enabled( bool enabled )
+		bool	set_playback_track_enabled( bool enabled )
 		{
+			if ( __playback_track_filename == NULL ) {
+				return false;
+			}
 			__playback_track_enabled = enabled;
+			return enabled;
 		}
 
 		float	get_playback_track_volume()

@@ -1837,10 +1837,14 @@ void Hydrogen::sequencer_stop()
 	Preferences::get_instance()->setRecordEvents(false);
 }
 
-void Hydrogen::setPlaybackTrackState(bool state)
+bool Hydrogen::setPlaybackTrackState(bool state)
 {
 	Song* pSong = getSong();
-	pSong->set_playback_track_enabled(state);
+	if ( pSong == NULL ) {
+		return false;
+	}
+
+	return pSong->set_playback_track_enabled(state);
 }
 
 void Hydrogen::loadPlaybackTrack(QString filename)
