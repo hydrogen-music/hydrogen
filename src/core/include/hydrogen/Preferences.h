@@ -379,6 +379,9 @@ public:
 	void				setMaxBars( int bars );
 	int					getMaxBars();
 
+	void				setMaxLayers( int layers );
+	int					getMaxLayers();
+
 	void				setWaitForSessionHandler(bool value);
 	bool				getWaitForSessionHandler();
 
@@ -468,6 +471,7 @@ private:
 	int					punchInPos;
 	int					punchOutPos;
 	int					maxBars;
+	int					maxLayers;
 	bool				hearNewNotes;
 
 	QStringList			m_recentFX;
@@ -919,6 +923,14 @@ inline void Preferences::setMaxBars( int bars ){
 
 inline int Preferences::getMaxBars(){
 	return maxBars;
+}
+
+inline void Preferences::setMaxLayers( int layers ){
+	maxLayers = layers;
+}
+
+inline int Preferences::getMaxLayers(){
+	return maxLayers;
 }
 
 inline void Preferences::setWaitForSessionHandler(bool value){
