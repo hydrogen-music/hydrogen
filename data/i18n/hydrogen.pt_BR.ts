@@ -2767,7 +2767,7 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>1/16</source>
-        <translation1/16</translation>
+        <translation>1/16</translation>
     </message>
     <message>
         <source>1/8</source>
