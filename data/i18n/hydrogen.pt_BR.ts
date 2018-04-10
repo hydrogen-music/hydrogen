@@ -625,7 +625,7 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>Song Editor</source>
-        <translation>Editor de música/translation>
+        <translation>Editor de música</translation>
     </message>
     <message>
         <source>Instrument + Pattern</source>
@@ -676,7 +676,7 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation type="unfinished">Liberação</translation>
+        <translation>Liberação</translation>
     </message>
     <message>
         <source>Layer gain</source>
@@ -787,7 +787,7 @@ Está certo disto?</translation>
     </message>
     <message>
         <source>Solo</source>
-        <translation type="unfinished">Solo</translation>
+        <translation>Solo</translation>
     </message>
     <message>
         <source>Copy notes ...</source>
@@ -1113,7 +1113,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Midi file (*.mid)</source>
-        <translation type="unfinished">Arquivo Midi (*.mid)</translation>
+        <translation>Arquivo Midi (*.mid)</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -1926,7 +1926,7 @@ Deveria funcionar como um melhoramento enquanto você usa o GM-kit, e enquanto v
     </message>
     <message>
         <source> Count BPM and start PLAY</source>
-        <translation type="unfinished"></translation>
+        <translation> Contar BPM e EXECUTAR</translation>
     </message>
     <message>
         <source> Count and set BPM</source>
