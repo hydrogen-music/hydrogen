@@ -9,35 +9,35 @@
 
 // directories
 #define LOCAL_DATA_PATH "/data"
-#define IMG             "/img"
-#define DOC             "/doc"
-#define I18N            "/i18n"
-#define SONGS           "/songs"
-#define PATTERNS        "/patterns"
-#define DRUMKITS        "/drumkits"
-#define PLAYLISTS       "/playlists"
-#define DEMOS           "/demo_songs"
-#define XSD             "/xsd"
-#define TMP             "/hydrogen"
 #define CACHE           "/cache"
+#define DEMOS           "/demo_songs"
+#define DOC             "/doc"
+#define DRUMKITS        "/drumkits"
+#define I18N            "/i18n"
+#define IMG             "/img"
+#define PATTERNS        "/patterns"
+#define PLAYLISTS       "/playlists"
 #define REPOSITORIES    "/repositories"
+#define SONGS           "/songs"
+#define TMP             "/hydrogen"
+#define XSD             "/xsd"
 
 
 // files
-#define GUI_CONFIG      "/gui.conf"
-#define CORE_CONFIG     "/core.conf"
 #define CLICK_SAMPLE    "/click.wav"
+#define CORE_CONFIG     "/core.conf"
 #define EMPTY_SAMPLE    "/emptySample.wav"
 #define EMPTY_SONG      "/DefaultSong.h2song"
+#define GUI_CONFIG      "/gui.conf"
 
 // filters
-#define SONG_FILTER     "*.h2song"
-#define PATTERN_FILTER  "*.h2pattern"
+#define AUTOSAVE        "autosave"
 #define DRUMKIT_XML     "drumkit.xml"
 #define DRUMKIT_XSD     "drumkit.xsd"
 #define DRUMPAT_XSD     "drumkit_pattern.xsd"
+#define PATTERN_FILTER  "*.h2pattern"
 #define PATTERN_XSD     "pattern.xsd"
-#define AUTOSAVE        "autosave"
+#define SONG_FILTER     "*.h2song"
 
 namespace H2Core
 {
