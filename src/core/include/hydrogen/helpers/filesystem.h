@@ -69,6 +69,8 @@ class Filesystem : public H2Core::Object
 		static QString songs_dir();
 		/** returns user patterns path */
 		static QString patterns_dir();
+		/** returns user plugins path */
+		static QString plugins_dir();
 		/** returns system drumkits path */
 		static QString sys_drumkits_dir();
 		/** returns user drumkits path */

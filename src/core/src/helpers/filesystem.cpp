@@ -17,6 +17,7 @@
 #define IMG             "/img"
 #define PATTERNS        "/patterns"
 #define PLAYLISTS       "/playlists"
+#define PLUGINS         "/plugins"
 #define REPOSITORIES    "/repositories"
 #define SONGS           "/songs"
 #define TMP             "/hydrogen"
@@ -363,6 +364,10 @@ QString Filesystem::songs_dir()
 QString Filesystem::patterns_dir()
 {
 	return __usr_data_path + PATTERNS;
+}
+QString Filesystem::plugins_dir()
+{
+	return __usr_data_path + PLUGINS;
 }
 QString Filesystem::sys_drumkits_dir()
 {
