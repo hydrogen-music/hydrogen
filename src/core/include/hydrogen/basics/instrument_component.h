@@ -27,6 +27,7 @@
 #include <vector>
 
 #include <hydrogen/object.h>
+#include <hydrogen/basics/instrument_layer.h>
 
 namespace H2Core
 {
@@ -34,7 +35,6 @@ namespace H2Core
 class XMLNode;
 class ADSR;
 class Drumkit;
-class InstrumentLayer;
 class DrumkitComponent;
 
 class InstrumentComponent : public H2Core::Object
@@ -117,6 +117,9 @@ inline InstrumentLayer* InstrumentComponent::get_layer( int idx )
 inline void InstrumentComponent::set_layer( InstrumentLayer* layer, int idx )
 {
 	assert( idx >= 0 && idx < maxLayers );
+	if ( __layers[ idx ] ) {
+		delete __layers[ idx ];
+	}
 	__layers[ idx ] = layer;
 }
 
