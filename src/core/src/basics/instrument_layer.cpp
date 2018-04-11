@@ -63,6 +63,14 @@ InstrumentLayer::~InstrumentLayer()
 	__sample = 0;
 }
 
+void InstrumentLayer::set_sample( Sample* sample )
+{
+	if ( __sample ) {
+		delete __sample;
+	}
+	__sample = sample;
+}
+
 void InstrumentLayer::load_sample()
 {
 	if( __sample ) __sample->load();
