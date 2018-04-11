@@ -24,12 +24,12 @@
 #define H2C_INSTRUMENT_LAYER_H
 
 #include <hydrogen/object.h>
+#include <hydrogen/basics/sample.h>
 
 namespace H2Core
 {
 
 class XMLNode;
-class Sample;
 
 /**
  * InstrumentLayer is part of an instrument
@@ -155,6 +155,9 @@ inline float InstrumentLayer::get_end_velocity() const
 
 inline void InstrumentLayer::set_sample( Sample* sample )
 {
+	if ( __sample ) {
+		delete __sample;
+	}
 	__sample = sample;
 }
 
