@@ -354,7 +354,10 @@ void Drumkit::set_instruments( InstrumentList* instruments )
 
 void Drumkit::set_components( std::vector<DrumkitComponent*>* components )
 {
-	if( __components != 0 ) delete __components;
+	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+		delete *it;
+	}
+	delete __components;
 	__components = components;
 }
 
