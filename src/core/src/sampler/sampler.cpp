@@ -56,6 +56,18 @@ namespace H2Core
 
 const char* Sampler::__class_name = "Sampler";
 
+
+static Instrument* create_instrument(int id, const QString& filepath, float volume )
+{
+	Instrument* instrument = new Instrument( id, filepath );
+	instrument->set_volume( volume );
+	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( filepath ) );
+	InstrumentComponent* pComponent = new InstrumentComponent( 0 );
+	pComponent->set_layer( pLayer, 0 );
+	instrument->get_components()->push_back( pComponent );
+	return instrument;
+}
+
 Sampler::Sampler()
 		: Object( __class_name )
 		, __main_out_L( NULL )
@@ -69,27 +81,14 @@ Sampler::Sampler()
 
 	__maxLayers = InstrumentComponent::getMaxLayers();
 
-	// instrument used in file preview
 	QString sEmptySampleFilename = Filesystem::empty_sample();
-	__preview_instrument = new Instrument( EMPTY_INSTR_ID, sEmptySampleFilename );
-	__preview_instrument->set_is_preview_instrument(true);
-	__preview_instrument->set_volume( 0.8 );
 
-	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( sEmptySampleFilename ) );
-	InstrumentComponent* pComponent = new InstrumentComponent( 0 );
-
-	pComponent->set_layer( pLayer, 0 );
-	__preview_instrument->get_components()->push_back( pComponent );
+	// instrument used in file preview
+	__preview_instrument = create_instrument( EMPTY_INSTR_ID, sEmptySampleFilename, 0.8 );
+	__preview_instrument->set_is_preview_instrument( true );
 
 	// dummy instrument used for playback track
-	__playback_instrument = new Instrument( PLAYBACK_INSTR_ID, sEmptySampleFilename );
-	__playback_instrument->set_volume( 0.8 );
-
-	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( Sample::load( sEmptySampleFilename ) );
-	InstrumentComponent* pPlaybackTrackComponent = new InstrumentComponent( 0 );
-	pPlaybackTrackComponent->set_layer( pPlaybackTrackLayer, 0 );
-
-	__playback_instrument->get_components()->push_back( pPlaybackTrackComponent );
+	__playback_instrument = create_instrument( PLAYBACK_INSTR_ID, sEmptySampleFilename, 0.8 );
 	__playBackSamplePosition = 0;
 }
 
