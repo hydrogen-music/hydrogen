@@ -95,7 +95,9 @@ Song::~Song()
 	// delete all patterns
 	delete __pattern_list;
 
-	__components->clear();
+	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+		delete *it;
+	}
 	delete __components;
 
 	if ( __pattern_group_sequence ) {
