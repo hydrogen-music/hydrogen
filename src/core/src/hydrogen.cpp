@@ -1761,19 +1761,15 @@ Hydrogen::~Hydrogen()
 
 #ifdef H2CORE_HAVE_OSC
 	NsmClient* pNsmClient = NsmClient::get_instance();
-
-	if(pNsmClient){
+	if( pNsmClient ) {
 		pNsmClient->shutdown();
+		delete pNsmClient;
 	}
-	delete pNsmClient;
-#endif
-#ifdef H2CORE_HAVE_OSC
 	OscServer* pOscServer = OscServer::get_instance();
-	if(pNsmClient){
+	if( pOscServer ) {
 		delete pOscServer;
 	}
 #endif
-
 
 	if ( m_audioEngineState == STATE_PLAYING ) {
 		audioEngine_stop();
