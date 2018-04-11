@@ -78,6 +78,15 @@ InstrumentComponent::~InstrumentComponent()
 	}
 }
 
+void InstrumentComponent::set_layer( InstrumentLayer* layer, int idx )
+{
+	assert( idx >= 0 && idx < maxLayers );
+	if ( __layers[ idx ] ) {
+		delete __layers[ idx ];
+	}
+	__layers[ idx ] = layer;
+}
+
 void InstrumentComponent::setMaxLayers( int layers )
 {
 	maxLayers = layers;
