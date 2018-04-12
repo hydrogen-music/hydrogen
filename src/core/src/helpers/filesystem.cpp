@@ -37,7 +37,6 @@
 #define DRUMKIT_XSD     "drumkit.xsd"
 #define DRUMPAT_XSD     "drumkit_pattern.xsd"
 #define PATTERN_FILTER  "*.h2pattern"
-#define PATTERN_XSD     "pattern.xsd"
 #define SONG_FILTER     "*.h2song"
 
 namespace H2Core
@@ -334,10 +333,6 @@ QString Filesystem::drumkit_xsd( )
 QString Filesystem::drumkit_pattern_xsd( )
 {
 	return xsd_dir() + "/" + DRUMPAT_XSD;
-}
-QString Filesystem::pattern_xsd( )
-{
-	return xsd_dir() + "/" + PATTERN_XSD;
 }
 
 // DIRS
