@@ -26,11 +26,10 @@
 
 // files
 #define CLICK_SAMPLE    "/click.wav"
-#define CORE_CONFIG     "/core.conf"
 #define EMPTY_SAMPLE    "/emptySample.wav"
 #define EMPTY_SONG      "/DefaultSong.h2song"
-#define GUI_CONFIG      "/gui.conf"
 #define USR_CONFIG		"/hydrogen.conf"
+#define SYS_CONFIG		"/hydrogen.default.conf"
 
 // filters
 #define AUTOSAVE        "autosave"
@@ -303,21 +302,13 @@ QString Filesystem::usr_data_path()
 }
 
 // FILES
-QString Filesystem::sys_core_config()
+QString Filesystem::sys_config()
 {
-	return __sys_data_path + CORE_CONFIG;
+       return __sys_data_path + SYS_CONFIG;
 }
-QString Filesystem::usr_core_config()
+QString Filesystem::usr_config()
 {
-	return __usr_data_path + CORE_CONFIG;
-}
-QString Filesystem::sys_gui_config()
-{
-	return __sys_data_path + GUI_CONFIG;
-}
-QString Filesystem::usr_gui_config()
-{
-	return __usr_data_path + GUI_CONFIG;
+       return __usr_cfg_path;
 }
 QString Filesystem::empty_sample()
 {

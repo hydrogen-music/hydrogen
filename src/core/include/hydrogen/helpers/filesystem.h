@@ -36,14 +36,10 @@ class Filesystem : public H2Core::Object
 		/** returns user data path */
 		static QString usr_data_path();
 
-		/** returns system core config path */
-		static QString sys_core_config();
-		/** returns user core config path */
-		static QString usr_core_config();
-		/** returns system gui config path */
-		static QString sys_gui_config();
-		/** returns user gui config path */
-		static QString usr_gui_config();
+		/** returns system config path */
+		static QString sys_config();
+		/** returns user config path */
+		static QString usr_config();
 		/** returns system empty sample file path */
 		static QString empty_sample();
 		/** returns system empty song file path */
@@ -56,8 +52,6 @@ class Filesystem : public H2Core::Object
 		static QString drumkit_xsd( );
 		/** returns the path to the drumkit pattern XSD (xml schema definition) file */
 		static QString drumkit_pattern_xsd( );
-		/** returns the path to the pattern XSD (xml schema definition) file */
-		static QString pattern_xsd( );
 
 		/** returns gui image path */
 		static QString img_dir();
