@@ -30,6 +30,7 @@
 #define EMPTY_SAMPLE    "/emptySample.wav"
 #define EMPTY_SONG      "/DefaultSong.h2song"
 #define GUI_CONFIG      "/gui.conf"
+#define USR_CONFIG		"/hydrogen.conf"
 
 // filters
 #define AUTOSAVE        "autosave"
@@ -47,6 +48,7 @@ Logger* Filesystem::__logger = 0;
 const char* Filesystem::__class_name = "Filesystem";
 QString Filesystem::__sys_data_path;
 QString Filesystem::__usr_data_path;
+QString Filesystem::__usr_cfg_path;
 
 /* TODO QCoreApplication is not instanciated */
 bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
@@ -59,18 +61,21 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 
 #ifdef Q_OS_MACX
 #ifdef H2CORE_HAVE_BUNDLE
-	//Bundle: Prepare hydrogen to use path names which are used in app bundles: http://en.wikipedia.org/wiki/Application_Bundle
+	// Bundle: Prepare hydrogen to use path names which are used in app bundles: http://en.wikipedia.org/wiki/Application_Bundle
 	__sys_data_path = QCoreApplication::applicationDirPath().append( "/../Resources/data" ) ;
 #else
 	__sys_data_path = QCoreApplication::applicationDirPath().append( "/data" ) ;
 #endif
 	__usr_data_path = QDir::homePath().append( "/Library/Application Support/Hydrogen/data" );
+	__usr_cfg_path = QDir::homePath().append( "/Library/Application Support/Hydrogen" USR_CONFIG );
 #elif WIN32
 	__sys_data_path = QCoreApplication::applicationDirPath().append( "/data" ) ;
 	__usr_data_path = QDir::homePath().append( "/.hydrogen/data" ) ;
+	__usr_cfg_path = QDir::homePath().append( "/.hydrogen" USR_CONFIG ) ;
 #else
 	__sys_data_path = H2_SYS_PATH "/data";
 	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data" );
+	__usr_cfg_path = QDir::homePath().append( "/" H2_USR_PATH USR_CONFIG );
 #endif
 	if( sys_path!=0 ) __sys_data_path = sys_path;
 

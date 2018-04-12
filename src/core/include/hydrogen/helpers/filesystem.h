@@ -239,6 +239,7 @@ class Filesystem : public H2Core::Object
 
 		static QString __sys_data_path;     ///< the path to the system files
 		static QString __usr_data_path;     ///< the path to the user files
+		static QString __usr_cfg_path;      ///< the path to the user config file
 };
 
 };
