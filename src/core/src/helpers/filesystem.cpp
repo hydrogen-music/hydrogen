@@ -81,7 +81,10 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 		__sys_data_path = QCoreApplication::applicationDirPath().append( LOCAL_DATA_PATH );
 		ERRORLOG( QString( "will use local data path : %1" ).arg( __sys_data_path ) );
 	}
-	return check_sys_paths() && check_usr_paths();
+	bool ret = check_sys_paths();
+	ret &= check_usr_paths();
+	info();
+	return ret;
 }
 
 bool Filesystem::check_permissions( const QString& path, const int perms, bool silent )
@@ -254,41 +257,42 @@ bool Filesystem::rm_fr( const QString& path )
 
 bool Filesystem::check_sys_paths()
 {
-	if(  !dir_readable( __sys_data_path ) ) return false;
-	if(  !dir_readable( img_dir() ) ) return false;
-	if(  !dir_readable( xsd_dir() ) ) return false;
-	if(  !dir_readable( doc_dir() ) ) return false;
-	if(  !dir_readable( i18n_dir() ) ) return false;
-	if(  !dir_readable( demos_dir() ) ) return false;
-	if( !file_readable( click_file() ) ) return false;
-	if( !file_readable( empty_song() ) ) return false;
-	if( !file_readable( empty_sample() ) ) return false;
+	bool ret = true;
+	if(  !dir_readable( __sys_data_path ) ) ret = false;
+	if( !file_readable( click_file() ) ) ret = false;
+	if( !file_readable( empty_song() ) ) ret = false;
+	if(  !dir_readable( demos_dir() ) ) ret = false;
+	/* if(  !dir_readable( doc_dir() ) ) ret = false; */		// FIXME
+	if(  !dir_readable( sys_drumkits_dir() ) ) ret = false;
+	if( !file_readable( empty_sample() ) ) ret = false;
+	if( !file_readable( sys_config() ) ) ret = false;
+	if(  !dir_readable( i18n_dir() ) ) ret = false;
+	if(  !dir_readable( img_dir() ) ) ret = false;
+	if(  !dir_readable( xsd_dir() ) ) ret = false;
+	if( !file_readable( drumkit_pattern_xsd() ) ) ret = false;
+	if( !file_readable( drumkit_xsd() ) ) ret = false;
 
-	//@Jeremy: Please check if those files are obsolote
-	//if( !file_readable( sys_gui_config() ) ) return false;
-	//if( !file_readable( sys_core_config() ) ) return false;
-	//if( !file_readable( pattern_xsd() ) ) return false;
-
-	if(  !dir_readable( sys_drumkits_dir() ) ) return false;
-	if( !file_readable( drumkit_xsd() ) ) return false;
-	if( !file_readable( drumkit_pattern_xsd() ) ) return false;
-
-	INFOLOG( QString( "system wide data path %1 is usable." ).arg( __sys_data_path ) );
-	return true;
+	if ( ret ) INFOLOG( QString( "system wide data path %1 is usable." ).arg( __sys_data_path ) );
+	return ret;
 }
 
 
 bool Filesystem::check_usr_paths()
 {
-	if( !path_usable( __usr_data_path ) ) return false;
-	if( !path_usable( songs_dir() ) ) return false;
-	if( !path_usable( patterns_dir() ) ) return false;
-	if( !path_usable( playlists_dir() ) ) return false;
-	if( !path_usable( usr_drumkits_dir() ) ) return false;
-	if( !path_usable( cache_dir() ) ) return false;
-	if( !path_usable( repositories_cache_dir() ) ) return false;
-	INFOLOG( QString( "user path %1 is usable." ).arg( __usr_data_path ) );
-	return true;
+	bool ret = true;
+	if( !path_usable( tmp_dir() ) ) ret = false;
+	if( !path_usable( __usr_data_path ) ) ret = false;
+	if( !path_usable( cache_dir() ) ) ret = false;
+	if( !path_usable( repositories_cache_dir() ) ) ret = false;
+	if( !path_usable( usr_drumkits_dir() ) ) ret = false;
+	if( !path_usable( patterns_dir() ) ) ret = false;
+	if( !path_usable( playlists_dir() ) ) ret = false;
+	if( !path_usable( plugins_dir() ) ) ret = false;
+	if( !path_usable( songs_dir() ) ) ret = false;
+	if( !file_writable( usr_config() ) ) ret = false;
+
+	if ( ret ) INFOLOG( QString( "user path %1 is usable." ).arg( __usr_data_path ) );
+	return ret;
 }
 
 QString Filesystem::sys_data_path()
@@ -510,25 +514,30 @@ bool Filesystem::song_exists( const QString& sg_name )
 void Filesystem::info()
 {
 	INFOLOG( QString( "Tmp dir                    : %1" ).arg( tmp_dir() ) );
-	INFOLOG( QString( "Images dir                 : %1" ).arg( img_dir() ) );
-	INFOLOG( QString( "Documentation dir          : %1" ).arg( doc_dir() ) );
-	INFOLOG( QString( "Internationalization dir   : %1" ).arg( i18n_dir() ) );
-	INFOLOG( QString( "Demos dir                  : %1" ).arg( demos_dir() ) );
-	INFOLOG( QString( "XSD dir                    : %1" ).arg( xsd_dir() ) );
-	INFOLOG( QString( "System drumkit dir         : %1" ).arg( sys_drumkits_dir() ) );
-	INFOLOG( QString( "System wide core cfg file  : %1" ).arg( sys_core_config() ) );
-	INFOLOG( QString( "System wide gui cfg file   : %1" ).arg( sys_gui_config() ) );
-	INFOLOG( QString( "Empty sample               : %1" ).arg( empty_sample() ) );
-	INFOLOG( QString( "Empty song                 : %1" ).arg( empty_song() ) );
+	// SYS
 	INFOLOG( QString( "Click file                 : %1" ).arg( click_file() ) );
-	INFOLOG( QString( "User drumkit dir           : %1" ).arg( usr_drumkits_dir() ) );
-	INFOLOG( QString( "Songs dir                  : %1" ).arg( songs_dir() ) );
-	INFOLOG( QString( "Patterns dir               : %1" ).arg( patterns_dir() ) );
-	INFOLOG( QString( "Playlists dir              : %1" ).arg( playlists_dir() ) );
+	INFOLOG( QString( "Empty song                 : %1" ).arg( empty_song() ) );
+	INFOLOG( QString( "Demos dir                  : %1" ).arg( demos_dir() ) );
+	INFOLOG( QString( "Documentation dir          : %1" ).arg( doc_dir() ) );			// FIXME must be created even if no doc deployed
+	INFOLOG( QString( "System drumkit dir         : %1" ).arg( sys_drumkits_dir() ) );
+	INFOLOG( QString( "Empty sample               : %1" ).arg( empty_sample() ) );
+	INFOLOG( QString( "Default config             : %1" ).arg( sys_config() ) );
+	INFOLOG( QString( "Internationalization dir   : %1" ).arg( i18n_dir() ) );
+	INFOLOG( QString( "Images dir                 : %1" ).arg( img_dir() ) );
+	// new_tutorial
+	INFOLOG( QString( "XSD dir                    : %1" ).arg( xsd_dir() ) );
+	INFOLOG( QString( "drumkit pattern XSD        : %1" ).arg( drumkit_pattern_xsd() ) );
+	INFOLOG( QString( "drumkit XSD                : %1" ).arg( drumkit_xsd() ) );
+	// USR
+	INFOLOG( QString( "User config                : %1" ).arg( usr_config() ) );		// FIXME
+	INFOLOG( QString( "User Click file            : %1" ).arg( usr_click_file() ) );
 	INFOLOG( QString( "Cache dir                  : %1" ).arg( cache_dir() ) );
-	INFOLOG( QString( "Repositories cache dir     : %1" ).arg( cache_dir() ) );
-	INFOLOG( QString( "User core cfg file         : %1" ).arg( usr_core_config() ) );
-	INFOLOG( QString( "User gui cfg file          : %1" ).arg( usr_gui_config() ) );
+	INFOLOG( QString( "Reporitories Cache dir     : %1" ).arg( repositories_cache_dir() ) );
+	INFOLOG( QString( "User drumkit dir           : %1" ).arg( usr_drumkits_dir() ) );
+	INFOLOG( QString( "Patterns dir               : %1" ).arg( patterns_dir() ) );
+	INFOLOG( QString( "Playlist dir               : %1" ).arg( playlists_dir() ) );
+	INFOLOG( QString( "Plugins dir                : %1" ).arg( plugins_dir() ) );
+	INFOLOG( QString( "Songs dir                  : %1" ).arg( songs_dir() ) );
 }
 
 };
