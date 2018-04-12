@@ -132,7 +132,7 @@ bool Filesystem::file_readable( const QString& path, bool silent )
 }
 bool Filesystem::file_writable( const QString& path, bool silent )
 {
-	return check_permissions( path, is_file|is_writable, silent );
+	return check_permissions( path, is_file|is_readable|is_writable, silent );
 }
 bool Filesystem::file_executable( const QString& path, bool silent )
 {
