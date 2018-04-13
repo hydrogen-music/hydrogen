@@ -44,6 +44,12 @@ namespace H2Core
 
 Logger* Filesystem::__logger = 0;
 const char* Filesystem::__class_name = "Filesystem";
+
+const QString Filesystem::song_ext = ".h2song";
+const QString Filesystem::pattern_ext = ".h2pattern";
+const QString Filesystem::song_filter_name = "Hydrogen Song (*.h2song)";
+const QString Filesystem::pattern_filter_name = "Hydrogen Pattern (*.h2pattern)";
+
 QString Filesystem::__sys_data_path;
 QString Filesystem::__usr_data_path;
 QString Filesystem::__usr_cfg_path;

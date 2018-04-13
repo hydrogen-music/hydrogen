@@ -23,6 +23,10 @@ class Filesystem : public H2Core::Object
 			is_writable=0x08,
 			is_executable=0x10
 		};
+		static const QString song_ext;
+		static const QString pattern_ext;
+		static const QString song_filter_name;
+		static const QString pattern_filter_name;
 
 		/**
 		 * check user and system filesystem usability
