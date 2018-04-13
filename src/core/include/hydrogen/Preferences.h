@@ -528,15 +528,6 @@ private:
 	
 	Preferences();
 
-	/// Create preferences directory
-	void createPreferencesDirectory();
-
-	/// Create data directory
-	void createDataDirectory();
-
-	/// Create soundLibrary directory
-	void createSoundLibraryDirectories();
-
 	WindowProperties readWindowProperties( QDomNode parent, const QString& windowName, WindowProperties defaultProp );
 	void writeWindowProperties( QDomNode parent, const QString& windowName, const WindowProperties& prop );
 
