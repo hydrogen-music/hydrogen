@@ -89,7 +89,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QString saveDir = drumkitPathTxt->text();
 
 	Preferences *pref = Preferences::get_instance();
-	QDir qdTempFolder( pref->getTmpDirectory() );
+	QDir qdTempFolder( Filesystem::tmp_dir() );
 	bool TmpFileCreated = false;
 
 

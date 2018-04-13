@@ -117,11 +117,7 @@ Preferences::Preferences()
 	m_sPreferencesDirectory = QDir::homePath().append( "/.hydrogen/" );
 	m_sDataDirectory = QDir::homePath().append( "/.hydrogen/data/" );
 #endif
-	m_sTmpDirectory = QDir::tempPath().append( "/hydrogen/" );
-	if ( !QDir(m_sTmpDirectory).exists() ) {
-		QDir(m_sTmpDirectory).mkdir( m_sTmpDirectory );// create the tmp directory
-	}
-	
+
 	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
 	if ( ladpath ) {
 		INFOLOG( "Found LADSPA_PATH environment variable" );

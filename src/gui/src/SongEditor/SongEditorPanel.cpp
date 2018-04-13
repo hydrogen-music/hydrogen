@@ -604,10 +604,7 @@ void SongEditorPanel::clearSequence( Button* btn)
 		return;
 	}
 	
-	//create a unique filename
-	time_t thetime;
-	thetime = time(NULL);
-	QString filename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
+	QString filename = Filesystem::tmp_file( "SEQ.xml" );
 	SE_deletePatternSequenceAction *action = new SE_deletePatternSequenceAction( filename );
 	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 

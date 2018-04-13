@@ -1295,11 +1295,7 @@ void SongEditorPatternList::patternPopup_load()
 		return;
 	}
 
-	//create a unique sequencefilename
-	time_t currentTime;
-	currentTime = time(NULL);
-
-	QString sequenceFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(currentTime)+ QString( "SEQ.xml" );
+	QString sequenceFilename = Filesystem::tmp_file( "SEQ.xml" );
 	SE_loadPatternAction *action = new SE_loadPatternAction( filename, oldPatternName, sequenceFilename, tmpselectedpatternpos, false );
 	hydrogenApp->addTemporaryFile( sequenceFilename );
 	hydrogenApp->m_undoStack->push( action );
@@ -1443,13 +1439,8 @@ void SongEditorPatternList::patternPopup_delete()
 	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 	int patternPosition = pEngine->getSelectedPatternNumber();
 
-	//create a unique sequencefilename
-	time_t thetime;
-	thetime = time(NULL);
-	QString sequenceFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "SEQ.xml" );
-
-	//create a unique patternfilename
-	QString patternFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "PAT.xml" );
+	QString sequenceFilename = Filesystem::tmp_file( "SEQ.xml" );
+	QString patternFilename = Filesystem::tmp_file( "PAT.xml" );
 
 	SE_deletePatternFromListAction *action = new 	SE_deletePatternFromListAction( patternFilename , sequenceFilename, patternPosition );
 	hydrogenApp->addTemporaryFile( sequenceFilename );
@@ -1602,10 +1593,8 @@ void SongEditorPatternList::patternPopup_copy()
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, pNewPattern, nSelectedPattern, true );
 	if ( dialog->exec() == QDialog::Accepted ) {
 
-		time_t thetime;
-		thetime = time(NULL);
 		//create a unique patternfilename
-		QString patternFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg(thetime)+ QString( "PAT.xml" );
+		QString patternFilename = Filesystem::tmp_file( "PAT.xml" );
 		LocalFileMng fileMng;
 		int err =1;
 		err = fileMng.savePattern( pSong, pEngine->getCurrentDrumkitname(), pPatternList->size() -1 , patternFilename, pNewPattern->get_name(), 4 );
@@ -1797,9 +1786,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 
 		QString oldPatternName = pat->get_name();
 
-		time_t theTime;
-		theTime = time(NULL);
-		QString sequenceFilename = Preferences::get_instance()->getTmpDirectory() +QString("%1").arg( theTime )+ QString( "SEQ.xml" );
+		QString sequenceFilename = Filesystem::tmp_file( "SEQ.xml" );
 		bool drag = false;
 		if( QString( tokens.at(0) ).contains( "drag pattern" )) drag = true;
 		SE_loadPatternAction *action = new SE_loadPatternAction( sPatternName, oldPatternName, sequenceFilename, nTargetPattern, drag );

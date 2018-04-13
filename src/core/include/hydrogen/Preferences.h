@@ -250,7 +250,6 @@ public:
 
 	const QString&		getDemoPath();
 	const QString&		getDataDirectory();
-	const QString&		getTmpDirectory();
 
 	const QString&		getDefaultEditor();
 	void				setDefaultEditor( QString editor);
@@ -447,7 +446,6 @@ private:
 	static Preferences *	__instance;
 	
 	QString				m_sDataDirectory;
-	QString				m_sTmpDirectory;
 
 	/** directory of demo songs */
 	QString				demoPath;
@@ -606,10 +604,6 @@ inline const QString& Preferences::getDemoPath() {
 }
 inline const QString& Preferences::getDataDirectory(){
 	return m_sDataDirectory;
-}
-
-inline const QString& Preferences::getTmpDirectory(){
-	return m_sTmpDirectory;
 }
 
 inline const QString& Preferences::getDefaultEditor() {
