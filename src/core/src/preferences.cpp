@@ -149,7 +149,7 @@ Preferences::Preferences()
 	/*
 	 *  Add .hydrogen/data/plugins to ladspa search path, no matter where LADSPA_PATH points to..
 	 */
-	m_ladspaPathVect.push_back( QFileInfo(m_sDataDirectory, "plugins").canonicalFilePath() );
+	m_ladspaPathVect.push_back( Filesystem::plugins_dir() );
 	std::sort(m_ladspaPathVect.begin(), m_ladspaPathVect.end());
 
 	auto last = std::unique(m_ladspaPathVect.begin(), m_ladspaPathVect.end(), shouldRemove);
@@ -227,10 +227,6 @@ Preferences::Preferences()
 	m_bOscServerEnabled = false;
 	m_bOscFeedbackEnabled = true;
 	m_nOscServerPort = 9000;
-
-	// None: m_sDefaultEditor;
-	// SEE ABOVE: m_sDataDirectory
-	// SEE ABOVE: demoPath
 
 	//___ General properties ___
 	m_bPatternModePlaysSelected = true;
@@ -326,58 +322,9 @@ void Preferences::loadPreferences( bool bGlobal )
 {
 	bool recreate = false;	// configuration file must be recreated?
 
-	QString sPreferencesDirectory;
-	QString sPreferencesFilename;
-	QString sDataDirectory;
-	if ( bGlobal ) {
-		sPreferencesDirectory = Filesystem::sys_data_path();
-		sPreferencesFilename = sPreferencesDirectory + "/hydrogen.default.conf";
-		INFOLOG( "Loading preferences file (GLOBAL) [" + sPreferencesFilename + "]" );
-	} else {
-		sPreferencesFilename = m_sPreferencesFilename;
-		sPreferencesDirectory = m_sPreferencesDirectory;
-		sDataDirectory = QDir::homePath().append( "/.hydrogen/data" );
-		INFOLOG( "Loading preferences file (USER) [" + sPreferencesFilename + "]" );
-	}
-
-	// preferences directory exists?
-	QDir prefDir( sPreferencesDirectory );
-	if ( !prefDir.exists() ) {
-		if ( bGlobal ) {
-			WARNINGLOG( "System configuration directory '" + sPreferencesDirectory + "' not found." );
-		} else {
-			ERRORLOG( "Configuration directory '" + sPreferencesDirectory + "' not found." );
-			createPreferencesDirectory();
-		}
-	}
-
-	// data directory exists?
-	QDir dataDir( sDataDirectory );
-	if ( !dataDir.exists() ) {
-		WARNINGLOG( "Data directory not found." );
-		createDataDirectory();
-	}
-
-	// soundLibrary directory exists?
-	QString sDir = sDataDirectory;
-	QString sDrumkitDir;
-	QString sSongDir;
-	QString sPatternDir;
-
-	INFOLOG( "Creating soundLibrary directories in " + sDir );
-
-	sDrumkitDir = sDir + "/drumkits";
-	sSongDir = sDir + "/songs";
-	sPatternDir = sDir + "/patterns";
-
-	QDir drumkitDir( sDrumkitDir );
-	QDir songDir( sSongDir );
-	QDir patternDir( sPatternDir );
-
-	if ( ! drumkitDir.exists() || ! songDir.exists() || ! patternDir.exists() )
-	{
-		createSoundLibraryDirectories();
-	}
+	QString sPreferencesFilename = ( bGlobal ? Filesystem::sys_config() : Filesystem::usr_config() );
+	INFOLOG( QString( "Loading preferences file (%1) [%2]" ).arg( bGlobal ? "SYS" : "USER" ).arg( sPreferencesFilename ) );
+	Filesystem::file_readable( sPreferencesFilename );
 
 	// pref file exists?
 	std::ifstream input( sPreferencesFilename.toLocal8Bit() , std::ios::in | std::ios::binary );
@@ -765,9 +712,7 @@ void Preferences::loadPreferences( bool bGlobal )
 ///
 void Preferences::savePreferences()
 {
-	QString filename = m_sPreferencesFilename;
-
-	INFOLOG( "Saving preferences file: " + filename );
+	INFOLOG( "Saving preferences file: " + Filesystem::usr_config() );
 
 	QDomDocument doc;
 	QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
@@ -1140,7 +1085,7 @@ void Preferences::savePreferences()
 
 	doc.appendChild( rootNode );
 
-	QFile file( filename );
+	QFile file( Filesystem::usr_config() );
 	if ( !file.open(QIODevice::WriteOnly) )
 		return;
 
@@ -1149,61 +1094,6 @@ void Preferences::savePreferences()
 
 	file.close();
 }
-
-
-
-///
-/// Create preferences directory
-///
-void Preferences::createPreferencesDirectory()
-{
-	QString prefDir = m_sPreferencesDirectory;
-	INFOLOG( "Creating preference file directory in " + prefDir );
-
-	QDir dir;
-	dir.mkdir( prefDir );
-}
-
-
-
-///
-/// Create data directory
-///
-void Preferences::createDataDirectory()
-{
-	QString sDir = m_sDataDirectory;
-	INFOLOG( "Creating data directory in " + sDir );
-
-	QDir dir;
-	dir.mkdir( sDir );
-//	mkdir(dir.c_str(),S_IRWXU);
-}
-
-void Preferences::createSoundLibraryDirectories()
-{
-	QString sDir = m_sDataDirectory;
-	QString sDrumkitDir;
-	QString sSongDir;
-	QString sPatternDir;
-	QString sPlaylistDir;
-	QString sPluginsDir;
-
-	INFOLOG( "Creating soundLibrary directories in " + sDir );
-
-	sDrumkitDir = sDir + "/drumkits";
-	sSongDir = sDir + "/songs";
-	sPatternDir = sDir + "/patterns";
-	sPlaylistDir = sDir + "/playlists";
-	sPluginsDir = sDir + "/plugins";
-
-	QDir dir;
-	dir.mkdir( sDrumkitDir );
-	dir.mkdir( sSongDir );
-	dir.mkdir( sPatternDir );
-	dir.mkdir( sPlaylistDir );
-	dir.mkdir( sPluginsDir );
-}
-
 
 void Preferences::setMostRecentFX( QString FX_name )
 {
