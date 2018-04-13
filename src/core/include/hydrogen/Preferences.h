@@ -248,7 +248,6 @@ public:
 	/// Save the preferences file
 	void				savePreferences();
 
-	const QString&		getDemoPath();
 	const QString&		getDataDirectory();
 
 	const QString&		getDefaultEditor();
@@ -447,9 +446,6 @@ private:
 	
 	QString				m_sDataDirectory;
 
-	/** directory of demo songs */
-	QString				demoPath;
-
 	//___ General properties ___
 	QString				m_sH2ProcessName; //Name of hydrogen's main process
 	int					__rubberBandCalcTime;
@@ -599,9 +595,6 @@ inline void Preferences::setExportTemplate(int ExportTemplate)
 	m_nExportTemplate = ExportTemplate;
 }
 
-inline const QString& Preferences::getDemoPath() {
-	return demoPath;
-}
 inline const QString& Preferences::getDataDirectory(){
 	return m_sDataDirectory;
 }

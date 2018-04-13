@@ -818,7 +818,7 @@ void MainForm::action_file_openDemo()
 
 	fd.setWindowTitle( trUtf8( "Open song" ) );
 
-	fd.setDirectory( QString( Preferences::get_instance()->getDemoPath() ) );
+	fd.setDirectory( Filesystem::demos_dir() );
 
 
 	QString filename;

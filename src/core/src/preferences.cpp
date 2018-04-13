@@ -65,7 +65,6 @@ const char* Preferences::__class_name = "Preferences";
 
 Preferences::Preferences()
 		: Object( __class_name )
-		, demoPath( Filesystem::demos_dir()+"/")
 {
 	__instance = this;
 	INFOLOG( "INIT" );
