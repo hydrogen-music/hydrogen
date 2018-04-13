@@ -117,7 +117,7 @@ int SoundLibraryDatabase::getPatternFromDirectory( const QString& sPatternDir, s
 		for ( int i = 0; i < fileList.size(); ++i ) {
 			QString sFile = sPatternDir + "/" + fileList.at( i ).fileName();
 
-			if( sFile.endsWith(".h2pattern") ){
+			if ( sFile.endsWith( Filesystem::pattern_ext ) ) {
 				SoundLibraryInfo* slInfo = new SoundLibraryInfo( sFile );
 				patternVector->push_back( slInfo );
 

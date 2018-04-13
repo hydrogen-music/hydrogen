@@ -278,7 +278,7 @@ void PlaylistDialog::addSong()
 
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFiles );
-	fd.setNameFilter ( "Hydrogen song (*.h2song)" );
+	fd.setNameFilter( Filesystem::song_filter_name );
 	fd.setDirectory ( songDir );
 
 	fd.setWindowTitle ( trUtf8 ( "Add Song to PlayList" ) );
@@ -303,7 +303,6 @@ void PlaylistDialog::addCurrentSong()
 		QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Please save your song first" ));
 		return;
 	}
-//	filename += ".h2song";
 	updatePlayListNode ( filename );
 }
 

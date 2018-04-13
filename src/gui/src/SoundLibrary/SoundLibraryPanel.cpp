@@ -737,7 +737,7 @@ void SoundLibraryPanel::on_songLoadAction()
 	QString songName = __sound_library_tree->currentItem()->text( 0 );
 	QString sDirectory = Preferences::get_instance()->getDataDirectory()  + "songs";
 
-	QString sFilename = sDirectory + "/" + songName + ".h2song";
+	QString sFilename = sDirectory + "/" + songName + Filesystem::song_ext;
 	
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -772,7 +772,7 @@ void SoundLibraryPanel::on_patternLoadAction()
 {
 	LocalFileMng mng;
 
-	QString patternName = __sound_library_tree->currentItem()->text( 0 ) + ".h2pattern";
+	QString patternName = __sound_library_tree->currentItem()->text( 0 ) + Filesystem::pattern_ext;
 	QString drumkitname = __sound_library_tree->currentItem()->toolTip ( 0 );
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
