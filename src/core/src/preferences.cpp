@@ -108,11 +108,9 @@ Preferences::Preferences()
 	m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
 
 #ifdef Q_OS_MACX
-	m_sPreferencesFilename = QDir::homePath().append( "/Library/Application Support/Hydrogen/hydrogen.conf" );
 	m_sPreferencesDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/" );
 	m_sDataDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/data/" );
 #else
-	m_sPreferencesFilename = QDir::homePath().append( "/.hydrogen/hydrogen.conf" );
 	m_sPreferencesDirectory = QDir::homePath().append( "/.hydrogen/" );
 	m_sDataDirectory = QDir::homePath().append( "/.hydrogen/data/" );
 #endif

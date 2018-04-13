@@ -158,7 +158,6 @@ public:
 	};
 
 
-	QString				m_sPreferencesFilename;
 	QString				m_sPreferencesDirectory;
 
 	QString				__lastspatternDirectory;
