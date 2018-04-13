@@ -157,9 +157,6 @@ public:
 			UI_LAYOUT_TABBED
 	};
 
-
-	QString				m_sPreferencesDirectory;
-
 	QString				__lastspatternDirectory;
 	QString				__lastsampleDirectory; // audio file browser
 	bool				__playsamplesonclicking; // audio file browser
