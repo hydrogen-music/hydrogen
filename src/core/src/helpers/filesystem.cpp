@@ -8,28 +8,28 @@
 #include <QtCore/QCoreApplication>
 
 // directories
-#define LOCAL_DATA_PATH "/data"
-#define CACHE           "/cache"
-#define DEMOS           "/demo_songs"
-#define DOC             "/doc"
-#define DRUMKITS        "/drumkits"
-#define I18N            "/i18n"
-#define IMG             "/img"
-#define PATTERNS        "/patterns"
-#define PLAYLISTS       "/playlists"
-#define PLUGINS         "/plugins"
-#define REPOSITORIES    "/repositories"
-#define SONGS           "/songs"
-#define TMP             "/hydrogen"
-#define XSD             "/xsd"
+#define LOCAL_DATA_PATH "data/"
+#define CACHE           "cache/"
+#define DEMOS           "demo_songs/"
+#define DOC             "doc/"
+#define DRUMKITS        "drumkits/"
+#define I18N            "i18n/"
+#define IMG             "img/"
+#define PATTERNS        "patterns/"
+#define PLAYLISTS       "playlists/"
+#define PLUGINS         "plugins/"
+#define REPOSITORIES    "repositories/"
+#define SONGS           "songs/"
+#define TMP             "hydrogen/"
+#define XSD             "xsd/"
 
 
 // files
-#define CLICK_SAMPLE    "/click.wav"
-#define EMPTY_SAMPLE    "/emptySample.wav"
-#define EMPTY_SONG      "/DefaultSong.h2song"
-#define USR_CONFIG		"/hydrogen.conf"
-#define SYS_CONFIG		"/hydrogen.default.conf"
+#define CLICK_SAMPLE    "click.wav"
+#define EMPTY_SAMPLE    "emptySample.wav"
+#define EMPTY_SONG      "DefaultSong.h2song"
+#define USR_CONFIG		"hydrogen.conf"
+#define SYS_CONFIG		"hydrogen.default.conf"
 
 // filters
 #define AUTOSAVE        "autosave"
@@ -66,20 +66,20 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 #ifdef Q_OS_MACX
 #ifdef H2CORE_HAVE_BUNDLE
 	// Bundle: Prepare hydrogen to use path names which are used in app bundles: http://en.wikipedia.org/wiki/Application_Bundle
-	__sys_data_path = QCoreApplication::applicationDirPath().append( "/../Resources/data" ) ;
+	__sys_data_path = QCoreApplication::applicationDirPath().append( "/../Resources/data/" ) ;
 #else
-	__sys_data_path = QCoreApplication::applicationDirPath().append( "/data" ) ;
+	__sys_data_path = QCoreApplication::applicationDirPath().append( "/data/" ) ;
 #endif
-	__usr_data_path = QDir::homePath().append( "/Library/Application Support/Hydrogen/data" );
-	__usr_cfg_path = QDir::homePath().append( "/Library/Application Support/Hydrogen" USR_CONFIG );
+	__usr_data_path = QDir::homePath().append( "/Library/Application Support/Hydrogen/data/" );
+	__usr_cfg_path = QDir::homePath().append( "/Library/Application Support/Hydrogen/" USR_CONFIG );
 #elif WIN32
-	__sys_data_path = QCoreApplication::applicationDirPath().append( "/data" ) ;
-	__usr_data_path = QDir::homePath().append( "/.hydrogen/data" ) ;
-	__usr_cfg_path = QDir::homePath().append( "/.hydrogen" USR_CONFIG ) ;
+	__sys_data_path = QCoreApplication::applicationDirPath().append( "/data/" ) ;
+	__usr_data_path = QDir::homePath().append( "/.hydrogen/data/" ) ;
+	__usr_cfg_path = QDir::homePath().append( "/.hydrogen/" USR_CONFIG ) ;
 #else
-	__sys_data_path = H2_SYS_PATH "/data";
-	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data" );
-	__usr_cfg_path = QDir::homePath().append( "/" H2_USR_PATH USR_CONFIG );
+	__sys_data_path = H2_SYS_PATH "/data/";
+	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
+	__usr_cfg_path = QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
 #endif
 	if( sys_path!=0 ) __sys_data_path = sys_path;
 
@@ -338,11 +338,11 @@ QString Filesystem::usr_click_file()
 }
 QString Filesystem::drumkit_xsd( )
 {
-	return xsd_dir() + "/" + DRUMKIT_XSD;
+	return xsd_dir() + DRUMKIT_XSD;
 }
 QString Filesystem::drumkit_pattern_xsd( )
 {
-	return xsd_dir() + "/" + DRUMPAT_XSD;
+	return xsd_dir() + DRUMPAT_XSD;
 }
 
 // DIRS
@@ -400,11 +400,11 @@ QString Filesystem::xsd_dir()
 }
 QString Filesystem::tmp_dir()
 {
-	return QDir::tempPath() + TMP;
+	return QDir::tempPath() + "/" + TMP;
 }
 QString Filesystem::tmp_file( const QString& base )
 {
-	QTemporaryFile file( tmp_dir()+"/"+base );
+	QTemporaryFile file( tmp_dir() + base );
 	file.setAutoRemove( false );
 	file.open();
 	file.close();
@@ -416,11 +416,11 @@ QStringList Filesystem::drumkits_list( const QString& path )
 {
 	QStringList ok;
 	QStringList possible = QDir( path ).entryList( QDir::Dirs | QDir::NoDotAndDotDot );
-	for( int i=0; i<possible.size(); i++ ) {
-		if ( file_readable( path+"/"+possible[i]+"/"+DRUMKIT_XML, true ) )
-			ok << possible[i];
-		else {
-			ERRORLOG( QString( "drumkit %1 is not usable" ).arg( path+"/"+possible[i] ) );
+	foreach ( const QString& dk, possible ) {
+		if ( drumkit_valid( path + dk ) ) {
+			ok << dk;
+		} else {
+			ERRORLOG( QString( "drumkit %1 is not usable" ).arg( dk ) );
 		}
 	}
 	return ok;
@@ -440,7 +440,7 @@ bool Filesystem::file_is_partof_drumkit( const QString& fname)
 	{
 		int start = usr_drumkits_dir().size();
 		int index = fname.indexOf( "/", start + 1 );
-		QString dkname = fname.midRef( start + 1, index - start - 1).toString();
+		QString dkname = fname.midRef( start + 1, index - start - 1 ).toString();
 		if(drumkit_exists(dkname))
 			return true;
 	}
@@ -450,7 +450,7 @@ bool Filesystem::file_is_partof_drumkit( const QString& fname)
 	{
 		int start = sys_drumkits_dir().size();
 		int index = fname.indexOf( "/", start + 1 );
-		QString dkname = fname.midRef( start + 1, index - start - 1).toString();
+		QString dkname = fname.midRef( start + 1, index - start - 1 ).toString();
 		if(drumkit_exists(dkname))
 			return true;
 	}
@@ -465,7 +465,7 @@ bool Filesystem::drumkit_exists( const QString& dk_name )
 }
 QString Filesystem::drumkit_usr_path( const QString& dk_name )
 {
-	return usr_drumkits_dir() + "/" + dk_name;
+	return usr_drumkits_dir() + dk_name;
 }
 QString Filesystem::drumkit_path_search( const QString& dk_name )
 {
@@ -483,7 +483,7 @@ QString Filesystem::drumkit_dir_search( const QString& dk_name )
 }
 bool Filesystem::drumkit_valid( const QString& dk_path )
 {
-	return file_readable( dk_path + "/" + DRUMKIT_XML );
+	return file_readable( dk_path + "/" + DRUMKIT_XML, true);
 }
 QString Filesystem::drumkit_file( const QString& dk_path )
 {
@@ -505,8 +505,8 @@ QStringList Filesystem::songs_list( )
 QStringList Filesystem::songs_list_cleared( )
 {
 	QStringList result;
-	foreach (const QString &str, songs_list()) {
-		if (!str.contains(AUTOSAVE))
+	foreach ( const QString& str, songs_list() ) {
+		if ( !str.contains( AUTOSAVE ) )
 			result += str;
 	}
 	return result;

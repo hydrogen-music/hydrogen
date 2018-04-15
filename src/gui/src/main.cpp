@@ -283,10 +283,9 @@ int main(int argc, char *argv[])
 				total = sTranslationPath + "/" + sTranslationFile + ".qm";
 				bTransOk = tor.load( total, "." );
 				if (bTransOk) {
-					___INFOLOG( "Using locale: " + sTranslationPath + "/" + sTranslationFile );
-				}
-				else {
-					___INFOLOG( "Warning: no locale found: " + sTranslationPath + "/" + sTranslationFile );
+					___INFOLOG( "Using locale: " + sTranslationPath + sTranslationFile );
+				} else {
+					___INFOLOG( "Warning: no locale found: " + sTranslationPath + sTranslationFile );
 				}
 			}
 			if (tor.isEmpty()) {
