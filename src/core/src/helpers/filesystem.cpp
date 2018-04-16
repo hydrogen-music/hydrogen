@@ -415,7 +415,7 @@ QString Filesystem::tmp_file( const QString& base )
 QStringList Filesystem::drumkits_list( const QString& path )
 {
 	QStringList ok;
-	QStringList possible = QDir( path ).entryList( QDir::Dirs | QDir::NoDotAndDotDot );
+	QStringList possible = QDir( path ).entryList( QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot );
 	foreach ( const QString& dk, possible ) {
 		if ( drumkit_valid( path + dk ) ) {
 			ok << dk;
@@ -493,13 +493,13 @@ QString Filesystem::drumkit_file( const QString& dk_path )
 // PATTERNS
 QStringList Filesystem::patterns_list( )
 {
-	return QDir( patterns_dir() ).entryList( QStringList( PATTERN_FILTER ), QDir::Files | QDir::NoDotAndDotDot );
+	return QDir( patterns_dir() ).entryList( QStringList( PATTERN_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot );
 }
 
 // SONGS
 QStringList Filesystem::songs_list( )
 {
-	return QDir( songs_dir() ).entryList( QStringList( SONG_FILTER ), QDir::Files | QDir::NoDotAndDotDot );
+	return QDir( songs_dir() ).entryList( QStringList( SONG_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot );
 }
 
 QStringList Filesystem::songs_list_cleared( )
