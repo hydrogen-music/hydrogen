@@ -366,6 +366,18 @@ QString Filesystem::patterns_dir()
 {
 	return __usr_data_path + PATTERNS;
 }
+QString Filesystem::patterns_dir( const QString& dk_name )
+{
+	return __usr_data_path + PATTERNS + dk_name + "/";
+}
+QString Filesystem::pattern_path( const QString& dk_name, const QString& p_name )
+{
+	if ( dk_name.isEmpty() ) {
+		return patterns_dir() + p_name + pattern_ext;
+	} else {
+		return patterns_dir( dk_name ) + p_name + pattern_ext;
+	}
+}
 QString Filesystem::plugins_dir()
 {
 	return __usr_data_path + PLUGINS;
@@ -491,9 +503,19 @@ QString Filesystem::drumkit_file( const QString& dk_path )
 }
 
 // PATTERNS
-QStringList Filesystem::patterns_list( )
+QStringList Filesystem::pattern_drumkits()
 {
-	return QDir( patterns_dir() ).entryList( QStringList( PATTERN_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot );
+	return QDir( patterns_dir() ).entryList( QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot );
+}
+
+QStringList Filesystem::patterns_list()
+{
+	return patterns_list( patterns_dir() );
+}
+
+QStringList Filesystem::patterns_list( const QString& path)
+{
+	return QDir( path ).entryList( QStringList( PATTERN_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot );
 }
 
 // SONGS

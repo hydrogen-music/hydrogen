@@ -67,6 +67,10 @@ class Filesystem : public H2Core::Object
 		static QString songs_dir();
 		/** returns user patterns path */
 		static QString patterns_dir();
+		/** returns user patterns path for a specific drumkit */
+		static QString patterns_dir( const QString& dk_name );
+		/** returns user patterns path */
+		static QString pattern_path( const QString& dk_name, const QString& p_name );
 		/** returns user plugins path */
 		static QString plugins_dir();
 		/** returns system drumkits path */
@@ -131,8 +135,19 @@ class Filesystem : public H2Core::Object
 		static QString drumkit_file( const QString& dk_path );
 
 		/* PATTERNS */
-		/** returns a list of existing patterns */
-		static QStringList patterns_list( );
+		/**
+		 * returns a list of existing drumkit sub dir into the patterns directory
+		 */
+		static QStringList pattern_drumkits();
+		/**
+		 * returns a list of existing patterns
+		 */
+		static QStringList patterns_list();
+		/**
+		 * returns a list of existing patterns
+		 * \param p_path the path to look for patterns in
+		 */
+		static QStringList patterns_list( const QString& path );
 
 		/* SONGS */
 		/** returns a list of existing songs */
