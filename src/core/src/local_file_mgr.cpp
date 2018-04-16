@@ -479,39 +479,6 @@ int LocalFileMng::savePattern( Song *song , const QString& drumkit_name, int sel
 	return rv; // ok
 }
 
-std::vector<QString> LocalFileMng::getSongList()
-{
-	std::vector<QString> list;
-	QString sDirectory = Preferences::get_instance()->getDataDirectory();
-
-	if( ! sDirectory.endsWith("/") ) {
-		sDirectory += "/songs/";
-	} else {
-		sDirectory += "songs/";
-	}
-
-	QDir dir( sDirectory );
-
-	if ( !dir.exists() ) {
-		ERRORLOG( QString( "[getSongList] Directory %1 not found" ).arg( sDirectory ) );
-	} else {
-		dir.setFilter( QDir::Files );
-		QFileInfoList fileList = dir.entryInfoList();
-
-		for ( int i = 0; i < fileList.size(); ++i ) {
-			QString sFile = fileList.at( i ).fileName();
-
-			if ( ( sFile == "." ) || ( sFile == ".." ) || ( sFile == "CVS" )  || ( sFile == ".svn" ) ) {
-				continue;
-			}
-
-			list.push_back( sFile.left( sFile.indexOf( "." ) ) );
-		}
-	}
-
-	return list;
-}
-
 /**
  * Save the currently loaded playlist to disk.
  * \param playlist_name The filename of the output file.

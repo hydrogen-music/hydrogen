@@ -54,8 +54,6 @@ public:
 	LocalFileMng();
 	~LocalFileMng();
 
-	std::vector<QString> getSongList();
-
 	QString getDrumkitNameForPattern( const QString& patternDir );
 
 	static void writeXmlString( QDomNode parent, const QString& name, const QString& text );
