@@ -362,6 +362,10 @@ QString Filesystem::songs_dir()
 {
 	return __usr_data_path + SONGS;
 }
+QString Filesystem::song_path( const QString& sg_name )
+{
+	return QString( songs_dir() + sg_name + songs_ext );
+}
 QString Filesystem::patterns_dir()
 {
 	return __usr_data_path + PATTERNS;

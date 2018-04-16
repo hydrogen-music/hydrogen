@@ -65,6 +65,8 @@ class Filesystem : public H2Core::Object
 		static QString i18n_dir();
 		/** returns user songs path */
 		static QString songs_dir();
+		/** returns user song path */
+		static QString song_path( const QString& sg_name );
 		/** returns user patterns path */
 		static QString patterns_dir();
 		/** returns user patterns path for a specific drumkit */
