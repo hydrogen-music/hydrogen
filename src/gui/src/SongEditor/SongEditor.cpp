@@ -1278,11 +1278,10 @@ void SongEditorPatternList::patternPopup_load()
 
 	QString oldPatternName = pat->get_name();
 
-	QDir dirPattern( Preferences::get_instance()->getDataDirectory() + "/patterns" );
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::ExistingFile);
 	fd.setNameFilter( Filesystem::pattern_filter_name );
-	fd.setDirectory(dirPattern );
+	fd.setDirectory( Filesystem::patterns_dir() );
 
 	fd.setWindowTitle( trUtf8( "Open Pattern" ) );
 

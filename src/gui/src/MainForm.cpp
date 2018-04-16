@@ -763,11 +763,10 @@ void MainForm::action_file_openPattern()
 	Instrument *instr = pSong->get_instrument_list()->get ( 0 );
 	assert ( instr );
 
-	QDir dirPattern( Preferences::get_instance()->getDataDirectory() + "/patterns" );
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFile );
+	fd.setDirectory ( Filesystem::patterns_dir() );
 	fd.setNameFilter( Filesystem::pattern_filter_name );
-	fd.setDirectory ( dirPattern );
 
 	fd.setWindowTitle ( trUtf8 ( "Open Pattern" ) );
 

@@ -607,7 +607,7 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 			}
 
 			if( sType == "pattern") {
-				sLocalFile = dataDir + "patterns/" + QFileInfo( sURL ).fileName();
+				sLocalFile = H2Core::Filesystem::patterns_dir() + QFileInfo( sURL ).fileName();
 			}
 
 			bool Error = false;
