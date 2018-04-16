@@ -89,11 +89,15 @@ Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instru
 Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 {
 	Pattern* pattern = new Pattern(
-	    node->read_string( "name", "unknown", false, false ),
+	    node->read_string( "name", NULL, false, false ),
 	    node->read_string( "info", "", false, false ),
 	    node->read_string( "category", "unknown", false, false ),
 	    node->read_int( "size", -1, false, false )
 	);
+	// FIXME support legacy xml element pattern_name, should once be removed
+	if ( pattern->get_name().isEmpty() ) {
+	    pattern->set_name( node->read_string( "pattern_name", "unknown", false, false ) );
+	}
 	XMLNode note_list_node = node->firstChildElement( "noteList" );
 	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
