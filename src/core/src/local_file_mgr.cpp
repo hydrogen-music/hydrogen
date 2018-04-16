@@ -365,7 +365,7 @@ int LocalFileMng::savePattern( Song *song , const QString& drumkit_name, int sel
 
 	Pattern *pat = song->get_pattern_list()->get( selectedpattern );
 
-	QString sPatternDir = Preferences::get_instance()->getDataDirectory() + "patterns/" +  drumkit_name;
+	QString sPatternDir = Filesystem::patterns_dir( drumkit_name );
 
 	INFOLOG( "[savePattern]" + sPatternDir );
 
