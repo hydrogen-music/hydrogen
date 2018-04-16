@@ -117,7 +117,7 @@ void Director::metronomeEvent( int nValue )
 		QStringList list = Hydrogen::get_instance()->getSong()->get_filename().split("/");
 
 		if ( !list.isEmpty() ){
-			__songName = list.last().replace( Filesystem::song_ext, "" );
+			__songName = list.last().replace( Filesystem::songs_ext, "" );
 
 			// if songname is not set, default on an empty song, we call them "Untitled Song".
 			if( __songName.isEmpty() ){

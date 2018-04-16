@@ -380,13 +380,13 @@ int LocalFileMng::savePattern( Song *song , const QString& drumkit_name, int sel
 	// create the drumkit.xml file
 	switch ( mode ){
 	case 1: //save
-		sPatternXmlFilename = sPatternDir + "/" + QString( patternname + Filesystem::pattern_ext );
+		sPatternXmlFilename = sPatternDir + "/" + QString( patternname + Filesystem::patterns_ext );
 		break;
 	case 2: //save as
 		sPatternXmlFilename = patternname;
 		break;
 	case 3: //"save" but overwrite a existing pattern. mode 3 disable the last file exist check
-		sPatternXmlFilename = sPatternDir + "/" + QString( patternname + Filesystem::pattern_ext );
+		sPatternXmlFilename = sPatternDir + "/" + QString( patternname + Filesystem::patterns_ext );
 		break;
 	case 4: //tmp pattern needed by undo/redo
 		sPatternXmlFilename = patternname;

@@ -540,7 +540,7 @@ void MainForm::action_file_save_as()
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	QFileDialog fd(this);
 	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setNameFilter( Filesystem::song_filter_name );
+	fd.setNameFilter( Filesystem::songs_filter_name );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setWindowTitle( trUtf8( "Save song" ) );
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
@@ -551,7 +551,7 @@ void MainForm::action_file_save_as()
 
 	if ( lastFilename.isEmpty() ) {
 		defaultFilename = pEngine->getSong()->__name;
-		defaultFilename += Filesystem::song_ext;
+		defaultFilename += Filesystem::songs_ext;
 	}
 	else {
 		defaultFilename = lastFilename;
@@ -566,8 +566,8 @@ void MainForm::action_file_save_as()
 
 	if ( !filename.isEmpty() ) {
 		QString sNewFilename = filename;
-		if ( sNewFilename.endsWith( Filesystem::song_ext ) == false ) {
-			filename += Filesystem::song_ext;
+		if ( sNewFilename.endsWith( Filesystem::songs_ext ) == false ) {
+			filename += Filesystem::songs_ext;
 		}
 
 		song->set_filename(filename);
@@ -662,7 +662,7 @@ void MainForm::action_file_export_pattern_as()
 
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::AnyFile );
-	fd.setNameFilter( Filesystem::pattern_filter_name );
+	fd.setNameFilter( Filesystem::patterns_filter_name );
 	fd.setAcceptMode ( QFileDialog::AcceptSave );
 	fd.setWindowTitle ( trUtf8 ( "Save Pattern as ..." ) );
 	fd.setDirectory ( dir );
@@ -688,17 +688,17 @@ void MainForm::action_file_export_pattern_as()
 	if ( !filename.isEmpty() )
 	{
 		QString sNewFilename = filename;
-		if ( sNewFilename.endsWith( Filesystem::pattern_ext ) ) {
+		if ( sNewFilename.endsWith( Filesystem::patterns_ext ) ) {
 			sNewFilename += "";
 		}
 		else{
-			sNewFilename += Filesystem::pattern_ext;
+			sNewFilename += Filesystem::patterns_ext;
 		}
 		QString patternname = sNewFilename;
 		QString realpatternname = filename;
 		QString realname = realpatternname.mid( realpatternname.lastIndexOf( "/" ) + 1 );
-		if ( realname.endsWith( Filesystem::pattern_ext ) )
-			realname.replace( Filesystem::pattern_ext, "" );
+		if ( realname.endsWith( Filesystem::patterns_ext ) )
+			realname.replace( Filesystem::patterns_ext, "" );
 		pat->set_name(realname);
 		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 		int err = fileMng.savePattern ( song, engine->getCurrentDrumkitname(), selectedpattern, patternname, realname, 2 );
@@ -732,8 +732,8 @@ void MainForm::action_file_open() {
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::ExistingFile);
-	fd.setNameFilter( Filesystem::song_filter_name );
 	fd.setDirectory( lastUsedDir );
+	fd.setNameFilter( Filesystem::songs_filter_name );
 
 	fd.setWindowTitle( trUtf8( "Open song" ) );
 
@@ -766,7 +766,7 @@ void MainForm::action_file_openPattern()
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFile );
 	fd.setDirectory ( Filesystem::patterns_dir() );
-	fd.setNameFilter( Filesystem::pattern_filter_name );
+	fd.setNameFilter( Filesystem::patterns_filter_name );
 
 	fd.setWindowTitle ( trUtf8 ( "Open Pattern" ) );
 
@@ -813,7 +813,7 @@ void MainForm::action_file_openDemo()
 	h2app->m_undoStack->clear();
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::ExistingFile);
-	fd.setNameFilter( Filesystem::song_filter_name );
+	fd.setNameFilter( Filesystem::songs_filter_name );
 
 	fd.setWindowTitle( trUtf8( "Open song" ) );
 

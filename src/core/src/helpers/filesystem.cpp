@@ -45,10 +45,10 @@ namespace H2Core
 Logger* Filesystem::__logger = 0;
 const char* Filesystem::__class_name = "Filesystem";
 
-const QString Filesystem::song_ext = ".h2song";
-const QString Filesystem::pattern_ext = ".h2pattern";
-const QString Filesystem::song_filter_name = "Hydrogen Song (*.h2song)";
-const QString Filesystem::pattern_filter_name = "Hydrogen Pattern (*.h2pattern)";
+const QString Filesystem::songs_ext = ".h2song";
+const QString Filesystem::patterns_ext = ".h2pattern";
+const QString Filesystem::songs_filter_name = "Hydrogen Song (*.h2song)";
+const QString Filesystem::patterns_filter_name = "Hydrogen Pattern (*.h2pattern)";
 
 QString Filesystem::__sys_data_path;
 QString Filesystem::__usr_data_path;
@@ -373,9 +373,9 @@ QString Filesystem::patterns_dir( const QString& dk_name )
 QString Filesystem::pattern_path( const QString& dk_name, const QString& p_name )
 {
 	if ( dk_name.isEmpty() ) {
-		return patterns_dir() + p_name + pattern_ext;
+		return patterns_dir() + p_name + patterns_ext;
 	} else {
-		return patterns_dir( dk_name ) + p_name + pattern_ext;
+		return patterns_dir( dk_name ) + p_name + patterns_ext;
 	}
 }
 QString Filesystem::plugins_dir()

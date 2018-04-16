@@ -278,7 +278,7 @@ void PlaylistDialog::addSong()
 
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFiles );
-	fd.setNameFilter( Filesystem::song_filter_name );
+	fd.setNameFilter( Filesystem::songs_filter_name );
 	fd.setDirectory ( songDir );
 
 	fd.setWindowTitle ( trUtf8 ( "Add Song to PlayList" ) );

@@ -86,7 +86,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	}
 	
 	defaultFilename.replace( '*', "_" );
-	defaultFilename.replace( Filesystem::song_ext, "" );
+	defaultFilename.replace( Filesystem::songs_ext, "" );
 	defaultFilename += ".wav";
 	
 	exportNameTxt->setText(defaultFilename);
