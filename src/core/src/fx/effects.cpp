@@ -26,6 +26,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/audio_engine.h>
+#include <hydrogen/helpers/filesystem.h>
 
 #include <algorithm>
 #include <QDir>
@@ -132,10 +133,7 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 		return m_pluginList;
 	}
 
-	vector<QString> ladspaPathVect = Preferences::get_instance()->getLadspaPath();
-	INFOLOG( QString( "PATHS: %1" ).arg( ladspaPathVect.size() ) );
-	for ( vector<QString>::iterator i = ladspaPathVect.begin(); i != ladspaPathVect.end(); i++ ) {
-		QString sPluginDir = *i;
+	foreach ( const QString& sPluginDir, Filesystem::ladspa_paths() ) {
 		INFOLOG( "*** [getPluginList] reading directory: " + sPluginDir );
 
 		QDir dir( sPluginDir );
