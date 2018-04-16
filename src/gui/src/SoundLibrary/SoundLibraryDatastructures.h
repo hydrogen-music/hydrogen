@@ -35,7 +35,7 @@ class SoundLibraryDatabase:  public H2Core::Object
 		void update();
 		void updatePatterns();
 		void printPatterns();
-		int getPatternFromDirectory(const QString& path, soundLibraryInfoVector* );
+		void getPatternFromDirectory(const QString& path, soundLibraryInfoVector* );
 		bool isPatternInstalled( const QString& patternName);
 
 		static void create_instance();
