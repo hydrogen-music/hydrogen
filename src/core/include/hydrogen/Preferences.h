@@ -440,8 +440,6 @@ public:
 private:
 	static Preferences *	__instance;
 	
-	QString				m_sDataDirectory;
-
 	//___ General properties ___
 	QString				m_sH2ProcessName; //Name of hydrogen's main process
 	int					__rubberBandCalcTime;
@@ -580,10 +578,6 @@ inline int Preferences::getExportTemplate() const
 inline void Preferences::setExportTemplate(int ExportTemplate)
 {
 	m_nExportTemplate = ExportTemplate;
-}
-
-inline const QString& Preferences::getDataDirectory(){
-	return m_sDataDirectory;
 }
 
 inline const QString& Preferences::getDefaultEditor() {

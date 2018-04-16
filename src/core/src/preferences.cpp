@@ -107,13 +107,6 @@ Preferences::Preferences()
 	m_pDefaultUIStyle = new UIStyle();
 	m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
 
-// FIXME DIRS ****************************************************************
-#ifdef Q_OS_MACX
-       m_sDataDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/data/" );
-#else
-       m_sDataDirectory = QDir::homePath().append( "/.hydrogen/data/" );
-#endif
-
 // FIXME LADSPA ****************************************************************
 	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
 	if ( ladpath ) {
