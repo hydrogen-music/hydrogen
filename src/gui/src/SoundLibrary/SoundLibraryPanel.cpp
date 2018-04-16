@@ -728,11 +728,7 @@ void SoundLibraryPanel::on_instrumentDeleteAction()
 
 void SoundLibraryPanel::on_songLoadAction()
 {
-	QString songName = __sound_library_tree->currentItem()->text( 0 );
-	QString sDirectory = Preferences::get_instance()->getDataDirectory()  + "songs";
-
-	QString sFilename = sDirectory + "/" + songName + Filesystem::song_ext;
-	
+	QString sFilename = Filesystem::song_path( __sound_library_tree->currentItem()->text( 0 ) );
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen->getState() == STATE_PLAYING ) {
