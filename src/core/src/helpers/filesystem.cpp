@@ -19,6 +19,7 @@
 #define PLAYLISTS       "playlists/"
 #define PLUGINS         "plugins/"
 #define REPOSITORIES    "repositories/"
+#define SCRIPTS         "scripts/"
 #define SONGS           "songs/"
 #define TMP             "hydrogen/"
 #define XSD             "xsd/"
@@ -45,8 +46,10 @@ namespace H2Core
 Logger* Filesystem::__logger = 0;
 const char* Filesystem::__class_name = "Filesystem";
 
+const QString Filesystem::scripts_ext = ".sh";
 const QString Filesystem::songs_ext = ".h2song";
 const QString Filesystem::patterns_ext = ".h2pattern";
+const QString Filesystem::scripts_filter_name = "Hydrogen Scripts (*.sh)";
 const QString Filesystem::songs_filter_name = "Hydrogen Song (*.h2song)";
 const QString Filesystem::patterns_filter_name = "Hydrogen Pattern (*.h2pattern)";
 
@@ -294,6 +297,7 @@ bool Filesystem::check_usr_paths()
 	if( !path_usable( patterns_dir() ) ) ret = false;
 	if( !path_usable( playlists_dir() ) ) ret = false;
 	if( !path_usable( plugins_dir() ) ) ret = false;
+	if( !path_usable( scripts_dir() ) ) ret = false;
 	if( !path_usable( songs_dir() ) ) ret = false;
 	if( !file_writable( usr_config() ) ) ret = false;
 
@@ -357,6 +361,10 @@ QString Filesystem::doc_dir()
 QString Filesystem::i18n_dir()
 {
 	return __sys_data_path + I18N;
+}
+QString Filesystem::scripts_dir()
+{
+	return __usr_data_path + SCRIPTS;
 }
 QString Filesystem::songs_dir()
 {
@@ -569,6 +577,7 @@ void Filesystem::info()
 	INFOLOG( QString( "Patterns dir               : %1" ).arg( patterns_dir() ) );
 	INFOLOG( QString( "Playlist dir               : %1" ).arg( playlists_dir() ) );
 	INFOLOG( QString( "Plugins dir                : %1" ).arg( plugins_dir() ) );
+	INFOLOG( QString( "Scripts dir                : %1" ).arg( scripts_dir() ) );
 	INFOLOG( QString( "Songs dir                  : %1" ).arg( songs_dir() ) );
 }
 

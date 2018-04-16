@@ -24,8 +24,10 @@ class Filesystem : public H2Core::Object
 			is_executable=0x10
 		};
 		static const QString songs_ext;
+		static const QString scripts_ext;
 		static const QString patterns_ext;
 		static const QString songs_filter_name;
+		static const QString scripts_filter_name;
 		static const QString patterns_filter_name;
 
 		/**
@@ -63,6 +65,8 @@ class Filesystem : public H2Core::Object
 		static QString doc_dir();
 		/** returns internationalization path */
 		static QString i18n_dir();
+		/** returns user scripts path */
+		static QString scripts_dir();
 		/** returns user songs path */
 		static QString songs_dir();
 		/** returns user song path */
