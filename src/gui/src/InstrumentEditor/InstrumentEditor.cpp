@@ -474,7 +474,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
 	m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
 	m_sampleSelectionAlg->addItem( QString( "Random" ) );
-	connect( m_sampleSelectionAlg, SIGNAL( valueChanged( QString ) ), this, SLOT( pSampleSelectionChanged( QString ) ) );
+	connect( m_sampleSelectionAlg, SIGNAL( valueChanged( int ) ), this, SLOT( pSampleSelectionChanged( int ) ) );
 
 	//~ Layer properties
 
@@ -1402,21 +1402,15 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 
 }
 
-void InstrumentEditor::pSampleSelectionChanged( QString selected )
+void InstrumentEditor::pSampleSelectionChanged( int selected )
 {
-	/*
-		"First in Velocity"
-		"Round Robin"
-		"Random"
-	*/
-
 	assert( m_pInstrument );
 
-	if ( selected.compare("First in Velocity") == 0 )
+	if ( selected == 0 )
 		m_pInstrument->set_sample_selection_alg( Instrument::VELOCITY );
-	else if ( selected.compare("Round Robin") == 0 )
+	else if ( selected == 1 )
 		m_pInstrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
-	else if ( selected.compare("Random") == 0)
+	else if ( selected == 2)
 		m_pInstrument->set_sample_selection_alg( Instrument::RANDOM );
 
 	selectedInstrumentChangedEvent();	// force an update

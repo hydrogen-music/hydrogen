@@ -90,7 +90,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void hihatMinRangeBtnClicked(Button *pRef);
 		void hihatMaxRangeBtnClicked(Button *pRef);
 
-		void pSampleSelectionChanged( QString );
+		void pSampleSelectionChanged( int );
 
 		void waveDisplayDoubleClicked( QWidget *pRef );
 
