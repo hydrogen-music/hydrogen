@@ -727,7 +727,7 @@ void MainForm::action_file_open() {
 		return;
 	}
 
-	static QString lastUsedDir = Preferences::get_instance()->getDataDirectory() + "/songs";
+	static QString lastUsedDir = Filesystem::songs_dir();
 
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	QFileDialog fd(this);

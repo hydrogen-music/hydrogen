@@ -274,12 +274,10 @@ void PlaylistDialog::closeEvent( QCloseEvent* ev )
 
 void PlaylistDialog::addSong()
 {
-	static QString songDir = Preferences::get_instance()->getDataDirectory()  + "/songs";;
-
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFiles );
 	fd.setNameFilter( Filesystem::songs_filter_name );
-	fd.setDirectory ( songDir );
+	fd.setDirectory( Filesystem::songs_dir() );
 
 	fd.setWindowTitle ( trUtf8 ( "Add Song to PlayList" ) );
 
@@ -394,12 +392,10 @@ void PlaylistDialog::updatePlayListNode ( QString file )
 
 void PlaylistDialog::loadList()
 {
-	static QString sDirectory =  Preferences::get_instance()->getDataDirectory()  + "playlists/" ;
-
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFile );
 	fd.setNameFilter ( trUtf8("Hydrogen playlist (*.h2playlist)") );
-	fd.setDirectory ( sDirectory );
+	fd.setDirectory( Filesystem::playlists_dir() );
 	fd.setWindowTitle ( trUtf8 ( "Load Playlist" ) );
 
 	QString filename;
@@ -449,13 +445,12 @@ void PlaylistDialog::newScript()
 
 	Preferences *pPref = Preferences::get_instance();
 
-	QString sDirectory = ( Preferences::get_instance()->getDataDirectory()  + "scripts/");
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::AnyFile );
-	fd.setNameFilter ( trUtf8 ( "Hydrogen Scripts (*.sh)" ) );
+	fd.setNameFilter( Filesystem::scripts_filter_name );
 	fd.setAcceptMode ( QFileDialog::AcceptSave );
 	fd.setWindowTitle ( trUtf8 ( "New Script" ) );
-	fd.setDirectory ( sDirectory );
+	fd.setDirectory( Filesystem::scripts_dir() );
 
 	QString defaultFilename;
 
@@ -517,13 +512,12 @@ void PlaylistDialog::newScript()
 
 void PlaylistDialog::saveListAs()
 {
-	QString sDirectory =  Preferences::get_instance()->getDataDirectory()  + "playlists/";
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::AnyFile );
 	fd.setNameFilter ( trUtf8 ( "Hydrogen Playlist (*.h2playlist)" ) );
 	fd.setAcceptMode ( QFileDialog::AcceptSave );
 	fd.setWindowTitle ( trUtf8 ( "Save Playlist" ) );
-	fd.setDirectory ( sDirectory );
+	fd.setDirectory( Filesystem::playlists_dir() );
 
 	QString defaultFilename = "untitled.h2playlist";
 	fd.selectFile ( defaultFilename );
@@ -568,7 +562,7 @@ void PlaylistDialog::loadScript()
 		return;
 	}
 
-	static QString lastUsedDir =  Preferences::get_instance()->getDataDirectory()  + "scripts/";
+	static QString lastUsedDir = Filesystem::scripts_dir();
 
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFile );
