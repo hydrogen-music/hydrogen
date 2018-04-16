@@ -44,11 +44,6 @@
 #include <QDir>
 //#include <QApplication>
 
-static bool shouldRemove(QString& first, QString& second)
-{
-	return (first.compare(second) == 0);
-};
-
 namespace H2Core
 {
 
@@ -106,40 +101,6 @@ Preferences::Preferences()
 
 	m_pDefaultUIStyle = new UIStyle();
 	m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
-
-// FIXME LADSPA ****************************************************************
-	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
-	if ( ladpath ) {
-		INFOLOG( "Found LADSPA_PATH environment variable" );
-		QString sLadspaPath = QString::fromLocal8Bit(ladpath);
-		int pos;
-		while ( ( pos = sLadspaPath.indexOf( ":" ) ) != -1 ) {
-			QString sPath = sLadspaPath.left( pos );
-			m_ladspaPathVect.push_back( QFileInfo(sPath).canonicalFilePath() );
-			sLadspaPath = sLadspaPath.mid( pos + 1, sLadspaPath.length() );
-		}
-		m_ladspaPathVect.push_back( QFileInfo(sLadspaPath).canonicalFilePath());
-	} else {
-#ifdef Q_OS_MACX
-		m_ladspaPathVect.push_back( QFileInfo(qApp->applicationDirPath(), "/../Resources/plugins").canonicalFilePath() );
-		m_ladspaPathVect.push_back( QFileInfo("/Library/Audio/Plug-Ins/LADSPA/").canonicalFilePath() );
-		m_ladspaPathVect.push_back( QFileInfo(QDir::homePath(), "/Library/Audio/Plug-Ins/LADSPA").canonicalFilePath() );
-#else
-		m_ladspaPathVect.push_back( QFileInfo("/usr/lib/ladspa").canonicalFilePath() );
-		m_ladspaPathVect.push_back( QFileInfo("/usr/local/lib/ladspa").canonicalFilePath() );
-		m_ladspaPathVect.push_back( QFileInfo("/usr/lib64/ladspa").canonicalFilePath() );
-		m_ladspaPathVect.push_back( QFileInfo("/usr/local/lib64/ladspa").canonicalFilePath() );
-#endif
-	}
-	
-	/*
-	 *  Add .hydrogen/data/plugins to ladspa search path, no matter where LADSPA_PATH points to..
-	 */
-	m_ladspaPathVect.push_back( Filesystem::plugins_dir() );
-	std::sort(m_ladspaPathVect.begin(), m_ladspaPathVect.end());
-
-	auto last = std::unique(m_ladspaPathVect.begin(), m_ladspaPathVect.end(), shouldRemove);
-	m_ladspaPathVect.erase(last, m_ladspaPathVect.end());
 
 	__lastspatternDirectory = QDir::homePath();
 	__lastsampleDirectory = QDir::homePath(); //audio file browser
@@ -224,7 +185,6 @@ Preferences::Preferences()
 	hearNewNotes = true;
 	// NONE: m_recentFiles;
 	// NONE: m_recentFX;
-	// NONE: m_ladspaPathVect;
 	quantizeEvents = true;
 	recordEvents = false;
 	m_bUseRelativeFilenamesForPlaylists = false;
@@ -329,7 +289,6 @@ void Preferences::loadPreferences( bool bGlobal )
 			}
 
 			//////// GENERAL ///////////
-			//m_sLadspaPath = LocalFileMng::readXmlString( this, rootNode, "ladspaPath", m_sLadspaPath );
 			__playselectedinstrument = LocalFileMng::readXmlBool( rootNode, "instrumentInputMode", __playselectedinstrument );
 			m_bShowDevelWarning = LocalFileMng::readXmlBool( rootNode, "showDevelWarning", m_bShowDevelWarning );
 			m_brestoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", m_brestoreLastSong );

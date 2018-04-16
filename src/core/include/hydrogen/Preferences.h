@@ -297,9 +297,6 @@ public:
 	QStringList			getRecentFX();
 	void				setMostRecentFX( QString );
 
-	std::vector<QString> getLadspaPath();
-	void				setLadspaPath( std::vector<QString> pathVect );
-
 
 	// GUI Properties
 	const QString&		getQTStyle();
@@ -464,7 +461,6 @@ private:
 
 	QStringList			m_recentFX;
 	std::vector<QString> m_recentFiles;
-	std::vector<QString> m_ladspaPathVect;
 
 #ifdef H2CORE_HAVE_JACKSESSION
 		QString			jackSessionUUID;
@@ -707,13 +703,6 @@ inline std::vector<QString> Preferences::getRecentFiles() {
 
 inline QStringList Preferences::getRecentFX() {
 	return m_recentFX;
-}
-
-inline std::vector<QString> Preferences::getLadspaPath() {
-	return m_ladspaPathVect;
-}
-inline void Preferences::setLadspaPath( std::vector<QString> pathVect ) {
-	m_ladspaPathVect = pathVect;
 }
 
 
