@@ -243,19 +243,13 @@ void SoundLibraryPanel::updateDrumkitList()
 
 
 	//Pattern list
-	std::vector<QString> patternDirList = mng.getPatternDirList();
+	QStringList patternDirList = Filesystem::pattern_drumkits();
 	if ( patternDirList.size() > 0 ) {
 		
 		__pattern_item = new QTreeWidgetItem( __sound_library_tree );
 		__pattern_item->setText( 0, trUtf8( "Patterns" ) );
 		__pattern_item->setToolTip( 0, trUtf8("Double click to expand the list") );
 		__sound_library_tree->setItemExpanded( __pattern_item, __expand_pattern_list );
-			
-		//this is to push the mng.getPatternList in all patterns/drumkit dirs
-		for (uint i = 0; i < patternDirList.size(); ++i) {
-			QString absPath =  patternDirList[i];
-			mng.getPatternList( absPath );
-		}
 		
 		//this is the second step to push the mng.funktion
 		//SoundLibraryDatabase::create_instance();
@@ -772,40 +766,21 @@ void SoundLibraryPanel::on_patternLoadAction()
 {
 	LocalFileMng mng;
 
-	QString patternName = __sound_library_tree->currentItem()->text( 0 ) + Filesystem::pattern_ext;
-	QString drumkitname = __sound_library_tree->currentItem()->toolTip ( 0 );
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
+	QString patternName = __sound_library_tree->currentItem()->text( 0 );
+	QString drumkitName = __sound_library_tree->currentItem()->toolTip ( 0 );
 	
-	QString sDirectory;
-
-	std::vector<QString> patternDirList = mng.getPatternDirList();
-
-	for (uint i = 0; i < patternDirList.size(); ++i) {
-		QString absPath =  patternDirList[i];
-		mng.getPatternList( absPath );
-	}
-
-	std::vector<QString> allPatternDirList = mng.getallPatternList();
-
-	for (uint i = 0; i < allPatternDirList.size(); ++i) {
-		QString testName = allPatternDirList[i];
-		if( testName.contains( patternName ) && testName.contains( drumkitname )){
-			sDirectory = allPatternDirList[i];		
-		}
-	}
-
-	Pattern* pErr = mng.loadPattern (sDirectory );
+	// FIXME : file path should come from the selected item
+	Pattern* pErr = mng.loadPattern( Filesystem::pattern_path( drumkitName, patternName ) );
 
 	if ( pErr == 0 ) {
 		ERRORLOG( "Error loading the pattern" );
+		return;
 	}
-	else {
-		pPatternList->add ( pErr );
-		pSong->set_is_modified( true );
-	}
-
+	pPatternList->add ( pErr );
+	pSong->set_is_modified( true );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
 
