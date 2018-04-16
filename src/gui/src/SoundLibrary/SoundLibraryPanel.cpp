@@ -769,7 +769,7 @@ void SoundLibraryPanel::on_patternLoadAction()
 	QString drumkitName = __sound_library_tree->currentItem()->toolTip ( 0 );
 	
 	// FIXME : file path should come from the selected item
-	Pattern* pErr = mng.loadPattern( Filesystem::pattern_path( drumkitName, patternName ) );
+	Pattern* pErr = Pattern::load_file( Filesystem::pattern_path( drumkitName, patternName ), pSong->get_instrument_list() );
 
 	if ( pErr == 0 ) {
 		ERRORLOG( "Error loading the pattern" );

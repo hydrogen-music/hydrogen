@@ -1306,8 +1306,7 @@ void SongEditorPatternList::loadPatternAction( QString afilename, int position)
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
 
-	LocalFileMng fileMng;
-	Pattern* err = fileMng.loadPattern( afilename );
+	Pattern* err = Pattern::load_file( afilename, pSong->get_instrument_list() );
 	if ( err == 0 ) {
 		_ERRORLOG( "Error loading the pattern" );
 	}else{
@@ -1547,13 +1546,10 @@ void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilen
 
 	Hydrogen *engine = Hydrogen::get_instance();
 	int tmpselectedpatternpos = patternPosition;
-	Song *song = engine->getSong();
-	PatternList *pPatternList = song->get_pattern_list();
+	Song *pSong = engine->getSong();
+	PatternList *pPatternList = pSong->get_pattern_list();
 
-
-	LocalFileMng mng;
-	LocalFileMng fileMng;
-	Pattern* err = fileMng.loadPattern( patternFilename );
+	Pattern* err = Pattern::load_file( patternFilename, pSong->get_instrument_list() );
 	if ( err == 0 ) {
 		_ERRORLOG( "Error loading the pattern" );
 	}else{
@@ -1566,7 +1562,7 @@ void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilen
 		}
 
 		pPatternList->replace( tmpselectedpatternpos, pNewPattern );
-		song->set_is_modified( true );
+		pSong->set_is_modified( true );
 		createBackground();
 		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
@@ -1617,12 +1613,10 @@ void SongEditorPatternList::patternPopup_copyAction( QString patternFilename, in
 {
 
 	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	PatternList *pPatternList = song->get_pattern_list();
+	Song *pSong = engine->getSong();
+	PatternList *pPatternList = pSong->get_pattern_list();
 
-	LocalFileMng mng;
-	LocalFileMng fileMng;
-	Pattern* err = fileMng.loadPattern( patternFilename );
+	Pattern* err = Pattern::load_file( patternFilename, pSong->get_instrument_list() );
 	if ( err == 0 ) {
 		_ERRORLOG( "Error loading the pattern" );
 	}else{
@@ -1636,7 +1630,7 @@ void SongEditorPatternList::patternPopup_copyAction( QString patternFilename, in
 		pPatternList->replace( patternposition, pNewPattern );
 		engine->setSelectedPatternNumber( patternposition );
 
-		song->set_is_modified( true );
+		pSong->set_is_modified( true );
 		createBackground();
 		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );

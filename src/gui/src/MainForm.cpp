@@ -778,8 +778,7 @@ void MainForm::action_file_openPattern()
 	}
 	QString patternname = filename;
 
-	LocalFileMng fileMng;
-	Pattern* err = fileMng.loadPattern ( patternname );
+	Pattern* err = Pattern::load_file( patternname, pSong->get_instrument_list() );
 	if ( err == 0 )
 	{
 		_ERRORLOG( "Error loading the pattern" );
