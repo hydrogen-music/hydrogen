@@ -56,6 +56,8 @@ const QString Filesystem::patterns_filter_name = "Hydrogen Pattern (*.h2pattern)
 QString Filesystem::__sys_data_path;
 QString Filesystem::__usr_data_path;
 QString Filesystem::__usr_cfg_path;
+QStringList Filesystem::__ladspa_paths;
+
 
 /* TODO QCoreApplication is not instanciated */
 bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
@@ -90,6 +92,38 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 		__sys_data_path = QCoreApplication::applicationDirPath().append( LOCAL_DATA_PATH );
 		ERRORLOG( QString( "will use local data path : %1" ).arg( __sys_data_path ) );
 	}
+
+	char* ladspaPath = getenv( "LADSPA_PATH" );
+	if ( ladspaPath ) {
+		INFOLOG( "Found LADSPA_PATH environment variable" );
+		QString sLadspaPath = QString::fromLocal8Bit( ladspaPath );
+		int pos;
+		while ( ( pos = sLadspaPath.indexOf( ":" ) ) != -1 ) {
+			QString sPath = sLadspaPath.left( pos );
+			__ladspa_paths << QFileInfo(sPath).canonicalFilePath();
+			sLadspaPath = sLadspaPath.mid( pos + 1, sLadspaPath.length() );
+		}
+		__ladspa_paths << QFileInfo( sLadspaPath ).canonicalFilePath();
+	} else {
+#ifdef Q_OS_MACX
+		__ladspa_paths << QFileInfo( QCoreApplication::applicationDirPath(), "/../Resources/plugins" ).canonicalFilePath();
+		__ladspa_paths << QFileInfo( "/Library/Audio/Plug-Ins/LADSPA/" ).canonicalFilePath();
+		__ladspa_paths << QFileInfo( QDir::homePath(), "/Library/Audio/Plug-Ins/LADSPA" ).canonicalFilePath();
+#else
+		__ladspa_paths << QFileInfo( "/usr/lib/ladspa" ).canonicalFilePath();
+		__ladspa_paths << QFileInfo( "/usr/local/lib/ladspa" ).canonicalFilePath();
+		__ladspa_paths << QFileInfo( "/usr/lib64/ladspa" ).canonicalFilePath();
+		__ladspa_paths << QFileInfo( "/usr/local/lib64/ladspa" ).canonicalFilePath();
+#endif
+	}
+	__ladspa_paths.sort();
+	__ladspa_paths.removeDuplicates();
+	if ( !__ladspa_paths.isEmpty() && __ladspa_paths.at( 0 ).isEmpty() )
+		__ladspa_paths.removeFirst();
+	// we want this first
+	__ladspa_paths << Filesystem::plugins_dir();
+	__ladspa_paths.removeDuplicates();
+
 	bool ret = check_sys_paths();
 	ret &= check_usr_paths();
 	info();
@@ -312,6 +346,11 @@ QString Filesystem::sys_data_path()
 QString Filesystem::usr_data_path()
 {
 	return __usr_data_path;
+}
+
+QStringList Filesystem::ladspa_paths()
+{
+	return __ladspa_paths;
 }
 
 // FILES

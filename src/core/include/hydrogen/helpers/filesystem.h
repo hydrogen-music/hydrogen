@@ -42,6 +42,9 @@ class Filesystem : public H2Core::Object
 		/** returns user data path */
 		static QString usr_data_path();
 
+		/** returns user ladspa paths */
+		static QStringList ladspa_paths();
+
 		/** returns system config path */
 		static QString sys_config();
 		/** returns user config path */
@@ -259,6 +262,7 @@ class Filesystem : public H2Core::Object
 		static QString __sys_data_path;     ///< the path to the system files
 		static QString __usr_data_path;     ///< the path to the user files
 		static QString __usr_cfg_path;      ///< the path to the user config file
+		static QStringList __ladspa_paths;  ///< paths to laspa plugins
 };
 
 };
