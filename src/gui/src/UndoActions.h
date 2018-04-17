@@ -233,7 +233,7 @@ public:
 	{
 		setText( QString( "Add pattern" ) );
 		__patternPosition = patternPosition;
-		__newPattern =  new H2Core::Pattern( pPattern );
+		__newPattern =  pPattern;
 	}
 	~SE_insertPatternAction()
 	{
