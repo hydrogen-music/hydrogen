@@ -316,87 +316,10 @@ int LocalFileMng::savePattern( Song *song , const QString& drumkit_name, int sel
 
 	}
 
-	//test if the file exists
-	QFile testfile( sPatternXmlFilename );
-	if ( testfile.exists() && mode == 1)
+	if ( !pat->save_file( drumkit_name, song->get_author(), song->get_license(), sPatternXmlFilename, (mode != 1 ) ) )
 		return 1;
 
-	QDomDocument doc;
-	QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
-	doc.appendChild( header );
-
-	QDomNode rootNode = doc.createElement( "drumkit_pattern" );
-	//LIB_ID just in work to get better usability
-	//writeXmlString( &rootNode, "LIB_ID", "in_work" );
-	writeXmlString( rootNode, "pattern_for_drumkit", drumkit_name );
-	writeXmlString( rootNode, "author", song->get_author() );
-	writeXmlString( rootNode, "license", song->get_license() );
-
-
-	// pattern
-	QDomNode patternNode = doc.createElement( "pattern" );
-	writeXmlString( patternNode, "pattern_name", realpatternname );
-
-	QString category;
-	if ( pat->get_category().isEmpty() )
-		category = "No category";
-	else
-		category = pat->get_category();
-
-	writeXmlString( patternNode, "info", pat->get_info() );
-	writeXmlString( patternNode, "category", category  );
-	writeXmlString( patternNode, "size", QString("%1").arg( pat->get_length() ) );
-
-	QDomNode noteListNode = doc.createElement( "noteList" );
-	const Pattern::notes_t* notes = pat->get_notes();
-	FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
-		Note *pNote = it->second;
-		assert( pNote );
-
-		QDomNode noteNode = doc.createElement( "note" );
-		writeXmlString( noteNode, "position", QString("%1").arg( pNote->get_position() ) );
-		writeXmlString( noteNode, "leadlag", QString("%1").arg( pNote->get_lead_lag() ) );
-		writeXmlString( noteNode, "velocity", QString("%1").arg( pNote->get_velocity() ) );
-		writeXmlString( noteNode, "pan_L", QString("%1").arg( pNote->get_pan_l() ) );
-		writeXmlString( noteNode, "pan_R", QString("%1").arg( pNote->get_pan_r() ) );
-		writeXmlString( noteNode, "pitch", QString("%1").arg( pNote->get_pitch() ) );
-		writeXmlString( noteNode, "probability", QString("%1").arg( pNote->get_probability() ) );
-
-		writeXmlString( noteNode, "key", pNote->key_to_string() );
-
-		writeXmlString( noteNode, "length", QString("%1").arg( pNote->get_length() ) );
-		writeXmlString( noteNode, "instrument", QString("%1").arg( pNote->get_instrument()->get_id() ) );
-		noteListNode.appendChild( noteNode );
-	}
-	patternNode.appendChild( noteListNode );
-
-	rootNode.appendChild( patternNode );
-
-
-
-
-	doc.appendChild( rootNode );
-
-	int rv = 0;
-	QFile file( sPatternXmlFilename );
-	if ( !file.open(QIODevice::WriteOnly) )
-		rv = 1;
-
-	QTextStream TextStream( &file );
-	doc.save( TextStream, 1 );
-
-
-	if( file.size() == 0)
-		rv = 1;
-
-	file.close();
-
-
-	QFile anotherTestfile( sPatternXmlFilename );
-	if ( !anotherTestfile.exists() )
-		rv = 1;
-
-	return rv; // ok
+	return 0;
 }
 
 /**
