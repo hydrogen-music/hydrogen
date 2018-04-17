@@ -82,7 +82,10 @@ QString LocalFileMng::getDrumkitNameForPattern( const QString& patternDir )
 		return NULL;
 	}
 
-	return LocalFileMng::readXmlString( rootNode,"pattern_for_drumkit", "" );
+	QString dk_name = LocalFileMng::readXmlString( rootNode,"drumkit_name", "" );
+	if ( dk_name.isEmpty() )
+		dk_name = LocalFileMng::readXmlString( rootNode,"pattern_for_drumkit", "" );
+	return dk_name;
 }
 
 QString LocalFileMng::copyInstrumentLineToString(Song *song, int selectedPattern, int selectedInstrument)
