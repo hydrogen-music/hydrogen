@@ -1,73 +1,86 @@
 <?xml version="1.0"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.hydrogen-music.org/drumkit_pattern" elementFormDefault="qualified">
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.hydrogen-music.org/drumkit_pattern"
+	xmlns:h2="http://www.hydrogen-music.org/drumkit_pattern"
+	elementFormDefault="qualified">
 
 <!-- BOOL -->
-<xs:simpleType name="bool">
-    <xs:restriction base="xs:string">
-        <xs:enumeration value="true"/>
-        <xs:enumeration value="false"/>
-    </xs:restriction>
-</xs:simpleType>
+<xsd:simpleType name="bool">
+	<xsd:restriction base="xsd:string">
+		<xsd:enumeration value="true"/>
+		<xsd:enumeration value="false"/>
+	</xsd:restriction>
+</xsd:simpleType>
 
-<!-- PSFLOAT - positive small float [0.0;1.0 ] -->
-<xs:simpleType name='psfloat'>
-    <xs:restriction base='xs:float'>
-        <xs:minInclusive value='0.0'/>
-        <xs:maxInclusive value='1.0'/>
-    </xs:restriction>
-</xs:simpleType>
+<!-- PSFLOAT - positive small float [0.0; 1.0] -->
+<xsd:simpleType name='psfloat'>
+	<xsd:restriction base='xsd:float'>
+		<xsd:minInclusive value='0.0'/>
+		<xsd:maxInclusive value='1.0'/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+<!-- PSFLOAT - positive small float [0.0; 0.5] -->
+<xsd:simpleType name='psfloat5'>
+	<xsd:restriction base='xsd:float'>
+		<xsd:minInclusive value='0.0'/>
+		<xsd:maxInclusive value='0.5'/>
+	</xsd:restriction>
+</xsd:simpleType>
 
 <!-- NOTE -->
-<xs:element name="note">
-    <xs:complexType>
-        <!--
-        <xsd:all>
-            BUG libqt4-xml 4.6.3 and 4.7.1
-             http://bugreports.qt.nokia.com/browse/QTBUG-12534?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel#issue-tabs
-        -->
-        <xs:sequence>
-            <xs:element name="position"    type="xs:nonNegativeInteger"   default="0"/>
-            <xs:element name="leadlag"     type="xs:float"    default="0.0"/>
-            <xs:element name="velocity"    type="psfloat"   default="0.8"/>
-            <xs:element name="pan_L"       type="psfloat"   default="0.5"/>     <!-- maxINclusive="0.5" -->
-            <xs:element name="pan_R"       type="psfloat"   default="0.5"/>     <!-- maxInclusive="0.5" -->
-            <xs:element name="pitch"       type="xs:float"    default="0.0"/>
-            <xs:element name="probability" type="xs:float"    default="1.0"/>
-            <xs:element name="key"         type="xs:string"   default="C0"/>
-            <xs:element name="length"      type="xs:integer"   default="-1"/>
-            <xs:element name="instrument"  type="xs:integer"/>
-            <xs:element name="note_off"    type="bool"      default="false"/>
-        </xs:sequence>
-        <!--</xsd:all>-->
-    </xs:complexType>
-</xs:element>
+<xsd:element name="note">
+	<xsd:complexType>
+		<!--
+		<xsd:all>
+			BUG libqt4-xml 4.6.3 and 4.7.1
+			 http://bugreports.qt.nokia.com/browse/QTBUG-12534?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel#issue-tabs
+		-->
+		<xsd:sequence>
+			<xsd:element name="position"	type="xsd:nonNegativeInteger"	default="0"/>
+			<xsd:element name="leadlag"		type="xsd:float"		default="0.0"/>
+			<xsd:element name="velocity"	type="h2:psfloat"		default="0.8"/>
+			<xsd:element name="pan_L"		type="h2:psfloat5"		default="0.5"/>
+			<xsd:element name="pan_R"		type="h2:psfloat5"		default="0.5"/>
+			<xsd:element name="pitch"		type="xsd:float"		default="0.0"/>
+			<xsd:element name="key"			type="xsd:string"		default="C0"/>
+			<xsd:element name="length"		type="xsd:integer"		default="-1"/>
+			<xsd:element name="instrument"	type="xsd:integer"/>
+			<xsd:element name="note_off"	type="h2:bool"			default="false"/>
+			<xsd:element name="probability"	type="xsd:float"		default="1.0"/>
+		</xsd:sequence>
+		<!--</xsd:all>-->
+</xsd:complexType>
+</xsd:element>
 
-<xs:element name="pattern">
-    <xs:complexType>
-        <xs:sequence>
-            <xs:element name="name"        type="xs:string"   default="unknown"/>
-            <xs:element name="info"        type="xs:string"/>
-            <xs:element name="category"    type="xs:string"   default="unknown"/>
-            <xs:element name="size"        type="xs:nonNegativeInteger"/>
-            <xs:element name="noteList">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element ref="note" maxOccurs="1000"/>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-</xs:element>
+<xsd:element name="pattern">
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element name="name"		type="xsd:string"		default="unknown"/>
+			<xsd:element name="info"		type="xsd:string"/>
+			<xsd:element name="category"	type="xsd:string"		default="unknown"/>
+			<xsd:element name="size"		type="xsd:nonNegativeInteger"/>
+			<xsd:element name="noteList">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element ref="h2:note" maxOccurs="1000"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:element>
 
 <!-- DRUMKIT PATTERN -->
-<xs:element name="drumkit_pattern">
-    <xs:complexType>
-        <xs:sequence>
-            <xs:element name="drumkit_name"    type="xs:string"/>
-            <xs:element ref="pattern" minOccurs="1" maxOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-</xs:element>
+<xsd:element name="drumkit_pattern">
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element name="drumkit_name"	type="xsd:string"/>
+			<xsd:element name="author"			type="xsd:string"/>
+			<xsd:element name="license"			type="xsd:string"/>
+			<xsd:element ref="h2:pattern" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:element>
 
-</xs:schema>
+</xsd:schema>
