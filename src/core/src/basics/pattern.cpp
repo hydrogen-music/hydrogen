@@ -112,7 +112,7 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 	return pattern;
 }
 
-bool Pattern::save_file( const QString& pattern_path, bool overwrite )
+bool Pattern::save_file( const QString& drumkit_name, const QString& author, const QString& license, const QString& pattern_path, bool overwrite )
 {
 	INFOLOG( QString( "Saving pattern into %1" ).arg( pattern_path ) );
 	if( Filesystem::file_exists( pattern_path, true ) && !overwrite ) {
@@ -122,14 +122,15 @@ bool Pattern::save_file( const QString& pattern_path, bool overwrite )
 	XMLDoc doc;
 	doc.set_root( "drumkit_pattern", "drumkit_pattern" );
 	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
+	root.write_string( "drumkit_name", drumkit_name );
+	root.write_string( "author", author );
+	root.write_string( "license", license );
 	save_to( &root );
 	return doc.write( pattern_path );
 }
 
 void Pattern::save_to( XMLNode* node )
 {
-	// TODO drumkit_name !!!!!!
-	node->write_string( "drumkit_name", "TODO" );
 	XMLNode pattern_node =  node->ownerDocument().createElement( "pattern" );
 	pattern_node.write_string( "name", __name );
 	pattern_node.write_string( "info", __info );

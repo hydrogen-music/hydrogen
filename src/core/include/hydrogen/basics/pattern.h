@@ -75,11 +75,14 @@ class Pattern : public H2Core::Object
 		static Pattern* load_file( const QString& pattern_path, InstrumentList* instruments );
 		/**
 		 * save a pattern into an xml file
+		 * \param drumkit_name the name of the drumkit it is supposed to play with
+		 * \param author the name of the author
+		 * \param license the license that applies to it
 		 * \param pattern_path the path to save the pattern into
 		 * \param overwrite allows to write over existing pattern file
 		 * \return true on success
 		 */
-		bool save_file( const QString& pattern_path, bool overwrite=false );
+		bool save_file( const QString& drumkit_name, const QString& author, const QString& license, const QString& pattern_path, bool overwrite=false );
 
 		///< set the name of the pattern
 		void set_name( const QString& name );
