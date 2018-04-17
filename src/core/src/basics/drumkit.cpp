@@ -221,12 +221,12 @@ bool Drumkit::save( const QString&					name,
 
 bool Drumkit::user_drumkit_exists( const QString& name)
 {
-	return Filesystem::file_exists( QString( Filesystem::usr_drumkits_dir() + "/" + name + "/drumkit.xml"), true /*silent*/);
+	return Filesystem::file_exists( Filesystem::drumkit_file( Filesystem::usr_drumkits_dir() + name ), true /*silent*/ );
 }
 
 bool Drumkit::save( bool overwrite )
 {
-	return  save( QString( Filesystem::usr_drumkits_dir() + "/" + __name ), overwrite );
+	return  save( QString( Filesystem::usr_drumkits_dir() + __name ), overwrite );
 }
 
 bool Drumkit::save( const QString& dk_dir, bool overwrite )

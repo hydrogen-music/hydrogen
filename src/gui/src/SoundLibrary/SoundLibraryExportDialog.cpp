@@ -317,7 +317,7 @@ void SoundLibraryExportDialog::updateDrumkitList()
 
 	QStringList sysDrumkits = Filesystem::sys_drumkit_list();
 	for (int i = 0; i < sysDrumkits.size(); ++i) {
-		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sysDrumkits.at(i);
+		QString absPath = Filesystem::sys_drumkits_dir() + sysDrumkits.at(i);
 		Drumkit *info = Drumkit::load( absPath );
 		if (info) {
 			drumkitInfoList.push_back( info );
@@ -333,7 +333,7 @@ void SoundLibraryExportDialog::updateDrumkitList()
 
 	QStringList userDrumkits = Filesystem::usr_drumkit_list();
 	for (int i = 0; i < userDrumkits.size(); ++i) {
-		QString absPath = Filesystem::usr_drumkits_dir() + "/" + userDrumkits.at(i);
+		QString absPath = Filesystem::usr_drumkits_dir() + userDrumkits.at(i);
 		Drumkit *info = Drumkit::load( absPath );
 		if (info) {
 			drumkitInfoList.push_back( info );

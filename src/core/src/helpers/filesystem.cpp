@@ -532,8 +532,8 @@ QString Filesystem::drumkit_usr_path( const QString& dk_name )
 }
 QString Filesystem::drumkit_path_search( const QString& dk_name )
 {
-	if( usr_drumkit_list().contains( dk_name ) ) return usr_drumkits_dir() + "/" + dk_name;
-	if( sys_drumkit_list().contains( dk_name ) ) return sys_drumkits_dir() + "/" + dk_name;
+	if( usr_drumkit_list().contains( dk_name ) ) return usr_drumkits_dir() + dk_name;
+	if( sys_drumkit_list().contains( dk_name ) ) return sys_drumkits_dir() + dk_name;
 	ERRORLOG( QString( "drumkit %1 not found" ).arg( dk_name ) );
 	return "";
 }

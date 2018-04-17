@@ -185,7 +185,7 @@ void SoundLibraryPanel::updateDrumkitList()
 	//User drumkit list
 	QStringList usr_dks = Filesystem::usr_drumkit_list();
 	for (int i = 0; i < usr_dks.size(); ++i) {
-		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks[i];
+		QString absPath = Filesystem::usr_drumkits_dir() + usr_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {
 			__user_drumkit_info_list.push_back( pInfo );
@@ -207,7 +207,7 @@ void SoundLibraryPanel::updateDrumkitList()
 	//System drumkit list
 	QStringList sys_dks = Filesystem::sys_drumkit_list();
 	for (int i = 0; i < sys_dks.size(); ++i) {
-		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sys_dks[i];
+		QString absPath = Filesystem::sys_drumkits_dir() + sys_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {
 			__system_drumkit_info_list.push_back( pInfo );
