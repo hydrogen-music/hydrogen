@@ -31,11 +31,6 @@
 <!-- NOTE -->
 <xsd:element name="note">
 	<xsd:complexType>
-		<!--
-		<xsd:all>
-			BUG libqt4-xml 4.6.3 and 4.7.1
-			 http://bugreports.qt.nokia.com/browse/QTBUG-12534?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel#issue-tabs
-		-->
 		<xsd:sequence>
 			<xsd:element name="position"	type="xsd:nonNegativeInteger"	default="0"/>
 			<xsd:element name="leadlag"		type="xsd:float"		default="0.0"/>
@@ -49,7 +44,6 @@
 			<xsd:element name="note_off"	type="h2:bool"			default="false"/>
 			<xsd:element name="probability"	type="xsd:float"		default="1.0"/>
 		</xsd:sequence>
-		<!--</xsd:all>-->
 </xsd:complexType>
 </xsd:element>
 
