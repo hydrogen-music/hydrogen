@@ -497,7 +497,7 @@ QStringList Filesystem::usr_drumkit_list( )
 	return drumkit_list( usr_drumkits_dir() ) ;
 }
 
-bool Filesystem::file_is_partof_drumkit( const QString& fname)
+bool Filesystem::file_is_partof_drumkit( const QString& fname )
 {
 	if( fname.startsWith( usr_drumkits_dir() ) )
 	{
