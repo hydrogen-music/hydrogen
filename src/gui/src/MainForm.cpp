@@ -1036,7 +1036,7 @@ void MainForm::action_instruments_saveLibrary()
 	Drumkit *drumkitInfo = NULL;
 
 	//User drumkit list
-	QStringList usr_dks = Filesystem::usr_drumkits_list();
+	QStringList usr_dks = Filesystem::usr_drumkit_list();
 	for (int i = 0; i < usr_dks.size(); ++i) {
 		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
@@ -1049,7 +1049,7 @@ void MainForm::action_instruments_saveLibrary()
 	}
 
 	//System drumkit list
-	QStringList sys_dks = Filesystem::sys_drumkits_list();
+	QStringList sys_dks = Filesystem::sys_drumkit_list();
 	for (int i = 0; i < sys_dks.size(); ++i) {
 		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sys_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
@@ -1975,7 +1975,7 @@ void MainForm::action_banks_properties()
 	Drumkit *drumkitInfo = NULL;
 
 	//User drumkit list
-	QStringList usr_dks = Filesystem::usr_drumkits_list();
+	QStringList usr_dks = Filesystem::usr_drumkit_list();
 	for (int i = 0; i < usr_dks.size(); ++i) {
 		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
@@ -1988,7 +1988,7 @@ void MainForm::action_banks_properties()
 	}
 
 	//System drumkit list
-	QStringList sys_dks = Filesystem::sys_drumkits_list();
+	QStringList sys_dks = Filesystem::sys_drumkit_list();
 	for (int i = 0; i < sys_dks.size(); ++i) {
 		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sys_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );

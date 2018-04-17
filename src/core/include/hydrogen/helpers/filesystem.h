@@ -108,10 +108,10 @@ class Filesystem : public H2Core::Object
 		/* DRUMKIT */
 		/** Checks if a given file is part of a kit in the soundlibrary or external */
 		static bool file_is_partof_drumkit( const QString& fname);
-		/** returns list of usable system drumkits ( see Filesystem::drumkits_list ) */
-		static QStringList sys_drumkits_list( );
-		/** returns list of usable user drumkits ( see Filesystem::drumkits_list ) */
-		static QStringList usr_drumkits_list( );
+		/** returns list of usable system drumkits ( see Filesystem::drumkit_list ) */
+		static QStringList sys_drumkit_list( );
+		/** returns list of usable user drumkits ( see Filesystem::drumkit_list ) */
+		static QStringList usr_drumkit_list( );
 		/**
 		 * returns true if the drumkit exists within usable system or user drumkits
 		 * \param dk_name the drumkit name
@@ -151,18 +151,18 @@ class Filesystem : public H2Core::Object
 		/**
 		 * returns a list of existing patterns
 		 */
-		static QStringList patterns_list();
+		static QStringList pattern_list();
 		/**
 		 * returns a list of existing patterns
 		 * \param p_path the path to look for patterns in
 		 */
-		static QStringList patterns_list( const QString& path );
+		static QStringList pattern_list( const QString& path );
 
 		/* SONGS */
 		/** returns a list of existing songs */
-		static QStringList songs_list( );
+		static QStringList song_list( );
 		/** returns a list of existing songs, excluding the autosaved one */
-		static QStringList songs_list_cleared( );
+		static QStringList song_list_cleared( );
 		/**
 		 * returns true if the song file exists
 		 * \param sg_name the song name
@@ -250,7 +250,7 @@ class Filesystem : public H2Core::Object
 		 * returns a list of usable drumkits, which means having a readable drumkit.xml file
 		 * \param path the path to search in for drumkits
 		 */
-		static QStringList drumkits_list( const QString& path );
+		static QStringList drumkit_list( const QString& path );
 		/**
 		 * return true if all the asked permissions are ok
 		 * \param path the path to the file to check

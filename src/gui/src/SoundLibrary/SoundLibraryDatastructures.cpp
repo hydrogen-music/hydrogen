@@ -96,7 +96,7 @@ void SoundLibraryDatabase::updatePatterns()
 
 void SoundLibraryDatabase::getPatternFromDirectory( const QString& sPatternDir, std::vector<SoundLibraryInfo*>* patternVector )
 {
-	foreach ( const QString& fName, Filesystem::patterns_list( sPatternDir ) ) {
+	foreach ( const QString& fName, Filesystem::pattern_list( sPatternDir ) ) {
 		QString sFile = sPatternDir + fName;
 		SoundLibraryInfo* slInfo = new SoundLibraryInfo( sFile );
 		patternVector->push_back( slInfo );

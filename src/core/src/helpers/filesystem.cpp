@@ -475,7 +475,7 @@ QString Filesystem::tmp_file( const QString& base )
 }
 
 // DRUMKITS
-QStringList Filesystem::drumkits_list( const QString& path )
+QStringList Filesystem::drumkit_list( const QString& path )
 {
 	QStringList ok;
 	QStringList possible = QDir( path ).entryList( QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot );
@@ -488,13 +488,13 @@ QStringList Filesystem::drumkits_list( const QString& path )
 	}
 	return ok;
 }
-QStringList Filesystem::sys_drumkits_list( )
+QStringList Filesystem::sys_drumkit_list( )
 {
-	return drumkits_list( sys_drumkits_dir() ) ;
+	return drumkit_list( sys_drumkits_dir() ) ;
 }
-QStringList Filesystem::usr_drumkits_list( )
+QStringList Filesystem::usr_drumkit_list( )
 {
-	return drumkits_list( usr_drumkits_dir() ) ;
+	return drumkit_list( usr_drumkits_dir() ) ;
 }
 
 bool Filesystem::file_is_partof_drumkit( const QString& fname)
@@ -523,8 +523,8 @@ bool Filesystem::file_is_partof_drumkit( const QString& fname)
 
 bool Filesystem::drumkit_exists( const QString& dk_name )
 {
-	if( usr_drumkits_list().contains( dk_name ) ) return true;
-	return sys_drumkits_list().contains( dk_name );
+	if( usr_drumkit_list().contains( dk_name ) ) return true;
+	return sys_drumkit_list().contains( dk_name );
 }
 QString Filesystem::drumkit_usr_path( const QString& dk_name )
 {
@@ -532,15 +532,15 @@ QString Filesystem::drumkit_usr_path( const QString& dk_name )
 }
 QString Filesystem::drumkit_path_search( const QString& dk_name )
 {
-	if( usr_drumkits_list().contains( dk_name ) ) return usr_drumkits_dir() + "/" + dk_name;
-	if( sys_drumkits_list().contains( dk_name ) ) return sys_drumkits_dir() + "/" + dk_name;
+	if( usr_drumkit_list().contains( dk_name ) ) return usr_drumkits_dir() + "/" + dk_name;
+	if( sys_drumkit_list().contains( dk_name ) ) return sys_drumkits_dir() + "/" + dk_name;
 	ERRORLOG( QString( "drumkit %1 not found" ).arg( dk_name ) );
 	return "";
 }
 QString Filesystem::drumkit_dir_search( const QString& dk_name )
 {
-	if( usr_drumkits_list().contains( dk_name ) ) return usr_drumkits_dir();
-	if( sys_drumkits_list().contains( dk_name ) ) return sys_drumkits_dir();
+	if( usr_drumkit_list().contains( dk_name ) ) return usr_drumkits_dir();
+	if( sys_drumkit_list().contains( dk_name ) ) return sys_drumkits_dir();
 	ERRORLOG( QString( "drumkit %1 not found" ).arg( dk_name ) );
 	return "";
 }
@@ -559,26 +559,26 @@ QStringList Filesystem::pattern_drumkits()
 	return QDir( patterns_dir() ).entryList( QDir::Dirs | QDir::Readable | QDir::NoDotAndDotDot );
 }
 
-QStringList Filesystem::patterns_list()
+QStringList Filesystem::pattern_list()
 {
-	return patterns_list( patterns_dir() );
+	return pattern_list( patterns_dir() );
 }
 
-QStringList Filesystem::patterns_list( const QString& path)
+QStringList Filesystem::pattern_list( const QString& path)
 {
 	return QDir( path ).entryList( QStringList( PATTERN_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot );
 }
 
 // SONGS
-QStringList Filesystem::songs_list( )
+QStringList Filesystem::song_list( )
 {
 	return QDir( songs_dir() ).entryList( QStringList( SONG_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot );
 }
 
-QStringList Filesystem::songs_list_cleared( )
+QStringList Filesystem::song_list_cleared( )
 {
 	QStringList result;
-	foreach ( const QString& str, songs_list() ) {
+	foreach ( const QString& str, song_list() ) {
 		if ( !str.contains( AUTOSAVE ) )
 			result += str;
 	}

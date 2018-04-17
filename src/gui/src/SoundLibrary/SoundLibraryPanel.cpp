@@ -183,7 +183,7 @@ void SoundLibraryPanel::updateDrumkitList()
 	__user_drumkit_info_list.clear();
 
 	//User drumkit list
-	QStringList usr_dks = Filesystem::usr_drumkits_list();
+	QStringList usr_dks = Filesystem::usr_drumkit_list();
 	for (int i = 0; i < usr_dks.size(); ++i) {
 		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
@@ -205,7 +205,7 @@ void SoundLibraryPanel::updateDrumkitList()
 	}
 
 	//System drumkit list
-	QStringList sys_dks = Filesystem::sys_drumkits_list();
+	QStringList sys_dks = Filesystem::sys_drumkit_list();
 	for (int i = 0; i < sys_dks.size(); ++i) {
 		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sys_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
@@ -227,7 +227,7 @@ void SoundLibraryPanel::updateDrumkitList()
 	}
 	
 	//Songlist
-	QStringList songs = Filesystem::songs_list_cleared();
+	QStringList songs = Filesystem::song_list_cleared();
 	if ( songs.size() > 0 ) {
 		__song_item = new QTreeWidgetItem( __sound_library_tree );
 		__song_item->setText( 0, trUtf8( "Songs" ) );
