@@ -233,7 +233,7 @@ bool Filesystem::write_to_file( const QString& dst, const QString& content )
 
 bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwrite )
 {
-	if( file_exists( dst, true ) && !overwrite ) {
+	if( !overwrite && file_exists( dst, true ) ) {
 		WARNINGLOG( QString( "do not overwrite %1 with %2 as it already exists" ).arg( dst ).arg( src ) );
 		return true;
 	}

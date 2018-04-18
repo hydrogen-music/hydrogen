@@ -248,7 +248,7 @@ bool Drumkit::save( const QString& dk_dir, bool overwrite )
 bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_id )
 {
 	INFOLOG( QString( "Saving drumkit definition into %1" ).arg( dk_path ) );
-	if( Filesystem::file_exists( dk_path, true ) && !overwrite ) {
+	if( !overwrite && Filesystem::file_exists( dk_path, true ) ) {
 		ERRORLOG( QString( "drumkit %1 already exists" ).arg( dk_path ) );
 		return false;
 	}

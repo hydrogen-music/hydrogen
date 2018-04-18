@@ -115,7 +115,7 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 bool Pattern::save_file( const QString& drumkit_name, const QString& author, const QString& license, const QString& pattern_path, bool overwrite )
 {
 	INFOLOG( QString( "Saving pattern into %1" ).arg( pattern_path ) );
-	if( Filesystem::file_exists( pattern_path, true ) && !overwrite ) {
+	if( !overwrite && Filesystem::file_exists( pattern_path, true ) ) {
 		ERRORLOG( QString( "pattern %1 already exists" ).arg( pattern_path ) );
 		return false;
 	}
