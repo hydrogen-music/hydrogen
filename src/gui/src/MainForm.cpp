@@ -29,6 +29,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/timeline.h>
 #include <hydrogen/LocalFileMng.h>
+#include <hydrogen/helpers/files.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/instrument_list.h>
@@ -644,78 +645,63 @@ void MainForm::showUserManual()
 
 void MainForm::action_file_export_pattern_as()
 {
-	if ( ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) )
-	{
+	if ( ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
 	Hydrogen *engine = Hydrogen::get_instance();
-	int selectedpattern = engine->getSelectedPatternNumber();
 	Song *song = engine->getSong();
-	Pattern *pat = song->get_pattern_list()->get ( selectedpattern );
+	Pattern *pattern = song->get_pattern_list()->get( engine->getSelectedPatternNumber() );
 
-	Instrument *instr = song->get_instrument_list()->get ( 0 );
-	assert ( instr );
+	QDir dir = Preferences::get_instance()->__lastspatternDirectory;
 
-	QDir dir  = Preferences::get_instance()->__lastspatternDirectory;
-
-
+	QString title = tr( "Save Pattern as ..." );
 	QFileDialog fd(this);
-	fd.setFileMode ( QFileDialog::AnyFile );
+	fd.setWindowTitle( title );
+	fd.setDirectory( dir );
+	fd.selectFile( pattern->get_name() );
+	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
-	fd.setAcceptMode ( QFileDialog::AcceptSave );
-	fd.setWindowTitle ( trUtf8 ( "Save Pattern as ..." ) );
-	fd.setDirectory ( dir );
+	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::patterns_dir() ) );
 
-
-
-	QString defaultPatternname = QString ( pat->get_name() );
-
-	fd.selectFile ( defaultPatternname );
-
-	LocalFileMng fileMng;
-	QString filename;
-	if ( fd.exec() == QDialog::Accepted )
-	{
-		filename = fd.selectedFiles().first();
-		QString tmpfilename = filename;
-		QString toremove = tmpfilename.section( '/', -1 );
-		QString newdatapath =  tmpfilename.replace( toremove, "" );
-		Preferences::get_instance()->__lastspatternDirectory = newdatapath;
+	if ( fd.exec() != QDialog::Accepted ) {
+		return;
 	}
 
-	if ( !filename.isEmpty() )
-	{
-		QString sNewFilename = filename;
-		if ( sNewFilename.endsWith( Filesystem::patterns_ext ) ) {
-			sNewFilename += "";
-		}
-		else{
-			sNewFilename += Filesystem::patterns_ext;
-		}
-		QString patternname = sNewFilename;
-		QString realpatternname = filename;
-		QString realname = realpatternname.mid( realpatternname.lastIndexOf( "/" ) + 1 );
-		if ( realname.endsWith( Filesystem::patterns_ext ) )
-			realname.replace( Filesystem::patterns_ext, "" );
-		pat->set_name(realname);
-		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
-		int err = fileMng.savePattern ( song, engine->getCurrentDrumkitname(), selectedpattern, patternname, realname, 2 );
-		if ( err != 0 )
-		{
-			QMessageBox::warning( this, "Hydrogen", trUtf8("Could not export pattern.") );
-			_ERRORLOG ( "Error saving the pattern" );
+	QFileInfo fileInfo = fd.selectedFiles().first();
+	Preferences::get_instance()->__lastspatternDirectory =  fileInfo.path();
+
+	QString filePath = fileInfo.absoluteFilePath();
+	if ( fileInfo.suffix().isEmpty() ) {
+		filePath += Filesystem::patterns_ext;
+		if ( Filesystem::file_exists( filePath ) ) {
+			if ( QMessageBox::question( this, title, QFileInfo( filePath ).fileName() + tr( " already exists.\nDo you want to replace it?" ) ) != 0 ) {
+				return;
+			}
 		}
 	}
-	h2app->setStatusBarMessage ( trUtf8 ( "Pattern saved." ), 10000 );
 
-	//update SoundlibraryPanel
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+	QString originalName = pattern->get_name();
+	pattern->set_name( fileInfo.baseName() );
+	QString path = Files::savePattern( Files::SaveMode::SAVE_PATH, filePath, pattern, song, engine->getCurrentDrumkitname() );
+	pattern->set_name( originalName );
+
+	if ( path.isEmpty() ) {
+		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
+		_ERRORLOG ( "Error saving the pattern" );
+		return;
+	}
+
+	h2app->setStatusBarMessage( tr( "Pattern saved." ), 10000 );
+
+	if ( filePath.indexOf( Filesystem::patterns_dir() ) == 0 ) {
+		WARNINGLOG( "SoundLibrary should be updated" );
+		// FIXME : the bellow does not work
+		/* HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems(); */
+		/* HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList(); */
+	}
 }
-
-
 
 void MainForm::action_file_open() {
 	if ( ((Hydrogen::get_instance())->getState() == STATE_PLAYING) ) {
