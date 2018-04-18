@@ -681,7 +681,6 @@ void MainForm::action_file_export_pattern_as()
 
 	if ( path.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
-		_ERRORLOG ( "Error saving the pattern" );
 		return;
 	}
 
