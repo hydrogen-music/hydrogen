@@ -664,6 +664,7 @@ void MainForm::action_file_export_pattern_as()
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::patterns_dir() ) );
+	fd.setDefaultSuffix( Filesystem::patterns_ext );
 
 	if ( fd.exec() != QDialog::Accepted ) {
 		return;
@@ -671,16 +672,7 @@ void MainForm::action_file_export_pattern_as()
 
 	QFileInfo fileInfo = fd.selectedFiles().first();
 	Preferences::get_instance()->__lastspatternDirectory =  fileInfo.path();
-
 	QString filePath = fileInfo.absoluteFilePath();
-	if ( fileInfo.suffix().isEmpty() ) {
-		filePath += Filesystem::patterns_ext;
-		if ( Filesystem::file_exists( filePath ) ) {
-			if ( QMessageBox::question( this, title, QFileInfo( filePath ).fileName() + tr( " already exists.\nDo you want to replace it?" ) ) != 0 ) {
-				return;
-			}
-		}
-	}
 
 	QString originalName = pattern->get_name();
 	pattern->set_name( fileInfo.baseName() );
