@@ -141,6 +141,9 @@ SoundLibraryInfo::SoundLibraryInfo(const QString &path) : Object( __class_name )
 
 		QDomNode patternNode = rootNode.firstChildElement( "pattern" );
 		setName( LocalFileMng::readXmlString( patternNode,"pattern_name", "" ) );
+		if ( getName().isEmpty() ) {
+			setName( LocalFileMng::readXmlString( patternNode,"name", "" ) );
+		}
 		setInfo( LocalFileMng::readXmlString( patternNode,"info", "No information available." ) );
 		setCategory( LocalFileMng::readXmlString( patternNode,"category", "" ) );
 	}
