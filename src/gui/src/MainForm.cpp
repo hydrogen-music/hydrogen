@@ -687,10 +687,15 @@ void MainForm::action_file_export_pattern_as()
 	h2app->setStatusBarMessage( tr( "Pattern saved." ), 10000 );
 
 	if ( filePath.indexOf( Filesystem::patterns_dir() ) == 0 ) {
-		WARNINGLOG( "SoundLibrary should be updated" );
-		// FIXME : the bellow does not work
-		/* HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems(); */
-		/* HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList(); */
+#ifdef WIN32
+		Sleep ( 10 );
+#else
+		usleep ( 10000 );
+#endif
+		SoundLibraryDatabase::get_instance()->updatePatterns();
+		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
+		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+
 	}
 }
 
