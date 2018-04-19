@@ -1171,19 +1171,19 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Jack driver: server shutdown</source>
-        <translation>Pilote Jack : fermeture du serveur</translation>
+        <translation>Pilote JACK : fermeture du serveur</translation>
     </message>
     <message>
         <source>Jack driver: cannot activate client</source>
-        <translation>Pilote jack : impossible d&apos;activer le client</translation>
+        <translation>Pilote JACK : impossible d&apos;activer le client</translation>
     </message>
     <message>
         <source>Jack driver: cannot connect output port</source>
-        <translation>Pilote jack : impossible de connecter le port de sortie</translation>
+        <translation>Pilote JACK : impossible de connecter le port de sortie</translation>
     </message>
     <message>
         <source>Jack driver: error in port register</source>
-        <translation>Pilote jack : impossible d&apos;authentifier le client</translation>
+        <translation>Pilote JACK : impossible d&apos;authentifier le client</translation>
     </message>
     <message>
         <source>&amp;Export song</source>
@@ -1843,15 +1843,15 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Jack-transport on/off</source>
-        <translation>Transport Jack actif/inactif</translation>
+        <translation>Transport JACK actif/inactif</translation>
     </message>
     <message>
         <source>Jack-transport mode = On</source>
-        <translation>Transport Jack = Actif</translation>
+        <translation>Transport JACK = Actif</translation>
     </message>
     <message>
         <source>Jack-transport mode = Off</source>
-        <translation>Transport Jack = Inactif</translation>
+        <translation>Transport JACK = Inactif</translation>
     </message>
     <message>
         <source>Show mixer</source>
@@ -1911,11 +1911,11 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Set BPM / Set BPM and play</source>
-        <translation>Régler le BPM / Régler le BPM et jouer</translation>
+        <translation>Régler le BPM / régler le BPM et jouer</translation>
     </message>
     <message>
         <source>Jack-Time-Master on/off</source>
-        <translation>Jack-Time-Master actif/inactif</translation>
+        <translation>JACK-time-master actif/inactif</translation>
     </message>
     <message>
         <source> BC Panel on</source>
@@ -1935,11 +1935,11 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source> Jack-Time-Master mode = On</source>
-        <translation> Mode Jack-Time-Master = Actif</translation>
+        <translation> Mode JACK-time-master = Actif</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = Off</source>
-        <translation> Mode Jack-Time-Master = Inactif</translation>
+        <translation> Mode JACK-time-master = Inactif</translation>
     </message>
     <message>
         <source>Record</source>
@@ -2539,7 +2539,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Use lash</source>
-        <translation>Utiliser LASH (système de gestion session Jack/ALSA)</translation>
+        <translation>Utiliser LASH (système de gestion de session JACK/ALSA)</translation>
     </message>
     <message>
         <source>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</source>
