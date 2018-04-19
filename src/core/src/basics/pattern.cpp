@@ -122,9 +122,9 @@ bool Pattern::save_file( const QString& drumkit_name, const QString& author, con
 	XMLDoc doc;
 	doc.set_root( "drumkit_pattern", "drumkit_pattern" );
 	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
-	root.write_string( "drumkit_name", drumkit_name );
-	root.write_string( "author", author );
-	root.write_string( "license", license );
+	root.write_string( "drumkit_name", drumkit_name );				// FIXME loaded with LocalFileMng::getDrumkitNameForPattern(…)
+	root.write_string( "author", author );							// FIXME this is never loaded back
+	root.write_string( "license", license );						// FIXME this is never loaded back
 	save_to( &root );
 	return doc.write( pattern_path );
 }
