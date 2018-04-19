@@ -31,6 +31,7 @@
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/event_queue.h>
+#include <hydrogen/helpers/files.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/timeline.h>
@@ -1341,33 +1342,30 @@ void SongEditorPatternList::patternPopup_export()
 void SongEditorPatternList::patternPopup_save()
 {
 	Hydrogen *engine = Hydrogen::get_instance();
-	int nSelectedPattern = engine->getSelectedPatternNumber();
 	Song *song = engine->getSong();
-	Pattern *pat = song->get_pattern_list()->get( nSelectedPattern );
+	Pattern *pattern = song->get_pattern_list()->get( engine->getSelectedPatternNumber() );
 
-	QString patternname = pat->get_name();
-
-	LocalFileMng fileMng;
-	int err = fileMng.savePattern( song, engine->getCurrentDrumkitname(), nSelectedPattern, patternname, patternname, 1 );
-	if ( err == 1 ) {
-		int res = QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
-		if ( res == 0 ) {
-			int err2 = fileMng.savePattern( song, engine->getCurrentDrumkitname(), nSelectedPattern, patternname, patternname, 3 );
-			if( err2 == 1){
-				_ERRORLOG( "Error saving the pattern" );
-				return;
-			} //if err2
-		}else{ // res cancel
+	QString path = Files::savePattern( Files::SaveMode::SAVE_NEW, pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
+	if ( path.isEmpty() ) {
+		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"), tr("&Ok"), tr("&Cancel"), 0, 1 ) != 0 ) {
 			return;
-		} //if res
-	} //if err
+		}
+		path = Files::savePattern( Files::SaveMode::SAVE_OVERWRITE, pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
+	}
 
+	if ( path.isEmpty() ) {
+		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
+		return;
+	}
+
+	HydrogenApp::get_instance()->setStatusBarMessage( tr( "Pattern saved." ), 10000 );
 
 #ifdef WIN32
 	Sleep ( 10 );
 #else
 	usleep ( 10000 );
 #endif
+
 	SoundLibraryDatabase::get_instance()->updatePatterns();
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
