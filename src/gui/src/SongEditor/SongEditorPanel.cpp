@@ -609,7 +609,6 @@ void SongEditorPanel::clearSequence( Button* btn)
 	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 
 	hydrogenApp->m_undoStack->push( action );
-	hydrogenApp->addTemporaryFile( filename );
 }
 
 

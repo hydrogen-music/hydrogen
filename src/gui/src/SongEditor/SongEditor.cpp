@@ -1300,7 +1300,6 @@ void SongEditorPatternList::patternPopup_load()
 
 	SE_loadPatternAction *action = new SE_loadPatternAction( patternPath, prevPatternPath, sequencePath, nSelectedPattern, false );
 	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
-	hydrogenApp->addTemporaryFile( sequencePath );
 	hydrogenApp->m_undoStack->push( action );
 }
 
@@ -1441,8 +1440,6 @@ void SongEditorPatternList::patternPopup_delete()
 
 	SE_deletePatternFromListAction *action = new 	SE_deletePatternFromListAction( patternPath , sequencePath, patternPosition );
 	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
-	hydrogenApp->addTemporaryFile( sequencePath );
-	hydrogenApp->addTemporaryFile( patternPath );
 	hydrogenApp->m_undoStack->push( action );
 
 }
@@ -1559,7 +1556,6 @@ void SongEditorPatternList::patternPopup_copy()
 		}
 		SE_copyPatternAction *action = new SE_copyPatternAction( filePath, nSelectedPattern + 1 );
 		HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
-		hydrogenApp->addTemporaryFile( filePath );
 		hydrogenApp->m_undoStack->push( action );
 	}
 
@@ -1736,7 +1732,6 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 		if( QString( tokens.at(0) ).contains( "drag pattern" )) drag = true;
 		SE_loadPatternAction *action = new SE_loadPatternAction( sPatternName, oldPatternName, sequenceFilename, nTargetPattern, drag );
 
-		hydrogenApp->addTemporaryFile( sequenceFilename );
 		hydrogenApp->m_undoStack->push( action );
 	}
 }
