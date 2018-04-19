@@ -12,29 +12,35 @@ namespace H2Core
 
 	QString Files::savePattern( SaveMode mode, const QString& filename, Pattern* pattern, Song* song, const QString& drumkit_name )
 	{
-		QString filepath;
+		QFileInfo fileInfo;
 
 		switch ( mode ) {
 			case SAVE_NEW:
 			case SAVE_OVERWRITE:
-				filepath = Filesystem::pattern_path( drumkit_name, filename );
+				fileInfo = Filesystem::pattern_path( drumkit_name, filename );
 				break;
 			case SAVE_PATH:
-				filepath = filename;
+				fileInfo = filename;
 				break;
 			case SAVE_TMP:
-				filepath = Filesystem::tmp_file( filename );
+				fileInfo = Filesystem::tmp_file( filename );
 			default:
 				ERRORLOG( QString( "unknown mode : %1" ).arg( mode ) );
 				break;
 		}
 
-		INFOLOG( QString( " write to %1" ).arg( filepath ) );
+		if ( mode == SAVE_NEW && Filesystem::file_exists( fileInfo.absoluteFilePath(), false ) ) {
+			return NULL;
+		}
 
-		if ( !pattern->save_file( drumkit_name, song->get_author(), song->get_license(), filepath, (mode != SAVE_NEW ) ) )
+		if ( !Filesystem::path_usable( fileInfo.path(), true, false ) ) {
+			return NULL;
+		}
+
+		if ( !pattern->save_file( drumkit_name, song->get_author(), song->get_license(), fileInfo.absoluteFilePath(), true ) )
 			return NULL;
 
-		return filepath;
+		return fileInfo.absoluteFilePath();
 	}
 
 };
