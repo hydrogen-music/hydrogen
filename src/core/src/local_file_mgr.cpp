@@ -274,54 +274,6 @@ bool LocalFileMng::pasteInstrumentLineFromString(Song *song, const QString & ser
 	return true;
 }
 
-
-int LocalFileMng::savePattern( Song *song , const QString& drumkit_name, int selectedpattern , const QString& patternname, const QString& realpatternname, int mode)
-{
-	//int mode = 1 save, int mode = 2 save as
-	// INSTRUMENT NODE
-
-	Instrument *instr = song->get_instrument_list()->get( 0 );
-	assert( instr );
-
-	Pattern *pat = song->get_pattern_list()->get( selectedpattern );
-
-	QString sPatternDir = Filesystem::patterns_dir( drumkit_name );
-
-	INFOLOG( "[savePattern]" + sPatternDir );
-
-	// check if the directory exists
-	QDir dir( sPatternDir );
-	QDir dirPattern( sPatternDir );
-	if ( !dir.exists() ) {
-		dir.mkdir( sPatternDir );// create the drumkit directory
-	}
-
-	QString sPatternXmlFilename;
-	// create the drumkit.xml file
-	switch ( mode ){
-	case 1: //save
-		sPatternXmlFilename = sPatternDir + "/" + QString( patternname + Filesystem::patterns_ext );
-		break;
-	case 2: //save as
-		sPatternXmlFilename = patternname;
-		break;
-	case 3: //"save" but overwrite a existing pattern. mode 3 disable the last file exist check
-		sPatternXmlFilename = sPatternDir + "/" + QString( patternname + Filesystem::patterns_ext );
-		break;
-	case 4: //tmp pattern needed by undo/redo
-		sPatternXmlFilename = patternname;
-	default:
-		WARNINGLOG( "Pattern Save unknown status");
-		break;
-
-	}
-
-	if ( !pat->save_file( drumkit_name, song->get_author(), song->get_license(), sPatternXmlFilename, (mode != 1 ) ) )
-		return 1;
-
-	return 0;
-}
-
 /**
  * Save the currently loaded playlist to disk.
  * \param playlist_name The filename of the output file.
