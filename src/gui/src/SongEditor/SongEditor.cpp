@@ -1360,12 +1360,6 @@ void SongEditorPatternList::patternPopup_save()
 
 	HydrogenApp::get_instance()->setStatusBarMessage( tr( "Pattern saved." ), 10000 );
 
-#ifdef WIN32
-	Sleep ( 10 );
-#else
-	usleep ( 10000 );
-#endif
-
 	SoundLibraryDatabase::get_instance()->updatePatterns();
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
@@ -1448,12 +1442,6 @@ void SongEditorPatternList::patternPopup_delete()
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
 		return;
 	}
-
-#ifdef WIN32
-	Sleep ( 10 );
-#else
-	usleep ( 10000 );
-#endif
 
 	SE_deletePatternFromListAction *action = new 	SE_deletePatternFromListAction( patternPath , sequencePath, patternPosition );
 	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
