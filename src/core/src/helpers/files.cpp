@@ -24,8 +24,10 @@ namespace H2Core
 				break;
 			case SAVE_TMP:
 				fileInfo = Filesystem::tmp_file( filename );
+				break;
 			default:
 				ERRORLOG( QString( "unknown mode : %1" ).arg( mode ) );
+				return;
 				break;
 		}
 
