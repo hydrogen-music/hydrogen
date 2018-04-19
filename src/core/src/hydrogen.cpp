@@ -2673,8 +2673,6 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 			InstrumentComponent* pCompo = *it;
 			// remove all layers
 			for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
-				InstrumentLayer* pLayer = pCompo->get_layer( nLayer );
-				delete pLayer;
 				pCompo->set_layer( NULL, nLayer );
 			}
 		}

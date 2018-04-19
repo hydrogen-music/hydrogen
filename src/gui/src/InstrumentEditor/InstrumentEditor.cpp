@@ -840,11 +840,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		if ( m_pInstrument ) {
 			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
-				H2Core::InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer );
-				if ( pLayer ) {
-					m_pInstrument->get_component(m_nSelectedComponent)->set_layer( NULL, m_nSelectedLayer );
-					delete pLayer;
-				}
+				m_pInstrument->get_component(m_nSelectedComponent)->set_layer( NULL, m_nSelectedLayer );
 
 				int p_count = 0;
 				for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
