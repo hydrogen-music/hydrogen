@@ -27,7 +27,7 @@ namespace H2Core
 				break;
 			default:
 				ERRORLOG( QString( "unknown mode : %1" ).arg( mode ) );
-				return;
+				return NULL;
 				break;
 		}
 
