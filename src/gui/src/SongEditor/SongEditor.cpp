@@ -1432,15 +1432,33 @@ void SongEditorPatternList::patternPopup_delete()
 {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
+	Song *song = pEngine->getSong();
+	PatternList *pSongPatternList = song->get_pattern_list();
 	int patternPosition = pEngine->getSelectedPatternNumber();
+	Pattern *pattern = song->get_pattern_list()->get( patternPosition );
 
-	QString sequenceFilename = Filesystem::tmp_file( "SEQ.xml" );
-	QString patternFilename = Filesystem::tmp_file( "PAT.xml" );
+	QString patternPath = Files::savePattern( Files::SaveMode::SAVE_TMP, pattern->get_name(), pattern, song, pEngine->getCurrentDrumkitname() );
+	if ( patternPath.isEmpty() ) {
+		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
+		return;
+	}
+	LocalFileMng fileMng;
+	QString sequencePath = Filesystem::tmp_file( "SEQ.xml" );
+	if ( fileMng.writeTempPatternList( song , sequencePath ) != 0 ) {
+		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
+		return;
+	}
 
-	SE_deletePatternFromListAction *action = new 	SE_deletePatternFromListAction( patternFilename , sequenceFilename, patternPosition );
-	hydrogenApp->addTemporaryFile( sequenceFilename );
-	hydrogenApp->addTemporaryFile( patternFilename );
+#ifdef WIN32
+	Sleep ( 10 );
+#else
+	usleep ( 10000 );
+#endif
+
+	SE_deletePatternFromListAction *action = new 	SE_deletePatternFromListAction( patternPath , sequencePath, patternPosition );
+	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
+	hydrogenApp->addTemporaryFile( sequencePath );
+	hydrogenApp->addTemporaryFile( patternPath );
 	hydrogenApp->m_undoStack->push( action );
 
 }
@@ -1448,36 +1466,14 @@ void SongEditorPatternList::patternPopup_delete()
 
 void SongEditorPatternList::deletePatternFromList( QString patternFilename, QString sequenceFileName, int patternPosition )
 {
-
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	if ( pEngine->getSong()->get_mode() == Song::PATTERN_MODE ) {
-		pEngine->sequencer_setNextPattern( -1 );	// reimposto il prossimo pattern a NULL, altrimenti viene scelto quello che sto distruggendo ora...
+		pEngine->sequencer_setNextPattern( -1 );
 	}
 
 	Song *song = pEngine->getSong();
 	PatternList *pSongPatternList = song->get_pattern_list();
-
-
-	//write sequence to disk
-	//this is important because parts of the sequese will remove after deleting a pattern
-	LocalFileMng fileMng;
-	int errseq = fileMng.writeTempPatternList( song , sequenceFileName);
-
-	//write pattern to disk;
-	Pattern *pat = song->get_pattern_list()->get( patternPosition );
-
-	QString patternname = pat->get_name();
-	int err =1;
-	err = fileMng.savePattern( song, pEngine->getCurrentDrumkitname(), patternPosition, patternFilename, patternname, 4 );
-
-#ifdef WIN32
-	Sleep ( 10 );
-#else
-	usleep ( 10000 );
-#endif
-	//~save pattern end
-
 	H2Core::Pattern *pattern = pSongPatternList->get( patternPosition );
 	INFOLOG( QString("[patternPopup_delete] Delete pattern: %1 @%2").arg(pattern->get_name()).arg( (long long)pattern ) );
 	pSongPatternList->del(pattern);
