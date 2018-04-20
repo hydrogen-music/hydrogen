@@ -38,7 +38,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/h2_exception.h>
-#include <hydrogen/playlist.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/LocalFileMng.h>
 

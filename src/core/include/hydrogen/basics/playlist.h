@@ -20,24 +20,21 @@
  *
  */
 
-#ifndef PLAYLIST_H
-#define PLAYLIST_H
+#ifndef H2C_PLAYLIST_H
+#define H2C_PLAYLIST_H
 
 #include <hydrogen/object.h>
-#include <hydrogen/globals.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <vector>
-#include <cassert>
 
-///
-/// handle playlist
-///
+namespace H2Core
+{
 
-class Playlist :  public H2Core::Object
+/**
+ * Drumkit info
+*/
+class Playlist : public H2Core::Object
 
 {
-	H2_OBJECT
+		H2_OBJECT
 
 	public:
 		static void create_instance();
@@ -45,30 +42,20 @@ class Playlist :  public H2Core::Object
 
 		~Playlist();
 
-		void setNextSongByNumber(int SongNumber); /* Call from MIDI thread */
-		bool loadSong (int SongNumber); /* Call from main (e.g. GUI) thread */
-		void setSelectedSongNr( int songNumber);
+		bool loadSong (int SongNumber );
 
+		void setNextSongByNumber( int SongNumber );
 		int getSelectedSongNr();
-		void setActiveSongNumber( int ActiveSongNumber);
+		void setSelectedSongNr( int songNumber );
+
 		int getActiveSongNumber();
+		void setActiveSongNumber( int ActiveSongNumber );
 
-		const QString& get_filename() {
-			return __filename;
-		}
+		const QString& getFilename();
+		void setFilename( const QString& filename );
+		bool getIsModified();
+		void setIsModified( bool IsModified );
 
-		void set_filename( const QString& filename ) {
-			__filename = filename;
-		}
-
-		void setIsModified(bool IsModified){
-			m_bIsModified = IsModified;
-		}
-
-		bool getIsModified(){
-			return m_bIsModified;
-		}
-		
 		static Playlist* load( const QString& filename );
 		bool save( const QString& filename );
 
@@ -81,10 +68,52 @@ class Playlist :  public H2Core::Object
 
 		bool m_bIsModified;
 
-		/// Constructor
 		Playlist();
 
-		void execScript( int index);
+		void execScript( int index );
 };
 
-#endif
+
+inline int Playlist::getSelectedSongNr()
+{
+	return m_nSelectedSongNumber;
+}
+
+inline void Playlist::setSelectedSongNr( int songNumber )
+{
+	m_nSelectedSongNumber = songNumber;
+}
+
+inline int Playlist::getActiveSongNumber()
+{
+	return m_nActiveSongNumber;
+}
+
+inline void Playlist::setActiveSongNumber( int ActiveSongNumber )
+{
+	m_nActiveSongNumber = ActiveSongNumber ;
+}
+
+inline const QString& Playlist::getFilename()
+{
+	return __filename;
+}
+
+inline void Playlist::setFilename( const QString& filename )
+{
+	__filename = filename;
+}
+
+inline bool Playlist::getIsModified()
+{
+	return m_bIsModified;
+}
+
+inline void Playlist::setIsModified( bool IsModified )
+{
+	m_bIsModified = IsModified;
+}
+
+};
+
+#endif // H2C_PLAYLIST_H

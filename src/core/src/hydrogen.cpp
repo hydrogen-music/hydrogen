@@ -53,6 +53,7 @@
 #include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/automation_path.h>
 #include <hydrogen/hydrogen.h>
@@ -66,7 +67,6 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/sampler/Sampler.h>
 #include <hydrogen/midi_map.h>
-#include <hydrogen/playlist.h>
 #include <hydrogen/timeline.h>
 
 #ifdef H2CORE_HAVE_OSC

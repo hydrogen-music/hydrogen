@@ -24,12 +24,12 @@
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/playlist.h>
 
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/pattern_list.h>
 

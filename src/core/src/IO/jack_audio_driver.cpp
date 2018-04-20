@@ -32,11 +32,11 @@
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>
-#include <hydrogen/playlist.h>
 
 #ifdef H2CORE_HAVE_LASH
 #include <hydrogen/LashClient.h>
@@ -789,9 +789,9 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t *event)
 	if ( H->m_PlayList.size() > 0 ) {
 		Playlist* PL = Playlist::get_instance();
 
-		if ( PL->get_filename().isEmpty() ) PL->set_filename( "untitled.h2playlist" );
+		if ( PL->getFilename().isEmpty() ) PL->setFilename( "untitled.h2playlist" );
 
-		QString FileName = baseName ( PL->get_filename() );
+		QString FileName = baseName ( PL->getFilename() );
 		FileName.replace ( QString(" "), QString("_") );
 		retval += " -p \"${SESSION_DIR}" + FileName + "\"";
 

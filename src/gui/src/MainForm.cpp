@@ -23,7 +23,6 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/version.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/playlist.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/smf/SMF.h>
 #include <hydrogen/Preferences.h>
@@ -35,6 +34,7 @@
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/drumkit_component.h>
+#include <hydrogen/basics/playlist.h>
 
 #include <hydrogen/lilypond/lilypond.h>
 
@@ -226,7 +226,7 @@ MainForm::~MainForm()
 	file.remove();
 
 	//if a playlist is used, we save the last playlist-path to hydrogen.conf
-	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->get_filename() );
+	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->getFilename() );
 
 	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();

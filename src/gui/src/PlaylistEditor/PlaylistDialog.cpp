@@ -32,9 +32,9 @@
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/playlist.h>
 #include <hydrogen/timeline.h>
 #include <hydrogen/event_queue.h>
+#include <hydrogen/basics/playlist.h>
 
 #include "../widgets/Button.h"
 
@@ -61,7 +61,7 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 
 	setupUi ( this );
 	INFOLOG ( "INIT" );
-	setWindowTitle ( trUtf8 ( "Playlist Browser" ) + QString(" - ") + Playlist::get_instance()->get_filename() );
+	setWindowTitle ( trUtf8 ( "Playlist Browser" ) + QString(" - ") + Playlist::get_instance()->getFilename() );
 	setFixedSize ( width(), height() );
 
 	installEventFilter( this );
@@ -320,7 +320,7 @@ void PlaylistDialog::removeFromList()
 			Hydrogen::get_instance()->m_PlayList.clear();
 			Playlist::get_instance()->setSelectedSongNr( -1 );
 			Playlist::get_instance()->setActiveSongNumber( -1 );
-			Playlist::get_instance()->set_filename( "" );
+			Playlist::get_instance()->setFilename( "" );
 			setWindowTitle ( trUtf8 ( "Playlist Browser" ) );
 			return;
 		} else {
@@ -369,7 +369,7 @@ void PlaylistDialog::clearPlaylist()
 		Hydrogen::get_instance()->m_PlayList.clear();
 		Playlist::get_instance()->setSelectedSongNr( -1 );
 		Playlist::get_instance()->setActiveSongNumber( -1 );
-		Playlist::get_instance()->set_filename ( "" );
+		Playlist::get_instance()->setFilename ( "" );
 		setWindowTitle ( trUtf8 ( "Playlist Browser" ) );
 
 		Playlist::get_instance()->setIsModified(false);
@@ -436,7 +436,7 @@ void PlaylistDialog::loadList()
 		QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem ( 0 );
 		m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
 		pPlaylist->setSelectedSongNr( 0 );
-		setWindowTitle ( trUtf8 ( "Playlist Browser" ) + QString(" - ") + pPlaylist->get_filename() );
+		setWindowTitle ( trUtf8 ( "Playlist Browser" ) + QString(" - ") + pPlaylist->getFilename() );
 	}
 }
 
@@ -541,12 +541,12 @@ void PlaylistDialog::saveListAs()
 void PlaylistDialog::saveList()
 {
 	Playlist* pPlaylist = Playlist::get_instance();
-	if ( pPlaylist->get_filename() == "") {
+	if ( pPlaylist->getFilename() == "") {
 		// just in case!
 		return saveListAs();
 	}
 
-	if ( ! pPlaylist->save ( pPlaylist->get_filename() ) ){
+	if ( ! pPlaylist->save ( pPlaylist->getFilename() ) ){
 		return;
 	}
 
@@ -999,7 +999,7 @@ bool PlaylistDialog::loadListByFileName( QString filename )
 		QTreeWidgetItem* m_pPlaylistItem = m_pPlaylist->topLevelItem ( 0 );
 		m_pPlaylist->setCurrentItem ( m_pPlaylistItem );
 		pPlaylist->setSelectedSongNr( 0 );
-		setWindowTitle ( trUtf8 ( "Playlist Browser" ) + QString(" - ") + pPlaylist->get_filename() );
+		setWindowTitle ( trUtf8 ( "Playlist Browser" ) + QString(" - ") + pPlaylist->getFilename() );
 	}
 
 	return 1;

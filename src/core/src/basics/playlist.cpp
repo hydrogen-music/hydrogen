@@ -20,17 +20,14 @@
  *
  */
 
-#include <hydrogen/h2_exception.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/playlist.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/LocalFileMng.h>
 
-#include <vector>
-#include <cstdlib>
-
-using namespace H2Core;
+namespace H2Core
+{
 
 Playlist* Playlist::__instance = NULL;
 
@@ -43,7 +40,6 @@ Playlist::Playlist()
 		_ERRORLOG( "Playlist in use" );
 	}
 
-	//_INFOLOG( "[Playlist]" );
 	__instance = this;
 	__filename = "";
 	m_nSelectedSongNumber = -1;
@@ -53,7 +49,6 @@ Playlist::Playlist()
 
 Playlist::~Playlist()
 {
-	//_INFOLOG( "[~Playlist]" );
 	__instance = NULL;
 }
 
@@ -66,10 +61,10 @@ void Playlist::create_instance()
 
 bool Playlist::save( const QString& filename )
 {
-	set_filename( filename );
+	setFilename( filename );
 
 	LocalFileMng fileMng;
-	if ( fileMng.savePlayList( filename.toLocal8Bit().constData() ) == 0 ){
+	if ( fileMng.savePlayList( filename.toLocal8Bit().constData() ) == 0 ) {
 		return true;
 	}
 
@@ -83,26 +78,26 @@ Playlist* Playlist::load( const QString& filename )
 
 	if ( ret == 0 ) {
 		Playlist* pPlaylist = get_instance();
-		pPlaylist->set_filename( filename );
+		pPlaylist->setFilename( filename );
 		return pPlaylist;
 	}
 	return NULL;
 }
 
 /* This method is called by Event dispacher thread ( GUI ) */
-bool Playlist::loadSong (int songNumber)
+bool Playlist::loadSong( int songNumber )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Preferences *pPref = Preferences::get_instance();
 
-	if ( pHydrogen->getState() == STATE_PLAYING ){
+	if ( pHydrogen->getState() == STATE_PLAYING ) {
 		pHydrogen->sequencer_stop();
 	}
 
 	/* Load Song from file */
 	QString selected = pHydrogen->m_PlayList[ songNumber ].m_hFile;
 	Song *pSong = Song::load( selected );
-	if ( ! pSong ){
+	if ( ! pSong ) {
 		return false;
 	}
 
@@ -122,39 +117,17 @@ bool Playlist::loadSong (int songNumber)
 }
 
 /* This method is called by MIDI thread */
-void Playlist::setNextSongByNumber(int songNumber)
+void Playlist::setNextSongByNumber( int songNumber )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 
 	int playlist_size = pHydrogen->m_PlayList.size();
-	if ( songNumber > playlist_size - 1 || playlist_size == 0 ){
+	if ( songNumber > playlist_size - 1 || playlist_size == 0 ) {
 		return;
 	}
 
 	/* NOTE: we are in MIDI thread and can't just call loadSong from here :( */
-	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber);
-}
-
-void Playlist::setSelectedSongNr( int songNumber )
-{
-	m_nSelectedSongNumber = songNumber;
-}
-
-
-int Playlist::getSelectedSongNr()
-{
-	return m_nSelectedSongNumber;
-}
-
-void Playlist::setActiveSongNumber( int ActiveSongNumber)
-{
-	m_nActiveSongNumber = ActiveSongNumber ;
-}
-
-
-int Playlist::getActiveSongNumber()
-{
-	return m_nActiveSongNumber;
+	EventQueue::get_instance()->push_event( EVENT_PLAYLIST_LOADSONG, songNumber );
 }
 
 void Playlist::execScript( int index)
@@ -165,7 +138,7 @@ void Playlist::execScript( int index)
 	file = Hydrogen::get_instance()->m_PlayList[ index ].m_hScript;
 	script = Hydrogen::get_instance()->m_PlayList[ index ].m_hScriptEnabled;
 
-	if( !QFile( file ).exists()  || script == "Script not used"){
+	if( !QFile( file ).exists()  || script == "Script not used") {
 		return;
 	}
 
@@ -173,3 +146,5 @@ void Playlist::execScript( int index)
 
 	return;
 }
+
+};
