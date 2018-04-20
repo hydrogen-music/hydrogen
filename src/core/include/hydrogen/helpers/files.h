@@ -25,7 +25,64 @@ class Files : public H2Core::Object
 			SAVE_TMP,				// construct the path in save
 		};
 
-	static QString savePattern( SaveMode mode, const QString& filename, Pattern* pattern, Song* song, const QString& drumkit_name );
+		/**
+		 * save the given pattern to <usre_data_path>/pattern/<drumkitName>/<fileName>.h2pattern
+		 * will NOT overwrite an existing file
+		 * \param fileName to build filePath from
+		 * \param pattern the one to be saved
+		 * \param song to access license, author info
+		 * \param drumkitName to build filePath from and to access name info
+		 * \return filePath on success, NULL on failure
+		 */
+		static inline QString savePatternNew( const QString& fileName, Pattern* pattern, Song* song, const QString& drumkitName )
+		{
+			return savePattern( SAVE_NEW, fileName, pattern, song, drumkitName );
+		}
+
+		/**
+		 * save the given pattern to <usre_data_path>/pattern/<drumkitName>/<fileName>.h2pattern
+		 * will overwrite an existing file
+		 * \param fileName to build filePath from
+		 * \param pattern the one to be saved
+		 * \param song to access license, author info
+		 * \param drumkitName to build filePath from and to access name info
+		 * \return filePath on success, NULL on failure
+		 */
+		static inline QString savePatternOver( const QString& fileName, Pattern* pattern, Song* song, const QString& drumkitName )
+		{
+			return savePattern( SAVE_OVERWRITE, fileName, pattern, song, drumkitName );
+		}
+
+		/**
+		 * save the given pattern to filePath
+		 * will overwrite an existing file
+		 * \param filePath to write the pattern to
+		 * \param pattern the one to be saved
+		 * \param song to access license, author info
+		 * \param drumkitName to access name info
+		 * \return filePath on success, NULL on failure
+		 */
+		static inline QString savePatternPath( const QString& filePath, Pattern* pattern, Song* song, const QString& drumkitName )
+		{
+			return savePattern( SAVE_PATH, filePath, pattern, song, drumkitName );
+		}
+
+		/**
+		 * save the given pattern under <Tmp_directory> with a unique filename built from <fileName>
+		 * will overwrite an existing file
+		 * \param fileName to build filePath from
+		 * \param pattern the one to be saved
+		 * \param song to access license, author info
+		 * \param drumkitName to access name info
+		 * \return filePath on success, NULL on failure
+		 */
+		static inline QString savePatternTmp( const QString& fileName, Pattern* pattern, Song* song, const QString& drumkitName )
+		{
+			return savePattern( SAVE_TMP, fileName, pattern, song, drumkitName );
+		}
+
+	private:
+		static QString savePattern( SaveMode mode, const QString& fileName, Pattern* pattern, Song* song, const QString& drumkitName );
 };
 
 };

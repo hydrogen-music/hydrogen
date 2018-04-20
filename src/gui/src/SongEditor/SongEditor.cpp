@@ -1286,7 +1286,7 @@ void SongEditorPatternList::patternPopup_load()
 	}
 	QString patternPath = fd.selectedFiles().first();
 
-	QString prevPatternPath = Files::savePattern( Files::SaveMode::SAVE_TMP, pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
+	QString prevPatternPath = Files::savePatternTmp( pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
 	if ( prevPatternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
 		return;
@@ -1340,12 +1340,12 @@ void SongEditorPatternList::patternPopup_save()
 	Song *song = engine->getSong();
 	Pattern *pattern = song->get_pattern_list()->get( engine->getSelectedPatternNumber() );
 
-	QString path = Files::savePattern( Files::SaveMode::SAVE_NEW, pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
+	QString path = Files::savePatternNew( pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
 	if ( path.isEmpty() ) {
 		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"), tr("&Ok"), tr("&Cancel"), 0, 1 ) != 0 ) {
 			return;
 		}
-		path = Files::savePattern( Files::SaveMode::SAVE_OVERWRITE, pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
+		path = Files::savePatternOver( pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
 	}
 
 	if ( path.isEmpty() ) {
@@ -1426,7 +1426,7 @@ void SongEditorPatternList::patternPopup_delete()
 	int patternPosition = pEngine->getSelectedPatternNumber();
 	Pattern *pattern = song->get_pattern_list()->get( patternPosition );
 
-	QString patternPath = Files::savePattern( Files::SaveMode::SAVE_TMP, pattern->get_name(), pattern, song, pEngine->getCurrentDrumkitname() );
+	QString patternPath = Files::savePatternTmp( pattern->get_name(), pattern, song, pEngine->getCurrentDrumkitname() );
 	if ( patternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
 		return;
@@ -1549,7 +1549,7 @@ void SongEditorPatternList::patternPopup_copy()
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, pNewPattern, nSelectedPattern, true );
 
 	if ( dialog->exec() == QDialog::Accepted ) {
-		QString filePath = Files::savePattern( Files::SaveMode::SAVE_TMP, pNewPattern->get_name(), pNewPattern, pSong, pEngine->getCurrentDrumkitname() );
+		QString filePath = Files::savePatternTmp( pNewPattern->get_name(), pNewPattern, pSong, pEngine->getCurrentDrumkitname() );
 		if ( filePath.isEmpty() ) {
 			QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
 			return;

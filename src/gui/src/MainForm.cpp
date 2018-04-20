@@ -676,7 +676,7 @@ void MainForm::action_file_export_pattern_as()
 
 	QString originalName = pattern->get_name();
 	pattern->set_name( fileInfo.baseName() );
-	QString path = Files::savePattern( Files::SaveMode::SAVE_PATH, filePath, pattern, song, engine->getCurrentDrumkitname() );
+	QString path = Files::savePatternPath( filePath, pattern, song, engine->getCurrentDrumkitname() );
 	pattern->set_name( originalName );
 
 	if ( path.isEmpty() ) {

@@ -10,20 +10,20 @@ namespace H2Core
 
 	const char* Files::__class_name = "Files";
 
-	QString Files::savePattern( SaveMode mode, const QString& filename, Pattern* pattern, Song* song, const QString& drumkit_name )
+	QString Files::savePattern( SaveMode mode, const QString& fileName, Pattern* pattern, Song* song, const QString& drumkitName )
 	{
 		QFileInfo fileInfo;
 
 		switch ( mode ) {
 			case SAVE_NEW:
 			case SAVE_OVERWRITE:
-				fileInfo = Filesystem::pattern_path( drumkit_name, filename );
+				fileInfo = Filesystem::pattern_path( drumkitName, fileName );
 				break;
 			case SAVE_PATH:
-				fileInfo = filename;
+				fileInfo = fileName;
 				break;
 			case SAVE_TMP:
-				fileInfo = Filesystem::tmp_file( filename );
+				fileInfo = Filesystem::tmp_file( fileName );
 				break;
 			default:
 				ERRORLOG( QString( "unknown mode : %1" ).arg( mode ) );
@@ -39,7 +39,7 @@ namespace H2Core
 			return NULL;
 		}
 
-		if ( !pattern->save_file( drumkit_name, song->get_author(), song->get_license(), fileInfo.absoluteFilePath(), true ) )
+		if ( !pattern->save_file( drumkitName, song->get_author(), song->get_license(), fileInfo.absoluteFilePath(), true ) )
 			return NULL;
 
 		return fileInfo.absoluteFilePath();
