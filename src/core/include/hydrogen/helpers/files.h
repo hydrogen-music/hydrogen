@@ -9,6 +9,7 @@ namespace H2Core
 {
 
 class Pattern;
+class Playlist;
 class Song;
 
 /**
@@ -81,8 +82,22 @@ class Files : public H2Core::Object
 			return savePattern( SAVE_TMP, fileName, pattern, song, drumkitName );
 		}
 
+		/**
+		 * save the given playlist to filePath
+		 * will overwrite an existing file
+		 * \param filePath to write the playlist to
+		 * \param playlist the one to be saved
+		 * \param relativePaths should the path to the songs be relative to the playlist instead of absolute
+		 * \return filePath on success, NULL on failure
+		 */
+		static inline QString savePlaylistPath( const QString& filePath, Playlist* playlist, bool relativePaths )
+		{
+			return savePlaylist( SAVE_PATH, filePath, playlist, relativePaths );
+		}
+
 	private:
 		static QString savePattern( SaveMode mode, const QString& fileName, Pattern* pattern, Song* song, const QString& drumkitName );
+		static QString savePlaylist( SaveMode mode, const QString& fileName, Playlist* playlist, bool relativePaths );
 };
 
 };
