@@ -1507,13 +1507,13 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			break;
 
 		case  Qt::Key_F5 :
-			if( engine->m_PlayList.size() == 0)
+			if( Playlist::get_instance()->size() == 0)
 				break;
 			return handleSelectNextPrevSongOnPlaylist( -1 );
 			break;
 
 		case  Qt::Key_F6 :
-			if( Hydrogen::get_instance()->m_PlayList.size() == 0)
+			if( Playlist::get_instance()->size() == 0)
 				break;
 			return handleSelectNextPrevSongOnPlaylist( 1 );
 			break;
@@ -1813,7 +1813,7 @@ void MainForm::onAutoSaveTimer()
 
 void MainForm::onPlaylistDisplayTimer()
 {
-	if( Hydrogen::get_instance()->m_PlayList.size() == 0)
+	if( Playlist::get_instance()->size() == 0)
 		return;
 	int songnumber = Playlist::get_instance()->getActiveSongNumber();
 	QString songname;
@@ -1933,7 +1933,7 @@ void MainForm::undoRedoActionEvent( int nEvent ){
 
 bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 {
-	int playlistSize= Hydrogen::get_instance()->m_PlayList.size();
+	int playlistSize = Playlist::get_instance()->size();
 
 	HydrogenApp* app = HydrogenApp::get_instance();
 	int songnumber = Playlist::get_instance()->getActiveSongNumber();

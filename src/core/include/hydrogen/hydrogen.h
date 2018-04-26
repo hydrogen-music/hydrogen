@@ -189,17 +189,6 @@ public:
 	void			startNsmClient();
 #endif
 
-	///playlist vector
-	struct HPlayListNode
-	{
-		QString m_hFile;
-		bool m_hFileExists;
-		QString m_hScript;
-		QString m_hScriptEnabled;
-	};
-
-	std::vector<HPlayListNode> m_PlayList;
-
 	///beatconter
 	void			setbeatsToCount( int beatstocount);
 	int				getbeatsToCount();

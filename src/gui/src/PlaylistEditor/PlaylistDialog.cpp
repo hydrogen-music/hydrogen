@@ -220,12 +220,13 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	sideBarLayout->addWidget(down_btn);
 
 	//restore the playlist
-	if( Hydrogen::get_instance()->m_PlayList.size() > 0 ){
-		for ( uint i = 0; i < Hydrogen::get_instance()->m_PlayList.size(); ++i ){
+	Playlist* playlist = Playlist::get_instance();
+	if( playlist->size() > 0 ){
+		for ( uint i = 0; i < playlist->size(); ++i ){
 			QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
-			m_pPlaylistItem->setText ( 0, Hydrogen::get_instance()->m_PlayList[i].m_hFile );
-			m_pPlaylistItem->setText ( 1, Hydrogen::get_instance()->m_PlayList[i].m_hScript );
-			if ( Hydrogen::get_instance()->m_PlayList[i].m_hScriptEnabled == "Use Script" ) {
+			m_pPlaylistItem->setText ( 0, playlist->get( i )->m_hFile );
+			m_pPlaylistItem->setText ( 1, playlist->get( i )->m_hScript );
+			if ( playlist->get( i )->m_hScriptEnabled == "Use Script" ) {
 				m_pPlaylistItem->setCheckState( 2, Qt::Checked );
 			}else{
 				m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );
@@ -317,7 +318,7 @@ void PlaylistDialog::removeFromList()
 	} else {
 		if (m_pItem == 0){
 			m_pPlaylist->clear();
-			Hydrogen::get_instance()->m_PlayList.clear();
+			Playlist::get_instance()->clear();
 			Playlist::get_instance()->setSelectedSongNr( -1 );
 			Playlist::get_instance()->setActiveSongNumber( -1 );
 			Playlist::get_instance()->setFilename( "" );
@@ -366,7 +367,7 @@ void PlaylistDialog::clearPlaylist()
 		QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 
 		m_pPlaylist->clear();
-		Hydrogen::get_instance()->m_PlayList.clear();
+		Playlist::get_instance()->clear();
 		Playlist::get_instance()->setSelectedSongNr( -1 );
 		Playlist::get_instance()->setActiveSongNumber( -1 );
 		Playlist::get_instance()->setFilename ( "" );
@@ -411,22 +412,23 @@ void PlaylistDialog::loadList()
 	}
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	if(pHydrogen->m_PlayList.size() > 0) {
+	Playlist* playlist = Playlist::get_instance();
+	if( playlist->size() > 0 ) {
 		QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 		m_pPlaylist->clear();
 
-		for ( uint i = 0; i < pHydrogen->m_PlayList.size(); ++i ){
+		for ( uint i = 0; i < playlist->size(); ++i ){
 			QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
 
-			if( pHydrogen->m_PlayList[i].m_hFileExists ){
-				m_pPlaylistItem->setText ( 0, pHydrogen->m_PlayList[i].m_hFile );
+			if( playlist->get( i )->m_hFileExists ){
+				m_pPlaylistItem->setText ( 0, playlist->get( i )->m_hFile );
 			} else {
-				m_pPlaylistItem->setText ( 0, trUtf8("File not found: ") + pHydrogen->m_PlayList[i].m_hFile );
+				m_pPlaylistItem->setText ( 0, trUtf8("File not found: ") + playlist->get( i )->m_hFile );
 			}
 
-			m_pPlaylistItem->setText ( 1, pHydrogen->m_PlayList[i].m_hScript );
+			m_pPlaylistItem->setText ( 1, playlist->get( i )->m_hScript );
 
-			if ( pHydrogen->m_PlayList[i].m_hScriptEnabled == "Use Script" ) {
+			if ( playlist->get( i )->m_hScriptEnabled == "Use Script" ) {
 				m_pPlaylistItem->setCheckState( 2, Qt::Checked );
 			} else {
 				m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );
@@ -887,7 +889,7 @@ void PlaylistDialog::updatePlayListVector()
 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 	int length = m_pPlaylist->topLevelItemCount();
 
-	Hydrogen::get_instance()->m_PlayList.clear();
+	Playlist::get_instance()->clear();
 
 	for (int i = 0 ;i < length; i++){
 		QTreeWidgetItem * m_pPlaylistItem = m_pPlaylist->topLevelItem ( i );
@@ -899,12 +901,12 @@ void PlaylistDialog::updatePlayListVector()
 		}else{
 			execval = "Script not used";
 		}
-		Hydrogen::HPlayListNode playListItem;
-		playListItem.m_hFile = m_pPlaylistItem->text ( 0 );
-		playListItem.m_hScript = m_pPlaylistItem->text ( 1 );
-		playListItem.m_hScriptEnabled = execval;
+		Playlist::Entry* entry = new Playlist::Entry();
+		entry->m_hFile = m_pPlaylistItem->text ( 0 );
+		entry->m_hScript = m_pPlaylistItem->text ( 1 );
+		entry->m_hScriptEnabled = execval;
 
-		Hydrogen::get_instance()->m_PlayList.push_back( playListItem );
+		Playlist::get_instance()->add( entry );
 
 		Playlist::get_instance()->setIsModified(true);
 	}
@@ -916,7 +918,7 @@ void PlaylistDialog::updateActiveSongNumber()
 {
 	QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 
-	for ( uint i = 0; i < Hydrogen::get_instance()->m_PlayList.size(); ++i ){
+	for ( uint i = 0; i < Playlist::get_instance()->size(); ++i ){
 		if ( !m_pPlaylist->topLevelItem( i ) )
 			break;
 		( m_pPlaylist->topLevelItem( i ) )->setBackground( 0, QBrush() );
@@ -947,7 +949,7 @@ bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
 
 		switch ( k->key() ) {
 		case  Qt::Key_F5 :
-			if( Hydrogen::get_instance()->m_PlayList.size() == 0
+			if( Playlist::get_instance()->size() == 0
 					|| Playlist::get_instance()->getActiveSongNumber() <=0)
 				break;
 
@@ -955,8 +957,8 @@ bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
 			return true;
 			break;
 		case  Qt::Key_F6 :
-			if( Hydrogen::get_instance()->m_PlayList.size() == 0
-					|| Playlist::get_instance()->getActiveSongNumber() >= Hydrogen::get_instance()->m_PlayList.size() -1)
+			if( Playlist::get_instance()->size() == 0
+					|| Playlist::get_instance()->getActiveSongNumber() >= Playlist::get_instance()->size() -1)
 				break;
 			Playlist::get_instance()->setNextSongByNumber(Playlist::get_instance()->getActiveSongNumber()+1);
 			return true;
@@ -980,16 +982,17 @@ bool PlaylistDialog::loadListByFileName( QString filename )
 	Preferences::get_instance()->setLastPlaylistFilename( filename );
 	Hydrogen* pEngine = Hydrogen::get_instance();
 
-	if ( pEngine->m_PlayList.size() > 0 ) {
+	Playlist* playlist = Playlist::get_instance();
+	if ( playlist->size() > 0 ) {
 		QTreeWidget* m_pPlaylist = m_pPlaylistTree;
 		m_pPlaylist->clear();
 
-		for ( uint i = 0; i < pEngine->m_PlayList.size(); ++i ){
+		for ( uint i = 0; i < playlist->size(); ++i ){
 			QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
-			m_pPlaylistItem->setText ( 0, pEngine->m_PlayList[i].m_hFile );
-			m_pPlaylistItem->setText ( 1, pEngine->m_PlayList[i].m_hScript );
+			m_pPlaylistItem->setText ( 0, playlist->get( i )->m_hFile );
+			m_pPlaylistItem->setText ( 1, playlist->get( i )->m_hScript );
 
-			if ( pEngine->m_PlayList[i].m_hScriptEnabled == "Use Script" ) {
+			if ( playlist->get( i )->m_hScriptEnabled == "Use Script" ) {
 				m_pPlaylistItem->setCheckState( 2, Qt::Checked );
 			} else {
 				m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );

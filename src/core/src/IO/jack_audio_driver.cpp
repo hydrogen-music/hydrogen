@@ -786,34 +786,34 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t *event)
 	QString retval = P->getJackSessionApplicationPath() + " --jacksessionid " + ev->client_uuid;
 
 	/* Playlist mode */
-	if ( H->m_PlayList.size() > 0 ) {
-		Playlist* PL = Playlist::get_instance();
+	Playlist* playlist = Playlist::get_instance();
+	if ( playlist->size() > 0 ) {
 
-		if ( PL->getFilename().isEmpty() ) PL->setFilename( "untitled.h2playlist" );
+		if ( playlist->getFilename().isEmpty() ) playlist->setFilename( "untitled.h2playlist" );
 
-		QString FileName = baseName ( PL->getFilename() );
+		QString FileName = baseName ( playlist->getFilename() );
 		FileName.replace ( QString(" "), QString("_") );
 		retval += " -p \"${SESSION_DIR}" + FileName + "\"";
 
 		/* Copy all songs to Session Directory and update playlist */
 		SongReader reader;
-		for ( uint i = 0; i < H->m_PlayList.size(); ++i ) {
-			QString BaseName = baseName ( H->m_PlayList[i].m_hFile );
+		for ( uint i = 0; i < playlist->size(); ++i ) {
+			QString BaseName = baseName ( playlist->get( i )->m_hFile );
 			QString newName = jackSessionDirectory + BaseName;
-			QString SongPath = reader.getPath ( H->m_PlayList[i].m_hFile );
+			QString SongPath = reader.getPath ( playlist->get( i )->m_hFile );
 			if ( SongPath != NULL && QFile::copy ( SongPath, newName ) ) {
 				/* Keep only filename on list for relative read */
-				H->m_PlayList[i].m_hFile = BaseName;
-				//H->m_PlayList[i].m_hScript;
+				playlist->get( i )->m_hFile = BaseName;
+				// playlist->get( i )->m_hScript;
 			} else {
 				/* Note - we leave old path in playlist */
-				ERRORLOG ( "Can't copy " + H->m_PlayList[i].m_hFile + " to " + newName );
+				ERRORLOG ( "Can't copy " + playlist->get( i )->m_hFile + " to " + newName );
 				ev->flags = JackSessionSaveError;
 			}
 		}
 
 		/* Save updated playlist */
-		if ( ! PL->save ( jackSessionDirectory + FileName ) )
+		if ( ! playlist->save ( jackSessionDirectory + FileName ) )
 			ev->flags = JackSessionSaveError;
 		/* Song Mode */
 	} else {

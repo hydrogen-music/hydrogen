@@ -37,12 +37,26 @@ class Playlist : public H2Core::Object
 		H2_OBJECT
 
 	public:
+		struct Entry
+		{
+			QString m_hFile;
+			bool m_hFileExists;
+			QString m_hScript;
+			QString m_hScriptEnabled;
+		};
+
 		static void create_instance();
 		static Playlist* get_instance() { assert(__instance); return __instance; }
 
 		~Playlist();
 
 		bool loadSong (int SongNumber );
+
+		int size() const;
+		Entry* get( int idx );
+
+		void clear();
+		void add( Entry* entry );
 
 		void setNextSongByNumber( int SongNumber );
 		int getSelectedSongNr();
@@ -63,6 +77,8 @@ class Playlist : public H2Core::Object
 		static Playlist* __instance;
 		QString __filename;
 
+		std::vector<Entry*> __entries;
+
 		int m_nSelectedSongNumber;
 		int m_nActiveSongNumber;
 
@@ -73,6 +89,21 @@ class Playlist : public H2Core::Object
 		void execScript( int index );
 };
 
+inline int Playlist::size() const
+{
+	return __entries.size();
+}
+
+inline Playlist::Entry* Playlist::get( int idx )
+{
+	assert( idx >= 0 && idx < size() );
+	return __entries[ idx ];
+}
+
+inline void Playlist::add( Entry* entry )
+{
+	__entries.push_back( entry );
+}
 
 inline int Playlist::getSelectedSongNr()
 {

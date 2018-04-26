@@ -91,9 +91,10 @@ void signal_handler ( int signum )
 void show_playlist (Hydrogen *pHydrogen, uint active )
 {
 	/* Display playlist members */
-	if ( pHydrogen->m_PlayList.size() > 0) {
-		for ( uint i = 0; i < pHydrogen->m_PlayList.size(); ++i ) {
-			cout << ( i + 1 ) << "." << pHydrogen->m_PlayList[i].m_hFile.toLocal8Bit().constData();
+	Playlist* playlist = Playlist::get_instance();
+	if ( playlist->size() > 0) {
+		for ( uint i = 0; i < playlist->size(); ++i ) {
+			cout << ( i + 1 ) << "." << playlist->get( i )->m_hFile.toLocal8Bit().constData();
 			if ( i == active ) cout << " *";
 			cout << endl;
 		}

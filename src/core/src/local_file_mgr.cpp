@@ -33,6 +33,7 @@
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/timeline.h>
 #include <hydrogen/basics/song.h>
@@ -301,19 +302,20 @@ int LocalFileMng::savePlayList( const std::string& playListFilename)
 	writeXmlString( rootNode, "Name", QString (realname.c_str()) );
 
 	QDomNode playlistNode = doc.createElement( "Songs" );
-	for ( uint i = 0; i < Hydrogen::get_instance()->m_PlayList.size(); ++i ){
+	Playlist* playlist = Playlist::get_instance();
+	for ( uint i = 0; i < playlist->size(); ++i ){
 		QDomNode nextNode = doc.createElement( "next" );
 
 		QString playlistItemFilename;
 		if(useRelativePathNames){
-			playlistItemFilename = playlistDir.relativeFilePath(Hydrogen::get_instance()->m_PlayList[i].m_hFile);
+			playlistItemFilename = playlistDir.relativeFilePath( playlist->get( i )->m_hFile );
 		} else {
-			playlistItemFilename = Hydrogen::get_instance()->m_PlayList[i].m_hFile;
+			playlistItemFilename = playlist->get( i )->m_hFile;
 		}
 
 		LocalFileMng::writeXmlString ( nextNode, "song", playlistItemFilename);
-		LocalFileMng::writeXmlString ( nextNode, "script", Hydrogen::get_instance()->m_PlayList[i].m_hScript );
-		LocalFileMng::writeXmlString ( nextNode, "enabled", Hydrogen::get_instance()->m_PlayList[i].m_hScriptEnabled );
+		LocalFileMng::writeXmlString ( nextNode, "script", playlist->get( i )->m_hScript );
+		LocalFileMng::writeXmlString ( nextNode, "enabled", playlist->get( i )->m_hScriptEnabled );
 
 		playlistNode.appendChild( nextNode );
 	}
@@ -362,7 +364,7 @@ int LocalFileMng::loadPlayList( const std::string& filename)
 
 	QDomDocument doc = openXmlDocument( Filename );
 
-	Hydrogen::get_instance()->m_PlayList.clear();
+	Playlist::get_instance()->clear();
 
 	QDomNode rootNode = doc.firstChildElement( "playlist" );	// root element
 	if ( rootNode.isNull() ) {
@@ -372,22 +374,21 @@ int LocalFileMng::loadPlayList( const std::string& filename)
 	QDomNode playlistNode = rootNode.firstChildElement( "Songs" );
 
 	if ( ! playlistNode.isNull() ) {
-		Hydrogen::get_instance()->m_PlayList.clear();
 		QDomNode nextNode = playlistNode.firstChildElement( "next" );
 		SongReader reader;
-		while (  ! nextNode.isNull() ) {
-			Hydrogen::HPlayListNode playListItem;
+		while (  !nextNode.isNull() ) {
+			Playlist::Entry* entry = new Playlist::Entry();
 			QString playlistItemPath = readXmlString( nextNode, "song", "" );
 
 			QFileInfo playlistItemInfo (playlistDir, playlistItemPath);
-			playListItem.m_hFile = playlistItemInfo.absoluteFilePath();
+			entry->m_hFile = playlistItemInfo.absoluteFilePath();
 
-			QString FilePath = reader.getPath( playListItem.m_hFile );
-			playListItem.m_hFileExists = Filesystem::file_readable( FilePath );
-			playListItem.m_hScript = LocalFileMng::readXmlString( nextNode, "script", "" );
-			playListItem.m_hScriptEnabled = readXmlString( nextNode, "enabled", "" );
+			QString FilePath = reader.getPath( entry->m_hFile );
+			entry->m_hFileExists = Filesystem::file_readable( FilePath );
+			entry->m_hScript = LocalFileMng::readXmlString( nextNode, "script", "" );
+			entry->m_hScriptEnabled = readXmlString( nextNode, "enabled", "" );
 
-			Hydrogen::get_instance()->m_PlayList.push_back( playListItem );
+			Playlist::get_instance()->add( entry );
 			nextNode = nextNode.nextSiblingElement( "next" );
 		}
 	}

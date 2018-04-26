@@ -864,7 +864,7 @@ bool MidiActionManager::previous_bar(Action * , Hydrogen* pEngine, targeted_elem
 
 bool setSong( int songnumber, Hydrogen * pEngine ) {
 	int asn = Playlist::get_instance()->getActiveSongNumber();
-	if(asn != songnumber && songnumber >= 0 && songnumber <= pEngine->m_PlayList.size()-1) {
+	if(asn != songnumber && songnumber >= 0 && songnumber <= Playlist::get_instance()->size() - 1 ) {
 		Playlist::get_instance()->setNextSongByNumber( songnumber );
 	}
 	return true;

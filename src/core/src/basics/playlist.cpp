@@ -49,6 +49,7 @@ Playlist::Playlist()
 
 Playlist::~Playlist()
 {
+	clear();
 	__instance = NULL;
 }
 
@@ -57,6 +58,14 @@ void Playlist::create_instance()
 	if ( __instance == 0 ) {
 		__instance = new Playlist;
 	}
+}
+
+void Playlist::clear()
+{
+	for ( int i = 0; i < __entries.size(); i++ ) {
+		delete __entries[i];
+	}
+	__entries.clear();
 }
 
 bool Playlist::save( const QString& filename )
@@ -95,7 +104,7 @@ bool Playlist::loadSong( int songNumber )
 	}
 
 	/* Load Song from file */
-	QString selected = pHydrogen->m_PlayList[ songNumber ].m_hFile;
+	QString selected = get( songNumber )->m_hFile;
 	Song *pSong = Song::load( selected );
 	if ( ! pSong ) {
 		return false;
@@ -119,10 +128,7 @@ bool Playlist::loadSong( int songNumber )
 /* This method is called by MIDI thread */
 void Playlist::setNextSongByNumber( int songNumber )
 {
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-
-	int playlist_size = pHydrogen->m_PlayList.size();
-	if ( songNumber > playlist_size - 1 || playlist_size == 0 ) {
+	if ( size() == 0 || songNumber >= size() ) {
 		return;
 	}
 
@@ -132,13 +138,10 @@ void Playlist::setNextSongByNumber( int songNumber )
 
 void Playlist::execScript( int index)
 {
-	QString file;
-	QString script;
+	QString file = get( index )->m_hScript;
+	bool enabled = ( get( index )->m_hScriptEnabled == "Script not used" );
 
-	file = Hydrogen::get_instance()->m_PlayList[ index ].m_hScript;
-	script = Hydrogen::get_instance()->m_PlayList[ index ].m_hScriptEnabled;
-
-	if( !QFile( file ).exists()  || script == "Script not used") {
+	if( !enabled || !QFile( file ).exists() ) {
 		return;
 	}
 
