@@ -26,9 +26,11 @@ class Filesystem : public H2Core::Object
 		static const QString songs_ext;
 		static const QString scripts_ext;
 		static const QString patterns_ext;
+		static const QString playlist_ext;
 		static const QString songs_filter_name;
 		static const QString scripts_filter_name;
 		static const QString patterns_filter_name;
+		static const QString playlists_filter_name;
 
 		/**
 		 * check user and system filesystem usability
@@ -72,13 +74,13 @@ class Filesystem : public H2Core::Object
 		static QString scripts_dir();
 		/** returns user songs path */
 		static QString songs_dir();
-		/** returns user song path */
+		/** returns user song path, add file extension */
 		static QString song_path( const QString& sg_name );
 		/** returns user patterns path */
 		static QString patterns_dir();
 		/** returns user patterns path for a specific drumkit */
 		static QString patterns_dir( const QString& dk_name );
-		/** returns user patterns path */
+		/** returns user patterns path, add file extension*/
 		static QString pattern_path( const QString& dk_name, const QString& p_name );
 		/** returns user plugins path */
 		static QString plugins_dir();
@@ -88,6 +90,8 @@ class Filesystem : public H2Core::Object
 		static QString usr_drumkits_dir();
 		/** returns user playlist path */
 		static QString playlists_dir();
+		/** returns user playlist path, add file extension */
+		static QString playlist_path( const QString& pl_name );
 		/** returns user cache path */
 		static QString cache_dir();
 		/** returns user repository cache path */
@@ -171,6 +175,10 @@ class Filesystem : public H2Core::Object
 
 		/** send current settings information to logger with INFO severity */
 		static void info();
+
+		/* PLAYLISTS */
+		/** returns a list of existing playlists */
+		static QStringList playlist_list( );
 
 		/**
 		 * returns true if the given path is an existing regular file

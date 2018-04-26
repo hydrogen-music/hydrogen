@@ -38,6 +38,7 @@
 #define DRUMKIT_XSD     "drumkit.xsd"
 #define DRUMPAT_XSD     "drumkit_pattern.xsd"
 #define PATTERN_FILTER  "*.h2pattern"
+#define PLAYLIST_FILTER "*.h2playlist"
 #define SONG_FILTER     "*.h2song"
 
 namespace H2Core
@@ -49,9 +50,11 @@ const char* Filesystem::__class_name = "Filesystem";
 const QString Filesystem::scripts_ext = ".sh";
 const QString Filesystem::songs_ext = ".h2song";
 const QString Filesystem::patterns_ext = ".h2pattern";
+const QString Filesystem::playlist_ext = ".h2playlist";
 const QString Filesystem::scripts_filter_name = "Hydrogen Scripts (*.sh)";
-const QString Filesystem::songs_filter_name = "Hydrogen Song (*.h2song)";
-const QString Filesystem::patterns_filter_name = "Hydrogen Pattern (*.h2pattern)";
+const QString Filesystem::songs_filter_name = "Hydrogen Songs (*.h2song)";
+const QString Filesystem::patterns_filter_name = "Hydrogen Patterns (*.h2pattern)";
+const QString Filesystem::playlists_filter_name = "Hydrogen Playlists (*.h2playlist)";
 
 QString Filesystem::__sys_data_path;
 QString Filesystem::__usr_data_path;
@@ -445,6 +448,10 @@ QString Filesystem::playlists_dir()
 {
 	return __usr_data_path + PLAYLISTS;
 }
+QString Filesystem::playlist_path( const QString& pl_name )
+{
+	return patterns_dir() + pl_name + playlist_ext;
+}
 QString Filesystem::cache_dir()
 {
 	return __usr_data_path + CACHE;
@@ -588,6 +595,12 @@ QStringList Filesystem::song_list_cleared( )
 bool Filesystem::song_exists( const QString& sg_name )
 {
 	return QDir( songs_dir() ).exists( sg_name );
+}
+
+// PLAYLISTS
+QStringList Filesystem::playlist_list( )
+{
+	return QDir( playlists_dir() ).entryList( QStringList( PLAYLIST_FILTER ), QDir::Files | QDir::Readable | QDir::NoDotAndDotDot );
 }
 
 void Filesystem::info()
