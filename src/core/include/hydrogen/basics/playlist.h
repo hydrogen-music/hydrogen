@@ -72,6 +72,7 @@ class Playlist : public H2Core::Object
 
 		static Playlist* load( const QString& filename );
 		bool save( const QString& filename );
+		bool save_file( const QString& pl_path, const QString& name, bool overwrite, bool relativePaths );
 
 	private:
 		static Playlist* __instance;
@@ -87,6 +88,8 @@ class Playlist : public H2Core::Object
 		Playlist();
 
 		void execScript( int index );
+
+		void save_to( XMLNode* node, bool relativePaths );
 };
 
 inline int Playlist::size() const

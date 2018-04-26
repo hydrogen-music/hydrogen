@@ -23,6 +23,8 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/playlist.h>
+#include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/helpers/xml.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/LocalFileMng.h>
 
@@ -78,6 +80,42 @@ bool Playlist::save( const QString& filename )
 	}
 
 	return false;
+}
+
+bool Playlist::save_file( const QString& pl_path, const QString& name, bool overwrite, bool relativePaths )
+{
+	INFOLOG( QString( "Saving palylist to %1" ).arg( pl_path ) );
+	if( !overwrite && Filesystem::file_exists( pl_path, true ) ) {
+		ERRORLOG( QString( "palylist %1 already exists" ).arg( pl_path ) );
+		return false;
+	}
+
+	setFilename( pl_path );
+
+	XMLDoc doc;
+	doc.set_root( "playlist", "playlist" );
+	XMLNode root = doc.firstChildElement( "playlist" );
+	root.write_string( "Name", name);
+	XMLNode songs = doc.createElement( "Songs" );
+	root.appendChild( songs );
+	save_to( &songs, relativePaths );
+	return doc.write( pl_path );
+}
+
+void Playlist::save_to( XMLNode* node, bool relativePaths )
+{
+	for (int i = 0; i < size(); i++ ) {
+		Entry* entry = get( i );
+		QString path = entry->m_hFile;
+		if ( relativePaths ) {
+			path = QDir( Filesystem::playlists_dir() ).relativeFilePath( path );
+		}
+		XMLNode song_node = node->ownerDocument().createElement( "next" );
+		song_node.write_string( "song", path );
+		song_node.write_string( "script", entry->m_hScript );
+		song_node.write_string( "enabled", entry->m_hScriptEnabled);
+		node->appendChild( song_node );
+	}
 }
 
 Playlist* Playlist::load( const QString& filename )
