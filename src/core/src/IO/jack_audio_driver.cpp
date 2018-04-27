@@ -34,6 +34,7 @@
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/playlist.h>
 #include <hydrogen/basics/song.h>
+#include <hydrogen/helpers/files.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>
@@ -813,8 +814,10 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t *event)
 		}
 
 		/* Save updated playlist */
-		if ( ! playlist->save ( jackSessionDirectory + FileName ) )
+		bool relativePaths = Preferences::get_instance()->isPlaylistUsingRelativeFilenames();
+		if ( Files::savePlaylistPath( jackSessionDirectory + FileName, playlist, relativePaths ) == NULL ) {
 			ev->flags = JackSessionSaveError;
+		}
 		/* Song Mode */
 	} else {
 		/* Valid Song is needed */

@@ -71,7 +71,6 @@ class Playlist : public H2Core::Object
 		void setIsModified( bool IsModified );
 
 		static Playlist* load( const QString& filename );
-		bool save( const QString& filename );
 		bool save_file( const QString& pl_path, const QString& name, bool overwrite, bool relativePaths );
 
 	private:

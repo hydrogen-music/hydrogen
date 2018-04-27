@@ -70,18 +70,6 @@ void Playlist::clear()
 	__entries.clear();
 }
 
-bool Playlist::save( const QString& filename )
-{
-	setFilename( filename );
-
-	LocalFileMng fileMng;
-	if ( fileMng.savePlayList( filename.toLocal8Bit().constData() ) == 0 ) {
-		return true;
-	}
-
-	return false;
-}
-
 bool Playlist::save_file( const QString& pl_path, const QString& name, bool overwrite, bool relativePaths )
 {
 	INFOLOG( QString( "Saving palylist to %1" ).arg( pl_path ) );

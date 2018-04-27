@@ -59,7 +59,6 @@ public:
 	static void writeXmlString( QDomNode parent, const QString& name, const QString& text );
 	static void writeXmlBool( QDomNode parent, const QString& name, bool value );
 
-	int savePlayList( const std::string& patternname );
 	int loadPlayList( const std::string& patternname);
 	
 	static QString	copyInstrumentLineToString(Song *song, int selectedPattern, int selectedInstrument);

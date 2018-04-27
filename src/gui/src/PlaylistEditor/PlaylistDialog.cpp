@@ -28,6 +28,7 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "widgets/PixmapWidget.h"
 
+#include <hydrogen/helpers/files.h>
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/Preferences.h>
@@ -276,19 +277,17 @@ void PlaylistDialog::closeEvent( QCloseEvent* ev )
 void PlaylistDialog::addSong()
 {
 	QFileDialog fd(this);
-	fd.setFileMode ( QFileDialog::ExistingFiles );
+	fd.setWindowTitle( tr( "Add Song to PlayList" ) );
+	fd.setFileMode( QFileDialog::ExistingFiles );
 	fd.setNameFilter( Filesystem::songs_filter_name );
 	fd.setDirectory( Filesystem::songs_dir() );
 
-	fd.setWindowTitle ( trUtf8 ( "Add Song to PlayList" ) );
+	if ( fd.exec() != QDialog::Accepted ) {
+		return;
+	}
 
-	QString filename;
-	if ( fd.exec() == QDialog::Accepted ){
-		int i;
-		for(i=0; i < fd.selectedFiles().size(); i++){
-			filename = fd.selectedFiles().at(i);
-			updatePlayListNode ( filename );
-		}
+	foreach( QString filePath, fd.selectedFiles() ) {
+		updatePlayListNode( filePath );
 	}
 }
 
@@ -394,15 +393,16 @@ void PlaylistDialog::updatePlayListNode ( QString file )
 void PlaylistDialog::loadList()
 {
 	QFileDialog fd(this);
-	fd.setFileMode ( QFileDialog::ExistingFile );
-	fd.setNameFilter ( trUtf8("Hydrogen playlist (*.h2playlist)") );
+	fd.setWindowTitle( tr( "Load Playlist" ) );
+	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setDirectory( Filesystem::playlists_dir() );
-	fd.setWindowTitle ( trUtf8 ( "Load Playlist" ) );
+	fd.setNameFilter( Filesystem::playlists_filter_name );
 
-	QString filename;
-	if ( fd.exec() != QDialog::Accepted ) return;
+	if ( fd.exec() != QDialog::Accepted ) {
+		return;
+	}
 
-	filename = fd.selectedFiles().first();
+	QString filename = fd.selectedFiles().first();
 
 	Playlist* pPlaylist = Playlist::load( filename );
 	if ( ! pPlaylist ) {
@@ -515,44 +515,44 @@ void PlaylistDialog::newScript()
 void PlaylistDialog::saveListAs()
 {
 	QFileDialog fd(this);
-	fd.setFileMode ( QFileDialog::AnyFile );
-	fd.setNameFilter ( trUtf8 ( "Hydrogen Playlist (*.h2playlist)" ) );
-	fd.setAcceptMode ( QFileDialog::AcceptSave );
-	fd.setWindowTitle ( trUtf8 ( "Save Playlist" ) );
+	fd.setWindowTitle( tr( "Save Playlist" ) );
+	fd.setFileMode( QFileDialog::AnyFile );
+	fd.setNameFilter( Filesystem::playlists_filter_name );
+	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setDirectory( Filesystem::playlists_dir() );
+	fd.selectFile( "untitled.h2playlist" );
+	fd.setDefaultSuffix( Filesystem::playlist_ext );
 
-	QString defaultFilename = "untitled.h2playlist";
-	fd.selectFile ( defaultFilename );
-
-	if ( fd.exec() != QDialog::Accepted ){
+	if ( fd.exec() != QDialog::Accepted ) {
 		return;
 	}
 
 	QString filename = fd.selectedFiles().first();
 
 	Playlist* pPlaylist = Playlist::get_instance();
-	if ( ! pPlaylist->save ( filename ) ){
+	bool relativePaths = Preferences::get_instance()->isPlaylistUsingRelativeFilenames();
+	if ( Files::savePlaylistPath( filename, pPlaylist, relativePaths ) == NULL ) {
 		return;
 	}
 
-	Playlist::get_instance()->setIsModified(false);
+	pPlaylist->setIsModified( false );
 
-	setWindowTitle ( trUtf8 ( "Playlist Browser" ) + QString(" - ") + filename );
+	setWindowTitle( tr( "Playlist Browser" ) + QString(" - %1").arg( filename ) );
 }
 
 void PlaylistDialog::saveList()
 {
 	Playlist* pPlaylist = Playlist::get_instance();
-	if ( pPlaylist->getFilename() == "") {
-		// just in case!
+	if ( pPlaylist->getFilename().isEmpty() ) {
 		return saveListAs();
 	}
 
-	if ( ! pPlaylist->save ( pPlaylist->getFilename() ) ){
+	bool relativePaths = Preferences::get_instance()->isPlaylistUsingRelativeFilenames();
+	if ( Files::savePlaylistPath( pPlaylist->getFilename(), pPlaylist, relativePaths ) == NULL ) {
 		return;
 	}
 
-	Playlist::get_instance()->setIsModified(false);
+	pPlaylist->setIsModified( false );
 }
 
 void PlaylistDialog::loadScript()
