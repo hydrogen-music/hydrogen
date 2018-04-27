@@ -70,7 +70,7 @@ void Playlist::clear()
 	__entries.clear();
 }
 
-bool Playlist::save_file( const QString& pl_path, const QString& name, bool overwrite, bool relativePaths )
+bool Playlist::save_file( const QString& pl_path, const QString& name, bool overwrite, bool useRelativePaths )
 {
 	INFOLOG( QString( "Saving palylist to %1" ).arg( pl_path ) );
 	if( !overwrite && Filesystem::file_exists( pl_path, true ) ) {
@@ -86,16 +86,16 @@ bool Playlist::save_file( const QString& pl_path, const QString& name, bool over
 	root.write_string( "Name", name);
 	XMLNode songs = doc.createElement( "Songs" );
 	root.appendChild( songs );
-	save_to( &songs, relativePaths );
+	save_to( &songs, useRelativePaths );
 	return doc.write( pl_path );
 }
 
-void Playlist::save_to( XMLNode* node, bool relativePaths )
+void Playlist::save_to( XMLNode* node, bool useRelativePaths )
 {
 	for (int i = 0; i < size(); i++ ) {
 		Entry* entry = get( i );
 		QString path = entry->m_hFile;
-		if ( relativePaths ) {
+		if ( useRelativePaths ) {
 			path = QDir( Filesystem::playlists_dir() ).relativeFilePath( path );
 		}
 		XMLNode song_node = node->ownerDocument().createElement( "next" );
