@@ -35,6 +35,7 @@
 #include <hydrogen/basics/playlist.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/helpers/files.h>
+#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>
@@ -790,7 +791,7 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t *event)
 	Playlist* playlist = Playlist::get_instance();
 	if ( playlist->size() > 0 ) {
 
-		if ( playlist->getFilename().isEmpty() ) playlist->setFilename( "untitled.h2playlist" );
+		if ( playlist->getFilename().isEmpty() ) playlist->setFilename( Filesystem::untitled_playlist_file_name() );
 
 		QString FileName = baseName ( playlist->getFilename() );
 		FileName.replace ( QString(" "), QString("_") );
@@ -821,7 +822,7 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t *event)
 		/* Song Mode */
 	} else {
 		/* Valid Song is needed */
-		if ( S->get_filename().isEmpty() ) S->set_filename("untitled.h2song");
+		if ( S->get_filename().isEmpty() ) S->set_filename( Filesystem::untitled_song_file_name() );
 
 		QString FileName = baseName ( S->get_filename() );
 		FileName.replace ( QString(" "), QString("_") );

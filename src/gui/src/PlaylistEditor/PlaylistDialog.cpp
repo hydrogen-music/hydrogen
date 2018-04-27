@@ -520,7 +520,7 @@ void PlaylistDialog::saveListAs()
 	fd.setNameFilter( Filesystem::playlists_filter_name );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setDirectory( Filesystem::playlists_dir() );
-	fd.selectFile( "untitled.h2playlist" );
+	fd.selectFile( Filesystem::untitled_playlist_file_name() );
 	fd.setDefaultSuffix( Filesystem::playlist_ext );
 
 	if ( fd.exec() != QDialog::Accepted ) {

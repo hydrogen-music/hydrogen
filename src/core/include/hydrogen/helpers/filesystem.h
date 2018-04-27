@@ -55,6 +55,8 @@ class Filesystem : public H2Core::Object
 		static QString empty_sample_path();
 		/** returns system empty song file path */
 		static QString empty_song_path();
+		/** returns untitled song file name */
+		static QString untitled_song_file_name();
 		/** returns system click file path */
 		static QString click_file_path();
 		/** returns click file path from user directory if exists, otherwise from system */
@@ -92,6 +94,8 @@ class Filesystem : public H2Core::Object
 		static QString playlists_dir();
 		/** returns user playlist path, add file extension */
 		static QString playlist_path( const QString& pl_name );
+		/** returns untitled playlist file name */
+		static QString untitled_playlist_file_name();
 		/** returns user cache path */
 		static QString cache_dir();
 		/** returns user repository cache path */

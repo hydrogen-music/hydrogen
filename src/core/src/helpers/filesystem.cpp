@@ -37,6 +37,9 @@
 
 #define AUTOSAVE        "autosave"
 
+#define UNTITLED_SONG		"untitled.h2song"
+#define UNTITLED_PLAYLIST	"untitled.h2playlist"
+
 // filters
 #define PATTERN_FILTER  "*.h2pattern"
 #define PLAYLIST_FILTER "*.h2playlist"
@@ -373,6 +376,14 @@ QString Filesystem::empty_sample_path()
 QString Filesystem::empty_song_path()
 {
 	return __sys_data_path + EMPTY_SONG;
+}
+QString Filesystem::untitled_song_file_name()
+{
+	return UNTITLED_SONG;
+}
+QString Filesystem::untitled_playlist_file_name()
+{
+	return UNTITLED_PLAYLIST;
 }
 QString Filesystem::click_file_path()
 {
