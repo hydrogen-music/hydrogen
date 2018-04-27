@@ -190,7 +190,7 @@ Song* Song::get_default_song()
 Song* Song::get_empty_song()
 {
 
-	Song* song = Song::load( Filesystem::empty_song() );
+	Song* song = Song::load( Filesystem::empty_song_path() );
 
 	/* if file DefaultSong.h2song not accessible
 	 * create a simple default song.

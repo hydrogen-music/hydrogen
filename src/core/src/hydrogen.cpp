@@ -263,7 +263,7 @@ void audioEngine_init()
 	srand( time( NULL ) );
 
 	// Create metronome instrument
-	QString sMetronomeFilename = Filesystem::click_file();
+	QString sMetronomeFilename = Filesystem::click_file_path();
 	m_pMetronomeInstrument =
 			new Instrument( METRONOME_INSTR_ID, "metronome" );
 	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( sMetronomeFilename ) );

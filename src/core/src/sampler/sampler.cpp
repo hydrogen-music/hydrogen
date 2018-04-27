@@ -81,7 +81,7 @@ Sampler::Sampler()
 
 	__maxLayers = InstrumentComponent::getMaxLayers();
 
-	QString sEmptySampleFilename = Filesystem::empty_sample();
+	QString sEmptySampleFilename = Filesystem::empty_sample_path();
 
 	// instrument used in file preview
 	__preview_instrument = create_instrument( EMPTY_INSTR_ID, sEmptySampleFilename, 0.8 );

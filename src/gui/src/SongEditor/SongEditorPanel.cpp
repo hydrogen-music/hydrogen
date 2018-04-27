@@ -604,7 +604,7 @@ void SongEditorPanel::clearSequence( Button* btn)
 		return;
 	}
 	
-	QString filename = Filesystem::tmp_file( "SEQ.xml" );
+	QString filename = Filesystem::tmp_file_path( "SEQ.xml" );
 	SE_deletePatternSequenceAction *action = new SE_deletePatternSequenceAction( filename );
 	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 

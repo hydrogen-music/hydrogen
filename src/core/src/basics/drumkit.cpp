@@ -104,7 +104,7 @@ Drumkit* Drumkit::load( const QString& dk_dir, bool load_samples )
 Drumkit* Drumkit::load_file( const QString& dk_path, bool load_samples )
 {
 	XMLDoc doc;
-	if( !doc.read( dk_path, Filesystem::drumkit_xsd() ) ) {
+	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path() ) ) {
 		Drumkit* d = Legacy::load_drumkit( dk_path );
 		WARNINGLOG( QString( "update drumkit %1" ).arg( dk_path ) );
 		d->save_file( dk_path, true, -1 );

@@ -31,12 +31,13 @@
 #define EMPTY_SONG      "DefaultSong.h2song"
 #define USR_CONFIG		"hydrogen.conf"
 #define SYS_CONFIG		"hydrogen.default.conf"
-
-// filters
-#define AUTOSAVE        "autosave"
 #define DRUMKIT_XML     "drumkit.xml"
 #define DRUMKIT_XSD     "drumkit.xsd"
 #define DRUMPAT_XSD     "drumkit_pattern.xsd"
+
+#define AUTOSAVE        "autosave"
+
+// filters
 #define PATTERN_FILTER  "*.h2pattern"
 #define PLAYLIST_FILTER "*.h2playlist"
 #define SONG_FILTER     "*.h2song"
@@ -305,18 +306,18 @@ bool Filesystem::check_sys_paths()
 {
 	bool ret = true;
 	if(  !dir_readable( __sys_data_path ) ) ret = false;
-	if( !file_readable( click_file() ) ) ret = false;
-	if( !file_readable( empty_song() ) ) ret = false;
+	if( !file_readable( click_file_path() ) ) ret = false;
+	if( !file_readable( empty_song_path() ) ) ret = false;
 	if(  !dir_readable( demos_dir() ) ) ret = false;
 	/* if(  !dir_readable( doc_dir() ) ) ret = false; */		// FIXME
 	if(  !dir_readable( sys_drumkits_dir() ) ) ret = false;
-	if( !file_readable( empty_sample() ) ) ret = false;
-	if( !file_readable( sys_config() ) ) ret = false;
+	if( !file_readable( empty_sample_path() ) ) ret = false;
+	if( !file_readable( sys_config_path() ) ) ret = false;
 	if(  !dir_readable( i18n_dir() ) ) ret = false;
 	if(  !dir_readable( img_dir() ) ) ret = false;
 	if(  !dir_readable( xsd_dir() ) ) ret = false;
-	if( !file_readable( drumkit_pattern_xsd() ) ) ret = false;
-	if( !file_readable( drumkit_xsd() ) ) ret = false;
+	if( !file_readable( pattern_xsd_path() ) ) ret = false;
+	if( !file_readable( drumkit_xsd_path() ) ) ret = false;
 
 	if ( ret ) INFOLOG( QString( "system wide data path %1 is usable." ).arg( __sys_data_path ) );
 	return ret;
@@ -336,7 +337,7 @@ bool Filesystem::check_usr_paths()
 	if( !path_usable( plugins_dir() ) ) ret = false;
 	if( !path_usable( scripts_dir() ) ) ret = false;
 	if( !path_usable( songs_dir() ) ) ret = false;
-	if( !file_writable( usr_config() ) ) ret = false;
+	if( !file_writable( usr_config_path() ) ) ret = false;
 
 	if ( ret ) INFOLOG( QString( "user path %1 is usable." ).arg( __usr_data_path ) );
 	return ret;
@@ -357,36 +358,36 @@ QStringList Filesystem::ladspa_paths()
 }
 
 // FILES
-QString Filesystem::sys_config()
+QString Filesystem::sys_config_path()
 {
        return __sys_data_path + SYS_CONFIG;
 }
-QString Filesystem::usr_config()
+QString Filesystem::usr_config_path()
 {
        return __usr_cfg_path;
 }
-QString Filesystem::empty_sample()
+QString Filesystem::empty_sample_path()
 {
 	return __sys_data_path + EMPTY_SAMPLE;
 }
-QString Filesystem::empty_song()
+QString Filesystem::empty_song_path()
 {
 	return __sys_data_path + EMPTY_SONG;
 }
-QString Filesystem::click_file()
+QString Filesystem::click_file_path()
 {
 	return __sys_data_path + CLICK_SAMPLE;
 }
-QString Filesystem::usr_click_file()
+QString Filesystem::usr_click_file_path()
 {
 	if( file_readable( __usr_data_path + CLICK_SAMPLE, true ) ) return __usr_data_path + CLICK_SAMPLE;
-	return click_file();
+	return click_file_path();
 }
-QString Filesystem::drumkit_xsd( )
+QString Filesystem::drumkit_xsd_path( )
 {
 	return xsd_dir() + DRUMKIT_XSD;
 }
-QString Filesystem::drumkit_pattern_xsd( )
+QString Filesystem::pattern_xsd_path( )
 {
 	return xsd_dir() + DRUMPAT_XSD;
 }
@@ -472,7 +473,7 @@ QString Filesystem::tmp_dir()
 {
 	return QDir::tempPath() + "/" + TMP;
 }
-QString Filesystem::tmp_file( const QString& base )
+QString Filesystem::tmp_file_path( const QString& base )
 {
 	QTemporaryFile file( tmp_dir() + base );
 	file.setAutoRemove( false );
@@ -607,22 +608,22 @@ void Filesystem::info()
 {
 	INFOLOG( QString( "Tmp dir                    : %1" ).arg( tmp_dir() ) );
 	// SYS
-	INFOLOG( QString( "Click file                 : %1" ).arg( click_file() ) );
-	INFOLOG( QString( "Empty song                 : %1" ).arg( empty_song() ) );
+	INFOLOG( QString( "Click file                 : %1" ).arg( click_file_path() ) );
+	INFOLOG( QString( "Empty song                 : %1" ).arg( empty_song_path() ) );
 	INFOLOG( QString( "Demos dir                  : %1" ).arg( demos_dir() ) );
-	INFOLOG( QString( "Documentation dir          : %1" ).arg( doc_dir() ) );			// FIXME must be created even if no doc deployed
+	INFOLOG( QString( "Documentation dir          : %1" ).arg( doc_dir() ) );					// FIXME must be created even if no doc deployed
 	INFOLOG( QString( "System drumkit dir         : %1" ).arg( sys_drumkits_dir() ) );
-	INFOLOG( QString( "Empty sample               : %1" ).arg( empty_sample() ) );
-	INFOLOG( QString( "Default config             : %1" ).arg( sys_config() ) );
+	INFOLOG( QString( "Empty sample               : %1" ).arg( empty_sample_path() ) );
+	INFOLOG( QString( "Default config             : %1" ).arg( sys_config_path() ) );
 	INFOLOG( QString( "Internationalization dir   : %1" ).arg( i18n_dir() ) );
 	INFOLOG( QString( "Images dir                 : %1" ).arg( img_dir() ) );
 	// new_tutorial
 	INFOLOG( QString( "XSD dir                    : %1" ).arg( xsd_dir() ) );
-	INFOLOG( QString( "drumkit pattern XSD        : %1" ).arg( drumkit_pattern_xsd() ) );
-	INFOLOG( QString( "drumkit XSD                : %1" ).arg( drumkit_xsd() ) );
+	INFOLOG( QString( "drumkit pattern XSD        : %1" ).arg( pattern_xsd_path() ) );
+	INFOLOG( QString( "drumkit XSD                : %1" ).arg( drumkit_xsd_path() ) );
 	// USR
-	INFOLOG( QString( "User config                : %1" ).arg( usr_config() ) );		// FIXME
-	INFOLOG( QString( "User Click file            : %1" ).arg( usr_click_file() ) );
+	INFOLOG( QString( "User config                : %1" ).arg( usr_config_path() ) );			// FIXME
+	INFOLOG( QString( "User Click file            : %1" ).arg( usr_click_file_path() ) );
 	INFOLOG( QString( "Cache dir                  : %1" ).arg( cache_dir() ) );
 	INFOLOG( QString( "Reporitories Cache dir     : %1" ).arg( repositories_cache_dir() ) );
 	INFOLOG( QString( "User drumkit dir           : %1" ).arg( usr_drumkits_dir() ) );

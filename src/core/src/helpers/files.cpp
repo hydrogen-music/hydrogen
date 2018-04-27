@@ -24,7 +24,7 @@ namespace H2Core
 				fileInfo = fileName;
 				break;
 			case SAVE_TMP:
-				fileInfo = Filesystem::tmp_file( fileName );
+				fileInfo = Filesystem::tmp_file_path( fileName );
 				break;
 			default:
 				ERRORLOG( QString( "unknown mode : %1" ).arg( mode ) );
@@ -59,7 +59,7 @@ namespace H2Core
 				fileInfo = fileName;
 				break;
 			case SAVE_TMP:
-				fileInfo = Filesystem::tmp_file( fileName );
+				fileInfo = Filesystem::tmp_file_path( fileName );
 				break;
 			default:
 				ERRORLOG( QString( "unknown mode : %1" ).arg( mode ) );

@@ -268,7 +268,7 @@ void Preferences::loadPreferences( bool bGlobal )
 {
 	bool recreate = false;	// configuration file must be recreated?
 
-	QString sPreferencesFilename = ( bGlobal ? Filesystem::sys_config() : Filesystem::usr_config() );
+	QString sPreferencesFilename = ( bGlobal ? Filesystem::sys_config_path() : Filesystem::usr_config_path() );
 	INFOLOG( QString( "Loading preferences file (%1) [%2]" ).arg( bGlobal ? "SYS" : "USER" ).arg( sPreferencesFilename ) );
 	Filesystem::file_readable( sPreferencesFilename );
 
@@ -657,7 +657,7 @@ void Preferences::loadPreferences( bool bGlobal )
 ///
 void Preferences::savePreferences()
 {
-	INFOLOG( "Saving preferences file: " + Filesystem::usr_config() );
+	INFOLOG( "Saving preferences file: " + Filesystem::usr_config_path() );
 
 	QDomDocument doc;
 	QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
@@ -1030,7 +1030,7 @@ void Preferences::savePreferences()
 
 	doc.appendChild( rootNode );
 
-	QFile file( Filesystem::usr_config() );
+	QFile file( Filesystem::usr_config_path() );
 	if ( !file.open(QIODevice::WriteOnly) )
 		return;
 

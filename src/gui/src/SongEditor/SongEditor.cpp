@@ -1292,7 +1292,7 @@ void SongEditorPatternList::patternPopup_load()
 		return;
 	}
 	LocalFileMng fileMng;
-	QString sequencePath = Filesystem::tmp_file( "SEQ.xml" );
+	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
 	if ( fileMng.writeTempPatternList( song , sequencePath ) != 0 ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
 		return;
@@ -1432,7 +1432,7 @@ void SongEditorPatternList::patternPopup_delete()
 		return;
 	}
 	LocalFileMng fileMng;
-	QString sequencePath = Filesystem::tmp_file( "SEQ.xml" );
+	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
 	if ( fileMng.writeTempPatternList( song , sequencePath ) != 0 ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
 		return;
@@ -1727,7 +1727,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 
 		QString oldPatternName = pat->get_name();
 
-		QString sequenceFilename = Filesystem::tmp_file( "SEQ.xml" );
+		QString sequenceFilename = Filesystem::tmp_file_path( "SEQ.xml" );
 		bool drag = false;
 		if( QString( tokens.at(0) ).contains( "drag pattern" )) drag = true;
 		SE_loadPatternAction *action = new SE_loadPatternAction( sPatternName, oldPatternName, sequenceFilename, nTargetPattern, drag );

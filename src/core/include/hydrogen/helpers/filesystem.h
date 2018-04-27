@@ -48,21 +48,21 @@ class Filesystem : public H2Core::Object
 		static QStringList ladspa_paths();
 
 		/** returns system config path */
-		static QString sys_config();
+		static QString sys_config_path();
 		/** returns user config path */
-		static QString usr_config();
+		static QString usr_config_path();
 		/** returns system empty sample file path */
-		static QString empty_sample();
+		static QString empty_sample_path();
 		/** returns system empty song file path */
-		static QString empty_song();
+		static QString empty_song_path();
 		/** returns system click file path */
-		static QString click_file();
+		static QString click_file_path();
 		/** returns click file path from user directory if exists, otherwise from system */
-		static QString usr_click_file();
+		static QString usr_click_file_path();
 		/** returns the path to the drumkit XSD (xml schema definition) file */
-		static QString drumkit_xsd( );
+		static QString drumkit_xsd_path( );
 		/** returns the path to the drumkit pattern XSD (xml schema definition) file */
-		static QString drumkit_pattern_xsd( );
+		static QString pattern_xsd_path( );
 
 		/** returns gui image path */
 		static QString img_dir();
@@ -107,7 +107,7 @@ class Filesystem : public H2Core::Object
 		 * file path will be constructed like this : tmp_dir()/base.xxxxxx
 		 * \param base, part of the path
 		 */
-		static QString tmp_file( const QString& base );
+		static QString tmp_file_path( const QString& base );
 
 		/* DRUMKIT */
 		/** Checks if a given file is part of a kit in the soundlibrary or external */

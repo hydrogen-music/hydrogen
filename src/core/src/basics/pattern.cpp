@@ -70,7 +70,7 @@ Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instru
 	INFOLOG( QString( "Load pattern %1" ).arg( pattern_path ) );
 	if ( !Filesystem::file_readable( pattern_path ) ) return 0;
 	XMLDoc doc;
-	if( !doc.read( pattern_path, Filesystem::drumkit_pattern_xsd() ) ) {
+	if( !doc.read( pattern_path, Filesystem::pattern_xsd_path() ) ) {
 		return Legacy::load_drumkit_pattern( pattern_path, instruments );
 	}
 	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
