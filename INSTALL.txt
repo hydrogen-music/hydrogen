@@ -116,7 +116,7 @@ installed on your system, and the development header files:
 	qt5-default libqt5xmlpatterns5-dev libarchive-dev
 	libsndfile1-dev libasound2-dev liblo-dev libpulse-dev
 	libcppunit-dev liblrdf-dev liblash-compat-dev
-	librubberband-dev
+	librubberband-dev qttools5-dev qttools5-dev-tools
 
 	In addition, either the libjack-jackd2-dev or libjack-dev
 	package must be present. Which one to pick depends on whether
