@@ -208,7 +208,7 @@ inline int randomValue( int max )
 	return rand() % max;
 }
 
-inline float getGaussian( float z )
+inline float getGaussian( float variance )
 {
 	// gaussian distribution -- dimss
 	float x1, x2, w;
@@ -219,7 +219,7 @@ inline float getGaussian( float z )
 	} while ( w >= 1.0 );
 
 	w = sqrtf( ( -2.0 * logf( w ) ) / w );
-	return x1 * w * z + 0.0; // tunable
+	return x1 * w * variance + 0.0; // tunable
 }
 
 void audioEngine_raiseError( unsigned nErrorCode )
@@ -505,12 +505,9 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			}
 
 			if ( pSong->get_humanize_velocity_value() != 0 ) {
-				float random = pSong->get_humanize_velocity_value() * getGaussian( 0.2 );
 				pNote->set_velocity(
 							pNote->get_velocity()
-							+ ( random
-								- ( pSong->get_humanize_velocity_value() / 2.0 ) )
-							);
+							+ getGaussian( pSong->get_humanize_velocity_value()* 0.2 ) );
 				if ( pNote->get_velocity() > 1.0 ) {
 					pNote->set_velocity( 1.0 );
 				} else if ( pNote->get_velocity() < 0.0 ) {
@@ -520,11 +517,18 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 			// Random Pitch ;)
 			const float fMaxPitchDeviation = 2.0;
+			float randomPitch = getGaussian( pNote->get_instrument()->get_random_pitch_factor() * 0.2 );
+			// Since a Gaussian white noise is unbound we
+			// have to verify the random pitch shift does
+			// not exceed the value of maximal pitch
+			// deviation. 
+			if ( randomPitch > fMaxPitchDeviation ){
+			  randomPitch = fMaxPitchDeviation;
+			} else if ( randomPitch < -1.0 * fMaxPitchDeviation ){
+			  randomPitch = -1.0 * fMaxPitchDeviation;
+			}
 			pNote->set_pitch( pNote->get_pitch()
-							  + ( fMaxPitchDeviation * getGaussian( 0.2 )
-								  - fMaxPitchDeviation / 2.0 )
-							  * pNote->get_instrument()->get_random_pitch_factor() );
-
+							  + randomPitch );
 
 			/*
 					  * Check if the current instrument has the property "Stop-Note" set.
@@ -1293,11 +1297,16 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 
 						// Humanize - Time parameter
 						if ( pSong->get_humanize_time_value() != 0 ) {
-							nOffset += ( int )(
-										getGaussian( 0.3 )
-										* pSong->get_humanize_time_value()
-										* nMaxTimeHumanize
-										);
+						        float randomHumanizeTime = getGaussian( 0.3* pSong->get_humanize_time_value() );
+							// Since a Gaussian white noise is unbound we
+							// have to verify the random time shift does
+							// not exceed the maximal value.
+							if ( ( int ) randomHumanizeTime > nMaxTimeHumanize ){
+							  randomHumanizeTime = ( float ) nMaxTimeHumanize;
+							} else if ( ( int ) randomHumanizeTime < -1* nMaxTimeHumanize ){
+							  randomHumanizeTime = ( float ) -1* nMaxTimeHumanize;
+							}
+							nOffset += ( int ) randomHumanizeTime;
 						}
 						//~
 						// Lead or Lag - timing parameter
