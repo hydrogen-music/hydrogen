@@ -507,7 +507,8 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			if ( pSong->get_humanize_velocity_value() != 0 ) {
 				pNote->set_velocity(
 							pNote->get_velocity()
-							+ getGaussian( pSong->get_humanize_velocity_value()* 0.2 ) );
+							+ getGaussian( pSong->get_humanize_velocity_value() *
+								       pSong->get_humanize_velocity_value() * 0.2 ) );
 				if ( pNote->get_velocity() > 1.0 ) {
 					pNote->set_velocity( 1.0 );
 				} else if ( pNote->get_velocity() < 0.0 ) {
@@ -517,7 +518,8 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 			// Random Pitch ;)
 			const float fMaxPitchDeviation = 2.0;
-			float randomPitch = getGaussian( pNote->get_instrument()->get_random_pitch_factor() * 0.2 );
+			float randomPitch = getGaussian( pNote->get_instrument()->get_random_pitch_factor() *
+							 pNote->get_instrument()->get_random_pitch_factor() * 0.2 );
 			// Since a Gaussian white noise is unbound we
 			// have to verify the random pitch shift does
 			// not exceed the value of maximal pitch
@@ -1297,7 +1299,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 
 						// Humanize - Time parameter
 						if ( pSong->get_humanize_time_value() != 0 ) {
-						        float randomHumanizeTime = getGaussian( 0.3* pSong->get_humanize_time_value() );
+						        float randomHumanizeTime = getGaussian( 0.3 * pSong->get_humanize_time_value() * pSong->get_humanize_time_value() );
 							// Since a Gaussian white noise is unbound we
 							// have to verify the random time shift does
 							// not exceed the maximal value.
