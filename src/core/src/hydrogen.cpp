@@ -505,10 +505,13 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			}
 
 			if ( pSong->get_humanize_velocity_value() != 0 ) {
-				pNote->set_velocity(
-							pNote->get_velocity()
-							+ getGaussian( pSong->get_humanize_velocity_value() *
-								       pSong->get_humanize_velocity_value() * 0.2 ) );
+			        // Ensure the generated Gaussian random variables
+			        // won't have a variance bigger than the value.
+			        const float maximalHumanizationVelocityVariance = 0.2;
+				pNote->set_velocity( pNote->get_velocity() +
+						     getGaussian( pSong->get_humanize_velocity_value() *
+								  pSong->get_humanize_velocity_value() *
+								  maximalHumanizationVelocityVariance ) );
 				if ( pNote->get_velocity() > 1.0 ) {
 					pNote->set_velocity( 1.0 );
 				} else if ( pNote->get_velocity() < 0.0 ) {
@@ -518,8 +521,10 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 			// Random Pitch ;)
 			const float fMaxPitchDeviation = 2.0;
+			const float maximalPitchVariance = 0.2;
 			float randomPitch = getGaussian( pNote->get_instrument()->get_random_pitch_factor() *
-							 pNote->get_instrument()->get_random_pitch_factor() * 0.2 );
+							 pNote->get_instrument()->get_random_pitch_factor() *
+							 maximalPitchVariance );
 			// Since a Gaussian white noise is unbound we
 			// have to verify the random pitch shift does
 			// not exceed the value of maximal pitch
@@ -1299,7 +1304,13 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 
 						// Humanize - Time parameter
 						if ( pSong->get_humanize_time_value() != 0 ) {
-						        float randomHumanizeTime = getGaussian( 0.3 * pSong->get_humanize_time_value() * pSong->get_humanize_time_value() );
+						        
+							// Ensure the generated Gaussian random variables
+							// won't have a variance bigger than the value.
+							const float maximalHumanizationTimeVariance = 0.3;
+							float randomHumanizeTime = getGaussian( maximalHumanizationTimeVariance *
+												pSong->get_humanize_time_value() *
+												pSong->get_humanize_time_value() );
 							// Since a Gaussian white noise is unbound we
 							// have to verify the random time shift does
 							// not exceed the maximal value.
