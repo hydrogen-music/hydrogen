@@ -149,7 +149,7 @@ SampleEditor::~SampleEditor()
 void SampleEditor::closeEvent(QCloseEvent *event)
 {
 	if ( !m_pSampleEditorStatus ){
-		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. This changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. These changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
 		if ( err == 0 ){
 			m_pSampleEditorStatus = true;
 			accept();
@@ -312,7 +312,7 @@ void SampleEditor::openDisplays()
 void SampleEditor::on_ClosePushButton_clicked()
 {
 	if ( !m_pSampleEditorStatus ){
-		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. This changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. These changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
 		if ( err == 0 ){
 			m_pSampleEditorStatus = true;
 			accept();
