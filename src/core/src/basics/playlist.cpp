@@ -24,6 +24,7 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/helpers/legacy.h>
 #include <hydrogen/helpers/xml.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/LocalFileMng.h>
@@ -68,13 +69,21 @@ void Playlist::clear()
 Playlist* Playlist::load_file( const QString& pl_path, bool useRelativePaths )
 {
 	XMLDoc doc;
-	if( !doc.read( pl_path ) ) {
-		return NULL;
+	if ( !doc.read( pl_path, Filesystem::playlist_xsd_path() ) ) {
+		Playlist* pl = new Playlist();
+		Playlist* ret = Legacy::load_playlist( pl, pl_path );
+		if ( ret == 0 ) {
+			delete pl;
+			return 0;
+		}
+		WARNINGLOG( QString( "update playlist %1" ).arg( pl_path ) );
+		pl->save_file( pl_path, pl->getFilename(), true, useRelativePaths );
+		return pl;
 	}
 	XMLNode root = doc.firstChildElement( "playlist" );
 	if ( root.isNull() ) {
 		ERRORLOG( "playlist node not found" );
-		return NULL;
+		return 0;
 	}
 	QFileInfo fileInfo = QFileInfo( pl_path );
 	return Playlist::load_from( &root, fileInfo, useRelativePaths );
@@ -82,35 +91,35 @@ Playlist* Playlist::load_file( const QString& pl_path, bool useRelativePaths )
 
 Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelativePaths )
 {
-	QString filename = node->read_string( "Name", "", false, false );
+	QString filename = node->read_string( "name", "", false, false );
 	if ( filename.isEmpty() ) {
 		ERRORLOG( "Playlist has no name, abort" );
-		return NULL;
+		return 0;
 	}
 
 	Playlist* playlist = new Playlist();
 	playlist->__filename = filename;
 
-	XMLNode songsNode = node->firstChildElement( "Songs" );
+	XMLNode songsNode = node->firstChildElement( "songs" );
 	if ( !songsNode.isNull() ) {
-		XMLNode nextNode = songsNode.firstChildElement( "next" );
+		XMLNode nextNode = songsNode.firstChildElement( "song" );
 		while ( !nextNode.isNull() ) {
 
-			QString songPath = nextNode.read_string( "song", "", false, false );
+			QString songPath = nextNode.read_string( "path", "", false, false );
 			if ( !songPath.isEmpty() ) {
 				Playlist::Entry* entry = new Playlist::Entry();
 				QFileInfo songPathInfo( fileInfo.absoluteDir(), songPath );
 				entry->filePath = songPathInfo.absoluteFilePath();
 				entry->fileExists = songPathInfo.isReadable();
-				entry->scriptPath = nextNode.read_string( "script", "" );
-				entry->scriptEnabled = nextNode.read_bool( "enabled", false );
+				entry->scriptPath = nextNode.read_string( "scriptPath", "" );
+				entry->scriptEnabled = nextNode.read_bool( "scriptEnabled", false );
 				playlist->add( entry );
 			}
 
-			nextNode = nextNode.nextSiblingElement( "next" );
+			nextNode = nextNode.nextSiblingElement( "song" );
 		}
 	} else {
-		WARNINGLOG( "Songs node not found" );
+		WARNINGLOG( "songs node not found" );
 	}
 	return playlist;
 }
@@ -128,8 +137,8 @@ bool Playlist::save_file( const QString& pl_path, const QString& name, bool over
 	XMLDoc doc;
 	doc.set_root( "playlist", "playlist" );
 	XMLNode root = doc.firstChildElement( "playlist" );
-	root.write_string( "Name", name);
-	XMLNode songs = doc.createElement( "Songs" );
+	root.write_string( "name", name);
+	XMLNode songs = doc.createElement( "songs" );
 	root.appendChild( songs );
 	save_to( &songs, useRelativePaths );
 	return doc.write( pl_path );
@@ -143,10 +152,10 @@ void Playlist::save_to( XMLNode* node, bool useRelativePaths )
 		if ( useRelativePaths ) {
 			path = QDir( Filesystem::playlists_dir() ).relativeFilePath( path );
 		}
-		XMLNode song_node = node->ownerDocument().createElement( "next" );
-		song_node.write_string( "song", path );
-		song_node.write_string( "script", entry->scriptPath );
-		song_node.write_bool( "enabled", entry->scriptEnabled);
+		XMLNode song_node = node->ownerDocument().createElement( "song" );
+		song_node.write_string( "path", path );
+		song_node.write_string( "scriptPath", entry->scriptPath );
+		song_node.write_bool( "scriptEnabled", entry->scriptEnabled);
 		node->appendChild( song_node );
 	}
 }
@@ -155,7 +164,7 @@ Playlist* Playlist::load( const QString& filename, bool useRelativePaths )
 {
 	Playlist* playlist = Playlist::load_file( filename, useRelativePaths );
 
-	if ( playlist != NULL ) {
+	if ( playlist != 0 ) {
 		delete __instance;
 		__instance = playlist;
 	}

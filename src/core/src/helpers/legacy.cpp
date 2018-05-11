@@ -6,6 +6,7 @@
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/drumkit.h>
 #include <hydrogen/basics/drumkit_component.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/instrument.h>
@@ -247,6 +248,55 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 		}
 	}
 	return pPattern;
+}
+
+Playlist* Legacy::load_playlist( Playlist* pl, const QString& pl_path )
+{
+	if ( version_older_than( 0, 9, 8 ) ) {
+		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
+	} else {
+		WARNINGLOG( QString( "loading playlist with legacy code" ) );
+	}
+	XMLDoc doc;
+	if( !doc.read( pl_path ) ) {
+		return 0;
+	}
+	XMLNode root = doc.firstChildElement( "playlist" );
+	if ( root.isNull() ) {
+		ERRORLOG( "playlist node not found" );
+		return 0;
+	}
+	QFileInfo fileInfo = QFileInfo( pl_path );
+	QString filename = root.read_string( "Name", "", false, false );
+	if ( filename.isEmpty() ) {
+		ERRORLOG( "Playlist has no name, abort" );
+		return 0;
+	}
+
+	pl->setFilename( filename );
+
+	XMLNode songsNode = root.firstChildElement( "Songs" );
+	if ( !songsNode.isNull() ) {
+		XMLNode nextNode = songsNode.firstChildElement( "next" );
+		while ( !nextNode.isNull() ) {
+
+			QString songPath = nextNode.read_string( "song", "", false, false );
+			if ( !songPath.isEmpty() ) {
+				Playlist::Entry* entry = new Playlist::Entry();
+				QFileInfo songPathInfo( fileInfo.absoluteDir(), songPath );
+				entry->filePath = songPathInfo.absoluteFilePath();
+				entry->fileExists = songPathInfo.isReadable();
+				entry->scriptPath = nextNode.read_string( "script", "" );
+				entry->scriptEnabled = nextNode.read_bool( "enabled", false );
+				pl->add( entry );
+			}
+
+			nextNode = nextNode.nextSiblingElement( "next" );
+		}
+	} else {
+		WARNINGLOG( "Songs node not found" );
+	}
+	return pl;
 }
 
 };
