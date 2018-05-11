@@ -225,9 +225,9 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 	if( playlist->size() > 0 ){
 		for ( uint i = 0; i < playlist->size(); ++i ){
 			QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
-			m_pPlaylistItem->setText ( 0, playlist->get( i )->m_hFile );
-			m_pPlaylistItem->setText ( 1, playlist->get( i )->m_hScript );
-			if ( playlist->get( i )->m_hScriptEnabled == "Use Script" ) {
+			m_pPlaylistItem->setText( 0, playlist->get( i )->filePath );
+			m_pPlaylistItem->setText( 1, playlist->get( i )->scriptPath );
+			if ( playlist->get( i )->scriptEnabled ) {
 				m_pPlaylistItem->setCheckState( 2, Qt::Checked );
 			}else{
 				m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );
@@ -421,15 +421,15 @@ void PlaylistDialog::loadList()
 		for ( uint i = 0; i < playlist->size(); ++i ){
 			QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
 
-			if( playlist->get( i )->m_hFileExists ){
-				m_pPlaylistItem->setText ( 0, playlist->get( i )->m_hFile );
+			if( playlist->get( i )->fileExists ){
+				m_pPlaylistItem->setText( 0, playlist->get( i )->filePath );
 			} else {
-				m_pPlaylistItem->setText ( 0, trUtf8("File not found: ") + playlist->get( i )->m_hFile );
+				m_pPlaylistItem->setText( 0, tr("File not found: ") + playlist->get( i )->filePath );
 			}
 
-			m_pPlaylistItem->setText ( 1, playlist->get( i )->m_hScript );
+			m_pPlaylistItem->setText ( 1, playlist->get( i )->scriptPath );
 
-			if ( playlist->get( i )->m_hScriptEnabled == "Use Script" ) {
+			if ( playlist->get( i )->scriptEnabled ) {
 				m_pPlaylistItem->setCheckState( 2, Qt::Checked );
 			} else {
 				m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );
@@ -895,20 +895,12 @@ void PlaylistDialog::updatePlayListVector()
 	for (int i = 0 ;i < length; i++){
 		QTreeWidgetItem * m_pPlaylistItem = m_pPlaylist->topLevelItem ( i );
 
-		QString execval;
-		bool execcheckbox = m_pPlaylistItem->checkState ( 2 );
-		if ( execcheckbox == true ) {
-			execval = "Use Script";
-		}else{
-			execval = "Script not used";
-		}
 		Playlist::Entry* entry = new Playlist::Entry();
-		entry->m_hFile = m_pPlaylistItem->text ( 0 );
-		entry->m_hScript = m_pPlaylistItem->text ( 1 );
-		entry->m_hScriptEnabled = execval;
+		entry->filePath = m_pPlaylistItem->text( 0 );
+		entry->scriptPath = m_pPlaylistItem->text( 1 );
+		entry->scriptEnabled = m_pPlaylistItem->checkState( 2 );
 
 		Playlist::get_instance()->add( entry );
-
 		Playlist::get_instance()->setIsModified(true);
 	}
 	timer->start( 1000 );
@@ -991,10 +983,10 @@ bool PlaylistDialog::loadListByFileName( QString filename )
 
 		for ( uint i = 0; i < playlist->size(); ++i ){
 			QTreeWidgetItem* m_pPlaylistItem = new QTreeWidgetItem ( m_pPlaylistTree );
-			m_pPlaylistItem->setText ( 0, playlist->get( i )->m_hFile );
-			m_pPlaylistItem->setText ( 1, playlist->get( i )->m_hScript );
+			m_pPlaylistItem->setText( 0, playlist->get( i )->filePath );
+			m_pPlaylistItem->setText( 1, playlist->get( i )->scriptPath );
 
-			if ( playlist->get( i )->m_hScriptEnabled == "Use Script" ) {
+			if ( playlist->get( i )->scriptEnabled ) {
 				m_pPlaylistItem->setCheckState( 2, Qt::Checked );
 			} else {
 				m_pPlaylistItem->setCheckState( 2, Qt::Unchecked );

@@ -100,10 +100,10 @@ Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelat
 			if ( !songPath.isEmpty() ) {
 				Playlist::Entry* entry = new Playlist::Entry();
 				QFileInfo songPathInfo( fileInfo.absoluteDir(), songPath );
-				entry->m_hFile = songPathInfo.absoluteFilePath();
-				entry->m_hFileExists = songPathInfo.isReadable();
-				entry->m_hScript = nextNode.read_string( "script", "" );
-				entry->m_hScriptEnabled = nextNode.read_bool( "enabled", false );
+				entry->filePath = songPathInfo.absoluteFilePath();
+				entry->fileExists = songPathInfo.isReadable();
+				entry->scriptPath = nextNode.read_string( "script", "" );
+				entry->scriptEnabled = nextNode.read_bool( "enabled", false );
 				playlist->add( entry );
 			}
 
@@ -139,14 +139,14 @@ void Playlist::save_to( XMLNode* node, bool useRelativePaths )
 {
 	for (int i = 0; i < size(); i++ ) {
 		Entry* entry = get( i );
-		QString path = entry->m_hFile;
+		QString path = entry->filePath;
 		if ( useRelativePaths ) {
 			path = QDir( Filesystem::playlists_dir() ).relativeFilePath( path );
 		}
 		XMLNode song_node = node->ownerDocument().createElement( "next" );
 		song_node.write_string( "song", path );
-		song_node.write_string( "script", entry->m_hScript );
-		song_node.write_string( "enabled", entry->m_hScriptEnabled);
+		song_node.write_string( "script", entry->scriptPath );
+		song_node.write_bool( "enabled", entry->scriptEnabled);
 		node->appendChild( song_node );
 	}
 }
@@ -174,7 +174,7 @@ bool Playlist::loadSong( int songNumber )
 	}
 
 	/* Load Song from file */
-	QString selected = get( songNumber )->m_hFile;
+	QString selected = get( songNumber )->filePath;
 	Song *pSong = Song::load( selected );
 	if ( ! pSong ) {
 		return false;
@@ -208,10 +208,9 @@ void Playlist::setNextSongByNumber( int songNumber )
 
 void Playlist::execScript( int index)
 {
-	QString file = get( index )->m_hScript;
-	bool enabled = ( get( index )->m_hScriptEnabled == "Script not used" );
+	QString file = get( index )->scriptPath;
 
-	if( !enabled || !QFile( file ).exists() ) {
+	if ( !get( index )->scriptEnabled || !QFile( file ).exists() ) {
 		return;
 	}
 

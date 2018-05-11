@@ -39,10 +39,10 @@ class Playlist : public H2Core::Object
 	public:
 		struct Entry
 		{
-			QString m_hFile;
-			bool m_hFileExists;
-			QString m_hScript;
-			QString m_hScriptEnabled;
+			QString filePath;
+			bool fileExists;
+			QString scriptPath;
+			bool scriptEnabled;
 		};
 
 		static void create_instance();

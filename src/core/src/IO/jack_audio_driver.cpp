@@ -800,16 +800,16 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t *event)
 		/* Copy all songs to Session Directory and update playlist */
 		SongReader reader;
 		for ( uint i = 0; i < playlist->size(); ++i ) {
-			QString BaseName = baseName ( playlist->get( i )->m_hFile );
+			QString BaseName = baseName( playlist->get( i )->filePath );
 			QString newName = jackSessionDirectory + BaseName;
-			QString SongPath = reader.getPath ( playlist->get( i )->m_hFile );
+			QString SongPath = reader.getPath( playlist->get( i )->filePath );
 			if ( SongPath != NULL && QFile::copy ( SongPath, newName ) ) {
 				/* Keep only filename on list for relative read */
-				playlist->get( i )->m_hFile = BaseName;
+				playlist->get( i )->filePath = BaseName;
 				// playlist->get( i )->m_hScript;
 			} else {
 				/* Note - we leave old path in playlist */
-				ERRORLOG ( "Can't copy " + playlist->get( i )->m_hFile + " to " + newName );
+				ERRORLOG( "Can't copy " + playlist->get( i )->filePath + " to " + newName );
 				ev->flags = JackSessionSaveError;
 			}
 		}
