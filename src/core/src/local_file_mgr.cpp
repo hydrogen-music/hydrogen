@@ -275,62 +275,6 @@ bool LocalFileMng::pasteInstrumentLineFromString(Song *song, const QString & ser
 	return true;
 }
 
-/**
- * Load a playlist from disk.
- * \param filename The name of the playlist to be saved.
- * \return Returns an Errorcode.
- */
-
-int LocalFileMng::loadPlayList( const std::string& filename)
-{
-	/* openXmlDocument can create new document ( which is bad idea anyway )
-	   We don't want create new playlist here , so we just open it for test ;-)
-	*/
-	QString		Filename = QString( filename.c_str() );
-	QFileInfo	playlistFileInfo( Filename );
-	QDir		playlistDir = playlistFileInfo.absoluteDir();
-
-	QFile file( Filename );
-	if ( file.open(QIODevice::ReadOnly) ) {
-		file.close();
-	} else {
-		ERRORLOG( QString("Error reading playlist: can't open file %1").arg( Filename ) );
-		return 1;
-	}
-
-	QDomDocument doc = openXmlDocument( Filename );
-
-	Playlist::get_instance()->clear();
-
-	QDomNode rootNode = doc.firstChildElement( "playlist" );	// root element
-	if ( rootNode.isNull() ) {
-		ERRORLOG( "Error reading playlist: playlist node not found" );
-		return 1;
-	}
-	QDomNode playlistNode = rootNode.firstChildElement( "Songs" );
-
-	if ( ! playlistNode.isNull() ) {
-		QDomNode nextNode = playlistNode.firstChildElement( "next" );
-		SongReader reader;
-		while (  !nextNode.isNull() ) {
-			Playlist::Entry* entry = new Playlist::Entry();
-			QString playlistItemPath = readXmlString( nextNode, "song", "" );
-
-			QFileInfo playlistItemInfo (playlistDir, playlistItemPath);
-			entry->m_hFile = playlistItemInfo.absoluteFilePath();
-
-			QString FilePath = reader.getPath( entry->m_hFile );
-			entry->m_hFileExists = Filesystem::file_readable( FilePath );
-			entry->m_hScript = LocalFileMng::readXmlString( nextNode, "script", "" );
-			entry->m_hScriptEnabled = readXmlString( nextNode, "enabled", "" );
-
-			Playlist::get_instance()->add( entry );
-			nextNode = nextNode.nextSiblingElement( "next" );
-		}
-	}
-	return 0; // ok
-}
-
 /* New QtXml based methods */
 
 QString LocalFileMng::processNode( QDomNode node, const QString& nodeName, bool bCanBeEmpty, bool bShouldExists )
