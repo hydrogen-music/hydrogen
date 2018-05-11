@@ -404,7 +404,8 @@ void PlaylistDialog::loadList()
 
 	QString filename = fd.selectedFiles().first();
 
-	Playlist* pPlaylist = Playlist::load( filename );
+	bool relativePaths = Preferences::get_instance()->isPlaylistUsingRelativeFilenames();
+	Playlist* pPlaylist = Playlist::load( filename, relativePaths);
 	if ( ! pPlaylist ) {
 		_ERRORLOG( "Error loading the playlist" );
 		/* FIXME: get current instance (?) */
@@ -973,7 +974,8 @@ bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
 
 bool PlaylistDialog::loadListByFileName( QString filename )
 {
-	Playlist* pPlaylist = Playlist::load ( filename );
+	bool relativePaths = Preferences::get_instance()->isPlaylistUsingRelativeFilenames();
+	Playlist* pPlaylist = Playlist::load ( filename, relativePaths );
 	if ( ! pPlaylist ) {
 		_ERRORLOG( "Error loading the playlist" );
 		return 0;

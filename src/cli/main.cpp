@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
 
 		// Load playlist
 		if ( ! playlistFilename.isEmpty() ) {
-			pPlaylist = Playlist::load ( playlistFilename );
+			pPlaylist = Playlist::load ( playlistFilename, preferences->isPlaylistUsingRelativeFilenames() );
 			if ( ! pPlaylist ) {
 				___ERRORLOG( "Error loading the playlist" );
 				return 0;

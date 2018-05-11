@@ -38,11 +38,6 @@ const char* Playlist::__class_name = "Playlist";
 Playlist::Playlist()
 	: Object( __class_name )
 {
-	if ( __instance ) {
-		_ERRORLOG( "Playlist in use" );
-	}
-
-	__instance = this;
 	__filename = "";
 	m_nSelectedSongNumber = -1;
 	m_nActiveSongNumber = -1;
@@ -52,13 +47,13 @@ Playlist::Playlist()
 Playlist::~Playlist()
 {
 	clear();
-	__instance = NULL;
+	__instance = 0;
 }
 
 void Playlist::create_instance()
 {
 	if ( __instance == 0 ) {
-		__instance = new Playlist;
+		__instance = new Playlist();
 	}
 }
 
@@ -68,6 +63,56 @@ void Playlist::clear()
 		delete __entries[i];
 	}
 	__entries.clear();
+}
+
+Playlist* Playlist::load_file( const QString& pl_path, bool useRelativePaths )
+{
+	XMLDoc doc;
+	if( !doc.read( pl_path ) ) {
+		return NULL;
+	}
+	XMLNode root = doc.firstChildElement( "playlist" );
+	if ( root.isNull() ) {
+		ERRORLOG( "playlist node not found" );
+		return NULL;
+	}
+	QFileInfo fileInfo = QFileInfo( pl_path );
+	return Playlist::load_from( &root, fileInfo, useRelativePaths );
+}
+
+Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelativePaths )
+{
+	QString filename = node->read_string( "Name", "", false, false );
+	if ( filename.isEmpty() ) {
+		ERRORLOG( "Playlist has no name, abort" );
+		return NULL;
+	}
+
+	Playlist* playlist = new Playlist();
+	playlist->__filename = filename;
+
+	XMLNode songsNode = node->firstChildElement( "Songs" );
+	if ( !songsNode.isNull() ) {
+		XMLNode nextNode = songsNode.firstChildElement( "next" );
+		while ( !nextNode.isNull() ) {
+
+			QString songPath = nextNode.read_string( "song", "", false, false );
+			if ( !songPath.isEmpty() ) {
+				Playlist::Entry* entry = new Playlist::Entry();
+				QFileInfo songPathInfo( fileInfo.absoluteDir(), songPath );
+				entry->m_hFile = songPathInfo.absoluteFilePath();
+				entry->m_hFileExists = songPathInfo.isReadable();
+				entry->m_hScript = nextNode.read_string( "script", "" );
+				entry->m_hScriptEnabled = nextNode.read_bool( "enabled", false );
+				playlist->add( entry );
+			}
+
+			nextNode = nextNode.nextSiblingElement( "next" );
+		}
+	} else {
+		WARNINGLOG( "Songs node not found" );
+	}
+	return playlist;
 }
 
 bool Playlist::save_file( const QString& pl_path, const QString& name, bool overwrite, bool useRelativePaths )
@@ -106,17 +151,16 @@ void Playlist::save_to( XMLNode* node, bool useRelativePaths )
 	}
 }
 
-Playlist* Playlist::load( const QString& filename )
+Playlist* Playlist::load( const QString& filename, bool useRelativePaths )
 {
-	LocalFileMng fileMng;
-	int ret = fileMng.loadPlayList( filename.toLocal8Bit().constData() );
+	Playlist* playlist = Playlist::load_file( filename, useRelativePaths );
 
-	if ( ret == 0 ) {
-		Playlist* pPlaylist = get_instance();
-		pPlaylist->setFilename( filename );
-		return pPlaylist;
+	if ( playlist != NULL ) {
+		delete __instance;
+		__instance = playlist;
 	}
-	return NULL;
+
+	return playlist;
 }
 
 /* This method is called by Event dispacher thread ( GUI ) */
