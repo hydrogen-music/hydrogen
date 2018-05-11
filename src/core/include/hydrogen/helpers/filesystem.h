@@ -63,8 +63,10 @@ class Filesystem : public H2Core::Object
 		static QString usr_click_file_path();
 		/** returns the path to the drumkit XSD (xml schema definition) file */
 		static QString drumkit_xsd_path( );
-		/** returns the path to the drumkit pattern XSD (xml schema definition) file */
+		/** returns the path to the pattern XSD (xml schema definition) file */
 		static QString pattern_xsd_path( );
+		/** returns the path to the playlist pattern XSD (xml schema definition) file */
+		static QString playlist_xsd_path( );
 
 		/** returns gui image path */
 		static QString img_dir();
