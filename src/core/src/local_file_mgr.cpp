@@ -490,67 +490,6 @@ QDomDocument LocalFileMng::openXmlDocument( const QString& filename )
 	return doc;
 }
 
-
-int LocalFileMng::writeTempPatternList(Song *song, const QString& filename)
-{
-	QDomDocument doc;
-	QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
-	doc.appendChild( header );
-
-
-	QDomNode tempPatternListNode = doc.createElement( "tempPatternList" );
-
-	unsigned nPatterns = song->get_pattern_list()->size();
-
-	QDomNode virtualPatternListNode = doc.createElement( "virtualPatternList" );
-	for ( unsigned i = 0; i < nPatterns; i++ ) {
-		Pattern *pat = song->get_pattern_list()->get( i );
-
-		// pattern
-		if (pat->get_virtual_patterns()->empty() == false) {
-			QDomNode patternNode = doc.createElement( "pattern" );
-			LocalFileMng::writeXmlString( patternNode, "name", pat->get_name() );
-
-			for (Pattern::virtual_patterns_it_t  virtIter = pat->get_virtual_patterns()->begin(); virtIter != pat->get_virtual_patterns()->end(); ++virtIter) {
-				LocalFileMng::writeXmlString( patternNode, "virtual", (*virtIter)->get_name() );
-			}//for
-
-			virtualPatternListNode.appendChild( patternNode );
-		}//if
-	}//for
-	tempPatternListNode.appendChild(virtualPatternListNode);
-
-	// pattern sequence
-	QDomNode patternSequenceNode = doc.createElement( "patternSequence" );
-
-	unsigned nPatternGroups = song->get_pattern_group_vector()->size();
-	for ( unsigned i = 0; i < nPatternGroups; i++ ) {
-		QDomNode groupNode = doc.createElement( "group" );
-
-		PatternList *pList = ( *song->get_pattern_group_vector() )[i];
-		for ( unsigned j = 0; j < pList->size(); j++ ) {
-			Pattern *pPattern = pList->get( j );
-			LocalFileMng::writeXmlString( groupNode, "patternID", pPattern->get_name() );
-		}
-		patternSequenceNode.appendChild( groupNode );
-	}
-
-	tempPatternListNode.appendChild( patternSequenceNode );
-	doc.appendChild(tempPatternListNode);
-
-	QFile file(filename);
-	if ( !file.open(QIODevice::WriteOnly) )
-		return 0;
-
-	QTextStream TextStream( &file );
-	doc.save( TextStream, 1 );
-
-	file.close();
-
-	return 0; // ok
-
-}
-
 //-----------------------------------------------------------------------------
 //	Implementation of SongWriter class
 //-----------------------------------------------------------------------------

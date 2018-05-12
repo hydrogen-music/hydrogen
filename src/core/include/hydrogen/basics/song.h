@@ -237,7 +237,8 @@ class Song : public H2Core::Object
 
 		DrumkitComponent* get_component( int ID );
 
-		void readTempPatternList( QString filename );
+		void readTempPatternList( const QString& filename );
+		int writeTempPatternList( const QString& filename );
 
 		int get_latest_round_robin( float start_velocity )
 		{
