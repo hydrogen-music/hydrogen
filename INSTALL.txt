@@ -139,8 +139,8 @@ We're providing a set of qmake project files for windows and
 mac osx builds. 
 Please read the relevant wiki pages for more informations:
 
-http://trac.assembla.com/hydrogen/wiki/development%3AcompileOSX
-http://trac.assembla.com/hydrogen/wiki/coding%3Apackagingwin
+https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-source-(MAC-OSX)
+https://github.com/hydrogen-music/hydrogen/wiki/Packaging-for-Windows
 
  5.1 build
  ---------
