@@ -97,7 +97,7 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 	if( sys_path!=0 ) __sys_data_path = sys_path;
 
 	if( !dir_readable( __sys_data_path ) ) {
-		__sys_data_path = QCoreApplication::applicationDirPath().append( LOCAL_DATA_PATH );
+		__sys_data_path = QCoreApplication::applicationDirPath().append( "/" LOCAL_DATA_PATH );
 		ERRORLOG( QString( "will use local data path : %1" ).arg( __sys_data_path ) );
 	}
 
