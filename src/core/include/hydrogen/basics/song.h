@@ -240,6 +240,9 @@ class Song : public H2Core::Object
 		void readTempPatternList( const QString& filename );
 		int writeTempPatternList( const QString& filename );
 
+		QString	copyInstrumentLineToString( int selectedPattern, int selectedInstrument );
+		bool pasteInstrumentLineFromString( const QString& serialized, int selectedPattern, int selectedInstrument, std::list<Pattern *>& patterns );
+
 		int get_latest_round_robin( float start_velocity )
 		{
 			if ( __latest_round_robins.find(start_velocity) == __latest_round_robins.end() )
