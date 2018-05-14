@@ -103,6 +103,36 @@ bool XMLNode::read_bool( const QString& node, bool default_value, bool inexisten
 	}
 }
 
+QString XMLNode::read_text( bool empty_ok )
+{
+	QString text = toElement().text();
+	if ( !empty_ok && text.isEmpty() ) {
+		DEBUGLOG( QString( "XML node %1 should not be empty." ).arg( nodeName() ) );
+	}
+	return text;
+}
+
+QString XMLNode::read_attribute( const QString& attribute, const QString& default_value, bool inexistent_ok, bool empty_ok )
+{
+	QDomElement el = toElement();
+	if ( !inexistent_ok && !el.hasAttribute( attribute ) ) {
+		DEBUGLOG( QString( "XML node %1 attribute %2 should exists." ).arg( nodeName() ).arg( attribute ) );
+		return default_value;
+	}
+	QString attr = el.attribute( attribute );
+	if ( attr.isEmpty() ) {
+		if( !empty_ok ) DEBUGLOG( QString( "XML node %1 attribute %2 should not be empty." ).arg( nodeName() ).arg( attribute ) );
+		DEBUGLOG( QString( "Using default value %1 for attribute %2" ).arg( default_value ).arg( attribute ) );
+		return default_value;
+	}
+	return attr;
+}
+
+void XMLNode::write_attribute( const QString& attribute, const QString& value )
+{
+	toElement().setAttribute( attribute, value );
+}
+
 void XMLNode::write_child_node( const QString& node, const QString& text )
 {
 	QDomDocument doc = this->ownerDocument();
