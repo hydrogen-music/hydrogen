@@ -906,7 +906,7 @@ void SongEditor::clearThePatternSequenseVector( QString filename )
 
 	//before delet the sequense, write a temp seqense file to disk
 	LocalFileMng fileMng;
-	int err = song->writeTempPatternList( filename );
+	bool success = song->writeTempPatternList( filename );
 
 	vector<PatternList*> *pPatternGroupsVect = song->get_pattern_group_vector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
@@ -1293,7 +1293,7 @@ void SongEditorPatternList::patternPopup_load()
 	}
 	LocalFileMng fileMng;
 	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
-	if ( song->writeTempPatternList( sequencePath ) != 0 ) {
+	if ( !song->writeTempPatternList( sequencePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
 		return;
 	}
@@ -1433,7 +1433,7 @@ void SongEditorPatternList::patternPopup_delete()
 	}
 	LocalFileMng fileMng;
 	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
-	if ( song->writeTempPatternList( sequencePath ) != 0 ) {
+	if ( !song->writeTempPatternList( sequencePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
 		return;
 	}

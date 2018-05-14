@@ -238,7 +238,7 @@ class Song : public H2Core::Object
 		DrumkitComponent* get_component( int ID );
 
 		void readTempPatternList( const QString& filename );
-		int writeTempPatternList( const QString& filename );
+		bool writeTempPatternList( const QString& filename );
 
 		QString	copyInstrumentLineToString( int selectedPattern, int selectedInstrument );
 		bool pasteInstrumentLineFromString( const QString& serialized, int selectedPattern, int selectedInstrument, std::list<Pattern *>& patterns );

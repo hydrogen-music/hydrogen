@@ -43,6 +43,7 @@
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/automation_path.h>
 #include <hydrogen/automation_path_serializer.h>
+#include <hydrogen/helpers/xml.h>
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/hydrogen.h>
 
@@ -241,177 +242,126 @@ void Song::set_is_modified(bool is_modified)
 
 void Song::readTempPatternList( const QString& filename )
 {
-	Hydrogen* engine = Hydrogen::get_instance();
-
-	//AudioEngine::get_instance()->lock( RIGHT_HERE );
-
-	Song* song = engine->getSong();
-
-	if ( ! QFile( filename ).exists() ) {
-		ERRORLOG( "tep file " + filename + " not found." );
+	XMLDoc doc;
+	if( !doc.read( filename ) ) {
+		return;
+	}
+	XMLNode root = doc.firstChildElement( "sequence" );
+	if ( root.isNull() ) {
+		ERRORLOG( "sequence node not found" );
 		return;
 	}
 
-	QDomDocument doc = LocalFileMng::openXmlDocument( filename );
-	QDomNodeList nodeList = doc.elementsByTagName( "tempPatternList" );
-
-
-	if( nodeList.isEmpty() ) {
-		ERRORLOG( "Error reading tmp file" );
-		return;
-	}
-
-	QDomNode songNode = nodeList.at( 0 );
-
-	// Virtual Patterns
-	QDomNode  virtualPatternListNode = songNode.firstChildElement( "virtualPatternList" );
-	QDomNode virtualPatternNode = virtualPatternListNode.firstChildElement( "pattern" );
-	if ( !virtualPatternNode.isNull() ) {
-
-		while (  ! virtualPatternNode.isNull()  ) {
-			QString sName = "";
-			sName = LocalFileMng::readXmlString( virtualPatternNode, "name", sName );
-
-			Pattern* curPattern = NULL;
-			unsigned nPatterns = song->get_pattern_list()->size();
-			for ( unsigned i = 0; i < nPatterns; i++ ) {
-				Pattern* pat = song->get_pattern_list()->get( i );
-
-				if ( pat->get_name() == sName ) {
-					curPattern = pat;
-					break;
-				}//if
-			}//for
-
-			if ( curPattern != NULL ) {
-				QDomNode  virtualNode = virtualPatternNode.firstChildElement( "virtual" );
-				while (  !virtualNode.isNull()  ) {
-					QString virtName = virtualNode.firstChild().nodeValue();
-
-					Pattern* virtPattern = NULL;
-					for ( unsigned i = 0; i < nPatterns; i++ ) {
-						Pattern* pat = song->get_pattern_list()->get( i );
-
-						if ( pat->get_name() == virtName ) {
-							virtPattern = pat;
+	XMLNode virtualsNode = root.firstChildElement( "virtuals" );
+	if ( !virtualsNode.isNull() ) {
+		XMLNode virtualNode = virtualsNode.firstChildElement( "virtual" );
+		while ( !virtualNode.isNull() ) {
+			QString patternName = virtualNode.read_attribute( "pattern", NULL, false, false );
+			XMLNode patternNode = virtualNode.firstChildElement( "pattern" );
+			Pattern* p = NULL;
+			while ( !patternName.isEmpty() && !patternNode.isNull() ) {
+				QString virtualName = patternNode.read_text( false );
+				if ( !virtualName.isEmpty() ) {
+					Pattern* v = NULL;
+					for ( unsigned i = 0; i < get_pattern_list()->size(); i++ ) {
+						Pattern* pat = get_pattern_list()->get( i );
+						if ( p == NULL && pat->get_name() == patternName ) {
+							p = pat;
+						}
+						if ( v == NULL && pat->get_name() == virtualName ) {
+							v = pat;
+						}
+						if ( p != NULL && v != NULL) {
 							break;
-						}//if
-					}//for
-
-					if ( virtPattern != NULL ) {
-						curPattern->virtual_patterns_add( virtPattern );
-					} else {
-						ERRORLOG( "Song had invalid virtual pattern list data (virtual)" );
-					}//if
-					virtualNode = ( QDomNode ) virtualNode.nextSiblingElement( "virtual" );
-				}//while
-			} else {
-				ERRORLOG( "Song had invalid virtual pattern list data (name)" );
-			}//if
-			virtualPatternNode = ( QDomNode ) virtualPatternNode.nextSiblingElement( "pattern" );
-		}//while
-	}//if
-
-	song->get_pattern_list()->flattened_virtual_patterns_compute();
-
-	// Pattern sequence
-	QDomNode patternSequenceNode = songNode.firstChildElement( "patternSequence" );
-
-	std::vector<PatternList*> *pPatternGroupVector = song->get_pattern_group_vector();
-	pPatternGroupVector->clear();
-
-	PatternList* patternSequence;
-	QDomNode groupNode = patternSequenceNode.firstChildElement( "group" );
-	while (  !groupNode.isNull()  ) {
-		patternSequence = new PatternList();
-		QDomNode patternId = groupNode.firstChildElement( "patternID" );
-		while (  !patternId.isNull()  ) {
-			QString patId = patternId.firstChild().nodeValue();
-
-			Pattern* pat = NULL;
-			for ( unsigned i = 0; i < song->get_pattern_list()->size(); i++ ) {
-				Pattern* tmp = song->get_pattern_list()->get( i );
-				if ( tmp ) {
-					if ( tmp->get_name() == patId ) {
-						pat = tmp;
-						break;
+						}
+					}
+					if ( p == NULL ) {
+						ERRORLOG( QString( "Invalid pattern name %1" ).arg( patternName ) );
+					}
+					if ( v == NULL ) {
+						ERRORLOG( QString( "Invalid virtual pattern name %1" ).arg( virtualName ) );
+					}
+					if ( p != NULL && v != NULL ) {
+						p->virtual_patterns_add( v );
 					}
 				}
+				patternNode = patternNode.nextSiblingElement( "pattern" );
 			}
-			if ( pat == NULL ) {
-				WARNINGLOG( "patternid not found in patternSequence" );
-				patternId = ( QDomNode ) patternId.nextSiblingElement( "patternID" );
-				continue;
-			}
-			patternSequence->add( pat );
-			patternId = ( QDomNode ) patternId.nextSiblingElement( "patternID" );
+			virtualNode = virtualNode.nextSiblingElement( "virtual" );
 		}
-		pPatternGroupVector->push_back( patternSequence );
-
-		groupNode = groupNode.nextSiblingElement( "group" );
+	} else {
+		WARNINGLOG( "no virtuals node not found" );
 	}
 
-	song->set_pattern_group_vector( pPatternGroupVector );
+	get_pattern_list()->flattened_virtual_patterns_compute();
+	get_pattern_group_vector()->clear();
 
+	XMLNode sequenceNode = root.firstChildElement( "groups" );
+	if ( !sequenceNode.isNull() ) {
+		XMLNode groupNode = sequenceNode.firstChildElement( "group" );
+		while ( !groupNode.isNull() ) {
+			PatternList* patternSequence = new PatternList();
+			XMLNode patternNode = groupNode.firstChildElement( "pattern" );
+			while ( !patternNode.isNull() ) {
+				QString patternName = patternNode.read_text( false );
+				if( !patternName.isEmpty() ) {
+					Pattern* p = NULL;
+					for ( unsigned i = 0; i < get_pattern_list()->size(); i++ ) {
+						Pattern* pat = get_pattern_list()->get( i );
+						if ( pat->get_name() == patternName ) {
+							p = pat;
+							break;
+						}
+					}
+					if ( p == NULL ) {
+						ERRORLOG( QString( "Invalid pattern name %1" ).arg( patternName ) );
+					} else {
+						patternSequence->add( p );
+					}
+				}
+				patternNode = patternNode.nextSiblingElement( "pattern" );
+			}
+			get_pattern_group_vector()->push_back( patternSequence );
+			groupNode = groupNode.nextSiblingElement( "group" );
+		}
+	} else {
+		WARNINGLOG( "no sequence node not found" );
+	}
 }
 
-int Song::writeTempPatternList( const QString& filename )
+bool Song::writeTempPatternList( const QString& filename )
 {
-	QDomDocument doc;
-	QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
-	doc.appendChild( header );
+	XMLDoc doc;
+	doc.set_root( "sequence", "sequence" );
+	XMLNode root = doc.firstChildElement( "sequence" );
 
-
-	QDomNode tempPatternListNode = doc.createElement( "tempPatternList" );
-
-	unsigned nPatterns = get_pattern_list()->size();
-
-	QDomNode virtualPatternListNode = doc.createElement( "virtualPatternList" );
-	for ( unsigned i = 0; i < nPatterns; i++ ) {
+	XMLNode virtualPatternListNode = doc.createElement( "virtuals" );
+	for ( unsigned i = 0; i < get_pattern_list()->size(); i++ ) {
 		Pattern *pat = get_pattern_list()->get( i );
+		if ( !pat->get_virtual_patterns()->empty() ) {
+			XMLNode node = doc.createElement( "virtual" );
+			node.write_attribute( "pattern", pat->get_name() );
+			for ( Pattern::virtual_patterns_it_t virtIter = pat->get_virtual_patterns()->begin(); virtIter != pat->get_virtual_patterns()->end(); ++virtIter ) {
+				node.write_string( "pattern", (*virtIter)->get_name() );
+			}
+			virtualPatternListNode.appendChild( node );
+		}
+	}
+	root.appendChild( virtualPatternListNode );
 
-		// pattern
-		if (pat->get_virtual_patterns()->empty() == false) {
-			QDomNode patternNode = doc.createElement( "pattern" );
-			LocalFileMng::writeXmlString( patternNode, "name", pat->get_name() );
-
-			for (Pattern::virtual_patterns_it_t  virtIter = pat->get_virtual_patterns()->begin(); virtIter != pat->get_virtual_patterns()->end(); ++virtIter) {
-				LocalFileMng::writeXmlString( patternNode, "virtual", (*virtIter)->get_name() );
-			}//for
-
-			virtualPatternListNode.appendChild( patternNode );
-		}//if
-	}//for
-	tempPatternListNode.appendChild(virtualPatternListNode);
-
-	// pattern sequence
-	QDomNode patternSequenceNode = doc.createElement( "patternSequence" );
-
-	unsigned nPatternGroups = get_pattern_group_vector()->size();
-	for ( unsigned i = 0; i < nPatternGroups; i++ ) {
-		QDomNode groupNode = doc.createElement( "group" );
-
+	XMLNode patternSequenceNode = doc.createElement( "groups" );
+	for ( unsigned i = 0; i < get_pattern_group_vector()->size(); i++ ) {
+		XMLNode node = doc.createElement( "group" );
 		PatternList *pList = ( *get_pattern_group_vector() )[i];
 		for ( unsigned j = 0; j < pList->size(); j++ ) {
-			Pattern *pPattern = pList->get( j );
-			LocalFileMng::writeXmlString( groupNode, "patternID", pPattern->get_name() );
+			Pattern *pat = pList->get( j );
+			node.write_string( "pattern", pat->get_name() );
 		}
-		patternSequenceNode.appendChild( groupNode );
+		patternSequenceNode.appendChild( node );
 	}
+	root.appendChild( patternSequenceNode );
 
-	tempPatternListNode.appendChild( patternSequenceNode );
-	doc.appendChild(tempPatternListNode);
-
-	QFile file(filename);
-	if ( !file.open(QIODevice::WriteOnly) )
-		return 0;
-
-	QTextStream TextStream( &file );
-	doc.save( TextStream, 1 );
-
-	file.close();
-
-	return 0; // ok
+	return doc.write( filename );
 }
 
 QString Song::copyInstrumentLineToString( int selectedPattern, int selectedInstrument )
