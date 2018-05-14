@@ -25,32 +25,32 @@ class XMLNode : public H2Core::Object, public QDomNode
 		 * reads an integer stored into a child node
 		 * \param node the name of the child node to read into
 		 * \param default_value the value returned if something goes wrong
-		 * \param inexistent_ok if set to false output a DEBUG log line if the node dosen't exists
-		 * \param empty_ok if set to false output a DEBUG log lline if the child node is empty
+		 * \param inexistent_ok if set to false output a DEBUG log line if the node doesn't exists
+		 * \param empty_ok if set to false output a DEBUG log line if the child node is empty
 		 */
 		int read_int( const QString& node, int default_value, bool inexistent_ok=true, bool empty_ok=true );
 		/**
 		 * reads a boolean stored into a child node
 		 * \param node the name of the child node to read into
 		 * \param default_value the value returned if something goes wrong
-		 * \param inexistent_ok if set to false output a DEBUG log line if the node dosen't exists
-		 * \param empty_ok if set to false output a DEBUG log lline if the child node is empty
+		 * \param inexistent_ok if set to false output a DEBUG log line if the node doesn't exists
+		 * \param empty_ok if set to false output a DEBUG log line if the child node is empty
 		 */
 		bool read_bool( const QString& node, bool default_value, bool inexistent_ok=true, bool empty_ok=true );
 		/**
 		 * reads a float stored into a child node
 		 * \param node the name of the child node to read into
 		 * \param default_value the value returned if something goes wrong
-		 * \param inexistent_ok if set to false output a DEBUG log line if the node dosen't exists
-		 * \param empty_ok if set to false output a DEBUG log lline if the child node is empty
+		 * \param inexistent_ok if set to false output a DEBUG log line if the node doesn't exists
+		 * \param empty_ok if set to false output a DEBUG log line if the child node is empty
 		 */
 		float read_float( const QString& node, float default_value, bool inexistent_ok=true, bool empty_ok=true );
 		/**
 		 * reads a string stored into a child node
 		 * \param node the name of the child node to read into
 		 * \param default_value the value returned if something goes wrong
-		 * \param inexistent_ok if set to false output a DEBUG log line if the node dosen't exists
-		 * \param empty_ok if set to false output a DEBUG log lline if the child node is empty
+		 * \param inexistent_ok if set to false output a DEBUG log line if the node doesn't exists
+		 * \param empty_ok if set to false output a DEBUG log line if the child node is empty
 		 */
 		QString read_string( const QString& node, const QString& default_value, bool inexistent_ok=true, bool empty_ok=true );
 
@@ -82,8 +82,8 @@ class XMLNode : public H2Core::Object, public QDomNode
 		/**
 		 * reads a string stored into a child node
 		 * \param node the name of the child node to read into
-		 * \param inexistent_ok if set to false output a DEBUG log line if the node dosen't exists
-		 * \param empty_ok if set to false output a DEBUG log lline if the child node is empty
+		 * \param inexistent_ok if set to false output a DEBUG log line if the node doesn't exists
+		 * \param empty_ok if set to false output a DEBUG log line if the child node is empty
 		 */
 		QString read_child_node( const QString& node, bool inexistent_ok, bool empty_ok );
 		/**
