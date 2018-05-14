@@ -642,6 +642,9 @@ void Preferences::loadPreferences( bool bGlobal )
 		}
 	}
 
+	if ( maxLayers < 16 ) {
+		maxLayers = 16;
+	}
 
 	// The preferences file should be recreated?
 	if ( recreate == true && !bGlobal ) {
