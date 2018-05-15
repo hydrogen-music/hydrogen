@@ -55,12 +55,6 @@ class XMLNode : public H2Core::Object, public QDomNode
 		QString read_string( const QString& node, const QString& default_value, bool inexistent_ok=true, bool empty_ok=true );
 
 		/**
-		 * reads the text (content) from the node
-		 * \param empty_ok if set to false output a DEBUG log line if the node is empty
-		 */
-		QString read_text( bool empty_ok );
-
-		/**
 		 * reads an attribute from the node
 		 * \param attribute the name of the attribute to read
 		 * \param default_value the value returned if something goes wrong
@@ -70,11 +64,10 @@ class XMLNode : public H2Core::Object, public QDomNode
 		QString read_attribute( const QString& attribute, const QString& default_value, bool inexistent_ok, bool empty_ok );
 
 		/**
-		 * write a string as an attribute of the node
-		 * \param attribute the name of the attribute to create
-		 * \param value the value to write in the attribute
+		 * reads the text (content) from the node
+		 * \param empty_ok if set to false output a DEBUG log line if the node is empty
 		 */
-		void write_attribute( const QString& attribute, const QString& value );
+		QString read_text( bool empty_ok );
 
 		/**
 		 * write an integer into a child node
@@ -100,6 +93,13 @@ class XMLNode : public H2Core::Object, public QDomNode
 		 * \param value the value to write
 		 */
 		void write_string( const QString& node, const QString& value );
+
+		/**
+		 * write a string as an attribute of the node
+		 * \param attribute the name of the attribute to create
+		 * \param value the value to write in the attribute
+		 */
+		void write_attribute( const QString& attribute, const QString& value );
 	private:
 		/**
 		 * reads a string stored into a child node
