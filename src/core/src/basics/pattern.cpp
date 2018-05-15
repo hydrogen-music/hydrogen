@@ -128,7 +128,7 @@ bool Pattern::save_file( const QString& drumkit_name, const QString& author, con
 	return doc.write( pattern_path );
 }
 
-void Pattern::save_to( XMLNode* node )
+void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly )
 {
 	XMLNode pattern_node =  node->createNode( "pattern" );
 	pattern_node.write_string( "name", __name );
@@ -136,9 +136,10 @@ void Pattern::save_to( XMLNode* node )
 	pattern_node.write_string( "category", __category );
 	pattern_node.write_int( "size", __length );
 	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
+	int id = ( instrumentOnly == 0 ? -1 : instrumentOnly->get_id() );
 	for( notes_it_t it=__notes.begin(); it!=__notes.end(); ++it ) {
 		Note* note = it->second;
-		if( note ) {
+		if( note && ( instrumentOnly == 0 || note->get_instrument()->get_id() == id ) ) {
 			XMLNode note_node = note_list_node.createNode( "note" );
 			note->save_to( &note_node );
 		}
