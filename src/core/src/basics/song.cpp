@@ -332,8 +332,7 @@ void Song::readTempPatternList( const QString& filename )
 bool Song::writeTempPatternList( const QString& filename )
 {
 	XMLDoc doc;
-	doc.set_root( "sequence", "sequence" );
-	XMLNode root = doc.firstChildElement( "sequence" );
+	XMLNode root = doc.set_root( "sequence" );
 
 	XMLNode virtualPatternListNode = doc.createElement( "virtuals" );
 	for ( unsigned i = 0; i < get_pattern_list()->size(); i++ ) {

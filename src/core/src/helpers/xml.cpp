@@ -230,17 +230,20 @@ bool XMLDoc::write( const QString& filepath )
 
 	file.close();
 	return rv;
-};
+}
 
-void XMLDoc::set_root( const QString& node_name, const QString& xmlns )
+XMLNode XMLDoc::set_root( const QString& node_name, const QString& xmlns )
 {
 	QDomProcessingInstruction header = createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"" );
 	appendChild( header );
 	XMLNode root = createElement( node_name );
-	QDomElement el = root.toElement();
-	el.setAttribute( "xmlns",XMLNS_BASE+xmlns );
-	el.setAttribute( "xmlns:xsi",XMLNS_XSI );
+	if ( !xmlns.isEmpty() ) {
+		QDomElement el = root.toElement();
+		el.setAttribute( "xmlns",XMLNS_BASE+xmlns );
+		el.setAttribute( "xmlns:xsi",XMLNS_XSI );
+	}
 	appendChild( root );
+	return root;
 }
 
 };

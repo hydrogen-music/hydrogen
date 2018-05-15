@@ -253,8 +253,7 @@ bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_i
 		return false;
 	}
 	XMLDoc doc;
-	doc.set_root( "drumkit_info", "drumkit" );
-	XMLNode root = doc.firstChildElement( "drumkit_info" );
+	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
 	save_to( &root, component_id );
 	return doc.write( dk_path );
 }

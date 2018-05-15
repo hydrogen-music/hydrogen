@@ -141,7 +141,7 @@ class XMLDoc : public H2Core::Object, public QDomDocument
 		 * \param node_name, the name of the rootnode to build
 		 * \param xmlns, the xml namespace prefix to add after XMLNS_BASE
 		 */
-		void set_root( const QString& node_name, const QString& xmlns );
+		XMLNode set_root( const QString& node_name, const QString& xmlns = 0 );
 };
 
 };

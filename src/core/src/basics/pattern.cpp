@@ -120,8 +120,7 @@ bool Pattern::save_file( const QString& drumkit_name, const QString& author, con
 		return false;
 	}
 	XMLDoc doc;
-	doc.set_root( "drumkit_pattern", "drumkit_pattern" );
-	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
+	XMLNode root = doc.set_root( "drumkit_pattern", "drumkit_pattern" );
 	root.write_string( "drumkit_name", drumkit_name );				// FIXME loaded with LocalFileMng::getDrumkitNameForPattern(…)
 	root.write_string( "author", author );							// FIXME this is never loaded back
 	root.write_string( "license", license );						// FIXME this is never loaded back

@@ -135,8 +135,7 @@ bool Playlist::save_file( const QString& pl_path, const QString& name, bool over
 	setFilename( pl_path );
 
 	XMLDoc doc;
-	doc.set_root( "playlist", "playlist" );
-	XMLNode root = doc.firstChildElement( "playlist" );
+	XMLNode root = doc.set_root( "playlist", "playlist" );
 	root.write_string( "name", name);
 	XMLNode songs = doc.createElement( "songs" );
 	root.appendChild( songs );
