@@ -100,7 +100,7 @@ function cmake_pkg() {
 
 function zoop() {
     cmake_make
-    LD_PRELOAD=$(find $BUILD_DIR -name 'libhydrogen-core*' | head -n 1) $BUILD_DIR/src/gui/hydrogen $H2FLAGS
+    LD_PRELOAD=$(find $BUILD_DIR -name 'libhydrogen-core*' | head -n 1) ./hydrogen $H2FLAGS
 }
 
 if [ $# -eq 0 ]; then
