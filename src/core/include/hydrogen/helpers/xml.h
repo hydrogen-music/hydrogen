@@ -22,6 +22,13 @@ class XMLNode : public H2Core::Object, public QDomNode
 		XMLNode( QDomNode node );
 
 		/**
+		 *  create a new XMLNode that has to be appended into de XMLDoc
+		 * \param name the name of the node to create
+		 * \return the newly created node
+		 */
+		XMLNode createNode( const QString& name );
+
+		/**
 		 * reads an integer stored into a child node
 		 * \param node the name of the child node to read into
 		 * \param default_value the value returned if something goes wrong

@@ -39,6 +39,13 @@ const char* XMLNode::__class_name ="XMLNode";
 XMLNode::XMLNode() : Object( __class_name ) { }
 XMLNode::XMLNode( QDomNode node ) : Object( __class_name ), QDomNode( node ) { }
 
+XMLNode XMLNode::createNode( const QString& name )
+{
+	XMLNode node = this->ownerDocument().createElement( name );
+	appendChild( node );
+	return node;
+}
+
 QString XMLNode::read_child_node( const QString& node, bool inexistent_ok, bool empty_ok )
 {
 	if( isNull() ) {
