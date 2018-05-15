@@ -122,7 +122,7 @@ void InstrumentComponent::save_to( XMLNode* node, int component_id )
 {
 	XMLNode component_node;
 	if( component_id == -1 ) {
-		component_node = node->ownerDocument().createElement( "instrumentComponent" );
+		component_node = node->createNode( "instrumentComponent" );
 		component_node.write_int( "component_id", __related_drumkit_componentID );
 		component_node.write_float( "gain", __gain );
 	}
@@ -135,8 +135,6 @@ void InstrumentComponent::save_to( XMLNode* node, int component_id )
 				layer->save_to( node );
 		}
 	}
-	if( component_id == -1 )
-		node->appendChild( component_node );
 }
 
 };

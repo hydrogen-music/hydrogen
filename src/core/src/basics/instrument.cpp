@@ -303,7 +303,7 @@ void Instrument::unload_samples()
 
 void Instrument::save_to( XMLNode* node, int component_id )
 {
-	XMLNode InstrumentNode = node->ownerDocument().createElement( "instrument" );
+	XMLNode InstrumentNode = node->createNode( "instrument" );
 	InstrumentNode.write_int( "id", __id );
 	InstrumentNode.write_string( "name", __name );
 	InstrumentNode.write_float( "volume", __volume );
@@ -349,8 +349,6 @@ void Instrument::save_to( XMLNode* node, int component_id )
 		if( component_id == -1 || pComponent->get_drumkit_componentID() == component_id )
 			pComponent->save_to( &InstrumentNode, component_id );
 	}
-
-	node->appendChild( InstrumentNode );
 }
 
 void Instrument::set_adsr( ADSR* adsr )

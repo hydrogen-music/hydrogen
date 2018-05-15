@@ -268,12 +268,11 @@ void Drumkit::save_to( XMLNode* node, int component_id )
 	node->write_string( "imageLicense", __imageLicense );
 
 	if( component_id == -1 ) {
-		XMLNode components_node = node->ownerDocument().createElement( "componentList" );
+		XMLNode components_node = node->createNode( "componentList" );
 		for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
 			DrumkitComponent* pComponent = *it;
 			pComponent->save_to( &components_node );
 		}
-		node->appendChild( components_node );
 	}
 	__instruments->save_to( node, component_id );
 }

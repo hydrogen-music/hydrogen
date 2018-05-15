@@ -137,8 +137,7 @@ bool Playlist::save_file( const QString& pl_path, const QString& name, bool over
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "playlist", "playlist" );
 	root.write_string( "name", name);
-	XMLNode songs = doc.createElement( "songs" );
-	root.appendChild( songs );
+	XMLNode songs = root.createNode( "songs" );
 	save_to( &songs, useRelativePaths );
 	return doc.write( pl_path );
 }
@@ -151,11 +150,10 @@ void Playlist::save_to( XMLNode* node, bool useRelativePaths )
 		if ( useRelativePaths ) {
 			path = QDir( Filesystem::playlists_dir() ).relativeFilePath( path );
 		}
-		XMLNode song_node = node->ownerDocument().createElement( "song" );
+		XMLNode song_node = node->createNode( "song" );
 		song_node.write_string( "path", path );
 		song_node.write_string( "scriptPath", entry->scriptPath );
 		song_node.write_bool( "scriptEnabled", entry->scriptEnabled);
-		node->appendChild( song_node );
 	}
 }
 

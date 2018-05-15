@@ -131,11 +131,10 @@ DrumkitComponent* DrumkitComponent::load_from( XMLNode* node, const QString& dk_
 
 void DrumkitComponent::save_to( XMLNode* node )
 {
-	XMLNode ComponentNode = node->ownerDocument().createElement( "drumkitComponent" );
+	XMLNode ComponentNode = node->createNode( "drumkitComponent" );
 	ComponentNode.write_int( "id", __id );
 	ComponentNode.write_string( "name", __name );
 	ComponentNode.write_float( "volume", __volume );
-	node->appendChild( ComponentNode );
 }
 
 };

@@ -334,31 +334,27 @@ bool Song::writeTempPatternList( const QString& filename )
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "sequence" );
 
-	XMLNode virtualPatternListNode = doc.createElement( "virtuals" );
+	XMLNode virtualPatternListNode = root.createNode( "virtuals" );
 	for ( unsigned i = 0; i < get_pattern_list()->size(); i++ ) {
 		Pattern *pat = get_pattern_list()->get( i );
 		if ( !pat->get_virtual_patterns()->empty() ) {
-			XMLNode node = doc.createElement( "virtual" );
+			XMLNode node = virtualPatternListNode.createNode( "virtual" );
 			node.write_attribute( "pattern", pat->get_name() );
 			for ( Pattern::virtual_patterns_it_t virtIter = pat->get_virtual_patterns()->begin(); virtIter != pat->get_virtual_patterns()->end(); ++virtIter ) {
 				node.write_string( "pattern", (*virtIter)->get_name() );
 			}
-			virtualPatternListNode.appendChild( node );
 		}
 	}
-	root.appendChild( virtualPatternListNode );
 
-	XMLNode patternSequenceNode = doc.createElement( "groups" );
+	XMLNode patternSequenceNode = root.createNode( "groups" );
 	for ( unsigned i = 0; i < get_pattern_group_vector()->size(); i++ ) {
-		XMLNode node = doc.createElement( "group" );
+		XMLNode node = patternSequenceNode.createNode( "group" );
 		PatternList *pList = ( *get_pattern_group_vector() )[i];
 		for ( unsigned j = 0; j < pList->size(); j++ ) {
 			Pattern *pat = pList->get( j );
 			node.write_string( "pattern", pat->get_name() );
 		}
-		patternSequenceNode.appendChild( node );
 	}
-	root.appendChild( patternSequenceNode );
 
 	return doc.write( filename );
 }

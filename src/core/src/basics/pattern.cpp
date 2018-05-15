@@ -130,22 +130,19 @@ bool Pattern::save_file( const QString& drumkit_name, const QString& author, con
 
 void Pattern::save_to( XMLNode* node )
 {
-	XMLNode pattern_node =  node->ownerDocument().createElement( "pattern" );
+	XMLNode pattern_node =  node->createNode( "pattern" );
 	pattern_node.write_string( "name", __name );
 	pattern_node.write_string( "info", __info );
 	pattern_node.write_string( "category", __category );
 	pattern_node.write_int( "size", __length );
-	XMLNode note_list_node =  pattern_node.ownerDocument().createElement( "noteList" );
+	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
 	for( notes_it_t it=__notes.begin(); it!=__notes.end(); ++it ) {
 		Note* note = it->second;
 		if( note ) {
-			XMLNode note_node = node->ownerDocument().createElement( "note" );
+			XMLNode note_node = note_list_node.createNode( "note" );
 			note->save_to( &note_node );
-			note_list_node.appendChild( note_node );
 		}
 	}
-	pattern_node.appendChild( note_list_node );
-	node->appendChild( pattern_node );
 }
 
 Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict )
