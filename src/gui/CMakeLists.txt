@@ -54,7 +54,6 @@ TARGET_LINK_LIBRARIES(hydrogen
 	hydrogen-core-${VERSION}
 	Qt5::Widgets
 )
-qt5_use_modules(hydrogen Widgets)
 ADD_DEPENDENCIES(hydrogen hydrogen-core-${VERSION})
 
 INSTALL(TARGETS hydrogen RUNTIME DESTINATION bin BUNDLE DESTINATION bin )
