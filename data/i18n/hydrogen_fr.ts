@@ -169,7 +169,7 @@
     </message>
     <message>
         <source>Samplerate: %1</source>
-        <translation>Fréquence : %1 Hz</translation>
+        <translation>Échantillonage: %1 Hz</translation>
     </message>
     <message>
         <source> s</source>
@@ -189,7 +189,7 @@
     </message>
     <message>
         <source>Sample length: </source>
-        <translation>Longueur d&apos;échantillon : </translation>
+        <translation>Longueur de l&apos;échantillon : </translation>
     </message>
     <message>
         <source>Please do not preview samples which are longer than 10 minutes!</source>
@@ -240,7 +240,7 @@
     </message>
     <message>
         <source>&amp;Filename to instrument name</source>
-        <translation>&amp;Nom de fichier comme nom d&apos;instrument</translation>
+        <translation>&amp;Nommer l&apos;instrument suivant le fichier</translation>
     </message>
     <message>
         <source>Open</source>
@@ -634,7 +634,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Mixer</source>
-        <translation>Mixeur</translation>
+        <translation>Table de mixage</translation>
     </message>
     <message>
         <source>modified</source>
@@ -649,11 +649,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Filter Cutoff</source>
-        <translation>Filtre de coupure</translation>
+        <translation>Fréquence de coupure</translation>
     </message>
     <message>
         <source>Filter resonance</source>
-        <translation>Filtre de résonance</translation>
+        <translation>Résonance du filtre</translation>
     </message>
     <message>
         <source>Attack</source>
@@ -1559,7 +1559,7 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Mixer</source>
-        <translation>Mixeur</translation>
+        <translation>Table de mixage</translation>
     </message>
 </context>
 <context>
@@ -1665,7 +1665,7 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Lead and Lag</source>
-        <translation>Trainée</translation>
+        <translation>Avance et retard</translation>
     </message>
     <message>
         <source>Loaded Soundlibrary</source>
@@ -1875,7 +1875,7 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Mixer</source>
-        <translation>Mixeur</translation>
+        <translation>Mixage</translation>
     </message>
     <message>
         <source>Show Instrument Rack</source>
@@ -2713,11 +2713,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>forward</source>
-        <translation>faire suivre</translation>
+        <translation>normal</translation>
     </message>
     <message>
         <source>reverse</source>
-        <translation>renversement</translation>
+        <translation>inversé</translation>
     </message>
     <message>
         <source>pingpong</source>
@@ -2917,7 +2917,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Pitch the sample in semitones, cents</source>
-        <translation type="unfinished"></translation>
+        <translation>Accorder l&apos;échantillon (demi-ton,cent)</translation>
     </message>
     <message>
         <source>Crispness: </source>
@@ -2969,7 +2969,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source> Pitch (Semitone,Cent)</source>
-        <translation>Hauteur (Demi-ton, Pourcent)</translation>
+        <translation>Hauteur (Demi-ton,cent)</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -3014,7 +3014,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Welcome to Hydrogen</source>
-        <translation>Bienvenue à Hydrogen</translation>
+        <translation>Bienvenue dans Hydrogen</translation>
     </message>
     <message>
         <source>Don&apos;t show this message anymore</source>
