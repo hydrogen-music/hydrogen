@@ -94,7 +94,7 @@
     </message>
     <message>
         <source>Sample rate</source>
-        <translation>Taux d&apos;échantillonage</translation>
+        <translation>Taux d&apos;échantillonnage</translation>
     </message>
     <message>
         <source>Song position</source>
@@ -169,7 +169,7 @@
     </message>
     <message>
         <source>Samplerate: %1</source>
-        <translation>Échantillonage: %1 Hz</translation>
+        <translation>Fréquence : %1 Hz</translation>
     </message>
     <message>
         <source> s</source>
@@ -185,7 +185,7 @@
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation>Taux d&apos;échantillonage :</translation>
+        <translation>Taux d&apos;échantillonnage :</translation>
     </message>
     <message>
         <source>Sample length: </source>
@@ -240,7 +240,7 @@
     </message>
     <message>
         <source>&amp;Filename to instrument name</source>
-        <translation>&amp;Nommer l&apos;instrument suivant le fichier</translation>
+        <translation>&amp;Nommer l&apos;instrument suivant le nom du fichier</translation>
     </message>
     <message>
         <source>Open</source>
@@ -634,7 +634,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Mixer</source>
-        <translation>Table de mixage</translation>
+        <translation>Mixeur</translation>
     </message>
     <message>
         <source>modified</source>
@@ -649,7 +649,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Filter Cutoff</source>
-        <translation>Fréquence de coupure</translation>
+        <translation>Coupure du filtre</translation>
     </message>
     <message>
         <source>Filter resonance</source>
@@ -1559,7 +1559,7 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Mixer</source>
-        <translation>Table de mixage</translation>
+        <translation>Mixeur</translation>
     </message>
 </context>
 <context>
@@ -1875,7 +1875,7 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Mixer</source>
-        <translation>Mixage</translation>
+        <translation>Mixeur</translation>
     </message>
     <message>
         <source>Show Instrument Rack</source>
@@ -2311,7 +2311,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <name>PreferencesDialog_UI</name>
     <message>
         <source>Sample rate</source>
-        <translation>Taux d&apos;échantillonage</translation>
+        <translation>Taux d&apos;échantillonnage</translation>
     </message>
     <message>
         <source>Device</source>
@@ -2713,7 +2713,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>forward</source>
-        <translation>normal</translation>
+        <translation>vers l&apos;avant</translation>
     </message>
     <message>
         <source>reverse</source>
@@ -2917,7 +2917,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Pitch the sample in semitones, cents</source>
-        <translation>Accorder l&apos;échantillon (demi-ton,cent)</translation>
+        <translation>Accorder l&apos;échantillon en demi-ton,cent</translation>
     </message>
     <message>
         <source>Crispness: </source>
