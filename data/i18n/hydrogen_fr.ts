@@ -2917,7 +2917,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Pitch the sample in semitones, cents</source>
-        <translation>Accorder l&apos;échantillon en demi-ton,cent</translation>
+        <translation>Accorder l&apos;échantillon en demi-tons, cents</translation>
     </message>
     <message>
         <source>Crispness: </source>
