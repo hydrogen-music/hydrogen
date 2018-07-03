@@ -108,6 +108,7 @@ public slots:
 
 		void update_mixer_checkbox();
 		void update_instrument_checkbox( bool show );
+		void update_automation_checkbox();
 		void update_director_checkbox();
 		void update_playlist_checkbox();
 
@@ -158,6 +159,7 @@ public slots:
 		QAction *	m_pViewDirectorAction;
 		QAction *	m_pViewMixerAction;
 		QAction *	m_pViewMixerInstrumentRackAction;
+		QAction *	m_pViewAutomationPathAction;
 		QAction *	m_pInstrumentAction;
 		QAction *	m_pDrumkitAction;
 

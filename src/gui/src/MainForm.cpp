@@ -346,7 +346,9 @@ void MainForm::createMenuBar()
 	m_pViewMixerInstrumentRackAction->setCheckable( true );
 	update_instrument_checkbox( true );	// check it as Instrument panel is always open on start
 
-	m_pViewMenu->addAction( trUtf8("&Automation path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
+	m_pViewAutomationPathAction = m_pViewMenu->addAction( trUtf8("&Automation path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
+	m_pViewAutomationPathAction->setCheckable( true );
+	update_automation_checkbox();
 
 	m_pViewMenu->addSeparator();				// -----
 
@@ -1115,6 +1117,16 @@ void MainForm::update_instrument_checkbox( bool show )
 	m_pViewMixerInstrumentRackAction->setChecked( show );
 }
 
+void MainForm::update_automation_checkbox()
+{
+	Preferences *pref = Preferences::get_instance();
+	
+	if(pref->getShowAutomationArea()){
+		m_pViewAutomationPathAction->setChecked(true);	
+	} else {
+		m_pViewAutomationPathAction->setChecked(false);
+	}
+}
 
 void MainForm::closeAll() {
 	// save window properties in the preferences files
