@@ -1136,15 +1136,13 @@ void Sampler::preview_sample( Sample* sample, int length )
 		InstrumentComponent* pComponent = *it;
 		InstrumentLayer *pLayer = pComponent->get_layer( 0 );
 
-
-		Sample *pOldSample = pLayer->get_sample();
 		pLayer->set_sample( sample );
 
 		Note *pPreviewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, length, 0 );
 
 		stop_playing_notes( __preview_instrument );
 		note_on( pPreviewNote );
-		delete pOldSample;
+
 	}
 
 	AudioEngine::get_instance()->unlock();
