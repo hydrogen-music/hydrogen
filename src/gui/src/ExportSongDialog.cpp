@@ -90,7 +90,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	defaultFilename += ".wav";
 	
 	exportNameTxt->setText(defaultFilename);
-	b_QfileDialog = false;
+	m_bQfileDialog = false;
 	m_bExportTrackouts = false;
 	m_nInstrument = 0;
 	m_sExtension = ".wav";
@@ -98,12 +98,12 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 
 	// use of rubberband batch
 	if(checkUseOfRubberband()){
-		b_oldRubberbandBatchMode = pPref->getRubberBandBatchMode();
+		m_bOldRubberbandBatchMode = pPref->getRubberBandBatchMode();
 		toggleRubberbandCheckBox->setChecked(pPref->getRubberBandBatchMode());
 		connect(toggleRubberbandCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleRubberbandBatchMode( bool )));
 	}else
 	{
-		b_oldRubberbandBatchMode = pPref->getRubberBandBatchMode();
+		m_bOldRubberbandBatchMode = pPref->getRubberBandBatchMode();
 		toggleRubberbandCheckBox->setEnabled( false );
 	}
 
@@ -111,22 +111,22 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	// use of timeline
 	if( pHydrogen->getTimeline()->m_timelinevector.size() > 0 ){
 		toggleTimeLineBPMCheckBox->setChecked(pPref->getUseTimelineBpm());
-		b_oldTimeLineBPMMode = pPref->getUseTimelineBpm();
+		m_bOldTimeLineBPMMode = pPref->getUseTimelineBpm();
 		connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTimeLineBPMMode( bool )));
 	}else
 	{
-		b_oldTimeLineBPMMode = pPref->getUseTimelineBpm();
+		m_bOldTimeLineBPMMode = pPref->getUseTimelineBpm();
 		toggleTimeLineBPMCheckBox->setEnabled( false );
 	}
 
 
 	// use of interpolation mode
-	m_oldInterpolation = AudioEngine::get_instance()->get_sampler()->getInterpolateMode();
-	resampleComboBox->setCurrentIndex( m_oldInterpolation );
+	m_nOldInterpolation = AudioEngine::get_instance()->get_sampler()->getInterpolateMode();
+	resampleComboBox->setCurrentIndex( m_nOldInterpolation );
 	connect(resampleComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(resampleComboBoIndexChanged(int)));
 
 	// if rubberbandBatch calculate time needed by lib rubberband to resample samples
-	if(b_oldRubberbandBatchMode){
+	if(m_bOldRubberbandBatchMode){
 		calculateRubberbandTime();
 	}
 
@@ -168,7 +168,7 @@ void ExportSongDialog::on_browseBtn_clicked()
 	QString filename = "";
 	if (fd.exec()) {
 		filename = fd.selectedFiles().first();
-		b_QfileDialog = true;
+		m_bQfileDialog = true;
 	}
 
 	if ( ! filename.isEmpty() ) {
@@ -210,7 +210,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		m_bExportTrackouts = false;
 
 		QString filename = exportNameTxt->text();
-		if ( QFile( filename ).exists() == true && b_QfileDialog == false ) {
+		if ( QFile( filename ).exists() == true && m_bQfileDialog == false ) {
 
 			int res;
 			if( exportTypeCombo->currentIndex() == EXPORT_TO_SINGLE_TRACK ){
@@ -332,7 +332,7 @@ void ExportSongDialog::exportTracks()
 
 		QString filename = newItem.append( m_sExtension );
 
-		if ( QFile( filename ).exists() == true && b_QfileDialog == false && !m_bOverwriteFiles) {
+		if ( QFile( filename ).exists() == true && m_bQfileDialog == false && !m_bOverwriteFiles) {
 			int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(filename), QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll );
 			if (res == QMessageBox::No ) return;
 			if (res == QMessageBox::YesToAll ) m_bOverwriteFiles = true;
@@ -369,9 +369,9 @@ void ExportSongDialog::on_closeBtn_clicked()
 	if(Preferences::get_instance()->getRubberBandBatchMode()){
 		EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
 	}
-	Preferences::get_instance()->setRubberBandBatchMode( b_oldRubberbandBatchMode );
-	Preferences::get_instance()->setUseTimelineBpm( b_oldTimeLineBPMMode );
-	setResamplerMode(m_oldInterpolation);
+	Preferences::get_instance()->setRubberBandBatchMode( m_bOldRubberbandBatchMode );
+	Preferences::get_instance()->setUseTimelineBpm( m_bOldTimeLineBPMMode );
+	setResamplerMode(m_nOldInterpolation);
 	accept();
 
 }
