@@ -32,6 +32,12 @@ ENDIF(VERSION_SUFFIX)
 
 SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 
+# Check whether anaconda is installed on the system
+STRING(FIND "$ENV{PATH}" "anaconda" ANACONDA_FIND)
+IF(NOT ANACONDA_FIND EQUAL "-1")
+	SET(CMAKE_LIBRARY_PATH "$ENV{HOME}/.anaconda3/lib")
+ENDIF()
+
 #
 # CONFIG OPTIONS
 #
