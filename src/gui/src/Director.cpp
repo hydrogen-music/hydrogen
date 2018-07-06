@@ -60,11 +60,10 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/timeline.h>
 #include <hydrogen/helpers/filesystem.h>
-#include <QRect>
-
 
 using namespace H2Core;
 using namespace std;
+
 Director::Director ( QWidget* pParent )
 		: QDialog ( pParent )
 		, Object ( "Director" )
@@ -104,9 +103,6 @@ void Director::closeEvent( QCloseEvent* ev )
 	HydrogenApp::get_instance()->showDirector();
 }
 
-
-
-
 void Director::metronomeEvent( int nValue )
 {
 
@@ -117,18 +113,17 @@ void Director::metronomeEvent( int nValue )
 		QStringList list = Hydrogen::get_instance()->getSong()->get_filename().split("/");
 
 		if ( !list.isEmpty() ){
-			__songName = list.last().replace( Filesystem::songs_ext, "" );
+			m_sSongName = list.last().replace( Filesystem::songs_ext, "" );
 
 			// if songname is not set, default on an empty song, we call them "Untitled Song".
-			if( __songName.isEmpty() ){
-				__songName = QString("Untitled Song");
+			if( m_sSongName.isEmpty() ){
+				m_sSongName = QString("Untitled Song");
 			}
 		}
 
 		update();
 		return;
 	}
-
 
 	//bpm
 	m_fBpm = Hydrogen::get_instance()->getSong()->__bpm;
@@ -147,13 +142,13 @@ void Director::metronomeEvent( int nValue )
 	if ( nValue == 2 ){
 		m_nFadeAlpha = 0;
 		update();
-		__TAG="";
-		__TAG2="";
+		m_sTAG="";
+		m_sTAG2="";
 		return;
 	}
 
 	if ( nValue == 1 ) {	//foregroundcolor "rect" for first blink
-		__color = QColor( 255, 50, 1 ,255 );
+		m_Color = QColor( 255, 50, 1 ,255 );
 		m_nCounter = 1;
 	}
 	else {	//foregroundcolor "rect" for all other blinks
@@ -161,19 +156,19 @@ void Director::metronomeEvent( int nValue )
 		if( m_nCounter %2 == 0 )
 			m_nFlashingArea = width() * 52.5/100;
 
-		__color = QColor( 24, 250, 31, 255 );
+		m_Color = QColor( 24, 250, 31, 255 );
 	}
 
 	// get tags
-	__TAG="";
-	__TAG2="";
+	m_sTAG="";
+	m_sTAG2="";
 	for ( size_t t = 0; t < m_pTimeline->m_timelinetagvector.size(); t++){
 		if(t+1<m_pTimeline->m_timelinetagvector.size() &&
 				m_pTimeline->m_timelinetagvector[t+1].m_htimelinetagbeat == m_nBar ){
-			__TAG2 =  m_pTimeline->m_timelinetagvector[t+1].m_htimelinetag ;
+			m_sTAG2 =  m_pTimeline->m_timelinetagvector[t+1].m_htimelinetag ;
 		}
 		if ( m_pTimeline->m_timelinetagvector[t].m_htimelinetagbeat <= m_nBar-1){
-			__TAG =  m_pTimeline->m_timelinetagvector[t].m_htimelinetag ;
+			m_sTAG =  m_pTimeline->m_timelinetagvector[t].m_htimelinetag ;
 		}
 		if( m_pTimeline->m_timelinetagvector[t].m_htimelinetagbeat > m_nBar-1){
 			break;
@@ -185,7 +180,7 @@ void Director::metronomeEvent( int nValue )
 
 void Director::updateMetronomBackground()
 {
-	__color.setAlpha( 0 );
+	m_Color.setAlpha( 0 );
 	m_pTimer->stop();
 	update();
 }
@@ -198,12 +193,12 @@ void Director::paintEvent( QPaintEvent* ev )
 	//draw the songname
 	painter.setFont(QFont("Arial", height() * 14/100 ));
 	QRect rect(QPoint( width() * 5/100 , height () * 2/100 ), QSize( width() * 90/100, height() * 21/100));
-	painter.drawText( rect, Qt::AlignCenter,  QString( __songName ) );
+	painter.drawText( rect, Qt::AlignCenter,  QString( m_sSongName ) );
 
 
 	//draw the metronome
 	painter.setPen( QPen(QColor( 249, 235, 116, 200 ) ,1 , Qt::SolidLine ) );
-	painter.setBrush( __color );
+	painter.setBrush( m_Color );
 	painter.drawRect (  m_nFlashingArea, height() * 25/100, width() * 42.5/100, height() * 35/100);
 
 
@@ -217,17 +212,19 @@ void Director::paintEvent( QPaintEvent* ev )
 	QRect r2(QPoint( width() * 52.5/100 , height() * 25/100 ), QSize( width() * 42.5/100, height() * 35/100));
 	painter.drawText( r2, Qt::AlignCenter, QString("%1").arg( m_nCounter) );
 
-	if( __TAG == __TAG2 )
-		__TAG2 = "";
+	if( m_sTAG == m_sTAG2 ){
+		m_sTAG2 = "";
+	}
+	
 	//draw current bar tag
 	painter.setPen(Qt::white);
 	painter.setFont(QFont("Arial", height() * 8/100 ));
 	QRect r3(QPoint ( width() * 5/100 , height() * 65/100 ), QSize( width() * 90/100, height() * 14/100));
-	painter.drawText( r3, Qt::AlignCenter, QString( (__TAG) ) );
+	painter.drawText( r3, Qt::AlignCenter, QString( (m_sTAG) ) );
 
 	//draw next bar tag
 	painter.setPen(Qt::gray);
 	painter.setFont(QFont("Arial", height() * 6/100 ));
 	QRect r4(QPoint ( width() * 5/100 , height() * 83/100 ), QSize( width() * 90/100, height() * 11/100));
-	painter.drawText( r4, Qt::AlignCenter, QString( __TAG2 ) );
+	painter.drawText( r4, Qt::AlignCenter, QString( m_sTAG2 ) );
 }
