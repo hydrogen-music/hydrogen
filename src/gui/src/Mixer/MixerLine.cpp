@@ -841,15 +841,15 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 
 	if ( pRef == m_pHumanizeTimeRotary ) {
 		pEngine->getSong()->set_humanize_time_value( fVal );
-		sMsg = trUtf8( "Set humanize time parameter [%1]").arg( fVal, 0, 'f', 2 );
+		sMsg = trUtf8( "[%1]: set humanize time parameter").arg( fVal, 0, 'f', 2 );
 	}
 	else if ( pRef == m_pHumanizeVelocityRotary ) {
 		pEngine->getSong()->set_humanize_velocity_value( fVal );
-		sMsg = trUtf8( "Set humanize velocity parameter [%1]").arg( fVal, 0, 'f', 2 );
+		sMsg = trUtf8( "[%1]: set humanize velocity parameter").arg( fVal, 0, 'f', 2 );
 	}
 	else if ( pRef == m_pSwingRotary ) {
 		pEngine->getSong()->set_swing_factor( fVal );
-		sMsg = trUtf8( "Set swing factor [%1]").arg( fVal, 0, 'f', 2 );
+		sMsg = trUtf8( "[%1]: set swing factor").arg( fVal, 0, 'f', 2 );
 	}
 	else {
 		ERRORLOG( "[knobChanged] Unhandled knob" );
