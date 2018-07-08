@@ -708,7 +708,6 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pHumanizeColorTimeLCDCombo->setToolTip( trUtf8( "Select noise color" ) );
 	m_pHumanizeColorTimeLCDCombo->addItem( QString( "white" ) );
 	m_pHumanizeColorTimeLCDCombo->addItem( QString( "pink" ) );
-	m_pHumanizeColorTimeLCDCombo->select( 1 );
 	connect( m_pHumanizeColorTimeLCDCombo, SIGNAL( valueChanged( int ) ),
 		 this, SLOT( humanizeColorChanged( int ) ) );
 
@@ -717,7 +716,6 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pHumanizeColorVelocityLCDCombo->setToolTip( trUtf8( "Select noise color" ) );
 	m_pHumanizeColorVelocityLCDCombo->addItem( QString( "white" ) );
 	m_pHumanizeColorVelocityLCDCombo->addItem( QString( "pink" ) );
-	m_pHumanizeColorVelocityLCDCombo->select( 0 );
 	connect( m_pHumanizeColorVelocityLCDCombo, SIGNAL( valueChanged( int ) ),
 		 this, SLOT( humanizeColorChanged( int ) ) );
 
@@ -847,6 +845,8 @@ void MasterMixerLine::updateMixerLine()
 	if ( pSong ) {
 		m_pHumanizeTimeRotary->setValue( pSong->get_humanize_time_value() );
 		m_pHumanizeVelocityRotary->setValue( pSong->get_humanize_velocity_value() );
+		m_pHumanizeColorTimeLCDCombo->select( pSong->get_humanize_time_color() );
+		m_pHumanizeColorVelocityLCDCombo->select( pSong->get_humanize_velocity_color() );
 		m_pMuteBtn->setPressed( pSong->__is_muted );
 	}
 	else {
@@ -883,15 +883,31 @@ void MasterMixerLine::humanizeColorChanged( int pSelection ){
 
 	QString statusMessage;
 
+	QObject *pSignalSender = sender();
+
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
+	// Printing the color of the selected noise in the status
+	// message bar.
 	if ( pSelection == 0 ){
 		statusMessage = trUtf8( "White noise selected" );
 	} else if ( pSelection == 1 ){
 		statusMessage = trUtf8( "Pink noise selected" );
-	} else
+	} else {
 		ERRORLOG( "[humanizeColorChanged] Unknown noise selected. Using white noise instead." );
+		// The fallback to white noise will be done in the
+		// set_humanize_*_color function
+	}
+
+	// Picking the corresponding humanizer.
+	if ( pSignalSender == m_pHumanizeColorTimeLCDCombo ){
+		pEngine->getSong()->set_humanize_time_color( pSelection );
+	} else if ( pSignalSender == m_pHumanizeColorVelocityLCDCombo ){
+		pEngine->getSong()->set_humanize_velocity_color( pSelection );
+	} else {
+		ERRORLOG( "[humanizeColorChange] Unknown selection box." );
+	}
 
 	AudioEngine::get_instance()->unlock();
 	( HydrogenApp::get_instance() )->setStatusBarMessage( statusMessage, 2000 );

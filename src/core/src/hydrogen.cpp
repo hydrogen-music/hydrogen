@@ -203,24 +203,86 @@ inline timeval currentTime2()
 	return now;
 }
 
-inline int randomValue( int max )
+// *** Humanizer *** //	
+static int seed_random = std::rand();
+inline float get_random_white_uniform()
 {
-	return rand() % max;
+	// fast-float-ries
+	seed_random *= 16807;
+	return (float) seed_random* 4.6566129e-010f/2 + 0.5;
 }
 
-inline float getGaussian( float variance )
-{
+inline float get_random_white_gaussian( float scale ){
 	// gaussian distribution -- dimss
-	float x1, x2, w;
-	do {
-		x1 = 2.0 * ( ( ( float ) rand() ) / RAND_MAX ) - 1.0;
-		x2 = 2.0 * ( ( ( float ) rand() ) / RAND_MAX ) - 1.0;
-		w = x1 * x1 + x2 * x2;
-	} while ( w >= 1.0 );
 
-	w = sqrtf( ( -2.0 * logf( w ) ) / w );
-	return x1 * w * variance + 0.0; // tunable
+	float randomUniform1 = get_random_white_uniform();
+	float randomUniform2 = get_random_white_uniform();
+
+	return (float) sqrt( -2.0f * log( randomUniform1 ) )*
+		cos( 2.0f * PI * randomUniform2 ) * scale;
 }
+
+
+/* Setup PinkNoise structure for N rows of generators. */
+void InitializePinkNoise( PinkNoise *pink, int numRows )
+{
+	int i;
+	long pmax;
+	pink->pink_Index = 0;
+	pink->pink_IndexMask = (1<<numRows) - 1;
+/* Calculate maximum possible signed random value. Extra 1 for white noise always added. */
+	pmax = (numRows + 1) * (1<<(PINK_NOISE_BITS-1));
+	pink->pink_Scalar = 1.0f / pmax;
+/* Initialize rows. */
+	for( i=0; i<numRows; i++ ) pink->pink_Rows[i] = 0;
+	pink->pink_RunningSum = 0;
+}	
+inline float get_random_pink( PinkNoise *pink, float scale ){
+	long newRandom;
+	long sum;
+	float output;
+
+/* Increment and mask index. */
+	pink->pink_Index = (pink->pink_Index + 1) & pink->pink_IndexMask;
+
+/* If index is zero, don't update any random values. */
+	if( pink->pink_Index != 0 )
+	{
+	/* Determine how many trailing zeros in PinkIndex. */
+	/* This algorithm will hang if n==0 so test first. */
+	  // The while loop below shifts the index pink->pink_Index to
+	  // the right until the leftmost bit is a zero.
+		int numZeros = 0;
+		int n = pink->pink_Index;
+		while( (n & 1) == 0 )
+		{
+			n = n >> 1;
+			numZeros++;
+		}
+
+	/* Replace the indexed ROWS random value.
+	 * Subtract and add back to RunningSum instead of adding all the random
+	 * values together. Only one changes each time.
+	 */
+		pink->pink_RunningSum -= pink->pink_Rows[numZeros];
+		newRandom = ((long)get_random_white_uniform()) >> PINK_NOISE_SHIFT;
+		pink->pink_RunningSum += newRandom;
+		pink->pink_Rows[numZeros] = newRandom;
+	}
+	
+	/* Add extra white noise value. */
+	// Discard the first PINK_RANDOM_SHIFT bits to reduce the
+	// generated random number of the size of PINK_RANDOM_BITS
+	// bits.
+	newRandom = ((long)get_random_white_uniform()) >> PINK_NOISE_SHIFT;
+	sum = pink->pink_RunningSum + newRandom;
+
+	/* Scale to range of -1.0 to 0.9999. */
+	output = pink->pink_Scalar * sum;
+	
+	return output * scale;
+}
+// ***************** //	
 
 void audioEngine_raiseError( unsigned nErrorCode )
 {
@@ -506,12 +568,12 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 			if ( pSong->get_humanize_velocity_value() != 0 ) {
 			        // Ensure the generated Gaussian random variables
-			        // won't have a variance bigger than the value.
+			        // won't have a variance bigger than this value.
 			        const float maximalHumanizationVelocityVariance = 0.2;
 				pNote->set_velocity( pNote->get_velocity() +
-						     getGaussian( pSong->get_humanize_velocity_value() *
-								  pSong->get_humanize_velocity_value() *
-								  maximalHumanizationVelocityVariance ) );
+						     get_random_white_gaussian( pSong->get_humanize_velocity_value() *
+											   pSong->get_humanize_velocity_value() *
+											   maximalHumanizationVelocityVariance ) );
 				if ( pNote->get_velocity() > 1.0 ) {
 					pNote->set_velocity( 1.0 );
 				} else if ( pNote->get_velocity() < 0.0 ) {
@@ -522,9 +584,9 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			// Random Pitch ;)
 			const float fMaxPitchDeviation = 2.0;
 			const float maximalPitchVariance = 0.2;
-			float randomPitch = getGaussian( pNote->get_instrument()->get_random_pitch_factor() *
-							 pNote->get_instrument()->get_random_pitch_factor() *
-							 maximalPitchVariance );
+			float randomPitch = get_random_white_gaussian( pNote->get_instrument()->get_random_pitch_factor() *
+										  pNote->get_instrument()->get_random_pitch_factor() *
+										  maximalPitchVariance );
 			// Since a Gaussian white noise is unbound we
 			// have to verify the random pitch shift does
 			// not exceed the value of maximal pitch
@@ -534,8 +596,9 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			} else if ( randomPitch < -1.0 * fMaxPitchDeviation ){
 			  randomPitch = -1.0 * fMaxPitchDeviation;
 			}
-			pNote->set_pitch( pNote->get_pitch()
-							  + randomPitch );
+		
+			// pNote->set_pitch( pNote->get_pitch()
+			// 				  + randomPitch );
 
 			/*
 					  * Check if the current instrument has the property "Stop-Note" set.
@@ -1289,28 +1352,18 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 						pNote->set_just_recorded( false );
 						int nOffset = 0;
 
-						// Swing
-						float fSwingFactor = pSong->get_swing_factor();
-
-						if ( ( ( m_nPatternTickPosition % 12 ) == 0 )
-							 && ( ( m_nPatternTickPosition % 24 ) != 0 ) ) {
-							// da l'accento al tick 4, 12, 20, 36...
-							nOffset += ( int )(
-										6.0
-										* m_pAudioDriver->m_transport.m_nTickSize
-										* fSwingFactor
-										);
-						}
-
 						// Humanize - Time parameter
 						if ( pSong->get_humanize_time_value() != 0 ) {
 						        
 							// Ensure the generated Gaussian random variables
 							// won't have a variance bigger than the value.
-							const float maximalHumanizationTimeVariance = 0.3;
-							float randomHumanizeTime = getGaussian( maximalHumanizationTimeVariance *
-												pSong->get_humanize_time_value() *
-												pSong->get_humanize_time_value() );
+							// A large factor is needed in here. Since the
+							// `nOffset' variable is an integer, the
+							// `randomHumanizeTime` will be floored. Is this right?
+							const float maximalHumanizationTimeVariance = 3.3;
+							float randomHumanizeTime = get_random_white_gaussian( maximalHumanizationTimeVariance *
+															 pSong->get_humanize_time_value() *
+															 pSong->get_humanize_time_value() );
 							// Since a Gaussian white noise is unbound we
 							// have to verify the random time shift does
 							// not exceed the maximal value.
@@ -1320,13 +1373,19 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 							  randomHumanizeTime = ( float ) -1* nMaxTimeHumanize;
 							}
 							nOffset += ( int ) randomHumanizeTime;
+							___INFOLOG( QString( "randomHumanizeTime: %1" ).arg( randomHumanizeTime ) );
+							___INFOLOG( QString( "nOffset: %1" ).arg( nOffset ) );
+													
 						}
+
 						//~
 						// Lead or Lag - timing parameter
 						nOffset += (int) ( pNote->get_lead_lag()
 										   * nLeadLagFactor);
 						//~
 
+						___INFOLOG( QString( "after nOffset: %1" ).arg( nOffset ) );
+						
 						if((tick == 0) && (nOffset < 0)) {
 							nOffset = 0;
 						}

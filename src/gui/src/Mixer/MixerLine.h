@@ -254,7 +254,7 @@ class MasterMixerLine: public PixmapWidget
 	public slots:
 		void	faderChanged(MasterFader * ref);
 		void	rotaryChanged( Rotary *pRef );
-     	        void    humanizeColorChanged( int );
+        	void    humanizeColorChanged( int );
 		void	muteClicked(Button*);
 
 	private:

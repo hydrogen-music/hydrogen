@@ -75,7 +75,9 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 	, __is_loop_enabled( false )
 	, __humanize_time_value( 0.0 )
 	, __humanize_velocity_value( 0.0 )
-	, __swing_factor( 0.0 )
+	  // Colors: 0 - white noise; 1 - pink noise
+	, __humanize_time_color( 0 )
+	, __humanize_velocity_color( 0 )
 	, __song_mode( PATTERN_MODE )
 	, __components( NULL )
 	, __playback_track_enabled( false )
@@ -157,7 +159,8 @@ Song* Song::get_default_song()
 	song->set_mode( Song::PATTERN_MODE );
 	song->set_humanize_time_value( 0.0 );
 	song->set_humanize_velocity_value( 0.0 );
-	song->set_swing_factor( 0.0 );
+	song->set_humanize_time_color( 0 );
+	song->set_humanize_velocity_color( 0 );
 
 	InstrumentList* pList = new InstrumentList();
 	Instrument* pNewInstr = new Instrument( EMPTY_INSTR_ID, "New instrument" );
@@ -212,17 +215,6 @@ DrumkitComponent* Song::get_component( int ID )
 	return NULL;
 }
 
-
-void Song::set_swing_factor( float factor )
-{
-	if ( factor < 0.0 ) {
-		factor = 0.0;
-	} else if ( factor > 1.0 ) {
-		factor = 1.0;
-	}
-
-	__swing_factor = factor;
-}
 
 void Song::set_is_modified(bool is_modified)
 {
@@ -446,7 +438,8 @@ Song* SongReader::readSong( const QString& filename )
 
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
-	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
+	int iHumanizeTimeColor = LocalFileMng::readXmlInt( songNode, "humanize_time_color", 0 );
+	int iHumanizeVelocityColor = LocalFileMng::readXmlInt( songNode, "humanize_velocity_color", 0 );
 
 	song = new Song( sName, sAuthor, fBpm, fVolume );
 	song->set_metronome_volume( fMetronomeVolume );
@@ -456,7 +449,8 @@ Song* SongReader::readSong( const QString& filename )
 	song->set_mode( nMode );
 	song->set_humanize_time_value( fHumanizeTimeValue );
 	song->set_humanize_velocity_value( fHumanizeVelocityValue );
-	song->set_swing_factor( fSwingFactor );
+	song->set_humanize_time_color( iHumanizeTimeColor );
+	song->set_humanize_velocity_color( iHumanizeVelocityColor );
 	song->set_playback_track_filename( sPlaybackTrack );
 	song->set_playback_track_enabled( bPlaybackTrackEnabled );
 	song->set_playback_track_volume( fPlaybackTrackVolume );

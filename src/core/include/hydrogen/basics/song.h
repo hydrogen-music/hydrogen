@@ -203,12 +203,38 @@ class Song : public H2Core::Object
 			__humanize_velocity_value = value;
 		}
 
-		float get_swing_factor()
-		{
-			return __swing_factor;
+	        int get_humanize_time_color()
+	        {
+			return __humanize_time_color;
 		}
-		void set_swing_factor( float factor );
+	        void set_humanize_time_color( int color )
+	        {
+			// Colors:
+			//   0 - white noise
+			//   1 - pink noise
+			if ( color < 0 | color > 1 ){
+				ERRORLOG( "Wrong color code in the humanizer. Resetting it to white noise" );
+				color = 0;
+			}
+			__humanize_time_color = color;
+		}
 
+	        int get_humanize_velocity_color()
+	        {
+			return __humanize_velocity_color;
+		}
+	        void set_humanize_velocity_color( int color )
+	        {
+			// Colors:
+			//   0 - white noise
+			//   1 - pink noise
+			if ( color < 0 | color > 1 ){
+				ERRORLOG( "Wrong color code in the humanizer. Resetting it to white noise" );
+				color = 0;
+			}
+			__humanize_velocity_color = color;
+		}
+			
 		SongMode get_mode()
 		{
 			return __song_mode;
@@ -295,7 +321,8 @@ class Song : public H2Core::Object
 		bool								__is_loop_enabled;
 		float								__humanize_time_value;
 		float								__humanize_velocity_value;
-		float								__swing_factor;
+	        int __humanize_time_color;
+        	int __humanize_velocity_color;
 		bool								__is_modified;
 		std::map< float, int> 				__latest_round_robins;
 		SongMode							__song_mode;

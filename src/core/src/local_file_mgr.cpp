@@ -759,7 +759,8 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 	LocalFileMng::writeXmlString( songNode, "humanize_time", QString("%1").arg( song->get_humanize_time_value() ) );
 	LocalFileMng::writeXmlString( songNode, "humanize_velocity", QString("%1").arg( song->get_humanize_velocity_value() ) );
-	LocalFileMng::writeXmlString( songNode, "swing_factor", QString("%1").arg( song->get_swing_factor() ) );
+	LocalFileMng::writeXmlString( songNode, "humanize_time_color", QString( "%1" ).arg( song->get_humanize_time_color() ) );
+	LocalFileMng::writeXmlString( songNode, "humanize_velocity_color", QString( "%1" ).arg( song->get_humanize_velocity_color() ) );
 
 	// component List
 	QDomNode componentListNode = doc.createElement( "componentList" );
