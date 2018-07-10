@@ -941,11 +941,7 @@ void InstrumentEditor::loadLayer()
 			H2Core::InstrumentLayer *pLayer = pInstr->get_component(m_nSelectedComponent)->get_layer( selectedLayer );
 
 			if (pLayer != nullptr) {
-				// delete old sample
-				Sample *oldSample = pLayer->get_sample();
-				delete oldSample;
-
-				// insert new sample from newInstrument
+				// insert new sample from newInstrument, old sample gets deleted by set_sample
 				pLayer->set_sample( pNewSample );
 			}
 			else {
