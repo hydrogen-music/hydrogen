@@ -596,18 +596,16 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 			QString sType = m_soundLibraryList[ i ].getType();
 			QString sLocalFile;
 
-			QString dataDir = H2Core::Preferences::get_instance()->getDataDirectory();
-
 			if( sType == "drumkit") {
 				sLocalFile = QDir::tempPath() + "/" + QFileInfo( sURL ).fileName();
 			}
 
 			if( sType == "song") {
-				sLocalFile = dataDir + "songs/" + QFileInfo( sURL ).fileName();
+				sLocalFile = H2Core::Filesystem::songs_dir() + QFileInfo( sURL ).fileName();
 			}
 
 			if( sType == "pattern") {
-				sLocalFile = dataDir + "patterns/" + QFileInfo( sURL ).fileName();
+				sLocalFile = H2Core::Filesystem::patterns_dir() + QFileInfo( sURL ).fileName();
 			}
 
 			bool Error = false;
@@ -638,7 +636,7 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 					if ( sType == "drumkit" ) {
 						H2Core::Drumkit::install( sLocalFile );
 						QApplication::restoreOverrideCursor();
-						QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ) ).arg( dataDir ) );
+						QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ) ).arg( H2Core::Filesystem::usr_data_path() ) );
 					}
 
 					if ( sType == "song" || sType == "pattern") {
@@ -706,10 +704,9 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	QString dataDir = H2Core::Preferences::get_instance()->getDataDirectory();
 	try {
 		H2Core::Drumkit::install( SoundLibraryPathTxt->text() );
-		QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ).arg( dataDir )  ) );
+		QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ).arg( H2Core::Filesystem::usr_data_path() )  ) );
 		// update the drumkit list
 		SoundLibraryDatabase::get_instance()->update();
 		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();

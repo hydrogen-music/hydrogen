@@ -94,7 +94,7 @@
     </message>
     <message>
         <source>Sample rate</source>
-        <translation>Taux d&apos;échantillonage</translation>
+        <translation>Taux d&apos;échantillonnage</translation>
     </message>
     <message>
         <source>Song position</source>
@@ -185,11 +185,11 @@
     </message>
     <message>
         <source>Samplerate:</source>
-        <translation>Taux d&apos;échantillonage :</translation>
+        <translation>Taux d&apos;échantillonnage :</translation>
     </message>
     <message>
         <source>Sample length: </source>
-        <translation>Longueur d&apos;échantillon : </translation>
+        <translation>Longueur de l&apos;échantillon : </translation>
     </message>
     <message>
         <source>Please do not preview samples which are longer than 10 minutes!</source>
@@ -240,7 +240,7 @@
     </message>
     <message>
         <source>&amp;Filename to instrument name</source>
-        <translation>&amp;Nom de fichier comme nom d&apos;instrument</translation>
+        <translation>&amp;Nommer l&apos;instrument suivant le nom du fichier</translation>
     </message>
     <message>
         <source>Open</source>
@@ -649,11 +649,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Filter Cutoff</source>
-        <translation>Filtre de coupure</translation>
+        <translation>Coupure du filtre</translation>
     </message>
     <message>
         <source>Filter resonance</source>
-        <translation>Filtre de résonance</translation>
+        <translation>Résonance du filtre</translation>
     </message>
     <message>
         <source>Attack</source>
@@ -1171,19 +1171,19 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Jack driver: server shutdown</source>
-        <translation>Pilote Jack : fermeture du serveur</translation>
+        <translation>Pilote JACK : fermeture du serveur</translation>
     </message>
     <message>
         <source>Jack driver: cannot activate client</source>
-        <translation>Pilote jack : impossible d&apos;activer le client</translation>
+        <translation>Pilote JACK : impossible d&apos;activer le client</translation>
     </message>
     <message>
         <source>Jack driver: cannot connect output port</source>
-        <translation>Pilote jack : impossible de connecter le port de sortie</translation>
+        <translation>Pilote JACK : impossible de connecter le port de sortie</translation>
     </message>
     <message>
         <source>Jack driver: error in port register</source>
-        <translation>Pilote jack : impossible d&apos;authentifier le client</translation>
+        <translation>Pilote JACK : impossible d&apos;authentifier le client</translation>
     </message>
     <message>
         <source>&amp;Export song</source>
@@ -1665,7 +1665,7 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Lead and Lag</source>
-        <translation>Trainée</translation>
+        <translation>Avance et retard</translation>
     </message>
     <message>
         <source>Loaded Soundlibrary</source>
@@ -1843,15 +1843,15 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Jack-transport on/off</source>
-        <translation>Transport Jack actif/inactif</translation>
+        <translation>Transport JACK actif/inactif</translation>
     </message>
     <message>
         <source>Jack-transport mode = On</source>
-        <translation>Transport Jack = Actif</translation>
+        <translation>Transport JACK = Actif</translation>
     </message>
     <message>
         <source>Jack-transport mode = Off</source>
-        <translation>Transport Jack = Inactif</translation>
+        <translation>Transport JACK = Inactif</translation>
     </message>
     <message>
         <source>Show mixer</source>
@@ -1911,11 +1911,11 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Set BPM / Set BPM and play</source>
-        <translation>Régler le BPM / Régler le BPM et jouer</translation>
+        <translation>Régler le BPM / régler le BPM et jouer</translation>
     </message>
     <message>
         <source>Jack-Time-Master on/off</source>
-        <translation>Jack-Time-Master actif/inactif</translation>
+        <translation>JACK-time-master actif/inactif</translation>
     </message>
     <message>
         <source> BC Panel on</source>
@@ -1935,11 +1935,11 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source> Jack-Time-Master mode = On</source>
-        <translation> Mode Jack-Time-Master = Actif</translation>
+        <translation> Mode JACK-time-master = Actif</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = Off</source>
-        <translation> Mode Jack-Time-Master = Inactif</translation>
+        <translation> Mode JACK-time-master = Inactif</translation>
     </message>
     <message>
         <source>Record</source>
@@ -2311,7 +2311,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <name>PreferencesDialog_UI</name>
     <message>
         <source>Sample rate</source>
-        <translation>Taux d&apos;échantillonage</translation>
+        <translation>Taux d&apos;échantillonnage</translation>
     </message>
     <message>
         <source>Device</source>
@@ -2539,7 +2539,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Use lash</source>
-        <translation>Utiliser LASH (système de gestion session Jack/ALSA)</translation>
+        <translation>Utiliser LASH (système de gestion de session JACK/ALSA)</translation>
     </message>
     <message>
         <source>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</source>
@@ -2713,11 +2713,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>forward</source>
-        <translation>faire suivre</translation>
+        <translation>vers l&apos;avant</translation>
     </message>
     <message>
         <source>reverse</source>
-        <translation>renversement</translation>
+        <translation>inversé</translation>
     </message>
     <message>
         <source>pingpong</source>
@@ -2917,7 +2917,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Pitch the sample in semitones, cents</source>
-        <translation type="unfinished"></translation>
+        <translation>Accorder l&apos;échantillon en demi-tons, cents</translation>
     </message>
     <message>
         <source>Crispness: </source>
@@ -2969,7 +2969,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source> Pitch (Semitone,Cent)</source>
-        <translation>Hauteur (Demi-ton, Pourcent)</translation>
+        <translation>Hauteur (Demi-ton,cent)</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -3014,7 +3014,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Welcome to Hydrogen</source>
-        <translation>Bienvenue à Hydrogen</translation>
+        <translation>Bienvenue dans Hydrogen</translation>
     </message>
     <message>
         <source>Don&apos;t show this message anymore</source>

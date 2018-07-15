@@ -38,7 +38,7 @@ Hydrogen is known to work well on fairly old systems like this (as of
 -----------
 
 Hydrogen can be downloaded as a binary package, source distribution,
-or you can check out the current development version with Subversion.
+or you can check out the current development version.
 These can be accessed on the Hydrogen home page:
 
 	http://www.hydrogen-music.org/
@@ -113,8 +113,8 @@ installed on your system, and the development header files:
 	  rubberband-cli binary.
 
 	REQUIRED PACKAGES IN DEBIAN-BASED SYSTEMS
-	qt5-default libqt5xmlpatterns5-dev libarchive-dev
-	libsndfile1-dev libasound2-dev liblo-dev libpulse-dev
+	qtbase5-dev qtbase5-dev-tools qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev
+	libarchive-dev libsndfile1-dev libasound2-dev liblo-dev libpulse-dev
 	libcppunit-dev liblrdf-dev liblash-compat-dev
 	librubberband-dev
 
@@ -139,8 +139,9 @@ We're providing a set of qmake project files for windows and
 mac osx builds. 
 Please read the relevant wiki pages for more informations:
 
-http://trac.assembla.com/hydrogen/wiki/development%3AcompileOSX
-http://trac.assembla.com/hydrogen/wiki/coding%3Apackagingwin
+https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-source-(LINUX)
+https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-source-(MAC-OSX)
+https://github.com/hydrogen-music/hydrogen/wiki/Packaging-for-Windows
 
  5.1 build
  ---------
@@ -151,7 +152,7 @@ look like this:
 	$ tar xjf hydrogen-0.9.6.tar.bz2
 	$ cd hydrogen-0.9.6
 	$ mkdir build && cd build
-    	$ cmake ..
+	$ cmake ..
 	$ make && sudo make install
 
 All the following cmake commands should be executed in a build directory :
@@ -188,11 +189,11 @@ environment variables could help it.
  5.2 cmake helper
  ----------------
 
- Alternatively you could use the cmake helper : ./tools/cmake
+ Alternatively you could use the cmake helper : ./build.sh
 
  To remove and build hydrogen from scratch
 
-    $ ./tools/cmake r m
+    $ ./build.sh r m
 
 ___CREATING A BINARY PACKAGE___
 

@@ -52,8 +52,8 @@ class Instrument : public H2Core::Object
 	public:
 		enum SampleSelectionAlgo {
 			VELOCITY,
-			RANDOM,
-			ROUND_ROBIN
+			ROUND_ROBIN,
+			RANDOM
 		};
 
 		/**

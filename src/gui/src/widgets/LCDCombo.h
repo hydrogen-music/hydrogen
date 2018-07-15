@@ -42,11 +42,11 @@ class LCDCombo : public QWidget, public H2Core::Object
 		LCDCombo( QWidget *pParent, int digits = 5 );
 		~LCDCombo();
 
-		QString getText();
 		bool addItem( const QString &text );
 		void addSeparator();
-		void set_text( const QString &text );
-		void set_text( const QString &text, bool );
+		int selected();
+		bool select(int idx );
+		bool select(int idx, bool emitValueChanged );
 
 
 	private slots:
@@ -54,7 +54,7 @@ class LCDCombo : public QWidget, public H2Core::Object
 		void onClick( Button* );
 
 	signals:
-		void valueChanged( QString str );
+		void valueChanged( int idx );
 
 	private:
 		QList<QAction*> actions;

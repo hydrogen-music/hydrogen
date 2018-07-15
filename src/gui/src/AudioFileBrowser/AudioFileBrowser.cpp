@@ -70,7 +70,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 	m_pSampleFilename = "";
 	m_pSelectedFile << "false" << "false";
 
-	m_sEmptySampleFilename = Filesystem::empty_sample();
+	m_sEmptySampleFilename = Filesystem::empty_sample_path();
 
 	m_pPathUptoolButton->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/go-up.png"));
 	m_pPathUptoolButton->setToolTip( QString("Parent Folder"));

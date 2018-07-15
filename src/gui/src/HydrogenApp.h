@@ -115,7 +115,6 @@ class HydrogenApp : public QObject, public H2Core::Object
 		void enableDestructiveRecMode();
 
 		void cleanupTemporaryFiles();
-		void addTemporaryFile( const QString& );
 
 	public slots:
 		void onEventQueueTimer();
@@ -144,7 +143,6 @@ class HydrogenApp : public QObject, public H2Core::Object
 		Director *					m_pDirector;
 		QTimer *					m_pEventQueueTimer;
 		std::vector<EventListener*> m_EventListeners;
-		QStringList					m_TemporaryFileList;
 		QTabWidget *				m_pTab;
 		QSplitter *					m_pSplitter;
 

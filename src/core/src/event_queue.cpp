@@ -60,10 +60,10 @@ void EventQueue::push_event( EventType type, int nValue )
 {
 	int nIndex = ++__write_index;
 	nIndex = nIndex % MAX_EVENTS;
-//	infoLog( "[pushEvent] " + toString( nIndex ) );
 	Event ev;
 	ev.type = type;
 	ev.value = nValue;
+//	INFOLOG( QString( "[pushEvent] %1 : %2 %3" ).arg( nIndex ).arg( ev.type ).arg( ev.value ) );
 	__events_buffer[ nIndex ] = ev;
 }
 
@@ -78,7 +78,7 @@ Event EventQueue::pop_event()
 	}
 	int nIndex = ++__read_index;
 	nIndex = nIndex % MAX_EVENTS;
-//	infoLog( "[popEvent] " + toString( nIndex ) );
+//	INFOLOG( QString( "[popEvent] %1 : %2 %3" ).arg( nIndex ).arg( __events_buffer[ nIndex ].type ).arg( __events_buffer[ nIndex ].value ) );
 	return __events_buffer[ nIndex ];
 }
 

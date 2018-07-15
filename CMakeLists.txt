@@ -128,9 +128,13 @@ INCLUDE(StatusSupportOptions)
 MANDATORY_PKG(Threads)
 MANDATORY_PKG(LIBSNDFILE)
 
+# http://doc.qt.io/qt-5/cmake-manual.html
 FIND_PACKAGE(Qt5Widgets REQUIRED)
 FIND_PACKAGE(Qt5Xml REQUIRED)
 FIND_PACKAGE(Qt5XmlPatterns REQUIRED)
+FIND_PACKAGE(Qt5LinguistTools REQUIRED)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
 
 
 IF(APPLE)
@@ -146,15 +150,14 @@ ENDIF(APPLE)
 
 #Installation paths
 # TODO remove data from path
-SET(SYS_DATA_PATH "${CMAKE_INSTALL_PREFIX}/share/hydrogen/data")
+SET(H2_SYS_PATH "${CMAKE_INSTALL_PREFIX}/share/hydrogen")
 # TODO remove data from path, could be .config/hydrogen
-SET(USR_DATA_PATH ".hydrogen/data")
+SET(H2_USR_PATH ".hydrogen")
 
 
 SET(MAX_INSTRUMENTS 1000 CACHE STRING "Maximum number of instruments")
 SET(MAX_COMPONENTS  32   CACHE STRING "Maximum number of components")
 SET(MAX_NOTES       192  CACHE STRING "Maximum number of notes")
-SET(MAX_LAYERS      16   CACHE STRING "Maximum number of layers")
 SET(MAX_FX          4    CACHE STRING "Maximum number of effects")
 SET(MAX_BUFFER_SIZE 8192 CACHE STRING "Maximum size of buffer")
 
@@ -271,8 +274,8 @@ SET(cyan "${_escape}[1;36m")
 COLOR_MESSAGE("${cyan}Installation Summary${reset}
 --------------------
 * Install Directory            : ${CMAKE_INSTALL_PREFIX}
-* User data path               : ${USR_DATA_PATH}
-* System data path             : ${SYS_DATA_PATH}
+* User path                    : ${H2_USR_PATH}
+* System path                  : ${H2_SYS_PATH}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}
@@ -343,13 +346,17 @@ ADD_SUBDIRECTORY(src/core)
 IF(H2CORE_HAVE_CPPUNIT)
     ADD_SUBDIRECTORY(src/tests)
 ENDIF()
+ADD_SUBDIRECTORY(data/i18n)
 ADD_SUBDIRECTORY(src/cli)
 ADD_SUBDIRECTORY(src/player)
 ADD_SUBDIRECTORY(src/gui)
+IF(EXISTS ${CMAKE_SOURCE_DIR}/data/doc/CMakeLists.txt)
+	ADD_SUBDIRECTORY(data/doc)
+ENDIF()
 IF (MINGW)
-	INSTALL(DIRECTORY data DESTINATION . PATTERN ".git" EXCLUDE)
+	INSTALL(DIRECTORY data DESTINATION . PATTERN ".git" EXCLUDE PATTERN "i18n" EXCLUDE PATTERN doc EXCLUDE)
 ELSE()
-	INSTALL(DIRECTORY data DESTINATION ${SYS_DATA_PATH}/.. PATTERN ".git" EXCLUDE)
+	INSTALL(DIRECTORY data DESTINATION ${H2_SYS_PATH} PATTERN ".git" EXCLUDE PATTERN "i18n" EXCLUDE PATTERN doc EXCLUDE)
 ENDIF()
 IF(NOT MINGW AND NOT APPLE)
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_PREFIX}/share/appdata")

@@ -49,7 +49,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/h2_exception.h>
-#include <hydrogen/playlist.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
 
 #include <signal.h>
@@ -283,10 +283,9 @@ int main(int argc, char *argv[])
 				total = sTranslationPath + "/" + sTranslationFile + ".qm";
 				bTransOk = tor.load( total, "." );
 				if (bTransOk) {
-					___INFOLOG( "Using locale: " + sTranslationPath + "/" + sTranslationFile );
-				}
-				else {
-					___INFOLOG( "Warning: no locale found: " + sTranslationPath + "/" + sTranslationFile );
+					___INFOLOG( "Using locale: " + sTranslationPath + sTranslationFile );
+				} else {
+					___INFOLOG( "Warning: no locale found: " + sTranslationPath + sTranslationFile );
 				}
 			}
 			if (tor.isEmpty()) {
@@ -385,7 +384,7 @@ int main(int argc, char *argv[])
 		if( ! sPlaylistFilename.isEmpty() ){
 			bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( sPlaylistFilename );
 			if ( loadlist ){
-				Playlist::get_instance()->setNextSongByNumber( 0 );
+				H2Core::Playlist::get_instance()->setNextSongByNumber( 0 );
 			} else {
 				___ERRORLOG ( "Error loading the playlist" );
 			}

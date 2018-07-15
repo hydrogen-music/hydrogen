@@ -24,12 +24,12 @@
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/playlist.h>
 
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/pattern_list.h>
 
@@ -135,7 +135,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 	for(int i = 0; i < MAX_COMPONENTS; ++i) {
 		ostringstream componentToChar;
 		componentToChar << (i+1);
-		for(int j = 0; j < MAX_LAYERS; ++j) {
+		for(int j = 0; j < InstrumentComponent::getMaxLayers(); ++j ) {
 			targeted_element sample = {i,j};
 			ostringstream toChar;
 			toChar << (j+1);
@@ -864,7 +864,7 @@ bool MidiActionManager::previous_bar(Action * , Hydrogen* pEngine, targeted_elem
 
 bool setSong( int songnumber, Hydrogen * pEngine ) {
 	int asn = Playlist::get_instance()->getActiveSongNumber();
-	if(asn != songnumber && songnumber >= 0 && songnumber <= pEngine->m_PlayList.size()-1) {
+	if(asn != songnumber && songnumber >= 0 && songnumber <= Playlist::get_instance()->size() - 1 ) {
 		Playlist::get_instance()->setNextSongByNumber( songnumber );
 	}
 	return true;

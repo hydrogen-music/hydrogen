@@ -76,7 +76,9 @@ Drumkit::Drumkit( Drumkit* other ) :
 
 Drumkit::~Drumkit()
 {
-	__components->clear();
+	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+		delete *it;
+	}
 	delete __components;
 
 	if( __instruments ) delete __instruments;
@@ -102,8 +104,11 @@ Drumkit* Drumkit::load( const QString& dk_dir, bool load_samples )
 Drumkit* Drumkit::load_file( const QString& dk_path, bool load_samples )
 {
 	XMLDoc doc;
-	if( !doc.read( dk_path, Filesystem::drumkit_xsd() ) ) {
-		return Legacy::load_drumkit( dk_path );
+	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path() ) ) {
+		Drumkit* d = Legacy::load_drumkit( dk_path );
+		WARNINGLOG( QString( "update drumkit %1" ).arg( dk_path ) );
+		d->save_file( dk_path, true, -1 );
+		return d;
 	}
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
@@ -219,12 +224,12 @@ bool Drumkit::save( const QString&					name,
 
 bool Drumkit::user_drumkit_exists( const QString& name)
 {
-	return Filesystem::file_exists( QString( Filesystem::usr_drumkits_dir() + "/" + name + "/drumkit.xml"), true /*silent*/);
+	return Filesystem::file_exists( Filesystem::drumkit_file( Filesystem::usr_drumkits_dir() + name ), true /*silent*/ );
 }
 
 bool Drumkit::save( bool overwrite )
 {
-	return  save( QString( Filesystem::usr_drumkits_dir() + "/" + __name ), overwrite );
+	return  save( QString( Filesystem::usr_drumkits_dir() + __name ), overwrite );
 }
 
 bool Drumkit::save( const QString& dk_dir, bool overwrite )
@@ -243,13 +248,12 @@ bool Drumkit::save( const QString& dk_dir, bool overwrite )
 bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_id )
 {
 	INFOLOG( QString( "Saving drumkit definition into %1" ).arg( dk_path ) );
-	if( Filesystem::file_exists( dk_path, true ) && !overwrite ) {
+	if( !overwrite && Filesystem::file_exists( dk_path, true ) ) {
 		ERRORLOG( QString( "drumkit %1 already exists" ).arg( dk_path ) );
 		return false;
 	}
 	XMLDoc doc;
-	doc.set_root( "drumkit_info", "drumkit" );
-	XMLNode root = doc.firstChildElement( "drumkit_info" );
+	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
 	save_to( &root, component_id );
 	return doc.write( dk_path );
 }
@@ -264,12 +268,11 @@ void Drumkit::save_to( XMLNode* node, int component_id )
 	node->write_string( "imageLicense", __imageLicense );
 
 	if( component_id == -1 ) {
-		XMLNode components_node = node->ownerDocument().createElement( "componentList" );
+		XMLNode components_node = node->createNode( "componentList" );
 		for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
 			DrumkitComponent* pComponent = *it;
 			pComponent->save_to( &components_node );
 		}
-		node->appendChild( components_node );
 	}
 	__instruments->save_to( node, component_id );
 }
@@ -287,7 +290,7 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 		for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
 			InstrumentComponent* component = *it;
 
-			for( int n = 0; n < MAX_LAYERS; n++ ) {
+			for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 				InstrumentLayer* layer = component->get_layer( n );
 				if( layer ) {
 					QString src = layer->get_sample()->get_filepath();
@@ -352,7 +355,10 @@ void Drumkit::set_instruments( InstrumentList* instruments )
 
 void Drumkit::set_components( std::vector<DrumkitComponent*>* components )
 {
-	if( __components != 0 ) delete __components;
+	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+		delete *it;
+	}
+	delete __components;
 	__components = components;
 }
 
@@ -392,7 +398,7 @@ void Drumkit::dump()
 		for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
 			InstrumentComponent* component = *it;
 
-			for ( int j=0; j<MAX_LAYERS; j++ ) {
+			for ( int j = 0; j < InstrumentComponent::getMaxLayers(); j++ ) {
 				InstrumentLayer* layer = component->get_layer( j );
 				if ( layer ) {
 					Sample* sample = layer->get_sample();

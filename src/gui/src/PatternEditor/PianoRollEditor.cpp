@@ -745,10 +745,10 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
 	}
 
-	QString selectedProperty = m_pPatternEditorPanel->getPropertiesComboText();
+	int selectedProperty = m_pPatternEditorPanel->getPropertiesComboValue();
 
 	//edit velocity
-	if (m_bRightBtnPressed && m_pDraggedNote && selectedProperty == trUtf8( "Velocity" ) ) {
+	if (m_bRightBtnPressed && m_pDraggedNote && selectedProperty == 0 ) { // Velocity
 		if ( m_pDraggedNote->get_note_off() ) return;
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
@@ -782,7 +782,7 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 	}
 
 	//edit pan
-	if (m_bRightBtnPressed && m_pDraggedNote && selectedProperty == trUtf8( "Pan" ) ) {
+	if (m_bRightBtnPressed && m_pDraggedNote && selectedProperty == 1 ) { // Pan
 		if ( m_pDraggedNote->get_note_off() ) return;
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
@@ -823,7 +823,7 @@ void PianoRollEditor::mouseMoveEvent(QMouseEvent *ev)
 	}
 
 	//edit lead lag
-	if (m_bRightBtnPressed && m_pDraggedNote && selectedProperty ==  trUtf8( "Lead and Lag" )) {
+	if (m_bRightBtnPressed && m_pDraggedNote && selectedProperty ==  2 ) { // Lead and Lag
 		if ( m_pDraggedNote->get_note_off() ) return;
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine

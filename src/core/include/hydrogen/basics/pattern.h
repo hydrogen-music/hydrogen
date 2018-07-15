@@ -75,11 +75,14 @@ class Pattern : public H2Core::Object
 		static Pattern* load_file( const QString& pattern_path, InstrumentList* instruments );
 		/**
 		 * save a pattern into an xml file
+		 * \param drumkit_name the name of the drumkit it is supposed to play with
+		 * \param author the name of the author
+		 * \param license the license that applies to it
 		 * \param pattern_path the path to save the pattern into
 		 * \param overwrite allows to write over existing pattern file
 		 * \return true on success
 		 */
-		bool save_file( const QString& pattern_path, bool overwrite=false );
+		bool save_file( const QString& drumkit_name, const QString& author, const QString& license, const QString& pattern_path, bool overwrite=false );
 
 		///< set the name of the pattern
 		void set_name( const QString& name );
@@ -179,6 +182,13 @@ class Pattern : public H2Core::Object
 		 */
 		void extand_with_flattened_virtual_patterns( PatternList* patterns );
 
+		/**
+		 * save the pattern within the given XMLNode
+		 * \param node the XMLNode to feed
+		 * \param instrumentOnly export only the notes of that instrument if given
+		 */
+		void save_to( XMLNode* node, const Instrument* instrumentOnly = 0 );
+
 	private:
 		int __length;                                           ///< the length of the pattern
 		QString __name;                                         ///< the name of thepattern
@@ -187,12 +197,6 @@ class Pattern : public H2Core::Object
 		notes_t __notes;                                        ///< a multimap (hash with possible multiple values for one key) of note
 		virtual_patterns_t __virtual_patterns;                  ///< a list of patterns directly referenced by this one
 		virtual_patterns_t __flattened_virtual_patterns;        ///< the complete list of virtual patterns
-
-		/**
-		 * save the pattern within the given XMLNode
-		 * \param node the XMLNode to feed
-		 */
-		void save_to( XMLNode* node );
 		/**
 		 * load a pattern from an XMLNode
 		 * \param node the XMLDode to read from

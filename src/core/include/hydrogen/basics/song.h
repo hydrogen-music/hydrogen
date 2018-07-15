@@ -237,7 +237,11 @@ class Song : public H2Core::Object
 
 		DrumkitComponent* get_component( int ID );
 
-		void readTempPatternList( QString filename );
+		void readTempPatternList( const QString& filename );
+		bool writeTempPatternList( const QString& filename );
+
+		QString	copyInstrumentLineToString( int selectedPattern, int selectedInstrument );
+		bool pasteInstrumentLineFromString( const QString& serialized, int selectedPattern, int selectedInstrument, std::list<Pattern *>& patterns );
 
 		int get_latest_round_robin( float start_velocity )
 		{
@@ -264,9 +268,13 @@ class Song : public H2Core::Object
 		{
 			return __playback_track_enabled;
 		}
-		void	set_playback_track_enabled( bool enabled )
+		bool	set_playback_track_enabled( bool enabled )
 		{
+			if ( __playback_track_filename == NULL ) {
+				return false;
+			}
 			__playback_track_enabled = enabled;
+			return enabled;
 		}
 
 		float	get_playback_track_volume()

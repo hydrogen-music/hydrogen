@@ -183,9 +183,9 @@ void SoundLibraryPanel::updateDrumkitList()
 	__user_drumkit_info_list.clear();
 
 	//User drumkit list
-	QStringList usr_dks = Filesystem::usr_drumkits_list();
+	QStringList usr_dks = Filesystem::usr_drumkit_list();
 	for (int i = 0; i < usr_dks.size(); ++i) {
-		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks[i];
+		QString absPath = Filesystem::usr_drumkits_dir() + usr_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {
 			__user_drumkit_info_list.push_back( pInfo );
@@ -205,9 +205,9 @@ void SoundLibraryPanel::updateDrumkitList()
 	}
 
 	//System drumkit list
-	QStringList sys_dks = Filesystem::sys_drumkits_list();
+	QStringList sys_dks = Filesystem::sys_drumkit_list();
 	for (int i = 0; i < sys_dks.size(); ++i) {
-		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sys_dks[i];
+		QString absPath = Filesystem::sys_drumkits_dir() + sys_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {
 			__system_drumkit_info_list.push_back( pInfo );
@@ -227,7 +227,7 @@ void SoundLibraryPanel::updateDrumkitList()
 	}
 	
 	//Songlist
-	QStringList songs = Filesystem::songs_list_cleared();
+	QStringList songs = Filesystem::song_list_cleared();
 	if ( songs.size() > 0 ) {
 		__song_item = new QTreeWidgetItem( __sound_library_tree );
 		__song_item->setText( 0, trUtf8( "Songs" ) );
@@ -243,19 +243,13 @@ void SoundLibraryPanel::updateDrumkitList()
 
 
 	//Pattern list
-	std::vector<QString> patternDirList = mng.getPatternDirList();
+	QStringList patternDirList = Filesystem::pattern_drumkits();
 	if ( patternDirList.size() > 0 ) {
 		
 		__pattern_item = new QTreeWidgetItem( __sound_library_tree );
 		__pattern_item->setText( 0, trUtf8( "Patterns" ) );
 		__pattern_item->setToolTip( 0, trUtf8("Double click to expand the list") );
 		__sound_library_tree->setItemExpanded( __pattern_item, __expand_pattern_list );
-			
-		//this is to push the mng.getPatternList in all patterns/drumkit dirs
-		for (uint i = 0; i < patternDirList.size(); ++i) {
-			QString absPath =  patternDirList[i];
-			mng.getPatternList( absPath );
-		}
 		
 		//this is the second step to push the mng.funktion
 		//SoundLibraryDatabase::create_instance();
@@ -734,11 +728,7 @@ void SoundLibraryPanel::on_instrumentDeleteAction()
 
 void SoundLibraryPanel::on_songLoadAction()
 {
-	QString songName = __sound_library_tree->currentItem()->text( 0 );
-	QString sDirectory = Preferences::get_instance()->getDataDirectory()  + "songs";
-
-	QString sFilename = sDirectory + "/" + songName + ".h2song";
-	
+	QString sFilename = Filesystem::song_path( __sound_library_tree->currentItem()->text( 0 ) );
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( pHydrogen->getState() == STATE_PLAYING ) {
@@ -772,40 +762,21 @@ void SoundLibraryPanel::on_patternLoadAction()
 {
 	LocalFileMng mng;
 
-	QString patternName = __sound_library_tree->currentItem()->text( 0 ) + ".h2pattern";
-	QString drumkitname = __sound_library_tree->currentItem()->toolTip ( 0 );
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
+	QString patternName = __sound_library_tree->currentItem()->text( 0 );
+	QString drumkitName = __sound_library_tree->currentItem()->toolTip ( 0 );
 	
-	QString sDirectory;
-
-	std::vector<QString> patternDirList = mng.getPatternDirList();
-
-	for (uint i = 0; i < patternDirList.size(); ++i) {
-		QString absPath =  patternDirList[i];
-		mng.getPatternList( absPath );
-	}
-
-	std::vector<QString> allPatternDirList = mng.getallPatternList();
-
-	for (uint i = 0; i < allPatternDirList.size(); ++i) {
-		QString testName = allPatternDirList[i];
-		if( testName.contains( patternName ) && testName.contains( drumkitname )){
-			sDirectory = allPatternDirList[i];		
-		}
-	}
-
-	Pattern* pErr = mng.loadPattern (sDirectory );
+	// FIXME : file path should come from the selected item
+	Pattern* pErr = Pattern::load_file( Filesystem::pattern_path( drumkitName, patternName ), pSong->get_instrument_list() );
 
 	if ( pErr == 0 ) {
 		ERRORLOG( "Error loading the pattern" );
+		return;
 	}
-	else {
-		pPatternList->add ( pErr );
-		pSong->set_is_modified( true );
-	}
-
+	pPatternList->add ( pErr );
+	pSong->set_is_modified( true );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
 

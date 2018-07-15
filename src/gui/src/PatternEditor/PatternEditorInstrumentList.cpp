@@ -273,7 +273,7 @@ void InstrumentLine::functionCopyInstrumentPattern()
 	assert(song);
 
 	// Serialize & put to clipboard
-	QString serialized = LocalFileMng::copyInstrumentLineToString(song, selectedPatternNr, m_nInstrumentNumber);
+	QString serialized = song->copyInstrumentLineToString( selectedPatternNr, m_nInstrumentNumber );
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setText(serialized);
 }
@@ -285,7 +285,7 @@ void InstrumentLine::functionCopyAllInstrumentPatterns()
 	assert(song);
 
 	// Serialize & put to clipboard
-	QString serialized = LocalFileMng::copyInstrumentLineToString(song, -1, m_nInstrumentNumber);
+	QString serialized = song->copyInstrumentLineToString( -1, m_nInstrumentNumber );
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setText(serialized);
 }
@@ -315,7 +315,7 @@ void InstrumentLine::functionPasteInstrumentPatternExec(int patternID)
 	// Get from clipboard & deserialize
 	QClipboard *clipboard = QApplication::clipboard();
 	QString serialized = clipboard->text();
-	if (!LocalFileMng::pasteInstrumentLineFromString(song, serialized, patternID, m_nInstrumentNumber, patternList))
+	if ( !song->pasteInstrumentLineFromString( serialized, patternID, m_nInstrumentNumber, patternList ) )
 		return;
 
 	// Ignore empty result

@@ -44,11 +44,6 @@
 #include <QDir>
 //#include <QApplication>
 
-static bool shouldRemove(QString& first, QString& second)
-{
-	return (first.compare(second) == 0);
-};
-
 namespace H2Core
 {
 
@@ -65,7 +60,6 @@ const char* Preferences::__class_name = "Preferences";
 
 Preferences::Preferences()
 		: Object( __class_name )
-		, demoPath( Filesystem::demos_dir()+"/")
 {
 	__instance = this;
 	INFOLOG( "INIT" );
@@ -107,53 +101,6 @@ Preferences::Preferences()
 
 	m_pDefaultUIStyle = new UIStyle();
 	m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
-
-#ifdef Q_OS_MACX
-	m_sPreferencesFilename = QDir::homePath().append( "/Library/Application Support/Hydrogen/hydrogen.conf" );
-	m_sPreferencesDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/" );
-	m_sDataDirectory = QDir::homePath().append( "/Library/Application Support/Hydrogen/data/" );
-#else
-	m_sPreferencesFilename = QDir::homePath().append( "/.hydrogen/hydrogen.conf" );
-	m_sPreferencesDirectory = QDir::homePath().append( "/.hydrogen/" );
-	m_sDataDirectory = QDir::homePath().append( "/.hydrogen/data/" );
-#endif
-	m_sTmpDirectory = QDir::tempPath().append( "/hydrogen/" );
-	if ( !QDir(m_sTmpDirectory).exists() ) {
-		QDir(m_sTmpDirectory).mkdir( m_sTmpDirectory );// create the tmp directory
-	}
-	
-	char * ladpath = getenv( "LADSPA_PATH" );	// read the Environment variable LADSPA_PATH
-	if ( ladpath ) {
-		INFOLOG( "Found LADSPA_PATH environment variable" );
-		QString sLadspaPath = QString::fromLocal8Bit(ladpath);
-		int pos;
-		while ( ( pos = sLadspaPath.indexOf( ":" ) ) != -1 ) {
-			QString sPath = sLadspaPath.left( pos );
-			m_ladspaPathVect.push_back( QFileInfo(sPath).canonicalFilePath() );
-			sLadspaPath = sLadspaPath.mid( pos + 1, sLadspaPath.length() );
-		}
-		m_ladspaPathVect.push_back( QFileInfo(sLadspaPath).canonicalFilePath());
-	} else {
-#ifdef Q_OS_MACX
-		m_ladspaPathVect.push_back( QFileInfo(qApp->applicationDirPath(), "/../Resources/plugins").canonicalFilePath() );
-		m_ladspaPathVect.push_back( QFileInfo("/Library/Audio/Plug-Ins/LADSPA/").canonicalFilePath() );
-		m_ladspaPathVect.push_back( QFileInfo(QDir::homePath(), "/Library/Audio/Plug-Ins/LADSPA").canonicalFilePath() );
-#else
-		m_ladspaPathVect.push_back( QFileInfo("/usr/lib/ladspa").canonicalFilePath() );
-		m_ladspaPathVect.push_back( QFileInfo("/usr/local/lib/ladspa").canonicalFilePath() );
-		m_ladspaPathVect.push_back( QFileInfo("/usr/lib64/ladspa").canonicalFilePath() );
-		m_ladspaPathVect.push_back( QFileInfo("/usr/local/lib64/ladspa").canonicalFilePath() );
-#endif
-	}
-	
-	/*
-	 *  Add .hydrogen/data/plugins to ladspa search path, no matter where LADSPA_PATH points to..
-	 */
-	m_ladspaPathVect.push_back( QFileInfo(m_sDataDirectory, "plugins").canonicalFilePath() );
-	std::sort(m_ladspaPathVect.begin(), m_ladspaPathVect.end());
-
-	auto last = std::unique(m_ladspaPathVect.begin(), m_ladspaPathVect.end(), shouldRemove);
-	m_ladspaPathVect.erase(last, m_ladspaPathVect.end());
 
 	__lastspatternDirectory = QDir::homePath();
 	__lastsampleDirectory = QDir::homePath(); //audio file browser
@@ -228,10 +175,6 @@ Preferences::Preferences()
 	m_bOscFeedbackEnabled = true;
 	m_nOscServerPort = 9000;
 
-	// None: m_sDefaultEditor;
-	// SEE ABOVE: m_sDataDirectory
-	// SEE ABOVE: demoPath
-
 	//___ General properties ___
 	m_bPatternModePlaysSelected = true;
 	m_brestoreLastSong = true;
@@ -242,7 +185,6 @@ Preferences::Preferences()
 	hearNewNotes = true;
 	// NONE: m_recentFiles;
 	// NONE: m_recentFX;
-	// NONE: m_ladspaPathVect;
 	quantizeEvents = true;
 	recordEvents = false;
 	m_bUseRelativeFilenamesForPlaylists = false;
@@ -326,58 +268,9 @@ void Preferences::loadPreferences( bool bGlobal )
 {
 	bool recreate = false;	// configuration file must be recreated?
 
-	QString sPreferencesDirectory;
-	QString sPreferencesFilename;
-	QString sDataDirectory;
-	if ( bGlobal ) {
-		sPreferencesDirectory = Filesystem::sys_data_path();
-		sPreferencesFilename = sPreferencesDirectory + "/hydrogen.default.conf";
-		INFOLOG( "Loading preferences file (GLOBAL) [" + sPreferencesFilename + "]" );
-	} else {
-		sPreferencesFilename = m_sPreferencesFilename;
-		sPreferencesDirectory = m_sPreferencesDirectory;
-		sDataDirectory = QDir::homePath().append( "/.hydrogen/data" );
-		INFOLOG( "Loading preferences file (USER) [" + sPreferencesFilename + "]" );
-	}
-
-	// preferences directory exists?
-	QDir prefDir( sPreferencesDirectory );
-	if ( !prefDir.exists() ) {
-		if ( bGlobal ) {
-			WARNINGLOG( "System configuration directory '" + sPreferencesDirectory + "' not found." );
-		} else {
-			ERRORLOG( "Configuration directory '" + sPreferencesDirectory + "' not found." );
-			createPreferencesDirectory();
-		}
-	}
-
-	// data directory exists?
-	QDir dataDir( sDataDirectory );
-	if ( !dataDir.exists() ) {
-		WARNINGLOG( "Data directory not found." );
-		createDataDirectory();
-	}
-
-	// soundLibrary directory exists?
-	QString sDir = sDataDirectory;
-	QString sDrumkitDir;
-	QString sSongDir;
-	QString sPatternDir;
-
-	INFOLOG( "Creating soundLibrary directories in " + sDir );
-
-	sDrumkitDir = sDir + "/drumkits";
-	sSongDir = sDir + "/songs";
-	sPatternDir = sDir + "/patterns";
-
-	QDir drumkitDir( sDrumkitDir );
-	QDir songDir( sSongDir );
-	QDir patternDir( sPatternDir );
-
-	if ( ! drumkitDir.exists() || ! songDir.exists() || ! patternDir.exists() )
-	{
-		createSoundLibraryDirectories();
-	}
+	QString sPreferencesFilename = ( bGlobal ? Filesystem::sys_config_path() : Filesystem::usr_config_path() );
+	INFOLOG( QString( "Loading preferences file (%1) [%2]" ).arg( bGlobal ? "SYS" : "USER" ).arg( sPreferencesFilename ) );
+	Filesystem::file_readable( sPreferencesFilename );
 
 	// pref file exists?
 	std::ifstream input( sPreferencesFilename.toLocal8Bit() , std::ios::in | std::ios::binary );
@@ -396,7 +289,6 @@ void Preferences::loadPreferences( bool bGlobal )
 			}
 
 			//////// GENERAL ///////////
-			//m_sLadspaPath = LocalFileMng::readXmlString( this, rootNode, "ladspaPath", m_sLadspaPath );
 			__playselectedinstrument = LocalFileMng::readXmlBool( rootNode, "instrumentInputMode", __playselectedinstrument );
 			m_bShowDevelWarning = LocalFileMng::readXmlBool( rootNode, "showDevelWarning", m_bShowDevelWarning );
 			m_brestoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", m_brestoreLastSong );
@@ -405,6 +297,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", false );
 			__useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
 			maxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
+			maxLayers = LocalFileMng::readXmlInt( rootNode, "maxLayers", 16 );
 			m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
 			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
@@ -619,9 +512,10 @@ void Preferences::loadPreferences( bool bGlobal )
 
 				//export dialog properties
 				m_nExportTemplate = LocalFileMng::readXmlInt( guiNode, "exportDialogTemplate", 0 );
+				m_nExportMode = LocalFileMng::readXmlInt( guiNode, "exportDialogMode", 0 );
 				m_nExportSampleRate = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleRate", 44100 );
 				m_nExportSampleDepth = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleDepth", 0 );
-				m_sExportDirectory = LocalFileMng::readXmlString( guiNode, "exportDialogDirectory", QDir::homePath() );
+				m_sExportDirectory = LocalFileMng::readXmlString( guiNode, "exportDialogDirectory", QDir::homePath(), true );
 					
 				m_bFollowPlayhead = LocalFileMng::readXmlBool( guiNode, "followPlayhead", true );
 
@@ -749,6 +643,9 @@ void Preferences::loadPreferences( bool bGlobal )
 		}
 	}
 
+	if ( maxLayers < 16 ) {
+		maxLayers = 16;
+	}
 
 	// The preferences file should be recreated?
 	if ( recreate == true && !bGlobal ) {
@@ -764,9 +661,7 @@ void Preferences::loadPreferences( bool bGlobal )
 ///
 void Preferences::savePreferences()
 {
-	QString filename = m_sPreferencesFilename;
-
-	INFOLOG( "Saving preferences file: " + filename );
+	INFOLOG( "Saving preferences file: " + Filesystem::usr_config_path() );
 
 	QDomDocument doc;
 	QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
@@ -787,6 +682,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "useTimeLine", __useTimelineBpm ? "true": "false" );
 
 	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( maxBars ) );
+	LocalFileMng::writeXmlString( rootNode, "maxLayers", QString::number( maxLayers ) );
 
 	LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( m_nDefaultUILayout ) );
 	LocalFileMng::writeXmlString( rootNode, "lastOpenTab", QString::number( m_nLastOpenTab ) );
@@ -1019,11 +915,13 @@ void Preferences::savePreferences()
 		
 		
 		//ExportSongDialog
+		LocalFileMng::writeXmlString( guiNode, "exportDialogMode", QString("%1").arg( m_nExportMode ) );
 		LocalFileMng::writeXmlString( guiNode, "exportDialogTemplate", QString("%1").arg( m_nExportTemplate ) );
 		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleRate",  QString("%1").arg( m_nExportSampleRate ) );
 		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleDepth", QString("%1").arg( m_nExportSampleDepth ) );
 		LocalFileMng::writeXmlString( guiNode, "exportDialogDirectory", m_sExportDirectory );
 
+		LocalFileMng::writeXmlBool( guiNode, "followPlayhead", m_bFollowPlayhead );
 
 		//beatcounter
 		QString bcMode;
@@ -1137,7 +1035,7 @@ void Preferences::savePreferences()
 
 	doc.appendChild( rootNode );
 
-	QFile file( filename );
+	QFile file( Filesystem::usr_config_path() );
 	if ( !file.open(QIODevice::WriteOnly) )
 		return;
 
@@ -1146,61 +1044,6 @@ void Preferences::savePreferences()
 
 	file.close();
 }
-
-
-
-///
-/// Create preferences directory
-///
-void Preferences::createPreferencesDirectory()
-{
-	QString prefDir = m_sPreferencesDirectory;
-	INFOLOG( "Creating preference file directory in " + prefDir );
-
-	QDir dir;
-	dir.mkdir( prefDir );
-}
-
-
-
-///
-/// Create data directory
-///
-void Preferences::createDataDirectory()
-{
-	QString sDir = m_sDataDirectory;
-	INFOLOG( "Creating data directory in " + sDir );
-
-	QDir dir;
-	dir.mkdir( sDir );
-//	mkdir(dir.c_str(),S_IRWXU);
-}
-
-void Preferences::createSoundLibraryDirectories()
-{
-	QString sDir = m_sDataDirectory;
-	QString sDrumkitDir;
-	QString sSongDir;
-	QString sPatternDir;
-	QString sPlaylistDir;
-	QString sPluginsDir;
-
-	INFOLOG( "Creating soundLibrary directories in " + sDir );
-
-	sDrumkitDir = sDir + "/drumkits";
-	sSongDir = sDir + "/songs";
-	sPatternDir = sDir + "/patterns";
-	sPlaylistDir = sDir + "/playlists";
-	sPluginsDir = sDir + "/plugins";
-
-	QDir dir;
-	dir.mkdir( sDrumkitDir );
-	dir.mkdir( sSongDir );
-	dir.mkdir( sPatternDir );
-	dir.mkdir( sPlaylistDir );
-	dir.mkdir( sPluginsDir );
-}
-
 
 void Preferences::setMostRecentFX( QString FX_name )
 {

@@ -27,6 +27,7 @@
 
 #include <math.h>
 #include <assert.h>
+#include <vector>
 
 #include <hydrogen/basics/song.h>
 #include <hydrogen/hydrogen.h>
@@ -381,7 +382,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pLayerScrollArea->move( 6, 44 );
 	m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	if ( MAX_LAYERS > 16)
+	if ( InstrumentComponent::getMaxLayers() > 16)
 		m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
 	m_pLayerScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pLayerScrollArea->setMaximumHeight( 182 );
@@ -470,13 +471,10 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, 25);
 	m_sampleSelectionAlg->move( 60, 434 );
 	m_sampleSelectionAlg->setToolTip( trUtf8("Select pattern size") );
-
 	m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
 	m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
 	m_sampleSelectionAlg->addItem( QString( "Random" ) );
-
-	m_sampleSelectionAlg->update();
-	connect( m_sampleSelectionAlg, SIGNAL( valueChanged( QString ) ), this, SLOT( pSampleSelectionChanged( QString ) ) );
+	connect( m_sampleSelectionAlg, SIGNAL( valueChanged( int ) ), this, SLOT( pSampleSelectionChanged( int ) ) );
 
 	//~ Layer properties
 
@@ -527,15 +525,15 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	if (pSong != NULL) {
+	if (pSong != nullptr) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		if ( nInstr >= (int)pInstrList->size() ) {
+		if ( nInstr >= pInstrList->size() ) {
 			nInstr = -1;
 		}
 
 		if (nInstr == -1) {
-			m_pInstrument = NULL;
+			m_pInstrument = nullptr;
 		}
 		else {
 			m_pInstrument = pInstrList->get( nInstr );
@@ -543,7 +541,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		}
 	}
 	else {
-		m_pInstrument = NULL;
+		m_pInstrument = nullptr;
 	}
 	AudioEngine::get_instance()->unlock();
 
@@ -612,22 +610,8 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		QString sHiHatMaxRange = QString("%1").arg( m_pInstrument->get_higher_cc() );
 		m_pHihatMaxRangeLCD->setText( sHiHatMaxRange );
 
-		/*
-		 * m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
-		 * m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
-		 * m_sampleSelectionAlg->addItem( QString( "Random" ) );
-		 **/
-		switch ( m_pInstrument->sample_selection_alg() ) {
-			case Instrument::VELOCITY:
-				m_sampleSelectionAlg->set_text( "First in Velocity" );
-				break;
-			case Instrument::RANDOM:
-				m_sampleSelectionAlg->set_text( "Random" );
-				break;
-			case Instrument::ROUND_ROBIN:
-				m_sampleSelectionAlg->set_text( "Round Robin" );
-				break;
-		}
+		// see instrument.h
+		m_sampleSelectionAlg->select( m_pInstrument->sample_selection_alg(), false);
 
 		itemsCompo.clear();
 		std::vector<DrumkitComponent*>* compoList = Hydrogen::get_instance()->getSong()->get_components();
@@ -643,52 +627,53 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 		update();
 
-		bool p_found = false;
+		bool bFound = false;
 		for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
 			DrumkitComponent* p_compo = *it;
 			if ( p_compo->get_id() == m_nSelectedComponent ) {
-				p_found = true;
+				bFound = true;
 				break;
 			}
 		}
-		if ( !p_found )
+		if ( !bFound ){
 			m_nSelectedComponent = compoList->front()->get_id();
+		}
 
-		DrumkitComponent* p_tmpCompo = Hydrogen::get_instance()->getSong()->get_component( m_nSelectedComponent );
+		DrumkitComponent* pTmpComponent = Hydrogen::get_instance()->getSong()->get_component( m_nSelectedComponent );
 
-		assert(p_tmpCompo);
+		assert(pTmpComponent);
 
-		m_pCompoNameLbl->setText( p_tmpCompo->get_name() );
+		m_pCompoNameLbl->setText( pTmpComponent->get_name() );
 
 		if(m_nSelectedLayer >= 0){
-			InstrumentComponent* component = m_pInstrument->get_component( m_nSelectedComponent );
-			if(component) {
+			InstrumentComponent* pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+			if(pComponent) {
 
 				char tmp[20];
-				sprintf( tmp, "%#.2f", component->get_gain());
+				sprintf( tmp, "%#.2f", pComponent->get_gain());
 				m_pCompoGainLCD->setText( tmp );
 
-				m_pCompoGainRotary->setValue( component->get_gain() / 5.0 );
+				m_pCompoGainRotary->setValue( pComponent->get_gain() / 5.0 );
 
-				InstrumentLayer* p_layer = component->get_layer( m_nSelectedLayer );
-				if(p_layer) {
-					m_pWaveDisplay->updateDisplay( p_layer );
+				InstrumentLayer* pLayer = pComponent->get_layer( m_nSelectedLayer );
+				if(pLayer) {
+					m_pWaveDisplay->updateDisplay( pLayer );
 				}
 				else {
-					m_pWaveDisplay->updateDisplay( NULL );
+					m_pWaveDisplay->updateDisplay( nullptr );
 				}
 			}
 			else {
-				m_pWaveDisplay->updateDisplay( NULL );
+				m_pWaveDisplay->updateDisplay( nullptr );
 			}
 		}
 		else{
-			m_pWaveDisplay->updateDisplay( NULL );
+			m_pWaveDisplay->updateDisplay( nullptr );
 		}
 	}
 	else {
 		m_pNameLbl->setText( QString( "NULL Instrument..." ) );
-		m_pWaveDisplay->updateDisplay( NULL );
+		m_pWaveDisplay->updateDisplay( nullptr );
 		m_nSelectedLayer = 0;
 	}
 	selectLayer( m_nSelectedLayer );
@@ -856,21 +841,19 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		if ( m_pInstrument ) {
 			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
-				H2Core::InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer );
-				if ( pLayer ) {
-					m_pInstrument->get_component(m_nSelectedComponent)->set_layer( NULL, m_nSelectedLayer );
-					delete pLayer;
+				m_pInstrument->get_component(m_nSelectedComponent)->set_layer( NULL, m_nSelectedLayer );
+
+				int nCount = 0;
+				for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
+					InstrumentLayer* pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( n );
+					if( pLayer ){
+						nCount++;
+					}
 				}
 
-				int p_count = 0;
-				for( int n = 0; n < MAX_LAYERS; n++ ) {
-					InstrumentLayer* layer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( n );
-					if( layer )
-						p_count++;
-				}
-
-				if( p_count == 0 )
+				if( nCount == 0 ){
 					m_pInstrument->get_components()->erase( m_pInstrument->get_components()->begin() + m_nSelectedComponent );
+				}
 			}
 		}
 		AudioEngine::get_instance()->unlock();
@@ -884,7 +867,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 				H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
 				if ( pLayer ) {
 					Sample* pSample = pLayer->get_sample();
-					if( pSample == NULL) return;
+					if( pSample == nullptr) return;
 					QString name = pSample->get_filepath();
 					HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
 				}
@@ -901,19 +884,17 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 
 void InstrumentEditor::loadLayer()
 {
-	static QString lastUsedDir = QDir::homePath();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 
-	Hydrogen *engine = Hydrogen::get_instance();
-
-	AudioFileBrowser *fb = new AudioFileBrowser( NULL );
+	AudioFileBrowser *pFileBrowser = new AudioFileBrowser( nullptr );
 	QStringList filename;
 	filename << "false" << "false" << "";
 
-	if (fb->exec() == QDialog::Accepted) {
-		filename = fb->selectedFile();
+	if (pFileBrowser->exec() == QDialog::Accepted) {
+		filename = pFileBrowser->selectedFile();
 	}
 
-	delete fb;
+	delete pFileBrowser;
 
 	if ( filename[2].isEmpty() ) return;
 
@@ -935,16 +916,16 @@ void InstrumentEditor::loadLayer()
 		for(int i=2;i < filename.size();++i)
 		{
 			selectedLayer = m_nSelectedLayer + i - 2;
-			if( ( i-2 >= MAX_LAYERS ) || ( selectedLayer + 1  > MAX_LAYERS ) ) break;
+			if( ( i-2 >= InstrumentComponent::getMaxLayers() ) || ( selectedLayer + 1  > InstrumentComponent::getMaxLayers() ) ) break;
 
-			Sample *newSample = Sample::load( filename[i] );
+			Sample *pNewSample = Sample::load( filename[i] );
 
-			H2Core::Instrument *pInstr = NULL;
+			H2Core::Instrument *pInstr = nullptr;
 
 			AudioEngine::get_instance()->lock( RIGHT_HERE );
-			Song *song = engine->getSong();
-			InstrumentList *instrList = song->get_instrument_list();
-			pInstr = instrList->get( engine->getSelectedInstrumentNumber() );
+			Song *pSong = pEngine->getSong();
+			InstrumentList *pInstrList = pSong->get_instrument_list();
+			pInstr = pInstrList->get( pEngine->getSelectedInstrumentNumber() );
 
 			/*
 				if we're using multiple layers, we start inserting the first layer
@@ -959,16 +940,12 @@ void InstrumentEditor::loadLayer()
 
 			H2Core::InstrumentLayer *pLayer = pInstr->get_component(m_nSelectedComponent)->get_layer( selectedLayer );
 
-			if (pLayer != NULL) {
-				// delete old sample
-				Sample *oldSample = pLayer->get_sample();
-				delete oldSample;
-
-				// insert new sample from newInstrument
-				pLayer->set_sample( newSample );
+			if (pLayer != nullptr) {
+				// insert new sample from newInstrument, old sample gets deleted by set_sample
+				pLayer->set_sample( pNewSample );
 			}
 			else {
-				pLayer = new H2Core::InstrumentLayer(newSample);
+				pLayer = new H2Core::InstrumentLayer(pNewSample);
 				pInstr->get_component(m_nSelectedComponent)->set_layer( pLayer, selectedLayer );
 			}
 
@@ -983,10 +960,7 @@ void InstrumentEditor::loadLayer()
 				setAutoVelocity();
 			}
 
-			//pInstr->set_drumkit_name( "" );   // external sample, no drumkit info
-
 			AudioEngine::get_instance()->unlock();
-
 		}
 	}
 
@@ -998,9 +972,9 @@ void InstrumentEditor::loadLayer()
 
 void InstrumentEditor::setAutoVelocity()
 {
-	int layerInUse[ MAX_LAYERS ] = {0};
+	std::vector<int> layerInUse( InstrumentComponent::getMaxLayers(), 0 );
 	int layers = 0;
-	for ( int i = 0; i < MAX_LAYERS ; i++ ) {
+	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 		InstrumentLayer *pLayers = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
 		if ( pLayers ) {
 			layers++;
@@ -1010,7 +984,7 @@ void InstrumentEditor::setAutoVelocity()
 
 	float velocityrange = 1.0 / layers;
 
-	for ( int i = 0; i < MAX_LAYERS ; i++ ) {
+	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 		if ( layerInUse[i] == i ){
 			layers--;
 			InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
@@ -1026,14 +1000,14 @@ void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
 {
 	UNUSED( pRef );
 
-	DrumkitComponent* p_compo = Hydrogen::get_instance()->getSong()->get_component( m_nSelectedComponent );
+	DrumkitComponent* pComponent = Hydrogen::get_instance()->getSong()->get_component( m_nSelectedComponent );
 
-	QString sOldName = p_compo->get_name();
+	QString sOldName = pComponent->get_name();
 	bool bIsOkPressed;
 	QString sNewName = QInputDialog::getText( this, "Hydrogen", trUtf8( "New component name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
 
 	if ( bIsOkPressed  ) {
-		p_compo->set_name( sNewName );
+		pComponent->set_name( sNewName );
 
 		selectedInstrumentChangedEvent();
 
@@ -1073,7 +1047,6 @@ void InstrumentEditor::labelClicked( ClickableLabel* pRef )
 
 			// this will force an update...
 			EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-
 		}
 		else {
 			// user entered nothing or pressed Cancel
@@ -1135,7 +1108,7 @@ void InstrumentEditor::selectLayer( int nLayer )
 		}
 	}
 	else {
-		m_pWaveDisplay->updateDisplay( NULL );
+		m_pWaveDisplay->updateDisplay( nullptr );
 
 		// Layer GAIN
 		m_pLayerGainRotary->setValue( 1.0 );
@@ -1300,7 +1273,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {
 				InstrumentComponent* pInstrumentComponent = pInstrument->get_components()->at( o );
 				if( pInstrumentComponent->get_drumkit_componentID() == pDrumkitComponent->get_id() ) {
-					for( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+					for( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 						InstrumentLayer* pLayer = pInstrumentComponent->get_layer( nLayer );
 						if( pLayer )
 							delete pLayer;
@@ -1385,7 +1358,7 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 			if ( pInstr ){
 				InstrumentComponent* pInstrumentComponent = pInstr->get_component(m_nSelectedComponent);
 				if (!pInstrumentComponent) continue; // regular case when you have a new component empty
-				for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
+				for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 					InstrumentLayer *pLayer = pInstrumentComponent->get_layer( nLayer );
 					if ( pLayer ) {
 						Sample *pSample = pLayer->get_sample();
@@ -1418,22 +1391,19 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 
 }
 
-void InstrumentEditor::pSampleSelectionChanged( QString selected )
+void InstrumentEditor::pSampleSelectionChanged( int selected )
 {
-	/*
-		"First in Velocity"
-		"Round Robin"
-		"Random"
-	*/
-
 	assert( m_pInstrument );
 
-	if ( selected.compare("First in Velocity") == 0 )
+	if ( selected == 0 ){
 		m_pInstrument->set_sample_selection_alg( Instrument::VELOCITY );
-	else if ( selected.compare("Round Robin") == 0 )
+	}
+	else if ( selected == 1 ){
 		m_pInstrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
-	else if ( selected.compare("Random") == 0)
+	}
+	else if ( selected == 2){
 		m_pInstrument->set_sample_selection_alg( Instrument::RANDOM );
+	}
 
 	selectedInstrumentChangedEvent();	// force an update
 }
@@ -1442,10 +1412,12 @@ void InstrumentEditor::hihatGroupClicked(Button *pRef)
 {
 	assert( m_pInstrument );
 
-	if ( pRef == m_pAddHihatGroupBtn && m_pInstrument->get_hihat_grp() < 32 )
+	if ( pRef == m_pAddHihatGroupBtn && m_pInstrument->get_hihat_grp() < 32 ){
 		m_pInstrument->set_hihat_grp( m_pInstrument->get_hihat_grp() + 1 );
-	else if ( pRef == m_pDelHihatGroupBtn && m_pInstrument->get_hihat_grp() > -1 )
+	}
+	else if ( pRef == m_pDelHihatGroupBtn && m_pInstrument->get_hihat_grp() > -1 ){
 		m_pInstrument->set_hihat_grp( m_pInstrument->get_hihat_grp() - 1 );
+	}
 
 	selectedInstrumentChangedEvent();   // force an update
 }
@@ -1454,10 +1426,12 @@ void InstrumentEditor::hihatMinRangeBtnClicked(Button *pRef)
 {
 	assert( m_pInstrument );
 
-	if ( pRef == m_pAddHihatMinRangeBtn && m_pInstrument->get_lower_cc() < 127 )
+	if ( pRef == m_pAddHihatMinRangeBtn && m_pInstrument->get_lower_cc() < 127 ){
 		m_pInstrument->set_lower_cc( m_pInstrument->get_lower_cc() + 1 );
-	else if ( pRef == m_pDelHihatMinRangeBtn && m_pInstrument->get_lower_cc() > 0 )
+	}
+	else if ( pRef == m_pDelHihatMinRangeBtn && m_pInstrument->get_lower_cc() > 0 ){
 		m_pInstrument->set_lower_cc( m_pInstrument->get_lower_cc() - 1 );
+	}
 
 	selectedInstrumentChangedEvent();	// force an update
 }
@@ -1466,10 +1440,12 @@ void InstrumentEditor::hihatMaxRangeBtnClicked(Button *pRef)
 {
 	assert( m_pInstrument );
 
-	if ( pRef == m_pAddHihatMaxRangeBtn && m_pInstrument->get_higher_cc() < 127 )
+	if ( pRef == m_pAddHihatMaxRangeBtn && m_pInstrument->get_higher_cc() < 127 ){
 		m_pInstrument->set_higher_cc( m_pInstrument->get_higher_cc() + 1);
-	else if ( pRef == m_pDelHihatMaxRangeBtn && m_pInstrument->get_higher_cc() > 0 )
+	}
+	else if ( pRef == m_pDelHihatMaxRangeBtn && m_pInstrument->get_higher_cc() > 0 ){
 		m_pInstrument->set_higher_cc( m_pInstrument->get_higher_cc() - 1);
+	}
 
 	selectedInstrumentChangedEvent();	// force an update
 }

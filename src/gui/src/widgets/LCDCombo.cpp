@@ -45,7 +45,7 @@ LCDCombo::LCDCombo( QWidget *pParent, int digits )
 	                   );
 	pop = new QMenu( this );
 	size = digits;
-	active = 0;
+	active = -1;
 
 	button->move( ( digits * 8 ) + 5, 1 );
 	setFixedSize( ( digits * 8 ) + 17, display->height() );
@@ -58,17 +58,9 @@ LCDCombo::~LCDCombo()
 {
 }
 
-QString LCDCombo::getText()
-{
-	return display->getText();
-};
-
 void LCDCombo::changeText( QAction* pAction )
 {
-	// WARNINGLOG("triggered");
-	// display->setText(pAction->text());
-	// emit valueChanged( pAction->text() );
-	set_text( pAction->text() );
+	select( actions.indexOf(pAction) );
 }
 
 void LCDCombo::onClick( Button* )
@@ -104,29 +96,35 @@ void LCDCombo::wheelEvent( QWheelEvent * ev )
 	ev->ignore();
 	const int n = actions.size();
 	const int d = ( ev->delta() > 0 ) ? -1: 1;
-	active = ( n + active + d ) % n;
-	if ( actions.at( active )->isSeparator() )
-		active = ( n + active + d ) % n;
-	set_text( actions.at( active )->text() );
+	int next = ( n + active + d ) % n;
+	if ( actions.at( next )->isSeparator() )
+		next = ( n + next + d ) % n;
+	select( next );
 }
 
-void LCDCombo::set_text( const QString &text )
+int LCDCombo::selected()
 {
-	set_text(text, true);
+	return active;
 }
 
-void LCDCombo::set_text( const QString &text, bool emit_on_change )
+bool LCDCombo::select( int idx )
 {
-	if (display->getText() == text) {
-		return;
-	}
-	//INFOLOG( text );
-	display->setText( text );
-	for ( int i = 0; i < actions.size(); i++ ) {
-		if ( actions.at(i)->text() == text )
-			active = i;
+	return select(idx, true);
+}
+
+bool LCDCombo::select( int idx, bool emitValueChanged )
+{
+	if (active == idx)
+		return false;
+
+	if (idx < 0 || idx >= actions.size()) {
+		WARNINGLOG(QString("out of index %1 >= %2").arg(idx).arg(actions.size()));
+		return false;
 	}
 
-	if (emit_on_change)
-		emit valueChanged( text );
+	active = idx;
+	display->setText( actions.at( idx )->text() );
+	if ( emitValueChanged )
+		emit valueChanged( idx );
+	return true;
 }

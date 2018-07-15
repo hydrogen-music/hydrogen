@@ -6,6 +6,7 @@
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/drumkit.h>
 #include <hydrogen/basics/drumkit_component.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/instrument.h>
@@ -150,8 +151,8 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 
 					XMLNode layer_node = instrument_node.firstChildElement( "layer" );
 					while ( !layer_node.isNull() ) {
-						if ( n >= MAX_LAYERS ) {
-							ERRORLOG( QString( "n >= MAX_LAYERS (%1)" ).arg( MAX_LAYERS ) );
+						if ( n >= InstrumentComponent::getMaxLayers() ) {
+							ERRORLOG( QString( "n (%1) > maxLayers (%2)" ).arg ( n ).arg( InstrumentComponent::getMaxLayers() ) );
 							break;
 						}
 						Sample* pSample = new Sample( dk_path+"/"+layer_node.read_string( "filename", "" ) );
@@ -180,9 +181,122 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 	return pDrumkit;
 }
 
-Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path ) {
-	ERRORLOG( "NOT IMPLEMENTED YET !!!" );
-	return 0;
+Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentList* instrList ) {
+	Pattern* pPattern = NULL;
+	if ( version_older_than( 0, 9, 8 ) ) {
+		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
+	} else {
+		WARNINGLOG( QString( "loading pattern with legacy code" ) );
+	}
+	XMLDoc doc;
+	if( !doc.read( pattern_path ) ) {
+		return 0;
+	}
+	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
+	if ( root.isNull() ) {
+		ERRORLOG( "drumkit_pattern node not found" );
+		return 0;
+	}
+	XMLNode pattern_node = root.firstChildElement( "pattern" );
+	if ( pattern_node.isNull() ) {
+		WARNINGLOG( "pattern node not found" );
+		return 0;
+	} else {
+		QString sName = pattern_node.read_string( "pattern_name", "" );
+		QString sInfo = pattern_node.read_string( "info", "" );
+		QString sCategory = pattern_node.read_string( "category", "" );
+		int nSize = pattern_node.read_int( "size", -1, false, false );
+
+		pPattern = new Pattern( sName, sInfo, sCategory, nSize );
+
+		XMLNode note_list_node = pattern_node.firstChildElement( "noteList" );
+
+		XMLNode note_node = note_list_node.firstChildElement( "note" );
+		while ( !note_node.isNull() ) {
+			Note* pNote = NULL;
+			unsigned nPosition = note_node.read_int( "position", 0 );
+			float fLeadLag = note_node.read_float( "leadlag", 0.0 , false , false);
+			float fVelocity = note_node.read_float( "velocity", 0.8f );
+			float fPan_L = note_node.read_float( "pan_L", 0.5 );
+			float fPan_R = note_node.read_float( "pan_R", 0.5 );
+			int nLength = note_node.read_int( "length", -1, true );
+			float nPitch = note_node.read_float( "pitch", 0.0, false, false );
+			float fProbability = note_node.read_float( "probability", 1.0 , false , false );
+			QString sKey = note_node.read_string( "key", "C0", false, false );
+			QString nNoteOff = note_node.read_string( "note_off", "false", false, false );
+			int instrId = note_node.read_int( "instrument", 0, true );
+
+			Instrument *instrRef = instrList->find( instrId );
+			if ( !instrRef ) {
+				ERRORLOG( QString( "Instrument with ID: '%1' not found. Note skipped." ).arg( instrId ) );
+				note_node = note_node.nextSiblingElement( "note" );
+				continue;
+			}
+			//assert( instrRef );
+			bool noteoff = false;
+			if ( nNoteOff == "true" )
+				noteoff = true;
+
+			pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch);
+			pNote->set_key_octave( sKey );
+			pNote->set_lead_lag(fLeadLag);
+			pNote->set_note_off( noteoff );
+			pNote->set_probability( fProbability );
+			pPattern->insert_note( pNote );
+
+			note_node = note_node.nextSiblingElement( "note" );
+		}
+	}
+	return pPattern;
+}
+
+Playlist* Legacy::load_playlist( Playlist* pl, const QString& pl_path )
+{
+	if ( version_older_than( 0, 9, 8 ) ) {
+		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
+	} else {
+		WARNINGLOG( QString( "loading playlist with legacy code" ) );
+	}
+	XMLDoc doc;
+	if( !doc.read( pl_path ) ) {
+		return 0;
+	}
+	XMLNode root = doc.firstChildElement( "playlist" );
+	if ( root.isNull() ) {
+		ERRORLOG( "playlist node not found" );
+		return 0;
+	}
+	QFileInfo fileInfo = QFileInfo( pl_path );
+	QString filename = root.read_string( "Name", "", false, false );
+	if ( filename.isEmpty() ) {
+		ERRORLOG( "Playlist has no name, abort" );
+		return 0;
+	}
+
+	pl->setFilename( filename );
+
+	XMLNode songsNode = root.firstChildElement( "Songs" );
+	if ( !songsNode.isNull() ) {
+		XMLNode nextNode = songsNode.firstChildElement( "next" );
+		while ( !nextNode.isNull() ) {
+
+			QString songPath = nextNode.read_string( "song", "", false, false );
+			if ( !songPath.isEmpty() ) {
+				Playlist::Entry* entry = new Playlist::Entry();
+				QFileInfo songPathInfo( fileInfo.absoluteDir(), songPath );
+				entry->filePath = songPathInfo.absoluteFilePath();
+				entry->fileExists = songPathInfo.isReadable();
+				entry->scriptPath = nextNode.read_string( "script", "" );
+				entry->scriptEnabled = nextNode.read_bool( "enabled", false );
+				pl->add( entry );
+			}
+
+			nextNode = nextNode.nextSiblingElement( "next" );
+		}
+	} else {
+		WARNINGLOG( "Songs node not found" );
+	}
+	return pl;
 }
 
 };

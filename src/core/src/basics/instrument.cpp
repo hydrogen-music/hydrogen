@@ -121,7 +121,9 @@ Instrument::Instrument( Instrument* other )
 
 Instrument::~Instrument()
 {
-	__components->clear();
+	for (std::vector<InstrumentComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+		delete *it;
+	}
 	delete __components;
 
 	delete __adsr;
@@ -147,7 +149,7 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 
 		this->get_components()->push_back( pMyComponent );
 
-		for ( int i=0; i<MAX_LAYERS; i++ ) {
+		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			InstrumentLayer* src_layer = pSrcComponent->get_layer( i );
 			InstrumentLayer* my_layer = pMyComponent->get_layer( i );
 
@@ -281,7 +283,7 @@ void Instrument::load_samples()
 {
 	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
 		InstrumentComponent* component = *it;
-		for ( int i=0; i<MAX_LAYERS; i++ ) {
+		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			InstrumentLayer* layer = component->get_layer( i );
 			if( layer ) layer->load_sample( );
 		}
@@ -292,7 +294,7 @@ void Instrument::unload_samples()
 {
 	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
 		InstrumentComponent* component = *it;
-		for ( int i=0; i<MAX_LAYERS; i++ ) {
+		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			InstrumentLayer* layer = component->get_layer( i );
 			if( layer ) layer->unload_sample();
 		}
@@ -301,7 +303,7 @@ void Instrument::unload_samples()
 
 void Instrument::save_to( XMLNode* node, int component_id )
 {
-	XMLNode InstrumentNode = node->ownerDocument().createElement( "instrument" );
+	XMLNode InstrumentNode = node->createNode( "instrument" );
 	InstrumentNode.write_int( "id", __id );
 	InstrumentNode.write_string( "name", __name );
 	InstrumentNode.write_float( "volume", __volume );
@@ -347,8 +349,6 @@ void Instrument::save_to( XMLNode* node, int component_id )
 		if( component_id == -1 || pComponent->get_drumkit_componentID() == component_id )
 			pComponent->save_to( &InstrumentNode, component_id );
 	}
-
-	node->appendChild( InstrumentNode );
 }
 
 void Instrument::set_adsr( ADSR* adsr )
