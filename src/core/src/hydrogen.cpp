@@ -490,14 +490,27 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			}
 
 			if ( pSong->get_humanize_velocity_value() != 0 ){
-			        // Ensure the generated Gaussian random
-				// variables won't have a variance
-				// bigger than this value.
-			        const float maximumHumanizationVelocityVariance = 0.2;
+				double randomNumber;
+
+				if ( pSong->get_humanize_velocity_color() == 0 ){
+					// Gaussian white noise selected by the
+					// user.
+					// Ensure the generated Gaussian random
+					// variables won't have a standard
+					// deviation bigger than this value.
+					const double maxVelocityStandardDeviation = 0.2;
+					randomNumber =
+						pRand->white_gaussian( pSong->get_humanize_velocity_value() *
+								       maxVelocityStandardDeviation );
+				} else if ( pSong->get_humanize_velocity_color() == 1 ){
+					randomNumber =
+						pRand->pink( pSong->get_humanize_velocity_value() );
+				} else {
+					___ERRORLOG( "[audioEngine] Unknown noise color for the velocity" );
+				}
+					
 				pNote->set_velocity( pNote->get_velocity() +
-						     pRand->white_gaussian( pSong->get_humanize_velocity_value() *
-									   pSong->get_humanize_velocity_value() *
-									   maximumHumanizationVelocityVariance ) );
+						     randomNumber );
 				if ( pNote->get_velocity() > 1.0 ) {
 					pNote->set_velocity( 1.0 );
 				} else if ( pNote->get_velocity() < 0.0 ) {
@@ -510,7 +523,6 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			const float maximumPitchVariance = 0.2;
 			float randomPitch =
 				pRand->white_gaussian( pNote->get_instrument()->get_random_pitch_factor() *
-						      pNote->get_instrument()->get_random_pitch_factor() *
 						      maximumPitchVariance );
 			// Since a Gaussian white noise is unbound we
 			// have to verify the random pitch shift does
@@ -1280,27 +1292,44 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 
 						// Humanize - Time parameter
 						if ( pSong->get_humanize_time_value() != 0 ) {
-						        
 							// Ensure the generated Gaussian random variables
 							// won't have a variance bigger than the value.
 							// A large factor is needed in here. Since the
 							// `nOffset' variable is an integer, the
 							// `randomHumanizeTime` will be floored.
-							const float maximumHumanizationTimeVariance = 3.3;
-							float randomHumanizeTime =
-								pRand->white_gaussian( maximumHumanizationTimeVariance *
-										      pSong->get_humanize_time_value() *
-										      pSong->get_humanize_time_value() );
+							double randomNumber;
+							
+							if ( pSong->get_humanize_time_color() == 0 ){
+								// Gaussian white noise selected by the
+								// user.
+								// Ensure the generated Gaussian random
+								// variables won't have a standard
+								// deviation bigger than this value.
+								const double maxTimeStandardDeviation = 3.3;
+								randomNumber =
+									pRand->white_gaussian( pSong->get_humanize_time_value() *
+											       maxTimeStandardDeviation );
+							} else if ( pSong->get_humanize_time_color() == 1 ){
+								// Pink noise selected by the user.
+								// A large factor of 100 has been
+								// introduced to scale the resulting
+								// noise to values affecting the audio
+								// engine.
+								randomNumber =
+									pRand->pink( pSong->get_humanize_time_value() * 15. );
+							} else {
+								___ERRORLOG( "[audioEngine] Unknown noise color for the time" );
+							}
 							// Since a Gaussian white noise is unbound we
 							// have to verify the random time shift does
 							// not exceed the maximal value.
-							if ( ( int ) randomHumanizeTime > nMaxTimeHumanize ){
-							  randomHumanizeTime = ( float ) nMaxTimeHumanize;
-							} else if ( ( int ) randomHumanizeTime < -1* nMaxTimeHumanize ){
-							  randomHumanizeTime = ( float ) -1* nMaxTimeHumanize;
+							if ( ( int ) randomNumber > nMaxTimeHumanize ){
+								randomNumber = ( float ) nMaxTimeHumanize;
+							} else if ( ( int ) randomNumber < -1* nMaxTimeHumanize ){
+								randomNumber = ( float ) -1* nMaxTimeHumanize;
 							}
-							nOffset += ( int ) randomHumanizeTime;
-							___INFOLOG( QString( "randomHumanizeTime: %1" ).arg( randomHumanizeTime ) );
+							nOffset += ( int ) randomNumber;
+							___INFOLOG( QString( "randomNumber: %1" ).arg( randomNumber ) );
 							___INFOLOG( QString( "nOffset: %1" ).arg( nOffset ) );
 													
 						}
