@@ -31,6 +31,8 @@
 
 namespace H2Core {
 	class Instrument;
+	class Hydrogen;
+	class Preferences;
 }
 
 ///
@@ -64,20 +66,25 @@ private:
 	void		calculateRubberbandTime();
 	bool		checkUseOfRubberband();
 	
+	void		saveSettingsToPreferences();
+	void		restoreSettingsFromPreferences();
+	
 	bool		currentInstrumentHasNotes();
 	QString		findUniqueExportFilenameForInstrument(H2Core::Instrument* pInstrument);
 
 	void		exportTracks();
 	
-	bool		m_bExporting;
-	bool		m_bExportTrackouts;
-	bool		m_bOverwriteFiles;
-	uint		m_nInstrument;
-	QString		m_sExtension;
-	bool		m_bOldRubberbandBatchMode;
-	bool		m_bOldTimeLineBPMMode;
-	int			m_nOldInterpolation;
-	bool		m_bQfileDialog;
+	bool					m_bExporting;
+	bool					m_bExportTrackouts;
+	bool					m_bOverwriteFiles;
+	uint					m_nInstrument;
+	QString					m_sExtension;
+	bool					m_bOldRubberbandBatchMode;
+	bool					m_bOldTimeLineBPMMode;
+	int						m_nOldInterpolation;
+	bool					m_bQfileDialog;
+	H2Core::Hydrogen *		m_pEngine;
+	H2Core::Preferences*	m_pPreferences;
 };
 
 
