@@ -24,18 +24,12 @@
 #ifndef SPLASH_SCREEN_H
 #define SPLASH_SCREEN_H
 
-#include <QLabel>
 #include <QSplashScreen>
 #include <QTimer>
 #include <QPixmap>
 
-#include "HydrogenApp.h"
-
 #include <hydrogen/object.h>
 
-/**
- * Fader and VuMeter widget
- */
 class SplashScreen : public QSplashScreen, public H2Core::Object
 {
     H2_OBJECT
@@ -46,14 +40,11 @@ class SplashScreen : public QSplashScreen, public H2Core::Object
 
 	private slots:
 		void onCloseTimer();
-//		virtual void drawContents ( QPainter * painter );
 
 	private:
-		QPixmap *m_pBackground;
-		static const uint width = 400;
-		static const uint height = 300;
-		//QTimer m_closeTimer;
-
+		QPixmap *			m_pBackground;
+		static const uint	width = 400;
+		static const uint	height = 300;
 };
 
 

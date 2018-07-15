@@ -24,7 +24,6 @@
 #include "SplashScreen.h"
 
 #include <QPainter>
-#include <QLabel>
 #include <QApplication>
 #include <QDesktopWidget>
 
@@ -57,7 +56,6 @@ SplashScreen::SplashScreen()
 	p.end();
 
 	setPixmap( *m_pBackground );
-
 
 	// Center on screeen
 	QRect rect( QApplication::desktop()->screenGeometry() );
