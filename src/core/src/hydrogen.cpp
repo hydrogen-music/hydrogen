@@ -1,3 +1,4 @@
+
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
@@ -91,6 +92,7 @@
 #include <hydrogen/IO/PortMidiDriver.h>
 #include <hydrogen/IO/CoreAudioDriver.h>
 #include <hydrogen/IO/PulseAudioDriver.h>
+#include <hydrogen/randomizer.h>
 
 namespace H2Core
 {
@@ -202,87 +204,6 @@ inline timeval currentTime2()
 	gettimeofday( &now, NULL );
 	return now;
 }
-
-// *** Humanizer *** //	
-static int seed_random = std::rand();
-inline float get_random_white_uniform()
-{
-	// fast-float-ries
-	seed_random *= 16807;
-	return (float) seed_random* 4.6566129e-010f/2 + 0.5;
-}
-
-inline float get_random_white_gaussian( float scale ){
-	// gaussian distribution -- dimss
-
-	float randomUniform1 = get_random_white_uniform();
-	float randomUniform2 = get_random_white_uniform();
-
-	return (float) sqrt( -2.0f * log( randomUniform1 ) )*
-		cos( 2.0f * PI * randomUniform2 ) * scale;
-}
-
-
-/* Setup PinkNoise structure for N rows of generators. */
-void InitializePinkNoise( PinkNoise *pink, int numRows )
-{
-	int i;
-	long pmax;
-	pink->pink_Index = 0;
-	pink->pink_IndexMask = (1<<numRows) - 1;
-/* Calculate maximum possible signed random value. Extra 1 for white noise always added. */
-	pmax = (numRows + 1) * (1<<(PINK_NOISE_BITS-1));
-	pink->pink_Scalar = 1.0f / pmax;
-/* Initialize rows. */
-	for( i=0; i<numRows; i++ ) pink->pink_Rows[i] = 0;
-	pink->pink_RunningSum = 0;
-}	
-inline float get_random_pink( PinkNoise *pink, float scale ){
-	long newRandom;
-	long sum;
-	float output;
-
-/* Increment and mask index. */
-	pink->pink_Index = (pink->pink_Index + 1) & pink->pink_IndexMask;
-
-/* If index is zero, don't update any random values. */
-	if( pink->pink_Index != 0 )
-	{
-	/* Determine how many trailing zeros in PinkIndex. */
-	/* This algorithm will hang if n==0 so test first. */
-	  // The while loop below shifts the index pink->pink_Index to
-	  // the right until the leftmost bit is a zero.
-		int numZeros = 0;
-		int n = pink->pink_Index;
-		while( (n & 1) == 0 )
-		{
-			n = n >> 1;
-			numZeros++;
-		}
-
-	/* Replace the indexed ROWS random value.
-	 * Subtract and add back to RunningSum instead of adding all the random
-	 * values together. Only one changes each time.
-	 */
-		pink->pink_RunningSum -= pink->pink_Rows[numZeros];
-		newRandom = ((long)get_random_white_uniform()) >> PINK_NOISE_SHIFT;
-		pink->pink_RunningSum += newRandom;
-		pink->pink_Rows[numZeros] = newRandom;
-	}
-	
-	/* Add extra white noise value. */
-	// Discard the first PINK_RANDOM_SHIFT bits to reduce the
-	// generated random number of the size of PINK_RANDOM_BITS
-	// bits.
-	newRandom = ((long)get_random_white_uniform()) >> PINK_NOISE_SHIFT;
-	sum = pink->pink_RunningSum + newRandom;
-
-	/* Scale to range of -1.0 to 0.9999. */
-	output = pink->pink_Scalar * sum;
-	
-	return output * scale;
-}
-// ***************** //	
 
 void audioEngine_raiseError( unsigned nErrorCode )
 {
@@ -515,6 +436,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
+	Randomizer* pRand = Randomizer::get_instance();
 
 	unsigned int framepos;
 
@@ -542,10 +464,11 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		unsigned int noteStartInFrames =
 				(int)( pNote->get_position() * m_pAudioDriver->m_transport.m_nTickSize );
 
-		// if there is a negative Humanize delay, take into account so
-		// we don't miss the time slice.  ignore positive delay, or we
-		// might end the queue processing prematurely based on NoteQueue
-		// placement.  the sampler handles positive delay.
+		// if there is a negative Humanize delay, take into
+		// account so we don't miss the time slice.  ignore
+		// positive delay, or we might end the queue processing
+		// prematurely based on NoteQueue placement.  The
+		// sampler handles positive delay.
 		if (pNote->get_humanize_delay() < 0) {
 			noteStartInFrames += pNote->get_humanize_delay();
 		}
@@ -566,14 +489,15 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 				continue;
 			}
 
-			if ( pSong->get_humanize_velocity_value() != 0 ) {
-			        // Ensure the generated Gaussian random variables
-			        // won't have a variance bigger than this value.
-			        const float maximalHumanizationVelocityVariance = 0.2;
+			if ( pSong->get_humanize_velocity_value() != 0 ){
+			        // Ensure the generated Gaussian random
+				// variables won't have a variance
+				// bigger than this value.
+			        const float maximumHumanizationVelocityVariance = 0.2;
 				pNote->set_velocity( pNote->get_velocity() +
-						     get_random_white_gaussian( pSong->get_humanize_velocity_value() *
-											   pSong->get_humanize_velocity_value() *
-											   maximalHumanizationVelocityVariance ) );
+						     pRand->white_gaussian( pSong->get_humanize_velocity_value() *
+									   pSong->get_humanize_velocity_value() *
+									   maximumHumanizationVelocityVariance ) );
 				if ( pNote->get_velocity() > 1.0 ) {
 					pNote->set_velocity( 1.0 );
 				} else if ( pNote->get_velocity() < 0.0 ) {
@@ -583,10 +507,11 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 			// Random Pitch ;)
 			const float fMaxPitchDeviation = 2.0;
-			const float maximalPitchVariance = 0.2;
-			float randomPitch = get_random_white_gaussian( pNote->get_instrument()->get_random_pitch_factor() *
-										  pNote->get_instrument()->get_random_pitch_factor() *
-										  maximalPitchVariance );
+			const float maximumPitchVariance = 0.2;
+			float randomPitch =
+				pRand->white_gaussian( pNote->get_instrument()->get_random_pitch_factor() *
+						      pNote->get_instrument()->get_random_pitch_factor() *
+						      maximumPitchVariance );
 			// Since a Gaussian white noise is unbound we
 			// have to verify the random pitch shift does
 			// not exceed the value of maximal pitch
@@ -597,8 +522,8 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			  randomPitch = -1.0 * fMaxPitchDeviation;
 			}
 		
-			// pNote->set_pitch( pNote->get_pitch()
-			// 				  + randomPitch );
+			pNote->set_pitch( pNote->get_pitch()
+					  + randomPitch );
 
 			/*
 					  * Check if the current instrument has the property "Stop-Note" set.
@@ -1110,6 +1035,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
+	Randomizer* pRand = Randomizer::get_instance();
 
 //	static int nLastTick = -1;
 	bool bSendPatternChange = false;
@@ -1359,11 +1285,12 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 							// won't have a variance bigger than the value.
 							// A large factor is needed in here. Since the
 							// `nOffset' variable is an integer, the
-							// `randomHumanizeTime` will be floored. Is this right?
-							const float maximalHumanizationTimeVariance = 3.3;
-							float randomHumanizeTime = get_random_white_gaussian( maximalHumanizationTimeVariance *
-															 pSong->get_humanize_time_value() *
-															 pSong->get_humanize_time_value() );
+							// `randomHumanizeTime` will be floored.
+							const float maximumHumanizationTimeVariance = 3.3;
+							float randomHumanizeTime =
+								pRand->white_gaussian( maximumHumanizationTimeVariance *
+										      pSong->get_humanize_time_value() *
+										      pSong->get_humanize_time_value() );
 							// Since a Gaussian white noise is unbound we
 							// have to verify the random time shift does
 							// not exceed the maximal value.
@@ -1875,6 +1802,7 @@ void Hydrogen::create_instance()
 	Preferences::create_instance();
 	EventQueue::create_instance();
 	MidiActionManager::create_instance();
+	Randomizer::create_instance();
 
 #ifdef H2CORE_HAVE_OSC
 	NsmClient::create_instance();

@@ -44,23 +44,6 @@
 #define STATE_READY			4     // Ready to process audio
 #define STATE_PLAYING		5     // Currently playing a sequence.
 
-// *** Humanizer *** //
-#define PI 3.1415926536f
-#define PINK_NOISE_MAX_ROWS ( 30 )
-#define PINK_NOISE_BITS     ( 24 )
-#define PINK_NOISE_SHIFT    ( ( sizeof( long )* 8 ) - PINK_NOISE_BITS )
-
-typedef struct {
-	long      pink_Rows[PINK_NOISE_MAX_ROWS];
-	long      pink_RunningSum;   /* Used to optimize summing of generators. */
-	int       pink_Index;        /* Incremented each sample. */
-	int       pink_IndexMask;    /* Index wrapped by ANDing with this mask. */
-	float     pink_Scalar;       /* Used to scale within range of -1.0 to +1.0 */
-} PinkNoise;
-
-inline float get_random_white_uniform();
-inline float get_random_white_gaussian( float scale );
-inline float get_random_pink( PinkNoise *pink, float scale );
 
 // ***************** //
 
@@ -293,7 +276,6 @@ private:
 	Song::SongMode	m_oldEngineMode;
 	bool			m_bOldLoopEnabled;
 	bool			m_bExportSessionIsActive;
-	
 
 	//Timline information
 	Timeline*		m_pTimeline;
