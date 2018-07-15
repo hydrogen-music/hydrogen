@@ -512,6 +512,7 @@ void Preferences::loadPreferences( bool bGlobal )
 
 				//export dialog properties
 				m_nExportTemplate = LocalFileMng::readXmlInt( guiNode, "exportDialogTemplate", 0 );
+				m_nExportMode = LocalFileMng::readXmlInt( guiNode, "exportDialogMode", 0 );
 				m_nExportSampleRate = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleRate", 44100 );
 				m_nExportSampleDepth = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleDepth", 0 );
 				m_sExportDirectory = LocalFileMng::readXmlString( guiNode, "exportDialogDirectory", QDir::homePath(), true );
@@ -914,6 +915,7 @@ void Preferences::savePreferences()
 		
 		
 		//ExportSongDialog
+		LocalFileMng::writeXmlString( guiNode, "exportDialogMode", QString("%1").arg( m_nExportMode ) );
 		LocalFileMng::writeXmlString( guiNode, "exportDialogTemplate", QString("%1").arg( m_nExportTemplate ) );
 		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleRate",  QString("%1").arg( m_nExportSampleRate ) );
 		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleDepth", QString("%1").arg( m_nExportSampleDepth ) );
