@@ -73,7 +73,7 @@ Playlist* Playlist::load_file( const QString& pl_path, bool useRelativePaths )
 		Playlist* pl = new Playlist();
 		Playlist* ret = Legacy::load_playlist( pl, pl_path );
 		if ( ret == 0 ) {
-			delete pl;
+			delete pl;	// __instance = 0;
 			return 0;
 		}
 		WARNINGLOG( QString( "update playlist %1" ).arg( pl_path ) );
@@ -159,11 +159,15 @@ void Playlist::save_to( XMLNode* node, bool useRelativePaths )
 
 Playlist* Playlist::load( const QString& filename, bool useRelativePaths )
 {
+	// load_file might set __instance = 0;
+	Playlist* prev = __instance;
 	Playlist* playlist = Playlist::load_file( filename, useRelativePaths );
 
 	if ( playlist != 0 ) {
-		delete __instance;
+		delete prev;
 		__instance = playlist;
+	} else {
+		__instance = prev;
 	}
 
 	return playlist;
