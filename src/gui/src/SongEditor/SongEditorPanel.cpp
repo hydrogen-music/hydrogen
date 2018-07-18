@@ -814,9 +814,8 @@ void SongEditorPanel::faderChanged(Fader *pFader)
 
 void SongEditorPanel::selectedPatternChangedEvent()
 {
-	resyncExternalScrollBar();
-	m_pModeActionBtn->setPressed(  Preferences::get_instance()->patternModePlaysSelected() );
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
+	m_pModeActionBtn->setPressed( Preferences::get_instance()->patternModePlaysSelected() );
+	updateAll();
 }
 
 
