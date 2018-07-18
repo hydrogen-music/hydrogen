@@ -80,9 +80,8 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void deletePattern( int idx );
 
 	private slots:
-		void on_patternListScroll();
-		void on_EditorScroll();
-		void syncToExternalScrollBar();
+		void vScrollTo( int value );
+		void hScrollTo( int value );
 
 		void newPatBtnClicked( Button* );
 		void upBtnClicked( Button* );

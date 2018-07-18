@@ -169,7 +169,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 // ZOOM
 	m_pHScrollBar = new QScrollBar( Qt::Horizontal,NULL );
-	connect( m_pHScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalScrollBar() ) );
+	connect( m_pHScrollBar, SIGNAL(valueChanged(int)), this, SLOT( hScrollTo(int) ) );
 
 	// zoom-in btn
 	Button* pZoomInBtn = new Button(
@@ -275,7 +275,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPatternListScrollView->setFixedWidth( m_nPatternListWidth );
 	m_pPatternListScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPatternListScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	connect( m_pPatternListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternListScroll() ) );
+	connect( m_pPatternListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( vScrollTo(int) ) );
 
 	m_pPatternList = new SongEditorPatternList( m_pPatternListScrollView->viewport() );
 	m_pPatternListScrollView->setWidget( m_pPatternList );
@@ -289,8 +289,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pSongEditor = new SongEditor( m_pEditorScrollView->viewport() );
 	m_pEditorScrollView->setWidget( m_pSongEditor );
 
-	connect( m_pEditorScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_EditorScroll() ) );
-	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_EditorScroll() ) );
+	connect( m_pEditorScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( hScrollTo(int) ) );
+	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( vScrollTo(int) ) );
 
 
 	// POSITION RULER
@@ -333,7 +333,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pAutomationCombo->select( 0 );
 
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, NULL );
-	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalScrollBar() ) );
+	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( vScrollTo(int) ) );
 
 
 	// ok...let's build the layout
@@ -399,13 +399,12 @@ void SongEditorPanel::updatePlayHeadPosition()
 
 		int nPlayHeadPosition = Hydrogen::get_instance()->getPatternPos() * m_pSongEditor->getGridWidth();
 
+		int value = m_pEditorScrollView->horizontalScrollBar()->value();
 		if ( nPlayHeadPosition > ( x + w - 50 ) ) {
-			m_pEditorScrollView->horizontalScrollBar()->setValue( m_pEditorScrollView->horizontalScrollBar()->value() + 100 );
-			on_EditorScroll();	// force a re-sync
+			hScrollTo( value + 100 );
 		}
 		else if ( nPlayHeadPosition < x ) {
-			m_pEditorScrollView->horizontalScrollBar()->setValue( m_pEditorScrollView->horizontalScrollBar()->value() - 100 );
-			on_EditorScroll();	// force a re-sync
+			hScrollTo( value - 100 );
 		}
 	}
 }
@@ -449,34 +448,29 @@ void SongEditorPanel::updatePlaybackFaderPeaks()
 	}
 }
 
-void SongEditorPanel::on_patternListScroll()
+void SongEditorPanel::vScrollTo( int value )
 {
-	m_pEditorScrollView->verticalScrollBar()->setValue( m_pPatternListScrollView->verticalScrollBar()->value() );
+	static bool inside = false;
+	if ( !inside ) {
+		inside = true;
+		m_pVScrollBar->setValue( value );
+		m_pPatternListScrollView->verticalScrollBar()->setValue( value );
+		m_pEditorScrollView->verticalScrollBar()->setValue( value );
+		inside = false;
+	}
 }
 
-
-
-///
-/// Synchronize the patternlist with the patternsequence
-///
-void SongEditorPanel::on_EditorScroll()
+void SongEditorPanel::hScrollTo( int value )
 {
-	resyncExternalScrollBar();
-	m_pPatternListScrollView->verticalScrollBar()->setValue( m_pEditorScrollView->verticalScrollBar()->value() );
-	m_pPositionRulerScrollView->horizontalScrollBar()->setValue( m_pEditorScrollView->horizontalScrollBar()->value() );
+	static bool inside = false;
+	if ( !inside ) {
+		inside = true;
+		m_pHScrollBar->setValue( value );
+		m_pEditorScrollView->horizontalScrollBar()->setValue( value );
+		m_pAutomationPathScrollView->horizontalScrollBar()->setValue( value );
+		inside = false;
+	}
 }
-
-
-
-void SongEditorPanel::syncToExternalScrollBar()
-{
-	m_pEditorScrollView->horizontalScrollBar()->setValue( m_pHScrollBar->value() );
-	m_pEditorScrollView->verticalScrollBar()->setValue( m_pVScrollBar->value() );
-	m_pAutomationPathScrollView->horizontalScrollBar()->setValue( m_pHScrollBar->value() );
-	m_pAutomationPathScrollView->verticalScrollBar()->setValue( m_pVScrollBar->value() );
-}
-
-
 
 ///
 /// Update and redraw all...
