@@ -636,6 +636,8 @@ void SongEditorPanel::resyncExternalScrollBar()
 	m_pVScrollBar->setSingleStep( m_pEditorScrollView->verticalScrollBar()->singleStep() );
 	m_pVScrollBar->setPageStep( m_pEditorScrollView->verticalScrollBar()->pageStep() );
 	m_pVScrollBar->setValue( m_pEditorScrollView->verticalScrollBar()->value() );
+
+	vScrollTo( m_pPatternList->getGridHeight() * Hydrogen::get_instance()->getSelectedPatternNumber() );
 }
 
 
