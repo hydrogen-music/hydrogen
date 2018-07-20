@@ -42,7 +42,6 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
-#include <hydrogen/LocalFileMng.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/drumkit.h>

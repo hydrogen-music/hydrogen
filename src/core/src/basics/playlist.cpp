@@ -27,7 +27,6 @@
 #include <hydrogen/helpers/legacy.h>
 #include <hydrogen/helpers/xml.h>
 #include <hydrogen/event_queue.h>
-#include <hydrogen/LocalFileMng.h>
 
 namespace H2Core
 {

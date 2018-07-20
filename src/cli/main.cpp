@@ -40,7 +40,6 @@
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/basics/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/LocalFileMng.h>
 
 #include <iostream>
 #include <signal.h>

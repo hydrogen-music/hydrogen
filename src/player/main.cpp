@@ -26,7 +26,6 @@
 
 #include <hydrogen/object.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/event_queue.h>

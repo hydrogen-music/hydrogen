@@ -27,7 +27,6 @@
 #include <hydrogen/smf/SMF.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/timeline.h>
-#include <hydrogen/LocalFileMng.h>
 #include <hydrogen/helpers/files.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
