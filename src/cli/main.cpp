@@ -34,6 +34,8 @@
 #include <hydrogen/midi_map.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/instrument.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
@@ -358,6 +360,10 @@ int main(int argc, char *argv[])
 		
 		bool ExportMode = false;
 		if ( ! outFilename.isEmpty() ) {
+			InstrumentList *pInstrumentList = pSong->get_instrument_list();
+			for (auto i = 0; i < pInstrumentList->size(); i++) {
+				pInstrumentList->get(i)->set_currently_exported( true );
+			}
 			pHydrogen->startExportSession(rate, bits);
 			pHydrogen->startExportSong( outFilename );
 			cout << "Export Progress ... ";
