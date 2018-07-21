@@ -21,7 +21,6 @@ void setupEnvironment(unsigned log_level)
     /* Filesystem */
     H2Core::Filesystem::bootstrap( logger, test_helper->data_dir() );
     H2Core::Filesystem::info();
-    H2Core::Filesystem::rm( H2Core::Filesystem::tmp_dir(), true );
 
 	/* Use fake audio driver */
 	H2Core::Preferences::create_instance();

@@ -117,7 +117,7 @@ class FunctionalTest : public CppUnit::TestCase {
 	void testExportAudio()
 	{
 		auto songFile = H2TEST_FILE("functional/test.h2song");
-		auto outFile = Filesystem::tmp_file("test.wav");
+		auto outFile = Filesystem::tmp_file_path("test.wav");
 		auto refFile = H2TEST_FILE("functional/test.ref.flac");
 
 		exportSong( songFile, outFile );
@@ -128,7 +128,7 @@ class FunctionalTest : public CppUnit::TestCase {
 	void testExportMIDI()
 	{
 		auto songFile = H2TEST_FILE("functional/test.h2song");
-		auto outFile = Filesystem::tmp_file("test.mid");
+		auto outFile = Filesystem::tmp_file_path("test.mid");
 		auto refFile = H2TEST_FILE("functional/test.ref.mid");
 
 		exportMIDI( songFile, outFile );
@@ -139,7 +139,7 @@ class FunctionalTest : public CppUnit::TestCase {
 	void testExportMuteGroupsAudio()
 	{
 		auto songFile = H2TEST_FILE("functional/mutegroups.h2song");
-		auto outFile = Filesystem::tmp_file("mutegroups.wav");
+		auto outFile = Filesystem::tmp_file_path("mutegroups.wav");
 		auto refFile = H2TEST_FILE("functional/mutegroups.ref.flac");
 
 		exportSong( songFile, outFile );
@@ -150,7 +150,7 @@ class FunctionalTest : public CppUnit::TestCase {
 	void testExportVelocityAutomationAudio()
 	{
 		auto songFile = H2TEST_FILE("functional/velocityautomation.h2song");
-		auto outFile = Filesystem::tmp_file("velocityautomation.wav");
+		auto outFile = Filesystem::tmp_file_path("velocityautomation.wav");
 		auto refFile = H2TEST_FILE("functional/velocityautomation.ref.flac");
 
 		exportSong( songFile, outFile );
@@ -161,7 +161,7 @@ class FunctionalTest : public CppUnit::TestCase {
 	void testExportVelocityAutomationMIDI()
 	{
 		auto songFile = H2TEST_FILE("functional/velocityautomation.h2song");
-		auto outFile = Filesystem::tmp_file("velocityautomation.mid");
+		auto outFile = Filesystem::tmp_file_path("velocityautomation.mid");
 		auto refFile = H2TEST_FILE("functional/velocityautomation.ref.mid");
 
 		exportMIDI( songFile, outFile );

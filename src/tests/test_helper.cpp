@@ -7,8 +7,8 @@
 #include <QStringList>
 #include <exception>
 
-static const QString APP_DATA_DIR = "/data";
-static const QString TEST_DATA_DIR = "/src/tests/data";
+static const QString APP_DATA_DIR = "/data/";
+static const QString TEST_DATA_DIR = "/src/tests/data/";
 
 TestHelper* TestHelper::__instance = NULL;
 
