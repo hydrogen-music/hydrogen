@@ -492,7 +492,8 @@ QString Filesystem::tmp_dir()
 }
 QString Filesystem::tmp_file_path( const QString& base )
 {
-	QTemporaryFile file( tmp_dir() + base );
+	QFileInfo f( base );
+	QTemporaryFile file( tmp_dir()+"/"+f.completeBaseName()+"XXXXXX."+f.suffix() );
 	file.setAutoRemove( false );
 	file.open();
 	file.close();
