@@ -109,8 +109,8 @@ class Filesystem : public H2Core::Object
 		/** returns temp path */
 		static QString tmp_dir();
 		/**
-		 * touch a temporary file and return it's path
-		 * file path will be constructed like this : tmp_dir()/base.xxxxxx
+		 * touch a temporary file under tmp_dir() and return it's path.
+		 * if base has a suffix it will be preserved, spaces will be replaced by underscores.
 		 * \param base, part of the path
 		 */
 		static QString tmp_file_path( const QString& base );
