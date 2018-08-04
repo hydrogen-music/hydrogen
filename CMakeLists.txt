@@ -35,7 +35,15 @@ SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 # Check whether anaconda is installed on the system
 STRING(FIND "$ENV{PATH}" "anaconda" ANACONDA_FIND)
 IF(NOT ANACONDA_FIND EQUAL "-1")
-	SET(CMAKE_LIBRARY_PATH "$ENV{HOME}/.anaconda3/lib")
+      EXECUTE_PROCESS(
+            COMMAND echo "$ENV{PATH}"
+	    COMMAND tr : "\n"
+	    COMMAND awk "/anaconda/ {print $0}"
+	    COMMAND sed "s/bin/lib/"
+	    OUTPUT_VARIABLE ANACONDA_PATH
+	    OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
+      SET(CMAKE_LIBRARY_PATH "${ANACONDA_PATH}")
 ENDIF()
 
 #
