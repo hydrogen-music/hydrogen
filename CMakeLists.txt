@@ -153,6 +153,7 @@ ENDIF(APPLE)
 SET(H2_SYS_PATH "${CMAKE_INSTALL_PREFIX}/share/hydrogen")
 # TODO remove data from path, could be .config/hydrogen
 SET(H2_USR_PATH ".hydrogen")
+SET(H2_APP_ICON_PATH "/usr/share/pixmaps" CACHE STRING "Default system location of H2 application icon")
 
 
 SET(MAX_INSTRUMENTS 1000 CACHE STRING "Maximum number of instruments")
@@ -364,7 +365,7 @@ ENDIF()
 IF(NOT MINGW AND NOT APPLE)
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_PREFIX}/share/appdata")
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
-	INSTALL(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pixmaps")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "${H2_APP_ICON_PATH}")
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.1 DESTINATION "${CMAKE_INSTALL_PREFIX}/man/man1")
 ENDIF()
 
