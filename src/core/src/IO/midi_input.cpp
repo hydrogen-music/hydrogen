@@ -192,17 +192,18 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 
 void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 {
+	int programNumber = msg.m_nData1;
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	MidiActionManager *aH = MidiActionManager::get_instance();
 	MidiMap *mM = MidiMap::get_instance();
 
-	Action *pAction = mM->getPCAction();
-	pAction->setParameter2( QString::number( msg.m_nData1 ) );
+	Action *pAction = mM->getPCAction( programNumber );
+	pAction->setParameter2( QString::number( programNumber ) );
 
 	aH->handleAction( pAction );
 
 	pEngine->lastMidiEvent = "PROGRAM_CHANGE";
-	pEngine->lastMidiEventParameter = 0;
+	pEngine->lastMidiEventParameter = programNumber;
 }
 
 void MidiInput::handleNoteOnMessage( const MidiMessage& msg )

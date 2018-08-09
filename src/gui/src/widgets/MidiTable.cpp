@@ -207,12 +207,13 @@ void MidiTable::setupMidiTable()
 		insertNewRow(pAction->getType() , "CC" , parameter , actionParameterInteger );
 	}
 
+	for( int parameter = 0; parameter < 128; parameter++ )
 	{
-		Action * pAction = pMidiMap->getPCAction();
+		Action * pAction = pMidiMap->getPCAction(parameter);
 		if ( pAction->getType() != "NOTHING" ) {
 			QString actionParameter = pAction->getParameter1();
 			int actionParameterInteger = actionParameter.toInt(&ok,10);
-			insertNewRow( pAction->getType() , "PROGRAM_CHANGE" , 0 , actionParameterInteger );
+			insertNewRow( pAction->getType() , "PROGRAM_CHANGE" , parameter , actionParameterInteger );
 		}
 	}
 	
@@ -252,7 +253,7 @@ void MidiTable::saveMidiTable()
 			} else if( eventString.left(4) == "NOTE" ){
 				mM->registerNoteEvent( eventSpinner->cleanText().toInt() , pAction );
 			} else if( eventString.left(14) == "PROGRAM_CHANGE" ){
-				mM->registerPCEvent( pAction );
+				mM->registerPCEvent( eventSpinner->cleanText().toInt() , pAction );
 			}
 		}
 	}
