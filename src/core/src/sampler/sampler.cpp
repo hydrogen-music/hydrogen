@@ -328,6 +328,40 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 							break;
 						}
 					}
+
+					if ( !pSample ){
+						WARNINGLOG( "Velocity did fall into a hole between the instrument layers." );
+						// There are a small distance between the
+						// layers of the instruments the velocity of
+						// the pNote has fallen into. This can if the
+						// drumkits weren't written with enough care.
+						// To fix this rare problem, we have to search
+						// for the nearest layer and use its sample.
+						float shortestDistance = 1.0f;
+						int nearestLayer = -1;
+						for ( unsigned nLayer = 0; nLayer < __maxLayers; ++nLayer ){
+							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+							if ( pLayer == NULL ) continue;
+							
+							if ( min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+								  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
+							     shortestDistance ){
+								shortestDistance = min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+											abs( pLayer->get_start_velocity() - pNote->get_velocity() ) );
+								nearestLayer = nLayer;
+							}
+						}
+
+						// Check whether the search was successful and assign the results.
+						if ( nearestLayer > -1 ){
+							InstrumentLayer *pLayer = pCompo->get_layer( nearestLayer );
+							pSelectedLayer->SelectedLayer = nearestLayer;
+						
+							pSample = pLayer->get_sample();
+							fLayerGain = pLayer->get_gain();
+							fLayerPitch = pLayer->get_pitch();
+						}
+					}
 					break;
 
 				case Instrument::RANDOM:
@@ -343,19 +377,62 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 					}
 					if( pSample == NULL ) {
 						int __possibleIndex[ __maxLayers ];
-						int __poundSamples = 0;
+						int __foundSamples = 0;
 						for ( unsigned nLayer = 0; nLayer < __maxLayers; ++nLayer ) {
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == NULL ) continue;
 
 							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
-								__possibleIndex[__poundSamples] = nLayer;
-								__poundSamples++;
+								__possibleIndex[__foundSamples] = nLayer;
+								__foundSamples++;
 							}
 						}
 
-						if( __poundSamples > 0 ) {
-							nAlreadySelectedLayer = __possibleIndex[rand() % __poundSamples];
+						
+
+						// In some instruments the start and end
+						// velocities of a layer are not set
+						// perfectly giving rise to some 'holes'.
+						// Occasionally the velocity of a note
+						// can fall into it causing the sampler
+						// to just skip it. Instead, we will search
+						// for the nearest sample and play this
+						// one instead.
+						if ( __foundSamples == 0 ){
+							WARNINGLOG( "Velocity did fall into a hole between the instrument layers." );
+							float shortestDistance = 1.0f;
+							int nearestLayer = -1;
+							for ( unsigned nLayer = 0; nLayer < __maxLayers; ++nLayer ){
+								InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+								if ( pLayer == NULL ) continue;
+								
+								if ( min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+									  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
+								     shortestDistance ){
+									shortestDistance = min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+												abs( pLayer->get_start_velocity() - pNote->get_velocity() ) );
+									nearestLayer = nLayer;
+								}
+							}
+							// Check whether the search was
+							// successful and assign the
+							// results.
+							if ( nearestLayer > -1 ){
+								InstrumentLayer *pLayer = pCompo->get_layer( nearestLayer );
+								pSelectedLayer->SelectedLayer = nearestLayer;
+
+								// No loop needed in here.
+								// Since the note was in
+								// no layer in the first
+								// place, only one is
+								// sufficient.
+								__possibleIndex[__foundSamples] = nearestLayer;
+								__foundSamples++;
+							}
+						}
+
+						if( __foundSamples > 0 ) {
+							nAlreadySelectedLayer = __possibleIndex[rand() % __foundSamples];
 							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
 							InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
@@ -388,6 +465,48 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
 								__possibleIndex[__foundSamples] = nLayer;
+								__roundRobinID = pLayer->get_start_velocity();
+								__foundSamples++;
+							}
+						}
+
+						// In some instruments the start and end
+						// velocities of a layer are not set
+						// perfectly giving rise to some 'holes'.
+						// Occasionally the velocity of a note
+						// can fall into it causing the sampler
+						// to just skip it. Instead, we will search
+						// for the nearest sample and play this
+						// one instead.
+						if ( __foundSamples == 0 ){
+							WARNINGLOG( "Velocity did fall into a hole between the instrument layers." );
+							float shortestDistance = 1.0f;
+							int nearestLayer = -1;
+							for ( unsigned nLayer = 0; nLayer < __maxLayers; ++nLayer ){
+								InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
+								if ( pLayer == NULL ) continue;
+								
+								if ( min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+									  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
+								     shortestDistance ){
+									shortestDistance = min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+												abs( pLayer->get_start_velocity() - pNote->get_velocity() ) );
+									nearestLayer = nLayer;
+								}
+							}
+							// Check whether the search was
+							// successful and assign the
+							// results.
+							if ( nearestLayer > -1 ){
+								InstrumentLayer *pLayer = pCompo->get_layer( nearestLayer );
+								pSelectedLayer->SelectedLayer = nearestLayer;
+
+								// No loop needed in here.
+								// Since the note was in
+								// no layer in the first
+								// place, only one is
+								// sufficient.
+								__possibleIndex[__foundSamples] = nearestLayer;
 								__roundRobinID = pLayer->get_start_velocity();
 								__foundSamples++;
 							}
