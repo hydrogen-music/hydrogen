@@ -45,6 +45,7 @@
 #include <memory>
 
 const char* SoundLibraryImportDialog::__class_name = "SoundLibraryImportDialog";
+const int max_redirects = 30;
 
 SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool bOnlineImport )
  : QDialog( pParent )
@@ -329,11 +330,20 @@ void SoundLibraryImportDialog::reloadRepositoryData()
 void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	DownloadWidget drumkitList( this, trUtf8( "Updating SoundLibrary list..." ), repositoryCombo->currentText() );
-	drumkitList.exec();
+	QString downloadUrl = repositoryCombo->currentText();
+	QString sDrumkitXML;
 
-	QString sDrumkitXML = drumkitList.get_xml_content();
+	for (int i=0; i < max_redirects; i++) {
+		DownloadWidget drumkitList( this, trUtf8( "Updating SoundLibrary list..." ), downloadUrl);
+		drumkitList.exec();
 
+		if (!drumkitList.get_redirect_url().isEmpty()) {
+			downloadUrl = drumkitList.get_redirect_url().toEncoded();
+		} else if (!drumkitList.get_error()) {
+			sDrumkitXML = drumkitList.get_xml_content();
+			break;
+		}
+	}
 
 	/*
 	 * Hydrogen creates the following cache hierarchy to cache
@@ -609,7 +619,7 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 
 			bool Error = false;
 
-			for ( int i = 0; i < 30; ++i ) {
+			for ( int i = 0; i < max_redirects; ++i ) {
 				DownloadWidget dl( this, trUtf8( "Downloading SoundLibrary..." ), sURL, sLocalFile );
 				dl.exec();
 
