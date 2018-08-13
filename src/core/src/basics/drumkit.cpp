@@ -105,19 +105,28 @@ Drumkit* Drumkit::load_file( const QString& dk_path, bool load_samples )
 {
 	XMLDoc doc;
 	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path() ) ) {
-		Drumkit* d = Legacy::load_drumkit( dk_path );
-		WARNINGLOG( QString( "update drumkit %1" ).arg( dk_path ) );
-		d->save_file( dk_path, true, -1 );
-		return d;
+		Drumkit* pDrumkit = Legacy::load_drumkit( dk_path );
+		
+		if(pDrumkit != nullptr)
+		{
+			WARNINGLOG( QString( "update drumkit %1" ).arg( dk_path ) );
+			pDrumkit->save_file( dk_path, true, -1 );
+		}
+
+		return pDrumkit;
 	}
+	
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
 		ERRORLOG( "drumkit_info node not found" );
-		return NULL;
+		return nullptr;
 	}
-	Drumkit* drumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
-	if( load_samples ) drumkit->load_samples();
-	return drumkit;
+	
+	Drumkit* pDrumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
+	if( load_samples ){
+		pDrumkit->load_samples();
+	}
+	return pDrumkit;
 }
 
 Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
