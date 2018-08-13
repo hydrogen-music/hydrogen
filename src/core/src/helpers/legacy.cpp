@@ -29,17 +29,17 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 	}
 	XMLDoc doc;
 	if( !doc.read( dk_path ) ) {
-		return 0;
+		return nullptr;
 	}
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
 		ERRORLOG( "drumkit_info node not found" );
-		return 0;
+		return nullptr;
 	}
 	QString drumkit_name = root.read_string( "name", "", false, false );
 	if ( drumkit_name.isEmpty() ) {
 		ERRORLOG( "Drumkit has no name, abort" );
-		return 0;
+		return nullptr;
 	}
 	Drumkit* pDrumkit = new Drumkit();
 	pDrumkit->set_path( dk_path.left( dk_path.lastIndexOf( "/" ) ) );
@@ -64,7 +64,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				ERRORLOG( QString( "instrument count >= %2, stop reading instruments" ).arg( MAX_INSTRUMENTS ) );
 				break;
 			}
-			Instrument* pInstrument = 0;
+			Instrument* pInstrument = nullptr;
 			int id = instrument_node.read_int( "id", EMPTY_INSTR_ID, false, false );
 			if ( id!=EMPTY_INSTR_ID ) {
 				pInstrument = new Instrument( id, instrument_node.read_string( "name", "" ), 0 );
@@ -190,17 +190,17 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 	}
 	XMLDoc doc;
 	if( !doc.read( pattern_path ) ) {
-		return 0;
+		return nullptr;
 	}
 	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
 	if ( root.isNull() ) {
 		ERRORLOG( "drumkit_pattern node not found" );
-		return 0;
+		return nullptr;
 	}
 	XMLNode pattern_node = root.firstChildElement( "pattern" );
 	if ( pattern_node.isNull() ) {
 		WARNINGLOG( "pattern node not found" );
-		return 0;
+		return nullptr;
 	} else {
 		QString sName = pattern_node.read_string( "pattern_name", "" );
 		QString sInfo = pattern_node.read_string( "info", "" );
@@ -259,18 +259,18 @@ Playlist* Legacy::load_playlist( Playlist* pl, const QString& pl_path )
 	}
 	XMLDoc doc;
 	if( !doc.read( pl_path ) ) {
-		return 0;
+		return nullptr;
 	}
 	XMLNode root = doc.firstChildElement( "playlist" );
 	if ( root.isNull() ) {
 		ERRORLOG( "playlist node not found" );
-		return 0;
+		return nullptr;
 	}
 	QFileInfo fileInfo = QFileInfo( pl_path );
 	QString filename = root.read_string( "Name", "", false, false );
 	if ( filename.isEmpty() ) {
 		ERRORLOG( "Playlist has no name, abort" );
-		return 0;
+		return nullptr;
 	}
 
 	pl->setFilename( filename );
