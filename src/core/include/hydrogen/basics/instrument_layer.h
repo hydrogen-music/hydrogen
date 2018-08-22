@@ -153,11 +153,6 @@ inline float InstrumentLayer::get_end_velocity() const
 	return __end_velocity;
 }
 
-inline void InstrumentLayer::set_sample( Sample* sample )
-{
-	__sample = sample;
-}
-
 inline Sample* InstrumentLayer::get_sample() const
 {
 	return __sample;
@@ -167,4 +162,4 @@ inline Sample* InstrumentLayer::get_sample() const
 
 #endif // H2C_INSTRUMENT_LAYER_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

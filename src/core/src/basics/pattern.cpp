@@ -70,8 +70,8 @@ Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instru
 	INFOLOG( QString( "Load pattern %1" ).arg( pattern_path ) );
 	if ( !Filesystem::file_readable( pattern_path ) ) return 0;
 	XMLDoc doc;
-	if( !doc.read( pattern_path, Filesystem::drumkit_pattern_xsd() ) ) {
-		return Legacy::load_drumkit_pattern( pattern_path );
+	if( !doc.read( pattern_path, Filesystem::pattern_xsd_path() ) ) {
+		return Legacy::load_drumkit_pattern( pattern_path, instruments );
 	}
 	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
 	if ( root.isNull() ) {
@@ -89,11 +89,15 @@ Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instru
 Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 {
 	Pattern* pattern = new Pattern(
-		node->read_string( "name", "unknown", false, false ),
-		node->read_string( "info", "", false, false ),
-		node->read_string( "category", "unknown", false, false ),
-		node->read_int( "size", -1, false, false )
+	    node->read_string( "name", NULL, false, false ),
+	    node->read_string( "info", "", false, false ),
+	    node->read_string( "category", "unknown", false, false ),
+	    node->read_int( "size", -1, false, false )
 	);
+	// FIXME support legacy xml element pattern_name, should once be removed
+	if ( pattern->get_name().isEmpty() ) {
+	    pattern->set_name( node->read_string( "pattern_name", "unknown", false, false ) );
+	}
 	XMLNode note_list_node = node->firstChildElement( "noteList" );
 	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
@@ -108,40 +112,38 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 	return pattern;
 }
 
-bool Pattern::save_file( const QString& pattern_path, bool overwrite )
+bool Pattern::save_file( const QString& drumkit_name, const QString& author, const QString& license, const QString& pattern_path, bool overwrite )
 {
 	INFOLOG( QString( "Saving pattern into %1" ).arg( pattern_path ) );
-	if( Filesystem::file_exists( pattern_path, true ) && !overwrite ) {
+	if( !overwrite && Filesystem::file_exists( pattern_path, true ) ) {
 		ERRORLOG( QString( "pattern %1 already exists" ).arg( pattern_path ) );
 		return false;
 	}
 	XMLDoc doc;
-	doc.set_root( "drumkit_pattern", "drumkit_pattern" );
-	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
+	XMLNode root = doc.set_root( "drumkit_pattern", "drumkit_pattern" );
+	root.write_string( "drumkit_name", drumkit_name );				// FIXME loaded with LocalFileMng::getDrumkitNameForPattern(…)
+	root.write_string( "author", author );							// FIXME this is never loaded back
+	root.write_string( "license", license );						// FIXME this is never loaded back
 	save_to( &root );
 	return doc.write( pattern_path );
 }
 
-void Pattern::save_to( XMLNode* node )
+void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly )
 {
-	// TODO drumkit_name !!!!!!
-	node->write_string( "drumkit_name", "TODO" );
-	XMLNode pattern_node =  node->ownerDocument().createElement( "pattern" );
+	XMLNode pattern_node =  node->createNode( "pattern" );
 	pattern_node.write_string( "name", __name );
 	pattern_node.write_string( "info", __info );
 	pattern_node.write_string( "category", __category );
 	pattern_node.write_int( "size", __length );
-	XMLNode note_list_node =  pattern_node.ownerDocument().createElement( "noteList" );
+	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
+	int id = ( instrumentOnly == 0 ? -1 : instrumentOnly->get_id() );
 	for( notes_it_t it=__notes.begin(); it!=__notes.end(); ++it ) {
 		Note* note = it->second;
-		if( note ) {
-			XMLNode note_node = node->ownerDocument().createElement( "note" );
+		if( note && ( instrumentOnly == 0 || note->get_instrument()->get_id() == id ) ) {
+			XMLNode note_node = note_list_node.createNode( "note" );
 			note->save_to( &note_node );
-			note_list_node.appendChild( note_node );
 		}
 	}
-	pattern_node.appendChild( note_list_node );
-	node->appendChild( pattern_node );
 }
 
 Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict )
@@ -279,4 +281,4 @@ void Pattern::extand_with_flattened_virtual_patterns( PatternList* patterns )
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

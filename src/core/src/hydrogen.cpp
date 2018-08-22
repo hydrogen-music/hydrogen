@@ -42,7 +42,6 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
-#include <hydrogen/LocalFileMng.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/drumkit.h>
@@ -53,6 +52,7 @@
 #include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/automation_path.h>
 #include <hydrogen/hydrogen.h>
@@ -66,7 +66,6 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/sampler/Sampler.h>
 #include <hydrogen/midi_map.h>
-#include <hydrogen/playlist.h>
 #include <hydrogen/timeline.h>
 
 #ifdef H2CORE_HAVE_OSC
@@ -116,7 +115,7 @@ QMutex					mutex_OutputPointer;     ///< Mutex for audio output pointer, allows 
 MidiInput *				m_pMidiDriver = NULL;	///< MIDI input
 MidiOutput *			m_pMidiDriverOut = NULL;	///< MIDI output
 
-// overload the the > operator of Note objects for priority_queue
+// overload the > operator of Note objects for priority_queue
 struct compare_pNotes {
 	bool operator() (Note* pNote1, Note* pNote2) {
 		return (pNote1->get_humanize_delay()
@@ -263,7 +262,7 @@ void audioEngine_init()
 	srand( time( NULL ) );
 
 	// Create metronome instrument
-	QString sMetronomeFilename = Filesystem::click_file();
+	QString sMetronomeFilename = Filesystem::click_file_path();
 	m_pMetronomeInstrument =
 			new Instrument( METRONOME_INSTR_ID, "metronome" );
 	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( sMetronomeFilename ) );
@@ -1207,7 +1206,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 		}
 
 		// metronome
-		// if (  ( m_nPatternStartTick == tick ) || ( ( tick - m_nPatternStartTick ) % 48 == 0 ) ) 
+		// if (  ( m_nPatternStartTick == tick ) || ( ( tick - m_nPatternStartTick ) % 48 == 0 ) )
 		if ( m_nPatternTickPosition % 48 == 0 ) {
 			float fPitch;
 			float fVelocity;
@@ -1731,11 +1730,13 @@ Hydrogen::Hydrogen()
 	m_pTimeline = new Timeline();
 	m_pCoreActionController = new CoreActionController();
 
+
 	hydrogenInstance = this;
 
 	initBeatcounter();
-	// 	__instance = this;
+	InstrumentComponent::setMaxLayers( Preferences::get_instance()->getMaxLayers() );
 	audioEngine_init();
+
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
 
@@ -1759,12 +1760,15 @@ Hydrogen::~Hydrogen()
 
 #ifdef H2CORE_HAVE_OSC
 	NsmClient* pNsmClient = NsmClient::get_instance();
-
-	if(pNsmClient){
+	if( pNsmClient ) {
 		pNsmClient->shutdown();
+		delete pNsmClient;
+	}
+	OscServer* pOscServer = OscServer::get_instance();
+	if( pOscServer ) {
+		delete pOscServer;
 	}
 #endif
-
 
 	if ( m_audioEngineState == STATE_PLAYING ) {
 		audioEngine_stop();
@@ -1835,10 +1839,14 @@ void Hydrogen::sequencer_stop()
 	Preferences::get_instance()->setRecordEvents(false);
 }
 
-void Hydrogen::setPlaybackTrackState(bool state)
+bool Hydrogen::setPlaybackTrackState(bool state)
 {
 	Song* pSong = getSong();
-	pSong->set_playback_track_enabled(state);
+	if ( pSong == NULL ) {
+		return false;
+	}
+
+	return pSong->set_playback_track_enabled(state);
 }
 
 void Hydrogen::loadPlaybackTrack(QString filename)
@@ -2615,7 +2623,7 @@ bool Hydrogen::instrumentHasNotes( Instrument *pInst )
 	Song* pSong = getSong();
 	PatternList* pPatternList = pSong->get_pattern_list();
 
-	for ( int nPattern = 0 ; nPattern < (int)pPatternList->size() ; ++nPattern ) 
+	for ( int nPattern = 0 ; nPattern < (int)pPatternList->size() ; ++nPattern )
 	{
 		if( pPatternList->get( nPattern )->references( pInst ) )
 		{
@@ -2663,9 +2671,7 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
 			InstrumentComponent* pCompo = *it;
 			// remove all layers
-			for ( int nLayer = 0; nLayer < MAX_LAYERS; nLayer++ ) {
-				InstrumentLayer* pLayer = pCompo->get_layer( nLayer );
-				delete pLayer;
+			for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				pCompo->set_layer( NULL, nLayer );
 			}
 		}

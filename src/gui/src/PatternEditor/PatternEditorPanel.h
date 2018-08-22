@@ -68,7 +68,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		NotePropertiesRuler* getProbabilityEditor() {	return m_pNoteProbabilityEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 		PianoRollEditor* getPianoRollEditor() {		return m_pPianoRollEditor;	}
-		QString getPropertiesComboText(){ return __pPropertiesCombo->getText(); }
+		int getPropertiesComboValue(){ return __pPropertiesCombo->selected(); }
 
 		void updateSLnameLabel();
 		void displayorHidePrePostCB();
@@ -81,9 +81,9 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		//~ Implements EventListener interface
 
 	private slots:
-		void gridResolutionChanged( QString text );
-		void propertiesComboChanged( QString text );
-		void patternSizeChanged( QString text );
+		void gridResolutionChanged( int nSelected );
+		void propertiesComboChanged( int nSelected );
+		void patternSizeChanged( int nSelected );
 
 		void hearNotesBtnClick(Button *ref);
 		void quantizeEventsBtnClick(Button *ref);
@@ -174,7 +174,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		Button *			sizeDropdownBtn;
 		Button *			resDropdownBtn;
- 
+
 		bool				m_bEnablePatternResize;
 
 

@@ -140,4 +140,4 @@ class Object {
 
 #endif // H2C_OBJECT_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

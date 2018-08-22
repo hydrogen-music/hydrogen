@@ -103,7 +103,7 @@ private:
 	std::vector<Note*> __queuedNoteOffs;
 
 
-
+	int __maxLayers;
 
 	bool processPlaybackTrack(int nBufferSize);
 

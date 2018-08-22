@@ -175,7 +175,7 @@ void LadspaFXSelector::pluginSelected()
 #ifdef H2CORE_HAVE_LADSPA
 	//INFOLOG( "[pluginSelected]" );
 	//
-        
+
 	if ( m_pPluginsListBox->selectedItems().isEmpty() ) return;
 
 	QString sSelected = m_pPluginsListBox->currentItem()->text();

@@ -190,7 +190,7 @@ void Note::set_key_octave( const QString& str )
 	}
 	__octave = ( Octave )s_oct.toInt();
 	for( int i=KEY_MIN; i<=KEY_MAX; i++ ) {
-		if( __key_str[i]==s_key ){
+		if( __key_str[i]==s_key ) {
 			__key = ( Key )i;
 			return;
 		}
@@ -201,13 +201,13 @@ void Note::set_key_octave( const QString& str )
 void Note::dump()
 {
 	INFOLOG( QString( "Note : pos: %1\t humanize offset%2\t instr: %3\t key: %4\t pitch: %5" )
-			 .arg( __position )
-			 .arg( __humanize_delay )
-			 .arg( __instrument->get_name() )
-			 .arg( key_to_string() )
-			 .arg( __pitch )
-			 .arg( __note_off )
-		   );
+	         .arg( __position )
+	         .arg( __humanize_delay )
+	         .arg( __instrument->get_name() )
+	         .arg( key_to_string() )
+	         .arg( __pitch )
+	         .arg( __note_off )
+	       );
 }
 
 void Note::save_to( XMLNode* node )
@@ -228,13 +228,13 @@ void Note::save_to( XMLNode* node )
 Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 {
 	Note* note = new Note(
-		0,
-		node->read_int( "position", 0 ),
-		node->read_float( "velocity", 0.8f ),
-		node->read_float( "pan_L", 0.5f ),
-		node->read_float( "pan_R", 0.5f ),
-		node->read_int( "length", -1 ),
-		node->read_float( "pitch", 0.0f )
+	    0,
+	    node->read_int( "position", 0 ),
+	    node->read_float( "velocity", 0.8f ),
+	    node->read_float( "pan_L", 0.5f ),
+	    node->read_float( "pan_R", 0.5f ),
+	    node->read_int( "length", -1 ),
+	    node->read_float( "pitch", 0.0f )
 	);
 	note->set_lead_lag( node->read_float( "leadlag", 0, false, false ) );
 	note->set_key_octave( node->read_string( "key", "C0", false, false ) );
@@ -242,10 +242,10 @@ Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 	note->set_instrument_id( node->read_int( "instrument", EMPTY_INSTR_ID ) );
 	note->map_instrument( instruments );
 	note->set_probability( node->read_float( "probability", 1.0f ));
-	
+
 	return note;
 }
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

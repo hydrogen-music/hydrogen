@@ -76,7 +76,9 @@ Drumkit::Drumkit( Drumkit* other ) :
 
 Drumkit::~Drumkit()
 {
-	__components->clear();
+	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+		delete *it;
+	}
 	delete __components;
 
 	if( __instruments ) delete __instruments;
@@ -102,17 +104,29 @@ Drumkit* Drumkit::load( const QString& dk_dir, bool load_samples )
 Drumkit* Drumkit::load_file( const QString& dk_path, bool load_samples )
 {
 	XMLDoc doc;
-	if( !doc.read( dk_path, Filesystem::drumkit_xsd() ) ) {
-		return Legacy::load_drumkit( dk_path );
+	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path() ) ) {
+		Drumkit* pDrumkit = Legacy::load_drumkit( dk_path );
+		
+		if(pDrumkit != nullptr)
+		{
+			WARNINGLOG( QString( "update drumkit %1" ).arg( dk_path ) );
+			pDrumkit->save_file( dk_path, true, -1 );
+		}
+
+		return pDrumkit;
 	}
+	
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
 	if ( root.isNull() ) {
 		ERRORLOG( "drumkit_info node not found" );
-		return NULL;
+		return nullptr;
 	}
-	Drumkit* drumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
-	if( load_samples ) drumkit->load_samples();
-	return drumkit;
+	
+	Drumkit* pDrumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
+	if( load_samples ){
+		pDrumkit->load_samples();
+	}
+	return pDrumkit;
 }
 
 Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
@@ -146,8 +160,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 
 			componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
 		}
-	}
-	else {
+	} else {
 		WARNINGLOG( "componentList node not found" );
 		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
 		drumkit->get_components()->push_back(pDrumkitComponent);
@@ -182,14 +195,14 @@ void Drumkit::unload_samples( )
 }
 
 bool Drumkit::save( const QString&					name,
-					const QString&					author,
-					const QString&					info,
-					const QString&					license,
-					const QString& 					image,
-					const QString& 					imageLicense,
-					InstrumentList*					pInstruments,
-					std::vector<DrumkitComponent*>* pComponents,
-					bool overwrite )
+                    const QString&					author,
+                    const QString&					info,
+                    const QString&					license,
+                    const QString& 					image,
+                    const QString& 					imageLicense,
+                    InstrumentList*					pInstruments,
+                    std::vector<DrumkitComponent*>* pComponents,
+                    bool overwrite )
 {
 
 	Drumkit* pDrumkit = new Drumkit();
@@ -197,7 +210,7 @@ bool Drumkit::save( const QString&					name,
 	pDrumkit->set_author( author );
 	pDrumkit->set_info( info );
 	pDrumkit->set_license( license );
-	
+
 	// save the original path
 	QFileInfo fi( image );
 	pDrumkit->set_path( fi.absolutePath() );
@@ -220,12 +233,12 @@ bool Drumkit::save( const QString&					name,
 
 bool Drumkit::user_drumkit_exists( const QString& name)
 {
-	return Filesystem::file_exists( QString( Filesystem::usr_drumkits_dir() + "/" + name + "/drumkit.xml") , true /*silent*/);
+	return Filesystem::file_exists( Filesystem::drumkit_file( Filesystem::usr_drumkits_dir() + name ), true /*silent*/ );
 }
 
 bool Drumkit::save( bool overwrite )
 {
-	return  save( QString( Filesystem::usr_drumkits_dir() + "/" + __name ), overwrite );
+	return  save( QString( Filesystem::usr_drumkits_dir() + __name ), overwrite );
 }
 
 bool Drumkit::save( const QString& dk_dir, bool overwrite )
@@ -244,13 +257,12 @@ bool Drumkit::save( const QString& dk_dir, bool overwrite )
 bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_id )
 {
 	INFOLOG( QString( "Saving drumkit definition into %1" ).arg( dk_path ) );
-	if( Filesystem::file_exists( dk_path, true ) && !overwrite ) {
+	if( !overwrite && Filesystem::file_exists( dk_path, true ) ) {
 		ERRORLOG( QString( "drumkit %1 already exists" ).arg( dk_path ) );
 		return false;
 	}
 	XMLDoc doc;
-	doc.set_root( "drumkit_info", "drumkit" );
-	XMLNode root = doc.firstChildElement( "drumkit_info" );
+	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
 	save_to( &root, component_id );
 	return doc.write( dk_path );
 }
@@ -265,12 +277,11 @@ void Drumkit::save_to( XMLNode* node, int component_id )
 	node->write_string( "imageLicense", __imageLicense );
 
 	if( component_id == -1 ) {
-		XMLNode components_node = node->ownerDocument().createElement( "componentList" );
+		XMLNode components_node = node->createNode( "componentList" );
 		for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
 			DrumkitComponent* pComponent = *it;
 			pComponent->save_to( &components_node );
 		}
-		node->appendChild( components_node );
 	}
 	__instruments->save_to( node, component_id );
 }
@@ -288,7 +299,7 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 		for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
 			InstrumentComponent* component = *it;
 
-			for( int n = 0; n < MAX_LAYERS; n++ ) {
+			for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 				InstrumentLayer* layer = component->get_layer( n );
 				if( layer ) {
 					QString src = layer->get_sample()->get_filepath();
@@ -303,8 +314,7 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 							insertPosition = original_dst.lastIndexOf(".");
 
 
-						if(overwrite == false)
-						{
+						if(overwrite == false) {
 							// If the destination path already exists, try to use basename_1, basename_2, etc. instead of basename.
 							int tries = 0;
 							while( Filesystem::file_exists( dst, true )) {
@@ -333,14 +343,11 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 
 bool Drumkit::save_image( const QString& dk_dir, bool overwrite )
 {
-	if ( __image.length() > 0 )
-	{
+	if ( __image.length() > 0 ) {
 		QString src = __path + "/" + __image;
 		QString dst = dk_dir + "/" + __image;
-		if ( Filesystem::file_exists ( src ) ) 
-		{
-			if( !Filesystem::file_copy( src, dst ) ) 
-			{
+		if ( Filesystem::file_exists ( src ) ) {
+			if( !Filesystem::file_copy( src, dst ) ) {
 				ERRORLOG( QString( "Error copying %1 to %2").arg( src ).arg( dst ) );
 				return false;
 			}
@@ -357,7 +364,10 @@ void Drumkit::set_instruments( InstrumentList* instruments )
 
 void Drumkit::set_components( std::vector<DrumkitComponent*>* components )
 {
-	if( __components != 0 ) delete __components;
+	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
+		delete *it;
+	}
+	delete __components;
 	__components = components;
 }
 
@@ -390,14 +400,14 @@ void Drumkit::dump()
 	for ( int i=0; i<__instruments->size(); i++ ) {
 		Instrument* instrument = ( *__instruments )[i];
 		DEBUGLOG( QString( "  |- (%1 of %2) Name = %3" )
-				  .arg( i )
-				  .arg( __instruments->size()-1 )
-				  .arg( instrument->get_name() )
-				);
+		          .arg( i )
+		          .arg( __instruments->size()-1 )
+		          .arg( instrument->get_name() )
+		        );
 		for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
 			InstrumentComponent* component = *it;
 
-			for ( int j=0; j<MAX_LAYERS; j++ ) {
+			for ( int j = 0; j < InstrumentComponent::getMaxLayers(); j++ ) {
 				InstrumentLayer* layer = component->get_layer( j );
 				if ( layer ) {
 					Sample* sample = layer->get_sample();
@@ -438,11 +448,11 @@ bool Drumkit::install( const QString& path )
 		_ERRORLOG( QString( "archive_read_open_file() [%1] %2" ).arg( archive_errno( arch ) ).arg( archive_error_string( arch ) ) );
 		archive_read_close( arch );
 
-		#if ARCHIVE_VERSION_NUMBER < 3000000
-			archive_read_finish( arch );
-		#else
-			archive_read_free( arch );
-		#endif
+#if ARCHIVE_VERSION_NUMBER < 3000000
+		archive_read_finish( arch );
+#else
+		archive_read_free( arch );
+#endif
 
 		return false;
 	}
@@ -470,11 +480,11 @@ bool Drumkit::install( const QString& path )
 	}
 	archive_read_close( arch );
 
-	#if ARCHIVE_VERSION_NUMBER < 3000000
-		archive_read_finish( arch );
-	#else
-		archive_read_free( arch );
-	#endif
+#if ARCHIVE_VERSION_NUMBER < 3000000
+	archive_read_finish( arch );
+#else
+	archive_read_free( arch );
+#endif
 
 	return ret;
 #else // H2CORE_HAVE_LIBARCHIVE
@@ -526,4 +536,4 @@ bool Drumkit::install( const QString& path )
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

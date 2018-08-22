@@ -1,6 +1,4 @@
 
-FILE(GLOB_RECURSE hydrogen_H src/*.h)
-FILE(GLOB_RECURSE hydrogen_UIS src/*.ui)
 FILE(GLOB_RECURSE hydrogen_SRCS src/*.cpp)
 
 # add undiscovered dependencies to generated config.h
@@ -11,9 +9,6 @@ FOREACH( _file ${hydrogen_H} ${hydrogen_SRCS})
         ADD_FILE_DEPENDENCIES( ${_file} ${CMAKE_BINARY_DIR}/src/core/include/hydrogen/config.h)
     ENDIF()
 ENDFOREACH()
-
-QT5_WRAP_UI(hydrogen_UIS_H ${hydrogen_UIS})             # ui_ files are generated in CMAKE_CURRENT_BINARY_DIR
-QT5_WRAP_CPP(hydrogen_MOC ${hydrogen_H} OPTIONS -nw) 
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_BINARY_DIR}                 # ui_ headers
@@ -54,7 +49,6 @@ TARGET_LINK_LIBRARIES(hydrogen
 	hydrogen-core-${VERSION}
 	Qt5::Widgets
 )
-qt5_use_modules(hydrogen Widgets)
 ADD_DEPENDENCIES(hydrogen hydrogen-core-${VERSION})
 
 INSTALL(TARGETS hydrogen RUNTIME DESTINATION bin BUNDLE DESTINATION bin )

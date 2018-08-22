@@ -36,32 +36,28 @@ class LCDDisplay;
 
 class LCDCombo : public QWidget, public H2Core::Object
 {
-    H2_OBJECT
-	Q_OBJECT
+		H2_OBJECT
+		Q_OBJECT
 	public:
-		LCDCombo(QWidget *pParent, int digits = 5);
+		LCDCombo( QWidget *pParent, int digits = 5 );
 		~LCDCombo();
 
-		int count();
-		int length();
-		void update();
-		QString getText();
-		bool addItem(const QString &text );
+		bool addItem( const QString &text );
 		void addSeparator();
-		inline void insertItem(int index, const QString &text );
-		void set_text( const QString &text );
-		void set_text( const QString &text, bool );
+		int selected();
+		bool select(int idx );
+		bool select(int idx, bool emitValueChanged );
 
 
 	private slots:
-		void changeText(QAction*);
-		void onClick(Button*);
+		void changeText( QAction* );
+		void onClick( Button* );
 
 	signals:
-		void valueChanged( QString str );
+		void valueChanged( int idx );
 
 	private:
-		QStringList items;
+		QList<QAction*> actions;
 		LCDDisplay *display;
 		Button *button;
 		QMenu *pop;
@@ -69,7 +65,7 @@ class LCDCombo : public QWidget, public H2Core::Object
 		int active;
 		static const QString SEPARATOR;
 
-		virtual void mousePressEvent(QMouseEvent *ev);
+		virtual void mousePressEvent( QMouseEvent *ev );
 		virtual void wheelEvent( QWheelEvent * ev );
 };
 

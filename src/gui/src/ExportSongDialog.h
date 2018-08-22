@@ -31,6 +31,8 @@
 
 namespace H2Core {
 	class Instrument;
+	class Hydrogen;
+	class Preferences;
 }
 
 ///
@@ -43,43 +45,46 @@ class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public E
 
 	public:
 		ExportSongDialog(QWidget* parent);
-	~ExportSongDialog();
+		~ExportSongDialog();
 
+		virtual void progressEvent( int nValue );
 
-	virtual void progressEvent( int nValue );
-
-	bool b_QfileDialog;
 
 private slots:
-	void on_browseBtn_clicked();
-	void on_closeBtn_clicked();
-	void on_okBtn_clicked();
-	void on_exportNameTxt_textChanged(const QString& text);
-	void on_templateCombo_currentIndexChanged(int index );
-	void toggleRubberbandBatchMode(bool toggled);
-	void toggleTimeLineBPMMode(bool toggled);
-	void resampleComboBoIndexChanged(int index );
+	void		on_browseBtn_clicked();
+	void		on_closeBtn_clicked();
+	void		on_okBtn_clicked();
+	void		on_exportNameTxt_textChanged(const QString& text);
+	void		on_templateCombo_currentIndexChanged(int index);
+	void		toggleRubberbandBatchMode(bool toggled);
+	void		toggleTimeLineBPMMode(bool toggled);
+	void		resampleComboBoIndexChanged(int index);
 
 private:
 
-	void setResamplerMode(int index);
-	void calculateRubberbandTime();
-	bool checkUseOfRubberband();
+	void		setResamplerMode(int index);
+	void		calculateRubberbandTime();
+	bool		checkUseOfRubberband();
 	
-	bool currentInstrumentHasNotes();
-	QString findUniqueExportFilenameForInstrument(H2Core::Instrument* pInstrument);
-
-
-	void exportTracks();
+	void		saveSettingsToPreferences();
+	void		restoreSettingsFromPreferences();
 	
-	bool m_bExporting;
-	bool m_bExportTrackouts;
-	bool m_bOverwriteFiles;
-	uint m_nInstrument;
-	QString m_sExtension;
-	bool b_oldRubberbandBatchMode;
-	bool b_oldTimeLineBPMMode;
-	int m_oldInterpolation;
+	bool		currentInstrumentHasNotes();
+	QString		findUniqueExportFilenameForInstrument(H2Core::Instrument* pInstrument);
+
+	void		exportTracks();
+	
+	bool					m_bExporting;
+	bool					m_bExportTrackouts;
+	bool					m_bOverwriteFiles;
+	uint					m_nInstrument;
+	QString					m_sExtension;
+	bool					m_bOldRubberbandBatchMode;
+	bool					m_bOldTimeLineBPMMode;
+	int						m_nOldInterpolation;
+	bool					m_bQfileDialog;
+	H2Core::Hydrogen *		m_pEngine;
+	H2Core::Preferences*	m_pPreferences;
 };
 
 

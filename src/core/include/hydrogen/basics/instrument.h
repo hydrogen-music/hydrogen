@@ -52,8 +52,8 @@ class Instrument : public H2Core::Object
 	public:
 		enum SampleSelectionAlgo {
 			VELOCITY,
-			RANDOM,
-			ROUND_ROBIN
+			ROUND_ROBIN,
+			RANDOM
 		};
 
 		/**
@@ -257,7 +257,7 @@ class Instrument : public H2Core::Object
 
 		void set_apply_velocity( bool apply_velocity );
 		bool get_apply_velocity() const;
-		
+
 		bool is_currently_exported() const;
 		void set_currently_exported( bool isCurrentlyExported );
 
@@ -634,4 +634,4 @@ inline void Instrument::set_currently_exported( bool isCurrentlyExported )
 
 #endif // H2C_INSTRUMENT_H
 
-/* vim: set softtabstop=4 expandtab:  */
+/* vim: set softtabstop=4 noexpandtab:  */

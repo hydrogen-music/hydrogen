@@ -18,18 +18,18 @@ namespace H2Core
 class SilentMessageHandler : public QAbstractMessageHandler
 {
 public:
-    SilentMessageHandler()
-        : QAbstractMessageHandler(0)
-    {
-    }
+	SilentMessageHandler()
+		: QAbstractMessageHandler(0)
+	{
+	}
 
 protected:
-    virtual void handleMessage(QtMsgType type, const QString &description,
-                               const QUrl &identifier, const QSourceLocation &sourceLocation)
-    {
-        Q_UNUSED(type);
-        Q_UNUSED(identifier);
-    }
+	virtual void handleMessage(QtMsgType type, const QString &description,
+			const QUrl &identifier, const QSourceLocation &sourceLocation)
+	{
+		Q_UNUSED(type);
+		Q_UNUSED(identifier);
+	}
 
 };
 
@@ -38,6 +38,13 @@ const char* XMLNode::__class_name ="XMLNode";
 
 XMLNode::XMLNode() : Object( __class_name ) { }
 XMLNode::XMLNode( QDomNode node ) : Object( __class_name ), QDomNode( node ) { }
+
+XMLNode XMLNode::createNode( const QString& name )
+{
+	XMLNode node = this->ownerDocument().createElement( name );
+	appendChild( node );
+	return node;
+}
 
 QString XMLNode::read_child_node( const QString& node, bool inexistent_ok, bool empty_ok )
 {
@@ -101,6 +108,36 @@ bool XMLNode::read_bool( const QString& node, bool default_value, bool inexisten
 	} else {
 		return false;
 	}
+}
+
+QString XMLNode::read_text( bool empty_ok )
+{
+	QString text = toElement().text();
+	if ( !empty_ok && text.isEmpty() ) {
+		DEBUGLOG( QString( "XML node %1 should not be empty." ).arg( nodeName() ) );
+	}
+	return text;
+}
+
+QString XMLNode::read_attribute( const QString& attribute, const QString& default_value, bool inexistent_ok, bool empty_ok )
+{
+	QDomElement el = toElement();
+	if ( !inexistent_ok && !el.hasAttribute( attribute ) ) {
+		DEBUGLOG( QString( "XML node %1 attribute %2 should exists." ).arg( nodeName() ).arg( attribute ) );
+		return default_value;
+	}
+	QString attr = el.attribute( attribute );
+	if ( attr.isEmpty() ) {
+		if( !empty_ok ) DEBUGLOG( QString( "XML node %1 attribute %2 should not be empty." ).arg( nodeName() ).arg( attribute ) );
+		DEBUGLOG( QString( "Using default value %1 for attribute %2" ).arg( default_value ).arg( attribute ) );
+		return default_value;
+	}
+	return attr;
+}
+
+void XMLNode::write_attribute( const QString& attribute, const QString& value )
+{
+	toElement().setAttribute( attribute, value );
 }
 
 void XMLNode::write_child_node( const QString& node, const QString& text )
@@ -200,17 +237,20 @@ bool XMLDoc::write( const QString& filepath )
 
 	file.close();
 	return rv;
-};
+}
 
-void XMLDoc::set_root( const QString& node_name, const QString& xmlns )
+XMLNode XMLDoc::set_root( const QString& node_name, const QString& xmlns )
 {
 	QDomProcessingInstruction header = createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"" );
 	appendChild( header );
 	XMLNode root = createElement( node_name );
-	QDomElement el = root.toElement();
-	el.setAttribute( "xmlns",XMLNS_BASE+xmlns );
-	el.setAttribute( "xmlns:xsi",XMLNS_XSI );
+	if ( !xmlns.isEmpty() ) {
+		QDomElement el = root.toElement();
+		el.setAttribute( "xmlns",XMLNS_BASE+xmlns );
+		el.setAttribute( "xmlns:xsi",XMLNS_XSI );
+	}
 	appendChild( root );
+	return root;
 }
 
 };

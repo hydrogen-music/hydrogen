@@ -208,7 +208,7 @@ bool PatternList::check_name( QString patternName )
 	if (patternName == "") {
 		return false;
 	}
-	
+
 	for (uint i = 0; i < __patterns.size(); i++) {
 		if ( __patterns[i]->get_name() == patternName) {
 			return false;
@@ -220,22 +220,22 @@ bool PatternList::check_name( QString patternName )
 QString PatternList::find_unused_pattern_name( QString sourceName )
 {
 	QString unusedPatternNameCandidate;
-	
-	if( sourceName.isEmpty() ){
+
+	if( sourceName.isEmpty() ) {
 		sourceName = "Pattern 11";
 	}
-	
+
 	int i = 1;
 	QString suffix = "";
 	unusedPatternNameCandidate = sourceName;
-	
-	while( !check_name( unusedPatternNameCandidate + suffix ) ){
+
+	while( !check_name( unusedPatternNameCandidate + suffix ) ) {
 		suffix = " #" + QString::number(i);
 		i++;
 	}
-	
+
 	unusedPatternNameCandidate += suffix;
-	
+
 	return unusedPatternNameCandidate;
 }
 
@@ -243,4 +243,4 @@ QString PatternList::find_unused_pattern_name( QString sourceName )
 
 
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

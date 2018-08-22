@@ -23,6 +23,14 @@ class Filesystem : public H2Core::Object
 			is_writable=0x08,
 			is_executable=0x10
 		};
+		static const QString songs_ext;
+		static const QString scripts_ext;
+		static const QString patterns_ext;
+		static const QString playlist_ext;
+		static const QString songs_filter_name;
+		static const QString scripts_filter_name;
+		static const QString patterns_filter_name;
+		static const QString playlists_filter_name;
 
 		/**
 		 * check user and system filesystem usability
@@ -36,28 +44,29 @@ class Filesystem : public H2Core::Object
 		/** returns user data path */
 		static QString usr_data_path();
 
-		/** returns system core config path */
-		static QString sys_core_config();
-		/** returns user core config path */
-		static QString usr_core_config();
-		/** returns system gui config path */
-		static QString sys_gui_config();
-		/** returns user gui config path */
-		static QString usr_gui_config();
+		/** returns user ladspa paths */
+		static QStringList ladspa_paths();
+
+		/** returns system config path */
+		static QString sys_config_path();
+		/** returns user config path */
+		static QString usr_config_path();
 		/** returns system empty sample file path */
-		static QString empty_sample();
+		static QString empty_sample_path();
 		/** returns system empty song file path */
-		static QString empty_song();
+		static QString empty_song_path();
+		/** returns untitled song file name */
+		static QString untitled_song_file_name();
 		/** returns system click file path */
-		static QString click_file();
+		static QString click_file_path();
 		/** returns click file path from user directory if exists, otherwise from system */
-		static QString usr_click_file();
+		static QString usr_click_file_path();
 		/** returns the path to the drumkit XSD (xml schema definition) file */
-		static QString drumkit_xsd( );
-		/** returns the path to the drumkit pattern XSD (xml schema definition) file */
-		static QString drumkit_pattern_xsd( );
+		static QString drumkit_xsd_path( );
 		/** returns the path to the pattern XSD (xml schema definition) file */
-		static QString pattern_xsd( );
+		static QString pattern_xsd_path( );
+		/** returns the path to the playlist pattern XSD (xml schema definition) file */
+		static QString playlist_xsd_path( );
 
 		/** returns gui image path */
 		static QString img_dir();
@@ -65,16 +74,30 @@ class Filesystem : public H2Core::Object
 		static QString doc_dir();
 		/** returns internationalization path */
 		static QString i18n_dir();
+		/** returns user scripts path */
+		static QString scripts_dir();
 		/** returns user songs path */
 		static QString songs_dir();
+		/** returns user song path, add file extension */
+		static QString song_path( const QString& sg_name );
 		/** returns user patterns path */
 		static QString patterns_dir();
+		/** returns user patterns path for a specific drumkit */
+		static QString patterns_dir( const QString& dk_name );
+		/** returns user patterns path, add file extension*/
+		static QString pattern_path( const QString& dk_name, const QString& p_name );
+		/** returns user plugins path */
+		static QString plugins_dir();
 		/** returns system drumkits path */
 		static QString sys_drumkits_dir();
 		/** returns user drumkits path */
 		static QString usr_drumkits_dir();
 		/** returns user playlist path */
 		static QString playlists_dir();
+		/** returns user playlist path, add file extension */
+		static QString playlist_path( const QString& pl_name );
+		/** returns untitled playlist file name */
+		static QString untitled_playlist_file_name();
 		/** returns user cache path */
 		static QString cache_dir();
 		/** returns user repository cache path */
@@ -86,19 +109,19 @@ class Filesystem : public H2Core::Object
 		/** returns temp path */
 		static QString tmp_dir();
 		/**
-		 * touch a temporary file and return it's path
-		 * file path will be constructed like this : tmp_dir()/base.xxxxxx
+		 * touch a temporary file under tmp_dir() and return it's path.
+		 * if base has a suffix it will be preserved, spaces will be replaced by underscores.
 		 * \param base, part of the path
 		 */
-		static QString tmp_file( const QString& base );
+		static QString tmp_file_path( const QString& base );
 
 		/* DRUMKIT */
 		/** Checks if a given file is part of a kit in the soundlibrary or external */
 		static bool file_is_partof_drumkit( const QString& fname);
-		/** returns list of usable system drumkits ( see Filesystem::drumkits_list ) */
-		static QStringList sys_drumkits_list( );
-		/** returns list of usable user drumkits ( see Filesystem::drumkits_list ) */
-		static QStringList usr_drumkits_list( );
+		/** returns list of usable system drumkits ( see Filesystem::drumkit_list ) */
+		static QStringList sys_drumkit_list( );
+		/** returns list of usable user drumkits ( see Filesystem::drumkit_list ) */
+		static QStringList usr_drumkit_list( );
 		/**
 		 * returns true if the drumkit exists within usable system or user drumkits
 		 * \param dk_name the drumkit name
@@ -131,14 +154,25 @@ class Filesystem : public H2Core::Object
 		static QString drumkit_file( const QString& dk_path );
 
 		/* PATTERNS */
-		/** returns a list of existing patterns */
-		static QStringList patterns_list( );
+		/**
+		 * returns a list of existing drumkit sub dir into the patterns directory
+		 */
+		static QStringList pattern_drumkits();
+		/**
+		 * returns a list of existing patterns
+		 */
+		static QStringList pattern_list();
+		/**
+		 * returns a list of existing patterns
+		 * \param p_path the path to look for patterns in
+		 */
+		static QStringList pattern_list( const QString& path );
 
 		/* SONGS */
 		/** returns a list of existing songs */
-		static QStringList songs_list( );
+		static QStringList song_list( );
 		/** returns a list of existing songs, excluding the autosaved one */
-		static QStringList songs_list_cleared( );
+		static QStringList song_list_cleared( );
 		/**
 		 * returns true if the song file exists
 		 * \param sg_name the song name
@@ -147,6 +181,10 @@ class Filesystem : public H2Core::Object
 
 		/** send current settings information to logger with INFO severity */
 		static void info();
+
+		/* PLAYLISTS */
+		/** returns a list of existing playlists */
+		static QStringList playlist_list( );
 
 		/**
 		 * returns true if the given path is an existing regular file
@@ -226,7 +264,7 @@ class Filesystem : public H2Core::Object
 		 * returns a list of usable drumkits, which means having a readable drumkit.xml file
 		 * \param path the path to search in for drumkits
 		 */
-		static QStringList drumkits_list( const QString& path );
+		static QStringList drumkit_list( const QString& path );
 		/**
 		 * return true if all the asked permissions are ok
 		 * \param path the path to the file to check
@@ -237,10 +275,12 @@ class Filesystem : public H2Core::Object
 
 		static QString __sys_data_path;     ///< the path to the system files
 		static QString __usr_data_path;     ///< the path to the user files
+		static QString __usr_cfg_path;      ///< the path to the user config file
+		static QStringList __ladspa_paths;  ///< paths to laspa plugins
 };
 
 };
 
 #endif  // H2C_FILESYSTEM_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

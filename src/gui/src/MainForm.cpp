@@ -23,17 +23,17 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/version.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/playlist.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/smf/SMF.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/timeline.h>
-#include <hydrogen/LocalFileMng.h>
+#include <hydrogen/helpers/files.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/drumkit_component.h>
+#include <hydrogen/basics/playlist.h>
 
 #include <hydrogen/lilypond/lilypond.h>
 
@@ -225,7 +225,7 @@ MainForm::~MainForm()
 	file.remove();
 
 	//if a playlist is used, we save the last playlist-path to hydrogen.conf
-	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->get_filename() );
+	Preferences::get_instance()->setLastPlaylistFilename( Playlist::get_instance()->getFilename() );
 
 	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();
@@ -345,7 +345,9 @@ void MainForm::createMenuBar()
 	m_pViewMixerInstrumentRackAction->setCheckable( true );
 	update_instrument_checkbox( true );	// check it as Instrument panel is always open on start
 
-	m_pViewMenu->addAction( trUtf8("&Automation path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
+	m_pViewAutomationPathAction = m_pViewMenu->addAction( trUtf8("&Automation path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
+	m_pViewAutomationPathAction->setCheckable( true );
+	update_automation_checkbox();
 
 	m_pViewMenu->addSeparator();				// -----
 
@@ -540,7 +542,7 @@ void MainForm::action_file_save_as()
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	QFileDialog fd(this);
 	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setNameFilter( trUtf8("Hydrogen Song (*.h2song)") );
+	fd.setNameFilter( Filesystem::songs_filter_name );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setWindowTitle( trUtf8( "Save song" ) );
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
@@ -551,7 +553,7 @@ void MainForm::action_file_save_as()
 
 	if ( lastFilename.isEmpty() ) {
 		defaultFilename = pEngine->getSong()->__name;
-		defaultFilename += ".h2song";
+		defaultFilename += Filesystem::songs_ext;
 	}
 	else {
 		defaultFilename = lastFilename;
@@ -566,8 +568,8 @@ void MainForm::action_file_save_as()
 
 	if ( !filename.isEmpty() ) {
 		QString sNewFilename = filename;
-		if ( sNewFilename.endsWith(".h2song") == false ) {
-			filename += ".h2song";
+		if ( sNewFilename.endsWith( Filesystem::songs_ext ) == false ) {
+			filename += Filesystem::songs_ext;
 		}
 
 		song->set_filename(filename);
@@ -644,78 +646,54 @@ void MainForm::showUserManual()
 
 void MainForm::action_file_export_pattern_as()
 {
-	if ( ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) )
-	{
+	if ( ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
 	Hydrogen *engine = Hydrogen::get_instance();
-	int selectedpattern = engine->getSelectedPatternNumber();
 	Song *song = engine->getSong();
-	Pattern *pat = song->get_pattern_list()->get ( selectedpattern );
+	Pattern *pattern = song->get_pattern_list()->get( engine->getSelectedPatternNumber() );
 
-	Instrument *instr = song->get_instrument_list()->get ( 0 );
-	assert ( instr );
+	QDir dir = Preferences::get_instance()->__lastspatternDirectory;
 
-	QDir dir  = Preferences::get_instance()->__lastspatternDirectory;
-
-
+	QString title = tr( "Save Pattern as ..." );
 	QFileDialog fd(this);
-	fd.setFileMode ( QFileDialog::AnyFile );
-	fd.setNameFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
-	fd.setAcceptMode ( QFileDialog::AcceptSave );
-	fd.setWindowTitle ( trUtf8 ( "Save Pattern as ..." ) );
-	fd.setDirectory ( dir );
+	fd.setWindowTitle( title );
+	fd.setDirectory( dir );
+	fd.selectFile( pattern->get_name() );
+	fd.setFileMode( QFileDialog::AnyFile );
+	fd.setNameFilter( Filesystem::patterns_filter_name );
+	fd.setAcceptMode( QFileDialog::AcceptSave );
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::patterns_dir() ) );
+	fd.setDefaultSuffix( Filesystem::patterns_ext );
 
-
-
-	QString defaultPatternname = QString ( pat->get_name() );
-
-	fd.selectFile ( defaultPatternname );
-
-	LocalFileMng fileMng;
-	QString filename;
-	if ( fd.exec() == QDialog::Accepted )
-	{
-		filename = fd.selectedFiles().first();
-		QString tmpfilename = filename;
-		QString toremove = tmpfilename.section( '/', -1 );
-		QString newdatapath =  tmpfilename.replace( toremove, "" );
-		Preferences::get_instance()->__lastspatternDirectory = newdatapath;
+	if ( fd.exec() != QDialog::Accepted ) {
+		return;
 	}
 
-	if ( !filename.isEmpty() )
-	{
-		QString sNewFilename = filename;
-		if(sNewFilename.endsWith( ".h2pattern" ) ){
-			sNewFilename += "";
-		}
-		else{
-			sNewFilename += ".h2pattern";
-		}
-		QString patternname = sNewFilename;
-		QString realpatternname = filename;
-		QString realname = realpatternname.mid( realpatternname.lastIndexOf( "/" ) + 1 );
-		if ( realname.endsWith( ".h2pattern" ) )
-			realname.replace( ".h2pattern", "" );
-		pat->set_name(realname);
-		HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
-		int err = fileMng.savePattern ( song, engine->getCurrentDrumkitname(), selectedpattern, patternname, realname, 2 );
-		if ( err != 0 )
-		{
-			QMessageBox::warning( this, "Hydrogen", trUtf8("Could not export pattern.") );
-			_ERRORLOG ( "Error saving the pattern" );
-		}
-	}
-	h2app->setStatusBarMessage ( trUtf8 ( "Pattern saved." ), 10000 );
+	QFileInfo fileInfo = fd.selectedFiles().first();
+	Preferences::get_instance()->__lastspatternDirectory =  fileInfo.path();
+	QString filePath = fileInfo.absoluteFilePath();
 
-	//update SoundlibraryPanel
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+	QString originalName = pattern->get_name();
+	pattern->set_name( fileInfo.baseName() );
+	QString path = Files::savePatternPath( filePath, pattern, song, engine->getCurrentDrumkitname() );
+	pattern->set_name( originalName );
+
+	if ( path.isEmpty() ) {
+		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
+		return;
+	}
+
+	h2app->setStatusBarMessage( tr( "Pattern saved." ), 10000 );
+
+	if ( filePath.indexOf( Filesystem::patterns_dir() ) == 0 ) {
+		SoundLibraryDatabase::get_instance()->updatePatterns();
+		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
+		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+
+	}
 }
-
-
 
 void MainForm::action_file_open() {
 	if ( ((Hydrogen::get_instance())->getState() == STATE_PLAYING) ) {
@@ -727,13 +705,13 @@ void MainForm::action_file_open() {
 		return;
 	}
 
-	static QString lastUsedDir = Preferences::get_instance()->getDataDirectory() + "/songs";
+	static QString lastUsedDir = Filesystem::songs_dir();
 
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::ExistingFile);
-	fd.setNameFilter( trUtf8("Hydrogen Song (*.h2song)") );
 	fd.setDirectory( lastUsedDir );
+	fd.setNameFilter( Filesystem::songs_filter_name );
 
 	fd.setWindowTitle( trUtf8( "Open song" ) );
 
@@ -758,15 +736,15 @@ void MainForm::action_file_openPattern()
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
+	int selectedPatternPosition = pEngine->getSelectedPatternNumber();
 
 	Instrument *instr = pSong->get_instrument_list()->get ( 0 );
 	assert ( instr );
 
-	QDir dirPattern( Preferences::get_instance()->getDataDirectory() + "/patterns" );
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFile );
-	fd.setNameFilter ( trUtf8 ( "Hydrogen Pattern (*.h2pattern)" ) );
-	fd.setDirectory ( dirPattern );
+	fd.setDirectory ( Filesystem::patterns_dir() );
+	fd.setNameFilter( Filesystem::patterns_filter_name );
 
 	fd.setWindowTitle ( trUtf8 ( "Open Pattern" ) );
 
@@ -778,8 +756,7 @@ void MainForm::action_file_openPattern()
 	}
 	QString patternname = filename;
 
-	LocalFileMng fileMng;
-	Pattern* err = fileMng.loadPattern ( patternname );
+	Pattern* err = Pattern::load_file( patternname, pSong->get_instrument_list() );
 	if ( err == 0 )
 	{
 		_ERRORLOG( "Error loading the pattern" );
@@ -792,13 +769,10 @@ void MainForm::action_file_openPattern()
 		if(!pPatternList->check_name( pNewPattern->get_name() ) ){
 			pNewPattern->set_name( pPatternList->find_unused_pattern_name( pNewPattern->get_name() ) );
 		}
-
-		pPatternList->add ( pNewPattern );
-		pSong->set_is_modified( true );
-		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
+		SE_insertPatternAction*action =
+				new SE_insertPatternAction( selectedPatternPosition + 1, pNewPattern );
+		HydrogenApp::get_instance()->m_undoStack->push( action );
 	}
-
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
 }
 
 /// \todo parametrizzare il metodo action_file_open ed eliminare il seguente...
@@ -816,11 +790,11 @@ void MainForm::action_file_openDemo()
 	h2app->m_undoStack->clear();
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::ExistingFile);
-	fd.setNameFilter( trUtf8("Hydrogen Song (*.h2song)") );
+	fd.setNameFilter( Filesystem::songs_filter_name );
 
 	fd.setWindowTitle( trUtf8( "Open song" ) );
 
-	fd.setDirectory( QString( Preferences::get_instance()->getDemoPath() ) );
+	fd.setDirectory( Filesystem::demos_dir() );
 
 
 	QString filename;
@@ -1040,9 +1014,9 @@ void MainForm::action_instruments_saveLibrary()
 	Drumkit *drumkitInfo = NULL;
 
 	//User drumkit list
-	QStringList usr_dks = Filesystem::usr_drumkits_list();
+	QStringList usr_dks = Filesystem::usr_drumkit_list();
 	for (int i = 0; i < usr_dks.size(); ++i) {
-		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks[i];
+		QString absPath = Filesystem::usr_drumkits_dir() + usr_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {
 			if ( QString(pInfo->get_name() ) == sDrumkitName ){
@@ -1053,9 +1027,9 @@ void MainForm::action_instruments_saveLibrary()
 	}
 
 	//System drumkit list
-	QStringList sys_dks = Filesystem::sys_drumkits_list();
+	QStringList sys_dks = Filesystem::sys_drumkit_list();
 	for (int i = 0; i < sys_dks.size(); ++i) {
-		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sys_dks[i];
+		QString absPath = Filesystem::sys_drumkits_dir() + sys_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {
 			if ( QString( pInfo->get_name() ) == sDrumkitName ){
@@ -1142,6 +1116,16 @@ void MainForm::update_instrument_checkbox( bool show )
 	m_pViewMixerInstrumentRackAction->setChecked( show );
 }
 
+void MainForm::update_automation_checkbox()
+{
+	Preferences *pref = Preferences::get_instance();
+	
+	if(pref->getShowAutomationArea()){
+		m_pViewAutomationPathAction->setChecked(true);	
+	} else {
+		m_pViewAutomationPathAction->setChecked(false);
+	}
+}
 
 void MainForm::closeAll() {
 	// save window properties in the preferences files
@@ -1534,13 +1518,13 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			break;
 
 		case  Qt::Key_F5 :
-			if( engine->m_PlayList.size() == 0)
+			if( Playlist::get_instance()->size() == 0)
 				break;
 			return handleSelectNextPrevSongOnPlaylist( -1 );
 			break;
 
 		case  Qt::Key_F6 :
-			if( Hydrogen::get_instance()->m_PlayList.size() == 0)
+			if( Playlist::get_instance()->size() == 0)
 				break;
 			return handleSelectNextPrevSongOnPlaylist( 1 );
 			break;
@@ -1655,7 +1639,7 @@ void MainForm::action_file_export_lilypond()
 					"Hydrogen",
 					trUtf8( "\nThe LilyPond export is an experimental feature.\n"
 									"It should work like a charm provided that you use the "
-									"GM-kit, and that you do not use triplet\n" ),
+									"GM-kit, and that you do not use triplet.\n" ),
 					trUtf8( "Ok" ),
 					trUtf8( "&Cancel" ),
 					0,
@@ -1840,7 +1824,7 @@ void MainForm::onAutoSaveTimer()
 
 void MainForm::onPlaylistDisplayTimer()
 {
-	if( Hydrogen::get_instance()->m_PlayList.size() == 0)
+	if( Playlist::get_instance()->size() == 0)
 		return;
 	int songnumber = Playlist::get_instance()->getActiveSongNumber();
 	QString songname;
@@ -1960,7 +1944,7 @@ void MainForm::undoRedoActionEvent( int nEvent ){
 
 bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 {
-	int playlistSize= Hydrogen::get_instance()->m_PlayList.size();
+	int playlistSize = Playlist::get_instance()->size();
 
 	HydrogenApp* app = HydrogenApp::get_instance();
 	int songnumber = Playlist::get_instance()->getActiveSongNumber();
@@ -1979,9 +1963,9 @@ void MainForm::action_banks_properties()
 	Drumkit *drumkitInfo = NULL;
 
 	//User drumkit list
-	QStringList usr_dks = Filesystem::usr_drumkits_list();
+	QStringList usr_dks = Filesystem::usr_drumkit_list();
 	for (int i = 0; i < usr_dks.size(); ++i) {
-		QString absPath = Filesystem::usr_drumkits_dir() + "/" + usr_dks[i];
+		QString absPath = Filesystem::usr_drumkits_dir() + usr_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {
 			if ( QString(pInfo->get_name() ) == sDrumkitName ){
@@ -1992,9 +1976,9 @@ void MainForm::action_banks_properties()
 	}
 
 	//System drumkit list
-	QStringList sys_dks = Filesystem::sys_drumkits_list();
+	QStringList sys_dks = Filesystem::sys_drumkit_list();
 	for (int i = 0; i < sys_dks.size(); ++i) {
-		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sys_dks[i];
+		QString absPath = Filesystem::sys_drumkits_dir() + sys_dks[i];
 		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {
 			if ( QString( pInfo->get_name() ) == sDrumkitName ){

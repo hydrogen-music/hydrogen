@@ -1,6 +1,13 @@
-hydrogen (1.0.0-alpha) unstable; urgency=low
+hydrogen (1.0.0-beta) unstable; urgency=low
     * Release 1.0
     * QT5 support
+    * Midi feedback
+    * OSC support (incl. feedback)
+    * Playback track
+    * Menu redesign
+    * Note probability property
+    * Velocity automation
+    * Full screen mode 
 
 
     * Release 0.9.7

@@ -84,7 +84,7 @@ Download::~Download()
 {
 }
 
-/// TODO: devo salvare il file sul disco su una dir temporanea e poi spostarlo se e' tutto ok.
+/// TODO: I have to save the file to disk on a temporary dir and then move it if everything is ok.
 void Download::finished()
 {
 	if ( __reply->error() ) {
@@ -106,6 +106,7 @@ void Download::finished()
 
 			__redirect_url = __remote_url.resolved(RedirectAttribute.toUrl());
 			__reply->deleteLater();
+			INFOLOG( QString( "Download redirected to '%1'" ).arg( __redirect_url.toString() ) );
 
 			reject();
 			return;

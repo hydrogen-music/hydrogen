@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.hydrogen-music.org/playlist"
+	xmlns:h2="http://www.hydrogen-music.org/playlist"
+	elementFormDefault="qualified">
+
+<!-- BOOL -->
+<xsd:simpleType name="bool">
+	<xsd:restriction base="xsd:string">
+		<xsd:enumeration value="true"/>
+		<xsd:enumeration value="false"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+<!-- NOTE -->
+<xsd:element name="song">
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element name="path"			type="xsd:string"/>
+			<xsd:element name="scriptPath"		type="xsd:string"/>
+			<xsd:element name="scriptEnabled"	type="h2:bool"		default="false"/>
+		</xsd:sequence>
+</xsd:complexType>
+</xsd:element>
+
+<!-- PLAYLIST -->
+<xsd:element name="playlist">
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element name="name"			type="xsd:string"/>
+			<xsd:element name="songs">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element ref="h2:song" maxOccurs="1000"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:element>
+
+</xsd:schema>

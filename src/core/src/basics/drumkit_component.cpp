@@ -102,7 +102,7 @@ float DrumkitComponent::get_out_R( int nBufferPos )
 
 void DrumkitComponent::load_from( DrumkitComponent* component, bool is_live )
 {
-	if ( is_live ){
+	if ( is_live ) {
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 	}
 
@@ -111,7 +111,7 @@ void DrumkitComponent::load_from( DrumkitComponent* component, bool is_live )
 	this->set_muted( component->is_muted() );
 	this->set_volume( component->get_volume() );
 
-	if ( is_live ){
+	if ( is_live ) {
 		AudioEngine::get_instance()->unlock();
 	}
 }
@@ -119,7 +119,7 @@ void DrumkitComponent::load_from( DrumkitComponent* component, bool is_live )
 DrumkitComponent* DrumkitComponent::load_from( XMLNode* node, const QString& dk_path )
 {
 	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
-	if ( id==EMPTY_INSTR_ID ){
+	if ( id==EMPTY_INSTR_ID ) {
 		return 0;
 	}
 
@@ -131,11 +131,10 @@ DrumkitComponent* DrumkitComponent::load_from( XMLNode* node, const QString& dk_
 
 void DrumkitComponent::save_to( XMLNode* node )
 {
-	XMLNode ComponentNode = node->ownerDocument().createElement( "drumkitComponent" );
+	XMLNode ComponentNode = node->createNode( "drumkitComponent" );
 	ComponentNode.write_int( "id", __id );
 	ComponentNode.write_string( "name", __name );
 	ComponentNode.write_float( "volume", __volume );
-	node->appendChild( ComponentNode );
 }
 
 };

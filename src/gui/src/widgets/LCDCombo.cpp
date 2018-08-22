@@ -28,132 +28,64 @@
 
 #include <hydrogen/globals.h>
 
-const QString LCDCombo::SEPARATOR("--sep--");
 const char* LCDCombo::__class_name = "LCDCombo";
 
-LCDCombo::LCDCombo(QWidget *pParent, int digits)
- : QWidget(pParent)
- , Object( __class_name ) //, SEPARATOR("--sep--")
+LCDCombo::LCDCombo( QWidget *pParent, int digits )
+	: QWidget(pParent)
+	, Object( __class_name )
 {
 	INFOLOG( "INIT" );
 
-	QStringList items;
-	display = new LCDDisplay( this, LCDDigit::SMALL_BLUE, digits, false);
+	display = new LCDDisplay( this, LCDDigit::SMALL_BLUE, digits, false );
 	button = new Button( this,
-			"/patternEditor/btn_dropdown_on.png",
-			"/patternEditor/btn_dropdown_off.png",
-			"/patternEditor/btn_dropdown_over.png",
-			QSize(13, 13)
-	);
+	                     "/patternEditor/btn_dropdown_on.png",
+	                     "/patternEditor/btn_dropdown_off.png",
+	                     "/patternEditor/btn_dropdown_over.png",
+	                     QSize(13, 13)
+	                   );
 	pop = new QMenu( this );
 	size = digits;
-	active = 0;
+	active = -1;
 
-	button->move( ( digits * 8 ) + 5 , 1 );
+	button->move( ( digits * 8 ) + 5, 1 );
 	setFixedSize( ( digits * 8 ) + 17, display->height() );
 
 	connect( button, SIGNAL( clicked( Button* ) ), this, SLOT( onClick( Button* ) ) );
-
-	update();
-
 	connect( pop, SIGNAL( triggered(QAction*) ), this, SLOT( changeText(QAction*) ) );
-	//_WARNINGLOG("items:"+items[0]);
 }
-
-
-
 
 LCDCombo::~LCDCombo()
 {
 }
 
-
-QString LCDCombo::getText()
+void LCDCombo::changeText( QAction* pAction )
 {
-	return display->getText();
-};
-
-
-void LCDCombo::changeText(QAction* pAction)
-{
-	//_WARNINGLOG("triggered");
-// 	display->setText(pAction->text());
-// 	emit valueChanged( pAction->text() );
-	set_text( pAction->text() );
+	select( actions.indexOf(pAction) );
 }
 
-
-
-void LCDCombo::onClick(Button*)
+void LCDCombo::onClick( Button* )
 {
 	pop->popup( display->mapToGlobal( QPoint( 1, display->height() + 2 ) ) );
 }
 
-
-
-int LCDCombo::length()
-{
-	return size;
-}
-
-
-
-void LCDCombo::update()
-{
-	//INFOLOG ( "update: "+toString(items.size()) );
-	pop->clear();
-
-	for( int i = 0; i < items.size(); i++ ) {
-		if ( items.at(i) != SEPARATOR ){
-			pop->addAction( items.at(i) );
-		}else{
-			pop->addSeparator();
-		}
-	}
-
-}
-
-
-
-int LCDCombo::count()
-{
-	return items.size();
-}
-
-
-
 bool LCDCombo::addItem( const QString &text )
 {
 	//INFOLOG( "add item" );
-
-	if ( text.size() <= size ){
-		items.append( text );
+	if ( text.size() <= size ) {
+		actions.append( pop->addAction( text ) );
 		return true;
-	}else{
+	} else {
+		WARNINGLOG(QString( "'%1' is > %2").arg( text ).arg( size ) );
 		return false;
 	}
 }
 
-
-
 void LCDCombo::addSeparator()
 {
-	items.append( SEPARATOR );
+	actions.append( pop->addSeparator() );
 }
 
-
-
-inline void LCDCombo::insertItem( int index, const QString &text )
-{
-	if(text.size()<=length()){
-		items.insert(index,text);
-		update();
-	}
-}
-
-
-
-void LCDCombo::mousePressEvent(QMouseEvent *ev)
+void LCDCombo::mousePressEvent( QMouseEvent *ev )
 {
 	UNUSED( ev );
 	pop->popup( display->mapToGlobal( QPoint( 1, display->height() + 2 ) ) );
@@ -162,45 +94,37 @@ void LCDCombo::mousePressEvent(QMouseEvent *ev)
 void LCDCombo::wheelEvent( QWheelEvent * ev )
 {
 	ev->ignore();
-	const int n = items.size();
+	const int n = actions.size();
 	const int d = ( ev->delta() > 0 ) ? -1: 1;
-	active = ( n + active + d ) % n;
-	if ( items.at( active ) == SEPARATOR )
-		active = ( n + active + d ) % n;
-	set_text( items.at( active ) );
+	int next = ( n + active + d ) % n;
+	if ( actions.at( next )->isSeparator() )
+		next = ( n + next + d ) % n;
+	select( next );
 }
 
-
-void LCDCombo::set_text( const QString &text)
+int LCDCombo::selected()
 {
-	if (display->getText() == text) {
-		return;
-	}
-	//INFOLOG( text );
-	display->setText( text );
-	for ( int i = 0; i < items.size(); i++ ) {
-		if ( items.at(i) == text )
-			active = i;
-	}
-	
-	emit valueChanged( text );
-
+	return active;
 }
 
-void LCDCombo::set_text( const QString &text, bool emit_on_change)
+bool LCDCombo::select( int idx )
 {
-	if (display->getText() == text) {
-		return;
-	}
-	//INFOLOG( text );
-	display->setText( text );
-	for ( int i = 0; i < items.size(); i++ ) {
-		if ( items.at(i) == text )
-			active = i;
-	}
-	
-	if(emit_on_change)
-		emit valueChanged( text );
+	return select(idx, true);
 }
 
+bool LCDCombo::select( int idx, bool emitValueChanged )
+{
+	if (active == idx)
+		return false;
 
+	if (idx < 0 || idx >= actions.size()) {
+		WARNINGLOG(QString("out of index %1 >= %2").arg(idx).arg(actions.size()));
+		return false;
+	}
+
+	active = idx;
+	display->setText( actions.at( idx )->text() );
+	if ( emitValueChanged )
+		emit valueChanged( idx );
+	return true;
+}

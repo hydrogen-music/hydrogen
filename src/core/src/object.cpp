@@ -159,4 +159,4 @@ void Object::write_objects_map_to( std::ostream& out ) {
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

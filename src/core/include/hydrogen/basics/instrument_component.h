@@ -24,6 +24,7 @@
 #define H2C_INSTRUMENTCOMPONENT_H
 
 #include <cassert>
+#include <vector>
 
 #include <hydrogen/object.h>
 
@@ -67,12 +68,16 @@ class InstrumentComponent : public H2Core::Object
 		//void set_volume( float volume );
 		//float get_volume() const;
 
+		static int getMaxLayers( );
+		static void setMaxLayers( int layers );
+
 	private:
 		int __related_drumkit_componentID;
 		//QString __name;
 		float __gain;
 		//float __volume;
-		InstrumentLayer* __layers[MAX_LAYERS];
+		static int maxLayers;
+		std::vector<InstrumentLayer*> __layers;
 };
 
 // DEFINITIONS
@@ -99,20 +104,14 @@ inline float InstrumentComponent::get_gain() const
 
 inline InstrumentLayer* InstrumentComponent::operator[]( int idx )
 {
-	assert( idx>=0 && idx <MAX_LAYERS );
+	assert( idx >= 0 && idx < maxLayers );
 	return __layers[ idx ];
 }
 
 inline InstrumentLayer* InstrumentComponent::get_layer( int idx )
 {
-	assert( idx>=0 && idx <MAX_LAYERS );
+	assert( idx >= 0 && idx < maxLayers );
 	return __layers[ idx ];
-}
-
-inline void InstrumentComponent::set_layer( InstrumentLayer* layer, int idx )
-{
-	assert( idx>=0 && idx <MAX_LAYERS );
-	__layers[ idx ] = layer;
 }
 
 };

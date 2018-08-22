@@ -73,15 +73,13 @@ Sample::Sample( Sample* pOther ): Object( __class_name ),
 	memcpy( __data_r, pOther->get_data_r(), __frames );
 
 	PanEnvelope* pPan = pOther->get_pan_envelope();
-	for( int i=0; i<pPan->size(); i++ )
-	{
+	for( int i=0; i<pPan->size(); i++ ) {
 		__pan_envelope.push_back( pPan->at( i ) );
 	}
 
 
 	PanEnvelope* pVelocity = pOther->get_velocity_envelope();
-	for( int i=0; i<pVelocity->size(); i++ )
-	{
+	for( int i=0; i<pVelocity->size(); i++ ) {
 		__velocity_envelope.push_back( pVelocity->at( i ) );
 	}
 }
@@ -102,21 +100,27 @@ void Sample::set_filename( const QString& filename )
 
 Sample* Sample::load( const QString& filepath )
 {
+	Sample* pSample = nullptr;
+	
 	if( !Filesystem::file_readable( filepath ) ) {
 		ERRORLOG( QString( "Unable to read %1" ).arg( filepath ) );
-		return 0;
+	} else {
+		pSample = new Sample( filepath );
+		pSample->load();
 	}
-	Sample* sample = new Sample( filepath );
-	sample->load();
-	return sample;
+	
+	return pSample;
 }
 
 Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan )
 {
-	Sample* sample = Sample::load( filepath );
-	if( !sample ) return 0;
-	sample->apply( loops, rubber, velocity, pan );
-	return sample;
+	Sample* pSample = Sample::load( filepath );
+	
+	if( pSample ){
+		pSample->apply( loops, rubber, velocity, pan );
+	}
+
+	return pSample;
 }
 
 void Sample::apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan )
@@ -352,7 +356,7 @@ void Sample::apply_rubberband( const Rubberband& rb )
 		//___DEBUGLOG( QString(" ibs : %1").arg( ibs ) );
 		float tempIbufL[ibs];
 		float tempIbufR[ibs];
-		for(int i = 0 ;i < ibs; i++){
+		for(int i = 0 ; i < ibs; i++) {
 			tempIbufL[i] = __data_l[i + studied];
 			tempIbufR[i] = __data_r[i + studied];
 		}
@@ -376,7 +380,7 @@ void Sample::apply_rubberband( const Rubberband& rb )
 		int ibs = (final ? (__frames-processed) : block_size );
 		float tempIbufL[ibs];
 		float tempIbufR[ibs];
-		for(int i = 0 ;i < ibs; i++){
+		for(int i = 0 ; i < ibs; i++) {
 			tempIbufL[i] = __data_l[i + processed];
 			tempIbufR[i] = __data_r[i + processed];
 		}
@@ -473,12 +477,12 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 		QString rubberResultPath = QDir::tempPath() + "/tmp_rb_result_file.wav";
 
 		arguments << "-D" << QString( " %1" ).arg( durationtime ) 	//stretch or squash to make output file X seconds long
-				  << "--threads"					//assume multi-CPU even if only one CPU is identified
-				  << "-P"						//aim for minimal time distortion
-				  << "-f" << rPs					//pitch
-				  << "-c" << rCs					//"crispness" levels
-				  << outfilePath 					//infile
-				  << rubberResultPath;					//outfile
+		          << "--threads"					//assume multi-CPU even if only one CPU is identified
+		          << "-P"						//aim for minimal time distortion
+		          << "-f" << rPs					//pitch
+		          << "-c" << rCs					//"crispness" levels
+		          << outfilePath 					//infile
+		          << rubberResultPath;					//outfile
 
 		pRrubberbandProc->start( program, arguments );
 
@@ -708,4 +712,4 @@ static RubberBand::RubberBandStretcher::Options compute_rubberband_options( cons
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

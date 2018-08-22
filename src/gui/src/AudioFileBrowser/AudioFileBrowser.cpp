@@ -70,7 +70,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 	m_pSampleFilename = "";
 	m_pSelectedFile << "false" << "false";
 
-	m_sEmptySampleFilename = Filesystem::empty_sample();
+	m_sEmptySampleFilename = Filesystem::empty_sample_path();
 
 	m_pPathUptoolButton->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/go-up.png"));
 	m_pPathUptoolButton->setToolTip( QString("Parent Folder"));
@@ -222,7 +222,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 	pathLineEdit->setText( path );
 	m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFilename );
 
-	updateModelIndex(); //with this you have a navigation like konqueror 
+	updateModelIndex(); //with this you have a navigation like konqueror
 
 	if ( m_pDirModel->isDir( index ) ){
 		m_pPlayBtn->setEnabled( false );
@@ -230,7 +230,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 		return;
 	}
 
-	QString name = path.section( '/', -1 ); 
+	QString name = path.section( '/', -1 );
 	
 	QString path2 = path;
 	QString onlyPath = path;

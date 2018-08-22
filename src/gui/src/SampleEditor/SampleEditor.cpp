@@ -149,7 +149,7 @@ SampleEditor::~SampleEditor()
 void SampleEditor::closeEvent(QCloseEvent *event)
 {
 	if ( !m_pSampleEditorStatus ){
-		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. This changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. These changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
 		if ( err == 0 ){
 			m_pSampleEditorStatus = true;
 			accept();
@@ -190,7 +190,7 @@ void SampleEditor::getAllFrameInfos()
 		pSample = pLayer->get_sample();
 	}
 
-//this values are needed if we restore a sample from from disk if a new song with sample changes will load
+//this values are needed if we restore a sample from disk if a new song with sample changes will load
 	m_sample_is_modified = pSample->get_is_modified();
 	m_pSamplerate = pSample->get_sample_rate();
 	__loops = pSample->get_loops();
@@ -312,7 +312,7 @@ void SampleEditor::openDisplays()
 void SampleEditor::on_ClosePushButton_clicked()
 {
 	if ( !m_pSampleEditorStatus ){
-		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. This changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. These changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
 		if ( err == 0 ){
 			m_pSampleEditorStatus = true;
 			accept();

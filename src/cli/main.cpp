@@ -34,13 +34,14 @@
 #include <hydrogen/midi_map.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/instrument.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/h2_exception.h>
-#include <hydrogen/playlist.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/LocalFileMng.h>
 
 #include <iostream>
 #include <signal.h>
@@ -91,9 +92,10 @@ void signal_handler ( int signum )
 void show_playlist (Hydrogen *pHydrogen, uint active )
 {
 	/* Display playlist members */
-	if ( pHydrogen->m_PlayList.size() > 0) {
-		for ( uint i = 0; i < pHydrogen->m_PlayList.size(); ++i ) {
-			cout << ( i + 1 ) << "." << pHydrogen->m_PlayList[i].m_hFile.toLocal8Bit().constData();
+	Playlist* playlist = Playlist::get_instance();
+	if ( playlist->size() > 0) {
+		for ( uint i = 0; i < playlist->size(); ++i ) {
+			cout << ( i + 1 ) << "." << playlist->get( i )->filePath.toLocal8Bit().constData();
 			if ( i == active ) cout << " *";
 			cout << endl;
 		}
@@ -285,7 +287,7 @@ int main(int argc, char *argv[])
 
 		// Load playlist
 		if ( ! playlistFilename.isEmpty() ) {
-			pPlaylist = Playlist::load ( playlistFilename );
+			pPlaylist = Playlist::load ( playlistFilename, preferences->isPlaylistUsingRelativeFilenames() );
 			if ( ! pPlaylist ) {
 				___ERRORLOG( "Error loading the playlist" );
 				return 0;
@@ -357,6 +359,10 @@ int main(int argc, char *argv[])
 		
 		bool ExportMode = false;
 		if ( ! outFilename.isEmpty() ) {
+			InstrumentList *pInstrumentList = pSong->get_instrument_list();
+			for (auto i = 0; i < pInstrumentList->size(); i++) {
+				pInstrumentList->get(i)->set_currently_exported( true );
+			}
 			pHydrogen->startExportSession(rate, bits);
 			pHydrogen->startExportSong( outFilename );
 			cout << "Export Progress ... ";

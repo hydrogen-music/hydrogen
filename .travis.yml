@@ -16,6 +16,8 @@ addons:
   apt:
     packages:
       - qt5-default
+      - qttools5-dev
+      - qttools5-dev-tools
       - libqt5xmlpatterns5-dev
       - libarchive-dev
       - libsndfile1-dev
@@ -29,6 +31,11 @@ addons:
       - liblrdf-dev
       - liblash-compat-dev
       - librubberband-dev
+  artifacts:
+#    s3_region: "eu-central-1"
+    paths:
+      - "build/CMakeFiles/CMakeOutput.log"
+      - "/tmp/hydrogen"
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq; fi
@@ -48,7 +55,8 @@ before_install:
 script:
   - mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PATH="$(brew --prefix qt5)/bin:$PATH" ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen.dmg; fi
-
+  - TMPDIR=/tmp src/tests/tests
+  
 deploy:
   provider: releases
   api_key:

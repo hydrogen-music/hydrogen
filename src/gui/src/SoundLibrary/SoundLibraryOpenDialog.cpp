@@ -42,8 +42,8 @@ SoundLibraryOpenDialog::SoundLibraryOpenDialog( QWidget* pParent )
 
 
 	// Sound Library Panel
-	p_soundLib = new SoundLibraryPanel( NULL, true );
-	pVBox->addWidget( p_soundLib, 0, 0 );
+	m_pSoundLibraryPanel = new SoundLibraryPanel( nullptr, true );
+	pVBox->addWidget( m_pSoundLibraryPanel, 0, 0 );
 
 
 	// Buttons
@@ -51,11 +51,11 @@ SoundLibraryOpenDialog::SoundLibraryOpenDialog( QWidget* pParent )
 
 	pButtonsBox->addStretch();
 
-	p_btnOk = new QPushButton( "Load" );
-	pButtonsBox->addWidget( p_btnOk );
+	m_pOkBtn = new QPushButton( trUtf8("Load") );
+	pButtonsBox->addWidget( m_pOkBtn );
 
-	p_btnCancel = new QPushButton( "Cancel" );
-	pButtonsBox->addWidget( p_btnCancel );
+	m_pCancelBtn = new QPushButton( trUtf8("Cancel") );
+	pButtonsBox->addWidget( m_pCancelBtn );
 
 	pButtonsBox->addStretch();
 
@@ -64,9 +64,9 @@ SoundLibraryOpenDialog::SoundLibraryOpenDialog( QWidget* pParent )
 
 	this->setLayout( pVBox );
 
-	connect( p_soundLib, SIGNAL( item_changed ( bool ) ), this, SLOT( on_soundLib_item_changed( bool ) ) );
-	connect( p_btnOk, SIGNAL( clicked ( ) ), this, SLOT( on_open_btn_clicked( ) ) );
-	connect( p_btnCancel, SIGNAL( clicked ( ) ), this, SLOT( on_cancel_btn_clicked( ) ) );
+	connect( m_pSoundLibraryPanel, SIGNAL( item_changed ( bool ) ), this, SLOT( on_soundLib_item_changed( bool ) ) );
+	connect( m_pOkBtn, SIGNAL( clicked ( ) ), this, SLOT( on_open_btn_clicked( ) ) );
+	connect( m_pCancelBtn, SIGNAL( clicked ( ) ), this, SLOT( on_cancel_btn_clicked( ) ) );
 }
 
 
@@ -78,13 +78,13 @@ SoundLibraryOpenDialog::~SoundLibraryOpenDialog()
 
 void SoundLibraryOpenDialog::on_soundLib_item_changed( bool bDrumkitSelected)
 {
-	p_btnOk->setEnabled( bDrumkitSelected );
+	m_pOkBtn->setEnabled( bDrumkitSelected );
 }
 
 
 void SoundLibraryOpenDialog::on_open_btn_clicked()
 {
-	p_soundLib->on_drumkitLoadAction();
+	m_pSoundLibraryPanel->on_drumkitLoadAction();
 	accept();
 }
 

@@ -49,7 +49,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/h2_exception.h>
-#include <hydrogen/playlist.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
 
 #include <signal.h>
@@ -108,7 +108,7 @@ void setPalette( QApplication *pQApp )
 	defaultPalette.setColor( QPalette::HighlightedText, QColor( 255, 255, 255 ) );
 
 	pQApp->setPalette( defaultPalette );
-	pQApp->setStyleSheet("QToolTip {padding: 1px; border: 1px solid rgb(199, 202, 204); background-color: rgb(227, 243, 252); color: rgb(64, 64, 66);}"); 
+	pQApp->setStyleSheet("QToolTip {padding: 1px; border: 1px solid rgb(199, 202, 204); background-color: rgb(227, 243, 252); color: rgb(64, 64, 66);}");
 }
 
 
@@ -149,8 +149,8 @@ int main(int argc, char *argv[])
 		
 		QCommandLineParser parser;
 		
-		QString aboutText = QString( "\nHydrogen " ) + QString::fromStdString( H2Core::get_version() )  + QString( " [" ) + QString::fromStdString( __DATE__ ) + QString( "]  [http://www.hydrogen-music.org]" ) + 
-		QString( "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2018 The hydrogen development team" ) + 
+		QString aboutText = QString( "\nHydrogen " ) + QString::fromStdString( H2Core::get_version() )  + QString( " [" ) + QString::fromStdString( __DATE__ ) + QString( "]  [http://www.hydrogen-music.org]" ) +
+		QString( "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2018 The hydrogen development team" ) +
 		QString( "\nHydrogen comes with ABSOLUTELY NO WARRANTY\nThis is free software, and you are welcome to redistribute it under certain conditions. See the file COPYING for details.\n" );
 		
 		parser.setApplicationDescription( aboutText );
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 		
 		
 		//Conditional options
-		#ifdef H2CORE_HAVE_JACKSESSION 
+		#ifdef H2CORE_HAVE_JACKSESSION
 			QCommandLineOption jackSessionOption(QStringList() << "S" << "jacksessionid", "ID - Start a JackSessionHandler session");
 			parser.addOption(jackSessionOption);
 		#endif
@@ -283,10 +283,9 @@ int main(int argc, char *argv[])
 				total = sTranslationPath + "/" + sTranslationFile + ".qm";
 				bTransOk = tor.load( total, "." );
 				if (bTransOk) {
-					___INFOLOG( "Using locale: " + sTranslationPath + "/" + sTranslationFile );
-				}
-				else {
-					___INFOLOG( "Warning: no locale found: " + sTranslationPath + "/" + sTranslationFile );
+					___INFOLOG( "Using locale: " + sTranslationPath + sTranslationFile );
+				} else {
+					___INFOLOG( "Warning: no locale found: " + sTranslationPath + sTranslationFile );
 				}
 			}
 			if (tor.isEmpty()) {
@@ -385,7 +384,7 @@ int main(int argc, char *argv[])
 		if( ! sPlaylistFilename.isEmpty() ){
 			bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( sPlaylistFilename );
 			if ( loadlist ){
-				Playlist::get_instance()->setNextSongByNumber( 0 );
+				H2Core::Playlist::get_instance()->setNextSongByNumber( 0 );
 			} else {
 				___ERRORLOG ( "Error loading the playlist" );
 			}

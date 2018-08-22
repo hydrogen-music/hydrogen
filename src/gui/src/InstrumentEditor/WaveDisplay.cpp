@@ -47,7 +47,7 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 	}
 
 	m_pLayer = 0;
-	m_pPeakData = new int[ width() ];
+	m_pPeakData = new int[ width() ]{};
 }
 
 
@@ -74,15 +74,16 @@ void WaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.setBrush(brush);
 	painter.drawRect(0, 0, width(), height());
 	
-	
-	
-	painter.setPen( QColor( 102, 150, 205 ) );
-	int VCenter = height() / 2;
-	for ( int x = 0; x < width(); x++ ) {
-		painter.drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
-		painter.drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
+	if( m_pLayer ){
+		painter.setPen( QColor( 102, 150, 205 ) );
+		int VCenter = height() / 2;
+		for ( int x = 0; x < width(); x++ ) {
+			painter.drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
+			painter.drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
+		}
+		
 	}
-
+	
 	QFont font;
 	font.setWeight( 63 );
 	painter.setFont( font );

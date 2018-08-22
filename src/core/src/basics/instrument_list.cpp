@@ -90,11 +90,10 @@ InstrumentList* InstrumentList::load_from( XMLNode* node, const QString& dk_path
 
 void InstrumentList::save_to( XMLNode* node, int component_id )
 {
-	XMLNode instruments_node = node->ownerDocument().createElement( "instrumentList" );
+	XMLNode instruments_node = node->createNode( "instrumentList" );
 	for ( int i = 0; i < size(); i++ ) {
 		( *this )[i]->save_to( &instruments_node, component_id );
 	}
-	node->appendChild( instruments_node );
 }
 
 void InstrumentList::operator<<( Instrument* instrument )
@@ -219,32 +218,32 @@ void InstrumentList::move( int idx_a, int idx_b )
 
 void InstrumentList::fix_issue_307()
 {
-    if ( has_all_midi_notes_same() ) {
-        WARNINGLOG( "Same MIDI note assigned to every instrument. Assigning default values." );
-        set_default_midi_out_notes();
-    }
+	if ( has_all_midi_notes_same() ) {
+		WARNINGLOG( "Same MIDI note assigned to every instrument. Assigning default values." );
+		set_default_midi_out_notes();
+	}
 }
 
 bool InstrumentList::has_all_midi_notes_same() const
 {
-    if (__instruments.size() < 2)
-        return false;
+	if (__instruments.size() < 2)
+		return false;
 
-    std::set<int> notes;
+	std::set<int> notes;
 	for( int i=0; i<__instruments.size(); i++ ) {
-        auto instr = __instruments[i];
-        notes.insert( instr->get_midi_out_note() );
-    }
-    return notes.size() == 1;
+		auto instr = __instruments[i];
+		notes.insert( instr->get_midi_out_note() );
+	}
+	return notes.size() == 1;
 }
 
 void InstrumentList::set_default_midi_out_notes()
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-        __instruments[i]->set_midi_out_note( i + 36 );
-    }
+		__instruments[i]->set_midi_out_note( i + 36 );
+	}
 }
 
 };
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

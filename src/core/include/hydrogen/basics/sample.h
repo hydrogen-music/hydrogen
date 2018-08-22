@@ -46,7 +46,8 @@ class Sample : public H2Core::Object
 				int value;  ///< value
 				/** to be able to sort velocity points vectors */
 				struct Comparator {
-					bool operator()( Sample::EnvelopePoint const& a, Sample::EnvelopePoint const& b ) {
+					bool operator()( Sample::EnvelopePoint const& a, Sample::EnvelopePoint const& b )
+					{
 						return a.frame < b.frame;
 					}
 				};
@@ -59,7 +60,8 @@ class Sample : public H2Core::Object
 				 */
 				EnvelopePoint( int f, int v ) : frame( f ), value( v ) { };
 				/** copy constructor */
-				EnvelopePoint( EnvelopePoint* other ) {
+				EnvelopePoint( EnvelopePoint* other )
+				{
 					frame = other->frame;
 					value = other->value;
 				};
@@ -93,7 +95,8 @@ class Sample : public H2Core::Object
 					count( other->count ),
 					mode( other->mode ) { };
 				/** equal to operator */
-				bool operator ==( const Loops& b ) const {
+				bool operator ==( const Loops& b ) const
+				{
 					return ( start_frame==b.start_frame && loop_frame==b.loop_frame && end_frame==b.end_frame && count==b.count && mode==b.mode );
 				}
 		};
@@ -115,7 +118,8 @@ class Sample : public H2Core::Object
 					c_settings( other->c_settings ),
 					pitch( other->pitch ) { };
 				/** equal to operator */
-				bool operator ==( const Rubberband& b ) const {
+				bool operator ==( const Rubberband& b ) const
+				{
 					return ( use==b.use && divider==b.divider && c_settings==b.c_settings && pitch==b.pitch );
 				}
 		};
@@ -369,4 +373,4 @@ inline Sample::Rubberband Sample::get_rubberband() const
 
 #endif // H2C_SAMPLE_H
 
-/* vim: set softtabstop=4 expandtab: */
+/* vim: set softtabstop=4 noexpandtab: */

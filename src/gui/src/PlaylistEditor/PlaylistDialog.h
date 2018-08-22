@@ -29,7 +29,7 @@
 #include <hydrogen/object.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/playlist.h>
+#include <hydrogen/basics/playlist.h>
 
 
 class Button;

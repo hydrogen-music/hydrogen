@@ -607,25 +607,11 @@ void HydrogenApp::removeEventListener( EventListener* pListener )
 	}
 }
 
-
-/**
- * Adds temporary file to the list
- */
-void HydrogenApp::addTemporaryFile( const QString& path)
-{
-	m_TemporaryFileList.append( path );
-}
-
-
 /**
  * Removes temporary files that were created
  * for undo'ing things.
  */
 void HydrogenApp::cleanupTemporaryFiles()
 {
-	for (int i = 0; i < m_TemporaryFileList.size(); ++i){
-		Filesystem::rm( m_TemporaryFileList[i] );
-	}
-
-	Filesystem::rm( Preferences::get_instance()->getTmpDirectory() );
+	Filesystem::rm( Filesystem::tmp_dir(), true );
 }
