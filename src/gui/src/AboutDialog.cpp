@@ -99,6 +99,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "Paul Dorman", "", "" ) );
 	authorList.push_back( Author( "Pawel Piatek (aka Xj)","xj@wp.pl","coding, bugfixing" ) );
 	authorList.push_back( Author( "Pieter Van Isacker (aka aikie)", "", "Dutch manual and translation" ) );
+	authorList.push_back( Author( "Przemysław Sitek", "el.pescado@gazeta.pl", "coding" ) );
 	authorList.push_back( Author( "Samuel Mimram", "", "packages" ) );
 	authorList.push_back( Author( "Sebastian Moors (aka mauser)", "mauser@smoors.de", "coding" ) );
 	authorList.push_back( Author( "Sergio Gil Perez de la Manga", "", "Spanish translation" ) );
