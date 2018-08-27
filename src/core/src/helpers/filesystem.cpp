@@ -529,14 +529,28 @@ QStringList Filesystem::usr_drumkit_list( )
 	return drumkit_list( usr_drumkits_dir() ) ;
 }
 
-bool Filesystem::file_is_partof_drumkit( const QString& fname )
+QString Filesystem::prepare_sample_path( const QString& fname )
+{
+	int idx = get_basename_idx_under_drumkit( fname );
+	if ( idx >= 0 )
+		return fname.midRef( idx ).toString();
+	return fname;
+}
+
+bool Filesystem::file_is_under_drumkit( const QString& fname )
+{
+	return get_basename_idx_under_drumkit( fname ) != -1;
+}
+
+int Filesystem::get_basename_idx_under_drumkit( const QString& fname )
 {
 	if( fname.startsWith( usr_drumkits_dir() ) )
 	{
 		int start = usr_drumkits_dir().size();
 		int index = fname.indexOf( "/", start );
 		QString dk_name = fname.midRef( start , index - start).toString();
-		return usr_drumkit_list().contains( dk_name );
+		if ( usr_drumkit_list().contains( dk_name ) )
+			return index + 1;
 	}
 
 	if( fname.startsWith( sys_drumkits_dir() ) )
@@ -544,10 +558,11 @@ bool Filesystem::file_is_partof_drumkit( const QString& fname )
 		int start = sys_drumkits_dir().size();
 		int index = fname.indexOf( "/", start);
 		QString dk_name = fname.midRef( start, index - start).toString();
-		return sys_drumkit_list().contains( dk_name );
+		if ( sys_drumkit_list().contains( dk_name ) )
+			return index + 1;
 	}
 
-	return false;
+	return -1;
 }
 
 
