@@ -324,34 +324,6 @@ SongWriter::~SongWriter()
 }
 
 
-/*
-* This methods decides if a filename should be stored
-* with a relative path or with an absolute path.
-* Files are getting stored with a relative path if the
-* file relates to a valid drumkit which is stored either
-* in the user directory or in the system directory.
-* Otherwise, the file is stored with an absolute path.
-* A relative path is relative to the drumkit dir.
-*/
-
-QString prepare_filename( QString fname)
-{
-	if ( Filesystem::file_is_partof_drumkit( fname ) ) {
-		if ( fname.startsWith( Filesystem::usr_drumkits_dir() ) ) {
-			fname.remove( 0, Filesystem::usr_drumkits_dir().size() + 1 );
-			fname.remove( 0, fname.indexOf(("/")) + 1);
-			return	fname;
-		}
-
-		if ( fname.startsWith( Filesystem::sys_drumkits_dir() ) ) {
-			fname.remove( 0, Filesystem::sys_drumkits_dir().size() + 1 );
-			fname.remove( 0, fname.indexOf(("/")) + 1);
-			return	fname;
-		}
-	}
-	return fname;
-}
-
 // Returns 0 on success, passes the TinyXml error code otherwise.
 int SongWriter::writeSong( Song *song, const QString& filename )
 {
@@ -490,7 +462,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 
 				QDomNode layerNode = doc.createElement( "layer" );
-				LocalFileMng::writeXmlString( layerNode, "filename", prepare_filename( pSample->get_filepath() ) );
+				LocalFileMng::writeXmlString( layerNode, "filename", Filesystem::prepare_sample_path( pSample->get_filepath() ) );
 				LocalFileMng::writeXmlBool( layerNode, "ismodified", sIsModified);
 				LocalFileMng::writeXmlString( layerNode, "smode", pSample->get_loop_mode_string() );
 				LocalFileMng::writeXmlString( layerNode, "startframe", QString("%1").arg( lo.start_frame ) );
