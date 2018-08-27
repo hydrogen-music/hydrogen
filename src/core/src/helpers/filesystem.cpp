@@ -534,21 +534,19 @@ bool Filesystem::file_is_partof_drumkit( const QString& fname )
 	if( fname.startsWith( usr_drumkits_dir() ) )
 	{
 		int start = usr_drumkits_dir().size();
-		int index = fname.indexOf( "/", start + 1 );
-		QString dkname = fname.midRef( start + 1, index - start - 1 ).toString();
-		if(drumkit_exists(dkname))
-			return true;
+		int index = fname.indexOf( "/", start );
+		QString dk_name = fname.midRef( start , index - start).toString();
+		return usr_drumkit_list().contains( dk_name );
 	}
-
 
 	if( fname.startsWith( sys_drumkits_dir() ) )
 	{
 		int start = sys_drumkits_dir().size();
-		int index = fname.indexOf( "/", start + 1 );
-		QString dkname = fname.midRef( start + 1, index - start - 1 ).toString();
-		if(drumkit_exists(dkname))
-			return true;
+		int index = fname.indexOf( "/", start);
+		QString dk_name = fname.midRef( start, index - start).toString();
+		return sys_drumkit_list().contains( dk_name );
 	}
+
 	return false;
 }
 
