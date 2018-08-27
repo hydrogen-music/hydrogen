@@ -1869,6 +1869,11 @@ void Hydrogen::setSong( Song *pSong )
 	*        loaded at the same time
 	*/
 	Song* oldSong = getSong();
+	if ( pSong == oldSong ) {
+		DEBUGLOG( "pSong == oldSong" );
+		return;
+	}
+
 	if ( oldSong ) {
 		delete oldSong;
 		oldSong = NULL;
