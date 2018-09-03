@@ -1327,7 +1327,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>Undo</source>
-        <translation>Annuler</translation>
+        <translation>Défaire</translation>
     </message>
     <message>
         <source>Redo</source>
