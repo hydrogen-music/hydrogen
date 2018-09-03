@@ -1296,7 +1296,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>Playlist: Song No. %1</source>
-        <translation>Liste de lecture: morceau %1</translation>
+        <translation>Liste de lecture : morceau %1</translation>
     </message>
     <message>
         <source>Could not export pattern.</source>
@@ -1322,7 +1322,7 @@ Voulez-vous sauvegarder les changements?
     </message>
     <message>
         <source>&amp;Undo</source>
-        <translation>&amp;Annuler</translation>
+        <translation>&amp;Défaire</translation>
         <extra-FILE>menu</extra-FILE>
     </message>
     <message>
