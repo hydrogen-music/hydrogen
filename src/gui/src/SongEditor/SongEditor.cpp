@@ -1692,18 +1692,25 @@ void SongEditorPatternList::dragEnterEvent(QDragEnterEvent *event)
 
 void SongEditorPatternList::dropEvent(QDropEvent *event)
 {
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	
 	QString sText = event->mimeData()->text();
-
+	const QMimeData* mimeData = event->mimeData();
+	
+	int nTargetPattern = 0;
+	if(m_nGridHeight > 0)
+	{
+		nTargetPattern = event->pos().y() / m_nGridHeight;
+	}
+	
 	if( sText.startsWith("Songs:") || sText.startsWith("move instrument:") || sText.startsWith("importInstrument:")){
 		event->acceptProposedAction();
 		return;
 	}
-
-	if (sText.startsWith("move pattern:")) {
-		Hydrogen *engine = Hydrogen::get_instance();
-		int nSourcePattern = engine->getSelectedPatternNumber();
-
-		int nTargetPattern = event->pos().y() / m_nGridHeight;
+	
+	if ( sText.startsWith("move pattern:") ) {
+		int nSourcePattern = pEngine->getSelectedPatternNumber();
 
 		if ( nSourcePattern == nTargetPattern ) {
 			event->acceptProposedAction();
@@ -1714,25 +1721,58 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 		HydrogenApp::get_instance()->m_undoStack->push( action );
 
 		event->acceptProposedAction();
-	}else {
+	} 
+	else if( sText.startsWith("file://") && mimeData->hasUrls() )
+	{
+		//Dragging a file from an external file manager
+		PatternList *pPatternList = pSong->get_pattern_list();
+		QList<QUrl> urlList = mimeData->urls();
+
+		int successfullyAddedPattern = 0;
+		
+		for (int i = 0; i < urlList.size(); i++)
+		{
+			QString patternFilePath = urlList.at(i).toLocalFile();
+			if( patternFilePath.endsWith(".h2pattern") )
+			{
+				Pattern* pPattern = Pattern::load_file( patternFilePath, pSong->get_instrument_list() );
+				if ( pPattern)
+				{
+					H2Core::Pattern *pNewPattern = pPattern;
+			
+					if(!pPatternList->check_name( pNewPattern->get_name() ) ){
+						pNewPattern->set_name( pPatternList->find_unused_pattern_name( pNewPattern->get_name() ) );
+					}
+					
+					SE_insertPatternAction* pInsertPatternAction = new SE_insertPatternAction( nTargetPattern + successfullyAddedPattern, pNewPattern );
+					HydrogenApp::get_instance()->m_undoStack->push( pInsertPatternAction );
+					
+					successfullyAddedPattern++;
+				}
+				else
+				{
+					ERRORLOG( QString("Error loading pattern %1").arg(patternFilePath) );
+				}
+			}
+		}
+	} 
+	else 
+	{
 		QStringList tokens = sText.split( "::" );
 		QString sPatternName = tokens.at( 1 );
 
-		int nTargetPattern = event->pos().y() / m_nGridHeight;
-
 		//create a unique sequencefilename
-		Song *song = Hydrogen::get_instance()->getSong();
-		Pattern *pat = song->get_pattern_list()->get( nTargetPattern );
-		HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
+		Pattern *pPattern = pSong->get_pattern_list()->get( nTargetPattern );
+		HydrogenApp *pHydrogenApp = HydrogenApp::get_instance();
 
-		QString oldPatternName = pat->get_name();
+		QString oldPatternName = pPattern->get_name();
 
 		QString sequenceFilename = Filesystem::tmp_file_path( "SEQ.xml" );
 		bool drag = false;
 		if( QString( tokens.at(0) ).contains( "drag pattern" )) drag = true;
-		SE_loadPatternAction *action = new SE_loadPatternAction( sPatternName, oldPatternName, sequenceFilename, nTargetPattern, drag );
+		SE_loadPatternAction *pAction = new SE_loadPatternAction( sPatternName, oldPatternName, sequenceFilename, nTargetPattern, drag );
 
-		hydrogenApp->m_undoStack->push( action );
+		pHydrogenApp->m_undoStack->push( pAction );
 	}
 }
 
