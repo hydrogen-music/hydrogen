@@ -1960,7 +1960,7 @@ bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 void MainForm::action_banks_properties()
 {
 	QString sDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitname();
-	Drumkit *drumkitInfo = NULL;
+	Drumkit *pDrumkitInfo = nullptr;
 
 	//User drumkit list
 	QStringList usr_dks = Filesystem::usr_drumkit_list();
@@ -1969,7 +1969,7 @@ void MainForm::action_banks_properties()
 		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {
 			if ( QString(pInfo->get_name() ) == sDrumkitName ){
-				drumkitInfo = pInfo;
+				pDrumkitInfo = pInfo;
 				break;
 			}
 		}
@@ -1982,17 +1982,19 @@ void MainForm::action_banks_properties()
 		Drumkit *pInfo = Drumkit::load( absPath );
 		if (pInfo) {
 			if ( QString( pInfo->get_name() ) == sDrumkitName ){
-				drumkitInfo = pInfo;
+				pDrumkitInfo = pInfo;
 				break;
 			}
 		}
 	}
 
-
-
-	assert( drumkitInfo );
-
-	//open the soundlibrary save dialog
-	SoundLibraryPropertiesDialog dialog( this , drumkitInfo, drumkitInfo );
-	dialog.exec();
+	if( pDrumkitInfo )
+	{
+		SoundLibraryPropertiesDialog dialog( this , pDrumkitInfo, pDrumkitInfo );
+		dialog.exec();
+	}
+	else
+	{
+		QMessageBox::information( this, "Hydrogen", tr("Retrieving information about drumkit '%1' failed: drumkit does not exist.").arg( sDrumkitName ) );
+	}
 }
