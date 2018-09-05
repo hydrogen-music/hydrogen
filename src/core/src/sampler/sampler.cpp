@@ -295,11 +295,11 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		float fLayerPitch = 0.0;
 
 		// scelgo il sample da usare in base alla velocity
-		Sample *pSample = NULL;
+		Sample *pSample = nullptr;
 		SelectedLayerInfo *pSelectedLayer = pNote->get_layer_selected( pCompo->get_drumkit_componentID() );
 
 		if ( !pSelectedLayer ) {
-			QString dummy = QString( "NULL Layer Informationfor instrument %1. Component: %2" ).arg( pInstr->get_name() ).arg( pCompo->get_drumkit_componentID() );
+			QString dummy = QString( "NULL Layer Information for instrument %1. Component: %2" ).arg( pInstr->get_name() ).arg( pCompo->get_drumkit_componentID() );
 			WARNINGLOG( dummy );
 			nReturnValues[nReturnValueIndex] = true;
 			continue;
@@ -308,9 +308,13 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		if( pSelectedLayer->SelectedLayer != -1 ) {
 			InstrumentLayer *pLayer = pCompo->get_layer( pSelectedLayer->SelectedLayer );
 
-			pSample = pLayer->get_sample();
-			fLayerGain = pLayer->get_gain();
-			fLayerPitch = pLayer->get_pitch();
+			if( pLayer )
+			{
+				pSample = pLayer->get_sample();
+				fLayerGain = pLayer->get_gain();
+				fLayerPitch = pLayer->get_pitch();
+			}
+			
 		}
 		else {
 			switch ( pInstr->sample_selection_alg() ) {
