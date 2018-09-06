@@ -139,6 +139,10 @@ Instrument* Instrument::load_instrument( const QString& drumkit_name, const QStr
 
 void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_live )
 {
+	for(auto& pComponent : *this->get_components()){
+		delete pComponent;
+	}
+	
 	this->get_components()->clear();
 
 	for (std::vector<InstrumentComponent*>::iterator it = pInstrument->get_components()->begin() ; it != pInstrument->get_components()->end(); ++it) {
