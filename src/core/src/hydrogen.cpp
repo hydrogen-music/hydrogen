@@ -2527,8 +2527,12 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 
 	std::vector<DrumkitComponent*>* pSongCompoList= getSong()->get_components();
 	std::vector<DrumkitComponent*>* pDrumkitCompoList = pDrumkitInfo->get_components();
-
+	
+	for( auto &pComponent : *pSongCompoList ){
+		delete pComponent;
+	}
 	pSongCompoList->clear();
+	
 	for (std::vector<DrumkitComponent*>::iterator it = pDrumkitCompoList->begin() ; it != pDrumkitCompoList->end(); ++it) {
 		DrumkitComponent* pSrcComponent = *it;
 		DrumkitComponent* pNewComponent = new DrumkitComponent( pSrcComponent->get_id(), pSrcComponent->get_name() );
