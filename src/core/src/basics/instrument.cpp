@@ -127,7 +127,7 @@ Instrument::~Instrument()
 	delete __components;
 
 	delete __adsr;
-	__adsr = 0;
+	__adsr = nullptr;
 }
 
 Instrument* Instrument::load_instrument( const QString& drumkit_name, const QString& instrument_name )
@@ -215,25 +215,26 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 
 void Instrument::load_from( const QString& dk_name, const QString& instrument_name, bool is_live )
 {
-	Drumkit* drumkit = Drumkit::load_by_name( dk_name );
-	if ( ! drumkit ) {
+	Drumkit* pDrumkit = Drumkit::load_by_name( dk_name );
+	if ( !pDrumkit ) {
 		return;
 	}
 
-	assert( drumkit );
+	assert( pDrumkit );
 
-	Instrument* instrument = drumkit->get_instruments()->find( instrument_name );
-	if ( instrument!=0 ) {
-		load_from( drumkit, instrument, is_live );
+	Instrument* pInstrument = pDrumkit->get_instruments()->find( instrument_name );
+	if ( pInstrument!=nullptr ) {
+		load_from( pDrumkit, pInstrument, is_live );
 	}
-	delete drumkit;
+	
+	delete pDrumkit;
 }
 
 Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name )
 {
 	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
 	if ( id==EMPTY_INSTR_ID ) {
-		return 0;
+		return nullptr;
 	}
 
 	Instrument* pInstrument = new Instrument( id, node->read_string( "name", "" ), 0 );
@@ -286,10 +287,12 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 void Instrument::load_samples()
 {
 	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
-		InstrumentComponent* component = *it;
+		InstrumentComponent* pComponent = *it;
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			InstrumentLayer* layer = component->get_layer( i );
-			if( layer ) layer->load_sample( );
+			InstrumentLayer* pLayer = pComponent->get_layer( i );
+			if( pLayer ) {
+				pLayer->load_sample( );
+			}
 		}
 	}
 }
@@ -297,10 +300,12 @@ void Instrument::load_samples()
 void Instrument::unload_samples()
 {
 	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
-		InstrumentComponent* component = *it;
+		InstrumentComponent* pComponent = *it;
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
-			InstrumentLayer* layer = component->get_layer( i );
-			if( layer ) layer->unload_sample();
+			InstrumentLayer* pLayer = pComponent->get_layer( i );
+			if( pLayer ){
+				pLayer->unload_sample();
+			}
 		}
 	}
 }
@@ -357,18 +362,21 @@ void Instrument::save_to( XMLNode* node, int component_id )
 
 void Instrument::set_adsr( ADSR* adsr )
 {
-	if( __adsr ) delete __adsr;
+	if( __adsr ) {
+		delete __adsr;
+	}
 	__adsr = adsr;
 }
 
 InstrumentComponent* Instrument::get_component( int DrumkitComponentID )
 {
 	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
-		if( (*it)->get_drumkit_componentID() == DrumkitComponentID )
+		if( (*it)->get_drumkit_componentID() == DrumkitComponentID ) {
 			return *it;
+		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 };

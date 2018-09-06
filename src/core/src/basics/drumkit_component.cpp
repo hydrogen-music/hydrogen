@@ -47,8 +47,8 @@ DrumkitComponent::DrumkitComponent( const int id, const QString& name )
 	, __volume( 1.0 )
 	, __muted( false )
 	, __soloed( false )
-	, __out_L( NULL )
-	, __out_R( NULL )
+	, __out_L( nullptr )
+	, __out_R( nullptr )
 	, __peak_l( 0.0 )
 	, __peak_r( 0.0 )
 {
@@ -63,8 +63,8 @@ DrumkitComponent::DrumkitComponent( DrumkitComponent* other )
 	, __volume( other->__volume )
 	, __muted( other->__muted )
 	, __soloed( other->__soloed )
-	, __out_L( NULL )
-	, __out_R( NULL )
+	, __out_L( nullptr )
+	, __out_R( nullptr )
 	, __peak_l( 0.0 )
 	, __peak_r( 0.0 )
 {
@@ -120,7 +120,7 @@ DrumkitComponent* DrumkitComponent::load_from( XMLNode* node, const QString& dk_
 {
 	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
 	if ( id==EMPTY_INSTR_ID ) {
-		return 0;
+		return nullptr;
 	}
 
 	DrumkitComponent* pDrumkitComponent = new DrumkitComponent( id, node->read_string( "name", "" ) );

@@ -41,43 +41,31 @@ class InstrumentComponent : public H2Core::Object
 {
 		H2_OBJECT
 	public:
-		//InstrumentComponent( const int id, const QString& name );
 		InstrumentComponent( int related_drumkit_componentID );
 		InstrumentComponent( InstrumentComponent* other );
 		~InstrumentComponent();
 
-		void save_to( XMLNode* node, int component_id );
+		void						save_to( XMLNode* node, int component_id );
 		static InstrumentComponent* load_from( XMLNode* node, const QString& dk_path );
 
-		InstrumentLayer* operator[]( int idx );
-		InstrumentLayer* get_layer( int idx );
-		void set_layer( InstrumentLayer* layer, int idx );
+		InstrumentLayer*			operator[]( int idx );
+		InstrumentLayer*			get_layer( int idx );
+		void						set_layer( InstrumentLayer* layer, int idx );
 
-		void set_drumkit_componentID( int related_drumkit_componentID );
-		int get_drumkit_componentID();
+		void						set_drumkit_componentID( int related_drumkit_componentID );
+		int							get_drumkit_componentID();
 
-		//void set_name( const QString& name );
-		//const QString& get_name() const;
+		void						set_gain( float gain );
+		float						get_gain() const;
 
-		//void set_id( const int id );
-		//int get_id() const;
-
-		void set_gain( float gain );
-		float get_gain() const;
-
-		//void set_volume( float volume );
-		//float get_volume() const;
-
-		static int getMaxLayers( );
-		static void setMaxLayers( int layers );
+		static int					getMaxLayers( );
+		static void					setMaxLayers( int layers );
 
 	private:
-		int __related_drumkit_componentID;
-		//QString __name;
-		float __gain;
-		//float __volume;
-		static int maxLayers;
-		std::vector<InstrumentLayer*> __layers;
+		int								__related_drumkit_componentID;
+		float							__gain;
+		static int						maxLayers;
+		std::vector<InstrumentLayer*>	__layers;
 };
 
 // DEFINITIONS

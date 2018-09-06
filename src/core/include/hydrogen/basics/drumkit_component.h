@@ -44,48 +44,48 @@ class DrumkitComponent : public H2Core::Object
 		DrumkitComponent( DrumkitComponent* other );
 		~DrumkitComponent();
 
-		void save_to( XMLNode* node );
-		static DrumkitComponent* load_from( XMLNode* node, const QString& dk_path );
+		void						save_to( XMLNode* node );
+		static DrumkitComponent*	load_from( XMLNode* node, const QString& dk_path );
 
-		void load_from( DrumkitComponent* component, bool is_live = true );
+		void						load_from( DrumkitComponent* component, bool is_live = true );
 
-		void set_name( const QString& name );
-		const QString& get_name() const;
+		void						set_name( const QString& name );
+		const QString&				get_name() const;
 
-		void set_id( const int id );
-		int get_id() const;
+		void						set_id( const int id );
+		int							get_id() const;
 
-		void set_volume( float volume );
-		float get_volume() const;
+		void						set_volume( float volume );
+		float						get_volume() const;
 
-		void set_muted( bool active );
-		bool is_muted() const;
+		void						set_muted( bool active );
+		bool						is_muted() const;
 
-		void set_soloed( bool soloed );
-		bool is_soloed() const;
+		void						set_soloed( bool soloed );
+		bool						is_soloed() const;
 
-		void set_peak_l( float val );
-		float get_peak_l() const;
-		void set_peak_r( float val );
-		float get_peak_r() const;
+		void						set_peak_l( float val );
+		float						get_peak_l() const;
+		void						set_peak_r( float val );
+		float						get_peak_r() const;
 
-		void reset_outs( uint32_t nFrames );
-		void set_outs( int nBufferPos, float valL, float valR );
-		float get_out_L( int nBufferPos );
-		float get_out_R( int nBufferPos );
+		void						reset_outs( uint32_t nFrames );
+		void						set_outs( int nBufferPos, float valL, float valR );
+		float						get_out_L( int nBufferPos );
+		float						get_out_R( int nBufferPos );
 
 	private:
-		int __id;
-		QString __name;
-		float __volume;
-		bool __muted;
-		bool __soloed;
+		int			__id;
+		QString		__name;
+		float		__volume;
+		bool		__muted;
+		bool		__soloed;
 
-		float __peak_l;
-		float __peak_r;
+		float		__peak_l;
+		float		__peak_r;
 
-		float *__out_L;
-		float *__out_R;
+		float *		__out_L;
+		float *		__out_R;
 };
 
 // DEFINITIONS

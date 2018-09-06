@@ -68,15 +68,6 @@ class Song : public H2Core::Object
 		QString __author;	///< author of the song
 		QString __license;	///< license of the song
 
-		/*
-		// internal delay FX
-		bool m_bDelayFXEnabled;
-		float m_fDelayFXWetLevel;
-		float m_fDelayFXFeedback;
-		unsigned m_nDelayFXTime;
-		//~ internal delay fx
-		*/
-
 		static Song* get_empty_song();
 		static Song* get_default_song();
 
