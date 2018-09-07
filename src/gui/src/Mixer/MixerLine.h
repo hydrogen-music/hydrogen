@@ -31,6 +31,7 @@
 #include <hydrogen/object.h>
 #include <hydrogen/globals.h>
 
+
 class Fader;
 class MasterFader;
 class PanFader;
@@ -41,6 +42,7 @@ class InstrumentPropertiesDialog;
 class InstrumentNameWidget;
 class LCDDisplay;
 class Rotary;
+class LCDCombo;
 
 #include "../widgets/PixmapWidget.h"
 
@@ -252,6 +254,7 @@ class MasterMixerLine: public PixmapWidget
 	public slots:
 		void	faderChanged(MasterFader * ref);
 		void	rotaryChanged( Rotary *pRef );
+        	void    humanizeColorChanged( int );
 		void	muteClicked(Button*);
 
 	private:
@@ -267,9 +270,11 @@ class MasterMixerLine: public PixmapWidget
 
 		LCDDisplay *	m_pPeakLCD;
 
-		Rotary *		m_pSwingRotary;
-		Rotary *		m_pHumanizeTimeRotary;
-		Rotary *		m_pHumanizeVelocityRotary;
+		Rotary *m_pHumanizeTimeRotary;
+		Rotary *m_pHumanizeVelocityRotary;
+	        LCDCombo *m_pHumanizeColorTimeLCDCombo;
+	        LCDCombo *m_pHumanizeColorVelocityLCDCombo;
+
 
 		ToggleButton *	m_pMuteBtn;
 };

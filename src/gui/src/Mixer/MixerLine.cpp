@@ -31,6 +31,7 @@
 #include "../widgets/Rotary.h"
 #include "../widgets/Button.h"
 #include "../widgets/LCD.h"
+#include "../widgets/LCDCombo.h"
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
@@ -685,17 +686,38 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	lcdPalette.setColor( QPalette::Background, QColor( 49, 53, 61 ) );
 	m_pPeakLCD->setPalette( lcdPalette );
 
-	m_pHumanizeVelocityRotary = new Rotary( this, Rotary::TYPE_NORMAL, trUtf8( "Humanize velocity" ), false, false );
+	/// Humanizer
+	// Rotary buttons controlling the scaling factor of the
+	// distribution the random values are drawn from.
+	m_pHumanizeVelocityRotary = new Rotary( this, Rotary::TYPE_NORMAL,
+						trUtf8( "Humanize velocity" ),
+						false, false );
 	m_pHumanizeVelocityRotary->move( 74, 88 );
-	connect( m_pHumanizeVelocityRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+	connect( m_pHumanizeVelocityRotary, SIGNAL( valueChanged(Rotary*) ),
+		 this, SLOT( rotaryChanged(Rotary*) ) );
 
-	m_pHumanizeTimeRotary = new Rotary( this, Rotary::TYPE_NORMAL, trUtf8( "Humanize time" ), false, false );
-	m_pHumanizeTimeRotary->move( 74, 125 );
-	connect( m_pHumanizeTimeRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+	m_pHumanizeTimeRotary = new Rotary( this, Rotary::TYPE_NORMAL,
+					    trUtf8( "Humanize time" ), false, false );
+	m_pHumanizeTimeRotary->move( 74, 153 );
+	connect( m_pHumanizeTimeRotary, SIGNAL( valueChanged(Rotary*) ),
+		 this, SLOT( rotaryChanged(Rotary*) ) );
 
-	m_pSwingRotary = new Rotary( this,  Rotary::TYPE_NORMAL, trUtf8( "Swing" ), false, false );
-	m_pSwingRotary->move( 74, 162 );
-	connect( m_pSwingRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
+	// ComboBoxes choosing the color of the corresponding noise.
+	m_pHumanizeColorTimeLCDCombo = new LCDCombo( this, 5 );
+	m_pHumanizeColorTimeLCDCombo->move( 60, 123 );
+	m_pHumanizeColorTimeLCDCombo->setToolTip( trUtf8( "Select noise color" ) );
+	m_pHumanizeColorTimeLCDCombo->addItem( QString( "white" ) );
+	m_pHumanizeColorTimeLCDCombo->addItem( QString( "pink" ) );
+	connect( m_pHumanizeColorTimeLCDCombo, SIGNAL( valueChanged( int ) ),
+		 this, SLOT( humanizeColorChanged( int ) ) );
+
+	m_pHumanizeColorVelocityLCDCombo = new LCDCombo( this, 5 );
+	m_pHumanizeColorVelocityLCDCombo->move( 60, 188 );
+	m_pHumanizeColorVelocityLCDCombo->setToolTip( trUtf8( "Select noise color" ) );
+	m_pHumanizeColorVelocityLCDCombo->addItem( QString( "white" ) );
+	m_pHumanizeColorVelocityLCDCombo->addItem( QString( "pink" ) );
+	connect( m_pHumanizeColorVelocityLCDCombo, SIGNAL( valueChanged( int ) ),
+		 this, SLOT( humanizeColorChanged( int ) ) );
 
 	// Mute btn
 	m_pMuteBtn = new ToggleButton(
@@ -823,7 +845,8 @@ void MasterMixerLine::updateMixerLine()
 	if ( pSong ) {
 		m_pHumanizeTimeRotary->setValue( pSong->get_humanize_time_value() );
 		m_pHumanizeVelocityRotary->setValue( pSong->get_humanize_velocity_value() );
-		m_pSwingRotary->setValue( pSong->get_swing_factor() );
+		m_pHumanizeColorTimeLCDCombo->select( pSong->get_humanize_time_color() );
+		m_pHumanizeColorVelocityLCDCombo->select( pSong->get_humanize_velocity_color() );
 		m_pMuteBtn->setPressed( pSong->__is_muted );
 	}
 	else {
@@ -841,15 +864,11 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 
 	if ( pRef == m_pHumanizeTimeRotary ) {
 		pEngine->getSong()->set_humanize_time_value( fVal );
-		sMsg = trUtf8( "Set humanize time parameter [%1]").arg( fVal, 0, 'f', 2 );
+		sMsg = trUtf8( "[%1]: set humanize time parameter").arg( fVal, 0, 'f', 2 );
 	}
 	else if ( pRef == m_pHumanizeVelocityRotary ) {
 		pEngine->getSong()->set_humanize_velocity_value( fVal );
-		sMsg = trUtf8( "Set humanize velocity parameter [%1]").arg( fVal, 0, 'f', 2 );
-	}
-	else if ( pRef == m_pSwingRotary ) {
-		pEngine->getSong()->set_swing_factor( fVal );
-		sMsg = trUtf8( "Set swing factor [%1]").arg( fVal, 0, 'f', 2 );
+		sMsg = trUtf8( "[%1]: set humanize velocity parameter").arg( fVal, 0, 'f', 2 );
 	}
 	else {
 		ERRORLOG( "[knobChanged] Unhandled knob" );
@@ -858,6 +877,40 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 	AudioEngine::get_instance()->unlock();
 
 	( HydrogenApp::get_instance() )->setStatusBarMessage( sMsg, 2000 );
+}
+
+void MasterMixerLine::humanizeColorChanged( int pSelection ){
+
+	QString statusMessage;
+
+	QObject *pSignalSender = sender();
+
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+
+	// Printing the color of the selected noise in the status
+	// message bar.
+	if ( pSelection == 0 ){
+		statusMessage = trUtf8( "White noise selected" );
+	} else if ( pSelection == 1 ){
+		statusMessage = trUtf8( "Pink noise selected" );
+	} else {
+		ERRORLOG( "[humanizeColorChanged] Unknown noise selected. Using white noise instead." );
+		// The fallback to white noise will be done in the
+		// set_humanize_*_color function
+	}
+
+	// Picking the corresponding humanizer.
+	if ( pSignalSender == m_pHumanizeColorTimeLCDCombo ){
+		pEngine->getSong()->set_humanize_time_color( pSelection );
+	} else if ( pSignalSender == m_pHumanizeColorVelocityLCDCombo ){
+		pEngine->getSong()->set_humanize_velocity_color( pSelection );
+	} else {
+		ERRORLOG( "[humanizeColorChange] Unknown selection box." );
+	}
+
+	AudioEngine::get_instance()->unlock();
+	( HydrogenApp::get_instance() )->setStatusBarMessage( statusMessage, 2000 );
 }
 
 /////////////////////////////////////////

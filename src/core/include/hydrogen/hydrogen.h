@@ -44,7 +44,8 @@
 #define STATE_READY			4     // Ready to process audio
 #define STATE_PLAYING		5     // Currently playing a sequence.
 
-inline int randomValue( int max );
+
+// ***************** //
 
 namespace H2Core
 {
@@ -264,7 +265,6 @@ private:
 	Song::SongMode	m_oldEngineMode;
 	bool			m_bOldLoopEnabled;
 	bool			m_bExportSessionIsActive;
-	
 
 	//Timline information
 	Timeline*		m_pTimeline;
@@ -273,7 +273,6 @@ private:
 	
 	
 	std::list<Instrument*> __instrument_death_row; /// Deleting instruments too soon leads to potential crashes.
-
 
 	/// Private constructor
 	Hydrogen();
