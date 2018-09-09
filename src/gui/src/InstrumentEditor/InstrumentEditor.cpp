@@ -61,7 +61,7 @@ const char* InstrumentEditor::__class_name = "InstrumentEditor";
 InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	: QWidget( pParent )
 	, Object( __class_name )
-	, m_pInstrument( NULL )
+	, m_pInstrument( nullptr )
 	, m_nSelectedLayer( 0 )
 {
 	setFixedWidth( 290 );
@@ -376,14 +376,15 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_buttonDropDownCompo, SIGNAL( clicked( Button* ) ), this, SLOT( onClick( Button* ) ) );
 
 	// Layer preview
-	m_pLayerPreview = new LayerPreview( NULL );
+	m_pLayerPreview = new LayerPreview( nullptr );
 
 	m_pLayerScrollArea = new QScrollArea( m_pLayerProp);
 	m_pLayerScrollArea->setFrameShape( QFrame::NoFrame );
 	m_pLayerScrollArea->move( 6, 44 );
 	m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	if ( InstrumentComponent::getMaxLayers() > 16)
+	if ( InstrumentComponent::getMaxLayers() > 16 ) {
 		m_pLayerScrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+	}
 	m_pLayerScrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pLayerScrollArea->setMaximumHeight( 182 );
 	m_pLayerScrollArea->setWidget( m_pLayerPreview  );
@@ -483,18 +484,19 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	popCompo = new QMenu( this );
 	itemsCompo.clear();
 
-	std::vector<DrumkitComponent*>* compoList = Hydrogen::get_instance()->getSong()->get_components();
-	for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
-		DrumkitComponent* p_compo = *it;
-		if( !itemsCompo.contains( p_compo->get_name() ) )
-			itemsCompo.append( p_compo->get_name() );
+	std::vector<DrumkitComponent*>* pComponentList = Hydrogen::get_instance()->getSong()->get_components();
+	for (std::vector<DrumkitComponent*>::iterator it = pComponentList->begin() ; it != pComponentList->end(); ++it) {
+		DrumkitComponent* pComponent = *it;
+		if( !itemsCompo.contains( pComponent->get_name() ) ) {
+			itemsCompo.append( pComponent->get_name() );
+		}
 	}
 	itemsCompo.append("--sep--");
 	itemsCompo.append("add");
 	itemsCompo.append("delete");
 	itemsCompo.append("rename");
 
-	m_nSelectedComponent = compoList->front()->get_id();
+	m_nSelectedComponent = pComponentList->front()->get_id();
 
 	connect( popCompo, SIGNAL( triggered(QAction*) ), this, SLOT( compoChangeAddDelete(QAction*) ) );
 	update();
@@ -524,15 +526,17 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 {
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-	Song *pSong = Hydrogen::get_instance()->getSong();
-	if (pSong != nullptr) {
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	
+	if ( pSong != nullptr ) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
-		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		int nInstr = pEngine->getSelectedInstrumentNumber();
 		if ( nInstr >= pInstrList->size() ) {
 			nInstr = -1;
 		}
 
-		if (nInstr == -1) {
+		if ( nInstr == -1 ) {
 			m_pInstrument = nullptr;
 		}
 		else {
@@ -546,7 +550,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	AudioEngine::get_instance()->unlock();
 
 	// update layer list
-	if (m_pInstrument) {
+	if ( m_pInstrument ) {
 		m_pNameLbl->setText( m_pInstrument->get_name() );
 
 		// ADSR
@@ -561,13 +565,13 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		//~ ADSR
 
 		// filter
-		m_pFilterBypassBtn->setPressed( !m_pInstrument->is_filter_active());
-		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff());
-		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance());
+		m_pFilterBypassBtn->setPressed( !m_pInstrument->is_filter_active() );
+		m_pCutoffRotary->setValue( m_pInstrument->get_filter_cutoff() );
+		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
 		//~ filter
 
 		// random pitch
-		m_pRandomPitchRotary->setValue( m_pInstrument->get_random_pitch_factor());
+		m_pRandomPitchRotary->setValue( m_pInstrument->get_random_pitch_factor() );
 
 		//Stop Note
 		m_pIsStopNoteCheckBox->setChecked( m_pInstrument->is_stop_notes() );
@@ -577,7 +581,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 		// instr gain
 		char tmp[20];
-		sprintf( tmp, "%#.2f", m_pInstrument->get_gain());
+		sprintf( tmp, "%#.2f", m_pInstrument->get_gain() );
 		m_pInstrumentGainLCD->setText( tmp );
 		m_pInstrumentGain->setValue( m_pInstrument->get_gain()/ 5.0 );
 
@@ -589,7 +593,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pMuteGroupLCD->setText( sMuteGroup );
 
 		// midi out channel
-		QString sMidiOutChannel = QString("%1").arg( m_pInstrument->get_midi_out_channel()+1);
+		QString sMidiOutChannel = QString("%1").arg( m_pInstrument->get_midi_out_channel()+1 );
 		if (m_pInstrument->get_midi_out_channel() == -1 ) {
 			sMidiOutChannel = "Off";
 		}
@@ -614,11 +618,11 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_sampleSelectionAlg->select( m_pInstrument->sample_selection_alg(), false);
 
 		itemsCompo.clear();
-		std::vector<DrumkitComponent*>* compoList = Hydrogen::get_instance()->getSong()->get_components();
-		for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
-			DrumkitComponent* p_compo = *it;
-			if( !itemsCompo.contains( p_compo->get_name() ) )
-				itemsCompo.append( p_compo->get_name() );
+		std::vector<DrumkitComponent*>* compoList = pSong->get_components();
+		for (auto& it : *pSong->get_components() ) {
+			DrumkitComponent* pDrumkitComponent = it;
+			if( !itemsCompo.contains( pDrumkitComponent->get_name() ) )
+				itemsCompo.append( pDrumkitComponent->get_name() );
 		}
 		itemsCompo.append("--sep--");
 		itemsCompo.append("add");
@@ -629,8 +633,8 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 
 		bool bFound = false;
 		for (std::vector<DrumkitComponent*>::iterator it = compoList->begin() ; it != compoList->end(); ++it) {
-			DrumkitComponent* p_compo = *it;
-			if ( p_compo->get_id() == m_nSelectedComponent ) {
+			DrumkitComponent* pComponent = *it;
+			if ( pComponent->get_id() == m_nSelectedComponent ) {
 				bFound = true;
 				break;
 			}
@@ -639,15 +643,15 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			m_nSelectedComponent = compoList->front()->get_id();
 		}
 
-		DrumkitComponent* pTmpComponent = Hydrogen::get_instance()->getSong()->get_component( m_nSelectedComponent );
+		DrumkitComponent* pTmpComponent = pSong->get_component( m_nSelectedComponent );
 
 		assert(pTmpComponent);
 
 		m_pCompoNameLbl->setText( pTmpComponent->get_name() );
 
-		if(m_nSelectedLayer >= 0){
+		if( m_nSelectedLayer >= 0 ){
 			InstrumentComponent* pComponent = m_pInstrument->get_component( m_nSelectedComponent );
-			if(pComponent) {
+			if( pComponent ) {
 
 				char tmp[20];
 				sprintf( tmp, "%#.2f", pComponent->get_gain());
@@ -676,8 +680,8 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pWaveDisplay->updateDisplay( nullptr );
 		m_nSelectedLayer = 0;
 	}
+	
 	selectLayer( m_nSelectedLayer );
-
 }
 
 
