@@ -36,6 +36,7 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
  , Object( __class_name )
  , m_nCurrentWidth( 0 )
  , m_sSampleName( "" )
+ , m_pLayer( nullptr )
 {
 	setAttribute(Qt::WA_NoBackground);
 
@@ -46,7 +47,6 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 		ERRORLOG( "Error loading pixmap" );
 	}
 
-	m_pLayer = 0;
 	m_pPeakData = new int[ width() ]{};
 }
 
@@ -62,7 +62,7 @@ WaveDisplay::~WaveDisplay()
 
 
 
-void WaveDisplay::paintEvent(QPaintEvent *ev)
+void WaveDisplay::paintEvent( QPaintEvent *ev )
 {
 	UNUSED(ev);
 	
@@ -91,7 +91,7 @@ void WaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.drawText( 0, 0, width(), 20, Qt::AlignCenter, m_sSampleName );
 }
 
-void WaveDisplay::resizeEvent(QResizeEvent * event)
+void WaveDisplay::resizeEvent( QResizeEvent * event )
 {
 	updateDisplay(m_pLayer);
 }
@@ -102,11 +102,11 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
 	int currentWidth = width();
 	
-	
 	if(!pLayer || currentWidth <= 0){
+		m_pLayer = nullptr;
+		
 		return;
 	}
-	
 	
 	if(currentWidth != m_nCurrentWidth){
 		delete[] m_pPeakData;
