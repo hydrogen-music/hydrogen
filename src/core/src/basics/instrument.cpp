@@ -75,8 +75,13 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __apply_velocity( true )
 	, __current_instr_for_export(false)
 {
-	if ( __adsr==0 ) __adsr = new ADSR();
-	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = 0.0;
+	if ( __adsr == nullptr ) {
+		__adsr = new ADSR();
+	}
+	
+	for ( int i=0; i<MAX_FX; i++ ) {
+		__fx_level[i] = 0.0;
+	}
 	__components = new std::vector<InstrumentComponent*> ();
 }
 
@@ -113,7 +118,9 @@ Instrument::Instrument( Instrument* other )
 	, __apply_velocity( other->get_apply_velocity() )
 	, __current_instr_for_export(false)
 {
-	for ( int i=0; i<MAX_FX; i++ ) __fx_level[i] = other->get_fx_level( i );
+	for ( int i=0; i<MAX_FX; i++ ) {
+		__fx_level[i] = other->get_fx_level( i );
+	}
 
 	__components = new std::vector<InstrumentComponent*> ();
 	__components->assign( other->get_components()->begin(), other->get_components()->end() );
@@ -121,9 +128,10 @@ Instrument::Instrument( Instrument* other )
 
 Instrument::~Instrument()
 {
-	for (std::vector<InstrumentComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-		delete *it;
-	}
+	for(auto& pComponent : *this->get_components()){
+		delete pComponent;
+	}	
+
 	delete __components;
 
 	delete __adsr;
@@ -165,22 +173,27 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 			InstrumentLayer* src_layer = pSrcComponent->get_layer( i );
 			InstrumentLayer* my_layer = pMyComponent->get_layer( i );
 
-			if( src_layer==0 ) {
-				if ( is_live )
+			if( src_layer == nullptr ) {
+				if ( is_live ) {
 					AudioEngine::get_instance()->lock( RIGHT_HERE );
-				pMyComponent->set_layer( NULL, i );
-				if ( is_live )
+				}
+				pMyComponent->set_layer( nullptr, i );
+				if ( is_live ) {
 					AudioEngine::get_instance()->unlock();
+				}
 			} else {
 				QString sample_path =  pDrumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
 				Sample* sample = Sample::load( sample_path );
 				if ( sample==0 ) {
 					_ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." ).arg( sample_path ) );
-					if ( is_live )
+					if ( is_live ) {
 						AudioEngine::get_instance()->lock( RIGHT_HERE );
-					pMyComponent->set_layer( NULL, i );
-					if ( is_live )
+					}
+					pMyComponent->set_layer( nullptr, i );
+					
+					if ( is_live ) {
 						AudioEngine::get_instance()->unlock();
+					}
 				} else {
 					if ( is_live )
 						AudioEngine::get_instance()->lock( RIGHT_HERE );
@@ -192,8 +205,9 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 			delete my_layer;
 		}
 	}
-	if ( is_live )
+	if ( is_live ) {
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
+	}
 
 	this->set_id( pInstrument->get_id() );
 	this->set_name( pInstrument->get_name() );
@@ -217,8 +231,10 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 	this->set_lower_cc( pInstrument->get_lower_cc() );
 	this->set_higher_cc( pInstrument->get_higher_cc() );
 	this->set_apply_velocity ( pInstrument->get_apply_velocity() );
-	if ( is_live )
+	
+	if ( is_live ) {
 		AudioEngine::get_instance()->unlock();
+	}
 }
 
 void Instrument::load_from( const QString& dk_name, const QString& instrument_name, bool is_live )

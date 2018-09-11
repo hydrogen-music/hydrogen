@@ -263,40 +263,39 @@ class Instrument : public H2Core::Object
 
 
 	private:
-		int __id;			                    ///< instrument id, should be unique
-		QString __name;			                ///< instrument name
-		QString __drumkit_name;                         ///< the name of the drumkit this instrument belongs tos
-		float __gain;                           ///< gain of the instrument
-		float __volume;			                ///< volume of the instrument
-		float __pan_l;			                ///< left pan of the instrument
-		float __pan_r;			                ///< right pan of the instrument
-		float __peak_l;			                ///< left current peak value
-		float __peak_r;			                ///< right current peak value
-		ADSR* __adsr;                           ///< attack delay sustain release instance
-		bool __filter_active;		            ///< is filter active?
-		float __filter_cutoff;		            ///< filter cutoff (0..1)
-		float __filter_resonance;	            ///< filter resonant frequency (0..1)
-		float __random_pitch_factor;            ///< random pitch factor
-		int __midi_out_note;		            ///< midi out note
-		int __midi_out_channel;		            ///< midi out channel
-		bool __stop_notes;		                ///< will the note automatically generate a note off after beeing on
-		SampleSelectionAlgo __sample_selection_alg;	///< how Hydrogen will chose the sample to use
-		bool __active;			                ///< is the instrument active?
-		bool __soloed;                          ///< is the instrument in solo mode?
-		bool __muted;                           ///< is the instrument muted?
-		int __mute_group;		                ///< mute group of the instrument
-		int __queued;                           ///< count the number of notes queued within Sampler::__playing_notes_queue or std::priority_queue m_songNoteQueue
-		float __fx_level[MAX_FX];	            ///< Ladspa FX level array
-		int __hihat_grp;                        ///< the instrument is part of a hihat
-		int __lower_cc;                         ///< lower cc level
-		int __higher_cc;                        ///< higher cc level
-		bool __is_preview_instrument;			///< is the instrument an hydrogen preview instrument?
-		bool __is_metronome_instrument;			///< is the instrument an metronome instrument?
-		std::vector<InstrumentComponent*>* __components;  ///< InstrumentLayer array
-		bool __apply_velocity;			///< change the sample gain based on velocity
-		bool __current_instr_for_export;		///< is the instrument currently beeing exported?
+		int						__id;					///< instrument id, should be unique
+		QString					__name;					///< instrument name
+		QString					__drumkit_name;			///< the name of the drumkit this instrument belongs to
+		float					__gain;					///< gain of the instrument
+		float					__volume;				///< volume of the instrument
+		float					__pan_l;				///< left pan of the instrument
+		float					__pan_r;				///< right pan of the instrument
+		float					__peak_l;				///< left current peak value
+		float					__peak_r;				///< right current peak value
+		ADSR*					__adsr;					///< attack delay sustain release instance
+		bool					__filter_active;		///< is filter active?
+		float					__filter_cutoff;		///< filter cutoff (0..1)
+		float					__filter_resonance;		///< filter resonant frequency (0..1)
+		float					__random_pitch_factor;	///< random pitch factor
+		int						__midi_out_note;		///< midi out note
+		int						__midi_out_channel;		///< midi out channel
+		bool					__stop_notes;			///< will the note automatically generate a note off after beeing on
+		SampleSelectionAlgo		__sample_selection_alg;	///< how Hydrogen will chose the sample to use
+		bool					__active;				///< is the instrument active?
+		bool					__soloed;				///< is the instrument in solo mode?
+		bool					__muted;				///< is the instrument muted?
+		int						__mute_group;			///< mute group of the instrument
+		int						__queued;				///< count the number of notes queued within Sampler::__playing_notes_queue or std::priority_queue m_songNoteQueue
+		float					__fx_level[MAX_FX];		///< Ladspa FX level array
+		int						__hihat_grp;			///< the instrument is part of a hihat
+		int						__lower_cc;				///< lower cc level
+		int						__higher_cc;			///< higher cc level
+		bool					__is_preview_instrument;		///< is the instrument an hydrogen preview instrument?
+		bool					__is_metronome_instrument;		///< is the instrument an metronome instrument?
+		std::vector<InstrumentComponent*>* __components;		///< InstrumentLayer array
+		bool					__apply_velocity;				///< change the sample gain based on velocity
+		bool					__current_instr_for_export;		///< is the instrument currently beeing exported?
 };
-
 // DEFINITIONS
 
 inline void Instrument::set_name( const QString& name )
