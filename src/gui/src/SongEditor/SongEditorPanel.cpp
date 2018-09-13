@@ -701,24 +701,35 @@ void SongEditorPanel::viewPlaybackTrackBtnPressed( Button* pBtn )
 	}
 }
 
+void SongEditorPanel::showTimeline()
+{
+	m_pWidgetStack->setCurrentWidget( m_pPositionRuler );
+	m_pTimeLineToggleBtn->show();
+	m_pMutePlaybackToggleBtn->hide();
+	m_pEditPlaybackBtn->hide();
+	m_pPlaybackTrackFader->hide();
+	m_pViewPlaybackToggleBtn->setPressed(false);
+}
+
+
+void SongEditorPanel::showPlaybackTrack()
+{
+	m_pWidgetStack->setCurrentWidget( m_pWaveDisplay );
+	m_pTimeLineToggleBtn->hide();
+	m_pMutePlaybackToggleBtn->show();
+	m_pEditPlaybackBtn->show();
+	m_pPlaybackTrackFader->show();
+	m_pViewPlaybackToggleBtn->setPressed(true);
+}
+
 void SongEditorPanel::viewTimeLineBtnPressed( Button* pBtn )
 {
 	if( pBtn->isPressed() ){
-		m_pWidgetStack->setCurrentWidget( m_pPositionRuler );
-		m_pTimeLineToggleBtn->show();
-		m_pMutePlaybackToggleBtn->hide();
-		m_pEditPlaybackBtn->hide();
-		m_pPlaybackTrackFader->hide();
-		m_pViewPlaybackToggleBtn->setPressed(false);
+		showTimeline();
 	}
 	else
 	{
-		m_pWidgetStack->setCurrentWidget( m_pWaveDisplay );
-		m_pTimeLineToggleBtn->hide();
-		m_pMutePlaybackToggleBtn->show();
-		m_pEditPlaybackBtn->show();
-		m_pPlaybackTrackFader->show();
-		m_pViewPlaybackToggleBtn->setPressed(true);
+		showPlaybackTrack();
 	}
 }
 

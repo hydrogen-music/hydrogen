@@ -70,6 +70,10 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		SongEditorActionMode getActionMode() {	return m_actionMode;	}
 		void toggleAutomationAreaVisibility();
 		
+		void showTimeline();
+		void showPlaybackTrack();
+		
+		
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
 		void restoreGroupVector( QString filename );
