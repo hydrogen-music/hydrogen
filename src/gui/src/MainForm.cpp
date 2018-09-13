@@ -166,8 +166,8 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	//	h2app->getPlayListDialog()->installEventFilter(this);
 	installEventFilter( this );
 
-	connect( &m_autosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
-	m_autosaveTimer.start( 60 * 1000 );
+	connect( &m_AutosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
+	m_AutosaveTimer.start( 60 * 1000 );
 
 
 #ifdef H2CORE_HAVE_LASH
@@ -204,8 +204,9 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
-	undoView = new QUndoView(h2app->m_undoStack);
-	undoView->setWindowTitle(tr("Undo history"));
+	m_pUndoView = new QUndoView(h2app->m_undoStack);
+	m_pUndoView->setWindowTitle(tr("Undo history"));
+
 
 	//restore last playlist
 	if(		Preferences::get_instance()->isRestoreLastPlaylistEnabled()
@@ -232,7 +233,7 @@ MainForm::~MainForm()
 	}
 
 	// remove the autosave file
-	m_autosaveTimer.stop();
+	m_AutosaveTimer.stop();
 	QFile autosaveFile( "hydrogen_autosave.h2song" );
 	autosaveFile.remove();
 
@@ -347,6 +348,16 @@ void MainForm::createMenuBar()
 
 	m_pViewAutomationPathAction = m_pViewMenu->addAction( trUtf8("&Automation path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
 	m_pViewAutomationPathAction->setCheckable( true );
+	update_automation_checkbox();
+
+	m_pViewTimelineAction = m_pViewMenu->addAction( trUtf8("&Timeline"), this, SLOT( action_window_showTimeline() ), QKeySequence( "" ) );
+	m_pViewTimelineAction->setCheckable( true );
+	m_pViewTimelineAction->setChecked( true );
+	update_automation_checkbox();
+	
+	m_pViewPlaybackTrackAction = m_pViewMenu->addAction( trUtf8("&Playback track"), this, SLOT( action_window_showPlaybackTrack() ), QKeySequence( "" ) );
+	m_pViewPlaybackTrackAction->setCheckable( true );
+	m_pViewPlaybackTrackAction->setChecked( false );
 	update_automation_checkbox();
 
 	m_pViewMenu->addSeparator();				// -----
@@ -876,6 +887,21 @@ void MainForm::action_window_showSongEditor()
 {
 	bool isVisible = h2app->getSongEditorPanel()->isVisible();
 	h2app->getSongEditorPanel()->setHidden( isVisible );
+}
+
+void MainForm::action_window_showTimeline()
+{
+	h2app->getSongEditorPanel()->showTimeline();
+	m_pViewPlaybackTrackAction->setChecked( false );	
+	m_pViewTimelineAction->setChecked( true );	
+}
+
+
+void MainForm::action_window_showPlaybackTrack()
+{
+	h2app->getSongEditorPanel()->showPlaybackTrack();
+	m_pViewPlaybackTrackAction->setChecked( true );	
+	m_pViewTimelineAction->setChecked( false );	
 }
 
 void MainForm::action_window_showAutomationArea()
@@ -1923,8 +1949,8 @@ void MainForm::handleSigUsr1()
 
 void MainForm::openUndoStack()
 {
-	undoView->show();
-	undoView->setAttribute(Qt::WA_QuitOnClose, false);
+	m_pUndoView->show();
+	m_pUndoView->setAttribute(Qt::WA_QuitOnClose, false);
 }
 
 void MainForm::action_undo(){
