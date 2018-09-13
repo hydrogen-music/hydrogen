@@ -64,7 +64,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	setWindowTitle( trUtf8( "Song Editor" ) );
 
 	// background
-	PixmapWidget *pBackPanel = new PixmapWidget( NULL );
+	PixmapWidget *pBackPanel = new PixmapWidget( nullptr );
 	pBackPanel->setFixedSize( 196, 49 );
 	pBackPanel->setPixmap( "/songEditor/bg_topPanel.png" );
 
@@ -168,12 +168,12 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pModeActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( modeActionBtnPressed() ) );
 
 // ZOOM
-	m_pHScrollBar = new QScrollBar( Qt::Horizontal,NULL );
+	m_pHScrollBar = new QScrollBar( Qt::Horizontal, nullptr );
 	connect( m_pHScrollBar, SIGNAL(valueChanged(int)), this, SLOT( hScrollTo(int) ) );
 
 	// zoom-in btn
 	Button* pZoomInBtn = new Button(
-			NULL,
+			nullptr,
 			"/songEditor/btn_new_on.png",
 			"/songEditor/btn_new_off.png",
 			"/songEditor/btn_new_over.png",
@@ -185,7 +185,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// zoom-out btn
 	Button* pZoomOutBtn = new Button(
-			NULL,
+			nullptr,
 			"/songEditor/btn_minus_on.png",
 			"/songEditor/btn_minus_off.png",
 			"/songEditor/btn_minus_over.png",
@@ -195,7 +195,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// view playback track toggle button
 	m_pViewPlaybackToggleBtn = new ToggleButton(
-			NULL,
+			nullptr,
 			"/songEditor/btn_viewPL_on.png",
 			"/songEditor/btn_viewPL_off.png",
 			"/songEditor/btn_viewPL_over.png",
@@ -244,7 +244,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	// timeline view toggle button
 	m_pViewTimeLineToggleBtn = new ToggleButton(
-			NULL,
+			nullptr,
 			"/songEditor/btn_viewTL_on.png",
 			"/songEditor/btn_viewTL_off.png",
 			"/songEditor/btn_viewTL_over.png",
@@ -270,7 +270,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	//~ ZOOM
 
 	// PATTERN LIST
-	m_pPatternListScrollView = new QScrollArea( NULL );
+	m_pPatternListScrollView = new QScrollArea( nullptr );
 	m_pPatternListScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPatternListScrollView->setFixedWidth( m_nPatternListWidth );
 	m_pPatternListScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -282,7 +282,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 
 	// EDITOR
-	m_pEditorScrollView = new QScrollArea( NULL );
+	m_pEditorScrollView = new QScrollArea( nullptr );
 	m_pEditorScrollView->setFrameShape( QFrame::NoFrame );
 	m_pEditorScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -294,7 +294,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 
 	// POSITION RULER
-	m_pPositionRulerScrollView = new QScrollArea( NULL );
+	m_pPositionRulerScrollView = new QScrollArea( nullptr );
 	m_pPositionRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPositionRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPositionRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -302,7 +302,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	m_pWidgetStack = new QStackedWidget( m_pPositionRulerScrollView );
 
-	m_pPositionRuler = new SongEditorPositionRuler( NULL );
+	m_pPositionRuler = new SongEditorPositionRuler( nullptr );
 	
 	m_pWaveDisplay = new WaveDisplay( m_pPositionRulerScrollView->viewport() );
 	InstrumentComponent *pCompo = AudioEngine::get_instance()->get_sampler()->__preview_instrument->get_components()->front();
@@ -315,7 +315,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRulerScrollView->setWidgetResizable(true);
 	m_pPositionRulerScrollView->setWidget( m_pWidgetStack );
 	
-	m_pAutomationPathScrollView = new QScrollArea( NULL );
+	m_pAutomationPathScrollView = new QScrollArea( nullptr );
 	m_pAutomationPathScrollView->setFrameShape( QFrame::NoFrame );
 	m_pAutomationPathScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pAutomationPathScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -327,12 +327,12 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pAutomationPathView, SIGNAL( pointRemoved(float, float) ), this, SLOT( automationPathPointRemoved(float,float) ) );
 	connect( m_pAutomationPathView, SIGNAL( pointMoved(float, float, float, float) ), this, SLOT( automationPathPointMoved(float,float, float, float) ) );
 
-	m_pAutomationCombo = new LCDCombo( NULL, 22 );
+	m_pAutomationCombo = new LCDCombo( nullptr, 22 );
 	m_pAutomationCombo->setToolTip( trUtf8("Adjust parameter values in time") );
 	m_pAutomationCombo->addItem( trUtf8("Velocity") );
 	m_pAutomationCombo->select( 0 );
 
-	m_pVScrollBar = new QScrollBar( Qt::Vertical, NULL );
+	m_pVScrollBar = new QScrollBar( Qt::Vertical, nullptr );
 	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( vScrollTo(int) ) );
 
 
@@ -481,7 +481,6 @@ void SongEditorPanel::updateAll()
 
 	m_pWaveDisplay->updateDisplay( pCompo->get_layer(0) );
 
-
 	m_pPatternList->createBackground();
 	m_pPatternList->update();
 
@@ -490,9 +489,9 @@ void SongEditorPanel::updateAll()
 	m_pSongEditor->createBackground();
 	m_pSongEditor->update();
 
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	m_pAutomationPathView->setAutomationPath (song->get_velocity_automation_path());
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	m_pAutomationPathView->setAutomationPath (pSong->get_velocity_automation_path());
 
 	resyncExternalScrollBar();
 }
@@ -600,9 +599,9 @@ void SongEditorPanel::clearSequence( Button* btn)
 	
 	QString filename = Filesystem::tmp_file_path( "SEQ.xml" );
 	SE_deletePatternSequenceAction *action = new SE_deletePatternSequenceAction( filename );
-	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
+	HydrogenApp *pH2App = HydrogenApp::get_instance();
 
-	hydrogenApp->m_pUndoStack->push( action );
+	pH2App->m_pUndoStack->push( action );
 }
 
 
@@ -661,7 +660,6 @@ void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 	pBtn->setPressed( true );
 	m_pPointerActionBtn->setPressed( false );
 	m_actionMode = DRAW_ACTION;
-
 }
 
 
@@ -834,33 +832,33 @@ void SongEditorPanel::selectedPatternChangedEvent()
 
 void SongEditorPanel::automationPathChanged()
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	Song *song = engine->getSong();
-	song->set_is_modified(true);
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	pSong->set_is_modified(true);
 }
 
 
 void SongEditorPanel::automationPathPointAdded(float x, float y)
 {
-	H2Core::AutomationPath *path = m_pAutomationPathView->getAutomationPath();
-	SE_automationPathAddPointAction *undo_action = new SE_automationPathAddPointAction(path, x, y);
-	HydrogenApp::get_instance()->m_pUndoStack->push( undo_action );
+	H2Core::AutomationPath *pPath = m_pAutomationPathView->getAutomationPath();
+	SE_automationPathAddPointAction *pUndoAction = new SE_automationPathAddPointAction(pPath, x, y);
+	HydrogenApp::get_instance()->m_pUndoStack->push( pUndoAction );
 }
 
 
 void SongEditorPanel::automationPathPointRemoved(float x, float y)
 {
-	H2Core::AutomationPath *path = m_pAutomationPathView->getAutomationPath();
-	SE_automationPathRemovePointAction *undo_action = new SE_automationPathRemovePointAction(path, x, y);
-	HydrogenApp::get_instance()->m_pUndoStack->push( undo_action );
+	H2Core::AutomationPath *pPath = m_pAutomationPathView->getAutomationPath();
+	SE_automationPathRemovePointAction *pUndoAction = new SE_automationPathRemovePointAction(pPath, x, y);
+	HydrogenApp::get_instance()->m_pUndoStack->push( pUndoAction );
 }
 
 
 void SongEditorPanel::automationPathPointMoved(float ox, float oy, float tx, float ty)
 {
-	H2Core::AutomationPath *path = m_pAutomationPathView->getAutomationPath();
-	SE_automationPathMovePointAction *undo_action = new SE_automationPathMovePointAction(path, ox, oy, tx, ty);
-	HydrogenApp::get_instance()->m_pUndoStack->push( undo_action );
+	H2Core::AutomationPath *pPath = m_pAutomationPathView->getAutomationPath();
+	SE_automationPathMovePointAction *pUndoAction = new SE_automationPathMovePointAction(pPath, ox, oy, tx, ty);
+	HydrogenApp::get_instance()->m_pUndoStack->push( pUndoAction );
 }
 
 void SongEditorPanel::toggleAutomationAreaVisibility()
