@@ -15,7 +15,7 @@
 #include "HydrogenApp.h"
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
-#include "PatternFillDialog.h"
+#include "SongEditor/PatternFillDialog.h"
 
 #include "PatternEditor/NotePropertiesRuler.h"
 #include "PatternEditor/DrumPatternEditor.h"

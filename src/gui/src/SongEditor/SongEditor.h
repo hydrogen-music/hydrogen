@@ -34,7 +34,7 @@
 
 #include <hydrogen/object.h>
 #include "../EventListener.h"
-#include "../PatternFillDialog.h"
+#include "PatternFillDialog.h"
 
 class Button;
 class ToggleButton;

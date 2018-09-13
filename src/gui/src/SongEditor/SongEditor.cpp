@@ -43,17 +43,17 @@ using namespace H2Core;
 #include "SongEditorPanel.h"
 #include "SongEditorPanelBpmWidget.h"
 #include "SongEditorPanelTagWidget.h"
+#include "PatternFillDialog.h"
+#include "VirtualPatternDialog.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "SoundLibrary/SoundLibraryDatastructures.h"
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 #include "../widgets/Button.h"
-#include "../PatternFillDialog.h"
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
 #include "../Skin.h"
-#include "../VirtualPatternDialog.h"
 
 
 
