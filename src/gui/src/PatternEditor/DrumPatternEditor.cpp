@@ -171,7 +171,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 	{
 		//shift + leftClick: add noteOff note
 		SE_addNoteRightClickAction *action = new SE_addNoteRightClickAction( nColumn, row, __selectedPatternNumber );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 	else if (ev->button() == Qt::LeftButton ) {
 
@@ -213,7 +213,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 														 false,
 														 false);
 
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
 	} else if (ev->button() == Qt::RightButton ) {
 		m_bRightBtnPressed = true;
@@ -360,7 +360,7 @@ void DrumPatternEditor::mouseReleaseEvent(QMouseEvent *ev)
 		if ( m_pDraggedNote->get_note_off() ) return;
 
 		SE_editNoteLenghtAction *action = new SE_editNoteLenghtAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), __row, m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber);
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 }
 

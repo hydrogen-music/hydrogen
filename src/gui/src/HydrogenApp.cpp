@@ -94,7 +94,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	SoundLibraryDatabase::create_instance();
 
 	//setup the undo stack
-	m_undoStack = new QUndoStack( this );
+	m_pUndoStack = new QUndoStack( this );
 
 	updateWindowTitle();
 
@@ -582,7 +582,7 @@ void HydrogenApp::onEventQueueTimer()
 															 pQueue->m_addMidiNoteVector[0].b_isMidi,
 															 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode);
 
-			HydrogenApp::get_instance()->m_undoStack->push( action );
+			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 		pQueue->m_addMidiNoteVector.erase(pQueue->m_addMidiNoteVector.begin());
 

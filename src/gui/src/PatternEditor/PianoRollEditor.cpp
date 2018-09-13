@@ -520,7 +520,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 		if ( ev->modifiers() & Qt::ShiftModifier ){
 
 			SE_addPianoRollNoteOffAction *action = new SE_addPianoRollNoteOffAction( nColumn, pressedline, __selectedPatternNumber, nSelectedInstrumentnumber );
-			HydrogenApp::get_instance()->m_undoStack->push( action );
+			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 			return;
 		}
 
@@ -561,7 +561,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 																		   oldLeadLag,
 																		   oldNoteKeyVal,
 																		   oldOctaveKeyVal );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
 	}
 
@@ -886,7 +886,7 @@ void PianoRollEditor::mouseReleaseEvent(QMouseEvent *ev)
 		if( m_pDraggedNote->get_length() != __oldLength )
 		{
 			SE_editPianoRollNoteLengthAction *action = new SE_editPianoRollNoteLengthAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber, __selectedInstrumentnumber, __pressedLine );
-			HydrogenApp::get_instance()->m_undoStack->push( action );
+			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 
 
@@ -904,7 +904,7 @@ void PianoRollEditor::mouseReleaseEvent(QMouseEvent *ev)
 																								 __leadLag,
 																								 __oldLeadLag,
 																								 __pressedLine );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 }
 

@@ -261,7 +261,7 @@ void InstrumentLine::functionClearNotes()
 	}
 	if( noteList.size() > 0 ){
 		SE_clearNotesPatternEditorAction *action = new SE_clearNotesPatternEditorAction( noteList, m_nInstrumentNumber,selectedPatternNr);
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 }
 
@@ -324,7 +324,7 @@ void InstrumentLine::functionPasteInstrumentPatternExec(int patternID)
 
 	// Create action
 	SE_pasteNotesPatternEditorAction *action = new SE_pasteNotesPatternEditorAction(patternList);
-	HydrogenApp::get_instance()->m_undoStack->push(action);
+	HydrogenApp::get_instance()->m_pUndoStack->push(action);
 }
 
 
@@ -382,7 +382,7 @@ void InstrumentLine::functionFillNotes( int every )
 				}
 			}
 			SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction( notePositions, nSelectedInstrument, pEngine->getSelectedPatternNumber() );
-			HydrogenApp::get_instance()->m_undoStack->push( action );
+			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 	}
 
@@ -439,7 +439,7 @@ void InstrumentLine::functionRandomizeVelocity()
 				}
 			}
 			SE_randomVelocityRightClickAction *action = new SE_randomVelocityRightClickAction( noteVeloValue, oldNoteVeloValue, nSelectedInstrument, pEngine->getSelectedPatternNumber() );
-			HydrogenApp::get_instance()->m_undoStack->push( action );
+			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 	}
 }
@@ -502,7 +502,7 @@ void InstrumentLine::functionDeleteInstrument()
 		}
 	}
 	SE_deleteInstrumentAction *action = new SE_deleteInstrumentAction( noteList, drumkitName, instrumentName, m_nInstrumentNumber );
-	HydrogenApp::get_instance()->m_undoStack->push( action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 
@@ -664,7 +664,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		}
 
 		SE_moveInstrumentAction *action = new SE_moveInstrumentAction( nSourceInstrument, nTargetInstrument );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
 		event->acceptProposedAction();
 	}
@@ -691,7 +691,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		}
 
 		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitName, sInstrumentName, nTargetInstrument);
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
 		event->acceptProposedAction();
 	}

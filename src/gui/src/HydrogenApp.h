@@ -98,7 +98,7 @@ class HydrogenApp : public QObject, public H2Core::Object
 		InstrumentRack*			getInstrumentRack();
 		InfoBar *				getInfoBar() const;
 
-		QUndoStack*		m_undoStack;
+		QUndoStack*				m_pUndoStack;
 
 		void setStatusBarMessage( const QString& msg, int msec = 0 );
 		void setScrollStatusBarMessage( const QString& msg, int msec = 0, bool test = true );

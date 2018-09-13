@@ -492,7 +492,7 @@ void NotePropertiesRuler::startUndoAction()
 											   __octaveKeyVal,
 											   __oldOctaveKeyVal );
 
-	HydrogenApp::get_instance()->m_undoStack->push( action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
