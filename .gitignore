@@ -5,6 +5,7 @@
 *.layout
 ui_*.h
 moc_*.cc
+moc_*.cpp_parameters
 /.tags
 /build
 /cmake_opts
