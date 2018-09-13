@@ -34,7 +34,6 @@
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/drumkit_component.h>
 #include <hydrogen/basics/playlist.h>
-
 #include <hydrogen/lilypond/lilypond.h>
 
 #include "AboutDialog.h"
@@ -50,7 +49,7 @@
 #include "LadspaFXProperties.h"
 #include "SongPropertiesDialog.h"
 #include "UndoActions.h"
-#include "widgets/InfoBar.h"
+#include "Widgets/InfoBar.h"
 
 #include "Director.h"
 #include "Mixer/Mixer.h"

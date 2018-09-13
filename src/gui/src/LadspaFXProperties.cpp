@@ -32,8 +32,8 @@
 #include "HydrogenApp.h"
 #include "LadspaFXSelector.h"
 #include "Skin.h"
-#include "widgets/Fader.h"
-#include "widgets/LCD.h"
+#include "Widgets/Fader.h"
+#include "Widgets/LCD.h"
 
 #include "Mixer/Mixer.h"
 #include "Mixer/MixerLine.h"

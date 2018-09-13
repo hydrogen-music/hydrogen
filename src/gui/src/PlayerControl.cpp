@@ -26,11 +26,11 @@
 #include "InstrumentRack.h"
 #include "HydrogenApp.h"
 
-#include "widgets/LCD.h"
-#include "widgets/Button.h"
-#include "widgets/CpuLoadWidget.h"
-#include "widgets/MidiActivityWidget.h"
-#include "widgets/PixmapWidget.h"
+#include "Widgets/LCD.h"
+#include "Widgets/Button.h"
+#include "Widgets/CpuLoadWidget.h"
+#include "Widgets/MidiActivityWidget.h"
+#include "Widgets/PixmapWidget.h"
 
 #include "Mixer/Mixer.h"
 #include "SongEditor/SongEditorPanel.h"

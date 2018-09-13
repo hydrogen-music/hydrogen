@@ -54,7 +54,7 @@
 
 #include "Director.h"
 #include "HydrogenApp.h"
-#include "widgets/PixmapWidget.h"
+#include "Widgets/PixmapWidget.h"
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>

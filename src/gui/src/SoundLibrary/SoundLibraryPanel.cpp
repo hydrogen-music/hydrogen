@@ -36,8 +36,8 @@
 #include "SoundLibraryExportDialog.h"
 
 #include "../HydrogenApp.h"
-#include "../widgets/Button.h"
-#include "../widgets/PixmapWidget.h"
+#include "../Widgets/Button.h"
+#include "../Widgets/PixmapWidget.h"
 #include "../Skin.h"
 #include "../SongEditor/SongEditorPanel.h"
 #include "../PatternEditor/PatternEditorPanel.h"

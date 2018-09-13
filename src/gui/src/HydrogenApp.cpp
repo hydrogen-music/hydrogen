@@ -50,7 +50,7 @@
 #include "Mixer/MixerLine.h"
 #include "UndoActions.h"
 
-#include "widgets/InfoBar.h"
+#include "Widgets/InfoBar.h"
 
 
 #include <QtGui>

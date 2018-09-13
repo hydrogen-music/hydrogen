@@ -22,7 +22,7 @@
 
 #include "InstrumentRack.h"
 #include "Skin.h"
-#include "widgets/Button.h"
+#include "Widgets/Button.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 

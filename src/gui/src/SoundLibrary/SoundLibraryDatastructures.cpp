@@ -2,7 +2,7 @@
 #include "SoundLibraryRepositoryDialog.h"
 #include "SoundLibraryPanel.h"
 
-#include "../widgets/DownloadWidget.h"
+#include "../Widgets/DownloadWidget.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 

@@ -28,7 +28,7 @@
 
 #include "PianoRollEditor.h"
 #include "../EventListener.h"
-#include "../widgets/LCDCombo.h"
+#include "../Widgets/LCDCombo.h"
 
 class Button;
 class ToggleButton;

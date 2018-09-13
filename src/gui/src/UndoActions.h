@@ -21,7 +21,7 @@
 #include "PatternEditor/DrumPatternEditor.h"
 #include "PatternEditor/PatternEditorPanel.h"
 #include "PatternEditor/NotePropertiesRuler.h"
-#include "widgets/AutomationPathView.h"
+#include "Widgets/AutomationPathView.h"
 
 
 //=====================================================================================================================================

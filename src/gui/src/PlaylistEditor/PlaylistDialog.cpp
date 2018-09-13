@@ -26,7 +26,7 @@
 #include "../InstrumentRack.h"
 #include "SoundLibrary/SoundLibraryPanel.h"
 #include "SongEditor/SongEditorPanel.h"
-#include "widgets/PixmapWidget.h"
+#include "Widgets/PixmapWidget.h"
 
 #include <hydrogen/helpers/files.h>
 #include <hydrogen/helpers/filesystem.h>
@@ -37,7 +37,7 @@
 #include <hydrogen/event_queue.h>
 #include <hydrogen/basics/playlist.h>
 
-#include "../widgets/Button.h"
+#include "../Widgets/Button.h"
 
 #include <QTreeWidget>
 #include <QDomDocument>

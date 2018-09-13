@@ -41,7 +41,7 @@ using namespace H2Core;
 #include "DrumPatternEditor.h"
 #include "../HydrogenApp.h"
 #include "../Mixer/Mixer.h"
-#include "../widgets/Button.h"
+#include "../Widgets/Button.h"
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000

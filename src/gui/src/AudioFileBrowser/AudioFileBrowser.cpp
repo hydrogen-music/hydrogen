@@ -24,7 +24,7 @@
 #include "../HydrogenApp.h"
 #include "InstrumentEditor/InstrumentEditor.h"
 #include "SampleWaveDisplay.h"
-#include "../widgets/Button.h"
+#include "../Widgets/Button.h"
 #include "../Skin.h"
 
 #include <hydrogen/Preferences.h>

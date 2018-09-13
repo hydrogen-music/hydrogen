@@ -22,11 +22,11 @@
 
 #include "LadspaFXSelector.h"
 #include "HydrogenApp.h"
-#include <hydrogen/hydrogen.h>
 #include "Skin.h"
+
+#include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/Preferences.h>
-
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/fx/LadspaFX.h>
 

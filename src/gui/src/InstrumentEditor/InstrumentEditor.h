@@ -33,7 +33,7 @@
 #include <hydrogen/object.h>
 
 #include "../EventListener.h"
-#include "../widgets/PixmapWidget.h"
+#include "../Widgets/PixmapWidget.h"
 
 class Fader;
 class LCDDisplay;

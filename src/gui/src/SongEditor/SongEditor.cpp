@@ -50,7 +50,7 @@ using namespace H2Core;
 #include "../PatternEditor/PatternEditorPanel.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
-#include "../widgets/Button.h"
+#include "../Widgets/Button.h"
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
 #include "../Skin.h"

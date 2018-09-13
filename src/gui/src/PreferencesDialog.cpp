@@ -31,7 +31,7 @@
 
 #include <QPixmap>
 #include <QFontDialog>
-#include "widgets/MidiTable.h"
+#include "Widgets/MidiTable.h"
 
 #include <hydrogen/midi_map.h>
 #include <hydrogen/hydrogen.h>

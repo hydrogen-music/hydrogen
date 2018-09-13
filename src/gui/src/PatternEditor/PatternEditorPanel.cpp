@@ -40,10 +40,10 @@ using namespace H2Core;
 #include "PianoRollEditor.h"
 
 #include "../MainForm.h"
-#include "../widgets/Button.h"
-#include "../widgets/Fader.h"
-#include "../widgets/PixmapWidget.h"
-#include "../widgets/LCDCombo.h"
+#include "../Widgets/Button.h"
+#include "../Widgets/Fader.h"
+#include "../Widgets/PixmapWidget.h"
+#include "../Widgets/LCDCombo.h"
 
 #include "../Skin.h"
 #include "../SongEditor/SongEditorPanel.h"
