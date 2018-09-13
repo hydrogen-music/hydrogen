@@ -234,19 +234,19 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 
 			if ( bFound ) {//Delete pattern
 				SE_deletePatternAction *action = new SE_deletePatternAction( nColumn, nRow, nColumnIndex) ;
-				h2app->m_undoStack->push( action );
+				h2app->m_pUndoStack->push( action );
 
 			}
 			else {
 				if ( nColumn < (int)pColumns->size() ) {
 					SE_addPatternAction *action = new SE_addPatternAction( nColumn, nRow, nColumnIndex ) ;
-					h2app->m_undoStack->push( action );
+					h2app->m_pUndoStack->push( action );
 				}
 			}
 		}
 		else {
 			SE_addPatternAction *action = new SE_addPatternAction( nColumn, nRow, 0 ) ;
-			h2app->m_undoStack->push( action );
+			h2app->m_pUndoStack->push( action );
 		}
 	}
 
@@ -446,7 +446,7 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 		}
 
 		SE_movePatternCellAction *action = new SE_movePatternCellAction( m_movingCells, m_selectedCells , m_existingCells, m_bIsCtrlPressed);
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 
 	setCursor( QCursor( Qt::ArrowCursor ) );
@@ -1084,7 +1084,7 @@ void SongEditorPatternList::inlineEditingEntered()
 
 	SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  patternBeingEdited->get_name() , patternBeingEdited->get_info(), patternBeingEdited->get_category(),
 												patternName, patternBeingEdited->get_info(), patternBeingEdited->get_category(), nSelectedPattern );
-	HydrogenApp::get_instance()->m_undoStack->push( action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 
@@ -1300,7 +1300,7 @@ void SongEditorPatternList::patternPopup_load()
 
 	SE_loadPatternAction *action = new SE_loadPatternAction( patternPath, prevPatternPath, sequencePath, nSelectedPattern, false );
 	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
-	hydrogenApp->m_undoStack->push( action );
+	hydrogenApp->m_pUndoStack->push( action );
 }
 
 void SongEditorPatternList::loadPatternAction( QString afilename, int position)
@@ -1440,7 +1440,7 @@ void SongEditorPatternList::patternPopup_delete()
 
 	SE_deletePatternFromListAction *action = new 	SE_deletePatternFromListAction( patternPath , sequencePath, patternPosition );
 	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
-	hydrogenApp->m_undoStack->push( action );
+	hydrogenApp->m_pUndoStack->push( action );
 
 }
 
@@ -1556,7 +1556,7 @@ void SongEditorPatternList::patternPopup_copy()
 		}
 		SE_copyPatternAction *action = new SE_copyPatternAction( filePath, nSelectedPattern + 1 );
 		HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
-		hydrogenApp->m_undoStack->push( action );
+		hydrogenApp->m_pUndoStack->push( action );
 	}
 
 	delete dialog;
@@ -1597,7 +1597,7 @@ void SongEditorPatternList::patternPopup_fill()
 	if ( dialog->exec() == QDialog::Accepted ) {
 
 		SE_fillRangePatternAction *action = new SE_fillRangePatternAction( &range, nSelectedPattern );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 
 	delete dialog;
@@ -1718,7 +1718,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 		}
 
 		SE_movePatternListItemAction *action = new SE_movePatternListItemAction( nSourcePattern , nTargetPattern ) ;
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
 		event->acceptProposedAction();
 	} 
@@ -1745,7 +1745,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 					}
 					
 					SE_insertPatternAction* pInsertPatternAction = new SE_insertPatternAction( nTargetPattern + successfullyAddedPattern, pNewPattern );
-					HydrogenApp::get_instance()->m_undoStack->push( pInsertPatternAction );
+					HydrogenApp::get_instance()->m_pUndoStack->push( pInsertPatternAction );
 					
 					successfullyAddedPattern++;
 				}
@@ -1772,7 +1772,7 @@ void SongEditorPatternList::dropEvent(QDropEvent *event)
 		if( QString( tokens.at(0) ).contains( "drag pattern" )) drag = true;
 		SE_loadPatternAction *pAction = new SE_loadPatternAction( sPatternName, oldPatternName, sequenceFilename, nTargetPattern, drag );
 
-		pHydrogenApp->m_undoStack->push( pAction );
+		pHydrogenApp->m_pUndoStack->push( pAction );
 	}
 }
 

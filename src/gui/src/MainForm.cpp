@@ -204,7 +204,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
-	m_pUndoView = new QUndoView(h2app->m_undoStack);
+	m_pUndoView = new QUndoView(h2app->m_pUndoStack);
 	m_pUndoView->setWindowTitle(tr("Undo history"));
 
 
@@ -524,7 +524,7 @@ void MainForm::action_file_new()
 		return;
 	}
 
-	h2app->m_undoStack->clear();
+	h2app->m_pUndoStack->clear();
 	pEngine->getTimeline()->m_timelinevector.clear();
 	Song * pSong = Song::get_empty_song();
 	pSong->set_filename( "" );
@@ -782,7 +782,7 @@ void MainForm::action_file_openPattern()
 		}
 		SE_insertPatternAction*action =
 				new SE_insertPatternAction( selectedPatternPosition + 1, pNewPattern );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 }
 
@@ -798,7 +798,7 @@ void MainForm::action_file_openDemo()
 		return;
 	}
 
-	h2app->m_undoStack->clear();
+	h2app->m_pUndoStack->clear();
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::ExistingFile);
 	fd.setNameFilter( Filesystem::songs_filter_name );
@@ -914,7 +914,7 @@ void MainForm::action_window_showAutomationArea()
 void MainForm::action_instruments_addInstrument()
 {
 	SE_mainMenuAddInstrumentAction *action = new SE_mainMenuAddInstrumentAction();
-	HydrogenApp::get_instance()->m_undoStack->push( action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 
@@ -1007,7 +1007,7 @@ void MainForm::functionDeleteInstrument(int instrument)
 		}
 	}
 	SE_deleteInstrumentAction *action = new SE_deleteInstrumentAction( noteList, drumkitName, instrumentName, instrument );
-	HydrogenApp::get_instance()->m_undoStack->push( action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 
@@ -1344,7 +1344,7 @@ void MainForm::openSongFile( const QString& sFilename )
 		return;
 	}
 
-	h2app->m_undoStack->clear();
+	h2app->m_pUndoStack->clear();
 
 	// add the new loaded song in the "last used song" vector
 	Preferences *pPref = Preferences::get_instance();
@@ -1756,7 +1756,7 @@ void MainForm::playlistLoadSongEvent (int nIndex)
 
 	h2app->getMainForm()->updateRecentUsedSongList();
 	h2app->closeFXProperties();
-	h2app->m_undoStack->clear();
+	h2app->m_pUndoStack->clear();
 
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 	HydrogenApp::get_instance()->setScrollStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( nIndex +1 ), 5000 );
@@ -1954,18 +1954,18 @@ void MainForm::openUndoStack()
 }
 
 void MainForm::action_undo(){
-	h2app->m_undoStack->undo();
+	h2app->m_pUndoStack->undo();
 }
 
 void MainForm::action_redo(){
-	h2app->m_undoStack->redo();
+	h2app->m_pUndoStack->redo();
 }
 
 void MainForm::undoRedoActionEvent( int nEvent ){
 	if(nEvent == 0)
-		h2app->m_undoStack->undo();
+		h2app->m_pUndoStack->undo();
 	else if(nEvent == 1)
-		h2app->m_undoStack->redo();
+		h2app->m_pUndoStack->redo();
 }
 
 bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )

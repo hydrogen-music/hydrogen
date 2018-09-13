@@ -154,7 +154,7 @@ void SongEditorPanelTagWidget::on_okBtn_clicked()
 		newTagItem = tagTableWidget->item( songPosition, 0 );
 		if ( newTagItem ) {
 			SE_editTagAction *action = new SE_editTagAction(  newTagItem->text() ,oldText.value( songPosition ), songPosition );
-			HydrogenApp::get_instance()->m_undoStack->push( action );
+			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 	}
 	accept();

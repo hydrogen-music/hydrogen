@@ -109,7 +109,7 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 
 
 	SE_editTimeLineAction *action = new SE_editTimeLineAction( lineEditBeat->text().toInt(), oldBpm, QString( lineEditBpm->text() ).toFloat() );
-	HydrogenApp::get_instance()->m_undoStack->push( action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	accept();
 }
 
@@ -130,7 +130,7 @@ void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 	}
 
 	SE_deleteTimeLineAction *action = new SE_deleteTimeLineAction( lineEditBeat->text().toInt(), oldBpm );
-	HydrogenApp::get_instance()->m_undoStack->push( action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	accept();
 }
 

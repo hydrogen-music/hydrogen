@@ -518,7 +518,7 @@ void SongEditorPanel::newPatBtnClicked( Button* btn )
 	if ( pDialog->exec() == QDialog::Accepted ) {
 		SE_insertPatternAction*action =
 				new SE_insertPatternAction( pEngine->getSelectedPatternNumber() + 1, new Pattern( pNewPattern->get_name() , pNewPattern->get_info(), pNewPattern->get_category() ) );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 
 	delete pNewPattern;
@@ -564,7 +564,7 @@ void SongEditorPanel::upBtnClicked( Button* btn )
 	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
 
 	SE_movePatternListItemAction *action = new SE_movePatternListItemAction( nSelectedPatternPos, nSelectedPatternPos -1 ) ;
-	HydrogenApp::get_instance()->m_undoStack->push( action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 
@@ -583,7 +583,7 @@ void SongEditorPanel::downBtnClicked( Button* btn )
 	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
 
 	SE_movePatternListItemAction *action = new SE_movePatternListItemAction( nSelectedPatternPos, nSelectedPatternPos +1 ) ;
-	HydrogenApp::get_instance()->m_undoStack->push( action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 
@@ -602,7 +602,7 @@ void SongEditorPanel::clearSequence( Button* btn)
 	SE_deletePatternSequenceAction *action = new SE_deletePatternSequenceAction( filename );
 	HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 
-	hydrogenApp->m_undoStack->push( action );
+	hydrogenApp->m_pUndoStack->push( action );
 }
 
 
@@ -844,7 +844,7 @@ void SongEditorPanel::automationPathPointAdded(float x, float y)
 {
 	H2Core::AutomationPath *path = m_pAutomationPathView->getAutomationPath();
 	SE_automationPathAddPointAction *undo_action = new SE_automationPathAddPointAction(path, x, y);
-	HydrogenApp::get_instance()->m_undoStack->push( undo_action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( undo_action );
 }
 
 
@@ -852,7 +852,7 @@ void SongEditorPanel::automationPathPointRemoved(float x, float y)
 {
 	H2Core::AutomationPath *path = m_pAutomationPathView->getAutomationPath();
 	SE_automationPathRemovePointAction *undo_action = new SE_automationPathRemovePointAction(path, x, y);
-	HydrogenApp::get_instance()->m_undoStack->push( undo_action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( undo_action );
 }
 
 
@@ -860,7 +860,7 @@ void SongEditorPanel::automationPathPointMoved(float ox, float oy, float tx, flo
 {
 	H2Core::AutomationPath *path = m_pAutomationPathView->getAutomationPath();
 	SE_automationPathMovePointAction *undo_action = new SE_automationPathMovePointAction(path, ox, oy, tx, ty);
-	HydrogenApp::get_instance()->m_undoStack->push( undo_action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( undo_action );
 }
 
 void SongEditorPanel::toggleAutomationAreaVisibility()
