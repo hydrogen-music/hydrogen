@@ -114,6 +114,7 @@ class ADSR : private Object
 		float __ticks;          ///< current tick count
 		float __value;          ///< current value
 		float __release_value;  ///< value when the release state was entered
+		void normalise();
 };
 
 // DEFINITIONS
