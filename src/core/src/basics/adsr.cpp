@@ -47,17 +47,20 @@ void ADSR::normalise()
 	if (__sustain < 0.0) {
 		__sustain = 0.0;
 	}
-	if (__release < 0.0) {
-		__release = 0.0;
+	if (__release < 256) {
+		__release = 256;
 	}
-	if (__attack > 1.0) {
-		__attack = 1.0;
+	if (__attack > 100000) {
+		__attack = 100000;
 	}
-	if (__decay > 1.0) {
-		__decay = 1.0;
+	if (__decay > 100000) {
+		__decay = 100000;
 	}
 	if (__sustain > 1.0) {
 		__sustain = 1.0;
+	}
+	if (__release > 100256) {
+		__release = 100256;
 	}
 }
 

@@ -73,8 +73,8 @@
 			<xsd:element name="filterActive"		type="h2:bool"					default="false"/>
 			<xsd:element name="filterCutoff"		type="h2:psfloat"				default="1.0"/>
 			<xsd:element name="filterResonance"		type="h2:psfloat"				default="0.0"/>
-			<xsd:element name="Attack"				type="h2:psfloat"				default="0.0"/>
-			<xsd:element name="Decay"				type="h2:psfloat"				default="0.0"/>
+			<xsd:element name="Attack"				type="xsd:nonNegativeInteger"	default="0"/>
+			<xsd:element name="Decay"				type="xsd:nonNegativeInteger"	default="0"/>
 			<xsd:element name="Sustain"				type="h2:psfloat"				default="1.0"/>
 			<xsd:element name="Release"				type="xsd:nonNegativeInteger"	default="5800"/>
 			<xsd:element name="muteGroup"			type="xsd:integer"				default="-1"/>
