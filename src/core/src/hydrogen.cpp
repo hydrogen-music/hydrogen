@@ -2755,7 +2755,9 @@ long Hydrogen::getTickForPosition( int pos )
 	Song* pSong = getSong();
 
 	int nPatternGroups = pSong->get_pattern_group_vector()->size();
-	if ( nPatternGroups == 0 ) return -1;
+	if ( nPatternGroups == 0 ) {
+		return -1;
+	}
 
 	if ( pos >= nPatternGroups ) {
 		if ( pSong->is_loop_enabled() ) {
@@ -2772,27 +2774,35 @@ long Hydrogen::getTickForPosition( int pos )
 	std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 	long totalTick = 0;
 	int nPatternSize;
-	Pattern *pPattern = NULL;
+	Pattern *pPattern = nullptr;
+	
 	for ( int i = 0; i < pos; ++i ) {
 		PatternList *pColumn = ( *pColumns )[ i ];
-		// prendo solo il primo. I pattern nel gruppo devono avere la
-		// stessa lunghezza
-		pPattern = pColumn->get( 0 );
-		if ( pPattern ) {
-			nPatternSize = pPattern->get_length();
+		
+		if( pColumn->size() > 0)
+		{
+			pPattern = pColumn->get( 0 );
+			if ( pPattern ) {
+				nPatternSize = pPattern->get_length();
+			} else {
+				nPatternSize = MAX_NOTES;
+			}
 		} else {
 			nPatternSize = MAX_NOTES;
 		}
 		totalTick += nPatternSize;
 	}
+	
 	return totalTick;
 }
 
 /// Set the position in the song
 void Hydrogen::setPatternPos( int pos )
 {
-	if ( pos < -1 )
+	if ( pos < -1 ) {
 		pos = -1;
+	}
+	
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
 	long totalTick = getTickForPosition( pos );
