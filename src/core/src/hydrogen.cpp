@@ -2337,6 +2337,35 @@ void Hydrogen::sequencer_setNextPattern( int pos )
 	AudioEngine::get_instance()->unlock();
 }
 
+/// Set Only the next pattern (Pattern mode only)
+void Hydrogen::sequencer_setOnlyNextPattern( int pos )
+{
+ AudioEngine::get_instance()->lock( RIGHT_HERE );
+  
+  Song* pSong = getSong();
+ if ( pSong && pSong->get_mode() == Song::PATTERN_MODE ) {
+   PatternList *pPatternList = pSong->get_pattern_list();
+
+   m_pNextPatterns->clear( );
+    Pattern * p;
+    //Deleting playing patterns
+   for ( int nPattern = 0 ; nPattern < (int)m_pPlayingPatterns->size() ; ++nPattern ) 
+   {
+     p = m_pPlayingPatterns->get( nPattern );
+     m_pNextPatterns->add( p );
+   }
+    
+    //Adding new pattern
+    p = pPatternList->get( pos );
+   m_pNextPatterns->add( p );
+ } else {
+   ERRORLOG( "can't set next pattern in song mode" );
+   m_pNextPatterns->clear();
+ }
+ 
+  AudioEngine::get_instance()->unlock();
+}
+
 int Hydrogen::getPatternPos()
 {
 	return m_nSongPos;
