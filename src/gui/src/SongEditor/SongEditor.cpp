@@ -1845,8 +1845,8 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	setAttribute(Qt::WA_NoBackground);
 
 	m_nGridWidth = 16;
-	Preferences *pref = Preferences::get_instance();
-	m_nMaxPatternSequence = pref->getMaxBars();
+	Preferences *pPref = Preferences::get_instance();
+	m_nMaxPatternSequence = pPref->getMaxBars();
 
 	m_nInitialWidth = m_nMaxPatternSequence * 16;
 
@@ -1896,7 +1896,10 @@ void SongEditorPositionRuler::setGridWidth( uint width )
 
 void SongEditorPositionRuler::createBackground()
 {
-	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
+	Preferences *pPref = Preferences::get_instance();
+	Timeline * pTimeline = Hydrogen::get_instance()->getTimeline();
+	
+	UIStyle *pStyle = pPref->getDefaultUIStyle();
 	QColor backgroundColor( pStyle->m_songEditor_backgroundColor.getRed(), pStyle->m_songEditor_backgroundColor.getGreen(), pStyle->m_songEditor_backgroundColor.getBlue() );
 	QColor textColor( pStyle->m_songEditor_textColor.getRed(), pStyle->m_songEditor_textColor.getGreen(), pStyle->m_songEditor_textColor.getBlue() );
 	QColor textColorAlpha( pStyle->m_songEditor_textColor.getRed(), pStyle->m_songEditor_textColor.getGreen(), pStyle->m_songEditor_textColor.getBlue(), 45 );
@@ -1904,11 +1907,8 @@ void SongEditorPositionRuler::createBackground()
 
 	m_pBackgroundPixmap->fill( backgroundColor );
 
-	Preferences *pref = Preferences::get_instance();
-	Timeline * pTimeline = Hydrogen::get_instance()->getTimeline();
-
-	QString family = pref->getApplicationFontFamily();
-	int size = pref->getApplicationFontPointSize();
+	QString family = pPref->getApplicationFontFamily();
+	int size = pPref->getApplicationFontPointSize();
 	QFont font( family, size );
 
 	QPainter p( m_pBackgroundPixmap );
@@ -1929,19 +1929,16 @@ void SongEditorPositionRuler::createBackground()
 			p.setPen( textColor );
 			sprintf( tmp, "%d", i + 1 );
 			p.drawText( x - m_nGridWidth, 12, m_nGridWidth * 2, height(), Qt::AlignCenter, tmp );
-
-
 		}
 		else {
 			p.setPen( textColor );
 			p.drawLine( x, 32, x, 40 );
 		}
-
 	}
 
 
-//draw tempo content
-		if(pref->getUseTimelineBpm()){
+	//draw tempo content
+	if(pPref->getUseTimelineBpm()){
 		p.setPen( textColor );
 	}else
 	{
@@ -1980,7 +1977,8 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 		// Right-click+drag
 		int column = (ev->x() / m_nGridWidth);
 		Preferences* pPref = Preferences::get_instance();
-				if ( column > (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
+		
+		if ( column > (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
 			pPref->setPunchOutPos(-1);
 			return;
 		}
@@ -2001,7 +1999,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		int column = (ev->x() / m_nGridWidth);
 		m_bRightBtnPressed = false;
 
-				if ( column > (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
+		if ( column > (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
 			return;
 		}
 
@@ -2069,27 +2067,27 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		return;
 	}
 
-	Hydrogen *H = Hydrogen::get_instance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
 
-	float fPos = H->getPatternPos();
+	float fPos = pEngine->getPatternPos();
 	int pIPos = Preferences::get_instance()->getPunchInPos();
 	int pOPos = Preferences::get_instance()->getPunchOutPos();
 
-	if ( H->getCurrentPatternList()->size() != 0 ) {
-		H2Core::Pattern *pPattern = H->getCurrentPatternList()->get( 0 );
+	if ( pEngine->getCurrentPatternList()->size() != 0 ) {
+		H2Core::Pattern *pPattern = pEngine->getCurrentPatternList()->get( 0 );
 
 		if (pPattern != NULL){
-			fPos += (float)H->getTickPosition() / (float)pPattern->get_length();
+			fPos += (float)pEngine->getTickPosition() / (float)pPattern->get_length();
 		} else {
-			fPos += (float)H->getTickPosition() / (float)MAX_NOTES;
+			fPos += (float)pEngine->getTickPosition() / (float)MAX_NOTES;
 		}
 	}
 	else {
 		// nessun pattern, uso la grandezza di default
-		fPos += (float)H->getTickPosition() / (float)MAX_NOTES;
+		fPos += (float)pEngine->getTickPosition() / (float)MAX_NOTES;
 	}
 
-	if ( H->getSong()->get_mode() == Song::PATTERN_MODE ) {
+	if ( pEngine->getSong()->get_mode() == Song::PATTERN_MODE ) {
 		fPos = -1;
 		pIPos = 0;
 		pOPos = -1;
@@ -2133,8 +2131,8 @@ void SongEditorPositionRuler::updatePosition()
 
 void SongEditorPositionRuler::editTimeLineAction( int newPosition, float newBpm )
 {
-	Hydrogen* engine = Hydrogen::get_instance();
-	Timeline* pTimeline = engine->getTimeline();
+	Hydrogen* pEngine = Hydrogen::get_instance();
+	Timeline* pTimeline = pEngine->getTimeline();
 
 	//erase the value to set the new value
 	if( pTimeline->m_timelinevector.size() >= 1 ){
@@ -2161,8 +2159,8 @@ void SongEditorPositionRuler::editTimeLineAction( int newPosition, float newBpm 
 
 void SongEditorPositionRuler::deleteTimeLinePosition( int position )
 {
-	Hydrogen* engine = Hydrogen::get_instance();
-	Timeline* pTimeline = engine->getTimeline();
+	Hydrogen* pEngine = Hydrogen::get_instance();
+	Timeline* pTimeline = pEngine->getTimeline();
 
 	//erase the value to set the new value
 	if( pTimeline->m_timelinevector.size() >= 1 ){
@@ -2178,8 +2176,8 @@ void SongEditorPositionRuler::deleteTimeLinePosition( int position )
 
 void SongEditorPositionRuler::editTagAction( QString text, int position, QString textToReplace)
 {
-	Hydrogen* engine = Hydrogen::get_instance();
-	Timeline* pTimeline = engine->getTimeline();
+	Hydrogen* pEngine = Hydrogen::get_instance();
+	Timeline* pTimeline = pEngine->getTimeline();
 
 	//check vector for old entries and remove them.
 	for( int i = 0; i < pTimeline->m_timelinetagvector.size(); ++i ){
@@ -2190,6 +2188,7 @@ void SongEditorPositionRuler::editTagAction( QString text, int position, QString
 			break;
 		}
 	}
+	
 	Timeline::HTimelineTagVector tlvector;
 	tlvector.m_htimelinetagbeat = position;
 	tlvector.m_htimelinetag = text;
@@ -2201,8 +2200,8 @@ void SongEditorPositionRuler::editTagAction( QString text, int position, QString
 void SongEditorPositionRuler::deleteTagAction( QString text, int position )
 {
 
-	Hydrogen* engine = Hydrogen::get_instance();
-	Timeline* pTimeline = engine->getTimeline();
+	Hydrogen* pEngine = Hydrogen::get_instance();
+	Timeline* pTimeline = pEngine->getTimeline();
 
 	for( int i = 0; i < pTimeline->m_timelinetagvector.size(); ++i ){
 		if( ( pTimeline->m_timelinetagvector[i].m_htimelinetag == text ) &&
@@ -2212,6 +2211,7 @@ void SongEditorPositionRuler::deleteTagAction( QString text, int position )
 			break;
 		}
 	}
+	
 	pTimeline->sortTimelineTagVector();
 	createBackground();
 }

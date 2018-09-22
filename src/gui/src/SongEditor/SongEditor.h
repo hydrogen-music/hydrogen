@@ -198,7 +198,7 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 
 	public:
 		SongEditorPositionRuler( QWidget *parent );
-		~SongEditorPositionRuler();
+		~SongEditorPositionRuler();	
 
 		void createBackground();
 
