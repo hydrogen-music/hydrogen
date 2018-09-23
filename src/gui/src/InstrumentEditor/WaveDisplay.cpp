@@ -35,7 +35,7 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
  : QWidget( pParent )
  , Object( __class_name )
  , m_nCurrentWidth( 0 )
- , m_sSampleName( "" )
+ , m_sSampleName( "-" )
  , m_pLayer( nullptr )
 {
 	setAttribute(Qt::WA_NoBackground);
@@ -88,7 +88,7 @@ void WaveDisplay::paintEvent( QPaintEvent *ev )
 	font.setWeight( 63 );
 	painter.setFont( font );
 	painter.setPen( QColor( 255 , 255, 255, 200 ) );
-	painter.drawText( 0, 0, width(), 20, Qt::AlignCenter, m_sSampleName );
+	painter.drawText( 0, 0, width(), 20, Qt::AlignLeft, m_sSampleName );
 }
 
 void WaveDisplay::resizeEvent( QResizeEvent * event )
@@ -104,7 +104,7 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 	
 	if(!pLayer || currentWidth <= 0){
 		m_pLayer = nullptr;
-		m_sSampleName = "";
+		m_sSampleName = "-";
 		
 		return;
 	}
@@ -146,7 +146,6 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		}
 	}
 	else {
-		
 		m_sSampleName = "-";
 		for ( int i =0; i < m_nCurrentWidth; ++i ){
 			m_pPeakData[ i ] = 0;
