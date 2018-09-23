@@ -37,6 +37,7 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
  , m_nCurrentWidth( 0 )
  , m_sSampleName( "-" )
  , m_pLayer( nullptr )
+ , m_SampleNameAlignment( Qt::AlignCenter )
 {
 	setAttribute(Qt::WA_NoBackground);
 
@@ -59,8 +60,6 @@ WaveDisplay::~WaveDisplay()
 
 	delete[] m_pPeakData;
 }
-
-
 
 void WaveDisplay::paintEvent( QPaintEvent *ev )
 {
@@ -88,7 +87,16 @@ void WaveDisplay::paintEvent( QPaintEvent *ev )
 	font.setWeight( 63 );
 	painter.setFont( font );
 	painter.setPen( QColor( 255 , 255, 255, 200 ) );
-	painter.drawText( 0, 0, width(), 20, Qt::AlignLeft, m_sSampleName );
+	
+	if( m_SampleNameAlignment == Qt::AlignCenter ){
+		painter.drawText( 0, 0, width(), 20, m_SampleNameAlignment, m_sSampleName );
+	} 
+	else if( m_SampleNameAlignment == Qt::AlignLeft )
+	{
+		// Use a small offnset iso. starting directly at the left border
+		painter.drawText( 20, 0, width(), 20, m_SampleNameAlignment, m_sSampleName );
+	}
+	
 }
 
 void WaveDisplay::resizeEvent( QResizeEvent * event )
