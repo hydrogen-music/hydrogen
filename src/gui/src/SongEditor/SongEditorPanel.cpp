@@ -294,26 +294,33 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 
 	// POSITION RULER
-	m_pPositionRulerScrollView = new QScrollArea( nullptr );
+	m_pWidgetStack = new QStackedWidget( nullptr );
+	m_pWidgetStack->setFixedHeight( 50 );
+		
+	m_pPositionRulerScrollView = new QScrollArea( m_pWidgetStack );
 	m_pPositionRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPositionRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPositionRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pPositionRuler = new SongEditorPositionRuler( m_pPositionRulerScrollView->viewport() );
+	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
 	m_pPositionRulerScrollView->setFixedHeight( 50 );
-
-	m_pWidgetStack = new QStackedWidget( m_pPositionRulerScrollView );
-
-	m_pPositionRuler = new SongEditorPositionRuler( nullptr );
 	
-	m_pWaveDisplay = new WaveDisplay( m_pPositionRulerScrollView->viewport() );
+	m_pPlaybackTrackScrollView = new QScrollArea( m_pWidgetStack );
+	m_pPlaybackTrackScrollView->setFrameShape( QFrame::NoFrame );
+	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pPlaybackTrackScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+
+	m_pWaveDisplay = new WaveDisplay( m_pPlaybackTrackScrollView->viewport() );
+	
 	InstrumentComponent *pCompo = AudioEngine::get_instance()->get_sampler()->__preview_instrument->get_components()->front();
 	assert(pCompo);
 	m_pWaveDisplay->updateDisplay( pCompo->get_layer(0) );
+		
+	m_pWaveDisplay->resize( m_pPositionRuler->width() , 50);
 	
-	m_pWidgetStack->addWidget( m_pPositionRuler );
-	m_pWidgetStack->addWidget( m_pWaveDisplay );
-	
-	m_pPositionRulerScrollView->setWidgetResizable(true);
-	m_pPositionRulerScrollView->setWidget( m_pWidgetStack );
+	m_pPlaybackTrackScrollView->setWidget( m_pWaveDisplay );
+	m_pPlaybackTrackScrollView->setFixedHeight( 50 );
+
 	
 	m_pAutomationPathScrollView = new QScrollArea( nullptr );
 	m_pAutomationPathScrollView->setFrameShape( QFrame::NoFrame );
@@ -335,14 +342,17 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, nullptr );
 	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( vScrollTo(int) ) );
 
+	m_pWidgetStack->addWidget( m_pPositionRulerScrollView );
+	m_pWidgetStack->addWidget( m_pPlaybackTrackScrollView );
 
+	
 	// ok...let's build the layout
 	QGridLayout *pGridLayout = new QGridLayout();
 	pGridLayout->setSpacing( 0 );
 	pGridLayout->setMargin( 0 );
 
 	pGridLayout->addWidget( pBackPanel, 0, 0 );
-	pGridLayout->addWidget( m_pPositionRulerScrollView, 0, 1 );
+	pGridLayout->addWidget( m_pWidgetStack, 0, 1 );
 	pGridLayout->addWidget( m_pPatternListScrollView, 1, 0 );
 	pGridLayout->addWidget( m_pEditorScrollView, 1, 1 );
 	pGridLayout->addWidget( m_pVScrollBar, 1, 2, 2, 1 );
@@ -467,6 +477,8 @@ void SongEditorPanel::hScrollTo( int value )
 		inside = true;
 		m_pHScrollBar->setValue( value );
 		m_pEditorScrollView->horizontalScrollBar()->setValue( value );
+		m_pPlaybackTrackScrollView->horizontalScrollBar()->setValue( value );
+		m_pPositionRulerScrollView->horizontalScrollBar()->setValue( value );
 		m_pAutomationPathScrollView->horizontalScrollBar()->setValue( value );
 		inside = false;
 	}
@@ -681,7 +693,7 @@ void SongEditorPanel::timeLineBtnPressed( Button* pBtn )
 void SongEditorPanel::viewPlaybackTrackBtnPressed( Button* pBtn )
 {
 	if( pBtn->isPressed() ){
-		m_pWidgetStack->setCurrentWidget( m_pWaveDisplay );
+		m_pWidgetStack->setCurrentWidget( m_pPlaybackTrackScrollView );
 		m_pTimeLineToggleBtn->hide();
 		m_pMutePlaybackToggleBtn->show();
 		m_pEditPlaybackBtn->show();
@@ -690,7 +702,7 @@ void SongEditorPanel::viewPlaybackTrackBtnPressed( Button* pBtn )
 	}
 	else
 	{
-		m_pWidgetStack->setCurrentWidget( m_pPositionRuler );
+		m_pWidgetStack->setCurrentWidget( m_pPositionRulerScrollView );
 		m_pTimeLineToggleBtn->show();
 		m_pMutePlaybackToggleBtn->hide();
 		m_pEditPlaybackBtn->hide();
@@ -701,7 +713,7 @@ void SongEditorPanel::viewPlaybackTrackBtnPressed( Button* pBtn )
 
 void SongEditorPanel::showTimeline()
 {
-	m_pWidgetStack->setCurrentWidget( m_pPositionRuler );
+	m_pWidgetStack->setCurrentWidget( m_pPositionRulerScrollView );
 	m_pTimeLineToggleBtn->show();
 	m_pMutePlaybackToggleBtn->hide();
 	m_pEditPlaybackBtn->hide();
@@ -712,7 +724,7 @@ void SongEditorPanel::showTimeline()
 
 void SongEditorPanel::showPlaybackTrack()
 {
-	m_pWidgetStack->setCurrentWidget( m_pWaveDisplay );
+	m_pWidgetStack->setCurrentWidget( m_pPlaybackTrackScrollView );
 	m_pTimeLineToggleBtn->hide();
 	m_pMutePlaybackToggleBtn->show();
 	m_pEditPlaybackBtn->show();

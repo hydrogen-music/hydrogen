@@ -125,6 +125,8 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		QScrollArea*			m_pEditorScrollView;
 		QScrollArea*			m_pPatternListScrollView;
 		QScrollArea*			m_pPositionRulerScrollView;
+		QScrollArea*			m_pPlaybackTrackScrollView;
+		
 		QScrollBar *			m_pVScrollBar;
 		QScrollBar *			m_pHScrollBar;
 		
