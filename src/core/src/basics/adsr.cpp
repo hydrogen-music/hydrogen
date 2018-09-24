@@ -64,7 +64,7 @@ void ADSR::normalise()
 	}
 }
 
-ADSR::ADSR( float attack, float decay, float sustain, float release ) : Object( __class_name ),
+ADSR::ADSR( unsigned int attack, unsigned int decay, float sustain, unsigned int release ) : Object( __class_name ),
 	__attack( attack ),
 	__decay( decay ),
 	__sustain( sustain ),
