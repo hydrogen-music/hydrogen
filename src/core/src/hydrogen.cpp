@@ -1864,21 +1864,25 @@ void Hydrogen::setSong( Song *pSong )
 	/* Set first pattern */
 	setSelectedPatternNumber( 0 );
 
-	/* Delete previous Song
-	*  NOTE: current approach support only one Song
-	*        loaded at the same time
-	*/
-	Song* oldSong = getSong();
-	if ( pSong == oldSong ) {
-		DEBUGLOG( "pSong == oldSong" );
+	Song* pCurrentSong = getSong();
+	if ( pSong == pCurrentSong ) {
+		DEBUGLOG( "pSong == pCurrentSong" );
 		return;
 	}
 
-	if ( oldSong ) {
-		delete oldSong;
-		oldSong = NULL;
+	if ( pCurrentSong ) {
 
-		/* NOTE: this is actually some kind of cleanup */
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		
+		delete pCurrentSong;
+		pCurrentSong = nullptr;
+		
+		AudioEngine::get_instance()->unlock();
+
+		/* NOTE: 
+		 *       - this is actually some kind of cleanup 
+		 *       - removeSong cares itself for aquiring a lock
+		 */
 		removeSong();
 	}
 
