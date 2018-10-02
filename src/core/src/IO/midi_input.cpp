@@ -85,6 +85,11 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		if ( !bIsChannelValid) return;
 
 		Hydrogen* pHydrogen = Hydrogen::get_instance();
+		if ( ! pHydrogen->getSong() ) {
+			ERRORLOG( "No song loaded, skipping note" );
+			return;
+		}
+
 		switch ( type ) {
 		case MidiMessage::SYSEX:
 				handleSysexMessage( msg );
