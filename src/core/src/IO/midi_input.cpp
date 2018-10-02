@@ -220,6 +220,11 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	MidiActionManager * aH = MidiActionManager::get_instance();
 	MidiMap * mM = MidiMap::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song loaded, skipping note" );
+		return;
+	}
 
 	pEngine->lastMidiEvent = "NOTE";
 	pEngine->lastMidiEventParameter = msg.m_nData1;
@@ -315,6 +320,10 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
+	if ( pSong == nullptr ) {
+		ERRORLOG( "No song loaded, skipping note" );
+		return;
+	}
 
 	__noteOffTick = pEngine->getTickPosition();
 	unsigned long notelength = computeDeltaNoteOnOfftime();
