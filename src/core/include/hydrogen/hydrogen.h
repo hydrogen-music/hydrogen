@@ -22,6 +22,7 @@
 #ifndef HYDROGEN_H
 #define HYDROGEN_H
 
+#include <atomic>
 #include <stdint.h> // for uint32_t et al
 #include "hydrogen/config.h"
 #include <hydrogen/midi_action.h>
@@ -238,7 +239,7 @@ public:
 private:
 	static Hydrogen* __instance;
 
-	Song*	__song; /// < Current song
+	std::atomic<Song*>	__song; /// < Current song
 
 	void initBeatcounter(void);
 

@@ -1725,6 +1725,11 @@ Hydrogen::Hydrogen()
 	INFOLOG( "[Hydrogen]" );
 
 	__song = NULL;
+	if ( __song.is_lock_free() ) {
+		INFOLOG( "Hydrogen::__song is lock-free" );
+	} else {
+		WARNINGLOG( "Hydrogen::__song is NOT lock-free" );
+	}
 
 	m_bExportSessionIsActive = false;
 	m_pTimeline = new Timeline();
