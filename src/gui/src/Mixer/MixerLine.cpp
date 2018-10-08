@@ -686,27 +686,27 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pPeakLCD->setPalette( lcdPalette );
 
 	m_pHumanizeVelocityRotary = new Rotary( this, Rotary::TYPE_NORMAL, trUtf8( "Humanize velocity" ), false, false );
-	m_pHumanizeVelocityRotary->move( 74, 88 -45 );
+	m_pHumanizeVelocityRotary->move( 74, 43 );
 	connect( m_pHumanizeVelocityRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 	m_pHumanizeVelocityRotary->setAction( new Action("HUMANIZE_VELOCITY_ABSOLUTE") );
 
 	m_pHumanizeTimeRotary = new Rotary( this, Rotary::TYPE_NORMAL, trUtf8( "Humanize time" ), false, false );
-	m_pHumanizeTimeRotary->move( 74, 125 -45);
+	m_pHumanizeTimeRotary->move( 74, 80 );
 	connect( m_pHumanizeTimeRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 	m_pHumanizeTimeRotary->setAction( new Action("HUMANIZE_TIME_ABSOLUTE") );
 
 	m_pSwingRotary = new Rotary( this,  Rotary::TYPE_NORMAL, trUtf8( "Swing" ), false, false );
-	m_pSwingRotary->move( 74, 162 -45);
+	m_pSwingRotary->move( 74, 117 );
 	connect( m_pSwingRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 	m_pSwingRotary->setAction( new Action("SWING_ABSOLUTE") );
 
 	m_pFillValueRotary = new Rotary( this,  Rotary::TYPE_NORMAL, trUtf8( "Fill" ), false, false );
-	m_pFillValueRotary->move( 74, 125 +64 );
+	m_pFillValueRotary->move( 74, 172 );
 	connect( m_pFillValueRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 	m_pFillValueRotary->setAction( new Action("FILL_VALUE_ABSOLUTE") );
 
 	m_pFillRandomizeRotary = new Rotary( this,  Rotary::TYPE_NORMAL, trUtf8( "Randomize" ), false, false );
-	m_pFillRandomizeRotary->move( 74, 162 +64);
+	m_pFillRandomizeRotary->move( 74, 209 );
 	connect( m_pFillRandomizeRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 	m_pFillRandomizeRotary->setAction( new Action("FILL_RANDOMIZE_ABSOLUTE") );
 
