@@ -1352,10 +1352,12 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 
 float Song::get_threshold() const
 {
-	float lower = std::max(0.0f, 1.0f - get_fill_value() - get_fill_randomize());
-	float upper = std::min(1.0f, 1.0f - get_fill_value() + get_fill_randomize());
+	float w = get_fill_randomize();
+	float k = 1.0f - w;
+	float lower = get_fill_value() * k;
+	float upper = lower + w;
 	float rnd = (float)rand()/(float)RAND_MAX;
-	return lower + rnd * (upper-lower);
+	return 1.0f - (lower + rnd * (upper-lower));
 }
 
 };
