@@ -343,6 +343,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
 		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
 		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+		m_pPatternEditorPanel->getProbabilityEditor()->updateEditor();
 	}
 }
 
