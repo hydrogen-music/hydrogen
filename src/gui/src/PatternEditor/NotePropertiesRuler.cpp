@@ -652,9 +652,14 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 					value = (uint)(pNote->get_probability() * height());
 				}
 				uint line_start = line_end - value;
-				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
 				int nLineWidth = 3;
-				p.fillRect( x_pos - 1 + xoffset, line_start, nLineWidth,  line_end - line_start , centerColor );
+				if ( m_Mode == VELOCITY ) {
+					QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
+					p.fillRect( x_pos - 1 + xoffset, line_start, nLineWidth,  line_end - line_start , centerColor );
+				}
+				else if ( m_Mode == PROBABILITY ) {
+					p.fillRect( x_pos - 1 + xoffset, line_start, nLineWidth,  line_end - line_start , Qt::black );
+				}
 				xoffset++;
 			}
 		}
