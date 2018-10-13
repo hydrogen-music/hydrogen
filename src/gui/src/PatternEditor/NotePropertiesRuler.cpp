@@ -95,11 +95,14 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 {
 
 	if (m_pPattern == NULL) return;
-
+	
 	pressAction( ev->x(), ev->y() ); //get all old values
 
 	float delta;
-	if (ev->modifiers() == Qt::ControlModifier) {
+	// Using '&' instead of '==' the finer control will be used
+	// regardless of how many other modifier keys are pressed
+	// along with the Control key.
+	if (ev->modifiers() & Qt::ControlModifier) {
 		delta = 0.01; // fine control
 	} else {
 		delta = 0.05; // course control
@@ -117,6 +120,9 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	else {
 		nBase = 4;
 	}
+	// The note, which was chosen by the position of the cursor,
+	// will be accessed via its x coordinate along the
+	// one-dimensional pattern editor.
 	int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
 	int x_pos = ev->x();
 	int column;
@@ -128,88 +134,311 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 
 	const Pattern::notes_t* notes = m_pPattern->get_notes();
-	FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
-		Note *pNote = it->second;
-		assert( pNote );
-		assert( (int)pNote->get_position() == column );
-		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
-			continue;
-		}
-		if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
-			float val = pNote->get_velocity() + delta;
-			if (val > 1.0) {
-				val = 1.0;
-			}
-			else if (val < 0.0) {
-				val = 0.0;
-			}
 
-			pNote->set_velocity(val);
-			__velocity = val;
+	// Whenever the Shift key is pressed, apply the current action
+	// to all notes instead to just the one positioned right below
+	// the cursor.
+	if ( ev->modifiers() & Qt::ShiftModifier ){
+	       
+		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+			Note *pNote = it->second;
+			assert( pNote );
 
-			char valueChar[100];
-			sprintf( valueChar, "%#.2f",  val);
-			( HydrogenApp::get_instance() )->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
-		}
-                else if ( m_Mode == PAN && !pNote->get_note_off() ){
-			float pan_L, pan_R;
+			
+			
+			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				continue;
+			}
+			if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
+				float val = pNote->get_velocity() + delta;
+				if (val > 1.0) {
+					val = 1.0;
+				}
+				else if (val < 0.0) {
+					val = 0.0;
+				}
 
-			float val = (pNote->get_pan_r() - pNote->get_pan_l() + 0.5) + delta;
-			if (val > 1.0) {
-				val = 1.0;
-			}
-			else if (val < 0.0) {
-				val = 0.0;
-			}
-			if ( val > 0.5 ) {
-				pan_L = 1.0 - val;
-				pan_R = 0.5;
-			}
-			else {
-				pan_L = 0.5;
-				pan_R = val;
-			}
+				pNote->set_velocity(val);
+				__velocity = val;
 
-			pNote->set_pan_l(pan_L);
-			pNote->set_pan_r(pan_R);
-		}
-		else if ( m_Mode == LEADLAG ){
-			float val = (pNote->get_lead_lag() - 1.0)/-2.0 + delta;
-			if (val > 1.0) {
-				val = 1.0;
+				char valueChar[100];
+				sprintf( valueChar, "%#.2f",  val);
+				( HydrogenApp::get_instance() )->setStatusBarMessage( QString("[%1] Set all note velocities").arg( valueChar ), 2000 );
 			}
-			else if (val < 0.0) {
-				val = 0.0;
-			}
-			pNote->set_lead_lag((val * -2.0) + 1.0);
-			char valueChar[100];
-			if (pNote->get_lead_lag() < 0.0) {
-				sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-				HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
-			} else if (pNote->get_lead_lag() > 0.0) {
-				sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-				HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
-			} else {
-				HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
-			}
-		}
-		else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
-			float val = pNote->get_probability() + delta;
-			if (val > 1.0) {
-				val = 1.0;
-			}
-			else if (val < 0.0) {
-				val = 0.0;
-			}
+			else if ( m_Mode == PAN && !pNote->get_note_off() ){
 
-			pNote->set_probability(val);
-			__probability = val;
+				float pan_delta;
 
+				// Access the current state of the
+				// panning.
+				__oldPan_R = pNote->get_pan_r();
+				__oldPan_L = pNote->get_pan_l();
+				
+				// A positive delta corresponds to a
+				// panning to the right and negative
+				// ones to the left.
+				// In mid position the panning volumes
+				// of both sides are set to 0.5. As
+				// the panning towards the right
+				// proceeds, the value of __pan_R stays
+				// at 0.5 and the one of __pan_L is
+				// successively lowered.
+				if ( delta > 0.0 ){
+					// If already panned to the
+					// left, move to the center first.
+					if ( __oldPan_R < 0.5 ){
+						if ( ( __oldPan_R + delta ) > 0.5 ){
+							__pan_R = 0.5;
+							pan_delta = delta - 0.5 + __oldPan_R;
+						} else {
+							__pan_R = __oldPan_R + delta;
+							pan_delta = 0.0;
+						}
+					} else {
+						__pan_R = __oldPan_R;
+						pan_delta = delta;
+					}
+					// Panning to the right.
+					if ( ( __oldPan_L - pan_delta ) < 0.0 ){
+						__pan_L = 0.0;
+					} else {
+						__pan_L = __oldPan_L - pan_delta;
+					}
+				} else if ( delta < 0.0 ) {
+					// If already panned to the
+					// right, move to the center first.
+					if ( __oldPan_L < 0.5 ){
+						if ( ( __oldPan_L - delta ) > 0.5 ){
+							__pan_L = 0.5;
+							pan_delta = __oldPan_L - delta - 0.5;
+						} else {
+							__pan_L = __oldPan_L - delta;
+							pan_delta = 0.0;
+						}
+					} else {
+						__pan_L = __oldPan_L;
+						pan_delta = -delta;
+					}
+					// Panning to the left.
+					// Note that `delta' will be
+					// negative in the case of
+					// left panning but
+					// `pan_delta` is always positive.
+					if ( ( __oldPan_R - pan_delta ) < 0.0 ){
+						__pan_R = 0.0;
+					} else {
+						__pan_R = __oldPan_R - pan_delta;
+					}
+				} else {
+					// delta equals zero. This
+					// cause should not happen.
+					__pan_R = __oldPan_R;
+					__pan_L = __oldPan_L;
+				}
+
+				pNote->set_pan_l( __pan_L );
+				pNote->set_pan_r( __pan_R );
+
+				char valueChar[100];
+				float val = __pan_R - __pan_L + 0.5;
+				sprintf( valueChar, "%#.2f",  val);
+				( HydrogenApp::get_instance() )->setStatusBarMessage( QString("[%1] Set all note pannings").arg( valueChar ), 2000 );
+			}
+			else if ( m_Mode == LEADLAG ){
+				float val = (pNote->get_lead_lag() - 1.0)/-2.0 + delta;
+				__oldLeadLag = pNote->get_lead_lag();
+				if (val > 1.0) {
+					val = 1.0;
+				}
+				else if (val < 0.0) {
+					val = 0.0;
+				}
+				pNote->set_lead_lag((val * -2.0) + 1.0);
+				__leadLag = (val * -2.0) + 1.0;
+				char valueChar[100];
+				if (pNote->get_lead_lag() < 0.0) {
+					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
+				} else if (pNote->get_lead_lag() > 0.0) {
+					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+				} else {
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
+				}
+			}
+			else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
+				float val = pNote->get_probability() + delta;
+				if (val > 1.0) {
+					val = 1.0;
+				}
+				else if (val < 0.0) {
+					val = 0.0;
+				}
+
+				pNote->set_probability(val);
+				__probability = val;
+
+				char valueChar[100];
+				sprintf( valueChar, "%#.2f",  val);
+				( HydrogenApp::get_instance() )->setStatusBarMessage( QString("[%1] Set all note probabilities").arg( valueChar ), 2000 );
+
+			}
 		}
 		pSong->set_is_modified( true );
-		startUndoAction();
+		// `startUndoAction' will overwrite the value of the
+		// note the cursor is hovering over.
+		// startUndoAction();
 		updateEditor();
-		break;
+		
+	} else {
+		// Only the properties of the note below the cursor
+		// are altered.
+		FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+			Note *pNote = it->second;
+			assert( pNote );
+			assert( (int)pNote->get_position() == column );
+			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				continue;
+			}
+			if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
+				float val = pNote->get_velocity() + delta;
+				if (val > 1.0) {
+					val = 1.0;
+				}
+				else if (val < 0.0) {
+					val = 0.0;
+				}
+
+				pNote->set_velocity(val);
+				__velocity = val;
+
+				char valueChar[100];
+				sprintf( valueChar, "%#.2f",  val);
+				( HydrogenApp::get_instance() )->setStatusBarMessage( QString("[%1] Set note velocity").arg( valueChar ), 2000 );
+			}
+			else if ( m_Mode == PAN && !pNote->get_note_off() ){
+
+				float pan_delta;
+
+				// Access the current state of the
+				// panning.
+				__oldPan_R = pNote->get_pan_r();
+				__oldPan_L = pNote->get_pan_l();
+				
+				// A positive delta corresponds to a
+				// panning to the right and negative
+				// ones to the left.
+				// In mid position the panning volumes
+				// of both sides are set to 0.5. As
+				// the panning towards the right
+				// proceeds, the value of __pan_R stays
+				// at 0.5 and the one of __pan_L is
+				// successively lowered.
+				if ( delta > 0.0 ){
+					// If already panned to the
+					// left, move to the center first.
+					if ( __oldPan_R < 0.5 ){
+						if ( ( __oldPan_R + delta ) > 0.5 ){
+							__pan_R = 0.5;
+							pan_delta = delta - 0.5 + __oldPan_R;
+						} else {
+							__pan_R = __oldPan_R + delta;
+							pan_delta = 0.0;
+						}
+					} else {
+						__pan_R = __oldPan_R;
+						pan_delta = delta;
+					}
+					// Panning to the right.
+					if ( ( __oldPan_L - pan_delta ) < 0.0 ){
+						__pan_L = 0.0;
+					} else {
+						__pan_L = __oldPan_L - pan_delta;
+					}
+				} else if ( delta < 0.0 ) {
+					// If already panned to the
+					// right, move to the center first.
+					if ( __oldPan_L < 0.5 ){
+						if ( ( __oldPan_L - delta ) > 0.5 ){
+							__pan_L = 0.5;
+							pan_delta = __oldPan_L - delta - 0.5;
+						} else {
+							__pan_L = __oldPan_L - delta;
+							pan_delta = 0.0;
+						}
+					} else {
+						__pan_L = __oldPan_L;
+						pan_delta = -delta;
+					}
+					// Panning to the left.
+					// Note that `delta' will be
+					// negative in the case of
+					// left panning but
+					// `pan_delta` is always positive.
+					if ( ( __oldPan_R - pan_delta ) < 0.0 ){
+						__pan_R = 0.0;
+					} else {
+						__pan_R = __oldPan_R - pan_delta;
+					}
+				} else {
+					// delta equals zero. This
+					// cause should not happen.
+					__pan_R = __oldPan_R;
+					__pan_L = __oldPan_L;
+				}
+
+				pNote->set_pan_l( __pan_L );
+				pNote->set_pan_r( __pan_R );
+
+				char valueChar[100];
+				float val = __pan_R - __pan_L + 0.5;
+				sprintf( valueChar, "%#.2f",  val);
+				( HydrogenApp::get_instance() )->setStatusBarMessage( QString("[%1] Set note panning").arg( valueChar ), 2000 );
+			}
+			else if ( m_Mode == LEADLAG ){
+				float val = (pNote->get_lead_lag() - 1.0)/-2.0 + delta;
+				__oldLeadLag = pNote->get_lead_lag();
+				if (val > 1.0) {
+					val = 1.0;
+				}
+				else if (val < 0.0) {
+					val = 0.0;
+				}
+				pNote->set_lead_lag((val * -2.0) + 1.0);
+				__leadLag = (val * -2.0) + 1.0;
+				char valueChar[100];
+				if (pNote->get_lead_lag() < 0.0) {
+					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
+				} else if (pNote->get_lead_lag() > 0.0) {
+					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+				} else {
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
+				}
+			}
+			else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
+				float val = pNote->get_probability() + delta;
+				if (val > 1.0) {
+					val = 1.0;
+				}
+				else if (val < 0.0) {
+					val = 0.0;
+				}
+
+				pNote->set_probability(val);
+				__probability = val;
+
+				char valueChar[100];
+				sprintf( valueChar, "%#.2f",  val);
+				( HydrogenApp::get_instance() )->setStatusBarMessage( QString("[%1] Set note probability").arg( valueChar ), 2000 );
+
+			}
+			pSong->set_is_modified( true );
+			startUndoAction();
+			updateEditor();
+			break;
+		}
 	}
 }
 
@@ -350,114 +579,230 @@ void NotePropertiesRuler::pressAction( int x, int y)
 		Song *pSong = (Hydrogen::get_instance())->getSong();
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
-			Note *pNote = it->second;
-			assert( pNote );
-			assert( (int)pNote->get_position() == column );
-			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
-				continue;
-			}
-			if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
-				if( columnChange ){
-					__oldVelocity = pNote->get_velocity();
-				}
-				pNote->set_velocity( val );
-				__velocity = val;
-				char valueChar[100];
-				sprintf( valueChar, "%#.2f",  val);
-				HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
-			}
-			else if ( m_Mode == PAN && !pNote->get_note_off() ){
-				float pan_L, pan_R;
-				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
-					val = 0.5;
-				}
-				if ( val > 0.5 ) {
-					pan_L = 1.0 - val;
-					pan_R = 0.5;
-				}
-				else {
-					pan_L = 0.5;
-					pan_R = val;
-				}
 
-				if( columnChange ){
-					__oldPan_L = pNote->get_pan_l();
-					__oldPan_R = pNote->get_pan_r();
-				}	
-				pNote->set_pan_l( pan_L );
-				pNote->set_pan_r( pan_R );
-				__pan_L = pan_L;
-				__pan_R = pan_R;
-			}
-			else if ( m_Mode == LEADLAG ){
-				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
-					pNote->set_lead_lag(0.0);
-					__leadLag = 0.0;
-				} else {
+		// Whenever the Shift key is pressed, apply the current action
+		// to all notes instead to just the one positioned right below
+		// the cursor.
+		if ( ev->modifiers() & Qt::ShiftModifier ){
+			FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+				Note *pNote = it->second;
+				assert( pNote );
+				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+					continue;
+				}
+				if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
 					if( columnChange ){
-						__oldLeadLag = pNote->get_lead_lag();
+						__oldVelocity = pNote->get_velocity();
 					}
-	
-					pNote->set_lead_lag((val * -2.0) + 1.0);
-					__leadLag = (val * -2.0) + 1.0;
+					pNote->set_velocity( val );
+					__velocity = val;
 					char valueChar[100];
-					if (pNote->get_lead_lag() < 0.0) {
-						sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-						HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
-					} else if (pNote->get_lead_lag() > 0.0) {
-						sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-						HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+					sprintf( valueChar, "%#.2f",  val);
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("[%1] Set note velocity").arg( valueChar ), 2000 );
+				}
+				else if ( m_Mode == PAN && !pNote->get_note_off() ){
+					float pan_L, pan_R;
+					if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+						val = 0.5;
+					}
+					if ( val > 0.5 ) {
+						pan_L = 1.0 - val;
+						pan_R = 0.5;
+					}
+					else {
+						pan_L = 0.5;
+						pan_R = val;
+					}
+
+					if( columnChange ){
+						__oldPan_L = pNote->get_pan_l();
+						__oldPan_R = pNote->get_pan_r();
+					}	
+					pNote->set_pan_l( pan_L );
+					pNote->set_pan_r( pan_R );
+					__pan_L = pan_L;
+					__pan_R = pan_R;
+				}
+				else if ( m_Mode == LEADLAG ){
+					if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+						pNote->set_lead_lag(0.0);
+						__leadLag = 0.0;
 					} else {
-						HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
-					}
+						if( columnChange ){
+							__oldLeadLag = pNote->get_lead_lag();
+						}
 	
+						pNote->set_lead_lag((val * -2.0) + 1.0);
+						__leadLag = (val * -2.0) + 1.0;
+						char valueChar[100];
+						if (pNote->get_lead_lag() < 0.0) {
+							sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+							HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
+						} else if (pNote->get_lead_lag() > 0.0) {
+							sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+							HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+						} else {
+							HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
+						}
+	
+					}
 				}
-			}
 	
-			else if ( m_Mode == NOTEKEY ){
-				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
-					;
-				} else {
-					//set the note hight
-					//QMessageBox::information ( this, "Hydrogen", trUtf8( "val: %1" ).arg(keyval)  );
-					int k = 666;
-					int o = 666;
-					if(keyval >=6 && keyval<=125) {
-						k = (keyval-6)/10;
-					} else if(keyval>=135 && keyval<=205) {
-						o = (keyval-166)/10;
-						if(o==-4) o=-3; // 135
-					}
-					pNote->set_key_octave((Note::Key)k,(Note::Octave)o); // won't set wrong values see Note::set_key_octave
+				else if ( m_Mode == NOTEKEY ){
+					if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+						;
+					} else {
+						//set the note hight
+						//QMessageBox::information ( this, "Hydrogen", trUtf8( "val: %1" ).arg(keyval)  );
+						int k = 666;
+						int o = 666;
+						if(keyval >=6 && keyval<=125) {
+							k = (keyval-6)/10;
+						} else if(keyval>=135 && keyval<=205) {
+							o = (keyval-166)/10;
+							if(o==-4) o=-3; // 135
+						}
+						pNote->set_key_octave((Note::Key)k,(Note::Octave)o); // won't set wrong values see Note::set_key_octave
 
-					__octaveKeyVal = pNote->get_octave();
-					__noteKeyVal = pNote->get_key();
+						__octaveKeyVal = pNote->get_octave();
+						__noteKeyVal = pNote->get_key();
+					}
 				}
-			}
-			else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
+				else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
+					if( columnChange ){
+						__oldProbability = pNote->get_probability();
+					}
+					pNote->set_probability( val );
+					__probability = val;
+					char valueChar[100];
+					sprintf( valueChar, "%#.2f",  val);
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("[%1] Set note probability").arg( valueChar ), 2000 );
+				}
+
+	
 				if( columnChange ){
-					__oldProbability = pNote->get_probability();
+					__columnCheckOnXmouseMouve = column;
+					startUndoAction();
+					return;
 				}
-				pNote->set_probability( val );
-				__probability = val;
-				char valueChar[100];
-				sprintf( valueChar, "%#.2f",  val);
-				HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note probability [%1]").arg( valueChar ), 2000 );
-			}
-
-	
-			if( columnChange ){
-				__columnCheckOnXmouseMouve = column;
-				startUndoAction();
-				return;
-			}
 				
-			__columnCheckOnXmouseMouve = column;
+				__columnCheckOnXmouseMouve = column;
+			}
 	
 			pSong->set_is_modified( true );
 			updateEditor();
-			break;
+		} else {
+			// Only the properties of the note below the cursor
+			// are altered.
+			FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+				Note *pNote = it->second;
+				assert( pNote );
+				assert( (int)pNote->get_position() == column );
+				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+					continue;
+				}
+				if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
+					if( columnChange ){
+						__oldVelocity = pNote->get_velocity();
+					}
+					pNote->set_velocity( val );
+					__velocity = val;
+					char valueChar[100];
+					sprintf( valueChar, "%#.2f",  val);
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("[%1] Set note velocity").arg( valueChar ), 2000 );
+				}
+				else if ( m_Mode == PAN && !pNote->get_note_off() ){
+					float pan_L, pan_R;
+					if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+						val = 0.5;
+					}
+					if ( val > 0.5 ) {
+						pan_L = 1.0 - val;
+						pan_R = 0.5;
+					}
+					else {
+						pan_L = 0.5;
+						pan_R = val;
+					}
+
+					if( columnChange ){
+						__oldPan_L = pNote->get_pan_l();
+						__oldPan_R = pNote->get_pan_r();
+					}
+					pNote->set_pan_l( pan_L );
+					pNote->set_pan_r( pan_R );
+					__pan_L = pan_L;
+					__pan_R = pan_R;
+				}
+				else if ( m_Mode == LEADLAG ){
+					if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+						pNote->set_lead_lag(0.0);
+						__leadLag = 0.0;
+					} else {
+						if( columnChange ){
+							__oldLeadLag = pNote->get_lead_lag();
+						}
+	
+						pNote->set_lead_lag((val * -2.0) + 1.0);
+						__leadLag = (val * -2.0) + 1.0;
+						char valueChar[100];
+						if (pNote->get_lead_lag() < 0.0) {
+							sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+							HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
+						} else if (pNote->get_lead_lag() > 0.0) {
+							sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+							HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+						} else {
+							HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
+						}
+	
+					}
+				}
+	
+				else if ( m_Mode == NOTEKEY ){
+					if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+						;
+					} else {
+						//set the note hight
+						//QMessageBox::information ( this, "Hydrogen", trUtf8( "val: %1" ).arg(keyval)  );
+						int k = 666;
+						int o = 666;
+						if(keyval >=6 && keyval<=125) {
+							k = (keyval-6)/10;
+						} else if(keyval>=135 && keyval<=205) {
+							o = (keyval-166)/10;
+							if(o==-4) o=-3; // 135
+						}
+						pNote->set_key_octave((Note::Key)k,(Note::Octave)o); // won't set wrong values see Note::set_key_octave
+
+						__octaveKeyVal = pNote->get_octave();
+						__noteKeyVal = pNote->get_key();
+					}
+				}
+				else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
+					if( columnChange ){
+						__oldProbability = pNote->get_probability();
+					}
+					pNote->set_probability( val );
+					__probability = val;
+					char valueChar[100];
+					sprintf( valueChar, "%#.2f",  val);
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("[%1] Set note probability").arg( valueChar ), 2000 );
+				}
+
+	
+				if( columnChange ){
+					__columnCheckOnXmouseMouve = column;
+					startUndoAction();
+					return;
+				}
+				
+				__columnCheckOnXmouseMouve = column;
+	
+				pSong->set_is_modified( true );
+				updateEditor();
+				break;
+			}
 		}
 		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 		pPatternEditor->updateEditor();
@@ -672,7 +1017,6 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 		return;
 	}
 
-
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
 	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
@@ -806,6 +1150,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 				}
 				uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
 				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
+				
 				if (pNote->get_pan_r() == pNote->get_pan_l()) {
 					// pan value is centered - draw circle
 					int y_pos = (int)( height() * 0.5 );
