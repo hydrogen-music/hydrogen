@@ -447,8 +447,7 @@ void AlsaMidiDriver::handleQueueNote(Note* pNote)
 	if (channel < 0) {
 		return;
 	}
-	int key = (pNote->get_octave() +3 ) * 12 + pNote->get_key() + pNote->get_instrument()->get_midi_out_note() - 60;
-	//int key = pNote->get_instrument()->get_midi_out_note();
+	int key = pNote->get_midi_key();
 	int velocity = pNote->get_midi_velocity();
 
 	snd_seq_event_t ev;
