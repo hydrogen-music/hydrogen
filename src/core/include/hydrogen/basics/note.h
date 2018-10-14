@@ -44,6 +44,9 @@
 #define LEAD_LAG_MIN            -1.0f
 #define LEAD_LAG_MAX            1.0f
 
+/* Should equal (default __octave + OCTAVE_OFFSET) * KEYS_PER_OCTAVE + default __key */
+#define MIDI_DEFAULT_OFFSET     36
+
 namespace H2Core
 {
 
@@ -505,7 +508,7 @@ inline int Note::get_midi_key() const
 	/* TODO ???
 	if( !has_instrument() ) { return (__octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key; }
 	*/
-	return ( __octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key + __instrument->get_midi_out_note()-MIDI_MIDDLE_C;
+	return ( __octave + OCTAVE_OFFSET ) * KEYS_PER_OCTAVE + __key + __instrument->get_midi_out_note() - MIDI_DEFAULT_OFFSET;
 }
 
 inline int Note::get_midi_velocity() const
