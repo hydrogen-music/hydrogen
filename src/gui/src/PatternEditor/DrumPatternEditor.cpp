@@ -36,7 +36,6 @@
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/adsr.h>
-#include <hydrogen/basics/note.h>
 #include <hydrogen/audio_engine.h>
 
 #include "UndoActions.h"
@@ -875,59 +874,61 @@ void DrumPatternEditor::selectedPatternChangedEvent()
 ///NotePropertiesRuler
 // Undo or redo an action, which resulted in editing a single note in
 // the Note Properties Ruler.
-void DrumPatternEditor::undoRedoNotePropertiesEditAction( int column,
-						    QString mode,
-						    int nSelectedPatternNumber,
-						    int nSelectedInstrument,
-						    float velocity,
-						    float pan_L,
-						    float pan_R,
-						    float leadLag,
-						    float probability,
-						    int noteKeyVal,
-						    int octaveKeyVal)
+void DrumPatternEditor::undoRedoNotePropertiesEditAction( QString mode,
+							  NoteProperties noteProperties )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	Pattern *pPattern;
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
-		pPattern = pPatternList->get( nSelectedPatternNumber );
+	if ( ( noteProperties.patternNumber != -1) &&
+	     ( (uint)noteProperties.patternNumber < pPatternList->size() ) ) {
+		pPattern = pPatternList->get( noteProperties.patternNumber );
 	}
 	else {
 		pPattern = NULL;
 	}
 
+	// Get an iterator over all notes in the pattern.
 	const Pattern::notes_t* notes = pPattern->get_notes();
-	FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+	// The notes in the patterns are stored as key, value pairs
+	// with the x-coordinate inside the pattern as the key. The
+	// following loop will start and end at the x-coordinate
+	// stored in the supplied `noteProperties' (in
+	// `column'). Since all notes of the pattern are stored in 
+	// `notes', the keys are not unique and the loop will iterate
+	// over all notes sharing the same position. It will go on
+	// until the one matching the requested instrument is found.
+	FOREACH_NOTE_CST_IT_BOUND( notes, it, noteProperties.column ){
 		Note *pNote = it->second;
 		assert( pNote );
-		assert( (int)pNote->get_position() == column );
-		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+		assert( (int)pNote->get_position() == noteProperties.column );
+		if ( pNote->get_instrument() !=
+		     pSong->get_instrument_list()->get( noteProperties.instrument ) ) {
 			continue;
 		}
-
+		// Undo/Redo the value changed during the last action.
 		if ( mode == "VELOCITY" && !pNote->get_note_off() ) {
-			pNote->set_velocity( velocity );
+			pNote->set_velocity( noteProperties.velocity );
+		} else if ( mode == "PAN" ){
+			pNote->set_pan_l( noteProperties.pan_l );
+			pNote->set_pan_r( noteProperties.pan_r );
+		} else if ( mode == "LEADLAG" ){
+			pNote->set_lead_lag( noteProperties.leadLag );
+		} else if ( mode == "NOTEKEY" ){
+			pNote->set_key_octave( (Note::Key)noteProperties.noteKeyVal,
+					       (Note::Octave)noteProperties.octaveKeyVal );
+		} else if ( mode == "PROBABILITY" ){
+			pNote->set_probability( noteProperties.probability );
+		} else {
+			ERRORLOG( QString( "Undo/Redo failed for note %1 in pattern %2. Mode not found."
+					   ).arg( noteProperties.column ).arg( noteProperties.patternNumber ) );
+			return;
 		}
-		else if ( mode == "PAN" ){
-
-			pNote->set_pan_l( pan_L );
-			pNote->set_pan_r( pan_R );
-		}
-		else if ( mode == "LEADLAG" ){
-			pNote->set_lead_lag( leadLag );
-		}
-		else if ( mode == "NOTEKEY" ){
-			pNote->set_key_octave( (Note::Key)noteKeyVal, (Note::Octave)octaveKeyVal );
-		}
-		else if ( mode == "PROBABILITY" ){
-			pNote->set_probability( probability );
-		}
-
 		pSong->set_is_modified( true );
 		break;
 	}
+
 	updateEditor();
 	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 	m_pPatternEditorPanel->getPanEditor()->updateEditor();

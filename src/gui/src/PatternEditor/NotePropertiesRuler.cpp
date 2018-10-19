@@ -131,14 +131,12 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 
-	// Create a list, which will contain a vector for every change
-	// applied to the properties of a note. All changes enlisted
-	// in this object will be inserted into the `QUndoStack' when
-	// handed to the `pushUndoAction' function and will be
-	// reverted upon pressed Ctrl-Z. If there are several vectors
-	// pushed on the list, all corresponding changes will be
-	// reverted at once.
-	std::list< std::vector<float> > propertyChangesStack;
+	// Create a list, which will contain the changes applied to a
+	// single notes. All changes will be inserted into the
+	// `QUndoStack' at once when handed over to the
+	// `pushUndoAction' function. This way they can all be
+	// reverted upon pressed Ctrl-Z just once.
+	std::list<NotePropertiesChanges> propertyChangesStack;
 	
 	const Pattern::notes_t* notes = m_pPattern->get_notes();
 
@@ -290,9 +288,32 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 				( HydrogenApp::get_instance() )->setStatusBarMessage( QString("[%1] Set all note probabilities").arg( valueChar ), 2000 );
 
 			}
+			// Grab all global variables specifying the past and
+			// current state of the note and instantiate structs
+			// using them.
+			NoteProperties oldNoteProperties =
+				{ it->first, __nSelectedPatternNumber,
+				  __nSelectedInstrument, __oldVelocity,
+				  __oldPan_L, __oldPan_R, __oldLeadLag,
+				  __oldNoteKeyVal, __oldOctaveKeyVal,
+				  __oldProbability };
+			NoteProperties currentNoteProperties =
+				{ it->first, __nSelectedPatternNumber,
+				  __nSelectedInstrument, __velocity,
+				  __pan_L, __pan_R, __leadLag, __noteKeyVal,
+				  __octaveKeyVal, __probability };
+			// Create a struct specifying what did change during
+			// the last action.
+			NotePropertiesChanges notePropertiesChanges =
+				{ __mode, oldNoteProperties,
+				  currentNoteProperties };
+			// Push the changes onto the list keeping track of all
+			// changes during the current action.
+			propertyChangesStack.push_front( notePropertiesChanges );
 		}
 		pSong->set_is_modified( true );
-		pushUndoAction();
+		// Push the changes onto the `QUndoStack'.
+		pushUndoAction( propertyChangesStack );
 		updateEditor();
 		
 	} else {
@@ -440,7 +461,31 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 			}
 			pSong->set_is_modified( true );
-			pushUndoAction();
+			// Grab all global variables specifying the
+			// past and current state of the note and
+			// instantiate structs using them.
+			NoteProperties oldNoteProperties =
+				{ it->first, __nSelectedPatternNumber,
+				  __nSelectedInstrument, __oldVelocity,
+				  __oldPan_L, __oldPan_R, __oldLeadLag,
+				  __oldNoteKeyVal, __oldOctaveKeyVal,
+				  __oldProbability };
+			NoteProperties currentNoteProperties =
+				{ it->first, __nSelectedPatternNumber,
+				  __nSelectedInstrument, __velocity,
+				  __pan_L, __pan_R, __leadLag,
+				  __noteKeyVal, __octaveKeyVal,
+				  __probability };
+			// Create a struct specifying what did change
+			// during the last action.
+			NotePropertiesChanges notePropertiesChanges =
+				{ __mode, oldNoteProperties,
+				  currentNoteProperties };
+			// Push the changes onto the list keeping track of all
+			// changes during the current action.
+			propertyChangesStack.push_front( notePropertiesChanges );
+			// Push the changes onto the `QUndoStack'.
+			pushUndoAction( propertyChangesStack );
 			updateEditor();
 			break;
 		}
@@ -583,6 +628,13 @@ void NotePropertiesRuler::pressAction( int x, int y)
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = (Hydrogen::get_instance())->getSong();
 
+		// Create a list, which will contain the changes
+		// applied to a single notes. All changes will be
+		// inserted into the `QUndoStack' at once when handed
+		// over to the `pushUndoAction' function. This way
+		// they can all be reverted upon pressed Ctrl-Z just
+		// once.
+		std::list<NotePropertiesChanges> propertyChangesStack;
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
 
 		// Whenever the Shift key is pressed, apply the current action
@@ -693,14 +745,38 @@ void NotePropertiesRuler::pressAction( int x, int y)
 	
 				if( columnChange ){
 					__columnCheckOnXmouseMouve = column;
-					pushUndoAction();
 					return;
 				}
+				// Grab all global variables specifying the
+				// past and current state of the note and
+				// instantiate structs using them.
+				NoteProperties oldNoteProperties =
+					{ it->first, __nSelectedPatternNumber,
+					  __nSelectedInstrument, __oldVelocity,
+					  __oldPan_L, __oldPan_R, __oldLeadLag,
+					  __oldNoteKeyVal, __oldOctaveKeyVal,
+					  __oldProbability };
+				NoteProperties currentNoteProperties =
+					{ it->first, __nSelectedPatternNumber,
+					  __nSelectedInstrument, __velocity,
+					  __pan_L, __pan_R, __leadLag,
+					  __noteKeyVal, __octaveKeyVal,
+					  __probability };
+				// Create a struct specifying what did change
+				// during the last action.
+				NotePropertiesChanges notePropertiesChanges =
+					{ __mode, oldNoteProperties,
+					  currentNoteProperties };
+				// Push the changes onto the list keeping track of all
+				// changes during the current action.
+				propertyChangesStack.push_front( notePropertiesChanges );
 				
 				__columnCheckOnXmouseMouve = column;
 			}
 
 			pSong->set_is_modified( true );
+			// Push the changes onto the `QUndoStack'.
+			pushUndoAction( propertyChangesStack );
 			updateEditor();
 		} else {
 			// Only the properties of the note below the cursor
@@ -809,7 +885,31 @@ void NotePropertiesRuler::pressAction( int x, int y)
 	
 				if( columnChange ){
 					__columnCheckOnXmouseMouve = column;
-					pushUndoAction();
+					// Grab all global variables specifying the
+					// past and current state of the note and
+					// instantiate structs using them.
+					NoteProperties oldNoteProperties =
+						{ it->first, __nSelectedPatternNumber,
+						  __nSelectedInstrument, __oldVelocity,
+						  __oldPan_L, __oldPan_R, __oldLeadLag,
+						  __oldNoteKeyVal, __oldOctaveKeyVal,
+						  __oldProbability };
+					NoteProperties currentNoteProperties =
+						{ it->first, __nSelectedPatternNumber,
+						  __nSelectedInstrument, __velocity,
+						  __pan_L, __pan_R, __leadLag,
+						  __noteKeyVal, __octaveKeyVal,
+						  __probability };
+					// Create a struct specifying what did change
+					// during the last action.
+					NotePropertiesChanges notePropertiesChanges =
+						{ __mode, oldNoteProperties,
+						  currentNoteProperties };
+					// Push the changes onto the list keeping track of all
+					// changes during the current action.
+					propertyChangesStack.push_front( notePropertiesChanges );
+					// Push the changes onto the `QUndoStack'.
+					pushUndoAction( propertyChangesStack );
 					return;
 				}
 				
@@ -827,33 +927,43 @@ void NotePropertiesRuler::pressAction( int x, int y)
 
 void NotePropertiesRuler::mouseReleaseEvent(QMouseEvent *ev)
 {
+	// Create a list, which will contain the changes applied to a
+	// single notes. All changes will be inserted into the
+	// `QUndoStack' at once when handed over to the
+	// `pushUndoAction' function. This way they can all be
+	// reverted upon pressed Ctrl-Z just once.
+	// std::list<NotePropertiesChanges> propertyChangesStack;
 	m_bMouseIsPressed = false;
-	pushUndoAction();
+	// // Grab all global variables specifying the past and current
+	// // state of the note and instantiate structs using them.
+	// NoteProperties oldNoteProperties =
+	// 	{ __undoColumn, __nSelectedPatternNumber,
+	// 	  __nSelectedInstrument, __oldVelocity, __oldPan_L,
+	// 	  __oldPan_R, __oldLeadLag, __oldNoteKeyVal,
+	// 	  __oldOctaveKeyVal, __oldProbability };
+	// NoteProperties currentNoteProperties =
+	// 	{ __undoColumn, __nSelectedPatternNumber,
+	// 	  __nSelectedInstrument, __velocity, __pan_L, __pan_R,
+	// 	  __leadLag, __noteKeyVal, __octaveKeyVal,
+	// 	  __probability };
+	// // Create a struct specifying what did change during the last
+	// // action.
+	// NotePropertiesChanges notePropertiesChanges =
+	// 	{ __mode, oldNoteProperties,
+	// 	  currentNoteProperties };
+	// // Push the changes onto the list keeping track of all changes
+	// // during the current action.
+	// propertyChangesStack.push_front( notePropertiesChanges );
+	// // Push the changes onto the `QUndoStack'.
+	// pushUndoAction( propertyChangesStack );
 }
 
 // Create an action, which is capable of reverting the most recent
 // change(s) to the note properties and pushing it onto the
 // `QUndoStack'.
-void NotePropertiesRuler::pushUndoAction()
+void NotePropertiesRuler::pushUndoAction( std::list<NotePropertiesChanges> propertyChangesStack )
 {
-	SE_editNotePropertiesAction *action = new SE_editNotePropertiesAction( __undoColumn,
-									       __mode,
-									       __nSelectedPatternNumber,
-									       __nSelectedInstrument,
-									       __velocity,
-									       __oldVelocity,
-									       __pan_L,
-									       __oldPan_L,
-									       __pan_R,
-									       __oldPan_R,
-									       __leadLag,
-									       __oldLeadLag,
-									       __probability,
-									       __oldProbability,
-									       __noteKeyVal,
-									       __oldNoteKeyVal,
-									       __octaveKeyVal,
-									       __oldOctaveKeyVal );
+	SE_editNotePropertiesAction *action = new SE_editNotePropertiesAction( propertyChangesStack );
 
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }

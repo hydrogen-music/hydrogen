@@ -348,13 +348,25 @@ struct NoteProperties {
 /**
  * Contains all properties, which can be changed using the
  * NotePropertiesRuler.
+ *
+ * In addition, the H2Core::Note::__octave can be changed as
+ * well. This case is covered by NOTEKEY and fulfills the same
+ * specifications.
  */
 enum NotePropertiesMode {
-	VELOCITY,
-	PAN,
-	LEADLAG,
-	NOTEKEY,
-	PROBABILITY
+	VELOCITY, ///< Velocity the corresponding instrument is hit
+		  ///< with or, in other words, loudness of the
+		  ///< note. Ranges from #VELOCITY_MIN to
+		  ///< #VELOCITY_MAX.
+	PAN, ///< Volume of the left stereo channel. Ranges from
+	     ///< #PAN_MIN to #PAN_MAX. 
+	LEADLAG, ///< How much the note is leading or lagging the
+		 ///< beat. Ranges from #LEAD_LAG_MIN to
+		 ///< #LEAD_LAG_MAX. 
+	NOTEKEY, ///< Note key of the corresponding Midi
+		 ///< output. Ranges from #KEY_MIN to #KEY_MAX.
+	PROBABILITY ///< Probability of the note being
+		    ///< triggered. Ranges from 0 to 1.
 };
 /**
  * Due to the structure of the NotePropertiesRuler only one property
@@ -362,14 +374,15 @@ enum NotePropertiesMode {
  * will all affect just one properties. For performance reason we will
  * therefore NOT supply all properties of a note but just the
  * corresponding global variables in the NotePropertiesRuler and a
- * flag called \link #mode, which is a enumeration specifying the
- * changed property (see #NotePropertiesMode). So, in case the \link
- * #mode "VELOCITY" is supplied, all properties except of the velocity
- * might be dirty and not actually correspond to the particular note!
+ * flag called \link #mode, which is a QString based on the
+ * enumeration specifying the changed property (see
+ * #NotePropertiesMode). So, in case the \link #mode "VELOCITY" is
+ * supplied, all properties except of the velocity might be dirty and
+ * not actually correspond to the particular note!
  */
 struct NotePropertiesChanges {
-	NotePropertiesMode mode; ///< Specifies which property was
-				 ///< changed during the last action
+	QString mode; ///< Specifies which property was changed during
+		      ///< the last action.
 	NoteProperties old; ///< Old set of properties. Note: Do not
 			    ///< trust the properties, which do not
 			    ///< correspond to the supplied mode!

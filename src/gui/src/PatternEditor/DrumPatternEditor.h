@@ -27,6 +27,7 @@
 #include "../EventListener.h"
 
 #include <hydrogen/object.h>
+#include <hydrogen/basics/note.h>
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000
@@ -83,17 +84,49 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 										bool isInstrumentMode,
 										bool isNoteOff);
 		void editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber );
-		void undoRedoNotePropertiesEditAction( int column,
-						 QString mode,
-						 int nSelectedPatternNumber,
-						 int nSelectedInstrument,
-						 float velocity,
-						 float pan_L,
-						 float pan_R,
-						 float leadLag,
-						 float probability,
-						 int noteKeyVal,
-						 int octaveKeyVal );
+		/**
+		 * Sets the properties of one specific note in a
+		 * pattern.
+		 *
+		 * The notes in the patterns are stored as key, value
+		 * pairs in the H2Core::Pattern::notes_t multimap with their
+		 * x-coordinates inside the pattern as the key. A loop
+		 * using #FOREACH_NOTE_CST_IT_BOUND will started and
+		 * ended at the x-coordinate stored in the supplied
+		 * H2Core::NoteProperties (in
+		 * H2Core::NoteProperties::column). Since all notes of
+		 * the pattern are stored inside this multimap, the
+		 * keys are not unique and the loop will iterate over
+		 * all notes sharing the same position. It will go on
+		 * until the one matching the requested instrument is
+		 * found. 
+		 *
+		 * When the correct note is found, the function sets
+		 * the property corresponding its
+		 * H2Core::NotePropertiesChanges::mode input argument using
+		 * the value stored in H2Core::NoteProperties.
+		 *
+		 * Caution: In the current implementation not the
+		 * whole state of a note in H2Core::NoteProperties
+		 * corresponds to its actual one. Only those
+		 * associated with the property specified by the mode
+		 * variable within the H2Core::NotePropertiesChanges
+		 * can be trusted. All others are just taken from
+		 * global variables inside
+		 * NotePropertiesRuler::wheelEvent or
+		 * NotePropertiesRuler::mousePressEvent.
+		 *
+		 * For a description of the context this function is
+		 * called in, see SE_editNotePropertiesAction.
+		 *
+		 * \param mode QString specifying which property of
+		 * the note to alter. It corresponds to the
+		 * enumeration H2Core::NotePropertiesMode.  
+		 * \param noteProperties State, which should be
+		 * written to the corresponding note in the pattern.
+		 */
+		void undoRedoNotePropertiesEditAction( QString mode,
+						       H2Core::NoteProperties noteProperties );
 		void functionClearNotesRedoAction( int nSelectedInstrument, int selectedPatternNumber );
 		void functionClearNotesUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, int patternNumber );
 		void functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );

@@ -58,7 +58,15 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 	private:
 		static const int m_nKeys = 24;
 		static const int m_nBasePitch = 12;
-
+	
+		/**
+		 * Contains all properties, which can be changed using
+		 * the NotePropertiesRuler.
+		 *
+		 * In addition, the H2Core::Note::__octave can be
+		 * changed as well. This case is covered by NOTEKEY
+		 * and fulfills the same specifications.
+		 */
 	        H2Core::NotePropertiesMode m_Mode;
 
 		PatternEditorPanel *m_pPatternEditorPanel;
@@ -68,46 +76,169 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		uint m_nEditorHeight;
 
 		QPixmap *m_pBackground;
-
+	
 		void createVelocityBackground(QPixmap *pixmap);
 		void createPanBackground(QPixmap *pixmap);
 		void createLeadLagBackground(QPixmap *pixmap);
 		void createNoteKeyBackground(QPixmap *pixmap);
 		void paintEvent(QPaintEvent *ev);
+		/**
+		 * Function triggered when pressing the left button of
+		 * the mouse.
+		 * \param ev Corresponding mouse event.
+		 */
 		void mousePressEvent(QMouseEvent *ev);
+		/**
+		 * Function triggered when moving the mouse. This will
+		 * only be called inside the
+		 * NotePropertiesRuler::mousePressEvent. The user has
+		 * therefore to press the left mouse button and move
+		 * the mouse at the same time to alter the properties
+		 * of a note.
+		 * \param ev Corresponding mouse event.
+		 */
 		void mouseMoveEvent(QMouseEvent *ev);
+		/**
+		 * Function triggered when moving the mouse wheel.
+		 * \param ev Corresponding mouse event.
+		 */
 		void wheelEvent(QWheelEvent *ev);
+		/**
+		 * Function triggered when releasing the left button of
+		 * the mouse.
+		 * \param ev Corresponding mouse event.
+		 */
 		void mouseReleaseEvent(QMouseEvent *ev);
-		void pushUndoAction();
+		/**
+		 * Takes a list of explicit changes of the properties
+		 * of at least one note and pushes them onto the
+		 * QUndoStack. This way Hydrogen is able to revert all
+		 * changes introduced by the user.
+		 *
+		 * The creation of the action, which is able to revert
+		 * the changes, is done using
+		 * SE_editNotePropertiesAction. 
+		 *
+		 * Caution: In the current implementation not the
+		 * whole state of a note in H2Core::NoteProperties
+		 * corresponds to its actual one. Only those
+		 * associated with the property specified by the mode
+		 * variable within the H2Core::NotePropertiesChanges
+		 * can be trusted. All others are just taken from
+		 * global variables inside
+		 * NotePropertiesRuler::wheelEvent or
+		 * NotePropertiesRuler::mousePressEvent.
+		 *
+		 * \param propertyChangesStack List of
+		 * H2Core::NotePropertiesChanges applied to at least
+		 * one note. If the SHIFT key was not pressed, the
+		 * list will contain only a single object.
+		 */
+	        void pushUndoAction( std::list<H2Core::NotePropertiesChanges> propertyChangesStack );
+		/**
+		 * Called within NotePropertiesRuler::mousePressEvent
+		 * to access the current state of the note before
+		 * triggering its change using
+		 * NotePropertiesRuler::mouseMoveEvent. 
+		 * \param x Used to access the note the user is
+		 * pointing at.
+		 * \param y Used to access the current value of the
+		 * property.
+		 */
 		void pressAction( int x, int y);
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
-		virtual void selectedInstrumentChangedEvent();
+	        virtual void selectedInstrumentChangedEvent();
 		//~ Implements EventListener interface
-		int __nSelectedPatternNumber;
-		int __nSelectedInstrument;
-		bool m_bMouseIsPressed;
-
-		float __velocity;
-		float __oldVelocity;
-		float __pan_L;
-		float __pan_R;
-		float __oldPan_L;
-		float __oldPan_R;
-		float __leadLag;
-		float __oldLeadLag;
-		float __probability;
-		float __oldProbability;
-		int __noteKeyVal;
-		int __oldNoteKeyVal;
-		int __octaveKeyVal;
-		int __oldOctaveKeyVal;
+		int __nSelectedPatternNumber; ///< Specifies the current
+					      ///< (visible) pattern.
+		int __nSelectedInstrument; ///< Specifies the instrument
+					   ///< selected in the current
+					   ///< view.
+		bool m_bMouseIsPressed; ///< Indicates whether the
+					///< left mouse button is
+					///< pressed by the user.
+		float __velocity; ///< Velocity the corresponding
+				  ///< instrument is hit with or, in
+				  ///< other words, loudness of the
+				  ///< note AFTER an action of the
+				  ///< user was applied. Ranges from
+				  ///< #VELOCITY_MIN to #VELOCITY_MAX. 
+		float __oldVelocity; ///< Velocity the corresponding
+				     ///< instrument is hit with or, in
+				     ///< other words, loudness of the
+				     ///< note BEFORE an action of the
+				     ///< user was applied.. Ranges from
+				     ///< #VELOCITY_MIN to #VELOCITY_MAX. 
+		float __pan_L; ///< Volume of the left stereo channel
+			       ///< AFTER an action of the user was
+			       ///< applied. Ranges from #PAN_MIN to
+			       ///< #PAN_MAX.
+		float __pan_R; ///< Volume of the right stereo channel
+			       ///< AFTER an action of the user was
+			       ///< applied. Ranges from #PAN_MIN to
+			       ///< #PAN_MAX.
+		float __oldPan_L; ///< Volume of the left stereo
+				  ///< channel BEFORE an action of the
+				  ///< user was applied. Ranges from
+				  ///< #PAN_MIN to #PAN_MAX.
+		float __oldPan_R; ///< < Volume of the right stereo
+				  ///< channel BEFORE an action of the
+				  ///< user was applied. Ranges from
+				  ///< #PAN_MIN to #PAN_MAX.
+		float __leadLag; ///< How much the note is leading or
+				 ///< lagging the beat AFTER an action
+				 ///< of the user was applied. Ranges
+				 ///< from #LEAD_LAG_MIN to
+				 ///< #LEAD_LAG_MAX.
+		float __oldLeadLag; ///< How much the note is leading or
+				    ///< lagging the beat BEFORE an
+				    ///< action of the user was
+				    ///< applied. Ranges from
+				    ///< #LEAD_LAG_MIN to #LEAD_LAG_MAX.
+		float __probability; ///< Probability of the note being
+				     ///< triggered AFTER an action of
+				     ///< the user was applied. Ranges
+				     ///< from 0 to 1. 
+		float __oldProbability; ///< Probability of the note
+					///< being triggered BEFORE an
+					///< action of the user was
+					///< applied. Ranges from 0 to 1.
+		int __noteKeyVal; ///< Note key of the corresponding
+				  ///< Midi output AFTER an action of
+				  ///< the user was applied. Ranges from
+				  ///< #KEY_MIN to #KEY_MAX.
+		int __oldNoteKeyVal; ///< Note key of the corresponding
+				     ///< Midi output BEFORE an action
+				     ///< of the user was
+				     ///< applied. Ranges from #KEY_MIN 
+				     ///< to #KEY_MAX. 
+		int __octaveKeyVal; ///< Octave key of the corresponding
+				    ///< Midi output AFTER an action of
+				    ///< the user was applied. Ranges
+				    ///< from #OCTAVE_MIN to
+				    ///< #OCTAVE_MAX, has an offset of
+				    ///< #OCTAVE_OFFSET, and a default
+				    ///< value of #OCTAVE_DEFAULT.
+		int __oldOctaveKeyVal; ///< Octave key of the
+				       ///< corresponding Midi output
+				       ///< AFTER an action of the user
+				       ///< was applied. Ranges from
+				       ///< #OCTAVE_MIN to #OCTAVE_MAX,
+				       ///< has an offset of
+				       ///< #OCTAVE_OFFSET, and a
+				       ///< default value of
+				       ///< #OCTAVE_DEFAULT.
 		int __checkXPosition;
-
+	
 		int __columnCheckOnXmouseMouve;
-		int __undoColumn;
-		QString __mode;
+		int __undoColumn; ///< x-coordinate of an altered note
+				  ///< within the ruler.
+		QString __mode; ///< Corresponds to
+				///< H2Core::NotePropertiesMode and
+				///< specifies the note property
+				///< currently displayed in the ruler.
 
 };
 
