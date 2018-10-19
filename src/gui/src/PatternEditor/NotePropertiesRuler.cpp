@@ -26,7 +26,6 @@
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/note.h>
 using namespace H2Core;
 
 #include <cassert>
@@ -48,7 +47,6 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
  , m_pPatternEditorPanel( pPatternEditorPanel )
  , m_pPattern( NULL )
 {
-	//infoLog("INIT");
 	//setAttribute(Qt::WA_NoBackground);
 
 	m_nGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
@@ -133,6 +131,15 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 
+	// Create a list, which will contain a vector for every change
+	// applied to the properties of a note. All changes enlisted
+	// in this object will be inserted into the `QUndoStack' when
+	// handed to the `pushUndoAction' function and will be
+	// reverted upon pressed Ctrl-Z. If there are several vectors
+	// pushed on the list, all corresponding changes will be
+	// reverted at once.
+	std::list< std::vector<float> > propertyChangesStack;
+	
 	const Pattern::notes_t* notes = m_pPattern->get_notes();
 
 	// Whenever the Shift key is pressed, apply the current action
@@ -285,9 +292,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			}
 		}
 		pSong->set_is_modified( true );
-		// `startUndoAction' will overwrite the value of the
-		// note the cursor is hovering over.
-		// startUndoAction();
+		pushUndoAction();
 		updateEditor();
 		
 	} else {
@@ -435,7 +440,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 			}
 			pSong->set_is_modified( true );
-			startUndoAction();
+			pushUndoAction();
 			updateEditor();
 			break;
 		}
@@ -586,6 +591,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 		if ( ev->modifiers() & Qt::ShiftModifier ){
 			FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 				Note *pNote = it->second;
+						
 				assert( pNote );
 				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 					continue;
@@ -622,6 +628,11 @@ void NotePropertiesRuler::pressAction( int x, int y)
 					pNote->set_pan_r( pan_R );
 					__pan_L = pan_L;
 					__pan_R = pan_R;
+
+					char valueChar[100];
+					float val = __pan_R - __pan_L + 0.5;
+					sprintf( valueChar, "%#.2f",  val);
+					( HydrogenApp::get_instance() )->setStatusBarMessage( QString("[%1] Set all note pannings").arg( valueChar ), 2000 );
 				}
 				else if ( m_Mode == LEADLAG ){
 					if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
@@ -682,13 +693,13 @@ void NotePropertiesRuler::pressAction( int x, int y)
 	
 				if( columnChange ){
 					__columnCheckOnXmouseMouve = column;
-					startUndoAction();
+					pushUndoAction();
 					return;
 				}
 				
 				__columnCheckOnXmouseMouve = column;
 			}
-	
+
 			pSong->set_is_modified( true );
 			updateEditor();
 		} else {
@@ -733,6 +744,11 @@ void NotePropertiesRuler::pressAction( int x, int y)
 					pNote->set_pan_r( pan_R );
 					__pan_L = pan_L;
 					__pan_R = pan_R;
+
+					char valueChar[100];
+					float val = __pan_R - __pan_L + 0.5;
+					sprintf( valueChar, "%#.2f",  val);
+					( HydrogenApp::get_instance() )->setStatusBarMessage( QString("[%1] Set note panning").arg( valueChar ), 2000 );
 				}
 				else if ( m_Mode == LEADLAG ){
 					if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
@@ -793,12 +809,12 @@ void NotePropertiesRuler::pressAction( int x, int y)
 	
 				if( columnChange ){
 					__columnCheckOnXmouseMouve = column;
-					startUndoAction();
+					pushUndoAction();
 					return;
 				}
 				
 				__columnCheckOnXmouseMouve = column;
-	
+
 				pSong->set_is_modified( true );
 				updateEditor();
 				break;
@@ -812,30 +828,32 @@ void NotePropertiesRuler::pressAction( int x, int y)
 void NotePropertiesRuler::mouseReleaseEvent(QMouseEvent *ev)
 {
 	m_bMouseIsPressed = false;
-	startUndoAction();
+	pushUndoAction();
 }
 
-void NotePropertiesRuler::startUndoAction()
+// Create an action, which is capable of reverting the most recent
+// change(s) to the note properties and pushing it onto the
+// `QUndoStack'.
+void NotePropertiesRuler::pushUndoAction()
 {
-
-	SE_editNotePropertiesVolumeAction *action = new SE_editNotePropertiesVolumeAction( __undoColumn,
-											   __mode,
-											   __nSelectedPatternNumber,
-											   __nSelectedInstrument,
-											   __velocity,
-											   __oldVelocity,
-											   __pan_L,
-											   __oldPan_L,
-											   __pan_R,
-											   __oldPan_R,
-											   __leadLag,
-											   __oldLeadLag,
-											   __probability,
-											   __oldProbability,
-											   __noteKeyVal,
-											   __oldNoteKeyVal,
-											   __octaveKeyVal,
-											   __oldOctaveKeyVal );
+	SE_editNotePropertiesAction *action = new SE_editNotePropertiesAction( __undoColumn,
+									       __mode,
+									       __nSelectedPatternNumber,
+									       __nSelectedInstrument,
+									       __velocity,
+									       __oldVelocity,
+									       __pan_L,
+									       __oldPan_L,
+									       __pan_R,
+									       __oldPan_R,
+									       __leadLag,
+									       __oldLeadLag,
+									       __probability,
+									       __oldProbability,
+									       __noteKeyVal,
+									       __oldNoteKeyVal,
+									       __octaveKeyVal,
+									       __oldOctaveKeyVal );
 
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }

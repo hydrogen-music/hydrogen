@@ -22,6 +22,7 @@
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/basics/note.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/pattern.h>
@@ -327,7 +328,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteVelocityScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteVelocityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteVelocityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteVelocityEditor = new NotePropertiesRuler( m_pNoteVelocityScrollView->viewport(), this, NotePropertiesRuler::VELOCITY );
+	m_pNoteVelocityEditor = new NotePropertiesRuler( m_pNoteVelocityScrollView->viewport(), this, VELOCITY );
 	m_pNoteVelocityScrollView->setWidget( m_pNoteVelocityEditor );
 	m_pNoteVelocityScrollView->setFixedHeight( 100 );
 //~ NOTE_VELOCITY EDITOR
@@ -338,7 +339,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNotePanScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNotePanScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNotePanScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNotePanEditor = new NotePropertiesRuler( m_pNotePanScrollView->viewport(), this, NotePropertiesRuler::PAN );
+	m_pNotePanEditor = new NotePropertiesRuler( m_pNotePanScrollView->viewport(), this, PAN );
 	m_pNotePanScrollView->setWidget( m_pNotePanEditor );
 	m_pNotePanScrollView->setFixedHeight( 100 );
 //~ NOTE_PAN EDITOR
@@ -349,7 +350,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteLeadLagScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteLeadLagScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteLeadLagScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteLeadLagEditor = new NotePropertiesRuler( m_pNoteLeadLagScrollView->viewport(), this, NotePropertiesRuler::LEADLAG );
+	m_pNoteLeadLagEditor = new NotePropertiesRuler( m_pNoteLeadLagScrollView->viewport(), this, LEADLAG );
 	m_pNoteLeadLagScrollView->setWidget( m_pNoteLeadLagEditor );
 	m_pNoteLeadLagScrollView->setFixedHeight( 100 );
 //~ NOTE_LEADLAG EDITOR
@@ -362,7 +363,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteNoteKeyScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteNoteKeyScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteNoteKeyScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteNoteKeyEditor = new NotePropertiesRuler( m_pNoteNoteKeyScrollView->viewport(), this, NotePropertiesRuler::NOTEKEY );
+	m_pNoteNoteKeyEditor = new NotePropertiesRuler( m_pNoteNoteKeyScrollView->viewport(), this, NOTEKEY );
 	m_pNoteNoteKeyScrollView->setWidget( m_pNoteNoteKeyEditor );
 	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
 
@@ -374,7 +375,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteProbabilityScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteProbabilityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteProbabilityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pNoteProbabilityEditor = new NotePropertiesRuler( m_pNoteProbabilityScrollView->viewport(), this, NotePropertiesRuler::PROBABILITY );
+	m_pNoteProbabilityEditor = new NotePropertiesRuler( m_pNoteProbabilityScrollView->viewport(), this, PROBABILITY );
 	m_pNoteProbabilityScrollView->setWidget( m_pNoteProbabilityEditor );
 	m_pNoteProbabilityScrollView->setFixedHeight( 100 );
 //~ NOTE_PROBABILITY EDITOR

@@ -83,17 +83,17 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 										bool isInstrumentMode,
 										bool isNoteOff);
 		void editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber );
-		void undoRedoAction(    int column,
-								QString mode,
-								int nSelectedPatternNumber,
-								int nSelectedInstrument,
-								float velocity,
-								float pan_L,
-								float pan_R,
-								float leadLag,
-								float probability,
-								int noteKeyVal,
-								int octaveKeyVal );
+		void undoRedoNotePropertiesEditAction( int column,
+						 QString mode,
+						 int nSelectedPatternNumber,
+						 int nSelectedInstrument,
+						 float velocity,
+						 float pan_L,
+						 float pan_R,
+						 float leadLag,
+						 float probability,
+						 int noteKeyVal,
+						 int octaveKeyVal );
 		void functionClearNotesRedoAction( int nSelectedInstrument, int selectedPatternNumber );
 		void functionClearNotesUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, int patternNumber );
 		void functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
@@ -107,7 +107,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		void functionAddEmptyInstrumentRedo();
 		void functionPasteNotesRedoAction(std::list<H2Core::Pattern*> & changeList, std::list<H2Core::Pattern*> & appliedList);
 		void functionPasteNotesUndoAction(std::list<H2Core::Pattern*> & appliedList);
-
+											    
 	public slots:
 		void updateEditor();
 

@@ -44,8 +44,8 @@
 #define LEAD_LAG_MIN            -1.0f
 #define LEAD_LAG_MAX            1.0f
 
-namespace H2Core
-{
+namespace H2Core {
+
 
 class XMLNode;
 class ADSR;
@@ -311,6 +311,72 @@ class Note : public H2Core::Object
 		bool			__just_recorded;       ///< used in record+delete
 		float			__probability;        ///< note probability
 		static const char* __key_str[]; ///< used to build QString from __key an __octave
+};
+
+/**
+ * Struct containing all properties associated to a specific note.
+ */
+struct NoteProperties {
+	int column; ///< Specifies the x coordinate of a note inside
+		    ///< its associated pattern.
+	int patternNumber; ///< Specifies the pattern the particular
+			   ///< note is associated with.
+	int instrument; ///< Specifies the instrument the note is
+			///< associated with.
+	float velocity; ///< Velocity the corresponding instrument is
+			///< hit with or, in other words, loudness of the
+			///< note. Ranges from #VELOCITY_MIN to
+			///< #VELOCITY_MAX. 
+	float pan_l; ///< Volume of the left stereo channel. Ranges
+		     ///< from #PAN_MIN to #PAN_MAX.
+	float pan_r; ///< Volume of the right stereo channel. Ranges
+		     ///< from #PAN_MIN to #PAN_MAX.
+	float leadLag; ///< How much the note is leading or lagging the
+		       ///< beat. Ranges from #LEAD_LAG_MIN to
+		       ///< #LEAD_LAG_MAX.
+	int noteKeyVal; ///< Note key of the corresponding Midi
+			///< output. Ranges from #KEY_MIN to
+			///< #KEY_MAX.
+	int octaveKeyVal; ///< Octave key of the corresponding Midi
+			  ///< output. Ranges from #OCTAVE_MIN to
+			  ///< #OCTAVE_MAX, has an offset of
+			  ///< #OCTAVE_OFFSET, and a default value of
+			  ///< #OCTAVE_DEFAULT.
+	float probability; ///< Probability of the note being
+			   ///< triggered. Ranges from 0 to 1.
+};
+/**
+ * Contains all properties, which can be changed using the
+ * NotePropertiesRuler.
+ */
+enum NotePropertiesMode {
+	VELOCITY,
+	PAN,
+	LEADLAG,
+	NOTEKEY,
+	PROBABILITY
+};
+/**
+ * Due to the structure of the NotePropertiesRuler only one property
+ * can be changed at a time. Even in case of multiple changes they
+ * will all affect just one properties. For performance reason we will
+ * therefore NOT supply all properties of a note but just the
+ * corresponding global variables in the NotePropertiesRuler and a
+ * flag called \link #mode, which is a enumeration specifying the
+ * changed property (see #NotePropertiesMode). So, in case the \link
+ * #mode "VELOCITY" is supplied, all properties except of the velocity
+ * might be dirty and not actually correspond to the particular note!
+ */
+struct NotePropertiesChanges {
+	NotePropertiesMode mode; ///< Specifies which property was
+				 ///< changed during the last action
+	NoteProperties old; ///< Old set of properties. Note: Do not
+			    ///< trust the properties, which do not
+			    ///< correspond to the supplied mode!
+	NoteProperties current; ///< Old set of properties. Note: Do
+				///< not trust the properties, which do
+				///< not correspond to the supplied
+				///< mode!
 };
 
 // DEFINITIONS

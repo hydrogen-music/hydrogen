@@ -31,6 +31,7 @@
 #endif
 
 #include <hydrogen/object.h>
+#include <hydrogen/basics/note.h>
 
 namespace H2Core
 {
@@ -45,15 +46,7 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
     H2_OBJECT
 	Q_OBJECT
 	public:
-		enum NotePropertiesMode {
-			VELOCITY,
-			PAN,
-			LEADLAG,
-			NOTEKEY,
-			PROBABILITY
-		};
-
-		NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode );
+	        NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, H2Core::NotePropertiesMode mode );
 		~NotePropertiesRuler();
 
 		void zoomIn();
@@ -66,7 +59,7 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		static const int m_nKeys = 24;
 		static const int m_nBasePitch = 12;
 
-		NotePropertiesMode m_Mode;
+	        H2Core::NotePropertiesMode m_Mode;
 
 		PatternEditorPanel *m_pPatternEditorPanel;
 		H2Core::Pattern *m_pPattern;
@@ -85,7 +78,7 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		void mouseMoveEvent(QMouseEvent *ev);
 		void wheelEvent(QWheelEvent *ev);
 		void mouseReleaseEvent(QMouseEvent *ev);
-		void startUndoAction();
+		void pushUndoAction();
 		void pressAction( int x, int y);
 
 		// Implements EventListener interface

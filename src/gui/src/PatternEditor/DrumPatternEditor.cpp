@@ -872,18 +872,20 @@ void DrumPatternEditor::selectedPatternChangedEvent()
 }
 
 
-///NotePropertiesRuler undo redo action
-void DrumPatternEditor::undoRedoAction( int column,
-					QString mode,
-					int nSelectedPatternNumber,
-					int nSelectedInstrument,
-					float velocity,
-					float pan_L,
-					float pan_R,
-					float leadLag,
-					float probability,
-					int noteKeyVal,
-					int octaveKeyVal)
+///NotePropertiesRuler
+// Undo or redo an action, which resulted in editing a single note in
+// the Note Properties Ruler.
+void DrumPatternEditor::undoRedoNotePropertiesEditAction( int column,
+						    QString mode,
+						    int nSelectedPatternNumber,
+						    int nSelectedInstrument,
+						    float velocity,
+						    float pan_L,
+						    float pan_R,
+						    float leadLag,
+						    float probability,
+						    int noteKeyVal,
+						    int octaveKeyVal)
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
@@ -896,8 +898,8 @@ void DrumPatternEditor::undoRedoAction( int column,
 		pPattern = NULL;
 	}
 
-    const Pattern::notes_t* notes = pPattern->get_notes();
-    FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+	const Pattern::notes_t* notes = pPattern->get_notes();
+	FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
 		Note *pNote = it->second;
 		assert( pNote );
 		assert( (int)pNote->get_position() == column );
@@ -935,8 +937,6 @@ void DrumPatternEditor::undoRedoAction( int column,
 	m_pPatternEditorPanel->getProbabilityEditor()->updateEditor();
 
 }
-
-
 ///==========================================================
 ///undo / redo actions from pattern editor instrument list
 

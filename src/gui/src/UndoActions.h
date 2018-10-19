@@ -1154,29 +1154,31 @@ private:
 //~piano roll editor commands
 //=====================================================================================================================================
 //Note Properties Ruler commands
-
-class SE_editNotePropertiesVolumeAction : public QUndoCommand
+//
+// Edit the properties of a single note in via the Note Property
+// Ruler.
+class SE_editNotePropertiesAction : public QUndoCommand
 {
 public:
 
-	SE_editNotePropertiesVolumeAction( int undoColumn,
-					   QString mode,
-					   int nSelectedPatternNumber,
-					   int nSelectedInstrument,
-					   float velocity,
-					   float oldVelocity,
-					   float pan_L,
-					   float oldPan_L,
-					   float pan_R,
-					   float oldPan_R,
-					   float leadLag,
-					   float oldLeadLag,
-					   float probability,
-					   float oldProbability,
-					   int noteKeyVal,
-					   int oldNoteKeyVal,
-					   int octaveKeyVal,
-					   int oldOctaveKeyVal)
+	SE_editNotePropertiesAction( int undoColumn,
+				     QString mode,
+				     int nSelectedPatternNumber,
+				     int nSelectedInstrument,
+				     float velocity,
+				     float oldVelocity,
+				     float pan_L,
+				     float oldPan_L,
+				     float pan_R,
+				     float oldPan_R,
+				     float leadLag,
+				     float oldLeadLag,
+				     float probability,
+				     float oldProbability,
+				     int noteKeyVal,
+				     int oldNoteKeyVal,
+				     int octaveKeyVal,
+				     int oldOctaveKeyVal)
 	{
 
 
@@ -1203,39 +1205,38 @@ public:
 	}
 	virtual void undo()
 	{
-		//qDebug() << "edit note property Undo ";
+		setText( QString( "Undo the editing of a note property" ) );
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoAction( __undoColumn,
-											__mode,
-											__nSelectedPatternNumber,
-											__nSelectedInstrument,
-											__oldVelocity,
-											__oldPan_L,
-											__oldPan_R,
-											__oldLeadLag,
-											__oldProbability,
-											__oldNoteKeyVal,
-											__oldOctaveKeyVal );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoNotePropertiesEditAction( __undoColumn,
+													  __mode,
+													  __nSelectedPatternNumber,
+													  __nSelectedInstrument,
+													  __oldVelocity,
+													  __oldPan_L,
+													  __oldPan_R,
+													  __oldLeadLag,
+													  __oldProbability,
+													  __oldNoteKeyVal,
+													  __oldOctaveKeyVal );
 	}
 	virtual void redo()
 	{
-		//qDebug() << "edit note property Redo " ;
+		setText( QString( "Redo the editing of a note property" ) );
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoAction( __undoColumn,
-											__mode,
-											__nSelectedPatternNumber,
-											__nSelectedInstrument,
-											__velocity,
-											__pan_L,
-											__pan_R,
-											__leadLag,
-											__probability,
-											__noteKeyVal,
-											__octaveKeyVal );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoNotePropertiesEditAction( __undoColumn,
+													  __mode,
+													  __nSelectedPatternNumber,
+													  __nSelectedInstrument,
+													  __velocity,
+													  __pan_L,
+													  __pan_R,
+													  __leadLag,
+													  __probability,
+													  __noteKeyVal,
+													  __octaveKeyVal );
 	}
 private:
-
 
 	int __undoColumn;
 	QString __mode;
