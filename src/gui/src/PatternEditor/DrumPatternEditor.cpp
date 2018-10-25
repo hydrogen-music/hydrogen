@@ -874,7 +874,7 @@ void DrumPatternEditor::selectedPatternChangedEvent()
 ///NotePropertiesRuler
 // Undo or redo an action, which resulted in editing a single note in
 // the Note Properties Ruler.
-void DrumPatternEditor::undoRedoNotePropertiesEditAction( QString mode,
+void DrumPatternEditor::undoRedoNotePropertiesEditAction( NotePropertiesMode mode,
 							  NoteProperties noteProperties )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
@@ -909,17 +909,18 @@ void DrumPatternEditor::undoRedoNotePropertiesEditAction( QString mode,
 		}
 		// INFOLOG( QString( "mode: %1" ).arg( mode ));
 		// Undo/Redo the value changed during the last action.
-		if ( mode == "VELOCITY" && !pNote->get_note_off() ) {
+		if ( mode == NotePropertiesMode::VELOCITY && !pNote->get_note_off() ) {
+			INFOLOG( QString( "velocity: %1" ).arg( noteProperties.velocity ) );
 			pNote->set_velocity( noteProperties.velocity );
-		} else if ( mode == "PAN" ){
+		} else if ( mode == NotePropertiesMode::PAN ){
 			pNote->set_pan_l( noteProperties.pan_l );
 			pNote->set_pan_r( noteProperties.pan_r );
-		} else if ( mode == "LEADLAG" ){
+		} else if ( mode == NotePropertiesMode::LEADLAG ){
 			pNote->set_lead_lag( noteProperties.leadLag );
-		} else if ( mode == "NOTEKEY" ){
+		} else if ( mode == NotePropertiesMode::NOTEKEY ){
 			pNote->set_key_octave( (Note::Key)noteProperties.noteKeyVal,
 					       (Note::Octave)noteProperties.octaveKeyVal );
-		} else if ( mode == "PROBABILITY" ){
+		} else if ( mode == NotePropertiesMode::PROBABILITY ){
 			pNote->set_probability( noteProperties.probability );
 		} else {
 			ERRORLOG( QString( "Undo/Redo failed for note %1 in pattern %2. Mode not found."

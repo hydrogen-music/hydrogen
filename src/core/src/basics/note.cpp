@@ -245,7 +245,31 @@ Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 
 	return note;
 }
-
+/**
+ * Returns a pointer to a string version of the internally used
+ * H2Core::NotePropertiesMode enumeration object. In case non of the
+ * provided enumerators do match this class, which should not happen,
+ * a reference to the string "UNRECOGNIZED" will be returned.
+ * /param notePropertiesMode Enumeration determining the property of
+ * the note, which was altered during the last action.
+ */
+const char* convertNotePropertiesModeToString( NotePropertiesMode notePropertiesMode ){
+	switch( notePropertiesMode )
+		{
+		case NotePropertiesMode::VELOCITY :
+			return NotePropertiesModeStrings[ 0 ];
+		case NotePropertiesMode::PAN :
+			return NotePropertiesModeStrings[ 1 ];
+		case NotePropertiesMode::LEADLAG :
+			return NotePropertiesModeStrings[ 2 ];
+		case NotePropertiesMode::NOTEKEY :
+			return NotePropertiesModeStrings[ 3 ];
+		case NotePropertiesMode::PROBABILITY :
+			return NotePropertiesModeStrings[ 4 ];
+		default :
+			return NotePropertiesModeStrings[ 5 ];
+		}
+}
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

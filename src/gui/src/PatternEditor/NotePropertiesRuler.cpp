@@ -155,6 +155,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 				continue;
 			}
 			if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
+				__oldVelocity = pNote->get_velocity();
 				float val = pNote->get_velocity() + delta;
 				if (val > 1.0) {
 					val = 1.0;
@@ -272,6 +273,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 				}
 			}
 			else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
+				__oldProbability = pNote->get_probability();
 				float val = pNote->get_probability() + delta;
 				if (val > 1.0) {
 					val = 1.0;
@@ -291,6 +293,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			// Grab all global variables specifying the past and
 			// current state of the note and instantiate structs
 			// using them.
+			INFOLOG( QString( "_oldVelocity: %1" ).arg( __oldVelocity ) );
+			INFOLOG( QString( "_velocity: %1" ).arg( __velocity ) );
 			NoteProperties oldNoteProperties =
 				{ it->first, __nSelectedPatternNumber,
 				  __nSelectedInstrument, __oldVelocity,
@@ -305,7 +309,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			// Create a struct specifying what did change during
 			// the last action.
 			NotePropertiesChanges notePropertiesChanges =
-				{ __mode, oldNoteProperties,
+				{ m_Mode, oldNoteProperties,
 				  currentNoteProperties };
 			// Push the changes onto the list keeping track of all
 			// changes during the current action.
@@ -327,6 +331,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 				continue;
 			}
 			if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
+				__oldVelocity = pNote->get_velocity();
 				float val = pNote->get_velocity() + delta;
 				if (val > 1.0) {
 					val = 1.0;
@@ -444,6 +449,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 				}
 			}
 			else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
+				__oldProbability = pNote->get_probability();
 				float val = pNote->get_probability() + delta;
 				if (val > 1.0) {
 					val = 1.0;
@@ -479,7 +485,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			// Create a struct specifying what did change
 			// during the last action.
 			NotePropertiesChanges notePropertiesChanges =
-				{ __mode, oldNoteProperties,
+				{ m_Mode, oldNoteProperties,
 				  currentNoteProperties };
 			// Push the changes onto the list keeping track of all
 			// changes during the current action.
@@ -553,29 +559,24 @@ void NotePropertiesRuler::pressAction( int x, int y)
 
 		if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
 			__oldVelocity = pNote->get_velocity();
-			__mode = "VELOCITY";
 
 		}
 		else if ( m_Mode == PAN && !pNote->get_note_off() ){
 
 			__oldPan_L = pNote->get_pan_l();
 			__oldPan_R = pNote->get_pan_r();
-			__mode = "PAN";
 		}
 		else if ( m_Mode == LEADLAG ){
 			
 			__oldLeadLag = pNote->get_lead_lag();
-			__mode = "LEADLAG";
 		}
 
 		else if ( m_Mode == NOTEKEY ){
-			__mode = "NOTEKEY";
-		__oldOctaveKeyVal = pNote->get_octave();
-		__oldNoteKeyVal = pNote->get_key();
+			__oldOctaveKeyVal = pNote->get_octave();
+			__oldNoteKeyVal = pNote->get_key();
 		}
 		else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
 			__oldProbability = pNote->get_probability();
-			__mode = "PROBABILITY";
 
 		}
 
@@ -765,7 +766,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				// Create a struct specifying what did change
 				// during the last action.
 				NotePropertiesChanges notePropertiesChanges =
-					{ __mode, oldNoteProperties,
+					{ m_Mode, oldNoteProperties,
 					  currentNoteProperties };
 				// Push the changes onto the list keeping track of all
 				// changes during the current action.
@@ -903,7 +904,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 					// Create a struct specifying what did change
 					// during the last action.
 					NotePropertiesChanges notePropertiesChanges =
-						{ __mode, oldNoteProperties,
+						{ m_Mode, oldNoteProperties,
 						  currentNoteProperties };
 					// Push the changes onto the list keeping track of all
 					// changes during the current action.
@@ -949,7 +950,7 @@ void NotePropertiesRuler::mouseReleaseEvent(QMouseEvent *ev)
 	// // Create a struct specifying what did change during the last
 	// // action.
 	// NotePropertiesChanges notePropertiesChanges =
-	// 	{ __mode, oldNoteProperties,
+	// 	{ m_Mode, oldNoteProperties,
 	// 	  currentNoteProperties };
 	// // Push the changes onto the list keeping track of all changes
 	// // during the current action.

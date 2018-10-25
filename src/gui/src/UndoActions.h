@@ -1200,7 +1200,7 @@ public:
 	{
 
 		setText( QString( "Edit %1 note properties of type " +
-				  propertyChangesStack.begin()->mode.toLower() ).arg( propertyChangesStack.size() ) );
+				  QString( H2Core::convertNotePropertiesModeToString( propertyChangesStack.begin()->mode ) ).toLower() ).arg( propertyChangesStack.size() ) );
 		__propertyChangesStack = propertyChangesStack;
 
 	}

@@ -368,21 +368,41 @@ enum NotePropertiesMode {
 	PROBABILITY ///< Probability of the note being
 		    ///< triggered. Ranges from 0 to 1.
 };
+
+/**
+ * String version of the H2Core::NotePropertiesMode. It will be used
+ * by convertNotePropertiesModeToString in order to obtain a string
+ * version of the aforementioned enumeration. In addition, it features
+ * the string "UNRECOGNIZED" to handle enumerators, which are not
+ * present in H2Core::NotePropertiesMode.
+ */
+static const char* NotePropertiesModeStrings[] =
+	{ "VELOCITY", "PAN", "LEADLAG", "NOTEKEY", "PROBABILITY", "UNRECOGNIZED" };
+/**
+ * Returns a pointer to a string version of the internally used
+ * H2Core::NotePropertiesMode enumeration object. In case non of the
+ * provided enumerators do match this class, which should not happen,
+ * a reference to the string "UNRECOGNIZED" will be returned.
+ * /param notePropertiesMode Enumeration determining the property of
+ * the note, which was altered during the last action.
+ */
+const char* convertNotePropertiesModeToString( NotePropertiesMode notePropertiesMode );
+	 
 /**
  * Due to the structure of the NotePropertiesRuler only one property
  * can be changed at a time. Even in case of multiple changes they
  * will all affect just one properties. For performance reason we will
  * therefore NOT supply all properties of a note but just the
- * corresponding global variables in the NotePropertiesRuler and a
- * flag called \link #mode, which is a QString based on the
- * enumeration specifying the changed property (see
- * #NotePropertiesMode). So, in case the \link #mode "VELOCITY" is
- * supplied, all properties except of the velocity might be dirty and
- * not actually correspond to the particular note!
+ * corresponding global variables in the NotePropertiesRuler and an
+ * enumerator called \link #mode, which specifies the changed property
+ * (see #NotePropertiesMode). So, in case the \link #mode
+ * H2Core::NotePropertiesMode::VELOCITY is supplied, all properties
+ * except of the velocity might be dirty and not actually correspond
+ * to the particular note!
  */
 struct NotePropertiesChanges {
-	QString mode; ///< Specifies which property was changed during
-		      ///< the last action.
+	NotePropertiesMode mode; ///< Specifies which property was
+				 ///< changed during the last action.
 	NoteProperties old; ///< Old set of properties. Note: Do not
 			    ///< trust the properties, which do not
 			    ///< correspond to the supplied mode!

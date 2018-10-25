@@ -119,13 +119,12 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		 * For a description of the context this function is
 		 * called in, see SE_editNotePropertiesAction.
 		 *
-		 * \param mode QString specifying which property of
-		 * the note to alter. It corresponds to the
-		 * enumeration H2Core::NotePropertiesMode.  
+		 * \param mode H2Core::NotePropertiesMode specifying
+		 * which property of the note to alter.  
 		 * \param noteProperties State, which should be
 		 * written to the corresponding note in the pattern.
 		 */
-		void undoRedoNotePropertiesEditAction( QString mode,
+		void undoRedoNotePropertiesEditAction( H2Core::NotePropertiesMode mode,
 						       H2Core::NoteProperties noteProperties );
 		void functionClearNotesRedoAction( int nSelectedInstrument, int selectedPatternNumber );
 		void functionClearNotesUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, int patternNumber );

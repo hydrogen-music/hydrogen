@@ -235,10 +235,6 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		int __columnCheckOnXmouseMouve;
 		int __undoColumn; ///< x-coordinate of an altered note
 				  ///< within the ruler.
-		QString __mode; ///< Corresponds to
-				///< H2Core::NotePropertiesMode and
-				///< specifies the note property
-				///< currently displayed in the ruler.
 
 };
 
