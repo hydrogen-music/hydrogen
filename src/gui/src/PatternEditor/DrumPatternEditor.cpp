@@ -907,6 +907,7 @@ void DrumPatternEditor::undoRedoNotePropertiesEditAction( QString mode,
 		     pSong->get_instrument_list()->get( noteProperties.instrument ) ) {
 			continue;
 		}
+		// INFOLOG( QString( "mode: %1" ).arg( mode ));
 		// Undo/Redo the value changed during the last action.
 		if ( mode == "VELOCITY" && !pNote->get_note_off() ) {
 			pNote->set_velocity( noteProperties.velocity );
@@ -928,14 +929,6 @@ void DrumPatternEditor::undoRedoNotePropertiesEditAction( QString mode,
 		pSong->set_is_modified( true );
 		break;
 	}
-
-	updateEditor();
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
-	m_pPatternEditorPanel->getProbabilityEditor()->updateEditor();
 
 }
 ///==========================================================

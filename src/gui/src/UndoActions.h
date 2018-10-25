@@ -1219,6 +1219,14 @@ public:
 		      it != __propertyChangesStack.end(); ++it ){
 			h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoNotePropertiesEditAction( it->mode, it->old );
 		}
+
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
+		h2app->getPatternEditorPanel()->getVelocityEditor()->updateEditor();
+		h2app->getPatternEditorPanel()->getPanEditor()->updateEditor();
+		h2app->getPatternEditorPanel()->getLeadLagEditor()->updateEditor();
+		h2app->getPatternEditorPanel()->getNoteKeyEditor()->updateEditor();
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->updateEditor();
+		h2app->getPatternEditorPanel()->getProbabilityEditor()->updateEditor();
 	}
 	/**
 	 * If the event is used to redo the last action, both a
@@ -1235,6 +1243,14 @@ public:
 		      it != __propertyChangesStack.end(); ++it ){
 			h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoNotePropertiesEditAction( it->mode, it->current );
 		}
+
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
+		h2app->getPatternEditorPanel()->getVelocityEditor()->updateEditor();
+		h2app->getPatternEditorPanel()->getPanEditor()->updateEditor();
+		h2app->getPatternEditorPanel()->getLeadLagEditor()->updateEditor();
+		h2app->getPatternEditorPanel()->getNoteKeyEditor()->updateEditor();
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->updateEditor();
+		h2app->getPatternEditorPanel()->getProbabilityEditor()->updateEditor();
 	}
 private:
 	/**
