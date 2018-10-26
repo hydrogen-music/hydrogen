@@ -58,6 +58,38 @@ struct SelectedLayerInfo {
 };
 
 /**
+ * Struct containing all properties associated to a specific note.
+ */
+struct NoteProperties {
+	int position; ///< Specifies the x coordinate of a note inside
+		      ///< its associated pattern.
+	int pattern_idx; ///< Specifies the pattern the particular
+			   ///< note is associated with.
+	int instrument_id; ///< Specifies the instrument the note is
+			///< associated with.
+	float velocity; ///< Velocity the corresponding instrument is
+			///< hit with or, in other words, loudness of the
+			///< note. Ranges from #VELOCITY_MIN to
+			///< #VELOCITY_MAX.
+	float pan_l; ///< Volume of the left stereo channel. Ranges
+		     ///< from #PAN_MIN to #PAN_MAX.
+	float pan_r; ///< Volume of the right stereo channel. Ranges
+		     ///< from #PAN_MIN to #PAN_MAX.
+	float leadLag; ///< How much the note is leading or lagging the
+		       ///< beat. Ranges from #LEAD_LAG_MIN to
+		       ///< #LEAD_LAG_MAX.
+	int noteKeyVal; ///< Note key of the corresponding Midi
+			///< output. Ranges from #KEY_MIN to
+			///< #KEY_MAX.
+	int octaveKeyVal; ///< Octave key of the corresponding Midi
+			  ///< output. Ranges from #OCTAVE_MIN to
+			  ///< #OCTAVE_MAX, has an offset of
+			  ///< #OCTAVE_OFFSET, and a default value of
+			  ///< #OCTAVE_DEFAULT.
+	float probability; ///< Probability of the note being
+			   ///< triggered. Ranges from 0 to 1.
+};
+/**
  * A note plays an associated instrument with a velocity left and right pan
  */
 class Note : public H2Core::Object
@@ -128,6 +160,25 @@ class Note : public H2Core::Object
 		void set_specific_compo_id( int value );
 		/** __specific_compo_id accessor */
 		int get_specific_compo_id() const;
+		/**
+		 * A convenience function to set all properties of a
+		 * note modifiable via the NotePropertiesRuler at
+		 * once. For a more efficient setting of single
+		 * properties please refer to the corresponding set_*
+		 * functions. Internally, those set_* functions will
+		 * be called for storing.
+		 * \param noteProperties Properties to be written in
+		 * to the Note object.
+		 */
+		void set_note_properties( H2Core::NoteProperties noteProperties );
+		/**
+		 * A convenience function to access all properties
+		 * required to redo and undo the actions performed in
+		 * the NotePropertiesRuler. For a more efficient
+		 * setting of single properties please refer to the
+		 * corresponding get_* functions.
+		 */
+		H2Core::NoteProperties get_note_properties() const;
 		/**
 		 * __position setter
 		 * \param value the new value
@@ -314,38 +365,6 @@ class Note : public H2Core::Object
 };
 
 /**
- * Struct containing all properties associated to a specific note.
- */
-struct NoteProperties {
-	int column; ///< Specifies the x coordinate of a note inside
-		    ///< its associated pattern.
-	int patternNumber; ///< Specifies the pattern the particular
-			   ///< note is associated with.
-	int instrument; ///< Specifies the instrument the note is
-			///< associated with.
-	float velocity; ///< Velocity the corresponding instrument is
-			///< hit with or, in other words, loudness of the
-			///< note. Ranges from #VELOCITY_MIN to
-			///< #VELOCITY_MAX. 
-	float pan_l; ///< Volume of the left stereo channel. Ranges
-		     ///< from #PAN_MIN to #PAN_MAX.
-	float pan_r; ///< Volume of the right stereo channel. Ranges
-		     ///< from #PAN_MIN to #PAN_MAX.
-	float leadLag; ///< How much the note is leading or lagging the
-		       ///< beat. Ranges from #LEAD_LAG_MIN to
-		       ///< #LEAD_LAG_MAX.
-	int noteKeyVal; ///< Note key of the corresponding Midi
-			///< output. Ranges from #KEY_MIN to
-			///< #KEY_MAX.
-	int octaveKeyVal; ///< Octave key of the corresponding Midi
-			  ///< output. Ranges from #OCTAVE_MIN to
-			  ///< #OCTAVE_MAX, has an offset of
-			  ///< #OCTAVE_OFFSET, and a default value of
-			  ///< #OCTAVE_DEFAULT.
-	float probability; ///< Probability of the note being
-			   ///< triggered. Ranges from 0 to 1.
-};
-/**
  * Contains all properties, which can be changed using the
  * NotePropertiesRuler.
  *
@@ -359,10 +378,10 @@ enum NotePropertiesMode {
 		  ///< note. Ranges from #VELOCITY_MIN to
 		  ///< #VELOCITY_MAX.
 	PAN, ///< Volume of the left stereo channel. Ranges from
-	     ///< #PAN_MIN to #PAN_MAX. 
+	     ///< #PAN_MIN to #PAN_MAX.
 	LEADLAG, ///< How much the note is leading or lagging the
 		 ///< beat. Ranges from #LEAD_LAG_MIN to
-		 ///< #LEAD_LAG_MAX. 
+		 ///< #LEAD_LAG_MAX.
 	NOTEKEY, ///< Note key of the corresponding Midi
 		 ///< output. Ranges from #KEY_MIN to #KEY_MAX.
 	PROBABILITY ///< Probability of the note being
@@ -391,14 +410,7 @@ const char* convertNotePropertiesModeToString( NotePropertiesMode noteProperties
 /**
  * Due to the structure of the NotePropertiesRuler only one property
  * can be changed at a time. Even in case of multiple changes they
- * will all affect just one properties. For performance reason we will
- * therefore NOT supply all properties of a note but just the
- * corresponding global variables in the NotePropertiesRuler and an
- * enumerator called \link #mode, which specifies the changed property
- * (see #NotePropertiesMode). So, in case the \link #mode
- * H2Core::NotePropertiesMode::VELOCITY is supplied, all properties
- * except of the velocity might be dirty and not actually correspond
- * to the particular note!
+ * will all affect just one properties. 
  */
 struct NotePropertiesChanges {
 	NotePropertiesMode mode; ///< Specifies which property was
@@ -657,6 +669,25 @@ inline void Note::compute_lr_values( float* val_l, float* val_r )
 	__lpfb_r +=  cut_off   * __bpfb_r;
 	*val_l = __lpfb_l;
 	*val_r = __lpfb_r;
+}
+inline void Note::set_note_properties( NoteProperties noteProperties ){
+	set_position( noteProperties.position );
+	set_pattern_idx( noteProperties.pattern_idx );
+	set_instrument_id( noteProperties.instrument_id ); 
+	set_velocity( noteProperties.velocity );
+	set_pan_l( noteProperties.pan_l );
+	set_pan_r( noteProperties.pan_r );
+	set_lead_lag( noteProperties.leadLag );
+	set_key_octave( (Note::Key) noteProperties.noteKeyVal,
+			(Note::Octave) noteProperties.octaveKeyVal );
+	set_probability( noteProperties.probability );
+}
+inline H2Core::NoteProperties Note::get_note_properties() const {
+	NoteProperties noteProperties =
+		{ __position, __pattern_idx, __instrument_id,
+		  __velocity, __pan_l, __pan_r, __lead_lag,
+		  __key, __octave, __probability };
+	return noteProperties;
 }
 
 };

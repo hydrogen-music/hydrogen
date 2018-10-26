@@ -68,6 +68,67 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		 * and fulfills the same specifications.
 		 */
 	        H2Core::NotePropertiesMode m_Mode;
+		/**
+		 * This struct will contain all relevant properties of
+		 * a note for the NotePropertiesRuler and will be
+		 * assigned BEFORE the actions triggered by the user
+		 * will take place. The particular changes will
+		 * therefore not be reflected in it yet.
+		 *
+		 * It will be used as a convenient way to streamline
+		 * the setting of the different properties and to
+		 * construct a H2Core::NotePropertiesChanges struct.
+		 *
+		 * Note that Hydrogen does not store the pattern id of
+		 * a note properly during its creation. It will be
+		 * added manually using the global variable
+		 * __nSelectedPatternNumber.
+		 */
+		H2Core::NoteProperties noteProperties;
+		/**
+		 * This struct contains the former state of the
+		 * H2Core::NoteProperties, which will be used to
+		 * construct the undo/redo action in
+		 * pushUndoAction. Why could we not just use the state
+		 * prior to action invoked by the user? Moving the
+		 * cursor does trigger a lot of actions and it would
+		 * tedious of the user to revert them all one by
+		 * one. Instead, we will keep track of the state prior
+		 * to all movements of the mouse in this global struct
+		 * and update it only when the mouse cursor moves to a
+		 * different note.
+		 *
+		 * Note that Hydrogen does not store the pattern id of
+		 * a note properly during its creation. It will be
+		 * added manually using the global variable
+		 * __nSelectedPatternNumber.
+		 */
+		H2Core::NoteProperties notePropertiesOld;
+		/**
+		 * Auxiliary object the new state (AFTER the action
+		 * took place) of the note will be assigned
+		 * to. Unfortunately, the pattern id is not properly
+		 * set a note is introduced into the pattern editor
+		 * and to assure backwards compatibility, it shouldn't
+		 * be assumed to be present either. Therefore, we have
+		 * to assign it manually instead of just using
+		 * Note::get_note_properties function during the
+		 * construction of NotePropertiesChanges.
+		 *
+		 * Note that Hydrogen does not store the pattern id of
+		 * a note properly during its creation. It will be
+		 * added manually using the global variable
+		 * __nSelectedPatternNumber.
+		 */
+		H2Core::NoteProperties notePropertiesNew;
+		/**
+		 * This struct will contain all relevant properties of
+		 * a note both BEFORE and AFTER the action triggered
+		 * by the user is performed. In addition, it will also
+		 * contain a H2Core::NotePropertiesMode enumerator
+		 * specifying the property, which was actually changed.
+		 */
+		H2Core::NotePropertiesChanges notePropertiesChanges;
 
 		PatternEditorPanel *m_pPatternEditorPanel;
 		H2Core::Pattern *m_pPattern;
@@ -119,16 +180,6 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		 * the changes, is done using
 		 * SE_editNotePropertiesAction. 
 		 *
-		 * Caution: In the current implementation not the
-		 * whole state of a note in H2Core::NoteProperties
-		 * corresponds to its actual one. Only those
-		 * associated with the property specified by the mode
-		 * variable within the H2Core::NotePropertiesChanges
-		 * can be trusted. All others are just taken from
-		 * global variables inside
-		 * NotePropertiesRuler::wheelEvent or
-		 * NotePropertiesRuler::mousePressEvent.
-		 *
 		 * \param propertyChangesStack List of
 		 * H2Core::NotePropertiesChanges applied to at least
 		 * one note. If the SHIFT key was not pressed, the
@@ -151,85 +202,19 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		virtual void selectedPatternChangedEvent();
 	        virtual void selectedInstrumentChangedEvent();
 		//~ Implements EventListener interface
-		int __nSelectedPatternNumber; ///< Specifies the current
-					      ///< (visible) pattern.
-		int __nSelectedInstrument; ///< Specifies the instrument
-					   ///< selected in the current
-					   ///< view.
+		/**
+		 * Global variable holding the id of the currently
+		 * selected pattern. Unfortunately, Hydrogen does not
+		 * store the pattern id into a note during its
+		 * creation. We have to keep track of it using this
+		 * variable and assign it manually to the
+		 * H2Core::NoteProperties in order to make the
+		 * undo/redo work.
+		 */
+		int __nSelectedPatternNumber;
 		bool m_bMouseIsPressed; ///< Indicates whether the
 					///< left mouse button is
 					///< pressed by the user.
-		float __velocity; ///< Velocity the corresponding
-				  ///< instrument is hit with or, in
-				  ///< other words, loudness of the
-				  ///< note AFTER an action of the
-				  ///< user was applied. Ranges from
-				  ///< #VELOCITY_MIN to #VELOCITY_MAX. 
-		float __oldVelocity; ///< Velocity the corresponding
-				     ///< instrument is hit with or, in
-				     ///< other words, loudness of the
-				     ///< note BEFORE an action of the
-				     ///< user was applied.. Ranges from
-				     ///< #VELOCITY_MIN to #VELOCITY_MAX. 
-		float __pan_L; ///< Volume of the left stereo channel
-			       ///< AFTER an action of the user was
-			       ///< applied. Ranges from #PAN_MIN to
-			       ///< #PAN_MAX.
-		float __pan_R; ///< Volume of the right stereo channel
-			       ///< AFTER an action of the user was
-			       ///< applied. Ranges from #PAN_MIN to
-			       ///< #PAN_MAX.
-		float __oldPan_L; ///< Volume of the left stereo
-				  ///< channel BEFORE an action of the
-				  ///< user was applied. Ranges from
-				  ///< #PAN_MIN to #PAN_MAX.
-		float __oldPan_R; ///< < Volume of the right stereo
-				  ///< channel BEFORE an action of the
-				  ///< user was applied. Ranges from
-				  ///< #PAN_MIN to #PAN_MAX.
-		float __leadLag; ///< How much the note is leading or
-				 ///< lagging the beat AFTER an action
-				 ///< of the user was applied. Ranges
-				 ///< from #LEAD_LAG_MIN to
-				 ///< #LEAD_LAG_MAX.
-		float __oldLeadLag; ///< How much the note is leading or
-				    ///< lagging the beat BEFORE an
-				    ///< action of the user was
-				    ///< applied. Ranges from
-				    ///< #LEAD_LAG_MIN to #LEAD_LAG_MAX.
-		float __probability; ///< Probability of the note being
-				     ///< triggered AFTER an action of
-				     ///< the user was applied. Ranges
-				     ///< from 0 to 1. 
-		float __oldProbability; ///< Probability of the note
-					///< being triggered BEFORE an
-					///< action of the user was
-					///< applied. Ranges from 0 to 1.
-		int __noteKeyVal; ///< Note key of the corresponding
-				  ///< Midi output AFTER an action of
-				  ///< the user was applied. Ranges from
-				  ///< #KEY_MIN to #KEY_MAX.
-		int __oldNoteKeyVal; ///< Note key of the corresponding
-				     ///< Midi output BEFORE an action
-				     ///< of the user was
-				     ///< applied. Ranges from #KEY_MIN 
-				     ///< to #KEY_MAX. 
-		int __octaveKeyVal; ///< Octave key of the corresponding
-				    ///< Midi output AFTER an action of
-				    ///< the user was applied. Ranges
-				    ///< from #OCTAVE_MIN to
-				    ///< #OCTAVE_MAX, has an offset of
-				    ///< #OCTAVE_OFFSET, and a default
-				    ///< value of #OCTAVE_DEFAULT.
-		int __oldOctaveKeyVal; ///< Octave key of the
-				       ///< corresponding Midi output
-				       ///< AFTER an action of the user
-				       ///< was applied. Ranges from
-				       ///< #OCTAVE_MIN to #OCTAVE_MAX,
-				       ///< has an offset of
-				       ///< #OCTAVE_OFFSET, and a
-				       ///< default value of
-				       ///< #OCTAVE_DEFAULT.
 		int __checkXPosition;
 	
 		int __columnCheckOnXmouseMouve;

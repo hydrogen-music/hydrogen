@@ -1177,14 +1177,6 @@ private:
  * state before or after the action of the user was applied. The state
  * is stored in a struct of type H2Core::NoteProperties and its
  * changes in a struct of type H2Core::NotePropertiesChanges.
- *
- * Caution: In the current implementation not the whole state of a
- * note in H2Core::NoteProperties corresponds to its actual one. Only
- * those associated with the property specified by the mode variable
- * within the H2Core::NotePropertiesChanges can be trusted. All others
- * are just taken from global variables inside 
- * NotePropertiesRuler::wheelEvent or
- * NotePropertiesRuler::mousePressEvent.
  */
 class SE_editNotePropertiesAction : public QUndoCommand
 {

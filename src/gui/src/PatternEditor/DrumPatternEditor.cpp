@@ -46,6 +46,7 @@
 #include <math.h>
 #include <cassert>
 #include <algorithm>
+#include <chrono>
 
 using namespace std;
 using namespace H2Core;
@@ -881,13 +882,14 @@ void DrumPatternEditor::undoRedoNotePropertiesEditAction( NotePropertiesMode mod
 	Song *pSong = pEngine->getSong();
 	Pattern *pPattern;
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	if ( ( noteProperties.patternNumber != -1) &&
-	     ( (uint)noteProperties.patternNumber < pPatternList->size() ) ) {
-		pPattern = pPatternList->get( noteProperties.patternNumber );
+	if ( ( noteProperties.pattern_idx != -1) &&
+	     ( (uint)noteProperties.pattern_idx < pPatternList->size() ) ) {
+		pPattern = pPatternList->get( noteProperties.pattern_idx );
 	}
 	else {
 		pPattern = NULL;
 	}
+	chrono::high_resolution_clock::time_point t1_undo = chrono::high_resolution_clock::now();
 
 	// Get an iterator over all notes in the pattern.
 	const Pattern::notes_t* notes = pPattern->get_notes();
@@ -895,22 +897,20 @@ void DrumPatternEditor::undoRedoNotePropertiesEditAction( NotePropertiesMode mod
 	// with the x-coordinate inside the pattern as the key. The
 	// following loop will start and end at the x-coordinate
 	// stored in the supplied `noteProperties' (in
-	// `column'). Since all notes of the pattern are stored in 
+	// `position'). Since all notes of the pattern are stored in
 	// `notes', the keys are not unique and the loop will iterate
 	// over all notes sharing the same position. It will go on
 	// until the one matching the requested instrument is found.
-	FOREACH_NOTE_CST_IT_BOUND( notes, it, noteProperties.column ){
+	FOREACH_NOTE_CST_IT_BOUND( notes, it, noteProperties.position ){
 		Note *pNote = it->second;
 		assert( pNote );
-		assert( (int)pNote->get_position() == noteProperties.column );
+		assert( (int)pNote->get_position() == noteProperties.position );
 		if ( pNote->get_instrument() !=
-		     pSong->get_instrument_list()->get( noteProperties.instrument ) ) {
+		     pSong->get_instrument_list()->get( noteProperties.instrument_id ) ) {
 			continue;
 		}
-		// INFOLOG( QString( "mode: %1" ).arg( mode ));
 		// Undo/Redo the value changed during the last action.
 		if ( mode == NotePropertiesMode::VELOCITY && !pNote->get_note_off() ) {
-			INFOLOG( QString( "velocity: %1" ).arg( noteProperties.velocity ) );
 			pNote->set_velocity( noteProperties.velocity );
 		} else if ( mode == NotePropertiesMode::PAN ){
 			pNote->set_pan_l( noteProperties.pan_l );
@@ -924,12 +924,15 @@ void DrumPatternEditor::undoRedoNotePropertiesEditAction( NotePropertiesMode mod
 			pNote->set_probability( noteProperties.probability );
 		} else {
 			ERRORLOG( QString( "Undo/Redo failed for note %1 in pattern %2. Mode not found."
-					   ).arg( noteProperties.column ).arg( noteProperties.patternNumber ) );
+					   ).arg( noteProperties.position ).arg( noteProperties.pattern_idx ) );
 			return;
 		}
 		pSong->set_is_modified( true );
 		break;
 	}
+	chrono::high_resolution_clock::time_point t2_undo = chrono::high_resolution_clock::now();
+	chrono::duration<double> tUndoSpan = chrono::duration_cast<chrono::duration<double>>(t2_undo - t1_undo);
+	// INFOLOG( QString( "Duration undo [seconds]: %1" ).arg( tUndoSpan.count() ) );
 
 }
 ///==========================================================

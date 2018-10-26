@@ -106,16 +106,6 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		 * H2Core::NotePropertiesChanges::mode input argument using
 		 * the value stored in H2Core::NoteProperties.
 		 *
-		 * Caution: In the current implementation not the
-		 * whole state of a note in H2Core::NoteProperties
-		 * corresponds to its actual one. Only those
-		 * associated with the property specified by the mode
-		 * variable within the H2Core::NotePropertiesChanges
-		 * can be trusted. All others are just taken from
-		 * global variables inside
-		 * NotePropertiesRuler::wheelEvent or
-		 * NotePropertiesRuler::mousePressEvent.
-		 *
 		 * For a description of the context this function is
 		 * called in, see SE_editNotePropertiesAction.
 		 *
