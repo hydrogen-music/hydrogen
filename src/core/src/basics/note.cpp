@@ -162,6 +162,10 @@ void Note::set_pan_r( float pan )
 	__pan_r = check_boundary( pan, PAN_MIN, PAN_MAX );
 }
 
+void Note::set_probability( float probability ){
+	__probability = check_boundary( probability, PROBABILITY_MIN, PROBABILITY_MAX );
+}
+
 void Note::map_instrument( InstrumentList* instruments )
 {
 	assert( instruments );

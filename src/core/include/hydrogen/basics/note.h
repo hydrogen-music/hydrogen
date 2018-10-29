@@ -43,6 +43,8 @@
 #define PAN_MAX                 0.5f
 #define LEAD_LAG_MIN            -1.0f
 #define LEAD_LAG_MAX            1.0f
+#define PROBABILITY_MAX         1.0f
+#define PROBABILITY_MIN         0.0f
 
 namespace H2Core {
 
@@ -87,7 +89,8 @@ struct NoteProperties {
 			  ///< #OCTAVE_OFFSET, and a default value of
 			  ///< #OCTAVE_DEFAULT.
 	float probability; ///< Probability of the note being
-			   ///< triggered. Ranges from 0 to 1.
+			   ///< triggered. Ranges from
+			   ///< #PROBABILITY_MIN to #PROBABILITY_MAX. 
 };
 /**
  * A note plays an associated instrument with a velocity left and right pan
@@ -258,7 +261,7 @@ class Note : public H2Core::Object
 		SelectedLayerInfo* get_layer_selected( int CompoID );
 
 
-		void set_probability( float value );
+		void set_probability( float probability );
 		float get_probability() const;
 
 		/**
@@ -385,7 +388,8 @@ enum NotePropertiesMode {
 	NOTEKEY, ///< Note key of the corresponding Midi
 		 ///< output. Ranges from #KEY_MIN to #KEY_MAX.
 	PROBABILITY ///< Probability of the note being
-		    ///< triggered. Ranges from 0 to 1.
+		    ///< triggered. Ranges from #PROBABILITY_MIN to
+		    ///< #PROBABILITY_MAX. 
 };
 
 /**
@@ -549,11 +553,6 @@ inline bool Note::get_just_recorded() const
 inline float Note::get_probability() const
 {
 	return __probability;
-}
-
-inline void Note::set_probability( float value )
-{
-	__probability = value;
 }
 
 inline SelectedLayerInfo* Note::get_layer_selected( int CompoID )
