@@ -367,7 +367,7 @@ class Note : public H2Core::Object
 		static const char* __key_str[]; ///< used to build QString from __key an __octave
 };
 
-/**
+/** \public
  * Contains all properties, which can be changed using the
  * NotePropertiesRuler.
  *

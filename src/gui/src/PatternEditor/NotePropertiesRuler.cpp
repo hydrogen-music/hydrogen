@@ -29,7 +29,6 @@
 using namespace H2Core;
 
 #include <cassert>
-#include <chrono>
 
 #include "../HydrogenApp.h"
 
@@ -77,8 +76,12 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	updateEditor();
 	show();
 
+	// Initialize the global states of the Shift key and the
+	// column.
+	__nShiftKeyState = 0;
+	__nColumnState = -1;
+
 	HydrogenApp::get_instance()->addEventListener( this );
-	m_bMouseIsPressed = false;
 }
 
 
@@ -90,14 +93,9 @@ NotePropertiesRuler::~NotePropertiesRuler()
 }
 
 
-void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
-{
+void NotePropertiesRuler::wheelEvent( QWheelEvent *ev ){
 
 	if (m_pPattern == NULL) return;
-
-	chrono::high_resolution_clock::time_point t1_wheel = chrono::high_resolution_clock::now();
-	
-	pressAction( ev->x(), ev->y() ); //get all old values
 
 	float delta;
 	// Using '&' instead of '==' the finer control will be used
@@ -126,12 +124,12 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 	const Pattern::notes_t* notes = m_pPattern->get_notes();
 
-	// Create a list, which will contain the changes applied to a
+	// Clear the list, which contains the changes applied to a
 	// single notes. All changes will be inserted into the
 	// `QUndoStack' at once when handed over to the
 	// `pushUndoAction' function. This way they can all be
 	// reverted upon pressed Ctrl-Z just once.
-	std::list<NotePropertiesChanges> propertyChangesStack;
+        propertyChangesStack.clear();
 
 	// Whenever the Shift key is pressed, apply the current action
 	// to all notes instead to just the one positioned right below
@@ -222,9 +220,6 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			break;
 		}
 	}
-	chrono::high_resolution_clock::time_point t2_wheel = chrono::high_resolution_clock::now();
-	chrono::duration<double> tWheelSpan = chrono::duration_cast<chrono::duration<double>>(t2_wheel - t1_wheel);
-	// INFOLOG( QString( "Duration mouse wheel [seconds]: %1" ).arg( tWheelSpan.count() ) );
 }
 
 int NotePropertiesRuler::getColumn( int mousePositionX ){
@@ -382,203 +377,265 @@ void NotePropertiesRuler::editPropertyMouseWheel( H2Core::NoteProperties notePro
 	}
 }
 		
-void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
-{
-	m_bMouseIsPressed = true;
-	pressAction( ev->x(), ev->y() );
+void NotePropertiesRuler::mousePressEvent( QMouseEvent *ev ){
 	mouseMoveEvent( ev );
 }
 
-void NotePropertiesRuler::pressAction( int x, int y ){
+void NotePropertiesRuler::storeNoteProperties( QMouseEvent *ev ){
 
 	if (m_pPattern == NULL) return;
-	
-	int column = getColumn( x );
+
+	int column = getColumn( ev->x() );
 	
 	// Get pointers to all major components of Hydrogen used
 	// within this function.
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = (Hydrogen::get_instance())->getSong();
-
 	const Pattern::notes_t* notes = m_pPattern->get_notes();
-	FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
-		Note *pNote = it->second;
-		assert( pNote );
-		assert( (int)pNote->get_position() == column );
-		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
-			continue;
+
+	// Remove all entries from the list of old NoteProperties.
+	notePropertiesStored.clear();
+	
+	// In order to be able to group all connected move actions
+	// into one undo/redo action, we will conserve the states of
+	// the note properties in a global variable. It will serve as
+	// the former state of the properties until one of the
+	// following events occurs: the user releases the mouse key,
+	// the user presses/releases the Shift key.
+	if ( __nShiftKeyState > 0 ){
+		// Store the properties of all notes in the current
+		// pattern.
+		FOREACH_NOTE_CST_IT_BEGIN_END( notes, it ) {
+			Note *pNote = it->second;
+			assert( pNote );
+			if ( pNote->get_instrument() !=
+			     pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				continue;
+			}
+			noteProperties = pNote->get_note_properties();
+			noteProperties.pattern_idx = __nSelectedPatternNumber;
+			notePropertiesStored.push_front( noteProperties );
 		}
-		// In order to be able to group all connected move
-		// actions into one undo/redo action, we will conserve
-		// the state of the note property the user is clicking
-		// on in a global variable.
-		notePropertiesOld = pNote->get_note_properties();
-		notePropertiesOld.pattern_idx = __nSelectedPatternNumber;
+	} else if ( __nShiftKeyState < 0 ){
+		// Store the properties of only the note the cursor is
+		// positioned over.
+		FOREACH_NOTE_CST_IT_BOUND( notes, it, column) {
+			Note *pNote = it->second;
+			assert( pNote );
+			assert( (int)pNote->get_position() == column );
+			if ( pNote->get_instrument() !=
+			     pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				continue;
+			}
+			noteProperties = pNote->get_note_properties();
+			noteProperties.pattern_idx = __nSelectedPatternNumber;
+			notePropertiesStored.push_front( noteProperties );
+		}
 	}
 }
 
- void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
-{
-	chrono::high_resolution_clock::time_point t1_press = chrono::high_resolution_clock::now();
-	if( m_bMouseIsPressed ){
+void NotePropertiesRuler::undoMouseMovement(){
 
-		if (m_pPattern == NULL) return;
+	if (m_pPattern == NULL) return;
 	
-		int column = getColumn( ev->x() );
+	// Get pointers to all major components of Hydrogen used
+	// within this function.
+	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	Song *pSong = (Hydrogen::get_instance())->getSong();
+	const Pattern::notes_t* notes = m_pPattern->get_notes();
+
+	if ( notePropertiesStored.size() == 0 ){
+		// The cursor is moving over an empty column without
+		// the Shift key pressed. There is nothing to undo
+		// here.
+		return;
+	}
+
+	// Clear the list, which contains the changes applied to the
+	// individual notes. All changes will be inserted into the
+	// `QUndoStack' at once when handed over to the
+	// `pushUndoAction' function. This way they can all be
+	// reverted upon pressed Ctrl-Z just once.
+	propertyChangesStack.clear();
 	
-		bool columnChange = false;
-		if( __columnCheckOnXmouseMouve != column ){
-			__undoColumn = column;
-			columnChange = true;
-		}
-
-		// Only use the extend of the ruler as possible values
-		// for the y coordinate.
-		float val = height() - ev->y();
-		if (val > height()) {
-			val = height();
-		}
-		else if (val < 0.0) {
-			val = 0.0;
-		}
-		int keyval = val;
-		val = val / height();
-
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		Song *pSong = (Hydrogen::get_instance())->getSong();
-
-		// Create a list, which will contain the changes
-		// applied to a single notes. All changes will be
-		// inserted into the `QUndoStack' at once when handed
-		// over to the `pushUndoAction' function. This way
-		// they can all be reverted upon pressed Ctrl-Z just
-		// once.
-		std::list<NotePropertiesChanges> propertyChangesStack;
-		const Pattern::notes_t* notes = m_pPattern->get_notes();
-
-		// Whenever the Shift key is pressed, apply the current action
-		// to all notes instead to just the one positioned right below
-		// the cursor.
-		if ( ev->modifiers() & Qt::ShiftModifier ){
-			FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
-				Note *pNote = it->second;
-						
-				assert( pNote );
-				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
-					continue;
-				}
-				// Create a H2Core::NoteProperties
-				// struct, which will contain all
-				// relevant properties for the
-				// following lines of code.
-				noteProperties = pNote->get_note_properties();
-				noteProperties.pattern_idx = __nSelectedPatternNumber;
-
-				// Alter the note properties according to the
-				// action of the user
-				editPropertyMouseClick( noteProperties, pNote, val, keyval, ev );
-				
-				if( columnChange ){
-					__columnCheckOnXmouseMouve = column;
-					return;
-				}
-				// The pattern id is not properly set
-				// by the pattern editor and has to be
-				// adjusted manually.
-				notePropertiesNew = pNote->get_note_properties();
-				notePropertiesNew.pattern_idx = __nSelectedPatternNumber;
-				// For now we have to do a dirty trick
-				// to make the undo working. The
-				// notePropertiesOld struct is
-				// associated with the note the user
-				// is hovering over and there is not a
-				// global old state for all
-				// notes. Therefore, we will just take
-				// this one and adjust the position by
-				// hand.
-				notePropertiesOld.position = it->first;
-				// Create a H2Core::NotePropertiesChanges
-				// struct specifying what did
-				// change during the last action.
-				notePropertiesChanges =
-					{ m_Mode, notePropertiesOld, notePropertiesNew };
-				// Push the changes onto the list
-				// keeping track of all changes during
-				// the current action.
-				propertyChangesStack.push_front( notePropertiesChanges );
-				__columnCheckOnXmouseMouve = column;
+	// Get the current note properties of the notes corresponding
+	// to the stored states in notePropertiesStored, create
+	// NotePropertiesChanges objects using each pair, and push it
+	// to the propertyChangesStack.
+	if ( __nShiftKeyState > 0 ){
+		// Get the properties of all notes in the current
+		// pattern.
+		FOREACH_NOTE_CST_IT_BEGIN_END( notes, it ) {
+			Note *pNote = it->second;
+			assert( pNote );
+			if ( pNote->get_instrument() !=
+			     pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				continue;
 			}
-			// Push the changes onto the `QUndoStack'.
-			pushUndoAction( propertyChangesStack );
+			// Get the current note properties.
+			noteProperties = pNote->get_note_properties();
+			noteProperties.pattern_idx = __nSelectedPatternNumber;
+			// Create a H2Core::NotePropertiesChanges
+			// struct specifying what did change during
+			// the last action.
+			notePropertiesChanges =
+				{ m_Mode, notePropertiesStored.back(),
+				  noteProperties };
+			// Delete the corresponding stored state.
+			notePropertiesStored.pop_back();
+			// Push the changes onto the list keeping
+			// track of all changes grouped together with
+			// the current action.
+			propertyChangesStack.push_front( notePropertiesChanges );
+		}
+	} else if ( __nShiftKeyState < 0 ){
+		// Get the properties of only the note the cursor was
+		// positioned over. We will therefore use the x
+		// coordinate of the note stored in the
+		// notePropertiesStored list.
+		int column = notePropertiesStored.back().position;
+		FOREACH_NOTE_CST_IT_BOUND( notes, it, column ) {
+			Note *pNote = it->second;
+			assert( pNote );
+			if ( pNote->get_instrument() !=
+			     pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				continue;
+			}
+			noteProperties = pNote->get_note_properties();
+			noteProperties.pattern_idx = __nSelectedPatternNumber;
+			// Create a H2Core::NotePropertiesChanges
+			// struct specifying what did change during
+			// the last action.
+			notePropertiesChanges =
+				{ m_Mode, notePropertiesStored.back(),
+				  noteProperties };
+			// Delete the corresponding stored state.
+			notePropertiesStored.pop_back();
+			// Push the changes onto the list keeping
+			// track of all changes grouped together with
+			// the current action.
+			propertyChangesStack.push_front( notePropertiesChanges );
+		}
+	}
+	// Push the changes onto the `QUndoStack'.
+	pushUndoAction( propertyChangesStack );
+}
 
+void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
+{
+	// Check whether a pattern was selected.
+	if (m_pPattern == NULL) return;
+
+	// Check whether the shift key was pressed and if this was the
+	// case beforehand. If the state changed, handle it as a
+	// release.
+	// The __nShiftKeyState variable has three different states:
+	//  > 0 - the shift key is pressed 
+	//  < 0 - the shift key is not pressed
+	// == 0 - the mouse key was just pressed the first time
+	//        and there are no stored properties available.
+	if ( ev->modifiers() & Qt::ShiftModifier ){
+		if ( __nShiftKeyState < 0 ){
+			// The state of the Shift key did change.
+			undoMouseMovement();
+		}
+		if ( __nShiftKeyState <= 0 ){
+			__nShiftKeyState = 1;
+			storeNoteProperties( ev );
+		}
+	} else {
+		if ( __nShiftKeyState > 0 ){
+			// The state of the Shift key did change.
+			undoMouseMovement();
+		}
+		if ( __nShiftKeyState >= 0 ){
+			__nShiftKeyState = -1;
+			storeNoteProperties( ev );
+		}
+	}
+
+	// Get the x coordinate of note the cursor is positioned over.
+	int column = getColumn( ev->x() );
+	
+        // If the column did change and the Shift key is not pressed,
+        // treat it as like a release of the mouse button, issue the
+        // latest changes for an undo/redo action, and store the
+        // current note properties.
+	if ( !( ev->modifiers() & Qt::ShiftModifier ) &&
+	     ( column != __nColumnState ) ){
+		if ( __nColumnState != -1 ){
+			// Column state is not reset. There are actual
+			// changes.
+			undoMouseMovement();
+			storeNoteProperties( ev );
+		}
+		__nColumnState = column;
+	}
+
+	// Use the y coordinate of the cursor as the new value for the
+	// properties but only in the extend of the ruler.
+	float val = height() - ev->y();
+	if (val > height()) {
+		val = height();
+	}
+	else if (val < 0.0) {
+		val = 0.0;
+	}
+	// The note key and octave key properties do need an integer
+	// value.
+	int keyval = val;
+	val = val / height();
+	
+	// Get pointers to all major components of Hydrogen used
+	// within this function.
+	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	Song *pSong = (Hydrogen::get_instance())->getSong();
+	const Pattern::notes_t* notes = m_pPattern->get_notes();
+
+	// Whenever the Shift key is pressed, apply the current action
+	// to all notes instead to just the one positioned right below
+	// the cursor.
+	if ( ev->modifiers() & Qt::ShiftModifier ){
+		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+			Note *pNote = it->second;
+						
+			assert( pNote );
+			if ( pNote->get_instrument() !=
+			     pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				continue;
+			}
+
+			// Alter the note properties according to the
+			// action of the user
+			editPropertyMouseClick( noteProperties, pNote, val, keyval, ev );
+		}
+
+		pSong->set_is_modified( true );
+		updateEditor();
+	} else {
+		// Only the properties of the note below the cursor
+		// are altered.
+		FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+			Note *pNote = it->second;
+			assert( pNote );
+			assert( (int)pNote->get_position() == column );
+			if ( pNote->get_instrument() !=
+			     pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				continue;
+			}
+			// Alter the note properties according to the
+			// action of the user
+			editPropertyMouseClick( noteProperties, pNote, val, keyval, ev );
+			
 			pSong->set_is_modified( true );
 			updateEditor();
-		} else {
-			// Only the properties of the note below the cursor
-			// are altered.
-			FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
-				Note *pNote = it->second;
-				assert( pNote );
-				assert( (int)pNote->get_position() == column );
-				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
-					continue;
-				}
-				// Create a H2Core::NoteProperties
-				// struct, which will contain all
-				// relevant properties for the
-				// following lines of code.
-				noteProperties = pNote->get_note_properties();
-				noteProperties.pattern_idx = __nSelectedPatternNumber;
-				
-				// Keep track of a global, old state
-				// of the properties and update it
-				// only if the cursor did move over
-				// another note. This way all actions
-				// performed with the same note
-				// pointed at will be grouped together
-				// and reverted using undo/redo at the
-				// same time.
-				if ( columnChange ){
-					notePropertiesOld = noteProperties;
-				}
-
-				// Alter the note properties according to the
-				// action of the user
-				editPropertyMouseClick( noteProperties, pNote, val, keyval, ev );
-	
-				if( columnChange ){
-					__columnCheckOnXmouseMouve = column;
-					return;
-				}
-				// The pattern id is not properly set
-				// by the pattern editor and has to be
-				// adjusted manually.
-				notePropertiesNew = pNote->get_note_properties();
-				notePropertiesNew.pattern_idx = __nSelectedPatternNumber;
-				// Create a H2Core::NotePropertiesChanges
-				// struct specifying what did
-				// change during the last action.
-				notePropertiesChanges =
-					{ m_Mode, notePropertiesOld, notePropertiesNew };
-				// Push the changes onto the list
-				// keeping track of all changes during
-				// the current action.
-				propertyChangesStack.push_front( notePropertiesChanges );
-				// Push the changes onto the `QUndoStack'.
-				pushUndoAction( propertyChangesStack );
-
-				pSong->set_is_modified( true );
-				updateEditor();
-				break;
-			}
+			break;
 		}
-		DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
-		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
-		pPatternEditor->updateEditor();
 	}
-	chrono::high_resolution_clock::time_point t2_press = chrono::high_resolution_clock::now();
-	chrono::duration<double> tPressSpan = chrono::duration_cast<chrono::duration<double>>(t2_press - t1_press);
-	// INFOLOG( QString( "Duration mouse press [seconds]: %1" ).arg( tPressSpan.count() ) );
+
+	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
+	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+	pPatternEditor->updateEditor();
 }
 
 void NotePropertiesRuler::editPropertyMouseClick( H2Core::NoteProperties noteProperties,
@@ -656,37 +713,12 @@ void NotePropertiesRuler::editPropertyMouseClick( H2Core::NoteProperties notePro
 	}
 }
 
-void NotePropertiesRuler::mouseReleaseEvent(QMouseEvent *ev)
-{
-	// Create a list, which will contain the changes applied to a
-	// single notes. All changes will be inserted into the
-	// `QUndoStack' at once when handed over to the
-	// `pushUndoAction' function. This way they can all be
-	// reverted upon pressed Ctrl-Z just once.
-	// std::list<NotePropertiesChanges> propertyChangesStack;
-	m_bMouseIsPressed = false;
-	// // Grab all global variables specifying the past and current
-	// // state of the note and instantiate structs using them.
-	// NoteProperties oldNoteProperties =
-	// 	{ __undoColumn, __nSelectedPatternNumber,
-	// 	  __nSelectedInstrument, __oldVelocity, old_pan_l,
-	// 	  old_pan_r, __oldLeadLag, __oldNoteKeyVal,
-	// 	  __oldOctaveKeyVal, __oldProbability };
-	// NoteProperties currentNoteProperties =
-	// 	{ __undoColumn, __nSelectedPatternNumber,
-	// 	  __nSelectedInstrument, __velocity, __pan_L, __pan_R,
-	// 	  __leadLag, __noteKeyVal, __octaveKeyVal,
-	// 	  __probability };
-	// // Create a struct specifying what did change during the last
-	// // action.
-	// NotePropertiesChanges notePropertiesChanges =
-	// 	{ m_Mode, oldNoteProperties,
-	// 	  currentNoteProperties };
-	// // Push the changes onto the list keeping track of all changes
-	// // during the current action.
-	// propertyChangesStack.push_front( notePropertiesChanges );
-	// // Push the changes onto the `QUndoStack'.
-	// pushUndoAction( propertyChangesStack );
+void NotePropertiesRuler::mouseReleaseEvent( QMouseEvent *ev ){
+	// Trigger an undo/redo of the most recent changes.
+	undoMouseMovement();
+	// Reset the global states of the Shift key and the column.
+	__nShiftKeyState = 0;
+	__nColumnState = -1;
 }
 
 // Create an action, which is capable of reverting the most recent

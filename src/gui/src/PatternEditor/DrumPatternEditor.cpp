@@ -46,7 +46,6 @@
 #include <math.h>
 #include <cassert>
 #include <algorithm>
-#include <chrono>
 
 using namespace std;
 using namespace H2Core;
@@ -889,7 +888,6 @@ void DrumPatternEditor::undoRedoNotePropertiesEditAction( NotePropertiesMode mod
 	else {
 		pPattern = NULL;
 	}
-	chrono::high_resolution_clock::time_point t1_undo = chrono::high_resolution_clock::now();
 
 	// Get an iterator over all notes in the pattern.
 	const Pattern::notes_t* notes = pPattern->get_notes();
@@ -930,10 +928,6 @@ void DrumPatternEditor::undoRedoNotePropertiesEditAction( NotePropertiesMode mod
 		pSong->set_is_modified( true );
 		break;
 	}
-	chrono::high_resolution_clock::time_point t2_undo = chrono::high_resolution_clock::now();
-	chrono::duration<double> tUndoSpan = chrono::duration_cast<chrono::duration<double>>(t2_undo - t1_undo);
-	// INFOLOG( QString( "Duration undo [seconds]: %1" ).arg( tUndoSpan.count() ) );
-
 }
 ///==========================================================
 ///undo / redo actions from pattern editor instrument list
