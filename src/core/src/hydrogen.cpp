@@ -19,7 +19,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
 #include "hydrogen/config.h"
 
 #ifdef WIN32
@@ -97,22 +96,27 @@ namespace H2Core
 // GLOBALS
 
 // info
-float					m_fMasterPeak_L = 0.0f;		///< Master peak (left channel)
-float					m_fMasterPeak_R = 0.0f;		///< Master peak (right channel)
-float					m_fProcessTime = 0.0f;		///< time used in process function
-float					m_fMaxProcessTime = 0.0f;	///< max ms usable in process with no xrun
+float				m_fMasterPeak_L = 0.0f;		///< Master peak (left channel)
+float				m_fMasterPeak_R = 0.0f;		///< Master peak (right channel)
+float				m_fProcessTime = 0.0f;		///< time used in process function
+float				m_fMaxProcessTime = 0.0f;	///< max ms usable in process with no xrun
 //~ info
 
 
 //jack time master
-float					m_nNewBpmJTM = 120;
+float				m_nNewBpmJTM = 120;
 unsigned long			m_nHumantimeFrames = 0;
 //~ jack time master
 
-AudioOutput *			m_pAudioDriver = NULL;	///< Audio output
-QMutex					mutex_OutputPointer;     ///< Mutex for audio output pointer, allows multiple readers
+/**
+ * Audio output.
+ *
+ * Initialized to NULL and set to NULL inside audioEngine_init().
+ */	
+AudioOutput *			m_pAudioDriver = NULL;
+QMutex				mutex_OutputPointer;     ///< Mutex for audio output pointer, allows multiple readers
 ///< When locking this AND AudioEngine, always lock AudioEngine first.
-MidiInput *				m_pMidiDriver = NULL;	///< MIDI input
+MidiInput *			m_pMidiDriver = NULL;	///< MIDI input
 MidiOutput *			m_pMidiDriverOut = NULL;	///< MIDI output
 
 // overload the > operator of Note objects for priority_queue
@@ -130,38 +134,91 @@ struct compare_pNotes {
 std::priority_queue<Note*, std::deque<Note*>, compare_pNotes > m_songNoteQueue;
 std::deque<Note*>		m_midiNoteQueue;	///< Midi Note FIFO
 
-PatternList*			m_pNextPatterns;		///< Next pattern (used only in Pattern mode)
-bool					m_bAppendNextPattern;		///< Add the next pattern to the list instead of replace.
-bool					m_bDeleteNextPattern;		///< Delete the next pattern from the list.
-
+/**
+ * Next pattern (used only in Pattern mode).
+ *
+ * Created during the call of audioEngine_init().
+ */
+PatternList*			m_pNextPatterns;
+bool				m_bAppendNextPattern;		///< Add the next pattern to the list instead of replace.
+bool				m_bDeleteNextPattern;		///< Delete the next pattern from the list.
+/**
+ * 
+ *
+ * Created during the call of audioEngine_init().
+ */
 PatternList*			m_pPlayingPatterns;
-int						m_nSongPos;				///< Is the position inside the song
+/**
+ * Position inside the Song.
+ *
+ * Initialized to -1 in audioEngine_init().
+ */
+int				m_nSongPos;
 
-int						m_nSelectedPatternNumber;
-int						m_nSelectedInstrumentNumber;
-
-Instrument *			m_pMetronomeInstrument = NULL;	///< Metronome instrument
+/**
+ *
+ *
+ * Initialized to 0 in audioEngine_init().
+ */
+int				m_nSelectedPatternNumber;
+/**
+ *
+ *
+ * Initialized to 0 in audioEngine_init().
+ */
+int				m_nSelectedInstrumentNumber;
+/**
+ * Pointer to the metronome.
+ *
+ * Initialized in audioEngine_init().
+ */
+Instrument *			m_pMetronomeInstrument = NULL;
 
 // Buffers used in the process function
-unsigned				m_nBufferSize = 0;
-float *					m_pMainBuffer_L = NULL;
-float *					m_pMainBuffer_R = NULL;
+unsigned			m_nBufferSize = 0;
+/**
+ *
+ *
+ * Initialized to NULL in audioEngine_init().
+ */
+float *				m_pMainBuffer_L = NULL;
+/**
+ *
+ *
+ * Initialized to NULL in audioEngine_init().
+ */
+float *				m_pMainBuffer_R = NULL;
+/**
+ * Current state of the H2Core::AudioEngine. 
+ *
+ * It is supposed to take five different states:
+ *
+ * - #STATE_UNINITIALIZED:	1      Not even the constructors have been called.
+ * - #STATE_INITIALIZED:	2      Not ready, but most pointers are now valid or NULL
+ * - #STATE_PREPARED:		3      Drivers are set up, but not ready to process audio.
+ * - #STATE_READY:		4      Ready to process audio
+ * - #STATE_PLAYING:		5      Currently playing a sequence.
+ * 
+ * It gets initialized with #STATE_UNINITIALIZED.
+ */	
+int				m_audioEngineState = STATE_UNINITIALIZED;	
 
-Hydrogen*				hydrogenInstance = NULL;   ///< Hydrogen class instance (used for log)
-
-int						m_audioEngineState = STATE_UNINITIALIZED;	///< Audio engine state
-
-#ifdef H2CORE_HAVE_LADSPA
-float					m_fFXPeak_L[MAX_FX];
-float					m_fFXPeak_R[MAX_FX];
+#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
+float				m_fFXPeak_L[MAX_FX];
+float				m_fFXPeak_R[MAX_FX];
 #endif
 
-int						m_nPatternStartTick = -1;
+int				m_nPatternStartTick = -1;
+/**
+ *
+ *
+ * Initialized to 0 in audioEngine_init().
+ */
 unsigned int			m_nPatternTickPosition = 0;
-int						m_nLookaheadFrames = 0;
+int				m_nLookaheadFrames = 0;
 
 // used in findPatternInTick
-int						m_nSongSizeInTicks = 0;
+int				m_nSongSizeInTicks = 0;
 
 struct timeval			m_currentTickTime;
 
@@ -169,31 +226,60 @@ unsigned long			m_nRealtimeFrames = 0;
 unsigned int			m_naddrealtimenotetickposition = 0;
 
 // PROTOTYPES
-void					audioEngine_init();
-void					audioEngine_destroy();
-int						audioEngine_start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
-void					audioEngine_stop( bool bLockEngine = false );
-void					audioEngine_setSong(Song *pNewSong );
-void					audioEngine_removeSong();
-static void				audioEngine_noteOn( Note *note );
+/**
+ * Initialization of the H2Core::AudioEngine
+ *
+ * -# It creates two new instances of the H2Core::PatternList and stores them
+      in #m_pPlayingPatterns and #m_pNextPatterns.
+ * -# It sets #m_nSongPos = -1.
+ * -# It sets #m_nSelectedPatternNumber, #m_nSelectedInstrumentNumber,
+      and #m_nPatternTickPosition to 0.
+ * -# It sets #m_pMetronomeInstrument, #m_pAudioDriver,
+      #m_pMainBuffer_L, #m_pMainBuffer_R to NULL.
+ * -# It uses the current time to a random seed via std::srand(). This
+      way the states of the pseudo-random number generator are not
+      cross-correlated between different runs of Hydrogen.
+ * -# It initializes the metronome with the sound stored in
+      H2Core::Filesystem::click_file_path().
+ * -# It sets the H2Core::AudioEngine state #m_audioEngineState to
+      #STATE_INITIALIZED.
+ * -# It calls H2Core::Effects::create_instance() (if the
+      H2CORE_HAVE_LADSPA is set),
+      H2Core::AudioEngine::create_instance(), and
+      H2Core::Playlist::create_instance().
+ * -# Finally, it pushes the H2Core::EVENT_STATE, #STATE_INITIALIZED
+      on the H2Core::EventQueue using
+      H2Core::EventQueue::push_event().
+ *
+ * If the current state of the H2Core::AudioEngine #m_audioEngineState is not
+ * ::STATE_UNINITIALIZED, it will thrown an error and
+ * H2Core::AudioEngine::unlock() it.
+ */
+void				audioEngine_init();
+void				audioEngine_destroy();
+int				audioEngine_start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
+void				audioEngine_stop( bool bLockEngine = false );
+void				audioEngine_setSong(Song *pNewSong );
+void				audioEngine_removeSong();
+static void			audioEngine_noteOn( Note *note );
 
-int						audioEngine_process( uint32_t nframes, void *arg );
-inline void				audioEngine_clearNoteQueue();
-inline void				audioEngine_process_checkBPMChanged(Song *pSong);
-inline void				audioEngine_process_playNotes( unsigned long nframes );
-inline void				audioEngine_process_transport();
+int				audioEngine_process( uint32_t nframes, void *arg );
+inline void			audioEngine_clearNoteQueue();
+inline void			audioEngine_process_checkBPMChanged(Song *pSong);
+inline void			audioEngine_process_playNotes( unsigned long nframes );
+inline void			audioEngine_process_transport();
 
 inline unsigned			audioEngine_renderNote( Note* pNote, const unsigned& nBufferSize );
-inline int				audioEngine_updateNoteQueue( unsigned nFrames );
-inline void				audioEngine_prepNoteQueue();
+inline int			audioEngine_updateNoteQueue( unsigned nFrames );
+inline void			audioEngine_prepNoteQueue();
 
-inline int				findPatternInTick( int tick, bool loopMode, int *patternStartTick );
+inline int			findPatternInTick( int tick, bool loopMode, int *patternStartTick );
 
-void					audioEngine_seek( long long nFrames, bool bLoopMode = false );
+void				audioEngine_seek( long long nFrames, bool bLoopMode = false );
 
-void					audioEngine_restartAudioDrivers();
-void					audioEngine_startAudioDrivers();
-void					audioEngine_stopAudioDrivers();
+void				audioEngine_restartAudioDrivers();
+void				audioEngine_startAudioDrivers();
+void				audioEngine_stopAudioDrivers();
 
 inline timeval currentTime2()
 {
@@ -261,7 +347,8 @@ void audioEngine_init()
 
 	srand( time( NULL ) );
 
-	// Create metronome instrument
+	// Create metronome instrument //
+	// Get the path to the file of the metronome sound.
 	QString sMetronomeFilename = Filesystem::click_file_path();
 	m_pMetronomeInstrument =
 			new Instrument( METRONOME_INSTR_ID, "metronome" );
@@ -587,7 +674,7 @@ void audioEngine_seek( long long nFrames, bool bLoopMode )
 				m_pAudioDriver->m_transport.m_nFrames
 				/ m_pAudioDriver->m_transport.m_nTickSize );
 	//	sprintf(tmp, "[audioEngine_seek()] tickNumber_start = %d", tickNumber_start);
-	//	hydrogenInstance->infoLog(tmp);
+	//	__instance->infoLog(tmp);
 
 	bool loop = pSong->is_loop_enabled();
 
@@ -597,7 +684,7 @@ void audioEngine_seek( long long nFrames, bool bLoopMode )
 
 	m_nSongPos = findPatternInTick( tickNumber_start, loop, &m_nPatternStartTick );
 	//	sprintf(tmp, "[audioEngine_seek()] m_nSongPos = %d", m_nSongPos);
-	//	hydrogenInstance->infoLog(tmp);
+	//	__instance->infoLog(tmp);
 
 	audioEngine_clearNoteQueue();
 }
@@ -1730,9 +1817,6 @@ Hydrogen::Hydrogen()
 	m_pTimeline = new Timeline();
 	m_pCoreActionController = new CoreActionController();
 
-
-	hydrogenInstance = this;
-
 	initBeatcounter();
 	InstrumentComponent::setMaxLayers( Preferences::get_instance()->getMaxLayers() );
 	audioEngine_init();
@@ -1809,7 +1893,7 @@ void Hydrogen::create_instance()
 	// Playlist::create_instance();
 }
 
-void Hydrogen::initBeatcounter(void)
+void Hydrogen::initBeatcounter()
 {
 	m_ntaktoMeterCompute = 1;
 	m_nbeatsToCount = 4;

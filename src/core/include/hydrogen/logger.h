@@ -58,10 +58,18 @@ class Logger {
 		 * \param msk the logging level bitmask
 		 */
 		static Logger* bootstrap( unsigned msk );
-		/** create the logger instance if not exists */
+		/**
+		 * Creates a new H2Core::Logger singleton and stores
+		 * it in #__instance if its value equals 0.
+		 *
+		 * It is called in Hydrogen::create_instance().
+		 */
 		static Logger* create_instance();
-		/** return the logger instance */
-		static Logger* get_instance() { assert(__instance); return __instance; }
+		/**
+		 * Returns a pointer to the current H2Core::Logger
+		 * singleton stored in #__instance.
+		 */
+		static Logger* get_instance(){ assert(__instance); return __instance; }
 
 		/** destructor */
 		~Logger();
@@ -107,7 +115,13 @@ class Logger {
 		friend void* loggerThread_func( void* param );
 
 	private:
-		static Logger* __instance;      ///< logger private static instance
+		/**
+		 * Object holding the current H2Core::Logger
+		 * singleton. It is initialized with NULL, set with
+		 * create_instance(), and accessed with
+		 * get_instance().
+		 */
+		static Logger* __instance;
 		bool __use_file;                ///< write log to file if set to true
 		bool __running;                 ///< set to true when the logger thread is running
 		pthread_mutex_t __mutex;        ///< lock for adding or removing elements only

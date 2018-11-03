@@ -36,14 +36,33 @@ class MidiMap : public H2Core::Object
 	H2_OBJECT
 	public:
 		typedef std::map< QString, Action* > map_t;
+		/**
+		 * Object holding the current MidiMap singleton. It is
+		 * initialized with NULL, set with create_instance(),
+		 * and accessed with get_instance().
+		 */
 		static MidiMap* __instance;
 		~MidiMap();
-
+		
+		/**
+		 * Creates a new MidiMap singleton and stores it in
+		 * #__instance if its value equals 0.
+		 *
+		 * It is called in Hydrogen::create_instance().
+		 */
 		static void create_instance();
-		static void reset_instance();  // convenience accessor to reset()
+		/**
+		 * Convenience function calling reset() on the current
+		 * MidiMap #__instance.
+		 */
+		static void reset_instance();
+		/**
+		 * Returns a pointer to the current MidiMap singleton
+		 * stored in #__instance.
+		 */
 		static MidiMap* get_instance() { assert(__instance); return __instance; }
 
-		void reset();  // Reinitializes the object.
+		void reset();  ///< Reinitializes the object.
 
 		void registerMMCEvent( QString, Action* );
 		void registerNoteEvent( int , Action* );

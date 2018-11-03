@@ -26,7 +26,7 @@
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
 
-#ifdef H2CORE_HAVE_PORTMIDI
+#if defined(H2CORE_HAVE_PORTMIDI) || _DOXYGEN_
 #include <portmidi.h>
 
 namespace H2Core

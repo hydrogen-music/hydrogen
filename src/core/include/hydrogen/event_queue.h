@@ -68,8 +68,17 @@ public:
 class EventQueue : public H2Core::Object
 {
 	H2_OBJECT
-public:
+public:/**
+	 * Creates a new EventQueue singleton and stores it in
+	 * #__instance if its value equals 0.
+	 *
+	 * It is called in Hydrogen::create_instance().
+	 */
 	static void create_instance();
+	/**
+	 * Returns a pointer to the current EventQueue singleton
+	 * stored in #__instance.
+	 */
 	static EventQueue* get_instance() { assert(__instance); return __instance; }
 	~EventQueue();
 
@@ -95,6 +104,11 @@ public:
 
 private:
 	EventQueue();
+	/**
+	 * Object holding the current EventQueue singleton. It is
+	 * initialized with NULL, set with create_instance(), and
+	 * accessed with get_instance().
+	 */
 	static EventQueue *__instance;
 
 	int __read_index;

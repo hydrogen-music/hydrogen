@@ -34,7 +34,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/IO/CoreMidiDriver.h>
 
-#ifdef H2CORE_HAVE_COREMIDI
+#if defined(H2CORE_HAVE_COREMIDI) || _DOXYGEN_
 
 namespace H2Core
 {

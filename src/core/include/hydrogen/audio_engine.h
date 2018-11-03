@@ -46,7 +46,17 @@ class AudioEngine : public H2Core::Object
 {
 	H2_OBJECT
 public:
+	/**
+	 * Creates a new AudioEngine singleton and stores it in
+	 * #__instance if its value equals 0.
+	 *
+	 * It is called in Hydrogen::audioEngine_init().
+	 */
 	static void create_instance();
+	/**
+	 * Returns a pointer to the current AudioEngine singleton
+	 * stored in #__instance.
+	 */
 	static AudioEngine* get_instance() { assert(__instance); return __instance; }
 	~AudioEngine();
 
@@ -55,7 +65,7 @@ public:
 	 * Easy usage:  Use the RIGHT_HERE macro like this...
 	 *     AudioEngine::get_instance()->lock( RIGHT_HERE );
 	 *
-	 * More complex usage:  The parameters file and function
+	 * More complex usage:  The parameters @a file and @a function
 	 * need to be pointers to null-terminated strings that are
 	 * persistent for the entire session.  This does *not*
 	 * include the return value of std::string::c_str(), or
@@ -78,6 +88,11 @@ public:
 	Synth* get_synth();
 
 private:
+	/**
+	 * Object holding the current AudioEngine singleton. It is
+	 * initialized with NULL, set with create_instance(), and
+	 * accessed with get_instance().
+	 */
 	static AudioEngine* __instance;
 
 	Sampler* __sampler;

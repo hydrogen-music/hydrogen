@@ -1,6 +1,6 @@
 
 #include <hydrogen/IO/PortAudioDriver.h>
-#ifdef H2CORE_HAVE_PORTAUDIO
+#if defined(H2CORE_HAVE_PORTAUDIO) || _DOXYGEN_
 
 #include <iostream>
 

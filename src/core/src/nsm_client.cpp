@@ -27,7 +27,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#ifdef H2CORE_HAVE_OSC
+#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
 #include "hydrogen/nsm_client.h"
 #include "hydrogen/nsm.h"

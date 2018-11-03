@@ -36,14 +36,32 @@
 #include <hydrogen/core_action_controller.h>
 #include <cassert>
 #include <hydrogen/timehelper.h>
-
 // Engine states  (It's ok to use ==, <, and > when testing)
-#define STATE_UNINITIALIZED	1     // Not even the constructors have been called.
-#define STATE_INITIALIZED	2     // Not ready, but most pointers are now valid or NULL
-#define STATE_PREPARED		3     // Drivers are set up, but not ready to process audio.
-#define STATE_READY			4     // Ready to process audio
-#define STATE_PLAYING		5     // Currently playing a sequence.
-
+/**
+ * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Not even the
+ * constructors have been called. Numerical value: 1.
+ */
+#define STATE_UNINITIALIZED	1
+/**
+ * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Not ready,
+ * but most pointers are now valid or NULL. Numerical value: 2.
+ */
+#define STATE_INITIALIZED	2
+/**
+ * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Drivers are
+ * set up, but not ready to process audio. Numerical value: 3.
+ */
+#define STATE_PREPARED		3
+/**
+ * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Ready to
+ * process audio. Numerical value: 4.
+ */
+#define STATE_READY		4
+/**
+ * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Currently
+ * playing a sequence. Numerical value: 5.
+ */
+#define STATE_PLAYING		5
 inline int randomValue( int max );
 
 namespace H2Core
@@ -56,10 +74,50 @@ class Hydrogen : public H2Core::Object
 {
 	H2_OBJECT
 public:
-	/// Return the Hydrogen instance
-	static void			create_instance();  // Also creates other instances, like AudioEngine
-	static Hydrogen*	get_instance() { assert(__instance); return __instance; };
+	/**
+	 * Creates all the instances used within Hydrogen in the right
+	 * order. 
+	 *
+	 * -# H2Core::Logger::create_instance()
+	 * -# MidiMap::create_instance()
+	 * -# Preferences::create_instance()
+	 * -# EventQueue::create_instance()
+	 * -# MidiActionManager::create_instance()
+	 *
+	 * If H2CORE_HAVE_OSC was set during compilation, the
+	 * following instances will be created as well.
+	 *
+	 * -# NsmClient::create_instance()
+	 * -# OscServer::create_instance() using
+	 *    Preferences::get_instance() as input
+	 *
+	 * If all instances are created and the actual Hydrogen
+	 * instance #__instance is still 0, it will be properly
+	 * constructed via Hydrogen().
+	 *
+	 * The AudioEngine::create_instance(),
+	 * Effects::create_instance(), and Playlist::create_instance()
+	 * functions will be called from within audioEngine_init().
+	 */
+	static void		create_instance();
+	/**
+	 * Returns the current Hydrogen instance #__instance.
+	 */
+	static Hydrogen*	get_instance(){ assert(__instance); return __instance; };
 
+	/**
+	 * Destructor taking care of most of the clean up.
+	 *
+	 * -# Shuts down the NsmClient using NsmClient::shutdown() and
+              deletes it.
+	 * -# Deletes the OscServer object.
+	 * -# Stops the AudioEngine if playing via audioEngine_stop().
+	 * -# Calls removeSong(), audioEngine_stopAudioDrivers(),
+              audioEngine_destroy(), __kill_instruments()
+         * -# Deletes the #m_pCoreActionController and #m_pTimeline
+              object
+	 * -# Sets #__instance to NULL.
+	 */
 	~Hydrogen();
 
 // ***** SEQUENCER ********
@@ -73,26 +131,33 @@ public:
 
 	///Last received midi message
 	QString			lastMidiEvent;
-	int				lastMidiEventParameter;
+	int			lastMidiEventParameter;
 
 	void			sequencer_setNextPattern( int pos );
 	void			togglePlaysSelected( void );
 // ***** ~SEQUENCER ********
 
-	/// Set/Get current song
-	Song*			getSong()	{ return __song; }
+	/**
+	 * Get the current song.
+	 * \return #__song
+	 */ 	
+	Song*			getSong(){ return __song; }
+	/**
+	 * Sets the current song #__song to @a newSong.
+	 * \param newSong Pointer to the new Song object.
+	 */
 	void			setSong	( Song *newSong );
 
 	void			removeSong();
 
 	void			addRealtimeNote ( int instrument,
-									  float velocity,
-									  float pan_L=1.0,
-									  float pan_R=1.0,
-									  float pitch=0.0,
-									  bool noteoff=false,
-									  bool forcePlay=false,
-									  int msg1=0 );
+						  float velocity,
+						  float pan_L=1.0,
+						  float pan_R=1.0,
+						  float pitch=0.0,
+						  bool noteoff=false,
+						  bool forcePlay=false,
+						  int msg1=0 );
 
 	float			getMasterPeak_L();
 	void			setMasterPeak_L( float value );
@@ -103,21 +168,21 @@ public:
 	void			getLadspaFXPeak( int nFX, float *fL, float *fR );
 	void			setLadspaFXPeak( int nFX, float fL, float fR );
 
-	unsigned long	getTickPosition();
-	unsigned long	getRealtimeTickPosition();
-	unsigned long	getTotalFrames();
+	unsigned long		getTickPosition();
+	unsigned long		getRealtimeTickPosition();
+	unsigned long		getTotalFrames();
 
 	void			setRealtimeFrames( unsigned long frames );
-	unsigned long	getRealtimeFrames();
+	unsigned long		getRealtimeFrames();
 
-	PatternList *	getCurrentPatternList();
+	PatternList *		getCurrentPatternList();
 	void			setCurrentPatternList( PatternList * pPatternList );
 
-	PatternList *	getNextPatterns();
+	PatternList *		getNextPatterns();
 
-	int				getPatternPos();
+	int			getPatternPos();
 	void			setPatternPos( int pos );
-	int				getPosForTick( unsigned long TickPos );
+	int			getPosForTick( unsigned long TickPos );
 
 	void			triggerRelocateDuringPlay();
 
@@ -125,17 +190,17 @@ public:
 
 	void			restartDrivers();
 
-	AudioOutput*	getAudioOutput();
+	AudioOutput*		getAudioOutput();
 	MidiInput*		getMidiInput();
 	MidiOutput*		getMidiOutput();
 
-	int				getState();
+	int			getState();
 
 	float			getProcessTime();
 	float			getMaxProcessTime();
 
-	int				loadDrumkit( Drumkit *pDrumkitInfo );
-	int				loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
+	int			loadDrumkit( Drumkit *pDrumkitInfo );
+	int			loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
 
 	//  Test if an instrument has notes in the pattern (used to test before deleting an insturment)
 	bool 			instrumentHasNotes( Instrument *pInst );
@@ -147,7 +212,7 @@ public:
 	//return the name of the current drumkit
 	QString			m_currentDrumkit;
 
-	const QString&	getCurrentDrumkitname();
+	const QString&		getCurrentDrumkitname();
 	void			setCurrentDrumkitname( const QString& currentdrumkitname );
 
 	void			raiseError( unsigned nErrorCode );
@@ -161,7 +226,29 @@ public:
 		ERROR_STARTING_DRIVER,
 		JACK_SERVER_SHUTDOWN,
 		JACK_CANNOT_ACTIVATE_CLIENT,
+		/**
+		 * Unable to connect either the
+		 * JackAudioDriver::output_port_1 and the
+		 * JackAudioDriver::output_port_name_1 as well as the
+		 * JackAudioDriver::output_port_2 and the
+		 * JackAudioDriver::output_port_name_2 port using
+		 * _jack_connect()_ (jack/jack.h) or the fallback
+		 * version using the first two input ports in
+		 * JackAudioDriver::connect().
+		 */
 		JACK_CANNOT_CONNECT_OUTPUT_PORT,
+		/**
+		 * The client of Hydrogen can not be disconnected from
+		 * the JACK server using _jack_client_close()_
+		 * (jack/jack.h). Used within JackAudioDriver::disconnect().
+		 */
+		JACK_CANNOT_CLOSE_CLIENT,
+		/**
+		 * Unable to register the "out_L" and/or "out_R"
+		 * output ports for the JACK client using
+		 * _jack_port_register()_ (jack/jack.h) in
+		 * JackAudioDriver::init().
+		 */
 		JACK_ERROR_IN_PORT_REGISTER
 	};
 
@@ -171,47 +258,47 @@ public:
 
 	void			restartLadspaFX();
 	void			setSelectedPatternNumberWithoutGuiEvent( int nPat );
-	int				getSelectedPatternNumber();
+	int			getSelectedPatternNumber();
 	void			setSelectedPatternNumber( int nPat );
 
-	int				getSelectedInstrumentNumber();
+	int			getSelectedInstrumentNumber();
 	void			setSelectedInstrumentNumber( int nInstrument );
 
 
 	void			refreshInstrumentParameters( int nInstrument );
 
-#ifdef H2CORE_HAVE_JACK
+#if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 	void			renameJackPorts(Song* pSong);
 #endif
 
-#ifdef H2CORE_HAVE_OSC
+#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 	void			startOscServer();
 	void			startNsmClient();
 #endif
 
 	///beatconter
 	void			setbeatsToCount( int beatstocount);
-	int				getbeatsToCount();
+	int			getbeatsToCount();
 	void			setNoteLength( float notelength);
 	float			getNoteLength();
-	int				getBcStatus();
+	int			getBcStatus();
 	void			handleBeatCounter();
 	void			setBcOffsetAdjust();
 
 	/// jack time master
-	unsigned long	getHumantimeFrames();
+	unsigned long		getHumantimeFrames();
 	void			setHumantimeFrames(unsigned long hframes);
 	void			offJackMaster();
 	void			onJackMaster();
-	unsigned long	getTimeMasterFrames();
+	unsigned long		getTimeMasterFrames();
 	long			getTickForHumanPosition( int humanpos );
 	float			getNewBpmJTM();
 	void			setNewBpmJTM( float bpmJTM);
 	void			ComputeHumantimeFrames(uint32_t nFrames);
 
 	void			__panic();
-	int				__get_selected_PatterNumber();
-	unsigned int	__getMidiRealtimeNoteTickPosition();
+	int			__get_selected_PatterNumber();
+	unsigned int		__getMidiRealtimeNoteTickPosition();
 
 	void			setTimelineBpm();
 	float			getTimelineBpm( int Beat );
@@ -224,7 +311,7 @@ public:
 	void			startExportSong( const QString& filename );
 	void			stopExportSong();
 	
-	CoreActionController* getCoreActionController() const;
+	CoreActionController* 	getCoreActionController() const;
 
 	///playback track
 	bool			setPlaybackTrackState(bool);
@@ -233,49 +320,102 @@ public:
 
 
 	///midi lookuptable
-	int m_nInstrumentLookupTable[MAX_INSTRUMENTS];
+	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
 
 private:
-	static Hydrogen* __instance;
+	/**
+	 * Static reference to the Hydrogen singleton. It is created
+	 * using the Hydrogen::Hydrogen() constructor.
+	 *
+	 * It is initialized with NULL and assigned a new Hydrogen
+	 * instance if still 0 in create_instance().
+	 */
+	static Hydrogen* 	__instance;
 
-	Song*	__song; /// < Current song
+	/**
+	 * Pointer to the current song. It is initialized with NULL in
+	 * the Hydrogen() constructor, set via setSong(), and accessed
+	 * via getSong().
+	 */
+	Song*			__song;
 
-	void initBeatcounter(void);
+	/**
+	 * Auxiliary function setting a bunch of global variables.
+	 *
+	 * - #m_ntaktoMeterCompute = 1;
+	 * - #m_nbeatsToCount = 4;
+	 * - #m_nEventCount = 1;
+	 * - #m_nTempoChangeCounter = 0;
+	 * - #m_nBeatCount = 1;
+	 * - #m_nCoutOffset = 0;
+	 * - #m_nStartOffset = 0;
+	 */
+	void initBeatcounter();
 
 	// beatcounter
-	float	m_ntaktoMeterCompute;	///< beatcounter note length
-	int		m_nbeatsToCount;		///< beatcounter beats to count
-	int		m_nEventCount;			///< beatcounter event
-	int		m_nTempoChangeCounter;	///< count tempochanges for timeArray
-	int		m_nBeatCount;			///< beatcounter beat to count
-	double	m_nBeatDiffs[16];		///< beat diff
-	timeval m_CurrentTime;			///< timeval
-	timeval	m_LastTime;				///< timeval
-	double	m_nLastBeatTime;		///< timediff
-	double	m_nCurrentBeatTime;		///< timediff
-	double	m_nBeatDiff;			///< timediff
-	float	m_fBeatCountBpm;		///< bpm
-	int		m_nCoutOffset;			///ms default 0
-	int		m_nStartOffset;			///ms default 0
+	float			m_ntaktoMeterCompute;	///< beatcounter note length
+	int			m_nbeatsToCount;	///< beatcounter beats to count
+	int			m_nEventCount;		///< beatcounter event
+	int			m_nTempoChangeCounter;	///< count tempochanges for timeArray
+	int			m_nBeatCount;		///< beatcounter beat to count
+	double			m_nBeatDiffs[16];	///< beat diff
+	timeval 		m_CurrentTime;		///< timeval
+	timeval			m_LastTime;		///< timeval
+	double			m_nLastBeatTime;	///< timediff
+	double			m_nCurrentBeatTime;	///< timediff
+	double			m_nBeatDiff;		///< timediff
+	float			m_fBeatCountBpm;	///< bpm
+	int			m_nCoutOffset;		///ms default 0
+	int			m_nStartOffset;		///ms default 0
 	//~ beatcounter
 
 
 	// used for song export
-	Song::SongMode	m_oldEngineMode;
+	Song::SongMode		m_oldEngineMode;
 	bool			m_bOldLoopEnabled;
 	bool			m_bExportSessionIsActive;
 	
 
-	//Timline information
+	/**
+	 * Local instance of the Timeline object.
+	 */
 	Timeline*		m_pTimeline;
+	/**
+	 * Local instance of the CoreActionController object.
+	 */ 
+	CoreActionController* 	m_pCoreActionController;
 	
-	CoreActionController* m_pCoreActionController;
-	
-	
-	std::list<Instrument*> __instrument_death_row; /// Deleting instruments too soon leads to potential crashes.
+	/// Deleting instruments too soon leads to potential crashes.
+	std::list<Instrument*> 	__instrument_death_row; 
 
-
-	/// Private constructor
+	/** 
+	 * Constructor, entry point, and initialization of the
+	 * Hydrogen application.
+	 *
+	 * It is called by the main() function after setting up a
+	 * bunch of Qt5 stuff and creating an instance of the Logger
+	 * and Preferences.
+	 *
+	 * Only one Hydrogen object is allowed to exist. If the
+	 * #__instance object is present, the constructor will throw
+	 * an error.
+	 *
+	 * - Sets the current #__song to NULL
+	 * - Sets #m_bExportSessionIsActive to false
+	 * - Creates a new Timeline #m_pTimeline 
+	 * - Creates a new CoreActionController
+	 *   #m_pCoreActionController, 
+	 * - Calls initBeatcounter(), audioEngine_init(), and
+	 *   audioEngine_startAudioDrivers() 
+	 * - Sets InstrumentComponent::maxLayers to
+	 *   Preferences::maxLayers via
+	 *   InstrumentComponent::setMaxLayers() and
+	 *   Preferences::getMaxLayers() 
+	 * - Starts the OscServer using OscServer::start() if
+	 *   H2CORE_HAVE_OSC was set during compilation.
+	 * - Fills #m_nInstrumentLookupTable with the corresponding
+	 *   index of each element.
+	 */
 	Hydrogen();
 
 	void __kill_instruments();

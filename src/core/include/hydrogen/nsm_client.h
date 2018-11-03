@@ -23,7 +23,7 @@
 #ifndef NSM_CLIENT_H
 #define NSM_CLIENT_H
 
-#ifdef H2CORE_HAVE_OSC
+#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
 #include <hydrogen/object.h>
 #include <cassert>
@@ -43,13 +43,28 @@ class NsmClient : public H2Core::Object
 {
 	H2_OBJECT
 	public:
-
+		/**
+		 * Object holding the current NsmClient singleton. It
+		 * is initialized with NULL, set with
+		 * create_instance(), and accessed with
+		 * get_instance().
+		 */
 		static NsmClient* __instance;
 		~NsmClient();
 
 		pthread_t m_NsmThread;
-
+		/**
+		 * Creates a new NsmClient singleton and stores it in
+		 * #__instance if its value equals 0.
+		 *
+		 * It is called in
+		 * H2Core::Hydrogen::create_instance().
+		 */
 		static void create_instance();
+		/**
+		 * Returns a pointer to the current NsmClient
+		 * singleton stored in #__instance.
+		 */
 		static NsmClient* get_instance() { assert(__instance); return __instance; }
 
 		void createInitialClient();

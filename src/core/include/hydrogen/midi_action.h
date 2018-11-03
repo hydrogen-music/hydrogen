@@ -69,6 +69,12 @@ class MidiActionManager : public H2Core::Object
 {
 	H2_OBJECT
 	private:
+		/**
+		 * Object holding the current MidiActionManager
+		 * singleton. It is initialized with NULL, set with
+		 * create_instance(), and accessed with
+		 * get_instance().
+		 */
 		static MidiActionManager *__instance;
 
 		QStringList actionList;
@@ -130,8 +136,17 @@ class MidiActionManager : public H2Core::Object
 
 	public:
 		bool handleAction( Action * );
-
+		/**
+		 * Creates a new MidiActionManager singleton and
+		 * stores it in #__instance if its value equals 0.
+		 *
+		 * It is called in H2Core::Hydrogen::create_instance().
+		 */
 		static void create_instance();
+		/**
+		 * Returns a pointer to the current MidiActionManager
+		 * singleton stored in #__instance.
+		 */
 		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
 
 		QStringList getActionList(){

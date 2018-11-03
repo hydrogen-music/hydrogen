@@ -22,7 +22,7 @@
 
 #include <hydrogen/IO/PulseAudioDriver.h>
 
-#ifdef H2CORE_HAVE_PULSEAUDIO
+#if defined(H2CORE_HAVE_PULSEAUDIO) || _DOXYGEN_
 
 #include <fcntl.h>
 #include <hydrogen/Preferences.h>

@@ -21,7 +21,7 @@
  */
 #include <hydrogen/fx/Effects.h>
 
-#ifdef H2CORE_HAVE_LADSPA
+#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/fx/LadspaFX.h>
