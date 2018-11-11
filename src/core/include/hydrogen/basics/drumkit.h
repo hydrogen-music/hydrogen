@@ -114,7 +114,6 @@ class Drumkit : public H2Core::Object
 		 * save the drumkit image into the new directory
 		 * \param dk_dir the directory to save the image into
 		 * \param overwrite allows to write over existing drumkit image file
-		 * \param orig_dir holds the directory we are copying image from
 		 * \return true on success
 		 */
 		bool save_image( const QString& dk_dir, bool overwrite=false );
@@ -124,9 +123,13 @@ class Drumkit : public H2Core::Object
 		 * \param author the author of the drumkit
 		 * \param info the info of the drumkit
 		 * \param license the license of the drumkit
-		 * \param image the image filename (with full path) of the drumkit
-		 * \þaram instruments the instruments to be saved within the drumkit
-		 * \oaram overwrite allows to write over existing drumkit files
+		 * \param image the image filename (with full path) of
+		   the drumkit
+		 * \param imageLicense license of the supplied image
+		 * \param instruments the instruments to be saved
+		   within the drumkit
+		 * \param components
+		 * \param overwrite allows to write over existing drumkit files
 		 * \return true on success
 		 */
 		static bool save( const QString& name, const QString& author, const QString& info, const QString& license, const QString& image, const QString& imageLicense, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite=false );

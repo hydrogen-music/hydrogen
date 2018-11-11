@@ -27,7 +27,7 @@ class Files : public H2Core::Object
 		};
 
 		/**
-		 * save the given pattern to <usre_data_path>/pattern/<drumkitName>/<fileName>.h2pattern
+		 * save the given pattern to \<user_data_path\>/pattern/\<drumkitName\>/\<fileName\>.h2pattern
 		 * will NOT overwrite an existing file
 		 * \param fileName to build filePath from
 		 * \param pattern the one to be saved
@@ -41,7 +41,7 @@ class Files : public H2Core::Object
 		}
 
 		/**
-		 * save the given pattern to <usre_data_path>/pattern/<drumkitName>/<fileName>.h2pattern
+		 * save the given pattern to \<user_data_path\>/pattern/\<drumkitName\>/\<fileName\>.h2pattern
 		 * will overwrite an existing file
 		 * \param fileName to build filePath from
 		 * \param pattern the one to be saved
@@ -69,7 +69,7 @@ class Files : public H2Core::Object
 		}
 
 		/**
-		 * save the given pattern under <Tmp_directory> with a unique filename built from <fileName>
+		 * save the given pattern under \<Tmp_directory\> with a unique filename built from \<fileName\>
 		 * will overwrite an existing file
 		 * \param fileName to build filePath from
 		 * \param pattern the one to be saved

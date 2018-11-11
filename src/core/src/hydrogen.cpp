@@ -240,7 +240,8 @@ unsigned int			m_naddrealtimenotetickposition = 0;
       way the states of the pseudo-random number generator are not
       cross-correlated between different runs of Hydrogen.
  * -# It initializes the metronome with the sound stored in
-      H2Core::Filesystem::click_file_path().
+      H2Core::Filesystem::click_file_path() by creating a new
+      Instrument with #METRONOME_INSTR_ID as first argument.
  * -# It sets the H2Core::AudioEngine state #m_audioEngineState to
       #STATE_INITIALIZED.
  * -# It calls H2Core::Effects::create_instance() (if the
@@ -347,7 +348,7 @@ void audioEngine_init()
 
 	srand( time( NULL ) );
 
-	// Create metronome instrument //
+	// Create metronome instrument
 	// Get the path to the file of the metronome sound.
 	QString sMetronomeFilename = Filesystem::click_file_path();
 	m_pMetronomeInstrument =

@@ -83,7 +83,8 @@ class Note : public H2Core::Object
 
 		/**
 		 * copy constructor with an optional parameter
-		 * \param instrument, if set will be used as note instrument
+		 * \param other 
+		 * \param instrument if set will be used as note instrument
 		 */
 		Note( Note* other, Instrument* instrument=0 );
 		/** destructor */
@@ -259,6 +260,7 @@ class Note : public H2Core::Object
 		 * set __key, __octave and __midi_msg only if within acceptable range
 		 * \param key the key to set
 		 * \param octave the octave to be set
+		 * \param msg
 		 */
 		void set_midi_info( Key key, Octave octave, int msg );
 

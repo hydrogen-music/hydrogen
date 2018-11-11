@@ -29,6 +29,7 @@
 #include <hydrogen/basics/adsr.h>
 
 #define EMPTY_INSTR_ID          -1
+/** Created Instrument will be used as metronome. */
 #define METRONOME_INSTR_ID      -2
 #define PLAYBACK_INSTR_ID       -3
 
