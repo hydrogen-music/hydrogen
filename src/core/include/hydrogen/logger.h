@@ -47,6 +47,9 @@ class Logger {
 			Info            = 0x04,
 			Debug           = 0x08,
 			Constructors    = 0x10,
+			/** Intended to be used log the locking of the
+			    AudioEngine. But this feature isn't
+			    implemented yet. */
 			AELockTracing   = 0x20
 		};
 

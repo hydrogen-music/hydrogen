@@ -100,7 +100,7 @@ int jackDriverSampleRate( jack_nframes_t nframes, void *param ){
 	QString msg = QString("Jack SampleRate changed: the sample rate is now %1/sec").arg( QString::number( (int) nframes ) );
 	// The __INFOLOG macro uses the Object *__object and not the
 	// Object instance as INFOLOG does. It will call
-	// __object->logger()->log( H2Core::Logger::INFO, ..., msg )
+	// __object->logger()->log( H2Core::Logger::Info, ..., msg )
 	// (see object.h).
 	__INFOLOG( msg );
 	jack_server_sampleRate = nframes;
