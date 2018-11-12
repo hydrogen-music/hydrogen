@@ -176,40 +176,139 @@ public:
 	 * source-side.
 	 */
 	unsigned getSampleRate();
+	/** Accesses the number of output ports currently in use.
+	 * \return #track_port_count */
 	int getNumTracks();
 
+	/** Returns #m_JackTransportState */
 	jack_transport_state_t getTransportState() {
 		return m_JackTransportState;
 	}
+	/** Returns m_JackTransportPos */
 	jack_position_t getTransportPos() {
 		return m_JackTransportPos;
 	}
 	
 	/**
-	 * Make sure the number of track outputs match the instruments
-	 * in @a song, and name the ports.
+	 * Creates per component output ports for each instrument.
+	 *
+	 * Firstly, it resets #track_map with zeros. Then, it loops
+	 * through all the instruments and their components, creates a
+	 * new output or resets an existing one for each of them using
+	 * setTrackOutput(), and stores the corresponding track number
+	 * in #track_map. Finally, all ports in #track_output_ports_L
+	 * and #track_output_ports_R, which haven't been used in the
+	 * previous step, are unregistered using
+	 * _jack_port_unregister()_ (jack/jack.h) and overwritten with
+	 * 0. #track_port_count will be set to biggest track number
+	 * encountered during the creation/reassignment step.
+	 *
+	 * The function will only perform its tasks if the
+	 * Preferences::m_bJackTrackOuts is set to true.
 	 */
-	void makeTrackOutputs( Song * );
+	void makeTrackOutputs( Song* pSong );
 	/**
-	 * Give the @a n 'th port the name of @a instr .
-	 * If the n'th port doesn't exist, new ports up to n are
-	 * created.
+	 * Renames the @a n 'th port of JACK client and creates it if
+	 * its not already present. 
+	 *
+	 * If the track number @a n is bigger than the number of ports
+	 * currently in usage #track_port_count, @n + 1 -
+	 * #track_port_count new stereo ports will be created using
+	 * _jack_port_register()_ (jack/jack.h) and #track_port_count
+	 * updated to @n + 1.
+	 *
+	 * Afterwards, the @a n 'th port is renamed to a concatenation
+	 * of "Track_", DrumkitComponent::__name, "_", @n + 1, "_",
+	 * Instrument::__name, and "_L", or "_R" using either
+	 * _jack_port_rename()_ (if HAVE_JACK_PORT_RENAME is defined)
+	 * or _jack_port_set_name()_ (both jack/jack.h). The former
+	 * renaming function triggers a _PortRename_ notifications to
+	 * clients that have registered a port rename handler.
+	 *
+	 * \param n Track number for which a port should be renamed
+	 *   (and created).
+	 * \param instr Pointer to the corresponding Instrument.
+	 * \param pCompo Pointer to the corresponding
+	 *   InstrumentComponent.
+	 * \param pSong Pointer to the corresponding Song.
 	 */
-	void setTrackOutput( int, Instrument *, InstrumentComponent *, Song * );
+	void setTrackOutput( int n, Instrument *instr, InstrumentComponent *pCompo, Song *pSong );
 
+	/** Sets #m_bConnectOutFlag to @ flag.*/
 	void setConnectDefaults( bool flag ) {
 		m_bConnectOutFlag = flag;
 	}
+	/** Returns #m_bConnectOutFlag */
 	bool getConnectDefaults() {
 		return m_bConnectOutFlag;
 	}
 
+	/**
+	 * Get and return the content in the left stereo output
+	 * port. It calls _jack_port_get_buffer()_ (jack/jack.h) with
+	 * both the port name #output_port_1 and buffer size
+	 * #jack_server_bufferSize.
+	 * \return Pointer to buffer content of type
+	 * _jack_default_audio_sample_t*_ (jack/types.h)
+	 */
 	float* getOut_L();
+	/**
+	 * Get and return the content in the right stereo output
+	 * port. It calls _jack_port_get_buffer()_ (jack/jack.h) with
+	 * both the port name #output_port_2 and buffer size
+	 * #jack_server_bufferSize.
+	 * \return Pointer to buffer content of type
+	 * _jack_default_audio_sample_t*_ (jack/types.h)
+	 */
 	float* getOut_R();
+	/**
+	 * Get and return the content of a specific left output
+	 * port. It calls _jack_port_get_buffer()_ (jack/jack.h) with
+	 * the port in @a nTrack element of #track_output_ports_L and
+	 * buffer size #jack_server_bufferSize.
+	 * \param nTrack Track number. Must not be bigger than
+	 * #track_port_count.
+	 * \return Pointer to buffer content of type
+	 * _jack_default_audio_sample_t*_ (jack/types.h)
+	 */
 	float* getTrackOut_L( unsigned nTrack );
+	/**
+	 * Get and return the content of a specific right output
+	 * port. It calls _jack_port_get_buffer()_ (jack/jack.h) with
+	 * the port in @a nTrack element of #track_output_ports_R and
+	 * buffer size #jack_server_bufferSize.
+	 * \param nTrack Track number. Must not be bigger than
+	 * #track_port_count.
+	 * \return Pointer to buffer content of type
+	 * _jack_default_audio_sample_t*_ (jack/types.h)
+	 */
 	float* getTrackOut_R( unsigned nTrack );
-	float* getTrackOut_L( Instrument *, InstrumentComponent * );
-	float* getTrackOut_R( Instrument *, InstrumentComponent * );
+	/** 
+	 * Convenience function looking up the track number of a
+	 * component of an instrument using in #track_map using their
+	 * IDs Instrument::__id and
+	 * InstrumentComponent::__related_drumkit_componentID. Using
+	 * the track number it then calls getTrackOut_L( unsigned )
+	 * and returns its result.
+	 * \param instr Pointer to an instrument
+	 * \param pCompo Pointer to one of the instrument's components.
+	 * \return Pointer to buffer content of type
+	 * _jack_default_audio_sample_t*_ (jack/types.h)
+	 */
+	float* getTrackOut_L( Instrument *instr, InstrumentComponent *pCompo );
+	/** 
+	 * Convenience function looking up the track number of a
+	 * component of an instrument using in #track_map using their
+	 * IDs Instrument::__id and
+	 * InstrumentComponent::__related_drumkit_componentID. Using
+	 * the track number it then calls getTrackOut_R( unsigned )
+	 * and returns its result.
+	 * \param instr Pointer to an instrument
+	 * \param pCompo Pointer to one of the instrument's components.
+	 * \return Pointer to buffer content of type
+	 * _jack_default_audio_sample_t*_ (jack/types.h)
+	 */
+	float* getTrackOut_R( Instrument *instr, InstrumentComponent *pCompo );
 
 	/**
 	 * Initializes the JACK audio driver.
@@ -360,7 +459,7 @@ private:
 	void relocateBBT();
 
 
-	H2Core::Hydrogen *		m_pEngine;
+	H2Core::Hydrogen *		m_pEngine; ///< !Never initialized!
 
 	long long			bbt_frame_offset;
 	int				must_relocate;		// A countdown to wait for valid information from another Time Master.
@@ -382,34 +481,71 @@ private:
 	 */
 	JackProcessCallback		processCallback;
 	/**
-	 * First source port for which a connection to
+	 * Left source port for which a connection to
 	 * #output_port_name_1 will be established in connect() via
 	 * the JACK server.
 	 */
 	jack_port_t *			output_port_1;
 	/**
-	 * Second source port for which a connection to
+	 * Right source port for which a connection to
 	 * #output_port_name_2 will be established in connect() via
 	 * the JACK server.
 	 */
 	jack_port_t *			output_port_2;
 	/**
-	 * Destination of the first source port #output_port_1, for
+	 * Destination of the left source port #output_port_1, for
 	 * which a connection will be established in connect(). It is
 	 * set to Preferences::m_sJackPortName1 during the call of
 	 * init(). 
 	 */
 	QString				output_port_name_1;
 	/**
-	 * Destination of the second source port #output_port_2, for
+	 * Destination of the right source port #output_port_2, for
 	 * which a connection will be established in connect(). It is
 	 * set to Preferences::m_sJackPortName2 during the call of
 	 * init(). 
 	 */
 	QString				output_port_name_2;
+	/**
+	 * Matrix containing the track number of each component of
+	 * of all instruments. Its rows represent the instruments and
+	 * its columns their components. _track_map[2][1]=6_ thus
+	 * therefore mean the output of the second component of the
+	 * third instrument is assigned the seventh output port. Since
+	 * its total size is defined by #MAX_INSTRUMENTS and
+	 * #MAX_COMPONENTS, most of its entries will be zero.
+	 *
+	 * It gets updated by makeTrackOutputs().
+	 */
 	int				track_map[MAX_INSTRUMENTS][MAX_COMPONENTS];
+	/**
+	 * Total number of output ports currently in use. It gets
+	 * updated by makeTrackOutputs().
+	 */
 	int				track_port_count;
+	/**
+	 * Vector of all left audio output ports currently used by the
+	 * local JACK client. 
+	 *
+	 * They will be initialized with all zeros in both
+	 * JackAudioDriver(), deactivate(), and connect(). Individual
+	 * components will be created, renamed, or reassigned in
+	 * setTrackOutput(), deleted in makeTrackOutputs(), and
+	 * accessed via getTrackOut_L().
+	 * It is set to a length of #MAX_INSTRUMENTS.
+	 */
 	jack_port_t *			track_output_ports_L[MAX_INSTRUMENTS];
+	/**
+	 * Vector of all right audio output ports currently used by the
+	 * local JACK client. 
+	 *
+	 * They will be initialized with all zeros in both
+	 * JackAudioDriver(), deactivate(), and connect(). Individual
+	 * components will be created, renamed, or reassigned in
+	 * setTrackOutput(), deleted in makeTrackOutputs(), and
+	 * accessed via getTrackOut_R().
+	 * It is set to a length of #MAX_INSTRUMENTS.
+	 */
 	jack_port_t *		 	track_output_ports_R[MAX_INSTRUMENTS];
 
 	jack_transport_state_t		m_JackTransportState;
@@ -419,6 +555,10 @@ private:
 	 * Probably tells whether or not the output ports of the
 	 * current session ARE already properly connected in the JACK
 	 * server. Or maybe if they SHOULD be connected.
+	 *
+	 * After the JackAudioDriver has been created by
+	 * createDriver(), Preferences::m_bJackConnectDefaults will be
+	 * used to initialize this variable.
 	 */
 	bool				m_bConnectOutFlag;
 	/**

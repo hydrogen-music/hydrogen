@@ -39,27 +39,27 @@
 // Engine states  (It's ok to use ==, <, and > when testing)
 /**
  * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Not even the
- * constructors have been called. Numerical value: 1.
+ * constructors have been called.
  */
 #define STATE_UNINITIALIZED	1
 /**
  * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Not ready,
- * but most pointers are now valid or NULL. Numerical value: 2.
+ * but most pointers are now valid or NULL.
  */
 #define STATE_INITIALIZED	2
 /**
  * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Drivers are
- * set up, but not ready to process audio. Numerical value: 3.
+ * set up, but not ready to process audio.
  */
 #define STATE_PREPARED		3
 /**
  * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Ready to
- * process audio. Numerical value: 4.
+ * process audio.
  */
 #define STATE_READY		4
 /**
  * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Currently
- * playing a sequence. Numerical value: 5.
+ * playing a sequence.
  */
 #define STATE_PLAYING		5
 inline int randomValue( int max );
@@ -222,7 +222,18 @@ public:
 	void			previewInstrument( Instrument *pInstr );
 
 	enum ErrorMessages {
+		/**
+		 * The provided input string in createDriver() does
+		 * not match any of the choices for
+		 * Preferences::m_sAudioDriver.
+		 */
 		UNKNOWN_DRIVER,
+		/**
+		 * Unable to connect the audio driver stored in
+		 * #m_pAudioDriver in
+		 * audioEngine_startAudioDrivers(). The NullDriver
+		 * will be used as a fallback instead.
+		 */
 		ERROR_STARTING_DRIVER,
 		JACK_SERVER_SHUTDOWN,
 		JACK_CANNOT_ACTIVATE_CLIENT,
@@ -244,10 +255,10 @@ public:
 		 */
 		JACK_CANNOT_CLOSE_CLIENT,
 		/**
-		 * Unable to register the "out_L" and/or "out_R"
-		 * output ports for the JACK client using
-		 * _jack_port_register()_ (jack/jack.h) in
-		 * JackAudioDriver::init().
+		 * Unable to register output ports for the JACK client
+		 * using _jack_port_register()_ (jack/jack.h) in
+		 * JackAudioDriver::init() or
+		 * JackAudioDriver::setTrackOutput().
 		 */
 		JACK_ERROR_IN_PORT_REGISTER
 	};
@@ -268,6 +279,11 @@ public:
 	void			refreshInstrumentParameters( int nInstrument );
 
 #if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
+	/**
+	 * Calls audioEngine_renameJackPorts() if
+	 * Preferences::m_bJackTrackOuts is set to true.
+	 * \param pSong Handed to audioEngine_renameJackPorts().
+	 */
 	void			renameJackPorts(Song* pSong);
 #endif
 

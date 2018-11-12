@@ -182,7 +182,10 @@ private:
 		const char* file;
 		unsigned int line;
 		const char* function;
-	} __locker;
+	} __locker; ///< This struct is most probably intended to be
+		    ///< used for logging the locking of the
+		    ///< AudioEngine. But neither it nor the
+		    ///< Logger::AELockTracing state is ever used.
 
 	/**
 	 * Constructor of the AudioEngine.

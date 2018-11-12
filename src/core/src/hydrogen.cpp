@@ -111,13 +111,36 @@ unsigned long			m_nHumantimeFrames = 0;
 /**
  * Audio output.
  *
- * Initialized to NULL and set to NULL inside audioEngine_init().
+ * Set to NULL inside audioEngine_init(). Inside
+ * audioEngine_startAudioDrivers() either the audio driver specified
+ * in Preferences::m_sAudioDriver and created via createDriver() or
+ * the NullDriver, in case the former failed, will be assigned.
  */	
 AudioOutput *			m_pAudioDriver = NULL;
-QMutex				mutex_OutputPointer;     ///< Mutex for audio output pointer, allows multiple readers
-///< When locking this AND AudioEngine, always lock AudioEngine first.
-MidiInput *			m_pMidiDriver = NULL;	///< MIDI input
-MidiOutput *			m_pMidiDriverOut = NULL;	///< MIDI output
+/**
+ * Mutex for locking the pointer to the audio output buffer, allowing
+ * multiple readers.
+ *
+ * When locking this __and__ the AudioEngine, always lock the
+ * AudioEngine first using AudioEngine::lock() or
+ * AudioEngine::try_lock(). Always use a QMutexLocker to lock this
+ * mutex.
+ */
+QMutex				mutex_OutputPointer;
+/**
+ * MIDI input
+ *
+ * In audioEngine_startAudioDrivers() it is assigned the midi driver
+ * specified in Preferences::m_sMidiDriver.
+ */
+MidiInput *			m_pMidiDriver = NULL;
+/**
+ * MIDI output
+ *
+ * In audioEngine_startAudioDrivers() it is assigned the midi driver
+ * specified in Preferences::m_sMidiDriver.
+ */
+MidiOutput *			m_pMidiDriverOut = NULL;
 
 // overload the > operator of Note objects for priority_queue
 struct compare_pNotes {
@@ -227,7 +250,7 @@ unsigned int			m_naddrealtimenotetickposition = 0;
 
 // PROTOTYPES
 /**
- * Initialization of the H2Core::AudioEngine
+ * Initialization of the H2Core::AudioEngine called in Hydrogen::Hydrogen().
  *
  * -# It creates two new instances of the H2Core::PatternList and stores them
       in #m_pPlayingPatterns and #m_pNextPatterns.
@@ -279,7 +302,63 @@ inline int			findPatternInTick( int tick, bool loopMode, int *patternStartTick )
 void				audioEngine_seek( long long nFrames, bool bLoopMode = false );
 
 void				audioEngine_restartAudioDrivers();
+/** 
+ * Initializes all audio and MIDI drivers called in
+ * Hydrogen::Hydrogen().
+ *
+ * Which audio driver to use is specified in
+ * Preferences::m_sAudioDriver. If "Auto" is selected, it will try to
+ * initialize drivers using createDriver() in the following order: 
+ * - Windows:  "PortAudio", "Alsa", "CoreAudio", "Jack", "Oss",
+ *   and "PulseAudio" 
+ * - all other systems: "Jack", "Alsa", "CoreAudio", "PortAudio",
+ *   "Oss", and "PulseAudio".
+ * If all of them return NULL, #m_pAudioDriver will be initialized
+ * with the NullDriver instead. If a specific choice is contained in
+ * Preferences::m_sAudioDriver and createDriver() returns NULL, the
+ * NullDriver will be initialized too.
+ *
+ * It probes Preferences::m_sMidiDriver to create a midi driver using
+ * either AlsaMidiDriver::AlsaMidiDriver(),
+ * PortMidiDriver::PortMidiDriver(), CoreMidiDriver::CoreMidiDriver(),
+ * or JackMidiDriver::JackMidiDriver(). Afterwards, it sets
+ * #m_pMidiDriverOut and #m_pMidiDriver to the freshly created midi
+ * driver and calls their open() and setActive( true ) functions.
+ *
+ * If a Song is already present, the state of the AudioEngine
+ * #m_audioEngineState will be set to #STATE_READY, the bpm of the
+ * #m_pAudioDriver will be set to the tempo of the Song Song::__bpm
+ * using setBpm(), and #STATE_READY is pushed on the EventQueue. If
+ * no Song is present, the state will be #STATE_PREPARED and no bpm
+ * will be set.
+ *
+ * All the actions mentioned so far will be performed after locking
+ * both the AudioEngine using AudioEngine::lock() and the mutex of the
+ * audio output buffer #mutex_OutputPointer. When they are completed
+ * both mutex are unlocked and the audio driver is connected via
+ * connect(). If this is not successful, the audio driver will be
+ * overwritten with the NullDriver and this one is connected instead.
+ *
+ * Finally, audioEngine_renameJackPorts() (if H2CORE_HAVE_JACK is set)
+ * and audioEngine_setupLadspaFX() are called.
+ *
+ * The state of the AudioEngine #m_audioEngineState must not be in
+ * #STATE_INITIALIZED or the function will just unlock both mutex and
+ * returns.
+ */
 void				audioEngine_startAudioDrivers();
+/**
+ * Stops all audio and MIDI drivers.
+ *
+ * Uses audioEngine_stop() if the AudioEngine is still in state
+ * #m_audioEngineState #STATE_PLAYING, sets its state to
+ * #STATE_INITIALIZED, locks the AudioEngine using
+ * AudioEngine::lock(), deletes #m_pMidiDriver and #m_pAudioDriver and
+ * reinitializes them to NULL. 
+ *
+ * If #m_audioEngineState is neither in #STATE_PREPARED or
+ * #STATE_READY, the function returns before deleting anything.
+ */
 void				audioEngine_stopAudioDrivers();
 
 inline timeval currentTime2()
@@ -1040,6 +1119,12 @@ void audioEngine_setupLadspaFX( unsigned nBufferSize )
 #endif
 }
 
+/**
+ * Hands the provided Song to JackAudioDriver::makeTrackOutputs() if
+ * @a pSong is not a null pointer and the audio driver #m_pAudioDriver
+ * is an instance of the JackAudioDriver.
+ * \param pSong Song for which the output tracks should be generated.
+ */
 void audioEngine_renameJackPorts(Song * pSong)
 {
 #ifdef H2CORE_HAVE_JACK
@@ -1492,6 +1577,19 @@ void audioEngine_noteOn( Note *note )
 	m_midiNoteQueue.push_back( note );
 }
 
+/**
+ * Inline function creating an audio driver using
+ * audioEngine_process() as its argument based on the provided choice.
+ *
+ * For a listing of all possible choices, please see
+ * Preferences::m_sAudioDriver.
+ *
+ * \param sDriver String specifying which audio driver should be
+ * created.
+ * \return Pointer to the freshly created audio driver. If the
+ * creation resulted in a NullDriver, the corresponding object will be
+ * deleted and a null pointer returned instead.
+ */
 AudioOutput* createDriver( const QString& sDriver )
 {
 	___INFOLOG( QString( "Driver: '%1'" ).arg( sDriver ) );
@@ -1567,11 +1665,11 @@ AudioOutput* createDriver( const QString& sDriver )
 	return pDriver;
 }
 
-/// Start all audio drivers
 void audioEngine_startAudioDrivers()
 {
 	Preferences *preferencesMng = Preferences::get_instance();
 
+	// Lock both the AudioEngine and the audio output buffers.
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	QMutexLocker mx(&mutex_OutputPointer);
 
@@ -1785,7 +1883,9 @@ void audioEngine_stopAudioDrivers()
 
 
 
-/// Restart all audio and midi drivers
+/// Restart all audio and midi drivers by calling first
+/// audioEngine_stopAudioDrivers() and then
+/// audioEngine_startAudioDrivers().
 void audioEngine_restartAudioDrivers()
 {
 	audioEngine_stopAudioDrivers();

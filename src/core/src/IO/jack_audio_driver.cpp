@@ -159,10 +159,11 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback processCallback )
 	: AudioOutput( __class_name )
 {
 	INFOLOG( "INIT" );
-	// __track_out_enabled is a global variable in the
-	// JackAudioDriver inherited from AudioOutput and instantiated
-	// with false. 
-	__track_out_enabled = Preferences::get_instance()->m_bJackTrackOuts;	// allow per-track output
+	// __track_out_enabled is inherited from AudioOutput and
+	// instantiated with false. It will be used by the Sampler and
+	// Hydrogen itself to check whether JackAudioDriver is ordered
+	// to create per-track audio output ports.
+	__track_out_enabled = Preferences::get_instance()->m_bJackTrackOuts;
 
 	pJackDriverInstance = this;
 	this->processCallback = processCallback;
@@ -508,6 +509,14 @@ void JackAudioDriver::updateTransportInfo()
 
 float* JackAudioDriver::getOut_L()
 {
+	/**
+	 * This returns a pointer to the memory area associated with
+	 * the specified port. For an output port, it will be a memory
+	 * area that can be written to; for an input port, it will be
+	 * an area containing the data from the port's connection(s),
+	 * or zero-filled. if there are multiple inbound connections,
+	 * the data will be mixed appropriately.
+	 */
 	jack_default_audio_sample_t *out = ( jack_default_audio_sample_t * ) jack_port_get_buffer ( output_port_1, jack_server_bufferSize );
 	return out;
 }
@@ -775,16 +784,13 @@ int JackAudioDriver::init( unsigned /*bufferSize*/ )
 	return 0;
 }
 
-/**
- * Make sure the number of track outputs match the instruments in @a song , and name the ports.
- */
-void JackAudioDriver::makeTrackOutputs( Song * pSong )
+void JackAudioDriver::makeTrackOutputs( Song* pSong )
 {
 
-	/// Disable Track Outputs
+	// Only execute the body of this function if a per-track
+	// creation of the output ports is desired.
 	if( Preferences::get_instance()->m_bJackTrackOuts == false )
 		return;
-	///
 
 	InstrumentList * pInstruments = pSong->get_instrument_list();
 	Instrument * pInstr;
@@ -795,17 +801,20 @@ void JackAudioDriver::makeTrackOutputs( Song * pSong )
 
 	int nTrackCount = 0;
 
+	// Resets the `track_map' matrix.
 	for( int i = 0 ; i < MAX_INSTRUMENTS ; i++ ){
 		for ( int j = 0 ; j < MAX_COMPONENTS ; j++ ){
 			track_map[i][j] = 0;
 		}
 	}
-	
+	// Creates a new output track or reassigns an existing one for
+	// each component of each instrument and stores the result in
+	// the `track_map'.
 	for ( int n = 0; n <= nInstruments - 1; n++ ) {
 		pInstr = pInstruments->get( n );
 		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
 			InstrumentComponent* pCompo = *it;
-			setTrackOutput( nTrackCount, pInstr , pCompo, pSong);
+			setTrackOutput( nTrackCount, pInstr, pCompo, pSong);
 			track_map[pInstr->get_id()][pCompo->get_drumkit_componentID()] = nTrackCount;
 			nTrackCount++;
 		}
@@ -828,18 +837,23 @@ void JackAudioDriver::makeTrackOutputs( Song * pSong )
  * Give the @a n 'th port the name of @a instr .
  * If the n'th port doesn't exist, new ports up to n are created.
  */
-void JackAudioDriver::setTrackOutput( int n, Instrument * instr, InstrumentComponent * compo, Song * song )
+void JackAudioDriver::setTrackOutput( int n, Instrument * instr, InstrumentComponent * pCompo, Song * pSong )
 {
 	QString chName;
 
-	if ( track_port_count <= n ) { // need to create more ports
+	// The function considers `track_port_count' as the number of
+	// ports already present. If its smaller than `n', new ports
+	// have to be created.
+	if ( track_port_count <= n ) {
 		for ( int m = track_port_count; m <= n; m++ ) {
 			chName = QString( "Track_%1_" ).arg( m + 1 );
-			track_output_ports_L[m] = jack_port_register ( m_pClient, ( chName + "L" ).toLocal8Bit(),
-														   JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+			track_output_ports_L[m] =
+				jack_port_register( m_pClient, ( chName + "L" ).toLocal8Bit(),
+						     JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 
-			track_output_ports_R[m] = jack_port_register ( m_pClient, ( chName + "R" ).toLocal8Bit(),
-														   JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
+			track_output_ports_R[m] =
+				jack_port_register( m_pClient, ( chName + "R" ).toLocal8Bit(),
+						    JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0 );
 
 			if ( ! track_output_ports_R[m] || ! track_output_ports_L[m] ) {
 				Hydrogen::get_instance()->raiseError( Hydrogen::JACK_ERROR_IN_PORT_REGISTER );
@@ -849,10 +863,13 @@ void JackAudioDriver::setTrackOutput( int n, Instrument * instr, InstrumentCompo
 	}
 
 	// Now we're sure there is an n'th port, rename it.
-	DrumkitComponent* pDrumkitComponent = song->get_component( compo->get_drumkit_componentID() );
+	DrumkitComponent* pDrumkitComponent = pSong->get_component( pCompo->get_drumkit_componentID() );
 	chName = QString( "Track_%1_%2_%3_" ).arg( n + 1 ).arg( instr->get_name() ).arg( pDrumkitComponent->get_name() );
 
 #ifdef HAVE_JACK_PORT_RENAME
+	// This differs from jack_port_set_name() by triggering
+	// PortRename notifications to clients that have registered a
+	// port rename handler.
 	jack_port_rename( m_pClient, track_output_ports_L[n], ( chName + "L" ).toLocal8Bit() );
 	jack_port_rename( m_pClient, track_output_ports_R[n], ( chName + "R" ).toLocal8Bit() );
 #else

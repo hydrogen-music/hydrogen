@@ -264,8 +264,13 @@ class Instrument : public H2Core::Object
 
 
 	private:
-		int						__id;					///< instrument id, should be unique
-		QString					__name;					///< instrument name
+	        /** Identifier of an instrument, which should be
+		    unique. It is set by set_id() and accessed via
+	        get_id().*/
+		int					__id;
+	        /** Name of the Instrument. It is set by set_name()
+		    and accessed via get_name().*/
+		QString					__name;
 		QString					__drumkit_name;			///< the name of the drumkit this instrument belongs to
 		float					__gain;					///< gain of the instrument
 		float					__volume;				///< volume of the instrument
@@ -298,22 +303,26 @@ class Instrument : public H2Core::Object
 		bool					__current_instr_for_export;		///< is the instrument currently beeing exported?
 };
 // DEFINITIONS
-
+/** Sets the name of the Instrument #__name.
+ * \param name New name. */
 inline void Instrument::set_name( const QString& name )
 {
 	__name = name;
 }
-
+/** Access the name of the Instrument.
+ * \return #__name */
 inline const QString& Instrument::get_name() const
 {
 	return __name;
 }
-
+/** Sets #__id to @a id.
+ * \param id Unique identifier of the instrument. */
 inline void Instrument::set_id( const int id )
 {
 	__id = id;
 }
-
+/** Returns #__id. 
+* \return #__id. */
 inline int Instrument::get_id() const
 {
 	return __id;

@@ -188,7 +188,24 @@ public:
 	std::list<QString> 		m_patternCategories;
 
 	//	audio engine properties ___
-	QString				m_sAudioDriver;		///< Audio Driver
+	/**
+	 * Audio driver
+	 *
+	 * Used in the audioEngine_startAudioDrivers() to create an
+	 * audio driver using createDriver(). 
+	 *
+	 * These choices are support:
+	 * - "Auto" : audioEngine_startAudioDrivers() will try
+	 *   different drivers itself.
+	 * - "Jack" : createDriver() will create a JackAudioDriver.
+	 * - "Alsa" : createDriver() will create a AlsaAudioDriver.
+	 * - "CoreAudio" : createDriver() will create a CoreAudioDriver.
+	 * - "PortAudio" : createDriver() will create a PortAudioDriver.
+	 * - "Oss" : createDriver() will create a OssDriver.
+	 * - "PulseAudio" : createDriver() will create a PulseAudioDriver.
+	 * - "Fake" : createDriver() will create a FakeDriver.
+	 */
+	QString				m_sAudioDriver;
 	bool				m_bUseMetronome;		///< Use metronome?
 	float				m_fMetronomeVolume;	///< Metronome volume FIXME: remove this volume!!
 	unsigned			m_nMaxNotes;		///< max notes
@@ -211,6 +228,18 @@ public:
 	QString				m_sOSSDevice;		///< Device used for output
 
 	//	MIDI Driver properties
+	/**
+	 * MIDI driver
+	 *
+	 * Used in the audioEngine_startAudioDrivers() to create an
+	 * MIDI driver. 
+	 *
+	 * These choices are support:
+	 * - "JackMidi" : A JackMidiDriver will be called.
+	 * - "ALSA" : An AlsaMidiDriver will be called.
+	 * - "CoreMidi" : A CoreMidiDriver will be called.
+	 * - "PortMidi" : A PortMidiDriver will be called.
+	 */
 	QString				m_sMidiDriver;
 	QString				m_sMidiPortName;
 	int				m_nMidiChannelFilter;
@@ -232,6 +261,12 @@ public:
 	QString				m_sJackPortName2;
 	int				m_bJackTransportMode;
 	bool				m_bJackConnectDefaults;
+	/** 
+	 * If set to _true_, JackAudioDriver::makeTrackOutputs() will
+	 * create two individual left and right output ports for every
+	 * component of each instrument. If _false_, one usual stereo
+	 * output will be created.
+	 */
 	bool				m_bJackTrackOuts;
 	int				m_nJackTrackOutputMode;
 	//jack time master
