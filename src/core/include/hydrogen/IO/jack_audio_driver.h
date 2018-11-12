@@ -54,7 +54,7 @@ class InstrumentComponent;
 /**
  * JACK (Jack Audio Connection Kit) server driver. 
  *
- * This object will only be accessible if H2CORE_HAVE_JACK was defined
+ * This object will only be accessible if #H2CORE_HAVE_JACK was defined
  * during the configuration and the user enables the support of the
  * JACK server.
  */
@@ -318,7 +318,7 @@ public:
 	 * ports of Hydrogen will be connected to in connect() from
 	 * Preferences::m_sJackPortName1 and
 	 * Preferences::m_sJackPortName2. The name of the JACK client
-	 * is either set to "Hydrogen" or, if H2CORE_HAVE_OSC was
+	 * is either set to "Hydrogen" or, if #H2CORE_HAVE_OSC was
 	 * defined during compilation and OSC support is enabled, to
 	 * Preferences::m_sNsmClientId via
 	 * Preferences::getNsmClientId(). 
@@ -328,7 +328,7 @@ public:
 	 * (jack/jack.h) and saves it to the pointer #m_pClient. In
 	 * case this didn't work properly, it will start two more
 	 * attempts. Sometime JACK doesn't stop and start fast
-	 * enough. If the compiler flag H2CORE_HAVE_JACKSESSION was
+	 * enough. If the compiler flag #H2CORE_HAVE_JACKSESSION was
 	 * set and the user enabled the usage of JACK session, the
 	 * client will be opened using the corresponding option and
 	 * the sessionID Token Preferences::jackSessionUUID, obtained
@@ -447,7 +447,7 @@ protected:
 	 *
 	 * It is registered to the JACK client in init() using
 	 * _jack_set_session_callback()_ (jack/session.h) if
-	 * H2CORE_HAVE_JACKSESSION was defined during compilation.
+	 * #H2CORE_HAVE_JACKSESSION was defined during compilation.
 	 */
 	static void jack_session_callback( jack_session_event_t *event,
 					   void *arg );
@@ -583,7 +583,7 @@ class JackAudioDriver : public NullDriver {
 public:
 	/**
 	 * Fallback version of the JackAudioDriver in case
-	 * H2CORE_HAVE_JACK was not defined during the configuration
+	 * #H2CORE_HAVE_JACK was not defined during the configuration
 	 * and the usage of the JACK audio server is not intended by
 	 * the user.
 	 */

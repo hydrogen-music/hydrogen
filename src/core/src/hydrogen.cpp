@@ -268,7 +268,7 @@ unsigned int			m_naddrealtimenotetickposition = 0;
  * -# It sets the H2Core::AudioEngine state #m_audioEngineState to
       #STATE_INITIALIZED.
  * -# It calls H2Core::Effects::create_instance() (if the
-      H2CORE_HAVE_LADSPA is set),
+      #H2CORE_HAVE_LADSPA is set),
       H2Core::AudioEngine::create_instance(), and
       H2Core::Playlist::create_instance().
  * -# Finally, it pushes the H2Core::EVENT_STATE, #STATE_INITIALIZED
@@ -339,7 +339,7 @@ void				audioEngine_restartAudioDrivers();
  * connect(). If this is not successful, the audio driver will be
  * overwritten with the NullDriver and this one is connected instead.
  *
- * Finally, audioEngine_renameJackPorts() (if H2CORE_HAVE_JACK is set)
+ * Finally, audioEngine_renameJackPorts() (if #H2CORE_HAVE_JACK is set)
  * and audioEngine_setupLadspaFX() are called.
  *
  * The state of the AudioEngine #m_audioEngineState must not be in

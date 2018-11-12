@@ -84,7 +84,7 @@ public:
 	 * -# EventQueue::create_instance()
 	 * -# MidiActionManager::create_instance()
 	 *
-	 * If H2CORE_HAVE_OSC was set during compilation, the
+	 * If #H2CORE_HAVE_OSC was set during compilation, the
 	 * following instances will be created as well.
 	 *
 	 * -# NsmClient::create_instance()
@@ -428,7 +428,7 @@ private:
 	 *   InstrumentComponent::setMaxLayers() and
 	 *   Preferences::getMaxLayers() 
 	 * - Starts the OscServer using OscServer::start() if
-	 *   H2CORE_HAVE_OSC was set during compilation.
+	 *   #H2CORE_HAVE_OSC was set during compilation.
 	 * - Fills #m_nInstrumentLookupTable with the corresponding
 	 *   index of each element.
 	 */
