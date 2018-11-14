@@ -36,7 +36,8 @@ namespace H2Core
 class AudioOutput : public H2Core::Object
 {
 public:
-	TransportInfo m_transport;		// Transport info
+	/** Local instance of the TransportInfo. */
+	TransportInfo m_transport;
 
 	AudioOutput( const char* class_name )
 			: Object( class_name )
