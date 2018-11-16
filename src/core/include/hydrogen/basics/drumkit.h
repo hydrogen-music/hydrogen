@@ -43,18 +43,18 @@ class Drumkit : public H2Core::Object
 		Drumkit();
 		/** copy constructor */
 		Drumkit( Drumkit* other );
-		/** drumkit destructor, delete__ instruments */
+		/** drumkit destructor, delete #__instruments */
 		~Drumkit();
 
 		/**
 		 * load drumkit information from a directory
-		 * \param dk_dir like one returned by Filesystem::drumkit_path
+		 * \param dk_dir like one returned by Filesystem::drumkit_dir_search()
 		 * \param load_samples automatically load sample data if set to true
 		 * \return a Drumkit on success, NULL otherwise
 		 */
 		static Drumkit* load( const QString& dk_dir, bool load_samples=false );
 		/**
-		 * Simple wrapper for 'load' - use Filesystem::drumkit_path_search
+		 * Simple wrapper for 'load' - use Filesystem::drumkit_path_search()
 		 */
 		static Drumkit* load_by_name( const QString& dk_name, bool load_samples=false );
 		/**
@@ -89,7 +89,7 @@ class Drumkit : public H2Core::Object
 		bool save( bool overwrite=false );
 		/**
 		 * save a drumkit, xml file and samples
-		 * neither __path nor __name are updated
+		 * neither #__path nor #__name are updated
 		 * \param dk_dir the directory to save the drumkit into
 		 * \param overwrite allows to write over existing drumkit files
 		 * \return true on success
@@ -148,36 +148,36 @@ class Drumkit : public H2Core::Object
 
 		/** set __instruments, delete existing one */
 		void set_instruments( InstrumentList* instruments );
-		/**  returns __instruments */
+		/**  returns #__instruments */
 		InstrumentList* get_instruments() const;
 
-		/** __path setter */
+		/** #__path setter */
 		void set_path( const QString& path );
-		/** __path accessor */
+		/** #__path accessor */
 		const QString& get_path() const;
-		/** __name setter */
+		/** #__name setter */
 		void set_name( const QString& name );
-		/** __name accessor */
+		/** #__name accessor */
 		const QString& get_name() const;
-		/** __author setter */
+		/** #__author setter */
 		void set_author( const QString& author );
-		/** __author accessor */
+		/** #__author accessor */
 		const QString& get_author() const;
-		/** __info setter */
+		/** #__info setter */
 		void set_info( const QString& info );
-		/** __info accessor */
+		/** #__info accessor */
 		const QString& get_info() const;
-		/** __license setter */
+		/** #__license setter */
 		void set_license( const QString& license );
-		/** __license accessor */
+		/** #__license accessor */
 		const QString& get_license() const;
-		/** __image setter */
+		/** #__image setter */
 		void set_image( const QString& image );
-		/** __image accessor */
+		/** #__image accessor */
 		const QString& get_image() const;
-		/** __imageLicense setter */
+		/** #__imageLicense setter */
 		void set_image_license( const QString& imageLicense );
-		/** __imageLicense accessor */
+		/** #__imageLicense accessor */
 		const QString& get_image_license() const;
 		/** return true if the samples are loaded */
 		const bool samples_loaded() const;

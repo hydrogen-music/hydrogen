@@ -192,7 +192,7 @@ private:
 	 *
 	 * - Assigns #__instance to itself.
 	 * - Initializes the Mutex of the AudioEngine #__engine_mutex
-	 *   by calling __pthread_mutex_init()_ (pthread.h) on its
+	 *   by calling _pthread_mutex_init()_ (pthread.h) on its
 	 *   address.
 	 * - Assigns a new instance of the Sampler to #__sampler and of
 	 *   the Synth to #__synth.

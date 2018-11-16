@@ -139,16 +139,40 @@ class Preferences : public H2Core::Object
 	H2_OBJECT
 public:
 	enum {
-		USE_JACK_TRANSPORT = 0,
-		USE_JACK_TIME_MASTER = 0,
-		POST_FADER = 0,
-		SET_PLAY_ON = 0,
-		BC_ON = 0,
-		NO_JACK_TRANSPORT = 1,
-		NO_JACK_TIME_MASTER = 1,
-		PRE_FADER = 1,
-		SET_PLAY_OFF = 1,
-		BC_OFF = 1
+	      /** 
+	       * Specifies whether or not to use JACK transport
+	       * capabilities. If set, Hydrogen will start playing as
+	       * soon as any over JACK client using its transport
+	       * system is starting to play. Its counterpart is
+	       * #NO_JACK_TRANSPORT.
+	       */
+	      USE_JACK_TRANSPORT = 0,
+	      /**
+	       * Specifies that Hydrogen is using in the time master
+	       * mode and will thus control specific aspects of the
+	       * transport like the overall tempo. Its counterpart is
+	       * #NO_JACK_TIME_MASTER.
+	       */
+	      USE_JACK_TIME_MASTER = 0,
+	      POST_FADER = 0,
+	      SET_PLAY_ON = 0,
+	      BC_ON = 0,/** 
+	       * Specifies whether or not to use JACK transport
+	       * capabilities. If set, Hydrogen can be used
+	       * independent of the JACK system while still using the
+	       * JackAudioDriver. Its counterpart is
+	       * #USE_JACK_TRANSPORT.
+	       */
+	      NO_JACK_TRANSPORT = 1,
+	      /**
+	       * Specifies that Hydrogen is note using in the time
+	       * master mode. Its counterpart is
+	       * #USE_JACK_TIME_MASTER.
+	       */
+	      NO_JACK_TIME_MASTER = 1,
+	      PRE_FADER = 1,
+	      SET_PLAY_OFF = 1,
+	      BC_OFF = 1
 	};
 
 
@@ -259,6 +283,11 @@ public:
 	//	jack driver properties ___
 	QString				m_sJackPortName1;
 	QString				m_sJackPortName2;
+	/**
+	 * Specifies whether or not Hydrogen will use the JACK
+	 * transport system. It has two different states:
+	 * #USE_JACK_TRANSPORT and #NO_JACK_TRANSPORT.
+	 */
 	int				m_bJackTransportMode;
 	bool				m_bJackConnectDefaults;
 	/** 
@@ -466,7 +495,11 @@ public:
 	int				getOscServerPort();
 	void				setOscServerPort( int oscPort );
 
+	/** Whether to use the bpm of the timeline.
+	 * \return #__useTimelineBpm */
 	bool				getUseTimelineBpm();
+	/** Setting #__useTimelineBpm.
+	 * \param val New choice. */
 	void				setUseTimelineBpm( bool val );
 
 	int				getRubberBandCalcTime();
@@ -542,6 +575,14 @@ private:
 #endif
 
 	bool				waitingForSessionHandler;
+	/**
+	 * Whether to use local speeds specified along the Timeline or
+	 * a constant tempo for the whole Song in
+	 * Hydrogen::getTimelineBpm() and Hydrogen::getTimelineBpm().
+	 *
+	 * It is set using setUseTimelineBpm() and accessed via
+	 * getUseTimelineBpm().
+	 */
 	bool				__useTimelineBpm;
 
 	//___ GUI properties ___

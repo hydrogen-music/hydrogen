@@ -55,13 +55,13 @@ class Files : public H2Core::Object
 		}
 
 		/**
-		 * save the given pattern to filePath
+		 * save the given pattern to @a filePath
 		 * will overwrite an existing file
 		 * \param filePath to write the pattern to
 		 * \param pattern the one to be saved
 		 * \param song to access license, author info
 		 * \param drumkitName to access name info
-		 * \return filePath on success, NULL on failure
+		 * \return @a filePath on success, NULL on failure
 		 */
 		static inline QString savePatternPath( const QString& filePath, Pattern* pattern, Song* song, const QString& drumkitName )
 		{

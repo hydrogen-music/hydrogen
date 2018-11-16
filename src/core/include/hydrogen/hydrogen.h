@@ -169,10 +169,28 @@ public:
 	void			setLadspaFXPeak( int nFX, float fL, float fR );
 
 	unsigned long		getTickPosition();
+	/** Keep track of the tick position in realtime.
+	 *
+	 * Firstly, it gets the current transport position in frames
+	 * #m_nRealtimeFrames and converts it into ticks using
+	 * TransportInfo::m_nTickSize. Afterwards, it accesses how
+	 * much time passed since the last update of
+	 * #m_currentTickTime, converts the time difference +
+	 * AudioOutput::getBufferSize()/ AudioOutput::getSampleRate()
+	 * in frames, and adds the result to the first value to
+	 * support keyboard and MIDI events as well.
+	 *
+	 * \return Current position in ticks.
+	 */
 	unsigned long		getRealtimeTickPosition();
 	unsigned long		getTotalFrames();
 
+	/** Sets #m_nRealtimeFrames
+	 * \param frames Current transport realtime position*/
 	void			setRealtimeFrames( unsigned long frames );
+	/** Returns the current realtime transport position
+	 * TransportInfo::m_nFrames.
+	 * \return #m_nRealtimeFrames */
 	unsigned long		getRealtimeFrames();
 
 	PatternList *		getCurrentPatternList();
@@ -180,13 +198,64 @@ public:
 
 	PatternList *		getNextPatterns();
 
+	/** Get the position of the current Pattern in the Song.
+	 * \return #m_nSongPos */
 	int			getPatternPos();
+	/**
+	 * Relocate the position to another Pattern in the Song.
+	 *
+	 * The position of a Pattern in frames (see
+	 * TransportInfo::m_nFrames for details) will be determined by
+	 * retrieving the tick number the Pattern is located at using
+	 * getTickForPosition() and multiplying it with
+	 * TransportInfo::m_nTickSize. The resulting value will be
+	 * used by the AudioOutput::locate() function of your audio
+	 * driver to relocate the playback position.
+	 *
+	 * If #m_audioEngineState is not #STATE_PLAYING, the variables
+	 * #m_nSongPos and #m_nPatternTickPosition will be set to @a
+	 * pos and 0 right away.
+	 *
+	 * \param pos Position of the Pattern to relocate at. All
+	 *   values smaller than -1 will be set to -1, which marks the
+	 *   beginning of the Song.
+	 */
 	void			setPatternPos( int pos );
+	/** Returns the pattern number corresponding to the tick
+	 * position @a TickPos.
+	 * \param TickPos Position in ticks.
+	 * \return 
+	 * - __0__ : if the Song isn't specified yet.
+	 * - the output of the findPatternInTick() function called
+	 *   with @a TickPos and Song::is_loop_enabled() as input
+	 *   arguments.
+	 */
 	int			getPosForTick( unsigned long TickPos );
-
+	/** Resetting #m_nPatternStartTick to -1 if the current Song
+	    mode is Song::PATTERN_MODE
+	 */
 	void			triggerRelocateDuringPlay();
-
-	long			getTickForPosition( int );
+	
+	/**
+	 * Get the total number of ticks passed up to a Pattern at
+	 * position @a pos.
+	 *
+	 * The function will loop over all and sums up their
+	 * Pattern::__length. If one of the Pattern is NULL or no
+	 * Pattern is present one of the PatternList, #MAX_NOTES will
+	 * be added instead.
+	 *
+	 * The driver should be LOCKED when calling this!
+	 *
+	 * \param pos Position of the Pattern in the
+	 *   Song::__pattern_group_sequence.
+	 * \return
+	 *  - -1 : if @a pos is bigger than the number of patterns in
+	 *   the Song and Song::__is_loop_enabled is set to false or
+	 *   no Patterns could be found at all.
+	 *  - >= 0 : the total number of ticks passed.
+	 */
+	long			getTickForPosition( int pos );
 
 	void			restartDrivers();
 
@@ -194,6 +263,8 @@ public:
 	MidiInput*		getMidiInput();
 	MidiOutput*		getMidiOutput();
 
+	/** Returns the current state of the audio engine.
+	 * \return #m_audioEngineState*/
 	int			getState();
 
 	float			getProcessTime();
@@ -202,14 +273,16 @@ public:
 	int			loadDrumkit( Drumkit *pDrumkitInfo );
 	int			loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
 
-	//  Test if an instrument has notes in the pattern (used to test before deleting an insturment)
+	/** Test if an Instrument has some Note in the Pattern (used to
+	    test before deleting an Instrument)*/
 	bool 			instrumentHasNotes( Instrument *pInst );
 
-	/// delete an instrument. If `conditional` is true, and there are patterns that
-	/// use this instrument, it's not deleted anyway
+	/** Delete an Instrument. If @a conditional is true, and there
+	    are some Pattern that are using this Instrument, it's not
+	    deleted anyway.*/
 	void			removeInstrument( int instrumentnumber, bool conditional );
 
-	//return the name of the current drumkit
+	/** Return the name of the current Drumkit.*/
 	QString			m_currentDrumkit;
 
 	const QString&		getCurrentDrumkitname();
@@ -265,6 +338,16 @@ public:
 
 	void			onTapTempoAccelEvent();
 	void			setTapTempo( float fInterval );
+	/** 
+	 * Updates the speed.
+	 *
+	 * It calls AudioOutput::setBpm() and setNewBpmJTM() with @a
+	 * fBPM as input argument and sets Song::__bpm to @a fBPM.
+	 *
+	 * This function will be called with the AudioEngine in LOCKED
+	 * state.
+	 * \param fBPM New speed in beats per minute.
+	 */
 	void			setBPM( float fBPM );
 
 	void			restartLadspaFX();
@@ -292,7 +375,7 @@ public:
 	void			startNsmClient();
 #endif
 
-	///beatconter
+	// beatconter
 	void			setbeatsToCount( int beatstocount);
 	int			getbeatsToCount();
 	void			setNoteLength( float notelength);
@@ -301,22 +384,79 @@ public:
 	void			handleBeatCounter();
 	void			setBcOffsetAdjust();
 
-	/// jack time master
+	/** Returns the latest transport position of the JACK server.
+	 * \return #m_nHumantimeFrames*/
 	unsigned long		getHumantimeFrames();
+	/** Sets #m_nHumantimeFrames.
+	    \param hframes New transport position in frames.*/
 	void			setHumantimeFrames(unsigned long hframes);
+	/** Calling JackAudioDriver::com_release() directly from
+	    the GUI*/
 	void			offJackMaster();
+	/** Calling JackAudioDriver::initTimeMaster() directly from
+	    the GUI*/
 	void			onJackMaster();
-	unsigned long		getTimeMasterFrames();
+	/**
+	 * Access the length of the first Pattern found in the
+	 * PatternList at @a humanpos - 1.
+	 *
+	 * This function should also work if the loop mode is enabled
+	 * in Song::is_loop_enabled().
+	 *
+	 * \param humanpos Position + 1 of the desired PatternList.
+	 * \return 
+	 * - __-1__ : if not Song was initialized yet.
+	 * - #MAX_NOTES : if @a humanpos was smaller than 1, larger
+	 * than the length of the vector of the PatternList in
+	 * Song::__pattern_group_sequence or no Pattern could be found
+	 * in the PatternList at @a humanpos - 1.
+	 * - __else__ : length of first Pattern found at @a humanpos.
+	 */
 	long			getTickForHumanPosition( int humanpos );
+	/** Returns the fallback speed.
+	 * \return #m_nNewBpmJTM */
 	float			getNewBpmJTM();
+	/** Set the fallback speed #m_nNewBpmJTM.
+	 * \param bpmJTM New default tempo. */ 
 	void			setNewBpmJTM( float bpmJTM);
-	void			ComputeHumantimeFrames(uint32_t nFrames);
 
 	void			__panic();
 	int			__get_selected_PatterNumber();
 	unsigned int		__getMidiRealtimeNoteTickPosition();
 
+	/**
+	 * Updates Song::__bpm and #m_nNewBpmJTM to the local speed.
+	 *
+	 * To set the of the Song Song::__bpm, the local speed will be
+	 * obtained by calling getTimelineBpm() with getPatternPos()
+	 * as input argument. For setting the fallback speed
+	 * #m_nNewBpmJTM, getRealtimeTickPosition() will be used
+	 * instead.
+	 *
+	 * If Preferences::__useTimelineBpm is set to false, the
+	 * function will return without performing any actions.
+	 */
 	void			setTimelineBpm();
+	/**
+	 * Returns the local speed at a specific @a Beat in the
+	 * Timeline.
+	 *
+	 * Timeline::HTimelineVector::m_htimelinebpm of the first
+	 * Timeline::HTimelineVector::m_htimelinebeat bigger than @a
+	 * Beat will be returned.
+	 *
+	 * If Hydrogen is in Song::PATTERN_MODE or
+	 * Preferences::__useTimelineBpm is set to false, the global
+	 * speed of the current Song Song::__bpm or, if no Song is
+	 * present yet, the result of getNewBpmJTM() will be
+	 * returned. 
+	 *
+	 * Its counterpart is setTimelineBpm().
+	 *
+	 * \param Beat Position along the Timeline to access the tempo
+	 *   at.
+	 * \return Speed in beats per minute.
+	 */
 	float			getTimelineBpm( int Beat );
 	Timeline*		getTimeline() const;
 	
@@ -340,11 +480,11 @@ public:
 
 private:
 	/**
-	 * Static reference to the Hydrogen singleton. It is created
-	 * using the Hydrogen::Hydrogen() constructor.
+	 * Static reference to the Hydrogen singleton. 
 	 *
-	 * It is initialized with NULL and assigned a new Hydrogen
-	 * instance if still 0 in create_instance().
+	 * It is created using the Hydrogen::Hydrogen() constructor,
+	 * initialized with NULL and assigned a new Hydrogen instance
+	 * if still 0 in create_instance().
 	 */
 	static Hydrogen* 	__instance;
 
