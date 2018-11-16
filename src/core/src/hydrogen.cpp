@@ -3400,12 +3400,12 @@ void startOscServer()
 
 void Hydrogen::startNsmClient()
 {
-	//NSM has to be started before jack driver gets created
-	NsmClient* pNsmClient = NsmClient::get_instance();
-
-	if(pNsmClient){
-		pNsmClient->createInitialClient();
-	}
+// 	//NSM has to be started before jack driver gets created
+// 	NsmClient* pNsmClient = NsmClient::get_instance();
+// 
+// 	if(pNsmClient){
+// 		pNsmClient->createInitialClient();
+// 	}
 }
 #endif
 

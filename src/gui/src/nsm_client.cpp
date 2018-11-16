@@ -35,6 +35,9 @@
 #include "hydrogen/hydrogen.h"
 #include "hydrogen/basics/song.h"
 
+#include "HydrogenApp.h"
+#include "MainForm.h"
+
 
 NsmClient * NsmClient::__instance = 0;
 const char* NsmClient::__class_name = "NsmClient";
@@ -47,32 +50,43 @@ static int nsm_open_cb (const char *name,
 						char **out_msg,
 						void *userdata )
 {
+
+    cout << "azoi to open" << endl;
+//     usleep(5000000);
+    HydrogenApp *h2app = HydrogenApp::get_instance();
+    MainForm *pMainForm = h2app->getMainForm();
+    
+//     QTimer *opener = new QTimer(this);
+// 	connect( opener, SIGNAL( timeout() ), this, pMainForm ) );
+// 	playlistDisplayTimer->start(30000);
+    
+    pMainForm->emitOpenSongFileFromNSM(QString(name));
+    
+    cout << "has or will open " << endl;
+    
+    
 // 	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
-// // 
+// 
 // 	if(pPref){
 // 		if(client_id){
 // 			// setup JACK here, client_id gets the JACK client name
 // 			pPref->setNsmClientId(QString(client_id));
 // 		}
-// // 
-// // 		if(name){
-// // 
-// // 			/*
-// // 			 * the hydrogen core is not responsible for managing
-// // 			 * song loading on startup. Therefore we use store
-// // 			 * the desired song name and let the GUIs do the actual work.
-// // 			 */
-// // 
-// // 			pPref->setNsmSongName(QString(name));
-// // 		}
+//     }
+// 
+// 		if(name){
+// 
+// 			/*
+// 			 * the hydrogen core is not responsible for managing
+// 			 * song loading on startup. Therefore we use store
+// 			 * the desired song name and let the GUIs do the actual work.
+// 			 */
+// 
+// 			pPref->setNsmSongName(QString(name));
+// 		}
 // 	}
-//     pMainForm->openSongFile(QString(name));
-//     HydrogenApp::MainForm pMainForm;
-//     H2Core::Song *pSong;
-//     pSong->set_filename(QString(name));
-//     
-//     H2Core::Hydrogen::get_instance()->setSong(pSong);
     
+
 	return ERR_OK;
 }
 

@@ -51,6 +51,7 @@
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/basics/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/nsm_client.h>
 
 #include <signal.h>
 #include <iostream>
@@ -366,21 +367,31 @@ int main(int argc, char *argv[])
 		// Hydrogen here to honor all preferences.
 		H2Core::Hydrogen::create_instance();
 
-#ifdef H2CORE_HAVE_OSC
-		H2Core::Hydrogen::get_instance()->startNsmClient();
 
-		QString NsmSongFilename = pPref->getNsmSongName();
-
-		if(!NsmSongFilename.isEmpty())
-		{
-			sSongFilename = NsmSongFilename;
-		}
-#endif
 
 		MainForm *pMainForm = new MainForm( pQApp, sSongFilename );
 		pMainForm->show();
 		pSplash->finish( pMainForm );
+        
 
+#ifdef H2CORE_HAVE_OSC
+        NsmClient* pNsmClient = NsmClient::get_instance();
+        
+        if ( pNsmClient ){
+            pNsmClient->createInitialClient();
+        }
+        
+        
+// 		H2Core::Hydrogen::get_instance()->startNsmClient();
+// 
+// 		QString NsmSongFilename = pPref->getNsmSongName();
+// 
+// 		if(!NsmSongFilename.isEmpty())
+// 		{
+// 			sSongFilename = NsmSongFilename;
+// 		}
+#endif
+        
 		if( ! sPlaylistFilename.isEmpty() ){
 			bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( sPlaylistFilename );
 			if ( loadlist ){

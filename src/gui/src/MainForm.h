@@ -126,6 +126,9 @@ public slots:
 		void onSaveAsAccelEvent();
 		void onSaveAccelEvent();
 		void onOpenAccelEvent();
+        
+        void openSongFile( const QString& sFilename );
+        void emitOpenSongFileFromNSM( const QString& sFilename );
 
 		void action_file_open_recent( QAction *pAction );
 		void showDevelWarning();
@@ -144,6 +147,9 @@ public slots:
 		void onPlaylistDisplayTimer();
 		void onFixMidiSetup();
 
+    signals:
+        void openFromNSM(QString filename);
+        
 	protected:
 		// Returns true if handled, false if aborted.
 		bool handleUnsavedChanges();
@@ -182,7 +188,6 @@ public slots:
 		void createMenuBar();
 
 		void closeAll();
-		void openSongFile( const QString& sFilename );
 		void checkMidiSetup();
 
 		bool eventFilter( QObject *o, QEvent *e );

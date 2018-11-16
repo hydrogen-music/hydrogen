@@ -103,7 +103,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	connect(snUsr1, SIGNAL(activated(int)), this, SLOT( handleSigUsr1() ));
 #endif
 
-
+    connect(this, SIGNAL(openFromNSM(QString)), this, SLOT(openSongFile(QString)));
 	m_pQApp = app;
 
 	m_pQApp->processEvents();
@@ -164,6 +164,8 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	h2app->getDirector()->installEventFilter(this);
 	//	h2app->getPlayListDialog()->installEventFilter(this);
 	installEventFilter( this );
+    
+    
 
 	connect( &m_AutosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
 	m_AutosaveTimer.start( 60 * 1000 );
@@ -1325,9 +1327,23 @@ void MainForm::action_file_open_recent(QAction *pAction)
 }
 
 
+void MainForm::emitOpenSongFileFromNSM( const QString& sFilename )
+{
+    cout << "alzk" << endl;
+    
+    Song *pSong = Song::load( sFilename );
+	if ( pSong == NULL ) {
+        Song *pSong = Song::get_empty_song();
+        pSong->save(sFilename);
+//         return;
+    }
+    
+    emit openFromNSM(sFilename);
+}
 
 void MainForm::openSongFile( const QString& sFilename )
 {
+    cout << "oepzjeensongfile" << endl;
 	Hydrogen *engine = Hydrogen::get_instance();
 	if ( engine->getState() == STATE_PLAYING ) {
 		engine->sequencer_stop();
@@ -1359,6 +1375,8 @@ void MainForm::openSongFile( const QString& sFilename )
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
 	checkMidiSetup();
+    
+    cout << "oepzjeensongfilefinished" << endl;
 }
 
 
