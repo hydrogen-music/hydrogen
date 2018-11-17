@@ -1188,7 +1188,7 @@ public:
 	 * were altered, the list will be of length one. It does not
 	 * imply any ordering in the property changes stored in it.
 	 */
-	SE_editNotePropertiesAction( std::list<H2Core::NotePropertiesChanges> propertyChangesStack )
+	SE_editNotePropertiesAction( std::vector<H2Core::NotePropertiesChanges> propertyChangesStack )
 	{
 
 		setText( QString( "Edit %1 note properties of type " +
@@ -1207,9 +1207,8 @@ public:
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		// Undo all the actions in the `propertyChangesStack'
 		// list at once.
-		for ( auto it = __propertyChangesStack.begin();
-		      it != __propertyChangesStack.end(); ++it ){
-			h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoNotePropertiesEditAction( it->mode, it->old );
+		for ( auto& change : __propertyChangesStack ){
+			h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoNotePropertiesEditAction( change.mode, change.old );
 		}
 
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
@@ -1231,9 +1230,8 @@ public:
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		// Undo all the actions in the `propertyChangesStack'
 		// list at once.
-		for ( auto it = __propertyChangesStack.begin();
-		      it != __propertyChangesStack.end(); ++it ){
-			h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoNotePropertiesEditAction( it->mode, it->current );
+		for ( auto& change : __propertyChangesStack ){
+			h2app->getPatternEditorPanel()->getDrumPatternEditor()->undoRedoNotePropertiesEditAction( change.mode, change.current );
 		}
 
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
@@ -1251,7 +1249,7 @@ private:
 	 * will be of length one. It does not imply any ordering in
 	 * the property changes stored in it.
 	 */
-	std::list<H2Core::NotePropertiesChanges> __propertyChangesStack;
+	std::vector<H2Core::NotePropertiesChanges> __propertyChangesStack;
 };
 
 //~Note Properties Ruler commands

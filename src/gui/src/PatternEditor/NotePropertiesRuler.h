@@ -120,7 +120,7 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		 * the setting of the different properties and to
 		 * construct a H2Core::NotePropertiesChanges
 		 * struct. In addition, it will be also used as the
-		 * basic element for the #notePropertiesStored list.
+		 * basic element for the #notePropertiesStored vector.
 		 *
 		 * Note that Hydrogen does not store the pattern id of
 		 * a note properly during its creation. It will be
@@ -152,7 +152,7 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		 */
 		H2Core::NotePropertiesChanges notePropertiesChanges;
 		/**
-		 * Whenever a property of a note is altered using the
+		 * Whenever a property of a Note is altered using the
 		 * mousePressEvent() and mouseMoveEvent(), all changes
 		 * between the pressing of the mouse button and its
 		 * release will be grouped together and considered
@@ -162,19 +162,27 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		 * property in the ruler up and down. 
 		 *
 		 * The changes will be written using the
-		 * storeNoteProperties() function and the list is clear
-		 * every time the function is entered. Depending on
-		 * whether or not the Shift key is pressed by the user
-		 * the list will be of length one or the number of
-		 * notes for the selected instrument in the current
-		 * pattern.
+		 * storeNoteProperties() function and the vector is
+		 * cleared every time the function is
+		 * entered. Depending on whether or not the Shift key
+		 * is pressed by the user, the vector will be of
+		 * length one or the number of notes for the selected
+		 * instrument in the current pattern.
 		 *
 		 * It will be used in undoMouseMovement() to construct
 		 * the undo/redo actions.
 		 */
-		std::list<H2Core::NoteProperties> notePropertiesStored;
+		std::vector<H2Core::NoteProperties> notePropertiesStored;
+		/** 
+		 * An auxiliary vector of H2Core::NoteProperties used
+		 * in undoMouseMovement() and wheelEvent() to construct
+		 * H2Core::NotePropertiesChanges with the help of
+		 * #notePropertiesStored and pushes them to
+		 * #propertyChangesStack.
+		 */
+		std::vector<H2Core::NoteProperties> notePropertiesCurrent;
 		/**
-		 * List, which will contain the changes applied to the
+		 * Vector, which will contain the changes applied to the
 		 * individual notes using the struct
 		 * H2Core::NotePropertiesChanges.
 		 *
@@ -183,22 +191,22 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		 * constructed from the H2Core::NoteProperties prior
 		 * and after the action of the user was performed. In
 		 * case of altering the properties using the mouse
-		 * button via mousePressEvent() and mouseMoveEvent(), a
-		 * grouping of the action will take place. The old
+		 * button via mousePressEvent() and mouseMoveEvent(),
+		 * a grouping of the action will take place. The old
 		 * state of the properties will be determined by the
-		 * #notePropertiesStored list, which is filled in
+		 * #notePropertiesStored vector, which is filled in
 		 * storeNoteProperties(), and corresponding new states
 		 * are obtained in undoMouseMovement() function.
 		 * Depending on whether or not the Shift key is
-		 * pressed by the user the list will be of length one
-		 * or the number of notes for the selected instrument
-		 * in the current pattern.
+		 * pressed by the user, the vector will be of length
+		 * one or the number of notes for the selected
+		 * instrument in the current pattern.
 		 *
 		 * It contains all ingredient to construct the
 		 * undo/redo actions, which is done by handing it to
 		 * the pushUndoAction() function.
 		 */
-		std::list<H2Core::NotePropertiesChanges> propertyChangesStack;
+		std::vector<H2Core::NotePropertiesChanges> propertyChangesStack;
 		/**
 		 * Global variable holding the id of the currently
 		 * selected pattern. Unfortunately, Hydrogen does not
@@ -495,21 +503,21 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		 */
 		void mouseReleaseEvent(QMouseEvent *ev);
 		/**
-		 * Takes a list of explicit changes of the properties
-		 * of at least one note and pushes them onto the
-		 * QUndoStack. This way Hydrogen is able to revert all
-		 * changes introduced by the user.
+		 * Takes a vector of explicit changes of the
+		 * properties of at least one note and pushes them
+		 * onto the QUndoStack. This way Hydrogen is able to
+		 * revert all changes introduced by the user.
 		 *
 		 * The creation of the action, which is able to revert
 		 * the changes, is done using
 		 * SE_editNotePropertiesAction(). 
 		 *
-		 * \param propertyChangesStack List of
+		 * \param propertyChangesStack Vector of
 		 * H2Core::NotePropertiesChanges applied to at least
 		 * one note. If the Shift key was not pressed, the
-		 * list will contain only a single object.
+		 * vector will contain only a single object.
 		 */
-	        void pushUndoAction( std::list<H2Core::NotePropertiesChanges> propertyChangesStack );
+	        void pushUndoAction( std::vector<H2Core::NotePropertiesChanges> propertyChangesStack );
 		/**
 		 * Writes the current state of the note properties
 		 * into the global variable notePropertiesStored().
@@ -532,12 +540,12 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		 * undo/redo action. 
 		 *
 		 * This function will use the #notePropertiesStored
-		 * list as the old, and the current properties of the
-		 * corresponding notes as the new states and
+		 * vector as the old, and the current properties of
+		 * the corresponding notes as the new states and
 		 * constructs H2Core::NotePropertiesChanges. These
 		 * changes will be pushed on the #propertyChangesStack
-		 * list, which is cleared every time this function is
-		 * entered. Finally, the list is handed to
+		 * vector, which is cleared every time this function
+		 * is entered. Finally, the vector is handed to
 		 * pushUndoAction() to create the undo/redo
 		 * actions. Since Hydrogen does not properly assign
 		 * pattern index for newly created notes, it will be

@@ -131,6 +131,13 @@ void NotePropertiesRuler::wheelEvent( QWheelEvent *ev ){
 	// reverted upon pressed Ctrl-Z just once.
         propertyChangesStack.clear();
 
+	if ( notePropertiesStored.size() > 0 ){
+		// We have some prior knowledge that the number of
+		// notes for the current instrument should not have
+		// been changed.
+		propertyChangesStack.reserve( notePropertiesStored.size() );
+	}
+
 	// Whenever the Shift key is pressed, apply the current action
 	// to all notes instead to just the one positioned right below
 	// the cursor.
@@ -139,7 +146,8 @@ void NotePropertiesRuler::wheelEvent( QWheelEvent *ev ){
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
-			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+			if ( pNote->get_instrument() !=
+			     pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 				continue;
 			}
 			// Create a H2Core::NoteProperties struct,
@@ -168,7 +176,7 @@ void NotePropertiesRuler::wheelEvent( QWheelEvent *ev ){
 			// Push the changes onto the list keeping
 			// track of all changes during the current
 			// action.
-			propertyChangesStack.push_front( notePropertiesChanges );
+			propertyChangesStack.push_back( notePropertiesChanges );
 		}
 		// Push the changes onto the `QUndoStack'.
 		pushUndoAction( propertyChangesStack );
@@ -211,7 +219,7 @@ void NotePropertiesRuler::wheelEvent( QWheelEvent *ev ){
 			// Push the changes onto the list keeping
 			// track of all changes during the current
 			// action.
-			propertyChangesStack.push_front( notePropertiesChanges );
+			propertyChangesStack.push_back( notePropertiesChanges );
 			// Push the changes onto the `QUndoStack'.
 			pushUndoAction( propertyChangesStack );
 			
@@ -414,7 +422,7 @@ void NotePropertiesRuler::storeNoteProperties( QMouseEvent *ev ){
 			}
 			noteProperties = pNote->get_note_properties();
 			noteProperties.pattern_idx = __nSelectedPatternNumber;
-			notePropertiesStored.push_front( noteProperties );
+			notePropertiesStored.push_back( noteProperties );
 		}
 	} else if ( __nShiftKeyState < 0 ){
 		// Store the properties of only the note the cursor is
@@ -429,7 +437,7 @@ void NotePropertiesRuler::storeNoteProperties( QMouseEvent *ev ){
 			}
 			noteProperties = pNote->get_note_properties();
 			noteProperties.pattern_idx = __nSelectedPatternNumber;
-			notePropertiesStored.push_front( noteProperties );
+			notePropertiesStored.push_back( noteProperties );
 		}
 	}
 }
@@ -457,6 +465,9 @@ void NotePropertiesRuler::undoMouseMovement(){
 	// `pushUndoAction' function. This way they can all be
 	// reverted upon pressed Ctrl-Z just once.
 	propertyChangesStack.clear();
+	// We have some prior knowledge that the number of notes for
+	// the current instrument should not have been changed.
+	propertyChangesStack.reserve( notePropertiesStored.size() );
 	
 	// Get the current note properties of the notes corresponding
 	// to the stored states in notePropertiesStored, create
@@ -465,6 +476,11 @@ void NotePropertiesRuler::undoMouseMovement(){
 	if ( __nShiftKeyState > 0 ){
 		// Get the properties of all notes in the current
 		// pattern.
+		notePropertiesCurrent.clear();
+		// We have some prior knowledge that the number of
+		// notes for the current instrument should not have
+		// been changed
+		notePropertiesCurrent.reserve( notePropertiesStored.size() );
 		FOREACH_NOTE_CST_IT_BEGIN_END( notes, it ) {
 			Note *pNote = it->second;
 			assert( pNote );
@@ -475,18 +491,25 @@ void NotePropertiesRuler::undoMouseMovement(){
 			// Get the current note properties.
 			noteProperties = pNote->get_note_properties();
 			noteProperties.pattern_idx = __nSelectedPatternNumber;
+			// Fill the vector with all current
+			// states. This way it will have the same size
+			// and order as notePropertiesStored
+			notePropertiesCurrent.push_back( noteProperties );
+		}
+		while ( notePropertiesCurrent.size() > 0 ){
 			// Create a H2Core::NotePropertiesChanges
 			// struct specifying what did change during
 			// the last action.
 			notePropertiesChanges =
 				{ m_Mode, notePropertiesStored.back(),
-				  noteProperties };
+				  notePropertiesCurrent.back() };
 			// Delete the corresponding stored state.
 			notePropertiesStored.pop_back();
+			notePropertiesCurrent.pop_back();
 			// Push the changes onto the list keeping
 			// track of all changes grouped together with
 			// the current action.
-			propertyChangesStack.push_front( notePropertiesChanges );
+			propertyChangesStack.push_back( notePropertiesChanges );
 		}
 	} else if ( __nShiftKeyState < 0 ){
 		// Get the properties of only the note the cursor was
@@ -514,7 +537,7 @@ void NotePropertiesRuler::undoMouseMovement(){
 			// Push the changes onto the list keeping
 			// track of all changes grouped together with
 			// the current action.
-			propertyChangesStack.push_front( notePropertiesChanges );
+			propertyChangesStack.push_back( notePropertiesChanges );
 		}
 	}
 	// Push the changes onto the `QUndoStack'.
@@ -724,7 +747,7 @@ void NotePropertiesRuler::mouseReleaseEvent( QMouseEvent *ev ){
 // Create an action, which is capable of reverting the most recent
 // change(s) to the note properties and pushing it onto the
 // `QUndoStack'.
-void NotePropertiesRuler::pushUndoAction( std::list<NotePropertiesChanges> propertyChangesStack )
+void NotePropertiesRuler::pushUndoAction( std::vector<NotePropertiesChanges> propertyChangesStack )
 {
 	SE_editNotePropertiesAction *action = new SE_editNotePropertiesAction( propertyChangesStack );
 
