@@ -50,6 +50,7 @@
 #include "SongPropertiesDialog.h"
 #include "UndoActions.h"
 #include "Widgets/InfoBar.h"
+#include "nsm_client.h"
 
 #include "Director.h"
 #include "Mixer/Mixer.h"
@@ -103,7 +104,11 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	connect(snUsr1, SIGNAL(activated(int)), this, SLOT( handleSigUsr1() ));
 #endif
 
-    connect(this, SIGNAL(openFromNSM(QString)), this, SLOT(openSongFile(QString)));
+    connect(this, SIGNAL( openFromNSM(QString) ), this, SLOT( openSongFile(QString) ) );
+    connect(this, SIGNAL( saveWithNSM() ), this, SLOT( action_file_save() ) );
+    connect(this, SIGNAL( NsmShowOptionalGui() ), this, SLOT( show() ) );
+    connect(this, SIGNAL( NsmHideOptionalGui() ), this, SLOT( hide() ) );
+    
 	m_pQApp = app;
 
 	m_pQApp->processEvents();
@@ -1117,6 +1122,26 @@ void MainForm::closeEvent( QCloseEvent* ev )
 	ev->accept();
 }
 
+void MainForm::showEvent(QShowEvent* ev)
+{
+    NsmClient *pNsmClient = NsmClient::get_instance();
+    
+    if ( pNsmClient ){
+        pNsmClient->optionalGuiShown();
+    }
+    
+    ev->accept();
+}
+
+void MainForm::hideEvent(QHideEvent* ev)
+{
+    NsmClient *pNsmClient = NsmClient::get_instance();
+    
+    if ( pNsmClient ){
+        pNsmClient->optionalGuiHidden();
+    }
+    ev->accept();
+}
 
 
 void MainForm::action_file_export() {
@@ -1329,21 +1354,32 @@ void MainForm::action_file_open_recent(QAction *pAction)
 
 void MainForm::emitOpenSongFileFromNSM( const QString& sFilename )
 {
-    cout << "alzk" << endl;
-    
     Song *pSong = Song::load( sFilename );
 	if ( pSong == NULL ) {
         Song *pSong = Song::get_empty_song();
         pSong->save(sFilename);
-//         return;
     }
     
     emit openFromNSM(sFilename);
 }
 
+void MainForm::emitSaveSongFileWithNSM()
+{
+    emit saveWithNSM();
+}
+
+void MainForm::emitShowOptionalGuiWithNSM(const bool& state)
+{
+    if ( state ){
+        emit NsmShowOptionalGui();
+    } else {
+        emit NsmHideOptionalGui();
+    }
+}
+    
+
 void MainForm::openSongFile( const QString& sFilename )
 {
-    cout << "oepzjeensongfile" << endl;
 	Hydrogen *engine = Hydrogen::get_instance();
 	if ( engine->getState() == STATE_PLAYING ) {
 		engine->sequencer_stop();

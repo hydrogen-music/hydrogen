@@ -29,8 +29,8 @@
 
 #ifdef H2CORE_HAVE_OSC
 
-#include "hydrogen/nsm_client.h"
-#include "hydrogen/nsm.h"
+#include "nsm_client.h"
+#include "nsm.h"
 #include "hydrogen/event_queue.h"
 #include "hydrogen/hydrogen.h"
 #include "hydrogen/basics/song.h"
@@ -44,23 +44,35 @@ const char* NsmClient::__class_name = "NsmClient";
 bool NsmShutdown = false;
 
 
+// static int nsm_first_open_cb(const char *name,
+//                              const char *display_name,
+//                              const char *client_id,
+//                              char **out_msg,
+//                              void *userdata )
+// {
+//     NsmClient *pNsmClient = NsmClient::get_instance();
+//     pNsmClient->storeData(name, display_name, client_id);
+    
+
+
 static int nsm_open_cb (const char *name,
 						const char *display_name,
 						const char *client_id,
 						char **out_msg,
 						void *userdata )
 {
-
+    
     cout << "azoi to open" << endl;
-//     usleep(5000000);
-    HydrogenApp *h2app = HydrogenApp::get_instance();
-    MainForm *pMainForm = h2app->getMainForm();
+    MainForm *pMainForm = HydrogenApp::get_instance()->getMainForm();
     
 //     QTimer *opener = new QTimer(this);
 // 	connect( opener, SIGNAL( timeout() ), this, pMainForm ) );
 // 	playlistDisplayTimer->start(30000);
     
-    pMainForm->emitOpenSongFileFromNSM(QString(name));
+    QString string_name = QString(name);
+    string_name.append(".h2song");
+    
+    pMainForm->emitOpenSongFileFromNSM(string_name);
     
     cout << "has or will open " << endl;
     
@@ -92,12 +104,30 @@ static int nsm_open_cb (const char *name,
 
 static int nsm_save_cb ( char **out_msg, void *userdata )
 {
-	H2Core::Song *pSong = H2Core::Hydrogen::get_instance()->getSong();
-	QString fileName = pSong->get_filename();
-
-	pSong->save( fileName );
+    MainForm *pMainForm = HydrogenApp::get_instance()->getMainForm();
+    pMainForm->emitSaveSongFileWithNSM();
+// 	H2Core::Song *pSong = H2Core::Hydrogen::get_instance()->getSong();
+// 	QString fileName = pSong->get_filename();
+// 
+// 	pSong->save( fileName );
 
 	return ERR_OK;
+}
+
+static int nsm_show_optional_gui_cb ( char **out_msg, void *userdata )
+{
+    MainForm *pMainForm = HydrogenApp::get_instance()->getMainForm();
+    pMainForm->emitShowOptionalGuiWithNSM(true);
+    
+    return ERR_OK;
+}
+
+static int nsm_hide_optional_gui_cb ( char **out_msg, void *userdata )
+{
+    MainForm *pMainForm = HydrogenApp::get_instance()->getMainForm();
+    pMainForm->emitShowOptionalGuiWithNSM(false);
+    
+    return ERR_OK;
 }
 
 void* nsm_processEvent(void* data)
@@ -115,6 +145,8 @@ NsmClient::NsmClient()
 	: Object( __class_name )
 {
 	m_NsmThread = 0;
+    is_dirty = false;
+    is_active = false;
 }
 
 void NsmClient::create_instance()
@@ -123,6 +155,84 @@ void NsmClient::create_instance()
 		__instance = new NsmClient;
 	}
 }
+
+bool NsmClient::isActive()
+{
+    return is_active;
+}
+
+void NsmClient::setReadyForOpen()
+{
+    if ( !is_active ){
+        return;
+    }
+    
+    nsm_check_wait(nsm, 10000);
+    if(pthread_create(&m_NsmThread, NULL, nsm_processEvent, nsm)) {
+        ___ERRORLOG("Error creating NSM thread\n	");
+        return;
+    }
+    nsm_send_is_clean(nsm);
+    
+    MainForm *pMainForm = HydrogenApp::get_instance()->getMainForm();
+    
+    if ( pMainForm->isVisible() ){
+        nsm_send_gui_is_shown(nsm);
+    } else {
+        nsm_send_gui_is_hidden(nsm);
+    }
+    
+}
+
+void NsmClient::optionalGuiShown()
+{
+    if ( !is_active ){
+        return;
+    }
+    
+    if ( ! nsm ){
+        return;
+    }
+    
+    nsm_send_gui_is_shown(nsm);
+}
+
+void NsmClient::optionalGuiHidden()
+{
+    if ( !is_active ){
+        return;
+    }
+    
+    if ( ! nsm ){
+        return;
+    }
+    
+    nsm_send_gui_is_hidden(nsm);
+}
+
+bool NsmClient::isReadyForOpen()
+{
+    return ready_for_open;
+}
+
+void NsmClient::sendDirtyState(bool state)
+{
+    if ( !is_active ){
+        return;
+    }
+    
+    if ( nsm ) {
+        if (state != is_dirty){
+            if ( state ){
+                nsm_send_is_dirty(nsm);
+            } else {
+                nsm_send_is_clean(nsm);
+            }
+            is_dirty = state;
+        }
+    }
+}
+
 
 NsmClient::~NsmClient()
 {
@@ -140,7 +250,7 @@ void NsmClient::createInitialClient()
 	 * Make first contact with NSM server.
 	 */
 
-	nsm_client_t* nsm = 0;
+// 	nsm_client_t* nsm = 0;
 
 	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 	QString H2ProcessName = pPref->getH2ProcessName();
@@ -156,16 +266,20 @@ void NsmClient::createInitialClient()
 		{
 			nsm_set_open_callback( nsm, nsm_open_cb, (void*) 0 );
 			nsm_set_save_callback( nsm, nsm_save_cb, (void*) 0 );
+            nsm_set_show_optional_gui_callback( nsm, nsm_show_optional_gui_cb, (void*) 0 );
+            nsm_set_hide_optional_gui_callback( nsm, nsm_hide_optional_gui_cb, (void*) 0 );
 
 			if ( nsm_init( nsm, nsm_url ) == 0 )
 			{
-				nsm_send_announce( nsm, "Hydrogen", "", byteArray.data() );
-				nsm_check_wait( nsm, 10000 );
+				nsm_send_announce( nsm, "Hydrogen", ":switch:dirty:optional-gui:", byteArray.data() );
+                is_active = true;
+// 				nsm_check_wait( nsm, 10000 );
+                
 
-				if(pthread_create(&m_NsmThread, NULL, nsm_processEvent, nsm)) {
-					___ERRORLOG("Error creating NSM thread\n	");
-					return;
-				}
+// 				if(pthread_create(&m_NsmThread, NULL, nsm_processEvent, nsm)) {
+// 					___ERRORLOG("Error creating NSM thread\n	");
+// 					return;
+// 				}
 
 			}
 			else

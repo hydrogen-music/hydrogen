@@ -39,6 +39,8 @@
 *
 */
 
+typedef void * nsm_client_t;
+
 class NsmClient : public H2Core::Object
 {
 	H2_OBJECT
@@ -53,11 +55,24 @@ class NsmClient : public H2Core::Object
 		static NsmClient* get_instance() { assert(__instance); return __instance; }
 
 		void createInitialClient();
+        void setReadyForOpen();
+        bool isReadyForOpen();
+        
+        void sendDirtyState(bool state);
+        void isDirty();
+        void isClean();
+        void optionalGuiShown();
+        void optionalGuiHidden();
+        bool isActive();
 
 		void shutdown();
 
 	private:
 		NsmClient();
+        bool ready_for_open;
+        nsm_client_t* nsm;
+        bool is_dirty;
+        bool is_active;
 
 };
 

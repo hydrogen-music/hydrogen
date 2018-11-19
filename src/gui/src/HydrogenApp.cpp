@@ -38,6 +38,7 @@
 #include "LadspaFXProperties.h"
 #include "InstrumentRack.h"
 #include "Director.h"
+#include "nsm_client.h"
 
 #include "PatternEditor/PatternEditorPanel.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
@@ -395,7 +396,7 @@ void HydrogenApp::updateWindowTitle()
 	if( qsSongName == "Untitled Song" && !pSong->get_filename().isEmpty() ){
 		qsSongName = pSong->get_filename().section( '/', -1 );
 	}
-
+	
 	if(pSong->get_is_modified()){
 		title = qsSongName + " (" + QString(trUtf8("modified")) + ")";
 	} else {
@@ -403,6 +404,9 @@ void HydrogenApp::updateWindowTitle()
 	}
 
 	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) + QString( " - " ) + title ) );
+    
+    
+    
 }
 
 void HydrogenApp::setScrollStatusBarMessage( const QString& msg, int msec, bool test )
@@ -468,6 +472,13 @@ void HydrogenApp::enableDestructiveRecMode(){
 void HydrogenApp::songModifiedEvent()
 {
 	updateWindowTitle();
+    
+    Song *pSong = Hydrogen::get_instance()->getSong();
+    NsmClient* pNsmClient = NsmClient::get_instance();
+        
+    if ( pNsmClient ){
+        pNsmClient->sendDirtyState(pSong->get_is_modified());
+    }
 }
 
 void HydrogenApp::onEventQueueTimer()

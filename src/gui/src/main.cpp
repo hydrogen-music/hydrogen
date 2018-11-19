@@ -51,7 +51,7 @@
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/basics/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/nsm_client.h>
+#include <nsm_client.h>
 
 #include <signal.h>
 #include <iostream>
@@ -183,11 +183,17 @@ int main(int argc, char *argv[])
 			parser.addOption(jackSessionOption);
 		#endif
 			
+            
 		// Evaluate the options
 		parser.process(*pQApp);
 		QString sSelectedDriver = parser.value( audioDriverOption );
 		QString sDrumkitName = parser.value( installDrumkitOption );
-		bool	bNoSplash = parser.isSet( noSplashScreenOption );
+		
+        bool	bNoSplash = parser.isSet( noSplashScreenOption );
+        if ( getenv( "NSM_URL" ) ) {
+            bNoSplash = true;
+        }
+		
 		QString sPlaylistFilename = parser.value( playlistFileNameOption );
 		QString sSysDataPath = parser.value( systemDataPathOption );
 		QString sSongFilename = parser.value ( songFileOption );
@@ -367,29 +373,23 @@ int main(int argc, char *argv[])
 		// Hydrogen here to honor all preferences.
 		H2Core::Hydrogen::create_instance();
 
-
-
-		MainForm *pMainForm = new MainForm( pQApp, sSongFilename );
-		pMainForm->show();
-		pSplash->finish( pMainForm );
-        
-
 #ifdef H2CORE_HAVE_OSC
         NsmClient* pNsmClient = NsmClient::get_instance();
         
         if ( pNsmClient ){
             pNsmClient->createInitialClient();
         }
-        
-        
-// 		H2Core::Hydrogen::get_instance()->startNsmClient();
-// 
-// 		QString NsmSongFilename = pPref->getNsmSongName();
-// 
-// 		if(!NsmSongFilename.isEmpty())
-// 		{
-// 			sSongFilename = NsmSongFilename;
-// 		}
+#endif
+
+		MainForm *pMainForm = new MainForm( pQApp, sSongFilename );
+		pMainForm->show();
+		pSplash->finish( pMainForm );
+
+
+#ifdef H2CORE_HAVE_OSC
+        if ( pNsmClient ){
+            pNsmClient->setReadyForOpen();
+        }
 #endif
         
 		if( ! sPlaylistFilename.isEmpty() ){

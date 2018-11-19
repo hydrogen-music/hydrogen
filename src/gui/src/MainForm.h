@@ -118,6 +118,8 @@ public slots:
 		void action_debug_showAudioEngineInfo();
 
 		void closeEvent( QCloseEvent* ev );
+        void showEvent( QShowEvent* ev );
+        void hideEvent( QHideEvent* ev );
 
 		void onPlayStopAccelEvent();
 		void onRestartAccelEvent();
@@ -129,6 +131,8 @@ public slots:
         
         void openSongFile( const QString& sFilename );
         void emitOpenSongFileFromNSM( const QString& sFilename );
+        void emitSaveSongFileWithNSM();
+        void emitShowOptionalGuiWithNSM(const bool& state);
 
 		void action_file_open_recent( QAction *pAction );
 		void showDevelWarning();
@@ -149,6 +153,9 @@ public slots:
 
     signals:
         void openFromNSM(QString filename);
+        void saveWithNSM();
+        void NsmShowOptionalGui();
+        void NsmHideOptionalGui();
         
 	protected:
 		// Returns true if handled, false if aborted.
