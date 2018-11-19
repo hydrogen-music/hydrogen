@@ -104,7 +104,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	connect(snUsr1, SIGNAL(activated(int)), this, SLOT( handleSigUsr1() ));
 #endif
 
-    connect(this, SIGNAL( openFromNSM(QString) ), this, SLOT( openSongFile(QString) ) );
+    connect(this, SIGNAL( openWithNSM(QString) ), this, SLOT( openSongFile(QString) ) );
     connect(this, SIGNAL( saveWithNSM() ), this, SLOT( action_file_save() ) );
     connect(this, SIGNAL( NsmShowOptionalGui() ), this, SLOT( show() ) );
     connect(this, SIGNAL( NsmHideOptionalGui() ), this, SLOT( hide() ) );
@@ -1352,7 +1352,7 @@ void MainForm::action_file_open_recent(QAction *pAction)
 }
 
 
-void MainForm::emitOpenSongFileFromNSM( const QString& sFilename )
+void MainForm::emitOpenSongFileWithNSM( const QString& sFilename )
 {
     Song *pSong = Song::load( sFilename );
 	if ( pSong == NULL ) {
@@ -1360,7 +1360,7 @@ void MainForm::emitOpenSongFileFromNSM( const QString& sFilename )
         pSong->save(sFilename);
     }
     
-    emit openFromNSM(sFilename);
+    emit openWithNSM(sFilename);
 }
 
 void MainForm::emitSaveSongFileWithNSM()
@@ -1411,8 +1411,6 @@ void MainForm::openSongFile( const QString& sFilename )
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
 	checkMidiSetup();
-    
-    cout << "oepzjeensongfilefinished" << endl;
 }
 
 

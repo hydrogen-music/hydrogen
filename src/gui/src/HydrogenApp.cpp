@@ -404,9 +404,6 @@ void HydrogenApp::updateWindowTitle()
 	}
 
 	m_pMainForm->setWindowTitle( ( "Hydrogen " + QString( get_version().c_str()) + QString( " - " ) + title ) );
-    
-    
-    
 }
 
 void HydrogenApp::setScrollStatusBarMessage( const QString& msg, int msec, bool test )

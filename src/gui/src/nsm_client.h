@@ -56,7 +56,6 @@ class NsmClient : public H2Core::Object
 
 		void createInitialClient();
         void setReadyForOpen();
-        bool isReadyForOpen();
         
         void sendDirtyState(bool state);
         void isDirty();
