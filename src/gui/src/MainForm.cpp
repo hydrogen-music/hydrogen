@@ -104,7 +104,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	connect(snUsr1, SIGNAL(activated(int)), this, SLOT( handleSigUsr1() ));
 #endif
 
-    connect(this, SIGNAL( openWithNSM(QString) ), this, SLOT( openSongFile(QString) ) );
+    connect(this, SIGNAL( openWithNSM(QString) ), this, SLOT( openSongFileWithNSM(QString) ) );
     connect(this, SIGNAL( saveWithNSM() ), this, SLOT( action_file_save() ) );
     connect(this, SIGNAL( NsmShowOptionalGui() ), this, SLOT( show() ) );
     connect(this, SIGNAL( NsmHideOptionalGui() ), this, SLOT( hide() ) );
@@ -259,27 +259,30 @@ MainForm::~MainForm()
 ///
 void MainForm::createMenuBar()
 {
+    bool nsm = bool(getenv("NSM_URL"));
+    
 	// menubar
 	QMenuBar *m_pMenubar = new QMenuBar( this );
 	setMenuBar( m_pMenubar );
 
 	// FILE menu
 	QMenu *m_pFileMenu = m_pMenubar->addMenu( trUtf8( "Pro&ject" ) );
-
-	m_pFileMenu->addAction( trUtf8( "&New" ), this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
+    
+	QAction *pActionFileNew =  m_pFileMenu->addAction( trUtf8( "&New" ), this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
+    
 	m_pFileMenu->addAction( trUtf8( "Show &info" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
 
 	m_pFileMenu->addSeparator();				// -----
 
-	m_pFileMenu->addAction( trUtf8( "&Open" ), this, SLOT( action_file_open() ), QKeySequence( "Ctrl+O" ) );
-	m_pFileMenu->addAction( trUtf8( "Open &Demo" ), this, SLOT( action_file_openDemo() ), QKeySequence( "Ctrl+D" ) );
+	QAction *pActionFileOpen =  m_pFileMenu->addAction( trUtf8( "&Open" ), this, SLOT( action_file_open() ), QKeySequence( "Ctrl+O" ) );
+	QAction *pActionFileOpenDemo =  m_pFileMenu->addAction( trUtf8( "Open &Demo" ), this, SLOT( action_file_openDemo() ), QKeySequence( "Ctrl+D" ) );
 
 	m_pRecentFilesMenu = m_pFileMenu->addMenu( trUtf8( "Open &recent" ) );
 
 	m_pFileMenu->addSeparator();				// -----
 
 	m_pFileMenu->addAction( trUtf8( "&Save" ), this, SLOT( action_file_save() ), QKeySequence( "Ctrl+S" ) );
-	m_pFileMenu->addAction( trUtf8( "Save &as..." ), this, SLOT( action_file_save_as() ), QKeySequence( "Ctrl+Shift+S" ) );
+	QAction *pActionFileSaveAs =  m_pFileMenu->addAction( trUtf8( "Save &as..." ), this, SLOT( action_file_save_as() ), QKeySequence( "Ctrl+Shift+S" ) );
 
 	m_pFileMenu->addSeparator();				// -----
 
@@ -291,6 +294,14 @@ void MainForm::createMenuBar()
 	m_pFileMenu->addAction( trUtf8( "Export &MIDI file" ), this, SLOT( action_file_export_midi() ), QKeySequence( "Ctrl+M" ) );
 	m_pFileMenu->addAction( trUtf8( "&Export song" ), this, SLOT( action_file_export() ), QKeySequence( "Ctrl+E" ) );
 	m_pFileMenu->addAction( trUtf8( "Export &LilyPond file" ), this, SLOT( action_file_export_lilypond() ), QKeySequence( "Ctrl+L" ) );
+    
+    if ( nsm ){
+        pActionFileNew->setEnabled(false);
+        pActionFileOpen->setEnabled(false);
+        pActionFileOpenDemo->setEnabled(false);
+        pActionFileSaveAs->setEnabled(false);
+        m_pRecentFilesMenu->setEnabled(false);
+    }
 
 
 #ifndef Q_OS_MACX
@@ -1377,7 +1388,11 @@ void MainForm::emitShowOptionalGuiWithNSM(const bool& state)
     }
 }
     
-
+void MainForm::openSongFileWithNSM( const QString& sFilename )
+{
+    openSongFile(sFilename);
+}
+    
 void MainForm::openSongFile( const QString& sFilename )
 {
 	Hydrogen *engine = Hydrogen::get_instance();

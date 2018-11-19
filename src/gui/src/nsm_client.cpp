@@ -63,7 +63,7 @@ static int nsm_open_cb (const char *name,
     QString string_name = QString(name);
     string_name.append(".h2song");
     
-    pMainForm->emitOpenSongFileFromNSM(string_name);
+    pMainForm->emitOpenSongFileWithNSM(string_name);
     
 	return ERR_OK;
 }
@@ -182,7 +182,7 @@ void NsmClient::setReadyForOpen()
 
 void NsmClient::optionalGuiShown()
 {
-    if ( ! ( is_active and nsm ){
+    if ( ! ( is_active and nsm ) ){
         return;
     }
     
@@ -191,7 +191,7 @@ void NsmClient::optionalGuiShown()
 
 void NsmClient::optionalGuiHidden()
 {
-    if ( ! ( is_active and nsm ){
+    if ( ! ( is_active and nsm ) ){
         return;
     }
     
@@ -200,11 +200,11 @@ void NsmClient::optionalGuiHidden()
 
 void NsmClient::sendDirtyState(bool state)
 {
-    if ( ! ( is_active and nsm ){
+    if ( ! ( is_active and nsm ) ){
         return;
     }
     
-    if (state != is_dirty){
+    if ( state != is_dirty ){
         if ( state ){
             nsm_send_is_dirty(nsm);
         } else {

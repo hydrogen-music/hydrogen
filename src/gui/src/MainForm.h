@@ -132,6 +132,7 @@ public slots:
         void emitOpenSongFileWithNSM( const QString& sFilename );
         void emitSaveSongFileWithNSM();
         void emitShowOptionalGuiWithNSM(const bool& state);
+        void openSongFileWithNSM( const QString& sFilename );
 
 		void action_file_open_recent( QAction *pAction );
 		void showDevelWarning();
