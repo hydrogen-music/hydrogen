@@ -374,6 +374,7 @@ int main(int argc, char *argv[])
 		H2Core::Hydrogen::create_instance();
 
 #ifdef H2CORE_HAVE_OSC
+        NsmClient::create_instance();
         NsmClient* pNsmClient = NsmClient::get_instance();
         
         if ( pNsmClient ){

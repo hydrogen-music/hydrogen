@@ -69,7 +69,6 @@
 #include <hydrogen/timeline.h>
 
 #ifdef H2CORE_HAVE_OSC
-#include <hydrogen/nsm_client.h>
 #include <hydrogen/osc_server.h>
 #endif
 
@@ -1759,11 +1758,6 @@ Hydrogen::~Hydrogen()
 	INFOLOG( "[~Hydrogen]" );
 
 #ifdef H2CORE_HAVE_OSC
-	NsmClient* pNsmClient = NsmClient::get_instance();
-	if( pNsmClient ) {
-		pNsmClient->shutdown();
-		delete pNsmClient;
-	}
 	OscServer* pOscServer = OscServer::get_instance();
 	if( pOscServer ) {
 		delete pOscServer;
@@ -1795,7 +1789,6 @@ void Hydrogen::create_instance()
 	MidiActionManager::create_instance();
 
 #ifdef H2CORE_HAVE_OSC
-	NsmClient::create_instance();
 	OscServer::create_instance( Preferences::get_instance() );
 #endif
 
