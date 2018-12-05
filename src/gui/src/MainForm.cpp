@@ -1135,22 +1135,29 @@ void MainForm::closeEvent( QCloseEvent* ev )
 
 void MainForm::showEvent(QShowEvent* ev)
 {
+    
+#ifdef H2CORE_HAVE_OSC
     NsmClient *pNsmClient = NsmClient::get_instance();
     
     if ( pNsmClient ){
         pNsmClient->optionalGuiShown();
     }
+#endif
     
     ev->accept();
 }
 
 void MainForm::hideEvent(QHideEvent* ev)
 {
+    
+#ifdef H2CORE_HAVE_OSC
     NsmClient *pNsmClient = NsmClient::get_instance();
     
     if ( pNsmClient ){
         pNsmClient->optionalGuiHidden();
     }
+#endif
+    
     ev->accept();
 }
 
