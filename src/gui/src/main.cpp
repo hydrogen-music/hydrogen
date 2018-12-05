@@ -41,6 +41,9 @@
 #ifdef H2CORE_HAVE_JACKSESSION
 #include <jack/session.h>
 #endif
+#ifdef H2CORE_HAVE_OSC
+#include <nsm_client.h>
+#endif
 
 #include <hydrogen/midi_map.h>
 #include <hydrogen/audio_engine.h>
@@ -51,7 +54,7 @@
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/basics/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
-#include <nsm_client.h>
+
 
 #include <signal.h>
 #include <iostream>

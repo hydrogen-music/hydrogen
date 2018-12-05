@@ -470,12 +470,15 @@ void HydrogenApp::songModifiedEvent()
 {
 	updateWindowTitle();
     
+#ifdef H2CORE_HAVE_OSC
     Song *pSong = Hydrogen::get_instance()->getSong();
     NsmClient* pNsmClient = NsmClient::get_instance();
         
     if ( pNsmClient ){
         pNsmClient->sendDirtyState(pSong->get_is_modified());
     }
+#endif
+    
 }
 
 void HydrogenApp::onEventQueueTimer()
