@@ -122,7 +122,6 @@ public:
 	 * Constructor of the JACK server driver.
 	 *
 	 * Sets a number of variables:
-	 * - #must_relocate = 0
 	 * - #locate_countdown = 0
 	 * - #bbt_frame_offset = 0
 	 * - #track_port_count = 0
@@ -487,16 +486,7 @@ public:
              or _JackTransportStarting_, TransportInfo::m_status will
              be set to TransportInfo::STOPPED. If its
              _JackTransportRolling_, TransportInfo::m_status will be
-             set to TransportInfo::ROLLING and in case
-             TransportInfo::m_status was not in this state beforehand,
-             #must_relocate will be set to 2. This will trigger a
-             relocation in relocateBBT() based on the updated
-             information of the JACK timebase master (not ourselves) at
-             the end of updateTransportInfo() during the _next_
-             cycle. We have to wait one cycle since the client being
-             the current JACK timebase master also just started playing
-             and it needs this cycle to update the bar, beat, and tick
-             information.
+             set to TransportInfo::ROLLING.
 	 * - Calls Hydrogen::setTimelineBpm() to update both the
              global speed of the Song Song::__bpm, as well as the
 	     fallback speed Hydrogen::m_nNewBpmJTM() with the local
@@ -507,37 +497,28 @@ public:
              instance of the TransportInfo
              AudioOutput::m_transport. The tempo will be set by the
              calling function audioEngine_process_transport()
-             afterwards. In addition, #must_relocate will be set to 1
-             in order to relocate using relocateBBT() at the end of
-             the function call. After all we learned that the time
-             master applied some changes. So let's be sure things are
-             set right.
+             afterwards.
 	 * - In case the transport position changed due to an user
              interaction (e.g. clicking somewhere at the Timeline) or
              a relocation triggered by another JACK client, we will
-             detect this change since position stored in
+             detect this change since the position stored in
              TransportInfo::m_nFrames plus the constant offset
              #bbt_frame_offset does not equate to the _frame_ member
-             of #m_JackTransportPos anymore. Then we will check
-             whether another JACK timebase master is present and set
-             #must_relocate to 2 if the timebase master did not provided a
-             different speed beforehand. So, we wait one cycle for him
-             to update all information and call relocateBBT()
-             afterwards. If Hydrogen is the JACK timebase master itself,
-             TransportInfo::m_nFrames is set to its value of the
-             previous cycle by assigned the #m_nHumantimeFrames. If,
-             on the other hand, no Jack timebase master is present at all,
-             TransportInfo::m_nFrames is set to the current position
-             of the JACK server (_frame_ component of
-             #m_JackTransportPos), #bbt_frame_offset is reset to 0,
-             and Hydrogen::triggerRelocateDuringPlay() is called if
-             the transport is rolling.
+             of #m_JackTransportPos anymore. It there is a timebase
+             master present and it is us or no timebase master was set
+             at all, #bbt_frame_offset will be reset to zero and
+             TransportInfo::m_nFrames will be set to the _frame_ member
+             of #m_JackTransportPos. The relocation itself will be
+             handled by locate() and we trust the JACK server to do
+             its job properly. If there is an external timebase
+             master, a change in speed (or relocation into a region of
+             different speed) could have occurred. Therefore,
+             TransportInfo::m_nFrames will be scaled properly using
+             #m_fOldTickSize and TransportInfo::m_nTickSize. In addition, 
+	     Hydrogen::triggerRelocateDuringPlay() will be called if
+             no timebase master is present and the transport is rolling.
 	 * - Finally, #m_nHumantimeFrames will be set to the _frame_
-             member of #m_JackTransportPos, relocateBBT() called if
-             #must_relocate equals one,
-             Hydrogen::triggerRelocateDuringPlay() be called if the
-             transport is also rolling, and #must_relocate decremented
-             by one.
+             member of #m_JackTransportPos.
 	 *
 	 * If Preferences::USE_JACK_TRANSPORT was not selected in
 	 * Preferences::m_bJackTransportMode, the function will return
@@ -715,16 +696,13 @@ protected:
 
 private:
 	/**
-	 * Updates the tick size TransportInfo::m_nTickSize and frame
-	 * position TransportInfo::m_nFrames using the transport
-	 * position information obtained from another JACK timebase master.
+	 * Internal tick size used before a tempo change.
 	 *
-	 * It is only entered via updateTransportInfo() if there is
-	 * JACK timebase master and returns without performing any actions
-	 * if Hydrogen itself is the timebase master.
+	 * This variable will only be used in the very particular
+	 * border case of having an external JACK timebase master,
+	 * which did update the tempo, and one of the clients 
 	 */
-	void relocateBBT();
-
+	float				m_fOldTickSize;
 	/**
 	 * Constant offset between the transport position in
 	 * TransportInfo::m_nFrames and the one obtained by the JACK
@@ -740,15 +718,6 @@ private:
 	 * updated in calculateFrameOffset().
 	 */
 	long long			bbt_frame_offset;
-	/** Triggering relocateBBT() in #must_relocate -1 cycles at
-	    the end of updateTransportInfo().
-	*
-	* This is either done immediately if another JACK timebase
-	* master (not Hydrogen itself!) changed the speed or during
-	* the next cycle if the other timebase master changed the
-	* transport position.
-	*/
-	int				must_relocate;
 	/** 
 	 * #locate_countdown - 1 of cycles (calls to audioEngine_process())
 	 * until to locate() to #locate_frame in
@@ -906,6 +875,12 @@ private:
 	 * used to initialize this variable.
 	 */
 	bool				m_bConnectOutFlag;
+	/**
+	 * Whether Hydrogen is the current Jack timebase master.
+	 *
+	 * It gets initialized in init().
+	 */
+	bool				m_bHydrogenIsJackTimebaseMaster;
 	/**
 	 * Specifies whether to use a conditional take over in the
 	 * switching of the JACK timebase master. If set to non-zero
