@@ -910,7 +910,7 @@ private:
 	 * Specifies whether to use a conditional take over in the
 	 * switching of the JACK timebase master. If set to non-zero
 	 * the take over will fail if there is already a timebase
-	 * master present. It will be initialized with 1 in init().
+	 * master present. It will be initialized with 0 in init().
 	 */
 	int				m_nJackConditionalTakeOver;
 

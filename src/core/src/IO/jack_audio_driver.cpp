@@ -839,7 +839,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 	if ( pPref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ){
 		// Make Hydrogen the timebase master, regardless if there
 		// is already a timebase master present.
-		m_nJackConditionalTakeOver = 1;
+		m_nJackConditionalTakeOver = 0;
 		// Make Hydrogen the JACK timebase master.
 		initTimeMaster();
 	}
