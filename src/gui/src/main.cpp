@@ -142,7 +142,10 @@ static void setApplicationIcon(QApplication *app)
 
 int main(int argc, char *argv[])
 {
-	try {	
+	try {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+		QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
 		QApplication* pQApp = new QApplication( argc, argv );
 		pQApp->setApplicationName( "Hydrogen" );
 		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
