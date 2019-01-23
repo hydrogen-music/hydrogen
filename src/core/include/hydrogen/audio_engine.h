@@ -63,8 +63,8 @@ class AudioEngine : public H2Core::Object
 	H2_OBJECT
 public:
 	/**
-	 * Creates a new AudioEngine singleton and stores it in
-	 * #__instance if its value equals 0.
+	 * If #__instance equals 0, a new AudioEngine singleton will
+	 * be created and stored in it.
 	 *
 	 * It is called in Hydrogen::audioEngine_init().
 	 */
@@ -87,7 +87,7 @@ public:
 	 * It passes the address of the #__engine_mutex object to
 	 * _pthread_mutex_lock()_ (pthread.h) to lock the AudioEngine
 	 * and transfer ownership of the #__engine_mutex to the
-	 * calling thread. Only this very thread and unlock() the
+	 * calling thread. Only this very thread can unlock() the
 	 * engine again.
 	 *
 	 * The documentation below may serve as a guide for future

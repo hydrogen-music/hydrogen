@@ -60,11 +60,11 @@ public:
 	 * beginning of the song.
 	 *
 	 * A __frame__ is a single sample of an audio signal. Thus,
-	 * with a _sample rate_ of 48000Hz 48000 frames will be recorded
-	 * in one second and with a _buffer size_ = 1024 1024
-	 * consecutive frames will be accumulated before they are
-	 * handed over to the audio engine for processing. Internally
-	 * a frame will be represented by a float.  
+	 * with a _sample rate_ of 48000Hz, 48000 frames will be
+	 * recorded in one second and, with a _buffer size_ = 1024,
+	 * 1024 consecutive frames will be accumulated before they are
+	 * handed over to the audio engine for processing. Internally,
+	 * a frame will be represented by a float.
 	 */
 	long long m_nFrames;
 	/** 

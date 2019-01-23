@@ -62,8 +62,8 @@ class Logger {
 		 */
 		static Logger* bootstrap( unsigned msk );
 		/**
-		 * Creates a new H2Core::Logger singleton and stores
-		 * it in #__instance if its value equals 0.
+		 * If #__instance equals 0, a new H2Core::Logger
+		 * singleton will be created and stored in it.
 		 *
 		 * It is called in Hydrogen::create_instance().
 		 */

@@ -69,8 +69,8 @@ class EventQueue : public H2Core::Object
 {
 	H2_OBJECT
 public:/**
-	 * Creates a new EventQueue singleton and stores it in
-	 * #__instance if its value equals 0.
+	* If #__instance equals 0, a new EventQueue singleton will be
+	 * created and stored in it.
 	 *
 	 * It is called in Hydrogen::create_instance().
 	 */

@@ -46,8 +46,8 @@ class Playlist : public H2Core::Object
 		};
 		
 		/**
-		 * Creates a new Playlist singleton and stores it in
-		 * #__instance if its value equals 0.
+		 * If #__instance equals 0, a new Playlist singleton
+		 * will be created and stored in it.
 		 *
 		 * It is called in Hydrogen::audioEngine_init().
 		 */

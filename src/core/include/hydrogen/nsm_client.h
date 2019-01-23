@@ -54,8 +54,8 @@ class NsmClient : public H2Core::Object
 
 		pthread_t m_NsmThread;
 		/**
-		 * Creates a new NsmClient singleton and stores it in
-		 * #__instance if its value equals 0.
+		 * If #__instance equals 0, a new NsmClient singleton
+		 * will be created and stored in it.
 		 *
 		 * It is called in
 		 * H2Core::Hydrogen::create_instance().

@@ -70,9 +70,9 @@ class OscServer : public H2Core::Object
 		static OscServer* __instance;
 		~OscServer();
 	
-		/**
-		 * Creates a new OscServer singleton and stores it in
-		 * #__instance if its value equals 0.
+		/**		 
+		 * If #__instance equals 0, a new OscServer singleton
+		 * will be created and stored in it.
 		 *
 		 * It is called in
 		 * H2Core::Hydrogen::create_instance().

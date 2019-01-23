@@ -45,8 +45,8 @@ class MidiMap : public H2Core::Object
 		~MidiMap();
 		
 		/**
-		 * Creates a new MidiMap singleton and stores it in
-		 * #__instance if its value equals 0.
+		 * If #__instance equals 0, a new MidiMap singleton will
+		 * be created and stored in it.
 		 *
 		 * It is called in Hydrogen::create_instance().
 		 */

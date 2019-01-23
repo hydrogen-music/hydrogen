@@ -40,8 +40,8 @@ class Effects : public H2Core::Object
 	H2_OBJECT
 public:
 	/**
-	 * Creates a new Effects singleton and stores it in
-	 * #__instance if its value equals 0.
+	 * If #__instance equals 0, a new Effects
+	 * singleton will be created and stored in it.
 	 *
 	 * It is called in Hydrogen::audioEngine_init().
 	 */
