@@ -30,7 +30,7 @@ const char* TransportInfo::__class_name = "TransportInfo";
 TransportInfo::TransportInfo()
 		: Object( __class_name )
 {
-//	infoLog( "INIT" );
+//	INFOLOG( "INIT" );
 	m_status = STOPPED;
 	m_nFrames = 0;
 	m_nTickSize = 0;
@@ -40,7 +40,7 @@ TransportInfo::TransportInfo()
 
 TransportInfo::~TransportInfo()
 {
-//	infoLog( "DESTROY" );
+//	INFOLOG( "DESTROY" );
 }
 
 

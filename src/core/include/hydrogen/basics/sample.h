@@ -130,7 +130,7 @@ class Sample : public H2Core::Object
 		 * \param frames the number of frames per channel in the sample
 		 * \param sample_rate the sample rate of the sample
 		 * \param data_l the left channel array of data
-		 * \param data_l the right channel array of data
+		 * \param data_r the right channel array of data
 		 */
 		Sample( const QString& filepath, int frames=0, int sample_rate=0, float* data_l=0, float* data_r=0 );
 		/** copy constructor */
@@ -142,7 +142,7 @@ class Sample : public H2Core::Object
 		/**
 		 * write sample to a file
 		 * \param path the path to write the sample to
-		 * \format the format of the output
+		 * \param format the format of the output
 		 */
 		bool write( const QString& path, int format= ( SF_FORMAT_WAV|SF_FORMAT_PCM_16 ) );
 
@@ -195,12 +195,12 @@ class Sample : public H2Core::Object
 		void apply_pan( const PanEnvelope& p );
 		/**
 		 * aplly rubberband transformation to the sample
-		 * \param r rubberband parameters
+		 * \param rb rubberband parameters
 		 */
 		void apply_rubberband( const Rubberband& rb );
 		/**
 		 * call rubberband cli to modify the sample
-		 * \param r rubberband parameters
+		 * \param rb rubberband parameters
 		 */
 		bool exec_rubberband_cli( const Rubberband& rb );
 
@@ -214,14 +214,14 @@ class Sample : public H2Core::Object
 		void set_filename( const QString& filename );
 		/**
 		 * __frames setter
-		 * \parama value the new value for __frames
+		 * \param value the new value for __frames
 		 */
 		void set_frames( int value );
 		/** __frames accessor */
 		int get_frames() const;
 		/**
 		 * __sample_rate setter
-		 * \parama value the new value for __sample_rate
+		 * \param value the new value for __sample_rate
 		 */
 		void set_sample_rate( int value );
 		/** __sample_rate accessor */
@@ -237,7 +237,7 @@ class Sample : public H2Core::Object
 		float* get_data_r() const;
 		/**
 		 * __is_modified setter
-		 * \parama value the new value for __is_modified
+		 * \param value the new value for __is_modified
 		 */
 		void set_is_modified( bool value );
 		/** __is_modified accessor */

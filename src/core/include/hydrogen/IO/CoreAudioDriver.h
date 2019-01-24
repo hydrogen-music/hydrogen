@@ -32,7 +32,7 @@
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/NullDriver.h>
 
-#ifdef H2CORE_HAVE_COREAUDIO
+#if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
 #include <AudioUnit/AudioUnit.h>
 #include <AudioToolbox/AudioToolbox.h>
 #include <AudioUnit/AudioComponent.h>
@@ -47,7 +47,7 @@ typedef int ( *audioProcessCallback )( uint32_t, void * );
 namespace H2Core
 {
 
-#ifdef H2CORE_HAVE_COREAUDIO
+#if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
 
 class CoreAudioDriver : public AudioOutput
 {

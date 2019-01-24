@@ -25,7 +25,7 @@
 #include <cstdlib>
 
 #include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/IO/JackAudioDriver.h>
+#include <hydrogen/IO/jack_audio_driver.h>
 
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/audio_engine.h>

@@ -1,4 +1,4 @@
-#ifdef WIN32
+#if defined(WIN32) || _DOXYGEN_
 
 #include <time.h>
 #include <windows.h>

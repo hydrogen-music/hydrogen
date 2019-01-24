@@ -29,7 +29,7 @@
 
 #include <hydrogen/IO/CoreAudioDriver.h>
 
-#ifdef H2CORE_HAVE_COREAUDIO
+#if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
 
 #include "CoreServices/CoreServices.h"
 ///

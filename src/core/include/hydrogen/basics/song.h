@@ -107,16 +107,25 @@ class Song : public H2Core::Object
 			__pattern_list = pattern_list;
 		}
 
+	        /** Return a pointer to a vector storing all Pattern
+		 * present in the Song.
+		 * \return #__pattern_group_sequence */
 		std::vector<PatternList*>* get_pattern_group_vector()
 		{
 			return __pattern_group_sequence;
 		}
-
+	        /** Return a pointer to a vector storing all Pattern
+		 * present in the Song.
+		 * \return #__pattern_group_sequence */
 		const std::vector<PatternList*>* get_pattern_group_vector() const
 		{
 			return __pattern_group_sequence;
 		}
 
+	        /** Sets the vector storing all Pattern present in the
+		 * Song #__pattern_group_sequence.
+		 * \param vect Pointer to a vector containing all
+		 *   Pattern of the Song.*/
 		void set_pattern_group_vector( std::vector<PatternList*>* vect )
 		{
 			__pattern_group_sequence = vect;

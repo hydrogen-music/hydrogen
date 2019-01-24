@@ -62,19 +62,24 @@ class InstrumentComponent : public H2Core::Object
 		static void					setMaxLayers( int layers );
 
 	private:
-		int								__related_drumkit_componentID;
+	        /** Component ID of the drumkit. It is set by
+		    set_drumkit_componentID() and
+		    accessed via get_drumkit_componentID(). */
+		int				__related_drumkit_componentID;
 		float							__gain;
 		static int						maxLayers;
 		std::vector<InstrumentLayer*>	__layers;
 };
 
 // DEFINITIONS
-
+/** Sets the component ID #__related_drumkit_componentID
+ * \param related_drumkit_componentID New value for the component ID */
 inline void InstrumentComponent::set_drumkit_componentID( int related_drumkit_componentID )
 {
 	__related_drumkit_componentID = related_drumkit_componentID;
 }
-
+/** Returns the component ID of the drumkit.
+ * \return #__related_drumkit_componentID */
 inline int InstrumentComponent::get_drumkit_componentID()
 {
 	return __related_drumkit_componentID;

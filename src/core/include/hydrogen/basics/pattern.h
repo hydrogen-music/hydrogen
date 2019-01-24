@@ -58,6 +58,7 @@ class Pattern : public H2Core::Object
 		/**
 		 * constructor
 		 * \param name the name of the pattern
+		 * \param info Initialized with an empty string.
 		 * \param category the name of the pattern
 		 * \param length the length of the pattern
 		 */

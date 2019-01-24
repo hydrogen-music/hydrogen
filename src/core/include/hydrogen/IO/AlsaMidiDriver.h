@@ -26,7 +26,7 @@
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
 
-#ifdef H2CORE_HAVE_ALSA
+#if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
 #include <alsa/asoundlib.h>
 #include <string>

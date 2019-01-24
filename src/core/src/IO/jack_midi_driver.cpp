@@ -26,7 +26,7 @@
 
 #include <hydrogen/IO/JackMidiDriver.h>
 
-#ifdef H2CORE_HAVE_JACK
+#if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>

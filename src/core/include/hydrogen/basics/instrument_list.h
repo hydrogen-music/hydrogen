@@ -98,7 +98,7 @@ class InstrumentList : public H2Core::Object
 		int index( Instrument* instrument );
 		/**
 		 * find an instrument within the instruments
-		 * \param id the id of the instrument to find
+		 * \param i the id of the instrument to find
 		 * \return 0 if not found
 		 */
 		Instrument* find( const int i );
@@ -143,7 +143,9 @@ class InstrumentList : public H2Core::Object
 		/**
 		 * load an instrument list from an XMLNode
 		 * \param node the XMLDode to read from
-		 * \param dk_path the directory holding the drumkit data
+		 * \param dk_path the directory holding the drumkit
+		 * data
+		 * \param dk_name
 		 * \return a new InstrumentList instance
 		 */
 		static InstrumentList* load_from( XMLNode* node, const QString& dk_path, const QString& dk_name );

@@ -27,7 +27,7 @@ class Files : public H2Core::Object
 		};
 
 		/**
-		 * save the given pattern to <usre_data_path>/pattern/<drumkitName>/<fileName>.h2pattern
+		 * save the given pattern to \<user_data_path\>/pattern/\<drumkitName\>/\<fileName\>.h2pattern
 		 * will NOT overwrite an existing file
 		 * \param fileName to build filePath from
 		 * \param pattern the one to be saved
@@ -41,7 +41,7 @@ class Files : public H2Core::Object
 		}
 
 		/**
-		 * save the given pattern to <usre_data_path>/pattern/<drumkitName>/<fileName>.h2pattern
+		 * save the given pattern to \<user_data_path\>/pattern/\<drumkitName\>/\<fileName\>.h2pattern
 		 * will overwrite an existing file
 		 * \param fileName to build filePath from
 		 * \param pattern the one to be saved
@@ -55,13 +55,13 @@ class Files : public H2Core::Object
 		}
 
 		/**
-		 * save the given pattern to filePath
+		 * save the given pattern to @a filePath
 		 * will overwrite an existing file
 		 * \param filePath to write the pattern to
 		 * \param pattern the one to be saved
 		 * \param song to access license, author info
 		 * \param drumkitName to access name info
-		 * \return filePath on success, NULL on failure
+		 * \return @a filePath on success, NULL on failure
 		 */
 		static inline QString savePatternPath( const QString& filePath, Pattern* pattern, Song* song, const QString& drumkitName )
 		{
@@ -69,7 +69,7 @@ class Files : public H2Core::Object
 		}
 
 		/**
-		 * save the given pattern under <Tmp_directory> with a unique filename built from <fileName>
+		 * save the given pattern under \<Tmp_directory\> with a unique filename built from \<fileName\>
 		 * will overwrite an existing file
 		 * \param fileName to build filePath from
 		 * \param pattern the one to be saved

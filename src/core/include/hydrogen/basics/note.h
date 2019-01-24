@@ -83,7 +83,8 @@ class Note : public H2Core::Object
 
 		/**
 		 * copy constructor with an optional parameter
-		 * \param instrument, if set will be used as note instrument
+		 * \param other 
+		 * \param instrument if set will be used as note instrument
 		 */
 		Note( Note* other, Instrument* instrument=0 );
 		/** destructor */
@@ -110,95 +111,95 @@ class Note : public H2Core::Object
 		 * \param instruments the list of instrument to look into
 		 */
 		void map_instrument( InstrumentList* instruments );
-		/** __instrument accessor */
+		/** #__instrument accessor */
 		Instrument* get_instrument();
-		/** return true if __instrument is set */
+		/** return true if #__instrument is set */
 		bool has_instrument() const;
 		/**
-		 * __instrument_id setter
+		 * #__instrument_id setter
 		 * \param value the new value
 		 */
 		void set_instrument_id( int value );
-		/** __instrument_id accessor */
+		/** #__instrument_id accessor */
 		int get_instrument_id() const;
 		/**
-		 * __specific_compo_id setter
+		 * #__specific_compo_id setter
 		 * \param value the new value
 		 */
 		void set_specific_compo_id( int value );
-		/** __specific_compo_id accessor */
+		/** #__specific_compo_id accessor */
 		int get_specific_compo_id() const;
 		/**
-		 * __position setter
+		 * #__position setter
 		 * \param value the new value
 		 */
 		void set_position( int value );
-		/** __position accessor */
+		/** #__position accessor */
 		int get_position() const;
 		/**
-		 * __velocity setter
+		 * #__velocity setter
 		 * \param value the new value
 		 */
 		void set_velocity( float value );
-		/** __velocity accessor */
+		/** #__velocity accessor */
 		float get_velocity() const;
 		/**
-		 * __pan_l setter
+		 * #__pan_l setter
 		 * \param value the new value
 		 */
 		void set_pan_l( float value );
-		/** __pan_l accessor */
+		/** #__pan_l accessor */
 		float get_pan_l() const;
 		/**
-		 * __pan_r setter
+		 * #__pan_r setter
 		 * \param value the new value
 		 */
 		void set_pan_r( float value );
-		/** __pan_r accessor */
+		/** #__pan_r accessor */
 		float get_pan_r() const;
 		/**
-		 * __lead_lag setter
+		 * #__lead_lag setter
 		 * \param value the new value
 		 */
 		void set_lead_lag( float value );
-		/** __lead_lag accessor */
+		/** #__lead_lag accessor */
 		float get_lead_lag() const;
 		/**
-		 * __length setter
+		 * #__length setter
 		 * \param value the new value
 		 */
 		void set_length( int value );
-		/** __length accessor */
+		/** #__length accessor */
 		int get_length() const;
 		/**
-		 * __pitch setter
+		 * #__pitch setter
 		 * \param value the new value
 		 */
 		void set_pitch( float value );
-		/** __pitch accessor */
+		/** #__pitch accessor */
 		float get_pitch() const;
 		/**
-		 * __note_off setter
+		 * #__note_off setter
 		 * \param value the new value
 		 */
 		void set_note_off( bool value );
-		/** __note_off accessor */
+		/** #__note_off accessor */
 		bool get_note_off() const;
-		/** __midi_msg accessor */
+		/** #__midi_msg accessor */
 		int get_midi_msg() const;
 		/**
-		 * __pattern_idx setter
+		 * #__pattern_idx setter
 		 * \param value the new value
 		 */
 		void set_pattern_idx( int value );
-		/** __pattern_idx accessor */
+		/** #__pattern_idx accessor */
 		int get_pattern_idx() const;
 		/**
-		 * __just_recorder setter
+		 * #__just_recorded setter
 		 * \param value the new value
 		 */
 		void set_just_recorded( bool value );
-		/** __just_recorder accessor */
+		/** #__just_recorded accessor */
 		bool get_just_recorded() const;
 
 		/*
@@ -211,54 +212,64 @@ class Note : public H2Core::Object
 		float get_probability() const;
 
 		/**
-		 * __humanize_delay setter
+		 * #__humanize_delay setter
 		 * \param value the new value
 		 */
 		void set_humanize_delay( int value );
-		/** __humanize_delay accessor */
+		/** #__humanize_delay accessor */
 		int get_humanize_delay() const;
-		/** __cut_off accessor */
+		/** #__cut_off accessor */
 		float get_cut_off() const;
-		/** __resonance accessor */
+		/** #__resonance accessor */
 		float get_resonance() const;
-		/** __bpfb_l accessor */
+		/** #__bpfb_l accessor */
 		float get_bpfb_l() const;
-		/** __bpfb_r accessor */
+		/** #__bpfb_r accessor */
 		float get_bpfb_r() const;
-		/** __lpfb_l accessor */
+		/** #__lpfb_l accessor */
 		float get_lpfb_l() const;
-		/** __lpfb_r accessor */
+		/** #__lpfb_r accessor */
 		float get_lpfb_r() const;
-		/** __key accessor */
+		/** #__key accessor */
 		Key get_key();
-		/** __octave accessor */
+		/** #__octave accessor */
 		Octave get_octave();
 		/** return scaled key for midi output, !!! DO NOT CHECK IF INSTRUMENT IS SET !!! */
 		int get_midi_key() const;
-		/** __midi_velocity accessor (__velocity*MIDI_FACTOR) */
+		/** midi velocity accessor 
+		 * \code{.cpp}
+		 * __velocity * #MIDI_FACTOR
+		 * \endcode */
 		int get_midi_velocity() const;
-		/** __note_key_pitch accessor (__octave * KEYS_PER_OCTAVE + __key) */
+		/** note key pitch accessor
+		 * \code{.cpp}
+		 * __octave * KEYS_PER_OCTAVE + __key
+		 * \endcode */
 		float get_notekey_pitch() const;
-		//* returns octave*12+key+pitch */
+	        /** returns
+		 * \code{.cpp}
+		 * __octave * 12 + __key + __pitch 
+		 * \endcode*/ 
 		float get_total_pitch() const;
 
-		/** return a string representation of key-actove */
+		/** return a string representation of key-octave */
 		QString key_to_string();
 		/**
-		 * parse str and set __key and __octave
+		 * parse str and set #__key and #__octave
 		 * \param str the string to be parsed
 		 */
 		void set_key_octave( const QString& str );
 		/**
-		 * set __key and __octave only if within acceptable range
+		 * set #__key and #__octave only if within acceptable range
 		 * \param key the key to set
 		 * \param octave the octave to be set
 		 */
 		void set_key_octave( Key key, Octave octave );
 		/**
-		 * set __key, __octave and __midi_msg only if within acceptable range
+		 * set #__key, #__octave and #__midi_msg only if within acceptable range
 		 * \param key the key to set
 		 * \param octave the octave to be set
+		 * \param msg
 		 */
 		void set_midi_info( Key key, Octave octave, int msg );
 
@@ -270,9 +281,9 @@ class Note : public H2Core::Object
 		//float get_adsr_value(float v) const     { return __adsr->get_value( v ); }
 
 		/** return true if instrument, key and octave matches with internal
-		 * \param instrument the instrument to match with __instrument
-		 * \param key the key to match with __key
-		 * \param octave the octave to match with __octave
+		 * \param instrument the instrument to match with #__instrument
+		 * \param key the key to match with #__key
+		 * \param octave the octave to match with #__octave
 		 */
 		bool match( Instrument* instrument, Key key, Octave octave ) const;
 
@@ -310,7 +321,7 @@ class Note : public H2Core::Object
 		bool			__note_off;            ///< note type on|off
 		bool			__just_recorded;       ///< used in record+delete
 		float			__probability;        ///< note probability
-		static const char* __key_str[]; ///< used to build QString from __key an __octave
+		static const char* __key_str[]; ///< used to build QString from #__key an #__octave
 };
 
 // DEFINITIONS

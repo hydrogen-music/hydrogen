@@ -26,6 +26,7 @@
 
 
 // files
+/** Sound of metronome beat */
 #define CLICK_SAMPLE    "click.wav"
 #define EMPTY_SAMPLE    "emptySample.wav"
 #define EMPTY_SONG      "DefaultSong.h2song"
