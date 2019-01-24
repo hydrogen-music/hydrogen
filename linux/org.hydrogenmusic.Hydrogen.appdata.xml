@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2015 Aurelien Leblond <blablack@gmail.com> -->
 <component type="desktop">
- <id>hydrogen.desktop</id>
+ <id>org.hydrogenmusic.Hydrogen</id>
  <metadata_license>GPL-2.0+</metadata_license>
  <project_license>GPL-2.0+</project_license>
  <name>Hydrogen</name>
