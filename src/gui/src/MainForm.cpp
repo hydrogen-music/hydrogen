@@ -1647,7 +1647,7 @@ void MainForm::action_file_export_midi()
 		Song *pSong = Hydrogen::get_instance()->getSong();
 
 		// create the Standard Midi File object
-		SMFWriter *pSmfWriter = new SMFWriter();
+		SMFWriter *pSmfWriter = new SMFWriterSingle();
 		pSmfWriter->save( sFilename, pSong );
 
 		delete pSmfWriter;
