@@ -397,7 +397,6 @@ void SMFWriterSingle::packEvents(Song *pSong, SMF &smf)
 	sortEvents(&m_eventList);
 
 	SMFTrack *pTrack1 = new SMFTrack();
-	pTrack1->addEvent( new SMFTrackNameMetaEvent( "Drums", 0 ) );
 	smf.addTrack( pTrack1 );
 
 	unsigned nLastTick = 1;
