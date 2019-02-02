@@ -40,6 +40,7 @@
 #include "AudioEngineInfoForm.h"
 #include "DonationDialog.h"
 #include "ExportSongDialog.h"
+#include "ExportMidiDialog.h"
 #include "HydrogenApp.h"
 #include "InstrumentRack.h"
 #include "Skin.h"
@@ -1623,36 +1624,17 @@ void MainForm::action_debug_printObjects()
 
 void MainForm::action_file_export_midi()
 {
-	if ( ((Hydrogen::get_instance())->getState() == STATE_PLAYING) ) {
+	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
 
-	QFileDialog fd(this);
-	fd.setFileMode(QFileDialog::AnyFile);
-	fd.setNameFilter( trUtf8("Midi file (*.mid)") );
-	fd.setDirectory( QDir::homePath() );
-	fd.setWindowTitle( trUtf8( "Export MIDI file" ) );
-	fd.setAcceptMode( QFileDialog::AcceptSave );
-
-	QString sFilename;
-	if ( fd.exec() == QDialog::Accepted ) {
-		sFilename = fd.selectedFiles().first();
-	}
-
-	if ( !sFilename.isEmpty() ) {
-		if ( sFilename.endsWith(".mid") == false ) {
-			sFilename += ".mid";
-		}
-
-		Song *pSong = Hydrogen::get_instance()->getSong();
-
-		// create the Standard Midi File object
-		SMFWriter *pSmfWriter = new SMFWriterSingle();
-		pSmfWriter->save( sFilename, pSong );
-
-		delete pSmfWriter;
-	}
+	ExportMidiDialog *dialog = new ExportMidiDialog(this);
+	dialog->exec();
+	delete dialog;
 }
+
+
+
 
 void MainForm::action_file_export_lilypond()
 {
