@@ -94,7 +94,7 @@ void exportMIDI( const QString &songFile, const QString &fileName )
 	std::unique_ptr<Song> pSong { Song::load( songFile ) };
 	CPPUNIT_ASSERT( pSong != NULL );
 
-	SMFWriter writer;
+	SMFWriterSingle writer;
 	writer.save( fileName, pSong.get() );
 
 	auto t1 = std::chrono::high_resolution_clock::now();
