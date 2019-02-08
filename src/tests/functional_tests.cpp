@@ -86,7 +86,7 @@ void exportSong( const QString &songFile, const QString &fileName )
  * \param songFile Path to Hydrogen file
  * \param fileName Output file name
  **/
-void exportMIDI( const QString &songFile, const QString &fileName )
+void exportMIDI( const QString &songFile, const QString &fileName, bool multitrack )
 {
 	auto t0 = std::chrono::high_resolution_clock::now();
 
@@ -94,12 +94,20 @@ void exportMIDI( const QString &songFile, const QString &fileName )
 	std::unique_ptr<Song> pSong { Song::load( songFile ) };
 	CPPUNIT_ASSERT( pSong != NULL );
 
-	SMFWriterSingle writer;
-	writer.save( fileName, pSong.get() );
+	SMFWriter* writer;
+	if ( multitrack ){
+		writer = new SMFWriterMulti();
+	} else {
+		writer = new SMFWriterSingle();
+	}
+	
+	writer->save( fileName, pSong.get() );
+	delete writer;
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();
-	___INFOLOG( QString("MIDI export took %1 seconds").arg(t) );
+	QString ms = multitrack ? "multi" : "single";
+	___INFOLOG( QString("MIDI %1-track export took %2 seconds").arg(ms).arg(t) );
 }
 
 
@@ -107,6 +115,7 @@ class FunctionalTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( FunctionalTest );
 	CPPUNIT_TEST( testExportAudio );
 	CPPUNIT_TEST( testExportMIDI );
+	CPPUNIT_TEST( testExportMIDIMultiTrack );
 //	CPPUNIT_TEST( testExportMuteGroupsAudio ); // SKIP
 	CPPUNIT_TEST( testExportVelocityAutomationAudio );
 	CPPUNIT_TEST( testExportVelocityAutomationMIDI );
@@ -131,7 +140,18 @@ class FunctionalTest : public CppUnit::TestCase {
 		auto outFile = Filesystem::tmp_file_path("test.mid");
 		auto refFile = H2TEST_FILE("functional/test.ref.mid");
 
-		exportMIDI( songFile, outFile );
+		exportMIDI( songFile, outFile, false );
+		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
+		Filesystem::rm( outFile );
+	}
+	
+	void testExportMIDIMultiTrack()
+	{
+		auto songFile = H2TEST_FILE("functional/test.h2song");
+		auto outFile = Filesystem::tmp_file_path("testmulti.mid");
+		auto refFile = H2TEST_FILE("functional/testmulti.ref.mid");
+
+		exportMIDI( songFile, outFile, true );
 		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
 		Filesystem::rm( outFile );
 	}
@@ -164,7 +184,7 @@ class FunctionalTest : public CppUnit::TestCase {
 		auto outFile = Filesystem::tmp_file_path("velocityautomation.mid");
 		auto refFile = H2TEST_FILE("functional/velocityautomation.ref.mid");
 
-		exportMIDI( songFile, outFile );
+		exportMIDI( songFile, outFile, false );
 		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
 		Filesystem::rm( outFile );
 	}
