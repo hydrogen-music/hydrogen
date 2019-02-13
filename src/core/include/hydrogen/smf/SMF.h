@@ -41,12 +41,14 @@ class SMFHeader : public SMFBase, public H2Core::Object
 public:
 	SMFHeader( int nFormat, int nTracks, int nTPQN );
 	~SMFHeader();
-
+	
+	void addTrack();
+	virtual std::vector<char> getBuffer();
+	
+private:
 	int m_nFormat;		///< SMF format
 	int m_nTracks;		///< number of tracks
 	int m_nTPQN;		///< ticks per quarter note
-
-	virtual std::vector<char> getBuffer();
 };
 
 
@@ -73,7 +75,7 @@ class SMF : public SMFBase, public H2Core::Object
 {
 	H2_OBJECT
 public:
-	SMF( int nFormat, int nTracks, int nTPQN );
+	SMF( int nFormat, int nTPQN );
 	~SMF();
 
 	void addTrack( SMFTrack *pTrack );

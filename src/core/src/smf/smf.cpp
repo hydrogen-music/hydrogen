@@ -46,13 +46,14 @@ SMFHeader::SMFHeader( int nFormat, int nTracks, int nTPQN )
 }
 
 
-
 SMFHeader::~SMFHeader()
 {
 	INFOLOG( "DESTROY" );
 }
 
-
+void SMFHeader::addTrack() {
+	m_nTracks++;	
+}
 
 vector<char> SMFHeader::getBuffer()
 {
@@ -61,7 +62,7 @@ vector<char> SMFHeader::getBuffer()
 	buffer.writeDWord( 1297377380 );		// MThd
 	buffer.writeDWord( 6 );				// Header length = 6
 	buffer.writeWord( m_nFormat );
-	buffer.writeWord( m_nTracks + 1 );
+	buffer.writeWord( m_nTracks );
 	buffer.writeWord( m_nTPQN );
 
 	return buffer.m_buffer;
@@ -146,12 +147,12 @@ void SMFTrack::addEvent( SMFEvent *pEvent )
 
 const char* SMF::__class_name = "SMF";
 
-SMF::SMF( int nFormat, int nTracks, int nTPQN )
+SMF::SMF(int nFormat, int nTPQN )
 		: Object( __class_name )
 {
 	INFOLOG( "INIT" );
 
-	m_pHeader = new SMFHeader( nFormat, nTracks, nTPQN );
+	m_pHeader = new SMFHeader( nFormat, 0, nTPQN );
 }
 
 
@@ -171,7 +172,7 @@ SMF::~SMF()
 
 void SMF::addTrack( SMFTrack *pTrack )
 {
-	m_pHeader->m_nTracks++;
+	m_pHeader->addTrack();
 	m_trackList.push_back( pTrack );
 }
 
@@ -372,7 +373,7 @@ SMF1Writer::~SMF1Writer()
 
 
 SMF* SMF1Writer::createSMF( Song* pSong ){
-	SMF* smf =  new SMF( 1, -1, TPQN );	
+	SMF* smf =  new SMF( 1, TPQN );	
 	// Standard MIDI format 1 files should have the first track being the tempo map
 	// which is a track that contains global meta events only.
 
@@ -510,7 +511,7 @@ void SMF1WriterMulti::packEvents( Song *pSong, SMF* pSmf )
 }
 
 
-// SMF0 MIDI  EXPROT
+// SMF0 MIDI  EXPORT
 
 const char* SMF0Writer::__class_name = "SMF0Writer";
 
@@ -529,7 +530,7 @@ SMF0Writer::~SMF0Writer()
 
 SMF* SMF0Writer::createSMF( Song* pSong ){
 	// MIDI files format 0 have all their events in one track
-	SMF* smf =  new SMF( 0, 1, TPQN );	
+	SMF* smf =  new SMF( 0, TPQN );	
 	m_track = createTrack0( pSong );
 	smf->addTrack( m_track );
 	return smf;
