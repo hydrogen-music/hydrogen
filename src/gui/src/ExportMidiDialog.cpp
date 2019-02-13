@@ -120,9 +120,9 @@ void ExportMidiDialog::on_okBtn_clicked()
 	// choosing writer 
 	SMFWriter *pSmfWriter;
 	if( exportTypeCombo->currentIndex() == EXPORT_SINGLE ){
-		pSmfWriter = new SMFWriterSingle();
+		pSmfWriter = new SMF1WriterSingle();
 	} else if ( exportTypeCombo->currentIndex() == EXPORT_MULTI ){
-		pSmfWriter = new SMFWriterMulti();
+		pSmfWriter = new SMF1WriterMulti();
 	}
 	
 	pSmfWriter->save( sFilename, pSong );

@@ -96,9 +96,9 @@ void exportMIDI( const QString &songFile, const QString &fileName, bool multitra
 
 	SMFWriter* writer;
 	if ( multitrack ){
-		writer = new SMFWriterMulti();
+		writer = new SMF1WriterMulti();
 	} else {
-		writer = new SMFWriterSingle();
+		writer = new SMF1WriterSingle();
 	}
 	
 	writer->save( fileName, pSong.get() );
