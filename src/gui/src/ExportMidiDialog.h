@@ -28,9 +28,6 @@
 #include "ui_ExportMidiDialog_UI.h"
 #include <hydrogen/object.h>
 
-namespace H2Core {
-	class Instrument;
-}
 
 ///
 /// Dialog for exporting song to midi
@@ -41,14 +38,14 @@ class ExportMidiDialog : public QDialog, public Ui_ExportMidiDialog_UI, public H
 	Q_OBJECT
 
 	public:
-		ExportMidiDialog(QWidget* parent);
+		ExportMidiDialog( QWidget* parent );
 	~ExportMidiDialog();
 
 private slots:
 	void on_browseBtn_clicked();
 	void on_closeBtn_clicked();
 	void on_okBtn_clicked();
-	void on_exportNameTxt_textChanged(const QString& text);
+	void on_exportNameTxt_textChanged( const QString& text );
 
 private:
 	void exportTrack();

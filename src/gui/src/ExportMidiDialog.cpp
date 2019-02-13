@@ -36,20 +36,21 @@ using namespace H2Core;
 
 const char* ExportMidiDialog::__class_name = "ExportMidiDialog";
 
-enum ExportModes { EXPORT_SINGLE, EXPORT_MULTI };
+enum ExportModes { EXPORT_SMF1_SINGLE, EXPORT_SMF1_MULTI, EXPORT_SMF0 };
 
-ExportMidiDialog::ExportMidiDialog(QWidget* parent)
-	: QDialog(parent)
+ExportMidiDialog::ExportMidiDialog( QWidget* parent )
+	: QDialog( parent )
 	, Object( __class_name )
-	, m_bFileSelected(false)
-	, m_sExtension(".mid")
+	, m_bFileSelected( false )
+	, m_sExtension( ".mid" )
 {
 	setupUi( this );
 	setModal( true );
 	setWindowTitle( trUtf8( "Export midi" ) );
 
-	exportTypeCombo->addItem(trUtf8("Export all instruments to a single track"));
-	exportTypeCombo->addItem(trUtf8("Export each instrument to separate track"));
+	exportTypeCombo->addItem( trUtf8("SMF1: export all instruments to a single track") );
+	exportTypeCombo->addItem( trUtf8("SMF1: export each instrument to separate track") );
+	exportTypeCombo->addItem( trUtf8("SMF0: export all events to one track") );
 
 	Hydrogen * pHydrogen = Hydrogen::get_instance();
 
@@ -63,7 +64,7 @@ ExportMidiDialog::ExportMidiDialog(QWidget* parent)
 	defaultFilename.replace( Filesystem::songs_ext, "" );
 	defaultFilename += m_sExtension;
 	
-	exportNameTxt->setText(defaultFilename);
+	exportNameTxt->setText( defaultFilename );
 	
 	adjustSize();
 }
@@ -75,15 +76,15 @@ ExportMidiDialog::~ExportMidiDialog()
 
 void ExportMidiDialog::on_browseBtn_clicked()
 {
-	QFileDialog fd(this);
-	fd.setFileMode(QFileDialog::AnyFile);
+	QFileDialog fd( this );
+	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( trUtf8("Midi file (*%1)").arg(m_sExtension) );
 	fd.setDirectory( QDir::homePath() );
 	fd.setWindowTitle( trUtf8( "Export MIDI file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 
 	QString defaultFilename = exportNameTxt->text();
-	fd.selectFile(defaultFilename);
+	fd.selectFile( defaultFilename );
 	
 	QString sFilename;
 	if ( fd.exec() == QDialog::Accepted ) {
@@ -98,7 +99,7 @@ void ExportMidiDialog::on_browseBtn_clicked()
 			sFilename += m_sExtension;
 		}
 
-	exportNameTxt->setText(sFilename);
+	exportNameTxt->setText( sFilename );
 }
 
 
@@ -119,10 +120,12 @@ void ExportMidiDialog::on_okBtn_clicked()
 
 	// choosing writer 
 	SMFWriter *pSmfWriter;
-	if( exportTypeCombo->currentIndex() == EXPORT_SINGLE ){
+	if( exportTypeCombo->currentIndex() == EXPORT_SMF1_SINGLE ){
 		pSmfWriter = new SMF1WriterSingle();
-	} else if ( exportTypeCombo->currentIndex() == EXPORT_MULTI ){
+	} else if ( exportTypeCombo->currentIndex() == EXPORT_SMF1_MULTI ){
 		pSmfWriter = new SMF1WriterMulti();
+	} else if ( exportTypeCombo->currentIndex() == EXPORT_SMF0 ){
+		pSmfWriter = new SMF0Writer();
 	}
 	
 	pSmfWriter->save( sFilename, pSong );
@@ -141,9 +144,9 @@ void ExportMidiDialog::on_exportNameTxt_textChanged( const QString& )
 {
 	QString filename = exportNameTxt->text();
 	if ( ! filename.isEmpty() ) {
-		okBtn->setEnabled(true);
+		okBtn->setEnabled( true );
 	}
 	else {
-		okBtn->setEnabled(false);
+		okBtn->setEnabled( false );
 	}
 }
