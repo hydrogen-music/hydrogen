@@ -154,6 +154,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 		}
 	}
 	actionMap.insert(make_pair("SELECT_NEXT_PATTERN", make_pair(&MidiActionManager::select_next_pattern, empty)));
+	actionMap.insert(make_pair("SELECT_ONLY_NEXT_PATTERN", make_pair(&MidiActionManager::select_only_next_pattern, empty)));
 	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_CC_ABSOLUTE", make_pair(&MidiActionManager::select_next_pattern_cc_absolute, empty)));
 	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_PROMPTLY", make_pair(&MidiActionManager::select_next_pattern_promptly, empty)));
 	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_RELATIVE", make_pair(&MidiActionManager::select_next_pattern_relative, empty)));
@@ -328,6 +329,21 @@ bool MidiActionManager::select_next_pattern(Action * pAction, Hydrogen* pEngine,
 		pEngine->sequencer_setNextPattern( row );
 	}
 	return true;
+}
+
+bool MidiActionManager::select_only_next_pattern(Action * pAction, Hydrogen* pEngine, targeted_element ) {
+  bool ok;
+  int row = pAction->getParameter1().toInt(&ok,10);
+	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
+		return false;
+	}
+  if(Preferences::get_instance()->patternModePlaysSelected())
+  {
+    return true;
+  }
+ 
+  pEngine->sequencer_setOnlyNextPattern( row );
+  return true; 
 }
 
 bool MidiActionManager::select_next_pattern_relative(Action * pAction, Hydrogen* pEngine, targeted_element ) {
