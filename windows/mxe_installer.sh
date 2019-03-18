@@ -69,7 +69,7 @@ while :
 	case $SEL in
 		1)	#Debian and derivatives
 			echo "Now installing required packages"
-			sudo apt-get install autoconf automake autopoint bash bison bzip2 cmake flex gettext git gcc g++ gperf intltool libffi-dev libtool libtool-bin libltdl-dev libssl-dev libxml-parser-perl make openssl patch perl pkg-config python ruby scons sed unzip wget xz-utils nsis
+			sudo apt-get install autoconf automake autopoint bash bison bzip2 cmake flex gettext git gcc g++ gperf intltool libffi-dev libtool libtool-bin libltdl-dev libssl-dev libxml-parser-perl lzip make openssl patch perl pkg-config python ruby scons sed unzip wget xz-utils nsis
 			if (uname -a | grep x86_64); then
 				sudo apt-get install g++-multilib libc6-dev-i386
 			fi
