@@ -156,8 +156,12 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 
 	while ( !__queuedNoteOffs.empty() ) {
 		pNote =  __queuedNoteOffs[0];
+		// todo should we apply the same logic as in Sampler::__render_note ?
+//        bool isMutedForExport = (pEngine->getIsExportSessionActive() && !pInstr->is_currently_exported());
+//        bool isMuted = isMutedForExport || pNote->get_instrument()->is_muted() || pSong->__is_muted || pMainCompo->is_muted();
+		bool isMuted = pNote->get_instrument()->is_muted();
 		MidiOutput* midiOut = Hydrogen::get_instance()->getMidiOutput();
-		if( midiOut != NULL ){
+		if( !isMuted && midiOut != NULL ){
 			midiOut->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(), pNote->get_midi_key(),  pNote->get_midi_velocity() );
 
 		}
@@ -587,7 +591,8 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		 *  export session and we're doing per-instruments exports, but this instrument is not currently
 		 *  beeing exported.
 		 */
-		if ( isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {	
+		bool isMuted = isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted();
+		if ( isMuted ) {
 			cost_L = 0.0;
 			cost_R = 0.0;
 			if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
@@ -649,7 +654,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		float fTotalPitch = pNote->get_total_pitch() + fLayerPitch;
 
 		//_INFOLOG( "total pitch: " + to_string( fTotalPitch ) );
-		if( ( int )pSelectedLayer->SamplePosition == 0 )
+		if(!isMuted && ( int )pSelectedLayer->SamplePosition == 0 )
 		{
 			if( Hydrogen::get_instance()->getMidiOutput() != NULL ){
 			Hydrogen::get_instance()->getMidiOutput()->handleQueueNote( pNote );
