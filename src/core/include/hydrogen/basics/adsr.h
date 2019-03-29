@@ -41,7 +41,7 @@ class ADSR : private Object
 		 * \param attack tick duration
 		 * \param decay tick duration
 		 * \param sustain level
-		 * \paramrelease tick duration
+		 * \param release tick duration
 		 */
 		ADSR ( unsigned int attack = 0, unsigned int decay = 0, float sustain = 1.0, unsigned int release = 1000 );
 

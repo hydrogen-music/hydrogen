@@ -34,7 +34,7 @@
 #include <windows.h>
 #endif
 
-#ifdef H2CORE_HAVE_PORTMIDI
+#if defined(H2CORE_HAVE_PORTMIDI) || _DOXYGEN_
 
 #include <porttime.h>
 #define TIME_PROC ((int32_t (*)(void *)) Pt_Time)
@@ -285,7 +285,7 @@ void PortMidiDriver::handleQueueNote(Note* pNote)
 		return;
 	}
 
-	int key = (pNote->get_octave() +3 ) * 12 + pNote->get_key() + pNote->get_instrument()->get_midi_out_note() -60;
+	int key = pNote->get_midi_key();
 	int velocity = pNote->get_midi_velocity();
 
 	PmEvent event;

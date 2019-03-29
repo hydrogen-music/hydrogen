@@ -27,24 +27,74 @@
 namespace H2Core
 {
 
+/**
+ * Object holding most of the information about the transport state of
+ * the AudioEngine, like if it is playing or stopped or its current
+ * transport position and speed.
+ */
 class TransportInfo : public H2Core::Object
 {
 	H2_OBJECT
 public:
 	enum {
-		STOPPED,
-		ROLLING,
-		BAD
+	      /** The audio engine is playing back or processing audio
+		  and the transport is stopped. */
+	      STOPPED,
+	      /** The audio engine is playing back or processing audio
+		  and the transport is running. */
+	      ROLLING,
+	      /** This option is not yet used in the source code. */
+	      BAD
 	};
-
+	/**
+	 * Current transport status of the audio engine. It can have
+	 * three (known) states:
+	 * - TransportInfo::STOPPED
+	 * - TransportInfo::ROLLING
+	 * - TransportInfo::BAD
+	 */
 	unsigned m_status;
 
+	/** 
+	 * Current transport position in number of frames since the
+	 * beginning of the song.
+	 *
+	 * A __frame__ is a single sample of an audio signal. Thus,
+	 * with a _sample rate_ of 48000Hz, 48000 frames will be
+	 * recorded in one second and, with a _buffer size_ = 1024,
+	 * 1024 consecutive frames will be accumulated before they are
+	 * handed over to the audio engine for processing. Internally,
+	 * a frame will be represented by a float.
+	 */
 	long long m_nFrames;
+	/** 
+	 * Number of frames that make up one tick.
+	 * 
+	 * It will only be used by the JackAudioDriver and is
+	 * calculated by the sample rate * 60.0 / ( #m_nBPM *
+	 * Song::__resolution ). The factor 60.0 will be used to convert
+	 * the sample rate, which is given in second, into minutes (as
+	 * the #m_nBPM).
+	 */
 	float m_nTickSize;
+	/** Current tempo in beats per minute. */
 	float m_nBPM;
 
+	/**
+	 * Constructor of TransportInfo
+	 *
+	 * - Sets #m_status to TransportInfo::STOPPED
+	 * - Sets #m_nFrames and #m_nTickSize to 0
+	 * - Sets #m_nBPM to 120
+	 */
 	TransportInfo();
+	/** Destructor of TransportInfo */
 	~TransportInfo();
+	/** Displays general information about the transport state in
+	    the #INFOLOG
+	  *
+	  * Prints out #m_status, #m_nFrames, and #m_nTickSize.
+	  */
 	void printInfo();
 };
 

@@ -44,8 +44,18 @@ class Playlist : public H2Core::Object
 			QString scriptPath;
 			bool scriptEnabled;
 		};
-
+		
+		/**
+		 * If #__instance equals 0, a new Playlist singleton
+		 * will be created and stored in it.
+		 *
+		 * It is called in Hydrogen::audioEngine_init().
+		 */
 		static void create_instance();
+		/**
+		 * Returns a pointer to the current Playlist singleton
+		 * stored in #__instance.
+		 */
 		static Playlist* get_instance() { assert(__instance); return __instance; }
 
 		~Playlist();
@@ -75,6 +85,11 @@ class Playlist : public H2Core::Object
 		bool save_file( const QString& pl_path, const QString& name, bool overwrite, bool useRelativePaths );
 
 	private:
+		/**
+		 * Object holding the current Playlist singleton. It is
+		 * initialized with NULL, set with create_instance(), and
+		 * accessed with get_instance().
+		 */
 		static Playlist* __instance;
 		QString __filename;
 

@@ -22,7 +22,7 @@
 
 #include "hydrogen/config.h"
 
-#ifdef H2CORE_HAVE_LASH
+#if defined(H2CORE_HAVE_LASH) || _DOXYGEN_
 
 #ifndef LASH_CLIENT
 #define LASH_CLIENT
@@ -51,6 +51,13 @@ public:
 	void sendEvent(LASH_Event_Type eventType, const char* value);
 	void sendEvent(LASH_Event_Type eventType);
 
+	/**
+	 * Set the name of the JACK client by modifying
+	 * #jackClientName. 
+	 *
+	 * Called in H2Core::JackAudioDriver::init() after
+	 * successfully opening a client session.
+	 */
 	void setJackClientName( const std::string& jackClientName );
 	void sendJackClientName();
 	void setAlsaClientId(unsigned char id);
@@ -64,6 +71,11 @@ public:
 private:
 	bool newProject;
 	lash_client_t* lashClient;
+	/**
+	 * Name of the external JACK client Hydrogen is using to
+	 * communicate with the JACK server. It can be modified via
+	 * setJackClientName().
+	 */
 	std::string jackClientName;
 	unsigned char alsaClientId;
 	static LashClient* __instance;

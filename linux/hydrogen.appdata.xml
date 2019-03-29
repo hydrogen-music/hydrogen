@@ -17,9 +17,19 @@
  </description>
  <screenshots>
   <screenshot type="default">
-   <image>http://www.hydrogen-music.org/hcms/sites/default/files/pictures/main-window.png</image>
+   <image>http://hydrogen-music.org/images/screenshots/main-window.png</image>
    <caption>The main window showing the application in action</caption>
    <caption xml:lang="fr">La fenêtre principale montrant l'application en action</caption>
+  </screenshot>
+  <screenshot>
+    <image>http://hydrogen-music.org/images/screenshots/audio-filebrowser.png</image>
+    <caption>Audio file browser with sample preview</caption>
+    <caption xml:lang="fr">Navigateur de fichiers audio avec prévisualisation de l'échantillon</caption>
+  </screenshot>
+  <screenshot>
+    <image>http://hydrogen-music.org/images/screenshots/sample-editor.png</image>
+    <caption>Sample editor</caption>
+    <caption xml:lang="fr">Éditeur d'échantillon</caption>
   </screenshot>
  </screenshots>
  <url type="homepage">http://www.hydrogen-music.org/</url>

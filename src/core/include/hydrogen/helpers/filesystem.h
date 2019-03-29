@@ -15,7 +15,7 @@ class Filesystem : public H2Core::Object
 {
 		H2_OBJECT
 	public:
-		/** flags available for Filesystem::check_permissions */
+		/** flags available for check_permissions() */
 		enum file_perms {
 			is_dir =0x01,
 			is_file=0x02,
@@ -57,7 +57,12 @@ class Filesystem : public H2Core::Object
 		static QString empty_song_path();
 		/** returns untitled song file name */
 		static QString untitled_song_file_name();
-		/** returns system click file path */
+		/** Returns a string containing the path to the
+		    _click.wav_ file used in the metronome. 
+		  *
+		  * It is a concatenation of #__sys_data_path and
+		  * #CLICK_SAMPLE.
+		  */
 		static QString click_file_path();
 		/** returns click file path from user directory if exists, otherwise from system */
 		static QString usr_click_file_path();
@@ -111,7 +116,7 @@ class Filesystem : public H2Core::Object
 		/**
 		 * touch a temporary file under tmp_dir() and return it's path.
 		 * if base has a suffix it will be preserved, spaces will be replaced by underscores.
-		 * \param base, part of the path
+		 * \param base part of the path
 		 */
 		static QString tmp_file_path( const QString& base );
 
@@ -148,7 +153,7 @@ class Filesystem : public H2Core::Object
 		static QString drumkit_dir_search( const QString& dk_name );
 		/**
 		 * returns true if the path contains a usable drumkit
-		 * \param dk_location the root drumkit location
+		 * \param dk_path the root drumkit location
 		 */
 		static bool drumkit_valid( const QString& dk_path );
 		/**
@@ -168,7 +173,7 @@ class Filesystem : public H2Core::Object
 		static QStringList pattern_list();
 		/**
 		 * returns a list of existing patterns
-		 * \param p_path the path to look for patterns in
+		 * \param path the path to look for patterns in
 		 */
 		static QStringList pattern_list( const QString& path );
 
@@ -242,7 +247,7 @@ class Filesystem : public H2Core::Object
 		/**
 		 * copy a source file to a destination
 		 * \param src source file path
-		 * \param dsr destination file path
+		 * \param dst destination file path
 		 * \param overwrite allow to overwrite an existing file if set to true
 		 */
 		static bool file_copy( const QString& src, const QString& dst, bool overwrite=false );
@@ -265,18 +270,41 @@ class Filesystem : public H2Core::Object
 		static bool rm_fr( const QString& path );   ///< recursively remove a path
 
 		/**
-		 * returns a list of usable drumkits, which means having a readable drumkit.xml file
+		 * \return a list of usable drumkits, which means having a readable drumkit.xml file
 		 * \param path the path to search in for drumkits
 		 */
 		static QStringList drumkit_list( const QString& path );
 		/**
-		 * return true if all the asked permissions are ok
+		 * \return true if all the asked permissions are ok
 		 * \param path the path to the file to check
 		 * \param perms bit mask of file_perms
 		 * \param silent output not messages if set to true
 		 */
 		static bool check_permissions( const QString& path, const int perms, bool silent );
 
+		/**
+		 * Path to the system files set in Filesystem::bootstrap().
+		 *
+		 * If Q_OSMACX is set, it will be a concatenation of
+		 * QCoreApplication::applicationDirPath() and
+		 * "/../Resources/data/" (H2CORE_HAVE_BUNDLE defined)
+		 * or "/data/" (else). If, instead, WIN32 is set, it
+		 * is a concatenation of
+		 * QCoreApplication::applicationDirPath() and
+		 * "/data/". In case the application is neither run on
+		 * Mac or Windows, it is set to a concatenation of
+		 * H2_SYS_PATH and "/data/".
+		 *
+		 * If Filesystem::bootstrap() was called with the @a
+		 * sys_path argument preset, it will overwrite all the
+		 * choices above. 
+		 *
+		 * Finally, if the variable doesn't point to a
+		 * readable directory afterwards, it is set to a
+		 * concatenation of
+		 * QCoreApplication::applicationDirPath(), "/", and
+		 * LOCAL_DATA_PATH.
+		 */
 		static QString __sys_data_path;     ///< the path to the system files
 		static QString __usr_data_path;     ///< the path to the user files
 		static QString __usr_cfg_path;      ///< the path to the user config file

@@ -39,7 +39,7 @@
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/audio_engine.h>
-#include <hydrogen/IO/JackAudioDriver.h>
+#include <hydrogen/IO/jack_audio_driver.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/event_queue.h>
 using namespace H2Core;
@@ -991,6 +991,7 @@ void PlayerControl::bpmButtonClicked( Button* pBtn )
 
 void PlayerControl::FFWDBtnClicked( Button* )
 {
+	WARNINGLOG( "relocate via button press" );
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	pEngine->setPatternPos( pEngine->getPatternPos() + 1 );
 	Hydrogen::get_instance()->setTimelineBpm();
@@ -1000,6 +1001,7 @@ void PlayerControl::FFWDBtnClicked( Button* )
 
 void PlayerControl::RewindBtnClicked( Button* )
 {
+	WARNINGLOG( "relocate via button press" );
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	pEngine->setPatternPos( pEngine->getPatternPos() - 1 );
 	Hydrogen::get_instance()->setTimelineBpm();

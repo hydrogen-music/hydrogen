@@ -1,0 +1,154 @@
+/*! \file config.h.in
+ * Documentation for the macros defined in the config.h.in file (which
+   is not properly read by Doxygen).
+*/
+
+/**
+ * Beginning clause of Qt's namespace wrapper and counterpart of
+ * #QT_END_NAMESPACE.
+ */
+#define QT_BEGIN_NAMESPACE
+/**
+ * Ending clause of Qt's namespace wrapper and counterpart of
+ * #QT_BEGIN_NAMESPACE.
+ */
+#define QT_END_NAMESPACE
+
+/**
+ * Path of the configuration files of Hydrogen in the user home. Set
+ * by __cmake__ ".hydrogen".
+ */
+#define H2_USR_PATH "@H2_USR_PATH@"
+/**
+ * Path of the configuration files of Hydrogen in the system. Set by
+ * __cmake__ a concatenation of #CONFIG_PREFIX and "/share/hydrogen".
+ */
+#define H2_SYS_PATH "@H2_SYS_PATH@"
+/**
+ * Prefix of the directory Hydrogen will be installed into. Set by
+ * __cmake__ to
+ * - "/usr/local" : on Linux
+ * - "/usr" : on Mac
+ * - "c:/Program Files" : on Windows
+ */
+#define CONFIG_PREFIX "@CMAKE_INSTALL_PREFIX@"
+
+/**
+ * Will contain the current major version number of Hydrogen and is
+ * set by __cmake__.
+ */
+#define H2CORE_VERSION_MAJOR @VERSION_MAJOR@
+/**
+ * Will contain the current minor version number of Hydrogen and is
+ * set by __cmake__.
+ */
+#define H2CORE_VERSION_MINOR @VERSION_MINOR@
+/**
+ * Will contain the current patch version number of Hydrogen and is
+ * set by __cmake__.
+ */
+#define H2CORE_VERSION_PATCH @VERSION_PATCH@
+/**
+ * Will contain the current git revision version number suffix of
+ * Hydrogen and is set by __cmake__.
+ */
+#define H2CORE_GIT_REVISION @GIT_REVISION@
+/**
+ * A concatenation of #H2CORE_VERSION_MAJOR, #H2CORE_VERSION_MINOR,
+ * #H2CORE_VERSION_PATCH, and #H2CORE_GIT_REVISION.
+ */
+#define H2CORE_VERSION "@DISPLAY_VERSION@"
+
+
+/** \def MAX_INSTRUMENTS
+ * Maximum number of instruments allowed in Hydrogen. Set by __cmake__
+ * to 1000 (currently).
+ */
+#define MAX_INSTRUMENTS		@MAX_INSTRUMENTS@
+/** \def MAX_COMPONENTS
+ * Maximum number of components each Instrument is allowed to
+ * have. Set by __cmake__ to 32 (currently).
+ */
+#define MAX_COMPONENTS  	@MAX_COMPONENTS@
+/**
+ * Maximum number of notes. Set by __cmake__ to 192 (currently).
+ */
+#define MAX_NOTES       	@MAX_NOTES@
+/**
+ * Maximum number of effects. Set by __cmake__ to 4 (currently).
+ */
+#define MAX_FX          	@MAX_FX@
+/**
+ * Maximum buffer size. Set by __cmake__ to 8192 (currently).
+ */
+#define MAX_BUFFER_SIZE 	@MAX_BUFFER_SIZE@
+
+/**
+ * Check whether _sscanf.c_ is present.
+ */
+#define HAVE_SSCANF
+/**
+ * Check whether the realtime clock _rtclock.c_ is present.
+ */
+#define HAVE_RTCLOCK
+/**
+ * Check whether a library called _jack_port_rename_ is present.
+ */
+#define HAVE_JACK_PORT_RENAME
+
+/** Checks whether the user enabled debugging. Default: TRUE */
+#define H2CORE_HAVE_DEBUG
+/** Whether a Max OSC bundle application should be generated. Default
+    (on Apple): TRUE. */
+#define H2CORE_HAVE_BUNDLE
+/** Specifies whether the sndfile.h header could be found in
+    the sndfile library. */
+#define H2CORE_HAVE_LIBSNDFILE
+/** Specifies whether the archive.h header could be found in
+    the archive library. */
+#define H2CORE_HAVE_LIBARCHIVE
+/** Specifies whether the sys/soundcard.h header could be found in the
+    ossaudio (on NetBSD) or OSSlib library (else). */
+#define H2CORE_HAVE_OSS
+/** Specifies whether the alsa/asoundlib.h header could be found in
+    the alsa library. */
+#define H2CORE_HAVE_ALSA
+/** Specifies whether the jack/jack.h header could be found in
+    the jack library. */
+#define H2CORE_HAVE_JACK
+/** Specifies whether the lash/lash.h header could be found in the
+    lash library. */
+#define H2CORE_HAVE_LASH
+/** Specifies whether the jack/session.h header could be found in
+    the jack library. */
+#define H2CORE_HAVE_JACKSESSION
+/** Specifies whether the lo/lo.h header could be found in the lo
+    library. */
+#define H2CORE_HAVE_OSC
+/** Specifies whether the portaudio.h header could be found in the
+    portaudio-2.0 library. */
+#define H2CORE_HAVE_PORTAUDIO
+/** Specifies whether the portmidi.h header could be found in the
+    portmidi library. */
+#define H2CORE_HAVE_PORTMIDI
+/** Specifies whether the coreaudio.h header could be found in the
+    coreaudio library (Apple only). */
+#define H2CORE_HAVE_COREAUDIO
+/** Specifies whether the coremidi.h header could be found in the
+    coremidi library (Apple only). */
+#define H2CORE_HAVE_COREMIDI
+/** Specifies whether the pulse/pulseaudio.h header could be found in
+    the pulse library. */
+#define H2CORE_HAVE_PULSEAUDIO
+/** Specifies whether the lrdf.h header could be found in the lrdf
+    library. */
+#define H2CORE_HAVE_LRDF
+/** Specifies whether the ladspa.h header could be found in the noise
+    library. */
+#define H2CORE_HAVE_LADSPA
+/** Specifies whether the rubberband/RubberBandStretcher.h header
+    could be found in the rubberband library. */
+#define H2CORE_HAVE_RUBBERBAND
+
+
+

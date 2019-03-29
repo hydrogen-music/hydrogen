@@ -19,7 +19,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
 #include "hydrogen/config.h"
 
 #ifdef WIN32
@@ -73,7 +72,7 @@
 #endif
 
 #include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/IO/JackAudioDriver.h>
+#include <hydrogen/IO/jack_audio_driver.h>
 #include <hydrogen/IO/NullDriver.h>
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
@@ -96,23 +95,72 @@ namespace H2Core
 // GLOBALS
 
 // info
-float					m_fMasterPeak_L = 0.0f;		///< Master peak (left channel)
-float					m_fMasterPeak_R = 0.0f;		///< Master peak (right channel)
-float					m_fProcessTime = 0.0f;		///< time used in process function
-float					m_fMaxProcessTime = 0.0f;	///< max ms usable in process with no xrun
+float				m_fMasterPeak_L = 0.0f;		///< Master peak (left channel)
+float				m_fMasterPeak_R = 0.0f;		///< Master peak (right channel)
+float				m_fProcessTime = 0.0f;		///< time used in process function
+float				m_fMaxProcessTime = 0.0f;	///< max ms usable in process with no xrun
 //~ info
 
-
-//jack time master
-float					m_nNewBpmJTM = 120;
+/**
+ * Fallback speed in beats per minute.
+ *
+ * It is set by Hydrogen::setNewBpmJTM() and accessed via
+ * Hydrogen::getNewBpmJTM().
+ */
+float				m_nNewBpmJTM = 120;
+/**
+ * Stores the current transport position in frames obtained by a query
+ * of the transport state of the JACK server in
+ * JackAudioDriver::updateTransportInfo(). 
+ *
+ * If will be used to update the JACK transport information in
+ * JackAudioDriver::jack_timebase_callback() if Hydrogen is registered
+ * as the timebase master.
+ *
+ * It will be also used to make the local transport position
+ * TransportInfo::m_nFrames lack one cycle behind the transport
+ * position of the JACK server if the speed of the Song was changed
+ * with Hydrogen as timebase master and a relocation of the position
+ * was done. No idea why.
+ *
+ * Set by Hydrogen::setHumantimeFrames() and accessed via
+ * Hydrogen::getHumantimeFrames().
+ */
 unsigned long			m_nHumantimeFrames = 0;
-//~ jack time master
 
-AudioOutput *			m_pAudioDriver = NULL;	///< Audio output
-QMutex					mutex_OutputPointer;     ///< Mutex for audio output pointer, allows multiple readers
-///< When locking this AND AudioEngine, always lock AudioEngine first.
-MidiInput *				m_pMidiDriver = NULL;	///< MIDI input
-MidiOutput *			m_pMidiDriverOut = NULL;	///< MIDI output
+/**
+ * Pointer to the current instance of the audio driver.
+ *
+ * Initialized with NULL inside audioEngine_init(). Inside
+ * audioEngine_startAudioDrivers() either the audio driver specified
+ * in Preferences::m_sAudioDriver and created via createDriver() or
+ * the NullDriver, in case the former failed, will be assigned.
+ */	
+AudioOutput *			m_pAudioDriver = NULL;
+/**
+ * Mutex for locking the pointer to the audio output buffer, allowing
+ * multiple readers.
+ *
+ * When locking this __and__ the AudioEngine, always lock the
+ * AudioEngine first using AudioEngine::lock() or
+ * AudioEngine::try_lock(). Always use a QMutexLocker to lock this
+ * mutex.
+ */
+QMutex				mutex_OutputPointer;
+/**
+ * MIDI input
+ *
+ * In audioEngine_startAudioDrivers() it is assigned the midi driver
+ * specified in Preferences::m_sMidiDriver.
+ */
+MidiInput *			m_pMidiDriver = NULL;
+/**
+ * MIDI output
+ *
+ * In audioEngine_startAudioDrivers() it is assigned the midi driver
+ * specified in Preferences::m_sMidiDriver.
+ */
+MidiOutput *			m_pMidiDriverOut = NULL;
 
 // overload the > operator of Note objects for priority_queue
 struct compare_pNotes {
@@ -129,71 +177,396 @@ struct compare_pNotes {
 std::priority_queue<Note*, std::deque<Note*>, compare_pNotes > m_songNoteQueue;
 std::deque<Note*>		m_midiNoteQueue;	///< Midi Note FIFO
 
-PatternList*			m_pNextPatterns;		///< Next pattern (used only in Pattern mode)
-bool					m_bAppendNextPattern;		///< Add the next pattern to the list instead of replace.
-bool					m_bDeleteNextPattern;		///< Delete the next pattern from the list.
-
+/**
+ * Next pattern (used only in Pattern mode).
+ *
+ * Created during the call of audioEngine_init().
+ */
+PatternList*			m_pNextPatterns;
+bool				m_bAppendNextPattern;		///< Add the next pattern to the list instead of replace.
+bool				m_bDeleteNextPattern;		///< Delete the next pattern from the list.
+/**
+ * 
+ *
+ * Created during the call of audioEngine_init().
+ */
 PatternList*			m_pPlayingPatterns;
-int						m_nSongPos;				///< Is the position inside the song
+/**
+ * Position of the current Pattern in the Song.
+ *
+ * -1, its initialization value in audioEngine_init(), corresponds to
+    the beginning of a Song. It is set using Hydrogen::setPatternPos()
+    and accessed via Hydrogen::getPatternPos().
+ */
+int				m_nSongPos;
 
-int						m_nSelectedPatternNumber;
-int						m_nSelectedInstrumentNumber;
-
-Instrument *			m_pMetronomeInstrument = NULL;	///< Metronome instrument
+/**
+ *
+ *
+ * Initialized to 0 in audioEngine_init().
+ */
+int				m_nSelectedPatternNumber;
+/**
+ *
+ *
+ * Initialized to 0 in audioEngine_init().
+ */
+int				m_nSelectedInstrumentNumber;
+/**
+ * Pointer to the metronome.
+ *
+ * Initialized in audioEngine_init().
+ */
+Instrument *			m_pMetronomeInstrument = NULL;
 
 // Buffers used in the process function
-unsigned				m_nBufferSize = 0;
-float *					m_pMainBuffer_L = NULL;
-float *					m_pMainBuffer_R = NULL;
+unsigned			m_nBufferSize = 0;
+/**
+ * Pointer to the audio buffer of the left stereo output returned by
+ * AudioOutput::getOut_L().
+ *
+ * Initialized to NULL in audioEngine_init(), assigned in
+ * audioEngine_startAudioDrivers(), reset in
+ * audioEngine_process_clearAudioBuffers(), and populated with the
+ * actual audio in audioEngine_process().
+ */
+float *				m_pMainBuffer_L = NULL;
+/**
+ * Pointer to the audio buffer of the right stereo output returned by
+ * AudioOutput::getOut_R().
+ *
+ * Initialized to NULL in audioEngine_init(), assigned in
+ * audioEngine_startAudioDrivers(), reset in
+ * audioEngine_process_clearAudioBuffers(), and populated with the
+ * actual audio in audioEngine_process().
+ */
+float *				m_pMainBuffer_R = NULL;
+/**
+ * Current state of the H2Core::AudioEngine. 
+ *
+ * It is supposed to take five different states:
+ *
+ * - #STATE_UNINITIALIZED:	1      Not even the constructors have been called.
+ * - #STATE_INITIALIZED:	2      Not ready, but most pointers are now valid or NULL
+ * - #STATE_PREPARED:		3      Drivers are set up, but not ready to process audio.
+ * - #STATE_READY:		4      Ready to process audio
+ * - #STATE_PLAYING:		5      Currently playing a sequence.
+ * 
+ * It gets initialized with #STATE_UNINITIALIZED.
+ */	
+int				m_audioEngineState = STATE_UNINITIALIZED;	
 
-Hydrogen*				hydrogenInstance = NULL;   ///< Hydrogen class instance (used for log)
-
-int						m_audioEngineState = STATE_UNINITIALIZED;	///< Audio engine state
-
-#ifdef H2CORE_HAVE_LADSPA
-float					m_fFXPeak_L[MAX_FX];
-float					m_fFXPeak_R[MAX_FX];
+#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
+float				m_fFXPeak_L[MAX_FX];
+float				m_fFXPeak_R[MAX_FX];
 #endif
 
-int						m_nPatternStartTick = -1;
+int				m_nPatternStartTick = -1;
+/**
+ *
+ *
+ * Initialized to 0 in audioEngine_init(), which marks the beginning
+ * of a Song.
+ */
 unsigned int			m_nPatternTickPosition = 0;
-int						m_nLookaheadFrames = 0;
+int				m_nLookaheadFrames = 0;
 
-// used in findPatternInTick
-int						m_nSongSizeInTicks = 0;
+/** Set to the total number of ticks in a Song in
+    findPatternInTick(), only if this function has looped over all
+    Patterns. This can either happen if the sought Pattern wasn't
+    found or loop mode is enabled and Hydrogen is at least in the
+    second loop.*/
+int				m_nSongSizeInTicks = 0;
 
+/** Updated in audioEngine_updateNoteQueue().*/
 struct timeval			m_currentTickTime;
 
+/**
+ * Variable keeping track of the transport position in realtime.
+ *
+ * Even if the audio engine is stopped, the variable will be
+ * incremented by #m_nBufferSize (as audioEngine_process() would do at
+ * the end of each cycle) to support realtime keyboard and MIDI event
+ * timing. It is set using Hydrogen::setRealtimeFrames(), accessed via
+ * Hydrogen::getRealtimeFrames(), and updated in
+ * audioEngine_process_transport() using the current transport
+ * position TransportInfo::m_nFrames.
+ */
 unsigned long			m_nRealtimeFrames = 0;
 unsigned int			m_naddrealtimenotetickposition = 0;
 
 // PROTOTYPES
-void					audioEngine_init();
-void					audioEngine_destroy();
-int						audioEngine_start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
-void					audioEngine_stop( bool bLockEngine = false );
-void					audioEngine_setSong(Song *pNewSong );
-void					audioEngine_removeSong();
-static void				audioEngine_noteOn( Note *note );
+/**
+ * Initialization of the H2Core::AudioEngine called in Hydrogen::Hydrogen().
+ *
+ * -# It creates two new instances of the H2Core::PatternList and stores them
+      in #m_pPlayingPatterns and #m_pNextPatterns.
+ * -# It sets #m_nSongPos = -1.
+ * -# It sets #m_nSelectedPatternNumber, #m_nSelectedInstrumentNumber,
+      and #m_nPatternTickPosition to 0.
+ * -# It sets #m_pMetronomeInstrument, #m_pAudioDriver,
+      #m_pMainBuffer_L, #m_pMainBuffer_R to NULL.
+ * -# It uses the current time to a random seed via std::srand(). This
+      way the states of the pseudo-random number generator are not
+      cross-correlated between different runs of Hydrogen.
+ * -# It initializes the metronome with the sound stored in
+      H2Core::Filesystem::click_file_path() by creating a new
+      Instrument with #METRONOME_INSTR_ID as first argument.
+ * -# It sets the H2Core::AudioEngine state #m_audioEngineState to
+      #STATE_INITIALIZED.
+ * -# It calls H2Core::Effects::create_instance() (if the
+      #H2CORE_HAVE_LADSPA is set),
+      H2Core::AudioEngine::create_instance(), and
+      H2Core::Playlist::create_instance().
+ * -# Finally, it pushes the H2Core::EVENT_STATE, #STATE_INITIALIZED
+      on the H2Core::EventQueue using
+      H2Core::EventQueue::push_event().
+ *
+ * If the current state of the H2Core::AudioEngine #m_audioEngineState is not
+ * ::STATE_UNINITIALIZED, it will thrown an error and
+ * H2Core::AudioEngine::unlock() it.
+ */
+void				audioEngine_init();
+void				audioEngine_destroy();
+/**
+ * If the audio engine is in state #m_audioEngineState #STATE_READY,
+ * this function will
+ * - sets #m_fMasterPeak_L and #m_fMasterPeak_R to 0.0f
+ * - sets TransportInfo::m_nFrames to @a nTotalFrames
+ * - sets m_nSongPos and m_nPatternStartTick to -1
+ * - m_nPatternTickPosition to 0
+ * - calls updateTickSize()
+ * - sets #m_audioEngineState to #STATE_PLAYING
+ * - pushes the #EVENT_STATE #STATE_PLAYING using EventQueue::push_event()
+ *
+ * \param bLockEngine Whether or not to lock the audio engine before
+ *   performing any actions. The audio engine __must__ be locked! This
+ *   option should only be used, if the process calling this function
+ *   did already locked it.
+ * \param nTotalFrames New value of the transport position.
+ * \return 0 regardless what happens inside the function.
+ */
+int				audioEngine_start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
+/**
+ * If the audio engine is in state #m_audioEngineState #STATE_PLAYING,
+ * this function will
+ * - sets #m_fMasterPeak_L and #m_fMasterPeak_R to 0.0f
+ * - sets #m_audioEngineState to #STATE_READY
+ * - sets #m_nPatternStartTick to -1
+ * - deletes all copied Note in song notes queue #m_songNoteQueue and
+ *   MIDI notes queue #m_midiNoteQueue
+ * - calls the _clear()_ member of #m_midiNoteQueue
+ *
+ * \param bLockEngine Whether or not to lock the audio engine before
+ *   performing any actions. The audio engine __must__ be locked! This
+ *   option should only be used, if the process calling this function
+ *   did already locked it.
+ */
+void				audioEngine_stop( bool bLockEngine = false );
+void				audioEngine_setSong(Song *pNewSong );
+void				audioEngine_removeSong();
+static void			audioEngine_noteOn( Note *note );
 
-int						audioEngine_process( uint32_t nframes, void *arg );
-inline void				audioEngine_clearNoteQueue();
-inline void				audioEngine_process_checkBPMChanged(Song *pSong);
-inline void				audioEngine_process_playNotes( unsigned long nframes );
-inline void				audioEngine_process_transport();
+/**
+ * Main audio processing function called by the audio drivers whenever
+ * there is work to do.
+ *
+ * In short, it resets the audio buffers, checks the current transport
+ * position and configuration, updates the queue of notes, which are
+ * about to be played, plays those notes and writes their output to
+ * the audio buffers, and, finally, increment the transport position
+ * in order to move forward in time.
+ *
+ * In detail the function
+ * - calls audioEngine_process_clearAudioBuffers() to reset all audio
+ * buffers with zeros.
+ * - calls audioEngine_process_transport() to verify the current
+ * TransportInfo stored in AudioOutput::m_transport. If, e.g., the
+ * JACK server is used. an external JACK client might have changed the
+ * speed of the transport (as JACK timebase master) or the transport
+ * position. In such case, Hydrogen has to sync its internal transport
+ * state AudioOutput::m_transport to reflect these changes. Else our
+ * playback would be off.
+ * - calls audioEngine_process_checkBPMChanged() to check whether the
+ * tick size, the number of frames per bar (size of a pattern), has
+ * changed (see TransportInfo::m_nFrames in case you are unfamiliar
+ * with the term _frames_). This is necessary because the transport
+ * position is often given in ticks within Hydrogen and changing the
+ * speed of the Song, e.g. via Hydrogen::setBPM(), would thus result
+ * in a(n unintended) relocation of the transport location.
+ * - calls audioEngine_updateNoteQueue() and
+ * audioEngine_process_playNotes(), two functions which handle the
+ * selection and playback of notes and will documented at a later
+ * point in time
+ * - writes the audio output of the Sampler, Synth, and the LadspaFX
+ * (if #H2CORE_HAVE_LADSPA is defined) to #m_pMainBuffer_L and
+ * #m_pMainBuffer_R and sets we peak values for #m_fFXPeak_L,
+ * #m_fFXPeak_R, #m_fMasterPeak_L, and #m_fMasterPeak_R.
+ * - finally increments the transport position
+ * TransportInfo::m_nFrames with the buffersize @a nframes. So, if
+ * this function is called during the next cycle, the transport is
+ * already in the correct position.
+ *
+ * If the H2Core::m_audioEngineState is neither in #STATE_READY nor
+ * #STATE_PLAYING or the locking of the AudioEngine failed, the
+ * function will return 0 without performing any actions.
+ *
+ * \param nframes Buffersize. If it doesn't match #m_nBufferSize, the
+   latter will be set to @a nframes.
+ * \param arg Unused.
+ * \return
+ * - __1__ : kill the audio driver thread. This will be used if either
+ * the DiskWriterDriver or FakeDriver are used and the end of the Song
+ * is reached (audioEngine_updateNoteQueue() returned -1 ). 
+ * - __0__ : else
+ */
+int				audioEngine_process( uint32_t nframes, void *arg );
+inline void			audioEngine_clearNoteQueue();
+/**
+ * Checks whether the tick size has changed and adjusts the transport
+ * position accordingly.
+ *
+ * To access a change in the tick size, the value stored in
+ * TransportInfo::m_nTickSize will be compared to the one calculated
+ * from the AudioOutput::getSampleRate(), Song::__bpm, and
+ * Song::__resolution. Thus, if any of those quantities did change,
+ * the transport position will be recalculated.
+ *
+ * The new transport position gets calculated by 
+ * \code{.cpp}
+ * ceil( m_pAudioDriver->m_transport.m_nFrames/
+ *       m_pAudioDriver->m_transport.m_nTickSize ) *
+ * m_pAudioDriver->getSampleRate() * 60.0 / Song::__bpm / Song::__resolution 
+ * \endcode
+ *
+ * If the JackAudioDriver is used and the audio engine is playing, a
+ * potential mismatch in the transport position is determined by
+ * JackAudioDriver::calculateFrameOffset() and covered by
+ * JackAudioDriver::updateTransportInfo() in the next cycle.
+ *
+ * Finally, EventQueue::push_event() is called with
+ * #EVENT_RECALCULATERUBBERBAND and -1 as arguments.
+ *
+ * Called in audioEngine_process() and audioEngine_setSong(). The
+ * function will only perform actions if #m_audioEngineState is in
+ * either #STATE_READY or #STATE_PLAYING.
+ */
+inline void			audioEngine_process_checkBPMChanged(Song *pSong);
+inline void			audioEngine_process_playNotes( unsigned long nframes );
+/**
+ * Updating the TransportInfo of the audio driver.
+ *
+ * Firstly, it calls AudioOutput::updateTransportInfo() and then
+ * updates the state of the audio engine #m_audioEngineState depending
+ * on the status of the audio driver.  E.g. if the JACK transport was
+ * started by another client, the audio engine has to be started as
+ * well. If TransportInfo::m_status is TransportInfo::ROLLING,
+ * audioEngine_start() is called with
+ * TransportInfo::m_nFrames as argument if the engine is in
+ * #STATE_READY. If #m_audioEngineState is then still not in
+ * #STATE_PLAYING, the function will return. Otherwise, the current
+ * speed is getting updated by calling Hydrogen::setBPM using
+ * TransportInfo::m_nBPM and #m_nRealtimeFrames is set to
+ * TransportInfo::m_nFrames.
+ *
+ * If the status is TransportInfo::STOPPED but the engine is still
+ * running, audioEngine_stop() will be called. In any case,
+ * #m_nRealtimeFrames will be incremented by #m_nBufferSize to support
+ * realtime keyboard and MIDI event timing.
+ *
+ * If the H2Core::m_audioEngineState is neither in #STATE_READY nor
+ * #STATE_PLAYING the function will immediately return.
+ */
+inline void			audioEngine_process_transport();
 
 inline unsigned			audioEngine_renderNote( Note* pNote, const unsigned& nBufferSize );
-inline int				audioEngine_updateNoteQueue( unsigned nFrames );
-inline void				audioEngine_prepNoteQueue();
+inline int			audioEngine_updateNoteQueue( unsigned nFrames );
+inline void			audioEngine_prepNoteQueue();
 
-inline int				findPatternInTick( int tick, bool loopMode, int *patternStartTick );
+/**
+ * Find a Pattern corresponding to the supplied tick position @a
+ * nTick.
+ *
+ * Adds up the lengths of all Pattern until @a nTick lies in between
+ * the bounds of a Pattern.
+ *
+ * \param nTick Position in ticks.
+ * \param bLoopMode Whether looping is enabled in the Song, see
+ *   Song::is_loop_enabled(). If true, @a nTick is allowed to be
+ *   larger than the total length of the Song.
+ * \param pPatternStartTick Point to an integer the beginning of the
+ *   found Pattern in ticks will be stored in.
+ * \return
+ *   - -1 : Pattern couldn't be found.
+ *   - >=0 : Pattern number.
+ */
+inline int			findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick );
 
-void					audioEngine_seek( long long nFrames, bool bLoopMode = false );
+void				audioEngine_seek( long long nFrames, bool bLoopMode = false );
 
-void					audioEngine_restartAudioDrivers();
-void					audioEngine_startAudioDrivers();
-void					audioEngine_stopAudioDrivers();
+void				audioEngine_restartAudioDrivers();
+/** 
+ * Creation and initialization of all audio and MIDI drivers called in
+ * Hydrogen::Hydrogen().
+ *
+ * Which audio driver to use is specified in
+ * Preferences::m_sAudioDriver. If "Auto" is selected, it will try to
+ * initialize drivers using createDriver() in the following order: 
+ * - Windows:  "PortAudio", "Alsa", "CoreAudio", "Jack", "Oss",
+ *   and "PulseAudio" 
+ * - all other systems: "Jack", "Alsa", "CoreAudio", "PortAudio",
+ *   "Oss", and "PulseAudio".
+ * If all of them return NULL, #m_pAudioDriver will be initialized
+ * with the NullDriver instead. If a specific choice is contained in
+ * Preferences::m_sAudioDriver and createDriver() returns NULL, the
+ * NullDriver will be initialized too.
+ *
+ * It probes Preferences::m_sMidiDriver to create a midi driver using
+ * either AlsaMidiDriver::AlsaMidiDriver(),
+ * PortMidiDriver::PortMidiDriver(), CoreMidiDriver::CoreMidiDriver(),
+ * or JackMidiDriver::JackMidiDriver(). Afterwards, it sets
+ * #m_pMidiDriverOut and #m_pMidiDriver to the freshly created midi
+ * driver and calls their open() and setActive( true ) functions.
+ *
+ * If a Song is already present, the state of the AudioEngine
+ * #m_audioEngineState will be set to #STATE_READY, the bpm of the
+ * #m_pAudioDriver will be set to the tempo of the Song Song::__bpm
+ * using AudioOutput::setBpm(), and #STATE_READY is pushed on the
+ * EventQueue. If no Song is present, the state will be
+ * #STATE_PREPARED and no bpm will be set.
+ *
+ * All the actions mentioned so far will be performed after locking
+ * both the AudioEngine using AudioEngine::lock() and the mutex of the
+ * audio output buffer #mutex_OutputPointer. When they are completed
+ * both mutex are unlocked and the audio driver is connected via
+ * AudioOutput::connect(). If this is not successful, the audio driver
+ * will be overwritten with the NullDriver and this one is connected
+ * instead.
+ *
+ * Finally, audioEngine_renameJackPorts() (if #H2CORE_HAVE_JACK is set)
+ * and audioEngine_setupLadspaFX() are called.
+ *
+ * The state of the AudioEngine #m_audioEngineState must not be in
+ * #STATE_INITIALIZED or the function will just unlock both mutex and
+ * returns.
+ */
+void				audioEngine_startAudioDrivers();
+/**
+ * Stops all audio and MIDI drivers.
+ *
+ * Uses audioEngine_stop() if the AudioEngine is still in state
+ * #m_audioEngineState #STATE_PLAYING, sets its state to
+ * #STATE_INITIALIZED, locks the AudioEngine using
+ * AudioEngine::lock(), deletes #m_pMidiDriver and #m_pAudioDriver and
+ * reinitializes them to NULL. 
+ *
+ * If #m_audioEngineState is neither in #STATE_PREPARED or
+ * #STATE_READY, the function returns before deleting anything.
+ */
+void				audioEngine_stopAudioDrivers();
 
+/** Gets the current time.
+ * \return Current time obtained by gettimeofday()*/
 inline timeval currentTime2()
 {
 	struct timeval now;
@@ -224,7 +597,12 @@ void audioEngine_raiseError( unsigned nErrorCode )
 {
 	EventQueue::get_instance()->push_event( EVENT_ERROR, nErrorCode );
 }
-
+/** Function calculating the tick size by
+ * \code{.cpp}
+ * m_pAudioDriver->getSampleRate() * 60.0 / Song::__bpm / Song::__resolution 
+ * \endcode
+ * and storing it in TransportInfo::m_nTickSize
+ */
 void updateTickSize()
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
@@ -232,7 +610,7 @@ void updateTickSize()
 
 	float sampleRate = ( float ) m_pAudioDriver->getSampleRate();
 	m_pAudioDriver->m_transport.m_nTickSize =
-		( sampleRate * 60.0 /  pSong->__bpm / pSong->__resolution );
+		( sampleRate * 60.0 /  pSong->__bpm / pSong->__resolution );		
 }
 
 void audioEngine_init()
@@ -261,6 +639,7 @@ void audioEngine_init()
 	srand( time( NULL ) );
 
 	// Create metronome instrument
+	// Get the path to the file of the metronome sound.
 	QString sMetronomeFilename = Filesystem::click_file_path();
 	m_pMetronomeInstrument =
 			new Instrument( METRONOME_INSTR_ID, "metronome" );
@@ -324,10 +703,6 @@ void audioEngine_destroy()
 	AudioEngine::get_instance()->unlock();
 }
 
-/// Start playing
-/// return 0 = OK
-/// return -1 = NULL Audio Driver
-/// return -2 = Driver connect() error
 int audioEngine_start( bool bLockEngine, unsigned nTotalFrames )
 {
 	if ( bLockEngine ) {
@@ -347,12 +722,13 @@ int audioEngine_start( bool bLockEngine, unsigned nTotalFrames )
 
 	m_fMasterPeak_L = 0.0f;
 	m_fMasterPeak_R = 0.0f;
-	m_pAudioDriver->m_transport.m_nFrames = nTotalFrames;	// reset total frames
+	// Reset the current transport position.
+	m_pAudioDriver->m_transport.m_nFrames = nTotalFrames;
 	m_nSongPos = -1;
 	m_nPatternStartTick = -1;
 	m_nPatternTickPosition = 0;
 
-	// prepare the tickSize for this song
+	// prepare the tick size for this song
 	updateTickSize();
 
 	// change the current audio engine state
@@ -362,10 +738,9 @@ int audioEngine_start( bool bLockEngine, unsigned nTotalFrames )
 	if ( bLockEngine ) {
 		AudioEngine::get_instance()->unlock();
 	}
-	return 0; // per ora restituisco sempre OK
+	return 0;
 }
 
-/// Stop the audio engine
 void audioEngine_stop( bool bLockEngine )
 {
 	if ( bLockEngine ) {
@@ -409,9 +784,6 @@ void audioEngine_stop( bool bLockEngine )
 	}
 }
 
-//
-///  Update Tick size and frame position in the audio driver from Song->__bpm
-//
 inline void audioEngine_process_checkBPMChanged(Song* pSong)
 {
 	if ( m_audioEngineState != STATE_READY
@@ -586,7 +958,7 @@ void audioEngine_seek( long long nFrames, bool bLoopMode )
 				m_pAudioDriver->m_transport.m_nFrames
 				/ m_pAudioDriver->m_transport.m_nTickSize );
 	//	sprintf(tmp, "[audioEngine_seek()] tickNumber_start = %d", tickNumber_start);
-	//	hydrogenInstance->infoLog(tmp);
+	//	__instance->infoLog(tmp);
 
 	bool loop = pSong->is_loop_enabled();
 
@@ -596,7 +968,7 @@ void audioEngine_seek( long long nFrames, bool bLoopMode )
 
 	m_nSongPos = findPatternInTick( tickNumber_start, loop, &m_nPatternStartTick );
 	//	sprintf(tmp, "[audioEngine_seek()] m_nSongPos = %d", m_nSongPos);
-	//	hydrogenInstance->infoLog(tmp);
+	//	__instance->infoLog(tmp);
 
 	audioEngine_clearNoteQueue();
 }
@@ -607,15 +979,21 @@ inline void audioEngine_process_transport()
 	  && m_audioEngineState != STATE_PLAYING
 	) return;
 
+	// Considering JackAudioDriver: //
+	// Compares the current transport state, speed in bpm, and
+	// transport position with a query request to the JACK
+	// server. It will only overwrite m_transport.m_nFrames, if
+	// the transport position was changed by the user by
+	// e.g. clicking on the timeline.
 	m_pAudioDriver->updateTransportInfo();
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
 
-	// Update frame position
-	// ??? audioEngine_seek returns IMMEDIATELY
-	// when nNewFrames == m_pAudioDriver->m_transport.m_nFrames ???
-	// audioEngine_seek( nNewFrames, true );
+	// Update the state of the audio engine depending on the
+	// status of the audio driver. E.g. if the JACK transport was
+	// started by another client, the audio engine has to be
+	// started as well.
 	switch ( m_pAudioDriver->m_transport.m_status ) {
 	case TransportInfo::ROLLING:
 		if ( m_audioEngineState == STATE_READY ) {
@@ -633,9 +1011,11 @@ inline void audioEngine_process_transport()
 				.arg( pSong->__bpm )
 				.arg( m_pAudioDriver->m_transport.m_nBPM )
 			);
-			pHydrogen->setBPM ( m_pAudioDriver->m_transport.m_nBPM );
+			pHydrogen->setBPM( m_pAudioDriver->m_transport.m_nBPM );
 		}
 
+		// Update the variable m_nRealtimeFrames keeping track
+		// of the current transport position.
 		pHydrogen->setRealtimeFrames( m_pAudioDriver->m_transport.m_nFrames );
 		break;
 	case TransportInfo::STOPPED:
@@ -674,7 +1054,27 @@ void audioEngine_clearNoteQueue()
 
 }
 
-/// Clear all audio buffers
+/** Clear all audio buffers.
+ *
+ * It locks the audio output buffer using #mutex_OutputPointer, gets
+ * fresh pointers to the output buffers #m_pMainBuffer_L and
+ * #m_pMainBuffer_R using AudioOutput::getOut_L() and
+ * AudioOutput::getOut_R() of the current instance of the audio driver
+ * #m_pAudioDriver, and overwrites their memory with
+ * \code{.cpp}
+ * nFrames * sizeof( float ) 
+ * \endcode
+ * zeros.
+ *
+ * If the JACK driver is used and Preferences::m_bJackTrackOuts is set
+ * to true, the stereo buffers for all tracks of the components of
+ * each instrument will be reset as well.  If LadspaFX are used, the
+ * output buffers of all effects LadspaFX::m_pBuffer_L and
+ * LadspaFX::m_pBuffer_L have to be reset as well.
+ *
+ * If the audio driver #m_pAudioDriver isn't set yet, it will just
+ * unlock and return.
+ */
 inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 {
 	QMutexLocker mx( &mutex_OutputPointer );
@@ -695,6 +1095,9 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 
 #ifdef H2CORE_HAVE_JACK
 	JackAudioDriver * jo = dynamic_cast<JackAudioDriver*>(m_pAudioDriver);
+	// Check whether the Preferences::m_bJackTrackOuts option was
+	// set. It enables a per-track creation of the output
+	// ports. All of them have to be reset as well.
 	if( jo && jo->has_track_outs() ) {
 		float* buf;
 		int k;
@@ -729,11 +1132,16 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 #endif
 }
 
-/// Main audio processing function. Called by audio drivers.
 int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 {
+	// ___INFOLOG( QString( "[begin] status: %1, frame: %2, ticksize: %3, bpm: %4" )
+	// 	    .arg( m_pAudioDriver->m_transport.m_status )
+	// 	    .arg( m_pAudioDriver->m_transport.m_nFrames )
+	// 	    .arg( m_pAudioDriver->m_transport.m_nTickSize )
+	// 	    .arg( m_pAudioDriver->m_transport.m_nBPM ) );
 	timeval startTimeval = currentTime2();
 
+	// Resetting all audio output buffers with zeros.
 	audioEngine_process_clearAudioBuffers( nframes );
 
 	/*
@@ -742,7 +1150,6 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	 * (like shutting down drivers). In such cases, it seems to be ok to interrupt
 	 * audio processing.
 	 */
-
 	if(!AudioEngine::get_instance()->try_lock( RIGHT_HERE )){
 		return 0;
 	}
@@ -754,18 +1161,31 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 	if ( m_nBufferSize != nframes ) {
 		___INFOLOG(
-					QString( "Buffer size changed. Old size = %1, new size = %2" )
-					.arg( m_nBufferSize )
-					.arg( nframes )
-					);
+			   QString( "Buffer size changed. Old size = %1, new size = %2" )
+			   .arg( m_nBufferSize )
+			   .arg( nframes ) );
 		m_nBufferSize = nframes;
 	}
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
 
+	// In case of the JackAudioDriver:
+	// Query the JACK server for the current status of the
+	// transport, start or stop the audio engine depending the
+	// results, update the speed of the current song according to
+	// the one used by the JACK server, and adjust the current
+	// transport position if it was changed by an user interaction
+	// (e.g. clicking on the timeline).
 	audioEngine_process_transport();
-	audioEngine_process_checkBPMChanged(pSong); // pSong->__bpm decides tick size
+
+	// ___INFOLOG( QString( "[after process] status: %1, frame: %2, ticksize: %3, bpm: %4" )
+	// 	    .arg( m_pAudioDriver->m_transport.m_status )
+	// 	    .arg( m_pAudioDriver->m_transport.m_nFrames )
+	// 	    .arg( m_pAudioDriver->m_transport.m_nTickSize )
+	// 	    .arg( m_pAudioDriver->m_transport.m_nBPM ) );
+	// Check whether the tick size has changed.
+	audioEngine_process_checkBPMChanged(pSong);
 
 	bool sendPatternChange = false;
 	// always update note queue.. could come from pattern or realtime input
@@ -908,6 +1328,11 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		EventQueue::get_instance()->push_event( EVENT_XRUN, -1 );
 	}
 #endif
+	// ___INFOLOG( QString( "[end] status: %1, frame: %2, ticksize: %3, bpm: %4" )
+	// 	    .arg( m_pAudioDriver->m_transport.m_status )
+	// 	    .arg( m_pAudioDriver->m_transport.m_nFrames )
+	// 	    .arg( m_pAudioDriver->m_transport.m_nTickSize )
+	// 	    .arg( m_pAudioDriver->m_transport.m_nBPM ) );
 
 	AudioEngine::get_instance()->unlock();
 
@@ -951,6 +1376,12 @@ void audioEngine_setupLadspaFX( unsigned nBufferSize )
 #endif
 }
 
+/**
+ * Hands the provided Song to JackAudioDriver::makeTrackOutputs() if
+ * @a pSong is not a null pointer and the audio driver #m_pAudioDriver
+ * is an instance of the JackAudioDriver.
+ * \param pSong Song for which per-track output ports should be generated.
+ */
 void audioEngine_renameJackPorts(Song * pSong)
 {
 #ifdef H2CORE_HAVE_JACK
@@ -978,7 +1409,7 @@ void audioEngine_setSong( Song * pNewSong )
 	// setup LADSPA FX
 	audioEngine_setupLadspaFX( m_pAudioDriver->getBufferSize() );
 
-	// update ticksize
+	// update tick size
 	audioEngine_process_checkBPMChanged( pNewSong );
 
 	// find the first pattern and set as current
@@ -1327,8 +1758,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 	return 0;
 }
 
-/// restituisce l'indice relativo al patternGroup in base al tick
-inline int findPatternInTick( int nTick, bool bLoopMode, int *pPatternStartTick )
+inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
@@ -1340,6 +1770,11 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int *pPatternStartTick 
 	std::vector<PatternList*> *pPatternColumns = pSong->get_pattern_group_vector();
 	int nColumns = pPatternColumns->size();
 
+	// Sum the lengths of all patterns and used the macro
+	// MAX_NOTES in case some of them are of size zero. If the
+	// supplied value nTick is bigger than this and doesn't belong
+	// to the next pattern, we just found the pattern number we
+	// were searching for.
 	int nPatternSize;
 	for ( int i = 0; i < nColumns; ++i ) {
 		PatternList *pColumn = ( *pPatternColumns )[ i ];
@@ -1358,6 +1793,10 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int *pPatternStartTick 
 		nTotalTick += nPatternSize;
 	}
 
+	// If the song is played in loop mode, the tick numbers of the
+	// second turn are added on top of maximum tick number of the
+	// song. Therefore, we will introduced periodic boundary
+	// conditions and start the search again.
 	if ( bLoopMode ) {
 		m_nSongSizeInTicks = nTotalTick;
 		int nLoopTick = 0;
@@ -1403,6 +1842,20 @@ void audioEngine_noteOn( Note *note )
 	m_midiNoteQueue.push_back( note );
 }
 
+/**
+ * Create an audio driver using audioEngine_process() as its argument
+ * based on the provided choice and calling their _init()_ function to
+ * trigger their initialization.
+ *
+ * For a listing of all possible choices, please see
+ * Preferences::m_sAudioDriver.
+ *
+ * \param sDriver String specifying which audio driver should be
+ * created.
+ * \return Pointer to the freshly created audio driver. If the
+ * creation resulted in a NullDriver, the corresponding object will be
+ * deleted and a null pointer returned instead.
+ */
 AudioOutput* createDriver( const QString& sDriver )
 {
 	___INFOLOG( QString( "Driver: '%1'" ).arg( sDriver ) );
@@ -1478,11 +1931,11 @@ AudioOutput* createDriver( const QString& sDriver )
 	return pDriver;
 }
 
-/// Start all audio drivers
 void audioEngine_startAudioDrivers()
 {
 	Preferences *preferencesMng = Preferences::get_instance();
 
+	// Lock both the AudioEngine and the audio output buffers.
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	QMutexLocker mx(&mutex_OutputPointer);
 
@@ -1650,7 +2103,6 @@ void audioEngine_startAudioDrivers()
 
 }
 
-/// Stop all audio drivers
 void audioEngine_stopAudioDrivers()
 {
 	___INFOLOG( "[audioEngine_stopAudioDrivers]" );
@@ -1696,7 +2148,9 @@ void audioEngine_stopAudioDrivers()
 
 
 
-/// Restart all audio and midi drivers
+/// Restart all audio and midi drivers by calling first
+/// audioEngine_stopAudioDrivers() and then
+/// audioEngine_startAudioDrivers().
 void audioEngine_restartAudioDrivers()
 {
 	audioEngine_stopAudioDrivers();
@@ -1709,7 +2163,6 @@ void audioEngine_restartAudioDrivers()
 //
 //----------------------------------------------------------------------------
 
-/// static reference of Hydrogen class (Singleton)
 Hydrogen* Hydrogen::__instance = NULL;
 const char* Hydrogen::__class_name = "Hydrogen";
 
@@ -1728,9 +2181,6 @@ Hydrogen::Hydrogen()
 	m_bExportSessionIsActive = false;
 	m_pTimeline = new Timeline();
 	m_pCoreActionController = new CoreActionController();
-
-
-	hydrogenInstance = this;
 
 	initBeatcounter();
 	InstrumentComponent::setMaxLayers( Preferences::get_instance()->getMaxLayers() );
@@ -1802,7 +2252,7 @@ void Hydrogen::create_instance()
 	// Playlist::create_instance();
 }
 
-void Hydrogen::initBeatcounter(void)
+void Hydrogen::initBeatcounter()
 {
 	m_ntaktoMeterCompute = 1;
 	m_nbeatsToCount = 4;
@@ -2269,8 +2719,10 @@ unsigned long Hydrogen::getTickPosition()
 
 unsigned long Hydrogen::getRealtimeTickPosition()
 {
-	//unsigned long initTick = audioEngine_getTickPosition();
-	unsigned int initTick = ( unsigned int )( getRealtimeFrames() / m_pAudioDriver->m_transport.m_nTickSize );
+	// Get the realtime transport position in frames and convert
+	// it into ticks.
+	unsigned int initTick = ( unsigned int )( getRealtimeFrames() /
+						  m_pAudioDriver->m_transport.m_nTickSize );
 	unsigned long retTick;
 
 	struct timeval currtime;
@@ -2279,6 +2731,11 @@ unsigned long Hydrogen::getRealtimeTickPosition()
 	double sampleRate = ( double ) m_pAudioDriver->getSampleRate();
 	gettimeofday ( &currtime, NULL );
 
+	// Definition macro from timehelper.h calculating the time
+	// difference between `currtime` and `m_currentTickTime`
+	// (`currtime`-`m_currentTickTime`) and storing the results in
+	// `deltatime`. It uses both the .tv_sec (seconds) and
+	// .tv_usec (microseconds) members of the timeval struct.
 	timersub( &currtime, &m_currentTickTime, &deltatime );
 
 	// add a buffers worth for jitter resistance
@@ -2332,6 +2789,35 @@ void Hydrogen::sequencer_setNextPattern( int pos )
 	}
 
 	AudioEngine::get_instance()->unlock();
+}
+
+/// Set Only the next pattern (Pattern mode only)
+void Hydrogen::sequencer_setOnlyNextPattern( int pos )
+{
+ AudioEngine::get_instance()->lock( RIGHT_HERE );
+  
+  Song* pSong = getSong();
+ if ( pSong && pSong->get_mode() == Song::PATTERN_MODE ) {
+   PatternList *pPatternList = pSong->get_pattern_list();
+
+   m_pNextPatterns->clear( );
+    Pattern * p;
+    //Deleting playing patterns
+   for ( int nPattern = 0 ; nPattern < (int)m_pPlayingPatterns->size() ; ++nPattern ) 
+   {
+     p = m_pPlayingPatterns->get( nPattern );
+     m_pNextPatterns->add( p );
+   }
+    
+    //Adding new pattern
+    p = pPatternList->get( pos );
+   m_pNextPatterns->add( p );
+ } else {
+   ERRORLOG( "can't set next pattern in song mode" );
+   m_pNextPatterns->clear();
+ }
+ 
+  AudioEngine::get_instance()->unlock();
 }
 
 int Hydrogen::getPatternPos()
@@ -2741,12 +3227,7 @@ unsigned long Hydrogen::getRealtimeFrames()
 	return m_nRealtimeFrames;
 }
 
-/**
- * Get the ticks for pattern at pattern pos
- * @a int pos -- position in song
- * @return -1 if pos > number of patterns in the song, tick no. > 0 otherwise
- * The driver should be LOCKED when calling this!!
- */
+
 long Hydrogen::getTickForPosition( int pos )
 {
 	Song* pSong = getSong();
@@ -2757,6 +3238,9 @@ long Hydrogen::getTickForPosition( int pos )
 	}
 
 	if ( pos >= nPatternGroups ) {
+		// The position is beyond the end of the Song, we
+		// set periodic boundary conditions or return the
+		// beginning of the Song as a fallback.
 		if ( pSong->is_loop_enabled() ) {
 			pos = pos % nPatternGroups;
 		} else {
@@ -2793,7 +3277,6 @@ long Hydrogen::getTickForPosition( int pos )
 	return totalTick;
 }
 
-/// Set the position in the song
 void Hydrogen::setPatternPos( int pos )
 {
 	if ( pos < -1 ) {
@@ -2817,6 +3300,7 @@ void Hydrogen::setPatternPos( int pos )
 		m_nSongPos = pos;
 		m_nPatternTickPosition = 0;
 	}
+	INFOLOG( "relocate" );
 	m_pAudioDriver->locate(
 				( int ) ( totalTick * m_pAudioDriver->m_transport.m_nTickSize )
 				);
@@ -2925,7 +3409,6 @@ void Hydrogen::setTapTempo( float fInterval )
 	AudioEngine::get_instance()->unlock();
 }
 
-// Called with audioEngine in LOCKED state.
 void Hydrogen::setBPM( float fBPM )
 {
 	Song* pSong = getSong();
@@ -3016,12 +3499,13 @@ void Hydrogen::renameJackPorts( Song *pSong )
 }
 #endif
 
-///m_nBeatCounter
+/** Updates #m_nbeatsToCount
+ * \param beatstocount New value*/
 void Hydrogen::setbeatsToCount( int beatstocount)
 {
 	m_nbeatsToCount = beatstocount;
 }
-
+/** \return #m_nbeatsToCount*/
 int Hydrogen::getbeatsToCount()
 {
 	return m_nbeatsToCount;
@@ -3157,7 +3641,6 @@ void Hydrogen::handleBeatCounter()
 }
 //~ m_nBeatCounter
 
-// jack transport master
 unsigned long Hydrogen::getHumantimeFrames()
 {
 	return m_nHumantimeFrames;
@@ -3180,31 +3663,6 @@ void Hydrogen::onJackMaster()
 {
 	if ( m_pAudioDriver->class_name() == JackAudioDriver::class_name() ) {
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->initTimeMaster();
-	}
-}
-
-unsigned long Hydrogen::getTimeMasterFrames()
-{
-	float allframes = 0 ;
-
-	if ( m_pAudioDriver->m_transport.m_status == TransportInfo::STOPPED ){
-
-		int oldtick = getTickPosition();
-		for (int i = 0; i <= getPatternPos(); i++){
-			float framesforposition =
-					(long)getTickForHumanPosition(i)
-					* (float)m_pAudioDriver->m_transport.m_nTickSize;
-			allframes = framesforposition + allframes;
-		}
-		unsigned long framesfortimemaster = (unsigned int)(
-					allframes
-					+ oldtick * (float)m_pAudioDriver->m_transport.m_nTickSize
-					);
-		m_nHumantimeFrames = framesfortimemaster;
-		return framesfortimemaster;
-	}else
-	{
-		return m_nHumantimeFrames;
 	}
 }
 #endif
@@ -3248,14 +3706,6 @@ float Hydrogen::getNewBpmJTM()
 void Hydrogen::setNewBpmJTM( float bpmJTM )
 {
 	m_nNewBpmJTM = bpmJTM;
-}
-
-void Hydrogen::ComputeHumantimeFrames(uint32_t nFrames)
-{
-	if ( m_audioEngineState == STATE_PLAYING )
-	{
-		m_nHumantimeFrames = nFrames + m_nHumantimeFrames;
-	}
 }
 
 //~ jack transport master
@@ -3342,14 +3792,18 @@ float Hydrogen::getTimelineBpm( int Beat )
 
 	float bpm = pSong->__bpm;
 
-	// Pattern mode don't use timeline
+	// Pattern mode don't use timeline and will have a constant
+	// speed.
 	if ( pSong->get_mode() == Song::PATTERN_MODE )
 		return bpm;
 
-	//time line test
+	// Check whether the user wants Hydrogen to determine the
+	// speed by local setting along the timeline or whether she
+	// wants to use a global speed instead.
 	if ( ! Preferences::get_instance()->getUseTimelineBpm() )
 		return bpm;
 
+	// Determine the speed at the supplied beat.
 	for ( int i = 0; i < static_cast<int>(m_pTimeline->m_timelinevector.size()); i++) {
 		if ( m_pTimeline->m_timelinevector[i].m_htimelinebeat > Beat )
 			break;
@@ -3362,19 +3816,23 @@ float Hydrogen::getTimelineBpm( int Beat )
 
 void Hydrogen::setTimelineBpm()
 {
-	//time line test
+	// Check the preferences if Hydrogen is supposed to set this
+	// value. 
 	if ( ! Preferences::get_instance()->getUseTimelineBpm() ) return;
 
 	// Update "engine" BPM
 	Song* pSong = getSong();
-	float BPM = getTimelineBpm ( getPatternPos() );
+	// Obtain the local speed specified for the current Pattern.
+	float BPM = getTimelineBpm( getPatternPos() );
 	if ( BPM != pSong->__bpm )
 		setBPM( BPM );
 
-	// Update "realtime" BPM
+	// Get the realtime pattern position. This also covers
+	// keyboard and MIDI input events in case the audio engine is
+	// not playing.
 	unsigned long PlayTick = getRealtimeTickPosition();
-	int RealtimePatternPos = getPosForTick ( PlayTick );
-	float RealtimeBPM = getTimelineBpm ( RealtimePatternPos );
+	int RealtimePatternPos = getPosForTick( PlayTick );
+	float RealtimeBPM = getTimelineBpm( RealtimePatternPos );
 
 	// FIXME: this was already done in setBPM but for "engine" time
 	//        so this is actually forcibly overwritten here

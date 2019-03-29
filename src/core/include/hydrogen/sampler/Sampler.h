@@ -53,6 +53,12 @@ public:
 	float *__main_out_L;	///< sampler main out (left channel)
 	float *__main_out_R;	///< sampler main out (right channel)
 
+	/**
+	 * Constructor of the Sampler.
+	 *
+	 * It is called by AudioEngine::AudioEngine() and stored in
+	 * AudioEngine::__sampler.
+	 */
 	Sampler();
 	~Sampler();
 

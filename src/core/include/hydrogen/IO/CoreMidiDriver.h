@@ -31,7 +31,7 @@
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
 
-#ifdef H2CORE_HAVE_COREMIDI
+#if defined(H2CORE_HAVE_COREMIDI) || _DOXYGEN_
 
 #include <CoreMidi/CoreMidi.h>
 

@@ -29,7 +29,7 @@
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/basics/sample.h>
 
-#ifdef H2CORE_HAVE_RUBBERBAND
+#if defined(H2CORE_HAVE_RUBBERBAND) || _DOXYGEN_
 #include <rubberband/RubberBandStretcher.h>
 #define RUBBERBAND_BUFFER_OVERSIZE  500
 #define RUBBERBAND_DEBUG            0
@@ -41,7 +41,7 @@ namespace H2Core
 const char* Sample::__class_name = "Sample";
 const char* Sample::__loop_modes[] = { "forward", "reverse", "pingpong" };
 
-#ifdef H2CORE_HAVE_RUBBERBAND
+#if defined(H2CORE_HAVE_RUBBERBAND) || _DOXYGEN_
 static double compute_pitch_scale( const Sample::Rubberband& r );
 static RubberBand::RubberBandStretcher::Options compute_rubberband_options( const Sample::Rubberband& r );
 #endif
