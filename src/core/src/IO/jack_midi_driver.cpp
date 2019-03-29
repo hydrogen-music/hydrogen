@@ -442,7 +442,7 @@ void JackMidiDriver::handleQueueNote(Note* pNote)
 	if (channel < 0 || channel > 15)
 		return;
 
-	key = (pNote->get_octave() +3 ) * 12 + pNote->get_key() + pNote->get_instrument()->get_midi_out_note() - 60;
+	key = pNote->get_midi_key();
 	if (key < 0 || key > 127)
 		return;
 

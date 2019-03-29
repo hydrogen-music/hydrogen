@@ -134,6 +134,7 @@ public:
 	int			lastMidiEventParameter;
 
 	void			sequencer_setNextPattern( int pos );
+	void			sequencer_setOnlyNextPattern( int pos );
 	void			togglePlaysSelected( void );
 // ***** ~SEQUENCER ********
 

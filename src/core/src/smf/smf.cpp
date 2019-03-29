@@ -282,7 +282,7 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 
 						int nInstr = iList->index(pNote->get_instrument());
 						Instrument *pInstr = pNote->get_instrument();
-						int nPitch = pInstr->get_midi_out_note();
+						int nPitch = pNote->get_midi_key();
 
 						// get events for specific instrument
 						EventList* eventList = getEvents(pSong, pInstr);

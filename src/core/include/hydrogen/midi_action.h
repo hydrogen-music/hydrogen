@@ -111,6 +111,7 @@ class MidiActionManager : public H2Core::Object
 		bool effect_level_relative(Action * , H2Core::Hydrogen * , targeted_element );
 		bool effect_level_absolute(Action * , H2Core::Hydrogen * , targeted_element );
 		bool select_next_pattern(Action * , H2Core::Hydrogen * , targeted_element );
+		bool select_only_next_pattern(Action * , H2Core::Hydrogen * , targeted_element );
 		bool select_next_pattern_cc_absolute(Action * , H2Core::Hydrogen * , targeted_element );
 		bool select_next_pattern_promptly(Action * , H2Core::Hydrogen * , targeted_element );
 		bool select_next_pattern_relative(Action * , H2Core::Hydrogen * , targeted_element );
