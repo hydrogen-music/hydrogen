@@ -245,7 +245,7 @@ void CoreActionController::handleOutgoingControlChange(int param, int value, int
 {
 	Preferences *pPref = Preferences::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
+	MidiOutput *pMidiDriver = pEngine->getMidiDriver();
 	
 	if( pMidiDriver == nullptr ){
 		return;

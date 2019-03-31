@@ -101,9 +101,15 @@ public:
 	 */
 	static void		create_instance();
 	/**
-	 * Returns the current Hydrogen instance #__instance.
+	 * @return Current Hydrogen instance #__instance.
 	 */
 	static Hydrogen*	get_instance(){ assert(__instance); return __instance; };
+	/** Accessing the current Hydrogen instance with asserting
+	 * it.
+	 *
+	 * @return Current Hydrogen instance #__instance.
+	 */
+	static Hydrogen*	get_instance_unsafe(){ return __instance; };
 
 	/**
 	 * Destructor taking care of most of the clean up.
@@ -140,11 +146,11 @@ public:
 
 	/**
 	 * Get the current song.
-	 * \return #__song
+	 * \return #m_pSong
 	 */ 	
-	Song*			getSong(){ return __song; }
+	Song*			getSong(){ return m_pSong; }
 	/**
-	 * Sets the current song #__song to @a newSong.
+	 * Sets the current song #m_pSong to @a newSong.
 	 * \param newSong Pointer to the new Song object.
 	 */
 	void			setSong	( Song *newSong );
@@ -260,9 +266,41 @@ public:
 
 	void			restartDrivers();
 
-	AudioOutput*		getAudioOutput();
-	MidiInput*		getMidiInput();
-	MidiOutput*		getMidiOutput();
+	/** @return A pointer to the audio driver #m_pAudioDriver.*/
+	AudioOutput*		getAudioDriver() const;
+	/** Sets a new audio driver. 
+	 * If there was already an initialized driver present, it has
+	 * to be properly destroyed before calling this function. This
+	 * is necessary since #m_pAudioDriver get allocated on the
+	 * heap. 
+	 *
+	 * Be sure to use this function only in a context where both
+	 * the audio engine and the global #mutex_OutputPointer are
+	 * locked!
+	 * @param pAudioDriver New pointer written to #m_pAudioDriver.*/
+	bool 			setAudioDriver( AudioOutput *pAudioDriver );
+	/** #return A pointer to the midi input driver 
+	    #m_pMidiDriver */
+	MidiInput*		getMidiDriver() const;
+	/** Sets a new input MIDI driver. 
+	 * If there was already an initialized driver present, it has
+	 * to be properly destroyed first. This is necessary since
+	 * #m_pMidiDriver get allocated on the heap. But since the
+	 * object shares the pointer with #m_pMidiDriverOut, be sure
+	 * to only delete one of them.
+	 * @param pMidiDriver New pointer written to #m_pMidiDriver.*/
+	void 			setMidiDriver( MidiInput *pMidiDriver );
+	/** @return A pointer to the midi output driver 
+	    #m_pMidiDriverOut */
+	MidiOutput*		getMidiDriverOut() const;
+	/** Sets a new output MIDI driver. 
+	 * If there was already an initialized driver present, it has
+	 * to be properly destroyed first. This is necessary since
+	 * #m_pMidiDriverOut get allocated on the heap. But since the
+	 * object shares the pointer with #m_pMidiDriverOut, be sure
+	 * to only delete one of them.
+	 * @param pMidiDriver New pointer written to #m_pMidiDriverOut.*/
+	void 			setMidiDriverOut( MidiOutput *pMidiDriverOut );
 
 	/** Returns the current state of the audio engine.
 	 * \return #m_audioEngineState*/
@@ -494,7 +532,36 @@ private:
 	 * the Hydrogen() constructor, set via setSong(), and accessed
 	 * via getSong().
 	 */
-	Song*			__song;
+	Song*			m_pSong;
+	
+	/**
+	 * Pointer to the current instance of the audio driver.
+	 * Initialized with nullptr. Inside
+	 * audioEngine_startAudioDrivers() either the audio driver
+	 * specified in Preferences::m_sAudioDriver and created via
+	 * createDriver() or the NullDriver, in case the former
+	 * failed, will be assigned. The variable can be modified
+	 * via getAudioDriver() and queried using setAudioDriver().
+	 */	
+	AudioOutput*		m_pAudioDriver;
+	/**
+	 * Pointer to the MIDI input driver.
+	 * In audioEngine_startAudioDrivers() it is assigned the midi
+	 * driver specified in Preferences::m_sMidiDriver. The
+	 * variable can be modified via getMidiDriver() and queried
+	 * using setMidiDriver(). 
+	 */
+	MidiInput* 		m_pMidiDriver;
+	/**
+	 * Pointer to the MIDI output driver.
+	 *
+	 * In audioEngine_startAudioDrivers() it is assigned the midi
+	 * driver specified in Preferences::m_sMidiDriver. The
+	 * variable can be modified via getMidiDriverOut() and queried
+	 * using setMidiDriverOut(). 
+	 */
+	MidiOutput*		m_pMidiDriverOut;
+
 
 	/**
 	 * Auxiliary function setting a bunch of global variables.
@@ -522,8 +589,8 @@ private:
 	double			m_nCurrentBeatTime;	///< timediff
 	double			m_nBeatDiff;		///< timediff
 	float			m_fBeatCountBpm;	///< bpm
-	int			m_nCoutOffset;		///ms default 0
-	int			m_nStartOffset;		///ms default 0
+	int			m_nCoutOffset;		///< ms default 0
+	int			m_nStartOffset;		///< ms default 0
 	//~ beatcounter
 
 
@@ -557,7 +624,7 @@ private:
 	 * #__instance object is present, the constructor will throw
 	 * an error.
 	 *
-	 * - Sets the current #__song to NULL
+	 * - Sets the current #m_pSong to NULL
 	 * - Sets #m_bExportSessionIsActive to false
 	 * - Creates a new Timeline #m_pTimeline 
 	 * - Creates a new CoreActionController
@@ -586,6 +653,41 @@ private:
 inline Timeline* Hydrogen::getTimeline() const
 {
 	return m_pTimeline;
+}
+
+inline AudioOutput* Hydrogen::getAudioDriver() const
+{
+	return m_pAudioDriver;
+}
+inline bool Hydrogen::setAudioDriver( AudioOutput* pAudioDriver )
+{
+	m_pAudioDriver = pAudioDriver;
+	// return false if the audio driver was not initialized yet.
+	if ( pAudioDriver == nullptr ){
+		return false;
+	} else {
+		return true;
+	}
+}
+
+inline MidiInput* Hydrogen::getMidiDriver() const 
+{
+	return m_pMidiDriver;
+}
+
+inline void Hydrogen::setMidiDriver( MidiInput *pMidiDriver )
+{	
+	m_pMidiDriver = pMidiDriver;
+}
+
+inline MidiOutput* Hydrogen::getMidiDriverOut() const 
+{
+	return m_pMidiDriverOut;
+}
+
+inline void Hydrogen::setMidiDriverOut( MidiOutput *pMidiDriverOut )
+{
+	m_pMidiDriverOut = pMidiDriverOut;
 }
 
 inline CoreActionController* Hydrogen::getCoreActionController() const

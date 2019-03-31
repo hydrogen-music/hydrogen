@@ -164,6 +164,14 @@ void Sample::load()
 	__data_r = new float[ sound_info.frames ];
 	__frames = sound_info.frames;
 	__sample_rate = sound_info.samplerate;
+	
+	// Check whether the sample rate of the sample and the one
+	// used by the audio engine do match.
+	// if ( __sample_rate != Hydrogen::get_instance()->getAudioOutput()->getSampleRate() ){
+	// 	ERRORLOG( QString( "Dude, it doesn't work!!!" ) );
+	// } else {
+	// 	INFOLOG( QString( "Well, seem's to work." ) );
+	// }
 
 	if ( sound_info.channels == 1 ) {
 		memcpy( __data_l, buffer, __frames * sizeof( float ) );
