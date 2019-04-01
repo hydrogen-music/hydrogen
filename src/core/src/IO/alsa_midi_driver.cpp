@@ -118,8 +118,8 @@ void* alsaMidiDriver_thread( void* param )
 	int m_dest_addr_client = -1;
 	pDriver->getPortInfo( sPortName, m_dest_addr_client, m_dest_addr_port );
 	__INFOLOG( "MIDI port name: "  + sPortName );
-	__INFOLOG( "MIDI addr client: " +  m_dest_addr_client );
-	__INFOLOG( "MIDI addr port: " + m_dest_addr_port );
+	__INFOLOG( QString( "MIDI addr client: %1").arg( m_dest_addr_client ) );
+	__INFOLOG( QString( "MIDI addr port: %1").arg( m_dest_addr_port ) );
 
 	if ( ( m_dest_addr_port != -1 ) && ( m_dest_addr_client != -1 ) ) {
 		snd_seq_port_subscribe_t *subs;
