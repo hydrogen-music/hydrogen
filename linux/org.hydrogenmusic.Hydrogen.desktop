@@ -26,4 +26,4 @@ TryExec=hydrogen
 Terminal=false
 StartupNotify=true
 
-Icon=h2-icon
+Icon=org.hydrogenmusic.Hydrogen
