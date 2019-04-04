@@ -494,8 +494,8 @@ void MainForm::onLashPollTimer()
 
 void MainForm::action_donate()
 {
-	DonationDialog *dialog = new DonationDialog( NULL );
-	dialog->exec();
+	DonationDialog *pDialog = new DonationDialog( nullptr );
+	pDialog->exec();
 }
 
 /// return true if the app needs to be closed.
@@ -748,8 +748,8 @@ void MainForm::action_file_openPattern()
 	PatternList *pPatternList = pSong->get_pattern_list();
 	int selectedPatternPosition = pEngine->getSelectedPatternNumber();
 
-	Instrument *instr = pSong->get_instrument_list()->get ( 0 );
-	assert ( instr );
+	Instrument *pInstrument = pSong->get_instrument_list()->get ( 0 );
+	assert ( pInstrument );
 
 	QFileDialog fd(this);
 	fd.setFileMode ( QFileDialog::ExistingFile );
@@ -779,9 +779,9 @@ void MainForm::action_file_openPattern()
 		if(!pPatternList->check_name( pNewPattern->get_name() ) ){
 			pNewPattern->set_name( pPatternList->find_unused_pattern_name( pNewPattern->get_name() ) );
 		}
-		SE_insertPatternAction*action =
+		SE_insertPatternAction* pAction =
 				new SE_insertPatternAction( selectedPatternPosition + 1, pNewPattern );
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 	}
 }
 
@@ -912,8 +912,8 @@ void MainForm::action_window_showAutomationArea()
 
 void MainForm::action_instruments_addInstrument()
 {
-	SE_mainMenuAddInstrumentAction *action = new SE_mainMenuAddInstrumentAction();
-	HydrogenApp::get_instance()->m_pUndoStack->push( action );
+	SE_mainMenuAddInstrumentAction *pAction = new SE_mainMenuAddInstrumentAction();
+	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
 
 
@@ -983,18 +983,18 @@ void MainForm::action_instruments_clearAll()
 
 void MainForm::functionDeleteInstrument(int instrument)
 {
-	Hydrogen * H = Hydrogen::get_instance();
-	Instrument *pSelectedInstrument = H->getSong()->get_instrument_list()->get( instrument );
+	Hydrogen * pEngine = Hydrogen::get_instance();
+	Instrument *pSelectedInstrument = pEngine->getSong()->get_instrument_list()->get( instrument );
 
 	std::list< Note* > noteList;
-	Song* song = H->getSong();
-	PatternList *patList = song->get_pattern_list();
+	Song* pSong = pEngine->getSong();
+	PatternList *pPatternList = pSong->get_pattern_list();
 
 	QString instrumentName =  pSelectedInstrument->get_name();
-	QString drumkitName = H->getCurrentDrumkitname();
+	QString drumkitName = pEngine->getCurrentDrumkitname();
 
-	for ( int i = 0; i < patList->size(); i++ ) {
-		H2Core::Pattern *pPattern = song->get_pattern_list()->get(i);
+	for ( int i = 0; i < pPatternList->size(); i++ ) {
+		H2Core::Pattern *pPattern = pSong->get_pattern_list()->get(i);
 		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
@@ -1005,8 +1005,8 @@ void MainForm::functionDeleteInstrument(int instrument)
 			}
 		}
 	}
-	SE_deleteInstrumentAction *action = new SE_deleteInstrumentAction( noteList, drumkitName, instrumentName, instrument );
-	HydrogenApp::get_instance()->m_pUndoStack->push( action );
+	SE_deleteInstrumentAction *pAction = new SE_deleteInstrumentAction( noteList, drumkitName, instrumentName, instrument );
+	HydrogenApp::get_instance()->m_pUndoStack->push( pAction );
 }
 
 
@@ -1328,17 +1328,17 @@ void MainForm::action_file_open_recent(QAction *pAction)
 
 void MainForm::openSongFile( const QString& sFilename )
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	if ( engine->getState() == STATE_PLAYING ) {
-		engine->sequencer_stop();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	if ( pEngine->getState() == STATE_PLAYING ) {
+		pEngine->sequencer_stop();
 	}
 
-	engine->getTimeline()->m_timelinetagvector.clear();
+	pEngine->getTimeline()->m_timelinetagvector.clear();
 
 	h2app->closeFXProperties();
 
 	Song *pSong = Song::load( sFilename );
-	if ( pSong == NULL ) {
+	if ( pSong == nullptr ) {
 		QMessageBox::information( this, "Hydrogen", trUtf8("Error loading song.") );
 		return;
 	}
@@ -1354,7 +1354,7 @@ void MainForm::openSongFile( const QString& sFilename )
 	h2app->setSong( pSong );
 
 	updateRecentUsedSongList();
-	engine->setSelectedPatternNumber( 0 );
+	pEngine->setSelectedPatternNumber( 0 );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
@@ -1364,19 +1364,19 @@ void MainForm::openSongFile( const QString& sFilename )
 
 void MainForm::checkMidiSetup()
 {
-	InfoBar *infobar = h2app->getInfoBar();
+	InfoBar *pInfoBar = h2app->getInfoBar();
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong->get_instrument_list()->has_all_midi_notes_same() ) {
 		WARNINGLOG( "Incorrect MIDI setup" );
 
-		infobar->reset();
-		infobar->setTitle( trUtf8("MIDI setup advice") );
-		infobar->setText( trUtf8("MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?") );
-		QPushButton *fix = infobar->addButton( trUtf8("Set default values") );
+		pInfoBar->reset();
+		pInfoBar->setTitle( trUtf8("MIDI setup advice") );
+		pInfoBar->setText( trUtf8("MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?") );
+		QPushButton *fix = pInfoBar->addButton( trUtf8("Set default values") );
 		QObject::connect( fix, SIGNAL(clicked()), this, SLOT(onFixMidiSetup()) );
-		infobar->show();
+		pInfoBar->show();
 	} else {
-		infobar->hide();
+		pInfoBar->hide();
 	}
 }
 
