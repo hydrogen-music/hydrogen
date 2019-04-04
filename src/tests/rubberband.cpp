@@ -119,8 +119,8 @@ void rubberband_test( const QString& sample_path ) {
     delete rubber;
     delete sample;
     delete sample2;
-    delete out_data_l;
-    delete out_data_r;
+    delete[] out_data_l;
+    delete[] out_data_r;
 }
 #else
 void rubberband_test( const QString& sample_path ) {

@@ -110,12 +110,12 @@ mxe_files(){
 	mkdir $extralibs
 
 	#Make arrays for the filenames to loop through.
-	declare -a libs=("liblzo2-2" "libgnurx" "libsndfile" "libFLAC" "libogg" "libvorbis" "libvorbisenc" "zlib1" "libwinpthread" "libeay32" "ssleay32" "libarchive" "libbz2" "liblzma" "libnettle" "libxml2" "libpng16" "libportmidi" "libportaudio" "libiconv" "libiconv" "jack")
+	declare -a libs=("liblzo2-2" "libgnurx" "libsndfile" "libFLAC" "libogg" "libvorbis" "libvorbisenc" "zlib1" "libwinpthread"  "libarchive" "libbz2" "liblzma" "libnettle" "libxml2" "libpng16" "libportmidi" "libportaudio" "libiconv" "libiconv"  "liblo" "jack")
 	declare -a gcclibs=("libgcc" "libstdc++")
 
 	#special stuff for qt5 handling
-	declare -a qtlibs=("Qt5Core" "Qt5Xml." "Qt5XmlPatterns" "Qt5Network" "Qt5Gui" "Qt5Widgets")
-	libs+=("libpcre-1" "libpcre16-0" "libharfbuzz-0" "libfreetype-6" "libglib-2" "libintl-8")
+	declare -a qtlibs=("Qt5Core" "Qt5Xml." "Qt5XmlPatterns" "Qt5Network." "Qt5Gui" "Qt5Widgets")
+	libs+=("libpcre-1" "libharfbuzz-0" "libfreetype-6" "libglib-2" "libintl-8" "libpcre2-16" "libcrypto" "libssl")
 	qtdir="$mxedir/../qt5/bin"
 	platforms="$extralibs/platforms"
 	mkdir -p $platforms
@@ -205,7 +205,15 @@ build_hydrogen(){
 		rm -f CMakeCache.txt CPackConfig.cmake cmake_install.cmake CPackSourceConfig.cmake install_manifest.txt ladspa_listplugins Makefile uninstall.cmake
 	fi
 
-	cmake $4 ../ -DCMAKE_TOOLCHAIN_FILE=$MXE/usr/$1-w64-mingw32.shared/share/cmake/mxe-conf.cmake $2 $3 -DWANT_FAT_BUILD:BOOL=$FATBUILD -DWANT_DEBUG:BOOL=OFF
+	PATH=/opt/mxe/usr/bin:$PATH;
+
+	if [ "$1" == "x86_64" ]; then
+	    MXE_CMAKE_BIN=/opt/mxe/usr/bin/x86_64-w64-mingw32.shared-cmake 
+	else
+	    MXE_CMAKE_BIN=/opt/mxe/usr/bin/i686-w64-mingw32.shared-cmake 
+	fi
+	
+	$MXE_CMAKE_BIN $4 ../ $2 $3 -DWANT_FAT_BUILD:BOOL=$FATBUILD -DWANT_DEBUG:BOOL=OFF
 
 	export HYDROGEN
 	export HYDROGEN_BUILD

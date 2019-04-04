@@ -33,7 +33,7 @@
 #include <pthread.h>
 #include <cassert>
 
-#ifdef WIN32
+#if defined(WIN32) || _DOXYGEN_
 #include <windows.h>
 /*
  * In Windows the unistd function sleep( seconds ) is not available.

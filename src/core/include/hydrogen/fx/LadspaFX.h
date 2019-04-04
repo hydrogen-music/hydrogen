@@ -23,7 +23,7 @@
 #define LADSPA_FX_H
 
 #include "hydrogen/config.h"
-#ifdef H2CORE_HAVE_LADSPA
+#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 
 #include <QLibrary>
 

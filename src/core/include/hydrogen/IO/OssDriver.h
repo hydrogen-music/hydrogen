@@ -27,7 +27,7 @@
 #include <hydrogen/IO/NullDriver.h>
 
 // check if OSS support is enabled
-#ifdef H2CORE_HAVE_OSS
+#if defined(H2CORE_HAVE_OSS) || _DOXYGEN_
 
 
 #ifdef __NetBSD__

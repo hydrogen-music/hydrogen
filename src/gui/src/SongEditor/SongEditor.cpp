@@ -2010,6 +2010,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 
 		int nPatternPos = Hydrogen::get_instance()->getPatternPos();
 		if ( nPatternPos != column ) {
+			WARNINGLOG( "relocate via mouse click" );
 			Hydrogen::get_instance()->setPatternPos( column );
 			update();
 		}

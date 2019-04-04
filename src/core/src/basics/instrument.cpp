@@ -78,6 +78,14 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	if ( __adsr == nullptr ) {
 		__adsr = new ADSR();
 	}
+
+    if( __midi_out_note < MIDI_OUT_NOTE_MIN ){
+		__midi_out_note = MIDI_OUT_NOTE_MIN;	
+	}
+	
+	if( __midi_out_note > MIDI_OUT_NOTE_MAX ){
+		__midi_out_note = MIDI_OUT_NOTE_MAX;	
+	}
 	
 	for ( int i=0; i<MAX_FX; i++ ) {
 		__fx_level[i] = 0.0;

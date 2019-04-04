@@ -1724,6 +1724,10 @@ void MainForm::errorEvent( int nErrorCode )
 		msg = trUtf8( "Jack driver: cannot connect output port" );
 		break;
 
+	case Hydrogen::JACK_CANNOT_CLOSE_CLIENT:
+		msg = trUtf8( "Jack driver: cannot disconnect client" );
+		break;
+
 	case Hydrogen::JACK_ERROR_IN_PORT_REGISTER:
 		msg = trUtf8( "Jack driver: error in port register" );
 		break;

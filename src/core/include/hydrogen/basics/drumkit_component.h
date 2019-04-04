@@ -75,7 +75,9 @@ class DrumkitComponent : public H2Core::Object
 		float						get_out_R( int nBufferPos );
 
 	private:
-		int			__id;
+		int		__id;
+	        /** Name of the DrumkitComponent. It is set by
+		    set_name() and accessed via get_name().*/
 		QString		__name;
 		float		__volume;
 		bool		__muted;
@@ -89,12 +91,14 @@ class DrumkitComponent : public H2Core::Object
 };
 
 // DEFINITIONS
-
+/** Sets the name of the DrumkitComponent #__name.
+ * \param name New name. */
 inline void DrumkitComponent::set_name( const QString& name )
 {
 	__name = name;
 }
-
+/** Access the name of the DrumkitComponent.
+ * \return #__name */
 inline const QString& DrumkitComponent::get_name() const
 {
 	return __name;

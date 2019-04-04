@@ -23,7 +23,7 @@
 #ifndef OSC_SERVER_H
 #define OSC_SERVER_H
 
-#ifdef H2CORE_HAVE_OSC
+#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
 #include <lo/lo.h>
 
@@ -61,12 +61,30 @@ class OscServer : public H2Core::Object
 {
 	H2_OBJECT
 	public:
-
+		/**
+		 * Object holding the current OscServer singleton. It
+		 * is initialized with NULL, set with
+		 * create_instance(), and accessed with
+		 * get_instance().
+		 */
 		static OscServer* __instance;
 		~OscServer();
 	
-		
+		/**		 
+		 * If #__instance equals 0, a new OscServer singleton
+		 * will be created and stored in it.
+		 *
+		 * It is called in
+		 * H2Core::Hydrogen::create_instance().
+		 *
+		 * \param pPreferences Pointer to the Preferences
+		 * singleton.
+		 */
 		static void create_instance(H2Core::Preferences* pPreferences);
+		/**
+		 * Returns a pointer to the current OscServer
+		 * singleton stored in #__instance.
+		 */
 		static OscServer* get_instance() { assert(__instance); return __instance; }
 
 		static QString qPrettyPrint(lo_type type,void * data);

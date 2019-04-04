@@ -26,6 +26,7 @@ class Legacy : public H2Core::Object {
 		/**
 		 * load pattern from a file
 		 * \param pattern_path is a path to an xml file
+		 * \param instrList
 		 * \return a Pattern on success, 0 otherwise
 		 */
 		static Pattern* load_drumkit_pattern( const QString& pattern_path, InstrumentList* instrList );

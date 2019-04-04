@@ -28,7 +28,7 @@
 #include <unistd.h>
 
 //currently H2CORE_HAVE_OSC means: liblo is present..
-#ifdef H2CORE_HAVE_OSC
+#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
