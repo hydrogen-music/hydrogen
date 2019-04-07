@@ -2363,21 +2363,21 @@ void Hydrogen::midi_noteOn( Note *note )
 	audioEngine_noteOn( note );
 }
 
-void Hydrogen::addRealtimeNote( int instrument,
-								float velocity,
-								float pan_L,
-								float pan_R,
-								float pitch,
-								bool noteOff,
-								bool forcePlay,
-								int msg1 )
+void Hydrogen::addRealtimeNote(	int		instrument,
+								float	velocity,
+								float	pan_L,
+								float	pan_R,
+								float	pitch,
+								bool	noteOff,
+								bool	forcePlay,
+								int		msg1 )
 {
 	UNUSED( pitch );
 
-	Preferences *pref = Preferences::get_instance();
-	unsigned int realcolumn = 0;
-	unsigned res = pref->getPatternEditorGridResolution();
-	int nBase = pref->isPatternEditorUsingTriplets() ? 3 : 4;
+	Preferences *pPreferences = Preferences::get_instance();
+	unsigned int nRealColumn = 0;
+	unsigned res = pPreferences->getPatternEditorGridResolution();
+	int nBase = pPreferences->isPatternEditorUsingTriplets() ? 3 : 4;
 	int scalar = ( 4 * MAX_NOTES ) / ( res * nBase );
 	bool hearnote = forcePlay;
 	int currentPatternNumber;
@@ -2385,7 +2385,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	Song *pSong = getSong();
-	if ( !pref->__playselectedinstrument ) {
+	if ( !pPreferences->__playselectedinstrument ) {
 		if ( instrument >= ( int ) pSong->get_instrument_list()->size() ) {
 			// unused instrument
 			AudioEngine::get_instance()->unlock();
@@ -2394,10 +2394,10 @@ void Hydrogen::addRealtimeNote( int instrument,
 	}
 
 	// Get current partern and column, compensating for "lookahead" if required
-	Pattern* currentPattern = NULL;
+	Pattern* currentPattern = nullptr;
 	unsigned int column = 0;
 	unsigned int lookaheadTicks = m_nLookaheadFrames / m_pAudioDriver->m_transport.m_nTickSize;
-	bool doRecord = pref->getRecordEvents();
+	bool doRecord = pPreferences->getRecordEvents();
 	if ( pSong->get_mode() == Song::SONG_MODE && doRecord &&
 		 m_audioEngineState == STATE_PLAYING )
 	{
@@ -2433,7 +2433,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 		}
 		column -= lookaheadTicks;
 		// Convert from playlist index to actual pattern index (if not already done above)
-		if ( currentPattern == NULL ) {
+		if ( currentPattern == nullptr ) {
 			std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 			for ( int i = 0; i <= ipattern; ++i ) {
 				PatternList *pColumn = ( *pColumns )[i];
@@ -2443,7 +2443,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 		}
 
 		// Cancel recording if punch area disagrees
-		doRecord = pref->inPunchArea( ipattern );
+		doRecord = pPreferences->inPunchArea( ipattern );
 
 	} else { // Not song-record mode
 		PatternList *pPatternList = pSong->get_pattern_list();
@@ -2471,9 +2471,9 @@ void Hydrogen::addRealtimeNote( int instrument,
 		}
 	}
 
-	realcolumn = getRealtimeTickPosition();
+	nRealColumn = getRealtimeTickPosition();
 
-	if ( pref->getQuantizeEvents() ) {
+	if ( pPreferences->getQuantizeEvents() ) {
 		// quantize it to scale
 		unsigned qcolumn = ( unsigned )::round( column / ( double )scalar ) * scalar;
 
@@ -2493,12 +2493,12 @@ void Hydrogen::addRealtimeNote( int instrument,
 	}
 
 	if ( currentPattern && ( getState() == STATE_PLAYING ) ) {
-		if ( doRecord && pref->getDestructiveRecord() && pref->m_nRecPreDelete>0 ) {
+		if ( doRecord && pPreferences->getDestructiveRecord() && pPreferences->m_nRecPreDelete>0 ) {
 			// Delete notes around current note if option toggled
 			int postdelete = 0;
 			int predelete = 0;
-			int prefpredelete = pref->m_nRecPreDelete-1;
-			int prefpostdelete = pref->m_nRecPostDelete;
+			int prefpredelete = pPreferences->m_nRecPreDelete-1;
+			int prefpostdelete = pPreferences->m_nRecPostDelete;
 			int length = currentPattern->get_length();
 			bool fp = false;
 			postdelete = column;
@@ -2545,7 +2545,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 				assert( pNote );
 
 				int currentPosition = pNote->get_position();
-				if ( pref->__playselectedinstrument ) {//fix me
+				if ( pPreferences->__playselectedinstrument ) {//fix me
 					if ( pSong->get_instrument_list()->get( getSelectedInstrumentNumber()) == pNote->get_instrument() )
 					{
 						if (prefpredelete>=1 && prefpredelete <=14 ) pNote->set_just_recorded( false );
@@ -2660,7 +2660,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 			noteAction.m_length = -1;
 			noteAction.b_isMidi = true;
 
-			if ( pref->__playselectedinstrument ) {
+			if ( pPreferences->__playselectedinstrument ) {
 				instrRef = pSong->get_instrument_list()->get( getSelectedInstrumentNumber() );
 				int divider = msg1 / 12;
 				noteAction.m_row = getSelectedInstrumentNumber();
@@ -2681,29 +2681,30 @@ void Hydrogen::addRealtimeNote( int instrument,
 			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
 
 			// hear note if its not in the future
-			if ( pref->getHearNewNotes() && position <= getTickPosition() )
+			if ( pPreferences->getHearNewNotes() && position <= getTickPosition() ) {
 				hearnote = true;
+			}
 		} /* if doRecord */
-	} else if ( pref->getHearNewNotes() ) {
+	} else if ( pPreferences->getHearNewNotes() ) {
 			hearnote = true;
 	} /* if .. STATE_PLAYING */
 
-	if ( !pref->__playselectedinstrument ) {
+	if ( !pPreferences->__playselectedinstrument ) {
 		if ( hearnote && instrRef ) {
-			Note *note2 = new Note( instrRef, realcolumn, velocity, pan_L, pan_R, -1, 0 );
-			midi_noteOn( note2 );
+			Note *pNote2 = new Note( instrRef, nRealColumn, velocity, pan_L, pan_R, -1, 0 );
+			midi_noteOn( pNote2 );
 		}
 	} else if ( hearnote  ) {
 		Instrument* pInstr = pSong->get_instrument_list()->get( getSelectedInstrumentNumber() );
-		Note *note2 = new Note( pInstr, realcolumn, velocity, pan_L, pan_R, -1, 0 );
+		Note *pNote2 = new Note( pInstr, nRealColumn, velocity, pan_L, pan_R, -1, 0 );
 
 		int divider = msg1 / 12;
 		Note::Octave octave = (Note::Octave)(divider -3);
 		Note::Key notehigh = (Note::Key)(msg1 - (12 * divider));
 
 		//ERRORLOG( QString( "octave: %1, note: %2, instrument %3" ).arg( octave ).arg(notehigh).arg(instrument));
-		note2->set_midi_info( notehigh, octave, msg1 );
-		midi_noteOn( note2 );
+		pNote2->set_midi_info( notehigh, octave, msg1 );
+		midi_noteOn( pNote2 );
 	}
 
 	AudioEngine::get_instance()->unlock(); // unlock the audio engine
@@ -2801,30 +2802,29 @@ void Hydrogen::sequencer_setNextPattern( int pos )
 /// Set Only the next pattern (Pattern mode only)
 void Hydrogen::sequencer_setOnlyNextPattern( int pos )
 {
- AudioEngine::get_instance()->lock( RIGHT_HERE );
-  
-  Song* pSong = getSong();
- if ( pSong && pSong->get_mode() == Song::PATTERN_MODE ) {
-   PatternList *pPatternList = pSong->get_pattern_list();
-
-   m_pNextPatterns->clear( );
-    Pattern * p;
-    //Deleting playing patterns
-   for ( int nPattern = 0 ; nPattern < (int)m_pPlayingPatterns->size() ; ++nPattern ) 
-   {
-     p = m_pPlayingPatterns->get( nPattern );
-     m_pNextPatterns->add( p );
-   }
-    
-    //Adding new pattern
-    p = pPatternList->get( pos );
-   m_pNextPatterns->add( p );
- } else {
-   ERRORLOG( "can't set next pattern in song mode" );
-   m_pNextPatterns->clear();
- }
- 
-  AudioEngine::get_instance()->unlock();
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	
+	Song* pSong = getSong();
+	if ( pSong && pSong->get_mode() == Song::PATTERN_MODE ) {
+		PatternList *pPatternList = pSong->get_pattern_list();
+		
+		m_pNextPatterns->clear( );
+		Pattern * pPattern;
+		//Deleting playing patterns
+		for ( int nPattern = 0 ; nPattern < (int)m_pPlayingPatterns->size() ; ++nPattern ) {
+			pPattern = m_pPlayingPatterns->get( nPattern );
+			m_pNextPatterns->add( pPattern );
+		}
+		
+		//Adding new pattern
+		pPattern = pPatternList->get( pos );
+		m_pNextPatterns->add( pPattern );
+	} else {
+		ERRORLOG( "can't set next pattern in song mode" );
+		m_pNextPatterns->clear();
+	}
+	
+	AudioEngine::get_instance()->unlock();
 }
 
 int Hydrogen::getPatternPos()
@@ -3139,12 +3139,10 @@ bool Hydrogen::instrumentHasNotes( Instrument *pInst )
 
 //this is also a new function and will used from the new delete function in
 //Hydrogen::loadDrumkit to delete the instruments by number
-void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
+void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
 {
 	Song* pSong = getSong();
-	Instrument *pInstr = pSong->get_instrument_list()->get( instrumentnumber );
-
-
+	Instrument *pInstr = pSong->get_instrument_list()->get( instrumentNumber );
 	PatternList* pPatternList = pSong->get_pattern_list();
 
 	if ( conditional ) {
@@ -3156,7 +3154,7 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 			if( pPatternList
 					->get( nPattern )
 					->references( pInstr ) ) {
-				DEBUGLOG("Keeping instrument #" + QString::number( instrumentnumber ) );
+				DEBUGLOG("Keeping instrument #" + QString::number( instrumentNumber ) );
 				return;
 			}
 		}
@@ -3184,19 +3182,17 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 
 	// if the instrument was the last on the instruments list, select the
 	// next-last
-	if ( instrumentnumber
-		 >= (int)getSong()->get_instrument_list()->size() - 1 ) {
-		Hydrogen::get_instance()
-				->setSelectedInstrumentNumber(
-					std::max(0, instrumentnumber - 1 )
+	if ( instrumentNumber >= (int)getSong()->get_instrument_list()->size() - 1 ) {
+		Hydrogen::get_instance()->setSelectedInstrumentNumber(
+					std::max(0, instrumentNumber - 1 )
 					);
 	}
 	//
 	// delete the instrument from the instruments list
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
-	getSong()->get_instrument_list()->del( instrumentnumber );
+	getSong()->get_instrument_list()->del( instrumentNumber );
 	// Ensure the selected instrument is not a deleted one
-	setSelectedInstrumentNumber( instrumentnumber - 1 );
+	setSelectedInstrumentNumber( instrumentNumber - 1 );
 	getSong()->set_is_modified( true );
 	AudioEngine::get_instance()->unlock();
 
@@ -3395,7 +3391,6 @@ void Hydrogen::setTapTempo( float fInterval )
 	fBPM = ( fBPM + fOldBpm1 + fOldBpm2 + fOldBpm3 + fOldBpm4 + fOldBpm5
 			 + fOldBpm6 + fOldBpm7 + fOldBpm8 ) / 9.0;
 
-
 	INFOLOG( QString( "avg BPM = %1" ).arg( fBPM ) );
 	fOldBpm8 = fOldBpm7;
 	fOldBpm7 = fOldBpm6;
@@ -3408,9 +3403,6 @@ void Hydrogen::setTapTempo( float fInterval )
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-	// 	m_pAudioDriver->setBpm( fBPM );
-	// 	pSong->setBpm( fBPM );
-
 	setBPM( fBPM );
 
 	AudioEngine::get_instance()->unlock();
@@ -3419,7 +3411,9 @@ void Hydrogen::setTapTempo( float fInterval )
 void Hydrogen::setBPM( float fBPM )
 {
 	Song* pSong = getSong();
-	if ( ! m_pAudioDriver || ! pSong ) return;
+	if ( ! m_pAudioDriver || ! pSong ){
+		return;
+	}
 
 	m_pAudioDriver->setBpm( fBPM );
 	pSong->__bpm = fBPM;
