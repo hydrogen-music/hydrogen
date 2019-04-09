@@ -101,11 +101,10 @@ Sampler::~Sampler()
 	delete[] __main_out_R;
 
 	delete __preview_instrument;
-	__preview_instrument = NULL;
-
+	__preview_instrument = nullptr;
 
 	delete __playback_instrument;
-	__playback_instrument = NULL;
+	__playback_instrument = nullptr;
 }
 
 // perche' viene passata anche la canzone? E' davvero necessaria?
@@ -1385,7 +1384,7 @@ void Sampler::reinitialize_playback_track()
 	
 	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( pSample );
 
-	__playback_instrument->get_components()->front()->set_layer(pPlaybackTrackLayer, 0);
+	__playback_instrument->get_components()->front()->set_layer( pPlaybackTrackLayer, 0 );
 	__playBackSamplePosition = 0;
 }
 

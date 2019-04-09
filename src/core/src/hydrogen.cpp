@@ -2398,7 +2398,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	unsigned int column = 0;
 	unsigned int lookaheadTicks = m_nLookaheadFrames / m_pAudioDriver->m_transport.m_nTickSize;
 	bool doRecord = pPreferences->getRecordEvents();
-	if ( pSong->get_mode() == Song::SONG_MODE && doRecord &&
+	if ( pSong->get_mode() == Song::SONG_MODE && doRecord &&	
 		 m_audioEngineState == STATE_PLAYING )
 	{
 
@@ -3035,37 +3035,36 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 
 	//current instrument list
 	InstrumentList *pSongInstrList = getSong()->get_instrument_list();
-
+	
 	//new instrument list
 	InstrumentList *pDrumkitInstrList = pDrumkitInfo->get_instruments();
-
+	
 	/*
-  If the old drumkit is bigger then the new drumkit,
-  delete all instruments with a bigger pos then
-  pDrumkitInstrList->size(). Otherwise the instruments
-  from our old instrumentlist with
-  pos > pDrumkitInstrList->size() stay in the
-  new instrumentlist
-
- wolke: info!
-  this has moved to the end of this function
-  because we get lost objects in memory
-  now:
-  1. the new drumkit will loaded
-  2. all not used instruments will complete deleted
-
- old funktion:
- while ( pDrumkitInstrList->size() < songInstrList->size() )
- {
-  songInstrList->del(songInstrList->size() - 1);
- }
- */
-
+	 * If the old drumkit is bigger then the new drumkit,
+	 * delete all instruments with a bigger pos then
+	 * pDrumkitInstrList->size(). Otherwise the instruments
+	 * from our old instrumentlist with
+	 * pos > pDrumkitInstrList->size() stay in the
+	 * new instrumentlist
+	 *
+	 * wolke: info!
+	 * this has moved to the end of this function
+	 * because we get lost objects in memory
+	 * now:
+	 * 1. the new drumkit will loaded
+	 * 2. all not used instruments will complete deleted
+	 * old function:
+	 * while ( pDrumkitInstrList->size() < songInstrList->size() )
+	 * {
+	 *  songInstrList->del(songInstrList->size() - 1);
+	 * }
+	 */
+	
 	//needed for the new delete function
 	int instrumentDiff =  pSongInstrList->size() - pDrumkitInstrList->size();
-
+	
 	for ( unsigned nInstr = 0; nInstr < pDrumkitInstrList->size(); ++nInstr ) {
-		Instrument *pInstr = NULL;
+		Instrument *pInstr = nullptr;
 		if ( nInstr < pSongInstrList->size() ) {
 			//instrument exists already
 			pInstr = pSongInstrList->get( nInstr );
@@ -3093,8 +3092,8 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 
 	//wolke: new delete funktion
 	if ( instrumentDiff >=0 ) {
-		int p;	// last position in instrument list
-		p = getSong()->get_instrument_list()->size() - 1;
+		int pos;	// last position in instrument list
+		pos = getSong()->get_instrument_list()->size() - 1;
 
 		for ( int i = 0; i < instrumentDiff ; i++ ){
 			removeInstrument(
