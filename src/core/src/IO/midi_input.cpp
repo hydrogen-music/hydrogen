@@ -270,6 +270,11 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 				return;
 			}
 			
+			if( nInstrument >= pInstrList->size()) {
+				ERRORLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
+				return;
+			}
+			
 			pInstr = pInstrList->get( nInstrument );
 		}
 
@@ -322,7 +327,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	}
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	InstrumentList* pInstrList = pEngine->getSong()->get_instrument_list();
 
 	__noteOffTick = pEngine->getTickPosition();
 	unsigned long notelength = computeDeltaNoteOnOfftime();
@@ -334,22 +339,28 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 
 	if ( Preferences::get_instance()->__playselectedinstrument ){
 		nInstrument = pEngine->getSelectedInstrumentNumber();
-		pInstr = pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber());
+		pInstr = pInstrList->get( pEngine->getSelectedInstrumentNumber());
 	} else if( Preferences::get_instance()->m_bMidiFixedMapping ) {
-		pInstr = pSong->get_instrument_list()->findMidiNote( nNote );
+		pInstr = pInstrList->findMidiNote( nNote );
 
 		if( pInstr == nullptr ) {
-			ERRORLOG( QString( "Note %1 not found" ).arg( nNote ));
+			ERRORLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
 			return;
 		}
-		nInstrument = pSong->get_instrument_list()->index(pInstr);
+		nInstrument = pInstrList->index(pInstr);
 	}
 	else {
 		if( nInstrument < 0 ) {
 			//Drop everything < 36
 			return;
 		}
-		pInstr =  pSong->get_instrument_list()->get(nInstrument);
+		
+		if( nInstrument >= pInstrList->size()) {
+			ERRORLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
+			return;
+		}
+		
+		pInstr =  pInstrList->get(nInstrument);
 	}
 
 	float fStep = pow( 1.0594630943593, (nNote) );
@@ -364,7 +375,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 		}
 		else
 		{
-			if ( pSong->get_instrument_list()->size() < nInstrument +1 ) {
+			if ( pInstrList->size() < nInstrument +1 ) {
 				return;
 			}
 			
