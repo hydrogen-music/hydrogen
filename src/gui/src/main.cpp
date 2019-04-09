@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
 		QCommandLineParser parser;
 		
 		QString aboutText = QString( "\nHydrogen " ) + QString::fromStdString( H2Core::get_version() )  + QString( " [" ) + QString::fromStdString( __DATE__ ) + QString( "]  [http://www.hydrogen-music.org]" ) +
-		QString( "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2018 The hydrogen development team" ) +
+		QString( "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2019 The hydrogen development team" ) +
 		QString( "\nHydrogen comes with ABSOLUTELY NO WARRANTY\nThis is free software, and you are welcome to redistribute it under certain conditions. See the file COPYING for details.\n" );
 		
 		parser.setApplicationDescription( aboutText );
@@ -217,17 +217,17 @@ int main(int argc, char *argv[])
 		// Man your battle stations... this is not a drill.
 		H2Core::Logger::create_instance();
 		H2Core::Logger::set_bit_mask( logLevelOpt );
-		H2Core::Logger* logger = H2Core::Logger::get_instance();
-		H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
-		if(sSysDataPath.length()==0 ) {
-			H2Core::Filesystem::bootstrap( logger );
+		H2Core::Logger* pLogger = H2Core::Logger::get_instance();
+		H2Core::Object::bootstrap( pLogger, pLogger->should_log(H2Core::Logger::Debug) );
+		
+		if( sSysDataPath.length() == 0 ) {
+			H2Core::Filesystem::bootstrap( pLogger );
 		} else {
-			H2Core::Filesystem::bootstrap( logger, sSysDataPath );
+			H2Core::Filesystem::bootstrap( pLogger, sSysDataPath );
 		}
 		MidiMap::create_instance();
 		H2Core::Preferences::create_instance();
 		// See below for H2Core::Hydrogen.
-
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
 		___INFOLOG( "Using data path: " + H2Core::Filesystem::sys_data_path() );
@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
 #ifdef H2CORE_HAVE_LASH
 
 		LashClient::create_instance("hydrogen", "Hydrogen", &argc, &argv);
-		LashClient* lashClient = LashClient::get_instance();
+		LashClient* pLashClient = LashClient::get_instance();
 
 #endif
 		if( ! sDrumkitName.isEmpty() ){
@@ -316,13 +316,13 @@ int main(int argc, char *argv[])
 
 #ifdef H2CORE_HAVE_LASH
 		if ( H2Core::Preferences::get_instance()->useLash() ){
-			if (lashClient->isConnected())
+			if (pLashClient->isConnected())
 			{
-				lash_event_t* lash_event = lashClient->getNextEvent();
+				lash_event_t* lash_event = pLashClient->getNextEvent();
 				if (lash_event && lash_event_get_type(lash_event) == LASH_Restore_File)
 				{
 					// notify client that this project was not a new one
-					lashClient->setNewProject(false);
+					pLashClient->setNewProject(false);
 
 					sSongFilename = "";
 					sSongFilename.append( QString::fromLocal8Bit(lash_event_get_string(lash_event)) );
@@ -394,10 +394,10 @@ int main(int argc, char *argv[])
 		}
 
 		if( ! sDrumkitToLoad.isEmpty() ) {
-			H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load_by_name( sDrumkitToLoad, true );
-			if ( drumkitInfo ) {
-				H2Core::Hydrogen::get_instance()->loadDrumkit( drumkitInfo );
-				HydrogenApp::get_instance()->onDrumkitLoad( drumkitInfo->get_name() );
+			H2Core::Drumkit* pDrumkitInfo = H2Core::Drumkit::load_by_name( sDrumkitToLoad, true );
+			if ( pDrumkitInfo ) {
+				H2Core::Hydrogen::get_instance()->loadDrumkit( pDrumkitInfo );
+				HydrogenApp::get_instance()->onDrumkitLoad( pDrumkitInfo->get_name() );
 			} else {
 				___ERRORLOG ( "Error loading the drumkit" );
 			}
