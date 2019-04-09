@@ -259,7 +259,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 			pInstr = pInstrList->findMidiNote( nNote );
 			
 			if(pInstr == nullptr) {
-				ERRORLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
+				WARNINGLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
 				return;
 			}
 			
@@ -271,7 +271,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 			}
 			
 			if( nInstrument >= pInstrList->size()) {
-				ERRORLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
+				WARNINGLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
 				return;
 			}
 			
@@ -344,7 +344,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 		pInstr = pInstrList->findMidiNote( nNote );
 
 		if( pInstr == nullptr ) {
-			ERRORLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
+			WARNINGLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
 			return;
 		}
 		nInstrument = pInstrList->index(pInstr);
@@ -356,7 +356,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 		}
 		
 		if( nInstrument >= pInstrList->size()) {
-			ERRORLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
+			WARNINGLOG( QString( "Can't find corresponding Instrument for note %1" ).arg( nNote ));
 			return;
 		}
 		
