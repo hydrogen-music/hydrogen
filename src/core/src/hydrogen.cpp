@@ -1574,9 +1574,9 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			PatternList *pPatternList = ( *( pSong->get_pattern_group_vector() ) )[m_nSongPos];
 			m_pPlayingPatterns->clear();
 			for ( int i=0; i< pPatternList->size(); ++i ) {
-				Pattern* pattern = pPatternList->get(i);
-				m_pPlayingPatterns->add( pattern );
-				pattern->extand_with_flattened_virtual_patterns( m_pPlayingPatterns );
+				Pattern* pPattern = pPatternList->get(i);
+				m_pPlayingPatterns->add( pPattern );
+				pPattern->extand_with_flattened_virtual_patterns( m_pPlayingPatterns );
 			}
 			// Set destructive record depending on punch area
 			doErase = doErase && Preferences::get_instance()->inPunchArea(m_nSongPos);
@@ -1599,7 +1599,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			}
 
 			if ( m_pPlayingPatterns->size() != 0 ) {
-				Pattern *pFirstPattern = m_pPlayingPatterns->get( 0 );
+				const Pattern *pFirstPattern = m_pPlayingPatterns->get( 0 );
 				nPatternSize = pFirstPattern->get_length();
 			}
 
@@ -2394,7 +2394,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	}
 
 	// Get current partern and column, compensating for "lookahead" if required
-	Pattern* currentPattern = nullptr;
+	const Pattern* currentPattern = nullptr;
 	unsigned int column = 0;
 	unsigned int lookaheadTicks = m_nLookaheadFrames / m_pAudioDriver->m_transport.m_nTickSize;
 	bool doRecord = pPreferences->getRecordEvents();

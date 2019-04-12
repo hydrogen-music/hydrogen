@@ -514,17 +514,17 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 
 	unsigned nPatterns = pSong->get_pattern_list()->size();
 	for ( unsigned i = 0; i < nPatterns; i++ ) {
-		Pattern *pat = pSong->get_pattern_list()->get( i );
+		const Pattern *pPattern = pSong->get_pattern_list()->get( i );
 
 		// pattern
 		QDomNode patternNode = doc.createElement( "pattern" );
-		LocalFileMng::writeXmlString( patternNode, "name", pat->get_name() );
-		LocalFileMng::writeXmlString( patternNode, "category", pat->get_category() );
-		LocalFileMng::writeXmlString( patternNode, "size", QString("%1").arg( pat->get_length() ) );
-		LocalFileMng::writeXmlString( patternNode, "info", pat->get_info() );
+		LocalFileMng::writeXmlString( patternNode, "name", pPattern->get_name() );
+		LocalFileMng::writeXmlString( patternNode, "category", pPattern->get_category() );
+		LocalFileMng::writeXmlString( patternNode, "size", QString("%1").arg( pPattern->get_length() ) );
+		LocalFileMng::writeXmlString( patternNode, "info", pPattern->get_info() );
 
 		QDomNode noteListNode = doc.createElement( "noteList" );
-		const Pattern::notes_t* notes = pat->get_notes();
+		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
@@ -557,7 +557,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 
 	QDomNode virtualPatternListNode = doc.createElement( "virtualPatternList" );
 	for ( unsigned i = 0; i < nPatterns; i++ ) {
-		Pattern *pat = pSong->get_pattern_list()->get( i );
+		const Pattern *pat = pSong->get_pattern_list()->get( i );
 
 		// pattern
 		if (pat->get_virtual_patterns()->empty() == false) {
@@ -582,7 +582,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 
 		PatternList *pList = ( *pSong->get_pattern_group_vector() )[i];
 		for ( unsigned j = 0; j < pList->size(); j++ ) {
-			Pattern *pPattern = pList->get( j );
+			const Pattern *pPattern = pList->get( j );
 			LocalFileMng::writeXmlString( groupNode, "patternID", pPattern->get_name() );
 		}
 		patternSequenceNode.appendChild( groupNode );

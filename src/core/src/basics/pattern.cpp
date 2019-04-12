@@ -112,7 +112,7 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 	return pattern;
 }
 
-bool Pattern::save_file( const QString& drumkit_name, const QString& author, const QString& license, const QString& pattern_path, bool overwrite )
+bool Pattern::save_file( const QString& drumkit_name, const QString& author, const QString& license, const QString& pattern_path, bool overwrite ) const
 {
 	INFOLOG( QString( "Saving pattern into %1" ).arg( pattern_path ) );
 	if( !overwrite && Filesystem::file_exists( pattern_path, true ) ) {
@@ -128,7 +128,7 @@ bool Pattern::save_file( const QString& drumkit_name, const QString& author, con
 	return doc.write( pattern_path );
 }
 
-void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly )
+void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly ) const
 {
 	XMLNode pattern_node =  node->createNode( "pattern" );
 	pattern_node.write_string( "name", __name );
@@ -137,7 +137,7 @@ void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly )
 	pattern_node.write_int( "size", __length );
 	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
 	int id = ( instrumentOnly == 0 ? -1 : instrumentOnly->get_id() );
-	for( notes_it_t it=__notes.begin(); it!=__notes.end(); ++it ) {
+	for( auto it=__notes.cbegin(); it!=__notes.cend(); ++it ) {
 		Note* note = it->second;
 		if( note && ( instrumentOnly == 0 || note->get_instrument()->get_id() == id ) ) {
 			XMLNode note_node = note_list_node.createNode( "note" );
@@ -146,7 +146,7 @@ void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly )
 	}
 }
 
-Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict )
+Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict ) const
 {
 	for( notes_cst_it_t it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
 		Note* note = it->second;
@@ -171,7 +171,7 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Ke
 	return 0;
 }
 
-Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool strict )
+Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool strict ) const
 {
 	notes_cst_it_t it;
 	for( it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
