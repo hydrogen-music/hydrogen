@@ -62,7 +62,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	connect(m_pTargetDisplayTimer, SIGNAL(timeout()), this, SLOT(updateTargetsamplePositionRuler()));
 
 	m_pSampleEditorStatus = true;
-	m_pSampleFromFile = NULL;
+	m_pSampleFromFile = nullptr;
 	m_pSelectedLayer = nSelectedLayer;
 	m_pSelectedComponent = nSelectedComponent;
 	m_samplename = mSamplefilename;
@@ -73,7 +73,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	m_pOnewayLoop = false;
 	m_pOnewayEnd = false;
 	m_pslframes = 0;
-	m_pPositionsRulerPath = NULL;
+	m_pPositionsRulerPath = nullptr;
 	m_pPlayButton = false;
 	m_pRatio = 1.0f;
 	__rubberband.c_settings = 4;
@@ -129,18 +129,18 @@ SampleEditor::~SampleEditor()
 {
 	m_pMainSampleWaveDisplay->close();
 	delete m_pMainSampleWaveDisplay;
-	m_pMainSampleWaveDisplay = NULL;
+	m_pMainSampleWaveDisplay = nullptr;
 
 	m_pSampleAdjustView->close();
 	delete m_pSampleAdjustView;
-	m_pSampleAdjustView = NULL;
+	m_pSampleAdjustView = nullptr;
 
 	m_pTargetSampleView->close();
 	delete m_pTargetSampleView;
-	m_pTargetSampleView = NULL;
+	m_pTargetSampleView = nullptr;
 
 	delete m_pSampleFromFile;
-	m_pSampleFromFile = NULL;
+	m_pSampleFromFile = nullptr;
 
 	INFOLOG ( "DESTROY" );
 }
@@ -167,10 +167,10 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 
 void SampleEditor::getAllFrameInfos()
 {
-	H2Core::Instrument *pInstrument = NULL;
-	Sample* pSample = NULL;
+	H2Core::Instrument *pInstrument = nullptr;
+	Sample* pSample = nullptr;
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	if (pSong != NULL) {
+	if (pSong != nullptr) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
@@ -178,7 +178,7 @@ void SampleEditor::getAllFrameInfos()
 		}
 
 		if (nInstr == -1) {
-			pInstrument = NULL;
+			pInstrument = nullptr;
 		}
 		else {
 			pInstrument = pInstrList->get( nInstr );
@@ -274,9 +274,9 @@ void SampleEditor::getAllLocalFrameInfos()
 
 void SampleEditor::openDisplays()
 {
-	H2Core::Instrument *pInstrument = NULL;
+	H2Core::Instrument *pInstrument = nullptr;
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	if (pSong != NULL) {
+	if (pSong != nullptr) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
@@ -284,7 +284,7 @@ void SampleEditor::openDisplays()
 		}
 
 		if (nInstr == -1) {
-			pInstrument = NULL;
+			pInstrument = nullptr;
 		}
 		else {
 			pInstrument = pInstrList->get( nInstr );
@@ -354,17 +354,17 @@ void SampleEditor::createNewLayer()
 {
 	if ( !m_pSampleEditorStatus ){
 
-		Sample *editSample = Sample::load( m_samplename, __loops, __rubberband, *m_pTargetSampleView->get_velocity(), *m_pTargetSampleView->get_pan() );
+		Sample *pEditSample = Sample::load( m_samplename, __loops, __rubberband, *m_pTargetSampleView->get_velocity(), *m_pTargetSampleView->get_pan() );
 
-		if( editSample == NULL ){
+		if( pEditSample == nullptr ){
 			return;
 		}
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-		H2Core::Instrument *pInstrument = NULL;
+		H2Core::Instrument *pInstrument = nullptr;
 		Song *pSong = Hydrogen::get_instance()->getSong();
-		if (pSong != NULL) {
+		if (pSong != nullptr) {
 			InstrumentList *pInstrList = pSong->get_instrument_list();
 			int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 			if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
@@ -372,7 +372,7 @@ void SampleEditor::createNewLayer()
 			}
 
 			if (nInstr == -1) {
-				pInstrument = NULL;
+				pInstrument = nullptr;
 			}
 			else {
 				pInstrument = pInstrList->get( nInstr );
@@ -385,7 +385,7 @@ void SampleEditor::createNewLayer()
 		delete oldSample;
 
 		// insert new sample from newInstrument
-		pLayer->set_sample( editSample );
+		pLayer->set_sample( pEditSample );
 
 		AudioEngine::get_instance()->unlock();
 		m_pTargetSampleView->updateDisplay( pLayer );
