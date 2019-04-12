@@ -381,9 +381,6 @@ void SampleEditor::createNewLayer()
 
 		H2Core::InstrumentLayer *pLayer = pInstrument->get_component(0)->get_layer( m_pSelectedLayer );
 
-		Sample *oldSample = pLayer->get_sample();
-		delete oldSample;
-
 		// insert new sample from newInstrument
 		pLayer->set_sample( pEditSample );
 
