@@ -1379,7 +1379,7 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 								if( !newSample  ){
 									continue;
 								}
-								delete pSample;
+								
 								// insert new sample from newInstrument
 								AudioEngine::get_instance()->lock( RIGHT_HERE );
 								pLayer->set_sample( newSample );
