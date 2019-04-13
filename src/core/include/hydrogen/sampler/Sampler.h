@@ -108,8 +108,12 @@ private:
 	std::vector<Note*> __playing_notes_queue;
 	std::vector<Note*> __queuedNoteOffs;
 
-
-	int __maxLayers;
+	/** Maximum number of layers to be used in the Instrument
+	    editor. It will be inferred from
+	    InstrumentComponent::m_iMaxLayers, which itself is
+	    inferred from Preferences::m_iMaxLayers. Default value
+	    assigned in Preferences::Preferences(): 16.*/
+	int m_iMaxLayers;
 
 	bool processPlaybackTrack(int nBufferSize);
 

@@ -213,6 +213,8 @@ Preferences::Preferences()
 	m_ladspaProperties[1].set(2, 20, 0, 0, false);
 	m_ladspaProperties[2].set(2, 20, 0, 0, false);
 	m_ladspaProperties[3].set(2, 20, 0, 0, false);
+	m_iMaxBars = 400;
+	m_iMaxLayers = 16;
 
 	m_nColoringMethod = 2;
 	m_nColoringMethodAuxValue = 213;
@@ -296,8 +298,8 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", true );
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", false );
 			__useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
-			maxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
-			maxLayers = LocalFileMng::readXmlInt( rootNode, "maxLayers", 16 );
+			m_iMaxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
+			m_iMaxLayers = LocalFileMng::readXmlInt( rootNode, "maxLayers", 16 );
 			m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
 			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
@@ -643,8 +645,8 @@ void Preferences::loadPreferences( bool bGlobal )
 		}
 	}
 
-	if ( maxLayers < 16 ) {
-		maxLayers = 16;
+	if ( m_iMaxLayers < 16 ) {
+		m_iMaxLayers = 16;
 	}
 
 	// The preferences file should be recreated?
@@ -681,8 +683,8 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "useLash", m_bsetLash ? "true": "false" );
 	LocalFileMng::writeXmlString( rootNode, "useTimeLine", __useTimelineBpm ? "true": "false" );
 
-	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( maxBars ) );
-	LocalFileMng::writeXmlString( rootNode, "maxLayers", QString::number( maxLayers ) );
+	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( m_iMaxBars ) );
+	LocalFileMng::writeXmlString( rootNode, "maxLayers", QString::number( m_iMaxLayers ) );
 
 	LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( m_nDefaultUILayout ) );
 	LocalFileMng::writeXmlString( rootNode, "lastOpenTab", QString::number( m_nLastOpenTab ) );

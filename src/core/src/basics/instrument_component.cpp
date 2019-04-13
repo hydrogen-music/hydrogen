@@ -41,15 +41,15 @@ namespace H2Core
 
 const char* InstrumentComponent::__class_name = "InstrumentComponent";
 
-int InstrumentComponent::maxLayers;
+int InstrumentComponent::m_iMaxLayers;
 
 InstrumentComponent::InstrumentComponent( int related_drumkit_componentID )
 	: Object( __class_name )
 	, __related_drumkit_componentID( related_drumkit_componentID )
 	, __gain( 1.0 )
 {
-	__layers.resize( maxLayers );
-	for ( int i = 0; i < maxLayers; i++ ) {
+	__layers.resize( m_iMaxLayers );
+	for ( int i = 0; i < m_iMaxLayers; i++ ) {
 		__layers[i] = nullptr;
 	}
 }
@@ -59,8 +59,8 @@ InstrumentComponent::InstrumentComponent( InstrumentComponent* other )
 	, __related_drumkit_componentID( other->__related_drumkit_componentID )
 	, __gain( other->__gain )
 {
-	__layers.resize( maxLayers );
-	for ( int i = 0; i < maxLayers; i++ ) {
+	__layers.resize( m_iMaxLayers );
+	for ( int i = 0; i < m_iMaxLayers; i++ ) {
 		InstrumentLayer* other_layer = other->get_layer( i );
 		if ( other_layer ) {
 			__layers[i] = new InstrumentLayer( other_layer, other_layer->get_sample());
@@ -72,7 +72,7 @@ InstrumentComponent::InstrumentComponent( InstrumentComponent* other )
 
 InstrumentComponent::~InstrumentComponent()
 {
-	for ( int i = 0; i < maxLayers; i++ ) {
+	for ( int i = 0; i < m_iMaxLayers; i++ ) {
 		delete __layers[i];
 		__layers[i] = nullptr;
 	}
@@ -80,7 +80,7 @@ InstrumentComponent::~InstrumentComponent()
 
 void InstrumentComponent::set_layer( InstrumentLayer* layer, int idx )
 {
-	assert( idx >= 0 && idx < maxLayers );
+	assert( idx >= 0 && idx < m_iMaxLayers );
 	if ( __layers[ idx ] ) {
 		delete __layers[ idx ];
 	}
@@ -89,12 +89,12 @@ void InstrumentComponent::set_layer( InstrumentLayer* layer, int idx )
 
 void InstrumentComponent::setMaxLayers( int layers )
 {
-	maxLayers = layers;
+	m_iMaxLayers = layers;
 }
 
 int InstrumentComponent::getMaxLayers()
 {
-	return maxLayers;
+	return m_iMaxLayers;
 }
 
 InstrumentComponent* InstrumentComponent::load_from( XMLNode* node, const QString& dk_path )
@@ -109,8 +109,8 @@ InstrumentComponent* InstrumentComponent::load_from( XMLNode* node, const QStrin
 	XMLNode layer_node = node->firstChildElement( "layer" );
 	int n = 0;
 	while ( !layer_node.isNull() ) {
-		if ( n >= maxLayers ) {
-			ERRORLOG( QString( "n (%1) >= maxLayers (%2)" ).arg( n ).arg( maxLayers ) );
+		if ( n >= m_iMaxLayers ) {
+			ERRORLOG( QString( "n (%1) >= m_iMaxLayers (%2)" ).arg( n ).arg( m_iMaxLayers ) );
 			break;
 		}
 		pInstrumentComponent->set_layer( InstrumentLayer::load_from( &layer_node, dk_path ), n );
@@ -128,7 +128,7 @@ void InstrumentComponent::save_to( XMLNode* node, int component_id )
 		component_node.write_int( "component_id", __related_drumkit_componentID );
 		component_node.write_float( "gain", __gain );
 	}
-	for ( int n = 0; n < maxLayers; n++ ) {
+	for ( int n = 0; n < m_iMaxLayers; n++ ) {
 		InstrumentLayer* pLayer = get_layer( n );
 		if( pLayer ) {
 			if( component_id == -1 ) {
