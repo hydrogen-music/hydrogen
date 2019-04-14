@@ -71,7 +71,7 @@ void* ossDriver_processCaller( void* param )
 const char* OssDriver::__class_name = "OssDriver";
 
 OssDriver::OssDriver( audioProcessCallback processCallback )
-		: AudioOutput( __class_name )
+		: AudioDriver( __class_name )
 {
 	INFOLOG( "INIT" );
 	audioBuffer = NULL;

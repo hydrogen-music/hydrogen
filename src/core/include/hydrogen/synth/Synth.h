@@ -29,7 +29,6 @@
 #include <hydrogen/object.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/song.h>
-#include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/globals.h>
 
 
@@ -65,7 +64,6 @@ public:
 	void noteOff( Note* pNote );
 
 	void process( uint32_t nFrames );
-	void setAudioOutput( AudioOutput* pAudioOutput );
 
 	int getPlayingNotesNumber() {
 		return m_playingNotesQueue.size();
@@ -76,8 +74,6 @@ private:
 	std::vector<Note*> m_playingNotesQueue;
 
 	float m_fTheta;
-	AudioOutput *m_pAudioOutput;
-
 
 };
 

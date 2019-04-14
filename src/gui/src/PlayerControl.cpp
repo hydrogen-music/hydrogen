@@ -579,9 +579,9 @@ void PlayerControl::updatePlayerControl()
 
 
 #ifdef H2CORE_HAVE_JACK
-	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
+	auto pAudioDriver = m_pEngine->getAudioDriver();
 
-	if ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0){
+	if ( pAudioDriver && strncmp(pAudioDriver->class_name(), "JackAudioDriver", 10) == 0){
 		m_pJackTransportBtn->show();
 		switch ( pPref->m_bJackTransportMode ) {
 			case Preferences::NO_JACK_TRANSPORT:
@@ -622,7 +622,7 @@ void PlayerControl::updatePlayerControl()
 #endif
 
 	// time
-	float fFrames = m_pEngine->getAudioOutput()->m_transport.m_nFrames;
+	float fFrames = m_pEngine->getAudioDriver()->m_transport.m_nFrames;
 
 #ifdef H2CORE_HAVE_JACK
 	if ( pPref->m_sAudioDriver == "Jack"  && Preferences::get_instance()->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT )
@@ -631,7 +631,7 @@ void PlayerControl::updatePlayerControl()
 	}
 #endif
 
-	float fSampleRate = m_pEngine->getAudioOutput()->getSampleRate();
+	float fSampleRate = m_pEngine->getAudioDriver()->getSampleRate();
 	if ( fSampleRate != 0 ) {
 		float fSeconds = fFrames / fSampleRate;
 
@@ -903,10 +903,10 @@ void PlayerControl::bctButtonClicked( Button* tBtn)
 
 void PlayerControl::jackTransportBtnClicked( Button* )
 {
-	Preferences *pPref = Preferences::get_instance();
-	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
+	auto pPref = Preferences::get_instance();
+	auto pAudioDriver = m_pEngine->getAudioDriver();
 
-	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0 ) ){
+	if ( ! ( pAudioDriver && strncmp(pAudioDriver->class_name(), "JackAudioDriver", 10) == 0 ) ){
 		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}
@@ -932,10 +932,10 @@ void PlayerControl::jackTransportBtnClicked( Button* )
 void PlayerControl::jackMasterBtnClicked( Button* )
 {
 #ifdef H2CORE_HAVE_JACK
-	Preferences *pPref = Preferences::get_instance();
-	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
+	auto pPref = Preferences::get_instance();
+	auto pAudioDriver = m_pEngine->getAudioDriver();
 
-	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0 ) ){
+	if ( ! ( pAudioDriver && strncmp(pAudioDriver->class_name(), "JackAudioDriver", 10) == 0 ) ){
 		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}

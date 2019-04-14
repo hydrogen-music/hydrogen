@@ -22,7 +22,7 @@
 #ifndef ALSA_AUDIO_DRIVER_H
 #define ALSA_AUDIO_DRIVER_H
 
-#include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/IO/AudioDriver.h>
 #include <hydrogen/IO/NullDriver.h>
 
 #if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
@@ -35,7 +35,7 @@ namespace H2Core
 
 typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
-class AlsaAudioDriver : public AudioOutput
+class AlsaAudioDriver : public AudioDriver
 {
 	H2_OBJECT
 public:

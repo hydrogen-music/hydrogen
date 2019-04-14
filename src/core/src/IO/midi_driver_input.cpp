@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/IO/MidiInput.h>
+#include <hydrogen/IO/MidiDriverInput.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
@@ -34,7 +34,7 @@
 namespace H2Core
 {
 
-MidiInput::MidiInput( const char* class_name )
+MidiDriverInput::MidiDriverInput( const char* class_name )
 		: Object( class_name )
 		, m_bActive( false )
 		, __hihat_cc_openess ( 127 )
@@ -46,12 +46,12 @@ MidiInput::MidiInput( const char* class_name )
 }
 
 
-MidiInput::~MidiInput()
+MidiDriverInput::~MidiDriverInput()
 {
 	//INFOLOG( "DESTROY" );
 }
 
-void MidiInput::handleMidiMessage( const MidiMessage& msg )
+void MidiDriverInput::handleMidiMessage( const MidiMessage& msg )
 {
 		EventQueue::get_instance()->push_event( EVENT_MIDI_ACTIVITY, -1 );
 
@@ -175,7 +175,7 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 		INFOLOG("[end of handleMidiMessage]");
 }
 
-void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
+void MidiDriverInput::handleControlChangeMessage( const MidiMessage& msg )
 {
 	//INFOLOG( QString( "[handleMidiMessage] CONTROL_CHANGE Parameter: %1, Value: %2" ).arg( msg.m_nData1 ).arg( msg.m_nData2 ) );
 	Hydrogen *pEngine = Hydrogen::get_instance();
@@ -195,7 +195,7 @@ void MidiInput::handleControlChangeMessage( const MidiMessage& msg )
 	pEngine->lastMidiEventParameter = msg.m_nData1;
 }
 
-void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
+void MidiDriverInput::handleProgramChangeMessage( const MidiMessage& msg )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	MidiActionManager *aH = MidiActionManager::get_instance();
@@ -210,7 +210,7 @@ void MidiInput::handleProgramChangeMessage( const MidiMessage& msg )
 	pEngine->lastMidiEventParameter = 0;
 }
 
-void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
+void MidiDriverInput::handleNoteOnMessage( const MidiMessage& msg )
 {
 //	INFOLOG( "handleNoteOnMessage" );
 
@@ -305,13 +305,13 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 	for cymbal choke.
 	If the message is 127 (choked) we send a NoteOff
 */
-void MidiInput::handlePolyphonicKeyPressureMessage( const MidiMessage& msg )
+void MidiDriverInput::handlePolyphonicKeyPressureMessage( const MidiMessage& msg )
 {
 	if( msg.m_nData2 == 127 )
 		handleNoteOffMessage( msg, true );
 }
 
-void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
+void MidiDriverInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 {
 //	INFOLOG( "handleNoteOffMessage" );
 	if ( !CymbalChoke && Preferences::get_instance()->m_bMidiNoteOffIgnore ) {
@@ -381,14 +381,14 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 }
 
 
-unsigned long MidiInput::computeDeltaNoteOnOfftime()
+unsigned long MidiDriverInput::computeDeltaNoteOnOfftime()
 {
 	unsigned long  __notelengthTicks = __noteOffTick - __noteOnTick;
 	return __notelengthTicks;
 
 }
 
-void MidiInput::handleSysexMessage( const MidiMessage& msg )
+void MidiDriverInput::handleSysexMessage( const MidiMessage& msg )
 {
 
 	/*

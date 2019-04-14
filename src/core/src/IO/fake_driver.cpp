@@ -28,10 +28,10 @@ namespace H2Core
 const char* FakeDriver::__class_name = "FakeDiskDriver";
 
 FakeDriver::FakeDriver( audioProcessCallback processCallback )
-		: AudioOutput( __class_name )
+		: AudioDriver( __class_name )
 		, m_processCallback( processCallback )
-		, m_pOut_L( NULL )
-		, m_pOut_R( NULL )
+		, m_pOut_L( nullptr )
+		, m_pOut_R( nullptr )
 		, m_nBufferSize( 0 )
 {
 	INFOLOG( "INIT" );

@@ -27,8 +27,8 @@
 #ifndef JACK_MIDI_DRIVER_H
 #define JACK_MIDI_DRIVER_H
 
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/IO/MidiOutput.h>
+#include <hydrogen/IO/MidiDriverInput.h>
+#include <hydrogen/IO/MidiDriverOutput.h>
 
 #if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 
@@ -46,7 +46,7 @@
 namespace H2Core
 {
 
-class JackMidiDriver : public virtual MidiInput, public virtual MidiOutput
+class JackMidiDriver : public virtual MidiDriverInput, public virtual MidiDriverOutput
 {
 	H2_OBJECT
 public:

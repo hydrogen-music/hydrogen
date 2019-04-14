@@ -24,7 +24,7 @@
 #ifndef NULL_AUDIO_DRIVER_H
 #define NULL_AUDIO_DRIVER_H
 
-#include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/IO/AudioDriver.h>
 
 #include <inttypes.h>
 
@@ -33,7 +33,7 @@ namespace H2Core
 
 typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
-class NullDriver : public AudioOutput
+class NullDriver : public AudioDriver
 {
 	H2_OBJECT
 public:

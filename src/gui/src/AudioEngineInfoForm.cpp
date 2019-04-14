@@ -33,8 +33,8 @@
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/IO/MidiDriverInput.h>
+#include <hydrogen/IO/AudioDriver.h>
 #include <hydrogen/sampler/Sampler.h>
 #include <hydrogen/audio_engine.h>
 using namespace H2Core;
@@ -94,8 +94,8 @@ void AudioEngineInfoForm::hideEvent ( QHideEvent* )
 
 void AudioEngineInfoForm::updateInfo()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	auto pEngine = Hydrogen::get_instance();
+	auto pSong = pEngine->getSong();
 
 	// Song position
 	QString sSongPos = "N/A";
@@ -136,21 +136,21 @@ void AudioEngineInfoForm::updateInfo()
 
 
 	// Audio driver info
-	AudioOutput *driver = pEngine->getAudioDriver();
-	if (driver) {
-		QString audioDriverName = driver->class_name();
+	auto pAudioDriver = pEngine->getAudioDriver();
+	if (pAudioDriver) {
+		QString audioDriverName = pAudioDriver->class_name();
 		driverLbl->setText(audioDriverName);
 
 		// Audio driver buffer size
-		sprintf(tmp, "%d", driver->getBufferSize());
+		sprintf(tmp, "%d", pAudioDriver->getBufferSize());
 		bufferSizeLbl->setText(QString(tmp));
 
 		// Audio driver sampleRate
-		sprintf(tmp, "%d", driver->getSampleRate());
+		sprintf(tmp, "%d", pAudioDriver->getSampleRate());
 		sampleRateLbl->setText(QString(tmp));
 
 		// Number of frames
-		sprintf(tmp, "%d", (int)driver->m_transport.m_nFrames );
+		sprintf(tmp, "%d", (int)pAudioDriver->m_transport.m_nFrames );
 		nFramesLbl->setText(tmp);
 	}
 	else {
@@ -163,9 +163,9 @@ void AudioEngineInfoForm::updateInfo()
 
 
 	// Midi driver info
-	MidiInput *pMidiDriver = pEngine->getMidiDriver();
-	if (pMidiDriver) {
-		midiDriverName->setText( pMidiDriver->class_name() );
+	auto pMidiDriverInput = pEngine->getMidiDriverInput();
+	if (pMidiDriverInput) {
+		midiDriverName->setText( pMidiDriverInput->class_name() );
 	}
 	else {
 		midiDriverName->setText("No MIDI driver support");
@@ -190,7 +190,7 @@ void AudioEngineInfoForm::updateInfo()
 		m_pSelectedInstrLbl->setText( QString("%1").arg(nSelectedInstrumentNumber) );
 	}
 
-	PatternList *pPatternList = Hydrogen::get_instance()->getCurrentPatternList();
+	auto pPatternList = Hydrogen::get_instance()->getCurrentPatternList();
 	if (pPatternList) {
 		currentPatternLbl->setText( QString::number(pPatternList->size()) );
 	}
@@ -199,11 +199,11 @@ void AudioEngineInfoForm::updateInfo()
 	}
 
 	// SAMPLER
-	Sampler *pSampler = AudioEngine::get_instance()->get_sampler();
+	auto pSampler = AudioEngine::get_instance()->get_sampler();
 	sampler_playingNotesLbl->setText(QString( "%1 / %2" ).arg(pSampler->get_playing_notes_number()).arg(Preferences::get_instance()->m_nMaxNotes));
 
 	// Synth
-	Synth *pSynth = AudioEngine::get_instance()->get_synth();
+	auto pSynth = AudioEngine::get_instance()->get_synth();
 	synth_playingNotesLbl->setText( QString( "%1" ).arg( pSynth->getPlayingNotesNumber() ) );
 }
 

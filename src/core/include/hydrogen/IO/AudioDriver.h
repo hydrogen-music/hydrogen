@@ -19,8 +19,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#ifndef H2_AUDIO_OUTPUT_H
-#define H2_AUDIO_OUTPUT_H
+#ifndef H2_AUDIO_DRIVER_H
+#define H2_AUDIO_DRIVER_H
 
 
 #include "hydrogen/config.h"
@@ -31,19 +31,19 @@ namespace H2Core
 {
 
 ///
-/// Base abstract class for audio output classes.
+/// Base abstract class for audio driver classes.
 ///
-class AudioOutput : public H2Core::Object
+class AudioDriver : public H2Core::Object
 {
 public:
 	/** Local instance of the TransportInfo. */
 	TransportInfo m_transport;
 
-	AudioOutput( const char* class_name )
+	AudioDriver( const char* class_name )
 			: Object( class_name )
 			, __track_out_enabled( false ) { }
 
-	virtual ~AudioOutput() { }
+	virtual ~AudioDriver() { }
 
 	virtual int init( unsigned nBufferSize ) = 0;
 	virtual int connect() = 0;

@@ -23,7 +23,7 @@
 #ifndef PORT_AUDIO_DRIVER_H
 #define PORT_AUDIO_DRIVER_H
 
-#include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/IO/AudioDriver.h>
 #include <hydrogen/IO/NullDriver.h>
 
 #include <unistd.h>
@@ -38,7 +38,7 @@ namespace H2Core
 
 typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
-class PortAudioDriver : public AudioOutput
+class PortAudioDriver : public AudioDriver
 {
 	H2_OBJECT
 public:

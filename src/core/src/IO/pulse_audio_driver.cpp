@@ -32,7 +32,7 @@ namespace H2Core
 {
 
 PulseAudioDriver::PulseAudioDriver(audioProcessCallback processCallback)
-	:	AudioOutput("PulseAudioDriver"),
+	:	AudioDriver("PulseAudioDriver"),
 		m_callback(processCallback),
 		m_main_loop(0),
 		m_ctx(0),

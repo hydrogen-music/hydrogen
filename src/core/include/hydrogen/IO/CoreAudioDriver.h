@@ -29,7 +29,7 @@
 #ifndef COREAUDIO_DRIVER_H
 #define COREAUDIO_DRIVER_H
 
-#include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/IO/AudioDriver.h>
 #include <hydrogen/IO/NullDriver.h>
 
 #if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
@@ -49,7 +49,7 @@ namespace H2Core
 
 #if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
 
-class CoreAudioDriver : public AudioOutput
+class CoreAudioDriver : public AudioDriver
 {
 	H2_OBJECT
 public:

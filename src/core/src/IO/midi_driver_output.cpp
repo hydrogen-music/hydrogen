@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/IO/MidiOutput.h>
+#include <hydrogen/IO/MidiDriverOutput.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
@@ -32,7 +32,7 @@
 namespace H2Core
 {
 
-MidiOutput::MidiOutput( const char* class_name )
+MidiDriverOutput::MidiDriverOutput( const char* class_name )
 		: Object( class_name )
 {
 	//INFOLOG( "INIT" );
@@ -40,7 +40,7 @@ MidiOutput::MidiOutput( const char* class_name )
 }
 
 
-MidiOutput::~MidiOutput()
+MidiDriverOutput::~MidiDriverOutput()
 {
 	//INFOLOG( "DESTROY" );
 }

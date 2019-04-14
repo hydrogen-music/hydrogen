@@ -29,9 +29,9 @@
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/object.h>
 #include <hydrogen/timeline.h>
-#include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/IO/MidiOutput.h>
+#include <hydrogen/IO/AudioDriver.h>
+#include <hydrogen/IO/MidiDriverInput.h>
+#include <hydrogen/IO/MidiDriverOutput.h>
 #include <hydrogen/basics/drumkit.h>
 #include <hydrogen/core_action_controller.h>
 #include <cassert>
@@ -183,7 +183,7 @@ public:
 	 * TransportInfo::m_nTickSize. Afterwards, it accesses how
 	 * much time passed since the last update of
 	 * #m_currentTickTime, converts the time difference +
-	 * AudioOutput::getBufferSize()/ AudioOutput::getSampleRate()
+	 * AudioDriver::getBufferSize()/ AudioDriver::getSampleRate()
 	 * in frames, and adds the result to the first value to
 	 * support keyboard and MIDI events as well.
 	 *
@@ -216,7 +216,7 @@ public:
 	 * retrieving the tick number the Pattern is located at using
 	 * getTickForPosition() and multiplying it with
 	 * TransportInfo::m_nTickSize. The resulting value will be
-	 * used by the AudioOutput::locate() function of your audio
+	 * used by the AudioDriver::locate() function of your audio
 	 * driver to relocate the playback position.
 	 *
 	 * If #m_audioEngineState is not #STATE_PLAYING, the variables
@@ -267,7 +267,7 @@ public:
 	void			restartDrivers();
 
 	/** @return A pointer to the audio driver #m_pAudioDriver.*/
-	AudioOutput*		getAudioDriver() const;
+	AudioDriver*		getAudioDriver() const;
 	/** Sets a new audio driver. 
 	 * If there was already an initialized driver present, it has
 	 * to be properly destroyed before calling this function. This
@@ -278,29 +278,29 @@ public:
 	 * the audio engine and the global #mutex_OutputPointer are
 	 * locked!
 	 * @param pAudioDriver New pointer written to #m_pAudioDriver.*/
-	bool 			setAudioDriver( AudioOutput *pAudioDriver );
-	/** #return A pointer to the midi input driver 
-	    #m_pMidiDriver */
-	MidiInput*		getMidiDriver() const;
+	bool 			setAudioDriver( AudioDriver *pAudioDriver );
+	/** @return A pointer to the midi input driver 
+	    #m_pMidiDriverInput */
+	MidiDriverInput*	getMidiDriverInput() const;
 	/** Sets a new input MIDI driver. 
 	 * If there was already an initialized driver present, it has
 	 * to be properly destroyed first. This is necessary since
-	 * #m_pMidiDriver get allocated on the heap. But since the
-	 * object shares the pointer with #m_pMidiDriverOut, be sure
+	 * #m_pMidiDriverInput get allocated on the heap. But since the
+	 * object shares the pointer with #m_pMidiDriverOutput, be sure
 	 * to only delete one of them.
-	 * @param pMidiDriver New pointer written to #m_pMidiDriver.*/
-	void 			setMidiDriver( MidiInput *pMidiDriver );
+	 * @param pMidiDriverInput New pointer written to #m_pMidiDriverInput.*/
+	void 			setMidiDriverInput( MidiDriverInput *pMidiDriverInput );
 	/** @return A pointer to the midi output driver 
-	    #m_pMidiDriverOut */
-	MidiOutput*		getMidiDriverOut() const;
+	    #m_pMidiDriverOutput */
+	MidiDriverOutput*	getMidiDriverOutput() const;
 	/** Sets a new output MIDI driver. 
 	 * If there was already an initialized driver present, it has
 	 * to be properly destroyed first. This is necessary since
-	 * #m_pMidiDriverOut get allocated on the heap. But since the
-	 * object shares the pointer with #m_pMidiDriverOut, be sure
+	 * #m_pMidiDriverOutput get allocated on the heap. But since the
+	 * object shares the pointer with #m_pMidiDriverOutput, be sure
 	 * to only delete one of them.
-	 * @param pMidiDriver New pointer written to #m_pMidiDriverOut.*/
-	void 			setMidiDriverOut( MidiOutput *pMidiDriverOut );
+	 * @param pMidiDriverOutput New pointer written to #m_pMidiDriverOutput.*/
+	void 			setMidiDriverOutput( MidiDriverOutput *pMidiDriverOutput );
 
 	/** Returns the current state of the audio engine.
 	 * \return #m_audioEngineState*/
@@ -380,7 +380,7 @@ public:
 	/** 
 	 * Updates the speed.
 	 *
-	 * It calls AudioOutput::setBpm() and setNewBpmJTM() with @a
+	 * It calls AudioDriver::setBpm() and setNewBpmJTM() with @a
 	 * fBPM as input argument and sets Song::__bpm to @a fBPM.
 	 *
 	 * This function will be called with the AudioEngine in LOCKED
@@ -543,24 +543,24 @@ private:
 	 * failed, will be assigned. The variable can be modified
 	 * via getAudioDriver() and queried using setAudioDriver().
 	 */	
-	AudioOutput*		m_pAudioDriver;
+	AudioDriver*		m_pAudioDriver;
 	/**
 	 * Pointer to the MIDI input driver.
 	 * In audioEngine_startAudioDrivers() it is assigned the midi
 	 * driver specified in Preferences::m_sMidiDriver. The
-	 * variable can be modified via getMidiDriver() and queried
-	 * using setMidiDriver(). 
+	 * variable can be modified via getMidiDriverInput() and queried
+	 * using setMidiDriverInput(). 
 	 */
-	MidiInput* 		m_pMidiDriver;
+	MidiDriverInput*	m_pMidiDriverInput;
 	/**
 	 * Pointer to the MIDI output driver.
 	 *
 	 * In audioEngine_startAudioDrivers() it is assigned the midi
 	 * driver specified in Preferences::m_sMidiDriver. The
-	 * variable can be modified via getMidiDriverOut() and queried
-	 * using setMidiDriverOut(). 
+	 * variable can be modified via getMidiDriverOutput() and queried
+	 * using setMidiDriverOutput(). 
 	 */
-	MidiOutput*		m_pMidiDriverOut;
+	MidiDriverOutput*	m_pMidiDriverOutput;
 
 
 	/**
@@ -655,11 +655,11 @@ inline Timeline* Hydrogen::getTimeline() const
 	return m_pTimeline;
 }
 
-inline AudioOutput* Hydrogen::getAudioDriver() const
+inline AudioDriver* Hydrogen::getAudioDriver() const
 {
 	return m_pAudioDriver;
 }
-inline bool Hydrogen::setAudioDriver( AudioOutput* pAudioDriver )
+inline bool Hydrogen::setAudioDriver( AudioDriver* pAudioDriver )
 {
 	m_pAudioDriver = pAudioDriver;
 	// return false if the audio driver was not initialized yet.
@@ -670,24 +670,24 @@ inline bool Hydrogen::setAudioDriver( AudioOutput* pAudioDriver )
 	}
 }
 
-inline MidiInput* Hydrogen::getMidiDriver() const 
+inline MidiDriverInput* Hydrogen::getMidiDriverInput() const 
 {
-	return m_pMidiDriver;
+	return m_pMidiDriverInput;
 }
 
-inline void Hydrogen::setMidiDriver( MidiInput *pMidiDriver )
+inline void Hydrogen::setMidiDriverInput( MidiDriverInput* pMidiDriverInput )
 {	
-	m_pMidiDriver = pMidiDriver;
+	m_pMidiDriverInput = pMidiDriverInput;
 }
 
-inline MidiOutput* Hydrogen::getMidiDriverOut() const 
+inline MidiDriverOutput* Hydrogen::getMidiDriverOutput() const 
 {
-	return m_pMidiDriverOut;
+	return m_pMidiDriverOutput;
 }
 
-inline void Hydrogen::setMidiDriverOut( MidiOutput *pMidiDriverOut )
+inline void Hydrogen::setMidiDriverOutput( MidiDriverOutput* pMidiDriverOutput )
 {
-	m_pMidiDriverOut = pMidiDriverOut;
+	m_pMidiDriverOutput = pMidiDriverOutput;
 }
 
 inline CoreActionController* Hydrogen::getCoreActionController() const

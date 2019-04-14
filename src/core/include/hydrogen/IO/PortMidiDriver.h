@@ -23,8 +23,8 @@
 #ifndef PORT_MIDI_DRIVER_H
 #define PORT_MIDI_DRIVER_H
 
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/IO/MidiOutput.h>
+#include <hydrogen/IO/MidiDriverInput.h>
+#include <hydrogen/IO/MidiDriverOutput.h>
 
 #if defined(H2CORE_HAVE_PORTMIDI) || _DOXYGEN_
 #include <portmidi.h>
@@ -32,7 +32,7 @@
 namespace H2Core
 {
 
-class PortMidiDriver : public virtual MidiInput, public virtual MidiOutput
+class PortMidiDriver : public virtual MidiDriverInput, public virtual MidiDriverOutput
 {
 	H2_OBJECT
 public:

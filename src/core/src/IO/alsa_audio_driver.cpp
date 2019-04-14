@@ -112,7 +112,7 @@ void* alsaAudioDriver_processCaller( void* param )
 const char* AlsaAudioDriver::__class_name = "AlsaAudioDriver";
 
 AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
-		: AudioOutput( __class_name )
+		: AudioDriver( __class_name )
 		, m_bIsRunning( false )
 		, m_pOut_L( NULL )
 		, m_pOut_R( NULL )

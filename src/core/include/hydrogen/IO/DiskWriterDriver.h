@@ -27,7 +27,7 @@
 
 #include <inttypes.h>
 
-#include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/IO/AudioDriver.h>
 #include <hydrogen/object.h>
 
 namespace H2Core
@@ -38,7 +38,7 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 ///
 /// Driver for export audio to disk
 ///
-class DiskWriterDriver : public AudioOutput
+class DiskWriterDriver : public AudioDriver
 {
 	H2_OBJECT
 	public:

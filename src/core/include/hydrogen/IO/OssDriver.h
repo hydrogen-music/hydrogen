@@ -23,7 +23,7 @@
 #ifndef OSS_AUDIO_DRIVER_H
 #define OSS_AUDIO_DRIVER_H
 
-#include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/IO/AudioDriver.h>
 #include <hydrogen/IO/NullDriver.h>
 
 // check if OSS support is enabled
@@ -62,7 +62,7 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 ///
 /// OSS Audio Driver
 ///
-class OssDriver : public AudioOutput
+class OssDriver : public AudioDriver
 {
 	H2_OBJECT
 public:

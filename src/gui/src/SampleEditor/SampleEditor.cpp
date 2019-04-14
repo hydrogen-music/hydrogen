@@ -746,7 +746,7 @@ void SampleEditor::setSamplelengthFrames()
 void SampleEditor::valueChangedLoopCountSpinBox( int )
 {
 	testpTimer();
-	if ( m_pslframes > Hydrogen::get_instance()->getAudioOutput()->getSampleRate() * 60 ){
+	if ( m_pslframes > Hydrogen::get_instance()->getAudioDriver()->getSampleRate() * 60 ){
 		AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
 		m_pTimer->stop();
@@ -755,7 +755,7 @@ void SampleEditor::valueChangedLoopCountSpinBox( int )
 	__loops.count = LoopCountSpinBox->value() ;
 	m_pSampleEditorStatus = false;
 	setSamplelengthFrames();
-	if ( m_pslframes > Hydrogen::get_instance()->getAudioOutput()->getSampleRate() * 60 * 30){ // >30 min
+	if ( m_pslframes > Hydrogen::get_instance()->getAudioDriver()->getSampleRate() * 60 * 30){ // >30 min
 		LoopCountSpinBox->setMaximum(LoopCountSpinBox->value() -1);
 	}
 

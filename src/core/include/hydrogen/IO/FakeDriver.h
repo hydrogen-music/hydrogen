@@ -23,7 +23,7 @@
 #ifndef FAKE_DRIVER_H
 #define FAKE_DRIVER_H
 
-#include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/IO/AudioDriver.h>
 #include <inttypes.h>
 
 namespace H2Core
@@ -34,7 +34,7 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 /**
  * Fake audio driver. Used only for profiling.
  */
-class FakeDriver : public AudioOutput
+class FakeDriver : public AudioDriver
 {
 	H2_OBJECT
 public:

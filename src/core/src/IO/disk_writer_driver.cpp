@@ -275,13 +275,13 @@ void* diskWriterDriver_thread( void* param )
 const char* DiskWriterDriver::__class_name = "DiskWriterDriver";
 
 DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsigned nSamplerate, int nSampleDepth )
-		: AudioOutput( __class_name )
+		: AudioDriver( __class_name )
 		, m_nSampleRate( nSamplerate )
 		, m_nSampleDepth ( nSampleDepth )
 		, m_processCallback( processCallback )
 		, m_nBufferSize( 0 )
-		, m_pOut_L( NULL )
-		, m_pOut_R( NULL )
+		, m_pOut_L( nullptr )
+		, m_pOut_R( nullptr )
 {
 	INFOLOG( "INIT" );
 }

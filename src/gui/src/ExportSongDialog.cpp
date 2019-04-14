@@ -41,7 +41,7 @@
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/timeline.h>
-#include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/IO/AudioDriver.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/sampler/Sampler.h>
 #include <hydrogen/event_queue.h>

@@ -23,8 +23,8 @@
 #ifndef ALSA_MIDI_DRIVER_H
 #define ALSA_MIDI_DRIVER_H
 
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/IO/MidiOutput.h>
+#include <hydrogen/IO/MidiDriverInput.h>
+#include <hydrogen/IO/MidiDriverOutput.h>
 
 #if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
@@ -39,7 +39,7 @@ namespace H2Core
 /// Alsa Midi Driver
 /// Based on Matthias Nagorni alsa sequencer example
 ///
-class AlsaMidiDriver : public virtual MidiInput, public virtual MidiOutput
+class AlsaMidiDriver : public virtual MidiDriverInput, public virtual MidiDriverOutput
 {
 	H2_OBJECT
 public:

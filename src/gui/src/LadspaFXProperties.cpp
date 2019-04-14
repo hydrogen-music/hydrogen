@@ -25,7 +25,7 @@
 #include <hydrogen/basics/song.h>
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/IO/AudioDriver.h>
 
 
 #include "LadspaFXProperties.h"
@@ -358,7 +358,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 			for (uint i = 0; i < pluginList.size(); i++) {
 				H2Core::LadspaFXInfo *pFXInfo = pluginList[i];
 				if (pFXInfo->m_sName == sSelectedFX ) {
-					int nSampleRate = Hydrogen::get_instance()->getAudioOutput()->getSampleRate();
+					int nSampleRate = Hydrogen::get_instance()->getAudioDriver()->getSampleRate();
 					pFX = LadspaFX::load( pFXInfo->m_sFilename, pFXInfo->m_sLabel, nSampleRate );
 					pFX->setEnabled( true );
 					break;

@@ -155,10 +155,10 @@ void jackDriverShutdown( void* arg )
 const char* JackAudioDriver::__class_name = "JackAudioDriver";
 
 JackAudioDriver::JackAudioDriver( JackProcessCallback processCallback )
-	: AudioOutput( __class_name )
+	: AudioDriver( __class_name )
 {
 	INFOLOG( "INIT" );
-	// __track_out_enabled is inherited from AudioOutput and
+	// __track_out_enabled is inherited from AudioDriver and
 	// instantiated with false. It will be used by the Sampler and
 	// Hydrogen itself to check whether JackAudioDriver is ordered
 	// to create per-track audio output ports.

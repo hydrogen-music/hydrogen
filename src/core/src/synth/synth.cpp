@@ -39,8 +39,6 @@ Synth::Synth()
 	m_pOut_R = new float[ MAX_BUFFER_SIZE ];
 
 	m_fTheta = 0.0;
-
-	m_pAudioOutput = NULL;
 }
 
 
@@ -79,7 +77,7 @@ void Synth::noteOff( Note* pNote )
 			delete pPlayingNote;
 
 			delete pNote;
-			pNote = NULL;
+			pNote = nullptr;
 			break;
 		}
 	}
@@ -116,13 +114,6 @@ void Synth::process( uint32_t nFrames )
 		}
 	}
 }
-
-
-void Synth::setAudioOutput( AudioOutput* pAudioOutput )
-{
-	m_pAudioOutput = pAudioOutput;
-}
-
 
 
 } // namespace H2Core

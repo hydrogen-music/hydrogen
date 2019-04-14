@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef H2_MIDI_INPUT_H
-#define H2_MIDI_INPUT_H
+#ifndef H2_MIDI_DRIVER_OUTPUT_H
+#define H2_MIDI_DRIVER_OUTPUT_H
 
 #include <hydrogen/object.h>
 #include <string>
@@ -30,45 +30,22 @@
 
 namespace H2Core
 {
+class Note;
+
 
 /**
- * MIDI input base class
+ * MIDI output driver base class
  */
-class MidiInput : public virtual Object
+class MidiDriverOutput : public virtual Object
 {
 public:
-	MidiInput( const char* class_name );
-	virtual ~MidiInput();
+	MidiDriverOutput( const char* class_name );
+	virtual ~MidiDriverOutput();
 
-	virtual void open() = 0;
-	virtual void close() = 0;
-	virtual std::vector<QString> getOutputPortList() = 0;
-
-	void setActive( bool isActive ) {
-		m_bActive = isActive;
-	}
-	void handleMidiMessage( const MidiMessage& msg );
-	void handleSysexMessage( const MidiMessage& msg );
-	void handleControlChangeMessage( const MidiMessage& msg );
-	void handleProgramChangeMessage( const MidiMessage& msg );
-	void handlePolyphonicKeyPressureMessage( const MidiMessage& msg );
-
-protected:
-	bool m_bActive;
-
-	void handleNoteOnMessage( const MidiMessage& msg );
-	void handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke );
-
-
-private:
-	unsigned long  __noteOnTick;
-	unsigned long  __noteOffTick;
-	unsigned long computeDeltaNoteOnOfftime();
-
-	int __hihat_cc_openess;
-
-
-
+	virtual void handleQueueNote(Note* pNote) = 0;
+	virtual void handleQueueNoteOff( int channel, int key, int velocity ) = 0;
+	virtual void handleQueueAllNoteOff() = 0;
+	virtual void handleOutgoingControlChange( int param, int value, int channel ) = 0;
 };
 
 };

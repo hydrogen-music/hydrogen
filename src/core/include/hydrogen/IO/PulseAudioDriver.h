@@ -23,7 +23,7 @@
 #define H2_PULSE_AUDIO_DRIVER_H
 
 
-#include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/IO/AudioDriver.h>
 
 #if defined(H2CORE_HAVE_PULSEAUDIO) || _DOXYGEN_
 
@@ -38,7 +38,7 @@ namespace H2Core
 ///
 /// PulseAudio driver.
 ///
-class PulseAudioDriver : public AudioOutput
+class PulseAudioDriver : public AudioDriver
 {
 	H2_OBJECT
 public:

@@ -36,7 +36,7 @@
 #include <hydrogen/midi_map.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
-#include <hydrogen/IO/MidiInput.h>
+#include <hydrogen/IO/MidiDriverInput.h>
 #include <hydrogen/LashClient.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/sampler/Sampler.h>
@@ -231,8 +231,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// list midi output ports
 	midiPortComboBox->clear();
 	midiPortComboBox->addItem( "None" );
-	if ( Hydrogen::get_instance()->getMidiInput() ) {
-		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiInput()->getOutputPortList();
+	if ( Hydrogen::get_instance()->getMidiDriverInput() ) {
+		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiDriverInput()->getOutputPortList();
 
 		if ( midiOutList.size() != 0 ) {
 			midiPortComboBox->setEnabled( true );

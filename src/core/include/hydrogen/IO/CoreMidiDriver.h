@@ -28,8 +28,8 @@
 #ifndef CORE_MIDI_DRIVER_H
 #define CORE_MIDI_DRIVER_H
 
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/IO/MidiOutput.h>
+#include <hydrogen/IO/MidiDriverInput.h>
+#include <hydrogen/IO/MidiDriverOutput.h>
 
 #if defined(H2CORE_HAVE_COREMIDI) || _DOXYGEN_
 
@@ -38,7 +38,7 @@
 namespace H2Core
 {
 
-class CoreMidiDriver : public virtual MidiInput, public virtual MidiOutput
+class CoreMidiDriver : public virtual MidiDriverInput, public virtual MidiDriverOutput
 {
 	H2_OBJECT
 public:

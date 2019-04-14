@@ -23,7 +23,7 @@
 #ifndef H2_JACK_OUTPUT_H
 #define H2_JACK_OUTPUT_H
 
-#include <hydrogen/IO/AudioOutput.h>
+#include <hydrogen/IO/AudioDriver.h>
 #include <hydrogen/IO/NullDriver.h>
 
 // check if jack support is disabled
@@ -94,7 +94,7 @@ class InstrumentComponent;
  * transport is rolling again.
  *
  * Also note that Hydrogen overwrites its local TransportInfo stored
- * in AudioOutput::m_transport only with the transport position of the
+ * in AudioDriver::m_transport only with the transport position of the
  * JACK server if a relocation did happened or another timebase master
  * did change the speed. During normal transport the current position
  * TransportInfo::m_nFrames will be always the same as the one of JACK
@@ -107,7 +107,7 @@ class InstrumentComponent;
  * during the configuration and the user enables the support of the
  * JACK server.
  */
-class JackAudioDriver : public AudioOutput
+class JackAudioDriver : public AudioDriver
 {
 	H2_OBJECT
 public:
@@ -466,18 +466,18 @@ public:
 	 * be used to request the new transport position. If not, @a
 	 * nFrame will be assigned to TransportInfo::m_nFrames of the
 	 * local instance of the TransportInfo
-	 * AudioOutput::m_transport.
+	 * AudioDriver::m_transport.
 	 *   
 	 * \param nFrame Requested new transport position.
 	 */
 	virtual void locate( unsigned long nFrame );
 	/**
 	 * Updating the local instance of the TransportInfo
-	 * AudioOutput::m_transport.
+	 * AudioDriver::m_transport.
 	 *
 	 * The function queries the transport position and addition
 	 * information from the JACK server and adjusts the
-	 * information stored in AudioOutput::m_transport if there is
+	 * information stored in AudioDriver::m_transport if there is
 	 * a mismatch.
 	 *
 	 * - Calls _jack_transport_query()_ (jack/transport.h), stores
@@ -505,7 +505,7 @@ public:
              master (there can only be one). In that case we will just
              store the changes in TransportInfo::m_nBpm of the current
              instance of the TransportInfo
-             AudioOutput::m_transport. The tempo will be set by the
+             AudioDriver::m_transport. The tempo will be set by the
              calling function audioEngine_process_transport()
              afterwards. In addition, #must_relocate will be set to 1
              in order to relocate using relocateBBT() at the end of
@@ -545,7 +545,7 @@ public:
 	 */
 	virtual void updateTransportInfo();
 	/** Set the tempo stored TransportInfo::m_nBPM of the local
-	 * instance of the TransportInfo AudioOutput::m_transport.
+	 * instance of the TransportInfo AudioDriver::m_transport.
 	 * \param fBPM new tempo. 
 	 */
 	virtual void setBpm( float fBPM );
