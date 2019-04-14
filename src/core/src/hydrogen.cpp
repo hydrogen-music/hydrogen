@@ -1592,7 +1592,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			}
 
 			if ( m_pPlayingPatterns->size() != 0 ) {
-				auto pFirstPattern = m_pPlayingPatterns->get( 0 );
+				const Pattern *pFirstPattern = m_pPlayingPatterns->get( 0 );
 				nPatternSize = pFirstPattern->get_length();
 			}
 
@@ -2384,9 +2384,10 @@ void Hydrogen::addRealtimeNote( int instrument,
 	UNUSED( pitch );
 
 	auto pPref = Preferences::get_instance();
-	unsigned int realcolumn = 0;
+	unsigned int nRealColumn = 0;
 	unsigned res = pPref->getPatternEditorGridResolution();
 	int nBase = pPref->isPatternEditorUsingTriplets() ? 3 : 4;
+
 	int scalar = ( 4 * MAX_NOTES ) / ( res * nBase );
 	bool hearnote = forcePlay;
 	int currentPatternNumber;
@@ -2403,7 +2404,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 	}
 
 	// Get current partern and column, compensating for "lookahead" if required
-	Pattern* pCurrentPattern = nullptr;
+	const Pattern* pCurrentPattern = nullptr;
 	unsigned int column = 0;
 	unsigned int lookaheadTicks = m_nLookaheadFrames / m_pAudioDriver->m_transport.m_nTickSize;
 	bool doRecord = pPref->getRecordEvents();
@@ -2480,7 +2481,7 @@ void Hydrogen::addRealtimeNote( int instrument,
 		}
 	}
 
-	realcolumn = getRealtimeTickPosition();
+	nRealColumn = getRealtimeTickPosition();
 
 	if ( pPref->getQuantizeEvents() ) {
 		// quantize it to scale
@@ -2690,8 +2691,9 @@ void Hydrogen::addRealtimeNote( int instrument,
 			EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
 
 			// hear note if its not in the future
-			if ( pPref->getHearNewNotes() && position <= getTickPosition() )
+			if ( pPref->getHearNewNotes() && position <= getTickPosition() ){
 				hearnote = true;
+			}
 		} /* if doRecord */
 	} else if ( pPref->getHearNewNotes() ) {
 			hearnote = true;
@@ -2699,12 +2701,12 @@ void Hydrogen::addRealtimeNote( int instrument,
 
 	if ( !pPref->__playselectedinstrument ) {
 		if ( hearnote && instrRef ) {
-			auto pNote2 = new Note( instrRef, realcolumn, velocity, pan_L, pan_R, -1, 0 );
+			auto pNote2 = new Note( instrRef, nRealColumn, velocity, pan_L, pan_R, -1, 0 );
 			midi_noteOn( pNote2 );
 		}
 	} else if ( hearnote  ) {
 		auto pInstr = pSong->get_instrument_list()->get( getSelectedInstrumentNumber() );
-		auto pNote2 = new Note( pInstr, realcolumn, velocity, pan_L, pan_R, -1, 0 );
+		auto pNote2 = new Note( pInstr, nRealColumn, velocity, pan_L, pan_R, -1, 0 );
 
 		int divider = msg1 / 12;
 		Note::Octave octave = (Note::Octave)(divider -3);
@@ -2811,28 +2813,27 @@ void Hydrogen::sequencer_setNextPattern( int pos )
 void Hydrogen::sequencer_setOnlyNextPattern( int pos )
 {
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
-  
+	
 	auto pSong = getSong();
 	if ( pSong && pSong->get_mode() == Song::PATTERN_MODE ) {
 		auto pPatternList = pSong->get_pattern_list();
 		
 		m_pNextPatterns->clear( );
-		Pattern* p;
+		Pattern* pPattern;
 		//Deleting playing patterns
-		for ( int nPattern = 0 ; nPattern < (int)m_pPlayingPatterns->size() ; ++nPattern ) 
-			{
-				p = m_pPlayingPatterns->get( nPattern );
-				m_pNextPatterns->add( p );
-			}
+		for ( int nPattern = 0 ; nPattern < (int)m_pPlayingPatterns->size() ; ++nPattern ) {
+			pPattern = m_pPlayingPatterns->get( nPattern );
+			m_pNextPatterns->add( pPattern );
+		}
 		
 		//Adding new pattern
-		p = pPatternList->get( pos );
-		m_pNextPatterns->add( p );
+		pPattern = pPatternList->get( pos );
+		m_pNextPatterns->add( pPattern );
 	} else {
 		ERRORLOG( "can't set next pattern in song mode" );
 		m_pNextPatterns->clear();
 	}
- 
+
 	AudioEngine::get_instance()->unlock();
 }
 
@@ -3032,30 +3033,29 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	auto pDrumkitInstrList = pDrumkitInfo->get_instruments();
 
 	/*
-  If the old drumkit is bigger then the new drumkit,
-  delete all instruments with a bigger pos then
-  pDrumkitInstrList->size(). Otherwise the instruments
-  from our old instrumentlist with
-  pos > pDrumkitInstrList->size() stay in the
-  new instrumentlist
-
- wolke: info!
-  this has moved to the end of this function
-  because we get lost objects in memory
-  now:
-  1. the new drumkit will loaded
-  2. all not used instruments will complete deleted
-
- old funktion:
- while ( pDrumkitInstrList->size() < songInstrList->size() )
- {
-  songInstrList->del(songInstrList->size() - 1);
- }
- */
-
+	 * If the old drumkit is bigger then the new drumkit,
+	 * delete all instruments with a bigger pos then
+	 * pDrumkitInstrList->size(). Otherwise the instruments
+	 * from our old instrumentlist with
+	 * pos > pDrumkitInstrList->size() stay in the
+	 * new instrumentlist
+	 *
+	 * wolke: info!
+	 * this has moved to the end of this function
+	 * because we get lost objects in memory
+	 * now:
+	 * 1. the new drumkit will loaded
+	 * 2. all not used instruments will complete deleted
+	 * old function:
+	 * while ( pDrumkitInstrList->size() < songInstrList->size() )
+	 * {
+	 *  songInstrList->del(songInstrList->size() - 1);
+	 * }
+	 */
+	
 	//needed for the new delete function
 	int instrumentDiff =  pSongInstrList->size() - pDrumkitInstrList->size();
-
+	
 	for ( unsigned nInstr = 0; nInstr < pDrumkitInstrList->size(); ++nInstr ) {
 		Instrument *pInstr = nullptr;
 		if ( nInstr < pSongInstrList->size() ) {
@@ -3085,8 +3085,8 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 
 	//wolke: new delete funktion
 	if ( instrumentDiff >=0 ) {
-		int p;	// last position in instrument list
-		p = getSong()->get_instrument_list()->size() - 1;
+		int pos;	// last position in instrument list
+		pos = getSong()->get_instrument_list()->size() - 1;
 
 		for ( int i = 0; i < instrumentDiff ; i++ ){
 			removeInstrument(
@@ -3131,12 +3131,10 @@ bool Hydrogen::instrumentHasNotes( Instrument *pInst )
 
 //this is also a new function and will used from the new delete function in
 //Hydrogen::loadDrumkit to delete the instruments by number
-void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
+void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
 {
 	auto pSong = getSong();
-	auto pInstr = pSong->get_instrument_list()->get( instrumentnumber );
-
-
+	auto pInstr = pSong->get_instrument_list()->get( instrumentNumber );
 	auto pPatternList = pSong->get_pattern_list();
 
 	if ( conditional ) {
@@ -3148,7 +3146,7 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 			if( pPatternList
 					->get( nPattern )
 					->references( pInstr ) ) {
-				DEBUGLOG("Keeping instrument #" + QString::number( instrumentnumber ) );
+				DEBUGLOG("Keeping instrument #" + QString::number( instrumentNumber ) );
 				return;
 			}
 		}
@@ -3176,19 +3174,17 @@ void Hydrogen::removeInstrument( int instrumentnumber, bool conditional )
 
 	// if the instrument was the last on the instruments list, select the
 	// next-last
-	if ( instrumentnumber
-		 >= (int)getSong()->get_instrument_list()->size() - 1 ) {
-		Hydrogen::get_instance()
-				->setSelectedInstrumentNumber(
-					std::max(0, instrumentnumber - 1 )
+	if ( instrumentNumber >= (int)getSong()->get_instrument_list()->size() - 1 ) {
+		Hydrogen::get_instance()->setSelectedInstrumentNumber(
+					std::max(0, instrumentNumber - 1 )
 					);
 	}
 	//
 	// delete the instrument from the instruments list
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
-	getSong()->get_instrument_list()->del( instrumentnumber );
+	getSong()->get_instrument_list()->del( instrumentNumber );
 	// Ensure the selected instrument is not a deleted one
-	setSelectedInstrumentNumber( instrumentnumber - 1 );
+	setSelectedInstrumentNumber( instrumentNumber - 1 );
 	getSong()->set_is_modified( true );
 	AudioEngine::get_instance()->unlock();
 
@@ -3387,7 +3383,6 @@ void Hydrogen::setTapTempo( float fInterval )
 	fBPM = ( fBPM + fOldBpm1 + fOldBpm2 + fOldBpm3 + fOldBpm4 + fOldBpm5
 			 + fOldBpm6 + fOldBpm7 + fOldBpm8 ) / 9.0;
 
-
 	INFOLOG( QString( "avg BPM = %1" ).arg( fBPM ) );
 	fOldBpm8 = fOldBpm7;
 	fOldBpm7 = fOldBpm6;
@@ -3400,9 +3395,6 @@ void Hydrogen::setTapTempo( float fInterval )
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-	// 	m_pAudioDriver->setBpm( fBPM );
-	// 	pSong->setBpm( fBPM );
-
 	setBPM( fBPM );
 
 	AudioEngine::get_instance()->unlock();
@@ -3411,7 +3403,9 @@ void Hydrogen::setTapTempo( float fInterval )
 void Hydrogen::setBPM( float fBPM )
 {
 	auto pSong = getSong();
-	if ( ! m_pAudioDriver || ! pSong ) return;
+	if ( ! m_pAudioDriver || ! pSong ){
+		return;
+	}
 
 	m_pAudioDriver->setBpm( fBPM );
 	pSong->__bpm = fBPM;

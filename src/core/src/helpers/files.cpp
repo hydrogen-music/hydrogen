@@ -11,7 +11,7 @@ namespace H2Core
 
 	const char* Files::__class_name = "Files";
 
-	QString Files::savePattern( SaveMode mode, const QString& fileName, Pattern* pattern, Song* song, const QString& drumkitName )
+	QString Files::savePattern( SaveMode mode, const QString& fileName, const Pattern* pPattern, Song* pSong, const QString& drumkitName )
 	{
 		QFileInfo fileInfo;
 
@@ -40,7 +40,7 @@ namespace H2Core
 			return NULL;
 		}
 
-		if ( !pattern->save_file( drumkitName, song->get_author(), song->get_license(), fileInfo.absoluteFilePath(), true ) )
+		if ( !pPattern->save_file( drumkitName, pSong->get_author(), pSong->get_license(), fileInfo.absoluteFilePath(), true ) )
 			return NULL;
 
 		return fileInfo.absoluteFilePath();

@@ -1354,14 +1354,17 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 	Song *song = pEngine->getSong();
 	assert(song);
 	if(song){
-		InstrumentList *songInstrList = song->get_instrument_list();
-		assert(songInstrList);
-		for ( unsigned nInstr = 0; nInstr < songInstrList->size(); ++nInstr ) {
-			Instrument *pInstr = songInstrList->get( nInstr );
+		InstrumentList *pSongInstrList = song->get_instrument_list();
+		assert(pSongInstrList);
+		for ( unsigned nInstr = 0; nInstr < pSongInstrList->size(); ++nInstr ) {
+			Instrument *pInstr = pSongInstrList->get( nInstr );
 			assert( pInstr );
 			if ( pInstr ){
 				InstrumentComponent* pInstrumentComponent = pInstr->get_component(m_nSelectedComponent);
-				if (!pInstrumentComponent) continue; // regular case when you have a new component empty
+				if (!pInstrumentComponent) {
+					continue; // regular case when you have a new component empty
+				}
+				
 				for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 					InstrumentLayer *pLayer = pInstrumentComponent->get_layer( nLayer );
 					if ( pLayer ) {
@@ -1369,20 +1372,20 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 						if ( pSample ) {
 							if( pSample->get_rubberband().use ) {
 								//INFOLOG( QString("Instrument %1 Layer %2" ).arg(nInstr).arg(nLayer));
-								Sample *newSample = Sample::load(
+								Sample *pNewSample = Sample::load(
 														pSample->get_filepath(),
 														pSample->get_loops(),
 														pSample->get_rubberband(),
 														*pSample->get_velocity_envelope(),
 														*pSample->get_pan_envelope()
 														);
-								if( !newSample  ){
+								if( !pNewSample  ){
 									continue;
 								}
-								delete pSample;
+								
 								// insert new sample from newInstrument
 								AudioEngine::get_instance()->lock( RIGHT_HERE );
-								pLayer->set_sample( newSample );
+								pLayer->set_sample( pNewSample );
 								AudioEngine::get_instance()->unlock();
 
 							}

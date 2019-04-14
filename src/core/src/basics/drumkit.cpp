@@ -50,7 +50,7 @@ namespace H2Core
 
 const char* Drumkit::__class_name = "Drumkit";
 
-Drumkit::Drumkit() : Object( __class_name ), __samples_loaded( false ), __instruments( 0 ), __components( NULL )
+Drumkit::Drumkit() : Object( __class_name ), __samples_loaded( false ), __instruments( nullptr ), __components( nullptr )
 {
 	__components = new std::vector<DrumkitComponent*> ();
 }
@@ -65,13 +65,12 @@ Drumkit::Drumkit( Drumkit* other ) :
 	__image( other->get_image() ),
 	__imageLicense( other->get_image_license() ),
 	__samples_loaded( other->samples_loaded() ),
-	__components( NULL )
+	__components( nullptr )
 {
 	__instruments = new InstrumentList( other->get_instruments() );
 
 	__components = new std::vector<DrumkitComponent*> ();
 	__components->assign( other->get_components()->begin(), other->get_components()->end() );
-
 }
 
 Drumkit::~Drumkit()
@@ -81,13 +80,18 @@ Drumkit::~Drumkit()
 	}
 	delete __components;
 
-	if( __instruments ) delete __instruments;
+	if( __instruments ) {
+		delete __instruments;
+	}
 }
 
 Drumkit* Drumkit::load_by_name ( const QString& dk_name, bool load_samples )
 {
 	QString dir = Filesystem::drumkit_path_search( dk_name );
-	if ( dir.isEmpty() ) return NULL;
+	if ( dir.isEmpty() ) {
+		return nullptr;
+	}
+	
 	return load( dir, load_samples );
 }
 
@@ -96,7 +100,7 @@ Drumkit* Drumkit::load( const QString& dk_dir, bool load_samples )
 	INFOLOG( QString( "Load drumkit %1" ).arg( dk_dir ) );
 	if( !Filesystem::drumkit_valid( dk_dir ) ) {
 		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
-		return NULL;
+		return nullptr;
 	}
 	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples );
 }
@@ -134,17 +138,17 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	QString drumkit_name = node->read_string( "name", "", false, false );
 	if ( drumkit_name.isEmpty() ) {
 		ERRORLOG( "Drumkit has no name, abort" );
-		return NULL;
+		return nullptr;
 	}
-	Drumkit* drumkit = new Drumkit();
-	drumkit->__path = dk_path;
-	drumkit->__name = drumkit_name;
-	drumkit->__author = node->read_string( "author", "undefined author" );
-	drumkit->__info = node->read_string( "info", "No information available." );
-	drumkit->__license = node->read_string( "license", "undefined license" );
-	drumkit->__image = node->read_string( "image", "" );
-	drumkit->__imageLicense = node->read_string( "imageLicense", "undefined license" );
-
+	
+	Drumkit* pDrumkit = new Drumkit();
+	pDrumkit->__path = dk_path;
+	pDrumkit->__name = drumkit_name;
+	pDrumkit->__author = node->read_string( "author", "undefined author" );
+	pDrumkit->__info = node->read_string( "info", "No information available." );
+	pDrumkit->__license = node->read_string( "license", "undefined license" );
+	pDrumkit->__image = node->read_string( "image", "" );
+	pDrumkit->__imageLicense = node->read_string( "imageLicense", "undefined license" );
 
 	XMLNode componentListNode = node->firstChildElement( "componentList" );
 	if ( ! componentListNode.isNull() ) {
@@ -156,24 +160,24 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 			DrumkitComponent* pDrumkitComponent = new DrumkitComponent( id, sName );
 			pDrumkitComponent->set_volume( fVolume );
 
-			drumkit->get_components()->push_back(pDrumkitComponent);
+			pDrumkit->get_components()->push_back(pDrumkitComponent);
 
 			componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
 		}
 	} else {
 		WARNINGLOG( "componentList node not found" );
 		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
-		drumkit->get_components()->push_back(pDrumkitComponent);
+		pDrumkit->get_components()->push_back(pDrumkitComponent);
 	}
 
 	XMLNode instruments_node = node->firstChildElement( "instrumentList" );
 	if ( instruments_node.isNull() ) {
 		WARNINGLOG( "instrumentList node not found" );
-		drumkit->set_instruments( new InstrumentList() );
+		pDrumkit->set_instruments( new InstrumentList() );
 	} else {
-		drumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name ) );
+		pDrumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name ) );
 	}
-	return drumkit;
+	return pDrumkit;
 }
 
 void Drumkit::load_samples( )
@@ -204,7 +208,6 @@ bool Drumkit::save( const QString&					name,
                     std::vector<DrumkitComponent*>* pComponents,
                     bool overwrite )
 {
-
 	Drumkit* pDrumkit = new Drumkit();
 	pDrumkit->set_name( name );
 	pDrumkit->set_author( author );
@@ -217,14 +220,15 @@ bool Drumkit::save( const QString&					name,
 	pDrumkit->set_image( fi.fileName() );
 	pDrumkit->set_image_license( imageLicense );
 
-
 	pDrumkit->set_instruments( new InstrumentList( pInstruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
+	
 	std::vector<DrumkitComponent*>* pCopiedVector = new std::vector<DrumkitComponent*> ();
 	for (std::vector<DrumkitComponent*>::iterator it = pComponents->begin() ; it != pComponents->end(); ++it) {
 		DrumkitComponent* pSrcComponent = *it;
 		pCopiedVector->push_back( new DrumkitComponent( pSrcComponent ) );
 	}
 	pDrumkit->set_components( pCopiedVector );
+	
 	bool ret = pDrumkit->save( overwrite );
 	delete pDrumkit;
 
@@ -293,26 +297,26 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 		return false;
 	}
 
-	InstrumentList* instruments = get_instruments();
-	for( int i = 0; i < instruments->size(); i++ ) {
-		Instrument* instrument = ( *instruments )[i];
-		for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
-			InstrumentComponent* component = *it;
+	InstrumentList* pInstrList = get_instruments();
+	for( int i = 0; i < pInstrList->size(); i++ ) {
+		Instrument* pInstrument = ( *pInstrList )[i];
+		for (std::vector<InstrumentComponent*>::iterator it = pInstrument->get_components()->begin() ; it != pInstrument->get_components()->end(); ++it) {
+			InstrumentComponent* pComponent = *it;
 
 			for ( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-				InstrumentLayer* layer = component->get_layer( n );
-				if( layer ) {
-					QString src = layer->get_sample()->get_filepath();
-					QString dst = dk_dir + "/" + layer->get_sample()->get_filename();
+				InstrumentLayer* pLayer = pComponent->get_layer( n );
+				if( pLayer ) {
+					QString src = pLayer->get_sample()->get_filepath();
+					QString dst = dk_dir + "/" + pLayer->get_sample()->get_filename();
 
 					if( src != dst ) {
 						QString original_dst = dst;
 
 						// If the destination path does not have an extension and there is a dot in the path, hell will break loose. QFileInfo maybe?
 						int insertPosition = original_dst.length();
-						if( original_dst.lastIndexOf(".") > 0 )
+						if( original_dst.lastIndexOf(".") > 0 ) {
 							insertPosition = original_dst.lastIndexOf(".");
-
+						}
 
 						if(overwrite == false) {
 							// If the destination path already exists, try to use basename_1, basename_2, etc. instead of basename.
@@ -324,7 +328,7 @@ bool Drumkit::save_samples( const QString& dk_dir, bool overwrite )
 							}
 						}
 
-						layer->get_sample()->set_filename( dst );
+						pLayer->get_sample()->set_filename( dst );
 
 						if( !Filesystem::file_copy( src, dst ) ) {
 							return false;
@@ -358,7 +362,10 @@ bool Drumkit::save_image( const QString& dk_dir, bool overwrite )
 
 void Drumkit::set_instruments( InstrumentList* instruments )
 {
-	if( __instruments!=0 ) delete __instruments;
+	if( __instruments != nullptr ) {
+		delete __instruments;
+	}
+	
 	__instruments = instruments;
 }
 
@@ -367,6 +374,7 @@ void Drumkit::set_components( std::vector<DrumkitComponent*>* components )
 	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
 		delete *it;
 	}
+	
 	delete __components;
 	__components = components;
 }
@@ -405,14 +413,14 @@ void Drumkit::dump()
 		          .arg( instrument->get_name() )
 		        );
 		for (std::vector<InstrumentComponent*>::iterator it = instrument->get_components()->begin() ; it != instrument->get_components()->end(); ++it) {
-			InstrumentComponent* component = *it;
+			InstrumentComponent* pComponent = *it;
 
 			for ( int j = 0; j < InstrumentComponent::getMaxLayers(); j++ ) {
-				InstrumentLayer* layer = component->get_layer( j );
-				if ( layer ) {
-					Sample* sample = layer->get_sample();
-					if ( sample ) {
-						DEBUGLOG( QString( "   |- %1 [%2]" ).arg( sample->get_filepath() ).arg( sample->is_empty() ) );
+				InstrumentLayer* pLayer = pComponent->get_layer( j );
+				if ( pLayer ) {
+					Sample* pSample = pLayer->get_sample();
+					if ( pSample ) {
+						DEBUGLOG( QString( "   |- %1 [%2]" ).arg( pSample->get_filepath() ).arg( pSample->is_empty() ) );
 					} else {
 						DEBUGLOG( "   |- NULL sample" );
 					}

@@ -60,7 +60,7 @@ InstrumentLayer::InstrumentLayer( InstrumentLayer* other, Sample* sample ) : Obj
 InstrumentLayer::~InstrumentLayer()
 {
 	delete __sample;
-	__sample = 0;
+	__sample = nullptr;
 }
 
 void InstrumentLayer::set_sample( Sample* sample )

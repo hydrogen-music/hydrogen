@@ -675,7 +675,7 @@ void ExportSongDialog::calculateRubberbandTime()
 									if( !pNewSample ){
 										continue;
 									}
-									delete pSample;
+	
 									// insert new sample from newInstrument
 									AudioEngine::get_instance()->lock( RIGHT_HERE );
 									pLayer->set_sample( pNewSample );
