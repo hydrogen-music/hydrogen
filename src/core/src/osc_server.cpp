@@ -242,21 +242,37 @@ int OscServer::generic_handler(const char *	path,
 	return 1;
 }
 
-
-
-OscServer::OscServer( H2Core::Preferences * pPreferences )
+OscServer::OscServer( H2Core::Preferences * pPref )
 	: Object( __class_name )
 {
-	m_pPreferences = pPreferences;
-	int port = m_pPreferences->getOscServerPort();
+	m_pPref = pPref;
+	
+	int port = m_pPref->getOscServerPort();
 
 	m_pServerThread = new lo::ServerThread( port );
+	
+	// If there is already another service registered to the same
+	// port, the OSC server is not valid an can not be started.
+	if ( !m_pServerThread->is_valid() ){
+		
+		delete m_pServerThread;
+		
+		// Instead, let the liblo library choose a working
+		// port on their own (nullptr argument).
+		m_pServerThread = new lo::ServerThread( nullptr );
+		
+		// Get the chosen port number and store it in the
+		// preferences.
+		port = m_pServerThread->port();
+		
+		m_pPref->setOscServerPort( port );
+	}
 }
 
-void OscServer::create_instance( H2Core::Preferences* pPreferences )
+void OscServer::create_instance( H2Core::Preferences* pPref )
 {
 	if( __instance == nullptr ) {
-		__instance = new OscServer( pPreferences );
+		__instance = new OscServer( pPref );
 	}
 }
 
@@ -570,7 +586,7 @@ bool IsLoAddressEqual( lo_address first, lo_address second )
 
 void OscServer::handleAction( Action* pAction )
 {
-	H2Core::Preferences * pPref = H2Core::Preferences::get_instance();
+	H2Core::Preferences* pPref = H2Core::Preferences::get_instance();
 	
 	if( !pPref->getOscFeedbackEnabled() ){
 		return;
@@ -822,7 +838,7 @@ void OscServer::start()
 	m_pServerThread->start();
 
 
-	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->getOscServerPort() ));
+	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPref->getOscServerPort() ));
 }
 
 OscServer::~OscServer()

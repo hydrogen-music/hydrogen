@@ -80,7 +80,7 @@ class OscServer : public H2Core::Object
 		 * \param pPreferences Pointer to the Preferences
 		 * singleton.
 		 */
-		static void create_instance(H2Core::Preferences* pPreferences);
+		static void create_instance(H2Core::Preferences* pPref);
 		/**
 		 * Returns a pointer to the current OscServer
 		 * singleton stored in #__instance.
@@ -138,8 +138,8 @@ class OscServer : public H2Core::Object
 	private:
 		OscServer(H2Core::Preferences* pPreferences);
 
-		lo::ServerThread*				m_pServerThread;
-		H2Core::Preferences*			m_pPreferences;
+		lo::ServerThread*		m_pServerThread;
+		H2Core::Preferences*		m_pPref;
 		static std::list<lo_address>	m_pClientRegistry;
 };
 
