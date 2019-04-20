@@ -786,14 +786,14 @@ Song* SongReader::readSong( const QString& filename )
 				if ( !QFile( sFilename ).exists() && !drumkitPath.isEmpty() ) {
 					sFilename = drumkitPath + "/" + sFilename;
 				}
-				Sample* pSample = Sample::load( sFilename );
+				Sample* pSample = Sample::load( sFilename, false );
 				if ( pSample == nullptr ) {
 					// nel passaggio tra 0.8.2 e 0.9.0 il drumkit di default e' cambiato.
 					// Se fallisce provo a caricare il corrispettivo file in formato flac
 //					warningLog( "[readSong] Error loading sample: " + sFilename + " not found. Trying to load a flac..." );
 					sFilename = sFilename.left( sFilename.length() - 4 );
 					sFilename += ".flac";
-					pSample = Sample::load( sFilename );
+					pSample = Sample::load( sFilename, false );
 				}
 				if ( pSample == nullptr ) {
 					ERRORLOG( "Error loading sample: " + sFilename + " not found" );
@@ -854,7 +854,7 @@ Song* SongReader::readSong( const QString& filename )
 
 						Sample* pSample = nullptr;
 						if ( !sIsModified ) {
-							pSample = Sample::load( sFilename );
+							pSample = Sample::load( sFilename, false );
 						} else {
 							Sample::EnvelopePoint pt;
 
@@ -877,7 +877,7 @@ Song* SongReader::readSong( const QString& filename )
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 
-							pSample = Sample::load( sFilename, lo, ro, velocity, pan );
+							pSample = Sample::load( sFilename, lo, ro, velocity, pan, false );
 						}
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
@@ -940,7 +940,7 @@ Song* SongReader::readSong( const QString& filename )
 
 						Sample* pSample = nullptr;
 						if ( !sIsModified ) {
-							pSample = Sample::load( sFilename );
+							pSample = Sample::load( sFilename, false );
 						} else {
 							Sample::EnvelopePoint pt;
 
@@ -963,7 +963,7 @@ Song* SongReader::readSong( const QString& filename )
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 
-							pSample = Sample::load( sFilename, lo, ro, velocity, pan );
+							pSample = Sample::load( sFilename, lo, ro, velocity, pan, false );
 						}
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );

@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
 		}
 
 		if( ! sDrumkitToLoad.isEmpty() ) {
-			H2Core::Drumkit* pDrumkitInfo = H2Core::Drumkit::load_by_name( sDrumkitToLoad, true );
+			H2Core::Drumkit* pDrumkitInfo = H2Core::Drumkit::load_by_name( sDrumkitToLoad, true, false );
 			if ( pDrumkitInfo ) {
 				H2Core::Hydrogen::get_instance()->loadDrumkit( pDrumkitInfo );
 				HydrogenApp::get_instance()->onDrumkitLoad( pDrumkitInfo->get_name() );

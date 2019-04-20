@@ -16,7 +16,7 @@ void rubberband_test( const QString& sample_path ) {
     RubberBand::RubberBandStretcher::Options options = 131088; //RubberBand::RubberBandStretcher::DefaultOptions;
 
     // load a sample
-    H2Core::Sample* sample = H2Core::Sample::load( sample_path );
+    H2Core::Sample* sample = H2Core::Sample::load( sample_path, false );
     if( sample==0 ) {
         ___ERRORLOG( QString( "unable to load %1" ).arg( sample_path ) );
         return;

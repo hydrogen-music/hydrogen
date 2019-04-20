@@ -1036,7 +1036,7 @@ void MainForm::action_instruments_saveLibrary()
 	QStringList usr_dks = Filesystem::usr_drumkit_list();
 	for (int i = 0; i < usr_dks.size(); ++i) {
 		QString absPath = Filesystem::usr_drumkits_dir() + usr_dks[i];
-		Drumkit *pInfo = Drumkit::load( absPath );
+		Drumkit *pInfo = Drumkit::load( absPath, false );
 		if (pInfo) {
 			if ( QString(pInfo->get_name() ) == sDrumkitName ){
 				pDrumkitInfo = pInfo;
@@ -1049,7 +1049,7 @@ void MainForm::action_instruments_saveLibrary()
 	QStringList sys_dks = Filesystem::sys_drumkit_list();
 	for (int i = 0; i < sys_dks.size(); ++i) {
 		QString absPath = Filesystem::sys_drumkits_dir() + sys_dks[i];
-		Drumkit *pInfo = Drumkit::load( absPath );
+		Drumkit *pInfo = Drumkit::load( absPath, false );
 		if (pInfo) {
 			if ( QString( pInfo->get_name() ) == sDrumkitName ){
 				pDrumkitInfo = pInfo;

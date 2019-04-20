@@ -61,7 +61,7 @@ static Instrument* create_instrument(int id, const QString& filepath, float volu
 {
 	Instrument* instrument = new Instrument( id, filepath );
 	instrument->set_volume( volume );
-	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( filepath ) );
+	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( filepath, false ) );
 	InstrumentComponent* pComponent = new InstrumentComponent( 0 );
 	pComponent->set_layer( pLayer, 0 );
 	instrument->get_components()->push_back( pComponent );
@@ -1379,7 +1379,7 @@ void Sampler::reinitialize_playback_track()
 	Sample*		pSample = nullptr;
 
 	if(!pSong->get_playback_track_filename().isEmpty()){
-		pSample = Sample::load( pSong->get_playback_track_filename() );
+		pSample = Sample::load( pSong->get_playback_track_filename(), false );
 	}
 	
 	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( pSample );

@@ -62,12 +62,12 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT_EQUAL( 4, dk0->get_instruments()->size() );
 	//dk0->dump();
 	// manually load samples
-	dk0->load_samples();
+	dk0->load_samples( false );
 	CPPUNIT_ASSERT( dk0->samples_loaded()==true );
 	CPPUNIT_ASSERT( check_samples_data( dk0, true ) );
 	//dk0->dump();
 	// load with samples
-	dk0 = H2Core::Drumkit::load( H2TEST_FILE( "/drumkit" ), true );
+	dk0 = H2Core::Drumkit::load( H2TEST_FILE( "/drumkit" ), true, false );
 	CPPUNIT_ASSERT( dk0!=0 );
 	CPPUNIT_ASSERT( dk0->samples_loaded()==true );
 	CPPUNIT_ASSERT( check_samples_data( dk0, true ) );

@@ -521,7 +521,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 						QString sName = QFileInfo( info.getUrl() ).fileName();
 						sName = sName.left( sName.lastIndexOf( "." ) );
 
-						H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load_by_name( sName, false );
+						H2Core::Drumkit* drumkitInfo = H2Core::Drumkit::load_by_name( sName, false, false );
 						if ( drumkitInfo )
 						{
 							// get the image from the local filesystem
