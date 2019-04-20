@@ -191,7 +191,7 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 				}
 			} else {
 				QString sample_path =  pDrumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
-				Sample* pSample = Sample::load( sample_path );
+				Sample* pSample = Sample::load( sample_path, false );
 				if ( pSample == nullptr ) {
 					_ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." ).arg( sample_path ) );
 					if ( is_live ) {
@@ -316,14 +316,14 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	return pInstrument;
 }
 
-void Instrument::load_samples()
+void Instrument::load_samples( const bool checkSampleRate )
 {
 	for (std::vector<InstrumentComponent*>::iterator it = get_components()->begin() ; it != get_components()->end(); ++it) {
 		InstrumentComponent* pComponent = *it;
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			InstrumentLayer* pLayer = pComponent->get_layer( i );
 			if( pLayer ) {
-				pLayer->load_sample( );
+				pLayer->load_sample( checkSampleRate );
 			}
 		}
 	}

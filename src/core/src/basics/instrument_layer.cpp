@@ -71,9 +71,9 @@ void InstrumentLayer::set_sample( Sample* sample )
 	__sample = sample;
 }
 
-void InstrumentLayer::load_sample()
+void InstrumentLayer::load_sample( const bool checkSampleRate )
 {
-	if( __sample ) __sample->load();
+	if( __sample ) __sample->load( checkSampleRate );
 }
 
 void InstrumentLayer::unload_sample()

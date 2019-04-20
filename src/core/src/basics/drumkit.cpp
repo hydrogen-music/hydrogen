@@ -84,28 +84,28 @@ Drumkit::~Drumkit()
 		delete __instruments;
 	}
 }
-
-Drumkit* Drumkit::load_by_name ( const QString& dk_name, bool load_samples )
+	
+Drumkit* Drumkit::load_by_name ( const QString& dk_name, const bool load_samples, const bool checkSampleRate )
 {
 	QString dir = Filesystem::drumkit_path_search( dk_name );
 	if ( dir.isEmpty() ) {
 		return nullptr;
 	}
 	
-	return load( dir, load_samples );
+	return load( dir, load_samples, checkSampleRate );
 }
 
-Drumkit* Drumkit::load( const QString& dk_dir, bool load_samples )
+Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, const bool checkSampleRate )
 {
 	INFOLOG( QString( "Load drumkit %1" ).arg( dk_dir ) );
 	if( !Filesystem::drumkit_valid( dk_dir ) ) {
 		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
 		return nullptr;
 	}
-	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples );
+	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples, checkSampleRate );
 }
 
-Drumkit* Drumkit::load_file( const QString& dk_path, bool load_samples )
+Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, const bool checkSampleRate )
 {
 	XMLDoc doc;
 	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path() ) ) {
@@ -128,7 +128,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, bool load_samples )
 	
 	Drumkit* pDrumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
 	if( load_samples ){
-		pDrumkit->load_samples();
+		pDrumkit->load_samples( checkSampleRate );
 	}
 	return pDrumkit;
 }
@@ -180,16 +180,16 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	return pDrumkit;
 }
 
-void Drumkit::load_samples( )
+void Drumkit::load_samples( const bool checkSampleRate )
 {
 	INFOLOG( QString( "Loading drumkit %1 instrument samples" ).arg( __name ) );
 	if( !__samples_loaded ) {
-		__instruments->load_samples();
+		__instruments->load_samples( checkSampleRate );
 		__samples_loaded = true;
 	}
 }
 
-void Drumkit::unload_samples( )
+void Drumkit::unload_samples()
 {
 	INFOLOG( QString( "Unloading drumkit %1 instrument samples" ).arg( __name ) );
 	if( __samples_loaded ) {

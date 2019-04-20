@@ -127,15 +127,20 @@ class InstrumentList : public H2Core::Object
 		 */
 		void move( int idx_a, int idx_b );
 
-		/*
-		 * load instrument samples
+		/** Calls the Instrument::load_samples() member
+		 * function of all Instruments in #__instruments.
+		 *
+		 * \param checkSampleRate If set to true, the sample
+		 * rate of the loaded samples will be compared to the
+		 * one used by the audio driver and a warning will be
+		 * displayed in case they do not match.
 		 */
-		void load_samples();
-		/*
-		 * unload instrument samples
+		void load_samples( const bool checkSampleRate );
+		/** Calls the Instrument::unload_samples() member
+		 * function of all Instruments in #__instruments.
 		 */
 		void unload_samples();
-		/*
+		/**
 		 * save the intrument list within the given XMLNode
 		 * \param node the XMLNode to feed
 		 */

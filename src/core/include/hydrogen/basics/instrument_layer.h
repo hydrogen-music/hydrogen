@@ -82,9 +82,15 @@ class InstrumentLayer : public H2Core::Object
 		Sample* get_sample() const;
 
 		/**
-		 * load the sample data
+		 * Calls the load( const bool checkSampleRate ) member
+		 * function of #__sample.
+		 *
+		 * \param checkSampleRate If set to true, the sample
+		 * rate of the loaded file will be compared to the
+		 * one used by the audio driver and a warning will be
+		 * displayed in case they do not match.
 		 */
-		void load_sample();
+		void load_sample( const bool checkSampleRate );
 		/*
 		 * unload sample and replace it with an empty one
 		 */

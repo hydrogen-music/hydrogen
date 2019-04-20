@@ -94,15 +94,24 @@ class Instrument : public H2Core::Object
 		void load_from( Drumkit* drumkit, Instrument* instrument, bool is_live = true );
 
 		/**
-		 * load samples data
+		 * Calls the InstrumentLayer::load_sample() member
+		 * function of all layers of each component of the
+		 * Instrument.
+		 *
+		 * \param checkSampleRate If set to true, the sample
+		 * rate of the loaded sample will be compared to the
+		 * one used by the audio driver and a warning will be
+		 * displayed in case they do not match.
 		 */
-		void load_samples();
-		/*
-		 * unload instrument samples
+		void load_samples( const bool checkSampleRate );
+		/**
+		 * Calls the InstrumentLayer::unload_sample() member
+		 * function of all layers of each component of the
+		 * Instrument.
 		 */
 		void unload_samples();
 
-		/*
+		/**
 		 * save the intrument within the given XMLNode
 		 * \param node the XMLNode to feed
 		 */
