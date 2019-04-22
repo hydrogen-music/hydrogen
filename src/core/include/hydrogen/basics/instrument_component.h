@@ -48,26 +48,26 @@ class InstrumentComponent : public H2Core::Object
 		void				save_to( XMLNode* node, int component_id );
 		static InstrumentComponent* 	load_from( XMLNode* node, const QString& dk_path );
 
-		InstrumentLayer*		operator[]( int ix );
-		InstrumentLayer*		get_layer( int idx );
+		InstrumentLayer*	operator[]( int ix );
+		InstrumentLayer*	get_layer( int idx );
 		void				set_layer( InstrumentLayer* layer, int idx );
 
 		void				set_drumkit_componentID( int related_drumkit_componentID );
-		int				get_drumkit_componentID();
+		int					get_drumkit_componentID();
 
 		void				set_gain( float gain );
 		float				get_gain() const;
 
-		/**  @return #m_iMaxLayers.*/
+		/**  @return #m_nMaxLayers.*/
 		static int			getMaxLayers();
-		/** @param layers Sets #m_iMaxLayers.*/
+		/** @param layers Sets #m_nMaxLayers.*/
 		static void			setMaxLayers( int layers );
 
 	private:
 		/** Component ID of the drumkit. It is set by
 		    set_drumkit_componentID() and
 		    accessed via get_drumkit_componentID(). */
-		int				__related_drumkit_componentID;
+		int					__related_drumkit_componentID;
 		float				__gain;
 		
 		/** Maximum number of layers to be used in the
@@ -75,9 +75,9 @@ class InstrumentComponent : public H2Core::Object
 		 *
 		 * It is set by setMaxLayers(), queried by
 		 * getMaxLayers(), and inferred from
-		 * Preferences::m_iMaxLayers. Default value assigned in
+		 * Preferences::m_nMaxLayers. Default value assigned in
 		 * Preferences::Preferences(): 16. */
-		static int			m_iMaxLayers;
+		static int			m_nMaxLayers;
 		std::vector<InstrumentLayer*>	__layers;
 };
 
@@ -107,13 +107,13 @@ inline float InstrumentComponent::get_gain() const
 
 inline InstrumentLayer* InstrumentComponent::operator[]( int idx )
 {
-	assert( idx >= 0 && idx < m_iMaxLayers );
+	assert( idx >= 0 && idx < m_nMaxLayers );
 	return __layers[ idx ];
 }
 
 inline InstrumentLayer* InstrumentComponent::get_layer( int idx )
 {
-	assert( idx >= 0 && idx < m_iMaxLayers );
+	assert( idx >= 0 && idx < m_nMaxLayers );
 	return __layers[ idx ];
 }
 

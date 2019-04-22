@@ -213,8 +213,8 @@ Preferences::Preferences()
 	m_ladspaProperties[1].set(2, 20, 0, 0, false);
 	m_ladspaProperties[2].set(2, 20, 0, 0, false);
 	m_ladspaProperties[3].set(2, 20, 0, 0, false);
-	m_iMaxBars = 400;
-	m_iMaxLayers = 16;
+	m_nMaxBars = 400;
+	m_nMaxLayers = 16;
 
 	m_nColoringMethod = 2;
 	m_nColoringMethodAuxValue = 213;
@@ -298,8 +298,8 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", true );
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", false );
 			__useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
-			m_iMaxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
-			m_iMaxLayers = LocalFileMng::readXmlInt( rootNode, "maxLayers", 16 );
+			m_nMaxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
+			m_nMaxLayers = LocalFileMng::readXmlInt( rootNode, "maxLayers", 16 );
 			m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
 			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
@@ -591,7 +591,7 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString s_action = pMidiEventNode.firstChildElement("action").text();
 						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
 
-												Action* pAction = new Action( s_action );
+						Action* pAction = new Action( s_action );
 						pAction->setParameter1( s_param );
 						mM->registerMMCEvent(event, pAction);
 					}
@@ -645,8 +645,8 @@ void Preferences::loadPreferences( bool bGlobal )
 		}
 	}
 
-	if ( m_iMaxLayers < 16 ) {
-		m_iMaxLayers = 16;
+	if ( m_nMaxLayers < 16 ) {
+		m_nMaxLayers = 16;
 	}
 
 	// The preferences file should be recreated?
@@ -683,8 +683,8 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "useLash", m_bsetLash ? "true": "false" );
 	LocalFileMng::writeXmlString( rootNode, "useTimeLine", __useTimelineBpm ? "true": "false" );
 
-	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( m_iMaxBars ) );
-	LocalFileMng::writeXmlString( rootNode, "maxLayers", QString::number( m_iMaxLayers ) );
+	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( m_nMaxBars ) );
+	LocalFileMng::writeXmlString( rootNode, "maxLayers", QString::number( m_nMaxLayers ) );
 
 	LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( m_nDefaultUILayout ) );
 	LocalFileMng::writeXmlString( rootNode, "lastOpenTab", QString::number( m_nLastOpenTab ) );

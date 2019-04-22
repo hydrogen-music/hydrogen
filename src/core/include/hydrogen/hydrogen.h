@@ -564,8 +564,8 @@ private:
 	 *   #m_pCoreActionController, 
 	 * - Calls initBeatcounter(), audioEngine_init(), and
 	 *   audioEngine_startAudioDrivers() 
-	 * - Sets InstrumentComponent::m_iMaxLayers to
-	 *   Preferences::m_iMaxLayers via
+	 * - Sets InstrumentComponent::m_nMaxLayers to
+	 *   Preferences::m_nMaxLayers via
 	 *   InstrumentComponent::setMaxLayers() and
 	 *   Preferences::getMaxLayers() 
 	 * - Starts the OscServer using OscServer::start() if

@@ -79,7 +79,7 @@ Sampler::Sampler()
 	__main_out_L = new float[ MAX_BUFFER_SIZE ];
 	__main_out_R = new float[ MAX_BUFFER_SIZE ];
 
-	m_iMaxLayers = InstrumentComponent::getMaxLayers();
+	m_nMaxLayers = InstrumentComponent::getMaxLayers();
 
 	QString sEmptySampleFilename = Filesystem::empty_sample_path();
 
@@ -318,7 +318,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		else {
 			switch ( pInstr->sample_selection_alg() ) {
 				case Instrument::VELOCITY:
-					for ( unsigned nLayer = 0; nLayer < m_iMaxLayers; ++nLayer ) {
+					for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer == NULL ) continue;
 
@@ -342,7 +342,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 						// for the nearest layer and use its sample.
 						float shortestDistance = 1.0f;
 						int nearestLayer = -1;
-						for ( unsigned nLayer = 0; nLayer < m_iMaxLayers; ++nLayer ){
+						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == NULL ) continue;
 							
@@ -379,9 +379,9 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 						}
 					}
 					if( pSample == NULL ) {
-						int __possibleIndex[ m_iMaxLayers ];
+						int __possibleIndex[ m_nMaxLayers ];
 						int __foundSamples = 0;
-						for ( unsigned nLayer = 0; nLayer < m_iMaxLayers; ++nLayer ) {
+						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == NULL ) continue;
 
@@ -405,7 +405,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 							WARNINGLOG( "Velocity did fall into a hole between the instrument layers." );
 							float shortestDistance = 1.0f;
 							int nearestLayer = -1;
-							for ( unsigned nLayer = 0; nLayer < m_iMaxLayers; ++nLayer ){
+							for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
 								InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 								if ( pLayer == NULL ) continue;
 								
@@ -459,10 +459,10 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 						}
 					}
 					if( !pSample ) {
-						int __possibleIndex[ m_iMaxLayers ];
+						int __possibleIndex[ m_nMaxLayers ];
 						int __foundSamples = 0;
 						float __roundRobinID;
-						for ( unsigned nLayer = 0; nLayer < m_iMaxLayers; ++nLayer ) {
+						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == NULL ) continue;
 
@@ -485,7 +485,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 							WARNINGLOG( "Velocity did fall into a hole between the instrument layers." );
 							float shortestDistance = 1.0f;
 							int nearestLayer = -1;
-							for ( unsigned nLayer = 0; nLayer < m_iMaxLayers; ++nLayer ){
+							for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
 								InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 								if ( pLayer == NULL ) continue;
 								
