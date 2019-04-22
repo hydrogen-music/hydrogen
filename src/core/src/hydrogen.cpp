@@ -2296,7 +2296,7 @@ void Hydrogen::sequencer_stop()
 	Preferences::get_instance()->setRecordEvents(false);
 }
 
-bool Hydrogen::setPlaybackTrackState(bool state)
+bool Hydrogen::setPlaybackTrackState( const bool state )
 {
 	Song* pSong = getSong();
 	if ( pSong == NULL ) {
@@ -2306,7 +2306,7 @@ bool Hydrogen::setPlaybackTrackState(bool state)
 	return pSong->set_playback_track_enabled(state);
 }
 
-void Hydrogen::loadPlaybackTrack(QString filename)
+void Hydrogen::loadPlaybackTrack( const QString filename )
 {
 	Song* pSong = getSong();
 	pSong->set_playback_track_filename(filename);

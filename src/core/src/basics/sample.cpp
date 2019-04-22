@@ -28,6 +28,7 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/basics/sample.h>
+#include <hydrogen/event_queue.h>
 
 #if defined(H2CORE_HAVE_RUBBERBAND) || _DOXYGEN_
 #include <rubberband/RubberBandStretcher.h>
@@ -105,6 +106,7 @@ Sample* Sample::load( const QString& filepath, const bool checkSampleRate )
 	if( !Filesystem::file_readable( filepath ) ) {
 		ERRORLOG( QString( "Unable to read %1" ).arg( filepath ) );
 	} else {
+		INFOLOG( QString( "ladida" ) );
 		pSample = new Sample( filepath );
 		pSample->load( checkSampleRate );
 	}
@@ -197,8 +199,9 @@ void Sample::load( const bool checkSampleRate )
 		int sampleRateEngine = (int)Hydrogen::get_instance()->
 			getAudioOutput()->getSampleRate();
 		
-		if ( sampleRateEngine != sound_info.frames ){
-			WARNINGLOG( QString( "The sample rate of the engine (%1) and the one of the loaded sample (%2) do not match!" ).arg( sampleRateEngine ).arg( sound_info.frames ) );
+		if ( sampleRateEngine != sound_info.samplerate ){
+			EventQueue::get_instance()->push_event( EVENT_MISMATCHING_SAMPLE_RATE, 1 );
+			WARNINGLOG( QString( "The sample rate of the engine (%1) and the one of the loaded sample (%2) do not match!" ).arg( sampleRateEngine ).arg( sound_info.samplerate ) );
 		}
 	}
 

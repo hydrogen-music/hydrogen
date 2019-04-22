@@ -99,6 +99,10 @@ class Drumkit : public H2Core::Object
 		 *
 		 * \param dk_path is a path to an xml file
 		 * \param load_samples automatically load sample data if set to true
+		 * \param checkSampleRate If set to true, the sample
+		 * rate of the loaded samples will be compared to the
+		 * one used by the audio driver and a warning will be
+		 * displayed in case they do not match.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */

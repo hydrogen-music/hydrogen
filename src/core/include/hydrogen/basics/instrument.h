@@ -114,6 +114,8 @@ class Instrument : public H2Core::Object
 		/**
 		 * save the intrument within the given XMLNode
 		 * \param node the XMLNode to feed
+		 * \param component_id Identifier of the corresponding
+		 * component.
 		 */
 		void save_to( XMLNode* node, int component_id );
 		/**

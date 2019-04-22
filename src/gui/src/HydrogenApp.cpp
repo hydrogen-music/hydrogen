@@ -58,7 +58,6 @@
 #  include <QtWidgets>
 #endif
 
-
 using namespace H2Core;
 
 
@@ -84,7 +83,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 
 	m_pEventQueueTimer = new QTimer(this);
 	connect( m_pEventQueueTimer, SIGNAL( timeout() ), this, SLOT( onEventQueueTimer() ) );
-	m_pEventQueueTimer->start(50);	// update at 20 fps
+	m_pEventQueueTimer->start( QUEUE_TIMER_PERIOD );
 
 
 	// Create the audio engine :)
@@ -551,6 +550,10 @@ void HydrogenApp::onEventQueueTimer()
 
 			case EVENT_TEMPO_CHANGED:
 				pListener->tempoChangedEvent( event.value );
+				break;
+				
+			case EVENT_MISMATCHING_SAMPLE_RATE:
+				pListener->mismatchingSampleRateEvent( event.value );
 				break;
 
 			default:

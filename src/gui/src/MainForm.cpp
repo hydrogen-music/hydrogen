@@ -1965,6 +1965,10 @@ void MainForm::undoRedoActionEvent( int nEvent ){
 		h2app->m_pUndoStack->redo();
 }
 
+void MainForm::mismatchingSampleRateEvent( int nValue ){
+	QMessageBox::warning( this, "Hydrogen", tr( "Sample rate of the loaded track does not match the one of the audio driver!\n\nUnfortunately, Hydrogen does not support converting the sample rate itself. Please consider using tools like SoX instead." ) );
+}
+
 bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 {
 	int playlistSize = Playlist::get_instance()->size();

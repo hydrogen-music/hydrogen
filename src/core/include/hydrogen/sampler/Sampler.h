@@ -102,6 +102,15 @@ public:
 		/// Instrument used for the preview feature.
 		Instrument* __preview_instrument;
 
+		/**
+		 * Loading of the playback track.
+		 *
+		 * The playback track is added to
+		 * #__playback_instrument as a new InstrumentLayer
+		 * containing the loaded Sample. If
+		 * Song::__playback_track_filename is empty, the
+		 * layer will be loaded with a nullptr instead.
+		 */
 		void reinitialize_playback_track();
 
 private:

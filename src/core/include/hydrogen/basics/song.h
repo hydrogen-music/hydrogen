@@ -130,39 +130,39 @@ class Song : public H2Core::Object
 			__pattern_group_sequence = vect;
 		}
 
-		static Song* load( const QString& sFilename );
-		bool save( const QString& sFilename );
+		static Song* 		load( const QString& sFilename );
+		bool 			save( const QString& sFilename );
 
 		InstrumentList*		get_instrument_list() const;
-		void				set_instrument_list( InstrumentList* list );
+		void			set_instrument_list( InstrumentList* list );
 
-		void				set_notes( const QString& notes );
+		void			set_notes( const QString& notes );
 		const QString&		get_notes();
 
-		void				set_license( const QString& license );
+		void			set_license( const QString& license );
 		const QString&		get_license();
 		const QString&		get_author();
 
 		const QString&		get_filename();
-		void				set_filename( const QString& filename );
+		void			set_filename( const QString& filename );
 							
-		bool				is_loop_enabled() const;
-		void				set_loop_enabled( bool enabled );
+		bool			is_loop_enabled() const;
+		void			set_loop_enabled( bool enabled );
 							
-		float				get_humanize_time_value() const;
-		void				set_humanize_time_value( float value );
+		float			get_humanize_time_value() const;
+		void			set_humanize_time_value( float value );
 							
-		float				get_humanize_velocity_value() const;
-		void				set_humanize_velocity_value( float value );
+		float			get_humanize_velocity_value() const;
+		void			set_humanize_velocity_value( float value );
 							
-		float				get_swing_factor() const;
-		void				set_swing_factor( float factor );
+		float			get_swing_factor() const;
+		void			set_swing_factor( float factor );
 							
-		SongMode			get_mode() const;
-		void				set_mode( SongMode mode );
+		SongMode		get_mode() const;
+		void			set_mode( SongMode mode );
 							
-		void				set_is_modified(bool is_modified);
-		bool				get_is_modified() const;
+		void			set_is_modified(bool is_modified);
+		bool			get_is_modified() const;
 
 		std::vector<DrumkitComponent*>* get_components() const;
 
@@ -170,46 +170,89 @@ class Song : public H2Core::Object
 
 		DrumkitComponent*	get_component( int ID );
 
-		void				readTempPatternList( const QString& filename );
-		bool				writeTempPatternList( const QString& filename );
+		void			readTempPatternList( const QString& filename );
+		bool			writeTempPatternList( const QString& filename );
 							
-		QString				copyInstrumentLineToString( int selectedPattern, int selectedInstrument );
-		bool				pasteInstrumentLineFromString( const QString& serialized, int selectedPattern, int selectedInstrument, std::list<Pattern *>& patterns );
+		QString			copyInstrumentLineToString( int selectedPattern, int selectedInstrument );
+		bool			pasteInstrumentLineFromString( const QString& serialized, int selectedPattern, int selectedInstrument, std::list<Pattern *>& patterns );
 							
-		int					get_latest_round_robin( float start_velocity );
-		void				set_latest_round_robin( float start_velocity, int latest_round_robin );
+		int			get_latest_round_robin( float start_velocity );
+		void			set_latest_round_robin( float start_velocity, int latest_round_robin );
+		/** \return #__playback_track_filename */
+		QString&		get_playback_track_filename();
+		/** \param filename Sets #__playback_track_filename. */
+		void			set_playback_track_filename( const QString filename );
 							
-		QString&			get_playback_track_filename();
-		void				set_playback_track_filename( QString filename );
+		/** \return #__playback_track_enabled */
+		bool			get_playback_track_enabled() const;
+		/** Specifies whether a playback track should be used.
+		 *
+		 * If #__playback_track_filename is set to nullptr,
+		 * #__playback_track_enabled will be set to false
+		 * regardless of the choice in @a enabled.
+		 *
+		 * \param enabled Sets #__playback_track_enabled. */
+		bool			set_playback_track_enabled( const bool enabled );
 							
-		bool				get_playback_track_enabled() const;
-		bool				set_playback_track_enabled( bool enabled );
-							
-		float				get_playback_track_volume() const;
-		void				set_playback_track_volume( float volume );
+		/** \return #__playback_track_volume */
+		float			get_playback_track_volume() const;
+		/** \param volume Sets #__playback_track_volume. */
+		void			set_playback_track_volume( const float volume );
 
 
 	private:
-		float								__volume;					///< volume of the song (0.0..1.0)
-		float								__metronome_volume;			///< Metronome volume
-		QString								__notes;
-		PatternList*						__pattern_list;				///< Pattern list
-		std::vector<PatternList*>*			__pattern_group_sequence;	///< Sequence of pattern groups
-		InstrumentList*						__instrument_list;			///< Instrument list
-		std::vector<DrumkitComponent*>*		__components;				///< list of drumkit component
-		QString								__filename;
-		bool								__is_loop_enabled;
-		float								__humanize_time_value;
-		float								__humanize_velocity_value;
-		float								__swing_factor;
-		bool								__is_modified;
-		std::map< float, int> 				__latest_round_robins;
-		SongMode							__song_mode;
-		QString								__playback_track_filename;
-		bool								__playback_track_enabled;
-		float								__playback_track_volume;
-		AutomationPath*						__velocity_automation_path;
-		QString								__license;					///< license of the song
+		///< volume of the song (0.0..1.0)
+		float			__volume;
+		///< Metronome volume
+		float			__metronome_volume;
+		QString			__notes;
+		///< Pattern list
+		PatternList*		__pattern_list;
+		///< Sequence of pattern groups
+		std::vector<PatternList*>* __pattern_group_sequence;
+		///< Instrument list
+		InstrumentList*	       	__instrument_list;
+		///< list of drumkit component
+		std::vector<DrumkitComponent*>*	__components;				
+		QString			__filename;
+		bool			__is_loop_enabled;
+		float			__humanize_time_value;
+		float			__humanize_velocity_value;
+		float			__swing_factor;
+		bool			__is_modified;
+		std::map< float, int> 	__latest_round_robins;
+		SongMode		__song_mode;
+		
+		/** Name of the file to be loaded as playback track.
+		 *
+		 * It is set by set_playback_track_filename() and
+		 * queried by get_playback_track_filename().
+		 *
+		 * The playback track itself is loaded in
+		 * Sampler::reinitialize_playback_track().
+		 */
+		QString			__playback_track_filename;
+		/** Whether the playback track should be used at all.
+		 *
+		 * It is set by set_playback_track_enabled() and
+		 * queried by get_playback_track_enabled().
+		 *
+		 * The playback track itself is loaded in
+		 * Sampler::reinitialize_playback_track().
+		 */
+		bool			__playback_track_enabled;
+		/** Volume of the playback track.
+		 *
+		 * It is set by set_playback_track_volume() and
+		 * queried by get_playback_track_volume().
+		 *
+		 * The playback track itself is loaded in
+		 * Sampler::reinitialize_playback_track().
+		 */
+		float			__playback_track_volume;
+		AutomationPath*		__velocity_automation_path;
+		///< license of the song
+		QString			__license;
 };
 
 inline bool Song::get_is_modified() const 
@@ -335,17 +378,17 @@ inline QString& Song::get_playback_track_filename()
 	return __playback_track_filename;
 }
 
-inline void Song::set_playback_track_filename( QString filename )
+inline void Song::set_playback_track_filename( const QString filename )
 {
 	__playback_track_filename = filename;
 }
 
-inline bool	Song::get_playback_track_enabled() const
+inline bool Song::get_playback_track_enabled() const
 {
 	return __playback_track_enabled;
 }
 
-inline bool Song::set_playback_track_enabled( bool enabled )
+inline bool Song::set_playback_track_enabled( const bool enabled )
 {
 	if ( __playback_track_filename == nullptr ) {
 		return false;
@@ -359,7 +402,7 @@ inline float Song::get_playback_track_volume() const
 	return __playback_track_volume;
 }
 
-inline void Song::set_playback_track_volume( float volume )
+inline void Song::set_playback_track_volume( const float volume )
 {
 	__playback_track_volume = volume;
 }

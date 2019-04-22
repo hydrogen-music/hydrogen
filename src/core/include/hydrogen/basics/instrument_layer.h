@@ -28,21 +28,21 @@
 namespace H2Core
 {
 
-class XMLNode;
-class Sample;
+	class XMLNode;
+	class Sample;
 
-/**
- * InstrumentLayer is part of an instrument
- * <br>each layer has it's own :
- * <br><b>gain</b> which is the ration between the input sample and the output signal,
- * <br><b>pitch</b> wich allows you to play the sample at a faster or lower frequency,
- * <br><b>start velocity</b> and <b>end velocity</b> which allows you to chose between a layer or another within an instrument
- * by changing the velocity of the played note. so the only layer of an instrument should start at 0.0 and end at 1.0.
-*/
-class InstrumentLayer : public H2Core::Object
-{
+	/**
+	 * InstrumentLayer is part of an instrument
+	 * <br>each layer has it's own :
+	 * <br><b>gain</b> which is the ration between the input sample and the output signal,
+	 * <br><b>pitch</b> wich allows you to play the sample at a faster or lower frequency,
+	 * <br><b>start velocity</b> and <b>end velocity</b> which allows you to chose between a layer or another within an instrument
+	 * by changing the velocity of the played note. so the only layer of an instrument should start at 0.0 and end at 1.0.
+	 */
+	class InstrumentLayer : public H2Core::Object
+	{
 		H2_OBJECT
-	public:
+		public:
 		/** constructor
 		 * \param sample the sample to use
 		 * */
@@ -82,8 +82,8 @@ class InstrumentLayer : public H2Core::Object
 		Sample* get_sample() const;
 
 		/**
-		 * Calls the load( const bool checkSampleRate ) member
-		 * function of #__sample.
+		 * Calls the #H2Core::Sample::load( const bool checkSampleRate )
+		 * member function of #__sample.
 		 *
 		 * \param checkSampleRate If set to true, the sample
 		 * rate of the loaded file will be compared to the
@@ -115,54 +115,54 @@ class InstrumentLayer : public H2Core::Object
 		float __start_velocity;     ///< the start velocity of the sample, 0.0 by default
 		float __end_velocity;       ///< the end velocity of the sample, 1.0 by default
 		Sample* __sample;           ///< the underlaying sample
-};
+	};
 
-// DEFINITIONS
+	// DEFINITIONS
 
-inline void InstrumentLayer::set_gain( float gain )
-{
-	__gain = gain;
-}
+	inline void InstrumentLayer::set_gain( float gain )
+	{
+		__gain = gain;
+	}
 
-inline float InstrumentLayer::get_gain() const
-{
-	return __gain;
-}
+	inline float InstrumentLayer::get_gain() const
+	{
+		return __gain;
+	}
 
-inline void InstrumentLayer::set_pitch( float pitch )
-{
-	__pitch = pitch;
-}
+	inline void InstrumentLayer::set_pitch( float pitch )
+	{
+		__pitch = pitch;
+	}
 
-inline float InstrumentLayer::get_pitch() const
-{
-	return __pitch;
-}
+	inline float InstrumentLayer::get_pitch() const
+	{
+		return __pitch;
+	}
 
-inline void InstrumentLayer::set_start_velocity( float start )
-{
-	__start_velocity = start;
-}
+	inline void InstrumentLayer::set_start_velocity( float start )
+	{
+		__start_velocity = start;
+	}
 
-inline float InstrumentLayer::get_start_velocity() const
-{
-	return __start_velocity;
-}
+	inline float InstrumentLayer::get_start_velocity() const
+	{
+		return __start_velocity;
+	}
 
-inline void InstrumentLayer::set_end_velocity( float end )
-{
-	__end_velocity = end;
-}
+	inline void InstrumentLayer::set_end_velocity( float end )
+	{
+		__end_velocity = end;
+	}
 
-inline float InstrumentLayer::get_end_velocity() const
-{
-	return __end_velocity;
-}
+	inline float InstrumentLayer::get_end_velocity() const
+	{
+		return __end_velocity;
+	}
 
-inline Sample* InstrumentLayer::get_sample() const
-{
-	return __sample;
-}
+	inline Sample* InstrumentLayer::get_sample() const
+	{
+		return __sample;
+	}
 
 };
 

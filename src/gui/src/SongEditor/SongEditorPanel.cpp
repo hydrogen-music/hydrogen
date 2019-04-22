@@ -757,6 +757,13 @@ void SongEditorPanel::editPlaybackTrackBtnPressed( Button* pBtn )
 
 	fd.setWindowTitle( trUtf8( "Select playback track" ) );
 	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+	
+	// Use a filter for only those audio file types supported by
+	// Libsndfile.
+	fd.setNameFilter( tr( "Audio files (*.wav *.flac *.aiff *.raw *.pcm *.sam *.au *.paf *.8svx *.iff *.voc *.m *.pvf *.xi *.htk *.sds *.avr *.wavex *.sd2 *.caf *.wve *.mpc2k *.rf64" ) );
+	
+	// Show detailed information about the files.
+	fd.setViewMode( QFileDialog::Detail );
 
 	QString filename;
 	if (fd.exec() == QDialog::Accepted) {

@@ -44,6 +44,18 @@ class EventListener
 		virtual void playlistLoadSongEvent( int nIndex ){ UNUSED( nIndex ); }
 		virtual void undoRedoActionEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void tempoChangedEvent( int nValue ){ UNUSED( nValue ); }
+		/** Function triggered whenever a
+		 * H2Core::EVENT_MISMATCHING_SAMPLE_RATE occurs.
+		 *
+		 * Called by HydrogenApp::onEventQueueTimer() and
+		 * implemented by
+		 * MainForm::mismatchingSampleRateEvent().
+		 *
+		 * \param nValue Numerical value specifying the
+		 * context during queuing. This argument is not used
+		 * yet since the function is only used in the context
+		 * of the playback track.*/
+		virtual void mismatchingSampleRateEvent( int nValue ){ UNUSED( nValue ); }
 
 		virtual ~EventListener() {}
 };

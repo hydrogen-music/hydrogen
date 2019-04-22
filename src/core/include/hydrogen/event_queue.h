@@ -27,12 +27,17 @@
 #include <hydrogen/basics/note.h>
 #include <cassert>
 
+/** Maximum number of events to be stored in the
+    H2Core::EventQueue::__events_buffer.*/
 #define MAX_EVENTS 1024
 
 namespace H2Core
 {
-
+	
+/** Basic types of communication between the core part of Hydrogen and
+    its GUI.*/
 enum EventType {
+	/** Fallback event*/
 	EVENT_NONE,
 	EVENT_STATE,
 	EVENT_PATTERN_CHANGED,
@@ -51,20 +56,39 @@ enum EventType {
 	EVENT_PLAYLIST_LOADSONG,
 	EVENT_UNDO_REDO,
 	EVENT_SONG_MODIFIED,
-	EVENT_TEMPO_CHANGED
+	EVENT_TEMPO_CHANGED,
+	/** The sample rate of the loaded sample and the one of the
+	    Hydrogen engine do not match.*/
+	EVENT_MISMATCHING_SAMPLE_RATE
 };
 
-
+/** Basic building block for the communication between the core of
+ * Hydrogen and its GUI.  The individual Events will be enlisted in
+ * the EventQueue singleton.*/
 class Event
 {
 public:
+	/** Specifies the context the event is create in and which
+	    function should be triggered to handle it.*/
 	EventType type;
+	/** Additional information to describe the actual context of
+	    the engine.*/
 	int value;
 };
 
-///
-/// Event queue: is the way the engine talks to the GUI
-///
+/** Object handling the communication between the core of Hydrogen and
+ * its GUI.
+ *
+ * Whenever a specific condition is met or occasion happens within the
+ * core part of Hydrogen (its engine), an Event will be added to the
+ * EventQueue singleton. The GUI checks the content of this queue on a
+ * regular basis using HydrogenApp::onEventQueueTimer(). The actual
+ * frequency is set in the constructor HydrogenApp::HydrogenApp() to
+ * 20 times per second. Now, whenever an Event of a certain EventType
+ * is encountered, the corresponding function in the EventListener
+ * will be invoked to respond to the condition of the engine. For
+ * details about the mapping of EventTypes to functions please see the
+ * documentation of HydrogenApp::onEventQueueTimer().*/
 class EventQueue : public H2Core::Object
 {
 	H2_OBJECT
@@ -82,37 +106,93 @@ public:/**
 	static EventQueue* get_instance() { assert(__instance); return __instance; }
 	~EventQueue();
 
-	void push_event( EventType type, int nValue );
+	/**
+	 * Queues the next event into the EventQueue.
+	 *
+	 * The event itself will be constructed inside the function
+	 * and will be two properties: an EventType @a type and a
+	 * value @a nValue. Since the event written to the queue most
+	 * recently is indexed with #__write_index, this variable is
+	 * incremented once and its modulo with respect to #MAX_EVENTS
+	 * is calculated to determine the position of insertion into
+	 * #__events_buffer.
+	 *
+	 * The modulo operation is necessary because #__write_index
+	 * will be only incremented and does not respect the actual
+	 * length of #__events_buffer itself.
+	 *
+	 * \param type Type of the event, which will be queued.
+	 * \param nValue Value specifying the content of the new event.
+	 */
+	void push_event( const EventType type, const int nValue );
+	/**
+	 * Reads out the next event of the EventQueue.
+	 *
+	 * Since the event read out most recently is indexed with
+	 * #__read_index, this variable is incremented once and its
+	 * modulo with respect to #MAX_EVENTS is calculated to
+	 * determine the event returned from #__events_buffer. 
+	 *
+	 * The modulo operation is necessary because #__read_index
+	 * will be only incremented and does not respect the actual
+	 * length of #__events_buffer itself.
+	 *
+	 * \return Next event in line.
+	 */
 	Event pop_event();
 
-		struct AddMidiNoteVector
-		{
-				int m_column;       //position
-				int m_row;          //instrument row
-				int m_pattern;      // pattern number
-				int m_length;
-				float f_velocity;
-				float f_pan_L;
-				float f_pan_R;
-				Note::Key nk_noteKeyVal;
-				Note::Octave no_octaveKeyVal;
-				bool b_isMidi;
-				bool b_isInstrumentMode;
-				bool b_noteExist;
-		};
-		std::vector<AddMidiNoteVector> m_addMidiNoteVector;
+	struct AddMidiNoteVector {
+		int m_column;       //position
+		int m_row;          //instrument row
+		int m_pattern;      // pattern number
+		int m_length;
+		float f_velocity;
+		float f_pan_L;
+		float f_pan_R;
+		Note::Key nk_noteKeyVal;
+		Note::Octave no_octaveKeyVal;
+		bool b_isMidi;
+		bool b_isInstrumentMode;
+		bool b_noteExist;
+	};
+	std::vector<AddMidiNoteVector> m_addMidiNoteVector;
 
 private:
+	/**
+	 * Constructor of the EventQueue class.
+	 *
+	 * It fills all #MAX_EVENTS slots of the #__events_buffer with
+	 * #H2Core::EVENT_NONE and assigns itself to #__instance. Called by
+	 * create_instance().
+	 */
 	EventQueue();
 	/**
 	 * Object holding the current EventQueue singleton. It is
-	 * initialized with NULL, set with create_instance(), and
-	 * accessed with get_instance().
+	 * initialized with nullptr, set in EventQueue(), and
+	 * accessed via get_instance().
 	 */
 	static EventQueue *__instance;
 
-	int __read_index;
-	int __write_index;
+	/**
+	 * Continuously growing number indexing the event, which has
+	 * been read from the EventQueue most recently.
+	 *
+	 * It is incremented with each call to pop_event(). 
+	 */
+	unsigned int __read_index;
+	/**
+	 * Continuously growing number indexing the event, which has
+	 * been written to the EventQueue most recently.
+	 *
+	 * It is incremented with each call to push_event(). 
+	 */
+	unsigned int __write_index;
+	/**
+	 * Array of all events contained in the EventQueue.
+	 *
+	 * Its length is set to #MAX_EVENTS and it gets initialized
+	 * with #H2Core::EVENT_NONE in EventQueue().
+	 */
 	Event __events_buffer[ MAX_EVENTS ];
 };
 

@@ -1379,7 +1379,7 @@ void Sampler::reinitialize_playback_track()
 	Sample*		pSample = nullptr;
 
 	if(!pSong->get_playback_track_filename().isEmpty()){
-		pSample = Sample::load( pSong->get_playback_track_filename(), false );
+		pSample = Sample::load( pSong->get_playback_track_filename(), true );
 	}
 	
 	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( pSample );
