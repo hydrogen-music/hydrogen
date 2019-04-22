@@ -1622,7 +1622,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 					m_pNextPatterns->clear();
 					bSendPatternChange = true;
 				}
-				if ( m_nPatternStartTick == -1 ) {
+				if ( m_nPatternStartTick == -1 && nPatternSize > 0 ) {
 					m_nPatternStartTick = tick - (tick % nPatternSize);
 					// ___WARNINGLOG( "set Pattern Start Tick to " ) + to_string( m_nPatternStartTick ) );
 				} else {
@@ -1631,7 +1631,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			}
 
 			m_nPatternTickPosition = tick - m_nPatternStartTick;
-			if ( m_nPatternTickPosition > nPatternSize ) {
+			if ( m_nPatternTickPosition > nPatternSize && nPatternSize > 0 ) {
 				m_nPatternTickPosition = tick % nPatternSize;
 			}
 		}
@@ -3091,16 +3091,12 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	}
 
 	//wolke: new delete funktion
-	if ( instrumentDiff >=0 ) {
-		int pos;	// last position in instrument list
-		pos = getSong()->get_instrument_list()->size() - 1;
-
+	if ( instrumentDiff >= 0 ) {
 		for ( int i = 0; i < instrumentDiff ; i++ ){
 			removeInstrument(
 						getSong()->get_instrument_list()->size() - 1,
 						conditional
 						);
-
 		}
 	}
 
