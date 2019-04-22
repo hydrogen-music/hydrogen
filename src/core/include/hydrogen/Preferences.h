@@ -460,11 +460,15 @@ public:
 	bool				useLash();
 	void				setUseLash( bool b );
 
-	void				setMaxBars( int bars );
-	int				getMaxBars();
+	/** @param bars Sets #m_iMaxBars.*/
+	void				setMaxBars( const int bars );
+	/** @return #m_iMaxBars.*/
+	int				getMaxBars() const;
 
-	void				setMaxLayers( int layers );
-	int				getMaxLayers();
+	/** @param layers Sets #m_iMaxLayers.*/
+	void				setMaxLayers( const int layers );
+	/** @return #m_iMaxLayers.*/
+	int				getMaxLayers() const;
 
 	void				setWaitForSessionHandler(bool value);
 	bool				getWaitForSessionHandler();
@@ -557,8 +561,24 @@ private:
 	bool				readPrefFileforotherplaces;
 	int				punchInPos;
 	int				punchOutPos;
-	int				maxBars;
-	int				maxLayers;
+	/** Maximum number of bars shown in the Song Editor at
+	 * once. 
+	 *
+	 * It is set by setMaxBars() and queried by
+	 * getMaxBars(). In order to change this value, you have to
+	 * manually edit the \<maxBars\> tag in the configuration file
+	 * of Hydrogen in your home folder. Default value assigned in
+	 * constructor: 400.*/
+	int				m_iMaxBars;
+	/** Maximum number of layers to be used in the Instrument
+	 *  editor. 
+	 *
+	 * It is set by setMaxLayers() and queried by
+	 * getMaxLayers(). It is setIn order to change this value, you
+	 * have to manually edit the \<maxLayers\> tag in the
+	 * configuration file of Hydrogen in your home folder. Default
+	 * value assigned in constructor: 16. */
+	int				m_iMaxLayers;
 	bool				hearNewNotes;
 
 	QStringList			m_recentFX;
@@ -984,20 +1004,20 @@ inline void Preferences::setUseLash( bool b ){
 	m_bUseLash = b;
 }
 
-inline void Preferences::setMaxBars( int bars ){
-	maxBars = bars;
+inline void Preferences::setMaxBars( const int bars ){
+	m_iMaxBars = bars;
 }
 
-inline int Preferences::getMaxBars(){
-	return maxBars;
+inline int Preferences::getMaxBars() const {
+	return m_iMaxBars;
 }
 
-inline void Preferences::setMaxLayers( int layers ){
-	maxLayers = layers;
+inline void Preferences::setMaxLayers( const int layers ){
+	m_iMaxLayers = layers;
 }
 
-inline int Preferences::getMaxLayers(){
-	return maxLayers;
+inline int Preferences::getMaxLayers() const {
+	return m_iMaxLayers;
 }
 
 inline void Preferences::setWaitForSessionHandler(bool value){

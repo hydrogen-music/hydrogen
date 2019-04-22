@@ -819,7 +819,7 @@ Song* SongReader::readSong( const QString& filename )
 					QDomNode layerNode = componentNode.firstChildElement( "layer" );
 					while (  ! layerNode.isNull()  ) {
 						if ( nLayer >= InstrumentComponent::getMaxLayers() ) {
-							ERRORLOG( QString( "nLayer (%1) > maxLayers (%2)" ).arg ( nLayer ).arg( InstrumentComponent::getMaxLayers() ) );
+							ERRORLOG( QString( "nLayer (%1) > m_iMaxLayers (%2)" ).arg ( nLayer ).arg( InstrumentComponent::getMaxLayers() ) );
 							continue;
 						}
 						//bool sIsModified = false;
@@ -906,7 +906,7 @@ Song* SongReader::readSong( const QString& filename )
 					QDomNode layerNode = instrumentNode.firstChildElement( "layer" );
 					while (  ! layerNode.isNull()  ) {
 						if ( nLayer >= InstrumentComponent::getMaxLayers() ) {
-							ERRORLOG( QString( "nLayer (%1) > maxLayers (%2)" ).arg ( nLayer ).arg( InstrumentComponent::getMaxLayers() ) );
+							ERRORLOG( QString( "nLayer (%1) > m_iMaxLayers (%2)" ).arg ( nLayer ).arg( InstrumentComponent::getMaxLayers() ) );
 							continue;
 						}
 						QString sFilename = LocalFileMng::readXmlString( layerNode, "filename", "" );
