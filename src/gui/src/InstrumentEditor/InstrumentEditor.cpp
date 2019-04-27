@@ -922,7 +922,7 @@ void InstrumentEditor::loadLayer()
 			selectedLayer = m_nSelectedLayer + i - 2;
 			if( ( i-2 >= InstrumentComponent::getMaxLayers() ) || ( selectedLayer + 1  > InstrumentComponent::getMaxLayers() ) ) break;
 
-			Sample *pNewSample = Sample::load( filename[i], false );
+			Sample *pNewSample = Sample::load( filename[i] );
 
 			H2Core::Instrument *pInstr = nullptr;
 
@@ -1377,8 +1377,7 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 														pSample->get_loops(),
 														pSample->get_rubberband(),
 														*pSample->get_velocity_envelope(),
-														*pSample->get_pan_envelope(),
-														false
+														*pSample->get_pan_envelope()
 														);
 								if( !pNewSample  ){
 									continue;

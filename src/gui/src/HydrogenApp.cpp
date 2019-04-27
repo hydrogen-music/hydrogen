@@ -551,10 +551,6 @@ void HydrogenApp::onEventQueueTimer()
 			case EVENT_TEMPO_CHANGED:
 				pListener->tempoChangedEvent( event.value );
 				break;
-				
-			case EVENT_MISMATCHING_SAMPLE_RATE:
-				pListener->mismatchingSampleRateEvent( event.value );
-				break;
 
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );

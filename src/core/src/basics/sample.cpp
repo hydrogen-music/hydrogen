@@ -99,24 +99,23 @@ void Sample::set_filename( const QString& filename )
 }
 
 
-Sample* Sample::load( const QString& filepath, const bool checkSampleRate )
+Sample* Sample::load( const QString& filepath )
 {
 	Sample* pSample = nullptr;
 	
 	if( !Filesystem::file_readable( filepath ) ) {
 		ERRORLOG( QString( "Unable to read %1" ).arg( filepath ) );
 	} else {
-		INFOLOG( QString( "ladida" ) );
 		pSample = new Sample( filepath );
-		pSample->load( checkSampleRate );
+		pSample->load();
 	}
 	
 	return pSample;
 }
 
-Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, const bool checkSampleRate )
+Sample* Sample::load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan )
 {
-	Sample* pSample = Sample::load( filepath, checkSampleRate );
+	Sample* pSample = Sample::load( filepath );
 	
 	if( pSample ){
 		pSample->apply( loops, rubber, velocity, pan );
@@ -137,7 +136,7 @@ void Sample::apply( const Loops& loops, const Rubberband& rubber, const Velocity
 #endif
 }
 
-void Sample::load( const bool checkSampleRate )
+void Sample::load()
 {
 	// Will contain a bunch of metadata about the loaded sample.
 	SF_INFO sound_info;
@@ -180,31 +179,6 @@ void Sample::load( const bool checkSampleRate )
 		WARNINGLOG( QString( "Unable to close sample file %1" ).arg( __filepath ) );
 	}
 	
-	// Display a warning if the sample does not have the same
-	// sample rate as the Hydrogen engine.
-	//
-	// For some samples, like the metronome, such check does not
-	// make sense or the displayed popup is annoying when loading
-	// a bunch of samples.
-	// 
-	// In addition, when starting up Hydrogen an instrument
-	// containing the metronome is loaded _BEFORE_ the Hydrogen
-	// instance is set. Checking the sample rate in this context
-	// would result in an assertion.
-	if ( checkSampleRate ){
-		
-		// A conversion is necessary since Hydrogen stores the
-		// sample rate in `unsigned int' and libsndfile in
-		// `int'.
-		int sampleRateEngine = (int)Hydrogen::get_instance()->
-			getAudioOutput()->getSampleRate();
-		
-		if ( sampleRateEngine != sound_info.samplerate ){
-			EventQueue::get_instance()->push_event( EVENT_MISMATCHING_SAMPLE_RATE, 1 );
-			WARNINGLOG( QString( "The sample rate of the engine (%1) and the one of the loaded sample (%2) do not match!" ).arg( sampleRateEngine ).arg( sound_info.samplerate ) );
-		}
-	}
-
 	// Flush the current content of the left and right channel and
 	// the current metadata.
 	unload();
@@ -548,11 +522,7 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 			return false;
 		}
 
-		// Since this function is only called immediately
-		// after loading a sample respecting the
-		// checkSampleRate argument, it can be set false in
-		// here regardless of the option chosen by the user.
-		Sample* p_Rubberbanded = Sample::load( rubberResultPath.toLocal8Bit(), false );
+		Sample* p_Rubberbanded = Sample::load( rubberResultPath.toLocal8Bit() );
 		if( p_Rubberbanded==0 ) {
 			return false;
 		}

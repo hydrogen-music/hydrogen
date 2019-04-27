@@ -58,14 +58,10 @@ class Drumkit : public H2Core::Object
 		 * Filesystem::drumkit_dir_search().
 		 * \param load_samples Automatically load sample data
 		 * if set to true.
-		 * \param checkSampleRate If set to true, the sample
-		 * rate of the loaded samples will be compared to the
-		 * one used by the audio driver and a warning will be
-		 * displayed in case they do not match.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load( const QString& dk_dir, const bool load_samples = false, const bool checkSampleRate = false );
+		static Drumkit* load( const QString& dk_dir, const bool load_samples = false );
 		/**
 		 * Simple wrapper for load() used with the drumkit's
 		 * name instead of its directory.
@@ -76,14 +72,10 @@ class Drumkit : public H2Core::Object
 		 * \param dk_name Name of the Drumkit.
 		 * \param load_samples Automatically load sample data
 		 * if set to true.
-		 * \param checkSampleRate If set to true, the sample
-		 * rate of the loaded samples will be compared to the
-		 * one used by the audio driver and a warning will be
-		 * displayed in case they do not match.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load_by_name( const QString& dk_name, const bool load_samples = false, const bool checkSampleRate = false );
+		static Drumkit* load_by_name( const QString& dk_name, const bool load_samples = false );
 		/**
 		 * Load a Drumkit from a file.
 		 *
@@ -99,23 +91,14 @@ class Drumkit : public H2Core::Object
 		 *
 		 * \param dk_path is a path to an xml file
 		 * \param load_samples automatically load sample data if set to true
-		 * \param checkSampleRate If set to true, the sample
-		 * rate of the loaded samples will be compared to the
-		 * one used by the audio driver and a warning will be
-		 * displayed in case they do not match.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load_file( const QString& dk_path, const bool load_samples = false, const bool checkSampleRate = false );
+		static Drumkit* load_file( const QString& dk_path, const bool load_samples = false );
 		/** Calls the InstrumentList::load_samples() member
 		 * function of #__instruments.
-		 *
-		 * \param checkSampleRate If set to true, the sample
-		 * rate of the loaded samples will be compared to the
-		 * one used by the audio driver and a warning will be
-		 * displayed in case they do not match.
 		 */
-		void load_samples( const bool checkSampleRate );
+		void load_samples();
 		/** Calls the InstrumentList::unload_samples() member
 		 * function of #__instruments.
 		 */

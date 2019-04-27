@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
 		}
 
 		if ( ! drumkitToLoad.isEmpty() ){
-			Drumkit* drumkitInfo = Drumkit::load_by_name( drumkitToLoad, true, false );
+			Drumkit* drumkitInfo = Drumkit::load_by_name( drumkitToLoad, true );
 			if ( drumkitInfo ) {
 				pHydrogen->loadDrumkit( drumkitInfo );
 			} else {

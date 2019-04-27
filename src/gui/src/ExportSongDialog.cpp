@@ -670,8 +670,7 @@ void ExportSongDialog::calculateRubberbandTime()
 												pSample->get_loops(),
 												pSample->get_rubberband(),
 												*pSample->get_velocity_envelope(),
-												*pSample->get_pan_envelope(),
-												false
+												*pSample->get_pan_envelope()
 												);
 									if( !pNewSample ){
 										continue;

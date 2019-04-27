@@ -129,13 +129,8 @@ class InstrumentList : public H2Core::Object
 
 		/** Calls the Instrument::load_samples() member
 		 * function of all Instruments in #__instruments.
-		 *
-		 * \param checkSampleRate If set to true, the sample
-		 * rate of the loaded samples will be compared to the
-		 * one used by the audio driver and a warning will be
-		 * displayed in case they do not match.
 		 */
-		void load_samples( const bool checkSampleRate );
+		void load_samples();
 		/** Calls the Instrument::unload_samples() member
 		 * function of all Instruments in #__instruments.
 		 */

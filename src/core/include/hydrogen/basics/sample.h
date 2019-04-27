@@ -151,49 +151,40 @@ class Sample : public H2Core::Object
 		 *
 		 * This function checks whether the @a filepath is
 		 * readable, initializes a new Sample, and calls the
-		 * load( const bool checkSampleRate ) member on it.
+		 * load() member on it.
 		 *
 		 * \param filepath the file to load audio data from
-		 * \param checkSampleRate If set to true, the sample
-		 * rate of the loaded file will be compared to the
-		 * one used by the audio driver and a warning will be
-		 * displayed in case they do not match.
 		 *
 		 * \return Pointer to the newly initialized Sample. If
 		 * the provided @a filepath is not readable, a nullptr
 		 * is returned instead.
 		 *
-		 * \fn load(const QString& filepath, const bool checkSampleRate)
+		 * \fn load(const QString& filepath)
 		 */
-	        static Sample* load( const QString& filepath, const bool checkSampleRate );
+	        static Sample* load( const QString& filepath);
 	
 		/**
 		 * Load a sample from a file and apply the
 		 * transformations to the sample data.
 		 *
-		 * Wrapper around 
-		 * #load( const QString& filepath, const bool checkSampleRate ), 
-		 * which calls apply() with @a
-		 * loops, @a rubber, @a velocity, and @a pan as
-		 * arguments after successfully loading the sample.
+		 * Wrapper around #load(const QString& filepath),
+		 * which calls apply() with @a loops, @a rubber, @a
+		 * velocity, and @a pan as arguments after
+		 * successfully loading the sample.
 		 *
 		 * \param filepath the file to load audio data from
 		 * \param loops transformation parameters
 		 * \param rubber band transformation parameters
 		 * \param velocity envelope points
 		 * \param pan envelope points
-		 * \param checkSampleRate If set to true, the sample
-		 * rate of the loaded file will be compared to the
-		 * one used by the audio driver and a warning will be
-		 * displayed in case they do not match.
 		 *
 		 * \return Pointer to the newly initialized Sample. If
 		 * the provided @a filepath is not readable, a nullptr
 		 * is returned instead.
 		 *
-		 * \overload load(const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, const bool checkSampleRate)
+		 * \overload load(const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan)
 		 */
-                static Sample* load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan, const bool checkSampleRate );
+                static Sample* load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan );
 
 		/**
 		 * Load the sample stored in #__filepath into
@@ -216,14 +207,9 @@ class Sample : public H2Core::Object
 		 * truncated and a warning log message will be
 		 * displayed.
 		 *
-		 * \param checkSampleRate If set to true, the sample
-		 * rate of the loaded file will be compared to the
-		 * one used by the audio driver and a warning will be
-		 * displayed in case they do not match.
-		 *
-		 * \fn load( const bool checkSampleRate )
+		 * \fn load()
 		 */
-		void load( const bool checkSampleRate );
+		void load();
 		/**
 		 * Flush the current content of the left and right
 		 * channel and the current metadata.

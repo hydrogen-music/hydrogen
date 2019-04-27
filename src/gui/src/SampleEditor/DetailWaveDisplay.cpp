@@ -123,7 +123,7 @@ void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 void DetailWaveDisplay::updateDisplay( QString filename )
 {
 
-	Sample *pNewSample = Sample::load( filename, false );
+	Sample *pNewSample = Sample::load( filename );
 
 	if ( pNewSample ) {
 

@@ -82,15 +82,10 @@ namespace H2Core
 		Sample* get_sample() const;
 
 		/**
-		 * Calls the #H2Core::Sample::load( const bool checkSampleRate )
+		 * Calls the #H2Core::Sample::load()
 		 * member function of #__sample.
-		 *
-		 * \param checkSampleRate If set to true, the sample
-		 * rate of the loaded file will be compared to the
-		 * one used by the audio driver and a warning will be
-		 * displayed in case they do not match.
 		 */
-		void load_sample( const bool checkSampleRate );
+		void load_sample();
 		/*
 		 * unload sample and replace it with an empty one
 		 */

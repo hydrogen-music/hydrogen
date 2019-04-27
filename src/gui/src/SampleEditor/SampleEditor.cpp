@@ -90,7 +90,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	setModal ( true );
 
 	//this new sample give us the not changed real samplelength
-	m_pSampleFromFile = Sample::load( mSamplefilename, false );
+	m_pSampleFromFile = Sample::load( mSamplefilename );
 	if (!m_pSampleFromFile) reject();
 
 	unsigned slframes = m_pSampleFromFile->get_frames();
@@ -354,7 +354,7 @@ void SampleEditor::createNewLayer()
 {
 	if ( !m_pSampleEditorStatus ){
 
-		Sample *pEditSample = Sample::load( m_samplename, __loops, __rubberband, *m_pTargetSampleView->get_velocity(), *m_pTargetSampleView->get_pan(), false );
+		Sample *pEditSample = Sample::load( m_samplename, __loops, __rubberband, *m_pTargetSampleView->get_velocity(), *m_pTargetSampleView->get_pan() );
 
 		if( pEditSample == nullptr ){
 			return;
@@ -564,7 +564,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	 *instrument. Otherwise pInstr would be deleted if consumed by preview_instrument.
 	*/
 	Instrument *tmpInstrument = Instrument::load_instrument( pInstr->get_drumkit_name(), pInstr->get_name() );
-	Sample *pNewSample = Sample::load( pInstr->get_component(0)->get_layer( selectedlayer )->get_sample()->get_filepath(), false );
+	Sample *pNewSample = Sample::load( pInstr->get_component(0)->get_layer( selectedlayer )->get_sample()->get_filepath() );
 
 	if ( pNewSample ){
 		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );

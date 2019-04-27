@@ -85,27 +85,27 @@ Drumkit::~Drumkit()
 	}
 }
 	
-Drumkit* Drumkit::load_by_name ( const QString& dk_name, const bool load_samples, const bool checkSampleRate )
+Drumkit* Drumkit::load_by_name ( const QString& dk_name, const bool load_samples )
 {
 	QString dir = Filesystem::drumkit_path_search( dk_name );
 	if ( dir.isEmpty() ) {
 		return nullptr;
 	}
 	
-	return load( dir, load_samples, checkSampleRate );
+	return load( dir, load_samples );
 }
 
-Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples, const bool checkSampleRate )
+Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples )
 {
 	INFOLOG( QString( "Load drumkit %1" ).arg( dk_dir ) );
 	if( !Filesystem::drumkit_valid( dk_dir ) ) {
 		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
 		return nullptr;
 	}
-	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples, checkSampleRate );
+	return load_file( Filesystem::drumkit_file( dk_dir ), load_samples );
 }
 
-Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, const bool checkSampleRate )
+Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 {
 	XMLDoc doc;
 	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path() ) ) {
@@ -128,7 +128,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples, co
 	
 	Drumkit* pDrumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
 	if( load_samples ){
-		pDrumkit->load_samples( checkSampleRate );
+		pDrumkit->load_samples();
 	}
 	return pDrumkit;
 }
@@ -180,11 +180,11 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 	return pDrumkit;
 }
 
-void Drumkit::load_samples( const bool checkSampleRate )
+void Drumkit::load_samples()
 {
 	INFOLOG( QString( "Loading drumkit %1 instrument samples" ).arg( __name ) );
 	if( !__samples_loaded ) {
-		__instruments->load_samples( checkSampleRate );
+		__instruments->load_samples();
 		__samples_loaded = true;
 	}
 }

@@ -227,7 +227,7 @@ void FileBrowser::on_fileList_ItemActivated( QListWidgetItem* item )
 			if ( !fileInfo.isDir() ) {
 
 				// FIXME: evitare di caricare il sample, visualizzare solo le info del file
-				Sample *pNewSample = Sample::load( fileInfo.absoluteFilePath(), false );
+				Sample *pNewSample = Sample::load( fileInfo.absoluteFilePath() );
 				if (pNewSample) {
 					updateFileInfo( fileInfo.absoluteFilePath(), pNewSample->get_sample_rate(), pNewSample->get_size() );
 					AudioEngine::get_instance()->get_sampler()->preview_sample(pNewSample, 192);

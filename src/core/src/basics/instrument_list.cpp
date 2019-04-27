@@ -51,10 +51,10 @@ InstrumentList::~InstrumentList()
 	}
 }
 
-void InstrumentList::load_samples( const bool checkSampleRate )
+void InstrumentList::load_samples()
 {
 	for( int i=0; i<__instruments.size(); i++ ) {
-		__instruments[i]->load_samples( checkSampleRate );
+		__instruments[i]->load_samples();
 	}
 }
 

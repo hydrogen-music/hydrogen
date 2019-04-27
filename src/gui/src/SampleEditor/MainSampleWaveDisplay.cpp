@@ -154,7 +154,7 @@ void MainSampleWaveDisplay::updateDisplayPointer()
 void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 {
 
-	Sample *pNewSample = Sample::load( filename, false );
+	Sample *pNewSample = Sample::load( filename );
 	
 	if ( pNewSample ) {
 

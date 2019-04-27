@@ -1283,7 +1283,7 @@ void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName,
 			return;
 		}
 
-		Drumkit *pNewDrumkit = Drumkit::load_by_name( sDrumkitName, false, false );
+		Drumkit *pNewDrumkit = Drumkit::load_by_name( sDrumkitName, false );
 		if( pNewDrumkit == NULL ){
 			return;
 		}

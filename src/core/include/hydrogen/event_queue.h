@@ -57,9 +57,6 @@ enum EventType {
 	EVENT_UNDO_REDO,
 	EVENT_SONG_MODIFIED,
 	EVENT_TEMPO_CHANGED,
-	/** The sample rate of the loaded sample and the one of the
-	    Hydrogen engine do not match.*/
-	EVENT_MISMATCHING_SAMPLE_RATE
 };
 
 /** Basic building block for the communication between the core of

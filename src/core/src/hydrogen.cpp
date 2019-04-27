@@ -645,13 +645,8 @@ void audioEngine_init()
 	m_pMetronomeInstrument =
 			new Instrument( METRONOME_INSTR_ID, "metronome" );
 	
-	// It is very important for the second parameter, the check
-	// for the sample rate, to be false. Since this function is
-	// called before the Hydrogen instance is initialized, the
-	// sample rate of the audio driver can not be accessed from
-	// within the load function and would result in an assertion.
 	InstrumentLayer* pLayer = 
-		new InstrumentLayer( Sample::load( sMetronomeFilename, false ) );
+		new InstrumentLayer( Sample::load( sMetronomeFilename ) );
 	InstrumentComponent* pCompo = new InstrumentComponent( 0 );
 	pCompo->set_layer(pLayer, 0);
 	m_pMetronomeInstrument->get_components()->push_back( pCompo );
