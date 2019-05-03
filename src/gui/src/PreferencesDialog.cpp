@@ -59,7 +59,6 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	setMinimumSize( width(), height() );
 
 	Preferences *pPref = Preferences::get_instance();
-	pPref->loadPreferences( false );	// reload user's preferences
 
 	driverComboBox->clear();
 	driverComboBox->addItem( "Auto" );
@@ -305,6 +304,10 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 PreferencesDialog::~PreferencesDialog()
 {
 	INFOLOG("~PREFERENCES_DIALOG");
+	
+	// Store the current state of Preferences including all the
+	// changes done by the user.
+	Preferences::get_instance()->savePreferences();
 }
 
 
