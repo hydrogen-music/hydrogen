@@ -28,7 +28,6 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/basics/sample.h>
-#include <hydrogen/event_queue.h>
 
 #if defined(H2CORE_HAVE_RUBBERBAND) || _DOXYGEN_
 #include <rubberband/RubberBandStretcher.h>

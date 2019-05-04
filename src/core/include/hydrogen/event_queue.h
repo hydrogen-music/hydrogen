@@ -56,7 +56,7 @@ enum EventType {
 	EVENT_PLAYLIST_LOADSONG,
 	EVENT_UNDO_REDO,
 	EVENT_SONG_MODIFIED,
-	EVENT_TEMPO_CHANGED,
+	EVENT_TEMPO_CHANGED
 };
 
 /** Basic building block for the communication between the core of
