@@ -5,16 +5,18 @@
 BUILDING AND INSTALLING HYDROGEN
 ================================
 
-Contents:
+Content:
 
-1. System Requirements
-2. Download
-3. Binary Packages
-4. Prerequisites to Build from Source
-5. Build and Install from Source
+1. [System Requirements](#system-requirements)
+2. [Download](#download)
+3. [Binary Packages](#binary-packages)
+4. [Prerequisites to Build from Source](#prerequisites-to-build-from-source)
+5. [Build and Install from Source](#build-and-install-from-source)
+6. [Creating a Binary Package](#creating-a-binary-package)
+7. [Generate the Documentation](#generate-the-documentation)
 
-1. System Requirements
-----------------------
+
+## System Requirements
 
 Hydrogen is supported on the following operating systems:
 
@@ -28,201 +30,283 @@ have fallen into disrepair.
 Hydrogen is known to work well on fairly old systems like this (as of
 2009):
 
-  Pentium III 500 MHz
-  198 MB RAM
-  Consumer-Grade (cheap) audio card
-  Keyboard and Mouse
-  1x1 USB MIDI Interface (optional)
+- Pentium III 500 MHz
+- 198 MB RAM
+- Consumer-Grade (cheap) audio card
+- Keyboard and Mouse
+- 1x1 USB MIDI Interface (optional)
 
-2. Download
------------
+
+## Download
 
 Hydrogen can be downloaded as a binary package, source distribution,
 or you can check out the current development version.
 These can be accessed on the Hydrogen home page:
 
-	http://www.hydrogen-music.org/
+> [http://www.hydrogen-music.org/](http://www.hydrogen-music.org/)
 
 The source code for the current development version can be checked out
 via git:
 
-	$ git clone git://github.com/hydrogen-music/hydrogen.git
+``` bash
+$ git clone git://github.com/hydrogen-music/hydrogen.git
+```
 
-3. Binary Packages
-------------------
 
-Debian (GNU/Linux) and Ubuntu (GNU/Linux):
+## Binary Packages
 
-	Hydrogen can usually be installed with apt:
+In **Debian (GNU/Linux)** and **Ubuntu (GNU/Linux)** Hydrogen can be installed
+with `apt`
 
-	# apt-get install hydrogen
+``` bash
+$ sudo apt-get install hydrogen
+```
 
-	However, if you wish to have a more current version of
-	Hydrogen, the Hydrogen dev's typically maintain a .deb package
-	for Debian stable, testing, and some Ubuntu distributions.
-	Note that apt takes care of any library dependencies that you
-	have.
+However, if you wish to have a more current version of Hydrogen, the
+Hydrogen dev's typically maintain a .deb package for Debian stable,
+testing, and some Ubuntu distributions.  Note that `apt` takes care of
+any library dependencies that you have.
 
-Other GNU/Linux:
+For **other GNU/Linux** :
 
-	Check your package management system for the package
-	'hydrogen.'
+Please check your package management system for the package called
+_hydrogen_.
 
-Mac OS X:
+For **Mac OS X** the [Hydrogen home page](http://hydrogen-music.org/)
+has a binary package available.  Extract the ZIP archive and it will
+create a hydrogen.app folder.
 
-	They Hydrogen home page has a binary package available for OS
-	X.  Extract the ZIP archive and it will create a hydrogen.app
-	folder.
 
-4. Prerequisites to Build from Source
--------------------------------------
+## Prerequisites to Build from Source
 
-In order to build from source, you will need the following libraries
-installed on your system, and the development header files:
+In order to build Hydrogen from source, you will need the following
+libraries and development header files installed on your system:
 
-	REQUIRED
-	* Qt 5 Library
-	* Qt 5 SDK (moc, uic, etc.)
-	* GNU g++ compiler (>=4.0, 3.x might work)
-        * cmake (>=2.6)
-        * libsndfile >=1.0.18
-	* zlib and libtar -OR- libarchive
-	  OS X: You will probably need to build libarchive from source.
-	* At least 1 audio and 1 midi driver
-	* OS X: Xcode
+#### Required
 
-	DRIVERS AVAILABLE
-	* JACK Audio Connection Kit (>=0.103.0)
-	* ALSA (Advanced Linux Sound Architecture)
-	* OSS
-	* PortAudio (v18, not v19)
-	* PortMIDI
-	* CoreAudio (OS X)
-	* CoreMidi (OS X)
+- Qt 5 Library
+- Qt 5 SDK (moc, uic, etc.)
+- GNU g++ compiler (>=4.0, 3.x might work)
+- cmake (>=2.6)
+- libsndfile >=1.0.18
+- zlib and libtar *OR* libarchive (OS X: You will probably need to build libarchive from source)
+- OS X: Xcode
+- At least one of the following audio and midi driver
 
-	OPTIONAL SUPPORT
-    	* LASH (Linux Audio Session Handler)
-        * JACK Session need Jack Audio Connection Kit(>=0.120.0/1.9.7) 
-	* liblrdf for LADSPA plugins
-	* librubberband2 for lib - RUBBERBAND support (experimental)
-	  currently it is recommended that you disable this config option
-	  to ensure backwards compatibility with songs created under 0.9.5
-	  which use rubberband. install the rubberband -cli package beside
-	  librubberband2 . rubberband works properly even if this option
-	  is disabled. if available, hydrogen locate an installed
-	  rubberband-cli binary.
+#### Audio and Midi Drivers
 
-	REQUIRED PACKAGES IN DEBIAN-BASED SYSTEMS
-	qtbase5-dev qtbase5-dev-tools qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev
-	libarchive-dev libsndfile1-dev libasound2-dev liblo-dev libpulse-dev
-	libcppunit-dev liblrdf-dev liblash-compat-dev
-	librubberband-dev
+- JACK Audio Connection Kit (>=0.103.0)
+- ALSA (Advanced Linux Sound Architecture)
+- OSS
+- PortAudio (v18, not v19)
+- PortMIDI
+- CoreAudio (OS X)
+- CoreMidi (OS X)
 
-	In addition, either the libjack-jackd2-dev or libjack-dev
-	package must be present. Which one to pick depends on whether
-	JACK2 or JACK1 is installed on your system. If none is
-	present, you are free to choose one of them. 
+#### Optional Support
 
-	ON OS X USING BREW
-	libsndfile jack pulseaudio cppunit libarchive qt5
+- OSC (Open Sound Control)
+- LASH (Linux Audio Session Handler)
+- NSM (Non Session Manager)
+- JACK Session need Jack Audio Connection Kit(>=0.120.0/1.9.7) 
+- liblrdf for LADSPA plugins
+- librubberband2 (Rubberband support is experimental)
 
-On a single, 500MHz processor Hydrogen takes about 1.5 hours to build.
+Currently it is recommended that you disable this config option to
+ensure backwards compatibility with songs created under 0.9.5 which
+use rubberband. Install the `rubberband-cli` package beside
+`librubberband2`. Rubberband works properly even if this option is
+disabled. If available, Hydrogen locates the installed
+`rubberband-cli` binary.
 
-5. Build and Install from Source
---------------------------------
+#### Packages Required on Debian-based Systems
 
-If you wish to build a package for your operating system, skip down to
-the end of this section.
+In order to build Hydrogen on Debian-based Systems, you can use the
+following command to install all basic and some optional requirements.
 
-This instructions are thought for building hydrogen on linux.
-We're providing a set of qmake project files for windows and
-mac osx builds. 
+``` bash
+$ sudo apt-get install qtbase5-dev qtbase5-dev-tools            \
+	qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev  \
+	libarchive-dev libsndfile1-dev libasound2-dev liblo-dev \
+	libpulse-dev libcppunit-dev liblrdf-dev                 \
+	liblash-compat-dev librubberband-dev
+```
+
+In addition, either the `libjack-jackd2-dev` or `libjack-dev` package
+must be present to enable the support of the **JACK** audio
+driver. [Which one to
+pick](https://github.com/jackaudio/jackaudio.github.com/wiki/Q_difference_jack1_jack2)
+depends on whether JACK2 or JACK1 is installed on your system. If none
+is present, either package will work.
+
+#### Packages Required on OS X
+
+To compile Hydrogen on OS X, be sure the install the following
+commands using `brew` first.
+
+``` bash
+$ brew install libsndfile jack pulseaudio cppunit libarchive qt5
+```
+
+
+## Build and Install from Source
+
+This instructions are thought for building Hydrogen on **Linux**. On a
+single, 500MHz processor Hydrogen takes about 1.5 hours to build.
+
+We're providing a set of `qmake` project files for Windows and
+Mac OS X builds.
+
 Please read the relevant wiki pages for more informations:
 
-https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-source-(LINUX)
-https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-source-(MAC-OSX)
-https://github.com/hydrogen-music/hydrogen/wiki/Packaging-for-Windows
+- [Building Hydrogen from source on Linux](https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-source-(LINUX))
+- [Building Hydrogen from source on Mac OS X](https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-source-(MAC-OSX))
+- [Packaging Hydrogen for Windows](https://github.com/hydrogen-music/hydrogen/wiki/Packaging-for-Windows)
 
- 5.1 build
- ---------
+### Building and Installing Hydrogen
 
-After you have all the prerequisites, building and installing will
-look like this:
+After you have installed all the prerequisites, building and
+installing will look like this:
 
-	$ tar xjf hydrogen-0.9.6.tar.bz2
-	$ cd hydrogen-0.9.6
-	$ mkdir build && cd build
-	$ cmake ..
-	$ make && sudo make install
+``` bash
+$ git clone git://github.com/hydrogen-music/hydrogen.git
+$ cd hydrogen
+$ mkdir build && cd build
+$ cmake ..
+$ make && sudo make install
+```
 
-All the following cmake commands should be executed in a build directory :
+### cmake Helpers
 
-If you wish to configure features like LADSPA plugins,
-or debugging symbols, get more information like this:
+Alternatively you could use the cmake helper
+[./build.sh](https://github.com/hydrogen-music/hydrogen/blob/master/build.sh). This
+is the recommended way in case you are actively developing new
+features or bug fixes for Hydrogen (all characters in squared brackets
+are optional and do not have to be included into the command).
 
-	$ cmake -L ..
+| Command    | Functionality                                                     |
+| ---        | ---                                                               |
+| `r[m]`     | Remove all build, temporary, and cached files.                    |
+| `c[lean]`  | Remove all cached files.                                          |
+| `m[ake]`   | Launch the build process.                                         |
+| `mm`       | Launch the build process using `ccache`.                          |
+| `d[oc]`    | Build the documentation of Hydrogen.                              |
+| `g[raph]`  | Draw the dependency graphs of the Hydrogen code using `graphviz`. |
+| `h[elp]`   | Show all supported build options.                                 |
+| `[e]x[ec]` | Execute the Hydrogen binary.                                      |
+| `t[est]`   | Execute the test functions.                                       |
+| `p[kg]`    | Build a source package.                                           |
+| `z`        | Build Hydrogen using `ccache` and execute the resulting binary.   |
 
-For possible make targets:
+Using `ccache` to build Hydrogen, `./build.sh mm`, will result in a
+compilation, which takes a little longer than the one with the usual
+`make` command. But in all further runs not the entire code base but
+just the parts you touched will be recompiled. This can speed up
+development by a margin.
 
-    $ make help
 
-To change the directory where hydrogen is installed, it is done like
-this:
+### Additional Build Features and Uninstall
 
-	$ cmake -DCMAKE_INSTALL_PREFIX=/opt/hydrogen ..
-	$ make && sudo make install
+All the following `cmake` commands should be executed in a build
+directory :
 
-Uninstalling Hydrogen is done like this:
+If you wish to configure features like **LADSPA plugins**,
+or **debugging symbols**, get more information like this:
 
-	$ sudo cmake uninstall
+``` bash
+$ cmake -L ..
+```
 
-Note that cmake is a build system and not a package manager.  While we
-make every effort to ensure that Hydrogen uninstalls cleanly, it is
-not a guarantee.
+For possible **make targets**:
 
-Cmake macros should detect the correct Qt settings and location of your libraries,
-but sometimes it needs a little help.  If Hydrogen fails to build, some
-environment variables could help it.
+``` bash
+$ make help
+```
 
-	$ QTDIR=/opt/lib/qt4 OSS_PATH="/usr/lib/oss/lib" OSS_INCLUDE="/usr/lib/oss/include" cmake ..
+To change the directory Hydrogen will be installed in, you have to
+provide the `-DCMAKE_INSTALL_PREFIX` option during the configuration
+of your custom build (the default path is */usr/local/*).
 
- 5.2 cmake helper
- ----------------
+``` bash
+$ cmake -DCMAKE_INSTALL_PREFIX=/opt/hydrogen ..
+$ make && sudo make install
+```
 
- Alternatively you could use the cmake helper : ./build.sh
+**Uninstalling** Hydrogen is done like this:
 
- To remove and build hydrogen from scratch
+``` bash
+$ sudo cmake uninstall
+```
 
-    $ ./build.sh r m
+Note that `cmake` is a build system and not a package manager.  While
+we make every effort to ensure that Hydrogen uninstalls cleanly, it is
+not guaranteed.
 
-___CREATING A BINARY PACKAGE___
+`cmake` macros should detect the correct Qt settings and location of
+your libraries, but sometimes it needs a little help.  If Hydrogen
+fails to build, some environment variables could help it.
+
+``` bash
+$ QTDIR=/opt/lib/qt4 OSS_PATH="/usr/lib/oss/lib" OSS_INCLUDE="/usr/lib/oss/include" cmake ..
+```
+
+## Creating a Binary Package
 
 If you are a package maintainer and wish for your packaging scripts to
 be included in the Hydrogen source tree, we would be happy to work
-with you.  Please contact the developer mailing list (see the Hydrogen
-home page).  The instructions below are for the package systems that
-have been contributed so far.
+with you.  Please contact the developer mailing list (see the
+[Hydrogen home page](http://hydrogen-music.org/)).  The instructions
+below are for the package systems that have been contributed so far.
 
-___CREATING A .DEB PACKAGE___
+### Creating a **.deb** Package
 
-In order to create a .deb package for Debian or Debian-based systems
-(like Ubuntu), you first need the debhelper package:
+In order to create a .deb package for **Debian-based systems** (like
+Debian, Devuan, Ubuntu, or Mint), you first need the `debhelper`
+package:
 
-	# apt-get install debhelper
+``` bash
+$ sudo apt-get install debhelper
+```
 
-To build the Hydrogen package:
+To build the Hydrogen package, run the following commands.
 
-    $ tar xjf hydrogen-0.9.6.tar.bz2
-    $ cd hydrogen-0.9.6
-	$ cd linux
-	$ fakeroot dpkg-buildpackage
+``` bash
+$ git clone git://github.com/hydrogen-music/hydrogen.git
+$ cd hydrogen
+$ cd linux
+$ fakeroot dpkg-buildpackage
+
+```
 
 This will place the .deb package and description files in the parent
 directory.  If you wish to change the version number for the archive,
-edit linux/debian/changelog to set the version. To install the newly
-created deb package run the following (substitute the deb package
+edit *linux/debian/changelog* to set the version. To install the newly
+created deb package, run the following (substitute the deb package
 name with the version your build created):
 
-	$ cd ..
-        $ sudo dpkg -i hydrogen_0.9.6_amd64.deb
+``` bash
+$ cd ..
+$ sudo dpkg -i hydrogen_0.9.6_amd64.deb
+```
 
+## Generate the Documentation
+
+Apart from the [official manuals and
+tutorial](http://hydrogen-music.org/doc/), Hydrogen does also feature
+an extended documentation of its code base. 
+
+To generate it using `Doxygen`, run the following command
+
+``` bash
+$ ./build.sh d
+```
+
+It will produce two folder *build/docs/html/* and *build/docs/latex*
+containing the documentation as either HTML or LaTeX. The HTML version
+is recommended since it provides a more friendly way to navigate
+through the set of created files. You can view them using your
+favorite browser, e.g.
+
+``` bash
+$ firefox build/docs/html/index.html
+```
