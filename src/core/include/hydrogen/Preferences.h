@@ -290,11 +290,11 @@ public:
 	 * Whether to send the current state of Hydrogen to the OSC
 	 * clients.
 	 *
-	 * If set to true, each time an OSC message arrives from an
-	 * address previously unknown to Hydrogen, its current state will
-	 * be send to \e all known OSC clients using
+	 * If set to true, the current state of Hydrogen will be sent to
+	 * \e all known OSC clients using
 	 * CoreActionController::initExternalControlInterfaces() and
-	 * OscServer::handleAction() via OSC messages.
+	 * OscServer::handleAction() via OSC messages each time it gets
+	 * udpated..
 	 
 	 * Set by setOscFeedbackEnabled() and queried by
 	 * getOscFeedbackEnabled().

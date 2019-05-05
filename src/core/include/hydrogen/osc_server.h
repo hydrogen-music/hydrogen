@@ -71,10 +71,10 @@ namespace lo
 * will start to listen for incoming messages. But this will only
 * happen if H2Core::Preferences::m_bOscServerEnabled is set to
 * true. In addition, Hydrogen will send OSC messages about its current
-* state to all clients each time a new client is contacting the OSC
-* server if H2Core::Preferences::m_bOscFeedbackEnabled is set to
-* true. H2Core::Preferences::m_nOscServerPort contains the port number the OSC
-* server will be started at.
+* state to all clients each time its state changes if
+* H2Core::Preferences::m_bOscFeedbackEnabled is set to
+* true. H2Core::Preferences::m_nOscServerPort contains the port number
+* the OSC server will be started at.
 *
 * @author Sebastian Moors
 *
@@ -162,14 +162,15 @@ class OscServer : public H2Core::Object
 		 * and types.
 		 *
 		 * In addition, a lambda function will be registered to match
-		 * all types and paths too. It will take care of registering
-		 * all clients communicating with Hydrogen to the
-		 * #m_pClientRegistry using the address of the received OSC
-		 * message. After a successful registration it will call
-		 * H2Core::CoreActionController::initExternalControlInterfaces()
-		 * and returns 1. The latter function will, apart from MIDI
-		 * related stuff, use handleAction() to push the current state
-		 * of Hydrogen to the registered OSC clients.
+		 * all types and paths too. If the client has not sent any
+		 * message to Hydrogen yet, it will take care of its
+		 * registration to #m_pClientRegistry using the address of the
+		 * received OSC message. More importantly, it also will call
+		 * H2Core::CoreActionController::initExternalControlInterfaces(),
+		 * which, apart from MIDI related stuff, use handleAction() to
+		 * push the current state of Hydrogen to the registered OSC
+		 * clients. This will happen each time the state of Hydrogen
+		 * does change.
 		 *
 		 * This function will only be processed if the created server
 		 * thread #m_pServerThread is valid.
@@ -178,10 +179,8 @@ class OscServer : public H2Core::Object
 		/**
 		 * Function called by
 		 * H2Core::CoreActionController::initExternalControlInterfaces()
-		 * after successfully registering a new client to
-		 * #m_pClientRegistry to inform all clients about the current
-		 * state of Hydrogen using OSC messages send by Hydrogen
-		 * itself.
+		 * to inform all clients about the current state of Hydrogen
+		 * using OSC messages send by Hydrogen itself.
 		 *
 		 * The following feedback functions will be used to describe
 		 * the aforementioned state:
