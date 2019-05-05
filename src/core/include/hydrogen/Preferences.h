@@ -273,8 +273,39 @@ public:
 	bool				m_bEnableMidiFeedback;
 	
 	// OSC Server properties
+	/**
+	 * Whether to start the OscServer thread.
+	 *
+	 * If set to true, the OscServer::start() function of the
+	 * OscServer singleton will be called in
+	 * Hydrogen::Hydrogen(). This will register all OSC message
+	 * handlers and makes the server listen to port
+	 * #m_nOscServerPort.
+	 *
+	 * Set by setOscServerEnabled() and queried by
+	 * getOscServerEnabled().
+	 */
 	bool				m_bOscServerEnabled;
+	/**
+	 * Whether to send the current state of Hydrogen to the OSC
+	 * clients.
+	 *
+	 * If set to true, each time an OSC message arrives from an
+	 * address previously unknown to Hydrogen, its current state will
+	 * be send to \e all known OSC clients using
+	 * CoreActionController::initExternalControlInterfaces() and
+	 * OscServer::handleAction() via OSC messages.
+	 
+	 * Set by setOscFeedbackEnabled() and queried by
+	 * getOscFeedbackEnabled().
+	 */
 	bool				m_bOscFeedbackEnabled;
+	/**
+	 * Port number the OscServer will be started at.
+	 
+	 * Set by setOscServerPort() and queried by
+	 * getOscServerPort().
+	 */
 	int					m_nOscServerPort;
 
 	//	alsa audio driver properties ___
@@ -490,13 +521,17 @@ public:
 	QString			getNsmSongName(void);
 #endif
 
+	/** \return #m_bOscServerEnabled*/
 	bool			getOscServerEnabled();
+	/** \param val Sets #m_bOscServerEnabled*/
 	void			setOscServerEnabled( bool val );
-	
+	/** \return #m_bOscFeedbackEnabled*/
 	bool			getOscFeedbackEnabled();
+	/** \param val Sets #m_bOscFeedbackEnabled*/
 	void			setOscFeedbackEnabled( bool val );
-	
+	/** \return #m_nOscServerPort*/
 	int				getOscServerPort();
+	/** \param oscPort Sets #m_nOscServerPort*/
 	void			setOscServerPort( int oscPort );
 
 	/** Whether to use the bpm of the timeline.
