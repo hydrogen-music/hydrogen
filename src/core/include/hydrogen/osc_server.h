@@ -102,8 +102,13 @@ class OscServer : public H2Core::Object
 		 *
 		 * It is called in
 		 * H2Core::Hydrogen::create_instance().
+		 *
+		 * \param pPreferences Pointer to the H2Core::Preferences
+		 * singleton. Although it could be accessed internally using
+		 * H2Core::Preferences::get_instance(), this is an appetizer
+		 * for internal changes happening after the 1.0 release.
 		 */
-		static void create_instance();
+		static void create_instance( H2Core::Preferences* pPreferences );
 		/**
 		 * Returns a pointer to the current OscServer
 		 * singleton stored in #__instance.
@@ -598,9 +603,20 @@ class OscServer : public H2Core::Object
 		 * Private constructor creating a new OSC server thread using
 		 * the port H2Core::Preferences::m_nOscServerPort and
 		 * assigning the object to #m_pServerThread.
+		 *
+		 * \param pPreferences Pointer to the H2Core::Preferences
+		 * singleton. Although it could be accessed internally using
+		 * H2Core::Preferences::get_instance(), this is an appetizer
+		 * for internal changes happening after the 1.0 release.
 		 */
-		OscServer();
-
+		OscServer( H2Core::Preferences* pPreferences );
+	
+		/** Pointer to the H2Core::Preferences singleton. Although it
+		 * could be accessed internally using
+		 * H2Core::Preferences::get_instance(), this is an appetizer
+		 * for internal changes happening after the 1.0 release.*/
+		H2Core::Preferences*			m_pPreferences;
+		
 		/**
 		 * Object containing the actual thread with an OSC server
 		 * running in.

@@ -2246,7 +2246,7 @@ void Hydrogen::create_instance()
 
 #ifdef H2CORE_HAVE_OSC
 	NsmClient::create_instance();
-	OscServer::create_instance();
+	OscServer::create_instance( Preferences::get_instance() );
 #endif
 
 	if ( __instance == 0 ) {
