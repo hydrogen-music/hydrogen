@@ -1297,7 +1297,7 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 	if ( instrument ) { // stop all notes using this instrument
 		Hydrogen *pEngine = Hydrogen::get_instance();
 		Song* pSong = pEngine->getSong();
-		int selectedpattern = pEngine->__get_selected_PatterNumber();
+		int selectedpattern = pEngine->getSelectedPatternNumber();
 		Pattern* pCurrentPattern = NULL;
 
 

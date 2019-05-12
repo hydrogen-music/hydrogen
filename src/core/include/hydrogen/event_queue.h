@@ -40,8 +40,22 @@ enum EventType {
 	/** Fallback event*/
 	EVENT_NONE,
 	EVENT_STATE,
+	/** The current pattern changed during the processing of the
+	 * AudioEngine with respect to the previous process cycle.
+	 *
+	 * It is handled by EventListener::patternChangedEvent().
+	 */
 	EVENT_PATTERN_CHANGED,
 	EVENT_PATTERN_MODIFIED,
+	/** Another pattern was selected via MIDI or the GUI without
+	 * affecting the audio transport (e.g in Song::PATTERN_MODE when
+	 * Preferences::m_bPatternModePlaysSelected is set to true). While
+	 * the selection in the former case already happens in the GUI,
+	 * this event will be used to tell it the selection was successful
+	 * and had been done.
+	 *
+	 * Handled by EventListener::selectedPatternChangedEvent().
+	 */
 	EVENT_SELECTED_PATTERN_CHANGED,
 	EVENT_SELECTED_INSTRUMENT_CHANGED,
 	EVENT_PARAMETERS_INSTRUMENT_CHANGED,
@@ -49,6 +63,27 @@ enum EventType {
 	EVENT_XRUN,
 	EVENT_NOTEON,
 	EVENT_ERROR,
+	/** Event indicating the triggering of the
+	 * #m_pMetronomeInstrument.
+	 *
+	 * In audioEngine_updateNoteQueue() the pushing of this Event is
+	 * decoupled from the creation and queuing of the corresponding
+	 * Note itself.
+	 *
+	 * The associated values do correspond to the following actions:
+	 * - 0: Beat at the beginning of a Pattern in
+	 *      audioEngine_updateNoteQueue(). The corresponding Note will
+	 *      be created with a pitch of 3 and velocity of 1.0.
+	 * - 1: Beat in the remainder of a Pattern in
+	 *      audioEngine_updateNoteQueue(). The corresponding Note will
+	 *      be created with a pitch of 0 and velocity of 0.8. In
+	 *      addition, it will be also pushed by
+	 *      Hydrogen::setPatternPos() without creating a Note.
+	 * - 2:
+	 * - 3:
+	 *
+	 * Handled by EventListener::metronomeEvent().
+	 */
 	EVENT_METRONOME,
 	EVENT_RECALCULATERUBBERBAND,
 	EVENT_PROGRESS,

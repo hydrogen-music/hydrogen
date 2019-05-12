@@ -66,78 +66,125 @@ inline int randomValue( int max );
 
 namespace H2Core
 {
+///
+/// Hydrogen Audio Engine.
+///
+class Hydrogen : public H2Core::Object
+{
+	H2_OBJECT
+public:
+	/**
+	 * Creates all the instances used within Hydrogen in the right
+	 * order. 
+	 *
+	 * -# H2Core::Logger::create_instance()
+	 * -# MidiMap::create_instance()
+	 * -# Preferences::create_instance()
+	 * -# EventQueue::create_instance()
+	 * -# MidiActionManager::create_instance()
+	 *
+	 * If #H2CORE_HAVE_OSC was set during compilation, the
+	 * following instances will be created as well.
+	 *
+	 * -# NsmClient::create_instance()
+	 * -# OscServer::create_instance() using
+	 *    Preferences::get_instance() as input
+	 *
+	 * If all instances are created and the actual Hydrogen
+	 * instance #__instance is still 0, it will be properly
+	 * constructed via Hydrogen().
+	 *
+	 * The AudioEngine::create_instance(),
+	 * Effects::create_instance(), and Playlist::create_instance()
+	 * functions will be called from within audioEngine_init().
+	 */
+	static void		create_instance();
+	/**
+	 * Returns the current Hydrogen instance #__instance.
+	 */
+	static Hydrogen*	get_instance(){ assert(__instance); return __instance; };
 
-	///
-	/// Hydrogen Audio Engine.
-	///
-	class Hydrogen : public H2Core::Object
-	{
-		H2_OBJECT
-		public:
-		/**
-		 * Creates all the instances used within Hydrogen in the right
-		 * order. 
-		 *
-		 * -# H2Core::Logger::create_instance()
-		 * -# MidiMap::create_instance()
-		 * -# Preferences::create_instance()
-		 * -# EventQueue::create_instance()
-		 * -# MidiActionManager::create_instance()
-		 *
-		 * If #H2CORE_HAVE_OSC was set during compilation, the
-		 * following instances will be created as well.
-		 *
-		 * -# NsmClient::create_instance()
-		 * -# OscServer::create_instance() using
-		 *    Preferences::get_instance() as input
-		 *
-		 * If all instances are created and the actual Hydrogen
-		 * instance #__instance is still 0, it will be properly
-		 * constructed via Hydrogen().
-		 *
-		 * The AudioEngine::create_instance(),
-		 * Effects::create_instance(), and Playlist::create_instance()
-		 * functions will be called from within audioEngine_init().
-		 */
-		static void		create_instance();
-		/**
-		 * Returns the current Hydrogen instance #__instance.
-		 */
-		static Hydrogen*	get_instance(){ assert(__instance); return __instance; };
+	/**
+	 * Destructor taking care of most of the clean up.
+	 *
+	 * -# Shuts down the NsmClient using NsmClient::shutdown() and
+              deletes it.
+	 * -# Deletes the OscServer object.
+	 * -# Stops the AudioEngine if playing via audioEngine_stop().
+	 * -# Calls removeSong(), audioEngine_stopAudioDrivers(),
+              audioEngine_destroy(), __kill_instruments()
+         * -# Deletes the #m_pCoreActionController and #m_pTimeline
+              object
+	 * -# Sets #__instance to NULL.
+	 */
+	~Hydrogen();
 
-		/**
-		 * Destructor taking care of most of the clean up.
-		 *
-		 * -# Shuts down the NsmClient using NsmClient::shutdown() and
-		 deletes it.
-		 * -# Deletes the OscServer object.
-		 * -# Stops the AudioEngine if playing via audioEngine_stop().
-		 * -# Calls removeSong(), audioEngine_stopAudioDrivers(),
-		 audioEngine_destroy(), __kill_instruments()
-		 * -# Deletes the #m_pCoreActionController and #m_pTimeline
-		 object
-		 * -# Sets #__instance to NULL.
-		 */
-		~Hydrogen();
+// ***** SEQUENCER ********
+	/// Start the internal sequencer
+	void			sequencer_play();
 
-		// ***** SEQUENCER ********
-		/// Start the internal sequencer
-		void			sequencer_play();
+	/// Stop the internal sequencer
+	void			sequencer_stop();
 
-		/// Stop the internal sequencer
-		void			sequencer_stop();
+	void			midi_noteOn( Note *note );
 
-		void			midi_noteOn( Note *note );
+	///Last received midi message
+	QString			lastMidiEvent;
+	int				lastMidiEventParameter;
 
-		///Last received midi message
-		QString			lastMidiEvent;
-		int			lastMidiEventParameter;
-
-		void			sequencer_setNextPattern( int pos );
-		void			sequencer_setOnlyNextPattern( int pos );
-		void			togglePlaysSelected( void );
-		// ***** ~SEQUENCER ********
-
+	// TODO: more descriptive name since it is able to both delete and
+	// add a pattern. Possibly without the sequencer_ prefix for
+	// consistency.
+	/**
+	 * Adding and removing a Pattern from #m_pNextPatterns.
+	 *
+	 * After locking the AudioEngine the function retrieves the
+	 * particular pattern @a pos from the Song::__pattern_list and
+	 * either deletes it from #m_pNextPatterns if already present or
+	 * add it to the same pattern list if not present yet.
+	 *
+	 * If the Song is not in Song::PATTERN_MODE or @a pos is not
+	 * within the range of Song::__pattern_list, #m_pNextPatterns will
+	 * be cleared instead.
+	 *
+	 * \param pos Index of a particular pattern in
+	 * Song::__pattern_list, which should be added to
+	 * #m_pNextPatterns.
+	 */
+	void			sequencer_setNextPattern( int pos );
+	// TODO: Possibly without the sequencer_ prefix for consistency.
+	/**
+	 * Clear #m_pNextPatterns and add one Pattern.
+	 *
+	 * After locking the AudioEngine the function clears
+	 * #m_pNextPatterns, fills it with all currently played one in
+	 * #m_pPlayingPatterns, and appends the particular pattern @a pos
+	 * from the Song::__pattern_list.
+	 *
+	 * If the Song is not in Song::PATTERN_MODE or @a pos is not
+	 * within the range of Song::__pattern_list, #m_pNextPatterns will
+	 * be just cleared.
+	 *
+	 * \param pos Index of a particular pattern in
+	 * Song::__pattern_list, which should be added to
+	 * #m_pNextPatterns.
+	 */
+	void			sequencer_setOnlyNextPattern( int pos );
+	/**
+	 * Switches playback to focused pattern.
+	 *
+	 * If the current Song is in Song::PATTERN_MODE, the AudioEngine
+	 * will be locked and Preferences::m_bPatternModePlaysSelected
+	 * negated. If the latter was true before calling this function,
+	 * #m_pPlayingPatterns will be cleared and replaced by the
+	 * Pattern indexed with #m_nSelectedPatternNumber.
+	 *
+	 * This function will be called either by MainForm::eventFilter()
+	 * when pressing Qt::Key_L or by
+	 * SongEditorPanel::modeActionBtnPressed().
+	 */
+	void			togglePlaysSelected();
+	
 		/**
 		 * Get the current song.
 		 * \return #__song
@@ -168,36 +215,47 @@ namespace H2Core
 
 		void			getLadspaFXPeak( int nFX, float *fL, float *fR );
 		void			setLadspaFXPeak( int nFX, float fL, float fR );
+	/**
+	 * \return The global variable H2Core::m_nPatternTickPosition
+	 */
+	unsigned long		getTickPosition();
+	/** Keep track of the tick position in realtime.
+	 *
+	 * Firstly, it gets the current transport position in frames
+	 * #m_nRealtimeFrames and converts it into ticks using
+	 * TransportInfo::m_nTickSize. Afterwards, it accesses how
+	 * much time passed since the last update of
+	 * #m_currentTickTime, converts the time difference +
+	 * AudioOutput::getBufferSize()/ AudioOutput::getSampleRate()
+	 * in frames, and adds the result to the first value to
+	 * support keyboard and MIDI events as well.
+	 *
+	 * \return Current position in ticks.
+	 */
+	unsigned long		getRealtimeTickPosition();
+	unsigned long		getTotalFrames();
 
-		unsigned long		getTickPosition();
-		/** Keep track of the tick position in realtime.
-		 *
-		 * Firstly, it gets the current transport position in frames
-		 * #m_nRealtimeFrames and converts it into ticks using
-		 * TransportInfo::m_nTickSize. Afterwards, it accesses how
-		 * much time passed since the last update of
-		 * #m_currentTickTime, converts the time difference +
-		 * AudioOutput::getBufferSize()/ AudioOutput::getSampleRate()
-		 * in frames, and adds the result to the first value to
-		 * support keyboard and MIDI events as well.
-		 *
-		 * \return Current position in ticks.
-		 */
-		unsigned long		getRealtimeTickPosition();
-		unsigned long		getTotalFrames();
+	/** Sets #m_nRealtimeFrames
+	 * \param frames Current transport realtime position*/
+	void			setRealtimeFrames( unsigned long frames );
+	/** Returns the current realtime transport position
+	 * TransportInfo::m_nFrames.
+	 * \return #m_nRealtimeFrames */
+	unsigned long		getRealtimeFrames();
+	/** \return #m_pPlayingPatterns*/
+	PatternList *		getCurrentPatternList();
+	/** 
+	 * Sets #m_pPlayingPatterns.
+	 *
+	 * Before setting the variable it first locks the AudioEngine. In
+	 * addition, it also pushes the Event #EVENT_PATTERN_CHANGED with
+	 * the value -1 to the EventQueue.
+	 *
+	 * \param pPatternList Sets #m_pPlayingPatterns.*/
+	void			setCurrentPatternList( PatternList * pPatternList );
 
-		/** Sets #m_nRealtimeFrames
-		 * \param frames Current transport realtime position*/
-		void			setRealtimeFrames( unsigned long frames );
-		/** Returns the current realtime transport position
-		 * TransportInfo::m_nFrames.
-		 * \return #m_nRealtimeFrames */
-		unsigned long		getRealtimeFrames();
-
-		PatternList *		getCurrentPatternList();
-		void			setCurrentPatternList( PatternList * pPatternList );
-
-		PatternList *		getNextPatterns();
+	/** \return #m_pNextPatterns*/
+	PatternList *		getNextPatterns();
 
 		/** Get the position of the current Pattern in the Song.
 		 * \return #m_nSongPos */
@@ -352,11 +410,27 @@ void			previewSample( Sample *pSample );
 	void			setBPM( float fBPM );
 
 	void			restartLadspaFX();
+	/** 
+	 * Same as getSelectedPatternNumber() without pushing an event.
+	 * \param nPat Sets #m_nSelectedPatternNumber*/
 	void			setSelectedPatternNumberWithoutGuiEvent( int nPat );
-	int			getSelectedPatternNumber();
+	/** \return #m_nSelectedPatternNumber*/
+	int				getSelectedPatternNumber();
+	/**
+	 * Sets #m_nSelectedPatternNumber.
+	 *f
+	 * If Preferences::m_pPatternModePlaysSelected is set to true, the
+	 * AudioEngine is locked before @a nPat will be assigned. But in
+	 * any case the function will push the
+	 * #EVENT_SELECTED_PATTERN_CHANGED Event to the EventQueue.
+	 *
+	 * If @a nPat is equal to #m_nSelectedPatternNumber, the function
+	 * will return right away.
+	 *
+	 *\param nPat Sets #m_nSelectedPatternNumber*/
 	void			setSelectedPatternNumber( int nPat );
 
-	int			getSelectedInstrumentNumber();
+	int				getSelectedInstrumentNumber();
 	void			setSelectedInstrumentNumber( int nInstrument );
 
 
@@ -422,8 +496,7 @@ void			previewSample( Sample *pSample );
 	void			setNewBpmJTM( float bpmJTM);
 
 	void			__panic();
-	int			__get_selected_PatterNumber();
-	unsigned int		__getMidiRealtimeNoteTickPosition();
+	unsigned int	__getMidiRealtimeNoteTickPosition();
 
 	/**
 	 * Updates Song::__bpm and #m_nNewBpmJTM to the local speed.
