@@ -137,12 +137,18 @@ void Sample::apply( const Loops& loops, const Rubberband& rubber, const Velocity
 
 void Sample::load()
 {
+	// Will contain a bunch of metadata about the loaded sample.
 	SF_INFO sound_info;
+	
+	// Opens file in read-only mode.
 	SNDFILE* file = sf_open( __filepath.toLocal8Bit(), SFM_READ, &sound_info );
 	if ( !file ) {
 		ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( __filepath ) );
 		return;
 	}
+	
+	// Sanity check. SAMPLE_CHANNELS is defined in
+	// core/include/hydrogen/globals.h and set to 2.
 	if ( sound_info.channels > SAMPLE_CHANNELS ) {
 		WARNINGLOG( QString( "can't handle %1 channels, only 2 will be used" ).arg( sound_info.channels ) );
 		sound_info.channels = SAMPLE_CHANNELS;
@@ -152,19 +158,40 @@ void Sample::load()
 		sound_info.frames = ( std::numeric_limits<int>::max()/sound_info.channels );
 	}
 
+	// Create an array, which will hold the block of samples read
+	// from file.
 	float* buffer = new float[ sound_info.frames * sound_info.channels ];
+	
 	//memset( buffer, 0, sound_info.frames *sound_info.channels );
+	
+	// Read all frames into `buffer'. Libsndfile does seamlessly
+	// convert the format of the underlying data on the fly. The
+	// output will be an array of floats regardless of file's
+	// encoding (e.g. 16 bit PCM).
 	sf_count_t count = sf_read_float( file, buffer, sound_info.frames * sound_info.channels );
-	sf_close( file );
-	if( count==0 ) WARNINGLOG( QString( "%1 is an empty sample" ).arg( __filepath ) );
-
+	if( count==0 ){
+		WARNINGLOG( QString( "%1 is an empty sample" ).arg( __filepath ) );
+	}
+	
+	// Deallocate the handler.
+	if ( sf_close( file ) != 0 ){
+		WARNINGLOG( QString( "Unable to close sample file %1" ).arg( __filepath ) );
+	}
+	
+	// Flush the current content of the left and right channel and
+	// the current metadata.
 	unload();
-
-	__data_l = new float[ sound_info.frames ];
-	__data_r = new float[ sound_info.frames ];
+	
+	// Save the metadata of the loaded file into private members
+	// of the Sample class.
 	__frames = sound_info.frames;
 	__sample_rate = sound_info.samplerate;
 
+	// Split the loaded frames into left and right channel. 
+	// If only one channels was present in the underlying data,
+	// duplicate its content.
+	__data_l = new float[ sound_info.frames ];
+	__data_r = new float[ sound_info.frames ];
 	if ( sound_info.channels == 1 ) {
 		memcpy( __data_l, buffer, __frames * sizeof( float ) );
 		memcpy( __data_r, buffer, __frames * sizeof( float ) );

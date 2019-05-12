@@ -127,17 +127,19 @@ class InstrumentList : public H2Core::Object
 		 */
 		void move( int idx_a, int idx_b );
 
-		/*
-		 * load instrument samples
+		/** Calls the Instrument::load_samples() member
+		 * function of all Instruments in #__instruments.
 		 */
 		void load_samples();
-		/*
-		 * unload instrument samples
+		/** Calls the Instrument::unload_samples() member
+		 * function of all Instruments in #__instruments.
 		 */
 		void unload_samples();
-		/*
+		/**
 		 * save the intrument list within the given XMLNode
 		 * \param node the XMLNode to feed
+		 * \param component_id Identifier of the corresponding
+		 * component.
 		 */
 		void save_to( XMLNode* node, int component_id );
 		/**

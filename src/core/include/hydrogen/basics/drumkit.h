@@ -47,29 +47,60 @@ class Drumkit : public H2Core::Object
 		~Drumkit();
 
 		/**
-		 * load drumkit information from a directory
-		 * \param dk_dir like one returned by Filesystem::drumkit_dir_search()
-		 * \param load_samples automatically load sample data if set to true
-		 * \return a Drumkit on success, NULL otherwise
+		 * Load drumkit information from a directory.
+		 *
+		 * This function is a wrapper around load_file(). The
+		 * provided drumkit directory @a dk_dir is converted
+		 * by Filesystem::drumkit_file() internally.
+		 *
+		 * \param dk_dir A directory containing a drumkit,
+		 * like those returned by
+		 * Filesystem::drumkit_dir_search().
+		 * \param load_samples Automatically load sample data
+		 * if set to true.
+		 *
+		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load( const QString& dk_dir, bool load_samples=false );
+		static Drumkit* load( const QString& dk_dir, const bool load_samples = false );
 		/**
-		 * Simple wrapper for 'load' - use Filesystem::drumkit_path_search()
+		 * Simple wrapper for load() used with the drumkit's
+		 * name instead of its directory.
+		 *
+		 * Uses Filesystem::drumkit_path_search() to determine
+		 * the directory of the Drumkit from @a dk_name.
+		 *
+		 * \param dk_name Name of the Drumkit.
+		 * \param load_samples Automatically load sample data
+		 * if set to true.
+		 *
+		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load_by_name( const QString& dk_name, bool load_samples=false );
+		static Drumkit* load_by_name( const QString& dk_name, const bool load_samples = false );
 		/**
-		 * load drumkit information from a file
+		 * Load a Drumkit from a file.
+		 *
+		 * If the drumkit in @a dk_name can not be validated
+		 * against the current XML Schema definition in
+		 * Filesystem::drumkit_xsd_path(), it will be loaded
+		 * using Legacy::load_drumkit() and, if successful,
+		 * saved again using save_file() to update the drumkit
+		 * file to the newest version. If, instead, the
+		 * Drumkit is valid, it is loaded using load_from()
+		 * and load_samples() is triggered if @a load_samples
+		 * is true.
+		 *
 		 * \param dk_path is a path to an xml file
 		 * \param load_samples automatically load sample data if set to true
-		 * \return a Drumkit on success, NULL otherwise
+		 *
+		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load_file( const QString& dk_path, bool load_samples=false );
-		/**
-		 * load the instrument samples
+		static Drumkit* load_file( const QString& dk_path, const bool load_samples = false );
+		/** Calls the InstrumentList::load_samples() member
+		 * function of #__instruments.
 		 */
-		void load_samples( );
-		/**
-		 * unload the instrument samples
+		void load_samples();
+		/** Calls the InstrumentList::unload_samples() member
+		 * function of #__instruments.
 		 */
 		void unload_samples();
 

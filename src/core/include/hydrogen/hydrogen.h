@@ -67,232 +67,232 @@ inline int randomValue( int max );
 namespace H2Core
 {
 
-///
-/// Hydrogen Audio Engine.
-///
-class Hydrogen : public H2Core::Object
-{
-	H2_OBJECT
-public:
-	/**
-	 * Creates all the instances used within Hydrogen in the right
-	 * order. 
-	 *
-	 * -# H2Core::Logger::create_instance()
-	 * -# MidiMap::create_instance()
-	 * -# Preferences::create_instance()
-	 * -# EventQueue::create_instance()
-	 * -# MidiActionManager::create_instance()
-	 *
-	 * If #H2CORE_HAVE_OSC was set during compilation, the
-	 * following instances will be created as well.
-	 *
-	 * -# NsmClient::create_instance()
-	 * -# OscServer::create_instance() using
-	 *    Preferences::get_instance() as input
-	 *
-	 * If all instances are created and the actual Hydrogen
-	 * instance #__instance is still 0, it will be properly
-	 * constructed via Hydrogen().
-	 *
-	 * The AudioEngine::create_instance(),
-	 * Effects::create_instance(), and Playlist::create_instance()
-	 * functions will be called from within audioEngine_init().
-	 */
-	static void		create_instance();
-	/**
-	 * Returns the current Hydrogen instance #__instance.
-	 */
-	static Hydrogen*	get_instance(){ assert(__instance); return __instance; };
+	///
+	/// Hydrogen Audio Engine.
+	///
+	class Hydrogen : public H2Core::Object
+	{
+		H2_OBJECT
+		public:
+		/**
+		 * Creates all the instances used within Hydrogen in the right
+		 * order. 
+		 *
+		 * -# H2Core::Logger::create_instance()
+		 * -# MidiMap::create_instance()
+		 * -# Preferences::create_instance()
+		 * -# EventQueue::create_instance()
+		 * -# MidiActionManager::create_instance()
+		 *
+		 * If #H2CORE_HAVE_OSC was set during compilation, the
+		 * following instances will be created as well.
+		 *
+		 * -# NsmClient::create_instance()
+		 * -# OscServer::create_instance() using
+		 *    Preferences::get_instance() as input
+		 *
+		 * If all instances are created and the actual Hydrogen
+		 * instance #__instance is still 0, it will be properly
+		 * constructed via Hydrogen().
+		 *
+		 * The AudioEngine::create_instance(),
+		 * Effects::create_instance(), and Playlist::create_instance()
+		 * functions will be called from within audioEngine_init().
+		 */
+		static void		create_instance();
+		/**
+		 * Returns the current Hydrogen instance #__instance.
+		 */
+		static Hydrogen*	get_instance(){ assert(__instance); return __instance; };
 
-	/**
-	 * Destructor taking care of most of the clean up.
-	 *
-	 * -# Shuts down the NsmClient using NsmClient::shutdown() and
-              deletes it.
-	 * -# Deletes the OscServer object.
-	 * -# Stops the AudioEngine if playing via audioEngine_stop().
-	 * -# Calls removeSong(), audioEngine_stopAudioDrivers(),
-              audioEngine_destroy(), __kill_instruments()
-         * -# Deletes the #m_pCoreActionController and #m_pTimeline
-              object
-	 * -# Sets #__instance to NULL.
-	 */
-	~Hydrogen();
+		/**
+		 * Destructor taking care of most of the clean up.
+		 *
+		 * -# Shuts down the NsmClient using NsmClient::shutdown() and
+		 deletes it.
+		 * -# Deletes the OscServer object.
+		 * -# Stops the AudioEngine if playing via audioEngine_stop().
+		 * -# Calls removeSong(), audioEngine_stopAudioDrivers(),
+		 audioEngine_destroy(), __kill_instruments()
+		 * -# Deletes the #m_pCoreActionController and #m_pTimeline
+		 object
+		 * -# Sets #__instance to NULL.
+		 */
+		~Hydrogen();
 
-// ***** SEQUENCER ********
-	/// Start the internal sequencer
-	void			sequencer_play();
+		// ***** SEQUENCER ********
+		/// Start the internal sequencer
+		void			sequencer_play();
 
-	/// Stop the internal sequencer
-	void			sequencer_stop();
+		/// Stop the internal sequencer
+		void			sequencer_stop();
 
-	void			midi_noteOn( Note *note );
+		void			midi_noteOn( Note *note );
 
-	///Last received midi message
-	QString			lastMidiEvent;
-	int			lastMidiEventParameter;
+		///Last received midi message
+		QString			lastMidiEvent;
+		int			lastMidiEventParameter;
 
-	void			sequencer_setNextPattern( int pos );
-	void			sequencer_setOnlyNextPattern( int pos );
-	void			togglePlaysSelected( void );
-// ***** ~SEQUENCER ********
+		void			sequencer_setNextPattern( int pos );
+		void			sequencer_setOnlyNextPattern( int pos );
+		void			togglePlaysSelected( void );
+		// ***** ~SEQUENCER ********
 
-	/**
-	 * Get the current song.
-	 * \return #__song
-	 */ 	
-	Song*			getSong(){ return __song; }
-	/**
-	 * Sets the current song #__song to @a newSong.
-	 * \param newSong Pointer to the new Song object.
-	 */
-	void			setSong	( Song *newSong );
+		/**
+		 * Get the current song.
+		 * \return #__song
+		 */ 	
+		Song*			getSong(){ return __song; }
+		/**
+		 * Sets the current song #__song to @a newSong.
+		 * \param newSong Pointer to the new Song object.
+		 */
+		void			setSong	( Song *newSong );
 
-	void			removeSong();
+		void			removeSong();
 
-	void			addRealtimeNote ( int instrument,
-						  float velocity,
-						  float pan_L=1.0,
-						  float pan_R=1.0,
-						  float pitch=0.0,
-						  bool noteoff=false,
-						  bool forcePlay=false,
-						  int msg1=0 );
+		void			addRealtimeNote ( int instrument,
+							  float velocity,
+							  float pan_L=1.0,
+							  float pan_R=1.0,
+							  float pitch=0.0,
+							  bool noteoff=false,
+							  bool forcePlay=false,
+							  int msg1=0 );
 
-	float			getMasterPeak_L();
-	void			setMasterPeak_L( float value );
+		float			getMasterPeak_L();
+		void			setMasterPeak_L( float value );
 
-	float			getMasterPeak_R();
-	void			setMasterPeak_R( float value );
+		float			getMasterPeak_R();
+		void			setMasterPeak_R( float value );
 
-	void			getLadspaFXPeak( int nFX, float *fL, float *fR );
-	void			setLadspaFXPeak( int nFX, float fL, float fR );
+		void			getLadspaFXPeak( int nFX, float *fL, float *fR );
+		void			setLadspaFXPeak( int nFX, float fL, float fR );
 
-	unsigned long		getTickPosition();
-	/** Keep track of the tick position in realtime.
-	 *
-	 * Firstly, it gets the current transport position in frames
-	 * #m_nRealtimeFrames and converts it into ticks using
-	 * TransportInfo::m_nTickSize. Afterwards, it accesses how
-	 * much time passed since the last update of
-	 * #m_currentTickTime, converts the time difference +
-	 * AudioOutput::getBufferSize()/ AudioOutput::getSampleRate()
-	 * in frames, and adds the result to the first value to
-	 * support keyboard and MIDI events as well.
-	 *
-	 * \return Current position in ticks.
-	 */
-	unsigned long		getRealtimeTickPosition();
-	unsigned long		getTotalFrames();
+		unsigned long		getTickPosition();
+		/** Keep track of the tick position in realtime.
+		 *
+		 * Firstly, it gets the current transport position in frames
+		 * #m_nRealtimeFrames and converts it into ticks using
+		 * TransportInfo::m_nTickSize. Afterwards, it accesses how
+		 * much time passed since the last update of
+		 * #m_currentTickTime, converts the time difference +
+		 * AudioOutput::getBufferSize()/ AudioOutput::getSampleRate()
+		 * in frames, and adds the result to the first value to
+		 * support keyboard and MIDI events as well.
+		 *
+		 * \return Current position in ticks.
+		 */
+		unsigned long		getRealtimeTickPosition();
+		unsigned long		getTotalFrames();
 
-	/** Sets #m_nRealtimeFrames
-	 * \param frames Current transport realtime position*/
-	void			setRealtimeFrames( unsigned long frames );
-	/** Returns the current realtime transport position
-	 * TransportInfo::m_nFrames.
-	 * \return #m_nRealtimeFrames */
-	unsigned long		getRealtimeFrames();
+		/** Sets #m_nRealtimeFrames
+		 * \param frames Current transport realtime position*/
+		void			setRealtimeFrames( unsigned long frames );
+		/** Returns the current realtime transport position
+		 * TransportInfo::m_nFrames.
+		 * \return #m_nRealtimeFrames */
+		unsigned long		getRealtimeFrames();
 
-	PatternList *		getCurrentPatternList();
-	void			setCurrentPatternList( PatternList * pPatternList );
+		PatternList *		getCurrentPatternList();
+		void			setCurrentPatternList( PatternList * pPatternList );
 
-	PatternList *		getNextPatterns();
+		PatternList *		getNextPatterns();
 
-	/** Get the position of the current Pattern in the Song.
-	 * \return #m_nSongPos */
-	int			getPatternPos();
-	/**
-	 * Relocate the position to another Pattern in the Song.
-	 *
-	 * The position of a Pattern in frames (see
-	 * TransportInfo::m_nFrames for details) will be determined by
-	 * retrieving the tick number the Pattern is located at using
-	 * getTickForPosition() and multiplying it with
-	 * TransportInfo::m_nTickSize. The resulting value will be
-	 * used by the AudioOutput::locate() function of your audio
-	 * driver to relocate the playback position.
-	 *
-	 * If #m_audioEngineState is not #STATE_PLAYING, the variables
-	 * #m_nSongPos and #m_nPatternTickPosition will be set to @a
-	 * pos and 0 right away.
-	 *
-	 * \param pos Position of the Pattern to relocate at. All
-	 *   values smaller than -1 will be set to -1, which marks the
-	 *   beginning of the Song.
-	 */
-	void			setPatternPos( int pos );
-	/** Returns the pattern number corresponding to the tick
-	 * position @a TickPos.
-	 * \param TickPos Position in ticks.
-	 * \return 
-	 * - __0__ : if the Song isn't specified yet.
-	 * - the output of the findPatternInTick() function called
-	 *   with @a TickPos and Song::is_loop_enabled() as input
-	 *   arguments.
-	 */
-	int			getPosForTick( unsigned long TickPos );
-	/** Resetting #m_nPatternStartTick to -1 if the current Song
-	    mode is Song::PATTERN_MODE
-	 */
-	void			triggerRelocateDuringPlay();
+		/** Get the position of the current Pattern in the Song.
+		 * \return #m_nSongPos */
+		int			getPatternPos();
+		/**
+		 * Relocate the position to another Pattern in the Song.
+		 *
+		 * The position of a Pattern in frames (see
+		 * TransportInfo::m_nFrames for details) will be determined by
+		 * retrieving the tick number the Pattern is located at using
+		 * getTickForPosition() and multiplying it with
+		 * TransportInfo::m_nTickSize. The resulting value will be
+		 * used by the AudioOutput::locate() function of your audio
+		 * driver to relocate the playback position.
+		 *
+		 * If #m_audioEngineState is not #STATE_PLAYING, the variables
+		 * #m_nSongPos and #m_nPatternTickPosition will be set to @a
+		 * pos and 0 right away.
+		 *
+		 * \param pos Position of the Pattern to relocate at. All
+		 *   values smaller than -1 will be set to -1, which marks the
+		 *   beginning of the Song.
+		 */
+		void			setPatternPos( int pos );
+		/** Returns the pattern number corresponding to the tick
+		 * position @a TickPos.
+		 * \param TickPos Position in ticks.
+		 * \return 
+		 * - __0__ : if the Song isn't specified yet.
+		 * - the output of the findPatternInTick() function called
+		 *   with @a TickPos and Song::is_loop_enabled() as input
+		 *   arguments.
+		 */
+		int			getPosForTick( unsigned long TickPos );
+		/** Resetting #m_nPatternStartTick to -1 if the current Song
+		    mode is Song::PATTERN_MODE
+		*/
+		void			triggerRelocateDuringPlay();
 	
-	/**
-	 * Get the total number of ticks passed up to a Pattern at
-	 * position @a pos.
-	 *
-	 * The function will loop over all and sums up their
-	 * Pattern::__length. If one of the Pattern is NULL or no
-	 * Pattern is present one of the PatternList, #MAX_NOTES will
-	 * be added instead.
-	 *
-	 * The driver should be LOCKED when calling this!
-	 *
-	 * \param pos Position of the Pattern in the
-	 *   Song::__pattern_group_sequence.
-	 * \return
-	 *  - -1 : if @a pos is bigger than the number of patterns in
-	 *   the Song and Song::__is_loop_enabled is set to false or
-	 *   no Patterns could be found at all.
-	 *  - >= 0 : the total number of ticks passed.
-	 */
-	long			getTickForPosition( int pos );
+		/**
+		 * Get the total number of ticks passed up to a Pattern at
+		 * position @a pos.
+		 *
+		 * The function will loop over all and sums up their
+		 * Pattern::__length. If one of the Pattern is NULL or no
+		 * Pattern is present one of the PatternList, #MAX_NOTES will
+		 * be added instead.
+		 *
+		 * The driver should be LOCKED when calling this!
+		 *
+		 * \param pos Position of the Pattern in the
+		 *   Song::__pattern_group_sequence.
+		 * \return
+		 *  - -1 : if @a pos is bigger than the number of patterns in
+		 *   the Song and Song::__is_loop_enabled is set to false or
+		 *   no Patterns could be found at all.
+		 *  - >= 0 : the total number of ticks passed.
+		 */
+		long			getTickForPosition( int pos );
 
-	void			restartDrivers();
+		void			restartDrivers();
 
-	AudioOutput*		getAudioOutput();
-	MidiInput*		getMidiInput();
-	MidiOutput*		getMidiOutput();
+		AudioOutput*		getAudioOutput();
+		MidiInput*		getMidiInput();
+		MidiOutput*		getMidiOutput();
 
-	/** Returns the current state of the audio engine.
-	 * \return #m_audioEngineState*/
-	int			getState();
+		/** Returns the current state of the audio engine.
+		 * \return #m_audioEngineState*/
+		int			getState();
 
-	float			getProcessTime();
-	float			getMaxProcessTime();
+		float			getProcessTime();
+		float			getMaxProcessTime();
 
-	int			loadDrumkit( Drumkit *pDrumkitInfo );
-	int			loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
+		int			loadDrumkit( Drumkit *pDrumkitInfo );
+		int			loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
 
-	/** Test if an Instrument has some Note in the Pattern (used to
-	    test before deleting an Instrument)*/
-	bool 			instrumentHasNotes( Instrument *pInst );
+		/** Test if an Instrument has some Note in the Pattern (used to
+		    test before deleting an Instrument)*/
+		bool 			instrumentHasNotes( Instrument *pInst );
 
-	/** Delete an Instrument. If @a conditional is true, and there
-	    are some Pattern that are using this Instrument, it's not
-	    deleted anyway.*/
-	void			removeInstrument( int instrumentnumber, bool conditional );
+		/** Delete an Instrument. If @a conditional is true, and there
+		    are some Pattern that are using this Instrument, it's not
+		    deleted anyway.*/
+		void			removeInstrument( int instrumentnumber, bool conditional );
 
-	/** Return the name of the current Drumkit.*/
-	QString			m_currentDrumkit;
+		/** Return the name of the current Drumkit.*/
+		QString			m_currentDrumkit;
 
-	const QString&		getCurrentDrumkitname();
-	void			setCurrentDrumkitname( const QString& currentdrumkitname );
+		const QString&		getCurrentDrumkitname();
+		void			setCurrentDrumkitname( const QString& currentdrumkitname );
 
-	void			raiseError( unsigned nErrorCode );
+		void			raiseError( unsigned nErrorCode );
 
 
-	void			previewSample( Sample *pSample );
+void			previewSample( Sample *pSample );
 	void			previewInstrument( Instrument *pInstr );
 
 	enum ErrorMessages {
@@ -470,10 +470,37 @@ public:
 	
 	CoreActionController* 	getCoreActionController() const;
 
-	///playback track
-	bool			setPlaybackTrackState(bool);
+	/************************************************************/
+	/********************** Playback track **********************/
+	/**
+	 * Wrapper around Song::set_playback_track_enabled().
+	 *
+	 * \param state Whether the playback track is enabled. It will
+	 * be replaced by false, if no Song was selected (getSong()
+	 * return nullptr).
+	 */
+	bool			setPlaybackTrackState( const bool state );
+	/**
+	 * Wrapper around Song::get_playback_track_enabled().
+	 *
+	 * \return Whether the playback track is enabled or false, if
+	 * no Song was selected (getSong() return nullptr).
+	 */
 	bool			getPlaybackTrackState();
-	void			loadPlaybackTrack(QString filename);
+	/**
+	 * Wrapper function for loading the playback track.
+	 *
+	 * Calls Song::set_playback_track_filename() and
+	 * Sampler::reinitialize_playback_track(). While the former
+	 * one is responsible to store metadata about the playback
+	 * track, the latter one does load it to a new
+	 * InstrumentLayer. The function is called by
+	 * SongEditorPanel::editPlaybackTrackBtnPressed()
+	 *
+	 * \param filename Name of the file to load as the playback
+	 * track
+	 */
+	void			loadPlaybackTrack( const QString filename );
 
 
 	///midi lookuptable

@@ -644,7 +644,9 @@ void audioEngine_init()
 	QString sMetronomeFilename = Filesystem::click_file_path();
 	m_pMetronomeInstrument =
 			new Instrument( METRONOME_INSTR_ID, "metronome" );
-	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( sMetronomeFilename ) );
+	
+	InstrumentLayer* pLayer = 
+		new InstrumentLayer( Sample::load( sMetronomeFilename ) );
 	InstrumentComponent* pCompo = new InstrumentComponent( 0 );
 	pCompo->set_layer(pLayer, 0);
 	m_pMetronomeInstrument->get_components()->push_back( pCompo );
@@ -2289,7 +2291,7 @@ void Hydrogen::sequencer_stop()
 	Preferences::get_instance()->setRecordEvents(false);
 }
 
-bool Hydrogen::setPlaybackTrackState(bool state)
+bool Hydrogen::setPlaybackTrackState( const bool state )
 {
 	Song* pSong = getSong();
 	if ( pSong == NULL ) {
@@ -2299,7 +2301,7 @@ bool Hydrogen::setPlaybackTrackState(bool state)
 	return pSong->set_playback_track_enabled(state);
 }
 
-void Hydrogen::loadPlaybackTrack(QString filename)
+void Hydrogen::loadPlaybackTrack( const QString filename )
 {
 	Song* pSong = getSong();
 	pSong->set_playback_track_filename(filename);

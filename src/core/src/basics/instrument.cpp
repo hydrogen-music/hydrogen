@@ -323,7 +323,7 @@ void Instrument::load_samples()
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			InstrumentLayer* pLayer = pComponent->get_layer( i );
 			if( pLayer ) {
-				pLayer->load_sample( );
+				pLayer->load_sample();
 			}
 		}
 	}
