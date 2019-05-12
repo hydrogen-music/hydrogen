@@ -827,7 +827,7 @@ void OscServer::start()
 	m_pServerThread->start();
 
 
-	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->get_instance()->getOscServerPort() ));
+	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->getOscServerPort() ));
 }
 
 OscServer::~OscServer()
