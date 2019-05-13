@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
-## Python3 script checking the coverage of the translation files.
+## Python script checking the coverage of the translation files.
 
 import os
 import re
