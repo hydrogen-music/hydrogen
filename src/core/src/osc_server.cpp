@@ -39,7 +39,7 @@
 #include "hydrogen/basics/song.h"
 #include "hydrogen/midi_action.h"
 
-OscServer * OscServer::__instance = 0;
+OscServer * OscServer::__instance = nullptr;
 const char* OscServer::__class_name = "OscServer";
 std::list<lo_address> OscServer::m_pClientRegistry;
 
@@ -239,13 +239,14 @@ int OscServer::generic_handler(const char *	path,
 		INFOLOG(QString("Argument %1: %2 %3").arg(i).arg(types[i]).arg(formattedArgument));
 	}
 	
+	// Returning 1 means that the message has not been fully handled
+	// and the server should try other methods.
 	return 1;
 }
 
 
 
-OscServer::OscServer( H2Core::Preferences * pPreferences )
-	: Object( __class_name )
+OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name )
 {
 	m_pPreferences = pPreferences;
 	int port = m_pPreferences->getOscServerPort();
@@ -570,7 +571,7 @@ bool IsLoAddressEqual( lo_address first, lo_address second )
 
 void OscServer::handleAction( Action* pAction )
 {
-	H2Core::Preferences * pPref = H2Core::Preferences::get_instance();
+	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 	
 	if( !pPref->getOscFeedbackEnabled() ){
 		return;
@@ -732,7 +733,11 @@ void OscServer::start()
 										
 										pController->initExternalControlInterfaces();
 									}
-
+									
+									// Returning 1 means that the
+									// message has not been fully
+									// handled and the server should
+									// try other methods.
 									return 1;
 								});
 
