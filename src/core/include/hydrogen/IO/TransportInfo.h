@@ -69,12 +69,17 @@ public:
 	long long m_nFrames;
 	/** 
 	 * Number of frames that make up one tick.
+	 *
+	 * A tick is the most fine-grained time scale handled by the
+	 * AudioEngine. The notes won't be processed frame by frame but,
+	 * instead, tick by tick. Therefore, #m_nTickSize represents the
+	 * minimum duration of a Note as well as the minimum distance
+	 * between two of them.
 	 * 
-	 * It will only be used by the JackAudioDriver and is
-	 * calculated by the sample rate * 60.0 / ( #m_nBPM *
+	 * It is calculated by the sample rate * 60.0 / ( #m_nBPM *
 	 * Song::__resolution ). The factor 60.0 will be used to convert
-	 * the sample rate, which is given in second, into minutes (as
-	 * the #m_nBPM).
+	 * the sample rate, which is given in second, into minutes (as the
+	 * #m_nBPM).
 	 */
 	float m_nTickSize;
 	/** Current tempo in beats per minute. */

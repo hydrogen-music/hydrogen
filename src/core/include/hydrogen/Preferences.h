@@ -230,9 +230,14 @@ public:
 	 * - "Fake" : createDriver() will create a FakeDriver.
 	 */
 	QString				m_sAudioDriver;
-	bool				m_bUseMetronome;		///< Use metronome?
-	float				m_fMetronomeVolume;	///< Metronome volume FIXME: remove this volume!!
-	unsigned			m_nMaxNotes;		///< max notes
+	/** If set to true, samples of the metronome will be added to
+	 * #m_songNoteQueue in audioEngine_updateNoteQueue() and thus
+	 * played back on a regular basis.*/
+	bool				m_bUseMetronome;
+	/// Metronome volume FIXME: remove this volume!!
+	float				m_fMetronomeVolume;
+	/// max notes
+	unsigned			m_nMaxNotes;
 	/** 
 	 * Buffer size of the audio.
 	 *
@@ -486,7 +491,9 @@ public:
 
 	UIStyle*		getDefaultUIStyle();
 
+	/** \return #m_bPatternModePlaysSelected*/
 	bool			patternModePlaysSelected();
+	/** \param b Sets #m_bPatternModePlaysSelected*/
 	void			setPatternModePlaysSelected( bool b );
 	bool			useLash();
 	void			setUseLash( bool b );
@@ -581,13 +588,25 @@ private:
 	//___ General properties ___
 	QString				m_sH2ProcessName; //Name of hydrogen's main process
 	int					__rubberBandCalcTime;
-	bool				m_useTheRubberbandBpmChangeEvent; ///rubberband bpm change queue
-	bool				m_bPatternModePlaysSelected; /// Behaviour of Pattern Mode
-	bool				m_brestoreLastSong;		///< Restore last song?
+	 ///rubberband bpm change queue
+	bool				m_useTheRubberbandBpmChangeEvent;
+	/**
+	 * When transport is in Song::PATTERN_MODE and this variable is
+	 * set to true, the currently focused Pattern will be used for
+	 * playback.
+	 *
+	 * It is set by setPatternModePlaysSelected() and queried by
+	 * patternModePlaysSelected().
+	 */
+	bool				m_bPatternModePlaysSelected;
+	///< Restore last song?
+	bool				m_brestoreLastSong;
 	bool				m_brestoreLastPlaylist;
 	bool				m_bUseLash;
-	bool				m_bShowDevelWarning;	///< Show development version warning?
-	QString				m_lastSongFilename;	///< Last song used
+	///< Show development version warning?
+	bool				m_bShowDevelWarning;
+	///< Last song used
+	QString				m_lastSongFilename;
 	QString				m_lastPlaylistFilename;
 
 	bool				quantizeEvents;
