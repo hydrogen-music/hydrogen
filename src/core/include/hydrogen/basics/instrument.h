@@ -49,8 +49,10 @@ Instrument class
 */
 class Instrument : public H2Core::Object
 {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
+	
 		enum SampleSelectionAlgo {
 			VELOCITY,
 			ROUND_ROBIN,
@@ -270,6 +272,13 @@ class Instrument : public H2Core::Object
 
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
+	
 	        /** Identifier of an instrument, which should be
 		    unique. It is set by set_id() and accessed via
 	        get_id().*/

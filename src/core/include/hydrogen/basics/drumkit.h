@@ -37,8 +37,10 @@ class DrumkitComponent;
 */
 class Drumkit : public H2Core::Object
 {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
+
 		/** drumkit constructor, does nothing */
 		Drumkit();
 		/** copy constructor */
@@ -219,6 +221,13 @@ class Drumkit : public H2Core::Object
 		void set_components( std::vector<DrumkitComponent*>* components );
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
+	
 		QString __path;					///< absolute drumkit path
 		QString __name;					///< drumkit name
 		QString __author;				///< drumkit author

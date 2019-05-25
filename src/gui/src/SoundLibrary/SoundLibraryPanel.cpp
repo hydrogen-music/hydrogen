@@ -64,11 +64,11 @@ using namespace H2Core;
 
 #include <cassert>
 
-const char* SoundLibraryPanel::__class_name = "SoundLibraryPanel";
+const char* SoundLibraryPanel::m_sClassName = "SoundLibraryPanel";
 
 SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , __sound_library_tree( NULL )
  , __drumkit_menu( NULL )
  , __instrument_menu( NULL )

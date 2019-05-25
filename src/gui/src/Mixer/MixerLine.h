@@ -47,9 +47,10 @@ class Rotary;
 
 class InstrumentNameWidget : public PixmapWidget
 {
-	H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		InstrumentNameWidget(QWidget* parent);
 		~InstrumentNameWidget();
 
@@ -67,6 +68,12 @@ class InstrumentNameWidget : public PixmapWidget
 		virtual void paintEvent(QPaintEvent *ev);
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		int			m_nWidgetWidth;
 		int			m_nWidgetHeight;
 		QString		m_sInstrName;
@@ -81,9 +88,10 @@ class InstrumentNameWidget : public PixmapWidget
 ///
 class MixerLine: public PixmapWidget
 {
-	H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		MixerLine(QWidget* parent, int nInstr);
 		~MixerLine();
 
@@ -141,6 +149,12 @@ class MixerLine: public PixmapWidget
 		void	nameSelected();
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		uint	m_nWidth;
 		uint	m_nHeight;
 		bool	m_bIsSelected;
@@ -164,9 +178,10 @@ class MixerLine: public PixmapWidget
 
 class ComponentMixerLine: public PixmapWidget
 {
-	H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		ComponentMixerLine(QWidget* parent, int CompoID);
 		~ComponentMixerLine();
 
@@ -203,6 +218,12 @@ class ComponentMixerLine: public PixmapWidget
 
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		int		__compoID;
 		uint	m_nWidth;
 		uint	m_nHeight;
@@ -227,9 +248,10 @@ class ComponentMixerLine: public PixmapWidget
 
 class MasterMixerLine: public PixmapWidget
 {
-	H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		MasterMixerLine(QWidget* parent);
 		~MasterMixerLine();
 
@@ -255,6 +277,12 @@ class MasterMixerLine: public PixmapWidget
 		void	muteClicked(Button*);
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		uint	m_nWidth;
 		uint	m_nHeight;
 
@@ -282,9 +310,10 @@ class MasterMixerLine: public PixmapWidget
 ///
 class FxMixerLine: public PixmapWidget
 {
-	H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		FxMixerLine(QWidget* parent);
 		~FxMixerLine();
 
@@ -313,6 +342,12 @@ class FxMixerLine: public PixmapWidget
 		void	faderChanged(Fader * ref);
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		uint	m_nWidth;
 		uint	m_nHeight;
 		float	m_fMaxPeak;
@@ -328,9 +363,10 @@ class FxMixerLine: public PixmapWidget
 
 class LadspaFXMixerLine : public PixmapWidget
 {
-	H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		LadspaFXMixerLine(QWidget* parent);
 		~LadspaFXMixerLine();
 
@@ -354,6 +390,12 @@ class LadspaFXMixerLine : public PixmapWidget
 		void volumeChanged( LadspaFXMixerLine *ref);
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		float			m_fMaxPeak;
 		ToggleButton *	m_pActiveBtn;
 		Button *		m_pEditBtn;

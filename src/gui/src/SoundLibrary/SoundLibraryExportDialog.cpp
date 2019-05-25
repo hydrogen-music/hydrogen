@@ -49,11 +49,11 @@
 
 using namespace H2Core;
 
-const char* SoundLibraryExportDialog::__class_name = "SoundLibraryExportDialog";
+const char* SoundLibraryExportDialog::m_sClassName = "SoundLibraryExportDialog";
 
 SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QString& selectedKit )
 	: QDialog( pParent )
-	, Object( __class_name )
+	, Object( m_sClassName )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );

@@ -40,8 +40,9 @@ namespace H2Core
 
 class CoreMidiDriver : public virtual MidiInput, public virtual MidiOutput
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	CoreMidiDriver();
 	~CoreMidiDriver();
 
@@ -67,6 +68,12 @@ public:
 	MIDIEndpointRef h2VirtualOut;
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	void sendMidiPacket (MIDIPacketList *packetList);
 };
 

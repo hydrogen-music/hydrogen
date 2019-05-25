@@ -38,7 +38,7 @@
 namespace H2Core
 {
 
-const char* Sample::__class_name = "Sample";
+const char* Sample::m_sClassName = "Sample";
 const char* Sample::__loop_modes[] = { "forward", "reverse", "pingpong" };
 
 #if defined(H2CORE_HAVE_RUBBERBAND) || _DOXYGEN_
@@ -46,7 +46,7 @@ static double compute_pitch_scale( const Sample::Rubberband& r );
 static RubberBand::RubberBandStretcher::Options compute_rubberband_options( const Sample::Rubberband& r );
 #endif
 
-Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) : Object( __class_name ),
+Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) : Object( m_sClassName ),
 	__filepath( filepath ),
 	__frames( frames ),
 	__sample_rate( sample_rate ),
@@ -57,7 +57,7 @@ Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* da
 	assert( filepath.lastIndexOf( "/" ) >0 );
 }
 
-Sample::Sample( Sample* pOther ): Object( __class_name ),
+Sample::Sample( Sample* pOther ): Object( m_sClassName ),
 	__filepath( pOther->get_filepath() ),
 	__frames( pOther->get_frames() ),
 	__sample_rate( pOther->get_sample_rate() ),

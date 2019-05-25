@@ -39,11 +39,11 @@ using namespace H2Core;
 #include "DrumPatternEditor.h"
 #include "PianoRollEditor.h"
 
-const char* NotePropertiesRuler::__class_name = "NotePropertiesRuler";
+const char* NotePropertiesRuler::m_sClassName = "NotePropertiesRuler";
 
 NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode )
  : QWidget( parent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_Mode( mode )
  , m_pPatternEditorPanel( pPatternEditorPanel )
  , m_pPattern( NULL )

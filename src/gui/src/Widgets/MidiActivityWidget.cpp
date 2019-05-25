@@ -30,11 +30,11 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 
-const char* MidiActivityWidget::__class_name = "MidiActivityWidget";
+const char* MidiActivityWidget::m_sClassName = "MidiActivityWidget";
 
 MidiActivityWidget::MidiActivityWidget( QWidget * parent )
  : QWidget( parent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_bValue( false )
 {
 	setAttribute(Qt::WA_NoBackground);

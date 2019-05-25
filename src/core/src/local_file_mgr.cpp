@@ -58,10 +58,10 @@
 namespace H2Core
 {
 
-const char* LocalFileMng::__class_name = "LocalFileMng";
+const char* LocalFileMng::m_sClassName = "LocalFileMng";
 
 LocalFileMng::LocalFileMng()
-	: Object( __class_name )
+	: Object( m_sClassName )
 {
 	//	infoLog("INIT");
 }
@@ -308,10 +308,10 @@ QDomDocument LocalFileMng::openXmlDocument( const QString& filename )
 //	Implementation of SongWriter class
 //-----------------------------------------------------------------------------
 
-const char* SongWriter::__class_name = "SongWriter";
+const char* SongWriter::m_sClassName = "SongWriter";
 
 SongWriter::SongWriter()
-	: Object( __class_name )
+	: Object( m_sClassName )
 {
 	//	infoLog("init");
 }

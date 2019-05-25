@@ -123,9 +123,11 @@ public:
  * documentation of HydrogenApp::onEventQueueTimer().*/
 class EventQueue : public H2Core::Object
 {
-	H2_OBJECT
-public:/**
-	* If #__instance equals 0, a new EventQueue singleton will be
+public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
+	/**
+	 * If #__instance equals 0, a new EventQueue singleton will be
 	 * created and stored in it.
 	 *
 	 * It is called in Hydrogen::create_instance().
@@ -190,6 +192,12 @@ public:/**
 	std::vector<AddMidiNoteVector> m_addMidiNoteVector;
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	/**
 	 * Constructor of the EventQueue class.
 	 *

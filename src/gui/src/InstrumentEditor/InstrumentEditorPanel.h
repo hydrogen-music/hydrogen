@@ -36,9 +36,10 @@
 ///
 class InstrumentEditorPanel : public QWidget, private H2Core::Object, public EventListener
 {
-    H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		static InstrumentEditorPanel* get_instance();
 		~InstrumentEditorPanel();
 
@@ -54,6 +55,12 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object, public Eve
 		void notifyOfDrumkitChange();
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		static InstrumentEditorPanel* m_pInstance;
 		InstrumentEditor* m_pInstrumentEditor;
 

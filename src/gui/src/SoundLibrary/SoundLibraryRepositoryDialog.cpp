@@ -28,11 +28,11 @@
 #include <QInputDialog>
 #include <QListWidgetItem>
 
-const char* SoundLibraryRepositoryDialog::__class_name = "SoundLibraryRepositoryDialog";
+const char* SoundLibraryRepositoryDialog::m_sClassName = "SoundLibraryRepositoryDialog";
 
 SoundLibraryRepositoryDialog::SoundLibraryRepositoryDialog( QWidget* pParent )
  : QDialog( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );

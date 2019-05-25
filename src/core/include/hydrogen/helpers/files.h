@@ -17,8 +17,10 @@ class Song;
  */
 class Files : public H2Core::Object
 {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
+	
 		enum SaveMode {
 			SAVE_NEW,				// construct regular path, do not overwrite
 			SAVE_OVERWRITE,			// construct regular path, overwrite existing file
@@ -96,6 +98,13 @@ class Files : public H2Core::Object
 		}
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
+	
 		static QString savePattern( SaveMode mode, const QString& fileName, const Pattern* pattern, Song* song, const QString& drumkitName );
 		static QString savePlaylist( SaveMode mode, const QString& fileName, Playlist* playlist, bool relativePaths );
 };

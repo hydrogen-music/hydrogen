@@ -81,8 +81,9 @@ namespace lo
 */
 class OscServer : public H2Core::Object
 {
-	H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		/**
 		 * Object holding the current OscServer singleton. It is
 		 * initialized with nullptr, set with create_instance(), and
@@ -599,6 +600,12 @@ class OscServer : public H2Core::Object
 								int argc, void *data, void *user_data);
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		/**
 		 * Private constructor creating a new OSC server thread using
 		 * the port H2Core::Preferences::m_nOscServerPort and

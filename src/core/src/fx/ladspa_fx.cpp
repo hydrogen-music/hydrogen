@@ -41,10 +41,10 @@ using namespace std;
 namespace H2Core
 {
 
-const char* LadspaFXGroup::__class_name = "LadspaFXGroup";
+const char* LadspaFXGroup::m_sClassName = "LadspaFXGroup";
 
 LadspaFXGroup::LadspaFXGroup( const QString& sName )
-		: Object( __class_name )
+		: Object( m_sClassName )
 {
 //	infoLog( "INIT - " + sName );
 	m_sName = sName;
@@ -88,10 +88,10 @@ void LadspaFXGroup::sort()
 
 ////////////////
 
-const char* LadspaFXInfo::__class_name = "LadspaFXInfo";
+const char* LadspaFXInfo::m_sClassName = "LadspaFXInfo";
 
 LadspaFXInfo::LadspaFXInfo( const QString& sName )
-		: Object( __class_name )
+		: Object( m_sClassName )
 {
 //	infoLog( "INIT - " + sName );
 	m_sFilename = "";
@@ -118,11 +118,11 @@ bool LadspaFXInfo::alphabeticOrder( LadspaFXInfo* a, LadspaFXInfo* b )
 ///////////////////
 
 
-const char* LadspaFX::__class_name = "LadspaFX";
+const char* LadspaFX::m_sClassName = "LadspaFX";
 
 // ctor
 LadspaFX::LadspaFX( const QString& sLibraryPath, const QString& sPluginLabel )
-		: Object( __class_name )
+		: Object( m_sClassName )
 //, m_nBufferSize( 0 )
 		, m_pBuffer_L( NULL )
 		, m_pBuffer_R( NULL )

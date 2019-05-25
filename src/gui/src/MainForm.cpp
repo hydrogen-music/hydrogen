@@ -88,11 +88,11 @@ using namespace H2Core;
 
 int MainForm::sigusr1Fd[2];
 
-const char* MainForm::__class_name = "MainForm";
+const char* MainForm::m_sClassName = "MainForm";
 
 MainForm::MainForm( QApplication *app, const QString& songFilename )
 	: QMainWindow( 0, 0 )
-	, Object( __class_name )
+	, Object( m_sClassName )
 {
 	setMinimumSize( QSize( 1000, 500 ) );
 

@@ -41,8 +41,9 @@
 
 class NsmClient : public H2Core::Object
 {
-	H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		/**
 		 * Object holding the current NsmClient singleton. It
 		 * is initialized with NULL, set with
@@ -72,6 +73,12 @@ class NsmClient : public H2Core::Object
 		void shutdown();
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		NsmClient();
 
 };

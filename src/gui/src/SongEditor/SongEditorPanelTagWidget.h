@@ -35,14 +35,14 @@ namespace H2Core
 
 class SongEditorPanelTagWidget : public QDialog, public Ui_SongEditorPanelTagWidget_UI, public H2Core::Object
 {
-    H2_OBJECT
-
 //lineEditBEAT
 //lineEditBPM
 //deleteBtn
 
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		SongEditorPanelTagWidget( QWidget* pParent, int beat );
 		~SongEditorPanelTagWidget();
 
@@ -54,6 +54,12 @@ class SongEditorPanelTagWidget : public QDialog, public Ui_SongEditorPanelTagWid
 		void  a_itemIsChanged(QTableWidgetItem *item);
 		
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		int m_stimelineposition;
 		void createTheTagTableWidget();
 		QStringList __theChangedItems;

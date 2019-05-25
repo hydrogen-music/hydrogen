@@ -45,7 +45,7 @@ using namespace std;
 namespace H2Core
 {
 
-const char* JackMidiDriver::__class_name = "JackMidiDriver";
+const char* JackMidiDriver::m_sClassName = "JackMidiDriver";
 
 void
 JackMidiDriver::lock(void)
@@ -323,7 +323,7 @@ JackMidiShutdown(void *arg)
 }
 
 JackMidiDriver::JackMidiDriver()
-	: MidiInput( __class_name ), MidiOutput( __class_name ), Object( __class_name )
+	: MidiInput( m_sClassName ), MidiOutput( m_sClassName ), Object( m_sClassName )
 {
 	pthread_mutex_init(&mtx, NULL);
 

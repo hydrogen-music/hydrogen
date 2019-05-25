@@ -33,8 +33,9 @@ class Action;
 
 class MidiMap : public H2Core::Object
 {
-	H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		typedef std::map< QString, Action* > map_t;
 		/**
 		 * Object holding the current MidiMap singleton. It is
@@ -81,6 +82,12 @@ class MidiMap : public H2Core::Object
 
 		void setupNoteArray();
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		MidiMap();
 
 		Action* __note_array[ 128 ];

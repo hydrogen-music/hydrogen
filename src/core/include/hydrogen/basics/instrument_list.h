@@ -38,8 +38,10 @@ class Instrument;
 */
 class InstrumentList : public H2Core::Object
 {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
+	
 		/** constructor */
 		InstrumentList();
 		/** destructor */
@@ -175,6 +177,13 @@ class InstrumentList : public H2Core::Object
 		void set_default_midi_out_notes();
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
+	
 		std::vector<Instrument*> __instruments;            ///< the list of instruments
 };
 

@@ -71,9 +71,10 @@ class InfoBar;
 
 class HydrogenApp : public QObject, public H2Core::Object
 {
-		H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		HydrogenApp( MainForm* pMainForm, H2Core::Song *pFirstSong );
 
 		/// Returns the instance of HydrogenApp class
@@ -181,6 +182,12 @@ class HydrogenApp : public QObject, public H2Core::Object
 
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		static HydrogenApp *		m_pInstance;	///< HydrogenApp instance
 
 #ifdef H2CORE_HAVE_LADSPA

@@ -50,9 +50,10 @@ class RotaryTooltip : public QWidget
 
 class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 {
-    H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		enum RotaryType {
 			TYPE_NORMAL,
 			TYPE_CENTER
@@ -85,6 +86,12 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 		void valueChanged(Rotary *ref);
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		bool m_bUseIntSteps;
 		bool m_bIgnoreMouseMove;
 

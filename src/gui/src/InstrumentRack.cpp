@@ -28,11 +28,11 @@
 
 #include <QGridLayout>
 
-const char* InstrumentRack::__class_name = "InstrumentRack";
+const char* InstrumentRack::m_sClassName = "InstrumentRack";
 
 InstrumentRack::InstrumentRack( QWidget *pParent )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
 {
 	INFOLOG( "INIT" );
 

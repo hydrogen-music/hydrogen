@@ -29,11 +29,11 @@
 
 #include "Skin.h"
 
-const char* SplashScreen::__class_name = "SplashScreen";
+const char* SplashScreen::m_sClassName = "SplashScreen";
 
 SplashScreen::SplashScreen()
  : QSplashScreen( NULL )
- , Object( __class_name )
+ , Object( m_sClassName )
 {
 	//INFOLOG( "SplashScreen" );
 

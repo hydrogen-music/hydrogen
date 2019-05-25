@@ -32,8 +32,9 @@
 
 class PixmapWidget : public H2Core::Object, public QWidget
 {
-    H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		PixmapWidget( QWidget *pParent, const char* = "PixmapWidget" );
 		~PixmapWidget();
 
@@ -47,6 +48,13 @@ class PixmapWidget : public H2Core::Object, public QWidget
 		bool __expand_horiz;
 
 		virtual void paintEvent( QPaintEvent* ev);
+	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 };
 
 #endif

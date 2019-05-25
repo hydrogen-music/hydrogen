@@ -38,7 +38,7 @@
 
 
 NsmClient * NsmClient::__instance = 0;
-const char* NsmClient::__class_name = "NsmClient";
+const char* NsmClient::m_sClassName = "NsmClient";
 bool NsmShutdown = false;
 
 
@@ -94,7 +94,7 @@ void* nsm_processEvent(void* data)
 }
 
 NsmClient::NsmClient()
-	: Object( __class_name )
+	: Object( m_sClassName )
 {
 	m_NsmThread = 0;
 }

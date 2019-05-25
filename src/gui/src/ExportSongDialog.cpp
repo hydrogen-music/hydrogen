@@ -54,13 +54,13 @@
 
 using namespace H2Core;
 
-const char* ExportSongDialog::__class_name = "ExportSongDialog";
+const char* ExportSongDialog::m_sClassName = "ExportSongDialog";
 
 enum ExportModes { EXPORT_TO_SINGLE_TRACK, EXPORT_TO_SEPARATE_TRACKS, EXPORT_TO_BOTH};
 
 ExportSongDialog::ExportSongDialog(QWidget* parent)
 	: QDialog(parent)
-	, Object( __class_name )
+	, Object( m_sClassName )
 	, m_bExporting( false )
 	, m_pEngine( Hydrogen::get_instance() )
 	, m_pPreferences( Preferences::get_instance() )

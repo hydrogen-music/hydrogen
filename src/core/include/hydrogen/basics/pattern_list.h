@@ -37,8 +37,10 @@ class Pattern;
 */
 class PatternList : public H2Core::Object
 {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
+	
 		/** constructor */
 		PatternList();
 		/** destructor */
@@ -151,6 +153,13 @@ class PatternList : public H2Core::Object
 		QString find_unused_pattern_name( QString sourceName );
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
+	
 		std::vector<Pattern*> __patterns;            ///< the list of patterns
 };
 

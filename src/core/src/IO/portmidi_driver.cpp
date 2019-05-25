@@ -118,10 +118,10 @@ void* PortMidiDriver_thread( void* param )
 	return NULL;
 }
 
-const char* PortMidiDriver::__class_name = "PortMidiDriver";
+const char* PortMidiDriver::m_sClassName = "PortMidiDriver";
 
 PortMidiDriver::PortMidiDriver()
-		: MidiInput( __class_name ), MidiOutput( __class_name ), Object( __class_name )
+		: MidiInput( m_sClassName ), MidiOutput( m_sClassName ), Object( m_sClassName )
 		, m_bRunning( false )
 		, m_pMidiIn( nullptr )
 		, m_pMidiOut( nullptr )

@@ -59,12 +59,12 @@ void PatternEditorPanel::updateSLnameLabel( )
 	pSLlabel->setText( Hydrogen::get_instance()->m_currentDrumkit  );
 }
 
-const char* PatternEditorPanel::__class_name = "PatternEditorPanel";
+const char* PatternEditorPanel::m_sClassName = "PatternEditorPanel";
 
 
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_pPattern( NULL )
  , m_bEnablePatternResize( true )
 {

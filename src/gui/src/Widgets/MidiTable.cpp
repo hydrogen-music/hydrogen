@@ -32,11 +32,11 @@
 
 #include <QHeaderView>
 
-const char* MidiTable::__class_name = "MidiTable";
+const char* MidiTable::m_sClassName = "MidiTable";
 
 MidiTable::MidiTable( QWidget *pParent )
  : QTableWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
 {
 	__row_count = 0;
 	setupMidiTable();

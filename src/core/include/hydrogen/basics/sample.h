@@ -36,8 +36,10 @@ namespace H2Core
  */
 class Sample : public H2Core::Object
 {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
+	
 		/** an envelope point within a frame */
 		class EnvelopePoint
 		{
@@ -318,6 +320,13 @@ class Sample : public H2Core::Object
 		QString get_loop_mode_string() const;
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
+	
 		QString __filepath;                     ///< filepath of the sample
 		int __frames;                           ///< number of frames in this sample
 		int __sample_rate;                      ///< samplerate for this sample
@@ -359,7 +368,7 @@ inline const QString Sample::get_filename() const
 	return __filepath.section( "/", -1 );
 }
 
-inline void Sample::Sample::set_frames( int frames )
+inline void Sample::set_frames( int frames )
 {
 	__frames = frames;
 }

@@ -31,8 +31,9 @@ namespace H2Core
 
 class SMFBuffer : public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	std::vector<char> getBuffer() {
 		return m_buffer;
 	}
@@ -46,6 +47,13 @@ public:
 	std::vector<char> m_buffer;
 
 	SMFBuffer();
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 };
 
 
@@ -84,25 +92,40 @@ public:
 
 class SMFEvent : public SMFBase, public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	SMFEvent( const char* sEventName, unsigned nTicks );
 	virtual ~SMFEvent();
 
 	int m_nTicks;
 	int m_nDeltaTime;
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 };
 
 
 
 class SMFTrackNameMetaEvent : public SMFEvent
 {
-	H2_OBJECT
 public:
 	SMFTrackNameMetaEvent( const QString& sTrackName, unsigned nDeltaTime );
 	virtual std::vector<char> getBuffer();
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	QString m_sTrackName;
 
 };
@@ -111,12 +134,19 @@ private:
 
 class SMFSetTempoMetaEvent : public SMFEvent
 {
-	H2_OBJECT
 public:
 	SMFSetTempoMetaEvent( float fBPM, unsigned nDeltaTime );
 	virtual std::vector<char> getBuffer();
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	unsigned m_fBPM;
 
 };
@@ -125,12 +155,19 @@ private:
 
 class SMFCopyRightNoticeMetaEvent : public SMFEvent
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	SMFCopyRightNoticeMetaEvent( const QString& sAuthor, unsigned nDeltaTime );
 	virtual std::vector<char> getBuffer();
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	QString m_sAuthor;
 
 };
@@ -139,13 +176,20 @@ private:
 
 class SMFTimeSignatureMetaEvent : public SMFEvent
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	SMFTimeSignatureMetaEvent( unsigned nBeats, unsigned nNote , unsigned nMTPMC , unsigned nTSNP24 , unsigned nTicks );
 	virtual std::vector<char> getBuffer();
 	// MTPMC = MIDI ticks per metronome click
 	// TSNP24 = Thirty Second Notes Per 24 MIDI Ticks.
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	unsigned m_nBeats, m_nNote, m_nMTPMC , m_nTSNP24 , m_nTicks;
 };
 
@@ -153,11 +197,19 @@ private:
 
 class SMFNoteOnEvent : public SMFEvent
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity );
 
 	virtual std::vector<char> getBuffer();
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 
 protected:
 	unsigned m_nChannel;
@@ -169,11 +221,19 @@ protected:
 
 class SMFNoteOffEvent : public SMFEvent
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	SMFNoteOffEvent(  unsigned nTicks, int nChannel, int nPitch, int nVelocity );
 
 	virtual std::vector<char> getBuffer();
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 
 protected:
 	unsigned m_nChannel;

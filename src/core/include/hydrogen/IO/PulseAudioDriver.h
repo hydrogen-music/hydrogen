@@ -40,8 +40,9 @@ namespace H2Core
 ///
 class PulseAudioDriver : public AudioOutput
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	typedef int (*audioProcessCallback)(uint32_t, void *);
 
 	PulseAudioDriver(audioProcessCallback processCallback);
@@ -62,6 +63,12 @@ public:
 	virtual void setBpm( float fBPM );
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	pthread_t				m_thread;
 	pthread_mutex_t			m_mutex;
 	pthread_cond_t			m_cond;
@@ -96,10 +103,18 @@ private:
 namespace H2Core {
 	class PulseAudioDriver : public NullDriver
 	{
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		PulseAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 
+	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 	};
 }
 

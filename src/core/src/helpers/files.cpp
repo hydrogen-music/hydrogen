@@ -9,7 +9,7 @@
 namespace H2Core
 {
 
-	const char* Files::__class_name = "Files";
+	const char* Files::m_sClassName = "Files";
 
 	QString Files::savePattern( SaveMode mode, const QString& fileName, const Pattern* pPattern, Song* pSong, const QString& drumkitName )
 	{

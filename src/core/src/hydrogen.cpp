@@ -916,7 +916,7 @@ inline void audioEngine_process_checkBPMChanged(Song* pSong)
 	m_pAudioDriver->m_transport.m_nFrames = ceil(fTickNumber) * fNewTickSize;
 
 #ifdef H2CORE_HAVE_JACK
-	if ( JackAudioDriver::class_name() == m_pAudioDriver->class_name()
+	if ( JackAudioDriver::className() == m_pAudioDriver->className()
 		&& m_audioEngineState == STATE_PLAYING )
 	{
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->calculateFrameOffset();
@@ -1303,15 +1303,15 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		m_pAudioDriver->stop();
 		m_pAudioDriver->locate( 0 ); // locate 0, reposition from start of the song
 
-		if ( ( m_pAudioDriver->class_name() == DiskWriterDriver::class_name() )
-			 || ( m_pAudioDriver->class_name() == FakeDriver::class_name() )
+		if ( ( m_pAudioDriver->className() == DiskWriterDriver::className() )
+			 || ( m_pAudioDriver->className() == FakeDriver::className() )
 			 ) {
 			___INFOLOG( "End of song." );
 			return 1;	// kill the audio AudioDriver thread
 		}
 
 #ifdef H2CORE_HAVE_JACK
-		else if ( m_pAudioDriver->class_name() == JackAudioDriver::class_name() )
+		else if ( m_pAudioDriver->className() == JackAudioDriver::className() )
 		{
 			// Do something clever :-s ... Jakob Lund
 			// Mainly to keep sync with Ardour.
@@ -1494,7 +1494,7 @@ void audioEngine_renameJackPorts(Song * pSong)
 	// renames jack ports
 	if ( ! pSong ) return;
 
-	if ( m_pAudioDriver->class_name() == JackAudioDriver::class_name() ) {
+	if ( m_pAudioDriver->className() == JackAudioDriver::className() ) {
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->makeTrackOutputs( pSong );
 	}
 #endif
@@ -2037,13 +2037,13 @@ AudioOutput* createDriver( const QString& sDriver )
 
 	if ( sDriver == "Oss" ) {
 		pDriver = new OssDriver( audioEngine_process );
-		if ( pDriver->class_name() == NullDriver::class_name() ) {
+		if ( pDriver->className() == NullDriver::className() ) {
 			delete pDriver;
 			pDriver = NULL;
 		}
 	} else if ( sDriver == "Jack" ) {
 		pDriver = new JackAudioDriver( audioEngine_process );
-		if ( pDriver->class_name() == NullDriver::class_name() ) {
+		if ( pDriver->className() == NullDriver::className() ) {
 			delete pDriver;
 			pDriver = NULL;
 		} else {
@@ -2055,13 +2055,13 @@ AudioOutput* createDriver( const QString& sDriver )
 		}
 	} else if ( sDriver == "Alsa" ) {
 		pDriver = new AlsaAudioDriver( audioEngine_process );
-		if ( pDriver->class_name() == NullDriver::class_name() ) {
+		if ( pDriver->className() == NullDriver::className() ) {
 			delete pDriver;
 			pDriver = NULL;
 		}
 	} else if ( sDriver == "PortAudio" ) {
 		pDriver = new PortAudioDriver( audioEngine_process );
-		if ( pDriver->class_name() == NullDriver::class_name() ) {
+		if ( pDriver->className() == NullDriver::className() ) {
 			delete pDriver;
 			pDriver = NULL;
 		}
@@ -2070,7 +2070,7 @@ AudioOutput* createDriver( const QString& sDriver )
 	else if ( sDriver == "CoreAudio" ) {
 		___INFOLOG( "Creating CoreAudioDriver" );
 		pDriver = new CoreAudioDriver( audioEngine_process );
-		if ( pDriver->class_name() == NullDriver::class_name() ) {
+		if ( pDriver->className() == NullDriver::className() ) {
 			delete pDriver;
 			pDriver = NULL;
 		}
@@ -2078,7 +2078,7 @@ AudioOutput* createDriver( const QString& sDriver )
 	//#endif
 	else if ( sDriver == "PulseAudio" ) {
 		pDriver = new PulseAudioDriver( audioEngine_process );
-		if ( pDriver->class_name() == NullDriver::class_name() ) {
+		if ( pDriver->className() == NullDriver::className() ) {
 			delete pDriver;
 			pDriver = NULL;
 		}
@@ -2337,10 +2337,10 @@ void audioEngine_restartAudioDrivers()
 //----------------------------------------------------------------------------
 
 Hydrogen* Hydrogen::__instance = NULL;
-const char* Hydrogen::__class_name = "Hydrogen";
+const char* Hydrogen::m_sClassName = "Hydrogen";
 
 Hydrogen::Hydrogen()
-	: Object( __class_name )
+	: Object( m_sClassName )
 {
 	if ( __instance ) {
 		ERRORLOG( "Hydrogen audio engine is already running" );
@@ -3113,7 +3113,7 @@ void Hydrogen::startExportSong( const QString& filename)
 
 void Hydrogen::stopExportSong()
 {
-	if ( m_pAudioDriver->class_name() != DiskWriterDriver::class_name() ) {
+	if ( m_pAudioDriver->className() != DiskWriterDriver::className() ) {
 		return;
 	}
 
@@ -3829,14 +3829,14 @@ void Hydrogen::setHumantimeFrames(unsigned long hframes)
 #ifdef H2CORE_HAVE_JACK
 void Hydrogen::offJackMaster()
 {
-	if ( m_pAudioDriver->class_name() == JackAudioDriver::class_name() ) {
+	if ( m_pAudioDriver->className() == JackAudioDriver::className() ) {
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->com_release();
 	}
 }
 
 void Hydrogen::onJackMaster()
 {
-	if ( m_pAudioDriver->class_name() == JackAudioDriver::class_name() ) {
+	if ( m_pAudioDriver->className() == JackAudioDriver::className() ) {
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->initTimeMaster();
 	}
 }

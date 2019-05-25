@@ -37,8 +37,9 @@ namespace H2Core
 
 class LadspaFXInfo : public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	LadspaFXInfo( const QString& sName );
 	~LadspaFXInfo();
 
@@ -53,14 +54,22 @@ public:
 	unsigned m_nIAPorts;	///< input audio port
 	unsigned m_nOAPorts;	///< output audio port
 	static bool alphabeticOrder( LadspaFXInfo* a, LadspaFXInfo* b );
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 };
 
 
 
 class LadspaFXGroup : public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	LadspaFXGroup( const QString& sName );
 	~LadspaFXGroup();
 
@@ -88,6 +97,12 @@ public:
 
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	QString m_sName;
 	std::vector<LadspaFXInfo*> m_ladspaList;
 	std::vector<LadspaFXGroup*> m_childGroups;
@@ -97,8 +112,9 @@ private:
 
 class LadspaControlPort : public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	QString sName;
 	bool isToggle;
 	bool m_bIsInteger;
@@ -108,14 +124,22 @@ public:
 	LADSPA_Data fUpperBound;
 
 	LadspaControlPort() : Object( "LadspaControlPort" ) { }
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 };
 
 
 
 class LadspaFX : public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	enum {
 		MONO_FX,
 		STEREO_FX,
@@ -173,6 +197,12 @@ public:
 
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	bool m_pluginType;
 	bool m_bEnabled;
 	bool m_bActivated;	// Guard against plugins that can't be deactivated before being activated (

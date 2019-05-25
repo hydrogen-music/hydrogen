@@ -56,11 +56,11 @@ using namespace H2Core;
 #include "LayerPreview.h"
 #include "AudioFileBrowser/AudioFileBrowser.h"
 
-const char* InstrumentEditor::__class_name = "InstrumentEditor";
+const char* InstrumentEditor::m_sClassName = "InstrumentEditor";
 
 InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	: QWidget( pParent )
-	, Object( __class_name )
+	, Object( m_sClassName )
 	, m_pInstrument( nullptr )
 	, m_nSelectedLayer( 0 )
 {

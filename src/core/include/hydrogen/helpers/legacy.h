@@ -15,8 +15,9 @@ class InstrumentList;
  * Legacy is a container for legacy code which should be once removed
  */
 class Legacy : public H2Core::Object {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		/**
 		 * load drumkit information from a file
 		 * \param dk_path is a path to an xml file
@@ -37,6 +38,13 @@ class Legacy : public H2Core::Object {
 		 * \return a Playlist on success, 0 otherwise
 		 */
 		static Playlist* load_playlist( Playlist* pl, const QString& pl_path );
+	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 };
 
 };

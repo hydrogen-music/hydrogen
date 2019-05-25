@@ -60,8 +60,10 @@ namespace H2Core
  */ 
 class AudioEngine : public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
+
 	/**
 	 * If #__instance equals 0, a new AudioEngine singleton will
 	 * be created and stored in it.
@@ -152,6 +154,13 @@ public:
 	Synth* get_synth();
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
+
 	/**
 	 * Object holding the current AudioEngine singleton. It is
 	 * initialized with NULL, set with create_instance(), and

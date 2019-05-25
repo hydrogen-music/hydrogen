@@ -50,9 +50,10 @@ struct FillRange {
 ///
 class PatternFillDialog : public QDialog, public Ui_PatternFillDialog_UI, public H2Core::Object
 {
-	H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		PatternFillDialog( QWidget* parent, FillRange* range );
 		~PatternFillDialog();
 
@@ -63,6 +64,12 @@ class PatternFillDialog : public QDialog, public Ui_PatternFillDialog_UI, public
 		void on_toText_textChanged(const QString & text);
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		FillRange* __fill_range;
 
 		/// Does some name check

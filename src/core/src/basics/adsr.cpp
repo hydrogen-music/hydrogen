@@ -27,7 +27,7 @@
 namespace H2Core
 {
 
-const char* ADSR::__class_name = "ADSR";
+const char* ADSR::m_sClassName = "ADSR";
 
 inline static float linear_interpolation( float fVal_A, float fVal_B, double fVal )
 {
@@ -64,7 +64,7 @@ void ADSR::normalise()
 	}
 }
 
-ADSR::ADSR( unsigned int attack, unsigned int decay, float sustain, unsigned int release ) : Object( __class_name ),
+ADSR::ADSR( unsigned int attack, unsigned int decay, float sustain, unsigned int release ) : Object( m_sClassName ),
 	__attack( attack ),
 	__decay( decay ),
 	__sustain( sustain ),
@@ -77,7 +77,7 @@ ADSR::ADSR( unsigned int attack, unsigned int decay, float sustain, unsigned int
 	normalise();
 }
 
-ADSR::ADSR( const ADSR* other ) : Object( __class_name ),
+ADSR::ADSR( const ADSR* other ) : Object( m_sClassName ),
 	__attack( other->__attack ),
 	__decay( other->__decay ),
 	__sustain( other->__sustain ),

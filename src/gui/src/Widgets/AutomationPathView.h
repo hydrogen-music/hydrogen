@@ -33,7 +33,6 @@
 class AutomationPathView : public QWidget, public H2Core::Object
 {
 	Q_OBJECT
-	H2_OBJECT
 
 	H2Core::AutomationPath *_path;
 	int m_nGridWidth;   /** < Width of song grid cell size - in order to properly align AutomationPathView and SongEditor */
@@ -48,6 +47,8 @@ class AutomationPathView : public QWidget, public H2Core::Object
 	H2Core::AutomationPath::iterator _selectedPoint; /** < Point that is being dragged */
 
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	AutomationPathView(QWidget *parent = 0);
 
 	H2Core::AutomationPath *getAutomationPath() const noexcept { return _path; }
@@ -77,6 +78,13 @@ signals:
 	void pointAdded(float x, float y);
 	void pointRemoved(float x, float y);
 	void pointMoved(float ox, float oy, float tx, float ty);
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 };
 
 #endif

@@ -14,8 +14,9 @@ namespace H2Core
 */
 class XMLNode : public H2Core::Object, public QDomNode
 {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		/** basic constructor */
 		XMLNode( );
 		/** to wrap a QDomNode */
@@ -108,6 +109,12 @@ class XMLNode : public H2Core::Object, public QDomNode
 		 */
 		void write_attribute( const QString& attribute, const QString& value );
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		/**
 		 * reads a string stored into a child node
 		 * \param node the name of the child node to read into
@@ -128,8 +135,9 @@ class XMLNode : public H2Core::Object, public QDomNode
 */
 class XMLDoc : public H2Core::Object, public QDomDocument
 {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		/** basic constructor */
 		XMLDoc( );
 		/**
@@ -149,6 +157,13 @@ class XMLDoc : public H2Core::Object, public QDomDocument
 		 * \param xmlns the xml namespace prefix to add after XMLNS_BASE
 		 */
 		XMLNode set_root( const QString& node_name, const QString& xmlns = 0 );
+	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 };
 
 };

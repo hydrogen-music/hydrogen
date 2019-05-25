@@ -45,10 +45,11 @@ class ToggleButton;
 
 class InstrumentLine : public PixmapWidget
 {
-    H2_OBJECT
 	Q_OBJECT
 
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		InstrumentLine(QWidget* pParent);
 
 		void setName(const QString& sName);
@@ -83,6 +84,12 @@ class InstrumentLine : public PixmapWidget
 
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		QMenu *m_pFunctionPopup;
 		QMenu *m_pFunctionPopupSub;
 		QMenu *m_pCopyPopupSub;
@@ -99,10 +106,11 @@ class InstrumentLine : public PixmapWidget
 
 
 class PatternEditorInstrumentList : public QWidget, public H2Core::Object {
-	H2_OBJECT
 	Q_OBJECT
 
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		PatternEditorInstrumentList( QWidget *parent, PatternEditorPanel *pPatternEditorPanel );
 		~PatternEditorInstrumentList();
 
@@ -130,6 +138,13 @@ class PatternEditorInstrumentList : public QWidget, public H2Core::Object {
 		QPoint __drag_start_position;
 
 		InstrumentLine* createInstrumentLine();
+	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 
 };
 

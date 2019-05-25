@@ -41,9 +41,10 @@ class PatternEditorPanel;
 
 class PianoRollEditor: public QWidget, public EventListener, public H2Core::Object
 {
-    H2_OBJECT
     Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel );
 		~PianoRollEditor();
 
@@ -85,6 +86,12 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		void updateEditor();
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 
 		unsigned m_nRowHeight;
 		unsigned m_nOctaves;

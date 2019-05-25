@@ -42,10 +42,11 @@ class PixmapWidget;
  */
 class Button : public QWidget, public H2Core::Object, public MidiLearnable
 {
-    H2_OBJECT
 	Q_OBJECT
 
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		Button(
 				QWidget *pParent,
 				const QString& sOnImg,
@@ -82,6 +83,12 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 		QPixmap m_overPixmap;
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		bool m_bMouseOver;
 		bool __use_skin_style;
 		bool __enable_press_hold;

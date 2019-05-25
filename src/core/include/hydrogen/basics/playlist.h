@@ -34,9 +34,10 @@ namespace H2Core
 class Playlist : public H2Core::Object
 
 {
-		H2_OBJECT
-
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
+	
 		struct Entry
 		{
 			QString filePath;
@@ -85,6 +86,13 @@ class Playlist : public H2Core::Object
 		bool save_file( const QString& pl_path, const QString& name, bool overwrite, bool useRelativePaths );
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
+	
 		/**
 		 * Object holding the current Playlist singleton. It is
 		 * initialized with NULL, set with create_instance(), and

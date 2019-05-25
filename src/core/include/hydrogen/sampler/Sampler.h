@@ -48,8 +48,9 @@ class AudioOutput;
 ///
 class Sampler : public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	float *__main_out_L;	///< sampler main out (left channel)
 	float *__main_out_R;	///< sampler main out (right channel)
 
@@ -114,6 +115,12 @@ public:
 		void reinitialize_playback_track();
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	std::vector<Note*> __playing_notes_queue;
 	std::vector<Note*> __queuedNoteOffs;
 

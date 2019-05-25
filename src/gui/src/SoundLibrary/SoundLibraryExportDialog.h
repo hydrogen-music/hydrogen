@@ -36,11 +36,12 @@
 ///
 class SoundLibraryExportDialog : public QDialog, public Ui_SoundLibraryExportDialog_UI, public H2Core::Object
 {
-	H2_OBJECT
 	Q_OBJECT
-	public:
-		SoundLibraryExportDialog( QWidget* pParent, const QString&);
-		~SoundLibraryExportDialog();
+public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
+	SoundLibraryExportDialog( QWidget* pParent, const QString&);
+	~SoundLibraryExportDialog();
 
 private slots:
 	void on_exportBtn_clicked();
@@ -51,6 +52,12 @@ private slots:
 	void on_drumkitPathTxt_textChanged( QString str );
 	void updateDrumkitList();
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	std::vector<H2Core::Drumkit*> drumkitInfoList;
 	QString preselectedKit;
 	QHash<QString, QStringList> kit_components;

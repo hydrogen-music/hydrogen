@@ -64,8 +64,10 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 ///
 class OssDriver : public AudioOutput
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
+	
 	OssDriver( audioProcessCallback processCallback );
 	~OssDriver();
 
@@ -86,6 +88,12 @@ public:
 	virtual void setBpm( float fBPM );
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	/** file descriptor, for writing to /dev/dsp */
 	int fd;
 
@@ -104,9 +112,17 @@ namespace H2Core {
 
 class OssDriver : public NullDriver
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	OssDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 
 };
 

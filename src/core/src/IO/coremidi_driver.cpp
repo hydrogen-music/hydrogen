@@ -98,10 +98,10 @@ static void midiProc ( const MIDIPacketList * pktlist,
 }
 
 
-const char* CoreMidiDriver::__class_name = "CoreMidiDriver";
+const char* CoreMidiDriver::m_sClassName = "CoreMidiDriver";
 
 CoreMidiDriver::CoreMidiDriver()
-		: MidiInput( __class_name ) ,MidiOutput( __class_name ), Object( __class_name )
+		: MidiInput( m_sClassName ) ,MidiOutput( m_sClassName ), Object( m_sClassName )
 		, m_bRunning( false )
 {
 	INFOLOG( "INIT" );

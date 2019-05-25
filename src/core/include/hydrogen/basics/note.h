@@ -65,8 +65,10 @@ struct SelectedLayerInfo {
  */
 class Note : public H2Core::Object
 {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
+	
 		/** possible keys */
 		enum Key { C=KEY_MIN, Cs, D, Ef, E, F, Fs, G, Af, A, Bf, B };
 		/** possible octaves */
@@ -298,6 +300,13 @@ class Note : public H2Core::Object
 		void compute_lr_values( float* val_l, float* val_r );
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
+	
 		Instrument*		__instrument;   ///< the instrument to be played by this note
 		int				__instrument_id;        ///< the id of the instrument played by this note
 		int				__specific_compo_id;    ///< play a specific component, -1 if playing all

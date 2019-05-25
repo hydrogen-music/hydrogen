@@ -40,14 +40,15 @@ namespace H2Core {
 ///
 class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public EventListener, public H2Core::Object
 {
-	H2_OBJECT
 	Q_OBJECT
 
-	public:
-		ExportSongDialog(QWidget* parent);
-		~ExportSongDialog();
+public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
+	ExportSongDialog(QWidget* parent);
+	~ExportSongDialog();
 
-		virtual void progressEvent( int nValue );
+	virtual void progressEvent( int nValue );
 
 
 private slots:
@@ -61,6 +62,12 @@ private slots:
 	void		resampleComboBoIndexChanged(int index);
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 
 	void		setResamplerMode(int index);
 	void		calculateRubberbandTime();

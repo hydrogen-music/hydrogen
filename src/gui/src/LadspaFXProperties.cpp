@@ -41,11 +41,11 @@
 using namespace std;
 using namespace H2Core;
 
-const char* LadspaFXProperties::__class_name = "LadspaFXProperties";
+const char* LadspaFXProperties::m_sClassName = "LadspaFXProperties";
 
 LadspaFXProperties::LadspaFXProperties(QWidget* parent, uint nLadspaFX)
  : QWidget( parent )
- , Object( __class_name )
+ , Object( m_sClassName )
 {
 //	INFOLOG( "INIT" );
 

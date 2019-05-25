@@ -28,11 +28,11 @@
 
 #include <hydrogen/globals.h>
 
-const char* LCDCombo::__class_name = "LCDCombo";
+const char* LCDCombo::m_sClassName = "LCDCombo";
 
 LCDCombo::LCDCombo( QWidget *pParent, int digits )
 	: QWidget(pParent)
-	, Object( __class_name )
+	, Object( m_sClassName )
 {
 	INFOLOG( "INIT" );
 

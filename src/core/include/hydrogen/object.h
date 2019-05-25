@@ -43,9 +43,9 @@ class Object {
 		/** copy constructor */
 		Object( const Object& obj );
 		/** constructor */
-		Object( const char* class_name );
-
-		const char* class_name( ) const         { return __class_name; }        ///< return the class name
+		Object( const char* m_sClassName );
+		/** \return #m_sClassName*/
+		const char* className() { return m_sClassName; }
 		/**
 		 * enable/disable class instances counting
 		 * \param flag the counting status to set
@@ -90,7 +90,12 @@ class Object {
 		/** the objects class map type */
 		typedef std::map<const char*, obj_cpt_t> object_map_t;
 
-		const char* __class_name;               ///< the object class name
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		const char* m_sClassName;
 		static bool __count;                    ///< should we count class instances
 		static unsigned __objects_count;        ///< total objects count
 		static object_map_t __objects_map;      ///< objects classes and instances count structure
@@ -100,14 +105,9 @@ class Object {
 		static Logger* __logger;                ///< logger instance pointer
 };
 
-// Object inherited class declaration macro
-#define H2_OBJECT                                                       \
-	public: static const char* class_name() { return __class_name; }    \
-	private: static const char* __class_name;                           \
-
 // LOG MACROS
-#define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), class_name(), __FUNCTION__, msg ); }
-#define __LOG_CLASS(    lvl, msg )  if( logger()->should_log( (lvl) ) )                 { logger()->log( (lvl), class_name(), __FUNCTION__, msg ); }
+#define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), className(), __FUNCTION__, msg ); }
+#define __LOG_CLASS(    lvl, msg )  if( logger()->should_log( (lvl) ) )                 { logger()->log( (lvl), className(), __FUNCTION__, msg ); }
 #define __LOG_OBJ(      lvl, msg )  if( __object->logger()->should_log( (lvl) ) )       { __object->logger()->log( (lvl), 0, __PRETTY_FUNCTION__, msg ); }
 #define __LOG_STATIC(   lvl, msg )  if( H2Core::Logger::get_instance()->should_log( (lvl) ) )   { H2Core::Logger::get_instance()->log( (lvl), 0, __PRETTY_FUNCTION__, msg ); }
 #define __LOG( logger,  lvl, msg )  if( (logger)->should_log( (lvl) ) )                 { (logger)->log( (lvl), 0, 0, msg ); }

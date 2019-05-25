@@ -51,7 +51,7 @@ namespace H2Core
 {
 
 Logger* Filesystem::__logger = 0;
-const char* Filesystem::__class_name = "Filesystem";
+const char* Filesystem::m_sClassName = "Filesystem";
 
 const QString Filesystem::scripts_ext = ".sh";
 const QString Filesystem::songs_ext = ".h2song";

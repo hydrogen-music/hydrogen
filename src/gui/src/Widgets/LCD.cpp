@@ -36,11 +36,11 @@ QPixmap* LCDDigit::m_pSmallRedFontSet = NULL;
 QPixmap* LCDDigit::m_pLargeGrayFontSet = NULL;
 QPixmap* LCDDigit::m_pSmallGrayFontSet = NULL;
 
-const char* LCDDigit::__class_name = "LCDDigit";
+const char* LCDDigit::m_sClassName = "LCDDigit";
 
 LCDDigit::LCDDigit( QWidget * pParent, LCDType type )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_type( type )
 {
 	setAttribute(Qt::WA_NoBackground);
@@ -202,11 +202,11 @@ void LCDDigit::setSmallBlue()
 // ::::::::::::::::::
 
 
-const char* LCDDisplay::__class_name = "LCDDisplay";
+const char* LCDDisplay::m_sClassName = "LCDDisplay";
 
 LCDDisplay::LCDDisplay( QWidget * pParent, LCDDigit::LCDType type, int nDigits, bool leftAlign )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_sMsg( "" )
  , m_bLeftAlign( leftAlign )
 {
@@ -321,12 +321,12 @@ void LCDDisplay::digitClicked()
 // :::::::::::::::::::
 
 
-const char* LCDSpinBox::__class_name = "LCDSpinBox";
+const char* LCDSpinBox::m_sClassName = "LCDSpinBox";
 
 // used in PlayerControl
 LCDSpinBox::LCDSpinBox( QWidget *pParent, int nDigits, LCDSpinBoxType type, int nMin, int nMax )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_type( type )
  , m_fValue( 0 )
  , m_nMinValue( nMin )

@@ -30,8 +30,9 @@ using namespace std;
 
 
 class Action : public H2Core::Object {
-	H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		Action( QString );
 
 		void setParameter1( QString text ){
@@ -55,6 +56,12 @@ class Action : public H2Core::Object {
 		}
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		QString type;
 		QString parameter1;
 		QString parameter2;
@@ -67,8 +74,13 @@ namespace H2Core
 
 class MidiActionManager : public H2Core::Object
 {
-	H2_OBJECT
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		/**
 		 * Object holding the current MidiActionManager
 		 * singleton. It is initialized with NULL, set with
@@ -136,6 +148,9 @@ class MidiActionManager : public H2Core::Object
 		int m_nLastBpmChangeCCParameter;
 
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
+	
 		bool handleAction( Action * );
 		/**
 		 * If #__instance equals 0, a new MidiActionManager

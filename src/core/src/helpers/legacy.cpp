@@ -19,7 +19,7 @@
 
 namespace H2Core {
 
-const char* Legacy::__class_name = "Legacy";
+const char* Legacy::m_sClassName = "Legacy";
 
 Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 	if ( version_older_than( 0, 9, 8 ) ) {

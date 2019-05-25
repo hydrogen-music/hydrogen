@@ -54,7 +54,7 @@
 namespace H2Core
 {
 
-const char* Sampler::__class_name = "Sampler";
+const char* Sampler::m_sClassName = "Sampler";
 
 
 static Instrument* create_instrument(int id, const QString& filepath, float volume )
@@ -69,7 +69,7 @@ static Instrument* create_instrument(int id, const QString& filepath, float volu
 }
 
 Sampler::Sampler()
-		: Object( __class_name )
+		: Object( m_sClassName )
 		, __main_out_L( NULL )
 		, __main_out_R( NULL )
 		, __preview_instrument( NULL )

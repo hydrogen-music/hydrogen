@@ -26,11 +26,11 @@
 
 using namespace H2Core;
 
-const char* SoundLibraryOpenDialog::__class_name = "SoundLibraryOpenDialog";
+const char* SoundLibraryOpenDialog::m_sClassName = "SoundLibraryOpenDialog";
 
 SoundLibraryOpenDialog::SoundLibraryOpenDialog( QWidget* pParent )
 	: QDialog( pParent )
-	, Object( __class_name )
+	, Object( m_sClassName )
 {
 	INFOLOG( "INIT" );
 	setWindowTitle( trUtf8( "Open Sound Library" ) );

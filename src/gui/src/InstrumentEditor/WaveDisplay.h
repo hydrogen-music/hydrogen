@@ -36,10 +36,11 @@ namespace H2Core
 
 class WaveDisplay : public QWidget, public H2Core::Object
 {
-    H2_OBJECT
 	Q_OBJECT
 
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		WaveDisplay(QWidget* pParent);
 		~WaveDisplay();
 
@@ -55,6 +56,12 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		void doubleClicked(QWidget *pWidget);
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		Qt::AlignmentFlag			m_SampleNameAlignment;
 		QPixmap						m_Background;
 		QString						m_sSampleName;

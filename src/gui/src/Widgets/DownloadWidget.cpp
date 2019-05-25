@@ -26,11 +26,11 @@
 #include <cstdlib>
 #include <QNetworkReply>
 
-const char* Download::__class_name = "Download";
+const char* Download::m_sClassName = "Download";
 
 Download::Download( QWidget* pParent, const QString& download_url, const QString& local_file )
 		: QDialog( pParent )
-		, Object( __class_name )
+		, Object( m_sClassName )
 		, __download_percent( 0 )
 		, __eta( 0 )
 		, __bytes_current( 0 )

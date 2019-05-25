@@ -32,10 +32,11 @@
 
 class MidiSenseWidget : public QDialog ,public H2Core::Object
 	{
-	H2_OBJECT
 	Q_OBJECT
 
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		MidiSenseWidget(QWidget*,bool m_DirectWrite = false , Action* m_pAction = NULL);
 		~MidiSenseWidget();
 
@@ -46,6 +47,12 @@ class MidiSenseWidget : public QDialog ,public H2Core::Object
 		void		updateMidi();
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		QTimer*		m_pUpdateTimer;
 		QLabel*		m_pURLLabel;
 		Action* m_pAction;

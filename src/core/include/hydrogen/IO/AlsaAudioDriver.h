@@ -37,8 +37,9 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 class AlsaAudioDriver : public AudioOutput
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	snd_pcm_t *m_pPlayback_handle;
 	bool m_bIsRunning;
 	unsigned long m_nBufferSize;
@@ -66,6 +67,12 @@ public:
 	virtual void setBpm( float fBPM );
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 
 	unsigned int m_nSampleRate;
 };
@@ -76,9 +83,17 @@ namespace H2Core {
 
 class AlsaAudioDriver : public NullDriver
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	AlsaAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 
 };
 

@@ -35,21 +35,12 @@ namespace H2Core
 
 class AutomationPath : private Object
 {
-	H2_OBJECT
+public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 
-	public:
 	typedef std::map<float,float>::iterator iterator;
 	typedef std::map<float,float>::const_iterator const_iterator;
-
-	private:
-	
-	float _min;
-	float _max;
-	float _def;
-
-	std::map<float,float> _points;
-
-	public:
 	
 	AutomationPath(float min, float max, float def);
 
@@ -73,6 +64,20 @@ class AutomationPath : private Object
 
 	iterator find(float x);
 	iterator move(iterator &in, float x, float y);
+
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
+	
+	float _min;
+	float _max;
+	float _def;
+
+	std::map<float,float> _points;
 };
 
 std::ostream &operator<< (std::ostream &o, const AutomationPath &p);

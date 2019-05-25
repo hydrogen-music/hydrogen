@@ -65,13 +65,13 @@ Object::~Object( ) {
 #endif
 }
 
-Object::Object( const Object& obj ) : __class_name( obj.__class_name ) {
+Object::Object( const Object& obj ) : m_sClassName( obj.m_sClassName ) {
 #ifdef H2CORE_HAVE_DEBUG
 	if( __count ) add_object( this, true );
 #endif
 }
 
-Object::Object( const char* class_name ) :__class_name( class_name ) {
+Object::Object( const char* className ) :m_sClassName( className ) {
 #ifdef H2CORE_HAVE_DEBUG
 	if( __count ) add_object( this, false );
 #endif
@@ -89,32 +89,32 @@ void Object::set_count( bool flag ) {
 
 inline void Object::add_object( const Object* obj, bool copy ) {
 #ifdef H2CORE_HAVE_DEBUG
-	const char* class_name = ( ( Object* )obj )->class_name();
-	if( __logger && __logger->should_log( Logger::Constructors ) ) __logger->log( Logger::Debug, 0, class_name, ( copy ? "Copy Constructor" : "Constructor" ) );
+	const char* className = ( ( Object* )obj )->className();
+	if( __logger && __logger->should_log( Logger::Constructors ) ) __logger->log( Logger::Debug, 0, className, ( copy ? "Copy Constructor" : "Constructor" ) );
 	pthread_mutex_lock( &__mutex );
 	//if( __objects_map.size()==0) atexit( Object::write_objects_map_to_cerr );
 	__objects_count++;
-	__objects_map[ class_name ].constructed++;
+	__objects_map[ className ].constructed++;
 	pthread_mutex_unlock( &__mutex );
 #endif
 }
 
 inline void Object::del_object( const Object* obj ) {
 #ifdef H2CORE_HAVE_DEBUG
-	const char* class_name = ( ( Object* )obj )->class_name();
-	if( __logger && __logger->should_log( Logger::Constructors ) ) __logger->log( Logger::Debug, 0, class_name, "Destructor" );
-	object_map_t::iterator it_count = __objects_map.find( class_name );
+	const char* className = ( ( Object* )obj )->className();
+	if( __logger && __logger->should_log( Logger::Constructors ) ) __logger->log( Logger::Debug, 0, className, "Destructor" );
+	object_map_t::iterator it_count = __objects_map.find( className );
 	if ( it_count==__objects_map.end() ) {
 		if( __logger!=0 && __logger->should_log( Logger::Error ) ) {
 			std::stringstream msg;
-			msg << "the class " <<  class_name << " is not registered ! [" << obj << "]";
+			msg << "the class " <<  className << " is not registered ! [" << obj << "]";
 			__logger->log( Logger::Error,"del_object", "Object", QString::fromStdString( msg.str() ) );
 		}
 		return;
 	}
-	assert( ( *it_count ).first == class_name );
+	assert( ( *it_count ).first == className );
 	pthread_mutex_lock( &__mutex );
-	assert( __objects_map[class_name].constructed > ( __objects_map[class_name].destructed ) );
+	assert( __objects_map[className].constructed > ( __objects_map[className].destructed ) );
 	__objects_count--;
 	assert( __objects_count>=0 );
 	__objects_map[ ( *it_count ).first ].destructed++;

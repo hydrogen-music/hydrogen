@@ -32,11 +32,11 @@
 #endif
 #include <hydrogen/globals.h>
 
-const char* Fader::__class_name = "Fader";
+const char* Fader::m_sClassName = "Fader";
 
 Fader::Fader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob)
  : QWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_bWithoutKnob( bWithoutKnob )
  , m_bUseIntSteps( bUseIntSteps )
  , m_fPeakValue_L( 0.0 )
@@ -442,11 +442,11 @@ void VerticalFader::paintEvent( QPaintEvent *ev)
 
 //////////////////////////////////
 
-const char* MasterFader::__class_name = "MasterFader";
+const char* MasterFader::m_sClassName = "MasterFader";
 
 MasterFader::MasterFader(QWidget *pParent, bool bWithoutKnob)
  : QWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_bWithoutKnob( bWithoutKnob )
  , m_fPeakValue_L( 0.0 )
  , m_fPeakValue_R( 0.0 )
@@ -694,14 +694,14 @@ void MasterFader::setMax( float fMax )
 
 QPixmap* Knob::m_background = NULL;
 
-const char* Knob::__class_name = "Knob";
+const char* Knob::m_sClassName = "Knob";
 
 ///
 /// Constructor
 ///
 Knob::Knob( QWidget* pParent )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
 {
 	setAttribute(Qt::WA_NoBackground);
 

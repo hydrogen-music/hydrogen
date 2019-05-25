@@ -36,10 +36,11 @@ namespace H2Core
 
 class DetailWaveDisplay : public QWidget, public H2Core::Object
 {
-    H2_OBJECT
 	Q_OBJECT
 
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		DetailWaveDisplay(QWidget* pParent);
 		~DetailWaveDisplay();
 
@@ -49,6 +50,12 @@ class DetailWaveDisplay : public QWidget, public H2Core::Object
 		void setDetailSamplePosition( unsigned posi, float zoomfactor, QString type);
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		QPixmap m_background;
 		QString m_sSampleName;
 		int *m_pPeakDatal;

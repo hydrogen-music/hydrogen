@@ -30,13 +30,13 @@
 namespace H2Core
 {
 
-const char* InstrumentList::__class_name = "InstrumentList";
+const char* InstrumentList::m_sClassName = "InstrumentList";
 
-InstrumentList::InstrumentList() : Object( __class_name )
+InstrumentList::InstrumentList() : Object( m_sClassName )
 {
 }
 
-InstrumentList::InstrumentList( InstrumentList* other ) : Object( __class_name )
+InstrumentList::InstrumentList( InstrumentList* other ) : Object( m_sClassName )
 {
 	assert( __instruments.size() == 0 );
 	for ( int i=0; i<other->size(); i++ ) {

@@ -30,10 +30,10 @@ int portAudioCallback(
 }
 
 
-const char* PortAudioDriver::__class_name = "PortAudioDriver";
+const char* PortAudioDriver::m_sClassName = "PortAudioDriver";
 
 PortAudioDriver::PortAudioDriver( audioProcessCallback processCallback )
-		: AudioOutput( __class_name )
+		: AudioOutput( m_sClassName )
 		, m_processCallback( processCallback )
 		, m_pOut_L( NULL )
 		, m_pOut_R( NULL )

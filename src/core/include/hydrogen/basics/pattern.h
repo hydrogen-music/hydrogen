@@ -41,8 +41,10 @@ Pattern class is a Note container
 */
 class Pattern : public H2Core::Object
 {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
+	
 		///< multimap note type
 		typedef std::multimap <int, Note*> notes_t;
 		///< multimap note iterator type
@@ -191,6 +193,13 @@ class Pattern : public H2Core::Object
 		void save_to( XMLNode* node, const Instrument* instrumentOnly = 0 ) const;
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
+	
 		int __length;                                           ///< the length of the pattern
 		QString __name;                                         ///< the name of thepattern
 		QString __category;                                     ///< the category of the pattern

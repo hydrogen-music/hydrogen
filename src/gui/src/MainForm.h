@@ -45,10 +45,11 @@ class QUndoView;///debug only
 ///
 class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 {
-		H2_OBJECT
 	Q_OBJECT
 
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		QApplication* m_pQApp;
 
 		MainForm( QApplication *app, const QString& songFilename );
@@ -149,6 +150,12 @@ public slots:
 		bool handleUnsavedChanges();
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		HydrogenApp*	h2app;
 
 		static int sigusr1Fd[2];

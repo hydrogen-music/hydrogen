@@ -41,8 +41,10 @@ namespace H2Core
 	 */
 	class InstrumentLayer : public H2Core::Object
 	{
-		H2_OBJECT
-		public:
+	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
+		
 		/** constructor
 		 * \param sample the sample to use
 		 * */
@@ -105,6 +107,13 @@ namespace H2Core
 		static InstrumentLayer* load_from( XMLNode* node, const QString& dk_path );
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
+		
 		float __gain;               ///< ratio between the input sample and the output signal, 1.0 by default
 		float __pitch;              ///< the frequency of the sample, 0.0 by default which means output pitch is the same as input pitch
 		float __start_velocity;     ///< the start velocity of the sample, 0.0 by default

@@ -26,9 +26,9 @@
 
 namespace H2Core
 {
-	const char* Timeline::__class_name = "Timeline";
+	const char* Timeline::m_sClassName = "Timeline";
 
-	Timeline::Timeline() : Object( __class_name )
+	Timeline::Timeline() : Object( m_sClassName )
 	{
 	}
 

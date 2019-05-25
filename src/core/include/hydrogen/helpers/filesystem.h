@@ -13,8 +13,9 @@ namespace H2Core
  */
 class Filesystem : public H2Core::Object
 {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		/** flags available for check_permissions() */
 		enum file_perms {
 			is_dir =0x01,
@@ -264,6 +265,12 @@ class Filesystem : public H2Core::Object
 		static bool mkdir( const QString& path );
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		static Logger* __logger;                    ///< a pointer to the logger
 		static bool check_sys_paths();              ///< returns true if the system path is consistent
 		static bool check_usr_paths();              ///< returns true if the user path is consistent

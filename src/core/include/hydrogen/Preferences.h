@@ -47,8 +47,10 @@ const float FALLOFF_FAST =	1.5f;
 */
 class WindowProperties : public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
+	
 	int x;
 	int y;
 	int width;
@@ -63,6 +65,13 @@ public:
 		width = _width; height = _height;
 		visible = _visible;
 	}
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 
 };
 
@@ -72,8 +81,9 @@ public:
 */
 class H2RGBColor : public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	H2RGBColor( int r = -1, int g = -1, int b = -1 );
 	H2RGBColor( const QString& sColor );
 	~H2RGBColor();
@@ -91,6 +101,12 @@ public:
 	}
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	int m_red;
 	int m_green;
 	int m_blue;
@@ -104,8 +120,9 @@ private:
 */
 class UIStyle : public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	UIStyle();
 	H2RGBColor m_songEditor_backgroundColor;
 	H2RGBColor m_songEditor_alternateRowColor;
@@ -126,6 +143,13 @@ public:
 	H2RGBColor m_patternEditor_line3Color;
 	H2RGBColor m_patternEditor_line4Color;
 	H2RGBColor m_patternEditor_line5Color;
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 };
 
 
@@ -136,8 +160,9 @@ public:
 */
 class Preferences : public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	enum {
 	      /** 
 	       * Specifies whether or not to use JACK transport
@@ -578,6 +603,12 @@ public:
 	void			setExportTemplate( int nExportTemplate );
 	
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	/**
 	 * Object holding the current Preferences singleton. It is
 	 * initialized with NULL, set with create_instance(), and

@@ -45,9 +45,10 @@ class ToggleButton;
 
 class SoundLibraryPanel : public QWidget, private H2Core::Object
 {
-	H2_OBJECT
 Q_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	SoundLibraryPanel( QWidget* parent, bool bInItsOwnDialog );
 	~SoundLibraryPanel();
 
@@ -77,6 +78,12 @@ signals:
 	void item_changed(bool bDrumkitSelected);
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	SoundLibraryTree *__sound_library_tree;
 	//FileBrowser *m_pFileBrowser;
 

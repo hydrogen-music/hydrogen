@@ -62,10 +62,10 @@ using namespace H2Core;
 
 
 HydrogenApp* HydrogenApp::m_pInstance = NULL;
-const char* HydrogenApp::__class_name = "HydrogenApp";
+const char* HydrogenApp::m_sClassName = "HydrogenApp";
 
 HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
- : Object( __class_name )
+ : Object( m_sClassName )
  , m_pMainForm( pMainForm )
  , m_pMixer( NULL )
  , m_pPatternEditorPanel( NULL )

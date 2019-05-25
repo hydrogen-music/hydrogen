@@ -28,13 +28,13 @@
 namespace H2Core
 {
 
-const char* PatternList::__class_name = "PatternList";
+const char* PatternList::m_sClassName = "PatternList";
 
-PatternList::PatternList() : Object( __class_name )
+PatternList::PatternList() : Object( m_sClassName )
 {
 }
 
-PatternList::PatternList( PatternList* other ) : Object( __class_name )
+PatternList::PatternList( PatternList* other ) : Object( m_sClassName )
 {
 	assert( __patterns.size() == 0 );
 	for ( int i=0; i<other->size(); i++ ) {

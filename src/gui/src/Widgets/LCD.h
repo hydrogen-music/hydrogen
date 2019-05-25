@@ -35,9 +35,10 @@
 
 class LCDDigit : public QWidget, public H2Core::Object
 {
-    H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		enum LCDType {
 			SMALL_BLUE,
 			SMALL_RED,
@@ -57,6 +58,12 @@ class LCDDigit : public QWidget, public H2Core::Object
 		void digitClicked();
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		static QPixmap *m_pSmallBlueFontSet;
 		static QPixmap *m_pSmallRedFontSet;
 		static QPixmap *m_pLargeGrayFontSet;
@@ -74,9 +81,10 @@ class LCDDigit : public QWidget, public H2Core::Object
 
 class LCDDisplay : public QWidget, public H2Core::Object
 {
-    H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		LCDDisplay( QWidget * pParent, LCDDigit::LCDType type, int nDigits, bool leftAlign = false );
 		~LCDDisplay();
 
@@ -93,6 +101,12 @@ class LCDDisplay : public QWidget, public H2Core::Object
 		void displayClicked( LCDDisplay* pRef );
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		std::vector<LCDDigit*> m_pDisplay;
 		QString m_sMsg;
 		bool m_bLeftAlign;
@@ -101,9 +115,10 @@ class LCDDisplay : public QWidget, public H2Core::Object
 
 class LCDSpinBox : public QWidget, public H2Core::Object
 {
-    H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		enum LCDSpinBoxType {
 			INTEGER,
 			FLOAT
@@ -129,6 +144,12 @@ class LCDSpinBox : public QWidget, public H2Core::Object
 		void displayClicked( LCDDisplay *pRef );
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		LCDSpinBoxType m_type;
 		LCDDisplay* m_pDisplay;
 

@@ -56,10 +56,10 @@ void Preferences::create_instance()
 	}
 }
 
-const char* Preferences::__class_name = "Preferences";
+const char* Preferences::m_sClassName = "Preferences";
 
 Preferences::Preferences()
-		: Object( __class_name )
+		: Object( m_sClassName )
 {
 	__instance = this;
 	INFOLOG( "INIT" );
@@ -1203,10 +1203,10 @@ void Preferences::readUIStyle( QDomNode parent )
 
 
 
-const char* WindowProperties::__class_name = "WindowProperties";
+const char* WindowProperties::m_sClassName = "WindowProperties";
 
 WindowProperties::WindowProperties()
-		: Object( __class_name )
+		: Object( m_sClassName )
 {
 //	infoLog( "INIT" );
 	x = 0;
@@ -1229,10 +1229,10 @@ WindowProperties::~WindowProperties()
 // :::::::::::::::::::::::::::::::
 
 
-const char* UIStyle::__class_name = "UIStyle";
+const char* UIStyle::m_sClassName = "UIStyle";
 
 UIStyle::UIStyle()
-		: Object( __class_name )
+		: Object( m_sClassName )
 {
 //	infoLog( "INIT" );
 }
@@ -1242,10 +1242,10 @@ UIStyle::UIStyle()
 // ::::::::::::::::::::::::::::::::::::::
 
 
-const char* H2RGBColor::__class_name = "H2RGBColor";
+const char* H2RGBColor::m_sClassName = "H2RGBColor";
 
 H2RGBColor::H2RGBColor( int r, int g, int b )
-		: Object( __class_name )
+		: Object( m_sClassName )
 		, m_red( r )
 		, m_green( g )
 		, m_blue( b )
@@ -1265,7 +1265,7 @@ H2RGBColor::~H2RGBColor()
 
 
 H2RGBColor::H2RGBColor( const QString& sColor )
-		: Object( __class_name )
+		: Object( m_sClassName )
 {
 //	infoLog( "INIT " + sColor );
 	QString temp = sColor;

@@ -34,11 +34,11 @@
 namespace H2Core
 {
 
-const char* Note::__class_name = "Note";
+const char* Note::m_sClassName = "Note";
 const char* Note::__key_str[] = { "C", "Cs", "D", "Ef", "E", "F", "Fs", "G", "Af", "A", "Bf", "B" };
 
 Note::Note( Instrument* instrument, int position, float velocity, float pan_l, float pan_r, int length, float pitch )
-	: Object( __class_name ),
+	: Object( m_sClassName ),
 	  __instrument( instrument ),
 	  __instrument_id( 0 ),
 	  __specific_compo_id( -1 ),
@@ -85,7 +85,7 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
 }
 
 Note::Note( Note* other, Instrument* instrument )
-	: Object( __class_name ),
+	: Object( m_sClassName ),
 	  __instrument( other->get_instrument() ),
 	  __instrument_id( 0 ),
 	  __specific_compo_id( -1 ),

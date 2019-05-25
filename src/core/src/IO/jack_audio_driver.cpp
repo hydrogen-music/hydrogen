@@ -152,10 +152,10 @@ void jackDriverShutdown( void* arg )
 }
 
 
-const char* JackAudioDriver::__class_name = "JackAudioDriver";
+const char* JackAudioDriver::m_sClassName = "JackAudioDriver";
 
 JackAudioDriver::JackAudioDriver( JackProcessCallback processCallback )
-	: AudioOutput( __class_name )
+	: AudioOutput( m_sClassName )
 {
 	INFOLOG( "INIT" );
 	// __track_out_enabled is inherited from AudioOutput and

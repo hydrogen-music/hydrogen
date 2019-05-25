@@ -53,11 +53,11 @@
 using namespace H2Core;
 using namespace std;
 
-const char* PlaylistDialog::__class_name = "PlaylistDialog";
+const char* PlaylistDialog::m_sClassName = "PlaylistDialog";
 
 PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		: QDialog ( pParent )
-		, Object ( __class_name )
+		, Object ( m_sClassName )
 {
 
 	setupUi ( this );

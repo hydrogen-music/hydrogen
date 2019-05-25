@@ -21,8 +21,9 @@ typedef std::vector<SoundLibraryInfo*> soundLibraryInfoVector;
 
 class SoundLibraryDatabase:  public H2Core::Object
 {
-	H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		SoundLibraryDatabase();
 		~SoundLibraryDatabase();
 
@@ -43,6 +44,12 @@ class SoundLibraryDatabase:  public H2Core::Object
 
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		static SoundLibraryDatabase *__instance;
 		soundLibraryInfoVector* patternVector;
 		QStringList patternCategories;
@@ -63,8 +70,9 @@ class SoundLibraryDatabase:  public H2Core::Object
 
 class SoundLibraryInfo :  public H2Core::Object
 {
-	H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		SoundLibraryInfo();
 		SoundLibraryInfo( const QString& path);
 		~SoundLibraryInfo();
@@ -151,6 +159,12 @@ class SoundLibraryInfo :  public H2Core::Object
 
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		QString m_sName;
 		QString m_sURL;
 		QString m_sInfo;

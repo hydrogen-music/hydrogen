@@ -29,11 +29,11 @@
 
 #include "Skin.h"
 
-const char* PatternFillDialog::__class_name = "PatternFillDialog";
+const char* PatternFillDialog::m_sClassName = "PatternFillDialog";
 
 PatternFillDialog::PatternFillDialog(QWidget* parent, FillRange* pRange)
  : QDialog(parent)
- , Object( __class_name )
+ , Object( m_sClassName )
 {
 	setupUi( this );
 

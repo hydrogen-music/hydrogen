@@ -48,15 +48,15 @@
 namespace H2Core
 {
 
-const char* Drumkit::__class_name = "Drumkit";
+const char* Drumkit::m_sClassName = "Drumkit";
 
-Drumkit::Drumkit() : Object( __class_name ), __samples_loaded( false ), __instruments( nullptr ), __components( nullptr )
+Drumkit::Drumkit() : Object( m_sClassName ), __samples_loaded( false ), __instruments( nullptr ), __components( nullptr )
 {
 	__components = new std::vector<DrumkitComponent*> ();
 }
 
 Drumkit::Drumkit( Drumkit* other ) :
-	Object( __class_name ),
+	Object( m_sClassName ),
 	__path( other->get_path() ),
 	__name( other->get_name() ),
 	__author( other->get_author() ),

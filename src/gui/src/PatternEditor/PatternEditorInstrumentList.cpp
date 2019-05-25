@@ -53,10 +53,10 @@ using namespace H2Core;
 
 using namespace std;
 
-const char* InstrumentLine::__class_name = "InstrumentLine";
+const char* InstrumentLine::m_sClassName = "InstrumentLine";
 
 InstrumentLine::InstrumentLine(QWidget* pParent)
-	: PixmapWidget(pParent, __class_name)
+	: PixmapWidget(pParent, m_sClassName)
 	, m_bIsSelected(false)
 {
 	int h = Preferences::get_instance()->getPatternEditorGridHeight();
@@ -509,11 +509,11 @@ void InstrumentLine::functionDeleteInstrument()
 
 //////
 
-const char* PatternEditorInstrumentList::__class_name = "PatternEditorInstrumentList";
+const char* PatternEditorInstrumentList::m_sClassName = "PatternEditorInstrumentList";
 
 PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, PatternEditorPanel *pPatternEditorPanel )
  : QWidget( parent )
- , Object( __class_name )
+ , Object( m_sClassName )
 {
 	//INFOLOG("INIT");
 	m_pPattern = NULL;

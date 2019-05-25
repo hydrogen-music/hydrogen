@@ -38,10 +38,11 @@
 ///
 class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 {
-    H2_OBJECT
 	Q_OBJECT
 
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		Fader(QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob );
 		~Fader();
 
@@ -93,6 +94,13 @@ class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 		QPixmap m_back;
 		QPixmap m_leds;
 		QPixmap m_knob;
+	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 };
 
 class VerticalFader : public Fader
@@ -113,10 +121,11 @@ public:
 
 class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 {
-    H2_OBJECT
 	Q_OBJECT
 
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		MasterFader(QWidget *pParent, bool bWithoutKnob = false);
 		~MasterFader();
 
@@ -148,6 +157,12 @@ class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 		void valueChanged( MasterFader *ref );
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		bool m_bWithoutKnob;
 		bool m_bIgnoreMouseMove;
 
@@ -170,9 +185,10 @@ class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 
 class Knob : public QWidget, public H2Core::Object, public MidiLearnable
 {
-    H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		Knob( QWidget* parent );
 		~Knob();
 
@@ -188,6 +204,12 @@ class Knob : public QWidget, public H2Core::Object, public MidiLearnable
 		void valueChanged( Knob *ref );
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		static QPixmap *m_background;
 		bool m_bIgnoreMouseMove;
 

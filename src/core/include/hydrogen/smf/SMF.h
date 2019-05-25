@@ -37,8 +37,9 @@ namespace H2Core
 
 class SMFHeader : public SMFBase, public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	SMFHeader( int nFormat, int nTracks, int nTPQN );
 	~SMFHeader();
 
@@ -47,14 +48,22 @@ public:
 	int m_nTPQN;		///< ticks per quarter note
 
 	virtual std::vector<char> getBuffer();
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 };
 
 
 
 class SMFTrack : public SMFBase, public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 
 	SMFTrack();
 	~SMFTrack();
@@ -64,6 +73,12 @@ public:
 	virtual std::vector<char> getBuffer();
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	std::vector<SMFEvent*> m_eventList;
 };
 
@@ -71,8 +86,9 @@ private:
 
 class SMF : public SMFBase, public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	SMF();
 	~SMF();
 
@@ -80,6 +96,12 @@ public:
 	virtual std::vector<char> getBuffer();
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	std::vector<SMFTrack*> m_trackList;
 
 	SMFHeader* m_pHeader;
@@ -90,14 +112,21 @@ private:
 
 class SMFWriter : Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	SMFWriter();
 	~SMFWriter();
 
 	void save( const QString& sFilename, Song *pSong );
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	FILE *m_file;
 
 };

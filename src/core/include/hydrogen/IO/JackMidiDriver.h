@@ -48,8 +48,9 @@ namespace H2Core
 
 class JackMidiDriver : public virtual MidiInput, public virtual MidiOutput
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	JackMidiDriver();
 	virtual ~JackMidiDriver();
 
@@ -67,6 +68,12 @@ public:
 	virtual void handleOutgoingControlChange( int param, int value, int channel );
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	void JackMidiOutEvent(uint8_t *buf, uint8_t len);
 
 	void lock();

@@ -30,11 +30,11 @@
 #endif
 #include <hydrogen/globals.h>
 
-const char* SimpleHTMLBrowser::__class_name = "SimpleHTMLBrowser";
+const char* SimpleHTMLBrowser::m_sClassName = "SimpleHTMLBrowser";
 
 SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath, const QString& sFilename, SimpleHTMLBrowserType type )
  : QDialog( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_type( type )
  , m_sDataPath( sDataPath )
  , m_sFilename( sFilename )

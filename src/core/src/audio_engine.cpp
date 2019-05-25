@@ -33,7 +33,7 @@ namespace H2Core
 
 
 AudioEngine* AudioEngine::__instance = NULL;
-const char* AudioEngine::__class_name = "AudioEngine";
+const char* AudioEngine::m_sClassName = "AudioEngine";
 
 
 void AudioEngine::create_instance()
@@ -44,7 +44,7 @@ void AudioEngine::create_instance()
 }
 
 AudioEngine::AudioEngine()
-		: Object( __class_name )
+		: Object( m_sClassName )
 		, __sampler( NULL )
 		, __synth( NULL )
 {

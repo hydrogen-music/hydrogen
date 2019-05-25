@@ -42,6 +42,8 @@ class PatternPropertiesDialog : public QDialog, public Ui_PatternPropertiesDialo
 {
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		PatternPropertiesDialog( QWidget* parent, H2Core::Pattern* pattern, int nselectedPattern, bool save );
 
 		~PatternPropertiesDialog();
@@ -57,6 +59,12 @@ class PatternPropertiesDialog : public QDialog, public Ui_PatternPropertiesDialo
 		void on_categoryComboBox_editTextChanged();
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		H2Core::Pattern *pattern;
 		int __nselectedPattern;
 		bool __savepattern;

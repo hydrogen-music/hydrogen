@@ -28,11 +28,11 @@
 #include "../HydrogenApp.h"
 #include "../Skin.h"
 
-const char* SoundLibrarySaveDialog::__class_name = "SoundLibrarySaveDialog";
+const char* SoundLibrarySaveDialog::m_sClassName = "SoundLibrarySaveDialog";
 
 SoundLibrarySaveDialog::SoundLibrarySaveDialog( QWidget* pParent )
  : QDialog( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );

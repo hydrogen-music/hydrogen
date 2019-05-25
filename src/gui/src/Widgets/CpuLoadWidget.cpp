@@ -32,11 +32,11 @@
 #include <QPaintEvent>
 #include <QPainter>
 
-const char* CpuLoadWidget::__class_name = "CpuLoadWidget";
+const char* CpuLoadWidget::m_sClassName = "CpuLoadWidget";
 
 CpuLoadWidget::CpuLoadWidget( QWidget *pParent )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_fValue( 0 )
 {
 	setAttribute(Qt::WA_NoBackground);

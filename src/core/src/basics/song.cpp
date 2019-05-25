@@ -57,10 +57,10 @@ namespace
 namespace H2Core
 {
 
-const char* Song::__class_name = "Song";
+const char* Song::m_sClassName = "Song";
 
 Song::Song( const QString& name, const QString& author, float bpm, float volume )
-	: Object( __class_name )
+	: Object( m_sClassName )
 	, __is_muted( false )
 	, __resolution( 48 )
 	, __bpm( bpm )
@@ -558,10 +558,10 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 //	Implementation of SongReader class
 //-----------------------------------------------------------------------------
 
-const char* SongReader::__class_name = "SongReader";
+const char* SongReader::m_sClassName = "SongReader";
 
 SongReader::SongReader()
-	: Object( __class_name )
+	: Object( m_sClassName )
 {
 //	infoLog("init");
 }

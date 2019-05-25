@@ -165,10 +165,10 @@ void* alsaMidiDriver_thread( void* param )
 
 
 
-const char* AlsaMidiDriver::__class_name = "AlsaMidiDriver";
+const char* AlsaMidiDriver::m_sClassName = "AlsaMidiDriver";
 
 AlsaMidiDriver::AlsaMidiDriver()
-		: MidiInput( __class_name ), MidiOutput( __class_name ), Object( __class_name )
+		: MidiInput( m_sClassName ), MidiOutput( m_sClassName ), Object( m_sClassName )
 {
 //	infoLog("INIT");
 }

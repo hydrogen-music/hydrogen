@@ -29,11 +29,11 @@ using namespace H2Core;
 #include "WaveDisplay.h"
 #include "../Skin.h"
 
-const char* WaveDisplay::__class_name = "WaveDisplay";
+const char* WaveDisplay::m_sClassName = "WaveDisplay";
 
 WaveDisplay::WaveDisplay(QWidget* pParent)
  : QWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_nCurrentWidth( 0 )
  , m_sSampleName( "-" )
  , m_pLayer( nullptr )

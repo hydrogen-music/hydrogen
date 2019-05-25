@@ -51,10 +51,11 @@ class LayerPreview;
 ///
 class InstrumentEditor : public QWidget, public H2Core::Object, public EventListener
 {
-	H2_OBJECT
 	Q_OBJECT
 
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		InstrumentEditor( QWidget* parent );
 		~InstrumentEditor();
 
@@ -95,6 +96,12 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void waveDisplayDoubleClicked( QWidget *pRef );
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		H2Core::Instrument *m_pInstrument;
 		int m_nSelectedLayer;
 		int m_nSelectedComponent;

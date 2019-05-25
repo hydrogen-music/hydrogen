@@ -49,9 +49,10 @@ class PixmapWidget;
 ///
 class MetronomeWidget : public QWidget,public EventListener, public H2Core::Object
 {
-    H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		MetronomeWidget(QWidget *pParent);
 		~MetronomeWidget();
 
@@ -64,6 +65,12 @@ class MetronomeWidget : public QWidget,public EventListener, public H2Core::Obje
 
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		enum m_state {
 			METRO_FIRST,
 			METRO_ON,
@@ -85,9 +92,10 @@ class MetronomeWidget : public QWidget,public EventListener, public H2Core::Obje
 ///
 class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 {
-    H2_OBJECT
 	Q_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
 		PlayerControl(QWidget *parent);
 		~PlayerControl();
 
@@ -131,6 +139,12 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		void rubberbandButtonToggle(Button* ref);
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
 		H2Core::Hydrogen *m_pEngine;
 		QPixmap m_background;
 

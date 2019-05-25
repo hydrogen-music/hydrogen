@@ -71,8 +71,9 @@ namespace H2Core
 ///
 class Hydrogen : public H2Core::Object
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	/**
 	 * Creates all the instances used within Hydrogen in the right
 	 * order. 
@@ -580,6 +581,12 @@ void			previewSample( Sample *pSample );
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	/**
 	 * Static reference to the Hydrogen singleton. 
 	 *

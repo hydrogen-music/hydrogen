@@ -27,10 +27,10 @@
 namespace H2Core
 {
 
-const char* NullDriver::__class_name = "NullDriver";
+const char* NullDriver::m_sClassName = "NullDriver";
 
 NullDriver::NullDriver( audioProcessCallback processCallback )
-		: AudioOutput( __class_name )
+		: AudioOutput( m_sClassName )
 {
 	UNUSED( processCallback );
 //	INFOLOG( "INIT" );

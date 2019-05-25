@@ -65,7 +65,7 @@ using namespace H2Core;
 
 using namespace std;
 
-const char* SongEditor::__class_name = "SongEditor";
+const char* SongEditor::m_sClassName = "SongEditor";
 
 
 SongEditorGridRepresentationItem::SongEditorGridRepresentationItem(int x, int y, bool value)
@@ -78,7 +78,7 @@ SongEditorGridRepresentationItem::SongEditorGridRepresentationItem(int x, int y,
 
 SongEditor::SongEditor( QWidget *parent )
  : QWidget( parent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_bSequenceChanged( true )
  , m_bIsMoving( false )
  , m_bShowLasso( false )
@@ -931,11 +931,11 @@ void SongEditor::updateEditorandSetTrue()
 // :::::::::::::::::::
 
 
-const char* SongEditorPatternList::__class_name = "SongEditorPatternList";
+const char* SongEditorPatternList::m_sClassName = "SongEditorPatternList";
 
 SongEditorPatternList::SongEditorPatternList( QWidget *parent )
  : QWidget( parent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , EventListener()
  , m_pBackgroundPixmap( NULL )
 {
@@ -1835,11 +1835,11 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 
 // ::::::::::::::::::::::::::
 
-const char* SongEditorPositionRuler::__class_name = "SongEditorPositionRuler";
+const char* SongEditorPositionRuler::m_sClassName = "SongEditorPositionRuler";
 
 SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  : QWidget( parent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_bRightBtnPressed( false )
 {
 	setAttribute(Qt::WA_NoBackground);

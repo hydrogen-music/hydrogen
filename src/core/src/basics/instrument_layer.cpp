@@ -28,9 +28,9 @@
 namespace H2Core
 {
 
-const char* InstrumentLayer::__class_name = "InstrumentLayer";
+const char* InstrumentLayer::m_sClassName = "InstrumentLayer";
 
-InstrumentLayer::InstrumentLayer( Sample* sample ) : Object( __class_name ),
+InstrumentLayer::InstrumentLayer( Sample* sample ) : Object( m_sClassName ),
 	__start_velocity( 0.0 ),
 	__end_velocity( 1.0 ),
 	__pitch( 0.0 ),
@@ -39,7 +39,7 @@ InstrumentLayer::InstrumentLayer( Sample* sample ) : Object( __class_name ),
 {
 }
 
-InstrumentLayer::InstrumentLayer( InstrumentLayer* other ) : Object( __class_name ),
+InstrumentLayer::InstrumentLayer( InstrumentLayer* other ) : Object( m_sClassName ),
 	__start_velocity( other->get_start_velocity() ),
 	__end_velocity( other->get_end_velocity() ),
 	__pitch( other->get_pitch() ),
@@ -48,7 +48,7 @@ InstrumentLayer::InstrumentLayer( InstrumentLayer* other ) : Object( __class_nam
 {
 }
 
-InstrumentLayer::InstrumentLayer( InstrumentLayer* other, Sample* sample ) : Object( __class_name ),
+InstrumentLayer::InstrumentLayer( InstrumentLayer* other, Sample* sample ) : Object( m_sClassName ),
 	__start_velocity( other->get_start_velocity() ),
 	__end_velocity( other->get_end_velocity() ),
 	__pitch( other->get_pitch() ),

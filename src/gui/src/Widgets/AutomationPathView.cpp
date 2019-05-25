@@ -23,13 +23,13 @@
 #include <hydrogen/Preferences.h>
 #include "../SongEditor/SongEditor.h"
 
-const char* AutomationPathView::__class_name = "AutomationPathView";
+const char* AutomationPathView::m_sClassName = "AutomationPathView";
 
 using namespace H2Core;
 
 AutomationPathView::AutomationPathView(QWidget *parent)
 	: QWidget(parent),
-	  H2Core::Object(__class_name),
+	  H2Core::Object(m_sClassName),
 	  m_nGridWidth(16),
 	  m_nMarginWidth(10),
 	  m_nMarginHeight(4),

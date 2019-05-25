@@ -39,8 +39,10 @@ class DrumkitComponent;
 
 class InstrumentComponent : public H2Core::Object
 {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
+	
 		InstrumentComponent( int related_drumkit_componentID );
 		InstrumentComponent( InstrumentComponent* other );
 		~InstrumentComponent();
@@ -64,6 +66,13 @@ class InstrumentComponent : public H2Core::Object
 		static void			setMaxLayers( int layers );
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
+	
 		/** Component ID of the drumkit. It is set by
 		    set_drumkit_componentID() and
 		    accessed via get_drumkit_componentID(). */

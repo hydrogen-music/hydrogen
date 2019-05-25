@@ -40,8 +40,9 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 class PortAudioDriver : public AudioOutput
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	audioProcessCallback m_processCallback;
 	float* m_pOut_L;
 	float* m_pOut_R;
@@ -65,6 +66,12 @@ public:
 	virtual void setBpm( float fBPM );
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	PaStream *m_pStream;
 	unsigned m_nSampleRate;
 
@@ -79,10 +86,18 @@ namespace H2Core
 
 class PortAudioDriver : public NullDriver
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	PortAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
 
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 };
 
 };

@@ -33,10 +33,10 @@ namespace H2Core
 
 Playlist* Playlist::__instance = NULL;
 
-const char* Playlist::__class_name = "Playlist";
+const char* Playlist::m_sClassName = "Playlist";
 
 Playlist::Playlist()
-	: Object( __class_name )
+	: Object( m_sClassName )
 {
 	__filename = "";
 	m_nSelectedSongNumber = -1;

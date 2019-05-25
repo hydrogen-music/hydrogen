@@ -40,10 +40,10 @@
 namespace H2Core
 {
 
-const char* Instrument::__class_name = "Instrument";
+const char* Instrument::m_sClassName = "Instrument";
 
 Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
-	: Object( __class_name )
+	: Object( m_sClassName )
 	, __id( id )
 	, __name( name )
 	, __gain( 1.0 )
@@ -94,7 +94,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 }
 
 Instrument::Instrument( Instrument* other )
-	: Object( __class_name )
+	: Object( m_sClassName )
 	, __id( other->get_id() )
 	, __name( other->get_name() )
 	, __gain( other->__gain )

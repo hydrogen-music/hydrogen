@@ -41,11 +41,11 @@ using namespace H2Core;
 #include "InstrumentEditorPanel.h"
 #include "LayerPreview.h"
 
-const char* LayerPreview::__class_name = "LayerPreview";
+const char* LayerPreview::m_sClassName = "LayerPreview";
 
 LayerPreview::LayerPreview( QWidget* pParent )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_pInstrument( NULL )
  , m_nSelectedComponent( 0 )
  , m_nSelectedLayer( 0 )

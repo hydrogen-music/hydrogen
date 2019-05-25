@@ -24,10 +24,10 @@
 namespace H2Core
 {
 
-const char* AutomationPath::__class_name = "AutomationPath";
+const char* AutomationPath::m_sClassName = "AutomationPath";
 
 AutomationPath::AutomationPath(float min, float max, float def)
-	: Object(__class_name),
+	: Object(m_sClassName),
 	  _min(min),
 	  _max(max),
 	  _def(def)

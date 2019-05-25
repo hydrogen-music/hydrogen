@@ -53,8 +53,10 @@ class AutomationPath;
 */
 class Song : public H2Core::Object
 {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
+	
 		enum SongMode {
 			PATTERN_MODE,
 			SONG_MODE
@@ -201,6 +203,13 @@ class Song : public H2Core::Object
 
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
+	
 		///< volume of the song (0.0..1.0)
 		float			__volume;
 		///< Metronome volume
@@ -413,14 +422,23 @@ inline void Song::set_playback_track_volume( const float volume )
 */
 class SongReader : public H2Core::Object
 {
-		H2_OBJECT
 	public:
+		/** \return #m_sClassName*/
+		static const char* className() { return m_sClassName; }
+	
 		SongReader();
 		~SongReader();
 		const QString getPath( const QString& filename );
 		Song* readSong( const QString& filename );
 
 	private:
+		/** Contains the name of the class.
+		 *
+		 * This variable allows from more informative log messages
+		 * with the name of the class the message is generated in
+		 * being displayed as well. Queried using className().*/
+		static const char* m_sClassName;
+	
 		QString m_sSongVersion;
 
 		/// Dato un XmlNode restituisce un oggetto Pattern

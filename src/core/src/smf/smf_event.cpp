@@ -26,9 +26,9 @@
 namespace H2Core
 {
 
-const char* SMFBuffer::__class_name = "SMFBuffer";
+const char* SMFBuffer::m_sClassName = "SMFBuffer";
 
-SMFBuffer::SMFBuffer() : Object( __class_name ) { }
+SMFBuffer::SMFBuffer() : Object( m_sClassName ) { }
 
 void SMFBuffer::writeByte( short int nByte )
 {
@@ -95,10 +95,10 @@ void SMFBuffer::writeVarLen( long value )
 
 // ::::::::::::::::::
 
-const char* SMFTrackNameMetaEvent::__class_name = "SMFTrackNameMetaEvent";
+const char* SMFTrackNameMetaEvent::m_sClassName = "SMFTrackNameMetaEvent";
 
 SMFTrackNameMetaEvent::SMFTrackNameMetaEvent( const QString& sTrackName, unsigned nTicks )
-		: SMFEvent( __class_name, nTicks )
+		: SMFEvent( m_sClassName, nTicks )
 		, m_sTrackName( sTrackName )
 {
 	// it's always at the start of the song
@@ -119,10 +119,10 @@ std::vector<char> SMFTrackNameMetaEvent::getBuffer()
 
 // ::::::::::::::::::
 
-const char* SMFSetTempoMetaEvent::__class_name = "SMFSetTempoMetaEvent";
+const char* SMFSetTempoMetaEvent::m_sClassName = "SMFSetTempoMetaEvent";
 
 SMFSetTempoMetaEvent::SMFSetTempoMetaEvent( float fBPM, unsigned nTicks )
-		: SMFEvent( __class_name, nTicks )
+		: SMFEvent( m_sClassName, nTicks )
 		, m_fBPM( fBPM )
 {
 	// it's always at the start of the song
@@ -151,10 +151,10 @@ std::vector<char> SMFSetTempoMetaEvent::getBuffer()
 
 // ::::::::::::::::::
 
-const char* SMFCopyRightNoticeMetaEvent::__class_name = "SMFCopyRightNoticeMetaEvent";
+const char* SMFCopyRightNoticeMetaEvent::m_sClassName = "SMFCopyRightNoticeMetaEvent";
 
 SMFCopyRightNoticeMetaEvent::SMFCopyRightNoticeMetaEvent( const QString& sAuthor, unsigned nTicks )
-		: SMFEvent( __class_name, nTicks )
+		: SMFEvent( m_sClassName, nTicks )
 		, m_sAuthor( sAuthor )
 {
 	// it's always at the start of the song
@@ -186,10 +186,10 @@ std::vector<char> SMFCopyRightNoticeMetaEvent::getBuffer()
 
 // ::::::::::::::::::
 		
-const char* SMFTimeSignatureMetaEvent::__class_name = "SMFTimeSignatureMetaEvent";
+const char* SMFTimeSignatureMetaEvent::m_sClassName = "SMFTimeSignatureMetaEvent";
 
 SMFTimeSignatureMetaEvent::SMFTimeSignatureMetaEvent( unsigned nBeats, unsigned nNote , unsigned nMTPMC , unsigned nTSNP24 , unsigned nTicks )
-		: SMFEvent( __class_name, nTicks )
+		: SMFEvent( m_sClassName, nTicks )
 		, m_nBeats( nBeats )
 		, m_nNote( nNote )
 		, m_nMTPMC( nMTPMC )
@@ -243,10 +243,10 @@ SMFEvent::~SMFEvent()
 
 // ::::::::::::::
 
-const char* SMFNoteOnEvent::__class_name = "SMFNoteOnEvent";
+const char* SMFNoteOnEvent::m_sClassName = "SMFNoteOnEvent";
 
 SMFNoteOnEvent::SMFNoteOnEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity )
-		: SMFEvent( __class_name, nTicks )
+		: SMFEvent( m_sClassName, nTicks )
 		, m_nChannel( nChannel )
 		, m_nPitch( nPitch )
 		, m_nVelocity( nVelocity )
@@ -273,10 +273,10 @@ std::vector<char> SMFNoteOnEvent::getBuffer()
 // :::::::::::
 
 
-const char* SMFNoteOffEvent::__class_name = "SMFNoteOffEvent";
+const char* SMFNoteOffEvent::m_sClassName = "SMFNoteOffEvent";
 
 SMFNoteOffEvent::SMFNoteOffEvent( unsigned nTicks, int nChannel, int nPitch, int nVelocity )
-		: SMFEvent( __class_name, nTicks )
+		: SMFEvent( m_sClassName, nTicks )
 		, m_nChannel( nChannel )
 		, m_nPitch( nPitch )
 		, m_nVelocity( nVelocity )

@@ -35,10 +35,10 @@
 namespace H2Core
 {
 
-const char* Pattern::__class_name = "Pattern";
+const char* Pattern::m_sClassName = "Pattern";
 
 Pattern::Pattern( const QString& name, const QString& info, const QString& category, int length )
-	: Object( __class_name )
+	: Object( m_sClassName )
 	, __length( length )
 	, __name( name )
 	, __info( info )
@@ -47,7 +47,7 @@ Pattern::Pattern( const QString& name, const QString& info, const QString& categ
 }
 
 Pattern::Pattern( Pattern* other )
-	: Object( __class_name )
+	: Object( m_sClassName )
 	, __length( other->get_length() )
 	, __name( other->get_name() )
 	, __info( other->get_info() )

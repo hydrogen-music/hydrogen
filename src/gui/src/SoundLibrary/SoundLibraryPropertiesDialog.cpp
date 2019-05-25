@@ -41,11 +41,11 @@ Drumkit *pGlobalDrumkitInfo = nullptr;
 Drumkit *pGlobalPreDrumkit = nullptr;
 QString oldName;
 
-const char* SoundLibraryPropertiesDialog::__class_name = "SoundLibraryPropertiesDialog";
+const char* SoundLibraryPropertiesDialog::m_sClassName = "SoundLibraryPropertiesDialog";
 
 SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Drumkit *pDrumkitInfo, Drumkit *pPreDrumKit )
  : QDialog( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );

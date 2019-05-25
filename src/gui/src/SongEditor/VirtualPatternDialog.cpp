@@ -30,11 +30,11 @@
 
 #include "Skin.h"
 
-const char* VirtualPatternDialog::__class_name = "VirtualPatternDialog";
+const char* VirtualPatternDialog::m_sClassName = "VirtualPatternDialog";
 
 VirtualPatternDialog::VirtualPatternDialog(QWidget* parent)
     : QDialog(parent)
-    , Object( __class_name )
+    , Object( m_sClassName )
 {
     setupUi( this );
     setFixedSize( width(), height() );

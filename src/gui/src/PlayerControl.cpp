@@ -49,11 +49,11 @@ using namespace H2Core;
 int bcDisplaystatus = 0;
 //~ beatcounter
 
-const char* PlayerControl::__class_name = "PlayerControl";
+const char* PlayerControl::m_sClassName = "PlayerControl";
 
 PlayerControl::PlayerControl(QWidget *parent)
  : QLabel(parent)
- , Object( __class_name )
+ , Object( m_sClassName )
 {
 	HydrogenApp::get_instance()->addEventListener( this );
 	
@@ -581,7 +581,7 @@ void PlayerControl::updatePlayerControl()
 #ifdef H2CORE_HAVE_JACK
 	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0){
+	if ( p_Driver && strncmp(p_Driver->className(), "JackAudioDriver", 10) == 0){
 		m_pJackTransportBtn->show();
 		switch ( pPref->m_bJackTransportMode ) {
 			case Preferences::NO_JACK_TRANSPORT:
@@ -906,7 +906,7 @@ void PlayerControl::jackTransportBtnClicked( Button* )
 	Preferences *pPref = Preferences::get_instance();
 	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0 ) ){
+	if ( ! ( p_Driver && strncmp(p_Driver->className(), "JackAudioDriver", 10) == 0 ) ){
 		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}
@@ -935,7 +935,7 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 	Preferences *pPref = Preferences::get_instance();
 	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0 ) ){
+	if ( ! ( p_Driver && strncmp(p_Driver->className(), "JackAudioDriver", 10) == 0 ) ){
 		QMessageBox::warning( this, "Hydrogen", trUtf8( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}
@@ -1118,11 +1118,11 @@ void PlayerControl::tempoChangedEvent( int nValue )
 
 //::::::::::::::::::::::::::::::::::::::::::::::::
 
-const char* MetronomeWidget::__class_name = "MetronomeWidget";
+const char* MetronomeWidget::m_sClassName = "MetronomeWidget";
 
 MetronomeWidget::MetronomeWidget(QWidget *pParent)
  : QWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
  , m_nValue( 0 )
  , m_state( METRO_OFF )
 {

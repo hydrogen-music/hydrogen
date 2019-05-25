@@ -34,10 +34,11 @@
 
 class Download : public QDialog, public H2Core::Object
 {
-	H2_OBJECT
 	Q_OBJECT
 
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	Download( QWidget* parent, const QString& download_url, const QString& local_file );
 	~Download();
 
@@ -68,16 +69,24 @@ protected:
 	QString					__feed_xml_string;
 
 	bool					__error;
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 };
 
 
 
 class DownloadWidget : public Download
 {
-	H2_OBJECT
 	Q_OBJECT
 
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	DownloadWidget( QWidget* parent, const QString& title, const QString& download_url, const QString& local_file = "" );
 	~DownloadWidget();
 
@@ -87,6 +96,12 @@ private slots:
 	void updateStats();
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	QTimer* __update_timer;
 	QTimer* __close_timer;
 	QLabel* __url_label;

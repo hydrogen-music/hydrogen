@@ -40,7 +40,7 @@
 #include "hydrogen/midi_action.h"
 
 OscServer * OscServer::__instance = nullptr;
-const char* OscServer::__class_name = "OscServer";
+const char* OscServer::m_sClassName = "OscServer";
 std::list<lo_address> OscServer::m_pClientRegistry;
 
 QString OscServer::qPrettyPrint(lo_type type,void * data)
@@ -246,7 +246,7 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name )
+OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( m_sClassName )
 {
 	m_pPreferences = pPreferences;
 	int port = m_pPreferences->getOscServerPort();

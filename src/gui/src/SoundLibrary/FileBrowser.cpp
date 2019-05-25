@@ -33,11 +33,11 @@
 #include <hydrogen/audio_engine.h>
 using namespace H2Core;
 
-const char* FileBrowser::__class_name = "FileBrowser";
+const char* FileBrowser::m_sClassName = "FileBrowser";
 
 FileBrowser::FileBrowser( QWidget* pParent )
  : QWidget( pParent )
- , Object( __class_name )
+ , Object( m_sClassName )
 {
 	INFOLOG( "[FileBrowser]" );
 

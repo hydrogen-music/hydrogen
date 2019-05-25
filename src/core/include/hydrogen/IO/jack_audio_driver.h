@@ -109,8 +109,9 @@ class InstrumentComponent;
  */
 class JackAudioDriver : public AudioOutput
 {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	/** 
 	 * Object holding the external client session with the JACK
 	 * server. 
@@ -714,6 +715,12 @@ protected:
 #endif
 
 private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 	/**
 	 * Updates the tick size TransportInfo::m_nTickSize and frame
 	 * position TransportInfo::m_nFrames using the transport
@@ -924,8 +931,9 @@ private:
 
 namespace H2Core {
 class JackAudioDriver : public NullDriver {
-	H2_OBJECT
 public:
+	/** \return #m_sClassName*/
+	static const char* className() { return m_sClassName; }
 	/**
 	 * Fallback version of the JackAudioDriver in case
 	 * #H2CORE_HAVE_JACK was not defined during the configuration
@@ -933,6 +941,13 @@ public:
 	 * the user.
 	 */
 	JackAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+private:
+	/** Contains the name of the class.
+	 *
+	 * This variable allows from more informative log messages
+	 * with the name of the class the message is generated in
+	 * being displayed as well. Queried using className().*/
+	static const char* m_sClassName;
 
 };
 
