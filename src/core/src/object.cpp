@@ -27,30 +27,16 @@
 #include <iomanip>
 #include <cstdlib>
 
-
-/**
-* @class Object
-*
-* @brief Base class of all components of hydrogen.
-*
-* Every component of hydrogen is inherited from the
-* Object class. Each object has a qualified name
-* and gets registered in a memory map at creation.
-* This memory map helps to debug memory leaks and
-* can be printed at any time.
-*
-*/
-
 namespace H2Core {
 
-Logger* Object::__logger = 0;
+Logger* Object::__logger = nullptr;
 bool Object::__count = false;
 unsigned Object::__objects_count = 0;
 pthread_mutex_t Object::__mutex;
 Object::object_map_t Object::__objects_map;
 
 int Object::bootstrap( Logger* logger, bool count ) {
-	if( __logger==0 && logger!=0 ) {
+	if( __logger == nullptr && logger != nullptr ) {
 		__logger = logger;
 		__count = count;
 		pthread_mutex_init( &__mutex, 0 );
@@ -71,7 +57,7 @@ Object::Object( const Object& obj ) : m_sClassName( obj.m_sClassName ) {
 #endif
 }
 
-Object::Object( const char* className ) :m_sClassName( className ) {
+Object::Object( const char* className ) : m_sClassName( className ) {
 #ifdef H2CORE_HAVE_DEBUG
 	if( __count ) add_object( this, false );
 #endif
@@ -90,9 +76,10 @@ void Object::set_count( bool flag ) {
 inline void Object::add_object( const Object* obj, bool copy ) {
 #ifdef H2CORE_HAVE_DEBUG
 	const char* className = ( ( Object* )obj )->className();
-	if( __logger && __logger->should_log( Logger::Constructors ) ) __logger->log( Logger::Debug, 0, className, ( copy ? "Copy Constructor" : "Constructor" ) );
+	if( __logger && __logger->should_log( Logger::Constructors ) ) {
+		__logger->log( Logger::Debug, 0, className, ( copy ? "Copy Constructor" : "Constructor" ) );
+	}
 	pthread_mutex_lock( &__mutex );
-	//if( __objects_map.size()==0) atexit( Object::write_objects_map_to_cerr );
 	__objects_count++;
 	__objects_map[ className ].constructed++;
 	pthread_mutex_unlock( &__mutex );
@@ -102,7 +89,10 @@ inline void Object::add_object( const Object* obj, bool copy ) {
 inline void Object::del_object( const Object* obj ) {
 #ifdef H2CORE_HAVE_DEBUG
 	const char* className = ( ( Object* )obj )->className();
-	if( __logger && __logger->should_log( Logger::Constructors ) ) __logger->log( Logger::Debug, 0, className, "Destructor" );
+	if( __logger && __logger->should_log( Logger::Constructors ) ) {
+		__logger->log( Logger::Debug, 0, className, "Destructor" );
+	}
+	
 	object_map_t::iterator it_count = __objects_map.find( className );
 	if ( it_count==__objects_map.end() ) {
 		if( __logger!=0 && __logger->should_log( Logger::Error ) ) {
@@ -154,7 +144,7 @@ void Object::write_objects_map_to( std::ostream& out ) {
 #else
 	out << "\033[35mObject::write_objects_map_to :: \033[31mnot compiled with H2CORE_HAVE_DEBUG flag set\033[0m" << std::endl;
 #endif
-#endif
+#endif //H2CORE_HAVE_DEBUG
 }
 
 };
