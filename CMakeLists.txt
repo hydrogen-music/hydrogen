@@ -231,14 +231,19 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 #set(CMAKE_AUTOMOC ON)
 
 
+# Building the developer/API documentation.
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
-	add_custom_target(doc_dir ALL COMMAND ${CMAKE_COMMAND}
-		-E make_directory ${CMAKE_CURRENT_BINARY_DIR}/docs)
+	add_custom_target(doc_dir
+	  ALL
+	  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/docs)
+	add_custom_target(doxygen_dir
+	  ALL
+	  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/doxygen ${CMAKE_CURRENT_BINARY_DIR}/doxygen)
 	add_custom_target(doc
 		${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-		DEPENDS doc_dir
+		DEPENDS doc_dir doxygen_dir
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/docs
 		COMMENT "Generating API documentation with Doxygen"
 		VERBATIM)
