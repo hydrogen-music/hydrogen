@@ -33,9 +33,11 @@
 #include <hydrogen/object.h>
 #include "MidiLearnable.h"
 
-///
-/// Fader and VuMeter widget
-///
+/**
+ * Fader and VuMeter widget
+ *
+ * \ingroup docGUI docWidgets
+ */
 class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 {
 	Q_OBJECT
@@ -103,6 +105,7 @@ class Fader : public QWidget, public H2Core::Object, public MidiLearnable
 		static const char* m_sClassName;
 };
 
+/** \ingroup docGUI docWidgets */
 class VerticalFader : public Fader
 {
 	Q_OBJECT
@@ -119,6 +122,7 @@ public:
 };
 
 
+/** \ingroup docGUI docWidgets */
 class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 {
 	Q_OBJECT
@@ -183,6 +187,7 @@ class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 
 
 
+/** \ingroup docGUI docWidgets */
 class Knob : public QWidget, public H2Core::Object, public MidiLearnable
 {
 	Q_OBJECT

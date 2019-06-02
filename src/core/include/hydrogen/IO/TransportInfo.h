@@ -31,6 +31,8 @@ namespace H2Core
  * Object holding most of the information about the transport state of
  * the AudioEngine, like if it is playing or stopped or its current
  * transport position and speed.
+ *
+ * \ingroup docCore docAudioDriver docAudioEngine
  */
 class TransportInfo : public H2Core::Object
 {

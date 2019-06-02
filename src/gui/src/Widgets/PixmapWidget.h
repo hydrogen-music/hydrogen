@@ -30,6 +30,7 @@
 
 #include <hydrogen/object.h>
 
+/** \ingroup docGUI docWidgets */
 class PixmapWidget : public H2Core::Object, public QWidget
 {
 	public:

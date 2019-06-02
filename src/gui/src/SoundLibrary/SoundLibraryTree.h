@@ -31,6 +31,7 @@
 
 #include <hydrogen/object.h>
 
+/** \ingroup docGUI */
 class SoundLibraryTree : public QTreeWidget, private H2Core::Object
 {
 	Q_OBJECT

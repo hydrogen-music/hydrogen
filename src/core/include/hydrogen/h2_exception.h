@@ -30,6 +30,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore docDebugging */
 class H2Exception : public std::runtime_error
 {
 public:

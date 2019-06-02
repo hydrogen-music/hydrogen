@@ -37,8 +37,10 @@ class InstrumentList;
 class PatternList;
 
 /**
-Pattern class is a Note container
-*/
+ * Pattern class is a Note container
+ *
+ * \ingroup docCore docDataStructure
+ */
 class Pattern : public H2Core::Object
 {
 	public:

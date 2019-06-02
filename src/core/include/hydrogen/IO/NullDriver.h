@@ -33,6 +33,7 @@ namespace H2Core
 
 typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
+/** \ingroup docCore docAudioDriver */
 class NullDriver : public AudioOutput
 {
 public:

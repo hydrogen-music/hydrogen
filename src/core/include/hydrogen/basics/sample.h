@@ -33,6 +33,8 @@ namespace H2Core
 
 /**
  * A container for a sample, beeing able to apply modifications on it
+ *
+ * \ingroup docCore docDataStructure docSound
  */
 class Sample : public H2Core::Object
 {

@@ -62,6 +62,8 @@ struct SelectedLayerInfo {
 
 /**
  * A note plays an associated instrument with a velocity left and right pan
+ *
+ * \ingroup docCore docDataStructure
  */
 class Note : public H2Core::Object
 {

@@ -30,6 +30,7 @@
 #include <hydrogen/object.h>
 #include <hydrogen/midi_action.h>
 
+/** \ingroup docGUI docWidgets */
 class MidiSenseWidget : public QDialog ,public H2Core::Object
 	{
 	Q_OBJECT

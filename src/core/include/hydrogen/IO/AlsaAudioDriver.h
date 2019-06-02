@@ -35,6 +35,7 @@ namespace H2Core
 
 typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
+/** \ingroup docCore docAudioDriver */
 class AlsaAudioDriver : public AudioOutput
 {
 public:
@@ -81,6 +82,7 @@ private:
 
 namespace H2Core {
 
+/** \ingroup docCore docAudioDriver */
 class AlsaAudioDriver : public NullDriver
 {
 public:

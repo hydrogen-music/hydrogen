@@ -50,6 +50,7 @@ enum SongEditorActionMode
 };
 
 
+/** \ingroup docGUI */
 class SongEditorPanel : public QWidget, public EventListener, public H2Core::Object
 {
 	Q_OBJECT

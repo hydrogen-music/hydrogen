@@ -35,9 +35,10 @@ namespace H2Core
 
 typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
-///
-/// Driver for export audio to disk
-///
+/**
+ * Driver for export audio to disk
+ * \ingroup docCore docAudioDriver
+ */
 class DiskWriterDriver : public AudioOutput
 {
 	public:

@@ -32,6 +32,7 @@
 
 class SoundLibraryPanel;
 
+/** \ingroup docGUI */
 class SoundLibraryOpenDialog : public QDialog, public H2Core::Object
 {
 	Q_OBJECT

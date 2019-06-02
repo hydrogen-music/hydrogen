@@ -39,9 +39,11 @@ class 	MainSampleWaveDisplay;
 class	TargetWaveDisplay;
 class	DetailWaveDisplay;
 
-///
-/// This dialog is used to preview audiofiles
-///
+/**
+ * This dialog is used to preview audiofiles
+ *
+ * \ingroup docGUI
+ */
 class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::Object
 {
 	Q_OBJECT

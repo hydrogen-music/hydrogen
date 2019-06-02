@@ -34,7 +34,8 @@ class Note;
 
 
 /**
- * MIDI input base class
+ * MIDI output base class
+ * \ingroup docCore docAudioDriver docMIDI
  */
 class MidiOutput : public virtual Object
 {

@@ -34,9 +34,11 @@
 #  include <QtWidgets>
 #endif
 
-///
-/// Shows CPU load
-///
+/**
+ * Shows CPU load
+ *
+ * \ingroup docGUI docWidgets
+ */
 class CpuLoadWidget : public QWidget, public EventListener, public H2Core::Object
 {
 	Q_OBJECT

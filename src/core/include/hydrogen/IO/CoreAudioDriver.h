@@ -49,6 +49,7 @@ namespace H2Core
 
 #if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
 
+/** \ingroup docCore docAudioDriver */
 class CoreAudioDriver : public AudioOutput
 {
 public:
@@ -106,6 +107,7 @@ private:
 
 #else
 
+/** \ingroup docCore docAudioDriver */
 class CoreAudioDriver : public NullDriver
 {
 public:

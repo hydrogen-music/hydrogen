@@ -36,6 +36,8 @@ namespace H2Core {
 
 /**
  * Class for writing logs to the console
+ *
+ * \ingroup docCore docDebugging
  */
 class Logger {
 	public:

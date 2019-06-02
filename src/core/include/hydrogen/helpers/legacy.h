@@ -13,6 +13,8 @@ class InstrumentList;
 
 /**
  * Legacy is a container for legacy code which should be once removed
+ *
+ * \ingroup docCore
  */
 class Legacy : public H2Core::Object {
 	public:

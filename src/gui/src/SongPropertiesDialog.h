@@ -29,6 +29,8 @@
 
 /**
  * Song Properties Dialog
+ *
+ * \ingroup docGUI
  */
 class SongPropertiesDialog : public QDialog, private Ui_SongPropertiesDialog_UI
 {

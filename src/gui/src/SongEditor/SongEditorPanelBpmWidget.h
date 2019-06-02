@@ -32,7 +32,7 @@
 namespace H2Core
 {
 
-
+/** \ingroup docGUI */
 class SongEditorPanelBpmWidget : public QDialog, public Ui_SongEditorPanelBpmWidget_UI, public H2Core::Object
 {
 

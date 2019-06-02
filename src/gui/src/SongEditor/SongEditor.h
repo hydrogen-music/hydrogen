@@ -47,6 +47,7 @@ static const uint SONG_EDITOR_MIN_GRID_WIDTH = 8;
 static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
 
 
+/** \ingroup docGUI */
 class SongEditorGridRepresentationItem
 {
     public:
@@ -56,9 +57,11 @@ class SongEditorGridRepresentationItem
             bool value;
 };
 
-///
-/// Song editor
-///
+/**
+ * Song editor
+ *
+ * \ingroup docGUI
+ */
 class SongEditor : public QWidget, public H2Core::Object
 {
 	Q_OBJECT
@@ -123,9 +126,11 @@ class SongEditor : public QWidget, public H2Core::Object
 
 
 
-///
-/// Song editor pattern list
-///
+/**
+ * Song editor pattern list
+ *
+ * \ingroup docGUI
+ */
 class SongEditorPatternList : public QWidget, public H2Core::Object, public EventListener
 {
 	Q_OBJECT
@@ -205,6 +210,7 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 // }
 //
 
+/** \ingroup docGUI */
 class SongEditorPositionRuler : public QWidget, public H2Core::Object
 {
 	Q_OBJECT

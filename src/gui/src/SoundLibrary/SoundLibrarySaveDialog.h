@@ -26,9 +26,7 @@
 #include "ui_SoundLibrarySaveDialog_UI.h"
 #include <hydrogen/object.h>
 
-///
-///
-///
+/** \ingroup docGUI */
 class SoundLibrarySaveDialog : public QDialog, public Ui_SoundLibrarySaveDialog_UI, public H2Core::Object
 {
 	Q_OBJECT

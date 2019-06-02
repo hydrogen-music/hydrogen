@@ -41,10 +41,9 @@ const float FALLOFF_SLOW = 	1.08f;
 const float FALLOFF_NORMAL=	1.1f;
 const float FALLOFF_FAST =	1.5f;
 
-
 /**
-\ingroup H2CORE
-*/
+ * \ingroup docCore docConfiguration
+ */
 class WindowProperties : public H2Core::Object
 {
 public:
@@ -75,10 +74,9 @@ private:
 
 };
 
-
 /**
-\ingroup H2CORE
-*/
+ * \ingroup docCore docConfiguration
+ */
 class H2RGBColor : public H2Core::Object
 {
 public:
@@ -115,9 +113,9 @@ private:
 
 
 /**
-\ingroup H2CORE
-\brief	Colors for hydrogen
-*/
+ * \ingroup docCore docConfiguration
+ * \brief	Colors for hydrogen
+ */
 class UIStyle : public H2Core::Object
 {
 public:
@@ -155,9 +153,9 @@ private:
 
 
 /**
-\ingroup H2CORE
-\brief	Manager for User Preferences File (singleton)
-*/
+ * \ingroup docCore docConfiguration
+ * \brief	Manager for User Preferences File (singleton)
+ */
 class Preferences : public H2Core::Object
 {
 public:

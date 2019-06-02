@@ -45,9 +45,11 @@ struct FillRange {
 };
 
 
-///
-/// Pattern Fill Dialog
-///
+/**
+ * Pattern Fill Dialog
+ *
+ * \ingroup docGUI
+ */
 class PatternFillDialog : public QDialog, public Ui_PatternFillDialog_UI, public H2Core::Object
 {
 	Q_OBJECT

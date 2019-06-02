@@ -106,6 +106,8 @@ class InstrumentComponent;
  * This object will only be accessible if #H2CORE_HAVE_JACK was defined
  * during the configuration and the user enables the support of the
  * JACK server.
+ *
+ * \ingroup docCore docAudioDriver
  */
 class JackAudioDriver : public AudioOutput
 {
@@ -930,6 +932,9 @@ private:
 // JACK is disabled
 
 namespace H2Core {
+/**
+ * \ingroup docCore docAudioDriver
+ */
 class JackAudioDriver : public NullDriver {
 public:
 	/** \return #m_sClassName*/

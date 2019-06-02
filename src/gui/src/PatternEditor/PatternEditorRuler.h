@@ -37,6 +37,7 @@ namespace H2Core
 	class Pattern;
 }
 
+/** \ingroup docGUI */
 class PatternEditorRuler : public QWidget, public H2Core::Object, public EventListener
 {
 	Q_OBJECT

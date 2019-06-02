@@ -31,6 +31,9 @@
 namespace H2Core
 {
 
+/**
+ * \ingroup docCore docMIDI
+ */
 class MidiMessage
 {
 public:

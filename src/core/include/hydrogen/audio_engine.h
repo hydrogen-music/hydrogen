@@ -45,6 +45,7 @@
 #define RIGHT_HERE __FILE__, __LINE__, __PRETTY_FUNCTION__
 #endif
 
+
 namespace H2Core
 {
 
@@ -57,6 +58,8 @@ namespace H2Core
  * Song object and the AudioEngine itself. lock() and try_lock() can
  * be called by a thread to lock the engine and unlock() to make it
  * accessible for other threads once again.
+ *
+ * \ingroup docCore docAudioEngine
  */ 
 class AudioEngine : public H2Core::Object
 {
@@ -212,7 +215,6 @@ private:
 	 */
 	AudioEngine();
 };
-
 };
 
 

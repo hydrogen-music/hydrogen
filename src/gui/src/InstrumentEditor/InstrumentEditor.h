@@ -46,9 +46,11 @@ class WaveDisplay;
 class LayerPreview;
 
 
-///
-/// Instrument Editor
-///
+/**
+ * Instrument Editor
+ *
+ * \ingroup docGUI
+ */
 class InstrumentEditor : public QWidget, public H2Core::Object, public EventListener
 {
 	Q_OBJECT

@@ -40,6 +40,7 @@ namespace H2Core
 
 class PatternEditorPanel;
 
+/** \ingroup docGUI */
 class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventListener
 {
 	Q_OBJECT

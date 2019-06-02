@@ -39,9 +39,11 @@ namespace H2Core
 
 
 
-///
-/// A simple synthetizer...
-///
+/**
+ * A simple synthetizer...
+ *
+ * \ingroup docCore docSound
+ */
 class Synth : public H2Core::Object
 {
 public:

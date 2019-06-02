@@ -39,6 +39,7 @@ namespace H2Core
 
 class PatternEditorPanel;
 
+/** \ingroup docGUI */
 class PianoRollEditor: public QWidget, public EventListener, public H2Core::Object
 {
     Q_OBJECT

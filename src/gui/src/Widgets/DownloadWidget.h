@@ -32,6 +32,7 @@
 
 #include <hydrogen/object.h>
 
+/** \ingroup docGUI docWidgets */
 class Download : public QDialog, public H2Core::Object
 {
 	Q_OBJECT
@@ -78,8 +79,7 @@ private:
 	static const char* m_sClassName;
 };
 
-
-
+/** \ingroup docGUI docWidgets */
 class DownloadWidget : public Download
 {
 	Q_OBJECT

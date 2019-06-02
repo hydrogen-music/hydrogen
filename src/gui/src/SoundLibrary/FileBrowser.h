@@ -31,6 +31,7 @@
 #  include <QtWidgets>
 #endif
 
+/** \ingroup docGUI */
 class FileBrowser : public QWidget, private H2Core::Object
 {
 	Q_OBJECT

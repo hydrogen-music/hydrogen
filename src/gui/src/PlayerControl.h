@@ -44,9 +44,7 @@ class CpuLoadWidget;
 class MidiActivityWidget;
 class PixmapWidget;
 
-///
-///
-///
+/** \ingroup docGUI */
 class MetronomeWidget : public QWidget,public EventListener, public H2Core::Object
 {
 	Q_OBJECT
@@ -87,9 +85,11 @@ class MetronomeWidget : public QWidget,public EventListener, public H2Core::Obje
 };
 
 
-///
-/// Player control panel
-///
+/**
+ * Player control panel
+ *
+ * \ingroup docGUI
+ */
 class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 {
 	Q_OBJECT

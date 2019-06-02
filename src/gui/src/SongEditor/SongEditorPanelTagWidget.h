@@ -32,7 +32,7 @@
 namespace H2Core
 {
 
-
+/** \ingroup docGUI */
 class SongEditorPanelTagWidget : public QDialog, public Ui_SongEditorPanelTagWidget_UI, public H2Core::Object
 {
 //lineEditBEAT

@@ -34,7 +34,7 @@
 
 namespace H2Core
 {
-
+/** \ingroup docCore docSound */
 class SMFHeader : public SMFBase, public H2Core::Object
 {
 public:
@@ -58,7 +58,7 @@ private:
 };
 
 
-
+/** \ingroup docCore docSound */
 class SMFTrack : public SMFBase, public H2Core::Object
 {
 public:
@@ -83,7 +83,7 @@ private:
 };
 
 
-
+/** \ingroup docCore docSound */
 class SMF : public SMFBase, public H2Core::Object
 {
 public:
@@ -109,7 +109,7 @@ private:
 };
 
 
-
+/** \ingroup docCore docSound */
 class SMFWriter : Object
 {
 public:

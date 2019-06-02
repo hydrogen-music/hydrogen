@@ -33,6 +33,7 @@ namespace H2Core
 
 class Drumkit;
 
+/** \ingroup docGUI */
 class SoundLibraryPropertiesDialog : public QDialog, public Ui_SoundLibraryPropertiesDialog_UI, public H2Core::Object
 {
 	Q_OBJECT

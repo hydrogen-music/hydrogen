@@ -43,6 +43,7 @@ namespace H2Core
 class PatternEditorPanel;
 class ToggleButton;
 
+/** \ingroup docGUI */
 class InstrumentLine : public PixmapWidget
 {
 	Q_OBJECT

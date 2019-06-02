@@ -30,9 +30,10 @@
 namespace H2Core
 {
 
-///
-/// Base abstract class for audio output classes.
-///
+/**
+ * Base abstract class for audio output classes.
+ * \ingroup docCore docAudioDriver
+ */
 class AudioOutput : public H2Core::Object
 {
 public:

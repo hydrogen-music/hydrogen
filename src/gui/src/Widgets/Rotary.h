@@ -35,6 +35,7 @@ class LCDDisplay;
 
 #include <hydrogen/object.h>
 
+/** \ingroup docGUI docWidgets */
 class RotaryTooltip : public QWidget
 {
 	public:
@@ -48,6 +49,7 @@ class RotaryTooltip : public QWidget
 
 
 
+/** \ingroup docGUI docWidgets */
 class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 {
 	Q_OBJECT

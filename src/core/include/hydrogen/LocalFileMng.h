@@ -45,7 +45,7 @@ class Song;
 class Drumkit;
 
 /**
- *
+ * \ingroup docCore
  */
 class LocalFileMng : public H2Core::Object
 {
@@ -82,6 +82,8 @@ private:
 
 /**
  * Write XML file of a song
+ *
+ * \ingroup docCore
  */
 class SongWriter : public H2Core::Object
 {

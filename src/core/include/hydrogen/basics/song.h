@@ -48,8 +48,9 @@ class PatternList;
 class AutomationPath;
 
 /**
-\ingroup H2CORE
-\brief	Song class
+ * \brief	Song class
+ *
+ * \ingroup docCore docDataStructure
 */
 class Song : public H2Core::Object
 {

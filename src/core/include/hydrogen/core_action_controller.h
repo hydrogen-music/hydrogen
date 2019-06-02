@@ -28,6 +28,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore docMIDI docAutomatization*/
 class CoreActionController : public H2Core::Object {
 	public:
 		/** \return #m_sClassName*/

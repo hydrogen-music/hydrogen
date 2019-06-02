@@ -35,10 +35,12 @@
 namespace H2Core
 {
 
-///
-/// Alsa Midi Driver
-/// Based on Matthias Nagorni alsa sequencer example
-///
+/**
+ * Alsa Midi Driver
+ *
+ * Based on Matthias Nagorni alsa sequencer example
+ * \ingroup docCore docAudioDriver docMIDI
+ */
 class AlsaMidiDriver : public virtual MidiInput, public virtual MidiOutput
 {
 public:

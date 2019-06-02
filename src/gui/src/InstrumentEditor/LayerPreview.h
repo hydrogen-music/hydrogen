@@ -38,7 +38,7 @@ class InstrumentLayer;
 
 using H2Core::InstrumentLayer;
 
-
+/** \ingroup docGUI */
 class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 {
 	Q_OBJECT

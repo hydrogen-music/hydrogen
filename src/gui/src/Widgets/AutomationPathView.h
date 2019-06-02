@@ -30,6 +30,7 @@
 #  include <QtWidgets>
 #endif
 
+/** \ingroup docGUI docWidgets */
 class AutomationPathView : public QWidget, public H2Core::Object
 {
 	Q_OBJECT

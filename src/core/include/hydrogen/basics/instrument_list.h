@@ -35,6 +35,8 @@ class Instrument;
 
 /**
  * InstrumentList is a collection of instruments used within a song, a drumkit, ...
+ *
+ * \ingroup docCore docDataStructure
 */
 class InstrumentList : public H2Core::Object
 {

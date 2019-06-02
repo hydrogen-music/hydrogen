@@ -40,9 +40,11 @@
 class HydrogenApp;
 class QUndoView;///debug only
 
-///
-/// Main window
-///
+/**
+ * Main window
+ *
+ * \ingroup docGUI
+ */
 class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 {
 	Q_OBJECT

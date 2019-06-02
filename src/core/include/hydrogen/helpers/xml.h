@@ -11,7 +11,9 @@ namespace H2Core
 
 /**
  * XMLNode is a subclass of QDomNode with read and write values methods
-*/
+ *
+ * \ingroup docCore
+ */
 class XMLNode : public H2Core::Object, public QDomNode
 {
 	public:

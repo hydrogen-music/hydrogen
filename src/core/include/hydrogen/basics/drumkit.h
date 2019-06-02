@@ -34,7 +34,9 @@ class DrumkitComponent;
 
 /**
  * Drumkit info
-*/
+ *
+ * \ingroup docCore docDataStructure
+ */
 class Drumkit : public H2Core::Object
 {
 	public:

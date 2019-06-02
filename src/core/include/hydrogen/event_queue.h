@@ -34,8 +34,12 @@
 namespace H2Core
 {
 	
-/** Basic types of communication between the core part of Hydrogen and
-    its GUI.*/
+/** 
+ * Basic types of communication between the core part of Hydrogen and
+ * its GUI.
+ *
+ * \ingroup docEvent
+*/
 enum EventType {
 	/** Fallback event*/
 	EVENT_NONE,
@@ -95,8 +99,13 @@ enum EventType {
 };
 
 /** Basic building block for the communication between the core of
- * Hydrogen and its GUI.  The individual Events will be enlisted in
- * the EventQueue singleton.*/
+ * Hydrogen and its GUI.  
+ *
+ * The individual Events will be enlisted in the EventQueue
+ * singleton.
+ *
+ * \ingroup docCore docEvent
+ */
 class Event
 {
 public:
@@ -120,7 +129,10 @@ public:
  * is encountered, the corresponding function in the EventListener
  * will be invoked to respond to the condition of the engine. For
  * details about the mapping of EventTypes to functions please see the
- * documentation of HydrogenApp::onEventQueueTimer().*/
+ * documentation of HydrogenApp::onEventQueueTimer().
+ *
+ * \ingroup docCore docEvent
+ */
 class EventQueue : public H2Core::Object
 {
 public:

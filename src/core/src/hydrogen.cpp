@@ -92,7 +92,9 @@
 
 namespace H2Core
 {
-
+/** \addtogroup docAudioEngine
+ * @{
+ */ 
 // GLOBALS
 
 // info
@@ -382,7 +384,7 @@ void				audioEngine_destroy();
  * this function will
  * - sets #m_fMasterPeak_L and #m_fMasterPeak_R to 0.0f
  * - sets TransportInfo::m_nFrames to @a nTotalFrames
- * - sets m_nSongPos and m_nPatternStartTick to -1
+ * - sets #m_nSongPos and #m_nPatternStartTick to -1
  * - m_nPatternTickPosition to 0
  * - calls updateTickSize()
  * - sets #m_audioEngineState to #STATE_PLAYING
@@ -393,6 +395,7 @@ void				audioEngine_destroy();
  *   option should only be used, if the process calling this function
  *   did already locked it.
  * \param nTotalFrames New value of the transport position.
+ *
  * \return 0 regardless what happens inside the function.
  */
 int				audioEngine_start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
@@ -668,7 +671,8 @@ void				audioEngine_startAudioDrivers();
  * #STATE_READY, the function returns before deleting anything.
  */
 void				audioEngine_stopAudioDrivers();
-
+	
+/** @}*/ // Adding audio engine related stuff to h2audioEngine group.
 /** Gets the current time.
  * \return Current time obtained by gettimeofday()*/
 inline timeval currentTime2()

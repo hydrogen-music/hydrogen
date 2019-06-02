@@ -31,9 +31,12 @@
 #include <hydrogen/Preferences.h>
 #include "SoundLibraryDatastructures.h"
 
-///
-/// This dialog is used to import a SoundLibrary file from a local file or via HTTP.
-///
+/**
+ * This dialog is used to import a SoundLibrary file from a local file
+ * or via HTTP.
+ *
+ * \ingroup docGUI
+ */
 class SoundLibraryImportDialog : public QDialog, public Ui_SoundLibraryImportDialog_UI, public H2Core::Object
 {
 	Q_OBJECT

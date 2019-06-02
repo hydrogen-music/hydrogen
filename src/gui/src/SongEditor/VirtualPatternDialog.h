@@ -39,9 +39,11 @@ namespace H2Core
 }
 
 
-///
-/// Virtual Pattern Dialog
-///
+/**
+ * Virtual Pattern Dialog
+ *
+ * \ingroup docGUI
+ */
 class VirtualPatternDialog : public QDialog, public Ui_VirtualPatternDialog_UI, public H2Core::Object
 {
 	Q_OBJECT

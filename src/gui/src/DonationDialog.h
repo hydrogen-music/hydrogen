@@ -31,6 +31,7 @@
 
 #include "ui_DonationDialog.h"
 
+/** \ingroup docGUI */
 class DonationDialog : public QDialog, public Ui_DonationDialog_UI
 {
 Q_OBJECT

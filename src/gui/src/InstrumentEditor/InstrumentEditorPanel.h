@@ -31,9 +31,11 @@
 #include "InstrumentEditor.h"
 #include "../EventListener.h"
 
-///
-/// Container for the Instrument Editor (Singleton).
-///
+/**
+ * Container for the Instrument Editor (Singleton).
+ *
+ * \ingroup docGUI
+ */
 class InstrumentEditorPanel : public QWidget, private H2Core::Object, public EventListener
 {
 	Q_OBJECT

@@ -29,6 +29,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore docSound */
 class SMFBuffer : public H2Core::Object
 {
 public:
@@ -57,14 +58,14 @@ private:
 };
 
 
-
+/** \ingroup docSound */
 enum SMFEventType {
 	NOTE_OFF = 128,
 	NOTE_ON = 144
 };
 
 
-
+/** \ingroup docSound */
 enum SMFMetaEventType {
 	SEQUENCE_NUMBER = 0,
 	TEXT_EVENT,
@@ -80,7 +81,7 @@ enum SMFMetaEventType {
 	KEY_SIGNATURE
 };
 
-
+/** \ingroup docCore docSound */
 class SMFBase
 {
 public:
@@ -89,7 +90,7 @@ public:
 };
 
 
-
+/** \ingroup docCore docSound */
 class SMFEvent : public SMFBase, public H2Core::Object
 {
 public:
@@ -110,7 +111,7 @@ private:
 };
 
 
-
+/** \ingroup docCore docSound */
 class SMFTrackNameMetaEvent : public SMFEvent
 {
 public:
@@ -131,7 +132,7 @@ private:
 };
 
 
-
+/** \ingroup docCore docSound */
 class SMFSetTempoMetaEvent : public SMFEvent
 {
 public:
@@ -152,7 +153,7 @@ private:
 };
 
 
-
+/** \ingroup docCore docSound */
 class SMFCopyRightNoticeMetaEvent : public SMFEvent
 {
 public:
@@ -173,7 +174,7 @@ private:
 };
 
 
-
+/** \ingroup docCore docSound */
 class SMFTimeSignatureMetaEvent : public SMFEvent
 {
 public:
@@ -194,7 +195,7 @@ private:
 };
 
 
-
+/** \ingroup docCore docSound */
 class SMFNoteOnEvent : public SMFEvent
 {
 public:
@@ -218,7 +219,7 @@ protected:
 };
 
 
-
+/** \ingroup docCore docSound */
 class SMFNoteOffEvent : public SMFEvent
 {
 public:

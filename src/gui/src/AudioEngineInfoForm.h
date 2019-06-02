@@ -36,6 +36,8 @@
 
 /**
  * Audio Engine information form
+ *
+ * \ingroup docGUI
  */
 class AudioEngineInfoForm : public QWidget, public Ui_AudioEngineInfoForm_UI, public EventListener, public H2Core::Object
 {

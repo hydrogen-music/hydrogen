@@ -31,6 +31,7 @@
 
 class Action;
 
+/** \ingroup docCore docMIDI */
 class MidiMap : public H2Core::Object
 {
 	public:

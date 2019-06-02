@@ -43,9 +43,11 @@ struct SelectedLayerInfo;
 class InstrumentComponent;
 class AudioOutput;
 
-///
-/// Waveform based sampler.
-///
+/**
+ * Waveform based sampler.
+ *
+ * \ingroup docCore docSound
+ */
 class Sampler : public H2Core::Object
 {
 public:

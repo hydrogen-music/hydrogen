@@ -28,9 +28,11 @@
 
 #include <hydrogen/object.h>
 
-///
-/// Preferences Dialog
-///
+/**
+ * Preferences Dialog
+ *
+ * \ingroup docGUI docConfiguration
+ */
 class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, public H2Core::Object
 {
 	Q_OBJECT

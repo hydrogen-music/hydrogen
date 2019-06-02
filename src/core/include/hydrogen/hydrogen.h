@@ -66,9 +66,11 @@ inline int randomValue( int max );
 
 namespace H2Core
 {
-///
-/// Hydrogen Audio Engine.
-///
+/**
+ * Hydrogen Audio Engine.
+ *
+ * \ingroup docCore docAudioEngine
+ */
 class Hydrogen : public H2Core::Object
 {
 public:

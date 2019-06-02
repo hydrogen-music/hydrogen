@@ -32,6 +32,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore docAudioDriver docMIDI*/
 class PortMidiDriver : public virtual MidiInput, public virtual MidiOutput
 {
 public:

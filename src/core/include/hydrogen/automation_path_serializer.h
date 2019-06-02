@@ -30,6 +30,7 @@
 namespace H2Core
 {
 
+/** \ingroup docCore */
 class AutomationPathSerializer : private Object
 {
 

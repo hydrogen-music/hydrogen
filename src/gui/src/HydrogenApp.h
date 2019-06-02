@@ -42,7 +42,10 @@
 /** Amount of time to pass between successive calls to
  * HydrogenApp::onEventQueueTimer() in milliseconds.
  *
- * This causes the GUI to update at 20 frames per second.*/
+ * This causes the GUI to update at 20 frames per second.
+ *
+ * \ingroup docConfiguration
+ */
 #define QUEUE_TIMER_PERIOD 50
 
 
@@ -69,6 +72,7 @@ class SampleEditor;
 class Director;
 class InfoBar;
 
+/** \ingroup docGUI */
 class HydrogenApp : public QObject, public H2Core::Object
 {
 	Q_OBJECT

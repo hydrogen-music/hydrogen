@@ -23,6 +23,7 @@
 #define EVENT_LISTENER
 
 #include <hydrogen/globals.h>
+/** \ingroup docGUI docEvent*/
 class EventListener
 {
 	public:

@@ -35,9 +35,11 @@ namespace H2Core
 {
 
 
-///
-/// PulseAudio driver.
-///
+/**
+ * PulseAudio driver.
+ *
+ * \ingroup docCore docAudioDriver
+ */
 class PulseAudioDriver : public AudioOutput
 {
 public:
@@ -101,6 +103,7 @@ private:
 #include <hydrogen/IO/NullDriver.h>
 
 namespace H2Core {
+	/** \ingroup docCore docAudioDriver */
 	class PulseAudioDriver : public NullDriver
 	{
 	public:

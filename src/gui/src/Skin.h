@@ -25,9 +25,11 @@
 #include <QString>
 #include <hydrogen/helpers/filesystem.h>
 
-///
-/// Skin support
-///
+/**
+ * Skin support
+ *
+ * \ingroup docGUI
+ */
 class Skin
 {
 	public:

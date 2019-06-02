@@ -28,10 +28,12 @@
 
 
 
-/*
-  Every widget which supports MidiLearn should derive from this Class.
-*/
-
+/**
+ * Every widget which supports MidiLearn should derive from this
+ * Class.
+ *
+ * \ingroup docGUI docWidgets
+ */
 class MidiLearnable
 {
 public:

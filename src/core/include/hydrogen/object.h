@@ -51,6 +51,7 @@ namespace H2Core {
 * Before any Object or a derived class can be created, the Logger has
 * to be initialized and the static bootstrap() member be called first.
 *
+* \ingroup docCore
 */
 class Object {
 	public:
@@ -248,7 +249,6 @@ class Object {
 		static Logger* __logger;
 };
 
-
 //////////////////////////////////////////////////////////////////////
 // LOG MACROS
 
@@ -277,6 +277,7 @@ class Object {
  * H2Core::Logger::Info, H2Core::Logger::Warning, and
  * H2Core::Logger::Error.
  * \param msg User message.
+ * \ingroup docDebugging
  */
 #define __LOG_METHOD(   lvl, msg )  if( __logger->should_log( (lvl) ) )                 { __logger->log( (lvl), className(), __FUNCTION__, msg ); }
 
@@ -305,6 +306,7 @@ class Object {
  * H2Core::Logger::Info, H2Core::Logger::Warning, and
  * H2Core::Logger::Error.
  * \param msg User message.
+ * \ingroup docDebugging
  */
 #define __LOG_CLASS(    lvl, msg )  if( logger()->should_log( (lvl) ) )                 { logger()->log( (lvl), className(), __FUNCTION__, msg ); }
 
@@ -334,6 +336,7 @@ class Object {
  * H2Core::Logger::Info, H2Core::Logger::Warning, and
  * H2Core::Logger::Error.
  * \param msg User message.
+ * \ingroup docDebugging
  */
 #define __LOG_OBJ(      lvl, msg )  if( __object->logger()->should_log( (lvl) ) )       { __object->logger()->log( (lvl), 0, __PRETTY_FUNCTION__, msg ); }
 
@@ -361,6 +364,7 @@ class Object {
  * H2Core::Logger::Info, H2Core::Logger::Warning, and
  * H2Core::Logger::Error.
  * \param msg User message.
+ * \ingroup docDebugging
  */
 #define __LOG_STATIC(   lvl, msg )  if( H2Core::Logger::get_instance()->should_log( (lvl) ) )   { H2Core::Logger::get_instance()->log( (lvl), 0, __PRETTY_FUNCTION__, msg ); }
 
@@ -368,70 +372,86 @@ class Object {
 
 /** Wrapper around __LOG_METHOD() using H2Core::Logger::Debug as log
  *	level. 
- * \param x User message.*/ 
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define DEBUGLOG(x)     __LOG_METHOD( H2Core::Logger::Debug,   (x) );
 /** Wrapper around __LOG_METHOD() using H2Core::Logger::Info as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define INFOLOG(x)      __LOG_METHOD( H2Core::Logger::Info,    (x) );
 /** Wrapper around __LOG_METHOD() using H2Core::Logger::Warning as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define WARNINGLOG(x)   __LOG_METHOD( H2Core::Logger::Warning, (x) );
 /** Wrapper around __LOG_METHOD() using H2Core::Logger::Error as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define ERRORLOG(x)     __LOG_METHOD( H2Core::Logger::Error,   (x) );
 
 /** Wrapper around __LOG_CLASS() using H2Core::Logger::Debug as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define _DEBUGLOG(x)    __LOG_CLASS( H2Core::Logger::Debug,   (x) );
 /** Wrapper around __LOG_CLASS() using H2Core::Logger::Info as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define _INFOLOG(x)     __LOG_CLASS( H2Core::Logger::Info,    (x) );
 /** Wrapper around __LOG_CLASS() using H2Core::Logger::Warning as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define _WARNINGLOG(x)  __LOG_CLASS( H2Core::Logger::Warning, (x) );
 /** Wrapper around __LOG_CLASS() using H2Core::Logger::Error as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define _ERRORLOG(x)    __LOG_CLASS( H2Core::Logger::Error,   (x) );
 
 /** Wrapper around __LOG_OBJ() using H2Core::Logger::Debug as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define __DEBUGLOG(x)   __LOG_OBJ( H2Core::Logger::Debug,      (x) );
 /** Wrapper around __LOG_OBJ() using H2Core::Logger::Info as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define __INFOLOG(x)    __LOG_OBJ( H2Core::Logger::Info,       (x) );
 /** Wrapper around __LOG_OBJ() using H2Core::Logger::Warning as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define __WARNINGLOG(x) __LOG_OBJ( H2Core::Logger::Warning,    (x) );
 /** Wrapper around __LOG_OBJ() using H2Core::Logger::Error as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define __ERRORLOG(x)   __LOG_OBJ( H2Core::Logger::Error,      (x) );
 
 /** Wrapper around __LOG_STATIC() using H2Core::Logger::Debug as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define ___DEBUGLOG(x)  __LOG_STATIC( H2Core::Logger::Debug,    (x) );
 /** Wrapper around __LOG_STATIC() using H2Core::Logger::Info as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define ___INFOLOG(x)   __LOG_STATIC( H2Core::Logger::Info,     (x) );
 /** Wrapper around __LOG_STATIC() using H2Core::Logger::Warning as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define ___WARNINGLOG(x) __LOG_STATIC(H2Core::Logger::Warning,  (x) );
 /** Wrapper around __LOG_STATIC() using H2Core::Logger::Error as log
  *	level. 
- * \param x User message.*/
+ * \param x User message.
+ * \ingroup docDebugging*/
 #define ___ERRORLOG(x)  __LOG_STATIC( H2Core::Logger::Error,    (x) );
 
 };

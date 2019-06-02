@@ -28,7 +28,7 @@
 
 using namespace std;
 
-
+/** \ingroup docCore docMIDI */
 class Action : public H2Core::Object {
 	public:
 		/** \return #m_sClassName*/
@@ -72,6 +72,7 @@ namespace H2Core
 	class Hydrogen;
 }
 
+/** \ingroup docCore docMIDI */
 class MidiActionManager : public H2Core::Object
 {
 	private:

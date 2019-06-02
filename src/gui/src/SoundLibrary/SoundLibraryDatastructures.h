@@ -14,6 +14,8 @@ class SoundLibraryInfo;
 * This class organizes the metadata of all locally installed soundlibrary items.
 *
 * @author Sebastian Moors
+ *
+ * \ingroup docGUI
 *
 */
 
@@ -65,6 +67,8 @@ class SoundLibraryDatabase:  public H2Core::Object
 * the metadata for songs, pattern and drumkits.
 *
 * @author Sebastian Moors
+ *
+ * \ingroup docGUI
 *
 */
 

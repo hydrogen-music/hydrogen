@@ -31,6 +31,7 @@
 #include "SampleEditor.h"
 class SampleEditor;
 
+/** \ingroup docGUI */
 class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 {
 	Q_OBJECT

@@ -41,9 +41,11 @@ namespace H2Core
 
 class PatternEditorInstrumentList;
 class PatternEditorPanel;
-///
-/// Drum pattern editor
-///
+/**
+ * Drum pattern editor
+ *
+ * \ingroup docGUI
+ */
 class DrumPatternEditor : public QWidget, public EventListener, public H2Core::Object
 {
 	Q_OBJECT

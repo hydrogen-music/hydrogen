@@ -32,6 +32,7 @@
 #include <string>
 #include <cassert>
 
+/** \ingroup docCore docAutomatization*/
 class LashClient
 {
 public:

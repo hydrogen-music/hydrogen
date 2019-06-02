@@ -36,9 +36,11 @@ class Button;
 class ToggleButton;
 class PixmapWidget;
 
-///
-/// This dialog is used to use the H2PlayList
-///
+/**
+ * This dialog is used to use the H2PlayList
+ *
+ * \ingroup docGUI
+ */
 class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public H2Core::Object
 
 {

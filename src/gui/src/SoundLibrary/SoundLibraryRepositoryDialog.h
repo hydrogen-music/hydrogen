@@ -26,9 +26,7 @@
 #include "ui_SoundLibraryRepositoryDialog_UI.h"
 #include <hydrogen/object.h>
 
-///
-///
-///
+/** \ingroup docGUI */
 class SoundLibraryRepositoryDialog : public QDialog, public Ui_SoundLibraryRepositoryDialog_UI, public H2Core::Object
 {
 	Q_OBJECT

@@ -33,6 +33,8 @@ typedef int  ( *audioProcessCallback )( uint32_t, void * );
 
 /**
  * Fake audio driver. Used only for profiling.
+ *
+ * \ingroup docCore docAudioDriver
  */
 class FakeDriver : public AudioOutput
 {

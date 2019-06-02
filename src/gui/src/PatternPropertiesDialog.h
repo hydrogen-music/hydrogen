@@ -35,9 +35,11 @@ namespace H2Core
 	class Pattern;
 }
 
-///
-///Pattern Properties Dialog
-///
+/**
+ * Pattern Properties Dialog
+ *
+ * \ingroup docGUI
+ */
 class PatternPropertiesDialog : public QDialog, public Ui_PatternPropertiesDialog_UI
 {
 	Q_OBJECT

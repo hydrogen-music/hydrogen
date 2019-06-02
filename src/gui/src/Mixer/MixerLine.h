@@ -44,7 +44,7 @@ class Rotary;
 
 #include "../Widgets/PixmapWidget.h"
 
-
+/** \ingroup docGUI */
 class InstrumentNameWidget : public PixmapWidget
 {
 	Q_OBJECT
@@ -83,9 +83,11 @@ class InstrumentNameWidget : public PixmapWidget
 
 
 
-///
-/// A mixer strip
-///
+/**
+ * A mixer strip
+ *
+ * \ingroup docGUI
+ */
 class MixerLine: public PixmapWidget
 {
 	Q_OBJECT
@@ -176,6 +178,7 @@ class MixerLine: public PixmapWidget
 		LCDDisplay *			m_pPeakLCD;
 };
 
+/** \ingroup docGUI */
 class ComponentMixerLine: public PixmapWidget
 {
 	Q_OBJECT
@@ -241,11 +244,7 @@ class ComponentMixerLine: public PixmapWidget
 		LCDDisplay *			m_pPeakLCD;
 };
 
-
-
-
-
-
+/** \ingroup docGUI */
 class MasterMixerLine: public PixmapWidget
 {
 	Q_OBJECT
@@ -305,9 +304,11 @@ class MasterMixerLine: public PixmapWidget
 
 
 
-///
-/// Mixer strip for FX
-///
+/**
+ * Mixer strip for FX
+ *
+ * \ingroup docGUI
+ */
 class FxMixerLine: public PixmapWidget
 {
 	Q_OBJECT
@@ -358,9 +359,7 @@ class FxMixerLine: public PixmapWidget
 		LCDDisplay *			m_pPeakLCD;
 };
 
-
-
-
+/** \ingroup docGUI */
 class LadspaFXMixerLine : public PixmapWidget
 {
 	Q_OBJECT

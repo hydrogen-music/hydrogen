@@ -30,6 +30,7 @@ class QHBoxLayout;
 class QLabel;
 class QPushButton;
 
+/** \ingroup docGUI docWidgets */
 class InfoBar : public QWidget
 {
 	QHBoxLayout *m_pLayout;

@@ -30,6 +30,7 @@
 #  include <QtWidgets>
 #endif
 
+/** \ingroup docGUI docWidgets */
 class MidiTable : public QTableWidget, public H2Core::Object
 {
 	Q_OBJECT

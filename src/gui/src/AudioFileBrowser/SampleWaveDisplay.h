@@ -29,8 +29,7 @@
 #endif
 #include <hydrogen/object.h>
 
-
-
+/** \ingroup docGUI */
 class SampleWaveDisplay : public QWidget, public H2Core::Object
 {
 	Q_OBJECT

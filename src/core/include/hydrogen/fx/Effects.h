@@ -35,6 +35,7 @@
 
 namespace H2Core
 {
+/** \ingroup docCore docSound*/
 class Effects : public H2Core::Object
 {
 public:

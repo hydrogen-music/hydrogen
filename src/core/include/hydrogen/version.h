@@ -5,7 +5,9 @@
 #include <string>
 
 namespace H2Core {
-
+/** \addtogroup docDebugging
+ * @{
+ */
 /// Returns the current Hydrogen version string
 std::string get_version();
 
@@ -13,7 +15,7 @@ std::string get_version();
  * return true of the current version is older than the given values
  */
 bool version_older_than( int major, int minor, int patch );
-
+/** @}*/
 #endif // H2C_VERSION
 
 };

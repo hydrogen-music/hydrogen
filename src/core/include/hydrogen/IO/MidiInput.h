@@ -33,6 +33,7 @@ namespace H2Core
 
 /**
  * MIDI input base class
+ * \ingroup docCore docAudioDriver docMIDI
  */
 class MidiInput : public virtual Object
 {

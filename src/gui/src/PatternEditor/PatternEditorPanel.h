@@ -48,9 +48,11 @@ namespace H2Core
 	class Pattern;
 }
 
-///
-/// Pattern Editor Panel
-///
+/**
+ * Pattern Editor Panel
+ *
+ * \ingroup docGUI
+ */
 class PatternEditorPanel : public QWidget, public EventListener, public H2Core::Object
 {
 	Q_OBJECT

@@ -29,8 +29,8 @@ namespace H2Core
 {
 
 /**
- * Drumkit info
-*/
+ * \ingroup docCore docDataStructure
+ */
 class Playlist : public H2Core::Object
 
 {

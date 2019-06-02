@@ -33,6 +33,7 @@
 #include "EventListener.h"
 
 
+/** \ingroup docGUI */
 class Director : public QDialog, public Ui_Director_UI, public H2Core::Object, public EventListener
 
 {

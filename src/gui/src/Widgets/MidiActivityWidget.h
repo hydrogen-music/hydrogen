@@ -33,6 +33,7 @@
 #include "../EventListener.h"
 #include <hydrogen/object.h>
 
+/** \ingroup docGUI docWidgets */
 class MidiActivityWidget : public QWidget, public EventListener, public H2Core::Object
 {
 	Q_OBJECT

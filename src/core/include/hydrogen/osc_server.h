@@ -77,7 +77,7 @@ namespace lo
 * the OSC server will be started at.
 *
 * @author Sebastian Moors
-*
+* \ingroup docCore docAutomatization
 */
 class OscServer : public H2Core::Object
 {

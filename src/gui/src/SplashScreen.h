@@ -30,6 +30,7 @@
 
 #include <hydrogen/object.h>
 
+/** \ingroup docGUI */
 class SplashScreen : public QSplashScreen, public H2Core::Object
 {
 	Q_OBJECT

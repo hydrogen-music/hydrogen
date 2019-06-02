@@ -34,7 +34,9 @@ class Pattern;
 
 /**
  * PatternList is a collection of patterns
-*/
+ *
+ * \ingroup docCore docDataStructure
+ */
 class PatternList : public H2Core::Object
 {
 	public:

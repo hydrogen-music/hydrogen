@@ -27,6 +27,7 @@
 
 namespace H2Core
 {
+	/** \ingroup docCore*/
 	class Timeline : public H2Core::Object
 	{
 		public:

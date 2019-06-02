@@ -30,6 +30,8 @@ namespace H2Core
 
 /**
  * Attack Decay Sustain Release envelope.
+ *
+ * \ingroup docCore docSound
  */
 class ADSR : private Object
 {

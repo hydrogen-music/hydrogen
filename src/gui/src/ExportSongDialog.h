@@ -35,9 +35,11 @@ namespace H2Core {
 	class Preferences;
 }
 
-///
-/// Dialog for exporting song
-///
+/**
+ * Dialog for exporting song
+ *
+ * \ingroup docGUI
+ */
 class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public EventListener, public H2Core::Object
 {
 	Q_OBJECT

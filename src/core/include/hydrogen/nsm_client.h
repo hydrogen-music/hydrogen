@@ -37,8 +37,8 @@
 *
 * @author Sebastian Moors
 *
+* \ingroup docCore docAutomatization
 */
-
 class NsmClient : public H2Core::Object
 {
 	public:
