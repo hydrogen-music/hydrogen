@@ -55,6 +55,15 @@
  * to find and pin point bugs as well as a comprehensive guide to the
  * process of contribution.
  * 
+ * \subsection structureST Selected Topics
+ *
+ * The code of Hydrogen grew quite complex in time and it can take a
+ * lot of energy and time to learn how it works by using the
+ * documentation of the individual classes let alone their source
+ * code. To ease this pain and to get new developers/contributors
+ * started more quickly, we provide some articles giving a general and
+ * more accessible overview about selected topics.
+ *
  * \subsection structureModules Modules
  *
  * Since this project grew naturally (and quite big), the
@@ -64,15 +73,6 @@
  * logical units you can access in [Modules](modules.html). \ref
  * docCore contains all classes and functions of the core while \ref
  * docGUI encapsulates everything related to the Qt5-based GUI.
- *
- * \subsection structureGD General Design
- *
- * The code of Hydrogen grew quite complex in time and it can take a
- * lot of energy and time to learn how it works by using the
- * documentation of the individual classes let alone their source
- * code. To ease this pain and to get new developers/contributors
- * started more quickly, we provide some articles giving a general and
- * more accessible overview about selected topics.
  *
  * \subsection structureNM Namespace Members
  * Lists all members of the \b H2Core namespace encapsulating
