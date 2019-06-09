@@ -42,16 +42,28 @@
  *
  * \section structureDocumentation Structure of the documentation
  *
+ * Both the documentation of the code base and the overall one you are
+ * reading right now are still under active development. If you have
+ * some insights into Hydrogen you want to share, we would be very
+ * happy about your contribution.
+ *
+ * \subsection structureDevelop Development and contribution
+ *
+ * This chapter serves as the main entry point for new developers who
+ * are curious and eager to contribute to the Hydrogen project. You
+ * will find a detailed explanation of how to debug Hydrogen and show
+ * to find and pin point bugs as well as a comprehensive guide to the
+ * process of contribution.
+ * 
+ * \subsection structureModules Modules
+ *
  * Since this project grew naturally (and quite big), the
  * encapsulation of related classes/functions into namespaces might
- * not be as good as it could be. 
- *
- * \subsection structureModules Modules
- * To still provide an overview about separate topics, the
- * documentation of the classes was grouped into logical units you can
- * access in [Modules](modules.html). \ref docCore contains all classes and
- * functions of the core while \ref docGUI encapsulates everything
- * related to the Qt5-based GUI.
+ * not be as good as it could be. To still provide an overview about
+ * separate topics, the documentation of the classes was grouped into
+ * logical units you can access in [Modules](modules.html). \ref
+ * docCore contains all classes and functions of the core while \ref
+ * docGUI encapsulates everything related to the Qt5-based GUI.
  *
  * \subsection structureGD General Design
  *
@@ -101,9 +113,5 @@
  * people we are, the more awesome features we can provide. ;)
  *
  * To get started as quickly as possible, please check out the \ref
- * development section in this documentation, the [Getting
- * involved](https://github.com/hydrogen-music/hydrogen/wiki/Getting-involved)
- * page of the Hydrogen wiki, and the
- * [DEVELOPERS](https://github.com/hydrogen-music/hydrogen/blob/master/DEVELOPERS)
- * file provided with the application's sources.
+ * development section in this documentation.
  */
