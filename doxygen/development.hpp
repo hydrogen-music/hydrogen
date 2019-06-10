@@ -73,14 +73,14 @@
  *
  *    That's a more tricky one. If the crash occurs during startup and
  *    you are not able to see a properly loaded GUI for one or two
- *    seconds, place log messages all over the startup
- *    routine. Firstly, do it in a quite coarse manner. Then recompile
- *    and execute your code to see which was the last log message
- *    displayed. Remove all previous messages and add some new ones in
- *    a more dense coverage around this very point and so on. If
- *    Hydrogen crashes when performing a specific task, read into the
- *    documentation/code base to figure out which part is responsible
- *    for it and do the same as described above.
+ *    seconds, place log messages all over the startup routine (see
+ *    \ref startup). Firstly, do it in a quite coarse manner. Then
+ *    recompile and execute your code to see which was the last log
+ *    message displayed. Remove all previous messages and add some new
+ *    ones in a more dense coverage around this very point and so
+ *    on. If Hydrogen crashes when performing a specific task, read
+ *    into the documentation/code base to figure out which part is
+ *    responsible for it and do the same as described above.
  *
  * 3. You experience abnormal behavior without any logs.
  *
