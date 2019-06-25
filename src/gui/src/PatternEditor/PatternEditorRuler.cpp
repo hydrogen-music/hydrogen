@@ -22,8 +22,11 @@
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
+
+
 using namespace H2Core;
 
 #include <QTimer>
@@ -126,6 +129,13 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 
 
 	bool bActive = false;	// is the pattern playing now?
+
+	/* 
+	 * Lock audio engine to make sure pattern list does not get
+	 * modifed / cleared during iteration 
+	 */
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+
 	PatternList *pList = pEngine->getCurrentPatternList();
 	for (uint i = 0; i < pList->size(); i++) {
 		if ( m_pPattern == pList->get(i) ) {
@@ -133,6 +143,9 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 			break;
 		}
 	}
+
+	AudioEngine::get_instance()->unlock();
+
 
 	int state = pEngine->getState();
 	if ( ( state == STATE_PLAYING ) && (bActive) ) {

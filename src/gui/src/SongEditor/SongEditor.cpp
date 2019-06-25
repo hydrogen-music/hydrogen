@@ -1173,6 +1173,7 @@ void SongEditorPatternList::createBackground()
 		}
 	}
 
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	PatternList *pCurrentPatternList = pEngine->getCurrentPatternList();
 
 	/// paint the foreground (pattern name etc.)
@@ -1208,6 +1209,7 @@ void SongEditorPatternList::createBackground()
 
 		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, pPattern->get_name() );
 	}
+	AudioEngine::get_instance()->unlock();
 
 }
 
@@ -1478,6 +1480,8 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 
 	}
 
+	//Lock because PatternList will be modified
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	PatternList *list = pEngine->getCurrentPatternList();
 	list->del( pattern );
@@ -1498,6 +1502,8 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 		pEngine->setSelectedPatternNumber( -1 );
 		pEngine->setSelectedPatternNumber( 0 );
 	}
+
+	AudioEngine::get_instance()->unlock();
 
 	for (unsigned int index = 0; index < pSongPatternList->size(); ++index) {
 		H2Core::Pattern *curPattern = pSongPatternList->get(index);
