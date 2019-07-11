@@ -76,6 +76,11 @@ For **Mac OS X** the [Hydrogen home page](http://hydrogen-music.org/)
 has a binary package available.  Extract the ZIP archive and it will
 create a hydrogen.app folder.
 
+To get the latest version with the latest features and enable [Jack](http://jackaudio.org/) support, 
+install with **Mac Ports**.
+
+- [Installing on Mac OS X with MacPorts](https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-source-(MAC-OSX)#method-1-building-everything-with-macports
+)
 
 ## Prerequisites to Build from Source
 
