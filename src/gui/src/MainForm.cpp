@@ -1736,27 +1736,14 @@ void MainForm::playlistLoadSongEvent (int nIndex)
 {
 	Playlist* pPlaylist = Playlist::get_instance();
 
-	if ( ! pPlaylist->loadSong ( nIndex ) ) {
+	QString songFilename;
+	
+	if( !pPlaylist->getSongFilenameByNumber( nIndex, songFilename ) ) {
 		return;
 	}
 
-	Song* pSong = Hydrogen::get_instance()->getSong();
+	openSongFile( songFilename );
 
-	h2app->getSongEditorPanel()->updateAll();
-	h2app->getPatternEditorPanel()->updateSLnameLabel();
-
-	QString songName( pSong->__name );
-	if( songName == "Untitled Song" && !pSong->get_filename().isEmpty() ){
-		songName = pSong->get_filename();
-		songName = songName.section( '/', -1 );
-	}
-	setWindowTitle( songName  );
-
-	h2app->getMainForm()->updateRecentUsedSongList();
-	h2app->closeFXProperties();
-	h2app->m_pUndoStack->clear();
-
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 	HydrogenApp::get_instance()->setScrollStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( nIndex +1 ), 5000 );
 }
 

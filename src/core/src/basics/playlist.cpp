@@ -204,6 +204,21 @@ bool Playlist::loadSong( int songNumber )
 	return true;
 }
 
+bool Playlist::getSongFilenameByNumber( int songNumber, QString& filename)
+{
+	bool Success = false;
+	
+	if ( size() == 0 || songNumber >= size() ) {
+		Success = true;
+	}
+	
+	if( Success)  {
+		filename = get( songNumber )->filePath;
+	}
+
+	return Success;
+}
+
 /* This method is called by MIDI thread */
 void Playlist::setNextSongByNumber( int songNumber )
 {

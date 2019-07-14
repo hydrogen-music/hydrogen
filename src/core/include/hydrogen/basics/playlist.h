@@ -60,20 +60,22 @@ class Playlist : public H2Core::Object
 
 		~Playlist();
 
-		bool loadSong (int SongNumber );
+		bool	loadSong (int SongNumber );
 
-		int size() const;
-		Entry* get( int idx );
+		int		size() const;
+		Entry*	get( int idx );
 
-		void clear();
-		void add( Entry* entry );
+		void	clear();
+		void	add( Entry* entry );
 
-		void setNextSongByNumber( int SongNumber );
-		int getSelectedSongNr();
-		void setSelectedSongNr( int songNumber );
+		void	setNextSongByNumber( int SongNumber );
+		int		getSelectedSongNr();
+		void	setSelectedSongNr( int songNumber );
 
-		int getActiveSongNumber();
-		void setActiveSongNumber( int ActiveSongNumber );
+		int		getActiveSongNumber();
+		void	setActiveSongNumber( int ActiveSongNumber );
+		
+		bool	getSongFilenameByNumber( int songNumber, QString& fileName);
 
 		const QString& getFilename();
 		void setFilename( const QString& filename );
