@@ -96,8 +96,8 @@ Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelat
 		return 0;
 	}
 
-	Playlist* playlist = new Playlist();
-	playlist->__filename = filename;
+	Playlist* pPlaylist = new Playlist();
+	pPlaylist->setFilename( fileInfo.absoluteFilePath() );
 
 	XMLNode songsNode = node->firstChildElement( "songs" );
 	if ( !songsNode.isNull() ) {
@@ -106,13 +106,13 @@ Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelat
 
 			QString songPath = nextNode.read_string( "path", "", false, false );
 			if ( !songPath.isEmpty() ) {
-				Playlist::Entry* entry = new Playlist::Entry();
+				Playlist::Entry* pEntry = new Playlist::Entry();
 				QFileInfo songPathInfo( fileInfo.absoluteDir(), songPath );
-				entry->filePath = songPathInfo.absoluteFilePath();
-				entry->fileExists = songPathInfo.isReadable();
-				entry->scriptPath = nextNode.read_string( "scriptPath", "" );
-				entry->scriptEnabled = nextNode.read_bool( "scriptEnabled", false );
-				playlist->add( entry );
+				pEntry->filePath = songPathInfo.absoluteFilePath();
+				pEntry->fileExists = songPathInfo.isReadable();
+				pEntry->scriptPath = nextNode.read_string( "scriptPath", "" );
+				pEntry->scriptEnabled = nextNode.read_bool( "scriptEnabled", false );
+				pPlaylist->add( pEntry );
 			}
 
 			nextNode = nextNode.nextSiblingElement( "song" );
@@ -120,7 +120,7 @@ Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelat
 	} else {
 		WARNINGLOG( "songs node not found" );
 	}
-	return playlist;
+	return pPlaylist;
 }
 
 bool Playlist::save_file( const QString& pl_path, const QString& name, bool overwrite, bool useRelativePaths )

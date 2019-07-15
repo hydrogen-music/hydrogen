@@ -250,7 +250,7 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 	return pPattern;
 }
 
-Playlist* Legacy::load_playlist( Playlist* pl, const QString& pl_path )
+Playlist* Legacy::load_playlist( Playlist* pPlaylist, const QString& pl_path )
 {
 	if ( version_older_than( 0, 9, 8 ) ) {
 		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
@@ -273,7 +273,7 @@ Playlist* Legacy::load_playlist( Playlist* pl, const QString& pl_path )
 		return nullptr;
 	}
 
-	pl->setFilename( filename );
+	pPlaylist->setFilename( pl_path );
 
 	XMLNode songsNode = root.firstChildElement( "Songs" );
 	if ( !songsNode.isNull() ) {
@@ -288,7 +288,7 @@ Playlist* Legacy::load_playlist( Playlist* pl, const QString& pl_path )
 				entry->fileExists = songPathInfo.isReadable();
 				entry->scriptPath = nextNode.read_string( "script", "" );
 				entry->scriptEnabled = nextNode.read_bool( "enabled", false );
-				pl->add( entry );
+				pPlaylist->add( entry );
 			}
 
 			nextNode = nextNode.nextSiblingElement( "next" );
@@ -296,7 +296,7 @@ Playlist* Legacy::load_playlist( Playlist* pl, const QString& pl_path )
 	} else {
 		WARNINGLOG( "Songs node not found" );
 	}
-	return pl;
+	return pPlaylist;
 }
 
 };
