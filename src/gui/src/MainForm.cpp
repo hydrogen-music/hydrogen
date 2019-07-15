@@ -1737,12 +1737,13 @@ void MainForm::playlistLoadSongEvent (int nIndex)
 	Playlist* pPlaylist = Playlist::get_instance();
 
 	QString songFilename;
-	
 	if( !pPlaylist->getSongFilenameByNumber( nIndex, songFilename ) ) {
 		return;
 	}
-
+	
 	openSongFile( songFilename );
+	
+	pPlaylist->activateSong( nIndex );
 
 	HydrogenApp::get_instance()->setScrollStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( nIndex +1 ), 5000 );
 }

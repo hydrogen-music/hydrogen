@@ -89,17 +89,18 @@ void signal_handler ( int signum )
 	}
 }
 
-void show_playlist (Hydrogen *pHydrogen, uint active )
+void show_playlist (uint active )
 {
 	/* Display playlist members */
-	Playlist* playlist = Playlist::get_instance();
-	if ( playlist->size() > 0) {
-		for ( uint i = 0; i < playlist->size(); ++i ) {
-			cout << ( i + 1 ) << "." << playlist->get( i )->filePath.toLocal8Bit().constData();
+	Playlist* pPlaylist = Playlist::get_instance();
+	if ( pPlaylist->size() > 0) {
+		for ( uint i = 0; i < pPlaylist->size(); ++i ) {
+			cout << ( i + 1 ) << "." << pPlaylist->get( i )->filePath.toLocal8Bit().constData();
 			if ( i == active ) cout << " *";
 			cout << endl;
 		}
 	}
+	
 	cout << endl;
 }
 
@@ -282,8 +283,8 @@ int main(int argc, char *argv[])
 #endif
 		Hydrogen::create_instance();
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
-		Song *pSong = NULL;
-		Playlist *pPlaylist = NULL;
+		Song *pSong = nullptr;
+		Playlist *pPlaylist = nullptr;
 
 		// Load playlist
 		if ( ! playlistFilename.isEmpty() ) {
@@ -295,9 +296,19 @@ int main(int argc, char *argv[])
 
 			/* Load first song */
 			preferences->setLastPlaylistFilename( playlistFilename );
-			pPlaylist->loadSong( 0 );
-			pSong = pHydrogen->getSong();
-			show_playlist ( pHydrogen, pPlaylist->getActiveSongNumber() );
+			
+			QString FirstSongFilename;
+			pPlaylist->getSongFilenameByNumber( 0, FirstSongFilename );
+			pSong = Song::load( FirstSongFilename );
+			
+			if( pSong ){
+				pHydrogen->setSong( pSong );
+				preferences->setLastSongFilename( songFilename );
+				
+				pPlaylist->activateSong( 0 );
+			}
+			
+			show_playlist( pPlaylist->getActiveSongNumber() );
 		}
 
 		// Load song - if wasn't already loaded with playlist
@@ -390,9 +401,15 @@ int main(int argc, char *argv[])
 				break;
 			case EVENT_PLAYLIST_LOADSONG: /* Load new song on MIDI event */
 				if( pPlaylist ){
-					if ( pPlaylist->loadSong ( event.value ) ) {
-						pSong = pHydrogen->getSong();
-						show_playlist ( pHydrogen, pPlaylist->getActiveSongNumber() );
+					QString FirstSongFilename;
+					pPlaylist->getSongFilenameByNumber( event.value, FirstSongFilename );
+					pSong = Song::load( FirstSongFilename );
+					
+					if( pSong ) {
+						pHydrogen->setSong( pSong );
+						preferences->setLastSongFilename( songFilename );
+						
+						pPlaylist->activateSong( event.value );
 					}
 				}
 				break;

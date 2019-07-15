@@ -60,7 +60,7 @@ class Playlist : public H2Core::Object
 
 		~Playlist();
 
-		bool	loadSong (int SongNumber );
+		void	activateSong (int SongNumber );
 
 		int		size() const;
 		Entry*	get( int idx );

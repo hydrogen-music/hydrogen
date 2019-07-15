@@ -172,44 +172,21 @@ Playlist* Playlist::load( const QString& filename, bool useRelativePaths )
 	return playlist;
 }
 
-/* This method is called by Event dispacher thread ( GUI ) */
-bool Playlist::loadSong( int songNumber )
+/* This method is called by Event dispatcher thread ( GUI ) */
+void Playlist::activateSong( int songNumber )
 {
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Preferences *pPref = Preferences::get_instance();
-
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
-		pHydrogen->sequencer_stop();
-	}
-
-	/* Load Song from file */
-	QString selected = get( songNumber )->filePath;
-	Song *pSong = Song::load( selected );
-	if ( ! pSong ) {
-		return false;
-	}
-
 	setSelectedSongNr( songNumber );
 	setActiveSongNumber( songNumber );
 
-	pHydrogen->setSong( pSong );
-
-	pPref->setLastSongFilename( pSong->get_filename() );
-	vector<QString> recentFiles = pPref->getRecentFiles();
-	recentFiles.insert( recentFiles.begin(), selected );
-	pPref->setRecentFiles( recentFiles );
-
 	execScript( songNumber );
-
-	return true;
 }
 
 bool Playlist::getSongFilenameByNumber( int songNumber, QString& filename)
 {
-	bool Success = false;
+	bool Success = true;
 	
 	if ( size() == 0 || songNumber >= size() ) {
-		Success = true;
+		Success = false;
 	}
 	
 	if( Success)  {
