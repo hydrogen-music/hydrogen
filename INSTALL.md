@@ -94,7 +94,7 @@ libraries and development header files installed on your system:
 - GNU g++ compiler (>=4.0, 3.x might work)
 - cmake (>=2.6)
 - libsndfile >=1.0.18
-- zlib and libtar *OR* libarchive (OS X: You will probably need to build libarchive from source)
+- zlib and libtar *OR* libarchive
 - OS X: Xcode
 - At least one of the following audio and midi driver
 
@@ -147,12 +147,15 @@ is present, either package will work.
 #### Packages Required on OS X
 
 To compile Hydrogen on OS X, be sure the install the following
-commands using `brew` first.
+commands using [MacPorts](https://www.macports.org/) first.
 
 ``` bash
-$ brew install libsndfile jack pulseaudio cppunit libarchive qt5
+sudo port install cmake libsndfile jack cppunit libarchive qwt-qt5 qt5-qtxmlpatterns
 ```
 
+In case you already installed some of these packages using `brew` you
+might have to remove them first for `cmake` to find the proper
+version.
 
 ## Build and Install from Source
 
