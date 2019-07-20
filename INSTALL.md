@@ -150,7 +150,8 @@ To compile Hydrogen on OS X, be sure the install the following
 commands using [MacPorts](https://www.macports.org/) first.
 
 ``` bash
-sudo port install cmake libsndfile jack cppunit libarchive qwt-qt5 qt5-qtxmlpatterns
+sudo port install cmake libsndfile jack cppunit libarchive qwt-qt5 \
+     qt5-qtxmlpatterns liblo liblrdf rubberband
 ```
 
 In case you already installed some of these packages using `brew` you
