@@ -67,6 +67,12 @@ using namespace std;
 
 const char* SongEditor::__class_name = "SongEditor";
 
+struct PatternDisplayInfo {
+	bool bActive;
+	bool bNext;
+	QString sPatternName;
+};
+
 
 SongEditorGridRepresentationItem::SongEditorGridRepresentationItem(int x, int y, bool value)
 {
@@ -1173,19 +1179,33 @@ void SongEditorPatternList::createBackground()
 		}
 	}
 
-	PatternList *pCurrentPatternList = pEngine->getCurrentPatternList();
+	std::unique_ptr<PatternDisplayInfo[]> PatternArray{new PatternDisplayInfo[nPatterns]};
 
-	/// paint the foreground (pattern name etc.)
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	PatternList *pCurrentPatternList = pEngine->getCurrentPatternList();
+	
+	//assemble the data..
 	for ( int i = 0; i < nPatterns; i++ ) {
 		H2Core::Pattern *pPattern = pSong->get_pattern_list()->get(i);
-		//uint y = m_nGridHeight * i;
 
-		// Text
-		bool bNext = false, bActive = false;
+		if ( pCurrentPatternList->index( pPattern ) != -1 ) {
+			PatternArray[i].bActive = true;
+		} else {
+			PatternArray[i].bActive = false;
+		}
 
-		if ( pCurrentPatternList->index( pPattern ) != -1 ) bActive = true;
-		if ( pEngine->getNextPatterns()->index( pPattern ) != -1 ) bNext = true;
+		if ( pEngine->getNextPatterns()->index( pPattern ) != -1 ) {
+			PatternArray[i].bNext = true;
+		} else {
+			PatternArray[i].bNext = false;
+		}
 
+		PatternArray[i].sPatternName = pPattern->get_name();
+	}
+	AudioEngine::get_instance()->unlock();
+	
+	/// paint the foreground (pattern name etc.)
+	for ( int i = 0; i < nPatterns; i++ ) {
 		if ( i == nSelectedPattern ) {
 			p.setPen( QColor( 0,0,0 ) );
 		}
@@ -1194,21 +1214,18 @@ void SongEditorPatternList::createBackground()
 		}
 
 		uint text_y = i * m_nGridHeight;
-		if ( bNext ) {
+		if ( PatternArray[i].bNext ) {
 			p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_off_Pixmap );
 		}
-		else if (bActive) {
-
+		else if (PatternArray[i].bActive) {
 			//mark active pattern with triangular
 			if( ! pref->patternModePlaysSelected() ){
 				p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_on_Pixmap );
 			}
 		}
 
-
-		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, pPattern->get_name() );
+		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, PatternArray[i].sPatternName);
 	}
-
 }
 
 
@@ -1478,6 +1495,8 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 
 	}
 
+	//Lock because PatternList will be modified
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	PatternList *list = pEngine->getCurrentPatternList();
 	list->del( pattern );
@@ -1498,6 +1517,8 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 		pEngine->setSelectedPatternNumber( -1 );
 		pEngine->setSelectedPatternNumber( 0 );
 	}
+
+	AudioEngine::get_instance()->unlock();
 
 	for (unsigned int index = 0; index < pSongPatternList->size(); ++index) {
 		H2Core::Pattern *curPattern = pSongPatternList->get(index);
