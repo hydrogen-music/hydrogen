@@ -214,10 +214,14 @@ bool Drumkit::save( const QString&					name,
 	pDrumkit->set_info( info );
 	pDrumkit->set_license( license );
 
-	// save the original path
-	QFileInfo fi( image );
-	pDrumkit->set_path( fi.absolutePath() );
-	pDrumkit->set_image( fi.fileName() );
+	// Before storing the absolute path to the image of the drumkit it
+	// has to be checked whether an actual path was supplied. If not,
+	// the construction of QFileInfo will fail.
+	if ( !image.isEmpty() ) {
+		QFileInfo fi( image );
+		pDrumkit->set_path( fi.absolutePath() );
+		pDrumkit->set_image( fi.fileName() );
+	}
 	pDrumkit->set_image_license( imageLicense );
 
 	pDrumkit->set_instruments( new InstrumentList( pInstruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
