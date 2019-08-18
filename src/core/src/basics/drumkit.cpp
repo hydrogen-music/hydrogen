@@ -70,7 +70,9 @@ Drumkit::Drumkit( Drumkit* other ) :
 	__instruments = new InstrumentList( other->get_instruments() );
 
 	__components = new std::vector<DrumkitComponent*> ();
-	__components->assign( other->get_components()->begin(), other->get_components()->end() );
+	for (auto it = other->get_components()->begin(); it != other->get_components()->end(); ++it) {
+		__components->push_back(new DrumkitComponent(*it));
+	}
 }
 
 Drumkit::~Drumkit()
