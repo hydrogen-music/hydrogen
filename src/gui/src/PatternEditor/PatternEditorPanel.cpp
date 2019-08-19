@@ -112,7 +112,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__pattern_size_combo = new LCDCombo(pSizeResol, 4);
 	__pattern_size_combo->move( 34, 2 );
 	__pattern_size_combo->setToolTip( trUtf8("Select pattern size") );
-	for ( int i = 1; i <= 32; i++) {
+	for ( int i = 1; i <= 64; i++) {
 		__pattern_size_combo->addItem( QString( "%1" ).arg( i ) );
 	}
 	// is triggered from inside selectedPatternChangedEvent()
@@ -615,7 +615,7 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 
 		// update pattern size combobox
 		int nPatternSize = m_pPattern->get_length();
-		int nEighth = MAX_NOTES / 8;
+		int nEighth = MAX_NOTES / 16;
 		__pattern_size_combo->select( (nPatternSize / nEighth) - 1 );
 	}
 	else {
@@ -799,7 +799,7 @@ void PatternEditorPanel::patternSizeChanged( int nSelected )
 		return;
 	}
 
-	int nEighth = MAX_NOTES / 8;
+	int nEighth = MAX_NOTES / 16;
 
 	if ( !m_bEnablePatternResize ) {
 		__pattern_size_combo->select( ((m_pPattern->get_length() / nEighth) - 1), false );
