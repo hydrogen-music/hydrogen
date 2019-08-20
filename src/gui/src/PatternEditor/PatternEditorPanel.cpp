@@ -615,8 +615,8 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 
 		// update pattern size combobox
 		int nPatternSize = m_pPattern->get_length();
-		int nEighth = MAX_NOTES / 16;
-		__pattern_size_combo->select( (nPatternSize / nEighth) - 1 );
+		int n16th = MAX_NOTES / 16;
+		__pattern_size_combo->select( (nPatternSize / n16th) - 1 );
 	}
 	else {
 		m_pPattern = NULL;
@@ -799,15 +799,15 @@ void PatternEditorPanel::patternSizeChanged( int nSelected )
 		return;
 	}
 
-	int nEighth = MAX_NOTES / 16;
+	int n16th = MAX_NOTES / 16;
 
 	if ( !m_bEnablePatternResize ) {
-		__pattern_size_combo->select( ((m_pPattern->get_length() / nEighth) - 1), false );
+		__pattern_size_combo->select( ((m_pPattern->get_length() / n16th) - 1), false );
 		QMessageBox::information( this, "Hydrogen", trUtf8( "Is not possible to change the pattern size when playing." ) );
 		return;
 	}
 
-	m_pPattern->set_length( nEighth * ( nSelected + 1 ) );
+	m_pPattern->set_length( n16th * ( nSelected + 1 ) );
 
 	m_pPatternEditorRuler->updateEditor( true );	// redraw all
 	m_pNoteVelocityEditor->updateEditor();
