@@ -114,15 +114,25 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	if (pPatternEditor->isUsingTriplets()) {
 		nBase = 3;
 	}
+	else if (pPatternEditor->isUsingQuintuplets()) {
+		nBase = 5;
+	}
+	else if (pPatternEditor->isUsingSeptuplets()) {
+		nBase = 7;
+	}
+	else if (pPatternEditor->isUsing9tuplets()) {
+		nBase = 9;
+	}
 	else {
 		nBase = 4;
 	}
 	int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
 	int x_pos = ev->x();
 	int column;
+
 	column = (x_pos - 20) + (width / 2);
 	column = column / width;
-	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
+	column = round( (float) (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() ) ); //round for best tuplets approximation.
 
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = (Hydrogen::get_instance())->getSong();
@@ -238,6 +248,15 @@ void NotePropertiesRuler::pressAction( int x, int y)
 	if (pPatternEditor->isUsingTriplets()) {
 		nBase = 3;
 	}
+	else if (pPatternEditor->isUsingQuintuplets()) {
+		nBase = 5;
+	}
+	else if (pPatternEditor->isUsingSeptuplets()) {
+		nBase = 7;
+	}
+	else if (pPatternEditor->isUsing9tuplets()) {
+		nBase = 9;
+	}
 	else {
 		nBase = 4;
 	}
@@ -246,7 +265,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 	int column;
 	column = (x_pos - 20) + (width / 2);
 	column = column / width;
-	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
+	column = round( (float) (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() ) ); //round for best tuplets approximation.
 	float val = height() - y;
 	if (val > height()) {
 		val = height();
@@ -320,6 +339,15 @@ void NotePropertiesRuler::pressAction( int x, int y)
 		if (pPatternEditor->isUsingTriplets()) {
 			nBase = 3;
 		}
+		else if (pPatternEditor->isUsingQuintuplets()) {
+			nBase = 5;
+		}
+		else if (pPatternEditor->isUsingSeptuplets()) {
+			nBase = 7;
+		}
+		else if (pPatternEditor->isUsing9tuplets()) {
+			nBase = 9;
+		}
 		else {
 			nBase = 4;
 		}
@@ -328,7 +356,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 		int column;
 		column = (x_pos - 20) + (width / 2);
 		column = column / width;
-		column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
+		column = round( (float) (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() ) ); //round for best tuplets approximation. Good for the finest listeners!
 
 		bool columnChange = false;
 		if( __columnCheckOnXmouseMouve != column ){
@@ -549,70 +577,83 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 	if (pPatternEditor->isUsingTriplets()) {
 		nBase = 3;
 	}
+	else if (pPatternEditor->isUsingQuintuplets()) {
+		nBase = 5;
+	}
+	else if (pPatternEditor->isUsingSeptuplets()) {
+		nBase = 7;
+	}
+	else if (pPatternEditor->isUsing9tuplets()) {
+		nBase = 9;
+	}
 	else {
 		nBase = 4;
 	}
 
-	int n4th = 4 * MAX_NOTES / (nBase * 4);
-	int n8th = 4 * MAX_NOTES / (nBase * 8);
-	int n16th = 4 * MAX_NOTES / (nBase * 16);
-	int n32th = 4 * MAX_NOTES / (nBase * 32);
-	int n64th = 4 * MAX_NOTES / (nBase * 64);
+	int n4th = MAX_NOTES / 4;
+	int n8th = MAX_NOTES / 8;
+	int n16th = MAX_NOTES / 16;
+	int n32th = MAX_NOTES / 32;
+	int n64th = MAX_NOTES / 64;
+
 	int nResolution = pPatternEditor->getResolution();
 
+	uint x; // position for drawline; 
+	int nLine = 0; //position of vertical line in ticks
 
-	if ( !pPatternEditor->isUsingTriplets() ) {
+	if ( !pPatternEditor->isUsingTriplets() && !pPatternEditor->isUsingQuintuplets() && !pPatternEditor->isUsingSeptuplets() && !pPatternEditor->isUsing9tuplets() ) {
 
-		for (uint i = 0; i < nNotes + 1; i++) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % n4th) == 0 ) {
-				if (nResolution >= 4) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+		for ( int k = 0; nLine < nNotes; k++ ) {
+			nLine =  MAX_NOTES * k * 2 / (nBase * nResolution);
+			x = 20 + nLine * m_nGridWidth;
+			if (nLine < nNotes){
+				if ( (nLine % n4th) == 0 ) {
+					if (nResolution >= 4) {
+						p.setPen( QPen( res_1, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n8th) == 0 ) {
-				if (nResolution >= 8) {
-					p.setPen( QPen( res_2, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n8th) == 0 ) {
+					if (nResolution >= 8) {
+						p.setPen( QPen( res_2, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n16th) == 0 ) {
-				if (nResolution >= 16) {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n16th) == 0 ) {
+					if (nResolution >= 16) {
+						p.setPen( QPen( res_3, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n32th) == 0 ) {
-				if (nResolution >= 32) {
-					p.setPen( QPen( res_4, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n32th) == 0 ) {
+					if (nResolution >= 32) {
+						p.setPen( QPen( res_4, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n64th) == 0 ) {
-				if (nResolution >= 64) {
-					p.setPen( QPen( res_5, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n64th) == 0 ) {
+					if (nResolution >= 64) {
+						p.setPen( QPen( res_5, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
 			}
 		}
 	}
-	else {	// Triplets
-		uint nCounter = 0;
-		int nSize = 4 * MAX_NOTES / (nBase * nResolution);
+	else {	// Tuplets
+		int nCounter = 0;
 
-		for (uint i = 0; i < nNotes + 1; i++) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % nSize) == 0) {
-				if ((nCounter % 3) == 0) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
+		for ( int k = 0; nLine < nNotes; k++ ) {
+			nLine =  round( (float) MAX_NOTES * k * 4 / (nBase * nResolution) ); //round for best tuplets approximation.
+			x = 20 + nLine * m_nGridWidth;
+			if (nLine < nNotes){
+				if ((nCounter % nBase) == 0) {
+					p.setPen( QPen( res_1, 0, Qt::DotLine  ) );
 				}
 				else {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
+					p.setPen( QPen( res_3, 0, Qt::DotLine  ) );
 				}
-				p.drawLine(x, 0, x, m_nEditorHeight);
+				p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				nCounter++;
 			}
 		}
@@ -719,70 +760,83 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 	if (pPatternEditor->isUsingTriplets()) {
 		nBase = 3;
 	}
+	else if (pPatternEditor->isUsingQuintuplets()) {
+		nBase = 5;
+	}
+	else if (pPatternEditor->isUsingSeptuplets()) {
+		nBase = 7;
+	}
+	else if (pPatternEditor->isUsing9tuplets()) {
+		nBase = 9;
+	}
 	else {
 		nBase = 4;
 	}
 
-	int n4th = 4 * MAX_NOTES / (nBase * 4);
-	int n8th = 4 * MAX_NOTES / (nBase * 8);
-	int n16th = 4 * MAX_NOTES / (nBase * 16);
-	int n32th = 4 * MAX_NOTES / (nBase * 32);
-	int n64th = 4 * MAX_NOTES / (nBase * 64);
+	int n4th = MAX_NOTES / 4;
+	int n8th = MAX_NOTES / 8;
+	int n16th = MAX_NOTES / 16;
+	int n32th = MAX_NOTES / 32;
+	int n64th = MAX_NOTES / 64;
 
 	int nResolution = pPatternEditor->getResolution();
 
-	if ( !pPatternEditor->isUsingTriplets() ) {
+	uint x; // position for drawline; 
+	int nLine = 0; //position of vertical line in ticks
 
-		for (uint i = 0; i < nNotes +1 ; i++) {
-			uint x = 20 + i * m_nGridWidth;
+	if ( !pPatternEditor->isUsingTriplets() && !pPatternEditor->isUsingQuintuplets() && !pPatternEditor->isUsingSeptuplets() && !pPatternEditor->isUsing9tuplets() ) {
 
-			if ( (i % n4th) == 0 ) {
-				if (nResolution >= 4) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+		for ( int k = 0; nLine < nNotes; k++ ) {
+			nLine =  MAX_NOTES * k * 2 / (nBase * nResolution);
+			x = 20 + nLine * m_nGridWidth;
+			if (nLine < nNotes){
+				if ( (nLine % n4th) == 0 ) {
+					if (nResolution >= 4) {
+						p.setPen( QPen( res_1, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n8th) == 0 ) {
-				if (nResolution >= 8) {
-					p.setPen( QPen( res_2, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n8th) == 0 ) {
+					if (nResolution >= 8) {
+						p.setPen( QPen( res_2, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n16th) == 0 ) {
-				if (nResolution >= 16) {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n16th) == 0 ) {
+					if (nResolution >= 16) {
+						p.setPen( QPen( res_3, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n32th) == 0 ) {
-				if (nResolution >= 32) {
-					p.setPen( QPen( res_4, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n32th) == 0 ) {
+					if (nResolution >= 32) {
+						p.setPen( QPen( res_4, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n64th) == 0 ) {
-				if (nResolution >= 64) {
-					p.setPen( QPen( res_5, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n64th) == 0 ) {
+					if (nResolution >= 64) {
+						p.setPen( QPen( res_5, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
 			}
 		}
 	}
-	else {	// Triplets
-		uint nCounter = 0;
-		int nSize = 4 * MAX_NOTES / (nBase * nResolution);
+	else {	// Tuplets
+		int nCounter = 0;
 
-		for (uint i = 0; i < nNotes +1; i++) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % nSize) == 0) {
-				if ((nCounter % 3) == 0) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
+		for ( int k = 0; nLine < nNotes; k++ ) {
+			nLine =  round( (float) MAX_NOTES * k * 4 / (nBase * nResolution) ); //round for best tuplets approximation.
+			x = 20 + nLine * m_nGridWidth;
+			if (nLine < nNotes){
+				if ((nCounter % nBase) == 0) {
+					p.setPen( QPen( res_1, 0, Qt::DotLine  ) );
 				}
 				else {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
+					p.setPen( QPen( res_3, 0, Qt::DotLine  ) );
 				}
-				p.drawLine(x, 0, x, m_nEditorHeight);
+				p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				nCounter++;
 			}
 		}
@@ -879,70 +933,83 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 	if (pPatternEditor->isUsingTriplets()) {
 		nBase = 3;
 	}
+	else if (pPatternEditor->isUsingQuintuplets()) {
+		nBase = 5;
+	}
+	else if (pPatternEditor->isUsingSeptuplets()) {
+		nBase = 7;
+	}
+	else if (pPatternEditor->isUsing9tuplets()) {
+		nBase = 9;
+	}
 	else {
 		nBase = 4;
 	}
 
-	int n4th = 4 * MAX_NOTES / (nBase * 4);
-	int n8th = 4 * MAX_NOTES / (nBase * 8);
-	int n16th = 4 * MAX_NOTES / (nBase * 16);
-	int n32th = 4 * MAX_NOTES / (nBase * 32);
-	int n64th = 4 * MAX_NOTES / (nBase * 64);
+	int n4th = MAX_NOTES / 4;
+	int n8th = MAX_NOTES / 8;
+	int n16th = MAX_NOTES / 16;
+	int n32th = MAX_NOTES / 32;
+	int n64th = MAX_NOTES / 64;
 
 	int nResolution = pPatternEditor->getResolution();
 
-	if ( !pPatternEditor->isUsingTriplets() ) {
+	uint x; // position for drawline; 
+	int nLine = 0; //position of vertical line in ticks
 
-		for (uint i = 0; i < nNotes + 1; i++) {
-			uint x = 20 + i * m_nGridWidth;
+	if ( !pPatternEditor->isUsingTriplets() && !pPatternEditor->isUsingQuintuplets() && !pPatternEditor->isUsingSeptuplets() && !pPatternEditor->isUsing9tuplets() ) {
 
-			if ( (i % n4th) == 0 ) {
-				if (nResolution >= 4) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+		for ( int k = 0; nLine < nNotes; k++ ) {
+			nLine =  MAX_NOTES * k * 2 / (nBase * nResolution);
+			x = 20 + nLine * m_nGridWidth;
+			if (nLine < nNotes){
+				if ( (nLine % n4th) == 0 ) {
+					if (nResolution >= 4) {
+						p.setPen( QPen( res_1, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n8th) == 0 ) {
-				if (nResolution >= 8) {
-					p.setPen( QPen( res_2, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n8th) == 0 ) {
+					if (nResolution >= 8) {
+						p.setPen( QPen( res_2, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n16th) == 0 ) {
-				if (nResolution >= 16) {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n16th) == 0 ) {
+					if (nResolution >= 16) {
+						p.setPen( QPen( res_3, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n32th) == 0 ) {
-				if (nResolution >= 32) {
-					p.setPen( QPen( res_4, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n32th) == 0 ) {
+					if (nResolution >= 32) {
+						p.setPen( QPen( res_4, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n64th) == 0 ) {
-				if (nResolution >= 64) {
-					p.setPen( QPen( res_5, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n64th) == 0 ) {
+					if (nResolution >= 64) {
+						p.setPen( QPen( res_5, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
 			}
 		}
 	}
-	else {  // Triplets
-		uint nCounter = 0;
-		int nSize = 4 * MAX_NOTES / (nBase * nResolution);
+	else {	// Tuplets
+		int nCounter = 0;
 
-		for (uint i = 0; i < nNotes + 1; i++) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % nSize) == 0) {
-				if ((nCounter % 3) == 0) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
+		for ( int k = 0; nLine < nNotes; k++ ) {
+			nLine =  round( (float) MAX_NOTES * k * 4 / (nBase * nResolution) ); //round for best tuplets approximation.
+			x = 20 + nLine * m_nGridWidth;
+			if (nLine < nNotes){
+				if ((nCounter % nBase) == 0) {
+					p.setPen( QPen( res_1, 0, Qt::DotLine  ) );
 				}
 				else {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
+					p.setPen( QPen( res_3, 0, Qt::DotLine  ) );
 				}
-				p.drawLine(x, 0, x, m_nEditorHeight);
+				p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				nCounter++;
 			}
 		}
@@ -1069,70 +1136,83 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	if (pPatternEditor->isUsingTriplets()) {
 		nBase = 3;
 	}
+	else if (pPatternEditor->isUsingQuintuplets()) {
+		nBase = 5;
+	}
+	else if (pPatternEditor->isUsingSeptuplets()) {
+		nBase = 7;
+	}
+	else if (pPatternEditor->isUsing9tuplets()) {
+		nBase = 9;
+	}
 	else {
 		nBase = 4;
 	}
 
-	int n4th = 4 * MAX_NOTES / (nBase * 4);
-	int n8th = 4 * MAX_NOTES / (nBase * 8);
-	int n16th = 4 * MAX_NOTES / (nBase * 16);
-	int n32th = 4 * MAX_NOTES / (nBase * 32);
-	int n64th = 4 * MAX_NOTES / (nBase * 64);
+	int n4th = MAX_NOTES / 4;
+	int n8th = MAX_NOTES / 8;
+	int n16th = MAX_NOTES / 16;
+	int n32th = MAX_NOTES / 32;
+	int n64th = MAX_NOTES / 64;
+
 	int nResolution = pPatternEditor->getResolution();
 
+	uint x; // position for drawline; 
+	int nLine = 0; //position of vertical line in ticks
 
-	if ( !pPatternEditor->isUsingTriplets() ) {
+	if ( !pPatternEditor->isUsingTriplets() && !pPatternEditor->isUsingQuintuplets() && !pPatternEditor->isUsingSeptuplets() && !pPatternEditor->isUsing9tuplets() ) {
 
-		for (uint i = 0; i < nNotes + 1; i++) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % n4th) == 0 ) {
-				if (nResolution >= 4) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+		for ( int k = 0; nLine < nNotes; k++ ) {
+			nLine =  MAX_NOTES * k * 2 / (nBase * nResolution);
+			x = 20 + nLine * m_nGridWidth;
+			if (nLine < nNotes){
+				if ( (nLine % n4th) == 0 ) {
+					if (nResolution >= 4) {
+						p.setPen( QPen( res_1, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n8th) == 0 ) {
-				if (nResolution >= 8) {
-					p.setPen( QPen( res_2, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n8th) == 0 ) {
+					if (nResolution >= 8) {
+						p.setPen( QPen( res_2, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n16th) == 0 ) {
-				if (nResolution >= 16) {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n16th) == 0 ) {
+					if (nResolution >= 16) {
+						p.setPen( QPen( res_3, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n32th) == 0 ) {
-				if (nResolution >= 32) {
-					p.setPen( QPen( res_4, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n32th) == 0 ) {
+					if (nResolution >= 32) {
+						p.setPen( QPen( res_4, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
-			}
-			else if ( (i % n64th) == 0 ) {
-				if (nResolution >= 64) {
-					p.setPen( QPen( res_5, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
+				else if ( (nLine % n64th) == 0 ) {
+					if (nResolution >= 64) {
+						p.setPen( QPen( res_5, 0, Qt::DotLine ) );
+						p.drawLine(x, 0, x, m_nEditorHeight);
+					}
 				}
 			}
 		}
 	}
-	else {	// Triplets
-		uint nCounter = 0;
-		int nSize = 4 * MAX_NOTES / (nBase * nResolution);
+	else {	// Tuplets
+		int nCounter = 0;
 
-		for (uint i = 0; i < nNotes + 1; i++) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % nSize) == 0) {
-				if ((nCounter % 3) == 0) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
+		for ( int k = 0; nLine < nNotes; k++ ) {
+			nLine =  round( (float) MAX_NOTES * k * 4 / (nBase * nResolution) ); //round for best tuplets approximation.
+			x = 20 + nLine * m_nGridWidth;
+			if (nLine < nNotes){
+				if ((nCounter % nBase) == 0) {
+					p.setPen( QPen( res_1, 0, Qt::DotLine  ) );
 				}
 				else {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
+					p.setPen( QPen( res_3, 0, Qt::DotLine  ) );
 				}
-				p.drawLine(x, 0, x, m_nEditorHeight);
+				p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				nCounter++;
 			}
 		}

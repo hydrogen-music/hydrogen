@@ -47,6 +47,9 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel )
 	, m_nResolution( 8 )
 	, m_bRightBtnPressed( false )
 	, m_bUseTriplets( false )
+	, m_bUseQuintuplets( false )
+	, m_bUseSeptuplets( false )
+	, m_bUse9tuplets( false )
 	, m_pPattern( NULL )
 	, m_pPatternEditorPanel( panel )
 	, m_pDraggedNote( NULL )
@@ -81,10 +84,13 @@ PianoRollEditor::~PianoRollEditor()
 }
 
 
-void PianoRollEditor::setResolution(uint res, bool bUseTriplets)
+void PianoRollEditor::setResolution(uint res, bool bUseTriplets, bool bUseQuintuplets, bool bUseSeptuplets, bool bUse9tuplets)
 {
 	this->m_nResolution = res;
 	this->m_bUseTriplets = bUseTriplets;
+	this->m_bUseQuintuplets = bUseQuintuplets;
+	this->m_bUseSeptuplets = bUseSeptuplets;
+	this->m_bUse9tuplets = bUse9tuplets;
 	updateEditor();
 }
 
@@ -299,6 +305,15 @@ void PianoRollEditor::draw_grid( QPainter& p )
 	if (m_bUseTriplets) {
 		nBase = 3;
 	}
+	else if (m_bUseQuintuplets) {
+		nBase = 5;
+	}
+	else if (m_bUseSeptuplets) {
+		nBase = 7;
+	}
+	else if (m_bUse9tuplets) {
+		nBase = 9;
+	}
 	else {
 		nBase = 4;
 	}
@@ -313,55 +328,59 @@ void PianoRollEditor::draw_grid( QPainter& p )
 	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
 	}
-	if (!m_bUseTriplets) {
-		for ( int i = 0; i < nNotes + 1; i++ ) {
-			uint x = 20 + i * m_nGridWidth;
+	uint x; // position for drawline; 
+	int nLine = 0; //position of vertical line in ticks
 
-			if ( (i % n4th) == 0 ) {
-				if (m_nResolution >= 4) {
-					p.setPen( QPen( res_1, 1, Qt::DashLine) );
-					p.drawLine(x, 1, x, m_nEditorHeight - 1);
+	if (!m_bUseTriplets && !m_bUseQuintuplets && !m_bUseSeptuplets && !m_bUse9tuplets) {
+		for ( int k = 0; nLine < nNotes; k++ ) {
+			nLine =  MAX_NOTES * k * 2 / (nBase * m_nResolution);
+			x = 20 + nLine * m_nGridWidth;
+			if (nLine < nNotes){
+				if ( (nLine % n4th) == 0 ) {
+					if (m_nResolution >= 4) {
+						p.setPen( QPen( res_1, 1, Qt::DashLine) );
+						p.drawLine(x, 1, x, m_nEditorHeight - 1);
+					}
 				}
-			}
-			else if ( (i % n8th) == 0 ) {
-				if (m_nResolution >= 8) {
-					p.setPen( QPen( res_2, 0, Qt::DashLine ) );
-					p.drawLine(x, 1, x, m_nEditorHeight - 1);
+				else if ( (nLine % n8th) == 0 ) {
+					if (m_nResolution >= 8) {
+						p.setPen( QPen( res_2, 0, Qt::DashLine ) );
+						p.drawLine(x, 1, x, m_nEditorHeight - 1);
+					}
 				}
-			}
-			else if ( (i % n16th) == 0 ) {
-				if (m_nResolution >= 16) {
-					p.setPen( QPen( res_3, 0, Qt::DashLine ) );
-					p.drawLine(x, 1, x, m_nEditorHeight - 1);
+				else if ( (nLine % n16th) == 0 ) {
+					if (m_nResolution >= 16) {
+						p.setPen( QPen( res_3, 0, Qt::DashLine ) );
+						p.drawLine(x, 1, x, m_nEditorHeight - 1);
+					}
 				}
-			}
-			else if ( (i % n32th) == 0 ) {
-				if (m_nResolution >= 32) {
-					p.setPen( QPen( res_4, 0, Qt::DashLine ) );
-					p.drawLine(x, 1, x, m_nEditorHeight - 1);
+				else if ( (nLine % n32th) == 0 ) {
+					if (m_nResolution >= 32) {
+						p.setPen( QPen( res_4, 0, Qt::DashLine ) );
+						p.drawLine(x, 1, x, m_nEditorHeight - 1);
+					}
 				}
-			}
-			else if ( (i % n64th) == 0 ) {
-				if (m_nResolution >= 64) {
-					p.setPen( QPen( res_5, 0, Qt::DashLine  ) );
-					p.drawLine(x, 1, x, m_nEditorHeight - 1);
+				else if ( (nLine % n64th) == 0 ) {
+					if (m_nResolution >= 64) {
+						p.setPen( QPen( res_5, 0, Qt::DashLine  ) );
+						p.drawLine(x, 1, x, m_nEditorHeight - 1);
+					}
 				}
 			}
 		}
 	}
-	else {	// Triplets
-		uint nCounter = 0;
-		int nSize = 4 * MAX_NOTES / (nBase * m_nResolution);
+	else {	// Tuplets
+		int nCounter = 0;
 
-		for ( int i = 0; i < nNotes + 1; i++ ) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % nSize) == 0) {
-				if ((nCounter % 3) == 0) {
-					p.setPen( QPen( res_1, 0, Qt::DashLine ) );
+		for ( int k = 0; nLine < nNotes; k++ ) {
+			nLine =  round( (float) MAX_NOTES * k * 4 / (nBase * m_nResolution) ); //round for best tuplets approximation.
+			x = 20 + nLine * m_nGridWidth;
+			if (nLine < nNotes){
+				if ((nCounter % nBase) == 0) {
+					p.setPen( QPen( res_1, 0, Qt::DashLine  ) );
 				}
 				else {
-					p.setPen( QPen( res_3, 0, Qt::DashLine ) );
+					p.setPen( QPen( res_3, 0, Qt::DashLine  ) );
 				}
 				p.drawLine(x, 1, x, m_nEditorHeight - 1);
 				nCounter++;
@@ -456,6 +475,15 @@ int PianoRollEditor::getColumn(QMouseEvent *ev)
 	int nBase;
 	if (m_bUseTriplets) {
 		nBase = 3;
+	}
+	else if (m_bUseQuintuplets) {
+		nBase = 5;
+	}
+	else if (m_bUseSeptuplets) {
+		nBase = 7;
+	}
+	else if (m_bUse9tuplets) {
+		nBase = 9;
 	}
 	else {
 		nBase = 4;

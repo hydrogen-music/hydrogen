@@ -133,6 +133,19 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__resolution_combo->addItem( "16T" );
 	__resolution_combo->addItem( "32T" );
 	__resolution_combo->addSeparator();
+	__resolution_combo->addItem("4Q");
+	__resolution_combo->addItem("8Q");
+	__resolution_combo->addItem("16Q");
+	__resolution_combo->addItem("32Q");
+	__resolution_combo->addSeparator();
+	__resolution_combo->addItem("4S");
+	__resolution_combo->addItem("8S");
+	__resolution_combo->addItem("16S");
+	__resolution_combo->addSeparator();
+	__resolution_combo->addItem("8N");
+	__resolution_combo->addItem("16N");
+	__resolution_combo->addItem("32N");
+	__resolution_combo->addSeparator();
 	__resolution_combo->addItem( "off" );
 	__resolution_combo->move( 121, 2 );
 	// is triggered from inside PatternEditorPanel()
@@ -477,8 +490,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	int nIndex;
 	int nRes = pPref->getPatternEditorGridResolution();
 	if (nRes == MAX_NOTES) {
-		nIndex = 11;
-	} else if ( pPref->isPatternEditorUsingTriplets() == false ) {
+		nIndex = 24;
+	} else if ( pPref->isPatternEditorUsingTriplets() == false
+			 && pPref->isPatternEditorUsingQuintuplets() == false
+			 && pPref->isPatternEditorUsingSeptuplets() == false
+			 && pPref->isPatternEditorUsing9tuplets() == false) {
 		switch ( nRes ) {
 			case  4: nIndex = 0; break;
 			case  8: nIndex = 1; break;
@@ -489,7 +505,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				nIndex = 0;
 				ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
 		}
-	} else {
+	} else if ( pPref->isPatternEditorUsingTriplets() ){
 		switch ( nRes ) {
 			case  8: nIndex = 6; break;
 			case 16: nIndex = 7; break;
@@ -500,6 +516,41 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
 		}
 	}
+
+	else if ( pPref->isPatternEditorUsingQuintuplets() ){
+		switch ( pPref->getPatternEditorGridResolution() ) {
+		        case 1:	nIndex = 11; break;
+		        case 2:	nIndex = 12; break;
+		        case 4:	nIndex = 13; break;
+		        case 8:	nIndex = 14; break;
+			default:
+				nIndex = 11;
+				ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
+		}
+	}
+	else if ( pPref->isPatternEditorUsingSeptuplets() ){
+		switch ( pPref->getPatternEditorGridResolution() ) {
+		        case 1:	nIndex = 16; break;
+		        case 2:	nIndex = 17; break;
+		        case 4:	nIndex = 18; break;
+			default:
+				nIndex = 17;
+				ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
+		}
+	}
+	else if ( pPref->isPatternEditorUsing9tuplets() ){
+		switch ( pPref->getPatternEditorGridResolution() ) {
+		        case 1:	nIndex = 20; break;
+		        case 2:	nIndex = 21; break;
+		        case 4:	nIndex = 22; break;
+
+			default:
+				nIndex = 21;
+				ERRORLOG( QString("Wrong grid resolution: %1").arg( pPref->getPatternEditorGridResolution() ) );
+		}
+	}
+
+
 	__resolution_combo->select( nIndex );
 
 	//set pre delete
@@ -579,24 +630,42 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 {
 	int nResolution;
 	bool bUseTriplets = false;
+	bool bUseQuintuplets = false;
+	bool bUseSeptuplets = false;
+	bool bUse9tuplets = false;
 
-	if ( nSelected == 11 ) {
+	if ( nSelected <=4) {
+		nResolution = 0x1 << (nSelected + 2);
+	}
+	else if ( nSelected >= 6 && nSelected <=9) {
+		bUseTriplets = true;
+		nResolution = 0x1 << (nSelected - 3);// scaled so that a 8th-triplet fills a quarter
+	}
+	else if ( nSelected == 24 ) {
 		nResolution = MAX_NOTES;
 	}
-	else if ( nSelected > 4 ) {
-		bUseTriplets = true;
-		nResolution = 0x1 << (nSelected - 3);
+	else if ( nSelected >= 11 && nSelected <=14) {
+		bUseQuintuplets = true;
+		nResolution = 0x1 << (nSelected - 9); // scaled so that a 16th-5tuplet fills a quarter
 	}
-	else {
-		nResolution = 0x1 << (nSelected + 2);
+	else if ( nSelected >= 16 && nSelected <=18) {
+		bUseSeptuplets = true;
+		nResolution = 0x1 << (nSelected - 14); //scaled so that a 8th-7tuplet fills a quarter
+	}
+	else if ( nSelected >= 20 && nSelected <=22) {
+		bUse9tuplets = true;
+		nResolution = 0x1 << (nSelected - 18); //scaled so that a 16th-9tuplet fills a quarter
 	}
 
 	// INFOLOG( QString("idx %1 -> %2 resolution").arg( nSelected ).arg( nResolution ) );
-	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
-	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
+	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets, bUseQuintuplets, bUseSeptuplets, bUse9tuplets );
+	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets, bUseQuintuplets, bUseSeptuplets, bUse9tuplets );
 
 	Preferences::get_instance()->setPatternEditorGridResolution( nResolution );
 	Preferences::get_instance()->setPatternEditorUsingTriplets( bUseTriplets );
+	Preferences::get_instance()->setPatternEditorUsingQuintuplets( bUseQuintuplets );
+	Preferences::get_instance()->setPatternEditorUsingSeptuplets( bUseSeptuplets );
+	Preferences::get_instance()->setPatternEditorUsing9tuplets( bUse9tuplets );
 }
 
 

@@ -347,11 +347,19 @@ void InstrumentLine::functionFillNotes( int every )
 	if ( pPatternEditor->isUsingTriplets() ) {
 		nBase = 3;
 	}
+	else if (pPatternEditor->isUsingQuintuplets()) {
+		nBase = 5;
+	}
+	else if (pPatternEditor->isUsingSeptuplets()) {
+		nBase = 7;
+	}
+	else if (pPatternEditor->isUsing9tuplets()) {
+		nBase = 9;
+	}
 	else {
 		nBase = 4;
 	}
-	int nResolution = 4 * MAX_NOTES * every / ( nBase * pPatternEditor->getResolution() );
-
+	int nResolution = pPatternEditor->getResolution();
 
 	Song *pSong = pEngine->getSong();
 
@@ -364,11 +372,12 @@ void InstrumentLine::functionFillNotes( int every )
 
 		if (nSelectedInstrument != -1) {
 			Instrument *instrRef = (pSong->get_instrument_list())->get( nSelectedInstrument );
-
-			for (int i = 0; i < nPatternSize; i += nResolution) {
+			int nPos;
+			for (int k = 0; nPos < nPatternSize; k++) {
 				bool noteAlreadyPresent = false;
 				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-				FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+				nPos =  round( (float) MAX_NOTES * every * 4 * k / (nBase * nResolution) );//round for best tuplets approximation.
+				FOREACH_NOTE_CST_IT_BOUND(notes,it,nPos) {
 					Note *pNote = it->second;
 					if ( pNote->get_instrument() == instrRef ) {
 						// note already exists
@@ -377,8 +386,8 @@ void InstrumentLine::functionFillNotes( int every )
 					}
 				}
 
-				if ( noteAlreadyPresent == false ) {
-					notePositions << QString("%1").arg(i);
+				if ( noteAlreadyPresent == false && nPos < nPatternSize) {
+					notePositions << QString("%1").arg( nPos );
 				}
 			}
 			SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction( notePositions, nSelectedInstrument, pEngine->getSelectedPatternNumber() );
@@ -402,10 +411,19 @@ void InstrumentLine::functionRandomizeVelocity()
 	if ( pPatternEditor->isUsingTriplets() ) {
 		nBase = 3;
 	}
+	else if (pPatternEditor->isUsingQuintuplets()) {
+		nBase = 5;
+	}
+	else if (pPatternEditor->isUsingSeptuplets()) {
+		nBase = 7;
+	}
+	else if (pPatternEditor->isUsing9tuplets()) {
+		nBase = 9;
+	}
 	else {
 		nBase = 4;
 	}
-	int nResolution = 4 * MAX_NOTES / ( nBase * pPatternEditor->getResolution() );
+	int nResolution = pPatternEditor->getResolution();
 
 	Song *pSong = pEngine->getSong();
 
@@ -419,10 +437,11 @@ void InstrumentLine::functionRandomizeVelocity()
 
 		if (nSelectedInstrument != -1) {
 			Instrument *instrRef = (pSong->get_instrument_list())->get( nSelectedInstrument );
-
-			for (int i = 0; i < nPatternSize; i += nResolution) {
+			int nPos;
+			for (int k = 0; nPos < nPatternSize; k++) {
 				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-				FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+				nPos =  round( (float) MAX_NOTES * 4 * k / (nBase * nResolution) );//round for best tuplets approximation.
+				FOREACH_NOTE_CST_IT_BOUND(notes,it,nPos) {
 					Note *pNote = it->second;
 					if ( pNote->get_instrument() == instrRef ) {
 						float fVal = ( rand() % 100 ) / 100.0;
@@ -435,6 +454,7 @@ void InstrumentLine::functionRandomizeVelocity()
 							fVal = 1;
 						}
 						noteVeloValue << QString("%1").arg(fVal);
+						pNote->set_velocity(fVal); // TODO this line was added to make Randomize working for Tuplets (otherwise only some notes are randomized), but it does NOT allow 'UNDO' ACTION! by oddtime
 					}
 				}
 			}

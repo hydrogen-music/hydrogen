@@ -453,6 +453,16 @@ public:
 	bool			isPatternEditorUsingTriplets();
 	void			setPatternEditorUsingTriplets( bool value );
 
+	bool			isPatternEditorUsingQuintuplets();
+	void			setPatternEditorUsingQuintuplets( bool value );
+
+	bool			isPatternEditorUsingSeptuplets();
+	void			setPatternEditorUsingSeptuplets( bool value );
+
+	bool			isPatternEditorUsing9tuplets();
+	void			setPatternEditorUsing9tuplets( bool value );
+
+
 	bool			isFXTabVisible();
 	void			setFXTabVisible( bool value );
 	
@@ -672,6 +682,9 @@ private:
 	float					mixerFalloffSpeed;
 	int						m_nPatternEditorGridResolution;
 	bool					m_bPatternEditorUsingTriplets;
+	bool					m_bPatternEditorUsingQuintuplets;
+	bool					m_bPatternEditorUsingSeptuplets;
+	bool					m_bPatternEditorUsing9tuplets;
 	bool					m_bShowInstrumentPeaks;
 	bool					m_bIsFXTabVisible;
 	bool					m_bShowAutomationArea;
@@ -945,12 +958,37 @@ inline void Preferences::setPatternEditorGridResolution( int value ) {
 	m_nPatternEditorGridResolution = value;
 }
 
+inline bool Preferences::isPatternEditorUsingQuintuplets() {
+	return m_bPatternEditorUsingQuintuplets;
+}
+
+inline bool Preferences::isPatternEditorUsingSeptuplets() {
+	return m_bPatternEditorUsingSeptuplets;
+}
+
+inline bool Preferences::isPatternEditorUsing9tuplets() {
+	return m_bPatternEditorUsing9tuplets;
+}
+
+
 inline bool Preferences::isPatternEditorUsingTriplets() {
 	return m_bPatternEditorUsingTriplets;
 }
 inline void Preferences::setPatternEditorUsingTriplets( bool value ) {
 	m_bPatternEditorUsingTriplets = value;
 }
+inline void Preferences::setPatternEditorUsingQuintuplets( bool value ) {
+  m_bPatternEditorUsingQuintuplets = value;
+}
+
+inline void Preferences::setPatternEditorUsingSeptuplets( bool value ) {
+  m_bPatternEditorUsingSeptuplets = value;
+}
+
+inline void Preferences::setPatternEditorUsing9tuplets( bool value ) {
+  m_bPatternEditorUsing9tuplets = value;
+}
+
 
 inline bool Preferences::isFXTabVisible() {
 	return m_bIsFXTabVisible;
