@@ -1997,6 +1997,10 @@ void MainForm::action_banks_properties()
 				break;
 			}
 		}
+		
+		// Since Drumkit::load() calls New Drumkit() internally, we
+		// have to take care of destroying it manually.
+		delete pInfo;
 	}
 
 	//System drumkit list
@@ -2010,6 +2014,10 @@ void MainForm::action_banks_properties()
 				break;
 			}
 		}
+		
+		// Since Drumkit::load() calls New Drumkit() internally, we
+		// have to take care of destroying it manually.
+		delete pInfo;
 	}
 
 	if( pDrumkitInfo )
@@ -2021,4 +2029,8 @@ void MainForm::action_banks_properties()
 	{
 		QMessageBox::information( this, "Hydrogen", tr("Retrieving information about drumkit '%1' failed: drumkit does not exist.").arg( sDrumkitName ) );
 	}
+
+	// Cleaning up the last pInfo we did not deleted due to the break
+	// statement.
+	delete pDrumkitInfo;
 }
