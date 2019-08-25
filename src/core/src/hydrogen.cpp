@@ -2513,11 +2513,16 @@ void Hydrogen::setSong( Song *pSong )
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
-	audioEngine_setSong ( pSong );
-
+	// In order to allow functions like audioEngine_setupLadspaFX() to
+	// load the settings of the new song, like whether the LADSPA FX
+	// are activated, __song has to be set prior to the call of
+	// audioEngine_setSong().
 	__song = pSong;
 
-	//load new playback track information
+	// Update the audio engine to work with the new song.
+	audioEngine_setSong( pSong );
+
+	// load new playback track information
 	AudioEngine::get_instance()->get_sampler()->reinitialize_playback_track();
 	
 	m_pCoreActionController->initExternalControlInterfaces();
