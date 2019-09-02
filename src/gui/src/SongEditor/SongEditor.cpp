@@ -1503,22 +1503,19 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	// se esiste, seleziono il primo pattern
 	if ( pSongPatternList->size() > 0 ) {
 		H2Core::Pattern *pFirstPattern = pSongPatternList->get( 0 );
-		list->add( pFirstPattern );
-		// Cambio due volte...cosi' il pattern editor viene costretto ad aggiornarsi
-		pEngine->setSelectedPatternNumber( -1 );
-		pEngine->setSelectedPatternNumber( 0 );
-	}
+		list->add( pFirstPattern );	}
 	else {
 		// there's no patterns..
-		Pattern *emptyPattern = new Pattern();
-		emptyPattern->set_name( trUtf8("Pattern 1") );
-		emptyPattern->set_category( trUtf8("not_categorized") );
-		pSongPatternList->add( emptyPattern );
-		pEngine->setSelectedPatternNumber( -1 );
-		pEngine->setSelectedPatternNumber( 0 );
+		Pattern *pEmptyPattern = new Pattern();
+		pEmptyPattern->set_name( trUtf8("Pattern 1") );
+		pEmptyPattern->set_category( trUtf8("not_categorized") );
+		pSongPatternList->add( pEmptyPattern );
 	}
 
 	AudioEngine::get_instance()->unlock();
+	
+	pEngine->setSelectedPatternNumber( -1 );
+	pEngine->setSelectedPatternNumber( 0 );
 
 	for (unsigned int index = 0; index < pSongPatternList->size(); ++index) {
 		H2Core::Pattern *curPattern = pSongPatternList->get(index);
