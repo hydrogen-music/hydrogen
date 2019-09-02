@@ -1043,9 +1043,13 @@ void MainForm::action_instruments_saveLibrary()
 				break;
 			}
 		}
+		
+		// Since Drumkit::load() calls New Drumkit() internally, we
+		// have to take care of destroying it manually.
+		delete pInfo;
 	}
 
-	//System drumkit list
+	// System drumkit list
 	QStringList sys_dks = Filesystem::sys_drumkit_list();
 	for (int i = 0; i < sys_dks.size(); ++i) {
 		QString absPath = Filesystem::sys_drumkits_dir() + sys_dks[i];
@@ -1056,6 +1060,10 @@ void MainForm::action_instruments_saveLibrary()
 				break;
 			}
 		}
+		
+		// Since Drumkit::load() calls New Drumkit() internally, we
+		// have to take care of destroying it manually.
+		delete pInfo;
 	}
 
 	if ( pDrumkitInfo != nullptr ){
@@ -1077,6 +1085,11 @@ void MainForm::action_instruments_saveLibrary()
 
 	//HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
+
+	// Cleaning up the last pInfo we did not deleted due to the break
+	// statement.
+	delete pDrumkitInfo;
+
 }
 
 
@@ -1984,6 +1997,10 @@ void MainForm::action_banks_properties()
 				break;
 			}
 		}
+		
+		// Since Drumkit::load() calls New Drumkit() internally, we
+		// have to take care of destroying it manually.
+		delete pInfo;
 	}
 
 	//System drumkit list
@@ -1997,6 +2014,10 @@ void MainForm::action_banks_properties()
 				break;
 			}
 		}
+		
+		// Since Drumkit::load() calls New Drumkit() internally, we
+		// have to take care of destroying it manually.
+		delete pInfo;
 	}
 
 	if( pDrumkitInfo )
@@ -2008,4 +2029,8 @@ void MainForm::action_banks_properties()
 	{
 		QMessageBox::information( this, "Hydrogen", tr("Retrieving information about drumkit '%1' failed: drumkit does not exist.").arg( sDrumkitName ) );
 	}
+
+	// Cleaning up the last pInfo we did not deleted due to the break
+	// statement.
+	delete pDrumkitInfo;
 }

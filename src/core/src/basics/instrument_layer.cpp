@@ -53,7 +53,7 @@ InstrumentLayer::InstrumentLayer( InstrumentLayer* other, Sample* sample ) : Obj
 	__end_velocity( other->get_end_velocity() ),
 	__pitch( other->get_pitch() ),
 	__gain( other->get_gain() ),
-	__sample( sample )
+	__sample( new Sample(sample) )
 {
 }
 

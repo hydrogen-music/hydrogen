@@ -131,7 +131,9 @@ Instrument::Instrument( Instrument* other )
 	}
 
 	__components = new std::vector<InstrumentComponent*> ();
-	__components->assign( other->get_components()->begin(), other->get_components()->end() );
+	for (auto it = other->get_components()->begin(); it != other->get_components()->end(); ++it) {
+		__components->push_back(new InstrumentComponent(*it));
+	}
 }
 
 Instrument::~Instrument()
