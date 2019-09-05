@@ -690,24 +690,28 @@ void PatternEditorPanel::stateChangedEvent(int state)
 }
 
 
+static void syncScrollBarSize(QScrollBar *dest, QScrollBar *src)
+{
+	dest->setMinimum( src->minimum() );
+	dest->setMaximum( src->maximum() );
+	dest->setSingleStep( src->singleStep() );
+	dest->setPageStep( src->pageStep() );
+}
 
 void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
 {
 	UNUSED( ev );
 	QScrollArea *pScrollArea = m_pEditorScrollView;
 
+	syncScrollBarSize( m_pPatternEditorHScrollBar, pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pPatternEditorVScrollBar, pScrollArea->verticalScrollBar() );
 
-	pScrollArea = m_pEditorScrollView;
-
-	m_pPatternEditorHScrollBar->setMinimum( pScrollArea->horizontalScrollBar()->minimum() );
-	m_pPatternEditorHScrollBar->setMaximum( pScrollArea->horizontalScrollBar()->maximum() );
-	m_pPatternEditorHScrollBar->setSingleStep( pScrollArea->horizontalScrollBar()->singleStep() );
-	m_pPatternEditorHScrollBar->setPageStep( pScrollArea->horizontalScrollBar()->pageStep() );
-
-	m_pPatternEditorVScrollBar->setMinimum( pScrollArea->verticalScrollBar()->minimum() );
-	m_pPatternEditorVScrollBar->setMaximum( pScrollArea->verticalScrollBar()->maximum() );
-	m_pPatternEditorVScrollBar->setSingleStep( pScrollArea->verticalScrollBar()->singleStep() );
-	m_pPatternEditorVScrollBar->setPageStep( pScrollArea->verticalScrollBar()->pageStep() );
+	syncScrollBarSize( m_pRulerScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pNoteVelocityScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pNotePanScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pNoteLeadLagScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar()) ;
+	syncScrollBarSize( m_pNoteNoteKeyScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pNoteProbabilityScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
 }
 
 
