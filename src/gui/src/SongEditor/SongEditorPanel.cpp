@@ -307,6 +307,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRuler = new SongEditorPositionRuler( m_pPositionRulerScrollView->viewport() );
 	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
 	m_pPositionRulerScrollView->setFixedHeight( 50 );
+	connect( m_pPositionRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( hScrollTo(int) ) );
 	
 	m_pPlaybackTrackScrollView = new QScrollArea( m_pWidgetStack );
 	m_pPlaybackTrackScrollView->setFrameShape( QFrame::NoFrame );
