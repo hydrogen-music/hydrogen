@@ -690,12 +690,12 @@ void PatternEditorPanel::stateChangedEvent(int state)
 }
 
 
-static void syncScrollBarSize(QScrollBar *dest, QScrollBar *src)
+static void syncScrollBarSize(QScrollBar *pDest, QScrollBar *pSrc)
 {
-	dest->setMinimum( src->minimum() );
-	dest->setMaximum( src->maximum() );
-	dest->setSingleStep( src->singleStep() );
-	dest->setPageStep( src->pageStep() );
+	pDest->setMinimum( pSrc->minimum() );
+	pDest->setMaximum( pSrc->maximum() );
+	pDest->setSingleStep( pSrc->singleStep() );
+	pDest->setPageStep( pSrc->pageStep() );
 }
 
 void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
