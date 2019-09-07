@@ -267,6 +267,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPatternEditorRuler = new PatternEditorRuler( m_pRulerScrollView->viewport() );
 
 	m_pRulerScrollView->setWidget( m_pPatternEditorRuler );
+	connect( m_pRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 
 //~ RULER
 
@@ -284,7 +285,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pEditorScrollView->setWidget( m_pDrumPatternEditor );
 
-	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorScroll(int) ) );
+	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
+	connect( m_pEditorScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 
 
 //PianoRollEditor
@@ -294,6 +296,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
+	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 
 	m_pPianoRollScrollView->hide();
 
@@ -316,7 +319,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pInstrListScrollView->setWidget( m_pInstrumentList );
 	m_pInstrListScrollView->setFixedWidth( m_pInstrumentList->width() );
 
-	connect( m_pInstrListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorScroll(int) ) );
+	connect( m_pInstrListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
 //~ INSTRUMENT LIST
 
 
@@ -330,6 +333,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteVelocityEditor = new NotePropertiesRuler( m_pNoteVelocityScrollView->viewport(), this, NotePropertiesRuler::VELOCITY );
 	m_pNoteVelocityScrollView->setWidget( m_pNoteVelocityEditor );
 	m_pNoteVelocityScrollView->setFixedHeight( 100 );
+	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
+
 //~ NOTE_VELOCITY EDITOR
 
 
@@ -341,6 +346,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNotePanEditor = new NotePropertiesRuler( m_pNotePanScrollView->viewport(), this, NotePropertiesRuler::PAN );
 	m_pNotePanScrollView->setWidget( m_pNotePanEditor );
 	m_pNotePanScrollView->setFixedHeight( 100 );
+	connect( m_pNotePanScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 //~ NOTE_PAN EDITOR
 
 
@@ -352,6 +358,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteLeadLagEditor = new NotePropertiesRuler( m_pNoteLeadLagScrollView->viewport(), this, NotePropertiesRuler::LEADLAG );
 	m_pNoteLeadLagScrollView->setWidget( m_pNoteLeadLagEditor );
 	m_pNoteLeadLagScrollView->setFixedHeight( 100 );
+	connect( m_pNoteLeadLagScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 //~ NOTE_LEADLAG EDITOR
 
 
@@ -365,6 +372,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteNoteKeyEditor = new NotePropertiesRuler( m_pNoteNoteKeyScrollView->viewport(), this, NotePropertiesRuler::NOTEKEY );
 	m_pNoteNoteKeyScrollView->setWidget( m_pNoteNoteKeyEditor );
 	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
+	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 
 
 //~ NOTE_NOTEKEY EDITOR
@@ -377,6 +385,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteProbabilityEditor = new NotePropertiesRuler( m_pNoteProbabilityScrollView->viewport(), this, NotePropertiesRuler::PROBABILITY );
 	m_pNoteProbabilityScrollView->setWidget( m_pNoteProbabilityEditor );
 	m_pNoteProbabilityScrollView->setFixedHeight( 100 );
+	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 //~ NOTE_PROBABILITY EDITOR
 
 
@@ -565,10 +574,17 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar(int)
 }
 
 
-void PatternEditorPanel::on_patternEditorScroll(int nValue)
+void PatternEditorPanel::on_patternEditorVScroll(int nValue)
 {
-	//INFOLOG( "[on_patternEditorScroll] " + QString::number(nValue)  );
+	//INFOLOG( "[on_patternEditorVScroll] " + QString::number(nValue)  );
 	m_pPatternEditorVScrollBar->setValue( nValue );	
+	resizeEvent(NULL);
+}
+
+void PatternEditorPanel::on_patternEditorHScroll(int nValue)
+{
+	//INFOLOG( "[on_patternEditorHScroll] " + QString::number(nValue)  );
+	m_pPatternEditorHScrollBar->setValue( nValue );	
 	resizeEvent(NULL);
 }
 
@@ -674,24 +690,28 @@ void PatternEditorPanel::stateChangedEvent(int state)
 }
 
 
+static void syncScrollBarSize(QScrollBar *dest, QScrollBar *src)
+{
+	dest->setMinimum( src->minimum() );
+	dest->setMaximum( src->maximum() );
+	dest->setSingleStep( src->singleStep() );
+	dest->setPageStep( src->pageStep() );
+}
 
 void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
 {
 	UNUSED( ev );
 	QScrollArea *pScrollArea = m_pEditorScrollView;
 
+	syncScrollBarSize( m_pPatternEditorHScrollBar, pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pPatternEditorVScrollBar, pScrollArea->verticalScrollBar() );
 
-	pScrollArea = m_pEditorScrollView;
-
-	m_pPatternEditorHScrollBar->setMinimum( pScrollArea->horizontalScrollBar()->minimum() );
-	m_pPatternEditorHScrollBar->setMaximum( pScrollArea->horizontalScrollBar()->maximum() );
-	m_pPatternEditorHScrollBar->setSingleStep( pScrollArea->horizontalScrollBar()->singleStep() );
-	m_pPatternEditorHScrollBar->setPageStep( pScrollArea->horizontalScrollBar()->pageStep() );
-
-	m_pPatternEditorVScrollBar->setMinimum( pScrollArea->verticalScrollBar()->minimum() );
-	m_pPatternEditorVScrollBar->setMaximum( pScrollArea->verticalScrollBar()->maximum() );
-	m_pPatternEditorVScrollBar->setSingleStep( pScrollArea->verticalScrollBar()->singleStep() );
-	m_pPatternEditorVScrollBar->setPageStep( pScrollArea->verticalScrollBar()->pageStep() );
+	syncScrollBarSize( m_pRulerScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pNoteVelocityScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pNotePanScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pNoteLeadLagScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar()) ;
+	syncScrollBarSize( m_pNoteNoteKeyScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pNoteProbabilityScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
 }
 
 
