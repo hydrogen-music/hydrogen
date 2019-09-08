@@ -139,7 +139,7 @@ void* diskWriterDriver_thread( void* param )
 
 	if ( !sf_format_check( &soundInfo ) ) {
 		__ERRORLOG( "Error in soundInfo" );
-		return 0;
+		return nullptr;
 	}
 
 
@@ -224,7 +224,7 @@ void* diskWriterDriver_thread( void* param )
 			
 			//pDriver->m_transport.m_nFrames = frameNumber;
 			
-			int ret = pDriver->m_processCallback( usedBuffer, NULL );
+			int ret = pDriver->m_processCallback( usedBuffer, nullptr );
 			
 			for ( unsigned i = 0; i < usedBuffer; i++ ) {
 				if(pData_L[i] > 1){
@@ -259,15 +259,15 @@ void* diskWriterDriver_thread( void* param )
 	}
 
 	delete[] pData;
-	pData = NULL;
+	pData = nullptr;
 
 	sf_close( m_file );
 
 	__INFOLOG( "DiskWriterDriver thread end" );
 
-	pthread_exit( NULL );
+	pthread_exit( nullptr );
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -280,8 +280,8 @@ DiskWriterDriver::DiskWriterDriver( audioProcessCallback processCallback, unsign
 		, m_nSampleDepth ( nSampleDepth )
 		, m_processCallback( processCallback )
 		, m_nBufferSize( 0 )
-		, m_pOut_L( NULL )
-		, m_pOut_R( NULL )
+		, m_pOut_L( nullptr )
+		, m_pOut_R( nullptr )
 {
 	INFOLOG( "INIT" );
 }
@@ -329,10 +329,10 @@ void DiskWriterDriver::disconnect()
 {
 		INFOLOG( "[disconnect]" );
 	delete[] m_pOut_L;
-	m_pOut_L = NULL;
+	m_pOut_L = nullptr;
 
 	delete[] m_pOut_R;
-	m_pOut_R = NULL;
+	m_pOut_R = nullptr;
 
 }
 

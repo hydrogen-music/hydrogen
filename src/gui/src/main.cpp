@@ -122,7 +122,7 @@ static int setup_unix_signal_handlers()
 	usr1.sa_flags = 0;
 	usr1.sa_flags |= SA_RESTART;
 
-	if (sigaction(SIGUSR1, &usr1, 0) > 0)
+	if (sigaction(SIGUSR1, &usr1, nullptr) > 0)
 		return 1;
 
 	return 0;
@@ -262,8 +262,8 @@ int main(int argc, char *argv[])
 		QString family = pPref->getApplicationFontFamily();
 		pQApp->setFont( QFont( family, pPref->getApplicationFontPointSize() ) );
 
-		QTranslator qttor( 0 );
-		QTranslator tor( 0 );
+		QTranslator qttor( nullptr );
+		QTranslator tor( nullptr );
 		QString sTranslationFile = QString("hydrogen.") + QLocale::system().name();
 		QString sLocale = QLocale::system().name();
 		if ( sLocale != "C") {

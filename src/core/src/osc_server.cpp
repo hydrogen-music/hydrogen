@@ -708,7 +708,7 @@ void OscServer::start()
 	 */
 
 	//This handler is responsible for registering clients
-	m_pServerThread->add_method(NULL, NULL, [&](lo_message msg){
+	m_pServerThread->add_method(nullptr, nullptr, [&](lo_message msg){
 									INFOLOG("OSC REGISTER HANDLER");
 									lo_address a = lo_message_get_source(msg);
 
@@ -741,7 +741,7 @@ void OscServer::start()
 									return 1;
 								});
 
-	m_pServerThread->add_method(NULL, NULL, generic_handler, NULL);
+	m_pServerThread->add_method(nullptr, nullptr, generic_handler, nullptr);
 
 	m_pServerThread->add_method("/Hydrogen/PLAY", "", PLAY_Handler);
 	m_pServerThread->add_method("/Hydrogen/PLAY", "f", PLAY_Handler);

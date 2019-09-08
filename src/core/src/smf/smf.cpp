@@ -212,7 +212,7 @@ const char* SMFWriter::__class_name = "SMFWriter";
 
 SMFWriter::SMFWriter()
 		: Object( __class_name )
-		, m_file( NULL )
+		, m_file( nullptr )
 {
 	INFOLOG( "INIT" );
 }
@@ -351,7 +351,7 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 	// save the midi file
 	m_file = fopen( sFilename.toLocal8Bit(), "wb" );
 
-	if( m_file == NULL )
+	if( m_file == nullptr )
 		return;
 
 	vector<char> smfVect = smf.getBuffer();

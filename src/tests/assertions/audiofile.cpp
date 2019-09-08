@@ -35,7 +35,7 @@ void H2Test::checkAudioFilesEqual(const QString &expected, const QString &actual
 	if ( f1 == nullptr ) {
 		CppUnit::Message msg(
 			"Can't open reference file",
-			sf_strerror( NULL )
+			sf_strerror( nullptr )
 		);
 		throw CppUnit::Exception(msg, sourceLine);
 	}
@@ -46,7 +46,7 @@ void H2Test::checkAudioFilesEqual(const QString &expected, const QString &actual
 	if ( f2 == nullptr ) {
 		CppUnit::Message msg(
 			"Can't open results file",
-			sf_strerror( NULL )
+			sf_strerror( nullptr )
 		);
 		throw CppUnit::Exception(msg, sourceLine);
 	}

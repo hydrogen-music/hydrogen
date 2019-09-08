@@ -692,7 +692,7 @@ void MasterFader::setMax( float fMax )
 
 
 
-QPixmap* Knob::m_background = NULL;
+QPixmap* Knob::m_background = nullptr;
 
 const char* Knob::__class_name = "Knob";
 
@@ -713,7 +713,7 @@ Knob::Knob( QWidget* pParent )
 	m_fMousePressY = 0.0;
 	m_bIgnoreMouseMove = false;
 
-	if ( m_background == NULL ) {
+	if ( m_background == nullptr ) {
 		QString sBackground_path = Skin::getImagePath() + "/mixerPanel/knob_images.png";
 		m_background = new QPixmap();
 		if ( m_background->load( sBackground_path ) == false ){

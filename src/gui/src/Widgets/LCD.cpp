@@ -31,10 +31,10 @@
 
 #include <hydrogen/globals.h>
 
-QPixmap* LCDDigit::m_pSmallBlueFontSet = NULL;
-QPixmap* LCDDigit::m_pSmallRedFontSet = NULL;
-QPixmap* LCDDigit::m_pLargeGrayFontSet = NULL;
-QPixmap* LCDDigit::m_pSmallGrayFontSet = NULL;
+QPixmap* LCDDigit::m_pSmallBlueFontSet = nullptr;
+QPixmap* LCDDigit::m_pSmallRedFontSet = nullptr;
+QPixmap* LCDDigit::m_pLargeGrayFontSet = nullptr;
+QPixmap* LCDDigit::m_pSmallGrayFontSet = nullptr;
 
 const char* LCDDigit::__class_name = "LCDDigit";
 
@@ -64,7 +64,7 @@ LCDDigit::LCDDigit( QWidget * pParent, LCDType type )
 	setMaximumSize( width(), height() );
 
 	// Small blue FontSet image
-	if (m_pSmallBlueFontSet == NULL ) {
+	if (m_pSmallBlueFontSet == nullptr ) {
 		QString sSmallBlueFontSet = Skin::getImagePath() + "/lcd/LCDSmallBlueFontSet.png";
 		m_pSmallBlueFontSet = new QPixmap();
 		bool ok = m_pSmallBlueFontSet->load( sSmallBlueFontSet );
@@ -74,7 +74,7 @@ LCDDigit::LCDDigit( QWidget * pParent, LCDType type )
 	}
 
 	// Small red FontSet image
-	if (m_pSmallRedFontSet == NULL ) {
+	if (m_pSmallRedFontSet == nullptr ) {
 		QString sSmallRedFontSet = Skin::getImagePath() + "/lcd/LCDSmallRedFontSet.png";
 		m_pSmallRedFontSet = new QPixmap();
 		bool ok = m_pSmallRedFontSet->load( sSmallRedFontSet );
@@ -84,7 +84,7 @@ LCDDigit::LCDDigit( QWidget * pParent, LCDType type )
 	}
 
 	// Large gray FontSet image
-	if (m_pLargeGrayFontSet == NULL ) {
+	if (m_pLargeGrayFontSet == nullptr ) {
 		QString sLargeGrayFontSet = Skin::getImagePath() + "/lcd/LCDLargeGrayFontSet.png";
 		m_pLargeGrayFontSet = new QPixmap();
 		bool ok = m_pLargeGrayFontSet->load( sLargeGrayFontSet );
@@ -94,7 +94,7 @@ LCDDigit::LCDDigit( QWidget * pParent, LCDType type )
 	}
 
 	// Small gray FontSet image
-	if (m_pSmallGrayFontSet == NULL ) {
+	if (m_pSmallGrayFontSet == nullptr ) {
 		QString sSmallGrayFontSet = Skin::getImagePath() + "/lcd/LCDSmallGrayFontSet.png";
 		m_pSmallGrayFontSet = new QPixmap();
 		bool ok = m_pSmallGrayFontSet->load( sSmallGrayFontSet );

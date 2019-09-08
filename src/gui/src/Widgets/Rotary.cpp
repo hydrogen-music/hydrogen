@@ -27,7 +27,7 @@
 
 RotaryTooltip::RotaryTooltip( QPoint pos )
 //  : QWidget( 0, "RotaryTooltip", Qt::WStyle_Customize| Qt::WStyle_NoBorder | Qt::WStyle_StaysOnTop| Qt::WX11BypassWM )
-  : QWidget( 0, Qt::ToolTip )
+  : QWidget( nullptr, Qt::ToolTip )
 {
 	UNUSED( pos );
 
@@ -60,8 +60,8 @@ RotaryTooltip::~RotaryTooltip()
 
 ///////////////////
 
-QPixmap* Rotary::m_background_normal = NULL;
-QPixmap* Rotary::m_background_center = NULL;
+QPixmap* Rotary::m_background_normal = nullptr;
+QPixmap* Rotary::m_background_center = nullptr;
 
 const char* Rotary::__class_name = "Rotary";
 
@@ -94,13 +94,13 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
 
 	m_fValue = m_fDefaultValue;
 
-	if ( m_background_normal == NULL ) {
+	if ( m_background_normal == nullptr ) {
 		m_background_normal = new QPixmap();
 		if ( m_background_normal->load( Skin::getImagePath() + "/mixerPanel/rotary_images.png" ) == false ){
 			ERRORLOG( "Error loading pixmap" );
 		}
 	}
-	if ( m_background_center == NULL ) {
+	if ( m_background_center == nullptr ) {
 		m_background_center = new QPixmap();
 		if ( m_background_center->load( Skin::getImagePath() + "/mixerPanel/rotary_center_images.png" ) == false ){
 			ERRORLOG( "Error loading pixmap" );

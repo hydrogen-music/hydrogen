@@ -32,13 +32,13 @@
 #include "../HydrogenApp.h"
 
 
-InstrumentEditorPanel* InstrumentEditorPanel::m_pInstance = NULL;
+InstrumentEditorPanel* InstrumentEditorPanel::m_pInstance = nullptr;
 const char* InstrumentEditorPanel::__class_name = "InstrumentEditorPanel";
 
 InstrumentEditorPanel* InstrumentEditorPanel::get_instance()
 {
-	if ( m_pInstance == NULL  ) {
-		m_pInstance = new InstrumentEditorPanel( NULL );
+	if ( m_pInstance == nullptr  ) {
+		m_pInstance = new InstrumentEditorPanel( nullptr );
 	}
 	return m_pInstance;
 }
@@ -53,7 +53,7 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
 	INFOLOG( "INIT" );
 
 	m_pInstance = this;
-	m_pInstrumentEditor = new InstrumentEditor( 0 );
+	m_pInstrumentEditor = new InstrumentEditor( nullptr );
 
 	// LAYOUT
 	QGridLayout *vbox = new QGridLayout();

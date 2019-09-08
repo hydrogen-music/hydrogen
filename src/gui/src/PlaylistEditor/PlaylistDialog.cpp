@@ -350,7 +350,7 @@ void PlaylistDialog::clearPlaylist()
 										 trUtf8("\nThe current playlist contains unsaved changes.\n"
 												"Do you want to discard the changes?\n"),
 										trUtf8("&Discard"), trUtf8("&Cancel"),
-										 0,      // Enter == button 0
+										 nullptr,      // Enter == button 0
 										 2 ) ) { // Escape == button 1
 		case 0: // Discard clicked or Alt+D pressed
 			// don't save but exit

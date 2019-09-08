@@ -39,7 +39,7 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* midiAc
 	m_pURLLabel = new QLabel( this );
 	m_pURLLabel->setAlignment( Qt::AlignCenter );
 
-	if(m_pAction != NULL){
+	if(m_pAction != nullptr){
 		m_pURLLabel->setText( "Waiting for midi input..." );
 		midiOperable = true;
 	} else {

@@ -239,7 +239,7 @@ QString SoundLibraryImportDialog::readCachedImage( const QString& imageFile )
 	if( !file.exists() )
 	{
 		// no image in cache, just return NULL
-		return NULL;
+		return nullptr;
 	}
 	
 	return cacheFile;

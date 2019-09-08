@@ -28,20 +28,20 @@ namespace H2Core
 				break;
 			default:
 				ERRORLOG( QString( "unknown mode : %1" ).arg( mode ) );
-				return NULL;
+				return nullptr;
 				break;
 		}
 
 		if ( mode == SAVE_NEW && Filesystem::file_exists( fileInfo.absoluteFilePath(), false ) ) {
-			return NULL;
+			return nullptr;
 		}
 
 		if ( !Filesystem::path_usable( fileInfo.path(), true, false ) ) {
-			return NULL;
+			return nullptr;
 		}
 
 		if ( !pPattern->save_file( drumkitName, pSong->get_author(), pSong->get_license(), fileInfo.absoluteFilePath(), true ) )
-			return NULL;
+			return nullptr;
 
 		return fileInfo.absoluteFilePath();
 	}
@@ -63,20 +63,20 @@ namespace H2Core
 				break;
 			default:
 				ERRORLOG( QString( "unknown mode : %1" ).arg( mode ) );
-				return NULL;
+				return nullptr;
 				break;
 		}
 
 		if ( mode == SAVE_NEW && Filesystem::file_exists( fileInfo.absoluteFilePath(), false ) ) {
-			return NULL;
+			return nullptr;
 		}
 
 		if ( !Filesystem::path_usable( fileInfo.path(), true, false ) ) {
-			return NULL;
+			return nullptr;
 		}
 
 		if ( !playlist->save_file( fileInfo.absoluteFilePath(), fileInfo.fileName(), true, relativePaths) )
-			return NULL;
+			return nullptr;
 
 		return fileInfo.absoluteFilePath();
 	}

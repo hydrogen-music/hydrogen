@@ -29,7 +29,7 @@ EventQueue* EventQueue::__instance = nullptr;
 
 void EventQueue::create_instance()
 {
-	if ( __instance == 0 ) {
+	if ( __instance == nullptr ) {
 		__instance = new EventQueue;
 	}
 }

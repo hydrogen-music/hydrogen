@@ -32,26 +32,26 @@ namespace H2Core
 {
 
 
-AudioEngine* AudioEngine::__instance = NULL;
+AudioEngine* AudioEngine::__instance = nullptr;
 const char* AudioEngine::__class_name = "AudioEngine";
 
 
 void AudioEngine::create_instance()
 {
-	if( __instance == 0 ) {
+	if( __instance == nullptr ) {
 		__instance = new AudioEngine;
 	}
 }
 
 AudioEngine::AudioEngine()
 		: Object( __class_name )
-		, __sampler( NULL )
-		, __synth( NULL )
+		, __sampler( nullptr )
+		, __synth( nullptr )
 {
 	__instance = this;
 	INFOLOG( "INIT" );
 
-	pthread_mutex_init( &__engine_mutex, NULL );
+	pthread_mutex_init( &__engine_mutex, nullptr );
 
 	__sampler = new Sampler;
 	__synth = new Synth;

@@ -55,7 +55,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
 
 
-	m_pPattern = NULL;
+	m_pPattern = nullptr;
 	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
 
 	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
@@ -124,7 +124,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
 	else {
-		m_pPattern = NULL;
+		m_pPattern = nullptr;
 	}
 
 

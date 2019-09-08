@@ -31,7 +31,7 @@
 namespace H2Core
 {
 
-Playlist* Playlist::__instance = NULL;
+Playlist* Playlist::__instance = nullptr;
 
 const char* Playlist::__class_name = "Playlist";
 
@@ -47,12 +47,12 @@ Playlist::Playlist()
 Playlist::~Playlist()
 {
 	clear();
-	__instance = 0;
+	__instance = nullptr;
 }
 
 void Playlist::create_instance()
 {
-	if ( __instance == 0 ) {
+	if ( __instance == nullptr ) {
 		__instance = new Playlist();
 	}
 }
@@ -71,9 +71,9 @@ Playlist* Playlist::load_file( const QString& pl_path, bool useRelativePaths )
 	if ( !doc.read( pl_path, Filesystem::playlist_xsd_path() ) ) {
 		Playlist* pl = new Playlist();
 		Playlist* ret = Legacy::load_playlist( pl, pl_path );
-		if ( ret == 0 ) {
+		if ( ret == nullptr ) {
 			delete pl;	// __instance = 0;
-			return 0;
+			return nullptr;
 		}
 		WARNINGLOG( QString( "update playlist %1" ).arg( pl_path ) );
 		pl->save_file( pl_path, pl->getFilename(), true, useRelativePaths );
@@ -82,7 +82,7 @@ Playlist* Playlist::load_file( const QString& pl_path, bool useRelativePaths )
 	XMLNode root = doc.firstChildElement( "playlist" );
 	if ( root.isNull() ) {
 		ERRORLOG( "playlist node not found" );
-		return 0;
+		return nullptr;
 	}
 	QFileInfo fileInfo = QFileInfo( pl_path );
 	return Playlist::load_from( &root, fileInfo, useRelativePaths );
@@ -93,7 +93,7 @@ Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelat
 	QString filename = node->read_string( "name", "", false, false );
 	if ( filename.isEmpty() ) {
 		ERRORLOG( "Playlist has no name, abort" );
-		return 0;
+		return nullptr;
 	}
 
 	Playlist* pPlaylist = new Playlist();
@@ -162,7 +162,7 @@ Playlist* Playlist::load( const QString& filename, bool useRelativePaths )
 	Playlist* prev = __instance;
 	Playlist* playlist = Playlist::load_file( filename, useRelativePaths );
 
-	if ( playlist != 0 ) {
+	if ( playlist != nullptr ) {
 		delete prev;
 		__instance = playlist;
 	} else {

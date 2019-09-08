@@ -41,12 +41,12 @@ FileBrowser::FileBrowser( QWidget* pParent )
 {
 	INFOLOG( "[FileBrowser]" );
 
-	m_pDirectoryLabel = new QLabel( NULL );
-	m_pUpBtn = new QPushButton( "..", NULL );
+	m_pDirectoryLabel = new QLabel( nullptr );
+	m_pUpBtn = new QPushButton( "..", nullptr );
 	m_pUpBtn->setMaximumWidth( 30 );
 	connect( m_pUpBtn, SIGNAL( clicked() ), this, SLOT( on_upBtnClicked() ) );
 
-	QWidget *pDirectoryPanel = new QWidget( NULL );
+	QWidget *pDirectoryPanel = new QWidget( nullptr );
 	QHBoxLayout *hbox = new QHBoxLayout();
 	hbox->setSpacing( 0 );
 	hbox->setMargin( 0 );
@@ -54,9 +54,9 @@ FileBrowser::FileBrowser( QWidget* pParent )
 	hbox->addWidget( m_pUpBtn );
 	pDirectoryPanel->setLayout( hbox );
 
-	QWidget *pInfoPanel = new QWidget( NULL );
-	m_pFileInfo = new QLabel( NULL );
-	QPushButton *pPlayBtn = new QPushButton( "Play", NULL );
+	QWidget *pInfoPanel = new QWidget( nullptr );
+	m_pFileInfo = new QLabel( nullptr );
+	QPushButton *pPlayBtn = new QPushButton( "Play", nullptr );
 	connect( pPlayBtn, SIGNAL( clicked() ), this, SLOT( on_playBtnClicked() ) );
 	pPlayBtn->setMaximumWidth( 40 );
 	QHBoxLayout *pInfoHBox = new QHBoxLayout();
@@ -64,8 +64,8 @@ FileBrowser::FileBrowser( QWidget* pParent )
 	pInfoHBox->addWidget( pPlayBtn );
 	pInfoPanel->setLayout( pInfoHBox );
 
-	m_pDirList = new QListWidget( NULL );
-	m_pFileList = new QListWidget( NULL );
+	m_pDirList = new QListWidget( nullptr );
+	m_pFileList = new QListWidget( nullptr );
 
 	connect( m_pFileList, SIGNAL( currentItemChanged( QListWidgetItem*, QListWidgetItem*) ), this, SLOT( on_fileList_ItemChanged( QListWidgetItem*, QListWidgetItem* ) ) );
 	connect( m_pFileList, SIGNAL( itemActivated( QListWidgetItem* ) ), this, SLOT( on_fileList_ItemActivated( QListWidgetItem* ) ) );
