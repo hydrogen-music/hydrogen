@@ -117,7 +117,7 @@ void AudioEngineInfoForm::updateInfo()
 	processTimeLbl->setText(tmp);
 
 	// Song state
-	if (pSong == NULL) {
+	if (pSong == nullptr) {
 		songStateLbl->setText( "NULL song" );
 	}
 	else {

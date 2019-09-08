@@ -196,7 +196,7 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 		}
 	}
 	delete pNewSample;
-	pNewSample = NULL;
+	pNewSample = nullptr;
 	update();
 
 }
@@ -205,7 +205,7 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 
 void MainSampleWaveDisplay::testPositionFromSampleeditor()
 {
-	testPosition( NULL );
+	testPosition( nullptr );
 	update();
 }
 

@@ -91,7 +91,7 @@ int MainForm::sigusr1Fd[2];
 const char* MainForm::__class_name = "MainForm";
 
 MainForm::MainForm( QApplication *app, const QString& songFilename )
-	: QMainWindow( 0, 0 )
+	: QMainWindow( nullptr, nullptr )
 	, Object( __class_name )
 {
 	setMinimumSize( QSize( 1000, 500 ) );
@@ -766,7 +766,7 @@ void MainForm::action_file_openPattern()
 	QString patternname = filename;
 
 	Pattern* err = Pattern::load_file( patternname, pSong->get_instrument_list() );
-	if ( err == 0 )
+	if ( err == nullptr )
 	{
 		_ERRORLOG( "Error loading the pattern" );
 		_ERRORLOG( patternname );

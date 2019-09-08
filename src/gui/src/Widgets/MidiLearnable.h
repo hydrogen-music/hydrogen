@@ -36,11 +36,11 @@ class MidiLearnable
 {
 public:
     MidiLearnable(){
-	m_action = NULL;
+	m_action = nullptr;
     }
 
     ~MidiLearnable(){
-	if( m_action != NULL) delete m_action;
+	if( m_action != nullptr) delete m_action;
     }
 
     void setAction( Action *action ){

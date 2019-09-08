@@ -48,7 +48,7 @@ class AutomationPathView : public QWidget, public H2Core::Object
 	H2Core::AutomationPath::iterator _selectedPoint; /** < Point that is being dragged */
 
 public:
-	AutomationPathView(QWidget *parent = 0);
+	AutomationPathView(QWidget *parent = nullptr);
 
 	H2Core::AutomationPath *getAutomationPath() const noexcept { return _path; }
 	void setAutomationPath(H2Core::AutomationPath *path);

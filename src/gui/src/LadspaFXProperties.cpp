@@ -69,7 +69,7 @@ LadspaFXProperties::LadspaFXProperties(QWidget* parent, uint nLadspaFX)
 	}
 
 
-	m_pScrollArea = new QScrollArea( NULL );
+	m_pScrollArea = new QScrollArea( nullptr );
 	hbox->addWidget( m_pScrollArea );
 
 	m_pScrollArea->move( 0, 0 );
@@ -352,7 +352,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 	if (fxSelector.exec() == QDialog::Accepted) {
 		QString sSelectedFX = fxSelector.getSelectedFX();
 		if ( !sSelectedFX.isEmpty() ) {
-			LadspaFX *pFX = NULL;
+			LadspaFX *pFX = nullptr;
 
 			vector<H2Core::LadspaFXInfo*> pluginList = Effects::get_instance()->getPluginList();
 			for (uint i = 0; i < pluginList.size(); i++) {
@@ -386,7 +386,7 @@ void LadspaFXProperties::removeFXBtnClicked()
 #ifdef H2CORE_HAVE_LADSPA
 	Song *pSong = (Hydrogen::get_instance() )->getSong();
 	pSong->set_is_modified( true );
-	Effects::get_instance()->setLadspaFX( NULL, m_nLadspaFX );
+	Effects::get_instance()->setLadspaFX( nullptr, m_nLadspaFX );
 	Hydrogen::get_instance()->restartLadspaFX();
 	updateControls();	
 #endif
@@ -416,7 +416,7 @@ void LadspaFXProperties::updateOutputControls()
 			vector<Fader*>::iterator it = m_pOutputControlFaders.begin() + i;
 			if (it != m_pOutputControlFaders.end() ) {
 				Fader *pFader = *it;
-				if (pFader == NULL) {
+				if (pFader == nullptr) {
 					ERRORLOG( "[updateOutputControls] pFader = NULL" );
 					continue;
 				}
