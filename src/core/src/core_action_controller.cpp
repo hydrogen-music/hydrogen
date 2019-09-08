@@ -96,7 +96,6 @@ void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
 
 void CoreActionController::setMetronomeIsActive( bool isActive ){
 	Preferences::get_instance()->m_bUseMetronome = isActive;
-	Hydrogen *pEngine = Hydrogen::get_instance();
 	
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "TOGGLE_METRONOME" );
@@ -235,15 +234,9 @@ void CoreActionController::handleOutgoingControlChange(int param, int value)
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
 	
-	if( pMidiDriver != nullptr ){
-		return;
-	}
-	
-	if( pPref->m_bEnableMidiFeedback == false ){
-		return;
-	}
-	
-	if( param >= 0 ){
+	if(	pMidiDriver 
+		&& pPref->m_bEnableMidiFeedback 
+		&& param >= 0 ){
 		pMidiDriver->handleOutgoingControlChange( param, value, m_nDefaultMidiFeedbackChannel );
 	}
 }
