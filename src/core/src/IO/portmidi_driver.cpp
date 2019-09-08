@@ -114,8 +114,8 @@ void* PortMidiDriver_thread( void* param )
 
 
 	__INFOLOG( "MIDI Thread DESTROY" );
-	pthread_exit( NULL );
-	return NULL;
+	pthread_exit( nullptr );
+	return nullptr;
 }
 
 const char* PortMidiDriver::__class_name = "PortMidiDriver";
@@ -137,8 +137,8 @@ PortMidiDriver::~PortMidiDriver()
 
 void PortMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
 {
-	if ( m_pMidiOut == NULL ) {
-		ERRORLOG( "m_pMidiOut = NULL " );
+	if ( m_pMidiOut == nullptr ) {
+		ERRORLOG( "m_pMidiOut = nullptr " );
 		return;
 	}
 
@@ -169,7 +169,7 @@ void PortMidiDriver::open()
 	for ( int i = 0; i < nDevices; i++ ) {
 		const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( i );
 		
-		if ( pInfo == NULL ) {
+		if ( pInfo == nullptr ) {
 			ERRORLOG( "Could not open input device" );
 		} else {
 			if ( pInfo->input == TRUE ) {
@@ -197,7 +197,7 @@ void PortMidiDriver::open()
 	}
 
 	const PmDeviceInfo *info = Pm_GetDeviceInfo( nDeviceId );
-	if ( info == NULL ) {
+	if ( info == nullptr ) {
 		ERRORLOG( "Error opening midi input device" );
 	}
 
@@ -207,10 +207,10 @@ void PortMidiDriver::open()
 	PmError err = Pm_OpenInput(
 					  &m_pMidiIn,
 					  nDeviceId,
-					  NULL,
+					  nullptr,
 					  nInputBufferSize,
 					  TIME_PROC,
-					  NULL
+					  nullptr
 				  );
 
 	if ( err != pmNoError ) {
@@ -220,10 +220,10 @@ void PortMidiDriver::open()
 	err = Pm_OpenOutput(
 					  &m_pMidiOut,
 					  nOutDeviceId,
-					  NULL,
+					  nullptr,
 					  nInputBufferSize,
 					  TIME_PROC,
-					  NULL,
+					  nullptr,
 			  0
 				  );
 
@@ -244,7 +244,7 @@ void PortMidiDriver::close()
 	INFOLOG( "[close]" );
 	if ( m_bRunning ) {
 		m_bRunning = false;
-		pthread_join( PortMidiDriverThread, NULL );
+		pthread_join( PortMidiDriverThread, nullptr );
 		PmError err = Pm_Close( m_pMidiIn );
 		if ( err != pmNoError ) {
 			ERRORLOG( "Error in Pm_OpenInput" );
@@ -260,12 +260,12 @@ std::vector<QString> PortMidiDriver::getOutputPortList()
 
 	int nDevices = Pm_CountDevices();
 	for ( int i = 0; i < nDevices; i++ ) {
-		const PmDeviceInfo *info = Pm_GetDeviceInfo( i );
-		if ( info == NULL ) {
+		const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( i );
+		if ( pInfo == nullptr ) {
 			ERRORLOG( "Could not open input device" );
-		} else if ( info->input == TRUE ) {
-			INFOLOG( info->name );
-			portList.push_back( info->name );
+		} else if ( pInfo->input == TRUE ) {
+			INFOLOG( pInfo->name );
+			portList.push_back( pInfo->name );
 		}
 	}
 
@@ -274,8 +274,8 @@ std::vector<QString> PortMidiDriver::getOutputPortList()
 
 void PortMidiDriver::handleQueueNote(Note* pNote)
 {
-	if ( m_pMidiOut == NULL ) {
-		ERRORLOG( "m_pMidiOut = NULL " );
+	if ( m_pMidiOut == nullptr ) {
+		ERRORLOG( "m_pMidiOut = nullptr " );
 		return;
 	}
 
@@ -301,8 +301,8 @@ void PortMidiDriver::handleQueueNote(Note* pNote)
 
 void PortMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 {
-	if ( m_pMidiOut == NULL ) {
-		ERRORLOG( "m_pMidiOut = NULL " );
+	if ( m_pMidiOut == nullptr ) {
+		ERRORLOG( "m_pMidiOut = nullptr " );
 		return;
 	}
 
@@ -323,8 +323,8 @@ void PortMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 
 void PortMidiDriver::handleQueueAllNoteOff()
 {
-	if ( m_pMidiOut == NULL ) {
-		ERRORLOG( "m_pMidiOut = NULL " );
+	if ( m_pMidiOut == nullptr ) {
+		ERRORLOG( "m_pMidiOut = nullptr " );
 		return;
 	}
 
@@ -332,13 +332,13 @@ void PortMidiDriver::handleQueueAllNoteOff()
 
 	unsigned int numInstruments = instList->size();
 	for (int index = 0; index < numInstruments; ++index) {
-		Instrument *curInst = instList->get(index);
+		Instrument *pCurInst = instList->get(index);
 
-		int channel = curInst->get_midi_out_channel();
+		int channel = pCurInst->get_midi_out_channel();
 		if (channel < 0) {
 			continue;
 		}
-		int key = curInst->get_midi_out_note();
+		int key = pCurInst->get_midi_out_note();
 
 		PmEvent event;
 		event.timestamp = 0;
