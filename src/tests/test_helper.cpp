@@ -10,11 +10,11 @@
 static const QString APP_DATA_DIR = "/data/";
 static const QString TEST_DATA_DIR = "/src/tests/data/";
 
-TestHelper* TestHelper::__instance = NULL;
+TestHelper* TestHelper::__instance = nullptr;
 
 void TestHelper::create_instance()
 {
-	if ( __instance == NULL ) {
+	if ( __instance == nullptr ) {
 		__instance = new TestHelper;
 	}
 }
