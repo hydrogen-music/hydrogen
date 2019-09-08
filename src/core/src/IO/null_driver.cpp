@@ -79,14 +79,14 @@ unsigned NullDriver::getSampleRate()
 float* NullDriver::getOut_L()
 {
 	INFOLOG( "not implemented yet" );
-	return NULL;
+	return nullptr;
 }
 
 
 float* NullDriver::getOut_R()
 {
 	INFOLOG( "not implemented yet" );
-	return NULL;
+	return nullptr;
 }
 
 

@@ -167,7 +167,7 @@ std::vector<char> SMFCopyRightNoticeMetaEvent::getBuffer()
 	SMFBuffer buf;
 	QString sCopyRightString;
 	
-	time_t now = time(0);
+	time_t now = time(nullptr);
 	tm *ltm = localtime(&now);						// Extract the local system time.
 	
 	// Construct the copyright string in the form "(C) [Author] [CurrentYear]"

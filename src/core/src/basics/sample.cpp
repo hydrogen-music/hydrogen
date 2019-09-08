@@ -61,8 +61,8 @@ Sample::Sample( Sample* pOther ): Object( __class_name ),
 	__filepath( pOther->get_filepath() ),
 	__frames( pOther->get_frames() ),
 	__sample_rate( pOther->get_sample_rate() ),
-	__data_l( 0 ),
-	__data_r( 0 ),
+	__data_l( nullptr ),
+	__data_r( nullptr ),
 	__is_modified( pOther->get_is_modified() ),
 	__loops( pOther->__loops ),
 	__rubberband( pOther->__rubberband )
@@ -86,8 +86,8 @@ Sample::Sample( Sample* pOther ): Object( __class_name ),
 
 Sample::~Sample()
 {
-	if( __data_l!=0 ) delete[] __data_l;
-	if( __data_r!=0 ) delete[] __data_r;
+	if( __data_l!=nullptr ) delete[] __data_l;
+	if( __data_r!=nullptr ) delete[] __data_r;
 }
 
 void Sample::set_filename( const QString& filename )
@@ -494,7 +494,7 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 		rubberoutframes = int( __frames * ratio + 0.1 );
 		_INFOLOG( QString( "ratio: %1, rubberoutframes: %2, rubberinframes: %3" ).arg( ratio ).arg ( rubberoutframes ).arg ( __frames ) );
 
-		QObject*	pParent = 0;
+		QObject*	pParent = nullptr;
 		QProcess*	pRrubberbandProc = new QProcess( pParent );
 
 		QStringList arguments;
@@ -522,7 +522,7 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 		}
 
 		Sample* p_Rubberbanded = Sample::load( rubberResultPath.toLocal8Bit() );
-		if( p_Rubberbanded==0 ) {
+		if( p_Rubberbanded==nullptr ) {
 			return false;
 		}
 
@@ -533,8 +533,8 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 		__frames = p_Rubberbanded->get_frames();
 		__data_l = p_Rubberbanded->get_data_l();
 		__data_r = p_Rubberbanded->get_data_r();
-		p_Rubberbanded->__data_l = 0;
-		p_Rubberbanded->__data_r = 0;
+		p_Rubberbanded->__data_l = nullptr;
+		p_Rubberbanded->__data_r = nullptr;
 		__is_modified = true;
 		__rubberband = rb;
 		delete p_Rubberbanded;
@@ -578,7 +578,7 @@ bool Sample::write( const QString& path, int format )
 
 	SNDFILE* sf_file = sf_open( path.toLocal8Bit().data(), SFM_WRITE, &sf_info ) ;
 
-	if ( sf_file==0 ) {
+	if ( sf_file==nullptr ) {
 		___ERRORLOG( QString( "sf_open error : %1" ).arg( sf_strerror( sf_file ) ) );
 		delete[] obuf;
 		return false;

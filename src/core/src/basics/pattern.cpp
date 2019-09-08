@@ -68,7 +68,7 @@ Pattern::~Pattern()
 Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instruments )
 {
 	INFOLOG( QString( "Load pattern %1" ).arg( pattern_path ) );
-	if ( !Filesystem::file_readable( pattern_path ) ) return 0;
+	if ( !Filesystem::file_readable( pattern_path ) ) return nullptr;
 	XMLDoc doc;
 	if( !doc.read( pattern_path, Filesystem::pattern_xsd_path() ) ) {
 		return Legacy::load_drumkit_pattern( pattern_path, instruments );
@@ -76,12 +76,12 @@ Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instru
 	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
 	if ( root.isNull() ) {
 		ERRORLOG( "drumkit_pattern node not found" );
-		return 0;
+		return nullptr;
 	}
 	XMLNode pattern_node = root.firstChildElement( "pattern" );
 	if ( pattern_node.isNull() ) {
 		ERRORLOG( "pattern node not found" );
-		return 0;
+		return nullptr;
 	}
 	return load_from( &pattern_node, instruments );
 }
@@ -89,7 +89,7 @@ Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instru
 Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 {
 	Pattern* pattern = new Pattern(
-	    node->read_string( "name", NULL, false, false ),
+	    node->read_string( "name", nullptr, false, false ),
 	    node->read_string( "info", "", false, false ),
 	    node->read_string( "category", "unknown", false, false ),
 	    node->read_int( "size", -1, false, false )
@@ -136,10 +136,10 @@ void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly ) const
 	pattern_node.write_string( "category", __category );
 	pattern_node.write_int( "size", __length );
 	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
-	int id = ( instrumentOnly == 0 ? -1 : instrumentOnly->get_id() );
+	int id = ( instrumentOnly == nullptr ? -1 : instrumentOnly->get_id() );
 	for( auto it=__notes.cbegin(); it!=__notes.cend(); ++it ) {
 		Note* note = it->second;
-		if( note && ( instrumentOnly == 0 || note->get_instrument()->get_id() == id ) ) {
+		if( note && ( instrumentOnly == nullptr || note->get_instrument()->get_id() == id ) ) {
 			XMLNode note_node = note_list_node.createNode( "note" );
 			note->save_to( &note_node );
 		}
@@ -153,13 +153,13 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Ke
 		assert( note );
 		if ( note->match( instrument, key, octave ) ) return note;
 	}
-	if( idx_b==-1 ) return 0;
+	if( idx_b==-1 ) return nullptr;
 	for( notes_cst_it_t it=__notes.lower_bound( idx_b ); it!=__notes.upper_bound( idx_b ); it++ ) {
 		Note* note = it->second;
 		assert( note );
 		if ( note->match( instrument, key, octave ) ) return note;
 	}
-	if( strict ) return 0;
+	if( strict ) return nullptr;
 	// TODO maybe not start from 0 but idx_b-X
 	for ( int n=0; n<idx_b; n++ ) {
 		for( notes_cst_it_t it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
@@ -168,7 +168,7 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Ke
 			if ( note->match( instrument, key, octave ) && ( ( idx_b<=note->get_position()+note->get_length() ) && idx_b>=note->get_position() ) ) return note;
 		}
 	}
-	return 0;
+	return nullptr;
 }
 
 Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool strict ) const
@@ -179,13 +179,13 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool str
 		assert( note );
 		if ( note->get_instrument() == instrument ) return note;
 	}
-	if( idx_b==-1 ) return 0;
+	if( idx_b==-1 ) return nullptr;
 	for( it=__notes.lower_bound( idx_b ); it!=__notes.upper_bound( idx_b ); it++ ) {
 		Note* note = it->second;
 		assert( note );
 		if ( note->get_instrument() == instrument ) return note;
 	}
-	if ( strict ) return 0;
+	if ( strict ) return nullptr;
 	// TODO maybe not start from 0 but idx_b-X
 	for ( int n=0; n<idx_b; n++ ) {
 		for( it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
@@ -195,7 +195,7 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool str
 		}
 	}
 
-	return 0;
+	return nullptr;
 }
 
 void Pattern::remove_note( Note* note )

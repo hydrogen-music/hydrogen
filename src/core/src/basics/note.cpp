@@ -50,7 +50,7 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
 	  __pitch( pitch ),
 	  __key( C ),
 	  __octave( P8 ),
-	  __adsr( 0 ),
+	  __adsr( nullptr ),
 	  __lead_lag( 0.0 ),
 	  __cut_off( 1.0 ),
 	  __resonance( 0.0 ),
@@ -65,7 +65,7 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
 	  __just_recorded( false ),
 	  __probability( 1.0f )
 {
-	if ( __instrument != 0 ) {
+	if ( __instrument != nullptr ) {
 		__adsr = __instrument->copy_adsr();
 		__instrument_id = __instrument->get_id();
 
@@ -97,7 +97,7 @@ Note::Note( Note* other, Instrument* instrument )
 	  __pitch( other->get_pitch() ),
 	  __key( other->get_key() ),
 	  __octave( other->get_octave() ),
-	  __adsr( 0 ),
+	  __adsr( nullptr ),
 	  __lead_lag( other->get_lead_lag() ),
 	  __cut_off( other->get_cut_off() ),
 	  __resonance( other->get_resonance() ),
@@ -112,8 +112,8 @@ Note::Note( Note* other, Instrument* instrument )
 	  __just_recorded( other->get_just_recorded() ),
 	  __probability( other->get_probability() )
 {
-	if ( instrument != 0 ) __instrument = instrument;
-	if ( __instrument != 0 ) {
+	if ( instrument != nullptr ) __instrument = instrument;
+	if ( __instrument != nullptr ) {
 		__adsr = __instrument->copy_adsr();
 		__instrument_id = __instrument->get_id();
 
@@ -132,7 +132,7 @@ Note::Note( Note* other, Instrument* instrument )
 Note::~Note()
 {
 	delete __adsr;
-	__adsr = 0;
+	__adsr = nullptr;
 }
 
 static inline float check_boundary( float v, float min, float max )
@@ -228,7 +228,7 @@ void Note::save_to( XMLNode* node )
 Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 {
 	Note* note = new Note(
-	    0,
+	    nullptr,
 	    node->read_int( "position", 0 ),
 	    node->read_float( "velocity", 0.8f ),
 	    node->read_float( "pan_L", 0.5f ),

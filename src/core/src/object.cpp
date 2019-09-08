@@ -43,17 +43,17 @@
 
 namespace H2Core {
 
-Logger* Object::__logger = 0;
+Logger* Object::__logger = nullptr;
 bool Object::__count = false;
 unsigned Object::__objects_count = 0;
 pthread_mutex_t Object::__mutex;
 Object::object_map_t Object::__objects_map;
 
 int Object::bootstrap( Logger* logger, bool count ) {
-	if( __logger==0 && logger!=0 ) {
+	if( __logger==nullptr && logger!=nullptr ) {
 		__logger = logger;
 		__count = count;
-		pthread_mutex_init( &__mutex, 0 );
+		pthread_mutex_init( &__mutex, nullptr );
 		return 0;
 	}
 	return 1;
@@ -90,7 +90,7 @@ void Object::set_count( bool flag ) {
 inline void Object::add_object( const Object* obj, bool copy ) {
 #ifdef H2CORE_HAVE_DEBUG
 	const char* class_name = ( ( Object* )obj )->class_name();
-	if( __logger && __logger->should_log( Logger::Constructors ) ) __logger->log( Logger::Debug, 0, class_name, ( copy ? "Copy Constructor" : "Constructor" ) );
+	if( __logger && __logger->should_log( Logger::Constructors ) ) __logger->log( Logger::Debug, nullptr, class_name, ( copy ? "Copy Constructor" : "Constructor" ) );
 	pthread_mutex_lock( &__mutex );
 	//if( __objects_map.size()==0) atexit( Object::write_objects_map_to_cerr );
 	__objects_count++;
@@ -102,10 +102,10 @@ inline void Object::add_object( const Object* obj, bool copy ) {
 inline void Object::del_object( const Object* obj ) {
 #ifdef H2CORE_HAVE_DEBUG
 	const char* class_name = ( ( Object* )obj )->class_name();
-	if( __logger && __logger->should_log( Logger::Constructors ) ) __logger->log( Logger::Debug, 0, class_name, "Destructor" );
+	if( __logger && __logger->should_log( Logger::Constructors ) ) __logger->log( Logger::Debug, nullptr, class_name, "Destructor" );
 	object_map_t::iterator it_count = __objects_map.find( class_name );
 	if ( it_count==__objects_map.end() ) {
-		if( __logger!=0 && __logger->should_log( Logger::Error ) ) {
+		if( __logger!=nullptr && __logger->should_log( Logger::Error ) ) {
 			std::stringstream msg;
 			msg << "the class " <<  class_name << " is not registered ! [" << obj << "]";
 			__logger->log( Logger::Error,"del_object", "Object", QString::fromStdString( msg.str() ) );

@@ -71,7 +71,7 @@ public:
 	void note_off( Note *note );
 	void midi_keyboard_note_off( int key );
 
-	void stop_playing_notes( Instrument *instr = NULL );
+	void stop_playing_notes( Instrument *instr = nullptr );
 
 	int get_playing_notes_number() {
 		return __playing_notes_queue.size();
