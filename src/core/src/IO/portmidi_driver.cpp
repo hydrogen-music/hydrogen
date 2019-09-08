@@ -167,20 +167,21 @@ void PortMidiDriver::open()
 	QString sMidiPortName = Preferences::get_instance()->m_sMidiPortName;
 	int nDevices = Pm_CountDevices();
 	for ( int i = 0; i < nDevices; i++ ) {
-		const PmDeviceInfo *info = Pm_GetDeviceInfo( i );
-		if ( info == NULL ) {
+		const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( i );
+		
+		if ( pInfo == NULL ) {
 			ERRORLOG( "Could not open input device" );
-		}
-
-		if ( info->input == TRUE ) {
-			if ( strcmp( info->name, sMidiPortName.toLocal8Bit().constData() ) == 0 ) {
-				nDeviceId = i;
+		} else {
+			if ( pInfo->input == TRUE ) {
+				if ( strcmp( pInfo->name, sMidiPortName.toLocal8Bit().constData() ) == 0 ) {
+					nDeviceId = i;
+				}
 			}
-		}
-
-		if ( info->output == TRUE ) {
-			if ( strcmp( info->name, sMidiPortName.toLocal8Bit().constData() ) == 0 ) {
-				nOutDeviceId = i;
+	
+			if ( pInfo->output == TRUE ) {
+				if ( strcmp( pInfo->name, sMidiPortName.toLocal8Bit().constData() ) == 0 ) {
+					nOutDeviceId = i;
+				}
 			}
 		}
 	}
@@ -262,9 +263,7 @@ std::vector<QString> PortMidiDriver::getOutputPortList()
 		const PmDeviceInfo *info = Pm_GetDeviceInfo( i );
 		if ( info == NULL ) {
 			ERRORLOG( "Could not open input device" );
-		}
-
-		if ( info->input == TRUE ) {
+		} else if ( info->input == TRUE ) {
 			INFOLOG( info->name );
 			portList.push_back( info->name );
 		}
