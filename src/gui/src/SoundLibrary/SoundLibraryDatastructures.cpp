@@ -21,7 +21,7 @@
 
 using namespace H2Core;
 
-SoundLibraryDatabase* SoundLibraryDatabase::__instance = NULL;
+SoundLibraryDatabase* SoundLibraryDatabase::__instance = nullptr;
 
 const char* SoundLibraryDatabase::__class_name = "SoundLibraryDatabase";
 
@@ -46,7 +46,7 @@ SoundLibraryDatabase::~SoundLibraryDatabase()
 
 void SoundLibraryDatabase::create_instance()
 {
-	if ( __instance == 0 ) {
+	if ( __instance == nullptr ) {
 		__instance = new SoundLibraryDatabase;
 	}
 }

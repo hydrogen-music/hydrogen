@@ -37,7 +37,7 @@ Download::Download( QWidget* pParent, const QString& download_url, const QString
 		, __bytes_total( 0 )
 		, __remote_url( download_url )
 		, __local_file( local_file )
-		, __reply(0)
+		, __reply(nullptr)
 		, __error(false)
 {
 	if ( !__local_file.isEmpty() ) {
@@ -158,17 +158,17 @@ DownloadWidget::DownloadWidget( QWidget* parent, const QString& title, const QSt
 	QFont boldFont;
 	boldFont.setBold( true );
 
-	__url_label = new QLabel( NULL );
+	__url_label = new QLabel( nullptr );
 	__url_label->setFont( boldFont );
 	__url_label->setAlignment( Qt::AlignCenter );
 	__url_label->setText( QFileInfo( __remote_url ).fileName() );
 
-	__progress_bar = new QProgressBar( NULL );
+	__progress_bar = new QProgressBar( nullptr );
 
 	__progress_bar->setMinimum( 0 );
 	__progress_bar->setMaximum( 100 );
 
-	__eta_label = new QLabel( NULL );
+	__eta_label = new QLabel( nullptr );
 	__eta_label->setAlignment( Qt::AlignHCenter );
 
 

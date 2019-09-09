@@ -40,7 +40,7 @@ Synth::Synth()
 
 	m_fTheta = 0.0;
 
-	m_pAudioOutput = NULL;
+	m_pAudioOutput = nullptr;
 }
 
 
@@ -79,7 +79,7 @@ void Synth::noteOff( Note* pNote )
 			delete pPlayingNote;
 
 			delete pNote;
-			pNote = NULL;
+			pNote = nullptr;
 			break;
 		}
 	}

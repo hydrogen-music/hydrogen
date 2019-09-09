@@ -943,7 +943,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
  : QWidget( parent )
  , Object( __class_name )
  , EventListener()
- , m_pBackgroundPixmap( NULL )
+ , m_pBackgroundPixmap( nullptr )
 {
 	m_nWidth = 200;
 	m_nGridHeight = 18;
@@ -951,7 +951,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 	setAcceptDrops(true);
 
-	patternBeingEdited = NULL;
+	patternBeingEdited = nullptr;
 
 	line = new QLineEdit( "Inline Pattern Name", this );
 	line->setFrame( false );
@@ -1073,7 +1073,7 @@ void SongEditorPatternList::inlineEditPatternName( int row )
 
 void SongEditorPatternList::inlineEditingEntered()
 {
-	assert( patternBeingEdited != NULL );
+	assert( patternBeingEdited != nullptr );
 	
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
@@ -1096,7 +1096,7 @@ void SongEditorPatternList::inlineEditingEntered()
 
 void SongEditorPatternList::inlineEditingFinished()
 {
-	patternBeingEdited = NULL;
+	patternBeingEdited = nullptr;
 	line->hide();
 }
 
@@ -1327,7 +1327,7 @@ void SongEditorPatternList::loadPatternAction( QString afilename, int position)
 	PatternList *pPatternList = pSong->get_pattern_list();
 
 	Pattern* pNewPattern = Pattern::load_file( afilename, pSong->get_instrument_list() );
-	if ( pNewPattern == 0 ) {
+	if ( pNewPattern == nullptr ) {
 		_ERRORLOG( "Error loading the pattern" );
 		return;
 	}
@@ -1359,7 +1359,7 @@ void SongEditorPatternList::patternPopup_save()
 
 	QString path = Files::savePatternNew( pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
 	if ( path.isEmpty() ) {
-		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"), tr("&Ok"), tr("&Cancel"), 0, 1 ) != 0 ) {
+		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 ) != 0 ) {
 			return;
 		}
 		path = Files::savePatternOver( pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
@@ -1399,7 +1399,7 @@ void SongEditorPatternList::patternPopup_properties()
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog(this, pattern, nSelectedPattern, false);
 	dialog->exec();
 	delete dialog;
-	dialog = NULL;
+	dialog = nullptr;
 }
 
 
@@ -1503,22 +1503,19 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	// se esiste, seleziono il primo pattern
 	if ( pSongPatternList->size() > 0 ) {
 		H2Core::Pattern *pFirstPattern = pSongPatternList->get( 0 );
-		list->add( pFirstPattern );
-		// Cambio due volte...cosi' il pattern editor viene costretto ad aggiornarsi
-		pEngine->setSelectedPatternNumber( -1 );
-		pEngine->setSelectedPatternNumber( 0 );
-	}
+		list->add( pFirstPattern );	}
 	else {
 		// there's no patterns..
-		Pattern *emptyPattern = new Pattern();
-		emptyPattern->set_name( trUtf8("Pattern 1") );
-		emptyPattern->set_category( trUtf8("not_categorized") );
-		pSongPatternList->add( emptyPattern );
-		pEngine->setSelectedPatternNumber( -1 );
-		pEngine->setSelectedPatternNumber( 0 );
+		Pattern *pEmptyPattern = new Pattern();
+		pEmptyPattern->set_name( trUtf8("Pattern 1") );
+		pEmptyPattern->set_category( trUtf8("not_categorized") );
+		pSongPatternList->add( pEmptyPattern );
 	}
 
 	AudioEngine::get_instance()->unlock();
+	
+	pEngine->setSelectedPatternNumber( -1 );
+	pEngine->setSelectedPatternNumber( 0 );
 
 	for (unsigned int index = 0; index < pSongPatternList->size(); ++index) {
 		H2Core::Pattern *curPattern = pSongPatternList->get(index);
@@ -1544,7 +1541,7 @@ void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilen
 	PatternList *pPatternList = pSong->get_pattern_list();
 
 	Pattern* pattern = Pattern::load_file( patternFilename, pSong->get_instrument_list() );
-	if ( pattern == 0 ) {
+	if ( pattern == nullptr ) {
 		_ERRORLOG( "Error loading the pattern" );
 	}
 
@@ -1594,7 +1591,7 @@ void SongEditorPatternList::patternPopup_copyAction( QString patternFilename, in
 	PatternList *pPatternList = pSong->get_pattern_list();
 
 	Pattern* pattern = Pattern::load_file( patternFilename, pSong->get_instrument_list() );
-	if ( pattern == 0 ) {
+	if ( pattern == nullptr ) {
 		_ERRORLOG( "Error loading the pattern" );
 		return;
 	}
@@ -2098,7 +2095,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	if ( pEngine->getCurrentPatternList()->size() != 0 ) {
 		H2Core::Pattern *pPattern = pEngine->getCurrentPatternList()->get( 0 );
 
-		if (pPattern != NULL){
+		if (pPattern != nullptr){
 			fPos += (float)pEngine->getTickPosition() / (float)pPattern->get_length();
 		} else {
 			fPos += (float)pEngine->getTickPosition() / (float)MAX_NOTES;

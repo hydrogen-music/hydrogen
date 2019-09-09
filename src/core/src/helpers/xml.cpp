@@ -19,7 +19,7 @@ class SilentMessageHandler : public QAbstractMessageHandler
 {
 public:
 	SilentMessageHandler()
-		: QAbstractMessageHandler(0)
+		: QAbstractMessageHandler(nullptr)
 	{
 	}
 
@@ -50,16 +50,16 @@ QString XMLNode::read_child_node( const QString& node, bool inexistent_ok, bool 
 {
 	if( isNull() ) {
 		DEBUGLOG( QString( "try to read %1 XML node from an empty parent %2." ).arg( node ).arg( nodeName() ) );
-		return 0;
+		return nullptr;
 	}
 	QDomElement el = firstChildElement( node );
 	if( el.isNull() ) {
 		if( !inexistent_ok ) DEBUGLOG( QString( "XML node %1->%2 should exists." ).arg( nodeName() ).arg( node ) );
-		return 0;
+		return nullptr;
 	}
 	if( el.text().isEmpty() ) {
 		if( !empty_ok ) DEBUGLOG( QString( "XML node %1->%2 should not be empty." ).arg( nodeName() ).arg( node ) );
-		return 0;
+		return nullptr;
 	}
 	return el.text();
 }
@@ -177,7 +177,7 @@ bool XMLDoc::read( const QString& filepath, const QString& schemapath )
 	
 	bool schema_usable = false;
 	
-	if( schemapath!=0 ) {
+	if( schemapath!=nullptr ) {
 		QFile file( schemapath );
 		if ( !file.open( QIODevice::ReadOnly ) ) {
 			ERRORLOG( QString( "Unable to open XML schema %1 for reading" ).arg( schemapath ) );

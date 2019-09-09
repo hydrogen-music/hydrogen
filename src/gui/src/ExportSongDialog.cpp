@@ -645,7 +645,7 @@ void ExportSongDialog::calculateRubberbandTime()
 	}
 
 	m_pEngine->setBPM(lowBPM);
-	time_t sTime = time(NULL);
+	time_t sTime = time(nullptr);
 
 	Song *pSong = m_pEngine->getSong();
 	assert(pSong);
@@ -690,7 +690,7 @@ void ExportSongDialog::calculateRubberbandTime()
 		}
 	}
 	
-	Preferences::get_instance()->setRubberBandCalcTime(time(NULL) - sTime);
+	Preferences::get_instance()->setRubberBandCalcTime(time(nullptr) - sTime);
 	
 	m_pEngine->setBPM(oldBPM);
 	

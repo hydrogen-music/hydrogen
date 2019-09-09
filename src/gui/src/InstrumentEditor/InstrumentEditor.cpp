@@ -393,7 +393,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	// Waveform display
 	m_pWaveDisplay = new WaveDisplay( m_pLayerProp );
 	m_pWaveDisplay->resize( 277, 58 );
-	m_pWaveDisplay->updateDisplay( NULL );
+	m_pWaveDisplay->updateDisplay( nullptr );
 	m_pWaveDisplay->move( 5, 241 );
 	connect( m_pWaveDisplay, SIGNAL( doubleClicked(QWidget*) ), this, SLOT( waveDisplayDoubleClicked(QWidget*) ) );
 
@@ -845,7 +845,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		if ( m_pInstrument ) {
 			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
-				m_pInstrument->get_component(m_nSelectedComponent)->set_layer( NULL, m_nSelectedLayer );
+				m_pInstrument->get_component(m_nSelectedComponent)->set_layer( nullptr, m_nSelectedLayer );
 
 				int nCount = 0;
 				for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
@@ -1303,7 +1303,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 	}
 	else if( sSelectedAction.compare("rename") == 0 ) {
-		labelCompoClicked( NULL );
+		labelCompoClicked( nullptr );
 	}
 	else {
 		m_nSelectedComponent = -1;

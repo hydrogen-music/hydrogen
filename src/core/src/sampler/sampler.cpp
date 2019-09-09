@@ -70,9 +70,9 @@ static Instrument* create_instrument(int id, const QString& filepath, float volu
 
 Sampler::Sampler()
 		: Object( __class_name )
-		, __main_out_L( NULL )
-		, __main_out_R( NULL )
-		, __preview_instrument( NULL )
+		, __main_out_L( nullptr )
+		, __main_out_R( nullptr )
+		, __preview_instrument( nullptr )
 {
 	INFOLOG( "INIT" );
 		__interpolateMode = LINEAR;
@@ -156,13 +156,13 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 	while ( !__queuedNoteOffs.empty() ) {
 		pNote =  __queuedNoteOffs[0];
 		MidiOutput* midiOut = Hydrogen::get_instance()->getMidiOutput();
-		if( midiOut != NULL ){
+		if( midiOut != nullptr ){
 			midiOut->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(), pNote->get_midi_key(),  pNote->get_midi_velocity() );
 
 		}
 		__queuedNoteOffs.erase( __queuedNoteOffs.begin() );
-		if( pNote != NULL) delete pNote;
-		pNote = NULL;
+		if( pNote != nullptr) delete pNote;
+		pNote = nullptr;
 	}//while
 
 	processPlaybackTrack(nFrames);
@@ -320,7 +320,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 				case Instrument::VELOCITY:
 					for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
-						if ( pLayer == NULL ) continue;
+						if ( pLayer == nullptr ) continue;
 
 						if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
 							pSelectedLayer->SelectedLayer = nLayer;
@@ -344,7 +344,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 						int nearestLayer = -1;
 						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
-							if ( pLayer == NULL ) continue;
+							if ( pLayer == nullptr ) continue;
 							
 							if ( min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 								  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
@@ -370,7 +370,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 				case Instrument::RANDOM:
 					if( nAlreadySelectedLayer != -1 ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
-						if ( pLayer != NULL ) {
+						if ( pLayer != nullptr ) {
 							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
 							pSample = pLayer->get_sample();
@@ -378,12 +378,12 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 							fLayerPitch = pLayer->get_pitch();
 						}
 					}
-					if( pSample == NULL ) {
+					if( pSample == nullptr ) {
 						int __possibleIndex[ m_nMaxLayers ];
 						int __foundSamples = 0;
 						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
-							if ( pLayer == NULL ) continue;
+							if ( pLayer == nullptr ) continue;
 
 							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
 								__possibleIndex[__foundSamples] = nLayer;
@@ -407,7 +407,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 							int nearestLayer = -1;
 							for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
 								InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
-								if ( pLayer == NULL ) continue;
+								if ( pLayer == nullptr ) continue;
 								
 								if ( min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 									  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
@@ -450,7 +450,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 				case Instrument::ROUND_ROBIN:
 					if( nAlreadySelectedLayer != -1 ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( nAlreadySelectedLayer );
-						if ( pLayer != NULL ) {
+						if ( pLayer != nullptr ) {
 							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
 
 							pSample = pLayer->get_sample();
@@ -464,7 +464,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 						float __roundRobinID;
 						for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ) {
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
-							if ( pLayer == NULL ) continue;
+							if ( pLayer == nullptr ) continue;
 
 							if ( ( pNote->get_velocity() >= pLayer->get_start_velocity() ) && ( pNote->get_velocity() <= pLayer->get_end_velocity() ) ) {
 								__possibleIndex[__foundSamples] = nLayer;
@@ -487,7 +487,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 							int nearestLayer = -1;
 							for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
 								InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
-								if ( pLayer == NULL ) continue;
+								if ( pLayer == nullptr ) continue;
 								
 								if ( min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 									  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
@@ -650,7 +650,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		//_INFOLOG( "total pitch: " + to_string( fTotalPitch ) );
 		if( ( int )pSelectedLayer->SamplePosition == 0 )
 		{
-			if( Hydrogen::get_instance()->getMidiOutput() != NULL ){
+			if( Hydrogen::get_instance()->getMidiOutput() != nullptr ){
 			Hydrogen::get_instance()->getMidiOutput()->handleQueueNote( pNote );
 			}
 		}
@@ -878,9 +878,9 @@ bool Sampler::__render_note_no_resample(
 
 
 #ifdef H2CORE_HAVE_JACK
-	JackAudioDriver* pJackAudioDriver = 0;
-	float *		pTrackOutL = 0;
-	float *		pTrackOutR = 0;
+	JackAudioDriver* pJackAudioDriver = nullptr;
+	float *		pTrackOutL = nullptr;
+	float *		pTrackOutR = nullptr;
 
 	if( pAudioOutput->has_track_outs()
 	&& (pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput)) ) {
@@ -1033,9 +1033,9 @@ bool Sampler::__render_note_resample(
 
 
 #ifdef H2CORE_HAVE_JACK
-	JackAudioDriver* pJackAudioDriver = 0;
-	float *		pTrackOutL = 0;
-	float *		pTrackOutR = 0;
+	JackAudioDriver* pJackAudioDriver = nullptr;
+	float *		pTrackOutL = nullptr;
+	float *		pTrackOutR = nullptr;
 
 	if( pAudioOutput->has_track_outs()
 	&& (pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput)) ) {
@@ -1298,7 +1298,7 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 		Hydrogen *pEngine = Hydrogen::get_instance();
 		Song* pSong = pEngine->getSong();
 		int selectedpattern = pEngine->getSelectedPatternNumber();
-		Pattern* pCurrentPattern = NULL;
+		Pattern* pCurrentPattern = nullptr;
 
 
 		if ( pSong->get_mode() == Song::PATTERN_MODE ||
@@ -1327,7 +1327,7 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 					const Pattern::notes_t* notes = pCurrentPattern->get_notes();
 					FOREACH_NOTE_CST_IT_BOUND(notes,it,nNote) {
 						Note *pNote = it->second;
-						if ( pNote!=NULL ) {
+						if ( pNote!=nullptr ) {
 							if( !Preferences::get_instance()->__playselectedinstrument ){
 								if ( pNote->get_instrument() == instrument
 								&& pNote->get_position() == noteOnTick ) {

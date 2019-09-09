@@ -47,11 +47,11 @@
 namespace H2Core
 {
 
-Preferences* Preferences::__instance = NULL;
+Preferences* Preferences::__instance = nullptr;
 
 void Preferences::create_instance()
 {
-	if ( __instance == 0 ) {
+	if ( __instance == nullptr ) {
 		__instance = new Preferences;
 	}
 }
@@ -254,7 +254,7 @@ Preferences::~Preferences()
 	savePreferences();
 
 	INFOLOG( "DESTROY" );
-	__instance = NULL;
+	__instance = nullptr;
 	delete m_pDefaultUIStyle;
 }
 
@@ -997,7 +997,7 @@ void Preferences::savePreferences()
 
 	for( int note=0; note < 128; note++ ){
 		Action * pAction = mM->getNoteAction( note );
-		if( pAction != NULL && pAction->getType() != "NOTHING") {
+		if( pAction != nullptr && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
 			LocalFileMng::writeXmlString( midiEventNode, "noteEvent" , QString("NOTE") );
@@ -1010,7 +1010,7 @@ void Preferences::savePreferences()
 
 	for( int parameter=0; parameter < 128; parameter++ ){
 		Action * pAction = mM->getCCAction( parameter );
-		if( pAction != NULL && pAction->getType() != "NOTHING") {
+		if( pAction != nullptr && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
 			LocalFileMng::writeXmlString( midiEventNode, "ccEvent" , QString("CC") );
@@ -1023,7 +1023,7 @@ void Preferences::savePreferences()
 
 	{
 		Action * pAction = mM->getPCAction();
-		if( pAction != NULL && pAction->getType() != "NOTHING") {
+		if( pAction != nullptr && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
 			LocalFileMng::writeXmlString( midiEventNode, "pcEvent" , QString("PROGRAM_CHANGE") );

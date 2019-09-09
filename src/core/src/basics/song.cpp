@@ -456,7 +456,7 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 
 	// Get pattern list
 	PatternList *pList = get_pattern_list();
-	Pattern *pSelected = (selectedPattern >= 0) ? pList->get(selectedPattern) : NULL;
+	Pattern *pSelected = (selectedPattern >= 0) ? pList->get(selectedPattern) : nullptr;
 
 	// Check if document has correct structure
 	QDomNode rootNode = doc.firstChildElement( "instrument_line" );	// root element

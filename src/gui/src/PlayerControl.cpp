@@ -69,7 +69,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 
 // CONTROLS
-	PixmapWidget *pControlsPanel = new PixmapWidget( NULL );
+	PixmapWidget *pControlsPanel = new PixmapWidget( nullptr );
 	pControlsPanel->setFixedSize( 344, 43 );
 	pControlsPanel->setPixmap( "/playerControlPanel/background_Control.png" );
 	hbox->addWidget( pControlsPanel );
@@ -226,7 +226,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 //~ CONTROLS
 
 // BC on off
-	PixmapWidget *pControlsBBTBConoffPanel = new PixmapWidget( NULL );
+	PixmapWidget *pControlsBBTBConoffPanel = new PixmapWidget( nullptr );
 	pControlsBBTBConoffPanel->setFixedSize( 15, 43 );
 	pControlsBBTBConoffPanel->setPixmap( "/playerControlPanel/onoff.png" );
 	hbox->addWidget( pControlsBBTBConoffPanel );
@@ -245,7 +245,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 //~  BC on off
 
 //beatcounter
-	m_pControlsBCPanel = new PixmapWidget( NULL );
+	m_pControlsBCPanel = new PixmapWidget( nullptr );
 	m_pControlsBCPanel->setFixedSize( 86, 43 );
 	m_pControlsBCPanel->setPixmap( "/playerControlPanel/beatConter_BG.png" );
 	hbox->addWidget( m_pControlsBCPanel );
@@ -321,7 +321,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 
 // BPM
-	PixmapWidget *pBPMPanel = new PixmapWidget( NULL );
+	PixmapWidget *pBPMPanel = new PixmapWidget( nullptr );
 	pBPMPanel->setFixedSize( 145, 43 );
 	pBPMPanel->setPixmap( "/playerControlPanel/background_BPM.png" );
 	hbox->addWidget( pBPMPanel );
@@ -397,7 +397,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 
 
 // JACK
-	PixmapWidget *pJackPanel = new PixmapWidget( NULL );
+	PixmapWidget *pJackPanel = new PixmapWidget( nullptr );
 	pJackPanel->setFixedSize( 113, 43 );
 	pJackPanel->setPixmap( "/playerControlPanel/background_Jack.png" );
 	hbox->addWidget( pJackPanel );
@@ -444,7 +444,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 //~ JACK
 
 
-	PixmapWidget *pLcdBackGround = new PixmapWidget( NULL );
+	PixmapWidget *pLcdBackGround = new PixmapWidget( nullptr );
 	pLcdBackGround->setFixedSize( 256, 43 );
 	pLcdBackGround->setPixmap( "/playerControlPanel/lcd_background.png" );
 	hbox->addWidget( pLcdBackGround );

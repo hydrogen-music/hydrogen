@@ -230,14 +230,14 @@ H2Core::Pattern* InstrumentLine::getCurrentPattern()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	assert( pPatternList != NULL );
+	assert( pPatternList != nullptr );
 
 	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
 	if ( nSelectedPatternNumber != -1 ) {
 		Pattern* pCurrentPattern = pPatternList->get( nSelectedPatternNumber );
 		return pCurrentPattern;
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -366,7 +366,7 @@ void InstrumentLine::functionFillNotes( int every )
 	QStringList notePositions;
 
 	Pattern* pCurrentPattern = getCurrentPattern();
-	if (pCurrentPattern != NULL) {
+	if (pCurrentPattern != nullptr) {
 		int nPatternSize = pCurrentPattern->get_length();
 		int nSelectedInstrument = pEngine->getSelectedInstrumentNumber();
 
@@ -431,7 +431,7 @@ void InstrumentLine::functionRandomizeVelocity()
 	QStringList oldNoteVeloValue;
 
 	Pattern* pCurrentPattern = getCurrentPattern();
-	if (pCurrentPattern != NULL) {
+	if (pCurrentPattern != nullptr) {
 		int nPatternSize = pCurrentPattern->get_length();
 		int nSelectedInstrument = pEngine->getSelectedInstrumentNumber();
 
@@ -536,7 +536,7 @@ PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, Patte
  , Object( __class_name )
 {
 	//INFOLOG("INIT");
-	m_pPattern = NULL;
+	m_pPattern = nullptr;
 	m_pPatternEditorPanel = pPatternEditorPanel;
 
 	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
@@ -550,7 +550,7 @@ PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, Patte
 	setAcceptDrops(true);
 
 	for ( int i = 0; i < MAX_INSTRUMENTS; ++i) {
-		m_pInstrumentLine[i] = NULL;
+		m_pInstrumentLine[i] = nullptr;
 	}
 
 
@@ -603,7 +603,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 		if ( nInstr >= nInstruments ) {	// unused instrument! let's hide and destroy the mixerline!
 			if ( m_pInstrumentLine[ nInstr ] ) {
 				delete m_pInstrumentLine[ nInstr ];
-				m_pInstrumentLine[ nInstr ] = NULL;
+				m_pInstrumentLine[ nInstr ] = nullptr;
 
 				int newHeight = m_nGridHeight * nInstruments;
 				resize( width(), newHeight );
@@ -612,7 +612,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 			continue;
 		}
 		else {
-			if ( m_pInstrumentLine[ nInstr ] == NULL ) {
+			if ( m_pInstrumentLine[ nInstr ] == nullptr ) {
 				// the instrument line doesn't exists..I'll create a new one!
 				m_pInstrumentLine[ nInstr ] = createInstrumentLine();
 				m_pInstrumentLine[nInstr]->move( 0, m_nGridHeight * nInstr );

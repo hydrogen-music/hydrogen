@@ -80,7 +80,7 @@ QString LocalFileMng::getDrumkitNameForPattern( const QString& patternDir )
 	QDomNode rootNode = doc.firstChildElement( "drumkit_pattern" );	// root element
 	if (  rootNode.isNull() ) {
 		ERRORLOG( "Error reading Pattern: Pattern_drumkit_infonode not found " + patternDir);
-		return NULL;
+		return nullptr;
 	}
 
 	QString dk_name = LocalFileMng::readXmlString( rootNode,"drumkit_name", "" );
@@ -109,13 +109,13 @@ QString LocalFileMng::processNode( QDomNode node, const QString& nodeName, bool 
 			_WARNINGLOG( "node '" + nodeName + "' is not found" );
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 QString LocalFileMng::readXmlString( QDomNode node , const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
-	if ( text == NULL ) {
+	if ( text == nullptr ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ) );
 		return defaultValue;
 	} else {
@@ -126,7 +126,7 @@ QString LocalFileMng::readXmlString( QDomNode node , const QString& nodeName, co
 float LocalFileMng::readXmlFloat( QDomNode node , const QString& nodeName, float defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
-	if ( text == NULL ) {
+	if ( text == nullptr ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ));
 		return defaultValue;
 	} else {
@@ -137,7 +137,7 @@ float LocalFileMng::readXmlFloat( QDomNode node , const QString& nodeName, float
 int LocalFileMng::readXmlInt( QDomNode node , const QString& nodeName, int defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
-	if ( text == NULL ) {
+	if ( text == nullptr ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ));
 		return defaultValue;
 	} else {
@@ -148,7 +148,7 @@ int LocalFileMng::readXmlInt( QDomNode node , const QString& nodeName, int defau
 bool LocalFileMng::readXmlBool( QDomNode node , const QString& nodeName, bool defaultValue, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bShouldExists, bShouldExists );
-	if ( text == NULL ) {
+	if ( text == nullptr ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ? "true" : "false" ).arg( nodeName ) );
 		return defaultValue;
 	} else {

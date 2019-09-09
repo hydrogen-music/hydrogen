@@ -65,7 +65,7 @@ const char* PatternEditorPanel::__class_name = "PatternEditorPanel";
 PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
  : QWidget( pParent )
  , Object( __class_name )
- , m_pPattern( NULL )
+ , m_pPattern( nullptr )
  , m_bEnablePatternResize( true )
 {
 	setAcceptDrops(true);
@@ -74,11 +74,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	
 
 // Editor TOP
-	PixmapWidget *editor_top = new PixmapWidget(0);
+	PixmapWidget *editor_top = new PixmapWidget(nullptr);
 	editor_top->setPixmap("/patternEditor/editor_top.png", true);
 	editor_top->setFixedHeight(24);
 
-	PixmapWidget *editor_top_2 = new PixmapWidget(0);
+	PixmapWidget *editor_top_2 = new PixmapWidget(nullptr);
 	editor_top_2->setPixmap("/patternEditor/editor_top.png", true);
 	editor_top_2->setFixedHeight(24);
 
@@ -94,7 +94,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	//soundlibrary name
-	pSLlabel = new QLabel( NULL );
+	pSLlabel = new QLabel( nullptr );
 	pSLlabel->setText( Hydrogen::get_instance()->m_currentDrumkit );
 	pSLlabel->setFixedSize( 170, 20 );
 	pSLlabel->move( 10, 3 );
@@ -102,7 +102,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	editor_top_hbox->addWidget( pSLlabel );
 
 //wolke some background images back_size_res
-	PixmapWidget *pSizeResol = new PixmapWidget( NULL );
+	PixmapWidget *pSizeResol = new PixmapWidget( nullptr );
 	pSizeResol->setFixedSize( 200, 20 );
 	pSizeResol->setPixmap( "/patternEditor/background_res-new.png" );
 	pSizeResol->move( 0, 3 );
@@ -152,7 +152,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect(__resolution_combo, SIGNAL(valueChanged( int )), this, SLOT(gridResolutionChanged( int )));
 
 
-	PixmapWidget *pRec = new PixmapWidget( NULL );
+	PixmapWidget *pRec = new PixmapWidget( nullptr );
 	pRec->setFixedSize( 158, 20 );
 	pRec->setPixmap( "/patternEditor/background_rec-new.png" );
 	pRec->move( 0, 3 );
@@ -199,7 +199,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__show_drum_btn->setToolTip( trUtf8( "Show piano roll editor" ) );
 	connect(__show_drum_btn, SIGNAL(clicked(Button*)), this, SLOT( showDrumEditorBtnClick(Button*)));
 
-	__recpredelete = new QComboBox( NULL );
+	__recpredelete = new QComboBox( nullptr );
 	__recpredelete->setFixedSize( 130, 20 );
 	__recpredelete->move( 2, 1 );
 	__recpredelete->addItem ( QString( "On play" ));
@@ -224,7 +224,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	editor_top_hbox_2->addWidget( __recpredelete );
 	connect( __recpredelete, SIGNAL( currentIndexChanged( int ) ), this, SLOT( recPreDeleteSelect( int) ) );
 
-	__recpostdelete = new QComboBox( NULL );
+	__recpostdelete = new QComboBox( nullptr );
 	__recpostdelete->setFixedSize( 60, 20 );
 	__recpostdelete->move( 2, 1 );
 	__recpostdelete->addItem ( QString( "off" ));
@@ -243,7 +243,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// zoom-in btn
 	Button *zoom_in_btn = new Button(
-			NULL,
+			nullptr,
 			"/songEditor/btn_new_on.png",
 			"/songEditor/btn_new_off.png",
 			"/songEditor/btn_new_over.png",
@@ -255,7 +255,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// zoom-out btn
 	Button *zoom_out_btn = new Button(
-			NULL,
+			nullptr,
 			"/songEditor/btn_minus_on.png",
 			"/songEditor/btn_minus_off.png",
 			"/songEditor/btn_minus_over.png",
@@ -271,7 +271,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 // RULER____________________________________
 
 	// Ruler ScrollView
-	m_pRulerScrollView = new QScrollArea( NULL );
+	m_pRulerScrollView = new QScrollArea( nullptr );
 	m_pRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -280,13 +280,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPatternEditorRuler = new PatternEditorRuler( m_pRulerScrollView->viewport() );
 
 	m_pRulerScrollView->setWidget( m_pPatternEditorRuler );
+	connect( m_pRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 
 //~ RULER
 
 
 // EDITOR _____________________________________
 	// Editor scrollview
-	m_pEditorScrollView = new QScrollArea( NULL );
+	m_pEditorScrollView = new QScrollArea( nullptr );
 	m_pEditorScrollView->setFrameShape( QFrame::NoFrame );
 	m_pEditorScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -297,16 +298,18 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_pEditorScrollView->setWidget( m_pDrumPatternEditor );
 
-	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorScroll(int) ) );
+	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
+	connect( m_pEditorScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 
 
 //PianoRollEditor
-	m_pPianoRollScrollView = new QScrollArea( NULL );
+	m_pPianoRollScrollView = new QScrollArea( nullptr );
 	m_pPianoRollScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
+	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 
 	m_pPianoRollScrollView->hide();
 
@@ -319,7 +322,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 // INSTRUMENT LIST
 	// Instrument list scrollview
-	m_pInstrListScrollView = new QScrollArea( NULL );
+	m_pInstrListScrollView = new QScrollArea( nullptr );
 	m_pInstrListScrollView->setFrameShape( QFrame::NoFrame );
 	m_pInstrListScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pInstrListScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -329,77 +332,83 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pInstrListScrollView->setWidget( m_pInstrumentList );
 	m_pInstrListScrollView->setFixedWidth( m_pInstrumentList->width() );
 
-	connect( m_pInstrListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorScroll(int) ) );
+	connect( m_pInstrListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
 //~ INSTRUMENT LIST
 
 
 
 
 // NOTE_VELOCITY EDITOR
-	m_pNoteVelocityScrollView = new QScrollArea( NULL );
+	m_pNoteVelocityScrollView = new QScrollArea( nullptr );
 	m_pNoteVelocityScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteVelocityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteVelocityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteVelocityEditor = new NotePropertiesRuler( m_pNoteVelocityScrollView->viewport(), this, NotePropertiesRuler::VELOCITY );
 	m_pNoteVelocityScrollView->setWidget( m_pNoteVelocityEditor );
 	m_pNoteVelocityScrollView->setFixedHeight( 100 );
+	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
+
 //~ NOTE_VELOCITY EDITOR
 
 
 // NOTE_PAN EDITOR
-	m_pNotePanScrollView = new QScrollArea( NULL );
+	m_pNotePanScrollView = new QScrollArea( nullptr );
 	m_pNotePanScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNotePanScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNotePanScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNotePanEditor = new NotePropertiesRuler( m_pNotePanScrollView->viewport(), this, NotePropertiesRuler::PAN );
 	m_pNotePanScrollView->setWidget( m_pNotePanEditor );
 	m_pNotePanScrollView->setFixedHeight( 100 );
+	connect( m_pNotePanScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 //~ NOTE_PAN EDITOR
 
 
 // NOTE_LEADLAG EDITOR
-	m_pNoteLeadLagScrollView = new QScrollArea( NULL );
+	m_pNoteLeadLagScrollView = new QScrollArea( nullptr );
 	m_pNoteLeadLagScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteLeadLagScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteLeadLagScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteLeadLagEditor = new NotePropertiesRuler( m_pNoteLeadLagScrollView->viewport(), this, NotePropertiesRuler::LEADLAG );
 	m_pNoteLeadLagScrollView->setWidget( m_pNoteLeadLagEditor );
 	m_pNoteLeadLagScrollView->setFixedHeight( 100 );
+	connect( m_pNoteLeadLagScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 //~ NOTE_LEADLAG EDITOR
 
 
 // NOTE_NOTEKEY EDITOR
 
 
-	m_pNoteNoteKeyScrollView = new QScrollArea( NULL );
+	m_pNoteNoteKeyScrollView = new QScrollArea( nullptr );
 	m_pNoteNoteKeyScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteNoteKeyScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteNoteKeyScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteNoteKeyEditor = new NotePropertiesRuler( m_pNoteNoteKeyScrollView->viewport(), this, NotePropertiesRuler::NOTEKEY );
 	m_pNoteNoteKeyScrollView->setWidget( m_pNoteNoteKeyEditor );
 	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
+	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 
 
 //~ NOTE_NOTEKEY EDITOR
 
 // NOTE_PROBABILITY EDITOR
-	m_pNoteProbabilityScrollView = new QScrollArea( NULL );
+	m_pNoteProbabilityScrollView = new QScrollArea( nullptr );
 	m_pNoteProbabilityScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteProbabilityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteProbabilityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteProbabilityEditor = new NotePropertiesRuler( m_pNoteProbabilityScrollView->viewport(), this, NotePropertiesRuler::PROBABILITY );
 	m_pNoteProbabilityScrollView->setWidget( m_pNoteProbabilityEditor );
 	m_pNoteProbabilityScrollView->setFixedHeight( 100 );
+	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 //~ NOTE_PROBABILITY EDITOR
 
 
 
 	// external horizontal scrollbar
-	m_pPatternEditorHScrollBar = new QScrollBar( Qt::Horizontal , NULL  );
+	m_pPatternEditorHScrollBar = new QScrollBar( Qt::Horizontal , nullptr  );
 	connect( m_pPatternEditorHScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalHorizontalScrollbar(int) ) );
 
 	// external vertical scrollbar
-	m_pPatternEditorVScrollBar = new QScrollBar( Qt::Vertical, NULL );
+	m_pPatternEditorVScrollBar = new QScrollBar( Qt::Vertical, nullptr );
 	connect( m_pPatternEditorVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalHorizontalScrollbar(int) ) );
 
 	QHBoxLayout *pPatternEditorHScrollBarLayout = new QHBoxLayout();
@@ -418,7 +427,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	QFont boldFont;
 	boldFont.setBold( true );
-	m_pPatternNameLbl = new QLabel( NULL );
+	m_pPatternNameLbl = new QLabel( nullptr );
 	m_pPatternNameLbl->setFont( boldFont );
 	m_pPatternNameLbl->setText( "pattern name label" );
 	m_pPatternNameLbl->setPalette(label_palette);
@@ -429,7 +438,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 // NOTE_PROPERTIES BUTTONS
-	PixmapWidget *pPropertiesPanel = new PixmapWidget( NULL );
+	PixmapWidget *pPropertiesPanel = new PixmapWidget( nullptr );
 	pPropertiesPanel->setColor( QColor( 58, 62, 72 ) );
 
 	pPropertiesPanel->setFixedSize( 181, 100 );
@@ -439,7 +448,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pPropertiesVBox->setMargin( 0 );
 
 
-	__pPropertiesCombo = new LCDCombo( NULL, 20);
+	__pPropertiesCombo = new LCDCombo( nullptr, 20);
 	__pPropertiesCombo->setToolTip(trUtf8("Select note properties"));
 	__pPropertiesCombo->addItem( trUtf8("Velocity") );
 	__pPropertiesCombo->addItem( trUtf8("Pan") );
@@ -616,11 +625,18 @@ void PatternEditorPanel::syncToExternalHorizontalScrollbar(int)
 }
 
 
-void PatternEditorPanel::on_patternEditorScroll(int nValue)
+void PatternEditorPanel::on_patternEditorVScroll(int nValue)
 {
-	//INFOLOG( "[on_patternEditorScroll] " + QString::number(nValue)  );
+	//INFOLOG( "[on_patternEditorVScroll] " + QString::number(nValue)  );
 	m_pPatternEditorVScrollBar->setValue( nValue );	
-	resizeEvent(NULL);
+	resizeEvent(nullptr);
+}
+
+void PatternEditorPanel::on_patternEditorHScroll(int nValue)
+{
+	//INFOLOG( "[on_patternEditorHScroll] " + QString::number(nValue)  );
+	m_pPatternEditorHScrollBar->setValue( nValue );	
+	resizeEvent(nullptr);
 }
 
 
@@ -688,13 +704,13 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 		__pattern_size_combo->select( (nPatternSize / n16th) - 1 );
 	}
 	else {
-		m_pPattern = NULL;
+		m_pPattern = nullptr;
 
 		this->setWindowTitle( ( trUtf8( "Pattern editor - %1").arg(QString("No pattern selected.")) ) );
 		m_pPatternNameLbl->setText( trUtf8( "No pattern selected" ) );
 	}
 
-	resizeEvent( NULL ); // force an update of the scrollbars
+	resizeEvent( nullptr ); // force an update of the scrollbars
 }
 
 
@@ -743,24 +759,28 @@ void PatternEditorPanel::stateChangedEvent(int state)
 }
 
 
+static void syncScrollBarSize(QScrollBar *pDest, QScrollBar *pSrc)
+{
+	pDest->setMinimum( pSrc->minimum() );
+	pDest->setMaximum( pSrc->maximum() );
+	pDest->setSingleStep( pSrc->singleStep() );
+	pDest->setPageStep( pSrc->pageStep() );
+}
 
 void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
 {
 	UNUSED( ev );
 	QScrollArea *pScrollArea = m_pEditorScrollView;
 
+	syncScrollBarSize( m_pPatternEditorHScrollBar, pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pPatternEditorVScrollBar, pScrollArea->verticalScrollBar() );
 
-	pScrollArea = m_pEditorScrollView;
-
-	m_pPatternEditorHScrollBar->setMinimum( pScrollArea->horizontalScrollBar()->minimum() );
-	m_pPatternEditorHScrollBar->setMaximum( pScrollArea->horizontalScrollBar()->maximum() );
-	m_pPatternEditorHScrollBar->setSingleStep( pScrollArea->horizontalScrollBar()->singleStep() );
-	m_pPatternEditorHScrollBar->setPageStep( pScrollArea->horizontalScrollBar()->pageStep() );
-
-	m_pPatternEditorVScrollBar->setMinimum( pScrollArea->verticalScrollBar()->minimum() );
-	m_pPatternEditorVScrollBar->setMaximum( pScrollArea->verticalScrollBar()->maximum() );
-	m_pPatternEditorVScrollBar->setSingleStep( pScrollArea->verticalScrollBar()->singleStep() );
-	m_pPatternEditorVScrollBar->setPageStep( pScrollArea->verticalScrollBar()->pageStep() );
+	syncScrollBarSize( m_pRulerScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pNoteVelocityScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pNotePanScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pNoteLeadLagScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar()) ;
+	syncScrollBarSize( m_pNoteNoteKeyScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
+	syncScrollBarSize( m_pNoteProbabilityScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
 }
 
 
@@ -788,7 +808,7 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
   //m_pNotePanEditor->updateEditor();
   //m_pNoteLeadLagEditor->updateEditor();
 
-	resizeEvent(NULL);	// force a scrollbar update
+	resizeEvent(nullptr);	// force a scrollbar update
 }
 
 
@@ -804,7 +824,7 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 		m_pDrumPatternEditor->selectedInstrumentChangedEvent(); // force an update
 	
 		// force a re-sync of extern scrollbars
-		resizeEvent( NULL );
+		resizeEvent( nullptr );
 
 	}
 	else
@@ -818,7 +838,7 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 		m_pPianoRollEditor->selectedPatternChangedEvent();
 		m_pPianoRollEditor->updateEditor(); // force an update	
 		// force a re-sync of extern scrollbars
-		resizeEvent( NULL );
+		resizeEvent( nullptr );
 	}
 }
 
@@ -838,7 +858,7 @@ void PatternEditorPanel::zoomInBtnClicked(Button *ref)
 	m_pNotePanEditor->zoomIn();
 	m_pPianoRollEditor->zoom_in();		
 
-	resizeEvent( NULL );
+	resizeEvent( nullptr );
 }
 
 
@@ -855,7 +875,7 @@ void PatternEditorPanel::zoomOutBtnClicked(Button *ref)
 	m_pNotePanEditor->zoomOut();
 	m_pPianoRollEditor->zoom_out();	
 
-	resizeEvent( NULL );
+	resizeEvent( nullptr );
 }
 
 
@@ -886,7 +906,7 @@ void PatternEditorPanel::patternSizeChanged( int nSelected )
 	m_pNoteProbabilityEditor->updateEditor();
 	m_pPianoRollEditor->updateEditor();
 
-	resizeEvent( NULL );
+	resizeEvent( nullptr );
 
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 }

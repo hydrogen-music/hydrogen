@@ -69,7 +69,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __hihat_grp( -1 )
 	, __lower_cc( 0 )
 	, __higher_cc( 127 )
-	, __components( NULL )
+	, __components( nullptr )
 	, __is_preview_instrument(false)
 	, __is_metronome_instrument(false)
 	, __apply_velocity( true )
@@ -131,7 +131,9 @@ Instrument::Instrument( Instrument* other )
 	}
 
 	__components = new std::vector<InstrumentComponent*> ();
-	__components->assign( other->get_components()->begin(), other->get_components()->end() );
+	for (auto it = other->get_components()->begin(); it != other->get_components()->end(); ++it) {
+		__components->push_back(new InstrumentComponent(*it));
+	}
 }
 
 Instrument::~Instrument()
@@ -269,7 +271,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 		return nullptr;
 	}
 
-	Instrument* pInstrument = new Instrument( id, node->read_string( "name", "" ), 0 );
+	Instrument* pInstrument = new Instrument( id, node->read_string( "name", "" ), nullptr );
 	pInstrument->set_drumkit_name( dk_name );
 	pInstrument->set_volume( node->read_float( "volume", 1.0f ) );
 	pInstrument->set_muted( node->read_bool( "isMuted", false ) );

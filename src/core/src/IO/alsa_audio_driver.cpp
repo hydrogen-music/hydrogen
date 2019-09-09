@@ -81,7 +81,7 @@ void* alsaAudioDriver_processCaller( void* param )
 
 	while ( pDriver->m_bIsRunning ) {
 		// prepare the audio data
-		pDriver->m_processCallback( nFrames, NULL );
+		pDriver->m_processCallback( nFrames, nullptr );
 
 		for ( int i = 0; i < nFrames; ++i ) {
 			pBuffer[ i * 2 ] = ( short )( pOut_L[ i ] * 32768.0 );
@@ -105,7 +105,7 @@ void* alsaAudioDriver_processCaller( void* param )
 			pDriver->m_nXRuns++;
 		}
 	}
-	return 0;
+	return nullptr;
 }
 
 
@@ -114,11 +114,11 @@ const char* AlsaAudioDriver::__class_name = "AlsaAudioDriver";
 AlsaAudioDriver::AlsaAudioDriver( audioProcessCallback processCallback )
 		: AudioOutput( __class_name )
 		, m_bIsRunning( false )
-		, m_pOut_L( NULL )
-		, m_pOut_R( NULL )
+		, m_pOut_L( nullptr )
+		, m_pOut_R( nullptr )
 		, m_nXRuns( 0 )
 		, m_nBufferSize( 0 )
-		, m_pPlayback_handle( NULL )
+		, m_pPlayback_handle( nullptr )
 		, m_processCallback( processCallback )
 {
 	INFOLOG( "INIT" );
@@ -174,7 +174,7 @@ int AlsaAudioDriver::connect()
 
 	snd_pcm_hw_params_t *hw_params;
 	snd_pcm_hw_params_alloca( &hw_params );
-	if ( hw_params == NULL ) {
+	if ( hw_params == nullptr ) {
 		ERRORLOG( "error in snd_pcm_hw_params_alloca" );
 		return 1;
 	}
@@ -195,7 +195,7 @@ int AlsaAudioDriver::connect()
 		return 1;
 	}
 
-	snd_pcm_hw_params_set_rate_near( m_pPlayback_handle, hw_params, &m_nSampleRate, 0 );
+	snd_pcm_hw_params_set_rate_near( m_pPlayback_handle, hw_params, &m_nSampleRate, nullptr );
 
 	if ( ( err = snd_pcm_hw_params_set_channels( m_pPlayback_handle, hw_params, nChannels ) ) < 0 ) {
 		ERRORLOG( QString( "error in snd_pcm_hw_params_set_channels: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
@@ -203,7 +203,7 @@ int AlsaAudioDriver::connect()
 	}
 
 	unsigned nPeriods = 2;
-	if ( ( err = snd_pcm_hw_params_set_periods_near( m_pPlayback_handle, hw_params, &nPeriods, 0 ) ) < 0 ) {
+	if ( ( err = snd_pcm_hw_params_set_periods_near( m_pPlayback_handle, hw_params, &nPeriods, nullptr ) ) < 0 ) {
 		ERRORLOG( QString( "error in snd_pcm_hw_params_set_periods: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
@@ -230,7 +230,7 @@ int AlsaAudioDriver::connect()
 		return 1;
 	}
 
-	snd_pcm_hw_params_get_rate( hw_params, &m_nSampleRate, 0 );
+	snd_pcm_hw_params_get_rate( hw_params, &m_nSampleRate, nullptr );
 	snd_pcm_hw_params_get_buffer_size( hw_params, &m_nBufferSize );
 
 	INFOLOG( QString( "*** PERIOD SIZE: %1" ).arg( period_size ) );
@@ -264,15 +264,15 @@ void AlsaAudioDriver::disconnect()
 
 	m_bIsRunning = false;
 
-	pthread_join( alsaAudioDriverThread, NULL );
+	pthread_join( alsaAudioDriverThread, nullptr );
 
 	snd_pcm_close( m_pPlayback_handle );
 
 	delete[] m_pOut_L;
-	m_pOut_L = NULL;
+	m_pOut_L = nullptr;
 
 	delete[] m_pOut_R;
-	m_pOut_R = NULL;
+	m_pOut_R = nullptr;
 }
 
 unsigned AlsaAudioDriver::getBufferSize()

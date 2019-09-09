@@ -124,16 +124,16 @@ const char* LadspaFX::__class_name = "LadspaFX";
 LadspaFX::LadspaFX( const QString& sLibraryPath, const QString& sPluginLabel )
 		: Object( __class_name )
 //, m_nBufferSize( 0 )
-		, m_pBuffer_L( NULL )
-		, m_pBuffer_R( NULL )
+		, m_pBuffer_L( nullptr )
+		, m_pBuffer_R( nullptr )
 		, m_pluginType( UNDEFINED )
 		, m_bEnabled( false )
 		, m_bActivated( false )
 		, m_sLabel( sPluginLabel )
 		, m_sLibraryPath( sLibraryPath )
-		, m_pLibrary( NULL )
-		, m_d( NULL )
-		, m_handle( NULL )
+		, m_pLibrary( nullptr )
+		, m_d( nullptr )
+		, m_handle( nullptr )
 		, m_fVolume( 1.0f )
 		, m_nICPorts( 0 )
 		, m_nOCPorts( 0 )
@@ -204,13 +204,13 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 
 	pFX->m_pLibrary = new QLibrary( sLibraryPath );
 	LADSPA_Descriptor_Function desc_func = ( LADSPA_Descriptor_Function )pFX->m_pLibrary->resolve( "ladspa_descriptor" );
-	if ( desc_func == NULL ) {
+	if ( desc_func == nullptr ) {
 		_ERRORLOG( "Error loading the library. (" + sLibraryPath + ")" );
 		delete pFX;
-		return NULL;
+		return nullptr;
 	}
 	if ( desc_func ) {
-		for ( unsigned i = 0; ( pFX->m_d = desc_func( i ) ) != NULL; i++ ) {
+		for ( unsigned i = 0; ( pFX->m_d = desc_func( i ) ) != nullptr; i++ ) {
 			QString sName = QString::fromLocal8Bit(pFX->m_d->Name);
 			QString sLabel = QString::fromLocal8Bit(pFX->m_d->Label);
 
@@ -238,7 +238,7 @@ LadspaFX* LadspaFX::load( const QString& sLibraryPath, const QString& sPluginLab
 	} else {
 		_ERRORLOG( "Error in dlsym" );
 		delete pFX;
-		return NULL;
+		return nullptr;
 	}
 
 	if ( ( pFX->m_nIAPorts == 2 ) && ( pFX->m_nOAPorts == 2 ) ) {		// Stereo plugin

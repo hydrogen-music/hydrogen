@@ -69,17 +69,17 @@ const char* SoundLibraryPanel::__class_name = "SoundLibraryPanel";
 SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  : QWidget( pParent )
  , Object( __class_name )
- , __sound_library_tree( NULL )
- , __drumkit_menu( NULL )
- , __instrument_menu( NULL )
- , __song_menu( NULL )
- , __pattern_menu( NULL )
- , __pattern_menu_list( NULL )
- , __system_drumkits_item( NULL )
- , __user_drumkits_item( NULL )
- , __song_item( NULL )
- , __pattern_item( NULL )
- , __pattern_item_list( NULL )
+ , __sound_library_tree( nullptr )
+ , __drumkit_menu( nullptr )
+ , __instrument_menu( nullptr )
+ , __song_menu( nullptr )
+ , __pattern_menu( nullptr )
+ , __pattern_menu_list( nullptr )
+ , __system_drumkits_item( nullptr )
+ , __user_drumkits_item( nullptr )
+ , __song_item( nullptr )
+ , __pattern_item( nullptr )
+ , __pattern_item_list( nullptr )
 {
 
 	//INFOLOG( "INIT" );
@@ -108,7 +108,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	__pattern_menu_list->addAction( trUtf8( "Load" ), this, SLOT( on_patternLoadAction() ) );
 
 // DRUMKIT LIST
-	__sound_library_tree = new SoundLibraryTree( NULL );
+	__sound_library_tree = new SoundLibraryTree( nullptr );
 	connect( __sound_library_tree, SIGNAL( currentItemChanged ( QTreeWidgetItem*, QTreeWidgetItem* ) ), this, SLOT( on_DrumkitList_ItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ) );
 	connect( __sound_library_tree, SIGNAL( itemActivated ( QTreeWidgetItem*, int ) ), this, SLOT( on_DrumkitList_itemActivated( QTreeWidgetItem*, int ) ) );
 	connect( __sound_library_tree, SIGNAL( leftClicked(QPoint) ), this, SLOT( on_DrumkitList_leftClicked(QPoint)) );
@@ -342,11 +342,11 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 
 void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 {
-	if( __sound_library_tree->currentItem() == NULL )
+	if( __sound_library_tree->currentItem() == nullptr )
 		return;
 	
 	if (
-		( __sound_library_tree->currentItem()->parent() == NULL ) ||
+		( __sound_library_tree->currentItem()->parent() == nullptr ) ||
 		( __sound_library_tree->currentItem() == __user_drumkits_item ) ||
 		( __sound_library_tree->currentItem() == __system_drumkits_item )
 	) {
@@ -357,7 +357,7 @@ void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 		__song_menu->popup( pos );
 	}
 
-	if ( __sound_library_tree->currentItem()->parent()->parent() == __pattern_item && __pattern_item != NULL ) {
+	if ( __sound_library_tree->currentItem()->parent()->parent() == __pattern_item && __pattern_item != nullptr ) {
 		__pattern_menu->popup( pos );
 	}
 
@@ -414,12 +414,12 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 	else {
 		//INFOLOG( "ho selezionato uno strumento" );
 		// instrument selection
-		if ( __sound_library_tree->currentItem() == NULL )
+		if ( __sound_library_tree->currentItem() == nullptr )
 		{
 			return;
 		}
 		
-		if ( __sound_library_tree->currentItem()->parent() == NULL )
+		if ( __sound_library_tree->currentItem()->parent() == nullptr )
 		{
 			return;
 		}
@@ -429,7 +429,7 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 			return;
 		}
 
-		if ( __sound_library_tree->currentItem()->parent()->text(0) == NULL )
+		if ( __sound_library_tree->currentItem()->parent()->text(0) == nullptr )
 		{
 			return;
 		}
@@ -476,7 +476,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 
-	Drumkit *drumkitInfo = NULL;
+	Drumkit *drumkitInfo = nullptr;
 
 	// find the drumkit in the list
 	for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
@@ -638,7 +638,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 		return;
 	}
 
-	int res = QMessageBox::warning( this, "Hydrogen", tr( "Warning, the \"%1\" drumkit will be deleted from disk.\nAre you sure?").arg(itemName), "&Ok", "&Cancel", 0, 1 );
+	int res = QMessageBox::warning( this, "Hydrogen", tr( "Warning, the \"%1\" drumkit will be deleted from disk.\nAre you sure?").arg(itemName), "&Ok", "&Cancel", nullptr, 1 );
 	if ( res == 1 ) {
 		return;
 	}
@@ -666,7 +666,7 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 {
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 
-	Drumkit *drumkitInfo = NULL;
+	Drumkit *drumkitInfo = nullptr;
 
 	// find the drumkit in the list
 	for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
@@ -688,7 +688,7 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 
 	QString sPreDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitname();
 
-	Drumkit *preDrumkitInfo = NULL;
+	Drumkit *preDrumkitInfo = nullptr;
 	
 
 	// find the drumkit in the list
@@ -707,7 +707,7 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 		}
 	}
 
-	if ( preDrumkitInfo == NULL ){
+	if ( preDrumkitInfo == nullptr ){
 		QMessageBox::warning( this, "Hydrogen", QString( "The current loaded song missing his soundlibrary.\nPlease load a existing soundlibrary first") );
 		return;
 	}
@@ -736,7 +736,7 @@ void SoundLibraryPanel::on_songLoadAction()
 	}
 
 	Song *pSong = Song::load( sFilename );
-	if ( pSong == NULL ) {
+	if ( pSong == nullptr ) {
 		QMessageBox::information( this, "Hydrogen", trUtf8("Error loading song.") );
 		return;
 	}
@@ -771,7 +771,7 @@ void SoundLibraryPanel::on_patternLoadAction()
 	// FIXME : file path should come from the selected item
 	Pattern* pErr = Pattern::load_file( Filesystem::pattern_path( drumkitName, patternName ), pSong->get_instrument_list() );
 
-	if ( pErr == 0 ) {
+	if ( pErr == nullptr ) {
 		ERRORLOG( "Error loading the pattern" );
 		return;
 	}
@@ -785,7 +785,7 @@ void SoundLibraryPanel::on_patternDeleteAction()
 {
 	QString patternPath = __sound_library_tree->currentItem()->text( 1 );
 
-	int res = QMessageBox::information( this, "Hydrogen", tr( "Warning, the selected pattern will be deleted from disk.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+	int res = QMessageBox::information( this, "Hydrogen", tr( "Warning, the selected pattern will be deleted from disk.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
 	if ( res == 1 ) {
 		return;
 	}

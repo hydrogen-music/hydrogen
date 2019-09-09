@@ -46,7 +46,7 @@ const char* LayerPreview::__class_name = "LayerPreview";
 LayerPreview::LayerPreview( QWidget* pParent )
  : QWidget( pParent )
  , Object( __class_name )
- , m_pInstrument( NULL )
+ , m_pInstrument( nullptr )
  , m_nSelectedComponent( 0 )
  , m_nSelectedLayer( 0 )
  , m_bMouseGrab( false )
@@ -120,7 +120,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 				
 				if ( pLayer ) {
 					Sample* pSample = pLayer->get_sample();
-					if( pSample != NULL) {
+					if( pSample != nullptr) {
 						label = pSample->get_filename();
 					}
 					
@@ -180,7 +180,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 {
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	if (pSong != NULL) {
+	if (pSong != nullptr) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		if ( nInstr >= (int)pInstrList->size() ) {
@@ -188,14 +188,14 @@ void LayerPreview::selectedInstrumentChangedEvent()
 		}
 
 		if (nInstr == -1) {
-			m_pInstrument = NULL;
+			m_pInstrument = nullptr;
 		}
 		else {
 			m_pInstrument = pInstrList->get( nInstr );
 		}
 	}
 	else {
-		m_pInstrument = NULL;
+		m_pInstrument = nullptr;
 	}
 	AudioEngine::get_instance()->unlock();
 	

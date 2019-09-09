@@ -42,7 +42,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 
 // TAB buttons
-	QWidget *pTabButtonsPanel = new QWidget( NULL );
+	QWidget *pTabButtonsPanel = new QWidget( nullptr );
 	pTabButtonsPanel->setFixedHeight( 24 );
 	pTabButtonsPanel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
@@ -83,7 +83,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 	InstrumentEditorPanel::get_instance()->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
-	m_pSoundLibraryPanel = new SoundLibraryPanel( NULL, false );
+	m_pSoundLibraryPanel = new SoundLibraryPanel( nullptr, false );
 
 	// LAYOUT
 	QGridLayout *pGrid = new QGridLayout();

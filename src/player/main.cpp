@@ -69,7 +69,7 @@ int main(int argc, char** argv){
 	H2Core::Preferences *preferences = H2Core::Preferences::get_instance();
 
 	H2Core::Song *pSong = H2Core::Song::load( filename );
-	if (pSong == NULL) {
+	if (pSong == nullptr) {
 		cout << "Error loading song!" << endl;
 		exit(2);
 	}

@@ -132,7 +132,7 @@ class Sample : public H2Core::Object
 		 * \param data_l the left channel array of data
 		 * \param data_r the right channel array of data
 		 */
-		Sample( const QString& filepath, int frames=0, int sample_rate=0, float* data_l=0, float* data_r=0 );
+		Sample( const QString& filepath, int frames=0, int sample_rate=0, float* data_l=nullptr, float* data_r=nullptr );
 		/** copy constructor */
 		Sample( Sample* other );
 		/** destructor */
@@ -341,7 +341,7 @@ inline void Sample::unload()
 	__frames = __sample_rate = 0;
 	/** #__is_modified = false; leave this unchanged as pan,
 	    velocity, loop and rubberband are kept unchanged */
-	__data_l = __data_r = 0;
+	__data_l = __data_r = nullptr;
 }
 
 inline bool Sample::is_empty() const

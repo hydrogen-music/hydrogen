@@ -525,7 +525,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	createPositionsRulerPath();
 	m_pPlayButton = true;
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
-	m_pSampleAdjustView->setDetailSamplePosition( __loops.start_frame, m_pZoomfactor , 0);
+	m_pSampleAdjustView->setDetailSamplePosition( __loops.start_frame, m_pZoomfactor , nullptr);
 
 	if( __rubberband.use == false ){
 		m_pTimer->start(40);	// update ruler at 25 fps
@@ -574,7 +574,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	}
 
 	m_pMainSampleWaveDisplay->paintLocatorEvent( StartFrameSpinBox->value() / m_divider + 24 , true);
-	m_pSampleAdjustView->setDetailSamplePosition( __loops.start_frame, m_pZoomfactor , 0);
+	m_pSampleAdjustView->setDetailSamplePosition( __loops.start_frame, m_pZoomfactor , nullptr);
 	m_pTimer->start(40);	// update ruler at 25 fps
 	m_pRealtimeFrameEnd = Hydrogen::get_instance()->getRealtimeFrames() + m_pslframes;
 	PlayOrigPushButton->setText( QString( "Stop") );
@@ -589,10 +589,10 @@ void SampleEditor::updateMainsamplePositionRuler()
 		unsigned frame = m_pslframes - ( m_pRealtimeFrameEnd  - realpos );
 		if ( m_pPlayButton == true ){
 			m_pMainSampleWaveDisplay->paintLocatorEvent( m_pPositionsRulerPath[frame] / m_divider + 25 , true);
-			m_pSampleAdjustView->setDetailSamplePosition( m_pPositionsRulerPath[frame], m_pZoomfactor , 0);
+			m_pSampleAdjustView->setDetailSamplePosition( m_pPositionsRulerPath[frame], m_pZoomfactor , nullptr);
 		}else{
 			m_pMainSampleWaveDisplay->paintLocatorEvent( frame / m_divider + 25 , true);
-			m_pSampleAdjustView->setDetailSamplePosition( frame, m_pZoomfactor , 0);
+			m_pSampleAdjustView->setDetailSamplePosition( frame, m_pZoomfactor , nullptr);
 		}
 //		ERRORLOG( QString("sampleval: %1").arg(frame) );
 	}else

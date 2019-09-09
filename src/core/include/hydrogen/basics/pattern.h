@@ -188,7 +188,7 @@ class Pattern : public H2Core::Object
 		 * \param node the XMLNode to feed
 		 * \param instrumentOnly export only the notes of that instrument if given
 		 */
-		void save_to( XMLNode* node, const Instrument* instrumentOnly = 0 ) const;
+		void save_to( XMLNode* node, const Instrument* instrumentOnly = nullptr ) const;
 
 	private:
 		int __length;                                           ///< the length of the pattern
