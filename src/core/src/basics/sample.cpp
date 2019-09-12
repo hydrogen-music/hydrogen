@@ -23,6 +23,7 @@
 
 
 #include <limits>
+#include <memory>
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
