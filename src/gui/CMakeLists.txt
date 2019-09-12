@@ -42,8 +42,8 @@ IF(APPLE)
   	
 ENDIF()
 
-
 ADD_EXECUTABLE(hydrogen WIN32 MACOSX_BUNDLE ${hydrogen_SRCS} ${hydrogen_MOC} ${hydrogen_UIS_H} ${CMAKE_SOURCE_DIR}/windows/icon.rc)
+SET_PROPERTY(TARGET hydrogen PROPERTY CXX_STANDARD 14)
 
 TARGET_LINK_LIBRARIES(hydrogen
 	hydrogen-core-${VERSION}

@@ -39,6 +39,8 @@ namespace H2Core
 {
 
 const char* Sample::__class_name = "Sample";
+const char* EnvelopePoint::__class_name = "EnvolopePoint";
+
 const char* Sample::__loop_modes[] = { "forward", "reverse", "pingpong" };
 
 #if defined(H2CORE_HAVE_RUBBERBAND) || _DOXYGEN_
@@ -46,7 +48,25 @@ static double compute_pitch_scale( const Sample::Rubberband& r );
 static RubberBand::RubberBandStretcher::Options compute_rubberband_options( const Sample::Rubberband& r );
 #endif
 
-Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) : Object( __class_name ),
+
+/* EnvelopePoint */
+EnvelopePoint::EnvelopePoint() : Object( EnvelopePoint::__class_name ), frame( 0 ), value( 0 ) 
+{
+}
+
+EnvelopePoint::EnvelopePoint( int f, int v ) : Object( EnvelopePoint::__class_name ), frame( f ), value( v ) 
+{
+}
+
+EnvelopePoint::EnvelopePoint( EnvelopePoint* other ) : Object( EnvelopePoint::__class_name )
+{
+	frame = other->frame;
+	value = other->value;
+}
+/* EnvelopePoint */
+
+
+Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) : Object( Sample::__class_name ),
 	__filepath( filepath ),
 	__frames( frames ),
 	__sample_rate( sample_rate ),
@@ -74,13 +94,12 @@ Sample::Sample( Sample* pOther ): Object( __class_name ),
 
 	PanEnvelope* pPan = pOther->get_pan_envelope();
 	for( int i=0; i<pPan->size(); i++ ) {
-		__pan_envelope.push_back( pPan->at( i ) );
+		__pan_envelope.push_back( std::make_unique<EnvelopePoint>( pPan->at(i)->value, pPan->at(i)->frame ) );
 	}
-
 
 	PanEnvelope* pVelocity = pOther->get_velocity_envelope();
 	for( int i=0; i<pVelocity->size(); i++ ) {
-		__velocity_envelope.push_back( pVelocity->at( i ) );
+		__velocity_envelope.push_back( std::make_unique<EnvelopePoint>( pVelocity->at(i)->value, pVelocity->at(i)->frame ) );
 	}
 }
 
@@ -293,15 +312,19 @@ void Sample::apply_velocity( const VelocityEnvelope& v )
 	// the VelocityEnvelope should be processed within TargetWaveDisplay
 	// so that we here have ( int frame_idx, float scale ) points
 	// but that will break the xml storage
-	if( v.empty() && __velocity_envelope.empty() ) return;
+	if( v.empty() && __velocity_envelope.empty() ) 
+	{
+		return;
+	}
+	
 	__velocity_envelope.clear();
 	if ( v.size() > 0 ) {
 		float inv_resolution = __frames / 841.0F;
 		for ( int i = 1; i < v.size(); i++ ) {
-			float y = ( 91 - v[i - 1].value ) / 91.0F;
-			float k = ( 91 - v[i].value ) / 91.0F;
-			int start_frame = v[i - 1].frame * inv_resolution;
-			int end_frame = v[i].frame * inv_resolution;
+			float y = ( 91 - v[i - 1]->value ) / 91.0F;
+			float k = ( 91 - v[i]->value ) / 91.0F;
+			int start_frame = v[i - 1]->frame * inv_resolution;
+			int end_frame = v[i]->frame * inv_resolution;
 			if ( i == v.size() -1 ) end_frame = __frames;
 			int length = end_frame - start_frame ;
 			float step = ( y - k ) / length;;
@@ -311,7 +334,10 @@ void Sample::apply_velocity( const VelocityEnvelope& v )
 				y-=step;
 			}
 		}
-		__velocity_envelope = v;
+		
+		for(auto& pEnvPtr : v){
+			__velocity_envelope.emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr->value, pEnvPtr->frame ) );
+		}
 	}
 	__is_modified = true;
 }
@@ -319,15 +345,19 @@ void Sample::apply_velocity( const VelocityEnvelope& v )
 void Sample::apply_pan( const PanEnvelope& p )
 {
 	// TODO see apply_velocity
-	if( p.empty() && __pan_envelope.empty() ) return;
+	if( p.empty() && __pan_envelope.empty() )
+	{
+		return;
+	}
+	
 	__pan_envelope.clear();
 	if ( p.size() > 0 ) {
 		float inv_resolution = __frames / 841.0F;
 		for ( int i = 1; i < p.size(); i++ ) {
-			float y = ( 45 - p[i - 1].value ) / 45.0F;
-			float k = ( 45 - p[i].value ) / 45.0F;
-			int start_frame = p[i - 1].frame * inv_resolution;
-			int end_frame = p[i].frame * inv_resolution;
+			float y = ( 45 - p[i - 1]->value ) / 45.0F;
+			float k = ( 45 - p[i]->value ) / 45.0F;
+			int start_frame = p[i - 1]->frame * inv_resolution;
+			int end_frame = p[i]->frame * inv_resolution;
 			if ( i == p.size() -1 ) end_frame = __frames;
 			int length = end_frame - start_frame ;
 			float step = ( y - k ) / length;;
@@ -348,7 +378,10 @@ void Sample::apply_pan( const PanEnvelope& p )
 				y-=step;
 			}
 		}
-		__pan_envelope = p;
+		
+		for(auto& pEnvPtr : p){
+			__pan_envelope.emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr->value, pEnvPtr->frame ) );
+		}
 	}
 	__is_modified = true;
 }

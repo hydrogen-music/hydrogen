@@ -75,9 +75,6 @@ Preferences::Preferences()
 	m_nRecPreDelete = 0;
 	m_nRecPostDelete = 0;
 
-	//server list
-	std::list<QString> sServerList;
-
 	//rubberband bpm change queue
 	m_useTheRubberbandBpmChangeEvent = false;
 	__rubberBandCalcTime = 5;
@@ -136,7 +133,7 @@ Preferences::Preferences()
 	m_countOffset = 0;  // beatcounter
 	m_startOffset = 0;  // beatcounter
 
-	sServerList.push_back( QString("http://www.hydrogen-music.org/feeds/drumkit_list.php") );
+	sServerList.push_back( QString("http://hydrogen-music.org/feeds/drumkit_list.php") );
 	m_patternCategories.push_back( QString("not_categorized") );
 
 	//___ audio engine properties ___

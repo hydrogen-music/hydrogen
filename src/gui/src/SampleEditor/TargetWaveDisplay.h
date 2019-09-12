@@ -29,12 +29,14 @@
 #endif
 #include <hydrogen/object.h>
 #include <hydrogen/basics/sample.h>
+#include <memory>
 
 class SampleEditor;
 
 namespace H2Core
 {
 	class InstrumentLayer;
+	class EnvelopePoint;
 }
 
 class TargetWaveDisplay : public QWidget, public H2Core::Object
@@ -51,7 +53,7 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		void paintLocatorEventTargetDisplay( int pos, bool last_event);
 		void paintEvent(QPaintEvent *ev);
 		H2Core::Sample::PanEnvelope* get_pan() { return &__pan; }
-		H2Core::Sample::VelocityEnvelope* get_velocity() { return &__velocity; }
+		std::vector<std::unique_ptr<H2Core::EnvelopePoint>>* get_velocity() { return &m_VelocityEnvelope; }
 
 	private:
 		QPixmap m_Background;
@@ -76,7 +78,7 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 
 		H2Core::Sample::PanEnvelope __pan;
-		H2Core::Sample::VelocityEnvelope __velocity;
+		std::vector<std::unique_ptr<H2Core::EnvelopePoint>> m_VelocityEnvelope;
 };
 
 
