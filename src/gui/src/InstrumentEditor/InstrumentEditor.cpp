@@ -977,24 +977,28 @@ void InstrumentEditor::loadLayer()
 void InstrumentEditor::setAutoVelocity()
 {
 	std::vector<int> layerInUse( InstrumentComponent::getMaxLayers(), 0 );
-	int layers = 0;
+	int nLayers = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
-		InstrumentLayer *pLayers = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
-		if ( pLayers ) {
-			layers++;
+		InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
+		if ( pLayer ) {
+			nLayers++;
 			layerInUse[i] = i;
 		}
 	}
+	
+	if( nLayers == 0){
+		nLayers = 1;
+	}
 
-	float velocityrange = 1.0 / layers;
+	float velocityrange = 1.0 / nLayers;
 
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 		if ( layerInUse[i] == i ){
-			layers--;
+			nLayers--;
 			InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
 			if ( pLayer ) {
-				pLayer->set_start_velocity( layers * velocityrange);
-				pLayer->set_end_velocity( layers * velocityrange + velocityrange );
+				pLayer->set_start_velocity( nLayers * velocityrange);
+				pLayer->set_end_velocity( nLayers * velocityrange + velocityrange );
 			}
 		}
 	}
