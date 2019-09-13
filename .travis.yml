@@ -1,7 +1,7 @@
 env:
   global:
    # COVERITY_SCAN_TOKEN
-   - secure: "3wUCEMjkdvYNPhJTYulyIc95JOxLM0R767Y3JbISFT2rHlveQoyOjvmvRDtTAMMsNzPpZGL3TDhbHPf4NX3p08rnVM0koSxxIqV4EiRhVqaxVwrxrr/qiKY6Fw0XeCtUr8ZJg8/Y6DUalf+CVqpuHj6BV6bnR9rjCG14pHfSAJ0="
+   - secure: "x1HUJs+KYNac7yreaFL8EBJNgZWpD3VU6/7mEqGvJX8XNqf8jmsR1DolAI9hF4KwusqP8A5BmBWVI8kB8/THOTupznIhxH6wEsfXTngQXCNyWIaXRIIk9qeLFD3F0I7IqZNydML0DCSuURMvBPfQFmNXSxKzMsP1II3p0FPteJA="
    - MAKEFLAGS="-j 2"
 
 matrix:
@@ -41,7 +41,7 @@ addons:
       - "build/CMakeFiles/CMakeOutput.log"
       - "/tmp/hydrogen"
 
-coverity_scan:
+  coverity_scan:
     project:
       name: "hydrogen-music/hydrogen"
       description: "hydrogen source code repository"
