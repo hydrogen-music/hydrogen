@@ -19,7 +19,7 @@ class SilentMessageHandler : public QAbstractMessageHandler
 {
 public:
 	SilentMessageHandler()
-		: QAbstractMessageHandler(0)
+		: QAbstractMessageHandler(nullptr)
 	{
 	}
 
@@ -39,20 +39,27 @@ const char* XMLNode::__class_name ="XMLNode";
 XMLNode::XMLNode() : Object( __class_name ) { }
 XMLNode::XMLNode( QDomNode node ) : Object( __class_name ), QDomNode( node ) { }
 
+XMLNode XMLNode::createNode( const QString& name )
+{
+	XMLNode node = this->ownerDocument().createElement( name );
+	appendChild( node );
+	return node;
+}
+
 QString XMLNode::read_child_node( const QString& node, bool inexistent_ok, bool empty_ok )
 {
 	if( isNull() ) {
 		DEBUGLOG( QString( "try to read %1 XML node from an empty parent %2." ).arg( node ).arg( nodeName() ) );
-		return 0;
+		return nullptr;
 	}
 	QDomElement el = firstChildElement( node );
 	if( el.isNull() ) {
 		if( !inexistent_ok ) DEBUGLOG( QString( "XML node %1->%2 should exists." ).arg( nodeName() ).arg( node ) );
-		return 0;
+		return nullptr;
 	}
 	if( el.text().isEmpty() ) {
 		if( !empty_ok ) DEBUGLOG( QString( "XML node %1->%2 should not be empty." ).arg( nodeName() ).arg( node ) );
-		return 0;
+		return nullptr;
 	}
 	return el.text();
 }
@@ -103,6 +110,36 @@ bool XMLNode::read_bool( const QString& node, bool default_value, bool inexisten
 	}
 }
 
+QString XMLNode::read_text( bool empty_ok )
+{
+	QString text = toElement().text();
+	if ( !empty_ok && text.isEmpty() ) {
+		DEBUGLOG( QString( "XML node %1 should not be empty." ).arg( nodeName() ) );
+	}
+	return text;
+}
+
+QString XMLNode::read_attribute( const QString& attribute, const QString& default_value, bool inexistent_ok, bool empty_ok )
+{
+	QDomElement el = toElement();
+	if ( !inexistent_ok && !el.hasAttribute( attribute ) ) {
+		DEBUGLOG( QString( "XML node %1 attribute %2 should exists." ).arg( nodeName() ).arg( attribute ) );
+		return default_value;
+	}
+	QString attr = el.attribute( attribute );
+	if ( attr.isEmpty() ) {
+		if( !empty_ok ) DEBUGLOG( QString( "XML node %1 attribute %2 should not be empty." ).arg( nodeName() ).arg( attribute ) );
+		DEBUGLOG( QString( "Using default value %1 for attribute %2" ).arg( default_value ).arg( attribute ) );
+		return default_value;
+	}
+	return attr;
+}
+
+void XMLNode::write_attribute( const QString& attribute, const QString& value )
+{
+	toElement().setAttribute( attribute, value );
+}
+
 void XMLNode::write_child_node( const QString& node, const QString& text )
 {
 	QDomDocument doc = this->ownerDocument();
@@ -140,7 +177,7 @@ bool XMLDoc::read( const QString& filepath, const QString& schemapath )
 	
 	bool schema_usable = false;
 	
-	if( schemapath!=0 ) {
+	if( schemapath!=nullptr ) {
 		QFile file( schemapath );
 		if ( !file.open( QIODevice::ReadOnly ) ) {
 			ERRORLOG( QString( "Unable to open XML schema %1 for reading" ).arg( schemapath ) );
@@ -200,17 +237,20 @@ bool XMLDoc::write( const QString& filepath )
 
 	file.close();
 	return rv;
-};
+}
 
-void XMLDoc::set_root( const QString& node_name, const QString& xmlns )
+XMLNode XMLDoc::set_root( const QString& node_name, const QString& xmlns )
 {
 	QDomProcessingInstruction header = createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"" );
 	appendChild( header );
 	XMLNode root = createElement( node_name );
-	QDomElement el = root.toElement();
-	el.setAttribute( "xmlns",XMLNS_BASE+xmlns );
-	el.setAttribute( "xmlns:xsi",XMLNS_XSI );
+	if ( !xmlns.isEmpty() ) {
+		QDomElement el = root.toElement();
+		el.setAttribute( "xmlns",XMLNS_BASE+xmlns );
+		el.setAttribute( "xmlns:xsi",XMLNS_XSI );
+	}
 	appendChild( root );
+	return root;
 }
 
 };

@@ -28,7 +28,7 @@
 
 #include "PianoRollEditor.h"
 #include "../EventListener.h"
-#include "../widgets/LCDCombo.h"
+#include "../Widgets/LCDCombo.h"
 
 class Button;
 class ToggleButton;
@@ -68,7 +68,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		NotePropertiesRuler* getProbabilityEditor() {	return m_pNoteProbabilityEditor;	}
 		PatternEditorInstrumentList* getInstrumentList() {	return m_pInstrumentList;	}
 		PianoRollEditor* getPianoRollEditor() {		return m_pPianoRollEditor;	}
-		QString getPropertiesComboText(){ return __pPropertiesCombo->getText(); }
+		int getPropertiesComboValue(){ return __pPropertiesCombo->selected(); }
 
 		void updateSLnameLabel();
 		void displayorHidePrePostCB();
@@ -81,9 +81,9 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		//~ Implements EventListener interface
 
 	private slots:
-		void gridResolutionChanged( QString text );
-		void propertiesComboChanged( QString text );
-		void patternSizeChanged( QString text );
+		void gridResolutionChanged( int nSelected );
+		void propertiesComboChanged( int nSelected );
+		void patternSizeChanged( int nSelected );
 
 		void hearNotesBtnClick(Button *ref);
 		void quantizeEventsBtnClick(Button *ref);
@@ -92,7 +92,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		void syncToExternalHorizontalScrollbar(int);
 		void contentsMoving(int dummy);
-		void on_patternEditorScroll(int);
+		void on_patternEditorVScroll(int);
+		void on_patternEditorHScroll(int);
 
 
 		void zoomInBtnClicked(Button *ref);

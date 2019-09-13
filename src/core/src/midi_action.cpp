@@ -24,12 +24,12 @@
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/playlist.h>
 
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/basics/pattern_list.h>
 
@@ -83,7 +83,7 @@ Action::Action( QString typeString ) : Object( __class_name ) {
 * @author Sebastian Moors
 *
 */
-MidiActionManager* MidiActionManager::__instance = NULL;
+MidiActionManager* MidiActionManager::__instance = nullptr;
 const char* MidiActionManager::__class_name = "ActionManager";
 
 MidiActionManager::MidiActionManager() : Object( __class_name ) {
@@ -135,7 +135,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 	for(int i = 0; i < MAX_COMPONENTS; ++i) {
 		ostringstream componentToChar;
 		componentToChar << (i+1);
-		for(int j = 0; j < MAX_LAYERS; ++j) {
+		for(int j = 0; j < InstrumentComponent::getMaxLayers(); ++j ) {
 			targeted_element sample = {i,j};
 			ostringstream toChar;
 			toChar << (j+1);
@@ -154,6 +154,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 		}
 	}
 	actionMap.insert(make_pair("SELECT_NEXT_PATTERN", make_pair(&MidiActionManager::select_next_pattern, empty)));
+	actionMap.insert(make_pair("SELECT_ONLY_NEXT_PATTERN", make_pair(&MidiActionManager::select_only_next_pattern, empty)));
 	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_CC_ABSOLUTE", make_pair(&MidiActionManager::select_next_pattern_cc_absolute, empty)));
 	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_PROMPTLY", make_pair(&MidiActionManager::select_next_pattern_promptly, empty)));
 	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_RELATIVE", make_pair(&MidiActionManager::select_next_pattern_relative, empty)));
@@ -199,11 +200,11 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 
 MidiActionManager::~MidiActionManager() {
 	//INFOLOG( "ActionManager delete" );
-	__instance = NULL;
+	__instance = nullptr;
 }
 
 void MidiActionManager::create_instance() {
-	if ( __instance == 0 ) {
+	if ( __instance == nullptr ) {
 		__instance = new MidiActionManager;
 	}
 }
@@ -279,7 +280,7 @@ bool MidiActionManager::strip_mute_toggle(Action * pAction, Hydrogen* pEngine, t
 
 	Instrument *pInstr = instrList->get( nLine );
 
-	if ( pInstr == NULL) {
+	if ( pInstr == nullptr) {
 		return false;
 	}
 	
@@ -297,7 +298,7 @@ bool MidiActionManager::strip_solo_toggle(Action * pAction, Hydrogen* pEngine, t
 
 	Instrument *pInstr = instrList->get( nLine );
 
-	if ( pInstr == NULL) {
+	if ( pInstr == nullptr) {
 		return false;
 	}
 	
@@ -328,6 +329,21 @@ bool MidiActionManager::select_next_pattern(Action * pAction, Hydrogen* pEngine,
 		pEngine->sequencer_setNextPattern( row );
 	}
 	return true;
+}
+
+bool MidiActionManager::select_only_next_pattern(Action * pAction, Hydrogen* pEngine, targeted_element ) {
+  bool ok;
+  int row = pAction->getParameter1().toInt(&ok,10);
+	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
+		return false;
+	}
+  if(Preferences::get_instance()->patternModePlaysSelected())
+  {
+    return true;
+  }
+ 
+  pEngine->sequencer_setOnlyNextPattern( row );
+  return true; 
 }
 
 bool MidiActionManager::select_next_pattern_relative(Action * pAction, Hydrogen* pEngine, targeted_element ) {
@@ -401,7 +417,7 @@ bool MidiActionManager::effect_level_absolute(Action * pAction, Hydrogen* pEngin
 	Song *song = pEngine->getSong();
 	InstrumentList *instrList = song->get_instrument_list();
 	Instrument *instr = instrList->get( nLine );
-	if ( instr == NULL)  {
+	if ( instr == nullptr)  {
 		return false;
 	}
 
@@ -475,7 +491,7 @@ bool MidiActionManager::strip_volume_absolute(Action * pAction, Hydrogen* pEngin
 
 	Instrument *instr = instrList->get( nLine );
 
-	if ( instr == NULL) {
+	if ( instr == nullptr) {
 		return false;
 	}
 
@@ -504,7 +520,7 @@ bool MidiActionManager::strip_volume_relative(Action * pAction, Hydrogen* pEngin
 
 	Instrument *instr = instrList->get( nLine );
 
-	if ( instr == NULL) {
+	if ( instr == nullptr) {
 		return false;
 	}
 
@@ -542,7 +558,7 @@ bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pEngine, target
 
 	Instrument *instr = instrList->get( nLine );
 
-	if( instr == NULL ) {
+	if( instr == nullptr ) {
 		return false;
 	}
 
@@ -597,7 +613,7 @@ bool MidiActionManager::pan_relative(Action * pAction, Hydrogen* pEngine, target
 
 	Instrument *instr = instrList->get( nLine );
 
-	if( instr == NULL ) {
+	if( instr == nullptr ) {
 		return false;
 	}
 
@@ -650,17 +666,17 @@ bool MidiActionManager::gain_level_absolute(Action * pAction, Hydrogen* pEngine,
 	InstrumentList *instrList = song->get_instrument_list();
 
 	Instrument *instr = instrList->get( nLine );
-	if( instr == 0 ) {
+	if( instr == nullptr ) {
 		return false;
 	}
 
 	InstrumentComponent* component =  instr->get_component( nSample._id );
-	if( component == 0) {
+	if( component == nullptr) {
 		return false;
 	}
 
 	InstrumentLayer* layer = component->get_layer( nSample._subId );
-	if( layer == 0 ) {
+	if( layer == nullptr ) {
 		return false;
 	}
 
@@ -688,17 +704,17 @@ bool MidiActionManager::pitch_level_absolute(Action * pAction, Hydrogen* pEngine
 	InstrumentList *instrList = song->get_instrument_list();
 
 	Instrument *instr = instrList->get( nLine );
-	if( instr == 0 ) {
+	if( instr == nullptr ) {
 		return false;
 	}
 
 	InstrumentComponent* component =  instr->get_component( nSample._id );
-	if( component == 0) {
+	if( component == nullptr) {
 		return false;
 	}
 
 	InstrumentLayer* layer = component->get_layer( nSample._subId );
-	if( layer == 0 ) {
+	if( layer == nullptr ) {
 		return false;
 	}
 
@@ -726,7 +742,7 @@ bool MidiActionManager::filter_cutoff_level_absolute(Action * pAction, Hydrogen*
 	InstrumentList *instrList = song->get_instrument_list();
 
 	Instrument *instr = instrList->get( nLine );
-	if( instr == 0 ) {
+	if( instr == nullptr ) {
 		return false;
 	}
 
@@ -864,7 +880,7 @@ bool MidiActionManager::previous_bar(Action * , Hydrogen* pEngine, targeted_elem
 
 bool setSong( int songnumber, Hydrogen * pEngine ) {
 	int asn = Playlist::get_instance()->getActiveSongNumber();
-	if(asn != songnumber && songnumber >= 0 && songnumber <= pEngine->m_PlayList.size()-1) {
+	if(asn != songnumber && songnumber >= 0 && songnumber <= Playlist::get_instance()->size() - 1 ) {
 		Playlist::get_instance()->setNextSongByNumber( songnumber );
 	}
 	return true;
@@ -948,7 +964,7 @@ bool MidiActionManager::handleAction( Action * pAction ) {
 		return false if action is null
 		(for example if no Action exists for an event)
 	*/
-	if( pAction == NULL ) {
+	if( pAction == nullptr ) {
 		return false;
 	}
 

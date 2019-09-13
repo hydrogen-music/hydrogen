@@ -26,6 +26,7 @@
 
 #include "../EventListener.h"
 #include <hydrogen/object.h>
+#include <hydrogen/basics/pattern.h>
 #include "../InstrumentEditor/WaveDisplay.h"
 
 #include <QtGui>
@@ -69,19 +70,22 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		SongEditorActionMode getActionMode() {	return m_actionMode;	}
 		void toggleAutomationAreaVisibility();
 		
+		void showTimeline();
+		void showPlaybackTrack();
+		
+		
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
 		void restoreGroupVector( QString filename );
 		//~ Implements EventListener interface	
 		///< an empty new pattern will be added to pattern list at idx
-		void addEmptyPattern( QString newPatternName, QString newPatternInfo, QString newPatternCategory, int idx  );
+		void insertPattern( int idx, H2Core::Pattern* pPattern );
 		///< pattern at idx within pattern list will be destroyed
-		void revertaddEmptyPattern( int idx );
+		void deletePattern( int idx );
 
 	private slots:
-		void on_patternListScroll();
-		void on_EditorScroll();
-		void syncToExternalScrollBar();
+		void vScrollTo( int value );
+		void hScrollTo( int value );
 
 		void newPatBtnClicked( Button* );
 		void upBtnClicked( Button* );
@@ -121,6 +125,8 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		QScrollArea*			m_pEditorScrollView;
 		QScrollArea*			m_pPatternListScrollView;
 		QScrollArea*			m_pPositionRulerScrollView;
+		QScrollArea*			m_pPlaybackTrackScrollView;
+		
 		QScrollBar *			m_pVScrollBar;
 		QScrollBar *			m_pHScrollBar;
 		

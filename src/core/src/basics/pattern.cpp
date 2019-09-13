@@ -68,20 +68,20 @@ Pattern::~Pattern()
 Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instruments )
 {
 	INFOLOG( QString( "Load pattern %1" ).arg( pattern_path ) );
-	if ( !Filesystem::file_readable( pattern_path ) ) return 0;
+	if ( !Filesystem::file_readable( pattern_path ) ) return nullptr;
 	XMLDoc doc;
-	if( !doc.read( pattern_path, Filesystem::drumkit_pattern_xsd() ) ) {
-		return Legacy::load_drumkit_pattern( pattern_path );
+	if( !doc.read( pattern_path, Filesystem::pattern_xsd_path() ) ) {
+		return Legacy::load_drumkit_pattern( pattern_path, instruments );
 	}
 	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
 	if ( root.isNull() ) {
 		ERRORLOG( "drumkit_pattern node not found" );
-		return 0;
+		return nullptr;
 	}
 	XMLNode pattern_node = root.firstChildElement( "pattern" );
 	if ( pattern_node.isNull() ) {
 		ERRORLOG( "pattern node not found" );
-		return 0;
+		return nullptr;
 	}
 	return load_from( &pattern_node, instruments );
 }
@@ -89,11 +89,15 @@ Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instru
 Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 {
 	Pattern* pattern = new Pattern(
-	    node->read_string( "name", "unknown", false, false ),
+	    node->read_string( "name", nullptr, false, false ),
 	    node->read_string( "info", "", false, false ),
 	    node->read_string( "category", "unknown", false, false ),
 	    node->read_int( "size", -1, false, false )
 	);
+	// FIXME support legacy xml element pattern_name, should once be removed
+	if ( pattern->get_name().isEmpty() ) {
+	    pattern->set_name( node->read_string( "pattern_name", "unknown", false, false ) );
+	}
 	XMLNode note_list_node = node->firstChildElement( "noteList" );
 	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
@@ -108,56 +112,54 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 	return pattern;
 }
 
-bool Pattern::save_file( const QString& pattern_path, bool overwrite )
+bool Pattern::save_file( const QString& drumkit_name, const QString& author, const QString& license, const QString& pattern_path, bool overwrite ) const
 {
 	INFOLOG( QString( "Saving pattern into %1" ).arg( pattern_path ) );
-	if( Filesystem::file_exists( pattern_path, true ) && !overwrite ) {
+	if( !overwrite && Filesystem::file_exists( pattern_path, true ) ) {
 		ERRORLOG( QString( "pattern %1 already exists" ).arg( pattern_path ) );
 		return false;
 	}
 	XMLDoc doc;
-	doc.set_root( "drumkit_pattern", "drumkit_pattern" );
-	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
+	XMLNode root = doc.set_root( "drumkit_pattern", "drumkit_pattern" );
+	root.write_string( "drumkit_name", drumkit_name );				// FIXME loaded with LocalFileMng::getDrumkitNameForPattern(…)
+	root.write_string( "author", author );							// FIXME this is never loaded back
+	root.write_string( "license", license );						// FIXME this is never loaded back
 	save_to( &root );
 	return doc.write( pattern_path );
 }
 
-void Pattern::save_to( XMLNode* node )
+void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly ) const
 {
-	// TODO drumkit_name !!!!!!
-	node->write_string( "drumkit_name", "TODO" );
-	XMLNode pattern_node =  node->ownerDocument().createElement( "pattern" );
+	XMLNode pattern_node =  node->createNode( "pattern" );
 	pattern_node.write_string( "name", __name );
 	pattern_node.write_string( "info", __info );
 	pattern_node.write_string( "category", __category );
 	pattern_node.write_int( "size", __length );
-	XMLNode note_list_node =  pattern_node.ownerDocument().createElement( "noteList" );
-	for( notes_it_t it=__notes.begin(); it!=__notes.end(); ++it ) {
+	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
+	int id = ( instrumentOnly == nullptr ? -1 : instrumentOnly->get_id() );
+	for( auto it=__notes.cbegin(); it!=__notes.cend(); ++it ) {
 		Note* note = it->second;
-		if( note ) {
-			XMLNode note_node = node->ownerDocument().createElement( "note" );
+		if( note && ( instrumentOnly == nullptr || note->get_instrument()->get_id() == id ) ) {
+			XMLNode note_node = note_list_node.createNode( "note" );
 			note->save_to( &note_node );
-			note_list_node.appendChild( note_node );
 		}
 	}
-	pattern_node.appendChild( note_list_node );
-	node->appendChild( pattern_node );
 }
 
-Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict )
+Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict ) const
 {
 	for( notes_cst_it_t it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
 		Note* note = it->second;
 		assert( note );
 		if ( note->match( instrument, key, octave ) ) return note;
 	}
-	if( idx_b==-1 ) return 0;
+	if( idx_b==-1 ) return nullptr;
 	for( notes_cst_it_t it=__notes.lower_bound( idx_b ); it!=__notes.upper_bound( idx_b ); it++ ) {
 		Note* note = it->second;
 		assert( note );
 		if ( note->match( instrument, key, octave ) ) return note;
 	}
-	if( strict ) return 0;
+	if( strict ) return nullptr;
 	// TODO maybe not start from 0 but idx_b-X
 	for ( int n=0; n<idx_b; n++ ) {
 		for( notes_cst_it_t it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
@@ -166,10 +168,10 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, Note::Ke
 			if ( note->match( instrument, key, octave ) && ( ( idx_b<=note->get_position()+note->get_length() ) && idx_b>=note->get_position() ) ) return note;
 		}
 	}
-	return 0;
+	return nullptr;
 }
 
-Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool strict )
+Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool strict ) const
 {
 	notes_cst_it_t it;
 	for( it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
@@ -177,13 +179,13 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool str
 		assert( note );
 		if ( note->get_instrument() == instrument ) return note;
 	}
-	if( idx_b==-1 ) return 0;
+	if( idx_b==-1 ) return nullptr;
 	for( it=__notes.lower_bound( idx_b ); it!=__notes.upper_bound( idx_b ); it++ ) {
 		Note* note = it->second;
 		assert( note );
 		if ( note->get_instrument() == instrument ) return note;
 	}
-	if ( strict ) return 0;
+	if ( strict ) return nullptr;
 	// TODO maybe not start from 0 but idx_b-X
 	for ( int n=0; n<idx_b; n++ ) {
 		for( it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
@@ -193,7 +195,7 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool str
 		}
 	}
 
-	return 0;
+	return nullptr;
 }
 
 void Pattern::remove_note( Note* note )

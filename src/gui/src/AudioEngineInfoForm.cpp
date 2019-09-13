@@ -55,7 +55,6 @@ AudioEngineInfoForm::AudioEngineInfoForm(QWidget* parent)
 	setWindowTitle( trUtf8( "Audio Engine Info" ) );
 
 	updateInfo();
-	//currentPatternLbl->setText("NULL pattern");
 
 	timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(updateInfo()));
@@ -74,8 +73,6 @@ AudioEngineInfoForm::~AudioEngineInfoForm()
 }
 
 
-
-
 /**
  * show event
  */
@@ -86,8 +83,6 @@ void AudioEngineInfoForm::showEvent ( QShowEvent* )
 }
 
 
-
-
 /**
  * hide event
  */
@@ -95,8 +90,6 @@ void AudioEngineInfoForm::hideEvent ( QHideEvent* )
 {
 	timer->stop();
 }
-
-
 
 
 void AudioEngineInfoForm::updateInfo()
@@ -124,7 +117,7 @@ void AudioEngineInfoForm::updateInfo()
 	processTimeLbl->setText(tmp);
 
 	// Song state
-	if (pSong == NULL) {
+	if (pSong == nullptr) {
 		songStateLbl->setText( "NULL song" );
 	}
 	else {

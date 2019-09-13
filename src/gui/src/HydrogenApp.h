@@ -39,6 +39,13 @@
 
 //#include <QUndoStack>
 
+/** Amount of time to pass between successive calls to
+ * HydrogenApp::onEventQueueTimer() in milliseconds.
+ *
+ * This causes the GUI to update at 20 frames per second.*/
+#define QUEUE_TIMER_PERIOD 50
+
+
 namespace H2Core
 {
 	class Song;
@@ -85,20 +92,20 @@ class HydrogenApp : public QObject, public H2Core::Object
 		void showDirector();
 		void showSampleEditor( QString name, int mSelectedComponemt, int mSelectedLayer );
 
-		Mixer*					getMixer();
-		MainForm*				getMainForm();
+		Mixer*				getMixer();
+		MainForm*			getMainForm();
 		SongEditorPanel*		getSongEditorPanel();
-		AudioEngineInfoForm*	getAudioEngineInfoForm();
+		AudioEngineInfoForm*		getAudioEngineInfoForm();
 		PlaylistDialog*			getPlayListDialog();
-		Director*				getDirector();
+		Director*			getDirector();
 		SampleEditor*			getSampleEditor();
 		SimpleHTMLBrowser*		getHelpBrowser();
 		PatternEditorPanel*		getPatternEditorPanel();
 		PlayerControl*			getPlayerControl();
 		InstrumentRack*			getInstrumentRack();
-		InfoBar *				getInfoBar() const;
+		InfoBar *			getInfoBar() const;
 
-		QUndoStack*		m_undoStack;
+		QUndoStack*			m_pUndoStack;
 
 		void setStatusBarMessage( const QString& msg, int msec = 0 );
 		void setScrollStatusBarMessage( const QString& msg, int msec = 0, bool test = true );
@@ -115,9 +122,60 @@ class HydrogenApp : public QObject, public H2Core::Object
 		void enableDestructiveRecMode();
 
 		void cleanupTemporaryFiles();
-		void addTemporaryFile( const QString& );
 
 	public slots:
+		/**
+		 * Function called every #QUEUE_TIMER_PERIOD
+		 * millisecond to pop all Events from the EventQueue
+		 * and invoke the corresponding functions.
+		 *
+		 * Depending on the H2Core::EventType, the following members
+		 * of EventListener will be called:
+		 * - H2Core::EVENT_STATE -> 
+		     EventListener::stateChangedEvent()
+		 * - H2Core::EVENT_PATTERN_CHANGED -> 
+		     EventListener::patternChangedEvent()
+		 * - H2Core::EVENT_PATTERN_MODIFIED -> 
+		     EventListener::patternModifiedEvent()
+		 * - H2Core::EVENT_SONG_MODIFIED -> 
+		     EventListener::songModifiedEvent()
+		 * - H2Core::EVENT_SELECTED_PATTERN_CHANGED -> 
+		     EventListener::selectedPatternChangedEvent()
+		 * - H2Core::EVENT_SELECTED_INSTRUMENT_CHANGED -> 
+		     EventListener::selectedInstrumentChangedEvent()
+		 * - H2Core::EVENT_PARAMETERS_INSTRUMENT_CHANGED -> 
+		     EventListener::parametersInstrumentChangedEvent()
+		 * - H2Core::EVENT_MIDI_ACTIVITY -> 
+		     EventListener::midiActivityEvent()
+		 * - H2Core::EVENT_NOTEON -> 
+		     EventListener::noteOnEvent()
+		 * - H2Core::EVENT_ERROR -> 
+		     EventListener::errorEvent()
+		 * - H2Core::EVENT_XRUN -> 
+		     EventListener::XRunEvent()
+		 * - H2Core::EVENT_METRONOME -> 
+		     EventListener::metronomeEvent()
+		 * - H2Core::EVENT_RECALCULATERUBBERBAND -> 
+		     EventListener::rubberbandbpmchangeEvent()
+		 * - H2Core::EVENT_PROGRESS -> 
+		     EventListener::progressEvent()
+		 * - H2Core::EVENT_JACK_SESSION -> 
+		     EventListener::jacksessionEvent()
+		 * - H2Core::EVENT_PLAYLIST_LOADSONG -> 
+		     EventListener::playlistLoadSongEvent()
+		 * - H2Core::EVENT_UNDO_REDO -> 
+		     EventListener::undoRedoActionEvent()
+		 * - H2Core::EVENT_TEMPO_CHANGED -> 
+		     EventListener::tempoChangedEvent()
+		 * - H2Core::EVENT_MISMATCHING_SAMPLE_RATE -> 
+		     EventListener::mismatchingSampleRateEvent()
+		 * - H2Core::EVENT_NONE -> nothing
+		 *
+		 * In addition, all MIDI notes in
+		 * H2Core::EventQueue::m_addMidiNoteVector will converted into
+		 * actions via SE_addNoteAction() and deleted from the
+		 * former array.
+		*/
 		void onEventQueueTimer();
 		void currentTabChanged(int);
 
@@ -129,24 +187,23 @@ class HydrogenApp : public QObject, public H2Core::Object
 		LadspaFXProperties *		m_pLadspaFXProperties[MAX_FX];
 #endif
 
-		MainForm *					m_pMainForm;
-		Mixer *						m_pMixer;
-		PatternEditorPanel*			m_pPatternEditorPanel;
+		MainForm *			m_pMainForm;
+		Mixer *				m_pMixer;
+		PatternEditorPanel*		m_pPatternEditorPanel;
 		AudioEngineInfoForm *		m_pAudioEngineInfoForm;
-		SongEditorPanel *			m_pSongEditorPanel;
-		SimpleHTMLBrowser *			m_pHelpBrowser;
-		SimpleHTMLBrowser *			m_pFirstTimeInfo;
-		InstrumentRack*				m_pInstrumentRack;
-		PlayerControl *				m_pPlayerControl;
-		PlaylistDialog *			m_pPlaylistDialog;
-		SampleEditor *				m_pSampleEditor;
-		InfoBar *					m_pInfoBar;
-		Director *					m_pDirector;
-		QTimer *					m_pEventQueueTimer;
-		std::vector<EventListener*> m_EventListeners;
-		QStringList					m_TemporaryFileList;
-		QTabWidget *				m_pTab;
-		QSplitter *					m_pSplitter;
+		SongEditorPanel *		m_pSongEditorPanel;
+		SimpleHTMLBrowser *		m_pHelpBrowser;
+		SimpleHTMLBrowser *		m_pFirstTimeInfo;
+		InstrumentRack*			m_pInstrumentRack;
+		PlayerControl *			m_pPlayerControl;
+		PlaylistDialog *		m_pPlaylistDialog;
+		SampleEditor *			m_pSampleEditor;
+		InfoBar *			m_pInfoBar;
+		Director *			m_pDirector;
+		QTimer *			m_pEventQueueTimer;
+		std::vector<EventListener*> 	m_EventListeners;
+		QTabWidget *			m_pTab;
+		QSplitter *			m_pSplitter;
 
 		// implement EngineListener interface
 		void engineError(uint nErrorCode);

@@ -54,34 +54,10 @@ public:
 	LocalFileMng();
 	~LocalFileMng();
 
-	static std::vector<QString> getDrumkitsFromDirectory( QString );
-	std::vector<QString> getPatternDirList();
-	std::vector<QString> getSongList();
-	std::vector<QString> getPatternsForDrumkit( const QString&  );
-	std::vector<QString> getAllPatternNames();
-	int getPatternList( const QString& );
-	int mergeAllPatternList( std::vector<QString> );
-
-	std::vector<QString> getallPatternList(){
-		return m_allPatternList;
-	}
-	std::vector<QString> getAllCategoriesFromPattern();
-
 	QString getDrumkitNameForPattern( const QString& patternDir );
 
 	static void writeXmlString( QDomNode parent, const QString& name, const QString& text );
 	static void writeXmlBool( QDomNode parent, const QString& name, bool value );
-
-	Pattern*	loadPattern( const QString& directory );
-	int			savePattern( Song *song , const QString& drumkit_name, int selectedpattern , const QString& patternname, const QString& realpatternname, int mode);
-
-	int savePlayList( const std::string& patternname );
-	int loadPlayList( const std::string& patternname);
-	
-	static QString	copyInstrumentLineToString(Song *song, int selectedPattern, int selectedInstrument);
-	static bool		pasteInstrumentLineFromString(Song *song, const QString & serialized, int selectedPattern, int selectedInstrument, std::list< Pattern* > & patterns);
-
-	int writeTempPatternList( Song *song, const QString& filename);//used for undo/redo
 
 	static QString	readXmlString( QDomNode , const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
 	static float	readXmlFloat( QDomNode , const QString& nodeName, float defaultValue, bool bCanBeEmpty = false, bool bShouldExists = true , bool tinyXmlCompatMode = false);
@@ -92,7 +68,7 @@ public:
 	static QDomDocument openXmlDocument( const QString& filename );
 
 private:
-	std::vector<QString> m_allPatternList;
+	static QString processNode( QDomNode node, const QString& nodeName, bool bCanBeEmpty, bool bShouldExists );
 };
 
 

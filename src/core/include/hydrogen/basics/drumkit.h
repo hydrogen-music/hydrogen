@@ -43,33 +43,64 @@ class Drumkit : public H2Core::Object
 		Drumkit();
 		/** copy constructor */
 		Drumkit( Drumkit* other );
-		/** drumkit destructor, delete__ instruments */
+		/** drumkit destructor, delete #__instruments */
 		~Drumkit();
 
 		/**
-		 * load drumkit information from a directory
-		 * \param dk_dir like one returned by Filesystem::drumkit_path
-		 * \param load_samples automatically load sample data if set to true
-		 * \return a Drumkit on success, NULL otherwise
+		 * Load drumkit information from a directory.
+		 *
+		 * This function is a wrapper around load_file(). The
+		 * provided drumkit directory @a dk_dir is converted
+		 * by Filesystem::drumkit_file() internally.
+		 *
+		 * \param dk_dir A directory containing a drumkit,
+		 * like those returned by
+		 * Filesystem::drumkit_dir_search().
+		 * \param load_samples Automatically load sample data
+		 * if set to true.
+		 *
+		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load( const QString& dk_dir, bool load_samples=false );
+		static Drumkit* load( const QString& dk_dir, const bool load_samples = false );
 		/**
-		 * Simple wrapper for 'load' - use Filesystem::drumkit_path_search
+		 * Simple wrapper for load() used with the drumkit's
+		 * name instead of its directory.
+		 *
+		 * Uses Filesystem::drumkit_path_search() to determine
+		 * the directory of the Drumkit from @a dk_name.
+		 *
+		 * \param dk_name Name of the Drumkit.
+		 * \param load_samples Automatically load sample data
+		 * if set to true.
+		 *
+		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load_by_name( const QString& dk_name, bool load_samples=false );
+		static Drumkit* load_by_name( const QString& dk_name, const bool load_samples = false );
 		/**
-		 * load drumkit information from a file
+		 * Load a Drumkit from a file.
+		 *
+		 * If the drumkit in @a dk_name can not be validated
+		 * against the current XML Schema definition in
+		 * Filesystem::drumkit_xsd_path(), it will be loaded
+		 * using Legacy::load_drumkit() and, if successful,
+		 * saved again using save_file() to update the drumkit
+		 * file to the newest version. If, instead, the
+		 * Drumkit is valid, it is loaded using load_from()
+		 * and load_samples() is triggered if @a load_samples
+		 * is true.
+		 *
 		 * \param dk_path is a path to an xml file
 		 * \param load_samples automatically load sample data if set to true
-		 * \return a Drumkit on success, NULL otherwise
+		 *
+		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load_file( const QString& dk_path, bool load_samples=false );
-		/**
-		 * load the instrument samples
+		static Drumkit* load_file( const QString& dk_path, const bool load_samples = false );
+		/** Calls the InstrumentList::load_samples() member
+		 * function of #__instruments.
 		 */
-		void load_samples( );
-		/**
-		 * unload the instrument samples
+		void load_samples();
+		/** Calls the InstrumentList::unload_samples() member
+		 * function of #__instruments.
 		 */
 		void unload_samples();
 
@@ -89,7 +120,7 @@ class Drumkit : public H2Core::Object
 		bool save( bool overwrite=false );
 		/**
 		 * save a drumkit, xml file and samples
-		 * neither __path nor __name are updated
+		 * neither #__path nor #__name are updated
 		 * \param dk_dir the directory to save the drumkit into
 		 * \param overwrite allows to write over existing drumkit files
 		 * \return true on success
@@ -114,7 +145,6 @@ class Drumkit : public H2Core::Object
 		 * save the drumkit image into the new directory
 		 * \param dk_dir the directory to save the image into
 		 * \param overwrite allows to write over existing drumkit image file
-		 * \param orig_dir holds the directory we are copying image from
 		 * \return true on success
 		 */
 		bool save_image( const QString& dk_dir, bool overwrite=false );
@@ -124,9 +154,13 @@ class Drumkit : public H2Core::Object
 		 * \param author the author of the drumkit
 		 * \param info the info of the drumkit
 		 * \param license the license of the drumkit
-		 * \param image the image filename (with full path) of the drumkit
-		 * \þaram instruments the instruments to be saved within the drumkit
-		 * \oaram overwrite allows to write over existing drumkit files
+		 * \param image the image filename (with full path) of
+		   the drumkit
+		 * \param imageLicense license of the supplied image
+		 * \param instruments the instruments to be saved
+		   within the drumkit
+		 * \param components
+		 * \param overwrite allows to write over existing drumkit files
 		 * \return true on success
 		 */
 		static bool save( const QString& name, const QString& author, const QString& info, const QString& license, const QString& image, const QString& imageLicense, InstrumentList* instruments, std::vector<DrumkitComponent*>* components, bool overwrite=false );
@@ -145,36 +179,36 @@ class Drumkit : public H2Core::Object
 
 		/** set __instruments, delete existing one */
 		void set_instruments( InstrumentList* instruments );
-		/**  returns __instruments */
+		/**  returns #__instruments */
 		InstrumentList* get_instruments() const;
 
-		/** __path setter */
+		/** #__path setter */
 		void set_path( const QString& path );
-		/** __path accessor */
+		/** #__path accessor */
 		const QString& get_path() const;
-		/** __name setter */
+		/** #__name setter */
 		void set_name( const QString& name );
-		/** __name accessor */
+		/** #__name accessor */
 		const QString& get_name() const;
-		/** __author setter */
+		/** #__author setter */
 		void set_author( const QString& author );
-		/** __author accessor */
+		/** #__author accessor */
 		const QString& get_author() const;
-		/** __info setter */
+		/** #__info setter */
 		void set_info( const QString& info );
-		/** __info accessor */
+		/** #__info accessor */
 		const QString& get_info() const;
-		/** __license setter */
+		/** #__license setter */
 		void set_license( const QString& license );
-		/** __license accessor */
+		/** #__license accessor */
 		const QString& get_license() const;
-		/** __image setter */
+		/** #__image setter */
 		void set_image( const QString& image );
-		/** __image accessor */
+		/** #__image accessor */
 		const QString& get_image() const;
-		/** __imageLicense setter */
+		/** #__imageLicense setter */
 		void set_image_license( const QString& imageLicense );
-		/** __imageLicense accessor */
+		/** #__imageLicense accessor */
 		const QString& get_image_license() const;
 		/** return true if the samples are loaded */
 		const bool samples_loaded() const;

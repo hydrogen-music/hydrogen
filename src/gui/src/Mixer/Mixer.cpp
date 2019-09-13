@@ -27,8 +27,8 @@
 #include "../HydrogenApp.h"
 #include "../LadspaFXProperties.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
-#include "../widgets/Button.h"
-#include "../widgets/PixmapWidget.h"
+#include "../Widgets/Button.h"
+#include "../Widgets/PixmapWidget.h"
 
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>

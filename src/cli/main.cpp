@@ -34,13 +34,14 @@
 #include <hydrogen/midi_map.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/instrument.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/h2_exception.h>
-#include <hydrogen/playlist.h>
+#include <hydrogen/basics/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/LocalFileMng.h>
 
 #include <iostream>
 #include <signal.h>
@@ -53,22 +54,22 @@ void showUsage();
 
 #define HAS_ARG 1
 static struct option long_opts[] = {
-	{"driver", required_argument, NULL, 'd'},
-	{"song", required_argument, NULL, 's'},
+	{"driver", required_argument, nullptr, 'd'},
+	{"song", required_argument, nullptr, 's'},
 #ifdef H2CORE_HAVE_JACKSESSION
-	{"jacksessionid", required_argument, NULL, 'S'},
+	{"jacksessionid", required_argument, nullptr, 'S'},
 #endif
-	{"playlist", required_argument, NULL, 'p'},
-	{"bits", required_argument, NULL, 'b'},
-	{"rate", required_argument, NULL, 'r'},
-	{"outfile", required_argument, NULL, 'o'},
-	{"interpolation", required_argument, NULL, 'I'},
-	{"version", 0, NULL, 'v'},
-	{"verbose", optional_argument, NULL, 'V'},
-	{"help", 0, NULL, 'h'},
-	{"install", required_argument, NULL, 'i'},
-	{"drumkit", required_argument, NULL, 'k'},
-	{0, 0, 0, 0},
+	{"playlist", required_argument, nullptr, 'p'},
+	{"bits", required_argument, nullptr, 'b'},
+	{"rate", required_argument, nullptr, 'r'},
+	{"outfile", required_argument, nullptr, 'o'},
+	{"interpolation", required_argument, nullptr, 'I'},
+	{"version", 0, nullptr, 'v'},
+	{"verbose", optional_argument, nullptr, 'V'},
+	{"help", 0, nullptr, 'h'},
+	{"install", required_argument, nullptr, 'i'},
+	{"drumkit", required_argument, nullptr, 'k'},
+	{nullptr, 0, nullptr, 0},
 };
 
 class Sleeper : public QThread
@@ -88,16 +89,18 @@ void signal_handler ( int signum )
 	}
 }
 
-void show_playlist (Hydrogen *pHydrogen, uint active )
+void show_playlist (uint active )
 {
 	/* Display playlist members */
-	if ( pHydrogen->m_PlayList.size() > 0) {
-		for ( uint i = 0; i < pHydrogen->m_PlayList.size(); ++i ) {
-			cout << ( i + 1 ) << "." << pHydrogen->m_PlayList[i].m_hFile.toLocal8Bit().constData();
+	Playlist* pPlaylist = Playlist::get_instance();
+	if ( pPlaylist->size() > 0) {
+		for ( uint i = 0; i < pPlaylist->size(); ++i ) {
+			cout << ( i + 1 ) << "." << pPlaylist->get( i )->filePath.toLocal8Bit().constData();
 			if ( i == active ) cout << " *";
 			cout << endl;
 		}
 	}
+	
 	cout << endl;
 }
 
@@ -124,7 +127,7 @@ int main(int argc, char *argv[])
 		// Deal with the options
 		QString songFilename;
 		QString playlistFilename;
-		QString outFilename = NULL;
+		QString outFilename = nullptr;
 		QString sSelectedDriver;
 		bool showVersionOpt = false;
 		const char* logLevelOpt = "Error";
@@ -139,7 +142,7 @@ int main(int argc, char *argv[])
 #endif
 		int c;
 		while ( 1 ) {
-			c = getopt_long(argc, argv, opts, long_opts, NULL);
+			c = getopt_long(argc, argv, opts, long_opts, nullptr);
 			if ( c == -1 ) break;
 
 			switch(c) {
@@ -164,10 +167,10 @@ int main(int argc, char *argv[])
 				drumkitToLoad = QString::fromLocal8Bit(optarg);
 				break;
 			case 'r':
-				rate = strtol(optarg, NULL, 10);
+				rate = strtol(optarg, nullptr, 10);
 				break;
 			case 'b':
-				bits = strtol(optarg, NULL, 10);
+				bits = strtol(optarg, nullptr, 10);
 				break;
 			case 'v':
 				showVersionOpt = true;
@@ -280,12 +283,12 @@ int main(int argc, char *argv[])
 #endif
 		Hydrogen::create_instance();
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
-		Song *pSong = NULL;
-		Playlist *pPlaylist = NULL;
+		Song *pSong = nullptr;
+		Playlist *pPlaylist = nullptr;
 
 		// Load playlist
 		if ( ! playlistFilename.isEmpty() ) {
-			pPlaylist = Playlist::load ( playlistFilename );
+			pPlaylist = Playlist::load ( playlistFilename, preferences->isPlaylistUsingRelativeFilenames() );
 			if ( ! pPlaylist ) {
 				___ERRORLOG( "Error loading the playlist" );
 				return 0;
@@ -293,9 +296,19 @@ int main(int argc, char *argv[])
 
 			/* Load first song */
 			preferences->setLastPlaylistFilename( playlistFilename );
-			pPlaylist->loadSong( 0 );
-			pSong = pHydrogen->getSong();
-			show_playlist ( pHydrogen, pPlaylist->getActiveSongNumber() );
+			
+			QString FirstSongFilename;
+			pPlaylist->getSongFilenameByNumber( 0, FirstSongFilename );
+			pSong = Song::load( FirstSongFilename );
+			
+			if( pSong ){
+				pHydrogen->setSong( pSong );
+				preferences->setLastSongFilename( songFilename );
+				
+				pPlaylist->activateSong( 0 );
+			}
+			
+			show_playlist( pPlaylist->getActiveSongNumber() );
 		}
 
 		// Load song - if wasn't already loaded with playlist
@@ -357,6 +370,10 @@ int main(int argc, char *argv[])
 		
 		bool ExportMode = false;
 		if ( ! outFilename.isEmpty() ) {
+			InstrumentList *pInstrumentList = pSong->get_instrument_list();
+			for (auto i = 0; i < pInstrumentList->size(); i++) {
+				pInstrumentList->get(i)->set_currently_exported( true );
+			}
 			pHydrogen->startExportSession(rate, bits);
 			pHydrogen->startExportSong( outFilename );
 			cout << "Export Progress ... ";
@@ -384,9 +401,15 @@ int main(int argc, char *argv[])
 				break;
 			case EVENT_PLAYLIST_LOADSONG: /* Load new song on MIDI event */
 				if( pPlaylist ){
-					if ( pPlaylist->loadSong ( event.value ) ) {
-						pSong = pHydrogen->getSong();
-						show_playlist ( pHydrogen, pPlaylist->getActiveSongNumber() );
+					QString FirstSongFilename;
+					pPlaylist->getSongFilenameByNumber( event.value, FirstSongFilename );
+					pSong = Song::load( FirstSongFilename );
+					
+					if( pSong ) {
+						pHydrogen->setSong( pSong );
+						preferences->setLastSongFilename( songFilename );
+						
+						pPlaylist->activateSong( event.value );
 					}
 				}
 				break;

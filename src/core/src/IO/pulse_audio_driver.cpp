@@ -22,7 +22,7 @@
 
 #include <hydrogen/IO/PulseAudioDriver.h>
 
-#ifdef H2CORE_HAVE_PULSEAUDIO
+#if defined(H2CORE_HAVE_PULSEAUDIO) || _DOXYGEN_
 
 #include <fcntl.h>
 #include <hydrogen/Preferences.h>
@@ -34,15 +34,15 @@ namespace H2Core
 PulseAudioDriver::PulseAudioDriver(audioProcessCallback processCallback)
 	:	AudioOutput("PulseAudioDriver"),
 		m_callback(processCallback),
-		m_main_loop(0),
-		m_ctx(0),
-		m_stream(0),
+		m_main_loop(nullptr),
+		m_ctx(nullptr),
+		m_stream(nullptr),
 		m_connected(false),
-		m_outL(0),
-		m_outR(0)
+		m_outL(nullptr),
+		m_outR(nullptr)
 {
-	pthread_mutex_init(&m_mutex, 0);
-	pthread_cond_init(&m_cond, 0);
+	pthread_mutex_init(&m_mutex, nullptr);
+	pthread_cond_init(&m_cond, nullptr);
 }
 
 
@@ -78,7 +78,7 @@ int PulseAudioDriver::connect()
 	fcntl(m_pipe[0], F_SETFL, fcntl(m_pipe[0], F_GETFL) | O_NONBLOCK);
 
 	m_ready = 0;
-	if (pthread_create(&m_thread, 0, s_thread_body, this))
+	if (pthread_create(&m_thread, nullptr, s_thread_body, this))
 	{
 		close(m_pipe[0]);
 		close(m_pipe[1]);
@@ -92,7 +92,7 @@ int PulseAudioDriver::connect()
 
 	if (m_ready < 0)
 	{
-		pthread_join(m_thread, 0);
+		pthread_join(m_thread, nullptr);
 		close(m_pipe[0]);
 		close(m_pipe[1]);
 		return 1;
@@ -110,7 +110,7 @@ void PulseAudioDriver::disconnect()
 		int junk = 0;
 		while (write(m_pipe[1], &junk, 1) != 1)
 			;
-		pthread_join(m_thread, 0);
+		pthread_join(m_thread, nullptr);
 		close(m_pipe[0]);
 		close(m_pipe[1]);
 	}
@@ -182,7 +182,7 @@ void* PulseAudioDriver::s_thread_body(void* arg)
 		pthread_mutex_unlock(&self->m_mutex);
 	}
 
-	return 0;
+	return nullptr;
 }
 
 
@@ -194,17 +194,17 @@ int PulseAudioDriver::thread_body()
 			pipe_callback, this);
 	m_ctx = pa_context_new(api, "Hydrogen");
 	pa_context_set_state_callback(m_ctx, ctx_state_callback, this);
-	pa_context_connect(m_ctx, 0, pa_context_flags_t(0), 0);
+	pa_context_connect(m_ctx, nullptr, pa_context_flags_t(0), nullptr);
 
 	int retval;
 	pa_mainloop_run(m_main_loop, &retval);
 
 	if (m_stream)
 	{
-		pa_stream_set_state_callback(m_stream, 0, 0);
-		pa_stream_set_write_callback(m_stream, 0, 0);
+		pa_stream_set_state_callback(m_stream, nullptr, nullptr);
+		pa_stream_set_write_callback(m_stream, nullptr, nullptr);
 		pa_stream_unref(m_stream);
-		m_stream = 0;
+		m_stream = nullptr;
 	}
 
 	api->io_free(ioev);
@@ -226,7 +226,7 @@ void PulseAudioDriver::ctx_state_callback(pa_context* ctx, void* udata)
 		spec.format = PA_SAMPLE_S16LE;
 		spec.rate = self->m_sample_rate;
 		spec.channels = 2;
-		self->m_stream = pa_stream_new(ctx, "Hydrogen", &spec, 0);
+		self->m_stream = pa_stream_new(ctx, "Hydrogen", &spec, nullptr);
 		pa_stream_set_state_callback(self->m_stream, stream_state_callback, self);
 		pa_stream_set_write_callback(self->m_stream, stream_write_callback, self);
 		pa_buffer_attr bufattr;
@@ -235,7 +235,7 @@ void PulseAudioDriver::ctx_state_callback(pa_context* ctx, void* udata)
 		bufattr.minreq = 0;
 		bufattr.prebuf = (uint32_t)-1;
 		bufattr.tlength = self->m_buffer_size * 4;
-		pa_stream_connect_playback(self->m_stream, 0, &bufattr, pa_stream_flags_t(0), 0, 0);
+		pa_stream_connect_playback(self->m_stream, nullptr, &bufattr, pa_stream_flags_t(0), nullptr, nullptr);
 	}
 	else if (s == PA_CONTEXT_FAILED)
 		pa_mainloop_quit(self->m_main_loop, 1);
@@ -275,7 +275,7 @@ void PulseAudioDriver::stream_write_callback(pa_stream* stream, size_t bytes, vo
 	while (num_samples)
 	{
 		int n = std::min(self->m_buffer_size, num_samples);
-		self->m_callback(n, 0);
+		self->m_callback(n, nullptr);
 		for (int i = 0; i < n; ++i)
 		{
 			*out++ = FLOAT_TO_SHORT(self->m_outL[i]);
@@ -285,7 +285,7 @@ void PulseAudioDriver::stream_write_callback(pa_stream* stream, size_t bytes, vo
 		num_samples -= n;
 	}
 
-	pa_stream_write(stream, vdata, (bytes / 4) * 4, 0, 0, PA_SEEK_RELATIVE);
+	pa_stream_write(stream, vdata, (bytes / 4) * 4, nullptr, 0, PA_SEEK_RELATIVE);
 }
 
 

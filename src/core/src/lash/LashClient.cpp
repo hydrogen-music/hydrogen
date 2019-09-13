@@ -28,7 +28,7 @@
 
 #include <hydrogen/LashClient.h>
 
-#ifdef H2CORE_HAVE_LASH
+#if defined(H2CORE_HAVE_LASH) || _DOXYGEN_
 
 #include <lash/lash.h>
 #include <hydrogen/Preferences.h>

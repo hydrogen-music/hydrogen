@@ -41,7 +41,7 @@ using namespace H2Core;
 #include "DrumPatternEditor.h"
 #include "../HydrogenApp.h"
 #include "../Mixer/Mixer.h"
-#include "../widgets/Button.h"
+#include "../Widgets/Button.h"
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000
@@ -230,14 +230,14 @@ H2Core::Pattern* InstrumentLine::getCurrentPattern()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	assert( pPatternList != NULL );
+	assert( pPatternList != nullptr );
 
 	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
 	if ( nSelectedPatternNumber != -1 ) {
 		Pattern* pCurrentPattern = pPatternList->get( nSelectedPatternNumber );
 		return pCurrentPattern;
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -261,7 +261,7 @@ void InstrumentLine::functionClearNotes()
 	}
 	if( noteList.size() > 0 ){
 		SE_clearNotesPatternEditorAction *action = new SE_clearNotesPatternEditorAction( noteList, m_nInstrumentNumber,selectedPatternNr);
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 }
 
@@ -273,7 +273,7 @@ void InstrumentLine::functionCopyInstrumentPattern()
 	assert(song);
 
 	// Serialize & put to clipboard
-	QString serialized = LocalFileMng::copyInstrumentLineToString(song, selectedPatternNr, m_nInstrumentNumber);
+	QString serialized = song->copyInstrumentLineToString( selectedPatternNr, m_nInstrumentNumber );
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setText(serialized);
 }
@@ -285,7 +285,7 @@ void InstrumentLine::functionCopyAllInstrumentPatterns()
 	assert(song);
 
 	// Serialize & put to clipboard
-	QString serialized = LocalFileMng::copyInstrumentLineToString(song, -1, m_nInstrumentNumber);
+	QString serialized = song->copyInstrumentLineToString( -1, m_nInstrumentNumber );
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setText(serialized);
 }
@@ -315,7 +315,7 @@ void InstrumentLine::functionPasteInstrumentPatternExec(int patternID)
 	// Get from clipboard & deserialize
 	QClipboard *clipboard = QApplication::clipboard();
 	QString serialized = clipboard->text();
-	if (!LocalFileMng::pasteInstrumentLineFromString(song, serialized, patternID, m_nInstrumentNumber, patternList))
+	if ( !song->pasteInstrumentLineFromString( serialized, patternID, m_nInstrumentNumber, patternList ) )
 		return;
 
 	// Ignore empty result
@@ -324,7 +324,7 @@ void InstrumentLine::functionPasteInstrumentPatternExec(int patternID)
 
 	// Create action
 	SE_pasteNotesPatternEditorAction *action = new SE_pasteNotesPatternEditorAction(patternList);
-	HydrogenApp::get_instance()->m_undoStack->push(action);
+	HydrogenApp::get_instance()->m_pUndoStack->push(action);
 }
 
 
@@ -358,7 +358,7 @@ void InstrumentLine::functionFillNotes( int every )
 	QStringList notePositions;
 
 	Pattern* pCurrentPattern = getCurrentPattern();
-	if (pCurrentPattern != NULL) {
+	if (pCurrentPattern != nullptr) {
 		int nPatternSize = pCurrentPattern->get_length();
 		int nSelectedInstrument = pEngine->getSelectedInstrumentNumber();
 
@@ -382,7 +382,7 @@ void InstrumentLine::functionFillNotes( int every )
 				}
 			}
 			SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction( notePositions, nSelectedInstrument, pEngine->getSelectedPatternNumber() );
-			HydrogenApp::get_instance()->m_undoStack->push( action );
+			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 	}
 
@@ -413,7 +413,7 @@ void InstrumentLine::functionRandomizeVelocity()
 	QStringList oldNoteVeloValue;
 
 	Pattern* pCurrentPattern = getCurrentPattern();
-	if (pCurrentPattern != NULL) {
+	if (pCurrentPattern != nullptr) {
 		int nPatternSize = pCurrentPattern->get_length();
 		int nSelectedInstrument = pEngine->getSelectedInstrumentNumber();
 
@@ -439,7 +439,7 @@ void InstrumentLine::functionRandomizeVelocity()
 				}
 			}
 			SE_randomVelocityRightClickAction *action = new SE_randomVelocityRightClickAction( noteVeloValue, oldNoteVeloValue, nSelectedInstrument, pEngine->getSelectedPatternNumber() );
-			HydrogenApp::get_instance()->m_undoStack->push( action );
+			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 	}
 }
@@ -502,7 +502,7 @@ void InstrumentLine::functionDeleteInstrument()
 		}
 	}
 	SE_deleteInstrumentAction *action = new SE_deleteInstrumentAction( noteList, drumkitName, instrumentName, m_nInstrumentNumber );
-	HydrogenApp::get_instance()->m_undoStack->push( action );
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 
@@ -516,7 +516,7 @@ PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, Patte
  , Object( __class_name )
 {
 	//INFOLOG("INIT");
-	m_pPattern = NULL;
+	m_pPattern = nullptr;
 	m_pPatternEditorPanel = pPatternEditorPanel;
 
 	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
@@ -530,7 +530,7 @@ PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, Patte
 	setAcceptDrops(true);
 
 	for ( int i = 0; i < MAX_INSTRUMENTS; ++i) {
-		m_pInstrumentLine[i] = NULL;
+		m_pInstrumentLine[i] = nullptr;
 	}
 
 
@@ -583,7 +583,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 		if ( nInstr >= nInstruments ) {	// unused instrument! let's hide and destroy the mixerline!
 			if ( m_pInstrumentLine[ nInstr ] ) {
 				delete m_pInstrumentLine[ nInstr ];
-				m_pInstrumentLine[ nInstr ] = NULL;
+				m_pInstrumentLine[ nInstr ] = nullptr;
 
 				int newHeight = m_nGridHeight * nInstruments;
 				resize( width(), newHeight );
@@ -592,7 +592,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 			continue;
 		}
 		else {
-			if ( m_pInstrumentLine[ nInstr ] == NULL ) {
+			if ( m_pInstrumentLine[ nInstr ] == nullptr ) {
 				// the instrument line doesn't exists..I'll create a new one!
 				m_pInstrumentLine[ nInstr ] = createInstrumentLine();
 				m_pInstrumentLine[nInstr]->move( 0, m_nGridHeight * nInstr );
@@ -664,7 +664,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		}
 
 		SE_moveInstrumentAction *action = new SE_moveInstrumentAction( nSourceInstrument, nTargetInstrument );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
 		event->acceptProposedAction();
 	}
@@ -691,7 +691,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		}
 
 		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitName, sInstrumentName, nTargetInstrument);
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
 		event->acceptProposedAction();
 	}

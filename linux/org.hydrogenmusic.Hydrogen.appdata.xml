@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2015 Aurelien Leblond <blablack@gmail.com> -->
+<component type="desktop">
+ <id>org.hydrogenmusic.Hydrogen</id>
+ <metadata_license>GPL-2.0+</metadata_license>
+ <project_license>GPL-2.0+</project_license>
+ <name>Hydrogen</name>
+ <summary>Hydrogen Drum Machine</summary>
+ <summary xml:lang="fr">Boîte à rythme Hydrogen</summary>
+ <description>
+  <p>Hydrogen is an advanced drum machine. Its main goal is to bring
+   professional yet simple and intuitive pattern-based drum
+   programming.</p>
+  <p xml:lang="fr">Hydrogen est une boîte à rythme. Son but est
+   d'apporter de facon simple et intuitive la programmation d'un
+   motif rythmique.</p>
+ </description>
+ <screenshots>
+  <screenshot type="default">
+   <image>http://hydrogen-music.org/images/screenshots/main-window.png</image>
+   <caption>The main window showing the application in action</caption>
+   <caption xml:lang="fr">La fenêtre principale montrant l'application en action</caption>
+  </screenshot>
+  <screenshot>
+    <image>http://hydrogen-music.org/images/screenshots/audio-filebrowser.png</image>
+    <caption>Audio file browser with sample preview</caption>
+    <caption xml:lang="fr">Navigateur de fichiers audio avec prévisualisation de l'échantillon</caption>
+  </screenshot>
+  <screenshot>
+    <image>http://hydrogen-music.org/images/screenshots/sample-editor.png</image>
+    <caption>Sample editor</caption>
+    <caption xml:lang="fr">Éditeur d'échantillon</caption>
+  </screenshot>
+ </screenshots>
+ <url type="homepage">http://www.hydrogen-music.org/</url>
+ <updatecontact>hydrogen-devel@lists.sourceforge.net</updatecontact>
+ <project_group>hydrogen</project_group>
+ <releases>
+   <release version="1.0.0-beta1" date="18-03-2018">
+     <url>http://hydrogen-music.org/release_100_beta1</url>
+   </release>
+ </releases>
+</component>

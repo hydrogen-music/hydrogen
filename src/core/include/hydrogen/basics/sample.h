@@ -130,9 +130,9 @@ class Sample : public H2Core::Object
 		 * \param frames the number of frames per channel in the sample
 		 * \param sample_rate the sample rate of the sample
 		 * \param data_l the left channel array of data
-		 * \param data_l the right channel array of data
+		 * \param data_r the right channel array of data
 		 */
-		Sample( const QString& filepath, int frames=0, int sample_rate=0, float* data_l=0, float* data_r=0 );
+		Sample( const QString& filepath, int frames=0, int sample_rate=0, float* data_l=nullptr, float* data_r=nullptr );
 		/** copy constructor */
 		Sample( Sample* other );
 		/** destructor */
@@ -142,40 +142,98 @@ class Sample : public H2Core::Object
 		/**
 		 * write sample to a file
 		 * \param path the path to write the sample to
-		 * \format the format of the output
+		 * \param format the format of the output
 		 */
 		bool write( const QString& path, int format= ( SF_FORMAT_WAV|SF_FORMAT_PCM_16 ) );
 
 		/**
-		 * load a sample from a file
+		 * Load a sample from a file.
+		 *
+		 * This function checks whether the @a filepath is
+		 * readable, initializes a new Sample, and calls the
+		 * load() member on it.
+		 *
 		 * \param filepath the file to load audio data from
+		 *
+		 * \return Pointer to the newly initialized Sample. If
+		 * the provided @a filepath is not readable, a nullptr
+		 * is returned instead.
+		 *
+		 * \fn load(const QString& filepath)
 		 */
-		static Sample* load( const QString& filepath );
+	        static Sample* load( const QString& filepath);
+	
 		/**
-		 * load a sample from a file and apply the transformations to the sample data
+		 * Load a sample from a file and apply the
+		 * transformations to the sample data.
+		 *
+		 * Wrapper around #load(const QString& filepath),
+		 * which calls apply() with @a loops, @a rubber, @a
+		 * velocity, and @a pan as arguments after
+		 * successfully loading the sample.
+		 *
 		 * \param filepath the file to load audio data from
 		 * \param loops transformation parameters
 		 * \param rubber band transformation parameters
 		 * \param velocity envelope points
 		 * \param pan envelope points
+		 *
+		 * \return Pointer to the newly initialized Sample. If
+		 * the provided @a filepath is not readable, a nullptr
+		 * is returned instead.
+		 *
+		 * \overload load(const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan)
 		 */
-		static Sample* load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan );
+                static Sample* load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan );
 
 		/**
-		 * load sample data
+		 * Load the sample stored in #__filepath into
+		 * #__data_l and #__data_r.
+		 *
+		 * It uses libsndfile for reading both the content and
+		 * the metadata of the sample file. The latter is
+		 * stored in #__frames and #__sample_rate.
+		 *
+		 * Hydrogen does only support up to #SAMPLE_CHANNELS
+		 * (two per default) channels in the audio file. If
+		 * there are more, Hydrogen will _NOT_ downmix its
+		 * content but simply extract the first two channels
+		 * and display a warning message. For mono file the
+		 * same content will be assigned to both the left
+		 * (#__data_l) and right channel (#__data_r).
+		 *
+		 * If the total number of frames in the file is larger
+		 * than the maximum value of an `int', the content is
+		 * truncated and a warning log message will be
+		 * displayed.
+		 *
+		 * \fn load()
 		 */
 		void load();
 		/**
-		 * unload sample data
+		 * Flush the current content of the left and right
+		 * channel and the current metadata.
 		 */
 		void unload();
 
 		/**
-		 * apply the transformations to the sample data
-		 * \param loops transformation parameters
-		 * \param rubber band transformation parameters
-		 * \param velocity envelope points
-		 * \param pan envelope points
+		 * Apply transformations to the sample data.
+		 *
+		 * The function is a wrapper around a specific apply_*
+		 * functions.
+		 *
+		 * \param loops Loops transformation parameters handed
+		 * over to apply_loops().
+		 * \param rubber Rubber Band transformation parameters
+		 * handed over to apply_rubberband() in case Hydrogen
+		 * was compiled to use the Rubber Band library for
+		 * audio time-stretching and pitch-shifting
+		 * (#H2CORE_HAVE_RUBBERBAND) or exec_rubberband_cli()
+		 * if is wasn't.
+		 * \param velocity Velocity envelope points handed
+		 * over to apply_velocity().
+		 * \param pan Pan envelope points handed over to
+		 * apply_pan().
 		 */
 		void apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan );
 		/**
@@ -195,67 +253,68 @@ class Sample : public H2Core::Object
 		void apply_pan( const PanEnvelope& p );
 		/**
 		 * aplly rubberband transformation to the sample
-		 * \param r rubberband parameters
+		 * \param rb rubberband parameters
 		 */
 		void apply_rubberband( const Rubberband& rb );
 		/**
 		 * call rubberband cli to modify the sample
-		 * \param r rubberband parameters
+		 * \param rb rubberband parameters
 		 */
 		bool exec_rubberband_cli( const Rubberband& rb );
 
-		/** return true if both data channels are null pointers */
+		/** \return true if both data channels are null pointers */
 		bool is_empty() const;
-		/** __filepath accessor */
+		/** \return #__filepath */
 		const QString get_filepath() const;
-		/** return filename part of __filepath */
+		/** \return Filename part of #__filepath */
 		const QString get_filename() const;
-		/** set the filename part of __filepath*/
+		/** \param filename Filename part of #__filepath*/
 		void set_filename( const QString& filename );
 		/**
-		 * __frames setter
-		 * \parama value the new value for __frames
+		 * #__frames setter
+		 * \param value the new value for #__frames
 		 */
 		void set_frames( int value );
-		/** __frames accessor */
+		/** \return #__frames accessor */
 		int get_frames() const;
 		/**
-		 * __sample_rate setter
-		 * \parama value the new value for __sample_rate
+		 * \param sampleRate Sets #__sample_rate.
 		 */
-		void set_sample_rate( int value );
-		/** __sample_rate accessor */
+		void set_sample_rate( const int sampleRate );
+		/** \return #__sample_rate */
 		int get_sample_rate() const;
-		/** return sample duration in seconds */
+		/** \return sample duration in seconds */
 		double get_sample_duration( ) const;
 
-		/** return data size */
+		/** \return data size, which is calculated by
+		 * #__frames time sizeof( float ) * 2 
+		 */
 		int get_size() const;
-		/** __data_l accessor */
+		/** \return #__data_l*/
 		float* get_data_l() const;
-		/** __data_r accessor */
+		/** \return #__data_r*/
 		float* get_data_r() const;
 		/**
-		 * __is_modified setter
-		 * \parama value the new value for __is_modified
+		 * #__is_modified setter
+		 * \param value the new value for #__is_modified
 		 */
 		void set_is_modified( bool value );
-		/** __is_modified accessor */
+		/** \return #__is_modified */
 		bool get_is_modified() const;
-		/** __pan_envelope accessor */
+		/** \return #__pan_envelope */
 		PanEnvelope* get_pan_envelope();
-		/** __velocity_envelope accessor */
+		/** \return #__velocity_envelope */
 		VelocityEnvelope* get_velocity_envelope();
-		/** __loops parameters accessor */
+		/** \return #__loops parameters */
 		Loops get_loops() const;
-		/** __rubberband parameters accessor */
+		/** \return #__rubberband parameters */
 		Rubberband get_rubberband() const;
 		/**
-		 * parse the given string and rturn the corresponding lopp_mode
+		 * parse the given string and rturn the corresponding loop_mode
 		 * \param string the loop mode text to be parsed
 		 */
 		static Loops::LoopMode parse_loop_mode( const QString& string );
-		/** return __loops.mode as a string */
+		/** \return mode member of #__loops as a string */
 		QString get_loop_mode_string() const;
 
 	private:
@@ -280,8 +339,9 @@ inline void Sample::unload()
 	if( __data_l ) delete __data_l;
 	if( __data_r ) delete __data_r;
 	__frames = __sample_rate = 0;
-	__data_l = __data_r = 0;
-	// __is_modified = false; leave this unchanged as pan, velocity, loop and rubberband are kept unchanged
+	/** #__is_modified = false; leave this unchanged as pan,
+	    velocity, loop and rubberband are kept unchanged */
+	__data_l = __data_r = nullptr;
 }
 
 inline bool Sample::is_empty() const
@@ -312,6 +372,11 @@ inline int Sample::get_frames() const
 inline int Sample::get_sample_rate() const
 {
 	return __sample_rate;
+}
+
+inline void Sample::set_sample_rate( const int sampleRate )
+{
+	__sample_rate = sampleRate;
 }
 
 inline double Sample::get_sample_duration() const

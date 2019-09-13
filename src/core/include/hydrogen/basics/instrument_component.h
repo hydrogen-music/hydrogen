@@ -24,6 +24,7 @@
 #define H2C_INSTRUMENTCOMPONENT_H
 
 #include <cassert>
+#include <vector>
 
 #include <hydrogen/object.h>
 
@@ -40,48 +41,55 @@ class InstrumentComponent : public H2Core::Object
 {
 		H2_OBJECT
 	public:
-		//InstrumentComponent( const int id, const QString& name );
 		InstrumentComponent( int related_drumkit_componentID );
 		InstrumentComponent( InstrumentComponent* other );
 		~InstrumentComponent();
 
-		void save_to( XMLNode* node, int component_id );
-		static InstrumentComponent* load_from( XMLNode* node, const QString& dk_path );
+		void				save_to( XMLNode* node, int component_id );
+		static InstrumentComponent* 	load_from( XMLNode* node, const QString& dk_path );
 
-		InstrumentLayer* operator[]( int idx );
-		InstrumentLayer* get_layer( int idx );
-		void set_layer( InstrumentLayer* layer, int idx );
+		InstrumentLayer*	operator[]( int ix );
+		InstrumentLayer*	get_layer( int idx );
+		void				set_layer( InstrumentLayer* layer, int idx );
 
-		void set_drumkit_componentID( int related_drumkit_componentID );
-		int get_drumkit_componentID();
+		void				set_drumkit_componentID( int related_drumkit_componentID );
+		int					get_drumkit_componentID();
 
-		//void set_name( const QString& name );
-		//const QString& get_name() const;
+		void				set_gain( float gain );
+		float				get_gain() const;
 
-		//void set_id( const int id );
-		//int get_id() const;
-
-		void set_gain( float gain );
-		float get_gain() const;
-
-		//void set_volume( float volume );
-		//float get_volume() const;
+		/**  @return #m_nMaxLayers.*/
+		static int			getMaxLayers();
+		/** @param layers Sets #m_nMaxLayers.*/
+		static void			setMaxLayers( int layers );
 
 	private:
-		int __related_drumkit_componentID;
-		//QString __name;
-		float __gain;
-		//float __volume;
-		InstrumentLayer* __layers[MAX_LAYERS];
+		/** Component ID of the drumkit. It is set by
+		    set_drumkit_componentID() and
+		    accessed via get_drumkit_componentID(). */
+		int					__related_drumkit_componentID;
+		float				__gain;
+		
+		/** Maximum number of layers to be used in the
+		 *  Instrument editor.
+		 *
+		 * It is set by setMaxLayers(), queried by
+		 * getMaxLayers(), and inferred from
+		 * Preferences::m_nMaxLayers. Default value assigned in
+		 * Preferences::Preferences(): 16. */
+		static int			m_nMaxLayers;
+		std::vector<InstrumentLayer*>	__layers;
 };
 
 // DEFINITIONS
-
+/** Sets the component ID #__related_drumkit_componentID
+ * \param related_drumkit_componentID New value for the component ID */
 inline void InstrumentComponent::set_drumkit_componentID( int related_drumkit_componentID )
 {
 	__related_drumkit_componentID = related_drumkit_componentID;
 }
-
+/** Returns the component ID of the drumkit.
+ * \return #__related_drumkit_componentID */
 inline int InstrumentComponent::get_drumkit_componentID()
 {
 	return __related_drumkit_componentID;
@@ -99,20 +107,14 @@ inline float InstrumentComponent::get_gain() const
 
 inline InstrumentLayer* InstrumentComponent::operator[]( int idx )
 {
-	assert( idx>=0 && idx <MAX_LAYERS );
+	assert( idx >= 0 && idx < m_nMaxLayers );
 	return __layers[ idx ];
 }
 
 inline InstrumentLayer* InstrumentComponent::get_layer( int idx )
 {
-	assert( idx>=0 && idx <MAX_LAYERS );
+	assert( idx >= 0 && idx < m_nMaxLayers );
 	return __layers[ idx ];
-}
-
-inline void InstrumentComponent::set_layer( InstrumentLayer* layer, int idx )
-{
-	assert( idx>=0 && idx <MAX_LAYERS );
-	__layers[ idx ] = layer;
 }
 
 };

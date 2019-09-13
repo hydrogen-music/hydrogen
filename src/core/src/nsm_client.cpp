@@ -27,7 +27,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#ifdef H2CORE_HAVE_OSC
+#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
 #include "hydrogen/nsm_client.h"
 #include "hydrogen/nsm.h"
@@ -37,7 +37,7 @@
 
 
 
-NsmClient * NsmClient::__instance = 0;
+NsmClient * NsmClient::__instance = nullptr;
 const char* NsmClient::__class_name = "NsmClient";
 bool NsmShutdown = false;
 
@@ -90,7 +90,7 @@ void* nsm_processEvent(void* data)
 		nsm_check_wait( nsm, 1000);
 	}
 
-	return 0;
+	return nullptr;
 }
 
 NsmClient::NsmClient()
@@ -101,14 +101,14 @@ NsmClient::NsmClient()
 
 void NsmClient::create_instance()
 {
-	if( __instance == 0 ) {
+	if( __instance == nullptr ) {
 		__instance = new NsmClient;
 	}
 }
 
 NsmClient::~NsmClient()
 {
-	__instance = NULL;
+	__instance = nullptr;
 }
 
 void NsmClient::shutdown()
@@ -122,7 +122,7 @@ void NsmClient::createInitialClient()
 	 * Make first contact with NSM server.
 	 */
 
-	nsm_client_t* nsm = 0;
+	nsm_client_t* nsm = nullptr;
 
 	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 	QString H2ProcessName = pPref->getH2ProcessName();
@@ -136,15 +136,15 @@ void NsmClient::createInitialClient()
 
 		if ( nsm )
 		{
-			nsm_set_open_callback( nsm, nsm_open_cb, (void*) 0 );
-			nsm_set_save_callback( nsm, nsm_save_cb, (void*) 0 );
+			nsm_set_open_callback( nsm, nsm_open_cb, (void*) nullptr );
+			nsm_set_save_callback( nsm, nsm_save_cb, (void*) nullptr );
 
 			if ( nsm_init( nsm, nsm_url ) == 0 )
 			{
 				nsm_send_announce( nsm, "Hydrogen", "", byteArray.data() );
 				nsm_check_wait( nsm, 10000 );
 
-				if(pthread_create(&m_NsmThread, NULL, nsm_processEvent, nsm)) {
+				if(pthread_create(&m_NsmThread, nullptr, nsm_processEvent, nsm)) {
 					___ERRORLOG("Error creating NSM thread\n	");
 					return;
 				}
@@ -154,7 +154,7 @@ void NsmClient::createInitialClient()
 			{
 				___ERRORLOG("failed, freeing NSM client");
 				nsm_free( nsm );
-				nsm = 0;
+				nsm = nullptr;
 			}
 		}
 	}

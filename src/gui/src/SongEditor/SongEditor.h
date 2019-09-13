@@ -34,7 +34,7 @@
 
 #include <hydrogen/object.h>
 #include "../EventListener.h"
-#include "../PatternFillDialog.h"
+#include "PatternFillDialog.h"
 
 class Button;
 class ToggleButton;
@@ -138,6 +138,7 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		void loadPatternAction( QString filename, int position);
 		void fillRangeWithPattern(FillRange* r, int nPattern);
 		void patternPopup_copyAction( QString patternFilename, int patternposition );
+		int getGridHeight() { return m_nGridHeight; }
 
 	public slots:
 		void patternPopup_edit();
@@ -197,7 +198,7 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 
 	public:
 		SongEditorPositionRuler( QWidget *parent );
-		~SongEditorPositionRuler();
+		~SongEditorPositionRuler();	
 
 		void createBackground();
 

@@ -36,7 +36,35 @@ inline static float linear_interpolation( float fVal_A, float fVal_B, double fVa
 	//return fVal_A + ((fVal_B - fVal_A) * fVal);
 }
 
-ADSR::ADSR( float attack, float decay, float sustain, float release ) : Object( __class_name ),
+void ADSR::normalise()
+{
+	if (__attack < 0.0) {
+		__attack = 0.0;
+	}
+	if (__decay < 0.0) {
+		__decay = 0.0;
+	}
+	if (__sustain < 0.0) {
+		__sustain = 0.0;
+	}
+	if (__release < 256) {
+		__release = 256;
+	}
+	if (__attack > 100000) {
+		__attack = 100000;
+	}
+	if (__decay > 100000) {
+		__decay = 100000;
+	}
+	if (__sustain > 1.0) {
+		__sustain = 1.0;
+	}
+	if (__release > 100256) {
+		__release = 100256;
+	}
+}
+
+ADSR::ADSR( unsigned int attack, unsigned int decay, float sustain, unsigned int release ) : Object( __class_name ),
 	__attack( attack ),
 	__decay( decay ),
 	__sustain( sustain ),
@@ -45,7 +73,9 @@ ADSR::ADSR( float attack, float decay, float sustain, float release ) : Object( 
 	__ticks( 0.0 ),
 	__value( 0.0 ),
 	__release_value( 0.0 )
-{ }
+{
+	normalise();
+}
 
 ADSR::ADSR( const ADSR* other ) : Object( __class_name ),
 	__attack( other->__attack ),
@@ -56,7 +86,9 @@ ADSR::ADSR( const ADSR* other ) : Object( __class_name ),
 	__ticks( other->__ticks ),
 	__value( other->__value ),
 	__release_value( other->__release_value )
-{ }
+{
+	normalise();
+}
 
 ADSR::~ADSR() { }
 

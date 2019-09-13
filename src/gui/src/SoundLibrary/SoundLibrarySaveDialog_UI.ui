@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QWidget" name="layoutWidget0">
    <property name="geometry">
     <rect>
      <x>360</x>
@@ -101,7 +101,7 @@
     <set>Qt::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QWidget" name="layoutWidget">
+  <widget class="QWidget" name="layoutWidget1">
    <property name="geometry">
     <rect>
      <x>10</x>

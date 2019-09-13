@@ -21,11 +21,12 @@
  */
 #include <hydrogen/fx/Effects.h>
 
-#ifdef H2CORE_HAVE_LADSPA
+#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/audio_engine.h>
+#include <hydrogen/helpers/filesystem.h>
 
 #include <algorithm>
 #include <QDir>
@@ -42,18 +43,18 @@ namespace H2Core
 {
 
 // static data
-Effects* Effects::__instance = NULL;
+Effects* Effects::__instance = nullptr;
 const char* Effects::__class_name = "Effects";
 
 Effects::Effects()
 		: Object( __class_name )
-		, m_pRootGroup( NULL )
-		, m_pRecentGroup( NULL )
+		, m_pRootGroup( nullptr )
+		, m_pRecentGroup( nullptr )
 {
 	__instance = this;
 
 	for ( int nFX = 0; nFX < MAX_FX; ++nFX ) {
-		m_FXList[ nFX ] = NULL;
+		m_FXList[ nFX ] = nullptr;
 	}
 
 	getPluginList();
@@ -63,7 +64,7 @@ Effects::Effects()
 
 void Effects::create_instance()
 {
-	if ( __instance == 0 ) {
+	if ( __instance == nullptr ) {
 		__instance = new Effects;
 	}
 }
@@ -74,7 +75,7 @@ void Effects::create_instance()
 Effects::~Effects()
 {
 	//INFOLOG( "DESTROY" );
-	if ( m_pRootGroup != NULL ) delete m_pRootGroup;
+	if ( m_pRootGroup != nullptr ) delete m_pRootGroup;
 
 	//INFOLOG( "destroying " + to_string( m_pluginList.size() ) + " LADSPA plugins" );
 	for ( unsigned i = 0; i < m_pluginList.size(); i++ ) {
@@ -112,7 +113,7 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 
 	m_FXList[ nFX ] = pFX;
 
-	if ( pFX != NULL ) {
+	if ( pFX != nullptr ) {
 		Preferences::get_instance()->setMostRecentFX( pFX->getPluginName() );
 		updateRecentGroup();
 	}
@@ -132,10 +133,7 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 		return m_pluginList;
 	}
 
-	vector<QString> ladspaPathVect = Preferences::get_instance()->getLadspaPath();
-	INFOLOG( QString( "PATHS: %1" ).arg( ladspaPathVect.size() ) );
-	for ( vector<QString>::iterator i = ladspaPathVect.begin(); i != ladspaPathVect.end(); i++ ) {
-		QString sPluginDir = *i;
+	foreach ( const QString& sPluginDir, Filesystem::ladspa_paths() ) {
 		INFOLOG( "*** [getPluginList] reading directory: " + sPluginDir );
 
 		QDir dir( sPluginDir );
@@ -171,13 +169,13 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 
 			QLibrary lib( sAbsPath );
 			LADSPA_Descriptor_Function desc_func = ( LADSPA_Descriptor_Function )lib.resolve( "ladspa_descriptor" );
-			if ( desc_func == NULL ) {
+			if ( desc_func == nullptr ) {
 				ERRORLOG( "Error loading the library. (" + sAbsPath + ")" );
 				continue;
 			}
 			const LADSPA_Descriptor * d;
 			if ( desc_func ) {
-				for ( unsigned i = 0; ( d = desc_func ( i ) ) != NULL; i++ ) {
+				for ( unsigned i = 0; ( d = desc_func ( i ) ) != nullptr; i++ ) {
 					LadspaFXInfo* pFX = new LadspaFXInfo( QString::fromLocal8Bit(d->Name) );
 					pFX->m_sFilename = sAbsPath;
 					pFX->m_sLabel = QString::fromLocal8Bit(d->Label);
@@ -246,7 +244,7 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 	m_pRootGroup->addChild( pUncategorizedGroup );
 
 	char C = 0;
-	LadspaFXGroup* pGroup = 0;
+	LadspaFXGroup* pGroup = nullptr;
 	for ( std::vector<LadspaFXInfo*>::iterator i = m_pluginList.begin(); i < m_pluginList.end(); i++ ) {
 		char ch = (*i)->m_sName.toLocal8Bit().at(0);
 		if ( ch != C ) {
@@ -272,7 +270,7 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 
 void Effects::updateRecentGroup()
 {
-	if ( m_pRecentGroup == NULL )
+	if ( m_pRecentGroup == nullptr )
 		return;  // Too early :s
 
 	m_pRecentGroup->clear();

@@ -42,7 +42,7 @@ class InstrumentNameWidget;
 class LCDDisplay;
 class Rotary;
 
-#include "../widgets/PixmapWidget.h"
+#include "../Widgets/PixmapWidget.h"
 
 
 class InstrumentNameWidget : public PixmapWidget

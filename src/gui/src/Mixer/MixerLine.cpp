@@ -25,12 +25,12 @@
 #include <QPainter>
 
 #include "../InstrumentEditor/InstrumentEditor.h"
-#include "../widgets/Fader.h"
 #include "../HydrogenApp.h"
 #include "../Skin.h"
-#include "../widgets/Rotary.h"
-#include "../widgets/Button.h"
-#include "../widgets/LCD.h"
+#include "../Widgets/Fader.h"
+#include "../Widgets/Rotary.h"
+#include "../Widgets/Button.h"
+#include "../Widgets/LCD.h"
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>

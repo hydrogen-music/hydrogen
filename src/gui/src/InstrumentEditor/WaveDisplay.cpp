@@ -35,7 +35,9 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
  : QWidget( pParent )
  , Object( __class_name )
  , m_nCurrentWidth( 0 )
- , m_sSampleName( "" )
+ , m_sSampleName( "-" )
+ , m_pLayer( nullptr )
+ , m_SampleNameAlignment( Qt::AlignCenter )
 {
 	setAttribute(Qt::WA_NoBackground);
 
@@ -46,8 +48,7 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 		ERRORLOG( "Error loading pixmap" );
 	}
 
-	m_pLayer = 0;
-	m_pPeakData = new int[ width() ];
+	m_pPeakData = new int[ width() ]{};
 }
 
 
@@ -60,9 +61,7 @@ WaveDisplay::~WaveDisplay()
 	delete[] m_pPeakData;
 }
 
-
-
-void WaveDisplay::paintEvent(QPaintEvent *ev)
+void WaveDisplay::paintEvent( QPaintEvent *ev )
 {
 	UNUSED(ev);
 	
@@ -74,23 +73,33 @@ void WaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.setBrush(brush);
 	painter.drawRect(0, 0, width(), height());
 	
-	
-	
-	painter.setPen( QColor( 102, 150, 205 ) );
-	int VCenter = height() / 2;
-	for ( int x = 0; x < width(); x++ ) {
-		painter.drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
-		painter.drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
+	if( m_pLayer ){
+		painter.setPen( QColor( 102, 150, 205 ) );
+		int VCenter = height() / 2;
+		for ( int x = 0; x < width(); x++ ) {
+			painter.drawLine( x, VCenter, x, m_pPeakData[x] + VCenter );
+			painter.drawLine( x, VCenter, x, -m_pPeakData[x] + VCenter );
+		}
+		
 	}
-
+	
 	QFont font;
 	font.setWeight( 63 );
 	painter.setFont( font );
 	painter.setPen( QColor( 255 , 255, 255, 200 ) );
-	painter.drawText( 0, 0, width(), 20, Qt::AlignCenter, m_sSampleName );
+	
+	if( m_SampleNameAlignment == Qt::AlignCenter ){
+		painter.drawText( 0, 0, width(), 20, m_SampleNameAlignment, m_sSampleName );
+	} 
+	else if( m_SampleNameAlignment == Qt::AlignLeft )
+	{
+		// Use a small offnset iso. starting directly at the left border
+		painter.drawText( 20, 0, width(), 20, m_SampleNameAlignment, m_sSampleName );
+	}
+	
 }
 
-void WaveDisplay::resizeEvent(QResizeEvent * event)
+void WaveDisplay::resizeEvent( QResizeEvent * event )
 {
 	updateDisplay(m_pLayer);
 }
@@ -101,11 +110,12 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
 	int currentWidth = width();
 	
-	
 	if(!pLayer || currentWidth <= 0){
+		m_pLayer = nullptr;
+		m_sSampleName = "-";
+		
 		return;
 	}
-	
 	
 	if(currentWidth != m_nCurrentWidth){
 		delete[] m_pPeakData;
@@ -144,7 +154,6 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		}
 	}
 	else {
-		
 		m_sSampleName = "-";
 		for ( int i =0; i < m_nCurrentWidth; ++i ){
 			m_pPeakData[ i ] = 0;

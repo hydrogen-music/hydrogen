@@ -30,8 +30,8 @@ const char* FakeDriver::__class_name = "FakeDiskDriver";
 FakeDriver::FakeDriver( audioProcessCallback processCallback )
 		: AudioOutput( __class_name )
 		, m_processCallback( processCallback )
-		, m_pOut_L( NULL )
-		, m_pOut_R( NULL )
+		, m_pOut_L( nullptr )
+		, m_pOut_R( nullptr )
 		, m_nBufferSize( 0 )
 {
 	INFOLOG( "INIT" );
@@ -72,10 +72,10 @@ void FakeDriver::disconnect()
 	INFOLOG( "disconnect" );
 
 	delete[] m_pOut_L;
-	m_pOut_L = NULL;
+	m_pOut_L = nullptr;
 
 	delete[] m_pOut_R;
-	m_pOut_R = NULL;
+	m_pOut_R = nullptr;
 }
 
 
@@ -100,7 +100,7 @@ void FakeDriver::play()
 {
 	m_transport.m_status = TransportInfo::ROLLING;
 
-	while ( m_processCallback( m_nBufferSize, NULL ) == 0 ) {
+	while ( m_processCallback( m_nBufferSize, nullptr ) == 0 ) {
 		// process...
 	}
 }

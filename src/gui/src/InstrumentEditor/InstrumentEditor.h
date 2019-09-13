@@ -33,7 +33,7 @@
 #include <hydrogen/object.h>
 
 #include "../EventListener.h"
-#include "../widgets/PixmapWidget.h"
+#include "../Widgets/PixmapWidget.h"
 
 class Fader;
 class LCDDisplay;
@@ -90,7 +90,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void hihatMinRangeBtnClicked(Button *pRef);
 		void hihatMaxRangeBtnClicked(Button *pRef);
 
-		void pSampleSelectionChanged( QString );
+		void pSampleSelectionChanged( int );
 
 		void waveDisplayDoubleClicked( QWidget *pRef );
 

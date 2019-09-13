@@ -89,7 +89,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QString saveDir = drumkitPathTxt->text();
 
 	Preferences *pref = Preferences::get_instance();
-	QDir qdTempFolder( pref->getTmpDirectory() );
+	QDir qdTempFolder( Filesystem::tmp_dir() );
 	bool TmpFileCreated = false;
 
 
@@ -159,7 +159,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 					for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
 						InstrumentComponent* component = *it;
 						if( component->get_drumkit_componentID() == componentID ){
-							for( int n = 0; n < MAX_LAYERS; n++ ) {
+							for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
 								InstrumentLayer* layer = component->get_layer( n );
 								if( layer ) {
 									 if( layer->get_sample()->get_filename().compare(filesList.at(i)) == 0 ) {
@@ -315,10 +315,10 @@ void SoundLibraryExportDialog::updateDrumkitList()
 	}
 	drumkitInfoList.clear();
 
-	QStringList sysDrumkits = Filesystem::sys_drumkits_list();
+	QStringList sysDrumkits = Filesystem::sys_drumkit_list();
 	for (int i = 0; i < sysDrumkits.size(); ++i) {
-		QString absPath = Filesystem::sys_drumkits_dir() + "/" + sysDrumkits.at(i);
-		Drumkit *info = Drumkit::load( absPath );
+		QString absPath = Filesystem::sys_drumkits_dir() + sysDrumkits.at(i);
+		Drumkit *info = Drumkit::load( absPath, false );
 		if (info) {
 			drumkitInfoList.push_back( info );
 			drumkitList->addItem( info->get_name() );
@@ -331,10 +331,10 @@ void SoundLibraryExportDialog::updateDrumkitList()
 		}
 	}
 
-	QStringList userDrumkits = Filesystem::usr_drumkits_list();
+	QStringList userDrumkits = Filesystem::usr_drumkit_list();
 	for (int i = 0; i < userDrumkits.size(); ++i) {
-		QString absPath = Filesystem::usr_drumkits_dir() + "/" + userDrumkits.at(i);
-		Drumkit *info = Drumkit::load( absPath );
+		QString absPath = Filesystem::usr_drumkits_dir() + userDrumkits.at(i);
+		Drumkit *info = Drumkit::load( absPath, false );
 		if (info) {
 			drumkitInfoList.push_back( info );
 			drumkitList->addItem( info->get_name() );

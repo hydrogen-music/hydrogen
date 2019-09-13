@@ -2,7 +2,7 @@
 #include "SoundLibraryRepositoryDialog.h"
 #include "SoundLibraryPanel.h"
 
-#include "../widgets/DownloadWidget.h"
+#include "../Widgets/DownloadWidget.h"
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 
@@ -21,7 +21,7 @@
 
 using namespace H2Core;
 
-SoundLibraryDatabase* SoundLibraryDatabase::__instance = NULL;
+SoundLibraryDatabase* SoundLibraryDatabase::__instance = nullptr;
 
 const char* SoundLibraryDatabase::__class_name = "SoundLibraryDatabase";
 
@@ -46,7 +46,7 @@ SoundLibraryDatabase::~SoundLibraryDatabase()
 
 void SoundLibraryDatabase::create_instance()
 {
-	if ( __instance == 0 ) {
+	if ( __instance == nullptr ) {
 		__instance = new SoundLibraryDatabase;
 	}
 }
@@ -83,49 +83,27 @@ void SoundLibraryDatabase::update()
 
 void SoundLibraryDatabase::updatePatterns()
 {
-	//Clear the current pattern informations, then start to fill it again..
 	patternVector->clear();
 	patternCategories = QStringList();
 
-	/* First location to store patterns: inside .hydrogen/data/patterns/GMkit etc.
-	 * each subdir builds a relationship between the pattern and the drumkit
-	 */
-
-	std::vector<QString> perDrumkitPatternDirectories = LocalFileMng::getDrumkitsFromDirectory( Preferences::get_instance()->getDataDirectory() + "patterns" );
-	std::vector<QString>::iterator drumkitIterator;
-
-	for( drumkitIterator = perDrumkitPatternDirectories.begin(); drumkitIterator != perDrumkitPatternDirectories.end(); drumkitIterator++ )
-	{
-		getPatternFromDirectory( *drumkitIterator, patternVector);
+	// search drumkit subdirectories within patterns user directory
+	foreach ( const QString& drumkit, Filesystem::pattern_drumkits() ) {
+		getPatternFromDirectory( Filesystem::patterns_dir( drumkit ), patternVector);
 	}
-
-	//2. This is the general location for patterns which do not belong to a certain drumkit.
-	QString userPatternDirectory = Preferences::get_instance()->getDataDirectory() + "patterns";
-	getPatternFromDirectory( userPatternDirectory, patternVector);
+	// search patterns user directory
+	getPatternFromDirectory( Filesystem::patterns_dir(), patternVector);
 }
 
-int SoundLibraryDatabase::getPatternFromDirectory( const QString& sPatternDir, std::vector<SoundLibraryInfo*>* patternVector )
+void SoundLibraryDatabase::getPatternFromDirectory( const QString& sPatternDir, std::vector<SoundLibraryInfo*>* patternVector )
 {
-	QDir dir( sPatternDir );
-
-	if ( !dir.exists() ) {
-		ERRORLOG( QString( "[getPatternList] Directory %1 not found" ).arg( sPatternDir ) );
-	} else {
-		dir.setFilter( QDir::Files );
-		QFileInfoList fileList = dir.entryInfoList();
-
-		for ( int i = 0; i < fileList.size(); ++i ) {
-			QString sFile = sPatternDir + "/" + fileList.at( i ).fileName();
-
-			if( sFile.endsWith(".h2pattern") ){
-				SoundLibraryInfo* slInfo = new SoundLibraryInfo( sFile );
-				patternVector->push_back( slInfo );
-
-				if(! patternCategories.contains( slInfo->getCategory() ) ) patternCategories << slInfo->getCategory();
-			}
+	foreach ( const QString& fName, Filesystem::pattern_list( sPatternDir ) ) {
+		QString sFile = sPatternDir + fName;
+		SoundLibraryInfo* slInfo = new SoundLibraryInfo( sFile );
+		patternVector->push_back( slInfo );
+		if ( !patternCategories.contains( slInfo->getCategory() ) ) {
+			patternCategories << slInfo->getCategory();
 		}
 	}
-	return 0;
 }
 
 
@@ -163,6 +141,9 @@ SoundLibraryInfo::SoundLibraryInfo(const QString &path) : Object( __class_name )
 
 		QDomNode patternNode = rootNode.firstChildElement( "pattern" );
 		setName( LocalFileMng::readXmlString( patternNode,"pattern_name", "" ) );
+		if ( getName().isEmpty() ) {
+			setName( LocalFileMng::readXmlString( patternNode,"name", "" ) );
+		}
 		setInfo( LocalFileMng::readXmlString( patternNode,"info", "No information available." ) );
 		setCategory( LocalFileMng::readXmlString( patternNode,"category", "" ) );
 	}

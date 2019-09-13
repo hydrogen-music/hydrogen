@@ -25,11 +25,11 @@
 namespace H2Core
 {
 
-EventQueue* EventQueue::__instance = NULL;
+EventQueue* EventQueue::__instance = nullptr;
 
 void EventQueue::create_instance()
 {
-	if ( __instance == 0 ) {
+	if ( __instance == nullptr ) {
 		__instance = new EventQueue;
 	}
 }
@@ -56,14 +56,14 @@ EventQueue::~EventQueue()
 }
 
 
-void EventQueue::push_event( EventType type, int nValue )
+void EventQueue::push_event( const EventType type, const int nValue )
 {
-	int nIndex = ++__write_index;
+	unsigned int nIndex = ++__write_index;
 	nIndex = nIndex % MAX_EVENTS;
-//	infoLog( "[pushEvent] " + toString( nIndex ) );
 	Event ev;
 	ev.type = type;
 	ev.value = nValue;
+//	INFOLOG( QString( "[pushEvent] %1 : %2 %3" ).arg( nIndex ).arg( ev.type ).arg( ev.value ) );
 	__events_buffer[ nIndex ] = ev;
 }
 
@@ -76,9 +76,9 @@ Event EventQueue::pop_event()
 		ev.value = 0;
 		return ev;
 	}
-	int nIndex = ++__read_index;
+	unsigned int nIndex = ++__read_index;
 	nIndex = nIndex % MAX_EVENTS;
-//	infoLog( "[popEvent] " + toString( nIndex ) );
+//	INFOLOG( QString( "[popEvent] %1 : %2 %3" ).arg( nIndex ).arg( __events_buffer[ nIndex ].type ).arg( __events_buffer[ nIndex ].value ) );
 	return __events_buffer[ nIndex ];
 }
 

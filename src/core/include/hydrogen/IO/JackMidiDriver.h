@@ -30,7 +30,7 @@
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
 
-#ifdef H2CORE_HAVE_JACK
+#if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 
 #include <pthread.h>
 

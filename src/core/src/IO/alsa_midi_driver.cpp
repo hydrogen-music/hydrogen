@@ -22,7 +22,7 @@
 
 #include <hydrogen/IO/AlsaMidiDriver.h>
 
-#ifdef H2CORE_HAVE_ALSA
+#if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
@@ -48,7 +48,7 @@ pthread_t midiDriverThread;
 
 bool isMidiDriverRunning = false;
 
-snd_seq_t *seq_handle = NULL;
+snd_seq_t *seq_handle = nullptr;
 int npfd;
 struct pollfd *pfd;
 int portId;
@@ -62,15 +62,15 @@ void* alsaMidiDriver_thread( void* param )
 	AlsaMidiDriver *pDriver = ( AlsaMidiDriver* )param;
 	__INFOLOG( "starting" );
 
-	if ( seq_handle != NULL ) {
+	if ( seq_handle != nullptr ) {
 		__ERRORLOG( "seq_handle != NULL" );
-		pthread_exit( NULL );
+		pthread_exit( nullptr );
 	}
 
 	int err;
 	if ( ( err = snd_seq_open( &seq_handle, "hw", SND_SEQ_OPEN_DUPLEX, 0 ) ) < 0 ) {
 		__ERRORLOG( QString( "Error opening ALSA sequencer: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
-		pthread_exit( NULL );
+		pthread_exit( nullptr );
 	}
 
 	snd_seq_set_client_name( seq_handle, "Hydrogen" );
@@ -83,7 +83,7 @@ void* alsaMidiDriver_thread( void* param )
 											  )
 		 ) < 0 ) {
 		__ERRORLOG( "Error creating sequencer port." );
-		pthread_exit( NULL );
+		pthread_exit( nullptr );
 	}
 
 	if ( ( outPortId = snd_seq_create_simple_port( 	seq_handle,
@@ -94,7 +94,7 @@ void* alsaMidiDriver_thread( void* param )
 											  )
 		 ) < 0 ) {
 		__ERRORLOG( "Error creating sequencer port." );
-		pthread_exit( NULL );
+		pthread_exit( nullptr );
 	}
 
 	clientId = snd_seq_client_id( seq_handle );
@@ -118,8 +118,8 @@ void* alsaMidiDriver_thread( void* param )
 	int m_dest_addr_client = -1;
 	pDriver->getPortInfo( sPortName, m_dest_addr_client, m_dest_addr_port );
 	__INFOLOG( "MIDI port name: "  + sPortName );
-	__INFOLOG( "MIDI addr client: " +  m_dest_addr_client );
-	__INFOLOG( "MIDI addr port: " + m_dest_addr_port );
+	__INFOLOG( QString( "MIDI addr client: %1").arg( m_dest_addr_client ) );
+	__INFOLOG( QString( "MIDI addr port: %1").arg( m_dest_addr_port ) );
 
 	if ( ( m_dest_addr_port != -1 ) && ( m_dest_addr_client != -1 ) ) {
 		snd_seq_port_subscribe_t *subs;
@@ -155,11 +155,11 @@ void* alsaMidiDriver_thread( void* param )
 		}
 	}
 	snd_seq_close ( seq_handle );
-	seq_handle = NULL;
+	seq_handle = nullptr;
 	__INFOLOG( "MIDI Thread DESTROY" );
 
-	pthread_exit( NULL );
-	return NULL;
+	pthread_exit( nullptr );
+	return nullptr;
 }
 
 
@@ -199,7 +199,7 @@ void AlsaMidiDriver::open()
 void AlsaMidiDriver::close()
 {
 	isMidiDriverRunning = false;
-	pthread_join( midiDriverThread, NULL );
+	pthread_join( midiDriverThread, nullptr );
 }
 
 
@@ -338,7 +338,7 @@ std::vector<QString> AlsaMidiDriver::getOutputPortList()
 {
 	vector<QString> outputList;
 
-	if ( seq_handle == NULL ) {
+	if ( seq_handle == nullptr ) {
 		return outputList;
 	}
 
@@ -384,7 +384,7 @@ std::vector<QString> AlsaMidiDriver::getOutputPortList()
 
 void AlsaMidiDriver::getPortInfo( const QString& sPortName, int& nClient, int& nPort )
 {
-	if ( seq_handle == NULL ) {
+	if ( seq_handle == nullptr ) {
 		ERRORLOG( "seq_handle = NULL " );
 		return;
 	}
@@ -438,7 +438,7 @@ void AlsaMidiDriver::getPortInfo( const QString& sPortName, int& nClient, int& n
 
 void AlsaMidiDriver::handleQueueNote(Note* pNote)
 {
-	if ( seq_handle == NULL ) {
+	if ( seq_handle == nullptr ) {
 		ERRORLOG( "seq_handle = NULL " );
 		return;
 	}
@@ -447,8 +447,7 @@ void AlsaMidiDriver::handleQueueNote(Note* pNote)
 	if (channel < 0) {
 		return;
 	}
-	int key = (pNote->get_octave() +3 ) * 12 + pNote->get_key() + pNote->get_instrument()->get_midi_out_note() - 60;
-	//int key = pNote->get_instrument()->get_midi_out_note();
+	int key = pNote->get_midi_key();
 	int velocity = pNote->get_midi_velocity();
 
 	snd_seq_event_t ev;
@@ -498,7 +497,7 @@ void AlsaMidiDriver::handleOutgoingControlChange( int param, int value, int chan
 
 void AlsaMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 {
-	if ( seq_handle == NULL ) {
+	if ( seq_handle == nullptr ) {
 		ERRORLOG( "seq_handle = NULL " );
 		return;
 	}
@@ -525,7 +524,7 @@ void AlsaMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 
 void AlsaMidiDriver::handleQueueAllNoteOff()
 {
-	if ( seq_handle == NULL ) {
+	if ( seq_handle == nullptr ) {
 		ERRORLOG( "seq_handle = NULL " );
 		return;
 	}

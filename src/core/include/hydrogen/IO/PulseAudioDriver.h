@@ -25,7 +25,7 @@
 
 #include <hydrogen/IO/AudioOutput.h>
 
-#ifdef H2CORE_HAVE_PULSEAUDIO
+#if defined(H2CORE_HAVE_PULSEAUDIO) || _DOXYGEN_
 
 #include <pthread.h>
 #include <inttypes.h>

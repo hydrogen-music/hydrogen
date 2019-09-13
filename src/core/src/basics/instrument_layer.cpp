@@ -60,7 +60,15 @@ InstrumentLayer::InstrumentLayer( InstrumentLayer* other, Sample* sample ) : Obj
 InstrumentLayer::~InstrumentLayer()
 {
 	delete __sample;
-	__sample = 0;
+	__sample = nullptr;
+}
+
+void InstrumentLayer::set_sample( Sample* sample )
+{
+	if ( __sample ) {
+		delete __sample;
+	}
+	__sample = sample;
 }
 
 void InstrumentLayer::load_sample()
@@ -86,13 +94,12 @@ InstrumentLayer* InstrumentLayer::load_from( XMLNode* node, const QString& dk_pa
 
 void InstrumentLayer::save_to( XMLNode* node )
 {
-	XMLNode layer_node = node->ownerDocument().createElement( "layer" );
+	XMLNode layer_node = node->createNode( "layer" );
 	layer_node.write_string( "filename", get_sample()->get_filename() );
 	layer_node.write_float( "min", __start_velocity );
 	layer_node.write_float( "max", __end_velocity );
 	layer_node.write_float( "gain", __gain );
 	layer_node.write_float( "pitch", __pitch );
-	node->appendChild( layer_node );
 }
 
 };

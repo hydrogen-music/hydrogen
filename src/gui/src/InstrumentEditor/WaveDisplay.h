@@ -48,11 +48,14 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		void		paintEvent( QPaintEvent *ev );
 		void		resizeEvent( QResizeEvent * event );
 		void		mouseDoubleClickEvent(QMouseEvent *ev);
+		
+		void		setSampleNameAlignment(Qt::AlignmentFlag flag);
 
 	signals:
 		void doubleClicked(QWidget *pWidget);
 
 	private:
+		Qt::AlignmentFlag			m_SampleNameAlignment;
 		QPixmap						m_Background;
 		QString						m_sSampleName;
 		int *						m_pPeakData;
@@ -66,5 +69,9 @@ class WaveDisplay : public QWidget, public H2Core::Object
 		H2Core::InstrumentLayer *	m_pLayer;
 };
 
+inline void WaveDisplay::setSampleNameAlignment(Qt::AlignmentFlag flag)
+{
+	m_SampleNameAlignment = flag;
+}
 
 #endif

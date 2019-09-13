@@ -58,6 +58,7 @@ class Pattern : public H2Core::Object
 		/**
 		 * constructor
 		 * \param name the name of the pattern
+		 * \param info Initialized with an empty string.
 		 * \param category the name of the pattern
 		 * \param length the length of the pattern
 		 */
@@ -75,11 +76,14 @@ class Pattern : public H2Core::Object
 		static Pattern* load_file( const QString& pattern_path, InstrumentList* instruments );
 		/**
 		 * save a pattern into an xml file
+		 * \param drumkit_name the name of the drumkit it is supposed to play with
+		 * \param author the name of the author
+		 * \param license the license that applies to it
 		 * \param pattern_path the path to save the pattern into
 		 * \param overwrite allows to write over existing pattern file
 		 * \return true on success
 		 */
-		bool save_file( const QString& pattern_path, bool overwrite=false );
+		bool save_file( const QString& drumkit_name, const QString& author, const QString& license, const QString& pattern_path, bool overwrite=false ) const; 
 
 		///< set the name of the pattern
 		void set_name( const QString& name );
@@ -118,7 +122,7 @@ class Pattern : public H2Core::Object
 		 * \param strict if set to false, will search for a note around the given idx
 		 * \return the note if found, 0 otherwise
 		 */
-		Note* find_note( int idx_a, int idx_b, Instrument* instrument, bool strict=true );
+		Note* find_note( int idx_a, int idx_b, Instrument* instrument, bool strict=true ) const;
 		/**
 		 * search for a note at a given index within __notes wich correspond to the given arguments
 		 * \param idx_a the first __notes index to search in
@@ -129,7 +133,7 @@ class Pattern : public H2Core::Object
 		 * \param strict if set to false, will search for a note around the given idx
 		 * \return the note if found, 0 otherwise
 		 */
-		Note* find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict=true );
+		Note* find_note( int idx_a, int idx_b, Instrument* instrument, Note::Key key, Note::Octave octave, bool strict=true) const;
 		/**
 		 * removes a given note from __notes, it's not deleted
 		 * \param note the note to be removed
@@ -179,6 +183,13 @@ class Pattern : public H2Core::Object
 		 */
 		void extand_with_flattened_virtual_patterns( PatternList* patterns );
 
+		/**
+		 * save the pattern within the given XMLNode
+		 * \param node the XMLNode to feed
+		 * \param instrumentOnly export only the notes of that instrument if given
+		 */
+		void save_to( XMLNode* node, const Instrument* instrumentOnly = nullptr ) const;
+
 	private:
 		int __length;                                           ///< the length of the pattern
 		QString __name;                                         ///< the name of thepattern
@@ -187,12 +198,6 @@ class Pattern : public H2Core::Object
 		notes_t __notes;                                        ///< a multimap (hash with possible multiple values for one key) of note
 		virtual_patterns_t __virtual_patterns;                  ///< a list of patterns directly referenced by this one
 		virtual_patterns_t __flattened_virtual_patterns;        ///< the complete list of virtual patterns
-
-		/**
-		 * save the pattern within the given XMLNode
-		 * \param node the XMLNode to feed
-		 */
-		void save_to( XMLNode* node );
 		/**
 		 * load a pattern from an XMLNode
 		 * \param node the XMLDode to read from

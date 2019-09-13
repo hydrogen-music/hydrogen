@@ -104,10 +104,13 @@ public slots:
 		void action_window_showPatternEditor();
 		void action_window_showDrumkitManagerPanel();
 		void action_window_showAutomationArea();
+		void action_window_showTimeline();
+		void action_window_showPlaybackTrack();
 		void action_window_toggleFullscreen();
 
 		void update_mixer_checkbox();
 		void update_instrument_checkbox( bool show );
+		void update_automation_checkbox();
 		void update_director_checkbox();
 		void update_playlist_checkbox();
 
@@ -158,6 +161,9 @@ public slots:
 		QAction *	m_pViewDirectorAction;
 		QAction *	m_pViewMixerAction;
 		QAction *	m_pViewMixerInstrumentRackAction;
+		QAction *	m_pViewAutomationPathAction;
+		QAction *	m_pViewTimelineAction;
+		QAction *	m_pViewPlaybackTrackAction;
 		QAction *	m_pInstrumentAction;
 		QAction *	m_pDrumkitAction;
 
@@ -168,9 +174,9 @@ public slots:
 		QAction *	m_pRecentFileAction3;
 		QAction *	m_pRecentFileAction4;
 
-		QUndoView *	undoView;///debug only
+		QUndoView *	m_pUndoView;///debug only
 
-		QTimer		m_autosaveTimer;
+		QTimer		m_AutosaveTimer;
 
 		/** Create the menubar */
 		void createMenuBar();

@@ -10,6 +10,9 @@
  <license>Unknown license</license>
  <loopEnabled>true</loopEnabled>
  <patternModeMode>true</patternModeMode>
+ <playbackTrackFilename></playbackTrackFilename>
+ <playbackTrackEnabled>false</playbackTrackEnabled>
+ <playbackTrackVolume>0</playbackTrackVolume>
  <mode>pattern</mode>
  <humanize_time>0</humanize_time>
  <humanize_velocity>0</humanize_velocity>
@@ -1907,6 +1910,91 @@
    <instrumentComponent>
     <component_id>0</component_id>
     <gain>1</gain>
+    <layer>
+     <filename>HatSemiOpen-Softest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0</min>
+     <max>0.192029</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatSemiOpen-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.188406</min>
+     <max>0.380435</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatSemiOpen-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.380435</min>
+     <max>0.583333</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatSemiOpen-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.57971</min>
+     <max>0.789855</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>HatSemiOpen-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.782609</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
    </instrumentComponent>
   </instrument>
   <instrument>
@@ -1942,6 +2030,91 @@
    <instrumentComponent>
     <component_id>0</component_id>
     <gain>1</gain>
+    <layer>
+     <filename>Bell-Softest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0</min>
+     <max>0.217391</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Bell-Soft.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.210145</min>
+     <max>0.402174</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Bell-Med.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.405797</min>
+     <max>0.605072</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Bell-Hard.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.605072</min>
+     <max>0.782609</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
+    <layer>
+     <filename>Bell-Hardest.wav</filename>
+     <ismodified>false</ismodified>
+     <smode>forward</smode>
+     <startframe>0</startframe>
+     <loopframe>0</loopframe>
+     <loops>0</loops>
+     <endframe>0</endframe>
+     <userubber>0</userubber>
+     <rubberdivider>1</rubberdivider>
+     <rubberCsettings>4</rubberCsettings>
+     <rubberPitch>1</rubberPitch>
+     <min>0.786232</min>
+     <max>1</max>
+     <gain>1</gain>
+     <pitch>0</pitch>
+    </layer>
    </instrumentComponent>
   </instrument>
  </instrumentList>

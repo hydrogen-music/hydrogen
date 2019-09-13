@@ -1,133 +1,127 @@
 <?xml version="1.0"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://www.hydrogen-music.org/drumkit"
-    xmlns:h2="http://www.hydrogen-music.org/drumkit"
-    elementFormDefault="qualified">
+	targetNamespace="http://www.hydrogen-music.org/drumkit"
+	xmlns:h2="http://www.hydrogen-music.org/drumkit"
+	elementFormDefault="qualified">
 
 <!-- BOOL -->
 <xsd:simpleType name="bool">
-    <xsd:restriction base="xsd:string">
-        <xsd:enumeration value="true"/>
-        <xsd:enumeration value="false"/>
-    </xsd:restriction>
+	<xsd:restriction base="xsd:string">
+		<xsd:enumeration value="true"/>
+		<xsd:enumeration value="false"/>
+	</xsd:restriction>
 </xsd:simpleType>
 
 <!-- PSFLOAT - positive small float [0.0;1.0 ] -->
 <xsd:simpleType name='psfloat'>
-    <xsd:restriction base='xsd:float'>
-        <xsd:minInclusive value='0.0'/>
-        <xsd:maxInclusive value='1.0'/>
-    </xsd:restriction>
+	<xsd:restriction base='xsd:float'>
+		<xsd:minInclusive value='0.0'/>
+		<xsd:maxInclusive value='1.0'/>
+	</xsd:restriction>
 </xsd:simpleType>
 
 <!-- INSTRUMENT COMPONENT -->
 <xsd:element name="instrumentComponent">
-    <xsd:complexType>
-        <xsd:sequence>
-            <xsd:element name="component_id"    type="xsd:integer"/>
-            <xsd:element name="gain"  		type="xsd:float" default="1.0"/>
-    <xsd:sequence>
-                <xsd:element ref="h2:layer" minOccurs="0" maxOccurs="unbounded"/>
-            </xsd:sequence>
-        </xsd:sequence>
-    </xsd:complexType>
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element name="component_id"	type="xsd:integer"/>
+			<xsd:element name="gain"			type="xsd:float"	default="1.0"/>
+			<xsd:sequence>
+				<xsd:element ref="h2:layer" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:sequence>
+	</xsd:complexType>
 </xsd:element>
 
 <!-- DRUMKIT COMPONENT -->
 <xsd:element name="drumkitComponent">
-    <xsd:complexType>
-        <xsd:sequence>
-            <xsd:element name="id"    	type="xsd:integer"/>
-            <xsd:element name="name"    type="xsd:string"/>
-            <xsd:element name="volume"  type="xsd:float" default="1.0"/>
-        </xsd:sequence>
-    </xsd:complexType>
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element name="id"		type="xsd:integer"/>
+			<xsd:element name="name"	type="xsd:string"/>
+			<xsd:element name="volume"	type="xsd:float"	default="1.0"/>
+		</xsd:sequence>
+	</xsd:complexType>
 </xsd:element>
 
 <!-- LAYER -->
 <xsd:element name="layer">
-    <xsd:complexType>
-        <xsd:sequence>
-            <xsd:element name="filename"    type="xsd:string"/>
-            <xsd:element name="min"         type="xsd:float" default="0.0"/>
-            <xsd:element name="max"         type="xsd:float" default="1.0"/>
-            <xsd:element name="gain"        type="xsd:float" default="1.0"/>
-            <xsd:element name="pitch"       type="xsd:float" default="0.0"/>
-        </xsd:sequence>
-    </xsd:complexType>
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element name="filename"	type="xsd:string"/>
+			<xsd:element name="min"			type="xsd:float"	default="0.0"/>
+			<xsd:element name="max"			type="xsd:float"	default="1.0"/>
+			<xsd:element name="gain"		type="xsd:float"	default="1.0"/>
+			<xsd:element name="pitch"		type="xsd:float"	default="0.0"/>
+		</xsd:sequence>
+	</xsd:complexType>
 </xsd:element>
 
 <!-- INSTRUMENT -->
 <xsd:element name="instrument">
-    <xsd:complexType>
-        <!--
-        <xsd:all>
-            BUG libqt4-xml 4.6.3 and 4.7.1
-             http://bugreports.qt.nokia.com/browse/QTBUG-12534?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel#issue-tabs
-        -->
-        <xsd:sequence>
-            <xsd:element name="id"               type="xsd:integer"/>
-            <xsd:element name="name"             type="xsd:string"/>
-            <xsd:element name="volume"           type="xsd:decimal"     default="1.0"/>
-            <xsd:element name="isMuted"          type="h2:bool"         default="false"/>
-            <xsd:element name="pan_L"            type="h2:psfloat"      default="1.0"/>
-            <xsd:element name="pan_R"            type="h2:psfloat"      default="1.0"/>
-            <xsd:element name="randomPitchFactor" type="h2:psfloat"     default="0.0"/>
-            <xsd:element name="gain"             type="xsd:float"       default="1.0"/>
-            <xsd:element name="applyVelocity"    type="h2:bool"         default="false"/>
-            <xsd:element name="filterActive"     type="h2:bool"         default="false"/>
-            <xsd:element name="filterCutoff"     type="h2:psfloat"      default="1.0"/>
-            <xsd:element name="filterResonance"  type="h2:psfloat"      default="0.0"/>
-            <xsd:element name="Attack"           type="h2:psfloat"      default="0.0"/>
-            <xsd:element name="Decay"            type="h2:psfloat"      default="0.0"/>
-            <xsd:element name="Sustain"          type="h2:psfloat"      default="1.0"/>
-            <xsd:element name="Release"          type="xsd:nonNegativeInteger"  default="5800"/>
-            <xsd:element name="muteGroup"        type="xsd:integer"     default="-1"/>
-            <xsd:element name="midiOutChannel"   type="xsd:integer"     default="-1" minOccurs="0"/>
-            <xsd:element name="midiOutNote"      type="xsd:integer"     minOccurs="0"/>
-            <xsd:element name="isStopNote"       type="h2:bool"         default="false" minOccurs="0"/>
-            <xsd:element name="sampleSelectionAlgo" type="xsd:string"   default="VELOCITY"/>
-            <xsd:element name="isHihat"          type="xsd:integer"     default="-1"/>
-            <xsd:element name="lower_cc"         type="xsd:integer"     default="0"/>
-            <xsd:element name="higher_cc"        type="xsd:integer"     default="0"/>
-            <xsd:element name="FX1Level"         type="xsd:decimal"     default="0.0" minOccurs="0"/>
-            <xsd:element name="FX2Level"         type="xsd:decimal"     default="0.0" minOccurs="0"/>
-            <xsd:element name="FX3Level"         type="xsd:decimal"     default="0.0" minOccurs="0"/>
-            <xsd:element name="FX4Level"         type="xsd:decimal"     default="0.0" minOccurs="0"/>
-            <xsd:sequence>
-                <xsd:element ref="h2:instrumentComponent" minOccurs="0" maxOccurs="unbounded"/>
-            </xsd:sequence>
-        </xsd:sequence>
-        <!--</xsd:all>-->
-    </xsd:complexType>
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element name="id"					type="xsd:integer"/>
+			<xsd:element name="name"				type="xsd:string"/>
+			<xsd:element name="volume"				type="xsd:decimal"				default="1.0"/>
+			<xsd:element name="isMuted"				type="h2:bool"					default="false"/>
+			<xsd:element name="pan_L"				type="h2:psfloat"				default="1.0"/>
+			<xsd:element name="pan_R"				type="h2:psfloat"				default="1.0"/>
+			<xsd:element name="randomPitchFactor"	type="h2:psfloat"				default="0.0"/>
+			<xsd:element name="gain"				type="xsd:float"				default="1.0"/>
+			<xsd:element name="applyVelocity"		type="h2:bool"					default="false"/>
+			<xsd:element name="filterActive"		type="h2:bool"					default="false"/>
+			<xsd:element name="filterCutoff"		type="h2:psfloat"				default="1.0"/>
+			<xsd:element name="filterResonance"		type="h2:psfloat"				default="0.0"/>
+			<xsd:element name="Attack"				type="xsd:nonNegativeInteger"	default="0"/>
+			<xsd:element name="Decay"				type="xsd:nonNegativeInteger"	default="0"/>
+			<xsd:element name="Sustain"				type="h2:psfloat"				default="1.0"/>
+			<xsd:element name="Release"				type="xsd:nonNegativeInteger"	default="5800"/>
+			<xsd:element name="muteGroup"			type="xsd:integer"				default="-1"/>
+			<xsd:element name="midiOutChannel"		type="xsd:integer"				default="-1"	minOccurs="0"/>
+			<xsd:element name="midiOutNote"			type="xsd:integer"								minOccurs="0"/>
+			<xsd:element name="isStopNote"			type="h2:bool"					default="false"	minOccurs="0"/>
+			<xsd:element name="sampleSelectionAlgo"	type="xsd:string"				default="VELOCITY"/>
+			<xsd:element name="isHihat"				type="xsd:integer"				default="-1"/>
+			<xsd:element name="lower_cc"			type="xsd:integer"				default="0"/>
+			<xsd:element name="higher_cc"			type="xsd:integer"				default="0"/>
+			<xsd:element name="FX1Level"			type="xsd:decimal"				default="0.0"	minOccurs="0"/>
+			<xsd:element name="FX2Level"			type="xsd:decimal"				default="0.0"	minOccurs="0"/>
+			<xsd:element name="FX3Level"			type="xsd:decimal"				default="0.0"	minOccurs="0"/>
+			<xsd:element name="FX4Level"			type="xsd:decimal"				default="0.0"	minOccurs="0"/>
+			<xsd:sequence>
+				<xsd:element ref="h2:instrumentComponent" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:sequence>
+</xsd:complexType>
 </xsd:element>
 
 <!-- DRUMKIT -->
 <xsd:element name="drumkit_info">
-    <xsd:complexType>
-        <xsd:sequence>
-            <xsd:element name="name"     type="xsd:string"/>
-            <xsd:element name="author"   type="xsd:string"/>
-            <xsd:element name="info"     type="xsd:string"/>
-            <xsd:element name="license"  type="xsd:string"/>
-            <xsd:element name="image"	 type="xsd:string"/>
-	    <xsd:element name="imageLicense"    type="xsd:string"/>
-            <xsd:element name="componentList">
-                <xsd:complexType>
-                    <xsd:sequence>
-                        <xsd:element ref="h2:drumkitComponent" maxOccurs="1000"/>
-                    </xsd:sequence>
-                </xsd:complexType>
-            </xsd:element>
-            <xsd:element name="instrumentList">
-                <xsd:complexType>
-                    <xsd:sequence>
-                        <xsd:element ref="h2:instrument" maxOccurs="1000"/>
-                    </xsd:sequence>
-                </xsd:complexType>
-            </xsd:element>
-        </xsd:sequence>
-    </xsd:complexType>
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element name="name"			type="xsd:string"/>
+			<xsd:element name="author"			type="xsd:string"/>
+			<xsd:element name="info"			type="xsd:string"/>
+			<xsd:element name="license"			type="xsd:string"/>
+			<xsd:element name="image"			type="xsd:string"/>
+			<xsd:element name="imageLicense"	type="xsd:string"/>
+			<xsd:element name="componentList">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element ref="h2:drumkitComponent" maxOccurs="1000"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="instrumentList">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element ref="h2:instrument" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
 </xsd:element>
 
 </xsd:schema>

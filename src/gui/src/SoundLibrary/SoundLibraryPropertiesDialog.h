@@ -38,7 +38,7 @@ class SoundLibraryPropertiesDialog : public QDialog, public Ui_SoundLibraryPrope
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		SoundLibraryPropertiesDialog( QWidget* pParent , Drumkit *drumkitInfo, Drumkit *preDrumKit );
+		SoundLibraryPropertiesDialog(QWidget* pParent , Drumkit *pDrumkitInfo, Drumkit *pPreDrumKit );
 		~SoundLibraryPropertiesDialog();
 
 	private slots:

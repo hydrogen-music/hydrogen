@@ -22,11 +22,11 @@
 
 #include "LadspaFXSelector.h"
 #include "HydrogenApp.h"
-#include <hydrogen/hydrogen.h>
 #include "Skin.h"
+
+#include <hydrogen/hydrogen.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/Preferences.h>
-
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/fx/LadspaFX.h>
 
@@ -36,9 +36,9 @@ using namespace H2Core;
 const char* LadspaFXSelector::__class_name = "LadspaFXSelector";
 
 LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
- : QDialog( NULL )
+ : QDialog( nullptr )
  , Object( __class_name )
- , m_pCurrentItem( NULL )
+ , m_pCurrentItem( nullptr )
 {
 	//INFOLOG( "INIT" );
 
@@ -229,7 +229,7 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 	m_pCopyrightLbl->setText( QString("") );
 
 	// nothing was selected
-	if ( currentItem == NULL ) {
+	if ( currentItem == nullptr ) {
 		return;
 	}
 	

@@ -41,9 +41,9 @@ class ADSR : private Object
 		 * \param attack tick duration
 		 * \param decay tick duration
 		 * \param sustain level
-		 * \paramrelease tick duration
+		 * \param release tick duration
 		 */
-		ADSR ( float attack = 0.0, float decay = 0.0, float sustain = 1.0, float release = 1000 );
+		ADSR ( unsigned int attack = 0, unsigned int decay = 0, float sustain = 1.0, unsigned int release = 1000 );
 
 		/** copy constructor */
 		ADSR( const ADSR* other );
@@ -55,16 +55,16 @@ class ADSR : private Object
 		 * __attack setter
 		 * \param value the new value
 		 */
-		void set_attack( float value );
+		void set_attack( unsigned int value );
 		/** __attack accessor */
-		float get_attack();
+		unsigned int get_attack();
 		/**
 		 * __decay setter
 		 * \param value the new value
 		 */
-		void set_decay( float value );
+		void set_decay( unsigned int value );
 		/** __decay accessor */
-		float get_decay();
+		unsigned int get_decay();
 		/**
 		 * __sustain setter
 		 * \param value the new value
@@ -76,9 +76,9 @@ class ADSR : private Object
 		 * __release setter
 		 * \param value the new value
 		 */
-		void set_release( float value );
+		void set_release( unsigned int value );
 		/** __release accessor */
-		float get_release();
+		unsigned int get_release();
 
 		/**
 		 * sets state to ATTACK
@@ -98,10 +98,10 @@ class ADSR : private Object
 		float release();
 
 	private:
-		float __attack;		///< Attack tick count
-		float __decay;		///< Decay tick count
-		float __sustain;	///< Sustain level
-		float __release;	///< Release tick count
+		unsigned int __attack;		///< Attack tick count
+		unsigned int __decay;		///< Decay tick count
+		float __sustain;			///< Sustain level
+		unsigned int __release;		///< Release tick count
 		/** possible states */
 		enum ADSRState {
 			ATTACK=0,
@@ -114,26 +114,27 @@ class ADSR : private Object
 		float __ticks;          ///< current tick count
 		float __value;          ///< current value
 		float __release_value;  ///< value when the release state was entered
+		void normalise();
 };
 
 // DEFINITIONS
 
-inline void ADSR::set_attack( float value )
+inline void ADSR::set_attack( unsigned int value )
 {
 	__attack = value;
 }
 
-inline float ADSR::get_attack()
+inline unsigned int ADSR::get_attack()
 {
 	return __attack;
 }
 
-inline void ADSR::set_decay( float value )
+inline void ADSR::set_decay( unsigned int value )
 {
 	__decay = value;
 }
 
-inline float ADSR::get_decay()
+inline unsigned int ADSR::get_decay()
 {
 	return __decay;
 }
@@ -148,12 +149,12 @@ inline float ADSR::get_sustain()
 	return __sustain;
 }
 
-inline void ADSR::set_release( float value )
+inline void ADSR::set_release( unsigned int value )
 {
 	__release = value;
 }
 
-inline float ADSR::get_release()
+inline unsigned int ADSR::get_release()
 {
 	return __release;
 }

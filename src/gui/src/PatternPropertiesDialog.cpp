@@ -121,7 +121,7 @@ void PatternPropertiesDialog::on_okBtn_clicked()
 	{
 		SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  pattern->get_name() , pattern->get_info(), pattern->get_category(),
 												  pattName, pattInfo, pattCategory, __nselectedPattern );
-		HydrogenApp::get_instance()->m_undoStack->push( action );
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 	accept();
 }

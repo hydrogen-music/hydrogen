@@ -24,7 +24,7 @@
 #include "../HydrogenApp.h"
 #include "InstrumentEditor/InstrumentEditor.h"
 #include "SampleWaveDisplay.h"
-#include "../widgets/Button.h"
+#include "../Widgets/Button.h"
 #include "../Skin.h"
 
 #include <hydrogen/Preferences.h>
@@ -70,7 +70,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 	m_pSampleFilename = "";
 	m_pSelectedFile << "false" << "false";
 
-	m_sEmptySampleFilename = Filesystem::empty_sample();
+	m_sEmptySampleFilename = Filesystem::empty_sample_path();
 
 	m_pPathUptoolButton->setIcon( QIcon( Skin::getImagePath() + "/audiFileBrowser/go-up.png"));
 	m_pPathUptoolButton->setToolTip( QString("Parent Folder"));

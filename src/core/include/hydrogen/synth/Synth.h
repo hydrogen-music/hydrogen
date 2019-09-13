@@ -49,6 +49,12 @@ public:
 	float *m_pOut_L;
 	float *m_pOut_R;
 
+	/**
+	 * Constructor of the Synth.
+	 *
+	 * It is called by AudioEngine::AudioEngine() and stored in
+	 * AudioEngine::__synth.
+	 */
 	Synth();
 	~Synth();
 

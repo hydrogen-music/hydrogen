@@ -35,7 +35,7 @@ class SoundLibraryDatabase:  public H2Core::Object
 		void update();
 		void updatePatterns();
 		void printPatterns();
-		int getPatternFromDirectory(const QString& path, soundLibraryInfoVector* );
+		void getPatternFromDirectory(const QString& path, soundLibraryInfoVector* );
 		bool isPatternInstalled( const QString& patternName);
 
 		static void create_instance();
@@ -52,7 +52,7 @@ class SoundLibraryDatabase:  public H2Core::Object
 /**
 * @class SoundLibraryInfo
 *
-* @brief This class holds informations about a soundlibrary..
+* @brief This class holds informations about a soundlibrary.
 *
 * This class is used to represent soundlibrary items. It contains
 * the metadata for songs, pattern and drumkits.
