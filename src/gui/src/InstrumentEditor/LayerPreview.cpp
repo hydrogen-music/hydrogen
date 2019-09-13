@@ -57,7 +57,6 @@ LayerPreview::LayerPreview( QWidget* pParent )
 
 	setMouseTracking( true );
 
-//
 	int w = 276;
 	if( InstrumentComponent::getMaxLayers() > 16)
 		w = 261;
@@ -72,22 +71,17 @@ LayerPreview::LayerPreview( QWidget* pParent )
 	 * We get a style similar to the one used for the 2 buttons on top of the instrument editor panel
 	 */
 	this->setStyleSheet("font-size: 9px; font-weight: bold;");
-
 }
-
-
 
 LayerPreview::~ LayerPreview()
 {
 	//INFOLOG( "DESTROY" );
 }
 
-
 void LayerPreview::set_selected_component( int SelectedComponent )
 {
-    m_nSelectedComponent = SelectedComponent;
+	m_nSelectedComponent = SelectedComponent;
 }
-
 
 void LayerPreview::paintEvent(QPaintEvent *ev)
 {
@@ -97,9 +91,9 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	int nLayers = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 		if ( m_pInstrument ) {
-			InstrumentComponent* p_compo = m_pInstrument->get_component(m_nSelectedComponent);
-			if(p_compo) {
-				InstrumentLayer *pLayer = p_compo->get_layer( i );
+			InstrumentComponent* pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+			if(pComponent) {
+				InstrumentLayer *pLayer = pComponent->get_layer( i );
 				if ( pLayer ) {
 					nLayers++;
 				}
@@ -113,11 +107,11 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 		QString label = "< - >";
 		
 		if ( m_pInstrument ) {
-			InstrumentComponent* p_compo = m_pInstrument->get_component(m_nSelectedComponent);
-			if(p_compo) {
-				InstrumentLayer *pLayer = p_compo->get_layer( i );
+			InstrumentComponent* pComponent = m_pInstrument->get_component( m_nSelectedComponent );
+			if( pComponent ) {
+				InstrumentLayer *pLayer = pComponent->get_layer( i );
 				
-				if ( pLayer && nLayers > 0 && nLayer > 0 ) {
+				if ( pLayer && nLayers > 0 ) {
 					Sample* pSample = pLayer->get_sample();
 					if( pSample != nullptr) {
 						label = pSample->get_filename();
@@ -169,11 +163,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 	p.setPen( QColor( 210, 0, 0 ) );
 	int y = 20 + m_nLayerHeight * m_nSelectedLayer;
 	p.drawRect( 0, y, width() - 1, m_nLayerHeight );
-	
-	
 }
-
-
 
 void LayerPreview::selectedInstrumentChangedEvent()
 {
@@ -216,7 +206,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	// select the last valid layer
 	if ( m_pInstrument ) {
 		for (int i = InstrumentComponent::getMaxLayers() - 1; i >= 0; i-- ) {
-			InstrumentComponent* p_compo = m_pInstrument->get_component(m_nSelectedComponent);
+			InstrumentComponent* p_compo = m_pInstrument->get_component( m_nSelectedComponent );
 			if ( p_compo ) {
 				if ( p_compo->get_layer( i ) ) {
 					m_nSelectedLayer = i;
@@ -235,8 +225,6 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	update();
 }
 
-
-
 void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 {
 	m_bMouseGrab = false;
@@ -246,7 +234,7 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 	 * We want the tooltip to still show if mouse pointer
 	 * is over an active layer's boundary
 	 */
-	InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);
+	InstrumentComponent *pCompo = m_pInstrument->get_component( m_nSelectedComponent );
 	if ( pCompo ) {
 		InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
 		
@@ -265,8 +253,6 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 		}
 	}
 }
-
-
 
 void LayerPreview::mousePressEvent(QMouseEvent *ev)
 {
@@ -340,8 +326,6 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 	}
 }
 
-
-
 void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 {
 	if ( !m_pInstrument ) {
@@ -364,19 +348,19 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 		return;
 	}
 	if ( m_bMouseGrab ) {
-		InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( m_nSelectedLayer );
+		InstrumentLayer *pLayer = m_pInstrument->get_component( m_nSelectedComponent )->get_layer( m_nSelectedLayer );
 		if ( pLayer ) {
 			if ( m_bMouseGrab ) {
 				if ( m_bGrabLeft ) {
 					if ( fVel < pLayer->get_end_velocity()) {
-						pLayer->set_start_velocity(fVel);
-						showLayerStartVelocity(pLayer, ev);
+						pLayer->set_start_velocity( fVel );
+						showLayerStartVelocity( pLayer, ev );
 					}
 				}
 				else {
 					if ( fVel > pLayer->get_start_velocity()) {
 						pLayer->set_end_velocity( fVel );
-						showLayerEndVelocity(pLayer, ev);
+						showLayerEndVelocity( pLayer, ev );
 					}
 				}
 				update();
@@ -386,9 +370,9 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 	else {
 		m_nSelectedLayer = ( ev->y() - 20 ) / m_nLayerHeight;
 		if ( m_nSelectedLayer < InstrumentComponent::getMaxLayers() ) {
-			InstrumentComponent* p_compo = m_pInstrument->get_component(m_nSelectedComponent);
-			if(p_compo){
-				InstrumentLayer *pLayer = p_compo->get_layer( m_nSelectedLayer );
+			InstrumentComponent* pComponent = m_pInstrument->get_component(m_nSelectedComponent);
+			if( pComponent ){
+				InstrumentLayer *pLayer = pComponent->get_layer( m_nSelectedLayer );
 				if ( pLayer ) {
 					int x1 = (int)( pLayer->get_start_velocity() * width() );
 					int x2 = (int)( pLayer->get_end_velocity() * width() );
@@ -418,8 +402,6 @@ void LayerPreview::mouseMoveEvent( QMouseEvent *ev )
 		}
 	}
 }
-
-
 
 void LayerPreview::updateAll()
 {
