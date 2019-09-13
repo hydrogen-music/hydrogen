@@ -91,7 +91,6 @@ void LayerPreview::set_selected_component( int SelectedComponent )
 
 void LayerPreview::paintEvent(QPaintEvent *ev)
 {
-
 	QPainter p( this );
 	p.fillRect( ev->rect(), QColor( 58, 62, 72 ) );
 
@@ -118,7 +117,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 			if(p_compo) {
 				InstrumentLayer *pLayer = p_compo->get_layer( i );
 				
-				if ( pLayer ) {
+				if ( pLayer && nLayers > 0 && nLayer > 0 ) {
 					Sample* pSample = pLayer->get_sample();
 					if( pSample != nullptr) {
 						label = pSample->get_filename();
