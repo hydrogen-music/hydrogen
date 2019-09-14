@@ -182,7 +182,7 @@ void SoundLibraryImportDialog::writeCachedData(const QString& fileName, const QS
 	QFile outFile( fileName );
 	if( !outFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
 	{
-		ERRORLOG( "Failed to open file for writing repository cache." );
+		ERRORLOG( QString("Failed to open file for writing repository cache: %1").arg( fileName ) );
 		return;
 	}
 
@@ -199,7 +199,7 @@ void SoundLibraryImportDialog::writeCachedImage( const QString& imageFile, QPixm
 	QFile outFile( cacheFile );
 	if( !outFile.open( QIODevice::WriteOnly ) )
 	{
-		ERRORLOG( "Failed to open file for writing repository image cache." );
+		ERRORLOG( QString("Failed to open file for writing repository image cache: %1").arg( imageFile ) );
 		return;
 	}
 	
@@ -214,7 +214,7 @@ QString SoundLibraryImportDialog::readCachedData(const QString& fileName)
 	QFile inFile( fileName );
 	if( !inFile.open( QIODevice::ReadOnly | QIODevice::Text ) )
 	{
-		ERRORLOG( "Failed to open file for reading." );
+		ERRORLOG( QString("Failed to open file for reading: %1").arg( fileName ) );
 		return content;
 	}
 

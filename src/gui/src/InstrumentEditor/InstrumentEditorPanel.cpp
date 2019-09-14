@@ -63,7 +63,7 @@ InstrumentEditorPanel::InstrumentEditorPanel( QWidget *pParent )
 	vbox->addWidget( m_pInstrumentEditor, 0, 0 );
 
 	this->setLayout( vbox );
-	m_pLayer = 0;
+	m_nLayer = 0;
 
 	HydrogenApp::get_instance()->addEventListener(this);
 }
@@ -91,7 +91,7 @@ void InstrumentEditorPanel::notifyOfDrumkitChange()
 void InstrumentEditorPanel::selectLayer( int nLayer )
 {
 	m_pInstrumentEditor->selectLayer( nLayer );
-	m_pLayer = nLayer;
+	m_nLayer = nLayer;
 }
 
 
