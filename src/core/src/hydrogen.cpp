@@ -3260,11 +3260,10 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 		Instrument *pNewInstr = pDrumkitInstrList->get( nInstr );
 		assert( pNewInstr );
 		INFOLOG( QString( "Loading instrument (%1 of %2) [%3]" )
-				 .arg( nInstr )
+				 .arg( nInstr + 1 )
 				 .arg( pDrumkitInstrList->size() )
 				 .arg( pNewInstr->get_name() ) );
 
-		// creo i nuovi layer in base al nuovo strumento
 		// Moved code from here right into the Instrument class - Jakob Lund.
 		pInstr->load_from( pDrumkitInfo, pNewInstr );
 	}
