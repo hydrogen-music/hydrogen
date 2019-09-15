@@ -97,6 +97,7 @@ NsmClient::NsmClient()
 	: Object( __class_name )
 {
 	m_NsmThread = 0;
+	m_bUnderSessionManagement = false;
 }
 
 void NsmClient::create_instance()
@@ -148,6 +149,10 @@ void NsmClient::createInitialClient()
 					___ERRORLOG("Error creating NSM thread\n	");
 					return;
 				}
+				
+				// Everything worked fine and H2 can now be considered
+				// under session management.
+				m_bUnderSessionManagement = true;
 
 			}
 			else
