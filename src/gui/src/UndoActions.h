@@ -833,18 +833,26 @@ public:
 		__nTargetInstrument = nTargetInstrument;
 		__addedComponents = new std::vector<int>();
 	}
+
+	~SE_dragInstrumentAction()
+	{
+		delete __addedComponents;
+	}
+
 	virtual void undo()
 	{
 		//qDebug() << "drop Instrument Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nTargetInstrument, __addedComponents );
 	}
+
 	virtual void redo()
 	{
 		//qDebug() << "drop Instrument Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitName, __sInstrumentName, __nTargetInstrument, __addedComponents );
 	}
+
 private:
 	QString __sDrumkitName;
 	QString __sInstrumentName;
