@@ -275,7 +275,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 				return;
 			}
 			
-			pInstr = pInstrList->get( nInstrument );
+			pInstr = pInstrList->get( static_cast<uint>(nInstrument) );
 		}
 
 		/*
