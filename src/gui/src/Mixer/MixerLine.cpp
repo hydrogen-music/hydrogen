@@ -395,8 +395,8 @@ void MixerLine::knobChanged(Knob* pRef)
 
 void MixerLine::setFXLevel( uint nFX, float fValue )
 {
-	if (nFX > MAX_FX) {
-		ERRORLOG( QString("[setFXLevel] nFX > MAX_FX (nFX=%1)").arg(nFX) );
+	if (nFX >= MAX_FX) {
+		ERRORLOG( QString("[setFXLevel] nFX >= MAX_FX (nFX=%1)").arg(nFX) );
 		return;
 	}
 	m_pKnob[nFX]->setValue( fValue );
@@ -404,8 +404,8 @@ void MixerLine::setFXLevel( uint nFX, float fValue )
 
 float MixerLine::getFXLevel(uint nFX)
 {
-	if (nFX > MAX_FX) {
-		ERRORLOG( QString("[setFXLevel] nFX > MAX_FX (nFX=%1)").arg(nFX) );
+	if (nFX >= MAX_FX) {
+		ERRORLOG( QString("[setFXLevel] nFX >= MAX_FX (nFX=%1)").arg(nFX) );
 		return 0.0f;
 	}
 	return m_pKnob[nFX]->getValue();
