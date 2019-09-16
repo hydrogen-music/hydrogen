@@ -161,7 +161,7 @@ class Sample : public H2Core::Object
 		 *
 		 * \fn load(const QString& filepath)
 		 */
-	        static Sample* load( const QString& filepath);
+		static Sample* load( const QString& filepath);
 	
 		/**
 		 * Load a sample from a file and apply the
@@ -184,7 +184,7 @@ class Sample : public H2Core::Object
 		 *
 		 * \overload load(const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan)
 		 */
-                static Sample* load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan );
+		static Sample* load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan );
 
 		/**
 		 * Load the sample stored in #__filepath into
@@ -209,7 +209,7 @@ class Sample : public H2Core::Object
 		 *
 		 * \fn load()
 		 */
-		void load();
+		bool load();
 		/**
 		 * Flush the current content of the left and right
 		 * channel and the current metadata.

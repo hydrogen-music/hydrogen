@@ -111,7 +111,12 @@ Sample* Sample::load( const QString& filepath )
 		ERRORLOG( QString( "Unable to read %1" ).arg( filepath ) );
 	} else {
 		pSample = new Sample( filepath );
-		pSample->load();
+		
+		if( !pSample->load() )
+		{
+			delete pSample;
+			pSample = nullptr;
+		}
 	}
 	
 	return pSample;
@@ -140,7 +145,7 @@ void Sample::apply( const Loops& loops, const Rubberband& rubber, const Velocity
 #endif
 }
 
-void Sample::load()
+bool Sample::load()
 {
 	// Will contain a bunch of metadata about the loaded sample.
 	SF_INFO sound_info;
@@ -149,7 +154,7 @@ void Sample::load()
 	SNDFILE* file = sf_open( __filepath.toLocal8Bit(), SFM_READ, &sound_info );
 	if ( !file ) {
 		ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( __filepath ) );
-		return;
+		return false;
 	}
 	
 	// Sanity check. SAMPLE_CHANNELS is defined in
