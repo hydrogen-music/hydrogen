@@ -90,18 +90,18 @@ LadspaFXProperties::LadspaFXProperties(QWidget* parent, uint nLadspaFX)
 	boldFont.setBold(true);
 	m_pNameLbl->setFont( boldFont );
 
-	m_pSelectFXBtn = new QPushButton( trUtf8("Select FX"), this);
+	m_pSelectFXBtn = new QPushButton( tr("Select FX"), this);
 	m_pSelectFXBtn->move( 170, 10 );
 	m_pSelectFXBtn->resize( 100, 24 );
 	connect( m_pSelectFXBtn, SIGNAL(clicked()), this, SLOT(selectFXBtnClicked()) );
 
-	m_pRemoveFXBtn = new QPushButton( trUtf8("Remove FX"), this);
+	m_pRemoveFXBtn = new QPushButton( tr("Remove FX"), this);
 	m_pRemoveFXBtn->move( 280, 10 );
 	m_pRemoveFXBtn->resize( 100, 24 );
 	connect( m_pRemoveFXBtn, SIGNAL(clicked()), this, SLOT(removeFXBtnClicked()) );
 
 
-	m_pActivateBtn = new QPushButton( trUtf8("Activate"), this);
+	m_pActivateBtn = new QPushButton( tr("Activate"), this);
 	m_pActivateBtn->move( 390, 10 );
 	m_pActivateBtn->resize( 100, 24 );
 	connect( m_pActivateBtn, SIGNAL(clicked()), this, SLOT(activateBtnClicked()) );
@@ -212,7 +212,7 @@ void LadspaFXProperties::updateControls()
 
 	if (pFX) {
 		QString sPluginName = pFX->getPluginLabel();
-		setWindowTitle( trUtf8( "[%1] LADSPA FX Properties" ).arg( sPluginName ) );
+		setWindowTitle( tr( "[%1] LADSPA FX Properties" ).arg( sPluginName ) );
 
 		int nControlsFrameWidth = 10 + 45 * (pFX->inputControlPorts.size() + pFX->outputControlPorts.size()) + 10 + 45;
 		if ( nControlsFrameWidth < width() ) {
@@ -222,10 +222,10 @@ void LadspaFXProperties::updateControls()
 
 		m_pActivateBtn->setEnabled(true);
 		if (pFX->isEnabled()) {
-			m_pActivateBtn->setText( trUtf8("Deactivate") );
+			m_pActivateBtn->setText( tr("Deactivate") );
 		}
 		else {
-			m_pActivateBtn->setText( trUtf8("Activate") );
+			m_pActivateBtn->setText( tr("Activate") );
 		}
 
 		QString mixerline_text_path = Skin::getImagePath() + "/mixerPanel/mixer_background.png";
@@ -334,8 +334,8 @@ void LadspaFXProperties::updateControls()
 	}
 	else {
 		INFOLOG( "NULL PLUGIN" );
-		setWindowTitle( trUtf8( "LADSPA FX %1 Properties" ).arg( m_nLadspaFX) );
-		m_pNameLbl->setText( trUtf8("No plugin") );
+		setWindowTitle( tr( "LADSPA FX %1 Properties" ).arg( m_nLadspaFX) );
+		m_pNameLbl->setText( tr("No plugin") );
 		m_pActivateBtn->setEnabled(false);
 	}
 
@@ -404,10 +404,10 @@ void LadspaFXProperties::updateOutputControls()
 	if (pFX) {
 		m_pActivateBtn->setEnabled(true);
 		if (pFX->isEnabled()) {
-			m_pActivateBtn->setText( trUtf8("Deactivate") );
+			m_pActivateBtn->setText( tr("Deactivate") );
 		}
 		else {
-			m_pActivateBtn->setText( trUtf8("Activate") );
+			m_pActivateBtn->setText( tr("Activate") );
 		}
 
 		for (uint i = 0; i < pFX->outputControlPorts.size(); i++) {

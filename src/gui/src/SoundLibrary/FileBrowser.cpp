@@ -183,7 +183,7 @@ void FileBrowser::updateFileInfo( QString sFilename, unsigned nSampleRate, unsig
 
 	}
 
-	m_pFileInfo->setText( QString( trUtf8( "%1<br>%2 KHz<br>%3 %4" ) )
+	m_pFileInfo->setText( QString( tr( "%1<br>%2 KHz<br>%3 %4" ) )
 			      .arg( sFilename )
 			      .arg( nSampleRate )
 			      .arg( sFileSize )

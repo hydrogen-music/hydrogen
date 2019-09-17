@@ -89,8 +89,8 @@ void Download::finished()
 {
 	if ( __reply->error() ) {
 		__error = true;
-		ERRORLOG(QString( trUtf8( "Importing item failed: %1" ) ).arg( __reply->errorString() ));
-		QMessageBox::information( this, "Hydrogen", QString( trUtf8( "Importing item failed: %1" ) ).arg( __reply->errorString() ) );
+		ERRORLOG(QString( tr( "Importing item failed: %1" ) ).arg( __reply->errorString() ));
+		QMessageBox::information( this, "Hydrogen", QString( tr( "Importing item failed: %1" ) ).arg( __reply->errorString() ) );
 		reject();
 		return;
 	}
@@ -217,7 +217,7 @@ void DownloadWidget::updateStats()
 
 	QString sETA = hours + ":" + minutes + ":" + seconds;
 
-	__eta_label->setText( trUtf8( "(%1/%2 KiB) - ETA %3" ).arg( __bytes_current / 1024 ).arg( __bytes_total / 1024 ).arg( sETA ) );
+	__eta_label->setText( tr( "(%1/%2 KiB) - ETA %3" ).arg( __bytes_current / 1024 ).arg( __bytes_total / 1024 ).arg( sETA ) );
 
 	if ( __download_percent == 100 ) {
 		__update_timer->stop();

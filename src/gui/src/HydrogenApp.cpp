@@ -191,7 +191,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED)
-		m_pTab->addTab( m_pSongEditorPanel, trUtf8("Song Editor") );
+		m_pTab->addTab( m_pSongEditorPanel, tr("Song Editor") );
 
 	// this HBox will contain the InstrumentRack and the Pattern editor
 	QWidget *pSouthPanel = new QWidget( m_pSplitter );
@@ -206,7 +206,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED ){
 		m_pTab->setMovable( false );
 		m_pTab->setTabsClosable( false );
-		m_pTab->addTab( pSouthPanel, trUtf8( "Instrument + Pattern") );
+		m_pTab->addTab( pSouthPanel, tr( "Instrument + Pattern") );
 	}
 
 	// PATTERN EDITOR
@@ -255,7 +255,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pMixer->move( mixerProp.x, mixerProp.y );
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED){
-		m_pTab->addTab(m_pMixer,trUtf8("Mixer"));
+		m_pTab->addTab(m_pMixer,tr("Mixer"));
 	}
 
 	m_pMixer->updateMixer();
@@ -396,7 +396,7 @@ void HydrogenApp::updateWindowTitle()
 	}
 
 	if(pSong->get_is_modified()){
-		title = qsSongName + " (" + QString(trUtf8("modified")) + ")";
+		title = qsSongName + " (" + QString(tr("modified")) + ")";
 	} else {
 		title = qsSongName;
 	}
@@ -456,7 +456,7 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedComponemt, int mS
 }
 
 void HydrogenApp::onDrumkitLoad( QString name ){
-	setStatusBarMessage( trUtf8( "Drumkit loaded: [%1]" ).arg( name ), 2000 );
+	setStatusBarMessage( tr( "Drumkit loaded: [%1]" ).arg( name ), 2000 );
 	m_pPatternEditorPanel->updateSLnameLabel( );
 }
 

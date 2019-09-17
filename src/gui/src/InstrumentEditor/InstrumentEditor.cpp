@@ -78,8 +78,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 							   QSize( 100, 17 ),
 							   true
 							   );
-	m_pShowInstrumentBtn->setText(trUtf8("General"));
-	m_pShowInstrumentBtn->setToolTip( trUtf8( "Show instrument properties" ) );
+	m_pShowInstrumentBtn->setText(tr("General"));
+	m_pShowInstrumentBtn->setToolTip( tr( "Show instrument properties" ) );
 	connect( m_pShowInstrumentBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	m_pShowInstrumentBtn->move( 40, 7 );
 	m_pShowInstrumentBtn->setPressed( true );
@@ -93,8 +93,8 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 						   QSize( 100, 17 ),
 						   true
 						   );
-	m_pShowLayersBtn->setText( trUtf8("Layers") );
-	m_pShowLayersBtn->setToolTip( trUtf8( "Show layers properties" ) );
+	m_pShowLayersBtn->setText( tr("Layers") );
+	m_pShowLayersBtn->setToolTip( tr( "Show layers properties" ) );
 	connect( m_pShowLayersBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	m_pShowLayersBtn->move( 144, 7 );
 
@@ -112,7 +112,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_pMidiOutChannelLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pMidiOutChannelLCD->move( 67, 261 );
-	m_pMidiOutChannelLCD->setToolTip(QString(trUtf8("Midi out channel")));
+	m_pMidiOutChannelLCD->setToolTip(QString(tr("Midi out channel")));
 
 
 	m_pAddMidiOutChannelBtn = new Button(
@@ -151,7 +151,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 							   false,
 							   true
 							   );
-	m_pMidiOutNoteLCD->setToolTip(QString(trUtf8("Midi out note")));
+	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
 
 
 	m_pAddMidiOutNoteBtn->move( 202, 260 );
@@ -177,7 +177,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pNameLbl->setFont( boldFont );
 	connect( m_pNameLbl, SIGNAL( labelClicked(ClickableLabel*) ), this, SLOT( labelClicked(ClickableLabel*) ) );
 
-	m_pRandomPitchRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Random pitch factor" ), false, true );
+	m_pRandomPitchRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Random pitch factor" ), false, true );
 	m_pRandomPitchRotary->move( 117, 210 );
 	connect( m_pRandomPitchRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
@@ -191,11 +191,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 							 );
 	connect( m_pFilterBypassBtn, SIGNAL( clicked(Button*) ), this, SLOT( filterActiveBtnClicked(Button*) ) );
 
-	m_pCutoffRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Filter Cutoff" ), false, true );
+	m_pCutoffRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Filter Cutoff" ), false, true );
 	m_pCutoffRotary->setDefaultValue( m_pCutoffRotary->getMax() );
 	connect( m_pCutoffRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
-	m_pResonanceRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Filter resonance" ), false, true );
+	m_pResonanceRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Filter resonance" ), false, true );
 	connect( m_pResonanceRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	m_pFilterBypassBtn->move( 70, 170 );
@@ -204,11 +204,11 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	//~ Filter
 
 	// ADSR
-	m_pAttackRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Attack" ), false, true );
-	m_pDecayRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Decay" ), false, true );
-	m_pSustainRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Sustain" ), false, true );
+	m_pAttackRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Attack" ), false, true );
+	m_pDecayRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Decay" ), false, true );
+	m_pSustainRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Sustain" ), false, true );
 	m_pSustainRotary->setDefaultValue( m_pSustainRotary->getMax() );
-	m_pReleaseRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Release" ), false, true );
+	m_pReleaseRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Release" ), false, true );
 	m_pReleaseRotary->setDefaultValue( 0.09 );
 	connect( m_pAttackRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 	connect( m_pDecayRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
@@ -222,7 +222,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	// instrument gain
 	m_pInstrumentGainLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pInstrumentGain = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, trUtf8( "Instrument gain" ), false, false );
+	m_pInstrumentGain = new Rotary( m_pInstrumentProp, Rotary::TYPE_NORMAL, tr( "Instrument gain" ), false, false );
 	m_pInstrumentGain->setDefaultValue( 0.2 ); // gain is multiplied with 5, so default is 1.0 from users view
 	connect( m_pInstrumentGain, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 	m_pInstrumentGainLCD->move( 67, 105 );
@@ -254,14 +254,14 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pDelMuteGroupBtn->move( 202, 113 );
 	connect( m_pDelMuteGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( muteGroupBtnClicked(Button*) ) );
 
-	m_pIsStopNoteCheckBox = new QCheckBox ( trUtf8( "" ), m_pInstrumentProp );
+	m_pIsStopNoteCheckBox = new QCheckBox ( tr( "" ), m_pInstrumentProp );
 	m_pIsStopNoteCheckBox->move( 63, 138 );
-	m_pIsStopNoteCheckBox->setToolTip( trUtf8( "Stop the current playing instrument-note before trigger the next note sample." ) );
+	m_pIsStopNoteCheckBox->setToolTip( tr( "Stop the current playing instrument-note before trigger the next note sample." ) );
 	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
 
-	m_pApplyVelocity = new QCheckBox ( trUtf8( "" ), m_pInstrumentProp );
+	m_pApplyVelocity = new QCheckBox ( tr( "" ), m_pInstrumentProp );
 	m_pApplyVelocity->move( 153, 138 );
-	m_pApplyVelocity->setToolTip( trUtf8( "Don't change the layers' gain based on velocity" ) );
+	m_pApplyVelocity->setToolTip( tr( "Don't change the layers' gain based on velocity" ) );
 	connect( m_pApplyVelocity, SIGNAL( toggled( bool ) ), this, SLOT( onIsApplyVelocityCheckBoxClicked( bool ) ) );
 
 	//////////////////////////
@@ -434,24 +434,24 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pSampleEditorBtn, SIGNAL( clicked(Button*) ), this, SLOT( buttonClicked(Button*) ) );
 	// Layer gain
 	m_pLayerGainLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pLayerGainRotary = new Rotary( m_pLayerProp,  Rotary::TYPE_NORMAL, trUtf8( "Layer gain" ), false, false );
+	m_pLayerGainRotary = new Rotary( m_pLayerProp,  Rotary::TYPE_NORMAL, tr( "Layer gain" ), false, false );
 	m_pLayerGainRotary->setDefaultValue ( 0.2 ); // gain is multiplied with 5, so default is 1.0 from users view
 	connect( m_pLayerGainRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	m_pCompoGainLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
-	m_pCompoGainRotary = new Rotary( m_pLayerProp,  Rotary::TYPE_NORMAL, trUtf8( "Component volume" ), false, false );
+	m_pCompoGainRotary = new Rotary( m_pLayerProp,  Rotary::TYPE_NORMAL, tr( "Component volume" ), false, false );
 	m_pCompoGainRotary->setDefaultValue ( 0.2 ); // gain is multiplied with 5, so default is 1.0 from users view
 	connect( m_pCompoGainRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	m_pLayerPitchCoarseLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pLayerPitchFineLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
 
-	m_pLayerPitchCoarseRotary = new Rotary( m_pLayerProp, Rotary::TYPE_CENTER, trUtf8( "Layer pitch (Coarse)" ), true, false );
+	m_pLayerPitchCoarseRotary = new Rotary( m_pLayerProp, Rotary::TYPE_CENTER, tr( "Layer pitch (Coarse)" ), true, false );
 	m_pLayerPitchCoarseRotary->setMin( -24.0 );
 	m_pLayerPitchCoarseRotary->setMax( 24.0 );
 	connect( m_pLayerPitchCoarseRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
-	m_pLayerPitchFineRotary = new Rotary( m_pLayerProp, Rotary::TYPE_CENTER, trUtf8( "Layer pitch (Fine)" ), true, false );
+	m_pLayerPitchFineRotary = new Rotary( m_pLayerProp, Rotary::TYPE_CENTER, tr( "Layer pitch (Fine)" ), true, false );
 	m_pLayerPitchFineRotary->setMin( -50.0 );
 	m_pLayerPitchFineRotary->setMax( 50.0 );
 	connect( m_pLayerPitchFineRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
@@ -471,7 +471,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, 25);
 	m_sampleSelectionAlg->move( 60, 434 );
-	m_sampleSelectionAlg->setToolTip( trUtf8("Select pattern size") );
+	m_sampleSelectionAlg->setToolTip( tr("Select pattern size") );
 	m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
 	m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
 	m_sampleSelectionAlg->addItem( QString( "Random" ) );
@@ -977,24 +977,28 @@ void InstrumentEditor::loadLayer()
 void InstrumentEditor::setAutoVelocity()
 {
 	std::vector<int> layerInUse( InstrumentComponent::getMaxLayers(), 0 );
-	int layers = 0;
+	int nLayers = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
-		InstrumentLayer *pLayers = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
-		if ( pLayers ) {
-			layers++;
+		InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
+		if ( pLayer ) {
+			nLayers++;
 			layerInUse[i] = i;
 		}
 	}
+	
+	if( nLayers == 0){
+		nLayers = 1;
+	}
 
-	float velocityrange = 1.0 / layers;
+	float velocityrange = 1.0 / nLayers;
 
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 		if ( layerInUse[i] == i ){
-			layers--;
+			nLayers--;
 			InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
 			if ( pLayer ) {
-				pLayer->set_start_velocity( layers * velocityrange);
-				pLayer->set_end_velocity( layers * velocityrange + velocityrange );
+				pLayer->set_start_velocity( nLayers * velocityrange);
+				pLayer->set_end_velocity( nLayers * velocityrange + velocityrange );
 			}
 		}
 	}
@@ -1008,7 +1012,7 @@ void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
 
 	QString sOldName = pComponent->get_name();
 	bool bIsOkPressed;
-	QString sNewName = QInputDialog::getText( this, "Hydrogen", trUtf8( "New component name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
+	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "New component name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
 
 	if ( bIsOkPressed  ) {
 		pComponent->set_name( sNewName );
@@ -1037,7 +1041,7 @@ void InstrumentEditor::labelClicked( ClickableLabel* pRef )
 	if (m_pInstrument) {
 		QString sOldName = m_pInstrument->get_name();
 		bool bIsOkPressed;
-		QString sNewName = QInputDialog::getText( this, "Hydrogen", trUtf8( "New instrument name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
+		QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "New instrument name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
 		if ( bIsOkPressed  ) {
 			m_pInstrument->set_name( sNewName );
 			selectedInstrumentChangedEvent();
@@ -1236,7 +1240,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 	if( sSelectedAction.compare("add") == 0 ) {
 		if ( m_pInstrument ) {
 			bool bIsOkPressed;
-			QString sNewName = QInputDialog::getText( this, "Hydrogen", trUtf8( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
+			QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
 			if ( bIsOkPressed  ) {
 				DrumkitComponent* pDrumkitComponent = new DrumkitComponent( findFreeDrumkitComponentId(), sNewName );
 				pEngine->getSong()->get_components()->push_back( pDrumkitComponent );

@@ -58,13 +58,13 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 		void set_selected_component( int SelectedComponent );
 
 	private:
-		static const int m_nLayerHeight = 10;
-		QPixmap m_speakerPixmap;
-		H2Core::Instrument *m_pInstrument;
-		int m_nSelectedLayer;
-		int m_nSelectedComponent;
-		bool m_bMouseGrab;
-		bool m_bGrabLeft;
+		static const int		m_nLayerHeight = 10;
+		QPixmap					m_speakerPixmap;
+		H2Core::Instrument *	m_pInstrument;
+		int						m_nSelectedLayer;
+		int						m_nSelectedComponent;
+		bool					m_bMouseGrab;
+		bool					m_bGrabLeft;
 
 		/**
 		 * convert a raw velocity value (0.0 to 1.0)

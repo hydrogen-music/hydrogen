@@ -33,7 +33,7 @@ SoundLibraryOpenDialog::SoundLibraryOpenDialog( QWidget* pParent )
 	, Object( __class_name )
 {
 	INFOLOG( "INIT" );
-	setWindowTitle( trUtf8( "Open Sound Library" ) );
+	setWindowTitle( tr( "Open Sound Library" ) );
 	setFixedSize( 280, 380 );
 
 	QVBoxLayout *pVBox = new QVBoxLayout();
@@ -51,10 +51,10 @@ SoundLibraryOpenDialog::SoundLibraryOpenDialog( QWidget* pParent )
 
 	pButtonsBox->addStretch();
 
-	m_pOkBtn = new QPushButton( trUtf8("Load") );
+	m_pOkBtn = new QPushButton( tr("Load") );
 	pButtonsBox->addWidget( m_pOkBtn );
 
-	m_pCancelBtn = new QPushButton( trUtf8("Cancel") );
+	m_pCancelBtn = new QPushButton( tr("Cancel") );
 	pButtonsBox->addWidget( m_pCancelBtn );
 
 	pButtonsBox->addStretch();

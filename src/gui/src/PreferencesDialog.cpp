@@ -54,7 +54,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 {
 	setupUi( this );
 
-	setWindowTitle( trUtf8( "Preferences" ) );
+	setWindowTitle( tr( "Preferences" ) );
 
 	setMinimumSize( width(), height() );
 
@@ -211,9 +211,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	int coloringMethodAuxValue = pPref->getColoringMethodAuxValue();
 
 	coloringMethodCombo->clear();
-	coloringMethodCombo->addItem(trUtf8("Automatic"));
-	coloringMethodCombo->addItem(trUtf8("Steps"));
-	coloringMethodCombo->addItem(trUtf8("Fixed"));
+	coloringMethodCombo->addItem(tr("Automatic"));
+	coloringMethodCombo->addItem(tr("Steps"));
+	coloringMethodCombo->addItem(tr("Fixed"));
 
 	coloringMethodAuxSpinBox->setMaximum(300);
 
@@ -425,13 +425,13 @@ void PreferencesDialog::on_okBtn_clicked()
 			
 	// Mixer falloff
 	QString falloffStr = mixerFalloffComboBox->currentText();
-	if ( falloffStr== trUtf8("Slow") ) {
+	if ( falloffStr== tr("Slow") ) {
 		pPref->setMixerFalloffSpeed(FALLOFF_SLOW);
 	}
-	else if ( falloffStr == trUtf8("Normal") ) {
+	else if ( falloffStr == tr("Normal") ) {
 		pPref->setMixerFalloffSpeed(FALLOFF_NORMAL);
 	}
-	else if ( falloffStr == trUtf8("Fast") ) {
+	else if ( falloffStr == tr("Fast") ) {
 		pPref->setMixerFalloffSpeed(FALLOFF_FAST);
 	}
 	else {
@@ -560,7 +560,7 @@ void PreferencesDialog::updateDriverInfo()
 #endif
 
 	if ( driverComboBox->currentText() == "Auto" ) {
-		info += trUtf8("<b>Automatic driver selection</b>");
+		info += tr("<b>Automatic driver selection</b>");
 
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->setText( "" );
@@ -570,9 +570,9 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->setEnabled( false );
 	}
 	else if ( driverComboBox->currentText() == "OSS" ) {	// OSS
-		info += trUtf8("<b>Open Sound System</b><br>Simple audio driver [/dev/dsp]");
+		info += tr("<b>Open Sound System</b><br>Simple audio driver [/dev/dsp]");
 		if ( !bOss_support ) {
-			info += trUtf8("<br><b><font color=\"red\">Not compiled</font></b>");
+			info += tr("<br><b><font color=\"red\">Not compiled</font></b>");
 		}
 		m_pAudioDeviceTxt->setEnabled(true);
 		m_pAudioDeviceTxt->setText( pPref->m_sOSSDevice );
@@ -583,9 +583,9 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->setEnabled(false);
 	}
 	else if ( driverComboBox->currentText() == "Jack" ) {	// JACK
-		info += trUtf8("<b>Jack Audio Connection Kit Driver</b><br>Low latency audio driver");
+		info += tr("<b>Jack Audio Connection Kit Driver</b><br>Low latency audio driver");
 		if ( !bJack_support ) {
-			info += trUtf8("<br><b><font color=\"red\">Not compiled</font></b>");
+			info += tr("<br><b><font color=\"red\">Not compiled</font></b>");
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->setText( "" );
@@ -596,9 +596,9 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->setEnabled( true );
 	}
 	else if ( driverComboBox->currentText() == "Alsa" ) {	// ALSA
-		info += trUtf8("<b>ALSA Driver</b><br>");
+		info += tr("<b>ALSA Driver</b><br>");
 		if ( !bAlsa_support ) {
-			info += trUtf8("<br><b><font color=\"red\">Not compiled</font></b>");
+			info += tr("<br><b><font color=\"red\">Not compiled</font></b>");
 		}
 		m_pAudioDeviceTxt->setEnabled(true);
 		m_pAudioDeviceTxt->setText( pPref->m_sAlsaAudioDevice );
@@ -609,9 +609,9 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->setEnabled(false);
 	}
 	else if ( driverComboBox->currentText() == "PortAudio" ) {
-		info += trUtf8( "<b>PortAudio Driver</b><br>" );
+		info += tr( "<b>PortAudio Driver</b><br>" );
 		if ( !bPortAudio_support ) {
-			info += trUtf8("<br><b><font color=\"red\">Not compiled</font></b>");
+			info += tr("<br><b><font color=\"red\">Not compiled</font></b>");
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->setText( "" );
@@ -621,9 +621,9 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->setEnabled(false);
 	}
 	else if ( driverComboBox->currentText() == "CoreAudio" ) {
-		info += trUtf8( "<b>CoreAudio Driver</b><br>" );
+		info += tr( "<b>CoreAudio Driver</b><br>" );
 		if ( !bCoreAudio_support ) {
-			info += trUtf8("<br><b><font color=\"red\">Not compiled</font></b>");
+			info += tr("<br><b><font color=\"red\">Not compiled</font></b>");
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->setText( "" );
@@ -634,9 +634,9 @@ void PreferencesDialog::updateDriverInfo()
 		connectDefaultsCheckBox->setEnabled(false);
 	}
 	else if ( driverComboBox->currentText() == "PulseAudio" ) {
-		info += trUtf8("<b>PulseAudio Driver</b><br>");
+		info += tr("<b>PulseAudio Driver</b><br>");
 		if ( !bPulseAudio_support ) {
-			info += trUtf8("<br><b><font color=\"red\">Not compiled</font></b>");
+			info += tr("<br><b><font color=\"red\">Not compiled</font></b>");
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->setText("");
@@ -766,7 +766,7 @@ void PreferencesDialog::on_useLashCheckbox_clicked()
 	{
 		Preferences::get_instance()->m_bsetLash = false ;
 	}
-	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "Please restart hydrogen to enable/disable LASH support" ) );
+	QMessageBox::information ( this, "Hydrogen", tr ( "Please restart hydrogen to enable/disable LASH support" ) );
 }
 
 void PreferencesDialog::coloringMethodCombo_currentIndexChanged (int index)
@@ -778,12 +778,12 @@ void PreferencesDialog::coloringMethodCombo_currentIndexChanged (int index)
 			coloringMethodAuxSpinBox->hide();
 			break;
 		case 1:
-			coloringMethodAuxLabel->setText( trUtf8("Number of steps") );
+			coloringMethodAuxLabel->setText( tr("Number of steps") );
 			coloringMethodAuxSpinBox->setMinimum(1);
 			coloringMethodAuxSpinBox->show();
 			break;
 		case 2:
-			coloringMethodAuxLabel->setText( trUtf8("Color (Hue value)") );
+			coloringMethodAuxLabel->setText( tr("Color (Hue value)") );
 			coloringMethodAuxSpinBox->setMinimum(0);
 			coloringMethodAuxSpinBox->show();
 			break;

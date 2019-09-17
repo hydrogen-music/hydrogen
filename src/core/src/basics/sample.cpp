@@ -90,8 +90,13 @@ Sample::Sample( Sample* pOther ): Object( __class_name ),
 {
 	__data_l = new float[__frames];
 	__data_r = new float[__frames];
-	memcpy( __data_l, pOther->get_data_l(), __frames );
-	memcpy( __data_r, pOther->get_data_r(), __frames );
+	
+	// Since the third argument of memcpy takes the number of bytes,
+	// which are about to be copied, and the data is given in float,
+	// which are  four bytes each, the number of copied frames
+	// `__frames` has to be multiplied by four.
+	memcpy( __data_l, pOther->get_data_l(), __frames * 4 );
+	memcpy( __data_r, pOther->get_data_r(), __frames * 4 );
 
 	PanEnvelope* pPan = pOther->get_pan_envelope();
 	for( int i=0; i<pPan->size(); i++ ) {
@@ -227,6 +232,8 @@ bool Sample::load()
 		}
 	}
 	delete[] buffer;
+
+	return true;
 }
 
 bool Sample::apply_loops( const Loops& lo )
