@@ -969,14 +969,14 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_playingPattern_off_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_off.png" );
 
 	m_pPatternPopup = new QMenu( this );
-	m_pPatternPopup->addAction( trUtf8("Copy"),  this, SLOT( patternPopup_copy() ) );
-	m_pPatternPopup->addAction( trUtf8("Delete"),  this, SLOT( patternPopup_delete() ) );
-	m_pPatternPopup->addAction( trUtf8("Fill/Clear ..."),  this, SLOT( patternPopup_fill() ) );
-	m_pPatternPopup->addAction( trUtf8("Properties"),  this, SLOT( patternPopup_properties() ) );
-	m_pPatternPopup->addAction( trUtf8("Load Pattern"),  this, SLOT( patternPopup_load() ) );
-	m_pPatternPopup->addAction( trUtf8("Save Pattern"),  this, SLOT( patternPopup_save() ) );
-	m_pPatternPopup->addAction( trUtf8("Export Pattern"),  this, SLOT( patternPopup_export() ) );
-	m_pPatternPopup->addAction( trUtf8("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
+	m_pPatternPopup->addAction( tr("Copy"),  this, SLOT( patternPopup_copy() ) );
+	m_pPatternPopup->addAction( tr("Delete"),  this, SLOT( patternPopup_delete() ) );
+	m_pPatternPopup->addAction( tr("Fill/Clear ..."),  this, SLOT( patternPopup_fill() ) );
+	m_pPatternPopup->addAction( tr("Properties"),  this, SLOT( patternPopup_properties() ) );
+	m_pPatternPopup->addAction( tr("Load Pattern"),  this, SLOT( patternPopup_load() ) );
+	m_pPatternPopup->addAction( tr("Save Pattern"),  this, SLOT( patternPopup_save() ) );
+	m_pPatternPopup->addAction( tr("Export Pattern"),  this, SLOT( patternPopup_export() ) );
+	m_pPatternPopup->addAction( tr("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
@@ -1296,7 +1296,7 @@ void SongEditorPatternList::patternPopup_load()
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 	fd.setDirectory( Filesystem::patterns_dir() );
-	fd.setWindowTitle( trUtf8( "Open Pattern" ) );
+	fd.setWindowTitle( tr( "Open Pattern" ) );
 
 	if (fd.exec() != QDialog::Accepted) {
 		return;
@@ -1507,8 +1507,8 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	else {
 		// there's no patterns..
 		Pattern *pEmptyPattern = new Pattern();
-		pEmptyPattern->set_name( trUtf8("Pattern 1") );
-		pEmptyPattern->set_category( trUtf8("not_categorized") );
+		pEmptyPattern->set_name( tr("Pattern 1") );
+		pEmptyPattern->set_category( tr("not_categorized") );
 		pSongPatternList->add( pEmptyPattern );
 	}
 

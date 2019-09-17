@@ -37,7 +37,7 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 	setMaximumSize( width(), height() );
 	setMinimumSize( width(), height() );
 
-	setWindowTitle( trUtf8( "Song properties" ) );
+	setWindowTitle( tr( "Song properties" ) );
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	songNameTxt->setText( pSong->__name );

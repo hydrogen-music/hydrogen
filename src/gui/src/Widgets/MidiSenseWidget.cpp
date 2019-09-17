@@ -50,10 +50,10 @@ MidiSenseWidget::MidiSenseWidget(QWidget* pParent, bool directWr, Action* midiAc
 		 */
 
 		if(m_DirectWrite){
-			m_pURLLabel->setText( trUtf8("This element is not midi operable.") );
+			m_pURLLabel->setText( tr("This element is not midi operable.") );
 			midiOperable = false;
 		} else {
-			m_pURLLabel->setText( trUtf8("Waiting for midi input...") );
+			m_pURLLabel->setText( tr("Waiting for midi input...") );
 			midiOperable = true;
 		}
 	}

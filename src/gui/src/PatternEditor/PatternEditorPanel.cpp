@@ -98,7 +98,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	pSLlabel->setText( Hydrogen::get_instance()->m_currentDrumkit );
 	pSLlabel->setFixedSize( 170, 20 );
 	pSLlabel->move( 10, 3 );
-	pSLlabel->setToolTip( trUtf8("Loaded Soundlibrary") );
+	pSLlabel->setToolTip( tr("Loaded Soundlibrary") );
 	editor_top_hbox->addWidget( pSLlabel );
 
 //wolke some background images back_size_res
@@ -111,7 +111,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// PATTERN size
 	__pattern_size_combo = new LCDCombo(pSizeResol, 4);
 	__pattern_size_combo->move( 34, 2 );
-	__pattern_size_combo->setToolTip( trUtf8("Select pattern size") );
+	__pattern_size_combo->setToolTip( tr("Select pattern size") );
 	for ( int i = 1; i <= 32; i++) {
 		__pattern_size_combo->addItem( QString( "%1" ).arg( i ) );
 	}
@@ -121,7 +121,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// GRID resolution
 	__resolution_combo = new LCDCombo( pSizeResol , 7);
-	__resolution_combo->setToolTip(trUtf8("Select grid resolution"));
+	__resolution_combo->setToolTip(tr("Select grid resolution"));
 	__resolution_combo->addItem( "4" );
 	__resolution_combo->addItem( "8" );
 	__resolution_combo->addItem( "16" );
@@ -155,7 +155,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			QSize(15, 13)
 	);
 	hearNotesBtn->move( 34, 3 );
-	hearNotesBtn->setToolTip( trUtf8( "Hear new notes" ) );
+	hearNotesBtn->setToolTip( tr( "Hear new notes" ) );
 	connect( hearNotesBtn, SIGNAL(clicked(Button*)), this, SLOT( hearNotesBtnClick(Button*)));
 	hearNotesBtn->setPressed( pPref->getHearNewNotes() );
 
@@ -170,7 +170,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	);
 	quantizeEventsBtn->move( 90, 3 );
 	quantizeEventsBtn->setPressed( pPref->getQuantizeEvents());
-	quantizeEventsBtn->setToolTip( trUtf8( "Quantize keyboard/midi events to grid" ) );
+	quantizeEventsBtn->setToolTip( tr( "Quantize keyboard/midi events to grid" ) );
 	connect( quantizeEventsBtn, SIGNAL(clicked(Button*)), this, SLOT( quantizeEventsBtnClick(Button*)));
 
 	// Editor mode
@@ -183,7 +183,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				);
 	__show_drum_btn->move( 137, 3 );
 	__show_drum_btn->setPressed( false );
-	__show_drum_btn->setToolTip( trUtf8( "Show piano roll editor" ) );
+	__show_drum_btn->setToolTip( tr( "Show piano roll editor" ) );
 	connect(__show_drum_btn, SIGNAL(clicked(Button*)), this, SLOT( showDrumEditorBtnClick(Button*)));
 
 	__recpredelete = new QComboBox( nullptr );
@@ -207,7 +207,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__recpredelete->addItem ( QString( "On rec: 1/1" ));
 	__recpredelete->addItem ( QString( "On rec: once" ));
 	__recpredelete->update();
-	__recpredelete->setToolTip( trUtf8( "destructive mode pre delete settings" ) );
+	__recpredelete->setToolTip( tr( "destructive mode pre delete settings" ) );
 	editor_top_hbox_2->addWidget( __recpredelete );
 	connect( __recpredelete, SIGNAL( currentIndexChanged( int ) ), this, SLOT( recPreDeleteSelect( int) ) );
 
@@ -223,7 +223,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__recpostdelete->addItem ( QString( "1/2" ));
 	__recpostdelete->addItem ( QString( "1/1" ));
 	__recpostdelete->update();
-	__recpostdelete->setToolTip( trUtf8( "destructive mode post delete settings" ) );
+	__recpostdelete->setToolTip( tr( "destructive mode post delete settings" ) );
 	editor_top_hbox_2->addWidget( __recpostdelete );
 	connect( __recpostdelete, SIGNAL( currentIndexChanged( int ) ), this, SLOT( recPostDeleteSelect( int) ) );
 
@@ -236,7 +236,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			"/songEditor/btn_new_over.png",
 			QSize(19, 13)
 	);
-	zoom_in_btn->setToolTip( trUtf8( "Zoom in" ) );
+	zoom_in_btn->setToolTip( tr( "Zoom in" ) );
 	connect(zoom_in_btn, SIGNAL(clicked(Button*)), this, SLOT( zoomInBtnClicked(Button*) ) );
 
 
@@ -248,7 +248,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 			"/songEditor/btn_minus_over.png",
 			QSize(19, 13)
 	);
-	zoom_out_btn->setToolTip( trUtf8( "Zoom out" ) );
+	zoom_out_btn->setToolTip( tr( "Zoom out" ) );
 	connect( zoom_out_btn, SIGNAL(clicked(Button*)), this, SLOT( zoomOutBtnClicked(Button*) ) );
 
 
@@ -436,14 +436,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 	__pPropertiesCombo = new LCDCombo( nullptr, 20);
-	__pPropertiesCombo->setToolTip(trUtf8("Select note properties"));
-	__pPropertiesCombo->addItem( trUtf8("Velocity") );
-	__pPropertiesCombo->addItem( trUtf8("Pan") );
-	__pPropertiesCombo->addItem( trUtf8("Lead and Lag") );
-	__pPropertiesCombo->addItem( trUtf8("NoteKey") );
-	__pPropertiesCombo->addItem( trUtf8("Probability") );
-	/* __pPropertiesCombo->addItem( trUtf8("Cutoff") ); */
-	/* __pPropertiesCombo->addItem( trUtf8("Resonance") ); */
+	__pPropertiesCombo->setToolTip(tr("Select note properties"));
+	__pPropertiesCombo->addItem( tr("Velocity") );
+	__pPropertiesCombo->addItem( tr("Pan") );
+	__pPropertiesCombo->addItem( tr("Lead and Lag") );
+	__pPropertiesCombo->addItem( tr("NoteKey") );
+	__pPropertiesCombo->addItem( tr("Probability") );
+	/* __pPropertiesCombo->addItem( tr("Cutoff") ); */
+	/* __pPropertiesCombo->addItem( tr("Resonance") ); */
 	// is triggered here below
 	connect( __pPropertiesCombo, SIGNAL(valueChanged( int )), this, SLOT(propertiesComboChanged( int )));
 
@@ -626,7 +626,7 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 		// update pattern name text
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 		QString sCurrentPatternName = m_pPattern->get_name();
-		this->setWindowTitle( ( trUtf8( "Pattern editor - %1").arg( sCurrentPatternName ) ) );
+		this->setWindowTitle( ( tr( "Pattern editor - %1").arg( sCurrentPatternName ) ) );
 		m_pPatternNameLbl->setText( sCurrentPatternName );
 
 		// update pattern size combobox
@@ -637,8 +637,8 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 	else {
 		m_pPattern = nullptr;
 
-		this->setWindowTitle( ( trUtf8( "Pattern editor - %1").arg(QString("No pattern selected.")) ) );
-		m_pPatternNameLbl->setText( trUtf8( "No pattern selected" ) );
+		this->setWindowTitle( ( tr( "Pattern editor - %1").arg(QString("No pattern selected.")) ) );
+		m_pPatternNameLbl->setText( tr( "No pattern selected" ) );
 	}
 
 	resizeEvent( nullptr ); // force an update of the scrollbars
@@ -652,10 +652,10 @@ void PatternEditorPanel::hearNotesBtnClick(Button *ref)
 	pref->setHearNewNotes( ref->isPressed() );
 
 	if (ref->isPressed() ) {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Hear new notes = On" ), 2000 );
+		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Hear new notes = On" ), 2000 );
 	}
 	else {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Hear new notes = Off" ), 2000 );
+		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Hear new notes = Off" ), 2000 );
 	}
 
 }
@@ -669,10 +669,10 @@ void PatternEditorPanel::quantizeEventsBtnClick(Button *ref)
 	pref->setQuantizeEvents( ref->isPressed() );
 
 	if (ref->isPressed() ) {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Quantize incoming keyboard/midi events = On" ), 2000 );
+		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = On" ), 2000 );
 	}
 	else {
-		( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Quantize incoming keyboard/midi events = Off" ), 2000 );
+		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = Off" ), 2000 );
 	}
 }
 
@@ -747,7 +747,7 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 {
 	UNUSED( ref );
 	if ( !__show_drum_btn->isPressed() ){
-		__show_drum_btn->setToolTip( trUtf8( "Show piano roll editor" ) );
+		__show_drum_btn->setToolTip( tr( "Show piano roll editor" ) );
 		m_pPianoRollScrollView->hide();
 		m_pEditorScrollView->show();
 		m_pInstrListScrollView->show();
@@ -760,7 +760,7 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 	}
 	else
 	{
-		__show_drum_btn->setToolTip( trUtf8( "Show drum editor" ) );
+		__show_drum_btn->setToolTip( tr( "Show drum editor" ) );
 		m_pPianoRollScrollView->show();
 		m_pPianoRollScrollView->verticalScrollBar()->setValue( 250 );
 		m_pEditorScrollView->show();
@@ -823,7 +823,7 @@ void PatternEditorPanel::patternSizeChanged( int nSelected )
 
 	if ( !m_bEnablePatternResize ) {
 		__pattern_size_combo->select( ((m_pPattern->get_length() / nEighth) - 1), false );
-		QMessageBox::information( this, "Hydrogen", trUtf8( "Is not possible to change the pattern size when playing." ) );
+		QMessageBox::information( this, "Hydrogen", tr( "Is not possible to change the pattern size when playing." ) );
 		return;
 	}
 

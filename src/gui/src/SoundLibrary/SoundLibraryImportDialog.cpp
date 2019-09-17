@@ -53,11 +53,11 @@ SoundLibraryImportDialog::SoundLibraryImportDialog( QWidget* pParent, bool bOnli
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( trUtf8( "Sound Library import" ) );
+	setWindowTitle( tr( "Sound Library import" ) );
 	setFixedSize( width(), height() );
 
 	QStringList headers;
-	headers << trUtf8( "Sound library" ) << trUtf8( "Status" );
+	headers << tr( "Sound library" ) << tr( "Status" );
 	QTreeWidgetItem* header = new QTreeWidgetItem( headers );
 	m_pDrumkitTree->setHeaderItem( header );
 	m_pDrumkitTree->header()->resizeSection( 0, 200 );
@@ -334,7 +334,7 @@ void SoundLibraryImportDialog::on_UpdateListBtn_clicked()
 	QString sDrumkitXML;
 
 	for (int i=0; i < max_redirects; i++) {
-		DownloadWidget drumkitList( this, trUtf8( "Updating SoundLibrary list..." ), downloadUrl);
+		DownloadWidget drumkitList( this, tr( "Updating SoundLibrary list..." ), downloadUrl);
 		drumkitList.exec();
 
 		if (!drumkitList.get_redirect_url().isEmpty()) {
@@ -373,16 +373,16 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 	m_pDrumkitTree->clear();
 
 	m_pDrumkitsItem = new QTreeWidgetItem( m_pDrumkitTree );
-	m_pDrumkitsItem->setText( 0, trUtf8( "Drumkits" ) );
+	m_pDrumkitsItem->setText( 0, tr( "Drumkits" ) );
 	m_pDrumkitTree->setItemExpanded( m_pDrumkitsItem, true );
 
 
 	m_pSongItem = new QTreeWidgetItem( m_pDrumkitTree );
-	m_pSongItem->setText( 0, trUtf8( "Songs" ) );
+	m_pSongItem->setText( 0, tr( "Songs" ) );
 	m_pDrumkitTree->setItemExpanded( m_pSongItem, true );
 
 	m_pPatternItem = new QTreeWidgetItem( m_pDrumkitTree );
-	m_pPatternItem->setText( 0, trUtf8( "Patterns" ) );
+	m_pPatternItem->setText( 0, tr( "Patterns" ) );
 	m_pDrumkitTree->setItemExpanded( m_pPatternItem, true );
 
 	for ( uint i = 0; i < m_soundLibraryList.size(); ++i ) {
@@ -404,11 +404,11 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 
 		if ( isSoundLibraryItemAlreadyInstalled( m_soundLibraryList[ i ]  ) ) {
 			pDrumkitItem->setText( 0, sLibraryName );
-			pDrumkitItem->setText( 1, trUtf8( "Installed" ) );
+			pDrumkitItem->setText( 1, tr( "Installed" ) );
 		}
 		else {
 			pDrumkitItem->setText( 0, sLibraryName );
-			pDrumkitItem->setText( 1, trUtf8( "New" ) );
+			pDrumkitItem->setText( 1, tr( "New" ) );
 		}
 	}
 
@@ -502,11 +502,11 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 					SoundLibraryInfoLbl->setText( info.getInfo() );
 				}
 
-				AuthorLbl->setText( trUtf8( "Author: %1" ).arg( info.getAuthor() ) );
+				AuthorLbl->setText( tr( "Author: %1" ).arg( info.getAuthor() ) );
 
-				LicenseLbl->setText( trUtf8( "Drumkit License: %1" ).arg( info.getLicense()) );
+				LicenseLbl->setText( tr( "Drumkit License: %1" ).arg( info.getLicense()) );
 
-				ImageLicenseLbl->setText( trUtf8("Image License: %1" ).arg( info.getImageLicense() ) );
+				ImageLicenseLbl->setText( tr("Image License: %1" ).arg( info.getImageLicense() ) );
 
 				// Load the drumkit image
 				// Clear any image first
@@ -563,7 +563,7 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 								imageUrl = repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) + 1 ) + info.getImage() ;
 								sLocalFile = QDir::tempPath() + "/" + QFileInfo( imageUrl ).fileName();
 
-								DownloadWidget dl( this, trUtf8( "" ), imageUrl, sLocalFile );
+								DownloadWidget dl( this, tr( "" ), imageUrl, sLocalFile );
 								dl.exec();
 
 								loadImage( sLocalFile );
@@ -620,7 +620,7 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 			bool Error = false;
 
 			for ( int i = 0; i < max_redirects; ++i ) {
-				DownloadWidget dl( this, trUtf8( "Downloading SoundLibrary..." ), sURL, sLocalFile );
+				DownloadWidget dl( this, tr( "Downloading SoundLibrary..." ), sURL, sLocalFile );
 				dl.exec();
 
 
@@ -645,7 +645,7 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 					if ( sType == "drumkit" ) {
 						H2Core::Drumkit::install( sLocalFile );
 						QApplication::restoreOverrideCursor();
-						QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ) ).arg( H2Core::Filesystem::usr_data_path() ) );
+						QMessageBox::information( this, "Hydrogen", QString( tr( "SoundLibrary imported in %1" ) ).arg( H2Core::Filesystem::usr_data_path() ) );
 					}
 
 					if ( sType == "song" || sType == "pattern") {
@@ -654,7 +654,7 @@ void SoundLibraryImportDialog::on_DownloadBtn_clicked()
 				}
 				catch( H2Core::H2Exception ex ) {
 					QApplication::restoreOverrideCursor();
-					QMessageBox::warning( this, "Hydrogen", trUtf8( "An error occurred importing the SoundLibrary."  ) );
+					QMessageBox::warning( this, "Hydrogen", tr( "An error occurred importing the SoundLibrary."  ) );
 				}
 			}
 			else
@@ -692,7 +692,7 @@ void SoundLibraryImportDialog::on_BrowseBtn_clicked()
 	fd.setNameFilter( "Hydrogen drumkit (*.h2drumkit)" );
 	fd.setDirectory( lastUsedDir );
 
-	fd.setWindowTitle( trUtf8( "Import drumkit" ) );
+	fd.setWindowTitle( tr( "Import drumkit" ) );
 
 	QString filename = "";
 	if (fd.exec() == QDialog::Accepted) {
@@ -715,7 +715,7 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 
 	try {
 		H2Core::Drumkit::install( SoundLibraryPathTxt->text() );
-		QMessageBox::information( this, "Hydrogen", QString( trUtf8( "SoundLibrary imported in %1" ).arg( H2Core::Filesystem::usr_data_path() )  ) );
+		QMessageBox::information( this, "Hydrogen", QString( tr( "SoundLibrary imported in %1" ).arg( H2Core::Filesystem::usr_data_path() )  ) );
 		// update the drumkit list
 		SoundLibraryDatabase::get_instance()->update();
 		HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
@@ -724,7 +724,7 @@ void SoundLibraryImportDialog::on_InstallBtn_clicked()
 	}
 	catch( H2Core::H2Exception ex ) {
 		QApplication::restoreOverrideCursor();
-		QMessageBox::warning( this, "Hydrogen", trUtf8( "An error occurred importing the SoundLibrary."  ) );
+		QMessageBox::warning( this, "Hydrogen", tr( "An error occurred importing the SoundLibrary."  ) );
 	}
 }
 

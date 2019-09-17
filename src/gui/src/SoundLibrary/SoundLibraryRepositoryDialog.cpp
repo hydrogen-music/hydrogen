@@ -36,7 +36,7 @@ SoundLibraryRepositoryDialog::SoundLibraryRepositoryDialog( QWidget* pParent )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( trUtf8( "Edit repository settings" ) );
+	setWindowTitle( tr( "Edit repository settings" ) );
 	setFixedSize( width(), height() );
 
 	updateDialog();
@@ -73,7 +73,7 @@ void SoundLibraryRepositoryDialog::on_AddBtn_clicked()
 	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 	bool ok;
 
-	QString text = QInputDialog::getText(this, trUtf8("Edit server list"), trUtf8("URL"), QLineEdit::Normal,QString(""), &ok);
+	QString text = QInputDialog::getText(this, tr("Edit server list"), tr("URL"), QLineEdit::Normal,QString(""), &ok);
 	
 	if( ok && !text.isEmpty() ){
 		pPref->sServerList.push_back( text );

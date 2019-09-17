@@ -49,7 +49,7 @@ SoundLibraryPropertiesDialog::SoundLibraryPropertiesDialog( QWidget* pParent, Dr
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( trUtf8( "SoundLibrary Properties" ) );
+	setWindowTitle( tr( "SoundLibrary Properties" ) );
 	setFixedSize( width(), height() );
 	pGlobalPreDrumkit = pPreDrumKit;
 
@@ -132,7 +132,7 @@ void SoundLibraryPropertiesDialog::on_imageBrowsePushButton_clicked()
 	// Try to get the drumkit directory and open file browser
 	QString drumkitDir = Filesystem::drumkit_dir_search( nameTxt->text() ) + "/" + nameTxt->text();
 
-	QString fileName = QFileDialog::getOpenFileName(this, trUtf8("Open Image"), drumkitDir, trUtf8("Image Files (*.png *.jpg *.jpeg)"));
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), drumkitDir, tr("Image Files (*.png *.jpg *.jpeg)"));
 
 	// If cancel was clicked just abort
 	if ( fileName == nullptr )
@@ -168,7 +168,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	if ( saveChanges_checkBox->isChecked() ){
 		//test if the drumkit is loaded
 		if ( Hydrogen::get_instance()->getCurrentDrumkitname() != pGlobalDrumkitInfo->get_name() ){
-			QMessageBox::information( this, "Hydrogen", trUtf8 ( "This is not possible, you can only save changes inside instruments to the current loaded sound library"));
+			QMessageBox::information( this, "Hydrogen", tr ( "This is not possible, you can only save changes inside instruments to the current loaded sound library"));
 			saveChanges_checkBox->setChecked( false );
 			return;
 		}
@@ -209,7 +209,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	// Note: The full path of the image is passed to make copying to a new drumkit easy
 	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), pGlobalDrumkitInfo->get_path() + "/" + pGlobalDrumkitInfo->get_image(), pGlobalDrumkitInfo->get_image_license(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) )
 	{
-		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this drumkit failed."));
+		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
 	}
 
 

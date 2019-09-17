@@ -38,7 +38,7 @@ PatternFillDialog::PatternFillDialog(QWidget* parent, FillRange* pRange)
 	setupUi( this );
 
 	setFixedSize( width(), height() );
-	setWindowTitle( trUtf8( "Fill with selected pattern" ) );
+	setWindowTitle( tr( "Fill with selected pattern" ) );
 
 	__fill_range = pRange;
 	__text_changed();

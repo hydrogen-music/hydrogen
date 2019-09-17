@@ -420,7 +420,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 					;
 				} else {
 					//set the note hight
-					//QMessageBox::information ( this, "Hydrogen", trUtf8( "val: %1" ).arg(keyval)  );
+					//QMessageBox::information ( this, "Hydrogen", tr( "val: %1" ).arg(keyval)  );
 					int k = 666;
 					int o = 666;
 					if(keyval >=6 && keyval<=125) {
