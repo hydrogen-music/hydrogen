@@ -212,6 +212,8 @@ bool Sample::load()
 		}
 	}
 	delete[] buffer;
+
+	return true;
 }
 
 bool Sample::apply_loops( const Loops& lo )
