@@ -84,28 +84,28 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 
 	//INFOLOG( "INIT" );
 	__drumkit_menu = new QMenu( this );
-	__drumkit_menu->addAction( trUtf8( "Load" ), this, SLOT( on_drumkitLoadAction() ) );
-	__drumkit_menu->addAction( trUtf8( "Export" ), this, SLOT( on_drumkitExportAction() ) );
-	__drumkit_menu->addAction( trUtf8( "Properties" ), this, SLOT( on_drumkitPropertiesAction() ) );
+	__drumkit_menu->addAction( tr( "Load" ), this, SLOT( on_drumkitLoadAction() ) );
+	__drumkit_menu->addAction( tr( "Export" ), this, SLOT( on_drumkitExportAction() ) );
+	__drumkit_menu->addAction( tr( "Properties" ), this, SLOT( on_drumkitPropertiesAction() ) );
 	__drumkit_menu->addSeparator();
-	__drumkit_menu->addAction( trUtf8( "Delete" ), this, SLOT( on_drumkitDeleteAction() ) );
+	__drumkit_menu->addAction( tr( "Delete" ), this, SLOT( on_drumkitDeleteAction() ) );
 
 	__instrument_menu = new QMenu( this );
 	__instrument_menu->addSeparator();
-	__instrument_menu->addAction( trUtf8( "Delete" ), this, SLOT( on_instrumentDeleteAction() ) );
+	__instrument_menu->addAction( tr( "Delete" ), this, SLOT( on_instrumentDeleteAction() ) );
 
 	__song_menu = new QMenu( this );
 	__song_menu->addSeparator();
-	__song_menu->addAction( trUtf8( "Load" ), this, SLOT( on_songLoadAction() ) );
+	__song_menu->addAction( tr( "Load" ), this, SLOT( on_songLoadAction() ) );
 
 	__pattern_menu = new QMenu( this );
 	__pattern_menu->addSeparator();
-	__pattern_menu->addAction( trUtf8( "Load" ), this, SLOT( on_patternLoadAction() ) );
-	__pattern_menu->addAction( trUtf8( "Delete" ), this, SLOT( on_patternDeleteAction() ) );
+	__pattern_menu->addAction( tr( "Load" ), this, SLOT( on_patternLoadAction() ) );
+	__pattern_menu->addAction( tr( "Delete" ), this, SLOT( on_patternDeleteAction() ) );
 
 	__pattern_menu_list = new QMenu( this );
 	__pattern_menu_list->addSeparator();
-	__pattern_menu_list->addAction( trUtf8( "Load" ), this, SLOT( on_patternLoadAction() ) );
+	__pattern_menu_list->addAction( tr( "Load" ), this, SLOT( on_patternLoadAction() ) );
 
 // DRUMKIT LIST
 	__sound_library_tree = new SoundLibraryTree( nullptr );
@@ -163,11 +163,11 @@ void SoundLibraryPanel::updateDrumkitList()
 
 
 	__system_drumkits_item = new QTreeWidgetItem( __sound_library_tree );
-	__system_drumkits_item->setText( 0, trUtf8( "System drumkits" ) );
+	__system_drumkits_item->setText( 0, tr( "System drumkits" ) );
 	__sound_library_tree->setItemExpanded( __system_drumkits_item, true );
 
 	__user_drumkits_item = new QTreeWidgetItem( __sound_library_tree );
-	__user_drumkits_item->setText( 0, trUtf8( "User drumkits" ) );
+	__user_drumkits_item->setText( 0, tr( "User drumkits" ) );
 	__sound_library_tree->setItemExpanded( __user_drumkits_item, true );
 
 	
@@ -230,8 +230,8 @@ void SoundLibraryPanel::updateDrumkitList()
 	QStringList songs = Filesystem::song_list_cleared();
 	if ( songs.size() > 0 ) {
 		__song_item = new QTreeWidgetItem( __sound_library_tree );
-		__song_item->setText( 0, trUtf8( "Songs" ) );
-		__song_item->setToolTip( 0, trUtf8("Double click to expand the list") );
+		__song_item->setText( 0, tr( "Songs" ) );
+		__song_item->setToolTip( 0, tr("Double click to expand the list") );
 		__sound_library_tree->setItemExpanded( __song_item, __expand_songs_list );
 		for (uint i = 0; i < songs.size(); i++) {
 			QTreeWidgetItem* pSongItem = new QTreeWidgetItem( __song_item );
@@ -247,8 +247,8 @@ void SoundLibraryPanel::updateDrumkitList()
 	if ( patternDirList.size() > 0 ) {
 		
 		__pattern_item = new QTreeWidgetItem( __sound_library_tree );
-		__pattern_item->setText( 0, trUtf8( "Patterns" ) );
-		__pattern_item->setToolTip( 0, trUtf8("Double click to expand the list") );
+		__pattern_item->setText( 0, tr( "Patterns" ) );
+		__pattern_item->setToolTip( 0, tr("Double click to expand the list") );
 		__sound_library_tree->setItemExpanded( __pattern_item, __expand_pattern_list );
 		
 		//this is the second step to push the mng.funktion
@@ -534,7 +534,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 			msgBox.setText( tr( "The existing kit has %1 instruments but the new one only has %2.\nThe first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.\nWould you like to keep or discard the remaining instruments and notes?\n").arg( QString::number( oldCount ),QString::number( newCount ) ) );
 
 			msgBox.setStandardButtons(QMessageBox::Save);
-			msgBox.setButtonText(QMessageBox::Save, trUtf8("Keep"));
+			msgBox.setButtonText(QMessageBox::Save, tr("Keep"));
 			msgBox.addButton(QMessageBox::Discard);
 			msgBox.addButton(QMessageBox::Cancel);
 			msgBox.setDefaultButton(QMessageBox::Cancel);
@@ -737,7 +737,7 @@ void SoundLibraryPanel::on_songLoadAction()
 
 	Song *pSong = Song::load( sFilename );
 	if ( pSong == nullptr ) {
-		QMessageBox::information( this, "Hydrogen", trUtf8("Error loading song.") );
+		QMessageBox::information( this, "Hydrogen", tr("Error loading song.") );
 		return;
 	}
 

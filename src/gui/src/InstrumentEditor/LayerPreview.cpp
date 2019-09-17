@@ -418,7 +418,7 @@ void LayerPreview::showLayerStartVelocity( const InstrumentLayer* pLayer, const 
 	const float fVelo = pLayer->get_start_velocity();
 
 	QToolTip::showText( pEvent->globalPos(),
-			trUtf8( "Dec. = %1\nMIDI = %2" )
+			tr( "Dec. = %1\nMIDI = %2" )
 				.arg( QString::number( fVelo, 'f', 2) )
 				.arg( getMidiVelocityFromRaw( fVelo ) +1 ),
 			this);
@@ -429,7 +429,7 @@ void LayerPreview::showLayerEndVelocity( const InstrumentLayer* pLayer, const QM
 	const float fVelo = pLayer->get_end_velocity();
 
 	QToolTip::showText( pEvent->globalPos(),
-			trUtf8( "Dec. = %1\nMIDI = %2" )
+			tr( "Dec. = %1\nMIDI = %2" )
 				.arg( QString::number( fVelo, 'f', 2) )
 				.arg( getMidiVelocityFromRaw( fVelo ) +1 ),
 			this);

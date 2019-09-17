@@ -130,7 +130,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 		if ( restoreLastSong && ( !filename.isEmpty() )) {
 			pSong = Song::load( filename );
 			if (pSong == nullptr) {
-				//QMessageBox::warning( this, "Hydrogen", trUtf8("Error restoring last song.") );
+				//QMessageBox::warning( this, "Hydrogen", tr("Error restoring last song.") );
 				pSong = Song::get_empty_song();
 				pSong->set_filename( "" );
 			}
@@ -148,7 +148,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	createMenuBar();
 	checkMidiSetup();
 
-	h2app->setStatusBarMessage( trUtf8("Hydrogen Ready."), 10000 );
+	h2app->setStatusBarMessage( tr("Hydrogen Ready."), 10000 );
 
 	initKeyInstMap();
 
@@ -257,39 +257,39 @@ void MainForm::createMenuBar()
 	setMenuBar( m_pMenubar );
 
 	// FILE menu
-	QMenu *m_pFileMenu = m_pMenubar->addMenu( trUtf8( "Pro&ject" ) );
+	QMenu *m_pFileMenu = m_pMenubar->addMenu( tr( "Pro&ject" ) );
 
-	m_pFileMenu->addAction( trUtf8( "&New" ), this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
-	m_pFileMenu->addAction( trUtf8( "Show &info" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
-
-	m_pFileMenu->addSeparator();				// -----
-
-	m_pFileMenu->addAction( trUtf8( "&Open" ), this, SLOT( action_file_open() ), QKeySequence( "Ctrl+O" ) );
-	m_pFileMenu->addAction( trUtf8( "Open &Demo" ), this, SLOT( action_file_openDemo() ), QKeySequence( "Ctrl+D" ) );
-
-	m_pRecentFilesMenu = m_pFileMenu->addMenu( trUtf8( "Open &recent" ) );
+	m_pFileMenu->addAction( tr( "&New" ), this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
+	m_pFileMenu->addAction( tr( "Show &info" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
 
 	m_pFileMenu->addSeparator();				// -----
 
-	m_pFileMenu->addAction( trUtf8( "&Save" ), this, SLOT( action_file_save() ), QKeySequence( "Ctrl+S" ) );
-	m_pFileMenu->addAction( trUtf8( "Save &as..." ), this, SLOT( action_file_save_as() ), QKeySequence( "Ctrl+Shift+S" ) );
+	m_pFileMenu->addAction( tr( "&Open" ), this, SLOT( action_file_open() ), QKeySequence( "Ctrl+O" ) );
+	m_pFileMenu->addAction( tr( "Open &Demo" ), this, SLOT( action_file_openDemo() ), QKeySequence( "Ctrl+D" ) );
+
+	m_pRecentFilesMenu = m_pFileMenu->addMenu( tr( "Open &recent" ) );
 
 	m_pFileMenu->addSeparator();				// -----
 
-	m_pFileMenu->addAction ( trUtf8 ( "Open &Pattern" ), this, SLOT ( action_file_openPattern() ), QKeySequence ( "" ) );
-	m_pFileMenu->addAction( trUtf8( "Expor&t pattern as..." ), this, SLOT( action_file_export_pattern_as() ), QKeySequence( "Ctrl+P" ) );
+	m_pFileMenu->addAction( tr( "&Save" ), this, SLOT( action_file_save() ), QKeySequence( "Ctrl+S" ) );
+	m_pFileMenu->addAction( tr( "Save &as..." ), this, SLOT( action_file_save_as() ), QKeySequence( "Ctrl+Shift+S" ) );
 
 	m_pFileMenu->addSeparator();				// -----
 
-	m_pFileMenu->addAction( trUtf8( "Export &MIDI file" ), this, SLOT( action_file_export_midi() ), QKeySequence( "Ctrl+M" ) );
-	m_pFileMenu->addAction( trUtf8( "&Export song" ), this, SLOT( action_file_export() ), QKeySequence( "Ctrl+E" ) );
-	m_pFileMenu->addAction( trUtf8( "Export &LilyPond file" ), this, SLOT( action_file_export_lilypond() ), QKeySequence( "Ctrl+L" ) );
+	m_pFileMenu->addAction ( tr ( "Open &Pattern" ), this, SLOT ( action_file_openPattern() ), QKeySequence ( "" ) );
+	m_pFileMenu->addAction( tr( "Expor&t pattern as..." ), this, SLOT( action_file_export_pattern_as() ), QKeySequence( "Ctrl+P" ) );
+
+	m_pFileMenu->addSeparator();				// -----
+
+	m_pFileMenu->addAction( tr( "Export &MIDI file" ), this, SLOT( action_file_export_midi() ), QKeySequence( "Ctrl+M" ) );
+	m_pFileMenu->addAction( tr( "&Export song" ), this, SLOT( action_file_export() ), QKeySequence( "Ctrl+E" ) );
+	m_pFileMenu->addAction( tr( "Export &LilyPond file" ), this, SLOT( action_file_export_lilypond() ), QKeySequence( "Ctrl+L" ) );
 
 
 #ifndef Q_OS_MACX
 	m_pFileMenu->addSeparator();				// -----
 
-	m_pFileMenu->addAction( trUtf8("&Quit"), this, SLOT( action_file_exit() ), QKeySequence( "Ctrl+Q" ) );
+	m_pFileMenu->addAction( tr("&Quit"), this, SLOT( action_file_exit() ), QKeySequence( "Ctrl+Q" ) );
 #endif
 
 	updateRecentUsedSongList();
@@ -297,81 +297,81 @@ void MainForm::createMenuBar()
 	//~ FILE menu
 
 	// Undo menu
-	QMenu *m_pUndoMenu = m_pMenubar->addMenu( trUtf8( "&Undo" ) );
-	m_pUndoMenu->addAction( trUtf8( "Undo" ), this, SLOT( action_undo() ), QKeySequence( "Ctrl+Z" ) );
-	m_pUndoMenu->addAction( trUtf8( "Redo" ), this, SLOT( action_redo() ), QKeySequence( "Shift+Ctrl+Z" ) );
-	m_pUndoMenu->addAction( trUtf8( "Undo history" ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
+	QMenu *m_pUndoMenu = m_pMenubar->addMenu( tr( "&Undo" ) );
+	m_pUndoMenu->addAction( tr( "Undo" ), this, SLOT( action_undo() ), QKeySequence( "Ctrl+Z" ) );
+	m_pUndoMenu->addAction( tr( "Redo" ), this, SLOT( action_redo() ), QKeySequence( "Shift+Ctrl+Z" ) );
+	m_pUndoMenu->addAction( tr( "Undo history" ), this, SLOT( openUndoStack() ), QKeySequence( "" ) );
 
 	// DRUMKITS MENU
-	QMenu *m_pDrumkitsMenu = m_pMenubar->addMenu( trUtf8( "Drum&kits" ) );
-	m_pDrumkitsMenu->addAction( trUtf8( "New" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
-	m_pDrumkitsMenu->addAction( trUtf8( "Open" ), this, SLOT( action_banks_open() ), QKeySequence( "" ) );
-	m_pDrumkitsMenu->addAction( trUtf8( "Properties" ), this, SLOT( action_banks_properties() ), QKeySequence( "" ) );
+	QMenu *m_pDrumkitsMenu = m_pMenubar->addMenu( tr( "Drum&kits" ) );
+	m_pDrumkitsMenu->addAction( tr( "New" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "Open" ), this, SLOT( action_banks_open() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "Properties" ), this, SLOT( action_banks_properties() ), QKeySequence( "" ) );
 
 	m_pDrumkitsMenu->addSeparator();				// -----
 
-	m_pDrumkitsMenu->addAction( trUtf8( "Save" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
-	m_pDrumkitsMenu->addAction( trUtf8( "Save As" ), this, SLOT( action_instruments_saveAsLibrary() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "Save" ), this, SLOT( action_instruments_saveLibrary() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "Save As" ), this, SLOT( action_instruments_saveAsLibrary() ), QKeySequence( "" ) );
 
 	m_pDrumkitsMenu->addSeparator();				// -----
 
-	m_pDrumkitsMenu->addAction( trUtf8( "Export" ), this, SLOT( action_instruments_exportLibrary() ), QKeySequence( "" ) );
-	m_pDrumkitsMenu->addAction( trUtf8( "Import" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
-	m_pDrumkitsMenu->addAction( trUtf8( "Online import" ), this, SLOT( action_instruments_onlineImportLibrary() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "Export" ), this, SLOT( action_instruments_exportLibrary() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "Import" ), this, SLOT( action_instruments_importLibrary() ), QKeySequence( "" ) );
+	m_pDrumkitsMenu->addAction( tr( "Online import" ), this, SLOT( action_instruments_onlineImportLibrary() ), QKeySequence( "" ) );
 
 	// INSTRUMENTS MENU
-	QMenu *m_pInstrumentsMenu = m_pMenubar->addMenu( trUtf8( "I&nstruments" ) );
-	m_pInstrumentsMenu->addAction( trUtf8( "&Add instrument" ), this, SLOT( action_instruments_addInstrument() ), QKeySequence( "" ) );
-	m_pInstrumentsMenu->addAction( trUtf8( "&Clear all" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
+	QMenu *m_pInstrumentsMenu = m_pMenubar->addMenu( tr( "I&nstruments" ) );
+	m_pInstrumentsMenu->addAction( tr( "&Add instrument" ), this, SLOT( action_instruments_addInstrument() ), QKeySequence( "" ) );
+	m_pInstrumentsMenu->addAction( tr( "&Clear all" ), this, SLOT( action_instruments_clearAll() ), QKeySequence( "" ) );
 
 	m_pInstrumentsMenu->addSeparator();				// -----
 
-	m_pInstrumentsMenu->addAction( trUtf8( "Add component" ), this, SLOT( action_instruments_addComponent() ), QKeySequence( "" ) );
+	m_pInstrumentsMenu->addAction( tr( "Add component" ), this, SLOT( action_instruments_addComponent() ), QKeySequence( "" ) );
 
 	// VIEW MENU
-	QMenu *m_pViewMenu = m_pMenubar->addMenu( trUtf8( "&View" ) );
+	QMenu *m_pViewMenu = m_pMenubar->addMenu( tr( "&View" ) );
 
-	m_pViewPlaylistEditorAction = m_pViewMenu->addAction( trUtf8("Playlist &editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
+	m_pViewPlaylistEditorAction = m_pViewMenu->addAction( tr("Playlist &editor"), this, SLOT( action_window_showPlaylistDialog() ), QKeySequence( "" ) );
 	m_pViewPlaylistEditorAction->setCheckable( true );
-	m_pViewDirectorAction = m_pViewMenu->addAction( trUtf8("Director"), this, SLOT( action_window_show_DirectorWidget() ), QKeySequence( "Alt+D" ) );
+	m_pViewDirectorAction = m_pViewMenu->addAction( tr("Director"), this, SLOT( action_window_show_DirectorWidget() ), QKeySequence( "Alt+D" ) );
 	m_pViewDirectorAction->setCheckable( true );
 
 	m_pFileMenu->addSeparator();
-	m_pViewMixerAction = m_pViewMenu->addAction( trUtf8("&Mixer"), this, SLOT( action_window_showMixer() ), QKeySequence( "Alt+M" ) );
+	m_pViewMixerAction = m_pViewMenu->addAction( tr("&Mixer"), this, SLOT( action_window_showMixer() ), QKeySequence( "Alt+M" ) );
 	m_pViewMixerAction->setCheckable( true );
 	update_mixer_checkbox();						// if checkbox need to be checked.
 
-	m_pViewMixerInstrumentRackAction = m_pViewMenu->addAction( trUtf8("&Instrument Rack"), this, SLOT( action_window_showDrumkitManagerPanel() ), QKeySequence( "Alt+I" ) );
+	m_pViewMixerInstrumentRackAction = m_pViewMenu->addAction( tr("&Instrument Rack"), this, SLOT( action_window_showDrumkitManagerPanel() ), QKeySequence( "Alt+I" ) );
 	m_pViewMixerInstrumentRackAction->setCheckable( true );
 	update_instrument_checkbox( true );	// check it as Instrument panel is always open on start
 
-	m_pViewAutomationPathAction = m_pViewMenu->addAction( trUtf8("&Automation path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
+	m_pViewAutomationPathAction = m_pViewMenu->addAction( tr("&Automation path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
 	m_pViewAutomationPathAction->setCheckable( true );
 	update_automation_checkbox();
 
-	m_pViewTimelineAction = m_pViewMenu->addAction( trUtf8("&Timeline"), this, SLOT( action_window_showTimeline() ), QKeySequence( "" ) );
+	m_pViewTimelineAction = m_pViewMenu->addAction( tr("&Timeline"), this, SLOT( action_window_showTimeline() ), QKeySequence( "" ) );
 	m_pViewTimelineAction->setCheckable( true );
 	m_pViewTimelineAction->setChecked( true );
 	update_automation_checkbox();
 	
-	m_pViewPlaybackTrackAction = m_pViewMenu->addAction( trUtf8("&Playback track"), this, SLOT( action_window_showPlaybackTrack() ), QKeySequence( "" ) );
+	m_pViewPlaybackTrackAction = m_pViewMenu->addAction( tr("&Playback track"), this, SLOT( action_window_showPlaybackTrack() ), QKeySequence( "" ) );
 	m_pViewPlaybackTrackAction->setCheckable( true );
 	m_pViewPlaybackTrackAction->setChecked( false );
 	update_automation_checkbox();
 
 	m_pViewMenu->addSeparator();				// -----
 
-	m_pViewMenu->addAction( trUtf8("Full screen"), this, SLOT( action_window_toggleFullscreen() ), QKeySequence( "Alt+F" ) );
+	m_pViewMenu->addAction( tr("Full screen"), this, SLOT( action_window_toggleFullscreen() ), QKeySequence( "Alt+F" ) );
 
 
 	// Options menu
-	QMenu *m_pOptionsMenu = m_pMenubar->addMenu( trUtf8( "&Options" ));
+	QMenu *m_pOptionsMenu = m_pMenubar->addMenu( tr( "&Options" ));
 
-	m_pInputModeMenu = m_pOptionsMenu->addMenu( trUtf8( "Input mode" ) );
-	m_pInstrumentAction = m_pInputModeMenu->addAction( trUtf8( "Instrument" ), this, SLOT( action_toggle_input_mode()), QKeySequence( "Ctrl+Alt+I" ) );
+	m_pInputModeMenu = m_pOptionsMenu->addMenu( tr( "Input mode" ) );
+	m_pInstrumentAction = m_pInputModeMenu->addAction( tr( "Instrument" ), this, SLOT( action_toggle_input_mode()), QKeySequence( "Ctrl+Alt+I" ) );
 	m_pInstrumentAction->setCheckable( true );
 
-	m_pDrumkitAction = m_pInputModeMenu->addAction( trUtf8( "Drumkit" ), this, SLOT( action_toggle_input_mode()), QKeySequence( "Ctrl+Alt+D" ) );
+	m_pDrumkitAction = m_pInputModeMenu->addAction( tr( "Drumkit" ), this, SLOT( action_toggle_input_mode()), QKeySequence( "Ctrl+Alt+D" ) );
 	m_pDrumkitAction->setCheckable( true );
 
 	if( Preferences::get_instance()->__playselectedinstrument )
@@ -383,7 +383,7 @@ void MainForm::createMenuBar()
 		m_pDrumkitAction->setChecked (true );
 	}
 
-	m_pOptionsMenu->addAction( trUtf8("&Preferences"), this, SLOT( showPreferencesDialog() ), QKeySequence( "Alt+P" ) );
+	m_pOptionsMenu->addAction( tr("&Preferences"), this, SLOT( showPreferencesDialog() ), QKeySequence( "Alt+P" ) );
 
 	//~ Tools menu
 
@@ -391,20 +391,20 @@ void MainForm::createMenuBar()
 	Logger *pLogger = Logger::get_instance();
 	if ( pLogger->bit_mask() >= 1 ) {
 		// DEBUG menu
-		QMenu *m_pDebugMenu = m_pMenubar->addMenu( trUtf8("De&bug") );
-		m_pDebugMenu->addAction( trUtf8( "Show &audio engine info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
+		QMenu *m_pDebugMenu = m_pMenubar->addMenu( tr("De&bug") );
+		m_pDebugMenu->addAction( tr( "Show &audio engine info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
 		if(pLogger->bit_mask() == 8) // hydrogen -V8 list object map in console
-			m_pDebugMenu->addAction( trUtf8( "Print Objects" ), this, SLOT( action_debug_printObjects() ) );
+			m_pDebugMenu->addAction( tr( "Print Objects" ), this, SLOT( action_debug_printObjects() ) );
 		//~ DEBUG menu
 	}
 
 	// INFO menu
-	QMenu *m_pInfoMenu = m_pMenubar->addMenu( trUtf8( "&Info" ) );
-	m_pInfoMenu->addAction( trUtf8("&User manual"), this, SLOT( showUserManual() ), QKeySequence( "Ctrl+?" ) );
+	QMenu *m_pInfoMenu = m_pMenubar->addMenu( tr( "&Info" ) );
+	m_pInfoMenu->addAction( tr("&User manual"), this, SLOT( showUserManual() ), QKeySequence( "Ctrl+?" ) );
 	m_pInfoMenu->addSeparator();
-	m_pInfoMenu->addAction( trUtf8("&About"), this, SLOT( action_help_about() ), QKeySequence( trUtf8("", "Info|About") ) );
-	m_pInfoMenu->addAction( trUtf8("Report bug"), this, SLOT( action_report_bug() ));
-	m_pInfoMenu->addAction( trUtf8("Donate"), this, SLOT( action_donate() ));
+	m_pInfoMenu->addAction( tr("&About"), this, SLOT( action_help_about() ), QKeySequence( tr("", "Info|About") ) );
+	m_pInfoMenu->addAction( tr("Report bug"), this, SLOT( action_report_bug() ));
+	m_pInfoMenu->addAction( tr("Donate"), this, SLOT( action_donate() ));
 	//~ INFO menu
 }
 
@@ -554,7 +554,7 @@ void MainForm::action_file_save_as()
 	fd.setFileMode( QFileDialog::AnyFile );
 	fd.setNameFilter( Filesystem::songs_filter_name );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setWindowTitle( trUtf8( "Save song" ) );
+	fd.setWindowTitle( tr( "Save song" ) );
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
 
 	Song *song = pEngine->getSong();
@@ -585,7 +585,7 @@ void MainForm::action_file_save_as()
 		song->set_filename(filename);
 		action_file_save();
 	}
-	h2app->setScrollStatusBarMessage( trUtf8("Song saved as.") + QString(" Into: ") + defaultFilename, 2000 );
+	h2app->setScrollStatusBarMessage( tr("Song saved as.") + QString(" Into: ") + defaultFilename, 2000 );
 	h2app->updateWindowTitle();
 }
 
@@ -606,7 +606,7 @@ void MainForm::action_file_save()
 
 
 	if(! saved) {
-		QMessageBox::warning( this, "Hydrogen", trUtf8("Could not save song.") );
+		QMessageBox::warning( this, "Hydrogen", tr("Could not save song.") );
 	} else {
 		Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
 
@@ -618,7 +618,7 @@ void MainForm::action_file_save()
 
 		updateRecentUsedSongList();
 
-		h2app->setScrollStatusBarMessage( trUtf8("Song saved.") + QString(" Into: ") + filename, 2000 );
+		h2app->setScrollStatusBarMessage( tr("Song saved.") + QString(" Into: ") + filename, 2000 );
 		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 	}
 }
@@ -724,7 +724,7 @@ void MainForm::action_file_open()
 	fd.setDirectory( lastUsedDir );
 	fd.setNameFilter( Filesystem::songs_filter_name );
 
-	fd.setWindowTitle( trUtf8( "Open song" ) );
+	fd.setWindowTitle( tr( "Open song" ) );
 
 	QString filename;
 	if (fd.exec() == QDialog::Accepted) {
@@ -755,7 +755,7 @@ void MainForm::action_file_openPattern()
 	fd.setDirectory ( Filesystem::patterns_dir() );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 
-	fd.setWindowTitle ( trUtf8 ( "Open Pattern" ) );
+	fd.setWindowTitle ( tr ( "Open Pattern" ) );
 
 
 	QString filename;
@@ -801,7 +801,7 @@ void MainForm::action_file_openDemo()
 	fd.setFileMode(QFileDialog::ExistingFile);
 	fd.setNameFilter( Filesystem::songs_filter_name );
 
-	fd.setWindowTitle( trUtf8( "Open song" ) );
+	fd.setWindowTitle( tr( "Open song" ) );
 
 	fd.setDirectory( Filesystem::demos_dir() );
 
@@ -917,7 +917,7 @@ void MainForm::action_instruments_addInstrument()
 void MainForm::action_instruments_addComponent()
 {
 	bool bIsOkPressed;
-	QString sNewName = QInputDialog::getText( this, "Hydrogen", trUtf8( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
+	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
 	if ( bIsOkPressed  ) {
 		Hydrogen *pEngine = Hydrogen::get_instance();
 
@@ -951,9 +951,9 @@ void MainForm::action_instruments_clearAll()
 	switch(
 			 QMessageBox::information( this,
 									 "Hydrogen",
-									 trUtf8("Clear all instruments?"),
-									 trUtf8("Ok"),
-									 trUtf8("Cancel"),
+									 tr("Clear all instruments?"),
+									 tr("Ok"),
+									 tr("Cancel"),
 									 0,      // Enter == button 0
 									 1 )) { // Escape == button 2
 	case 0:
@@ -1076,7 +1076,7 @@ void MainForm::action_instruments_saveLibrary()
 									H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(),
 									H2Core::Hydrogen::get_instance()->getSong()->get_components(),
 									true ) ) {
-			QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this library failed."));
+			QMessageBox::information( this, "Hydrogen", tr ( "Saving of this library failed."));
 		}
 	}
 	else {
@@ -1346,7 +1346,7 @@ void MainForm::openSongFile( const QString& sFilename )
 
 	Song *pSong = Song::load( sFilename );
 	if ( pSong == nullptr ) {
-		QMessageBox::information( this, "Hydrogen", trUtf8("Error loading song.") );
+		QMessageBox::information( this, "Hydrogen", tr("Error loading song.") );
 		return;
 	}
 
@@ -1377,9 +1377,9 @@ void MainForm::checkMidiSetup()
 		WARNINGLOG( "Incorrect MIDI setup" );
 
 		pInfoBar->reset();
-		pInfoBar->setTitle( trUtf8("MIDI setup advice") );
-		pInfoBar->setText( trUtf8("MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?") );
-		QPushButton *fix = pInfoBar->addButton( trUtf8("Set default values") );
+		pInfoBar->setTitle( tr("MIDI setup advice") );
+		pInfoBar->setText( tr("MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?") );
+		QPushButton *fix = pInfoBar->addButton( tr("Set default values") );
 		QObject::connect( fix, SIGNAL(clicked()), this, SLOT(onFixMidiSetup()) );
 		pInfoBar->show();
 	} else {
@@ -1563,7 +1563,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 
 		case  Qt::Key_F12 : //panic button stop all playing notes
 			engine->__panic();
-			//				QMessageBox::information( this, "Hydrogen", trUtf8( "Panic" ) );
+			//				QMessageBox::information( this, "Hydrogen", tr( "Panic" ) );
 			return true;
 			break;
 
@@ -1636,9 +1636,9 @@ void MainForm::action_file_export_midi()
 
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::AnyFile);
-	fd.setNameFilter( trUtf8("Midi file (*.mid)") );
+	fd.setNameFilter( tr("Midi file (*.mid)") );
 	fd.setDirectory( QDir::homePath() );
-	fd.setWindowTitle( trUtf8( "Export MIDI file" ) );
+	fd.setWindowTitle( tr( "Export MIDI file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 
 	QString sFilename;
@@ -1669,11 +1669,11 @@ void MainForm::action_file_export_lilypond()
 	switch ( QMessageBox::information(
 					this,
 					"Hydrogen",
-					trUtf8( "\nThe LilyPond export is an experimental feature.\n"
+					tr( "\nThe LilyPond export is an experimental feature.\n"
 									"It should work like a charm provided that you use the "
 									"GM-kit, and that you do not use triplet.\n" ),
-					trUtf8( "Ok" ),
-					trUtf8( "&Cancel" ),
+					tr( "Ok" ),
+					tr( "&Cancel" ),
 					0,
 					2 ) ) {
 	case 1:
@@ -1682,9 +1682,9 @@ void MainForm::action_file_export_lilypond()
 
 	QFileDialog fd( this );
 	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setNameFilter( trUtf8( "LilyPond file (*.ly)" ) );
+	fd.setNameFilter( tr( "LilyPond file (*.ly)" ) );
 	fd.setDirectory( QDir::homePath() );
-	fd.setWindowTitle( trUtf8( "Export LilyPond file" ) );
+	fd.setWindowTitle( tr( "Export LilyPond file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 
 	QString sFilename;
@@ -1712,35 +1712,35 @@ void MainForm::errorEvent( int nErrorCode )
 	QString msg;
 	switch (nErrorCode) {
 	case Hydrogen::UNKNOWN_DRIVER:
-		msg = trUtf8( "Unknown audio driver" );
+		msg = tr( "Unknown audio driver" );
 		break;
 
 	case Hydrogen::ERROR_STARTING_DRIVER:
-		msg = trUtf8( "Error starting audio driver" );
+		msg = tr( "Error starting audio driver" );
 		break;
 
 	case Hydrogen::JACK_SERVER_SHUTDOWN:
-		msg = trUtf8( "Jack driver: server shutdown" );
+		msg = tr( "Jack driver: server shutdown" );
 		break;
 
 	case Hydrogen::JACK_CANNOT_ACTIVATE_CLIENT:
-		msg = trUtf8( "Jack driver: cannot activate client" );
+		msg = tr( "Jack driver: cannot activate client" );
 		break;
 
 	case Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT:
-		msg = trUtf8( "Jack driver: cannot connect output port" );
+		msg = tr( "Jack driver: cannot connect output port" );
 		break;
 
 	case Hydrogen::JACK_CANNOT_CLOSE_CLIENT:
-		msg = trUtf8( "Jack driver: cannot disconnect client" );
+		msg = tr( "Jack driver: cannot disconnect client" );
 		break;
 
 	case Hydrogen::JACK_ERROR_IN_PORT_REGISTER:
-		msg = trUtf8( "Jack driver: error in port register" );
+		msg = tr( "Jack driver: error in port register" );
 		break;
 
 	default:
-		msg = QString( trUtf8( "Unknown error %1" ) ).arg( nErrorCode );
+		msg = QString( tr( "Unknown error %1" ) ).arg( nErrorCode );
 	}
 	QMessageBox::information( this, "Hydrogen", msg );
 }
@@ -1758,7 +1758,7 @@ void MainForm::playlistLoadSongEvent (int nIndex)
 	
 	pPlaylist->activateSong( nIndex );
 
-	HydrogenApp::get_instance()->setScrollStatusBarMessage( trUtf8( "Playlist: Set song No. %1" ).arg( nIndex +1 ), 5000 );
+	HydrogenApp::get_instance()->setScrollStatusBarMessage( tr( "Playlist: Set song No. %1" ).arg( nIndex +1 ), 5000 );
 }
 
 void MainForm::jacksessionEvent( int nEvent )
@@ -1799,11 +1799,11 @@ void MainForm::showDevelWarning()
 		bool isDevelWarningEnabled = pPreferences->getShowDevelWarning();
 		if(isDevelWarningEnabled) {
 
-			QString msg = trUtf8( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
+			QString msg = tr( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
 			QMessageBox develMessageBox( this );
 			develMessageBox.setText( msg );
 			develMessageBox.addButton( QMessageBox::Ok );
-			develMessageBox.addButton( trUtf8( "Don't show this message anymore" ) , QMessageBox::AcceptRole );
+			develMessageBox.addButton( tr( "Don't show this message anymore" ) , QMessageBox::AcceptRole );
 
 			if( develMessageBox.exec() == 0 ){
 				//don't show warning again
@@ -1861,7 +1861,7 @@ void MainForm::onPlaylistDisplayTimer()
 	} else {
 		songname = Hydrogen::get_instance()->getSong()->__name;
 	}
-	QString message = (trUtf8("Playlist: Song No. %1").arg( songnumber + 1)) + QString("  ---  Songname: ") + songname + QString("  ---  Author: ") + Hydrogen::get_instance()->getSong()->__author;
+	QString message = (tr("Playlist: Song No. %1").arg( songnumber + 1)) + QString("  ---  Songname: ") + songname + QString("  ---  Author: ") + Hydrogen::get_instance()->getSong()->__author;
 	HydrogenApp::get_instance()->setScrollStatusBarMessage( message, 2000 );
 }
 
@@ -1874,9 +1874,9 @@ bool MainForm::handleUnsavedChanges()
 	while ( !done && Hydrogen::get_instance()->getSong()->get_is_modified() ) {
 		switch(
 				 QMessageBox::information( this, "Hydrogen",
-										 trUtf8("\nThe document contains unsaved changes.\n"
+										 tr("\nThe document contains unsaved changes.\n"
 												"Do you want to save the changes?\n"),
-										 trUtf8("&Save"), trUtf8("&Discard"), trUtf8("&Cancel"),
+										 tr("&Save"), tr("&Discard"), tr("&Cancel"),
 										 0,      // Enter == button 0
 										 2 ) ) { // Escape == button 2
 		case 0: // Save clicked or Alt+S pressed or Enter pressed.
@@ -1906,9 +1906,9 @@ bool MainForm::handleUnsavedChanges()
 		while ( !done && Playlist::get_instance()->getIsModified() ) {
 			switch(
 					QMessageBox::information( this, "Hydrogen",
-											 trUtf8("\nThe current playlist contains unsaved changes.\n"
+											 tr("\nThe current playlist contains unsaved changes.\n"
 													"Do you want to discard the changes?\n"),
-											trUtf8("&Discard"), trUtf8("&Cancel"),
+											tr("&Discard"), tr("&Cancel"),
 											 0,      // Enter == button 0
 											 2 ) ) { // Escape == button 1
 			case 0: // Discard clicked or Alt+D pressed

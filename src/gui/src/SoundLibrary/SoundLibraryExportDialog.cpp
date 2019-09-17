@@ -57,7 +57,7 @@ SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QSt
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( trUtf8( "Export Sound Library" ) );
+	setWindowTitle( tr( "Export Sound Library" ) );
 	setFixedSize( width(), height() );
 	preselectedKit = selectedKit;
 	updateDrumkitList();

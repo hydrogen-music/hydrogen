@@ -401,7 +401,7 @@ void SampleEditor::mouseReleaseEvent(QMouseEvent *ev)
 bool SampleEditor::returnAllMainWaveDisplayValues()
 {
 	testpTimer();
-//	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "jep %1" ).arg(m_pSample->get_frames()));
+//	QMessageBox::information ( this, "Hydrogen", tr ( "jep %1" ).arg(m_pSample->get_frames()));
 	m_sample_is_modified = true;
 	if( m_pMainSampleWaveDisplay->__startsliderismoved ) __loops.start_frame = m_pMainSampleWaveDisplay->m_pStartFramePosition * m_divider - 25 * m_divider;
 	if( m_pMainSampleWaveDisplay->__loopsliderismoved ) __loops.loop_frame = m_pMainSampleWaveDisplay->m_pLoopFramePosition  * m_divider - 25 * m_divider;
@@ -815,7 +815,7 @@ void SampleEditor::valueChangedrubberComboBox( const QString  )
 	default:
 		__rubberband.divider = (float)rubberComboBox->currentIndex() - 6.0;
 	}
-//	QMessageBox::information ( this, "Hydrogen", trUtf8 ( "divider %1" ).arg( __rubberband.divider ));
+//	QMessageBox::information ( this, "Hydrogen", tr ( "divider %1" ).arg( __rubberband.divider ));
 //	float __rubberband.divider;
 	setSamplelengthFrames();
 

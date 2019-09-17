@@ -67,11 +67,11 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 {
 	setupUi( this );
 	setModal( true );
-	setWindowTitle( trUtf8( "Export song" ) );
+	setWindowTitle( tr( "Export song" ) );
 
-	exportTypeCombo->addItem(trUtf8("Export to a single track"));
-	exportTypeCombo->addItem(trUtf8("Export to separate tracks"));
-	exportTypeCombo->addItem(trUtf8("Both"));
+	exportTypeCombo->addItem(tr("Export to a single track"));
+	exportTypeCombo->addItem(tr("Export to separate tracks"));
+	exportTypeCombo->addItem(tr("Both"));
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
@@ -180,7 +180,7 @@ void ExportSongDialog::on_browseBtn_clicked()
 
 	fd.setDirectory( lastUsedDir );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
-	fd.setWindowTitle( trUtf8( "Export song" ) );
+	fd.setWindowTitle( tr( "Export song" ) );
 
 
 	QString defaultFilename = exportNameTxt->text();

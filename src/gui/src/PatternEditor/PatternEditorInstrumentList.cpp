@@ -79,7 +79,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	);
 	m_pMuteBtn->move( 145, 5 );
 	m_pMuteBtn->setPressed(false);
-	m_pMuteBtn->setToolTip( trUtf8("Mute instrument") );
+	m_pMuteBtn->setToolTip( tr("Mute instrument") );
 	connect(m_pMuteBtn, SIGNAL(clicked(Button*)), this, SLOT(muteClicked()));
 
 	m_pSoloBtn = new ToggleButton(
@@ -91,42 +91,42 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	);
 	m_pSoloBtn->move( 163, 5 );
 	m_pSoloBtn->setPressed(false);
-	m_pSoloBtn->setToolTip( trUtf8("Solo") );
+	m_pSoloBtn->setToolTip( tr("Solo") );
 	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(soloClicked()));
 
 
 
 	// Popup menu
 	m_pFunctionPopup = new QMenu( this );
-	m_pFunctionPopup->addAction( trUtf8( "Clear notes" ), this, SLOT( functionClearNotes() ) );
+	m_pFunctionPopup->addAction( tr( "Clear notes" ), this, SLOT( functionClearNotes() ) );
 
-	m_pFunctionPopupSub = new QMenu( trUtf8( "Fill notes ..." ), m_pFunctionPopup );
-	m_pFunctionPopupSub->addAction( trUtf8( "Fill all notes" ), this, SLOT( functionFillAllNotes() ) );
-	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/2 notes" ), this, SLOT( functionFillEveryTwoNotes() ) );
-	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/3 notes" ), this, SLOT( functionFillEveryThreeNotes() ) );
-	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/4 notes" ), this, SLOT( functionFillEveryFourNotes() ) );
-	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/6 notes" ), this, SLOT( functionFillEverySixNotes() ) );
-	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/8 notes" ), this, SLOT( functionFillEveryEightNotes() ) );
-	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/12 notes" ), this, SLOT( functionFillEveryTwelveNotes() ) );
-	m_pFunctionPopupSub->addAction( trUtf8( "Fill 1/16 notes" ), this, SLOT( functionFillEverySixteenNotes() ) );
+	m_pFunctionPopupSub = new QMenu( tr( "Fill notes ..." ), m_pFunctionPopup );
+	m_pFunctionPopupSub->addAction( tr( "Fill all notes" ), this, SLOT( functionFillAllNotes() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/2 notes" ), this, SLOT( functionFillEveryTwoNotes() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/3 notes" ), this, SLOT( functionFillEveryThreeNotes() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/4 notes" ), this, SLOT( functionFillEveryFourNotes() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/6 notes" ), this, SLOT( functionFillEverySixNotes() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/8 notes" ), this, SLOT( functionFillEveryEightNotes() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/12 notes" ), this, SLOT( functionFillEveryTwelveNotes() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/16 notes" ), this, SLOT( functionFillEverySixteenNotes() ) );
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
-	m_pFunctionPopup->addAction( trUtf8( "Randomize velocity" ), this, SLOT( functionRandomizeVelocity() ) );
+	m_pFunctionPopup->addAction( tr( "Randomize velocity" ), this, SLOT( functionRandomizeVelocity() ) );
 	m_pFunctionPopup->addSeparator();
 
-	m_pCopyPopupSub = new QMenu( trUtf8( "Copy notes ..." ), m_pFunctionPopup );
-	m_pCopyPopupSub->addAction( trUtf8( "Only for this pattern" ), this, SLOT( functionCopyInstrumentPattern() ) );
-	m_pCopyPopupSub->addAction( trUtf8( "For all patterns" ), this, SLOT( functionCopyAllInstrumentPatterns() ) );
+	m_pCopyPopupSub = new QMenu( tr( "Copy notes ..." ), m_pFunctionPopup );
+	m_pCopyPopupSub->addAction( tr( "Only for this pattern" ), this, SLOT( functionCopyInstrumentPattern() ) );
+	m_pCopyPopupSub->addAction( tr( "For all patterns" ), this, SLOT( functionCopyAllInstrumentPatterns() ) );
 	m_pFunctionPopup->addMenu( m_pCopyPopupSub );
 
-	m_pPastePopupSub = new QMenu( trUtf8( "Paste notes ..." ), m_pFunctionPopup );
-	m_pPastePopupSub->addAction( trUtf8( "Only for this pattern" ), this, SLOT( functionPasteInstrumentPattern() ) );
-	m_pPastePopupSub->addAction( trUtf8( "For all patterns" ), this, SLOT( functionPasteAllInstrumentPatterns() ) );
+	m_pPastePopupSub = new QMenu( tr( "Paste notes ..." ), m_pFunctionPopup );
+	m_pPastePopupSub->addAction( tr( "Only for this pattern" ), this, SLOT( functionPasteInstrumentPattern() ) );
+	m_pPastePopupSub->addAction( tr( "For all patterns" ), this, SLOT( functionPasteAllInstrumentPatterns() ) );
 	m_pFunctionPopup->addMenu( m_pPastePopupSub );
 
 	m_pFunctionPopup->addSeparator();
-	m_pFunctionPopup->addAction( trUtf8( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
-	m_pFunctionPopup->addAction( trUtf8( "Delete instrument" ), this, SLOT( functionDeleteInstrument() ) );
+	m_pFunctionPopup->addAction( tr( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
+	m_pFunctionPopup->addAction( tr( "Delete instrument" ), this, SLOT( functionDeleteInstrument() ) );
 
 	m_bIsSelected = true;
 	setSelected(false);
@@ -455,7 +455,7 @@ void InstrumentLine::functionRenameInstrument()
 
 	QString sOldName = pSelectedInstrument->get_name();
 	bool bIsOkPressed;
-	QString sNewName = QInputDialog::getText( this, "Hydrogen", trUtf8( "New instrument name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
+	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "New instrument name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
 	if ( bIsOkPressed  ) {
 		pSelectedInstrument->set_name( sNewName );
 
