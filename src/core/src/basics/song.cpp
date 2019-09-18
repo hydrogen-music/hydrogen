@@ -23,7 +23,7 @@
 #include "hydrogen/version.h"
 
 #include <cassert>
-
+#include <memory>
 
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
@@ -856,14 +856,16 @@ Song* SongReader::readSong( const QString& filename )
 						if ( !sIsModified ) {
 							pSample = Sample::load( sFilename );
 						} else {
-							Sample::EnvelopePoint pt;
+							EnvelopePoint pt;
+							int Frame = 0;
+							int Value = 0;
 
 							Sample::VelocityEnvelope velocity;
 							QDomNode volumeNode = layerNode.firstChildElement( "volume" );
 							while (  ! volumeNode.isNull()  ) {
-								pt.frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
-								pt.value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
-								velocity.push_back( pt );
+								Frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
+								Value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
+								velocity.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
 								volumeNode = volumeNode.nextSiblingElement( "volume" );
 								//ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
 							}
@@ -871,9 +873,9 @@ Song* SongReader::readSong( const QString& filename )
 							Sample::VelocityEnvelope pan;
 							QDomNode  panNode = layerNode.firstChildElement( "pan" );
 							while (  ! panNode.isNull()  ) {
-								pt.frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
-								pt.value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
-								pan.push_back( pt );
+								Frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
+								Value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
+								pan.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 
@@ -942,14 +944,15 @@ Song* SongReader::readSong( const QString& filename )
 						if ( !sIsModified ) {
 							pSample = Sample::load( sFilename );
 						} else {
-							Sample::EnvelopePoint pt;
+							int Frame = 0;
+							int Value = 0;
 
 							Sample::VelocityEnvelope velocity;
 							QDomNode volumeNode = layerNode.firstChildElement( "volume" );
 							while (  ! volumeNode.isNull()  ) {
-								pt.frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
-								pt.value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
-								velocity.push_back( pt );
+								Frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
+								Value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
+								velocity.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
 								volumeNode = volumeNode.nextSiblingElement( "volume" );
 								//ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
 							}
@@ -957,9 +960,9 @@ Song* SongReader::readSong( const QString& filename )
 							Sample::VelocityEnvelope pan;
 							QDomNode  panNode = layerNode.firstChildElement( "pan" );
 							while (  ! panNode.isNull()  ) {
-								pt.frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
-								pt.value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
-								pan.push_back( pt );
+								Frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
+								Value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
+								pan.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 

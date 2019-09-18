@@ -43,9 +43,9 @@
 #include <QTreeWidget>
 #include <QMessageBox>
 #include <algorithm>
+#include <memory>
 
 using namespace H2Core;
-using namespace std;
 
 const char* SampleEditor::__class_name = "SampleEditor";
 
@@ -198,18 +198,24 @@ void SampleEditor::getAllFrameInfos()
 
 	if ( pSample->get_velocity_envelope()->size()==0 ) {
 		m_pTargetSampleView->get_velocity()->clear();
-		m_pTargetSampleView->get_velocity()->push_back( Sample::EnvelopePoint(   0, 0 ) );
-		m_pTargetSampleView->get_velocity()->push_back( Sample::EnvelopePoint( m_pTargetSampleView->width(), 0 ) );
+		m_pTargetSampleView->get_velocity()->push_back( std::make_unique<EnvelopePoint>( 0, 0 ) );
+		m_pTargetSampleView->get_velocity()->push_back( std::make_unique<EnvelopePoint>( m_pTargetSampleView->width(), 0 ) );
 	} else {
-		*m_pTargetSampleView->get_velocity() = *pSample->get_velocity_envelope();
+		m_pTargetSampleView->get_velocity()->clear();
+		
+		for(auto& pEnvPtr : *pSample->get_velocity_envelope() ){
+			m_pTargetSampleView->get_velocity()->emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr->value, pEnvPtr->frame ) );
+		}
 	}
 
 	if ( pSample->get_pan_envelope()->size()==0 ) {
 		m_pTargetSampleView->get_pan()->clear();
-		m_pTargetSampleView->get_pan()->push_back( Sample::EnvelopePoint(   0, m_pTargetSampleView->height()/2 ) );
-		m_pTargetSampleView->get_pan()->push_back( Sample::EnvelopePoint( m_pTargetSampleView->width(), m_pTargetSampleView->height()/2 ) );
+		m_pTargetSampleView->get_pan()->push_back( std::make_unique<EnvelopePoint>( 0, m_pTargetSampleView->height()/2 ) );
+		m_pTargetSampleView->get_pan()->push_back( std::make_unique<EnvelopePoint>( m_pTargetSampleView->width(), m_pTargetSampleView->height()/2 ) );
 	} else {
-		*m_pTargetSampleView->get_pan() = *pSample->get_pan_envelope();
+		for(auto& pEnvPtr : *pSample->get_pan_envelope() ){
+			m_pTargetSampleView->get_pan()->emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr->value, pEnvPtr->frame ) );
+		}
 	}
 
 	if (m_sample_is_modified) {
@@ -293,7 +299,6 @@ void SampleEditor::openDisplays()
 	}
 
 
-
 // wavedisplays
 	m_divider = m_pSampleFromFile->get_frames() / 574.0F;
 	m_pMainSampleWaveDisplay->updateDisplay( m_samplename );
@@ -303,8 +308,6 @@ void SampleEditor::openDisplays()
 	m_pSampleAdjustView->move( 1, 1 );
 
 	m_pTargetSampleView->move( 1, 1 );
-
-
 }
 
 
