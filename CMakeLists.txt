@@ -308,7 +308,7 @@ COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}
 * ${purple}PulseAudio${reset}                   : ${PULSEAUDIO_STATUS}\n"
 )
 
-COLOR_MESSAGE("${cyan}Usefull extensions${reset}
+COLOR_MESSAGE("${cyan}Useful extensions${reset}
 -----------------------------------------
 * ${purple}LASH${reset}                         : ${LASH_STATUS}
 * ${purple}LRDF${reset}                         : ${LRDF_STATUS}

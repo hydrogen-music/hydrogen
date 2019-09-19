@@ -32,14 +32,14 @@
 
 		Songs and patterns could be parsed in place. Since drumkits are archives,
 		we cannot parse the files at runtime. Therefore, just the name and the url of the drumkit will be used.
-		If you want additional informations ( such as author / info ) take a look
+		If you want additional information ( such as author / info ) take a look
 		at the metaInfo.inc file (the file has to be in the same directory as this script).
 		
 	*/
 
 
 	/*
-		metaInfo.inc holds meta informations about the drumkits, namely:
+		metaInfo.inc holds meta information about the drumkits, namely:
 		
 		- url
 		- author
@@ -159,7 +159,7 @@
 				// ie: for DeathMetal.h2drumkit, image file would be DeathMetal.jpeg
 				//     and allow for .png as well (non-case sensitive extension)
 				//	The drumkit filenames need to be unique, and this would force the
-				//     images to be unique names but be consistant.
+				//     images to be unique names but be consistent.
 				//     use regex like: /.*\.(?:jpeg|jpg|png)/i
 				//
 				//	Go through all files in image directory named $basename.* and

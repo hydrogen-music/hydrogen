@@ -150,7 +150,7 @@ class OscServer : public H2Core::Object
 		 * will thus be registered to \e /Hydrogen/PLAY.
 		 *
 		 * Most handler will be registered for both types "" and "f"
-		 * (floats). But the following handlers will be registered fro
+		 * (floats). But the following handlers will be registered for
 		 * floats only:
 		 * - BPM_DECR_Handler()
 		 * - BPM_INCR_Handler()

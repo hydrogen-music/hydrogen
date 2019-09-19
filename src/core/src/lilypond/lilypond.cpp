@@ -63,7 +63,7 @@ H2Core::LilyPond::LilyPond() :
 }
 
 void H2Core::LilyPond::extractData( const Song &song ) {
-	// Retreive metadata
+	// Retrieve metadata
 	m_sName = song.__name;
 	m_sAuthor = song.__author;
 	m_fBPM = song.__bpm;

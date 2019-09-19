@@ -80,7 +80,7 @@ Preferences::Preferences()
 	__rubberBandCalcTime = 5;
 
 	QString rubberBandCLIPath = getenv( "PATH" );
-	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linux use ":" as seperator. maybe windows and osx use other seperators
+	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linux use ":" as separator. maybe windows and osx use other separators
 
 	//find the Rubberband-CLI in system env
 	//if this fails a second test will check individual user settings

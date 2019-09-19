@@ -166,7 +166,7 @@ single, 500MHz processor Hydrogen takes about 1.5 hours to build.
 We're providing a set of `qmake` project files for Windows and
 Mac OS X builds.
 
-Please read the relevant wiki pages for more informations:
+Please read the relevant wiki pages for more information:
 
 - [Building Hydrogen from source on Linux](https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-source-(LINUX))
 - [Building Hydrogen from source on Mac OS X](https://github.com/hydrogen-music/hydrogen/wiki/Building-Hydrogen-from-source-(MAC-OSX))

@@ -423,7 +423,7 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 /// Is the SoundLibrary already installed?
 bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryInfo sInfo )
 {
-	// check if the filename matchs with an already installed soundlibrary directory.
+	// check if the filename matches with an already installed soundlibrary directory.
 	// The filename used in the Soundlibrary URL must be the same of the unpacked directory.
 	// E.g: V-Synth_VariBreaks.h2drumkit must contain the V-Synth_VariBreaks directory once unpacked.
 	// Many drumkit are broken now (wrong filenames) and MUST be fixed!

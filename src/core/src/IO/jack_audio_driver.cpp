@@ -1166,7 +1166,7 @@ void JackAudioDriver::jack_timebase_callback(jack_transport_state_t state,
 	if ( TPB < 1 ) return;
 
 	/* We'll cheat there is ticks_per_beat * 4 in bar
-	   so every Hydrogen tick will be multipled by 4 ticks */
+	   so every Hydrogen tick will be multiplied by 4 ticks */
 	pos->ticks_per_beat = TPB;
 	pos->valid = JackPositionBBT;
 	pos->beats_per_bar = TPB / 48;

@@ -253,7 +253,7 @@ void* diskWriterDriver_thread( void* param )
 			}
 		}
 		
-		// this progress bar methode is not exact but ok enough to give users a usable visible progress feedback
+		// this progress bar method is not exact but ok enough to give users a usable visible progress feedback
 		float fPercent = ( float )(patternPosition +1) / ( float )nColumns * 100.0;
 		EventQueue::get_instance()->push_event( EVENT_PROGRESS, ( int )fPercent );
 	}

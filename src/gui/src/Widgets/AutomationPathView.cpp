@@ -226,7 +226,7 @@ void AutomationPathView::mousePressEvent(QMouseEvent *event)
 
 
 /**
- * \brief Handler for relasing mouse button
+ * \brief Handler for releasing mouse button
  *
  * Ends any point drags
  **/

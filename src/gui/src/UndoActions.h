@@ -671,13 +671,13 @@ public:
 
 	virtual void undo()
 	{
-		//qDebug() << "clear note sequense Undo ";
+		//qDebug() << "clear note sequence Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionClearNotesUndoAction( __noteList, __nSelectedInstrument, __selectedPatternNumber );
 	}
 	virtual void redo()
 	{
-		//qDebug() << "clear note sequense Redo " ;
+		//qDebug() << "clear note sequence Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionClearNotesRedoAction( __nSelectedInstrument, __selectedPatternNumber );
 	}

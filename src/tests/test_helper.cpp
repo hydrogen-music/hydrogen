@@ -38,7 +38,7 @@ QString qx(QStringList args)
 
 
 /**
- * \brief Check whether direcotry is Hydrogen source root dir
+ * \brief Check whether directory is Hydrogen source root dir
  * \param dir Path to directory
  * \return Whether dir points to Hydrogen source dir
  **/
@@ -69,7 +69,7 @@ QString find_root_dir()
 		if (check_root_dir( env_root_dir ) )
 			return env_root_dir;
 		else
-			___ERRORLOG( QString( "Directory %1 not useable" ).arg( env_root_dir ) );
+			___ERRORLOG( QString( "Directory %1 not usable" ).arg( env_root_dir ) );
 	}
 
 	/* Try git root directory */
@@ -78,7 +78,7 @@ QString find_root_dir()
 		if (check_root_dir( git_root_dir ) )
 			return git_root_dir;
 		else
-			___ERRORLOG( QString( "Directory %1 not useable" ).arg( git_root_dir ) );
+			___ERRORLOG( QString( "Directory %1 not usable" ).arg( git_root_dir ) );
 	} catch (std::runtime_error &e) {
 		___WARNINGLOG( "Can't find git root directory" );
 	}
@@ -93,7 +93,7 @@ QString find_root_dir()
 TestHelper::TestHelper()
 {
 	auto root_dir = find_root_dir();
-	___INFOLOG( QString( "Using test data directrory: %1" ).arg( root_dir ) );
+	___INFOLOG( QString( "Using test data directory: %1" ).arg( root_dir ) );
 	m_sDataDir = root_dir + APP_DATA_DIR;
 	m_sTestDataDir = root_dir + TEST_DATA_DIR;
 }

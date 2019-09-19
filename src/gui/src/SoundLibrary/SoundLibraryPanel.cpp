@@ -251,7 +251,7 @@ void SoundLibraryPanel::updateDrumkitList()
 		__pattern_item->setToolTip( 0, tr("Double click to expand the list") );
 		__sound_library_tree->setItemExpanded( __pattern_item, __expand_pattern_list );
 		
-		//this is the second step to push the mng.funktion
+		//this is the second step to push the mng.function
 		//SoundLibraryDatabase::create_instance();
 		SoundLibraryDatabase* db = SoundLibraryDatabase::get_instance();
 		soundLibraryInfoVector* allPatternDirList = db->getAllPatterns();

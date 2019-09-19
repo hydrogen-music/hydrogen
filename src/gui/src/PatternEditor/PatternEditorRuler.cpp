@@ -132,7 +132,7 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 
 	/* 
 	 * Lock audio engine to make sure pattern list does not get
-	 * modifed / cleared during iteration 
+	 * modified / cleared during iteration 
 	 */
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 

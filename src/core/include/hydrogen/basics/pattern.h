@@ -115,7 +115,7 @@ class Pattern : public H2Core::Object
 		 */
 		void insert_note( Note* note, int position=-1 );
 		/**
-		 * search for a note at a given index within __notes wich correspond to the given arguments
+		 * search for a note at a given index within __notes which correspond to the given arguments
 		 * \param idx_a the first __notes index to search in
 		 * \param idx_b the second __notes index to search in, will be omitted if is -1
 		 * \param instrument the instrument the note should be playing
@@ -124,7 +124,7 @@ class Pattern : public H2Core::Object
 		 */
 		Note* find_note( int idx_a, int idx_b, Instrument* instrument, bool strict=true ) const;
 		/**
-		 * search for a note at a given index within __notes wich correspond to the given arguments
+		 * search for a note at a given index within __notes which correspond to the given arguments
 		 * \param idx_a the first __notes index to search in
 		 * \param idx_b the second __notes index to search in, will be omitted if is -1
 		 * \param instrument the instrument the note should be playing

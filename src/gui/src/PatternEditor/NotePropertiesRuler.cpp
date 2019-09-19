@@ -419,7 +419,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 					;
 				} else {
-					//set the note hight
+					//set the note height
 					//QMessageBox::information ( this, "Hydrogen", tr( "val: %1" ).arg(keyval)  );
 					int k = 666;
 					int o = 666;

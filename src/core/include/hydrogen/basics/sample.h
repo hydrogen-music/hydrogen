@@ -33,7 +33,7 @@ namespace H2Core
 {
 
 /**
- * A container for a sample, beeing able to apply modifications on it
+ * A container for a sample, being able to apply modifications on it
  */
 
 /** an envelope point within a frame */
@@ -238,22 +238,22 @@ class Sample : public H2Core::Object
 		 */
 		void apply( const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan );
 		/**
-		 * aplly loop transformation to the sample
+		 * apply loop transformation to the sample
 		 * \param lo loops parameters
 		 */
 		bool apply_loops( const Loops& lo );
 		/**
-		 * aplly velocity transformation to the sample
+		 * apply velocity transformation to the sample
 		 * \param v the velocity vector
 		 */
 		void apply_velocity( const VelocityEnvelope& v );
 		/**
-		 * aplly velocity transformation to the sample
+		 * apply velocity transformation to the sample
 		 * \param p the pan vector
 		 */
 		void apply_pan( const PanEnvelope& p );
 		/**
-		 * aplly rubberband transformation to the sample
+		 * apply rubberband transformation to the sample
 		 * \param rb rubberband parameters
 		 */
 		void apply_rubberband( const Rubberband& rb );

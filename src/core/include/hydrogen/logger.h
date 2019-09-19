@@ -53,7 +53,7 @@ class Logger {
 			AELockTracing   = 0x20
 		};
 
-		/** mesage queue type */
+		/** message queue type */
 		typedef std::list<QString> queue_t;
 
 		/**
@@ -112,7 +112,7 @@ class Logger {
 		 */
 		void log( unsigned level, const QString& class_name, const char* func_name, const QString& msg );
 		/**
-		 * needed for beeing able to access logger internal
+		 * needed for being able to access logger internal
 		 * \param param is a pointer to the logger instance
 		 */
 		friend void* loggerThread_func( void* param );

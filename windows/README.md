@@ -86,7 +86,7 @@ Most *make* operations below take a considerable amount of time. The lengthy one
 
 #### Configuring gcc and cross-compile again
 
-There is a cyclical dependancy problem here that requires gcc to be built once normally, and then once with winpthreads. This is because winpthreads requires gcc to build, but we need gcc built with winpthreads support (which it doesn't have the first time you make it).
+There is a cyclical dependency problem here that requires gcc to be built once normally, and then once with winpthreads. This is because winpthreads requires gcc to build, but we need gcc built with winpthreads support (which it doesn't have the first time you make it).
 
 Edit *src/gcc.mk* and set the value of *$(PKG)_DEPS* as follows.
 
@@ -112,7 +112,7 @@ Then cross-compile gcc again.
     user    199m0.451s
     sys     15m14.591s
 
-    Due to a bug in jack, you will need to edit the portaudio.mk file and set jack as a dependancy, then rebuild portaudio
+    Due to a bug in jack, you will need to edit the portaudio.mk file and set jack as a dependency, then rebuild portaudio
     
     $ sed -i 's/:= gcc/:= gcc jack/g' $MXE/src/portaudio.mk
 
