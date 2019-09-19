@@ -83,5 +83,6 @@ More details in the [INSTALL.md](INSTALL.md) file.
 </details>
 
 ### License
+GPLv2
 
 Happy drumming!  :smiley:
