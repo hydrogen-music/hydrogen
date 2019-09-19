@@ -41,7 +41,7 @@ public:
 	LilyPond();
 
 	/*
-	 * Retreive all needed data from an Hydrogen song
+	 * Retrieve all needed data from an Hydrogen song
 	 * @param song the Hydrogen song to convert
 	 */
 	void extractData( const Song &song );
@@ -58,19 +58,19 @@ private:
 	 * A measure is a vector containing the notes in it.
 	 * The index in the main vector is 1/48th of a beat.
 	 * An element in the main vector is the list of notes at this moment.
-	 * A note is represented by its intrument and its velocity.
+	 * A note is represented by its instrument and its velocity.
 	 */
 	typedef std::vector<std::vector<std::pair<int, float> > > notes_t;
 
 	/*
-	 * Retreive the information in a PatternList
+	 * Retrieve the information in a PatternList
 	 * @param list  the PatternList where the information is
 	 * @param notes where to store the information to
 	 */
 	static void addPatternList( const PatternList &list, notes_t &notes );
 
 	/*
-	 * Retreive the information in a Pattern
+	 * Retrieve the information in a Pattern
 	 * @param pattern the Pattern where the information is
 	 * @param notes   where to store the information to
 	 */

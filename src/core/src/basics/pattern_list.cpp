@@ -138,7 +138,7 @@ Pattern* PatternList::replace( int idx, Pattern* pattern )
 {
 	/*
 	 * if we insert a new pattern (copy, add new pattern, undo delete pattern and so on will do this)
-	 * idx is > __pattern.size(). thats why i add +1 to assert expression
+	 * idx is > __pattern.size(). that's why i add +1 to assert expression
 	 */
 
 	assert( idx >= 0 && idx <= __patterns.size() +1 );

@@ -46,14 +46,14 @@ using namespace H2Core;
 * @brief This class represents a midi action.
 *
 * This class represents actions which can be executed
-* after a midi event occured. An example is the "MUTE"
+* after a midi event occurred. An example is the "MUTE"
 * action, which mutes the outputs of hydrogen.
 *
 * An action can be linked to an event. If this event occurs,
 * the action gets triggered. The handling of events takes place
 * in midi_input.cpp .
 *
-* Each action has two independ parameters. The two parameters are optional and
+* Each action has two independent parameters. The two parameters are optional and
 * can be used to carry additional information, which mean
 * only something to this very Action. They can have totally different meanings for other Actions.
 * Example: parameter1 is the Mixer strip and parameter 2 a multiplier for the volume change on this strip

@@ -348,7 +348,7 @@ std::vector<QString> AlsaMidiDriver::getOutputPortList()
 	snd_seq_client_info_alloca( &cinfo );
 	snd_seq_client_info_set_client( cinfo, -1 );
 
-	/* while the next client one the sequencer is avaiable */
+	/* while the next client one the sequencer is available */
 	while ( snd_seq_query_next_client( seq_handle, cinfo ) >= 0 ) {
 		// get client from cinfo
 		int client = snd_seq_client_info_get_client( cinfo );
@@ -401,7 +401,7 @@ void AlsaMidiDriver::getPortInfo( const QString& sPortName, int& nClient, int& n
 	snd_seq_client_info_alloca( &cinfo );
 	snd_seq_client_info_set_client( cinfo, -1 );
 
-	/* while the next client one the sequencer is avaiable */
+	/* while the next client one the sequencer is available */
 	while ( snd_seq_query_next_client( seq_handle, cinfo ) >= 0 ) {
 		// get client from cinfo
 		int client = snd_seq_client_info_get_client( cinfo );

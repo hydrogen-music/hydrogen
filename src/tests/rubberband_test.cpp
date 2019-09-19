@@ -84,7 +84,7 @@ void rubberband_test( const QString& sample_path ) {
 			int n = rubber->retrieve( obuf, available);
 			retrieved += n;
 			buffer_free -= n;
-			//___DEBUGLOG( QString( "  recieved frames %1" ).arg( n ) );
+			//___DEBUGLOG( QString( "  received frames %1" ).arg( n ) );
 		}
 	}
 	*/
@@ -93,7 +93,7 @@ void rubberband_test( const QString& sample_path ) {
 	ibuf[1] = sample->get_data_r();
 	rubber->process( ibuf, processed, true );
 	
-	// retrive last frames
+	// retrieve last frames
 	while( (available=rubber->available())>0 && buffer_free>0 ) {
 		obuf[0] = &out_data_l[retrieved];
 		obuf[1] = &out_data_r[retrieved];
@@ -101,7 +101,7 @@ void rubberband_test( const QString& sample_path ) {
 		int n = rubber->retrieve( obuf, available);
 		retrieved += n;
 		buffer_free -= n;
-		//___DEBUGLOG( QString( "  recieved frames %1" ).arg( n ) );
+		//___DEBUGLOG( QString( "  received frames %1" ).arg( n ) );
 	}
 	___DEBUGLOG( QString( "done.\n  %1 frames processed\n  %2 frames retrieved [ %3 expected ]" ).arg( processed ).arg( retrieved ).arg( sample->get_frames()*time_ratio ) );
 	

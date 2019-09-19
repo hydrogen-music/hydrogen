@@ -2503,7 +2503,7 @@ void Hydrogen::setSong( Song *pSong )
 
 		/* NOTE: 
 		 *       - this is actually some kind of cleanup 
-		 *       - removeSong cares itself for aquiring a lock
+		 *       - removeSong cares itself for acquiring a lock
 		 */
 		removeSong();
 	}
@@ -3273,7 +3273,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 		pInstr->load_from( pDrumkitInfo, pNewInstr );
 	}
 
-	//wolke: new delete funktion
+	//wolke: new delete function
 	if ( instrumentDiff >= 0 ) {
 		for ( int i = 0; i < instrumentDiff ; i++ ){
 			removeInstrument(
@@ -3325,7 +3325,7 @@ void Hydrogen::removeInstrument( int instrumentNumber, bool conditional )
 
 	if ( conditional ) {
 		// new! this check if a pattern has an active note if there is an note
-		//inside the pattern the intrument would not be deleted
+		//inside the pattern the instrument would not be deleted
 		for ( int nPattern = 0 ;
 			  nPattern < (int)pPatternList->size() ;
 			  ++nPattern ) {

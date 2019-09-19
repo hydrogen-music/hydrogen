@@ -281,7 +281,7 @@ void MidiInput::handleNoteOnMessage( const MidiMessage& msg )
 		/*
 		Only look to change instrument if the
 		current note is actually of hihat and
-		hihat openess is outside the instrument selected
+		hihat openness is outside the instrument selected
 		*/
 		if ( pInstr != nullptr &&
 			 pInstr->get_hihat_grp() >= 0 &&
@@ -333,7 +333,7 @@ void MidiInput::handleNoteOffMessage( const MidiMessage& msg, bool CymbalChoke )
 	unsigned long notelength = computeDeltaNoteOnOfftime();
 
 	int nNote = msg.m_nData1;
-	//float fVelocity = msg.m_nData2 / 127.0; //we need this in future to controll release velocity
+	//float fVelocity = msg.m_nData2 / 127.0; //we need this in future to control release velocity
 	int nInstrument = nNote - 36;
 	Instrument *pInstr = nullptr;
 

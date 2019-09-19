@@ -584,7 +584,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		 *
 		 *  This can be the case either if the song, instrument or component is muted or if we're in an
 		 *  export session and we're doing per-instruments exports, but this instrument is not currently
-		 *  beeing exported.
+		 *  being exported.
 		 */
 		if ( isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {	
 			cost_L = 0.0;
@@ -766,7 +766,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 			double fDiff = fSamplePos - nSamplePos;
 			if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
 				//we reach the last audioframe.
-				//set this last frame to zero do nothin wrong.
+				//set this last frame to zero do nothing wrong.
 							fVal_L = 0.0;
 							fVal_R = 0.0;
 			} else {
@@ -1055,7 +1055,7 @@ bool Sampler::__render_note_resample(
 		double fDiff = fSamplePos - nSamplePos;
 		if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
 			//we reach the last audioframe.
-			//set this last frame to zero do nothin wrong.
+			//set this last frame to zero do nothing wrong.
 						fVal_L = 0.0;
 						fVal_R = 0.0;
 		} else {
@@ -1169,7 +1169,7 @@ bool Sampler::__render_note_resample(
 
 				if ( ( nSamplePos + 1 ) >= nSampleFrames ) {
 					//we reach the last audioframe.
-					//set this last frame to zero do nothin wrong.
+					//set this last frame to zero do nothing wrong.
 					fVal_L = 0.0;
 					fVal_R = 0.0;
 				} else {

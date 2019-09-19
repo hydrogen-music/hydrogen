@@ -40,7 +40,7 @@ likes i,n,aux etc...
 7. Prepend pointer types with a "p" (for example: pMySample), floats with an "f", integer types with an "n" and 
    members of a class with an "m_" (for example: m_pEngine)
 
-8. Use "auto" or range-based for loops to make iteratons on container classes more readable
+8. Use "auto" or range-based for loops to make iterations on container classes more readable
 
 9. The singleton pattern is quite over-used in Hydrogen. If you're adding new classes / servers, 
    please take a moment to consider if it really has to be a singleton.
@@ -50,7 +50,7 @@ likes i,n,aux etc...
 11. Hydrogen is a cross platform application, which needs to be build on a great range of architectures and operating systems.
     Use only C++11 features and do not use any platform specific compiler extensions without the need to do so.
 
-COMMITING YOUR CODE
+COMMITTING YOUR CODE
 -------------------
 
 The easiest way to participate in the development of hydrogen is to create a fork at github and create a pull request

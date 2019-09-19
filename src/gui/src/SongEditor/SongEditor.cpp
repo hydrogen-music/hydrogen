@@ -910,7 +910,7 @@ void SongEditor::clearThePatternSequenseVector( QString filename )
 
 	Song *song = engine->getSong();
 
-	//before delet the sequense, write a temp seqense file to disk
+	//before deleting the sequence, write a temp sequence file to disk
 	LocalFileMng fileMng;
 	bool success = song->writeTempPatternList( filename );
 

@@ -35,7 +35,7 @@ namespace H2Core
 	 * InstrumentLayer is part of an instrument
 	 * <br>each layer has it's own :
 	 * <br><b>gain</b> which is the ration between the input sample and the output signal,
-	 * <br><b>pitch</b> wich allows you to play the sample at a faster or lower frequency,
+	 * <br><b>pitch</b> which allows you to play the sample at a faster or lower frequency,
 	 * <br><b>start velocity</b> and <b>end velocity</b> which allows you to chose between a layer or another within an instrument
 	 * by changing the velocity of the played note. so the only layer of an instrument should start at 0.0 and end at 1.0.
 	 */
@@ -92,7 +92,7 @@ namespace H2Core
 		void unload_sample();
 
 		/**
-		 * save the intrument layer within the given XMLNode
+		 * save the instrument layer within the given XMLNode
 		 * \param node the XMLNode to feed
 		 */
 		void save_to( XMLNode* node );

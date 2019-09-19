@@ -299,7 +299,7 @@ public:
 	 * \e all known OSC clients using
 	 * CoreActionController::initExternalControlInterfaces() and
 	 * OscServer::handleAction() via OSC messages each time it gets
-	 * udpated..
+	 * updated..
 	 
 	 * Set by setOscFeedbackEnabled() and queried by
 	 * getOscFeedbackEnabled().
@@ -688,7 +688,7 @@ private:
 
 	UIStyle*				m_pDefaultUIStyle;
 
-	//Appearence: SongEditor coloring
+	//Appearance: SongEditor coloring
 	int						m_nColoringMethod;
 	int						m_nColoringMethodAuxValue;
 

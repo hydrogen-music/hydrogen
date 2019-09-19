@@ -264,7 +264,7 @@ void Pattern::flattened_virtual_patterns_compute()
 	for( virtual_patterns_cst_it_t it0=__virtual_patterns.begin(); it0!=__virtual_patterns.end(); ++it0 ) {
 		__flattened_virtual_patterns.insert( *it0 );        // add it
 		( *it0 )->flattened_virtual_patterns_compute();     // build it's flattened virtual patterns set
-		// for each pattern of it's flattened virtual patern set
+		// for each pattern of it's flattened virtual pattern set
 		for( virtual_patterns_cst_it_t it1=( *it0 )->get_flattened_virtual_patterns()->begin(); it1!=( *it0 )->get_flattened_virtual_patterns()->end(); ++it1 ) {
 			// add the pattern
 			__flattened_virtual_patterns.insert( *it1 );

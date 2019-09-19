@@ -813,7 +813,7 @@ void PatternEditorPanel::zoomOutBtnClicked(Button *ref)
 
 void PatternEditorPanel::patternSizeChanged( int nSelected )
 {
-	// INFOLOG( QString("idx %1 -> %2 eigth").arg( nSelected ).arg( ( MAX_NOTES / 8 ) * ( nSelected + 1 ) ) );
+	// INFOLOG( QString("idx %1 -> %2 eighth").arg( nSelected ).arg( ( MAX_NOTES / 8 ) * ( nSelected + 1 ) ) );
 
 	if ( !m_pPattern ) {
 		return;
@@ -964,7 +964,7 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	}
 	*/
 	else {
-		ERRORLOG( QString("unhandeled value : %1").arg(nSelected) );
+		ERRORLOG( QString("unhandled value : %1").arg(nSelected) );
 	}
 }
 

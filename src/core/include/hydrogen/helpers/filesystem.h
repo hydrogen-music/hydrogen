@@ -157,7 +157,7 @@ class Filesystem : public H2Core::Object
 		 */
 		static bool drumkit_valid( const QString& dk_path );
 		/**
-		 * returns the path to the xml file within a suposed drumkit path
+		 * returns the path to the xml file within a supposed drumkit path
 		 * \param dk_path the path to the drumkit
 		 */
 		static QString drumkit_file( const QString& dk_path );
@@ -254,7 +254,7 @@ class Filesystem : public H2Core::Object
 		/**
 		 * remove a path
 		 * \param path the path to be removed
-		 * \param recursive performe recursive removal if set to true
+		 * \param recursive perform recursive removal if set to true
 		 */
 		static bool rm( const QString& path, bool recursive=false );
 		/**

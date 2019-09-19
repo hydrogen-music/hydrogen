@@ -164,7 +164,7 @@ private:
 	/** Local instance of the Synth. */
 	Synth* __synth;
 
-	/** Mutex for syncronizing the access to the Song object and
+	/** Mutex for synchronizing the access to the Song object and
 	    the AudioEngine. 
 	  * 
 	  * It can be used lock the access using either lock() or

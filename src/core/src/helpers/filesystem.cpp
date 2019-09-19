@@ -68,7 +68,7 @@ QString Filesystem::__usr_cfg_path;
 QStringList Filesystem::__ladspa_paths;
 
 
-/* TODO QCoreApplication is not instanciated */
+/* TODO QCoreApplication is not instantiated */
 bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 {
 	if( __logger==nullptr && logger!=nullptr ) {
