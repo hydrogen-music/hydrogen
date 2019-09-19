@@ -126,7 +126,7 @@ public:
 	{
 		//qDebug() << "Delete complete pattern-sequence redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->clearThePatternSequenseVector( __pFilename );
+		h2app->getSongEditorPanel()->getSongEditor()->clearThePatternSequenceVector( __pFilename );
 	}
 private:
 	QString __pFilename;

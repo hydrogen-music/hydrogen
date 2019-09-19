@@ -77,7 +77,7 @@ class SongEditor : public QWidget, public H2Core::Object
 
 		void addPattern( int nColumn, int nRow);
 		void deletePattern( int nColumn, int nRow, unsigned nColumnIndex);
-		void clearThePatternSequenseVector( QString filename );
+		void clearThePatternSequenceVector( QString filename );
 		void updateEditorandSetTrue();
                 void movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, std::vector<QPoint> m_existingCells, bool bIsCtrlPressed, bool undo);
 
