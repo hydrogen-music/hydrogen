@@ -70,17 +70,33 @@ enum EventType {
 	 * decoupled from the creation and queuing of the corresponding
 	 * Note itself.
 	 *
+	 * In Director it triggers a change in the displayed number,
+	 * color, tag, and triggers Director::update(). In case the
+	 * provided value is 3, instead of performing the changes above,
+	 * the Director loads the metadata a the current Song.
+	 *
 	 * The associated values do correspond to the following actions:
 	 * - 0: Beat at the beginning of a Pattern in
 	 *      audioEngine_updateNoteQueue(). The corresponding Note will
 	 *      be created with a pitch of 3 and velocity of 1.0.
+	 *      Sets MetronomeWidget::m_state to
+	 *      MetronomeWidget::METRO_ON and triggers
+	 *      MetronomeWidget::updateWidget().
 	 * - 1: Beat in the remainder of a Pattern in
 	 *      audioEngine_updateNoteQueue(). The corresponding Note will
 	 *      be created with a pitch of 0 and velocity of 0.8. In
 	 *      addition, it will be also pushed by
 	 *      Hydrogen::setPatternPos() without creating a Note.
-	 * - 2:
-	 * - 3:
+	 *      Sets MetronomeWidget::m_state to
+	 *      MetronomeWidget::METRO_FIRST and triggers
+	 *      MetronomeWidget::updateWidget().
+	 * - 2: Signals MetronomeWidget to neither update nor setting
+	 *      MetronomeWidget::m_state.
+	 * - 3: Tells the Director that a new Song was loaded and triggers
+	 *      its Director::update().
+	 *      Sets MetronomeWidget::m_state to
+	 *      MetronomeWidget::METRO_ON and triggers
+	 *      MetronomeWidget::updateWidget().
 	 *
 	 * Handled by EventListener::metronomeEvent().
 	 */
@@ -91,7 +107,12 @@ enum EventType {
 	EVENT_PLAYLIST_LOADSONG,
 	EVENT_UNDO_REDO,
 	EVENT_SONG_MODIFIED,
-	EVENT_TEMPO_CHANGED
+	EVENT_TEMPO_CHANGED,
+	/**
+	 * Event triggered whenever the Song was changed outside of the
+	 * GUI, e.g. by session management or and OSC command.
+	 */
+	EVENT_UPDATE_SONG
 };
 
 /** Basic building block for the communication between the core of
