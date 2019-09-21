@@ -77,12 +77,31 @@ class MidiActionManager : public H2Core::Object
 		 */
 		static MidiActionManager *__instance;
 
+		/**
+		 * Holds the names of all Action identfiers which Hydrogen is
+		 * able to interpret.
+		 */
 		QStringList actionList;
+
+		/**
+		 * Contains all information to find a particular object in a
+		 * list of objects, like an effect among all LADSPA effects
+		 * present or an individual sample.
+		 */
 		struct targeted_element {
+			/**First level index, like the ID of an Effect or and InstrumentComponent.*/
 			int _id;
+			/**Second level index, like the ID of an InstrumentLayer.*/
 			int _subId;
 		};
+
 		typedef bool (MidiActionManager::*action_f)(Action * , H2Core::Hydrogen * , targeted_element );
+		/**
+		 * Holds all Action identifiers which Hydrogen is able to
+		 * interpret.  
+		 *
+		 * It holds pointer to member function.
+		 */
 		map<string, pair<action_f, targeted_element> > actionMap;
 
 		bool play(Action * , H2Core::Hydrogen * , targeted_element );
@@ -131,11 +150,69 @@ class MidiActionManager : public H2Core::Object
 		bool gain_level_absolute(Action * , H2Core::Hydrogen * , targeted_element );
 		bool pitch_level_absolute(Action * , H2Core::Hydrogen * , targeted_element );
 
+		// Actions required for session management.
+		/**
+		 * Opens an empty Song and saves it to the path provided in
+		 * @a pAction.
+		 *
+		 * \param pAction Action "NEW_SONG" uniquely triggering this function.
+		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
+		 * \param element Unused.
+		 * \return true on success
+		 */
+		bool new_song(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
+		/**
+		 * Opens the Song specified in the path provided in @a
+		 * pAction.
+		 *
+		 * This will be done without immediately and without saving
+		 * the current Song. All unsaved changes will be lost!
+		 *
+		 * \param pAction Action "OPEN_SONG" uniquely triggering this function.
+		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
+		 * \param element Unused.
+		 * \return true on success
+		 */
+		bool open_song(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
+		/**
+		 * Saves the current Song.
+		 *
+		 * \param pAction Action "SAVE_SONG" uniquely triggering this function.
+		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
+		 * \param element Unused.
+		 * \return true on success
+		 */
+		bool save_song(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
+		/**
+		 * Saves the current Song to the path provided in @a pAction.
+		 *
+		 * \param pAction Action "SAVE_SONG_AS" uniquely triggering this function.
+		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
+		 * \param element Unused.
+		 * \return true on success
+		 */
+		bool save_song_as(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
+		/**
+		 * Triggers the shutdown of Hydrogen.
+		 *
+		 * \param pAction Action "QUIT" uniquely triggering this function.
+		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
+		 * \param element Unused.
+		 * \return true on success
+		 */
+		bool quit(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
+
 		QStringList eventList;
 
 		int m_nLastBpmChangeCCParameter;
 
 	public:
+
+		/**
+		 * The handleAction method is the heart of the
+		 * MidiActionManager class. It executes the operations that
+		 * are needed to carry the desired action.
+		 */
 		bool handleAction( Action * );
 		/**
 		 * If #__instance equals 0, a new MidiActionManager

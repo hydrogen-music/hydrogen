@@ -36,6 +36,8 @@
 #include <hydrogen/Preferences.h>
 #include <hydrogen/midi_action.h>
 
+#include <hydrogen/basics/drumkit.h>
+
 #include <sstream>
 
 using namespace H2Core;
@@ -119,6 +121,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 	actionMap.insert(make_pair("MASTER_VOLUME_ABSOLUTE", make_pair(&MidiActionManager::master_volume_absolute, empty)));
 	actionMap.insert(make_pair("STRIP_VOLUME_RELATIVE", make_pair(&MidiActionManager::strip_volume_relative, empty)));
 	actionMap.insert(make_pair("STRIP_VOLUME_ABSOLUTE", make_pair(&MidiActionManager::strip_volume_absolute, empty)));
+	
 	for(int i = 0; i < MAX_FX; ++i) {
 		targeted_element effect = {i,0};
 		ostringstream toChar;
@@ -172,8 +175,14 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 	actionMap.insert(make_pair("UNDO_ACTION", make_pair(&MidiActionManager::undo_action, empty)));
 	actionMap.insert(make_pair("REDO_ACTION", make_pair(&MidiActionManager::redo_action, empty)));
 
+	// Adding actions required for session management
+	actionMap.insert(make_pair("NEW_SONG", make_pair(&MidiActionManager::new_song, empty)));
+	actionMap.insert(make_pair("OPEN_SONG", make_pair(&MidiActionManager::open_song, empty)));
+	actionMap.insert(make_pair("SAVE_SONG", make_pair(&MidiActionManager::save_song, empty)));
+	actionMap.insert(make_pair("SAVE_SONG_AS", make_pair(&MidiActionManager::save_song_as, empty)));
+	actionMap.insert(make_pair("QUIT", make_pair(&MidiActionManager::quit, empty)));
 	/*
-		the actionList holds all Action identfiers which hydrogen is able to interpret.
+	  the actionList holds all Action identfiers which hydrogen is able to interpret.
 	*/
 	actionList <<"";
 	for(map<string, pair<action_f, targeted_element> >::const_iterator actionIterator = actionMap.begin();
@@ -953,10 +962,31 @@ bool MidiActionManager::redo_action(Action * , Hydrogen* , targeted_element ) {
 	return true;
 }
 
-/**
- * The handleAction method is the heart of the MidiActionManager class.
- * It executes the operations that are needed to carry the desired action.
- */
+bool MidiActionManager::new_song(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
+	std::cout << "[new_song]" << std::endl;
+	return true;
+}
+
+bool MidiActionManager::open_song(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
+	std::cout << "[open_song]" << std::endl;
+	return true;
+}
+
+bool MidiActionManager::save_song(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
+	std::cout << "[save_song]" << std::endl;
+	return true;
+}
+
+bool MidiActionManager::save_song_as(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
+	std::cout << "[save_song_as]" << std::endl;
+	return true;
+}
+
+bool MidiActionManager::quit(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
+	std::cout << "[quit]" << std::endl;
+	return true;
+}
+
 bool MidiActionManager::handleAction( Action * pAction ) {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
