@@ -568,6 +568,51 @@ class OscServer : public H2Core::Object
 		 * \param i Unused number of arguments passed by the OSC
 		 * message.*/
 		static void REDO_ACTION_Handler(lo_arg **argv, int i);
+		/**
+		 * Creates an Action of type @b NEW_SONG and passes its
+		 * references to MidiActionManager::handleAction().
+		 *
+		 * \param argv Unused pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param i Unused number of arguments passed by the OSC
+		 * message.*/
+		static void NEW_SONG_Handler(lo_arg **argv, int i);
+		/**
+		 * Creates an Action of type @b OPEN_SONG and passes its
+		 * references to MidiActionManager::handleAction().
+		 *
+		 * \param argv Unused pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param i Unused number of arguments passed by the OSC
+		 * message.*/
+		static void OPEN_SONG_Handler(lo_arg **argv, int i);
+		/**
+		 * Creates an Action of type @b SAVE_SONG and passes its
+		 * references to MidiActionManager::handleAction().
+		 *
+		 * \param argv Unused pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param i Unused number of arguments passed by the OSC
+		 * message.*/
+		static void SAVE_SONG_Handler(lo_arg **argv, int i);
+		/**
+		 * Creates an Action of type @b SAVE_SONG_AS and passes its
+		 * references to MidiActionManager::handleAction().
+		 *
+		 * \param argv Unused pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param i Unused number of arguments passed by the OSC
+		 * message.*/
+		static void SAVE_SONG_AS_Handler(lo_arg **argv, int i);
+		/**
+		 * Creates an Action of type @b QUIT and passes its
+		 * references to MidiActionManager::handleAction().
+		 *
+		 * \param argv Unused pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param i Unused number of arguments passed by the OSC
+		 * message.*/
+		static void QUIT_Handler(lo_arg **argv, int i);
 		/** 
 		 * Catches any incoming messages and display them. 
 		 *
