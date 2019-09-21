@@ -44,6 +44,7 @@ class EventListener
 		virtual void playlistLoadSongEvent( int nIndex ){ UNUSED( nIndex ); }
 		virtual void undoRedoActionEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void tempoChangedEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void updateSongEvent( int nValue ){ UNUSED( nValue ); }
 
 		virtual ~EventListener() {}
 };
