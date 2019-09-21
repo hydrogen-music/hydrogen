@@ -902,7 +902,7 @@ void SongEditor::drawPattern( int pos, int number, bool invertColour )
 }
 
 
-void SongEditor::clearThePatternSequenseVector( QString filename )
+void SongEditor::clearThePatternSequenceVector( QString filename )
 {
 	Hydrogen *engine = Hydrogen::get_instance();
 
