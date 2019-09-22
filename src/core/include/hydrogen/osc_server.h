@@ -592,27 +592,27 @@ class OscServer : public H2Core::Object
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
-		 * \param i Unused number of arguments passed by the OSC
+		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
-		static void SAVE_SONG_Handler(lo_arg **argv, int i);
+		static void SAVE_SONG_Handler(lo_arg **argv, int argc);
 		/**
 		 * Creates an Action of type @b SAVE_SONG_AS and passes its
 		 * references to MidiActionManager::handleAction().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
-		 * \param i Unused number of arguments passed by the OSC
+		 * \param argc Number of arguments passed by the OSC
 		 * message.*/
-		static void SAVE_SONG_AS_Handler(lo_arg **argv, int i);
+		static void SAVE_SONG_AS_Handler(lo_arg **argv, int argc);
 		/**
 		 * Creates an Action of type @b QUIT and passes its
 		 * references to MidiActionManager::handleAction().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
-		 * \param i Unused number of arguments passed by the OSC
+		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
-		static void QUIT_Handler(lo_arg **argv, int i);
+		static void QUIT_Handler(lo_arg **argv, int argc);
 		/** 
 		 * Catches any incoming messages and display them. 
 		 *

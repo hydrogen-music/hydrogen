@@ -576,28 +576,44 @@ void OscServer::NEW_SONG_Handler(lo_arg **argv, int argc) {
 	}
 }
 
-void OscServer::OPEN_SONG_Handler(lo_arg **argv, int i) {
+void OscServer::OPEN_SONG_Handler(lo_arg **argv, int argc) {
 	Action currentAction("OPEN_SONG");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	// Accessing the provided path for the new Song.
+	if ( argc > 0 ) {
+		currentAction.setParameter1( QString::fromUtf8( &argv[0]->s ) );
+		pActionManager->handleAction(&currentAction);
+	} else {
+		// This shouldn't be happening since the handler function is
+		// only registered with an "s" lo_type argument.
+	}
 	
 	pActionManager->handleAction(&currentAction);
 }
 
-void OscServer::SAVE_SONG_Handler(lo_arg **argv, int i) {
+void OscServer::SAVE_SONG_Handler(lo_arg **argv, int argc) {
 	Action currentAction("SAVE_SONG");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 	
 	pActionManager->handleAction(&currentAction);
 }
 
-void OscServer::SAVE_SONG_AS_Handler(lo_arg **argv, int i) {
+void OscServer::SAVE_SONG_AS_Handler(lo_arg **argv, int argc) {
 	Action currentAction("SAVE_SONG_AS");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
-	
-	pActionManager->handleAction(&currentAction);
+
+	// Accessing the provided path for the new Song.
+	if ( argc > 0 ) {
+		currentAction.setParameter1( QString::fromUtf8( &argv[0]->s ) );
+		pActionManager->handleAction(&currentAction);
+	} else {
+		// This shouldn't be happening since the handler function is
+		// only registered with an "s" lo_type argument.
+	}
 }
 
-void OscServer::QUIT_Handler(lo_arg **argv, int i) {
+void OscServer::QUIT_Handler(lo_arg **argv, int argc) {
 	Action currentAction("QUIT");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 	
@@ -866,14 +882,10 @@ void OscServer::start()
 	m_pServerThread->add_method("/Hydrogen/REDO_ACTION", "f", REDO_ACTION_Handler);
 
 	m_pServerThread->add_method("/Hydrogen/NEW_SONG", "s", NEW_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/OPEN_SONG", "", OPEN_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/OPEN_SONG", "f", OPEN_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/OPEN_SONG", "s", OPEN_SONG_Handler);
 	m_pServerThread->add_method("/Hydrogen/SAVE_SONG", "", SAVE_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_SONG", "f", SAVE_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_SONG_AS", "", SAVE_SONG_AS_Handler);
-	m_pServerThread->add_method("/Hydrogen/SAVE_SONG_AS", "f", SAVE_SONG_AS_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_SONG_AS", "s", SAVE_SONG_AS_Handler);
 	m_pServerThread->add_method("/Hydrogen/QUIT", "", QUIT_Handler);
-	m_pServerThread->add_method("/Hydrogen/QUIT", "f", QUIT_Handler);
 
 	/*
 	 * Start the server.
