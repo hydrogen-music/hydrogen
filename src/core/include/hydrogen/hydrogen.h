@@ -418,7 +418,7 @@ void			previewSample( Sample *pSample );
 	int				getSelectedPatternNumber();
 	/**
 	 * Sets #m_nSelectedPatternNumber.
-	 *f
+	 *
 	 * If Preferences::m_pPatternModePlaysSelected is set to true, the
 	 * AudioEngine is locked before @a nPat will be assigned. But in
 	 * any case the function will push the
@@ -532,6 +532,7 @@ void			previewSample( Sample *pSample );
 	 * \return Speed in beats per minute.
 	 */
 	float			getTimelineBpm( int Beat );
+	/** \return #m_pTimeline*/
 	Timeline*		getTimeline() const;
 	
 	//export management
@@ -575,6 +576,17 @@ void			previewSample( Sample *pSample );
 	 */
 	void			loadPlaybackTrack( const QString filename );
 
+	/**\return #m_bActiveGUI*/
+	bool			getActiveGUI() const;
+	/**\param bActiveGUI Specifies whether the Qt5 GUI is active. Sets
+	   #m_bActiveGUI.*/
+	void			setActiveGUI( const bool bActiveGUI );
+	
+	/**\return #m_pNextSong*/
+	Song*			getNextSong() const;
+	/**\param pNextSong Sets #m_pNextSong. #Song which is about to be
+	   loaded by the GUI.*/
+	void			setNextSong( Song* pNextSong );
 
 	///midi lookuptable
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
@@ -632,6 +644,28 @@ private:
 	bool			m_bOldLoopEnabled;
 	bool			m_bExportSessionIsActive;
 	
+	/**
+	 * Specifies whether the Qt5 GUI is active.
+	 *
+	 * When a new #Song is set via the core part of Hydrogen, e.g. in
+	 * the context of session management, the #Song *must* be set via
+	 * the GUI if active. Else the GUI will freeze.
+	 *
+	 * Set by setActiveGUI() and accessed via getActiveGUI().
+	 */
+	bool			m_bActiveGUI;
+	
+	/**
+	 * Stores a new #Song which is about of the loaded by the GUI.
+	 *
+	 * If #m_bActiveGUI is true, the core part of must not load a new
+	 * #Song itself. Instead, the new #Song is prepared and stored in
+	 * this object to be loaded by HydrogenApp::updateSongEvent() if
+	 * H2Core::EVENT_UPDATE_SONG is pushed with a '1'.
+	 *
+	 * Set by setNextSong() and accessed via getNextSong().
+	 */
+	Song*			m_pNextSong;
 
 	/**
 	 * Local instance of the Timeline object.
@@ -722,6 +756,18 @@ inline bool Hydrogen::getPlaybackTrackState()
 	return 	bState;
 }
 
+inline bool Hydrogen::getActiveGUI() const {
+	return m_bActiveGUI;
+}
+inline void Hydrogen::setActiveGUI( const bool bActiveGUI ) {
+	m_bActiveGUI = bActiveGUI;
+}
+inline Song* Hydrogen::getNextSong() const {
+	return m_pNextSong;
+}
+inline void Hydrogen::setNextSong( Song* pNextSong ) {
+	m_pNextSong = pNextSong;
+}
 
 };
 
