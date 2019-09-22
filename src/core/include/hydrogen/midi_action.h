@@ -152,8 +152,23 @@ class MidiActionManager : public H2Core::Object
 
 		// Actions required for session management.
 		/**
-		 * Opens an empty Song and saves it to the path provided in
-		 * @a pAction.
+		 * Create an empty Song which will be stored at to the path
+		 * provided in @a pAction.
+		 *
+		 * This will be done without immediately and without saving
+		 * the current #Song. All unsaved changes will be lost! In
+		 * addition, the new Song won't be saved by this function. You
+		 * can do so using save_song().
+		 *
+		 * The intended use of this function for session
+		 * management. Therefore the function will *not* store the
+		 * provided in Preferences::m_lastSongFilename and thus
+		 * Hydrogen does not resumes with the particular #Song upon
+		 * restarting.
+		 *
+		 * Right now the function is only able to handle the provided
+		 * path as is. Therefore it is important to provide an absolute
+		 * path to a .h2song file.
 		 *
 		 * \param pAction Action "NEW_SONG" uniquely triggering this function.
 		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
@@ -166,7 +181,17 @@ class MidiActionManager : public H2Core::Object
 		 * pAction.
 		 *
 		 * This will be done without immediately and without saving
-		 * the current Song. All unsaved changes will be lost!
+		 * the current #Song. All unsaved changes will be lost!
+		 *
+		 * The intended use of this function for session
+		 * management. Therefore the function will *not* store the
+		 * provided in Preferences::m_lastSongFilename and thus
+		 * Hydrogen does not resumes with the particular #Song upon
+		 * restarting.
+		 *
+		 * Right now the function is only able to handle the provided
+		 * path as is. Therefore it is important to provide an absolute
+		 * path to a .h2song file.
 		 *
 		 * \param pAction Action "OPEN_SONG" uniquely triggering this function.
 		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
@@ -175,7 +200,13 @@ class MidiActionManager : public H2Core::Object
 		 */
 		bool open_song(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
 		/**
-		 * Saves the current Song.
+		 * Saves the current #Song.
+		 *
+		 * The intended use of this function for session
+		 * management. Therefore the function will *not* store the
+		 * provided in Preferences::m_lastSongFilename and thus
+		 * Hydrogen does not resumes with the particular #Song upon
+		 * restarting.
 		 *
 		 * \param pAction Action "SAVE_SONG" uniquely triggering this function.
 		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
@@ -186,6 +217,12 @@ class MidiActionManager : public H2Core::Object
 		/**
 		 * Saves the current Song to the path provided in @a pAction.
 		 *
+		 * The intended use of this function for session
+		 * management. Therefore the function will *not* store the
+		 * provided in Preferences::m_lastSongFilename and thus
+		 * Hydrogen does not resumes with the particular #Song upon
+		 * restarting.
+		 *
 		 * \param pAction Action "SAVE_SONG_AS" uniquely triggering this function.
 		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
 		 * \param element Unused.
@@ -194,6 +231,12 @@ class MidiActionManager : public H2Core::Object
 		bool save_song_as(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
 		/**
 		 * Triggers the shutdown of Hydrogen.
+		 *
+		 * This will be done without immediately and without saving
+		 * the current #Song. All unsaved changes will be lost!
+		 *
+		 * The shutdown will only be triggered if
+		 * Hydrogen::m_bActiveGUI is true and the Qt5 GUI is present.
 		 *
 		 * \param pAction Action "QUIT" uniquely triggering this function.
 		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
