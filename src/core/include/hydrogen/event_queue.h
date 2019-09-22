@@ -109,13 +109,21 @@ enum EventType {
 	EVENT_SONG_MODIFIED,
 	EVENT_TEMPO_CHANGED,
 	/**
-	 * Event triggered whenever the Song was changed outside of the
-	 * GUI, e.g. by session management or and OSC command.
+	 * Event triggering HydrogenApp::updateSongEvent() whenever the
+	 * Song was changed outside of the GUI, e.g. by session management
+	 * or and OSC command.
 	 *
-	 * If the value of the event is 1, HydrogenApp::updateSongEvent()
-	 * will load the #Song prepared in Hydrogen::m_pNextSong.
+	 * If the value of the event is 
+	 * - 0 - Hydrogen::m_pNextSong will be loaded.
+	 * - 1 - triggered whenever the #Song was saved via the core part
+	 *       (updated the title and status bar).
 	 */
-	EVENT_UPDATE_SONG
+	EVENT_UPDATE_SONG,
+	/**
+	 * Triggering HydrogenApp::quitEvent() and enables a shutdown of
+	 * the entire application via the command line.
+	 */
+	EVENT_QUIT
 };
 
 /** Basic building block for the communication between the core of
