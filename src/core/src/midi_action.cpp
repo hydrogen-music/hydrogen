@@ -963,27 +963,179 @@ bool MidiActionManager::redo_action(Action * , Hydrogen* , targeted_element ) {
 }
 
 bool MidiActionManager::new_song(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
-	std::cout << "[new_song]" << std::endl;
+ 
+	if ( pHydrogen->getState() == STATE_PLAYING ) {
+		
+		// Stops recording, all queued MIDI notes, and the playback of
+		// the audio driver.
+		pHydrogen->sequencer_stop();
+
+	}
+	
+	// Remove all BPM tags on the Timeline.
+	pHydrogen->getTimeline()->m_timelinevector.clear();
+	
+	// Create an empty Song.
+	Song* pSong = Song::get_empty_song();
+	
+	// Check whether the provided path is valid.
+	
+	pSong->set_filename( pAction->getParameter1() );
+	
+	std::cout << "[new_song] filename: " << pAction->getParameter1().toLocal8Bit().data() << std::endl;
+	
+	if ( pHydrogen->getActiveGUI() ) {
+		
+		// Store the prepared Song for the GUI to access after the
+		// EVENT_UPDATE_SONG event was triggered.
+		pHydrogen->setNextSong( pSong );
+		
+		// If the GUI is active, the Song *must not* be set by the
+		// core part itself.
+		// Triggers an update of the Qt5 GUI and tells it to update
+		// the song itself.
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
+		
+	} else {
+
+		// Update the Song.
+		pHydrogen->setSong( pSong );
+		
+	}
+
 	return true;
 }
 
 bool MidiActionManager::open_song(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
-	std::cout << "[open_song]" << std::endl;
+ 
+	if ( pHydrogen->getState() == STATE_PLAYING ) {
+		
+		// Stops recording, all queued MIDI notes, and the playback of
+		// the audio driver.
+		pHydrogen->sequencer_stop();
+
+	}
+	
+	// Remove all BPM tags on the Timeline.
+	pHydrogen->getTimeline()->m_timelinevector.clear();
+	
+	// Create an empty Song.
+	Song* pSong = Song::load( pAction->getParameter1() );
+	
+	if ( pSong == nullptr ) {
+		ERRORLOG( QString( "Unable to open Song." ) );
+		
+		return false;
+	}
+	
+	std::cout << "[open_song] filename: " << pAction->getParameter1().toLocal8Bit().data() << std::endl;
+	
+	if ( pHydrogen->getActiveGUI() ) {
+		
+		// Store the prepared Song for the GUI to access after the
+		// EVENT_UPDATE_SONG event was triggered.
+		pHydrogen->setNextSong( pSong );
+		
+		// If the GUI is active, the Song *must not* be set by the
+		// core part itself.
+		// Triggers an update of the Qt5 GUI and tells it to update
+		// the song itself.
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
+		
+	} else {
+
+		// Update the Song.
+		pHydrogen->setSong( pSong );
+		
+	}
+
 	return true;
 }
 
 bool MidiActionManager::save_song(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
 	std::cout << "[save_song]" << std::endl;
+	
+	// Get the current Song which is about to be saved.
+	Song* pSong = pHydrogen->getSong();
+	
+	// Extract the path to the associate .h2song file.
+	QString filename = pSong->get_filename();
+	
+	if ( filename.isEmpty() ) {
+		ERRORLOG( QString( "Unable to save Song. Empty filename!" ) );
+		
+		return false;
+	}
+	
+	// Actual saving
+	bool saved = pSong->save( filename );
+	if ( !saved ) {
+		ERRORLOG( QString( "Current Song could not be saved!" ) );
+		
+		return false;
+	}
+	
+	// Update the status bar.
+	if ( pHydrogen->getActiveGUI() ) {
+		
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
+		
+	}
+	
 	return true;
 }
 
 bool MidiActionManager::save_song_as(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
 	std::cout << "[save_song_as]" << std::endl;
+	
+	// Get the current Song which is about to be saved.
+	Song* pSong = pHydrogen->getSong();
+	
+	// Extract the path to the associate .h2song file.
+	QString filename = pAction->getParameter1();
+	
+	if ( filename.isEmpty() ) {
+		ERRORLOG( QString( "Unable to save Song. Empty filename!" ) );
+		
+		return false;
+	}
+	
+	// Actual saving
+	bool saved = pSong->save( filename );
+	if ( !saved ) {
+		ERRORLOG( QString( "Current Song could not be saved!" ) );
+		
+		return false;
+	}
+	
+	// Update the status bar.
+	if ( pHydrogen->getActiveGUI() ) {
+		
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
+		
+	}
+	
 	return true;
 }
 
 bool MidiActionManager::quit(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
+	
 	std::cout << "[quit]" << std::endl;
+	
+	// Update the status bar.
+	if ( pHydrogen->getActiveGUI() ) {
+		
+		EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
+		
+	} else {
+		// TODO: Close Hydrogen with no GUI present.
+		
+		ERRORLOG( QString( "Closing the application via the core part is not supported yet!" ) );
+		
+		return false;
+		
+	}
+	
 	return true;
 }
 
