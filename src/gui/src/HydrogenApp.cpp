@@ -44,6 +44,7 @@
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 #include "SoundLibrary/SoundLibraryDatastructures.h"
+#include "SoundLibrary/SoundLibraryPanel.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 #include "SampleEditor/SampleEditor.h"
 #include "Mixer/Mixer.h"
@@ -121,6 +122,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 HydrogenApp::~HydrogenApp()
 {
 	INFOLOG( "[~HydrogenApp]" );
+	std::cout<< "[~HydrogenApp]" << std::endl;;
 	m_pEventQueueTimer->stop();
 
 
@@ -383,7 +385,7 @@ void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 
 void HydrogenApp::updateWindowTitle()
 {
-	Song *pSong = 	Hydrogen::get_instance()->getSong();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 	assert(pSong);
 
 	QString title;
@@ -471,8 +473,11 @@ void HydrogenApp::songModifiedEvent()
 
 void HydrogenApp::onEventQueueTimer()
 {
+	std::cout << "[onEventQueueTimer] doing";
 	// use the timer to do schedule instrument slaughter;
 	EventQueue *pQueue = EventQueue::get_instance();
+	
+	std::cout << "stuff" << std::endl;
 
 	Event event;
 	while ( ( event = pQueue->pop_event() ).type != EVENT_NONE ) {
@@ -551,6 +556,11 @@ void HydrogenApp::onEventQueueTimer()
 			case EVENT_TEMPO_CHANGED:
 				pListener->tempoChangedEvent( event.value );
 				break;
+				
+			case EVENT_UPDATE_SONG:
+				std::cout << "[onEventQueueTimer] EVENT_UPDATE_SONG" << std::endl;
+				updateSongEvent( event.value );
+				break;
 
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
@@ -613,4 +623,41 @@ void HydrogenApp::removeEventListener( EventListener* pListener )
 void HydrogenApp::cleanupTemporaryFiles()
 {
 	Filesystem::rm( Filesystem::tmp_dir(), true );
+}
+
+void HydrogenApp::updateSongEvent( int nValue ) {
+	
+	std::cout << "[updateSong] start" << std::endl;
+	
+	Hydrogen* pHydrogen = Hydrogen::get_instance();	
+
+	if ( nValue == 1 ) {
+		
+		// Set a Song prepared by the core part.
+		Song* pNextSong = pHydrogen->getNextSong();
+		pHydrogen->setSong( pNextSong );
+	
+	}
+	
+	// Cleanup
+	m_pUndoStack->clear();
+	
+	// Update GUI components
+	m_pSongEditorPanel->updateAll();
+	m_pPatternEditorPanel->updateSLnameLabel();
+	updateWindowTitle();
+	m_pMainForm->updateRecentUsedSongList();
+	getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+	getSongEditorPanel()->updatePositionRuler();
+	pHydrogen->getTimeline()->m_timelinetagvector.clear();
+	
+	// Trigger a reset of the Director and MetronomeWidget.
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
+	
+	m_pSongEditorPanel->updateAll();
+	m_pPatternEditorPanel->updateSLnameLabel();
+	updateWindowTitle();
+	m_pMainForm->updateRecentUsedSongList();
+
 }
