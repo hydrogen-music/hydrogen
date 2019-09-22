@@ -221,6 +221,12 @@ class HydrogenApp : public QObject, public H2Core::Object
 		 * \param nValue unused
 		 */
 		virtual void updateSongEvent( int nValue );
+		/**
+		 * Calls closeAll() to shutdown Hydrogen.
+		 *
+		 * \param nValue unused
+		 */
+		virtual void quitEvent( int nValue );
 };
 
 
