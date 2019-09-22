@@ -111,6 +111,9 @@ enum EventType {
 	/**
 	 * Event triggered whenever the Song was changed outside of the
 	 * GUI, e.g. by session management or and OSC command.
+	 *
+	 * If the value of the event is 1, HydrogenApp::updateSongEvent()
+	 * will load the #Song prepared in Hydrogen::m_pNextSong.
 	 */
 	EVENT_UPDATE_SONG
 };
