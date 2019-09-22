@@ -561,11 +561,19 @@ void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
 }
 
 // Actions required for session management.
-void OscServer::NEW_SONG_Handler(lo_arg **argv, int i) {
-	Action currentAction("NEW_SONG");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+void OscServer::NEW_SONG_Handler(lo_arg **argv, int argc) {
 	
-	pActionManager->handleAction(&currentAction);
+	Action currentAction("NEW_SONG");	
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	// Accessing the provided path for the new Song.
+	if ( argc > 0 ) {
+		currentAction.setParameter1( QString::fromUtf8( &argv[0]->s ) );
+		pActionManager->handleAction(&currentAction);
+	} else {
+		// This shouldn't be happening since the handler function is
+		// only registered with an "s" lo_type argument.
+	}
 }
 
 void OscServer::OPEN_SONG_Handler(lo_arg **argv, int i) {
@@ -857,8 +865,7 @@ void OscServer::start()
 	m_pServerThread->add_method("/Hydrogen/REDO_ACTION", "", REDO_ACTION_Handler);
 	m_pServerThread->add_method("/Hydrogen/REDO_ACTION", "f", REDO_ACTION_Handler);
 
-	m_pServerThread->add_method("/Hydrogen/NEW_SONG", "", NEW_SONG_Handler);
-	m_pServerThread->add_method("/Hydrogen/NEW_SONG", "f", NEW_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/NEW_SONG", "s", NEW_SONG_Handler);
 	m_pServerThread->add_method("/Hydrogen/OPEN_SONG", "", OPEN_SONG_Handler);
 	m_pServerThread->add_method("/Hydrogen/OPEN_SONG", "f", OPEN_SONG_Handler);
 	m_pServerThread->add_method("/Hydrogen/SAVE_SONG", "", SAVE_SONG_Handler);
