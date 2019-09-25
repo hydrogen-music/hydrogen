@@ -572,6 +572,10 @@ class OscServer : public H2Core::Object
 		 * Creates an Action of type @b NEW_SONG and passes its
 		 * references to MidiActionManager::handleAction().
 		 *
+		 * The handler expects the user to provide an absolute path to
+		 * a .h2song file. If another file already exists with the
+		 * same name, it will be overwritten.
+		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
 		 * \param argc Number of arguments passed by the OSC message.
@@ -580,6 +584,9 @@ class OscServer : public H2Core::Object
 		/**
 		 * Creates an Action of type @b OPEN_SONG and passes its
 		 * references to MidiActionManager::handleAction().
+		 *
+		 * The handler expects the user to provide an absolute path to
+		 * a .h2song file.
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -598,6 +605,10 @@ class OscServer : public H2Core::Object
 		/**
 		 * Creates an Action of type @b SAVE_SONG_AS and passes its
 		 * references to MidiActionManager::handleAction().
+		 *
+		 * The handler expects the user to provide an absolute path to
+		 * a .h2song file. If another file already exists with the
+		 * same name, it will be overwritten.
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
