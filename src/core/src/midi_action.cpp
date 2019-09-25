@@ -38,6 +38,8 @@
 
 #include <hydrogen/basics/drumkit.h>
 
+// #include <QFileInfo>
+
 #include <sstream>
 
 using namespace H2Core;
@@ -978,11 +980,16 @@ bool MidiActionManager::new_song(Action* pAction, Hydrogen* pHydrogen, targeted_
 	// Create an empty Song.
 	Song* pSong = Song::get_empty_song();
 	
+	QString songPath = pAction->getParameter1();
+	
 	// Check whether the provided path is valid.
+	if ( !isSongPathValid( songPath ) ) {
+		return false;
+	}
 	
-	pSong->set_filename( pAction->getParameter1() );
+	pSong->set_filename( songPath );
 	
-	std::cout << "[new_song] filename: " << pAction->getParameter1().toLocal8Bit().data() << std::endl;
+	std::cout << "[new_song] songPath: " << songPath.toLocal8Bit().data() << std::endl;
 	
 	if ( pHydrogen->getActiveGUI() ) {
 		
@@ -1019,16 +1026,28 @@ bool MidiActionManager::open_song(Action* pAction, Hydrogen* pHydrogen, targeted
 	// Remove all BPM tags on the Timeline.
 	pHydrogen->getTimeline()->m_timelinevector.clear();
 	
+	QString songPath = pAction->getParameter1();
+	
+	// Check whether the provided path is valid.
+	if ( !isSongPathValid( songPath ) ) {
+		return false;
+	}
+	
+	QFileInfo songFileInfo = QFileInfo( songPath );
+	if ( !songFileInfo.exists() ) {
+		std::cout << "Error: Selected Song does not exist!" << std::endl;
+	}
+	
 	// Create an empty Song.
-	Song* pSong = Song::load( pAction->getParameter1() );
+	Song* pSong = Song::load( songPath );
 	
 	if ( pSong == nullptr ) {
-		ERRORLOG( QString( "Unable to open Song." ) );
+		std::cout << "Error: Unable to open Song." << std::endl;
 		
 		return false;
 	}
 	
-	std::cout << "[open_song] filename: " << pAction->getParameter1().toLocal8Bit().data() << std::endl;
+	std::cout << "[open_song] songPath: " << songPath.toLocal8Bit().data() << std::endl;
 	
 	if ( pHydrogen->getActiveGUI() ) {
 		
@@ -1062,7 +1081,7 @@ bool MidiActionManager::save_song(Action* pAction, Hydrogen* pHydrogen, targeted
 	QString filename = pSong->get_filename();
 	
 	if ( filename.isEmpty() ) {
-		ERRORLOG( QString( "Unable to save Song. Empty filename!" ) );
+		std::cout << "Error: Unable to save Song. Empty filename!" << std::endl;
 		
 		return false;
 	}
@@ -1091,17 +1110,21 @@ bool MidiActionManager::save_song_as(Action* pAction, Hydrogen* pHydrogen, targe
 	// Get the current Song which is about to be saved.
 	Song* pSong = pHydrogen->getSong();
 	
-	// Extract the path to the associate .h2song file.
-	QString filename = pAction->getParameter1();
+	QString songPath = pAction->getParameter1();
 	
-	if ( filename.isEmpty() ) {
-		ERRORLOG( QString( "Unable to save Song. Empty filename!" ) );
+	// Check whether the provided path is valid.
+	if ( !isSongPathValid( songPath ) ) {
+		return false;
+	}
+	
+	if ( songPath.isEmpty() ) {
+		std::cout << "Error: Unable to save Song. Empty filename!" << std::endl;
 		
 		return false;
 	}
 	
 	// Actual saving
-	bool saved = pSong->save( filename );
+	bool saved = pSong->save( songPath );
 	if ( !saved ) {
 		ERRORLOG( QString( "Current Song could not be saved!" ) );
 		
@@ -1130,7 +1153,8 @@ bool MidiActionManager::quit(Action* pAction, Hydrogen* pHydrogen, targeted_elem
 	} else {
 		// TODO: Close Hydrogen with no GUI present.
 		
-		ERRORLOG( QString( "Closing the application via the core part is not supported yet!" ) );
+		std::cout << "Error: Closing the application via the core part is not supported yet!" <<
+			std::endl;
 		
 		return false;
 		
@@ -1160,4 +1184,33 @@ bool MidiActionManager::handleAction( Action * pAction ) {
 	}
 
 	return false;
+}
+
+bool MidiActionManager::isSongPathValid( const QString& songPath ) {
+	
+	QFileInfo songFileInfo = QFileInfo( songPath );
+
+	if ( !songFileInfo.isAbsolute() ) {
+		std::cout << "Error: Unable to handle path ["<<
+			songPath.toLocal8Bit().data() <<
+			"]. Please provide an absolute file path!" << std::endl;
+		return false;
+	}
+	
+	if ( songFileInfo.exists() ) {
+		if ( !songFileInfo.isWritable() ) {
+			std::cout << "Error: Unable to handle path ["<<
+				songPath.toLocal8Bit().data() <<
+				"]. You must have permissions to write the file!" << std::endl;
+			return false;
+		}
+	}
+	
+	if ( songFileInfo.suffix() != "h2song" ) {
+		std::cout << "Error: Unable to handle path ["<<
+			songPath.toLocal8Bit().data() <<
+			"]. The provided file must have the suffix '.h2song'!" << std::endl;
+		return false;
+	}
+	
 }

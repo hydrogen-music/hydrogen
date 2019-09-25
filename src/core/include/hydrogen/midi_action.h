@@ -249,6 +249,19 @@ class MidiActionManager : public H2Core::Object
 
 		int m_nLastBpmChangeCCParameter;
 
+		/**
+		 * Checks the path of the .h2song provided via OSC.
+		 *
+		 * It will be checked whether @a songPath
+		 * - is absolute
+		 * - has the '.h2song' suffix
+		 * - is writable (if it exists)
+		 *
+		 * \param songPath Absolute path to an .h2song file.
+		 * \return true - if valid.
+		 */
+		bool isSongPathValid( const QString& songPath );
+
 	public:
 
 		/**
