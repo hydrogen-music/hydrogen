@@ -115,6 +115,11 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 
 	m_pPlaylistDialog = new PlaylistDialog( nullptr );
 	m_pDirector = new Director( nullptr );
+	
+	// Since HydrogenApp does implement some handler functions for
+	// Events as well, it should be registered as an Eventlistener
+	// itself.
+	addEventListener( this );
 }
 
 
@@ -477,6 +482,11 @@ void HydrogenApp::onEventQueueTimer()
 
 	Event event;
 	while ( ( event = pQueue->pop_event() ).type != EVENT_NONE ) {
+		
+		// Provide the event to all EventListeners registered to
+		// HydrogenApp. By registering itself as EventListener and
+		// implementing at least on the methods used below a
+		// particular GUI component can react on specific events.
 		for (int i = 0; i < (int)m_EventListeners.size(); i++ ) {
 			EventListener *pListener = m_EventListeners[ i ];
 
@@ -554,20 +564,18 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 				
 			case EVENT_UPDATE_SONG:
-				std::cout << "[onEventQueueTimer] EVENT_UPDATE_SONG" << std::endl;
-				updateSongEvent( event.value );
+				pListener->updateSongEvent( event.value );
 				break;
 				
 			case EVENT_QUIT:
-				std::cout << "[onEventQueueTimer] EVENT_QUIT" << std::endl;
-				quitEvent( event.value );
+				pListener->quitEvent( event.value );
 				break;
 
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}
-
 		}
+
 	}
 
 	// midi notes
@@ -628,8 +636,6 @@ void HydrogenApp::cleanupTemporaryFiles()
 
 void HydrogenApp::updateSongEvent( int nValue ) {
 	
-	std::cout << "[updateSong] start" << std::endl;
-	
 	Hydrogen* pHydrogen = Hydrogen::get_instance();	
 
 	if ( nValue == 0 ) {
@@ -673,8 +679,6 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 
 void HydrogenApp::quitEvent( int nValue ) {
 
-	std::cout << "[quitEvent] start" << std::endl;
-	
 	m_pMainForm->closeAll();
 	
 }
