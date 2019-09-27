@@ -504,7 +504,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_SONG_MODIFIED:
-				songModifiedEvent();
+				pListener->songModifiedEvent();
 				break;
 
 			case EVENT_SELECTED_PATTERN_CHANGED:
