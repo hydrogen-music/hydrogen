@@ -1036,6 +1036,7 @@ bool MidiActionManager::open_song(Action* pAction, Hydrogen* pHydrogen, targeted
 	QFileInfo songFileInfo = QFileInfo( songPath );
 	if ( !songFileInfo.exists() ) {
 		std::cout << "Error: Selected Song does not exist!" << std::endl;
+		return false;
 	}
 	
 	// Create an empty Song.
