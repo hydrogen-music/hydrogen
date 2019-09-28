@@ -989,8 +989,6 @@ bool MidiActionManager::new_song(Action* pAction, Hydrogen* pHydrogen, targeted_
 	
 	pSong->set_filename( songPath );
 	
-	std::cout << "[new_song] songPath: " << songPath.toLocal8Bit().data() << std::endl;
-	
 	if ( pHydrogen->getActiveGUI() ) {
 		
 		// Store the prepared Song for the GUI to access after the
@@ -1001,7 +999,7 @@ bool MidiActionManager::new_song(Action* pAction, Hydrogen* pHydrogen, targeted_
 		// core part itself.
 		// Triggers an update of the Qt5 GUI and tells it to update
 		// the song itself.
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
 		
 	} else {
 
@@ -1048,8 +1046,6 @@ bool MidiActionManager::open_song(Action* pAction, Hydrogen* pHydrogen, targeted
 		return false;
 	}
 	
-	std::cout << "[open_song] songPath: " << songPath.toLocal8Bit().data() << std::endl;
-	
 	if ( pHydrogen->getActiveGUI() ) {
 		
 		// Store the prepared Song for the GUI to access after the
@@ -1073,8 +1069,7 @@ bool MidiActionManager::open_song(Action* pAction, Hydrogen* pHydrogen, targeted
 }
 
 bool MidiActionManager::save_song(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
-	std::cout << "[save_song]" << std::endl;
-	
+
 	// Get the current Song which is about to be saved.
 	Song* pSong = pHydrogen->getSong();
 	
@@ -1106,8 +1101,6 @@ bool MidiActionManager::save_song(Action* pAction, Hydrogen* pHydrogen, targeted
 }
 
 bool MidiActionManager::save_song_as(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
-	std::cout << "[save_song_as]" << std::endl;
-	
 	// Get the current Song which is about to be saved.
 	Song* pSong = pHydrogen->getSong();
 	
@@ -1143,8 +1136,6 @@ bool MidiActionManager::save_song_as(Action* pAction, Hydrogen* pHydrogen, targe
 }
 
 bool MidiActionManager::quit(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
-	
-	std::cout << "[quit]" << std::endl;
 	
 	// Update the status bar.
 	if ( pHydrogen->getActiveGUI() ) {
