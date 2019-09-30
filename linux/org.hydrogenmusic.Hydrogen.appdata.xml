@@ -33,10 +33,11 @@
   </screenshot>
  </screenshots>
  <url type="homepage">http://www.hydrogen-music.org/</url>
- <updatecontact>hydrogen-devel@lists.sourceforge.net</updatecontact>
+ <update_contact>hydrogen-devel@lists.sourceforge.net</update_contact>
  <project_group>hydrogen</project_group>
+ <content_rating type="oars-1.0"/>
  <releases>
-   <release version="1.0.0-beta1" date="18-03-2018">
+   <release version="1.0.0-beta1" date="2018-03-18">
      <url>http://hydrogen-music.org/release_100_beta1</url>
    </release>
  </releases>
