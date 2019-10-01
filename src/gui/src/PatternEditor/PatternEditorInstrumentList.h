@@ -68,7 +68,13 @@ class InstrumentLine : public PixmapWidget
 		void functionFillEveryEightNotes();
 		void functionFillEveryTwelveNotes();
 		void functionFillEverySixteenNotes();
-		void functionFillNotes( int every );
+		void functionFillEveryTwoNotesSyncopated();
+		void functionFillEveryFourNotesSyncopated();
+		void functionFillEverySixNotesSyncopated();
+		void functionFillEveryEightNotesSyncopated();
+		void functionFillEveryTwelveNotesSyncopated();
+		void functionFillEverySixteenNotesSyncopated();
+		void functionFillNotes( int every,  bool syncopated=false);
 		void functionCopyInstrumentPattern();
 		void functionCopyAllInstrumentPatterns();
 		void functionPasteInstrumentPattern();

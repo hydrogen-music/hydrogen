@@ -109,6 +109,12 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/8 notes" ), this, SLOT( functionFillEveryEightNotes() ) );
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/12 notes" ), this, SLOT( functionFillEveryTwelveNotes() ) );
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/16 notes" ), this, SLOT( functionFillEverySixteenNotes() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/2 notes (syncopated)" ), this, SLOT( functionFillEveryTwoNotesSyncopated() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/4 notes (syncopated)" ), this, SLOT( functionFillEveryFourNotesSyncopated() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/6 notes (syncopated)" ), this, SLOT( functionFillEverySixNotesSyncopated() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/8 notes (syncopated)" ), this, SLOT( functionFillEveryEightNotesSyncopated() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/12 notes (syncopated)" ), this, SLOT( functionFillEveryTwelveNotesSyncopated() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/16 notes (syncopated)" ), this, SLOT( functionFillEverySixteenNotesSyncopated() ) );
 	m_pFunctionPopup->addMenu( m_pFunctionPopupSub );
 
 	m_pFunctionPopup->addAction( tr( "Randomize velocity" ), this, SLOT( functionRandomizeVelocity() ) );
@@ -337,7 +343,14 @@ void InstrumentLine::functionFillEveryEightNotes(){ functionFillNotes(8); }
 void InstrumentLine::functionFillEveryTwelveNotes(){ functionFillNotes(12); }
 void InstrumentLine::functionFillEverySixteenNotes(){ functionFillNotes(16); }
 
-void InstrumentLine::functionFillNotes( int every )
+void InstrumentLine::functionFillEveryTwoNotesSyncopated(){ functionFillNotes(2,true); }
+void InstrumentLine::functionFillEveryFourNotesSyncopated(){ functionFillNotes(4,true); }
+void InstrumentLine::functionFillEverySixNotesSyncopated(){ functionFillNotes(6,true); }
+void InstrumentLine::functionFillEveryEightNotesSyncopated(){ functionFillNotes(8,true); }
+void InstrumentLine::functionFillEveryTwelveNotesSyncopated(){ functionFillNotes(12,true); }
+void InstrumentLine::functionFillEverySixteenNotesSyncopated(){ functionFillNotes(16,true); }
+
+void InstrumentLine::functionFillNotes( int every, bool syncopated )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
@@ -351,7 +364,7 @@ void InstrumentLine::functionFillNotes( int every )
 		nBase = 4;
 	}
 	int nResolution = 4 * MAX_NOTES * every / ( nBase * pPatternEditor->getResolution() );
-
+	int startPos = syncopated ? nResolution/2 : 0;
 
 	Song *pSong = pEngine->getSong();
 
@@ -365,7 +378,7 @@ void InstrumentLine::functionFillNotes( int every )
 		if (nSelectedInstrument != -1) {
 			Instrument *instrRef = (pSong->get_instrument_list())->get( nSelectedInstrument );
 
-			for (int i = 0; i < nPatternSize; i += nResolution) {
+			for (int i = startPos; i < nPatternSize; i += nResolution) {
 				bool noteAlreadyPresent = false;
 				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
 				FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
