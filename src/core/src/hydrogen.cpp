@@ -2544,7 +2544,6 @@ void Hydrogen::setSong( Song *pSong )
 	// audioEngine_setSong().
 	__song = pSong;
 
-	
 	// Update the audio engine to work with the new song.
 	audioEngine_setSong( pSong );
 

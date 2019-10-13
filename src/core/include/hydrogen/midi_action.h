@@ -236,7 +236,7 @@ class MidiActionManager : public H2Core::Object
 		 * the current #Song. All unsaved changes will be lost!
 		 *
 		 * The shutdown will only be triggered if
-		 * Hydrogen::m_bActiveGUI is true and the Qt5 GUI is present.
+		 * Hydrogen::m_iActiveGUI is true and the Qt5 GUI is present.
 		 *
 		 * \param pAction Action "QUIT" uniquely triggering this function.
 		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
