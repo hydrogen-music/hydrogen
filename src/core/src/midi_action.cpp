@@ -989,7 +989,7 @@ bool MidiActionManager::new_song(Action* pAction, Hydrogen* pHydrogen, targeted_
 	
 	pSong->set_filename( songPath );
 	
-	if ( pHydrogen->getActiveGUI() ) {
+	if ( pHydrogen->getActiveGUI() != 0 ) {
 		
 		// Store the prepared Song for the GUI to access after the
 		// EVENT_UPDATE_SONG event was triggered.
@@ -1037,7 +1037,7 @@ bool MidiActionManager::open_song(Action* pAction, Hydrogen* pHydrogen, targeted
 		return false;
 	}
 	
-	// Create an empty Song.
+	// Open the Song.
 	Song* pSong = Song::load( songPath );
 	
 	if ( pSong == nullptr ) {
@@ -1046,7 +1046,7 @@ bool MidiActionManager::open_song(Action* pAction, Hydrogen* pHydrogen, targeted
 		return false;
 	}
 	
-	if ( pHydrogen->getActiveGUI() ) {
+	if ( pHydrogen->getActiveGUI() != 0 ) {
 		
 		// Store the prepared Song for the GUI to access after the
 		// EVENT_UPDATE_SONG event was triggered.
@@ -1091,7 +1091,7 @@ bool MidiActionManager::save_song(Action* pAction, Hydrogen* pHydrogen, targeted
 	}
 	
 	// Update the status bar.
-	if ( pHydrogen->getActiveGUI() ) {
+	if ( pHydrogen->getActiveGUI() != 0 ) {
 		
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
 		
@@ -1126,7 +1126,7 @@ bool MidiActionManager::save_song_as(Action* pAction, Hydrogen* pHydrogen, targe
 	}
 	
 	// Update the status bar.
-	if ( pHydrogen->getActiveGUI() ) {
+	if ( pHydrogen->getActiveGUI() != 0 ) {
 		
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
 		
@@ -1138,7 +1138,7 @@ bool MidiActionManager::save_song_as(Action* pAction, Hydrogen* pHydrogen, targe
 bool MidiActionManager::quit(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
 	
 	// Update the status bar.
-	if ( pHydrogen->getActiveGUI() ) {
+	if ( pHydrogen->getActiveGUI() != 0 ) {
 		
 		EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
 		

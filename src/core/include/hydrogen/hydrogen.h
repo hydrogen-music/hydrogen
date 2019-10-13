@@ -576,11 +576,11 @@ void			previewSample( Sample *pSample );
 	 */
 	void			loadPlaybackTrack( const QString filename );
 
-	/**\return #m_bActiveGUI*/
-	bool			getActiveGUI() const;
-	/**\param bActiveGUI Specifies whether the Qt5 GUI is active. Sets
-	   #m_bActiveGUI.*/
-	void			setActiveGUI( const bool bActiveGUI );
+	/**\return #m_iActiveGUI*/
+	int				getActiveGUI() const;
+	/**\param iActiveGUI Specifies whether the Qt5 GUI is active. Sets
+	   #m_iActiveGUI.*/
+	void			setActiveGUI( const int iActiveGUI );
 	
 	/**\return #m_pNextSong*/
 	Song*			getNextSong() const;
@@ -647,18 +647,25 @@ private:
 	/**
 	 * Specifies whether the Qt5 GUI is active.
 	 *
+	 * This variable has three states:
+	 * - `m_iActiveGUI == 0` - There is no Qt5 GUI.
+	 * - `m_iActiveGUI < 0` - There is a Qt5 GUI but it is not fully
+	 *                        loaded. 
+	 * - `m_iActiveGUI > 0` - There is a Qt5 GUI and it is fully
+	 *                        loaded.
+	 *
 	 * When a new #Song is set via the core part of Hydrogen, e.g. in
 	 * the context of session management, the #Song *must* be set via
 	 * the GUI if active. Else the GUI will freeze.
 	 *
 	 * Set by setActiveGUI() and accessed via getActiveGUI().
 	 */
-	bool			m_bActiveGUI;
+	int				m_iActiveGUI;
 	
 	/**
 	 * Stores a new #Song which is about of the loaded by the GUI.
 	 *
-	 * If #m_bActiveGUI is true, the core part of must not load a new
+	 * If #m_iActiveGUI is true, the core part of must not load a new
 	 * #Song itself. Instead, the new #Song is prepared and stored in
 	 * this object to be loaded by HydrogenApp::updateSongEvent() if
 	 * H2Core::EVENT_UPDATE_SONG is pushed with a '1'.
@@ -756,11 +763,11 @@ inline bool Hydrogen::getPlaybackTrackState()
 	return 	bState;
 }
 
-inline bool Hydrogen::getActiveGUI() const {
-	return m_bActiveGUI;
+inline int Hydrogen::getActiveGUI() const {
+	return m_iActiveGUI;
 }
-inline void Hydrogen::setActiveGUI( const bool bActiveGUI ) {
-	m_bActiveGUI = bActiveGUI;
+inline void Hydrogen::setActiveGUI( const int iActiveGUI ) {
+	m_iActiveGUI = iActiveGUI;
 }
 inline Song* Hydrogen::getNextSong() const {
 	return m_pNextSong;
