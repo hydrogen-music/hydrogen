@@ -36,7 +36,6 @@
 #include "hydrogen/basics/song.h"
 
 
-
 NsmClient * NsmClient::__instance = nullptr;
 const char* NsmClient::__class_name = "NsmClient";
 bool NsmShutdown = false;
@@ -49,39 +48,116 @@ static int nsm_open_cb (const char *name,
 						void *userdata )
 {
 
-	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
-
-	if(pPref){
-		if(client_id){
-			// setup JACK here, client_id gets the JACK client name
-			pPref->setNsmClientId(QString(client_id));
-		}
-
-		if(name){
-
-			/*
-			 * the hydrogen core is not responsible for managing
-			 * song loading on startup. Therefore we use store
-			 * the desired song name and let the GUIs do the actual work.
-			 */
-
-			pPref->setNsmSongName(QString(name));
-		}
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+	
+	// Handle supplied Song name. Hydrogen sends a unique string, like
+	// - if the display_name == Hydrogen - "Hydrogen.nJKUV". We will
+	// just append the .h2song and use it as Song path.
+	
+	if ( !name ) {
+		___ERRORLOG( QString( "No `name` provided!" ) );
+		return ERR_LAUNCH_FAILED;
 	}
 
+	QString songPath = QString( "%1.h2song" ).arg( name );
+	QFileInfo songFileInfo = QFileInfo( songPath );
+
+	// When starting Hydrogen with its Qt5 GUI activated the chosen
+	// Song will be set via the GUI. But since it is constructed after
+	// the NSM client, using the corresponding OSC message to open a
+	// Song won't work in this scenario (since this would set the Song
+	// asynchronously using the EventQueue and it is require during
+	// the construction of MainForm). Therefore the next line will
+	// check whether there is a GUI present and if it is setup
+	// already.
+	if ( H2Core::Hydrogen::get_instance()->getActiveGUI() < 0 ) {
+		
+		// There is a GUI, but it is not ready yet. Therefore we have
+		// to duplicate some of the logic from the OSC messages,
+		// create a new Song object, and store it for the GUI to load
+		// later on.
+		if ( songFileInfo.exists() ) {
+			
+			H2Core::Song *pSong = H2Core::Song::load( songPath );
+	
+			if ( pSong == nullptr ) {
+				___ERRORLOG( QString( "Error: Unable to open Song." ) );
+		
+				return ERR_LAUNCH_FAILED;
+			}
+			
+			H2Core::Hydrogen::get_instance()->setNextSong( pSong );
+			
+		} else {
+			
+			// There is no file with this name present yet. Fall back
+			// to an empty default Song.
+			H2Core::Song *pSong = H2Core::Song::get_empty_song();
+			pSong->set_filename( songPath );
+			
+			H2Core::Hydrogen::get_instance()->setNextSong( pSong );
+			
+		}
+	} else {
+		
+		// The opening of the Song will be done (asynchronously, if a
+		// GUI is present) using the MidiActionManager.
+	
+		// Check whether a file corresponding to the provided path does
+		// already exist.
+		QString actionType;
+		if ( songFileInfo.exists() ) {
+			// Open the existing file.
+			actionType = "OPEN_SONG";
+		} else {
+			// Create a new file and save it as using the provided path.
+			actionType = "NEW_SONG";
+		}
+
+		Action currentAction( actionType );
+		currentAction.setParameter1( songPath );
+		bool ok = pActionManager->handleAction( &currentAction );
+		
+		if ( !ok ) {
+			___ERRORLOG( QString( "Unable to handle opening action!" ) );
+			return ERR_LAUNCH_FAILED;
+		}
+		
+	}
+	
+	// Restarting the JACK server using the client_id in the name of
+	// the freshly created instance.
+	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
+
+	if ( pPref ){
+		if ( client_id ){
+			// Setup JACK here, client_id gets the JACK client name
+			pPref->setNsmClientId( QString( client_id ) );
+		} else {
+			___ERRORLOG( "No client_id supplied in NSM open callback!" );
+			return ERR_LAUNCH_FAILED;
+		}
+	} else {
+		
+		___ERRORLOG( "Preferences instance is not ready yet!" );
+		return ERR_NOT_NOW;
+		
+	}
+	
+	// Restarting JACK server.
+	
 	return ERR_OK;
 }
 
-static int nsm_save_cb ( char **out_msg, void *userdata )
+static int nsm_save_cb( char **out_msg, void *userdata )
 {
-	H2Core::Song *pSong = H2Core::Hydrogen::get_instance()->getSong();
-	QString fileName = pSong->get_filename();
+	Action currentAction("SAVE_SONG");
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pSong->save( fileName );
+	pActionManager->handleAction(&currentAction);
 
 	return ERR_OK;
 }
-
 void* nsm_processEvent(void* data)
 {
 	nsm_client_t* nsm = (nsm_client_t*) data;
