@@ -90,7 +90,7 @@ int MainForm::sigusr1Fd[2];
 
 const char* MainForm::__class_name = "MainForm";
 
-MainForm::MainForm( QApplication *app, const QString& songFilename )
+MainForm::MainForm( QApplication *app, const QString& songFilename, const bool bLoadSong )
 	: QMainWindow( nullptr, nullptr )
 	, Object( __class_name )
 {
@@ -108,39 +108,55 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 
 	m_pQApp->processEvents();
 
-	// Load default song
 	Song *pSong = nullptr;
+	
+	if ( bLoadSong ) {
 
-	if ( !songFilename.isEmpty() ) {
-		pSong = Song::load( songFilename );
+		if ( !songFilename.isEmpty() ) {
+			pSong = Song::load( songFilename );
 
-		/*
-		 * If the song could not be loaded, create
-		 * a new one with the specified filename
-		 */
-		if (pSong == nullptr) {
-			pSong = Song::get_empty_song();
-			pSong->set_filename( songFilename );
-		}
-	}
-	else {
-		Preferences *pref = Preferences::get_instance();
-		bool restoreLastSong = pref->isRestoreLastSongEnabled();
-		QString filename = pref->getLastSongFilename();
-		if ( restoreLastSong && ( !filename.isEmpty() )) {
-			pSong = Song::load( filename );
+			/*
+			 * If the song could not be loaded, create
+			 * a new one with the specified filename
+			 */
 			if (pSong == nullptr) {
 				//QMessageBox::warning( this, "Hydrogen", tr("Error restoring last song.") );
+				pSong = Song::get_empty_song();
+				pSong->set_filename( songFilename );
+			}
+		}
+		else {
+			Preferences *pref = Preferences::get_instance();
+			bool restoreLastSong = pref->isRestoreLastSongEnabled();
+			QString filename = pref->getLastSongFilename();
+			if ( restoreLastSong && ( !filename.isEmpty() )) {
+				pSong = Song::load( filename );
+				if (pSong == nullptr) {
+					//QMessageBox::warning( this, "Hydrogen", trUtf8("Error restoring last song.") );
+					pSong = Song::get_empty_song();
+					pSong->set_filename( "" );
+				}
+			}
+			else {
 				pSong = Song::get_empty_song();
 				pSong->set_filename( "" );
 			}
 		}
-		else {
+	} else {
+		// When under Non Session Management the new Song will be
+		// prepared by the corresponding NSM client instance and in here
+		// we will just obtain and load it.
+		pSong = Hydrogen::get_instance()->getNextSong();
+
+		// In case something went wrong when setting the Song to the
+		// loaded by the GUI via an OSC command, load the default Song
+		// instead.
+		if ( pSong == nullptr ) {
 			pSong = Song::get_empty_song();
-			pSong->set_filename( "" );
+			pSong->set_filename( songFilename );
 		}
 	}
-
+	
 	showDevelWarning();
 
 	h2app = new HydrogenApp( this, pSong );

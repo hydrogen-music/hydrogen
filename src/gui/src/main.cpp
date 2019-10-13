@@ -45,6 +45,7 @@
 #include <hydrogen/midi_map.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/nsm_client.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
@@ -370,21 +371,30 @@ int main(int argc, char *argv[])
 		H2Core::Hydrogen::create_instance();
 		
 		// Tell Hydrogen it was started via the QT5 GUI.
-		H2Core::Hydrogen::get_instance()->setActiveGUI( true );
+		H2Core::Hydrogen::get_instance()->setActiveGUI( -1 );
+		
+		// Whether or not to load a default song or supplied one when
+		// constructing the MainForm object.
+		bool bLoadSong = true;
 
 #ifdef H2CORE_HAVE_OSC
 		H2Core::Hydrogen::get_instance()->startNsmClient();
-
-		QString NsmSongFilename = pPref->getNsmSongName();
-
-		if(!NsmSongFilename.isEmpty())
-		{
-			sSongFilename = NsmSongFilename;
+		
+		if ( NsmClient::get_instance()->m_bUnderSessionManagement ){
+			
+			// When using the Non Session Management system, the new
+			// Song will be loaded by the NSM client singleton itself
+			// and not by the MainForm. The latter will just access
+			// the already loaded Song.
+			bLoadSong = false;
+			
 		}
+			
 #endif
 
-		MainForm *pMainForm = new MainForm( pQApp, sSongFilename );
+		MainForm *pMainForm = new MainForm( pQApp, sSongFilename, bLoadSong );
 		pMainForm->show();
+		
 		pSplash->finish( pMainForm );
 
 		if( ! sPlaylistFilename.isEmpty() ){
@@ -405,6 +415,9 @@ int main(int argc, char *argv[])
 				___ERRORLOG ( "Error loading the drumkit" );
 			}
 		}
+
+		// Tell the core that the GUI is now fully loaded and ready.
+		H2Core::Hydrogen::get_instance()->setActiveGUI( 1 );
 
 		pQApp->exec();
 
