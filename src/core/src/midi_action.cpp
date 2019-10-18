@@ -1051,17 +1051,30 @@ bool MidiActionManager::open_song(Action* pAction, Hydrogen* pHydrogen, targeted
 		// Store the prepared Song for the GUI to access after the
 		// EVENT_UPDATE_SONG event was triggered.
 		pHydrogen->setNextSong( pSong );
+
+		// Determines whether (1) or not (0) the audio driver should
+		// be restarted by the GUI handling the event.
+		int eventValue = 0;
+		if ( QString::compare( pAction->getParameter2(), "1" ) ){
+			eventValue = 1;
+		}
 		
 		// If the GUI is active, the Song *must not* be set by the
 		// core part itself.
 		// Triggers an update of the Qt5 GUI and tells it to update
 		// the song itself.
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
+		std::cout << "push_event" << std::endl;
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, eventValue );
 		
 	} else {
 
 		// Update the Song.
 		pHydrogen->setSong( pSong );
+
+		// Restarting the audio engine.
+		if ( QString::compare( pAction->getParameter2(), "1" ) ){
+			pHydrogen->restartDrivers();
+		}
 		
 	}
 
@@ -1093,7 +1106,7 @@ bool MidiActionManager::save_song(Action* pAction, Hydrogen* pHydrogen, targeted
 	// Update the status bar.
 	if ( pHydrogen->getActiveGUI() != 0 ) {
 		
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
 		
 	}
 	
@@ -1128,7 +1141,7 @@ bool MidiActionManager::save_song_as(Action* pAction, Hydrogen* pHydrogen, targe
 	// Update the status bar.
 	if ( pHydrogen->getActiveGUI() != 0 ) {
 		
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
 		
 	}
 	

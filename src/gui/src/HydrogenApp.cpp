@@ -635,19 +635,20 @@ void HydrogenApp::cleanupTemporaryFiles()
 }
 
 void HydrogenApp::updateSongEvent( int nValue ) {
-	
+		
 	Hydrogen* pHydrogen = Hydrogen::get_instance();	
-
-	if ( nValue == 0 ) {
+	
+	if ( nValue == 0 || nValue == 1 ) {
 
 		// Set a Song prepared by the core part.
 		Song* pNextSong = pHydrogen->getNextSong();
+		
 		pHydrogen->setSong( pNextSong );
-	
+
 		// Cleanup
 		closeFXProperties();
 		m_pUndoStack->clear();
-	
+
 		// Update GUI components
 		m_pSongEditorPanel->updateAll();
 		m_pPatternEditorPanel->updateSLnameLabel();
@@ -663,8 +664,13 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		m_pSongEditorPanel->updateAll();
 		m_pPatternEditorPanel->updateSLnameLabel();
 		updateWindowTitle();
+
+		// Restarting the audio driver.
+		if ( nValue == 1 ) {
+			pHydrogen->restartDrivers();
+		}
 		
-	} else if ( nValue == 1 ) {
+	} else if ( nValue == 2 ) {
 		
 		QString filename = pHydrogen->getSong()->get_filename();
 		
