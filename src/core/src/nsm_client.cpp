@@ -61,6 +61,8 @@ static int nsm_open_cb (const char *name,
 
 	QString songPath = QString( "%1.h2song" ).arg( name );
 	QFileInfo songFileInfo = QFileInfo( songPath );
+	
+	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
 
 	// When starting Hydrogen with its Qt5 GUI activated the chosen
 	// Song will be set via the GUI. But since it is constructed after
@@ -70,7 +72,7 @@ static int nsm_open_cb (const char *name,
 	// the construction of MainForm). Therefore the next line will
 	// check whether there is a GUI present and if it is setup
 	// already.
-	if ( H2Core::Hydrogen::get_instance()->getActiveGUI() < 0 ) {
+	if ( pHydrogen->getActiveGUI() < 0 ) {
 		
 		// There is a GUI, but it is not ready yet. Therefore we have
 		// to duplicate some of the logic from the OSC messages,
@@ -86,7 +88,7 @@ static int nsm_open_cb (const char *name,
 				return ERR_LAUNCH_FAILED;
 			}
 			
-			H2Core::Hydrogen::get_instance()->setNextSong( pSong );
+			pHydrogen->setNextSong( pSong );
 			
 		} else {
 			
@@ -95,7 +97,7 @@ static int nsm_open_cb (const char *name,
 			H2Core::Song *pSong = H2Core::Song::get_empty_song();
 			pSong->set_filename( songPath );
 			
-			H2Core::Hydrogen::get_instance()->setNextSong( pSong );
+			pHydrogen->setNextSong( pSong );
 			
 		}
 	} else {
@@ -145,6 +147,7 @@ static int nsm_open_cb (const char *name,
 	}
 	
 	// Restarting JACK server.
+	pHydrogen->restartDrivers();
 	
 	return ERR_OK;
 }
