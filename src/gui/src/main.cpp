@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
 
 		SplashScreen *pSplash = new SplashScreen();
 
-		if (bNoSplash) {
+		if ( bNoSplash ||  getenv( "NSM_URL" ) ) {
 			pSplash->hide();
 		}
 		else {
