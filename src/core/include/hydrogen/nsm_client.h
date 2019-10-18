@@ -28,6 +28,8 @@
 #include <hydrogen/object.h>
 #include <cassert>
 
+#include "hydrogen/nsm.h"
+
 
 /**
 * @class NsmClient
@@ -67,6 +69,17 @@ class NsmClient : public H2Core::Object
 		 */
 		static NsmClient* get_instance() { assert(__instance); return __instance; }
 
+		/**
+		 * Informs the NSM server whether the current Song is modified
+		 * or not.
+		 *
+		 * This function is triggered within
+		 * H2Core::Song::set_is_modified().
+		 *
+		 * \param isDirty true, if the current Song was modified, and
+		 * false if it wasn't
+		 */
+		void sendDirtyState( const bool isDirty );
 		void createInitialClient();
 
 		void shutdown();
@@ -80,6 +93,14 @@ class NsmClient : public H2Core::Object
 
 	private:
 		NsmClient();
+		
+		/**
+		 * Stores the current instance of the NSM client.
+		 *
+		 * Used in sendDirtyState() to establish a communication to
+		 * the NSM server.
+		 */
+		nsm_client_t* m_nsm;
 
 };
 

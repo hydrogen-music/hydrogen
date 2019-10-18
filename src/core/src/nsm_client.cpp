@@ -30,7 +30,6 @@
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
 #include "hydrogen/nsm_client.h"
-#include "hydrogen/nsm.h"
 #include "hydrogen/event_queue.h"
 #include "hydrogen/hydrogen.h"
 #include "hydrogen/basics/song.h"
@@ -162,6 +161,7 @@ static int nsm_save_cb( char **out_msg, void *userdata )
 
 	return ERR_OK;
 }
+
 void* nsm_processEvent(void* data)
 {
 	nsm_client_t* nsm = (nsm_client_t*) data;
@@ -214,6 +214,10 @@ void NsmClient::createInitialClient()
 	if ( nsm_url )
 	{
 		nsm = nsm_new();
+		
+		// Store the nsm client in a private member variable for later
+		// access.
+		m_nsm = nsm;
 
 		if ( nsm )
 		{
@@ -222,7 +226,7 @@ void NsmClient::createInitialClient()
 
 			if ( nsm_init( nsm, nsm_url ) == 0 )
 			{
-				nsm_send_announce( nsm, "Hydrogen", ":switch:", byteArray.data() );
+				nsm_send_announce( nsm, "Hydrogen", ":dirty:switch:", byteArray.data() );
 				nsm_check_wait( nsm, 10000 );
 
 				if(pthread_create(&m_NsmThread, nullptr, nsm_processEvent, nsm)) {
@@ -248,5 +252,15 @@ void NsmClient::createInitialClient()
 		___WARNINGLOG("No NSM URL available: no NSM management\n");
 	}
 }
+
+void NsmClient::sendDirtyState( const bool isDirty ) {
+	
+	if ( isDirty ) {
+		nsm_send_is_dirty( m_nsm );
+	} else {
+		nsm_send_is_clean( m_nsm );
+	}
+}
+
 #endif /* H2CORE_HAVE_OSC */
 
