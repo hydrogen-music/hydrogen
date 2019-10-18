@@ -47,7 +47,6 @@ static int nsm_open_cb (const char *name,
 						char **out_msg,
 						void *userdata )
 {
-
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 	
 	// Handle supplied Song name. Hydrogen sends a unique string, like
@@ -117,16 +116,21 @@ static int nsm_open_cb (const char *name,
 		}
 
 		Action currentAction( actionType );
-		currentAction.setParameter1( songPath );
-		bool ok = pActionManager->handleAction( &currentAction );
 		
+		// Tell the action to load the desired file.
+		currentAction.setParameter1( songPath );
+		
+		// Tell the action to restart the audio engine.
+		currentAction.setParameter2( "1" );
+		bool ok = pActionManager->handleAction( &currentAction );
+
 		if ( !ok ) {
 			___ERRORLOG( QString( "Unable to handle opening action!" ) );
 			return ERR_LAUNCH_FAILED;
 		}
 		
 	}
-	
+
 	// Restarting the JACK server using the client_id in the name of
 	// the freshly created instance.
 	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
@@ -145,9 +149,6 @@ static int nsm_open_cb (const char *name,
 		return ERR_NOT_NOW;
 		
 	}
-	
-	// Restarting JACK server.
-	pHydrogen->restartDrivers();
 	
 	return ERR_OK;
 }
@@ -221,7 +222,7 @@ void NsmClient::createInitialClient()
 
 			if ( nsm_init( nsm, nsm_url ) == 0 )
 			{
-				nsm_send_announce( nsm, "Hydrogen", "", byteArray.data() );
+				nsm_send_announce( nsm, "Hydrogen", ":switch:", byteArray.data() );
 				nsm_check_wait( nsm, 10000 );
 
 				if(pthread_create(&m_NsmThread, nullptr, nsm_processEvent, nsm)) {

@@ -115,7 +115,9 @@ enum EventType {
 	 *
 	 * If the value of the event is 
 	 * - 0 - Hydrogen::m_pNextSong will be loaded.
-	 * - 1 - triggered whenever the #Song was saved via the core part
+	 * - 1 - Hydrogen::m_pNextSong will be loaded and the audio
+	 *       drivers will be restarted via Hydrogen::restartDrivers()
+	 * - 2 - triggered whenever the #Song was saved via the core part
 	 *       (updated the title and status bar).
 	 */
 	EVENT_UPDATE_SONG,
