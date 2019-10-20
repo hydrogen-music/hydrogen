@@ -67,10 +67,48 @@ public slots:
 		void showPreferencesDialog();
 		void showUserManual();
 
+		/**
+		 * Project > New handling function.
+		 *
+		 * Creates an empty Song and set it as the current one.
+		 *
+		 * When Hydrogen is under session management (NSM) this
+		 * function will assume that there is already a Song present
+		 * (which is the case). Else it will return without doing
+		 * anything. It uses the current Song to assign the it file
+		 * path to the empty one since the name provided by the NSM
+		 * server must be used or the restart of the session fails.
+		 */
 		void action_file_new();
+		
+		/**
+		 * Project > Open / Import into Session handling function.
+		 *
+		 * Opens an existing Song.
+		 *
+		 * When Hydrogen is under session management (NSM) this
+		 * function will assume that there is already a Song present
+		 * (which is the case). Else it will return without doing
+		 * anything. It opens the chosen file and uses the current
+		 * Song to assign its file path to the opened one since the
+		 * name provided by the NSM server must be used or the restart
+		 * of the session fails.
+		 */
 		void action_file_open();
 		void action_file_openDemo();
 		void action_file_save();
+		
+		/**
+		 * Project > Save As / Export from Session handling function.
+		 *
+		 * Saves the current Song in a different path.
+		 *
+		 * When Hydrogen is under session management (NSM) this
+		 * function will store the Song in the chosen location but
+		 * keeps its previous file path associated with it since the
+		 * name provided by the NSM server must be used or the restart
+		 * of the session fails.
+		 */
 		void action_file_save_as();
 		void action_file_openPattern();
 		void action_file_export_pattern_as();

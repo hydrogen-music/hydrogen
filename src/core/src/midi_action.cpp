@@ -1063,7 +1063,6 @@ bool MidiActionManager::open_song(Action* pAction, Hydrogen* pHydrogen, targeted
 		// core part itself.
 		// Triggers an update of the Qt5 GUI and tells it to update
 		// the song itself.
-		std::cout << "push_event" << std::endl;
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, eventValue );
 		
 	} else {
