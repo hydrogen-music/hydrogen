@@ -992,6 +992,209 @@ bool MidiActionManager::redo_action(Action * , Hydrogen* , targeted_element ) {
 	return true;
 }
 
+bool MidiActionManager::new_song(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
+ 
+	if ( pHydrogen->getState() == STATE_PLAYING ) {
+		
+		// Stops recording, all queued MIDI notes, and the playback of
+		// the audio driver.
+		pHydrogen->sequencer_stop();
+
+	}
+	
+	// Remove all BPM tags on the Timeline.
+	pHydrogen->getTimeline()->m_timelinevector.clear();
+	
+	// Create an empty Song.
+	Song* pSong = Song::get_empty_song();
+	
+	QString songPath = pAction->getParameter1();
+	
+	// Check whether the provided path is valid.
+	if ( !isSongPathValid( songPath ) ) {
+		return false;
+	}
+	
+	pSong->set_filename( songPath );
+	
+	if ( pHydrogen->getActiveGUI() != 0 ) {
+		
+		// Store the prepared Song for the GUI to access after the
+		// EVENT_UPDATE_SONG event was triggered.
+		pHydrogen->setNextSong( pSong );
+		
+		// If the GUI is active, the Song *must not* be set by the
+		// core part itself.
+		// Triggers an update of the Qt5 GUI and tells it to update
+		// the song itself.
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
+		
+	} else {
+
+		// Update the Song.
+		pHydrogen->setSong( pSong );
+		
+	}
+
+	return true;
+}
+
+bool MidiActionManager::open_song(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
+ 
+	if ( pHydrogen->getState() == STATE_PLAYING ) {
+		
+		// Stops recording, all queued MIDI notes, and the playback of
+		// the audio driver.
+		pHydrogen->sequencer_stop();
+
+	}
+	
+	// Remove all BPM tags on the Timeline.
+	pHydrogen->getTimeline()->m_timelinevector.clear();
+	
+	QString songPath = pAction->getParameter1();
+	
+	// Check whether the provided path is valid.
+	if ( !isSongPathValid( songPath ) ) {
+		return false;
+	}
+	
+	QFileInfo songFileInfo = QFileInfo( songPath );
+	if ( !songFileInfo.exists() ) {
+		std::cout << "Error: Selected Song does not exist!" << std::endl;
+		return false;
+	}
+	
+	// Open the Song.
+	Song* pSong = Song::load( songPath );
+	
+	if ( pSong == nullptr ) {
+		std::cout << "Error: Unable to open Song." << std::endl;
+		
+		return false;
+	}
+	
+	if ( pHydrogen->getActiveGUI() != 0 ) {
+		
+		// Store the prepared Song for the GUI to access after the
+		// EVENT_UPDATE_SONG event was triggered.
+		pHydrogen->setNextSong( pSong );
+
+		// Determines whether (1) or not (0) the audio driver should
+		// be restarted by the GUI handling the event.
+		int eventValue = 0;
+		if ( QString::compare( pAction->getParameter2(), "1" ) ){
+			eventValue = 1;
+		}
+		
+		// If the GUI is active, the Song *must not* be set by the
+		// core part itself.
+		// Triggers an update of the Qt5 GUI and tells it to update
+		// the song itself.
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, eventValue );
+		
+	} else {
+
+		// Update the Song.
+		pHydrogen->setSong( pSong );
+
+		// Restarting the audio engine.
+		if ( QString::compare( pAction->getParameter2(), "1" ) ){
+			pHydrogen->restartDrivers();
+		}
+		
+	}
+
+	return true;
+}
+
+bool MidiActionManager::save_song(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
+
+	// Get the current Song which is about to be saved.
+	Song* pSong = pHydrogen->getSong();
+	
+	// Extract the path to the associate .h2song file.
+	QString filename = pSong->get_filename();
+	
+	if ( filename.isEmpty() ) {
+		std::cout << "Error: Unable to save Song. Empty filename!" << std::endl;
+		
+		return false;
+	}
+	
+	// Actual saving
+	bool saved = pSong->save( filename );
+	if ( !saved ) {
+		ERRORLOG( QString( "Current Song could not be saved!" ) );
+		
+		return false;
+	}
+	
+	// Update the status bar.
+	if ( pHydrogen->getActiveGUI() != 0 ) {
+		
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
+		
+	}
+	
+	return true;
+}
+
+bool MidiActionManager::save_song_as(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
+	// Get the current Song which is about to be saved.
+	Song* pSong = pHydrogen->getSong();
+	
+	QString songPath = pAction->getParameter1();
+	
+	// Check whether the provided path is valid.
+	if ( !isSongPathValid( songPath ) ) {
+		return false;
+	}
+	
+	if ( songPath.isEmpty() ) {
+		std::cout << "Error: Unable to save Song. Empty filename!" << std::endl;
+		
+		return false;
+	}
+	
+	// Actual saving
+	bool saved = pSong->save( songPath );
+	if ( !saved ) {
+		ERRORLOG( QString( "Current Song could not be saved!" ) );
+		
+		return false;
+	}
+	
+	// Update the status bar.
+	if ( pHydrogen->getActiveGUI() != 0 ) {
+		
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
+		
+	}
+	
+	return true;
+}
+
+bool MidiActionManager::quit(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
+	
+	// Update the status bar.
+	if ( pHydrogen->getActiveGUI() != 0 ) {
+		
+		EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
+		
+	} else {
+		// TODO: Close Hydrogen with no GUI present.
+		
+		std::cout << "Error: Closing the application via the core part is not supported yet!" <<
+			std::endl;
+		
+		return false;
+		
+	}
+	
+	return true;
+}
+
 bool MidiActionManager::handleAction( Action * pAction ) {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();

@@ -59,6 +59,7 @@
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/nsm_client.h>
 
 using namespace H2Core;
 
@@ -738,19 +739,24 @@ void SoundLibraryPanel::on_songLoadAction()
 	if ( pHydrogen->getState() == STATE_PLAYING ) {
 		pHydrogen->sequencer_stop();
 	}
-
+	
 	Song *pSong = Song::load( sFilename );
 	if ( pSong == nullptr ) {
 		QMessageBox::information( this, "Hydrogen", tr("Error loading song.") );
 		return;
 	}
 
-	// add the new loaded song in the "last used song" vector
-	Preferences *pPref = Preferences::get_instance();
+	// Add the new loaded song in the "last used song"
+	// vector. 
+	// This behavior is prohibited under session management. Only
+	// songs open during normal runs will be listed.
+	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
+		Preferences *pPref = Preferences::get_instance();
 
-	std::vector<QString> recentFiles = pPref->getRecentFiles();
-	recentFiles.insert( recentFiles.begin(), sFilename );
-	pPref->setRecentFiles( recentFiles );
+		std::vector<QString> recentFiles = pPref->getRecentFiles();
+		recentFiles.insert( recentFiles.begin(), sFilename );
+		pPref->setRecentFiles( recentFiles );
+	}
 
 	HydrogenApp* pH2App = HydrogenApp::get_instance();
 

@@ -27,6 +27,7 @@
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/nsm_client.h>
 
 #include "HydrogenApp.h"
 #include "Skin.h"
@@ -327,16 +328,17 @@ void HydrogenApp::closeFXProperties()
 #endif
 }
 
-void HydrogenApp::setSong(Song* song)
+void HydrogenApp::setSong(Song* pSong)
 {
-	Hydrogen::get_instance()->setSong( song );
-	Preferences::get_instance()->setLastSongFilename( song->get_filename() );
+	Hydrogen::get_instance()->setSong( pSong );
+	
+	Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
 
 	m_pSongEditorPanel->updateAll();
 	m_pPatternEditorPanel->updateSLnameLabel();
 
 	updateWindowTitle();
-
+	
 	m_pMainForm->updateRecentUsedSongList();
 }
 
