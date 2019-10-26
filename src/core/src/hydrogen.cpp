@@ -1540,6 +1540,19 @@ void audioEngine_renameJackPorts(Song * pSong)
 	if ( ! pSong ) return;
 
 	if ( Hydrogen::get_instance()->haveJackAudioDriver() ) {
+	
+#ifdef H2CORE_HAVE_OSC
+		// When restarting the audio driver after loading a new song under
+		// Non session management all ports have to be registered _prior_
+		// to the activation of the client.
+		if ( NsmClient::get_instance() != nullptr ) {
+			// The NSM client was already initialized.
+			if ( NsmClient::get_instance()->m_bUnderSessionManagement ){
+				return;
+			}
+		}
+		
+#endif
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->makeTrackOutputs( pSong );
 	}
 #endif
@@ -2137,7 +2150,7 @@ void audioEngine_startAudioDrivers()
 	QMutexLocker mx(&mutex_OutputPointer);
 
 	___INFOLOG( "[audioEngine_startAudioDrivers]" );
-
+	
 	// check current state
 	if ( m_audioEngineState != STATE_INITIALIZED ) {
 		___ERRORLOG( QString( "Error the audio engine is not in INITIALIZED"
@@ -2374,6 +2387,7 @@ Hydrogen::Hydrogen()
 	INFOLOG( "[Hydrogen]" );
 
 	__song = nullptr;
+	m_pNextSong = nullptr;
 
 	m_bExportSessionIsActive = false;
 	m_pTimeline = new Timeline();
@@ -2549,7 +2563,7 @@ void Hydrogen::setSong( Song *pSong )
 
 	// load new playback track information
 	AudioEngine::get_instance()->get_sampler()->reinitialize_playback_track();
-	
+
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
 	m_pCoreActionController->initExternalControlInterfaces();

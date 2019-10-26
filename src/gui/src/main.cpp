@@ -45,7 +45,6 @@
 #include <hydrogen/midi_map.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>
-#include <hydrogen/nsm_client.h>
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/Preferences.h>
@@ -53,6 +52,10 @@
 #include <hydrogen/basics/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/helpers/translations.h>
+
+#ifdef H2CORE_HAVE_OSC
+#include <hydrogen/nsm_client.h>
+#endif
 
 #include <signal.h>
 #include <iostream>
@@ -391,12 +394,17 @@ int main(int argc, char *argv[])
 
 		SplashScreen *pSplash = new SplashScreen();
 
+#ifdef H2CORE_HAVE_OSC
 		if ( bNoSplash ||  getenv( "NSM_URL" ) ) {
 			pSplash->hide();
 		}
 		else {
 			pSplash->show();
 		}
+#endif
+#ifndef H2CORE_HAVE_OSC
+		pSplash->show();
+#endif
 
 #ifdef H2CORE_HAVE_LASH
 		if ( H2Core::Preferences::get_instance()->useLash() ){
@@ -462,6 +470,8 @@ int main(int argc, char *argv[])
 
 #ifdef H2CORE_HAVE_OSC
 		H2Core::Hydrogen::get_instance()->startNsmClient();
+		
+		std::cout << "[main] USBM" << std::endl;
 		
 		if ( NsmClient::get_instance()->m_bUnderSessionManagement ){
 			
