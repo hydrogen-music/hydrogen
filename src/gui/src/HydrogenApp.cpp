@@ -54,6 +54,10 @@
 
 #include "Widgets/InfoBar.h"
 
+#ifdef H2CORE_HAVE_OSC
+#include <hydrogen/nsm_client.h>
+#endif
+
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000
@@ -90,7 +94,16 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 
 	// Create the audio engine :)
 	Hydrogen::create_instance();
+	
+#ifdef H2CORE_HAVE_OSC
+	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
+		Hydrogen::get_instance()->setSong( pFirstSong );
+	}
+#endif
+#ifndef H2CORE_HAVE_OSC
 	Hydrogen::get_instance()->setSong( pFirstSong );
+#endif
+	
 	Preferences::get_instance()->setLastSongFilename( pFirstSong->get_filename() );
 	SoundLibraryDatabase::create_instance();
 
@@ -685,7 +698,7 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 
 		// Set a Song prepared by the core part.
 		Song* pNextSong = pHydrogen->getNextSong();
-		
+
 		pHydrogen->setSong( pNextSong );
 
 		// Cleanup

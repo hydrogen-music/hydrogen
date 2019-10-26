@@ -471,8 +471,6 @@ int main(int argc, char *argv[])
 #ifdef H2CORE_HAVE_OSC
 		H2Core::Hydrogen::get_instance()->startNsmClient();
 		
-		std::cout << "[main] USBM" << std::endl;
-		
 		if ( NsmClient::get_instance()->m_bUnderSessionManagement ){
 			
 			// When using the Non Session Management system, the new
