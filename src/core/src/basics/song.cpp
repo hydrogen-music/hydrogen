@@ -46,7 +46,10 @@
 #include <hydrogen/helpers/xml.h>
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/hydrogen.h>
+
+#ifdef H2CORE_HAVE_OSC
 #include <hydrogen/nsm_client.h>
+#endif
 
 #include <QDomDocument>
 #include <QDir>
@@ -246,12 +249,15 @@ void Song::set_is_modified(bool is_modified)
 		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
 	}
 	
+#ifdef H2CORE_HAVE_OSC
 	// If Hydrogen is under session management (NSM), tell the NSM
 	// server that the Song was modified.
 	NsmClient* pNsmClient = NsmClient::get_instance();
 	if ( pNsmClient && pNsmClient->m_bUnderSessionManagement ) {
 		NsmClient::get_instance()->sendDirtyState( is_modified );
 	}
+#endif
+	
 }
 
 void Song::readTempPatternList( const QString& filename )
@@ -1000,7 +1006,6 @@ Song* SongReader::readSong( const QString& filename )
 		if ( instrumentList_count == 0 ) {
 			WARNINGLOG( "0 instruments?" );
 		}
-
 		pSong->set_instrument_list( pInstrList );
 	} else {
 		ERRORLOG( "Error reading song: instrumentList node not found" );

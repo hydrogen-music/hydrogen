@@ -59,7 +59,10 @@
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/helpers/filesystem.h>
+
+#ifdef H2CORE_HAVE_OSC
 #include <hydrogen/nsm_client.h>
+#endif
 
 using namespace H2Core;
 
@@ -742,8 +745,8 @@ void SoundLibraryPanel::on_songLoadAction()
 		return;
 	}
 
-	// Add the new loaded song in the "last used song"
-	// vector. 
+#ifdef H2CORE_HAVE_OSC
+	// Add the new loaded song in the "last used song" vector. 
 	// This behavior is prohibited under session management. Only
 	// songs open during normal runs will be listed.
 	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
@@ -753,6 +756,14 @@ void SoundLibraryPanel::on_songLoadAction()
 		recentFiles.insert( recentFiles.begin(), sFilename );
 		pPref->setRecentFiles( recentFiles );
 	}
+#endif
+#ifndef H2CORE_HAVE_OSC
+	Preferences *pPref = Preferences::get_instance();
+
+	std::vector<QString> recentFiles = pPref->getRecentFiles();
+	recentFiles.insert( recentFiles.begin(), sFilename );
+	pPref->setRecentFiles( recentFiles );
+#endif
 
 	HydrogenApp* pH2App = HydrogenApp::get_instance();
 

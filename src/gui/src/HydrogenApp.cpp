@@ -27,7 +27,6 @@
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/nsm_client.h>
 
 #include "HydrogenApp.h"
 #include "Skin.h"
@@ -637,7 +636,7 @@ void HydrogenApp::cleanupTemporaryFiles()
 }
 
 void HydrogenApp::updateSongEvent( int nValue ) {
-		
+	
 	Hydrogen* pHydrogen = Hydrogen::get_instance();	
 	
 	if ( nValue == 0 || nValue == 1 ) {
@@ -666,9 +665,9 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		m_pSongEditorPanel->updateAll();
 		m_pPatternEditorPanel->updateSLnameLabel();
 		updateWindowTitle();
-
+		
 		// Restarting the audio driver.
-		if ( nValue == 1 ) {
+		if ( nValue == 1 ) {	
 			pHydrogen->restartDrivers();
 		}
 		

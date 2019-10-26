@@ -1055,7 +1055,7 @@ bool MidiActionManager::open_song(Action* pAction, Hydrogen* pHydrogen, targeted
 		// Determines whether (1) or not (0) the audio driver should
 		// be restarted by the GUI handling the event.
 		int eventValue = 0;
-		if ( QString::compare( pAction->getParameter2(), "1" ) ){
+		if ( pAction->getParameter2().toInt() == 1 ){
 			eventValue = 1;
 		}
 		
@@ -1089,7 +1089,8 @@ bool MidiActionManager::save_song(Action* pAction, Hydrogen* pHydrogen, targeted
 	QString filename = pSong->get_filename();
 	
 	if ( filename.isEmpty() ) {
-		std::cout << "Error: Unable to save Song. Empty filename!" << std::endl;
+		std::cout << "Error: Unable to save Song. Empty filename! " 
+				  << filename.toLocal8Bit().data() << std::endl;
 		
 		return false;
 	}
@@ -1097,7 +1098,8 @@ bool MidiActionManager::save_song(Action* pAction, Hydrogen* pHydrogen, targeted
 	// Actual saving
 	bool saved = pSong->save( filename );
 	if ( !saved ) {
-		ERRORLOG( QString( "Current Song could not be saved!" ) );
+		ERRORLOG( QString( "Current Song [%1] could not be saved!" 
+						   ).arg( filename ) );
 		
 		return false;
 	}
@@ -1124,7 +1126,8 @@ bool MidiActionManager::save_song_as(Action* pAction, Hydrogen* pHydrogen, targe
 	}
 	
 	if ( songPath.isEmpty() ) {
-		std::cout << "Error: Unable to save Song. Empty filename!" << std::endl;
+		std::cout << "Error: Unable to save Song. Empty filename!" 
+				  << pSong->get_filename().toLocal8Bit().data() << std::endl;
 		
 		return false;
 	}
@@ -1132,7 +1135,8 @@ bool MidiActionManager::save_song_as(Action* pAction, Hydrogen* pHydrogen, targe
 	// Actual saving
 	bool saved = pSong->save( songPath );
 	if ( !saved ) {
-		ERRORLOG( QString( "Current Song could not be saved!" ) );
+		ERRORLOG( QString( "Current Song [%1] could not be saved!" 
+						   ).arg( pSong->get_filename() ) );
 		
 		return false;
 	}

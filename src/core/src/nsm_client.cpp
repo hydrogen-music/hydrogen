@@ -59,50 +59,70 @@ static int nsm_open_cb (const char *name,
 
 	QString songPath = QString( "%1.h2song" ).arg( name );
 	QFileInfo songFileInfo = QFileInfo( songPath );
+
+	// When restarting the JACK client (later in this function) the
+	// client_id will be used as the name of the freshly created
+	// instance.
+	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
+	if ( pPref ){
+		if ( client_id ){
+			// Setup JACK here, client_id gets the JACK client name
+			pPref->setNsmClientId( QString( client_id ) );
+		} else {
+			___ERRORLOG( "No client_id supplied in NSM open callback!" );
+			return ERR_LAUNCH_FAILED;
+		}
+	} else {
+		___ERRORLOG( "Preferences instance is not ready yet!" );
+		return ERR_NOT_NOW;
+	}
 	
 	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+	H2Core::Song *pSong = nullptr;
+	
+	// Create a new Song object (and store it for the GUI to load later
+	// on).
+	if ( songFileInfo.exists() ) {
+
+		pSong = H2Core::Song::load( songPath );
+		if ( pSong == nullptr ) {
+			___ERRORLOG( QString( "Error: Unable to open Song." ) );
+			return ERR_LAUNCH_FAILED;
+		}
+		
+	} else {
+		
+		// There is no file with this name present yet. Fall back
+		// to an empty default Song.
+		pSong = H2Core::Song::get_empty_song();
+		if ( pSong == nullptr ) {
+			___ERRORLOG( QString( "Error: Unable to open new Song." ) );
+			return ERR_LAUNCH_FAILED;
+		}
+		pSong->set_filename( songPath );
+	}
 
 	// When starting Hydrogen with its Qt5 GUI activated the chosen
 	// Song will be set via the GUI. But since it is constructed after
 	// the NSM client, using the corresponding OSC message to open a
 	// Song won't work in this scenario (since this would set the Song
 	// asynchronously using the EventQueue and it is require during
-	// the construction of MainForm). Therefore the next line will
+	// the construction of MainForm). Therefore, the next line will
 	// check whether there is a GUI present and if it is setup
 	// already.
 	if ( pHydrogen->getActiveGUI() < 0 ) {
 		
-		// There is a GUI, but it is not ready yet. Therefore we have
-		// to duplicate some of the logic from the OSC messages,
-		// create a new Song object, and store it for the GUI to load
-		// later on.
-		if ( songFileInfo.exists() ) {
-			
-			H2Core::Song *pSong = H2Core::Song::load( songPath );
-	
-			if ( pSong == nullptr ) {
-				___ERRORLOG( QString( "Error: Unable to open Song." ) );
+		// No GUI. Just load the requested Song and restart the audio
+		// driver.
+		pHydrogen->setSong( pSong );
+		pHydrogen->restartDrivers();
 		
-				return ERR_LAUNCH_FAILED;
-			}
-			
-			pHydrogen->setNextSong( pSong );
-			
-		} else {
-			
-			// There is no file with this name present yet. Fall back
-			// to an empty default Song.
-			H2Core::Song *pSong = H2Core::Song::get_empty_song();
-			pSong->set_filename( songPath );
-			
-			pHydrogen->setNextSong( pSong );
-			
-		}
 	} else {
+
+		// The opening of the Song will be done asynchronously using
+		// the MidiActionManager.
+		pHydrogen->setNextSong( pSong );
 		
-		// The opening of the Song will be done (asynchronously, if a
-		// GUI is present) using the MidiActionManager.
-	
 		// Check whether a file corresponding to the provided path does
 		// already exist.
 		QString actionType;
@@ -121,6 +141,9 @@ static int nsm_open_cb (const char *name,
 		
 		// Tell the action to restart the audio engine.
 		currentAction.setParameter2( "1" );
+		
+		H2Core::Song *pCurrentSong = pHydrogen->getSong();
+		
 		bool ok = pActionManager->handleAction( &currentAction );
 
 		if ( !ok ) {
@@ -128,25 +151,13 @@ static int nsm_open_cb (const char *name,
 			return ERR_LAUNCH_FAILED;
 		}
 		
-	}
-
-	// Restarting the JACK server using the client_id in the name of
-	// the freshly created instance.
-	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
-
-	if ( pPref ){
-		if ( client_id ){
-			// Setup JACK here, client_id gets the JACK client name
-			pPref->setNsmClientId( QString( client_id ) );
-		} else {
-			___ERRORLOG( "No client_id supplied in NSM open callback!" );
-			return ERR_LAUNCH_FAILED;
+		// Wait until the song was set (asynchronously by the GUI).
+		while ( true ) {
+			if ( pCurrentSong != pHydrogen->getSong() ) {
+				break;
+			}
+			sleep(5);
 		}
-	} else {
-		
-		___ERRORLOG( "Preferences instance is not ready yet!" );
-		return ERR_NOT_NOW;
-		
 	}
 	
 	return ERR_OK;
@@ -226,17 +237,24 @@ void NsmClient::createInitialClient()
 
 			if ( nsm_init( nsm, nsm_url ) == 0 )
 			{
+				// Technically Hydrogen will be under session
+				// management after the nsm_send_announce and
+				// nsm_check_wait function are called. But since the
+				// nsm_open_cb() will be called by the NSM server
+				// immediately after receiving the announce and some
+				// of the functions called thereafter do check whether
+				// H2 is under session management, the variable will
+				// be set here.
+				m_bUnderSessionManagement = true;
+				
 				nsm_send_announce( nsm, "Hydrogen", ":dirty:switch:", byteArray.data() );
 				nsm_check_wait( nsm, 10000 );
 
 				if(pthread_create(&m_NsmThread, nullptr, nsm_processEvent, nsm)) {
 					___ERRORLOG("Error creating NSM thread\n	");
+					m_bUnderSessionManagement = false;
 					return;
-				}
-				
-				// Everything worked fine and H2 can now be considered
-				// under session management.
-				m_bUnderSessionManagement = true;
+				}				
 
 			}
 			else

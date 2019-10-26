@@ -40,6 +40,10 @@
 #include <hydrogen/globals.h>
 #include <hydrogen/event_queue.h>
 
+#ifdef H2CORE_HAVE_OSC
+#include <hydrogen/nsm_client.h>
+#endif
+
 #ifdef H2CORE_HAVE_LASH
 #include <hydrogen/LashClient.h>
 #endif
@@ -50,254 +54,254 @@
 
 namespace H2Core {
 
-/**
- * Sample rate of the JACK audio server.
- *
- * It is set by the callback function jackDriverSampleRate()
- * registered in the JACK server and accessed via
- * JackAudioDriver::getSampleRate(). Its initialization is handled by
- * JackAudioDriver::init(), which sets it to the sample rate of the
- * Hydrogen's external JACK client via _jack_get_sample_rate()_
- * (jack/jack.h). 
- */
-unsigned long		jack_server_sampleRate = 0;
-/**
- * Buffer size of the JACK audio server.
- *
- * It is set by the callback function jackDriverBufferSize()
- * registered in the JACK server and accessed via
- * JackAudioDriver::getBufferSize(). Its initialization is handled by
- * JackAudioDriver::init(), which sets it to the buffer size of the
- * Hydrogen's external JACK client via _jack_get_buffer_size()_
- * (jack/jack.h). 
- */
-jack_nframes_t		jack_server_bufferSize = 0;
-/**
- * Instance of the JackAudioDriver.
- */
-JackAudioDriver *	pJackDriverInstance = nullptr;
+	/**
+	 * Sample rate of the JACK audio server.
+	 *
+	 * It is set by the callback function jackDriverSampleRate()
+	 * registered in the JACK server and accessed via
+	 * JackAudioDriver::getSampleRate(). Its initialization is handled by
+	 * JackAudioDriver::init(), which sets it to the sample rate of the
+	 * Hydrogen's external JACK client via _jack_get_sample_rate()_
+	 * (jack/jack.h). 
+	 */
+	unsigned long		jack_server_sampleRate = 0;
+	/**
+	 * Buffer size of the JACK audio server.
+	 *
+	 * It is set by the callback function jackDriverBufferSize()
+	 * registered in the JACK server and accessed via
+	 * JackAudioDriver::getBufferSize(). Its initialization is handled by
+	 * JackAudioDriver::init(), which sets it to the buffer size of the
+	 * Hydrogen's external JACK client via _jack_get_buffer_size()_
+	 * (jack/jack.h). 
+	 */
+	jack_nframes_t		jack_server_bufferSize = 0;
+	/**
+	 * Instance of the JackAudioDriver.
+	 */
+	JackAudioDriver *	pJackDriverInstance = nullptr;
 
 
-/**
- * Callback function for the JACK audio server to set the sample rate
- * #H2Core::jack_server_sampleRate and prints a message to
- * the #__INFOLOG, which has to be included via a Logger instance in
- * the provided @a param.
- *
- * It gets registered as a callback function of the JACK server in
- * JackAudioDriver::init() using _jack_set_sample_rate_callback()_.
- *
- * \param nframes New sample rate. The object has to be of type
- * _jack_nframes_t_, which is defined in the jack/types.h header.
- * \param param Object containing a Logger member to display the
- * change in the sample rate in its INFOLOG.
- *
- * @return 0 on success
- */
-int jackDriverSampleRate( jack_nframes_t nframes, void* param ){
-	// Used for logging.
-	Object* __object = ( Object* )param;
-	QString msg = QString("Jack SampleRate changed: the sample rate is now %1/sec").arg( QString::number( (int) nframes ) );
-	// The __INFOLOG macro uses the Object *__object and not the
-	// Object instance as INFOLOG does. It will call
-	// __object->logger()->log( H2Core::Logger::Info, ..., msg )
-	// (see object.h).
-	__INFOLOG( msg );
-	jack_server_sampleRate = nframes;
-	return 0;
-}
-/**
- * Callback function for the JACK audio server to set the buffer size
- * #H2Core::jack_server_bufferSize.
- *
- * It gets registered as a callback function of the JACK server in
- * JackAudioDriver::init() using _jack_set_buffer_size_callback()_.
- *
- * \param nframes New buffer size. The object has to be of type @a
- * jack_nframes_t, which is defined in the jack/types.h header.
- * \param arg Not used within the function but kept for compatibility
- * reasons since the _JackBufferSizeCallback_ (jack/types.h) requires a
- * second input argument @a arg of type _void_, which is a pointer
- * supplied by the jack_set_buffer_size_callback() function.
- *
- * @return 0 on success
- */
-int jackDriverBufferSize( jack_nframes_t nframes, void* arg ){
-	// This function does _NOT_ have to be realtime safe.
-	jack_server_bufferSize = nframes;
-	return 0;
-}
-/**
- * Callback function for the JACK audio server to shutting down the
- * JACK driver.
- *
- * The JackAudioDriver::m_pClient pointer stored in the current
- * instance of the JACK audio driver #pJackDriverInstance is set to
- * the nullptr and a Hydrogen::JACK_SERVER_SHUTDOWN error is raised
- * using Hydrogen::raiseError().
- *
- * It gets registered as a callback function of the JACK server in
- * JackAudioDriver::init() using _jack_on_shutdown()_.
- *
- * \param arg Not used within the function but kept for compatibility
- * reasons since _jack_shutdown()_ (jack/jack.h) the argument @a arg
- * of type void.
- */	
-void jackDriverShutdown( void* arg )
-{
-	UNUSED( arg );
+	/**
+	 * Callback function for the JACK audio server to set the sample rate
+	 * #H2Core::jack_server_sampleRate and prints a message to
+	 * the #__INFOLOG, which has to be included via a Logger instance in
+	 * the provided @a param.
+	 *
+	 * It gets registered as a callback function of the JACK server in
+	 * JackAudioDriver::init() using _jack_set_sample_rate_callback()_.
+	 *
+	 * \param nframes New sample rate. The object has to be of type
+	 * _jack_nframes_t_, which is defined in the jack/types.h header.
+	 * \param param Object containing a Logger member to display the
+	 * change in the sample rate in its INFOLOG.
+	 *
+	 * @return 0 on success
+	 */
+	int jackDriverSampleRate( jack_nframes_t nframes, void* param ){
+		// Used for logging.
+		Object* __object = ( Object* )param;
+		QString msg = QString("Jack SampleRate changed: the sample rate is now %1/sec").arg( QString::number( (int) nframes ) );
+		// The __INFOLOG macro uses the Object *__object and not the
+		// Object instance as INFOLOG does. It will call
+		// __object->logger()->log( H2Core::Logger::Info, ..., msg )
+		// (see object.h).
+		__INFOLOG( msg );
+		jack_server_sampleRate = nframes;
+		return 0;
+	}
+	/**
+	 * Callback function for the JACK audio server to set the buffer size
+	 * #H2Core::jack_server_bufferSize.
+	 *
+	 * It gets registered as a callback function of the JACK server in
+	 * JackAudioDriver::init() using _jack_set_buffer_size_callback()_.
+	 *
+	 * \param nframes New buffer size. The object has to be of type @a
+	 * jack_nframes_t, which is defined in the jack/types.h header.
+	 * \param arg Not used within the function but kept for compatibility
+	 * reasons since the _JackBufferSizeCallback_ (jack/types.h) requires a
+	 * second input argument @a arg of type _void_, which is a pointer
+	 * supplied by the jack_set_buffer_size_callback() function.
+	 *
+	 * @return 0 on success
+	 */
+	int jackDriverBufferSize( jack_nframes_t nframes, void* arg ){
+		// This function does _NOT_ have to be realtime safe.
+		jack_server_bufferSize = nframes;
+		return 0;
+	}
+	/**
+	 * Callback function for the JACK audio server to shutting down the
+	 * JACK driver.
+	 *
+	 * The JackAudioDriver::m_pClient pointer stored in the current
+	 * instance of the JACK audio driver #pJackDriverInstance is set to
+	 * the nullptr and a Hydrogen::JACK_SERVER_SHUTDOWN error is raised
+	 * using Hydrogen::raiseError().
+	 *
+	 * It gets registered as a callback function of the JACK server in
+	 * JackAudioDriver::init() using _jack_on_shutdown()_.
+	 *
+	 * \param arg Not used within the function but kept for compatibility
+	 * reasons since _jack_shutdown()_ (jack/jack.h) the argument @a arg
+	 * of type void.
+	 */	
+	void jackDriverShutdown( void* arg )
+	{
+		UNUSED( arg );
 
-	pJackDriverInstance->m_pClient = nullptr;
-	Hydrogen::get_instance()->raiseError( Hydrogen::JACK_SERVER_SHUTDOWN );
-}
-
-
-const char* JackAudioDriver::__class_name = "JackAudioDriver";
-
-JackAudioDriver::JackAudioDriver( JackProcessCallback processCallback )
-	: AudioOutput( __class_name )
-{
-	INFOLOG( "INIT" );
-	// __track_out_enabled is inherited from AudioOutput and
-	// instantiated with false. It will be used by the Sampler and
-	// Hydrogen itself to check whether JackAudioDriver is ordered
-	// to create per-track audio output ports.
-	__track_out_enabled = Preferences::get_instance()->m_bJackTrackOuts;
-
-	pJackDriverInstance = this;
-	this->processCallback = processCallback;
-
-	must_relocate = 0;
-	locate_countdown = 0;
-	bbt_frame_offset = 0;
-	track_port_count = 0;
-
-	memset( track_output_ports_L, 0, sizeof(track_output_ports_L) );
-	memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
-}
-
-JackAudioDriver::~JackAudioDriver()
-{
-	INFOLOG( "DESTROY" );
-	disconnect();
-}
-
-// return 0: ok
-// return 1: cannot activate client
-// return 2: cannot connect output port
-int JackAudioDriver::connect()
-{
-	INFOLOG( "connect" );
-
-	// The `jack_activate' function is defined in the jack/jack.h
-	// header files and tells the JACK server that the program is
-	// ready to start processing audio. It returns 0 on success
-	// and a non-zero error code otherwise.
-	if ( jack_activate( m_pClient ) ) {
-		Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_ACTIVATE_CLIENT );
-		return 1;
+		pJackDriverInstance->m_pClient = nullptr;
+		Hydrogen::get_instance()->raiseError( Hydrogen::JACK_SERVER_SHUTDOWN );
 	}
 
 
-	bool connect_output_ports = m_bConnectOutFlag;
+	const char* JackAudioDriver::__class_name = "JackAudioDriver";
 
-	memset( track_output_ports_L, 0, sizeof(track_output_ports_L) );
-	memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
+	JackAudioDriver::JackAudioDriver( JackProcessCallback processCallback )
+		: AudioOutput( __class_name )
+	{
+		INFOLOG( "INIT" );
+		// __track_out_enabled is inherited from AudioOutput and
+		// instantiated with false. It will be used by the Sampler and
+		// Hydrogen itself to check whether JackAudioDriver is ordered
+		// to create per-track audio output ports.
+		__track_out_enabled = Preferences::get_instance()->m_bJackTrackOuts;
+
+		pJackDriverInstance = this;
+		this->processCallback = processCallback;
+
+		must_relocate = 0;
+		locate_countdown = 0;
+		bbt_frame_offset = 0;
+		track_port_count = 0;
+
+		memset( track_output_ports_L, 0, sizeof(track_output_ports_L) );
+		memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
+	}
+
+	JackAudioDriver::~JackAudioDriver()
+	{
+		INFOLOG( "DESTROY" );
+		disconnect();
+	}
+
+	// return 0: ok
+	// return 1: cannot activate client
+	// return 2: cannot connect output port
+	int JackAudioDriver::connect()
+	{
+		INFOLOG( "connect" );
+
+		// The `jack_activate' function is defined in the jack/jack.h
+		// header files and tells the JACK server that the program is
+		// ready to start processing audio. It returns 0 on success
+		// and a non-zero error code otherwise.
+		if ( jack_activate( m_pClient ) ) {
+			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_ACTIVATE_CLIENT );
+			return 1;
+		}
+
+
+		bool connect_output_ports = m_bConnectOutFlag;
+
+		memset( track_output_ports_L, 0, sizeof(track_output_ports_L) );
+		memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
 
 #ifdef H2CORE_HAVE_LASH
-	if ( Preferences::get_instance()->useLash() ){
-		LashClient* lashClient = LashClient::get_instance();
-		if (lashClient && lashClient->isConnected()){
-			// INFOLOG( "[LASH] Sending JACK client name to LASH server" );
-			lashClient->sendJackClientName();
+		if ( Preferences::get_instance()->useLash() ){
+			LashClient* lashClient = LashClient::get_instance();
+			if (lashClient && lashClient->isConnected()){
+				// INFOLOG( "[LASH] Sending JACK client name to LASH server" );
+				lashClient->sendJackClientName();
 
-			if (!lashClient->isNewProject()){
-				connect_output_ports = false;
+				if (!lashClient->isNewProject()){
+					connect_output_ports = false;
+				}
 			}
 		}
-	}
 #endif
 
-	if ( connect_output_ports ) {
-		// Connect the ports.
-		// The `jack_connect' function is defined in the
-		// jack/jack.h file. It establishes a connection between
-		// two ports. When a connection exists, data written
-		// to the source port will be available to be read at
-		// the destination port. Returns 0 on success, exits
-		// if the connection is already made, and returns a
-		// non-zero error code otherwise.
-		// Syntax: jack_connect( jack_client_t jack_client,
-		//                       const char *source_port )
-		//                       const char *destination_port
-		// )
-		// The `jack_port_name' function is also defined in
-		// the jack/jack.h header returns the full name of a
-		// provided port of type jack_port_t.
-		if ( jack_connect( m_pClient, jack_port_name( output_port_1 ),
-				   output_port_name_1.toLocal8Bit() ) == 0 &&
-		     jack_connect( m_pClient, jack_port_name( output_port_2 ),
-				   output_port_name_2.toLocal8Bit() ) == 0 ) {
-			return 0;
+		if ( connect_output_ports ) {
+			// Connect the ports.
+			// The `jack_connect' function is defined in the
+			// jack/jack.h file. It establishes a connection between
+			// two ports. When a connection exists, data written
+			// to the source port will be available to be read at
+			// the destination port. Returns 0 on success, exits
+			// if the connection is already made, and returns a
+			// non-zero error code otherwise.
+			// Syntax: jack_connect( jack_client_t jack_client,
+			//                       const char *source_port )
+			//                       const char *destination_port
+			// )
+			// The `jack_port_name' function is also defined in
+			// the jack/jack.h header returns the full name of a
+			// provided port of type jack_port_t.
+			if ( jack_connect( m_pClient, jack_port_name( output_port_1 ),
+							   output_port_name_1.toLocal8Bit() ) == 0 &&
+				 jack_connect( m_pClient, jack_port_name( output_port_2 ),
+							   output_port_name_2.toLocal8Bit() ) == 0 ) {
+				return 0;
+			}
+
+			INFOLOG( "Could not connect to the saved output ports. Connect to the first pair of input ports instead." );
+			// The `jack_get_ports' is defined in the jack/jack.h
+			// header file and performs a lookup of ports of the
+			// JACK server based on their e.g. flags. It returns a
+			// NULL-terminated array of ports that match the
+			// specified arguments. The caller is responsible for
+			// calling jack_free() any non-NULL returned
+			// value.
+			const char ** portnames = jack_get_ports( m_pClient, nullptr, nullptr, JackPortIsInput );
+			if ( !portnames || !portnames[0] || !portnames[1] ) {
+				ERRORLOG( "Couldn't locate two Jack input ports" );
+				Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
+				return 2;
+			}
+			if ( jack_connect( m_pClient, jack_port_name( output_port_1 ),
+							   portnames[0] ) != 0 ||
+				 jack_connect( m_pClient, jack_port_name( output_port_2 ),
+							   portnames[1] ) != 0 ) {
+				ERRORLOG( "Couldn't connect to first pair of Jack input ports" );
+				Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
+				return 2;
+			}
+			free( portnames );
 		}
 
-		INFOLOG( "Could not connect to the saved output ports. Connect to the first pair of input ports instead." );
-		// The `jack_get_ports' is defined in the jack/jack.h
-		// header file and performs a lookup of ports of the
-		// JACK server based on their e.g. flags. It returns a
-		// NULL-terminated array of ports that match the
-		// specified arguments. The caller is responsible for
-		// calling jack_free() any non-NULL returned
-		// value.
-		const char ** portnames = jack_get_ports( m_pClient, nullptr, nullptr, JackPortIsInput );
-		if ( !portnames || !portnames[0] || !portnames[1] ) {
-			ERRORLOG( "Couldn't locate two Jack input ports" );
-			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
-			return 2;
-		}
-		if ( jack_connect( m_pClient, jack_port_name( output_port_1 ),
-				   portnames[0] ) != 0 ||
-		     jack_connect( m_pClient, jack_port_name( output_port_2 ),
-				   portnames[1] ) != 0 ) {
-			ERRORLOG( "Couldn't connect to first pair of Jack input ports" );
-			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CONNECT_OUTPUT_PORT );
-			return 2;
-		}
-		free( portnames );
+		return 0;
 	}
 
-	return 0;
-}
+	void JackAudioDriver::disconnect()
+	{
+		INFOLOG( "disconnect" );
 
-void JackAudioDriver::disconnect()
-{
-	INFOLOG( "disconnect" );
-
-	deactivate();
-	jack_client_t *oldClient = m_pClient;
-	m_pClient = nullptr;
-	if ( oldClient ) {
-		INFOLOG( "calling jack_client_close" );
-		int res = jack_client_close( oldClient );
-		if ( res ) {
-			ERRORLOG( "Error in jack_client_close" );
-			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CLOSE_CLIENT );
+		deactivate();
+		jack_client_t *oldClient = m_pClient;
+		m_pClient = nullptr;
+		if ( oldClient ) {
+			INFOLOG( "calling jack_client_close" );
+			int res = jack_client_close( oldClient );
+			if ( res ) {
+				ERRORLOG( "Error in jack_client_close" );
+				Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CLOSE_CLIENT );
+			}
 		}
+		m_pClient = nullptr;
 	}
-	m_pClient = nullptr;
-}
 
-void JackAudioDriver::deactivate()
-{
-	INFOLOG( "[deactivate]" );
-	if ( m_pClient ) {
-		INFOLOG( "calling jack_deactivate" );
-		int res = jack_deactivate( m_pClient );
-		if ( res ) {
-			ERRORLOG( "Error in jack_deactivate" );
+	void JackAudioDriver::deactivate()
+	{
+		INFOLOG( "[deactivate]" );
+		if ( m_pClient ) {
+			INFOLOG( "calling jack_deactivate" );
+			int res = jack_deactivate( m_pClient );
+			if ( res ) {
+				ERRORLOG( "Error in jack_deactivate" );
+			}
 		}
-	}
-	memset( track_output_ports_L, 0, sizeof(track_output_ports_L) );
+memset( track_output_ports_L, 0, sizeof(track_output_ports_L) );
 	memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
 }
 
@@ -843,13 +847,31 @@ int JackAudioDriver::init( unsigned bufferSize )
 		// Make Hydrogen the JACK timebase master.
 		initTimeMaster();
 	}
+
+#ifdef H2CORE_HAVE_OSC
+	// When restarting the audio driver after loading a new song under
+	// Non session management all ports have to be registered _prior_
+	// to the activation of the client.
+	if ( NsmClient::get_instance() ) {
+		// The NSM client was already initialized.
+		
+		if ( NsmClient::get_instance()->m_bUnderSessionManagement ){
+			// Under session management
+			Song* pSong = pEngine->getSong();
+			
+			if ( pSong != nullptr ) {
+				makeTrackOutputs( pSong );
+			}
+		}
+		
+	}
+#endif
 	
 	return 0;
 }
 
 void JackAudioDriver::makeTrackOutputs( Song* pSong )
 {
-
 	// Only execute the body of this function if a per-track
 	// creation of the output ports is desired.
 	if( Preferences::get_instance()->m_bJackTrackOuts == false )
