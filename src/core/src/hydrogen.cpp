@@ -399,16 +399,16 @@ int				audioEngine_start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
  */
 void				audioEngine_stop( bool bLockEngine = false );
 /**
- * Updates the global objects of the audioEngine according to new #Song.
+ * Updates the global objects of the audioEngine according to new Song.
  *
  * Calls audioEngine_setupLadspaFX() on
  * m_pAudioDriver->getBufferSize(),
  * audioEngine_process_checkBPMChanged(),
  * audioEngine_renameJackPorts(), adds its first pattern to
  * #m_pPlayingPatterns, relocates the audio driver to the beginning of
- * the #Song, and updates the BPM.
+ * the Song, and updates the BPM.
  *
- * \param pNewSong #Song to load.
+ * \param pNewSong Song to load.
  */
 void				audioEngine_setSong(Song *pNewSong );
 /**
@@ -2358,12 +2358,17 @@ void audioEngine_stopAudioDrivers()
 
 
 
-/// Restart all audio and midi drivers by calling first
-/// audioEngine_stopAudioDrivers() and then
-/// audioEngine_startAudioDrivers().
+/** Restart all audio and midi drivers by calling first
+ * audioEngine_stopAudioDrivers() and then
+ * audioEngine_startAudioDrivers().
+ *
+ * If no audio driver is set yet, audioEngine_stopAudioDrivers() is
+ * omitted and the audio driver will be started right away.*/
 void audioEngine_restartAudioDrivers()
 {
-	audioEngine_stopAudioDrivers();
+	if ( m_pAudioDriver != nullptr ) {
+		audioEngine_stopAudioDrivers();
+	}
 	audioEngine_startAudioDrivers();
 }
 
@@ -2402,7 +2407,24 @@ Hydrogen::Hydrogen()
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
 
-	audioEngine_startAudioDrivers();
+	// When under session management and using JACK as audio driver,
+	// it is crucial for Hydrogen to activate the JACK client _after_
+	// the initial Song was set. Else the per track outputs will not
+	// be registered in time and the session software won't be able to
+	// rewire them properly. Therefore, the audio driver is started in
+	// the callback function for opening a Song in nsm_open_cb().
+	//
+	// But the presence of the environmental variable NSM_URL does not
+	// guarantee for a session management to be present (and at this
+	// early point of initialization it's basically impossible to
+	// tell). As a fallback the main() function will check for the
+	// presence of the audio driver after creating both the Hydrogen
+	// and NsmClient instance and prior to the creation of the GUI. If
+	// absent, the starting of the audio driver will be triggered.
+	if ( ! getenv( "NSM_URL" ) ){
+		audioEngine_startAudioDrivers();
+	}
+	
 	for(int i = 0; i< MAX_INSTRUMENTS; i++){
 		m_nInstrumentLookupTable[i] = i;
 	}
@@ -3183,7 +3205,7 @@ void Hydrogen::stopExportSong()
 	}
 
 	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
-	
+
 	m_pAudioDriver->disconnect();
 
 	m_nSongPos = -1;
@@ -4135,5 +4157,42 @@ void Hydrogen::startNsmClient()
 	}
 }
 #endif
+
+void Hydrogen::setInitialSong( Song *pSong ) {
+
+	// Since the function is only intended to set a Song prior to the
+	// initial creation of the audio driver, it will cause the
+	// application to get out of sync if used elsewhere. The following
+	// checks ensure it is called in the right context.
+	if ( pSong == nullptr ) {
+		return;
+	}
+	if ( __song != nullptr ) {
+		return;
+	}
+	if ( m_pAudioDriver != nullptr ) {
+		return;
+	}
+	
+	// Just to be sure.
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+
+	// Find the first pattern and set as current.
+	if ( pSong->get_pattern_list()->size() > 0 ) {
+		m_pPlayingPatterns->add( pSong->get_pattern_list()->get( 0 ) );
+	}
+
+	AudioEngine::get_instance()->unlock();
+
+	// Move to the beginning.
+	setSelectedPatternNumber( 0 );
+
+	__song = pSong;
+
+	// Push current state of Hydrogen to attached control interfaces,
+	// like OSC clients.
+	m_pCoreActionController->initExternalControlInterfaces();
+			
+}
 
 }; /* Namespace */
