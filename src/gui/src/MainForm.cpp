@@ -145,9 +145,10 @@ MainForm::MainForm( QApplication *app, const QString& songFilename, const bool b
 		}
 	} else {
 		// When under Non Session Management the new Song will be
-		// prepared by the corresponding NSM client instance and in here
-		// we will just obtain and load it.
-		pSong = Hydrogen::get_instance()->getNextSong();
+		// prepared by the corresponding NSM client instance and in
+		// here we will just obtain and handed to the HydrogenApp but
+		// not load there.
+		pSong = Hydrogen::get_instance()->getSong();
 
 		// In case something went wrong when setting the Song to the
 		// loaded by the GUI via an OSC command, load the default Song
@@ -160,7 +161,6 @@ MainForm::MainForm( QApplication *app, const QString& songFilename, const bool b
 	}
 
 	showDevelWarning();
-
 	h2app = new HydrogenApp( this, pSong );
 	h2app->addEventListener( this );
 	createMenuBar();
