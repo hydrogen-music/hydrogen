@@ -23,6 +23,10 @@
 
 #include "hydrogen/helpers/filesystem.h"
 #include "hydrogen/Preferences.h"
+#include "hydrogen/event_queue.h"
+#include "hydrogen/hydrogen.h"
+#include "hydrogen/basics/song.h"
+#include "hydrogen/audio_engine.h"
 
 #include <pthread.h>
 #include <unistd.h>
@@ -30,9 +34,6 @@
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
 #include "hydrogen/nsm_client.h"
-#include "hydrogen/event_queue.h"
-#include "hydrogen/hydrogen.h"
-#include "hydrogen/basics/song.h"
 
 
 NsmClient * NsmClient::__instance = nullptr;
@@ -80,8 +81,8 @@ static int nsm_open_cb (const char *name,
 	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
 	H2Core::Song *pSong = nullptr;
 	
-	// Create a new Song object (and store it for the GUI to load later
-	// on).
+	// Create a new Song object (and store it for the GUI to load it
+	// later on).
 	if ( songFileInfo.exists() ) {
 
 		pSong = H2Core::Song::load( songPath );
@@ -102,20 +103,37 @@ static int nsm_open_cb (const char *name,
 		pSong->set_filename( songPath );
 	}
 
-	// When starting Hydrogen with its Qt5 GUI activated the chosen
-	// Song will be set via the GUI. But since it is constructed after
-	// the NSM client, using the corresponding OSC message to open a
-	// Song won't work in this scenario (since this would set the Song
-	// asynchronously using the EventQueue and it is require during
-	// the construction of MainForm). Therefore, the next line will
-	// check whether there is a GUI present and if it is setup
-	// already.
-	if ( pHydrogen->getActiveGUI() < 0 ) {
+	// Usually, when starting Hydrogen with its Qt5 GUI activated, the
+	// chosen Song will be set via the GUI. But since it is
+	// constructed after the NSM client, using the corresponding OSC
+	// message to open a Song won't work in this scenario (since this
+	// would set the Song asynchronously using the EventQueue and it
+	// is require during the construction of MainForm).
+	//
+	// Two different scenarios are considered in here:
+	// 1. <= 0: There is no GUI or there will be a GUI but it is not
+	//         created yet.
+	// 2. > 0: There is a GUI present and it is fully loaded.
+	//
+	// Scenario 2. is active when starting a session and 3. when
+	// switching between sessions.
+	//
+	// Loading the Song is a little bit tricky in both cases. In
+	// 1. the much more slim setInitalSong() function is used since
+	// setSong() requires the audio driver to be already present which
+	// would keep external tools from rewiring the per track outputs
+	// of the JACK client. In 2. the Song _must_ the loaded by the GUI
+	// or Hydrogen will get out of sync and freeze. The Song will be
+	// stored using setNextSong() and an event will be created to tell
+	// the GUI to load the Song itself.
+	if ( pHydrogen->getActiveGUI() <= 0 ) {
 		
 		// No GUI. Just load the requested Song and restart the audio
 		// driver.
-		pHydrogen->setSong( pSong );
+		pHydrogen->setInitialSong( pSong );
 		pHydrogen->restartDrivers();
+		pHydrogen->restartLadspaFX();
+		H2Core::AudioEngine::get_instance()->get_sampler()->reinitialize_playback_track();
 		
 	} else {
 
@@ -151,12 +169,19 @@ static int nsm_open_cb (const char *name,
 			return ERR_LAUNCH_FAILED;
 		}
 		
-		// Wait until the song was set (asynchronously by the GUI).
+		// Wait until the Song was set (asynchronously by the GUI).
+		int numberOfChecks = 10;
+		int check = 0;
 		while ( true ) {
 			if ( pCurrentSong != pHydrogen->getSong() ) {
 				break;
 			}
-			sleep(5);
+			// Don't wait indefinitely.
+			if ( check > numberOfChecks ) {
+				break;
+			}
+			check++;
+			sleep(1);
 		}
 	}
 	
