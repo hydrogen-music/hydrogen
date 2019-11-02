@@ -156,14 +156,14 @@ class MidiActionManager : public H2Core::Object
 		 * provided in @a pAction.
 		 *
 		 * This will be done without immediately and without saving
-		 * the current #Song. All unsaved changes will be lost! In
+		 * the current Song. All unsaved changes will be lost! In
 		 * addition, the new Song won't be saved by this function. You
 		 * can do so using save_song().
 		 *
 		 * The intended use of this function for session
 		 * management. Therefore the function will *not* store the
 		 * provided in Preferences::m_lastSongFilename and thus
-		 * Hydrogen does not resumes with the particular #Song upon
+		 * Hydrogen does not resumes with the particular Song upon
 		 * restarting.
 		 *
 		 * Right now the function is only able to handle the provided
@@ -181,12 +181,12 @@ class MidiActionManager : public H2Core::Object
 		 * pAction.
 		 *
 		 * This will be done without immediately and without saving
-		 * the current #Song. All unsaved changes will be lost!
+		 * the current Song. All unsaved changes will be lost!
 		 *
 		 * The intended use of this function for session
 		 * management. Therefore the function will *not* store the
 		 * provided in Preferences::m_lastSongFilename and thus
-		 * Hydrogen does not resumes with the particular #Song upon
+		 * Hydrogen does not resumes with the particular Song upon
 		 * restarting.
 		 *
 		 * Right now the function is only able to handle the provided
@@ -200,12 +200,12 @@ class MidiActionManager : public H2Core::Object
 		 */
 		bool open_song(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
 		/**
-		 * Saves the current #Song.
+		 * Saves the current Song.
 		 *
 		 * The intended use of this function for session
 		 * management. Therefore the function will *not* store the
 		 * provided in Preferences::m_lastSongFilename and thus
-		 * Hydrogen does not resumes with the particular #Song upon
+		 * Hydrogen does not resumes with the particular Song upon
 		 * restarting.
 		 *
 		 * \param pAction Action "SAVE_SONG" uniquely triggering this function.
@@ -220,7 +220,7 @@ class MidiActionManager : public H2Core::Object
 		 * The intended use of this function for session
 		 * management. Therefore the function will *not* store the
 		 * provided in Preferences::m_lastSongFilename and thus
-		 * Hydrogen does not resumes with the particular #Song upon
+		 * Hydrogen does not resumes with the particular Song upon
 		 * restarting.
 		 *
 		 * \param pAction Action "SAVE_SONG_AS" uniquely triggering this function.
@@ -233,7 +233,7 @@ class MidiActionManager : public H2Core::Object
 		 * Triggers the shutdown of Hydrogen.
 		 *
 		 * This will be done without immediately and without saving
-		 * the current #Song. All unsaved changes will be lost!
+		 * the current Song. All unsaved changes will be lost!
 		 *
 		 * The shutdown will only be triggered if
 		 * Hydrogen::m_iActiveGUI is true and the Qt5 GUI is present.

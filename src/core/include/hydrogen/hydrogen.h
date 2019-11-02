@@ -591,7 +591,7 @@ void			previewSample( Sample *pSample );
 	
 	/**\return #m_pNextSong*/
 	Song*			getNextSong() const;
-	/**\param pNextSong Sets #m_pNextSong. #Song which is about to be
+	/**\param pNextSong Sets #m_pNextSong. Song which is about to be
 	   loaded by the GUI.*/
 	void			setNextSong( Song* pNextSong );
 	/** Calculates the lookahead for a specific tick size.
@@ -644,6 +644,20 @@ void			previewSample( Sample *pSample );
 	 * #JackAudioDriver::m_nIsTimebaseMaster).
 	 */
 	bool			haveJackTimebaseClient() const;
+	/** Sets the first Song to be loaded under session management.
+	 *
+	 * Enables the creation of a JACK client with all per track output
+	 * ports present right from the start. This is necessary to ensure
+	 * their connection can be properly restored by external tools.
+	 *
+	 * The function will only work if no audio driver is present
+	 * (since this is the intended use case and the function will be
+	 * harmful if used otherwise. Use setSong() instead.) and fails if
+	 * there is already a Song present.
+	 *
+	 * \param pSong Song to be loaded.
+	 */
+	void			setInitialSong( Song* pSong );
 
 	///midi lookuptable
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
@@ -718,8 +732,8 @@ private:
 	 * - `m_iActiveGUI > 0` - There is a Qt5 GUI and it is fully
 	 *                        loaded.
 	 *
-	 * When a new #Song is set via the core part of Hydrogen, e.g. in
-	 * the context of session management, the #Song *must* be set via
+	 * When a new Song is set via the core part of Hydrogen, e.g. in
+	 * the context of session management, the Song *must* be set via
 	 * the GUI if active. Else the GUI will freeze.
 	 *
 	 * Set by setActiveGUI() and accessed via getActiveGUI().
@@ -727,10 +741,10 @@ private:
 	int				m_iActiveGUI;
 	
 	/**
-	 * Stores a new #Song which is about of the loaded by the GUI.
+	 * Stores a new Song which is about of the loaded by the GUI.
 	 *
 	 * If #m_iActiveGUI is true, the core part of must not load a new
-	 * #Song itself. Instead, the new #Song is prepared and stored in
+	 * Song itself. Instead, the new Song is prepared and stored in
 	 * this object to be loaded by HydrogenApp::updateSongEvent() if
 	 * H2Core::EVENT_UPDATE_SONG is pushed with a '1'.
 	 *
