@@ -90,20 +90,19 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	connect( m_pEventQueueTimer, SIGNAL( timeout() ), this, SLOT( onEventQueueTimer() ) );
 	m_pEventQueueTimer->start( QUEUE_TIMER_PERIOD );
 
-
-	// Create the audio engine :)
-	Hydrogen::create_instance();
-	
 #ifdef H2CORE_HAVE_OSC
+	// When under Non Session Management the new Song will be
+	// loaded by the corresponding NSM client instance.
 	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
 		Hydrogen::get_instance()->setSong( pFirstSong );
+		Preferences::get_instance()->setLastSongFilename( pFirstSong->get_filename() );
 	}
 #endif
 #ifndef H2CORE_HAVE_OSC
 	Hydrogen::get_instance()->setSong( pFirstSong );
+	Preferences::get_instance()->setLastSongFilename( pFirstSong->get_filename() );
 #endif
 	
-	Preferences::get_instance()->setLastSongFilename( pFirstSong->get_filename() );
 	SoundLibraryDatabase::create_instance();
 
 	//setup the undo stack
