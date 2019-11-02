@@ -482,6 +482,15 @@ int main(int argc, char *argv[])
 		}
 			
 #endif
+		// If the NSM_URL variable is present, Hydrogen will not
+		// initialize the audio driver and leaves this to the callback
+		// function nsm_open_cb of the NSM client (which will be
+		// called by now). However, the presence of the environmental
+		// variable does not guarantee for a session management and if
+		// no audio driver is initialized yet, we will do it here. 
+		if ( H2Core::Hydrogen::get_instance()->getAudioOutput() == nullptr ) {
+			H2Core::Hydrogen::get_instance()->restartDrivers();
+		}
 
 		MainForm *pMainForm = new MainForm( pQApp, sSongFilename, bLoadSong );
 		pMainForm->show();
