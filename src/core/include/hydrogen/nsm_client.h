@@ -36,6 +36,22 @@
 *
 * @brief Non session manager client implementation
 *
+* Non session management (NSM) is the name for both a standard/API
+* allowing for a reproducible, multi-application session handling in
+* Linux systems as well as for the actual application - the
+* non-session-manager - implementing it.
+*
+* Hydrogen is compliant with the standard, send dirty flag to the NSM
+* server to indicate unsaved changes, and is able to switch between
+* different sessions without restarting the entire
+* application. However, Hydrogen does use several files to store all
+* options the user is able to customize and not all of them are stored
+* inside the folder provided by the NSM server. While the song file
+* will be kept there, both the drumkit and preferences are stored
+* elsewhere. Altering either of them can very well affect the state of
+* the individual session, e.g. by disabling a prior set the per track
+* output option of the JACK driver outside of the session and
+* restarting it. So, be very careful. 
 *
 * @author Sebastian Moors
 *
@@ -47,16 +63,17 @@ class NsmClient : public H2Core::Object
 	public:
 		/**
 		 * Object holding the current NsmClient singleton. It
-		 * is initialized with NULL, set with
+		 * is initialized with nullptr, set with
 		 * create_instance(), and accessed with
 		 * get_instance().
 		 */
 		static NsmClient* __instance;
+		/** Destructor*/
 		~NsmClient();
-
+		/** Thread the NSM client will run in.*/
 		pthread_t m_NsmThread;
 		/**
-		 * If #__instance equals 0, a new NsmClient singleton
+		 * If #__instance equals nullptr, a new NsmClient singleton
 		 * will be created and stored in it.
 		 *
 		 * It is called in
@@ -64,24 +81,49 @@ class NsmClient : public H2Core::Object
 		 */
 		static void create_instance();
 		/**
-		 * Returns a pointer to the current NsmClient
+		 * \return a pointer to the current NsmClient
 		 * singleton stored in #__instance.
 		 */
 		static NsmClient* get_instance() { assert(__instance); return __instance; }
 
 		/**
-		 * Informs the NSM server whether the current Song is modified
-		 * or not.
+		 * Informs the NSM server whether the current H2Core::Song is
+		 * modified or not.
 		 *
 		 * This function is triggered within
 		 * H2Core::Song::set_is_modified().
 		 *
-		 * \param isDirty true, if the current Song was modified, and
-		 * false if it wasn't
+		 * \param isDirty true, if the current H2Core::Song was
+		 * modified, and false if it wasn't
 		 */
 		void sendDirtyState( const bool isDirty );
+		/**
+		 * Actual setup, initialization, and registration of the NSM
+		 * client.
+		 *
+		 * It create a new NSM client, sets the callback functions
+		 * nsm_open_cb() and nsm_save_cb(), and registers the newly
+		 * created client with the NSM server. It also indicates that
+		 * Hydrogen does support the two NSM options "dirty" and
+		 * "switch", allowing the server to notice whenever there are
+		 * unsaved changes and to switch between Songs without
+		 * restarting the whole application.
+		 *
+		 * This function will performs action if a NSM server is
+		 * already running. This will be indicated by a set
+		 * environmental variable called "NSM_URL". However, this is
+		 * condition is not sufficient and only after receiving a
+		 * certain response - handled by the NSM API inside the
+		 * nsm_free() function - to the announce message sent by
+		 * Hydrogen, the client can truly be considered under session
+		 * management. This particular state will be indicated by
+		 * setting #m_bUnderSessionManagement to true.
+		 */
 		void createInitialClient();
 
+		/** Causes the NSM client to not process events anymore.
+		 *
+		 * Sets #NsmShutdown to true.*/
 		void shutdown();
 
 		/**
@@ -94,6 +136,7 @@ class NsmClient : public H2Core::Object
 		bool m_bUnderSessionManagement;
 
 	private:
+		/**Constructor*/
 		NsmClient();
 		
 		/**
