@@ -69,6 +69,12 @@ class MidiActionManager : public H2Core::Object
 {
 	H2_OBJECT
 	private:
+		/**
+		 * Object holding the current MidiActionManager
+		 * singleton. It is initialized with NULL, set with
+		 * create_instance(), and accessed with
+		 * get_instance().
+		 */
 		static MidiActionManager *__instance;
 
 		QStringList actionList;
@@ -105,6 +111,7 @@ class MidiActionManager : public H2Core::Object
 		bool effect_level_relative(Action * , H2Core::Hydrogen * , targeted_element );
 		bool effect_level_absolute(Action * , H2Core::Hydrogen * , targeted_element );
 		bool select_next_pattern(Action * , H2Core::Hydrogen * , targeted_element );
+		bool select_only_next_pattern(Action * , H2Core::Hydrogen * , targeted_element );
 		bool select_next_pattern_cc_absolute(Action * , H2Core::Hydrogen * , targeted_element );
 		bool select_next_pattern_promptly(Action * , H2Core::Hydrogen * , targeted_element );
 		bool select_next_pattern_relative(Action * , H2Core::Hydrogen * , targeted_element );
@@ -135,8 +142,17 @@ class MidiActionManager : public H2Core::Object
 
 	public:
 		bool handleAction( Action * );
-
+		/**
+		 * If #__instance equals 0, a new MidiActionManager
+		 * singleton will be created and stored in it.
+		 *
+		 * It is called in H2Core::Hydrogen::create_instance().
+		 */
 		static void create_instance();
+		/**
+		 * Returns a pointer to the current MidiActionManager
+		 * singleton stored in #__instance.
+		 */
 		static MidiActionManager* get_instance() { assert(__instance); return __instance; }
 
 		QStringList getActionList(){

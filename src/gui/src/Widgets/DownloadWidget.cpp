@@ -37,7 +37,7 @@ Download::Download( QWidget* pParent, const QString& download_url, const QString
 		, __bytes_total( 0 )
 		, __remote_url( download_url )
 		, __local_file( local_file )
-		, __reply(0)
+		, __reply(nullptr)
 		, __error(false)
 {
 	if ( !__local_file.isEmpty() ) {
@@ -89,8 +89,8 @@ void Download::finished()
 {
 	if ( __reply->error() ) {
 		__error = true;
-		ERRORLOG(QString( trUtf8( "Importing item failed: %1" ) ).arg( __reply->errorString() ));
-		QMessageBox::information( this, "Hydrogen", QString( trUtf8( "Importing item failed: %1" ) ).arg( __reply->errorString() ) );
+		ERRORLOG(QString( tr( "Importing item failed: %1" ) ).arg( __reply->errorString() ));
+		QMessageBox::information( this, "Hydrogen", QString( tr( "Importing item failed: %1" ) ).arg( __reply->errorString() ) );
 		reject();
 		return;
 	}
@@ -158,17 +158,17 @@ DownloadWidget::DownloadWidget( QWidget* parent, const QString& title, const QSt
 	QFont boldFont;
 	boldFont.setBold( true );
 
-	__url_label = new QLabel( NULL );
+	__url_label = new QLabel( nullptr );
 	__url_label->setFont( boldFont );
 	__url_label->setAlignment( Qt::AlignCenter );
 	__url_label->setText( QFileInfo( __remote_url ).fileName() );
 
-	__progress_bar = new QProgressBar( NULL );
+	__progress_bar = new QProgressBar( nullptr );
 
 	__progress_bar->setMinimum( 0 );
 	__progress_bar->setMaximum( 100 );
 
-	__eta_label = new QLabel( NULL );
+	__eta_label = new QLabel( nullptr );
 	__eta_label->setAlignment( Qt::AlignHCenter );
 
 
@@ -217,7 +217,7 @@ void DownloadWidget::updateStats()
 
 	QString sETA = hours + ":" + minutes + ":" + seconds;
 
-	__eta_label->setText( trUtf8( "(%1/%2 KiB) - ETA %3" ).arg( __bytes_current / 1024 ).arg( __bytes_total / 1024 ).arg( sETA ) );
+	__eta_label->setText( tr( "(%1/%2 KiB) - ETA %3" ).arg( __bytes_current / 1024 ).arg( __bytes_total / 1024 ).arg( sETA ) );
 
 	if ( __download_percent == 100 ) {
 		__update_timer->stop();

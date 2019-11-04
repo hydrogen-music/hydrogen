@@ -127,7 +127,7 @@ Instrument* InstrumentList::operator[]( int idx )
 {
 	if ( idx < 0 || idx >= __instruments.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
-		return 0;
+		return nullptr;
 	}
 	assert( idx >= 0 && idx < __instruments.size() );
 	return __instruments[idx];
@@ -137,7 +137,7 @@ Instrument* InstrumentList::get( int idx )
 {
 	if ( idx < 0 || idx >= __instruments.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
-		return 0;
+		return nullptr;
 	}
 	assert( idx >= 0 && idx < __instruments.size() );
 	return __instruments[idx];
@@ -156,7 +156,7 @@ Instrument*  InstrumentList::find( const int id )
 	for( int i=0; i<__instruments.size(); i++ ) {
 		if ( __instruments[i]->get_id()==id ) return __instruments[i];
 	}
-	return 0;
+	return nullptr;
 }
 
 Instrument*  InstrumentList::find( const QString& name )
@@ -164,7 +164,7 @@ Instrument*  InstrumentList::find( const QString& name )
 	for( int i=0; i<__instruments.size(); i++ ) {
 		if ( __instruments[i]->get_name()==name ) return __instruments[i];
 	}
-	return 0;
+	return nullptr;
 }
 
 Instrument*  InstrumentList::findMidiNote( const int note )
@@ -172,7 +172,7 @@ Instrument*  InstrumentList::findMidiNote( const int note )
 	for( int i=0; i<__instruments.size(); i++ ) {
 		if ( __instruments[i]->get_midi_out_note()==note ) return __instruments[i];
 	}
-	return 0;
+	return nullptr;
 }
 
 Instrument* InstrumentList::del( int idx )
@@ -191,7 +191,7 @@ Instrument* InstrumentList::del( Instrument* instrument )
 			return instrument;
 		}
 	}
-	return 0;
+	return nullptr;
 }
 
 void InstrumentList::swap( int idx_a, int idx_b )

@@ -12,3 +12,7 @@ moc_*.cpp_parameters
 /hydrogen
 /libs/hydrogen/include/hydrogen/config.h
 hydrogen.*
+*.cmake
+*.so
+*.make
+*.swp

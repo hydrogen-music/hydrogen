@@ -38,7 +38,7 @@ PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *patte
  : QDialog(parent)
 {
 	setupUi( this );
-	setWindowTitle( trUtf8( "Pattern properties" ) );
+	setWindowTitle( tr( "Pattern properties" ) );
 
 	this->pattern = pattern;
 
@@ -130,11 +130,11 @@ void PatternPropertiesDialog::defaultNameCheck( QString pattName, bool savepatte
 {
 	if ( savepattern && !nameCheck(pattName) )
 	{
-		defaultNameCheck( trUtf8( "%1#2").arg(pattName), savepattern );
+		defaultNameCheck( tr( "%1#2").arg(pattName), savepattern );
 	}
 	else
 	{
-		patternNameTxt->setText( trUtf8( "%1").arg(pattName) );
+		patternNameTxt->setText( tr( "%1").arg(pattName) );
 	}
 }
 

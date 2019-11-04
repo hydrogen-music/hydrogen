@@ -20,10 +20,10 @@ void PatternTest::testPurgeInstrument()
 
 	Pattern *pat = new Pattern();
 	pat->insert_note( n );
-	CPPUNIT_ASSERT( pat->find_note( 1, -1, i) != NULL );
+	CPPUNIT_ASSERT( pat->find_note( 1, -1, i) != nullptr );
 
 	pat->purge_instrument( i );
-	CPPUNIT_ASSERT( pat->find_note( 1, -1, i) == NULL );
+	CPPUNIT_ASSERT( pat->find_note( 1, -1, i) == nullptr );
 
 	delete pat;
 }

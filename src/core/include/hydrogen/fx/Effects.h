@@ -24,7 +24,7 @@
 #define EFFECTS_H
 
 #include "hydrogen/config.h"
-#ifdef H2CORE_HAVE_LADSPA
+#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 
 #include <hydrogen/globals.h>
 #include <hydrogen/object.h>
@@ -35,15 +35,21 @@
 
 namespace H2Core
 {
-
-/**
- *
- */
 class Effects : public H2Core::Object
 {
 	H2_OBJECT
 public:
+	/**
+	 * If #__instance equals 0, a new Effects
+	 * singleton will be created and stored in it.
+	 *
+	 * It is called in Hydrogen::audioEngine_init().
+	 */
 	static void create_instance();
+	/**
+	 * Returns a pointer to the current Effects singleton
+	 * stored in #__instance.
+	 */
 	static Effects* get_instance() { assert(__instance); return __instance; }
 	~Effects();
 
@@ -55,6 +61,11 @@ public:
 
 
 private:
+	/**
+	 * Object holding the current Effects singleton. It is
+	 * initialized with NULL, set with create_instance(), and
+	 * accessed with get_instance().
+	 */
 	static Effects* __instance;
 	std::vector<LadspaFXInfo*> m_pluginList;
 	LadspaFXGroup* m_pRootGroup;

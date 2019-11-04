@@ -36,9 +36,9 @@ using namespace H2Core;
 const char* LadspaFXSelector::__class_name = "LadspaFXSelector";
 
 LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
- : QDialog( NULL )
+ : QDialog( nullptr )
  , Object( __class_name )
- , m_pCurrentItem( NULL )
+ , m_pCurrentItem( nullptr )
 {
 	//INFOLOG( "INIT" );
 
@@ -46,7 +46,7 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 
 	setFixedSize( width(), height() );
 
-	setWindowTitle( trUtf8( "Select LADSPA FX" ) );
+	setWindowTitle( tr( "Select LADSPA FX" ) );
 
 	m_sSelectedPluginName = "";
 
@@ -59,7 +59,7 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 	m_pPluginsListBox->clear();
 	m_pOkBtn->setEnabled(false);
 
-	m_pGroupsListView->setHeaderLabels( QStringList( trUtf8( "Groups" ) ) );
+	m_pGroupsListView->setHeaderLabels( QStringList( tr( "Groups" ) ) );
 
 #ifdef H2CORE_HAVE_LADSPA
 	//Song *pSong = Hydrogen::get_instance()->getSong();
@@ -136,13 +136,13 @@ void LadspaFXSelector::buildGroup( QTreeWidgetItem *pNewItem, H2Core::LadspaFXGr
 {
 	QString sGroupName = pGroup->getName();
 	if (sGroupName == QString("Uncategorized")) {
-		sGroupName = trUtf8("Alphabetic List");
+		sGroupName = tr("Alphabetic List");
 	}
 	else if (sGroupName == QString("Categorized(LRDF)")) {
-		sGroupName = trUtf8("Categorized");
+		sGroupName = tr("Categorized");
 	}
 	else if (sGroupName == QString("Recently Used")) {
-		sGroupName = trUtf8("Recently Used");
+		sGroupName = tr("Recently Used");
 	}
 	pNewItem->setText( 0, sGroupName );
 
@@ -191,14 +191,14 @@ void LadspaFXSelector::pluginSelected()
 			m_labelLbl->setText( pFXInfo->m_sLabel );
 
 			if ( ( pFXInfo->m_nIAPorts == 2 ) && ( pFXInfo->m_nOAPorts == 2 ) ) {		// Stereo plugin
-				m_typeLbl->setText( trUtf8("Stereo") );
+				m_typeLbl->setText( tr("Stereo") );
 			}
 			else if ( ( pFXInfo->m_nIAPorts == 1 ) && ( pFXInfo->m_nOAPorts == 1 ) ) {	// Mono plugin
-				m_typeLbl->setText( trUtf8("Mono") );
+				m_typeLbl->setText( tr("Mono") );
 			}
 			else {
 				// not supported
-				m_typeLbl->setText( trUtf8("Not supported") );
+				m_typeLbl->setText( tr("Not supported") );
 			}
 
 			m_pIDLbl->setText( pFXInfo->m_sID );
@@ -229,7 +229,7 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 	m_pCopyrightLbl->setText( QString("") );
 
 	// nothing was selected
-	if ( currentItem == NULL ) {
+	if ( currentItem == nullptr ) {
 		return;
 	}
 	

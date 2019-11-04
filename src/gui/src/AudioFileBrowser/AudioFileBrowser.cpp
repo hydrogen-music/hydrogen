@@ -46,7 +46,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 {
 	setupUi ( this );
 	INFOLOG ( "INIT" );
-	setWindowTitle ( trUtf8 ( "Audio File Browser" ) );
+	setWindowTitle ( tr ( "Audio File Browser" ) );
 	setFixedSize ( width(), height() );
 
 	m_pDirModel = new QDirModel();
@@ -255,12 +255,12 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 		Sample *pNewSample = Sample::load( path2 );
 
 		if ( pNewSample ) {
-			m_pNBytesLable->setText( trUtf8( "Size: %1 bytes" ).arg( pNewSample->get_size() / 2 ) );
-			m_pSamplerateLable->setText( trUtf8( "Samplerate: %1" ).arg( pNewSample->get_sample_rate() ) );
+			m_pNBytesLable->setText( tr( "Size: %1 bytes" ).arg( pNewSample->get_size() / 2 ) );
+			m_pSamplerateLable->setText( tr( "Samplerate: %1" ).arg( pNewSample->get_sample_rate() ) );
 			float sec = ( float )( pNewSample->get_frames() / (float)pNewSample->get_sample_rate() );
 			QString qsec;
 			qsec.sprintf( "%2.2f", sec );
-			m_pLengthLable->setText( trUtf8( "Sample length: " ) + qsec + trUtf8( " s" ) );
+			m_pLengthLable->setText( tr( "Sample length: " ) + qsec + tr( " s" ) );
 
 			delete pNewSample;
 			m_pSampleFilename = path2;
@@ -276,17 +276,17 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 					on_m_pPlayBtn_clicked();
 				}else
 				{
-					QMessageBox::information ( this, "Hydrogen", trUtf8( "Please do not preview samples which are longer than 10 minutes!" )  );
+					QMessageBox::information ( this, "Hydrogen", tr( "Please do not preview samples which are longer than 10 minutes!" )  );
 				}
 			}
 		}
 
 		m_pNameLabel->setText( message );
 	}else{
-		m_pNameLabel->setText( trUtf8( "Name:"));
-		m_pNBytesLable->setText( trUtf8( "Size:" ) );
-		m_pSamplerateLable->setText( trUtf8( "Samplerate:" ) );
-		m_pLengthLable->setText( trUtf8( "Sample length:" ) );
+		m_pNameLabel->setText( tr( "Name:"));
+		m_pNBytesLable->setText( tr( "Size:" ) );
+		m_pSamplerateLable->setText( tr( "Samplerate:" ) );
+		m_pLengthLable->setText( tr( "Sample length:" ) );
 		m_pSampleWaveDisplay->updateDisplay( m_sEmptySampleFilename );
 		m_pPlayBtn->setEnabled( false );
 		m_pStopBtn->setEnabled( false );

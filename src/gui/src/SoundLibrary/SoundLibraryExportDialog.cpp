@@ -57,7 +57,7 @@ SoundLibraryExportDialog::SoundLibraryExportDialog( QWidget* pParent,  const QSt
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( trUtf8( "Export Sound Library" ) );
+	setWindowTitle( tr( "Export Sound Library" ) );
 	setFixedSize( width(), height() );
 	preselectedKit = selectedKit;
 	updateDrumkitList();
@@ -318,7 +318,7 @@ void SoundLibraryExportDialog::updateDrumkitList()
 	QStringList sysDrumkits = Filesystem::sys_drumkit_list();
 	for (int i = 0; i < sysDrumkits.size(); ++i) {
 		QString absPath = Filesystem::sys_drumkits_dir() + sysDrumkits.at(i);
-		Drumkit *info = Drumkit::load( absPath );
+		Drumkit *info = Drumkit::load( absPath, false );
 		if (info) {
 			drumkitInfoList.push_back( info );
 			drumkitList->addItem( info->get_name() );
@@ -334,7 +334,7 @@ void SoundLibraryExportDialog::updateDrumkitList()
 	QStringList userDrumkits = Filesystem::usr_drumkit_list();
 	for (int i = 0; i < userDrumkits.size(); ++i) {
 		QString absPath = Filesystem::usr_drumkits_dir() + userDrumkits.at(i);
-		Drumkit *info = Drumkit::load( absPath );
+		Drumkit *info = Drumkit::load( absPath, false );
 		if (info) {
 			drumkitInfoList.push_back( info );
 			drumkitList->addItem( info->get_name() );

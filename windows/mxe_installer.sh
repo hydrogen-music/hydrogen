@@ -25,13 +25,13 @@ install_mxe(){
 	sed -i 's/i686-w64-mingw32.static/i686-w64-mingw32.shared x86_64-w64-mingw32.shared/g' $MXE/Makefile
 	#Make gcc and winpthreads. gcc will need to be rebuilt once winpthreads is built.
 	#Note: This needs to happen because winpthreads needs gcc to be built, but we need gcc built with winpthreads support to build hydrogen.
-	#	this creates a cyclical dependancy problem that there seems to be no way around.
+	#	this creates a cyclical dependency problem that there seems to be no way around.
 	make gcc $1
 	make winpthreads $1
 	sed -i 's/binutils gcc-gmp gcc-isl gcc-mpc gcc-mpfr mingw-w64/binutils gcc-gmp gcc-isl gcc-mpc gcc-mpfr winpthreads/g' $MXE/src/gcc.mk
 	sed -i 's/--enable-threads=win32/--enable-threads=posix/g' $MXE/src/gcc.mk
 	make gcc $1
-	#Build the dependancies for hydrogen
+	#Build the dependencies for hydrogen
 	make libarchive libsndfile portaudio portmidi fftw rubberband jack liblo qt5 -j4 JOBS=4 $1
 	sed -i 's/:= gcc/:= gcc jack/g' $MXE/src/portaudio.mk
 	make portaudio
@@ -69,7 +69,7 @@ while :
 	case $SEL in
 		1)	#Debian and derivatives
 			echo "Now installing required packages"
-			sudo apt-get install autoconf automake autopoint bash bison bzip2 cmake flex gettext git gcc g++ gperf intltool libffi-dev libtool libtool-bin libltdl-dev libssl-dev libxml-parser-perl make openssl patch perl pkg-config python ruby scons sed unzip wget xz-utils nsis
+			sudo apt-get install autoconf automake autopoint bash bison bzip2 cmake flex gettext git gcc g++ gperf intltool libffi-dev libtool libtool-bin libltdl-dev libssl-dev libxml-parser-perl lzip make openssl patch perl pkg-config python ruby scons sed unzip wget xz-utils nsis
 			if (uname -a | grep x86_64); then
 				sudo apt-get install g++-multilib libc6-dev-i386
 			fi

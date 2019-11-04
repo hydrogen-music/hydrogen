@@ -54,7 +54,7 @@ class PatternList : public H2Core::Object
 
 		/**
 		 * add a pattern to the list
-		 * \param pattern a pointer to the pattern to add
+		 * \param new_pattern a pointer to the pattern to add
 		 */
 		void operator<<( Pattern* new_pattern );
 		/**

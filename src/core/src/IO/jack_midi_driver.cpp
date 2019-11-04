@@ -26,7 +26,7 @@
 
 #include <hydrogen/IO/JackMidiDriver.h>
 
-#ifdef H2CORE_HAVE_JACK
+#if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/hydrogen.h>
@@ -69,11 +69,11 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 	jack_midi_event_t event;
 		uint8_t buffer[13];// 13 is needed if we get sysex goto messages
 
-	if (input_port == NULL)
+	if (input_port == nullptr)
 		return;
 
 	buf = jack_port_get_buffer(input_port, nframes);
-	if (buf == NULL)
+	if (buf == nullptr)
 		return;
 
 #ifdef JACK_MIDI_NEEDS_NFRAMES
@@ -229,11 +229,11 @@ JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
 	uint8_t data[1];
 	uint8_t len;
 
-	if (output_port == NULL)
+	if (output_port == nullptr)
 		return;
 
 	buf = jack_port_get_buffer(output_port, nframes);
-	if (buf == NULL)
+	if (buf == nullptr)
 		return;
 
 #ifdef JACK_MIDI_NEEDS_NFRAMES
@@ -260,7 +260,7 @@ JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
 #else
 		buffer = jack_midi_event_reserve(buf, t, len);
 #endif
-		if (buffer == NULL)
+		if (buffer == nullptr)
 			break;
 		t++;
 		rx_in_pos++;
@@ -325,13 +325,13 @@ JackMidiShutdown(void *arg)
 JackMidiDriver::JackMidiDriver()
 	: MidiInput( __class_name ), MidiOutput( __class_name ), Object( __class_name )
 {
-	pthread_mutex_init(&mtx, NULL);
+	pthread_mutex_init(&mtx, nullptr);
 
 	running = 0;
 	rx_in_pos = 0;
 	rx_out_pos = 0;
-	output_port = 0;
-	input_port = 0;
+	output_port = nullptr;
+	input_port = nullptr;
 
 	QString jackMidiClientId = "Hydrogen";
 
@@ -347,16 +347,16 @@ JackMidiDriver::JackMidiDriver()
 	jackMidiClientId.append("-midi");
 
 	jack_client = jack_client_open(jackMidiClientId.toLocal8Bit(),
-		JackNoStartServer, NULL);
+		JackNoStartServer, nullptr);
 
-	if (jack_client == NULL)
+	if (jack_client == nullptr)
 		return;
 
 	jack_set_process_callback(jack_client,
 		JackMidiProcessCallback, this);
 
 	jack_on_shutdown(jack_client,
-		JackMidiShutdown, 0);
+		JackMidiShutdown, nullptr);
 
 	output_port = jack_port_register(
 		jack_client, "TX", JACK_DEFAULT_MIDI_TYPE,
@@ -372,7 +372,7 @@ JackMidiDriver::JackMidiDriver()
 JackMidiDriver::~JackMidiDriver()
 {
 
-	if (jack_client != NULL)
+	if (jack_client != nullptr)
 	{
 		if( jack_port_unregister( jack_client, input_port) != 0){
 			ERRORLOG("Failed to unregister jack midi input out");
@@ -442,7 +442,7 @@ void JackMidiDriver::handleQueueNote(Note* pNote)
 	if (channel < 0 || channel > 15)
 		return;
 
-	key = (pNote->get_octave() +3 ) * 12 + pNote->get_key() + pNote->get_instrument()->get_midi_out_note() - 60;
+	key = pNote->get_midi_key();
 	if (key < 0 || key > 127)
 		return;
 

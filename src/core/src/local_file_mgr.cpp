@@ -80,7 +80,7 @@ QString LocalFileMng::getDrumkitNameForPattern( const QString& patternDir )
 	QDomNode rootNode = doc.firstChildElement( "drumkit_pattern" );	// root element
 	if (  rootNode.isNull() ) {
 		ERRORLOG( "Error reading Pattern: Pattern_drumkit_infonode not found " + patternDir);
-		return NULL;
+		return nullptr;
 	}
 
 	QString dk_name = LocalFileMng::readXmlString( rootNode,"drumkit_name", "" );
@@ -109,13 +109,13 @@ QString LocalFileMng::processNode( QDomNode node, const QString& nodeName, bool 
 			_WARNINGLOG( "node '" + nodeName + "' is not found" );
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 QString LocalFileMng::readXmlString( QDomNode node , const QString& nodeName, const QString& defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
-	if ( text == NULL ) {
+	if ( text == nullptr ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ) );
 		return defaultValue;
 	} else {
@@ -126,7 +126,7 @@ QString LocalFileMng::readXmlString( QDomNode node , const QString& nodeName, co
 float LocalFileMng::readXmlFloat( QDomNode node , const QString& nodeName, float defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
-	if ( text == NULL ) {
+	if ( text == nullptr ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ));
 		return defaultValue;
 	} else {
@@ -137,7 +137,7 @@ float LocalFileMng::readXmlFloat( QDomNode node , const QString& nodeName, float
 int LocalFileMng::readXmlInt( QDomNode node , const QString& nodeName, int defaultValue, bool bCanBeEmpty, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bCanBeEmpty, bShouldExists );
-	if ( text == NULL ) {
+	if ( text == nullptr ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ).arg( nodeName ));
 		return defaultValue;
 	} else {
@@ -148,7 +148,7 @@ int LocalFileMng::readXmlInt( QDomNode node , const QString& nodeName, int defau
 bool LocalFileMng::readXmlBool( QDomNode node , const QString& nodeName, bool defaultValue, bool bShouldExists, bool tinyXmlCompatMode)
 {
 	QString text = processNode( node, nodeName, bShouldExists, bShouldExists );
-	if ( text == NULL ) {
+	if ( text == nullptr ) {
 		_WARNINGLOG( QString( "\tusing default value : '%1' for node '%2'" ).arg( defaultValue ? "true" : "false" ).arg( nodeName ) );
 		return defaultValue;
 	} else {
@@ -325,7 +325,7 @@ SongWriter::~SongWriter()
 
 
 // Returns 0 on success, passes the TinyXml error code otherwise.
-int SongWriter::writeSong( Song *song, const QString& filename )
+int SongWriter::writeSong( Song * pSong, const QString& filename )
 {
 	INFOLOG( "Saving song " + filename );
 	int rv = 0; // return value
@@ -342,36 +342,36 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	QDomNode songNode = doc.createElement( "song" );
 
 	LocalFileMng::writeXmlString( songNode, "version", QString( get_version().c_str() ) );
-	LocalFileMng::writeXmlString( songNode, "bpm", QString("%1").arg( song->__bpm ) );
-	LocalFileMng::writeXmlString( songNode, "volume", QString("%1").arg( song->get_volume() ) );
-	LocalFileMng::writeXmlString( songNode, "metronomeVolume", QString("%1").arg( song->get_metronome_volume() ) );
-	LocalFileMng::writeXmlString( songNode, "name", song->__name );
-	LocalFileMng::writeXmlString( songNode, "author", song->__author );
-	LocalFileMng::writeXmlString( songNode, "notes", song->get_notes() );
-	LocalFileMng::writeXmlString( songNode, "license", song->get_license() );
-	LocalFileMng::writeXmlBool( songNode, "loopEnabled", song->is_loop_enabled() );
+	LocalFileMng::writeXmlString( songNode, "bpm", QString("%1").arg( pSong->__bpm ) );
+	LocalFileMng::writeXmlString( songNode, "volume", QString("%1").arg( pSong->get_volume() ) );
+	LocalFileMng::writeXmlString( songNode, "metronomeVolume", QString("%1").arg( pSong->get_metronome_volume() ) );
+	LocalFileMng::writeXmlString( songNode, "name", pSong->__name );
+	LocalFileMng::writeXmlString( songNode, "author", pSong->__author );
+	LocalFileMng::writeXmlString( songNode, "notes", pSong->get_notes() );
+	LocalFileMng::writeXmlString( songNode, "license", pSong->get_license() );
+	LocalFileMng::writeXmlBool( songNode, "loopEnabled", pSong->is_loop_enabled() );
 	LocalFileMng::writeXmlBool( songNode, "patternModeMode", Preferences::get_instance()->patternModePlaysSelected());
 	
-	LocalFileMng::writeXmlString( songNode, "playbackTrackFilename", QString("%1").arg( song->get_playback_track_filename() ) );
-	LocalFileMng::writeXmlBool( songNode, "playbackTrackEnabled", song->get_playback_track_enabled() );
-	LocalFileMng::writeXmlString( songNode, "playbackTrackVolume", QString("%1").arg( song->get_playback_track_volume() ) );
+	LocalFileMng::writeXmlString( songNode, "playbackTrackFilename", QString("%1").arg( pSong->get_playback_track_filename() ) );
+	LocalFileMng::writeXmlBool( songNode, "playbackTrackEnabled", pSong->get_playback_track_enabled() );
+	LocalFileMng::writeXmlString( songNode, "playbackTrackVolume", QString("%1").arg( pSong->get_playback_track_volume() ) );
 
 	
-	if ( song->get_mode() == Song::SONG_MODE ) {
+	if ( pSong->get_mode() == Song::SONG_MODE ) {
 		LocalFileMng::writeXmlString( songNode, "mode", QString( "song" ) );
 	} else {
 		LocalFileMng::writeXmlString( songNode, "mode", QString( "pattern" ) );
 	}
 
-	LocalFileMng::writeXmlString( songNode, "humanize_time", QString("%1").arg( song->get_humanize_time_value() ) );
-	LocalFileMng::writeXmlString( songNode, "humanize_velocity", QString("%1").arg( song->get_humanize_velocity_value() ) );
-	LocalFileMng::writeXmlString( songNode, "swing_factor", QString("%1").arg( song->get_swing_factor() ) );
-	LocalFileMng::writeXmlString( songNode, "fillValue", QString("%1").arg( song->get_fill_value() ) );
-	LocalFileMng::writeXmlString( songNode, "fillRandomize", QString("%1").arg( song->get_fill_randomize() ) );
+	LocalFileMng::writeXmlString( songNode, "humanize_time", QString("%1").arg( pSong->get_humanize_time_value() ) );
+	LocalFileMng::writeXmlString( songNode, "humanize_velocity", QString("%1").arg( pSong->get_humanize_velocity_value() ) );
+	LocalFileMng::writeXmlString( songNode, "swing_factor", QString("%1").arg( pSong->get_swing_factor() ) );
+	LocalFileMng::writeXmlString( songNode, "fillValue", QString("%1").arg( pSong->get_fill_value() ) );
+	LocalFileMng::writeXmlString( songNode, "fillRandomize", QString("%1").arg( pSong->get_fill_randomize() ) );
 
 	// component List
 	QDomNode componentListNode = doc.createElement( "componentList" );
-	for (std::vector<DrumkitComponent*>::iterator it = song->get_components()->begin() ; it != song->get_components()->end(); ++it) {
+	for (std::vector<DrumkitComponent*>::iterator it = pSong->get_components()->begin() ; it != pSong->get_components()->end(); ++it) {
 		DrumkitComponent* pCompo = *it;
 
 		QDomNode componentNode = doc.createElement( "drumkitComponent" );
@@ -386,45 +386,45 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 	// instrument list
 	QDomNode instrumentListNode = doc.createElement( "instrumentList" );
-	unsigned nInstrument = song->get_instrument_list()->size();
+	unsigned nInstrument = pSong->get_instrument_list()->size();
 
 	// INSTRUMENT NODE
 	for ( unsigned i = 0; i < nInstrument; i++ ) {
-		Instrument *instr = song->get_instrument_list()->get( i );
-		assert( instr );
+		Instrument * pInstr = pSong->get_instrument_list()->get( i );
+		assert( pInstr );
 
 		QDomNode instrumentNode = doc.createElement( "instrument" );
 
-		LocalFileMng::writeXmlString( instrumentNode, "id", QString("%1").arg( instr->get_id() ) );
-		LocalFileMng::writeXmlString( instrumentNode, "name", instr->get_name() );
-		LocalFileMng::writeXmlString( instrumentNode, "drumkit", instr->get_drumkit_name() );
-		LocalFileMng::writeXmlString( instrumentNode, "volume", QString("%1").arg( instr->get_volume() ) );
-		LocalFileMng::writeXmlBool( instrumentNode, "isMuted", instr->is_muted() );
-		LocalFileMng::writeXmlString( instrumentNode, "pan_L", QString("%1").arg( instr->get_pan_l() ) );
-		LocalFileMng::writeXmlString( instrumentNode, "pan_R", QString("%1").arg( instr->get_pan_r() ) );
-		LocalFileMng::writeXmlString( instrumentNode, "gain", QString("%1").arg( instr->get_gain() ) );
-		LocalFileMng::writeXmlBool( instrumentNode, "applyVelocity", instr->get_apply_velocity() );
+		LocalFileMng::writeXmlString( instrumentNode, "id", QString("%1").arg( pInstr->get_id() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "name", pInstr->get_name() );
+		LocalFileMng::writeXmlString( instrumentNode, "drumkit", pInstr->get_drumkit_name() );
+		LocalFileMng::writeXmlString( instrumentNode, "volume", QString("%1").arg( pInstr->get_volume() ) );
+		LocalFileMng::writeXmlBool( instrumentNode, "isMuted", pInstr->is_muted() );
+		LocalFileMng::writeXmlString( instrumentNode, "pan_L", QString("%1").arg( pInstr->get_pan_l() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "pan_R", QString("%1").arg( pInstr->get_pan_r() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "gain", QString("%1").arg( pInstr->get_gain() ) );
+		LocalFileMng::writeXmlBool( instrumentNode, "applyVelocity", pInstr->get_apply_velocity() );
 
-		LocalFileMng::writeXmlBool( instrumentNode, "filterActive", instr->is_filter_active() );
-		LocalFileMng::writeXmlString( instrumentNode, "filterCutoff", QString("%1").arg( instr->get_filter_cutoff() ) );
-		LocalFileMng::writeXmlString( instrumentNode, "filterResonance", QString("%1").arg( instr->get_filter_resonance() ) );
+		LocalFileMng::writeXmlBool( instrumentNode, "filterActive", pInstr->is_filter_active() );
+		LocalFileMng::writeXmlString( instrumentNode, "filterCutoff", QString("%1").arg( pInstr->get_filter_cutoff() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "filterResonance", QString("%1").arg( pInstr->get_filter_resonance() ) );
 
-		LocalFileMng::writeXmlString( instrumentNode, "FX1Level", QString("%1").arg( instr->get_fx_level( 0 ) ) );
-		LocalFileMng::writeXmlString( instrumentNode, "FX2Level", QString("%1").arg( instr->get_fx_level( 1 ) ) );
-		LocalFileMng::writeXmlString( instrumentNode, "FX3Level", QString("%1").arg( instr->get_fx_level( 2 ) ) );
-		LocalFileMng::writeXmlString( instrumentNode, "FX4Level", QString("%1").arg( instr->get_fx_level( 3 ) ) );
+		LocalFileMng::writeXmlString( instrumentNode, "FX1Level", QString("%1").arg( pInstr->get_fx_level( 0 ) ) );
+		LocalFileMng::writeXmlString( instrumentNode, "FX2Level", QString("%1").arg( pInstr->get_fx_level( 1 ) ) );
+		LocalFileMng::writeXmlString( instrumentNode, "FX3Level", QString("%1").arg( pInstr->get_fx_level( 2 ) ) );
+		LocalFileMng::writeXmlString( instrumentNode, "FX4Level", QString("%1").arg( pInstr->get_fx_level( 3 ) ) );
 
-		assert( instr->get_adsr() );
-		LocalFileMng::writeXmlString( instrumentNode, "Attack", QString("%1").arg( instr->get_adsr()->get_attack() ) );
-		LocalFileMng::writeXmlString( instrumentNode, "Decay", QString("%1").arg( instr->get_adsr()->get_decay() ) );
-		LocalFileMng::writeXmlString( instrumentNode, "Sustain", QString("%1").arg( instr->get_adsr()->get_sustain() ) );
-		LocalFileMng::writeXmlString( instrumentNode, "Release", QString("%1").arg( instr->get_adsr()->get_release() ) );
+		assert( pInstr->get_adsr() );
+		LocalFileMng::writeXmlString( instrumentNode, "Attack", QString("%1").arg( pInstr->get_adsr()->get_attack() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "Decay", QString("%1").arg( pInstr->get_adsr()->get_decay() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "Sustain", QString("%1").arg( pInstr->get_adsr()->get_sustain() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "Release", QString("%1").arg( pInstr->get_adsr()->get_release() ) );
 
-		LocalFileMng::writeXmlString( instrumentNode, "randomPitchFactor", QString("%1").arg( instr->get_random_pitch_factor() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "randomPitchFactor", QString("%1").arg( pInstr->get_random_pitch_factor() ) );
 
-		LocalFileMng::writeXmlString( instrumentNode, "muteGroup", QString("%1").arg( instr->get_mute_group() ) );
-		LocalFileMng::writeXmlBool( instrumentNode, "isStopNote", instr->is_stop_notes() );
-		switch ( instr->sample_selection_alg() ) {
+		LocalFileMng::writeXmlString( instrumentNode, "muteGroup", QString("%1").arg( pInstr->get_mute_group() ) );
+		LocalFileMng::writeXmlBool( instrumentNode, "isStopNote", pInstr->is_stop_notes() );
+		switch ( pInstr->sample_selection_alg() ) {
 			case Instrument::VELOCITY:
 				LocalFileMng::writeXmlString( instrumentNode, "sampleSelectionAlgo", "VELOCITY" );
 				break;
@@ -436,13 +436,13 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 				break;
 		}
 
-		LocalFileMng::writeXmlString( instrumentNode, "midiOutChannel", QString("%1").arg( instr->get_midi_out_channel() ) );
-		LocalFileMng::writeXmlString( instrumentNode, "midiOutNote", QString("%1").arg( instr->get_midi_out_note() ) );
-		LocalFileMng::writeXmlString( instrumentNode, "isHihat", QString("%1").arg( instr->get_hihat_grp() ) );
-		LocalFileMng::writeXmlString( instrumentNode, "lower_cc", QString("%1").arg( instr->get_lower_cc() ) );
-		LocalFileMng::writeXmlString( instrumentNode, "higher_cc", QString("%1").arg( instr->get_higher_cc() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "midiOutChannel", QString("%1").arg( pInstr->get_midi_out_channel() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "midiOutNote", QString("%1").arg( pInstr->get_midi_out_note() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "isHihat", QString("%1").arg( pInstr->get_hihat_grp() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "lower_cc", QString("%1").arg( pInstr->get_lower_cc() ) );
+		LocalFileMng::writeXmlString( instrumentNode, "higher_cc", QString("%1").arg( pInstr->get_higher_cc() ) );
 
-		for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
+		for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it != pInstr->get_components()->end(); ++it) {
 			InstrumentComponent* pComponent = *it;
 
 			QDomNode componentNode = doc.createElement( "instrumentComponent" );
@@ -452,17 +452,21 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 			for ( unsigned nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				InstrumentLayer *pLayer = pComponent->get_layer( nLayer );
-
-				if ( pLayer == NULL ) continue;
+				if ( pLayer == nullptr ) {
+					continue;
+				}
+				
 				Sample *pSample = pLayer->get_sample();
-				if ( pSample == NULL ) continue;
+				if ( pSample == nullptr ) {
+					continue;
+				}
 
 				bool sIsModified = pSample->get_is_modified();
 				Sample::Loops lo = pSample->get_loops();
 				Sample::Rubberband ro = pSample->get_rubberband();
 				QString sMode = pSample->get_loop_mode_string();
 
-
+				
 				QDomNode layerNode = doc.createElement( "layer" );
 				LocalFileMng::writeXmlString( layerNode, "filename", Filesystem::prepare_sample_path( pSample->get_filepath() ) );
 				LocalFileMng::writeXmlBool( layerNode, "ismodified", sIsModified);
@@ -484,16 +488,16 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 				Sample::VelocityEnvelope* velocity = pSample->get_velocity_envelope();
 				for (int y = 0; y < velocity->size(); y++){
 					QDomNode volumeNode = doc.createElement( "volume" );
-					LocalFileMng::writeXmlString( volumeNode, "volume-position", QString("%1").arg( velocity->at(y).frame ) );
-					LocalFileMng::writeXmlString( volumeNode, "volume-value", QString("%1").arg( velocity->at(y).value ) );
+					LocalFileMng::writeXmlString( volumeNode, "volume-position", QString("%1").arg( velocity->at(y)->frame ) );
+					LocalFileMng::writeXmlString( volumeNode, "volume-value", QString("%1").arg( velocity->at(y)->value ) );
 					layerNode.appendChild( volumeNode );
 				}
 
 				Sample::PanEnvelope* pan = pSample->get_pan_envelope();
 				for (int y = 0; y < pan->size(); y++){
 					QDomNode panNode = doc.createElement( "pan" );
-					LocalFileMng::writeXmlString( panNode, "pan-position", QString("%1").arg( pan->at(y).frame ) );
-					LocalFileMng::writeXmlString( panNode, "pan-value", QString("%1").arg( pan->at(y).value ) );
+					LocalFileMng::writeXmlString( panNode, "pan-position", QString("%1").arg( pan->at(y)->frame ) );
+					LocalFileMng::writeXmlString( panNode, "pan-value", QString("%1").arg( pan->at(y)->value ) );
 					layerNode.appendChild( panNode );
 				}
 
@@ -510,19 +514,19 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	// pattern list
 	QDomNode patternListNode = doc.createElement( "patternList" );
 
-	unsigned nPatterns = song->get_pattern_list()->size();
+	unsigned nPatterns = pSong->get_pattern_list()->size();
 	for ( unsigned i = 0; i < nPatterns; i++ ) {
-		Pattern *pat = song->get_pattern_list()->get( i );
+		const Pattern *pPattern = pSong->get_pattern_list()->get( i );
 
 		// pattern
 		QDomNode patternNode = doc.createElement( "pattern" );
-		LocalFileMng::writeXmlString( patternNode, "name", pat->get_name() );
-		LocalFileMng::writeXmlString( patternNode, "category", pat->get_category() );
-		LocalFileMng::writeXmlString( patternNode, "size", QString("%1").arg( pat->get_length() ) );
-		LocalFileMng::writeXmlString( patternNode, "info", pat->get_info() );
+		LocalFileMng::writeXmlString( patternNode, "name", pPattern->get_name() );
+		LocalFileMng::writeXmlString( patternNode, "category", pPattern->get_category() );
+		LocalFileMng::writeXmlString( patternNode, "size", QString("%1").arg( pPattern->get_length() ) );
+		LocalFileMng::writeXmlString( patternNode, "info", pPattern->get_info() );
 
 		QDomNode noteListNode = doc.createElement( "noteList" );
-		const Pattern::notes_t* notes = pat->get_notes();
+		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
@@ -555,7 +559,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 	QDomNode virtualPatternListNode = doc.createElement( "virtualPatternList" );
 	for ( unsigned i = 0; i < nPatterns; i++ ) {
-		Pattern *pat = song->get_pattern_list()->get( i );
+		const Pattern *pat = pSong->get_pattern_list()->get( i );
 
 		// pattern
 		if (pat->get_virtual_patterns()->empty() == false) {
@@ -574,13 +578,13 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	// pattern sequence
 	QDomNode patternSequenceNode = doc.createElement( "patternSequence" );
 
-	unsigned nPatternGroups = song->get_pattern_group_vector()->size();
+	unsigned nPatternGroups = pSong->get_pattern_group_vector()->size();
 	for ( unsigned i = 0; i < nPatternGroups; i++ ) {
 		QDomNode groupNode = doc.createElement( "group" );
 
-		PatternList *pList = ( *song->get_pattern_group_vector() )[i];
+		PatternList *pList = ( *pSong->get_pattern_group_vector() )[i];
 		for ( unsigned j = 0; j < pList->size(); j++ ) {
-			Pattern *pPattern = pList->get( j );
+			const Pattern *pPattern = pList->get( j );
 			LocalFileMng::writeXmlString( groupNode, "patternID", pPattern->get_name() );
 		}
 		patternSequenceNode.appendChild( groupNode );
@@ -663,7 +667,7 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 
 	// Automation Paths
 	QDomNode automationPathsTag = doc.createElement( "automationPaths" );
-	AutomationPath *pPath = song->get_velocity_automation_path();
+	AutomationPath *pPath = pSong->get_velocity_automation_path();
 	if (pPath) {
 		QDomElement pathNode = doc.createElement("path");
 		pathNode.setAttribute("adjust", "velocity");
@@ -690,11 +694,11 @@ int SongWriter::writeSong( Song *song, const QString& filename )
 	if( rv ) {
 		WARNINGLOG("File save reported an error.");
 	} else {
-		song->set_is_modified( false );
+		pSong->set_is_modified( false );
 		INFOLOG("Save was successful.");
 	}
 
-	song->set_filename( filename );
+	pSong->set_filename( filename );
 
 	return rv;
 }

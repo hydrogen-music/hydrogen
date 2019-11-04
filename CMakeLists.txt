@@ -19,7 +19,7 @@ PROJECT(hydrogen)
 SET(VERSION_MAJOR "1")
 SET(VERSION_MINOR "0")
 SET(VERSION_PATCH "0")
-SET(VERSION_SUFFIX "beta1")
+#SET(VERSION_SUFFIX "beta1")
 
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
@@ -29,6 +29,8 @@ ELSE()
 	EXECUTE_PROCESS(COMMAND git log --pretty=format:'%h' -n 1 OUTPUT_VARIABLE GIT_REVISION )
 	SET(DISPLAY_VERSION "${VERSION}-${GIT_REVISION}")
 ENDIF(VERSION_SUFFIX)
+
+include(GNUInstallDirs)
 
 SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 
@@ -103,9 +105,9 @@ ELSE()
 ENDIF()
 
 IF(WANT_DEBUG)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -std=gnu++11")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 ELSE()
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=gnu++11")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 ENDIF()
 
 IF (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -136,7 +138,6 @@ FIND_PACKAGE(Qt5LinguistTools REQUIRED)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-
 IF(APPLE)
     INCLUDE_DIRECTORIES("/opt/local/include")
     LINK_DIRECTORIES("/opt/local/lib")
@@ -144,20 +145,15 @@ IF(APPLE)
     #Without setting this, installation would go into /usr/local, which does not exist per default
     SET(CMAKE_INSTALL_PREFIX "/usr" )
 ELSE(APPLE)
-    SET(OSS_LIB_PATHS "/usr/lib${LIB_SUFFIX}/oss/lib" "/usr/local/lib${LIB_SUFFIX}/oss/lib" )
+    SET(OSS_LIB_PATHS "${CMAKE_INSTALL_FULL_LIBDIR}/oss/lib" "/usr/local/lib${LIB_SUFFIX}/oss/lib" )
 ENDIF(APPLE)
 
 
 #Installation paths
 # TODO remove data from path
-SET(H2_SYS_PATH "${CMAKE_INSTALL_PREFIX}/share/hydrogen")
+SET(H2_SYS_PATH "${CMAKE_INSTALL_FULL_DATAROOTDIR}/hydrogen")
 # TODO remove data from path, could be .config/hydrogen
 SET(H2_USR_PATH ".hydrogen")
-
-#Changing this to user writable location will allow successful, non-root, deployment (e.g: make install).
-IF(NOT MINGW AND NOT APPLE)
-    SET(H2_UNIX_ICON_PATH "/usr/share/pixmaps" CACHE STRING "Freedesktop default icon path.")
-ENDIF()
 
 SET(MAX_INSTRUMENTS 1000 CACHE STRING "Maximum number of instruments")
 SET(MAX_COMPONENTS  32   CACHE STRING "Maximum number of components")
@@ -312,7 +308,7 @@ COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}
 * ${purple}PulseAudio${reset}                   : ${PULSEAUDIO_STATUS}\n"
 )
 
-COLOR_MESSAGE("${cyan}Usefull extensions${reset}
+COLOR_MESSAGE("${cyan}Useful extensions${reset}
 -----------------------------------------
 * ${purple}LASH${reset}                         : ${LASH_STATUS}
 * ${purple}LRDF${reset}                         : ${LRDF_STATUS}
@@ -366,10 +362,10 @@ ELSE()
 	INSTALL(DIRECTORY data DESTINATION ${H2_SYS_PATH} PATTERN ".git" EXCLUDE PATTERN "i18n" EXCLUDE PATTERN doc EXCLUDE)
 ENDIF()
 IF(NOT MINGW AND NOT APPLE)
-	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_PREFIX}/share/appdata")
-	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_PREFIX}/share/applications")
-	INSTALL(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "${H2_UNIX_ICON_PATH}")
-	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.1 DESTINATION "${CMAKE_INSTALL_PREFIX}/man/man1")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/appdata")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.desktop DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/icons/hicolor/scalable/apps/org.hydrogenmusic.Hydrogen.svg")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.1 DESTINATION "${CMAKE_INSTALL_MANDIR}/man1")
 ENDIF()
 
 #

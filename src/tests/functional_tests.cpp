@@ -52,7 +52,7 @@ void exportSong( const QString &songFile, const QString &fileName )
 	EventQueue *pQueue = EventQueue::get_instance();
 
 	Song *pSong = Song::load( songFile );
-	CPPUNIT_ASSERT( pSong != NULL );
+	CPPUNIT_ASSERT( pSong != nullptr );
 	pHydrogen->setSong( pSong );
 
 	InstrumentList *pInstrumentList = pSong->get_instrument_list();
@@ -92,7 +92,7 @@ void exportMIDI( const QString &songFile, const QString &fileName )
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::unique_ptr<Song> pSong { Song::load( songFile ) };
-	CPPUNIT_ASSERT( pSong != NULL );
+	CPPUNIT_ASSERT( pSong != nullptr );
 
 	SMFWriter writer;
 	writer.save( fileName, pSong.get() );

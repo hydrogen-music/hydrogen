@@ -67,6 +67,12 @@ using namespace std;
 
 const char* SongEditor::__class_name = "SongEditor";
 
+struct PatternDisplayInfo {
+	bool bActive;
+	bool bNext;
+	QString sPatternName;
+};
+
 
 SongEditorGridRepresentationItem::SongEditorGridRepresentationItem(int x, int y, bool value)
 {
@@ -896,7 +902,7 @@ void SongEditor::drawPattern( int pos, int number, bool invertColour )
 }
 
 
-void SongEditor::clearThePatternSequenseVector( QString filename )
+void SongEditor::clearThePatternSequenceVector( QString filename )
 {
 	Hydrogen *engine = Hydrogen::get_instance();
 
@@ -904,7 +910,7 @@ void SongEditor::clearThePatternSequenseVector( QString filename )
 
 	Song *song = engine->getSong();
 
-	//before delet the sequense, write a temp seqense file to disk
+	//before deleting the sequence, write a temp sequence file to disk
 	LocalFileMng fileMng;
 	bool success = song->writeTempPatternList( filename );
 
@@ -937,7 +943,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
  : QWidget( parent )
  , Object( __class_name )
  , EventListener()
- , m_pBackgroundPixmap( NULL )
+ , m_pBackgroundPixmap( nullptr )
 {
 	m_nWidth = 200;
 	m_nGridHeight = 18;
@@ -945,7 +951,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 	setAcceptDrops(true);
 
-	patternBeingEdited = NULL;
+	patternBeingEdited = nullptr;
 
 	line = new QLineEdit( "Inline Pattern Name", this );
 	line->setFrame( false );
@@ -963,14 +969,14 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_playingPattern_off_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_off.png" );
 
 	m_pPatternPopup = new QMenu( this );
-	m_pPatternPopup->addAction( trUtf8("Copy"),  this, SLOT( patternPopup_copy() ) );
-	m_pPatternPopup->addAction( trUtf8("Delete"),  this, SLOT( patternPopup_delete() ) );
-	m_pPatternPopup->addAction( trUtf8("Fill/Clear ..."),  this, SLOT( patternPopup_fill() ) );
-	m_pPatternPopup->addAction( trUtf8("Properties"),  this, SLOT( patternPopup_properties() ) );
-	m_pPatternPopup->addAction( trUtf8("Load Pattern"),  this, SLOT( patternPopup_load() ) );
-	m_pPatternPopup->addAction( trUtf8("Save Pattern"),  this, SLOT( patternPopup_save() ) );
-	m_pPatternPopup->addAction( trUtf8("Export Pattern"),  this, SLOT( patternPopup_export() ) );
-	m_pPatternPopup->addAction( trUtf8("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
+	m_pPatternPopup->addAction( tr("Copy"),  this, SLOT( patternPopup_copy() ) );
+	m_pPatternPopup->addAction( tr("Delete"),  this, SLOT( patternPopup_delete() ) );
+	m_pPatternPopup->addAction( tr("Fill/Clear ..."),  this, SLOT( patternPopup_fill() ) );
+	m_pPatternPopup->addAction( tr("Properties"),  this, SLOT( patternPopup_properties() ) );
+	m_pPatternPopup->addAction( tr("Load Pattern"),  this, SLOT( patternPopup_load() ) );
+	m_pPatternPopup->addAction( tr("Save Pattern"),  this, SLOT( patternPopup_save() ) );
+	m_pPatternPopup->addAction( tr("Export Pattern"),  this, SLOT( patternPopup_export() ) );
+	m_pPatternPopup->addAction( tr("Virtual Pattern"), this, SLOT( patternPopup_virtualPattern() ) );
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
@@ -1067,7 +1073,7 @@ void SongEditorPatternList::inlineEditPatternName( int row )
 
 void SongEditorPatternList::inlineEditingEntered()
 {
-	assert( patternBeingEdited != NULL );
+	assert( patternBeingEdited != nullptr );
 	
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
@@ -1090,7 +1096,7 @@ void SongEditorPatternList::inlineEditingEntered()
 
 void SongEditorPatternList::inlineEditingFinished()
 {
-	patternBeingEdited = NULL;
+	patternBeingEdited = nullptr;
 	line->hide();
 }
 
@@ -1173,19 +1179,33 @@ void SongEditorPatternList::createBackground()
 		}
 	}
 
-	PatternList *pCurrentPatternList = pEngine->getCurrentPatternList();
+	std::unique_ptr<PatternDisplayInfo[]> PatternArray{new PatternDisplayInfo[nPatterns]};
 
-	/// paint the foreground (pattern name etc.)
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	PatternList *pCurrentPatternList = pEngine->getCurrentPatternList();
+	
+	//assemble the data..
 	for ( int i = 0; i < nPatterns; i++ ) {
 		H2Core::Pattern *pPattern = pSong->get_pattern_list()->get(i);
-		//uint y = m_nGridHeight * i;
 
-		// Text
-		bool bNext = false, bActive = false;
+		if ( pCurrentPatternList->index( pPattern ) != -1 ) {
+			PatternArray[i].bActive = true;
+		} else {
+			PatternArray[i].bActive = false;
+		}
 
-		if ( pCurrentPatternList->index( pPattern ) != -1 ) bActive = true;
-		if ( pEngine->getNextPatterns()->index( pPattern ) != -1 ) bNext = true;
+		if ( pEngine->getNextPatterns()->index( pPattern ) != -1 ) {
+			PatternArray[i].bNext = true;
+		} else {
+			PatternArray[i].bNext = false;
+		}
 
+		PatternArray[i].sPatternName = pPattern->get_name();
+	}
+	AudioEngine::get_instance()->unlock();
+	
+	/// paint the foreground (pattern name etc.)
+	for ( int i = 0; i < nPatterns; i++ ) {
 		if ( i == nSelectedPattern ) {
 			p.setPen( QColor( 0,0,0 ) );
 		}
@@ -1194,21 +1214,18 @@ void SongEditorPatternList::createBackground()
 		}
 
 		uint text_y = i * m_nGridHeight;
-		if ( bNext ) {
+		if ( PatternArray[i].bNext ) {
 			p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_off_Pixmap );
 		}
-		else if (bActive) {
-
+		else if (PatternArray[i].bActive) {
 			//mark active pattern with triangular
 			if( ! pref->patternModePlaysSelected() ){
 				p.drawPixmap( QPoint( 5, text_y + 3 ), m_playingPattern_on_Pixmap );
 			}
 		}
 
-
-		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, pPattern->get_name() );
+		p.drawText( 25, text_y - 1, m_nWidth - 25, m_nGridHeight + 2, Qt::AlignVCenter, PatternArray[i].sPatternName);
 	}
-
 }
 
 
@@ -1279,7 +1296,7 @@ void SongEditorPatternList::patternPopup_load()
 	fd.setFileMode( QFileDialog::ExistingFile );
 	fd.setNameFilter( Filesystem::patterns_filter_name );
 	fd.setDirectory( Filesystem::patterns_dir() );
-	fd.setWindowTitle( trUtf8( "Open Pattern" ) );
+	fd.setWindowTitle( tr( "Open Pattern" ) );
 
 	if (fd.exec() != QDialog::Accepted) {
 		return;
@@ -1310,7 +1327,7 @@ void SongEditorPatternList::loadPatternAction( QString afilename, int position)
 	PatternList *pPatternList = pSong->get_pattern_list();
 
 	Pattern* pNewPattern = Pattern::load_file( afilename, pSong->get_instrument_list() );
-	if ( pNewPattern == 0 ) {
+	if ( pNewPattern == nullptr ) {
 		_ERRORLOG( "Error loading the pattern" );
 		return;
 	}
@@ -1342,7 +1359,7 @@ void SongEditorPatternList::patternPopup_save()
 
 	QString path = Files::savePatternNew( pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
 	if ( path.isEmpty() ) {
-		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"), tr("&Ok"), tr("&Cancel"), 0, 1 ) != 0 ) {
+		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 ) != 0 ) {
 			return;
 		}
 		path = Files::savePatternOver( pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
@@ -1382,7 +1399,7 @@ void SongEditorPatternList::patternPopup_properties()
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog(this, pattern, nSelectedPattern, false);
 	dialog->exec();
 	delete dialog;
-	dialog = NULL;
+	dialog = nullptr;
 }
 
 
@@ -1478,26 +1495,27 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 
 	}
 
+	//Lock because PatternList will be modified
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	PatternList *list = pEngine->getCurrentPatternList();
 	list->del( pattern );
 	// se esiste, seleziono il primo pattern
 	if ( pSongPatternList->size() > 0 ) {
 		H2Core::Pattern *pFirstPattern = pSongPatternList->get( 0 );
-		list->add( pFirstPattern );
-		// Cambio due volte...cosi' il pattern editor viene costretto ad aggiornarsi
-		pEngine->setSelectedPatternNumber( -1 );
-		pEngine->setSelectedPatternNumber( 0 );
-	}
+		list->add( pFirstPattern );	}
 	else {
 		// there's no patterns..
-		Pattern *emptyPattern = new Pattern();
-		emptyPattern->set_name( trUtf8("Pattern 1") );
-		emptyPattern->set_category( trUtf8("not_categorized") );
-		pSongPatternList->add( emptyPattern );
-		pEngine->setSelectedPatternNumber( -1 );
-		pEngine->setSelectedPatternNumber( 0 );
+		Pattern *pEmptyPattern = new Pattern();
+		pEmptyPattern->set_name( tr("Pattern 1") );
+		pEmptyPattern->set_category( tr("not_categorized") );
+		pSongPatternList->add( pEmptyPattern );
 	}
+
+	AudioEngine::get_instance()->unlock();
+	
+	pEngine->setSelectedPatternNumber( -1 );
+	pEngine->setSelectedPatternNumber( 0 );
 
 	for (unsigned int index = 0; index < pSongPatternList->size(); ++index) {
 		H2Core::Pattern *curPattern = pSongPatternList->get(index);
@@ -1523,7 +1541,7 @@ void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilen
 	PatternList *pPatternList = pSong->get_pattern_list();
 
 	Pattern* pattern = Pattern::load_file( patternFilename, pSong->get_instrument_list() );
-	if ( pattern == 0 ) {
+	if ( pattern == nullptr ) {
 		_ERRORLOG( "Error loading the pattern" );
 	}
 
@@ -1573,7 +1591,7 @@ void SongEditorPatternList::patternPopup_copyAction( QString patternFilename, in
 	PatternList *pPatternList = pSong->get_pattern_list();
 
 	Pattern* pattern = Pattern::load_file( patternFilename, pSong->get_instrument_list() );
-	if ( pattern == 0 ) {
+	if ( pattern == nullptr ) {
 		_ERRORLOG( "Error loading the pattern" );
 		return;
 	}
@@ -2010,6 +2028,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 
 		int nPatternPos = Hydrogen::get_instance()->getPatternPos();
 		if ( nPatternPos != column ) {
+			WARNINGLOG( "relocate via mouse click" );
 			Hydrogen::get_instance()->setPatternPos( column );
 			update();
 		}
@@ -2076,7 +2095,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	if ( pEngine->getCurrentPatternList()->size() != 0 ) {
 		H2Core::Pattern *pPattern = pEngine->getCurrentPatternList()->get( 0 );
 
-		if (pPattern != NULL){
+		if (pPattern != nullptr){
 			fPos += (float)pEngine->getTickPosition() / (float)pPattern->get_length();
 		} else {
 			fPos += (float)pEngine->getTickPosition() / (float)MAX_NOTES;

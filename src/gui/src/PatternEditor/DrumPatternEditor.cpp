@@ -59,8 +59,8 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  , m_nResolution( 8 )
  , m_bUseTriplets( false )
  , m_bRightBtnPressed( false )
- , m_pDraggedNote( NULL )
- , m_pPattern( NULL )
+ , m_pDraggedNote( nullptr )
+ , m_pPattern( nullptr )
  , m_pPatternEditorPanel( panel )
 {
 	setFocusPolicy(Qt::ClickFocus);
@@ -103,7 +103,7 @@ void DrumPatternEditor::updateEditor()
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
 	else {
-		m_pPattern = NULL;
+		m_pPattern = nullptr;
 	}
 	__selectedPatternNumber = nSelectedPatternNumber;
 
@@ -146,7 +146,7 @@ int DrumPatternEditor::getColumn(QMouseEvent *ev)
 
 void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 {
-	if ( m_pPattern == NULL ) {
+	if ( m_pPattern == nullptr ) {
 		return;
 	}
 	Song *pSong = Hydrogen::get_instance()->getSong();
@@ -255,7 +255,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		pPattern = pPatternList->get( selectedPatternNumber );
 	}
 	else {
-		pPattern = NULL;
+		pPattern = nullptr;
 	}
 
 
@@ -353,7 +353,7 @@ void DrumPatternEditor::mouseReleaseEvent(QMouseEvent *ev)
 	UNUSED( ev );
 	setCursor( QCursor( Qt::ArrowCursor ) );
 
-	if (m_pPattern == NULL) {
+	if (m_pPattern == nullptr) {
 		return;
 	}
 
@@ -375,7 +375,7 @@ void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int 
 	if ( (selectedPatternNumber != -1) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
 		pPattern = pPatternList->get( selectedPatternNumber );
 	} else {
-		pPattern = NULL;
+		pPattern = nullptr;
 	}
 
 	Note *pDraggedNote;
@@ -404,7 +404,7 @@ void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int 
 
 void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 {
-	if (m_pPattern == NULL) {
+	if (m_pPattern == nullptr) {
 		return;
 	}
 
@@ -467,7 +467,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 	__create_background( painter );
 
-	if (m_pPattern == NULL) {
+	if (m_pPattern == nullptr) {
 		return;
 	}
 
@@ -510,7 +510,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
 	else {
-		m_pPattern = NULL;
+		m_pPattern = nullptr;
 	}
 	// ~ FIX
 
@@ -894,7 +894,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 		pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
 	else {
-		pPattern = NULL;
+		pPattern = nullptr;
 	}
 
     const Pattern::notes_t* notes = pPattern->get_notes();
@@ -1280,12 +1280,12 @@ void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument
 void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, std::vector<int>* AddedComponents)
 {
 		Instrument *pNewInstrument = Instrument::load_instrument( sDrumkitName, sInstrumentName );
-		if( pNewInstrument == NULL ){
+		if( pNewInstrument == nullptr ){
 			return;
 		}
 
 		Drumkit *pNewDrumkit = Drumkit::load_by_name( sDrumkitName, false );
-		if( pNewDrumkit == NULL ){
+		if( pNewDrumkit == nullptr ){
 			return;
 		}
 
@@ -1407,7 +1407,7 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 	{
 		pNewInstrument = Instrument::load_instrument( drumkitName, instrumentName );
 	}
-	if( pNewInstrument == NULL ) return;
+	if( pNewInstrument == nullptr ) return;
 
 	// create a new valid ID for this instrument
 	int nID = -1;

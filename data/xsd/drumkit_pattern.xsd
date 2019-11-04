@@ -57,7 +57,7 @@
 			<xsd:element name="noteList">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element ref="h2:note" maxOccurs="1000"/>
+						<xsd:element ref="h2:note" minOccurs="0" maxOccurs="1000"/>
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>

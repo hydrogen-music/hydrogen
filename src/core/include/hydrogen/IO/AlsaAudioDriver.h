@@ -25,7 +25,7 @@
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/NullDriver.h>
 
-#ifdef H2CORE_HAVE_ALSA
+#if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
 #include <inttypes.h>
 #include <alsa/asoundlib.h>

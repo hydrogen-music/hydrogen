@@ -42,7 +42,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 
 // TAB buttons
-	QWidget *pTabButtonsPanel = new QWidget( NULL );
+	QWidget *pTabButtonsPanel = new QWidget( nullptr );
 	pTabButtonsPanel->setFixedHeight( 24 );
 	pTabButtonsPanel->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
@@ -54,8 +54,8 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 			"/instrumentEditor/instrument_show_off.png",
 			QSize( 130, 24 )
 	);
-	m_pShowInstrumentEditorBtn->setToolTip( trUtf8( "Show Instrument editor" ) );
-	m_pShowInstrumentEditorBtn->setText( trUtf8( "Instrument" ) );
+	m_pShowInstrumentEditorBtn->setToolTip( tr( "Show Instrument editor" ) );
+	m_pShowInstrumentEditorBtn->setText( tr( "Instrument" ) );
 	connect( m_pShowInstrumentEditorBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showInstrumentEditorBtnClicked() ) );
 
 	// show sound library button
@@ -66,8 +66,8 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 			"/instrumentEditor/library_show_off.png",
 			QSize( 150, 24 )
 	);
-	m_pShowSoundLibraryBtn->setToolTip( trUtf8( "Show sound library" ) );
-	m_pShowSoundLibraryBtn->setText( trUtf8( "Sound library" ) );
+	m_pShowSoundLibraryBtn->setToolTip( tr( "Show sound library" ) );
+	m_pShowSoundLibraryBtn->setText( tr( "Sound library" ) );
 	connect( m_pShowSoundLibraryBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showSoundLibraryBtnClicked() ) );
 
 	QHBoxLayout *pTabHBox = new QHBoxLayout();
@@ -83,7 +83,7 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 
 	InstrumentEditorPanel::get_instance()->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
-	m_pSoundLibraryPanel = new SoundLibraryPanel( NULL, false );
+	m_pSoundLibraryPanel = new SoundLibraryPanel( nullptr, false );
 
 	// LAYOUT
 	QGridLayout *pGrid = new QGridLayout();

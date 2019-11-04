@@ -29,6 +29,7 @@
 #include <hydrogen/basics/adsr.h>
 
 #define EMPTY_INSTR_ID          -1
+/** Created Instrument will be used as metronome. */
 #define METRONOME_INSTR_ID      -2
 #define PLAYBACK_INSTR_ID       -3
 
@@ -93,17 +94,23 @@ class Instrument : public H2Core::Object
 		void load_from( Drumkit* drumkit, Instrument* instrument, bool is_live = true );
 
 		/**
-		 * load samples data
+		 * Calls the InstrumentLayer::load_sample() member
+		 * function of all layers of each component of the
+		 * Instrument.
 		 */
 		void load_samples();
-		/*
-		 * unload instrument samples
+		/**
+		 * Calls the InstrumentLayer::unload_sample() member
+		 * function of all layers of each component of the
+		 * Instrument.
 		 */
 		void unload_samples();
 
-		/*
-		 * save the intrument within the given XMLNode
+		/**
+		 * save the instrument within the given XMLNode
 		 * \param node the XMLNode to feed
+		 * \param component_id Identifier of the corresponding
+		 * component.
 		 */
 		void save_to( XMLNode* node, int component_id );
 		/**
@@ -263,8 +270,13 @@ class Instrument : public H2Core::Object
 
 
 	private:
-		int						__id;					///< instrument id, should be unique
-		QString					__name;					///< instrument name
+	        /** Identifier of an instrument, which should be
+		    unique. It is set by set_id() and accessed via
+	        get_id().*/
+		int					__id;
+	        /** Name of the Instrument. It is set by set_name()
+		    and accessed via get_name().*/
+		QString					__name;
 		QString					__drumkit_name;			///< the name of the drumkit this instrument belongs to
 		float					__gain;					///< gain of the instrument
 		float					__volume;				///< volume of the instrument
@@ -279,7 +291,7 @@ class Instrument : public H2Core::Object
 		float					__random_pitch_factor;	///< random pitch factor
 		int						__midi_out_note;		///< midi out note
 		int						__midi_out_channel;		///< midi out channel
-		bool					__stop_notes;			///< will the note automatically generate a note off after beeing on
+		bool					__stop_notes;			///< will the note automatically generate a note off after being on
 		SampleSelectionAlgo		__sample_selection_alg;	///< how Hydrogen will chose the sample to use
 		bool					__active;				///< is the instrument active?
 		bool					__soloed;				///< is the instrument in solo mode?
@@ -294,25 +306,29 @@ class Instrument : public H2Core::Object
 		bool					__is_metronome_instrument;		///< is the instrument an metronome instrument?
 		std::vector<InstrumentComponent*>* __components;		///< InstrumentLayer array
 		bool					__apply_velocity;				///< change the sample gain based on velocity
-		bool					__current_instr_for_export;		///< is the instrument currently beeing exported?
+		bool					__current_instr_for_export;		///< is the instrument currently being exported?
 };
 // DEFINITIONS
-
+/** Sets the name of the Instrument #__name.
+ * \param name New name. */
 inline void Instrument::set_name( const QString& name )
 {
 	__name = name;
 }
-
+/** Access the name of the Instrument.
+ * \return #__name */
 inline const QString& Instrument::get_name() const
 {
 	return __name;
 }
-
+/** Sets #__id to @a id.
+ * \param id Unique identifier of the instrument. */
 inline void Instrument::set_id( const int id )
 {
 	__id = id;
 }
-
+/** Returns #__id. 
+* \return #__id. */
 inline int Instrument::get_id() const
 {
 	return __id;

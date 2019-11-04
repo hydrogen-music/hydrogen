@@ -58,33 +58,32 @@
 #  include <QtWidgets>
 #endif
 
-
 using namespace H2Core;
 
 
-HydrogenApp* HydrogenApp::m_pInstance = NULL;
+HydrogenApp* HydrogenApp::m_pInstance = nullptr;
 const char* HydrogenApp::__class_name = "HydrogenApp";
 
 HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
  : Object( __class_name )
  , m_pMainForm( pMainForm )
- , m_pMixer( NULL )
- , m_pPatternEditorPanel( NULL )
- , m_pAudioEngineInfoForm( NULL )
- , m_pSongEditorPanel( NULL )
- , m_pHelpBrowser( NULL )
- , m_pFirstTimeInfo( NULL )
- , m_pPlayerControl( NULL )
- , m_pPlaylistDialog( NULL )
- , m_pSampleEditor( NULL )
- , m_pDirector( NULL )
+ , m_pMixer( nullptr )
+ , m_pPatternEditorPanel( nullptr )
+ , m_pAudioEngineInfoForm( nullptr )
+ , m_pSongEditorPanel( nullptr )
+ , m_pHelpBrowser( nullptr )
+ , m_pFirstTimeInfo( nullptr )
+ , m_pPlayerControl( nullptr )
+ , m_pPlaylistDialog( nullptr )
+ , m_pSampleEditor( nullptr )
+ , m_pDirector( nullptr )
 
 {
 	m_pInstance = this;
 
 	m_pEventQueueTimer = new QTimer(this);
 	connect( m_pEventQueueTimer, SIGNAL( timeout() ), this, SLOT( onEventQueueTimer() ) );
-	m_pEventQueueTimer->start(50);	// update at 20 fps
+	m_pEventQueueTimer->start( QUEUE_TIMER_PERIOD );
 
 
 	// Create the audio engine :)
@@ -103,7 +102,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	setupSinglePanedInterface();
 
 	// restore audio engine form properties
-	m_pAudioEngineInfoForm = new AudioEngineInfoForm( 0 );
+	m_pAudioEngineInfoForm = new AudioEngineInfoForm( nullptr );
 	WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
 	m_pAudioEngineInfoForm->move( audioEngineInfoProp.x, audioEngineInfoProp.y );
 	if ( audioEngineInfoProp.visible ) {
@@ -113,8 +112,8 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 		m_pAudioEngineInfoForm->hide();
 	}
 
-	m_pPlaylistDialog = new PlaylistDialog( 0 );
-	m_pDirector = new Director( 0 );
+	m_pPlaylistDialog = new PlaylistDialog( nullptr );
+	m_pDirector = new Director( nullptr );
 }
 
 
@@ -157,7 +156,7 @@ HydrogenApp::~HydrogenApp()
 
 /// Return an HydrogenApp m_pInstance
 HydrogenApp* HydrogenApp::get_instance() {
-	if (m_pInstance == NULL) {
+	if (m_pInstance == nullptr) {
 		std::cerr << "Error! HydrogenApp::get_instance (m_pInstance = NULL)" << std::endl;
 	}
 	return m_pInstance;
@@ -176,11 +175,11 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pMainForm->resize( mainFormProp.width, mainFormProp.height );
 	m_pMainForm->move( mainFormProp.x, mainFormProp.y );
 
-	m_pSplitter = new QSplitter( NULL );
+	m_pSplitter = new QSplitter( nullptr );
 	m_pSplitter->setOrientation( Qt::Vertical );
 	m_pSplitter->setOpaqueResize( true );
 
-	m_pTab = new QTabWidget( NULL );
+	m_pTab = new QTabWidget( nullptr );
 
 	// SONG EDITOR
 	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
@@ -192,7 +191,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED)
-		m_pTab->addTab( m_pSongEditorPanel, trUtf8("Song Editor") );
+		m_pTab->addTab( m_pSongEditorPanel, tr("Song Editor") );
 
 	// this HBox will contain the InstrumentRack and the Pattern editor
 	QWidget *pSouthPanel = new QWidget( m_pSplitter );
@@ -202,16 +201,16 @@ void HydrogenApp::setupSinglePanedInterface()
 	pSouthPanel->setLayout( pEditorHBox );
 
 	// INSTRUMENT RACK
-	m_pInstrumentRack = new InstrumentRack( NULL );
+	m_pInstrumentRack = new InstrumentRack( nullptr );
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED ){
 		m_pTab->setMovable( false );
 		m_pTab->setTabsClosable( false );
-		m_pTab->addTab( pSouthPanel, trUtf8( "Instrument + Pattern") );
+		m_pTab->addTab( pSouthPanel, tr( "Instrument + Pattern") );
 	}
 
 	// PATTERN EDITOR
-	m_pPatternEditorPanel = new PatternEditorPanel( NULL );
+	m_pPatternEditorPanel = new PatternEditorPanel( nullptr );
 	WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
 	m_pPatternEditorPanel->resize( patternEditorProp.width, patternEditorProp.height );
 
@@ -219,7 +218,7 @@ void HydrogenApp::setupSinglePanedInterface()
 	pEditorHBox->addWidget( m_pInstrumentRack );
 
 	// PLayer control
-	m_pPlayerControl = new PlayerControl( NULL );
+	m_pPlayerControl = new PlayerControl( nullptr );
 
 
 	QWidget *mainArea = new QWidget( m_pMainForm );	// this is the main widget
@@ -249,14 +248,14 @@ void HydrogenApp::setupSinglePanedInterface()
 
 
 	// MIXER
-	m_pMixer = new Mixer(0);
+	m_pMixer = new Mixer(nullptr);
 	WindowProperties mixerProp = pPref->getMixerProperties();
 
 	m_pMixer->resize( mixerProp.width, mixerProp.height );
 	m_pMixer->move( mixerProp.x, mixerProp.y );
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED){
-		m_pTab->addTab(m_pMixer,trUtf8("Mixer"));
+		m_pTab->addTab(m_pMixer,tr("Mixer"));
 	}
 
 	m_pMixer->updateMixer();
@@ -272,12 +271,12 @@ void HydrogenApp::setupSinglePanedInterface()
 	// HELP BROWSER
 	QString sDocPath = H2Core::Filesystem::doc_dir();
 	QString sDocURI = sDocPath + "/manual.html";
-	m_pHelpBrowser = new SimpleHTMLBrowser( NULL, sDocPath, sDocURI, SimpleHTMLBrowser::MANUAL );
+	m_pHelpBrowser = new SimpleHTMLBrowser( nullptr, sDocPath, sDocURI, SimpleHTMLBrowser::MANUAL );
 
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA FX
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-		m_pLadspaFXProperties[nFX] = new LadspaFXProperties( NULL, nFX );
+		m_pLadspaFXProperties[nFX] = new LadspaFXProperties( nullptr, nFX );
 		m_pLadspaFXProperties[nFX]->hide();
 		WindowProperties prop = pPref->getLadspaProperties(nFX);
 		m_pLadspaFXProperties[nFX]->move( prop.x, prop.y );
@@ -397,7 +396,7 @@ void HydrogenApp::updateWindowTitle()
 	}
 
 	if(pSong->get_is_modified()){
-		title = qsSongName + " (" + QString(trUtf8("modified")) + ")";
+		title = qsSongName + " (" + QString(tr("modified")) + ")";
 	} else {
 		title = qsSongName;
 	}
@@ -447,17 +446,17 @@ void HydrogenApp::showSampleEditor( QString name, int mSelectedComponemt, int mS
 		QApplication::setOverrideCursor(Qt::WaitCursor);
 		m_pSampleEditor->close();
 		delete m_pSampleEditor;
-		m_pSampleEditor = NULL;
+		m_pSampleEditor = nullptr;
 		QApplication::restoreOverrideCursor();
 	}
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	m_pSampleEditor = new SampleEditor( 0, mSelectedComponemt, mSelectedLayer, name );
+	m_pSampleEditor = new SampleEditor( nullptr, mSelectedComponemt, mSelectedLayer, name );
 	m_pSampleEditor->show();
 	QApplication::restoreOverrideCursor();
 }
 
 void HydrogenApp::onDrumkitLoad( QString name ){
-	setStatusBarMessage( trUtf8( "Drumkit loaded: [%1]" ).arg( name ), 2000 );
+	setStatusBarMessage( tr( "Drumkit loaded: [%1]" ).arg( name ), 2000 );
 	m_pPatternEditorPanel->updateSLnameLabel( );
 }
 

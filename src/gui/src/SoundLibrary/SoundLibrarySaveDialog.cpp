@@ -36,7 +36,7 @@ SoundLibrarySaveDialog::SoundLibrarySaveDialog( QWidget* pParent )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( trUtf8( "Save Sound Library" ) );
+	setWindowTitle( tr( "Save Sound Library" ) );
 	setFixedSize( width(), height() );
 }
 
@@ -78,7 +78,7 @@ void SoundLibrarySaveDialog::on_imageBrowsePushButton_clicked()
 {
 	// Try to get the drumkit directory and open file browser
 	QString drumkitDir = H2Core::Filesystem::usr_drumkits_dir() + "/" + nameTxt->text();
-	QString fileName = QFileDialog::getOpenFileName(this, trUtf8("Open Image"), drumkitDir, trUtf8("Image Files (*.png *.jpg *.jpeg)"));
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), drumkitDir, tr("Image Files (*.png *.jpg *.jpeg)"));
 
 	// If this file is in different directory copy it here
 
@@ -109,7 +109,7 @@ void SoundLibrarySaveDialog::on_imageBrowsePushButton_clicked()
 void SoundLibrarySaveDialog::on_saveBtn_clicked()
 {
 	if( nameTxt->text().isEmpty() ){
-		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Please supply at least a valid name"));
+		QMessageBox::information( this, "Hydrogen", tr ( "Please supply at least a valid name"));
 		return;
 	}
 
@@ -117,7 +117,7 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 
 	if(H2Core::Drumkit::user_drumkit_exists( nameTxt->text() )){
 		QMessageBox msgBox;
-		msgBox.setText(trUtf8("A library with the same name already exists. Do you want to overwrite the existing library?"));
+		msgBox.setText(tr("A library with the same name already exists. Do you want to overwrite the existing library?"));
 		msgBox.setIcon(QMessageBox::Warning);
 		msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 		msgBox.setDefaultButton(QMessageBox::No);
@@ -141,7 +141,7 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 								H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(),
 								H2Core::Hydrogen::get_instance()->getSong()->get_components(),
 								Overwrite ) ) {
-		QMessageBox::information( this, "Hydrogen", trUtf8 ( "Saving of this library failed."));
+		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this library failed."));
 		return;
 	}
 

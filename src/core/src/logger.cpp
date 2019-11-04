@@ -37,13 +37,13 @@
 namespace H2Core {
 
 unsigned Logger::__bit_msk = 0;
-Logger* Logger::__instance=0;
+Logger* Logger::__instance=nullptr;
 const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug" };
 
 pthread_t loggerThread;
 
 void* loggerThread_func( void* param ) {
-	if ( param == 0 ) return 0;
+	if ( param == nullptr ) return nullptr;
 	Logger* logger = ( Logger* )param;
 #ifdef WIN32
 #  ifdef H2CORE_HAVE_DEBUG
@@ -52,7 +52,7 @@ void* loggerThread_func( void* param ) {
 	freopen( "CONOUT$", "wt", stdout );
 #  endif
 #endif
-	FILE* log_file = 0;
+	FILE* log_file = nullptr;
 	if ( logger->__use_file ) {
 #ifdef Q_OS_MACX
 		QString sLogFilename = QDir::homePath().append( "/Library/Hydrogen/hydrogen.log" );
@@ -96,8 +96,8 @@ void* loggerThread_func( void* param ) {
 	::FreeConsole();
 #endif
 	LOGGER_SLEEP;
-	pthread_exit( 0 );
-	return 0;
+	pthread_exit( nullptr );
+	return nullptr;
 }
 
 Logger* Logger::bootstrap( unsigned msk ) {
@@ -106,7 +106,7 @@ Logger* Logger::bootstrap( unsigned msk ) {
 }
 
 Logger* Logger::create_instance() {
-	if ( __instance == 0 ) __instance = new Logger;
+	if ( __instance == nullptr ) __instance = new Logger;
 	return __instance;
 }
 
@@ -114,13 +114,13 @@ Logger::Logger() : __use_file( false ), __running( true ) {
 	__instance = this;
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
-	pthread_mutex_init( &__mutex, 0 );
+	pthread_mutex_init( &__mutex, nullptr );
 	pthread_create( &loggerThread, &attr, loggerThread_func, this );
 }
 
 Logger::~Logger() {
 	__running = false;
-	pthread_join( loggerThread, 0 );
+	pthread_join( loggerThread, nullptr );
 }
 
 void Logger::log( unsigned level, const QString& class_name, const char* func_name, const QString& msg ) {

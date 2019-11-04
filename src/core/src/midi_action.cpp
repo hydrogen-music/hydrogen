@@ -46,14 +46,14 @@ using namespace H2Core;
 * @brief This class represents a midi action.
 *
 * This class represents actions which can be executed
-* after a midi event occured. An example is the "MUTE"
+* after a midi event occurred. An example is the "MUTE"
 * action, which mutes the outputs of hydrogen.
 *
 * An action can be linked to an event. If this event occurs,
 * the action gets triggered. The handling of events takes place
 * in midi_input.cpp .
 *
-* Each action has two independ parameters. The two parameters are optional and
+* Each action has two independent parameters. The two parameters are optional and
 * can be used to carry additional information, which mean
 * only something to this very Action. They can have totally different meanings for other Actions.
 * Example: parameter1 is the Mixer strip and parameter 2 a multiplier for the volume change on this strip
@@ -83,7 +83,7 @@ Action::Action( QString typeString ) : Object( __class_name ) {
 * @author Sebastian Moors
 *
 */
-MidiActionManager* MidiActionManager::__instance = NULL;
+MidiActionManager* MidiActionManager::__instance = nullptr;
 const char* MidiActionManager::__class_name = "ActionManager";
 
 MidiActionManager::MidiActionManager() : Object( __class_name ) {
@@ -161,6 +161,7 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 		}
 	}
 	actionMap.insert(make_pair("SELECT_NEXT_PATTERN", make_pair(&MidiActionManager::select_next_pattern, empty)));
+	actionMap.insert(make_pair("SELECT_ONLY_NEXT_PATTERN", make_pair(&MidiActionManager::select_only_next_pattern, empty)));
 	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_CC_ABSOLUTE", make_pair(&MidiActionManager::select_next_pattern_cc_absolute, empty)));
 	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_PROMPTLY", make_pair(&MidiActionManager::select_next_pattern_promptly, empty)));
 	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_RELATIVE", make_pair(&MidiActionManager::select_next_pattern_relative, empty)));
@@ -206,11 +207,11 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 
 MidiActionManager::~MidiActionManager() {
 	//INFOLOG( "ActionManager delete" );
-	__instance = NULL;
+	__instance = nullptr;
 }
 
 void MidiActionManager::create_instance() {
-	if ( __instance == 0 ) {
+	if ( __instance == nullptr ) {
 		__instance = new MidiActionManager;
 	}
 }
@@ -286,7 +287,7 @@ bool MidiActionManager::strip_mute_toggle(Action * pAction, Hydrogen* pEngine, t
 
 	Instrument *pInstr = instrList->get( nLine );
 
-	if ( pInstr == NULL) {
+	if ( pInstr == nullptr) {
 		return false;
 	}
 	
@@ -304,7 +305,7 @@ bool MidiActionManager::strip_solo_toggle(Action * pAction, Hydrogen* pEngine, t
 
 	Instrument *pInstr = instrList->get( nLine );
 
-	if ( pInstr == NULL) {
+	if ( pInstr == nullptr) {
 		return false;
 	}
 	
@@ -335,6 +336,21 @@ bool MidiActionManager::select_next_pattern(Action * pAction, Hydrogen* pEngine,
 		pEngine->sequencer_setNextPattern( row );
 	}
 	return true;
+}
+
+bool MidiActionManager::select_only_next_pattern(Action * pAction, Hydrogen* pEngine, targeted_element ) {
+  bool ok;
+  int row = pAction->getParameter1().toInt(&ok,10);
+	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
+		return false;
+	}
+  if(Preferences::get_instance()->patternModePlaysSelected())
+  {
+    return true;
+  }
+ 
+  pEngine->sequencer_setOnlyNextPattern( row );
+  return true; 
 }
 
 bool MidiActionManager::select_next_pattern_relative(Action * pAction, Hydrogen* pEngine, targeted_element ) {
@@ -408,7 +424,7 @@ bool MidiActionManager::effect_level_absolute(Action * pAction, Hydrogen* pEngin
 	Song *song = pEngine->getSong();
 	InstrumentList *instrList = song->get_instrument_list();
 	Instrument *instr = instrList->get( nLine );
-	if ( instr == NULL)  {
+	if ( instr == nullptr)  {
 		return false;
 	}
 
@@ -522,7 +538,7 @@ bool MidiActionManager::strip_volume_absolute(Action * pAction, Hydrogen* pEngin
 
 	Instrument *instr = instrList->get( nLine );
 
-	if ( instr == NULL) {
+	if ( instr == nullptr) {
 		return false;
 	}
 
@@ -551,7 +567,7 @@ bool MidiActionManager::strip_volume_relative(Action * pAction, Hydrogen* pEngin
 
 	Instrument *instr = instrList->get( nLine );
 
-	if ( instr == NULL) {
+	if ( instr == nullptr) {
 		return false;
 	}
 
@@ -589,7 +605,7 @@ bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pEngine, target
 
 	Instrument *instr = instrList->get( nLine );
 
-	if( instr == NULL ) {
+	if( instr == nullptr ) {
 		return false;
 	}
 
@@ -644,7 +660,7 @@ bool MidiActionManager::pan_relative(Action * pAction, Hydrogen* pEngine, target
 
 	Instrument *instr = instrList->get( nLine );
 
-	if( instr == NULL ) {
+	if( instr == nullptr ) {
 		return false;
 	}
 
@@ -697,17 +713,17 @@ bool MidiActionManager::gain_level_absolute(Action * pAction, Hydrogen* pEngine,
 	InstrumentList *instrList = song->get_instrument_list();
 
 	Instrument *instr = instrList->get( nLine );
-	if( instr == 0 ) {
+	if( instr == nullptr ) {
 		return false;
 	}
 
 	InstrumentComponent* component =  instr->get_component( nSample._id );
-	if( component == 0) {
+	if( component == nullptr) {
 		return false;
 	}
 
 	InstrumentLayer* layer = component->get_layer( nSample._subId );
-	if( layer == 0 ) {
+	if( layer == nullptr ) {
 		return false;
 	}
 
@@ -735,17 +751,17 @@ bool MidiActionManager::pitch_level_absolute(Action * pAction, Hydrogen* pEngine
 	InstrumentList *instrList = song->get_instrument_list();
 
 	Instrument *instr = instrList->get( nLine );
-	if( instr == 0 ) {
+	if( instr == nullptr ) {
 		return false;
 	}
 
 	InstrumentComponent* component =  instr->get_component( nSample._id );
-	if( component == 0) {
+	if( component == nullptr) {
 		return false;
 	}
 
 	InstrumentLayer* layer = component->get_layer( nSample._subId );
-	if( layer == 0 ) {
+	if( layer == nullptr ) {
 		return false;
 	}
 
@@ -773,7 +789,7 @@ bool MidiActionManager::filter_cutoff_level_absolute(Action * pAction, Hydrogen*
 	InstrumentList *instrList = song->get_instrument_list();
 
 	Instrument *instr = instrList->get( nLine );
-	if( instr == 0 ) {
+	if( instr == nullptr ) {
 		return false;
 	}
 
@@ -995,7 +1011,7 @@ bool MidiActionManager::handleAction( Action * pAction ) {
 		return false if action is null
 		(for example if no Action exists for an event)
 	*/
-	if( pAction == NULL ) {
+	if( pAction == nullptr ) {
 		return false;
 	}
 

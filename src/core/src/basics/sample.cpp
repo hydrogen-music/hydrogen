@@ -23,13 +23,14 @@
 
 
 #include <limits>
+#include <memory>
 
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/basics/sample.h>
 
-#ifdef H2CORE_HAVE_RUBBERBAND
+#if defined(H2CORE_HAVE_RUBBERBAND) || _DOXYGEN_
 #include <rubberband/RubberBandStretcher.h>
 #define RUBBERBAND_BUFFER_OVERSIZE  500
 #define RUBBERBAND_DEBUG            0
@@ -39,14 +40,34 @@ namespace H2Core
 {
 
 const char* Sample::__class_name = "Sample";
+const char* EnvelopePoint::__class_name = "EnvolopePoint";
+
 const char* Sample::__loop_modes[] = { "forward", "reverse", "pingpong" };
 
-#ifdef H2CORE_HAVE_RUBBERBAND
+#if defined(H2CORE_HAVE_RUBBERBAND) || _DOXYGEN_
 static double compute_pitch_scale( const Sample::Rubberband& r );
 static RubberBand::RubberBandStretcher::Options compute_rubberband_options( const Sample::Rubberband& r );
 #endif
 
-Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) : Object( __class_name ),
+
+/* EnvelopePoint */
+EnvelopePoint::EnvelopePoint() : Object( EnvelopePoint::__class_name ), frame( 0 ), value( 0 ) 
+{
+}
+
+EnvelopePoint::EnvelopePoint( int f, int v ) : Object( EnvelopePoint::__class_name ), frame( f ), value( v ) 
+{
+}
+
+EnvelopePoint::EnvelopePoint( EnvelopePoint* other ) : Object( EnvelopePoint::__class_name )
+{
+	frame = other->frame;
+	value = other->value;
+}
+/* EnvelopePoint */
+
+
+Sample::Sample( const QString& filepath,  int frames, int sample_rate, float* data_l, float* data_r ) : Object( Sample::__class_name ),
 	__filepath( filepath ),
 	__frames( frames ),
 	__sample_rate( sample_rate ),
@@ -61,33 +82,37 @@ Sample::Sample( Sample* pOther ): Object( __class_name ),
 	__filepath( pOther->get_filepath() ),
 	__frames( pOther->get_frames() ),
 	__sample_rate( pOther->get_sample_rate() ),
-	__data_l( 0 ),
-	__data_r( 0 ),
+	__data_l( nullptr ),
+	__data_r( nullptr ),
 	__is_modified( pOther->get_is_modified() ),
 	__loops( pOther->__loops ),
 	__rubberband( pOther->__rubberband )
 {
 	__data_l = new float[__frames];
 	__data_r = new float[__frames];
-	memcpy( __data_l, pOther->get_data_l(), __frames );
-	memcpy( __data_r, pOther->get_data_r(), __frames );
+	
+	// Since the third argument of memcpy takes the number of bytes,
+	// which are about to be copied, and the data is given in float,
+	// which are  four bytes each, the number of copied frames
+	// `__frames` has to be multiplied by four.
+	memcpy( __data_l, pOther->get_data_l(), __frames * 4 );
+	memcpy( __data_r, pOther->get_data_r(), __frames * 4 );
 
 	PanEnvelope* pPan = pOther->get_pan_envelope();
 	for( int i=0; i<pPan->size(); i++ ) {
-		__pan_envelope.push_back( pPan->at( i ) );
+		__pan_envelope.push_back( std::make_unique<EnvelopePoint>( pPan->at(i)->value, pPan->at(i)->frame ) );
 	}
-
 
 	PanEnvelope* pVelocity = pOther->get_velocity_envelope();
 	for( int i=0; i<pVelocity->size(); i++ ) {
-		__velocity_envelope.push_back( pVelocity->at( i ) );
+		__velocity_envelope.push_back( std::make_unique<EnvelopePoint>( pVelocity->at(i)->value, pVelocity->at(i)->frame ) );
 	}
 }
 
 Sample::~Sample()
 {
-	if( __data_l!=0 ) delete[] __data_l;
-	if( __data_r!=0 ) delete[] __data_r;
+	if( __data_l!=nullptr ) delete[] __data_l;
+	if( __data_r!=nullptr ) delete[] __data_r;
 }
 
 void Sample::set_filename( const QString& filename )
@@ -106,7 +131,12 @@ Sample* Sample::load( const QString& filepath )
 		ERRORLOG( QString( "Unable to read %1" ).arg( filepath ) );
 	} else {
 		pSample = new Sample( filepath );
-		pSample->load();
+		
+		if( !pSample->load() )
+		{
+			delete pSample;
+			pSample = nullptr;
+		}
 	}
 	
 	return pSample;
@@ -135,14 +165,20 @@ void Sample::apply( const Loops& loops, const Rubberband& rubber, const Velocity
 #endif
 }
 
-void Sample::load()
+bool Sample::load()
 {
+	// Will contain a bunch of metadata about the loaded sample.
 	SF_INFO sound_info;
+	
+	// Opens file in read-only mode.
 	SNDFILE* file = sf_open( __filepath.toLocal8Bit(), SFM_READ, &sound_info );
 	if ( !file ) {
 		ERRORLOG( QString( "[Sample::load] Error loading file %1" ).arg( __filepath ) );
-		return;
+		return false;
 	}
+	
+	// Sanity check. SAMPLE_CHANNELS is defined in
+	// core/include/hydrogen/globals.h and set to 2.
 	if ( sound_info.channels > SAMPLE_CHANNELS ) {
 		WARNINGLOG( QString( "can't handle %1 channels, only 2 will be used" ).arg( sound_info.channels ) );
 		sound_info.channels = SAMPLE_CHANNELS;
@@ -152,19 +188,40 @@ void Sample::load()
 		sound_info.frames = ( std::numeric_limits<int>::max()/sound_info.channels );
 	}
 
+	// Create an array, which will hold the block of samples read
+	// from file.
 	float* buffer = new float[ sound_info.frames * sound_info.channels ];
+	
 	//memset( buffer, 0, sound_info.frames *sound_info.channels );
+	
+	// Read all frames into `buffer'. Libsndfile does seamlessly
+	// convert the format of the underlying data on the fly. The
+	// output will be an array of floats regardless of file's
+	// encoding (e.g. 16 bit PCM).
 	sf_count_t count = sf_read_float( file, buffer, sound_info.frames * sound_info.channels );
-	sf_close( file );
-	if( count==0 ) WARNINGLOG( QString( "%1 is an empty sample" ).arg( __filepath ) );
-
+	if( count==0 ){
+		WARNINGLOG( QString( "%1 is an empty sample" ).arg( __filepath ) );
+	}
+	
+	// Deallocate the handler.
+	if ( sf_close( file ) != 0 ){
+		WARNINGLOG( QString( "Unable to close sample file %1" ).arg( __filepath ) );
+	}
+	
+	// Flush the current content of the left and right channel and
+	// the current metadata.
 	unload();
-
-	__data_l = new float[ sound_info.frames ];
-	__data_r = new float[ sound_info.frames ];
+	
+	// Save the metadata of the loaded file into private members
+	// of the Sample class.
 	__frames = sound_info.frames;
 	__sample_rate = sound_info.samplerate;
 
+	// Split the loaded frames into left and right channel. 
+	// If only one channels was present in the underlying data,
+	// duplicate its content.
+	__data_l = new float[ sound_info.frames ];
+	__data_r = new float[ sound_info.frames ];
 	if ( sound_info.channels == 1 ) {
 		memcpy( __data_l, buffer, __frames * sizeof( float ) );
 		memcpy( __data_r, buffer, __frames * sizeof( float ) );
@@ -175,6 +232,8 @@ void Sample::load()
 		}
 	}
 	delete[] buffer;
+
+	return true;
 }
 
 bool Sample::apply_loops( const Loops& lo )
@@ -266,15 +325,19 @@ void Sample::apply_velocity( const VelocityEnvelope& v )
 	// the VelocityEnvelope should be processed within TargetWaveDisplay
 	// so that we here have ( int frame_idx, float scale ) points
 	// but that will break the xml storage
-	if( v.empty() && __velocity_envelope.empty() ) return;
+	if( v.empty() && __velocity_envelope.empty() ) 
+	{
+		return;
+	}
+	
 	__velocity_envelope.clear();
 	if ( v.size() > 0 ) {
 		float inv_resolution = __frames / 841.0F;
 		for ( int i = 1; i < v.size(); i++ ) {
-			float y = ( 91 - v[i - 1].value ) / 91.0F;
-			float k = ( 91 - v[i].value ) / 91.0F;
-			int start_frame = v[i - 1].frame * inv_resolution;
-			int end_frame = v[i].frame * inv_resolution;
+			float y = ( 91 - v[i - 1]->value ) / 91.0F;
+			float k = ( 91 - v[i]->value ) / 91.0F;
+			int start_frame = v[i - 1]->frame * inv_resolution;
+			int end_frame = v[i]->frame * inv_resolution;
 			if ( i == v.size() -1 ) end_frame = __frames;
 			int length = end_frame - start_frame ;
 			float step = ( y - k ) / length;;
@@ -284,7 +347,10 @@ void Sample::apply_velocity( const VelocityEnvelope& v )
 				y-=step;
 			}
 		}
-		__velocity_envelope = v;
+		
+		for(auto& pEnvPtr : v){
+			__velocity_envelope.emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr->value, pEnvPtr->frame ) );
+		}
 	}
 	__is_modified = true;
 }
@@ -292,15 +358,19 @@ void Sample::apply_velocity( const VelocityEnvelope& v )
 void Sample::apply_pan( const PanEnvelope& p )
 {
 	// TODO see apply_velocity
-	if( p.empty() && __pan_envelope.empty() ) return;
+	if( p.empty() && __pan_envelope.empty() )
+	{
+		return;
+	}
+	
 	__pan_envelope.clear();
 	if ( p.size() > 0 ) {
 		float inv_resolution = __frames / 841.0F;
 		for ( int i = 1; i < p.size(); i++ ) {
-			float y = ( 45 - p[i - 1].value ) / 45.0F;
-			float k = ( 45 - p[i].value ) / 45.0F;
-			int start_frame = p[i - 1].frame * inv_resolution;
-			int end_frame = p[i].frame * inv_resolution;
+			float y = ( 45 - p[i - 1]->value ) / 45.0F;
+			float k = ( 45 - p[i]->value ) / 45.0F;
+			int start_frame = p[i - 1]->frame * inv_resolution;
+			int end_frame = p[i]->frame * inv_resolution;
 			if ( i == p.size() -1 ) end_frame = __frames;
 			int length = end_frame - start_frame ;
 			float step = ( y - k ) / length;;
@@ -321,7 +391,10 @@ void Sample::apply_pan( const PanEnvelope& p )
 				y-=step;
 			}
 		}
-		__pan_envelope = p;
+		
+		for(auto& pEnvPtr : p){
+			__pan_envelope.emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr->value, pEnvPtr->frame ) );
+		}
 	}
 	__is_modified = true;
 }
@@ -339,7 +412,7 @@ void Sample::apply_rubberband( const Rubberband& rb )
 	double pitch_scale = compute_pitch_scale( rb );
 	// output buffer
 	int out_buffer_size = ( int )( __frames* time_ratio + 0.1 );
-	// instanciate rubberband
+	// instantiate rubberband
 	RubberBand::RubberBandStretcher* rubber = new RubberBand::RubberBandStretcher( __sample_rate, 2, options, time_ratio, pitch_scale );
 	rubber->setDebugLevel( RUBBERBAND_DEBUG );
 	rubber->setExpectedInputDuration( __frames );
@@ -467,7 +540,7 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 		rubberoutframes = int( __frames * ratio + 0.1 );
 		_INFOLOG( QString( "ratio: %1, rubberoutframes: %2, rubberinframes: %3" ).arg( ratio ).arg ( rubberoutframes ).arg ( __frames ) );
 
-		QObject*	pParent = 0;
+		QObject*	pParent = nullptr;
 		QProcess*	pRrubberbandProc = new QProcess( pParent );
 
 		QStringList arguments;
@@ -495,7 +568,7 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 		}
 
 		Sample* p_Rubberbanded = Sample::load( rubberResultPath.toLocal8Bit() );
-		if( p_Rubberbanded==0 ) {
+		if( p_Rubberbanded==nullptr ) {
 			return false;
 		}
 
@@ -506,8 +579,8 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 		__frames = p_Rubberbanded->get_frames();
 		__data_l = p_Rubberbanded->get_data_l();
 		__data_r = p_Rubberbanded->get_data_r();
-		p_Rubberbanded->__data_l = 0;
-		p_Rubberbanded->__data_r = 0;
+		p_Rubberbanded->__data_l = nullptr;
+		p_Rubberbanded->__data_r = nullptr;
 		__is_modified = true;
 		__rubberband = rb;
 		delete p_Rubberbanded;
@@ -551,7 +624,7 @@ bool Sample::write( const QString& path, int format )
 
 	SNDFILE* sf_file = sf_open( path.toLocal8Bit().data(), SFM_WRITE, &sf_info ) ;
 
-	if ( sf_file==0 ) {
+	if ( sf_file==nullptr ) {
 		___ERRORLOG( QString( "sf_open error : %1" ).arg( sf_strerror( sf_file ) ) );
 		delete[] obuf;
 		return false;

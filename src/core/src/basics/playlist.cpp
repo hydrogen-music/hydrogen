@@ -31,7 +31,7 @@
 namespace H2Core
 {
 
-Playlist* Playlist::__instance = NULL;
+Playlist* Playlist::__instance = nullptr;
 
 const char* Playlist::__class_name = "Playlist";
 
@@ -47,12 +47,12 @@ Playlist::Playlist()
 Playlist::~Playlist()
 {
 	clear();
-	__instance = 0;
+	__instance = nullptr;
 }
 
 void Playlist::create_instance()
 {
-	if ( __instance == 0 ) {
+	if ( __instance == nullptr ) {
 		__instance = new Playlist();
 	}
 }
@@ -71,9 +71,9 @@ Playlist* Playlist::load_file( const QString& pl_path, bool useRelativePaths )
 	if ( !doc.read( pl_path, Filesystem::playlist_xsd_path() ) ) {
 		Playlist* pl = new Playlist();
 		Playlist* ret = Legacy::load_playlist( pl, pl_path );
-		if ( ret == 0 ) {
+		if ( ret == nullptr ) {
 			delete pl;	// __instance = 0;
-			return 0;
+			return nullptr;
 		}
 		WARNINGLOG( QString( "update playlist %1" ).arg( pl_path ) );
 		pl->save_file( pl_path, pl->getFilename(), true, useRelativePaths );
@@ -82,7 +82,7 @@ Playlist* Playlist::load_file( const QString& pl_path, bool useRelativePaths )
 	XMLNode root = doc.firstChildElement( "playlist" );
 	if ( root.isNull() ) {
 		ERRORLOG( "playlist node not found" );
-		return 0;
+		return nullptr;
 	}
 	QFileInfo fileInfo = QFileInfo( pl_path );
 	return Playlist::load_from( &root, fileInfo, useRelativePaths );
@@ -93,11 +93,11 @@ Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelat
 	QString filename = node->read_string( "name", "", false, false );
 	if ( filename.isEmpty() ) {
 		ERRORLOG( "Playlist has no name, abort" );
-		return 0;
+		return nullptr;
 	}
 
-	Playlist* playlist = new Playlist();
-	playlist->__filename = filename;
+	Playlist* pPlaylist = new Playlist();
+	pPlaylist->setFilename( fileInfo.absoluteFilePath() );
 
 	XMLNode songsNode = node->firstChildElement( "songs" );
 	if ( !songsNode.isNull() ) {
@@ -106,13 +106,13 @@ Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelat
 
 			QString songPath = nextNode.read_string( "path", "", false, false );
 			if ( !songPath.isEmpty() ) {
-				Playlist::Entry* entry = new Playlist::Entry();
+				Playlist::Entry* pEntry = new Playlist::Entry();
 				QFileInfo songPathInfo( fileInfo.absoluteDir(), songPath );
-				entry->filePath = songPathInfo.absoluteFilePath();
-				entry->fileExists = songPathInfo.isReadable();
-				entry->scriptPath = nextNode.read_string( "scriptPath", "" );
-				entry->scriptEnabled = nextNode.read_bool( "scriptEnabled", false );
-				playlist->add( entry );
+				pEntry->filePath = songPathInfo.absoluteFilePath();
+				pEntry->fileExists = songPathInfo.isReadable();
+				pEntry->scriptPath = nextNode.read_string( "scriptPath", "" );
+				pEntry->scriptEnabled = nextNode.read_bool( "scriptEnabled", false );
+				pPlaylist->add( pEntry );
 			}
 
 			nextNode = nextNode.nextSiblingElement( "song" );
@@ -120,7 +120,7 @@ Playlist* Playlist::load_from( XMLNode* node, QFileInfo& fileInfo, bool useRelat
 	} else {
 		WARNINGLOG( "songs node not found" );
 	}
-	return playlist;
+	return pPlaylist;
 }
 
 bool Playlist::save_file( const QString& pl_path, const QString& name, bool overwrite, bool useRelativePaths )
@@ -162,7 +162,7 @@ Playlist* Playlist::load( const QString& filename, bool useRelativePaths )
 	Playlist* prev = __instance;
 	Playlist* playlist = Playlist::load_file( filename, useRelativePaths );
 
-	if ( playlist != 0 ) {
+	if ( playlist != nullptr ) {
 		delete prev;
 		__instance = playlist;
 	} else {
@@ -172,36 +172,28 @@ Playlist* Playlist::load( const QString& filename, bool useRelativePaths )
 	return playlist;
 }
 
-/* This method is called by Event dispacher thread ( GUI ) */
-bool Playlist::loadSong( int songNumber )
+/* This method is called by Event dispatcher thread ( GUI ) */
+void Playlist::activateSong( int songNumber )
 {
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Preferences *pPref = Preferences::get_instance();
-
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
-		pHydrogen->sequencer_stop();
-	}
-
-	/* Load Song from file */
-	QString selected = get( songNumber )->filePath;
-	Song *pSong = Song::load( selected );
-	if ( ! pSong ) {
-		return false;
-	}
-
 	setSelectedSongNr( songNumber );
 	setActiveSongNumber( songNumber );
 
-	pHydrogen->setSong( pSong );
-
-	pPref->setLastSongFilename( pSong->get_filename() );
-	vector<QString> recentFiles = pPref->getRecentFiles();
-	recentFiles.insert( recentFiles.begin(), selected );
-	pPref->setRecentFiles( recentFiles );
-
 	execScript( songNumber );
+}
 
-	return true;
+bool Playlist::getSongFilenameByNumber( int songNumber, QString& filename)
+{
+	bool Success = true;
+	
+	if ( size() == 0 || songNumber >= size() ) {
+		Success = false;
+	}
+	
+	if( Success)  {
+		filename = get( songNumber )->filePath;
+	}
+
+	return Success;
 }
 
 /* This method is called by MIDI thread */
