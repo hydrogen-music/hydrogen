@@ -112,13 +112,16 @@ static int nsm_open_cb (const char *name,
 						void *userdata )
 {
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+	std::cout << "\033[1;30m[Hydrogen]\033[32m Loading song " << 
+		name << ".\033[0m" << std::endl;
 	
 	// Handle supplied Song name. Hydrogen sends a unique string, like
 	// - if the display_name == Hydrogen - "Hydrogen.nJKUV". We will
 	// just append the .h2song and use it as Song path.
 	
 	if ( !name ) {
-		___ERRORLOG( QString( "No `name` provided!" ) );
+		std::cout << std::endl <<
+			"\033[1;30m[Hydrogen]\033[31m Error: No `name` supplied in NSM open callback!\033[0m" << std::endl;
 		return ERR_LAUNCH_FAILED;
 	}
 
@@ -134,11 +137,11 @@ static int nsm_open_cb (const char *name,
 			// Setup JACK here, client_id gets the JACK client name
 			pPref->setNsmClientId( QString( client_id ) );
 		} else {
-			___ERRORLOG( "No client_id supplied in NSM open callback!" );
+			std::cout << "\033[1;30m[Hydrogen]\033[31m Error: No `client_id` supplied in NSM open callback!\033[0m" << std::endl;
 			return ERR_LAUNCH_FAILED;
 		}
 	} else {
-		___ERRORLOG( "Preferences instance is not ready yet!" );
+		std::cout << "\033[1;30m[Hydrogen]\033[31m Error: Preferences instance is not ready yet!\033[0m" << std::endl;
 		return ERR_NOT_NOW;
 	}
 	
@@ -151,7 +154,7 @@ static int nsm_open_cb (const char *name,
 
 		pSong = H2Core::Song::load( songPath );
 		if ( pSong == nullptr ) {
-			___ERRORLOG( QString( "Error: Unable to open Song." ) );
+			std::cout << "\033[1;30m[Hydrogen]\033[31m Error: Unable to open Song.\033[0m" << std::endl;
 			return ERR_LAUNCH_FAILED;
 		}
 		
@@ -161,7 +164,7 @@ static int nsm_open_cb (const char *name,
 		// to an empty default Song.
 		pSong = H2Core::Song::get_empty_song();
 		if ( pSong == nullptr ) {
-			___ERRORLOG( QString( "Error: Unable to open new Song." ) );
+			std::cout << "\033[1;30m[Hydrogen]\033[31m Error: Unable to open new Song.\033[0m" << std::endl;
 			return ERR_LAUNCH_FAILED;
 		}
 		pSong->set_filename( songPath );
@@ -229,7 +232,7 @@ static int nsm_open_cb (const char *name,
 		bool ok = pActionManager->handleAction( &currentAction );
 
 		if ( !ok ) {
-			___ERRORLOG( QString( "Unable to handle opening action!" ) );
+			std::cout << "\033[1;30m[Hydrogen]\033[31m Error: Unable to handle opening action!\033[0m" << std::endl;
 			return ERR_LAUNCH_FAILED;
 		}
 		
@@ -248,6 +251,8 @@ static int nsm_open_cb (const char *name,
 			sleep(1);
 		}
 	}
+	
+	std::cout << "\033[1;30m[Hydrogen]\033[32m Song loaded!" << std::endl;
 	
 	return ERR_OK;
 }
@@ -271,6 +276,8 @@ static int nsm_save_cb( char **out_msg, void *userdata )
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	pActionManager->handleAction(&currentAction);
+	
+	std::cout << "\033[1;30m[Hydrogen]\033[32m Song saved!\033[0m" << std::endl;
 
 	return ERR_OK;
 }
