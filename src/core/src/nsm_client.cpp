@@ -112,8 +112,6 @@ static int nsm_open_cb (const char *name,
 						void *userdata )
 {
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
-	std::cout << "\033[1;30m[Hydrogen]\033[32m Loading song " << 
-		name << ".\033[0m" << std::endl;
 	
 	// Handle supplied Song name. Hydrogen sends a unique string, like
 	// - if the display_name == Hydrogen - "Hydrogen.nJKUV". We will
@@ -126,6 +124,11 @@ static int nsm_open_cb (const char *name,
 	}
 
 	QString songPath = QString( "%1.h2song" ).arg( name );
+	
+	std::cout << std::endl << 
+		"\033[1;30m[Hydrogen]\033[32m Loading song " << 
+		songPath.toLocal8Bit().data() << ".\033[0m" << std::endl;
+	
 	QFileInfo songFileInfo = QFileInfo( songPath );
 
 	// When restarting the JACK client (later in this function) the
@@ -365,17 +368,35 @@ void NsmClient::createInitialClient()
 				m_bUnderSessionManagement = true;
 				
 				nsm_send_announce( nsm, "Hydrogen", ":dirty:switch:", byteArray.data() );
+						
 				nsm_check_wait( nsm, 10000 );
 
 				if(pthread_create(&m_NsmThread, nullptr, nsm_processEvent, nsm)) {
 					___ERRORLOG("Error creating NSM thread\n	");
 					m_bUnderSessionManagement = false;
 					return;
-				}				
+				}	
+				
+				// Wait until first the Song and afterwards the audio
+				// driver was set (asynchronously by the nsm_open_cb()
+				// function).
+				H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
+				int numberOfChecks = 10;
+				int check = 0;
+				
+				while ( true ) {
+					if ( pHydrogen->getAudioOutput() != nullptr ) {
+						break;
+					}
+					// Don't wait indefinitely.
+					if ( check > numberOfChecks ) {
+						break;
+				   }
+					check++;
+					sleep(1);
+				}			
 
-			}
-			else
-			{
+			} else {
 				___ERRORLOG("failed, freeing NSM client");
 				nsm_free( nsm );
 				nsm = nullptr;
