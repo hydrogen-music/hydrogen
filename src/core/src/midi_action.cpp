@@ -1056,6 +1056,8 @@ bool MidiActionManager::open_song(Action* pAction, Hydrogen* pHydrogen, targeted
 	
 	// Check whether the provided path is valid.
 	if ( !isSongPathValid( songPath ) ) {
+		std::cout << "Error: Song path [" << songPath.toLocal8Bit().data() 
+				  << "] is not valid!" << std::endl;
 		return false;
 	}
 	
