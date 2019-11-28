@@ -239,11 +239,15 @@ static int nsm_open_cb (const char *name,
 			return ERR_LAUNCH_FAILED;
 		}
 		
-		// Wait until the Song was set (asynchronously by the GUI).
+		// Wait until the Song was set (asynchronously by the GUI) and
+		// the GUI is fully loaded. In case there is no GUI,
+		// pHydrogen->getActiveGUI() will return 0 and cause no
+		// waiting at all.
 		int numberOfChecks = 10;
 		int check = 0;
 		while ( true ) {
-			if ( pCurrentSong != pHydrogen->getSong() ) {
+			if ( ( pCurrentSong != pHydrogen->getSong() ) &&
+				 ( pHydrogen->getActiveGUI() >= 0 ) ) {
 				break;
 			}
 			// Don't wait indefinitely.
