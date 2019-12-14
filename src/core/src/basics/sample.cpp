@@ -100,12 +100,12 @@ Sample::Sample( Sample* pOther ): Object( __class_name ),
 
 	PanEnvelope* pPan = pOther->get_pan_envelope();
 	for( int i=0; i<pPan->size(); i++ ) {
-		__pan_envelope.push_back( std::make_unique<EnvelopePoint>( pPan->at(i)->value, pPan->at(i)->frame ) );
+		__pan_envelope.push_back( std::make_unique<EnvelopePoint>( pPan->at(i).get() ) );
 	}
 
 	PanEnvelope* pVelocity = pOther->get_velocity_envelope();
 	for( int i=0; i<pVelocity->size(); i++ ) {
-		__velocity_envelope.push_back( std::make_unique<EnvelopePoint>( pVelocity->at(i)->value, pVelocity->at(i)->frame ) );
+		__velocity_envelope.push_back( std::make_unique<EnvelopePoint>( pVelocity->at(i).get() ) );
 	}
 }
 
@@ -349,7 +349,7 @@ void Sample::apply_velocity( const VelocityEnvelope& v )
 		}
 		
 		for(auto& pEnvPtr : v){
-			__velocity_envelope.emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr->value, pEnvPtr->frame ) );
+			__velocity_envelope.emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr.get() ) );
 		}
 	}
 	__is_modified = true;
@@ -393,7 +393,7 @@ void Sample::apply_pan( const PanEnvelope& p )
 		}
 		
 		for(auto& pEnvPtr : p){
-			__pan_envelope.emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr->value, pEnvPtr->frame ) );
+			__pan_envelope.emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr.get() ) );
 		}
 	}
 	__is_modified = true;
