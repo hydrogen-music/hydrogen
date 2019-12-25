@@ -603,6 +603,13 @@ public:
     QString			getMidiExportDirectory() const;
     void			setMidiExportDirectory( const QString &sExportDirectory );
 
+	/** Returns #m_sPreferencesOverwritePath
+	 * \return #m_sPreferencesOverwritePath */
+	QString			getPreferencesOverwritePath();
+	/** Setting #m_sPreferencesOverwritePath.
+	 * \param newPath Path to a local preferences file.*/
+	void			setPreferencesOverwritePath( const QString& newPath );
+	
 private:
 	/**
 	 * Object holding the current Preferences singleton. It is
@@ -735,6 +742,24 @@ private:
     //~ Export midi dialog
 
     Preferences();
+	
+	/** Full path to local preferences file.
+	 *
+	 * Used in nsm_open_cb() to specify a preferences file specific to
+	 * the current session.
+	 *
+	 * If non-empty, the local file will be loaded instead of
+	 * Filesystem::usr_config_path() or
+	 * Filesystem::sys_config_path(). In general the underlying file
+	 * does not have to be named "hydrogen.conf". But for the sake of
+	 * consistency the latter naming is strongly recommended.
+	 *
+	 * Note that this variable is a session variable, which won't be
+	 * stored in the hydrogen.conf preferences file!
+	 */
+	QString					m_sPreferencesOverwritePath;
+	
+	Preferences();
 
 	WindowProperties readWindowProperties( QDomNode parent, const QString& windowName, WindowProperties defaultProp );
 	void writeWindowProperties( QDomNode parent, const QString& windowName, const WindowProperties& prop );
@@ -1261,6 +1286,13 @@ inline void Preferences::setH2ProcessName(const QString& processName){
 
 inline QString Preferences::getH2ProcessName() {
 	return m_sH2ProcessName;
+}
+
+inline QString Preferences::getPreferencesOverwritePath() {
+	return m_sPreferencesOverwritePath;
+}
+inline void Preferences::setPreferencesOverwritePath( const QString& newPath ) {
+	m_sPreferencesOverwritePath = newPath;
 }
 
 

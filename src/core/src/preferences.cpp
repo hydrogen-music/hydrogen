@@ -192,6 +192,7 @@ Preferences::Preferences()
 	recordEvents = false;
 	m_bUseRelativeFilenamesForPlaylists = false;
 	m_bHideKeyboardCursor = true;
+	m_sPreferencesOverwritePath = "";
 
 	//___ GUI properties ___
 	m_sQTStyle = "Fusion";
@@ -277,8 +278,15 @@ void Preferences::loadPreferences( bool bGlobal )
 {
 	bool recreate = false;	// configuration file must be recreated?
 
-	QString sPreferencesFilename = ( bGlobal ? Filesystem::sys_config_path() : Filesystem::usr_config_path() );
-	INFOLOG( QString( "Loading preferences file (%1) [%2]" ).arg( bGlobal ? "SYS" : "USER" ).arg( sPreferencesFilename ) );
+	QString sPreferencesFilename;
+	if ( m_sPreferencesOverwritePath.isEmpty() ) {
+			sPreferencesFilename = ( bGlobal ? Filesystem::sys_config_path() : Filesystem::usr_config_path() );
+			INFOLOG( QString( "Loading preferences file (%1) [%2]" ).arg( bGlobal ? "SYS" : "USER" ).arg( sPreferencesFilename ) );
+	} else {
+		sPreferencesFilename = m_sPreferencesOverwritePath;
+		INFOLOG( QString( "Loading preferences file %1" ).arg( sPreferencesFilename ) );
+	}
+	
 	Filesystem::file_readable( sPreferencesFilename );
 
 	// pref file exists?
@@ -678,7 +686,14 @@ void Preferences::loadPreferences( bool bGlobal )
 ///
 void Preferences::savePreferences()
 {
-	INFOLOG( "Saving preferences file: " + Filesystem::usr_config_path() );
+	QString sPreferencesFilename;
+	if ( m_sPreferencesOverwritePath.isEmpty() ) {
+		sPreferencesFilename = Filesystem::usr_config_path();
+	} else {
+		sPreferencesFilename = m_sPreferencesOverwritePath;
+	}
+	
+	INFOLOG( QString( "Saving preferences file %1" ).arg( sPreferencesFilename ) );
 
 	QDomDocument doc;
 	QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
@@ -1061,7 +1076,7 @@ void Preferences::savePreferences()
 
 	doc.appendChild( rootNode );
 
-	QFile file( Filesystem::usr_config_path() );
+	QFile file( sPreferencesFilename );
 	if ( !file.open(QIODevice::WriteOnly) ) {
 		return;
 	}
