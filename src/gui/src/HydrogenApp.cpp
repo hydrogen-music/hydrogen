@@ -95,6 +95,7 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	// When under Non Session Management the new Song will be
 	// loaded by the corresponding NSM client instance.
 	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
+		
 		Hydrogen::get_instance()->setSong( pFirstSong );
 		Preferences::get_instance()->setLastSongFilename( pFirstSong->get_filename() );
 	}
@@ -592,6 +593,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->tempoChangedEvent( event.value );
 				break;
 				
+			case EVENT_UPDATE_PREFERENCES:
+				pListener->updatePreferencesEvent( event.value );
+				break;
+			
 			case EVENT_UPDATE_SONG:
 				pListener->updateSongEvent( event.value );
 				break;
@@ -689,15 +694,108 @@ void HydrogenApp::cleanupTemporaryFiles()
 	Filesystem::rm( Filesystem::tmp_dir(), true );
 }
 
-void HydrogenApp::updateSongEvent( int nValue ) {
+void HydrogenApp::updatePreferencesEvent( int nValue ) {
 	
+	QString sPreferencesFilename;
+	
+	// Local path of the preferences used during session management.
+	QString sPreferencesOverwritePath = 
+		H2Core::Preferences::get_instance()->getPreferencesOverwritePath();
+	if ( sPreferencesOverwritePath.isEmpty() ) {
+		sPreferencesFilename = Filesystem::usr_config_path();
+	} else {
+		sPreferencesFilename = sPreferencesOverwritePath;
+	}
+		
+	if ( nValue == 0 ) {
+		setScrollStatusBarMessage( trUtf8("Preferences saved.") + 
+								   QString(" Into: ") + 
+								   sPreferencesFilename, 2000 );
+	} else if ( nValue == 1 ) {
+		
+		// Since the Preferences have changed, we also have to reflect
+		// these changes in the GUI - its format, colors, fonts,
+		// selections etc.
+		// But we won't change the layout!
+		Preferences *pPref = Preferences::get_instance();
+		int uiLayout = pPref->getDefaultUILayout();
+
+		WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
+		m_pAudioEngineInfoForm->move( audioEngineInfoProp.x, audioEngineInfoProp.y );
+		if ( audioEngineInfoProp.visible ) {
+			m_pAudioEngineInfoForm->show();
+		}
+		else {
+			m_pAudioEngineInfoForm->hide();
+		}
+
+		// MAINFORM
+		WindowProperties mainFormProp = pPref->getMainFormProperties();
+		m_pMainForm->resize( mainFormProp.width, mainFormProp.height );
+		m_pMainForm->move( mainFormProp.x, mainFormProp.y );
+
+		m_pSplitter->setOrientation( Qt::Vertical );
+		m_pSplitter->setOpaqueResize( true );
+
+		// SONG EDITOR
+		WindowProperties songEditorProp = pPref->getSongEditorProperties();
+		m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
+
+		// PATTERN EDITOR
+		WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
+		m_pPatternEditorPanel->resize( patternEditorProp.width, patternEditorProp.height );
+
+		WindowProperties mixerProp = pPref->getMixerProperties();
+
+		m_pMixer->resize( mixerProp.width, mixerProp.height );
+		m_pMixer->move( mixerProp.x, mixerProp.y );
+
+		m_pMixer->updateMixer();
+
+		if ( mixerProp.visible && uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE ) {
+			m_pMixer->show();
+		}
+		else {
+			m_pMixer->hide();
+		}
+		
+#ifdef H2CORE_HAVE_LADSPA
+		// LADSPA FX
+		for (uint nFX = 0; nFX < MAX_FX; nFX++) {
+			m_pLadspaFXProperties[nFX]->hide();
+			WindowProperties prop = pPref->getLadspaProperties(nFX);
+			m_pLadspaFXProperties[nFX]->move( prop.x, prop.y );
+			if ( prop.visible ) {
+				m_pLadspaFXProperties[nFX]->show();
+			}
+			else {
+				m_pLadspaFXProperties[nFX]->hide();
+			}
+		}
+#endif
+
+		// Inform the user about which file was loaded.
+		setScrollStatusBarMessage( trUtf8("Preferences loaded.") + 
+								   QString(" From: ") + 
+								   sPreferencesFilename, 2000 );
+
+	
+	} else {
+		ERRORLOG( QString( "Unknown event parameter [%1] in HydrogenApp::updatePreferencesEvent" )
+				  .arg( nValue ) );
+	}
+	
+}
+
+void HydrogenApp::updateSongEvent( int nValue ) {
+
 	Hydrogen* pHydrogen = Hydrogen::get_instance();	
 	
 	if ( nValue == 0 || nValue == 1 ) {
 
 		// Set a Song prepared by the core part.
 		Song* pNextSong = pHydrogen->getNextSong();
-
+		
 		pHydrogen->setSong( pNextSong );
 
 		// Cleanup
