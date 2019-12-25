@@ -27,6 +27,9 @@
 #include "hydrogen/basics/song.h"
 #include "hydrogen/audio_engine.h"
 
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <pthread.h>
 #include <unistd.h>
 
@@ -49,16 +52,19 @@ bool NsmShutdown = false;
  * Callback function for the NSM server to tell Hydrogen to open a
  * H2Core::Song.
  *
- * This function has two separate purposes: 1. it is used to load the
- * initial H2Core::Song and to set up the audio driver when a session
- * is started via the NSM server. 2. It handles the switching between
- * sessions by loading a new H2Core::Song without the need to restart
- * the whole application.
+ * This function has two separate purposes: 
+ * 1. it is used to load the
+ * initial session including its H2Core::Song and to set up the audio
+ * driver when started via the NSM server. 
+ * 2. It handles the switching
+ * between sessions by loading the H2Core::Song, the
+ * H2Core::Preferences, and the H2Core::Drumkit of the new session
+ * without the need to restart the whole application.
  *
  * To fulfill the 1. purpose, it is important to know that the core
  * part of H2Core::Hydrogen is already initialized when this function
- * is called but the GUI isn't. But, in order to allow for a rewiring
- * of all per track JACK output ports, the
+ * is called, but the GUI isn't. In order to allow for a rewiring of
+ * all per track JACK output ports, the
  * H2Core::JackAudioDriver::init() function _must_ register them
  * alongside the main left and right output ports in the very
  * initialization and not at a later stage. Therefore, the starting of
@@ -76,16 +82,31 @@ bool NsmShutdown = false;
  * construct an Action of type "OPEN_SONG" - or "NEW_SONG" if no file
  * exists with the provided file path - triggering
  * MidiActionManager::open_song() or
- * MidiActionManager::new_song(). Then it waits - up to 11 seconds -
+ * MidiActionManager::new_song().
+ *
+ * If the GUI is present, it waits - up to 11 seconds -
  * until the H2Core::Song was asynchronously set by the GUI (as a
  * response to the action). This (regular) procedure is only done if a
  * GUI is present and fully loaded and thus
- * H2Core::Hydrogen::m_iActiveGUI is set to 1. Else, the methods as
- * for 1. will be called.
+ * H2Core::Hydrogen::m_iActiveGUI is set to 1.
  *
- * \param name Unique name corresponding to the current session. The
- * suffix ".h2song" will be appended and \a name will be used as file
- * path to store the H2Core::Song associated with the session.
+ * Then it uses H2Core::Preferences::loadPreferences() in combination
+ * with H2Core::Preferences::setPreferencesOverwritePath() to load the
+ * configurations specific to the session. If none hydrogen.conf file
+ * is present in the session folder, the one of the user is used to
+ * create one instead. Next, a H2Core::EVENT_UPDATE_PREFERENCES event
+ * is created to trigger both MainForm::updatePreferencesEvent() and
+ * HydrogenApp::updatePreferencesEvent(). These two function will
+ * ensure the GUI reflects the changes in configuration.
+ *
+ * All files and symbolic links will be stored in a folder created by
+ * this function and named according to @a name.
+ *
+ * \param name Unique name corresponding to the current session. A
+ * folder using this particular \a name will be created, which will
+ * contain the H2Core::Song - using \a name appended by ".h2song" as
+ * file name -, the local H2Core::Preferences, and a symbolic link to
+ * the H2Core::Drumkit in use.
  * \param display_name Name the application will be presented with by
  * the NSM server. It is determined in
  * NsmClient::createInitialClient() and set to "Hydrogen".
@@ -113,21 +134,33 @@ static int nsm_open_cb (const char *name,
 {
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 	
-	// Handle supplied Song name. Hydrogen sends a unique string, like
-	// - if the display_name == Hydrogen - "Hydrogen.nJKUV". We will
-	// just append the .h2song and use it as Song path.
-	
 	if ( !name ) {
-		std::cout << std::endl <<
+		std::cerr << std::endl <<
 			"\033[1;30m[Hydrogen]\033[31m Error: No `name` supplied in NSM open callback!\033[0m" << std::endl;
 		return ERR_LAUNCH_FAILED;
 	}
-
-	QString songPath = QString( "%1.h2song" ).arg( name );
 	
-	std::cout << std::endl << 
-		"\033[1;30m[Hydrogen]\033[32m Loading song " << 
-		songPath.toLocal8Bit().data() << ".\033[0m" << std::endl;
+	// NSM sends a unique string, like - if the display_name ==
+	// Hydrogen - "Hydrogen.nJKUV". In order to make the whole
+	// Hydrogen session reproducible, a folder will be created, which
+	// will contain the song file, a copy of the current preferences,
+	// and a symbolic link to the drumkit.
+	QDir sessionFolder( name );
+	if ( !sessionFolder.exists() ) {
+		if ( !sessionFolder.mkpath( name ) ) {
+			std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: folder could not created." 
+					  << std::endl;
+		}
+	}
+	
+	// In this folder we will write the current song using the
+	// provided name and append .h2song. This way it will be more easy
+	// to tell the different songs apart.
+	QFileInfo sessionPath( name );
+	QString songPath = QString( "%1/%2%3" )
+		.arg( name )
+		.arg( sessionPath.fileName() )
+		.arg( H2Core::Filesystem::songs_ext );
 	
 	QFileInfo songFileInfo = QFileInfo( songPath );
 
@@ -140,11 +173,11 @@ static int nsm_open_cb (const char *name,
 			// Setup JACK here, client_id gets the JACK client name
 			pPref->setNsmClientId( QString( client_id ) );
 		} else {
-			std::cout << "\033[1;30m[Hydrogen]\033[31m Error: No `client_id` supplied in NSM open callback!\033[0m" << std::endl;
+			std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: No `client_id` supplied in NSM open callback!\033[0m" << std::endl;
 			return ERR_LAUNCH_FAILED;
 		}
 	} else {
-		std::cout << "\033[1;30m[Hydrogen]\033[31m Error: Preferences instance is not ready yet!\033[0m" << std::endl;
+		std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: Preferences instance is not ready yet!\033[0m" << std::endl;
 		return ERR_NOT_NOW;
 	}
 	
@@ -157,7 +190,7 @@ static int nsm_open_cb (const char *name,
 
 		pSong = H2Core::Song::load( songPath );
 		if ( pSong == nullptr ) {
-			std::cout << "\033[1;30m[Hydrogen]\033[31m Error: Unable to open Song.\033[0m" << std::endl;
+			std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: Unable to open Song.\033[0m" << std::endl;
 			return ERR_LAUNCH_FAILED;
 		}
 		
@@ -167,7 +200,7 @@ static int nsm_open_cb (const char *name,
 		// to an empty default Song.
 		pSong = H2Core::Song::get_empty_song();
 		if ( pSong == nullptr ) {
-			std::cout << "\033[1;30m[Hydrogen]\033[31m Error: Unable to open new Song.\033[0m" << std::endl;
+			std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: Unable to open new Song.\033[0m" << std::endl;
 			return ERR_LAUNCH_FAILED;
 		}
 		pSong->set_filename( songPath );
@@ -185,17 +218,16 @@ static int nsm_open_cb (const char *name,
 	//         created yet.
 	// 2. > 0: There is a GUI present and it is fully loaded.
 	//
-	// Scenario 2. is active when starting a session and 3. when
-	// switching between sessions.
+	// Scenario 2. is active when switching between sessions.
 	//
-	// Loading the Song is a little bit tricky in both cases. In
-	// 1. the much more slim setInitalSong() function is used since
-	// setSong() requires the audio driver to be already present which
-	// would keep external tools from rewiring the per track outputs
-	// of the JACK client. In 2. the Song _must_ the loaded by the GUI
-	// or Hydrogen will get out of sync and freeze. The Song will be
-	// stored using setNextSong() and an event will be created to tell
-	// the GUI to load the Song itself.
+	// Loading the Song is a little bit tricky in the first
+	// scenario. The much more slim setInitalSong() function is used
+	// since setSong() requires the audio driver to be already present
+	// which would keep external tools from rewiring the per track
+	// outputs of the JACK client. In 2. the Song _must_ the loaded by
+	// the GUI or Hydrogen will get out of sync and freeze. The Song
+	// will be stored using setNextSong() and an event will be created
+	// to tell the GUI to load the Song itself.
 	if ( pHydrogen->getActiveGUI() <= 0 ) {
 		
 		// No GUI. Just load the requested Song and restart the audio
@@ -204,6 +236,26 @@ static int nsm_open_cb (const char *name,
 		pHydrogen->restartDrivers();
 		pHydrogen->restartLadspaFX();
 		H2Core::AudioEngine::get_instance()->get_sampler()->reinitialize_playback_track();
+
+		// If there will be a GUI but it is not ready yet, wait until
+		// the Song was set (asynchronously by the GUI) and the GUI is
+		// fully loaded. In case there is no GUI,
+		// pHydrogen->getActiveGUI() will return 0 and cause no
+		// waiting at all.
+		if ( pHydrogen->getActiveGUI() < 0 ) {
+			int numberOfChecks = 20;
+			int check = 0;
+			while ( true ) {
+				if ( ( ( pSong == pHydrogen->getSong() ) &&
+					   ( pHydrogen->getActiveGUI() >= 0 ) ) ||
+					 // Don't wait indefinitely.
+					 ( check > numberOfChecks ) ) {
+					break;
+				}
+				check++;
+				sleep(1);
+			}
+		}
 		
 	} else {
 
@@ -230,46 +282,79 @@ static int nsm_open_cb (const char *name,
 		// Tell the action to restart the audio engine.
 		currentAction.setParameter2( "1" );
 		
-		H2Core::Song *pCurrentSong = pHydrogen->getSong();
-		
 		bool ok = pActionManager->handleAction( &currentAction );
 
 		if ( !ok ) {
-			std::cout << "\033[1;30m[Hydrogen]\033[31m Error: Unable to handle opening action!\033[0m" << std::endl;
+			std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: Unable to handle opening action!\033[0m" << std::endl;
 			return ERR_LAUNCH_FAILED;
-		}
-		
-		// Wait until the Song was set (asynchronously by the GUI) and
-		// the GUI is fully loaded. In case there is no GUI,
-		// pHydrogen->getActiveGUI() will return 0 and cause no
-		// waiting at all.
-		int numberOfChecks = 10;
-		int check = 0;
-		while ( true ) {
-			if ( ( pCurrentSong != pHydrogen->getSong() ) &&
-				 ( pHydrogen->getActiveGUI() >= 0 ) ) {
-				break;
-			}
-			// Don't wait indefinitely.
-			if ( check > numberOfChecks ) {
-				break;
-			}
-			check++;
-			sleep(1);
 		}
 	}
 	
-	std::cout << "\033[1;30m[Hydrogen]\033[32m Song loaded!" << std::endl;
+	std::cout << "\033[1;30m[Hydrogen]\033[32m Song loaded!\033[0m" << std::endl;
+	
+	// At this point the GUI can be assumed to have to be fully
+	// initialized.
+	//
+	// To have all files required by Hydrogen at one spot, copy the
+	// preferences and link the current drumkit into the session
+	// folder.
+	//
+	// Copy the Preferences (if not present) and use them over the global
+	// one. The user one (in $HOME/.hydrogen) is preferred over the
+	// system-wide one.
+	QFile preferences( H2Core::Filesystem::usr_config_path() );
+	if ( !preferences.exists() ) {
+		preferences.setFileName( H2Core::Filesystem::sys_config_path() );
+	}
+	
+	QString newPreferencesPath = QString( "%1/%2" )
+		.arg( name )
+		.arg( QFileInfo( H2Core::Filesystem::usr_config_path() )
+			  .fileName() );
+	
+	// Store the path in a session variable of the Preferences class,
+	// which allows overwriting the default path used throughout the
+	// application.
+	pPref->setPreferencesOverwritePath( newPreferencesPath );
+	
+	QFileInfo newPreferencesFileInfo( newPreferencesPath );
+	if ( newPreferencesFileInfo.exists() ){
+		// If there's already a preference file present from a
+		// previous session, we load it instead of overwriting it.
+		pPref->loadPreferences( false );
+		
+	} else {
+		if ( !preferences.copy( newPreferencesPath ) ) {
+			std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: Unable to copy preferences to "
+					  << newPreferencesPath.toLocal8Bit().data()
+					  << "\033[0m" << std::endl;		
+		} else {
+			std::cout << "\033[1;30m[Hydrogen]\033[32m Preferences copied to " 
+					  << newPreferencesPath.toLocal8Bit().data()
+					  << "\033[0m" << std::endl;
+		}
+	}
+
+	// If the GUI is active, we have to update it to reflect the
+	// changes in the preferences.
+	if ( pHydrogen->getActiveGUI() == 1 ) {
+		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_UPDATE_PREFERENCES, 1 );
+	}
+	
+	std::cout << "\033[1;30m[Hydrogen]\033[32m Preferences loaded!\033[0m" << std::endl;
+	
+	// Link the current drumkit to the _drumkit_ folder and use it
+	// over the actual location.
 	
 	return ERR_OK;
 }
 
 /**
  * Callback function for the NSM server to tell Hydrogen to save the
- * current H2Core::Song.
+ * current session.
  *
- * It will construct an Action of type "SAVE_SONG" triggering
- * MidiActionManager::save_song().
+ * It will construct an Action of type "SAVE_ALL" triggering
+ * MidiActionManager::save_all().
  *
  * \param out_msg Unused argument. Kept for API compatibility.
  * \param userdata Unused argument. Kept for API compatibility.
@@ -279,7 +364,7 @@ static int nsm_open_cb (const char *name,
  */
 static int nsm_save_cb( char **out_msg, void *userdata )
 {
-	Action currentAction("SAVE_SONG");
+	Action currentAction("SAVE_ALL");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	pActionManager->handleAction(&currentAction);
@@ -373,8 +458,6 @@ void NsmClient::createInitialClient()
 				
 				nsm_send_announce( nsm, "Hydrogen", ":dirty:switch:", byteArray.data() );
 						
-				nsm_check_wait( nsm, 10000 );
-
 				if(pthread_create(&m_NsmThread, nullptr, nsm_processEvent, nsm)) {
 					___ERRORLOG("Error creating NSM thread\n	");
 					m_bUnderSessionManagement = false;
