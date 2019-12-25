@@ -109,6 +109,28 @@ enum EventType {
 	EVENT_SONG_MODIFIED,
 	EVENT_TEMPO_CHANGED,
 	/**
+	 * Event triggering HydrogenApp::updatePreferencesEvent() and
+	 * MainForm::updatePreferencesEvent() whenever the
+	 * H2Core::Preferences were changed outside of the GUI, e.g. by
+	 * session management or an OSC command.
+	 *
+	 * If the value of the event is 
+	 * - 0 - tells the GUI the H2Core::Preferences file was
+         saved. HydrogenApp::updatePreferencesEvent() will use
+         HydrogenApp::setScrollStatusBarMessage() to inform the user
+         about that and where the H2Core::Preferences have been
+         written. MainForm::updatePreferencesEvent() will trigger
+         MainForm::savePreferences() to store the current state of the
+         GUI to the H2Core::Preferences and write the latter using
+         H2Core::Preferences::savePreferences() to disk.
+	 * - 1 - tells the GUI the Preferences file was loaded. Both
+         HydrogenApp::updatePreferencesEvent() and
+         MainForm::updatePreferencesEvent() will update a bunch of
+         widgets, checkboxes etc. to reflect the changes in the
+         configuration.
+	 */
+	EVENT_UPDATE_PREFERENCES,
+	/**
 	 * Event triggering HydrogenApp::updateSongEvent() whenever the
 	 * Song was changed outside of the GUI, e.g. by session management
 	 * or and OSC command.
