@@ -606,7 +606,7 @@ void MainForm::action_file_new()
 	} else {
 		pSong->set_filename( "" );
 	}
-	
+
 	h2app->setSong(pSong);
 	pEngine->setSelectedPatternNumber( 0 );
 	h2app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
@@ -1322,7 +1322,7 @@ void MainForm::update_automation_checkbox()
 	}
 }
 
-void MainForm::closeAll() {
+void MainForm::savePreferences() {
 	// save window properties in the preferences files
 	Preferences *pPreferences = Preferences::get_instance();
 
@@ -1382,7 +1382,10 @@ void MainForm::closeAll() {
 		pPreferences->setLadspaProperties(nFX, prop);
 	}
 #endif
+}
 
+void MainForm::closeAll(){
+	savePreferences();
 	m_pQApp->quit();
 }
 
@@ -2190,6 +2193,32 @@ void MainForm::action_undo(){
 
 void MainForm::action_redo(){
 	h2app->m_pUndoStack->redo();
+}
+
+void MainForm::updatePreferencesEvent( int nValue ) {
+	
+	if ( nValue == 0 ) {
+		// Write the state of the GUI to the Preferences.
+		savePreferences();
+		Preferences::get_instance()->savePreferences();
+		
+	} else if ( nValue == 1 ) {
+		
+		// Reflect the changes in the preferences in the objects
+		// stored in MainForm.
+		if( Preferences::get_instance()->__playselectedinstrument ) {
+			m_pInstrumentAction->setChecked( true );
+			m_pDrumkitAction->setChecked (false );
+		} else {
+			m_pInstrumentAction->setChecked( false );
+			m_pDrumkitAction->setChecked (true );
+		}
+
+	} else {
+		ERRORLOG( QString( "Unknown event parameter [%1] MainForm::updatePreferencesEvent" )
+				  .arg( nValue ) );
+	}
+	
 }
 
 void MainForm::undoRedoActionEvent( int nEvent ){
