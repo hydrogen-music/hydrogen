@@ -20,6 +20,7 @@
  *
  */
 
+#include "hydrogen/LocalFileMng.h"
 #include "hydrogen/helpers/filesystem.h"
 #include "hydrogen/Preferences.h"
 #include "hydrogen/event_queue.h"
@@ -30,6 +31,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QDomDocument>
 #include <pthread.h>
 #include <unistd.h>
 
@@ -93,11 +95,24 @@ bool NsmShutdown = false;
  * Then it uses H2Core::Preferences::loadPreferences() in combination
  * with H2Core::Preferences::setPreferencesOverwritePath() to load the
  * configurations specific to the session. If none hydrogen.conf file
- * is present in the session folder, the one of the user is used to
- * create one instead. Next, a H2Core::EVENT_UPDATE_PREFERENCES event
- * is created to trigger both MainForm::updatePreferencesEvent() and
+ * (see #USR_CONFIG) is present in the session folder, the one of the
+ * user is used to create one instead. Next, a
+ * H2Core::EVENT_UPDATE_PREFERENCES event is created to trigger both
+ * MainForm::updatePreferencesEvent() and
  * HydrogenApp::updatePreferencesEvent(). These two function will
  * ensure the GUI reflects the changes in configuration.
+ *
+ * If not present or invalid the, function will create a symbolic link
+ * to the used H2Core::Drumkit (as will be done by
+ * H2Core::Hydrogen::loadDrumkit). If either a valid symlink or folder
+ * containing the H2Core::Drumkit is present, the samples therein will
+ * be used when loading the H2Core::Song corresponding to the current
+ * session. This allows for archiving whole sessions in a
+ * self-contained manner just by using e.g. `tar -chf`. Note however
+ * that all changes to the current H2Core::Drumkit will be stored int
+ * eh associated H2Core::Song file instead. the #DRUMKIT_XML file only
+ * serves as references when first setting the particular
+ * H2Core::Drumkit.
  *
  * All files and symbolic links will be stored in a folder created by
  * this function and named according to @a name.
@@ -152,6 +167,9 @@ static int nsm_open_cb (const char *name,
 					  << std::endl;
 		}
 	}
+	
+	// Store the folder name for later use.
+	NsmClient::get_instance()->m_sSessionFolderPath = name;
 	
 	// In this folder we will write the current song using the
 	// provided name and append .h2song. This way it will be more easy
@@ -345,7 +363,123 @@ static int nsm_open_cb (const char *name,
 	
 	// Link the current drumkit to the _drumkit_ folder and use it
 	// over the actual location.
+	//
+	// The name of the Drumkit used by the loaded Song - which can be
+	// assumed to be loaded by now - has been stored in the Hydrogen
+	// instance. We will search for the path of the folder associated
+	// with this Drumkit and check whether there is already a symlink
+	// to it present in the session folder called 'drumkit'. If not
+	// (or no link is present yet) a new one pointing to the selected
+	// kit will be established.
+	bool bRelinkDrumkit = true;
 	
+	QString sDrumkitName = pHydrogen->getCurrentDrumkitname();
+	
+	// Check whether the linked folder is still valid.
+	QString sLinkedDrumkitPath = QString( "%1/%2" )
+		.arg( name ).arg( "drumkit" );
+
+	QFileInfo linkedDrumkitPathInfo( sLinkedDrumkitPath );
+	if ( linkedDrumkitPathInfo.isSymLink() || 
+		 linkedDrumkitPathInfo.isDir() ) {
+		
+		// In case of a symbolic link, the target it its pointing at
+		// has to be resolved. If drumkit is a real folder, we will
+		// search for a drumkit.xml therein.
+		QString sDrumkitXMLPath;
+		if ( linkedDrumkitPathInfo.isSymLink() ) {
+			sDrumkitXMLPath = QString( "%1/%2" )
+				.arg( linkedDrumkitPathInfo.symLinkTarget() )
+				.arg( "drumkit.xml" );
+		} else {
+			sDrumkitXMLPath = QString( "%1/%2" )
+				.arg( sLinkedDrumkitPath ).arg( "drumkit.xml" );
+		}
+		
+		QFileInfo drumkitXMLInfo( sDrumkitXMLPath );
+		if ( drumkitXMLInfo.exists() ) {
+	
+			QDomDocument drumkitXML = H2Core::LocalFileMng::openXmlDocument( sDrumkitXMLPath );
+			QDomNodeList nodeList = drumkitXML.elementsByTagName( "drumkit_info" );
+	
+			if( nodeList.isEmpty() ) {
+				std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Linked drumkit does not seem valid\033[0m"
+						  << std::endl;
+			} else {
+				QDomNode drumkitInfoNode = nodeList.at( 0 );
+				QString sDrumkitNameXML = H2Core::LocalFileMng::readXmlString( drumkitInfoNode, "name", "" );
+	
+				if ( sDrumkitNameXML == sDrumkitName ) {
+					bRelinkDrumkit = false;
+				} else {
+					std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Linked drumkit ["
+							  << sDrumkitNameXML.toLocal8Bit().data()
+							  << "] and loaded drumkit ["
+							  << sDrumkitName.toLocal8Bit().data()
+							  << "] do not match\033[0m"
+							  << std::endl;
+				}
+			}
+		} else {
+			std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Symlink does not point to valid drumkit\033[0m"
+					  << std::endl;
+		}				   
+	} else {
+		std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: No symlink to drumkit exists\033[0m"
+				  << std::endl;
+	}
+	
+	// The symbolic link either does not exist, is not valid, or does
+	// point to the wrong location. Remove it and create a fresh one.
+	if ( bRelinkDrumkit ){
+		std::cout << "[nsm_open_cb] relinking" << std::endl;
+		QFile linkedDrumkitFile( sLinkedDrumkitPath );
+		
+		if ( linkedDrumkitFile.exists() ) {
+			if ( !linkedDrumkitFile.remove() ) {
+				std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Unable to remove drumkit file/symlink [\033[0m"
+						  << sLinkedDrumkitPath.toLocal8Bit().data()
+						  << std::endl;
+			}
+		}
+		
+		// Figure out the actual path to the drumkit. We will search
+		// the user drumkits first and the system ones second.
+		QString sDrumkitAbsPath( "" );
+		QStringList drumkitList = H2Core::Filesystem::usr_drumkit_list();
+		for ( int ii = 0; ii < drumkitList.size(); ++ii ) {
+			if ( drumkitList[ii] == sDrumkitName ) {
+				sDrumkitAbsPath = H2Core::Filesystem::usr_drumkits_dir() + drumkitList[ii];
+			}
+		}
+		
+		if ( sDrumkitAbsPath.isEmpty() ) {
+			drumkitList = H2Core::Filesystem::sys_drumkit_list();
+			for ( int ii = 0; ii < drumkitList.size(); ++ii ) {
+				if ( drumkitList[ii] == sDrumkitName ) {
+					sDrumkitAbsPath = H2Core::Filesystem::usr_drumkits_dir() + drumkitList[ii];
+				}
+			}
+		}
+		
+		if ( sDrumkitAbsPath.isEmpty() ) {
+			// Something went wrong. We skip the linking.
+			std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: No drumkit named ["
+					  << sDrumkitName.toLocal8Bit().data()
+					  << "] could be found.[\033[0m" << std::endl;
+		} else {
+			
+			// Actual linking.
+			QFile targetPath( sDrumkitAbsPath );
+			if ( !targetPath.link( sLinkedDrumkitPath ) ) {
+				std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Unable to link ["
+						  << sLinkedDrumkitPath.toLocal8Bit().data()
+						  << "] to [" << sDrumkitAbsPath.toLocal8Bit().data() 
+						  << "][\033[0m" << std::endl;
+			}
+		}
+	}
+			
 	return ERR_OK;
 }
 
@@ -398,6 +532,7 @@ NsmClient::NsmClient()
 {
 	m_NsmThread = 0;
 	m_bUnderSessionManagement = false;
+	m_sSessionFolderPath = "";
 }
 
 void NsmClient::create_instance()
