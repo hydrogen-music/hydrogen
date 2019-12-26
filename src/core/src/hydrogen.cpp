@@ -3374,6 +3374,38 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	m_audioEngineState = old_ae_state;
 	
 	m_pCoreActionController->initExternalControlInterfaces();
+	
+#ifdef H2CORE_HAVE_OSC
+	// Create a symbolic link in the session folder when under session
+	// management.
+	if ( NsmClient::get_instance()->m_bUnderSessionManagement ){
+	
+		QString sDrumkitSourcePath = QString( "%1/" )
+			.arg( pDrumkitInfo->get_path() );
+		QString sLinkTargetPath = QString( "%1/%2" )
+			.arg( NsmClient::get_instance()->m_sSessionFolderPath )
+			.arg( "drumkit" );
+		
+		QFile linkedDrumkitFile( sLinkTargetPath );
+		if ( linkedDrumkitFile.exists() ) {
+			if ( !linkedDrumkitFile.remove() ) {
+				std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Unable to remove drumkit folder/symlink [\033[0m"
+						  << sLinkTargetPath.toLocal8Bit().data()
+						  << std::endl;
+			}
+		}
+			
+		// Actual linking.
+		QFile sourcePath( sDrumkitSourcePath );
+		if ( !sourcePath.link( sLinkTargetPath ) ) {
+			std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Unable to link ["
+					  << sDrumkitSourcePath.toLocal8Bit().data()
+					  << "] to [" << sLinkTargetPath.toLocal8Bit().data() 
+					  << "][\033[0m" << std::endl;
+		}
+
+	}
+#endif
 
 	return 0;	//ok
 }

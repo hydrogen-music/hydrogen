@@ -337,7 +337,30 @@ public:
 		float			getProcessTime();
 		float			getMaxProcessTime();
 
+		/** Wrapper around loadDrumkit( Drumkit, bool ) with the
+			conditional argument set to true.
+		 *
+		 * \returns 0 In case something unexpected happens, it will be
+		 *   indicated with #ERRORLOG messages.
+		 */
 		int			loadDrumkit( Drumkit *pDrumkitInfo );
+		/** Loads the H2Core::Drumkit provided in \a pDrumkitInfo into
+		 * the current session.
+		 *
+		 * When under session management (see
+		 * NsmClient::m_bUnderSessionManagement) the function will
+		 * create a symlink to the loaded H2Core::Drumkit using the
+		 * name "drumkit" in the folder
+		 * NsmClient::m_sSessionFolderPath.
+		 *
+		 * \param pDrumkitInfo Full-fledged H2Core::Drumkit to load.
+		 * \param conditional Argument passed on as second input
+		 *   argument to removeInstrument().
+		 *
+		 * \returns 0 In case something unexpected happens, it will be
+		 *   indicated with #ERRORLOG messages.
+		 */
+
 		int			loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
 
 		/** Test if an Instrument has some Note in the Pattern (used to
