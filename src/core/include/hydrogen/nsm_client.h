@@ -135,6 +135,14 @@ class NsmClient : public H2Core::Object
 		 */
 		bool m_bUnderSessionManagement;
 
+		/** Folder all the content of the current session will be
+		 * stored in.
+		 *
+		 * Set at the beginning of each session in
+		 * nsm_open_cb().
+		 */
+		QString m_sSessionFolderPath;
+
 	private:
 		/**Constructor*/
 		NsmClient();
@@ -146,7 +154,6 @@ class NsmClient : public H2Core::Object
 		 * the NSM server.
 		 */
 		nsm_client_t* m_nsm;
-
 };
 
 #endif /* H2CORE_HAVE_OSC */
