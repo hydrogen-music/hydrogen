@@ -200,11 +200,10 @@ class MidiActionManager : public H2Core::Object
 		 */
 		bool open_song(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
 		/**
-		 * Saves the current H2Core::Song, the local
-		 * H2Core::Preferences, and the current Drumkit.
+		 * Saves the current H2Core::Song and the local
+		 * H2Core::Preferences.
 		 *
-		 * Wrapper around save_drumkit(), save_preferences(), and
-		 * save_song().
+		 * Wrapper around save_preferences() and save_song().
 		 *
 		 * \param pAction Action "SAVE_ALL" uniquely triggering this function.
 		 * \param pHydrogen Pointer to the instance of the H2Core::Hydrogen singleton.
@@ -212,17 +211,6 @@ class MidiActionManager : public H2Core::Object
 		 * \return true on success of all three wrapped functions.
 		 */
 		bool save_all(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
-		/**
-		 * Saves the current H2Core::Drumkit.
-		 *
-		 * Not implemented yet!
-		 *
-		 * \param pAction Action "SAVE_DRUMKIT" uniquely triggering this function.
-		 * \param pHydrogen Pointer to the instance of the H2Core::Hydrogen singleton.
-		 * \param element Unused.
-		 * \return true on success
-		 */
-		bool save_drumkit(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
 		/**
 		 * Saves the H2Core::Preferences.
 		 *

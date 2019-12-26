@@ -181,7 +181,6 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 	actionMap.insert(make_pair("NEW_SONG", make_pair(&MidiActionManager::new_song, empty)));
 	actionMap.insert(make_pair("OPEN_SONG", make_pair(&MidiActionManager::open_song, empty)));
 	actionMap.insert(make_pair("SAVE_ALL", make_pair(&MidiActionManager::save_all, empty)));
-	actionMap.insert(make_pair("SAVE_DRUMKIT", make_pair(&MidiActionManager::save_drumkit, empty)));
 	actionMap.insert(make_pair("SAVE_PREFERENCES", make_pair(&MidiActionManager::save_preferences, empty)));
 	actionMap.insert(make_pair("SAVE_SONG", make_pair(&MidiActionManager::save_song, empty)));
 	actionMap.insert(make_pair("SAVE_SONG_AS", make_pair(&MidiActionManager::save_song_as, empty)));
@@ -2340,6 +2339,35 @@ bool MidiActionManager::open_song(Action* pAction, Hydrogen* pHydrogen, targeted
 		
 	}
 
+	return true;
+}
+
+bool MidiActionManager::save_all(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
+
+	
+	bool resultSavePreferences = save_preferences( pAction, pHydrogen, element );
+	bool resultSaveSong = save_song( pAction, pHydrogen, element );
+	
+	bool overallResult;
+	if ( resultSavePreferences && resultSaveSong ) {
+		overallResult = true;
+	} else {
+		overallResult = false;
+	}
+	
+	return overallResult;
+}
+
+bool MidiActionManager::save_preferences(Action* pAction, Hydrogen* pHydrogen, targeted_element element) {
+	
+	// Update the status bar and let the GUI save the preferences
+	// (after writing its current settings to disk).
+	if ( pHydrogen->getActiveGUI() != 0 ) {
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_PREFERENCES, 0 );
+	} else {
+		Preferences::get_instance()->savePreferences();
+	}
+	
 	return true;
 }
 
