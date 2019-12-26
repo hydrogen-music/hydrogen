@@ -1,4 +1,4 @@
-
+#include "hydrogen/LocalFileMng.h"
 #include <hydrogen/config.h>
 #include <hydrogen/helpers/filesystem.h>
 
@@ -6,6 +6,11 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
+#include <QDomDocument>
+
+#ifdef H2CORE_HAVE_OSC
+#include "hydrogen/nsm_client.h"
+#endif
 
 // directories
 #define LOCAL_DATA_PATH "data/"
@@ -583,11 +588,76 @@ QString Filesystem::drumkit_usr_path( const QString& dk_name )
 }
 QString Filesystem::drumkit_path_search( const QString& dk_name )
 {
-	if( usr_drumkit_list().contains( dk_name ) ) return usr_drumkits_dir() + dk_name;
-	if( sys_drumkit_list().contains( dk_name ) ) return sys_drumkits_dir() + dk_name;
+
+#ifdef H2CORE_HAVE_OSC
+	// When under session management the drumkit can also be located
+	// in - apart from the user and system path - a particular session
+	// folder. If it couldn't be found in there (or the found drumkit
+	// does not match `dk_name`), the session folder is skipped and
+	// the user and system paths will be traversed instead.
+	if ( NsmClient::get_instance() != nullptr &&
+		 NsmClient::get_instance()->m_bUnderSessionManagement ){
+		
+		QString sDrumkitPath = QString( "%1/%2" )
+			.arg( NsmClient::get_instance()->m_sSessionFolderPath )
+			.arg( "drumkit" );
+		
+		// If the path is symbolic link, dereference it.
+		QFileInfo drumkitPathInfo( sDrumkitPath );
+		if ( drumkitPathInfo.isSymLink() ) {
+			sDrumkitPath = drumkitPathInfo.symLinkTarget();
+		}
+		
+		// Check whether the local drumkit does hold the right
+		// drumkit (using its name).
+		QString sDrumkitXMLPath = QString( "%1/%2" )
+				.arg( sDrumkitPath ).arg( "drumkit.xml" );
+		QFileInfo drumkitXMLInfo( sDrumkitXMLPath );
+		if ( drumkitXMLInfo.exists() ) {
+	
+			QDomDocument drumkitXML = H2Core::LocalFileMng::openXmlDocument( sDrumkitXMLPath );
+			QDomNodeList nodeList = drumkitXML.elementsByTagName( "drumkit_info" );
+	
+			if( nodeList.isEmpty() ) {
+				std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Local drumkit does not seem valid\033[0m"
+						  << std::endl;
+			} else {
+				QDomNode drumkitInfoNode = nodeList.at( 0 );
+				QString sDrumkitNameXML = H2Core::LocalFileMng::readXmlString( drumkitInfoNode, "name", "" );
+	
+				if ( sDrumkitNameXML == dk_name ) {
+					// Jackpot. The local drumkit seems legit.	
+					return sDrumkitPath;
+					
+				} else {
+					std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Local drumkit ["
+							  << sDrumkitNameXML.toLocal8Bit().data()
+							  << "] and the one referenced in the .h2song file ["
+							  << dk_name.toLocal8Bit().data()
+							  << "] do not match\033[0m"
+							  << std::endl;
+				}
+			}
+		}
+
+	} else {
+
+		DEBUGLOG( QString( "Not under session management" ) );
+	}
+			
+#endif
+	if( usr_drumkit_list().contains( dk_name ) ){
+		return usr_drumkits_dir() + dk_name;
+	}
+	
+	if( sys_drumkit_list().contains( dk_name ) ){
+		return sys_drumkits_dir() + dk_name;
+	}
+	
 	ERRORLOG( QString( "drumkit %1 not found" ).arg( dk_name ) );
-	return "";
+	return QString("");
 }
+
 QString Filesystem::drumkit_dir_search( const QString& dk_name )
 {
 	if( usr_drumkit_list().contains( dk_name ) ) return usr_drumkits_dir();
