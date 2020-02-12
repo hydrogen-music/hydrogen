@@ -52,7 +52,7 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		void updateDisplayPointer();
 		void paintLocatorEventTargetDisplay( int pos, bool last_event);
 		void paintEvent(QPaintEvent *ev);
-		H2Core::Sample::PanEnvelope* get_pan() { return &__pan; }
+		std::vector<std::unique_ptr<H2Core::EnvelopePoint>>* get_pan() { return &m_PanEnvelope; }
 		std::vector<std::unique_ptr<H2Core::EnvelopePoint>>* get_velocity() { return &m_VelocityEnvelope; }
 
 	private:
@@ -77,7 +77,7 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 
-		H2Core::Sample::PanEnvelope __pan;
+		std::vector<std::unique_ptr<H2Core::EnvelopePoint>> m_PanEnvelope;
 		std::vector<std::unique_ptr<H2Core::EnvelopePoint>> m_VelocityEnvelope;
 };
 

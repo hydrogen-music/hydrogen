@@ -214,7 +214,7 @@ void SampleEditor::getAllFrameInfos()
 		m_pTargetSampleView->get_pan()->push_back( std::make_unique<EnvelopePoint>( m_pTargetSampleView->width(), m_pTargetSampleView->height()/2 ) );
 	} else {
 		for(auto& pEnvPtr : *pSample->get_pan_envelope() ){
-			m_pTargetSampleView->get_pan()->emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr->value, pEnvPtr->frame ) );
+			m_pTargetSampleView->get_pan()->emplace_back( std::make_unique<EnvelopePoint>( pEnvPtr.get() ) );
 		}
 	}
 
