@@ -892,7 +892,7 @@ void SongEditor::drawPattern( int pos, int number, bool invertColour )
 	}
 
 	if ( bIsSelected ) {
-		patternColor = patternColor.dark( 130 );
+		patternColor = patternColor.darker( 130 );
 	}
 
 	int x = 10 + m_nGridWidth * pos;
@@ -1260,7 +1260,7 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 		dialog->patternList->insertItem(0, newItem );
 
 		if (selectedPattern->get_virtual_patterns()->find(curPattern) != selectedPattern->get_virtual_patterns()->end()) {
-			dialog->patternList->setItemSelected(newItem, true);
+			newItem->setSelected( true );
 		}//if
 	}//for
 
@@ -1268,7 +1268,7 @@ void SongEditorPatternList::patternPopup_virtualPattern()
 		selectedPattern->virtual_patterns_clear();
 		for (unsigned int index = 0; index < listsize-1; ++index) {
 			QListWidgetItem *listItem = dialog->patternList->item(index);
-			if (dialog->patternList->isItemSelected(listItem) == true) {
+			if (listItem->isSelected() == true) {
 				if (patternNameMap.find(listItem->text()) != patternNameMap.end()) {
 					selectedPattern->virtual_patterns_add(patternNameMap[listItem->text()]);
 				}//if
@@ -1846,7 +1846,7 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	pDrag->setMimeData( pMimeData);
 	//drag->setPixmap(iconPixmap);
 
-	pDrag->start( Qt::CopyAction | Qt::MoveAction );
+	pDrag->exec( Qt::CopyAction | Qt::MoveAction );
 
 	QWidget::mouseMoveEvent(event);
 }

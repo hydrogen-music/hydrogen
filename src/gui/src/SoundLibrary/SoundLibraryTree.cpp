@@ -30,10 +30,10 @@ SoundLibraryTree::SoundLibraryTree( QWidget *pParent )
  , Object( __class_name )
 {
 	setHeaderLabels( QStringList( tr( "Sound library" ) ) );
-	setAlternatingRowColors(true);
+	setAlternatingRowColors( true );
 	setRootIsDecorated( false );
 
-	setItemHidden( headerItem(), true );	// hides the header
+	headerItem()->setHidden( true ); // hides the header
 
 }
 

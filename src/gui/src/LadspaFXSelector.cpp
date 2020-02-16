@@ -69,7 +69,7 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 	}
 	buildLadspaGroups();
 
-	m_pGroupsListView->setItemHidden( m_pGroupsListView->headerItem(), true );
+	m_pGroupsListView->headerItem()->setHidden( true );
 
 
 //	LadspaFXGroup* pFXGroup = LadspaFX::getLadspaFXGroup();

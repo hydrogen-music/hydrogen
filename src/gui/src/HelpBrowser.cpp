@@ -78,7 +78,7 @@ SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath
 		m_pBrowser->setHtml( stream.readAll() );
 	}
 
-	QRect rect( QApplication::desktop()->screenGeometry() );
+	QRect rect( QGuiApplication::screens().first()->geometry() );
 	move( rect.center() - this->rect().center() );
 }
 

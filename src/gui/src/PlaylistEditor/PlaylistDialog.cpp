@@ -249,9 +249,9 @@ PlaylistDialog::PlaylistDialog ( QWidget* pParent )
 		}
 
 		QTreeWidgetItem* m_pPlaylistItem = m_pPlaylistTree->topLevelItem ( aselected );
-		m_pPlaylistItem->setBackgroundColor ( 0, QColor( 50, 50, 50) );
-		m_pPlaylistItem->setBackgroundColor ( 1, QColor( 50, 50, 50) );
-		m_pPlaylistItem->setBackgroundColor ( 2, QColor( 50, 50, 50) );
+		m_pPlaylistItem->setBackground( 0, QColor( 50, 50, 50) );
+		m_pPlaylistItem->setBackground( 1, QColor( 50, 50, 50) );
+		m_pPlaylistItem->setBackground( 2, QColor( 50, 50, 50) );
 	}
 
 	timer = new QTimer( this );
@@ -919,9 +919,9 @@ void PlaylistDialog::updateActiveSongNumber()
 
 	QTreeWidgetItem* pPlaylistItem = m_pPlaylistTree->topLevelItem ( selected );
 	if ( pPlaylistItem != nullptr ){
-		pPlaylistItem->setBackgroundColor ( 0, QColor( 50, 50, 50) );
-		pPlaylistItem->setBackgroundColor ( 1, QColor( 50, 50, 50) );
-		pPlaylistItem->setBackgroundColor ( 2, QColor( 50, 50, 50) );
+		pPlaylistItem->setBackground( 0, QColor( 50, 50, 50) );
+		pPlaylistItem->setBackground( 1, QColor( 50, 50, 50) );
+		pPlaylistItem->setBackground( 2, QColor( 50, 50, 50) );
 	}
 }
 

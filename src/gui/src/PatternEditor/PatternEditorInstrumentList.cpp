@@ -730,7 +730,7 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 	pMimeData->setText( sText );
 	pDrag->setMimeData( pMimeData);
 
-	pDrag->start( Qt::CopyAction | Qt::MoveAction );
+	pDrag->exec( Qt::CopyAction | Qt::MoveAction );
 
 	// propago l'evento
 	QWidget::mouseMoveEvent(event);

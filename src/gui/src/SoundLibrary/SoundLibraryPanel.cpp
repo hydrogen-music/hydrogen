@@ -164,11 +164,11 @@ void SoundLibraryPanel::updateDrumkitList()
 
 	__system_drumkits_item = new QTreeWidgetItem( __sound_library_tree );
 	__system_drumkits_item->setText( 0, tr( "System drumkits" ) );
-	__sound_library_tree->setItemExpanded( __system_drumkits_item, true );
+	__system_drumkits_item->setExpanded( true );
 
 	__user_drumkits_item = new QTreeWidgetItem( __sound_library_tree );
 	__user_drumkits_item->setText( 0, tr( "User drumkits" ) );
-	__sound_library_tree->setItemExpanded( __user_drumkits_item, true );
+	__user_drumkits_item->setExpanded( true );
 
 	
 
@@ -192,7 +192,7 @@ void SoundLibraryPanel::updateDrumkitList()
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
 			pDrumkitItem->setText( 0, pInfo->get_name() );
 			if ( QString(pInfo->get_name() ) == currentSL ){
-				pDrumkitItem->setBackgroundColor( 0, QColor( 50, 50, 50) );
+				pDrumkitItem->setBackground( 0, QColor( 50, 50, 50) );
 			}
 			InstrumentList *pInstrList = pInfo->get_instruments();
 			for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
@@ -214,7 +214,7 @@ void SoundLibraryPanel::updateDrumkitList()
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
 			pDrumkitItem->setText( 0, pInfo->get_name() );
 			if ( QString( pInfo->get_name() ) == currentSL ){
-				pDrumkitItem->setBackgroundColor( 0, QColor( 50, 50, 50) );
+				pDrumkitItem->setBackground( 0, QColor( 50, 50, 50) );
 			}
 			InstrumentList *pInstrList = pInfo->get_instruments();
 			for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
@@ -232,7 +232,7 @@ void SoundLibraryPanel::updateDrumkitList()
 		__song_item = new QTreeWidgetItem( __sound_library_tree );
 		__song_item->setText( 0, tr( "Songs" ) );
 		__song_item->setToolTip( 0, tr("Double click to expand the list") );
-		__sound_library_tree->setItemExpanded( __song_item, __expand_songs_list );
+		__song_item->setExpanded( __expand_songs_list );
 		for (uint i = 0; i < songs.size(); i++) {
 			QTreeWidgetItem* pSongItem = new QTreeWidgetItem( __song_item );
 			QString song = songs[i];
@@ -249,7 +249,7 @@ void SoundLibraryPanel::updateDrumkitList()
 		__pattern_item = new QTreeWidgetItem( __sound_library_tree );
 		__pattern_item->setText( 0, tr( "Patterns" ) );
 		__pattern_item->setToolTip( 0, tr("Double click to expand the list") );
-		__sound_library_tree->setItemExpanded( __pattern_item, __expand_pattern_list );
+		__pattern_item->setExpanded( __expand_pattern_list );
 		
 		//this is the second step to push the mng.function
 		//SoundLibraryDatabase::create_instance();
@@ -449,7 +449,7 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 
 			pMimeData->setText( sText );
 			pDrag->setMimeData( pMimeData);
-			pDrag->start( Qt::CopyAction | Qt::MoveAction );
+			pDrag->exec( Qt::CopyAction | Qt::MoveAction );
 			return;
 		}
 
@@ -464,7 +464,7 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 		pMimeData->setText( sText );
 		pDrag->setMimeData( pMimeData);
 
-		pDrag->start( Qt::CopyAction | Qt::MoveAction );
+		pDrag->exec( Qt::CopyAction | Qt::MoveAction );
 	}
 }
 
@@ -572,7 +572,7 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 
 	InstrumentEditorPanel::get_instance()->notifyOfDrumkitChange();
 
-	__sound_library_tree->currentItem()->setBackgroundColor ( 0, QColor( 50, 50, 50) );
+	__sound_library_tree->currentItem()->setBackground( 0, QColor( 50, 50, 50) );
 	QApplication::restoreOverrideCursor();
 
 }
@@ -606,14 +606,14 @@ void SoundLibraryPanel::change_background_color()
 
 	for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
 		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == curlib ){
-			( __system_drumkits_item->child( i ) )->setBackgroundColor ( 0, QColor( 50, 50, 50)  );
+			( __system_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
 			break;
 		}
 	}
 
 	for (int i = 0; i < __user_drumkits_item->childCount() ; i++){
 		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == curlib ){
-			( __user_drumkits_item->child( i ) )->setBackgroundColor ( 0, QColor( 50, 50, 50)  );
+			( __user_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
 			break;
 		}
 	}
@@ -805,8 +805,8 @@ void SoundLibraryPanel::on_patternDeleteAction()
 void SoundLibraryPanel::test_expandedItems()
 {
 	assert( __sound_library_tree );
-	__expand_songs_list = __sound_library_tree->isItemExpanded( __song_item );
-	__expand_pattern_list = __sound_library_tree->isItemExpanded( __pattern_item );
+	__expand_songs_list = __song_item->isExpanded();
+	__expand_pattern_list = __pattern_item->isExpanded();
 	Preferences::get_instance()->__expandSongItem = __expand_songs_list;
 	Preferences::get_instance()->__expandPatternItem = __expand_pattern_list;
 	//ERRORLOG( QString("songs %1 patterns %2").arg(__expand_songs_list).arg(__expand_pattern_list) );

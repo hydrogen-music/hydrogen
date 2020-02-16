@@ -25,7 +25,7 @@
 
 #include <QPainter>
 #include <QApplication>
-#include <QDesktopWidget>
+#include <QScreen>
 
 #include "Skin.h"
 
@@ -58,7 +58,7 @@ SplashScreen::SplashScreen()
 	setPixmap( *m_pBackground );
 
 	// Center on screeen
-	QRect rect( QApplication::desktop()->screenGeometry() );
+	QRect rect( QGuiApplication::screens().first()->geometry() );
 	move( rect.center() - this->rect().center() );
 
 	QTimer::singleShot( 5000, this, SLOT( onCloseTimer() ) );
