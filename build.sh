@@ -145,6 +145,7 @@ for arg in $@; do
         p|pkg)
             cmd="cmake_pkg";;
         z)
+            CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
             cmd="zoop";;
         *)
          echo "unknown command ${arg}" && exit 1
