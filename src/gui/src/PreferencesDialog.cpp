@@ -560,8 +560,14 @@ void PreferencesDialog::updateDriverInfo()
 #endif
 
 	if ( driverComboBox->currentText() == "Auto" ) {
-		info += tr("<b>Automatic driver selection</b>");
-
+		info += tr("Automatic driver selection");
+		
+		// Display the selected driver as well.
+		if ( H2Core::Hydrogen::get_instance()->getAudioOutput() != nullptr ) {
+			info += tr("<br><b>")+
+				H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name()+
+				tr("</b> selected");
+		}
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->setText( "" );
 		bufferSizeSpinBox->setEnabled( false );
