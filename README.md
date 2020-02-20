@@ -83,6 +83,6 @@ More details in the [INSTALL.md](INSTALL.md) file.
 </details>
 
 ### License
-GPLv2
+GPLv2 (more details in the [COPYING](./COPYING) file.)
 
 Happy drumming!  :smiley:
