@@ -94,12 +94,12 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 	int LCenter = VCenter -4;
 	int RCenter = VCenter +4;
 
-	for ( int x = 0; x < width(); x++ ) {
+	for ( int x = 0; x < width() - 1; x++ ) {
 		painter.drawLine( x, LCenter, x, -m_pPeakData_Left[x +1] +LCenter  );
 	}
 
 	painter.setPen( QColor( 116, 186, 255 ));
-	for ( int x = 0; x < width(); x++ ) {
+	for ( int x = 0; x < width() - 1; x++ ) {
 		painter.drawLine( x, RCenter, x, -m_pPeakData_Right[x +1] +RCenter  );
 	}
 
