@@ -805,8 +805,16 @@ void SoundLibraryPanel::on_patternDeleteAction()
 void SoundLibraryPanel::test_expandedItems()
 {
 	assert( __sound_library_tree );
-	__expand_songs_list = __song_item->isExpanded();
-	__expand_pattern_list = __pattern_item->isExpanded();
+	if ( __song_item == nullptr) {
+		__expand_songs_list = false;
+	} else {
+		__expand_songs_list = __song_item->isExpanded();
+	}
+	if ( __pattern_item == nullptr) {
+		__expand_pattern_list = false;
+	} else {
+		__expand_pattern_list = __pattern_item->isExpanded();
+	}
 	Preferences::get_instance()->__expandSongItem = __expand_songs_list;
 	Preferences::get_instance()->__expandPatternItem = __expand_pattern_list;
 	//ERRORLOG( QString("songs %1 patterns %2").arg(__expand_songs_list).arg(__expand_pattern_list) );
