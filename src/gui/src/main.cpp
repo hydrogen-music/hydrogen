@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
 		QCommandLineParser parser;
 		
 		QString aboutText = QString( "\nHydrogen " ) + QString::fromStdString( H2Core::get_version() )  + QString( " [" ) + QString::fromStdString( __DATE__ ) + QString( "]  [http://www.hydrogen-music.org]" ) +
-		QString( "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2019 The hydrogen development team" ) +
+		QString( "\nCopyright 2002-2008 Alessandro Cominu\nCopyright 2008-2020 The hydrogen development team" ) +
 		QString( "\nHydrogen comes with ABSOLUTELY NO WARRANTY\nThis is free software, and you are welcome to redistribute it under certain conditions. See the file COPYING for details.\n" );
 		
 		parser.setApplicationDescription( aboutText );
