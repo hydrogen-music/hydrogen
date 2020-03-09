@@ -43,7 +43,7 @@ static int alsa_xrun_recovery( snd_pcm_t *handle, int err )
 		if ( err < 0 ) {
 			err = snd_pcm_prepare( handle );
 			if ( err < 0 )
-				std::cerr << "Can't recovery from suspend, prepare failed: " << snd_strerror( err ) << std::endl;
+				std::cerr << "Can't recover from suspend, prepare failed: " << snd_strerror( err ) << std::endl;
 		}
 		return 0;
 	}
@@ -92,13 +92,13 @@ void* alsaAudioDriver_processCaller( void* param )
 			__ERRORLOG( "XRUN" );
 
 			if ( alsa_xrun_recovery( pDriver->m_pPlayback_handle, err ) < 0 ) {
-				__ERRORLOG( "Can't recovery from XRUN" );
+				__ERRORLOG( "Can't recover from XRUN" );
 			}
 			// retry
 			if ( ( err = snd_pcm_writei( pDriver->m_pPlayback_handle, pBuffer, nFrames ) ) < 0 ) {
 				__ERRORLOG( "XRUN 2" );
 				if ( alsa_xrun_recovery( pDriver->m_pPlayback_handle, err ) < 0 ) {
-					__ERRORLOG( "Can't recovery from XRUN" );
+					__ERRORLOG( "Can't recover from XRUN" );
 				}
 			}
 
