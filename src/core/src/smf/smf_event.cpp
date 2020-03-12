@@ -167,13 +167,13 @@ std::vector<char> SMFCopyRightNoticeMetaEvent::getBuffer()
 	SMFBuffer buf;
 	QString sCopyRightString;
 	
-	time_t now = time(0);
+	time_t now = time(nullptr);
 	tm *ltm = localtime(&now);						// Extract the local system time.
 	
 	// Construct the copyright string in the form "(C) [Author] [CurrentYear]"
-	sCopyRightString.append("(C) ");				// Start with the copyright symbol and a seperator space.
+	sCopyRightString.append("(C) ");				// Start with the copyright symbol and a separator space.
 	sCopyRightString.append( m_sAuthor );			// add the author
-	sCopyRightString.append(" ");					// add a seperator space
+	sCopyRightString.append(" ");					// add a separator space
 	sCopyRightString.append( QString::number( 1900 + ltm->tm_year, 10 ) );	// and finish with the year.
 	
 	buf.writeVarLen( m_nDeltaTime );

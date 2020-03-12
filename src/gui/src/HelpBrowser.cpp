@@ -40,29 +40,29 @@ SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath
  , m_sFilename( sFilename )
 {
 	if (m_type == MANUAL ) {
-		setWindowTitle( trUtf8( "Manual" ) );
+		setWindowTitle( tr( "Manual" ) );
 		resize( 800, 600 );
 		setMinimumSize( 300, 200 );
 		setStyleSheet("color:#000000;");
 	}
 	else {
-		setWindowTitle( trUtf8( "Welcome to Hydrogen" ) );
+		setWindowTitle( tr( "Welcome to Hydrogen" ) );
 		resize( 800, 650 );
 		setMinimumSize( width(), height() );
 		setMaximumSize( width(), height() );
 	}
 
-	m_pDontShowAnymoreBtn = new QPushButton( trUtf8( "Don't show this message anymore"), this );
+	m_pDontShowAnymoreBtn = new QPushButton( tr( "Don't show this message anymore"), this );
 	connect( m_pDontShowAnymoreBtn, SIGNAL( clicked() ), this, SLOT( dontShowAnymoreBtnClicked() ) );
 	m_pDontShowAnymoreBtn->resize( 300, 25 );
 	m_pDontShowAnymoreBtn->hide();
 
-	m_pCloseWindowBtn = new QPushButton( trUtf8( "Ok" ), this );
+	m_pCloseWindowBtn = new QPushButton( tr( "Ok" ), this );
 	connect( m_pCloseWindowBtn, SIGNAL( clicked() ), this, SLOT( closeWindow() ) );
 	m_pCloseWindowBtn->resize( 100, 25 );
 	m_pCloseWindowBtn->hide();
 
-	m_pDocHomeBtn = new QPushButton( trUtf8( "Documentation index" ), this );
+	m_pDocHomeBtn = new QPushButton( tr( "Documentation index" ), this );
 	connect( m_pDocHomeBtn, SIGNAL( clicked() ), this, SLOT( docIndex() ) );
 	m_pDocHomeBtn->resize( 300, 25 );
 	m_pDocHomeBtn->hide();
@@ -78,7 +78,7 @@ SimpleHTMLBrowser::SimpleHTMLBrowser( QWidget *pParent, const QString& sDataPath
 		m_pBrowser->setHtml( stream.readAll() );
 	}
 
-	QRect rect( QApplication::desktop()->screenGeometry() );
+	QRect rect( QGuiApplication::screens().first()->geometry() );
 	move( rect.center() - this->rect().center() );
 }
 

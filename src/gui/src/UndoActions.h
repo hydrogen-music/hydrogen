@@ -126,7 +126,7 @@ public:
 	{
 		//qDebug() << "Delete complete pattern-sequence redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->clearThePatternSequenseVector( __pFilename );
+		h2app->getSongEditorPanel()->getSongEditor()->clearThePatternSequenceVector( __pFilename );
 	}
 private:
 	QString __pFilename;
@@ -671,13 +671,13 @@ public:
 
 	virtual void undo()
 	{
-		//qDebug() << "clear note sequense Undo ";
+		//qDebug() << "clear note sequence Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionClearNotesUndoAction( __noteList, __nSelectedInstrument, __selectedPatternNumber );
 	}
 	virtual void redo()
 	{
-		//qDebug() << "clear note sequense Redo " ;
+		//qDebug() << "clear note sequence Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionClearNotesRedoAction( __nSelectedInstrument, __selectedPatternNumber );
 	}
@@ -833,18 +833,26 @@ public:
 		__nTargetInstrument = nTargetInstrument;
 		__addedComponents = new std::vector<int>();
 	}
+
+	~SE_dragInstrumentAction()
+	{
+		delete __addedComponents;
+	}
+
 	virtual void undo()
 	{
 		//qDebug() << "drop Instrument Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentUndoAction( __nTargetInstrument, __addedComponents );
 	}
+
 	virtual void redo()
 	{
 		//qDebug() << "drop Instrument Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
 		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionDropInstrumentRedoAction( __sDrumkitName, __sInstrumentName, __nTargetInstrument, __addedComponents );
 	}
+
 private:
 	QString __sDrumkitName;
 	QString __sInstrumentName;

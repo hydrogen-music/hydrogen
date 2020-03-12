@@ -72,7 +72,7 @@ Director::Director ( QWidget* pParent )
 	HydrogenApp::get_instance()->addEventListener( this );
 	setupUi ( this );
 	//INFOLOG ( "INIT" );
-	setWindowTitle ( trUtf8 ( "Director" ) );
+	setWindowTitle ( tr ( "Director" ) );
 
 	m_nCounter = 1;	// to compute the right beat
 	m_nFadeAlpha = 255;	//default alpha

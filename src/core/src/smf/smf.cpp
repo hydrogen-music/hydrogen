@@ -346,7 +346,7 @@ void SMFWriter::saveSMF( const QString& sFilename, SMF*  pSmf )
 	// save the midi file
 	FILE* file = fopen( sFilename.toLocal8Bit(), "wb" );
 
-	if( file == NULL )
+    if( file == nullptr )
 		return;
 
 	vector<char> smfVect = pSmf->getBuffer();

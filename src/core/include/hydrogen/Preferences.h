@@ -187,8 +187,8 @@ public:
 
 	bool				__playselectedinstrument; // midi keys and keys play instrument or drumset
 
-	int				m_nRecPreDelete; //index of record note pre delete function 0 = off
-	int				m_nRecPostDelete;
+	int					m_nRecPreDelete; //index of record note pre delete function 0 = off
+	int					m_nRecPostDelete;
 
 	bool				m_bFollowPlayhead;
 
@@ -204,8 +204,8 @@ public:
 	bool				m_bbc;
 	bool				m_mmcsetplay;
 
-	int				m_countOffset;
-	int				m_startOffset;
+	int					m_countOffset;
+	int					m_startOffset;
 	//~ beatcounter
 
 	std::list<QString> 		sServerList;
@@ -230,9 +230,14 @@ public:
 	 * - "Fake" : createDriver() will create a FakeDriver.
 	 */
 	QString				m_sAudioDriver;
-	bool				m_bUseMetronome;		///< Use metronome?
-	float				m_fMetronomeVolume;	///< Metronome volume FIXME: remove this volume!!
-	unsigned			m_nMaxNotes;		///< max notes
+	/** If set to true, samples of the metronome will be added to
+	 * #m_songNoteQueue in audioEngine_updateNoteQueue() and thus
+	 * played back on a regular basis.*/
+	bool				m_bUseMetronome;
+	/// Metronome volume FIXME: remove this volume!!
+	float				m_fMetronomeVolume;
+	/// max notes
+	unsigned			m_nMaxNotes;
 	/** 
 	 * Buffer size of the audio.
 	 *
@@ -266,16 +271,47 @@ public:
 	 */
 	QString				m_sMidiDriver;
 	QString				m_sMidiPortName;
-	int				m_nMidiChannelFilter;
+	int					m_nMidiChannelFilter;
 	bool				m_bMidiNoteOffIgnore;
 	bool				m_bMidiFixedMapping;
 	bool				m_bMidiDiscardNoteAfterAction;
 	bool				m_bEnableMidiFeedback;
 	
 	// OSC Server properties
+	/**
+	 * Whether to start the OscServer thread.
+	 *
+	 * If set to true, the OscServer::start() function of the
+	 * OscServer singleton will be called in
+	 * Hydrogen::Hydrogen(). This will register all OSC message
+	 * handlers and makes the server listen to port
+	 * #m_nOscServerPort.
+	 *
+	 * Set by setOscServerEnabled() and queried by
+	 * getOscServerEnabled().
+	 */
 	bool				m_bOscServerEnabled;
+	/**
+	 * Whether to send the current state of Hydrogen to the OSC
+	 * clients.
+	 *
+	 * If set to true, the current state of Hydrogen will be sent to
+	 * \e all known OSC clients using
+	 * CoreActionController::initExternalControlInterfaces() and
+	 * OscServer::handleAction() via OSC messages each time it gets
+	 * updated..
+	 
+	 * Set by setOscFeedbackEnabled() and queried by
+	 * getOscFeedbackEnabled().
+	 */
 	bool				m_bOscFeedbackEnabled;
-	int				m_nOscServerPort;
+	/**
+	 * Port number the OscServer will be started at.
+	 
+	 * Set by setOscServerPort() and queried by
+	 * getOscServerPort().
+	 */
+	int					m_nOscServerPort;
 
 	//	alsa audio driver properties ___
 	QString				m_sAlsaAudioDevice;
@@ -288,7 +324,7 @@ public:
 	 * transport system. It has two different states:
 	 * #USE_JACK_TRANSPORT and #NO_JACK_TRANSPORT.
 	 */
-	int				m_bJackTransportMode;
+	int					m_bJackTransportMode;
 	bool				m_bJackConnectDefaults;
 	/** 
 	 * If set to _true_, JackAudioDriver::makeTrackOutputs() will
@@ -297,7 +333,7 @@ public:
 	 * output will be created.
 	 */
 	bool				m_bJackTrackOuts;
-	int				m_nJackTrackOutputMode;
+	int					m_nJackTrackOutputMode;
 	//jack time master
 	/**
 	 * Specifies if Hydrogen should run as JACK time master. It
@@ -322,214 +358,224 @@ public:
 	 *
 	 * It is called in Hydrogen::create_instance().
 	 */
-	static void			create_instance();
+	static void				create_instance();
 	/**
 	 * Returns a pointer to the current Preferences singleton
 	 * stored in #__instance.
 	 */
-	static Preferences* 		get_instance(){ assert(__instance); return __instance; }
+	static Preferences* 	get_instance(){ assert(__instance); return __instance; }
 
 	~Preferences();
 
 	/// Load the preferences file
-	void				loadPreferences( bool bGlobal );
+	void			loadPreferences( bool bGlobal );
 
 	/// Save the preferences file
-	void				savePreferences();
+	void			savePreferences();
 
-	const QString&			getDataDirectory();
+	const QString&	getDataDirectory();
 
-	const QString&			getDefaultEditor();
-	void				setDefaultEditor( QString editor);
+	const QString&	getDefaultEditor();
+	void			setDefaultEditor( QString editor);
 
 	int				getDefaultUILayout();
-	void				setDefaultUILayout( int layout);
+	void			setDefaultUILayout( int layout);
 
 	// General
-	void				setRestoreLastSongEnabled( bool restore );
-	void				setRestoreLastPlaylistEnabled( bool restore );
-	void				setUseRelativeFilenamesForPlaylists( bool value );
+	void			setRestoreLastSongEnabled( bool restore );
+	void			setRestoreLastPlaylistEnabled( bool restore );
+	void			setUseRelativeFilenamesForPlaylists( bool value );
 
-	void				setShowDevelWarning( bool value );
-	bool				getShowDevelWarning();
+	void			setShowDevelWarning( bool value );
+	bool			getShowDevelWarning();
 
-	bool				isRestoreLastSongEnabled();
-	bool				isRestoreLastPlaylistEnabled();
-	bool				isPlaylistUsingRelativeFilenames();
+	bool			isRestoreLastSongEnabled();
+	bool			isRestoreLastPlaylistEnabled();
+	bool			isPlaylistUsingRelativeFilenames();
 
-	void				setLastSongFilename( const QString& filename );
-	const QString&			getLastSongFilename();
+	void			setLastSongFilename( const QString& filename );
+	const QString&	getLastSongFilename();
 
-	void				setLastPlaylistFilename( const QString& filename );
-	const QString&			getLastPlaylistFilename();
+	void			setLastPlaylistFilename( const QString& filename );
+	const QString&	getLastPlaylistFilename();
 
-	void				setHearNewNotes( bool value );
-	bool				getHearNewNotes();
+	void			setHearNewNotes( bool value );
+	bool			getHearNewNotes();
 
-	void				setRecordEvents( bool value );
-	bool				getRecordEvents();
+	void			setRecordEvents( bool value );
+	bool			getRecordEvents();
 
-	void				setDestructiveRecord ( bool value );
-	bool				getDestructiveRecord();
+	void			setDestructiveRecord ( bool value );
+	bool			getDestructiveRecord();
 
-	void				setPunchInPos ( unsigned pos );
+	void			setPunchInPos ( unsigned pos );
 	int				getPunchInPos();
 
-	void				setPunchOutPos ( unsigned pos );
+	void			setPunchOutPos ( unsigned pos );
 	int				getPunchOutPos();
 
-	bool				inPunchArea (int pos);
-	void				unsetPunchArea ();
+	bool			inPunchArea (int pos);
+	void			unsetPunchArea ();
 
-	void				setQuantizeEvents( bool value );
-	bool				getQuantizeEvents();
+	void			setQuantizeEvents( bool value );
+	bool			getQuantizeEvents();
 
 	std::vector<QString> 		getRecentFiles();
 	void				setRecentFiles( std::vector<QString> recentFiles );
 
-	QStringList			getRecentFX();
-	void				setMostRecentFX( QString );
+	QStringList		getRecentFX();
+	void			setMostRecentFX( QString );
 
 
 	// GUI Properties
-	const QString&			getQTStyle();
-	void				setQTStyle( const QString& sStyle );
+	const QString&	getQTStyle();
+	void			setQTStyle( const QString& sStyle );
 
 
-	const QString&			getApplicationFontFamily();
-	void				setApplicationFontFamily( const QString& family );
+	const QString&	getApplicationFontFamily();
+	void			setApplicationFontFamily( const QString& family );
 
 	int				getApplicationFontPointSize();
-	void				setApplicationFontPointSize( int size );
+	void			setApplicationFontPointSize( int size );
 
-	QString				getMixerFontFamily();
-	void				setMixerFontFamily( const QString& family );
+	QString			getMixerFontFamily();
+	void			setMixerFontFamily( const QString& family );
 	int				getMixerFontPointSize();
-	void				setMixerFontPointSize( int size );
-	float				getMixerFalloffSpeed();
-	void				setMixerFalloffSpeed( float value );
-	bool				showInstrumentPeaks();
-	void				setInstrumentPeaks( bool value );
+	void			setMixerFontPointSize( int size );
+	float			getMixerFalloffSpeed();
+	void			setMixerFalloffSpeed( float value );
+	bool			showInstrumentPeaks();
+	void			setInstrumentPeaks( bool value );
 
 	int				getPatternEditorGridResolution();
-	void				setPatternEditorGridResolution( int value );
+	void			setPatternEditorGridResolution( int value );
 
-	bool				isPatternEditorUsingTriplets();
-	void				setPatternEditorUsingTriplets( bool value );
+	bool			isPatternEditorUsingTriplets();
+	void			setPatternEditorUsingTriplets( bool value );
 
-	bool				isFXTabVisible();
-	void				setFXTabVisible( bool value );
+	bool			isFXTabVisible();
+	void			setFXTabVisible( bool value );
 	
-	bool				getShowAutomationArea();
-	void				setShowAutomationArea( bool value );
+	bool			getShowAutomationArea();
+	void			setShowAutomationArea( bool value );
 
-	unsigned			getPatternEditorGridHeight();
-	void				setPatternEditorGridHeight( unsigned value );
+	unsigned		getPatternEditorGridHeight();
+	void			setPatternEditorGridHeight( unsigned value );
 
-	unsigned			getPatternEditorGridWidth();
-	void				setPatternEditorGridWidth( unsigned value );
+	unsigned		getPatternEditorGridWidth();
+	void			setPatternEditorGridWidth( unsigned value );
 
-	void				setColoringMethodAuxValue( int value );
+	void			setColoringMethodAuxValue( int value );
 	int				getColoringMethodAuxValue() const;
 
-	void				setColoringMethod( int value );
+	void			setColoringMethod( int value );
 	int				getColoringMethod() const;
 
-	WindowProperties		getMainFormProperties();
+	WindowProperties	getMainFormProperties();
 	void				setMainFormProperties( const WindowProperties& prop );
 
-	WindowProperties		getMixerProperties();
+	WindowProperties	getMixerProperties();
 	void				setMixerProperties( const WindowProperties& prop );
 
-	WindowProperties		getPatternEditorProperties();
+	WindowProperties	getPatternEditorProperties();
 	void				setPatternEditorProperties( const WindowProperties& prop );
 
-	WindowProperties		getSongEditorProperties();
+	WindowProperties	getSongEditorProperties();
 	void				setSongEditorProperties( const WindowProperties& prop );
 
-	WindowProperties		getAudioEngineInfoProperties();
+	WindowProperties	getAudioEngineInfoProperties();
 	void				setAudioEngineInfoProperties( const WindowProperties& prop );
 
-	WindowProperties		getLadspaProperties( unsigned nFX );
-	void				setLadspaProperties( unsigned nFX, const WindowProperties& prop );
+	WindowProperties	getLadspaProperties( unsigned nFX );
+	void			setLadspaProperties( unsigned nFX, const WindowProperties& prop );
 
-	UIStyle*			getDefaultUIStyle();
+	UIStyle*		getDefaultUIStyle();
 
-	bool				patternModePlaysSelected();
-	void				setPatternModePlaysSelected( bool b );
-	bool				useLash();
-	void				setUseLash( bool b );
+	/** \return #m_bPatternModePlaysSelected*/
+	bool			patternModePlaysSelected();
+	/** \param b Sets #m_bPatternModePlaysSelected*/
+	void			setPatternModePlaysSelected( bool b );
+	bool			useLash();
+	void			setUseLash( bool b );
 
-	void				setMaxBars( int bars );
-	int				getMaxBars();
+	/** @param bars Sets #m_nMaxBars.*/
+	void				setMaxBars( const int bars );
+	/** @return #m_nMaxBars.*/
+	int				getMaxBars() const;
 
-	void				setMaxLayers( int layers );
-	int				getMaxLayers();
+	/** @param layers Sets #m_nMaxLayers.*/
+	void			setMaxLayers( const int layers );
+	/** @return #m_nMaxLayers.*/
+	int				getMaxLayers() const;
 
-	void				setWaitForSessionHandler(bool value);
-	bool				getWaitForSessionHandler();
+	void			setWaitForSessionHandler(bool value);
+	bool			getWaitForSessionHandler();
 
 #if defined(H2CORE_HAVE_JACKSESSION) || _DOXYGEN_
-	QString				getJackSessionUUID();
-	void				setJackSessionUUID( QString uuid );
+	QString			getJackSessionUUID();
+	void			setJackSessionUUID( QString uuid );
 
-	QString				getJackSessionApplicationPath();
-	void				setJackSessionApplicationPath( QString path );
+	QString			getJackSessionApplicationPath();
+	void			setJackSessionApplicationPath( QString path );
 #endif
 
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
-	void				setNsmClientId(const QString& nsmClientId);
-	QString				getNsmClientId(void);
+	void			setNsmClientId(const QString& nsmClientId);
+	QString			getNsmClientId(void);
 
-	void				setNsmSongName(const QString& nsmSongName);
-	QString				getNsmSongName(void);
+	void			setNsmSongName(const QString& nsmSongName);
+	QString			getNsmSongName(void);
 #endif
 
-	bool				getOscServerEnabled();
-	void				setOscServerEnabled( bool val );
-	
-	bool				getOscFeedbackEnabled();
-	void				setOscFeedbackEnabled( bool val );
-	
+	/** \return #m_bOscServerEnabled*/
+	bool			getOscServerEnabled();
+	/** \param val Sets #m_bOscServerEnabled*/
+	void			setOscServerEnabled( bool val );
+	/** \return #m_bOscFeedbackEnabled*/
+	bool			getOscFeedbackEnabled();
+	/** \param val Sets #m_bOscFeedbackEnabled*/
+	void			setOscFeedbackEnabled( bool val );
+	/** \return #m_nOscServerPort*/
 	int				getOscServerPort();
-	void				setOscServerPort( int oscPort );
+	/** \param oscPort Sets #m_nOscServerPort*/
+	void			setOscServerPort( int oscPort );
 
 	/** Whether to use the bpm of the timeline.
 	 * \return #__useTimelineBpm */
-	bool				getUseTimelineBpm();
+	bool			getUseTimelineBpm();
 	/** Setting #__useTimelineBpm.
 	 * \param val New choice. */
-	void				setUseTimelineBpm( bool val );
+	void			setUseTimelineBpm( bool val );
 
 	int				getRubberBandCalcTime();
-	void				setRubberBandCalcTime( int val );
+	void			setRubberBandCalcTime( int val );
 
 	int				getRubberBandBatchMode();
-	void				setRubberBandBatchMode( int val );
+	void			setRubberBandBatchMode( int val );
 
 	int				getLastOpenTab();
-	void				setLastOpenTab(int n);
+	void			setLastOpenTab(int n);
 
-	void				setH2ProcessName(const QString& processName);
+	void			setH2ProcessName(const QString& processName);
 
-	QString				getH2ProcessName();
+	QString			getH2ProcessName();
 
 	int				getExportSampleDepth() const;
-	void				setExportSampleDepth( int nExportSampleDepth );
+	void			setExportSampleDepth( int nExportSampleDepth );
 	
 	int				getExportSampleRate() const;
-	void				setExportSampleRate( int nExportSampleRate );
+	void			setExportSampleRate( int nExportSampleRate );
 
 	
 	int				getExportMode() const;
-	void				setExportMode(int nExportMode);
+	void			setExportMode(int nExportMode);
 	
-	QString				getExportDirectory() const;
-	void				setExportDirectory( const QString &sExportDirectory );
+	QString			getExportDirectory() const;
+	void			setExportDirectory( const QString &sExportDirectory );
 	
 	int				getExportTemplate() const;
-	void				setExportTemplate( int nExportTemplate );
+	void			setExportTemplate( int nExportTemplate );
 	
 private:
 	/**
@@ -541,24 +587,52 @@ private:
 	
 	//___ General properties ___
 	QString				m_sH2ProcessName; //Name of hydrogen's main process
-	int				__rubberBandCalcTime;
-	bool				m_useTheRubberbandBpmChangeEvent; ///rubberband bpm change queue
-	bool				m_bPatternModePlaysSelected; /// Behaviour of Pattern Mode
-	bool				m_brestoreLastSong;		///< Restore last song?
+	int					__rubberBandCalcTime;
+	 ///rubberband bpm change queue
+	bool				m_useTheRubberbandBpmChangeEvent;
+	/**
+	 * When transport is in Song::PATTERN_MODE and this variable is
+	 * set to true, the currently focused Pattern will be used for
+	 * playback.
+	 *
+	 * It is set by setPatternModePlaysSelected() and queried by
+	 * patternModePlaysSelected().
+	 */
+	bool				m_bPatternModePlaysSelected;
+	///< Restore last song?
+	bool				m_brestoreLastSong;
 	bool				m_brestoreLastPlaylist;
 	bool				m_bUseLash;
-	bool				m_bShowDevelWarning;	///< Show development version warning?
-	QString				m_lastSongFilename;	///< Last song used
+	///< Show development version warning?
+	bool				m_bShowDevelWarning;
+	///< Last song used
+	QString				m_lastSongFilename;
 	QString				m_lastPlaylistFilename;
 
 	bool				quantizeEvents;
 	bool				recordEvents;
 	bool				destructiveRecord;
 	bool				readPrefFileforotherplaces;
-	int				punchInPos;
-	int				punchOutPos;
-	int				maxBars;
-	int				maxLayers;
+	int					punchInPos;
+	int					punchOutPos;
+	/** Maximum number of bars shown in the Song Editor at
+	 * once. 
+	 *
+	 * It is set by setMaxBars() and queried by
+	 * getMaxBars(). In order to change this value, you have to
+	 * manually edit the \<maxBars\> tag in the configuration file
+	 * of Hydrogen in your home folder. Default value assigned in
+	 * constructor: 400.*/
+	int					m_nMaxBars;
+	/** Maximum number of layers to be used in the Instrument
+	 *  editor. 
+	 *
+	 * It is set by setMaxLayers() and queried by
+	 * getMaxLayers(). It is setIn order to change this value, you
+	 * have to manually edit the \<maxLayers\> tag in the
+	 * configuration file of Hydrogen in your home folder. Default
+	 * value assigned in constructor: 16. */
+	int					m_nMaxLayers;
 	bool				hearNewNotes;
 
 	QStringList			m_recentFX;
@@ -574,7 +648,7 @@ private:
 		QString			m_sNsmSongName;
 #endif
 
-	bool				waitingForSessionHandler;
+	bool					waitingForSessionHandler;
 	/**
 	 * Whether to use local speeds specified along the Timeline or
 	 * a constant tempo for the whole Song in
@@ -583,27 +657,27 @@ private:
 	 * It is set using setUseTimelineBpm() and accessed via
 	 * getUseTimelineBpm().
 	 */
-	bool				__useTimelineBpm;
+	bool					__useTimelineBpm;
 
 	//___ GUI properties ___
-	QString				m_sQTStyle;
-	int				m_nLastOpenTab;
-	int				m_nDefaultUILayout;
+	QString					m_sQTStyle;
+	int						m_nLastOpenTab;
+	int						m_nDefaultUILayout;
 
 
-	QString				applicationFontFamily;
-	int				applicationFontPointSize;
-	QString				mixerFontFamily;
-	int				mixerFontPointSize;
-	float				mixerFalloffSpeed;
-	int				m_nPatternEditorGridResolution;
-	bool				m_bPatternEditorUsingTriplets;
-	bool				m_bShowInstrumentPeaks;
-	bool				m_bIsFXTabVisible;
-	bool				m_bShowAutomationArea;
-	bool				m_bUseRelativeFilenamesForPlaylists;
-	unsigned			m_nPatternEditorGridHeight;
-	unsigned			m_nPatternEditorGridWidth;
+	QString					applicationFontFamily;
+	int						applicationFontPointSize;
+	QString					mixerFontFamily;
+	int						mixerFontPointSize;
+	float					mixerFalloffSpeed;
+	int						m_nPatternEditorGridResolution;
+	bool					m_bPatternEditorUsingTriplets;
+	bool					m_bShowInstrumentPeaks;
+	bool					m_bIsFXTabVisible;
+	bool					m_bShowAutomationArea;
+	bool					m_bUseRelativeFilenamesForPlaylists;
+	unsigned				m_nPatternEditorGridHeight;
+	unsigned				m_nPatternEditorGridWidth;
 	WindowProperties		mainFormProperties;
 	WindowProperties		mixerProperties;
 	WindowProperties		patternEditorProperties;
@@ -612,18 +686,18 @@ private:
 	WindowProperties		audioEngineInfoProperties;
 	WindowProperties		m_ladspaProperties[MAX_FX];
 
-	UIStyle*			m_pDefaultUIStyle;
+	UIStyle*				m_pDefaultUIStyle;
 
-	//Appearence: SongEditor coloring
-	int				m_nColoringMethod;
-	int				m_nColoringMethodAuxValue;
+	//Appearance: SongEditor coloring
+	int						m_nColoringMethod;
+	int						m_nColoringMethodAuxValue;
 
 	//Export dialog
-	QString				m_sExportDirectory;
-	int				m_nExportMode;
-	int				m_nExportSampleRate;
-	int				m_nExportSampleDepth;
-	int				m_nExportTemplate;
+	QString					m_sExportDirectory;
+	int						m_nExportMode;
+	int						m_nExportSampleRate;
+	int						m_nExportSampleDepth;
+	int						m_nExportTemplate;
 	//~ Export dialog
 	
 	Preferences();
@@ -984,20 +1058,20 @@ inline void Preferences::setUseLash( bool b ){
 	m_bUseLash = b;
 }
 
-inline void Preferences::setMaxBars( int bars ){
-	maxBars = bars;
+inline void Preferences::setMaxBars( const int bars ){
+	m_nMaxBars = bars;
 }
 
-inline int Preferences::getMaxBars(){
-	return maxBars;
+inline int Preferences::getMaxBars() const {
+	return m_nMaxBars;
 }
 
-inline void Preferences::setMaxLayers( int layers ){
-	maxLayers = layers;
+inline void Preferences::setMaxLayers( const int layers ){
+	m_nMaxLayers = layers;
 }
 
-inline int Preferences::getMaxLayers(){
-	return maxLayers;
+inline int Preferences::getMaxLayers() const {
+	return m_nMaxLayers;
 }
 
 inline void Preferences::setWaitForSessionHandler(bool value){

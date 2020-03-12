@@ -71,7 +71,7 @@ public:
 	void note_off( Note *note );
 	void midi_keyboard_note_off( int key );
 
-	void stop_playing_notes( Instrument *instr = NULL );
+	void stop_playing_notes( Instrument *instr = nullptr );
 
 	int get_playing_notes_number() {
 		return __playing_notes_queue.size();
@@ -102,14 +102,27 @@ public:
 		/// Instrument used for the preview feature.
 		Instrument* __preview_instrument;
 
+		/**
+		 * Loading of the playback track.
+		 *
+		 * The playback track is added to
+		 * #__playback_instrument as a new InstrumentLayer
+		 * containing the loaded Sample. If
+		 * Song::__playback_track_filename is empty, the
+		 * layer will be loaded with a nullptr instead.
+		 */
 		void reinitialize_playback_track();
 
 private:
 	std::vector<Note*> __playing_notes_queue;
 	std::vector<Note*> __queuedNoteOffs;
 
-
-	int __maxLayers;
+	/** Maximum number of layers to be used in the Instrument
+	    editor. It will be inferred from
+	    InstrumentComponent::m_nMaxLayers, which itself is
+	    inferred from Preferences::m_nMaxLayers. Default value
+	    assigned in Preferences::Preferences(): 16.*/
+	int m_nMaxLayers;
 
 	bool processPlaybackTrack(int nBufferSize);
 

@@ -67,7 +67,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 			Instrument* pInstrument = nullptr;
 			int id = instrument_node.read_int( "id", EMPTY_INSTR_ID, false, false );
 			if ( id!=EMPTY_INSTR_ID ) {
-				pInstrument = new Instrument( id, instrument_node.read_string( "name", "" ), 0 );
+				pInstrument = new Instrument( id, instrument_node.read_string( "name", "" ), nullptr );
 				pInstrument->set_drumkit_name( drumkit_name );
 				pInstrument->set_volume( instrument_node.read_float( "volume", 1.0f ) );
 				pInstrument->set_muted( instrument_node.read_bool( "isMuted", false ) );
@@ -152,7 +152,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 					XMLNode layer_node = instrument_node.firstChildElement( "layer" );
 					while ( !layer_node.isNull() ) {
 						if ( n >= InstrumentComponent::getMaxLayers() ) {
-							ERRORLOG( QString( "n (%1) > maxLayers (%2)" ).arg ( n ).arg( InstrumentComponent::getMaxLayers() ) );
+							ERRORLOG( QString( "n (%1) > m_nMaxLayers (%2)" ).arg ( n ).arg( InstrumentComponent::getMaxLayers() ) );
 							break;
 						}
 						Sample* pSample = new Sample( dk_path+"/"+layer_node.read_string( "filename", "" ) );
@@ -182,7 +182,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 }
 
 Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentList* instrList ) {
-	Pattern* pPattern = NULL;
+	Pattern* pPattern = nullptr;
 	if ( version_older_than( 0, 9, 8 ) ) {
 		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
 	} else {
@@ -213,7 +213,7 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
 		while ( !note_node.isNull() ) {
-			Note* pNote = NULL;
+			Note* pNote = nullptr;
 			unsigned nPosition = note_node.read_int( "position", 0 );
 			float fLeadLag = note_node.read_float( "leadlag", 0.0 , false , false);
 			float fVelocity = note_node.read_float( "velocity", 0.8f );
@@ -250,7 +250,7 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 	return pPattern;
 }
 
-Playlist* Legacy::load_playlist( Playlist* pl, const QString& pl_path )
+Playlist* Legacy::load_playlist( Playlist* pPlaylist, const QString& pl_path )
 {
 	if ( version_older_than( 0, 9, 8 ) ) {
 		WARNINGLOG( QString( "this code should not be used anymore, it belongs to 0.9.6" ) );
@@ -273,7 +273,7 @@ Playlist* Legacy::load_playlist( Playlist* pl, const QString& pl_path )
 		return nullptr;
 	}
 
-	pl->setFilename( filename );
+	pPlaylist->setFilename( pl_path );
 
 	XMLNode songsNode = root.firstChildElement( "Songs" );
 	if ( !songsNode.isNull() ) {
@@ -288,7 +288,7 @@ Playlist* Legacy::load_playlist( Playlist* pl, const QString& pl_path )
 				entry->fileExists = songPathInfo.isReadable();
 				entry->scriptPath = nextNode.read_string( "script", "" );
 				entry->scriptEnabled = nextNode.read_bool( "enabled", false );
-				pl->add( entry );
+				pPlaylist->add( entry );
 			}
 
 			nextNode = nextNode.nextSiblingElement( "next" );
@@ -296,7 +296,7 @@ Playlist* Legacy::load_playlist( Playlist* pl, const QString& pl_path )
 	} else {
 		WARNINGLOG( "Songs node not found" );
 	}
-	return pl;
+	return pPlaylist;
 }
 
 };

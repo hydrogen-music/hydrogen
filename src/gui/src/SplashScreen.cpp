@@ -25,14 +25,14 @@
 
 #include <QPainter>
 #include <QApplication>
-#include <QDesktopWidget>
+#include <QScreen>
 
 #include "Skin.h"
 
 const char* SplashScreen::__class_name = "SplashScreen";
 
 SplashScreen::SplashScreen()
- : QSplashScreen( NULL )
+ : QSplashScreen( nullptr )
  , Object( __class_name )
 {
 	//INFOLOG( "SplashScreen" );
@@ -58,7 +58,7 @@ SplashScreen::SplashScreen()
 	setPixmap( *m_pBackground );
 
 	// Center on screeen
-	QRect rect( QApplication::desktop()->screenGeometry() );
+	QRect rect( QGuiApplication::screens().first()->geometry() );
 	move( rect.center() - this->rect().center() );
 
 	QTimer::singleShot( 5000, this, SLOT( onCloseTimer() ) );

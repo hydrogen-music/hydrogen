@@ -61,7 +61,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	Hydrogen*	pEngine = Hydrogen::get_instance();
 	Song*		pSong = pEngine->getSong();
 
-	setWindowTitle( trUtf8( "Song Editor" ) );
+	setWindowTitle( tr( "Song Editor" ) );
 
 	// background
 	PixmapWidget *pBackPanel = new PixmapWidget( nullptr );
@@ -77,7 +77,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize( 54, 13 )
 	);
 	m_pTimeLineToggleBtn->move( 133, 6 );
-	m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
+	m_pTimeLineToggleBtn->setToolTip( tr( "Enable time line edit") );
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
 	m_pTimeLineToggleBtn->setPressed( pPref->getUseTimelineBpm() );
 
@@ -91,7 +91,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize(53,13)
 	);
 	m_pClearPatternSeqBtn->move( 6, 5 + 25 );
-	m_pClearPatternSeqBtn->setToolTip( trUtf8("Clear pattern sequence") );
+	m_pClearPatternSeqBtn->setToolTip( tr("Clear pattern sequence") );
 	connect( m_pClearPatternSeqBtn, SIGNAL( clicked( Button* ) ), this, SLOT( clearSequence(Button*) ) );
 
 	// new pattern button
@@ -103,7 +103,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize(19, 13)
 	);
 	newPatBtn->move( 64, 5 + 25);
-	newPatBtn->setToolTip( trUtf8("Create new pattern") );
+	newPatBtn->setToolTip( tr("Create new pattern") );
 	connect( newPatBtn, SIGNAL( clicked( Button* ) ), this, SLOT( newPatBtnClicked( Button* ) ) );
 
 	// down button
@@ -115,7 +115,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize(18,13)
 	);
 	m_pDownBtn->move( 89, 5 + 25);
-	m_pDownBtn->setToolTip( trUtf8("Move the selected pattern down") );
+	m_pDownBtn->setToolTip( tr("Move the selected pattern down") );
 	connect( m_pDownBtn, SIGNAL( clicked( Button* ) ), this, SLOT( downBtnClicked( Button* ) ) );
 
 	// up button
@@ -127,7 +127,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize(18,13)
 	);
 	m_pUpBtn->move( 106, 5 + 25 );
-	m_pUpBtn->setToolTip( trUtf8("Move the selected pattern up") );
+	m_pUpBtn->setToolTip( tr("Move the selected pattern up") );
 	connect( m_pUpBtn, SIGNAL( clicked( Button* ) ), this, SLOT( upBtnClicked( Button* ) ) );
 
 	// select toggle button
@@ -139,7 +139,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize( 18, 13 )
 	);
 	m_pPointerActionBtn->move( 128, 5 + 25 );
-	m_pPointerActionBtn->setToolTip( trUtf8( "Select mode" ) );
+	m_pPointerActionBtn->setToolTip( tr( "Select mode" ) );
 	connect( m_pPointerActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( pointerActionBtnPressed(Button*) ) );
 
 	// draw toggle button
@@ -151,7 +151,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize( 18, 13 )
 	);
 	m_pDrawActionBtn->move( 147, 5 + 25 );
-	m_pDrawActionBtn->setToolTip( trUtf8( "Draw mode") );
+	m_pDrawActionBtn->setToolTip( tr( "Draw mode") );
 	connect( m_pDrawActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( drawActionBtnPressed(Button* ) ) );
 	m_pDrawActionBtn->setPressed( true );
 
@@ -163,7 +163,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize( 18, 13 )
 	);
 	m_pModeActionBtn->move( 169, 5 + 25 );
-	m_pModeActionBtn->setToolTip( trUtf8( "stacked mode") );
+	m_pModeActionBtn->setToolTip( tr( "stacked mode") );
 	m_pModeActionBtn->setPressed(  pPref->patternModePlaysSelected() );
 	connect( m_pModeActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( modeActionBtnPressed() ) );
 
@@ -201,7 +201,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_viewPL_over.png",
 			QSize( 19, 13 )
 	);
-	m_pViewPlaybackToggleBtn->setToolTip( trUtf8( "View playback track") );
+	m_pViewPlaybackToggleBtn->setToolTip( tr( "View playback track") );
 	connect( m_pViewPlaybackToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( viewPlaybackTrackBtnPressed(Button* ) ) );
 	m_pViewPlaybackToggleBtn->setPressed( false );
 	
@@ -222,7 +222,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/mixerPanel/master_mute_over.png",
 			QSize( 42, 13 )
 	);
-	m_pMutePlaybackToggleBtn->setToolTip( trUtf8( "Mute playback track") );
+	m_pMutePlaybackToggleBtn->setToolTip( tr( "Mute playback track") );
 	m_pMutePlaybackToggleBtn->move( 151, 6 );
 	m_pMutePlaybackToggleBtn->hide();
 	connect( m_pMutePlaybackToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( mutePlaybackTrackBtnPressed(Button* ) ) );
@@ -236,7 +236,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/mixerPanel/edit_over.png",
 			QSize( 42, 13 )
 	);
-	m_pEditPlaybackBtn->setToolTip( trUtf8( "Choose playback track") );
+	m_pEditPlaybackBtn->setToolTip( tr( "Choose playback track") );
 	m_pEditPlaybackBtn->move( 124, 6 );
 	m_pEditPlaybackBtn->hide();
 	connect( m_pEditPlaybackBtn, SIGNAL( clicked( Button* ) ), this, SLOT( editPlaybackTrackBtnPressed(Button* ) ) );
@@ -250,7 +250,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			"/songEditor/btn_viewTL_over.png",
 			QSize( 19, 13 )
 	);
-	m_pViewTimeLineToggleBtn->setToolTip( trUtf8( "View timeline") );
+	m_pViewTimeLineToggleBtn->setToolTip( tr( "View timeline") );
 	connect( m_pViewTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( viewTimeLineBtnPressed(Button* ) ) );
 	m_pViewTimeLineToggleBtn->setPressed( true );
 	
@@ -307,6 +307,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRuler = new SongEditorPositionRuler( m_pPositionRulerScrollView->viewport() );
 	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
 	m_pPositionRulerScrollView->setFixedHeight( 50 );
+	connect( m_pPositionRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( hScrollTo(int) ) );
 	
 	m_pPlaybackTrackScrollView = new QScrollArea( m_pWidgetStack );
 	m_pPlaybackTrackScrollView->setFrameShape( QFrame::NoFrame );
@@ -335,8 +336,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pAutomationPathView, SIGNAL( pointMoved(float, float, float, float) ), this, SLOT( automationPathPointMoved(float,float, float, float) ) );
 
 	m_pAutomationCombo = new LCDCombo( nullptr, 22 );
-	m_pAutomationCombo->setToolTip( trUtf8("Adjust parameter values in time") );
-	m_pAutomationCombo->addItem( trUtf8("Velocity") );
+	m_pAutomationCombo->setToolTip( tr("Adjust parameter values in time") );
+	m_pAutomationCombo->addItem( tr("Velocity") );
 	m_pAutomationCombo->select( 0 );
 
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, nullptr );
@@ -523,7 +524,7 @@ void SongEditorPanel::newPatBtnClicked( Button* btn )
 	Hydrogen	*pEngine = Hydrogen::get_instance();
 	Song		*pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
-	Pattern		*pNewPattern = new Pattern( trUtf8("Pattern %1").arg(pPatternList->size()+1));
+	Pattern		*pNewPattern = new Pattern( tr("Pattern %1").arg(pPatternList->size()+1));
 	PatternPropertiesDialog *pDialog = new PatternPropertiesDialog( this, pNewPattern, 0, true );
 
 	if ( pDialog->exec() == QDialog::Accepted ) {
@@ -607,7 +608,7 @@ void SongEditorPanel::clearSequence( Button* btn)
 {
 	UNUSED( btn );
 
-	int res = QMessageBox::information( this, "Hydrogen", tr( "Warning, this will erase your pattern sequence.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+	int res = QMessageBox::information( this, "Hydrogen", tr( "Warning, this will erase your pattern sequence.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
 	if ( res == 1 ) {
 		return;
 	}
@@ -755,8 +756,15 @@ void SongEditorPanel::editPlaybackTrackBtnPressed( Button* pBtn )
 	QFileDialog fd(this);
 	fd.setFileMode(QFileDialog::ExistingFile);
 
-	fd.setWindowTitle( trUtf8( "Select playback track" ) );
+	fd.setWindowTitle( tr( "Select playback track" ) );
 	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
+	
+	// Use a filter for only those audio file types supported by
+	// Libsndfile.
+	fd.setNameFilter( tr( "Audio files (*.wav *.flac *.aiff *.raw *.pcm *.sam *.au *.paf *.8svx *.iff *.voc *.m *.pvf *.xi *.htk *.sds *.avr *.wavex *.sd2 *.caf *.wve *.mpc2k *.rf64" ) );
+	
+	// Show detailed information about the files.
+	fd.setViewMode( QFileDialog::Detail );
 
 	QString filename;
 	if (fd.exec() == QDialog::Accepted) {
@@ -773,9 +781,9 @@ void SongEditorPanel::editPlaybackTrackBtnPressed( Button* pBtn )
 void SongEditorPanel::modeActionBtnPressed( )
 {
 	if( m_pModeActionBtn->isPressed() ){
-		m_pModeActionBtn->setToolTip( trUtf8( "stacked pattern mode") );
+		m_pModeActionBtn->setToolTip( tr( "stacked pattern mode") );
 	} else {
-		m_pModeActionBtn->setToolTip( trUtf8( "single pattern mode") );
+		m_pModeActionBtn->setToolTip( tr( "single pattern mode") );
 	}
 	Hydrogen::get_instance()->togglePlaysSelected();
 	updateAll();
@@ -785,10 +793,10 @@ void SongEditorPanel::setModeActionBtn( bool mode )
 {
 	if( mode ){
 		m_pModeActionBtn->setPressed( true );
-		m_pModeActionBtn->setToolTip( trUtf8( "stacked pattern mode") );
+		m_pModeActionBtn->setToolTip( tr( "stacked pattern mode") );
 	} else {
 		m_pModeActionBtn->setPressed( false );
-		m_pModeActionBtn->setToolTip( trUtf8( "single pattern mode") );
+		m_pModeActionBtn->setToolTip( tr( "single pattern mode") );
 	}
 }
 

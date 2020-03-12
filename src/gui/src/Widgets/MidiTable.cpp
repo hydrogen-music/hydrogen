@@ -79,7 +79,7 @@ void MidiTable::updateTable()
 		QComboBox * eventCombo =  dynamic_cast <QComboBox *> ( cellWidget( __row_count - 1, 1 ) );
 		QComboBox * actionCombo = dynamic_cast <QComboBox *> ( cellWidget( __row_count - 1, 3 ) );
 
-		if( eventCombo == NULL || actionCombo == NULL) return;
+		if( eventCombo == nullptr || actionCombo == nullptr) return;
 
 		if( actionCombo->currentText() != "" && eventCombo->currentText() != "" ) {
 			insertNewRow("", "", 0, 0);
@@ -102,7 +102,7 @@ void MidiTable::insertNewRow(QString actionString , QString eventString, int eve
 
 	QPushButton *midiSenseButton = new QPushButton(this);
 	midiSenseButton->setIcon(QIcon(Skin::getImagePath() + "/preferencesDialog/rec.png"));
-	midiSenseButton->setToolTip( trUtf8("press button to record midi event") );
+	midiSenseButton->setToolTip( tr("press button to record midi event") );
 
 	QSignalMapper *signalMapper = new QSignalMapper(this);
 
@@ -145,7 +145,7 @@ void MidiTable::setupMidiTable()
 	MidiMap *pMidiMap = MidiMap::get_instance();
 
 	QStringList items;
-	items << "" << trUtf8("Event")  <<  trUtf8("Param.")  <<  trUtf8("Action") <<  trUtf8("Param.") ;
+	items << "" << tr("Event")  <<  tr("Param.")  <<  tr("Action") <<  tr("Param.") ;
 
 	setRowCount( 0 );
 	setColumnCount( 5 );

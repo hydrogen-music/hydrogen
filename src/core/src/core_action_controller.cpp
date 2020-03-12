@@ -38,7 +38,9 @@ namespace H2Core
 const char* CoreActionController::__class_name = "CoreActionController";
 
 
-CoreActionController::CoreActionController() : Object( __class_name ) {
+CoreActionController::CoreActionController() : Object( __class_name ),
+												m_nDefaultMidiFeedbackChannel(0)
+{
 	//nothing
 }
 
@@ -52,17 +54,16 @@ void CoreActionController::setMasterVolume( float masterVolumeValue )
 	pEngine->getSong()->set_volume( masterVolumeValue );
 	
 #ifdef H2CORE_HAVE_OSC
-	Action* pFeedbackAction = new Action( "MASTER_VOLUME_ABSOLUTE" );
-	pFeedbackAction->setParameter2( QString("%1").arg( masterVolumeValue ) );
-	OscServer::handleAction( pFeedbackAction );
-	delete pFeedbackAction;
+	Action FeedbackAction( "MASTER_VOLUME_ABSOLUTE" );
+	FeedbackAction.setParameter2( QString("%1").arg( masterVolumeValue ) );
+	OscServer::handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
 	int ccParamValue = pMidiMap->findCCValueByActionType( QString("MASTER_VOLUME_ABSOLUTE"));
 	
-	handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127, 0);
+	handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127 );
 }
 
 void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
@@ -77,13 +78,11 @@ void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
 	pInstr->set_volume( masterVolumeValue );
 	
 #ifdef H2CORE_HAVE_OSC
-	Action* pFeedbackAction = new Action( "STRIP_VOLUME_ABSOLUTE" );
+	Action FeedbackAction( "STRIP_VOLUME_ABSOLUTE" );
 	
-	pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
-	pFeedbackAction->setParameter2( QString("%1").arg( masterVolumeValue ) );
-	OscServer::handleAction( pFeedbackAction );
-	
-	delete pFeedbackAction;
+	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
+	FeedbackAction.setParameter2( QString("%1").arg( masterVolumeValue ) );
+	OscServer::handleAction( &FeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -91,28 +90,25 @@ void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
 
-	handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127, 0);
+	handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127 );
 
 }
 
 void CoreActionController::setMetronomeIsActive( bool isActive ){
 	Preferences::get_instance()->m_bUseMetronome = isActive;
-	Hydrogen *pEngine = Hydrogen::get_instance();
 	
 #ifdef H2CORE_HAVE_OSC
-	Action* pFeedbackAction = new Action( "TOGGLE_METRONOME" );
+	Action FeedbackAction( "TOGGLE_METRONOME" );
 	
-	pFeedbackAction->setParameter1( QString("%1").arg( (int) isActive ) );
-	OscServer::handleAction( pFeedbackAction );
-	
-	delete pFeedbackAction;
+	FeedbackAction.setParameter1( QString("%1").arg( (int) isActive ) );
+	OscServer::handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
 	int ccParamValue = pMidiMap->findCCValueByActionType( QString("TOGGLE_METRONOME"));
 	
-	handleOutgoingControlChange( ccParamValue, (int) isActive * 127 , 0);
+	handleOutgoingControlChange( ccParamValue, (int) isActive * 127 );
 }
 
 void CoreActionController::setMasterIsMuted( bool isMuted ){
@@ -120,19 +116,17 @@ void CoreActionController::setMasterIsMuted( bool isMuted ){
 	pEngine->getSong()->__is_muted = isMuted;
 	
 #ifdef H2CORE_HAVE_OSC
-	Action* pFeedbackAction = new Action( "MUTE_TOGGLE" );
+	Action FeedbackAction( "MUTE_TOGGLE" );
 	
-	pFeedbackAction->setParameter1( QString("%1").arg( (int) isMuted ) );
-	OscServer::handleAction( pFeedbackAction );
-	
-	delete pFeedbackAction;
+	FeedbackAction.setParameter1( QString("%1").arg( (int) isMuted ) );
+	OscServer::handleAction( &FeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
-	int ccParamValue = pMidiMap->findCCValueByActionType( QString("MUTE_TOGGLE"));
+	int ccParamValue = pMidiMap->findCCValueByActionType( QString("MUTE_TOGGLE") );
 
-	handleOutgoingControlChange( ccParamValue, (int) isMuted * 127 , 0);
+	handleOutgoingControlChange( ccParamValue, (int) isMuted * 127 );
 }
 
 void CoreActionController::setStripIsMuted( int nStrip, bool isMuted ){
@@ -144,20 +138,18 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted ){
 	pInstr->set_muted( isMuted );
 	
 #ifdef H2CORE_HAVE_OSC
-	Action* pFeedbackAction = new Action( "STRIP_MUTE_TOGGLE" );
+	Action FeedbackAction( "STRIP_MUTE_TOGGLE" );
 	
-	pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
-	pFeedbackAction->setParameter2( QString("%1").arg( (int) isMuted ) );
-	OscServer::handleAction( pFeedbackAction );
-	
-	delete pFeedbackAction;
+	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
+	FeedbackAction.setParameter2( QString("%1").arg( (int) isMuted ) );
+	OscServer::handleAction( &FeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_MUTE_TOGGLE"), QString("%1").arg( nStrip ) );
 	
-	handleOutgoingControlChange( ccParamValue, ((int) isMuted) * 127, 0);
+	handleOutgoingControlChange( ccParamValue, ((int) isMuted) * 127 );
 }
 
 void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed ){
@@ -178,20 +170,18 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed ){
 	}
 	
 #ifdef H2CORE_HAVE_OSC
-	Action* pFeedbackAction = new Action( "STRIP_SOLO_TOGGLE" );
+	Action FeedbackAction( "STRIP_SOLO_TOGGLE" );
 	
-	pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
-	pFeedbackAction->setParameter2( QString("%1").arg( (int) isSoloed ) );
-	OscServer::handleAction( pFeedbackAction );
-	
-	delete pFeedbackAction;
+	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
+	FeedbackAction.setParameter2( QString("%1").arg( (int) isSoloed ) );
+	OscServer::handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_SOLO_TOGGLE"), QString("%1").arg( nStrip ) );
 	
-	handleOutgoingControlChange( ccParamValue, ((int) isSoloed) * 127, 0);
+	handleOutgoingControlChange( ccParamValue, ((int) isSoloed) * 127 );
 }
 
 
@@ -213,7 +203,6 @@ void CoreActionController::setStripPan( int nStrip, float panValue )
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	pEngine->setSelectedInstrumentNumber( nStrip );
 	
-	
 	Song *pSong = pEngine->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 
@@ -224,13 +213,11 @@ void CoreActionController::setStripPan( int nStrip, float panValue )
 	pEngine->setSelectedInstrumentNumber( nStrip );
 	
 #ifdef H2CORE_HAVE_OSC
-	Action* pFeedbackAction = new Action( "PAN_ABSOLUTE" );
+	Action FeedbackAction( "PAN_ABSOLUTE" );
 	
-	pFeedbackAction->setParameter1( QString("%1").arg( nStrip + 1 ) );
-	pFeedbackAction->setParameter2( QString("%1").arg( panValue ) );
-	OscServer::handleAction( pFeedbackAction );
-	
-	delete pFeedbackAction;
+	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
+	FeedbackAction.setParameter2( QString("%1").arg( panValue ) );
+	OscServer::handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -238,25 +225,19 @@ void CoreActionController::setStripPan( int nStrip, float panValue )
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
 
-	handleOutgoingControlChange( ccParamValue, panValue * 127, 0);
+	handleOutgoingControlChange( ccParamValue, panValue * 127 );
 }
 
-void CoreActionController::handleOutgoingControlChange(int param, int value, int channel)
+void CoreActionController::handleOutgoingControlChange(int param, int value)
 {
 	Preferences *pPref = Preferences::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
 	
-	if( pMidiDriver == nullptr ){
-		return;
-	}
-	
-	if( pPref->m_bEnableMidiFeedback == false){
-		return;
-	}
-	
-	if( param >= 0 ){
-		pMidiDriver->handleOutgoingControlChange( param, value, channel);
+	if(	pMidiDriver 
+		&& pPref->m_bEnableMidiFeedback 
+		&& param >= 0 ){
+		pMidiDriver->handleOutgoingControlChange( param, value, m_nDefaultMidiFeedbackChannel );
 	}
 }
 
@@ -272,11 +253,11 @@ void CoreActionController::initExternalControlInterfaces()
 	setMasterVolume( pSong->get_volume() );
 	
 	//PER-INSTRUMENT/STRIP STATES
-	InstrumentList *instrList = pSong->get_instrument_list();
-	for(int i=0; i < instrList->size(); i++){
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+	for(int i=0; i < pInstrList->size(); i++){
 		
 			//STRIP_VOLUME_ABSOLUTE
-			Instrument *pInstr = instrList->get( i );
+			Instrument *pInstr = pInstrList->get( i );
 			setStripVolume( i, pInstr->get_volume() );
 			
 			float fPan_L = pInstr->get_pan_l();

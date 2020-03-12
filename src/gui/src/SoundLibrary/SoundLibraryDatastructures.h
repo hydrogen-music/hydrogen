@@ -9,7 +9,7 @@ class SoundLibraryInfo;
 /**
 * @class SoundLibraryDatabase
 *
-* @brief This class holds informations about all installed soundlibrary items.
+* @brief This class holds information about all installed soundlibrary items.
 *
 * This class organizes the metadata of all locally installed soundlibrary items.
 *
@@ -52,7 +52,7 @@ class SoundLibraryDatabase:  public H2Core::Object
 /**
 * @class SoundLibraryInfo
 *
-* @brief This class holds informations about a soundlibrary.
+* @brief This class holds information about a soundlibrary.
 *
 * This class is used to represent soundlibrary items. It contains
 * the metadata for songs, pattern and drumkits.

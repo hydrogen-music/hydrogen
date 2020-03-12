@@ -46,7 +46,7 @@ SongEditorPanelTagWidget::SongEditorPanelTagWidget( QWidget* pParent, int beat )
 {
 	setupUi( this );
 	INFOLOG( "INIT" );
-	setWindowTitle( trUtf8( "Tag" ) );
+	setWindowTitle( tr( "Tag" ) );
 	createTheTagTableWidget();
 
 	connect( tagTableWidget, SIGNAL( itemChanged ( QTableWidgetItem *  ) ), this, SLOT( a_itemIsChanged( QTableWidgetItem * ) ) );

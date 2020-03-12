@@ -47,11 +47,11 @@
 namespace H2Core
 {
 
-Preferences* Preferences::__instance = NULL;
+Preferences* Preferences::__instance = nullptr;
 
 void Preferences::create_instance()
 {
-	if ( __instance == 0 ) {
+	if ( __instance == nullptr ) {
 		__instance = new Preferences;
 	}
 }
@@ -75,15 +75,12 @@ Preferences::Preferences()
 	m_nRecPreDelete = 0;
 	m_nRecPostDelete = 0;
 
-	//server list
-	std::list<QString> sServerList;
-
 	//rubberband bpm change queue
 	m_useTheRubberbandBpmChangeEvent = false;
 	__rubberBandCalcTime = 5;
 
 	QString rubberBandCLIPath = getenv( "PATH" );
-	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linux use ":" as seperator. maybe windows and osx use other seperators
+	QStringList rubberBandCLIPathList = rubberBandCLIPath.split(":");//linux use ":" as separator. maybe windows and osx use other separators
 
 	//find the Rubberband-CLI in system env
 	//if this fails a second test will check individual user settings
@@ -136,7 +133,7 @@ Preferences::Preferences()
 	m_countOffset = 0;  // beatcounter
 	m_startOffset = 0;  // beatcounter
 
-	sServerList.push_back( QString("http://www.hydrogen-music.org/feeds/drumkit_list.php") );
+	sServerList.push_back( QString("http://hydrogen-music.org/feeds/drumkit_list.php") );
 	m_patternCategories.push_back( QString("not_categorized") );
 
 	//___ audio engine properties ___
@@ -213,6 +210,8 @@ Preferences::Preferences()
 	m_ladspaProperties[1].set(2, 20, 0, 0, false);
 	m_ladspaProperties[2].set(2, 20, 0, 0, false);
 	m_ladspaProperties[3].set(2, 20, 0, 0, false);
+	m_nMaxBars = 400;
+	m_nMaxLayers = 16;
 
 	m_nColoringMethod = 2;
 	m_nColoringMethodAuxValue = 213;
@@ -252,7 +251,7 @@ Preferences::~Preferences()
 	savePreferences();
 
 	INFOLOG( "DESTROY" );
-	__instance = NULL;
+	__instance = nullptr;
 	delete m_pDefaultUIStyle;
 }
 
@@ -296,8 +295,8 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_bPatternModePlaysSelected = LocalFileMng::readXmlBool( rootNode, "patternModePlaysSelected", true );
 			m_bUseLash = LocalFileMng::readXmlBool( rootNode, "useLash", false );
 			__useTimelineBpm = LocalFileMng::readXmlBool( rootNode, "useTimeLine", __useTimelineBpm );
-			maxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
-			maxLayers = LocalFileMng::readXmlInt( rootNode, "maxLayers", 16 );
+			m_nMaxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
+			m_nMaxLayers = LocalFileMng::readXmlInt( rootNode, "maxLayers", 16 );
 			m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
 			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
@@ -589,7 +588,7 @@ void Preferences::loadPreferences( bool bGlobal )
 						QString s_action = pMidiEventNode.firstChildElement("action").text();
 						QString s_param = pMidiEventNode.firstChildElement("parameter").text();
 
-												Action* pAction = new Action( s_action );
+						Action* pAction = new Action( s_action );
 						pAction->setParameter1( s_param );
 						mM->registerMMCEvent(event, pAction);
 					}
@@ -643,8 +642,8 @@ void Preferences::loadPreferences( bool bGlobal )
 		}
 	}
 
-	if ( maxLayers < 16 ) {
-		maxLayers = 16;
+	if ( m_nMaxLayers < 16 ) {
+		m_nMaxLayers = 16;
 	}
 
 	// The preferences file should be recreated?
@@ -681,8 +680,8 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "useLash", m_bsetLash ? "true": "false" );
 	LocalFileMng::writeXmlString( rootNode, "useTimeLine", __useTimelineBpm ? "true": "false" );
 
-	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( maxBars ) );
-	LocalFileMng::writeXmlString( rootNode, "maxLayers", QString::number( maxLayers ) );
+	LocalFileMng::writeXmlString( rootNode, "maxBars", QString::number( m_nMaxBars ) );
+	LocalFileMng::writeXmlString( rootNode, "maxLayers", QString::number( m_nMaxLayers ) );
 
 	LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( m_nDefaultUILayout ) );
 	LocalFileMng::writeXmlString( rootNode, "lastOpenTab", QString::number( m_nLastOpenTab ) );
@@ -995,7 +994,7 @@ void Preferences::savePreferences()
 
 	for( int note=0; note < 128; note++ ){
 		Action * pAction = mM->getNoteAction( note );
-		if( pAction != NULL && pAction->getType() != "NOTHING") {
+		if( pAction != nullptr && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
 			LocalFileMng::writeXmlString( midiEventNode, "noteEvent" , QString("NOTE") );
@@ -1008,7 +1007,7 @@ void Preferences::savePreferences()
 
 	for( int parameter=0; parameter < 128; parameter++ ){
 		Action * pAction = mM->getCCAction( parameter );
-		if( pAction != NULL && pAction->getType() != "NOTHING") {
+		if( pAction != nullptr && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
 			LocalFileMng::writeXmlString( midiEventNode, "ccEvent" , QString("CC") );
@@ -1021,7 +1020,7 @@ void Preferences::savePreferences()
 
 	{
 		Action * pAction = mM->getPCAction();
-		if( pAction != NULL && pAction->getType() != "NOTHING") {
+		if( pAction != nullptr && pAction->getType() != "NOTHING") {
 			QDomNode midiEventNode = doc.createElement( "midiEvent" );
 
 			LocalFileMng::writeXmlString( midiEventNode, "pcEvent" , QString("PROGRAM_CHANGE") );

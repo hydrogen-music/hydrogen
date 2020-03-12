@@ -137,7 +137,7 @@ class XMLDoc : public H2Core::Object, public QDomDocument
 		 * \param filepath the path to the file to read from
 		 * \param schemapath the path to the XML Schema file
 		 */
-		bool read( const QString& filepath, const QString& schemapath=0 );
+		bool read( const QString& filepath, const QString& schemapath=nullptr );
 		/**
 		 * write itself into a file
 		 * \param filepath the path to the file to write to
@@ -148,7 +148,7 @@ class XMLDoc : public H2Core::Object, public QDomDocument
 		 * \param node_name the name of the rootnode to build
 		 * \param xmlns the xml namespace prefix to add after XMLNS_BASE
 		 */
-		XMLNode set_root( const QString& node_name, const QString& xmlns = 0 );
+		XMLNode set_root( const QString& node_name, const QString& xmlns = nullptr );
 };
 
 };

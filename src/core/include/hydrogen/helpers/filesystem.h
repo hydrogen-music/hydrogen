@@ -37,7 +37,7 @@ class Filesystem : public H2Core::Object
 		 * \param logger is a pointer to the logger instance which will be used
 		 * \param sys_path an alternate system data path
 		 */
-		static bool bootstrap( Logger* logger, const QString& sys_path=0 );
+		static bool bootstrap( Logger* logger, const QString& sys_path=nullptr );
 
 		/** returns system data path */
 		static QString sys_data_path();
@@ -157,7 +157,7 @@ class Filesystem : public H2Core::Object
 		 */
 		static bool drumkit_valid( const QString& dk_path );
 		/**
-		 * returns the path to the xml file within a suposed drumkit path
+		 * returns the path to the xml file within a supposed drumkit path
 		 * \param dk_path the path to the drumkit
 		 */
 		static QString drumkit_file( const QString& dk_path );
@@ -254,7 +254,7 @@ class Filesystem : public H2Core::Object
 		/**
 		 * remove a path
 		 * \param path the path to be removed
-		 * \param recursive performe recursive removal if set to true
+		 * \param recursive perform recursive removal if set to true
 		 */
 		static bool rm( const QString& path, bool recursive=false );
 		/**

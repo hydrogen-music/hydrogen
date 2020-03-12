@@ -92,7 +92,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		void syncToExternalHorizontalScrollbar(int);
 		void contentsMoving(int dummy);
-		void on_patternEditorScroll(int);
+		void on_patternEditorVScroll(int);
+		void on_patternEditorHScroll(int);
 
 
 		void zoomInBtnClicked(Button *ref);

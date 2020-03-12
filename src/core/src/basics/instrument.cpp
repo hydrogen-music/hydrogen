@@ -69,7 +69,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __hihat_grp( -1 )
 	, __lower_cc( 0 )
 	, __higher_cc( 127 )
-	, __components( NULL )
+	, __components( nullptr )
 	, __is_preview_instrument(false)
 	, __is_metronome_instrument(false)
 	, __apply_velocity( true )
@@ -77,6 +77,14 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 {
 	if ( __adsr == nullptr ) {
 		__adsr = new ADSR();
+	}
+
+    if( __midi_out_note < MIDI_OUT_NOTE_MIN ){
+		__midi_out_note = MIDI_OUT_NOTE_MIN;	
+	}
+	
+	if( __midi_out_note > MIDI_OUT_NOTE_MAX ){
+		__midi_out_note = MIDI_OUT_NOTE_MAX;	
 	}
 	
 	for ( int i=0; i<MAX_FX; i++ ) {
@@ -112,7 +120,7 @@ Instrument::Instrument( Instrument* other )
 	, __hihat_grp( other->get_hihat_grp() )
 	, __lower_cc( other->get_lower_cc() )
 	, __higher_cc( other->get_higher_cc() )
-	, __components( NULL )
+	, __components( nullptr )
 	, __is_preview_instrument(false)
 	, __is_metronome_instrument(false)
 	, __apply_velocity( other->get_apply_velocity() )
@@ -123,7 +131,9 @@ Instrument::Instrument( Instrument* other )
 	}
 
 	__components = new std::vector<InstrumentComponent*> ();
-	__components->assign( other->get_components()->begin(), other->get_components()->end() );
+	for (auto it = other->get_components()->begin(); it != other->get_components()->end(); ++it) {
+		__components->push_back(new InstrumentComponent(*it));
+	}
 }
 
 Instrument::~Instrument()
@@ -183,8 +193,8 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 				}
 			} else {
 				QString sample_path =  pDrumkit->get_path() + "/" + src_layer->get_sample()->get_filename();
-				Sample* sample = Sample::load( sample_path );
-				if ( sample==0 ) {
+				Sample* pSample = Sample::load( sample_path );
+				if ( pSample == nullptr ) {
 					_ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." ).arg( sample_path ) );
 					if ( is_live ) {
 						AudioEngine::get_instance()->lock( RIGHT_HERE );
@@ -197,7 +207,7 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 				} else {
 					if ( is_live )
 						AudioEngine::get_instance()->lock( RIGHT_HERE );
-					pMyComponent->set_layer( new InstrumentLayer( src_layer, sample ), i );
+					pMyComponent->set_layer( new InstrumentLayer( src_layer, pSample ), i );
 					if ( is_live )
 						AudioEngine::get_instance()->unlock();
 				}
@@ -257,11 +267,11 @@ void Instrument::load_from( const QString& dk_name, const QString& instrument_na
 Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const QString& dk_name )
 {
 	int id = node->read_int( "id", EMPTY_INSTR_ID, false, false );
-	if ( id==EMPTY_INSTR_ID ) {
+	if ( id == EMPTY_INSTR_ID ) {
 		return nullptr;
 	}
 
-	Instrument* pInstrument = new Instrument( id, node->read_string( "name", "" ), 0 );
+	Instrument* pInstrument = new Instrument( id, node->read_string( "name", "" ), nullptr );
 	pInstrument->set_drumkit_name( dk_name );
 	pInstrument->set_volume( node->read_float( "volume", 1.0f ) );
 	pInstrument->set_muted( node->read_bool( "isMuted", false ) );
@@ -315,7 +325,7 @@ void Instrument::load_samples()
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			InstrumentLayer* pLayer = pComponent->get_layer( i );
 			if( pLayer ) {
-				pLayer->load_sample( );
+				pLayer->load_sample();
 			}
 		}
 	}
@@ -379,8 +389,9 @@ void Instrument::save_to( XMLNode* node, int component_id )
 	}
 	for (std::vector<InstrumentComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
 		InstrumentComponent* pComponent = *it;
-		if( component_id == -1 || pComponent->get_drumkit_componentID() == component_id )
+		if( component_id == -1 || pComponent->get_drumkit_componentID() == component_id ) {
 			pComponent->save_to( &InstrumentNode, component_id );
+		}
 	}
 }
 

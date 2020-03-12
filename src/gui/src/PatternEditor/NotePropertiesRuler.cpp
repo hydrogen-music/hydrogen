@@ -46,7 +46,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
  , Object( __class_name )
  , m_Mode( mode )
  , m_pPatternEditorPanel( pPatternEditorPanel )
- , m_pPattern( NULL )
+ , m_pPattern( nullptr )
 {
 	//infoLog("INIT");
 	//setAttribute(Qt::WA_NoBackground);
@@ -94,7 +94,7 @@ NotePropertiesRuler::~NotePropertiesRuler()
 void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 {
 
-	if (m_pPattern == NULL) return;
+	if (m_pPattern == nullptr) return;
 
 	pressAction( ev->x(), ev->y() ); //get all old values
 
@@ -225,7 +225,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 {
 
 	//create all needed old vars for undo
-	if (m_pPattern == NULL) return;
+	if (m_pPattern == nullptr) return;
 
 	__oldVelocity = 0.8f;
 	__oldPan_L = 0.5f;
@@ -313,7 +313,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 		__leadLag = 0.0f ;
 		__noteKeyVal = 10;
 
-		if (m_pPattern == NULL) return;
+		if (m_pPattern == nullptr) return;
 	
 		DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
 		int nBase;
@@ -419,8 +419,8 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 					;
 				} else {
-					//set the note hight
-					//QMessageBox::information ( this, "Hydrogen", trUtf8( "val: %1" ).arg(keyval)  );
+					//set the note height
+					//QMessageBox::information ( this, "Hydrogen", tr( "val: %1" ).arg(keyval)  );
 					int k = 666;
 					int o = 666;
 					if(keyval >=6 && keyval<=125) {
@@ -624,7 +624,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 	}
 
 	// draw velocity lines
-	if (m_pPattern != NULL) {
+	if (m_pPattern != nullptr) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
 
@@ -1212,7 +1212,7 @@ void NotePropertiesRuler::updateEditor()
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
 	else {
-		m_pPattern = NULL;
+		m_pPattern = nullptr;
 	}
 	__nSelectedPatternNumber = nSelectedPatternNumber;
 

@@ -41,7 +41,7 @@
 *
 */
 
-MidiMap * MidiMap::__instance = 0;
+MidiMap * MidiMap::__instance = nullptr;
 const char* MidiMap::__class_name = "MidiMap";
 
 MidiMap::MidiMap()
@@ -74,12 +74,12 @@ MidiMap::~MidiMap()
 	}
 	delete __pc_action;
 
-	__instance = NULL;
+	__instance = nullptr;
 }
 
 void MidiMap::create_instance()
 {
-	if( __instance == 0 ) {
+	if( __instance == nullptr ) {
 		__instance = new MidiMap;
 	}
 }
@@ -129,7 +129,7 @@ void MidiMap::registerMMCEvent( QString eventString , Action* pAction )
 {
 	QMutexLocker mx(&__mutex);
 
-	if( mmcMap[ eventString ] != NULL){
+	if( mmcMap[ eventString ] != nullptr){
 		delete mmcMap[ eventString ];
 	}
 	mmcMap[ eventString ] = pAction;
@@ -211,7 +211,7 @@ Action* MidiMap::getMMCAction( QString eventString )
 	QMutexLocker mx(&__mutex);
 	std::map< QString, Action *>::iterator dIter = mmcMap.find( eventString );
 	if ( dIter == mmcMap.end() ){
-		return NULL;
+		return nullptr;
 	}
 
 	return mmcMap[eventString];

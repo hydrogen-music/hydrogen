@@ -59,10 +59,10 @@ class Object {
 		 * \param out the ostream to write to
 		 */
 		static void write_objects_map_to( std::ostream& out );
-		static void write_objects_map_to_cerr() { Object::write_objects_map_to( std::cerr ); }  ///< ouput objects map to stderr
+		static void write_objects_map_to_cerr() { Object::write_objects_map_to( std::cerr ); }  ///< output objects map to stderr
 
 		/**
-		 * must be called before any Object instanciation !
+		 * must be called before any Object instantiation !
 		 * \param logger the logger instance used to send messages to
 		 * \param count should we count objects instances or not
 		 */
@@ -76,7 +76,7 @@ class Object {
 		 */
 		static void del_object( const Object* obj );
 		/**
-		 * search for the clas name within __objects_map, create it if doesn't exists, increase class and global counts
+		 * search for the class name within __objects_map, create it if doesn't exists, increase class and global counts
 		 * \param obj the object to be taken into account
 		 * \param copy is it called from a copy constructor
 		 */

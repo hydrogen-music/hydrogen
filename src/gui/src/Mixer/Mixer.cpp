@@ -53,7 +53,7 @@ Mixer::Mixer( QWidget* pParent )
  : QWidget( pParent )
  , Object( __class_name )
 {
-	setWindowTitle( trUtf8( "Mixer" ) );
+	setWindowTitle( tr( "Mixer" ) );
 	setMaximumHeight( 284 );
 	setMinimumHeight( 284 );
 	setFixedHeight( 284 );
@@ -117,7 +117,7 @@ Mixer::Mixer( QWidget* pParent )
 	);
 	m_pShowFXPanelBtn->move( 67, 242 );
 	m_pShowFXPanelBtn->setPressed(false);
-	m_pShowFXPanelBtn->setToolTip( trUtf8( "Show FX panel" ) );
+	m_pShowFXPanelBtn->setToolTip( tr( "Show FX panel" ) );
 	connect( m_pShowFXPanelBtn, SIGNAL(clicked(Button*)), this, SLOT( showFXPanelClicked(Button*)));
 	m_pShowFXPanelBtn->setPressed( Preferences::get_instance()->isFXTabVisible() );
 
@@ -134,7 +134,7 @@ Mixer::Mixer( QWidget* pParent )
 	);
 	m_pShowPeaksBtn->move( 67, 258 );
 	m_pShowPeaksBtn->setPressed( (Preferences::get_instance())->showInstrumentPeaks() );
-	m_pShowPeaksBtn->setToolTip( trUtf8( "Show instrument peaks" ) );
+	m_pShowPeaksBtn->setToolTip( tr( "Show instrument peaks" ) );
 	connect( m_pShowPeaksBtn, SIGNAL(clicked(Button*)), this, SLOT( showPeaksBtnClicked(Button*)));
 //~ Master frame
 
@@ -773,7 +773,7 @@ void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 	Instrument *pInstr = pInstrList->get(nLine);
 	pInstr->set_fx_level( ref->getFXLevel(nKnob), nKnob );
-	QString sInfo = trUtf8( "Set FX %1 level ").arg( nKnob + 1 );
+	QString sInfo = tr( "Set FX %1 level ").arg( nKnob + 1 );
 	( HydrogenApp::get_instance() )->setStatusBarMessage( sInfo+ QString( "[%1]" ).arg( ref->getFXLevel(nKnob), 0, 'f', 2 ), 2000 );
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
@@ -819,11 +819,11 @@ void Mixer::showPeaksBtnClicked(Button* ref)
 
 	if ( ref->isPressed() ) {
 		pPref->setInstrumentPeaks( true );
-		( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Show instrument peaks = On"), 2000 );
+		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Show instrument peaks = On"), 2000 );
 	}
 	else {
 		pPref->setInstrumentPeaks( false );
-		( HydrogenApp::get_instance() )->setStatusBarMessage( trUtf8( "Show instrument peaks = Off"), 2000 );
+		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Show instrument peaks = Off"), 2000 );
 	}
 }
 
@@ -844,7 +844,7 @@ void Mixer::ladspaActiveBtnClicked( LadspaFXMixerLine* ref )
 		}
 	}
 #else
-	QMessageBox::critical( this, "Hydrogen", trUtf8("LADSPA effects are not available in this version of Hydrogen.") );
+	QMessageBox::critical( this, "Hydrogen", tr("LADSPA effects are not available in this version of Hydrogen.") );
 #endif
 }
 
@@ -862,7 +862,7 @@ void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 	}
 	Hydrogen::get_instance()->getSong()->set_is_modified( true );
 #else
-	QMessageBox::critical( this, "Hydrogen", trUtf8("LADSPA effects are not available in this version of Hydrogen.") );
+	QMessageBox::critical( this, "Hydrogen", tr("LADSPA effects are not available in this version of Hydrogen.") );
 #endif
 }
 
@@ -879,7 +879,7 @@ void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
 			LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nFX);
 			if (pFX) {
 				pFX->setVolume( ref->getVolume() );
-				QString sInfo = trUtf8( "Set LADSPA FX ( %1 ) volume").arg( QString(pFX->getPluginName() ) );
+				QString sInfo = tr( "Set LADSPA FX ( %1 ) volume").arg( QString(pFX->getPluginName() ) );
 				HydrogenApp::get_instance()->setStatusBarMessage( sInfo+ QString( " [%1]" ).arg( ref->getVolume(), 0, 'f', 2 ), 2000 );
 			}
 		}

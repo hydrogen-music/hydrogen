@@ -50,7 +50,7 @@
 namespace H2Core
 {
 
-Logger* Filesystem::__logger = 0;
+Logger* Filesystem::__logger = nullptr;
 const char* Filesystem::__class_name = "Filesystem";
 
 const QString Filesystem::scripts_ext = ".sh";
@@ -68,10 +68,10 @@ QString Filesystem::__usr_cfg_path;
 QStringList Filesystem::__ladspa_paths;
 
 
-/* TODO QCoreApplication is not instanciated */
+/* TODO QCoreApplication is not instantiated */
 bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 {
-	if( __logger==0 && logger!=0 ) {
+	if( __logger==nullptr && logger!=nullptr ) {
 		__logger = logger;
 	} else {
 		return false;
@@ -95,7 +95,7 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
 	__usr_cfg_path = QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
 #endif
-	if( sys_path!=0 ) __sys_data_path = sys_path;
+	if( sys_path!=nullptr ) __sys_data_path = sys_path;
 
 	if( !dir_readable( __sys_data_path ) ) {
 		__sys_data_path = QCoreApplication::applicationDirPath().append( "/" LOCAL_DATA_PATH );

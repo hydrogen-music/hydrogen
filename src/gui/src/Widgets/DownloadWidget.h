@@ -53,7 +53,7 @@ protected:
 	QNetworkAccessManager*	__http_client;
 	QNetworkReply*			__reply;
 
-	QTime					__time;
+	QElapsedTimer			__time;
 
 	float					__download_percent;
 	int						__eta;

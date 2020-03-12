@@ -81,7 +81,7 @@ Pattern* PatternList::operator[]( int idx )
 {
 	if ( idx < 0 || idx >= __patterns.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
-		return 0;
+		return nullptr;
 	}
 	assert( idx >= 0 && idx < __patterns.size() );
 	return __patterns[idx];
@@ -91,7 +91,7 @@ Pattern* PatternList::get( int idx )
 {
 	if ( idx < 0 || idx >= __patterns.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
-		return 0;
+		return nullptr;
 	}
 	assert( idx >= 0 && idx < __patterns.size() );
 	return __patterns[idx];
@@ -101,7 +101,7 @@ const Pattern* PatternList::get( int idx ) const
 {
 	if ( idx < 0 || idx >= __patterns.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
-		return 0;
+		return nullptr;
 	}
 	assert( idx >= 0 && idx < __patterns.size() );
 	return __patterns[idx];
@@ -131,20 +131,20 @@ Pattern* PatternList::del( Pattern* pattern )
 			return pattern;
 		}
 	}
-	return 0;
+	return nullptr;
 }
 
 Pattern* PatternList::replace( int idx, Pattern* pattern )
 {
 	/*
 	 * if we insert a new pattern (copy, add new pattern, undo delete pattern and so on will do this)
-	 * idx is > __pattern.size(). thats why i add +1 to assert expression
+	 * idx is > __pattern.size(). that's why i add +1 to assert expression
 	 */
 
 	assert( idx >= 0 && idx <= __patterns.size() +1 );
 	if( idx < 0 || idx >= __patterns.size() ) {
 		ERRORLOG( QString( "index out of bounds %1 (size:%2)" ).arg( idx ).arg( __patterns.size() ) );
-		return 0;
+		return nullptr;
 	}
 
 	__patterns.insert( __patterns.begin() + idx, pattern );
@@ -167,7 +167,7 @@ Pattern*  PatternList::find( const QString& name )
 	for( int i=0; i<__patterns.size(); i++ ) {
 		if ( __patterns[i]->get_name()==name ) return __patterns[i];
 	}
-	return 0;
+	return nullptr;
 }
 
 void PatternList::swap( int idx_a, int idx_b )

@@ -37,14 +37,14 @@ SongPropertiesDialog::SongPropertiesDialog(QWidget* parent)
 	setMaximumSize( width(), height() );
 	setMinimumSize( width(), height() );
 
-	setWindowTitle( trUtf8( "Song properties" ) );
+	setWindowTitle( tr( "Song properties" ) );
 
-	Song *song = Hydrogen::get_instance()->getSong();
-	songNameTxt->setText( song->__name );
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	songNameTxt->setText( pSong->__name );
 
-	authorTxt->setText( song->__author );
-	notesTxt->append( song->get_notes() );
-	licenseTxt->setText( song->get_license() );
+	authorTxt->setText( pSong->__author );
+	notesTxt->append( pSong->get_notes() );
+	licenseTxt->setText( pSong->get_license() );
 }
 
 
@@ -61,12 +61,12 @@ void SongPropertiesDialog::on_cancelBtn_clicked()
 
 void SongPropertiesDialog::on_okBtn_clicked()
 {
-	Song *song = Hydrogen::get_instance()->getSong();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 
-	song->__name = songNameTxt->text();
-	song->__author = authorTxt->text();
-	song->set_notes( notesTxt->toPlainText() );
-	song->set_license( licenseTxt->text() );
+	pSong->__name = songNameTxt->text();
+	pSong->__author = authorTxt->text();
+	pSong->set_notes( notesTxt->toPlainText() );
+	pSong->set_license( licenseTxt->text() );
 
 	accept();
 }

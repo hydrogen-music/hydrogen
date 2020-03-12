@@ -89,7 +89,7 @@ class Note : public H2Core::Object
 		 * \param other 
 		 * \param instrument if set will be used as note instrument
 		 */
-		Note( Note* other, Instrument* instrument=0 );
+		Note( Note* other, Instrument* instrument=nullptr );
 		/** destructor */
 		~Note();
 
@@ -341,7 +341,7 @@ inline Instrument* Note::get_instrument()
 
 inline bool Note::has_instrument() const
 {
-	return __instrument!=0;
+	return __instrument!=nullptr;
 }
 
 inline void Note::set_instrument_id( int value )

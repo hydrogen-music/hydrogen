@@ -23,7 +23,7 @@
 #include "hydrogen/version.h"
 
 #include <cassert>
-
+#include <memory>
 
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/Preferences.h>
@@ -69,19 +69,19 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 	, __author( author )
 	, __volume( volume )
 	, __metronome_volume( 0.5 )
-	, __pattern_list( NULL )
-	, __pattern_group_sequence( NULL )
-	, __instrument_list( NULL )
+	, __pattern_list( nullptr )
+	, __pattern_group_sequence( nullptr )
+	, __instrument_list( nullptr )
 	, __filename( "" )
 	, __is_loop_enabled( false )
 	, __humanize_time_value( 0.0 )
 	, __humanize_velocity_value( 0.0 )
 	, __swing_factor( 0.0 )
 	, __song_mode( PATTERN_MODE )
-	, __components( NULL )
+	, __components( nullptr )
 	, __playback_track_enabled( false )
 	, __playback_track_volume( 0.0 )
-	, __velocity_automation_path( NULL )
+	, __velocity_automation_path( nullptr )
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( __name ) );
 
@@ -93,7 +93,11 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 
 Song::~Song()
 {
-	// delete all patterns
+	/*
+	 * Warning: it is not safe to delete a song without having a lock on the audio engine.
+	 * Following the current design, the caller has to care for the lock.
+	 */
+	
 	delete __pattern_list;
 
 	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
@@ -148,59 +152,61 @@ bool Song::save( const QString& filename )
 /// Create default song
 Song* Song::get_default_song()
 {
+	Song* pSong = new Song( "empty", "hydrogen", 120, 0.5 );
 
-	Song* song = new Song( "empty", "hydrogen", 120, 0.5 );
+	pSong->set_metronome_volume( 0.5 );
+	pSong->set_notes( "..." );
+	pSong->set_license( "" );
+	pSong->set_loop_enabled( false );
+	pSong->set_mode( Song::PATTERN_MODE );
+	pSong->set_humanize_time_value( 0.0 );
+	pSong->set_humanize_velocity_value( 0.0 );
+	pSong->set_swing_factor( 0.0 );
 
-	song->set_metronome_volume( 0.5 );
-	song->set_notes( "..." );
-	song->set_license( "" );
-	song->set_loop_enabled( false );
-	song->set_mode( Song::PATTERN_MODE );
-	song->set_humanize_time_value( 0.0 );
-	song->set_humanize_velocity_value( 0.0 );
-	song->set_swing_factor( 0.0 );
-
-	InstrumentList* pList = new InstrumentList();
+	InstrumentList* pInstrList = new InstrumentList();
 	Instrument* pNewInstr = new Instrument( EMPTY_INSTR_ID, "New instrument" );
-	pList->add( pNewInstr );
-	song->set_instrument_list( pList );
+	pInstrList->add( pNewInstr );
+	pSong->set_instrument_list( pInstrList );
 
 #ifdef H2CORE_HAVE_JACK
-	Hydrogen::get_instance()->renameJackPorts( song );
+	Hydrogen::get_instance()->renameJackPorts( pSong );
 #endif
 
-	PatternList* patternList = new PatternList();
-	Pattern* emptyPattern = new Pattern();
-	emptyPattern->set_name( QString( "Pattern 1" ) );
-	emptyPattern->set_category( QString( "not_categorized" ) );
-	patternList->add( emptyPattern );
-	song->set_pattern_list( patternList );
+	PatternList*	pPatternList = new PatternList();
+	Pattern*		pEmptyPattern = new Pattern();
+	
+	pEmptyPattern->set_name( QString( "Pattern 1" ) );
+	pEmptyPattern->set_category( QString( "not_categorized" ) );
+	pPatternList->add( pEmptyPattern );
+	pSong->set_pattern_list( pPatternList );
+	
 	std::vector<PatternList*>* pPatternGroupVector = new std::vector<PatternList*>;
-	PatternList* patternSequence = new PatternList();
-	patternSequence->add( emptyPattern );
+	PatternList*               patternSequence = new PatternList();
+	
+	patternSequence->add( pEmptyPattern );
 	pPatternGroupVector->push_back( patternSequence );
-	song->set_pattern_group_vector( pPatternGroupVector );
-	song->set_is_modified( false );
-	song->set_filename( "empty_song" );
+	pSong->set_pattern_group_vector( pPatternGroupVector );
+	pSong->set_is_modified( false );
+	pSong->set_filename( "empty_song" );
 
-	return song;
+	return pSong;
 
 }
 
 /// Return an empty song
 Song* Song::get_empty_song()
 {
+	Song* pSong = Song::load( Filesystem::empty_song_path() );
 
-	Song* song = Song::load( Filesystem::empty_song_path() );
-
-	/* if file DefaultSong.h2song not accessible
+	/* 
+	 * If file DefaultSong.h2song is not accessible,
 	 * create a simple default song.
 	 */
-	if( !song ) {
-		song = Song::get_default_song();
+	if( !pSong ) {
+		pSong = Song::get_default_song();
 	}
 
-	return song;
+	return pSong;
 }
 
 DrumkitComponent* Song::get_component( int ID )
@@ -210,7 +216,7 @@ DrumkitComponent* Song::get_component( int ID )
 			return *it;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -256,33 +262,33 @@ void Song::readTempPatternList( const QString& filename )
 	if ( !virtualsNode.isNull() ) {
 		XMLNode virtualNode = virtualsNode.firstChildElement( "virtual" );
 		while ( !virtualNode.isNull() ) {
-			QString patternName = virtualNode.read_attribute( "pattern", NULL, false, false );
+			QString patternName = virtualNode.read_attribute( "pattern", nullptr, false, false );
 			XMLNode patternNode = virtualNode.firstChildElement( "pattern" );
-			Pattern* p = NULL;
+			Pattern* pPattern = nullptr;
 			while ( !patternName.isEmpty() && !patternNode.isNull() ) {
 				QString virtualName = patternNode.read_text( false );
 				if ( !virtualName.isEmpty() ) {
-					Pattern* v = NULL;
+					Pattern* pVirtualPattern = nullptr;
 					for ( unsigned i = 0; i < get_pattern_list()->size(); i++ ) {
 						Pattern* pat = get_pattern_list()->get( i );
-						if ( p == NULL && pat->get_name() == patternName ) {
-							p = pat;
+						if ( pPattern == nullptr && pat->get_name() == patternName ) {
+							pPattern = pat;
 						}
-						if ( v == NULL && pat->get_name() == virtualName ) {
-							v = pat;
+						if ( pVirtualPattern == nullptr && pat->get_name() == virtualName ) {
+							pVirtualPattern = pat;
 						}
-						if ( p != NULL && v != NULL) {
+						if ( pPattern != nullptr && pVirtualPattern != nullptr) {
 							break;
 						}
 					}
-					if ( p == NULL ) {
+					if ( pPattern == nullptr ) {
 						ERRORLOG( QString( "Invalid pattern name %1" ).arg( patternName ) );
 					}
-					if ( v == NULL ) {
+					if ( pVirtualPattern == nullptr ) {
 						ERRORLOG( QString( "Invalid virtual pattern name %1" ).arg( virtualName ) );
 					}
-					if ( p != NULL && v != NULL ) {
-						p->virtual_patterns_add( v );
+					if ( pPattern != nullptr && pVirtualPattern != nullptr ) {
+						pPattern->virtual_patterns_add( pVirtualPattern );
 					}
 				}
 				patternNode = patternNode.nextSiblingElement( "pattern" );
@@ -305,7 +311,7 @@ void Song::readTempPatternList( const QString& filename )
 			while ( !patternNode.isNull() ) {
 				QString patternName = patternNode.read_text( false );
 				if( !patternName.isEmpty() ) {
-					Pattern* p = NULL;
+					Pattern* p = nullptr;
 					for ( unsigned i = 0; i < get_pattern_list()->size(); i++ ) {
 						Pattern* pat = get_pattern_list()->get( i );
 						if ( pat->get_name() == patternName ) {
@@ -313,7 +319,7 @@ void Song::readTempPatternList( const QString& filename )
 							break;
 						}
 					}
-					if ( p == NULL ) {
+					if ( p == nullptr ) {
 						ERRORLOG( QString( "Invalid pattern name %1" ).arg( patternName ) );
 					} else {
 						patternSequence->add( p );
@@ -336,11 +342,11 @@ bool Song::writeTempPatternList( const QString& filename )
 
 	XMLNode virtualPatternListNode = root.createNode( "virtuals" );
 	for ( unsigned i = 0; i < get_pattern_list()->size(); i++ ) {
-		Pattern *pat = get_pattern_list()->get( i );
-		if ( !pat->get_virtual_patterns()->empty() ) {
+		Pattern *pPattern = get_pattern_list()->get( i );
+		if ( !pPattern->get_virtual_patterns()->empty() ) {
 			XMLNode node = virtualPatternListNode.createNode( "virtual" );
-			node.write_attribute( "pattern", pat->get_name() );
-			for ( Pattern::virtual_patterns_it_t virtIter = pat->get_virtual_patterns()->begin(); virtIter != pat->get_virtual_patterns()->end(); ++virtIter ) {
+			node.write_attribute( "pattern", pPattern->get_name() );
+			for ( Pattern::virtual_patterns_it_t virtIter = pPattern->get_virtual_patterns()->begin(); virtIter != pPattern->get_virtual_patterns()->end(); ++virtIter ) {
 				node.write_string( "pattern", (*virtIter)->get_name() );
 			}
 		}
@@ -351,8 +357,8 @@ bool Song::writeTempPatternList( const QString& filename )
 		XMLNode node = patternSequenceNode.createNode( "group" );
 		PatternList *pList = ( *get_pattern_group_vector() )[i];
 		for ( unsigned j = 0; j < pList->size(); j++ ) {
-			Pattern *pat = pList->get( j );
-			node.write_string( "pattern", pat->get_name() );
+			Pattern *pPattern = pList->get( j );
+			node.write_string( "pattern", pPattern->get_name() );
 		}
 	}
 
@@ -361,8 +367,8 @@ bool Song::writeTempPatternList( const QString& filename )
 
 QString Song::copyInstrumentLineToString( int selectedPattern, int selectedInstrument )
 {
-	Instrument *instr = get_instrument_list()->get( selectedInstrument );
-	assert( instr );
+	Instrument *pInstr = get_instrument_list()->get( selectedInstrument );
+	assert( pInstr );
 
 	QDomDocument doc;
 	QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
@@ -379,34 +385,36 @@ QString Song::copyInstrumentLineToString( int selectedPattern, int selectedInstr
 	unsigned nPatterns = get_pattern_list()->size();
 	for ( unsigned i = 0; i < nPatterns; i++ )
 	{
-		if ((selectedPattern >= 0) && (selectedPattern != i))
+		if (( selectedPattern >= 0) && (selectedPattern != i) ) {
 			continue;
+		}
 
 		// Export pattern
-		Pattern *pat = get_pattern_list()->get( i );
+		Pattern *pPattern = get_pattern_list()->get( i );
 
 		QDomNode patternNode = doc.createElement( "pattern" );
-		LocalFileMng::writeXmlString( patternNode, "pattern_name", pat->get_name() );
+		LocalFileMng::writeXmlString( patternNode, "pattern_name", pPattern->get_name() );
 
 		QString category;
-		if ( pat->get_category().isEmpty() )
+		if ( pPattern->get_category().isEmpty() ) {
 			category = "No category";
-		else
-			category = pat->get_category();
+		} else {
+			category = pPattern->get_category();
+		}
 
-		LocalFileMng::writeXmlString( patternNode, "info", pat->get_info() );
+		LocalFileMng::writeXmlString( patternNode, "info", pPattern->get_info() );
 		LocalFileMng::writeXmlString( patternNode, "category", category  );
-		LocalFileMng::writeXmlString( patternNode, "size", QString("%1").arg( pat->get_length() ) );
+		LocalFileMng::writeXmlString( patternNode, "size", QString("%1").arg( pPattern->get_length() ) );
 
 		QDomNode noteListNode = doc.createElement( "noteList" );
-		const Pattern::notes_t* notes = pat->get_notes();
+		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it)
 		{
 			Note *pNote = it->second;
 			assert( pNote );
 
 			// Export only specified instrument
-			if (pNote->get_instrument() == instr)
+			if (pNote->get_instrument() == pInstr)
 			{
 				QDomNode noteNode = doc.createElement( "note" );
 				LocalFileMng::writeXmlString( noteNode, "position", QString("%1").arg( pNote->get_position() ) );
@@ -443,12 +451,12 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 		return false;
 
 	// Get current instrument
-	Instrument *instr = get_instrument_list()->get( selectedInstrument );
-	assert( instr );
+	Instrument *pInstr = get_instrument_list()->get( selectedInstrument );
+	assert( pInstr );
 
 	// Get pattern list
 	PatternList *pList = get_pattern_list();
-	Pattern *pSelected = (selectedPattern >= 0) ? pList->get(selectedPattern) : NULL;
+	Pattern *pSelected = (selectedPattern >= 0) ? pList->get(selectedPattern) : nullptr;
 
 	// Check if document has correct structure
 	QDomNode rootNode = doc.firstChildElement( "instrument_line" );	// root element
@@ -461,8 +469,9 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 
 	// Find pattern list
 	QDomNode patternList = rootNode.firstChildElement( "patternList" );
-	if (patternList.isNull())
+	if ( patternList.isNull() ) {
 		return false;
+	}
 
 	// Parse each pattern if needed
 	QDomNode patternNode = patternList.firstChildElement( "pattern" );
@@ -484,7 +493,7 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 			// If there is only one pattern, we always add it to list
 			// If there is no selected pattern, we add all existing patterns to list (match by name)
 			// Otherwise we add only existing selected pattern to list (match by name)
-			if ((is_single) || ((pat != NULL) && ((selectedPattern < 0) || (pat == pSelected))))
+			if ((is_single) || ((pat != nullptr) && ((selectedPattern < 0) || (pat == pSelected))))
 			{
 				// Load additional pattern info & create pattern
 				QString sInfo;
@@ -495,7 +504,7 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 				nSize = LocalFileMng::readXmlInt(patternNode, "size", nSize, false, false);
 
 				// Change name of pattern to selected pattern
-				if (pSelected != NULL)
+				if (pSelected != nullptr)
 					patternName = pSelected->get_name();
 
 				pat = new Pattern( patternName, sInfo, sCategory, nSize );
@@ -508,7 +517,7 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 					QDomNode noteNode = pNoteListNode.firstChildElement( "note" );
 					while ( ! noteNode.isNull() )
 					{
-						Note* pNote = NULL;
+						Note* pNote = nullptr;
 
 						unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
 						float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0 , false , false );
@@ -523,7 +532,7 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 
 						bool noteoff = ( nNoteOff == "true" );
 
-						pNote = new Note( instr, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
+						pNote = new Note( pInstr, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
 						pNote->set_key_octave( sKey );
 						pNote->set_lead_lag( fLeadLag );
 						pNote->set_note_off( noteoff );
@@ -581,27 +590,29 @@ const QString SongReader::getPath ( const QString& filename )
 	}
 
 	ERRORLOG( "Song file " + filename + " not found." );
-	return NULL;
+	return nullptr;
 }
 
 ///
 /// Reads a song.
-/// return NULL = error reading song file.
+/// return nullptr = error reading song file.
 ///
 Song* SongReader::readSong( const QString& filename )
 {
 	QString FileName = getPath ( filename );
-	if ( FileName.isEmpty() ) return NULL;
+	if ( FileName.isEmpty() ) {
+		return nullptr;
+	}
 
 	INFOLOG( "Reading " + FileName );
-	Song* song = NULL;
+	Song* pSong = nullptr;
 
 	QDomDocument doc = LocalFileMng::openXmlDocument( FileName );
 	QDomNodeList nodeList = doc.elementsByTagName( "song" );
 
 	if( nodeList.isEmpty() ) {
 		ERRORLOG( "Error reading song: song node not found" );
-		return NULL;
+		return nullptr;
 	}
 
 	QDomNode songNode = nodeList.at( 0 );
@@ -638,18 +649,18 @@ Song* SongReader::readSong( const QString& filename )
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
 
-	song = new Song( sName, sAuthor, fBpm, fVolume );
-	song->set_metronome_volume( fMetronomeVolume );
-	song->set_notes( sNotes );
-	song->set_license( sLicense );
-	song->set_loop_enabled( bLoopEnabled );
-	song->set_mode( nMode );
-	song->set_humanize_time_value( fHumanizeTimeValue );
-	song->set_humanize_velocity_value( fHumanizeVelocityValue );
-	song->set_swing_factor( fSwingFactor );
-	song->set_playback_track_filename( sPlaybackTrack );
-	song->set_playback_track_enabled( bPlaybackTrackEnabled );
-	song->set_playback_track_volume( fPlaybackTrackVolume );
+	pSong = new Song( sName, sAuthor, fBpm, fVolume );
+	pSong->set_metronome_volume( fMetronomeVolume );
+	pSong->set_notes( sNotes );
+	pSong->set_license( sLicense );
+	pSong->set_loop_enabled( bLoopEnabled );
+	pSong->set_mode( nMode );
+	pSong->set_humanize_time_value( fHumanizeTimeValue );
+	pSong->set_humanize_velocity_value( fHumanizeVelocityValue );
+	pSong->set_swing_factor( fSwingFactor );
+	pSong->set_playback_track_filename( sPlaybackTrack );
+	pSong->set_playback_track_enabled( bPlaybackTrackEnabled );
+	pSong->set_playback_track_volume( fPlaybackTrackVolume );
 
 	QDomNode componentListNode = songNode.firstChildElement( "componentList" );
 	if ( ( ! componentListNode.isNull()  ) ) {
@@ -658,20 +669,21 @@ Song* SongReader::readSong( const QString& filename )
 			int id = LocalFileMng::readXmlInt( componentNode, "id", -1 );			// instrument id
 			QString sName = LocalFileMng::readXmlString( componentNode, "name", "" );		// name
 			float fVolume = LocalFileMng::readXmlFloat( componentNode, "volume", 1.0 );	// volume
+			
 			DrumkitComponent* pDrumkitComponent = new DrumkitComponent( id, sName );
 			pDrumkitComponent->set_volume( fVolume );
 
-			song->get_components()->push_back(pDrumkitComponent);
+			pSong->get_components()->push_back(pDrumkitComponent);
 
 			componentNode = ( QDomNode ) componentNode.nextSiblingElement( "drumkitComponent" );
 		}
 	} else {
 		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
-		song->get_components()->push_back(pDrumkitComponent);
+		pSong->get_components()->push_back(pDrumkitComponent);
 	}
 
 	//  Instrument List
-	InstrumentList* instrumentList = new InstrumentList();
+	InstrumentList* pInstrList = new InstrumentList();
 
 	QDomNode instrumentListNode = songNode.firstChildElement( "instrumentList" );
 	if ( ( ! instrumentListNode.isNull()  ) ) {
@@ -775,7 +787,7 @@ Song* SongReader::readSong( const QString& filename )
 					sFilename = drumkitPath + "/" + sFilename;
 				}
 				Sample* pSample = Sample::load( sFilename );
-				if ( pSample == NULL ) {
+				if ( pSample == nullptr ) {
 					// nel passaggio tra 0.8.2 e 0.9.0 il drumkit di default e' cambiato.
 					// Se fallisce provo a caricare il corrispettivo file in formato flac
 //					warningLog( "[readSong] Error loading sample: " + sFilename + " not found. Trying to load a flac..." );
@@ -783,7 +795,7 @@ Song* SongReader::readSong( const QString& filename )
 					sFilename += ".flac";
 					pSample = Sample::load( sFilename );
 				}
-				if ( pSample == NULL ) {
+				if ( pSample == nullptr ) {
 					ERRORLOG( "Error loading sample: " + sFilename + " not found" );
 					pInstrument->set_muted( true );
 				}
@@ -794,10 +806,10 @@ Song* SongReader::readSong( const QString& filename )
 			}
 			//~ back compatibility code
 			else {
-				bool p_foundAtLeastOneComponent = false;
+				bool bFoundAtLeastOneComponent = false;
 				QDomNode componentNode = instrumentNode.firstChildElement( "instrumentComponent" );
 				while (  ! componentNode.isNull()  ) {
-					p_foundAtLeastOneComponent = true;
+					bFoundAtLeastOneComponent = true;
 					int id = LocalFileMng::readXmlInt( componentNode, "component_id", 0 );
 					InstrumentComponent* pCompo = new InstrumentComponent( id );
 					float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
@@ -807,7 +819,7 @@ Song* SongReader::readSong( const QString& filename )
 					QDomNode layerNode = componentNode.firstChildElement( "layer" );
 					while (  ! layerNode.isNull()  ) {
 						if ( nLayer >= InstrumentComponent::getMaxLayers() ) {
-							ERRORLOG( QString( "nLayer (%1) > maxLayers (%2)" ).arg ( nLayer ).arg( InstrumentComponent::getMaxLayers() ) );
+							ERRORLOG( QString( "nLayer (%1) > m_nMaxLayers (%2)" ).arg ( nLayer ).arg( InstrumentComponent::getMaxLayers() ) );
 							continue;
 						}
 						//bool sIsModified = false;
@@ -840,18 +852,20 @@ Song* SongReader::readSong( const QString& filename )
 							ro.use = false;
 						}
 
-						Sample* pSample = NULL;
+						Sample* pSample = nullptr;
 						if ( !sIsModified ) {
 							pSample = Sample::load( sFilename );
 						} else {
-							Sample::EnvelopePoint pt;
+							EnvelopePoint pt;
+							int Frame = 0;
+							int Value = 0;
 
 							Sample::VelocityEnvelope velocity;
 							QDomNode volumeNode = layerNode.firstChildElement( "volume" );
 							while (  ! volumeNode.isNull()  ) {
-								pt.frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
-								pt.value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
-								velocity.push_back( pt );
+								Frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
+								Value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
+								velocity.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
 								volumeNode = volumeNode.nextSiblingElement( "volume" );
 								//ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
 							}
@@ -859,15 +873,15 @@ Song* SongReader::readSong( const QString& filename )
 							Sample::VelocityEnvelope pan;
 							QDomNode  panNode = layerNode.firstChildElement( "pan" );
 							while (  ! panNode.isNull()  ) {
-								pt.frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
-								pt.value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
-								pan.push_back( pt );
+								Frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
+								Value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
+								pan.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 
 							pSample = Sample::load( sFilename, lo, ro, velocity, pan );
 						}
-						if ( pSample == NULL ) {
+						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
 							pInstrument->set_muted( true );
 						}
@@ -885,7 +899,7 @@ Song* SongReader::readSong( const QString& filename )
 					pInstrument->get_components()->push_back( pCompo );
 					componentNode = ( QDomNode ) componentNode.nextSiblingElement( "instrumentComponent" );
 				}
-				if(!p_foundAtLeastOneComponent) {
+				if(!bFoundAtLeastOneComponent) {
 					InstrumentComponent* pCompo = new InstrumentComponent( 0 );
 					float fGainCompo = LocalFileMng::readXmlFloat( componentNode, "gain", 1.0 );
 					pCompo->set_gain( fGainCompo );
@@ -894,7 +908,7 @@ Song* SongReader::readSong( const QString& filename )
 					QDomNode layerNode = instrumentNode.firstChildElement( "layer" );
 					while (  ! layerNode.isNull()  ) {
 						if ( nLayer >= InstrumentComponent::getMaxLayers() ) {
-							ERRORLOG( QString( "nLayer (%1) > maxLayers (%2)" ).arg ( nLayer ).arg( InstrumentComponent::getMaxLayers() ) );
+							ERRORLOG( QString( "nLayer (%1) > m_nMaxLayers (%2)" ).arg ( nLayer ).arg( InstrumentComponent::getMaxLayers() ) );
 							continue;
 						}
 						QString sFilename = LocalFileMng::readXmlString( layerNode, "filename", "" );
@@ -926,18 +940,19 @@ Song* SongReader::readSong( const QString& filename )
 							ro.use = false;
 						}
 
-						Sample* pSample = NULL;
+						Sample* pSample = nullptr;
 						if ( !sIsModified ) {
 							pSample = Sample::load( sFilename );
 						} else {
-							Sample::EnvelopePoint pt;
+							int Frame = 0;
+							int Value = 0;
 
 							Sample::VelocityEnvelope velocity;
 							QDomNode volumeNode = layerNode.firstChildElement( "volume" );
 							while (  ! volumeNode.isNull()  ) {
-								pt.frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
-								pt.value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
-								velocity.push_back( pt );
+								Frame = LocalFileMng::readXmlInt( volumeNode, "volume-position", 0 );
+								Value = LocalFileMng::readXmlInt( volumeNode, "volume-value", 0 );
+								velocity.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
 								volumeNode = volumeNode.nextSiblingElement( "volume" );
 								//ERRORLOG( QString("volume-posi %1").arg(LocalFileMng::readXmlInt( volumeNode, "volume-position", 0)) );
 							}
@@ -945,15 +960,15 @@ Song* SongReader::readSong( const QString& filename )
 							Sample::VelocityEnvelope pan;
 							QDomNode  panNode = layerNode.firstChildElement( "pan" );
 							while (  ! panNode.isNull()  ) {
-								pt.frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
-								pt.value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
-								pan.push_back( pt );
+								Frame = LocalFileMng::readXmlInt( panNode, "pan-position", 0 );
+								Value = LocalFileMng::readXmlInt( panNode, "pan-value", 0 );
+								pan.push_back( std::make_unique<EnvelopePoint>(Frame, Value) );
 								panNode = panNode.nextSiblingElement( "pan" );
 							}
 
 							pSample = Sample::load( sFilename, lo, ro, velocity, pan );
 						}
-						if ( pSample == NULL ) {
+						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
 							pInstrument->set_muted( true );
 						}
@@ -970,7 +985,7 @@ Song* SongReader::readSong( const QString& filename )
 					pInstrument->get_components()->push_back( pCompo );
 				}
 			}
-			instrumentList->add( pInstrument );
+			pInstrList->add( pInstrument );
 			instrumentNode = ( QDomNode ) instrumentNode.nextSiblingElement( "instrument" );
 		}
 
@@ -978,37 +993,37 @@ Song* SongReader::readSong( const QString& filename )
 			WARNINGLOG( "0 instruments?" );
 		}
 
-		song->set_instrument_list( instrumentList );
+		pSong->set_instrument_list( pInstrList );
 	} else {
 		ERRORLOG( "Error reading song: instrumentList node not found" );
-		delete song;
-		return NULL;
+		delete pSong;
+		return nullptr;
 	}
 
 	// Pattern list
 	QDomNode patterns = songNode.firstChildElement( "patternList" );
 
-	PatternList* patternList = new PatternList();
+	PatternList* pPatternList = new PatternList();
 	int pattern_count = 0;
 
 	QDomNode patternNode =  patterns.firstChildElement( "pattern" );
 	while (  !patternNode.isNull()  ) {
 		pattern_count++;
-		Pattern* pat = getPattern( patternNode, instrumentList );
-		if ( pat ) {
-			patternList->add( pat );
+		Pattern* pPattern = getPattern( patternNode, pInstrList );
+		if ( pPattern ) {
+			pPatternList->add( pPattern );
 		} else {
 			ERRORLOG( "Error loading pattern" );
-			delete patternList;
-			delete song;
-			return NULL;
+			delete pPatternList;
+			delete pSong;
+			return nullptr;
 		}
 		patternNode = ( QDomNode ) patternNode.nextSiblingElement( "pattern" );
 	}
 	if ( pattern_count == 0 ) {
 		WARNINGLOG( "0 patterns?" );
 	}
-	song->set_pattern_list( patternList );
+	pSong->set_pattern_list( pPatternList );
 
 	// Virtual Patterns
 	QDomNode  virtualPatternListNode = songNode.firstChildElement( "virtualPatternList" );
@@ -1019,25 +1034,25 @@ Song* SongReader::readSong( const QString& filename )
 			QString sName = "";
 			sName = LocalFileMng::readXmlString( virtualPatternNode, "name", sName );
 
-			Pattern* curPattern = NULL;
-			unsigned nPatterns = patternList->size();
+			Pattern* pCurPattern = nullptr;
+			unsigned nPatterns = pPatternList->size();
 			for ( unsigned i = 0; i < nPatterns; i++ ) {
-				Pattern* pat = patternList->get( i );
+				Pattern* pPattern = pPatternList->get( i );
 
-				if ( pat->get_name() == sName ) {
-					curPattern = pat;
+				if ( pPattern->get_name() == sName ) {
+					pCurPattern = pPattern;
 					break;
 				}//if
 			}//for
 
-			if ( curPattern != NULL ) {
+			if ( pCurPattern != nullptr ) {
 				QDomNode  virtualNode = virtualPatternNode.firstChildElement( "virtual" );
 				while (  !virtualNode.isNull()  ) {
 					QString virtName = virtualNode.firstChild().nodeValue();
 
-					Pattern* virtPattern = NULL;
+					Pattern* virtPattern = nullptr;
 					for ( unsigned i = 0; i < nPatterns; i++ ) {
-						Pattern* pat = patternList->get( i );
+						Pattern* pat = pPatternList->get( i );
 
 						if ( pat->get_name() == virtName ) {
 							virtPattern = pat;
@@ -1045,8 +1060,8 @@ Song* SongReader::readSong( const QString& filename )
 						}//if
 					}//for
 
-					if ( virtPattern != NULL ) {
-						curPattern->virtual_patterns_add( virtPattern );
+					if ( virtPattern != nullptr ) {
+						pCurPattern->virtual_patterns_add( virtPattern );
 					} else {
 						ERRORLOG( "Song had invalid virtual pattern list data (virtual)" );
 					}//if
@@ -1059,7 +1074,7 @@ Song* SongReader::readSong( const QString& filename )
 		}//while
 	}//if
 
-	patternList->flattened_virtual_patterns_compute();
+	pPatternList->flattened_virtual_patterns_compute();
 
 	// Pattern sequence
 	QDomNode patternSequenceNode = songNode.firstChildElement( "patternSequence" );
@@ -1074,22 +1089,22 @@ Song* SongReader::readSong( const QString& filename )
 		QString patId = pPatternIDNode.firstChildElement().text();
 		ERRORLOG( patId );
 
-		Pattern* pat = NULL;
-		for ( unsigned i = 0; i < patternList->size(); i++ ) {
-			Pattern* tmp = patternList->get( i );
-			if ( tmp ) {
-				if ( tmp->get_name() == patId ) {
-					pat = tmp;
+		Pattern* pPattern = nullptr;
+		for ( unsigned i = 0; i < pPatternList->size(); i++ ) {
+			Pattern* pTmpPattern = pPatternList->get( i );
+			if ( pTmpPattern ) {
+				if ( pTmpPattern->get_name() == patId ) {
+					pPattern = pTmpPattern;
 					break;
 				}
 			}
 		}
-		if ( pat == NULL ) {
+		if ( pPattern == nullptr ) {
 			WARNINGLOG( "patternid not found in patternSequence" );
 			pPatternIDNode = ( QDomNode ) pPatternIDNode.nextSiblingElement( "patternID" );
 			continue;
 		}
-		patternSequence->add( pat );
+		patternSequence->add( pPattern );
 
 		pPatternGroupVector->push_back( patternSequence );
 
@@ -1103,22 +1118,22 @@ Song* SongReader::readSong( const QString& filename )
 		while (  !patternId.isNull()  ) {
 			QString patId = patternId.firstChild().nodeValue();
 
-			Pattern* pat = NULL;
-			for ( unsigned i = 0; i < patternList->size(); i++ ) {
-				Pattern* tmp = patternList->get( i );
-				if ( tmp ) {
-					if ( tmp->get_name() == patId ) {
-						pat = tmp;
+			Pattern* pPattern = nullptr;
+			for ( unsigned i = 0; i < pPatternList->size(); i++ ) {
+				Pattern* pTmpPattern = pPatternList->get( i );
+				if ( pTmpPattern ) {
+					if ( pTmpPattern->get_name() == patId ) {
+						pPattern = pTmpPattern;
 						break;
 					}
 				}
 			}
-			if ( pat == NULL ) {
+			if ( pPattern == nullptr ) {
 				WARNINGLOG( "patternid not found in patternSequence" );
 				patternId = ( QDomNode ) patternId.nextSiblingElement( "patternID" );
 				continue;
 			}
-			patternSequence->add( pat );
+			patternSequence->add( pPattern );
 			patternId = ( QDomNode ) patternId.nextSiblingElement( "patternID" );
 		}
 		pPatternGroupVector->push_back( patternSequence );
@@ -1126,14 +1141,14 @@ Song* SongReader::readSong( const QString& filename )
 		groupNode = groupNode.nextSiblingElement( "group" );
 	}
 
-	song->set_pattern_group_vector( pPatternGroupVector );
+	pSong->set_pattern_group_vector( pPatternGroupVector );
 
 #ifdef H2CORE_HAVE_LADSPA
 	// reset FX
 	for ( int fx = 0; fx < MAX_FX; ++fx ) {
 		//LadspaFX* pFX = Effects::get_instance()->getLadspaFX( fx );
 		//delete pFX;
-		Effects::get_instance()->setLadspaFX( NULL, fx );
+		Effects::get_instance()->setLadspaFX( nullptr, fx );
 	}
 #endif
 
@@ -1222,9 +1237,9 @@ Song* SongReader::readSong( const QString& filename )
 			QString sAdjust = pathNode.attribute( "adjust" );
 
 			// Select automation path to be read based on "adjust" attribute
-			AutomationPath *pPath = NULL;
+			AutomationPath *pPath = nullptr;
 			if (sAdjust == "velocity") {
-				pPath = song->get_velocity_automation_path();
+				pPath = pSong->get_velocity_automation_path();
 			}
 
 			if (pPath) {
@@ -1235,15 +1250,15 @@ Song* SongReader::readSong( const QString& filename )
 		}
 	}
 
-	song->set_is_modified( false );
-	song->set_filename( FileName );
+	pSong->set_is_modified( false );
+	pSong->set_filename( FileName );
 
-	return song;
+	return pSong;
 }
 
 Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 {
-	Pattern* pPattern = NULL;
+	Pattern* pPattern = nullptr;
 
 	QString sName;	// name
 	sName = LocalFileMng::readXmlString( pattern, "name", sName );
@@ -1263,7 +1278,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 		QDomNode noteNode = pNoteListNode.firstChildElement( "note" );
 		while ( ! noteNode.isNull()  ) {
 
-			Note* pNote = NULL;
+			Note* pNote = nullptr;
 
 			unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
 			float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0, false, false );
@@ -1278,20 +1293,21 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 
 			int instrId = LocalFileMng::readXmlInt( noteNode, "instrument", -1 );
 
-			Instrument* instrRef = NULL;
+			Instrument* pInstrumentRef = nullptr;
 			// search instrument by ref
-			instrRef = instrList->find( instrId );
-			if ( !instrRef ) {
+			pInstrumentRef = instrList->find( instrId );
+			if ( !pInstrumentRef ) {
 				ERRORLOG( QString( "Instrument with ID: '%1' not found. Note skipped." ).arg( instrId ) );
 				noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );
 				continue;
 			}
 			//assert( instrRef );
 			bool noteoff = false;
-			if ( nNoteOff == "true" )
+			if ( nNoteOff == "true" ) {
 				noteoff = true;
+			}
 
-			pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
+			pNote = new Note( pInstrumentRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
 			pNote->set_key_octave( sKey );
 			pNote->set_lead_lag( fLeadLag );
 			pNote->set_note_off( noteoff );
@@ -1313,7 +1329,7 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 			QDomNode noteNode = noteListNode.firstChildElement( "note" );
 			while (  !noteNode.isNull() ) {
 
-				Note* pNote = NULL;
+				Note* pNote = nullptr;
 
 				unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
 				float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0, false, false );

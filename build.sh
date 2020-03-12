@@ -111,7 +111,7 @@ if [ $# -eq 0 ]; then
     echo "   m[ake]   => launch the build process"
     echo "   mm       => launch the build process using ccache"
     echo "   d[oc]    => build html documentation"
-    echo "   g[raph]  => draw a dependecies graph"
+    echo "   g[raph]  => draw a dependencies graph"
     echo "   h[elp]   => show the build options"
     echo "   x|exec   => execute hydrogen"
     echo "   t[ests]  => execute tests"
@@ -145,6 +145,7 @@ for arg in $@; do
         p|pkg)
             cmd="cmake_pkg";;
         z)
+            CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
             cmd="zoop";;
         *)
          echo "unknown command ${arg}" && exit 1

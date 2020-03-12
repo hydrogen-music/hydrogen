@@ -29,11 +29,11 @@ SoundLibraryTree::SoundLibraryTree( QWidget *pParent )
  : QTreeWidget( pParent )
  , Object( __class_name )
 {
-	setHeaderLabels( QStringList( trUtf8( "Sound library" ) ) );
-	setAlternatingRowColors(true);
+	setHeaderLabels( QStringList( tr( "Sound library" ) ) );
+	setAlternatingRowColors( true );
 	setRootIsDecorated( false );
 
-	setItemHidden( headerItem(), true );	// hides the header
+	headerItem()->setHidden( true ); // hides the header
 
 }
 

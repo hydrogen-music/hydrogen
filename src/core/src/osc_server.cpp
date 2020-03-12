@@ -39,7 +39,7 @@
 #include "hydrogen/basics/song.h"
 #include "hydrogen/midi_action.h"
 
-OscServer * OscServer::__instance = 0;
+OscServer * OscServer::__instance = nullptr;
 const char* OscServer::__class_name = "OscServer";
 std::list<lo_address> OscServer::m_pClientRegistry;
 
@@ -239,14 +239,14 @@ int OscServer::generic_handler(const char *	path,
 		INFOLOG(QString("Argument %1: %2 %3").arg(i).arg(types[i]).arg(formattedArgument));
 	}
 	
-	
+	// Returning 1 means that the message has not been fully handled
+	// and the server should try other methods.
 	return 1;
 }
 
 
 
-OscServer::OscServer( H2Core::Preferences * pPreferences )
-	: Object( __class_name )
+OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name )
 {
 	m_pPreferences = pPreferences;
 	int port = m_pPreferences->getOscServerPort();
@@ -256,157 +256,141 @@ OscServer::OscServer( H2Core::Preferences * pPreferences )
 
 void OscServer::create_instance( H2Core::Preferences* pPreferences )
 {
-	if( __instance == 0 ) {
+	if( __instance == nullptr ) {
 		__instance = new OscServer( pPreferences );
 	}
 }
 
 void OscServer::PLAY_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("PLAY");
+	Action  currentAction("PLAY");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::PLAY_STOP_TOGGLE_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("PLAY/STOP_TOGGLE");
+	Action currentAction("PLAY/STOP_TOGGLE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::PLAY_PAUSE_TOGGLE_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("PLAY/PAUSE_TOGGLE");
+	Action currentAction("PLAY/PAUSE_TOGGLE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::STOP_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("STOP");
+	Action currentAction("STOP");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::PAUSE_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("PAUSE");
+	Action currentAction("PAUSE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::RECORD_READY_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("RECORD_READY");
+	Action currentAction("RECORD_READY");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::RECORD_STROBE_TOGGLE_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("RECORD/STROBE_TOGGLE");
+	Action currentAction("RECORD/STROBE_TOGGLE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::RECORD_STROBE_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("RECORD_STROBE");
+	Action currentAction("RECORD_STROBE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::RECORD_EXIT_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("RECORD_EXIT");
+	Action currentAction("RECORD_EXIT");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::MUTE_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("MUTE");
+	Action currentAction("MUTE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::UNMUTE_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("UNMUTE");
+	Action currentAction("UNMUTE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::MUTE_TOGGLE_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("MUTE_TOGGLE");
+	Action currentAction("MUTE_TOGGLE");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::NEXT_BAR_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action(">>_NEXT_BAR");
+	Action currentAction(">>_NEXT_BAR");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::PREVIOUS_BAR_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("<<_PREVIOUS_BAR");
+	Action currentAction("<<_PREVIOUS_BAR");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::BPM_INCR_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("BPM_INCR");
+	Action currentAction("BPM_INCR");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 	
-	pAction->setParameter1( QString::number( argv[0]->f, 'f', 0));
+	currentAction.setParameter1( QString::number( argv[0]->f, 'f', 0));
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::BPM_DECR_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("BPM_DECR");
+	Action currentAction("BPM_DECR");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pAction->setParameter1( QString::number( argv[0]->f, 'f', 0));
+	currentAction.setParameter1( QString::number( argv[0]->f, 'f', 0));
 	
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv,int i)
@@ -419,12 +403,11 @@ void OscServer::MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv,int i)
 
 void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("MASTER_VOLUME_RELATIVE");
-	pAction->setParameter2( QString::number( argv[0]->f, 'f', 0));
+	Action currentAction("MASTER_VOLUME_RELATIVE");
+	currentAction.setParameter2( QString::number( argv[0]->f, 'f', 0));
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
@@ -437,164 +420,145 @@ void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 
 void OscServer::STRIP_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("STRIP_VOLUME_RELATIVE");
-	pAction->setParameter2( QString::number( argv[0]->f, 'f', 0));
+	Action currentAction("STRIP_VOLUME_RELATIVE");
+	currentAction.setParameter2( QString::number( argv[0]->f, 'f', 0));
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
-
 
 void OscServer::SELECT_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("SELECT_NEXT_PATTERN");
-	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+	Action currentAction("SELECT_NEXT_PATTERN");
+	currentAction.setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::SELECT_NEXT_PATTERN_PROMPTLY_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("SELECT_NEXT_PATTERN_PROMPTLY");
-	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+	Action currentAction("SELECT_NEXT_PATTERN_PROMPTLY");
+	currentAction.setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("SELECT_AND_PLAY_PATTERN");
-	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+	Action currentAction("SELECT_AND_PLAY_PATTERN");
+	currentAction.setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::PAN_ABSOLUTE_Handler(QString param1, QString param2)
 {
-	Action* pAction = new Action("PAN_ABSOLUTE");
-	pAction->setParameter1( param1 );
-	pAction->setParameter2( param2 );
+	Action currentAction("PAN_ABSOLUTE");
+	currentAction.setParameter1( param1 );
+	currentAction.setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::PAN_RELATIVE_Handler(QString param1, QString param2)
 {
-	Action* pAction = new Action("PAN_RELATIVE");
-	pAction->setParameter1( param1 );
-	pAction->setParameter2( param2 );
+	Action currentAction("PAN_RELATIVE");
+	currentAction.setParameter1( param1 );
+	currentAction.setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler(QString param1, QString param2)
 {
-	Action* pAction = new Action("FILTER_CUTOFF_LEVEL_ABSOLUTE");
-	pAction->setParameter1( param1 );
-	pAction->setParameter2( param2 );
+	Action currentAction("FILTER_CUTOFF_LEVEL_ABSOLUTE");
+	currentAction.setParameter1( param1 );
+	currentAction.setParameter2( param2 );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::BEATCOUNTER_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("BEATCOUNTER");
+	Action currentAction("BEATCOUNTER");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
-
 
 void OscServer::TAP_TEMPO_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("TAP_TEMPO");
+	Action currentAction("TAP_TEMPO");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::PLAYLIST_SONG_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("PLAYLIST_SONG");
-	pAction->setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
+	Action currentAction("PLAYLIST_SONG");
+	currentAction.setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();	
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::PLAYLIST_NEXT_SONG_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("PLAYLIST_NEXT_SONG");
+	Action currentAction("PLAYLIST_NEXT_SONG");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::PLAYLIST_PREV_SONG_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("PLAYLIST_PREV_SONG");
+	Action currentAction("PLAYLIST_PREV_SONG");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::TOGGLE_METRONOME_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("TOGGLE_METRONOME");
+	Action currentAction("TOGGLE_METRONOME");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::SELECT_INSTRUMENT_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("SELECT_INSTRUMENT");
-	pAction->setParameter2(  QString::number( argv[0]->f, 'f', 0 ) );
+	Action currentAction("SELECT_INSTRUMENT");
+	currentAction.setParameter2(  QString::number( argv[0]->f, 'f', 0 ) );
 
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();	
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::UNDO_ACTION_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("UNDO_ACTION");
+	Action currentAction("UNDO_ACTION");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
 
 void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
 {
-	Action* pAction = new Action("REDO_ACTION");
+	Action currentAction("REDO_ACTION");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(pAction);
-	delete pAction;
+	pActionManager->handleAction( &currentAction );
 }
-
 
 bool IsLoAddressEqual( lo_address first, lo_address second )
 {
@@ -605,15 +569,13 @@ bool IsLoAddressEqual( lo_address first, lo_address second )
 	return portEqual && hostEqual && protoEqual;
 }
 
-
 void OscServer::handleAction( Action* pAction )
 {
-	H2Core::Preferences * pPref = H2Core::Preferences::get_instance();
+	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 	
 	if( !pPref->getOscFeedbackEnabled() ){
 		return;
 	}
-	
 	
 	if( pAction->getType() == "MASTER_VOLUME_ABSOLUTE"){
 		bool ok;
@@ -746,7 +708,7 @@ void OscServer::start()
 	 */
 
 	//This handler is responsible for registering clients
-	m_pServerThread->add_method(NULL, NULL, [&](lo_message msg){
+	m_pServerThread->add_method(nullptr, nullptr, [&](lo_message msg){
 									INFOLOG("OSC REGISTER HANDLER");
 									lo_address a = lo_message_get_source(msg);
 
@@ -771,11 +733,15 @@ void OscServer::start()
 										
 										pController->initExternalControlInterfaces();
 									}
-
+									
+									// Returning 1 means that the
+									// message has not been fully
+									// handled and the server should
+									// try other methods.
 									return 1;
 								});
 
-	m_pServerThread->add_method(NULL, NULL, generic_handler, NULL);
+	m_pServerThread->add_method(nullptr, nullptr, generic_handler, nullptr);
 
 	m_pServerThread->add_method("/Hydrogen/PLAY", "", PLAY_Handler);
 	m_pServerThread->add_method("/Hydrogen/PLAY", "f", PLAY_Handler);
@@ -870,7 +836,7 @@ OscServer::~OscServer()
 		lo_address_free( *it );
 	}
 
-	__instance = NULL;
+	__instance = nullptr;
 }
 
 

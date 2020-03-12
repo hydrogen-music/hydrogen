@@ -19,7 +19,7 @@ PROJECT(hydrogen)
 SET(VERSION_MAJOR "1")
 SET(VERSION_MINOR "0")
 SET(VERSION_PATCH "0")
-SET(VERSION_SUFFIX "beta1")
+#SET(VERSION_SUFFIX "beta1")
 
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
@@ -105,9 +105,9 @@ ELSE()
 ENDIF()
 
 IF(WANT_DEBUG)
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -std=gnu++11")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 ELSE()
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=gnu++11")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 ENDIF()
 
 IF (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -137,7 +137,6 @@ FIND_PACKAGE(Qt5XmlPatterns REQUIRED)
 FIND_PACKAGE(Qt5LinguistTools REQUIRED)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
-
 
 IF(APPLE)
     INCLUDE_DIRECTORIES("/opt/local/include")
@@ -309,7 +308,7 @@ COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}
 * ${purple}PulseAudio${reset}                   : ${PULSEAUDIO_STATUS}\n"
 )
 
-COLOR_MESSAGE("${cyan}Usefull extensions${reset}
+COLOR_MESSAGE("${cyan}Useful extensions${reset}
 -----------------------------------------
 * ${purple}LASH${reset}                         : ${LASH_STATUS}
 * ${purple}LRDF${reset}                         : ${LRDF_STATUS}
@@ -363,9 +362,9 @@ ELSE()
 	INSTALL(DIRECTORY data DESTINATION ${H2_SYS_PATH} PATTERN ".git" EXCLUDE PATTERN "i18n" EXCLUDE PATTERN doc EXCLUDE)
 ENDIF()
 IF(NOT MINGW AND NOT APPLE)
-	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/appdata")
-	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.desktop DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
-	INSTALL(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/pixmaps")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/appdata")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.desktop DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/icons/hicolor/scalable/apps/org.hydrogenmusic.Hydrogen.svg")
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.1 DESTINATION "${CMAKE_INSTALL_MANDIR}/man1")
 ENDIF()
 

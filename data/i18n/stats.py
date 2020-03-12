@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+## Python script checking the coverage of the translation files.
+
+import os
+import re
 from xml.dom import minidom, Node
 
 
@@ -40,25 +44,11 @@ def parse_ts(filename):
 	completed = (total - obsolete) - unfinished
 	perc = 100.0 / (total - obsolete) * completed
 	
-	print "|| %s\t|| [%d/%d]\t|| %d%%\t||" % (filename, completed, total - obsolete, perc)
+	print( "|| %s\t|| [%d/%d]\t|| %d%%\t||" % (filename, completed, total - obsolete, perc))
 
-
-
-parse_ts("hydrogen.cs.ts")
-parse_ts("hydrogen.de.ts")
-parse_ts("hydrogen.ca.ts")
-parse_ts("hydrogen.fr.ts")
-parse_ts("hydrogen.it.ts")
-parse_ts("hydrogen.nl.ts")
-parse_ts("hydrogen.pt_BR.ts")
-parse_ts("hydrogen.sv.ts")
-parse_ts("hydrogen.es.ts")
-parse_ts("hydrogen.hu_HU.ts")
-parse_ts("hydrogen.ja.ts")
-parse_ts("hydrogen.pl.ts")
-parse_ts("hydrogen.ru.ts")
-parse_ts("hydrogen.hr.ts")
-parse_ts("hydrogen.el.ts")
-parse_ts("hydrogen.gl.ts")
-parse_ts("hydrogen.sr.ts")
-parse_ts("hydrogen.uk.ts")
+## Loop over all files in the current directory
+patternTs = re.compile(r'(.*?)(\.ts)$')
+for ffile in os.listdir(os.getcwd()):
+        match = patternTs.match(ffile)
+        if match != None:
+                parse_ts(ffile)

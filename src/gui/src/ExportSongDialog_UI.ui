@@ -324,7 +324,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Choose type of interpolation methode</string>
+          <string>Choose type of interpolation method</string>
          </property>
          <item>
           <property name="text">
