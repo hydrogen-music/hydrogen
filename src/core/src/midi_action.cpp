@@ -548,50 +548,50 @@ bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pEngine, target
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pan_param = pAction->getParameter2().toInt(&ok,10);
 
-
-	float pan_L;
-	float pan_R;
-
-	pEngine->setSelectedInstrumentNumber( nLine );
 	Song *song = pEngine->getSong();
 	InstrumentList *instrList = song->get_instrument_list();
-
-	Instrument *instr = instrList->get( nLine );
-
-	if( instr == nullptr ) {
-		return false;
+	
+	if(instrList->is_valid_index( nLine ))
+	{
+		float pan_L;
+		float pan_R;
+	
+		pEngine->setSelectedInstrumentNumber( nLine );
+	
+		Instrument *instr = instrList->get( nLine );
+	
+		if( instr == nullptr ) {
+			return false;
+		}
+	
+		pan_L = instr->get_pan_l();
+		pan_R = instr->get_pan_r();
+	
+		// pan
+		float fPanValue = 0.0;
+		if (pan_R == 1.0) {
+			fPanValue = 1.0 - (pan_L / 2.0);
+		}
+		else {
+			fPanValue = pan_R / 2.0;
+		}
+	
+		fPanValue = 1 * ( ((float) pan_param) / 127.0 );
+	
+		if (fPanValue >= 0.5) {
+			pan_L = (1.0 - fPanValue) * 2;
+			pan_R = 1.0;
+		}
+		else {
+			pan_L = 1.0;
+			pan_R = fPanValue * 2;
+		}
+	
+		instr->set_pan_l( pan_L );
+		instr->set_pan_r( pan_R );
+	
+		pEngine->setSelectedInstrumentNumber(nLine);
 	}
-
-	pan_L = instr->get_pan_l();
-	pan_R = instr->get_pan_r();
-
-	// pan
-	float fPanValue = 0.0;
-	if (pan_R == 1.0) {
-		fPanValue = 1.0 - (pan_L / 2.0);
-	}
-	else {
-		fPanValue = pan_R / 2.0;
-	}
-
-
-	fPanValue = 1 * ( ((float) pan_param) / 127.0 );
-
-
-	if (fPanValue >= 0.5) {
-		pan_L = (1.0 - fPanValue) * 2;
-		pan_R = 1.0;
-	}
-	else {
-		pan_L = 1.0;
-		pan_R = fPanValue * 2;
-	}
-
-
-	instr->set_pan_l( pan_L );
-	instr->set_pan_r( pan_R );
-
-	pEngine->setSelectedInstrumentNumber(nLine);
 
 	return true;
 }

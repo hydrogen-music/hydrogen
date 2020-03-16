@@ -94,7 +94,8 @@ void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
 
 }
 
-void CoreActionController::setMetronomeIsActive( bool isActive ){
+void CoreActionController::setMetronomeIsActive( bool isActive )
+{
 	Preferences::get_instance()->m_bUseMetronome = isActive;
 	
 #ifdef H2CORE_HAVE_OSC
@@ -111,7 +112,8 @@ void CoreActionController::setMetronomeIsActive( bool isActive ){
 	handleOutgoingControlChange( ccParamValue, (int) isActive * 127 );
 }
 
-void CoreActionController::setMasterIsMuted( bool isMuted ){
+void CoreActionController::setMasterIsMuted( bool isMuted )
+{
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	pEngine->getSong()->__is_muted = isMuted;
 	
@@ -129,7 +131,8 @@ void CoreActionController::setMasterIsMuted( bool isMuted ){
 	handleOutgoingControlChange( ccParamValue, (int) isMuted * 127 );
 }
 
-void CoreActionController::setStripIsMuted( int nStrip, bool isMuted ){
+void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
+{
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
@@ -152,7 +155,8 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted ){
 	handleOutgoingControlChange( ccParamValue, ((int) isMuted) * 127 );
 }
 
-void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed ){
+void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
+{
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();

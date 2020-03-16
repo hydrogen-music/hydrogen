@@ -133,9 +133,20 @@ Instrument* InstrumentList::operator[]( int idx )
 	return __instruments[idx];
 }
 
+bool InstrumentList::is_valid_index( int idx ) const
+{
+	bool is_valid_index = true;
+	
+	if ( idx < 0 || idx >= __instruments.size() ) {
+		is_valid_index = false;
+	}
+	
+	return is_valid_index;
+}
+
 Instrument* InstrumentList::get( int idx )
 {
-	if ( idx < 0 || idx >= __instruments.size() ) {
+	if ( !is_valid_index( idx ) ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
 		return nullptr;
 	}
