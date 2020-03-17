@@ -201,7 +201,7 @@
     </message>
     <message>
         <source>Unable to load that sample file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossible de charger ce fichier échantillon.</translation>
     </message>
 </context>
 <context>
