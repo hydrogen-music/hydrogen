@@ -252,7 +252,23 @@ void PortMidiDriver::close()
 	}
 }
 
+std::vector<QString> PortMidiDriver::getInputPortList()
+{
+	std::vector<QString> portList;
 
+	int nDevices = Pm_CountDevices();
+	for ( int i = 0; i < nDevices; i++ ) {
+		const PmDeviceInfo *pInfo = Pm_GetDeviceInfo( i );
+		if ( pInfo == nullptr ) {
+			ERRORLOG( "Could not open output device" );
+		} else if ( pInfo->output == TRUE ) {
+			INFOLOG( pInfo->name );
+			portList.push_back( pInfo->name );
+		}
+	}
+
+	return portList;
+}
 
 std::vector<QString> PortMidiDriver::getOutputPortList()
 {

@@ -110,16 +110,17 @@ void* alsaMidiDriver_thread( void* param )
 #endif
 
 
-	int m_local_addr_port = portId;
+	int m_local_addr_inport = portId;
+	int m_local_addr_outport = outPortId;	
 	int m_local_addr_client = clientId;
 
 	QString sPortName = Preferences::get_instance()->m_sMidiPortName;
 	int m_dest_addr_port = -1;
 	int m_dest_addr_client = -1;
 	pDriver->getPortInfo( sPortName, m_dest_addr_client, m_dest_addr_port );
-	__INFOLOG( "MIDI port name: "  + sPortName );
-	__INFOLOG( QString( "MIDI addr client: %1").arg( m_dest_addr_client ) );
-	__INFOLOG( QString( "MIDI addr port: %1").arg( m_dest_addr_port ) );
+	__INFOLOG( "MIDI input port name: "  + sPortName );
+	__INFOLOG( QString( "MIDI input addr client: %1").arg( m_dest_addr_client ) );
+	__INFOLOG( QString( "MIDI input addr port: %1").arg( m_dest_addr_port ) );
 
 	if ( ( m_dest_addr_port != -1 ) && ( m_dest_addr_client != -1 ) ) {
 		snd_seq_port_subscribe_t *subs;
@@ -129,7 +130,7 @@ void* alsaMidiDriver_thread( void* param )
 		sender.client = m_dest_addr_client;
 		sender.port = m_dest_addr_port;
 		dest.client = m_local_addr_client;
-		dest.port = m_local_addr_port;
+		dest.port = m_local_addr_inport;
 
 		/* set in and out ports */
 		snd_seq_port_subscribe_set_sender( subs, &sender );
@@ -143,6 +144,39 @@ void* alsaMidiDriver_thread( void* param )
 	}
 
 	__INFOLOG( QString( "Midi input port at %1:%2" ).arg( clientId ).arg( portId ) );
+	
+	//Connect output port to predefined output
+	sPortName = Preferences::get_instance()->m_sMidiOutputPortName;
+	m_dest_addr_port = -1;
+	m_dest_addr_client = -1;
+	pDriver->getPortInfo( sPortName, m_dest_addr_client, m_dest_addr_port );
+	__INFOLOG( "MIDI output port name: "  + sPortName );
+	__INFOLOG( QString( "MIDI output addr client: %1").arg( m_dest_addr_client ) );
+	__INFOLOG( QString( "MIDI output addr port: %1").arg( m_dest_addr_port ) );
+
+	if ( ( m_dest_addr_port != -1 ) && ( m_dest_addr_client != -1 ) ) {
+		snd_seq_port_subscribe_t *subs;
+		snd_seq_port_subscribe_alloca( &subs );
+		snd_seq_addr_t sender, dest;
+
+		sender.client = m_local_addr_client;
+		sender.port = m_local_addr_outport;
+		dest.client = m_dest_addr_client;
+		dest.port = m_dest_addr_port;
+
+		/* set in and out ports */
+		snd_seq_port_subscribe_set_sender( subs, &sender );
+		snd_seq_port_subscribe_set_dest( subs, &dest );
+
+		/* subscribe */
+		int ret = snd_seq_subscribe_port( seq_handle, subs );
+		if ( ret < 0 ) {
+			__ERRORLOG( QString( "snd_seq_subscribe_port(%1:%2) error" ).arg( m_dest_addr_client ).arg( m_dest_addr_port ) );
+		}
+	}
+	
+	__INFOLOG( QString( "Midi output port at %1:%2" ).arg( clientId ).arg( outPortId ) );
+	
 
 	npfd = snd_seq_poll_descriptors_count( seq_handle, POLLIN );
 	pfd = ( struct pollfd* )alloca( npfd * sizeof( struct pollfd ) );
@@ -331,7 +365,53 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 	} while ( snd_seq_event_input_pending( seq_handle, 0 ) > 0 );
 }
 
+std::vector<QString> AlsaMidiDriver::getInputPortList()
+{
+	vector<QString> inputList;
 
+	if ( seq_handle == nullptr ) {
+		return inputList;
+	}
+
+	snd_seq_client_info_t *cinfo;	// client info
+	snd_seq_port_info_t *pinfo;	// port info
+
+	snd_seq_client_info_alloca( &cinfo );
+	snd_seq_client_info_set_client( cinfo, -1 );
+
+	/* while the next client one the sequencer is available */
+	while ( snd_seq_query_next_client( seq_handle, cinfo ) >= 0 ) {
+		// get client from cinfo
+		int client = snd_seq_client_info_get_client( cinfo );
+
+		// fill pinfo
+		snd_seq_port_info_alloca( &pinfo );
+		snd_seq_port_info_set_client( pinfo, client );
+		snd_seq_port_info_set_port( pinfo, -1 );
+
+		// while the next port is available
+		while ( snd_seq_query_next_port( seq_handle, pinfo ) >= 0 ) {
+
+			/* get its capability */
+			int cap =  snd_seq_port_info_get_capability( pinfo );
+
+			if ( snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo ) && snd_seq_port_info_get_client( pinfo ) != 0 ) {
+				// output ports
+				if  (
+					( cap & SND_SEQ_PORT_CAP_SUBS_WRITE ) != 0 &&
+					snd_seq_client_id( seq_handle ) != snd_seq_port_info_get_client( pinfo )
+				) {
+					INFOLOG( snd_seq_port_info_get_name( pinfo ) );
+					inputList.push_back( snd_seq_port_info_get_name( pinfo ) );
+					//info.m_nClient = snd_seq_port_info_get_client(pinfo);
+					//info.m_nPort = snd_seq_port_info_get_port(pinfo);
+				}
+			}
+		}
+	}
+
+	return inputList;
+}
 
 
 std::vector<QString> AlsaMidiDriver::getOutputPortList()

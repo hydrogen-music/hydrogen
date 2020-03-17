@@ -200,7 +200,41 @@ void CoreMidiDriver::close()
 	err = MIDIClientDispose( h2MIDIClient );
 }
 
+std::vector<QString> CoreMidiDriver::getInputPortList()
+{
+	INFOLOG( "retrieving output list" );
+	OSStatus err = noErr;
 
+	std::vector<QString> cmPortList;
+	
+	/*
+	cmSources = MIDIGetNumberOfSources();
+
+	INFOLOG ( "Getting number of MIDI sources . . .\n" );
+
+	unsigned i;
+	for ( i = 0; i < cmSources; i++ ) {
+		CFStringRef H2MidiNames;
+		cmH2Src = MIDIGetSource( i );
+		if ( cmH2Src == NULL ) {
+			ERRORLOG( "Could not open input device" );
+		}
+		if ( cmH2Src ) {
+			err = MIDIObjectGetStringProperty( cmH2Src, kMIDIPropertyName, &H2MidiNames );
+			INFOLOG ( "Getting MIDI object string property . . .\n" );
+			char cmName[ 64 ];
+			CFStringGetCString( H2MidiNames, cmName, 64, kCFStringEncodingASCII );
+			INFOLOG ( "Getting MIDI object name . . .\n" );
+			QString h2MidiPortName = cmName;
+			cmPortList.push_back( h2MidiPortName );
+		}
+		CFRelease( H2MidiNames );
+	}
+	
+	*/
+
+	return cmPortList;
+}
 
 std::vector<QString> CoreMidiDriver::getOutputPortList()
 {
