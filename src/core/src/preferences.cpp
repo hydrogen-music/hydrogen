@@ -150,6 +150,7 @@ Preferences::Preferences()
 	//___ MIDI Driver properties
 	m_sMidiDriver = QString("ALSA");
 	m_sMidiPortName = QString("None");
+	m_sMidiOutputPortName = QString("None");
 	m_nMidiChannelFilter = -1;
 	m_bMidiNoteOffIgnore = false;
 	m_bMidiFixedMapping = false;
