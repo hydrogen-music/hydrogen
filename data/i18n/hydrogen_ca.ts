@@ -200,6 +200,10 @@
         <source>Sample length:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Unable to load that sample file.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AudioFileBrowser_UI</name>
