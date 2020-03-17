@@ -254,8 +254,8 @@ bool MidiActionManager::play_stop_pause_toggle(Action * pAction, Hydrogen* pEngi
 	return true;
 }
 
+//mutes the master, not a single strip
 bool MidiActionManager::mute(Action * , Hydrogen* pEngine, targeted_element ) {
-	//mutes the master, not a single strip
 	pEngine->getCoreActionController()->setMasterIsMuted( true );
 	return true;
 }
@@ -273,37 +273,51 @@ bool MidiActionManager::mute_toggle(Action * , Hydrogen* pEngine, targeted_eleme
 bool MidiActionManager::strip_mute_toggle(Action * pAction, Hydrogen* pEngine, targeted_element ) {
 	
 	bool ok;
+	bool bSucccess = true;
+	
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 
 	Song *pSong = pEngine->getSong();
-	InstrumentList *instrList = pSong->get_instrument_list();
-
-	Instrument *pInstr = instrList->get( nLine );
-
-	if ( pInstr == nullptr) {
-		return false;
-	}
+	InstrumentList *pInstrList = pSong->get_instrument_list();
 	
-	pEngine->getCoreActionController()->setStripIsMuted( nLine, !pInstr->is_muted() );
-	return true;
+	if ( pInstrList->is_valid_index( nLine ) ) {
+		Instrument *pInstr = pInstrList->get( nLine );
+		
+		if ( pInstr ) {
+			pEngine->getCoreActionController()->setStripIsMuted( nLine, !pInstr->is_muted() );
+		} else {
+			bSucccess = false;
+		}
+	} else {
+		bSucccess = false;
+	}
+
+	return bSucccess;
 }
 
 bool MidiActionManager::strip_solo_toggle(Action * pAction, Hydrogen* pEngine, targeted_element ) {
 	
 	bool ok;
+	bool bSucccess = true;
+	
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 
 	Song *pSong = pEngine->getSong();
-	InstrumentList *instrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
 
-	Instrument *pInstr = instrList->get( nLine );
-
-	if ( pInstr == nullptr) {
-		return false;
+	if ( pInstrList->is_valid_index( nLine ) ) {
+		Instrument *pInstr = pInstrList->get( nLine );
+		
+		if ( pInstr ) {
+			pEngine->getCoreActionController()->setStripIsSoloed( nLine, !pInstr->is_soloed() );
+		} else {
+			bSucccess = false;
+		}
+	} else {
+		bSucccess = false;
 	}
 	
-	pEngine->getCoreActionController()->setStripIsSoloed( nLine, !pInstr->is_soloed() );
-	return true;
+	return bSucccess;
 }
 
 bool MidiActionManager::beatcounter(Action * , Hydrogen* pEngine, targeted_element ) {
@@ -332,18 +346,18 @@ bool MidiActionManager::select_next_pattern(Action * pAction, Hydrogen* pEngine,
 }
 
 bool MidiActionManager::select_only_next_pattern(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-  bool ok;
-  int row = pAction->getParameter1().toInt(&ok,10);
+	bool ok;
+	int row = pAction->getParameter1().toInt(&ok,10);
 	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
 		return false;
 	}
-  if(Preferences::get_instance()->patternModePlaysSelected())
-  {
-    return true;
-  }
- 
-  pEngine->sequencer_setOnlyNextPattern( row );
-  return true; 
+	if(Preferences::get_instance()->patternModePlaysSelected())
+	{
+		return true;
+	}
+	
+	pEngine->sequencer_setOnlyNextPattern( row );
+	return true; 
 }
 
 bool MidiActionManager::select_next_pattern_relative(Action * pAction, Hydrogen* pEngine, targeted_element ) {
@@ -363,23 +377,27 @@ bool MidiActionManager::select_next_pattern_relative(Action * pAction, Hydrogen*
 bool MidiActionManager::select_next_pattern_cc_absolute(Action * pAction, Hydrogen* pEngine, targeted_element ) {
 	bool ok;
 	int row = pAction->getParameter2().toInt(&ok,10);
+	
 	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
 		return false;
 	}
+	
 	if(Preferences::get_instance()->patternModePlaysSelected()) {
 		pEngine->setSelectedPatternNumber( row );
 	}
 	else {
 		return true;// only usefully in normal pattern mode
 	}
+	
 	return true;
 }
 
+// obsolete, use SELECT_NEXT_PATTERN_CC_ABSOLUT instead
 bool MidiActionManager::select_next_pattern_promptly(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	// obsolete, use SELECT_NEXT_PATTERN_CC_ABSOLUT instead
 	bool ok;
 	int row = pAction->getParameter2().toInt(&ok,10);
 	pEngine->setSelectedPatternNumberWithoutGuiEvent( row );
+	
 	return true;
 }
 
@@ -400,36 +418,43 @@ bool MidiActionManager::select_and_play_pattern(Action * pAction, Hydrogen* pEng
 bool MidiActionManager::select_instrument(Action * pAction, Hydrogen* pEngine, targeted_element ) {
 	bool ok;
 	int  instrument_number = pAction->getParameter2().toInt(&ok,10) ;
+	
 	if ( pEngine->getSong()->get_instrument_list()->size() < instrument_number ) {
 		instrument_number = pEngine->getSong()->get_instrument_list()->size() -1;
 	}
+	
 	pEngine->setSelectedInstrumentNumber( instrument_number );
 	return true;
 }
 
 bool MidiActionManager::effect_level_absolute(Action * pAction, Hydrogen* pEngine, targeted_element nEffect) {
 	bool ok;
+	bool bSuccess = true;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int fx_param = pAction->getParameter2().toInt(&ok,10);
 
-	pEngine->setSelectedInstrumentNumber( nLine );
-
-	Song *song = pEngine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
-	Instrument *instr = instrList->get( nLine );
-	if ( instr == nullptr)  {
-		return false;
+	Song *pSong = pEngine->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+	
+	if ( pInstrList->is_valid_index( nLine) )
+	{
+		Instrument *pInstr = pInstrList->get( nLine );
+		
+		if ( pInstr ) {
+			if( fx_param != 0 ) {
+				pInstr->set_fx_level(  ( (float) (fx_param / 127.0 ) ), nEffect._id );
+			} else {
+				pInstr->set_fx_level( 0 , nEffect._id );
+			}
+			
+			pEngine->setSelectedInstrumentNumber( nLine );			
+		} else {
+			bSuccess = false;
+		}
+	
 	}
 
-	if( fx_param != 0 ) {
-		instr->set_fx_level(  ( (float) (fx_param / 127.0 ) ), nEffect._id );
-	} else {
-		instr->set_fx_level( 0 , nEffect._id );
-	}
-
-	pEngine->setSelectedInstrumentNumber(nLine);
-
-	return true;
+	return bSuccess;
 }
 
 bool MidiActionManager::effect_level_relative(Action * , Hydrogen* , targeted_element ) {
@@ -437,8 +462,8 @@ bool MidiActionManager::effect_level_relative(Action * , Hydrogen* , targeted_el
 	return true;
 }
 
+//sets the volume of a master output to a given level (percentage)
 bool MidiActionManager::master_volume_absolute(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	//sets the volume of a master output to a given level (percentage)
 
 	bool ok;
 	int vol_param = pAction->getParameter2().toInt(&ok,10);
@@ -454,8 +479,8 @@ bool MidiActionManager::master_volume_absolute(Action * pAction, Hydrogen* pEngi
 	return true;
 }
 
+//increments/decrements the volume of the whole song
 bool MidiActionManager::master_volume_relative(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	//increments/decrements the volume of the whole song
 
 	bool ok;
 	int vol_param = pAction->getParameter2().toInt(&ok,10);
@@ -477,95 +502,97 @@ bool MidiActionManager::master_volume_relative(Action * pAction, Hydrogen* pEngi
 	return true;
 }
 
+//sets the volume of a mixer strip to a given level (percentage)
 bool MidiActionManager::strip_volume_absolute(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	//sets the volume of a mixer strip to a given level (percentage)
 
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int vol_param = pAction->getParameter2().toInt(&ok,10);
 
-	pEngine->setSelectedInstrumentNumber( nLine );
-
-	Song *song = pEngine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
-
-	Instrument *instr = instrList->get( nLine );
-
-	if ( instr == nullptr) {
-		return false;
-	}
-
-	if( vol_param != 0 ) {
-		instr->set_volume( 1.5* ( (float) (vol_param / 127.0 ) ));
-	} else {
-		instr->set_volume( 0 );
-	}
-
-	pEngine->setSelectedInstrumentNumber(nLine);
-
-	return true;
-}
-
-bool MidiActionManager::strip_volume_relative(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	//increments/decrements the volume of one mixer strip
-
-	bool ok;
-	int nLine = pAction->getParameter1().toInt(&ok,10);
-	int vol_param = pAction->getParameter2().toInt(&ok,10);
-
-	pEngine->setSelectedInstrumentNumber( nLine );
-
-	Song *song = pEngine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
-
-	Instrument *instr = instrList->get( nLine );
-
-	if ( instr == nullptr) {
-		return false;
-	}
-
-	if( vol_param != 0 ) {
-		if ( vol_param == 1 && instr->get_volume() < 1.5 ) {
-			instr->set_volume( instr->get_volume() + 0.1 );
-		} else {
-			if( instr->get_volume() >= 0.0 ){
-				instr->set_volume( instr->get_volume() - 0.1 );
-			}
+	Song *pSong = pEngine->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+	
+	if ( pInstrList->is_valid_index( nLine) )
+	{
+		Instrument *pInstr = pInstrList->get( nLine );
+	
+		if ( pInstr == nullptr) {
+			return false;
 		}
-	} else {
-		instr->set_volume( 0 );
+	
+		if( vol_param != 0 ) {
+			pInstr->set_volume( 1.5* ( (float) (vol_param / 127.0 ) ));
+		} else {
+			pInstr->set_volume( 0 );
+		}
+	
+		pEngine->setSelectedInstrumentNumber(nLine);
 	}
-
-	pEngine->setSelectedInstrumentNumber(nLine);
 
 	return true;
 }
 
+//increments/decrements the volume of one mixer strip
+bool MidiActionManager::strip_volume_relative(Action * pAction, Hydrogen* pEngine, targeted_element ) {
+
+	bool ok;
+	int nLine = pAction->getParameter1().toInt(&ok,10);
+	int vol_param = pAction->getParameter2().toInt(&ok,10);
+
+	Song *pSong = pEngine->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+
+	if ( pInstrList->is_valid_index( nLine) )
+	{
+		Instrument *pInstr = pInstrList->get( nLine );
+	
+		if ( pInstr == nullptr) {
+			return false;
+		}
+	
+		if( vol_param != 0 ) {
+			if ( vol_param == 1 && pInstr->get_volume() < 1.5 ) {
+				pInstr->set_volume( pInstr->get_volume() + 0.1 );
+			} else {
+				if( pInstr->get_volume() >= 0.0 ){
+					pInstr->set_volume( pInstr->get_volume() - 0.1 );
+				}
+			}
+		} else {
+			pInstr->set_volume( 0 );
+		}
+	
+		pEngine->setSelectedInstrumentNumber(nLine);
+	}
+
+	return true;
+}
+
+// sets the absolute panning of a given mixer channel
 bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	// sets the absolute panning of a given mixer channel
 
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pan_param = pAction->getParameter2().toInt(&ok,10);
 
-	Song *song = pEngine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
+	Song *pSong = pEngine->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
 	
-	if(instrList->is_valid_index( nLine ))
+	if( pInstrList->is_valid_index( nLine ) )
 	{
 		float pan_L;
 		float pan_R;
 	
 		pEngine->setSelectedInstrumentNumber( nLine );
 	
-		Instrument *instr = instrList->get( nLine );
+		Instrument *pInstr = pInstrList->get( nLine );
 	
-		if( instr == nullptr ) {
+		if( pInstr == nullptr ) {
 			return false;
 		}
 	
-		pan_L = instr->get_pan_l();
-		pan_R = instr->get_pan_r();
+		pan_L = pInstr->get_pan_l();
+		pan_R = pInstr->get_pan_r();
 	
 		// pan
 		float fPanValue = 0.0;
@@ -587,8 +614,8 @@ bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pEngine, target
 			pan_R = fPanValue * 2;
 		}
 	
-		instr->set_pan_l( pan_L );
-		instr->set_pan_r( pan_R );
+		pInstr->set_pan_l( pan_L );
+		pInstr->set_pan_r( pan_R );
 	
 		pEngine->setSelectedInstrumentNumber(nLine);
 	}
@@ -596,61 +623,65 @@ bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pEngine, target
 	return true;
 }
 
+// changes the panning of a given mixer channel
+// this is useful if the panning is set by a rotary control knob
 bool MidiActionManager::pan_relative(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	// changes the panning of a given mixer channel
-	// this is useful if the panning is set by a rotary control knob
+
 
 	bool ok;
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pan_param = pAction->getParameter2().toInt(&ok,10);
 
-	float pan_L;
-	float pan_R;
-
-	pEngine->setSelectedInstrumentNumber( nLine );
-	Song *song = pEngine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
-
-	Instrument *instr = instrList->get( nLine );
-
-	if( instr == nullptr ) {
-		return false;
+	Song *pSong = pEngine->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+	
+	if( pInstrList->is_valid_index( nLine ) )
+	{
+		float pan_L;
+		float pan_R;
+	
+		pEngine->setSelectedInstrumentNumber( nLine );
+	
+		Instrument *pInstr = pInstrList->get( nLine );
+	
+		if( pInstr == nullptr ) {
+			return false;
+		}
+	
+		pan_L = pInstr->get_pan_l();
+		pan_R = pInstr->get_pan_r();
+	
+		// pan
+		float fPanValue = 0.0;
+		if (pan_R == 1.0) {
+			fPanValue = 1.0 - (pan_L / 2.0);
+		}
+		else {
+			fPanValue = pan_R / 2.0;
+		}
+	
+		if( pan_param == 1 && fPanValue < 1 ) {
+			fPanValue += 0.05;
+		}
+	
+		if( pan_param != 1 && fPanValue > 0 ) {
+			fPanValue -= 0.05;
+		}
+	
+		if (fPanValue >= 0.5) {
+			pan_L = (1.0 - fPanValue) * 2;
+			pan_R = 1.0;
+		}
+		else {
+			pan_L = 1.0;
+			pan_R = fPanValue * 2;
+		}
+	
+		pInstr->set_pan_l( pan_L );
+		pInstr->set_pan_r( pan_R );
+	
+		pEngine->setSelectedInstrumentNumber(nLine);
 	}
-
-	pan_L = instr->get_pan_l();
-	pan_R = instr->get_pan_r();
-
-	// pan
-	float fPanValue = 0.0;
-	if (pan_R == 1.0) {
-		fPanValue = 1.0 - (pan_L / 2.0);
-	}
-	else {
-		fPanValue = pan_R / 2.0;
-	}
-
-	if( pan_param == 1 && fPanValue < 1 ) {
-		fPanValue += 0.05;
-	}
-
-	if( pan_param != 1 && fPanValue > 0 ) {
-		fPanValue -= 0.05;
-	}
-
-	if (fPanValue >= 0.5) {
-		pan_L = (1.0 - fPanValue) * 2;
-		pan_R = 1.0;
-	}
-	else {
-		pan_L = 1.0;
-		pan_R = fPanValue * 2;
-	}
-
-
-	instr->set_pan_l( pan_L );
-	instr->set_pan_r( pan_R );
-
-	pEngine->setSelectedInstrumentNumber(nLine);
 
 	return true;
 }
@@ -660,36 +691,37 @@ bool MidiActionManager::gain_level_absolute(Action * pAction, Hydrogen* pEngine,
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int gain_param = pAction->getParameter2().toInt(&ok,10);
 
-	pEngine->setSelectedInstrumentNumber( nLine );
-
-	Song *song = pEngine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
-
-	Instrument *instr = instrList->get( nLine );
-	if( instr == nullptr ) {
-		return false;
+	Song *pSong = pEngine->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+	
+	if( pInstrList->is_valid_index( nLine ) )
+	{
+		Instrument *pInstr = pInstrList->get( nLine );
+		if( pInstr == nullptr ) {
+			return false;
+		}
+	
+		InstrumentComponent* pComponent =  pInstr->get_component( nSample._id );
+		if( pComponent == nullptr) {
+			return false;
+		}
+	
+		InstrumentLayer* pLayer = pComponent->get_layer( nSample._subId );
+		if( pLayer == nullptr ) {
+			return false;
+		}
+	
+		if( gain_param != 0 ) {
+			pLayer->set_gain( 5.0* ( (float) (gain_param / 127.0 ) ) );
+		} else {
+			pLayer->set_gain( 0 );
+		}
+	
+		pEngine->setSelectedInstrumentNumber( nLine );
+	
+		pEngine->refreshInstrumentParameters( nLine );
 	}
-
-	InstrumentComponent* component =  instr->get_component( nSample._id );
-	if( component == nullptr) {
-		return false;
-	}
-
-	InstrumentLayer* layer = component->get_layer( nSample._subId );
-	if( layer == nullptr ) {
-		return false;
-	}
-
-	if( gain_param != 0 ) {
-		layer->set_gain( 5.0* ( (float) (gain_param / 127.0 ) ) );
-	} else {
-		layer->set_gain( 0 );
-	}
-
-	pEngine->setSelectedInstrumentNumber( nLine );
-
-	pEngine->refreshInstrumentParameters( nLine );
-
+	
 	return true;
 }
 
@@ -698,35 +730,36 @@ bool MidiActionManager::pitch_level_absolute(Action * pAction, Hydrogen* pEngine
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int pitch_param = pAction->getParameter2().toInt(&ok,10);
 
-	pEngine->setSelectedInstrumentNumber( nLine );
+	Song *pSong = pEngine->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
 
-	Song *song = pEngine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
-
-	Instrument *instr = instrList->get( nLine );
-	if( instr == nullptr ) {
-		return false;
+	if( pInstrList->is_valid_index( nLine ) )
+	{
+		Instrument *pInstr = pInstrList->get( nLine );
+		if( pInstr == nullptr ) {
+			return false;
+		}
+	
+		InstrumentComponent* pComponent =  pInstr->get_component( nSample._id );
+		if( pComponent == nullptr) {
+			return false;
+		}
+	
+		InstrumentLayer* pLayer = pComponent->get_layer( nSample._subId );
+		if( pLayer == nullptr ) {
+			return false;
+		}
+	
+		if( pitch_param != 0 ){
+			pLayer->set_pitch( 49* ( (float) (pitch_param / 127.0 ) ) -24.5 );
+		} else {
+			pLayer->set_pitch( -24.5 );
+		}
+	
+		pEngine->setSelectedInstrumentNumber( nLine );
+	
+		pEngine->refreshInstrumentParameters( nLine );
 	}
-
-	InstrumentComponent* component =  instr->get_component( nSample._id );
-	if( component == nullptr) {
-		return false;
-	}
-
-	InstrumentLayer* layer = component->get_layer( nSample._subId );
-	if( layer == nullptr ) {
-		return false;
-	}
-
-	if( pitch_param != 0 ){
-		layer->set_pitch( 49* ( (float) (pitch_param / 127.0 ) ) -24.5 );
-	} else {
-		layer->set_pitch( -24.5 );
-	}
-
-	pEngine->setSelectedInstrumentNumber( nLine );
-
-	pEngine->refreshInstrumentParameters( nLine );
 
 	return true;
 }
@@ -736,35 +769,37 @@ bool MidiActionManager::filter_cutoff_level_absolute(Action * pAction, Hydrogen*
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 	int filter_cutoff_param = pAction->getParameter2().toInt(&ok,10);
 
-	pEngine->setSelectedInstrumentNumber( nLine );
+	Song *pSong = pEngine->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
 
-	Song *song = pEngine->getSong();
-	InstrumentList *instrList = song->get_instrument_list();
-
-	Instrument *instr = instrList->get( nLine );
-	if( instr == nullptr ) {
-		return false;
+	if( pInstrList->is_valid_index( nLine ) )
+	{
+		Instrument *pInstr = pInstrList->get( nLine );
+		if( pInstr == nullptr ) {
+			return false;
+		}
+	
+		pInstr->set_filter_active( true );
+		if( filter_cutoff_param != 0 ) {
+			pInstr->set_filter_cutoff( ( (float) (filter_cutoff_param / 127.0 ) ) );
+		} else {
+			pInstr->set_filter_cutoff( 0 );
+		}
+	
+		pEngine->setSelectedInstrumentNumber( nLine );
+	
+		pEngine->refreshInstrumentParameters( nLine );
 	}
-
-	instr->set_filter_active( true );
-	if( filter_cutoff_param != 0 ) {
-		instr->set_filter_cutoff( ( (float) (filter_cutoff_param / 127.0 ) ) );
-	} else {
-		instr->set_filter_cutoff( 0 );
-	}
-
-	pEngine->setSelectedInstrumentNumber( nLine );
-
-	pEngine->refreshInstrumentParameters( nLine );
-
+	
 	return true;
 }
 
+
+/*
+ * increments/decrements the BPM
+ * this is useful if the bpm is set by a rotary control knob
+ */
 bool MidiActionManager::bpm_cc_relative(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	/*
-	 * increments/decrements the BPM
-	 * this is useful if the bpm is set by a rotary control knob
-	*/
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
@@ -796,11 +831,11 @@ bool MidiActionManager::bpm_cc_relative(Action * pAction, Hydrogen* pEngine, tar
 	return true;
 }
 
+/*
+ * increments/decrements the BPM
+ * this is useful if the bpm is set by a rotary control knob
+ */
 bool MidiActionManager::bpm_fine_cc_relative(Action * pAction, Hydrogen* pEngine, targeted_element ) {
-	/*
-	 * increments/decrements the BPM
-	 * this is useful if the bpm is set by a rotary control knob
-	*/
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
