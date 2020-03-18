@@ -263,7 +263,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 			QString sPortName = midiOutList[i];
 			midiOutportComboBox->addItem( sPortName );
 
-			if ( sPortName == pPref->m_sMidiPortName ) {
+			if ( sPortName == pPref->m_sMidiOutputPortName ) {
 				midiOutportComboBox->setCurrentIndex( i + 1 );
 			}
 		}
@@ -465,7 +465,7 @@ void PreferencesDialog::on_okBtn_clicked()
 		m_bNeedDriverRestart = true;
 	}
 	
-	QString sNewMidiOutputPortName = midiPortComboBox->currentText();
+	QString sNewMidiOutputPortName = midiOutportComboBox->currentText();
 	if ( pPref->m_sMidiOutputPortName != sNewMidiOutputPortName ) {
 		pPref->m_sMidiOutputPortName = sNewMidiOutputPortName;
 		m_bNeedDriverRestart = true;
