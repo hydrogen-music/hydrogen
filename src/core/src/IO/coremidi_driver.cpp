@@ -207,17 +207,16 @@ std::vector<QString> CoreMidiDriver::getInputPortList()
 
 	std::vector<QString> cmPortList;
 	
-	/*
-	cmSources = MIDIGetNumberOfSources();
+	cmSources = MIDIGetNumberOfDestinations();
 
 	INFOLOG ( "Getting number of MIDI sources . . .\n" );
 
 	unsigned i;
 	for ( i = 0; i < cmSources; i++ ) {
 		CFStringRef H2MidiNames;
-		cmH2Src = MIDIGetSource( i );
+		cmH2Src = MIDIGetDestination( i );
 		if ( cmH2Src == NULL ) {
-			ERRORLOG( "Could not open input device" );
+			ERRORLOG( "Could not open output device" );
 		}
 		if ( cmH2Src ) {
 			err = MIDIObjectGetStringProperty( cmH2Src, kMIDIPropertyName, &H2MidiNames );
@@ -230,8 +229,6 @@ std::vector<QString> CoreMidiDriver::getInputPortList()
 		}
 		CFRelease( H2MidiNames );
 	}
-	
-	*/
 
 	return cmPortList;
 }
