@@ -258,7 +258,7 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 		}
 		snd_seq_event_input( seq_handle, &ev );
 
-		if ( m_bActive ) {
+		if ( m_bActive && ev != nullptr ) {
 
 			MidiMessage msg;
 
