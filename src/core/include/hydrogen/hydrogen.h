@@ -392,7 +392,12 @@ void			previewSample( Sample *pSample );
 		 * JackAudioDriver::init() or
 		 * JackAudioDriver::setTrackOutput().
 		 */
-		JACK_ERROR_IN_PORT_REGISTER
+		JACK_ERROR_IN_PORT_REGISTER,
+		/**
+		 * Unable to start the OSC server with the given
+		 * port number. 
+		 */
+		OSC_CANNOT_CONNECT_TO_PORT
 	};
 
 	void			onTapTempoAccelEvent();

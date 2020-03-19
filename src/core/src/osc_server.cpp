@@ -252,6 +252,25 @@ OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name
 	int port = m_pPreferences->getOscServerPort();
 
 	m_pServerThread = new lo::ServerThread( port );
+	
+	// If there is already another service registered to the same
+	// port, the OSC server is not valid an can not be started.
+	if ( !m_pServerThread->is_valid() ){
+		int tmpPort;
+		
+		delete m_pServerThread;
+		
+		// Instead, let the liblo library choose a working
+		// port on their own (nullptr argument).
+		m_pServerThread = new lo::ServerThread( nullptr );
+		
+		tmpPort = m_pServerThread->port();
+		
+		ERRORLOG( QString("Could not start OSC server on port %1, using port %2 instead.").arg(port).arg(tmpPort));
+		
+		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_ERROR, H2Core::Hydrogen::OSC_CANNOT_CONNECT_TO_PORT );		
+	}
+	
 }
 
 void OscServer::create_instance( H2Core::Preferences* pPreferences )
