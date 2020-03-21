@@ -585,6 +585,26 @@
           </layout>
          </item>
          <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_10">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>Output</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="midiOutportComboBox"/>
+           </item>
+          </layout>
+         </item>
+         <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <item>
             <widget class="QLabel" name="textLabel1_3">
@@ -710,7 +730,7 @@
          <item>
           <widget class="QCheckBox" name="m_pEnableMidiFeedbackCheckBox">
            <property name="text">
-            <string>Enable feedback</string>
+            <string>Enable midi feedback</string>
            </property>
           </widget>
          </item>
@@ -756,13 +776,20 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>0</y>
+          <y>30</y>
           <width>441</width>
-          <height>89</height>
+          <height>41</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_3">
-         <item row="2" column="2">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Incoming port</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
           <spacer name="horizontalSpacer_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -775,14 +802,7 @@
            </property>
           </spacer>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Incoming port</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="3">
+         <item row="1" column="3">
           <widget class="QSpinBox" name="incomingOscPortSpinBox">
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -795,27 +815,29 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <layout class="QVBoxLayout" name="verticalLayout_7">
-           <item>
-            <widget class="QCheckBox" name="enableOscFeedbackCheckbox">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Enable OSC &amp;feedback</string>
-             </property>
-             <property name="shortcut">
-              <string>Alt+R</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
         </layout>
+       </widget>
+       <widget class="QCheckBox" name="enableOscFeedbackCheckbox">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>10</y>
+          <width>441</width>
+          <height>25</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Enable OSC &amp;feedback</string>
+        </property>
+        <property name="shortcut">
+         <string>Alt+R</string>
+        </property>
        </widget>
       </widget>
       <widget class="QCheckBox" name="enableOscCheckbox">
@@ -823,7 +845,7 @@
         <rect>
          <x>10</x>
          <y>10</y>
-         <width>166</width>
+         <width>441</width>
          <height>22</height>
         </rect>
        </property>

@@ -41,6 +41,8 @@ class MidiOutput : public virtual Object
 public:
 	MidiOutput( const char* class_name );
 	virtual ~MidiOutput();
+	
+	virtual std::vector<QString> getInputPortList() = 0;
 
 	virtual void handleQueueNote(Note* pNote) = 0;
 	virtual void handleQueueNoteOff( int channel, int key, int velocity ) = 0;

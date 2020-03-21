@@ -48,6 +48,7 @@ public:
 
 	virtual void open();
 	virtual void close();
+	virtual std::vector<QString> getInputPortList();
 	virtual std::vector<QString> getOutputPortList();
 
 	void midi_action( snd_seq_t *seq_handle );
