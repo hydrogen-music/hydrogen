@@ -26,7 +26,7 @@ It's main goal is to bring professional yet simple and intuitive pattern-based d
  * Sample Editor, with basic cut and loop functions. 
  * Time-stretch and pitch functions via rubberband cli.
  * Playlist with scripting support
- * Advanced tab-tempo
+ * Advanced tap-tempo
  * Director Window with a visual metronome and song position tags
  * Timeline with variable tempo
  * Import/Export single patterns
