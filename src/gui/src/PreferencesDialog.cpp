@@ -766,15 +766,17 @@ void PreferencesDialog::on_selectMixerFontBtn_clicked()
 	mixerFontLbl->setText(family + QString("  %1").arg(pointSize));
 }
 
-
-
 void PreferencesDialog::on_midiPortComboBox_activated( int index )
 {
 	UNUSED( index );
 	m_bNeedDriverRestart = true;
 }
 
-
+void PreferencesDialog::on_midiOutportComboBox_activated( int index )
+{
+	UNUSED( index );
+	m_bNeedDriverRestart = true;
+}
 
 void PreferencesDialog::on_styleComboBox_activated( int index )
 {
