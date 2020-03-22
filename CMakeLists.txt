@@ -364,7 +364,7 @@ ENDIF()
 IF(NOT MINGW AND NOT APPLE)
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/appdata")
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.desktop DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
-	INSTALL(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/icons/hicolor/scalable/apps/org.hydrogenmusic.Hydrogen.svg")
+	INSTALL(FILES ${CMAKE_SOURCE_DIR}/data/img/gray/h2-icon.svg DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/icons/hicolor/scalable/apps" RENAME "org.hydrogenmusic.Hydrogen.svg")
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/hydrogen.1 DESTINATION "${CMAKE_INSTALL_MANDIR}/man1")
 ENDIF()
 
