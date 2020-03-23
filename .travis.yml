@@ -50,6 +50,7 @@ script:
   ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen.dmg; fi
 - TMPDIR=/tmp src/tests/tests
 deploy:
+  skip_cleanup: true
   provider: releases
   api_key:
     secure: gug61Rin7UE9XSIYMdT/667AxR/9GtaXNPsu8HtHPUNQMcPCyeVgJXnLDY0edHRrvD20aPh/xD8H2Xt4DUoRgRDbMNj9y9IpEd4lnXvLHsI4VL4NBTXjLw+tKG4hcKdYg5hN5M+kIqWlP6bq3lRV4c3RP/F70wbBY85piOmflE8=
@@ -57,5 +58,4 @@ deploy:
   on:
     condition: $TRAVIS_OS_NAME == "osx"
     tags: true
-    skip_cleanup: true
     repo: hydrogen-music/hydrogen
