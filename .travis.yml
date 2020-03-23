@@ -57,4 +57,5 @@ deploy:
   on:
     condition: $TRAVIS_OS_NAME == "osx"
     tags: true
+    skip_cleanup: true
     repo: hydrogen-music/hydrogen
