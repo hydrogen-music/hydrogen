@@ -56,6 +56,5 @@ deploy:
   file: Hydrogen.dmg
   on:
     condition: $TRAVIS_OS_NAME == "osx"
--   tags: true
-
+    tags: true
     repo: hydrogen-music/hydrogen
