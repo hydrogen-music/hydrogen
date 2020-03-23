@@ -1,68 +1,61 @@
 language: cpp
-
 env:
   global:
-    - MAKEFLAGS="-j 2"
-
-matrix:
+  - MAKEFLAGS="-j 2"
+jobs:
   include:
-    - os: linux
-      dist: xenial
-      sudo: required
-    - os: osx
-      env: MACOSX_DEPLOYMENT_TARGET="10.10"
-
+  - os: linux
+    dist: xenial
+  - os: osx
+    env: MACOSX_DEPLOYMENT_TARGET="10.10"
 addons:
   apt:
     packages:
-      - qt5-default
-      - qttools5-dev
-      - qttools5-dev-tools
-      - libqt5xmlpatterns5-dev
-      - libarchive-dev
-      - libsndfile1-dev
-      - libasound2-dev
-      - libjack-jackd2-dev
-      - liblo-dev
-      - libpulse-dev
-      - libportmidi-dev
-      - portaudio19-dev
-      - libcppunit-dev
-      - liblrdf-dev
-      - liblash-compat-dev
-      - librubberband-dev
+    - qt5-default
+    - qttools5-dev
+    - qttools5-dev-tools
+    - libqt5xmlpatterns5-dev
+    - libarchive-dev
+    - libsndfile1-dev
+    - libasound2-dev
+    - libjack-jackd2-dev
+    - liblo-dev
+    - libpulse-dev
+    - libportmidi-dev
+    - portaudio19-dev
+    - libcppunit-dev
+    - liblrdf-dev
+    - liblash-compat-dev
+    - librubberband-dev
   artifacts:
-#    s3_region: "eu-central-1"
     paths:
-      - "build/CMakeFiles/CMakeOutput.log"
-      - "/tmp/hydrogen"
-
+    - build/CMakeFiles/CMakeOutput.log
+    - "/tmp/hydrogen"
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install ladspa-sdk -y; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo ln -s /usr/local /opt/local; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew install qt5;
-      export CMAKE_PREFIX_PATH="$(brew --prefix qt5)";
-    fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew install libarchive;
-      export PKG_CONFIG_PATH="$(brew --prefix libarchive)/lib/pkgconfig";
-    fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libsndfile jack pulseaudio cppunit; fi
-
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install ladspa-sdk -y;
+  fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo ln -s /usr/local /opt/local; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt5; export CMAKE_PREFIX_PATH="$(brew
+  --prefix qt5)"; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libarchive; export PKG_CONFIG_PATH="$(brew
+  --prefix libarchive)/lib/pkgconfig"; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libsndfile jack pulseaudio
+  cppunit; fi
 script:
-  - mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PATH="$(brew --prefix qt5)/bin:$PATH" ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen.dmg; fi
-  - TMPDIR=/tmp src/tests/tests
-
+- mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1
+  .. && make
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PATH="$(brew --prefix qt5)/bin:$PATH"
+  ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen.dmg; fi
+- TMPDIR=/tmp src/tests/tests
 deploy:
   provider: releases
   api_key:
-    secure: ix2LhF3KF/2im5qSQuPRFzJM4PL9d4AnYXvEpeG3OZBF3Ol5PNtGaAUwUsqP7omoDIWMzW7XVnjtiNzOIkLaR2s/3UdWZC/ge99SyJp8X6hNJkQTcphCuj4AybVS8aJlJuGBGpzbhNU3FjJlcFJPNPWyBiBNrlp1e6CWRTyIyrg=
+    secure: gug61Rin7UE9XSIYMdT/667AxR/9GtaXNPsu8HtHPUNQMcPCyeVgJXnLDY0edHRrvD20aPh/xD8H2Xt4DUoRgRDbMNj9y9IpEd4lnXvLHsI4VL4NBTXjLw+tKG4hcKdYg5hN5M+kIqWlP6bq3lRV4c3RP/F70wbBY85piOmflE8=
   file: Hydrogen.dmg
-  skip_cleanup: true
   on:
     condition: $TRAVIS_OS_NAME == "osx"
-    tags: true
+-   tags: true
+
+    repo: hydrogen-music/hydrogen
