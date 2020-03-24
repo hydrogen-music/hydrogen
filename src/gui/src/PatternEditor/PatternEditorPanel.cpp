@@ -820,8 +820,10 @@ void PatternEditorPanel::patternSizeChanged( int nSelected )
 	}
 
 	int nEighth = MAX_NOTES / 8;
+	
+	Hydrogen *pEngine = Hydrogen::get_instance();
 
-	if ( !m_bEnablePatternResize ) {
+	if ( pEngine->getState() != STATE_READY ) {
 		__pattern_size_combo->select( ((m_pPattern->get_length() / nEighth) - 1), false );
 		QMessageBox::information( this, "Hydrogen", tr( "Is not possible to change the pattern size when playing." ) );
 		return;
