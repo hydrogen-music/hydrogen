@@ -99,7 +99,7 @@ void SoundLibraryImportDialog::updateRepositoryCombo()
 	*/
 
 	if( pref->sServerList.size() == 0 ) {
-		pref->sServerList.push_back( "http://www.hydrogen-music.org/feeds/drumkit_list.php" );
+		pref->sServerList.push_back( "http://hydrogen-music.org/feeds/drumkit_list.php" );
 	}
 
 	repositoryCombo->clear();
