@@ -66,7 +66,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
  : QWidget( pParent )
  , Object( __class_name )
  , m_pPattern( nullptr )
- , m_bEnablePatternResize( true )
 {
 	setAcceptDrops(true);
 
@@ -663,9 +662,6 @@ void PatternEditorPanel::hearNotesBtnClick(Button *ref)
 
 }
 
-
-
-
 void PatternEditorPanel::quantizeEventsBtnClick(Button *ref)
 {
 	Preferences *pref = ( Preferences::get_instance() );
@@ -678,20 +674,6 @@ void PatternEditorPanel::quantizeEventsBtnClick(Button *ref)
 		( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Quantize incoming keyboard/midi events = Off" ), 2000 );
 	}
 }
-
-
-
-
-void PatternEditorPanel::stateChangedEvent(int state)
-{
-	if ( state == STATE_READY) {
-		m_bEnablePatternResize = true;
-	}
-	else {
-		m_bEnablePatternResize = false;
-	}
-}
-
 
 static void syncScrollBarSize(QScrollBar *pDest, QScrollBar *pSrc)
 {
@@ -716,9 +698,6 @@ void PatternEditorPanel::resizeEvent( QResizeEvent *ev )
 	syncScrollBarSize( m_pNoteNoteKeyScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
 	syncScrollBarSize( m_pNoteProbabilityScrollView->horizontalScrollBar(), pScrollArea->horizontalScrollBar() );
 }
-
-
-
 
 void PatternEditorPanel::showEvent ( QShowEvent *ev )
 {
@@ -825,8 +804,8 @@ void PatternEditorPanel::patternSizeChanged( int nSelected )
 	int nEighth = MAX_NOTES / 8;
 	
 	Hydrogen *pEngine = Hydrogen::get_instance();
-
-	if ( pEngine->getState() != STATE_READY ) {
+	
+	if ( pEngine->getState() != STATE_READY ) {	
 		__pattern_size_combo->select( ((m_pPattern->get_length() / nEighth) - 1), false );
 		QMessageBox::information( this, "Hydrogen", tr( "Is not possible to change the pattern size when playing." ) );
 		return;
