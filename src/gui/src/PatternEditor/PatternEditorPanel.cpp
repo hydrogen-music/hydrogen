@@ -632,7 +632,10 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 		// update pattern size combobox
 		int nPatternSize = m_pPattern->get_length();
 		int nEighth = MAX_NOTES / 8;
-		__pattern_size_combo->select( (nPatternSize / nEighth) - 1 );
+		
+		// do no emit the changed value, otherwise patternSizeChanged() would be triggered,
+		// which handles a manual pattern size change
+		__pattern_size_combo->select( (nPatternSize / nEighth) - 1 , false);
 	}
 	else {
 		m_pPattern = nullptr;
