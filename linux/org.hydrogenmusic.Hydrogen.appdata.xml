@@ -37,6 +37,22 @@
  <project_group>hydrogen</project_group>
  <content_rating type="oars-1.0"/>
  <releases>
+   <release version="1.0.0-beta2" date="2020-03-21">
+     <url>https://github.com/hydrogen-music/hydrogen/releases/tag/1.0.0-beta2</url>
+     <description>
+       <p>Second beta release ahead of 1.0. Changes since 0.9.7:</p>
+       <ul>
+         <li>QT5 support</li>
+         <li>New default drumkit: GMRockKit</li>
+         <li>Probability note property</li>
+         <li>Velocity automation</li>
+         <li>OSC support</li>
+         <li>Midi feedback</li>
+         <li>Menu redesign</li>
+         <li>Fullscreen mode</li>
+       </ul>
+     </description>
+   </release>
    <release version="1.0.0-beta1" date="2018-03-18">
      <url>http://hydrogen-music.org/release_100_beta1</url>
    </release>
