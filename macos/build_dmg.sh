@@ -13,6 +13,9 @@ VERBOSE=0
 # Option: open image after creating it
 OPEN=0
 
+# Option: Translation directory
+TRANSLATIONS="data/i18n"
+
 
 # Print message if verbose mode is enabled
 function verbose {
@@ -73,7 +76,7 @@ function clean_up {
 
 # Parse options
 
-while getopts ":vho" opt; do
+while getopts ":vhot:" opt; do
 	case $opt in
 		v)
 			VERBOSE=1
@@ -85,6 +88,9 @@ while getopts ":vho" opt; do
 		o)
 			OPEN=1
 			;;
+        t)
+            TRANSLATIONS="$OPTARG"
+            ;;
 		\?)
 			echo "Unknown option: $OPTARG"
 			usage;
@@ -122,6 +128,11 @@ cp -r "$SRC_APP" "$DMG_ROOT/Hydrogen.app" || error "Can't copy $SRC_APP"
 
 verbose "Deploying Qt libraries"
 macdeployqt "$DMG_ROOT/Hydrogen.app" || error "macdeployqt failed"
+
+verbose "Deploying translations"
+I18N_DEST="$DMG_ROOT/Hydrogen.app/Contents/Resources/data/i18n"
+mkdir -p "$I18N_DEST"
+find "$TRANSLATIONS" -name '*.qm' -exec cp {} "$I18N_DEST" \;
 
 verbose "Deploying additional assets"
 ln -s /Applications "$DMG_ROOT/Applications"
