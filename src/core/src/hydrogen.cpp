@@ -2418,7 +2418,11 @@ void Hydrogen::create_instance()
 
 #ifdef H2CORE_HAVE_OSC
 	NsmClient::create_instance();
-	OscServer::create_instance( Preferences::get_instance() );
+	
+	if( Preferences::get_instance()->getOscServerEnabled() )
+	{
+		OscServer::create_instance( Preferences::get_instance() );
+	}
 #endif
 
 	if ( __instance == nullptr ) {
@@ -4018,7 +4022,7 @@ void startOscServer()
 {
 	OscServer* pOscServer = OscServer::get_instance();
 	
-	if(pOscServer){
+	if( pOscServer ){
 		pOscServer->start();
 	}
 }
