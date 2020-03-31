@@ -255,7 +255,7 @@ OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name
 	
 	// If there is already another service registered to the same
 	// port, the OSC server is not valid an can not be started.
-	if ( !m_pServerThread->is_valid() ){
+	if ( !m_pServerThread->is_valid() ) {
 		int tmpPort;
 		
 		delete m_pServerThread;
@@ -269,6 +269,8 @@ OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name
 		ERRORLOG( QString("Could not start OSC server on port %1, using port %2 instead.").arg(port).arg(tmpPort));
 		
 		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_ERROR, H2Core::Hydrogen::OSC_CANNOT_CONNECT_TO_PORT );		
+	} else {
+		INFOLOG( QString( "OSC server running on port %1" ).arg( port ) );
 	}
 	
 }
