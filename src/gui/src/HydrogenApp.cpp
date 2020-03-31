@@ -44,6 +44,7 @@
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 #include "SoundLibrary/SoundLibraryDatastructures.h"
+#include "SoundLibrary/SoundLibraryPanel.h"
 #include "PlaylistEditor/PlaylistDialog.h"
 #include "SampleEditor/SampleEditor.h"
 #include "Mixer/Mixer.h"
@@ -114,6 +115,11 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 
 	m_pPlaylistDialog = new PlaylistDialog( nullptr );
 	m_pDirector = new Director( nullptr );
+	
+	// Since HydrogenApp does implement some handler functions for
+	// Events as well, it should be registered as an Eventlistener
+	// itself.
+	addEventListener( this );
 }
 
 
@@ -383,7 +389,7 @@ void HydrogenApp::setStatusBarMessage( const QString& msg, int msec )
 
 void HydrogenApp::updateWindowTitle()
 {
-	Song *pSong = 	Hydrogen::get_instance()->getSong();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 	assert(pSong);
 
 	QString title;
@@ -476,6 +482,11 @@ void HydrogenApp::onEventQueueTimer()
 
 	Event event;
 	while ( ( event = pQueue->pop_event() ).type != EVENT_NONE ) {
+		
+		// Provide the event to all EventListeners registered to
+		// HydrogenApp. By registering itself as EventListener and
+		// implementing at least on the methods used below a
+		// particular GUI component can react on specific events.
 		for (int i = 0; i < (int)m_EventListeners.size(); i++ ) {
 			EventListener *pListener = m_EventListeners[ i ];
 
@@ -493,7 +504,7 @@ void HydrogenApp::onEventQueueTimer()
 				break;
 
 			case EVENT_SONG_MODIFIED:
-				songModifiedEvent();
+				pListener->songModifiedEvent();
 				break;
 
 			case EVENT_SELECTED_PATTERN_CHANGED:
@@ -551,12 +562,20 @@ void HydrogenApp::onEventQueueTimer()
 			case EVENT_TEMPO_CHANGED:
 				pListener->tempoChangedEvent( event.value );
 				break;
+				
+			case EVENT_UPDATE_SONG:
+				pListener->updateSongEvent( event.value );
+				break;
+				
+			case EVENT_QUIT:
+				pListener->quitEvent( event.value );
+				break;
 
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}
-
 		}
+
 	}
 
 	// midi notes
@@ -613,4 +632,53 @@ void HydrogenApp::removeEventListener( EventListener* pListener )
 void HydrogenApp::cleanupTemporaryFiles()
 {
 	Filesystem::rm( Filesystem::tmp_dir(), true );
+}
+
+void HydrogenApp::updateSongEvent( int nValue ) {
+	
+	Hydrogen* pHydrogen = Hydrogen::get_instance();	
+
+	if ( nValue == 0 ) {
+
+		// Set a Song prepared by the core part.
+		Song* pNextSong = pHydrogen->getNextSong();
+		pHydrogen->setSong( pNextSong );
+	
+		// Cleanup
+		closeFXProperties();
+		m_pUndoStack->clear();
+	
+		// Update GUI components
+		m_pSongEditorPanel->updateAll();
+		m_pPatternEditorPanel->updateSLnameLabel();
+		updateWindowTitle();
+		getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
+		getSongEditorPanel()->updatePositionRuler();
+		pHydrogen->getTimeline()->m_timelinetagvector.clear();
+	
+		// Trigger a reset of the Director and MetronomeWidget.
+		EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
+		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
+	
+		m_pSongEditorPanel->updateAll();
+		m_pPatternEditorPanel->updateSLnameLabel();
+		updateWindowTitle();
+		
+	} else if ( nValue == 1 ) {
+		
+		QString filename = pHydrogen->getSong()->get_filename();
+		
+		// Song was saved.
+		setScrollStatusBarMessage( trUtf8("Song saved.") + QString(" Into: ") + filename, 2000 );
+		updateWindowTitle();
+		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
+		
+	}
+
+}
+
+void HydrogenApp::quitEvent( int nValue ) {
+
+	m_pMainForm->closeAll();
+	
 }
