@@ -138,6 +138,7 @@ public slots:
 		void action_toggle_input_mode();
 
 		void handleSigUsr1();
+		void closeAll();
 
 	private slots:
 		void onAutoSaveTimer();
@@ -181,7 +182,6 @@ public slots:
 		/** Create the menubar */
 		void createMenuBar();
 
-		void closeAll();
 		void openSongFile( const QString& sFilename );
 		void checkMidiSetup();
 

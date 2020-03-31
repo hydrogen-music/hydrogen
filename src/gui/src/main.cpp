@@ -356,6 +356,9 @@ int main(int argc, char *argv[])
 
 		// Hydrogen here to honor all preferences.
 		H2Core::Hydrogen::create_instance();
+		
+		// Tell Hydrogen it was started via the QT5 GUI.
+		H2Core::Hydrogen::get_instance()->setActiveGUI( true );
 
 #ifdef H2CORE_HAVE_OSC
 		H2Core::Hydrogen::get_instance()->startNsmClient();

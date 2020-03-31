@@ -38,7 +38,7 @@ IF(APPLE)
 	SET(hydrogen_SRCS ${hydrogen_SRCS} ${CMAKE_SOURCE_DIR}/data/img/gray/icon.icns)
 	
 	#copy the data folder
-	FILE(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION hydrogen.app/Contents/Resources PATTERN ".svn" EXCLUDE)
+    FILE(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION hydrogen.app/Contents/Resources PATTERN ".svn" EXCLUDE PATTERN i18n EXCLUDE)
   	
 ENDIF()
 

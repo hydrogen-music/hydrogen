@@ -412,7 +412,25 @@ int				audioEngine_start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
  *   did already locked it.
  */
 void				audioEngine_stop( bool bLockEngine = false );
+/**
+ * Updates the global objects of the audioEngine according to new #Song.
+ *
+ * Calls audioEngine_setupLadspaFX() on
+ * m_pAudioDriver->getBufferSize(),
+ * audioEngine_process_checkBPMChanged(),
+ * audioEngine_renameJackPorts(), adds its first pattern to
+ * #m_pPlayingPatterns, relocates the audio driver to the beginning of
+ * the #Song, and updates the BPM.
+ *
+ * \param pNewSong #Song to load.
+ */
 void				audioEngine_setSong(Song *pNewSong );
+/**
+ * Does the necessary cleanup of the global objects in the audioEngine.
+ *
+ * Class the clear() member of #m_pPlayingPatterns and
+ * #m_pNextPatterns as well as audioEngine_clearNoteQueue();
+ */
 void				audioEngine_removeSong();
 static void			audioEngine_noteOn( Note *note );
 
@@ -1284,6 +1302,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// transport position if it was changed by an user interaction
 	// (e.g. clicking on the timeline).
 	audioEngine_process_transport();
+	
 
 	// ___INFOLOG( QString( "[after process] status: %1, frame: %2, ticksize: %3, bpm: %4" )
 	// 	    .arg( m_pAudioDriver->m_transport.m_status )
@@ -1307,6 +1326,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			 || ( m_pAudioDriver->class_name() == FakeDriver::class_name() )
 			 ) {
 			___INFOLOG( "End of song." );
+			
 			return 1;	// kill the audio AudioDriver thread
 		}
 
@@ -1318,7 +1338,6 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			static_cast<JackAudioDriver*>(m_pAudioDriver)->locateInNCycles( 0 );
 		}
 #endif
-
 		return 0;
 	} else if ( res2 == 2 ) { // send pattern change
 		sendPatternChange = true;
@@ -1445,7 +1464,6 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	if ( sendPatternChange ) {
 		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
 	}
-
 	return 0;
 }
 
@@ -1500,7 +1518,7 @@ void audioEngine_renameJackPorts(Song * pSong)
 #endif
 }
 
-void audioEngine_setSong( Song * pNewSong )
+void audioEngine_setSong( Song* pNewSong )
 {
 	___WARNINGLOG( QString( "Set song: %1" ).arg( pNewSong->__name ) );
 
@@ -1555,7 +1573,6 @@ void audioEngine_removeSong()
 
 	m_pPlayingPatterns->clear();
 	m_pNextPatterns->clear();
-
 	audioEngine_clearNoteQueue();
 
 	// change the current audio engine state
@@ -2486,8 +2503,8 @@ void Hydrogen::loadPlaybackTrack( const QString filename )
 void Hydrogen::setSong( Song *pSong )
 {
 	assert ( pSong );
-
-	/* Set first pattern */
+	
+	// Move to the beginning.
 	setSelectedPatternNumber( 0 );
 
 	Song* pCurrentSong = getSong();
@@ -2497,12 +2514,11 @@ void Hydrogen::setSong( Song *pSong )
 	}
 
 	if ( pCurrentSong ) {
-
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		
+		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		delete pCurrentSong;
 		pCurrentSong = nullptr;
-		
+
 		AudioEngine::get_instance()->unlock();
 
 		/* NOTE: 
@@ -2523,12 +2539,15 @@ void Hydrogen::setSong( Song *pSong )
 	// audioEngine_setSong().
 	__song = pSong;
 
+	
 	// Update the audio engine to work with the new song.
 	audioEngine_setSong( pSong );
 
 	// load new playback track information
 	AudioEngine::get_instance()->get_sampler()->reinitialize_playback_track();
 	
+	// Push current state of Hydrogen to attached control interfaces,
+	// like OSC clients.
 	m_pCoreActionController->initExternalControlInterfaces();
 }
 
