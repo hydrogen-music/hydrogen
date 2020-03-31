@@ -1239,4 +1239,5 @@ bool MidiActionManager::isSongPathValid( const QString& songPath ) {
 		return false;
 	}
 	
+	return true;
 }
