@@ -264,35 +264,23 @@ int main(int argc, char *argv[])
 
 		QTranslator qttor( nullptr );
 		QTranslator tor( nullptr );
-		QString sTranslationFile = QString("hydrogen.") + QLocale::system().name();
-		QString sLocale = QLocale::system().name();
-		if ( sLocale != "C") {
-			if (qttor.load( QString( "qt_" ) + sLocale,
+		QLocale locale = QLocale::system();
+		if ( locale != QLocale::c() ) {
+			if (qttor.load( locale, QString( "qt" ), QString( "_" ),
 				QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
 				pQApp->installTranslator( &qttor );
 			else
-				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(QLocale::system().name()));
-
-
-			QString sTranslationPath = "data/i18n";
-			QString total = sTranslationPath + "/" + sTranslationFile + ".qm";
-
-			bool bTransOk = tor.load( total, "." );
-			if ( bTransOk ) {
-				___INFOLOG( QString( "Using locale: %1/%2" ).arg( sTranslationPath ).arg( sTranslationFile ) );
-			}
-			else {
-				sTranslationPath = H2Core::Filesystem::i18n_dir();
-				total = sTranslationPath + "/" + sTranslationFile + ".qm";
-				bTransOk = tor.load( total, "." );
-				if (bTransOk) {
-					___INFOLOG( "Using locale: " + sTranslationPath + sTranslationFile );
-				} else {
-					___INFOLOG( "Warning: no locale found: " + sTranslationPath + sTranslationFile );
-				}
+				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(locale.name()));
+			QString sTranslationPath = H2Core::Filesystem::i18n_dir();
+			QString sTranslationFile( "hydrogen" );
+			bool bTransOk = tor.load( locale, sTranslationFile, QString( "_" ), sTranslationPath );
+			if (bTransOk) {
+				___INFOLOG( "Using locale: " + sTranslationPath );
+			} else {
+				___INFOLOG( "Warning: no locale found: " + sTranslationPath );
 			}
 			if (tor.isEmpty()) {
-				___INFOLOG( "Warning: error loading locale: " +  total );
+				___INFOLOG( "Warning: error loading locale: " + sTranslationPath );
 			}
 		}
 		pQApp->installTranslator( &tor );
@@ -368,6 +356,9 @@ int main(int argc, char *argv[])
 
 		// Hydrogen here to honor all preferences.
 		H2Core::Hydrogen::create_instance();
+		
+		// Tell Hydrogen it was started via the QT5 GUI.
+		H2Core::Hydrogen::get_instance()->setActiveGUI( true );
 
 #ifdef H2CORE_HAVE_OSC
 		H2Core::Hydrogen::get_instance()->startNsmClient();

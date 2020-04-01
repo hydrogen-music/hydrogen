@@ -1720,6 +1720,10 @@ void MainForm::errorEvent( int nErrorCode )
 	case Hydrogen::JACK_ERROR_IN_PORT_REGISTER:
 		msg = tr( "Jack driver: error in port register" );
 		break;
+		
+	case Hydrogen::OSC_CANNOT_CONNECT_TO_PORT:
+		msg = tr( "OSC Server: Cannot connect to given port, using temporary port instead" );
+		break;
 
 	default:
 		msg = QString( tr( "Unknown error %1" ) ).arg( nErrorCode );

@@ -77,7 +77,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
 		virtual void selectedInstrumentChangedEvent();
-		virtual void stateChangedEvent(int nState);
 		//~ Implements EventListener interface
 
 	private slots:
@@ -166,18 +165,11 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		// TOOLBAR
 		QLabel *			m_pPatternNameLbl;
-
-
-
 		Button *			m_pRandomVelocityBtn;
 		//~ TOOLBAR
 
-
 		Button *			sizeDropdownBtn;
 		Button *			resDropdownBtn;
-
-		bool				m_bEnablePatternResize;
-
 
 		virtual void dragEnterEvent(QDragEnterEvent *event);
 		virtual void dropEvent(QDropEvent *event);

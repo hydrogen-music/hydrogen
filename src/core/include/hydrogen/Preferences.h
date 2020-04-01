@@ -271,6 +271,7 @@ public:
 	 */
 	QString				m_sMidiDriver;
 	QString				m_sMidiPortName;
+	QString				m_sMidiOutputPortName;
 	int					m_nMidiChannelFilter;
 	bool				m_bMidiNoteOffIgnore;
 	bool				m_bMidiFixedMapping;

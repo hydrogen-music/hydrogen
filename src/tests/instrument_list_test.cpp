@@ -12,6 +12,7 @@ class InstrumentListTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( test1 );
 	CPPUNIT_TEST( test2 );
 	CPPUNIT_TEST( test3 );
+	CPPUNIT_TEST( test4 );
 	CPPUNIT_TEST_SUITE_END();
 	
 	public:
@@ -85,6 +86,18 @@ class InstrumentListTest : public CppUnit::TestCase {
 		CPPUNIT_ASSERT_EQUAL( 36, list.get(0)->get_midi_out_note() );
 		CPPUNIT_ASSERT_EQUAL( 37, list.get(1)->get_midi_out_note() );
 		CPPUNIT_ASSERT_EQUAL( 38, list.get(2)->get_midi_out_note() );
+	}
+	
+	//test is_valid_index
+	void test4()
+	{
+		InstrumentList list;
+
+		list.add( new Instrument() );
+		
+		CPPUNIT_ASSERT( list.is_valid_index(0) );
+		CPPUNIT_ASSERT( !list.is_valid_index(1) );
+		CPPUNIT_ASSERT( !list.is_valid_index(-42) );
 	}
 };
 

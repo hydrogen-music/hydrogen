@@ -49,6 +49,7 @@ public:
 
 	virtual void open();
 	virtual void close();
+	virtual std::vector<QString> getInputPortList();
 	virtual std::vector<QString> getOutputPortList();
 
 	virtual void handleQueueNote(Note* pNote);

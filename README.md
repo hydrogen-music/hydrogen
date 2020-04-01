@@ -16,6 +16,7 @@ It's main goal is to bring professional yet simple and intuitive pattern-based d
  * Very user-friendly, modular, fast and intuitive graphical interface based on QT 5.
  * Sample-based stereo audio engine, with import of sound samples in wav, au and aiff formats 
  * Support of samples in compressed FLAC file.
+ * Separate commandline interface (h2cli)
 
 #### Sequencer and mixer
 
@@ -26,7 +27,7 @@ It's main goal is to bring professional yet simple and intuitive pattern-based d
  * Sample Editor, with basic cut and loop functions. 
  * Time-stretch and pitch functions via rubberband cli.
  * Playlist with scripting support
- * Advanced tab-tempo
+ * Advanced tap-tempo
  * Director Window with a visual metronome and song position tags
  * Timeline with variable tempo
  * Import/Export single patterns

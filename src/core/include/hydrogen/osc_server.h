@@ -163,6 +163,15 @@ class OscServer : public H2Core::Object
 		 * - PLAYLIST_SONG_Handler()
 		 * - SELECT_INSTRUMENT_Handler()
 		 *
+		 * In case of the session managing handlers the following ones
+		 * only work with no argument present
+		 * - SAVE_SONG_Handler()
+		 * - QUIT_Handler()
+		 * and others only work by supplying a string "s" type message
+		 * - NEW_SONG_Handler()
+		 * - OPEN_SONG_Handler()
+		 * - SAVE_SONG_AS_Handler()
+		 *
 		 * The generic_handler() will be registered to match all paths
 		 * and types.
 		 *
@@ -565,9 +574,65 @@ class OscServer : public H2Core::Object
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
-		 * \param i Unused number of arguments passed by the OSC
+		 * \param argc Number of arguments passed by the OSC
 		 * message.*/
-		static void REDO_ACTION_Handler(lo_arg **argv, int i);
+		static void REDO_ACTION_Handler(lo_arg **argv, int argc);
+		/**
+		 * Creates an Action of type @b NEW_SONG and passes its
+		 * references to MidiActionManager::handleAction().
+		 *
+		 * The handler expects the user to provide an absolute path to
+		 * a .h2song file. If another file already exists with the
+		 * same name, it will be overwritten.
+		 *
+		 * \param argv Unused pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param argc Number of arguments passed by the OSC message.
+		 */
+		static void NEW_SONG_Handler(lo_arg **argv, int argc);
+		/**
+		 * Creates an Action of type @b OPEN_SONG and passes its
+		 * references to MidiActionManager::handleAction().
+		 *
+		 * The handler expects the user to provide an absolute path to
+		 * a .h2song file.
+		 *
+		 * \param argv Unused pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param argc Number of arguments passed by the OSC message.
+		 */
+		static void OPEN_SONG_Handler(lo_arg **argv, int argc);
+		/**
+		 * Creates an Action of type @b SAVE_SONG and passes its
+		 * references to MidiActionManager::handleAction().
+		 *
+		 * \param argv Unused pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void SAVE_SONG_Handler(lo_arg **argv, int argc);
+		/**
+		 * Creates an Action of type @b SAVE_SONG_AS and passes its
+		 * references to MidiActionManager::handleAction().
+		 *
+		 * The handler expects the user to provide an absolute path to
+		 * a .h2song file. If another file already exists with the
+		 * same name, it will be overwritten.
+		 *
+		 * \param argv Unused pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param argc Number of arguments passed by the OSC
+		 * message.*/
+		static void SAVE_SONG_AS_Handler(lo_arg **argv, int argc);
+		/**
+		 * Creates an Action of type @b QUIT and passes its
+		 * references to MidiActionManager::handleAction().
+		 *
+		 * \param argv Unused pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void QUIT_Handler(lo_arg **argv, int argc);
 		/** 
 		 * Catches any incoming messages and display them. 
 		 *

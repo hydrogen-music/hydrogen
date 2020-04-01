@@ -279,9 +279,12 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 					QMessageBox::information ( this, "Hydrogen", tr( "Please do not preview samples which are longer than 10 minutes!" )  );
 				}
 			}
+			m_pNameLabel->setText( message );
+		} else {
+			openBTN->setEnabled( false );
+			QMessageBox::information ( this, "Hydrogen", tr( "Unable to load that sample file." )  );
 		}
 
-		m_pNameLabel->setText( message );
 	}else{
 		m_pNameLabel->setText( tr( "Name:"));
 		m_pNBytesLable->setText( tr( "Size:" ) );

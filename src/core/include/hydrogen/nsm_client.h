@@ -71,6 +71,13 @@ class NsmClient : public H2Core::Object
 
 		void shutdown();
 
+		/**
+		 * To determine whether Hydrogen is under Non session management,
+		 * it is not sufficient to check whether the NSM_URL environmental
+		 * variable is set but also whether. 
+		 */
+		bool m_bUnderSessionManagement;
+
 	private:
 		NsmClient();
 

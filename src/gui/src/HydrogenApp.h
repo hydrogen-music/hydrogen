@@ -69,7 +69,7 @@ class SampleEditor;
 class Director;
 class InfoBar;
 
-class HydrogenApp : public QObject, public H2Core::Object
+class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 {
 		H2_OBJECT
 	Q_OBJECT
@@ -167,8 +167,8 @@ class HydrogenApp : public QObject, public H2Core::Object
 		     EventListener::undoRedoActionEvent()
 		 * - H2Core::EVENT_TEMPO_CHANGED -> 
 		     EventListener::tempoChangedEvent()
-		 * - H2Core::EVENT_MISMATCHING_SAMPLE_RATE -> 
-		     EventListener::mismatchingSampleRateEvent()
+		 * - H2Core::EVENT_UPDATE_SONG -> 
+		     EventListener::updateSongEvent()
 		 * - H2Core::EVENT_NONE -> nothing
 		 *
 		 * In addition, all MIDI notes in
@@ -178,7 +178,6 @@ class HydrogenApp : public QObject, public H2Core::Object
 		*/
 		void onEventQueueTimer();
 		void currentTabChanged(int);
-
 
 	private:
 		static HydrogenApp *		m_pInstance;	///< HydrogenApp instance
@@ -210,6 +209,24 @@ class HydrogenApp : public QObject, public H2Core::Object
 
 		void setupSinglePanedInterface();
 		virtual void songModifiedEvent();
+
+		/**
+		 * Refreshes and updates the GUI after the Song was changed in
+		 * the core part of Hydrogen.
+		 *
+		 * When using session management or changing the Song using
+		 * an OSC message, this command will get core and GUI in sync
+		 * again. 
+		 *
+		 * \param nValue unused
+		 */
+		virtual void updateSongEvent( int nValue );
+		/**
+		 * Calls closeAll() to shutdown Hydrogen.
+		 *
+		 * \param nValue unused
+		 */
+		virtual void quitEvent( int nValue );
 };
 
 

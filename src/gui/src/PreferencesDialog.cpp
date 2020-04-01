@@ -228,7 +228,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	// midi tab
 	midiPortChannelComboBox->setEnabled( false );
 	midiPortComboBox->setEnabled( false );
-	// list midi output ports
+	
+	// list midi input ports
 	midiPortComboBox->clear();
 	midiPortComboBox->addItem( "None" );
 	if ( Hydrogen::get_instance()->getMidiInput() ) {
@@ -244,6 +245,26 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 			if ( sPortName == pPref->m_sMidiPortName ) {
 				midiPortComboBox->setCurrentIndex( i + 1 );
+			}
+		}
+	}
+	
+	// list midi output ports
+	midiOutportComboBox->clear();
+	midiOutportComboBox->addItem( "None" );
+	if ( Hydrogen::get_instance()->getMidiOutput() ) {
+		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiOutput()->getInputPortList();
+
+		if ( midiOutList.size() != 0 ) {
+			midiOutportComboBox->setEnabled( true );
+			midiPortChannelComboBox->setEnabled( true );
+		}
+		for (uint i = 0; i < midiOutList.size(); i++) {
+			QString sPortName = midiOutList[i];
+			midiOutportComboBox->addItem( sPortName );
+
+			if ( sPortName == pPref->m_sMidiOutputPortName ) {
+				midiOutportComboBox->setCurrentIndex( i + 1 );
 			}
 		}
 	}
@@ -439,9 +460,14 @@ void PreferencesDialog::on_okBtn_clicked()
 	}
 
 	QString sNewMidiPortName = midiPortComboBox->currentText();
-
 	if ( pPref->m_sMidiPortName != sNewMidiPortName ) {
 		pPref->m_sMidiPortName = sNewMidiPortName;
+		m_bNeedDriverRestart = true;
+	}
+	
+	QString sNewMidiOutputPortName = midiOutportComboBox->currentText();
+	if ( pPref->m_sMidiOutputPortName != sNewMidiOutputPortName ) {
+		pPref->m_sMidiOutputPortName = sNewMidiOutputPortName;
 		m_bNeedDriverRestart = true;
 	}
 
@@ -740,15 +766,17 @@ void PreferencesDialog::on_selectMixerFontBtn_clicked()
 	mixerFontLbl->setText(family + QString("  %1").arg(pointSize));
 }
 
-
-
 void PreferencesDialog::on_midiPortComboBox_activated( int index )
 {
 	UNUSED( index );
 	m_bNeedDriverRestart = true;
 }
 
-
+void PreferencesDialog::on_midiOutportComboBox_activated( int index )
+{
+	UNUSED( index );
+	m_bNeedDriverRestart = true;
+}
 
 void PreferencesDialog::on_styleComboBox_activated( int index )
 {

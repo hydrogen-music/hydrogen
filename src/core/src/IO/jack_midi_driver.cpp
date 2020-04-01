@@ -408,6 +408,16 @@ JackMidiDriver::close()
 }
 
 std::vector<QString>
+JackMidiDriver::getInputPortList()
+{
+	vector<QString> inputList;
+
+	inputList.push_back("Default");
+
+	return inputList;
+}
+
+std::vector<QString>
 JackMidiDriver::getOutputPortList()
 {
 	vector<QString> outputList;

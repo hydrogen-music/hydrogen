@@ -73,6 +73,13 @@ class InstrumentList : public H2Core::Object
 		 * \param instrument a pointer to the instrument to add
 		 */
 		void insert( int idx, Instrument* instrument );
+		
+		/**
+		 * check if there is a idx is a valid index for this list
+		 * without throwing an error messaage
+		 * \param idx the index of the instrument
+		 */
+		bool is_valid_index( int idx ) const;
 		/**
 		 * get an instrument from  the list
 		 * \param idx the index to get the instrument from

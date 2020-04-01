@@ -249,9 +249,33 @@ int OscServer::generic_handler(const char *	path,
 OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name )
 {
 	m_pPreferences = pPreferences;
-	int port = m_pPreferences->getOscServerPort();
-
-	m_pServerThread = new lo::ServerThread( port );
+	
+	if( m_pPreferences->getOscServerEnabled() )
+	{
+		int port = m_pPreferences->getOscServerPort();
+	
+		m_pServerThread = new lo::ServerThread( port );
+		
+		// If there is already another service registered to the same
+		// port, the OSC server is not valid an can not be started.
+		if ( !m_pServerThread->is_valid() ) {
+			int tmpPort;
+			
+			delete m_pServerThread;
+			
+			// Instead, let the liblo library choose a working
+			// port on their own (nullptr argument).
+			m_pServerThread = new lo::ServerThread( nullptr );
+			
+			tmpPort = m_pServerThread->port();
+			
+			ERRORLOG( QString("Could not start OSC server on port %1, using port %2 instead.").arg(port).arg(tmpPort));
+			
+			H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_ERROR, H2Core::Hydrogen::OSC_CANNOT_CONNECT_TO_PORT );		
+		} else {
+			INFOLOG( QString( "OSC server running on port %1" ).arg( port ) );
+		}
+	}
 }
 
 void OscServer::create_instance( H2Core::Preferences* pPreferences )
@@ -560,6 +584,66 @@ void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
 	pActionManager->handleAction( &currentAction );
 }
 
+// Actions required for session management.
+void OscServer::NEW_SONG_Handler(lo_arg **argv, int argc) {
+	
+	Action currentAction("NEW_SONG");	
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	// Accessing the provided path for the new Song.
+	if ( argc > 0 ) {
+		currentAction.setParameter1( QString::fromUtf8( &argv[0]->s ) );
+		pActionManager->handleAction(&currentAction);
+	} else {
+		// This shouldn't be happening since the handler function is
+		// only registered with an "s" lo_type argument.
+	}
+}
+
+void OscServer::OPEN_SONG_Handler(lo_arg **argv, int argc) {
+	Action currentAction("OPEN_SONG");
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	// Accessing the provided path for the new Song.
+	if ( argc > 0 ) {
+		currentAction.setParameter1( QString::fromUtf8( &argv[0]->s ) );
+		pActionManager->handleAction(&currentAction);
+	} else {
+		// This shouldn't be happening since the handler function is
+		// only registered with an "s" lo_type argument.
+	}
+	
+	pActionManager->handleAction(&currentAction);
+}
+
+void OscServer::SAVE_SONG_Handler(lo_arg **argv, int argc) {
+	Action currentAction("SAVE_SONG");
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+	
+	pActionManager->handleAction(&currentAction);
+}
+
+void OscServer::SAVE_SONG_AS_Handler(lo_arg **argv, int argc) {
+	Action currentAction("SAVE_SONG_AS");
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+
+	// Accessing the provided path for the new Song.
+	if ( argc > 0 ) {
+		currentAction.setParameter1( QString::fromUtf8( &argv[0]->s ) );
+		pActionManager->handleAction(&currentAction);
+	} else {
+		// This shouldn't be happening since the handler function is
+		// only registered with an "s" lo_type argument.
+	}
+}
+
+void OscServer::QUIT_Handler(lo_arg **argv, int argc) {
+	Action currentAction("QUIT");
+	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+	
+	pActionManager->handleAction(&currentAction);
+}
+
 bool IsLoAddressEqual( lo_address first, lo_address second )
 {
 	bool portEqual = ( strcmp( lo_address_get_port( first ), lo_address_get_port( second ) ) == 0);
@@ -820,7 +904,13 @@ void OscServer::start()
 	m_pServerThread->add_method("/Hydrogen/UNDO_ACTION", "f", UNDO_ACTION_Handler);
 	m_pServerThread->add_method("/Hydrogen/REDO_ACTION", "", REDO_ACTION_Handler);
 	m_pServerThread->add_method("/Hydrogen/REDO_ACTION", "f", REDO_ACTION_Handler);
-	
+
+	m_pServerThread->add_method("/Hydrogen/NEW_SONG", "s", NEW_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/OPEN_SONG", "s", OPEN_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_SONG", "", SAVE_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_SONG_AS", "s", SAVE_SONG_AS_Handler);
+	m_pServerThread->add_method("/Hydrogen/QUIT", "", QUIT_Handler);
+
 	/*
 	 * Start the server.
 	 */
@@ -828,6 +918,7 @@ void OscServer::start()
 
 
 	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->getOscServerPort() ));
+	
 }
 
 OscServer::~OscServer()

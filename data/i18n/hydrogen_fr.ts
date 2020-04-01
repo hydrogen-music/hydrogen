@@ -199,6 +199,10 @@
         <source>Sample length:</source>
         <translation>Longueur d&apos;échantillon :</translation>
     </message>
+    <message>
+        <source>Unable to load that sample file.</source>
+        <translation>Impossible de charger ce fichier échantillon.</translation>
+    </message>
 </context>
 <context>
     <name>AudioFileBrowser_UI</name>

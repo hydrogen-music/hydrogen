@@ -174,7 +174,7 @@ void CoreMidiDriver::open()
 		cmH2Dst = MIDIGetDestination(0);
 	}
 
-	if (cmH2Dst != NULL) {
+	if (cmH2Dst != 0) {
 		CFStringRef H2MidiNames;
 
 		MIDIObjectGetStringProperty(cmH2Dst, kMIDIPropertyName, &H2MidiNames);
@@ -200,7 +200,38 @@ void CoreMidiDriver::close()
 	err = MIDIClientDispose( h2MIDIClient );
 }
 
+std::vector<QString> CoreMidiDriver::getInputPortList()
+{
+	INFOLOG( "retrieving output list" );
+	OSStatus err = noErr;
 
+	std::vector<QString> cmPortList;
+	
+	cmSources = MIDIGetNumberOfDestinations();
+
+	INFOLOG ( "Getting number of MIDI sources . . .\n" );
+
+	unsigned i;
+	for ( i = 0; i < cmSources; i++ ) {
+		CFStringRef H2MidiNames;
+		cmH2Src = MIDIGetDestination( i );
+		if ( cmH2Src == 0 ) {
+			ERRORLOG( "Could not open output device" );
+		}
+		if ( cmH2Src ) {
+			err = MIDIObjectGetStringProperty( cmH2Src, kMIDIPropertyName, &H2MidiNames );
+			INFOLOG ( "Getting MIDI object string property . . .\n" );
+			char cmName[ 64 ];
+			CFStringGetCString( H2MidiNames, cmName, 64, kCFStringEncodingASCII );
+			INFOLOG ( "Getting MIDI object name . . .\n" );
+			QString h2MidiPortName = cmName;
+			cmPortList.push_back( h2MidiPortName );
+		}
+		CFRelease( H2MidiNames );
+	}
+
+	return cmPortList;
+}
 
 std::vector<QString> CoreMidiDriver::getOutputPortList()
 {
@@ -216,7 +247,7 @@ std::vector<QString> CoreMidiDriver::getOutputPortList()
 	for ( i = 0; i < cmSources; i++ ) {
 		CFStringRef H2MidiNames;
 		cmH2Src = MIDIGetSource( i );
-		if ( cmH2Src == NULL ) {
+		if ( cmH2Src == 0 ) {
 			ERRORLOG( "Could not open input device" );
 		}
 		if ( cmH2Src ) {
@@ -236,8 +267,8 @@ std::vector<QString> CoreMidiDriver::getOutputPortList()
 
 void CoreMidiDriver::handleQueueNote(Note* pNote)
 {
-	if (cmH2Dst == NULL ) {
-		ERRORLOG( "cmH2Dst = NULL " );
+	if (cmH2Dst == 0 ) {
+		ERRORLOG( "cmH2Dst = 0 " );
 		return;
 	}
 
@@ -269,8 +300,8 @@ void CoreMidiDriver::handleQueueNote(Note* pNote)
 
 void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 {
-	if (cmH2Dst == NULL ) {
-		ERRORLOG( "cmH2Dst = NULL " );
+	if (cmH2Dst == 0 ) {
+		ERRORLOG( "cmH2Dst = 0 " );
 		return;
 	}
 
@@ -296,8 +327,8 @@ void CoreMidiDriver::handleQueueNoteOff( int channel, int key, int velocity )
 
 void CoreMidiDriver::handleQueueAllNoteOff()
 {
-	if (cmH2Dst == NULL ) {
-		ERRORLOG( "cmH2Dst = NULL " );
+	if (cmH2Dst == 0 ) {
+		ERRORLOG( "cmH2Dst = 0 " );
 		return;
 	}
 
@@ -328,8 +359,8 @@ void CoreMidiDriver::handleQueueAllNoteOff()
 
 void CoreMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
 {
-	if (cmH2Dst == NULL ) {
-		ERRORLOG( "cmH2Dst = NULL " );
+	if (cmH2Dst == 0 ) {
+		ERRORLOG( "cmH2Dst = 0 " );
 		return;
 	}
 

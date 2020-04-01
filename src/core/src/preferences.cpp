@@ -152,6 +152,7 @@ Preferences::Preferences()
 	//___ MIDI Driver properties
 	m_sMidiDriver = QString("ALSA");
 	m_sMidiPortName = QString("None");
+	m_sMidiOutputPortName = QString("None");
 	m_nMidiChannelFilter = -1;
 	m_bMidiNoteOffIgnore = false;
 	m_bMidiFixedMapping = false;
@@ -442,6 +443,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				} else {
 					m_sMidiDriver = LocalFileMng::readXmlString( midiDriverNode, "driverName", "ALSA" );
 					m_sMidiPortName = LocalFileMng::readXmlString( midiDriverNode, "port_name", "None" );
+					m_sMidiOutputPortName = LocalFileMng::readXmlString( midiDriverNode, "output_port_name", "None" );
 					m_nMidiChannelFilter = LocalFileMng::readXmlInt( midiDriverNode, "channel_filter", -1 );
 					m_bMidiNoteOffIgnore = LocalFileMng::readXmlBool( midiDriverNode, "ignore_note_off", true );
 					m_bMidiDiscardNoteAfterAction = LocalFileMng::readXmlBool( midiDriverNode, "discard_note_after_action", true);
@@ -836,6 +838,7 @@ void Preferences::savePreferences()
 		{
 			LocalFileMng::writeXmlString( midiDriverNode, "driverName", m_sMidiDriver );
 			LocalFileMng::writeXmlString( midiDriverNode, "port_name", m_sMidiPortName );
+			LocalFileMng::writeXmlString( midiDriverNode, "output_port_name", m_sMidiOutputPortName );
 			LocalFileMng::writeXmlString( midiDriverNode, "channel_filter", QString("%1").arg( m_nMidiChannelFilter ) );
 
 			if ( m_bMidiNoteOffIgnore ) {

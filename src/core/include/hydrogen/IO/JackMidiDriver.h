@@ -55,6 +55,7 @@ public:
 
 	virtual void open();
 	virtual void close();
+	virtual std::vector<QString> getInputPortList();	
 	virtual std::vector<QString> getOutputPortList();
 
 	void getPortInfo( const QString& sPortName, int& nClient, int& nPort );
