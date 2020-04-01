@@ -65,6 +65,17 @@ ExportMidiDialog::~ExportMidiDialog()
 void ExportMidiDialog::saveSettingsToPreferences()
 {
 	m_pPreferences->setMidiExportMode( exportTypeCombo->currentIndex() );
+	
+	// extracting dirname from export box	
+	QString sFilename = exportNameTxt->text();
+	QFileInfo info( sFilename );
+	QDir dir = info.absoluteDir();
+	if ( !dir.exists() ) {
+		// very strange if it happens but better to check for it anyway
+		return;	
+	}
+	QString sSelectedDirname = dir.absolutePath();
+	m_pPreferences->setMidiExportDirectory( sSelectedDirname );
 }
 
 void ExportMidiDialog::restoreSettingsFromPreferences()
@@ -114,8 +125,6 @@ void ExportMidiDialog::on_browseBtn_clicked()
 	if ( fd.exec() == QDialog::Accepted ) {
 		m_bFileSelected = true;
 		sFilename = fd.selectedFiles().first();
-		QString sSelectedDirname = fd.directory().absolutePath();
-		m_pPreferences->setMidiExportDirectory(sSelectedDirname);
 	}
 
 	if (sFilename.isEmpty() ) {
