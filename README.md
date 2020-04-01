@@ -16,6 +16,7 @@ It's main goal is to bring professional yet simple and intuitive pattern-based d
  * Very user-friendly, modular, fast and intuitive graphical interface based on QT 5.
  * Sample-based stereo audio engine, with import of sound samples in wav, au and aiff formats 
  * Support of samples in compressed FLAC file.
+ * Separate commandline interface (h2cli)
 
 #### Sequencer and mixer
 
