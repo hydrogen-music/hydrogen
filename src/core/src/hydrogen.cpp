@@ -2172,12 +2172,12 @@ void audioEngine_startAudioDrivers()
 		}
 	#else
 		//On Windows systems, use PortAudio is the prioritized backend
-		if ( ( m_pAudioDriver = createDriver( "PortAudio" ) ) == NULL ) {
-			if ( ( m_pAudioDriver = createDriver( "Alsa" ) ) == NULL ) {
-				if ( ( m_pAudioDriver = createDriver( "CoreAudio" ) ) == NULL ) {
-					if ( ( m_pAudioDriver = createDriver( "Jack" ) ) == NULL ) {
-						if ( ( m_pAudioDriver = createDriver( "Oss" ) ) == NULL ) {
-							if ( ( m_pAudioDriver = createDriver( "PulseAudio" ) ) == NULL ) {
+		if ( ( m_pAudioDriver = createDriver( "PortAudio" ) ) == nullptr ) {
+			if ( ( m_pAudioDriver = createDriver( "Alsa" ) ) == nullptr ) {
+				if ( ( m_pAudioDriver = createDriver( "CoreAudio" ) ) == nullptr ) {
+					if ( ( m_pAudioDriver = createDriver( "Jack" ) ) == nullptr ) {
+						if ( ( m_pAudioDriver = createDriver( "Oss" ) ) == nullptr ) {
+							if ( ( m_pAudioDriver = createDriver( "PulseAudio" ) ) == nullptr ) {
 								audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
 								___ERRORLOG( "Error starting audio driver" );
 								___ERRORLOG( "Using the NULL output audio driver" );
