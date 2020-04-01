@@ -28,6 +28,9 @@
 #include "ui_ExportMidiDialog_UI.h"
 #include <hydrogen/object.h>
 
+namespace H2Core {
+    class Preferences;
+}
 
 ///
 /// Dialog for exporting song to midi
@@ -49,8 +52,12 @@ private slots:
 
 private:
 	void exportTrack();
-	bool m_bFileSelected;
+    void saveSettingsToPreferences();
+    void restoreSettingsFromPreferences();
+
+    bool m_bFileSelected;
 	QString m_sExtension;
+    H2Core::Preferences*	m_pPreferences;
 };
 
 
