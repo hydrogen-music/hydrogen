@@ -39,23 +39,23 @@ const char* ExportMidiDialog::__class_name = "ExportMidiDialog";
 enum ExportModes { EXPORT_SMF1_SINGLE, EXPORT_SMF1_MULTI, EXPORT_SMF0 };
 
 ExportMidiDialog::ExportMidiDialog( QWidget* parent )
-    : QDialog( parent )
-    , Object( __class_name )
-    , m_bFileSelected( false )
-    , m_sExtension( ".mid" )
-    , m_pPreferences( Preferences::get_instance() )
+	: QDialog( parent )
+	, Object( __class_name )
+	, m_bFileSelected( false )
+	, m_sExtension( ".mid" )
+	, m_pPreferences( Preferences::get_instance() )
 {
-    setupUi( this );
-    setModal( true );
-    setWindowTitle( trUtf8( "Export midi" ) );
+	setupUi( this );
+	setModal( true );
+	setWindowTitle( trUtf8( "Export midi" ) );
 
-    exportTypeCombo->addItem( trUtf8("SMF1: export all instruments to a single track") );
-    exportTypeCombo->addItem( trUtf8("SMF1: export each instrument to separate track") );
-    exportTypeCombo->addItem( trUtf8("SMF0: export all events to one track") );
+	exportTypeCombo->addItem( trUtf8("SMF1 single: export all instruments to a single track") );
+	exportTypeCombo->addItem( trUtf8("SMF1 multi: export each instrument to separate track") );
+	exportTypeCombo->addItem( trUtf8("SMF0: export all events to one track") );
 
-    restoreSettingsFromPreferences();
+	restoreSettingsFromPreferences();
 
-    adjustSize();
+	adjustSize();
 }
 
 ExportMidiDialog::~ExportMidiDialog()
@@ -64,115 +64,120 @@ ExportMidiDialog::~ExportMidiDialog()
 
 void ExportMidiDialog::saveSettingsToPreferences()
 {
-    m_pPreferences->setMidiExportMode( exportTypeCombo->currentIndex() );
+	m_pPreferences->setMidiExportMode( exportTypeCombo->currentIndex() );
 }
 
 void ExportMidiDialog::restoreSettingsFromPreferences()
 {
-    // loading previous directory and filling filename text field
-    Hydrogen * pHydrogen = Hydrogen::get_instance();
+	// loading previous directory and filling filename text field
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
 
-    QString sDefaultFilename = pHydrogen->getSong()->get_filename();
+	QString sDefaultFilename = pHydrogen->getSong()->get_filename();
 
-    if( sDefaultFilename.isEmpty() ){
-        sDefaultFilename = pHydrogen->getSong()->__name;
-    }
+	if( sDefaultFilename.isEmpty() ){
+		sDefaultFilename = pHydrogen->getSong()->__name;
+	} else {
+		// extracting filename from full path
+		QFileInfo qDefaultFile(sDefaultFilename); 
+		sDefaultFilename = qDefaultFile.fileName();
+	}
 
-    sDefaultFilename.replace( '*', "_" );
-    sDefaultFilename.replace( Filesystem::songs_ext, "" );
-    sDefaultFilename += m_sExtension;
+	sDefaultFilename.replace( '*', "_" );
+	sDefaultFilename.replace( Filesystem::songs_ext, "" );
+	sDefaultFilename += m_sExtension;
 
-    QString sDirPath = m_pPreferences->getMidiExportDirectory();
-    QDir qd = QDir( sDirPath );
-    QString sFullPath = qd.absoluteFilePath( sDefaultFilename );
-    exportNameTxt->setText( sFullPath );
+	QString sDirPath = m_pPreferences->getMidiExportDirectory();
+	QDir qd = QDir( sDirPath );
+	// joining filepath with dirname
+	QString sFullPath = qd.absoluteFilePath( sDefaultFilename );
+	exportNameTxt->setText( sFullPath );
 
-    // loading rest of the options
-    exportTypeCombo->setCurrentIndex( m_pPreferences->getMidiExportMode() );
+	// loading rest of the options
+	exportTypeCombo->setCurrentIndex( m_pPreferences->getMidiExportMode() );
 }
 
 void ExportMidiDialog::on_browseBtn_clicked()
 {
-    QFileDialog fd( this );
-    QString sPrevDirname = m_pPreferences->getMidiExportDirectory();
+	QFileDialog fd( this );
+	QString sPrevDirname = m_pPreferences->getMidiExportDirectory();
 
-    fd.setFileMode( QFileDialog::AnyFile );
-    fd.setNameFilter( trUtf8("Midi file (*%1)").arg(m_sExtension) );
-    fd.setDirectory( sPrevDirname );
-    fd.setWindowTitle( trUtf8( "Export MIDI file" ) );
-    fd.setAcceptMode( QFileDialog::AcceptSave );
+	fd.setFileMode( QFileDialog::AnyFile );
+	fd.setNameFilter( trUtf8("Midi file (*%1)").arg(m_sExtension) );
+	fd.setDirectory( sPrevDirname );
+	fd.setWindowTitle( trUtf8( "Export MIDI file" ) );
+	fd.setAcceptMode( QFileDialog::AcceptSave );
 
-    QString sDefaultFilename = exportNameTxt->text();
-    fd.selectFile( sDefaultFilename );
+	QString sDefaultFilename = exportNameTxt->text();
+	fd.selectFile( sDefaultFilename );
 
-    QString sFilename;
-    if ( fd.exec() == QDialog::Accepted ) {
-        m_bFileSelected = true;
-        sFilename = fd.selectedFiles().first();
-        QString sSelectedDirname = fd.directory().absolutePath();
-        m_pPreferences->setMidiExportDirectory(sSelectedDirname);
-    }
+	QString sFilename;
+	if ( fd.exec() == QDialog::Accepted ) {
+		m_bFileSelected = true;
+		sFilename = fd.selectedFiles().first();
+		QString sSelectedDirname = fd.directory().absolutePath();
+		m_pPreferences->setMidiExportDirectory(sSelectedDirname);
+	}
 
-    if (sFilename.isEmpty() ) {
-        return;
-    }
+	if (sFilename.isEmpty() ) {
+		return;
+	}
 
-    if ( sFilename.endsWith(m_sExtension) == false ) {
-        sFilename += m_sExtension;
-    }
+	if ( sFilename.endsWith(m_sExtension) == false ) {
+		sFilename += m_sExtension;
+	}
 
-    exportNameTxt->setText( sFilename );
+	exportNameTxt->setText( sFilename );
 }
 
 
 void ExportMidiDialog::on_okBtn_clicked()
 {
 
-    saveSettingsToPreferences();
+	saveSettingsToPreferences();
 
-    Hydrogen *pEngine = Hydrogen::get_instance();
-    Song *pSong = pEngine->getSong();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
 
-    // checking file overwrite
-    QString sFilename = exportNameTxt->text();
-    QFile qFile( sFilename );
+	// checking file overwrite
+	QString sFilename = exportNameTxt->text();
+	QFile qFile( sFilename );
 
-    if ( qFile.exists() == true && m_bFileSelected == false ) {
-        int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(sFilename), QMessageBox::Yes | QMessageBox::No );
-        if (res == QMessageBox::No ) {
-            return;
-        }
-    }
+	if ( qFile.exists() == true && m_bFileSelected == false ) {
+		int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(sFilename), QMessageBox::Yes | QMessageBox::No );
+		if (res == QMessageBox::No ) {
+			return;
+		}
+	}
 
-    // choosing writer
-    SMFWriter *pSmfWriter;
-    if( exportTypeCombo->currentIndex() == EXPORT_SMF1_SINGLE ){
-        pSmfWriter = new SMF1WriterSingle();
-    } else if ( exportTypeCombo->currentIndex() == EXPORT_SMF1_MULTI ){
-        pSmfWriter = new SMF1WriterMulti();
-    } else if ( exportTypeCombo->currentIndex() == EXPORT_SMF0 ){
-        pSmfWriter = new SMF0Writer();
-    }
+	// choosing writer
+	SMFWriter *pSmfWriter;
+	if( exportTypeCombo->currentIndex() == EXPORT_SMF1_SINGLE ){
+		pSmfWriter = new SMF1WriterSingle();
+	} else if ( exportTypeCombo->currentIndex() == EXPORT_SMF1_MULTI ){
+		pSmfWriter = new SMF1WriterMulti();
+	} else if ( exportTypeCombo->currentIndex() == EXPORT_SMF0 ){
+		pSmfWriter = new SMF0Writer();
+	}
 
-    pSmfWriter->save( sFilename, pSong );
+	pSmfWriter->save( sFilename, pSong );
 
-    delete pSmfWriter;
-    accept();
+	delete pSmfWriter;
+	accept();
 }
 
 void ExportMidiDialog::on_closeBtn_clicked()
 {
-    accept();
+accept();
 }
 
 
 void ExportMidiDialog::on_exportNameTxt_textChanged( const QString& )
 {
-    QString filename = exportNameTxt->text();
-    if ( ! filename.isEmpty() ) {
-        okBtn->setEnabled( true );
-    }
-    else {
-        okBtn->setEnabled( false );
-    }
+QString filename = exportNameTxt->text();
+if ( ! filename.isEmpty() ) {
+	okBtn->setEnabled( true );
+}
+else {
+	okBtn->setEnabled( false );
+}
 }
