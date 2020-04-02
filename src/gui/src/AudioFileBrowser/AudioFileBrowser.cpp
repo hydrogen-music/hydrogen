@@ -259,7 +259,7 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 			m_pSamplerateLable->setText( tr( "Samplerate: %1" ).arg( pNewSample->get_sample_rate() ) );
 			float sec = ( float )( pNewSample->get_frames() / (float)pNewSample->get_sample_rate() );
 			QString qsec;
-			qsec.asprintf( "%2.2f", sec );
+			qsec = QString::asprintf( "%2.2f", sec );
 			m_pLengthLable->setText( tr( "Sample length: " ) + qsec + tr( " s" ) );
 
 			delete pNewSample;
