@@ -141,7 +141,6 @@ void ExportMidiDialog::on_browseBtn_clicked()
 
 void ExportMidiDialog::on_okBtn_clicked()
 {
-
 	saveSettingsToPreferences();
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
@@ -149,8 +148,8 @@ void ExportMidiDialog::on_okBtn_clicked()
 
 	// checking file overwrite
 	QString sFilename = exportNameTxt->text();
-	QFile qFile( sFilename );
-
+	QFileInfo qFile( sFilename );
+	
 	if ( qFile.exists() == true && m_bFileSelected == false ) {
 		int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(sFilename), QMessageBox::Yes | QMessageBox::No );
 		if (res == QMessageBox::No ) {
@@ -176,17 +175,17 @@ void ExportMidiDialog::on_okBtn_clicked()
 
 void ExportMidiDialog::on_closeBtn_clicked()
 {
-accept();
+	accept();
 }
 
 
 void ExportMidiDialog::on_exportNameTxt_textChanged( const QString& )
 {
-QString filename = exportNameTxt->text();
-if ( ! filename.isEmpty() ) {
-	okBtn->setEnabled( true );
-}
-else {
-	okBtn->setEnabled( false );
-}
+	QString filename = exportNameTxt->text();
+	if ( ! filename.isEmpty() ) {
+		okBtn->setEnabled( true );
+	}
+	else {
+		okBtn->setEnabled( false );
+	}
 }
