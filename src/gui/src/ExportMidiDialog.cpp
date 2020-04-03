@@ -89,7 +89,7 @@ void ExportMidiDialog::restoreSettingsFromPreferences()
 		sDefaultFilename = pHydrogen->getSong()->__name;
 	} else {
 		// extracting filename from full path
-		QFileInfo qDefaultFile(sDefaultFilename); 
+		QFileInfo qDefaultFile( sDefaultFilename ); 
 		sDefaultFilename = qDefaultFile.fileName();
 	}
 
@@ -113,7 +113,7 @@ void ExportMidiDialog::on_browseBtn_clicked()
 	QString sPrevDirname = m_pPreferences->getMidiExportDirectory();
 
 	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setNameFilter( trUtf8("Midi file (*%1)").arg(m_sExtension) );
+	fd.setNameFilter( trUtf8("Midi file (*%1)").arg( m_sExtension ) );
 	fd.setDirectory( sPrevDirname );
 	fd.setWindowTitle( trUtf8( "Export MIDI file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
@@ -127,11 +127,11 @@ void ExportMidiDialog::on_browseBtn_clicked()
 		sFilename = fd.selectedFiles().first();
 	}
 
-	if (sFilename.isEmpty() ) {
+	if ( sFilename.isEmpty() ) {
 		return;
 	}
 
-	if ( sFilename.endsWith(m_sExtension) == false ) {
+	if ( sFilename.endsWith( m_sExtension ) == false ) {
 		sFilename += m_sExtension;
 	}
 
@@ -152,7 +152,7 @@ void ExportMidiDialog::on_okBtn_clicked()
 	
 	if ( qFile.exists() == true && m_bFileSelected == false ) {
 		int res = QMessageBox::information( this, "Hydrogen", tr( "The file %1 exists. \nOverwrite the existing file?").arg(sFilename), QMessageBox::Yes | QMessageBox::No );
-		if (res == QMessageBox::No ) {
+		if ( res == QMessageBox::No ) {
 			return;
 		}
 	}
@@ -182,7 +182,7 @@ void ExportMidiDialog::on_closeBtn_clicked()
 void ExportMidiDialog::on_exportNameTxt_textChanged( const QString& )
 {
 	QString filename = exportNameTxt->text();
-	if ( ! filename.isEmpty() ) {
+	if ( !filename.isEmpty() ) {
 		okBtn->setEnabled( true );
 	}
 	else {
