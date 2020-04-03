@@ -54,10 +54,13 @@ private:
 	void exportTrack();
     void saveSettingsToPreferences();
     void restoreSettingsFromPreferences();
+    QString createDefaultFilename();
 
     bool m_bFileSelected;
 	QString m_sExtension;
     H2Core::Preferences*	m_pPreferences;
+    
+    static QString sLastFilename;
 };
 
 

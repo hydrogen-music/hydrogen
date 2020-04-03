@@ -38,6 +38,9 @@ const char* ExportMidiDialog::__class_name = "ExportMidiDialog";
 
 enum ExportModes { EXPORT_SMF1_SINGLE, EXPORT_SMF1_MULTI, EXPORT_SMF0 };
 
+// Here we are going to store export file filename 
+QString ExportMidiDialog::sLastFilename = "";
+
 ExportMidiDialog::ExportMidiDialog( QWidget* parent )
 	: QDialog( parent )
 	, Object( __class_name )
@@ -74,15 +77,15 @@ void ExportMidiDialog::saveSettingsToPreferences()
 		// very strange if it happens but better to check for it anyway
 		return;	
 	}
+	
+	sLastFilename = info.fileName();
 	QString sSelectedDirname = dir.absolutePath();
 	m_pPreferences->setMidiExportDirectory( sSelectedDirname );
 }
 
-void ExportMidiDialog::restoreSettingsFromPreferences()
+QString ExportMidiDialog::createDefaultFilename()
 {
-	// loading previous directory and filling filename text field
 	Hydrogen * pHydrogen = Hydrogen::get_instance();
-
 	QString sDefaultFilename = pHydrogen->getSong()->get_filename();
 
 	if( sDefaultFilename.isEmpty() ){
@@ -96,16 +99,29 @@ void ExportMidiDialog::restoreSettingsFromPreferences()
 	sDefaultFilename.replace( '*', "_" );
 	sDefaultFilename.replace( Filesystem::songs_ext, "" );
 	sDefaultFilename += m_sExtension;
+	return sDefaultFilename;
+}
+
+void ExportMidiDialog::restoreSettingsFromPreferences()
+{
+	// loading previous directory and filling filename text field
+	// loading default filename on a first run
+	if( sLastFilename.isEmpty() ) 
+	{
+		sLastFilename = createDefaultFilename();
+	}
 
 	QString sDirPath = m_pPreferences->getMidiExportDirectory();
 	QDir qd = QDir( sDirPath );
+	
 	// joining filepath with dirname
-	QString sFullPath = qd.absoluteFilePath( sDefaultFilename );
+	QString sFullPath = qd.absoluteFilePath( sLastFilename );
 	exportNameTxt->setText( sFullPath );
 
 	// loading rest of the options
 	exportTypeCombo->setCurrentIndex( m_pPreferences->getMidiExportMode() );
 }
+
 
 void ExportMidiDialog::on_browseBtn_clicked()
 {
@@ -172,6 +188,7 @@ void ExportMidiDialog::on_okBtn_clicked()
 	delete pSmfWriter;
 	accept();
 }
+
 
 void ExportMidiDialog::on_closeBtn_clicked()
 {
