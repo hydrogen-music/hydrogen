@@ -155,13 +155,18 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 
 	while ( !__queuedNoteOffs.empty() ) {
 		pNote =  __queuedNoteOffs[0];
-		MidiOutput* midiOut = Hydrogen::get_instance()->getMidiOutput();
-		if( midiOut != nullptr ){
-			midiOut->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(), pNote->get_midi_key(),  pNote->get_midi_velocity() );
-
+		MidiOutput* pMidiOut = Hydrogen::get_instance()->getMidiOutput();
+		
+		if( pMidiOut != nullptr && !pNote->get_instrument()->is_muted() ){
+			pMidiOut->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(), pNote->get_midi_key(),  pNote->get_midi_velocity() );
 		}
+		
 		__queuedNoteOffs.erase( __queuedNoteOffs.begin() );
-		if( pNote != nullptr) delete pNote;
+		
+		if( pNote != nullptr ){
+			delete pNote;
+		}
+		
 		pNote = nullptr;
 	}//while
 
@@ -648,7 +653,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		float fTotalPitch = pNote->get_total_pitch() + fLayerPitch;
 
 		//_INFOLOG( "total pitch: " + to_string( fTotalPitch ) );
-		if( ( int )pSelectedLayer->SamplePosition == 0 )
+		if( (int) pSelectedLayer->SamplePosition == 0  && !pInstr->is_muted() )
 		{
 			if( Hydrogen::get_instance()->getMidiOutput() != nullptr ){
 			Hydrogen::get_instance()->getMidiOutput()->handleQueueNote( pNote );
