@@ -30,6 +30,7 @@
 
 namespace H2Core {
     class Preferences;
+    class Hydrogen;
 }
 
 ///
@@ -42,25 +43,27 @@ class ExportMidiDialog : public QDialog, public Ui_ExportMidiDialog_UI, public H
 
 	public:
 		ExportMidiDialog( QWidget* parent );
-	~ExportMidiDialog();
+		~ExportMidiDialog();
 
-private slots:
-	void on_browseBtn_clicked();
-	void on_closeBtn_clicked();
-	void on_okBtn_clicked();
-	void on_exportNameTxt_textChanged( const QString& text );
-
-private:
-	void exportTrack();
-    void saveSettingsToPreferences();
-    void restoreSettingsFromPreferences();
-    QString createDefaultFilename();
-
-    bool m_bFileSelected;
-	QString m_sExtension;
-    H2Core::Preferences*	m_pPreferences;
-    
-    static QString sLastFilename;
+	private slots:
+		void on_browseBtn_clicked();
+		void on_closeBtn_clicked();
+		void on_okBtn_clicked();
+		void on_exportNameTxt_textChanged( const QString& text );
+	
+	private:
+		void 		exportTrack();
+		void 		saveSettingsToPreferences();
+		void		restoreSettingsFromPreferences();
+		QString	 	createDefaultFilename();
+		bool	 	validateUserInput();
+		
+		H2Core::Hydrogen* 		m_pEngine;
+		H2Core::Preferences* 	m_pPreferences;
+		bool 					m_bFileSelected;
+		QString 				m_sExtension;
+		
+		static QString 			sLastFilename;
 };
 
 
