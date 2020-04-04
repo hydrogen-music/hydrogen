@@ -86,7 +86,7 @@ void exportSong( const QString &songFile, const QString &fileName )
  * \param songFile Path to Hydrogen file
  * \param fileName Output file name
  **/
-void exportMIDI( const QString &songFile, const QString &fileName )
+void exportMIDI( const QString &songFile, const QString &fileName, SMFWriter& writer )
 {
 	auto t0 = std::chrono::high_resolution_clock::now();
 
@@ -94,22 +94,24 @@ void exportMIDI( const QString &songFile, const QString &fileName )
 	std::unique_ptr<Song> pSong { Song::load( songFile ) };
 	CPPUNIT_ASSERT( pSong != nullptr );
 
-	SMFWriter writer;
 	writer.save( fileName, pSong.get() );
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 	double t = std::chrono::duration<double>( t1 - t0 ).count();
-	___INFOLOG( QString("MIDI export took %1 seconds").arg(t) );
+	___INFOLOG( QString("MIDI track export took %1 seconds").arg(t) );
 }
 
 
 class FunctionalTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( FunctionalTest );
 	CPPUNIT_TEST( testExportAudio );
-	CPPUNIT_TEST( testExportMIDI );
+	CPPUNIT_TEST( testExportMIDISMF0 );
+	CPPUNIT_TEST( testExportMIDISMF1Single );
+	CPPUNIT_TEST( testExportMIDISMF1Multi );
 //	CPPUNIT_TEST( testExportMuteGroupsAudio ); // SKIP
 	CPPUNIT_TEST( testExportVelocityAutomationAudio );
-	CPPUNIT_TEST( testExportVelocityAutomationMIDI );
+	CPPUNIT_TEST( testExportVelocityAutomationMIDISMF0 );
+	CPPUNIT_TEST( testExportVelocityAutomationMIDISMF1 );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -125,16 +127,42 @@ class FunctionalTest : public CppUnit::TestCase {
 		Filesystem::rm( outFile );
 	}
 
-	void testExportMIDI()
+	void testExportMIDISMF1Single()
 	{
 		auto songFile = H2TEST_FILE("functional/test.h2song");
-		auto outFile = Filesystem::tmp_file_path("test.mid");
-		auto refFile = H2TEST_FILE("functional/test.ref.mid");
+		auto outFile = Filesystem::tmp_file_path("smf1single.test.mid");
+		auto refFile = H2TEST_FILE("functional/smf1single.test.ref.mid");
 
-		exportMIDI( songFile, outFile );
+		SMF1WriterSingle writer;
+		exportMIDI( songFile, outFile, writer );
 		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
 		Filesystem::rm( outFile );
 	}
+	
+	void testExportMIDISMF1Multi()
+	{
+		auto songFile = H2TEST_FILE("functional/test.h2song");
+		auto outFile = Filesystem::tmp_file_path("smf1multi.test.mid");
+		auto refFile = H2TEST_FILE("functional/smf1multi.test.ref.mid");
+
+		SMF1WriterMulti writer;
+		exportMIDI( songFile, outFile, writer );
+		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
+		Filesystem::rm( outFile );
+	}
+	
+	void testExportMIDISMF0()
+	{
+		auto songFile = H2TEST_FILE("functional/test.h2song");
+		auto outFile = Filesystem::tmp_file_path("smf0.test.mid");
+		auto refFile = H2TEST_FILE("functional/smf0.test.ref.mid");
+
+		SMF0Writer writer;
+		exportMIDI( songFile, outFile, writer );
+		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
+		Filesystem::rm( outFile );
+	}
+	
 /* SKIP
 	void testExportMuteGroupsAudio()
 	{
@@ -158,14 +186,29 @@ class FunctionalTest : public CppUnit::TestCase {
 		Filesystem::rm( outFile );
 	}
 
-	void testExportVelocityAutomationMIDI()
+	void testExportVelocityAutomationMIDISMF1()
 	{
 		auto songFile = H2TEST_FILE("functional/velocityautomation.h2song");
-		auto outFile = Filesystem::tmp_file_path("velocityautomation.mid");
-		auto refFile = H2TEST_FILE("functional/velocityautomation.ref.mid");
+		auto outFile = Filesystem::tmp_file_path("smf1.velocityautomation.mid");
+		auto refFile = H2TEST_FILE("functional/smf1.velocityautomation.ref.mid");
 
-		exportMIDI( songFile, outFile );
+		SMF1WriterSingle writer;
+		exportMIDI( songFile, outFile, writer );
 		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
+		
+		Filesystem::rm( outFile );
+	}
+	
+	void testExportVelocityAutomationMIDISMF0()
+	{
+		auto songFile = H2TEST_FILE("functional/velocityautomation.h2song");
+		auto outFile = Filesystem::tmp_file_path("smf0.velocityautomation.mid");
+		auto refFile = H2TEST_FILE("functional/smf0.velocityautomation.ref.mid");
+
+		SMF0Writer writer;
+		exportMIDI( songFile, outFile, writer );
+		H2TEST_ASSERT_FILES_EQUAL( refFile, outFile );
+		
 		Filesystem::rm( outFile );
 	}
 

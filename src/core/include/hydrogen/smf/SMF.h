@@ -41,12 +41,14 @@ class SMFHeader : public SMFBase, public H2Core::Object
 public:
 	SMFHeader( int nFormat, int nTracks, int nTPQN );
 	~SMFHeader();
-
+	
+	void addTrack();
+	virtual std::vector<char> getBuffer();
+	
+private:
 	int m_nFormat;		///< SMF format
 	int m_nTracks;		///< number of tracks
 	int m_nTPQN;		///< ticks per quarter note
-
-	virtual std::vector<char> getBuffer();
 };
 
 
@@ -73,7 +75,7 @@ class SMF : public SMFBase, public H2Core::Object
 {
 	H2_OBJECT
 public:
-	SMF();
+	SMF( int nFormat, int nTPQN );
 	~SMF();
 
 	void addTrack( SMFTrack *pTrack );
@@ -83,24 +85,98 @@ private:
 	std::vector<SMFTrack*> m_trackList;
 
 	SMFHeader* m_pHeader;
-
 };
 
 
 
-class SMFWriter : Object
+typedef std::vector<SMFEvent*> EventList;
+
+
+class SMFWriter : public H2Core::Object
 {
 	H2_OBJECT
 public:
-	SMFWriter();
-	~SMFWriter();
-
+	SMFWriter( const char* sWriterName );
+	virtual ~SMFWriter();
 	void save( const QString& sFilename, Song *pSong );
 
+protected:
+	void sortEvents( EventList* pEventList );
+	SMFTrack* createTrack0( Song* pSong );
+	
+	virtual SMF* createSMF( Song* pSong )=0;
+	virtual void prepareEvents( Song* pSong, SMF* pSmf )=0;
+	virtual EventList* getEvents( Song* pSong, Instrument* pInstr ) = 0;
+	virtual void  packEvents( Song* pSong, SMF* pSmf ) = 0;
+	
 private:
-	FILE *m_file;
-
+	void saveSMF( const QString& sFilename, SMF* pSmf );
 };
+
+
+//-------
+
+class SMF1Writer : public SMFWriter
+{
+    H2_OBJECT
+public:
+    SMF1Writer( const char* sWriterName );
+	virtual ~SMF1Writer();
+protected:
+	virtual SMF* createSMF( Song* pSong );
+};
+
+
+class SMF1WriterSingle : public SMF1Writer
+{
+    H2_OBJECT
+public:
+    SMF1WriterSingle();
+	virtual ~SMF1WriterSingle();
+protected:
+	virtual void prepareEvents( Song* pSong, SMF* pSmf );
+	virtual void  packEvents( Song* pSong, SMF* pSmf );
+	virtual EventList* getEvents( Song* pSong, Instrument* pInstr );
+private:
+	EventList m_eventList;
+};
+
+
+class SMF1WriterMulti : public SMF1Writer
+{
+    H2_OBJECT
+public:
+    SMF1WriterMulti();
+	virtual ~SMF1WriterMulti();
+protected:
+	virtual void prepareEvents( Song* pSong, SMF* pSmf );
+	virtual void  packEvents( Song* pSong, SMF* pSmf );
+	virtual EventList* getEvents( Song* pSong, Instrument* pInstr );
+private:
+	// contains events for each instrument in separate vector
+	std::vector<EventList*> m_eventLists;
+};
+
+
+//-------
+
+class SMF0Writer : public SMFWriter
+{
+    H2_OBJECT
+public:
+    SMF0Writer();
+	virtual ~SMF0Writer();
+protected:
+	virtual SMF* createSMF( Song* pSong );
+	virtual void prepareEvents( Song* pSong, SMF* pSmf );
+	virtual void  packEvents( Song* pSong, SMF* pSmf );
+	virtual EventList* getEvents( Song* pSong, Instrument* pInstr );
+private:
+	SMFTrack* m_track;
+	EventList m_eventList;
+};
+
+
 
 };
 

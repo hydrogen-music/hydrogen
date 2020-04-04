@@ -568,7 +568,6 @@ public:
 	int				getExportSampleRate() const;
 	void			setExportSampleRate( int nExportSampleRate );
 
-	
 	int				getExportMode() const;
 	void			setExportMode(int nExportMode);
 	
@@ -577,7 +576,13 @@ public:
 	
 	int				getExportTemplate() const;
 	void			setExportTemplate( int nExportTemplate );
-	
+
+    int				getMidiExportMode() const;
+    void			setMidiExportMode(int nExportMode);
+
+    QString			getMidiExportDirectory() const;
+    void			setMidiExportDirectory( const QString &sExportDirectory );
+
 private:
 	/**
 	 * Object holding the current Preferences singleton. It is
@@ -700,8 +705,13 @@ private:
 	int						m_nExportSampleDepth;
 	int						m_nExportTemplate;
 	//~ Export dialog
-	
-	Preferences();
+
+    // Export midi dialog
+    QString					m_sMidiExportDirectory;
+    int						m_nMidiExportMode;
+    //~ Export midi dialog
+
+    Preferences();
 
 	WindowProperties readWindowProperties( QDomNode parent, const QString& windowName, WindowProperties defaultProp );
 	void writeWindowProperties( QDomNode parent, const QString& windowName, const WindowProperties& prop );
@@ -710,6 +720,25 @@ private:
 	void readUIStyle( QDomNode parent );
 };
 
+inline QString Preferences::getMidiExportDirectory() const
+{
+    return m_sMidiExportDirectory;
+}
+
+inline void Preferences::setMidiExportDirectory(const QString &ExportDirectory)
+{
+    m_sMidiExportDirectory = ExportDirectory;
+}
+
+inline int Preferences::getMidiExportMode() const
+{
+    return m_nMidiExportMode;
+}
+
+inline void Preferences::setMidiExportMode(int ExportMode)
+{
+    m_nMidiExportMode = ExportMode;
+}
 
 inline int Preferences::getExportSampleDepth() const
 {

@@ -27,7 +27,6 @@
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/automation_path.h>
-
 #include <fstream>
 
 using std::vector;
@@ -47,13 +46,14 @@ SMFHeader::SMFHeader( int nFormat, int nTracks, int nTPQN )
 }
 
 
-
 SMFHeader::~SMFHeader()
 {
 	INFOLOG( "DESTROY" );
 }
 
-
+void SMFHeader::addTrack() {
+	m_nTracks++;	
+}
 
 vector<char> SMFHeader::getBuffer()
 {
@@ -62,7 +62,7 @@ vector<char> SMFHeader::getBuffer()
 	buffer.writeDWord( 1297377380 );		// MThd
 	buffer.writeDWord( 6 );				// Header length = 6
 	buffer.writeWord( m_nFormat );
-	buffer.writeWord( m_nTracks + 1 );
+	buffer.writeWord( m_nTracks );
 	buffer.writeWord( m_nTPQN );
 
 	return buffer.m_buffer;
@@ -145,16 +145,14 @@ void SMFTrack::addEvent( SMFEvent *pEvent )
 
 // ::::::::::::::::::::::
 
-
-
 const char* SMF::__class_name = "SMF";
 
-SMF::SMF()
+SMF::SMF(int nFormat, int nTPQN )
 		: Object( __class_name )
 {
 	INFOLOG( "INIT" );
 
-	m_pHeader = new SMFHeader( 1, -1, 192 );
+	m_pHeader = new SMFHeader( nFormat, 0, nTPQN );
 }
 
 
@@ -174,7 +172,7 @@ SMF::~SMF()
 
 void SMF::addTrack( SMFTrack *pTrack )
 {
-	m_pHeader->m_nTracks++;
+	m_pHeader->addTrack();
 	m_trackList.push_back( pTrack );
 }
 
@@ -207,16 +205,16 @@ vector<char> SMF::getBuffer()
 
 // :::::::::::::::::::...
 
+const unsigned int TPQN = 192;
+const unsigned int DRUM_CHANNEL = 9;
 
 const char* SMFWriter::__class_name = "SMFWriter";
 
-SMFWriter::SMFWriter()
-		: Object( __class_name )
-		, m_file( nullptr )
+SMFWriter::SMFWriter( const char* sWriterName )
+		: Object( sWriterName )
 {
 	INFOLOG( "INIT" );
 }
-
 
 
 SMFWriter::~SMFWriter()
@@ -225,32 +223,26 @@ SMFWriter::~SMFWriter()
 }
 
 
-
-void SMFWriter::save( const QString& sFilename, Song *pSong )
-{
-	INFOLOG( "save" );
-	const int DRUM_CHANNEL = 9;
-
-	vector<SMFEvent*> eventList;
-
-	SMF smf;
-
-
-	// Standard MIDI format 1 files should have the first track being the tempo map
-	// which is a track that contains global meta events only.
+SMFTrack* SMFWriter::createTrack0( Song* pSong ) {
 	SMFTrack *pTrack0 = new SMFTrack();
 	pTrack0->addEvent( new SMFCopyRightNoticeMetaEvent( pSong->__author , 0 ) );
 	pTrack0->addEvent( new SMFTrackNameMetaEvent( pSong->__name , 0 ) );
 	pTrack0->addEvent( new SMFSetTempoMetaEvent( pSong->__bpm , 0 ) );
 	pTrack0->addEvent( new SMFTimeSignatureMetaEvent( 4 , 4 , 24 , 8 , 0 ) );
-	smf.addTrack( pTrack0 );
+	return pTrack0;
+}
 
-	
-	// Standard MIDI Format 1 files should have note events in tracks =>2
-	SMFTrack *pTrack1 = new SMFTrack();
-	smf.addTrack( pTrack1 );
+
+void SMFWriter::save( const QString& sFilename, Song *pSong )
+{
+	INFOLOG( "save" );
+
+	SMF* smf = createSMF( pSong );
 
 	AutomationPath *vp = pSong->get_velocity_automation_path();
+
+	// here writers must prepare to receive pattern events
+	prepareEvents( pSong, smf );
 
 	InstrumentList *iList = pSong->get_instrument_list();
 	// ogni pattern sara' una diversa traccia
@@ -287,12 +279,15 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 						float velocity_adjustment = vp->get_value(fPos);
 						int nVelocity =
 							(int)( 127.0 * pNote->get_velocity() * velocity_adjustment );
-						
+
 						int nInstr = iList->index(pNote->get_instrument());
 						Instrument *pInstr = pNote->get_instrument();
 						int nPitch = pNote->get_midi_key();
-						
-						eventList.push_back(
+
+						// get events for specific instrument
+						EventList* eventList = getEvents(pSong, pInstr);
+
+						eventList->push_back(
 							new SMFNoteOnEvent(
 								nStartTicks + nNote,
 								DRUM_CHANNEL,
@@ -304,7 +299,7 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 						if ( pNote->get_length() != -1 ) {
 							nLength = pNote->get_length();
 						}
-						eventList.push_back(
+						eventList->push_back(
 							new SMFNoteOffEvent(
 								nStartTicks + nNote + nLength,
 								DRUM_CHANNEL,
@@ -319,10 +314,20 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 		nTick += nMaxPatternLength;
 	}
 
+	//tracks creation
+	packEvents(pSong, smf);
+
+	saveSMF(sFilename, smf);
+	delete smf;
+}
+
+
+void SMFWriter::sortEvents( EventList *pEvents )
+{
 	// awful bubble sort..
-	for ( unsigned i = 0; i < eventList.size(); i++ ) {
-		for ( vector<SMFEvent*>::iterator it = eventList.begin() ;
-			  it != ( eventList.end() - 1 ) ;
+	for ( unsigned i = 0; i < pEvents->size(); i++ ) {
+		for ( vector<SMFEvent*>::iterator it = pEvents->begin() ;
+			  it != ( pEvents->end() - 1 ) ;
 			  it++ ) {
 			SMFEvent *pEvent = *it;
 			SMFEvent *pNextEvent = *( it + 1 );
@@ -333,11 +338,97 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 			}
 		}
 	}
+}
+
+
+void SMFWriter::saveSMF( const QString& sFilename, SMF*  pSmf )
+{
+	// save the midi file
+	FILE* file = fopen( sFilename.toLocal8Bit(), "wb" );
+
+    if( file == nullptr )
+		return;
+
+	vector<char> smfVect = pSmf->getBuffer();
+	for ( unsigned i = 0; i < smfVect.size(); i++ ) {
+		fwrite( &smfVect[ i ], 1, 1, file );
+	}
+	fclose( file );
+}
+
+
+// SMF1Writer - base class for two smf1 writers
+
+const char* SMF1Writer::__class_name = "SMF1Writer";
+
+SMF1Writer::SMF1Writer( const char* sWriterName )
+		: SMFWriter( sWriterName )
+{
+}
+
+
+SMF1Writer::~SMF1Writer()
+{
+}
+
+
+SMF* SMF1Writer::createSMF( Song* pSong ){
+	SMF* smf =  new SMF( 1, TPQN );	
+	// Standard MIDI format 1 files should have the first track being the tempo map
+	// which is a track that contains global meta events only.
+
+	SMFTrack* pTrack0 = createTrack0( pSong );
+	smf->addTrack( pTrack0 );
+	
+	// Standard MIDI Format 1 files should have note events in tracks =>2
+	return smf;
+}
+
+
+// SMF1 MIDI SINGLE EXPROT
+
+
+const char* SMF1WriterSingle::__class_name = "SMFWriterSingle";
+
+SMF1WriterSingle::SMF1WriterSingle()
+		: SMF1Writer( __class_name ),
+		 m_eventList()
+{
+}
+
+
+
+SMF1WriterSingle::~SMF1WriterSingle()
+{
+}
+
+
+
+EventList* SMF1WriterSingle::getEvents( Song* pSong, Instrument* pInstr )
+{
+	return &m_eventList;
+}
+
+
+
+void SMF1WriterSingle::prepareEvents( Song *pSong, SMF* pSmf )
+{
+   m_eventList.clear();
+}
+
+
+
+void SMF1WriterSingle::packEvents( Song *pSong, SMF* pSmf )
+{
+	sortEvents( &m_eventList );
+
+	SMFTrack *pTrack1 = new SMFTrack();
+	pSmf->addTrack( pTrack1 );
 
 	unsigned nLastTick = 1;
-	for ( vector<SMFEvent*>::iterator it = eventList.begin() ;
-		  it != eventList.end();
-		  it++ ) {
+	for ( vector<SMFEvent*>::iterator it = m_eventList.begin();
+		it != m_eventList.end();
+		 it++ ) {
 		SMFEvent *pEvent = *it;
 		pEvent->m_nDeltaTime = ( pEvent->m_nTicks - nLastTick ) * 4;
 		nLastTick = pEvent->m_nTicks;
@@ -348,17 +439,133 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 		pTrack1->addEvent( *it );
 	}
 
-	// save the midi file
-	m_file = fopen( sFilename.toLocal8Bit(), "wb" );
-
-	if( m_file == nullptr )
-		return;
-
-	vector<char> smfVect = smf.getBuffer();
-	for ( unsigned i = 0; i < smfVect.size(); i++ ) {
-		fwrite( &smfVect[ i ], 1, 1, m_file );
-	}
-	fclose( m_file );
+	m_eventList.clear();
 }
+
+
+
+// SMF1 MIDI MULTI EXPORT
+
+const char* SMF1WriterMulti::__class_name = "SMFWriterMulti";
+
+SMF1WriterMulti::SMF1WriterMulti()
+		: SMF1Writer( __class_name ),
+		 m_eventLists()
+{
+}
+
+
+SMF1WriterMulti::~SMF1WriterMulti()
+{
+}
+
+
+void SMF1WriterMulti::prepareEvents( Song *pSong, SMF* pSmf )
+{
+	InstrumentList *iList = pSong->get_instrument_list();
+	m_eventLists.clear();
+	for( unsigned nInstr=0; nInstr < iList->size(); nInstr++ ){
+		m_eventLists.push_back( new EventList() );
+	}
+}
+
+
+EventList* SMF1WriterMulti::getEvents( Song* pSong,  Instrument* pInstr )
+{
+	int nInstr = pSong->get_instrument_list()->index(pInstr);
+	EventList* eventList = m_eventLists.at( nInstr );
+	return eventList;
+}
+
+
+void SMF1WriterMulti::packEvents( Song *pSong, SMF* pSmf )
+{
+	InstrumentList *iList = pSong->get_instrument_list();
+	for ( unsigned nTrack = 0; nTrack < m_eventLists.size(); nTrack++ ) {
+		EventList* eventList = m_eventLists.at( nTrack );
+		Instrument* instrument = iList->get( nTrack );
+
+		sortEvents( eventList );
+
+		SMFTrack *pTrack = new SMFTrack();
+		pSmf->addTrack( pTrack );
+		
+		//Set instrument name as track name
+		pTrack->addEvent( new SMFTrackNameMetaEvent( instrument->get_name() , 0 ) );
+		
+		unsigned nLastTick = 1;
+		for ( vector<SMFEvent*>::iterator it = eventList->begin();
+			it != eventList->end();
+			 it++ ) {
+			SMFEvent *pEvent = *it;
+			pEvent->m_nDeltaTime = ( pEvent->m_nTicks - nLastTick ) * 4;
+			nLastTick = pEvent->m_nTicks;
+
+			pTrack->addEvent( *it );
+		}
+
+		// we can safely delete vector with events now
+		delete eventList;
+	}
+	m_eventLists.clear();
+}
+
+
+// SMF0 MIDI  EXPORT
+
+const char* SMF0Writer::__class_name = "SMF0Writer";
+
+SMF0Writer::SMF0Writer()
+		: SMFWriter( __class_name ),
+		  m_track( nullptr ),
+		 m_eventList()
+{
+}
+
+
+SMF0Writer::~SMF0Writer()
+{
+}
+
+
+SMF* SMF0Writer::createSMF( Song* pSong ){
+	// MIDI files format 0 have all their events in one track
+	SMF* smf =  new SMF( 0, TPQN );	
+	m_track = createTrack0( pSong );
+	smf->addTrack( m_track );
+	return smf;
+}
+
+
+EventList* SMF0Writer::getEvents( Song* pSong,  Instrument* pInstr )
+{
+	return &m_eventList;
+}
+
+
+void SMF0Writer::prepareEvents( Song *pSong, SMF* pSmf )
+{
+   m_eventList.clear();
+}
+
+
+void SMF0Writer::packEvents( Song *pSong, SMF* pSmf )
+{
+	sortEvents( &m_eventList );
+
+	unsigned nLastTick = 1;
+	for ( vector<SMFEvent*>::iterator it = m_eventList.begin();
+		it != m_eventList.end();
+		 it++ ) {
+		SMFEvent *pEvent = *it;
+		pEvent->m_nDeltaTime = ( pEvent->m_nTicks - nLastTick ) * 4;
+		nLastTick = pEvent->m_nTicks;
+		
+		m_track->addEvent( *it );
+	}
+
+	m_eventList.clear();
+}
+
 
 };

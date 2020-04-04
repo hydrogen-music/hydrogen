@@ -73,6 +73,8 @@ private:
 	QString		findUniqueExportFilenameForInstrument(H2Core::Instrument* pInstrument);
 
 	void		exportTracks();
+	bool 		validateUserInput();
+	QString		createDefaultFilename();
 	
 	bool					m_bExporting;
 	bool					m_bExportTrackouts;
@@ -85,6 +87,8 @@ private:
 	bool					m_bQfileDialog;
 	H2Core::Hydrogen *		m_pEngine;
 	H2Core::Preferences*	m_pPreferences;
+	
+	static QString 			sLastFilename;
 };
 
 

@@ -119,7 +119,9 @@ Preferences::Preferences()
 	m_nExportSampleRate = 44100;
 	m_nExportSampleDepth = 0;
 
-
+	//export midi dialog
+	m_sMidiExportDirectory = QDir::homePath();
+	m_nMidiExportMode = 0;
 	/////////////////////////////////////////////////////////////////////////
 	/////////////////// DEFAULT SETTINGS ////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////
@@ -520,6 +522,9 @@ void Preferences::loadPreferences( bool bGlobal )
 					
 				m_bFollowPlayhead = LocalFileMng::readXmlBool( guiNode, "followPlayhead", true );
 
+				// midi export dialog properties
+				m_nMidiExportMode = LocalFileMng::readXmlInt( guiNode, "midiExportDialogMode", 0 );
+				m_sMidiExportDirectory = LocalFileMng::readXmlString( guiNode, "midiExportDialogDirectory", QDir::homePath(), true );
 
 				//beatcounter
 				QString bcMode = LocalFileMng::readXmlString( guiNode, "bc", "BC_OFF" );
@@ -924,6 +929,10 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( guiNode, "exportDialogDirectory", m_sExportDirectory );
 
 		LocalFileMng::writeXmlBool( guiNode, "followPlayhead", m_bFollowPlayhead );
+
+		//ExportMidiDialog
+		LocalFileMng::writeXmlString( guiNode, "midiExportDialogMode", QString("%1").arg( m_nMidiExportMode ) );
+		LocalFileMng::writeXmlString( guiNode, "midiExportDialogDirectory", m_sMidiExportDirectory );
 
 		//beatcounter
 		QString bcMode;
