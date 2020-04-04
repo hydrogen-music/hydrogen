@@ -334,7 +334,7 @@ void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<La
 		for ( int i = 0; i < ( int )uris->count; i++ ) {
 			QString sGroup = QString::fromLocal8Bit(lrdf_get_label( uris->items[ i ] ));
 
-			LadspaFXGroup *pNewGroup = NULL;
+			LadspaFXGroup *pNewGroup = nullptr;
 			// verifico se esiste gia una categoria con lo stesso nome
 			vector<LadspaFXGroup*> childGroups = pGroup-> getChildList();
 			for ( unsigned nGroup = 0; nGroup < childGroups.size(); nGroup++ ) {
@@ -344,7 +344,7 @@ void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<La
 					break;
 				}
 			}
-			if ( pNewGroup == NULL ) {	// il gruppo non esiste, lo creo
+			if ( pNewGroup == nullptr ) {	// il gruppo non esiste, lo creo
 				pNewGroup = new LadspaFXGroup( sGroup );
 				pGroup->addChild( pNewGroup );
 			}
