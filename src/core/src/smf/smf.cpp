@@ -207,6 +207,7 @@ vector<char> SMF::getBuffer()
 
 const unsigned int TPQN = 192;
 const unsigned int DRUM_CHANNEL = 9;
+const unsigned int NOTE_LENGTH = 12;
 
 const char* SMFWriter::__class_name = "SMFWriter";
 
@@ -283,26 +284,32 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 						int nInstr = iList->index(pNote->get_instrument());
 						Instrument *pInstr = pNote->get_instrument();
 						int nPitch = pNote->get_midi_key();
-
+						
+						int nChannel =  pInstr->get_midi_out_channel();
+						if ( nChannel == -1 ) {
+							nChannel = DRUM_CHANNEL;
+						}
+						
+						int nLength = pNote->get_length();
+						if ( nLength == -1 ) {
+							nLength = NOTE_LENGTH;
+						}
+						
 						// get events for specific instrument
 						EventList* eventList = getEvents(pSong, pInstr);
-
 						eventList->push_back(
 							new SMFNoteOnEvent(
 								nStartTicks + nNote,
-								DRUM_CHANNEL,
+								nChannel,
 								nPitch,
 								nVelocity
 								)
 							);
-						int nLength = 12;
-						if ( pNote->get_length() != -1 ) {
-							nLength = pNote->get_length();
-						}
+							
 						eventList->push_back(
 							new SMFNoteOffEvent(
 								nStartTicks + nNote + nLength,
-								DRUM_CHANNEL,
+								nChannel,
 								nPitch,
 								nVelocity
 								)
