@@ -15,7 +15,7 @@ void rubberband_test( const QString& sample_path ) {
 	
 	// load a sample
 	H2Core::Sample* sample = H2Core::Sample::load( sample_path );
-	if( sample==0 ) {
+	if( sample==nullptr ) {
 		___ERRORLOG( QString( "unable to load %1" ).arg( sample_path ) );
 		return;
 	}

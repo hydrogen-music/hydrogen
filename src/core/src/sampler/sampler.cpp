@@ -155,13 +155,18 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 
 	while ( !__queuedNoteOffs.empty() ) {
 		pNote =  __queuedNoteOffs[0];
-		MidiOutput* midiOut = Hydrogen::get_instance()->getMidiOutput();
-		if( midiOut != nullptr ){
-			midiOut->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(), pNote->get_midi_key(),  pNote->get_midi_velocity() );
-
+		MidiOutput* pMidiOut = Hydrogen::get_instance()->getMidiOutput();
+		
+		if( pMidiOut != nullptr && !pNote->get_instrument()->is_muted() ){
+			pMidiOut->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(), pNote->get_midi_key(),  pNote->get_midi_velocity() );
 		}
+		
 		__queuedNoteOffs.erase( __queuedNoteOffs.begin() );
-		if( pNote != nullptr) delete pNote;
+		
+		if( pNote != nullptr ){
+			delete pNote;
+		}
+		
 		pNote = nullptr;
 	}//while
 
@@ -648,7 +653,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		float fTotalPitch = pNote->get_total_pitch() + fLayerPitch;
 
 		//_INFOLOG( "total pitch: " + to_string( fTotalPitch ) );
-		if( ( int )pSelectedLayer->SamplePosition == 0 )
+		if( (int) pSelectedLayer->SamplePosition == 0  && !pInstr->is_muted() )
 		{
 			if( Hydrogen::get_instance()->getMidiOutput() != nullptr ){
 			Hydrogen::get_instance()->getMidiOutput()->handleQueueNote( pNote );
@@ -743,7 +748,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		//Perform resampling
 		double	fSamplePos = 0;
 		int		nSampleFrames = pSample->get_frames();
-		float	fStep = 1.0594630943593;
+		float	fStep = 1;
 		fStep *= ( float )pSample->get_sample_rate() / pAudioOutput->getSampleRate(); // Adjust for audio driver sample rate
 		
 		
@@ -994,7 +999,9 @@ bool Sampler::__render_note_resample(
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		nNoteLength = ( int )( pNote->get_length() * pAudioOutput->m_transport.m_nTickSize );
+		float resampledTickSize = pSample->get_sample_rate() * 60.0 /  pAudioOutput->m_transport.m_nBPM / pSong->__resolution;
+		
+		nNoteLength = ( int )( pNote->get_length() * resampledTickSize);
 	}
 	float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
 

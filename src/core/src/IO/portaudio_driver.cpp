@@ -18,7 +18,7 @@ int portAudioCallback(
 )
 {
 	PortAudioDriver *pDriver = ( PortAudioDriver* )userData;
-	pDriver->m_processCallback( pDriver->m_nBufferSize, NULL );
+	pDriver->m_processCallback( pDriver->m_nBufferSize, nullptr );
 
 	float *out = ( float* )outputBuffer;
 
@@ -35,9 +35,9 @@ const char* PortAudioDriver::__class_name = "PortAudioDriver";
 PortAudioDriver::PortAudioDriver( audioProcessCallback processCallback )
 		: AudioOutput( __class_name )
 		, m_processCallback( processCallback )
-		, m_pOut_L( NULL )
-		, m_pOut_R( NULL )
-		, m_pStream( NULL )
+		, m_pOut_L( nullptr )
+		, m_pOut_R( nullptr )
+		, m_pStream( nullptr )
 {
 	INFOLOG( "INIT" );
 	m_nBufferSize = Preferences::get_instance()->m_nBufferSize;
@@ -121,10 +121,10 @@ void PortAudioDriver::disconnect()
 	Pa_Terminate();
 
 	delete[] m_pOut_L;
-	m_pOut_L = NULL;
+	m_pOut_L = nullptr;
 
 	delete[] m_pOut_R;
-	m_pOut_R = NULL;
+	m_pOut_R = nullptr;
 }
 
 unsigned PortAudioDriver::getBufferSize()

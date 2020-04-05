@@ -11,7 +11,6 @@ IF(COMMAND CMAKE_POLICY)
 	CMAKE_POLICY(SET CMP0003 NEW)   # add_library
 	CMAKE_POLICY(SET CMP0006 NEW)   # bundle destination property
 ENDIF()
-
 #
 # PROJECT INFO
 #
@@ -91,6 +90,16 @@ ELSE()
     SET(CMAKE_BUILD_TYPE Release)
     SET(H2CORE_HAVE_DEBUG FALSE)
 ENDIF()
+
+OPTION(WANT_CLANG_TIDY "Use clang-tidy to check the sourcecode" OFF)
+IF(WANT_CLANG_TIDY)
+	find_program(CLANG_TIDY_CMD NAMES clang-tidy)
+	IF(CLANG_TIDY_CMD)
+		#use config from .clang-tidy
+		SET(CMAKE_CXX_CLANG_TIDY clang-tidy)
+	ENDIF()
+ENDIF()
+
 
 IF(WANT_BUNDLE)
     SET(H2CORE_HAVE_BUNDLE TRUE)
