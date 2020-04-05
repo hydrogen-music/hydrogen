@@ -999,7 +999,9 @@ bool Sampler::__render_note_resample(
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		nNoteLength = ( int )( pNote->get_length() * pAudioOutput->m_transport.m_nTickSize );
+		float resampledTickSize = pSample->get_sample_rate() * 60.0 /  pAudioOutput->m_transport.m_nBPM / pSong->__resolution;
+		
+		nNoteLength = ( int )( pNote->get_length() * resampledTickSize);
 	}
 	float fNotePitch = pNote->get_total_pitch() + fLayerPitch;
 
