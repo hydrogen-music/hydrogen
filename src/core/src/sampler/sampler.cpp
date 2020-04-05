@@ -748,7 +748,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		//Perform resampling
 		double	fSamplePos = 0;
 		int		nSampleFrames = pSample->get_frames();
-		float	fStep = 1.0594630943593;
+		float	fStep = 1;
 		fStep *= ( float )pSample->get_sample_rate() / pAudioOutput->getSampleRate(); // Adjust for audio driver sample rate
 		
 		
