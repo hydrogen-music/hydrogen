@@ -702,7 +702,9 @@ void SongEditorPanel::showTimeline()
 	m_pMutePlaybackToggleBtn->hide();
 	m_pEditPlaybackBtn->hide();
 	m_pPlaybackTrackFader->hide();
-	m_pViewPlaybackToggleBtn->setPressed(false);
+	m_pViewPlaybackToggleBtn->setPressed( false );
+	m_pViewTimeLineToggleBtn->setPressed( true );
+	
 }
 
 
@@ -713,7 +715,8 @@ void SongEditorPanel::showPlaybackTrack()
 	m_pMutePlaybackToggleBtn->show();
 	m_pEditPlaybackBtn->show();
 	m_pPlaybackTrackFader->show();
-	m_pViewPlaybackToggleBtn->setPressed(true);
+	m_pViewTimeLineToggleBtn->setPressed( false );
+	m_pViewPlaybackToggleBtn->setPressed( true );
 }
 
 void SongEditorPanel::viewTimeLineBtnPressed( Button* pBtn )
