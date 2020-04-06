@@ -21,6 +21,7 @@
  */
 #include "SongEditorPanel.h"
 
+#include "../AudioFileBrowser/AudioFileBrowser.h"
 #include "../HydrogenApp.h"
 #include "../PatternPropertiesDialog.h"
 #include "../SongPropertiesDialog.h"
@@ -752,28 +753,27 @@ void SongEditorPanel::editPlaybackTrackBtnPressed( Button* pBtn )
 	if ( (Hydrogen::get_instance()->getState() == STATE_PLAYING) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
-
-	QFileDialog fd(this);
-	fd.setFileMode(QFileDialog::ExistingFile);
-
-	fd.setWindowTitle( tr( "Select playback track" ) );
-	fd.setWindowIcon( QPixmap( Skin::getImagePath() + "/icon16.png" ) );
 	
-	// Use a filter for only those audio file types supported by
-	// Libsndfile.
-	fd.setNameFilter( tr( "Audio files (*.wav *.flac *.aiff *.raw *.pcm *.sam *.au *.paf *.8svx *.iff *.voc *.m *.pvf *.xi *.htk *.sds *.avr *.wavex *.sd2 *.caf *.wve *.mpc2k *.rf64" ) );
+	//use AudioFileBrowser, but don't allow multi-select. Also, hide all no necessary controls.
+	AudioFileBrowser *pFileBrowser = new AudioFileBrowser( nullptr, false, false);
 	
-	// Show detailed information about the files.
-	fd.setViewMode( QFileDialog::Detail );
-
-	QString filename;
-	if (fd.exec() == QDialog::Accepted) {
-		filename = fd.selectedFiles().first();
+	QStringList filenameList;
+	
+	if ( pFileBrowser->exec() == QDialog::Accepted ) {
+		filenameList = pFileBrowser->getSelectedFiles();
 	}
 
-	if ( !filename.isEmpty() ) {
-		Hydrogen::get_instance()->loadPlaybackTrack( filename );
+	delete pFileBrowser;
+
+	if( filenameList.size() != 3 ) {
+		return;
 	}
+	
+	if ( filenameList[2].isEmpty() ) {
+		return;
+	}
+
+	Hydrogen::get_instance()->loadPlaybackTrack( filenameList[2] );
 	
 	updateAll();
 }

@@ -890,12 +890,12 @@ void InstrumentEditor::loadLayer()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
-	AudioFileBrowser *pFileBrowser = new AudioFileBrowser( nullptr );
+	AudioFileBrowser *pFileBrowser = new AudioFileBrowser( nullptr, true, true);
 	QStringList filename;
 	filename << "false" << "false" << "";
 
 	if (pFileBrowser->exec() == QDialog::Accepted) {
-		filename = pFileBrowser->selectedFile();
+		filename = pFileBrowser->getSelectedFiles();
 	}
 
 	delete pFileBrowser;

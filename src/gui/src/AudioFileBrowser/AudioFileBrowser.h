@@ -44,12 +44,11 @@ class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public H
 	Q_OBJECT
 	public:
 		
-		AudioFileBrowser( QWidget* pParent );
+		AudioFileBrowser( QWidget* pParent, bool bAllowMultiSelect, bool bShowInstrumentManipulationControls);
 		~AudioFileBrowser();
-		QStringList selectedFile();
-		QString setDir( QString dir );
-
-
+	
+		QStringList getSelectedFiles();
+		QString		setDir( QString dir );
 
 	private slots:
 		void on_cancelBTN_clicked();
@@ -69,26 +68,28 @@ class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public H
 
 
 	private:
-		InstrumentEditor* m_pInstrumentEditor;
-		QString m_pSampleFilename;
-		QStringList m_pSelectedFile;
-
 		void browseTree( const QModelIndex& index );
 
 		void getEnvironment();
 		bool isFileSupported( QString filename );
-
-		bool		m_SingleClick;
-		QDirModel *	m_pDirModel;
-		QTreeView *	m_pTree;
-
-		QModelIndex m_ModelIndex;
-
-
+		
+		InstrumentEditor*	m_pInstrumentEditor;
 		SampleWaveDisplay *	m_pSampleWaveDisplay;
+		
+		QString				m_pSampleFilename;
+		QStringList			m_pSelectedFile;
+
+		bool				m_SingleClick;
+		QDirModel *			m_pDirModel;
+		QTreeView *			m_pTree;
+
+		QModelIndex			m_ModelIndex;
+		
 		QString				m_sEmptySampleFilename;
 		QStringList			m_Filters;
-
+		
+		bool				m_bAllowMultiSelect;
+		bool				m_bShowInstrumentManipulationControls;
 
 
 };

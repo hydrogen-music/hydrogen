@@ -40,7 +40,7 @@ using namespace std;
 
 const char* AudioFileBrowser::__class_name = "AudioFileBrowser";
 
-AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
+AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, bool bShowInstrumentManipulationControls)
 		: QDialog ( pParent )
 		, Object ( __class_name )
 {
@@ -48,6 +48,9 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 	INFOLOG ( "INIT" );
 	setWindowTitle ( tr ( "Audio File Browser" ) );
 	setFixedSize ( width(), height() );
+	
+	m_bAllowMultiSelect = bAllowMultiSelect;
+	m_bShowInstrumentManipulationControls = bShowInstrumentManipulationControls;
 
 	m_pDirModel = new QDirModel();
 	m_pDirModel->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
@@ -90,6 +93,11 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent )
 	//get the kde or gnome environment variable for mouse double or single clicking
 	m_SingleClick = false;
 	getEnvironment();
+	
+	if( !m_bShowInstrumentManipulationControls ) {
+		useNameCheckBox->hide();
+		autoVelCheckBox->hide();
+	}
 
 	connect( m_pTree, SIGNAL( clicked( const QModelIndex&) ), SLOT( clicked( const QModelIndex& ) ) );
 	connect( m_pTree, SIGNAL( doubleClicked( const QModelIndex&) ), SLOT( doubleClicked( const QModelIndex& ) ) );
@@ -155,7 +163,7 @@ void AudioFileBrowser::getEnvironment()
 
 void AudioFileBrowser::keyPressEvent (QKeyEvent *ev)
 {
-	if( ev->modifiers()==Qt::ControlModifier ) {
+	if( ev->modifiers()==Qt::ControlModifier && m_bAllowMultiSelect) {
 		m_pTree->setSelectionMode( QAbstractItemView::MultiSelection );
 		openBTN->setEnabled( true );
 	}	
@@ -368,7 +376,7 @@ void AudioFileBrowser::on_playSamplescheckBox_clicked()
 
 
 
-QStringList AudioFileBrowser::selectedFile()
+QStringList AudioFileBrowser::getSelectedFiles()
 {
 	if ( useNameCheckBox->isChecked() ) {
 		m_pSelectedFile[0] = "true";
