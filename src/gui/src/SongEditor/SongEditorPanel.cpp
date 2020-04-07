@@ -20,6 +20,7 @@
  *
  */
 #include "SongEditorPanel.h"
+#include "PlaybackTrackWaveDisplay.h"
 
 #include "../AudioFileBrowser/AudioFileBrowser.h"
 #include "../HydrogenApp.h"
@@ -298,9 +299,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pWidgetStack = new QStackedWidget( nullptr );
 	m_pWidgetStack->setFixedHeight( 50 );
 	
-	InstrumentComponent* pCompo = AudioEngine::get_instance()->get_sampler()->__preview_instrument->get_components()->front();
-	assert(pCompo);
-		
 	m_pPositionRulerScrollView = new QScrollArea( m_pWidgetStack );
 	m_pPositionRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPositionRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -314,13 +312,17 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaybackTrackScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPlaybackTrackScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-
-	m_pWaveDisplay = new WaveDisplay( m_pPlaybackTrackScrollView->viewport() );
-	m_pWaveDisplay->setSampleNameAlignment( Qt::AlignLeft );
-	m_pWaveDisplay->updateDisplay( pCompo->get_layer(0) );
-	m_pWaveDisplay->resize( m_pPositionRuler->width() , 50);
 	
-	m_pPlaybackTrackScrollView->setWidget( m_pWaveDisplay );
+	InstrumentComponent* pCompo = AudioEngine::get_instance()->get_sampler()->__playback_instrument->get_components()->front();
+	assert(pCompo);
+
+	m_pPlaybackTrackWaveDisplay = new PlaybackTrackWaveDisplay( m_pPlaybackTrackScrollView->viewport() );
+	m_pPlaybackTrackWaveDisplay->setSampleNameAlignment( Qt::AlignLeft );
+	m_pPlaybackTrackWaveDisplay->resize( m_pPositionRuler->width() , 50);
+	
+	m_pPlaybackTrackWaveDisplay->updateDisplay( pCompo->get_layer(0) );
+	
+	m_pPlaybackTrackScrollView->setWidget( m_pPlaybackTrackWaveDisplay );
 	m_pPlaybackTrackScrollView->setFixedHeight( 50 );
 
 	
@@ -493,7 +495,7 @@ void SongEditorPanel::updateAll()
 {
 	InstrumentComponent *pCompo = AudioEngine::get_instance()->get_sampler()->__playback_instrument->get_components()->front();
 
-	m_pWaveDisplay->updateDisplay( pCompo->get_layer(0) );
+	m_pPlaybackTrackWaveDisplay->updateDisplay( pCompo->get_layer(0) );
 
 	m_pPatternList->createBackground();
 	m_pPatternList->update();
