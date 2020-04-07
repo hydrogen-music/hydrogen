@@ -49,6 +49,8 @@ PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay(QWidget* pParent)
 
 void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
+	HydrogenApp* pH2App = HydrogenApp::get_instance();
+	
 	int currentWidth = width();
 	
 	if(!pLayer || currentWidth <= 0){
@@ -69,6 +71,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 	if ( pLayer && pLayer->get_sample() ) {
 		m_pLayer = pLayer;
 		m_sSampleName = pLayer->get_sample()->get_filename();
+		int nSampleLength = pLayer->get_sample()->get_frames();
 		
 		Song* pSong = Hydrogen::get_instance()->getSong();
 		std::vector<PatternList*> *pPatternColumns = pSong->get_pattern_group_vector();
@@ -88,37 +91,32 @@ void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		//decide how many patterns the sample lasts
 		
 		//length (in seconds) of one pattern is: (nPatternSize/24) / ((pEngine->getSong()->__bpm * 2) / 60)
-		float fSeconds = (nPatternSize/24) / ((pSong->__bpm * 2) / 60);
-		
-		float sec = ( float )( m_pLayer->get_sample()->get_frames() / (float)m_pLayer->get_sample()->get_sample_rate() );
+		float fLengthOfOnePatternInSecs = (nPatternSize/24) / ((pSong->__bpm * 2) / 60);
+		float fLengthOfPlaybackTrackInSecs = ( float )( nSampleLength / (float)m_pLayer->get_sample()->get_sample_rate() );
 		
 		QString qsec;
-		qsec = QString::asprintf( "%2.2f", fSeconds );
+		qsec = QString::asprintf( "%2.2f", fLengthOfOnePatternInSecs );
 		
-		int SongEditorSquaresNeededForPlaybackTrack = (int) (sec / fSeconds);
+		int nSongEditorSquaresNeededForPlaybackTrack = (int) (fLengthOfPlaybackTrackInSecs / fLengthOfOnePatternInSecs);
 		
 		INFOLOG(QString("Length(s) of one pattern is" + qsec));
-		INFOLOG(QString("Playback track must be scaled to %1 squares").arg((( SongEditorSquaresNeededForPlaybackTrack ))));
-		
-		HydrogenApp* pH2App = HydrogenApp::get_instance();
-		
+		INFOLOG(QString("Playback track must be scaled to %1 squares").arg((( nSongEditorSquaresNeededForPlaybackTrack ))));
+				
 		//Size of each square (pixel)
 		int nSongEditorGridWith;
-		if(pH2App->getSongEditorPanel())
-		{
+		if(pH2App->getSongEditorPanel()) {
 			nSongEditorGridWith = pH2App->getSongEditorPanel()->getSongEditor()->getGridWidth();			
 		} else {
 			//during init of SongEditorPanel
 			nSongEditorGridWith = 16;
 		}
 		
-		if(SongEditorSquaresNeededForPlaybackTrack == 0) SongEditorSquaresNeededForPlaybackTrack = 1;
+		if(nSongEditorSquaresNeededForPlaybackTrack == 0) {
+			nSongEditorSquaresNeededForPlaybackTrack = 1;
+		}
 		
-		int nPlaybackTrackWidth = SongEditorSquaresNeededForPlaybackTrack * nSongEditorGridWith;
+		int nPlaybackTrackWidth = nSongEditorSquaresNeededForPlaybackTrack * nSongEditorGridWith;
 
-//		INFOLOG( "[updateDisplay] sample: " + m_sSampleName  );
-
-		int nSampleLength = pLayer->get_sample()->get_frames();
 		int nScaleFactor = nSampleLength / nPlaybackTrackWidth ;
 
 		float fGain = height() / 2.0 * pLayer->get_gain();
@@ -130,11 +128,10 @@ void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		int nStartOffset = 0.8 * nSongEditorGridWith; //one square
 		
 		//We're starting to paint with an offset, everything smaller is init. with 0
-		for ( int i = nStartOffset; i < currentWidth; ++i ){
+		for ( int i = nStartOffset; i < currentWidth; ++i ) {
 			nVal = 0;
 			
-			if(i < nPlaybackTrackWidth + nStartOffset)
-			{
+			if(i < nPlaybackTrackWidth + nStartOffset) {
 				for ( int j = 0; j < nScaleFactor; ++j ) {
 					if ( j < nSampleLength ) {
 						int newVal = (int)( pSampleData[ nSamplePos ] * fGain );
@@ -148,8 +145,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 			
 			m_pPeakData[ i ] = nVal;
 		}
-	}
-	else {
+	} else {
 		m_sSampleName = "-";
 		for ( int i =0; i < m_nCurrentWidth; ++i ){
 			m_pPeakData[ i ] = 0;
