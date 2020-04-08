@@ -548,6 +548,9 @@ public:
 	/** Setting #__useTimelineBpm.
 	 * \param val New choice. */
 	void			setUseTimelineBpm( bool val );
+	
+	void			setShowPlaybackTrack( bool val);
+	bool			getShowPlaybackTrack() const;
 
 	int				getRubberBandCalcTime();
 	void			setRubberBandCalcTime( int val );
@@ -669,7 +672,7 @@ private:
 	QString					m_sQTStyle;
 	int						m_nLastOpenTab;
 	int						m_nDefaultUILayout;
-
+	bool					m_bShowPlaybackTrack;
 
 	QString					applicationFontFamily;
 	int						applicationFontPointSize;
@@ -1154,14 +1157,13 @@ inline QString Preferences::getNsmSongName(void){
 inline bool Preferences::getOscServerEnabled(){
 	return m_bOscServerEnabled;
 }
-
 inline void Preferences::setOscServerEnabled( bool val ){
 	m_bOscServerEnabled = val;
 }
+
 inline bool Preferences::getOscFeedbackEnabled(){
 	return m_bOscFeedbackEnabled;
 }
-
 inline void Preferences::setOscFeedbackEnabled( bool val ){
 	m_bOscFeedbackEnabled = val;
 }
@@ -1169,7 +1171,6 @@ inline void Preferences::setOscFeedbackEnabled( bool val ){
 inline int Preferences::getOscServerPort(){
 	return m_nOscServerPort;
 }
-
 inline void Preferences::setOscServerPort( int oscPort ){
 	m_nOscServerPort = oscPort;
 }
@@ -1179,6 +1180,13 @@ inline bool Preferences::getUseTimelineBpm(){
 }
 inline void Preferences::setUseTimelineBpm( bool val ){
 	__useTimelineBpm = val;
+}
+
+inline void Preferences::setShowPlaybackTrack( bool val ) {
+	m_bShowPlaybackTrack = val; 
+}
+inline bool Preferences::getShowPlaybackTrack() const {
+	return m_bShowPlaybackTrack;
 }
 
 inline int Preferences::getRubberBandCalcTime(){
