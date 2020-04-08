@@ -349,6 +349,11 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pWidgetStack->addWidget( m_pPositionRulerScrollView );
 	m_pWidgetStack->addWidget( m_pPlaybackTrackScrollView );
 
+	if( Preferences::get_instance()->getShowPlaybackTrack() ) {
+		showPlaybackTrack();
+	} else {
+		showTimeline();
+	}
 	
 	// ok...let's build the layout
 	QGridLayout *pGridLayout = new QGridLayout();
@@ -706,7 +711,7 @@ void SongEditorPanel::showTimeline()
 	m_pPlaybackTrackFader->hide();
 	m_pViewPlaybackToggleBtn->setPressed( false );
 	m_pViewTimeLineToggleBtn->setPressed( true );
-	
+	Preferences::get_instance()->setShowPlaybackTrack( false );
 }
 
 
@@ -719,6 +724,7 @@ void SongEditorPanel::showPlaybackTrack()
 	m_pPlaybackTrackFader->show();
 	m_pViewTimeLineToggleBtn->setPressed( false );
 	m_pViewPlaybackToggleBtn->setPressed( true );
+	Preferences::get_instance()->setShowPlaybackTrack( true );
 }
 
 void SongEditorPanel::viewTimeLineBtnPressed( Button* pBtn )
