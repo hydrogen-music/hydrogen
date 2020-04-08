@@ -578,8 +578,7 @@ class OscServer : public H2Core::Object
 		 * message.*/
 		static void REDO_ACTION_Handler(lo_arg **argv, int argc);
 		/**
-		 * Creates an Action of type @b NEW_SONG and passes its
-		 * references to MidiActionManager::handleAction().
+		 * Triggers CoreActionController::newSong().
 		 *
 		 * The handler expects the user to provide an absolute path to
 		 * a .h2song file. If another file already exists with the
@@ -591,8 +590,7 @@ class OscServer : public H2Core::Object
 		 */
 		static void NEW_SONG_Handler(lo_arg **argv, int argc);
 		/**
-		 * Creates an Action of type @b OPEN_SONG and passes its
-		 * references to MidiActionManager::handleAction().
+		 * Triggers CoreActionController::openSong().
 		 *
 		 * The handler expects the user to provide an absolute path to
 		 * a .h2song file.
@@ -603,8 +601,7 @@ class OscServer : public H2Core::Object
 		 */
 		static void OPEN_SONG_Handler(lo_arg **argv, int argc);
 		/**
-		 * Creates an Action of type @b SAVE_SONG and passes its
-		 * references to MidiActionManager::handleAction().
+		 * Triggers CoreActionController::saveSong().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
@@ -612,8 +609,7 @@ class OscServer : public H2Core::Object
 		 * message.*/
 		static void SAVE_SONG_Handler(lo_arg **argv, int argc);
 		/**
-		 * Creates an Action of type @b SAVE_SONG_AS and passes its
-		 * references to MidiActionManager::handleAction().
+		 * Triggers CoreActionController::saveSongAs().
 		 *
 		 * The handler expects the user to provide an absolute path to
 		 * a .h2song file. If another file already exists with the
@@ -625,8 +621,7 @@ class OscServer : public H2Core::Object
 		 * message.*/
 		static void SAVE_SONG_AS_Handler(lo_arg **argv, int argc);
 		/**
-		 * Creates an Action of type @b QUIT and passes its
-		 * references to MidiActionManager::handleAction().
+		 * Triggers CoreActionController::quit().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed
 		 * by the OSC message.
