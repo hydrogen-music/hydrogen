@@ -296,7 +296,7 @@ void CoreActionController::initExternalControlInterfaces()
 bool CoreActionController::newSong( const QString& songPath ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
- 
+
 	if ( pHydrogen->getState() == STATE_PLAYING ) {
 		// Stops recording, all queued MIDI notes, and the playback of
 		// the audio driver.
@@ -312,6 +312,7 @@ bool CoreActionController::newSong( const QString& songPath ) {
 	// Check whether the provided path is valid.
 	if ( !isSongPathValid( songPath ) ) {
 		// isSongPathValid takes care of the error log message.
+
 		return false;
 	}
 	
@@ -491,7 +492,6 @@ bool CoreActionController::isSongPathValid( const QString& songPath ) {
 	if ( !songFileInfo.isAbsolute() ) {
 		ERRORLOG( QString( "Error: Unable to handle path [%1]. Please provide an absolute file path!" )
 						.arg( songPath.toLocal8Bit().data() ));
-
 		return false;
 	}
 	
@@ -499,7 +499,6 @@ bool CoreActionController::isSongPathValid( const QString& songPath ) {
 		if ( !songFileInfo.isWritable() ) {
 			ERRORLOG( QString( "Error: Unable to handle path [%1]. You must have permissions to write the file!" )
 						.arg( songPath.toLocal8Bit().data() ));
-
 			return false;
 		}
 	}
@@ -507,7 +506,6 @@ bool CoreActionController::isSongPathValid( const QString& songPath ) {
 	if ( songFileInfo.suffix() != "h2song" ) {
 		ERRORLOG( QString( "Error: Unable to handle path [%1]. The provided file must have the suffix '.h2song'!" )
 					.arg( songPath.toLocal8Bit().data() ));
-		
 		return false;
 	}
 	
