@@ -23,6 +23,7 @@
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/Preferences.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_layer.h>
 #include <hydrogen/basics/pattern_list.h>
@@ -50,6 +51,7 @@ PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay(QWidget* pParent)
 void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
 	HydrogenApp* pH2App = HydrogenApp::get_instance();
+	Preferences* pPref = Preferences::get_instance();
 	
 	int currentWidth = width();
 	
@@ -65,85 +67,92 @@ void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		m_pPeakData = new int[ currentWidth ];
 		memset( m_pPeakData, 0, currentWidth );
 		
+		
 		m_nCurrentWidth = currentWidth;
 	}
 	
 	if ( pLayer && pLayer->get_sample() ) {
-		m_pLayer = pLayer;
-		m_sSampleName = pLayer->get_sample()->get_filename();
-		int nSampleLength = pLayer->get_sample()->get_frames();
+		//initialise everything with 0..
+		memset( m_pPeakData, 0, currentWidth );
 		
 		Song* pSong = Hydrogen::get_instance()->getSong();
+		
+		m_pLayer = pLayer;
+		m_sSampleName = m_pLayer->get_sample()->get_filename();
+		
+		float *	pSampleData = pLayer->get_sample()->get_data_l();
+		int		nSampleLength = m_pLayer->get_sample()->get_frames();
+		float	fLengthOfPlaybackTrackInSecs = ( float )( nSampleLength / (float) m_pLayer->get_sample()->get_sample_rate() );
+		float	fRemainingLengthOfPlaybackTrack = fLengthOfPlaybackTrackInSecs;		
+		float	fGain = height() / 2.0 * pLayer->get_gain();
+		int		nSamplePos = 0;
+		int		nMaxBars = pPref->getMaxBars();
+		
 		std::vector<PatternList*> *pPatternColumns = pSong->get_pattern_group_vector();
 		int nColumns = pPatternColumns->size();
-		
-		int nPatternSize;
-			
-		for ( int patternPosition = 0; patternPosition < nColumns; ++patternPosition ) {
-			PatternList *pColumn = ( *pPatternColumns )[ patternPosition ];
-			if ( pColumn->size() != 0 ) {
-				nPatternSize = pColumn->get( 0 )->get_length();
-			} else {
-				nPatternSize = MAX_NOTES;
-			}
-		}
-		
-		//decide how many patterns the sample lasts
-		
-		//length (in seconds) of one pattern is: (nPatternSize/24) / ((pEngine->getSong()->__bpm * 2) / 60)
-		float fLengthOfOnePatternInSecs = (nPatternSize/24) / ((pSong->__bpm * 2) / 60);
-		float fLengthOfPlaybackTrackInSecs = ( float )( nSampleLength / (float)m_pLayer->get_sample()->get_sample_rate() );
-		
-		QString qsec;
-		qsec = QString::asprintf( "%2.2f", fLengthOfOnePatternInSecs );
-		
-		int nSongEditorSquaresNeededForPlaybackTrack = (int) (fLengthOfPlaybackTrackInSecs / fLengthOfOnePatternInSecs);
-		
-		INFOLOG(QString("Length(s) of one pattern is" + qsec));
-		INFOLOG(QString("Playback track must be scaled to %1 squares").arg((( nSongEditorSquaresNeededForPlaybackTrack ))));
-				
-		//Size of each square (pixel)
+
 		int nSongEditorGridWith;
-		if(pH2App->getSongEditorPanel()) {
-			nSongEditorGridWith = pH2App->getSongEditorPanel()->getSongEditor()->getGridWidth();			
+		if( pH2App->getSongEditorPanel() ) {
+			nSongEditorGridWith = pH2App->getSongEditorPanel()->getSongEditor()->getGridWidth();
 		} else {
-			//during init of SongEditorPanel
+			//this might happen during init of SongEditorPanel
 			nSongEditorGridWith = 16;
 		}
 		
-		if(nSongEditorSquaresNeededForPlaybackTrack == 0) {
-			nSongEditorSquaresNeededForPlaybackTrack = 1;
-		}
+		int nRenderStartPosition = 0.8 * nSongEditorGridWith;		
 		
-		int nPlaybackTrackWidth = nSongEditorSquaresNeededForPlaybackTrack * nSongEditorGridWith;
-
-		int nScaleFactor = nSampleLength / nPlaybackTrackWidth ;
-
-		float fGain = height() / 2.0 * pLayer->get_gain();
-
-		float *pSampleData = pLayer->get_sample()->get_data_l();
-
-		int nSamplePos = 0;
-		int nVal = 0;
-		int nStartOffset = 0.8 * nSongEditorGridWith; //one square
-		
-		//We're starting to paint with an offset, everything smaller is init. with 0
-		for ( int i = nStartOffset; i < currentWidth; ++i ) {
-			nVal = 0;
+		for ( int patternPosition = 0; patternPosition < nMaxBars; ++patternPosition ) {
+			int maxPatternSize = 0;
 			
-			if(i < nPlaybackTrackWidth + nStartOffset) {
-				for ( int j = 0; j < nScaleFactor; ++j ) {
-					if ( j < nSampleLength ) {
-						int newVal = (int)( pSampleData[ nSamplePos ] * fGain );
-						if ( newVal > nVal ) {
-							nVal = newVal;
-						}
+			if( patternPosition < nColumns ) {
+				PatternList *pColumn = ( *pPatternColumns )[ patternPosition ];
+				
+				for ( unsigned j = 0; j < pColumn->size(); j++ ) {
+					const Pattern *pPattern = pColumn->get( j );
+					int nPatternSize = pPattern->get_length();	
+					
+					if(maxPatternSize < nPatternSize) {
+						maxPatternSize = nPatternSize;
 					}
-					++nSamplePos;
 				}
 			}
 			
-			m_pPeakData[ i ] = nVal;
+			//No pattern found in this column, use default size (Size: 8)
+			if(maxPatternSize == 0) maxPatternSize = 192;
+			
+			//length (in seconds) of one pattern is: (nPatternSize/24) / ((pEngine->getSong()->__bpm * 2) / 60)
+			float fLengthOfCurrentPatternInSecs = (maxPatternSize/24) / ((pSong->__bpm * 2) / 60);
+			
+			if( fRemainingLengthOfPlaybackTrack >= fLengthOfCurrentPatternInSecs ) {
+				//only a part of the PlaybackTrack will fit into this Pattern
+				float nScaleFactor = fLengthOfCurrentPatternInSecs / fLengthOfPlaybackTrackInSecs;
+				int nSamplesToRender = nScaleFactor * nSampleLength;
+				
+				int nVal = 0;
+				
+				for ( int i = nRenderStartPosition; i < nRenderStartPosition + nSongEditorGridWith ; ++i ) {
+					if( i < m_nCurrentWidth ) {
+						nVal = 0;
+						
+						int nSamplesToRenderInThisStep =  (nSamplesToRender / nSongEditorGridWith);
+						for ( int j = 0; j < nSamplesToRenderInThisStep; ++j ) {
+							if ( nSamplePos < nSampleLength ) {
+								int newVal = (int)( pSampleData[ nSamplePos ] * fGain );
+								if ( newVal > nVal ) {
+									nVal = newVal;
+								}
+							}
+							
+							++nSamplePos;
+						}
+					
+						m_pPeakData[ i ] = nVal;
+					}
+				}
+				
+				nRenderStartPosition += nSongEditorGridWith;
+				fRemainingLengthOfPlaybackTrack -= fLengthOfCurrentPatternInSecs;
+			}
 		}
 	} else {
 		m_sSampleName = "-";
