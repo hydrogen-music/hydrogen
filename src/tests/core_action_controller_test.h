@@ -10,11 +10,8 @@ namespace H2Core {
 
 class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( CoreActionControllerTest );
-	CPPUNIT_TEST( testNewSong );
-	CPPUNIT_TEST( testOpenSong );
-	CPPUNIT_TEST( testSaveSong );
-	CPPUNIT_TEST( testSaveSongAs );
-	CPPUNIT_TEST( testQuit );
+	CPPUNIT_TEST( testSessionManagement );
+	CPPUNIT_TEST( testIsSongPathValid );
 	CPPUNIT_TEST_SUITE_END();
 	
 private:
@@ -29,16 +26,14 @@ public:
 	// Loads an empty song into Hydrogen.
 	void tearDown();
 	
-	// Tests the CoreActionController::newSong() command by 
-	// - providing an improper file name
-	// - providing the path to an existing file with proper naming
-	// - providing the path to a non-existing file with proper naming
-	void testNewSong();
-	void testOpenSong();
-	void testSaveSong();
-	void testSaveSongAs();
-	void testQuit();
+	// Tests the CoreActionController::newSong(),
+	// CoreActionController::openSong(),
+	// CoreActionController::saveSong()
+	// CoreActionController::saveSongAs() methods.
+	void testSessionManagement();
 	
+	// Tests CoreActionController::isSongPathValid()
+	void testIsSongPathValid();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( CoreActionControllerTest );

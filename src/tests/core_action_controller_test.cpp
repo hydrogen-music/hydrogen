@@ -17,53 +17,92 @@ void CoreActionControllerTest::tearDown() {
 	m_pHydrogen->setSong( Song::get_empty_song() );
 }
 
-void CoreActionControllerTest::testNewSong() {
+void CoreActionControllerTest::testSessionManagement() {
 	
 	// ---------------------------------------------------------------
-	// Test with improper file name.
+	// Test CoreActionController::newSong()
+	// ---------------------------------------------------------------
 	
+	// Attempting to create a new song with an improper file name.
 	QTemporaryFile fileWrongName;
-	QString sFileName;
+	QString sFileNameImproper;
 	if ( fileWrongName.open() ) {
 		
 		CPPUNIT_ASSERT( !m_pController->newSong( fileWrongName.fileName() ) );
 		
-		sFileName = fileWrongName.fileName();
+		sFileNameImproper = fileWrongName.fileName();
 	}
 
-	// ---------------------------------------------------------------
-	// Test with proper file name and existing and writable file.
-	
-	QFile fileProperName( QString( "%1.h2song" ).arg( sFileName ) );
+	// Create a new song with a proper file name and existing and
+	// writable file.
+	QString sFileName = QString( "%1.h2song" ).arg( sFileNameImproper );
+	QFile fileProperName( sFileName );
 	if ( fileProperName.open( QIODevice::ReadWrite ) ) {
 		
 		CPPUNIT_ASSERT( m_pController->newSong( fileProperName.fileName() ) );
-		CPPUNIT_ASSERT( QString( "%1.h2song" ).arg( sFileName ) ==
-						m_pHydrogen->getSong()->get_filename() );
+		CPPUNIT_ASSERT( sFileName == m_pHydrogen->getSong()->get_filename() );
+	
+		// -----------------------------------------------------------
+		// Test CoreActionController::saveSong()
+		// -----------------------------------------------------------
+		
+		CPPUNIT_ASSERT( m_pController->saveSong() );
+
+		// -----------------------------------------------------------
+	
 	}
 	
-	CPPUNIT_ASSERT( fileProperName.remove() );
+	// Create a new song with proper a file name but no existing file.
+	QString sFileName2 = QString( "%1_new.h2song" ).arg( sFileNameImproper );
+	CPPUNIT_ASSERT( m_pController->newSong( sFileName2 ) ); 
+	CPPUNIT_ASSERT( sFileName2 == m_pHydrogen->getSong()->get_filename() );
 	
 	// ---------------------------------------------------------------
-	// Test with proper file name but no existing file.
+	// Test CoreActionController::openSong()
+	// ---------------------------------------------------------------
 	
-	CPPUNIT_ASSERT( m_pController->newSong( QString( "%1_new.h2song" ).arg( sFileName ) ) ); 
-	CPPUNIT_ASSERT( QString( "%1_new.h2song" ).arg( sFileName ) ==
-					m_pHydrogen->getSong()->get_filename() );
+	// Attempt to load a non-existing song.
+	CPPUNIT_ASSERT( !m_pController->openSong( sFileNameImproper ) );
+	
+	// The previous action should have not affected the current song.
+	CPPUNIT_ASSERT( sFileName2 == m_pHydrogen->getSong()->get_filename() );
+	
+	// Load the first song (which was saved).
+	CPPUNIT_ASSERT( m_pController->openSong( sFileName ) );
+	CPPUNIT_ASSERT( sFileName == m_pHydrogen->getSong()->get_filename() );
+
+	// Attempt to load the second song. This will fail since Hydrogen
+	// did not stored the song to disk.
+	CPPUNIT_ASSERT( !m_pController->openSong( sFileName2 ) );
+	
+	// ---------------------------------------------------------------
+	// Test CoreActionController::saveSongAs()
+	// ---------------------------------------------------------------
+	
+	// But we can, instead, make a copy of the current song by saving
+	// it to sFileName2.
+	CPPUNIT_ASSERT( m_pController->saveSongAs( sFileName2 ) );
+	
+	// Check if everything worked out.
+	CPPUNIT_ASSERT( m_pController->openSong( sFileName ) );
+	CPPUNIT_ASSERT( sFileName == m_pHydrogen->getSong()->get_filename() );
+	CPPUNIT_ASSERT( m_pController->openSong( sFileName2 ) );
+	CPPUNIT_ASSERT( sFileName2 == m_pHydrogen->getSong()->get_filename() );
+
+	// ---------------------------------------------------------------
+	
+	CPPUNIT_ASSERT( fileProperName.remove() );
 }
 
-void CoreActionControllerTest::testOpenSong() {
-	std::cout << "[testOpenSong]" << std::endl;
-}
+void CoreActionControllerTest::testIsSongPathValid() {
+	
+	// Is not absolute.
+	CPPUNIT_ASSERT( !m_pController->isSongPathValid( "test.h2song" ) );
 
-void CoreActionControllerTest::testSaveSong() {
-	std::cout << "[testSaveSong]" << std::endl;
-}
-
-void CoreActionControllerTest::testSaveSongAs() {
-	std::cout << "[testSaveSongAs]" << std::endl;
-}
-
-void CoreActionControllerTest::testQuit() {
-	std::cout << "[testQuit]" << std::endl;
+	// Improper suffix.
+	CPPUNIT_ASSERT( !m_pController->isSongPathValid( "test.test" ) );
+	
+	QString sValidPath = QString( "%1/test.h2song" ).arg( QDir::tempPath() );
+	CPPUNIT_ASSERT( m_pController->isSongPathValid( sValidPath ) );
+	
 }
