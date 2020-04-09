@@ -256,6 +256,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 		}
 	}
 
+	h2app->getSongEditorPanel()->updatePlaybackTrackIfNecessary();
 }
 
 

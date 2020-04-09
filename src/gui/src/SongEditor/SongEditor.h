@@ -69,7 +69,7 @@ class SongEditor : public QWidget, public H2Core::Object
 		~SongEditor();
 
 		void createBackground();
-
+		
 		void cleanUp();
 
 		int getGridWidth ();

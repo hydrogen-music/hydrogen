@@ -320,7 +320,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaybackTrackWaveDisplay->setSampleNameAlignment( Qt::AlignLeft );
 	m_pPlaybackTrackWaveDisplay->resize( m_pPositionRuler->width() , 50);
 	
-	m_pPlaybackTrackWaveDisplay->updateDisplay( pCompo->get_layer(0) );
+	//m_pPlaybackTrackWaveDisplay->updateDisplay( pCompo->get_layer(0) );
 	
 	m_pPlaybackTrackScrollView->setWidget( m_pPlaybackTrackWaveDisplay );
 	m_pPlaybackTrackScrollView->setFixedHeight( 50 );
@@ -498,9 +498,10 @@ void SongEditorPanel::hScrollTo( int value )
 ///
 void SongEditorPanel::updateAll()
 {
-	InstrumentComponent *pCompo = AudioEngine::get_instance()->get_sampler()->__playback_instrument->get_components()->front();
-
-	m_pPlaybackTrackWaveDisplay->updateDisplay( pCompo->get_layer(0) );
+	Hydrogen *	pEngine = Hydrogen::get_instance();
+	Song *		pSong = pEngine->getSong();
+	
+	updatePlaybackTrackIfNecessary();
 
 	m_pPatternList->createBackground();
 	m_pPatternList->update();
@@ -510,11 +511,17 @@ void SongEditorPanel::updateAll()
 	m_pSongEditor->createBackground();
 	m_pSongEditor->update();
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	m_pAutomationPathView->setAutomationPath (pSong->get_velocity_automation_path());
+ 	m_pAutomationPathView->setAutomationPath( pSong->get_velocity_automation_path() );
 
 	resyncExternalScrollBar();
+}
+
+void SongEditorPanel::updatePlaybackTrackIfNecessary()
+{
+	if( Preferences::get_instance()->getShowPlaybackTrack() ) {
+		InstrumentComponent *pCompo = AudioEngine::get_instance()->get_sampler()->__playback_instrument->get_components()->front();
+		m_pPlaybackTrackWaveDisplay->updateDisplay( pCompo->get_layer(0) );
+	}
 }
 
 

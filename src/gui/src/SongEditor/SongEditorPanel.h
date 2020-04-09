@@ -72,7 +72,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		
 		void showTimeline();
 		void showPlaybackTrack();
-		
+		void updatePlaybackTrackIfNecessary();		
 		
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();
