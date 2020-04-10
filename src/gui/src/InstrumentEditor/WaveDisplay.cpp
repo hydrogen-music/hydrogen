@@ -48,7 +48,8 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
 		ERRORLOG( "Error loading pixmap" );
 	}
 
-	m_pPeakData = new int[ width() ]{};
+	m_pPeakData = new int[ width() ];
+	memset( m_pPeakData, 0, width() * sizeof( m_pPeakData[0] ) );
 }
 
 
