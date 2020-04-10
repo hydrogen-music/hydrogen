@@ -188,8 +188,11 @@ class OscServer : public H2Core::Object
 		 *
 		 * This function will only be processed if the created server
 		 * thread #m_pServerThread is valid.
+		 *
+		 * \return `true` if #m_pServerThread could be successfully
+		 *   created..
 		 */
-		void start();
+		bool start();
 		/**
 		 * Function called by
 		 * H2Core::CoreActionController::initExternalControlInterfaces()

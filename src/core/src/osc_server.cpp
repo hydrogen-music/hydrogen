@@ -775,11 +775,11 @@ void OscServer::handleAction( Action* pAction )
 }
 
 
-void OscServer::start()
+bool OscServer::start()
 {
 	if ( m_pServerThread == nullptr || !m_pServerThread->is_valid() ) {
 		ERRORLOG("Failed to start OSC server.");
-		return;
+		return false;
 	}
 
 	/*
@@ -913,6 +913,7 @@ void OscServer::start()
 	
 	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->getOscServerPort() ));
 	
+	return true;
 }
 
 
