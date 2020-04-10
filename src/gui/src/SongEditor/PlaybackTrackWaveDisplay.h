@@ -45,6 +45,11 @@ class PlaybackTrackWaveDisplay : public WaveDisplay
 		~PlaybackTrackWaveDisplay() = default;
 
 		void	updateDisplay( H2Core::InstrumentLayer *pLayer ) override;
+		
+	public slots:
+		virtual void dragMoveEvent(QDragMoveEvent *event);
+		virtual void dropEvent(QDropEvent *event);
+		virtual void dragEnterEvent(QDragEnterEvent * event);
 };
 
 #endif

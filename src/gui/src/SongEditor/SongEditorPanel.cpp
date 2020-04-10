@@ -319,12 +319,10 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaybackTrackWaveDisplay = new PlaybackTrackWaveDisplay( m_pPlaybackTrackScrollView->viewport() );
 	m_pPlaybackTrackWaveDisplay->setSampleNameAlignment( Qt::AlignLeft );
 	m_pPlaybackTrackWaveDisplay->resize( m_pPositionRuler->width() , 50);
-	
-	//m_pPlaybackTrackWaveDisplay->updateDisplay( pCompo->get_layer(0) );
+	m_pPlaybackTrackWaveDisplay->setAcceptDrops( true );
 	
 	m_pPlaybackTrackScrollView->setWidget( m_pPlaybackTrackWaveDisplay );
 	m_pPlaybackTrackScrollView->setFixedHeight( 50 );
-
 	
 	m_pAutomationPathScrollView = new QScrollArea( nullptr );
 	m_pAutomationPathScrollView->setFrameShape( QFrame::NoFrame );
@@ -368,7 +366,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	pGridLayout->addWidget( m_pAutomationPathScrollView, 2, 1);
 	pGridLayout->addWidget( m_pAutomationCombo, 2, 0, Qt::AlignTop | Qt::AlignRight );
 	pGridLayout->addWidget( pHScrollbarPanel, 3, 1 );
-
 	if( !pPref->getShowAutomationArea() ){
 		m_pAutomationPathScrollView->hide();
 		m_pAutomationCombo->hide();
@@ -378,7 +375,6 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	QPalette defaultPalette;
 	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
-
 
 	show();
 
