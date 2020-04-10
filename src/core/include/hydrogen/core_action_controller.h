@@ -111,8 +111,8 @@ class CoreActionController : public H2Core::Object {
 		 * This will be done immediately and without saving the
 		 * current #Song. All unsaved changes will be lost!
 		 *
-		 * The shutdown will only be triggered if
-		 * Hydrogen::m_bActiveGUI is true (the Qt5 GUI is present).
+		 * The shutdown will be triggered in both the CLI and the GUI
+		 * via the #H2Core::EVENT_QUIT event.
 		 *
 		 * \return true on success
 		 */

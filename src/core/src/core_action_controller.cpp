@@ -464,22 +464,10 @@ bool CoreActionController::saveSongAs( const QString& songPath ) {
 }
 
 bool CoreActionController::quit() {
-
+	
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	// Update the status bar.
-	if ( pHydrogen->getActiveGUI() ) {
-		
-		EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
-		
-	} else {
-		// TODO: Close Hydrogen with no GUI present.
-		
-		ERRORLOG( "Error: Closing the application via the core part is not supported yet!" );
-		
-		return false;
-		
-	}
+	EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
 	
 	return true;
 }
