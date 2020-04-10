@@ -45,8 +45,40 @@ PlaybackTrackWaveDisplay::PlaybackTrackWaveDisplay(QWidget* pParent)
  : WaveDisplay( pParent )
 {
 	INFOLOG( "INIT" );
+	
+	setAcceptDrops(true);
 }
 
+void PlaybackTrackWaveDisplay::dropEvent(QDropEvent* event)
+{
+	const QMimeData* mimeData = event->mimeData();
+	QString sText = event->mimeData()->text();
+
+	if ( mimeData->hasUrls() ) {
+		QList<QUrl> urlList = mimeData->urls();
+
+		//someone dragged a file from an external tool.
+		//check if is a supported sample, and then try to load it
+		if( sText.startsWith("file://")) {
+			Hydrogen::get_instance()->loadPlaybackTrack( urlList.at(0).toLocalFile() );	
+			HydrogenApp* pH2App = HydrogenApp::get_instance();
+			
+			pH2App->getSongEditorPanel()->updatePlaybackTrackIfNecessary();
+		}
+	}
+}
+
+void PlaybackTrackWaveDisplay::dragEnterEvent(QDragEnterEvent * event)
+{
+	if(event->mimeData()->hasFormat("text/plain")) {
+		event->acceptProposedAction();
+	}
+}
+
+void PlaybackTrackWaveDisplay::dragMoveEvent(QDragMoveEvent *event)
+{
+	event->accept();
+}
 
 void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 {
@@ -65,16 +97,14 @@ void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 	if(currentWidth != m_nCurrentWidth){
 		delete[] m_pPeakData;
 		m_pPeakData = new int[ currentWidth ];
-		memset( m_pPeakData, 0, currentWidth );
-		
 		
 		m_nCurrentWidth = currentWidth;
 	}
 	
+	//initialise everything with 0..	
+	memset( m_pPeakData, 0, currentWidth * sizeof(m_pPeakData[0]) );	
+	
 	if ( pLayer && pLayer->get_sample() ) {
-		//initialise everything with 0..
-		memset( m_pPeakData, 0, currentWidth );
-		
 		Song* pSong = Hydrogen::get_instance()->getSong();
 		
 		m_pLayer = pLayer;
