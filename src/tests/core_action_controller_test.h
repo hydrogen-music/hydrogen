@@ -4,10 +4,6 @@
 #include <hydrogen/basics/song.h>
 #include <hydrogen/core_action_controller.h>
 
-namespace H2Core {
-	class CoreActionController;
-};
-
 class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( CoreActionControllerTest );
 	CPPUNIT_TEST( testSessionManagement );
@@ -18,12 +14,16 @@ private:
 	H2Core::Hydrogen* m_pHydrogen;
 	H2Core::CoreActionController* m_pController;
 	
+	QString m_sFileNameImproper;
+	QString m_sFileName;
+	QString m_sFileName2;
 	
 public:
 	// Initializes the private member variables and loads an empty
 	// song into Hydrogen.
 	void setUp();
-	// Loads an empty song into Hydrogen.
+	// Loads an empty song into Hydrogen and deletes all temporary
+	// files.
 	void tearDown();
 	
 	// Tests the CoreActionController::newSong(),
