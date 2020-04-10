@@ -276,6 +276,10 @@ OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name
 		} else {
 			INFOLOG( QString( "OSC server running on port %1" ).arg( port ) );
 		}
+	} else {
+		
+		m_pServerThread = nullptr;
+		
 	}
 }
 
@@ -624,7 +628,7 @@ void OscServer::SAVE_SONG_AS_Handler(lo_arg **argv, int argc) {
 }
 
 void OscServer::QUIT_Handler(lo_arg **argv, int argc) {
-
+	
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
 	pController->quit();
 }
@@ -773,7 +777,7 @@ void OscServer::handleAction( Action* pAction )
 
 void OscServer::start()
 {
-	if (!m_pServerThread->is_valid()) {
+	if ( m_pServerThread == nullptr || !m_pServerThread->is_valid() ) {
 		ERRORLOG("Failed to start OSC server.");
 		return;
 	}
@@ -906,8 +910,7 @@ void OscServer::start()
 	 * Start the server.
 	 */
 	m_pServerThread->start();
-
-
+	
 	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->getOscServerPort() ));
 	
 }
