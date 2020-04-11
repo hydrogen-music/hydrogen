@@ -171,6 +171,7 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback processCallback )
 	locate_countdown = 0;
 	bbt_frame_offset = 0;
 	track_port_count = 0;
+	m_pClient = nullptr;
 	
 	memset( track_output_ports_L, 0, sizeof(track_output_ports_L) );
 	memset( track_output_ports_R, 0, sizeof(track_output_ports_R) );
@@ -289,7 +290,7 @@ void JackAudioDriver::disconnect()
 void JackAudioDriver::deactivate()
 {
 	INFOLOG( "[deactivate]" );
-	if ( m_pClient ) {
+	if ( m_pClient != nullptr ) {
 		INFOLOG( "calling jack_deactivate" );
 		int res = jack_deactivate( m_pClient );
 		if ( res ) {
@@ -518,9 +519,9 @@ float* JackAudioDriver::getTrackOut_R( Instrument * instr, InstrumentComponent *
 
 #define CLIENT_FAILURE(msg) {						\
 	ERRORLOG("Could not connect to JACK server (" msg ")"); 	\
-	if (m_pClient) {						\
+	if ( m_pClient != nullptr ) {						\
 		ERRORLOG("...but JACK returned a non-null pointer?"); 	\
-		(m_pClient) = nullptr;					\
+		m_pClient = nullptr;					\
 	}								\
 	if (nTries) ERRORLOG("...trying again.");			\
 }
@@ -617,7 +618,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 			CLIENT_FAILURE("invalid option");
 			break;
 		case JackNameNotUnique:
-			if (m_pClient) {
+			if ( m_pClient != nullptr ) {
 				sClientName = jack_get_client_name(m_pClient);
 				CLIENT_SUCCESS(QString("Jack assigned the client name '%1'").arg(sClientName));
 			} else {
@@ -651,7 +652,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 		default:
 			if (status) {
 				ERRORLOG("Unknown status with JACK server.");
-				if (m_pClient) {
+				if ( m_pClient != nullptr ) {
 					CLIENT_SUCCESS("Client pointer is *not* null..."
 						       " assuming we're OK");
 				}
@@ -661,7 +662,9 @@ int JackAudioDriver::init( unsigned bufferSize )
 		}
 	}
 
-	if (m_pClient == nullptr) return -1;
+	if ( m_pClient == nullptr ) {
+		return -1;
+	}
 
 	// Here, client should either be valid, or NULL.
 	jack_server_sampleRate = jack_get_sample_rate( m_pClient );
@@ -842,7 +845,7 @@ void JackAudioDriver::play()
 	if ( P->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ||
 		 P->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER
 		 ) {
-		if ( m_pClient ) {
+		if ( m_pClient != nullptr ) {
 			INFOLOG( "jack_transport_start()" );
 			jack_transport_start( m_pClient );
 		}
@@ -856,7 +859,7 @@ void JackAudioDriver::stop()
 	Preferences* P = Preferences::get_instance();
 	if ( P->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT ||
 	     P->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
-		if ( m_pClient ) {
+		if ( m_pClient != nullptr ) {
 			INFOLOG( "jack_transport_stop()" );
 			jack_transport_stop( m_pClient );
 		}
@@ -871,7 +874,7 @@ void JackAudioDriver::locate( unsigned long nFrame )
 	     Preferences::USE_JACK_TRANSPORT /*||
 	     Preferences::get_instance()->m_bJackMasterMode ==
 	     Preferences::USE_JACK_TIME_MASTER*/ ) {
-		if ( m_pClient ) {
+		if ( m_pClient != nullptr ) {
 			// jack_transport_locate() (jack/transport.h )
 			// re-positions the transport to a new frame number.
 			// May be called at any time by any client.  The new
@@ -991,10 +994,12 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t *event)
 
 void JackAudioDriver::initTimeMaster()
 {
-	if ( ! m_pClient ) return;
+	if ( m_pClient == nullptr ) {
+		return;
+	}
 
-	Preferences* pref = Preferences::get_instance();
-	if ( pref->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER) {
+	Preferences* pPreferences = Preferences::get_instance();
+	if ( pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER) {
 		// Defined in jack/transport.h
 		// Register as timebase master for the JACK
 		// subsystem.
@@ -1023,10 +1028,10 @@ void JackAudioDriver::initTimeMaster()
 		//   - EBUSY if a conditional request fails because
 		// there was already a timebase master;
 		//   - other non-zero error code.
-		int ret = jack_set_timebase_callback(m_pClient, m_nJackConditionalTakeOver,
+		int nReturnValue = jack_set_timebase_callback(m_pClient, m_nJackConditionalTakeOver,
 						     jack_timebase_callback, this);
-		if (ret != 0){
-			pref->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
+		if ( nReturnValue != 0 ){
+			pPreferences->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
 			m_bHydrogenIsJackTimebaseMaster = false;
 		} else {
 			m_bHydrogenIsJackTimebaseMaster = true;
@@ -1042,64 +1047,74 @@ void JackAudioDriver::initTimeMaster()
 
 void JackAudioDriver::com_release()
 {
-	if ( m_pClient == nullptr) return;
+	if ( m_pClient == nullptr ) {
+		return;
+	}
 
-	jack_release_timebase(m_pClient);
+	jack_release_timebase( m_pClient );
 	m_bHydrogenIsJackTimebaseMaster = false;
 }
 
 void JackAudioDriver::jack_timebase_callback(jack_transport_state_t state,
-					     jack_nframes_t nframes,
-					     jack_position_t *pos,
+					     jack_nframes_t nFrames,
+					     jack_position_t* pJackPosition,
 					     int new_pos,
 					     void *arg)
 {
-	JackAudioDriver *me = static_cast<JackAudioDriver*>(arg);
-	if (! me) return;
+	JackAudioDriver* pDriver = static_cast<JackAudioDriver*>(arg);
+	if ( !pDriver ){
+		return;
+	}
 
-	Hydrogen * H = Hydrogen::get_instance();
-	Song* S = H->getSong();
-	if ( ! S ) return;
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Song* pSong = pHydrogen->getSong();
+	if ( !pSong ) {
+		return;
+	}
 
-	unsigned long PlayTick = ( pos->frame - me->bbt_frame_offset ) / me->m_transport.m_nTickSize;
-	pos->bar = H->getPosForTick( PlayTick );
+	unsigned long PlayTick = ( pJackPosition->frame - pDriver->bbt_frame_offset ) / 
+		pDriver->m_transport.m_nTickSize;
+	pJackPosition->bar = pHydrogen->getPosForTick( PlayTick );
 
-	double TPB = H->getTickForHumanPosition( pos->bar );
-	if ( TPB < 1 ) return;
+	double TPB = pHydrogen->getTickForHumanPosition( pJackPosition->bar );
+	if ( TPB < 1 ) {
+		return;
+	}
 
 	/* We'll cheat there is ticks_per_beat * 4 in bar
-	   so every Hydrogen tick will be multiplied by 4 ticks */
-	pos->ticks_per_beat = TPB;
-	pos->valid = JackPositionBBT;
-	pos->beats_per_bar = TPB / 48;
-	pos->beat_type = 4.0;
-	pos->beats_per_minute = H->getTimelineBpm( pos->bar );
-	pos->bar++;
+	   so every Hydrogen tick will be multipled by 4 ticks */
+	pJackPosition->ticks_per_beat = TPB;
+	pJackPosition->valid = JackPositionBBT;
+	pJackPosition->beats_per_bar = TPB / 48;
+	pJackPosition->beat_type = 4.0;
+	pJackPosition->beats_per_minute = pHydrogen->getTimelineBpm( pJackPosition->bar );
+	pJackPosition->bar++;
 
 	// Probably there will never be an offset, cause we are the master ;-)
 #ifndef JACK_NO_BBT_OFFSET
-	pos->valid = static_cast<jack_position_bits_t> ( pos->valid | JackBBTFrameOffset );
-	pos->bbt_offset = 0;
+	pJackPosition->valid = static_cast<jack_position_bits_t> ( pJackPosition->valid | JackBBTFrameOffset );
+	pJackPosition->bbt_offset = 0;
 #endif
 
-	if (H->getHumantimeFrames() < 1) {
-		pos->beat = 1;
-		pos->tick = 0;
-		pos->bar_start_tick = 0;
+	if ( pHydrogen->getHumantimeFrames() < 1 ) {
+		pJackPosition->beat = 1;
+		pJackPosition->tick = 0;
+		pJackPosition->bar_start_tick = 0;
 	} else {
 		/* how many ticks elapsed from last bar ( where bar == pattern ) */
-		int32_t TicksFromBar = ( PlayTick % (int32_t) pos->ticks_per_beat ) * 4;
+		int32_t nTicksFromBar = ( PlayTick % (int32_t) pJackPosition->ticks_per_beat ) * 4;
 
-		pos->bar_start_tick = PlayTick - TicksFromBar;
+		pJackPosition->bar_start_tick = PlayTick - nTicksFromBar;
 
-		pos->beat = TicksFromBar / pos->ticks_per_beat;
-		pos->beat++;
+		pJackPosition->beat = nTicksFromBar / pJackPosition->ticks_per_beat;
+		pJackPosition->beat++;
 
-		pos->tick = TicksFromBar % (int32_t) pos->ticks_per_beat;
+		pJackPosition->tick = nTicksFromBar % (int32_t) pJackPosition->ticks_per_beat;
 #if 0
 //		printf ( "\e[0K\rBar %d, Beat %d, Tick %d, BPB %g, BarStartTick %g",
 		printf ( "Bar %d, Beat %d, Tick %d, BPB %g, BarStartTick %g\n",
-			pos->bar, pos->beat,pos->tick, pos->beats_per_bar, pos->bar_start_tick );
+				 pJackPosition->bar, pJackPosition->beat, pJackPosition->tick, 
+				 pJackPosition->beats_per_bar, pJackPosition->bar_start_tick );
 #endif
 	}
 }

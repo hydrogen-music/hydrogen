@@ -660,16 +660,16 @@ protected:
 	 *
 	 * \param state Current transport state. Not used within the
 	 * function but to ensure compatibility.
-	 * \param nframes Buffer size. Not used within the function but
+	 * \param nFrames Buffer size. Not used within the function but
 	 * to ensure compatibility.
-	 * \param pos Current transport position.
+	 * \param pJackPosition Current transport position.
 	 * \param new_pos Updated transport position in frames. Not
 	 * used within the function but to ensure compatibility.
 	 * \param arg Pointer to a JackAudioDriver instance.
 	 */
 	static void jack_timebase_callback( jack_transport_state_t state,
-					    jack_nframes_t nframes,
-					    jack_position_t* pos,
+					    jack_nframes_t nFrames,
+					    jack_position_t* pJackPosition,
 					    int new_pos,
 					    void* arg );
 
