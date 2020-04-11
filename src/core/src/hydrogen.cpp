@@ -3854,7 +3854,7 @@ void Hydrogen::setHumantimeFrames(unsigned long hframes)
 void Hydrogen::offJackMaster()
 {
 	if ( m_pAudioDriver->class_name() == JackAudioDriver::class_name() ) {
-		static_cast< JackAudioDriver* >( m_pAudioDriver )->com_release();
+		static_cast< JackAudioDriver* >( m_pAudioDriver )->releaseTimebase();
 	}
 }
 

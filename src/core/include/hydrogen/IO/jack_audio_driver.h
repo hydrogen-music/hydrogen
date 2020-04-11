@@ -122,19 +122,19 @@ public:
 	 * Constructor of the JACK server driver.
 	 *
 	 * Sets a number of variables:
-	 * - #locate_countdown = 0
-	 * - #bbt_frame_offset = 0
-	 * - #track_port_count = 0
+	 * - #m_nLocateCountDown = 0
+	 * - #m_bbtFrameOffset = 0
+	 * - #m_nTrackPortCount = 0
 	 * - #__track_out_enabled = Preferences::m_bJackTrackOuts
 	 *
 	 * In addition, it also assigned the provided @a
-	 * processCallback argument, the audioEngine_process()
-	 * function, to the corresponding #processCallback variable
+	 * m_processCallback argument, the audioEngine_process()
+	 * function, to the corresponding #m_processCallback variable
 	 * and overwrites the memory allocated by the
-	 * #track_output_ports_L and #track_output_ports_R variable
+	 * #m_pTrackOutputPortsL and #m_pTrackOutputPortsR variable
 	 * with zeros.
 	 *
-	 * @param processCallback Prototype for the client supplied
+	 * @param m_processCallback Prototype for the client supplied
 			 function that is called by the engine anytime 
 			 there is work to be done. It gets two input
 			 arguments _nframes_ of type
@@ -147,7 +147,7 @@ public:
 			 returns zero on success and non-zero on
 			 error.
 	 */
-	JackAudioDriver( JackProcessCallback processCallback );
+	JackAudioDriver( JackProcessCallback m_processCallback );
 	/**
 	 * Destructor of the JACK server driver.
 	 *
@@ -161,12 +161,12 @@ public:
 	 * Starts by telling the JACK server that Hydrogen is ready to
 	 * process audio using the jack_activate function (from the
 	 * jack/jack.h header) and overwriting the memory allocated by
-	 * #track_output_ports_L and #track_output_ports_R with
-	 * zeros. If the #m_bConnectOutFlag variable is true or
+	 * #m_pTrackOutputPortsL and #m_pTrackOutputPortsR with
+	 * zeros. If the #m_bConnectDefaults variable is true or
 	 * LashClient is used and Hydrogen is not within a new Lash
 	 * project, the function attempts to connect the
-	 * #output_port_1 port with #output_port_name_1 and the
-	 * #output_port_2 port with #output_port_name_2. To establish
+	 * #m_pOutputPort1 port with #m_sOutputPortName1 and the
+	 * #m_pOutputPort2 port with #m_sOutputPortName2. To establish
 	 * the connection _jack_connect()_ (jack/jack.h) will be
 	 * used. In case this was not successful, the function will
 	 * look up all ports containing the _JackPortIsInput_
@@ -176,14 +176,14 @@ public:
 	 * @return 
 	 * - __0__ : if either the connection of the output ports
 	 *       did work, two ports having the _JackPortIsInput_ flag
-	 *       where found and the #output_port_1 and #output_port_2
+	 *       where found and the #m_pOutputPort1 and #m_pOutputPort2
 	 *       ports where successfully connected to them, or the
 	 *       user enabled Lash during compilation and an
 	 *       established project was used.
 	 * - __1__ : The activation of the JACK client using
 	 *       _jack_activate()_ (jack/jack.h) did fail.
-	 * - __2__ : The connections to #output_port_name_1 and
-	 *       #output_port_name_2 could not be established and the
+	 * - __2__ : The connections to #m_sOutputPortName1 and
+	 *       #m_sOutputPortName2 could not be established and the
 	 *       there were either no JACK ports holding the
 	 *       JackPortIsInput flag found or no connection to them
 	 *       could be established.
@@ -205,8 +205,8 @@ public:
 	 *
 	 * It calls the _jack_deactivate()_ (jack/jack.h) function on
 	 * the current client #m_pClient and overwrites the memory
-	 * allocated by #track_output_ports_L and
-	 * #track_output_ports_R with zeros.
+	 * allocated by #m_pTrackOutputPortsL and
+	 * #m_pTrackOutputPortsR with zeros.
 	 */
 	void deactivate();
 	/**
@@ -226,7 +226,7 @@ public:
 	 */
 	unsigned getSampleRate();
 	/** Accesses the number of output ports currently in use.
-	 * \return #track_port_count */
+	 * \return #m_nTrackPortCount */
 	int getNumTracks();
 
 	/** Returns #m_JackTransportState */
@@ -241,15 +241,15 @@ public:
 	/**
 	 * Creates per component output ports for each instrument.
 	 *
-	 * Firstly, it resets #track_map with zeros. Then, it loops
+	 * Firstly, it resets #m_trackMap with zeros. Then, it loops
 	 * through all the instruments and their components, creates a
 	 * new output or resets an existing one for each of them using
 	 * setTrackOutput(), and stores the corresponding track number
-	 * in #track_map. Finally, all ports in #track_output_ports_L
-	 * and #track_output_ports_R, which haven't been used in the
+	 * in #m_trackMap. Finally, all ports in #m_pTrackOutputPortsL
+	 * and #m_pTrackOutputPortsR, which haven't been used in the
 	 * previous step, are unregistered using
 	 * _jack_port_unregister()_ (jack/jack.h) and overwritten with
-	 * 0. #track_port_count will be set to biggest track number
+	 * 0. #m_nTrackPortCount will be set to biggest track number
 	 * encountered during the creation/reassignment step.
 	 *
 	 * The function will only perform its tasks if the
@@ -261,9 +261,9 @@ public:
 	 * its not already present. 
 	 *
 	 * If the track number @a n is bigger than the number of ports
-	 * currently in usage #track_port_count, @a n + 1 -
-	 * #track_port_count new stereo ports will be created using
-	 * _jack_port_register()_ (jack/jack.h) and #track_port_count
+	 * currently in usage #m_nTrackPortCount, @a n + 1 -
+	 * #m_nTrackPortCount new stereo ports will be created using
+	 * _jack_port_register()_ (jack/jack.h) and #m_nTrackPortCount
 	 * updated to @a n + 1.
 	 *
 	 * Afterwards, the @a n 'th port is renamed to a concatenation
@@ -283,19 +283,19 @@ public:
 	 */
 	void setTrackOutput( int n, Instrument* instr, InstrumentComponent* pCompo, Song* pSong );
 
-	/** Sets #m_bConnectOutFlag to @a flag.*/
+	/** Sets #m_bConnectDefaults to @a flag.*/
 	void setConnectDefaults( bool flag ) {
-		m_bConnectOutFlag = flag;
+		m_bConnectDefaults = flag;
 	}
-	/** Returns #m_bConnectOutFlag */
+	/** Returns #m_bConnectDefaults */
 	bool getConnectDefaults() {
-		return m_bConnectOutFlag;
+		return m_bConnectDefaults;
 	}
 
 	/**
 	 * Get and return the content in the left stereo output
 	 * port. It calls _jack_port_get_buffer()_ (jack/jack.h) with
-	 * both the port name #output_port_1 and buffer size
+	 * both the port name #m_pOutputPort1 and buffer size
 	 * #jack_server_bufferSize.
 	 * \return Pointer to buffer content of type
 	 * _jack_default_audio_sample_t*_ (jack/types.h)
@@ -304,7 +304,7 @@ public:
 	/**
 	 * Get and return the content in the right stereo output
 	 * port. It calls _jack_port_get_buffer()_ (jack/jack.h) with
-	 * both the port name #output_port_2 and buffer size
+	 * both the port name #m_pOutputPort2 and buffer size
 	 * #jack_server_bufferSize.
 	 * \return Pointer to buffer content of type
 	 * _jack_default_audio_sample_t*_ (jack/types.h)
@@ -313,10 +313,10 @@ public:
 	/**
 	 * Get and return the content of a specific left output
 	 * port. It calls _jack_port_get_buffer()_ (jack/jack.h) with
-	 * the port in @a nTrack element of #track_output_ports_L and
+	 * the port in @a nTrack element of #m_pTrackOutputPortsL and
 	 * buffer size #jack_server_bufferSize.
 	 * \param nTrack Track number. Must not be bigger than
-	 * #track_port_count.
+	 * #m_nTrackPortCount.
 	 * \return Pointer to buffer content of type
 	 * _jack_default_audio_sample_t*_ (jack/types.h)
 	 */
@@ -324,17 +324,17 @@ public:
 	/**
 	 * Get and return the content of a specific right output
 	 * port. It calls _jack_port_get_buffer()_ (jack/jack.h) with
-	 * the port in @a nTrack element of #track_output_ports_R and
+	 * the port in @a nTrack element of #m_pTrackOutputPortsR and
 	 * buffer size #jack_server_bufferSize.
 	 * \param nTrack Track number. Must not be bigger than
-	 * #track_port_count.
+	 * #m_nTrackPortCount.
 	 * \return Pointer to buffer content of type
 	 * _jack_default_audio_sample_t*_ (jack/types.h)
 	 */
 	float* getTrackOut_R( unsigned nTrack );
 	/** 
 	 * Convenience function looking up the track number of a
-	 * component of an instrument using in #track_map using their
+	 * component of an instrument using in #m_trackMap using their
 	 * IDs Instrument::__id and
 	 * InstrumentComponent::__related_drumkit_componentID. Using
 	 * the track number it then calls getTrackOut_L( unsigned )
@@ -347,7 +347,7 @@ public:
 	float* getTrackOut_L( Instrument* instr, InstrumentComponent* pCompo );
 	/** 
 	 * Convenience function looking up the track number of a
-	 * component of an instrument using in #track_map using their
+	 * component of an instrument using in #m_trackMap using their
 	 * IDs Instrument::__id and
 	 * InstrumentComponent::__related_drumkit_componentID. Using
 	 * the track number it then calls getTrackOut_R( unsigned )
@@ -363,7 +363,7 @@ public:
 	 * Initializes the JACK audio driver.
 	 *
 	 * Firstly, it determines the destination ports
-	 * #output_port_name_1 and #output_port_name_2 the output
+	 * #m_sOutputPortName1 and #m_sOutputPortName2 the output
 	 * ports of Hydrogen will be connected to in connect() from
 	 * Preferences::m_sJackPortName1 and
 	 * Preferences::m_sJackPortName2. The name of the JACK client
@@ -390,7 +390,7 @@ public:
 	 * stores them in H2Core::jack_server_sampleRate,
 	 * Preferences::m_nSampleRate, H2Core::jack_server_bufferSize,
 	 * and Preferences::m_nBufferSize. In addition, it also
-	 * registers JackAudioDriver::processCallback,
+	 * registers JackAudioDriver::m_processCallback,
 	 * H2Core::jackDriverSampleRate, H2Core::jackDriverBufferSize,
 	 * and H2Core::jackDriverShutdown using
 	 * _jack_set_process_callback()_,
@@ -503,10 +503,10 @@ public:
              a relocation triggered by another JACK client, we will
              detect this change since the position stored in
              TransportInfo::m_nFrames plus the constant offset
-             #bbt_frame_offset does not equate to the _frame_ member
+             #m_bbtFrameOffset does not equate to the _frame_ member
              of #m_JackTransportPos anymore. It there is a timebase
              master present and it is us or no timebase master was set
-             at all, #bbt_frame_offset will be reset to zero and
+             at all, #m_bbtFrameOffset will be reset to zero and
              TransportInfo::m_nFrames will be set to the _frame_ member
              of #m_JackTransportPos. The relocation itself will be
              handled by locate() and we trust the JACK server to do
@@ -534,7 +534,7 @@ public:
 	 * Calculates the difference between the transport position
 	 * obtained by querying JACK and the value stored in
 	 * TransportInfo::m_nFrames and stores it in
-	 * #bbt_frame_offset.
+	 * #m_bbtFrameOffset.
 	 *
 	 * It is triggered in audioEngine_process_checkBPMChanged() in
 	 * case the tick size did changed. Imagine the following
@@ -549,7 +549,7 @@ public:
 	 * and of the JACK server are off by a constant offset. To
 	 * nevertheless be able to identify relocation in
 	 * updateTransportInfo(), this constant offset is stored in
-	 * #bbt_frame_offset.
+	 * #m_bbtFrameOffset.
 	 */
 	void calculateFrameOffset();
 	/**
@@ -565,12 +565,12 @@ public:
 	 * repositioning was introduced to keep Hydrogen synchronized
 	 * with Ardour.
 	 *
-	 * Internally, it sets the variable #locate_countdown to @a
-	 * cycles_to_wait and #locate_frame to @a frame.
+	 * Internally, it sets the variable #m_nLocateCountDown to @a
+	 * cycles_to_wait and #m_locateFrame to @a frame.
 	 *
 	 * The audioEngine_updateNoteQueue() function is called after
 	 * audioEngine_process_transport() and its decrement of
-	 * #locate_countdown. It thus only take @a cycles_to_wait - 1
+	 * #m_nLocateCountDown. It thus only take @a cycles_to_wait - 1
 	 * cycles calls to audioEngine_process() for the relocation to
 	 * happen.
 	 *
@@ -607,7 +607,7 @@ public:
 	 * callback function to not be called by the JACK server
 	 * anymore.
 	 */
-	void com_release();
+	void releaseTimebase();
 
 protected:
 	/**
@@ -624,9 +624,9 @@ protected:
 	 * #m_JackTransportState is _JackTransportRolling_. It sets
 	 * the following members of the JACK position object @a pos is
 	 * pointing to:
-	 * - __bar__ : current position corrected by the #bbt_frame_offset
+	 * - __bar__ : current position corrected by the #m_bbtFrameOffset
 	 * \code{.cpp} 
-	 * Hydrogen::getPosForTick( ( pos->frame - bbt_frame_offset )/ 
+	 * Hydrogen::getPosForTick( ( pos->frame - m_bbtFrameOffset )/ 
 	 *                          m_transport.m_nTickSize ) ) 
 	 * \endcode
 	 * - __ticks_per_beat__ :  the output of
@@ -717,19 +717,19 @@ private:
 	 * variable is initialized with 0 in JackAudioDriver() and
 	 * updated in calculateFrameOffset().
 	 */
-	long long			bbt_frame_offset;
+	long long			m_bbtFrameOffset;
 	/** 
-	 * #locate_countdown - 1 of cycles (calls to audioEngine_process())
-	 * until to locate() to #locate_frame in
+	 * #m_nLocateCountdown - 1 of cycles (calls to
+	 * audioEngine_process()) until to locate() to #m_locateFrame in
 	 * updateTransportInfo(). It is set in locateInNCycles().
 	 */
-	int				locate_countdown;
+	int				m_nLocateCountdown;
 	/** 
 	 * Frame to locate() to in updateTransportInfo() after
-	    #locate_countdown cycles - 1 cycles.   
+	    #m_nLocateCountDown cycles - 1 cycles.   
 	 * It is set in locateInNCycles(). 
 	 */
-	unsigned long			locate_frame;
+	unsigned long			m_locateFrame;
 	/**
 	 * Function the JACK server will call whenever there is work
 	 * to do. 
@@ -745,37 +745,37 @@ private:
 	 * _select()_, _pthread_join()_, _pthread_cond_wait()_, etc,
 	 * etc.
 	 */
-	JackProcessCallback		processCallback;
+	JackProcessCallback		m_processCallback;
 	/**
 	 * Left source port for which a connection to
-	 * #output_port_name_1 will be established in connect() via
+	 * #m_sOutputPortName1 will be established in connect() via
 	 * the JACK server.
 	 */
-	jack_port_t*			output_port_1;
+	jack_port_t*			m_pOutputPort1;
 	/**
 	 * Right source port for which a connection to
-	 * #output_port_name_2 will be established in connect() via
+	 * #m_sOutputPortName2 will be established in connect() via
 	 * the JACK server.
 	 */
-	jack_port_t*			output_port_2;
+	jack_port_t*			m_pOutputPort2;
 	/**
-	 * Destination of the left source port #output_port_1, for
+	 * Destination of the left source port #m_pOutputPort1, for
 	 * which a connection will be established in connect(). It is
 	 * set to Preferences::m_sJackPortName1 during the call of
 	 * init(). 
 	 */
-	QString				output_port_name_1;
+	QString				m_sOutputPortName1;
 	/**
-	 * Destination of the right source port #output_port_2, for
+	 * Destination of the right source port #m_pOutputPort2, for
 	 * which a connection will be established in connect(). It is
 	 * set to Preferences::m_sJackPortName2 during the call of
 	 * init(). 
 	 */
-	QString				output_port_name_2;
+	QString				m_sOutputPortName2;
 	/**
 	 * Matrix containing the track number of each component of
 	 * of all instruments. Its rows represent the instruments and
-	 * its columns their components. _track_map[2][1]=6_ thus
+	 * its columns their components. _m_trackMap[2][1]=6_ thus
 	 * therefore mean the output of the second component of the
 	 * third instrument is assigned the seventh output port. Since
 	 * its total size is defined by #MAX_INSTRUMENTS and
@@ -783,12 +783,12 @@ private:
 	 *
 	 * It gets updated by makeTrackOutputs().
 	 */
-	int				track_map[MAX_INSTRUMENTS][MAX_COMPONENTS];
+	int				m_trackMap[MAX_INSTRUMENTS][MAX_COMPONENTS];
 	/**
 	 * Total number of output ports currently in use. It gets
 	 * updated by makeTrackOutputs().
 	 */
-	int				track_port_count;
+	int				m_nTrackPortCount;
 	/**
 	 * Vector of all left audio output ports currently used by the
 	 * local JACK client. 
@@ -800,7 +800,7 @@ private:
 	 * accessed via getTrackOut_L().
 	 * It is set to a length of #MAX_INSTRUMENTS.
 	 */
-	jack_port_t*			track_output_ports_L[MAX_INSTRUMENTS];
+	jack_port_t*			m_pTrackOutputPortsL[MAX_INSTRUMENTS];
 	/**
 	 * Vector of all right audio output ports currently used by the
 	 * local JACK client. 
@@ -812,7 +812,7 @@ private:
 	 * accessed via getTrackOut_R().
 	 * It is set to a length of #MAX_INSTRUMENTS.
 	 */
-	jack_port_t*		 	track_output_ports_R[MAX_INSTRUMENTS];
+	jack_port_t*		 	m_pTrackOutputPortsR[MAX_INSTRUMENTS];
 
 	/**
 	 * Current transport state returned by
@@ -866,26 +866,24 @@ private:
 	jack_position_t			m_JackTransportPos;
 
 	/**
-	 * Probably tells whether or not the output ports of the
-	 * current session ARE already properly connected in the JACK
-	 * server. Or maybe if they SHOULD be connected.
+	 * Specifies whether the default left and right (master) audio
+	 * JACK ports will be automatically connected to the system's sink
+	 * when registering the JACK client in connect().
 	 *
-	 * After the JackAudioDriver has been created by
-	 * createDriver(), Preferences::m_bJackConnectDefaults will be
-	 * used to initialize this variable.
+	 * After the JackAudioDriver has been created by createDriver(),
+	 * the variable will be, again, set to
+	 * Preferences::m_bJackConnectDefaults.
 	 */
-	bool				m_bConnectOutFlag;
+	bool				m_bConnectDefaults;
 	/**
 	 * Whether Hydrogen is the current Jack timebase master.
-	 *
-	 * It gets initialized in init().
 	 */
-	bool				m_bHydrogenIsJackTimebaseMaster;
+	bool				m_bIsTimebaseMaster;
 	/**
 	 * Specifies whether to use a conditional take over in the
 	 * switching of the JACK timebase master. If set to non-zero
 	 * the take over will fail if there is already a timebase
-	 * master present. It will be initialized with 0 in init().
+	 * master present. Currently it will always be set to 0.
 	 */
 	int				m_nJackConditionalTakeOver;
 
@@ -907,7 +905,7 @@ public:
 	 * and the usage of the JACK audio server is not intended by
 	 * the user.
 	 */
-	JackAudioDriver( audioProcessCallback processCallback ) : NullDriver( processCallback ) {}
+	JackAudioDriver( audioProcessCallback m_processCallback ) : NullDriver( m_processCallback ) {}
 
 };
 

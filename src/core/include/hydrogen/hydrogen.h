@@ -470,7 +470,7 @@ void			previewSample( Sample *pSample );
 	/** Sets #m_nHumantimeFrames.
 	    \param hframes New transport position in frames.*/
 	void			setHumantimeFrames(unsigned long hframes);
-	/** Calling JackAudioDriver::com_release() directly from
+	/** Calling JackAudioDriver::releaseTimebase() directly from
 	    the GUI*/
 	void			offJackMaster();
 	/** Calling JackAudioDriver::initTimeMaster() directly from
