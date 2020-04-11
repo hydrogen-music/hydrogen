@@ -597,22 +597,10 @@ void PlayerControl::updatePlayerControl()
 
 
 		m_pJackMasterBtn->show();
-		switch ( pPref->m_bJackMasterMode ) {
-			case Preferences::NO_JACK_TIME_MASTER:
-				m_pJackMasterBtn->setPressed(false);
-				break;
-
-			case Preferences::USE_JACK_TIME_MASTER:
-				if ( m_pJackTransportBtn->isPressed()){
-					m_pJackMasterBtn->setPressed(true);
-				}
-				else
-				{
-					m_pJackMasterBtn->setPressed(false);
-					Hydrogen::get_instance()->offJackMaster();
-					pPref->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
-				}
-				break;
+		if ( static_cast<JackAudioDriver*>(p_Driver)->getIsTimebaseMaster() ) {
+			m_pJackMasterBtn->setPressed( true );
+		} else {
+			m_pJackMasterBtn->setPressed( false );
 		}
 	}
 	else {

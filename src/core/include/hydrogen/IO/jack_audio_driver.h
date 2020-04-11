@@ -608,6 +608,11 @@ public:
 	 * anymore.
 	 */
 	void releaseTimebase();
+	
+	/**
+	 * \return #m_bIsTimebaseMaster
+	 */
+	bool getIsTimebaseMaster();
 
 protected:
 	/**
@@ -880,6 +885,23 @@ private:
 	 */
 	bool				m_bIsTimebaseMaster;
 	/**
+	 * While Hydrogen can unregister as timebase master on its own, it
+	 * can not be observed directly whether another application has
+	 * taken over as timebase master. When the JACK server is release
+	 * Hydrogen in the later case, it won't advertise this fact but
+	 * simply not call the jack_timebase_callback() anymore. But since
+	 * this will be called in every cycle after updateTransportInfo(),
+	 * we can use this variable to determine if Hydrogen is still
+	 * timebase master.
+	 *
+	 * It will be initialized with 0, incremented in
+	 * updateTransportInfo(), and reset to zero in
+	 * jack_timebase_callback(). Whenever it is larger than zero in
+	 * updateTransportInfo(), #m_bIsTimebaseMaster will be set to
+	 * false.
+	 */
+	int					m_nTimebaseMasterCount;
+	/**
 	 * Specifies whether to use a conditional take over in the
 	 * switching of the JACK timebase master. If set to non-zero
 	 * the take over will fail if there is already a timebase
@@ -888,6 +910,12 @@ private:
 	int				m_nJackConditionalTakeOver;
 
 };
+	
+inline bool JackAudioDriver::getIsTimebaseMaster() {
+	return m_bIsTimebaseMaster;
+}
+
+
 
 }; // H2Core namespace
 
