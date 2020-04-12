@@ -34,6 +34,7 @@
 #include <lo/lo_cpp.h>
 
 #include "hydrogen/osc_server.h"
+#include "hydrogen/core_action_controller.h"
 #include "hydrogen/event_queue.h"
 #include "hydrogen/hydrogen.h"
 #include "hydrogen/basics/song.h"
@@ -275,7 +276,19 @@ OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name
 		} else {
 			INFOLOG( QString( "OSC server running on port %1" ).arg( port ) );
 		}
+	} else {
+		
+		m_pServerThread = nullptr;
+		
 	}
+}
+
+OscServer::~OscServer(){
+	for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
+		lo_address_free( *it );
+	}
+
+	__instance = nullptr;
 }
 
 void OscServer::create_instance( H2Core::Preferences* pPreferences )
@@ -284,6 +297,9 @@ void OscServer::create_instance( H2Core::Preferences* pPreferences )
 		__instance = new OscServer( pPreferences );
 	}
 }
+
+// -------------------------------------------------------------------
+// Handler functions
 
 void OscServer::PLAY_Handler(lo_arg **argv,int i)
 {
@@ -584,65 +600,41 @@ void OscServer::REDO_ACTION_Handler(lo_arg **argv,int i)
 	pActionManager->handleAction( &currentAction );
 }
 
+// -------------------------------------------------------------------
 // Actions required for session management.
+
 void OscServer::NEW_SONG_Handler(lo_arg **argv, int argc) {
 	
-	Action currentAction("NEW_SONG");	
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
-
-	// Accessing the provided path for the new Song.
-	if ( argc > 0 ) {
-		currentAction.setParameter1( QString::fromUtf8( &argv[0]->s ) );
-		pActionManager->handleAction(&currentAction);
-	} else {
-		// This shouldn't be happening since the handler function is
-		// only registered with an "s" lo_type argument.
-	}
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	pController->newSong( QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::OPEN_SONG_Handler(lo_arg **argv, int argc) {
-	Action currentAction("OPEN_SONG");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	// Accessing the provided path for the new Song.
-	if ( argc > 0 ) {
-		currentAction.setParameter1( QString::fromUtf8( &argv[0]->s ) );
-		pActionManager->handleAction(&currentAction);
-	} else {
-		// This shouldn't be happening since the handler function is
-		// only registered with an "s" lo_type argument.
-	}
-	
-	pActionManager->handleAction(&currentAction);
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	pController->openSong( QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::SAVE_SONG_Handler(lo_arg **argv, int argc) {
-	Action currentAction("SAVE_SONG");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
-	
-	pActionManager->handleAction(&currentAction);
+
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	pController->saveSong();
 }
 
 void OscServer::SAVE_SONG_AS_Handler(lo_arg **argv, int argc) {
-	Action currentAction("SAVE_SONG_AS");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	// Accessing the provided path for the new Song.
-	if ( argc > 0 ) {
-		currentAction.setParameter1( QString::fromUtf8( &argv[0]->s ) );
-		pActionManager->handleAction(&currentAction);
-	} else {
-		// This shouldn't be happening since the handler function is
-		// only registered with an "s" lo_type argument.
-	}
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	pController->saveSongAs( QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::QUIT_Handler(lo_arg **argv, int argc) {
-	Action currentAction("QUIT");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 	
-	pActionManager->handleAction(&currentAction);
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	pController->quit();
 }
+
+// -------------------------------------------------------------------
+// Helper functions
 
 bool IsLoAddressEqual( lo_address first, lo_address second )
 {
@@ -652,6 +644,9 @@ bool IsLoAddressEqual( lo_address first, lo_address second )
 	
 	return portEqual && hostEqual && protoEqual;
 }
+
+// -------------------------------------------------------------------
+// Main action handler
 
 void OscServer::handleAction( Action* pAction )
 {
@@ -780,11 +775,11 @@ void OscServer::handleAction( Action* pAction )
 }
 
 
-void OscServer::start()
+bool OscServer::start()
 {
-	if (!m_pServerThread->is_valid()) {
+	if ( m_pServerThread == nullptr || !m_pServerThread->is_valid() ) {
 		ERRORLOG("Failed to start OSC server.");
-		return;
+		return false;
 	}
 
 	/*
@@ -915,19 +910,10 @@ void OscServer::start()
 	 * Start the server.
 	 */
 	m_pServerThread->start();
-
-
+	
 	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->getOscServerPort() ));
 	
-}
-
-OscServer::~OscServer()
-{
-	for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-		lo_address_free( *it );
-	}
-
-	__instance = nullptr;
+	return true;
 }
 
 
