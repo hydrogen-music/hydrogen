@@ -45,6 +45,94 @@ class CoreActionController : public H2Core::Object {
 		
 		void initExternalControlInterfaces();
 		void handleOutgoingControlChange( int param, int value);
+	
+		// -----------------------------------------------------------
+		// Actions required for session management.
+		
+		/**
+		 * Create an empty #Song, which will be stored in @a songPath.
+		 *
+		 * This will be done immediately and without saving
+		 * the current #Song. All unsaved changes will be lost! In
+		 * addition, the new song won't be saved by this function. You
+		 * can do so using saveSong().
+		 *
+		 * The intended use of this function for session
+		 * management. Therefore, the function will *not* store the
+		 * provided @a songPath in Preferences::m_lastSongFilename and
+		 * Hydrogen won't resume with the corresponding song on
+		 * restarting.
+		 *
+		 * \param songPath Absolute path to the .h2song file to be
+		 *    opened.
+		 * \return true on success
+		 */
+		bool newSong( const QString& songPath );
+		/**
+		 * Opens the #Song specified in @a songPath.
+		 *
+		 * This will be done immediately and without saving
+		 * the current #Song. All unsaved changes will be lost!
+		 *
+		 * The intended use of this function for session
+		 * management. Therefore, the function will *not* store the
+		 * provided @a songPath in Preferences::m_lastSongFilename and
+		 * Hydrogen won't resume with the corresponding song on
+		 * restarting.
+		 *
+		 * \param songPath Absolute path to the .h2song file to be
+		 *    opened.
+		 * \return true on success
+		 */
+		bool openSong( const QString& songPath );
+		/**
+		 * Saves the current #Song.
+		 *
+		 * \return true on success
+		 */
+		bool saveSong();
+		/**
+		 * Saves the current #Song to the path provided in @a songPath.
+		 *
+		 * The intended use of this function for session
+		 * management. Therefore, the function will *not* store the
+		 * provided @a songPath in Preferences::m_lastSongFilename and
+		 * Hydrogen won't resume with the corresponding song on
+		 * restarting.
+		 *
+		 * \param songPath Absolute path to the file to store the
+		 *   current #Song in.
+		 * \return true on success
+		 */
+		bool saveSongAs( const QString& songPath );
+		/**
+		 * Triggers the shutdown of Hydrogen.
+		 *
+		 * This will be done immediately and without saving the
+		 * current #Song. All unsaved changes will be lost!
+		 *
+		 * The shutdown will be triggered in both the CLI and the GUI
+		 * via the #H2Core::EVENT_QUIT event.
+		 *
+		 * \return true on success
+		 */
+		bool quit();
+		
+		// -----------------------------------------------------------
+		// Helper functions
+		
+		/**
+		 * Checks the path of the .h2song provided via OSC.
+		 *
+		 * It will be checked whether @a songPath
+		 * - is absolute
+		 * - has the '.h2song' suffix
+		 * - is writable (if it exists)
+		 *
+		 * \param songPath Absolute path to an .h2song file.
+		 * \return true - if valid.
+		 */
+		bool isSongPathValid( const QString& songPath );
 		
 	private:
 		

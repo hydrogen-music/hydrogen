@@ -74,7 +74,9 @@ class NsmClient : public H2Core::Object
 		/**
 		 * To determine whether Hydrogen is under Non session management,
 		 * it is not sufficient to check whether the NSM_URL environmental
-		 * variable is set but also whether. 
+		 * variable is set but also whether the NSM server did respond
+		 * to the announce message appropriately. Therefore,
+		 * createInitialClient() has to be called first.
 		 */
 		bool m_bUnderSessionManagement;
 

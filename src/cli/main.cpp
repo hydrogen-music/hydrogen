@@ -208,6 +208,9 @@ int main(int argc, char *argv[])
 		MidiMap::create_instance();
 		Preferences::create_instance();
 		Preferences* preferences = Preferences::get_instance();
+#ifdef H2CORE_HAVE_OSC
+		preferences->setOscServerEnabled( true );
+#endif
 		// See below for Hydrogen.
 
 		___INFOLOG( QString("Using QT version ") + QString( qVersion() ) );
@@ -415,6 +418,11 @@ int main(int argc, char *argv[])
 				break;
 			case EVENT_NONE: /* Sleep if there is no more events */
 				Sleeper::msleep ( 100 );
+				break;
+				
+			case EVENT_QUIT: // Shutdown if indicated by a
+							 // corresponding OSC message.
+				quit = true;
 				break;
 			}
 		}
