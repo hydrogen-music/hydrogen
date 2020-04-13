@@ -166,7 +166,7 @@ void PulseAudioDriver::locate( unsigned long nFrame )
 
 void PulseAudioDriver::setBpm( float fBPM )
 {
-	m_transport.m_nBPM = fBPM;
+	m_transport.m_fBPM = fBPM;
 }
 
 

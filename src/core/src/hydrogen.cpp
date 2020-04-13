@@ -167,10 +167,10 @@ MidiOutput *			m_pMidiDriverOut = nullptr;
 struct compare_pNotes {
 	bool operator() (Note* pNote1, Note* pNote2) {
 		return (pNote1->get_humanize_delay()
-				+ pNote1->get_position() * m_pAudioDriver->m_transport.m_nTickSize)
+				+ pNote1->get_position() * m_pAudioDriver->m_transport.m_fTickSize)
 				>
 				(pNote2->get_humanize_delay()
-				 + pNote2->get_position() * m_pAudioDriver->m_transport.m_nTickSize);
+				 + pNote2->get_position() * m_pAudioDriver->m_transport.m_fTickSize);
 	}
 };
 
@@ -496,7 +496,7 @@ inline void			audioEngine_clearNoteQueue();
  * position accordingly.
  *
  * To access a change in the tick size, the value stored in
- * TransportInfo::m_nTickSize will be compared to the one calculated
+ * TransportInfo::m_fTickSize will be compared to the one calculated
  * from the AudioOutput::getSampleRate(), Song::__bpm, and
  * Song::__resolution. Thus, if any of those quantities did change,
  * the transport position will be recalculated.
@@ -504,7 +504,7 @@ inline void			audioEngine_clearNoteQueue();
  * The new transport position gets calculated by 
  * \code{.cpp}
  * ceil( m_pAudioDriver->m_transport.m_nFrames/
- *       m_pAudioDriver->m_transport.m_nTickSize ) *
+ *       m_pAudioDriver->m_transport.m_fTickSize ) *
  * m_pAudioDriver->getSampleRate() * 60.0 / Song::__bpm / Song::__resolution 
  * \endcode
  *
@@ -535,7 +535,7 @@ inline void			audioEngine_process_playNotes( unsigned long nframes );
  * #STATE_READY. If #m_audioEngineState is then still not in
  * #STATE_PLAYING, the function will return. Otherwise, the current
  * speed is getting updated by calling Hydrogen::setBPM using
- * TransportInfo::m_nBPM and #m_nRealtimeFrames is set to
+ * TransportInfo::m_fBPM and #m_nRealtimeFrames is set to
  * TransportInfo::m_nFrames.
  *
  * If the status is TransportInfo::STOPPED but the engine is still
@@ -723,7 +723,7 @@ void audioEngine_raiseError( unsigned nErrorCode )
  * \code{.cpp}
  * m_pAudioDriver->getSampleRate() * 60.0 / Song::__bpm / Song::__resolution 
  * \endcode
- * and storing it in TransportInfo::m_nTickSize
+ * and storing it in TransportInfo::m_fTickSize
  */
 void updateTickSize()
 {
@@ -731,7 +731,7 @@ void updateTickSize()
 	Song* pSong = pHydrogen->getSong();
 
 	float sampleRate = ( float ) m_pAudioDriver->getSampleRate();
-	m_pAudioDriver->m_transport.m_nTickSize =
+	m_pAudioDriver->m_transport.m_fTickSize =
 		( sampleRate * 60.0 /  pSong->__bpm / pSong->__resolution );		
 }
 
@@ -914,15 +914,15 @@ inline void audioEngine_process_checkBPMChanged(Song* pSong)
 	  && m_audioEngineState != STATE_PLAYING
 	) return;
 
-	float fOldTickSize = m_pAudioDriver->m_transport.m_nTickSize;
-	float fNewTickSize =AudioEngine::compute_tick_size( m_pAudioDriver->getSampleRate(), pSong->__bpm, pSong->__resolution );
+	float fOldTickSize = m_pAudioDriver->m_transport.m_fTickSize;
+	float fNewTickSize = AudioEngine::compute_tick_size( m_pAudioDriver->getSampleRate(), pSong->__bpm, pSong->__resolution );
 
 	// Nothing changed - avoid recomputing
 	if ( fNewTickSize == fOldTickSize )
 		return;
 
 	// update tick size in transport class
-	m_pAudioDriver->m_transport.m_nTickSize = fNewTickSize;
+	m_pAudioDriver->m_transport.m_fTickSize = fNewTickSize;
 
 	if ( fNewTickSize == 0 || fOldTickSize == 0 )
 		return;
@@ -972,7 +972,7 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 		// verifico se la nota rientra in questo ciclo
 		unsigned int noteStartInFrames =
-				(int)( pNote->get_position() * m_pAudioDriver->m_transport.m_nTickSize );
+				(int)( pNote->get_position() * m_pAudioDriver->m_transport.m_fTickSize );
 
 		// if there is a negative Humanize delay, take into account so
 		// we don't miss the time slice.  ignore positive delay, or we
@@ -1080,7 +1080,7 @@ void audioEngine_seek( long long nFrames, bool bLoopMode )
 
 	int tickNumber_start = ( unsigned )(
 				m_pAudioDriver->m_transport.m_nFrames
-				/ m_pAudioDriver->m_transport.m_nTickSize );
+				/ m_pAudioDriver->m_transport.m_fTickSize );
 	//	sprintf(tmp, "[audioEngine_seek()] tickNumber_start = %d", tickNumber_start);
 	//	__instance->infoLog(tmp);
 
@@ -1130,12 +1130,12 @@ inline void audioEngine_process_transport()
 		if ( m_audioEngineState != STATE_PLAYING ) return;
 
 		/* Now we're playing | Update BPM */
-		if ( pSong->__bpm != m_pAudioDriver->m_transport.m_nBPM ) {
+		if ( pSong->__bpm != m_pAudioDriver->m_transport.m_fBPM ) {
 			___INFOLOG( QString( "song bpm: (%1) gets transport bpm: (%2)" )
 				.arg( pSong->__bpm )
-				.arg( m_pAudioDriver->m_transport.m_nBPM )
+				.arg( m_pAudioDriver->m_transport.m_fBPM )
 			);
-			pHydrogen->setBPM( m_pAudioDriver->m_transport.m_nBPM );
+			pHydrogen->setBPM( m_pAudioDriver->m_transport.m_fBPM );
 		}
 
 		// Update the variable m_nRealtimeFrames keeping track
@@ -1261,8 +1261,8 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// ___INFOLOG( QString( "[begin] status: %1, frame: %2, ticksize: %3, bpm: %4" )
 	// 	    .arg( m_pAudioDriver->m_transport.m_status )
 	// 	    .arg( m_pAudioDriver->m_transport.m_nFrames )
-	// 	    .arg( m_pAudioDriver->m_transport.m_nTickSize )
-	// 	    .arg( m_pAudioDriver->m_transport.m_nBPM ) );
+	// 	    .arg( m_pAudioDriver->m_transport.m_fTickSize )
+	// 	    .arg( m_pAudioDriver->m_transport.m_fBPM ) );
 	timeval startTimeval = currentTime2();
 
 	// Resetting all audio output buffers with zeros.
@@ -1307,8 +1307,8 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// ___INFOLOG( QString( "[after process] status: %1, frame: %2, ticksize: %3, bpm: %4" )
 	// 	    .arg( m_pAudioDriver->m_transport.m_status )
 	// 	    .arg( m_pAudioDriver->m_transport.m_nFrames )
-	// 	    .arg( m_pAudioDriver->m_transport.m_nTickSize )
-	// 	    .arg( m_pAudioDriver->m_transport.m_nBPM ) );
+	// 	    .arg( m_pAudioDriver->m_transport.m_fTickSize )
+	// 	    .arg( m_pAudioDriver->m_transport.m_fBPM ) );
 	// Check whether the tick size has changed.
 	audioEngine_process_checkBPMChanged(pSong);
 
@@ -1456,8 +1456,8 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// ___INFOLOG( QString( "[end] status: %1, frame: %2, ticksize: %3, bpm: %4" )
 	// 	    .arg( m_pAudioDriver->m_transport.m_status )
 	// 	    .arg( m_pAudioDriver->m_transport.m_nFrames )
-	// 	    .arg( m_pAudioDriver->m_transport.m_nTickSize )
-	// 	    .arg( m_pAudioDriver->m_transport.m_nBPM ) );
+	// 	    .arg( m_pAudioDriver->m_transport.m_fTickSize )
+	// 	    .arg( m_pAudioDriver->m_transport.m_fBPM ) );
 
 	AudioEngine::get_instance()->unlock();
 
@@ -1592,8 +1592,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 	bool bSendPatternChange = false;
 	// TODO This variable should definitely be a member variable.
 	int nMaxTimeHumanize = 2000;
-	// TODO This variable should definitely be a member variable.
-	int nLeadLagFactor = m_pAudioDriver->m_transport.m_nTickSize * 5;  // 5 ticks
+	int nLeadLagFactor = m_pAudioDriver->m_transport.m_fTickSize * 5;  // 5 ticks
 
 	unsigned int framepos;
 	if (  m_audioEngineState == STATE_PLAYING ) {
@@ -1624,11 +1623,11 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			  && pSong->get_mode() == Song::SONG_MODE
 			  && m_nSongPos == -1 )
 	) {
-		tickNumber_start = framepos / m_pAudioDriver->m_transport.m_nTickSize;
+		tickNumber_start = framepos / m_pAudioDriver->m_transport.m_fTickSize;
 	} else {
-		tickNumber_start = ( framepos + lookahead) / m_pAudioDriver->m_transport.m_nTickSize;
+		tickNumber_start = ( framepos + lookahead) / m_pAudioDriver->m_transport.m_fTickSize;
 	}
-	int tickNumber_end = ( framepos + nFrames + lookahead ) / m_pAudioDriver->m_transport.m_nTickSize;
+	int tickNumber_end = ( framepos + nFrames + lookahead ) / m_pAudioDriver->m_transport.m_fTickSize;
 
 	// Get initial timestamp for first tick
 	gettimeofday( &m_currentTickTime, nullptr );
@@ -1899,7 +1898,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 							 && ( ( m_nPatternTickPosition % 24 ) != 0 ) ) {
 							nOffset += ( int )(
 										6.0
-										* m_pAudioDriver->m_transport.m_nTickSize
+										* m_pAudioDriver->m_transport.m_fTickSize
 										* fSwingFactor
 										);
 						}
@@ -2593,9 +2592,9 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	// Get current partern and column, compensating for "lookahead" if required
 	const Pattern* currentPattern = nullptr;
 	unsigned int column = 0;
-	unsigned int lookaheadTicks = m_nLookaheadFrames / m_pAudioDriver->m_transport.m_nTickSize;
-	bool doRecord = pPreferences->getRecordEvents();
-	if ( pSong->get_mode() == Song::SONG_MODE && doRecord &&	
+	unsigned int lookaheadTicks = m_nLookaheadFrames / m_pAudioDriver->m_transport.m_fTickSize;
+	bool doRecord = pref->getRecordEvents();
+	if ( pSong->get_mode() == Song::SONG_MODE && doRecord &&
 		 m_audioEngineState == STATE_PLAYING )
 	{
 
@@ -2927,7 +2926,7 @@ unsigned long Hydrogen::getRealtimeTickPosition()
 	// Get the realtime transport position in frames and convert
 	// it into ticks.
 	unsigned int initTick = ( unsigned int )( getRealtimeFrames() /
-						  m_pAudioDriver->m_transport.m_nTickSize );
+						  m_pAudioDriver->m_transport.m_fTickSize );
 	unsigned long retTick;
 
 	struct timeval currtime;
@@ -2949,7 +2948,7 @@ unsigned long Hydrogen::getRealtimeTickPosition()
 			+ ( deltatime.tv_usec / 1000000.0 )
 			+ ( m_pAudioDriver->getBufferSize() / ( double )sampleRate );
 
-	retTick = ( unsigned long ) ( ( sampleRate / ( double ) m_pAudioDriver->m_transport.m_nTickSize ) * deltaSec );
+	retTick = ( unsigned long ) ( ( sampleRate / ( double ) m_pAudioDriver->m_transport.m_fTickSize ) * deltaSec );
 
 	retTick += initTick;
 
@@ -3504,7 +3503,7 @@ void Hydrogen::setPatternPos( int pos )
 	}
 	INFOLOG( "relocate" );
 	m_pAudioDriver->locate(
-				( int ) ( totalTick * m_pAudioDriver->m_transport.m_nTickSize )
+				( int ) ( totalTick * m_pAudioDriver->m_transport.m_fTickSize )
 				);
 
 	AudioEngine::get_instance()->unlock();

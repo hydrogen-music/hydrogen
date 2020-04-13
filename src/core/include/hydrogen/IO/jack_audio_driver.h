@@ -514,7 +514,7 @@ public:
              master, a change in speed (or relocation into a region of
              different speed) could have occurred. Therefore,
              TransportInfo::m_nFrames will be scaled properly using
-             #m_fOldTickSize and TransportInfo::m_nTickSize. In addition, 
+             #m_fOldTickSize and TransportInfo::m_fTickSize. In addition, 
 	     Hydrogen::triggerRelocateDuringPlay() will be called if
              no timebase master is present and the transport is rolling.
 	 * - Finally, #m_nHumantimeFrames will be set to the _frame_
@@ -525,7 +525,7 @@ public:
 	 * without performing any action.
 	 */
 	virtual void updateTransportInfo();
-	/** Set the tempo stored TransportInfo::m_nBPM of the local
+	/** Set the tempo stored TransportInfo::m_fBPM of the local
 	 * instance of the TransportInfo AudioOutput::m_transport.
 	 * \param fBPM new tempo. 
 	 */
@@ -632,7 +632,7 @@ protected:
 	 * - __bar__ : current position corrected by the #m_bbtFrameOffset
 	 * \code{.cpp} 
 	 * Hydrogen::getPosForTick( ( pos->frame - m_bbtFrameOffset )/ 
-	 *                          m_transport.m_nTickSize ) ) 
+	 *                          m_transport.m_fTickSize ) ) 
 	 * \endcode
 	 * - __ticks_per_beat__ :  the output of
 	 * Hydrogen::getTickForHumanPosition() with the __bar__ member

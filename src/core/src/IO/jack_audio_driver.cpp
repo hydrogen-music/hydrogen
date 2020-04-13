@@ -309,7 +309,6 @@ void JackAudioDriver::disconnect()
 
 void JackAudioDriver::deactivate()
 {
-	INFOLOG( "[deactivate]" );
 	if ( m_pClient != nullptr ) {
 		INFOLOG( "calling jack_deactivate" );
 		int nReturnCode = jack_deactivate( m_pClient );
@@ -334,7 +333,7 @@ unsigned JackAudioDriver::getSampleRate()
 void JackAudioDriver::calculateFrameOffset()
 {
 	m_bbtFrameOffset = m_JackTransportPos.frame - m_transport.m_nFrames;
-	INFOLOG( QString( "m_bbtFrameOffset: %1" ). arg( m_bbtFrameOffset ) );
+	// INFOLOG( QString( "m_bbtFrameOffset: %1" ). arg( m_bbtFrameOffset ) );
 }
 
 void JackAudioDriver::locateInNCycles( unsigned long frame, int cycles_to_wait )
@@ -371,13 +370,11 @@ void JackAudioDriver::updateTransportInfo()
 	// information.
 	m_JackTransportState = jack_transport_query( m_pClient, &m_JackTransportPos );
 
-	// WARNINGLOG( QString( "[Jack-Query] state: %1, frame: %2, position bit: %3, bpm: %4" )
+	// INFOLOG( QString( "[Jack-Query] state: %1, frame: %2, position bit: %3, bpm: %4" )
 	// 	 .arg( m_JackTransportState )
 	// 	 .arg( m_JackTransportPos.frame )
 	// 	 .arg( m_JackTransportPos.valid )
 	// 	 .arg( m_JackTransportPos.beats_per_minute ) );
-	// Update the TransportInfo in m_transport based on the state
-	// returned by jack_transport_query.
 	switch ( m_JackTransportState ) {
 	case JackTransportStopped: // Transport is halted
 		m_transport.m_status = TransportInfo::STOPPED;
@@ -409,22 +406,17 @@ void JackAudioDriver::updateTransportInfo()
 	// current position on the timeline.
 	pHydrogen->setTimelineBpm(); 
 
-	// Check whether another JACK master is present (the second if
-	// clause won't evaluate to true if Hydrogen itself is the
-	// timebase master) and whether it changed the transport
-	// state. Note that only the JACK timebase master and not
-	// arbitrary clients can do this. If so, the speed is updated
-	// an a relocation according to the bar, beat, and tick
-	// information will be triggered right away.
+	// Check whether a JACK timebase master is present and if the
+	// provided tempo differs from the one used by Hydrogen.
 	if ( m_JackTransportPos.valid & JackPositionBBT ) {
 		float fBPM = ( float )m_JackTransportPos.beats_per_minute;
-		if ( m_transport.m_nBPM != fBPM ) {
+		if ( m_transport.m_fBPM != fBPM ) {
 			if ( Preferences::get_instance()->m_bJackMasterMode ==
 			     Preferences::NO_JACK_TIME_MASTER ){
 					// The speed of the Song will be updated by function
-					// calling update_transport_info()
+					// calling update_transport_info() in
 					// audioEngine_process_transport().
-					m_transport.m_nBPM = fBPM;
+					m_transport.m_fBPM = fBPM;
 
 					// The tick size will be updated by the
 					// audioEngine_process_checkBPMChanged()
@@ -450,13 +442,13 @@ void JackAudioDriver::updateTransportInfo()
 				// Relocate while taking a possible change in tempo by
 				// the timebase master into account.
 				m_transport.m_nFrames = m_JackTransportPos.frame *
-					m_fOldTickSize/ m_transport.m_nTickSize;
+					m_fOldTickSize/ m_transport.m_fTickSize;
 				
 				// INFOLOG( QString( "External JACK timebase master. Resetting frame from %1 to %2 using the old tick size %3 and new one %4" )
 				// 	 .arg( m_transport.m_nFrames )
 				// 	 .arg( m_JackTransportPos.frame )
 				// 	 .arg( m_fOldTickSize )
-				// 	 .arg( m_transport.m_nTickSize ) );
+				// 	 .arg( m_transport.m_fTickSize ) );
 			} else {
 				// We are timebase master ourselves.
 				
@@ -937,7 +929,7 @@ void JackAudioDriver::locate( unsigned long frame )
 void JackAudioDriver::setBpm( float fBPM )
 {
 	WARNINGLOG( QString( "setBpm: %1" ).arg( fBPM ) );
-	m_transport.m_nBPM = fBPM;
+	m_transport.m_fBPM = fBPM;
 }
 
 int JackAudioDriver::getNumTracks()
@@ -961,7 +953,6 @@ static QString baseName( QString sPath ) {
 
 void JackAudioDriver::jack_session_callback_impl(jack_session_event_t* event)
 {
-	INFOLOG("jack session callback");
 	enum session_events{
 		SAVE_SESSION,
 		SAVE_AND_QUIT,
@@ -1128,7 +1119,7 @@ void JackAudioDriver::jack_timebase_callback(jack_transport_state_t state,
 	}
 
 	unsigned long PlayTick = ( pJackPosition->frame - pDriver->m_bbtFrameOffset ) / 
-		pDriver->m_transport.m_nTickSize;
+		pDriver->m_transport.m_fTickSize;
 	pJackPosition->bar = pHydrogen->getPosForTick( PlayTick );
 
 	double TPB = pHydrogen->getTickForHumanPosition( pJackPosition->bar );
