@@ -353,6 +353,81 @@
     </message>
 </context>
 <context>
+    <name>ExportMidiDialog</name>
+    <message>
+        <source>Export midi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF1 single: export all instruments to a single track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF1 multi: export each instrument to separate track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF0: export all events to one track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi file (*%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export MIDI file</source>
+        <translation type="unfinished">Export MIDI souboru</translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file %1 exists. 
+Overwrite the existing file?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ExportMidiDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialog</translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Browse...</source>
+        <translation type="unfinished">&amp;Procházet...</translation>
+    </message>
+    <message>
+        <source>Alt+B</source>
+        <translation type="unfinished">Alt+B</translation>
+    </message>
+    <message>
+        <source>Modus:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished">&amp;Export</translation>
+    </message>
+    <message>
+        <source>Alt+E</source>
+        <translation type="unfinished">Alt+E</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished">&amp;Zavřít</translation>
+    </message>
+    <message>
+        <source>Alt+C</source>
+        <translation type="unfinished">Alt+C</translation>
+    </message>
+</context>
+<context>
     <name>ExportSongDialog</name>
     <message>
         <source>Export song</source>
@@ -373,6 +448,10 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Export to separate tracks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exists</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -550,6 +629,10 @@ Overwrite the existing file?</source>
         <source>Modus:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Choose type of interpolation method</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FileBrowser</name>
@@ -641,6 +724,10 @@ Určitě to chcete?</translation>
     <message>
         <source>modified</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song saved.</source>
+        <translation type="unfinished">Skladba uložena.</translation>
     </message>
 </context>
 <context>
@@ -1135,10 +1222,6 @@ MIDI = %2</source>
         <translation>&amp;Storno</translation>
     </message>
     <message>
-        <source>Hydrogen Song (*.h2song)</source>
-        <translation>Skladba Hydrogen (*.h2song)</translation>
-    </message>
-    <message>
         <source>Save song</source>
         <translation>Uložit skladbu</translation>
     </message>
@@ -1153,14 +1236,6 @@ MIDI = %2</source>
     <message>
         <source>Error loading song.</source>
         <translation>Chyba při otevírání skladby.</translation>
-    </message>
-    <message>
-        <source>Midi file (*.mid)</source>
-        <translation>MIDI soubor (*.mid)</translation>
-    </message>
-    <message>
-        <source>Export MIDI file</source>
-        <translation>Export MIDI souboru</translation>
     </message>
     <message>
         <source>Unknown audio driver</source>
@@ -1213,10 +1288,6 @@ MIDI = %2</source>
     <message>
         <source>Open &amp;Pattern</source>
         <translation>Otevřít &amp;patern</translation>
-    </message>
-    <message>
-        <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Hydrogen patern (*.h2pattern)</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
@@ -1433,6 +1504,26 @@ It should work like a charm provided that you use the GM-kit, and that you do no
 </source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Timeline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jack driver: cannot disconnect client</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OSC Server: Cannot connect to given port, using temporary port instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Retrieving information about drumkit &apos;%1&apos; failed: drumkit does not exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -1628,14 +1719,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>Panorama</translation>
     </message>
     <message>
-        <source>Cutoff</source>
-        <translation>Hranice</translation>
-    </message>
-    <message>
-        <source>Resonance</source>
-        <translation>Rezonance</translation>
-    </message>
-    <message>
         <source>Lead and Lag</source>
         <translation>Preciznost</translation>
     </message>
@@ -1762,21 +1845,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     <message>
         <source>Pattern description</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>PianoRollEditor</name>
-    <message>
-        <source>Velocity</source>
-        <translation type="unfinished">Sila uderu</translation>
-    </message>
-    <message>
-        <source>Pan</source>
-        <translation type="unfinished">Panorama</translation>
-    </message>
-    <message>
-        <source>Lead and Lag</source>
-        <translation type="unfinished">Preciznost</translation>
     </message>
 </context>
 <context>
@@ -1977,10 +2045,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>Nahrát playlist</translation>
     </message>
     <message>
-        <source>Hydrogen Playlist (*.h2playlist)</source>
-        <translation>Hydrogen playlist (*.h2playlist)</translation>
-    </message>
-    <message>
         <source>Save Playlist</source>
         <translation>Uložit playlist</translation>
     </message>
@@ -2023,10 +2087,6 @@ Omlouváme se, momentálně tato funkce není implementována.</translation>
     <message>
         <source>sort</source>
         <translation>Seřadit</translation>
-    </message>
-    <message>
-        <source>Hydrogen Scripts (*.sh)</source>
-        <translation>Hydrogen skript (*.sh)</translation>
     </message>
     <message>
         <source>New Script</source>
@@ -2165,10 +2225,6 @@ IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Hydrogen playlist (*.h2playlist)</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
@@ -2198,10 +2254,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Fast</source>
         <translation>Rychle</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Automatický výběr ovladače&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
@@ -2266,6 +2318,18 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Color (Hue value)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatic driver selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;&lt;b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;/b&gt; selected</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2512,10 +2576,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Počítadlo úderů kompenzuje odchylku po 0,1 ms</translation>
     </message>
     <message>
-        <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
-        <translation>Druhý krok: upravte odstup mezi posledním stiskem tlačítka kontroléru (klávesnice) a zpožděním startu sekvenceru</translation>
-    </message>
-    <message>
         <source>Beat counter start offset in ms    </source>
         <translation>Počítač úderů startuje s odchylkou v ms</translation>
     </message>
@@ -2619,14 +2679,29 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Enable OSC &amp;feedback</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum number of instrument layers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum number of layers (requires restart of Hydrogen)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable midi feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
-    <message>
-        <source>Unsaved changes left. This changes will be lost. 
-Are you sure?</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>&amp;Ok</source>
         <translation type="unfinished">&amp;OK</translation>
@@ -2637,6 +2712,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Close dialog! maybe there is some unsaved work on sample.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unsaved changes left. These changes will be lost. 
 Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3050,10 +3130,6 @@ Určitě to chcete?</translation>
         <source>Velocity</source>
         <translation type="unfinished">Sila uderu</translation>
     </message>
-    <message>
-        <source>Select playback track</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -3152,10 +3228,6 @@ Určitě to chcete?</translation>
         <translation>Otevřít patern</translation>
     </message>
     <message>
-        <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Hydrogen patern (*.h2pattern)</translation>
-    </message>
-    <message>
         <source>Virtual Pattern</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3183,6 +3255,18 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Export Pattern</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not export pattern.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not export sequence.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern saved.</source>
+        <translation type="unfinished">Patern uložen.</translation>
     </message>
 </context>
 <context>

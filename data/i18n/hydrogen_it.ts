@@ -353,6 +353,82 @@
     </message>
 </context>
 <context>
+    <name>ExportMidiDialog</name>
+    <message>
+        <source>Export midi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF1 single: export all instruments to a single track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF1 multi: export each instrument to separate track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF0: export all events to one track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi file (*%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export MIDI file</source>
+        <translation type="unfinished">Esporta MIDI file</translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file %1 exists. 
+Overwrite the existing file?</source>
+        <translation type="unfinished">Il file %1 esiste.
+Sovrascrivere il file esistente?</translation>
+    </message>
+</context>
+<context>
+    <name>ExportMidiDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialogo</translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Browse...</source>
+        <translation type="unfinished">&amp;Cerca...</translation>
+    </message>
+    <message>
+        <source>Alt+B</source>
+        <translation type="unfinished">Alt+B</translation>
+    </message>
+    <message>
+        <source>Modus:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished">&amp;Esporta</translation>
+    </message>
+    <message>
+        <source>Alt+E</source>
+        <translation type="unfinished">Alt+E</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished">&amp;Chiudi</translation>
+    </message>
+    <message>
+        <source>Alt+C</source>
+        <translation type="unfinished">Alt+C</translation>
+    </message>
+</context>
+<context>
     <name>ExportSongDialog</name>
     <message>
         <source>Export song</source>
@@ -374,6 +450,10 @@ Sovrascrivere il file esistente?</translation>
     </message>
     <message>
         <source>Export to separate tracks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exists</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -551,6 +631,10 @@ Sovrascrivere il file esistente?</translation>
         <source>Modus:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Choose type of interpolation method</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FileBrowser</name>
@@ -642,6 +726,10 @@ Sei sicuro?</translation>
     <message>
         <source>modified</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song saved.</source>
+        <translation type="unfinished">Canzone salvata</translation>
     </message>
 </context>
 <context>
@@ -1072,24 +1160,12 @@ MIDI = %2</source>
         <translation>Pronto.</translation>
     </message>
     <message>
-        <source>Hydrogen Song (*.h2song)</source>
-        <translation>Canzone Hydrogen (*.h2song)</translation>
-    </message>
-    <message>
         <source>Save song</source>
         <translation>Salva canzone</translation>
     </message>
     <message>
         <source>Open song</source>
         <translation>Apri canzone</translation>
-    </message>
-    <message>
-        <source>Export MIDI file</source>
-        <translation>Esporta MIDI file</translation>
-    </message>
-    <message>
-        <source>Midi file (*.mid)</source>
-        <translation>File MIDI (*.mid)</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -1214,10 +1290,6 @@ MIDI = %2</source>
     <message>
         <source>Open &amp;Pattern</source>
         <translation>Apri &amp;Pattern</translation>
-    </message>
-    <message>
-        <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Pattern Hydrogen (*.h2pattern)</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
@@ -1436,6 +1508,26 @@ It should work like a charm provided that you use the GM-kit, and that you do no
 </source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Timeline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jack driver: cannot disconnect client</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OSC Server: Cannot connect to given port, using temporary port instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Retrieving information about drumkit &apos;%1&apos; failed: drumkit does not exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -1631,14 +1723,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>Pan</translation>
     </message>
     <message>
-        <source>Cutoff</source>
-        <translation>Taglio</translation>
-    </message>
-    <message>
-        <source>Resonance</source>
-        <translation>Risonanza</translation>
-    </message>
-    <message>
         <source>Lead and Lag</source>
         <translation>Anticipo e Ritardo</translation>
     </message>
@@ -1765,21 +1849,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     <message>
         <source>Pattern description</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>PianoRollEditor</name>
-    <message>
-        <source>Velocity</source>
-        <translation>Velocità</translation>
-    </message>
-    <message>
-        <source>Pan</source>
-        <translation>Pan</translation>
-    </message>
-    <message>
-        <source>Lead and Lag</source>
-        <translation>Anticipo e Ritardo</translation>
     </message>
 </context>
 <context>
@@ -1980,10 +2049,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>Apri Playlist</translation>
     </message>
     <message>
-        <source>Hydrogen Playlist (*.h2playlist)</source>
-        <translation>Hydrogen Playlist (*.h2playlist)</translation>
-    </message>
-    <message>
         <source>Save Playlist</source>
         <translation>Salva Playlist</translation>
     </message>
@@ -2026,10 +2091,6 @@ Purtroppo al momento non sono supportati.</translation>
     <message>
         <source>sort</source>
         <translation>ordina</translation>
-    </message>
-    <message>
-        <source>Hydrogen Scripts (*.sh)</source>
-        <translation>Shell Scripts (*.sh)</translation>
     </message>
     <message>
         <source>New Script</source>
@@ -2168,10 +2229,6 @@ IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Hydrogen playlist (*.h2playlist)</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
@@ -2217,10 +2274,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Driver ALSA&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Selezione automatica del driver&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
@@ -2270,6 +2323,18 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Color (Hue value)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatic driver selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;&lt;b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;/b&gt; selected</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2516,10 +2581,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Compensazione del beat in 1/10ms</translation>
     </message>
     <message>
-        <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
-        <translation>secondo passo, tarare la relazione tra controller / keybord e l&apos;avvio differito del sequencer</translation>
-    </message>
-    <message>
         <source>Beat counter start offset in ms    </source>
         <translation>Il conta battiti in izza in ms </translation>
     </message>
@@ -2623,15 +2684,29 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Enable OSC &amp;feedback</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum number of instrument layers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum number of layers (requires restart of Hydrogen)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable midi feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
-    <message>
-        <source>Unsaved changes left. This changes will be lost. 
-Are you sure?</source>
-        <translation>File modificato. I cambiamenti non salvati verranno persi.
-Sei sicuro?</translation>
-    </message>
     <message>
         <source>&amp;Ok</source>
         <translation>&amp;Ok</translation>
@@ -2645,6 +2720,11 @@ Sei sicuro?</translation>
 Are you sure?</source>
         <translation>Finestra di chiusura! possono esserci dei lavori non salvati.
 Sei sicuro?</translation>
+    </message>
+    <message>
+        <source>Unsaved changes left. These changes will be lost. 
+Are you sure?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3056,10 +3136,6 @@ Confermi?</translation>
         <source>Velocity</source>
         <translation type="unfinished">Velocità</translation>
     </message>
-    <message>
-        <source>Select playback track</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -3158,10 +3234,6 @@ Confermi?</translation>
         <translation>Apri Pattern</translation>
     </message>
     <message>
-        <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Hydrogen Pattern (*.h2pattern)</translation>
-    </message>
-    <message>
         <source>Virtual Pattern</source>
         <translation>Modello Virtuale</translation>
     </message>
@@ -3190,6 +3262,18 @@ Sovrascrivere il modello esistente?</translation>
     <message>
         <source>Export Pattern</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not export pattern.</source>
+        <translation type="unfinished">Non riesco a esportare il modello.</translation>
+    </message>
+    <message>
+        <source>Could not export sequence.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern saved.</source>
+        <translation type="unfinished">Pattern salvato.</translation>
     </message>
 </context>
 <context>

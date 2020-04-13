@@ -353,6 +353,82 @@
     </message>
 </context>
 <context>
+    <name>ExportMidiDialog</name>
+    <message>
+        <source>Export midi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF1 single: export all instruments to a single track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF1 multi: export each instrument to separate track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF0: export all events to one track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi file (*%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export MIDI file</source>
+        <translation type="unfinished">Експорт файлу MIDI</translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file %1 exists. 
+Overwrite the existing file?</source>
+        <translation type="unfinished">Файл %1 вже існує. 
+Перезаписати його?</translation>
+    </message>
+</context>
+<context>
+    <name>ExportMidiDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Діалог</translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Browse...</source>
+        <translation type="unfinished">&amp;Огляд...</translation>
+    </message>
+    <message>
+        <source>Alt+B</source>
+        <translation type="unfinished">Alt+о</translation>
+    </message>
+    <message>
+        <source>Modus:</source>
+        <translation type="unfinished">Спосіб:</translation>
+    </message>
+    <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished">&amp;Експорт</translation>
+    </message>
+    <message>
+        <source>Alt+E</source>
+        <translation type="unfinished">Alt+е</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished">&amp;Закрити</translation>
+    </message>
+    <message>
+        <source>Alt+C</source>
+        <translation type="unfinished">Alt+т</translation>
+    </message>
+</context>
+<context>
     <name>ExportSongDialog</name>
     <message>
         <source>Export song</source>
@@ -375,6 +451,10 @@ Overwrite the existing file?</source>
     <message>
         <source>Export to separate tracks</source>
         <translation>Експортувати в окремі доріжки</translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exists</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -551,6 +631,10 @@ Overwrite the existing file?</source>
         <source>Modus:</source>
         <translation>Спосіб:</translation>
     </message>
+    <message>
+        <source>Choose type of interpolation method</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FileBrowser</name>
@@ -642,6 +726,10 @@ Are you sure?</source>
     <message>
         <source>modified</source>
         <translation>змінено</translation>
+    </message>
+    <message>
+        <source>Song saved.</source>
+        <translation type="unfinished">Композицію збережено.</translation>
     </message>
 </context>
 <context>
@@ -1097,24 +1185,12 @@ MIDI = %2</translation>
         <translation>Скасувати</translation>
     </message>
     <message>
-        <source>Hydrogen Song (*.h2song)</source>
-        <translation>Композиція Hydrogen (*.h2song)</translation>
-    </message>
-    <message>
         <source>Save song</source>
         <translation>Записати композицію</translation>
     </message>
     <message>
         <source>Open song</source>
         <translation>Відкрити композицію</translation>
-    </message>
-    <message>
-        <source>Export MIDI file</source>
-        <translation>Експорт файлу MIDI</translation>
-    </message>
-    <message>
-        <source>Midi file (*.mid)</source>
-        <translation>Файл MIDI (*.mid)</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -1243,10 +1319,6 @@ MIDI = %2</translation>
     <message>
         <source>Open &amp;Pattern</source>
         <translation>Відкрити &amp;патерн</translation>
-    </message>
-    <message>
-        <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Патерн Hydrogen (*.h2pattern)</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
@@ -1468,6 +1540,26 @@ It should work like a charm provided that you use the GM-kit, and that you do no
 Вона має гарно працювати, якщо ви використовуєте GM-kit, і не використовуєте тріолі.
 </translation>
     </message>
+    <message>
+        <source>&amp;Timeline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jack driver: cannot disconnect client</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OSC Server: Cannot connect to given port, using temporary port instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Retrieving information about drumkit &apos;%1&apos; failed: drumkit does not exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -1663,14 +1755,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>Панорама</translation>
     </message>
     <message>
-        <source>Cutoff</source>
-        <translation>Зрізання</translation>
-    </message>
-    <message>
-        <source>Resonance</source>
-        <translation>Резонанс</translation>
-    </message>
-    <message>
         <source>Lead and Lag</source>
         <translation>Зміщення в часі</translation>
     </message>
@@ -1797,21 +1881,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     <message>
         <source>Pattern description</source>
         <translation>Опис патерна</translation>
-    </message>
-</context>
-<context>
-    <name>PianoRollEditor</name>
-    <message>
-        <source>Velocity</source>
-        <translation>Сила натиску</translation>
-    </message>
-    <message>
-        <source>Pan</source>
-        <translation>Панорама</translation>
-    </message>
-    <message>
-        <source>Lead and Lag</source>
-        <translation>Зміщення в часі</translation>
     </message>
 </context>
 <context>
@@ -2012,10 +2081,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>Завантажити список</translation>
     </message>
     <message>
-        <source>Hydrogen Playlist (*.h2playlist)</source>
-        <translation>Список відтворення Hydrogen (*.h2playlist)</translation>
-    </message>
-    <message>
         <source>Save Playlist</source>
         <translation>Зберегти список</translation>
     </message>
@@ -2058,10 +2123,6 @@ Sorry, but this will not work for the moment.</source>
     <message>
         <source>sort</source>
         <translation>упорядкувати</translation>
-    </message>
-    <message>
-        <source>Hydrogen Scripts (*.sh)</source>
-        <translation>Сценарії Hydrogen (*.sh)</translation>
     </message>
     <message>
         <source>New Script</source>
@@ -2198,10 +2259,6 @@ Do you want to discard the changes?
         <translation>&amp;Скасувати</translation>
     </message>
     <message>
-        <source>Hydrogen playlist (*.h2playlist)</source>
-        <translation>Список відтворення Hydrogen (*.h2playlist)</translation>
-    </message>
-    <message>
         <source>Script name or path to the script contains whitespaces.
 IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
@@ -2260,10 +2317,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>&lt;b&gt;Драйвер PortAudio&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Автовибір драйвера&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Драйвер CoreAudio&lt;/b&gt;&lt;br&gt;</translation>
     </message>
@@ -2308,6 +2361,18 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Color (Hue value)</source>
         <translation>Колір (тон)</translation>
+    </message>
+    <message>
+        <source>Automatic driver selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;&lt;b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;/b&gt; selected</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2553,10 +2618,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Компенсація зсуву лічильника бітів, х1/10 мс   </translation>
     </message>
     <message>
-        <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
-        <translation>другий крок: виправлення зсуву між останнім перемиканням контролера/клавіатури і відкладеним запуском секвенсора </translation>
-    </message>
-    <message>
         <source>Beat counter start offset in ms    </source>
         <translation>Початковий зсув лічильника бітів, мс    </translation>
     </message>
@@ -2660,15 +2721,29 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>&amp;Enable OSC support</source>
         <translation>Увімкнути підтримку OSC</translation>
     </message>
+    <message>
+        <source>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum number of instrument layers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum number of layers (requires restart of Hydrogen)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable midi feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
-    <message>
-        <source>Unsaved changes left. This changes will be lost. 
-Are you sure?</source>
-        <translation>Залишились незбережені зміни,
-які будуть втрачені. Ви впевнені?</translation>
-    </message>
     <message>
         <source>&amp;Ok</source>
         <translation>&amp;Гаразд</translation>
@@ -2682,6 +2757,11 @@ Are you sure?</source>
 Are you sure?</source>
         <translation>Закрити діалог! Можливо, залишилась якась незбережена робота.
 Ви впевнені?</translation>
+    </message>
+    <message>
+        <source>Unsaved changes left. These changes will be lost. 
+Are you sure?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3116,10 +3196,6 @@ Are you sure?</source>
         <source>Velocity</source>
         <translation>Сила натиску</translation>
     </message>
-    <message>
-        <source>Select playback track</source>
-        <translation>Вибрати доріжку, що відтворюється</translation>
-    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -3218,10 +3294,6 @@ Are you sure?</source>
         <translation>Відкрити патерн</translation>
     </message>
     <message>
-        <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Патерн Hydrogen (*.h2pattern)</translation>
-    </message>
-    <message>
         <source>Pattern 1</source>
         <translation>Патерн 1</translation>
     </message>
@@ -3250,6 +3322,18 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Export Pattern</source>
         <translation>Експортувати патерн</translation>
+    </message>
+    <message>
+        <source>Could not export pattern.</source>
+        <translation type="unfinished">Не вдалось експортувати патерн.</translation>
+    </message>
+    <message>
+        <source>Could not export sequence.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern saved.</source>
+        <translation type="unfinished">Патерн збережено.</translation>
     </message>
 </context>
 <context>

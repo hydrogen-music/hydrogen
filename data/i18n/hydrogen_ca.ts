@@ -354,6 +354,81 @@
     </message>
 </context>
 <context>
+    <name>ExportMidiDialog</name>
+    <message>
+        <source>Export midi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF1 single: export all instruments to a single track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF1 multi: export each instrument to separate track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF0: export all events to one track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi file (*%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export MIDI file</source>
+        <translation type="unfinished">Exportar arxiu MIDI</translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file %1 exists. 
+Overwrite the existing file?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ExportMidiDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Browse...</source>
+        <translation type="unfinished">E&amp;xaminar...</translation>
+    </message>
+    <message>
+        <source>Alt+B</source>
+        <translation type="unfinished">Alt+B</translation>
+    </message>
+    <message>
+        <source>Modus:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished">&amp;Exportar</translation>
+    </message>
+    <message>
+        <source>Alt+E</source>
+        <translation type="unfinished">Alt+E</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished">Tan&amp;car </translation>
+    </message>
+    <message>
+        <source>Alt+C</source>
+        <translation type="unfinished">Alt+C</translation>
+    </message>
+</context>
+<context>
     <name>ExportSongDialog</name>
     <message>
         <source>Export song</source>
@@ -374,6 +449,10 @@
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exists</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -551,6 +630,10 @@ Overwrite the existing file?</source>
         <source>Rubberband Batch</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Choose type of interpolation method</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FileBrowser</name>
@@ -642,6 +725,10 @@ N&apos;estàs segur?</translation>
     <message>
         <source>modified</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Song saved.</source>
+        <translation type="unfinished">Cançó desada.</translation>
     </message>
 </context>
 <context>
@@ -1072,10 +1159,6 @@ MIDI = %2</source>
         <translation>Hydrogen apunt.</translation>
     </message>
     <message>
-        <source>Hydrogen Song (*.h2song)</source>
-        <translation>Cançó Hydrogen (*.h2song)</translation>
-    </message>
-    <message>
         <source>Save song</source>
         <translation>Desar cançó</translation>
     </message>
@@ -1086,14 +1169,6 @@ MIDI = %2</source>
     <message>
         <source>Print Objects</source>
         <translation>Imprimir Objectes</translation>
-    </message>
-    <message>
-        <source>Export MIDI file</source>
-        <translation>Exportar arxiu MIDI</translation>
-    </message>
-    <message>
-        <source>Midi file (*.mid)</source>
-        <translation>Arxiu MIDI (*.mid)</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -1214,10 +1289,6 @@ MIDI = %2</source>
     <message>
         <source>Open &amp;Pattern</source>
         <translation>Obrir &amp;Patró</translation>
-    </message>
-    <message>
-        <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Patró d&apos;Hydrogen (*.h2pattern)</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
@@ -1438,6 +1509,26 @@ It should work like a charm provided that you use the GM-kit, and that you do no
 </source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>&amp;Timeline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jack driver: cannot disconnect client</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OSC Server: Cannot connect to given port, using temporary port instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Retrieving information about drumkit &apos;%1&apos; failed: drumkit does not exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -1633,14 +1724,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>No s&apos;ha seleccionat cap patró</translation>
     </message>
     <message>
-        <source>Cutoff</source>
-        <translation>Límit de filtre</translation>
-    </message>
-    <message>
-        <source>Resonance</source>
-        <translation>Resonància</translation>
-    </message>
-    <message>
         <source>Lead and Lag</source>
         <translation>Desfasament negatiu i positiu</translation>
     </message>
@@ -1767,21 +1850,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     <message>
         <source>Pattern description</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>PianoRollEditor</name>
-    <message>
-        <source>Velocity</source>
-        <translation type="unfinished">Velocitat</translation>
-    </message>
-    <message>
-        <source>Pan</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lead and Lag</source>
-        <translation type="unfinished">Desfasament negatiu i positiu</translation>
     </message>
 </context>
 <context>
@@ -1982,10 +2050,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>Carregar una llista de reproducció</translation>
     </message>
     <message>
-        <source>Hydrogen Playlist (*.h2playlist)</source>
-        <translation>Llista de reproducció Hydrogen (*.h2playlist)</translation>
-    </message>
-    <message>
         <source>Save Playlist</source>
         <translation>Desar Llista de reproducció</translation>
     </message>
@@ -2028,10 +2092,6 @@ Ho sentim, però no funcionarà en aquests moments.</translation>
     <message>
         <source>sort</source>
         <translation>ordena</translation>
-    </message>
-    <message>
-        <source>Hydrogen Scripts (*.sh)</source>
-        <translation>Scripts d&apos;Hydrogen (*.sh)</translation>
     </message>
     <message>
         <source>New Script</source>
@@ -2170,10 +2230,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Playlist: set song no. %1</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Hydrogen playlist (*.h2playlist)</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
@@ -2219,10 +2275,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;Controlador ALSA&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Selecció automàtica de controlador&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
@@ -2271,6 +2323,18 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Color (Hue value)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatic driver selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;&lt;b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;/b&gt; selected</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2517,10 +2581,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Compensació de deriva del contador de polsacions en 1/10 ms   </translation>
     </message>
     <message>
-        <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
-        <translation>segon pas, ajustar compensació entre l&apos;ultim controlador/teclat disparador i l&apos;inici endarrerit del seqüenciador</translation>
-    </message>
-    <message>
         <source>Beat counter start offset in ms    </source>
         <translation>Compensació del contador de polsacions en ms   </translation>
     </message>
@@ -2624,14 +2684,29 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Enable OSC &amp;feedback</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum number of instrument layers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum number of layers (requires restart of Hydrogen)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable midi feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
-    <message>
-        <source>Unsaved changes left. This changes will be lost. 
-Are you sure?</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>&amp;Ok</source>
         <translation type="unfinished"></translation>
@@ -2642,6 +2717,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Close dialog! maybe there is some unsaved work on sample.
+Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unsaved changes left. These changes will be lost. 
 Are you sure?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3055,10 +3135,6 @@ N&apos;estàs segur?</translation>
         <source>Velocity</source>
         <translation type="unfinished">Velocitat</translation>
     </message>
-    <message>
-        <source>Select playback track</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -3157,10 +3233,6 @@ N&apos;estàs segur?</translation>
         <translation>Obrir Patró</translation>
     </message>
     <message>
-        <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Patró Hydrogen (*.h2pattern)</translation>
-    </message>
-    <message>
         <source>Pattern 1</source>
         <translation>Patró 1</translation>
     </message>
@@ -3188,6 +3260,18 @@ Overwrite the existing pattern?</source>
     <message>
         <source>&amp;Cancel</source>
         <translation type="unfinished">&amp;Cancelar</translation>
+    </message>
+    <message>
+        <source>Could not export pattern.</source>
+        <translation type="unfinished">No ha estat possible exportar el patró.</translation>
+    </message>
+    <message>
+        <source>Could not export sequence.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern saved.</source>
+        <translation type="unfinished">Patrón desat.</translation>
     </message>
 </context>
 <context>

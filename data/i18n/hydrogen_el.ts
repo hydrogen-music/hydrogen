@@ -353,6 +353,81 @@
     </message>
 </context>
 <context>
+    <name>ExportMidiDialog</name>
+    <message>
+        <source>Export midi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF1 single: export all instruments to a single track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF1 multi: export each instrument to separate track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF0: export all events to one track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi file (*%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export MIDI file</source>
+        <translation type="unfinished">Εξαγωγή αρχείου ΜΙΝΤΙ</translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file %1 exists. 
+Overwrite the existing file?</source>
+        <translation type="unfinished">Το αρχείο % υπάρχει. Να επανωγραφεί;</translation>
+    </message>
+</context>
+<context>
+    <name>ExportMidiDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Διάλογος</translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Browse...</source>
+        <translation type="unfinished">Εξε&amp;ρεύνηση...</translation>
+    </message>
+    <message>
+        <source>Alt+B</source>
+        <translation type="unfinished">Alt+B</translation>
+    </message>
+    <message>
+        <source>Modus:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished">&amp;Εξαγωγή</translation>
+    </message>
+    <message>
+        <source>Alt+E</source>
+        <translation type="unfinished">Alt+E</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished">&amp;Κλείσιμο</translation>
+    </message>
+    <message>
+        <source>Alt+C</source>
+        <translation type="unfinished">Alt+C</translation>
+    </message>
+</context>
+<context>
     <name>ExportSongDialog</name>
     <message>
         <source>Export song</source>
@@ -374,6 +449,10 @@ Overwrite the existing file?</source>
     <message>
         <source>Export to separate tracks</source>
         <translation>Εξαγωγή σε ξεχωριστά κανάλια</translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exists</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -550,6 +629,10 @@ Overwrite the existing file?</source>
         <source>Modus:</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Choose type of interpolation method</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FileBrowser</name>
@@ -641,6 +724,10 @@ Are you sure?</source>
     <message>
         <source>modified</source>
         <translation>μετατράπηκε</translation>
+    </message>
+    <message>
+        <source>Song saved.</source>
+        <translation type="unfinished">Το τραγούδι αποθηκεύτηκε.</translation>
     </message>
 </context>
 <context>
@@ -1222,10 +1309,6 @@ MIDI = %2</source>
         <translation>Αναφορά δυσλειτουργίας</translation>
     </message>
     <message>
-        <source>Hydrogen Song (*.h2song)</source>
-        <translation>Τραγούδι του Υδρογόνου (*.h2song)</translation>
-    </message>
-    <message>
         <source>Save song</source>
         <translation>Αποθήκευση του τραγουδιού</translation>
     </message>
@@ -1240,10 +1323,6 @@ MIDI = %2</source>
     <message>
         <source>Song saved.</source>
         <translation>Το τραγούδι αποθηκεύτηκε.</translation>
-    </message>
-    <message>
-        <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Μήτρα του Υδρογόνου (*.h2pattern)</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
@@ -1280,14 +1359,6 @@ MIDI = %2</source>
     <message>
         <source>Error loading song.</source>
         <translation>Σφάλμα στο φόρτωμα του τραγουδιού.</translation>
-    </message>
-    <message>
-        <source>Midi file (*.mid)</source>
-        <translation>ΜΙΝΤΙ αρχείο (*.mid)</translation>
-    </message>
-    <message>
-        <source>Export MIDI file</source>
-        <translation>Εξαγωγή αρχείου ΜΙΝΤΙ</translation>
     </message>
     <message>
         <source>Unknown audio driver</source>
@@ -1468,6 +1539,26 @@ It should work like a charm provided that you use the GM-kit, and that you do no
 </source>
         <translation>Η εξαγωγή ΛίνυΠονντ είναι μία πειραματική λειτουργία.
 Θα πρέπει να τρέχει σαν νεράκι, υπό την προϋπόθεση ότι χρησιμοποιείς το GM-kit, και δεν χρησιμοποιείς τριάδες.</translation>
+    </message>
+    <message>
+        <source>&amp;Timeline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jack driver: cannot disconnect client</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OSC Server: Cannot connect to given port, using temporary port instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Retrieving information about drumkit &apos;%1&apos; failed: drumkit does not exist.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1692,14 +1783,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>Δεν είναι δυνατή η αλλαγή του μέγεθους της μήτρας κατά την αναπαραγωγή.</translation>
     </message>
     <message>
-        <source>Cutoff</source>
-        <translation>Όριο Αποκοπής</translation>
-    </message>
-    <message>
-        <source>Resonance</source>
-        <translation>Αντήχηση</translation>
-    </message>
-    <message>
         <source>Probability</source>
         <translation>Πιθανότητα</translation>
     </message>
@@ -1798,21 +1881,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     <message>
         <source>Pattern description</source>
         <translation>Περιγραφή της μήτρας</translation>
-    </message>
-</context>
-<context>
-    <name>PianoRollEditor</name>
-    <message>
-        <source>Velocity</source>
-        <translation>Ταχύτητα</translation>
-    </message>
-    <message>
-        <source>Pan</source>
-        <translation>Πανόψη</translation>
-    </message>
-    <message>
-        <source>Lead and Lag</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2097,10 +2165,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>Φόρτωμα Κατάστιχου Αναπαραγωγής</translation>
     </message>
     <message>
-        <source>Hydrogen Scripts (*.sh)</source>
-        <translation>Σενάρια του Υδρογόνου (*.sh)</translation>
-    </message>
-    <message>
         <source>New Script</source>
         <translation>Νέο Σενάριο</translation>
     </message>
@@ -2128,10 +2192,6 @@ Sorry, but this will not work for the moment.</source>
     <message>
         <source>Set your Default Editor</source>
         <translation>Όρισε τον  Προκαθορισμένο Επεξεργαστή</translation>
-    </message>
-    <message>
-        <source>Hydrogen Playlist (*.h2playlist)</source>
-        <translation>Κατάστιχο Αναπαραγωγής του Υδρογόνου (*.h2playlist)</translation>
     </message>
     <message>
         <source>Save Playlist</source>
@@ -2207,10 +2267,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
 ΣΗΜΑΝΤΙΚΟ
 Και η διαδρομή προς το σενάριο, και το όνομα του σενάριου, δεν πρέπει να περιέχουν κενά διαστήματα.</translation>
     </message>
-    <message>
-        <source>Hydrogen playlist (*.h2playlist)</source>
-        <translation>Κατάστιχο αναπαραγωγής του Υδρογόνου (*.h2playlist)</translation>
-    </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
@@ -2255,10 +2311,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>&amp;Cancel</source>
         <translation>Α&amp;κύρωση</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Αυτόματη επιλογή οδηγού&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
@@ -2311,6 +2363,18 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Color (Hue value)</source>
         <translation>Χρώμα (τιμή απόχρωσης)</translation>
+    </message>
+    <message>
+        <source>Automatic driver selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;&lt;b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;/b&gt; selected</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2559,10 +2623,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
 σε 1/10 του χιλιοστοδευτερόλεπτου</translation>
     </message>
     <message>
-        <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
-        <translation>δεύτερο βήμα: προσάρμοσε τη διαφοροποίηση, μεταξύ της τελευταίας ενεργοποίησης του ελεγκτή (πληκτρολογίου), και της διαφοροποιημένης εκκίνησης του συχνοτιστή (sequencer) </translation>
-    </message>
-    <message>
         <source>Beat counter start offset in ms    </source>
         <translation>Διαφοροποίηση της εκκίνησης του μετρητή χτύπων,
 σε χιλιοστοδευτερόλεπτα.   </translation>
@@ -2668,17 +2728,29 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Enable OSC &amp;feedback</source>
         <translation>Ενεργοποίηση της ανατρο&amp;φοδότησης του Ανοιχτού Ηχητικού Έλεγχου</translation>
     </message>
+    <message>
+        <source>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum number of instrument layers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum number of layers (requires restart of Hydrogen)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable midi feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
-    <message>
-        <source>Unsaved changes left. This changes will be lost. 
-Are you sure?</source>
-        <translation>Έχουν μείνει μη αποθηκευμένες αλλαγές.
-Αυτές οι αλλαγές θα χαθούν.
-
-Σίγουρα ;</translation>
-    </message>
     <message>
         <source>&amp;Ok</source>
         <translation>&amp;Εντάξει</translation>
@@ -2694,6 +2766,11 @@ Are you sure?</source>
 ίσως να υπάρχει μη αποθηκευμένο έργο στο δείγμα.
 
 Στα σίγουρα;</translation>
+    </message>
+    <message>
+        <source>Unsaved changes left. These changes will be lost. 
+Are you sure?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3129,10 +3206,6 @@ Are you sure?</source>
         <source>Velocity</source>
         <translation>Ταχύτητα</translation>
     </message>
-    <message>
-        <source>Select playback track</source>
-        <translation>Επέλεξε κανάλι αναπαραγωγής</translation>
-    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -3231,10 +3304,6 @@ Are you sure?</source>
         <translation>Εικονική Μήτρα</translation>
     </message>
     <message>
-        <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Μήτρα του Υδρογόνου (*.h2pattern)</translation>
-    </message>
-    <message>
         <source>Open Pattern</source>
         <translation>Άνοιγμα Μήτρας</translation>
     </message>
@@ -3264,6 +3333,18 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Export Pattern</source>
         <translation>Εξαγωγής Μήτρας</translation>
+    </message>
+    <message>
+        <source>Could not export pattern.</source>
+        <translation type="unfinished">Αδυναμία εξαγωγής της μήτρας.</translation>
+    </message>
+    <message>
+        <source>Could not export sequence.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern saved.</source>
+        <translation type="unfinished">Αποθηκεύτηκε η μήτρα.</translation>
     </message>
 </context>
 <context>

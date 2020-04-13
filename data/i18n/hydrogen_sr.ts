@@ -353,6 +353,82 @@
     </message>
 </context>
 <context>
+    <name>ExportMidiDialog</name>
+    <message>
+        <source>Export midi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF1 single: export all instruments to a single track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF1 multi: export each instrument to separate track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF0: export all events to one track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi file (*%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export MIDI file</source>
+        <translation type="unfinished">Извези Миди-датотеку</translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file %1 exists. 
+Overwrite the existing file?</source>
+        <translation type="unfinished">Датотека %1 већ постоји. 
+Да ли да преписујем преко ње?</translation>
+    </message>
+</context>
+<context>
+    <name>ExportMidiDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Прозорче</translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Browse...</source>
+        <translation type="unfinished">&amp;Разгледај...</translation>
+    </message>
+    <message>
+        <source>Alt+B</source>
+        <translation type="unfinished">Алт+Р</translation>
+    </message>
+    <message>
+        <source>Modus:</source>
+        <translation type="unfinished">Modus:</translation>
+    </message>
+    <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished">&amp;Извези</translation>
+    </message>
+    <message>
+        <source>Alt+E</source>
+        <translation type="unfinished">Alt+E</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished">За&amp;твори</translation>
+    </message>
+    <message>
+        <source>Alt+C</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ExportSongDialog</name>
     <message>
         <source>Export song</source>
@@ -375,6 +451,10 @@ Overwrite the existing file?</source>
     <message>
         <source>Export to separate tracks</source>
         <translation>Извези као подвојене траке</translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exists</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -551,6 +631,10 @@ Overwrite the existing file?</source>
         <source>Modus:</source>
         <translation type="unfinished">Modus:</translation>
     </message>
+    <message>
+        <source>Choose type of interpolation method</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FileBrowser</name>
@@ -642,6 +726,10 @@ Are you sure?</source>
     <message>
         <source>modified</source>
         <translation>измењено</translation>
+    </message>
+    <message>
+        <source>Song saved.</source>
+        <translation type="unfinished">Песма је сачувана.</translation>
     </message>
 </context>
 <context>
@@ -1129,24 +1217,12 @@ MIDI = %2</source>
         <translation>&amp;Одбаци</translation>
     </message>
     <message>
-        <source>Hydrogen Song (*.h2song)</source>
-        <translation>Бубњарска песма (*.h2song)</translation>
-    </message>
-    <message>
         <source>Save song</source>
         <translation>Сачувај песму</translation>
     </message>
     <message>
         <source>Open song</source>
         <translation>Отвори песму</translation>
-    </message>
-    <message>
-        <source>Export MIDI file</source>
-        <translation>Извези Миди-датотеку</translation>
-    </message>
-    <message>
-        <source>Midi file (*.mid)</source>
-        <translation>Миди-датотека (*.mid)</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -1235,10 +1311,6 @@ MIDI = %2</source>
     <message>
         <source>Open &amp;Pattern</source>
         <translation>Отвори &amp;мустру</translation>
-    </message>
-    <message>
-        <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Бубњарска мустра (*.h2pattern)</translation>
     </message>
     <message>
         <source>Save Pattern as ...</source>
@@ -1463,6 +1535,26 @@ It should work like a charm provided that you use the GM-kit, and that you do no
 Ово ће радити ваљано ако употребљавате опште миди бубњеве (енг. „GM-kit“) и ако не употребљавате триплете.
 </translation>
     </message>
+    <message>
+        <source>&amp;Timeline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jack driver: cannot disconnect client</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OSC Server: Cannot connect to given port, using temporary port instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Retrieving information about drumkit &apos;%1&apos; failed: drumkit does not exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -1654,14 +1746,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>Јачина удара</translation>
     </message>
     <message>
-        <source>Cutoff</source>
-        <translation>Гранична вредност</translation>
-    </message>
-    <message>
-        <source>Resonance</source>
-        <translation>Резонантна вредност</translation>
-    </message>
-    <message>
         <source>Lead and Lag</source>
         <translation>Пожури или Окасни</translation>
     </message>
@@ -1792,21 +1876,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     <message>
         <source>Pattern description</source>
         <translation>Опис мустре</translation>
-    </message>
-</context>
-<context>
-    <name>PianoRollEditor</name>
-    <message>
-        <source>Velocity</source>
-        <translation>Јачина удара</translation>
-    </message>
-    <message>
-        <source>Pan</source>
-        <translation>Пан.</translation>
-    </message>
-    <message>
-        <source>Lead and Lag</source>
-        <translation>Пожури или Окасни</translation>
     </message>
 </context>
 <context>
@@ -2027,10 +2096,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>Учитај листу</translation>
     </message>
     <message>
-        <source>Hydrogen Playlist (*.h2playlist)</source>
-        <translation>Бубњарске листе (*.h2playlist)</translation>
-    </message>
-    <message>
         <source>Save Playlist</source>
         <translation>Сачувај листу</translation>
     </message>
@@ -2069,10 +2134,6 @@ Sorry, but this will not work for the moment.</source>
     <message>
         <source>sort</source>
         <translation>Помери</translation>
-    </message>
-    <message>
-        <source>Hydrogen Scripts (*.sh)</source>
-        <translation>Бубњарска скрипта (*.sh)</translation>
     </message>
     <message>
         <source>New Script</source>
@@ -2200,10 +2261,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
 ВАЖНО
 Назив скрипте или путања до ње не смеју садржавати празнине (размаке).</translation>
     </message>
-    <message>
-        <source>Hydrogen playlist (*.h2playlist)</source>
-        <translation>Бубњарска листа (*.h2playlist)</translation>
-    </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
@@ -2245,10 +2302,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</source>
         <translation>&lt;b&gt;JACK Driver&lt;/b&gt;&lt;br&gt;„Џек-посредник“ је звучни посредник са минималним кашњењем у преносу података </translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Сам изабери зв. посредника&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
@@ -2303,6 +2356,18 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Color (Hue value)</source>
         <translation>Нијанса боје</translation>
+    </message>
+    <message>
+        <source>Automatic driver selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;&lt;b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;/b&gt; selected</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2548,10 +2613,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Исправка помераја бројача откуцаја у 1/10 мс   </translation>
     </message>
     <message>
-        <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
-        <translation>2. корак — прилагоди помак између задњег окидача клавијатуре (контролера) и одложеног покретања секвенцера </translation>
-    </message>
-    <message>
         <source>Beat counter start offset in ms    </source>
         <translation>Почетни помак бројача откуцаја у мс    </translation>
     </message>
@@ -2655,15 +2716,29 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Enable OSC &amp;feedback</source>
         <translation type="unfinished">Омогући повратну &amp;везу за ОЗК</translation>
     </message>
+    <message>
+        <source>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum number of instrument layers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum number of layers (requires restart of Hydrogen)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable midi feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
-    <message>
-        <source>Unsaved changes left. This changes will be lost. 
-Are you sure?</source>
-        <translation>Остало је несачуваних измена, које могу бити изгубљене. 
-Да ли сте сигурни?</translation>
-    </message>
     <message>
         <source>&amp;Ok</source>
         <translation>&amp;У реду</translation>
@@ -2677,6 +2752,11 @@ Are you sure?</source>
 Are you sure?</source>
         <translation>Завршно прозорче! Можда имате несачуваних измена на узорку.
 Да ли сте сигурни?</translation>
+    </message>
+    <message>
+        <source>Unsaved changes left. These changes will be lost. 
+Are you sure?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3111,10 +3191,6 @@ Are you sure?</source>
         <source>Velocity</source>
         <translation>Јачина удара</translation>
     </message>
-    <message>
-        <source>Select playback track</source>
-        <translation>Одабери траку за свирање</translation>
-    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -3193,10 +3269,6 @@ Are you sure?</source>
         <translation>&amp;У реду</translation>
     </message>
     <message>
-        <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Бубњарска мустра (*.h2pattern)</translation>
-    </message>
-    <message>
         <source>Open Pattern</source>
         <translation>Отвори мустру</translation>
     </message>
@@ -3245,6 +3317,18 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Virtual Pattern</source>
         <translation>Виртуелна мустра</translation>
+    </message>
+    <message>
+        <source>Could not export pattern.</source>
+        <translation type="unfinished">Не могох извести мустру.</translation>
+    </message>
+    <message>
+        <source>Could not export sequence.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern saved.</source>
+        <translation type="unfinished">Мустра је сачувана.</translation>
     </message>
 </context>
 <context>

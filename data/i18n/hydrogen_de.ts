@@ -353,6 +353,81 @@
     </message>
 </context>
 <context>
+    <name>ExportMidiDialog</name>
+    <message>
+        <source>Export midi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF1 single: export all instruments to a single track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF1 multi: export each instrument to separate track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMF0: export all events to one track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Midi file (*%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export MIDI file</source>
+        <translation type="unfinished">Mididatei exportieren</translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exists</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The file %1 exists. 
+Overwrite the existing file?</source>
+        <translation type="unfinished">Die Datei %1 existiert bereits. Willst du sie überschreiben?</translation>
+    </message>
+</context>
+<context>
+    <name>ExportMidiDialog_UI</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialog</translation>
+    </message>
+    <message>
+        <source>Filename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Browse...</source>
+        <translation type="unfinished">&amp;Durchsuchen...</translation>
+    </message>
+    <message>
+        <source>Alt+B</source>
+        <translation type="unfinished">Alt+B</translation>
+    </message>
+    <message>
+        <source>Modus:</source>
+        <translation type="unfinished">Modus:</translation>
+    </message>
+    <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished">&amp;Exportieren</translation>
+    </message>
+    <message>
+        <source>Alt+E</source>
+        <translation type="unfinished">Alt+E</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished">&amp;Schließen</translation>
+    </message>
+    <message>
+        <source>Alt+C</source>
+        <translation type="unfinished">Alt+C</translation>
+    </message>
+</context>
+<context>
     <name>ExportSongDialog</name>
     <message>
         <source>Export song</source>
@@ -374,6 +449,10 @@ Overwrite the existing file?</source>
     <message>
         <source>Export to separate tracks</source>
         <translation>Als separate Spur exportieren</translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exists</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -550,6 +629,10 @@ Overwrite the existing file?</source>
         <source>Modus:</source>
         <translation>Modus:</translation>
     </message>
+    <message>
+        <source>Choose type of interpolation method</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FileBrowser</name>
@@ -642,6 +725,10 @@ Bist Du sicher?
     <message>
         <source>modified</source>
         <translation>geändert</translation>
+    </message>
+    <message>
+        <source>Song saved.</source>
+        <translation type="unfinished">Lied gespeichert.</translation>
     </message>
 </context>
 <context>
@@ -983,7 +1070,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>### fx name
 1</source>
-<translation>### Effekt-Name
+        <translation>### Effekt-Name
 1</translation>
     </message>
     <message>
@@ -1097,24 +1184,12 @@ MIDI = %2</translation>
         <translation>Hydrogen ist bereit.</translation>
     </message>
     <message>
-        <source>Hydrogen Song (*.h2song)</source>
-        <translation>Hydrogen-Lied (*.h2song)</translation>
-    </message>
-    <message>
         <source>Save song</source>
         <translation>Lied speichern</translation>
     </message>
     <message>
         <source>Open song</source>
         <translation>Lied öffnen</translation>
-    </message>
-    <message>
-        <source>Export MIDI file</source>
-        <translation>Mididatei exportieren</translation>
-    </message>
-    <message>
-        <source>Midi file (*.mid)</source>
-        <translation>Mididatei (*.mid)</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -1241,10 +1316,6 @@ MIDI = %2</translation>
         <translation>Öffne &amp;Pattern</translation>
     </message>
     <message>
-        <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Hydrogen Pattern (*.h2pattern)</translation>
-    </message>
-    <message>
         <source>Save Pattern as ...</source>
         <translation>Speichere Pattern als...</translation>
     </message>
@@ -1310,7 +1381,7 @@ MIDI = %2</translation>
 The document contains unsaved changes.
 Do you want to save the changes?
 </source>
-<translation>Das Dokument enthält ungespeicherte Änderungen.
+        <translation>Das Dokument enthält ungespeicherte Änderungen.
 Willst Du die Änderungen speichern?</translation>
     </message>
     <message>
@@ -1463,6 +1534,26 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>
 	  Der LilyPond-Export ist ein experimentelles Feature.
 	  Sobald du das GM-kit (Schlagzeug) verwendest und keine Triolen benutzt, sollte es aber reibungslos funktionieren.</translation>
+    </message>
+    <message>
+        <source>&amp;Timeline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Playback track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jack driver: cannot disconnect client</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OSC Server: Cannot connect to given port, using temporary port instead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Retrieving information about drumkit &apos;%1&apos; failed: drumkit does not exist.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1660,14 +1751,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>Pan</translation>
     </message>
     <message>
-        <source>Cutoff</source>
-        <translation>Cutoff</translation>
-    </message>
-    <message>
-        <source>Resonance</source>
-        <translation>Resonanz</translation>
-    </message>
-    <message>
         <source>Lead and Lag</source>
         <translation>Vorlauf (lead) und Verzögerung (lag)</translation>
     </message>
@@ -1794,21 +1877,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     <message>
         <source>Pattern description</source>
         <translation>Pattern-Beschreibung</translation>
-    </message>
-</context>
-<context>
-    <name>PianoRollEditor</name>
-    <message>
-        <source>Velocity</source>
-        <translation>Anschlag (velocity)</translation>
-    </message>
-    <message>
-        <source>Pan</source>
-        <translation>Pan</translation>
-    </message>
-    <message>
-        <source>Lead and Lag</source>
-        <translation>Vorlauf (lead) und Verzögerung (lag)</translation>
     </message>
 </context>
 <context>
@@ -2010,10 +2078,6 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <translation>Lade Wiedergabeliste</translation>
     </message>
     <message>
-        <source>Hydrogen Playlist (*.h2playlist)</source>
-        <translation>Hydrogen Wiedergabeliste (*.h2playlist)</translation>
-    </message>
-    <message>
         <source>Save Playlist</source>
         <translation>Speichere Wiedergabeliste</translation>
     </message>
@@ -2055,10 +2119,6 @@ Konsolen-basierte Editoren werden noch nicht unterstützt.</translation>
     <message>
         <source>sort</source>
         <translation>sortieren</translation>
-    </message>
-    <message>
-        <source>Hydrogen Scripts (*.sh)</source>
-        <translation>Hydrogen Skripte (*.sh)</translation>
     </message>
     <message>
         <source>New Script</source>
@@ -2197,10 +2257,6 @@ IMPORTANT
 The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Der Pfad zum Skript oder der Skriptname darf keine Leerzeichen enthalten.</translation>
     </message>
-    <message>
-        <source>Hydrogen playlist (*.h2playlist)</source>
-        <translation>Hydrogen Wiedergabeliste (*.h2playlist)</translation>
-    </message>
 </context>
 <context>
     <name>PlaylistDialog_UI</name>
@@ -2246,10 +2302,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
         <translation>&lt;b&gt;ALSA-Treiber&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatic driver selection&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Treiber automatisch wählen&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
@@ -2299,6 +2351,18 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>Color (Hue value)</source>
         <translation> Farbe (hue)</translation>
+    </message>
+    <message>
+        <source>Automatic driver selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;&lt;b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;/b&gt; selected</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2544,10 +2608,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Takt-Zähler-Kompensation in 1/10 ms   </translation>
     </message>
     <message>
-        <source>second step, adjust offset between last controller/keybord trigger and the deferred sequencer startup </source>
-        <translation>Zweitens, justiere die Zeitdifferenz zwischen letzten Tastatur/Controller Anschlag und dem zeitverzögerten Sequenzer Start. </translation>
-    </message>
-    <message>
         <source>Beat counter start offset in ms    </source>
         <translation>Takt-Zähler-Startverzögerung in ms   </translation>
     </message>
@@ -2651,15 +2711,29 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <source>Enable OSC &amp;feedback</source>
         <translation>Aktiviere OSC-Rückkopplung</translation>
     </message>
+    <message>
+        <source>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum number of instrument layers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maximum number of layers (requires restart of Hydrogen)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enable midi feedback</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
-    <message>
-        <source>Unsaved changes left. This changes will be lost. 
-Are you sure?</source>
-        <translation>Es sind noch nicht-gespeicherte Änderungen vorhanden. Diese werden verloren gehen.
-Bist Du sicher? </translation>
-    </message>
     <message>
         <source>&amp;Ok</source>
         <translation>&amp;OK</translation>
@@ -2673,6 +2747,11 @@ Bist Du sicher? </translation>
 Are you sure?</source>
         <translation>Schließe Fenster. Möglicherweise sind noch ungespeicherte Änderungen in diesen Samplen.
 Bist Du sicher?</translation>
+    </message>
+    <message>
+        <source>Unsaved changes left. These changes will be lost. 
+Are you sure?</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3108,10 +3187,6 @@ Fortsetzen?</translation>
         <source>Velocity</source>
         <translation>Anschlag (velocity)</translation>
     </message>
-    <message>
-        <source>Select playback track</source>
-        <translation>Wiedergabetrack auswählen</translation>
-    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -3210,10 +3285,6 @@ Fortsetzen?</translation>
         <translation>Öffne Pattern</translation>
     </message>
     <message>
-        <source>Hydrogen Pattern (*.h2pattern)</source>
-        <translation>Hydrogen Pattern (*.h2pattern)</translation>
-    </message>
-    <message>
         <source>Virtual Pattern</source>
         <translation>Virtuelles Pattern</translation>
     </message>
@@ -3228,7 +3299,7 @@ Fortsetzen?</translation>
     <message>
         <source>The pattern-file exists. 
 Overwrite the existing pattern?</source>
-<translation>Die Pattern-Datei existiert bereits.
+        <translation>Die Pattern-Datei existiert bereits.
 Soll sie überschrieben werden?</translation>
     </message>
     <message>
@@ -3242,6 +3313,18 @@ Soll sie überschrieben werden?</translation>
     <message>
         <source>Export Pattern</source>
         <translation>Exportiere Pattern</translation>
+    </message>
+    <message>
+        <source>Could not export pattern.</source>
+        <translation type="unfinished">Pattern konnte nicht exportiert werden.</translation>
+    </message>
+    <message>
+        <source>Could not export sequence.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pattern saved.</source>
+        <translation type="unfinished">Pattern gespeichert.</translation>
     </message>
 </context>
 <context>
