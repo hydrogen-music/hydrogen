@@ -1547,7 +1547,7 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>&amp;Playback track</source>
-        <translation>Ligne de &amp;playback</translation>
+        <translation>Piste de &amp;playback</translation>
     </message>
     <message>
         <source>Jack driver: cannot disconnect client</source>
@@ -2373,7 +2373,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>&lt;/b&gt; selected</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;/b&gt; sélectionné</translation>
     </message>
 </context>
 <context>
