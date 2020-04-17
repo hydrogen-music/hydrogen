@@ -29,9 +29,12 @@
 #include <hydrogen/globals.h>
 #include <hydrogen/object.h>
 #include <hydrogen/fx/LadspaFX.h>
+#include <hydrogen/fx/LV2FX.h>
 
 #include <vector>
 #include <cassert>
+
+#include <lilv-0/lilv/lilv.h>
 
 namespace H2Core
 {
@@ -59,6 +62,7 @@ public:
 	std::vector<LadspaFXInfo*> getPluginList();
 	LadspaFXGroup* getLadspaFXGroup();
 
+	Lv2FX* m_pLv2FX;
 
 private:
 	/**

@@ -32,6 +32,7 @@
 #include <QDir>
 #include <QLibrary>
 #include <cassert>
+#include "lilv-0/lilv/lilv.h"
 
 #ifdef H2CORE_HAVE_LRDF
 #include <lrdf.h>
@@ -46,10 +47,12 @@ namespace H2Core
 Effects* Effects::__instance = nullptr;
 const char* Effects::__class_name = "Effects";
 
+
 Effects::Effects()
 		: Object( __class_name )
 		, m_pRootGroup( nullptr )
 		, m_pRecentGroup( nullptr )
+		, m_pLv2FX( nullptr )
 {
 	__instance = this;
 
@@ -58,9 +61,9 @@ Effects::Effects()
 	}
 
 	getPluginList();
+	
+	m_pLv2FX = Lv2FX::load(QString("http://plugin.org.uk/swh-plugins/hardLimiter"), 44100);
 }
-
-
 
 void Effects::create_instance()
 {

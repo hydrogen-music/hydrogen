@@ -48,6 +48,8 @@
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/sampler/Sampler.h>
 
+#include <lilv-0/lilv/lilv.h>
+
 #include <iostream>
 #include <QDebug>
 
@@ -973,6 +975,13 @@ bool Sampler::__render_note_no_resample(
 	}
 	// ~LADSPA
 #endif
+	
+	/*
+	LilvInstance* pLilvInstance = Effects::get_instance()->m_pLv2Instance;
+	if( pLilvInstance) {
+		lilv_instance_connect_port(pLilvInstance, )
+	}
+	*/
 
 	return retValue;
 }

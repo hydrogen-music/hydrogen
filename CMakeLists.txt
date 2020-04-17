@@ -48,6 +48,7 @@ ENDIF()
 
 OPTION(WANT_LIBARCHIVE      "Enable use of libarchive instead of libtar" ON)
 OPTION(WANT_LADSPA          "Enable use of LADSPA plugins" ON)
+OPTION(WANT_LILV            "Enable use of LV2 plugins" ON)
 
 IF(APPLE)
 	OPTION(WANT_OSC  "Enable OSC support" OFF)
@@ -206,6 +207,7 @@ ENDIF()
 FIND_HELPER(LIBSNDFILE sndfile sndfile.h sndfile)
 FIND_HELPER(ALSA alsa alsa/asoundlib.h asound )
 FIND_LADSPA(LADSPA ladspa.h noise)
+FIND_HELPER(LILV lilv-0 lilv-0/lilv/lilv.h lilv-0)
 
 FIND_HELPER(OSC liblo lo/lo.h lo)
 
@@ -256,7 +258,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
+SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION LILV OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
 FOREACH( _pkg ${STATUS_LIST})
     COMPUTE_PKGS_FLAGS(${_pkg})
 ENDFOREACH()
@@ -301,7 +303,8 @@ COLOR_MESSAGE("* ${purple}libsndfile${reset}                   : ${LIBSNDFILE_ST
 *                                ${LIBSNDFILE_MSG}
 * ${purple}libtar${reset}                       : ${LIBTAR_STATUS}
 * ${purple}libarchive${reset}                   : ${LIBARCHIVE_STATUS}
-* ${purple}ladspa${reset}                       : ${LADSPA_STATUS}\n"
+* ${purple}ladspa${reset}                       : ${LADSPA_STATUS}\n
+* ${purple}lv2${reset}                          : ${LILV_STATUS}\n"
 )
 
 COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}

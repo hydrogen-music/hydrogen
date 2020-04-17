@@ -1397,6 +1397,41 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		}
 	}
 #endif
+	
+#ifdef H2CORE_HAVE_LILV
+	// Process LV2
+	if ( m_audioEngineState >= STATE_READY ) {
+		//for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
+			int nFX = 0;
+			Lv2FX *pFX = Effects::get_instance()->m_pLv2FX;
+			if ( ( pFX ) && ( pFX->isEnabled() ) ) {
+				pFX->processFX( nframes );
+
+				float *buf_L, *buf_R;
+				if ( pFX->getPluginType() == Lv2FX::STEREO_FX ) {
+					buf_L = pFX->m_pBuffer_L;
+					buf_R = pFX->m_pBuffer_R;
+				} else { // MONO FX
+					buf_L = pFX->m_pBuffer_L;
+					buf_R = buf_L;
+				}
+
+				for ( unsigned i = 0; i < nframes; ++i ) {
+					m_pMainBuffer_L[ i ] += buf_L[ i ];
+					m_pMainBuffer_R[ i ] += buf_R[ i ];
+					if ( buf_L[ i ] > m_fFXPeak_L[nFX] )
+						m_fFXPeak_L[nFX] = buf_L[ i ];
+
+					if ( buf_R[ i ] > m_fFXPeak_R[nFX] )
+						m_fFXPeak_R[nFX] = buf_R[ i ];
+				}
+			}
+		}
+	//}
+#endif
+
+	
+	
 	timeval ladspaTime_end = currentTime2();
 
 	// update master peaks
@@ -1480,6 +1515,26 @@ void audioEngine_setupLadspaFX( unsigned nBufferSize )
 		return;
 	}
 
+#ifdef H2CORE_HAVE_LILV
+	//for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
+		Lv2FX *pFX = Effects::get_instance()->m_pLv2FX;
+		if ( pFX == nullptr ) {
+			___ERRORLOG( "pFX=0" );
+			return;
+		}
+
+		pFX->deactivate();
+
+		pFX->connectAudioPorts(
+					pFX->m_pBuffer_L,
+					pFX->m_pBuffer_R,
+					pFX->m_pBuffer_L,
+					pFX->m_pBuffer_R
+					);
+		pFX->activate();
+	//}
+#endif
+	
 #ifdef H2CORE_HAVE_LADSPA
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
