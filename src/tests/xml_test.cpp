@@ -106,6 +106,38 @@ void XmlTest::testDrumkit()
 	//delete dk2;
 }
 
+//Load drumkit which includes instrument with invalid ADSR values.
+// Expected behavior: The drumkit will be loaded successfully. 
+//					  In addition, the drumkit file will be saved with 
+//					  correct ADSR values.
+void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
+{
+	H2Core::Drumkit* pDrumkit = nullptr;
+
+	//1. Check, if the drumkit has been loaded
+	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/invAdsrKit") );
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	
+	//2. Make sure that the instruments of the drumkit have been loaded correctly (see GH issue #839)
+	H2Core::InstrumentList* pInstruments = pDrumkit->get_instruments();
+	CPPUNIT_ASSERT( pInstruments != nullptr );
+	
+	H2Core::Instrument* pFirstInstrument = pInstruments->get(0);
+	CPPUNIT_ASSERT( pFirstInstrument != nullptr );
+	
+	H2Core::InstrumentLayer* pLayer = pFirstInstrument->get_components()->front()->get_layer(0);
+	CPPUNIT_ASSERT( pLayer != nullptr );
+	
+	H2Core::Sample* pSample = pLayer->get_sample();
+	CPPUNIT_ASSERT( pSample != nullptr );
+	
+	CPPUNIT_ASSERT( pSample->get_filename() == QString("snare.wav"));	
+		
+	if( pDrumkit ) {
+		delete pDrumkit;
+	}
+}
+
 void XmlTest::testPattern()
 {
 	QString pat_path = H2Core::Filesystem::tmp_dir()+"/pat";
