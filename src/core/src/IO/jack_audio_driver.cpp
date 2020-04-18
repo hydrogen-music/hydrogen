@@ -350,15 +350,18 @@ void JackAudioDriver::updateTransportInfo()
 	// of the transport position to the beginning of the song
 	// using locateInNCycles() to possibly keep synchronization
 	// with Ardour.
-	if ( m_nLocateCountdown == 1 )
+	if ( m_nLocateCountdown == 1 ) {
 		locate( m_locateFrame );
-	if ( m_nLocateCountdown > 0 )
+	}
+	if ( m_nLocateCountdown > 0 ) {
 		m_nLocateCountdown--;
+	}
 	
 	if ( Preferences::get_instance()->m_bJackTransportMode !=
 	     Preferences::USE_JACK_TRANSPORT ){
 		return;
 	}
+	
 	// jack_transport_query() (jack/transport.h) queries the
 	// current transport state and position. If called from the
 	// process thread, the second argument, which is a pointer to
@@ -370,11 +373,11 @@ void JackAudioDriver::updateTransportInfo()
 	// information.
 	m_JackTransportState = jack_transport_query( m_pClient, &m_JackTransportPos );
 
-	// INFOLOG( QString( "[Jack-Query] state: %1, frame: %2, position bit: %3, bpm: %4" )
-	// 	 .arg( m_JackTransportState )
-	// 	 .arg( m_JackTransportPos.frame )
-	// 	 .arg( m_JackTransportPos.valid )
-	// 	 .arg( m_JackTransportPos.beats_per_minute ) );
+	// std::cout << "[Jack-Query] frame: " << m_JackTransportPos.frame
+	// 		  << ", BPM: " <<  m_JackTransportPos.beats_per_minute
+	// 		  << ", state: " << m_JackTransportState
+	// 		  << ", valid: " << m_JackTransportPos.valid
+	// 		  << std::endl;
 	switch ( m_JackTransportState ) {
 	case JackTransportStopped: // Transport is halted
 		m_transport.m_status = TransportInfo::STOPPED;
@@ -395,37 +398,6 @@ void JackAudioDriver::updateTransportInfo()
 	}
 
 	// ---------------------------------------------------------------
-	// Updating TickSize and BPM
-	
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	
-	// JACK may have relocated us anywhere. Therefore, we have to
-	// check for a bpm change every cycle. We will do so by updating
-	// both the global speed of the song, as well as the fallback
-	// speed (pHydrogen->getNewBpmJTM()) with the local tempo at the
-	// current position on the timeline.
-	pHydrogen->setTimelineBpm(); 
-
-	// Check whether a JACK timebase master is present and if the
-	// provided tempo differs from the one used by Hydrogen.
-	if ( m_JackTransportPos.valid & JackPositionBBT ) {
-		float fBPM = ( float )m_JackTransportPos.beats_per_minute;
-		if ( m_transport.m_fBPM != fBPM ) {
-			if ( Preferences::get_instance()->m_bJackMasterMode ==
-			     Preferences::NO_JACK_TIME_MASTER ){
-					// The speed of the Song will be updated by function
-					// calling update_transport_info() in
-					// audioEngine_process_transport().
-					m_transport.m_fBPM = fBPM;
-
-					// The tick size will be updated by the
-					// audioEngine_process_checkBPMChanged()
-					// function afterwards.
-			}
-		}
-	}
-
-	// ---------------------------------------------------------------
 	// Detecting and handling relocation.
 	
 	// The relocation could be either triggered by an user interaction
@@ -433,55 +405,41 @@ void JackAudioDriver::updateTransportInfo()
 	// timeline) or by a different JACK client.
 	if ( m_transport.m_nFrames + m_bbtFrameOffset != m_JackTransportPos.frame ) {
 
-		if ( ( m_JackTransportPos.valid & JackPositionBBT ) ){
-			// There is a JACK timebase master.
-			
-			if ( !m_bIsTimebaseMaster ){
-				// But it's not us.
-				
-				// Relocate while taking a possible change in tempo by
-				// the timebase master into account.
-				m_transport.m_nFrames = m_JackTransportPos.frame *
-					m_fOldTickSize/ m_transport.m_fTickSize;
-				
-				// INFOLOG( QString( "External JACK timebase master. Resetting frame from %1 to %2 using the old tick size %3 and new one %4" )
-				// 	 .arg( m_transport.m_nFrames )
-				// 	 .arg( m_JackTransportPos.frame )
-				// 	 .arg( m_fOldTickSize )
-				// 	 .arg( m_transport.m_fTickSize ) );
-			} else {
-				// We are timebase master ourselves.
-				
-				// INFOLOG( QString( "Hydrogen as JACK timebase master. Possible mismatch between transport %1, client %2, m_bbtFrameOffset %3" )
-				// 	 .arg( m_transport.m_nFrames )
-				// 	 .arg( m_JackTransportPos.frame )
-				// 	 .arg( m_bbtFrameOffset ) );
-				
-				
-				// We do not update the position in frames directly.
-				// Instead, the JACK server is asked to relocate
-				// and we use its current location.
-				m_transport.m_nFrames = m_JackTransportPos.frame;
-			}
-		} else {
-			// Only normal JACK clients connected
-			// to the server.
-			
-			// INFOLOG( "Relocation as normal JACK client" );
-			m_transport.m_nFrames = m_JackTransportPos.frame;
-			if ( m_transport.m_status == TransportInfo::ROLLING )
-				pHydrogen->triggerRelocateDuringPlay();
-		}
+		m_transport.m_nFrames = m_JackTransportPos.frame;
 		
 		// Resetting the previous frame offset (introduced
 		// when passing a tempo marker).
 		m_bbtFrameOffset = 0;
 	}
 	
-	// Only used if Hydrogen is in JACK timebase master
-	// mode. Updated every cycle.
-	if ( pHydrogen->getHumantimeFrames() != m_JackTransportPos.frame ) {
-		pHydrogen->setHumantimeFrames( m_JackTransportPos.frame );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	
+	// std::cout << "[updateTransport] m_nFrames: " << m_transport.m_nFrames
+	// 		  << ", m_fBPM: " << m_transport.m_fBPM
+	// 		  << ", m_fTickSize: " << m_transport.m_fTickSize
+	// 		  << ", m_bbtFrameOffset: " << m_bbtFrameOffset
+	// 		  << ", pattern pos: " << pHydrogen->getPatternPos() 
+	// 		  << std::endl;
+	
+	if ( ( m_JackTransportPos.valid & JackPositionBBT ) &&
+		 !m_bIsTimebaseMaster ){
+		// There is a JACK timebase master and it's not us.
+
+		// If a JACK timebase master is present and if the provided tempo
+		// differs, we will use that one instead.
+		float fBPM = ( float )m_JackTransportPos.beats_per_minute;
+
+		if ( m_transport.m_fBPM != fBPM ) {
+			// std::cout << "[updateTransport] update BPM from: "
+			// 		  << m_transport.m_fBPM << " to "<< fBPM
+			// 		  << std::endl;
+			pHydrogen->setBPM( fBPM );
+		}
+	} else {
+		// Checks for local changes in speed (introduced by the user using
+		// BPM markers on the timeline) and update m_transport.m_fBPM
+		// accordingly.
+		pHydrogen->setTimelineBpm();
 	}
 	
 	// Check whether Hydrogen is still timebase master. If another
@@ -911,9 +869,7 @@ void JackAudioDriver::stop()
 void JackAudioDriver::locate( unsigned long frame )
 {
 	if ( ( Preferences::get_instance() )->m_bJackTransportMode ==
-	     Preferences::USE_JACK_TRANSPORT /*||
-	     Preferences::get_instance()->m_bJackMasterMode ==
-	     Preferences::USE_JACK_TIME_MASTER*/ ) {
+	     Preferences::USE_JACK_TRANSPORT ) {
 		if ( m_pClient != nullptr ) {
 			// jack_transport_locate() (jack/transport.h )
 			// re-positions the transport to a new frame number.
@@ -929,6 +885,7 @@ void JackAudioDriver::locate( unsigned long frame )
 void JackAudioDriver::setBpm( float fBPM )
 {
 	WARNINGLOG( QString( "setBpm: %1" ).arg( fBPM ) );
+	// std::cout << "[setBpm]: " << fBPM << std::endl;
 	m_transport.m_fBPM = fBPM;
 }
 
@@ -1108,13 +1065,13 @@ void JackAudioDriver::jack_timebase_callback(jack_transport_state_t state,
 					     void *arg)
 {
 	JackAudioDriver* pDriver = static_cast<JackAudioDriver*>(arg);
-	if ( !pDriver ){
+	if ( pDriver == nullptr ){
 		return;
 	}
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
-	if ( !pSong ) {
+	if ( pSong == nullptr ) {
 		return;
 	}
 
@@ -1133,7 +1090,7 @@ void JackAudioDriver::jack_timebase_callback(jack_transport_state_t state,
 	pJackPosition->valid = JackPositionBBT;
 	pJackPosition->beats_per_bar = TPB / 48;
 	pJackPosition->beat_type = 4.0;
-	pJackPosition->beats_per_minute = pHydrogen->getTimelineBpm( pJackPosition->bar );
+	pJackPosition->beats_per_minute = pDriver->m_transport.m_fBPM;
 	pJackPosition->bar++;
 
 	// Probably there will never be an offset, cause we are the master ;-)
@@ -1142,7 +1099,7 @@ void JackAudioDriver::jack_timebase_callback(jack_transport_state_t state,
 	pJackPosition->bbt_offset = 0;
 #endif
 
-	if ( pHydrogen->getHumantimeFrames() < 1 ) {
+	if ( pDriver->m_transport.m_nFrames < 1 ) {
 		pJackPosition->beat = 1;
 		pJackPosition->tick = 0;
 		pJackPosition->bar_start_tick = 0;
@@ -1156,12 +1113,18 @@ void JackAudioDriver::jack_timebase_callback(jack_transport_state_t state,
 		pJackPosition->beat++;
 
 		pJackPosition->tick = nTicksFromBar % (int32_t) pJackPosition->ticks_per_beat;
-#if 0
-//		printf ( "\e[0K\rBar %d, Beat %d, Tick %d, BPB %g, BarStartTick %g",
-		printf ( "Bar %d, Beat %d, Tick %d, BPB %g, BarStartTick %g\n",
-				 pJackPosition->bar, pJackPosition->beat, pJackPosition->tick, 
-				 pJackPosition->beats_per_bar, pJackPosition->bar_start_tick );
-#endif
+		// std::cout << "[jack_timebase_callback] BPM: "
+		// 		  << pJackPosition->beats_per_minute
+		// 		  << ", bar: " << pJackPosition->bar 
+		// 		  << ", beat: " << pJackPosition->beat
+		// 		  << ", tick: " << pJackPosition->tick
+		// 		  << ", beats_per_bar: " << pJackPosition->beats_per_bar
+		// 		  << ", bar_start_tick: " << pJackPosition->bar_start_tick
+		// 		  << ", valid: " << pJackPosition->valid
+		// 		  << ", bbt_offset: " << pJackPosition->bbt_offset
+		// 		  << ", beat_type: " << pJackPosition->beat_type
+		// 		  << std::endl << std::endl;
+			
 	}
 	
 	// Tell Hydrogen it is still timebase master.
