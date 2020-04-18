@@ -44,7 +44,7 @@ QString qx(QStringList args)
  **/
 bool check_root_dir(const QString &dir)
 {
-	QFile f( dir + TEST_DATA_DIR + "/drumkit/drumkit.xml" );
+	QFile f( dir + TEST_DATA_DIR + "/drumkits/baseKit/drumkit.xml" );
 	return f.exists();
 }
 

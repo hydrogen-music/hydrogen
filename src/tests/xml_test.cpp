@@ -47,7 +47,6 @@ static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
 
 void XmlTest::testDrumkit()
 {
-	return; //FIXME: skip test
 	QString dk_path = H2Core::Filesystem::tmp_dir()+"/dk0";
 
 	H2Core::Drumkit* dk0 = nullptr;
@@ -55,28 +54,33 @@ void XmlTest::testDrumkit()
 	H2Core::Drumkit* dk2 = nullptr;
 
 	// load without samples
-	dk0 = H2Core::Drumkit::load( H2TEST_FILE( "/drumkit" ) );
+	dk0 = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit") );
 	CPPUNIT_ASSERT( dk0!=nullptr );
 	CPPUNIT_ASSERT( dk0->samples_loaded()==false );
 	CPPUNIT_ASSERT( check_samples_data( dk0, false ) );
 	CPPUNIT_ASSERT_EQUAL( 4, dk0->get_instruments()->size() );
 	//dk0->dump();
+	
 	// manually load samples
 	dk0->load_samples();
 	CPPUNIT_ASSERT( dk0->samples_loaded()==true );
 	CPPUNIT_ASSERT( check_samples_data( dk0, true ) );
 	//dk0->dump();
+	
 	// load with samples
-	dk0 = H2Core::Drumkit::load( H2TEST_FILE( "/drumkit" ), true );
+	dk0 = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ), true );
 	CPPUNIT_ASSERT( dk0!=nullptr );
 	CPPUNIT_ASSERT( dk0->samples_loaded()==true );
 	CPPUNIT_ASSERT( check_samples_data( dk0, true ) );
 	//dk0->dump();
+	
 	// unload samples
 	dk0->unload_samples();
 	CPPUNIT_ASSERT( dk0->samples_loaded()==false );
 	CPPUNIT_ASSERT( check_samples_data( dk0, false ) );
 	//dk0->dump();
+	
+	/*
 	// save drumkit elsewhere
 	dk0->set_name( "dk0" );
 	CPPUNIT_ASSERT( dk0->save( dk_path, false ) );
@@ -94,13 +98,13 @@ void XmlTest::testDrumkit()
 	dk2->set_name( "COPY" );
 	CPPUNIT_ASSERT( dk2!=nullptr );
 	// save file
-	CPPUNIT_ASSERT( dk2->save_file( dk_path+"/drumkit.xml", true ) );;
-
+	CPPUNIT_ASSERT( dk2->save_file( dk_path+"/drumkit.xml", true ) );
+	*/
+	
 	delete dk0;
-	delete dk1;
-	delete dk2;
+	//delete dk1;
+	//delete dk2;
 }
-
 
 void XmlTest::testPattern()
 {
@@ -110,7 +114,7 @@ void XmlTest::testPattern()
 	H2Core::Drumkit* dk0 = nullptr;
 	H2Core::InstrumentList* instruments = nullptr;
 
-	dk0 = H2Core::Drumkit::load( H2TEST_FILE( "/drumkit" ) );
+	dk0 = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ) );
 	CPPUNIT_ASSERT( dk0!=nullptr );
 	instruments = dk0->get_instruments();
 	CPPUNIT_ASSERT( instruments->size()==4 );

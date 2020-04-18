@@ -20,7 +20,7 @@ class SampleTest : public CppUnit::TestCase {
 		CPPUNIT_ASSERT(pSample == nullptr);
 	
 		//TC2: Sample does exist, but is not a valid sample
-		pSample = H2Core::Sample::load( H2TEST_FILE("drumkit/drumkit.xml") );
+		pSample = H2Core::Sample::load( H2TEST_FILE("drumkits/baseKit/drumkit.xml") );
 		CPPUNIT_ASSERT(pSample == nullptr);
 	}
 };
