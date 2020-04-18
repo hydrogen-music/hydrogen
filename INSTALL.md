@@ -185,6 +185,24 @@ $ cmake ..
 $ make && sudo make install
 ```
 
+### Running Hydrogen
+
+After installation, Hydrogen's binaries can be found in CMAKE_INSTALL_PREFIX/bin.
+If this path is not in your PATH environment variable, consider adding it to it
+
+If Hydrogen doesn't start, it might be because it's shared library is not found.
+You can verify this with the above command :
+```ldd CMAKE_INSTALL_PREFIX/bin/hydrogen | grep 'not found'```
+
+To fix this, you can use LD_PRELOAD or LD_LIBRARY_PATH environment variales,
+or configure ldconfig (man ldconfig).
+
+Another option is to set -DCMAKE_INSTALL_PREFIX=/usr, recompile and reinstall Hydrogen.
+But be aware that you will certainly overwrite Hydrogen files that you might have
+installed with your distribution's package manager.
+
+see [issue#677](https://github.com/hydrogen-music/hydrogen/issues/677)
+
 ### cmake Helpers
 
 Alternatively you could use the cmake helper

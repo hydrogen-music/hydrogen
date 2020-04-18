@@ -356,36 +356,36 @@
     <name>ExportMidiDialog</name>
     <message>
         <source>Export midi</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportation MIDI</translation>
     </message>
     <message>
         <source>SMF1 single: export all instruments to a single track</source>
-        <translation type="unfinished"></translation>
+        <translation>SMF1 simple : exporter tous les instruments dans une piste unique></translation>
     </message>
     <message>
         <source>SMF1 multi: export each instrument to separate track</source>
-        <translation type="unfinished"></translation>
+        <translation>SMF1 multi : exporter chaque instrument dans des pistes séparées></translation>
     </message>
     <message>
         <source>SMF0: export all events to one track</source>
-        <translation type="unfinished"></translation>
+        <translation>SMF0 : exporter tous les événements vers une piste></translation>
     </message>
     <message>
         <source>Midi file (*%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichier MIDI (*%1)</translation>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation type="unfinished">Exporter en fichier MIDI</translation>
+        <translation>Exporter le fichier MIDI</translation>
     </message>
     <message>
         <source>Directory %1 does not exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Le répertoire %1 n&apos;existe pas</translation>
     </message>
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
-        <translation type="unfinished">Le fichier %1 existe déjà. 
+        <translation>Le fichier %1 existe. 
 Écraser le fichier existant ?</translation>
     </message>
 </context>
@@ -393,39 +393,39 @@ Overwrite the existing file?</source>
     <name>ExportMidiDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialogue</translation>
+        <translation>Dialogue</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Nom de fichier</translation>
     </message>
     <message>
         <source>&amp;Browse...</source>
-        <translation type="unfinished">E&amp;xplorer...</translation>
+        <translation>&amp;Naviguer...</translation>
     </message>
     <message>
         <source>Alt+B</source>
-        <translation type="unfinished">Alt+B</translation>
+        <translation>Alt+B</translation>
     </message>
     <message>
         <source>Modus:</source>
-        <translation type="unfinished">Méthode : </translation>
+        <translation>Modus : </translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Exporter</translation>
+        <translation>&amp;Exporter</translation>
     </message>
     <message>
         <source>Alt+E</source>
-        <translation type="unfinished">Alt+E</translation>
+        <translation>Alt+E</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Fermer</translation>
+        <translation>&amp;Fermer</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
 </context>
 <context>
@@ -454,7 +454,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Directory %1 does not exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Le répertoire %1 n&apos;existe pas</translation>
     </message>
 </context>
 <context>
@@ -635,7 +635,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Choose type of interpolation method</source>
-        <translation type="unfinished"></translation>
+        <translation>Choisir le type de la méthode d&apos;interpolation</translation>
     </message>
 </context>
 <context>
@@ -730,7 +730,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Song saved.</source>
-        <translation type="unfinished">Morceau sauvegardé.</translation>
+        <translation>Morceau sauvegardé.</translation>
     </message>
 </context>
 <context>
@@ -1543,23 +1543,23 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>&amp;Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Ligne &amp;temporelle</translation>
     </message>
     <message>
         <source>&amp;Playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Piste de &amp;playback</translation>
     </message>
     <message>
         <source>Jack driver: cannot disconnect client</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilote Jack : impossible de déconnecter le client</translation>
     </message>
     <message>
         <source>OSC Server: Cannot connect to given port, using temporary port instead</source>
-        <translation type="unfinished"></translation>
+        <translation>Serveur OSC : impossible de se connecter au port donné, on utilise un port temporaire à la place</translation>
     </message>
     <message>
         <source>Retrieving information about drumkit &apos;%1&apos; failed: drumkit does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Échec de la recherche d&apos;informations sur le kit de batterie apos;%1&apos; : le kit n&apos;existe pas.</translation>
     </message>
 </context>
 <context>
@@ -2365,7 +2365,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Automatic driver selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélection de pilote automatique</translation>
     </message>
     <message>
         <source>&lt;br&gt;&lt;b&gt;</source>
@@ -2373,7 +2373,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>&lt;/b&gt; selected</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;/b&gt; sélectionné</translation>
     </message>
 </context>
 <context>
@@ -2728,19 +2728,19 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Maximum number of instrument layers</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre maximal de couches d&apos;instruments</translation>
     </message>
     <message>
         <source>Maximum number of layers (requires restart of Hydrogen)</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre maximum de couches (nécessite le redémarrage d&apos;Hydrogen)</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortie</translation>
     </message>
     <message>
         <source>Enable midi feedback</source>
-        <translation type="unfinished"></translation>
+        <translation>Activer le retour d&apos;information MIDI</translation>
     </message>
 </context>
 <context>
@@ -2762,7 +2762,8 @@ Are you sure?</source>
     <message>
         <source>Unsaved changes left. These changes will be lost. 
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Il reste des changements non sauvegardés. Ces changements seront perdus. 
+Êtes-vous sûr ?</translation>
     </message>
 </context>
 <context>
@@ -3325,15 +3326,15 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Could not export pattern.</source>
-        <translation type="unfinished">Ne peut pas exporter le motif.</translation>
+        <translation>Ne peut pas exporter le motif.</translation>
     </message>
     <message>
         <source>Could not export sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ne peut pas exporter la séquence.</translation>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation type="unfinished">Motif sauvegardé.</translation>
+        <translation>Motif sauvegardé.</translation>
     </message>
 </context>
 <context>

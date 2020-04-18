@@ -352,6 +352,16 @@ ${red}IMPORTANT${reset}:
     )
 ENDIF()
 
+IF( NOT CMAKE_INSTALL_PREFIX MATCHES "/usr/?$")
+    COLOR_MESSAGE("-----------------------------------------------------------------
+${red}IMPORTANT${reset}:
+CMAKE_INSTALL_PREFIX is set to '${CMAKE_INSTALL_PREFIX}',
+depending of your system settings, you might end up with an installation
+that does not work out of the box. If so, see INSTALL.md : Running Hydrogen
+-----------------------------------------------------------------\n"
+    )
+ENDIF()
+
 #
 # SET BUILD INFORMATION
 #
