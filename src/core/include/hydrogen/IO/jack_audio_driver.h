@@ -474,10 +474,9 @@ public:
 	 * Updating the local instance of the TransportInfo
 	 * AudioOutput::m_transport.
 	 *
-	 * The function queries the transport position and addition
-	 * information from the JACK server and adjusts the
-	 * information stored in AudioOutput::m_transport if there is
-	 * a mismatch.
+	 * The function queries the transport position and additional
+	 * information from the JACK server and updates the information
+	 * stored in AudioOutput::m_transport in case of a mismatch.
 	 *
 	 * - Calls _jack_transport_query()_ (jack/transport.h), stores
              the current transport position in #m_JackTransportPos,
@@ -489,7 +488,7 @@ public:
              set to TransportInfo::ROLLING.
 	 * - Calls Hydrogen::setTimelineBpm() to update both the
              global speed of the Song Song::__bpm, as well as the
-	     fallback speed Hydrogen::m_nNewBpmJTM() with the local
+	     fallback speed Hydrogen::m_fNewBpmJTM() with the local
              tempo at the current position on the timeline.
 	 * - Checks whether the speed was changed by another JACK time
              master (there can only be one). In that case we will just
@@ -552,33 +551,6 @@ public:
 	 * #m_bbtFrameOffset.
 	 */
 	void calculateFrameOffset();
-	/**
-	 * Relocate the transport position to @a frame @a
-	 * cycles_to_wait cycles.
-	 *
-	 * The function is triggered in audioEngine_process() after
-	 * audioEngine_updateNoteQueue() returned -1, stop() was
-	 * called, and transport location was moved to the beginning
-	 * of the Song using locate().
-	 *
-	 * Judging from comments in the code, this additional
-	 * repositioning was introduced to keep Hydrogen synchronized
-	 * with Ardour.
-	 *
-	 * Internally, it sets the variable #m_nLocateCountDown to @a
-	 * cycles_to_wait and #m_locateFrame to @a frame.
-	 *
-	 * The audioEngine_updateNoteQueue() function is called after
-	 * audioEngine_process_transport() and its decrement of
-	 * #m_nLocateCountDown. It thus only take @a cycles_to_wait - 1
-	 * cycles calls to audioEngine_process() for the relocation to
-	 * happen.
-	 *
-	 * \param frame New position
-	 * \param cycles_to_wait In how many cycles the repositioning
-	 *   should take place.
-	 */
-	void locateInNCycles( unsigned long frame, int cycles_to_wait = 2 );
 
 	/**
 	 * Registers Hydrogen as JACK timebase master.
@@ -723,18 +695,6 @@ private:
 	 * updated in calculateFrameOffset().
 	 */
 	long long			m_bbtFrameOffset;
-	/** 
-	 * #m_nLocateCountdown - 1 of cycles (calls to
-	 * audioEngine_process()) until to locate() to #m_locateFrame in
-	 * updateTransportInfo(). It is set in locateInNCycles().
-	 */
-	int				m_nLocateCountdown;
-	/** 
-	 * Frame to locate() to in updateTransportInfo() after
-	    #m_nLocateCountDown cycles - 1 cycles.   
-	 * It is set in locateInNCycles(). 
-	 */
-	unsigned long			m_locateFrame;
 	/**
 	 * Function the JACK server will call whenever there is work
 	 * to do. 

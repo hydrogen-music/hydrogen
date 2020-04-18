@@ -164,15 +164,13 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	
 	// __track_out_enabled is inherited from AudioOutput and
 	// instantiated with false. It will be used by the Sampler and
-	// Hydrogen itself to check whether JackAudioDriver is ordered
-	// to create per-track audio output ports.
+	// Hydrogen itself to check whether JackAudioDriver does create
+	// per-track audio output ports.
 	__track_out_enabled = pPreferences->m_bJackTrackOuts;
 
 	pJackDriverInstance = this;
 	this->m_processCallback = m_processCallback;
 
-	m_nLocateCountdown = 0;
-	m_locateFrame = 0;
 	m_bbtFrameOffset = 0;
 	m_nTrackPortCount = 0;
 	m_fOldTickSize = 0;
@@ -258,7 +256,7 @@ int JackAudioDriver::connect()
 			return 0;
 		}
 
-		INFOLOG( "Could not connect to the saved output ports. Connect to the first pair of input ports instead." );
+		WARNINGLOG( "Could not connect to the saved output ports. Connect to the first pair of input ports instead." );
 		// The `jack_get_ports' is defined in the jack/jack.h
 		// header file and performs a lookup of ports of the
 		// JACK server based on their e.g. flags. It returns a
@@ -296,10 +294,10 @@ void JackAudioDriver::disconnect()
 	
 	m_pClient = nullptr;
 	
-	if ( pOldClient ) {
+	if ( pOldClient != nullptr ) {
 		INFOLOG( "calling jack_client_close" );
 		int nReturnCode = jack_client_close( pOldClient );
-		if ( nReturnCode ) {
+		if ( nReturnCode != 0 ) {
 			ERRORLOG( "Error in jack_client_close" );
 			Hydrogen::get_instance()->raiseError( Hydrogen::JACK_CANNOT_CLOSE_CLIENT );
 		}
@@ -312,7 +310,7 @@ void JackAudioDriver::deactivate()
 	if ( m_pClient != nullptr ) {
 		INFOLOG( "calling jack_deactivate" );
 		int nReturnCode = jack_deactivate( m_pClient );
-		if ( nReturnCode ) {
+		if ( nReturnCode != 0 ) {
 			ERRORLOG( "Error in jack_deactivate" );
 		}
 	}
@@ -336,26 +334,8 @@ void JackAudioDriver::calculateFrameOffset()
 	// INFOLOG( QString( "m_bbtFrameOffset: %1" ). arg( m_bbtFrameOffset ) );
 }
 
-void JackAudioDriver::locateInNCycles( unsigned long frame, int cycles_to_wait )
-{
-	m_nLocateCountdown = cycles_to_wait;
-	m_locateFrame = frame;
-}
-
 void JackAudioDriver::updateTransportInfo()
 {
-	// The following four lines do only cover the special case of
-	// audioEngine_updateNoteQueue() returning -1 in
-	// audioEngine_process() and triggering an addition relocation
-	// of the transport position to the beginning of the song
-	// using locateInNCycles() to possibly keep synchronization
-	// with Ardour.
-	if ( m_nLocateCountdown == 1 ) {
-		locate( m_locateFrame );
-	}
-	if ( m_nLocateCountdown > 0 ) {
-		m_nLocateCountdown--;
-	}
 	
 	if ( Preferences::get_instance()->m_bJackTransportMode !=
 	     Preferences::USE_JACK_TRANSPORT ){

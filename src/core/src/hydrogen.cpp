@@ -1335,14 +1335,6 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			return 1;	// kill the audio AudioDriver thread
 		}
 
-#ifdef H2CORE_HAVE_JACK
-		else if ( m_pAudioDriver->class_name() == JackAudioDriver::class_name() )
-		{
-			// Do something clever :-s ... Jakob Lund
-			// Mainly to keep sync with Ardour.
-			static_cast<JackAudioDriver*>(m_pAudioDriver)->locateInNCycles( 0 );
-		}
-#endif
 		return 0;
 	} else if ( nResNoteQueue == 2 ) { // send pattern change
 		bSendPatternChange = true;
@@ -4024,10 +4016,6 @@ void Hydrogen::setTimelineBpm()
 	// Obtain the local speed specified for the current Pattern.
 	float fBPM = getTimelineBpm( getPatternPos() );
 	if ( fBPM != pSong->__bpm ) {
-		// std::cout << "[setTimelineBpm] update BPM from: " 
-		// 		  << pSong->__bpm << " to " << fBPM
-		// 		  << " at pos: " << getPatternPos() 
-		// 		  << std::endl;
 		setBPM( fBPM );
 	}
 
