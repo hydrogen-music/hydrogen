@@ -103,6 +103,13 @@ class Drumkit : public H2Core::Object
 		 * function of #__instruments.
 		 */
 		void unload_samples();
+		
+		/** 
+		 * Saves the current drumkit to dk_path, but makes a backup. 
+		 * This is used when the drumkit did not comply to 
+		 * our xml schema.
+		 */
+		static void upgrade_drumkit( Drumkit* pDrumkit, const QString& dk_path );
 
 		/**
 		 * check if a user drumkit with the given name

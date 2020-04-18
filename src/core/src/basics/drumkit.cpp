@@ -111,15 +111,38 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 {
 	XMLDoc doc;
 	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path() ) ) {
-		Drumkit* pDrumkit = Legacy::load_drumkit( dk_path );
 		
-		if(pDrumkit != nullptr)
+		//Something went wrong. Lets see how old this drumkit is..
+		
+		//Do we have any components? 
+		doc.read( dk_path );
+		auto nodeList = doc.elementsByTagName( "instrumentComponent" );
+		if( nodeList.size() == 0 )
 		{
-			WARNINGLOG( QString( "update drumkit %1" ).arg( dk_path ) );
-			pDrumkit->save_file( dk_path, true, -1 );
+			//No components. That drumkit seems to be quite old. Use legacy code..
+			
+			Drumkit* pDrumkit = Legacy::load_drumkit( dk_path );
+			upgrade_drumkit(pDrumkit, dk_path);
+			
+			return pDrumkit;
+		} else {
+			//If the drumkit does not comply witht the current xsd, but has components, it may suffer from
+			// problems with invalid values (for example float ADSR values, see #658). Lets try to load it
+			// with our current drumkit.
+			
+			XMLNode root = doc.firstChildElement( "drumkit_info" );
+			if ( root.isNull() ) {
+				ERRORLOG( "drumkit_info node not found" );
+				return nullptr;
+			}
+			
+			Drumkit* pDrumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
+			upgrade_drumkit(pDrumkit, dk_path);
+			
+			if( load_samples ){
+				pDrumkit->load_samples();
+			}
 		}
-
-		return pDrumkit;
 	}
 	
 	XMLNode root = doc.firstChildElement( "drumkit_info" );
@@ -188,6 +211,15 @@ void Drumkit::load_samples()
 	if( !__samples_loaded ) {
 		__instruments->load_samples();
 		__samples_loaded = true;
+	}
+}
+
+void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path)
+{
+	if(pDrumkit != nullptr)
+	{
+		WARNINGLOG( QString( "ugrade drumkit %1" ).arg( dk_path ) );
+		pDrumkit->save_file( dk_path, true, -1 );
 	}
 }
 
