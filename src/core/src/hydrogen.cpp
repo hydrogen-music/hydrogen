@@ -108,7 +108,7 @@ float				m_fMaxProcessTime = 0.0f;	///< max ms usable in process with no xrun
  * It is set by Hydrogen::setNewBpmJTM() and accessed via
  * Hydrogen::getNewBpmJTM().
  */
-float				m_nNewBpmJTM = 120;
+float				m_fNewBpmJTM = 120;
 /**
  * Stores the current transport position in frames obtained by a query
  * of the transport state of the JACK server in
@@ -448,10 +448,10 @@ static void			audioEngine_noteOn( Note *note );
  * - calls audioEngine_process_clearAudioBuffers() to reset all audio
  * buffers with zeros.
  * - calls audioEngine_process_transport() to verify the current
- * TransportInfo stored in AudioOutput::m_transport. If, e.g., the
- * JACK server is used. an external JACK client might have changed the
+ * TransportInfo stored in AudioOutput::m_transport. If e.g. the
+ * JACK server is used, an external JACK client might have changed the
  * speed of the transport (as JACK timebase master) or the transport
- * position. In such case, Hydrogen has to sync its internal transport
+ * position. In such cases, Hydrogen has to sync its internal transport
  * state AudioOutput::m_transport to reflect these changes. Else our
  * playback would be off.
  * - calls audioEngine_process_checkBPMChanged() to check whether the
@@ -492,8 +492,8 @@ static void			audioEngine_noteOn( Note *note );
 int				audioEngine_process( uint32_t nframes, void *arg );
 inline void			audioEngine_clearNoteQueue();
 /**
- * Checks whether the tick size has changed and adjusts the transport
- * position accordingly.
+ * Update the tick size based on the current tempo without affecting
+ * the current transport position.
  *
  * To access a change in the tick size, the value stored in
  * TransportInfo::m_fTickSize will be compared to the one calculated
@@ -911,32 +911,35 @@ void audioEngine_stop( bool bLockEngine )
 inline void audioEngine_process_checkBPMChanged(Song* pSong)
 {
 	if ( m_audioEngineState != STATE_READY
-	  && m_audioEngineState != STATE_PLAYING
-	) return;
+		 && m_audioEngineState != STATE_PLAYING ) {
+		return;
+	}
 
 	float fOldTickSize = m_pAudioDriver->m_transport.m_fTickSize;
 	float fNewTickSize = AudioEngine::compute_tick_size( m_pAudioDriver->getSampleRate(), pSong->__bpm, pSong->__resolution );
 
 	// Nothing changed - avoid recomputing
-	if ( fNewTickSize == fOldTickSize )
+	if ( fNewTickSize == fOldTickSize ) {
 		return;
+	}
 
-	// update tick size in transport class
 	m_pAudioDriver->m_transport.m_fTickSize = fNewTickSize;
 
-	if ( fNewTickSize == 0 || fOldTickSize == 0 )
+	if ( fNewTickSize == 0 || fOldTickSize == 0 ) {
 		return;
+	}
 
-	___WARNINGLOG( "Tempo change: Recomputing ticksize and frame position" );
 	float fTickNumber = m_pAudioDriver->m_transport.m_nFrames / fOldTickSize;
 
 	// update frame position in transport class
 	m_pAudioDriver->m_transport.m_nFrames = ceil(fTickNumber) * fNewTickSize;
+	___WARNINGLOG( QString( "Tempo change: Recomputing ticksize and frame position. Old TS: %1, new TS: %2, new pos: %3" )
+		.arg( fOldTickSize ).arg( fNewTickSize )
+		.arg( m_pAudioDriver->m_transport.m_nFrames ) );
 
 #ifdef H2CORE_HAVE_JACK
 	if ( JackAudioDriver::class_name() == m_pAudioDriver->class_name()
-		&& m_audioEngineState == STATE_PLAYING )
-	{
+		&& m_audioEngineState == STATE_PLAYING ) {
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->calculateFrameOffset();
 	}
 #endif
@@ -1103,7 +1106,7 @@ inline void audioEngine_process_transport()
 	  && m_audioEngineState != STATE_PLAYING
 	) return;
 
-	// Considering JackAudioDriver: //
+	// Considering JackAudioDriver:
 	// Compares the current transport state, speed in bpm, and
 	// transport position with a query request to the JACK
 	// server. It will only overwrite m_transport.m_nFrames, if
@@ -1127,7 +1130,9 @@ inline void audioEngine_process_transport()
 		}
 
 		// So, we are not playing even after attempt to start engine
-		if ( m_audioEngineState != STATE_PLAYING ) return;
+		if ( m_audioEngineState != STATE_PLAYING ) {
+			return;
+		}
 
 		/* Now we're playing | Update BPM */
 		if ( pSong->__bpm != m_pAudioDriver->m_transport.m_fBPM ) {
@@ -1312,11 +1317,11 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// Check whether the tick size has changed.
 	audioEngine_process_checkBPMChanged(pSong);
 
-	bool sendPatternChange = false;
+	bool bSendPatternChange = false;
 	// always update note queue.. could come from pattern or realtime input
 	// (midi, keyboard)
-	int res2 = audioEngine_updateNoteQueue( nframes );
-	if ( res2 == -1 ) {	// end of song
+	int nResNoteQueue = audioEngine_updateNoteQueue( nframes );
+	if ( nResNoteQueue == -1 ) {	// end of song
 		___INFOLOG( "End of song received, calling engine_stop()" );
 		AudioEngine::get_instance()->unlock();
 		m_pAudioDriver->stop();
@@ -1339,8 +1344,8 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		}
 #endif
 		return 0;
-	} else if ( res2 == 2 ) { // send pattern change
-		sendPatternChange = true;
+	} else if ( nResNoteQueue == 2 ) { // send pattern change
+		bSendPatternChange = true;
 	}
 
 	// play all notes
@@ -1461,7 +1466,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 	AudioEngine::get_instance()->unlock();
 
-	if ( sendPatternChange ) {
+	if ( bSendPatternChange ) {
 		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
 	}
 	return 0;
@@ -3787,6 +3792,7 @@ void Hydrogen::handleBeatCounter()
 			AudioEngine::get_instance()->lock( RIGHT_HERE );
 			if ( m_fBeatCountBpm > MAX_BPM)
 				m_fBeatCountBpm = MAX_BPM;
+			
 			setBPM( m_fBeatCountBpm );
 			AudioEngine::get_instance()->unlock();
 			if (Preferences::get_instance()->m_mmcsetplay
@@ -3898,20 +3904,21 @@ long Hydrogen::getTickForHumanPosition( int humanpos )
 
 float Hydrogen::getNewBpmJTM()
 {
-	return m_nNewBpmJTM;
+	return m_fNewBpmJTM;
 }
 
 void Hydrogen::setNewBpmJTM( float bpmJTM )
 {
-	m_nNewBpmJTM = bpmJTM;
+	m_fNewBpmJTM = bpmJTM;
 }
 
 //~ jack transport master
 void Hydrogen::triggerRelocateDuringPlay()
 {
 	// This forces the barline position
-	if ( getSong()->get_mode() == Song::PATTERN_MODE )
+	if ( getSong()->get_mode() == Song::PATTERN_MODE ) {
 		m_nPatternStartTick = -1;
+	}
 }
 
 void Hydrogen::togglePlaysSelected()
@@ -4009,16 +4016,20 @@ float Hydrogen::getTimelineBpm( int Beat )
 
 void Hydrogen::setTimelineBpm()
 {
-	// Check the preferences if Hydrogen is supposed to set this
-	// value. 
-	if ( ! Preferences::get_instance()->getUseTimelineBpm() ) return;
+	if ( ! Preferences::get_instance()->getUseTimelineBpm() ) {
+		return;
+	}
 
-	// Update "engine" BPM
 	Song* pSong = getSong();
 	// Obtain the local speed specified for the current Pattern.
-	float BPM = getTimelineBpm( getPatternPos() );
-	if ( BPM != pSong->__bpm )
-		setBPM( BPM );
+	float fBPM = getTimelineBpm( getPatternPos() );
+	if ( fBPM != pSong->__bpm ) {
+		// std::cout << "[setTimelineBpm] update BPM from: " 
+		// 		  << pSong->__bpm << " to " << fBPM
+		// 		  << " at pos: " << getPatternPos() 
+		// 		  << std::endl;
+		setBPM( fBPM );
+	}
 
 	// Get the realtime pattern position. This also covers
 	// keyboard and MIDI input events in case the audio engine is

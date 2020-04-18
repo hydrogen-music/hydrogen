@@ -494,9 +494,9 @@ void			previewSample( Sample *pSample );
 	 */
 	long			getTickForHumanPosition( int humanpos );
 	/** Returns the fallback speed.
-	 * \return #m_nNewBpmJTM */
+	 * \return #m_fNewBpmJTM */
 	float			getNewBpmJTM();
-	/** Set the fallback speed #m_nNewBpmJTM.
+	/** Set the fallback speed #m_fNewBpmJTM.
 	 * \param bpmJTM New default tempo. */ 
 	void			setNewBpmJTM( float bpmJTM);
 
@@ -504,13 +504,14 @@ void			previewSample( Sample *pSample );
 	unsigned int	__getMidiRealtimeNoteTickPosition();
 
 	/**
-	 * Updates Song::__bpm and #m_nNewBpmJTM to the local speed.
+	 * Updates Song::__bpm, TransportInfo::m_fBPM, and #m_fNewBpmJTM
+	 * to the local speed.
 	 *
-	 * To set the of the Song Song::__bpm, the local speed will be
-	 * obtained by calling getTimelineBpm() with getPatternPos()
-	 * as input argument. For setting the fallback speed
-	 * #m_nNewBpmJTM, getRealtimeTickPosition() will be used
-	 * instead.
+	 * The local speed will be obtained by calling getTimelineBpm()
+	 * with getPatternPos() as input argument and set for the current
+	 * song and transport. For setting the
+	 * fallback speed #m_fNewBpmJTM, getRealtimeTickPosition() will be
+	 * used instead.
 	 *
 	 * If Preferences::__useTimelineBpm is set to false, the
 	 * function will return without performing any actions.
