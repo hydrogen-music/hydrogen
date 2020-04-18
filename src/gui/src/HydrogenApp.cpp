@@ -669,7 +669,7 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		QString filename = pHydrogen->getSong()->get_filename();
 		
 		// Song was saved.
-		setScrollStatusBarMessage( trUtf8("Song saved.") + QString(" Into: ") + filename, 2000 );
+		setScrollStatusBarMessage( tr("Song saved.") + QString(" Into: ") + filename, 2000 );
 		updateWindowTitle();
 		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 		

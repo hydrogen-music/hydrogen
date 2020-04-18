@@ -51,11 +51,11 @@ ExportMidiDialog::ExportMidiDialog( QWidget* parent )
 {
 	setupUi( this );
 	setModal( true );
-	setWindowTitle( trUtf8( "Export midi" ) );
+	setWindowTitle( tr( "Export midi" ) );
 
-	exportTypeCombo->addItem( trUtf8("SMF1 single: export all instruments to a single track") );
-	exportTypeCombo->addItem( trUtf8("SMF1 multi: export each instrument to separate track") );
-	exportTypeCombo->addItem( trUtf8("SMF0: export all events to one track") );
+	exportTypeCombo->addItem( tr("SMF1 single: export all instruments to a single track") );
+	exportTypeCombo->addItem( tr("SMF1 multi: export each instrument to separate track") );
+	exportTypeCombo->addItem( tr("SMF0: export all events to one track") );
 
 	restoreSettingsFromPreferences();
 
@@ -128,9 +128,9 @@ void ExportMidiDialog::on_browseBtn_clicked()
 	QString sPrevDir = m_pPreferences->getMidiExportDirectory();
 
 	fd.setFileMode( QFileDialog::AnyFile );
-	fd.setNameFilter( trUtf8("Midi file (*%1)").arg( m_sExtension ) );
+	fd.setNameFilter( tr("Midi file (*%1)").arg( m_sExtension ) );
 	fd.setDirectory( sPrevDir );
-	fd.setWindowTitle( trUtf8( "Export MIDI file" ) );
+	fd.setWindowTitle( tr( "Export MIDI file" ) );
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 
 	QString sDefaultFilename = exportNameTxt->text();
