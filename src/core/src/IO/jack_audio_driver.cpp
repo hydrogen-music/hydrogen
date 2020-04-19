@@ -171,7 +171,7 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	pJackDriverInstance = this;
 	this->m_processCallback = m_processCallback;
 
-	m_bbtFrameOffset = 0;
+	m_frameOffset = 0;
 	m_nTrackPortCount = 0;
 	m_pClient = nullptr;
 	m_pOutputPort1 = nullptr;
@@ -325,8 +325,8 @@ unsigned JackAudioDriver::getSampleRate()
 
 void JackAudioDriver::calculateFrameOffset()
 {
-	m_bbtFrameOffset = m_JackTransportPos.frame - m_transport.m_nFrames;
-	// INFOLOG( QString( "m_bbtFrameOffset: %1" ). arg( m_bbtFrameOffset ) );
+	m_frameOffset = m_JackTransportPos.frame - m_transport.m_nFrames;
+	// INFOLOG( QString( "m_frameOffset: %1" ). arg( m_frameOffset ) );
 }
 
 void JackAudioDriver::updateTransportInfo()
@@ -375,13 +375,13 @@ void JackAudioDriver::updateTransportInfo()
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
-	if ( m_transport.m_nFrames + m_bbtFrameOffset != m_JackTransportPos.frame ) {
+	if ( m_transport.m_nFrames + m_frameOffset != m_JackTransportPos.frame ) {
 
 		m_transport.m_nFrames = m_JackTransportPos.frame;
 		
 		// Resetting the previous frame offset (introduced
 		// when passing a tempo marker).
-		m_bbtFrameOffset = 0;
+		m_frameOffset = 0;
 	}
 	
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
@@ -389,7 +389,7 @@ void JackAudioDriver::updateTransportInfo()
 	// std::cout << "[updateTransport] m_nFrames: " << m_transport.m_nFrames
 	// 		  << ", m_fBPM: " << m_transport.m_fBPM
 	// 		  << ", m_fTickSize: " << m_transport.m_fTickSize
-	// 		  << ", m_bbtFrameOffset: " << m_bbtFrameOffset
+	// 		  << ", m_frameOffset: " << m_frameOffset
 	// 		  << ", pattern pos: " << pHydrogen->getPatternPos() 
 	// 		  << std::endl;
 	
@@ -699,7 +699,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 
 	if ( pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ){
 		// Make Hydrogen the JACK timebase master.
-		initTimeMaster();
+		initTimebaseMaster();
 	} else {
 		m_bIsTimebaseMaster = false;
 	}
@@ -948,7 +948,7 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t* event)
 }
 #endif
 
-void JackAudioDriver::initTimeMaster()
+void JackAudioDriver::initTimebaseMaster()
 {
 	if ( m_pClient == nullptr ) {
 		return;
@@ -993,11 +993,11 @@ void JackAudioDriver::initTimeMaster()
 			m_bIsTimebaseMaster = true;
 		}
 	} else {
-	    releaseTimebase();
+	    releaseTimebaseMaster();
 	}
 }
 
-void JackAudioDriver::releaseTimebase()
+void JackAudioDriver::releaseTimebaseMaster()
 {
 	if ( m_pClient == nullptr ) {
 		return;
@@ -1024,7 +1024,7 @@ void JackAudioDriver::jack_timebase_callback(jack_transport_state_t state,
 		return;
 	}
 
-	unsigned long PlayTick = ( pJackPosition->frame - pDriver->m_bbtFrameOffset ) / 
+	unsigned long PlayTick = ( pJackPosition->frame - pDriver->m_frameOffset ) / 
 		pDriver->m_transport.m_fTickSize;
 	pJackPosition->bar = pHydrogen->getPosForTick( PlayTick );
 

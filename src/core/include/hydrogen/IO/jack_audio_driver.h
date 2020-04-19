@@ -398,7 +398,7 @@ public:
 	 *
 	 * Finally, the function will check whether Hydrogen should be the
 	 * JACK timebase master or not via Preferences::m_bJackMasterMode
-	 * and calls initTimeMaster() if its indeed the case.
+	 * and calls initTimebaseMaster() if its indeed the case.
 	 *
 	 * \param bufferSize Unused and only present to assure
 	 * compatibility with the JACK API.
@@ -472,7 +472,7 @@ public:
      * The function will check whether a relocation took place by the
 	 * JACK server and (afterwards) whether the current tempo did
 	 * change with respect to the last transport cycle. In case of a
-	 * relocation, #m_bbtFrameOffset will be reset to 0,
+	 * relocation, #m_frameOffset will be reset to 0,
 	 * TransportInfo::m_nFrames updated to the new value provided by
 	 * JACK, and - if Hydrogen is in Song::PATTERN_MODE - the playback
 	 * moved to the beginning of the pattern. A change in speed, on
@@ -498,7 +498,7 @@ public:
 	 * Calculates the difference between the transport position
 	 * obtained by querying JACK and the value stored in
 	 * TransportInfo::m_nFrames and stores it in
-	 * #m_bbtFrameOffset.
+	 * #m_frameOffset.
 	 *
 	 * It is triggered in audioEngine_process_checkBPMChanged() if a
 	 * BPM marker in the Timeline was passed, which causes the tick
@@ -514,17 +514,17 @@ public:
 	 * Preferences::NO_JACK_TIME_MASTER.
 	 *
 	 * If the function is called with Preferences::m_bJackMasterMode
-	 * set to Preferences::NO_JACK_TIME_MASTER, releaseTimebase() will
-	 * be called instead.
+	 * set to Preferences::NO_JACK_TIME_MASTER,
+	 * releaseTimebaseMaster() will be called instead.
 	 */ 
-	void initTimeMaster();
+	void initTimebaseMaster();
 	/**
 	 * Calls _jack_release_timebase()_ (jack/transport.h) to release
 	 * Hydrogen from the JACK timebase master responsibilities. This
 	 * causes the jack_timebase_callback() callback function to not be
 	 * called by the JACK server anymore.
 	 */
-	void releaseTimebase();
+	void releaseTimebaseMaster();
 	
 	/**
 	 * \return #m_bIsTimebaseMaster
@@ -534,7 +534,7 @@ public:
 protected:
 	/**
 	 * Callback function registered to the JACK server in
-	 * initTimeMaster() if Hydrogen is set as JACK timebase master.
+	 * initTimebaseMaster() if Hydrogen is set as JACK timebase master.
 	 *
 	 * It will update the current position not just in frames till
 	 * the beginning of the song, but also in terms of beat, bar,
@@ -545,9 +545,9 @@ protected:
 	 * #m_JackTransportState is _JackTransportRolling_. It sets
 	 * the following members of the JACK position object @a pos is
 	 * pointing to:
-	 * - __bar__ : current position corrected by the #m_bbtFrameOffset
+	 * - __bar__ : current position corrected by the #m_frameOffset
 	 * \code{.cpp} 
-	 * Hydrogen::getPosForTick( ( pos->frame - m_bbtFrameOffset )/ 
+	 * Hydrogen::getPosForTick( ( pos->frame - m_frameOffset )/ 
 	 *                          m_transport.m_fTickSize ) ) 
 	 * \endcode
 	 * - __ticks_per_beat__ :  the output of
@@ -639,7 +639,7 @@ private:
 	 * transport information. The variable is initialized with 0 in
 	 * JackAudioDriver() and updated in calculateFrameOffset().
 	 */
-	long long			m_bbtFrameOffset;
+	long long			m_frameOffset;
 	/**
 	 * Function the JACK server will call whenever there is work to
 	 * do.
