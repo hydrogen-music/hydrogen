@@ -131,7 +131,10 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	H2Core::Sample* pSample = pLayer->get_sample();
 	CPPUNIT_ASSERT( pSample != nullptr );
 	
-	CPPUNIT_ASSERT( pSample->get_filename() == QString("snare.wav"));	
+	CPPUNIT_ASSERT( pSample->get_filename() == QString("snare.wav"));
+	
+	//3. Make sure that the original (invalid) file has been saved as a backup
+	CPPUNIT_ASSERT( H2Core::Filesystem::file_exists( H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml.bak") ) );
 		
 	if( pDrumkit ) {
 		delete pDrumkit;

@@ -219,6 +219,11 @@ void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path)
 	if(pDrumkit != nullptr)
 	{
 		WARNINGLOG( QString( "ugrade drumkit %1" ).arg( dk_path ) );
+		
+		Filesystem::file_copy( dk_path,
+		                       dk_path + ".bak",
+		                       false /* do not overwrite existing files */ );
+		
 		pDrumkit->save_file( dk_path, true, -1 );
 	}
 }
