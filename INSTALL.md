@@ -194,7 +194,7 @@ If Hydrogen doesn't start, it might be because it's shared library is not found.
 You can verify this with the above command :
 ```ldd CMAKE_INSTALL_PREFIX/bin/hydrogen | grep 'not found'```
 
-To fix this, you can use LD_PRELOAD or LD_LIBRARY_PATH environment variales,
+To fix this, you can use LD_PRELOAD or LD_LIBRARY_PATH environment variables,
 or configure ldconfig (man ldconfig).
 
 Another option is to set -DCMAKE_INSTALL_PREFIX=/usr, recompile and reinstall Hydrogen.
