@@ -290,10 +290,12 @@ public:
 	 *   arguments.
 	 */
 	int			getPosForTick( unsigned long TickPos );
-	/** Resetting #m_nPatternStartTick to -1 if the current Song
-	    mode is Song::PATTERN_MODE
+	/** Move playback in Pattern mode to the beginning of the pattern.
+	 *
+	 * Resetting the global variable #m_nPatternStartTick to -1 if the
+	 * current Song mode is Song::PATTERN_MODE.
 	 */
-	void			triggerRelocateDuringPlay();
+	void			resetPatternStartTick();
 	
 		/**
 		 * Get the total number of ticks passed up to a Pattern at

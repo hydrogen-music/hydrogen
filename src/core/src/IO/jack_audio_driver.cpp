@@ -372,6 +372,8 @@ void JackAudioDriver::updateTransportInfo()
 		ERRORLOG( "Unknown jack transport state" );
 	}
 	
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
@@ -379,12 +381,14 @@ void JackAudioDriver::updateTransportInfo()
 
 		m_transport.m_nFrames = m_JackTransportPos.frame;
 		
+		// Reset playback to the beginning of the pattern if Hydrogen
+		// is in pattern mode.
+		pHydrogen->resetPatternStartTick();
+		
 		// Resetting the previous frame offset (introduced
 		// when passing a tempo marker).
 		m_frameOffset = 0;
 	}
-	
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	
 	// std::cout << "[updateTransport] m_nFrames: " << m_transport.m_nFrames
 	// 		  << ", m_fBPM: " << m_transport.m_fBPM

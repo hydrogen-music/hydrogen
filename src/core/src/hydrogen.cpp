@@ -3905,7 +3905,7 @@ void Hydrogen::setNewBpmJTM( float bpmJTM )
 }
 
 //~ jack transport master
-void Hydrogen::triggerRelocateDuringPlay()
+void Hydrogen::resetPatternStartTick()
 {
 	// This forces the barline position
 	if ( getSong()->get_mode() == Song::PATTERN_MODE ) {
