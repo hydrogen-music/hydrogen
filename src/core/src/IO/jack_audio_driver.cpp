@@ -59,7 +59,7 @@ namespace H2Core {
  * JackAudioDriver::getSampleRate(). Its initialization is handled by
  * JackAudioDriver::init(), which sets it to the sample rate of the
  * Hydrogen's external JACK client via _jack_get_sample_rate()_
- * (jack/jack.h). 
+ * (jack/jack.h).
  */
 unsigned long		jackServerSampleRate = 0;
 /**
@@ -70,7 +70,7 @@ unsigned long		jackServerSampleRate = 0;
  * JackAudioDriver::getBufferSize(). Its initialization is handled by
  * JackAudioDriver::init(), which sets it to the buffer size of the
  * Hydrogen's external JACK client via _jack_get_buffer_size()_
- * (jack/jack.h). 
+ * (jack/jack.h).
  */
 jack_nframes_t		jackServerBufferSize = 0;
 /**
@@ -173,17 +173,12 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 
 	m_bbtFrameOffset = 0;
 	m_nTrackPortCount = 0;
-	m_fOldTickSize = 0;
 	m_pClient = nullptr;
 	m_pOutputPort1 = nullptr;
 	m_pOutputPort2 = nullptr;
 	m_bConnectDefaults = pPreferences->m_bJackConnectDefaults;
 	m_bIsTimebaseMaster = false;
 	m_nTimebaseMasterCount = 0;
-	
-	// Make Hydrogen the timebase master, regardless if there is
-	// already a timebase master present.
-	m_nJackConditionalTakeOver = 0;
 	
 	// Destination ports the output of Hydrogen will be connected
 	// to.
@@ -376,9 +371,6 @@ void JackAudioDriver::updateTransportInfo()
 	default:
 		ERRORLOG( "Unknown jack transport state" );
 	}
-
-	// ---------------------------------------------------------------
-	// Detecting and handling relocation.
 	
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
@@ -403,10 +395,9 @@ void JackAudioDriver::updateTransportInfo()
 	
 	if ( ( m_JackTransportPos.valid & JackPositionBBT ) &&
 		 !m_bIsTimebaseMaster ){
-		// There is a JACK timebase master and it's not us.
-
-		// If a JACK timebase master is present and if the provided tempo
-		// differs, we will use that one instead.
+		// There is a JACK timebase master and it's not us. If it
+		// provides a tempo that differs from the local one, we will
+		// use the former instead.
 		float fBPM = ( float )m_JackTransportPos.beats_per_minute;
 
 		if ( m_transport.m_fBPM != fBPM ) {
@@ -416,8 +407,8 @@ void JackAudioDriver::updateTransportInfo()
 			pHydrogen->setBPM( fBPM );
 		}
 	} else {
-		// Checks for local changes in speed (introduced by the user using
-		// BPM markers on the timeline) and update m_transport.m_fBPM
+		// Checks for local changes in speed (introduced by the user
+		// using BPM markers on the timeline) and update tempo
 		// accordingly.
 		pHydrogen->setTimelineBpm();
 	}
@@ -641,7 +632,6 @@ int JackAudioDriver::init( unsigned bufferSize )
 		return -1;
 	}
 
-	// Here, client should either be valid, or NULL.
 	jackServerSampleRate = jack_get_sample_rate( m_pClient );
 	jackServerBufferSize = jack_get_buffer_size( m_pClient );
 
@@ -719,9 +709,6 @@ int JackAudioDriver::init( unsigned bufferSize )
 
 void JackAudioDriver::makeTrackOutputs( Song* pSong )
 {
-
-	// Only execute the body of this function if a per-track
-	// creation of the output ports is desired.
 	if( Preferences::get_instance()->m_bJackTrackOuts == false ) {
 		return;
 	}
@@ -730,12 +717,10 @@ void JackAudioDriver::makeTrackOutputs( Song* pSong )
 	Instrument* pInstrument;
 	int nInstruments = ( int ) pInstrumentList->size();
 
-	// create dedicated channel output ports
 	WARNINGLOG( QString( "Creating / renaming %1 ports" ).arg( nInstruments ) );
 
 	int nTrackCount = 0;
 
-	// Resets the `m_trackMap' matrix.
 	for( int i = 0 ; i < MAX_INSTRUMENTS ; i++ ){
 		for ( int j = 0 ; j < MAX_COMPONENTS ; j++ ){
 			m_trackMap[i][j] = 0;
@@ -771,16 +756,12 @@ void JackAudioDriver::makeTrackOutputs( Song* pSong )
 	m_nTrackPortCount = nTrackCount;
 }
 
-/**
- * Give the @a n 'th port the name of @a instr .
- * If the n'th port doesn't exist, new ports up to n are created.
- */
 void JackAudioDriver::setTrackOutput( int n, Instrument* pInstrument, InstrumentComponent *pInstrumentComponent, Song* pSong )
 {
 	QString sComponentName;
 
 	// The function considers `m_nTrackPortCount' as the number of
-	// ports already present. If its smaller than `n', new ports
+	// ports already present. If it's smaller than `n', new ports
 	// have to be created.
 	if ( m_nTrackPortCount <= n ) {
 		for ( int m = m_nTrackPortCount; m <= n; m++ ) {
@@ -800,7 +781,7 @@ void JackAudioDriver::setTrackOutput( int n, Instrument* pInstrument, Instrument
 		m_nTrackPortCount = n + 1;
 	}
 
-	// Now we're sure there is an n'th port, rename it.
+	// Now that we're sure there is an n'th port, rename it.
 	DrumkitComponent* pDrumkitComponent = pSong->get_component( pInstrumentComponent->get_drumkit_componentID() );
 	sComponentName = QString( "Track_%1_%2_%3_" ).arg( n + 1 )
 		.arg( pInstrument->get_name() ).arg( pDrumkitComponent->get_name() );
@@ -852,9 +833,8 @@ void JackAudioDriver::locate( unsigned long frame )
 	     Preferences::USE_JACK_TRANSPORT ) {
 		if ( m_pClient != nullptr ) {
 			// jack_transport_locate() (jack/transport.h )
-			// re-positions the transport to a new frame number.
-			// May be called at any time by any client.  The new
-			// position takes effect in two process cycles.
+			// re-positions the transport to a new frame number. May
+			// be called at any time by any client.
 			jack_transport_locate( m_pClient, frame );
 		}
 	} else {
@@ -864,15 +844,8 @@ void JackAudioDriver::locate( unsigned long frame )
 
 void JackAudioDriver::setBpm( float fBPM )
 {
-	WARNINGLOG( QString( "setBpm: %1" ).arg( fBPM ) );
-	// std::cout << "[setBpm]: " << fBPM << std::endl;
+	INFOLOG( QString( "setBpm: %1" ).arg( fBPM ) );
 	m_transport.m_fBPM = fBPM;
-}
-
-int JackAudioDriver::getNumTracks()
-{
-	//	INFOLOG( "get num tracks()" );
-	return m_nTrackPortCount;
 }
 
 #ifdef H2CORE_HAVE_JACKSESSION
@@ -1011,7 +984,7 @@ void JackAudioDriver::initTimeMaster()
 		//   - EBUSY if a conditional request fails because
 		// there was already a timebase master;
 		//   - other non-zero error code.
-		int nReturnValue = jack_set_timebase_callback(m_pClient, m_nJackConditionalTakeOver,
+		int nReturnValue = jack_set_timebase_callback(m_pClient, 0,
 						     jack_timebase_callback, this);
 		if ( nReturnValue != 0 ){
 			pPreferences->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
@@ -1020,11 +993,7 @@ void JackAudioDriver::initTimeMaster()
 			m_bIsTimebaseMaster = true;
 		}
 	} else {
-		// Called by the timebase master to release itself
-		// from that responsibility (defined in
-		// jack/transport.h).
-		jack_release_timebase(m_pClient);
-		m_bIsTimebaseMaster = false;
+	    releaseTimebase();
 	}
 }
 
