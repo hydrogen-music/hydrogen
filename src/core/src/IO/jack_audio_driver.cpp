@@ -28,6 +28,7 @@
 #include <cstdlib>
 #include <cassert>
 #include <hydrogen/hydrogen.h>
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/basics/drumkit_component.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_component.h>
@@ -379,7 +380,7 @@ void JackAudioDriver::relocateBBT()
 	// speed obtained by the JACK server query was already written
 	// to m_transport.m_nBPM. This value can thus be considered
 	// clean.
-	float fNewTickSize = getSampleRate() * 60.0 /  m_transport.m_nBPM / S->__resolution;
+	float fNewTickSize = AudioEngine::compute_tick_size( getSampleRate(), m_transport.m_nBPM, S->__resolution );
 
 	if ( fNewTickSize == 0 ) return;
 

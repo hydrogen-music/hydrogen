@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
@@ -999,7 +999,9 @@ bool Sampler::__render_note_resample(
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		float resampledTickSize = pSample->get_sample_rate() * 60.0 /  pAudioOutput->m_transport.m_nBPM / pSong->__resolution;
+		float resampledTickSize = AudioEngine::compute_tick_size( pSample->get_sample_rate(),
+		                                                          pAudioOutput->m_transport.m_nBPM,
+		                                                          pSong->__resolution );
 		
 		nNoteLength = ( int )( pNote->get_length() * resampledTickSize);
 	}
