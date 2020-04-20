@@ -7,6 +7,9 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
 
+// paths
+#define H2_USR_PATH		".hydrogen"
+
 // directories
 #define LOCAL_DATA_PATH "data/"
 #define CACHE           "cache/"

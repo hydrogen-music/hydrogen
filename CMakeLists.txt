@@ -162,8 +162,6 @@ ENDIF(APPLE)
 #Installation paths
 # TODO remove data from path
 SET(H2_SYS_PATH "${CMAKE_INSTALL_FULL_DATAROOTDIR}/hydrogen")
-# TODO remove data from path, could be .config/hydrogen
-SET(H2_USR_PATH ".hydrogen")
 
 SET(MAX_INSTRUMENTS 1000 CACHE STRING "Maximum number of instruments")
 SET(MAX_COMPONENTS  32   CACHE STRING "Maximum number of components")
@@ -287,7 +285,6 @@ SET(cyan "${_escape}[1;36m")
 COLOR_MESSAGE("${cyan}Installation Summary${reset}
 --------------------
 * Install Directory            : ${CMAKE_INSTALL_PREFIX}
-* User path                    : ${H2_USR_PATH}
 * System path                  : ${H2_SYS_PATH}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}

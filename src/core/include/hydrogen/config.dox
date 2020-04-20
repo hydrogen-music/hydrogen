@@ -15,11 +15,6 @@
 #define QT_END_NAMESPACE
 
 /**
- * Path of the configuration files of Hydrogen in the user home. Set
- * by __cmake__ ".hydrogen".
- */
-#define H2_USR_PATH "@H2_USR_PATH@"
-/**
  * Path of the configuration files of Hydrogen in the system. Set by
  * __cmake__ a concatenation of #CONFIG_PREFIX and "/share/hydrogen".
  */

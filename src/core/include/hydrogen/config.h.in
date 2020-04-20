@@ -11,7 +11,6 @@
 #    define QT_END_NAMESPACE
 #endif
 
-#define H2_USR_PATH "@H2_USR_PATH@"
 #define H2_SYS_PATH "@H2_SYS_PATH@"
 #define CONFIG_PREFIX "@CMAKE_INSTALL_PREFIX@"
 
