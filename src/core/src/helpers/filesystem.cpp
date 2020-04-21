@@ -9,6 +9,7 @@
 
 // paths
 #define H2_USR_PATH		".hydrogen"
+#define XDG_CONFIG_HOME	".config"
 
 // directories
 #define LOCAL_DATA_PATH "data/"
@@ -70,6 +71,8 @@ QString Filesystem::__usr_data_path;
 QString Filesystem::__usr_cfg_path;
 QStringList Filesystem::__ladspa_paths;
 
+bool Filesystem::config_migrated = false;
+static QString __usr_cfg_path_legacy = nullptr;
 
 /* TODO QCoreApplication is not instantiated */
 bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
@@ -96,7 +99,19 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 #else
 	__sys_data_path = H2_SYS_PATH "/data/";
 	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
-	__usr_cfg_path = QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
+	__usr_cfg_path_legacy = QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
+	char* config = getenv( "XDG_CONFIG_HOME" );
+	if( config ) {
+		__usr_cfg_path = QString( config );
+	} else {
+		__usr_cfg_path = QString( getenv( "HOME" ) ).append( "/" XDG_CONFIG_HOME );
+	}
+	if ( mkdir( __usr_cfg_path ) ) {
+		__usr_cfg_path.append( "/" USR_CONFIG );
+		if ( !file_readable( __usr_cfg_path, true ) && file_readable( __usr_cfg_path_legacy, true ) ) {
+			config_migrated = file_copy( __usr_cfg_path_legacy, __usr_cfg_path, false);
+		}
+	}
 #endif
 	if( sys_path!=nullptr ) __sys_data_path = sys_path;
 
@@ -674,6 +689,12 @@ void Filesystem::info()
 	INFOLOG( QString( "Plugins dir                : %1" ).arg( plugins_dir() ) );
 	INFOLOG( QString( "Scripts dir                : %1" ).arg( scripts_dir() ) );
 	INFOLOG( QString( "Songs dir                  : %1" ).arg( songs_dir() ) );
+	// migration
+	if( config_migrated ) {
+		INFOLOG( QString( "Configuration has been copied") );
+		INFOLOG( QString( "                      from : %1" ).arg( __usr_cfg_path_legacy ) );
+		INFOLOG( QString( "                        to : %2" ).arg( __usr_cfg_path ) );
+	}
 }
 
 };

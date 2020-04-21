@@ -32,6 +32,8 @@ class Filesystem : public H2Core::Object
 		static const QString patterns_filter_name;
 		static const QString playlists_filter_name;
 
+		static bool config_migrated;	///< flaged if legacy config is copied at bootstrap
+
 		/**
 		 * check user and system filesystem usability
 		 * \param logger is a pointer to the logger instance which will be used
