@@ -276,6 +276,35 @@ bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwri
 	return QFile::copy( src,dst );
 }
 
+static void _dir_copy( const QString& src, const QString& dst)
+{
+	QDir dir(src);
+	foreach (QString d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+		QString dst_path = dst + QDir::separator() + d;
+		dir.mkpath(dst_path);
+		_dir_copy(src+ QDir::separator() + d, dst_path);
+	}
+
+	foreach (QString f, dir.entryList(QDir::Files)) {
+		QFile::copy(src + QDir::separator() + f, dst + QDir::separator() + f);
+	}
+}
+
+bool Filesystem::dir_copy( const QString& src, const QString& dst)
+{
+	if ( !dir_readable( src ) ) {
+		ERRORLOG( QString( "unable to copy %1 to %2, %1 is not readable" ).arg( src ).arg( dst ) );
+		return false;
+	}
+	if( dir_writable( dst, true ) ) {
+		WARNINGLOG( QString( "do not overwrite %1 with %2, %1 already exists" ).arg( dst ).arg( src ) );
+		return true;
+	}
+	INFOLOG( QString( "copy %1 to %2" ).arg( src ).arg( dst ) );
+	_dir_copy(src, dst);
+	return false;
+}
+
 bool Filesystem::rm( const QString& path, bool recursive )
 {
 	if ( check_permissions( path, is_file, true ) ) {

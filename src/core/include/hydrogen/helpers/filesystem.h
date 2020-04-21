@@ -254,6 +254,12 @@ class Filesystem : public H2Core::Object
 		 */
 		static bool file_copy( const QString& src, const QString& dst, bool overwrite=false );
 		/**
+		 * copy a source directory to a destination
+		 * \param src source directory path
+		 * \param dst destination directory path
+		 */
+		static bool dir_copy( const QString& src, const QString& dst);
+		/**
 		 * remove a path
 		 * \param path the path to be removed
 		 * \param recursive perform recursive removal if set to true
