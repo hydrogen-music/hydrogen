@@ -33,6 +33,7 @@ class Filesystem : public H2Core::Object
 		static const QString playlists_filter_name;
 
 		static bool config_migrated;	///< flaged if legacy config is copied at bootstrap
+		static bool data_migrated;		///< flaged if legacy data is copied at bootstrap
 
 		/**
 		 * check user and system filesystem usability

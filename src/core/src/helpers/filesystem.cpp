@@ -10,6 +10,7 @@
 // paths
 #define H2_USR_PATH		".hydrogen"
 #define XDG_CONFIG_HOME	".config"
+#define XDG_DATA_HOME	".local/share/hydrogen/"
 
 // directories
 #define LOCAL_DATA_PATH "data/"
@@ -72,7 +73,21 @@ QString Filesystem::__usr_cfg_path;
 QStringList Filesystem::__ladspa_paths;
 
 bool Filesystem::config_migrated = false;
+bool Filesystem::data_migrated = false;
 static QString __usr_cfg_path_legacy = nullptr;
+static QString __usr_data_path_legacy = nullptr;
+
+static void _fix_file(const QString& path, const QRegExp& from, const QString& to)
+{
+	QFile file( path );
+	file.open( QIODevice::ReadWrite );
+	/* QByteArray fileData = file.readAll(); */
+	QString text( file.readAll() );
+	text.replace( from, to);
+	file.seek(0);
+	file.write( text.toUtf8() );
+	file.close();
+}
 
 /* TODO QCoreApplication is not instantiated */
 bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
@@ -98,7 +113,24 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 	__usr_cfg_path = QDir::homePath().append( "/.hydrogen/" USR_CONFIG ) ;
 #else
 	__sys_data_path = H2_SYS_PATH "/data/";
-	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
+	__usr_data_path_legacy = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
+	char* data = getenv( "XDG_DATA_HOME" );
+	if( data ) {
+		__usr_data_path = QString( data ).append( "/hydrogen/" );
+	} else {
+		__usr_data_path = QString( getenv( "HOME" ) ).append( "/" XDG_DATA_HOME );
+	}
+	if( !dir_readable(__usr_data_path) && dir_readable( __usr_data_path_legacy ) ) {
+		dir_copy(__usr_data_path_legacy, __usr_data_path);
+		QRegExp rx = QRegExp("[\\s\\w\\.\\/]+.hydrogen/data/");
+		foreach(QString sf, song_list()) {
+			_fix_file( songs_dir() + QDir::separator() + sf, rx, __usr_data_path );
+		}
+		foreach(QString sf, playlist_list()) {
+			_fix_file( playlists_dir() + QDir::separator() + sf, rx, __usr_data_path );
+		}
+		data_migrated = true;
+	}
 	__usr_cfg_path_legacy = QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
 	char* config = getenv( "XDG_CONFIG_HOME" );
 	if( config ) {
@@ -691,6 +723,7 @@ void Filesystem::info()
 {
 	// migration
 	if( config_migrated ) INFOLOG( QString( "User configuration file has been migrated, see above.") );
+	if( data_migrated ) INFOLOG( QString( "User data files have been migrated.") );
 	INFOLOG( QString( "Tmp data path                : %1" ).arg( tmp_dir() ) );
 	// SYS
 	INFOLOG( QString( "System config path           : %1" ).arg( sys_config_path() ) );
