@@ -130,6 +130,7 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 			_fix_file( playlists_dir() + QDir::separator() + sf, rx, __usr_data_path );
 		}
 		data_migrated = true;
+	    if( data_migrated ) WARNINGLOG( QString( "User data files have been migrated, see above") );
 	}
 	__usr_cfg_path_legacy = QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
 	char* config = getenv( "XDG_CONFIG_HOME" );
@@ -142,6 +143,7 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 		__usr_cfg_path.append( "/" USR_CONFIG );
 		if ( !file_readable( __usr_cfg_path, true ) && file_readable( __usr_cfg_path_legacy, true ) ) {
 			config_migrated = file_copy( __usr_cfg_path_legacy, __usr_cfg_path, false);
+			if( config_migrated ) WARNINGLOG( QString( "User configuration file has been migrated, see above.") );
 		}
 	}
 #endif
@@ -722,8 +724,6 @@ QStringList Filesystem::playlist_list( )
 void Filesystem::info()
 {
 	// migration
-	if( config_migrated ) INFOLOG( QString( "User configuration file has been migrated, see above.") );
-	if( data_migrated ) INFOLOG( QString( "User data files have been migrated.") );
 	INFOLOG( QString( "Tmp data path                : %1" ).arg( tmp_dir() ) );
 	// SYS
 	INFOLOG( QString( "System config path           : %1" ).arg( sys_config_path() ) );
