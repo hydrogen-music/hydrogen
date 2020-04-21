@@ -144,6 +144,11 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 			return nullptr;
 		}
 
+		if ( root.read_string( "name", "", false, false ).isEmpty() ) {
+			ERRORLOG( "Drumkit has no name, abort" );
+			return nullptr;
+		}
+
 		int version = root.read_int( "version", 0 );
 		Drumkit* pDrumkit = Drumkit::load_from( version, &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
 		upgrade_drumkit(pDrumkit, dk_path);
