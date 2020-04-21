@@ -4,6 +4,14 @@
 	xmlns:h2="http://www.hydrogen-music.org/drumkit"
 	elementFormDefault="qualified">
 
+<!-- NONEMPTYSTRING -->
+<xsd:simpleType name="nonemptystring">
+	<xsd:restriction base="xsd:string">
+		<xsd:minLength value="1" />
+		<xsd:pattern value=".*[^\s].*" />
+	</xsd:restriction>
+</xsd:simpleType>
+
 <!-- BOOL -->
 <xsd:simpleType name="bool">
 	<xsd:restriction base="xsd:string">
@@ -93,19 +101,29 @@
 				<xsd:element ref="h2:instrumentComponent" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:sequence>
 		</xsd:sequence>
-</xsd:complexType>
+	</xsd:complexType>
 </xsd:element>
 
-<!-- DRUMKIT -->
-<xsd:element name="drumkit_info">
+<!-- META -->
+<xsd:element name="meta">
 	<xsd:complexType>
 		<xsd:sequence>
-			<xsd:element name="name"			type="xsd:string"/>
+			<xsd:element name="name"			type="h2:nonemptystring"/>
 			<xsd:element name="author"			type="xsd:string"/>
 			<xsd:element name="info"			type="xsd:string"/>
 			<xsd:element name="license"			type="xsd:string"/>
 			<xsd:element name="image"			type="xsd:string"/>
 			<xsd:element name="imageLicense"	type="xsd:string"/>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:element>
+
+<!-- DRUMKIT -->
+<xsd:element name="drumkit">
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element name="version"			type="xsd:integer"/>
+			<xsd:element ref="h2:meta" />
 			<xsd:element name="componentList">
 				<xsd:complexType>
 					<xsd:sequence>

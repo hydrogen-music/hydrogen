@@ -103,10 +103,10 @@ class Drumkit : public H2Core::Object
 		 * function of #__instruments.
 		 */
 		void unload_samples();
-		
-		/** 
-		 * Saves the current drumkit to dk_path, but makes a backup. 
-		 * This is used when the drumkit did not comply to 
+
+		/**
+		 * Saves the current drumkit to dk_path, but makes a backup.
+		 * This is used when the drumkit did not comply to
 		 * our xml schema.
 		 */
 		static void upgrade_drumkit( Drumkit* pDrumkit, const QString& dk_path );
@@ -243,10 +243,26 @@ class Drumkit : public H2Core::Object
 		void save_to( XMLNode* node, int component_id=-1 );
 		/**
 		 * load a drumkit from an XMLNode
+		 * \param version the drumkit version
 		 * \param node the XMLDode to read from
 		 * \param dk_path the directory holding the drumkit data
 		 */
-		static Drumkit* load_from( XMLNode* node, const QString& dk_path );
+		static Drumkit* load_from( int version, XMLNode* node, const QString& dk_path );
+		/**
+		 * load drumkit meta tags from an XMLNode
+		 * \param node the XMLDode to read from
+		 */
+		void load_meta( XMLNode* node );
+		/**
+		 * load drumkit components from an XMLNode
+		 * \param node the XMLDode to read from
+		 */
+		void load_components( XMLNode* node );
+		/**
+		 * load drumkit instruments from an XMLNode
+		 * \param node the XMLDode to read from
+		 */
+		void load_instruments( XMLNode* node );
 		std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
 };
 

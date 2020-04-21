@@ -164,6 +164,24 @@ SoundLibraryInfo::SoundLibraryInfo(const QString &path) : Object( __class_name )
 		//setCategory( LocalFileMng::readXmlString( rootNode,"category", "" ) );
 	}
 
+	//Latest drumkits
+	rootNode = doc.firstChildElement( "drumkit" );
+	if ( !rootNode.isNull() )
+	{
+		QDomNode node = doc.firstChildElement( "meta" );
+		if ( !node.isNull() ) {
+			setType( "drumkit" );
+			setAuthor( LocalFileMng::readXmlString( node,"author", "undefined author" ) );
+			setLicense( LocalFileMng::readXmlString( node,"license", "undefined license" ) );
+			setName( LocalFileMng::readXmlString( node,"name", "" ) );
+			setInfo( LocalFileMng::readXmlString( node,"info", "No information available." ) );
+			setImage( LocalFileMng::readXmlString( node,"image", "" ) );
+			setImageLicense( LocalFileMng::readXmlString( node,"imageLicense", "undefined license" ) );
+
+			//setCategory( LocalFileMng::readXmlString( rootNode,"category", "" ) );
+		}
+	}
+
 	//Songs
 	rootNode = doc.firstChildElement( "song" );
 	if ( !rootNode.isNull() )
