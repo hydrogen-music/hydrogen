@@ -34,6 +34,8 @@
 #endif
 #endif
 
+#define DRUMKIT_VERSION	"1"
+
 #include <hydrogen/basics/sample.h>
 #include <hydrogen/basics/drumkit_component.h>
 #include <hydrogen/basics/instrument.h>
@@ -86,14 +88,13 @@ Drumkit::~Drumkit()
 		delete __instruments;
 	}
 }
-	
+
 Drumkit* Drumkit::load_by_name ( const QString& dk_name, const bool load_samples )
 {
 	QString dir = Filesystem::drumkit_path_search( dk_name );
 	if ( dir.isEmpty() ) {
 		return nullptr;
 	}
-	
 	return load( dir, load_samples );
 }
 
@@ -110,74 +111,89 @@ Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples )
 Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 {
 	XMLDoc doc;
-	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path() ) ) {
-		
-		//Something went wrong. Lets see how old this drumkit is..
-		
-		//Do we have any components? 
-		doc.read( dk_path );
-		auto nodeList = doc.elementsByTagName( "instrumentComponent" );
-		if( nodeList.size() == 0 )
-		{
-			//No components. That drumkit seems to be quite old. Use legacy code..
-			
-			Drumkit* pDrumkit = Legacy::load_drumkit( dk_path );
-			upgrade_drumkit(pDrumkit, dk_path);
-			
-			return pDrumkit;
-		} else {
-			//If the drumkit does not comply witht the current xsd, but has components, it may suffer from
-			// problems with invalid values (for example float ADSR values, see #658). Lets try to load it
-			// with our current drumkit.
-			
-			XMLNode root = doc.firstChildElement( "drumkit_info" );
-			if ( root.isNull() ) {
-				ERRORLOG( "drumkit_info node not found" );
-				return nullptr;
-			}
-			
-			Drumkit* pDrumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
-			upgrade_drumkit(pDrumkit, dk_path);
-			
-			if( load_samples ){
-				pDrumkit->load_samples();
-			}
+	if( doc.read( dk_path, Filesystem::drumkit_xsd_path() ) ) {
+		XMLNode root = doc.firstChildElement( "drumkit" );
+		int version = root.read_int( "version", 0 );
+		Drumkit* pDrumkit = Drumkit::load_from( version, &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
+		if( load_samples ){
+			pDrumkit->load_samples();
 		}
+		return pDrumkit;
 	}
-	
-	XMLNode root = doc.firstChildElement( "drumkit_info" );
-	if ( root.isNull() ) {
-		ERRORLOG( "drumkit_info node not found" );
+
+	// XML is not valid
+	if( !doc.read( dk_path ) ) {
+		ERRORLOG( QString( "%1 XML DOM can't be loaded" ).arg( dk_path ) );
 		return nullptr;
 	}
-	
-	Drumkit* pDrumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
-	if( load_samples ){
-		pDrumkit->load_samples();
+
+	auto nodeList = doc.elementsByTagName( "instrumentComponent" );
+	if( nodeList.size() == 0 ) {
+		// No components, use legacy code
+		Drumkit* pDrumkit = Legacy::load_drumkit( dk_path );
+		upgrade_drumkit(pDrumkit, dk_path);
+		return pDrumkit;
+	} else {
+		//If the drumkit does not comply witht the current xsd, but has components, it may suffer from
+		// problems with invalid values (for example float ADSR values, see #658). Lets try to load it
+		// with our current drumkit.
+
+		XMLNode root = doc.firstChildElement( "drumkit_info" );
+		if ( root.isNull() ) {
+			ERRORLOG( "legacy drumkit_info root node not found" );
+			return nullptr;
+		}
+
+		int version = root.read_int( "version", 0 );
+		Drumkit* pDrumkit = Drumkit::load_from( version, &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
+		upgrade_drumkit(pDrumkit, dk_path);
+		if( load_samples ){
+			pDrumkit->load_samples();
+		}
+		return pDrumkit;
 	}
+}
+
+Drumkit* Drumkit::load_from( int version, XMLNode* node, const QString& dk_path )
+{
+	Drumkit* pDrumkit = new Drumkit();
+	pDrumkit->__path = dk_path;
+
+	INFOLOG( QString( "drumkit version : %1" ).arg( version ) );
+	if ( version == 0 ) {
+		pDrumkit->load_meta( node );
+	} else if ( version == 1 ) {
+		XMLNode metaNode = node->firstChildElement( "meta" );
+		pDrumkit->load_meta( &metaNode );
+	}
+
+	XMLNode componentListNode = node->firstChildElement( "componentList" );
+	pDrumkit->load_components( &componentListNode );
+
+	XMLNode instruments_node = node->firstChildElement( "instrumentList" );
+	pDrumkit->load_instruments( &instruments_node );
+
 	return pDrumkit;
 }
 
-Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
+void Drumkit::load_meta( XMLNode* node )
 {
-	QString drumkit_name = node->read_string( "name", "", false, false );
-	if ( drumkit_name.isEmpty() ) {
-		ERRORLOG( "Drumkit has no name, abort" );
-		return nullptr;
-	}
-	
-	Drumkit* pDrumkit = new Drumkit();
-	pDrumkit->__path = dk_path;
-	pDrumkit->__name = drumkit_name;
-	pDrumkit->__author = node->read_string( "author", "undefined author" );
-	pDrumkit->__info = node->read_string( "info", "No information available." );
-	pDrumkit->__license = node->read_string( "license", "undefined license" );
-	pDrumkit->__image = node->read_string( "image", "" );
-	pDrumkit->__imageLicense = node->read_string( "imageLicense", "undefined license" );
+	__name = node->read_string( "name", "", false, false );
+	__author = node->read_string( "author", "undefined author" );
+	__info = node->read_string( "info", "No information available." );
+	__license = node->read_string( "license", "undefined license" );
+	__image = node->read_string( "image", "" );
+	__imageLicense = node->read_string( "imageLicense", "undefined license" );
+}
 
-	XMLNode componentListNode = node->firstChildElement( "componentList" );
-	if ( ! componentListNode.isNull() ) {
-		XMLNode componentNode = componentListNode.firstChildElement( "drumkitComponent" );
+void Drumkit::load_components( XMLNode* node )
+{
+	if ( node->isNull() ) {
+		WARNINGLOG( "componentList node not found" );
+		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
+		get_components()->push_back(pDrumkitComponent);
+	} else {
+		XMLNode componentNode = node->firstChildElement( "drumkitComponent" );
 		while ( ! componentNode.isNull()  ) {
 			int id = componentNode.read_int( "id", -1 );			// instrument id
 			QString sName = componentNode.read_string( "name", "" );		// name
@@ -185,24 +201,21 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 			DrumkitComponent* pDrumkitComponent = new DrumkitComponent( id, sName );
 			pDrumkitComponent->set_volume( fVolume );
 
-			pDrumkit->get_components()->push_back(pDrumkitComponent);
+			get_components()->push_back(pDrumkitComponent);
 
 			componentNode = componentNode.nextSiblingElement( "drumkitComponent" );
 		}
-	} else {
-		WARNINGLOG( "componentList node not found" );
-		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( 0, "Main" );
-		pDrumkit->get_components()->push_back(pDrumkitComponent);
 	}
+}
 
-	XMLNode instruments_node = node->firstChildElement( "instrumentList" );
-	if ( instruments_node.isNull() ) {
+void Drumkit::load_instruments( XMLNode* node )
+{
+	if ( node->isNull() ) {
 		WARNINGLOG( "instrumentList node not found" );
-		pDrumkit->set_instruments( new InstrumentList() );
+		set_instruments( new InstrumentList() );
 	} else {
-		pDrumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name ) );
+		set_instruments( InstrumentList::load_from( node, __path, __name ) );
 	}
-	return pDrumkit;
 }
 
 void Drumkit::load_samples()
@@ -219,11 +232,11 @@ void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path)
 	if(pDrumkit != nullptr)
 	{
 		WARNINGLOG( QString( "ugrade drumkit %1" ).arg( dk_path ) );
-		
+
 		Filesystem::file_copy( dk_path,
 		                       dk_path + ".bak",
 		                       false /* do not overwrite existing files */ );
-		
+
 		pDrumkit->save_file( dk_path, true, -1 );
 	}
 }
@@ -264,14 +277,14 @@ bool Drumkit::save( const QString&					name,
 	pDrumkit->set_image_license( imageLicense );
 
 	pDrumkit->set_instruments( new InstrumentList( pInstruments ) );      // FIXME: why must we do that ? there is something weird with updateInstrumentLines
-	
+
 	std::vector<DrumkitComponent*>* pCopiedVector = new std::vector<DrumkitComponent*> ();
 	for (std::vector<DrumkitComponent*>::iterator it = pComponents->begin() ; it != pComponents->end(); ++it) {
 		DrumkitComponent* pSrcComponent = *it;
 		pCopiedVector->push_back( new DrumkitComponent( pSrcComponent ) );
 	}
 	pDrumkit->set_components( pCopiedVector );
-	
+
 	bool ret = pDrumkit->save( overwrite );
 	delete pDrumkit;
 
@@ -309,19 +322,21 @@ bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_i
 		return false;
 	}
 	XMLDoc doc;
-	XMLNode root = doc.set_root( "drumkit_info", "drumkit" );
+	XMLNode root = doc.set_root( "drumkit", "drumkit" );
 	save_to( &root, component_id );
 	return doc.write( dk_path );
 }
 
 void Drumkit::save_to( XMLNode* node, int component_id )
 {
-	node->write_string( "name", __name );
-	node->write_string( "author", __author );
-	node->write_string( "info", __info );
-	node->write_string( "license", __license );
-	node->write_string( "image", __image );
-	node->write_string( "imageLicense", __imageLicense );
+	node->write_string( "version", DRUMKIT_VERSION );
+	XMLNode meta = node->createNode( "meta" );
+	meta.write_string( "name", __name );
+	meta.write_string( "author", __author );
+	meta.write_string( "info", __info );
+	meta.write_string( "license", __license );
+	meta.write_string( "image", __image );
+	meta.write_string( "imageLicense", __imageLicense );
 
 	if( component_id == -1 ) {
 		XMLNode components_node = node->createNode( "componentList" );
@@ -408,7 +423,7 @@ void Drumkit::set_instruments( InstrumentList* instruments )
 	if( __instruments != nullptr ) {
 		delete __instruments;
 	}
-	
+
 	__instruments = instruments;
 }
 
@@ -417,7 +432,7 @@ void Drumkit::set_components( std::vector<DrumkitComponent*>* components )
 	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
 		delete *it;
 	}
-	
+
 	delete __components;
 	__components = components;
 }
