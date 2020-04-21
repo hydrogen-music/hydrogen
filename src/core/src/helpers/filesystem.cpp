@@ -91,11 +91,11 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 	__usr_data_path = QDir::homePath().append( "/.hydrogen/data/" ) ;
 	__usr_cfg_path = QDir::homePath().append( "/.hydrogen/" USR_CONFIG ) ;
 #else
-	__sys_data_path = H2_SYS_PATH "/data/";
+	__sys_data_path = H2_SYS_PATH "/";
 	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
 	__usr_cfg_path = QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
 #endif
-	if( sys_path!=nullptr ) __sys_data_path = sys_path;
+	if( sys_path != nullptr ) __sys_data_path = sys_path;
 
 	if( !dir_readable( __sys_data_path ) ) {
 		__sys_data_path = QCoreApplication::applicationDirPath().append( "/" LOCAL_DATA_PATH );
