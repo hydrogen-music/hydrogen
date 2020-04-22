@@ -848,7 +848,8 @@ void JackAudioDriver::locate( unsigned long frame )
 
 void JackAudioDriver::setBpm( float fBPM )
 {
-	INFOLOG( QString( "setBpm: %1" ).arg( fBPM ) );
+	// INFOLOG( QString( "setBpm: %1" ).arg( fBPM ) );
+	// std::cout << "[JackAudioDriver::setBpm] " << fBPM << std::endl;
 	m_transport.m_fBPM = fBPM;
 }
 
@@ -989,7 +990,7 @@ void JackAudioDriver::initTimebaseMaster()
 		// there was already a timebase master;
 		//   - other non-zero error code.
 		int nReturnValue = jack_set_timebase_callback(m_pClient, 0,
-						     jack_timebase_callback, this);
+						     JackTimebaseCallback, this);
 		if ( nReturnValue != 0 ){
 			pPreferences->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
 			m_bIsTimebaseMaster = false;
@@ -1011,7 +1012,7 @@ void JackAudioDriver::releaseTimebaseMaster()
 	m_bIsTimebaseMaster = false;
 }
 
-void JackAudioDriver::jack_timebase_callback(jack_transport_state_t state,
+void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 					     jack_nframes_t nFrames,
 					     jack_position_t* pJackPosition,
 					     int new_pos,
@@ -1027,46 +1028,101 @@ void JackAudioDriver::jack_timebase_callback(jack_transport_state_t state,
 	if ( pSong == nullptr ) {
 		return;
 	}
+	
+	// ---------------------------------------------------------------
+	// What is the BBT information?
+	//
+	// There is no formal definition in the JACK API but the way it is
+	// interpreted by Hydrogen is the following:
+	//
+	// bar: Number of patterns played since the beginning of the song.
+	// beat: Number of quarters passed since the beginning of the the
+	//     pattern. 
+	// tick: Number of ticks passed since the last beat (with respect
+	//     to the current frame). 
+	//
+	// A tick is an internal measure representing the smallest
+	// resolution of the transport position in terms of the
+	// patterns. It consist of m_transport.m_fTickSize frames, which
+	// changes depending on the current tempo.
+	// ---------------------------------------------------------------
 
-	unsigned long PlayTick = ( pJackPosition->frame - pDriver->m_frameOffset ) / 
-		pDriver->m_transport.m_fTickSize;
-	pJackPosition->bar = pHydrogen->getPosForTick( PlayTick );
+	// First tick covered during the next cycle.
+	float fTickSize = pDriver->m_transport.m_fTickSize;
+	unsigned long nextTick = 
+		floor(( pJackPosition->frame - pDriver->m_frameOffset ) / 
+			  fTickSize );
+	
+	int nNextPatternStartTick;
+	int nNextPattern = 
+		pHydrogen->getPosForTick( nextTick, &nNextPatternStartTick );
 
-	double TPB = pHydrogen->getTickForHumanPosition( pJackPosition->bar );
-	if ( TPB < 1 ) {
+	// In order to determine the tempo, which will be set by Hydrogen
+	// during the next transport cycle, we have to look at the last
+	// tick handled in audioEngine_updateNoteQueue() (during this
+	// cycle and after the updateTransportInfo() returns.
+	unsigned long nextTickInternal = 
+		floor(( pJackPosition->frame - pDriver->m_frameOffset + 
+				pHydrogen->calculateLookahead( fTickSize ) ) / 
+			  fTickSize) - 1;
+	int nNextPatternStartTickInternal;
+	int nNextPatternInternal = 
+		pHydrogen->getPosForTick( nextTickInternal, &nNextPatternStartTickInternal );
+
+	// Calculate the length of the next pattern in ticks == number
+	// of ticks in the next bar.
+	long ticksPerBar = pHydrogen->getTickForHumanPosition( nNextPattern );
+	if ( ticksPerBar < 1 ) {
 		return;
 	}
 
-	/* We'll cheat there is ticks_per_beat * 4 in bar
-	   so every Hydrogen tick will be multiplied by 4 ticks */
-	pJackPosition->ticks_per_beat = TPB;
+	pJackPosition->ticks_per_beat = (double)ticksPerBar / 4;
 	pJackPosition->valid = JackPositionBBT;
-	pJackPosition->beats_per_bar = TPB / 48;
+	// Time signature "numerator"
+	pJackPosition->beats_per_bar = 
+		((float)ticksPerBar /  (float)pSong->__resolution);
+	// Time signature "denominator"
 	pJackPosition->beat_type = 4.0;
-	pJackPosition->beats_per_minute = pDriver->m_transport.m_fBPM;
-	pJackPosition->bar++;
-
-	// Probably there will never be an offset, cause we are the master ;-)
-#ifndef JACK_NO_BBT_OFFSET
-	pJackPosition->valid = static_cast<jack_position_bits_t> ( pJackPosition->valid | JackBBTFrameOffset );
-	pJackPosition->bbt_offset = 0;
-#endif
+	// Average tempo in BPM for the block corresponding to
+	// pJackPosition. In Hydrogen is guaranteed to be constant within
+	// a block.
+	pJackPosition->beats_per_minute = 
+		(double)pHydrogen->getTimelineBpm( nNextPatternInternal );
 
 	if ( pDriver->m_transport.m_nFrames < 1 ) {
+		pJackPosition->bar = 0;
+#ifndef JACK_NO_BBT_OFFSET
+		pJackPosition->valid = JackBBTFrameOffset;
+		pJackPosition->bbt_offset = 0;
+#endif
 		pJackPosition->beat = 1;
 		pJackPosition->tick = 0;
 		pJackPosition->bar_start_tick = 0;
 	} else {
-		/* how many ticks elapsed from last bar ( where bar == pattern ) */
-		int32_t nTicksFromBar = ( PlayTick % (int32_t) pJackPosition->ticks_per_beat ) * 4;
 
-		pJackPosition->bar_start_tick = PlayTick - nTicksFromBar;
+#ifndef JACK_NO_BBT_OFFSET
+		pJackPosition->valid = static_cast<jack_position_bits_t> ( pJackPosition->valid | JackBBTFrameOffset );
+		pJackPosition->bbt_offset =
+			max( (uint32_t)0, pJackPosition->frame -
+				 (uint32_t)(nNextPatternStartTick * fTickSize));
+#endif
+		// +1 since the counting bars starts at 1.
+		pJackPosition->bar = nNextPattern + 1;
+		
+		/* how many ticks elapsed from last bar ( where bar == pattern ) */
+		int32_t nTicksFromBar = ( nextTick % (int32_t) ticksPerBar );
+
+		// Number of ticks that have elapsed between frame 0 and the
+		// first beat of the next measure.
+		pJackPosition->bar_start_tick = nextTick - nTicksFromBar;
 
 		pJackPosition->beat = nTicksFromBar / pJackPosition->ticks_per_beat;
+		// +1 since the counting beats starts at 1.
 		pJackPosition->beat++;
 
+		// Counting ticks starts at 0.
 		pJackPosition->tick = nTicksFromBar % (int32_t) pJackPosition->ticks_per_beat;
-		// std::cout << "[jack_timebase_callback] BPM: "
+		// std::cout << "[JackTimebaseCallback] BPM: "
 		// 		  << pJackPosition->beats_per_minute
 		// 		  << ", bar: " << pJackPosition->bar 
 		// 		  << ", beat: " << pJackPosition->beat
@@ -1075,7 +1131,20 @@ void JackAudioDriver::jack_timebase_callback(jack_transport_state_t state,
 		// 		  << ", bar_start_tick: " << pJackPosition->bar_start_tick
 		// 		  << ", valid: " << pJackPosition->valid
 		// 		  << ", bbt_offset: " << pJackPosition->bbt_offset
+		// 		  << ", ticks_per_beat: " << pJackPosition->ticks_per_beat
 		// 		  << ", beat_type: " << pJackPosition->beat_type
+		// 		  << ", nTicksFromBar: " << nTicksFromBar
+		// 		  << ", nextTick: " << nextTick
+		// 		  << ", nNextPattern: " << nNextPattern
+		// 		  << ", nNextPatternStartTick: " << nNextPatternStartTick
+		// 		  << ", nextTickInternal: " << nextTickInternal
+		// 		  << ", nNextPatternInternal: " << nNextPatternInternal
+		// 		  << ", nNextPatternStartTickInternal: " << nNextPatternStartTickInternal
+		// 		  << ", ticksPerBar: " << ticksPerBar
+		// 		  << ", pJackPosition->frame: " << pJackPosition->frame
+		// 		  << ", pDriver->m_frameOffset: " << pDriver->m_frameOffset
+		// 		  << ", fTickSize: " << fTickSize
+		// 		  << ", pSong->__resolution: " << pSong->__resolution
 		// 		  << std::endl << std::endl;
 			
 	}

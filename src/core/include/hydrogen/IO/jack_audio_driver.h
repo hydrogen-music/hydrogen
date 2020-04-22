@@ -93,7 +93,7 @@ class InstrumentComponent;
  * aren't familiar with frames), like the current beat, bar, tick,
  * tick size, speed etc. Every client can be registered as timebase
  * master by supplying a callback (for Hydrogen this would be
- * jack_timebase_callback()) but there can be at most one timebase
+ * JackTimebaseCallback()) but there can be at most one timebase
  * master at a time. Having none at all is perfectly fine too. Apart
  * from this additional responsibility, the registered client has no
  * other rights compared to others.
@@ -521,7 +521,7 @@ public:
 	/**
 	 * Calls _jack_release_timebase()_ (jack/transport.h) to release
 	 * Hydrogen from the JACK timebase master responsibilities. This
-	 * causes the jack_timebase_callback() callback function to not be
+	 * causes the JackTimebaseCallback() callback function to not be
 	 * called by the JACK server anymore.
 	 */
 	void releaseTimebaseMaster();
@@ -588,7 +588,7 @@ protected:
 	 * used within the function but to ensure compatibility.
 	 * \param arg Pointer to a JackAudioDriver instance.
 	 */
-	static void jack_timebase_callback( jack_transport_state_t state,
+	static void JackTimebaseCallback( jack_transport_state_t state,
 					    jack_nframes_t nFrames,
 					    jack_position_t* pJackPosition,
 					    int new_pos,
@@ -764,7 +764,7 @@ private:
 	 * position. 
 	 *
 	 * It is set in updateTransportInfo(). Please see the
-	 * documentation of jack_timebase_callback() for more information
+	 * documentation of JackTimebaseCallback() for more information
 	 * about its different members.
 	 */
 	jack_position_t			m_JackTransportPos;
@@ -788,14 +788,14 @@ private:
 	 * can not be observed directly whether another application has
 	 * taken over as timebase master. When the JACK server is
 	 * releasing Hydrogen in the later case, it won't advertise this
-	 * fact but simply won't call the jack_timebase_callback()
+	 * fact but simply won't call the JackTimebaseCallback()
 	 * anymore. But since this will be called in every cycle after
 	 * updateTransportInfo(), we can use this variable to determine if
 	 * Hydrogen is still timebase master.
 	 *
 	 * It will be initialized with 0, incremented in
 	 * updateTransportInfo(), and reset to zero in
-	 * jack_timebase_callback(). Whenever it is larger than zero in
+	 * JackTimebaseCallback(). Whenever it is larger than zero in
 	 * updateTransportInfo(), #m_bIsTimebaseMaster will be set to
 	 * false.
 	 */
