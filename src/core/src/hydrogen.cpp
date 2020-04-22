@@ -168,9 +168,9 @@ struct compare_pNotes {
 	bool operator() (Note* pNote1, Note* pNote2) {
 		return (pNote1->get_humanize_delay()
 				+ pNote1->get_position() * m_pAudioDriver->m_transport.m_fTickSize)
-				>
-				(pNote2->get_humanize_delay()
-				 + pNote2->get_position() * m_pAudioDriver->m_transport.m_fTickSize);
+			    >
+			    (pNote2->get_humanize_delay()
+			    + pNote2->get_position() * m_pAudioDriver->m_transport.m_fTickSize);
 	}
 };
 
@@ -320,7 +320,6 @@ int				m_nPatternStartTick = -1;
  * Hydrogen::stopExportSong(), which marks the beginning of a Song.
  */
 unsigned int	m_nPatternTickPosition = 0;
-int				m_nLookaheadFrames = 0;
 
 /** Set to the total number of ticks in a Song in findPatternInTick()
     if Song::SONG_MODE is chosen and playback is at least in the
@@ -1587,9 +1586,8 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 	// Indicates whether the current pattern list changed with respect
 	// to the last cycle.
 	bool bSendPatternChange = false;
-	// TODO This variable should definitely be a member variable.
-	int nMaxTimeHumanize = 2000;
-	int nLeadLagFactor = m_pAudioDriver->m_transport.m_fTickSize * 5;  // 5 ticks
+	float fTickSize = m_pAudioDriver->m_transport.m_fTickSize;
+	int nLeadLagFactor = pHydrogen->calculateLeadLagFactor( fTickSize );
 
 	unsigned int framepos;
 	if (  m_audioEngineState == STATE_PLAYING ) {
@@ -1601,14 +1599,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 		framepos = pHydrogen->getRealtimeFrames();
 	}
 
-	// We need to look ahead in the Song for notes with negative
-	// offsets introduced by the humanization, e.g. by `LeadLag` (a
-	// deterministic positive or negative offset of the note) or
-	// `Humanize` (a random offset). Both properties can be set by the
-	// user in the `NotePropertiesRuler`.
-	// TODO: Does not incorporate the swing!
-	int lookahead = nLeadLagFactor + nMaxTimeHumanize + 1;
-	m_nLookaheadFrames = lookahead;
+	int lookahead = pHydrogen->calculateLookahead( fTickSize );
 
 	// When starting from the beginning, we prime the note queue with
 	// notes between 0 and `nFrames` plus `lookahead`. `lookahead`
@@ -1620,11 +1611,11 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			  && pSong->get_mode() == Song::SONG_MODE
 			  && m_nSongPos == -1 )
 	) {
-		tickNumber_start = framepos / m_pAudioDriver->m_transport.m_fTickSize;
+		tickNumber_start = framepos / fTickSize;
 	} else {
-		tickNumber_start = ( framepos + lookahead) / m_pAudioDriver->m_transport.m_fTickSize;
+		tickNumber_start = ( framepos + lookahead) / fTickSize;
 	}
-	int tickNumber_end = ( framepos + nFrames + lookahead ) / m_pAudioDriver->m_transport.m_fTickSize;
+	int tickNumber_end = ( framepos + nFrames + lookahead ) /fTickSize;
 
 	// Get initial timestamp for first tick
 	gettimeofday( &m_currentTickTime, nullptr );
@@ -1893,11 +1884,8 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 						float fSwingFactor = pSong->get_swing_factor();
 						if ( ( ( m_nPatternTickPosition % 12 ) == 0 )
 							 && ( ( m_nPatternTickPosition % 24 ) != 0 ) ) {
-							nOffset += ( int )(
-										6.0
-										* m_pAudioDriver->m_transport.m_fTickSize
-										* fSwingFactor
-										);
+							// da l'accento al tick 4, 12, 20, 36...
+							nOffset += (int)( 6.0 * fTickSize * fSwingFactor );
 						}
 
 						// Humanize - Time parameter //
@@ -1910,14 +1898,14 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 							nOffset += ( int )(
 										getGaussian( 0.3 )
 										* pSong->get_humanize_time_value()
-										* nMaxTimeHumanize
+										* pHydrogen->m_nMaxTimeHumanize
 										);
 						}
 
 						// Lead or Lag - timing parameter //
 						// Add a constant offset to all notes.
 						nOffset += (int) ( pNote->get_lead_lag()
-										   * nLeadLagFactor);
+										   * nLeadLagFactor );
 
 						// No note is allowed to start prior to the
 						// beginning of the song.
@@ -1977,6 +1965,11 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 
 		if ( ( nTick >= nTotalTick ) && ( nTick < nTotalTick + nPatternSize ) ) {
 			( *pPatternStartTick ) = nTotalTick;
+			// std::cout << "[findPatternInTick] nTick (input): " << nTick 
+			// 		  << ", pPatternStartTick (output): " << nTotalTick
+			// 		  << ", i (pattern number): " << i
+			// 		  << ", nPatternSize: " << nPatternSize
+			// 		  << std::endl;
 			return i;
 		}
 		nTotalTick += nPatternSize;
@@ -2368,6 +2361,7 @@ Hydrogen::Hydrogen()
 	m_pTimeline = new Timeline();
 	m_pCoreActionController = new CoreActionController();
 	m_bActiveGUI = false;
+	m_nMaxTimeHumanize = 2000;
 
 	initBeatcounter();
 	InstrumentComponent::setMaxLayers( Preferences::get_instance()->getMaxLayers() );
@@ -2589,7 +2583,8 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	// Get current partern and column, compensating for "lookahead" if required
 	const Pattern* currentPattern = nullptr;
 	unsigned int column = 0;
-	unsigned int lookaheadTicks = m_nLookaheadFrames / m_pAudioDriver->m_transport.m_fTickSize;
+	float fTickSize = m_pAudioDriver->m_transport.m_fTickSize;
+	unsigned int lookaheadTicks = calculateLookahead( fTickSize ) / fTickSize;
 	bool doRecord = pref->getRecordEvents();
 	if ( pSong->get_mode() == Song::SONG_MODE && doRecord &&
 		 m_audioEngineState == STATE_PLAYING )
@@ -3032,13 +3027,29 @@ int Hydrogen::getPatternPos()
 }
 
 /* Return pattern for selected song tick position */
-int Hydrogen::getPosForTick( unsigned long TickPos )
+int Hydrogen::getPosForTick( unsigned long TickPos, int* nPatternStartTick )
 {
 	Song* pSong = getSong();
-	if ( ! pSong ) return 0;
+	if ( pSong == nullptr ) {
+		return 0;
+	}
 
-	int patternStartTick;
-	return findPatternInTick( TickPos, pSong->is_loop_enabled(), &patternStartTick );
+	return findPatternInTick( TickPos, pSong->is_loop_enabled(), nPatternStartTick );
+}
+
+int Hydrogen::calculateLeadLagFactor( float fTickSize ){
+	return fTickSize * 5;
+}
+
+int Hydrogen::calculateLookahead( float fTickSize ){
+	// Introduce a lookahead of 5 ticks. Since the ticksize is
+	// depending of the current tempo of the song, this component does
+	// make the lookahead dynamic.
+	int nLeadLagFactor = calculateLeadLagFactor( fTickSize );
+
+	// We need to look ahead in the song for notes with negative offsets
+	// from LeadLag or Humanize.
+	return nLeadLagFactor + m_nMaxTimeHumanize + 1;
 }
 
 void Hydrogen::restartDrivers()
@@ -3863,30 +3874,30 @@ void Hydrogen::onJackMaster()
 }
 #endif
 
-long Hydrogen::getTickForHumanPosition( int humanpos )
+long Hydrogen::getTickForHumanPosition( int nHumanPos )
 {
 	Song* pSong = getSong();
-	if ( ! pSong ){
+	if ( pSong == nullptr ){
 		return -1;
 	}
 
-	std::vector< PatternList* > * pColumns = pSong->get_pattern_group_vector();
+	std::vector< PatternList* > *pColumns = pSong->get_pattern_group_vector();
 
 	int nPatternGroups = pColumns->size();
-	if ( humanpos >= nPatternGroups ) {
+	if ( nHumanPos >= nPatternGroups ) {
 		if ( pSong->is_loop_enabled() ) {
-			humanpos = humanpos % nPatternGroups;
+			nHumanPos = nHumanPos % nPatternGroups;
 		} else {
 			return MAX_NOTES;
 		}
 	}
 
-	if ( humanpos < 1 ){
+	if ( nHumanPos < 1 ){
 		return MAX_NOTES;
 	}
 
-	PatternList* pPatternList = pColumns->at( humanpos - 1 );
-	Pattern *pPattern = pPatternList->get( 0 );
+	PatternList* pPatternList = pColumns->at( nHumanPos - 1 );
+	Pattern* pPattern = pPatternList->get( 0 );
 	if ( pPattern ) {
 		return pPattern->get_length();
 	} else {
@@ -3973,37 +3984,39 @@ unsigned int Hydrogen::__getMidiRealtimeNoteTickPosition()
 	return m_naddrealtimenotetickposition;
 }
 
-
-// Get TimelineBPM for Pos
-float Hydrogen::getTimelineBpm( int Beat )
+float Hydrogen::getTimelineBpm( int nBar )
 {
 	Song* pSong = getSong();
 
 	// We need return something
-	if ( ! pSong ) return getNewBpmJTM();
+	if ( pSong == nullptr ) {
+		return getNewBpmJTM();
+	}
 
-	float bpm = pSong->__bpm;
+	float fBPM = pSong->__bpm;
 
 	// Pattern mode don't use timeline and will have a constant
 	// speed.
-	if ( pSong->get_mode() == Song::PATTERN_MODE )
-		return bpm;
+	if ( pSong->get_mode() == Song::PATTERN_MODE ) {
+		return fBPM;
+	}
 
 	// Check whether the user wants Hydrogen to determine the
 	// speed by local setting along the timeline or whether she
 	// wants to use a global speed instead.
-	if ( ! Preferences::get_instance()->getUseTimelineBpm() )
-		return bpm;
+	if ( ! Preferences::get_instance()->getUseTimelineBpm() ) {
+		return fBPM;
+	}
 
 	// Determine the speed at the supplied beat.
 	for ( int i = 0; i < static_cast<int>(m_pTimeline->m_timelinevector.size()); i++) {
-		if ( m_pTimeline->m_timelinevector[i].m_htimelinebeat > Beat )
+		if ( m_pTimeline->m_timelinevector[i].m_htimelinebeat > nBar )
 			break;
 
-		bpm = m_pTimeline->m_timelinevector[i].m_htimelinebpm;
+		fBPM = m_pTimeline->m_timelinevector[i].m_htimelinebpm;
 	}
 
-	return bpm;
+	return fBPM;
 }
 
 void Hydrogen::setTimelineBpm()
@@ -4015,6 +4028,9 @@ void Hydrogen::setTimelineBpm()
 	Song* pSong = getSong();
 	// Obtain the local speed specified for the current Pattern.
 	float fBPM = getTimelineBpm( getPatternPos() );
+	// std::cout << "[Hydrogen::setTimelineBpm] getPatternPos(): " << getPatternPos() 
+	// 		  << ", fBPM: " << fBPM << std::endl;
+		
 	if ( fBPM != pSong->__bpm ) {
 		setBPM( fBPM );
 	}
@@ -4023,12 +4039,13 @@ void Hydrogen::setTimelineBpm()
 	// keyboard and MIDI input events in case the audio engine is
 	// not playing.
 	unsigned long PlayTick = getRealtimeTickPosition();
-	int RealtimePatternPos = getPosForTick( PlayTick );
-	float RealtimeBPM = getTimelineBpm( RealtimePatternPos );
+	int nStartPos;
+	int nRealtimePatternPos = getPosForTick( PlayTick, &nStartPos );
+	float fRealtimeBPM = getTimelineBpm( nRealtimePatternPos );
 
 	// FIXME: this was already done in setBPM but for "engine" time
 	//        so this is actually forcibly overwritten here
-	setNewBpmJTM( RealtimeBPM );
+	setNewBpmJTM( fRealtimeBPM );
 }
 
 #ifdef H2CORE_HAVE_OSC
