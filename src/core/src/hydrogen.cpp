@@ -109,25 +109,6 @@ float				m_fMaxProcessTime = 0.0f;	///< max ms usable in process with no xrun
  * Hydrogen::getNewBpmJTM().
  */
 float				m_fNewBpmJTM = 120;
-/**
- * Stores the current transport position in frames obtained by a query
- * of the transport state of the JACK server in
- * JackAudioDriver::updateTransportInfo(). 
- *
- * If will be used to update the JACK transport information in
- * JackAudioDriver::jack_timebase_callback() if Hydrogen is registered
- * as the timebase master.
- *
- * It will be also used to make the local transport position
- * TransportInfo::m_nFrames lack one cycle behind the transport
- * position of the JACK server if the speed of the Song was changed
- * with Hydrogen as timebase master and a relocation of the position
- * was done. No idea why.
- *
- * Set by Hydrogen::setHumantimeFrames() and accessed via
- * Hydrogen::getHumantimeFrames().
- */
-unsigned long			m_nHumantimeFrames = 0;
 
 /**
  * Pointer to the current instance of the audio driver.
@@ -3839,16 +3820,6 @@ void Hydrogen::handleBeatCounter()
 	return;
 }
 //~ m_nBeatCounter
-
-unsigned long Hydrogen::getHumantimeFrames()
-{
-	return m_nHumantimeFrames;
-}
-
-void Hydrogen::setHumantimeFrames(unsigned long hframes)
-{
-	m_nHumantimeFrames = hframes;
-}
 
 #ifdef H2CORE_HAVE_JACK
 void Hydrogen::offJackMaster()

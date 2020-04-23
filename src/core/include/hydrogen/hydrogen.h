@@ -472,12 +472,6 @@ void			previewSample( Sample *pSample );
 	void			handleBeatCounter();
 	void			setBcOffsetAdjust();
 
-	/** Returns the latest transport position of the JACK server.
-	 * \return #m_nHumantimeFrames*/
-	unsigned long		getHumantimeFrames();
-	/** Sets #m_nHumantimeFrames.
-	    \param hframes New transport position in frames.*/
-	void			setHumantimeFrames(unsigned long hframes);
 	/** Calling JackAudioDriver::releaseTimebaseMaster() directly from
 	    the GUI*/
 	void			offJackMaster();
