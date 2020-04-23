@@ -1111,21 +1111,10 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 
 	if ( pDriver->m_transport.m_nFrames < 1 ) {
 		pJackPosition->bar = 0;
-#ifndef JACK_NO_BBT_OFFSET
-		pJackPosition->valid = JackBBTFrameOffset;
-		pJackPosition->bbt_offset = 0;
-#endif
 		pJackPosition->beat = 1;
 		pJackPosition->tick = 0;
 		pJackPosition->bar_start_tick = 0;
 	} else {
-
-#ifndef JACK_NO_BBT_OFFSET
-		pJackPosition->valid = static_cast<jack_position_bits_t> ( pJackPosition->valid | JackBBTFrameOffset );
-		pJackPosition->bbt_offset =
-			max( (uint32_t)0, pJackPosition->frame -
-				 (uint32_t)(nNextPatternStartTick * fTickSize));
-#endif
 		// +1 since the counting bars starts at 1.
 		pJackPosition->bar = nNextPattern + 1;
 		
@@ -1142,6 +1131,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 
 		// Counting ticks starts at 0.
 		pJackPosition->tick = nTicksFromBar % (int32_t) pJackPosition->ticks_per_beat;
+		
 		// std::cout << "[JackTimebaseCallback] BPM: "
 		// 		  << pJackPosition->beats_per_minute
 		// 		  << ", bar: " << pJackPosition->bar 
@@ -1168,7 +1158,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		// 		  << std::endl; 
 			
 	}
-	
+    
 	// Tell Hydrogen it is still timebase master.
 	pDriver->m_nTimebaseMasterCount = 0;
 }

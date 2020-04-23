@@ -542,42 +542,7 @@ protected:
 	 *
 	 * The function it will be called after the
 	 * audioEngine_process() function and only if the
-	 * #m_JackTransportState is _JackTransportRolling_. It sets
-	 * the following members of the JACK position object @a pos is
-	 * pointing to:
-	 * - __bar__ : current position corrected by the #m_frameOffset
-	 * \code{.cpp} 
-	 * Hydrogen::getPosForTick( ( pos->frame - m_frameOffset )/ 
-	 *                          m_transport.m_fTickSize ) ) 
-	 * \endcode
-	 * - __ticks_per_beat__ :  the output of
-	 * Hydrogen::getPatternLength() with the __bar__ member
-	 * supplied as input argument.
-	 * - __valid__ : to ( _JackPositionBBT_ | _JackBBTFrameOffset_
-	 * ), transport states defined
-	 * in jack/types.h telling JACK we are willing to provide bar,
-	 * beat, and trick information as well as an constant offset.
-	 * - __beats_per_bar__ : the __ticks_per_beat__ member divided
-	 * by 48.
-	 * - __beat_type__ : 4.0
-	 * - __beats_per_minute__ : the local speed returned by
-	 * Hydrogen::setTimelineBpm() at the __bar__ member.
-	 * - __bbt_offset__ : 0
-	 *
-	 * Afterwards the __bar__ member is incremented by 1 the
-	 * following information will be set as well.
-	 * - __bar_start_tick__ : the corrected position used in the
-	 * first __bar__ assignment minus the number of ticks elapsed
-	 * from the last bar
-	 * - __beat__ : The number of elapsed ticks from the last bar
-	 * divided by the __ticks_per_beat__ member plus one.
-	 * - __tick__ : The number of elapsed ticks from the last bar
-	 * modulo the __ticks_per_beat__ member.
-	 *
-	 * If Hydrogen::getHumantimeFrames() returns a number smaller
-	 * than 1, we are at the beginning of the Song and __beat__ =
-	 * 1, __tick__ = 0, and __bar_start_tick__ = 0 will be used
-	 * instead.
+	 * #m_JackTransportState is _JackTransportRolling_.
 	 *
 	 * \param state Current transport state. Not used within the
 	 * function but to ensure compatibility.
