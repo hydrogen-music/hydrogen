@@ -139,6 +139,10 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	if( pDrumkit ) {
 		delete pDrumkit;
 	}
+
+	H2Core::Filesystem::rm( H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml") );
+	H2Core::Filesystem::file_copy( H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml.bak"), H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml") );
+	H2Core::Filesystem::rm( H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml.bak") );
 }
 
 void XmlTest::testPattern()
