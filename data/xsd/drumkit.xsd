@@ -122,7 +122,6 @@
 <xsd:element name="drumkit">
 	<xsd:complexType>
 		<xsd:sequence>
-			<xsd:element name="version"			type="xsd:integer"/>
 			<xsd:element ref="h2:meta" />
 			<xsd:element name="componentList">
 				<xsd:complexType>
@@ -139,6 +138,7 @@
 				</xsd:complexType>
 			</xsd:element>
 		</xsd:sequence>
+		<xsd:attribute name="version" type="xsd:integer" use="required" />
 	</xsd:complexType>
 </xsd:element>
 
