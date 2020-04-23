@@ -24,6 +24,7 @@
 #define PIANO_ROLL_EDITOR_H
 
 #include <hydrogen/object.h>
+#include <hydrogen/basics/note.h>
 #include "../EventListener.h"
 
 #include <QtGui>
@@ -44,7 +45,8 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
     H2_OBJECT
     Q_OBJECT
 	public:
-		PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel );
+		PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
+						 QScrollArea *pScrollView );
 		~PianoRollEditor();
 
 
@@ -102,7 +104,12 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		QPixmap *m_pTemp;
 		int m_pOldPoint;
 
+		// Note pitch position of cursor, from 0.
+		int m_nCursorNote;
+		QPoint cursorPosition();
+
 		PatternEditorPanel *m_pPatternEditorPanel;
+		QScrollArea *m_pScrollView;
 		H2Core::Note *m_pDraggedNote;
 
 		void createBackground();
@@ -110,11 +117,15 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		void draw_grid(QPainter& p );
 		void drawNote( H2Core::Note *pNote, QPainter *pPainter );
 
+		void addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
+							  int nNotekey, int nOctave );
+
 		virtual void paintEvent(QPaintEvent *ev);
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
-//		virtual void keyPressEvent ( QKeyEvent * ev );
+		virtual void keyPressEvent ( QKeyEvent * ev ) override;
+		virtual void focusInEvent ( QFocusEvent * ev ) override;
 		int getColumn(QMouseEvent *ev);
 		int __selectedInstrumentnumber;
 		int __selectedPatternNumber;

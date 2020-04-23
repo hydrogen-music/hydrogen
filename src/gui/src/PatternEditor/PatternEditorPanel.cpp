@@ -44,6 +44,7 @@ using namespace H2Core;
 #include "../Widgets/Fader.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/LCDCombo.h"
+#include "../WidgetScrollArea.h"
 
 #include "../Skin.h"
 #include "../SongEditor/SongEditorPanel.h"
@@ -70,7 +71,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	setAcceptDrops(true);
 
 	Preferences *pPref = Preferences::get_instance();
-	
+
+	m_nCursorPosition = 0;
+	m_nCursorIncrement = 0;
 
 // Editor TOP
 	PixmapWidget *editor_top = new PixmapWidget(nullptr);
@@ -257,7 +260,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 // RULER____________________________________
 
 	// Ruler ScrollView
-	m_pRulerScrollView = new QScrollArea( nullptr );
+	m_pRulerScrollView = new WidgetScrollArea( nullptr );
+	m_pRulerScrollView->setObjectName( "RulerScrollView" );
+	m_pRulerScrollView->setFocusPolicy( Qt::ClickFocus );
 	m_pRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -273,7 +278,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 // EDITOR _____________________________________
 	// Editor scrollview
-	m_pEditorScrollView = new QScrollArea( nullptr );
+	m_pEditorScrollView = new WidgetScrollArea( nullptr );
+	m_pEditorScrollView->setObjectName( "EditorScrollView" );
+	m_pEditorScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pEditorScrollView->setFrameShape( QFrame::NoFrame );
 	m_pEditorScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -283,21 +290,28 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pDrumPatternEditor = new DrumPatternEditor( m_pEditorScrollView->viewport(), this );
 
 	m_pEditorScrollView->setWidget( m_pDrumPatternEditor );
+	m_pEditorScrollView->setFocusProxy( m_pDrumPatternEditor );
+
+	m_pRulerScrollView->setFocusProxy( m_pEditorScrollView );
 
 	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
 	connect( m_pEditorScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 
 
+
 //PianoRollEditor
-	m_pPianoRollScrollView = new QScrollArea( nullptr );
+	m_pPianoRollScrollView = new WidgetScrollArea( nullptr );
+	m_pPianoRollScrollView->setObjectName( "PianoRollScrollView" );
+	m_pPianoRollScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pPianoRollScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPianoRollScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 	m_pPianoRollScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this );
+	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this, m_pPianoRollScrollView );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
 	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 
 	m_pPianoRollScrollView->hide();
+	m_pPianoRollScrollView->setFocusProxy( m_pPianoRollEditor );
 
 //~ EDITOR
 
@@ -308,7 +322,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 // INSTRUMENT LIST
 	// Instrument list scrollview
-	m_pInstrListScrollView = new QScrollArea( nullptr );
+	m_pInstrListScrollView = new WidgetScrollArea( nullptr );
+	m_pInstrListScrollView->setObjectName( "InstrListScrollView" );
+	m_pInstrListScrollView->setFocusPolicy(Qt::ClickFocus);
 	m_pInstrListScrollView->setFrameShape( QFrame::NoFrame );
 	m_pInstrListScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pInstrListScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -319,13 +335,18 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pInstrListScrollView->setFixedWidth( m_pInstrumentList->width() );
 
 	connect( m_pInstrListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
+
+	m_pInstrListScrollView->setFocusProxy( m_pEditorScrollView );
+
 //~ INSTRUMENT LIST
 
 
 
 
 // NOTE_VELOCITY EDITOR
-	m_pNoteVelocityScrollView = new QScrollArea( nullptr );
+	m_pNoteVelocityScrollView = new WidgetScrollArea( nullptr );
+	m_pNoteVelocityScrollView->setObjectName( "NoteVelocityScrollView" );
+	m_pNoteVelocityScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pNoteVelocityScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteVelocityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteVelocityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -338,7 +359,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 // NOTE_PAN EDITOR
-	m_pNotePanScrollView = new QScrollArea( nullptr );
+	m_pNotePanScrollView = new WidgetScrollArea( nullptr );
+	m_pNotePanScrollView->setObjectName( "NotePanScrollView" );
+	m_pNotePanScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pNotePanScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNotePanScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNotePanScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -350,7 +373,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 
 // NOTE_LEADLAG EDITOR
-	m_pNoteLeadLagScrollView = new QScrollArea( nullptr );
+	m_pNoteLeadLagScrollView = new WidgetScrollArea( nullptr );
+	m_pNoteLeadLagScrollView->setObjectName( "NoteLeadLagScrollView" );
+	m_pNoteLeadLagScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pNoteLeadLagScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteLeadLagScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteLeadLagScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -364,7 +389,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 // NOTE_NOTEKEY EDITOR
 
 
-	m_pNoteNoteKeyScrollView = new QScrollArea( nullptr );
+	m_pNoteNoteKeyScrollView = new WidgetScrollArea( nullptr );
+	m_pNoteNoteKeyScrollView->setObjectName( "NoteNoteKeyScrollView" );
+	m_pNoteNoteKeyScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pNoteNoteKeyScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteNoteKeyScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteNoteKeyScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -377,7 +404,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 //~ NOTE_NOTEKEY EDITOR
 
 // NOTE_PROBABILITY EDITOR
-	m_pNoteProbabilityScrollView = new QScrollArea( nullptr );
+	m_pNoteProbabilityScrollView = new WidgetScrollArea( nullptr );
+	m_pNoteProbabilityScrollView->setObjectName( "NoteProbabilityScrollView" );
+	m_pNoteProbabilityScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pNoteProbabilityScrollView->setFrameShape( QFrame::NoFrame );
 	m_pNoteProbabilityScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pNoteProbabilityScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -391,10 +420,12 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	// external horizontal scrollbar
 	m_pPatternEditorHScrollBar = new QScrollBar( Qt::Horizontal , nullptr  );
+	m_pPatternEditorHScrollBar->setObjectName( "PatternEditorHScrollBar" );
 	connect( m_pPatternEditorHScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalHorizontalScrollbar(int) ) );
 
 	// external vertical scrollbar
 	m_pPatternEditorVScrollBar = new QScrollBar( Qt::Vertical, nullptr );
+	m_pPatternEditorVScrollBar->setObjectName( "PatternEditorVScrollBar" );
 	connect( m_pPatternEditorVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( syncToExternalHorizontalScrollbar(int) ) );
 
 	QHBoxLayout *pPatternEditorHScrollBarLayout = new QHBoxLayout();
@@ -610,6 +641,9 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
 	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
 
+	m_nCursorIncrement = (bUseTriplets ? 4 : 3) * MAX_NOTES / (nResolution * 3);
+	m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement);
+
 	Preferences::get_instance()->setPatternEditorGridResolution( nResolution );
 	Preferences::get_instance()->setPatternEditorUsingTriplets( bUseTriplets );
 }
@@ -733,6 +767,10 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 		m_pPianoRollScrollView->hide();
 		m_pEditorScrollView->show();
 		m_pInstrListScrollView->show();
+
+		m_pEditorScrollView->setFocus();
+		m_pRulerScrollView->setFocusProxy( m_pEditorScrollView );
+		m_pInstrListScrollView->setFocusProxy( m_pEditorScrollView );
 	
 		m_pDrumPatternEditor->selectedInstrumentChangedEvent(); // force an update
 	
@@ -745,9 +783,13 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 		__show_drum_btn->setToolTip( tr( "Show drum editor" ) );
 		m_pPianoRollScrollView->show();
 		m_pPianoRollScrollView->verticalScrollBar()->setValue( 250 );
-		m_pEditorScrollView->show();
+		m_pEditorScrollView->hide();
 		m_pInstrListScrollView->show();
-	
+
+		m_pPianoRollScrollView->setFocus();
+		m_pRulerScrollView->setFocusProxy( m_pPianoRollScrollView );
+		m_pInstrListScrollView->setFocusProxy( m_pPianoRollScrollView );
+
 		m_pPianoRollEditor->selectedPatternChangedEvent();
 		m_pPianoRollEditor->updateEditor(); // force an update	
 		// force a re-sync of extern scrollbars
@@ -990,4 +1032,46 @@ void PatternEditorPanel::displayorHidePrePostCB()
 void PatternEditorPanel::updatePianorollEditor()
 {
 	m_pDrumPatternEditor->updateEditor(); // force an update
+}
+
+int PatternEditorPanel::getCursorPosition()
+{
+	return m_nCursorPosition;
+}
+
+void PatternEditorPanel::ensureCursorVisible()
+{
+	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	uint y = nSelectedInstrument * Preferences::get_instance()->getPatternEditorGridHeight();
+	m_pEditorScrollView->ensureVisible( m_nCursorPosition * m_pPatternEditorRuler->getGridWidth(), y );
+}
+
+void PatternEditorPanel::setCursorPosition(int nCursorPosition)
+{
+	if ( nCursorPosition < 0 )
+		m_nCursorPosition = 0;
+	else if ( nCursorPosition >= m_pPattern->get_length() )
+		m_nCursorPosition = m_pPattern->get_length() - m_nCursorIncrement;
+	else
+		m_nCursorPosition = nCursorPosition;
+}
+
+int PatternEditorPanel::moveCursorLeft()
+{
+	if ( m_nCursorPosition >= m_nCursorIncrement )
+		m_nCursorPosition -= m_nCursorIncrement;
+
+	ensureCursorVisible();
+
+	return m_nCursorPosition;
+}
+
+int PatternEditorPanel::moveCursorRight()
+{
+	if ( m_nCursorPosition + m_nCursorIncrement < m_pPattern->get_length() )
+		m_nCursorPosition += m_nCursorIncrement;
+
+	ensureCursorVisible();
+
+	return m_nCursorPosition;
 }

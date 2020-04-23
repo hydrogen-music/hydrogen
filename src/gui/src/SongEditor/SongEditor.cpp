@@ -82,18 +82,22 @@ SongEditorGridRepresentationItem::SongEditorGridRepresentationItem(int x, int y,
 }
 
 
-SongEditor::SongEditor( QWidget *parent )
+SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView )
  : QWidget( parent )
  , Object( __class_name )
  , m_bSequenceChanged( true )
  , m_bIsMoving( false )
  , m_bShowLasso( false )
+ , m_pScrollView( pScrollView )
 {
 	setAttribute(Qt::WA_NoBackground);
 	setFocusPolicy (Qt::StrongFocus);
 
 	m_nGridWidth = 16;
 	m_nGridHeight = 18;
+
+	m_nCursorRow = 0;
+	m_nCursorColumn = 0;
 
 	Preferences *pref = Preferences::get_instance();
 	m_nMaxPatternSequence = pref->getMaxBars();
@@ -138,7 +142,9 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 	vector<PatternList*>* pColumns = pEngine->getSong()->get_pattern_group_vector();
 
-	if ( ev->key() == Qt::Key_Delete ) {
+	// TODO: Enter actions
+
+	if ( ev->matches( QKeySequence::Delete ) ) {
 		if ( m_selectedCells.size() != 0 ) {
 			AudioEngine::get_instance()->lock( RIGHT_HERE );
 			// delete all selected cells
@@ -151,14 +157,76 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 
 			m_selectedCells.clear();
 			m_bSequenceChanged = true;
-			update();
 		}
+	} else if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
+		if ( m_nCursorColumn < m_nMaxPatternSequence -1 )
+			m_nCursorColumn += 1;
+	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ) {
+		m_nCursorColumn = m_nMaxPatternSequence -1;
+	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ) {
+		if ( m_nCursorColumn > 0 )
+			m_nCursorColumn -= 1;
+	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ) {
+		m_nCursorColumn = 0;
+	} else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
+		if ( m_nCursorRow < pPatternList->size()-1 )
+			m_nCursorRow += 1;
+	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
+		m_nCursorRow = pPatternList->size() -1;
+	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
+		if ( m_nCursorRow > 0 )
+			m_nCursorRow -= 1;
+	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
+		m_nCursorRow = 0;
+	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+
+		SongEditorActionMode actionMode = HydrogenApp::get_instance()->getSongEditorPanel()->getActionMode();
+		if ( actionMode == DRAW_ACTION ) {
+			// In DRAW mode, Enter's obvious action is the same as a
+			// click - insert or delete pattern.
+			HydrogenApp* h2app = HydrogenApp::get_instance();
+			Song *pSong = pEngine->getSong();
+			PatternList *pPatternList = pSong->get_pattern_list();
+			H2Core::Pattern *pPattern = pPatternList->get( m_nCursorRow );
+			vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
+			if ( m_nCursorColumn < (int)pColumns->size() ) {
+				PatternList *pColumn = ( *pColumns )[ m_nCursorColumn ];
+				unsigned nColumnIndex = pColumn->index( pPattern );
+
+				if ( nColumnIndex != -1 )
+					// Existing pattern. Delete.
+					h2app->m_pUndoStack->push( new SE_deletePatternAction( m_nCursorColumn, m_nCursorRow, nColumnIndex) );
+				else if ( m_nCursorColumn < (int)pColumns->size() )
+					// No existing pattern. Insert.
+					h2app->m_pUndoStack->push( new SE_addPatternAction( m_nCursorColumn, m_nCursorRow, nColumnIndex ) );
+			} else {
+				h2app->m_pUndoStack->push( new SE_addPatternAction( m_nCursorColumn, m_nCursorRow, 0 ) );
+			}
+		} else if ( actionMode == SELECT_ACTION ) {
+			// TBD. There's no clear and obvious default
+			// single-keypress action to take in select mode, as all
+			// associated mouse actions are drags (define selection,
+			// and move selection).
+		}
+	} else {
+		ev->ignore();
 		return;
 	}
 
-	ev->ignore();
+	m_pScrollView->ensureVisible( 10 + m_nCursorColumn * m_nGridWidth + m_nGridWidth / 2,
+								  m_nCursorRow * m_nGridHeight + m_nGridHeight / 2 );
+	update();
+	ev->accept();
 }
 
+// Make cursor visible on focus
+void SongEditor::focusInEvent( QFocusEvent *ev )
+{
+	if ( ev->reason() != Qt::MouseFocusReason )
+		m_pScrollView->ensureVisible( 10 + m_nCursorColumn * m_nGridWidth + m_nGridWidth / 2,
+									  m_nCursorRow * m_nGridHeight + m_nGridHeight / 2 );
+	update();
+}
 
 
 void SongEditor::mousePressEvent( QMouseEvent *ev )
@@ -169,6 +237,9 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 
 	int nRow = ev->y() / m_nGridHeight;
 	int nColumn = ( (int)ev->x() - 10 ) / (int)m_nGridWidth;
+
+	m_nCursorRow = nRow;
+	m_nCursorColumn = nColumn;
 
 	if ( ev->modifiers() == Qt::ControlModifier ) {
 		INFOLOG( "[mousePressEvent] CTRL pressed!" );
@@ -181,7 +252,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 	HydrogenApp* h2app = HydrogenApp::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
-		PatternList *pPatternList = pSong->get_pattern_list();
+	PatternList *pPatternList = pSong->get_pattern_list();
 
 	// don't lock the audio driver before checking that...
 	if ( nRow >= (int)pPatternList->size() || nRow < 0 || nColumn < 0 ) { return; }
@@ -632,6 +703,18 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 
 	QPainter painter(this);
 	painter.drawPixmap( ev->rect(), *m_pSequencePixmap, ev->rect() );
+
+	// Draw cursor
+	if ( hasFocus() ) {
+		painter.setPen( Qt::black );
+		painter.setRenderHint( QPainter::Antialiasing );
+		// Aim to leave a visible gap between the border of the
+		// pattern cell, and the cursor line, for consistency and
+		// visibility.
+		painter.drawRoundedRect( QRect( 10 + m_nCursorColumn * m_nGridWidth -2,
+										m_nCursorRow * m_nGridHeight,
+										m_nGridWidth +5, m_nGridHeight+1 ), 4, 4 );
+	}
 
 	if ( m_bShowLasso ) {
 		QPen pen( Qt::white );
