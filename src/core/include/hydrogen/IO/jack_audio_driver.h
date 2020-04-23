@@ -491,6 +491,12 @@ public:
 	virtual void updateTransportInfo();
 	/** Set the tempo stored TransportInfo::m_fBPM of the local
 	 * instance of the TransportInfo AudioOutput::m_transport.
+	 *
+	 * Only sets the tempo to @a fBPM if its value is at least
+	 * 1. Sometime (especially during the first cycle after locating
+	 * with transport stopped) the JACK server sends some artifacts
+	 * (6.95334e-310) which should not be assigned.
+	 * 
 	 * \param fBPM new tempo. 
 	 */
 	virtual void setBpm( float fBPM );

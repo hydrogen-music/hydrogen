@@ -857,7 +857,9 @@ void JackAudioDriver::locate( unsigned long frame )
 void JackAudioDriver::setBpm( float fBPM )
 {
 	// std::cout << "[JackAudioDriver::setBpm] " << fBPM << std::endl;
-	m_transport.m_fBPM = fBPM;
+	if ( fBPM >= 1 ) {
+		m_transport.m_fBPM = fBPM;
+	}
 }
 
 #ifdef H2CORE_HAVE_JACKSESSION
