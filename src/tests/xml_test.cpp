@@ -116,7 +116,6 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( check_samples_data( dk0, false ) );
 	//dk0->dump();
 
-	/*
 	// save drumkit elsewhere
 	dk0->set_name( "dk0" );
 	CPPUNIT_ASSERT( dk0->save( dk_path, false ) );
@@ -129,17 +128,17 @@ void XmlTest::testDrumkit()
 	dk1 = H2Core::Drumkit::load_file( dk_path+"/drumkit.xml" );
 	CPPUNIT_ASSERT( dk1!=nullptr );
 	//dk1->dump();
+
 	// copy constructor
 	dk2 = new H2Core::Drumkit( dk1 );
 	dk2->set_name( "COPY" );
 	CPPUNIT_ASSERT( dk2!=nullptr );
 	// save file
 	CPPUNIT_ASSERT( dk2->save_file( dk_path+"/drumkit.xml", true ) );
-	*/
 
 	delete dk0;
-	//delete dk1;
-	//delete dk2;
+	delete dk1;
+	delete dk2;
 }
 
 //Load drumkit which includes instrument with invalid ADSR values.
@@ -179,7 +178,7 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	clean_drumkit( H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml") );
 }
 
-void XmlTest::testDrumkit2008()
+void XmlTest::testDrumkitVersions()
 {
 	H2Core::Drumkit* pDrumkit = nullptr;
 

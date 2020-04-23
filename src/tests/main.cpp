@@ -21,13 +21,15 @@ void setupEnvironment(unsigned log_level)
 	/* Filesystem */
 	H2Core::Filesystem::bootstrap( logger, test_helper->data_dir() );
 	H2Core::Filesystem::info();
-	
+
 	/* Use fake audio driver */
 	H2Core::Preferences::create_instance();
 	H2Core::Preferences* preferences = H2Core::Preferences::get_instance();
 	preferences->m_sAudioDriver = "Fake";
-	
+
 	H2Core::Hydrogen::create_instance();
+
+	H2Core::Filesystem::rm( H2Core::Filesystem::tmp_dir(), true );
 }
 
 

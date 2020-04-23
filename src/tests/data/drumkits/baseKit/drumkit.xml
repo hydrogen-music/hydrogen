@@ -60,7 +60,7 @@ p, li { white-space: pre-wrap; }
      <pitch>0</pitch>
     </layer>
     <layer>
-     <filename>crash.wav</filename>
+     <filename>crash_1.wav</filename>
      <min>0</min>
      <max>0.5</max>
      <gain>1</gain>

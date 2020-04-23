@@ -6,7 +6,7 @@
 class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE(XmlTest);
 	CPPUNIT_TEST(testDrumkit);
-	CPPUNIT_TEST(testDrumkit2008);
+	CPPUNIT_TEST(testDrumkitVersions);
 	CPPUNIT_TEST(testDrumkit_UpgradeInvalidADSRValues);
 	CPPUNIT_TEST(testPattern);
 	CPPUNIT_TEST_SUITE_END();
@@ -14,7 +14,7 @@ class XmlTest : public CppUnit::TestCase {
 	public:
 		void testDrumkit();
 		void testDrumkit_UpgradeInvalidADSRValues();
-		void testDrumkit2008();
+		void testDrumkitVersions();
 		void testPattern();
 };
 
