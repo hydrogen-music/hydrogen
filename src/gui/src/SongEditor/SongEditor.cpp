@@ -35,6 +35,7 @@
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/timeline.h>
+#include <hydrogen/IO/jack_audio_driver.h>
 using namespace H2Core;
 
 #include "UndoActions.h"
@@ -996,17 +997,30 @@ void SongEditorPatternList::patternChangedEvent() {
 
 	createBackground();
 	update();
+	
 	///here we check the timeline  && m_pSong->get_mode() == Song::SONG_MODE
-	Hydrogen *engine = Hydrogen::get_instance();
-	Timeline *pTimeline = engine->getTimeline();
-		if ( ( Preferences::get_instance()->getUseTimelineBpm() ) && ( engine->getSong()->get_mode() == Song::SONG_MODE ) ){
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	
+#ifdef H2CORE_HAVE_JACK
+	AudioOutput* pDriver = pHydrogen->getAudioOutput();
+	if ( pDriver->class_name() == JackAudioDriver::class_name() ){
+		return;
+	}
+#endif
+	
+	Timeline* pTimeline = pHydrogen->getTimeline();
+	if ( ( Preferences::get_instance()->getUseTimelineBpm() ) &&
+		 ( pHydrogen->getSong()->get_mode() == Song::SONG_MODE ) ){
+		
 		for ( int i = 0; i < static_cast<int>(pTimeline->m_timelinevector.size()); i++){
-			if ( ( pTimeline->m_timelinevector[i].m_htimelinebeat == engine->getPatternPos() )
-				&& ( engine->getNewBpmJTM() != pTimeline->m_timelinevector[i].m_htimelinebpm ) ){
-				engine->setBPM( pTimeline->m_timelinevector[i].m_htimelinebpm );
-			}//if
-		}//for
-	}//if
+			
+			if ( ( pTimeline->m_timelinevector[i].m_htimelinebeat == pHydrogen->getPatternPos() )
+				&& ( pHydrogen->getNewBpmJTM() != pTimeline->m_timelinevector[i].m_htimelinebpm ) ){
+				
+				pHydrogen->setBPM( pTimeline->m_timelinevector[i].m_htimelinebpm );
+			}
+		}
+	}
 }
 
 
