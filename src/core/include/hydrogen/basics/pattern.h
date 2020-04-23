@@ -76,25 +76,34 @@ class Pattern : public H2Core::Object
 		static Pattern* load_file( const QString& pattern_path, InstrumentList* instruments );
 		/**
 		 * save a pattern into an xml file
-		 * \param drumkit_name the name of the drumkit it is supposed to play with
-		 * \param author the name of the author
-		 * \param license the license that applies to it
 		 * \param pattern_path the path to save the pattern into
 		 * \param overwrite allows to write over existing pattern file
 		 * \return true on success
 		 */
-		bool save_file( const QString& drumkit_name, const QString& author, const QString& license, const QString& pattern_path, bool overwrite=false ) const; 
+		bool save_file( const QString& pattern_path, bool overwrite=false ) const;
 
 		///< set the name of the pattern
 		void set_name( const QString& name );
 		///< get the name of the pattern
 		const QString& get_name() const;
-		///< set the category of the pattern
-		void set_category( const QString& category );
+		///< set the author of the pattern
+		void set_author( const QString& author );
+		///< get the author of the pattern
+		const QString& get_author() const;
 		///< set the info of the pattern
 		void set_info( const QString& info );
 		///< get the info of the pattern
 		const QString& get_info() const;
+		///< set the license of the pattern
+		void set_license( const QString& license );
+		///< get the license of the pattern
+		const QString& get_license() const;
+		///< set the drumkit of the pattern
+		void set_drumkit( const QString& drumkit );
+		///< get the drumkit of the pattern
+		const QString& get_drumkit() const;
+		///< set the category of the pattern
+		void set_category( const QString& category );
 		///< get the category of the pattern
 		const QString& get_category() const;
 		///< set the length of the pattern
@@ -184,20 +193,30 @@ class Pattern : public H2Core::Object
 		void extand_with_flattened_virtual_patterns( PatternList* patterns );
 
 		/**
+		 * set pattern's meta data
+		 * \param drumkit the name of the drumkit it is supposed to play with
+		 * \param author the name of the author
+		 * \param license the license that applies to it
+		 */
+		void set_meta( const QString& drumkit, const QString& author, const QString& license);
+
+	private:
+		int __length;                                           ///< the length of the pattern
+		QString __name;                                         ///< the name of the pattern
+		QString __author;                                       ///< the author of the pattern
+		QString __info;											///< a description of the pattern
+		QString __license;                                      ///< the license of the pattern
+		QString __drumkit;                                      ///< the drumkit of the pattern
+		QString __category;                                     ///< the category of the pattern
+		notes_t __notes;                                        ///< a multimap (hash with possible multiple values for one key) of note
+		virtual_patterns_t __virtual_patterns;                  ///< a list of patterns directly referenced by this one
+		virtual_patterns_t __flattened_virtual_patterns;        ///< the complete list of virtual patterns
+		/**
 		 * save the pattern within the given XMLNode
 		 * \param node the XMLNode to feed
 		 * \param instrumentOnly export only the notes of that instrument if given
 		 */
 		void save_to( XMLNode* node, const Instrument* instrumentOnly = nullptr ) const;
-
-	private:
-		int __length;                                           ///< the length of the pattern
-		QString __name;                                         ///< the name of thepattern
-		QString __category;                                     ///< the category of the pattern
-		QString __info;											///< a description of the pattern
-		notes_t __notes;                                        ///< a multimap (hash with possible multiple values for one key) of note
-		virtual_patterns_t __virtual_patterns;                  ///< a list of patterns directly referenced by this one
-		virtual_patterns_t __flattened_virtual_patterns;        ///< the complete list of virtual patterns
 		/**
 		 * load a pattern from an XMLNode
 		 * \param node the XMLDode to read from
@@ -221,6 +240,14 @@ class Pattern : public H2Core::Object
 
 // DEFINITIONS
 
+
+inline void Pattern::set_meta( const QString& drumkit, const QString& author, const QString& license )
+{
+	set_drumkit( drumkit );
+	set_author( author );
+	set_license( license );
+}
+
 inline void Pattern::set_name( const QString& name )
 {
 	__name = name;
@@ -231,6 +258,16 @@ inline const QString& Pattern::get_name() const
 	return __name;
 }
 
+inline void Pattern::set_author( const QString& author )
+{
+	__author = author;
+}
+
+inline const QString& Pattern::get_author() const
+{
+	return __author;
+}
+
 inline void Pattern::set_info( const QString& info )
 {
 	__info = info;
@@ -239,6 +276,26 @@ inline void Pattern::set_info( const QString& info )
 inline const QString& Pattern::get_info() const
 {
 	return __info;
+}
+
+inline void Pattern::set_license( const QString& license )
+{
+	__license = license;
+}
+
+inline const QString& Pattern::get_license() const
+{
+	return __license;
+}
+
+inline void Pattern::set_drumkit( const QString& drumkit )
+{
+	__drumkit = drumkit;
+}
+
+inline const QString& Pattern::get_drumkit() const
+{
+	return __drumkit;
 }
 
 inline void Pattern::set_category( const QString& category )

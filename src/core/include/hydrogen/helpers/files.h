@@ -96,7 +96,7 @@ class Files : public H2Core::Object
 		}
 
 	private:
-		static QString savePattern( SaveMode mode, const QString& fileName, const Pattern* pattern, Song* song, const QString& drumkitName );
+		static QString savePattern( SaveMode mode, const QString& fileName, Pattern* pattern, Song* song, const QString& drumkitName );
 		static QString savePlaylist( SaveMode mode, const QString& fileName, Playlist* playlist, bool relativePaths );
 };
 

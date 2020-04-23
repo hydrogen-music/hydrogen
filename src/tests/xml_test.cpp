@@ -214,7 +214,8 @@ void XmlTest::testPattern()
 	pat0 = H2Core::Pattern::load_file( H2TEST_FILE( "/pattern/pat.h2pattern" ), instruments );
 	CPPUNIT_ASSERT( pat0 );
 
-	pat0->save_file( "dk_name", "author", "license", pat_path );
+	pat0->set_meta( "dk_name", "author", "license" );
+	pat0->save_file( pat_path );
 
 	delete pat0;
 	delete dk0;
