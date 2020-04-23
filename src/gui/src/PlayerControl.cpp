@@ -597,7 +597,7 @@ void PlayerControl::updatePlayerControl()
 
 
 		m_pJackMasterBtn->show();
-		if ( static_cast<JackAudioDriver*>(p_Driver)->getIsTimebaseMaster() ) {
+		if ( static_cast<JackAudioDriver*>(p_Driver)->getIsTimebaseMaster() > 0 ) {
 			m_pJackMasterBtn->setPressed( true );
 		} else {
 			m_pJackMasterBtn->setPressed( false );
@@ -611,13 +611,6 @@ void PlayerControl::updatePlayerControl()
 
 	// time
 	float fFrames = m_pEngine->getAudioOutput()->m_transport.m_nFrames;
-
-#ifdef H2CORE_HAVE_JACK
-	if ( pPref->m_sAudioDriver == "Jack"  && Preferences::get_instance()->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT )
-	{
-		fFrames =  m_pEngine->getHumantimeFrames();
-	}
-#endif
 
 	float fSampleRate = m_pEngine->getAudioOutput()->getSampleRate();
 	if ( fSampleRate != 0 ) {
@@ -959,6 +952,7 @@ void PlayerControl::bpmClicked()
 		m_pEngine->getSong()->set_is_modified( true );
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		
 		m_pEngine->setBPM( fNewVal );
 		AudioEngine::get_instance()->unlock();
 	}

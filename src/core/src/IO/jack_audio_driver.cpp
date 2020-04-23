@@ -194,8 +194,7 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	m_pOutputPort1 = nullptr;
 	m_pOutputPort2 = nullptr;
 	m_bConnectDefaults = pPreferences->m_bJackConnectDefaults;
-	m_bIsTimebaseMaster = false;
-	m_nTimebaseMasterCount = 0;
+	m_nIsTimebaseMaster = -1;
 	
 	// Destination ports the output of Hydrogen will be connected
 	// to.
@@ -365,12 +364,6 @@ void JackAudioDriver::updateTransportInfo()
 	// information.
 	m_JackTransportState = jack_transport_query( m_pClient, &m_JackTransportPos );
 
-	// std::cout << std::endl << "[Jack-Query] frame: " << m_JackTransportPos.frame
-	// 		  << ", BPM: " <<  m_JackTransportPos.beats_per_minute
-	// 		  << ", state: " << m_JackTransportState
-	// 		  << ", valid: " << m_JackTransportPos.valid
-	// 		  << ", frame_rate: " << m_JackTransportPos.frame_rate
-	// 		  << std::endl;
 	switch ( m_JackTransportState ) {
 	case JackTransportStopped: // Transport is halted
 		m_transport.m_status = TransportInfo::STOPPED;
@@ -409,7 +402,7 @@ void JackAudioDriver::updateTransportInfo()
 	}
 
 	if ( ( m_JackTransportPos.valid & JackPositionBBT ) &&
-		 !m_bIsTimebaseMaster ){
+		 m_nIsTimebaseMaster < 1 ){
 		// There is a JACK timebase master and it's not us. If it
 		// provides a tempo that differs from the local one, we will
 		// use the former instead.
@@ -425,18 +418,23 @@ void JackAudioDriver::updateTransportInfo()
 		pHydrogen->setTimelineBpm();
 	}
 	
-	// Check whether Hydrogen is still timebase master. If another
-	// application has taken over timebase master duties,
-	// m_nTimebaseMasterCount won't be reset to 0 in each transport
-	// cycle anymore.
-	if ( m_bIsTimebaseMaster && 
-		 m_transport.m_status == TransportInfo::ROLLING ) {
-		if ( m_nTimebaseMasterCount > 0 ) {
-			m_bIsTimebaseMaster = false;
-			m_nTimebaseMasterCount = 0;
-		} else {
-			m_nTimebaseMasterCount++;
+	// Update the status regrading JACK timebase master.
+	if ( m_transport.m_status == TransportInfo::ROLLING ) {
+		if ( m_nIsTimebaseMaster > 1 ) {
+			m_nIsTimebaseMaster--;
+		} else if ( m_nIsTimebaseMaster == 1 ) {
+			// JackTimebaseCallback not called anymore -> timebase client
+			m_nIsTimebaseMaster = 0;
 		}
+	}
+	if ( m_nIsTimebaseMaster == 0 && 
+				!(m_JackTransportPos.valid & JackPositionBBT) ) {
+		// No external timebase master anymore -> regular client
+		m_nIsTimebaseMaster = -1;
+	} else if ( m_nIsTimebaseMaster < 0 && 
+				(m_JackTransportPos.valid & JackPositionBBT) ) {
+		// External timebase master detected -> timebase client
+		m_nIsTimebaseMaster = 0;
 	}
 }
 
@@ -712,8 +710,6 @@ int JackAudioDriver::init( unsigned bufferSize )
 	if ( pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ){
 		// Make Hydrogen the JACK timebase master.
 		initTimebaseMaster();
-	} else {
-		m_bIsTimebaseMaster = false;
 	}
 	
 	return 0;
@@ -856,7 +852,6 @@ void JackAudioDriver::locate( unsigned long frame )
 
 void JackAudioDriver::setBpm( float fBPM )
 {
-	// std::cout << "[JackAudioDriver::setBpm] " << fBPM << std::endl;
 	if ( fBPM >= 1 ) {
 		m_transport.m_fBPM = fBPM;
 	}
@@ -1002,9 +997,8 @@ void JackAudioDriver::initTimebaseMaster()
 						     JackTimebaseCallback, this);
 		if ( nReturnValue != 0 ){
 			pPreferences->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
-			m_bIsTimebaseMaster = false;
 		} else {
-			m_bIsTimebaseMaster = true;
+			m_nIsTimebaseMaster = 2;
 		}
 	} else {
 	    releaseTimebaseMaster();
@@ -1018,7 +1012,12 @@ void JackAudioDriver::releaseTimebaseMaster()
 	}
 
 	jack_release_timebase( m_pClient );
-	m_bIsTimebaseMaster = false;
+	
+	if ( m_JackTransportPos.valid & JackPositionBBT ) {
+		m_nIsTimebaseMaster = 0;
+	} else {
+		m_nIsTimebaseMaster = -1;
+	}
 }
 
 void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
@@ -1133,36 +1132,11 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 
 		// Counting ticks starts at 0.
 		pJackPosition->tick = nTicksFromBar % (int32_t) pJackPosition->ticks_per_beat;
-		
-		// std::cout << "[JackTimebaseCallback] BPM: "
-		// 		  << pJackPosition->beats_per_minute
-		// 		  << ", bar: " << pJackPosition->bar 
-		// 		  << ", beat: " << pJackPosition->beat
-		// 		  << ", tick: " << pJackPosition->tick
-		// 		  << ", beats_per_bar: " << pJackPosition->beats_per_bar
-		// 		  << ", bar_start_tick: " << pJackPosition->bar_start_tick
-		// 		  << ", valid: " << pJackPosition->valid
-		// 		  << ", bbt_offset: " << pJackPosition->bbt_offset
-		// 		  << ", ticks_per_beat: " << pJackPosition->ticks_per_beat
-		// 		  << ", beat_type: " << pJackPosition->beat_type
-		// 		  << ", nTicksFromBar: " << nTicksFromBar
-		// 		  << ", nextTick: " << nextTick
-		// 		  << ", nNextPattern: " << nNextPattern
-		// 		  << ", nNextPatternStartTick: " << nNextPatternStartTick
-		// 		  << ", nextTickInternal: " << nextTickInternal
-		// 		  << ", nNextPatternInternal: " << nNextPatternInternal
-		// 		  << ", nNextPatternStartTickInternal: " << nNextPatternStartTickInternal
-		// 		  << ", ticksPerBar: " << ticksPerBar
-		// 		  << ", pJackPosition->frame: " << pJackPosition->frame
-		// 		  << ", pDriver->m_frameOffset: " << pDriver->m_frameOffset
-		// 		  << ", fTickSize: " << fTickSize
-		// 		  << ", pSong->__resolution: " << pSong->__resolution
-		// 		  << std::endl; 
 			
 	}
     
 	// Tell Hydrogen it is still timebase master.
-	pDriver->m_nTimebaseMasterCount = 0;
+	pDriver->m_nIsTimebaseMaster = 2;
 }
 
 }

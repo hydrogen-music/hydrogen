@@ -533,9 +533,9 @@ public:
 	void releaseTimebaseMaster();
 	
 	/**
-	 * \return #m_bIsTimebaseMaster
+	 * \return #m_nIsTimebaseMaster
 	 */
-	bool getIsTimebaseMaster();
+	int getIsTimebaseMaster();
 
 protected:
 	/**
@@ -751,10 +751,15 @@ private:
 	 */
 	bool				m_bConnectDefaults;
 	/**
-	 * Whether Hydrogen is the current Jack timebase master.
-	 */
-	bool				m_bIsTimebaseMaster;
-	/**
+	 * Whether Hydrogen or another program is Jack timebase master.
+	 *
+	 * - #m_nIsTimebaseMaster > 0 - Hydrogen itself is timebase
+          master.
+	 * - #m_nIsTimebaseMaster == 0 - an external program is timebase
+          master and Hydrogen will disregard all tempo marker on the
+          Timeline and, instead, only use the BPM provided by JACK.
+	 * - #m_nIsTimebaseMaster < 0 - only normal clients registered.
+	 *
 	 * While Hydrogen can unregister as timebase master on its own, it
 	 * can not be observed directly whether another application has
 	 * taken over as timebase master. When the JACK server is
@@ -764,18 +769,19 @@ private:
 	 * updateTransportInfo(), we can use this variable to determine if
 	 * Hydrogen is still timebase master.
 	 *
-	 * It will be initialized with 0, incremented in
-	 * updateTransportInfo(), and reset to zero in
-	 * JackTimebaseCallback(). Whenever it is larger than zero in
-	 * updateTransportInfo(), #m_bIsTimebaseMaster will be set to
-	 * false.
+	 * As Hydrogen registered as timebase master using
+	 * initTimebaseMaster() it will be initialized with 1, decremented
+	 * in updateTransportInfo(), and reset to 1 in
+	 * JackTimebaseCallback(). Whenever it is zero in
+	 * updateTransportInfo(), #m_nIsTimebaseMaster will be updated
+	 * accordingly.
 	 */
-	int					m_nTimebaseMasterCount;
+	int				m_nIsTimebaseMaster;
 
 };
 	
-inline bool JackAudioDriver::getIsTimebaseMaster() {
-	return m_bIsTimebaseMaster;
+inline int JackAudioDriver::getIsTimebaseMaster() {
+	return m_nIsTimebaseMaster;
 }
 inline int JackAudioDriver::getNumTracks() {
 	return m_nTrackPortCount;
