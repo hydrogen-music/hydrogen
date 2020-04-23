@@ -51,32 +51,32 @@
 
 namespace H2Core {
 
-/**
- * Sample rate of the JACK audio server.
- *
- * It is set by the callback function jackDriverSampleRate()
- * registered in the JACK server and accessed via
- * JackAudioDriver::getSampleRate(). Its initialization is handled by
- * JackAudioDriver::init(), which sets it to the sample rate of the
- * Hydrogen's external JACK client via _jack_get_sample_rate()_
- * (jack/jack.h).
- */
-unsigned long		jackServerSampleRate = 0;
-/**
- * Buffer size of the JACK audio server.
- *
- * It is set by the callback function jackDriverBufferSize()
- * registered in the JACK server and accessed via
- * JackAudioDriver::getBufferSize(). Its initialization is handled by
- * JackAudioDriver::init(), which sets it to the buffer size of the
- * Hydrogen's external JACK client via _jack_get_buffer_size()_
- * (jack/jack.h).
- */
-jack_nframes_t		jackServerBufferSize = 0;
-/**
- * Instance of the JackAudioDriver.
- */
-JackAudioDriver*	pJackDriverInstance = nullptr;
+	/**
+	 * Sample rate of the JACK audio server.
+	 *
+	 * It is set by the callback function jackDriverSampleRate()
+	 * registered in the JACK server and accessed via
+	 * JackAudioDriver::getSampleRate(). Its initialization is handled by
+	 * JackAudioDriver::init(), which sets it to the sample rate of the
+	 * Hydrogen's external JACK client via _jack_get_sample_rate()_
+	 * (jack/jack.h).
+	 */
+	unsigned long		jackServerSampleRate = 0;
+	/**
+	 * Buffer size of the JACK audio server.
+	 *
+	 * It is set by the callback function jackDriverBufferSize()
+	 * registered in the JACK server and accessed via
+	 * JackAudioDriver::getBufferSize(). Its initialization is handled by
+	 * JackAudioDriver::init(), which sets it to the buffer size of the
+	 * Hydrogen's external JACK client via _jack_get_buffer_size()_
+	 * (jack/jack.h).
+	 */
+	jack_nframes_t		jackServerBufferSize = 0;
+	/**
+	 * Instance of the JackAudioDriver.
+	 */
+	JackAudioDriver*	pJackDriverInstance = nullptr;
 
 
 /**
@@ -152,6 +152,23 @@ void jackDriverShutdown( void* arg )
 	Hydrogen::get_instance()->raiseError( Hydrogen::JACK_SERVER_SHUTDOWN );
 }
 
+/**
+ * Required in JackTimebaseCallback() to keep the sync between the
+ * timebase master and all other JACK clients.
+ *
+ * Whenever a relocation takes place in Hydrogen as timebase master,
+ * the speed of the timeline at the destination frame must not be sent
+ * in the timebase callback. Instead, Hydrogen must wait two full
+ * cycles of the audioEngine before broadcasting the new tempo
+ * again. This is because the Hydrogen (as timebase master) requires
+ * two full cycles to set the tempo itself and there is a rather
+ * intricate dependence on values calculate in various other
+ * functions.
+ *
+ * TODO: Kill this variable and make the relocation behavior way more 
+ * straight forward.
+ */
+int nWaits = 0;
 
 const char* JackAudioDriver::__class_name = "JackAudioDriver";
 
@@ -348,10 +365,11 @@ void JackAudioDriver::updateTransportInfo()
 	// information.
 	m_JackTransportState = jack_transport_query( m_pClient, &m_JackTransportPos );
 
-	// std::cout << "[Jack-Query] frame: " << m_JackTransportPos.frame
+	// std::cout << std::endl << "[Jack-Query] frame: " << m_JackTransportPos.frame
 	// 		  << ", BPM: " <<  m_JackTransportPos.beats_per_minute
 	// 		  << ", state: " << m_JackTransportState
 	// 		  << ", valid: " << m_JackTransportPos.valid
+	// 		  << ", frame_rate: " << m_JackTransportPos.frame_rate
 	// 		  << std::endl;
 	switch ( m_JackTransportState ) {
 	case JackTransportStopped: // Transport is halted
@@ -385,18 +403,11 @@ void JackAudioDriver::updateTransportInfo()
 		// is in pattern mode.
 		pHydrogen->resetPatternStartTick();
 		
-		// Resetting the previous frame offset (introduced
-		// when passing a tempo marker).
+		// There maybe was an offset introduced when passing a tempo
+		// marker.
 		m_frameOffset = 0;
 	}
-	
-	// std::cout << "[updateTransport] m_nFrames: " << m_transport.m_nFrames
-	// 		  << ", m_fBPM: " << m_transport.m_fBPM
-	// 		  << ", m_fTickSize: " << m_transport.m_fTickSize
-	// 		  << ", m_frameOffset: " << m_frameOffset
-	// 		  << ", pattern pos: " << pHydrogen->getPatternPos() 
-	// 		  << std::endl;
-	
+
 	if ( ( m_JackTransportPos.valid & JackPositionBBT ) &&
 		 !m_bIsTimebaseMaster ){
 		// There is a JACK timebase master and it's not us. If it
@@ -405,9 +416,6 @@ void JackAudioDriver::updateTransportInfo()
 		float fBPM = ( float )m_JackTransportPos.beats_per_minute;
 
 		if ( m_transport.m_fBPM != fBPM ) {
-			// std::cout << "[updateTransport] update BPM from: "
-			// 		  << m_transport.m_fBPM << " to "<< fBPM
-			// 		  << std::endl;
 			pHydrogen->setBPM( fBPM );
 		}
 	} else {
@@ -848,7 +856,6 @@ void JackAudioDriver::locate( unsigned long frame )
 
 void JackAudioDriver::setBpm( float fBPM )
 {
-	// INFOLOG( QString( "setBpm: %1" ).arg( fBPM ) );
 	// std::cout << "[JackAudioDriver::setBpm] " << fBPM << std::endl;
 	m_transport.m_fBPM = fBPM;
 }
@@ -1083,11 +1090,24 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		((float)ticksPerBar /  (float)pSong->__resolution);
 	// Time signature "denominator"
 	pJackPosition->beat_type = 4.0;
-	// Average tempo in BPM for the block corresponding to
-	// pJackPosition. In Hydrogen is guaranteed to be constant within
-	// a block.
-	pJackPosition->beats_per_minute = 
-		(double)pHydrogen->getTimelineBpm( nNextPatternInternal );
+	
+	if ( pDriver->m_transport.m_nFrames + pDriver->m_frameOffset != pJackPosition->frame ) {
+		// In case of a relocation, wait two full cycles till the new
+		// tempo will be broadcast.
+		nWaits = 2;
+	}
+
+	if ( nWaits == 0 ) {
+		// Average tempo in BPM for the block corresponding to
+		// pJackPosition. In Hydrogen is guaranteed to be constant within
+		// a block.
+		pJackPosition->beats_per_minute = 
+			(double)pHydrogen->getTimelineBpm( nNextPatternInternal );
+	} else {
+		pJackPosition->beats_per_minute = (double)pDriver->m_transport.m_fBPM;
+	}
+		
+	nWaits = max( int(0), nWaits - 1);
 
 	if ( pDriver->m_transport.m_nFrames < 1 ) {
 		pJackPosition->bar = 0;
@@ -1145,7 +1165,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		// 		  << ", pDriver->m_frameOffset: " << pDriver->m_frameOffset
 		// 		  << ", fTickSize: " << fTickSize
 		// 		  << ", pSong->__resolution: " << pSong->__resolution
-		// 		  << std::endl << std::endl;
+		// 		  << std::endl; 
 			
 	}
 	
