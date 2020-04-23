@@ -113,7 +113,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 	XMLDoc doc;
 	if( doc.read( dk_path, Filesystem::drumkit_xsd_path() ) ) {
 		XMLNode root = doc.firstChildElement( "drumkit" );
-		int version = root.read_int( "version", 0 );
+		int version = root.read_attribute( "version", "0", false, false ).toInt();
 		Drumkit* pDrumkit = Drumkit::load_from( version, &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
 		if( load_samples ){
 			pDrumkit->load_samples();
@@ -149,7 +149,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 			return nullptr;
 		}
 
-		int version = root.read_int( "version", 0 );
+		int version = root.read_attribute( "version", "0", false, false ).toInt();
 		Drumkit* pDrumkit = Drumkit::load_from( version, &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
 		upgrade_drumkit(pDrumkit, dk_path);
 		if( load_samples ){
@@ -334,7 +334,7 @@ bool Drumkit::save_file( const QString& dk_path, bool overwrite, int component_i
 
 void Drumkit::save_to( XMLNode* node, int component_id )
 {
-	node->write_string( "version", DRUMKIT_VERSION );
+	node->write_attribute( "version", DRUMKIT_VERSION );
 	XMLNode meta = node->createNode( "meta" );
 	meta.write_string( "name", __name );
 	meta.write_string( "author", __author );
