@@ -1656,9 +1656,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 				return -1;
 			}
 
-			// Return the pattern list number based on the current
-			// tick and writes the starting position of the current
-			// pattern into `m_nPatternStartTick`.
 			m_nSongPos = findPatternInTick( tick, pSong->is_loop_enabled(), &m_nPatternStartTick );
 
 			// The `m_nSongSizeInTicks` variable is only set to some
@@ -1965,11 +1962,6 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 
 		if ( ( nTick >= nTotalTick ) && ( nTick < nTotalTick + nPatternSize ) ) {
 			( *pPatternStartTick ) = nTotalTick;
-			// std::cout << "[findPatternInTick] nTick (input): " << nTick 
-			// 		  << ", pPatternStartTick (output): " << nTotalTick
-			// 		  << ", i (pattern number): " << i
-			// 		  << ", nPatternSize: " << nPatternSize
-			// 		  << std::endl;
 			return i;
 		}
 		nTotalTick += nPatternSize;
@@ -3874,7 +3866,7 @@ void Hydrogen::onJackMaster()
 }
 #endif
 
-long Hydrogen::getTickForHumanPosition( int nHumanPos )
+long Hydrogen::getPatternLength( int nPattern )
 {
 	Song* pSong = getSong();
 	if ( pSong == nullptr ){
@@ -3884,19 +3876,19 @@ long Hydrogen::getTickForHumanPosition( int nHumanPos )
 	std::vector< PatternList* > *pColumns = pSong->get_pattern_group_vector();
 
 	int nPatternGroups = pColumns->size();
-	if ( nHumanPos >= nPatternGroups ) {
+	if ( nPattern >= nPatternGroups ) {
 		if ( pSong->is_loop_enabled() ) {
-			nHumanPos = nHumanPos % nPatternGroups;
+			nPattern = nPattern % nPatternGroups;
 		} else {
 			return MAX_NOTES;
 		}
 	}
 
-	if ( nHumanPos < 1 ){
+	if ( nPattern < 1 ){
 		return MAX_NOTES;
 	}
 
-	PatternList* pPatternList = pColumns->at( nHumanPos - 1 );
+	PatternList* pPatternList = pColumns->at( nPattern - 1 );
 	Pattern* pPattern = pPatternList->get( 0 );
 	if ( pPattern ) {
 		return pPattern->get_length();
@@ -4028,8 +4020,6 @@ void Hydrogen::setTimelineBpm()
 	Song* pSong = getSong();
 	// Obtain the local speed specified for the current Pattern.
 	float fBPM = getTimelineBpm( getPatternPos() );
-	// std::cout << "[Hydrogen::setTimelineBpm] getPatternPos(): " << getPatternPos() 
-	// 		  << ", fBPM: " << fBPM << std::endl;
 		
 	if ( fBPM != pSong->__bpm ) {
 		setBPM( fBPM );

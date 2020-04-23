@@ -485,22 +485,24 @@ void			previewSample( Sample *pSample );
 	    the GUI*/
 	void			onJackMaster();
 	/**
+	 * Get the length (in ticks) of the @a nPattern th pattern.
+	 *
 	 * Access the length of the first Pattern found in the
-	 * PatternList at @a nHumanPos - 1.
+	 * PatternList at @a nPattern - 1.
 	 *
 	 * This function should also work if the loop mode is enabled
 	 * in Song::is_loop_enabled().
 	 *
-	 * \param nHumanPos Position + 1 of the desired PatternList.
+	 * \param nPattern Position + 1 of the desired PatternList.
 	 * \return 
 	 * - __-1__ : if not Song was initialized yet.
-	 * - #MAX_NOTES : if @a nHumanPos was smaller than 1, larger
+	 * - #MAX_NOTES : if @a nPattern was smaller than 1, larger
 	 * than the length of the vector of the PatternList in
 	 * Song::__pattern_group_sequence or no Pattern could be found
-	 * in the PatternList at @a nHumanPos - 1.
-	 * - __else__ : length of first Pattern found at @a nHumanPos.
+	 * in the PatternList at @a nPattern - 1.
+	 * - __else__ : length of first Pattern found at @a nPattern.
 	 */
-	long			getTickForHumanPosition( int nHumanPos );
+	long			getPatternLength( int nPattern );
 	/** Returns the fallback speed.
 	 * \return #m_fNewBpmJTM */
 	float			getNewBpmJTM();

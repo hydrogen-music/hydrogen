@@ -1078,7 +1078,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 
 	// Calculate the length of the next pattern in ticks == number
 	// of ticks in the next bar.
-	long ticksPerBar = pHydrogen->getTickForHumanPosition( nNextPattern );
+	long ticksPerBar = pHydrogen->getPatternLength( nNextPattern );
 	if ( ticksPerBar < 1 ) {
 		return;
 	}

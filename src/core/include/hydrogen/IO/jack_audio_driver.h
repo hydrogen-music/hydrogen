@@ -551,7 +551,7 @@ protected:
 	 *                          m_transport.m_fTickSize ) ) 
 	 * \endcode
 	 * - __ticks_per_beat__ :  the output of
-	 * Hydrogen::getTickForHumanPosition() with the __bar__ member
+	 * Hydrogen::getPatternLength() with the __bar__ member
 	 * supplied as input argument.
 	 * - __valid__ : to ( _JackPositionBBT_ | _JackBBTFrameOffset_
 	 * ), transport states defined
