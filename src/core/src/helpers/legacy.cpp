@@ -202,7 +202,10 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 		WARNINGLOG( "pattern node not found" );
 		return nullptr;
 	} else {
-		QString sName = pattern_node.read_string( "pattern_name", "" );
+		QString sName = pattern_node.read_string( "name", "" );
+		if (sName.isEmpty() ) {
+			sName = pattern_node.read_string( "pattern_name", "" );
+		}
 		QString sInfo = pattern_node.read_string( "info", "" );
 		QString sCategory = pattern_node.read_string( "category", "" );
 		int nSize = pattern_node.read_int( "size", -1, false, false );
@@ -229,10 +232,8 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 			Instrument *instrRef = instrList->find( instrId );
 			if ( !instrRef ) {
 				ERRORLOG( QString( "Instrument with ID: '%1' not found. Note skipped." ).arg( instrId ) );
-				note_node = note_node.nextSiblingElement( "note" );
-				continue;
+				instrRef = new Instrument();
 			}
-			//assert( instrRef );
 			bool noteoff = false;
 			if ( nNoteOff == "true" )
 				noteoff = true;
