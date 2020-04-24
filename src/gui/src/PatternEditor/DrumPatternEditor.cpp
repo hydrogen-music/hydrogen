@@ -48,8 +48,6 @@
 #include <cassert>
 #include <algorithm>
 
-#include <QtDebug>
-
 using namespace std;
 using namespace H2Core;
 
