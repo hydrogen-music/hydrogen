@@ -3990,7 +3990,8 @@ float Hydrogen::getTimelineBpm( int nBar )
 
 void Hydrogen::setTimelineBpm()
 {
-	if ( ! Preferences::get_instance()->getUseTimelineBpm() ) {
+	if ( ! Preferences::get_instance()->getUseTimelineBpm() ||
+		 static_cast<JackAudioDriver*>(m_pAudioDriver)->getIsTimebaseMaster() == 0 ) {
 		return;
 	}
 

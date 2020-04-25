@@ -517,8 +517,10 @@ void			previewSample( Sample *pSample );
 	 * fallback speed #m_fNewBpmJTM, getRealtimeTickPosition() will be
 	 * used instead.
 	 *
-	 * If Preferences::__useTimelineBpm is set to false, the
-	 * function will return without performing any actions.
+	 * If Preferences::__useTimelineBpm is set to false or Hydrogen
+	 * uses JACK transport in the presence of an external timebase
+	 * master, the function will return without performing any
+	 * actions.
 	 */
 	void			setTimelineBpm();
 	/**
