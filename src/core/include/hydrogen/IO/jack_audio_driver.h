@@ -501,16 +501,23 @@ public:
 	 */
 	virtual void setBpm( float fBPM );
 	/**
-	 * Calculates the difference between the transport position
-	 * obtained by querying JACK and the value stored in
-	 * TransportInfo::m_nFrames and stores it in
-	 * #m_frameOffset.
+	 * Calculates the difference between the true transport position
+	 * and the internal one.
 	 *
-	 * It is triggered in audioEngine_process_checkBPMChanged() if a
-	 * BPM marker in the Timeline was passed, which causes the tick
-	 * size to be changed.
+	 * The internal transport position used in most parts of Hydrogen
+	 * is given in ticks. But since the size of a tick is
+	 * tempo-dependent, passing a tempo marker in the Timeline will
+	 * cause the corresponding internal transport position in frames
+	 * to diverge from the external one by a constant offset. This
+	 * function will calculate and store it in #m_frameOffset.
+	 *
+	 * \param oldFrame Provides the previous transport position in
+	 * frames prior to the change in tick size. This is required if
+	 * transport is not rolling during the relocation into a region of
+	 * different speed since there is no up-to-date JACK query
+	 * providing these information.
 	 */
-	void calculateFrameOffset();
+	void calculateFrameOffset(long long oldFrame);
 
 	/**
 	 * Registers Hydrogen as JACK timebase master.
@@ -536,7 +543,20 @@ public:
 	 * \return #m_nIsTimebaseMaster
 	 */
 	int getIsTimebaseMaster();
-
+	/** Stores the current transport position in case transport is not
+	 *	rolling.
+	 *
+	 * In case the user is clicking on the
+	 * SongEditor::mousePressEvent() will trigger both a relocation
+	 * and a change in speed. The change in speed causes the
+	 * audioEngine_checkBPMChange() function to update the ticksize in
+	 * case transported got moved into a region of different tempo and
+	 * triggers the calculateFrameOffset() function. But the latter
+	 * can only work properly if transport is rolling since it has to
+	 * know the frame position prior to the change in tick size and
+	 * there is no up-to-date JACK query providing this information.
+	 */
+	int m_currentPos;
 protected:
 	/**
 	 * Callback function registered to the JACK server in
@@ -588,9 +608,8 @@ protected:
 
 private:
 	/**
-	 * Constant offset between the transport position in
-	 * TransportInfo::m_nFrames and the one obtained by the JACK
-	 * server query.
+	 * Constant offset between the internal transport position in
+	 * TransportInfo::m_nFrames and the external one.
 	 *
 	 * Imagine the following setting: During the playback you decide
 	 * to change the speed of the song. This would cause a lot of
@@ -604,7 +623,7 @@ private:
 	 * able to identify relocation in updateTransportInfo(), this
 	 * constant offset is stored in this variable and used in
 	 * updateTransportInfo() to determine whether a relocation did
-	 * happen..
+	 * happen.
 	 *
 	 * Positive values correspond to a position ahead of the current
 	 * transport information. The variable is initialized with 0 in

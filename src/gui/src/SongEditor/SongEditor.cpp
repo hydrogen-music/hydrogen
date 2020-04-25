@@ -1016,7 +1016,6 @@ void SongEditorPatternList::patternChangedEvent() {
 			
 			if ( ( pTimeline->m_timelinevector[i].m_htimelinebeat == pHydrogen->getPatternPos() )
 				&& ( pHydrogen->getNewBpmJTM() != pTimeline->m_timelinevector[i].m_htimelinebpm ) ){
-				
 				pHydrogen->setBPM( pTimeline->m_timelinevector[i].m_htimelinebpm );
 			}
 		}
@@ -2027,7 +2026,6 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 
 void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 {
-
 	if (ev->button() == Qt::LeftButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);
 		m_bRightBtnPressed = false;
@@ -2040,16 +2038,35 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		if ( Hydrogen::get_instance()->getSong()->get_mode() == Song::PATTERN_MODE ) {
 			return;
 		}
+		AudioOutput* pDriver = Hydrogen::get_instance()->getAudioOutput();
 
 		int nPatternPos = Hydrogen::get_instance()->getPatternPos();
 		if ( nPatternPos != column ) {
 			WARNINGLOG( "relocate via mouse click" );
 			Hydrogen::get_instance()->setPatternPos( column );
 			update();
+
+			long totalTick = Hydrogen::get_instance()->getTickForPosition( column );
+			if ( totalTick < 0 && Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
+				
+			}
+			
+#ifdef H2CORE_HAVE_JACK
+			static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
+				totalTick * pDriver->m_transport.m_fTickSize;
+#endif
 		}
 
 		//time line test
+	
+#ifdef H2CORE_HAVE_JACK
+		if ( pDriver->class_name() == JackAudioDriver::class_name() &&
+			 static_cast<JackAudioDriver*>(pDriver)->getIsTimebaseMaster() != 0 ){
+			Hydrogen::get_instance()->setTimelineBpm();
+		}
+#else
 		Hydrogen::get_instance()->setTimelineBpm();
+#endif
 
 	}
 	else if (ev->button() == Qt::MidButton && ev->y() >= 26) {

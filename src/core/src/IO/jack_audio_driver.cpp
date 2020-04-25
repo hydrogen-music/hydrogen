@@ -78,7 +78,6 @@ namespace H2Core {
 	 */
 	JackAudioDriver*	pJackDriverInstance = nullptr;
 
-
 /**
  * Callback function for the JACK audio server to set the sample rate
  * #H2Core::jackServerSampleRate and prints a message to
@@ -339,10 +338,13 @@ unsigned JackAudioDriver::getSampleRate()
 	return jackServerSampleRate;
 }
 
-void JackAudioDriver::calculateFrameOffset()
+void JackAudioDriver::calculateFrameOffset(long long oldFrame)
 {
-	m_frameOffset = m_JackTransportPos.frame - m_transport.m_nFrames;
-	// INFOLOG( QString( "m_frameOffset: %1" ). arg( m_frameOffset ) );
+	if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
+		m_frameOffset = m_JackTransportPos.frame - m_transport.m_nFrames;
+	} else {
+		m_frameOffset = oldFrame - m_transport.m_nFrames;
+	}
 }
 
 void JackAudioDriver::updateTransportInfo()
@@ -382,15 +384,36 @@ void JackAudioDriver::updateTransportInfo()
 	default:
 		ERRORLOG( "Unknown jack transport state" );
 	}
-	
+
+	// std::cout << std::endl << "[Jack-Query] frame: " << m_JackTransportPos.frame
+    //                   << ", BPM: " <<  m_JackTransportPos.beats_per_minute
+    //                   << ", state: " << m_JackTransportState
+    //                   << ", valid: " << m_JackTransportPos.valid
+    //                   << ", frame_rate: " << m_JackTransportPos.frame_rate
+    //                   << std::endl;
+
+
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
+
+	// std::cout << "[updateTransport] m_nFrames: " << m_transport.m_nFrames
+	// 		  << ", m_fBPM: " << m_transport.m_fBPM
+	// 		  << ", m_fTickSize: " << m_transport.m_fTickSize
+	// 		  << ", m_frameOffset: " << m_frameOffset
+	// 		  << ", m_currentPos: " << m_currentPos
+	// 		  << ", pattern pos: " << pHydrogen->getPatternPos() 
+	// 		  << std::endl;
 	
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
 	if ( m_transport.m_nFrames + m_frameOffset != m_JackTransportPos.frame ) {
+		// std::cout << "[updateTransport] relocating rolling from m_frameOffset: "
+		// 		  << m_frameOffset
+		// 		  << " + " << m_transport.m_nFrames
+		// 		  <<  " to " << m_JackTransportPos.frame << std::endl;
 
 		m_transport.m_nFrames = m_JackTransportPos.frame;
+		
 		
 		// Reset playback to the beginning of the pattern if Hydrogen
 		// is in pattern mode.
