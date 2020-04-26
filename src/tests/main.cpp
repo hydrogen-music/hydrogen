@@ -53,6 +53,8 @@ int main( int argc, char **argv)
 		}
 	}
 
+	logLevelOpt = 0xf;
+
 	setupEnvironment(logLevelOpt);
 
 	CppUnit::TextUi::TestRunner runner;

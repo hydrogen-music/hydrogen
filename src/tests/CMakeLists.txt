@@ -7,7 +7,8 @@ include_directories(
     ${CPPUNIT_INCLUDE_DIRS}
 )
 
-FILE(GLOB_RECURSE TESTS_SRCS *.cpp)
+# FILE(GLOB_RECURSE TESTS_SRCS *.cpp)
+FILE(GLOB_RECURSE TESTS_SRCS main.cpp test_helper.cpp xml_test.cpp)
 link_directories()
 add_executable(tests ${TESTS_SRCS})
 

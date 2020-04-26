@@ -213,10 +213,32 @@ void XmlTest::testPattern()
 	pat0 = H2Core::Pattern::load_file( H2TEST_FILE( "/pattern/pat.h2pattern" ), instruments );
 	CPPUNIT_ASSERT( pat0 );
 
-	pat0->set_meta( "dk_name", "author", "license" );
+	pat0->set_meta( "GMkit", "Meself", "MIT");
 	pat0->save_file( pat_path );
 
 	delete pat0;
 	delete dk0;
 }
 
+void XmlTest::testPatternVersions()
+{
+	QString pat_path = H2Core::Filesystem::tmp_dir()+"/pat";
+
+	H2Core::Pattern* pat0 = nullptr;
+	H2Core::Drumkit* dk0 = nullptr;
+	H2Core::InstrumentList* instruments = nullptr;
+
+	dk0 = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/baseKit" ) );
+	CPPUNIT_ASSERT( dk0!=nullptr );
+	instruments = dk0->get_instruments();
+	CPPUNIT_ASSERT( instruments->size()==4 );
+
+	pat0 = H2Core::Pattern::load_file( H2TEST_FILE( "/pattern/pat-2011.h2pattern" ), instruments );
+	CPPUNIT_ASSERT( pat0 );
+
+	pat0->set_meta( "GMkit", "Meself", "MIT");
+	pat0->save_file( pat_path );
+
+	delete pat0;
+	delete dk0;
+}

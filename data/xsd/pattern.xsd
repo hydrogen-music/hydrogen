@@ -1,8 +1,16 @@
 <?xml version="1.0"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="http://www.hydrogen-music.org/drumkit_pattern"
-	xmlns:h2="http://www.hydrogen-music.org/drumkit_pattern"
+	targetNamespace="http://www.hydrogen-music.org/pattern"
+	xmlns:h2="http://www.hydrogen-music.org/pattern"
 	elementFormDefault="qualified">
+
+<!-- NONEMPTYSTRING -->
+<xsd:simpleType name="nonemptystring">
+	<xsd:restriction base="xsd:string">
+		<xsd:minLength value="1" />
+		<xsd:pattern value=".*[^\s].*" />
+	</xsd:restriction>
+</xsd:simpleType>
 
 <!-- BOOL -->
 <xsd:simpleType name="bool">
@@ -35,8 +43,8 @@
 			<xsd:element name="position"	type="xsd:nonNegativeInteger"	default="0"/>
 			<xsd:element name="leadlag"		type="xsd:float"		default="0.0"/>
 			<xsd:element name="velocity"	type="h2:psfloat"		default="0.8"/>
-			<xsd:element name="pan_L"		type="h2:psfloat5"		default="0.5"/>
-			<xsd:element name="pan_R"		type="h2:psfloat5"		default="0.5"/>
+			<xsd:element name="pan_L"		type="h2:psfloat5"		default="0.0"/>
+			<xsd:element name="pan_R"		type="h2:psfloat5"		default="0.0"/>
 			<xsd:element name="pitch"		type="xsd:float"		default="0.0"/>
 			<xsd:element name="key"			type="xsd:string"		default="C0"/>
 			<xsd:element name="length"		type="xsd:integer"		default="-1"/>
@@ -47,13 +55,26 @@
 </xsd:complexType>
 </xsd:element>
 
+<!-- META -->
+<xsd:element name="meta">
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element name="name"		type="h2:nonemptystring"/>
+			<xsd:element name="author"		type="xsd:string"/>
+			<xsd:element name="info"		type="xsd:string"/>
+			<xsd:element name="license"		type="xsd:string"/>
+			<xsd:element name="drumkit"		type="xsd:string"/>
+			<xsd:element name="category"	type="xsd:string"		default="unknown"/>
+			<xsd:element name="size"		type="xsd:nonNegativeInteger"/>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:element>
+
+<!-- PATTERN -->
 <xsd:element name="pattern">
 	<xsd:complexType>
 		<xsd:sequence>
-			<xsd:element name="name"		type="xsd:string"		default="unknown"/>
-			<xsd:element name="info"		type="xsd:string"/>
-			<xsd:element name="category"	type="xsd:string"		default="unknown"/>
-			<xsd:element name="size"		type="xsd:nonNegativeInteger"/>
+			<xsd:element ref="h2:meta" />
 			<xsd:element name="noteList">
 				<xsd:complexType>
 					<xsd:sequence>
@@ -62,18 +83,7 @@
 				</xsd:complexType>
 			</xsd:element>
 		</xsd:sequence>
-	</xsd:complexType>
-</xsd:element>
-
-<!-- DRUMKIT PATTERN -->
-<xsd:element name="drumkit_pattern">
-	<xsd:complexType>
-		<xsd:sequence>
-			<xsd:element name="drumkit_name"	type="xsd:string"/>
-			<xsd:element name="author"			type="xsd:string"/>
-			<xsd:element name="license"			type="xsd:string"/>
-			<xsd:element ref="h2:pattern" minOccurs="1" maxOccurs="1"/>
-		</xsd:sequence>
+		<xsd:attribute name="version" type="xsd:integer" use="required" />
 	</xsd:complexType>
 </xsd:element>
 

@@ -34,7 +34,7 @@
 #define SYS_CONFIG		"hydrogen.default.conf"
 #define DRUMKIT_XML     "drumkit.xml"
 #define DRUMKIT_XSD     "drumkit.xsd"
-#define DRUMPAT_XSD     "drumkit_pattern.xsd"
+#define PATTERN_XSD     "pattern.xsd"
 #define PLAYLIST_XSD     "playlist.xsd"
 
 #define AUTOSAVE        "autosave"
@@ -255,7 +255,7 @@ bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwri
 		return false;
 	}
 	INFOLOG( QString( "copy %1 to %2" ).arg( src ).arg( dst ) );
-	return QFile::copy( src,dst );
+	return QFile::copy( src, dst );
 }
 
 bool Filesystem::rm( const QString& path, bool recursive )
@@ -403,7 +403,7 @@ QString Filesystem::drumkit_xsd_path( )
 }
 QString Filesystem::pattern_xsd_path( )
 {
-	return xsd_dir() + DRUMPAT_XSD;
+	return xsd_dir() + PATTERN_XSD;
 }
 QString Filesystem::playlist_xsd_path( )
 {

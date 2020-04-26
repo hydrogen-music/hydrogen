@@ -24,6 +24,8 @@
 
 #include <cassert>
 
+#define PATTERN_VERSION	"1"
+
 #include <hydrogen/basics/note.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/audio_engine.h>
@@ -68,36 +70,29 @@ Pattern::~Pattern()
 Pattern* Pattern::load_file( const QString& pattern_path, InstrumentList* instruments )
 {
 	INFOLOG( QString( "Load pattern %1" ).arg( pattern_path ) );
-	if ( !Filesystem::file_readable( pattern_path ) ) return nullptr;
+	if ( !Filesystem::file_readable( pattern_path ) ) {
+		return nullptr;
+	}
+
 	XMLDoc doc;
-	if( !doc.read( pattern_path, Filesystem::pattern_xsd_path() ) ) {
-		return Legacy::load_drumkit_pattern( pattern_path, instruments );
+	if( doc.read( pattern_path, Filesystem::pattern_xsd_path() ) ) {
+		XMLNode root = doc.firstChildElement( "pattern" );
+		int version = root.read_attribute( "version", "0", false, false ).toInt();
+		return load_from( version, &root, instruments );
 	}
-	XMLNode root = doc.firstChildElement( "drumkit_pattern" );
-	if ( root.isNull() ) {
-		ERRORLOG( "drumkit_pattern node not found" );
-		return nullptr;
-	}
-	XMLNode pattern_node = root.firstChildElement( "pattern" );
-	if ( pattern_node.isNull() ) {
-		ERRORLOG( "pattern node not found" );
-		return nullptr;
-	}
-	return load_from( &pattern_node, instruments );
+	return Legacy::load_drumkit_pattern( pattern_path, instruments );
 }
 
-Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
+Pattern* Pattern::load_from( int version, XMLNode* node, InstrumentList* instruments )
 {
+	INFOLOG( QString( "pattern version : %1" ).arg( version ) );
+	XMLNode meta = node->firstChildElement( "meta" );
 	Pattern* pattern = new Pattern(
-	    node->read_string( "name", nullptr, false, false ),
-	    node->read_string( "info", "", false, false ),
-	    node->read_string( "category", "unknown", false, false ),
-	    node->read_int( "size", -1, false, false )
+	    meta.read_string( "name", nullptr, false, false ),
+	    meta.read_string( "info", "", false, false ),
+	    meta.read_string( "category", "unknown", false, false ),
+	    meta.read_int( "size", -1, false, false )
 	);
-	// FIXME support legacy xml element pattern_name, should once be removed
-	if ( pattern->get_name().isEmpty() ) {
-	    pattern->set_name( node->read_string( "pattern_name", "unknown", false, false ) );
-	}
 	XMLNode note_list_node = node->firstChildElement( "noteList" );
 	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
@@ -120,22 +115,24 @@ bool Pattern::save_file( const QString& pattern_path, bool overwrite ) const
 		return false;
 	}
 	XMLDoc doc;
-	XMLNode root = doc.set_root( "drumkit_pattern", "drumkit_pattern" );
-	root.write_string( "drumkit_name", __drumkit );								// FIXME loaded with LocalFileMng::getDrumkitNameForPattern(…)
-	root.write_string( "author", __author );								// FIXME this is never loaded back
-	root.write_string( "license", __license );								// FIXME this is never loaded back
+	XMLNode root = doc.set_root( "pattern", "pattern" );
 	save_to( &root );
 	return doc.write( pattern_path );
 }
 
 void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly ) const
 {
-	XMLNode pattern_node =  node->createNode( "pattern" );
-	pattern_node.write_string( "name", __name );
-	pattern_node.write_string( "info", __info );
-	pattern_node.write_string( "category", __category );
-	pattern_node.write_int( "size", __length );
-	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
+	node->write_attribute( "version", PATTERN_VERSION );
+	XMLNode meta = node->createNode( "meta" );
+	meta.write_string( "name", __name );
+	meta.write_string( "author", __author );					// FIXME this is never loaded back
+	meta.write_string( "info", __info );
+	meta.write_string( "license", __license );					// FIXME this is never loaded back
+	meta.write_string( "drumkit", __drumkit );					// FIXME loaded with LocalFileMng::getDrumkitNameForPattern(…)
+	meta.write_string( "category", __category );
+	meta.write_int( "size", __length );
+
+	XMLNode note_list_node =  node->createNode( "noteList" );
 	int id = ( instrumentOnly == nullptr ? -1 : instrumentOnly->get_id() );
 	for( auto it=__notes.cbegin(); it!=__notes.cend(); ++it ) {
 		Note* note = it->second;

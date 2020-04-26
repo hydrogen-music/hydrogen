@@ -219,11 +219,12 @@ class Pattern : public H2Core::Object
 		void save_to( XMLNode* node, const Instrument* instrumentOnly = nullptr ) const;
 		/**
 		 * load a pattern from an XMLNode
+		 * \param version the drumkit version
 		 * \param node the XMLDode to read from
 		 * \param instruments the current instrument list to search instrument into
 		 * \return a new Pattern instance
 		 */
-		static Pattern* load_from( XMLNode* node, InstrumentList* instruments );
+		static Pattern* load_from( int version, XMLNode* node, InstrumentList* instruments );
 };
 
 #define FOREACH_NOTE_CST_IT_BEGIN_END(_notes,_it) \
