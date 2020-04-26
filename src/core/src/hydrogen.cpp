@@ -3599,6 +3599,11 @@ void Hydrogen::setBPM( float fBPM )
 	if ( ! m_pAudioDriver || ! pSong ){
 		return;
 	}
+	
+	if ( haveJackTimebaseClient() ) {
+		ERRORLOG( "Unable to change tempo directly in the presence of an external JACK timebase master. Press 'J.MASTER' get tempo control." );
+		return;
+	}
 
 	m_pAudioDriver->setBpm( fBPM );
 	pSong->__bpm = fBPM;

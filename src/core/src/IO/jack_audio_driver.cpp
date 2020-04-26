@@ -432,7 +432,9 @@ void JackAudioDriver::updateTransportInfo()
 		float fBPM = ( float )m_JackTransportPos.beats_per_minute;
 
 		if ( m_transport.m_fBPM != fBPM ) {
-			pHydrogen->setBPM( fBPM );
+			setBpm( fBPM );
+			pHydrogen->getSong()->__bpm = fBPM;
+			pHydrogen->setNewBpmJTM( fBPM );
 		}
 	} else {
 		// Checks for local changes in speed (introduced by the user
