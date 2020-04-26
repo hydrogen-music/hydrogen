@@ -44,16 +44,18 @@ ENDIF()
 
 ADD_EXECUTABLE(hydrogen WIN32 MACOSX_BUNDLE ${hydrogen_SRCS} ${hydrogen_MOC} ${hydrogen_UIS_H} ${CMAKE_SOURCE_DIR}/windows/icon.rc)
 SET_PROPERTY(TARGET hydrogen PROPERTY CXX_STANDARD 14)
-add_custom_command(
-      TARGET hydrogen
-      POST_BUILD
-      COMMAND plutil -replace NSPrincipalClass -string NSApplication hydrogen.app/Contents/Info.plist
-      )
-add_custom_command(
-      TARGET hydrogen
-      POST_BUILD
-      COMMAND plutil -replace NSHighResolutionCapable -bool true hydrogen.app/Contents/Info.plist
-      )
+if(APPLE)
+    add_custom_command(
+        TARGET hydrogen
+        POST_BUILD
+        COMMAND plutil -replace NSPrincipalClass -string NSApplication hydrogen.app/Contents/Info.plist
+    )
+    add_custom_command(
+        TARGET hydrogen
+        POST_BUILD
+        COMMAND plutil -replace NSHighResolutionCapable -bool true hydrogen.app/Contents/Info.plist
+    )
+endif()
 
 TARGET_LINK_LIBRARIES(hydrogen
 	hydrogen-core-${VERSION}
