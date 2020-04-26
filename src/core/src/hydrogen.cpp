@@ -897,7 +897,7 @@ inline void audioEngine_process_checkBPMChanged(Song* pSong)
 
 	long long oldFrame;
 #ifdef H2CORE_HAVE_JACK
-	if ( JackAudioDriver::class_name() == m_pAudioDriver->class_name() &&
+	if ( Hydrogen::get_instance()->haveJackTransport() && 
 		 m_audioEngineState != STATE_PLAYING ) {
 		oldFrame = static_cast< JackAudioDriver* >( m_pAudioDriver )->m_currentPos;
 			
@@ -930,7 +930,7 @@ inline void audioEngine_process_checkBPMChanged(Song* pSong)
 		.arg( m_pAudioDriver->m_transport.m_nFrames ) );
 	
 #ifdef H2CORE_HAVE_JACK
-	if ( JackAudioDriver::class_name() == m_pAudioDriver->class_name() ){
+	if ( Hydrogen::get_instance()->haveJackTransport() ) {
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->calculateFrameOffset(oldFrame);
 	}
 #endif
@@ -1501,7 +1501,7 @@ void audioEngine_renameJackPorts(Song * pSong)
 	// renames jack ports
 	if ( ! pSong ) return;
 
-	if ( m_pAudioDriver->class_name() == JackAudioDriver::class_name() ) {
+	if ( Hydrogen::get_instance()->haveJackAudioDriver() ) {
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->makeTrackOutputs( pSong );
 	}
 #endif
@@ -3831,14 +3831,14 @@ void Hydrogen::handleBeatCounter()
 #ifdef H2CORE_HAVE_JACK
 void Hydrogen::offJackMaster()
 {
-	if ( m_pAudioDriver->class_name() == JackAudioDriver::class_name() ) {
+	if ( haveJackTransport() ) {
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->releaseTimebaseMaster();
 	}
 }
 
 void Hydrogen::onJackMaster()
 {
-	if ( m_pAudioDriver->class_name() == JackAudioDriver::class_name() ) {
+	if ( haveJackTransport() ) {
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->initTimebaseMaster();
 	}
 }
@@ -3992,7 +3992,7 @@ float Hydrogen::getTimelineBpm( int nBar )
 void Hydrogen::setTimelineBpm()
 {
 	if ( ! Preferences::get_instance()->getUseTimelineBpm() ||
-		 static_cast<JackAudioDriver*>(m_pAudioDriver)->getIsTimebaseMaster() == 0 ) {
+		 haveJackTimebaseClient() ) {
 		return;
 	}
 
@@ -4015,6 +4015,18 @@ void Hydrogen::setTimelineBpm()
 	// FIXME: this was already done in setBPM but for "engine" time
 	//        so this is actually forcibly overwritten here
 	setNewBpmJTM( fRealtimeBPM );
+}
+
+bool Hydrogen::haveJackAudioDriver() const {
+#ifdef H2CORE_HAVE_JACK
+	if ( JackAudioDriver::class_name() == m_pAudioDriver->class_name() ){
+		return true;
+	} else {
+		return false;
+	}
+#else
+	return false;
+#endif	
 }
 
 bool Hydrogen::haveJackTransport() const {

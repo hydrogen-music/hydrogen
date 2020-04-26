@@ -632,6 +632,11 @@ void			previewSample( Sample *pSample );
 	 * \return Frame offset*/
 	int 			calculateLookahead( float fTickSize );
 	/**
+	 * \return Whether JackAudioDriver is used as current audio
+	 * driver.
+	 */
+	bool			haveJackAudioDriver() const;
+	/**
 	 * \return Whether JackAudioDriver is used as current audio driver
 	 * and JACK transport was activated via the GUI
 	 * (#Preferences::m_bJackTransportMode).

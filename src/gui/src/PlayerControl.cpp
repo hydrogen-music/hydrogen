@@ -581,7 +581,7 @@ void PlayerControl::updatePlayerControl()
 #ifdef H2CORE_HAVE_JACK
 	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0){
+	if ( m_pEngine->haveJackAudioDriver() ) {
 		m_pJackTransportBtn->show();
 		switch ( pPref->m_bJackTransportMode ) {
 			case Preferences::NO_JACK_TRANSPORT:
@@ -887,7 +887,7 @@ void PlayerControl::jackTransportBtnClicked( Button* )
 	Preferences *pPref = Preferences::get_instance();
 	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0 ) ){
+	if ( !m_pEngine->haveJackAudioDriver() ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}
@@ -916,7 +916,7 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 	Preferences *pPref = Preferences::get_instance();
 	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if ( ! ( p_Driver && strncmp(p_Driver->class_name(), "JackAudioDriver", 10) == 0 ) ){
+	if ( !m_pEngine->haveJackAudioDriver() ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}
@@ -952,7 +952,7 @@ void PlayerControl::bpmClicked()
 		m_pEngine->getSong()->set_is_modified( true );
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
-		
+
 		m_pEngine->setBPM( fNewVal );
 		AudioEngine::get_instance()->unlock();
 	}

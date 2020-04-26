@@ -1002,8 +1002,7 @@ void SongEditorPatternList::patternChangedEvent() {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	
 #ifdef H2CORE_HAVE_JACK
-	AudioOutput* pDriver = pHydrogen->getAudioOutput();
-	if ( pDriver->class_name() == JackAudioDriver::class_name() ){
+	if ( pHydrogen->haveJackTransport() ) {
 		return;
 	}
 #endif
@@ -2026,64 +2025,61 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 
 void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 {
+	auto pHydrogen = Hydrogen::get_instance();
+	
 	if (ev->button() == Qt::LeftButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);
 		m_bRightBtnPressed = false;
 
-		if ( column > (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
+		if ( column > (int)pHydrogen->getSong()->get_pattern_group_vector()->size() ) {
 			return;
 		}
 
 		// disabling son relocates while in pattern mode as it causes weird behaviour. (jakob lund)
-		if ( Hydrogen::get_instance()->getSong()->get_mode() == Song::PATTERN_MODE ) {
+		if ( pHydrogen->getSong()->get_mode() == Song::PATTERN_MODE ) {
 			return;
 		}
-		AudioOutput* pDriver = Hydrogen::get_instance()->getAudioOutput();
+		AudioOutput* pDriver = pHydrogen->getAudioOutput();
 
-		int nPatternPos = Hydrogen::get_instance()->getPatternPos();
+		int nPatternPos = pHydrogen->getPatternPos();
 		if ( nPatternPos != column ) {
 			WARNINGLOG( "relocate via mouse click" );
-			Hydrogen::get_instance()->setPatternPos( column );
+			pHydrogen->setPatternPos( column );
 			update();
 
-			long totalTick = Hydrogen::get_instance()->getTickForPosition( column );
-			if ( totalTick < 0 && Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
-				
-			}
-			
 #ifdef H2CORE_HAVE_JACK
-			static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
-				totalTick * pDriver->m_transport.m_fTickSize;
+			if ( pHydrogen->haveJackTransport() ) {
+				long totalTick = pHydrogen->getTickForPosition( column );
+				static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
+					totalTick * pDriver->m_transport.m_fTickSize;
+			}
 #endif
 		}
 
 		//time line test
 	
 #ifdef H2CORE_HAVE_JACK
-		if ( pDriver->class_name() == JackAudioDriver::class_name() &&
-			 static_cast<JackAudioDriver*>(pDriver)->getIsTimebaseMaster() != 0 ){
-			Hydrogen::get_instance()->setTimelineBpm();
+		if ( !pHydrogen->haveJackTimebaseClient() ) {
+			pHydrogen->setTimelineBpm();
 		}
 #else
-		Hydrogen::get_instance()->setTimelineBpm();
+		pHydrogen->setTimelineBpm();
 #endif
 
-	}
-	else if (ev->button() == Qt::MidButton && ev->y() >= 26) {
+	} else if (ev->button() == Qt::MidButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);
 		SongEditorPanelTagWidget dialog( this , column );
 		if (dialog.exec() == QDialog::Accepted) {
 			//createBackground();
 		}
-	}
-	else if (ev->button() == Qt::RightButton && ev->y() >= 26) {
+	} else if (ev->button() == Qt::RightButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);
 		Preferences* pPref = Preferences::get_instance();
-		if ( column >= (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
+		if ( column >= (int)pHydrogen->getSong()->get_pattern_group_vector()->size() ) {
 			pPref->unsetPunchArea();
 			return;
 		}
-		if ( Hydrogen::get_instance()->getSong()->get_mode() == Song::PATTERN_MODE ) {
+		if ( pHydrogen->getSong()->get_mode() == Song::PATTERN_MODE ) {
 			return;
 		}
 		m_bRightBtnPressed = true;
@@ -2091,8 +2087,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		pPref->setPunchInPos(column);
 		pPref->setPunchOutPos(-1);
 		update();
-	}
-		else if( ( ev->button() == Qt::LeftButton || ev->button() == Qt::RightButton ) && ev->y() <= 25 && Preferences::get_instance()->getUseTimelineBpm() ){
+	} else if( ( ev->button() == Qt::LeftButton || ev->button() == Qt::RightButton ) && ev->y() <= 25 && Preferences::get_instance()->getUseTimelineBpm() ){
 		int column = (ev->x() / m_nGridWidth);
 		SongEditorPanelBpmWidget dialog( this , column );
 		if (dialog.exec() == QDialog::Accepted) {
