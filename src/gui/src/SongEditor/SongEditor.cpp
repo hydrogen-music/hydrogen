@@ -2171,6 +2171,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 void SongEditorPositionRuler::updatePosition()
 {
+	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
 	update();
 }
 

@@ -83,6 +83,11 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		///< pattern at idx within pattern list will be destroyed
 		void deletePattern( int idx );
 
+		/** Disables and deactivates the Timeline when an external
+		 * JACK timebase master is detected and enables it when it's
+		 * gone or Hydrogen itself becomes the timebase master.
+		 */
+		void updateTimelineUsage();
 	private slots:
 		void vScrollTo( int value );
 		void hScrollTo( int value );

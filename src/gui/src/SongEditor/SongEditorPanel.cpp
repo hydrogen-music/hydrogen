@@ -81,7 +81,17 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pTimeLineToggleBtn->move( 133, 6 );
 	m_pTimeLineToggleBtn->setToolTip( tr( "Enable time line edit") );
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
-	m_pTimeLineToggleBtn->setPressed( pPref->getUseTimelineBpm() );
+	
+	if ( pPref->getUseTimelineBpm() &&
+		 !pEngine->haveJackTimebaseClient() ) {
+		m_pTimeLineToggleBtn->setPressed( true );
+		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
+
+	} else {
+		m_pTimeLineToggleBtn->setPressed( false );
+		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") );
+
+	}
 
 
 	// clear sequence button
@@ -506,6 +516,8 @@ void SongEditorPanel::updateAll()
 
 	m_pSongEditor->createBackground();
 	m_pSongEditor->update();
+	
+	updateTimelineUsage();
 
  	m_pAutomationPathView->setAutomationPath( pSong->get_velocity_automation_path() );
 
@@ -689,20 +701,49 @@ void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 	m_actionMode = DRAW_ACTION;
 }
 
+void SongEditorPanel::updateTimelineUsage() {
 
+	auto pHydrogen = Hydrogen::get_instance();
+	
+	if ( pHydrogen->haveJackTimebaseClient() ) {
+		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") );
+		m_pTimeLineToggleBtn->setPressed( false );
+		m_pTimeLineToggleBtn->setDisabled( true );
+		Preferences::get_instance()->setUseTimelineBpm( false );
+		m_pPositionRuler->createBackground();
+		return;
+	} else if ( m_pTimeLineToggleBtn->toolTip() == 
+				trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") ) {
+		// No external timebase master present anymore.
+		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
+		m_pTimeLineToggleBtn->setDisabled( false );
+	}
+	
+}
 
 void SongEditorPanel::timeLineBtnPressed( Button* pBtn )
 {
-	if( m_pTimeLineToggleBtn->isPressed() ){
-		Preferences::get_instance()->setUseTimelineBpm( false );
-		Hydrogen::get_instance()->setTimelineBpm();
+	
+	auto pHydrogen = Hydrogen::get_instance();
+	
+	if ( pHydrogen->haveJackTimebaseClient() ) {
+		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") );
+		return;
+	} else {
+		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
 	}
-	else
-	{
+
+	if ( m_pTimeLineToggleBtn->isPressed() ){
 		Preferences::get_instance()->setUseTimelineBpm( true );
+		
+		if ( !pHydrogen->haveJackTransport() ) {
+			pHydrogen->setTimelineBpm();
+		}
+	} else {
+		Preferences::get_instance()->setUseTimelineBpm( false );
 	}
 	
-	m_pPositionRuler->createBackground();	
+	m_pPositionRuler->createBackground();
 }
 
 void SongEditorPanel::showTimeline()
