@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<drumkit version="1" xmlns="http://www.hydrogen-music.org/drumkit" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
- <meta>
-  <name>TR808EmulationKit</name>
-  <author>ArtemioLabs [http://artemiolabs.com]</author>
-  <info>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<drumkit_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit">
+ <name>TR808EmulationKit</name>
+ <author>ArtemioLabs [http://artemiolabs.com]</author>
+ <info>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 &lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'Lucida Grande'; font-size:10pt; font-weight:400; font-style:normal;">
 &lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">This drum kit contains 16 original sounds that were synthesized from scratch (using only basic synth waves, like sine, noise etc.). It simulates the sounds of the legendary Roland TR-808 Rhythm Composer. More kits from ArtemioLabs: http://artemiolabs.com/downloads/audio/hydrogen/&lt;/p>&lt;/body>&lt;/html></info>
-  <license>GPL</license>
-  <image></image>
-  <imageLicense>undefined license</imageLicense>
- </meta>
+ <license>GPL</license>
+ <image></image>
+ <imageLicense></imageLicense>
  <componentList>
   <drumkitComponent>
    <id>0</id>
@@ -677,4 +675,4 @@ p, li { white-space: pre-wrap; }
    </instrumentComponent>
   </instrument>
  </instrumentList>
-</drumkit>
+</drumkit_info>
