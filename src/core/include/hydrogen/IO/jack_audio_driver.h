@@ -543,8 +543,8 @@ public:
 	 * \return #m_nIsTimebaseMaster
 	 */
 	int getIsTimebaseMaster();
-	/** Stores the current transport position in case transport is not
-	 *	rolling.
+	/** Stores the latest transport position (for both rolling and
+	 * stopped transport).
 	 *
 	 * In case the user is clicking on the
 	 * SongEditor::mousePressEvent() will trigger both a relocation

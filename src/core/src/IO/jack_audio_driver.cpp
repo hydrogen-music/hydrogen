@@ -369,7 +369,7 @@ void JackAudioDriver::updateTransportInfo()
 	switch ( m_JackTransportState ) {
 	case JackTransportStopped: // Transport is halted
 		m_transport.m_status = TransportInfo::STOPPED;
-		break;
+		return;
 		
 	case JackTransportRolling: // Transport is playing
 		m_transport.m_status = TransportInfo::ROLLING;
@@ -384,65 +384,11 @@ void JackAudioDriver::updateTransportInfo()
 	default:
 		ERRORLOG( "Unknown jack transport state" );
 	}
-
-	// std::cout << std::endl << "[Jack-Query] frame: " << m_JackTransportPos.frame
-    //                   << ", BPM: " <<  m_JackTransportPos.beats_per_minute
-    //                   << ", state: " << m_JackTransportState
-    //                   << ", valid: " << m_JackTransportPos.valid
-    //                   << ", frame_rate: " << m_JackTransportPos.frame_rate
-    //                   << std::endl;
-
-
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-
-	// std::cout << "[updateTransport] m_nFrames: " << m_transport.m_nFrames
-	// 		  << ", m_fBPM: " << m_transport.m_fBPM
-	// 		  << ", m_fTickSize: " << m_transport.m_fTickSize
-	// 		  << ", m_frameOffset: " << m_frameOffset
-	// 		  << ", m_currentPos: " << m_currentPos
-	// 		  << ", pattern pos: " << pHydrogen->getPatternPos() 
-	// 		  << std::endl;
 	
-	// The relocation could be either triggered by an user interaction
-	// (e.g. clicking the forward button or clicking somewhere on the
-	// timeline) or by a different JACK client.
-	if ( m_transport.m_nFrames + m_frameOffset != m_JackTransportPos.frame ) {
-		// std::cout << "[updateTransport] relocating rolling from m_frameOffset: "
-		// 		  << m_frameOffset
-		// 		  << " + " << m_transport.m_nFrames
-		// 		  <<  " to " << m_JackTransportPos.frame << std::endl;
-
-		m_transport.m_nFrames = m_JackTransportPos.frame;
-		
-		
-		// Reset playback to the beginning of the pattern if Hydrogen
-		// is in pattern mode.
-		pHydrogen->resetPatternStartTick();
-		
-		// There maybe was an offset introduced when passing a tempo
-		// marker.
-		m_frameOffset = 0;
-	}
-
-	if ( ( m_JackTransportPos.valid & JackPositionBBT ) &&
-		 m_nIsTimebaseMaster < 1 ){
-		// There is a JACK timebase master and it's not us. If it
-		// provides a tempo that differs from the local one, we will
-		// use the former instead.
-		float fBPM = ( float )m_JackTransportPos.beats_per_minute;
-
-		if ( m_transport.m_fBPM != fBPM ) {
-			pHydrogen->setBPM( fBPM );
-		}
-	} else {
-		// Checks for local changes in speed (introduced by the user
-		// using BPM markers on the timeline) and update tempo
-		// accordingly.
-		pHydrogen->setTimelineBpm();
-	}
+	m_currentPos = m_JackTransportPos.frame;
 	
 	// Update the status regrading JACK timebase master.
-	if ( m_transport.m_status == TransportInfo::ROLLING ) {
+	if ( m_JackTransportState != JackTransportStopped ) {
 		if ( m_nIsTimebaseMaster > 1 ) {
 			m_nIsTimebaseMaster--;
 		} else if ( m_nIsTimebaseMaster == 1 ) {
@@ -458,6 +404,41 @@ void JackAudioDriver::updateTransportInfo()
 				(m_JackTransportPos.valid & JackPositionBBT) ) {
 		// External timebase master detected -> timebase client
 		m_nIsTimebaseMaster = 0;
+	}
+
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	
+	// The relocation could be either triggered by an user interaction
+	// (e.g. clicking the forward button or clicking somewhere on the
+	// timeline) or by a different JACK client.
+	if ( m_transport.m_nFrames + m_frameOffset != m_JackTransportPos.frame ) {
+			
+		m_transport.m_nFrames = m_JackTransportPos.frame;
+		
+		
+		// Reset playback to the beginning of the pattern if Hydrogen
+		// is in pattern mode.
+		pHydrogen->resetPatternStartTick();
+			
+		// There maybe was an offset introduced when passing a tempo
+		// marker.
+		m_frameOffset = 0;
+	}
+
+	if ( m_nIsTimebaseMaster == 0 ){
+		// There is a JACK timebase master and it's not us. If it
+		// provides a tempo that differs from the local one, we will
+		// use the former instead.
+		float fBPM = ( float )m_JackTransportPos.beats_per_minute;
+
+		if ( m_transport.m_fBPM != fBPM ) {
+			pHydrogen->setBPM( fBPM );
+		}
+	} else {
+		// Checks for local changes in speed (introduced by the user
+		// using BPM markers on the timeline) and update tempo
+		// accordingly.
+		pHydrogen->setTimelineBpm();
 	}
 }
 
@@ -1155,8 +1136,9 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 
 		// Counting ticks starts at 0.
 		pJackPosition->tick = nTicksFromBar % (int32_t) pJackPosition->ticks_per_beat;
-			
+				
 	}
+
     
 	// Tell Hydrogen it is still timebase master.
 	pDriver->m_nIsTimebaseMaster = 2;
