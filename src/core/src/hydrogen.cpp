@@ -928,7 +928,7 @@ inline void audioEngine_process_checkBPMChanged(Song* pSong)
 	___WARNINGLOG( QString( "Tempo change: Recomputing ticksize and frame position. Old TS: %1, new TS: %2, new pos: %3" )
 		.arg( fOldTickSize ).arg( fNewTickSize )
 		.arg( m_pAudioDriver->m_transport.m_nFrames ) );
-
+	
 #ifdef H2CORE_HAVE_JACK
 	if ( JackAudioDriver::class_name() == m_pAudioDriver->class_name() ){
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->calculateFrameOffset(oldFrame);
@@ -1131,6 +1131,7 @@ inline void audioEngine_process_transport()
 				.arg( pSong->__bpm )
 				.arg( m_pAudioDriver->m_transport.m_fBPM )
 			);
+
 			pHydrogen->setBPM( m_pAudioDriver->m_transport.m_fBPM );
 		}
 
@@ -4014,6 +4015,33 @@ void Hydrogen::setTimelineBpm()
 	// FIXME: this was already done in setBPM but for "engine" time
 	//        so this is actually forcibly overwritten here
 	setNewBpmJTM( fRealtimeBPM );
+}
+
+bool Hydrogen::haveJackTransport() const {
+#ifdef H2CORE_HAVE_JACK
+	if ( JackAudioDriver::class_name() == m_pAudioDriver->class_name() &&
+		 Preferences::get_instance()->m_bJackTransportMode ==
+	     Preferences::USE_JACK_TRANSPORT ){
+		return true;
+	} else {
+		return false;
+	}
+#else
+	return false;
+#endif	
+}
+
+bool Hydrogen::haveJackTimebaseClient() const {
+#ifdef H2CORE_HAVE_JACK
+	if ( haveJackTransport() ) {
+		if ( static_cast<JackAudioDriver*>(m_pAudioDriver)->getIsTimebaseMaster() == 0 ) {
+			return true;
+		}
+	} 
+	return false;
+#else
+	return false;
+#endif	
 }
 
 #ifdef H2CORE_HAVE_OSC

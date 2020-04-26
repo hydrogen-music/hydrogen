@@ -542,7 +542,7 @@ public:
 	/**
 	 * \return #m_nIsTimebaseMaster
 	 */
-	int getIsTimebaseMaster();
+	int getIsTimebaseMaster() const;
 	/** Stores the latest transport position (for both rolling and
 	 * stopped transport).
 	 *
@@ -799,7 +799,7 @@ private:
 
 };
 	
-inline int JackAudioDriver::getIsTimebaseMaster() {
+inline int JackAudioDriver::getIsTimebaseMaster() const {
 	return m_nIsTimebaseMaster;
 }
 inline int JackAudioDriver::getNumTracks() {

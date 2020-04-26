@@ -631,6 +631,19 @@ void			previewSample( Sample *pSample );
 	 *
 	 * \return Frame offset*/
 	int 			calculateLookahead( float fTickSize );
+	/**
+	 * \return Whether JackAudioDriver is used as current audio driver
+	 * and JACK transport was activated via the GUI
+	 * (#Preferences::m_bJackTransportMode).
+	 */
+	bool			haveJackTransport() const;
+	/**
+	 * \return Whether we haveJackTransport() and there is an external
+	 * JACK timebase master broadcasting us tempo information and
+	 * making use disregard Hydrogen's Timeline information (see
+	 * #JackAudioDriver::m_nIsTimebaseMaster).
+	 */
+	bool			haveJackTimebaseClient() const;
 
 	///midi lookuptable
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
