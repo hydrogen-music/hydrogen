@@ -98,6 +98,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView )
 
 	m_nCursorRow = 0;
 	m_nCursorColumn = 0;
+	m_bCursorHidden = true;
 
 	Preferences *pref = Preferences::get_instance();
 	m_nMaxPatternSequence = pref->getMaxBars();
@@ -142,7 +143,7 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 	vector<PatternList*>* pColumns = pEngine->getSong()->get_pattern_group_vector();
 
-	// TODO: Enter actions
+        m_bCursorHidden = false;
 
 	if ( ev->matches( QKeySequence::Delete ) ) {
 		if ( m_selectedCells.size() != 0 ) {
@@ -183,8 +184,8 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
 		m_nCursorRow = 0;
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
-
 		SongEditorActionMode actionMode = HydrogenApp::get_instance()->getSongEditorPanel()->getActionMode();
+
 		if ( actionMode == DRAW_ACTION ) {
 			// In DRAW mode, Enter's obvious action is the same as a
 			// click - insert or delete pattern.
@@ -215,6 +216,7 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 		}
 	} else {
 		ev->ignore();
+		m_bCursorHidden = true;
 		return;
 	}
 
@@ -227,9 +229,10 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 // Make cursor visible on focus
 void SongEditor::focusInEvent( QFocusEvent *ev )
 {
-	if ( ev->reason() != Qt::MouseFocusReason ) {
+	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason ) {
 		m_pScrollView->ensureVisible( 10 + m_nCursorColumn * m_nGridWidth + m_nGridWidth / 2,
 									  m_nCursorRow * m_nGridHeight + m_nGridHeight / 2 );
+		m_bCursorHidden = false;
 	}
 	update();
 }
@@ -244,8 +247,12 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 	int nRow = ev->y() / m_nGridHeight;
 	int nColumn = ( (int)ev->x() - 10 ) / (int)m_nGridWidth;
 
+	// Input focus is hidden on mouse clicks, but still follows the
+	// mouse position to allow the mouse to be used for larger
+	// position movements
 	m_nCursorRow = nRow;
 	m_nCursorColumn = nColumn;
+	m_bCursorHidden = true;
 
 	if ( ev->modifiers() == Qt::ControlModifier ) {
 		INFOLOG( "[mousePressEvent] CTRL pressed!" );
@@ -711,7 +718,7 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 	painter.drawPixmap( ev->rect(), *m_pSequencePixmap, ev->rect() );
 
 	// Draw cursor
-	if ( hasFocus() ) {
+	if ( ! m_bCursorHidden && hasFocus() ) {
 		painter.setPen( Qt::black );
 		painter.setRenderHint( QPainter::Antialiasing );
 		// Aim to leave a visible gap between the border of the

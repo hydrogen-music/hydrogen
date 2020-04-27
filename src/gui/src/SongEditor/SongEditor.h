@@ -107,6 +107,7 @@ class SongEditor : public QWidget, public H2Core::Object
 
 		int m_nCursorRow;
 		int m_nCursorColumn;
+		int m_bCursorHidden;
 
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);

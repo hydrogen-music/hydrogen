@@ -400,7 +400,7 @@ void PianoRollEditor::drawPattern()
 	}
 
 	// Draw cursor
-	if ( hasFocus() ) {
+	if ( hasFocus() && !m_pPatternEditorPanel->cursorHidden() ) {
 		QPoint pos = cursorPosition();
 
 		p.setPen( QColor(0,0,0) );
@@ -553,6 +553,7 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 		return;
 	}
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
+	m_pPatternEditorPanel->setCursorHidden( true );
 	
 	int pressedline = ((int) ev->y()) / ((int) m_nRowHeight);
 
@@ -947,6 +948,7 @@ QPoint PianoRollEditor::cursorPosition()
 
 void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 {
+	m_pPatternEditorPanel->setCursorHidden( false );
 	if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
@@ -978,6 +980,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, pressedline,
 						 note, octave - OCTAVE_OFFSET );
 	} else {
+		m_pPatternEditorPanel->setCursorHidden( true );
 		ev->ignore();
 		return;
 	}
@@ -994,7 +997,8 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 void PianoRollEditor::focusInEvent( QFocusEvent * ev )
 {
 	UNUSED( ev );
-	if ( ev->reason() != Qt::MouseFocusReason ) {
+	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason ) {
+		m_pPatternEditorPanel->setCursorHidden( false );
 		m_pPatternEditorPanel->ensureCursorVisible();
 	}
 	updateEditor();

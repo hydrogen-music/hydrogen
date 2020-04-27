@@ -127,6 +127,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
 
     m_pPatternEditorPanel->setCursorPosition( column );
+	m_pPatternEditorPanel->setCursorHidden( true );
 
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = (Hydrogen::get_instance())->getSong();
@@ -328,6 +329,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 		column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
 
         m_pPatternEditorPanel->setCursorPosition( column );
+		m_pPatternEditorPanel->setCursorHidden( true );
 
 		bool columnChange = false;
 		if( __columnCheckOnXmouseMouve != column ){
@@ -471,6 +473,7 @@ void NotePropertiesRuler::mouseReleaseEvent(QMouseEvent *ev)
 
 void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 {
+	m_pPatternEditorPanel->setCursorHidden( false );
 	if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
@@ -587,6 +590,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			}
 			addUndoAction();
 		} else {
+			m_pPatternEditorPanel->setCursorHidden( true );
 			ev->ignore();
 			return;
 		}
@@ -599,6 +603,9 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 void NotePropertiesRuler::focusInEvent( QFocusEvent * ev )
 {
+	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason ) {
+		m_pPatternEditorPanel->setCursorHidden( false );
+	}
 	updateEditor();
 }
 
@@ -1380,7 +1387,7 @@ void NotePropertiesRuler::updateEditor()
 		createNoteKeyBackground( m_pBackground );
 	}
 
-	if ( hasFocus() ) {
+	if ( hasFocus() && !m_pPatternEditorPanel->cursorHidden() ) {
 		QPainter p( m_pBackground );
 
 		uint x = 20 + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;

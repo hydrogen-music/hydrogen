@@ -237,6 +237,7 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 	}
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
+	m_pPatternEditorPanel->setCursorHidden( true );
 }
 
 void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
@@ -462,6 +463,8 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	int nSelectedInstrument = pH2->getSelectedInstrumentNumber();
 	int nMaxInstrument = pH2->getSong()->get_instrument_list()->size();
 
+	m_pPatternEditorPanel->setCursorHidden( false );
+
 	if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
@@ -488,6 +491,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument );
 	} else {
 		ev->ignore();
+		m_pPatternEditorPanel->setCursorHidden( true );
 		return;
 	}
 
@@ -538,7 +542,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 
 	// Draw cursor
-	if ( hasFocus() ) {
+	if ( hasFocus() && !m_pPatternEditorPanel->cursorHidden() ) {
 		uint x = 20 + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		uint y = nSelectedInstrument * m_nGridHeight;
@@ -862,8 +866,9 @@ void DrumPatternEditor::hideEvent ( QHideEvent *ev )
 void DrumPatternEditor::focusInEvent ( QFocusEvent *ev )
 {
 	UNUSED( ev );
-	if ( ev->reason() != Qt::MouseFocusReason ) {
+	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason ) {
 		m_pPatternEditorPanel->ensureCursorVisible();
+		m_pPatternEditorPanel->setCursorHidden( false );
 	}
 	updateEditor();
 }
