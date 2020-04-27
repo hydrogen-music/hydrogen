@@ -324,7 +324,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// Instrument list scrollview
 	m_pInstrListScrollView = new WidgetScrollArea( nullptr );
 	m_pInstrListScrollView->setObjectName( "InstrListScrollView" );
-	m_pInstrListScrollView->setFocusPolicy(Qt::ClickFocus);
+	m_pInstrListScrollView->setFocusPolicy( Qt::ClickFocus );
 	m_pInstrListScrollView->setFrameShape( QFrame::NoFrame );
 	m_pInstrListScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pInstrListScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -1048,18 +1048,20 @@ void PatternEditorPanel::ensureCursorVisible()
 
 void PatternEditorPanel::setCursorPosition(int nCursorPosition)
 {
-	if ( nCursorPosition < 0 )
+	if ( nCursorPosition < 0 ) {
 		m_nCursorPosition = 0;
-	else if ( nCursorPosition >= m_pPattern->get_length() )
+	} else if ( nCursorPosition >= m_pPattern->get_length() ) {
 		m_nCursorPosition = m_pPattern->get_length() - m_nCursorIncrement;
-	else
+	} else {
 		m_nCursorPosition = nCursorPosition;
+	}
 }
 
 int PatternEditorPanel::moveCursorLeft()
 {
-	if ( m_nCursorPosition >= m_nCursorIncrement )
+	if ( m_nCursorPosition >= m_nCursorIncrement ) {
 		m_nCursorPosition -= m_nCursorIncrement;
+	}
 
 	ensureCursorVisible();
 
@@ -1068,8 +1070,9 @@ int PatternEditorPanel::moveCursorLeft()
 
 int PatternEditorPanel::moveCursorRight()
 {
-	if ( m_nCursorPosition + m_nCursorIncrement < m_pPattern->get_length() )
+	if ( m_nCursorPosition + m_nCursorIncrement < m_pPattern->get_length() ) {
 		m_nCursorPosition += m_nCursorIncrement;
+	}
 
 	ensureCursorVisible();
 

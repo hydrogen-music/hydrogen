@@ -947,29 +947,31 @@ QPoint PianoRollEditor::cursorPosition()
 
 void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 {
-	if ( ev->matches( QKeySequence::MoveToNextChar ) )
+	if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
-	else if ( ev->matches( QKeySequence::MoveToEndOfLine ) )
+	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ) {
 		// -->|
 		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
-	else if ( ev->matches( QKeySequence::MoveToPreviousChar ) )
+	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ) {
 		// <-
 		m_pPatternEditorPanel->moveCursorLeft();
-	else if ( ev->matches( QKeySequence::MoveToStartOfLine ) )
+	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ) {
 		// |<--
 		m_pPatternEditorPanel->setCursorPosition( 0 );
-	else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
-		if ( m_nCursorNote > 0 )
+	} else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
+		if ( m_nCursorNote > 0 ) {
 			m_nCursorNote --;
-	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) )
+		}
+	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
 		m_nCursorNote = 0;
-	else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
-		if ( m_nCursorNote < 12 * m_nOctaves -1 )
+	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
+		if ( m_nCursorNote < 12 * m_nOctaves -1 ) {
 			m_nCursorNote ++;
-	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) )
+		}
+	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
 		m_nCursorNote = 12 * m_nOctaves -1;
-	else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		int note = m_nCursorNote % 12;
 		int octave = m_nCursorNote / 12;
 		int pressedline = (m_nOctaves * 12) - m_nCursorNote - 1;
@@ -992,8 +994,9 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 void PianoRollEditor::focusInEvent( QFocusEvent * ev )
 {
 	UNUSED( ev );
-	if ( ev->reason() != Qt::MouseFocusReason )
+	if ( ev->reason() != Qt::MouseFocusReason ) {
 		m_pPatternEditorPanel->ensureCursorVisible();
+	}
 	updateEditor();
 }
 

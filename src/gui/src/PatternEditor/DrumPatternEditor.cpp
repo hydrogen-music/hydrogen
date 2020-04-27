@@ -462,31 +462,31 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	int nSelectedInstrument = pH2->getSelectedInstrumentNumber();
 	int nMaxInstrument = pH2->getSong()->get_instrument_list()->size();
 
-	if ( ev->matches( QKeySequence::MoveToNextChar ) )
+	if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
-	else if ( ev->matches( QKeySequence::MoveToEndOfLine ) )
+	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ) {
 		// -->|
 		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
-	else if ( ev->matches( QKeySequence::MoveToPreviousChar ) )
+	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ) {
 		// <-
 		m_pPatternEditorPanel->moveCursorLeft();
-	else if ( ev->matches( QKeySequence::MoveToStartOfLine ) )
+	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ) {
 		// |<--
 		m_pPatternEditorPanel->setCursorPosition( 0 );
-	else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
 		if ( nSelectedInstrument + 1 < nMaxInstrument )
 			pH2->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
-	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) )
+	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
 		pH2->setSelectedInstrumentNumber( nMaxInstrument-1 );
-	else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
 		if ( nSelectedInstrument > 0 )
 			pH2->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
-	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) )
+	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
 		pH2->setSelectedInstrumentNumber( 0 );
-	else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return )
+	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument );
-	else {
+	} else {
 		ev->ignore();
 		return;
 	}
@@ -862,8 +862,9 @@ void DrumPatternEditor::hideEvent ( QHideEvent *ev )
 void DrumPatternEditor::focusInEvent ( QFocusEvent *ev )
 {
 	UNUSED( ev );
-	if ( ev->reason() != Qt::MouseFocusReason )
+	if ( ev->reason() != Qt::MouseFocusReason ) {
 		m_pPatternEditorPanel->ensureCursorVisible();
+	}
 	updateEditor();
 }
 

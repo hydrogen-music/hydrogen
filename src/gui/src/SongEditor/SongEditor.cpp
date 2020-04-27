@@ -159,23 +159,27 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 			m_bSequenceChanged = true;
 		}
 	} else if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
-		if ( m_nCursorColumn < m_nMaxPatternSequence -1 )
+		if ( m_nCursorColumn < m_nMaxPatternSequence -1 ) {
 			m_nCursorColumn += 1;
+		}
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ) {
 		m_nCursorColumn = m_nMaxPatternSequence -1;
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ) {
-		if ( m_nCursorColumn > 0 )
+		if ( m_nCursorColumn > 0 ) {
 			m_nCursorColumn -= 1;
+		}
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ) {
 		m_nCursorColumn = 0;
 	} else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
-		if ( m_nCursorRow < pPatternList->size()-1 )
+		if ( m_nCursorRow < pPatternList->size()-1 ) {
 			m_nCursorRow += 1;
+		}
 	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
 		m_nCursorRow = pPatternList->size() -1;
 	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
-		if ( m_nCursorRow > 0 )
+		if ( m_nCursorRow > 0 ) {
 			m_nCursorRow -= 1;
+		}
 	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
 		m_nCursorRow = 0;
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
@@ -193,12 +197,13 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 				PatternList *pColumn = ( *pColumns )[ m_nCursorColumn ];
 				unsigned nColumnIndex = pColumn->index( pPattern );
 
-				if ( nColumnIndex != -1 )
+				if ( nColumnIndex != -1 ) {
 					// Existing pattern. Delete.
 					h2app->m_pUndoStack->push( new SE_deletePatternAction( m_nCursorColumn, m_nCursorRow, nColumnIndex) );
-				else if ( m_nCursorColumn < (int)pColumns->size() )
+				} else if ( m_nCursorColumn < (int)pColumns->size() ) {
 					// No existing pattern. Insert.
 					h2app->m_pUndoStack->push( new SE_addPatternAction( m_nCursorColumn, m_nCursorRow, nColumnIndex ) );
+				}
 			} else {
 				h2app->m_pUndoStack->push( new SE_addPatternAction( m_nCursorColumn, m_nCursorRow, 0 ) );
 			}
@@ -222,9 +227,10 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 // Make cursor visible on focus
 void SongEditor::focusInEvent( QFocusEvent *ev )
 {
-	if ( ev->reason() != Qt::MouseFocusReason )
+	if ( ev->reason() != Qt::MouseFocusReason ) {
 		m_pScrollView->ensureVisible( 10 + m_nCursorColumn * m_nGridWidth + m_nGridWidth / 2,
 									  m_nCursorRow * m_nGridHeight + m_nGridHeight / 2 );
+	}
 	update();
 }
 
