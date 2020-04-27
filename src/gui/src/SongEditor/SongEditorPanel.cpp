@@ -310,6 +310,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPositionRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPositionRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pPositionRulerScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pPositionRuler = new SongEditorPositionRuler( m_pPositionRulerScrollView->viewport() );
 	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
 	m_pPositionRulerScrollView->setFixedHeight( 50 );
