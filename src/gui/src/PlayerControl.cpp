@@ -605,7 +605,6 @@ void PlayerControl::updatePlayerControl()
 				m_pJackTransportBtn->setPressed(true);
 				
 				if ( static_cast<JackAudioDriver*>(p_Driver)->getIsTimebaseMaster() > 0 ) {
-					std::cout << "That guy is master!" << std::endl;
 					m_pJackMasterBtn->setPressed( true );
 				} else {
 					m_pJackMasterBtn->setPressed( false );
