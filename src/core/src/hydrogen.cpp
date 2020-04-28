@@ -2564,7 +2564,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	unsigned int column = 0;
 	float fTickSize = m_pAudioDriver->m_transport.m_fTickSize;
 	unsigned int lookaheadTicks = calculateLookahead( fTickSize ) / fTickSize;
-	bool doRecord = pref->getRecordEvents();
+	bool doRecord = pPreferences->getRecordEvents();
 	if ( pSong->get_mode() == Song::SONG_MODE && doRecord &&
 		 m_audioEngineState == STATE_PLAYING )
 	{
