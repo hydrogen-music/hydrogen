@@ -407,7 +407,7 @@ void JackAudioDriver::updateTransportInfo()
 	}
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	
+		
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
@@ -815,9 +815,7 @@ void JackAudioDriver::setTrackOutput( int n, Instrument* pInstrument, Instrument
 void JackAudioDriver::play()
 {
 	Preferences* pPreferences = Preferences::get_instance();
-	if ( pPreferences->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ||
-		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER
-		 ) {
+	if ( pPreferences->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT ) {
 		if ( m_pClient != nullptr ) {
 			INFOLOG( "jack_transport_start()" );
 			jack_transport_start( m_pClient );
@@ -830,8 +828,7 @@ void JackAudioDriver::play()
 void JackAudioDriver::stop()
 {
 	Preferences* pPreferences = Preferences::get_instance();
-	if ( pPreferences->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT ||
-	     pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
+	if ( pPreferences->m_bJackTransportMode ==  Preferences::USE_JACK_TRANSPORT ) {
 		if ( m_pClient != nullptr ) {
 			INFOLOG( "jack_transport_stop()" );
 			jack_transport_stop( m_pClient );
@@ -1140,7 +1137,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		pJackPosition->tick = nTicksFromBar % (int32_t) pJackPosition->ticks_per_beat;
 				
 	}
-	
+    
 	// Tell Hydrogen it is still timebase master.
 	pDriver->m_nIsTimebaseMaster = 2;
 }
