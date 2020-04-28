@@ -1119,7 +1119,6 @@ inline void audioEngine_process_transport()
 			// this should set STATE_PLAYING
 			audioEngine_start( false, m_pAudioDriver->m_transport.m_nFrames );
 		}
-
 		// So, we are not playing even after attempt to start engine
 		if ( m_audioEngineState != STATE_PLAYING ) {
 			return;
@@ -3599,12 +3598,12 @@ void Hydrogen::setBPM( float fBPM )
 	if ( ! m_pAudioDriver || ! pSong ){
 		return;
 	}
-	
+
 	if ( haveJackTimebaseClient() ) {
 		ERRORLOG( "Unable to change tempo directly in the presence of an external JACK timebase master. Press 'J.MASTER' get tempo control." );
 		return;
 	}
-
+	
 	m_pAudioDriver->setBpm( fBPM );
 	pSong->__bpm = fBPM;
 	setNewBpmJTM ( fBPM );
@@ -4004,7 +4003,7 @@ void Hydrogen::setTimelineBpm()
 	Song* pSong = getSong();
 	// Obtain the local speed specified for the current Pattern.
 	float fBPM = getTimelineBpm( getPatternPos() );
-		
+
 	if ( fBPM != pSong->__bpm ) {
 		setBPM( fBPM );
 	}
@@ -4024,11 +4023,12 @@ void Hydrogen::setTimelineBpm()
 
 bool Hydrogen::haveJackAudioDriver() const {
 #ifdef H2CORE_HAVE_JACK
-	if ( JackAudioDriver::class_name() == m_pAudioDriver->class_name() ){
-		return true;
-	} else {
-		return false;
+	if ( m_pAudioDriver != nullptr ) {
+		if ( JackAudioDriver::class_name() == m_pAudioDriver->class_name() ){
+			return true;
+		}
 	}
+	return false;
 #else
 	return false;
 #endif	
@@ -4036,13 +4036,14 @@ bool Hydrogen::haveJackAudioDriver() const {
 
 bool Hydrogen::haveJackTransport() const {
 #ifdef H2CORE_HAVE_JACK
-	if ( JackAudioDriver::class_name() == m_pAudioDriver->class_name() &&
-		 Preferences::get_instance()->m_bJackTransportMode ==
-	     Preferences::USE_JACK_TRANSPORT ){
-		return true;
-	} else {
-		return false;
+	if ( m_pAudioDriver != nullptr ) {
+		if ( JackAudioDriver::class_name() == m_pAudioDriver->class_name() &&
+			 Preferences::get_instance()->m_bJackTransportMode ==
+			 Preferences::USE_JACK_TRANSPORT ){
+			return true;
+		}
 	}
+	return false;
 #else
 	return false;
 #endif	

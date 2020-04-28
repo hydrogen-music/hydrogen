@@ -929,7 +929,7 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 	Preferences *pPref = Preferences::get_instance();
 	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
-	if ( !m_pEngine->haveJackAudioDriver() ) {
+	if ( !m_pEngine->haveJackTransport() ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
 		return;
 	}

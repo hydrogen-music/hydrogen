@@ -407,7 +407,7 @@ void JackAudioDriver::updateTransportInfo()
 	}
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-		
+
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
