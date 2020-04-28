@@ -713,8 +713,8 @@ int JackAudioDriver::init( unsigned bufferSize )
 	jack_set_session_callback(m_pClient, jack_session_callback, (void*)this);
 #endif
 
-	if ( pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ){
-		// Make Hydrogen the JACK timebase master.
+	if ( pPreferences->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT &&
+		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ){
 		initTimebaseMaster();
 	}
 	
@@ -1140,8 +1140,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		pJackPosition->tick = nTicksFromBar % (int32_t) pJackPosition->ticks_per_beat;
 				
 	}
-
-    
+	
 	// Tell Hydrogen it is still timebase master.
 	pDriver->m_nIsTimebaseMaster = 2;
 }
