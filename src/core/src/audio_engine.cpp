@@ -28,6 +28,7 @@
 #include <hydrogen/sampler/Sampler.h>
 
 #include <hydrogen/hydrogen.h>	// TODO: remove this line as soon as possible
+#include <hydrogen/Preferences.h>
 #include <cassert>
 
 namespace H2Core
@@ -124,7 +125,69 @@ float AudioEngine::compute_tick_size(int sampleRate, int bpm, int resolution)
 	
 	return tickSize;
 }
+	
+void AudioEngine::calculateElapsedTime( unsigned sampleRate, unsigned long nFrame, int nResolution ) {
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pDriver = pHydrogen->getAudioOutput();
+	float fTickSize = pDriver->m_transport.m_nTickSize;
+	unsigned long currentTick = static_cast<unsigned long>(static_cast<float>(nFrame) / fTickSize );
+	
+	if ( Preferences::get_instance()->getUseTimelineBpm() ){
+		
+		int nPatternStartInTicks;
+		int nCurrentPatternNumber = pHydrogen->getPosForTick( currentTick, &nPatternStartInTicks );
+		long totalTicks = pHydrogen->getTickForPosition( nCurrentPatternNumber );
+		
+		// The code above calculates the number of ticks elapsed since
+		// the beginning of the Song till the start of the current
+		// pattern. The following line covers the remain ticks.
+		totalTicks += static_cast<long>(currentTick - nPatternStartInTicks);
+		
+		m_fElapsedTime = static_cast<float>(totalTicks) * fTickSize / 
+			static_cast<float>(sampleRate);
+	} else {
 
+		auto pTimeline = pHydrogen->getTimeline();
+		
+		m_fElapsedTime = 0;
+
+		int nPatternStartInTicks;
+		long totalTicks;
+		long previousTicks = 0;
+		float fNewTickSize;
+		
+		// For each BPM marker on the Timeline we will get the number
+		// of ticks since the previous marker/beginning, and convert
+		// them into time using tick size corresponding to the new
+		// BPM.
+		for ( auto const& ttimelineVec: pTimeline->m_timelinevector ){
+			totalTicks = pHydrogen->getTickForPosition( ttimelineVec.m_htimelinebeat );
+
+			fNewTickSize = compute_tick_size(static_cast<int>(sampleRate), 
+											 static_cast<int>(ttimelineVec.m_htimelinebpm),
+											 nResolution);
+			m_fElapsedTime += static_cast<float>(totalTicks - previousTicks) * fNewTickSize / 
+				static_cast<float>(sampleRate);
+			previousTicks = totalTicks;
+		}
+		
+		int nCurrentPatternNumber = pHydrogen->getPosForTick( currentTick, &nPatternStartInTicks );
+		totalTicks = pHydrogen->getTickForPosition( nCurrentPatternNumber );
+		
+		// The code above calculates the number of ticks elapsed since
+		// the beginning of the Song till the start of the current
+		// pattern. The following line covers the remain ticks.
+		totalTicks += static_cast<long>(currentTick - nPatternStartInTicks);
+
+		m_fElapsedTime += static_cast<float>(totalTicks - previousTicks) * fNewTickSize / 
+			static_cast<float>(sampleRate);
+	}
+	
+}
+
+void AudioEngine::updateElapsedTime( unsigned bufferSize, unsigned sampleRate ){
+	m_fElapsedTime += static_cast<float>(bufferSize) / static_cast<float>(sampleRate);
+}
 
 void AudioEngine::unlock()
 {

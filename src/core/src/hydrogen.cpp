@@ -1438,6 +1438,11 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 	float sampleRate = ( float )m_pAudioDriver->getSampleRate();
 	m_fMaxProcessTime = 1000.0 / ( sampleRate / nframes );
+	
+	if ( m_audioEngineState == STATE_PLAYING ) {
+		AudioEngine::get_instance()->updateElapsedTime( m_pAudioDriver->getBufferSize(),
+														m_pAudioDriver->getSampleRate() );
+	}
 
 #ifdef CONFIG_DEBUG
 	if ( m_fProcessTime > m_fMaxProcessTime ) {
