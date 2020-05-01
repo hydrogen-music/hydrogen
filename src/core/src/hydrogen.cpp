@@ -3036,13 +3036,12 @@ int Hydrogen::getPatternPos()
 }
 
 /* Return pattern for selected song tick position */
-int Hydrogen::getPosForTick( unsigned long TickPos )
+int Hydrogen::getPosForTick( unsigned long TickPos, int* nPatternStartTick )
 {
 	Song* pSong = getSong();
 	if ( ! pSong ) return 0;
 
-	int patternStartTick;
-	return findPatternInTick( TickPos, pSong->is_loop_enabled(), &patternStartTick );
+	return findPatternInTick( TickPos, pSong->is_loop_enabled(), nPatternStartTick );
 }
 
 void Hydrogen::restartDrivers()
@@ -4025,7 +4024,8 @@ void Hydrogen::setTimelineBpm()
 	// keyboard and MIDI input events in case the audio engine is
 	// not playing.
 	unsigned long PlayTick = getRealtimeTickPosition();
-	int RealtimePatternPos = getPosForTick( PlayTick );
+	int nTmp;
+	int RealtimePatternPos = getPosForTick( PlayTick, &nTmp );
 	float RealtimeBPM = getTimelineBpm( RealtimePatternPos );
 
 	// FIXME: this was already done in setBPM but for "engine" time

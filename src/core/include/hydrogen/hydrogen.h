@@ -282,14 +282,22 @@ public:
 		void			setPatternPos( int pos );
 		/** Returns the pattern number corresponding to the tick
 		 * position @a TickPos.
+		 *
+		 * Wrapper around function findPatternInTick() (globally defined
+		 * in hydrogen.cpp).
+		 *
 		 * \param TickPos Position in ticks.
+		 * \param nPatternStartTick Pointer to an int the starting
+		 * position (in ticks) of the corresponding pattern will be
+		 * written to.
+		 *
 		 * \return 
 		 * - __0__ : if the Song isn't specified yet.
 		 * - the output of the findPatternInTick() function called
 		 *   with @a TickPos and Song::is_loop_enabled() as input
 		 *   arguments.
 		 */
-		int			getPosForTick( unsigned long TickPos );
+		int			getPosForTick( unsigned long TickPos, int* nPatternStartTick );
 		/** Resetting #m_nPatternStartTick to -1 if the current Song
 		    mode is Song::PATTERN_MODE
 		*/

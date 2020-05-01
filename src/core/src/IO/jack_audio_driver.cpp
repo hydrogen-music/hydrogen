@@ -1161,7 +1161,8 @@ void JackAudioDriver::jack_timebase_callback(jack_transport_state_t state,
 	if ( ! S ) return;
 
 	unsigned long PlayTick = ( pos->frame - me->bbt_frame_offset ) / me->m_transport.m_nTickSize;
-	pos->bar = H->getPosForTick( PlayTick );
+	int nTmp;
+	pos->bar = H->getPosForTick( PlayTick, &nTmp );
 
 	double TPB = H->getTickForHumanPosition( pos->bar );
 	if ( TPB < 1 ) return;
