@@ -384,7 +384,6 @@ void				audioEngine_destroy();
  * - sets TransportInfo::m_nFrames to @a nTotalFrames
  * - sets m_nSongPos and m_nPatternStartTick to -1
  * - m_nPatternTickPosition to 0
- * - calls updateTickSize()
  * - sets #m_audioEngineState to #STATE_PLAYING
  * - pushes the #EVENT_STATE #STATE_PLAYING using EventQueue::push_event()
  *
@@ -413,16 +412,13 @@ int				audioEngine_start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
  */
 void				audioEngine_stop( bool bLockEngine = false );
 /**
- * Updates the global objects of the audioEngine according to new #Song.
+ * Updates the global objects of the audioEngine according to new
+ * Song.
  *
- * Calls audioEngine_setupLadspaFX() on
- * m_pAudioDriver->getBufferSize(),
- * audioEngine_process_checkBPMChanged(),
- * audioEngine_renameJackPorts(), adds its first pattern to
- * #m_pPlayingPatterns, relocates the audio driver to the beginning of
- * the #Song, and updates the BPM.
+ * It also updates all member variables of the audio driver specific
+ * to the particular song (BPM and tick size).
  *
- * \param pNewSong #Song to load.
+ * \param pNewSong Song to load.
  */
 void				audioEngine_setSong(Song *pNewSong );
 /**
@@ -719,21 +715,6 @@ void audioEngine_raiseError( unsigned nErrorCode )
 {
 	EventQueue::get_instance()->push_event( EVENT_ERROR, nErrorCode );
 }
-/** Function calculating the tick size by
- * \code{.cpp}
- * m_pAudioDriver->getSampleRate() * 60.0 / Song::__bpm / Song::__resolution 
- * \endcode
- * and storing it in TransportInfo::m_nTickSize
- */
-void updateTickSize()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
-
-	float sampleRate = ( float ) m_pAudioDriver->getSampleRate();
-	m_pAudioDriver->m_transport.m_nTickSize =
-		( sampleRate * 60.0 /  pSong->__bpm / pSong->__resolution );		
-}
 
 void audioEngine_init()
 {
@@ -775,7 +756,7 @@ void audioEngine_init()
 
 	// Change the current audio engine state
 	m_audioEngineState = STATE_INITIALIZED;
-
+	
 #ifdef H2CORE_HAVE_LADSPA
 	Effects::create_instance();
 #endif
@@ -851,9 +832,6 @@ int audioEngine_start( bool bLockEngine, unsigned nTotalFrames )
 	m_nSongPos = -1;
 	m_nPatternStartTick = -1;
 	m_nPatternTickPosition = 0;
-
-	// prepare the tick size for this song
-	updateTickSize();
 
 	// change the current audio engine state
 	m_audioEngineState = STATE_PLAYING;
@@ -1549,6 +1527,10 @@ void audioEngine_setSong( Song* pNewSong )
 	audioEngine_renameJackPorts( pNewSong );
 
 	m_pAudioDriver->setBpm( pNewSong->__bpm );
+	m_pAudioDriver->m_transport.m_nTickSize = 
+		AudioEngine::compute_tick_size( static_cast<int>(m_pAudioDriver->getSampleRate()),
+										static_cast<int>(pNewSong->__bpm),
+										static_cast<int>(pNewSong->__resolution) );
 
 	// change the current audio engine state
 	m_audioEngineState = STATE_READY;

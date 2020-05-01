@@ -131,8 +131,6 @@ void AudioEngine::calculateElapsedTime( unsigned sampleRate, unsigned long nFram
 	auto pHydrogen = Hydrogen::get_instance();
 	float fTickSize = pHydrogen->getAudioOutput()->m_transport.m_nTickSize;
 	
-	// TODO: These all should be known before this function is
-	// called (relocation).
 	if ( fTickSize == 0 || sampleRate == 0 || nResolution == 0 ) {
 		ERRORLOG( "Not properly initialized yet" );
 		m_fElapsedTime = 0;
