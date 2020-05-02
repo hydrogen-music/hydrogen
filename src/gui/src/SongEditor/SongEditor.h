@@ -116,6 +116,11 @@ class SongEditor : public QWidget, public H2Core::Object
 		virtual void paintEvent(QPaintEvent *ev);
 		virtual void focusInEvent( QFocusEvent *ev ) override;
 
+		void startOrUpdateSelection( int nColumnIndex, int nRow, int x, int y );
+		void startSelectionOrMove( int nColumn, int nRow, int x, int y );
+		void updateSelectionOrMove( int nColumn, int nRow, int x, int y );
+		void finishSelectionOrMove( );
+
 		void drawSequence();
 		void drawPattern( int pos, int number, bool invertColour );
 };
