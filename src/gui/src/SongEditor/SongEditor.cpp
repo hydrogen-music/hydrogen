@@ -272,7 +272,6 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 									   columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre );
 				finishSelectionOrMove();
 			}
-				
 		}
 	} else {
 		ev->ignore();
@@ -366,7 +365,6 @@ void SongEditor::startSelectionOrMove( int nColumn, int nRow, QPoint pos )
 	// update
 	m_bSequenceChanged = true;
 	update();
-	
 }
 
 void SongEditor::mousePressEvent( QMouseEvent *ev )
