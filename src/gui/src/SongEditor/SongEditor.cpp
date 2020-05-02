@@ -135,6 +135,16 @@ void SongEditor::setGridWidth( uint width )
 	}
 }
 
+QPoint SongEditor::xyToColumnRow( QPoint p )
+{
+	return QPoint( (p.x() - 10) / m_nGridWidth, p.y() / m_nGridHeight );
+}
+
+QPoint SongEditor::columnRowToXy( QPoint p )
+{
+	return QPoint( 10 + p.x() * m_nGridWidth, p.y() * m_nGridHeight );
+}
+
 
 
 void SongEditor::keyPressEvent ( QKeyEvent * ev )
@@ -142,8 +152,9 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 	vector<PatternList*>* pColumns = pEngine->getSong()->get_pattern_group_vector();
+	const QPoint centre = QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
 
-        m_bCursorHidden = false;
+	m_bCursorHidden = false;
 
 	if ( ev->matches( QKeySequence::Delete ) ) {
 		if ( m_selectedCells.size() != 0 ) {
@@ -222,10 +233,10 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 				}
 
 				startSelectionOrMove( m_nCursorColumn, m_nCursorRow,
-									  10 + m_nGridWidth * m_nCursorColumn + m_nGridWidth/2, m_nGridHeight * m_nCursorRow + m_nGridHeight/2 );
+									  columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre );
 			} else {
 				updateSelectionOrMove( m_nCursorColumn, m_nCursorRow,
-									  10 + m_nGridWidth * m_nCursorColumn + m_nGridWidth/2, m_nGridHeight * m_nCursorRow + m_nGridHeight/2 );
+									   columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre );
 				finishSelectionOrMove();
 			}
 				
@@ -236,12 +247,12 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 		return;
 	}
 
+	QPoint cursorCentre = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre;
 	if (m_bShowLasso || m_bIsMoving) {
-		updateSelectionOrMove( m_nCursorColumn, m_nCursorRow,
-							   10 + m_nGridWidth * m_nCursorColumn + m_nGridWidth/2, m_nGridHeight * m_nCursorRow + m_nGridHeight/2 );
+		updateSelectionOrMove( m_nCursorColumn, m_nCursorRow, cursorCentre );
 	}
 
-	m_pScrollView->ensureVisible( 10 + m_nGridWidth * m_nCursorColumn + m_nGridWidth/2, m_nGridHeight * m_nCursorRow + m_nGridHeight/2 );
+	m_pScrollView->ensureVisible( cursorCentre.x(), cursorCentre.y() );
 	update();
 	ev->accept();
 }
@@ -250,15 +261,16 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 void SongEditor::focusInEvent( QFocusEvent *ev )
 {
 	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason ) {
-		m_pScrollView->ensureVisible( 10 + m_nCursorColumn * m_nGridWidth + m_nGridWidth / 2,
-									  m_nCursorRow * m_nGridHeight + m_nGridHeight / 2 );
+		QPoint pos = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ))
+			+ QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
+		m_pScrollView->ensureVisible( pos.x(), pos.y() );
 		m_bCursorHidden = false;
 	}
 	update();
 }
 
 
-void SongEditor::startSelectionOrMove( int nColumn, int nRow, int x, int y )
+void SongEditor::startSelectionOrMove( int nColumn, int nRow, QPoint pos )
 {
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	bool bOverExistingPattern = false;
@@ -284,7 +296,7 @@ void SongEditor::startSelectionOrMove( int nColumn, int nRow, int x, int y )
 		//			INFOLOG( "[mousePressEvent] Select patterns" );
 		// select patterns
 		m_bShowLasso = true;
-		m_lasso.setCoords( x, y, x, y );
+		m_lasso.setCoords( pos.x(), pos.y(), pos.x(), pos.y() );
 		setCursor( QCursor( Qt::CrossCursor ) );
 		m_selectedCells.clear();
 		m_selectedCells.push_back( QPoint( nColumn, nRow ) );
@@ -331,7 +343,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 
 	SongEditorActionMode actionMode = HydrogenApp::get_instance()->getSongEditorPanel()->getActionMode();
 	if ( actionMode == SELECT_ACTION ) {
-		startSelectionOrMove( nColumn, nRow, ev->x(), ev->y() );
+		startSelectionOrMove( nColumn, nRow, ev->pos() );
 	}
 	else if ( actionMode == DRAW_ACTION ) {
 		H2Core::Pattern *pPattern = pPatternList->get( nRow );
@@ -437,7 +449,7 @@ void SongEditor::deletePattern( int nColumn , int nRow, unsigned nColumnIndex )
 }
 
 
-void SongEditor::updateSelectionOrMove( int nColumn, int nRow, int x, int y )
+void SongEditor::updateSelectionOrMove( int nColumn, int nRow, QPoint pos )
 {
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
 	vector<PatternList*>* pColumns = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
@@ -464,13 +476,13 @@ void SongEditor::updateSelectionOrMove( int nColumn, int nRow, int x, int y )
 	if ( m_bShowLasso ) {
 		// SELECTION
 		setCursor( QCursor( Qt::CrossCursor ) );
-		if ( x < 0 ) {
-			x = 0;
+		if ( pos.x() < 0 ) {
+			pos.setX( 0 );
 		}
-		if ( y < 0 ) {
-			y = 0;
+		if ( pos.y() < 0 ) {
+			pos.setY( 0 );
 		}
-		m_lasso.setBottomRight( QPoint( x, y ) );
+		m_lasso.setBottomRight( pos );
 
 		// aggiorno la lista di celle selezionate
 		m_selectedCells.clear();
@@ -522,7 +534,7 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 	int nRow = ev->y() / m_nGridHeight;
 	int nColumn = ( (int)ev->x() - 10 ) / (int)m_nGridWidth;
 
-	updateSelectionOrMove( nColumn, nRow, ev->x(), ev->y() );
+	updateSelectionOrMove( nColumn, nRow, ev->pos() );
 }
 
 

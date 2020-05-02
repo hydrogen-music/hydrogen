@@ -109,6 +109,9 @@ class SongEditor : public QWidget, public H2Core::Object
 		int m_nCursorColumn;
 		int m_bCursorHidden;
 
+		QPoint xyToColumnRow( QPoint p );
+		QPoint columnRowToXy( QPoint p );
+
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void mouseMoveEvent(QMouseEvent *ev);
@@ -116,9 +119,9 @@ class SongEditor : public QWidget, public H2Core::Object
 		virtual void paintEvent(QPaintEvent *ev);
 		virtual void focusInEvent( QFocusEvent *ev ) override;
 
-		void startOrUpdateSelection( int nColumnIndex, int nRow, int x, int y );
-		void startSelectionOrMove( int nColumn, int nRow, int x, int y );
-		void updateSelectionOrMove( int nColumn, int nRow, int x, int y );
+		void startOrUpdateSelection( int nColumnIndex, int nRow, QPoint pos );
+		void startSelectionOrMove( int nColumn, int nRow, QPoint pos );
+		void updateSelectionOrMove( int nColumn, int nRow, QPoint pos );
 		void finishSelectionOrMove( );
 
 		void drawSequence();
