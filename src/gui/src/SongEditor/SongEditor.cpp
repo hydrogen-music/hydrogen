@@ -241,8 +241,7 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 							   10 + m_nGridWidth * m_nCursorColumn + m_nGridWidth/2, m_nGridHeight * m_nCursorRow + m_nGridHeight/2 );
 	}
 
-	m_pScrollView->ensureVisible( 10 + m_nCursorColumn * m_nGridWidth + m_nGridWidth / 2,
-								  10 + m_nGridWidth * m_nCursorColumn + m_nGridWidth/2, m_nGridHeight * m_nCursorRow + m_nGridHeight/2 );
+	m_pScrollView->ensureVisible( 10 + m_nGridWidth * m_nCursorColumn + m_nGridWidth/2, m_nGridHeight * m_nCursorRow + m_nGridHeight/2 );
 	update();
 	ev->accept();
 }
