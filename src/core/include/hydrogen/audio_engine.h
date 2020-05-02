@@ -156,8 +156,23 @@ public:
 	
 	/** \return #m_fElapsedTime */
 	float getElapsedTime() const;
-	/**
-	 * \param nPos Current transport position in ticks.
+	/** Calculates the elapsed time for an arbitrary position.
+	 *
+	 * After locating the transport position to @a nFrame the function
+	 * calculates the amount of time required to reach the position
+	 * during playback. If the Timeline is activated, it will take all
+	 * markers and the resulting tempo changes into account.
+	 *
+	 * Right now the tempo in the region before the first marker
+	 * is undefined. In order to make reproducible estimates of the
+	 * elapsed time, this function assume it to have the same BPM as
+	 * the first marker.
+	 *
+	 * \param sampleRate Temporal resolution used by the sound card in
+	 * frames per second.
+	 * \param nFrame Next transport position in frames.
+	 * \param nResolution Resolution of the Song (number of ticks per 
+	 *   quarter).
 	 */
 	void calculateElapsedTime( unsigned sampleRate, unsigned long nFrame, int nResolution );
 	/** Increments #m_fElapsedTime at the end of a process cycle.
