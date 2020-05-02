@@ -987,9 +987,6 @@ void JackAudioDriver::locate( unsigned long nFrame )
 	} else {
 		m_transport.m_nFrames = nFrame;
 	}
-	AudioEngine::get_instance()->calculateElapsedTime( jack_server_sampleRate,
-																										 nFrame,
-																										 static_cast<int>(Hydrogen::get_instance()->getSong()->__resolution) );
 }
 
 void JackAudioDriver::setBpm( float fBPM )

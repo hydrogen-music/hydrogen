@@ -211,6 +211,16 @@ void AudioEngine::updateElapsedTime( unsigned bufferSize, unsigned sampleRate ){
 	m_fElapsedTime += static_cast<float>(bufferSize) / static_cast<float>(sampleRate);
 }
 
+void AudioEngine::locate( unsigned long nFrame ) {
+	
+	auto pHydrogen = Hydrogen::get_instance();
+	auto pDriver = pHydrogen->getAudioOutput();
+	pDriver->locate( nFrame );
+	AudioEngine::get_instance()->calculateElapsedTime( pDriver->getSampleRate(),
+													   nFrame,
+													   pHydrogen->getSong()->__resolution );
+}
+
 void AudioEngine::unlock()
 {
 	// Leave "__locker" dirty.

@@ -172,6 +172,13 @@ public:
 	 * frames per second.
 	 */
 	void updateElapsedTime( unsigned bufferSize, unsigned sampleRate );
+	
+	/** Relocate using the audio driver and update the
+	 * #m_fElapsedTime.
+	 *
+	 * \param nFrame Next transport position in frames.
+	 */
+	void  			locate( unsigned long nFrame );
 
 private:
 	/**

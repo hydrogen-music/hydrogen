@@ -1298,7 +1298,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		___INFOLOG( "End of song received, calling engine_stop()" );
 		AudioEngine::get_instance()->unlock();
 		m_pAudioDriver->stop();
-		m_pAudioDriver->locate( 0 ); // locate 0, reposition from start of the song
+		AudioEngine::get_instance()->locate( 0 ); // locate 0, reposition from start of the song
 
 		if ( ( m_pAudioDriver->class_name() == DiskWriterDriver::class_name() )
 			 || ( m_pAudioDriver->class_name() == FakeDriver::class_name() )
@@ -1535,7 +1535,7 @@ void audioEngine_setSong( Song* pNewSong )
 	// change the current audio engine state
 	m_audioEngineState = STATE_READY;
 
-	m_pAudioDriver->locate( 0 );
+	AudioEngine::get_instance()->locate( 0 );
 
 	AudioEngine::get_instance()->unlock();
 
@@ -3464,18 +3464,20 @@ long Hydrogen::getTickForPosition( int pos )
 	return totalTick;
 }
 
-void Hydrogen::setPatternPos( int pos )
+void Hydrogen::setPatternPos( int nPatternNumber )
 {
-	if ( pos < -1 ) {
-		pos = -1;
+	if ( nPatternNumber < -1 ) {
+		nPatternNumber = -1;
 	}
 	
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	auto pAudioEngine = AudioEngine::get_instance();
+	
+	pAudioEngine->lock( RIGHT_HERE );
 	// TODO: why?
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
-	long totalTick = getTickForPosition( pos );
+	long totalTick = getTickForPosition( nPatternNumber );
 	if ( totalTick < 0 ) {
-		AudioEngine::get_instance()->unlock();
+		pAudioEngine->unlock();
 		return;
 	}
 
@@ -3485,15 +3487,14 @@ void Hydrogen::setPatternPos( int pos )
 		// 		m_nSongPos = findPatternInTick( totalTick,
 		//					        pSong->is_loop_enabled(),
 		//					        &dummy );
-		m_nSongPos = pos;
+		m_nSongPos = nPatternNumber;
 		m_nPatternTickPosition = 0;
 	}
 	INFOLOG( "relocate" );
-	m_pAudioDriver->locate(
-				( int ) ( totalTick * m_pAudioDriver->m_transport.m_nTickSize )
-				);
+	pAudioEngine->locate( static_cast<unsigned long>(static_cast<float>(totalTick) * 
+													 m_pAudioDriver->m_transport.m_nTickSize) );
 
-	AudioEngine::get_instance()->unlock();
+	pAudioEngine->unlock();
 }
 
 void Hydrogen::getLadspaFXPeak( int nFX, float *fL, float *fR )

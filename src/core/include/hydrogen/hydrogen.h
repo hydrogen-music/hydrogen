@@ -261,25 +261,13 @@ public:
 		 * \return #m_nSongPos */
 		int			getPatternPos();
 		/**
-		 * Relocate the position to another Pattern in the Song.
+		 * Relocate the beginning of a Pattern.
 		 *
-		 * The position of a Pattern in frames (see
-		 * TransportInfo::m_nFrames for details) will be determined by
-		 * retrieving the tick number the Pattern is located at using
-		 * getTickForPosition() and multiplying it with
-		 * TransportInfo::m_nTickSize. The resulting value will be
-		 * used by the AudioOutput::locate() function of your audio
-		 * driver to relocate the playback position.
-		 *
-		 * If #m_audioEngineState is not #STATE_PLAYING, the variables
-		 * #m_nSongPos and #m_nPatternTickPosition will be set to @a
-		 * pos and 0 right away.
-		 *
-		 * \param pos Position of the Pattern to relocate at. All
-		 *   values smaller than -1 will be set to -1, which marks the
+		 * \param nPatternNumber Pattern to relocate to. All values
+		 *   smaller than -1 will be set to -1, which marks the
 		 *   beginning of the Song.
 		 */
-		void			setPatternPos( int pos );
+		void			setPatternPos( int nPatternNumber );
 		/** Returns the pattern number corresponding to the tick
 		 * position @a TickPos.
 		 *
