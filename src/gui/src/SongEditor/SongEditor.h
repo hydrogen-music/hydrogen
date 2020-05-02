@@ -122,7 +122,9 @@ class SongEditor : public QWidget, public H2Core::Object
 		void startSelectionAtCursor();
 		void startSelectionOrMove( int nColumn, int nRow, QPoint pos );
 		void updateSelectionOrMove( int nColumn, int nRow, QPoint pos );
-		void finishSelectionOrMove( );
+		void finishSelectionOrMove();
+
+		void cancelSelectionOrMove();
 
 		void drawSequence();
 		void drawPattern( int pos, int number, bool invertColour );

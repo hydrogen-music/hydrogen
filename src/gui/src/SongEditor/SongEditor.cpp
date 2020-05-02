@@ -226,6 +226,8 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 	} else if ( ev->matches( QKeySequence::SelectStartOfDocument ) ) {
 		startSelectionAtCursor();
 		m_nCursorRow = 0;
+	} else if ( ev->key() == Qt::Key_Escape ) {
+		cancelSelectionOrMove();
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		SongEditorActionMode actionMode = HydrogenApp::get_instance()->getSongEditorPanel()->getActionMode();
 		if ( actionMode == DRAW_ACTION ) {
@@ -297,6 +299,18 @@ void SongEditor::focusInEvent( QFocusEvent *ev )
 		m_pScrollView->ensureVisible( pos.x(), pos.y() );
 		m_bCursorHidden = false;
 	}
+	update();
+}
+
+
+void SongEditor::cancelSelectionOrMove()
+{
+	m_bIsMoving = false;
+	m_bShowLasso = false;
+	m_selectedCells.clear();
+	setCursor( QCursor( Qt::ArrowCursor ) );
+	m_movingCells.clear();
+	m_bSequenceChanged = true;
 	update();
 }
 
@@ -817,9 +831,9 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 		// Aim to leave a visible gap between the border of the
 		// pattern cell, and the cursor line, for consistency and
 		// visibility.
-		painter.drawRoundedRect( QRect( 10 + m_nCursorColumn * m_nGridWidth -2,
-										m_nCursorRow * m_nGridHeight,
-										m_nGridWidth +5, m_nGridHeight+1 ), 4, 4 );
+		painter.drawRoundedRect( QRect( columnRowToXy( QPoint(m_nCursorColumn, m_nCursorRow ) ),
+										QSize( m_nGridWidth, m_nGridHeight ) ),
+								 4, 4 );
 	}
 
 	if ( m_bShowLasso ) {
