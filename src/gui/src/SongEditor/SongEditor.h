@@ -119,7 +119,7 @@ class SongEditor : public QWidget, public H2Core::Object
 		virtual void paintEvent(QPaintEvent *ev);
 		virtual void focusInEvent( QFocusEvent *ev ) override;
 
-		void startOrUpdateSelection( int nColumnIndex, int nRow, QPoint pos );
+		void startSelectionAtCursor();
 		void startSelectionOrMove( int nColumn, int nRow, QPoint pos );
 		void updateSelectionOrMove( int nColumn, int nRow, QPoint pos );
 		void finishSelectionOrMove( );

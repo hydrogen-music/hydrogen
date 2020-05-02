@@ -194,9 +194,40 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 		}
 	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
 		m_nCursorRow = 0;
+	} else if ( ev->matches( QKeySequence::SelectNextChar ) ) {
+		startSelectionAtCursor();
+		if ( m_nCursorColumn < m_nMaxPatternSequence -1 ) {
+			m_nCursorColumn += 1;
+		}
+	} else if ( ev->matches( QKeySequence::SelectEndOfLine ) ) {
+		startSelectionAtCursor();
+		m_nCursorColumn = m_nMaxPatternSequence -1;
+	} else if ( ev->matches( QKeySequence::SelectPreviousChar ) ) {
+		startSelectionAtCursor();
+		if ( m_nCursorColumn > 0 ) {
+			m_nCursorColumn -= 1;
+		}
+	} else if ( ev->matches( QKeySequence::SelectStartOfLine ) ) {
+		startSelectionAtCursor();
+		m_nCursorColumn = 0;
+	} else if ( ev->matches( QKeySequence::SelectNextLine ) ) {
+		startSelectionAtCursor();
+		if ( m_nCursorRow < pPatternList->size()-1 ) {
+			m_nCursorRow += 1;
+		}
+	} else if ( ev->matches( QKeySequence::SelectEndOfDocument ) ) {
+		startSelectionAtCursor();
+		m_nCursorRow = pPatternList->size() -1;
+	} else if ( ev->matches( QKeySequence::SelectPreviousLine ) ) {
+		startSelectionAtCursor();
+		if ( m_nCursorRow > 0 ) {
+			m_nCursorRow -= 1;
+		}
+	} else if ( ev->matches( QKeySequence::SelectStartOfDocument ) ) {
+		startSelectionAtCursor();
+		m_nCursorRow = 0;
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		SongEditorActionMode actionMode = HydrogenApp::get_instance()->getSongEditorPanel()->getActionMode();
-
 		if ( actionMode == DRAW_ACTION ) {
 			// In DRAW mode, Enter's obvious action is the same as a
 			// click - insert or delete pattern.
@@ -267,6 +298,22 @@ void SongEditor::focusInEvent( QFocusEvent *ev )
 		m_bCursorHidden = false;
 	}
 	update();
+}
+
+
+void SongEditor::startSelectionAtCursor( void )
+{
+	if ( !m_bShowLasso
+		 && HydrogenApp::get_instance()->getSongEditorPanel()->getActionMode() == SELECT_ACTION ) {
+		QPoint pos = (columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) )
+					  + QPoint( m_nGridWidth / 2, m_nGridHeight / 2) );
+		m_bShowLasso = true;
+		m_bIsMoving = false;
+		m_lasso.setCoords( pos.x(), pos.y(), pos.x(), pos.y() );
+		setCursor( QCursor( Qt::CrossCursor ) );
+		m_selectedCells.clear();
+		m_selectedCells.push_back( QPoint( m_nCursorColumn, m_nCursorRow ) );
+	}
 }
 
 
