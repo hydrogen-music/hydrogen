@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 		parser.addOption( songFileOption );
 		parser.addOption( kitOption );
 		parser.addOption( verboseOption );
-		
+		parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 		
 		//Conditional options
 		#ifdef H2CORE_HAVE_JACKSESSION
@@ -203,6 +203,23 @@ int main(int argc, char *argv[])
 				logLevelOpt =  H2Core::Logger::parse_log_level( sVerbosityString.toLocal8Bit() );
 			} else {
 				logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
+			}
+		}
+
+		// Operating system GUIs typically pass documents to open as
+		// simple positional arguments to the process command
+		// line. Handling this here enables "Open with" as well as
+		// default document bindings to work.
+		QString sArg;
+		foreach ( sArg, parser.positionalArguments() ) {
+			if ( sArg.endsWith( H2Core::Filesystem::songs_ext ) ) {
+				sSongFilename = sArg;
+			}
+			if ( sArg.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
+				sDrumkitName = sArg;
+			}
+			if ( sArg.endsWith( H2Core::Filesystem::playlist_ext ) ) {
+				sPlaylistFilename = sArg;
 			}
 		}
 		

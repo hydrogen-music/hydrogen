@@ -27,6 +27,7 @@ class Filesystem : public H2Core::Object
 		static const QString scripts_ext;
 		static const QString patterns_ext;
 		static const QString playlist_ext;
+		static const QString drumkit_ext;
 		static const QString songs_filter_name;
 		static const QString scripts_filter_name;
 		static const QString patterns_filter_name;

@@ -166,6 +166,9 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	//	h2app->getPlayListDialog()->installEventFilter(this);
 	installEventFilter( this );
 
+	// To pick up FileOpen messages.
+	m_pQApp->installEventFilter( this );
+
 	connect( &m_AutosaveTimer, SIGNAL(timeout()), this, SLOT(onAutoSaveTimer()));
 	m_AutosaveTimer.start( 60 * 1000 );
 
@@ -1501,12 +1504,29 @@ void MainForm::initKeyInstMap()
 }
 
 
-
 bool MainForm::eventFilter( QObject *o, QEvent *e )
 {
 	UNUSED( o );
+	if ( e->type() == QEvent::FileOpen ) {
+		// Mac OS always opens files (including via double click in Finder) via a FileOpenEvent.
+		QFileOpenEvent *fe = dynamic_cast<QFileOpenEvent*>(e);
+		assert( fe != nullptr );
+		QString sFileName = fe->file();
 
-	if ( e->type() == QEvent::KeyPress) {
+		if ( sFileName.endsWith( H2Core::Filesystem::songs_ext ) ) {
+			openSongFile( fe->file() );
+		}
+		if ( sFileName.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
+			H2Core::Drumkit::install( sFileName );
+		}
+		if ( sFileName.endsWith( H2Core::Filesystem::playlist_ext ) ) {
+			bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( sFileName );
+			if ( loadlist ){
+				H2Core::Playlist::get_instance()->setNextSongByNumber( 0 );
+			}
+		}
+
+	} else if ( e->type() == QEvent::KeyPress) {
 		// special processing for key press
 		QKeyEvent *k = (QKeyEvent *)e;
 
