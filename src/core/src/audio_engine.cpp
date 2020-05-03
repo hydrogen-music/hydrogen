@@ -120,15 +120,15 @@ bool AudioEngine::try_lock( const char* file, unsigned int line, const char* fun
 	return true;
 }
 
-float AudioEngine::compute_tick_size(int sampleRate, int bpm, int resolution)
+float AudioEngine::compute_tick_size( const int sampleRate, const int bpm, const int resolution)
 {
 	float tickSize = sampleRate * 60.0 / bpm / resolution;
 	
 	return tickSize;
 }
 	
-void AudioEngine::calculateElapsedTime( unsigned sampleRate, unsigned long nFrame, int nResolution ) {
-	auto pHydrogen = Hydrogen::get_instance();
+void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigned long nFrame, const int nResolution ) {
+	const auto pHydrogen = Hydrogen::get_instance();
 	float fTickSize = pHydrogen->getAudioOutput()->m_transport.m_nTickSize;
 	
 	if ( fTickSize == 0 || sampleRate == 0 || nResolution == 0 ) {
@@ -142,12 +142,12 @@ void AudioEngine::calculateElapsedTime( unsigned sampleRate, unsigned long nFram
 		return;
 	}
 	
-	unsigned long currentTick = static_cast<unsigned long>(static_cast<float>(nFrame) / fTickSize );
+	const unsigned long currentTick = static_cast<unsigned long>(static_cast<float>(nFrame) / fTickSize );
 	
 	if ( !Preferences::get_instance()->getUseTimelineBpm() ){
 		
 		int nPatternStartInTicks;
-		int nCurrentPatternNumber = pHydrogen->getPosForTick( currentTick, &nPatternStartInTicks );
+		const int nCurrentPatternNumber = pHydrogen->getPosForTick( currentTick, &nPatternStartInTicks );
 		long totalTicks = pHydrogen->getTickForPosition( nCurrentPatternNumber );
 		
 		// The code above calculates the number of ticks elapsed since
@@ -159,7 +159,7 @@ void AudioEngine::calculateElapsedTime( unsigned sampleRate, unsigned long nFram
 			static_cast<float>(sampleRate);
 	} else {
 
-		auto pTimeline = pHydrogen->getTimeline();
+		const auto pTimeline = pHydrogen->getTimeline();
 		
 		m_fElapsedTime = 0;
 
@@ -194,7 +194,7 @@ void AudioEngine::calculateElapsedTime( unsigned sampleRate, unsigned long nFram
 			previousTicks = totalTicks;
 		}
 		
-		int nCurrentPatternNumber = pHydrogen->getPosForTick( currentTick, &nPatternStartInTicks );
+		const int nCurrentPatternNumber = pHydrogen->getPosForTick( currentTick, &nPatternStartInTicks );
 		totalTicks = pHydrogen->getTickForPosition( nCurrentPatternNumber );
 		
 		// The code above calculates the number of ticks elapsed since
@@ -207,14 +207,14 @@ void AudioEngine::calculateElapsedTime( unsigned sampleRate, unsigned long nFram
 	}
 }
 
-void AudioEngine::updateElapsedTime( unsigned bufferSize, unsigned sampleRate ){
+void AudioEngine::updateElapsedTime( const unsigned bufferSize, const unsigned sampleRate ){
 	m_fElapsedTime += static_cast<float>(bufferSize) / static_cast<float>(sampleRate);
 }
 
-void AudioEngine::locate( unsigned long nFrame ) {
+void AudioEngine::locate( const unsigned long nFrame ) {
 	
-	auto pHydrogen = Hydrogen::get_instance();
-	auto pDriver = pHydrogen->getAudioOutput();
+	const auto pHydrogen = Hydrogen::get_instance();
+	const auto pDriver = pHydrogen->getAudioOutput();
 	pDriver->locate( nFrame );
 	AudioEngine::get_instance()->calculateElapsedTime( pDriver->getSampleRate(),
 													   nFrame,
