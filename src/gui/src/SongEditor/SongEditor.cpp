@@ -244,10 +244,12 @@ void SongEditor::keyPressEvent ( QKeyEvent * ev )
 
 				if ( nColumnIndex != -1 ) {
 					// Existing pattern. Delete.
-					h2app->m_pUndoStack->push( new SE_deletePatternAction( m_nCursorColumn, m_nCursorRow, nColumnIndex) );
+					h2app->m_pUndoStack->push( new SE_deletePatternAction( m_nCursorColumn, m_nCursorRow,
+																		   nColumnIndex) );
 				} else if ( m_nCursorColumn < (int)pColumns->size() ) {
 					// No existing pattern. Insert.
-					h2app->m_pUndoStack->push( new SE_addPatternAction( m_nCursorColumn, m_nCursorRow, nColumnIndex ) );
+					h2app->m_pUndoStack->push( new SE_addPatternAction( m_nCursorColumn, m_nCursorRow,
+																		nColumnIndex ) );
 				}
 			} else {
 				h2app->m_pUndoStack->push( new SE_addPatternAction( m_nCursorColumn, m_nCursorRow, 0 ) );
@@ -592,6 +594,10 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 {
 	int nRow = ev->y() / m_nGridHeight;
 	int nColumn = ( (int)ev->x() - 10 ) / (int)m_nGridWidth;
+
+	m_nCursorRow = nRow;
+	m_nCursorColumn = nColumn;
+	m_bCursorHidden = true;
 
 	updateSelectionOrMove( nColumn, nRow, ev->pos() );
 }

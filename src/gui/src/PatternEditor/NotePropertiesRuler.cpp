@@ -126,7 +126,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	column = column / width;
 	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
 
-    m_pPatternEditorPanel->setCursorPosition( column );
+	m_pPatternEditorPanel->setCursorPosition( column );
 	m_pPatternEditorPanel->setCursorHidden( true );
 
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
@@ -156,7 +156,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			sprintf( valueChar, "%#.2f",  val);
 			( HydrogenApp::get_instance() )->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
 		}
-        else if ( m_Mode == PAN && !pNote->get_note_off() ){
+		else if ( m_Mode == PAN && !pNote->get_note_off() ){
 			float pan_L, pan_R;
 
 			float val = (pNote->get_pan_r() - pNote->get_pan_l() + 0.5) + delta;
@@ -328,7 +328,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 		column = column / width;
 		column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
 
-        m_pPatternEditorPanel->setCursorPosition( column );
+		m_pPatternEditorPanel->setCursorPosition( column );
 		m_pPatternEditorPanel->setCursorHidden( true );
 
 		bool columnChange = false;
@@ -637,6 +637,7 @@ void NotePropertiesRuler::addUndoAction()
 											   __oldNoteKeyVal,
 											   __octaveKeyVal,
 											   __oldOctaveKeyVal );
+
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 

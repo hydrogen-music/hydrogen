@@ -310,7 +310,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this, m_pPianoRollScrollView );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
 	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
-        m_pPianoRollScrollView->setFocusPolicy( Qt::StrongFocus );
+	m_pPianoRollScrollView->setFocusPolicy( Qt::StrongFocus );
 
 	m_pPianoRollScrollView->hide();
 	m_pPianoRollScrollView->setFocusProxy( m_pPianoRollEditor );
