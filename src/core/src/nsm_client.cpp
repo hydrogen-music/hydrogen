@@ -66,10 +66,10 @@ void NsmClient::create_instance()
 }
 
 int NsmClient::OpenCallback( const char *name,
-								const char *displayName,
-								const char *clientID,
-								char **outMsg,
-								void *userData ) {
+							 const char *displayName,
+							 const char *clientID,
+							 char **outMsg,
+							 void *userData ) {
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 	
 	if ( !name ) {
@@ -78,7 +78,7 @@ int NsmClient::OpenCallback( const char *name,
 		return ERR_LAUNCH_FAILED;
 	}
 	
-	// NSM sends a unique string, like - if the display_name ==
+	// NSM sends a unique string, like - if the displayName ==
 	// Hydrogen - "Hydrogen.nJKUV". In order to make the whole
 	// Hydrogen session reproducible, a folder will be created, which
 	// will contain the song file, a copy of the current preferences,
@@ -233,7 +233,19 @@ int NsmClient::OpenCallback( const char *name,
 	
 	std::cout << "\033[1;30m[Hydrogen]\033[32m Song loaded!\033[0m" << std::endl;
 	
-	// At this point the GUI can be assumed to have to be fully
+	NsmClient::copyPreferences( name );
+	
+	NsmClient::linkDrumkit( name );
+			
+	return ERR_OK;
+}
+
+void NsmClient::copyPreferences( const char* name ) {
+	
+	auto pPref = H2Core::Preferences::get_instance();
+	const auto pHydrogen = H2Core::Hydrogen::get_instance();
+	
+		// At this point the GUI can be assumed to have to be fully
 	// initialized.
 	//
 	// To have all files required by Hydrogen at one spot, copy the
@@ -283,6 +295,11 @@ int NsmClient::OpenCallback( const char *name,
 	}
 	
 	std::cout << "\033[1;30m[Hydrogen]\033[32m Preferences loaded!\033[0m" << std::endl;
+}
+
+void NsmClient::linkDrumkit( const char* name ) {	
+	
+	const auto pHydrogen = H2Core::Hydrogen::get_instance();
 	
 	// Link the current drumkit to the _drumkit_ folder and use it
 	// over the actual location.
@@ -402,8 +419,15 @@ int NsmClient::OpenCallback( const char *name,
 			}
 		}
 	}
-			
-	return ERR_OK;
+}
+
+void NsmClient::printError( const QString& msg ) {
+	std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: "
+			  << msg.toLocal8Bit().data() << "[\033[0m" << std::endl;
+}
+void NsmClient::printMessage( const QString& msg ) {
+	std::cerr << "\033[1;30m[Hydrogen]\033[32m "
+			  << msg.toLocal8Bit().data() << "[\033[0m" << std::endl;
 }
 
 int NsmClient::SaveCallback( char** outMsg, void* userData ) {

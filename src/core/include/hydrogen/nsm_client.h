@@ -247,9 +247,9 @@ class NsmClient : public H2Core::Object
 	 * - ERR_NOT_NOW (-8): If the H2Core::Preferences instance was
 	 * not initialized.
 	 */
-	static int OpenCallback(const char* name, const char* displayName,
-							   const char* clientID, char** outMsg,
-							   void* userData);
+	static int OpenCallback( const char* name, const char* displayName,
+							 const char* clientID, char** outMsg,
+							 void* userData );
 							   
 	/**
 	 * Callback function for the NSM server to tell Hydrogen to save the
@@ -264,7 +264,7 @@ class NsmClient : public H2Core::Object
 	 *  \return 0 - actually ERR_OK defined in the NSM API - indicating
 	 *  that everything worked fine.
 	 */
-	static int SaveCallback(char** outMsg, void* userData);
+	static int SaveCallback( char** outMsg, void* userData );
 	
 	/**
 	 * Event handling function of the NSM client.
@@ -274,7 +274,12 @@ class NsmClient : public H2Core::Object
 	 *
 	 * \param data NSM client created in NsmClient::createInitialClient().
 	 */
-	static void* ProcessEvent(void* data);
+	static void* ProcessEvent( void* data );
+	
+	static void copyPreferences( const char* name );
+	static void linkDrumkit( const char* name );
+	static void printError( const QString& msg );
+	static void printMessage( const QString& msg );
 	
 	/** Indicates whether the nsm_processEvent() function should continue
 	 * processing events.
