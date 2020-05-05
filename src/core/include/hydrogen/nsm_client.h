@@ -139,12 +139,13 @@ class NsmClient : public H2Core::Object
 		 * stored in.
 		 *
 		 * Set at the beginning of each session in
-		 * nsm_open_cb().
+		 * NsmClient::OpenCallback().
 		 */
 		QString m_sSessionFolderPath;
 
 	private:
-		/**Constructor*/
+		/**Private constructor to allow construction only via
+		   create_instance().*/
 		NsmClient();
 		
 		/**
@@ -197,29 +198,6 @@ class NsmClient : public H2Core::Object
 	 * is present and fully loaded and thus
 	 * H2Core::Hydrogen::m_iActiveGUI is set to 1.
 	 *
-	 * Then it uses H2Core::Preferences::loadPreferences() in
-	 * combination with
-	 * H2Core::Preferences::setPreferencesOverwritePath() to load the
-	 * configurations specific to the session. If none hydrogen.conf
-	 * file (see #USR_CONFIG) is present in the session folder, the
-	 * one of the user is used to create one instead. Next, a
-	 * H2Core::EVENT_UPDATE_PREFERENCES event is created to trigger
-	 * both MainForm::updatePreferencesEvent() and
-	 * HydrogenApp::updatePreferencesEvent(). These two function will
-	 * ensure the GUI reflects the changes in configuration.
-	 *
-	 * If not present or invalid the, function will create a symbolic
-	 * link to the used H2Core::Drumkit (as will be done by
-	 * H2Core::Hydrogen::loadDrumkit). If either a valid symlink or
-	 * folder containing the H2Core::Drumkit is present, the samples
-	 * therein will be used when loading the H2Core::Song
-	 * corresponding to the current session. This allows for archiving
-	 * whole sessions in a self-contained manner just by using
-	 * e.g. `tar -chf`. Note however that all changes to the current
-	 * H2Core::Drumkit will be stored int eh associated H2Core::Song
-	 * file instead. the #DRUMKIT_XML file only serves as references
-	 * when first setting the particular H2Core::Drumkit.
-	 *
 	 * All files and symbolic links will be stored in a folder created
 	 * by this function and named according to @a name.
 	 *
@@ -246,6 +224,9 @@ class NsmClient : public H2Core::Object
 	 * to MidiActionManager::handleAction().
 	 * - ERR_NOT_NOW (-8): If the H2Core::Preferences instance was
 	 * not initialized.
+	 *
+	 * \see copyPreferences()
+	 * \see linkDrumkit()
 	 */
 	static int OpenCallback( const char* name, const char* displayName,
 							 const char* clientID, char** outMsg,
@@ -258,8 +239,8 @@ class NsmClient : public H2Core::Object
 	 * It will construct an Action of type "SAVE_ALL" triggering
 	 * MidiActionManager::save_all().
 	 *
-	 * \param out_msg Unused argument. Kept for API compatibility.
-	 * \param userdata Unused argument. Kept for API compatibility.
+	 * \param outMsg Unused argument. Kept for API compatibility.
+	 * \param userData Unused argument. Kept for API compatibility.
 	 *
 	 *  \return 0 - actually ERR_OK defined in the NSM API - indicating
 	 *  that everything worked fine.
@@ -270,19 +251,68 @@ class NsmClient : public H2Core::Object
 	 * Event handling function of the NSM client.
 	 *
 	 * The event handling can be deactivated by calling
-	 * NsmClient::shutdown() which is setting #NsmShutdown to true.
+	 * NsmClient::shutdown() which is setting #bNsmShutdown to true.
 	 *
 	 * \param data NSM client created in NsmClient::createInitialClient().
 	 */
 	static void* ProcessEvent( void* data );
 	
+	/**
+	 * Part of OpenCallback() responsible for copying and loading the
+	 * preferences.
+	 *
+	 * Then it uses H2Core::Preferences::loadPreferences() in
+	 * combination with
+	 * H2Core::Preferences::setPreferencesOverwritePath() to load the
+	 * configurations specific to the session. If none hydrogen.conf
+	 * file (see #USR_CONFIG) is present in the session folder, the
+	 * one of the user is used to create one instead. Next, a
+	 * H2Core::EVENT_UPDATE_PREFERENCES event is created to trigger to
+	 * ensure the GUI reflects the changes in configuration.
+	 *
+	 * \param name Absolute path to the session folder.
+	 */
 	static void copyPreferences( const char* name );
+	/**
+	 * Part of OpenCallback() responsible for linking and loading of
+	 * the drumkit samples.
+	 *
+	 * Upon first invocation of this function in a new project, a
+	 * symbolic link to the folder containing the samples of the
+	 * current drumkit will be created in @name /`drumkit`. In all
+	 * following runs of the session the linked samples will be used
+	 * over the default ones.
+	 *
+	 * If the session were archived, the symbolic link would had
+	 * been replaced by a folder containing the samples. In such an
+	 * occasion the samples located in the folder will be loaded. This
+	 * ensure portability of Hydrogen within a session regardless of
+	 * the local drumkits present in the user's home.
+	 *
+	 * \param name Absolute path to the session folder.
+	 */
 	static void linkDrumkit( const char* name );
+	/** Custom function to print a colored error message.
+	 *
+	 * Since the OpenCallback() and SaveCallback() functions will be
+	 * invoked by the NSM server and not by Hydrogen itself, we can
+	 * not use our usual log macros in there.
+	 *
+	 * \param msg String to print to std::cerr.
+	 */
 	static void printError( const QString& msg );
+	/** Custom function to print a colored message.
+	 *
+	 * Since the OpenCallback() and SaveCallback() functions will be
+	 * invoked by the NSM server and not by Hydrogen itself, we can
+	 * not use our usual log macros in there.
+	 *
+	 * \param msg String to print to std::cout.
+	 */
 	static void printMessage( const QString& msg );
 	
-	/** Indicates whether the nsm_processEvent() function should continue
-	 * processing events.
+	/** Indicates whether the NsmClient::NsmProcessEvent() function
+	 * should continue processing events.
 	 *
 	 * Set to true in NsmClient::shutdown().
 	 */

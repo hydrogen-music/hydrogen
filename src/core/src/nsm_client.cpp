@@ -70,6 +70,9 @@ int NsmClient::OpenCallback( const char *name,
 							 const char *clientID,
 							 char **outMsg,
 							 void *userData ) {
+	
+	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 	
 	if ( !name ) {
@@ -89,24 +92,19 @@ int NsmClient::OpenCallback( const char *name,
 		}
 	}
 	
-	// Store the folder name for later use.
 	NsmClient::get_instance()->m_sSessionFolderPath = name;
 	
-	// In this folder we will write the current song using the
-	// provided name and append .h2song. This way it will be more easy
-	// to tell the different songs apart.
-	QFileInfo sessionPath( name );
-	QString songPath = QString( "%1/%2%3" )
+	const QFileInfo sessionPath( name );
+	const QString songPath = QString( "%1/%2%3" )
 		.arg( name )
 		.arg( sessionPath.fileName() )
 		.arg( H2Core::Filesystem::songs_ext );
 	
-	QFileInfo songFileInfo = QFileInfo( songPath );
+	const QFileInfo songFileInfo = QFileInfo( songPath );
 
 	// When restarting the JACK client (later in this function) the
-	// client_id will be used as the name of the freshly created
+	// clientID will be used as the name of the freshly created
 	// instance.
-	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 	if ( pPref != nullptr ){
 		if ( clientID ){
 			// Setup JACK here, client_id gets the JACK client name
@@ -120,11 +118,7 @@ int NsmClient::OpenCallback( const char *name,
 		return ERR_NOT_NOW;
 	}
 	
-	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
 	H2Core::Song *pSong = nullptr;
-	
-	// Create a new Song object (and store it for the GUI to load it
-	// later on).
 	if ( songFileInfo.exists() ) {
 
 		pSong = H2Core::Song::load( songPath );
@@ -135,9 +129,7 @@ int NsmClient::OpenCallback( const char *name,
 		}
 		
 	} else {
-		
-		// There is no file with this name present yet. Fall back
-		// to an empty default Song.
+
 		pSong = H2Core::Song::get_empty_song();
 		if ( pSong == nullptr ) {
 			NsmClient::printError( "Unable to open new Song." );
@@ -179,20 +171,17 @@ int NsmClient::OpenCallback( const char *name,
 
 		// If there will be a GUI but it is not ready yet, wait until
 		// the Song was set (asynchronously by the GUI) and the GUI is
-		// fully loaded. In case there is no GUI,
-		// pHydrogen->getActiveGUI() will return 0 and cause no
-		// waiting at all.
+		// fully loaded.
 		if ( pHydrogen->getActiveGUI() < 0 ) {
-			const int numberOfChecks = 20;
-			int check = 0;
+			const int nNumberOfChecks = 20;
+			int nCheck = 0;
 			while ( true ) {
 				if ( ( ( pSong == pHydrogen->getSong() ) &&
 					   ( pHydrogen->getActiveGUI() >= 0 ) ) ||
-					 // Don't wait indefinitely.
-					 ( check > numberOfChecks ) ) {
+					 ( nCheck > nNumberOfChecks ) ) {
 					break;
 				}
-				check++;
+				nCheck++;
 				sleep(1);
 			}
 		}
@@ -232,6 +221,8 @@ int NsmClient::OpenCallback( const char *name,
 	
 	NsmClient::printMessage( "Song loaded!" );
 	
+	// At this point the GUI can be assumed to have to be fully
+	// initialized.
 	NsmClient::copyPreferences( name );
 	
 	NsmClient::linkDrumkit( name );
@@ -244,32 +235,22 @@ void NsmClient::copyPreferences( const char* name ) {
 	auto pPref = H2Core::Preferences::get_instance();
 	const auto pHydrogen = H2Core::Hydrogen::get_instance();
 	
-		// At this point the GUI can be assumed to have to be fully
-	// initialized.
-	//
-	// To have all files required by Hydrogen at one spot, copy the
-	// preferences and link the current drumkit into the session
-	// folder.
-	//
-	// Copy the Preferences (if not present) and use them over the global
-	// one. The user one (in $HOME/.hydrogen) is preferred over the
-	// system-wide one.
 	QFile preferences( H2Core::Filesystem::usr_config_path() );
 	if ( !preferences.exists() ) {
 		preferences.setFileName( H2Core::Filesystem::sys_config_path() );
 	}
 	
-	QString newPreferencesPath = QString( "%1/%2" )
+	const QString newPreferencesPath = QString( "%1/%2" )
 		.arg( name )
 		.arg( QFileInfo( H2Core::Filesystem::usr_config_path() )
 			  .fileName() );
 	
-	// Store the path in a session variable of the Preferences class,
-	// which allows overwriting the default path used throughout the
-	// application.
+	// Store the path in a session variable of the Preferences
+	// singleton, which allows overwriting the default path used
+	// throughout the application.
 	pPref->setPreferencesOverwritePath( newPreferencesPath );
 	
-	QFileInfo newPreferencesFileInfo( newPreferencesPath );
+	const QFileInfo newPreferencesFileInfo( newPreferencesPath );
 	if ( newPreferencesFileInfo.exists() ){
 		// If there's already a preference file present from a
 		// previous session, we load it instead of overwriting it.
@@ -298,29 +279,19 @@ void NsmClient::linkDrumkit( const char* name ) {
 	
 	const auto pHydrogen = H2Core::Hydrogen::get_instance();
 	
-	// Link the current drumkit to the _drumkit_ folder and use it
-	// over the actual location.
-	//
-	// The name of the Drumkit used by the loaded Song - which can be
-	// assumed to be loaded by now - has been stored in the Hydrogen
-	// instance. We will search for the path of the folder associated
-	// with this Drumkit and check whether there is already a symlink
-	// to it present in the session folder called 'drumkit'. If not
-	// (or no link is present yet) a new one pointing to the selected
-	// kit will be established.
 	bool bRelinkDrumkit = true;
 	
-	QString sDrumkitName = pHydrogen->getCurrentDrumkitname();
+	const QString sDrumkitName = pHydrogen->getCurrentDrumkitname();
+	
+	const QString sLinkedDrumkitPath = QString( "%1/%2" )
+		.arg( name ).arg( "drumkit" );
+	const QFileInfo linkedDrumkitPathInfo( sLinkedDrumkitPath );
 	
 	// Check whether the linked folder is still valid.
-	QString sLinkedDrumkitPath = QString( "%1/%2" )
-		.arg( name ).arg( "drumkit" );
-
-	QFileInfo linkedDrumkitPathInfo( sLinkedDrumkitPath );
 	if ( linkedDrumkitPathInfo.isSymLink() || 
 		 linkedDrumkitPathInfo.isDir() ) {
 		
-		// In case of a symbolic link, the target it its pointing at
+		// In case of a symbolic link, the target it is pointing to
 		// has to be resolved. If drumkit is a real folder, we will
 		// search for a drumkit.xml therein.
 		QString sDrumkitXMLPath;
@@ -333,17 +304,17 @@ void NsmClient::linkDrumkit( const char* name ) {
 				.arg( sLinkedDrumkitPath ).arg( "drumkit.xml" );
 		}
 		
-		QFileInfo drumkitXMLInfo( sDrumkitXMLPath );
+		const QFileInfo drumkitXMLInfo( sDrumkitXMLPath );
 		if ( drumkitXMLInfo.exists() ) {
 	
-			QDomDocument drumkitXML = H2Core::LocalFileMng::openXmlDocument( sDrumkitXMLPath );
-			QDomNodeList nodeList = drumkitXML.elementsByTagName( "drumkit_info" );
+			const QDomDocument drumkitXML = H2Core::LocalFileMng::openXmlDocument( sDrumkitXMLPath );
+			const QDomNodeList nodeList = drumkitXML.elementsByTagName( "drumkit_info" );
 	
 			if( nodeList.isEmpty() ) {
 				NsmClient::printError( "Linked drumkit does not seem valid." );
 			} else {
-				QDomNode drumkitInfoNode = nodeList.at( 0 );
-				QString sDrumkitNameXML = H2Core::LocalFileMng::readXmlString( drumkitInfoNode, "name", "" );
+				const QDomNode drumkitInfoNode = nodeList.at( 0 );
+				const QString sDrumkitNameXML = H2Core::LocalFileMng::readXmlString( drumkitInfoNode, "name", "" );
 	
 				if ( sDrumkitNameXML == sDrumkitName ) {
 					bRelinkDrumkit = false;
@@ -376,18 +347,18 @@ void NsmClient::linkDrumkit( const char* name ) {
 		// Figure out the actual path to the drumkit. We will search
 		// the user drumkits first and the system ones second.
 		QString sDrumkitAbsPath( "" );
-		QStringList drumkitList = H2Core::Filesystem::usr_drumkit_list();
-		for ( int ii = 0; ii < drumkitList.size(); ++ii ) {
-			if ( drumkitList[ii] == sDrumkitName ) {
-				sDrumkitAbsPath = H2Core::Filesystem::usr_drumkits_dir() + drumkitList[ii];
+		const QStringList drumkitListUsr = H2Core::Filesystem::usr_drumkit_list();
+		for ( int ii = 0; ii < drumkitListUsr.size(); ++ii ) {
+			if ( drumkitListUsr[ii] == sDrumkitName ) {
+				sDrumkitAbsPath = H2Core::Filesystem::usr_drumkits_dir() + drumkitListUsr[ii];
 			}
 		}
 		
 		if ( sDrumkitAbsPath.isEmpty() ) {
-			drumkitList = H2Core::Filesystem::sys_drumkit_list();
-			for ( int ii = 0; ii < drumkitList.size(); ++ii ) {
-				if ( drumkitList[ii] == sDrumkitName ) {
-					sDrumkitAbsPath = H2Core::Filesystem::usr_drumkits_dir() + drumkitList[ii];
+			const QStringList drumkitListSys = H2Core::Filesystem::sys_drumkit_list();
+			for ( int ii = 0; ii < drumkitListSys.size(); ++ii ) {
+				if ( drumkitListSys[ii] == sDrumkitName ) {
+					sDrumkitAbsPath = H2Core::Filesystem::usr_drumkits_dir() + drumkitListSys[ii];
 				}
 			}
 		}
@@ -411,11 +382,11 @@ void NsmClient::linkDrumkit( const char* name ) {
 
 void NsmClient::printError( const QString& msg ) {
 	std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: "
-			  << msg.toLocal8Bit().data() << "[\033[0m" << std::endl;
+			  << msg.toLocal8Bit().data() << "\033[0m" << std::endl;
 }
 void NsmClient::printMessage( const QString& msg ) {
 	std::cerr << "\033[1;30m[Hydrogen]\033[32m "
-			  << msg.toLocal8Bit().data() << "[\033[0m" << std::endl;
+			  << msg.toLocal8Bit().data() << "\033[0m" << std::endl;
 }
 
 int NsmClient::SaveCallback( char** outMsg, void* userData ) {
