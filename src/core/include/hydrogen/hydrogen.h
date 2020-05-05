@@ -189,7 +189,7 @@ public:
 		 * Get the current song.
 		 * \return #__song
 		 */ 	
-		Song*			getSong(){ return __song; }
+		Song*			getSong() const{ return __song; }
 		/**
 		 * Sets the current song #__song to @a newSong.
 		 * \param newSong Pointer to the new Song object.
@@ -326,16 +326,16 @@ public:
 
 		void			restartDrivers();
 
-		AudioOutput*		getAudioOutput();
-		MidiInput*		getMidiInput();
-		MidiOutput*		getMidiOutput();
+		AudioOutput*		getAudioOutput() const;
+		MidiInput*		getMidiInput() const;
+		MidiOutput*		getMidiOutput() const;
 
 		/** Returns the current state of the audio engine.
 		 * \return #m_audioEngineState*/
-		int			getState();
+		int			getState() const;
 
-		float			getProcessTime();
-		float			getMaxProcessTime();
+		float			getProcessTime() const;
+		float			getMaxProcessTime() const;
 
 		/** Wrapper around loadDrumkit( Drumkit, bool ) with the
 			conditional argument set to true.
@@ -521,13 +521,13 @@ void			previewSample( Sample *pSample );
 	long			getPatternLength( int nPattern );
 	/** Returns the fallback speed.
 	 * \return #m_fNewBpmJTM */
-	float			getNewBpmJTM();
-	/** Set the fallback speed #m_fNewBpmJTM.
+	float			getNewBpmJTM() const;
+	/** Set the fallback speed #m_nNewBpmJTM.
 	 * \param bpmJTM New default tempo. */ 
 	void			setNewBpmJTM( float bpmJTM);
 
 	void			__panic();
-	unsigned int	__getMidiRealtimeNoteTickPosition();
+	unsigned int	__getMidiRealtimeNoteTickPosition() const;
 
 	/**
 	 * Updates Song::__bpm, TransportInfo::m_fBPM, and #m_fNewBpmJTM
@@ -590,7 +590,7 @@ void			previewSample( Sample *pSample );
 	 * \return Whether the playback track is enabled or false, if
 	 * no Song was selected (getSong() return nullptr).
 	 */
-	bool			getPlaybackTrackState();
+	bool			getPlaybackTrackState() const;
 	/**
 	 * Wrapper function for loading the playback track.
 	 *
@@ -851,7 +851,7 @@ inline void Hydrogen::setCurrentDrumkitname( const QString& currentdrumkitname )
 	this->m_currentDrumkit = currentdrumkitname;
 }
 
-inline bool Hydrogen::getPlaybackTrackState()
+inline bool Hydrogen::getPlaybackTrackState() const
 {
 	Song* pSong = getSong();
 	bool  bState;

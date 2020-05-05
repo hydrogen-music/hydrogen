@@ -3213,18 +3213,18 @@ void Hydrogen::stopExportSong()
 }
 
 /// Used to display audio driver info
-AudioOutput* Hydrogen::getAudioOutput()
+AudioOutput* Hydrogen::getAudioOutput() const
 {
 	return m_pAudioDriver;
 }
 
 /// Used to display midi driver info
-MidiInput* Hydrogen::getMidiInput()
+MidiInput* Hydrogen::getMidiInput() const 
 {
 	return m_pMidiDriver;
 }
 
-MidiOutput* Hydrogen::getMidiOutput()
+MidiOutput* Hydrogen::getMidiOutput() const
 {
 	return m_pMidiDriverOut;
 }
@@ -3239,7 +3239,7 @@ void Hydrogen::setMasterPeak_R( float value )
 	m_fMasterPeak_R = value;
 }
 
-int Hydrogen::getState()
+int Hydrogen::getState() const
 {
 	return m_audioEngineState;
 }
@@ -3252,12 +3252,12 @@ void Hydrogen::setCurrentPatternList( PatternList *pPatternList )
 	AudioEngine::get_instance()->unlock();
 }
 
-float Hydrogen::getProcessTime()
+float Hydrogen::getProcessTime() const
 {
 	return m_fProcessTime;
 }
 
-float Hydrogen::getMaxProcessTime()
+float Hydrogen::getMaxProcessTime() const
 {
 	return m_fMaxProcessTime;
 }
@@ -3992,7 +3992,7 @@ long Hydrogen::getPatternLength( int nPattern )
 	}
 }
 
-float Hydrogen::getNewBpmJTM()
+float Hydrogen::getNewBpmJTM() const
 {
 	return m_fNewBpmJTM;
 }
@@ -4067,7 +4067,7 @@ void Hydrogen::__panic()
 	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
 }
 
-unsigned int Hydrogen::__getMidiRealtimeNoteTickPosition()
+unsigned int Hydrogen::__getMidiRealtimeNoteTickPosition() const
 {
 	return m_naddrealtimenotetickposition;
 }
