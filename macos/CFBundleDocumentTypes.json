@@ -1,0 +1,21 @@
+[
+    {
+        "CFBundleTypeName": "Hydrogen song",
+        "CFBundleTypeExtensions": ["h2song"],
+        "CFBundleTypeRole": "Owner"
+    },
+    {
+        "CFBundleTypeName": "Hydrogen drumkit",
+        "CFBundleTypeExtensions": ["h2drumkit"],
+        "CFBundleTypeRole": "Owner"
+    },
+    {
+        "CFBundleTypeName": "Hydrogen playlist",
+        "CFBundleTypeExtensions": ["h2playlist"],
+        "CFBundleTypeRole": "Owner"
+    },
+    {
+        "CFBundleTypeName": "Hydrogen pattern",
+        "CFBundleTypeExtensions": ["h2pattern"]
+    }
+]
