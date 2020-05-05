@@ -154,6 +154,134 @@ class NsmClient : public H2Core::Object
 		 * the NSM server.
 		 */
 		nsm_client_t* m_nsm;
+	
+	/**
+	 * Callback function for the NSM server to tell Hydrogen to open a
+	 * H2Core::Song.
+	 *
+	 * This function has two separate purposes: 
+	 * 1. it is used to load the
+	 * initial session including its H2Core::Song and to set up the audio
+	 * driver when started via the NSM server. 
+	 * 2. It handles the switching
+	 * between sessions by loading the H2Core::Song, the
+	 * H2Core::Preferences, and the H2Core::Drumkit of the new session
+	 * without the need to restart the whole application.
+	 *
+	 * To fulfill the 1. purpose, it is important to know that the
+	 * core part of H2Core::Hydrogen is already initialized when this
+	 * function is called, but the GUI isn't. In order to allow for a
+	 * rewiring of all per track JACK output ports, the
+	 * H2Core::JackAudioDriver::init() function _must_ register them
+	 * alongside the main left and right output ports in the very
+	 * initialization and not at a later stage. Therefore, the
+	 * starting of the audio driver is prohibited whenever the
+	 * "NSM_URL" environmental variable is set,
+	 * H2Core::Hydrogen::setInitialSong() is used to store the loaded
+	 * H2Core::Song, and H2Core::Hydrogen::restartDrivers() to start
+	 * the audio driver and - if JACK is chosen - to create all per
+	 * track output ports right away. In addition, is also calls
+	 * H2Core::Hydrogen::restartLadspaFX() and
+	 * H2Core::Sampler::reinitialize_playback_track() to set up the
+	 * missing core parts of Hydrogen.
+	 *
+	 * In the 2. case of switching between session the function will
+	 * construct an Action of type "OPEN_SONG" - or "NEW_SONG" if no file
+	 * exists with the provided file path - triggering
+	 * MidiActionManager::open_song() or
+	 * MidiActionManager::new_song().
+	 *
+	 * If the GUI is present, it waits - up to 11 seconds - until the
+	 * H2Core::Song was asynchronously set by the GUI (as a response
+	 * to the action). This (regular) procedure is only done if a GUI
+	 * is present and fully loaded and thus
+	 * H2Core::Hydrogen::m_iActiveGUI is set to 1.
+	 *
+	 * Then it uses H2Core::Preferences::loadPreferences() in
+	 * combination with
+	 * H2Core::Preferences::setPreferencesOverwritePath() to load the
+	 * configurations specific to the session. If none hydrogen.conf
+	 * file (see #USR_CONFIG) is present in the session folder, the
+	 * one of the user is used to create one instead. Next, a
+	 * H2Core::EVENT_UPDATE_PREFERENCES event is created to trigger
+	 * both MainForm::updatePreferencesEvent() and
+	 * HydrogenApp::updatePreferencesEvent(). These two function will
+	 * ensure the GUI reflects the changes in configuration.
+	 *
+	 * If not present or invalid the, function will create a symbolic
+	 * link to the used H2Core::Drumkit (as will be done by
+	 * H2Core::Hydrogen::loadDrumkit). If either a valid symlink or
+	 * folder containing the H2Core::Drumkit is present, the samples
+	 * therein will be used when loading the H2Core::Song
+	 * corresponding to the current session. This allows for archiving
+	 * whole sessions in a self-contained manner just by using
+	 * e.g. `tar -chf`. Note however that all changes to the current
+	 * H2Core::Drumkit will be stored int eh associated H2Core::Song
+	 * file instead. the #DRUMKIT_XML file only serves as references
+	 * when first setting the particular H2Core::Drumkit.
+	 *
+	 * All files and symbolic links will be stored in a folder created
+	 * by this function and named according to @a name.
+	 *
+	 * \param name Unique name corresponding to the current session. A
+	 * folder using this particular \a name will be created, which will
+	 * contain the H2Core::Song - using \a name appended by ".h2song" as
+	 * file name -, the local H2Core::Preferences, and a symbolic link to
+	 * the H2Core::Drumkit in use.
+	 * \param displayName Name the application will be presented with by
+	 * the NSM server. It is determined in
+	 * NsmClient::createInitialClient() and set to "Hydrogen".
+	 * \param clientID Unique prefix also present in \a name, "nJKUV". It
+	 * will be stored in H2Core::Preferences::m_sNsmClientId to provide it
+	 * as a suffix when creating a JACK client in 
+	 * H2Core::JackAudioDriver::init().
+	 * \param outMsg Unused argument. Kept for API compatibility.
+	 * \param userData Unused argument. Kept for API compatibility.
+	 *
+	 *  \return 
+	 * - ERR_OK (0): indicating that everything worked fine.
+	 * - ERR_LAUNCH_FAILED (-4): If no \a clientID provided, the H2Core::Song
+	 * corresponding to the file path of a concatenation of \a name and
+	 * ".h2song" could not be loaded, or the Action could not be provided
+	 * to MidiActionManager::handleAction().
+	 * - ERR_NOT_NOW (-8): If the H2Core::Preferences instance was
+	 * not initialized.
+	 */
+	static int OpenCallback(const char* name, const char* displayName,
+							   const char* clientID, char** outMsg,
+							   void* userData);
+							   
+	/**
+	 * Callback function for the NSM server to tell Hydrogen to save the
+	 * current session.
+	 *
+	 * It will construct an Action of type "SAVE_ALL" triggering
+	 * MidiActionManager::save_all().
+	 *
+	 * \param out_msg Unused argument. Kept for API compatibility.
+	 * \param userdata Unused argument. Kept for API compatibility.
+	 *
+	 *  \return 0 - actually ERR_OK defined in the NSM API - indicating
+	 *  that everything worked fine.
+	 */
+	static int SaveCallback(char** outMsg, void* userData);
+	
+	/**
+	 * Event handling function of the NSM client.
+	 *
+	 * The event handling can be deactivated by calling
+	 * NsmClient::shutdown() which is setting #NsmShutdown to true.
+	 *
+	 * \param data NSM client created in NsmClient::createInitialClient().
+	 */
+	static void* ProcessEvent(void* data);
+	
+	/** Indicates whether the nsm_processEvent() function should continue
+	 * processing events.
+	 *
+	 * Set to true in NsmClient::shutdown().
+	 */
+	static bool bNsmShutdown;
 };
 
 #endif /* H2CORE_HAVE_OSC */
