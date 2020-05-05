@@ -73,8 +73,7 @@ int NsmClient::OpenCallback( const char *name,
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 	
 	if ( !name ) {
-		std::cerr << std::endl <<
-			"\033[1;30m[Hydrogen]\033[31m Error: No `name` supplied in NSM open callback!\033[0m" << std::endl;
+		NsmClient::printError( "No `name` supplied in NSM open callback!" );
 		return ERR_LAUNCH_FAILED;
 	}
 	
@@ -86,8 +85,7 @@ int NsmClient::OpenCallback( const char *name,
 	QDir sessionFolder( name );
 	if ( !sessionFolder.exists() ) {
 		if ( !sessionFolder.mkpath( name ) ) {
-			std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: folder could not created." 
-					  << std::endl;
+			NsmClient::printError( "Folder could not created." );
 		}
 	}
 	
@@ -114,11 +112,11 @@ int NsmClient::OpenCallback( const char *name,
 			// Setup JACK here, client_id gets the JACK client name
 			pPref->setNsmClientId( QString( clientID ) );
 		} else {
-			std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: No `client_id` supplied in NSM open callback!\033[0m" << std::endl;
+			NsmClient::printError( "No `clientID` supplied in NSM open callback!" );
 			return ERR_LAUNCH_FAILED;
 		}
 	} else {
-		std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: Preferences instance is not ready yet!\033[0m" << std::endl;
+		NsmClient::printError( "Preferences instance is not ready yet!" );
 		return ERR_NOT_NOW;
 	}
 	
@@ -131,7 +129,8 @@ int NsmClient::OpenCallback( const char *name,
 
 		pSong = H2Core::Song::load( songPath );
 		if ( pSong == nullptr ) {
-			std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: Unable to open Song.\033[0m" << std::endl;
+			NsmClient::printError( QString( "Unable to open existing Song [%1]." )
+								   .arg( songPath ) );
 			return ERR_LAUNCH_FAILED;
 		}
 		
@@ -141,7 +140,7 @@ int NsmClient::OpenCallback( const char *name,
 		// to an empty default Song.
 		pSong = H2Core::Song::get_empty_song();
 		if ( pSong == nullptr ) {
-			std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: Unable to open new Song.\033[0m" << std::endl;
+			NsmClient::printError( "Unable to open new Song." );
 			return ERR_LAUNCH_FAILED;
 		}
 		pSong->set_filename( songPath );
@@ -223,15 +222,15 @@ int NsmClient::OpenCallback( const char *name,
 		// Tell the action to restart the audio engine.
 		currentAction.setParameter2( "1" );
 		
-		bool ok = pActionManager->handleAction( &currentAction );
+		const bool ok = pActionManager->handleAction( &currentAction );
 
 		if ( !ok ) {
-			std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: Unable to handle opening action!\033[0m" << std::endl;
+			NsmClient::printError( "Unable to handle opening action!" );
 			return ERR_LAUNCH_FAILED;
 		}
 	}
 	
-	std::cout << "\033[1;30m[Hydrogen]\033[32m Song loaded!\033[0m" << std::endl;
+	NsmClient::printMessage( "Song loaded!" );
 	
 	NsmClient::copyPreferences( name );
 	
@@ -278,13 +277,11 @@ void NsmClient::copyPreferences( const char* name ) {
 		
 	} else {
 		if ( !preferences.copy( newPreferencesPath ) ) {
-			std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: Unable to copy preferences to "
-					  << newPreferencesPath.toLocal8Bit().data()
-					  << "\033[0m" << std::endl;		
+			NsmClient::printError( QString( "Unable to copy preferences to [%1]" )
+								   .arg( newPreferencesPath ) );
 		} else {
-			std::cout << "\033[1;30m[Hydrogen]\033[32m Preferences copied to " 
-					  << newPreferencesPath.toLocal8Bit().data()
-					  << "\033[0m" << std::endl;
+			NsmClient::printMessage( QString( "Preferences copied to [%1]" )
+									 .arg( newPreferencesPath ) );
 		}
 	}
 
@@ -294,7 +291,7 @@ void NsmClient::copyPreferences( const char* name ) {
 		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_UPDATE_PREFERENCES, 1 );
 	}
 	
-	std::cout << "\033[1;30m[Hydrogen]\033[32m Preferences loaded!\033[0m" << std::endl;
+	NsmClient::printMessage( "Preferences loaded!" );
 }
 
 void NsmClient::linkDrumkit( const char* name ) {	
@@ -343,8 +340,7 @@ void NsmClient::linkDrumkit( const char* name ) {
 			QDomNodeList nodeList = drumkitXML.elementsByTagName( "drumkit_info" );
 	
 			if( nodeList.isEmpty() ) {
-				std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Linked drumkit does not seem valid\033[0m"
-						  << std::endl;
+				NsmClient::printError( "Linked drumkit does not seem valid." );
 			} else {
 				QDomNode drumkitInfoNode = nodeList.at( 0 );
 				QString sDrumkitNameXML = H2Core::LocalFileMng::readXmlString( drumkitInfoNode, "name", "" );
@@ -352,34 +348,28 @@ void NsmClient::linkDrumkit( const char* name ) {
 				if ( sDrumkitNameXML == sDrumkitName ) {
 					bRelinkDrumkit = false;
 				} else {
-					std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Linked drumkit ["
-							  << sDrumkitNameXML.toLocal8Bit().data()
-							  << "] and loaded drumkit ["
-							  << sDrumkitName.toLocal8Bit().data()
-							  << "] do not match\033[0m"
-							  << std::endl;
+					NsmClient::printError( QString( "Linked [%1] and loaded [%2] drumkit do not match." )
+										   .arg( sDrumkitNameXML )
+										   .arg( sDrumkitName ) );
 				}
 			}
 		} else {
-			std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Symlink does not point to valid drumkit\033[0m"
-					  << std::endl;
+			NsmClient::printError( "Symlink does not point to valid drumkit." );
 		}				   
 	} else {
-		std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: No symlink to drumkit exists\033[0m"
-				  << std::endl;
+		NsmClient::printError( "No symlink to drumkit exists." );
 	}
 	
 	// The symbolic link either does not exist, is not valid, or does
 	// point to the wrong location. Remove it and create a fresh one.
 	if ( bRelinkDrumkit ){
-		std::cout << "[nsm_open_cb] relinking" << std::endl;
+		NsmClient::printMessage( "Relinking drumkit" );
 		QFile linkedDrumkitFile( sLinkedDrumkitPath );
 		
 		if ( linkedDrumkitFile.exists() ) {
 			if ( !linkedDrumkitFile.remove() ) {
-				std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Unable to remove drumkit file/symlink [\033[0m"
-						  << sLinkedDrumkitPath.toLocal8Bit().data()
-						  << std::endl;
+				NsmClient::printError( QString( "Unable to remove drumkit file/symlink [%1]." )
+									   .arg( sLinkedDrumkitPath ) );
 			}
 		}
 		
@@ -404,18 +394,16 @@ void NsmClient::linkDrumkit( const char* name ) {
 		
 		if ( sDrumkitAbsPath.isEmpty() ) {
 			// Something went wrong. We skip the linking.
-			std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: No drumkit named ["
-					  << sDrumkitName.toLocal8Bit().data()
-					  << "] could be found.[\033[0m" << std::endl;
+			NsmClient::printError( QString( "No drumkit named [%1] could be found." )
+								   .arg( sDrumkitName ) );
 		} else {
 			
 			// Actual linking.
 			QFile targetPath( sDrumkitAbsPath );
 			if ( !targetPath.link( sLinkedDrumkitPath ) ) {
-				std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Unable to link ["
-						  << sLinkedDrumkitPath.toLocal8Bit().data()
-						  << "] to [" << sDrumkitAbsPath.toLocal8Bit().data() 
-						  << "][\033[0m" << std::endl;
+				NsmClient::printError( QString( "Unable to link drumkit [%1] to [%2]." )
+									   .arg( sLinkedDrumkitPath )
+									   .arg( sDrumkitAbsPath ) );
 			}
 		}
 	}
