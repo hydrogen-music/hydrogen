@@ -1525,7 +1525,9 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		if ( m_bIsInitialised ) {
 
 			if ( sFileName.endsWith( H2Core::Filesystem::songs_ext ) ) {
-				openSongFile( sFileName );
+				if ( handleUnsavedChanges() ) {
+					openSongFile( sFileName );
+				}
 
 			} else if ( sFileName.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
 				H2Core::Drumkit::install( sFileName );
