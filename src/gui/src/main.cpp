@@ -140,13 +140,49 @@ static void setApplicationIcon(QApplication *app)
 	app->setWindowIcon(icon);
 }
 
+
+// QApplication class.
+class H2QApplication : public QApplication {
+
+	QString m_sInitialFileOpen;
+
+public:
+	H2QApplication( int &argc, char **argv )
+		: QApplication(argc, argv) { }
+
+	bool event( QEvent *e ) override
+	{
+		// QApplication::instance() can receive a QFileOpenEvent
+		// before MainForm is ready to process an open event. If this
+		// happens, we'll just save the filename, and forward to
+		// MainForm when ready.
+		if ( e->type() == QEvent::FileOpen ) {
+			QFileOpenEvent *fe = dynamic_cast<QFileOpenEvent*>( e );
+			assert( fe != nullptr );
+			m_sInitialFileOpen = fe->file();
+			return true;
+		}
+		return QApplication::event( e );
+	}
+
+	void forwardInitialFileOpen( QWidget *w )
+	{
+		if ( !m_sInitialFileOpen.isEmpty() ) {
+			QFileOpenEvent ev( m_sInitialFileOpen );
+			QApplication::sendEvent( w, &ev );
+
+		}
+	}
+};
+
+
 int main(int argc, char *argv[])
 {
 	try {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
 		QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
-		QApplication* pQApp = new QApplication( argc, argv );
+		H2QApplication* pQApp = new H2QApplication( argc, argv );
 		pQApp->setApplicationName( "Hydrogen" );
 		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
 		
@@ -410,6 +446,8 @@ int main(int argc, char *argv[])
 				___ERRORLOG ( "Error loading the drumkit" );
 			}
 		}
+
+		pQApp->forwardInitialFileOpen( pMainForm );
 
 		pQApp->exec();
 

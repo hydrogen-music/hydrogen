@@ -179,9 +179,6 @@ public slots:
 
 		QTimer		m_AutosaveTimer;
 
-		bool m_bIsInitialised;
-		QString m_sInitialOpenFilename;
-
 		/** Create the menubar */
 		void createMenuBar();
 

@@ -95,8 +95,6 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	: QMainWindow( nullptr, nullptr )
 	, Object( __class_name )
 {
-	m_sInitialOpenFilename = "";
-	m_bIsInitialised = false;
 	setMinimumSize( QSize( 1000, 500 ) );
 
 #ifndef WIN32
@@ -108,9 +106,6 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 
 
 	m_pQApp = app;
-
-	// To pick up FileOpen messages, early to allow for intercepting initial open events.
-	m_pQApp->installEventFilter( this );
 
 	m_pQApp->processEvents();
 
@@ -222,12 +217,9 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 		}
 	}
 
-	m_bIsInitialised = true;
-	if ( !m_sInitialOpenFilename.isEmpty() ) {
-		QFileOpenEvent ev( m_sInitialOpenFilename );
-		// We handled an early request to open a file. Process it now.
-		QApplication::sendEvent( this, &ev );
-	}
+	// To pick up FileOpen messages
+	m_pQApp->installEventFilter( this );
+
 }
 
 
@@ -1522,28 +1514,22 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		QFileOpenEvent *fe = dynamic_cast<QFileOpenEvent*>(e);
 		assert( fe != nullptr );
 		QString sFileName = fe->file();
-		if ( m_bIsInitialised ) {
 
-			if ( sFileName.endsWith( H2Core::Filesystem::songs_ext ) ) {
-				if ( handleUnsavedChanges() ) {
-					openSongFile( sFileName );
-				}
-
-			} else if ( sFileName.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
-				H2Core::Drumkit::install( sFileName );
-
-			} else if ( sFileName.endsWith( H2Core::Filesystem::playlist_ext ) ) {
-				bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( sFileName );
-				if ( loadlist ) {
-					H2Core::Playlist::get_instance()->setNextSongByNumber( 0 );
-				}
+		if ( sFileName.endsWith( H2Core::Filesystem::songs_ext ) ) {
+			if ( handleUnsavedChanges() ) {
+				openSongFile( sFileName );
 			}
-		} else {
-			// Initialisation isn't completed yet, so keep the
-			// requested filename and handle when initialisation is
-			// complete.
-			m_sInitialOpenFilename = sFileName;
+
+		} else if ( sFileName.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
+			H2Core::Drumkit::install( sFileName );
+
+		} else if ( sFileName.endsWith( H2Core::Filesystem::playlist_ext ) ) {
+			bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( sFileName );
+			if ( loadlist ) {
+				H2Core::Playlist::get_instance()->setNextSongByNumber( 0 );
+			}
 		}
+		return true;
 
 	} else if ( e->type() == QEvent::KeyPress ) {
 		// special processing for key press

@@ -58,8 +58,12 @@ if(APPLE)
     add_custom_command(
         TARGET hydrogen
         POST_BUILD
-        COMMAND plutil -insert CFBundleDocumentTypes
-                       -json
+        COMMAND
+            plutil -extract CFBuneouxdleDocumentTypes json
+                   -o /dev/null
+                   hydrogen.app/Contents/Info.plist 
+            || plutil -insert CFBundleDocumentTypes
+                      -json
                          \"` cat ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json `\"
                        hydrogen.app/Contents/Info.plist )
 
