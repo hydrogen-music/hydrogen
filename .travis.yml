@@ -30,7 +30,7 @@ jobs:
     dist: bionic
     env: CMAKE_OPTIONS=-DUSE_SANITIZER=Undefined
 
-    addons:
+addons:
   apt:
     packages:
     - clang
