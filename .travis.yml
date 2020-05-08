@@ -29,54 +29,12 @@ jobs:
     osx_image: xcode9
 
   - stage: Sanitizers
-    name: Address Sanitizer
-    os: linux
-    dist: bionic
-    env: CMAKE_OPTIONS=-DUSE_SANITIZER=Address
-  - name: Leak Sanitizer
-    os: linux
-    dist: bionic
-    env: CMAKE_OPTIONS=-DUSE_SANITIZER=Leak
-  # - name: Memory Sanitizer
-  #   os: linux
-  #   dist: bionic
-  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Memory
   - name: Undefined Behavior Sanitizer
     os: linux
     dist: bionic
     env: CMAKE_OPTIONS=-DUSE_SANITIZER=Undefined
 
-  # - name: Address Sanitizer
-  #   os: osx
-  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Address
-  # - name: Leak Sanitizer
-  #   os: osx
-  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Leak
-  # - name: Memory Sanitizer
-  #   os: osx
-  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Memory
-  # - name: Undefined Behavior Sanitizer
-  #   os: osx
-  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Undefined
-
-  # - name: Address Sanitizer
-  #   os: linux
-  #   dist: bionic
-  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Address CC=/usr/bin/clang CXX=/usr/bin/clang++
-  # - name: Leak Sanitizer
-  #   os: linux
-  #   dist: bionic
-  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Leak CC=/usr/bin/clang CXX=/usr/bin/clang++
-  - name: Memory Sanitizer
-    os: linux
-    dist: bionic
-    env: CMAKE_OPTIONS=-DUSE_SANITIZER=Memory CC=/usr/bin/clang CXX=/usr/bin/clang++
-  # - name: Undefined Behavior Sanitizer
-  #   os: linux
-  #   dist: bionic
-  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Undefined CC=/usr/bin/clang CXX=/usr/bin/clang++
-
-addons:
+    addons:
   apt:
     packages:
     - clang
