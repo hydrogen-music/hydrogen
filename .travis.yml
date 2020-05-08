@@ -3,10 +3,6 @@ env:
   global:
   - MAKEFLAGS="-j 2"
 jobs:
-  allow_failures:
-  - name: Address Sanitizer
-  - name: Leak Sanitizer
-  - name: Memory Sanitizer
 
   include:
   - stage: Build
@@ -29,7 +25,7 @@ jobs:
     osx_image: xcode9
 
   - stage: Sanitizers
-  - name: Undefined Behavior Sanitizer
+    name: Undefined Behavior Sanitizer
     os: linux
     dist: bionic
     env: CMAKE_OPTIONS=-DUSE_SANITIZER=Undefined
