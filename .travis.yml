@@ -3,21 +3,83 @@ env:
   global:
   - MAKEFLAGS="-j 2"
 jobs:
+  allow_failures:
+  - name: Address Sanitizer
+  - name: Leak Sanitizer
+  - name: Memory Sanitizer
+
   include:
-  - os: linux
+  - stage: Build
+    name: "Ubuntu 16.04 Xenial"
+    os: linux
     dist: xenial
-  - os: osx
+  - name: "Ubuntu 18.04 Bionic"
+    os: linux
+    dist: bionic
+  - name: "macOS"
+    os: osx
     env:
     - MACOSX_DEPLOYMENT_TARGET="10.12"
-  - os: osx
+  - name: "macOS (legacy)"
+    os: osx
     env:
     - MACOSX_DEPLOYMENT_TARGET="10.10"
     - HOMEBREW_NO_AUTO_UPDATE=1
     - PKG_SUFFIX="-legacy"
     osx_image: xcode9
+
+  - stage: Sanitizers
+    name: Address Sanitizer
+    os: linux
+    dist: bionic
+    env: CMAKE_OPTIONS=-DUSE_SANITIZER=Address
+  - name: Leak Sanitizer
+    os: linux
+    dist: bionic
+    env: CMAKE_OPTIONS=-DUSE_SANITIZER=Leak
+  # - name: Memory Sanitizer
+  #   os: linux
+  #   dist: bionic
+  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Memory
+  - name: Undefined Behavior Sanitizer
+    os: linux
+    dist: bionic
+    env: CMAKE_OPTIONS=-DUSE_SANITIZER=Undefined
+
+  # - name: Address Sanitizer
+  #   os: osx
+  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Address
+  # - name: Leak Sanitizer
+  #   os: osx
+  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Leak
+  # - name: Memory Sanitizer
+  #   os: osx
+  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Memory
+  # - name: Undefined Behavior Sanitizer
+  #   os: osx
+  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Undefined
+
+  # - name: Address Sanitizer
+  #   os: linux
+  #   dist: bionic
+  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Address CC=/usr/bin/clang CXX=/usr/bin/clang++
+  # - name: Leak Sanitizer
+  #   os: linux
+  #   dist: bionic
+  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Leak CC=/usr/bin/clang CXX=/usr/bin/clang++
+  - name: Memory Sanitizer
+    os: linux
+    dist: bionic
+    env: CMAKE_OPTIONS=-DUSE_SANITIZER=Memory CC=/usr/bin/clang CXX=/usr/bin/clang++
+  # - name: Undefined Behavior Sanitizer
+  #   os: linux
+  #   dist: bionic
+  #   env: CMAKE_OPTIONS=-DUSE_SANITIZER=Undefined CC=/usr/bin/clang CXX=/usr/bin/clang++
+
 addons:
   apt:
     packages:
+    - clang
     - qt5-default
     - qttools5-dev
     - qttools5-dev-tools
@@ -56,7 +118,7 @@ before_install:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$HOMEBREW_NO_AUTO_UPDATE" -eq "1" ]];
   then test $(PKG_CONFIG_PATH=$(brew --prefix qt5)/lib/pkgconfig pkg-config --modversion Qt5Core) == 5.9.1; fi
 script:
-- mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1
+- mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 ${CMAKE_OPTIONS}
   .. && make
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PATH="$(brew --prefix qt5)/bin:$PATH"
   ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg; fi

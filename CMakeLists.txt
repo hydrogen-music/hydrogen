@@ -83,6 +83,8 @@ ENDIF()
 
 OPTION(WANT_CPPUNIT         "Include CppUnit test suite" ON)
 
+include(Sanitizers)
+
 IF(WANT_DEBUG)
     SET(CMAKE_BUILD_TYPE Debug)
     SET(H2CORE_HAVE_DEBUG TRUE)
