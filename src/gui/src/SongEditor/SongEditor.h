@@ -41,7 +41,7 @@ class ToggleButton;
 class SongEditor;
 class SongEditorPatternList;
 class SongEditorPositionRuler;
-
+class SongEditorPanel;
 
 static const uint SONG_EDITOR_MIN_GRID_WIDTH = 8;
 static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
@@ -65,7 +65,7 @@ class SongEditor : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
-		SongEditor( QWidget *parent, QScrollArea *pScrollView );
+		SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPanel *pSongEditorPanel );
 		~SongEditor();
 
 		void createBackground();
@@ -86,6 +86,7 @@ class SongEditor : public QWidget, public H2Core::Object
 		QList<SongEditorGridRepresentationItem*> gridRepresentation;
 
 		QScrollArea *m_pScrollView;
+		SongEditorPanel *m_pSongEditorPanel;
 
 		unsigned m_nGridHeight;
 		unsigned m_nGridWidth;
@@ -93,6 +94,7 @@ class SongEditor : public QWidget, public H2Core::Object
 		bool m_bSequenceChanged;
 		bool m_bIsMoving;
 		bool m_bIsCtrlPressed;
+		bool m_bDrawingActiveCell;
 
 		QPixmap *m_pBackgroundPixmap;
 		QPixmap *m_pSequencePixmap;
@@ -123,6 +125,9 @@ class SongEditor : public QWidget, public H2Core::Object
 		void startSelectionOrMove( int nColumn, int nRow, QPoint pos );
 		void updateSelectionOrMove( int nColumn, int nRow, QPoint pos );
 		void finishSelectionOrMove();
+
+		bool togglePatternActive( int nColumn, int nRow );
+		void setPatternActive( int nColumn, int nRow, bool value );
 
 		void cancelSelectionOrMove();
 

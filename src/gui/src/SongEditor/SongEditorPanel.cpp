@@ -292,7 +292,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pEditorScrollView->setFrameShape( QFrame::NoFrame );
 	m_pEditorScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pSongEditor = new SongEditor( m_pEditorScrollView->viewport(), m_pEditorScrollView );
+	m_pSongEditor = new SongEditor( m_pEditorScrollView->viewport(), m_pEditorScrollView, this );
 	m_pEditorScrollView->setWidget( m_pSongEditor );
 	m_pEditorScrollView->setFocusProxy( m_pSongEditor );
 
