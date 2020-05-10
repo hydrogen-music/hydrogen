@@ -451,6 +451,12 @@ void SongEditor::startSelectionOrMove( int nColumn, int nRow, QPoint pos, bool b
 
 		m_clickPoint.setX( nColumn );
 		m_clickPoint.setY( nRow );
+		if ( m_bIsCtrlPressed ) {
+			setCursor( QCursor( Qt::DragCopyCursor ) );
+		} else {
+			setCursor( QCursor( Qt::DragMoveCursor ) );
+		}
+
 	}
 	else {
 		//			INFOLOG( "[mousePressEvent] Select patterns" );
