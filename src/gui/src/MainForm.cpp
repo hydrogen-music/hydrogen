@@ -216,10 +216,6 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 			_ERRORLOG ( "Error loading the playlist" );
 		}
 	}
-
-	// To pick up FileOpen messages
-	m_pQApp->installEventFilter( this );
-
 }
 
 

@@ -145,31 +145,39 @@ static void setApplicationIcon(QApplication *app)
 class H2QApplication : public QApplication {
 
 	QString m_sInitialFileOpen;
+	QWidget *m_pMainForm;
 
 public:
 	H2QApplication( int &argc, char **argv )
-		: QApplication(argc, argv) { }
+		: QApplication(argc, argv) {
+		m_pMainForm = nullptr;
+	}
 
 	bool event( QEvent *e ) override
 	{
-		// QApplication::instance() can receive a QFileOpenEvent
-		// before MainForm is ready to process an open event. If this
-		// happens, we'll just save the filename, and forward to
-		// MainForm when ready.
 		if ( e->type() == QEvent::FileOpen ) {
 			QFileOpenEvent *fe = dynamic_cast<QFileOpenEvent*>( e );
 			assert( fe != nullptr );
-			m_sInitialFileOpen = fe->file();
+
+			if ( m_pMainForm ) {
+				// Forward to MainForm if it's initialised and ready to handle a FileOpenEvent.
+				QApplication::sendEvent( m_pMainForm, e );
+			} else  {
+				// Keep requested file until ready
+				m_sInitialFileOpen = fe->file();
+			}
 			return true;
 		}
 		return QApplication::event( e );
 	}
 
-	void forwardInitialFileOpen( QWidget *w )
+	// Set the MainForm pointer and forward any requested open event.
+	void setMainForm( QWidget *pMainForm )
 	{
+		m_pMainForm = pMainForm;
 		if ( !m_sInitialFileOpen.isEmpty() ) {
 			QFileOpenEvent ev( m_sInitialFileOpen );
-			QApplication::sendEvent( w, &ev );
+			QApplication::sendEvent( m_pMainForm, &ev );
 
 		}
 	}
@@ -447,7 +455,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		pQApp->forwardInitialFileOpen( pMainForm );
+		pQApp->setMainForm( pMainForm );
 
 		pQApp->exec();
 
