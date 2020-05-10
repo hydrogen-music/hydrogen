@@ -509,7 +509,7 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 	case 4:
 		sampleRateCombo->show();
 		sampleDepthCombo->show();
-		sampleRateCombo->setCurrentIndex ( 3 ); //96000hz
+		sampleRateCombo->setCurrentIndex ( 4 ); //96000hz
 		sampleDepthCombo->setCurrentIndex ( 3 ); //32bit
 		filename += ".wav";
 		m_sExtension = ".wav";
