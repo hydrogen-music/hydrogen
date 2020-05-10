@@ -121,13 +121,16 @@ class SongEditor : public QWidget, public H2Core::Object
 		virtual void paintEvent(QPaintEvent *ev);
 		virtual void focusInEvent( QFocusEvent *ev ) override;
 
+		// User action intentions
 		void startSelectionAtCursor();
-		void startSelectionOrMove( int nColumn, int nRow, QPoint pos );
+		void startSelectionOrMove( int nColumn, int nRow, QPoint pos, bool bClearSelection = true );
 		void updateSelectionOrMove( int nColumn, int nRow, QPoint pos );
-		void finishSelectionOrMove();
+		void finishSelectionOrMove( int nColumn, int nRow );
 
 		bool togglePatternActive( int nColumn, int nRow );
 		void setPatternActive( int nColumn, int nRow, bool value );
+
+		void togglePatternSelected( int nColumn, int nRow );
 
 		void cancelSelectionOrMove();
 

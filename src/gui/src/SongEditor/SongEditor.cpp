@@ -183,7 +183,8 @@ bool SongEditor::togglePatternActive( int nColumn, int nRow )
 	}
 }
 
-void SongEditor::setPatternActive( int nColumn, int nRow, bool value ) {
+void SongEditor::setPatternActive( int nColumn, int nRow, bool value )
+{
 	HydrogenApp* h2app = HydrogenApp::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
@@ -215,6 +216,41 @@ void SongEditor::setPatternActive( int nColumn, int nRow, bool value ) {
 		h2app->m_pUndoStack->push( action );
 	}
 
+}
+
+
+void SongEditor::togglePatternSelected( int nColumn, int nRow )
+{
+	HydrogenApp* h2app = HydrogenApp::get_instance();
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	Song *pSong = pEngine->getSong();
+	PatternList *pPatternList = pSong->get_pattern_list();
+
+	if ( nRow >= pPatternList->size() || nRow < 0 || nColumn < 0 ) {
+		return;
+	}
+
+	for ( std::vector<QPoint>::iterator n = m_selectedCells.begin(); n != m_selectedCells.end(); n++ ) {
+		if ( n->x() == nColumn && n->y() == nRow ) {
+			// Cell is currently selected. Deselect it.
+			m_selectedCells.erase( n );
+			return;
+		}
+	}
+
+	// Cell is not currently selected. If it's active, add it to the selection.
+	H2Core::Pattern *pPattern = pPatternList->get( nRow );
+	assert( pPattern != nullptr );
+
+	vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
+	if ( nColumn < pColumns->size() ) {
+		PatternList *pColumn = ( *pColumns )[ nColumn ];
+		unsigned nColumnIndex = pColumn->index( pPattern );
+		if ( nColumnIndex != -1 ) {
+			// Pattern is active. Add it to the selected cells.
+			m_selectedCells.push_back( QPoint( nColumn, nRow ) );
+		}
+	}
 }
 
 
@@ -320,11 +356,11 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 				}
 
 				startSelectionOrMove( m_nCursorColumn, m_nCursorRow,
-									  columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre );
+									  columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre, !m_bIsCtrlPressed );
 			} else {
 				updateSelectionOrMove( m_nCursorColumn, m_nCursorRow,
 									   columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre );
-				finishSelectionOrMove();
+				finishSelectionOrMove( m_nCursorColumn, m_nCursorRow );
 			}
 		}
 	} else {
@@ -384,7 +420,7 @@ void SongEditor::startSelectionAtCursor( void )
 }
 
 
-void SongEditor::startSelectionOrMove( int nColumn, int nRow, QPoint pos )
+void SongEditor::startSelectionOrMove( int nColumn, int nRow, QPoint pos, bool bClearSelection )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
@@ -422,8 +458,10 @@ void SongEditor::startSelectionOrMove( int nColumn, int nRow, QPoint pos )
 		m_bShowLasso = true;
 		m_lasso.setCoords( pos.x(), pos.y(), pos.x(), pos.y() );
 		setCursor( QCursor( Qt::CrossCursor ) );
-		m_selectedCells.clear();
-		m_selectedCells.push_back( QPoint( nColumn, nRow ) );
+		if ( bClearSelection ) {
+			m_selectedCells.clear();
+			m_selectedCells.push_back( QPoint( nColumn, nRow ) );
+		}
 	}
 	AudioEngine::get_instance()->unlock();
 	// update
@@ -457,9 +495,9 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 
 	SongEditorActionMode actionMode = m_pSongEditorPanel->getActionMode();
 	if ( actionMode == SELECT_ACTION ) {
-		startSelectionOrMove( nColumn, nRow, ev->pos() );
-	}
-	else if ( actionMode == DRAW_ACTION ) {
+		startSelectionOrMove( nColumn, nRow, ev->pos(), !m_bIsCtrlPressed );
+
+	} else if ( actionMode == DRAW_ACTION ) {
 		m_bDrawingActiveCell = togglePatternActive( nColumn, nRow );
 	}
 
@@ -633,53 +671,75 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 }
 
 
-void SongEditor::finishSelectionOrMove()
+void SongEditor::finishSelectionOrMove( int nColumn, int nRow )
 {
-	if ( m_bIsMoving ) {	// fine dello spostamento dei pattern
-		// create the new patterns
+	if ( m_bIsMoving ) {
+		if ( nColumn == m_clickPoint.x() && nRow == m_clickPoint.y() ) {
+			// Haven't actually moved - interpret as single click.
+			if ( m_bIsCtrlPressed ) {
+				togglePatternSelected( nColumn, nRow );
+			} else {
+				m_selectedCells.clear();
+				togglePatternActive( nColumn, nRow );
+			}
+			m_bIsMoving = false;
+			m_movingCells.clear();
 
-		/*
-		 * For the proper handling of undo events we have to make sure
-		 * that the array m_movingCells does not include cells that are
-		 * already existing.
-		 *
-		 * Example: A song consists of a sequence with the cells 0,1 and 3.
-		 * Consider that we the two first cells 0 and 1 get moved one
-		 * cell to the right (to 2,3). An undo action would now delete
-		 * (2,3) for and re-create 0,1. Cell 3 got deleted now, but it existed
-		 * before the first move operation.
-		 */
+		} else {
+			// fine dello spostamento dei pattern
+			// create the new patterns
 
-		SongEditorGridRepresentationItem* item;
-		m_existingCells.clear();
-		for ( uint i = 0; i < m_movingCells.size(); i++ )
-		{
-			QPoint cell = m_movingCells[ i ];
+			/*
+			 * For the proper handling of undo events we have to make sure
+			 * that the array m_movingCells does not include cells that are
+			 * already existing.
+			 *
+			 * Example: A song consists of a sequence with the cells 0,1 and 3.
+			 * Consider that we the two first cells 0 and 1 get moved one
+			 * cell to the right (to 2,3). An undo action would now delete
+			 * (2,3) for and re-create 0,1. Cell 3 got deleted now, but it existed
+			 * before the first move operation.
+			 */
 
-			//looking for cell identified with (cell.x/cell.y) in the gridRepresentation
-			bool found = false;
-			foreach(item, gridRepresentation)
-			{
-				if(item->x == cell.x() && item->y == cell.y())
+			SongEditorGridRepresentationItem* item;
+			m_existingCells.clear();
+			for ( uint i = 0; i < m_movingCells.size(); i++ )
 				{
-					found = true;
+					QPoint cell = m_movingCells[ i ];
+
+					//looking for cell identified with (cell.x/cell.y) in the gridRepresentation
+					bool found = false;
+					foreach(item, gridRepresentation)
+						{
+							if(item->x == cell.x() && item->y == cell.y())
+								{
+									found = true;
+								}
+						}
+
+					if( found ){
+						m_existingCells.push_back(cell);
+					}
 				}
-			}
 
-			if( found ){
-				m_existingCells.push_back(cell);
-			}
+			SE_movePatternCellAction *action = new SE_movePatternCellAction( m_movingCells, m_selectedCells,
+																			 m_existingCells, m_bIsCtrlPressed);
+			HydrogenApp::get_instance()->m_pUndoStack->push( action );
+
 		}
-
-		SE_movePatternCellAction *action = new SE_movePatternCellAction( m_movingCells, m_selectedCells , m_existingCells, m_bIsCtrlPressed);
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 	}
 
 	if ( m_bShowLasso ) {
-		// If finishing a selection at the current location, treat this as a click to toggle the value.
+		// If finishing a selection at the current location, treat this as a click to toggle the value, or the selection.
 		QPoint topLeft = xyToColumnRow( m_lasso.topLeft() );
 		if ( topLeft == xyToColumnRow( m_lasso.bottomRight() ) ) {
-			togglePatternActive( topLeft.x(), topLeft.y() );
+			if (m_bIsCtrlPressed) {
+				// Holding control -- add or remove from selection
+				togglePatternSelected( topLeft.x(), topLeft.y() );
+			} else {
+				togglePatternActive( topLeft.x(), topLeft.y() );
+				m_selectedCells.clear();
+			}
 		}
 	}
 
@@ -693,8 +753,8 @@ void SongEditor::finishSelectionOrMove()
 
 void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 {
-	UNUSED(ev);
-	finishSelectionOrMove();
+	QPoint p = xyToColumnRow( ev->pos() );
+	finishSelectionOrMove( p.x(), p.y() );
 }
 
 /**
