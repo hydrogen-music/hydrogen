@@ -239,19 +239,19 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 			}
 
 			if ( bFound ) {//Delete pattern
-				SE_deletePatternAction *action = new SE_deletePatternAction( nColumn, nRow, nColumnIndex) ;
+				SE_deletePatternAction *action = new SE_deletePatternAction( nColumn, nRow ) ;
 				h2app->m_pUndoStack->push( action );
 
 			}
 			else {
 				if ( nColumn < (int)pColumns->size() ) {
-					SE_addPatternAction *action = new SE_addPatternAction( nColumn, nRow, nColumnIndex ) ;
+					SE_addPatternAction *action = new SE_addPatternAction( nColumn, nRow ) ;
 					h2app->m_pUndoStack->push( action );
 				}
 			}
 		}
 		else {
-			SE_addPatternAction *action = new SE_addPatternAction( nColumn, nRow, 0 ) ;
+			SE_addPatternAction *action = new SE_addPatternAction( nColumn, nRow ) ;
 			h2app->m_pUndoStack->push( action );
 		}
 	}
@@ -296,7 +296,7 @@ void SongEditor::addPattern( int nColumn , int nRow )
 }
 
 
-void SongEditor::deletePattern( int nColumn , int nRow, unsigned nColumnIndex )
+void SongEditor::deletePattern( int nColumn , int nRow )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
@@ -307,7 +307,7 @@ void SongEditor::deletePattern( int nColumn , int nRow, unsigned nColumnIndex )
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	PatternList *pColumn = ( *pColumns )[ nColumn ];
-	pColumn->del( nColumnIndex );
+	pColumn->del( pPattern );
 
 	// elimino le colonne vuote
 	for ( int i = pColumns->size() - 1; i >= 0; i-- ) {
