@@ -113,6 +113,8 @@ private:
 	const LilvPort*		m_pAudioInput;
 	const LilvPort*		m_pAudioOutput;
 	
+	std::vector<float>	m_fDefaultValues;
+	
 	Lv2FX( LilvWorld* pWorld, const LilvPlugin* plugin, long nSampleRate );
 };
 

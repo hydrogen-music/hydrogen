@@ -59,13 +59,16 @@ Lv2FX::Lv2FX( LilvWorld* pWorld, const LilvPlugin* plugin, long nSampleRate)
 		, m_nOAPorts( 0 )
 {
 	const uint32_t n_ports = lilv_plugin_get_num_ports(plugin);
+	
+	m_fDefaultValues.resize( n_ports );
+	
 	std::cout << "LV2 plugin has n ports" << n_ports <<  std::endl;
 	
 	
-	LilvNode* lv2_InputPort          = lilv_new_uri(pWorld, LV2_CORE__InputPort);
-	LilvNode* lv2_OutputPort         = lilv_new_uri(pWorld, LV2_CORE__OutputPort);
-	LilvNode* lv2_AudioPort          = lilv_new_uri(pWorld, LV2_CORE__AudioPort);
-	LilvNode* lv2_ControlPort        = lilv_new_uri(pWorld, LV2_CORE__ControlPort);
+	LilvNode* lv2_InputPort    = lilv_new_uri(pWorld, LV2_CORE__InputPort);
+	LilvNode* lv2_OutputPort   = lilv_new_uri(pWorld, LV2_CORE__OutputPort);
+	LilvNode* lv2_AudioPort    = lilv_new_uri(pWorld, LV2_CORE__AudioPort);
+	LilvNode* lv2_ControlPort  = lilv_new_uri(pWorld, LV2_CORE__ControlPort);
 	
 	for (uint32_t i = 0; i < n_ports; ++i) {
 		const LilvPort* lport = lilv_plugin_get_port_by_index(plugin, i);
@@ -99,9 +102,8 @@ Lv2FX::Lv2FX( LilvWorld* pWorld, const LilvPlugin* plugin, long nSampleRate)
 	
 	m_pLilvInstance = lilv_plugin_instantiate(plugin, nSampleRate, nullptr);
 
-	m_pBuffer_L = new float[MAX_BUFFER_SIZE * 10] ;
+	m_pBuffer_L = new float[MAX_BUFFER_SIZE] ;
 	m_pBuffer_R = new float[MAX_BUFFER_SIZE];
-
 
 	// Touch all the memory (is this really necessary?)
 	for ( unsigned i = 0; i < MAX_BUFFER_SIZE; ++i ) {
@@ -116,6 +118,8 @@ Lv2FX::Lv2FX( LilvWorld* pWorld, const LilvPlugin* plugin, long nSampleRate)
 Lv2FX::~Lv2FX()
 {
 	ERRORLOG(QString("Destroy plugin").arg(m_sURI));
+	
+	lilv_instance_free( m_pLilvInstance );
 	
 	delete[] m_pBuffer_L;
 	delete[] m_pBuffer_R;
@@ -163,25 +167,30 @@ Lv2FX* Lv2FX::load( const QString& sPluginURI, long nSampleRate )
 void Lv2FX::connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float* pOut_R )
 {
 	std::cout <<  "[connectAudioPorts]" << std::endl;
+
 	
-	float a = -22.00;
-	float b = 1.0; 
-	float c = 0.0;
-	lilv_instance_connect_port( m_pLilvInstance, 0, &a);
-	lilv_instance_connect_port( m_pLilvInstance, 1, &b);
-	lilv_instance_connect_port( m_pLilvInstance, 2, &b);
+	float * a = new float;
+	float * b = new float;
+	float * c = new float;
+	*a = 0.0f;
+	*b = 0.1f;
+	*c = 0.1f;
+	
+	lilv_instance_connect_port( m_pLilvInstance, 0, a);
+	lilv_instance_connect_port( m_pLilvInstance, 1, b);
+	lilv_instance_connect_port( m_pLilvInstance, 2, c);
 	
 	
 
 	std::cout << "Audio in is " << m_nIAPorts << std::endl;
 	std::cout << "Audio out is " << m_nOAPorts << std::endl;
-	lilv_instance_connect_port( m_pLilvInstance, 2, pIn_L);
-	lilv_instance_connect_port( m_pLilvInstance, 3, pOut_L);
+	lilv_instance_connect_port( m_pLilvInstance, 3, pIn_L);
+	lilv_instance_connect_port( m_pLilvInstance, 4, pOut_L);
 	
-	
+	/*
 	float OutBuf = 0.0;
 	lilv_instance_connect_port( m_pLilvInstance, 4, &OutBuf);
-	
+	*/
 
 	/*
 	unsigned nAIConn = 0;
@@ -224,10 +233,10 @@ void Lv2FX::connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float*
 void Lv2FX::processFX( unsigned nFrames )
 {
 //	infoLog( "[LadspaFX::applyFX()]" );
-	//m_pLilvInstance->run( m_handle, nFrames );
+	
 	if( m_bActivated ) {
 		lilv_instance_run( m_pLilvInstance, nFrames );
-		std::cout <<  "[ProcessFX: ]" << nFrames << ":" << MAX_BUFFER_SIZE << std::endl;	
+		std::cout <<  "[ProcessFX: ]" << nFrames << ":" << MAX_BUFFER_SIZE <<   std::endl;	
 	}
 }
 
