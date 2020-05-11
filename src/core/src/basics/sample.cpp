@@ -169,7 +169,8 @@ bool Sample::load()
 {
 	// Will contain a bunch of metadata about the loaded sample.
 	SF_INFO sound_info;
-	
+	sound_info.format = 0;
+
 	// Opens file in read-only mode.
 	SNDFILE* file = sf_open( __filepath.toLocal8Bit(), SFM_READ, &sound_info );
 	if ( !file ) {
