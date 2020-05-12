@@ -9,8 +9,29 @@
 
 #include "test_helper.h"
 
+#ifdef __linux__
+#include <stdio.h>
+#include <execinfo.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+void sighandler(int sig) {
+	void *stack[100];
+	fprintf(stderr, "SEGV at:\n");
+	backtrace_symbols_fd(stack, backtrace(stack, 100), fileno(stderr));
+	exit(1);
+}
+
+#endif
+
 void setupEnvironment(unsigned log_level)
 {
+	#if __linux__
+	signal( SIGSEGV, sighandler );
+	* (int *)0 = 0;
+	#endif
+
 	/* Logger */
 	H2Core::Logger* logger = H2Core::Logger::bootstrap( log_level );
 	/* Test helper */
@@ -52,11 +73,11 @@ int main( int argc, char **argv)
 	}
 
 	setupEnvironment(logLevelOpt);
-
 	CppUnit::TextUi::TestRunner runner;
 	CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry();
 	runner.addTest( registry.makeTest() );
 	bool wasSuccessful = runner.run( "", false );
+
 
 	return wasSuccessful ? 0 : 1;
 }
