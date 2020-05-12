@@ -29,7 +29,6 @@ void setupEnvironment(unsigned log_level)
 {
 	#if __linux__
 	signal( SIGSEGV, sighandler );
-	* (int *)0 = 0;
 	#endif
 
 	/* Logger */
