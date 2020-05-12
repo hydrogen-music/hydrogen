@@ -9,7 +9,6 @@
 
 #include "test_helper.h"
 
-#ifdef __linux__
 #include <stdio.h>
 #include <execinfo.h>
 #include <signal.h>
@@ -23,13 +22,10 @@ void sighandler(int sig) {
 	exit(1);
 }
 
-#endif
 
 void setupEnvironment(unsigned log_level)
 {
-	#if __linux__
 	signal( SIGSEGV, sighandler );
-	#endif
 
 	/* Logger */
 	H2Core::Logger* logger = H2Core::Logger::bootstrap( log_level );

@@ -77,6 +77,14 @@ script:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PATH="$(brew --prefix qt5)/bin:$PATH"
   ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg; fi
 - TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
 deploy:
   skip_cleanup: true
   provider: releases
