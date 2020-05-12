@@ -85,6 +85,15 @@ script:
 - TMPDIR=/tmp src/tests/tests
 - TMPDIR=/tmp src/tests/tests
 - TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
+- TMPDIR=/tmp src/tests/tests
 deploy:
   skip_cleanup: true
   provider: releases
