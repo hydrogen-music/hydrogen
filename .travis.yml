@@ -6,10 +6,7 @@ jobs:
 
   include:
   - stage: Build
-    name: "Ubuntu 16.04 Xenial"
-    os: linux
-    dist: xenial
-  - name: "Ubuntu 18.04 Bionic"
+    name: "Ubuntu 18.04 Bionic"
     os: linux
     dist: bionic
   - name: "macOS"
