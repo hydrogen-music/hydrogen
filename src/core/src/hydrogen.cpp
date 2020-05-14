@@ -2511,18 +2511,18 @@ void Hydrogen::setSong( Song *pSong )
 	}
 
 	if ( pCurrentSong ) {
-		
+		/* NOTE: 
+		 *       - this is actually some kind of cleanup 
+		 *       - removeSong cares itself for acquiring a lock
+		 */
+		removeSong();
+
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		delete pCurrentSong;
 		pCurrentSong = nullptr;
 
 		AudioEngine::get_instance()->unlock();
 
-		/* NOTE: 
-		 *       - this is actually some kind of cleanup 
-		 *       - removeSong cares itself for acquiring a lock
-		 */
-		removeSong();
 	}
 
 	/* Reset GUI */

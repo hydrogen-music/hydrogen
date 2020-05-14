@@ -337,8 +337,8 @@ class Sample : public H2Core::Object
 
 inline void Sample::unload()
 {
-	if( __data_l ) delete __data_l;
-	if( __data_r ) delete __data_r;
+	if( __data_l ) delete [] __data_l;
+	if( __data_r ) delete [] __data_r;
 	__frames = __sample_rate = 0;
 	/** #__is_modified = false; leave this unchanged as pan,
 	    velocity, loop and rubberband are kept unchanged */
