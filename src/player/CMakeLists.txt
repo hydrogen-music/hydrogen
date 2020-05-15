@@ -5,6 +5,7 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src/core/include        # core headers
     ${CMAKE_BINARY_DIR}/src/core/include        # generated config.h
     ${QT_INCLUDES}
+    ${LIBSNDFILE_INCLUDE_DIRS}
 )
 
 ADD_EXECUTABLE(h2player WIN32 MACOSX_BUNDLE ${h2player_SRCS} )
