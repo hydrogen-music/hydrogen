@@ -5,6 +5,8 @@ include_directories(
     ${CMAKE_BINARY_DIR}/src/core/include            # generated config.h
     ${QT_INCLUDES}                                  # TODO be able to remove this
     ${CPPUNIT_INCLUDE_DIRS}
+    ${LIBSNDFILE_INCLUDE_DIRS}
+    ${RUBBERBAND_INCLUDE_DIRS}
 )
 
 FILE(GLOB_RECURSE TESTS_SRCS *.cpp)
