@@ -100,8 +100,9 @@ void* diskWriterDriver_thread( void* param )
 //	#ifdef HAVE_OGGVORBIS
 
 	//ogg vorbis option
-	if( pDriver->m_sFilename.endsWith( ".ogg" ) | pDriver->m_sFilename.endsWith( ".OGG" ) )
+	if( pDriver->m_sFilename.endsWith( ".ogg" ) | pDriver->m_sFilename.endsWith( ".OGG" ) ) {
 		soundInfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
+	}
 
 //	#endif
 
