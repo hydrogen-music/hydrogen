@@ -76,21 +76,22 @@ public:
 	 * minimum duration of a Note as well as the minimum distance
 	 * between two of them.
 	 * 
-	 * It is calculated by the sample rate * 60.0 / ( #m_nBPM *
+	 * It will only be used by the JackAudioDriver and is
+	 * calculated by the sample rate * 60.0 / ( #m_fBPM *
 	 * Song::__resolution ). The factor 60.0 will be used to convert
-	 * the sample rate, which is given in second, into minutes (as the
-	 * #m_nBPM).
+	 * the sample rate, which is given in second, into minutes (as
+	 * the #m_fBPM).
 	 */
-	float m_nTickSize;
+	float m_fTickSize;
 	/** Current tempo in beats per minute. */
-	float m_nBPM;
+	float m_fBPM;
 
 	/**
 	 * Constructor of TransportInfo
 	 *
 	 * - Sets #m_status to TransportInfo::STOPPED
-	 * - Sets #m_nFrames and #m_nTickSize to 0
-	 * - Sets #m_nBPM to 120
+	 * - Sets #m_nFrames and #m_fTickSize to 0
+	 * - Sets #m_fBPM to 120
 	 */
 	TransportInfo();
 	/** Destructor of TransportInfo */
@@ -98,7 +99,7 @@ public:
 	/** Displays general information about the transport state in
 	    the #INFOLOG
 	  *
-	  * Prints out #m_status, #m_nFrames, and #m_nTickSize.
+	  * Prints out #m_status, #m_nFrames, and #m_fTickSize.
 	  */
 	void printInfo();
 };

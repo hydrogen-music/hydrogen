@@ -553,14 +553,14 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 			continue;
 		}
 
-		int noteStartInFrames = ( int ) ( pNote->get_position() * audio_output->m_transport.m_nTickSize ) + pNote->get_humanize_delay();
+		int noteStartInFrames = ( int ) ( pNote->get_position() * audio_output->m_transport.m_fTickSize ) + pNote->get_humanize_delay();
 
 		int nInitialSilence = 0;
 		if ( noteStartInFrames > ( int ) nFramepos ) {	// scrivo silenzio prima dell'inizio della nota
 			nInitialSilence = noteStartInFrames - nFramepos;
 			int nFrames = nBufferSize - nInitialSilence;
 			if ( nFrames < 0 ) {
-				int noteStartInFramesNoHumanize = ( int )pNote->get_position() * audio_output->m_transport.m_nTickSize;
+				int noteStartInFramesNoHumanize = ( int )pNote->get_position() * audio_output->m_transport.m_fTickSize;
 				if ( noteStartInFramesNoHumanize > ( int )( nFramepos + nBufferSize ) ) {
 					// this note is not valid. it's in the future...let's skip it....
 					ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFramepos ).arg(noteStartInFramesNoHumanize ) );
@@ -852,7 +852,7 @@ bool Sampler::__render_note_no_resample(
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		nNoteLength = ( int )( pNote->get_length() * pAudioOutput->m_transport.m_nTickSize );
+		nNoteLength = ( int )( pNote->get_length() * pAudioOutput->m_transport.m_fTickSize );
 	}
 
 	int nAvail_bytes = pSample->get_frames() - ( int )pSelectedLayerInfo->SamplePosition;	// verifico il numero di frame disponibili ancora da eseguire
@@ -1000,7 +1000,7 @@ bool Sampler::__render_note_resample(
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
 		float resampledTickSize = AudioEngine::compute_tick_size( pSample->get_sample_rate(),
-		                                                          pAudioOutput->m_transport.m_nBPM,
+		                                                          pAudioOutput->m_transport.m_fBPM,
 		                                                          pSong->__resolution );
 		
 		nNoteLength = ( int )( pNote->get_length() * resampledTickSize);
