@@ -64,7 +64,7 @@ before_install:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt5; export CMAKE_PREFIX_PATH="$(brew
   --prefix qt5)"; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libarchive; export PKG_CONFIG_PATH="$(brew
-  --prefix libarchive)/lib/pkgconfig:$(brew --prefix libsndfile)/lib/pkgconfig"; fi
+  --prefix )/lib/pkgconfig"; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libsndfile jack pulseaudio
   cppunit; fi
 # Make sure we have right Qt version on Mac legacy build
