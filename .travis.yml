@@ -6,10 +6,7 @@ jobs:
 
   include:
   - stage: Build
-    name: "Ubuntu 16.04 Xenial"
-    os: linux
-    dist: xenial
-  - name: "Ubuntu 18.04 Bionic"
+    name: "Ubuntu 18.04 Bionic"
     os: linux
     dist: bionic
   - name: "macOS"
@@ -23,6 +20,7 @@ jobs:
     - HOMEBREW_NO_AUTO_UPDATE=1
     - PKG_SUFFIX="-legacy"
     osx_image: xcode9
+    if: tag IS present
 
   - stage: Sanitizers
     name: Undefined Behavior Sanitizer

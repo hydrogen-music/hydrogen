@@ -325,7 +325,7 @@ void AlsaAudioDriver::locate( unsigned long nFrame )
 void AlsaAudioDriver::setBpm( float fBPM )
 {
 //	warningLog( "[setBpm] " + to_string(fBPM) );
-	m_transport.m_nBPM = fBPM;
+	m_transport.m_fBPM = fBPM;
 }
 
 };

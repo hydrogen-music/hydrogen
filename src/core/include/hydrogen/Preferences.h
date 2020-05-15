@@ -341,7 +341,7 @@ public:
 	 * has two states: Preferences::USE_JACK_TIME_MASTER and
 	 * Preferences::NO_JACK_TIME_MASTER. It is set to
 	 * Preferences::NO_JACK_TIME_MASTER by the
-	 * JackAudioDriver::initTimeMaster() if Hydrogen couldn't be
+	 * JackAudioDriver::initTimebaseMaster() if Hydrogen couldn't be
 	 * registered as time master.
 	 */
 	int				m_bJackMasterMode;

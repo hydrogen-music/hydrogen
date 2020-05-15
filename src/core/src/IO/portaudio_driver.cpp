@@ -168,7 +168,7 @@ void PortAudioDriver::locate( unsigned long nFrame )
 
 void PortAudioDriver::setBpm( float fBPM )
 {
-	m_transport.m_nBPM = fBPM;
+	m_transport.m_fBPM = fBPM;
 }
 
 };

@@ -62,7 +62,15 @@ class Song : public H2Core::Object
 
 		bool __is_muted;
 		unsigned __resolution;		///< Resolution of the song (number of ticks per quarter)
-		float __bpm;			///< Beats per minute
+		/**
+		 * Current speed in beats per minutes.
+		 *
+		 * One of its purposes is an intermediate storage of the
+		 * tempo at the current transport position in
+		 * Hydrogen::setTimelineBpm() in order to detect local changes
+		 * in speed (set by the user).
+		 */
+		float __bpm;
 
 		QString __name;		///< song name
 		QString __author;	///< author of the song
