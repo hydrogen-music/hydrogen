@@ -617,7 +617,10 @@ void SongEditorPanel::downBtnClicked( Button* btn )
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
 
-	if( pEngine->getSelectedPatternNumber() +1 >=  pSong->get_pattern_list()->size() ) return;
+	if( pEngine->getSelectedPatternNumber() +1 >=  pPatternList->size() ) { 
+		return;
+	}
+	
 	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
 
 	SE_movePatternListItemAction *pAction = new SE_movePatternListItemAction( nSelectedPatternPos, nSelectedPatternPos +1 ) ;

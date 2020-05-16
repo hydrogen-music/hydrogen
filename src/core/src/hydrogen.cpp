@@ -1375,11 +1375,13 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 				for ( unsigned i = 0; i < nframes; ++i ) {
 					m_pMainBuffer_L[ i ] += buf_L[ i ];
 					m_pMainBuffer_R[ i ] += buf_R[ i ];
-					if ( buf_L[ i ] > m_fFXPeak_L[nFX] )
+					if ( buf_L[ i ] > m_fFXPeak_L[nFX] ) {
 						m_fFXPeak_L[nFX] = buf_L[ i ];
+					}
 
-					if ( buf_R[ i ] > m_fFXPeak_R[nFX] )
+					if ( buf_R[ i ] > m_fFXPeak_R[nFX] ) {
 						m_fFXPeak_R[nFX] = buf_R[ i ];
+					}
 				}
 			}
 		}
@@ -1394,11 +1396,13 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			val_L = m_pMainBuffer_L[i];
 			val_R = m_pMainBuffer_R[i];
 
-			if ( val_L > m_fMasterPeak_L )
+			if ( val_L > m_fMasterPeak_L ) {
 				m_fMasterPeak_L = val_L;
+			}
 
-			if ( val_R > m_fMasterPeak_R )
+			if ( val_R > m_fMasterPeak_R ) {
 				m_fMasterPeak_R = val_R;
+			}
 
 			for (std::vector<DrumkitComponent*>::iterator it = pSong->get_components()->begin() ; it != pSong->get_components()->end(); ++it) {
 				DrumkitComponent* drumkit_component = *it;
@@ -1406,10 +1410,12 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 				float compo_val_L = drumkit_component->get_out_L(i);
 				float compo_val_R = drumkit_component->get_out_R(i);
 
-				if( compo_val_L > drumkit_component->get_peak_l() )
+				if( compo_val_L > drumkit_component->get_peak_l() ) {
 					drumkit_component->set_peak_l( compo_val_L );
-				if( compo_val_R > drumkit_component->get_peak_r() )
+				}
+				if( compo_val_R > drumkit_component->get_peak_r() ) {
 					drumkit_component->set_peak_r( compo_val_R );
+				}
 			}
 		}
 	}
@@ -1461,7 +1467,9 @@ void audioEngine_setupLadspaFX( unsigned nBufferSize )
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
-	if ( ! pSong ) return;
+	if ( ! pSong ) {
+		return;
+	}
 
 	if ( nBufferSize == 0 ) {
 		___ERRORLOG( "nBufferSize=0" );
@@ -2743,7 +2751,9 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 								 && pNote->get_position() < column + predelete +1 )
 							 ) {
 							bool replaceExisting = false;
-							if (column == currentPosition) replaceExisting = true;
+							if ( column == currentPosition ) {
+								replaceExisting = true;
+							}
 							EventQueue::AddMidiNoteVector noteAction;
 							noteAction.m_column = currentPosition;
 							noteAction.m_row = pNote->get_instrument_id(); //getSelectedInstrumentNumber();
@@ -2768,11 +2778,11 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 					continue;
 				}
 
-				if (prefpredelete>=1 && prefpredelete <=14 )
+				if (prefpredelete>=1 && prefpredelete <=14 ) {
 					pNote->set_just_recorded( false );
+				}
 
-				if ( (prefpredelete == 15) && (pNote->get_just_recorded() == false))
-				{
+				if ( (prefpredelete == 15) && (pNote->get_just_recorded() == false)) {
 					bool replaceExisting = false;
 					if (column == currentPosition) replaceExisting = true;
 					EventQueue::AddMidiNoteVector noteAction;
@@ -3728,8 +3738,9 @@ void Hydrogen::setBcOffsetAdjust()
 void Hydrogen::handleBeatCounter()
 {
 	// Get first time value:
-	if (m_nBeatCount == 1)
+	if (m_nBeatCount == 1) {
 		gettimeofday(&m_CurrentTime,nullptr);
+	}
 
 	m_nEventCount++;
 
@@ -3753,21 +3764,23 @@ void Hydrogen::handleBeatCounter()
 	m_nBeatDiff = m_nBeatCount == 1 ? 0 : m_nCurrentBeatTime - m_nLastBeatTime;
 
 	//if differences are to big reset the beatconter
-	if( m_nBeatDiff > 3.001 * 1/m_ntaktoMeterCompute ){
+	if( m_nBeatDiff > 3.001 * 1/m_ntaktoMeterCompute ) {
 		m_nEventCount = 1;
 		m_nBeatCount = 1;
 		return;
 	}
 	// Only accept differences big enough
 	if (m_nBeatCount == 1 || m_nBeatDiff > .001) {
-		if (m_nBeatCount > 1)
+		if (m_nBeatCount > 1) {
 			m_nBeatDiffs[m_nBeatCount - 2] = m_nBeatDiff ;
+		}
 		// Compute and reset:
 		if (m_nBeatCount == m_nbeatsToCount){
 			//				unsigned long currentframe = getRealtimeFrames();
 			double beatTotalDiffs = 0;
-			for(int i = 0; i < (m_nbeatsToCount - 1); i++)
+			for(int i = 0; i < (m_nbeatsToCount - 1); i++) {
 				beatTotalDiffs += m_nBeatDiffs[i];
+			}
 			double m_nBeatDiffAverage =
 					beatTotalDiffs
 					/ (m_nBeatCount - 1)
@@ -3902,8 +3915,9 @@ void Hydrogen::togglePlaysSelected()
 {
 	Song* pSong = getSong();
 
-	if ( pSong->get_mode() != Song::PATTERN_MODE )
+	if ( pSong->get_mode() != Song::PATTERN_MODE ) {
 		return;
+	}
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
@@ -3984,8 +3998,9 @@ float Hydrogen::getTimelineBpm( int nBar )
 
 	// Determine the speed at the supplied beat.
 	for ( int i = 0; i < static_cast<int>(m_pTimeline->m_timelinevector.size()); i++) {
-		if ( m_pTimeline->m_timelinevector[i].m_htimelinebeat > nBar )
+		if ( m_pTimeline->m_timelinevector[i].m_htimelinebeat > nBar ) {
 			break;
+		}
 
 		fBPM = m_pTimeline->m_timelinevector[i].m_htimelinebpm;
 	}

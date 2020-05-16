@@ -185,7 +185,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 
 	//check the drumkit name. if the name is a new one, one qmessagebox with question "are you sure" will displayed.
 	if ( nameTxt->text() != oldName  ){
-		int res = QMessageBox::information( this, "Hydrogen", tr( "Warning! Changing the drumkit name will result in creating a new drumkit with this name.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		int res = QMessageBox::information( this, "Hydrogen", tr( "Warning! Changing the drumkit name will result in creating a new drumkit with this name.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
 		if ( res == 1 ) {
 			return;
 		}
@@ -207,11 +207,13 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 
 	//save the drumkit
 	// Note: The full path of the image is passed to make copying to a new drumkit easy
-	if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), pGlobalDrumkitInfo->get_path() + "/" + pGlobalDrumkitInfo->get_image(), pGlobalDrumkitInfo->get_image_license(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) )
+	if( pGlobalDrumkitInfo != nullptr)
 	{
-		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
+		if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), pGlobalDrumkitInfo->get_path() + "/" + pGlobalDrumkitInfo->get_image(), pGlobalDrumkitInfo->get_image_license(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) )
+		{
+			QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
+		}
 	}
-
 
 	//check pre loaded drumkit name  and reload the old drumkit
 	if ( pGlobalPreDrumkit != nullptr ){

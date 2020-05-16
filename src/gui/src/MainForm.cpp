@@ -98,8 +98,9 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	setMinimumSize( QSize( 1000, 500 ) );
 
 #ifndef WIN32
-	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigusr1Fd))
+	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigusr1Fd)) {
 		qFatal("Couldn't create HUP socketpair");
+	}
 	snUsr1 = new QSocketNotifier(sigusr1Fd[1], QSocketNotifier::Read, this);
 	connect(snUsr1, SIGNAL(activated(int)), this, SLOT( handleSigUsr1() ));
 #endif
@@ -394,8 +395,9 @@ void MainForm::createMenuBar()
 		// DEBUG menu
 		QMenu *m_pDebugMenu = m_pMenubar->addMenu( tr("De&bug") );
 		m_pDebugMenu->addAction( tr( "Show &audio engine info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
-		if(pLogger->bit_mask() == 8) // hydrogen -V8 list object map in console
+		if(pLogger->bit_mask() == 8) { // hydrogen -V8 list object map in console 
 			m_pDebugMenu->addAction( tr( "Print Objects" ), this, SLOT( action_debug_printObjects() ) );
+		}
 		//~ DEBUG menu
 	}
 
@@ -1551,20 +1553,22 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			break;
 
 		case  Qt::Key_F5 :
-			if( Playlist::get_instance()->size() == 0)
+			if( Playlist::get_instance()->size() == 0) {
 				break;
+			}
 			return handleSelectNextPrevSongOnPlaylist( -1 );
 			break;
 
 		case  Qt::Key_F6 :
-			if( Playlist::get_instance()->size() == 0)
+			if( Playlist::get_instance()->size() == 0) {
 				break;
+			}
 			return handleSelectNextPrevSongOnPlaylist( 1 );
 			break;
 
 		case  Qt::Key_F12 : //panic button stop all playing notes
 			engine->__panic();
-			//				QMessageBox::information( this, "Hydrogen", tr( "Panic" ) );
+			//QMessageBox::information( this, "Hydrogen", tr( "Panic" ) );
 			return true;
 			break;
 
@@ -1918,14 +1922,14 @@ bool MainForm::handleUnsavedChanges()
 void MainForm::usr1SignalHandler(int)
 {
 	char a = 1;
-	size_t ret = ::write(sigusr1Fd[0], &a, sizeof(a));
+	::write(sigusr1Fd[0], &a, sizeof(a));
 }
 
 void MainForm::handleSigUsr1()
 {
 	snUsr1->setEnabled(false);
 	char tmp;
-	size_t ret = ::read(sigusr1Fd[1], &tmp, sizeof(tmp));
+	::read(sigusr1Fd[1], &tmp, sizeof(tmp));
 
 	action_file_save();
 	snUsr1->setEnabled(true);
@@ -1946,23 +1950,23 @@ void MainForm::action_redo(){
 }
 
 void MainForm::undoRedoActionEvent( int nEvent ){
-	if(nEvent == 0)
+	if( nEvent == 0 ) {
 		h2app->m_pUndoStack->undo();
-	else if(nEvent == 1)
+	} else if(nEvent == 1) {
 		h2app->m_pUndoStack->redo();
+	}
 }
 
 bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 {
-	int playlistSize = Playlist::get_instance()->size();
-
-	HydrogenApp* app = HydrogenApp::get_instance();
-	int songnumber = Playlist::get_instance()->getActiveSongNumber();
-	if(songnumber+step >= 0 && songnumber+step <= playlistSize-1){
-		Playlist::get_instance()->setNextSongByNumber( songnumber + step );
-	}
-	else
+	int nPlaylistSize = Playlist::get_instance()->size();
+	int nSongnumber = Playlist::get_instance()->getActiveSongNumber();
+	
+	if( nSongnumber+step >= 0 && nSongnumber+step <= nPlaylistSize-1 ){
+		Playlist::get_instance()->setNextSongByNumber( nSongnumber + step );
+	} else {
 		return false;
+	}
 
 	return true;
 }

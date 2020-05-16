@@ -200,6 +200,8 @@ void ExportMidiDialog::on_okBtn_clicked()
 	} else if ( exportTypeCombo->currentIndex() == EXPORT_SMF0 ){
 		pSmfWriter = new SMF0Writer();
 	}
+	
+	assert( pSmfWriter );
 
 	pSmfWriter->save( sFilename, pSong );
 
