@@ -84,8 +84,9 @@ QString LocalFileMng::getDrumkitNameForPattern( const QString& patternDir )
 	}
 
 	QString dk_name = LocalFileMng::readXmlString( rootNode,"drumkit_name", "" );
-	if ( dk_name.isEmpty() )
+	if ( dk_name.isEmpty() ) {
 		dk_name = LocalFileMng::readXmlString( rootNode,"pattern_for_drumkit", "" );
+	}
 	return dk_name;
 }
 
@@ -244,8 +245,9 @@ bool LocalFileMng::checkTinyXMLCompatMode( const QString& filename )
 
 	QFile file( filename );
 
-	if ( !file.open(QIODevice::ReadOnly) )
+	if ( !file.open(QIODevice::ReadOnly) ) {
 		return false;
+	}
 
 	QString line = file.readLine();
 	file.close();
@@ -269,8 +271,9 @@ QDomDocument LocalFileMng::openXmlDocument( const QString& filename )
 	QDomDocument doc;
 	QFile file( filename );
 
-	if ( !file.open(QIODevice::ReadOnly) )
+	if ( !file.open(QIODevice::ReadOnly) ) {
 		return QDomDocument();
+	}
 
 	if( TinyXMLCompat ) {
 		QString enc = QTextCodec::codecForLocale()->name();
@@ -678,14 +681,16 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 	songNode.appendChild( automationPathsTag );
 
 	QFile file(filename);
-	if ( !file.open(QIODevice::WriteOnly) )
+	if ( !file.open(QIODevice::WriteOnly) ) {
 		rv = 1;
+	}
 
 	QTextStream TextStream( &file );
 	doc.save( TextStream, 1 );
 
-	if( file.size() == 0)
+	if( file.size() == 0) {
 		rv = 1;
+	}
 
 	file.close();
 

@@ -838,8 +838,9 @@ void PlayerControl::bcbButtonClicked( Button* bBtn)
 	char tmpb[3];       // m_pBCBUpBtn
 		if ( bBtn == m_pBCBUpBtn ) {
 			tmp ++;
-			if (tmp > 16)
+			if (tmp > 16) {
 				tmp = 2;
+			}
 //small fix against qt4 png transparent problem
 //think this will be solved in next time
 //			if (tmp < 10 ){
@@ -853,8 +854,9 @@ void PlayerControl::bcbButtonClicked( Button* bBtn)
 	}
 	else {
 			tmp --;
-			if (tmp < 2 )
+			if (tmp < 2 ) {
 				 tmp = 16;
+			}
 //small fix against qt4 png transparent problem
 //think this will be solved in next time
 //			if (tmp < 10 ){
@@ -876,15 +878,17 @@ void PlayerControl::bctButtonClicked( Button* tBtn)
 
 	if ( tBtn == m_pBCTUpBtn) {
 			tmp = tmp / 2 ;
-			if (tmp < 1)
+			if (tmp < 1) {
 				tmp = 8;
+			}
 
 			m_pBCDisplayT->setText( QString::number( tmp ) );
 			m_pEngine->setNoteLength( (tmp) / 4 );
 	} else {
 			tmp = tmp * 2;
-			if (tmp > 8 )
+			if (tmp > 8 ) {
 				 tmp = 1;
+			}
 			m_pBCDisplayT->setText( QString::number(tmp) );
 			m_pEngine->setNoteLength( (tmp) / 4 );
 	}
@@ -896,7 +900,6 @@ void PlayerControl::bctButtonClicked( Button* tBtn)
 void PlayerControl::jackTransportBtnClicked( Button* )
 {
 	Preferences *pPref = Preferences::get_instance();
-	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
 	if ( !m_pEngine->haveJackAudioDriver() ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
@@ -926,7 +929,6 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 {
 #ifdef H2CORE_HAVE_JACK
 	Preferences *pPref = Preferences::get_instance();
-	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
 
 	if ( !m_pEngine->haveJackTransport() ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
@@ -976,10 +978,11 @@ void PlayerControl::bpmClicked()
 
 void PlayerControl::bpmButtonClicked( Button* pBtn )
 {
-	if ( pBtn == m_pBPMUpBtn )
+	if ( pBtn == m_pBPMUpBtn ) {
 		m_pLCDBPMSpinbox->upBtnClicked();
-	else
+	} else {
 		m_pLCDBPMSpinbox->downBtnClicked();
+	}
 }
 
 
@@ -1045,8 +1048,9 @@ void PlayerControl::showButtonClicked( Button* pRef )
 
 void PlayerControl::showMessage( const QString& msg, int msec )
 {
-	if ( m_pScrollTimer->isActive ())
-		m_pScrollTimer->stop();
+	if ( m_pScrollTimer->isActive ()) {
+		m_pScrollTimer->stop(); 
+	}
 	m_pStatusLabel->setText( msg );
 	m_pStatusTimer->start( msec );
 
@@ -1074,8 +1078,9 @@ void PlayerControl::onScrollTimerEvent()
 {
 	int lwl = 25;
 	int msgLength = m_pScrollMessage.length();
-	if ( msgLength > lwl)
-		m_pScrollMessage = m_pScrollMessage.right( msgLength - 1 );
+	if ( msgLength > lwl) {
+		m_pScrollMessage = m_pScrollMessage.right( msgLength - 1 ); 
+	}
 	m_pScrollTimer->stop();
 
 	if ( msgLength > lwl){
@@ -1141,8 +1146,9 @@ MetronomeWidget::~MetronomeWidget()
 
 void MetronomeWidget::metronomeEvent( int nValue )
 {
-	if (nValue == 2) // 2 = set pattern position is not needed here
+	if (nValue == 2) { // 2 = set pattern position is not needed here
 		return;
+	}
 
 	if (nValue == 1) {
 		m_state = METRO_FIRST;

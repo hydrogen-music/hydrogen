@@ -491,7 +491,7 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 			continue;
 		}
 		// aggiungo un pattern per volta
-		PatternList* pColumn = NULL;
+		PatternList* pColumn = nullptr;
 		if ( cell.x() < (int)pColumns->size() ) {
 			pColumn = (*pColumns)[ cell.x() ];
 		}
@@ -527,7 +527,7 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 
 
 
-				PatternList* pColumn = NULL;
+				PatternList* pColumn = nullptr;
 				if ( cell.x() < (int)pColumns->size() ) {
 					pColumn = (*pColumns)[ cell.x() ];
 				}
@@ -544,7 +544,7 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 		// remove the old patterns
 		for ( uint i = 0; i < selectedCells.size(); i++ ) {
 			QPoint cell = selectedCells[ i ];
-			PatternList* pColumn = NULL;
+			PatternList* pColumn = nullptr;
 
 			/*
 			 * Check first if pattern was present in movingCells.
@@ -744,10 +744,9 @@ void SongEditor::drawSequence()
 
 	//Drawing the pattern based on the gridRepresentation array
 
-	while (!gridRepresentation.isEmpty())
+	while (!gridRepresentation.isEmpty()) {
 		delete gridRepresentation.takeFirst();
-
-
+	}
 
 	for (uint i = 0; i < pColumns->size(); i++) {
 		PatternList* pColumn = (*pColumns)[ i ];
@@ -913,8 +912,7 @@ void SongEditor::clearThePatternSequenceVector( QString filename )
 	Song *song = engine->getSong();
 
 	//before deleting the sequence, write a temp sequence file to disk
-	LocalFileMng fileMng;
-	bool success = song->writeTempPatternList( filename );
+	song->writeTempPatternList( filename );
 
 	vector<PatternList*> *pPatternGroupsVect = song->get_pattern_group_vector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
@@ -1245,7 +1243,6 @@ void SongEditorPatternList::createBackground()
 void SongEditorPatternList::patternPopup_virtualPattern()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	int nSelectedPattern = pEngine->getSelectedPatternNumber();
 	VirtualPatternDialog *dialog = new VirtualPatternDialog( this );
 	SongEditorPanel *pSEPanel = HydrogenApp::get_instance()->getSongEditorPanel();
 	int tmpselectedpatternpos = pEngine->getSelectedPatternNumber();
@@ -1451,19 +1448,18 @@ void SongEditorPatternList::patternPopup_delete()
 {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *song = pEngine->getSong();
-	PatternList *pSongPatternList = song->get_pattern_list();
+	Song *pSong = pEngine->getSong();
 	int patternPosition = pEngine->getSelectedPatternNumber();
-	Pattern *pattern = song->get_pattern_list()->get( patternPosition );
+	Pattern *pattern = pSong->get_pattern_list()->get( patternPosition );
 
-	QString patternPath = Files::savePatternTmp( pattern->get_name(), pattern, song, pEngine->getCurrentDrumkitname() );
+	QString patternPath = Files::savePatternTmp( pattern->get_name(), pattern, pSong, pEngine->getCurrentDrumkitname() );
 	if ( patternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
 		return;
 	}
 	LocalFileMng fileMng;
 	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
-	if ( !song->writeTempPatternList( sequencePath ) ) {
+	if ( !pSong->writeTempPatternList( sequencePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
 		return;
 	}
@@ -1641,22 +1637,18 @@ void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPatter
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
 	H2Core::Pattern *pPattern = pPatternList->get( nPattern );
 	vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();	// E' la lista di "colonne" di pattern
-	PatternList *pColumn;
+	PatternList *pColumn = nullptr;
 
 	int nColumn, nColumnIndex;
 	bool bHasPattern = false;
 	int fromVal = pRange->fromVal - 1;
 	int toVal   = pRange->toVal;
 
-
-
 	// Add patternlists to PatternGroupVector as necessary
-
 	int nDelta = toVal - pColumns->size() + 1;
 
 	for ( int i = 0; i < nDelta; i++ ) {
@@ -1664,13 +1656,13 @@ void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPatter
 		pColumns->push_back( pColumn );
 	}
 
-
 	// Fill or Clear each cell in range
-
 	for ( nColumn = fromVal; nColumn < toVal; nColumn++ ) {
 
 		// expand Pattern
 		pColumn = ( *pColumns )[ nColumn ];
+		
+		assert( pColumn );
 
 		bHasPattern = false;
 

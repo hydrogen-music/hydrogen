@@ -604,10 +604,17 @@ bool Sample::write( const QString& path, int format )
 	for ( int i = 0; i < __frames; ++i ) {
 		float value_l = __data_l[i];
 		float value_r = __data_r[i];
-		if ( value_l > 1.f ) value_l = 1.f;
-		else if ( value_l < -1.f ) value_l = -1.f;
-		else if ( value_r > 1.f ) value_r = 1.f;
-		else if ( value_r < -1.f ) value_r = -1.f;
+		
+		if ( value_l > 1.f ) {
+			value_l = 1.f;
+		} else if ( value_l < -1.f ) {
+			value_l = -1.f;
+		} else if ( value_r > 1.f ) {
+			value_r = 1.f;
+		} else if ( value_r < -1.f ) {
+			value_r = -1.f;
+		}
+		
 		obuf[ i* SAMPLE_CHANNELS + 0 ] = value_l;
 		obuf[ i* SAMPLE_CHANNELS + 1 ] = value_r;
 	}
