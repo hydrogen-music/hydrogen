@@ -3191,6 +3191,10 @@ Are you sure?</source>
         <source>Velocity</source>
         <translation>Јачина удара</translation>
     </message>
+    <message>
+        <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
