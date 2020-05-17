@@ -192,7 +192,7 @@ void ExportMidiDialog::on_okBtn_clicked()
 	}
 
 	// choosing writer
-	SMFWriter *pSmfWriter;
+	SMFWriter *pSmfWriter = nullptr;
 	if( exportTypeCombo->currentIndex() == EXPORT_SMF1_SINGLE ){
 		pSmfWriter = new SMF1WriterSingle();
 	} else if ( exportTypeCombo->currentIndex() == EXPORT_SMF1_MULTI ){
