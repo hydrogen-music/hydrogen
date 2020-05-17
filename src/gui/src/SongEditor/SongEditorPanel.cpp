@@ -666,6 +666,7 @@ void SongEditorPanel::restoreGroupVector( QString filename )
 
 void SongEditorPanel::resyncExternalScrollBar()
 {
+	int nGridHeight = m_pPatternList->getGridHeight();
 	m_pHScrollBar->setMinimum( m_pEditorScrollView->horizontalScrollBar()->minimum() );
 	m_pHScrollBar->setMaximum( m_pEditorScrollView->horizontalScrollBar()->maximum() );
 	m_pHScrollBar->setSingleStep( m_pEditorScrollView->horizontalScrollBar()->singleStep() );
@@ -678,7 +679,10 @@ void SongEditorPanel::resyncExternalScrollBar()
 	m_pVScrollBar->setPageStep( m_pEditorScrollView->verticalScrollBar()->pageStep() );
 	m_pVScrollBar->setValue( m_pEditorScrollView->verticalScrollBar()->value() );
 
-	vScrollTo( m_pPatternList->getGridHeight() * Hydrogen::get_instance()->getSelectedPatternNumber() );
+	// Make sure currently selected pattern is visible.
+	m_pPatternListScrollView->ensureVisible( 0, (Hydrogen::get_instance()->getSelectedPatternNumber()
+												 * nGridHeight + nGridHeight/2 ),
+											 0, m_pPatternList->getGridHeight() );
 }
 
 
