@@ -162,7 +162,7 @@ bool ExportMidiDialog::validateUserInput( )
 	if( !dir.exists() ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
-			tr( "Directory %1 does not exists").arg( dir.absolutePath() ),
+			tr( "Directory %1 does not exist").arg( dir.absolutePath() ),
 			QMessageBox::Ok
 		);
 		return false;
