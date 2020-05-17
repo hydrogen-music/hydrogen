@@ -281,10 +281,11 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 	for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it !=pInstr->get_components()->end(); ++it) {
 		nReturnValues[nReturnValueIndex] = false;
 		InstrumentComponent *pCompo = *it;
-		DrumkitComponent* pMainCompo = pEngine->getSong()->get_component( pCompo->get_drumkit_componentID() );
+		DrumkitComponent* pMainCompo = nullptr;
 
-		if( pNote->get_specific_compo_id() != -1 && pNote->get_specific_compo_id() != pCompo->get_drumkit_componentID() )
+		if( pNote->get_specific_compo_id() != -1 && pNote->get_specific_compo_id() != pCompo->get_drumkit_componentID() ) {
 			continue;
+		}
 
 		if(		pInstr->is_preview_instrument()
 			||	pInstr->is_metronome_instrument()){
@@ -426,7 +427,6 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 							// successful and assign the
 							// results.
 							if ( nearestLayer > -1 ){
-								InstrumentLayer *pLayer = pCompo->get_layer( nearestLayer );
 								pSelectedLayer->SelectedLayer = nearestLayer;
 
 								// No loop needed in here.
@@ -492,7 +492,10 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 							int nearestLayer = -1;
 							for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
 								InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
-								if ( pLayer == nullptr ) continue;
+								if ( pLayer == nullptr ) {
+									continue;
+								}
+								
 								
 								if ( min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 									  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
@@ -523,8 +526,9 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 						if( __foundSamples > 0 ) {
 							__roundRobinID = pInstr->get_id() * 10 + __roundRobinID;
 							int p_indexToUse = pSong->get_latest_round_robin(__roundRobinID)+1;
-							if( p_indexToUse > __foundSamples - 1)
+							if( p_indexToUse > __foundSamples - 1) {
 								p_indexToUse = 0;
+							}
 
 							pSong->set_latest_round_robin(__roundRobinID, p_indexToUse);
 							nAlreadySelectedLayer = __possibleIndex[p_indexToUse];
@@ -656,19 +660,24 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		if( (int) pSelectedLayer->SamplePosition == 0  && !pInstr->is_muted() )
 		{
 			if( Hydrogen::get_instance()->getMidiOutput() != nullptr ){
-			Hydrogen::get_instance()->getMidiOutput()->handleQueueNote( pNote );
+				Hydrogen::get_instance()->getMidiOutput()->handleQueueNote( pNote );
 			}
 		}
 
-		if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == audio_output->getSampleRate() ) // NO RESAMPLE
+		if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == audio_output->getSampleRate() ) { // NO RESAMPLE
 			nReturnValues[nReturnValueIndex] = __render_note_no_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong );
-		else // RESAMPLE
+		}
+		else { // RESAMPLE
 			nReturnValues[nReturnValueIndex] = __render_note_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong );
+		}
 
 		nReturnValueIndex++;
 	}
-	for ( unsigned i = 0 ; i < pInstr->get_components()->size() ; i++ )
-		if ( !nReturnValues[i] ) return false;
+	for ( unsigned i = 0 ; i < pInstr->get_components()->size() ; i++ ) {
+		if ( !nReturnValues[i] ) {
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -1342,8 +1351,9 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 								&& pNote->get_position() == noteOnTick ) {
 									AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-									if ( ticks >  patternsize )
+									if ( ticks >  patternsize ) {
 										ticks = patternsize - noteOnTick;
+									}
 									pNote->set_length( ticks );
 									Hydrogen::get_instance()->getSong()->set_is_modified( true );
 									AudioEngine::get_instance()->unlock(); // unlock the audio engine
@@ -1353,8 +1363,9 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 								if ( pNote->get_instrument() == pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber())
 								&& pNote->get_position() == noteOnTick ) {
 									AudioEngine::get_instance()->lock( RIGHT_HERE );
-									if ( ticks >  patternsize )
+									if ( ticks >  patternsize ) {
 										ticks = patternsize - noteOnTick;
+									}
 									pNote->set_length( ticks );
 									Hydrogen::get_instance()->getSong()->set_is_modified( true );
 									AudioEngine::get_instance()->unlock(); // unlock the audio engine

@@ -1015,9 +1015,9 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 
 
 			/*
-					  * Check if the current instrument has the property "Stop-Note" set.
-					  * If yes, a NoteOff note is generated automatically after each note.
-					  */
+			 * Check if the current instrument has the property "Stop-Note" set.
+			 * If yes, a NoteOff note is generated automatically after each note.
+			 */
 			Instrument * noteInstrument = pNote->get_instrument();
 			if ( noteInstrument->is_stop_notes() ){
 				Note *pOffNote = new Note( noteInstrument,
