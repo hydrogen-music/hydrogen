@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>About</source>
-        <translation>Impressum</translation>
+        <translation>Über Hydrogen</translation>
     </message>
     <message>
         <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
@@ -40,7 +40,7 @@
     </message>
     <message>
         <source>A&amp;bout</source>
-        <translation>&amp;Impressum</translation>
+        <translation>Über &amp;Hydrogen</translation>
     </message>
     <message>
         <source>&amp;Authors</source>
@@ -74,7 +74,7 @@
     </message>
     <message>
         <source>Playing notes</source>
-        <translation>Wiedergegebene Noten</translation>
+        <translation>Playing notes</translation>
     </message>
     <message>
         <source>Process time</source>
@@ -82,11 +82,11 @@
     </message>
     <message>
         <source>Audio engine state</source>
-        <translation>Status der Audio-Engine</translation>
+        <translation>Zustand der Audio-Engine</translation>
     </message>
     <message>
         <source>Song state</source>
-        <translation>Lied-Status</translation>
+        <translation>Song-Status</translation>
     </message>
     <message>
         <source>Frames</source>
@@ -110,7 +110,7 @@
     </message>
     <message>
         <source>Song position</source>
-        <translation>Lied-Position</translation>
+        <translation>Song-Position</translation>
     </message>
     <message>
         <source>Patterns</source>
@@ -189,7 +189,7 @@
     </message>
     <message>
         <source>Sample length: </source>
-        <translation>Sample Länge:</translation>
+        <translation>Sample Länge: </translation>
     </message>
     <message>
         <source>Please do not preview samples which are longer than 10 minutes!</source>
@@ -201,7 +201,7 @@
     </message>
     <message>
         <source>Unable to load that sample file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sample-Datei konnte nicht geladen werden.</translation>
     </message>
 </context>
 <context>
@@ -260,15 +260,15 @@
     </message>
     <message>
         <source>View hidden folders</source>
-        <translation>Verstecke Ordner anzeigen</translation>
+        <translation>Versteckte Ordner anzeigen</translation>
     </message>
     <message>
         <source>Be careful, this change all Layer velocity settings </source>
-        <translation>Vorsicht. Hierdurch werden alle Ebenen der Geschwindigkeitseinstellung geändert!</translation>
+        <translation>Vorsicht. Hierdurch werden alle Velocity Einstellungen der Layer geändert </translation>
     </message>
     <message>
         <source>Set automatic velocity</source>
-        <translation>Automatische Geschwindigkeit</translation>
+        <translation>Setze Velocity automatisch</translation>
     </message>
 </context>
 <context>
@@ -331,7 +331,7 @@
     </message>
     <message>
         <source>Sebastian Moors (aka mauser): Maintainer / Developer</source>
-        <translation>Sebastian Moors (aka mauser): Instandhalter / Entwickler</translation>
+        <translation>Sebastian Moors (aka mauser): Maintainer / Entwickler</translation>
     </message>
     <message>
         <source>Michael Wolkstein (aka wolke): Forum hosting</source>
@@ -356,75 +356,75 @@
     <name>ExportMidiDialog</name>
     <message>
         <source>Export midi</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportiere Midi</translation>
     </message>
     <message>
         <source>SMF1 single: export all instruments to a single track</source>
-        <translation type="unfinished"></translation>
+        <translation>SMF1 single: exportiere alle Instrumente in eine Spur</translation>
     </message>
     <message>
         <source>SMF1 multi: export each instrument to separate track</source>
-        <translation type="unfinished"></translation>
+        <translation>SMF1 multi: exportiere jedes Instrument in eine eigene Spur</translation>
     </message>
     <message>
         <source>SMF0: export all events to one track</source>
-        <translation type="unfinished"></translation>
+        <translation>SMF0: exportiere alle Midi Events in eine Spur</translation>
     </message>
     <message>
         <source>Midi file (*%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Midi Datei (*%1)</translation>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation type="unfinished">Mididatei exportieren</translation>
+        <translation>Mididatei exportieren</translation>
     </message>
     <message>
         <source>Directory %1 does not exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis %1 existiert nicht</translation>
     </message>
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
-        <translation type="unfinished">Die Datei %1 existiert bereits. Willst du sie überschreiben?</translation>
+        <translation>Die Datei %1 existiert bereits. Willst du sie überschreiben?</translation>
     </message>
 </context>
 <context>
     <name>ExportMidiDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateiname</translation>
     </message>
     <message>
         <source>&amp;Browse...</source>
-        <translation type="unfinished">&amp;Durchsuchen...</translation>
+        <translation>&amp;Durchsuchen...</translation>
     </message>
     <message>
         <source>Alt+B</source>
-        <translation type="unfinished">Alt+B</translation>
+        <translation>Alt+B</translation>
     </message>
     <message>
         <source>Modus:</source>
-        <translation type="unfinished">Modus:</translation>
+        <translation>Modus:</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Exportieren</translation>
+        <translation>&amp;Exportieren</translation>
     </message>
     <message>
         <source>Alt+E</source>
-        <translation type="unfinished">Alt+E</translation>
+        <translation>Alt+E</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Schließen</translation>
+        <translation>&amp;Schließen</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
 </context>
 <context>
@@ -452,7 +452,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Directory %1 does not exists</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Verzeichnis %1 existiert nicht</translation>
     </message>
 </context>
 <context>
@@ -571,7 +571,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Interpolation: </source>
-        <translation>Interpolation:</translation>
+        <translation>Interpolation: </translation>
     </message>
     <message>
         <source>Choose type of interpolation methode</source>
@@ -623,7 +623,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Export directory:</source>
-        <translation>Exportiere Verzeichnis:</translation>
+        <translation>Export Verzeichnis:</translation>
     </message>
     <message>
         <source>Modus:</source>
@@ -712,7 +712,7 @@ Bist Du sicher?
     </message>
     <message>
         <source>Song Editor</source>
-        <translation>Lied-Editor</translation>
+        <translation>Song-Editor</translation>
     </message>
     <message>
         <source>Instrument + Pattern</source>
@@ -728,7 +728,7 @@ Bist Du sicher?
     </message>
     <message>
         <source>Song saved.</source>
-        <translation type="unfinished">Lied gespeichert.</translation>
+        <translation>Song gespeichert.</translation>
     </message>
 </context>
 <context>
@@ -1229,7 +1229,7 @@ MIDI = %2</translation>
     </message>
     <message>
         <source>&amp;About</source>
-        <translation>&amp;Impressum</translation>
+        <translation>&amp;Über Hydrogen</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
@@ -1596,7 +1596,7 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>Waiting for midi input...</source>
-        <translation>Warte auf MIDI Eingabe... </translation>
+        <translation>Warte auf MIDI Eingabe...</translation>
     </message>
 </context>
 <context>
@@ -1638,7 +1638,7 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>Set FX %1 level </source>
-        <translation>Effekt-Intensität %1</translation>
+        <translation>Effekt-Intensität %1 </translation>
     </message>
     <message>
         <source>Set LADSPA FX ( %1 ) volume</source>
@@ -1646,7 +1646,7 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation>LADSPA-Effekt stehen in dieser Hydrogenversion nicht zur Verfügung.</translation>
+        <translation>LADSPA-Effekte stehen in dieser Hydrogenversion nicht zur Verfügung.</translation>
     </message>
     <message>
         <source>Mixer</source>
@@ -3187,6 +3187,10 @@ Fortsetzen?</translation>
         <source>Velocity</source>
         <translation>Anschlag (velocity)</translation>
     </message>
+    <message>
+        <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -3654,7 +3658,7 @@ Bist Du sicher?</translation>
 The first %2 instruments will be replaced with the new instruments and will keep their notes, but some of the remaining instruments have notes.
 Would you like to keep or discard the remaining instruments and notes?
 </source>
-        <translation>Das vorhandene Schlagzeug beinhaltet %1 Instrument. Das Neue dagegen %2.
+        <translation>Das vorhandene Schlagzeug beinhaltet %1 Instrumente. Das Neue dagegen %2.
 	Die ersten %2 Instrumente werden mit den neuen Instrumenten ersetzt und behalten ihre Noten. Aber auch einige der übrigen Instrument beinhalten Noten.
 	Willst Du diese verwerfen oder behalten?</translation>
     </message>
