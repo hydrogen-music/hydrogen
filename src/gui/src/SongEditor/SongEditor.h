@@ -106,6 +106,8 @@ class SongEditor : public QWidget, public H2Core::Object
 		QPoint m_clickPoint;	// Usato come riferimento per le operazioni di spostamento
 		bool m_bShowLasso;
 		QRect m_lasso;
+		QPoint m_clickStartPoint;
+		bool m_bDragging;
 
 		int m_nCursorRow;
 		int m_nCursorColumn;

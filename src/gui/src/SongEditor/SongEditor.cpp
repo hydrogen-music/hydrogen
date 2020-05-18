@@ -90,6 +90,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
  , m_bShowLasso( false )
  , m_pScrollView( pScrollView )
  , m_pSongEditorPanel( pSongEditorPanel )
+ , m_bDragging( false )
 {
 	setAttribute(Qt::WA_NoBackground);
 	setFocusPolicy (Qt::StrongFocus);
@@ -444,7 +445,6 @@ void SongEditor::startSelectionOrMove( int nColumn, int nRow, QPoint pos, bool b
 
 	if ( bOverExistingPattern ) {
 		// MOVE PATTERNS
-		//			INFOLOG( "[mousePressEvent] Move patterns" );
 		m_bIsMoving = true;
 		m_bShowLasso = false;
 		m_movingCells = m_selectedCells;
@@ -459,7 +459,6 @@ void SongEditor::startSelectionOrMove( int nColumn, int nRow, QPoint pos, bool b
 
 	}
 	else {
-		//			INFOLOG( "[mousePressEvent] Select patterns" );
 		// select patterns
 		m_bShowLasso = true;
 		m_lasso.setCoords( pos.x(), pos.y(), pos.x(), pos.y() );
@@ -477,37 +476,35 @@ void SongEditor::startSelectionOrMove( int nColumn, int nRow, QPoint pos, bool b
 
 void SongEditor::mousePressEvent( QMouseEvent *ev )
 {
-	if ( ev->x() < 10 ) {
-		return;
+	// Pressing the mouse can be the start of a click, or the start of
+	// a drag. We wait until either some movement, or a mouse release
+	// event to determine which it was, and what action to take. Here,
+	// we jut record the start.
+
+	if ( ev->x()  >= 10 ) {
+		QPoint p = xyToColumnRow( ev->pos() );
+		// Input focus is hidden on mouse clicks, but still follows the
+		// mouse position to allow the mouse to be used for larger
+		// position movements
+
+		m_nCursorColumn = p.x();
+		m_nCursorRow = p.y();
+		m_bCursorHidden = true;
+
+		m_clickStartPoint = ev->pos();
+
+		if ( ev->modifiers() == Qt::ControlModifier ) {
+			m_bIsCtrlPressed = true;
+		}
+		else {
+			m_bIsCtrlPressed = false;
+		}
+
+	} else {
+		m_clickStartPoint = QPoint( 0, 0 ); // Null
 	}
 
-	int nRow = ev->y() / m_nGridHeight;
-	int nColumn = ( (int)ev->x() - 10 ) / (int)m_nGridWidth;
-
-	// Input focus is hidden on mouse clicks, but still follows the
-	// mouse position to allow the mouse to be used for larger
-	// position movements
-	m_nCursorRow = nRow;
-	m_nCursorColumn = nColumn;
-	m_bCursorHidden = true;
-
-	if ( ev->modifiers() == Qt::ControlModifier ) {
-		INFOLOG( "[mousePressEvent] CTRL pressed!" );
-		m_bIsCtrlPressed = true;
-	}
-	else {
-		m_bIsCtrlPressed = false;
-	}
-
-	SongEditorActionMode actionMode = m_pSongEditorPanel->getActionMode();
-	if ( actionMode == SELECT_ACTION ) {
-		startSelectionOrMove( nColumn, nRow, ev->pos(), !m_bIsCtrlPressed );
-
-	} else if ( actionMode == DRAW_ACTION ) {
-		m_bDrawingActiveCell = togglePatternActive( nColumn, nRow );
-	}
-
-	m_pSongEditorPanel->updatePlaybackTrackIfNecessary();
+	m_bDragging = false;
 }
 
 
@@ -585,12 +582,9 @@ void SongEditor::updateSelectionOrMove( int nColumn, int nRow, QPoint pos )
 	vector<PatternList*>* pColumns = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
 
 	if ( m_bIsMoving ) {
-//		WARNINGLOG( "[mouseMoveEvent] Move patterns not implemented yet" );
 
 		int nRowDiff = nRow  - m_clickPoint.y();
 		int nColumnDiff = nColumn - m_clickPoint.x();
-//		INFOLOG( "[mouseMoveEvent] row diff: "+ to_string( nRowDiff ) );
-//		INFOLOG( "[mouseMoveEvent] col diff: "+ to_string( nColumnDiff ) );
 
 		for ( int i = 0; i < (int)m_movingCells.size(); i++ ) {
 			QPoint cell = m_movingCells[ i ];
@@ -661,18 +655,41 @@ void SongEditor::updateSelectionOrMove( int nColumn, int nRow, QPoint pos )
 
 void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 {
-	int nRow = ev->y() / m_nGridHeight;
-	int nColumn = ( (int)ev->x() - 10 ) / (int)m_nGridWidth;
+	if ( m_clickStartPoint.isNull() || ev->x() < 10 ) {
+		return;
+	}
 
-	m_nCursorRow = nRow;
-	m_nCursorColumn = nColumn;
+	QPoint p = xyToColumnRow( ev->pos() );
+	m_nCursorColumn = p.x();
+	m_nCursorRow = p.y();
 	m_bCursorHidden = true;
 
-	if ( m_pSongEditorPanel->getActionMode() == SELECT_ACTION ) {
-		updateSelectionOrMove( nColumn, nRow, ev->pos() );
-	} else if ( m_pSongEditorPanel->getActionMode() == DRAW_ACTION ) {
-		// Drawing mode: continue drawing over other cells
-		setPatternActive( nColumn, nRow, m_bDrawingActiveCell );
+	SongEditorActionMode actionMode = m_pSongEditorPanel->getActionMode();
+
+	if ( !m_bDragging ) {
+		if ( (ev->pos() - m_clickStartPoint).manhattanLength()
+			 > QApplication::startDragDistance() ) {
+
+			m_bDragging = true;
+			QPoint p0 = xyToColumnRow( m_clickStartPoint );
+			if ( actionMode == SELECT_ACTION ) {
+				startSelectionOrMove( p0.x(), p0.y(), m_clickStartPoint, !m_bIsCtrlPressed );
+
+			} else if ( actionMode == DRAW_ACTION ) {
+				m_bDrawingActiveCell = togglePatternActive( p0.x(), p0.y() );
+			}
+
+			m_pSongEditorPanel->updatePlaybackTrackIfNecessary();
+		}
+	}
+
+	if ( m_bDragging ) {
+		if ( m_pSongEditorPanel->getActionMode() == SELECT_ACTION ) {
+			updateSelectionOrMove( p.x(), p.y(), ev->pos() );
+		} else if ( m_pSongEditorPanel->getActionMode() == DRAW_ACTION ) {
+			// Drawing mode: continue drawing over other cells
+			setPatternActive( p.x(), p.y(), m_bDrawingActiveCell );
+		}
 	}
 }
 
@@ -680,59 +697,46 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 void SongEditor::finishSelectionOrMove( int nColumn, int nRow )
 {
 	if ( m_bIsMoving ) {
-		if ( nColumn == m_clickPoint.x() && nRow == m_clickPoint.y() ) {
-			// Haven't actually moved - interpret as single click.
-			if ( m_bIsCtrlPressed ) {
-				togglePatternSelected( nColumn, nRow );
-			} else {
-				m_selectedCells.clear();
-				togglePatternActive( nColumn, nRow );
-			}
-			m_bIsMoving = false;
-			m_movingCells.clear();
+		// fine dello spostamento dei pattern
+		// create the new patterns
 
-		} else {
-			// fine dello spostamento dei pattern
-			// create the new patterns
+		/*
+		 * For the proper handling of undo events we have to make sure
+		 * that the array m_movingCells does not include cells that are
+		 * already existing.
+		 *
+		 * Example: A song consists of a sequence with the cells 0,1 and 3.
+		 * Consider that we the two first cells 0 and 1 get moved one
+		 * cell to the right (to 2,3). An undo action would now delete
+		 * (2,3) for and re-create 0,1. Cell 3 got deleted now, but it existed
+		 * before the first move operation.
+		 */
 
-			/*
-			 * For the proper handling of undo events we have to make sure
-			 * that the array m_movingCells does not include cells that are
-			 * already existing.
-			 *
-			 * Example: A song consists of a sequence with the cells 0,1 and 3.
-			 * Consider that we the two first cells 0 and 1 get moved one
-			 * cell to the right (to 2,3). An undo action would now delete
-			 * (2,3) for and re-create 0,1. Cell 3 got deleted now, but it existed
-			 * before the first move operation.
-			 */
-
-			SongEditorGridRepresentationItem* item;
-			m_existingCells.clear();
-			for ( uint i = 0; i < m_movingCells.size(); i++ )
-				{
-					QPoint cell = m_movingCells[ i ];
-
-					//looking for cell identified with (cell.x/cell.y) in the gridRepresentation
-					bool found = false;
-					foreach(item, gridRepresentation)
-						{
-							if(item->x == cell.x() && item->y == cell.y())
-								{
-									found = true;
-								}
-						}
-
-					if( found ){
-						m_existingCells.push_back(cell);
+		SongEditorGridRepresentationItem* item;
+		m_existingCells.clear();
+		for ( uint i = 0; i < m_movingCells.size(); i++ )
+			{
+				QPoint cell = m_movingCells[ i ];
+				
+				//looking for cell identified with (cell.x/cell.y) in the gridRepresentation
+				bool found = false;
+				foreach(item, gridRepresentation)
+					{
+						if(item->x == cell.x() && item->y == cell.y())
+							{
+								found = true;
+							}
 					}
+				
+				if( found ){
+					m_existingCells.push_back(cell);
 				}
-
-			SE_movePatternCellAction *action = new SE_movePatternCellAction( m_movingCells, m_selectedCells,
-																			 m_existingCells, m_bIsCtrlPressed);
-			HydrogenApp::get_instance()->m_pUndoStack->push( action );
-
-		}
+			}
+		
+		SE_movePatternCellAction *action = new SE_movePatternCellAction( m_movingCells, m_selectedCells,
+																		 m_existingCells, m_bIsCtrlPressed);
+		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		
 	}
 
 	if ( m_bShowLasso ) {
@@ -759,8 +763,31 @@ void SongEditor::finishSelectionOrMove( int nColumn, int nRow )
 
 void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 {
+	if ( m_clickStartPoint.isNull() || ev->x() < 10 ) {
+		return;
+	}
+
 	QPoint p = xyToColumnRow( ev->pos() );
-	finishSelectionOrMove( p.x(), p.y() );
+	if ( m_bDragging ) {
+		// Completed drag
+		finishSelectionOrMove( p.x(), p.y() );
+	} else {
+		// Completed a single click.
+		if ( m_pSongEditorPanel->getActionMode() == DRAW_ACTION ) {
+			// Draw mode click -> add or remove
+			togglePatternActive( p.x(), p.y() );
+		} else if ( m_pSongEditorPanel->getActionMode() == SELECT_ACTION ) {
+			if ( m_bIsCtrlPressed ) {
+				togglePatternSelected( p.x(), p.y() );
+			} else {
+				m_selectedCells.clear();
+				togglePatternActive( p.x(), p.y() );
+			}
+		}
+		m_bSequenceChanged = true;
+		update();
+	}
+	m_pSongEditorPanel->updatePlaybackTrackIfNecessary();
 }
 
 /**
