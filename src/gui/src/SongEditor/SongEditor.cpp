@@ -1153,6 +1153,13 @@ void SongEditorPatternList::createBackground()
 	boldTextFont.setBold( true );
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
+	
+	//Do not redraw anything if Export is active.
+	//https://github.com/hydrogen-music/hydrogen/issues/857	
+	if( pEngine->getIsExportSessionActive() ) {
+		return;
+	}
+	
 	Song *pSong = pEngine->getSong();
 	int nPatterns = pSong->get_pattern_list()->size();
 	int nSelectedPattern = pEngine->getSelectedPatternNumber();
