@@ -226,6 +226,9 @@ void* diskWriterDriver_thread( void* param )
 			//pDriver->m_transport.m_nFrames = frameNumber;
 			
 			int ret = pDriver->m_processCallback( usedBuffer, nullptr );
+			while( ret != 0) {
+				ret = pDriver->m_processCallback( usedBuffer, nullptr );
+			}
 			
 			for ( unsigned i = 0; i < usedBuffer; i++ ) {
 				if(pData_L[i] > 1){
