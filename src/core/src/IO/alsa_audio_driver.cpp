@@ -75,7 +75,7 @@ void* alsaAudioDriver_processCaller( void* param )
 	}
 
 	int nFrames = pDriver->m_nBufferSize;
-// 	_INFOLOG( "nFrames: " + to_string( nFrames ) );
+	__INFOLOG( QString( "nFrames: %1" ).arg( nFrames ) );
 	short pBuffer[ nFrames * 2 ];
 
 	float *pOut_L = pDriver->m_pOut_L;
@@ -150,7 +150,6 @@ int AlsaAudioDriver::connect()
 {
 	INFOLOG( "alsa device: " + m_sAlsaAudioDevice );
 	int nChannels = 2;
-	int period_size = m_nBufferSize / 2;
 
 	int err;
 
@@ -204,6 +203,13 @@ int AlsaAudioDriver::connect()
 		return 1;
 	}
 
+	// Configure buffer size, periods and period size. The user
+	// "BufferSize" setting defines the user's intention for the
+	// number of frames processed in a callback period. In ALSA, this
+	// is the "period", whereas the actual buffer (as reported by
+	// *_get_buffer_size) is sized to keep at least 2 periods' worth
+	// of data.
+	//
 	unsigned nPeriods = 2;
 	if ( ( err = snd_pcm_hw_params_set_periods_near( m_pPlayback_handle, hw_params, &nPeriods, nullptr ) ) < 0 ) {
 		ERRORLOG( QString( "error in snd_pcm_hw_params_set_periods: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
@@ -211,22 +217,13 @@ int AlsaAudioDriver::connect()
 	}
 	INFOLOG( QString( "nPeriods: %1" ).arg( nPeriods ) );
 
-	// Set buffer size (in frames). The resulting latency is given by
-	// latency = periodsize * periods / (rate * bytes_per_frame)
-//	m_nBufferSize = period_size * 2;
-//	infoLog( "buffer size preferita:" + to_string( m_nBufferSize ) );
+	snd_pcm_uframes_t period_size = m_nBufferSize;
 
-//	if ( ( err = snd_pcm_hw_params_set_buffer_size_near( m_pPlayback_handle, hw_params, &m_nBufferSize ) ) < 0 ) {
-//		errorLog( "[connect] error in snd_pcm_hw_params_set_buffer_size: " + string( QString::fromLocal8Bit(snd_strerror(err)) ) );
-//		return 1;
-//	}
-//	infoLog( "buffer size scelta:" + to_string( m_nBufferSize ) );
-
-	if ( ( err = snd_pcm_hw_params_set_period_size( m_pPlayback_handle, hw_params, period_size, 0 ) ) < 0 ) {
+	if ( ( err = snd_pcm_hw_params_set_period_size_near( m_pPlayback_handle, hw_params, &period_size, 0 ) ) < 0 ) {
 		ERRORLOG( QString( "error in snd_pcm_hw_params_set_period_size: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}
-
+	m_nBufferSize = period_size;
 
 	if ( ( err = snd_pcm_hw_params( m_pPlayback_handle, hw_params ) ) < 0 ) {
 		ERRORLOG( QString( "error in snd_pcm_hw_params: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
@@ -234,11 +231,10 @@ int AlsaAudioDriver::connect()
 	}
 
 	snd_pcm_hw_params_get_rate( hw_params, &m_nSampleRate, nullptr );
-	snd_pcm_hw_params_get_buffer_size( hw_params, &m_nBufferSize );
 
 	INFOLOG( QString( "*** PERIOD SIZE: %1" ).arg( period_size ) );
 	INFOLOG( QString( "*** SAMPLE RATE: %1" ).arg( m_nSampleRate ) );
-	INFOLOG( QString( "*** BUFFER SIZE: %1" ).arg( m_nBufferSize ) );
+	INFOLOG( QString( "*** BUFFER SIZE: %1" ).arg( nPeriods * m_nBufferSize ) );
 
 	//snd_pcm_hw_params_free( hw_params );
 
