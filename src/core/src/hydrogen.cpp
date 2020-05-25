@@ -464,6 +464,7 @@ static void			audioEngine_noteOn( Note *note );
    latter will be set to @a nframes.
  * \param arg Unused.
  * \return
+ * - __2__ : Failed to aquire the audio engine lock, no processing took place.
  * - __1__ : kill the audio driver thread. This will be used if either
  * the DiskWriterDriver or FakeDriver are used and the end of the Song
  * is reached (audioEngine_updateNoteQueue() returned -1 ). 
@@ -1268,9 +1269,14 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	 * The "try_lock" was introduced for Bug #164 (Deadlock after during
 	 * alsa driver shutdown). The try_lock *should* only fail in rare circumstances
 	 * (like shutting down drivers). In such cases, it seems to be ok to interrupt
-	 * audio processing.
+	 * audio processing. Returning the special return value "2" enables the disk 
+	 * writer driver to repeat the processing of the current data.
 	 */
-	if(!AudioEngine::get_instance()->try_lock( RIGHT_HERE )){
+	if(!AudioEngine::get_instance()->try_lock( RIGHT_HERE )) {
+		if ( m_pAudioDriver->class_name() == DiskWriterDriver::class_name() ) {
+			return 2;	// inform the caller that we could not aquire the lock
+		}
+		
 		return 0;
 	}
 
