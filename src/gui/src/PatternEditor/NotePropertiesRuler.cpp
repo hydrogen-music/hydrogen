@@ -54,6 +54,8 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	m_nGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
 	m_nEditorWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
 
+	m_fLastSetValue = 0.0;
+
 	if (m_Mode == VELOCITY ) {
 		m_nEditorHeight = 100;
 	}
@@ -151,6 +153,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 			pNote->set_velocity(val);
 			__velocity = val;
+			m_fLastSetValue = val;
 
 			char valueChar[100];
 			sprintf( valueChar, "%#.2f",  val);
@@ -174,7 +177,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 				pan_L = 0.5;
 				pan_R = val;
 			}
-
+			m_fLastSetValue = val;
 			pNote->set_pan_l(pan_L);
 			pNote->set_pan_r(pan_R);
 		}
@@ -186,6 +189,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			else if (val < 0.0) {
 				val = 0.0;
 			}
+			m_fLastSetValue = val * -2.0 + 1.0;
 			pNote->set_lead_lag((val * -2.0) + 1.0);
 			char valueChar[100];
 			if (pNote->get_lead_lag() < 0.0) {
@@ -207,6 +211,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 				val = 0.0;
 			}
 
+			m_fLastSetValue = val;
 			pNote->set_probability(val);
 			__probability = val;
 
@@ -302,7 +307,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 	}
 }
 
- void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
+void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 {
 	if( m_bMouseIsPressed ){
 
@@ -364,6 +369,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 					__oldVelocity = pNote->get_velocity();
 				}
 				pNote->set_velocity( val );
+				m_fLastSetValue = val;
 				__velocity = val;
 				char valueChar[100];
 				sprintf( valueChar, "%#.2f",  val);
@@ -386,7 +392,8 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 				if( columnChange ){
 					__oldPan_L = pNote->get_pan_l();
 					__oldPan_R = pNote->get_pan_r();
-				}	
+				}
+				m_fLastSetValue = val;
 				pNote->set_pan_l( pan_L );
 				pNote->set_pan_r( pan_R );
 				__pan_L = pan_L;
@@ -400,7 +407,8 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 					if( columnChange ){
 						__oldLeadLag = pNote->get_lead_lag();
 					}
-	
+
+					m_fLastSetValue = val * -2.0 + 1.0;
 					pNote->set_lead_lag((val * -2.0) + 1.0);
 					__leadLag = (val * -2.0) + 1.0;
 					char valueChar[100];
@@ -431,8 +439,8 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 						o = (keyval-166)/10;
 						if(o==-4) o=-3; // 135
 					}
+					m_fLastSetValue = o * 12 + k;
 					pNote->set_key_octave((Note::Key)k,(Note::Octave)o); // won't set wrong values see Note::set_key_octave
-
 					__octaveKeyVal = pNote->get_octave();
 					__noteKeyVal = pNote->get_key();
 				}
@@ -441,6 +449,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 				if( columnChange ){
 					__oldProbability = pNote->get_probability();
 				}
+				m_fLastSetValue = val;
 				pNote->set_probability( val );
 				__probability = val;
 				char valueChar[100];
@@ -533,11 +542,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 						} else {
 							__velocity = pNote->get_velocity() + delta;
 						}
-						if (__velocity > VELOCITY_MAX) {
-							__velocity = VELOCITY_MAX;
-						} else if (__velocity < VELOCITY_MIN) {
-							__velocity = VELOCITY_MIN;
-						}
+						__velocity = qBound( __velocity, VELOCITY_MIN, VELOCITY_MAX );
 						m_fLastSetValue = __velocity;
 						pNote->set_velocity( __velocity );
 					}
@@ -569,11 +574,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 						} else {
 							__leadLag = pNote->get_lead_lag() - delta;
 						}
-						if (__leadLag < LEAD_LAG_MIN) {
-							__leadLag = LEAD_LAG_MIN;
-						} else if (__leadLag > LEAD_LAG_MAX) {
-							__leadLag = LEAD_LAG_MAX;
-						}
+						__leadLag = qBound( __leadLag, LEAD_LAG_MIN, LEAD_LAG_MAX );
 						m_fLastSetValue = __leadLag;
 						pNote->set_lead_lag( __leadLag );
 						break;
@@ -585,11 +586,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 						} else {
 							__probability = pNote->get_probability() + delta;
 						}
-						if (__probability > 1.0) {
-							__probability = 1.0;
-						} else if (__probability < 0.0) {
-							__probability = 0.0;
-						}
+						__probability = qBound( __probability, 0.0f, 1.0f );
 						m_fLastSetValue = __probability;
 						pNote->set_probability( __probability );
 					}
