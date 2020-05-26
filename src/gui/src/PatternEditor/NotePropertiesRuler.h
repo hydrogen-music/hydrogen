@@ -76,6 +76,8 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 
 		QPixmap *m_pBackground;
 
+		double m_fLastSetValue;
+
 		void createVelocityBackground(QPixmap *pixmap);
 		void createPanBackground(QPixmap *pixmap);
 		void createLeadLagBackground(QPixmap *pixmap);

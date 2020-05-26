@@ -278,6 +278,9 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 
 			m_selectedCells.clear();
 			m_bSequenceChanged = true;
+		} else {
+			// No selection, delete the current cursor position
+			setPatternActive( m_nCursorColumn, m_nCursorRow, false );
 		}
 	} else if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
 		if ( m_nCursorColumn < m_nMaxPatternSequence -1 ) {
@@ -364,6 +367,14 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 									   columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre );
 				finishSelectionOrMove( m_nCursorColumn, m_nCursorRow );
 			}
+		}
+	} else if ( ev->text() == "+" ) {
+		if ( m_selectedCells.size() == 0 ) {
+			setPatternActive( m_nCursorColumn, m_nCursorRow, true );
+		}
+	} else if ( ev->text() == "-" ) {
+		if ( m_selectedCells.size() == 0 ) {
+			setPatternActive( m_nCursorColumn, m_nCursorRow, false );
 		}
 	} else {
 		ev->ignore();

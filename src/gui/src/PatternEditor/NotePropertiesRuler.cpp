@@ -490,6 +490,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 	} else {
 		// Value adjustments
 		double delta = 0.0;
+		bool bRepeatLastValue = false;
 
 		if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
 			delta = 0.1;
@@ -499,9 +500,15 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			delta = 1.0;
 		} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
 			delta = -1.0;
+		} else if ( ev->text() == "+" ) {
+			delta = 0.1;
+		} else if ( ev->text() == "-" ) {
+			delta = -0.1;
+		} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+			bRepeatLastValue = true;
 		}
 
-		if ( delta != 0.0 ) {
+		if ( delta != 0.0 || bRepeatLastValue ) {
 			int column = m_pPatternEditorPanel->getCursorPosition();
 			int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 			Song *pSong = (Hydrogen::get_instance())->getSong();
@@ -521,18 +528,28 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 				switch (m_Mode) {
 				case VELOCITY:
 					if ( !pNote->get_note_off() ) {
-						__velocity = pNote->get_velocity() + delta;
+						if ( bRepeatLastValue ) {
+							__velocity = m_fLastSetValue;
+						} else {
+							__velocity = pNote->get_velocity() + delta;
+						}
 						if (__velocity > VELOCITY_MAX) {
 							__velocity = VELOCITY_MAX;
 						} else if (__velocity < VELOCITY_MIN) {
 							__velocity = VELOCITY_MIN;
 						}
+						m_fLastSetValue = __velocity;
 						pNote->set_velocity( __velocity );
 					}
 					break;
 				case PAN:
 					if ( !pNote->get_note_off() ) {
-						double val = (pNote->get_pan_r() - pNote->get_pan_l() + 0.5) + delta;
+						double val;
+						if ( bRepeatLastValue ) {
+							val = m_fLastSetValue;
+						} else {
+							 val = (pNote->get_pan_r() - pNote->get_pan_l() + 0.5) + delta;
+						}
 						if ( val > PAN_MAX ) {
 							__pan_L = 2*PAN_MAX - val;
 							__pan_R = PAN_MAX;
@@ -540,51 +557,67 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 							__pan_L = PAN_MAX;
 							__pan_R = val;
 						}
+						m_fLastSetValue = val;
 						pNote->set_pan_l( 2*PAN_MAX - val );
 						pNote->set_pan_r( val );
 						break;
 					}
 				case LEADLAG:
 					{
-						__leadLag = pNote->get_lead_lag() - delta;
+						if ( bRepeatLastValue ) {
+							__leadLag = m_fLastSetValue;
+						} else {
+							__leadLag = pNote->get_lead_lag() - delta;
+						}
 						if (__leadLag < LEAD_LAG_MIN) {
 							__leadLag = LEAD_LAG_MIN;
 						} else if (__leadLag > LEAD_LAG_MAX) {
 							__leadLag = LEAD_LAG_MAX;
 						}
+						m_fLastSetValue = __leadLag;
 						pNote->set_lead_lag( __leadLag );
 						break;
 					}
 				case PROBABILITY:
-					if ( !pNote->get_note_off() )
-						{
+					if ( !pNote->get_note_off() ) {
+						if ( bRepeatLastValue ) {
+							__probability = m_fLastSetValue;
+						} else {
 							__probability = pNote->get_probability() + delta;
-							if (__probability > 1.0) {
-								__probability = 1.0;
-							} else if (__probability < 0.0) {
-								__probability = 0.0;
-							}
-							pNote->set_probability( __probability );
 						}
+						if (__probability > 1.0) {
+							__probability = 1.0;
+						} else if (__probability < 0.0) {
+							__probability = 0.0;
+						}
+						m_fLastSetValue = __probability;
+						pNote->set_probability( __probability );
+					}
 					break;
 				case NOTEKEY:
-					__octaveKeyVal = pNote->get_octave();
-					__noteKeyVal = pNote->get_key();
-					if (delta > 0) {
-						if (__noteKeyVal < 11) {
-							__noteKeyVal += 1;
-						} else if (__octaveKeyVal < 3) {
-							__octaveKeyVal += 1;
-							__noteKeyVal = 0;
-						}
+					if ( bRepeatLastValue ) {
+						__octaveKeyVal = (int)m_fLastSetValue / 12;
+						__noteKeyVal = (int)m_fLastSetValue % 12;
 					} else {
-						if (__noteKeyVal > 0) {
-							__noteKeyVal -= 1;
-						} else if (__octaveKeyVal > -3) {
-							__octaveKeyVal -= 1;
-							__noteKeyVal = 11;
+						__octaveKeyVal = pNote->get_octave();
+						__noteKeyVal = pNote->get_key();
+						if (delta > 0) {
+							if (__noteKeyVal < 11) {
+								__noteKeyVal += 1;
+							} else if (__octaveKeyVal < 3) {
+								__octaveKeyVal += 1;
+								__noteKeyVal = 0;
+							}
+						} else {
+							if (__noteKeyVal > 0) {
+								__noteKeyVal -= 1;
+							} else if (__octaveKeyVal > -3) {
+								__octaveKeyVal -= 1;
+								__noteKeyVal = 11;
+							}
 						}
 					}
+					m_fLastSetValue = 12 * __octaveKeyVal + __noteKeyVal;
 					pNote->set_key_octave( (Note::Key)__noteKeyVal, (Note::Octave)__octaveKeyVal );
 					break;
 				}
