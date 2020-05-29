@@ -32,7 +32,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
@@ -226,22 +226,41 @@
        <item>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <widget class="QComboBox" name="driverComboBox"/>
-           </item>
-           <item>
-            <widget class="QPushButton" name="restartDriverBtn">
+          <layout class="QGridLayout">
+           <item row="2" column="0">
+            <widget class="QLabel" name="audioDeviceLbl">
              <property name="text">
-              <string>Restart output</string>
+              <string>Device</string>
              </property>
             </widget>
            </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QGridLayout">
-           <item row="1" column="1">
+           <item row="3" column="0">
+            <widget class="QLabel" name="buffer_sizeLbl">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Buffer size</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="trackOutLbl">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Track output</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
             <widget class="QSpinBox" name="bufferSizeSpinBox">
              <property name="minimumSize">
               <size>
@@ -263,40 +282,7 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="sampleRateLbl">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Sample rate</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="audioDeviceLbl">
-             <property name="text">
-              <string>Device</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="buffer_sizeLbl">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>22</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Buffer size</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
+           <item row="2" column="1">
             <widget class="QLineEdit" name="m_pAudioDeviceTxt">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -306,7 +292,7 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
+           <item row="4" column="1">
             <widget class="QComboBox" name="sampleRateComboBox">
              <property name="currentIndex">
               <number>0</number>
@@ -333,7 +319,7 @@
              </item>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="5" column="1">
             <widget class="QComboBox" name="trackOutputComboBox">
              <property name="currentIndex">
               <number>0</number>
@@ -350,8 +336,8 @@
              </item>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QLabel" name="trackOutLbl">
+           <item row="4" column="0">
+            <widget class="QLabel" name="sampleRateLbl">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -359,7 +345,17 @@
               </size>
              </property>
              <property name="text">
-              <string>Track output</string>
+              <string>Sample rate</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="driverComboBox"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Sound output</string>
              </property>
             </widget>
            </item>
@@ -391,6 +387,13 @@
             </widget>
            </item>
           </layout>
+         </item>
+         <item>
+          <widget class="QPushButton" name="restartDriverBtn">
+           <property name="text">
+            <string>Apply and restart output</string>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="verticalSpacer">

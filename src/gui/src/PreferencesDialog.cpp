@@ -347,17 +347,8 @@ void PreferencesDialog::on_cancelBtn_clicked()
 	reject();
 }
 
-
-void PreferencesDialog::on_okBtn_clicked()
-{
-	//	m_bNeedDriverRestart = true;
-
+void PreferencesDialog::updateDriverPreferences() {
 	Preferences *pPref = Preferences::get_instance();
-
-	MidiMap *mM = MidiMap::get_instance();
-	mM->reset_instance();
-
-	midiTable->saveMidiTable();
 
 	// Selected audio driver
 	if (driverComboBox->currentText() == "Auto" ) {
@@ -416,6 +407,21 @@ void PreferencesDialog::on_okBtn_clicked()
 	else if ( sampleRateComboBox->currentText() == "96000" ) {
 		pPref->m_nSampleRate = 96000;
 	}
+}
+
+
+void PreferencesDialog::on_okBtn_clicked()
+{
+	//	m_bNeedDriverRestart = true;
+
+	Preferences *pPref = Preferences::get_instance();
+
+	MidiMap *mM = MidiMap::get_instance();
+	mM->reset_instance();
+
+	midiTable->saveMidiTable();
+
+	updateDriverPreferences();
 
 
 	// metronome
@@ -738,6 +744,9 @@ void PreferencesDialog::on_sampleRateComboBox_editTextChanged( const QString&  )
 
 void PreferencesDialog::on_restartDriverBtn_clicked()
 {
+	updateDriverPreferences();
+	Preferences *pPref = Preferences::get_instance();
+	pPref->savePreferences();
 	Hydrogen::get_instance()->restartDrivers();
 	m_bNeedDriverRestart = false;
 }

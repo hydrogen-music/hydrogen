@@ -63,6 +63,8 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		bool m_bNeedDriverRestart;
 
 		void updateDriverInfo();
+
+		void updateDriverPreferences();
 };
 
 #endif
