@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 ## Python script checking the coverage of the translation files.
 
@@ -44,7 +44,7 @@ def parse_ts(filename):
 	completed = (total - obsolete) - unfinished
 	perc = 100.0 / (total - obsolete) * completed
 	
-	print( "|| %s\t|| [%d/%d]\t|| %d%%\t||" % (filename, completed, total - obsolete, perc))
+	print(( "|| %s\t|| [%d/%d]\t|| %d%%\t||" % (filename, completed, total - obsolete, perc)))
 
 ## Loop over all files in the current directory
 patternTs = re.compile(r'(.*?)(\.ts)$')
