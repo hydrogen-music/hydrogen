@@ -124,8 +124,8 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
-		virtual void keyPressEvent ( QKeyEvent * ev ) override;
-		virtual void focusInEvent ( QFocusEvent * ev ) override;
+		virtual void keyPressEvent ( QKeyEvent * ev );
+		virtual void focusInEvent ( QFocusEvent * ev );
 		int getColumn(QMouseEvent *ev);
 		int __selectedInstrumentnumber;
 		int __selectedPatternNumber;
