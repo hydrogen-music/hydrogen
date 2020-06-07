@@ -723,7 +723,7 @@ void PreferencesDialog::on_selectApplicationFontBtn_clicked()
 void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )
 {
 	UNUSED( i );
-	m_bNeedDriverRestart = false;
+	m_bNeedDriverRestart = true;
 }
 
 
