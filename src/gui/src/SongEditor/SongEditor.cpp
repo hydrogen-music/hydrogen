@@ -279,7 +279,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			m_selectedCells.clear();
 			m_bSequenceChanged = true;
 		} else {
-			// No selection, delete the current cursor position
+			// No selection, delete at the current cursor position
 			setPatternActive( m_nCursorColumn, m_nCursorRow, false );
 		}
 	} else if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
@@ -340,6 +340,23 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 		m_nCursorRow = 0;
 	} else if ( ev->key() == Qt::Key_Escape ) {
 		cancelSelectionOrMove();
+	} else if ( ev->matches( QKeySequence::SelectAll ) ) {
+		SongEditorActionMode actionMode = m_pSongEditorPanel->getActionMode();
+		if ( actionMode == SELECT_ACTION ) {
+			m_selectedCells.clear();
+			for ( int nRow = 0; nRow < pPatternList->size(); nRow++ ) {
+				H2Core::Pattern *pPattern = pPatternList->get( nRow );
+				for ( int nCol = 0; nCol < pColumns->size(); nCol++ ) {
+					PatternList *pColumn = ( *pColumns )[ nCol ];
+					for ( uint i = 0; i < pColumn->size(); i++) {
+						if ( pColumn->get(i) == pPattern ) { // esiste un pattern in questa posizione
+							m_selectedCells.push_back( QPoint( nCol, nRow ) );
+						}
+					}
+				}
+			}
+			m_bSequenceChanged = true;
+		}
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		SongEditorActionMode actionMode = m_pSongEditorPanel->getActionMode();
 		if ( actionMode == DRAW_ACTION ) {
