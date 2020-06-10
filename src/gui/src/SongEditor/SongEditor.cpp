@@ -262,6 +262,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 	vector<PatternList*>* pColumns = pEngine->getSong()->get_pattern_group_vector();
 	const QPoint centre = QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
+	SongEditorActionMode actionMode = m_pSongEditorPanel->getActionMode();
 
 	m_bCursorHidden = false;
 
@@ -341,7 +342,6 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	} else if ( ev->key() == Qt::Key_Escape ) {
 		cancelSelectionOrMove();
 	} else if ( ev->matches( QKeySequence::SelectAll ) ) {
-		SongEditorActionMode actionMode = m_pSongEditorPanel->getActionMode();
 		if ( actionMode == SELECT_ACTION ) {
 			m_selectedCells.clear();
 			for ( int nRow = 0; nRow < pPatternList->size(); nRow++ ) {
@@ -357,8 +357,12 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			}
 			m_bSequenceChanged = true;
 		}
+	} else if ( ev->matches( QKeySequence::Deselect ) ) {
+		if ( actionMode == SELECT_ACTION ) {
+			m_selectedCells.clear();
+			m_bSequenceChanged = false;
+		}
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
-		SongEditorActionMode actionMode = m_pSongEditorPanel->getActionMode();
 		if ( actionMode == DRAW_ACTION ) {
 			// In DRAW mode, Enter's obvious action is the same as a
 			// click - insert or delete pattern.
