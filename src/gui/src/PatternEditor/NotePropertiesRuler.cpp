@@ -55,6 +55,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	m_nEditorWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
 
 	m_fLastSetValue = 0.0;
+	m_bValueHasBeenSet = false;
 
 	if (m_Mode == VELOCITY ) {
 		m_nEditorHeight = 100;
@@ -154,6 +155,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			pNote->set_velocity(val);
 			__velocity = val;
 			m_fLastSetValue = val;
+			m_bValueHasBeenSet = true;
 
 			char valueChar[100];
 			sprintf( valueChar, "%#.2f",  val);
@@ -178,6 +180,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 				pan_R = val;
 			}
 			m_fLastSetValue = val;
+			m_bValueHasBeenSet = true;
 			pNote->set_pan_l(pan_L);
 			pNote->set_pan_r(pan_R);
 		}
@@ -190,6 +193,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 				val = 0.0;
 			}
 			m_fLastSetValue = val * -2.0 + 1.0;
+			m_bValueHasBeenSet = true;
 			pNote->set_lead_lag((val * -2.0) + 1.0);
 			char valueChar[100];
 			if (pNote->get_lead_lag() < 0.0) {
@@ -212,6 +216,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			}
 
 			m_fLastSetValue = val;
+			m_bValueHasBeenSet = true;
 			pNote->set_probability(val);
 			__probability = val;
 
@@ -370,6 +375,7 @@ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 				}
 				pNote->set_velocity( val );
 				m_fLastSetValue = val;
+				m_bValueHasBeenSet = true;
 				__velocity = val;
 				char valueChar[100];
 				sprintf( valueChar, "%#.2f",  val);
@@ -394,6 +400,7 @@ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 					__oldPan_R = pNote->get_pan_r();
 				}
 				m_fLastSetValue = val;
+				m_bValueHasBeenSet = true;
 				pNote->set_pan_l( pan_L );
 				pNote->set_pan_r( pan_R );
 				__pan_L = pan_L;
@@ -409,6 +416,7 @@ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 					}
 
 					m_fLastSetValue = val * -2.0 + 1.0;
+					m_bValueHasBeenSet = true;
 					pNote->set_lead_lag((val * -2.0) + 1.0);
 					__leadLag = (val * -2.0) + 1.0;
 					char valueChar[100];
@@ -440,6 +448,7 @@ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 						if(o==-4) o=-3; // 135
 					}
 					m_fLastSetValue = o * 12 + k;
+					m_bValueHasBeenSet = true;
 					pNote->set_key_octave((Note::Key)k,(Note::Octave)o); // won't set wrong values see Note::set_key_octave
 					__octaveKeyVal = pNote->get_octave();
 					__noteKeyVal = pNote->get_key();
@@ -450,6 +459,7 @@ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 					__oldProbability = pNote->get_probability();
 				}
 				m_fLastSetValue = val;
+				m_bValueHasBeenSet = true;
 				pNote->set_probability( val );
 				__probability = val;
 				char valueChar[100];
@@ -514,7 +524,9 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		} else if ( ev->text() == "-" ) {
 			delta = -0.1;
 		} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
-			bRepeatLastValue = true;
+			if (m_bValueHasBeenSet) {
+				bRepeatLastValue = true;
+			}
 		}
 
 		if ( delta != 0.0 || bRepeatLastValue ) {
@@ -544,6 +556,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 						}
 						__velocity = qBound( __velocity, VELOCITY_MIN, VELOCITY_MAX );
 						m_fLastSetValue = __velocity;
+						m_bValueHasBeenSet = true;
 						pNote->set_velocity( __velocity );
 					}
 					break;
@@ -563,6 +576,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 							__pan_R = val;
 						}
 						m_fLastSetValue = val;
+						m_bValueHasBeenSet = true;
 						pNote->set_pan_l( 2*PAN_MAX - val );
 						pNote->set_pan_r( val );
 						break;
@@ -576,6 +590,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 						}
 						__leadLag = qBound( __leadLag, LEAD_LAG_MIN, LEAD_LAG_MAX );
 						m_fLastSetValue = __leadLag;
+						m_bValueHasBeenSet = true;
 						pNote->set_lead_lag( __leadLag );
 						break;
 					}
@@ -588,6 +603,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 						}
 						__probability = qBound( __probability, 0.0f, 1.0f );
 						m_fLastSetValue = __probability;
+						m_bValueHasBeenSet = true;
 						pNote->set_probability( __probability );
 					}
 					break;
@@ -615,6 +631,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 						}
 					}
 					m_fLastSetValue = 12 * __octaveKeyVal + __noteKeyVal;
+					m_bValueHasBeenSet = true;
 					pNote->set_key_octave( (Note::Key)__noteKeyVal, (Note::Octave)__octaveKeyVal );
 					break;
 				}

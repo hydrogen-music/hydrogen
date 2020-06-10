@@ -77,6 +77,7 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		QPixmap *m_pBackground;
 
 		double m_fLastSetValue;
+		bool m_bValueHasBeenSet;
 
 		void createVelocityBackground(QPixmap *pixmap);
 		void createPanBackground(QPixmap *pixmap);
