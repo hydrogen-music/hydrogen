@@ -4,9 +4,9 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <hydrogen/hydrogen.h>
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
-#include <hydrogen/hydrogen.h>
 
 class OscServerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( OscServerTest );
