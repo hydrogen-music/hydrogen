@@ -62,6 +62,7 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  , m_pDraggedNote( nullptr )
  , m_pPattern( nullptr )
  , m_pPatternEditorPanel( panel )
+ , m_selection( this )
 {
 	setFocusPolicy(Qt::StrongFocus);
 

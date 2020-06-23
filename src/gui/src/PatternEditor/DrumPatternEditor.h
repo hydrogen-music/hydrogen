@@ -25,6 +25,7 @@
 #define DRUM_PATTERN_EDITOR_H
 
 #include "../EventListener.h"
+#include "../Selection.h"
 
 #include <hydrogen/object.h>
 
@@ -141,6 +142,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		virtual void hideEvent ( QHideEvent *ev );
 		virtual void paintEvent(QPaintEvent *ev);
 		virtual void focusInEvent( QFocusEvent *ev );
+
+		Selection<DrumPatternEditor, QPoint, H2Core::Note> m_selection;
 
 		int getColumn(QMouseEvent *ev);
 
