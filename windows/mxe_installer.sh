@@ -31,6 +31,14 @@ install_mxe(){
 	sed -i 's/binutils gcc-gmp gcc-isl gcc-mpc gcc-mpfr mingw-w64/binutils gcc-gmp gcc-isl gcc-mpc gcc-mpfr winpthreads/g' $MXE/src/gcc.mk
 	sed -i 's/--enable-threads=win32/--enable-threads=posix/g' $MXE/src/gcc.mk
 	make gcc $1
+
+	# Disable WDM-KS in PortAudio since it causes crashes
+	sed -i 's/--with-winapi=\(.*\),wdmks/--with-winapi=\1/' $MXE/src/portaudio.mk
+	if grep wmdks $MXE/src/portaudio.mk; then
+		echo "*** $MXE/src/portaudio.mk still references wdmks."
+		exit 1
+	fi
+
 	#Build the dependencies for hydrogen
 	make libarchive libsndfile portaudio portmidi fftw rubberband jack liblo qt5 -j4 JOBS=4 $1
 	sed -i 's/:= gcc/:= gcc jack/g' $MXE/src/portaudio.mk
