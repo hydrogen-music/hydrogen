@@ -87,6 +87,8 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 
 	__components = new std::vector<DrumkitComponent*> ();
 	__velocity_automation_path = new AutomationPath(0.0f, 1.5f,  1.0f);
+
+	m_bMissingSamples = false;
 }
 
 
@@ -738,6 +740,7 @@ Song* SongReader::readSong( const QString& filename )
 			if ( id==-1 ) {
 				ERRORLOG( "Empty ID for instrument '" + sName + "'. skipping." );
 				instrumentNode = ( QDomNode ) instrumentNode.nextSiblingElement( "instrument" );
+				pSong->set_has_missing_samples( true );
 				continue;
 			}
 
@@ -804,6 +807,7 @@ Song* SongReader::readSong( const QString& filename )
 				}
 				if ( pSample == nullptr ) {
 					ERRORLOG( "Error loading sample: " + sFilename + " not found" );
+					pSong->set_has_missing_samples( true );
 					pInstrument->set_muted( true );
 				}
 				InstrumentComponent* pCompo = new InstrumentComponent ( 0 );
@@ -890,6 +894,7 @@ Song* SongReader::readSong( const QString& filename )
 						}
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
+							pSong->set_has_missing_samples( true );
 							pInstrument->set_muted( true );
 						}
 						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
@@ -977,6 +982,7 @@ Song* SongReader::readSong( const QString& filename )
 						}
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
+							pSong->set_has_missing_samples( true );
 							pInstrument->set_muted( true );
 						}
 						InstrumentLayer* pLayer = new InstrumentLayer( pSample );

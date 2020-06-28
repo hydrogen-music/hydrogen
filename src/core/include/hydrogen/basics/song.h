@@ -207,6 +207,16 @@ class Song : public H2Core::Object
 		/** \param volume Sets #__playback_track_volume. */
 		void			set_playback_track_volume( const float volume );
 
+		/** Song was incompletely loaded from file (missing samples)
+		 */
+		bool has_missing_samples() {
+			return m_bMissingSamples;
+		}
+
+		void set_has_missing_samples( bool bMissingSamples ) {
+			 m_bMissingSamples = bMissingSamples;
+		}
+
 
 	private:
 		///< volume of the song (0.0..1.0)
@@ -261,6 +271,8 @@ class Song : public H2Core::Object
 		AutomationPath*		__velocity_automation_path;
 		///< license of the song
 		QString			__license;
+
+		bool m_bMissingSamples;
 };
 
 inline bool Song::get_is_modified() const 
