@@ -100,7 +100,9 @@ void show_playlist (uint active )
 	if ( pPlaylist->size() > 0) {
 		for ( uint i = 0; i < pPlaylist->size(); ++i ) {
 			cout << ( i + 1 ) << "." << pPlaylist->get( i )->filePath.toLocal8Bit().constData();
-			if ( i == active ) cout << " *";
+			if ( i == active ) {
+				cout << " *";
+			}
 			cout << endl;
 		}
 	}
@@ -122,10 +124,12 @@ int main(int argc, char *argv[])
 		cp = opts;
 		for (op = long_opts; op < &long_opts[NELEM(long_opts)]; op++) {
 			*cp++ = op->val;
-			if (op->has_arg)
+			if (op->has_arg) {
 				*cp++ = ':';
-			if (op->has_arg == optional_argument )
+			}
+			if (op->has_arg == optional_argument ) {
 				*cp++ = ':';  // gets another one
+			}
 		}
 
 		// Deal with the options
@@ -326,8 +330,9 @@ int main(int argc, char *argv[])
 				/* Try load last song */
 				bool restoreLastSong = preferences->isRestoreLastSongEnabled();
 				QString filename = preferences->getLastSongFilename();
-				if ( restoreLastSong && ( !filename.isEmpty() ))
+				if ( restoreLastSong && ( !filename.isEmpty() )) {
 					pSong = Song::load( filename );
+				}
 			}
 
 			/* Still not loaded */
@@ -431,8 +436,9 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if ( pHydrogen->getState() == STATE_PLAYING )
+		if ( pHydrogen->getState() == STATE_PLAYING ) {
 			pHydrogen->sequencer_stop();
+		}
 
 		delete pSong;
 		delete pPlaylist;

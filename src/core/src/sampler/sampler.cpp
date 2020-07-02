@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
@@ -283,10 +283,11 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 	for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it !=pInstr->get_components()->end(); ++it) {
 		nReturnValues[nReturnValueIndex] = false;
 		InstrumentComponent *pCompo = *it;
-		DrumkitComponent* pMainCompo = pEngine->getSong()->get_component( pCompo->get_drumkit_componentID() );
+		DrumkitComponent* pMainCompo = nullptr;
 
-		if( pNote->get_specific_compo_id() != -1 && pNote->get_specific_compo_id() != pCompo->get_drumkit_componentID() )
+		if( pNote->get_specific_compo_id() != -1 && pNote->get_specific_compo_id() != pCompo->get_drumkit_componentID() ) {
 			continue;
+		}
 
 		if(		pInstr->is_preview_instrument()
 			||	pInstr->is_metronome_instrument()){
@@ -428,7 +429,6 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 							// successful and assign the
 							// results.
 							if ( nearestLayer > -1 ){
-								InstrumentLayer *pLayer = pCompo->get_layer( nearestLayer );
 								pSelectedLayer->SelectedLayer = nearestLayer;
 
 								// No loop needed in here.
@@ -494,7 +494,10 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 							int nearestLayer = -1;
 							for ( unsigned nLayer = 0; nLayer < m_nMaxLayers; ++nLayer ){
 								InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
-								if ( pLayer == nullptr ) continue;
+								if ( pLayer == nullptr ) {
+									continue;
+								}
+								
 								
 								if ( min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 									  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
@@ -525,8 +528,9 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 						if( __foundSamples > 0 ) {
 							__roundRobinID = pInstr->get_id() * 10 + __roundRobinID;
 							int p_indexToUse = pSong->get_latest_round_robin(__roundRobinID)+1;
-							if( p_indexToUse > __foundSamples - 1)
+							if( p_indexToUse > __foundSamples - 1) {
 								p_indexToUse = 0;
+							}
 
 							pSong->set_latest_round_robin(__roundRobinID, p_indexToUse);
 							nAlreadySelectedLayer = __possibleIndex[p_indexToUse];
@@ -555,14 +559,14 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 			continue;
 		}
 
-		int noteStartInFrames = ( int ) ( pNote->get_position() * audio_output->m_transport.m_nTickSize ) + pNote->get_humanize_delay();
+		int noteStartInFrames = ( int ) ( pNote->get_position() * audio_output->m_transport.m_fTickSize ) + pNote->get_humanize_delay();
 
 		int nInitialSilence = 0;
 		if ( noteStartInFrames > ( int ) nFramepos ) {	// scrivo silenzio prima dell'inizio della nota
 			nInitialSilence = noteStartInFrames - nFramepos;
 			int nFrames = nBufferSize - nInitialSilence;
 			if ( nFrames < 0 ) {
-				int noteStartInFramesNoHumanize = ( int )pNote->get_position() * audio_output->m_transport.m_nTickSize;
+				int noteStartInFramesNoHumanize = ( int )pNote->get_position() * audio_output->m_transport.m_fTickSize;
 				if ( noteStartInFramesNoHumanize > ( int )( nFramepos + nBufferSize ) ) {
 					// this note is not valid. it's in the future...let's skip it....
 					ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFramepos ).arg(noteStartInFramesNoHumanize ) );
@@ -658,19 +662,24 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		if( (int) pSelectedLayer->SamplePosition == 0  && !pInstr->is_muted() )
 		{
 			if( Hydrogen::get_instance()->getMidiOutput() != nullptr ){
-			Hydrogen::get_instance()->getMidiOutput()->handleQueueNote( pNote );
+				Hydrogen::get_instance()->getMidiOutput()->handleQueueNote( pNote );
 			}
 		}
 
-		if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == audio_output->getSampleRate() ) // NO RESAMPLE
+		if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == audio_output->getSampleRate() ) { // NO RESAMPLE
 			nReturnValues[nReturnValueIndex] = __render_note_no_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong );
-		else // RESAMPLE
+		}
+		else { // RESAMPLE
 			nReturnValues[nReturnValueIndex] = __render_note_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong );
+		}
 
 		nReturnValueIndex++;
 	}
-	for ( unsigned i = 0 ; i < pInstr->get_components()->size() ; i++ )
-		if ( !nReturnValues[i] ) return false;
+	for ( unsigned i = 0 ; i < pInstr->get_components()->size() ; i++ ) {
+		if ( !nReturnValues[i] ) {
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -854,7 +863,7 @@ bool Sampler::__render_note_no_resample(
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		nNoteLength = ( int )( pNote->get_length() * pAudioOutput->m_transport.m_nTickSize );
+		nNoteLength = ( int )( pNote->get_length() * pAudioOutput->m_transport.m_fTickSize );
 	}
 
 	int nAvail_bytes = pSample->get_frames() - ( int )pSelectedLayerInfo->SamplePosition;	// verifico il numero di frame disponibili ancora da eseguire
@@ -1008,7 +1017,9 @@ bool Sampler::__render_note_resample(
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		float resampledTickSize = pSample->get_sample_rate() * 60.0 /  pAudioOutput->m_transport.m_nBPM / pSong->__resolution;
+		float resampledTickSize = AudioEngine::compute_tick_size( pSample->get_sample_rate(),
+		                                                          pAudioOutput->m_transport.m_fBPM,
+		                                                          pSong->__resolution );
 		
 		nNoteLength = ( int )( pNote->get_length() * resampledTickSize);
 	}
@@ -1349,8 +1360,9 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 								&& pNote->get_position() == noteOnTick ) {
 									AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-									if ( ticks >  patternsize )
+									if ( ticks >  patternsize ) {
 										ticks = patternsize - noteOnTick;
+									}
 									pNote->set_length( ticks );
 									Hydrogen::get_instance()->getSong()->set_is_modified( true );
 									AudioEngine::get_instance()->unlock(); // unlock the audio engine
@@ -1360,8 +1372,9 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 								if ( pNote->get_instrument() == pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber())
 								&& pNote->get_position() == noteOnTick ) {
 									AudioEngine::get_instance()->lock( RIGHT_HERE );
-									if ( ticks >  patternsize )
+									if ( ticks >  patternsize ) {
 										ticks = patternsize - noteOnTick;
+									}
 									pNote->set_length( ticks );
 									Hydrogen::get_instance()->getSong()->set_is_modified( true );
 									AudioEngine::get_instance()->unlock(); // unlock the audio engine

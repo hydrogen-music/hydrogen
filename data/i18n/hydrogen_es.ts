@@ -201,7 +201,7 @@
     </message>
     <message>
         <source>Unable to load that sample file.</source>
-        <translation type="unfinished"></translation>
+        <translation>No es posible cargar el archivo del sample.</translation>
     </message>
 </context>
 <context>
@@ -356,36 +356,36 @@
     <name>ExportMidiDialog</name>
     <message>
         <source>Export midi</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar MIDI</translation>
     </message>
     <message>
         <source>SMF1 single: export all instruments to a single track</source>
-        <translation type="unfinished"></translation>
+        <translation>SMF1 uno: exportar todos los instrumentos a una pista</translation>
     </message>
     <message>
         <source>SMF1 multi: export each instrument to separate track</source>
-        <translation type="unfinished"></translation>
+        <translation>SMF1: exportar cada instrumento a una pista separada</translation>
     </message>
     <message>
         <source>SMF0: export all events to one track</source>
-        <translation type="unfinished"></translation>
+        <translation>SMF0: exportar todos los eventos a una pista</translation>
     </message>
     <message>
         <source>Midi file (*%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Archivo midi (*%1)</translation>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation type="unfinished">Exportar archivo MIDI</translation>
+        <translation>Exportar archivo MIDI</translation>
     </message>
     <message>
         <source>Directory %1 does not exists</source>
-        <translation type="unfinished"></translation>
+        <translation>El directorio %1 no existe</translation>
     </message>
     <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
-        <translation type="unfinished">El archivo %1 existe. 
+        <translation>El archivo %1 existe. 
 ¿Sobreescribir el archivo existente?</translation>
     </message>
 </context>
@@ -393,39 +393,39 @@ Overwrite the existing file?</source>
     <name>ExportMidiDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Diálogo</translation>
+        <translation>Diálogo</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de archivo</translation>
     </message>
     <message>
         <source>&amp;Browse...</source>
-        <translation type="unfinished">&amp;Examinar...</translation>
+        <translation>&amp;Examinar...</translation>
     </message>
     <message>
         <source>Alt+B</source>
-        <translation type="unfinished">Alt+B</translation>
+        <translation>Alt+B</translation>
     </message>
     <message>
         <source>Modus:</source>
-        <translation type="unfinished">Modus:</translation>
+        <translation>Modus:</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Exportar</translation>
+        <translation>&amp;Exportar</translation>
     </message>
     <message>
         <source>Alt+E</source>
-        <translation type="unfinished">Alt+E</translation>
+        <translation>Alt+E</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Cerrar</translation>
+        <translation>&amp;Cerrar</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+C</translation>
+        <translation>Alt+C</translation>
     </message>
 </context>
 <context>
@@ -454,7 +454,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Directory %1 does not exists</source>
-        <translation type="unfinished"></translation>
+        <translation>El directorio %1 no existe</translation>
     </message>
 </context>
 <context>
@@ -633,7 +633,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Choose type of interpolation method</source>
-        <translation type="unfinished"></translation>
+        <translation>Escoge el método de interpolación</translation>
     </message>
 </context>
 <context>
@@ -729,7 +729,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Song saved.</source>
-        <translation type="unfinished">Canción guardada.</translation>
+        <translation>Canción guardada.</translation>
     </message>
 </context>
 <context>
@@ -1542,23 +1542,23 @@ Debería funcionar correctamente mientras utilice el GM-kit, y no use tresillos.
     </message>
     <message>
         <source>&amp;Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Línea de tiempo</translation>
     </message>
     <message>
         <source>&amp;Playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Reproducción pista</translation>
     </message>
     <message>
         <source>Jack driver: cannot disconnect client</source>
-        <translation type="unfinished"></translation>
+        <translation>Jack driver: no se puede desconectar el cliente</translation>
     </message>
     <message>
         <source>OSC Server: Cannot connect to given port, using temporary port instead</source>
-        <translation type="unfinished"></translation>
+        <translation>OSC server: No se puede conectar al puerto indicado, usando puerto temporal</translation>
     </message>
     <message>
         <source>Retrieving information about drumkit &apos;%1&apos; failed: drumkit does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Recogiendo información sobre el drumkit &apos;%1&apos; error: el drumkit no existe.</translation>
     </message>
 </context>
 <context>
@@ -2364,15 +2364,15 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     </message>
     <message>
         <source>Automatic driver selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Selección automática de driver</translation>
     </message>
     <message>
         <source>&lt;br&gt;&lt;b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;br&gt;&lt;b&gt;</translation>
     </message>
     <message>
         <source>&lt;/b&gt; selected</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;/b&gt; seleccionado</translation>
     </message>
 </context>
 <context>
@@ -2723,23 +2723,23 @@ La ruta al script y al nombre del script no pueden contener espacios en blanco.<
     </message>
     <message>
         <source>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </source>
-        <translation type="unfinished"></translation>
+        <translation>segundo paso, ajusta el offset entre el último disparo del controlador/teclado y el arranque diferido del secuenciador </translation>
     </message>
     <message>
         <source>Maximum number of instrument layers</source>
-        <translation type="unfinished"></translation>
+        <translation>Número máximo de capas de instrumento</translation>
     </message>
     <message>
         <source>Maximum number of layers (requires restart of Hydrogen)</source>
-        <translation type="unfinished"></translation>
+        <translation>Número máximo de capas (require reinicio de Hydrogen)</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Salida</translation>
     </message>
     <message>
         <source>Enable midi feedback</source>
-        <translation type="unfinished"></translation>
+        <translation>Activar MIDI feedback</translation>
     </message>
 </context>
 <context>
@@ -2761,7 +2761,7 @@ Are you sure?</source>
     <message>
         <source>Unsaved changes left. These changes will be lost. 
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambios sin guardar. Estos cambios se perderán. ¿Seguir?</translation>
     </message>
 </context>
 <context>
@@ -3196,6 +3196,10 @@ Are you sure?</source>
         <source>Velocity</source>
         <translation>Intensidad</translation>
     </message>
+    <message>
+        <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -3325,15 +3329,15 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Could not export pattern.</source>
-        <translation type="unfinished">No se pudo exportar el patrón.</translation>
+        <translation>No se pudo exportar el patrón.</translation>
     </message>
     <message>
         <source>Could not export sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pudo exportar la secuencia.</translation>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation type="unfinished">Patrón guardado.</translation>
+        <translation>Patrón guardado.</translation>
     </message>
 </context>
 <context>

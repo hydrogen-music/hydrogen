@@ -17,15 +17,15 @@
     </message>
     <message>
         <source>&lt;b&gt;Main coder and maintainer:&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;главный разработчик и руководитель:&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Thanks to:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Благодарности:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Список рассылки для разработчиков&lt;/b&gt;&lt;br&gt;</translation>
     </message>
 </context>
 <context>
@@ -173,7 +173,7 @@
     </message>
     <message>
         <source> s</source>
-        <translation>с</translation>
+        <translation> с</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -283,7 +283,7 @@
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Название компонента</translation>
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
@@ -308,7 +308,7 @@
     <name>DonationDialog</name>
     <message>
         <source>Donations</source>
-        <translation type="unfinished"></translation>
+        <translation>Пожертвования</translation>
     </message>
 </context>
 <context>
@@ -342,7 +342,7 @@
     <name>Download</name>
     <message>
         <source>Importing item failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось импортировать: %1</translation>
     </message>
 </context>
 <context>
@@ -356,7 +356,7 @@
     <name>ExportMidiDialog</name>
     <message>
         <source>Export midi</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать MIDI</translation>
     </message>
     <message>
         <source>SMF1 single: export all instruments to a single track</source>
@@ -372,15 +372,15 @@
     </message>
     <message>
         <source>Midi file (*%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Файл MIDI (*%1)</translation>
     </message>
     <message>
         <source>Export MIDI file</source>
-        <translation type="unfinished">Экспорт файла MIDI</translation>
+        <translation>Экспорт файла MIDI</translation>
     </message>
     <message>
         <source>Directory %1 does not exists</source>
-        <translation type="unfinished"></translation>
+        <translation>Каталог %1 не существует</translation>
     </message>
     <message>
         <source>The file %1 exists. 
@@ -393,39 +393,39 @@ Overwrite the existing file?</source>
     <name>ExportMidiDialog_UI</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Диалог</translation>
+        <translation>Диалог</translation>
     </message>
     <message>
         <source>Filename</source>
-        <translation type="unfinished"></translation>
+        <translation>Имя файла</translation>
     </message>
     <message>
         <source>&amp;Browse...</source>
-        <translation type="unfinished">&amp;Файл...</translation>
+        <translation>&amp;Просмотр...</translation>
     </message>
     <message>
         <source>Alt+B</source>
-        <translation type="unfinished">Alt+ф</translation>
+        <translation>Alt+п</translation>
     </message>
     <message>
         <source>Modus:</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим:</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Экспорт</translation>
+        <translation>&amp;Экспорт</translation>
     </message>
     <message>
         <source>Alt+E</source>
-        <translation type="unfinished">Alt+э</translation>
+        <translation>Alt+э</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished">&amp;Закрыть</translation>
+        <translation>&amp;Закрыть</translation>
     </message>
     <message>
         <source>Alt+C</source>
-        <translation type="unfinished">Alt+т</translation>
+        <translation>Alt+з</translation>
     </message>
 </context>
 <context>
@@ -454,7 +454,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Directory %1 does not exists</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Каталог %1 не существует</translation>
     </message>
 </context>
 <context>
@@ -529,7 +529,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Templates: </source>
-        <translation>Шаблоны:</translation>
+        <translation>Шаблоны: </translation>
     </message>
     <message>
         <source>WAV in CD quality  &quot;44,1kHz, 16 bit PCM&quot;</source>
@@ -617,23 +617,23 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>88200</source>
-        <translation type="unfinished">88200</translation>
+        <translation>88200</translation>
     </message>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Диалог</translation>
+        <translation>Диалог</translation>
     </message>
     <message>
         <source>Export directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Диалог экспорта:</translation>
     </message>
     <message>
         <source>Modus:</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим:</translation>
     </message>
     <message>
         <source>Choose type of interpolation method</source>
-        <translation type="unfinished"></translation>
+        <translation>Выберите способ интерполяции</translation>
     </message>
 </context>
 <context>
@@ -694,15 +694,15 @@ Are you sure?</source>
     </message>
     <message>
         <source>Saving of this drumkit failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось сохранить этот драмкит.</translation>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть изображение</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Файлы изображений (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
@@ -725,11 +725,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>modified</source>
-        <translation type="unfinished"></translation>
+        <translation>изменено</translation>
     </message>
     <message>
         <source>Song saved.</source>
-        <translation type="unfinished">Композиция сохранена.</translation>
+        <translation>Композиция сохранена.</translation>
     </message>
 </context>
 <context>
@@ -804,11 +804,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>New component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Новое название компонента</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Название компонента</translation>
     </message>
     <message>
         <source>Midi out channel</source>
@@ -820,7 +820,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Component volume</source>
-        <translation type="unfinished"></translation>
+        <translation>Громкость компонента</translation>
     </message>
     <message>
         <source>Don&apos;t change the layers&apos; gain based on velocity</source>
@@ -903,7 +903,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>New instrument name</source>
-        <translation type="unfinished">Новое название инструмента</translation>
+        <translation>Новое название инструмента</translation>
     </message>
     <message>
         <source>Fill 1/12 notes</source>
@@ -1425,19 +1425,19 @@ Do you want to save the changes?
     </message>
     <message>
         <source>Export &amp;LilyPond file</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать фа&amp;йл LilyPond</translation>
     </message>
     <message>
         <source>Donate</source>
-        <translation type="unfinished"></translation>
+        <translation>Пожертвовать деньги проекту</translation>
     </message>
     <message>
         <source>LilyPond file (*.ly)</source>
-        <translation type="unfinished"></translation>
+        <translation>Файл LilyPond (*.ly)</translation>
     </message>
     <message>
         <source>Export LilyPond file</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать файл LilyPond</translation>
     </message>
     <message>
         <source>
@@ -1448,71 +1448,71 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>Pro&amp;ject</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Проект</translation>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished">Новая</translation>
+        <translation>Создать</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Открыть</translation>
+        <translation>Открыть</translation>
     </message>
     <message>
         <source>Properties</source>
-        <translation type="unfinished">Свойства</translation>
+        <translation>Свойства</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить как</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать</translation>
     </message>
     <message>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Импортировать</translation>
     </message>
     <message>
         <source>Online import</source>
-        <translation type="unfinished"></translation>
+        <translation>Импортировать из Сети</translation>
     </message>
     <message>
         <source>Add component</source>
-        <translation type="unfinished"></translation>
+        <translation>Добавить компонент</translation>
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation>Название компонента</translation>
     </message>
     <message>
         <source>Saving of this library failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось сохранить эту библиотеку.</translation>
     </message>
     <message>
         <source>Drum&amp;kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Драм&amp;киты</translation>
     </message>
     <message>
         <source>&amp;View</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Вид</translation>
     </message>
     <message>
         <source>&amp;Automation path</source>
-        <translation type="unfinished"></translation>
+        <translation>Дорожка &amp;автоматизации</translation>
     </message>
     <message>
         <source>Full screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Полноэкранный режим</translation>
     </message>
     <message>
         <source>&amp;Options</source>
-        <translation type="unfinished"></translation>
+        <translation>П&amp;араметры</translation>
     </message>
     <message>
         <source>MIDI setup advice</source>
@@ -1535,11 +1535,11 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>&amp;Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Шкала времени</translation>
     </message>
     <message>
         <source>&amp;Playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Дорожка &amp;воспроизведения</translation>
     </message>
     <message>
         <source>Jack driver: cannot disconnect client</source>
@@ -1643,11 +1643,11 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>LADSPA effects are not available in this version of Hydrogen.</source>
-        <translation type="unfinished"></translation>
+        <translation>Эффекты LADSPA недоступны в этой версии Hydrogen.</translation>
     </message>
     <message>
         <source>Mixer</source>
-        <translation type="unfinished">Микшер</translation>
+        <translation>Микшер</translation>
     </message>
 </context>
 <context>
@@ -1777,7 +1777,7 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>Probability</source>
-        <translation type="unfinished"></translation>
+        <translation>Вероятность</translation>
     </message>
 </context>
 <context>
@@ -2239,11 +2239,11 @@ Do you want to discard the changes?
     </message>
     <message>
         <source>&amp;Discard</source>
-        <translation type="unfinished">&amp;Отказаться от изменений</translation>
+        <translation>&amp;Отказаться</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">О&amp;тменить</translation>
+        <translation>О&amp;тмена</translation>
     </message>
     <message>
         <source>Script name or path to the script contains whitespaces.
@@ -2556,7 +2556,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>&amp;Appearance</source>
-        <translation>Об&amp;лик</translation>
+        <translation>&amp;Интерфейс</translation>
     </message>
     <message>
         <source>Form1</source>
@@ -2688,11 +2688,11 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>&amp;OSC</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;OSC</translation>
     </message>
     <message>
         <source>&amp;Enable OSC support</source>
-        <translation type="unfinished"></translation>
+        <translation>Вклю&amp;чить поддержку OSC</translation>
     </message>
     <message>
         <source>Incoming port</source>
@@ -2720,7 +2720,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Выход</translation>
     </message>
     <message>
         <source>Enable midi feedback</source>
@@ -2985,7 +2985,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Crispness: </source>
-        <translation>Чёткость:</translation>
+        <translation>Чёткость: </translation>
     </message>
     <message>
         <source>0</source>
@@ -2993,7 +2993,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Start</source>
-        <translation>Начало:</translation>
+        <translation>Начало</translation>
     </message>
     <message>
         <source>Loop</source>
@@ -3024,7 +3024,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>End</source>
-        <translation>Конец:</translation>
+        <translation>Конец</translation>
     </message>
     <message>
         <source>&quot;Rubberband Audio Processor&quot; : Change the tempo (sample length) and pitch of audio.</source>
@@ -3162,7 +3162,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>Velocity</source>
-        <translation type="unfinished">Сила нажатия</translation>
+        <translation>Сила нажатия</translation>
+    </message>
+    <message>
+        <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3289,19 +3293,19 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Export Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation>Экспортировать паттерн</translation>
     </message>
     <message>
         <source>Could not export pattern.</source>
-        <translation type="unfinished">Не удалось экспортировать паттерн.</translation>
+        <translation>Не удалось экспортировать паттерн.</translation>
     </message>
     <message>
         <source>Could not export sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось экспортировать секвенцию.</translation>
     </message>
     <message>
         <source>Pattern saved.</source>
-        <translation type="unfinished">Паттерн сохранен.</translation>
+        <translation>Паттерн сохранён.</translation>
     </message>
 </context>
 <context>
@@ -3358,7 +3362,7 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Каталог</translation>
     </message>
 </context>
 <context>
@@ -3373,35 +3377,35 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Drumkit</source>
-        <translation type="unfinished">Драмкит</translation>
+        <translation>Драмкит</translation>
     </message>
     <message>
         <source>Component</source>
-        <translation type="unfinished"></translation>
+        <translation>Компонент</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Расположение</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>Версия</translation>
     </message>
     <message>
         <source>Browse...</source>
-        <translation type="unfinished">Просмотреть...</translation>
+        <translation>Просмотр…</translation>
     </message>
     <message>
         <source>0.9.7 and higher</source>
-        <translation type="unfinished"></translation>
+        <translation>0.9.7 и новее</translation>
     </message>
     <message>
         <source>0.9.6 and lower</source>
-        <translation type="unfinished"></translation>
+        <translation>0.9.6 и старше</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Отменить</translation>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>
@@ -3464,11 +3468,11 @@ Overwrite the existing pattern?</source>
     </message>
     <message>
         <source>Drumkit License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Лицензия на драмкит: %1</translation>
     </message>
     <message>
         <source>Image License: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Лицензия на изображение: %1</translation>
     </message>
 </context>
 <context>
@@ -3538,15 +3542,15 @@ Overwrite the existing pattern?</source>
     <name>SoundLibraryOpenDialog</name>
     <message>
         <source>Open Sound Library</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть звуковую библиотеку</translation>
     </message>
     <message>
         <source>Load</source>
-        <translation type="unfinished">Загрузить</translation>
+        <translation>Загрузить</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Отменить</translation>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>
@@ -3668,19 +3672,19 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Drumkit License</source>
-        <translation type="unfinished"></translation>
+        <translation>Лицензия на драмкит</translation>
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Изображение</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Просмотр</translation>
+        <translation>Просмотр</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Лицензия на изображение</translation>
     </message>
 </context>
 <context>
@@ -3729,15 +3733,15 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Saving of this library failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось сохранить эту библиотеку</translation>
     </message>
     <message>
         <source>Open Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть изображение</translation>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation>Файлы изображений (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
@@ -3772,15 +3776,15 @@ Would you like to keep or discard the remaining instruments and notes?
     </message>
     <message>
         <source>Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Изображение</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation type="unfinished">Просмотр</translation>
+        <translation>Просмотр</translation>
     </message>
     <message>
         <source>Image License</source>
-        <translation type="unfinished"></translation>
+        <translation>Лицензия на изображение</translation>
     </message>
 </context>
 <context>

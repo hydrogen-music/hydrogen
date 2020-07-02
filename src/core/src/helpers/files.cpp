@@ -40,8 +40,9 @@ namespace H2Core
 			return nullptr;
 		}
 
-		if ( !pPattern->save_file( drumkitName, pSong->get_author(), pSong->get_license(), fileInfo.absoluteFilePath(), true ) )
+		if ( !pPattern->save_file( drumkitName, pSong->get_author(), pSong->get_license(), fileInfo.absoluteFilePath(), true ) ) {
 			return nullptr;
+		}
 
 		return fileInfo.absoluteFilePath();
 	}
@@ -75,8 +76,9 @@ namespace H2Core
 			return nullptr;
 		}
 
-		if ( !playlist->save_file( fileInfo.absoluteFilePath(), fileInfo.fileName(), true, relativePaths) )
+		if ( !playlist->save_file( fileInfo.absoluteFilePath(), fileInfo.fileName(), true, relativePaths) ) {
 			return nullptr;
+		}
 
 		return fileInfo.absoluteFilePath();
 	}

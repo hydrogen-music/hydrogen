@@ -43,16 +43,19 @@ AutomationPath::AutomationPath(float min, float max, float def)
  **/
 float AutomationPath::get_value(float x) const noexcept
 {
-	if (_points.empty())
+	if (_points.empty()) {
 		return _def;
+	}
 
 	auto f = _points.begin();
-	if(x <= f->first)
+	if(x <= f->first) {
 		return f->second;
+	}
 
 	auto l = _points.rbegin();
-	if(x >= l->first)
+	if(x >= l->first) {
 		return l->second;
+	}
 
 	auto i = _points.lower_bound(x);
 	auto p1 = *i;
@@ -120,22 +123,25 @@ AutomationPath::iterator AutomationPath::find(float x)
 {
 	const float limit = 0.5f;
 
-	if (_points.empty())
+	if (_points.empty()) {
 		return _points.end();
+	}
 
 	auto i = _points.lower_bound(x);
 
 	if (i != _points.end()) {
-		if( i->first - x <= limit)
+		if( i->first - x <= limit) {
 			return i;
+		}
 	}
 
 	/* If there is a point before, check whether
 	 * it is a close match */
 	if (i != _points.begin()) {
 		--i;
-		if( x - i->first <= limit)
+		if( x - i->first <= limit) {
 			return i;
+		}
 	}
 
 	return _points.end();

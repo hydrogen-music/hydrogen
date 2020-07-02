@@ -464,9 +464,6 @@ bool CoreActionController::saveSongAs( const QString& songPath ) {
 }
 
 bool CoreActionController::quit() {
-	
-	auto pHydrogen = Hydrogen::get_instance();
-	
 	EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
 	
 	return true;

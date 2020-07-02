@@ -84,37 +84,37 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	QString drumkitName = drumkitList->currentText();
-	QString drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
-	QString saveDir = drumkitPathTxt->text();
-
-	Preferences *pref = Preferences::get_instance();
+	QString		drumkitName = drumkitList->currentText();
+	QString		drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
+	QString		saveDir = drumkitPathTxt->text();
+	Drumkit*	pDrumkit = nullptr;
+	
 	QDir qdTempFolder( Filesystem::tmp_dir() );
-	bool TmpFileCreated = false;
-
 
 	int componentID = -1;
-	Drumkit* info;
+	
 	if( versionList->currentIndex() == 1 ) {
 		for (uint i = 0; i < drumkitInfoList.size(); i++ ) {
-			info = drumkitInfoList[i];
-			if( info->get_name().compare( drumkitName ) == 0 ) {
+			pDrumkit = drumkitInfoList[i];
+			if( pDrumkit->get_name().compare( drumkitName ) == 0 ) {
 				QString temporaryDrumkitXML = qdTempFolder.filePath( "drumkit.xml" );
 				INFOLOG( "[ExportSoundLibrary]" );
 				INFOLOG( "Saving temporary file into: " + temporaryDrumkitXML );
-				TmpFileCreated = true;
-				for (std::vector<DrumkitComponent*>::iterator it = info->get_components()->begin() ; it != info->get_components()->end(); ++it) {
+				
+				for (std::vector<DrumkitComponent*>::iterator it = pDrumkit->get_components()->begin() ; it != pDrumkit->get_components()->end(); ++it) {
 					DrumkitComponent* pComponent = *it;
 					if( pComponent->get_name().compare( componentList->currentText() ) == 0) {
 						componentID = pComponent->get_id();
 						break;
 					}
 				}
-				info->save_file( temporaryDrumkitXML, true, componentID );
+				pDrumkit->save_file( temporaryDrumkitXML, true, componentID );
 				break;
 			}
 		}
 	}
+	
+	assert( pDrumkit );
 
 #if defined(H2CORE_HAVE_LIBARCHIVE)
 	QString fullDir = drumkitDir + "/" + drumkitName;
@@ -153,8 +153,8 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 			}
 			else {
 				bool bFoundFileInRightComponent = false;
-				for( int j = 0; j < info->get_instruments()->size() ; j++){
-					InstrumentList instrList = info->get_instruments();
+				for( int j = 0; j < pDrumkit->get_instruments()->size() ; j++){
+					InstrumentList instrList = pDrumkit->get_instruments();
 					Instrument* instr = instrList[j];
 					for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
 						InstrumentComponent* component = *it;
@@ -171,8 +171,9 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 						}
 					}
 				}
-				if( !bFoundFileInRightComponent )
+				if( !bFoundFileInRightComponent ) {
 					continue;
+				}
 			}
 		}
 
@@ -297,10 +298,11 @@ void SoundLibraryExportDialog::on_drumkitList_currentIndexChanged( QString str )
 
 void SoundLibraryExportDialog::on_versionList_currentIndexChanged( int index )
 {
-	if( index == 0 )
+	if( index == 0 ) {
 		componentList->setEnabled( false );
-	else if( index == 1 )
+	} else if( index == 1 ) {
 		componentList->setEnabled(  true );
+	}
 }
 
 void SoundLibraryExportDialog::updateDrumkitList()

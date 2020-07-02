@@ -388,27 +388,25 @@ void SoundLibraryImportDialog::updateSoundLibraryList()
 	for ( uint i = 0; i < m_soundLibraryList.size(); ++i ) {
 		QString sLibraryName = m_soundLibraryList[ i ].getName();
 
-		QTreeWidgetItem* pDrumkitItem = NULL;
+		QTreeWidgetItem* pDrumkitItem = nullptr;
 
 		if ( m_soundLibraryList[ i ].getType() == "song" ) {
-			pDrumkitItem = new QTreeWidgetItem(  m_pSongItem );
+			pDrumkitItem = new QTreeWidgetItem( m_pSongItem );
+		} else if ( m_soundLibraryList[ i ].getType() == "drumkit" ) {
+			pDrumkitItem = new QTreeWidgetItem( m_pDrumkitsItem );
+		} else if ( m_soundLibraryList[ i ].getType() == "pattern" ) {
+			pDrumkitItem = new QTreeWidgetItem( m_pPatternItem );
 		}
 
-		if ( m_soundLibraryList[ i ].getType() == "drumkit" ) {
-			pDrumkitItem = new QTreeWidgetItem(  m_pDrumkitsItem );
-		}
-
-		if ( m_soundLibraryList[ i ].getType() == "pattern" ) {
-			pDrumkitItem = new QTreeWidgetItem(  m_pPatternItem );
-		}
-
-		if ( isSoundLibraryItemAlreadyInstalled( m_soundLibraryList[ i ]  ) ) {
-			pDrumkitItem->setText( 0, sLibraryName );
-			pDrumkitItem->setText( 1, tr( "Installed" ) );
-		}
-		else {
-			pDrumkitItem->setText( 0, sLibraryName );
-			pDrumkitItem->setText( 1, tr( "New" ) );
+		if( pDrumkitItem ) {
+			if ( isSoundLibraryItemAlreadyInstalled( m_soundLibraryList[ i ]  ) ) {
+				pDrumkitItem->setText( 0, sLibraryName );
+				pDrumkitItem->setText( 1, tr( "Installed" ) );
+			}
+			else {
+				pDrumkitItem->setText( 0, sLibraryName );
+				pDrumkitItem->setText( 1, tr( "New" ) );
+			}
 		}
 	}
 
@@ -432,8 +430,9 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	sName = sName.left( sName.lastIndexOf( "." ) );
 
 	if ( sInfo.getType() == "drumkit" ) {
-		if ( H2Core::Filesystem::drumkit_exists(sName) )
+		if ( H2Core::Filesystem::drumkit_exists(sName) ) {
 			return true;
+		}
 	}
 
 	if ( sInfo.getType() == "pattern" ) {
@@ -441,8 +440,9 @@ bool SoundLibraryImportDialog::isSoundLibraryItemAlreadyInstalled( SoundLibraryI
 	}
 
 	if ( sInfo.getType() == "song" ) {
-		if ( H2Core::Filesystem::song_exists(sName) )
+		if ( H2Core::Filesystem::song_exists(sName) ) {
 			return true;
+		}
 	}
 
 	return false;
@@ -556,14 +556,13 @@ void SoundLibraryImportDialog::soundLibraryItemChanged( QTreeWidgetItem* current
 
 							if ( info.getImage().length() > 0 )
 							{
-								int lastSlash = info.getUrl().lastIndexOf( QString( "/" ));
-
-								QString imageUrl;
+								QString sImageUrl;
 								QString sLocalFile;
-								imageUrl = repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) + 1 ) + info.getImage() ;
-								sLocalFile = QDir::tempPath() + "/" + QFileInfo( imageUrl ).fileName();
+								
+								sImageUrl = repositoryCombo->currentText().left( repositoryCombo->currentText().lastIndexOf( QString( "/" )) + 1 ) + info.getImage() ;
+								sLocalFile = QDir::tempPath() + "/" + QFileInfo( sImageUrl ).fileName();
 
-								DownloadWidget dl( this, tr( "" ), imageUrl, sLocalFile );
+								DownloadWidget dl( this, tr( "" ), sImageUrl, sLocalFile );
 								dl.exec();
 
 								loadImage( sLocalFile );

@@ -69,11 +69,13 @@ int PulseAudioDriver::init( unsigned nBufferSize )
 
 int PulseAudioDriver::connect()
 {
-	if (m_connected)
+	if (m_connected) {
 		return 1;
+	}
 
-	if (pipe(m_pipe))
+	if (pipe(m_pipe)) {
 		return 1;
+	}
 
 	fcntl(m_pipe[0], F_SETFL, fcntl(m_pipe[0], F_GETFL) | O_NONBLOCK);
 
@@ -86,8 +88,9 @@ int PulseAudioDriver::connect()
 	}
 
 	pthread_mutex_lock(&m_mutex);
-	while (!m_ready)
+	while (!m_ready) {
 		pthread_cond_wait(&m_cond, &m_mutex);
+	}
 	pthread_mutex_unlock(&m_mutex);
 
 	if (m_ready < 0)
@@ -108,8 +111,9 @@ void PulseAudioDriver::disconnect()
 	if (m_connected)
 	{
 		int junk = 0;
-		while (write(m_pipe[1], &junk, 1) != 1)
+		while (write(m_pipe[1], &junk, 1) != 1) {
 			;
+		}
 		pthread_join(m_thread, nullptr);
 		close(m_pipe[0]);
 		close(m_pipe[1]);
@@ -166,7 +170,7 @@ void PulseAudioDriver::locate( unsigned long nFrame )
 
 void PulseAudioDriver::setBpm( float fBPM )
 {
-	m_transport.m_nBPM = fBPM;
+	m_transport.m_fBPM = fBPM;
 }
 
 
@@ -220,8 +224,7 @@ void PulseAudioDriver::ctx_state_callback(pa_context* ctx, void* udata)
 	PulseAudioDriver* self = (PulseAudioDriver*)udata;
 	pa_context_state s = pa_context_get_state(ctx);
 
-	if (s == PA_CONTEXT_READY)
-	{
+	if (s == PA_CONTEXT_READY) {
 		pa_sample_spec spec;
 		spec.format = PA_SAMPLE_S16LE;
 		spec.rate = self->m_sample_rate;
@@ -237,8 +240,9 @@ void PulseAudioDriver::ctx_state_callback(pa_context* ctx, void* udata)
 		bufattr.tlength = self->m_buffer_size * 4;
 		pa_stream_connect_playback(self->m_stream, nullptr, &bufattr, pa_stream_flags_t(0), nullptr, nullptr);
 	}
-	else if (s == PA_CONTEXT_FAILED)
+	else if (s == PA_CONTEXT_FAILED) {
 		pa_mainloop_quit(self->m_main_loop, 1);
+	}
 }
 
 
@@ -247,10 +251,9 @@ void PulseAudioDriver::stream_state_callback(pa_stream* stream, void* udata)
 	PulseAudioDriver* self = (PulseAudioDriver*)udata;
 	pa_stream_state s = pa_stream_get_state(stream);
 
-	if (s == PA_STREAM_FAILED)
+	if ( s == PA_STREAM_FAILED ) {
 		pa_mainloop_quit(self->m_main_loop, 1);
-	else if (s == PA_STREAM_READY)
-	{
+	} else if ( s == PA_STREAM_READY ) {
 		pthread_mutex_lock(&self->m_mutex);
 		self->m_ready = 1;
 		pthread_cond_signal(&self->m_cond);
@@ -292,12 +295,13 @@ void PulseAudioDriver::stream_write_callback(pa_stream* stream, size_t bytes, vo
 void PulseAudioDriver::pipe_callback(pa_mainloop_api*, pa_io_event*, int fd,
 							pa_io_event_flags_t events, void *udata)
 {
-	if (!(events & PA_IO_EVENT_INPUT))
+	if (!(events & PA_IO_EVENT_INPUT)) {
 		return;
+	}
+	
 	char buf[16];
 	int bytes = read(fd, buf, 16);
-	if (bytes > 0)
-	{
+	if ( bytes > 0 ) {
 		PulseAudioDriver* self = (PulseAudioDriver*)udata;
 		pa_mainloop_quit(self->m_main_loop, 0);
 	}

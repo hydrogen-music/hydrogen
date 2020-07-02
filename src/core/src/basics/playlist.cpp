@@ -215,7 +215,7 @@ void Playlist::execScript( int index)
 		return;
 	}
 
-	int ret = std::system( file.toLocal8Bit() );
+	std::system( file.toLocal8Bit() );
 
 	return;
 }

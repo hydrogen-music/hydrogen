@@ -47,9 +47,9 @@ class PlaybackTrackWaveDisplay : public WaveDisplay
 		void	updateDisplay( H2Core::InstrumentLayer *pLayer ) override;
 		
 	public slots:
-		virtual void dragMoveEvent(QDragMoveEvent *event);
-		virtual void dropEvent(QDropEvent *event);
-		virtual void dragEnterEvent(QDragEnterEvent * event);
+		virtual void dragMoveEvent(QDragMoveEvent *event) override;
+		virtual void dropEvent(QDropEvent *event) override;
+		virtual void dragEnterEvent(QDragEnterEvent * event) override;
 };
 
 #endif

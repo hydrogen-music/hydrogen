@@ -18,7 +18,7 @@ PROJECT(hydrogen)
 SET(VERSION_MAJOR "1")
 SET(VERSION_MINOR "0")
 SET(VERSION_PATCH "0")
-#SET(VERSION_SUFFIX "beta2")
+SET(VERSION_SUFFIX "rc1")
 
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
@@ -83,6 +83,8 @@ IF(APPLE)
 ENDIF()
 
 OPTION(WANT_CPPUNIT         "Include CppUnit test suite" ON)
+
+include(Sanitizers)
 
 IF(WANT_DEBUG)
     SET(CMAKE_BUILD_TYPE Debug)
@@ -351,6 +353,16 @@ IF( HYDROGEN_INSTALLED )
 ${red}IMPORTANT${reset}:
   previously installed hydrogen headers found in ${HYDROGEN_INSTALLED}
   you should uninstall these files before building hydrogen unless you know what you are doing.
+-----------------------------------------------------------------\n"
+    )
+ENDIF()
+
+IF( NOT CMAKE_INSTALL_PREFIX MATCHES "/usr/?$")
+    COLOR_MESSAGE("-----------------------------------------------------------------
+${red}IMPORTANT${reset}:
+CMAKE_INSTALL_PREFIX is set to '${CMAKE_INSTALL_PREFIX}',
+depending of your system settings, you might end up with an installation
+that does not work out of the box. If so, see INSTALL.md : Running Hydrogen
 -----------------------------------------------------------------\n"
     )
 ENDIF()

@@ -23,6 +23,8 @@
 #include <hydrogen/audio_engine.h>
 
 #include <hydrogen/fx/Effects.h>
+#include <hydrogen/basics/song.h>
+#include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/sampler/Sampler.h>
 
 #include <hydrogen/hydrogen.h>	// TODO: remove this line as soon as possible
@@ -116,6 +118,12 @@ bool AudioEngine::try_lock( const char* file, unsigned int line, const char* fun
 	return true;
 }
 
+float AudioEngine::compute_tick_size(int sampleRate, int bpm, int resolution)
+{
+	float tickSize = sampleRate * 60.0 / bpm / resolution;
+	
+	return tickSize;
+}
 
 
 void AudioEngine::unlock()

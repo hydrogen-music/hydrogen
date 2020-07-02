@@ -1,0 +1,22 @@
+#This file is currently just used as a prototype and is not final!
+Language:				Cpp
+
+#General
+UseTab:								Always
+TabWidth:							4
+IndentWidth:						4
+SortIncludes:						false #just for the moment..
+ColumnLimit:						120
+
+#Everything else..
+AlignAfterOpenBracket:					Align
+AllowShortIfStatementsOnASingleLine:	false
+AllowShortFunctionsOnASingleLine:		InlineOnly
+BreakBeforeBraces:						Linux
+BinPackArguments:						true
+BinPackParameters:						true
+SpacesInParentheses:					false #this is new for H2
+SpaceAfterCStyleCast:					true
+KeepEmptyLinesAtTheStartOfBlocks:		false
+
+PointerAlignment:						Left

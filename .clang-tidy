@@ -1,2 +1,2 @@
-Checks:          '-*, modernize-use-nullptr'
+Checks:          '-*, modernize-use-nullptr,modernize-use-default, google-readability-braces-around-statements,clang-diagnostic-*,clang-analyzer-*'
 

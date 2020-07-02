@@ -127,8 +127,9 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 	}
 	__ladspa_paths.sort();
 	__ladspa_paths.removeDuplicates();
-	if ( !__ladspa_paths.isEmpty() && __ladspa_paths.at( 0 ).isEmpty() )
+	if ( !__ladspa_paths.isEmpty() && __ladspa_paths.at( 0 ).isEmpty() ) {
 		__ladspa_paths.removeFirst();
+	}
 	// we want this first
 	__ladspa_paths << Filesystem::plugins_dir();
 	__ladspa_paths.removeDuplicates();
@@ -533,8 +534,9 @@ QStringList Filesystem::usr_drumkit_list( )
 QString Filesystem::prepare_sample_path( const QString& fname )
 {
 	int idx = get_basename_idx_under_drumkit( fname );
-	if ( idx >= 0 )
+	if ( idx >= 0 ) {
 		return fname.midRef( idx ).toString();
+	}
 	return fname;
 }
 
@@ -550,8 +552,9 @@ int Filesystem::get_basename_idx_under_drumkit( const QString& fname )
 		int start = usr_drumkits_dir().size();
 		int index = fname.indexOf( "/", start );
 		QString dk_name = fname.midRef( start , index - start).toString();
-		if ( usr_drumkit_list().contains( dk_name ) )
+		if ( usr_drumkit_list().contains( dk_name ) ) {
 			return index + 1;
+		}
 	}
 
 	if( fname.startsWith( sys_drumkits_dir() ) )
@@ -559,8 +562,9 @@ int Filesystem::get_basename_idx_under_drumkit( const QString& fname )
 		int start = sys_drumkits_dir().size();
 		int index = fname.indexOf( "/", start);
 		QString dk_name = fname.midRef( start, index - start).toString();
-		if ( sys_drumkit_list().contains( dk_name ) )
+		if ( sys_drumkit_list().contains( dk_name ) ) {
 			return index + 1;
+		}
 	}
 
 	return -1;
@@ -625,8 +629,9 @@ QStringList Filesystem::song_list_cleared( )
 {
 	QStringList result;
 	foreach ( const QString& str, song_list() ) {
-		if ( !str.contains( AUTOSAVE ) )
+		if ( !str.contains( AUTOSAVE ) ) {
 			result += str;
+		}
 	}
 	return result;
 }

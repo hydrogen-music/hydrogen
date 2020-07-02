@@ -145,6 +145,9 @@ public:
 	 * of #__engine_mutex and leaves #__locker untouched.
 	 */
 	void unlock();
+	
+	
+	 static float compute_tick_size(int sampleRate, int bpm, int resolution);
 
 	/** Returns #__sampler */
 	Sampler* get_sampler();

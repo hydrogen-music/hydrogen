@@ -30,8 +30,9 @@ QString qx(QStringList args)
 	QProcess proc;
 	proc.start(args.first(), args.mid(1));
 	proc.waitForFinished();
-	if ( proc.exitCode() != 0 )
+	if ( proc.exitCode() != 0 ) {
 		throw std::runtime_error("Not a git repository");
+	}
 	auto path = proc.readAllStandardOutput();
 	return QString(path).trimmed();
 }
@@ -44,7 +45,7 @@ QString qx(QStringList args)
  **/
 bool check_root_dir(const QString &dir)
 {
-	QFile f( dir + TEST_DATA_DIR + "/drumkit/drumkit.xml" );
+	QFile f( dir + TEST_DATA_DIR + "/drumkits/baseKit/drumkit.xml" );
 	return f.exists();
 }
 
@@ -66,26 +67,29 @@ QString find_root_dir()
 	/* Get root dir from H2_HOME env variable */
 	auto env_root_dir = QProcessEnvironment::systemEnvironment().value("H2_HOME", "");
 	if (env_root_dir != "") {
-		if (check_root_dir( env_root_dir ) )
+		if (check_root_dir( env_root_dir ) ) {
 			return env_root_dir;
-		else
+		} else {
 			___ERRORLOG( QString( "Directory %1 not usable" ).arg( env_root_dir ) );
+		}
 	}
 
 	/* Try git root directory */
 	try {
 		auto git_root_dir = qx({"git", "rev-parse", "--show-toplevel"});
-		if (check_root_dir( git_root_dir ) )
+		if (check_root_dir( git_root_dir ) ) {
 			return git_root_dir;
-		else
+		} else {
 			___ERRORLOG( QString( "Directory %1 not usable" ).arg( git_root_dir ) );
+		}
 	} catch (std::runtime_error &e) {
 		___WARNINGLOG( "Can't find git root directory" );
 	}
 
 	/* As last resort, use current dir */
-	if (check_root_dir( "." ) )
+	if (check_root_dir( "." ) ) {
 		return ".";
+	}
 	throw std::runtime_error( "Can't find suitable data directory. Consider setting H2_HOME environment variable" );
 }
 

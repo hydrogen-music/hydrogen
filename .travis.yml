@@ -3,14 +3,35 @@ env:
   global:
   - MAKEFLAGS="-j 2"
 jobs:
+
   include:
-  - os: linux
-    dist: xenial
-  - os: osx
-    env: MACOSX_DEPLOYMENT_TARGET="10.10"
+  - stage: Build
+    name: "Ubuntu 18.04 Bionic"
+    os: linux
+    dist: bionic
+  - name: "macOS"
+    os: osx
+    env:
+    - MACOSX_DEPLOYMENT_TARGET="10.12"
+  - name: "macOS (legacy)"
+    os: osx
+    env:
+    - MACOSX_DEPLOYMENT_TARGET="10.10"
+    - HOMEBREW_NO_AUTO_UPDATE=1
+    - PKG_SUFFIX="-legacy"
+    osx_image: xcode9
+    if: tag IS present
+
+  - stage: Sanitizers
+    name: Undefined Behavior Sanitizer
+    os: linux
+    dist: bionic
+    env: CMAKE_OPTIONS=-DUSE_SANITIZER=Undefined
+
 addons:
   apt:
     packages:
+    - clang
     - qt5-default
     - qttools5-dev
     - qttools5-dev-tools
@@ -32,29 +53,35 @@ addons:
     - build/CMakeFiles/CMakeOutput.log
     - "/tmp/hydrogen"
 before_install:
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sw_vers; fi
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq; fi
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install ladspa-sdk -y;
   fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo ln -s /usr/local /opt/local; fi
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$HOMEBREW_NO_AUTO_UPDATE" -ne "1" ]];
+  then brew update; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt5; export CMAKE_PREFIX_PATH="$(brew
   --prefix qt5)"; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libarchive; export PKG_CONFIG_PATH="$(brew
   --prefix libarchive)/lib/pkgconfig"; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install libsndfile jack pulseaudio
   cppunit; fi
+# Make sure we have right Qt version on Mac legacy build
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$HOMEBREW_NO_AUTO_UPDATE" -eq "1" ]];
+  then test $(PKG_CONFIG_PATH=$(brew --prefix qt5)/lib/pkgconfig pkg-config --modversion Qt5Core) == 5.9.1; fi
 script:
-- mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1
+- mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 ${CMAKE_OPTIONS}
   .. && make
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PATH="$(brew --prefix qt5)/bin:$PATH"
-  ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen.dmg; fi
+  ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg; fi
 - TMPDIR=/tmp src/tests/tests
 deploy:
   skip_cleanup: true
   provider: releases
   api_key:
     secure: gug61Rin7UE9XSIYMdT/667AxR/9GtaXNPsu8HtHPUNQMcPCyeVgJXnLDY0edHRrvD20aPh/xD8H2Xt4DUoRgRDbMNj9y9IpEd4lnXvLHsI4VL4NBTXjLw+tKG4hcKdYg5hN5M+kIqWlP6bq3lRV4c3RP/F70wbBY85piOmflE8=
-  file: Hydrogen.dmg
+  file: Hydrogen*.dmg
+  file_glob: true
   on:
     condition: $TRAVIS_OS_NAME == "osx"
     tags: true
