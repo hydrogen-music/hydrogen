@@ -30,45 +30,35 @@
 #include "ladspa.h"
 #include <hydrogen/object.h>
 #include <lilv-0/lilv/lilv.h>
+#include "H2FX.h"
 
 namespace H2Core
 {
 
-
-
-
-
-class Lv2FX : public H2Core::Object
+class Lv2FX : public H2Core::H2FX
 {
 	H2_OBJECT
 public:
-	enum {
-		MONO_FX,
-		STEREO_FX,
-		UNDEFINED
-	};
 
 	//unsigned m_nBufferSize;
-
-	float* m_pBuffer_L;
-	float* m_pBuffer_R;
 
 	//std::vector<LadspaControlPort*> inputControlPorts;
 	//std::vector<LadspaControlPort*> outputControlPorts;
 
-	~Lv2FX();
+	virtual ~Lv2FX();
 
-	void connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float* pOut_R );
-	void activate();
-	void deactivate();
-	void processFX( unsigned nFrames );
-
+	virtual void connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float* pOut_R ) override;
+	virtual void activate() override;
+	virtual void deactivate() override;
+	virtual void processFX( unsigned nFrames ) override;
+	
+	virtual Lv2FX* isLv2FX() override;
 
 	const QString& getPluginLabel() {
 		return m_sURI;
 	}
 
-	const QString& getPluginName() {
+	virtual const QString& getPluginName() override {
 		return m_sName;
 	}
 	void setPluginName( const QString& sName ) {
@@ -84,10 +74,6 @@ public:
 
 	static Lv2FX* load(const QString& sPluginURI, long nSampleRate );
 
-	int getPluginType() {
-		return m_pluginType;
-	}
-
 	void setVolume( float fValue );
 	float getVolume() {
 		return m_fVolume;
@@ -95,7 +81,6 @@ public:
 
 
 private:
-	bool m_pluginType;
 	bool m_bEnabled;
 	bool m_bActivated;	// Guard against plugins that can't be deactivated before being activated (
 	QString m_sURI;
@@ -110,10 +95,15 @@ private:
 	unsigned m_nIAPorts;	///< input audio port
 	unsigned m_nOAPorts;	///< output audio port
 
-	const LilvPort*		m_pAudioInput;
-	const LilvPort*		m_pAudioOutput;
+	int	m_nAudioInput1Idx;
+	int	m_nAudioInput2Idx;
+	int	m_nAudioOutput1Idx;
+	int	m_nAudioOutput2Idx;
 	
 	std::vector<float>	m_fDefaultValues;
+	
+	const LilvPlugin*	m_pPlugin;
+	LilvWorld*			m_pWorld;
 	
 	Lv2FX( LilvWorld* pWorld, const LilvPlugin* plugin, long nSampleRate );
 };
@@ -122,4 +112,4 @@ private:
 
 #endif
 
-#endif // H2CORE_HAVE_LADSPA
+#endif // H2CORE_HAVE_LILV

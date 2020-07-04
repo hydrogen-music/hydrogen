@@ -41,29 +41,29 @@ namespace H2Core
 const char* Lv2FX::__class_name = "Lv2FX";
 
 // ctor
-Lv2FX::Lv2FX( LilvWorld* pWorld, const LilvPlugin* plugin, long nSampleRate)
-		: Object( __class_name )
+Lv2FX::Lv2FX( LilvWorld* pWorld, const LilvPlugin* pPlugin, long nSampleRate)
+		: H2FX( __class_name )
 //, m_nBufferSize( 0 )
-		, m_pBuffer_L( nullptr )
-		, m_pBuffer_R( nullptr )
-		, m_pluginType( UNDEFINED )
-		, m_bEnabled( true )
 		, m_bActivated( false )
 		, m_sURI("none")
 		, m_pLilvInstance( nullptr )
 		, m_handle( nullptr )
-		, m_fVolume( 1.0f )
 		, m_nICPorts( 0 )
 		, m_nOCPorts( 0 )
 		, m_nIAPorts( 0 )
 		, m_nOAPorts( 0 )
+		, m_nAudioInput1Idx( -1 )
+		, m_nAudioInput2Idx( -1 )
+		, m_nAudioOutput1Idx( -1 )
+		, m_nAudioOutput2Idx( -1 )
+		, m_pPlugin( pPlugin )
+		, m_pWorld( pWorld )
 {
-	const uint32_t n_ports = lilv_plugin_get_num_ports(plugin);
+	const uint32_t n_ports = lilv_plugin_get_num_ports(pPlugin);
 	
 	m_fDefaultValues.resize( n_ports );
 	
 	std::cout << "LV2 plugin has n ports" << n_ports <<  std::endl;
-	
 	
 	LilvNode* lv2_InputPort    = lilv_new_uri(pWorld, LV2_CORE__InputPort);
 	LilvNode* lv2_OutputPort   = lilv_new_uri(pWorld, LV2_CORE__OutputPort);
@@ -71,26 +71,41 @@ Lv2FX::Lv2FX( LilvWorld* pWorld, const LilvPlugin* plugin, long nSampleRate)
 	LilvNode* lv2_ControlPort  = lilv_new_uri(pWorld, LV2_CORE__ControlPort);
 	
 	for (uint32_t i = 0; i < n_ports; ++i) {
-		const LilvPort* lport = lilv_plugin_get_port_by_index(plugin, i);
+		const LilvPort* lport = lilv_plugin_get_port_by_index(pPlugin, i);
 		
 		/* Check if port is an input or output */
-		if (lilv_port_is_a(plugin, lport, lv2_InputPort)) {
+		if (lilv_port_is_a(pPlugin, lport, lv2_InputPort)) {
 			std::cout << "Port " << i << " is a input"<< std::endl;
-		} else if (lilv_port_is_a(plugin, lport, lv2_OutputPort)) {
+		} else if (lilv_port_is_a(pPlugin, lport, lv2_OutputPort)) {
 			std::cout << "Port " << i << " is a output"<< std::endl;
 		}
 		
-		if(lilv_port_is_a(plugin, lport, lv2_ControlPort)) {
+		if(lilv_port_is_a(pPlugin, lport, lv2_ControlPort)) {
 			std::cout << "Port " << i << " is a control port"<< std::endl;
-		} else if(lilv_port_is_a(plugin, lport, lv2_AudioPort)) {
+		} else if(lilv_port_is_a(pPlugin, lport, lv2_AudioPort)) {
 			std::cout << "Port " << i << " is a audio port"<< std::endl;
 			/* Check if port is an input or output */
-			if (lilv_port_is_a(plugin, lport, lv2_InputPort)) {
-				m_pAudioInput = lport;
-				m_nIAPorts = i;
-			} else if (lilv_port_is_a(plugin, lport, lv2_OutputPort)) {
-				m_pAudioOutput = lport;
-				m_nOAPorts = i;
+			if (lilv_port_is_a(pPlugin, lport, lv2_InputPort)) {
+				if( m_nIAPorts == 0) {
+					m_nAudioInput1Idx = i;
+				} else if( m_nIAPorts == 1 ) {
+					m_nAudioInput2Idx = i;
+				} else {
+					//This should never happen! 
+					assert(nullptr);
+				}
+				
+				m_nIAPorts++;
+			} else if (lilv_port_is_a(pPlugin, lport, lv2_OutputPort)) {
+				if( m_nOAPorts == 0) {
+					m_nAudioOutput1Idx = i;
+				} else if( m_nOAPorts == 1 ) {
+					m_nAudioOutput2Idx = i;
+				} else {
+					//This should never happen! 
+					assert(nullptr);
+				}
+				m_nOAPorts++;
 			}
 		}
 	}
@@ -100,7 +115,7 @@ Lv2FX::Lv2FX( LilvWorld* pWorld, const LilvPlugin* plugin, long nSampleRate)
 	lilv_node_free(lv2_OutputPort);
 	lilv_node_free(lv2_InputPort);
 	
-	m_pLilvInstance = lilv_plugin_instantiate(plugin, nSampleRate, nullptr);
+	m_pLilvInstance = lilv_plugin_instantiate(pPlugin, nSampleRate, nullptr);
 
 	m_pBuffer_L = new float[MAX_BUFFER_SIZE] ;
 	m_pBuffer_R = new float[MAX_BUFFER_SIZE];
@@ -125,7 +140,9 @@ Lv2FX::~Lv2FX()
 	delete[] m_pBuffer_R;
 }
 
-
+Lv2FX* Lv2FX::isLv2FX() {
+	return this;
+}
 
 
 // Static
@@ -167,7 +184,12 @@ Lv2FX* Lv2FX::load( const QString& sPluginURI, long nSampleRate )
 void Lv2FX::connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float* pOut_R )
 {
 	std::cout <<  "[connectAudioPorts]" << std::endl;
-
+	const uint32_t n_ports = lilv_plugin_get_num_ports(m_pPlugin);
+	
+	LilvNode* lv2_InputPort    = lilv_new_uri(m_pWorld, LV2_CORE__InputPort);
+	LilvNode* lv2_OutputPort   = lilv_new_uri(m_pWorld, LV2_CORE__OutputPort);
+	LilvNode* lv2_AudioPort    = lilv_new_uri(m_pWorld, LV2_CORE__AudioPort);
+	LilvNode* lv2_ControlPort  = lilv_new_uri(m_pWorld, LV2_CORE__ControlPort);
 	
 	float * a = new float;
 	float * b = new float;
@@ -182,8 +204,11 @@ void Lv2FX::connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float*
 	
 	
 
-	std::cout << "Audio in is " << m_nIAPorts << std::endl;
-	std::cout << "Audio out is " << m_nOAPorts << std::endl;
+	std::cout << "Audio in1 is " << m_nAudioInput1Idx << std::endl;
+	std::cout << "Audio in2 is " << m_nAudioInput1Idx << std::endl;
+	std::cout << "Audio out1 is " << m_nAudioOutput1Idx << std::endl;
+	std::cout << "Audio out2 is " << m_nAudioOutput1Idx << std::endl;
+	
 	lilv_instance_connect_port( m_pLilvInstance, 3, pIn_L);
 	lilv_instance_connect_port( m_pLilvInstance, 4, pOut_L);
 	
@@ -191,8 +216,10 @@ void Lv2FX::connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float*
 	float OutBuf = 0.0;
 	lilv_instance_connect_port( m_pLilvInstance, 4, &OutBuf);
 	*/
+	
+	
 
-	/*
+/*
 	unsigned nAIConn = 0;
 	unsigned nAOConn = 0;
 	for ( unsigned nPort = 0; nPort < m_d->PortCount; nPort++ ) {
@@ -252,18 +279,6 @@ void Lv2FX::deactivate()
 	lilv_instance_deactivate( m_pLilvInstance );
 	m_bActivated = false;
 }
-
-
-void Lv2FX::setVolume( float fValue )
-{
-	if ( fValue > 2.0 ) {
-		fValue = 2.0;
-	} else if ( fValue < 0.0 ) {
-		fValue = 0.0;
-	}
-	m_fVolume = fValue;
-}
-
 
 };
 

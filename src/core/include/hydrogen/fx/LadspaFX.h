@@ -31,7 +31,7 @@
 #include <list>
 #include "ladspa.h"
 #include <hydrogen/object.h>
-
+#include "H2FX.h"
 
 
 namespace H2Core
@@ -94,14 +94,12 @@ class H2FXGroup : public H2Core::Object
 	H2_OBJECT
 public:
 	H2FXGroup( const QString& sName );
-	~H2FXGroup();
+	 ~H2FXGroup();
 
 	const QString& getName() {
 		return m_sName;
 	}
 
-	void addLadspaH2Info( H2FXInfo *pInfo );
-	
 	void addLadspaInfo( H2FXInfo *pInfo );
 	std::vector<H2FXInfo*> getLadspaInfo() {
 		return m_ladspaList;
@@ -123,8 +121,7 @@ public:
 
 private:
 	QString m_sName;
-	std::vector<H2FXInfo*>	m_ladspaList;
-	std::vector<H2FXInfo*>		m_groupContent;
+	std::vector<H2FXInfo*>		m_ladspaList;
 	std::vector<H2FXGroup*>		m_childGroups;
 };
 
@@ -147,37 +144,31 @@ public:
 
 
 
-class LadspaFX : public H2Core::Object
+class LadspaFX : public H2Core::H2FX
 {
 	H2_OBJECT
 public:
-	enum {
-		MONO_FX,
-		STEREO_FX,
-		UNDEFINED
-	};
 
 	//unsigned m_nBufferSize;
-
-	float* m_pBuffer_L;
-	float* m_pBuffer_R;
 
 	std::vector<LadspaControlPort*> inputControlPorts;
 	std::vector<LadspaControlPort*> outputControlPorts;
 
-	~LadspaFX();
+	virtual ~LadspaFX();
+	
+	virtual LadspaFX* isLadspaFX();
 
-	void connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float* pOut_R );
-	void activate();
-	void deactivate();
-	void processFX( unsigned nFrames );
+	virtual void connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float* pOut_R ) override;
+	virtual void activate() override;
+	virtual void deactivate() override;
+	virtual void processFX( unsigned nFrames ) override;
 
 
 	const QString& getPluginLabel() {
 		return m_sLabel;
 	}
 
-	const QString& getPluginName() {
+	virtual const QString& getPluginName() override {
 		return m_sName;
 	}
 	void setPluginName( const QString& sName ) {
@@ -197,18 +188,9 @@ public:
 
 	static LadspaFX* load( const QString& sLibraryPath, const QString& sPluginLabel, long nSampleRate );
 
-	int getPluginType() {
-		return m_pluginType;
-	}
-
-	void setVolume( float fValue );
-	float getVolume() {
-		return m_fVolume;
-	}
 
 
 private:
-	bool m_pluginType;
 	bool m_bEnabled;
 	bool m_bActivated;	// Guard against plugins that can't be deactivated before being activated (
 	QString m_sLabel;
@@ -219,7 +201,6 @@ private:
 
 	const LADSPA_Descriptor * m_d;
 	LADSPA_Handle m_handle;
-	float m_fVolume;
 
 	unsigned m_nICPorts;	///< input control port
 	unsigned m_nOCPorts;	///< output control port

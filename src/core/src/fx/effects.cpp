@@ -25,6 +25,7 @@
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/fx/LadspaFX.h>
+#include <hydrogen/fx/H2FX.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/helpers/filesystem.h>
 
@@ -94,7 +95,7 @@ Effects::~Effects()
 
 
 
-LadspaFX* Effects::getLadspaFX( int nFX )
+H2FX* Effects::getLadspaFX( int nFX )
 {
 	assert( nFX < MAX_FX );
 	return m_FXList[ nFX ];
@@ -102,7 +103,7 @@ LadspaFX* Effects::getLadspaFX( int nFX )
 
 
 
-void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
+void  Effects::setLadspaFX( H2FX* pFX, int nFX )
 {
 	assert( nFX < MAX_FX );
 	//INFOLOG( "[setLadspaFX] FX: " + pFX->getPluginLabel() + ", " + to_string( nFX ) );
@@ -249,16 +250,22 @@ void Effects::fillLV2PluginList()
 		nAudioIn = lilv_plugin_get_num_ports_of_class(plugin, inputPortNode, audioPortNode, nullptr);
 		nAudioOut = lilv_plugin_get_num_ports_of_class(plugin, outputPortNode, audioPortNode, nullptr);
 		
-		if(nAudioIn == 2 && nAudioOut == 2) {
-			ERRORLOG(QString("Found suitable plugin: %1\n").arg( uri_str) );
+		if(nAudioIn == 2 && nAudioOut == 2 || nAudioIn == 1 && nAudioOut == 1) {
+		
+			LilvNode* pluginNameNode = lilv_plugin_get_name(plugin);
+			LV2FXInfo* pFX = new LV2FXInfo( QString::fromLocal8Bit( lilv_node_as_string(pluginNameNode) ) );
 			
-			LilvNode* n = lilv_plugin_get_name(plugin);
-			LV2FXInfo* pFX = new LV2FXInfo( QString::fromLocal8Bit( lilv_node_as_string(n) ) );
+			LilvNode* authorNameNode = lilv_plugin_get_author_name(plugin);
+			if( authorNameNode ) {
+				pFX->m_sMaker = QString::fromLocal8Bit( lilv_node_as_string(authorNameNode) );
+				lilv_node_free( authorNameNode );
+			}
 			
 			pFX->m_sID = QString::fromLocal8Bit (uri_str );
 			
 			m_pluginList.push_back(pFX);
 			
+			lilv_node_free( pluginNameNode );
 		}
 		
 		plug_itr = lilv_plugins_next(plugins, plug_itr);

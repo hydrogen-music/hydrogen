@@ -67,11 +67,6 @@ void H2FXGroup::addLadspaInfo( H2FXInfo *pInfo )
 	m_ladspaList.push_back( pInfo );
 }
 
-void H2FXGroup::addLadspaH2Info( H2FXInfo *pInfo )
-{
-	m_groupContent.push_back( pInfo );
-}
-
 void H2FXGroup::addChild( H2FXGroup *pChild )
 {
 	m_childGroups.push_back( pChild );
@@ -188,19 +183,14 @@ const char* LadspaFX::__class_name = "LadspaFX";
 
 // ctor
 LadspaFX::LadspaFX( const QString& sLibraryPath, const QString& sPluginLabel )
-		: Object( __class_name )
+		: H2FX( __class_name )
 //, m_nBufferSize( 0 )
-		, m_pBuffer_L( nullptr )
-		, m_pBuffer_R( nullptr )
-		, m_pluginType( UNDEFINED )
-		, m_bEnabled( false )
 		, m_bActivated( false )
 		, m_sLabel( sPluginLabel )
 		, m_sLibraryPath( sLibraryPath )
 		, m_pLibrary( nullptr )
 		, m_d( nullptr )
 		, m_handle( nullptr )
-		, m_fVolume( 1.0f )
 		, m_nICPorts( 0 )
 		, m_nOCPorts( 0 )
 		, m_nIAPorts( 0 )
@@ -258,7 +248,9 @@ LadspaFX::~LadspaFX()
 	delete[] m_pBuffer_R;
 }
 
-
+LadspaFX* LadspaFX::isLadspaFX(){
+	return this;
+}
 
 
 // Static
@@ -509,17 +501,6 @@ void LadspaFX::deactivate()
 		m_bActivated = false;
 		m_d->deactivate( m_handle );
 	}
-}
-
-
-void LadspaFX::setVolume( float fValue )
-{
-	if ( fValue > 2.0 ) {
-		fValue = 2.0;
-	} else if ( fValue < 0.0 ) {
-		fValue = 0.0;
-	}
-	m_fVolume = fValue;
 }
 
 

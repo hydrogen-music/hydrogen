@@ -30,6 +30,7 @@
 #include <hydrogen/object.h>
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/fx/LV2FX.h>
+#include <hydrogen/fx/H2FX.h>
 
 #include <vector>
 #include <cassert>
@@ -56,8 +57,8 @@ public:
 	static Effects* get_instance() { assert(__instance); return __instance; }
 	~Effects();
 
-	LadspaFX* getLadspaFX( int nFX );
-	void  setLadspaFX( LadspaFX* pFX, int nFX );
+	H2FX* getLadspaFX( int nFX );
+	void  setLadspaFX( H2FX* pFX, int nFX );
 	
 	void                       fillLV2PluginList();
 	void                       fillLadspaPluginList();
@@ -84,7 +85,7 @@ private:
 
 	void updateRecentGroup();
 
-	LadspaFX* m_FXList[ MAX_FX ];
+	H2FX* m_FXList[ MAX_FX ];
 
 	Effects();
 

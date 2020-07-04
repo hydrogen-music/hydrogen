@@ -62,7 +62,7 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 	m_pGroupsListView->setHeaderLabels( QStringList( tr( "Groups" ) ) );
 
 #ifdef H2CORE_HAVE_LADSPA
-	LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nLadspaFX);
+	H2FX *pFX = Effects::get_instance()->getLadspaFX(nLadspaFX);
 	if (pFX) {
 		m_sSelectedPluginName = pFX->getPluginName();
 	}
