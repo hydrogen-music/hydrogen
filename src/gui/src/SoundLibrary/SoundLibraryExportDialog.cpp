@@ -112,9 +112,9 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 				break;
 			}
 		}
+		assert( pDrumkit );
 	}
-	
-	assert( pDrumkit );
+
 
 #if defined(H2CORE_HAVE_LIBARCHIVE)
 	QString fullDir = drumkitDir + "/" + drumkitName;
@@ -142,7 +142,11 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	#endif
 
 	archive_write_set_format_pax_restricted(a);
-	archive_write_open_filename(a, outname.toUtf8().constData());
+	int ret = archive_write_open_filename(a, outname.toUtf8().constData());
+	if ( ret != ARCHIVE_OK ) {
+		QMessageBox::critical( this, "Hydrogen", QString("Couldn't create archive '%0'").arg( outname ) );
+		return;
+	}
 	for (int i = 0; i < filesList.size(); i++) {
 		QString filename = fullDir + "/" + filesList.at(i);
 		QString targetFilename = drumkitName + "/" + filesList.at(i);
