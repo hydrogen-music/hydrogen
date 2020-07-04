@@ -200,7 +200,6 @@ public slots:
 		InfoBar *m_pMidiSetupInfoBar;
 		InfoBar *m_pMissingSamplesInfoBar;
 
-
 		bool handleSelectNextPrevSongOnPlaylist(int step);
 
 };

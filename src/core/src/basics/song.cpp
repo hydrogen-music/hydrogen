@@ -87,8 +87,6 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 
 	__components = new std::vector<DrumkitComponent*> ();
 	__velocity_automation_path = new AutomationPath(0.0f, 1.5f,  1.0f);
-
-	m_bMissingSamples = false;
 }
 
 
@@ -247,6 +245,17 @@ void Song::set_is_modified(bool is_modified)
 	if(Notify) {
 		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
 	}
+}
+
+bool Song::has_missing_samples()
+{
+	InstrumentList *pInstrumentList = get_instrument_list();
+	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
+		if ( pInstrumentList->get( i )->has_missing_samples() ) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void Song::readTempPatternList( const QString& filename )
@@ -740,7 +749,6 @@ Song* SongReader::readSong( const QString& filename )
 			if ( id==-1 ) {
 				ERRORLOG( "Empty ID for instrument '" + sName + "'. skipping." );
 				instrumentNode = ( QDomNode ) instrumentNode.nextSiblingElement( "instrument" );
-				pSong->set_has_missing_samples( true );
 				continue;
 			}
 
@@ -807,8 +815,8 @@ Song* SongReader::readSong( const QString& filename )
 				}
 				if ( pSample == nullptr ) {
 					ERRORLOG( "Error loading sample: " + sFilename + " not found" );
-					pSong->set_has_missing_samples( true );
 					pInstrument->set_muted( true );
+					pInstrument->set_missing_samples( true );
 				}
 				InstrumentComponent* pCompo = new InstrumentComponent ( 0 );
 				InstrumentLayer* pLayer = new InstrumentLayer( pSample );
@@ -894,8 +902,8 @@ Song* SongReader::readSong( const QString& filename )
 						}
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
-							pSong->set_has_missing_samples( true );
 							pInstrument->set_muted( true );
+							pInstrument->set_missing_samples( true );
 						}
 						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
 						pLayer->set_start_velocity( fMin );
@@ -982,8 +990,8 @@ Song* SongReader::readSong( const QString& filename )
 						}
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
-							pSong->set_has_missing_samples( true );
 							pInstrument->set_muted( true );
+							pInstrument->set_missing_samples( true );
 						}
 						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
 						pLayer->set_start_velocity( fMin );
