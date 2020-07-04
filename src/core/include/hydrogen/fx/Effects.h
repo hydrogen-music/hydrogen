@@ -58,9 +58,14 @@ public:
 
 	LadspaFX* getLadspaFX( int nFX );
 	void  setLadspaFX( LadspaFX* pFX, int nFX );
+	
+	void                       fillLV2PluginList();
+	void                       fillLadspaPluginList();
 
-	std::vector<LadspaFXInfo*> getPluginList();
-	LadspaFXGroup* getLadspaFXGroup();
+	std::vector<H2FXInfo*>     getPluginList();
+
+	
+	H2FXGroup* getLadspaFXGroup();
 
 	Lv2FX* m_pLv2FX;
 
@@ -71,9 +76,11 @@ private:
 	 * accessed with get_instance().
 	 */
 	static Effects* __instance;
-	std::vector<LadspaFXInfo*> m_pluginList;
-	LadspaFXGroup* m_pRootGroup;
-	LadspaFXGroup* m_pRecentGroup;
+	
+	std::vector<H2FXInfo*> m_pluginList;
+	
+	H2FXGroup* m_pRootGroup;
+	H2FXGroup* m_pRecentGroup;
 
 	void updateRecentGroup();
 
@@ -81,8 +88,8 @@ private:
 
 	Effects();
 
-	void RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, std::vector<LadspaFXInfo*> pluginList );
-	void getRDF( LadspaFXGroup *pGroup, std::vector<LadspaFXInfo*> pluginList );
+	void RDFDescend( const QString& sBase, H2FXGroup *pGroup, std::vector<H2FXInfo*> pluginList );
+	void getRDF( H2FXGroup *pGroup, std::vector<H2FXInfo*> pluginList );
 
 };
 

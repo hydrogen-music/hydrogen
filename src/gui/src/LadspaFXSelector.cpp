@@ -44,7 +44,7 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 
 	setupUi( this );
 
-	setFixedSize( width(), height() );
+	//setFixedSize( width(), height() );
 
 	setWindowTitle( tr( "Select LADSPA FX" ) );
 
@@ -62,7 +62,6 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 	m_pGroupsListView->setHeaderLabels( QStringList( tr( "Groups" ) ) );
 
 #ifdef H2CORE_HAVE_LADSPA
-	//Song *pSong = Hydrogen::get_instance()->getSong();
 	LadspaFX *pFX = Effects::get_instance()->getLadspaFX(nLadspaFX);
 	if (pFX) {
 		m_sSelectedPluginName = pFX->getPluginName();
@@ -71,17 +70,10 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 
 	m_pGroupsListView->headerItem()->setHidden( true );
 
-
-//	LadspaFXGroup* pFXGroup = LadspaFX::getLadspaFXGroup();
-//	vector<LadspaFXInfo*> list = findPluginsInGroup( m_sSelectedPluginName, pFXGroup );
-//	for (uint i = 0; i < list.size(); i++) {
-//		m_pPluginsListBox->addItem( list[i]->m_sName.c_str() );
-//	}
 #endif
 
 	connect( m_pPluginsListBox, SIGNAL( itemSelectionChanged () ), this, SLOT( pluginSelected() ) );
 	pluginSelected();
-// 	on_m_pGroupsListView_currentItemChanged( m_pGroupsListView->currentItem(), NULL );
 }
 
 
@@ -98,12 +90,12 @@ void LadspaFXSelector::buildLadspaGroups()
 #ifdef H2CORE_HAVE_LADSPA
 	m_pGroupsListView->clear();
 	
-	H2Core::LadspaFXGroup* pFXGroup = Effects::get_instance()->getLadspaFXGroup();
+	H2Core::H2FXGroup* pFXGroup = Effects::get_instance()->getLadspaFXGroup();
 
 	if(pFXGroup)
 	{
 		for (uint i = 0; i < pFXGroup->getChildList().size(); i++) {
-			H2Core::LadspaFXGroup *pNewGroup = ( pFXGroup->getChildList() )[ i ];
+			H2Core::H2FXGroup *pNewGroup = ( pFXGroup->getChildList() )[ i ];
 			addGroup( m_pGroupsListView, pNewGroup );
 		}
 
@@ -117,7 +109,7 @@ void LadspaFXSelector::buildLadspaGroups()
 
 
 #ifdef H2CORE_HAVE_LADSPA
-void LadspaFXSelector::addGroup( QTreeWidget *parent, H2Core::LadspaFXGroup *pGroup )
+void LadspaFXSelector::addGroup( QTreeWidget *parent, H2Core::H2FXGroup *pGroup )
 {
 	QTreeWidgetItem* pNewItem = new QTreeWidgetItem( parent );
 	QFont f = pNewItem->font( 0 );
@@ -126,13 +118,13 @@ void LadspaFXSelector::addGroup( QTreeWidget *parent, H2Core::LadspaFXGroup *pGr
 	buildGroup( pNewItem, pGroup );
 }
 
-void LadspaFXSelector::addGroup( QTreeWidgetItem * parent, H2Core::LadspaFXGroup *pGroup )
+void LadspaFXSelector::addGroup( QTreeWidgetItem * parent, H2Core::H2FXGroup *pGroup )
 {
 	QTreeWidgetItem* pNewItem = new QTreeWidgetItem( parent );
 	buildGroup( pNewItem, pGroup );
 }
 
-void LadspaFXSelector::buildGroup( QTreeWidgetItem *pNewItem, H2Core::LadspaFXGroup *pGroup )
+void LadspaFXSelector::buildGroup( QTreeWidgetItem *pNewItem, H2Core::H2FXGroup *pGroup )
 {
 	QString sGroupName = pGroup->getName();
 	if (sGroupName == QString("Uncategorized")) {
@@ -148,12 +140,12 @@ void LadspaFXSelector::buildGroup( QTreeWidgetItem *pNewItem, H2Core::LadspaFXGr
 
 
 	for ( uint i = 0; i < pGroup->getChildList().size(); i++ ) {
-		H2Core::LadspaFXGroup *pNewGroup = ( pGroup->getChildList() )[ i ];
+		H2Core::H2FXGroup *pNewGroup = ( pGroup->getChildList() )[ i ];
 
 		addGroup( pNewItem, pNewGroup );
 	}
 	for(uint i = 0; i < pGroup->getLadspaInfo().size(); i++) {
-		H2Core::LadspaFXInfo* pInfo = (pGroup->getLadspaInfo())[i];
+		H2Core::H2FXInfo* pInfo = (pGroup->getLadspaInfo())[i];
 		if (pInfo->m_sName == m_sSelectedPluginName) {
 			m_pCurrentItem = pNewItem;
 			break;
@@ -181,33 +173,39 @@ void LadspaFXSelector::pluginSelected()
 	QString sSelected = m_pPluginsListBox->currentItem()->text();
 	m_sSelectedPluginName = sSelected;
 
+	QString sPluginType = m_pPluginsListBox->currentItem()->data( Qt::UserRole ).toString();
+	
+	std::cout << "Plugin selected of type: " <<  sPluginType.toLocal8Bit().constData() << std::endl;
 
-	std::vector<H2Core::LadspaFXInfo*> pluginList = Effects::get_instance()->getPluginList();
-	for (uint i = 0; i < pluginList.size(); i++) {
-		H2Core::LadspaFXInfo *pFXInfo = pluginList[i];
-		if (pFXInfo->m_sName == m_sSelectedPluginName ) {
-
-			m_nameLbl->setText(  pFXInfo->m_sName );
-			m_labelLbl->setText( pFXInfo->m_sLabel );
-
-			if ( ( pFXInfo->m_nIAPorts == 2 ) && ( pFXInfo->m_nOAPorts == 2 ) ) {		// Stereo plugin
-				m_typeLbl->setText( tr("Stereo") );
+	if( sPluginType == "LADSPA" || true) {
+		std::vector<H2Core::H2FXInfo*> pluginList = Effects::get_instance()->getPluginList();
+		for (uint i = 0; i < pluginList.size(); i++) {
+			H2Core::H2FXInfo *pFXInfo = pluginList[i];
+			if (pFXInfo->m_sName == m_sSelectedPluginName ) {
+	
+				m_nameLbl->setText(  pFXInfo->m_sName );
+				m_labelLbl->setText( pFXInfo->m_sLabel );
+	
+				if ( ( pFXInfo->m_nIAPorts == 2 ) && ( pFXInfo->m_nOAPorts == 2 ) ) {		// Stereo plugin
+					m_typeLbl->setText( tr("Stereo") );
+				}
+				else if ( ( pFXInfo->m_nIAPorts == 1 ) && ( pFXInfo->m_nOAPorts == 1 ) ) {	// Mono plugin
+					m_typeLbl->setText( tr("Mono") );
+				}
+				else {
+					// not supported
+					m_typeLbl->setText( tr("Not supported") );
+				}
+	
+				m_pIDLbl->setText( pFXInfo->m_sID );
+				m_pMakerLbl->setText( pFXInfo->m_sMaker );
+				m_pCopyrightLbl->setText( pFXInfo->m_sCopyright );
+	
+				break;
 			}
-			else if ( ( pFXInfo->m_nIAPorts == 1 ) && ( pFXInfo->m_nOAPorts == 1 ) ) {	// Mono plugin
-				m_typeLbl->setText( tr("Mono") );
-			}
-			else {
-				// not supported
-				m_typeLbl->setText( tr("Not supported") );
-			}
-
-			m_pIDLbl->setText( pFXInfo->m_sID );
-			m_pMakerLbl->setText( pFXInfo->m_sMaker );
-			m_pCopyrightLbl->setText( pFXInfo->m_sCopyright );
-
-			break;
 		}
-	}
+	} 
+
 	m_pOkBtn->setEnabled(true);
 #endif
 }
@@ -241,34 +239,51 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 
 	m_pPluginsListBox->clear(); // ... Why not anyway ? Jakob Lund
 
-	H2Core::LadspaFXGroup* pFXGroup = Effects::get_instance()->getLadspaFXGroup();
+	H2Core::H2FXGroup* pFXGroup = Effects::get_instance()->getLadspaFXGroup();
 
-	std::vector<H2Core::LadspaFXInfo*> pluginList = findPluginsInGroup( itemText, pFXGroup );
+	std::vector<H2Core::H2FXInfo*> pluginList = findPluginsInGroup( itemText, pFXGroup );
 	
 	int selectedIndex = -1;
 	for (int i = 0; i < (int)pluginList.size(); i++) {
 		//INFOLOG( "adding plugin: " + pluginList[ i ]->m_sName );
-		m_pPluginsListBox->addItem( pluginList[ i ]->m_sName );
+		QListWidgetItem* listWidgetItem = new QListWidgetItem( m_pPluginsListBox );
+		listWidgetItem->setText( pluginList[ i ]->m_sName );
+		
+
+		if( pluginList[ i ]->isLadspaFXInfo() ) {
+			QVariant PluginType("LADSPA");
+			std::cout << "Found ladspa fx info" << std::endl;
+			listWidgetItem->setData( Qt::UserRole, PluginType );
+		} else if( pluginList[ i ]->isLV2FXInfo() ) {
+			QVariant PluginType("LV2");
+			std::cout << "Found lv2 fx info" << std::endl;
+			listWidgetItem->setData( Qt::UserRole, PluginType );
+		} else {
+			std::cout << "ERROR: No LV2 or LADSPA" << std::endl;
+		}
+		
+		m_pPluginsListBox->addItem( listWidgetItem );
 		if ( pluginList[ i ]->m_sName == m_sSelectedPluginName ) {
 			selectedIndex = i;
 		}
 	}
-	if ( selectedIndex >= 0 )
+	if ( selectedIndex >= 0 ) {
 		m_pPluginsListBox->setCurrentRow( selectedIndex );
+	}
 #endif
 }
 
 
 #ifdef H2CORE_HAVE_LADSPA
-std::vector<H2Core::LadspaFXInfo*> LadspaFXSelector::findPluginsInGroup( const QString& sSelectedGroup, H2Core::LadspaFXGroup *pGroup )
+std::vector<H2Core::H2FXInfo*> LadspaFXSelector::findPluginsInGroup( const QString& sSelectedGroup, H2Core::H2FXGroup *pGroup )
 {
 	//INFOLOG( "group: " + sSelectedGroup );
-	vector<H2Core::LadspaFXInfo*> list;
+	vector<H2Core::H2FXInfo*> list;
 
 	if ( pGroup->getName() == sSelectedGroup ) {
 		//INFOLOG( "found..." );
 		for ( uint i = 0; i < pGroup->getLadspaInfo().size(); ++i ) {
-			H2Core::LadspaFXInfo *pInfo = ( pGroup->getLadspaInfo() )[i];
+			H2Core::H2FXInfo *pInfo = ( pGroup->getLadspaInfo() )[i];
 			list.push_back( pInfo );
 		}
 		return list;
@@ -276,7 +291,7 @@ std::vector<H2Core::LadspaFXInfo*> LadspaFXSelector::findPluginsInGroup( const Q
 	else {
 		//INFOLOG( "not found...searching in the child groups" );
 		for ( uint i = 0; i < pGroup->getChildList().size(); ++i ) {
-			H2Core::LadspaFXGroup *pNewGroup = ( pGroup->getChildList() )[ i ];
+			H2Core::H2FXGroup *pNewGroup = ( pGroup->getChildList() )[ i ];
 			list = findPluginsInGroup( sSelectedGroup, pNewGroup );
 			if (list.size() != 0) {
 				return list;

@@ -41,9 +41,9 @@ using namespace std;
 namespace H2Core
 {
 
-const char* LadspaFXGroup::__class_name = "LadspaFXGroup";
+const char* H2FXGroup::__class_name = "LadspaFXGroup";
 
-LadspaFXGroup::LadspaFXGroup( const QString& sName )
+H2FXGroup::H2FXGroup( const QString& sName )
 		: Object( __class_name )
 {
 //	infoLog( "INIT - " + sName );
@@ -51,7 +51,7 @@ LadspaFXGroup::LadspaFXGroup( const QString& sName )
 }
 
 
-LadspaFXGroup::~LadspaFXGroup()
+H2FXGroup::~H2FXGroup()
 {
 //	infoLog( "DESTROY - " + m_sName );
 
@@ -62,35 +62,39 @@ LadspaFXGroup::~LadspaFXGroup()
 
 
 
-void LadspaFXGroup::addLadspaInfo( LadspaFXInfo *pInfo )
+void H2FXGroup::addLadspaInfo( H2FXInfo *pInfo )
 {
 	m_ladspaList.push_back( pInfo );
 }
 
+void H2FXGroup::addLadspaH2Info( H2FXInfo *pInfo )
+{
+	m_groupContent.push_back( pInfo );
+}
 
-void LadspaFXGroup::addChild( LadspaFXGroup *pChild )
+void H2FXGroup::addChild( H2FXGroup *pChild )
 {
 	m_childGroups.push_back( pChild );
 }
 
-bool LadspaFXGroup::alphabeticOrder( LadspaFXGroup* a, LadspaFXGroup* b )
+bool H2FXGroup::alphabeticOrder( H2FXGroup* a, H2FXGroup* b )
 {
 	return ( a->getName() < b->getName() );
 }
 
-void LadspaFXGroup::sort()
+void H2FXGroup::sort()
 {
 	std::sort( m_ladspaList.begin(), m_ladspaList.end(), LadspaFXInfo::alphabeticOrder );
-	std::sort( m_childGroups.begin(), m_childGroups.end(), LadspaFXGroup::alphabeticOrder );
+	std::sort( m_childGroups.begin(), m_childGroups.end(), H2FXGroup::alphabeticOrder );
 }
 
 
 
 ////////////////
 
-const char* LadspaFXInfo::__class_name = "LadspaFXInfo";
+const char* H2FXInfo::__class_name = "H2FXInfo";
 
-LadspaFXInfo::LadspaFXInfo( const QString& sName )
+H2FXInfo::H2FXInfo( const QString& sName )
 		: Object( __class_name )
 {
 //	infoLog( "INIT - " + sName );
@@ -104,16 +108,78 @@ LadspaFXInfo::LadspaFXInfo( const QString& sName )
 }
 
 
+H2FXInfo::~H2FXInfo()
+{
+//	infoLog( "DESTROY " + m_sName );
+}
+
+bool H2FXInfo::alphabeticOrder( H2FXInfo* a, H2FXInfo* b )
+{
+	return ( a->m_sName < b->m_sName );
+}
+
+LadspaFXInfo* H2FXInfo::isLadspaFXInfo()
+{
+	return nullptr;
+}
+
+LV2FXInfo* H2FXInfo::isLV2FXInfo()
+{
+	return nullptr;
+}
+
+
+///////////////////
+
+const char* LadspaFXInfo::__class_name = "LadspaFXInfo";
+
+LadspaFXInfo::LadspaFXInfo( const QString& sName )
+		: H2FXInfo( sName )
+{
+//	infoLog( "INIT - " + sName );
+}
+
+
 LadspaFXInfo::~LadspaFXInfo()
 {
 //	infoLog( "DESTROY " + m_sName );
 }
 
-bool LadspaFXInfo::alphabeticOrder( LadspaFXInfo* a, LadspaFXInfo* b )
+LadspaFXInfo* LadspaFXInfo::isLadspaFXInfo()
 {
-	return ( a->m_sName < b->m_sName );
+	return this;
 }
 
+LV2FXInfo* LadspaFXInfo::isLV2FXInfo()
+{
+	return nullptr;
+}
+
+///////////////////
+
+const char* LV2FXInfo::__class_name = "LV2FXInfo";
+
+LV2FXInfo::LV2FXInfo( const QString& sName )
+		: H2FXInfo( sName )
+{
+//	infoLog( "INIT - " + sName );
+}
+
+
+LV2FXInfo::~LV2FXInfo()
+{
+//	infoLog( "DESTROY " + m_sName );
+}
+
+LadspaFXInfo* LV2FXInfo::isLadspaFXInfo()
+{
+	return nullptr;
+}
+
+LV2FXInfo* LV2FXInfo::isLV2FXInfo()
+{
+	return this;
+}
 
 ///////////////////
 

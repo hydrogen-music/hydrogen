@@ -37,8 +37,8 @@
 #include <vector>
 
 namespace H2Core {
-	class LadspaFXInfo;
-	class LadspaFXGroup;
+	class H2FXInfo;
+	class H2FXGroup;
 }
 
 class LadspaFXSelector : public QDialog, public Ui_LadspaFXSelector_UI, public H2Core::Object
@@ -62,11 +62,11 @@ class LadspaFXSelector : public QDialog, public Ui_LadspaFXSelector_UI, public H
 		void buildLadspaGroups();
 
 #ifdef H2CORE_HAVE_LADSPA
-		void addGroup(QTreeWidgetItem *parent, H2Core::LadspaFXGroup *pGroup);
-		void addGroup( QTreeWidget *parent, H2Core::LadspaFXGroup *pGroup );
-		void buildGroup(QTreeWidgetItem *pNewItem, H2Core::LadspaFXGroup *pGroup);
+		void addGroup(QTreeWidgetItem *parent, H2Core::H2FXGroup *pGroup);
+		void addGroup( QTreeWidget *parent, H2Core::H2FXGroup *pGroup );
+		void buildGroup(QTreeWidgetItem *pNewItem, H2Core::H2FXGroup *pGroup);
 
-		std::vector<H2Core::LadspaFXInfo*> findPluginsInGroup( const QString& sSelectedGroup, H2Core::LadspaFXGroup *pGroup );
+		std::vector<H2Core::H2FXInfo*> findPluginsInGroup( const QString& sSelectedGroup, H2Core::H2FXGroup *pGroup );
 #endif
 
 };

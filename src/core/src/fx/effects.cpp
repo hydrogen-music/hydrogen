@@ -60,7 +60,8 @@ Effects::Effects()
 		m_FXList[ nFX ] = nullptr;
 	}
 
-	getPluginList();
+	fillLadspaPluginList();
+	fillLV2PluginList();
 	
 	m_pLv2FX = Lv2FX::load(QString("http://plugin.org.uk/swh-plugins/hardLimiter"), 44100);
 }
@@ -125,15 +126,17 @@ void  Effects::setLadspaFX( LadspaFX* pFX, int nFX )
 	AudioEngine::get_instance()->unlock();
 }
 
-
-
+std::vector<H2FXInfo*> Effects::getPluginList()
+{
+	return m_pluginList;
+}
 ///
 /// Loads only usable plugins
 ///
-std::vector<LadspaFXInfo*> Effects::getPluginList()
+void Effects::fillLadspaPluginList()
 {
 	if ( m_pluginList.size() != 0 ) {
-		return m_pluginList;
+		return;
 	}
 
 	foreach ( const QString& sPluginDir, Filesystem::ladspa_paths() ) {
@@ -220,39 +223,80 @@ std::vector<LadspaFXInfo*> Effects::getPluginList()
 	}
 
 	INFOLOG( QString( "Loaded %1 LADSPA plugins" ).arg( m_pluginList.size() ) );
-	std::sort( m_pluginList.begin(), m_pluginList.end(), LadspaFXInfo::alphabeticOrder );
-	return m_pluginList;
+	std::sort( m_pluginList.begin(), m_pluginList.end(), H2FXInfo::alphabeticOrder );
+}
+
+void Effects::fillLV2PluginList()
+{
+	int nAudioIn = 0;
+	int nAudioOut = 0;
+	
+	LilvWorld* world = lilv_world_new();
+	lilv_world_load_all(world);
+	
+	LilvNode* inputPortNode = lilv_new_uri(world, LILV_URI_INPUT_PORT);
+	LilvNode* outputPortNode = lilv_new_uri(world, LILV_URI_OUTPUT_PORT);
+	LilvNode* audioPortNode = lilv_new_uri(world, LILV_URI_AUDIO_PORT);
+	
+	const LilvPlugins* plugins = lilv_world_get_all_plugins(world);
+	
+	LilvIter *plug_itr = lilv_plugins_begin(plugins);
+	for(int i=0; i<lilv_plugins_size(plugins); ++i) {
+		const LilvPlugin *plugin   = lilv_plugins_get(plugins, plug_itr);
+		const LilvNode   *uri_node =  lilv_plugin_get_uri(plugin);
+		const char *uri_str  = lilv_node_as_uri(uri_node);
+
+		nAudioIn = lilv_plugin_get_num_ports_of_class(plugin, inputPortNode, audioPortNode, nullptr);
+		nAudioOut = lilv_plugin_get_num_ports_of_class(plugin, outputPortNode, audioPortNode, nullptr);
+		
+		if(nAudioIn == 2 && nAudioOut == 2) {
+			ERRORLOG(QString("Found suitable plugin: %1\n").arg( uri_str) );
+			
+			LilvNode* n = lilv_plugin_get_name(plugin);
+			LV2FXInfo* pFX = new LV2FXInfo( QString::fromLocal8Bit( lilv_node_as_string(n) ) );
+			
+			pFX->m_sID = QString::fromLocal8Bit (uri_str );
+			
+			m_pluginList.push_back(pFX);
+			
+		}
+		
+		plug_itr = lilv_plugins_next(plugins, plug_itr);
+	}
+		
+	lilv_world_free(world);
+	
+	std::sort( m_pluginList.begin(), m_pluginList.end(), LV2FXInfo::alphabeticOrder );	
 }
 
 
-
-LadspaFXGroup* Effects::getLadspaFXGroup()
+H2FXGroup* Effects::getLadspaFXGroup()
 {
-	INFOLOG( "[getLadspaFXGroup]" );
-
 //	LadspaFX::getPluginList();	// load the list
 
 	if ( m_pRootGroup  ) {
 		return m_pRootGroup;
 	}
 
-	m_pRootGroup = new LadspaFXGroup( "Root" );
+	m_pRootGroup = new H2FXGroup( "Root" );
 
 	// Adding recent FX.
-	m_pRecentGroup = new LadspaFXGroup( "Recently Used" );
+	m_pRecentGroup = new H2FXGroup( "Recently Used" );
 	m_pRootGroup->addChild( m_pRecentGroup );
 	updateRecentGroup();
 
-	LadspaFXGroup *pUncategorizedGroup = new LadspaFXGroup( "Uncategorized" );
+	H2FXGroup *pUncategorizedGroup = new H2FXGroup( "Uncategorized" );
 	m_pRootGroup->addChild( pUncategorizedGroup );
 
 	char C = 0;
-	LadspaFXGroup* pGroup = nullptr;
-	for ( std::vector<LadspaFXInfo*>::iterator i = m_pluginList.begin(); i < m_pluginList.end(); i++ ) {
+	H2FXGroup* pGroup = nullptr;
+	
+	for ( std::vector<H2FXInfo*>::iterator i = m_pluginList.begin(); i < m_pluginList.end(); i++ ) {
 		char ch = (*i)->m_sName.toLocal8Bit().at(0);
+		
 		if ( ch != C ) {
 			C = ch;
-			pGroup = new LadspaFXGroup( QString( C ) );
+			pGroup = new H2FXGroup( QString( C ) );
 			pUncategorizedGroup->addChild( pGroup );
 		}
 
@@ -260,10 +304,9 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 			pGroup->addLadspaInfo( *i );
 		}
 	}
-
-
+	
 #ifdef H2CORE_HAVE_LRDF
-	LadspaFXGroup *pLRDFGroup = new LadspaFXGroup( "Categorized(LRDF)" );
+	H2FXGroup *pLRDFGroup = new H2FXGroup( "Categorized(LRDF)" );
 	m_pRootGroup->addChild( pLRDFGroup );
 	getRDF( pLRDFGroup, m_pluginList );
 #endif
@@ -282,7 +325,7 @@ void Effects::updateRecentGroup()
 
 	QString sRecent; // The recent fx names sit in the preferences object
 	foreach ( sRecent, Preferences::get_instance()->getRecentFX() ) {
-		for ( std::vector<LadspaFXInfo*>::iterator i = m_pluginList.begin(); i < m_pluginList.end(); i++ ) {
+		for ( std::vector<H2FXInfo*>::iterator i = m_pluginList.begin(); i < m_pluginList.end(); i++ ) {
 			if ( sRecent == (*i)->m_sName ) {
 				m_pRecentGroup->addLadspaInfo( *i );
 				break;
@@ -294,7 +337,7 @@ void Effects::updateRecentGroup()
 #ifdef H2CORE_HAVE_LRDF
 
 
-void Effects::getRDF( LadspaFXGroup *pGroup, vector<LadspaFXInfo*> pluginList )
+void Effects::getRDF( H2FXGroup *pGroup, vector<H2FXInfo*> pluginList )
 {
 	lrdf_init();
 
@@ -329,7 +372,7 @@ void Effects::getRDF( LadspaFXGroup *pGroup, vector<LadspaFXInfo*> pluginList )
 
 
 // funzione ricorsiva
-void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<LadspaFXInfo*> pluginList )
+void Effects::RDFDescend( const QString& sBase, H2FXGroup *pGroup, vector<H2FXInfo*> pluginList )
 {
 	//cout << "LadspaFX::RDFDescend " << sBase.toLocal8Bit().constData() << endl;
 
@@ -338,18 +381,18 @@ void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<La
 		for ( int i = 0; i < ( int )uris->count; i++ ) {
 			QString sGroup = QString::fromLocal8Bit(lrdf_get_label( uris->items[ i ] ));
 
-			LadspaFXGroup *pNewGroup = nullptr;
+			H2FXGroup *pNewGroup = nullptr;
 			// verifico se esiste gia una categoria con lo stesso nome
-			vector<LadspaFXGroup*> childGroups = pGroup-> getChildList();
+			vector<H2FXGroup*> childGroups = pGroup-> getChildList();
 			for ( unsigned nGroup = 0; nGroup < childGroups.size(); nGroup++ ) {
-				LadspaFXGroup *pOldGroup = childGroups[nGroup];
+				H2FXGroup *pOldGroup = childGroups[nGroup];
 				if ( pOldGroup->getName() == sGroup ) {
 					pNewGroup = pOldGroup;
 					break;
 				}
 			}
 			if ( pNewGroup == nullptr ) {	// il gruppo non esiste, lo creo
-				pNewGroup = new LadspaFXGroup( sGroup );
+				pNewGroup = new H2FXGroup( sGroup );
 				pGroup->addChild( pNewGroup );
 			}
 			RDFDescend( QString::fromLocal8Bit(uris->items[i]), pNewGroup, pluginList );
@@ -364,9 +407,9 @@ void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<La
 
 			// verifico che il plugin non sia gia nella lista
 			bool bExists = false;
-			vector<LadspaFXInfo*> fxVect = pGroup->getLadspaInfo();
+			vector<H2FXInfo*> fxVect = pGroup->getLadspaInfo();
 			for ( unsigned nFX = 0; nFX < fxVect.size(); nFX++ ) {
-				LadspaFXInfo *pFX = fxVect[nFX];
+				H2FXInfo *pFX = fxVect[nFX];
 				if ( pFX->m_sID.toInt() == uid ) {
 					bExists = true;
 					continue;
@@ -376,7 +419,7 @@ void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<La
 			if ( bExists == false ) {
 				// find the ladspaFXInfo
 				for ( unsigned i = 0; i < pluginList.size(); i++ ) {
-					LadspaFXInfo *pInfo = pluginList[i];
+					H2FXInfo *pInfo = pluginList[i];
 
 					if ( pInfo->m_sID.toInt() == uid  ) {
 						pGroup->addLadspaInfo( pInfo );	// copy the LadspaFXInfo

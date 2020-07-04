@@ -354,13 +354,19 @@ void LadspaFXProperties::selectFXBtnClicked()
 		if ( !sSelectedFX.isEmpty() ) {
 			LadspaFX *pFX = nullptr;
 
-			vector<H2Core::LadspaFXInfo*> pluginList = Effects::get_instance()->getPluginList();
+			vector<H2Core::H2FXInfo*> pluginList = Effects::get_instance()->getPluginList();
 			for (uint i = 0; i < pluginList.size(); i++) {
-				H2Core::LadspaFXInfo *pFXInfo = pluginList[i];
-				if (pFXInfo->m_sName == sSelectedFX ) {
+				H2Core::H2FXInfo *pFXInfo = pluginList[i];
+				if (pFXInfo->m_sName == sSelectedFX && pFXInfo->isLadspaFXInfo()) {
 					int nSampleRate = Hydrogen::get_instance()->getAudioOutput()->getSampleRate();
 					pFX = LadspaFX::load( pFXInfo->m_sFilename, pFXInfo->m_sLabel, nSampleRate );
 					pFX->setEnabled( true );
+					break;
+				} else if (pFXInfo->m_sName == sSelectedFX && pFXInfo->isLV2FXInfo()){
+					QMessageBox msgBox;
+					msgBox.setText("The document has been modified.");
+					msgBox.exec();
+					
 					break;
 				}
 			}

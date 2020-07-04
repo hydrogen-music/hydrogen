@@ -32,15 +32,20 @@
 #include "ladspa.h"
 #include <hydrogen/object.h>
 
+
+
 namespace H2Core
 {
 
-class LadspaFXInfo : public H2Core::Object
+class LadspaFXInfo;
+class LV2FXInfo;
+
+class H2FXInfo : public H2Core::Object
 {
 	H2_OBJECT
 public:
-	LadspaFXInfo( const QString& sName );
-	~LadspaFXInfo();
+	 H2FXInfo( const QString& sName );
+	 ~H2FXInfo();
 
 	QString m_sFilename;	///< plugin filename
 	QString m_sID;
@@ -48,33 +53,62 @@ public:
 	QString m_sName;
 	QString m_sMaker;
 	QString m_sCopyright;
+	
 	unsigned m_nICPorts;	///< input control port
 	unsigned m_nOCPorts;	///< output control port
 	unsigned m_nIAPorts;	///< input audio port
 	unsigned m_nOAPorts;	///< output audio port
-	static bool alphabeticOrder( LadspaFXInfo* a, LadspaFXInfo* b );
+	
+	static bool				alphabeticOrder( H2FXInfo* a, H2FXInfo* b );
+	
+	virtual LV2FXInfo*		isLV2FXInfo();
+	virtual LadspaFXInfo*	isLadspaFXInfo();
 };
 
-
-
-class LadspaFXGroup : public H2Core::Object
+class LadspaFXInfo : public H2Core::H2FXInfo
 {
 	H2_OBJECT
 public:
-	LadspaFXGroup( const QString& sName );
-	~LadspaFXGroup();
+	LadspaFXInfo( const QString& sName );
+	~LadspaFXInfo();
+	
+	LV2FXInfo*		isLV2FXInfo() override;
+	LadspaFXInfo*	isLadspaFXInfo() override;
+};
+
+
+class LV2FXInfo : public H2Core::H2FXInfo
+{
+	H2_OBJECT
+public:
+	LV2FXInfo( const QString& sName );
+	~LV2FXInfo();
+	
+	LV2FXInfo*		isLV2FXInfo() override;
+	LadspaFXInfo*	isLadspaFXInfo() override;
+};
+
+
+class H2FXGroup : public H2Core::Object
+{
+	H2_OBJECT
+public:
+	H2FXGroup( const QString& sName );
+	~H2FXGroup();
 
 	const QString& getName() {
 		return m_sName;
 	}
 
-	void addLadspaInfo( LadspaFXInfo *pInfo );
-	std::vector<LadspaFXInfo*> getLadspaInfo() {
+	void addLadspaH2Info( H2FXInfo *pInfo );
+	
+	void addLadspaInfo( H2FXInfo *pInfo );
+	std::vector<H2FXInfo*> getLadspaInfo() {
 		return m_ladspaList;
 	}
 
-	void addChild( LadspaFXGroup *pChild );
-	std::vector<LadspaFXGroup*> getChildList() {
+	void addChild( H2FXGroup *pChild );
+	std::vector<H2FXGroup*> getChildList() {
 		return m_childGroups;
 	}
 
@@ -83,14 +117,15 @@ public:
 		m_ladspaList.clear();
 	}
 
-	static bool alphabeticOrder( LadspaFXGroup*, LadspaFXGroup* );
+	static bool alphabeticOrder( H2FXGroup*, H2FXGroup* );
 	void sort();
 
 
 private:
 	QString m_sName;
-	std::vector<LadspaFXInfo*> m_ladspaList;
-	std::vector<LadspaFXGroup*> m_childGroups;
+	std::vector<H2FXInfo*>	m_ladspaList;
+	std::vector<H2FXInfo*>		m_groupContent;
+	std::vector<H2FXGroup*>		m_childGroups;
 };
 
 

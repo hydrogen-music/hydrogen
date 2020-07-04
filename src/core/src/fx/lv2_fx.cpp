@@ -236,7 +236,7 @@ void Lv2FX::processFX( unsigned nFrames )
 	
 	if( m_bActivated ) {
 		lilv_instance_run( m_pLilvInstance, nFrames );
-		std::cout <<  "[ProcessFX: ]" << nFrames << ":" << MAX_BUFFER_SIZE <<   std::endl;	
+		//	std::cout <<  "[ProcessFX: ]" << nFrames << ":" << MAX_BUFFER_SIZE <<   std::endl;	
 	}
 }
 
