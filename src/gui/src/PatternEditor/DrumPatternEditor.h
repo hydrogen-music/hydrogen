@@ -110,6 +110,13 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		void functionPasteNotesRedoAction(std::list<H2Core::Pattern*> & changeList, std::list<H2Core::Pattern*> & appliedList);
 		void functionPasteNotesUndoAction(std::list<H2Core::Pattern*> & appliedList);
 
+		// Synthetic UI events from selection manager
+		void mouseClickEvent( QMouseEvent *ev );
+		void mouseDragStartEvent( QMouseEvent *ev );
+		void mouseDragUpdateEvent( QMouseEvent *ev );
+		void mouseDragEndEvent( QMouseEvent *ev );
+
+
 	public slots:
 		void updateEditor();
 
@@ -120,7 +127,6 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		uint m_nResolution;
 		bool m_bUseTriplets;
 
-		bool m_bRightBtnPressed;
 		H2Core::Note *m_pDraggedNote;
 		//~
 

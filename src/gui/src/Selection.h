@@ -27,6 +27,7 @@
 #include <QMouseEvent>
 #include <QApplication>
 #include <map>
+#include <QDebug>
 
 
 // Selection management for editor widges
@@ -49,13 +50,14 @@ private:
 	Qt::MouseButton m_mouseButton;
 
 	QPoint m_clickPos;
-	QEvent *m_pClickEvent;
+	QMouseEvent *m_pClickEvent;
 
 	// Lasso: screen coords or grid coords?
 	// Moving selection
 	// Selected cells
 	
 public:
+
 	Selection( Widget *w ) {
 		widget = w;
 		m_mouseState = Up;
@@ -63,19 +65,50 @@ public:
 		m_pClickEvent = nullptr;
 	}
 
+	void dump() {
+		qDebug() << "Selection state: " << ( m_mouseState == Up ? "Up" :
+											 m_mouseState == Down ? "Down" :
+											 m_mouseState == Dragging ? "Dragging" : "-" )
+				 << "\n"
+				 << "button: " << m_mouseButton << "\n"
+				 << "m_clickPos: " << m_clickPos << "\n"
+				 << "";
+	}
 
 	// ----------------------------------------------------------------------
 	// Raw mouse events from Qt. These are handled by a state machine
 	// that models the intended user interaction including clicks and
 	// drags, with single buttons held down, and translated to
 	// meaningful user-level interaction events.
-	
-	bool mousePressEvent( QMouseEvent *ev ) {
+
+	void mousePressEvent( QMouseEvent *ev ) {
+
+		// macOS ctrl+left-click is reported as a
+		// right-click. However, only the 'press' event is reported,
+		// there are no move or release events. This is enough for
+		// opening context menus, but not enough for drag gestures.
+		if ( m_mouseState == Up
+			 && ev->button() == Qt::RightButton
+			 && ev->buttons() == Qt::LeftButton
+			 && ev->modifiers() & Qt::MetaModifier) {
+			// Deliver the event as a transient click with no effect on state
+			mouseClick( ev );
+			return;
+		}
+
+		// Check for inconsistent state. If there was a gesture in progress, abandon it.
+		if ( !( m_mouseButton & ev->buttons() ) && m_mouseState != Up ) {
+			delete m_pClickEvent;
+			m_pClickEvent = nullptr;
+			m_mouseState = Up;
+		}
+
+		// Detect start of click or drag event
 		if ( m_mouseState == Up ) {
 			m_mouseState = Down;
 			m_clickPos = ev->pos();
 			m_mouseButton = ev->button();
-			assert( m_pClickEvent = nullptr );
+			assert( m_pClickEvent == nullptr );
 			m_pClickEvent = new QMouseEvent(QEvent::MouseButtonPress,
 											ev->localPos(), ev->windowPos(), ev->screenPos(),
 											m_mouseButton, ev->buttons(), ev->modifiers(),
@@ -83,21 +116,22 @@ public:
 		}
 	}
 
-	bool mouseMoveEvent( QMouseEvent *ev ) {
+	void mouseMoveEvent( QMouseEvent *ev ) {
+
 		if ( m_mouseState == Down ) {
 			if ( (ev->pos() - m_clickPos).manhattanLength()
 				 > QApplication::startDragDistance() ) {
-				// Begin drag
+				// Mouse has moved far enough to consider this a drag rather than a click.
 				m_mouseState = Dragging;
-				mouseDragStart( ev );
+				mouseDragStart( m_pClickEvent );
 			}
 		} else if ( m_mouseState == Dragging ) {
 			mouseDragUpdate( ev );
 		}
 	}
 
-	bool mouseReleaseEvent( QMouseEvent *ev ) {
-		if ( ev->button() == m_mouseButton ) {
+	void mouseReleaseEvent( QMouseEvent *ev ) {
+		if ( m_mouseState != Up && !( ev->buttons() & m_mouseButton) ) {
 			if ( m_mouseState == Down ) {
 				mouseClick( ev );
 			} else if ( m_mouseState == Dragging ) {
@@ -106,33 +140,28 @@ public:
 			m_mouseState = Up;
 			delete m_pClickEvent;
 			m_pClickEvent = nullptr;
+
 		} else {
-			// Other mouse buttons may have been pressed either before
-			// the last click was started, or after the previous click
-			// was begun. Ignore these.
+			// Other mouse buttons may have been pressed since the
+			// last click was started, and may have been released to
+			// cause this event.
 		}
 	}
 
 	// ----------------------------------------------------------------------
-	// Derived mouse events
+	// Derived mouse events. Forward to widget.
 	void mouseClick( QMouseEvent *ev ) {
+		widget->mouseClickEvent( ev );
 	}
-
 	void mouseDragStart( QMouseEvent *ev ) {
+		widget->mouseDragStartEvent( ev );
 	}
 	void mouseDragUpdate( QMouseEvent *ev ) {
+		widget->mouseDragUpdateEvent( ev );
 	}
 	void mouseDragEnd( QMouseEvent *ev ) {
+		widget->mouseDragEndEvent( ev );
 	}
-
-	
-
-	// maps to
-	// mouseClick
-	// mouseStartDrag
-	// mouseDragging
-	// mouseEndDrag
-
 
 };
 

@@ -58,7 +58,6 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  , Object( __class_name )
  , m_nResolution( 8 )
  , m_bUseTriplets( false )
- , m_bRightBtnPressed( false )
  , m_pDraggedNote( nullptr )
  , m_pPattern( nullptr )
  , m_pPatternEditorPanel( panel )
@@ -190,7 +189,26 @@ void DrumPatternEditor::addOrRemoveNote(int nColumn, int nRealColumn, int row) {
 }
 
 
-void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
+// Delegate raw mouse events to Selection object
+
+void DrumPatternEditor::mousePressEvent( QMouseEvent *ev )
+{
+	m_selection.mousePressEvent( ev );
+}
+
+void DrumPatternEditor::mouseReleaseEvent( QMouseEvent *ev )
+{
+	m_selection.mouseReleaseEvent( ev );
+}
+
+void DrumPatternEditor::mouseMoveEvent( QMouseEvent *ev )
+{
+	m_selection.mouseMoveEvent( ev );
+}
+
+
+
+void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 {
 	if ( m_pPattern == nullptr ) {
 		return;
@@ -222,8 +240,21 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 
 		addOrRemoveNote( nColumn, nRealColumn, row );
 
-	} else if (ev->button() == Qt::RightButton ) {
-		m_bRightBtnPressed = true;
+	}
+
+	m_pPatternEditorPanel->setCursorPosition( nColumn );
+	m_pPatternEditorPanel->setCursorHidden( true );
+}
+
+void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
+{
+	if (ev->button() == Qt::RightButton ) {
+
+		int nColumn = getColumn( ev );
+		int nRealColumn = 0;
+		int row = (int)( ev->y()  / (float)m_nGridHeight);
+		Song *pSong = Hydrogen::get_instance()->getSong();
+		Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
 
 		m_pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
 		// needed for undo note length
@@ -236,9 +267,6 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			__oldLength = -1;
 		}
 	}
-
-	m_pPatternEditorPanel->setCursorPosition( nColumn );
-	m_pPatternEditorPanel->setCursorHidden( true );
 }
 
 void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
@@ -272,7 +300,6 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 	Song *pSong = Hydrogen::get_instance()->getSong();
 
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
-	m_bRightBtnPressed = false;
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
@@ -357,7 +384,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 }
 
 
-void DrumPatternEditor::mouseReleaseEvent(QMouseEvent *ev)
+void DrumPatternEditor::mouseDragEndEvent( QMouseEvent *ev )
 {
 	UNUSED( ev );
 	setCursor( QCursor( Qt::ArrowCursor ) );
@@ -366,11 +393,12 @@ void DrumPatternEditor::mouseReleaseEvent(QMouseEvent *ev)
 		return;
 	}
 
-	if ( m_bRightBtnPressed && m_pDraggedNote ) {
+	if ( m_pDraggedNote ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
 
 		SE_editNoteLenghtAction *action = new SE_editNoteLenghtAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), __row, m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber);
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		m_pDraggedNote = nullptr;
 	}
 }
 
@@ -410,8 +438,7 @@ void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int 
 }
 
 
-
-void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
+void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 {
 	if (m_pPattern == nullptr) {
 		return;
@@ -422,8 +449,7 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 		return;
 	}
 
-
-	if ( m_bRightBtnPressed && m_pDraggedNote ) {
+	if ( m_pDraggedNote ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
 		int nTickColumn = getColumn( ev );
 
