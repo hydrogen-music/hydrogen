@@ -291,7 +291,13 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 			||	pInstr->is_metronome_instrument()){
 			pMainCompo = pEngine->getSong()->get_components()->front();
 		} else {
-			pMainCompo = pEngine->getSong()->get_component( pCompo->get_drumkit_componentID() );
+			int nComponentID = pCompo->get_drumkit_componentID();
+			if ( nComponentID >= 0 ) {
+				pMainCompo = pEngine->getSong()->get_component( nComponentID );
+			} else {
+				/* Invalid component found. This is possible on loading older or broken song files. */
+				pMainCompo = pEngine->getSong()->get_components()->front();
+			}
 		}
 
 		assert(pMainCompo);
@@ -697,6 +703,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	InstrumentComponent *pCompo = __playback_instrument->get_components()->front();
 	Sample *pSample = pCompo->get_layer(0)->get_sample();
 
+	assert(pSample);
+
 	float fVal_L;
 	float fVal_R;
 
@@ -705,8 +713,6 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	
 	float fInstrPeak_L = __playback_instrument->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = __playback_instrument->get_peak_r(); // this value will be reset to 0 by the mixer..
-
-	assert(pSample);
 
 	int nAvail_bytes = 0;
 	int	nInitialBufferPos = 0;
