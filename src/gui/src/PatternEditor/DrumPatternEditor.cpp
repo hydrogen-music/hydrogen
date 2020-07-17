@@ -529,6 +529,40 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 }
 
 
+
+std::vector<H2Core::Note *> DrumPatternEditor::elementsIntersecting( QRect r ) {
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	InstrumentList * pInstrList = pSong->get_instrument_list();
+	uint h = m_nGridHeight / 3;
+
+	// Expand the region by approximately the size of the note ellipse, equivalent to testing
+	// for intersection between `r' and the equivalent rect around the note.
+	r = r.normalized();
+	r += QMargins( 4, h/2, 4, h/2 );
+
+
+	// Calculate the first and last position values that this rect will intersect with
+	int x_min = (r.left() - 20) / m_nGridWidth;
+	int x_max = (r.right() - 20) / m_nGridWidth;
+
+	const Pattern::notes_t* notes = m_pPattern->get_notes();
+	std::vector<H2Core::Note *> result;
+
+	for (auto it = notes->lower_bound( x_min ); it != notes->end() && it->first <= x_max; ++it ) {
+		Note *note = it->second;
+		int nInstrument = note->get_instrument()->get_id();
+		uint x_pos = 20 + (it->first * m_nGridWidth);
+		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
+
+		if ( r.contains( QPoint( x_pos, y_pos + h/2) ) ) {
+			result.push_back( it->second );
+		}
+	}
+
+	return std::move( result );
+}
+
+
 ///
 /// Draws a pattern
 ///
@@ -668,31 +702,35 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 	uint pos = note->get_position();
 
-	p.setPen( noteColor );
-
-
 	QColor color = computeNoteColor( note->get_velocity() );
 
 	uint w = 8;
 	uint h =  m_nGridHeight / 3;
+	uint x_pos = 20 + (pos * m_nGridWidth);
+	uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
+
+	if ( m_selection.isSelected( note ) ) {
+
+		QPen pen(QColor(0, 0, 255));
+		pen.setWidth( 2 );
+		p.setPen( pen );
+		p.setBrush (Qt::NoBrush );
+		p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
+
+	}
+	p.setPen(noteColor);
 
 	if ( note->get_length() == -1 && note->get_note_off() == false ) {	// trigger note
-		uint x_pos = 20 + (pos * m_nGridWidth);// - m_nGridWidth / 2.0;
-		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
+
 		p.setBrush( color );
 		p.drawEllipse( x_pos -4 , y_pos, w, h );
 
-
 	}
 	else if ( note->get_length() == 1 && note->get_note_off() == true ){
-		p.setPen( noteoffColor );
-		uint x_pos = 20 + ( pos * m_nGridWidth );// - m_nGridWidth / 2.0;
 
-		uint y_pos = ( nInstrument * m_nGridHeight ) + (m_nGridHeight / 2) - 3;
+		p.setPen( noteoffColor );
 		p.setBrush(QColor( noteoffColor));
 		p.drawEllipse( x_pos -4 , y_pos, w, h );
-
-
 
 	}
 	else {
@@ -868,6 +906,7 @@ void DrumPatternEditor::paintEvent( QPaintEvent* /*ev*/ )
 
 	QPainter painter( this );
 	__draw_pattern( painter );
+	m_selection.paintSelection( &painter );
 }
 
 

@@ -23,46 +23,51 @@
 #ifndef SELECTION_H
 #define SELECTION_H
 
+#include <QtGui>
 #include <QWidget>
 #include <QMouseEvent>
 #include <QApplication>
-#include <map>
+#include <vector>
+#include <set>
 #include <QDebug>
 
 
 // Selection management for editor widges
 //
 
-template<class Widget, class Location, class Elem>
+template<class Widget, class Elem>
 class Selection {
 
 private:
 	Widget *widget;
-
-	// Selection state
-	enum SelectionState { NoSelection,
-				 DraggingLasso,
-				 Selected,
-				 DraggingSelection
-	} m_selectionState;
 
 	enum MouseState { Up, Down, Dragging } m_mouseState;
 	Qt::MouseButton m_mouseButton;
 
 	QPoint m_clickPos;
 	QMouseEvent *m_pClickEvent;
+	QRect m_lasso;
+
+	enum SelectionState { Idle, Lasso, Moving } m_selectionState;
+
+	std::set<Elem> m_selectedElements;
 
 	// Lasso: screen coords or grid coords?
 	// Moving selection
 	// Selected cells
-	
+
+	// TODO: interfaces for keyboard
+	// Ctrl + click / drag for adding to selection
+	// Moving
+	// Start drag after some short time, as well as distance
+
 public:
 
 	Selection( Widget *w ) {
 		widget = w;
 		m_mouseState = Up;
-		m_selectionState = NoSelection;
 		m_pClickEvent = nullptr;
+		m_selectionState = Idle;
 	}
 
 	void dump() {
@@ -73,6 +78,14 @@ public:
 				 << "button: " << m_mouseButton << "\n"
 				 << "m_clickPos: " << m_clickPos << "\n"
 				 << "";
+	}
+
+	bool isMoving() {
+		return m_selectionState == Moving;
+	}
+
+	bool isSelected( Elem e ) {
+		return m_selectedElements.find( e ) != m_selectedElements.end();
 	}
 
 	// ----------------------------------------------------------------------
@@ -119,8 +132,8 @@ public:
 	void mouseMoveEvent( QMouseEvent *ev ) {
 
 		if ( m_mouseState == Down ) {
-			if ( (ev->pos() - m_clickPos).manhattanLength()
-				 > QApplication::startDragDistance() ) {
+			if ( (ev->pos() - m_clickPos).manhattanLength() > QApplication::startDragDistance() 
+				 || (ev->timestamp() - m_pClickEvent->timestamp()) > QApplication::startDragTime() ) {
 				// Mouse has moved far enough to consider this a drag rather than a click.
 				m_mouseState = Dragging;
 				mouseDragStart( m_pClickEvent );
@@ -148,19 +161,72 @@ public:
 		}
 	}
 
+
 	// ----------------------------------------------------------------------
-	// Derived mouse events. Forward to widget.
+	// Paint selection-related things
+	void paintSelection( QPainter *painter ) {
+		if ( m_selectionState == Lasso ) {
+			QPen pen( Qt::white );
+			pen.setStyle( Qt::DotLine );
+			painter->setPen( pen );
+			painter->setBrush( Qt::NoBrush );
+			painter->drawRect( m_lasso );
+		}
+	}
+
+
+	// ----------------------------------------------------------------------
+	// Higher-level mouse events -- clicks and drags
 	void mouseClick( QMouseEvent *ev ) {
+		m_selectedElements.clear();
 		widget->mouseClickEvent( ev );
 	}
+
 	void mouseDragStart( QMouseEvent *ev ) {
+		QRect r = QRect( m_clickPos, ev->pos() );
+		std::vector<Elem> elems = widget->elementsIntersecting( r );
+
+		if ( elems.empty() ) {
+			/*  Didn't hit anything. Start new selection drag */
+			m_selectionState = Lasso;
+			m_lasso.setTopLeft( m_clickPos );
+			m_lasso.setBottomRight( ev->pos() );
+			widget->update();
+		} else {
+			/* XXX Drag selection */
+		}
+
 		widget->mouseDragStartEvent( ev );
 	}
 	void mouseDragUpdate( QMouseEvent *ev ) {
-		widget->mouseDragUpdateEvent( ev );
+
+		if ( m_selectionState == Lasso) {
+			m_lasso.setBottomRight( ev->pos() );
+
+			// XXX Quick hack for now: clear and rebuild the entire
+			// selection. This might actually be just as quick as
+			// checking the difference, depending on how elementsIntersecting is implemented.
+			m_selectedElements.clear();
+			auto selected = widget->elementsIntersecting( m_lasso );
+			for ( auto s : selected ) {
+				m_selectedElements.insert( s );
+			}
+
+			widget->update();
+		} else {
+			// Pass drag update to widget
+			widget->mouseDragUpdateEvent( ev );
+		}
 	}
+
 	void mouseDragEnd( QMouseEvent *ev ) {
-		widget->mouseDragEndEvent( ev );
+		if ( m_selectionState == Lasso) {
+			m_selectionState = Idle;
+			widget->update();
+		} else {
+			// Pass drag end to widget
+			widget->mouseDragEndEvent( ev );
+		}
 	}
 
 };

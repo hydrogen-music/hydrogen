@@ -116,6 +116,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		void mouseDragUpdateEvent( QMouseEvent *ev );
 		void mouseDragEndEvent( QMouseEvent *ev );
 
+		std::vector<H2Core::Note *> elementsIntersecting( QRect r );
 
 	public slots:
 		void updateEditor();
@@ -149,7 +150,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		virtual void paintEvent(QPaintEvent *ev);
 		virtual void focusInEvent( QFocusEvent *ev );
 
-		Selection<DrumPatternEditor, QPoint, H2Core::Note> m_selection;
+		Selection<DrumPatternEditor, H2Core::Note *> m_selection;
 
 		int getColumn(QMouseEvent *ev);
 
