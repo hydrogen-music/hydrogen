@@ -232,7 +232,9 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 {
 
 	//create all needed old vars for undo
-	if (m_pPattern == nullptr) return;
+	if (m_pPattern == nullptr) {
+		return;
+	}
 
 	__oldVelocity = 0.8f;
 	__oldPan_L = 0.5f;
@@ -273,7 +275,6 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 		if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
 			__oldVelocity = pNote->get_velocity();
 			__mode = "VELOCITY";
-
 		}
 		else if ( m_Mode == PAN && !pNote->get_note_off() ){
 

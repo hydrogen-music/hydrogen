@@ -36,7 +36,10 @@
  <update_contact>hydrogen-devel@lists.sourceforge.net</update_contact>
  <project_group>hydrogen</project_group>
  <content_rating type="oars-1.0"/>
- <releases>
+   <releases>
+    <release version="1.0.0-rc1" date="2020-06-07">
+     <url>https://github.com/hydrogen-music/hydrogen/releases/tag/1.0.0-rc1</url>
+   </release>
    <release version="1.0.0-beta2" date="2020-03-21">
      <url>https://github.com/hydrogen-music/hydrogen/releases/tag/1.0.0-beta2</url>
      <description>

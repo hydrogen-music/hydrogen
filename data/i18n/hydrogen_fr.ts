@@ -360,15 +360,15 @@
     </message>
     <message>
         <source>SMF1 single: export all instruments to a single track</source>
-        <translation>SMF1 simple : exporter tous les instruments dans une piste unique></translation>
+        <translation>SMF1 simple : exporter tous les instruments dans une piste unique&gt;</translation>
     </message>
     <message>
         <source>SMF1 multi: export each instrument to separate track</source>
-        <translation>SMF1 multi : exporter chaque instrument dans des pistes séparées></translation>
+        <translation>SMF1 multi : exporter chaque instrument dans des pistes séparées&gt;</translation>
     </message>
     <message>
         <source>SMF0: export all events to one track</source>
-        <translation>SMF0 : exporter tous les événements vers une piste></translation>
+        <translation>SMF0 : exporter tous les événements vers une piste&gt;</translation>
     </message>
     <message>
         <source>Midi file (*%1)</source>
@@ -3197,6 +3197,10 @@ Voulez-vous continuer?</translation>
     <message>
         <source>Velocity</source>
         <translation>Vélocité</translation>
+    </message>
+    <message>
+        <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

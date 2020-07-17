@@ -122,8 +122,9 @@ static int setup_unix_signal_handlers()
 	usr1.sa_flags = 0;
 	usr1.sa_flags |= SA_RESTART;
 
-	if (sigaction(SIGUSR1, &usr1, nullptr) > 0)
+	if (sigaction(SIGUSR1, &usr1, nullptr) > 0) {
 		return 1;
+	}
 
 	return 0;
 #endif
@@ -266,11 +267,12 @@ int main(int argc, char *argv[])
 		QTranslator tor( nullptr );
 		QLocale locale = QLocale::system();
 		if ( locale != QLocale::c() ) {
-			if (qttor.load( locale, QString( "qt" ), QString( "_" ),
-				QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+			if (qttor.load( locale, QString( "qt" ), QString( "_" ), QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
 				pQApp->installTranslator( &qttor );
-			else
+			} else {
 				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(locale.name()));
+			}
+			
 			QString sTranslationPath = H2Core::Filesystem::i18n_dir();
 			QString sTranslationFile( "hydrogen" );
 			bool bTransOk = tor.load( locale, sTranslationFile, QString( "_" ), sTranslationPath );

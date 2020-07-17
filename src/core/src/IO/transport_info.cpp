@@ -33,8 +33,8 @@ TransportInfo::TransportInfo()
 //	INFOLOG( "INIT" );
 	m_status = STOPPED;
 	m_nFrames = 0;
-	m_nTickSize = 0;
-	m_nBPM = 120;
+	m_fTickSize = 0;
+	m_fBPM = 120;
 }
 
 
@@ -63,7 +63,7 @@ void TransportInfo::printInfo()
 		ERRORLOG( "status = unknown" );
 	}
 	INFOLOG( QString( "frames = %1" ).arg( m_nFrames ) );
-	INFOLOG( QString( "tickSize = %1" ).arg( m_nTickSize ) );
+	INFOLOG( QString( "tickSize = %1" ).arg( m_fTickSize ) );
 }
 
 };

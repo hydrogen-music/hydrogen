@@ -174,9 +174,9 @@ bool XMLDoc::read( const QString& filepath, const QString& schemapath )
 	SilentMessageHandler Handler;
 	QXmlSchema schema;
 	schema.setMessageHandler( &Handler );
-
+	
 	bool schema_usable = false;
-
+	
 	if( schemapath!=nullptr ) {
 		QFile file( schemapath );
 		if ( !file.open( QIODevice::ReadOnly ) ) {
@@ -191,13 +191,13 @@ bool XMLDoc::read( const QString& filepath, const QString& schemapath )
 			}
 		}
 	}
-
+	
 	QFile file( filepath );
 	if ( !file.open( QIODevice::ReadOnly ) ) {
 		ERRORLOG( QString( "Unable to open %1 for reading" ).arg( filepath ) );
 		return false;
 	}
-
+	
 	if ( schema_usable ) {
 		QXmlSchemaValidator validator( schema );
 		if ( !validator.validate( &file, QUrl::fromLocalFile( file.fileName() ) ) ) {
@@ -209,14 +209,14 @@ bool XMLDoc::read( const QString& filepath, const QString& schemapath )
 		}
 		file.seek( 0 );
 	}
-
+	
 	if( !setContent( &file ) ) {
 		ERRORLOG( QString( "Unable to read XML document %1" ).arg( filepath ) );
 		file.close();
 		return false;
 	}
 	file.close();
-
+	
 	return true;
 }
 
@@ -232,8 +232,9 @@ bool XMLDoc::write( const QString& filepath )
 	out.flush();
 
 	bool rv = true;
-	if ( !toString().isEmpty() && file.size() == 0 )
+	if ( !toString().isEmpty() && file.size() == 0 ) {
 		rv = false;
+	}
 
 	file.close();
 	return rv;

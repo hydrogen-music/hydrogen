@@ -212,8 +212,9 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 
 void AudioFileBrowser::doubleClicked( const QModelIndex& index )
 {
-	if(!m_SingleClick)
+	if(!m_SingleClick) {
 		browseTree( index );
+	}
 }
 
 

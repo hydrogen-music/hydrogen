@@ -369,7 +369,7 @@ void CoreAudioDriver::locate( unsigned long nFrame )
 void CoreAudioDriver::setBpm( float fBPM )
 {
 	//INFOLOG( "[setBpm]" + to_string( fBPM ));
-	m_transport.m_nBPM = fBPM;
+	m_transport.m_fBPM = fBPM;
 }
 
 }

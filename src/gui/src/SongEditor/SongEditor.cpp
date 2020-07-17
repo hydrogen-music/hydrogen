@@ -35,6 +35,7 @@
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/timeline.h>
+#include <hydrogen/IO/jack_audio_driver.h>
 using namespace H2Core;
 
 #include "UndoActions.h"
@@ -816,7 +817,7 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 			continue;
 		}
 		// aggiungo un pattern per volta
-		PatternList* pColumn = NULL;
+		PatternList* pColumn = nullptr;
 		if ( cell.x() < (int)pColumns->size() ) {
 			pColumn = (*pColumns)[ cell.x() ];
 		}
@@ -852,7 +853,7 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 
 
 
-				PatternList* pColumn = NULL;
+				PatternList* pColumn = nullptr;
 				if ( cell.x() < (int)pColumns->size() ) {
 					pColumn = (*pColumns)[ cell.x() ];
 				}
@@ -869,7 +870,7 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 		// remove the old patterns
 		for ( uint i = 0; i < selectedCells.size(); i++ ) {
 			QPoint cell = selectedCells[ i ];
-			PatternList* pColumn = NULL;
+			PatternList* pColumn = nullptr;
 
 			/*
 			 * Check first if pattern was present in movingCells.
@@ -1081,10 +1082,9 @@ void SongEditor::drawSequence()
 
 	//Drawing the pattern based on the gridRepresentation array
 
-	while (!gridRepresentation.isEmpty())
+	while (!gridRepresentation.isEmpty()) {
 		delete gridRepresentation.takeFirst();
-
-
+	}
 
 	for (uint i = 0; i < pColumns->size(); i++) {
 		PatternList* pColumn = (*pColumns)[ i ];
@@ -1250,8 +1250,7 @@ void SongEditor::clearThePatternSequenceVector( QString filename )
 	Song *song = engine->getSong();
 
 	//before deleting the sequence, write a temp sequence file to disk
-	LocalFileMng fileMng;
-	bool success = song->writeTempPatternList( filename );
+	song->writeTempPatternList( filename );
 
 	vector<PatternList*> *pPatternGroupsVect = song->get_pattern_group_vector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
@@ -1334,17 +1333,28 @@ void SongEditorPatternList::patternChangedEvent() {
 
 	createBackground();
 	update();
+	
 	///here we check the timeline  && m_pSong->get_mode() == Song::SONG_MODE
-	Hydrogen *engine = Hydrogen::get_instance();
-	Timeline *pTimeline = engine->getTimeline();
-		if ( ( Preferences::get_instance()->getUseTimelineBpm() ) && ( engine->getSong()->get_mode() == Song::SONG_MODE ) ){
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	
+#ifdef H2CORE_HAVE_JACK
+	if ( pHydrogen->haveJackTransport() ) {
+		return;
+	}
+#endif
+	
+	Timeline* pTimeline = pHydrogen->getTimeline();
+	if ( ( Preferences::get_instance()->getUseTimelineBpm() ) &&
+		 ( pHydrogen->getSong()->get_mode() == Song::SONG_MODE ) ){
+		
 		for ( int i = 0; i < static_cast<int>(pTimeline->m_timelinevector.size()); i++){
-			if ( ( pTimeline->m_timelinevector[i].m_htimelinebeat == engine->getPatternPos() )
-				&& ( engine->getNewBpmJTM() != pTimeline->m_timelinevector[i].m_htimelinebpm ) ){
-				engine->setBPM( pTimeline->m_timelinevector[i].m_htimelinebpm );
-			}//if
-		}//for
-	}//if
+			
+			if ( ( pTimeline->m_timelinevector[i].m_htimelinebeat == pHydrogen->getPatternPos() )
+				&& ( pHydrogen->getNewBpmJTM() != pTimeline->m_timelinevector[i].m_htimelinebpm ) ){
+				pHydrogen->setBPM( pTimeline->m_timelinevector[i].m_htimelinebpm );
+			}
+		}
+	}
 }
 
 
@@ -1481,6 +1491,13 @@ void SongEditorPatternList::createBackground()
 	boldTextFont.setBold( true );
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
+	
+	//Do not redraw anything if Export is active.
+	//https://github.com/hydrogen-music/hydrogen/issues/857	
+	if( pEngine->getIsExportSessionActive() ) {
+		return;
+	}
+	
 	Song *pSong = pEngine->getSong();
 	int nPatterns = pSong->get_pattern_list()->size();
 	int nSelectedPattern = pEngine->getSelectedPatternNumber();
@@ -1571,7 +1588,6 @@ void SongEditorPatternList::createBackground()
 void SongEditorPatternList::patternPopup_virtualPattern()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	int nSelectedPattern = pEngine->getSelectedPatternNumber();
 	VirtualPatternDialog *dialog = new VirtualPatternDialog( this );
 	SongEditorPanel *pSEPanel = HydrogenApp::get_instance()->getSongEditorPanel();
 	int tmpselectedpatternpos = pEngine->getSelectedPatternNumber();
@@ -1777,19 +1793,18 @@ void SongEditorPatternList::patternPopup_delete()
 {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *song = pEngine->getSong();
-	PatternList *pSongPatternList = song->get_pattern_list();
+	Song *pSong = pEngine->getSong();
 	int patternPosition = pEngine->getSelectedPatternNumber();
-	Pattern *pattern = song->get_pattern_list()->get( patternPosition );
+	Pattern *pattern = pSong->get_pattern_list()->get( patternPosition );
 
-	QString patternPath = Files::savePatternTmp( pattern->get_name(), pattern, song, pEngine->getCurrentDrumkitname() );
+	QString patternPath = Files::savePatternTmp( pattern->get_name(), pattern, pSong, pEngine->getCurrentDrumkitname() );
 	if ( patternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
 		return;
 	}
 	LocalFileMng fileMng;
 	QString sequencePath = Filesystem::tmp_file_path( "SEQ.xml" );
-	if ( !song->writeTempPatternList( sequencePath ) ) {
+	if ( !pSong->writeTempPatternList( sequencePath ) ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not export sequence.") );
 		return;
 	}
@@ -1967,22 +1982,18 @@ void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPatter
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
 	H2Core::Pattern *pPattern = pPatternList->get( nPattern );
 	vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();	// E' la lista di "colonne" di pattern
-	PatternList *pColumn;
+	PatternList *pColumn = nullptr;
 
 	int nColumn, nColumnIndex;
 	bool bHasPattern = false;
 	int fromVal = pRange->fromVal - 1;
 	int toVal   = pRange->toVal;
 
-
-
 	// Add patternlists to PatternGroupVector as necessary
-
 	int nDelta = toVal - pColumns->size() + 1;
 
 	for ( int i = 0; i < nDelta; i++ ) {
@@ -1990,13 +2001,13 @@ void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPatter
 		pColumns->push_back( pColumn );
 	}
 
-
 	// Fill or Clear each cell in range
-
 	for ( nColumn = fromVal; nColumn < toVal; nColumn++ ) {
 
 		// expand Pattern
 		pColumn = ( *pColumns )[ nColumn ];
+		
+		assert( pColumn );
 
 		bHasPattern = false;
 
@@ -2351,46 +2362,61 @@ void SongEditorPositionRuler::mouseMoveEvent(QMouseEvent *ev)
 
 void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 {
-
+	auto pHydrogen = Hydrogen::get_instance();
+	
 	if (ev->button() == Qt::LeftButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);
 		m_bRightBtnPressed = false;
 
-		if ( column > (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
+		if ( column > (int)pHydrogen->getSong()->get_pattern_group_vector()->size() ) {
 			return;
 		}
 
 		// disabling son relocates while in pattern mode as it causes weird behaviour. (jakob lund)
-		if ( Hydrogen::get_instance()->getSong()->get_mode() == Song::PATTERN_MODE ) {
+		if ( pHydrogen->getSong()->get_mode() == Song::PATTERN_MODE ) {
 			return;
 		}
+		AudioOutput* pDriver = pHydrogen->getAudioOutput();
 
-		int nPatternPos = Hydrogen::get_instance()->getPatternPos();
+		int nPatternPos = pHydrogen->getPatternPos();
 		if ( nPatternPos != column ) {
 			WARNINGLOG( "relocate via mouse click" );
-			Hydrogen::get_instance()->setPatternPos( column );
+			pHydrogen->setPatternPos( column );
 			update();
+
+#ifdef H2CORE_HAVE_JACK
+			if ( pHydrogen->haveJackTransport() ) {
+				long totalTick = pHydrogen->getTickForPosition( column );
+				static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
+					totalTick * pDriver->m_transport.m_fTickSize;
+			}
+#endif
 		}
 
 		//time line test
-		Hydrogen::get_instance()->setTimelineBpm();
+	
+#ifdef H2CORE_HAVE_JACK
+		if ( !pHydrogen->haveJackTimebaseClient() ) {
+			pHydrogen->setTimelineBpm();
+		}
+#else
+		pHydrogen->setTimelineBpm();
+#endif
 
-	}
-	else if (ev->button() == Qt::MidButton && ev->y() >= 26) {
+	} else if (ev->button() == Qt::MidButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);
 		SongEditorPanelTagWidget dialog( this , column );
 		if (dialog.exec() == QDialog::Accepted) {
 			//createBackground();
 		}
-	}
-	else if (ev->button() == Qt::RightButton && ev->y() >= 26) {
+	} else if (ev->button() == Qt::RightButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);
 		Preferences* pPref = Preferences::get_instance();
-		if ( column >= (int)Hydrogen::get_instance()->getSong()->get_pattern_group_vector()->size() ) {
+		if ( column >= (int)pHydrogen->getSong()->get_pattern_group_vector()->size() ) {
 			pPref->unsetPunchArea();
 			return;
 		}
-		if ( Hydrogen::get_instance()->getSong()->get_mode() == Song::PATTERN_MODE ) {
+		if ( pHydrogen->getSong()->get_mode() == Song::PATTERN_MODE ) {
 			return;
 		}
 		m_bRightBtnPressed = true;
@@ -2398,8 +2424,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		pPref->setPunchInPos(column);
 		pPref->setPunchOutPos(-1);
 		update();
-	}
-		else if( ( ev->button() == Qt::LeftButton || ev->button() == Qt::RightButton ) && ev->y() <= 25 && Preferences::get_instance()->getUseTimelineBpm() ){
+	} else if( ( ev->button() == Qt::LeftButton || ev->button() == Qt::RightButton ) && ev->y() <= 25 && Preferences::get_instance()->getUseTimelineBpm() ){
 		int column = (ev->x() / m_nGridWidth);
 		SongEditorPanelBpmWidget dialog( this , column );
 		if (dialog.exec() == QDialog::Accepted) {
@@ -2483,6 +2508,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 void SongEditorPositionRuler::updatePosition()
 {
+	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
 	update();
 }
 

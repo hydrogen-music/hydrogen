@@ -58,8 +58,10 @@ LayerPreview::LayerPreview( QWidget* pParent )
 	setMouseTracking( true );
 
 	int w = 276;
-	if( InstrumentComponent::getMaxLayers() > 16)
+	if( InstrumentComponent::getMaxLayers() > 16) {
 		w = 261;
+	}
+	
 	int h = 20 + m_nLayerHeight * InstrumentComponent::getMaxLayers();
 	resize( w, h );
 
@@ -268,9 +270,9 @@ void LayerPreview::mousePressEvent(QMouseEvent *ev)
 	if ( ev->y() < 20 ) {
 		float fVelocity = (float)ev->x() / (float)width();
 
-		Note *note = new Note( m_pInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
-		note->set_specific_compo_id( m_nSelectedComponent );
-		AudioEngine::get_instance()->get_sampler()->note_on(note);
+		Note * pNote = new Note( m_pInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
+		pNote->set_specific_compo_id( m_nSelectedComponent );
+		AudioEngine::get_instance()->get_sampler()->note_on(pNote);
 		
 		for ( int i = 0; i < InstrumentComponent::getMaxLayers(); i++ ) {
 			InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);

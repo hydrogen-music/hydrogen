@@ -66,7 +66,7 @@ Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffI
 		m_overPixmap.fill( QColor( 0, 180, 0 ) );
 	}
 
-    this->setStyleSheet("font-size: 9px; font-weight: bold;");
+	this->setStyleSheet("font-size: 9px; font-weight: bold;");
 
 	m_timerTimeout = 0;
 	m_timer = new QTimer(this);
@@ -118,20 +118,20 @@ bool Button::loadImage( const QString& sFilename, QPixmap& pixmap )
 
 
 void Button::mousePressEvent(QMouseEvent*ev) {
-
-    /*
-    *  Shift + Left-Click activate the midi learn widget
-    */
-
-    if ( ev->button() == Qt::LeftButton && (ev->modifiers() & Qt::ShiftModifier) ){
-	    MidiSenseWidget midiSense( this, true, this->getAction() );
-	    midiSense.exec();
-	    return;
-    }
-
-    m_bPressed = true;
-    update();
-    emit mousePress(this);
+	
+	/*
+	*  Shift + Left-Click activate the midi learn widget
+	*/
+	
+	if ( ev->button() == Qt::LeftButton && (ev->modifiers() & Qt::ShiftModifier) ){
+		MidiSenseWidget midiSense( this, true, this->getAction() );
+		midiSense.exec();
+		return;
+	}
+	
+	m_bPressed = true;
+	update();
+	emit mousePress(this);
 
 	if ( ev->button() == Qt::LeftButton && __enable_press_hold) {
 		m_timerTimeout = 2000;
@@ -146,10 +146,11 @@ void Button::mouseReleaseEvent(QMouseEvent* ev)
 	setPressed( false );
 
 	if (ev->button() == Qt::LeftButton) {
-		if(__enable_press_hold)
+		if(__enable_press_hold) {
 			m_timer->stop();
-		else
+		} else {
 			emit clicked(this);
+		}
 	}
 	else if (ev->button() == Qt::RightButton) {
 		emit rightClicked(this);
@@ -162,8 +163,10 @@ void Button::buttonPressed_timer_timeout()
 {
 	emit clicked(this);
 
-	if(m_timerTimeout > 100)
+	if(m_timerTimeout > 100) {
 		m_timerTimeout = m_timerTimeout / 2;
+	}
+	
 	m_timer->start(m_timerTimeout);
 }
 
@@ -263,7 +266,7 @@ void Button::paintEvent( QPaintEvent* ev)
 
 
 	if ( !m_sText.isEmpty() ) {
-        painter.setFont( m_textFont );
+		painter.setFont( m_textFont );
 
 		QColor shadow(150, 150, 150, 100);
 		QColor text(10, 10, 10);
@@ -311,25 +314,24 @@ ToggleButton::~ToggleButton() {
 
 
 void ToggleButton::mousePressEvent(QMouseEvent *ev) {
-
+	
 	if ( ev->button() == Qt::LeftButton && ev->modifiers() == Qt::ShiftModifier ){
-	    MidiSenseWidget midiSense( this, true, this->getAction() );
-	    midiSense.exec();
-	    return;
+		MidiSenseWidget midiSense( this, true, this->getAction() );
+		midiSense.exec();
+		return;
 	}
-
+	
 	if (ev->button() == Qt::RightButton) {
-                emit rightClicked(this);
-        }
+		emit rightClicked(this);
+	}
 	else {
 		if (m_bPressed) {
 			m_bPressed = false;
-		}
-		else {
+		} else {
 			m_bPressed = true;
 		}
 		update();
-
+		
 		emit clicked(this);
 	}
 }
