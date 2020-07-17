@@ -389,14 +389,6 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 				finishSelectionOrMove( m_nCursorColumn, m_nCursorRow );
 			}
 		}
-	} else if ( ev->text() == "+" ) {
-		if ( m_selectedCells.size() == 0 ) {
-			setPatternActive( m_nCursorColumn, m_nCursorRow, true );
-		}
-	} else if ( ev->text() == "-" ) {
-		if ( m_selectedCells.size() == 0 ) {
-			setPatternActive( m_nCursorColumn, m_nCursorRow, false );
-		}
 	} else {
 		ev->ignore();
 		m_bCursorHidden = true;

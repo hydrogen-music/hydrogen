@@ -519,10 +519,6 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			delta = 1.0;
 		} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
 			delta = -1.0;
-		} else if ( ev->text() == "+" ) {
-			delta = 0.1;
-		} else if ( ev->text() == "-" ) {
-			delta = -0.1;
 		} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 			if (m_bValueHasBeenSet) {
 				bRepeatLastValue = true;
