@@ -516,6 +516,17 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		pH2->setSelectedInstrumentNumber( 0 );
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument );
+	} else if ( ev->key() == Qt::Key_Delete || ev->key() == Qt::Key_Backspace ) {
+		const std::set<SelectionIndex> *pSelection = m_selection.getSelection();
+		qDebug() << "XXX Got selection: " << pSelection;
+		if ( !pSelection->empty() ) {
+			qDebug() << "XXX Not empty";
+			for ( auto i : *pSelection ) {
+				// XXX needs to be a batch undo/redo
+				qDebug() << "XXX Pos " << i.first << " instr " << i.second;
+				addOrRemoveNote( i.first, -1, i.second );
+			}
+		}
 	} else {
 		ev->ignore();
 		m_pPatternEditorPanel->setCursorHidden( true );
@@ -530,7 +541,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 
 
 
-std::vector<H2Core::Note *> DrumPatternEditor::elementsIntersecting( QRect r ) {
+std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsIntersecting( QRect r ) {
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	InstrumentList * pInstrList = pSong->get_instrument_list();
 	uint h = m_nGridHeight / 3;
@@ -546,7 +557,7 @@ std::vector<H2Core::Note *> DrumPatternEditor::elementsIntersecting( QRect r ) {
 	int x_max = (r.right() - 20) / m_nGridWidth;
 
 	const Pattern::notes_t* notes = m_pPattern->get_notes();
-	std::vector<H2Core::Note *> result;
+	std::vector<SelectionIndex> result;
 
 	for (auto it = notes->lower_bound( x_min ); it != notes->end() && it->first <= x_max; ++it ) {
 		Note *note = it->second;
@@ -555,7 +566,7 @@ std::vector<H2Core::Note *> DrumPatternEditor::elementsIntersecting( QRect r ) {
 		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 
 		if ( r.contains( QPoint( x_pos, y_pos + h/2) ) ) {
-			result.push_back( it->second );
+			result.push_back( SelectionIndex( note->get_position(), note->get_instrument_id() ) );
 		}
 	}
 
@@ -709,7 +720,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 	uint x_pos = 20 + (pos * m_nGridWidth);
 	uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 
-	if ( m_selection.isSelected( note ) ) {
+	if ( m_selection.isSelected( std::pair<int, int>( pos, nInstrument ) ) ) {
 
 		QPen pen(QColor(0, 0, 255));
 		pen.setWidth( 2 );

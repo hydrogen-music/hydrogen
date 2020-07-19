@@ -56,10 +56,12 @@ private:
 	// Moving selection
 	// Selected cells
 
-	// TODO: interfaces for keyboard
-	// Ctrl + click / drag for adding to selection
-	// Moving
-	// Start drag after some short time, as well as distance
+	// TODO: 
+	//   - Batch up multiple deletes for undo/redo as singe action
+	//   - Ctrl + click / drag for adding to selection
+	//   - Moving
+	//   - Start drag after some short time, as well as distance
+	//   - selection *box* for length-set note
 
 public:
 
@@ -80,12 +82,30 @@ public:
 				 << "";
 	}
 
+	// Selection operation interfaces
 	bool isMoving() {
 		return m_selectionState == Moving;
 	}
 
+	QPoint movingOffset() {
+		// XXX Not implemented yet
+		return QPoint(0,0);
+	}
+
 	bool isSelected( Elem e ) {
 		return m_selectedElements.find( e ) != m_selectedElements.end();
+	}
+
+	const std::set<Elem> *getSelection() {
+		return &m_selectedElements;
+	}
+
+	void removeFromSelection( Elem e ) {
+		m_selectedElements.remove( e );
+	}
+
+	void addToSelection( Elem e ) {
+		m_selectedElements.insert( e );
 	}
 
 	// ----------------------------------------------------------------------
@@ -178,7 +198,10 @@ public:
 	// ----------------------------------------------------------------------
 	// Higher-level mouse events -- clicks and drags
 	void mouseClick( QMouseEvent *ev ) {
-		m_selectedElements.clear();
+		if ( !m_selectedElements.empty() ) {
+			m_selectedElements.clear();
+			widget->update();
+		}
 		widget->mouseClickEvent( ev );
 	}
 
