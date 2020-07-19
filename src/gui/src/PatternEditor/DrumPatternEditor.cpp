@@ -517,16 +517,11 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument );
 	} else if ( ev->key() == Qt::Key_Delete || ev->key() == Qt::Key_Backspace ) {
-		const std::set<SelectionIndex> *pSelection = m_selection.getSelection();
-		qDebug() << "XXX Got selection: " << pSelection;
-		if ( !pSelection->empty() ) {
-			qDebug() << "XXX Not empty";
-			for ( auto i : *pSelection ) {
-				// XXX needs to be a batch undo/redo
-				qDebug() << "XXX Pos " << i.first << " instr " << i.second;
-				addOrRemoveNote( i.first, -1, i.second );
-			}
+		// XXX actually only ever want to remove, never add.
+		for (auto i : m_selection ) {
+			addOrRemoveNote( i.first, -1, i.second );
 		}
+		m_selection.clearSelection();
 	} else {
 		ev->ignore();
 		m_pPatternEditorPanel->setCursorHidden( true );

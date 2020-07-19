@@ -52,15 +52,10 @@ private:
 
 	std::set<Elem> m_selectedElements;
 
-	// Lasso: screen coords or grid coords?
-	// Moving selection
-	// Selected cells
-
 	// TODO: 
 	//   - Batch up multiple deletes for undo/redo as singe action
 	//   - Ctrl + click / drag for adding to selection
 	//   - Moving
-	//   - Start drag after some short time, as well as distance
 	//   - selection *box* for length-set note
 
 public:
@@ -82,6 +77,8 @@ public:
 				 << "";
 	}
 
+
+	// ----------------------------------------------------------------------
 	// Selection operation interfaces
 	bool isMoving() {
 		return m_selectionState == Moving;
@@ -96,9 +93,10 @@ public:
 		return m_selectedElements.find( e ) != m_selectedElements.end();
 	}
 
-	const std::set<Elem> *getSelection() {
-		return &m_selectedElements;
-	}
+	typedef typename std::set<Elem>::iterator iterator;
+
+	iterator begin() { return m_selectedElements.begin(); }
+	iterator end() { return m_selectedElements.end(); }
 
 	void removeFromSelection( Elem e ) {
 		m_selectedElements.remove( e );
@@ -106,6 +104,10 @@ public:
 
 	void addToSelection( Elem e ) {
 		m_selectedElements.insert( e );
+	}
+
+	void clearSelection() {
+		m_selectedElements.clear();
 	}
 
 	// ----------------------------------------------------------------------
@@ -188,6 +190,7 @@ public:
 		if ( m_selectionState == Lasso ) {
 			QPen pen( Qt::white );
 			pen.setStyle( Qt::DotLine );
+			pen.setWidth(2);
 			painter->setPen( pen );
 			painter->setBrush( Qt::NoBrush );
 			painter->drawRect( m_lasso );
