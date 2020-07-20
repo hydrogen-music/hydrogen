@@ -75,6 +75,8 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
+	Hydrogen::get_instance()->setSelectedInstrumentNumber( 0 );
+
 }
 
 
@@ -517,11 +519,19 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument );
 	} else if ( ev->key() == Qt::Key_Delete || ev->key() == Qt::Key_Backspace ) {
-		// XXX actually only ever want to remove, never add.
-		for (auto i : m_selection ) {
-			addOrRemoveNote( i.first, -1, i.second );
+		if ( m_selection.begin() != m_selection.end() ) {
+			// Delete a selection.
+			InstrumentList *pInstrumentList = pH2->getSong()->get_instrument_list();
+			QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+			pUndo->beginMacro("delete notes");
+			for (auto i : m_selection ) {
+				// There must be a note there to be selected, so we can use the existing 
+				// addOrRemove method to remove.
+				addOrRemoveNote( i.first, -1, pInstrumentList->index( i.second ) );
+			}
+			pUndo->endMacro();
+			m_selection.clearSelection();
 		}
-		m_selection.clearSelection();
 	} else {
 		ev->ignore();
 		m_pPatternEditorPanel->setCursorHidden( true );
@@ -556,12 +566,12 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 
 	for (auto it = notes->lower_bound( x_min ); it != notes->end() && it->first <= x_max; ++it ) {
 		Note *note = it->second;
-		int nInstrument = note->get_instrument()->get_id();
+		int nInstrument = pInstrList->index( note->get_instrument() );
 		uint x_pos = 20 + (it->first * m_nGridWidth);
 		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 
 		if ( r.contains( QPoint( x_pos, y_pos + h/2) ) ) {
-			result.push_back( SelectionIndex( note->get_position(), note->get_instrument_id() ) );
+			result.push_back( SelectionIndex( note->get_position(), note->get_instrument() ) );
 		}
 	}
 
@@ -715,25 +725,31 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 	uint x_pos = 20 + (pos * m_nGridWidth);
 	uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 
-	if ( m_selection.isSelected( std::pair<int, int>( pos, nInstrument ) ) ) {
+	bool bSelected = m_selection.isSelected( SelectionIndex( pos, note->get_instrument() ) );
 
-		QPen pen(QColor(0, 0, 255));
-		pen.setWidth( 2 );
-		p.setPen( pen );
-		p.setBrush (Qt::NoBrush );
-		p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
+	QPen selectedPen( QColor( 0, 0, 255 ) );
 
+	if ( bSelected ) {
+		selectedPen.setWidth( 2 );
+		p.setPen( selectedPen );
+		p.setBrush( Qt::NoBrush );
 	}
-	p.setPen(noteColor);
 
 	if ( note->get_length() == -1 && note->get_note_off() == false ) {	// trigger note
 
+		if ( bSelected ) {
+			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
+		}
+		p.setPen(noteColor);
 		p.setBrush( color );
 		p.drawEllipse( x_pos -4 , y_pos, w, h );
 
 	}
 	else if ( note->get_length() == 1 && note->get_note_off() == true ){
 
+		if ( bSelected ) {
+			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
+		}
 		p.setPen( noteoffColor );
 		p.setBrush(QColor( noteoffColor));
 		p.drawEllipse( x_pos -4 , y_pos, w, h );
@@ -749,6 +765,10 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 		int y = (int) ( ( nInstrument ) * m_nGridHeight  + (m_nGridHeight / 100.0 * 30.0) );
 		int h = (int) (m_nGridHeight - ((m_nGridHeight / 100.0 * 30.0) * 2.0) );
+		if ( bSelected ) {
+			p.drawRoundedRect( x-2, y+1-2, w+4, h+1+4, 4, 4 );
+		}
+		p.setPen(noteColor);
 		p.setBrush( color );
 		p.fillRect( x, y + 1, w, h + 1, color );	/// \todo: definire questo colore nelle preferenze
 		p.drawRect( x, y + 1, w, h + 1 );

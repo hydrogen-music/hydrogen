@@ -53,10 +53,10 @@ private:
 	std::set<Elem> m_selectedElements;
 
 	// TODO: 
-	//   - Batch up multiple deletes for undo/redo as singe action
 	//   - Ctrl + click / drag for adding to selection
 	//   - Moving
-	//   - selection *box* for length-set note
+	//   - replace SongEditor select / drag
+	//   - in PianoRollPatternEditor too
 
 public:
 
