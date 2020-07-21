@@ -615,6 +615,7 @@ void MainForm::action_file_save()
 		     == QMessageBox::Cancel ) {
 			return;
 		}
+		pSong->clear_missing_samples();
 	}
 
 	bool saved = false;
