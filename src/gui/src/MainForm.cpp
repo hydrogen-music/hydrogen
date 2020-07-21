@@ -605,6 +605,18 @@ void MainForm::action_file_save()
 		return action_file_save_as();
 	}
 
+	if ( pSong->has_missing_samples() ) {
+		if ( QMessageBox::information( this, "Hydrogen",
+		                               tr( "Some samples used by this song failed to load. If you save the song now "
+		                                   "these missing samples will be removed from the song entirely.\n"
+			                               "Are you sure you want to save?" ),
+		                               QMessageBox::Save | QMessageBox::Cancel,
+		                               QMessageBox::Save )
+		     == QMessageBox::Cancel ) {
+			return;
+		}
+	}
+
 	bool saved = false;
 	saved = pSong->save( filename );
 
