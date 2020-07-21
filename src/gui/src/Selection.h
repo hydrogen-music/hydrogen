@@ -44,7 +44,6 @@ private:
 	enum MouseState { Up, Down, Dragging } m_mouseState;
 	Qt::MouseButton m_mouseButton;
 
-	QPoint m_clickPos;
 	QMouseEvent *m_pClickEvent;
 	QRect m_lasso;
 
@@ -52,7 +51,7 @@ private:
 
 	std::set<Elem> m_selectedElements;
 
-	// TODO: 
+	// TODO:
 	//   - Ctrl + click / drag for adding to selection
 	//   - Moving
 	//   - replace SongEditor select / drag
@@ -73,7 +72,6 @@ public:
 											 m_mouseState == Dragging ? "Dragging" : "-" )
 				 << "\n"
 				 << "button: " << m_mouseButton << "\n"
-				 << "m_clickPos: " << m_clickPos << "\n"
 				 << "";
 	}
 
@@ -141,20 +139,20 @@ public:
 		// Detect start of click or drag event
 		if ( m_mouseState == Up ) {
 			m_mouseState = Down;
-			m_clickPos = ev->pos();
 			m_mouseButton = ev->button();
 			assert( m_pClickEvent == nullptr );
 			m_pClickEvent = new QMouseEvent(QEvent::MouseButtonPress,
 											ev->localPos(), ev->windowPos(), ev->screenPos(),
 											m_mouseButton, ev->buttons(), ev->modifiers(),
 											Qt::MouseEventSynthesizedByApplication);
+			m_pClickEvent->setTimestamp( ev->timestamp() );
 		}
 	}
 
 	void mouseMoveEvent( QMouseEvent *ev ) {
 
 		if ( m_mouseState == Down ) {
-			if ( (ev->pos() - m_clickPos).manhattanLength() > QApplication::startDragDistance() 
+			if ( (ev->pos() - m_pClickEvent->pos() ).manhattanLength() > QApplication::startDragDistance()
 				 || (ev->timestamp() - m_pClickEvent->timestamp()) > QApplication::startDragTime() ) {
 				// Mouse has moved far enough to consider this a drag rather than a click.
 				m_mouseState = Dragging;
@@ -209,13 +207,13 @@ public:
 	}
 
 	void mouseDragStart( QMouseEvent *ev ) {
-		QRect r = QRect( m_clickPos, ev->pos() );
+		QRect r = QRect( m_pClickEvent->pos(), ev->pos() );
 		std::vector<Elem> elems = widget->elementsIntersecting( r );
 
 		if ( elems.empty() ) {
 			/*  Didn't hit anything. Start new selection drag */
 			m_selectionState = Lasso;
-			m_lasso.setTopLeft( m_clickPos );
+			m_lasso.setTopLeft( m_pClickEvent->pos() );
 			m_lasso.setBottomRight( ev->pos() );
 			widget->update();
 		} else {
