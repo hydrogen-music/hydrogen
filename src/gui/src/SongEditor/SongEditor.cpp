@@ -101,7 +101,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 
 	m_nCursorRow = 0;
 	m_nCursorColumn = 0;
-	m_bCursorHidden = true;
+	m_bCursorHidden = Preferences::get_instance()->hideKeyboardCursor();
 
 	Preferences *pref = Preferences::get_instance();
 	m_nMaxPatternSequence = pref->getMaxBars();
@@ -391,7 +391,9 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 		}
 	} else {
 		ev->ignore();
-		m_bCursorHidden = true;
+		if ( Preferences::get_instance()->hideKeyboardCursor() ) {
+			m_bCursorHidden = true;
+		}
 		return;
 	}
 
@@ -514,7 +516,9 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 
 		m_nCursorColumn = p.x();
 		m_nCursorRow = p.y();
-		m_bCursorHidden = true;
+		if ( Preferences::get_instance()->hideKeyboardCursor() ) {
+			m_bCursorHidden = true;
+		}
 
 		m_clickStartPoint = ev->pos();
 
@@ -687,7 +691,9 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 	QPoint p = xyToColumnRow( ev->pos() );
 	m_nCursorColumn = p.x();
 	m_nCursorRow = p.y();
-	m_bCursorHidden = true;
+	if ( Preferences::get_instance()->hideKeyboardCursor() ) {
+		m_bCursorHidden = true;
+	}
 
 	SongEditorActionMode actionMode = m_pSongEditorPanel->getActionMode();
 

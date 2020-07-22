@@ -85,7 +85,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		int moveCursorLeft();
 		int moveCursorRight();
 		bool cursorHidden()	{ return m_bCursorHidden; }
-		void setCursorHidden(bool hidden)	{ m_bCursorHidden = hidden; }
+		void setCursorHidden(bool hidden);
 
 	private slots:
 		void gridResolutionChanged( int nSelected );
@@ -192,6 +192,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		virtual void resizeEvent(QResizeEvent *ev);
 		virtual void showEvent(QShowEvent *ev);
 };
+
 
 
 

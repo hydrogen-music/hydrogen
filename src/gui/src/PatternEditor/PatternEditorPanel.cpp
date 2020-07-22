@@ -1041,6 +1041,16 @@ int PatternEditorPanel::getCursorPosition()
 	return m_nCursorPosition;
 }
 
+void PatternEditorPanel::setCursorHidden( bool hidden ) {
+	m_bCursorHidden = false;
+	if ( hidden ) {
+		if ( Preferences::get_instance()->hideKeyboardCursor() ) {
+			m_bCursorHidden = true;
+		}
+	}
+}
+
+
 void PatternEditorPanel::ensureCursorVisible()
 {
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
