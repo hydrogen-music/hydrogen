@@ -46,16 +46,11 @@ private:
 
 	QMouseEvent *m_pClickEvent;
 	QRect m_lasso;
+	QPoint m_movingOffset;
 
 	enum SelectionState { Idle, Lasso, Moving } m_selectionState;
 
 	std::set<Elem> m_selectedElements;
-
-	// TODO:
-	//   - Ctrl + click / drag for adding to selection
-	//   - Moving
-	//   - replace SongEditor select / drag
-	//   - in PianoRollPatternEditor too
 
 public:
 
@@ -83,8 +78,7 @@ public:
 	}
 
 	QPoint movingOffset() {
-		// XXX Not implemented yet
-		return QPoint(0,0);
+		return m_movingOffset;
 	}
 
 	bool isSelected( Elem e ) {
@@ -199,11 +193,27 @@ public:
 	// ----------------------------------------------------------------------
 	// Higher-level mouse events -- clicks and drags
 	void mouseClick( QMouseEvent *ev ) {
-		if ( !m_selectedElements.empty() ) {
-			m_selectedElements.clear();
+		if ( ev->modifiers() & Qt::ControlModifier ) {
+			// Ctrl+click to add or remove element from selection.
+			QRect r = QRect( ev->pos(), ev->pos() );
+			std::vector<Elem> elems = widget->elementsIntersecting( r );
+			for ( Elem e : elems) {
+				if ( m_selectedElements.find( e ) == m_selectedElements.end() ) {
+					m_selectedElements.insert( e );
+				} else {
+					m_selectedElements.erase( e );
+				}
+			}
 			widget->update();
+		} else {
+			if ( !m_selectedElements.empty() ) {
+				// Click without ctrl will clear selection
+				// TODO: right-click should not clear selection as we may want context menus
+				m_selectedElements.clear();
+				widget->update();
+			}
+			widget->mouseClickEvent( ev );
 		}
-		widget->mouseClickEvent( ev );
 	}
 
 	void mouseDragStart( QMouseEvent *ev ) {
@@ -217,7 +227,9 @@ public:
 			m_lasso.setBottomRight( ev->pos() );
 			widget->update();
 		} else {
-			/* XXX Drag selection */
+			/* Move selection */
+			m_selectionState = Moving;
+			m_movingOffset = ev->pos() - m_pClickEvent->pos();
 		}
 
 		widget->mouseDragStartEvent( ev );
@@ -237,6 +249,9 @@ public:
 			}
 
 			widget->update();
+		} else if ( m_selectionState == Moving ) {
+			m_movingOffset = ev->pos() - m_pClickEvent->pos();
+			widget->update();
 		} else {
 			// Pass drag update to widget
 			widget->mouseDragUpdateEvent( ev );
@@ -246,6 +261,10 @@ public:
 	void mouseDragEnd( QMouseEvent *ev ) {
 		if ( m_selectionState == Lasso) {
 			m_selectionState = Idle;
+			widget->update();
+		} else if ( m_selectionState == Moving ) {
+			m_selectionState = Idle;
+			// XXX Call widget to do move
 			widget->update();
 		} else {
 			// Pass drag end to widget

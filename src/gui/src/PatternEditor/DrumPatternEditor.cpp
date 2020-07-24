@@ -551,9 +551,15 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 	InstrumentList * pInstrList = pSong->get_instrument_list();
 	uint h = m_nGridHeight / 3;
 
-	// Expand the region by approximately the size of the note ellipse, equivalent to testing
-	// for intersection between `r' and the equivalent rect around the note.
+	// Expand the region by approximately the size of the note
+	// ellipse, equivalent to testing for intersection between `r' and
+	// the equivalent rect around the note. We also allow a few extra
+	// pixels if it's a single point click.
 	r = r.normalized();
+	if ( r.top() == r.bottom() && r.left() == r.right() ) {
+		r += QMargins( 2, 2, 2, 2 );
+	}
+	
 	r += QMargins( 4, h/2, 4, h/2 );
 
 
@@ -726,13 +732,22 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 	uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 
 	bool bSelected = m_selection.isSelected( SelectionIndex( pos, note->get_instrument() ) );
-
 	QPen selectedPen( QColor( 0, 0, 255 ) );
 
 	if ( bSelected ) {
 		selectedPen.setWidth( 2 );
 		p.setPen( selectedPen );
 		p.setBrush( Qt::NoBrush );
+	}
+
+	bool bMoving = bSelected && m_selection.isMoving();
+	QPen movingPen( noteColor );
+	QPoint movingOffset;
+
+	if ( bMoving ) {
+		movingPen.setStyle( Qt::DotLine );
+		movingPen.setWidth( 2 );
+		movingOffset = m_selection.movingOffset();
 	}
 
 	if ( note->get_length() == -1 && note->get_note_off() == false ) {	// trigger note
@@ -744,6 +759,12 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 		p.setBrush( color );
 		p.drawEllipse( x_pos -4 , y_pos, w, h );
 
+		if ( bMoving ) {
+			p.setPen( movingPen );
+			p.setBrush( Qt::NoBrush );
+			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2 , w + 4, h + 4 );
+		}
+
 	}
 	else if ( note->get_length() == 1 && note->get_note_off() == true ){
 
@@ -753,6 +774,12 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 		p.setPen( noteoffColor );
 		p.setBrush(QColor( noteoffColor));
 		p.drawEllipse( x_pos -4 , y_pos, w, h );
+
+		if ( bMoving ) {
+			p.setPen( movingPen );
+			p.setBrush( Qt::NoBrush );
+			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2, w + 4, h + 4 );
+		}
 
 	}
 	else {
@@ -772,6 +799,12 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 		p.setBrush( color );
 		p.fillRect( x, y + 1, w, h + 1, color );	/// \todo: definire questo colore nelle preferenze
 		p.drawRect( x, y + 1, w, h + 1 );
+		if ( bMoving ) {
+			p.setPen( movingPen );
+			p.setBrush( Qt::NoBrush );
+			p.drawRoundedRect( movingOffset.x() + x-2, movingOffset.y() + y+1-2, w+4, h+1+4, 4, 4 );
+		}
+
 	}
 }
 
