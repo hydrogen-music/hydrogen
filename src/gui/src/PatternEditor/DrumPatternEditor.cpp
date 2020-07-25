@@ -745,9 +745,21 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 	QPoint movingOffset;
 
 	if ( bMoving ) {
+		QPoint rawOffset = m_selection.movingOffset();
 		movingPen.setStyle( Qt::DotLine );
 		movingPen.setWidth( 2 );
-		movingOffset = m_selection.movingOffset();
+		// Quantize offset to multiples of m_nGrid{Width,Height}
+		int x_bias = (int)m_nGridWidth / 2, y_bias = (int)m_nGridHeight / 2;
+		if ( rawOffset.y() < 0 ) {
+			y_bias = -y_bias;
+		}
+		if ( rawOffset.x() < 0 ) {
+			x_bias = -x_bias;
+		}
+		int x_off = (m_selection.movingOffset().x() + x_bias) / m_nGridWidth;
+		int y_off = (m_selection.movingOffset().y() + y_bias) / (int)m_nGridHeight;
+		movingOffset = QPoint( x_off * m_nGridWidth,
+							   y_off * m_nGridHeight );
 	}
 
 	if ( note->get_length() == -1 && note->get_note_off() == false ) {	// trigger note
