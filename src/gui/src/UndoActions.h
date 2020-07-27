@@ -608,6 +608,48 @@ private:
 	int __selectedPatternNumber;
 };
 
+class SE_moveNoteAction : public QUndoCommand
+{
+public:
+	SE_moveNoteAction( int nOldPosition, int nOldInstrument, int nPattern, int nNewPosition, int nNewInstrument,
+					   H2Core::Note *pNote )
+	{
+		m_nOldPosition = nOldPosition;
+		m_nOldInstrument = nOldInstrument;
+		m_nPattern = nPattern;
+		m_nNewPosition = nNewPosition;
+		m_nNewInstrument = nNewInstrument;
+		m_pNote = new H2Core::Note( pNote );
+	}
+
+	~SE_moveNoteAction()
+	{
+		delete m_pNote;
+	}
+
+	virtual void undo()
+	{
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
+			->moveNoteAction( m_nNewPosition, m_nNewInstrument, m_nPattern,
+							  m_nOldPosition, m_nOldInstrument, m_pNote );
+	}
+
+	virtual void redo()
+	{
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
+			->moveNoteAction( m_nOldPosition, m_nOldInstrument, m_nPattern,
+							  m_nNewPosition, m_nNewInstrument, m_pNote );
+	}
+
+private:
+	int m_nOldPosition;
+	int m_nOldInstrument;
+	int m_nPattern;
+	int m_nNewPosition;
+	int m_nNewInstrument;
+	H2Core::Note *m_pNote;
+};
+
 class SE_editNoteLenghtAction : public QUndoCommand
 {
 public:

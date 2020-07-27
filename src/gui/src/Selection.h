@@ -264,7 +264,7 @@ public:
 			widget->update();
 		} else if ( m_selectionState == Moving ) {
 			m_selectionState = Idle;
-			// XXX Call widget to do move
+			widget->selectionMoveEndEvent( ev );
 			widget->update();
 		} else {
 			// Pass drag end to widget

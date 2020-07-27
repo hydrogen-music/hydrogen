@@ -241,6 +241,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	else if ( ev->button() == Qt::LeftButton ) {
 
 		addOrRemoveNote( nColumn, nRealColumn, row );
+		m_selection.clearSelection();
 
 	}
 
@@ -386,6 +387,71 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 }
 
 
+// Find a note that matches pNote, and move it from (nColumn, nRow) to (nNewColumn, nNewRow)
+void DrumPatternEditor::moveNoteAction( int nColumn,
+										int nRow,
+										int nPattern,
+										int nNewColumn,
+										int nNewRow,
+										Note *pNote)
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	// XXX Lock
+	Song *pSong = pHydrogen->getSong();
+	PatternList *pPatternList = pSong->get_pattern_list();
+	InstrumentList *pInstrumentList = pSong->get_instrument_list();
+	Pattern *pPattern = m_pPattern;
+	Note *pFoundNote = nullptr;
+
+	if ( nPattern < 0 || nPattern > pPatternList->size() ) {
+		ERRORLOG( "Invalid pattern number" );
+		return;
+	}
+
+	Instrument *pFromInstrument = pInstrumentList->get( nRow ),
+		*pToInstrument = pInstrumentList->get( nNewRow );
+
+	FOREACH_NOTE_IT_BOUND((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
+		Note *pCandidateNote = it->second;
+		if ( pCandidateNote->get_instrument() == pFromInstrument
+			 && pCandidateNote->get_key() == pNote->get_key()
+			 && pCandidateNote->get_octave() == pNote->get_octave()
+			 && pCandidateNote->get_velocity() == pNote->get_velocity()
+			 && pCandidateNote->get_lead_lag() == pNote->get_lead_lag()
+			 && pCandidateNote->get_pan_r() == pNote->get_pan_r()
+			 && pCandidateNote->get_pan_l() == pNote->get_pan_r()
+			 && pCandidateNote->get_note_off() == pNote->get_note_off() ) {
+			pFoundNote = pCandidateNote;
+			break;
+		}
+	}
+	if ( pFoundNote == nullptr ) {
+		ERRORLOG( "Couldn't find note to move" );
+		return;
+	}
+
+	pPattern->remove_note( pFoundNote );
+	if ( pFromInstrument == pToInstrument ) {
+		// Note can simply be moved.
+		pFoundNote->set_position( nNewColumn );
+		pPattern->insert_note( pFoundNote );
+	} else {
+		pPattern->remove_note( pFoundNote );
+		Note *pNewNote = new Note( pFoundNote, pToInstrument );
+		pNewNote->set_position( nNewColumn );
+		pPattern->insert_note( pNewNote );
+		delete pFoundNote;
+	}
+
+	update();
+	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+	m_pPatternEditorPanel->getPanEditor()->updateEditor();
+	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+}
+
+
 void DrumPatternEditor::mouseDragEndEvent( QMouseEvent *ev )
 {
 	UNUSED( ev );
@@ -402,6 +468,65 @@ void DrumPatternEditor::mouseDragEndEvent( QMouseEvent *ev )
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		m_pDraggedNote = nullptr;
 	}
+}
+
+
+QPoint DrumPatternEditor::movingGridOffset() {
+	QPoint rawOffset = m_selection.movingOffset();
+	// Quantize offset to multiples of m_nGrid{Width,Height}
+	int x_bias = (int)m_nGridWidth / 2, y_bias = (int)m_nGridHeight / 2;
+	if ( rawOffset.y() < 0 ) {
+		y_bias = -y_bias;
+	}
+	if ( rawOffset.x() < 0 ) {
+		x_bias = -x_bias;
+	}
+	int x_off = (m_selection.movingOffset().x() + x_bias) / m_nGridWidth;
+	int y_off = (m_selection.movingOffset().y() + y_bias) / (int)m_nGridHeight;
+	return QPoint( x_off, y_off);
+}
+
+
+void DrumPatternEditor::selectionMoveEndEvent( QMouseEvent *ev )
+{
+	UNUSED( ev );
+	QPoint offset = movingGridOffset();
+	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+
+	validateSelection();
+
+	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+	pUndo->beginMacro( "move notes" );
+	for ( auto pNote : m_selection ) {
+		int nInstrument = pInstrumentList->index( pNote->get_instrument() );
+		int nPosition = pNote->get_position();
+		int nNewInstrument = nInstrument + offset.y();
+		int nNewPosition = nPosition + offset.x();
+		if ( nNewInstrument < 0 || nNewInstrument > pInstrumentList->size()
+			 || nNewPosition < 0 ) {
+
+			// Note is moved out of range. Delete it.
+			pUndo->push( new SE_addNoteAction( nPosition,
+											   nInstrument,
+											   __selectedPatternNumber,
+											   pNote->get_length(),
+											   pNote->get_velocity(),
+											   pNote->get_pan_l(),
+											   pNote->get_pan_r(),
+											   pNote->get_lead_lag(),
+											   pNote->get_key(),
+											   pNote->get_octave(),
+											   true,
+											   false,
+											   false,
+											   false ) );
+
+		} else {
+			pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, __selectedPatternNumber,
+												nNewPosition, nNewInstrument, pNote ) );
+		}
+	}
+	pUndo->endMacro();
 }
 
 
@@ -517,6 +642,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
 		pH2->setSelectedInstrumentNumber( 0 );
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+		m_selection.clearSelection();
 		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument );
 	} else if ( ev->key() == Qt::Key_Delete || ev->key() == Qt::Key_Backspace ) {
 		if ( m_selection.begin() != m_selection.end() ) {
@@ -524,10 +650,13 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 			InstrumentList *pInstrumentList = pH2->getSong()->get_instrument_list();
 			QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 			pUndo->beginMacro("delete notes");
-			for (auto i : m_selection ) {
+			validateSelection();
+			for ( Note *pNote : m_selection ) {
 				// There must be a note there to be selected, so we can use the existing 
 				// addOrRemove method to remove.
-				addOrRemoveNote( i.first, -1, pInstrumentList->index( i.second ) );
+				if ( m_selection.isSelected( pNote ) ) {
+					addOrRemoveNote( pNote->get_position(), -1, pInstrumentList->index( pNote->get_instrument() ) );
+				}
 			}
 			pUndo->endMacro();
 			m_selection.clearSelection();
@@ -553,14 +682,15 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 
 	// Expand the region by approximately the size of the note
 	// ellipse, equivalent to testing for intersection between `r' and
-	// the equivalent rect around the note. We also allow a few extra
-	// pixels if it's a single point click.
+	// the equivalent rect around the note.
 	r = r.normalized();
+	r += QMargins( 4, h/2, 4, h/2 );
+
+	// We'll also allow a few extra pixels if it's a single point
+	// click, to make it easier to grab notes.
 	if ( r.top() == r.bottom() && r.left() == r.right() ) {
 		r += QMargins( 2, 2, 2, 2 );
 	}
-	
-	r += QMargins( 4, h/2, 4, h/2 );
 
 
 	// Calculate the first and last position values that this rect will intersect with
@@ -577,13 +707,28 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 
 		if ( r.contains( QPoint( x_pos, y_pos + h/2) ) ) {
-			result.push_back( SelectionIndex( note->get_position(), note->get_instrument() ) );
+			result.push_back( note );
 		}
 	}
 
 	return std::move( result );
 }
 
+// Ensure selection only refers to valid notes, and does not contain any stale references to deleted notes.
+void DrumPatternEditor::validateSelection()
+{
+	// Rebuild selection from valid notes.
+	std::set<Note *> valid;
+	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
+		if ( m_selection.isSelected( it->second ) ) {
+			valid.insert( it->second );
+		}
+	}
+	m_selection.clearSelection();
+	for (auto i : valid ) {
+		m_selection.addToSelection( i );
+	}
+}
 
 ///
 /// Draws a pattern
@@ -731,7 +876,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 	uint x_pos = 20 + (pos * m_nGridWidth);
 	uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 
-	bool bSelected = m_selection.isSelected( SelectionIndex( pos, note->get_instrument() ) );
+	bool bSelected = m_selection.isSelected( note );
 	QPen selectedPen( QColor( 0, 0, 255 ) );
 
 	if ( bSelected ) {
@@ -745,21 +890,11 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 	QPoint movingOffset;
 
 	if ( bMoving ) {
-		QPoint rawOffset = m_selection.movingOffset();
 		movingPen.setStyle( Qt::DotLine );
 		movingPen.setWidth( 2 );
-		// Quantize offset to multiples of m_nGrid{Width,Height}
-		int x_bias = (int)m_nGridWidth / 2, y_bias = (int)m_nGridHeight / 2;
-		if ( rawOffset.y() < 0 ) {
-			y_bias = -y_bias;
-		}
-		if ( rawOffset.x() < 0 ) {
-			x_bias = -x_bias;
-		}
-		int x_off = (m_selection.movingOffset().x() + x_bias) / m_nGridWidth;
-		int y_off = (m_selection.movingOffset().y() + y_bias) / (int)m_nGridHeight;
-		movingOffset = QPoint( x_off * m_nGridWidth,
-							   y_off * m_nGridHeight );
+		QPoint delta = movingGridOffset();
+		movingOffset = QPoint( delta.x() * m_nGridWidth,
+							   delta.y() * m_nGridHeight );
 	}
 
 	if ( note->get_length() == -1 && note->get_note_off() == false ) {	// trigger note

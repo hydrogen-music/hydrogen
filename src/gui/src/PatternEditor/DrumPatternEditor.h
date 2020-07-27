@@ -84,6 +84,13 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 										bool isMidi,
 										bool isInstrumentMode,
 										bool isNoteOff);
+		void moveNoteAction( int nColumn,
+							 int nRow,
+							 int nPattern,
+							 int nNewColumn,
+							 int nNewRow,
+							 H2Core::Note *note);
+
 		void addOrRemoveNote( int nColumn, int nRealColumn, int row );
 		void editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber );
 		void undoRedoAction(    int column,
@@ -116,9 +123,16 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		void mouseDragStartEvent( QMouseEvent *ev );
 		void mouseDragUpdateEvent( QMouseEvent *ev );
 		void mouseDragEndEvent( QMouseEvent *ev );
+		void selectionMoveEndEvent( QMouseEvent *ev );
 
-		typedef std::pair< int, H2Core::Instrument* > SelectionIndex;
+		// Selected notes are indexed by their address to ensure that a
+		// note is definitely uniquely identified. This carries the risk
+		// that state pointers to deleted notes may find their way into
+		// the selection.
+		typedef H2Core::Note* SelectionIndex;
 		std::vector<SelectionIndex> elementsIntersecting( QRect r );
+		void validateSelection();
+
 
 	public slots:
 		void updateEditor();
@@ -155,6 +169,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		Selection<DrumPatternEditor, SelectionIndex > m_selection;
 
 		int getColumn(QMouseEvent *ev);
+		QPoint movingGridOffset();
 
 		int findFreeCompoID( int startingPoint = 0 );
 		int findExistingCompo( QString SourceName );
