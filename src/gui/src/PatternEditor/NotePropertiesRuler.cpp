@@ -553,7 +553,6 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 						__velocity = qBound( __velocity, VELOCITY_MIN, VELOCITY_MAX );
 						m_fLastSetValue = __velocity;
 						m_bValueHasBeenSet = true;
-						pNote->set_velocity( __velocity );
 					}
 					break;
 				case PAN:
@@ -573,8 +572,6 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 						}
 						m_fLastSetValue = val;
 						m_bValueHasBeenSet = true;
-						pNote->set_pan_l( 2*PAN_MAX - val );
-						pNote->set_pan_r( val );
 						break;
 					}
 				case LEADLAG:
@@ -587,7 +584,6 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 						__leadLag = qBound( __leadLag, LEAD_LAG_MIN, LEAD_LAG_MAX );
 						m_fLastSetValue = __leadLag;
 						m_bValueHasBeenSet = true;
-						pNote->set_lead_lag( __leadLag );
 						break;
 					}
 				case PROBABILITY:
@@ -600,7 +596,6 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 						__probability = qBound( __probability, 0.0f, 1.0f );
 						m_fLastSetValue = __probability;
 						m_bValueHasBeenSet = true;
-						pNote->set_probability( __probability );
 					}
 					break;
 				case NOTEKEY:
@@ -628,7 +623,6 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 					}
 					m_fLastSetValue = 12 * __octaveKeyVal + __noteKeyVal;
 					m_bValueHasBeenSet = true;
-					pNote->set_key_octave( (Note::Key)__noteKeyVal, (Note::Octave)__octaveKeyVal );
 					break;
 				}
 			}
