@@ -694,16 +694,16 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 	uint h = m_nGridHeight / 3;
 
 	// Expand the region by approximately the size of the note
-	// ellipse, equivalent to testing for intersection between `r' and
-	// the equivalent rect around the note.
-	r = r.normalized();
-	r += QMargins( 4, h/2, 4, h/2 );
+	// ellipse, equivalent to testing for intersection between `r'
+	// and the equivalent rect around the note.  We'll also allow
+	// a few extra pixels if it's a single point click, to make it
+	// easier to grab notes.
 
-	// We'll also allow a few extra pixels if it's a single point
-	// click, to make it easier to grab notes.
+	r = r.normalized();
 	if ( r.top() == r.bottom() && r.left() == r.right() ) {
 		r += QMargins( 2, 2, 2, 2 );
 	}
+	r += QMargins( 4, h/2, 4, h/2 );
 
 
 	// Calculate the first and last position values that this rect will intersect with
