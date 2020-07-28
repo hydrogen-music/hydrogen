@@ -91,7 +91,7 @@ public:
 	iterator end() { return m_selectedElements.end(); }
 
 	void removeFromSelection( Elem e ) {
-		m_selectedElements.remove( e );
+		m_selectedElements.erase( e );
 	}
 
 	void addToSelection( Elem e ) {

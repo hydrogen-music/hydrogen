@@ -396,8 +396,9 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 										Note *pNote)
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	// XXX Lock
 	Song *pSong = pHydrogen->getSong();
+
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	PatternList *pPatternList = pSong->get_pattern_list();
 	InstrumentList *pInstrumentList = pSong->get_instrument_list();
 	Pattern *pPattern = m_pPattern;
@@ -405,6 +406,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 
 	if ( nPattern < 0 || nPattern > pPatternList->size() ) {
 		ERRORLOG( "Invalid pattern number" );
+		AudioEngine::get_instance()->unlock();
 		return;
 	}
 
@@ -427,6 +429,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 	}
 	if ( pFoundNote == nullptr ) {
 		ERRORLOG( "Couldn't find note to move" );
+		AudioEngine::get_instance()->unlock();
 		return;
 	}
 
@@ -437,11 +440,15 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 		pPattern->insert_note( pFoundNote );
 	} else {
 		pPattern->remove_note( pFoundNote );
+		m_selection.removeFromSelection( pFoundNote );
 		Note *pNewNote = new Note( pFoundNote, pToInstrument );
 		pNewNote->set_position( nNewColumn );
+		m_selection.addToSelection( pNewNote );
 		pPattern->insert_note( pNewNote );
 		delete pFoundNote;
 	}
+
+	AudioEngine::get_instance()->unlock();
 
 	update();
 	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
@@ -487,6 +494,7 @@ QPoint DrumPatternEditor::movingGridOffset() {
 }
 
 
+// Move notes
 void DrumPatternEditor::selectionMoveEndEvent( QMouseEvent *ev )
 {
 	UNUSED( ev );
@@ -497,7 +505,12 @@ void DrumPatternEditor::selectionMoveEndEvent( QMouseEvent *ev )
 
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 	pUndo->beginMacro( "move notes" );
+	std::list< Note * > selectedNotes;
 	for ( auto pNote : m_selection ) {
+		selectedNotes.push_back( pNote );
+	}
+
+	for ( auto pNote : selectedNotes ) {
 		int nInstrument = pInstrumentList->index( pNote->get_instrument() );
 		int nPosition = pNote->get_position();
 		int nNewInstrument = nInstrument + offset.y();
