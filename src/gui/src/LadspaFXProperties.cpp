@@ -380,8 +380,6 @@ void LadspaFXProperties::selectFXBtnClicked()
 					pFX = Lv2FX::load( pFXInfo->m_sID, nSampleRate );
 					pFX->setEnabled( true );
 					break;
-					
-					break;
 				}
 			}
 			
