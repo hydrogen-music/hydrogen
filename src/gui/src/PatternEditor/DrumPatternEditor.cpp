@@ -632,32 +632,44 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 
 	m_pPatternEditorPanel->setCursorHidden( false );
 
+	// Basic directional movement using standard keys
 	if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ) {
 		// -->|
 		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
+
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ) {
 		// <-
 		m_pPatternEditorPanel->moveCursorLeft();
+
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ) {
 		// |<--
 		m_pPatternEditorPanel->setCursorPosition( 0 );
+
 	} else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
 		if ( nSelectedInstrument + 1 < nMaxInstrument )
 			pH2->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
 		pH2->setSelectedInstrumentNumber( nMaxInstrument-1 );
+
 	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
 		if ( nSelectedInstrument > 0 )
 			pH2->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
+
 	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
 		pH2->setSelectedInstrumentNumber( 0 );
+
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+		// Key: Enter / Return: add or remove note at current position
 		m_selection.clearSelection();
 		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument );
+
 	} else if ( ev->key() == Qt::Key_Delete || ev->key() == Qt::Key_Backspace ) {
+		// Key: Delete / Backspace: delete selected notes
 		if ( m_selection.begin() != m_selection.end() ) {
 			// Delete a selection.
 			InstrumentList *pInstrumentList = pH2->getSong()->get_instrument_list();
@@ -674,6 +686,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 			pUndo->endMacro();
 			m_selection.clearSelection();
 		}
+
 	} else {
 		ev->ignore();
 		m_pPatternEditorPanel->setCursorHidden( true );

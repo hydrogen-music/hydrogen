@@ -949,31 +949,42 @@ QPoint PianoRollEditor::cursorPosition()
 void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 {
 	m_pPatternEditorPanel->setCursorHidden( false );
+
+	// Basic directional movement using standard keys
 	if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ) {
 		// -->|
 		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
+
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ) {
 		// <-
 		m_pPatternEditorPanel->moveCursorLeft();
+
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ) {
 		// |<--
 		m_pPatternEditorPanel->setCursorPosition( 0 );
+
 	} else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
 		if ( m_nCursorNote > 0 ) {
 			m_nCursorNote --;
 		}
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
 		m_nCursorNote = 0;
+
 	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
 		if ( m_nCursorNote < 12 * m_nOctaves -1 ) {
 			m_nCursorNote ++;
 		}
+
 	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
 		m_nCursorNote = 12 * m_nOctaves -1;
+
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+		// Key: Enter/Return : Place or remove note at current position
 		int note = m_nCursorNote % 12;
 		int octave = m_nCursorNote / 12;
 		int pressedline = (m_nOctaves * 12) - m_nCursorNote - 1;
