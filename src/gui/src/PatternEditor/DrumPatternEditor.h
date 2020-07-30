@@ -123,7 +123,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		void mouseDragStartEvent( QMouseEvent *ev );
 		void mouseDragUpdateEvent( QMouseEvent *ev );
 		void mouseDragEndEvent( QMouseEvent *ev );
-		void selectionMoveEndEvent( QMouseEvent *ev );
+		void selectionMoveEndEvent( QInputEvent *ev );
 
 		// Selected notes are indexed by their address to ensure that a
 		// note is definitely uniquely identified. This carries the risk
@@ -132,6 +132,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		typedef H2Core::Note* SelectionIndex;
 		std::vector<SelectionIndex> elementsIntersecting( QRect r );
 		void validateSelection();
+
+		QRect getKeyboardCursorRect();
 
 
 	public slots:

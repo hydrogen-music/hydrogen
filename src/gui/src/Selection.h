@@ -32,8 +32,27 @@
 #include <QDebug>
 
 
-// Selection management for editor widges
-//
+
+//! Selection management for editor widgets
+//!
+//! This template class bundles up the functionality necessary for
+//! interactive selections using mouse and keyboard.
+//!
+//! The Selection class:
+//!   - maintains a set of selected elements
+//!   - maps low-level Qt mouse events to user-level complete 'click' and 'drag' gestures
+//!   - handles some clicks, drags and keyboard events to manage selection
+//!   - provides an offset for 'moving' selections, so the client widget can draw moving selections
+//!   - paints a selection lasso if needed
+//!
+//! The client widget must:
+//!   - pass mouse and keyboard events to the Selection
+//!   - provide query methods for
+//!      - elements intersecting a selection area
+//!      - providing the location of keyboard input cursor
+//!      - receiving user-level mouse gestures
+//!      - paint any moving elements
+//!      - call paintSelection() to allow the Selection to paint a lasso
 
 template<class Widget, class Elem>
 class Selection {
@@ -48,9 +67,11 @@ private:
 	QRect m_lasso;
 	QPoint m_movingOffset;
 
-	enum SelectionState { Idle, Lasso, Moving } m_selectionState;
+	enum SelectionState { Idle, MouseLasso, MouseMoving, KeyboardLasso, KeyboardMoving } m_selectionState;
 
 	std::set<Elem> m_selectedElements;
+
+	QRect m_keyboardCursorStart;
 
 public:
 
@@ -74,7 +95,7 @@ public:
 	// ----------------------------------------------------------------------
 	// Selection operation interfaces
 	bool isMoving() {
-		return m_selectionState == Moving;
+		return m_selectionState == MouseMoving || m_selectionState == KeyboardMoving;
 	}
 
 	QPoint movingOffset() {
@@ -102,7 +123,7 @@ public:
 		m_selectedElements.clear();
 	}
 
-	// ----------------------------------------------------------------------
+	// ---------------------------------------------------------------------
 	// Raw mouse events from Qt. These are handled by a state machine
 	// that models the intended user interaction including clicks and
 	// drags, with single buttons held down, and translated to
@@ -177,14 +198,16 @@ public:
 
 
 	// ----------------------------------------------------------------------
-	// Paint selection-related things
+	// Paint selection-related elements (ie lasso)
+
 	void paintSelection( QPainter *painter ) {
-		if ( m_selectionState == Lasso ) {
+		if ( m_selectionState == MouseLasso || m_selectionState == KeyboardLasso ) {
 			QPen pen( Qt::white );
 			pen.setStyle( Qt::DotLine );
 			pen.setWidth(2);
 			painter->setPen( pen );
 			painter->setBrush( Qt::NoBrush );
+
 			painter->drawRect( m_lasso );
 		}
 	}
@@ -221,37 +244,38 @@ public:
 		std::vector<Elem> elems = widget->elementsIntersecting( r );
 
 		if ( elems.empty() ) {
-			/*  Didn't hit anything. Start new selection drag */
-			m_selectionState = Lasso;
+			//  Didn't hit anything. Start new selection drag.
+			m_selectionState = MouseLasso;
 			m_lasso.setTopLeft( m_pClickEvent->pos() );
 			m_lasso.setBottomRight( ev->pos() );
 			widget->update();
+
 		} else {
 			/* Move selection */
-			m_selectionState = Moving;
+			m_selectionState = MouseMoving;
 			m_movingOffset = ev->pos() - m_pClickEvent->pos();
 		}
 
 		widget->mouseDragStartEvent( ev );
 	}
+
 	void mouseDragUpdate( QMouseEvent *ev ) {
 
-		if ( m_selectionState == Lasso) {
+		if ( m_selectionState == MouseLasso) {
 			m_lasso.setBottomRight( ev->pos() );
 
-			// XXX Quick hack for now: clear and rebuild the entire
-			// selection. This might actually be just as quick as
-			// checking the difference, depending on how elementsIntersecting is implemented.
+			// Clear and rebuild selection. 
 			m_selectedElements.clear();
 			auto selected = widget->elementsIntersecting( m_lasso );
 			for ( auto s : selected ) {
 				m_selectedElements.insert( s );
 			}
-
 			widget->update();
-		} else if ( m_selectionState == Moving ) {
+
+		} else if ( m_selectionState == MouseMoving ) {
 			m_movingOffset = ev->pos() - m_pClickEvent->pos();
 			widget->update();
+
 		} else {
 			// Pass drag update to widget
 			widget->mouseDragUpdateEvent( ev );
@@ -259,16 +283,120 @@ public:
 	}
 
 	void mouseDragEnd( QMouseEvent *ev ) {
-		if ( m_selectionState == Lasso) {
+		if ( m_selectionState == MouseLasso) {
 			m_selectionState = Idle;
 			widget->update();
-		} else if ( m_selectionState == Moving ) {
+
+		} else if ( m_selectionState == MouseMoving ) {
 			m_selectionState = Idle;
 			widget->selectionMoveEndEvent( ev );
 			widget->update();
+
 		} else {
 			// Pass drag end to widget
 			widget->mouseDragEndEvent( ev );
+		}
+	}
+
+
+	// ----------------------------------------------------------------------
+	// Keyboard interactions
+
+	//! Key press event filter.
+
+	//! Called by the client Widget to allow Selection to take some
+	//! action on key presses. Must be called before the client Widget
+	//! decides to take action on the key event.
+	//! \returns true to indicate that the Selection claims the keypress, false otherwise.
+
+	bool keyPressEvent( QKeyEvent *ev ) {
+		if ( ev->matches( QKeySequence::SelectNextChar )
+			 || ev->matches( QKeySequence::SelectPreviousChar )
+			 || ev->matches( QKeySequence::SelectNextLine )
+			 || ev->matches( QKeySequence::SelectPreviousLine )
+			 || ev->matches( QKeySequence::SelectStartOfLine)
+			 || ev->matches( QKeySequence::SelectEndOfLine )
+			 || ev->matches( QKeySequence::SelectStartOfDocument )
+			 || ev->matches( QKeySequence::SelectEndOfDocument ) ) {
+			// Selection keys will start or continue a selection lasso
+
+			if ( m_selectionState == KeyboardLasso ) {
+				// Already in keyboard lasso state, just moving the
+				// current selection. Wait for Widget to update
+				// keyboard cursor position before updating lasso
+				// dimensions.
+			} else {
+				// Begin keyboard cursor lasso.
+				m_selectionState = KeyboardLasso;
+				m_keyboardCursorStart = widget->getKeyboardCursorRect();
+				m_lasso = m_keyboardCursorStart;
+			}
+
+		} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+			// Enter/Return will:
+			//   - start a move if over a selected element
+			//   - end a lasso selection
+			//   - end a move
+			if ( m_selectionState == Idle || m_selectionState == KeyboardLasso ) {
+
+				std::vector<Elem> elems = widget->elementsIntersecting( widget->getKeyboardCursorRect() );
+				if ( !elems.empty() ) {
+					// Hit "Enter" over a selected element. Begin move.
+					m_keyboardCursorStart = widget->getKeyboardCursorRect();
+					m_selectionState = KeyboardMoving;
+					widget->update();
+					return true; // claim key event
+				}
+
+			} else if ( m_selectionState == KeyboardMoving ) {
+				// End keyboard move
+				m_selectionState = Idle;
+				widget->selectionMoveEndEvent( ev );
+				return true;
+
+			} else if ( m_selectionState == KeyboardLasso ) {
+				// end keyboard lasso
+				m_selectionState = Idle;
+				return true;
+			}
+
+		} else if ( ev->key() == Qt::Key_Escape ) {
+			// Escape cancels any action in progress.
+			if ( m_selectionState != Idle ) {
+				m_selectionState = Idle;
+				widget->update();
+			}
+
+		} else {
+			// Other keys should probably also cancel lasso, but not move?
+			if ( m_selectionState == KeyboardLasso ) {
+				m_selectionState = Idle;
+				widget->update();
+			}
+
+		}
+		return false;
+	}
+
+
+	//! Update the keyboard cursor.
+	//! Called by the client widget to tell the Selection the current
+	//! location of the keyboard input cursor.
+	void updateKeyboardCursorPosition( QRect cursor ) {
+		if ( m_selectionState == KeyboardLasso ) {
+			m_lasso = m_keyboardCursorStart.united( widget->getKeyboardCursorRect() );
+
+			// Clear and rebuild selection
+			m_selectedElements.clear();
+			auto selected = widget->elementsIntersecting( m_lasso );
+			for ( auto s : selected ) {
+				m_selectedElements.insert( s );
+			}
+
+		} else if ( m_selectionState == KeyboardMoving ) {
+			QRect cursorPosition = widget->getKeyboardCursorRect();
+			m_movingOffset = cursorPosition.topLeft() - m_keyboardCursorStart.topLeft();
+
 		}
 	}
 
