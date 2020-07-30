@@ -267,6 +267,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	m_bCursorHidden = false;
 
 	if ( ev->matches( QKeySequence::Delete ) ) {
+		// Key: Delete: delete selected pattern cells, or cell at current position
 		if ( m_selectedCells.size() != 0 ) {
 			AudioEngine::get_instance()->lock( RIGHT_HERE );
 			// delete all selected cells
@@ -283,65 +284,97 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			// No selection, delete at the current cursor position
 			setPatternActive( m_nCursorColumn, m_nCursorRow, false );
 		}
+
 	} else if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
+		// ->
 		if ( m_nCursorColumn < m_nMaxPatternSequence -1 ) {
 			m_nCursorColumn += 1;
 		}
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ) {
+		// ->|
 		m_nCursorColumn = m_nMaxPatternSequence -1;
+
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ) {
+		// <-
 		if ( m_nCursorColumn > 0 ) {
 			m_nCursorColumn -= 1;
 		}
+
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ) {
+		// |<-
 		m_nCursorColumn = 0;
+
 	} else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
 		if ( m_nCursorRow < pPatternList->size()-1 ) {
 			m_nCursorRow += 1;
 		}
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
 		m_nCursorRow = pPatternList->size() -1;
+
 	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
 		if ( m_nCursorRow > 0 ) {
 			m_nCursorRow -= 1;
 		}
+
 	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
 		m_nCursorRow = 0;
+
 	} else if ( ev->matches( QKeySequence::SelectNextChar ) ) {
+		// Key: Shift + Right: expand selection to the next time slot
 		startSelectionAtCursor();
 		if ( m_nCursorColumn < m_nMaxPatternSequence -1 ) {
 			m_nCursorColumn += 1;
 		}
+
 	} else if ( ev->matches( QKeySequence::SelectEndOfLine ) ) {
+		// Key: Shift + End: expand selection to the end of the song
 		startSelectionAtCursor();
 		m_nCursorColumn = m_nMaxPatternSequence -1;
+
 	} else if ( ev->matches( QKeySequence::SelectPreviousChar ) ) {
+		// Key: Shift + Left: expand selection to previous time slot
 		startSelectionAtCursor();
 		if ( m_nCursorColumn > 0 ) {
 			m_nCursorColumn -= 1;
 		}
+
 	} else if ( ev->matches( QKeySequence::SelectStartOfLine ) ) {
+		// Key: Shift + Home: expand selection to start of song
 		startSelectionAtCursor();
 		m_nCursorColumn = 0;
+
 	} else if ( ev->matches( QKeySequence::SelectNextLine ) ) {
+		// Key: Shift + Down: expand selection to next pattern
 		startSelectionAtCursor();
 		if ( m_nCursorRow < pPatternList->size()-1 ) {
 			m_nCursorRow += 1;
 		}
+
 	} else if ( ev->matches( QKeySequence::SelectEndOfDocument ) ) {
+		// Key: Shift + Ctrl + Down: expand selection to the last pattern
 		startSelectionAtCursor();
 		m_nCursorRow = pPatternList->size() -1;
+
 	} else if ( ev->matches( QKeySequence::SelectPreviousLine ) ) {
+		// Key: Shift + Up: expand selection to the previous pattern
 		startSelectionAtCursor();
 		if ( m_nCursorRow > 0 ) {
 			m_nCursorRow -= 1;
 		}
+
 	} else if ( ev->matches( QKeySequence::SelectStartOfDocument ) ) {
+		// Key: Shift + Ctrl + Up: expand selection to the first pattern
 		startSelectionAtCursor();
 		m_nCursorRow = 0;
+
 	} else if ( ev->key() == Qt::Key_Escape ) {
+		// Key: Escape: cancel selection or move
 		cancelSelectionOrMove();
+
 	} else if ( ev->matches( QKeySequence::SelectAll ) ) {
+		// Key: Ctrl + A: Select all pattern
 		if ( actionMode == SELECT_ACTION ) {
 			m_selectedCells.clear();
 			for ( int nRow = 0; nRow < pPatternList->size(); nRow++ ) {
@@ -357,12 +390,16 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			}
 			m_bSequenceChanged = true;
 		}
+
 	} else if ( ev->matches( QKeySequence::Deselect ) ) {
+		// Key: Shift + Ctrl + A: deselect any selected cells
 		if ( actionMode == SELECT_ACTION ) {
 			m_selectedCells.clear();
 			m_bSequenceChanged = false;
 		}
+
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+		// Key: Return: Set or clear cell (draw mode), or start/end selection or move (select mode)
 		if ( actionMode == DRAW_ACTION ) {
 			// In DRAW mode, Enter's obvious action is the same as a
 			// click - insert or delete pattern.

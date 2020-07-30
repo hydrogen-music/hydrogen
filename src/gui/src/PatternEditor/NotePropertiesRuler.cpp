@@ -494,32 +494,47 @@ void NotePropertiesRuler::mouseReleaseEvent(QMouseEvent *ev)
 void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 {
 	m_pPatternEditorPanel->setCursorHidden( false );
+
+	// Basic directional movement using standard keys
 	if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ) {
 		// -->|
 		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
+
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ) {
 		// <-
 		m_pPatternEditorPanel->moveCursorLeft();
+
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ) {
 		// |<--
 		m_pPatternEditorPanel->setCursorPosition(0);
+
 	} else {
 		// Value adjustments
 		double delta = 0.0;
 		bool bRepeatLastValue = false;
 
 		if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
+			// Key: Up: increase note parameter value
 			delta = 0.1;
+
 		} else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
+			// Key: Down: decrease note parameter value
 			delta = -0.1;
+
 		} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
+			// Key: MoveToStartOfDocument: increase parameter to maximum value
 			delta = 1.0;
+
 		} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
+			// Key: MoveEndOfDocument: decrease parameter to minimum value
 			delta = -1.0;
+
 		} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+			// Key: Enter/Return: repeat last parameter value set.
 			if (m_bValueHasBeenSet) {
 				bRepeatLastValue = true;
 			}
