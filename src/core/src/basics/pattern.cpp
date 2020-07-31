@@ -200,7 +200,8 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool str
 
 void Pattern::remove_note( Note* note )
 {
-	for( notes_it_t it=__notes.begin(); it!=__notes.end(); ++it ) {
+	int pos = note->get_position();
+	for( notes_it_t it=__notes.lower_bound( pos ); it!=__notes.end() && it->first == pos; ++it ) {
 		if( it->second==note ) {
 			__notes.erase( it );
 			break;
