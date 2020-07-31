@@ -901,7 +901,7 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 
 	if ( bIsCtrlPressed) //Copy
 	{
-				if( undo )
+		if( undo )
 		{
 			// remove the old patterns
 			for ( uint i = 0; i < selectedCells.size(); i++ ) {
@@ -920,15 +920,17 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 
 
 
-				PatternList* pColumn = nullptr;
-				if ( cell.x() < (int)pColumns->size() ) {
-					pColumn = (*pColumns)[ cell.x() ];
+				if ( cell.x() >= 0 ) {
+					PatternList* pColumn = nullptr;
+					if ( cell.x() < (int)pColumns->size() ) {
+						pColumn = (*pColumns)[ cell.x() ];
+					}
+					else {
+						pColumn = new PatternList();
+						pColumns->push_back( pColumn );
+					}
+					pColumn->del(pPatternList->get( cell.y() ) );
 				}
-				else {
-					pColumn = new PatternList();
-					pColumns->push_back( pColumn );
-				}
-				pColumn->del(pPatternList->get( cell.y() ) );
 			}
 
 		}
@@ -972,14 +974,16 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 			}
 
 
-			if ( cell.x() < (int)pColumns->size() ) {
-				pColumn = (*pColumns)[ cell.x() ];
+			if ( cell.x() >= 0 ) {
+				if ( cell.x() < (int)pColumns->size() ) {
+					pColumn = (*pColumns)[ cell.x() ];
+				}
+				else {
+					pColumn = new PatternList();
+					pColumns->push_back( pColumn );
+				}
+				pColumn->del(pPatternList->get( cell.y() ) );
 			}
-			else {
-				pColumn = new PatternList();
-				pColumns->push_back( pColumn );
-			}
-			pColumn->del(pPatternList->get( cell.y() ) );
 		}
 	}
 
