@@ -88,6 +88,10 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 
 	private:
 
+		bool m_bNeedsUpdate;
+
+		void finishUpdateEditor();
+
 		unsigned m_nRowHeight;
 		unsigned m_nOctaves;
 

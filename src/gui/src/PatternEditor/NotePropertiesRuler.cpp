@@ -697,6 +697,9 @@ void NotePropertiesRuler::addUndoAction()
 void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 {
 	QPainter painter(this);
+	if ( m_bNeedsUpdate ) {
+		finishUpdateEditor();
+	}
 	painter.drawPixmap( ev->rect(), *m_pBackground, ev->rect() );
 }
 
@@ -1416,17 +1419,26 @@ void NotePropertiesRuler::updateEditor()
 	__nSelectedPatternNumber = nSelectedPatternNumber;
 
 	// update editor width
-	int editorWidth;
 	if ( m_pPattern ) {
-		editorWidth = 20 + m_pPattern->get_length() * m_nGridWidth;
+		m_nEditorWidth = 20 + m_pPattern->get_length() * m_nGridWidth;
 	}
 	else {
-		editorWidth =  20 + MAX_NOTES * m_nGridWidth;
+		m_nEditorWidth =  20 + MAX_NOTES * m_nGridWidth;
 	}
-	resize( editorWidth, height() );
+
+	if ( !m_bNeedsUpdate ) {
+		m_bNeedsUpdate = true;
+		update();
+	}
+}
+
+void NotePropertiesRuler::finishUpdateEditor()
+{
+	assert( m_bNeedsUpdate );
+	resize( m_nEditorWidth, height() );
 		
 	delete m_pBackground;
-	m_pBackground = new QPixmap( editorWidth, m_nEditorHeight );
+	m_pBackground = new QPixmap( m_nEditorWidth, m_nEditorHeight );
 
 	if ( m_Mode == VELOCITY || m_Mode == PROBABILITY ) {
 		createVelocityBackground( m_pBackground );
@@ -1452,6 +1464,7 @@ void NotePropertiesRuler::updateEditor()
 	}
 
 	// redraw all
+	m_bNeedsUpdate = false;
 	update();
 }
 

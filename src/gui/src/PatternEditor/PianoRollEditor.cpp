@@ -75,6 +75,8 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 	createBackground();
 
 	HydrogenApp::get_instance()->addEventListener( this );
+
+	m_bNeedsUpdate = true;
 }
 
 
@@ -102,14 +104,21 @@ void PianoRollEditor::updateEditor()
 	else {
 		m_nEditorWidth = 20 + m_nGridWidth * MAX_NOTES;
 	}
-	resize( m_nEditorWidth, height() );
+	if ( !m_bNeedsUpdate ) {
+		m_bNeedsUpdate = true;
+		update();
+	}
+}
 
-	// redraw all
-	update( 0, 0, width(), height() );
+void PianoRollEditor::finishUpdateEditor()
+{
+	assert( m_bNeedsUpdate );
+	resize( m_nEditorWidth, height() );
 
 	createBackground();
 	drawPattern();
 	//	ERRORLOG(QString("update editor %1").arg(m_nEditorWidth));
+	m_bNeedsUpdate = false;
 }
 
 
@@ -150,6 +159,9 @@ void PianoRollEditor::selectedPatternChangedEvent()
 void PianoRollEditor::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
+	if ( m_bNeedsUpdate ) {
+		finishUpdateEditor();
+	}
 	painter.drawPixmap( ev->rect(), *m_pTemp, ev->rect() );
 }
 
