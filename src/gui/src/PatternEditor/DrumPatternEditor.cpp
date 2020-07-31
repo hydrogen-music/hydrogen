@@ -799,6 +799,7 @@ QRect DrumPatternEditor::getKeyboardCursorRect()
 
 void DrumPatternEditor::selectAll()
 {
+	m_selection.clearSelection();
 	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
 		m_selection.addToSelection( it->second );
 	}
