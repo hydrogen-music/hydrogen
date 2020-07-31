@@ -76,6 +76,7 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
 	HydrogenApp::get_instance()->addEventListener( this );
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( 0 );
+	m_bFineGrained = false;
 
 }
 
@@ -195,16 +196,19 @@ void DrumPatternEditor::addOrRemoveNote(int nColumn, int nRealColumn, int row) {
 
 void DrumPatternEditor::mousePressEvent( QMouseEvent *ev )
 {
+	updateFineGrained( ev );
 	m_selection.mousePressEvent( ev );
 }
 
 void DrumPatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 {
+	updateFineGrained( ev );
 	m_selection.mouseReleaseEvent( ev );
 }
 
 void DrumPatternEditor::mouseMoveEvent( QMouseEvent *ev )
 {
+	updateFineGrained( ev );
 	m_selection.mouseMoveEvent( ev );
 }
 
@@ -482,19 +486,31 @@ void DrumPatternEditor::mouseDragEndEvent( QMouseEvent *ev )
 }
 
 
-QPoint DrumPatternEditor::movingGridOffset() {
+void DrumPatternEditor::updateFineGrained( QInputEvent *ev ) {
+	// Key: Alt-dragging: move notes with fine-grained positioning
+	m_bFineGrained = ev->modifiers() & Qt::AltModifier;
+}
+
+QPoint DrumPatternEditor::movingGridOffset( ) {
 	QPoint rawOffset = m_selection.movingOffset();
 	// Quantize offset to multiples of m_nGrid{Width,Height}
-	int x_bias = (int)m_nGridWidth / 2, y_bias = (int)m_nGridHeight / 2;
+	int nQuantX = m_nGridWidth, nQuantY = m_nGridHeight;
+	int nFactor = 1;
+	if ( ! m_bFineGrained ) {
+		int nBase = m_bUseTriplets ? 3 : 4;
+		nFactor = (4 * MAX_NOTES) / (nBase * m_nResolution);
+	}
+	nQuantX *= nFactor;
+	int x_bias = nQuantX / 2, y_bias = nQuantY / 2;
 	if ( rawOffset.y() < 0 ) {
 		y_bias = -y_bias;
 	}
 	if ( rawOffset.x() < 0 ) {
 		x_bias = -x_bias;
 	}
-	int x_off = (m_selection.movingOffset().x() + x_bias) / m_nGridWidth;
-	int y_off = (m_selection.movingOffset().y() + y_bias) / (int)m_nGridHeight;
-	return QPoint( x_off, y_off);
+	int x_off = (m_selection.movingOffset().x() + x_bias) / nQuantX;
+	int y_off = (m_selection.movingOffset().y() + y_bias) / nQuantY;
+	return QPoint( nFactor * x_off, y_off);
 }
 
 
@@ -635,6 +651,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	int nMaxInstrument = pH2->getSong()->get_instrument_list()->size();
 
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
+	updateFineGrained( ev );
 
 	m_pPatternEditorPanel->setCursorHidden( false );
 
