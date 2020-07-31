@@ -138,6 +138,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 
 	public slots:
 		void updateEditor();
+		void selectAll();
+		void selectNone();
 
 	private:
 		float m_nGridWidth;

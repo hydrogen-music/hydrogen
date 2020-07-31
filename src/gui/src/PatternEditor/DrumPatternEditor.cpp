@@ -711,6 +711,12 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 			m_selection.clearSelection();
 		}
 
+	} else if ( ev->matches( QKeySequence::SelectAll ) ) {
+		selectAll();
+
+	} else if ( ev->matches( QKeySequence::Deselect ) ) {
+		selectNone();
+
 	} else {
 		ev->ignore();
 		m_pPatternEditorPanel->setCursorHidden( true );
@@ -725,7 +731,8 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 
 
 
-std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsIntersecting( QRect r ) {
+std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsIntersecting( QRect r )
+{
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	InstrumentList * pInstrList = pSong->get_instrument_list();
 	uint h = m_nGridHeight / 3;
@@ -780,13 +787,28 @@ void DrumPatternEditor::validateSelection()
 	}
 }
 
-QRect DrumPatternEditor::getKeyboardCursorRect() {
+QRect DrumPatternEditor::getKeyboardCursorRect()
+{
 
 	uint x = 20 + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	uint y = nSelectedInstrument * m_nGridHeight;
 	return QRect( x-m_nGridWidth*3, y+1, m_nGridWidth*6, m_nGridHeight-2 );
 
+}
+
+void DrumPatternEditor::selectAll()
+{
+	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
+		m_selection.addToSelection( it->second );
+	}
+	update();
+}
+
+void DrumPatternEditor::selectNone()
+{
+	m_selection.clearSelection();
+	update();
 }
 
 
