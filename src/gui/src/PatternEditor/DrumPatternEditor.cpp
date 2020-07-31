@@ -531,7 +531,7 @@ QPoint DrumPatternEditor::movingGridOffset( ) {
 // Move notes
 void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 {
-	UNUSED( ev );
+	updateModifiers( ev );
 	QPoint offset = movingGridOffset();
 	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->get_instrument_list();
 
