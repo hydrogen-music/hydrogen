@@ -240,22 +240,24 @@ public:
 	}
 
 	void mouseDragStart( QMouseEvent *ev ) {
-		QRect r = QRect( m_pClickEvent->pos(), ev->pos() );
-		std::vector<Elem> elems = widget->elementsIntersecting( r );
+		if ( ev->button() == Qt::LeftButton) {
+			QRect r = QRect( m_pClickEvent->pos(), ev->pos() );
+			std::vector<Elem> elems = widget->elementsIntersecting( r );
 
-		if ( elems.empty() ) {
-			//  Didn't hit anything. Start new selection drag.
-			m_selectionState = MouseLasso;
-			m_lasso.setTopLeft( m_pClickEvent->pos() );
-			m_lasso.setBottomRight( ev->pos() );
-			widget->update();
+			if ( elems.empty() ) {
+				//  Didn't hit anything. Start new selection drag.
+				m_selectionState = MouseLasso;
+				m_lasso.setTopLeft( m_pClickEvent->pos() );
+				m_lasso.setBottomRight( ev->pos() );
+				widget->update();
 
-		} else {
-			/* Move selection */
-			m_selectionState = MouseMoving;
-			m_movingOffset = ev->pos() - m_pClickEvent->pos();
+			} else {
+				/* Move selection */
+				m_selectionState = MouseMoving;
+				m_movingOffset = ev->pos() - m_pClickEvent->pos();
+			}
+
 		}
-
 		widget->mouseDragStartEvent( ev );
 	}
 
