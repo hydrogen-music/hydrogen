@@ -528,7 +528,12 @@ QPoint DrumPatternEditor::movingGridOffset( ) {
 }
 
 
-// Move notes
+///
+/// Move or copy notes.
+///
+/// Moves or copies notes at the end of a Selection move, handling the
+/// behaviours necessary for out-of-range moves or copies.
+///
 void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 {
 	updateModifiers( ev );
@@ -640,6 +645,9 @@ void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int 
 }
 
 
+///
+/// Update the state during a Selection drag.
+///
 void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 {
 	if (m_pPattern == nullptr) {
@@ -675,7 +683,6 @@ void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-		//__draw_pattern();
 		update( 0, 0, width(), height() );
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
@@ -686,6 +693,11 @@ void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 }
 
 
+///
+/// Handle key press events.
+///
+/// Events are passed to Selection first, which may claim them (in which case they are ignored here).
+///
 void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 {
 	Hydrogen *pH2 = Hydrogen::get_instance();
@@ -766,13 +778,15 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	}
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	m_pPatternEditorPanel->ensureCursorVisible();
-	update( 0, 0, width(), height() );
+	update();
 	ev->accept();
 
 }
 
 
-
+///
+/// Find all elements which intersect a selection area.
+///
 std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsIntersecting( QRect r )
 {
 	Song *pSong = Hydrogen::get_instance()->getSong();
@@ -813,7 +827,9 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 	return std::move( result );
 }
 
-// Ensure selection only refers to valid notes, and does not contain any stale references to deleted notes.
+///
+/// Ensure selection only refers to valid notes, and does not contain any stale references to deleted notes.
+///
 void DrumPatternEditor::validateSelection()
 {
 	// Rebuild selection from valid notes.
@@ -829,6 +845,9 @@ void DrumPatternEditor::validateSelection()
 	}
 }
 
+///
+/// The screen area occupied by the keyboard cursor
+///
 QRect DrumPatternEditor::getKeyboardCursorRect()
 {
 
