@@ -76,7 +76,9 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
 	HydrogenApp::get_instance()->addEventListener( this );
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( 0 );
+
 	m_bFineGrained = false;
+	m_bCopyNotMove = false;
 
 }
 
@@ -196,19 +198,19 @@ void DrumPatternEditor::addOrRemoveNote(int nColumn, int nRealColumn, int row) {
 
 void DrumPatternEditor::mousePressEvent( QMouseEvent *ev )
 {
-	updateFineGrained( ev );
+	updateModifiers( ev );
 	m_selection.mousePressEvent( ev );
 }
 
 void DrumPatternEditor::mouseReleaseEvent( QMouseEvent *ev )
 {
-	updateFineGrained( ev );
+	updateModifiers( ev );
 	m_selection.mouseReleaseEvent( ev );
 }
 
 void DrumPatternEditor::mouseMoveEvent( QMouseEvent *ev )
 {
-	updateFineGrained( ev );
+	updateModifiers( ev );
 	m_selection.mouseMoveEvent( ev );
 }
 
@@ -470,7 +472,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 void DrumPatternEditor::mouseDragEndEvent( QMouseEvent *ev )
 {
 	UNUSED( ev );
-	setCursor( QCursor( Qt::ArrowCursor ) );
+	unsetCursor();
 
 	if (m_pPattern == nullptr) {
 		return;
@@ -486,10 +488,22 @@ void DrumPatternEditor::mouseDragEndEvent( QMouseEvent *ev )
 }
 
 
-void DrumPatternEditor::updateFineGrained( QInputEvent *ev ) {
-	// Key: Alt-dragging: move notes with fine-grained positioning
+void DrumPatternEditor::updateModifiers( QInputEvent *ev ) {
+	// Key: Alt + drag: move notes with fine-grained positioning
 	m_bFineGrained = ev->modifiers() & Qt::AltModifier;
+	// Key: Ctrl + drag: copy notes rather than moving
+	bool bWasCopyNotMove = m_bCopyNotMove;
+	m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
+
+	if ( m_selection.isMoving() ) {
+		if ( m_bCopyNotMove && !bWasCopyNotMove ) {
+			setCursor( QCursor( Qt::DragCopyCursor ) );
+		} else if ( !m_bCopyNotMove && bWasCopyNotMove ) {
+			setCursor( QCursor( Qt::DragMoveCursor ) );
+		}
+	}
 }
+
 
 QPoint DrumPatternEditor::movingGridOffset( ) {
 	QPoint rawOffset = m_selection.movingOffset();
@@ -524,7 +538,11 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 	validateSelection();
 
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	pUndo->beginMacro( "move notes" );
+	if (m_bCopyNotMove) {
+		pUndo->beginMacro( "copy notes" );
+	} else {
+		pUndo->beginMacro( "move notes" );
+	}
 	std::list< Note * > selectedNotes;
 	for ( auto pNote : m_selection ) {
 		selectedNotes.push_back( pNote );
@@ -538,25 +556,49 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		if ( nNewInstrument < 0 || nNewInstrument > pInstrumentList->size()
 			 || nNewPosition < 0 ) {
 
-			// Note is moved out of range. Delete it.
-			pUndo->push( new SE_addNoteAction( nPosition,
-											   nInstrument,
-											   __selectedPatternNumber,
-											   pNote->get_length(),
-											   pNote->get_velocity(),
-											   pNote->get_pan_l(),
-											   pNote->get_pan_r(),
-											   pNote->get_lead_lag(),
-											   pNote->get_key(),
-											   pNote->get_octave(),
-											   true,
-											   false,
-											   false,
-											   false ) );
+			if ( m_bCopyNotMove ) {
+				// Copying a note to an out-of-range location. Nothing to do.
+			} else {
+				// Note is moved out of range. Delete it.
+				pUndo->push( new SE_addNoteAction( nPosition,
+												   nInstrument,
+												   __selectedPatternNumber,
+												   pNote->get_length(),
+												   pNote->get_velocity(),
+												   pNote->get_pan_l(),
+												   pNote->get_pan_r(),
+												   pNote->get_lead_lag(),
+												   pNote->get_key(),
+												   pNote->get_octave(),
+												   true,
+												   false,
+												   false,
+												   false ) );
+			}
 
 		} else {
-			pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, __selectedPatternNumber,
-												nNewPosition, nNewInstrument, pNote ) );
+			if ( m_bCopyNotMove ) {
+				// Copy note to a new note.
+				pUndo->push( new SE_addNoteAction( nNewPosition,
+												   nNewInstrument,
+												   __selectedPatternNumber,
+												   pNote->get_length(),
+												   pNote->get_velocity(),
+												   pNote->get_pan_l(),
+												   pNote->get_pan_r(),
+												   pNote->get_lead_lag(),
+												   pNote->get_key(),
+												   pNote->get_octave(),
+												   false,
+												   false,
+												   false,
+												   false ) );
+
+			} else {
+				// Move note
+				pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, __selectedPatternNumber,
+													nNewPosition, nNewInstrument, pNote ) );
+			}
 		}
 	}
 	pUndo->endMacro();
@@ -651,7 +693,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	int nMaxInstrument = pH2->getSong()->get_instrument_list()->size();
 
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
-	updateFineGrained( ev );
+	updateModifiers( ev );
 
 	m_pPatternEditorPanel->setCursorHidden( false );
 

@@ -249,11 +249,13 @@ public:
 				m_selectionState = MouseLasso;
 				m_lasso.setTopLeft( m_pClickEvent->pos() );
 				m_lasso.setBottomRight( ev->pos() );
+				widget->setCursor( Qt::CrossCursor );
 				widget->update();
 
 			} else {
 				/* Move selection */
 				m_selectionState = MouseMoving;
+				widget->setCursor( Qt::DragMoveCursor );
 				m_movingOffset = ev->pos() - m_pClickEvent->pos();
 			}
 
@@ -287,10 +289,12 @@ public:
 	void mouseDragEnd( QMouseEvent *ev ) {
 		if ( m_selectionState == MouseLasso) {
 			m_selectionState = Idle;
+			widget->unsetCursor();
 			widget->update();
 
 		} else if ( m_selectionState == MouseMoving ) {
 			m_selectionState = Idle;
+			widget->unsetCursor();
 			widget->selectionMoveEndEvent( ev );
 			widget->update();
 
