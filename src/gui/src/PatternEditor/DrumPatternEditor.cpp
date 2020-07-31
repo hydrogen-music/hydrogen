@@ -243,10 +243,14 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		addOrRemoveNote( nColumn, nRealColumn, row );
 		m_selection.clearSelection();
 
+	} else {
+		// Other clicks may also set instrument
+		Hydrogen::get_instance()->setSelectedInstrumentNumber( row );
 	}
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 	m_pPatternEditorPanel->setCursorHidden( true );
+	update();
 }
 
 void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )

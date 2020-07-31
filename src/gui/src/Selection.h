@@ -312,6 +312,7 @@ public:
 	//! \returns true to indicate that the Selection claims the keypress, false otherwise.
 
 	bool keyPressEvent( QKeyEvent *ev ) {
+
 		if ( ev->matches( QKeySequence::SelectNextChar )
 			 || ev->matches( QKeySequence::SelectPreviousChar )
 			 || ev->matches( QKeySequence::SelectNextLine )
