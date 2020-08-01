@@ -509,12 +509,12 @@ QPoint DrumPatternEditor::movingGridOffset( ) {
 	QPoint rawOffset = m_selection.movingOffset();
 	// Quantize offset to multiples of m_nGrid{Width,Height}
 	int nQuantX = m_nGridWidth, nQuantY = m_nGridHeight;
-	int nFactor = 1;
+	float nFactor = 1;
 	if ( ! m_bFineGrained ) {
 		int nBase = m_bUseTriplets ? 3 : 4;
 		nFactor = (4 * MAX_NOTES) / (nBase * m_nResolution);
+		nQuantX = m_nGridWidth * nFactor;
 	}
-	nQuantX *= nFactor;
 	int x_bias = nQuantX / 2, y_bias = nQuantY / 2;
 	if ( rawOffset.y() < 0 ) {
 		y_bias = -y_bias;
@@ -522,8 +522,8 @@ QPoint DrumPatternEditor::movingGridOffset( ) {
 	if ( rawOffset.x() < 0 ) {
 		x_bias = -x_bias;
 	}
-	int x_off = (m_selection.movingOffset().x() + x_bias) / nQuantX;
-	int y_off = (m_selection.movingOffset().y() + y_bias) / nQuantY;
+	int x_off = (rawOffset.x() + x_bias) / nQuantX;
+	int y_off = (rawOffset.y() + y_bias) / nQuantY;
 	return QPoint( nFactor * x_off, y_off);
 }
 
