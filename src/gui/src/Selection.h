@@ -313,7 +313,8 @@ public:
 	//! Called by the client Widget to allow Selection to take some
 	//! action on key presses. Must be called before the client Widget
 	//! decides to take action on the key event.
-	//! \returns true to indicate that the Selection claims the keypress, false otherwise.
+	//! \returns true to indicate that the Selection claims the
+	//!          keypress, false otherwise.
 
 	bool keyPressEvent( QKeyEvent *ev ) {
 
@@ -340,20 +341,32 @@ public:
 			}
 
 		} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
-			// Enter/Return will:
-			//   - start a move if over a selected element
-			//   - end a lasso selection
-			//   - end a move
-			if ( m_selectionState == Idle || m_selectionState == KeyboardLasso ) {
 
-				std::vector<Elem> elems = widget->elementsIntersecting( widget->getKeyboardCursorRect() );
-				if ( !elems.empty() ) {
+			// Key: Enter/Return: start or end a move or copy
+			if ( m_selectionState == Idle ) {
+
+				bool bHitselected = false;
+				for ( Elem e : widget->elementsIntersecting( widget->getKeyboardCursorRect() ) ) {
+					if ( m_selectedElements.find( e ) != m_selectedElements.end() ) {
+						bHitselected = true;
+						break;
+					}
+				}
+				if ( bHitselected ) {
 					// Hit "Enter" over a selected element. Begin move.
 					m_keyboardCursorStart = widget->getKeyboardCursorRect();
 					m_selectionState = KeyboardMoving;
 					widget->update();
-					return true; // claim key event
+					return true;
 				}
+
+			} else if ( m_selectionState == KeyboardLasso ) {
+
+				// If we hit 'Enter' from lasso mode, go directly to move
+				m_keyboardCursorStart = widget->getKeyboardCursorRect();
+				m_selectionState = KeyboardMoving;
+				widget->update();
+				return true;
 
 			} else if ( m_selectionState == KeyboardMoving ) {
 				// End keyboard move
@@ -368,10 +381,18 @@ public:
 			}
 
 		} else if ( ev->key() == Qt::Key_Escape ) {
-			// Escape cancels any action in progress.
-			if ( m_selectionState != Idle ) {
+
+			// Key: Escape: cancel any lasso or move/copy in progress; or clear any selection.
+			if ( m_selectionState == Idle ) {
+				if ( !m_selectedElements.empty() ) {
+					m_selectedElements.clear();
+					widget->update();
+					return true;
+				}
+			} else {
 				m_selectionState = Idle;
 				widget->update();
+				return true;
 			}
 
 		} else {
