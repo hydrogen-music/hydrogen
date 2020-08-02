@@ -61,17 +61,27 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		void zoom_in();
 		void zoom_out();
 		void addOrDeleteNoteAction(  int nColumn,
-					     int pressedLine,
-					     int selectedPatternNumber,
-					     int selectedinstrument,
-					     int oldLength,
-					     float oldVelocity,
-					     float oldPan_L,
-					     float oldPan_R,
-					     float oldLeadLag,
-					     int oldNoteKeyVal,
-                                             int oldOctaveKeyVal,
-                                             bool noteOff);
+									 int pressedLine,
+									 int selectedPatternNumber,
+									 int selectedinstrument,
+									 int oldLength,
+									 float oldVelocity,
+									 float oldPan_L,
+									 float oldPan_R,
+									 float oldLeadLag,
+									 int oldNoteKeyVal,
+									 int oldOctaveKeyVal,
+									 bool noteOff);
+
+		void updateModifiers( QInputEvent *ev );
+		QPoint movingGridOffset( );
+
+		void moveNoteAction( int nColumn,
+							 int nRow,
+							 int nPattern,
+							 int nNewColumn,
+							 int nNewRow,
+							 H2Core::Note *pNote);
 
 		void editNotePropertiesAction(   int nColumn,
 						int nRealColumn,
@@ -98,13 +108,14 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		QRect getKeyboardCursorRect();
 
 
-
 	public slots:
 		void updateEditor();
 
 	private:
 
 		bool m_bNeedsUpdate;
+		bool m_bFineGrained;
+		bool m_bCopyNotMove;
 
 		void finishUpdateEditor();
 

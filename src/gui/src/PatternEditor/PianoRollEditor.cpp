@@ -470,6 +470,14 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 	QPen movingPen( noteColor );
 	QPoint movingOffset;
 
+	if ( bMoving ) {
+		movingPen.setStyle( Qt::DotLine );
+		movingPen.setWidth( 2 );
+		QPoint delta = movingGridOffset();
+		movingOffset = QPoint( delta.x() * m_nGridWidth,
+							   delta.y() * m_nRowHeight );
+	}
+
 	pPainter->setRenderHint( QPainter::Antialiasing );
 
 	if ( pNote->get_length() == -1 && pNote->get_note_off() == false ) {
@@ -479,6 +487,11 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 		pPainter->setPen( noteColor );
 		pPainter->setBrush( color );
 		pPainter->drawEllipse( start_x -4 , start_y, w, h );
+		if ( bMoving ) {
+			pPainter->setPen( movingPen );
+			pPainter->setBrush( Qt::NoBrush );
+			pPainter->drawEllipse( start_x -4 -2 , start_y -2, w+4, h+4 );
+		}
 	}
 	else if ( pNote->get_length() == 1 && pNote->get_note_off() == true ){
 		if ( bSelected ) {
@@ -487,6 +500,11 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 		pPainter->setPen( noteoffColor );
 		pPainter->setBrush( noteoffColor );
 		pPainter->drawEllipse( start_x -4 , start_y, w, h );
+		if ( bMoving ) {
+			pPainter->setPen( movingPen );
+			pPainter->setBrush( Qt::NoBrush );
+			pPainter->drawEllipse( start_x -4 -2 , start_y -2, w+4, h+4 );
+		}
 	}
 	else {
 		float fNotePitch = pNote->get_octave() * 12 + pNote->get_key();
@@ -501,6 +519,12 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 		pPainter->setBrush( color );
 		pPainter->fillRect( start_x, start_y, nend, h, color );
 		pPainter->drawRect( start_x, start_y, nend, h );
+		if ( bMoving ) {
+			pPainter->setPen( movingPen );
+			pPainter->setBrush( Qt::NoBrush );
+			pPainter->drawRoundedRect( start_x-2, start_y-2, nend+4, h+4, 4, 4 );
+		}
+
 	}
 }
 
@@ -800,6 +824,115 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
 	updateEditor();
+	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+	m_pPatternEditorPanel->getPanEditor()->updateEditor();
+	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+	m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
+}
+
+void PianoRollEditor::updateModifiers( QInputEvent *ev ) {
+	// Key: Alt + drag: move notes with fine-grained positioning
+	m_bFineGrained = ev->modifiers() & Qt::AltModifier;
+	// Key: Ctrl + drag: copy notes rather than moving
+	m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
+
+	if ( m_selection.isMoving() ) {
+		// If a selection is currently being moved, change the cursor
+		// appropriately. Selection will change it back after the move
+		// is complete (or abandoned)
+		if ( m_bCopyNotMove &&  cursor() != Qt::DragCopyCursor ) {
+			setCursor( QCursor( Qt::DragCopyCursor ) );
+		} else if ( !m_bCopyNotMove && cursor() != Qt::DragMoveCursor ) {
+			setCursor( QCursor( Qt::DragMoveCursor ) );
+		}
+	}
+}
+
+
+QPoint PianoRollEditor::movingGridOffset( ) {
+	QPoint rawOffset = m_selection.movingOffset();
+	// Quantize offset to multiples of m_nGrid{Width,Height}
+	int nQuantX = m_nGridWidth, nQuantY = m_nRowHeight;
+	float nFactor = 1;
+	if ( ! m_bFineGrained ) {
+		int nBase = m_bUseTriplets ? 3 : 4;
+		nFactor = (4 * MAX_NOTES) / (nBase * m_nResolution);
+		nQuantX = m_nGridWidth * nFactor;
+	}
+	int x_bias = nQuantX / 2, y_bias = nQuantY / 2;
+	if ( rawOffset.y() < 0 ) {
+		y_bias = -y_bias;
+	}
+	if ( rawOffset.x() < 0 ) {
+		x_bias = -x_bias;
+	}
+	int x_off = (rawOffset.x() + x_bias) / nQuantX;
+	int y_off = (rawOffset.y() + y_bias) / nQuantY;
+	return QPoint( nFactor * x_off, y_off);
+}
+
+
+static std::pair<Note::Octave, Note::Key> rowToNoteValue( int nRow ) {
+	return std::make_pair( (Note::Octave)(3 - (nRow / 12 )),
+						   (Note::Key)(11 - nRow % 12) );
+}
+
+// Find a note that matches pNote, and move it from (nColumn, nRow) to (nNewColumn, nNewRow)
+void PianoRollEditor::moveNoteAction( int nColumn,
+									  int nRow,
+									  int nPattern,
+									  int nNewColumn,
+									  int nNewRow,
+									  Note *pNote)
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
+
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	PatternList *pPatternList = pSong->get_pattern_list();
+	InstrumentList *pInstrumentList = pSong->get_instrument_list();
+	Pattern *pPattern = m_pPattern;
+	Note *pFoundNote = nullptr;
+
+	if ( nPattern < 0 || nPattern > pPatternList->size() ) {
+		ERRORLOG( "Invalid pattern number" );
+		AudioEngine::get_instance()->unlock();
+		return;
+	}
+
+	auto fromNoteValue = rowToNoteValue( nRow ),
+		toNoteValue = rowToNoteValue( nNewRow );
+
+	FOREACH_NOTE_IT_BOUND((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
+		Note *pCandidateNote = it->second;
+		if ( pCandidateNote->get_instrument() == pNote->get_instrument()
+			 && pCandidateNote->get_octave() == fromNoteValue.first
+			 && pCandidateNote->get_key() == fromNoteValue.second
+			 && pCandidateNote->get_velocity() == pNote->get_velocity()
+			 && pCandidateNote->get_lead_lag() == pNote->get_lead_lag()
+			 && pCandidateNote->get_pan_r() == pNote->get_pan_r()
+			 && pCandidateNote->get_pan_l() == pNote->get_pan_r()
+			 && pCandidateNote->get_note_off() == pNote->get_note_off() ) {
+			pFoundNote = pCandidateNote;
+			break;
+		}
+	}
+	if ( pFoundNote == nullptr ) {
+		ERRORLOG( "Couldn't find note to move" );
+		AudioEngine::get_instance()->unlock();
+		return;
+	}
+
+	// Remove and insert at new position
+	pPattern->remove_note( pFoundNote );
+	pFoundNote->set_position( nNewColumn );
+	pPattern->insert_note( pFoundNote );
+	pFoundNote->set_key_octave( toNoteValue.second, toNoteValue.first );
+
+	AudioEngine::get_instance()->unlock();
+
+	update();
 	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 	m_pPatternEditorPanel->getPanEditor()->updateEditor();
 	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
