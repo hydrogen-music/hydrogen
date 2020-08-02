@@ -540,6 +540,10 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 {
 	updateModifiers( ev );
 	QPoint offset = movingGridOffset();
+	if ( offset.x() == 0 && offset.y() == 0 ) {
+		// Move with no effect.
+		return;
+	}
 	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->get_instrument_list();
 
 	validateSelection();
