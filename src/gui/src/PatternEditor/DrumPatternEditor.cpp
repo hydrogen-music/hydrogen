@@ -492,13 +492,15 @@ void DrumPatternEditor::updateModifiers( QInputEvent *ev ) {
 	// Key: Alt + drag: move notes with fine-grained positioning
 	m_bFineGrained = ev->modifiers() & Qt::AltModifier;
 	// Key: Ctrl + drag: copy notes rather than moving
-	bool bWasCopyNotMove = m_bCopyNotMove;
 	m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
 
 	if ( m_selection.isMoving() ) {
-		if ( m_bCopyNotMove && !bWasCopyNotMove ) {
+		// If a selection is currently being moved, change the cursor
+		// appropriately. Selection will change it back after the move
+		// is complete (or abandoned)
+		if ( m_bCopyNotMove &&  cursor() != Qt::DragCopyCursor ) {
 			setCursor( QCursor( Qt::DragCopyCursor ) );
-		} else if ( !m_bCopyNotMove && bWasCopyNotMove ) {
+		} else if ( !m_bCopyNotMove && cursor() != Qt::DragMoveCursor ) {
 			setCursor( QCursor( Qt::DragMoveCursor ) );
 		}
 	}
