@@ -26,6 +26,7 @@
 #include <hydrogen/object.h>
 #include <hydrogen/basics/note.h>
 #include "../EventListener.h"
+#include "../Selection.h"
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000
@@ -83,6 +84,21 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 						int pressedLine );
                 void editNoteLengthAction( int nColumn,  int nRealColumn, int length, int selectedPatternNumber, int nSelectedInstrumentnumber, int pressedLine );
 
+
+		// Selection manager interface
+		//! Selections are indexed by Note pointers.
+
+		typedef H2Core::Note* SelectionIndex;
+		std::vector<SelectionIndex> elementsIntersecting( QRect r );
+		void mouseClickEvent( QMouseEvent *ev );
+		void mouseDragStartEvent( QMouseEvent *ev );
+		void mouseDragUpdateEvent( QMouseEvent *ev );
+		void mouseDragEndEvent( QMouseEvent *ev );
+		void selectionMoveEndEvent( QInputEvent *ev );
+		QRect getKeyboardCursorRect();
+
+
+
 	public slots:
 		void updateEditor();
 
@@ -96,7 +112,6 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		unsigned m_nOctaves;
 
 		uint m_nResolution;
-		bool m_bRightBtnPressed;
 		bool m_bUseTriplets;
 
 		H2Core::Pattern *m_pPattern;
@@ -131,6 +146,9 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		virtual void keyPressEvent ( QKeyEvent * ev );
 		virtual void focusInEvent ( QFocusEvent * ev );
 		int getColumn(QMouseEvent *ev);
+
+		Selection<PianoRollEditor, SelectionIndex> m_selection;
+
 		int __selectedInstrumentnumber;
 		int __selectedPatternNumber;
 		int __nRealColumn;
