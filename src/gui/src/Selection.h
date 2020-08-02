@@ -371,12 +371,14 @@ public:
 			} else if ( m_selectionState == KeyboardMoving ) {
 				// End keyboard move
 				m_selectionState = Idle;
+                                widget->unsetCursor();
 				widget->selectionMoveEndEvent( ev );
 				return true;
 
 			} else if ( m_selectionState == KeyboardLasso ) {
 				// end keyboard lasso
 				m_selectionState = Idle;
+                                widget->unsetCursor();
 				return true;
 			}
 
@@ -391,6 +393,7 @@ public:
 				}
 			} else {
 				m_selectionState = Idle;
+                                widget->unsetCursor();
 				widget->update();
 				return true;
 			}
@@ -399,6 +402,7 @@ public:
 			// Other keys should probably also cancel lasso, but not move?
 			if ( m_selectionState == KeyboardLasso ) {
 				m_selectionState = Idle;
+                                widget->unsetCursor();
 				widget->update();
 			}
 
