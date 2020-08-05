@@ -599,13 +599,13 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 
 	for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 		QDomNode fxNode = doc.createElement( "fx" );
+		H2FX *pH2FX = Effects::get_instance()->getLadspaFX( nFX );
 
 #ifdef H2CORE_HAVE_LADSPA
-		H2FX *pH2FX = Effects::get_instance()->getLadspaFX( nFX );
-		
-		
 		if ( pH2FX && pH2FX->isLadspaFX() ) {
 			LadspaFX* pFX = pH2FX->isLadspaFX();
+			
+			LocalFileMng::writeXmlString( fxNode, "type", "LADSPA" );
 			LocalFileMng::writeXmlString( fxNode, "name", pFX->getPluginLabel() );
 			LocalFileMng::writeXmlString( fxNode, "filename", pFX->getLibraryPath() );
 			LocalFileMng::writeXmlBool( fxNode, "enabled", pFX->isEnabled() );
@@ -629,7 +629,39 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 		if ( false ) {
 		}
 #endif
+		
+#ifdef H2CORE_HAVE_LILV
+		else if ( pH2FX && pH2FX->isLv2FX() ) {
+			Lv2FX* pFX = pH2FX->isLv2FX();
+
+			LocalFileMng::writeXmlString( fxNode, "type", "LV2" );
+			LocalFileMng::writeXmlString( fxNode, "name", pFX->getPluginLabel() );
+			LocalFileMng::writeXmlBool( fxNode, "enabled", pFX->isEnabled() );
+			LocalFileMng::writeXmlString( fxNode, "volume", QString("%1").arg( pFX->getVolume() ) );
+			
+			/*
+			for ( unsigned nControl = 0; nControl < pFX->inputControlPorts.size(); nControl++ ) {
+				LadspaControlPort *pControlPort = pFX->inputControlPorts[ nControl ];
+				QDomNode controlPortNode = doc.createElement( "inputControlPort" );
+				LocalFileMng::writeXmlString( controlPortNode, "name", pControlPort->sName );
+				LocalFileMng::writeXmlString( controlPortNode, "value", QString("%1").arg( pControlPort->fControlValue ) );
+				fxNode.appendChild( controlPortNode );
+			}
+			for ( unsigned nControl = 0; nControl < pFX->outputControlPorts.size(); nControl++ ) {
+				LadspaControlPort *pControlPort = pFX->inputControlPorts[ nControl ];
+				QDomNode controlPortNode = doc.createElement( "outputControlPort" );
+				LocalFileMng::writeXmlString( controlPortNode, "name", pControlPort->sName );
+				LocalFileMng::writeXmlString( controlPortNode, "value", QString("%1").arg( pControlPort->fControlValue ) );
+				fxNode.appendChild( controlPortNode );
+			}
+			*/
+		}
+#else
+		else if ( false ) {
+		}
+#endif
 		else {
+			LocalFileMng::writeXmlString( fxNode, "type", "none" );
 			LocalFileMng::writeXmlString( fxNode, "name", QString( "no plugin" ) );
 			LocalFileMng::writeXmlString( fxNode, "filename", QString( "-" ) );
 			LocalFileMng::writeXmlBool( fxNode, "enabled", false );

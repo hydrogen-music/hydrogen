@@ -1169,6 +1169,7 @@ Song* SongReader::readSong( const QString& filename )
 		int nFX = 0;
 		QDomNode fxNode = ladspaNode.firstChildElement( "fx" );
 		while (  !fxNode.isNull()  ) {
+			QString sType = LocalFileMng::readXmlString( fxNode, "type", "none" );
 			QString sName = LocalFileMng::readXmlString( fxNode, "name", "" );
 			QString sFilename = LocalFileMng::readXmlString( fxNode, "filename", "" );
 			bool bEnabled = LocalFileMng::readXmlBool( fxNode, "enabled", false );
@@ -1177,23 +1178,52 @@ Song* SongReader::readSong( const QString& filename )
 			if ( sName != "no plugin" ) {
 				// FIXME: il caricamento va fatto fare all'engine, solo lui sa il samplerate esatto
 #ifdef H2CORE_HAVE_LADSPA
-				LadspaFX* pFX = LadspaFX::load( sFilename, sName, 44100 );
-				Effects::get_instance()->setLadspaFX( pFX, nFX );
-				if ( pFX ) {
-					pFX->setEnabled( bEnabled );
-					pFX->setVolume( fVolume );
-					QDomNode inputControlNode = fxNode.firstChildElement( "inputControlPort" );
-					while ( !inputControlNode.isNull() ) {
-						QString sName = LocalFileMng::readXmlString( inputControlNode, "name", "" );
-						float fValue = LocalFileMng::readXmlFloat( inputControlNode, "value", 0.0 );
-
-						for ( unsigned nPort = 0; nPort < pFX->inputControlPorts.size(); nPort++ ) {
-							LadspaControlPort* port = pFX->inputControlPorts[ nPort ];
-							if ( QString( port->sName ) == sName ) {
-								port->fControlValue = fValue;
+				if(sType == "LADSPA") {
+					LadspaFX* pFX = LadspaFX::load( sFilename, sName, 44100 );
+					Effects::get_instance()->setLadspaFX( pFX, nFX );
+					if ( pFX ) {
+						pFX->setEnabled( bEnabled );
+						pFX->setVolume( fVolume );
+						QDomNode inputControlNode = fxNode.firstChildElement( "inputControlPort" );
+						while ( !inputControlNode.isNull() ) {
+							QString sName = LocalFileMng::readXmlString( inputControlNode, "name", "" );
+							float fValue = LocalFileMng::readXmlFloat( inputControlNode, "value", 0.0 );
+	
+							for ( unsigned nPort = 0; nPort < pFX->inputControlPorts.size(); nPort++ ) {
+								LadspaControlPort* port = pFX->inputControlPorts[ nPort ];
+								if ( QString( port->sName ) == sName ) {
+									port->fControlValue = fValue;
+								}
 							}
+							inputControlNode = ( QDomNode ) inputControlNode.nextSiblingElement( "inputControlPort" );
 						}
-						inputControlNode = ( QDomNode ) inputControlNode.nextSiblingElement( "inputControlPort" );
+					}
+				}
+#endif
+				
+#ifdef H2CORE_HAVE_LILV
+				if(sType == "LV2") {
+					Lv2FX* pFX = Lv2FX::load( sName, 44100 );
+					Effects::get_instance()->setLadspaFX( pFX, nFX );
+					if ( pFX ) {
+						pFX->setEnabled( bEnabled );
+						//pFX->setVolume( fVolume );
+					
+						/*
+						QDomNode inputControlNode = fxNode.firstChildElement( "inputControlPort" );
+						while ( !inputControlNode.isNull() ) {
+							QString sName = LocalFileMng::readXmlString( inputControlNode, "name", "" );
+							float fValue = LocalFileMng::readXmlFloat( inputControlNode, "value", 0.0 );
+	
+							for ( unsigned nPort = 0; nPort < pFX->inputControlPorts.size(); nPort++ ) {
+								LadspaControlPort* port = pFX->inputControlPorts[ nPort ];
+								if ( QString( port->sName ) == sName ) {
+									port->fControlValue = fValue;
+								}
+							}
+							inputControlNode = ( QDomNode ) inputControlNode.nextSiblingElement( "inputControlPort" );
+						}
+						*/
 					}
 				}
 #endif

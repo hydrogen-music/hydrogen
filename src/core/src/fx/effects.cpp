@@ -253,17 +253,20 @@ void Effects::fillLV2PluginList()
 		if(nAudioIn == 2 && nAudioOut == 2 || nAudioIn == 1 && nAudioOut == 1) {
 		
 			LilvNode* pluginNameNode = lilv_plugin_get_name(plugin);
-			LV2FXInfo* pFX = new LV2FXInfo( QString::fromLocal8Bit( lilv_node_as_string(pluginNameNode) ) );
+			LV2FXInfo* pFXInfo = new LV2FXInfo( QString::fromLocal8Bit( lilv_node_as_string(pluginNameNode) ) );
 			
 			LilvNode* authorNameNode = lilv_plugin_get_author_name(plugin);
 			if( authorNameNode ) {
-				pFX->m_sMaker = QString::fromLocal8Bit( lilv_node_as_string(authorNameNode) );
+				pFXInfo->m_sMaker = QString::fromLocal8Bit( lilv_node_as_string(authorNameNode) );
 				lilv_node_free( authorNameNode );
 			}
 			
-			pFX->m_sID = QString::fromLocal8Bit (uri_str );
+			pFXInfo->m_nIAPorts = nAudioIn;
+			pFXInfo->m_nOAPorts = nAudioOut;
 			
-			m_pluginList.push_back(pFX);
+			pFXInfo->m_sID = QString::fromLocal8Bit (uri_str );
+			
+			m_pluginList.push_back(pFXInfo);
 			
 			lilv_node_free( pluginNameNode );
 		}

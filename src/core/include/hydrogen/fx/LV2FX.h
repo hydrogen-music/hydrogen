@@ -57,6 +57,10 @@ public:
 	const QString& getPluginLabel() {
 		return m_sURI;
 	}
+	
+	void setPluginLabel(const QString& sLabel) {
+		m_sURI = sLabel;
+	}
 
 	virtual const QString& getPluginName() override {
 		return m_sName;
@@ -100,7 +104,7 @@ private:
 	int	m_nAudioOutput1Idx;
 	int	m_nAudioOutput2Idx;
 	
-	std::vector<float>	m_fDefaultValues;
+	std::vector<std::pair<uint,float>>	m_fDefaultValues;
 	
 	const LilvPlugin*	m_pPlugin;
 	LilvWorld*			m_pWorld;
