@@ -257,11 +257,13 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pIsStopNoteCheckBox = new QCheckBox ( tr( "" ), m_pInstrumentProp );
 	m_pIsStopNoteCheckBox->move( 63, 138 );
 	m_pIsStopNoteCheckBox->setToolTip( tr( "Stop the current playing instrument-note before trigger the next note sample." ) );
+	m_pIsStopNoteCheckBox->setFocusPolicy ( Qt::NoFocus );
 	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
 
 	m_pApplyVelocity = new QCheckBox ( tr( "" ), m_pInstrumentProp );
 	m_pApplyVelocity->move( 153, 138 );
 	m_pApplyVelocity->setToolTip( tr( "Don't change the layers' gain based on velocity" ) );
+	m_pApplyVelocity->setFocusPolicy( Qt::NoFocus );
 	connect( m_pApplyVelocity, SIGNAL( toggled( bool ) ), this, SLOT( onIsApplyVelocityCheckBoxClicked( bool ) ) );
 
 	//////////////////////////
