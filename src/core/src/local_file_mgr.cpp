@@ -604,7 +604,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 		H2FX *pH2FX = Effects::get_instance()->getLadspaFX( nFX );
 		
 		
-		if ( pH2FX->isLadspaFX() ) {
+		if ( pH2FX && pH2FX->isLadspaFX() ) {
 			LadspaFX* pFX = pH2FX->isLadspaFX();
 			LocalFileMng::writeXmlString( fxNode, "name", pFX->getPluginLabel() );
 			LocalFileMng::writeXmlString( fxNode, "filename", pFX->getLibraryPath() );
