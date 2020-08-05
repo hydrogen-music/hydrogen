@@ -1008,7 +1008,8 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 void PianoRollEditor::focusInEvent( QFocusEvent * ev )
 {
 	UNUSED( ev );
-	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason ) {
+	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason
+		 && ev->reason() != Qt::ActiveWindowFocusReason ) {
 		m_pPatternEditorPanel->setCursorHidden( false );
 		m_pPatternEditorPanel->ensureCursorVisible();
 	}
