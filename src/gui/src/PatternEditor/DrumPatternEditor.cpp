@@ -877,7 +877,8 @@ void DrumPatternEditor::hideEvent ( QHideEvent *ev )
 void DrumPatternEditor::focusInEvent ( QFocusEvent *ev )
 {
 	UNUSED( ev );
-	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason ) {
+	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason
+		 && ev->reason() != Qt::ActiveWindowFocusReason ) {
 		m_pPatternEditorPanel->ensureCursorVisible();
 		m_pPatternEditorPanel->setCursorHidden( false );
 	}
