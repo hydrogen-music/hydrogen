@@ -94,6 +94,16 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pSoloBtn->setToolTip( tr("Solo") );
 	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(soloClicked()));
 
+	m_pSampleWarning = new Button(
+			this,
+			"/patternEditor/icn_warning.png",
+			"/patternEditor/icn_warning.png",
+			"/patternEditor/icn_warning.png",
+			QSize( 15, 13 ) );
+	m_pSampleWarning->move( 128, 5 );
+	m_pSampleWarning->hide();
+	m_pSampleWarning->setToolTip( tr( "Some samples for this instrument failed to load." ) );
+	connect(m_pSampleWarning, SIGNAL(clicked(Button*)), this, SLOT(sampleWarningClicked()));
 
 
 	// Popup menu
@@ -176,6 +186,15 @@ void InstrumentLine::setSoloed( bool soloed )
 }
 
 
+void InstrumentLine::setSamplesMissing( bool bSamplesMissing )
+{
+	if ( bSamplesMissing )
+		m_pSampleWarning->show();
+	else
+		m_pSampleWarning->hide();
+}
+
+
 
 void InstrumentLine::muteClicked()
 {
@@ -195,6 +214,13 @@ void InstrumentLine::soloClicked()
 	HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrumentNumber );
 }
 
+void InstrumentLine::sampleWarningClicked()
+{
+	QMessageBox::information( this, "Hydrogen",
+							  tr( "One or more samples for this instrument failed to load. This may be because the"
+								  " songfile uses an older default drumkit. This might be fixed by opening a new "
+								  "drumkit." ) );
+}
 
 
 void InstrumentLine::mousePressEvent(QMouseEvent *ev)
@@ -613,6 +639,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 				pLine->setSoloed( mixer->isSoloClicked( nInstr ) );
 			}
 
+			pLine->setSamplesMissing( pInstr->has_missing_samples() );
 		}
 	}
 

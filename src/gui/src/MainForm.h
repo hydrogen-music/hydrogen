@@ -144,6 +144,7 @@ public slots:
 		void onAutoSaveTimer();
 		void onPlaylistDisplayTimer();
 		void onFixMidiSetup();
+		void onFixMissingSamples();
 
 	protected:
 		// Returns true if handled, false if aborted.
@@ -184,6 +185,7 @@ public slots:
 
 		void openSongFile( const QString& sFilename );
 		void checkMidiSetup();
+		void checkMissingSamples();
 
 		bool eventFilter( QObject *o, QEvent *e );
 
@@ -195,6 +197,8 @@ public slots:
 		QTimer *lashPollTimer;
 	#endif
 
+		InfoBar *m_pMidiSetupInfoBar;
+		InfoBar *m_pMissingSamplesInfoBar;
 
 		bool handleSelectNextPrevSongOnPlaylist(int step);
 
