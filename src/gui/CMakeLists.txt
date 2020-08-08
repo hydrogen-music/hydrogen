@@ -18,6 +18,9 @@ INCLUDE_DIRECTORIES(
     ${QT_INCLUDES}
     ${LASH_INCLUDE_DIRS}
     ${LIBARCHIVE_INCLUDE_DIRS}
+    ${LIBSNDFILE_INCLUDE_DIRS}
+    ${JACK_INCLUDE_DIRS}
+
 )
 
 IF(APPLE)
@@ -55,6 +58,20 @@ if(APPLE)
         POST_BUILD
         COMMAND plutil -replace NSHighResolutionCapable -bool true hydrogen.app/Contents/Info.plist
     )
+    add_custom_command(
+        TARGET hydrogen
+        POST_BUILD
+        COMMAND
+            plutil -extract CFBundleDocumentTypes json
+                   -o /dev/null
+                   hydrogen.app/Contents/Info.plist >/dev/null
+            || plutil -insert CFBundleDocumentTypes
+                      -json
+                         \"` cat ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json `\"
+                       hydrogen.app/Contents/Info.plist )
+
+    ADD_DEPENDENCIES(hydrogen ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json)
+
 endif()
 
 TARGET_LINK_LIBRARIES(hydrogen

@@ -301,7 +301,7 @@ To build the Hydrogen package, run the following commands.
 $ git clone git://github.com/hydrogen-music/hydrogen.git
 $ cd hydrogen
 $ cd linux
-$ fakeroot dpkg-buildpackage
+$ dpkg-buildpackage -rfakeroot -b -uc -us
 
 ```
 

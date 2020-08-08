@@ -42,6 +42,7 @@ namespace H2Core
 
 class PatternEditorPanel;
 class ToggleButton;
+class Button;
 
 class InstrumentLine : public PixmapWidget
 {
@@ -56,6 +57,7 @@ class InstrumentLine : public PixmapWidget
 		void setNumber(int nIndex);
 		void setMuted(bool isMuted);
 		void setSoloed( bool soloed );
+		void setSamplesMissing( bool bSamplesMissing );
 
 	private slots:
 		void functionClearNotes();
@@ -80,6 +82,7 @@ class InstrumentLine : public PixmapWidget
 		void functionRenameInstrument();
 		void muteClicked();
 		void soloClicked();
+		void sampleWarningClicked();
 
 
 	private:
@@ -92,6 +95,7 @@ class InstrumentLine : public PixmapWidget
 		int m_nInstrumentNumber;	///< The related instrument number
 		ToggleButton *m_pMuteBtn;
 		ToggleButton *m_pSoloBtn;
+		Button *m_pSampleWarning;
 
 		virtual void mousePressEvent(QMouseEvent *ev);
 		H2Core::Pattern* getCurrentPattern();
