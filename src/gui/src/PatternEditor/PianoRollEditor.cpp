@@ -516,17 +516,18 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 		oldOctaveKeyVal = pDraggedNote->get_octave();
 	}
 
-	SE_addNotePianoRollAction *action = new SE_addNotePianoRollAction( nColumn,
-																	   nLine,
-																	   __selectedPatternNumber,
-																	   nSelectedInstrumentnumber,
-																	   oldLength,
-																	   oldVelocity,
-																	   oldPan_L,
-																	   oldPan_R,
-																	   oldLeadLag,
-																	   oldNoteKeyVal,
-																	   oldOctaveKeyVal );
+	SE_addOrDeleteNotePianoRollAction *action = new SE_addOrDeleteNotePianoRollAction( nColumn,
+																					   nLine,
+																					   __selectedPatternNumber,
+																					   nSelectedInstrumentnumber,
+																					   oldLength,
+																					   oldVelocity,
+																					   oldPan_L,
+																					   oldPan_R,
+																					   oldLeadLag,
+																					   oldNoteKeyVal,
+																					   oldOctaveKeyVal,
+																					   pDraggedNote != nullptr );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
 }
@@ -580,16 +581,32 @@ void PianoRollEditor::mousePressEvent(QMouseEvent *ev)
 
 	if (ev->button() == Qt::LeftButton ) {
 
-		if ( ev->modifiers() & Qt::ShiftModifier ){
-
-			SE_addPianoRollNoteOffAction *action = new SE_addPianoRollNoteOffAction( nColumn, pressedline, __selectedPatternNumber, nSelectedInstrumentnumber );
-			HydrogenApp::get_instance()->m_pUndoStack->push( action );
-			return;
-		}
-
 		unsigned nRealColumn = 0;
 		if( ev->x() > 20 ) {
 			nRealColumn = (ev->x() - 20) / static_cast<float>(m_nGridWidth);
+		}
+
+		if ( ev->modifiers() & Qt::ShiftModifier ) {
+			H2Core::Note *pNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave );
+			if ( pNote != nullptr ) {
+				SE_addOrDeleteNotePianoRollAction *action = new SE_addOrDeleteNotePianoRollAction( nColumn,
+																								   pressedline,
+																								   __selectedPatternNumber,
+																								   nSelectedInstrumentnumber,
+																								   pNote->get_length(),
+																								   pNote->get_velocity(),
+																								   pNote->get_pan_l(),
+																								   pNote->get_pan_r(),
+																								   pNote->get_lead_lag(),
+																								   pNote->get_key(),
+																								   pNote->get_octave(),
+																								   pNote != nullptr );
+				HydrogenApp::get_instance()->m_pUndoStack->push( action );
+			} else {
+				SE_addPianoRollNoteOffAction *action = new SE_addPianoRollNoteOffAction( nColumn, pressedline, __selectedPatternNumber, nSelectedInstrumentnumber );
+				HydrogenApp::get_instance()->m_pUndoStack->push( action );
+			}
+			return;
 		}
 
 		addOrRemoveNote( nColumn, nRealColumn, pressedline, pressednotekey, pressedoctave );
@@ -647,7 +664,8 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 											 float oldLeadLag,
 											 int oldNoteKeyVal,
 											 int oldOctaveKeyVal,
-											 bool noteOff   )
+											 bool noteOff,
+											 bool isDelete )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
@@ -677,17 +695,17 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 
 	m_bRightBtnPressed = false;
 
-	bool bNoteAlreadyExist = false;
 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
-	Note* note = m_pPattern->find_note( nColumn, -1, pSelectedInstrument, pressednotekey, pressedoctave );
-	if( note ) {
-		// the note exists...remove it!
-		bNoteAlreadyExist = true;
-		m_pPattern->remove_note( note );
-		delete note;
-	}
-
-	if ( bNoteAlreadyExist == false ) {
+	if ( isDelete ) {
+		Note* note = m_pPattern->find_note( nColumn, -1, pSelectedInstrument, pressednotekey, pressedoctave );
+		if ( note ) {
+			// the note exists...remove it!
+			m_pPattern->remove_note( note );
+			delete note;
+		} else {
+			ERRORLOG( "Could not find note to delete" );
+		}
+	} else {
 		// create the new note
 		unsigned nPosition = nColumn;
 		float fVelocity = oldVelocity;

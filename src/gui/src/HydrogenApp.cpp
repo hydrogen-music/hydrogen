@@ -589,20 +589,21 @@ void HydrogenApp::onEventQueueTimer()
 		if(pQueue->m_addMidiNoteVector[0].b_noteExist)// runn twice, delete old note and add new note. this let the undo stack consistent
 			rounds = 2;
 		for(int i = 0; i<rounds; i++){
-			SE_addNoteAction *action = new SE_addNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
-															 pQueue->m_addMidiNoteVector[0].m_row,
-															 pQueue->m_addMidiNoteVector[0].m_pattern,
-															 pQueue->m_addMidiNoteVector[0].m_length,
-															 pQueue->m_addMidiNoteVector[0].f_velocity,
-															 pQueue->m_addMidiNoteVector[0].f_pan_L,
-															 pQueue->m_addMidiNoteVector[0].f_pan_R,
-															 0.0,
-															 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
-															 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
-															 false,
-															 false,
-															 pQueue->m_addMidiNoteVector[0].b_isMidi,
-															 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode);
+			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
+																			 pQueue->m_addMidiNoteVector[0].m_row,
+																			 pQueue->m_addMidiNoteVector[0].m_pattern,
+																			 pQueue->m_addMidiNoteVector[0].m_length,
+																			 pQueue->m_addMidiNoteVector[0].f_velocity,
+																			 pQueue->m_addMidiNoteVector[0].f_pan_L,
+																			 pQueue->m_addMidiNoteVector[0].f_pan_R,
+																			 0.0,
+																			 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+																			 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
+																			 false,
+																			 false,
+																			 pQueue->m_addMidiNoteVector[0].b_isMidi,
+																			 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
+																			 false );
 
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
