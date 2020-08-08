@@ -1201,6 +1201,54 @@ private:
 	int __pressedLine;
 };
 
+class SE_moveNotePianoRollAction : public QUndoCommand
+{
+	public:
+	SE_moveNotePianoRollAction( int nOldPosition, H2Core::Note::Octave oldOctave, H2Core::Note::Key oldKey, int nPattern,
+								int nNewPosition, H2Core::Note::Octave newOctave, H2Core::Note::Key newKey,
+								H2Core::Note *pNote )
+	{
+		m_nOldPosition = nOldPosition;
+		m_oldOctave = oldOctave;
+		m_oldKey = oldKey;
+		m_nPattern = nPattern;
+		m_nNewPosition = nNewPosition;
+		m_newOctave = newOctave;
+		m_newKey = newKey;
+		m_pNote = new H2Core::Note( pNote );
+	}
+
+	private:
+	int m_nOldPosition;
+	H2Core::Note::Octave m_oldOctave;
+	H2Core::Note::Key m_oldKey;
+	int m_nPattern;
+	int m_nNewPosition;
+	H2Core::Note::Octave m_newOctave;
+	H2Core::Note::Key m_newKey;
+	H2Core::Note *m_pNote;
+
+	~SE_moveNotePianoRollAction()
+	{
+		delete m_pNote;
+	}
+
+	virtual void undo()
+	{
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditor()
+		->moveNoteAction( m_nNewPosition, m_newOctave, m_newKey, m_nPattern,
+						  m_nOldPosition, m_oldOctave, m_oldKey, m_pNote );
+	}
+
+	virtual void redo()
+	{
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getPianoRollEditor()
+		->moveNoteAction( m_nOldPosition, m_oldOctave, m_oldKey, m_nPattern,
+						  m_nNewPosition, m_newOctave, m_newKey, m_pNote );
+	}
+
+};
+
 //~piano roll editor commands
 //=====================================================================================================================================
 //Note Properties Ruler commands

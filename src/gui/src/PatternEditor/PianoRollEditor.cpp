@@ -490,7 +490,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 		if ( bMoving ) {
 			pPainter->setPen( movingPen );
 			pPainter->setBrush( Qt::NoBrush );
-			pPainter->drawEllipse( start_x -4 -2 , start_y -2, w+4, h+4 );
+			pPainter->drawEllipse( start_x -4 -2 + movingOffset.x(), start_y -2 + movingOffset.y(), w+4, h+4 );
 		}
 	}
 	else if ( pNote->get_length() == 1 && pNote->get_note_off() == true ){
@@ -503,7 +503,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 		if ( bMoving ) {
 			pPainter->setPen( movingPen );
 			pPainter->setBrush( Qt::NoBrush );
-			pPainter->drawEllipse( start_x -4 -2 , start_y -2, w+4, h+4 );
+			pPainter->drawEllipse( start_x -4 -2 + movingOffset.x(), start_y -2 + movingOffset.y(), w+4, h+4 );
 		}
 	}
 	else {
@@ -522,7 +522,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 		if ( bMoving ) {
 			pPainter->setPen( movingPen );
 			pPainter->setBrush( Qt::NoBrush );
-			pPainter->drawRoundedRect( start_x-2, start_y-2, nend+4, h+4, 4, 4 );
+			pPainter->drawRoundedRect( start_x-2 + movingOffset.x(), start_y -2 + movingOffset.y(), nend+4, h+4, 4, 4 );
 		}
 
 	}
@@ -597,16 +597,22 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 
 void PianoRollEditor::mousePressEvent( QMouseEvent *ev )
 {
+	updateModifiers( ev );
 	m_selection.mousePressEvent( ev );
 }
 
 void PianoRollEditor::mouseMoveEvent( QMouseEvent *ev )
 {
+	updateModifiers( ev );
+	if ( m_selection.isMoving() ) {
+		m_bNeedsUpdate = true;
+	}
 	m_selection.mouseMoveEvent( ev );
 }
 
 void PianoRollEditor::mouseReleaseEvent( QMouseEvent *ev )
 {
+	updateModifiers( ev );
 	m_selection.mouseReleaseEvent( ev );
 }
 
@@ -872,18 +878,14 @@ QPoint PianoRollEditor::movingGridOffset( ) {
 	return QPoint( nFactor * x_off, y_off);
 }
 
-
-static std::pair<Note::Octave, Note::Key> rowToNoteValue( int nRow ) {
-	return std::make_pair( (Note::Octave)(3 - (nRow / 12 )),
-						   (Note::Key)(11 - nRow % 12) );
-}
-
 // Find a note that matches pNote, and move it from (nColumn, nRow) to (nNewColumn, nNewRow)
 void PianoRollEditor::moveNoteAction( int nColumn,
-									  int nRow,
+									  Note::Octave octave,
+									  Note::Key key,
 									  int nPattern,
 									  int nNewColumn,
-									  int nNewRow,
+									  Note::Octave newOctave,
+									  Note::Key newKey,
 									  Note *pNote)
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -892,7 +894,6 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	PatternList *pPatternList = pSong->get_pattern_list();
 	InstrumentList *pInstrumentList = pSong->get_instrument_list();
-	Pattern *pPattern = m_pPattern;
 	Note *pFoundNote = nullptr;
 
 	if ( nPattern < 0 || nPattern > pPatternList->size() ) {
@@ -901,14 +902,13 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 		return;
 	}
 
-	auto fromNoteValue = rowToNoteValue( nRow ),
-		toNoteValue = rowToNoteValue( nNewRow );
+	Pattern *pPattern = pPatternList->get( nPattern );
 
 	FOREACH_NOTE_IT_BOUND((Pattern::notes_t *)pPattern->get_notes(), it, nColumn) {
 		Note *pCandidateNote = it->second;
 		if ( pCandidateNote->get_instrument() == pNote->get_instrument()
-			 && pCandidateNote->get_octave() == fromNoteValue.first
-			 && pCandidateNote->get_key() == fromNoteValue.second
+			 && pCandidateNote->get_octave() == octave
+			 && pCandidateNote->get_key() == key
 			 && pCandidateNote->get_velocity() == pNote->get_velocity()
 			 && pCandidateNote->get_lead_lag() == pNote->get_lead_lag()
 			 && pCandidateNote->get_pan_r() == pNote->get_pan_r()
@@ -928,11 +928,11 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 	pPattern->remove_note( pFoundNote );
 	pFoundNote->set_position( nNewColumn );
 	pPattern->insert_note( pFoundNote );
-	pFoundNote->set_key_octave( toNoteValue.second, toNoteValue.first );
+	pFoundNote->set_key_octave( newKey, newOctave );
 
 	AudioEngine::get_instance()->unlock();
 
-	update();
+	updateEditor();
 	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 	m_pPatternEditorPanel->getPanEditor()->updateEditor();
 	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
@@ -1159,6 +1159,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 {
 	m_pPatternEditorPanel->setCursorHidden( false );
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
+	updateModifiers( ev );
 
 	if ( bIsSelectionKey ) {
 		// Selection key, nothing more to do (other than update editor)
@@ -1362,7 +1363,44 @@ void PianoRollEditor::zoom_out()
 
 
 // Selection manager interface
-void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {}
+void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {
+	updateModifiers( ev );
+
+	QPoint offset = movingGridOffset();
+	if ( offset.x() == 0 && offset.y() == 0 ) {
+		// Move with no effect.
+		return;
+	}
+
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
+
+	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+
+	if (m_bCopyNotMove) {
+		pUndo->beginMacro( "copy notes" );
+	} else {
+		pUndo->beginMacro( "move notes" );
+	}
+	std::list< Note * > selectedNotes;
+	for ( auto pNote : m_selection ) {
+		selectedNotes.push_back( pNote );
+	}
+
+	for ( auto pNote : selectedNotes ) {
+		int nPosition = pNote->get_position();
+		int nNewPosition = nPosition + offset.x();
+		Note::Octave octave = pNote->get_octave();
+		Note::Key key = pNote->get_key();
+		// Transpose note
+		int n = 12 * (octave - OCTAVE_MIN) + key - offset.y();
+		Note::Octave newOctave = (Note::Octave)(n / 12 + OCTAVE_MIN);
+		Note::Key newKey = (Note::Key)(n % 12);
+		pUndo->push( new SE_moveNotePianoRollAction( nPosition, octave, key, nSelectedPatternNumber, nNewPosition, newOctave, newKey, pNote ) );
+	}
+
+	pUndo->endMacro();
+}
 
 std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecting( QRect r ) {
 

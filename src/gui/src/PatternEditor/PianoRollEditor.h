@@ -77,10 +77,12 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		QPoint movingGridOffset( );
 
 		void moveNoteAction( int nColumn,
-							 int nRow,
+							 H2Core::Note::Octave octave,
+							 H2Core::Note::Key key,
 							 int nPattern,
 							 int nNewColumn,
-							 int nNewRow,
+							 H2Core::Note::Octave newOctave,
+							 H2Core::Note::Key newKey,
 							 H2Core::Note *pNote);
 
 		void editNotePropertiesAction(   int nColumn,
