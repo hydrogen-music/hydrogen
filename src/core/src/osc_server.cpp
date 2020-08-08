@@ -59,20 +59,23 @@ QString OscServer::qPrettyPrint(lo_type type,void * data)
 		int64_t    i;
 		double     f;
 		uint64_t   nl;
-		lo_timetag tt;
 	} h2_pcast64;
 
 
-	h2_pcast32 val32;
-	h2_pcast64 val64;
+	h2_pcast32 val32 = {0};
+	h2_pcast64 val64 = {0};
 	int size;
-	int i;
 
 	size = lo_arg_size(type, data);
 	if (size == 4 || type == LO_BLOB) {
 			val32.nl = *(int32_t *)data;
 	} else if (size == 8) {
 			val64.nl = *(int64_t *)data;
+	} else {
+		//error case
+		formattedString = QString("Unhandled size:").arg(size);
+		
+		return formattedString;
 	}
 
 	switch (type) {
@@ -95,10 +98,6 @@ QString OscServer::qPrettyPrint(lo_type type,void * data)
 
 		case LO_INT64:
 			formattedString = QString("%1").arg(val64.i);
-			break;
-
-		case LO_TIMETAG:
-			formattedString = QString("%1.%2").arg(val64.tt.sec).arg(val64.tt.frac);
 			break;
 
 		case LO_DOUBLE:
@@ -133,7 +132,8 @@ QString OscServer::qPrettyPrint(lo_type type,void * data)
 		case LO_INFINITUM:
 			formattedString = QString("#INF");
 			break;
-
+			
+		case LO_TIMETAG:
 		default:
 			formattedString = QString("Unhandled type:").arg(type);
 			break;

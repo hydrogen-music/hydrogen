@@ -69,12 +69,14 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 	jack_midi_event_t event;
 		uint8_t buffer[13];// 13 is needed if we get sysex goto messages
 
-	if (input_port == nullptr)
+	if (input_port == nullptr) {
 		return;
+	}
 
 	buf = jack_port_get_buffer(input_port, nframes);
-	if (buf == nullptr)
+	if (buf == nullptr) {
 		return;
+	}
 
 #ifdef JACK_MIDI_NEEDS_NFRAMES
 	events = jack_midi_get_event_count(buf, nframes);
@@ -90,14 +92,18 @@ JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 #else
 		error = jack_midi_event_get(&event, buf, i);
 #endif
-		if (error)
+		if (error) {
 			continue;
-		if (running < 1)
+		}
+		
+		if (running < 1) {
 			continue;
+		}
 
 		error = event.size;
-		if (error > (int)sizeof(buffer))
+		if (error > (int)sizeof(buffer)) {
 			error = (int)sizeof(buffer);
+		}
 
 		memset(buffer, 0, sizeof(buffer));
 		memcpy(buffer, event.buffer, error);
@@ -203,14 +209,17 @@ JackMidiDriver::handleOutgoingControlChange( int param, int value, int channel )
 {
 	uint8_t buffer[4];	
 	
-	if (channel < 0 || channel > 15)
+	if (channel < 0 || channel > 15) {
 		return;
+	}
 	
-	if (param < 0 || param > 127)
+	if (param < 0 || param > 127) {
 		return;
+	}
 
-	if (value < 0 || value > 127)
+	if (value < 0 || value > 127) {
 		return;
+	}
 
 	buffer[0] = 0xB0 | channel;	/* note off */
 	buffer[1] = param;
@@ -229,12 +238,14 @@ JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
 	uint8_t data[1];
 	uint8_t len;
 
-	if (output_port == nullptr)
+	if (output_port == nullptr) {
 		return;
+	}
 
 	buf = jack_port_get_buffer(output_port, nframes);
-	if (buf == nullptr)
+	if (buf == nullptr) {
 		return;
+	}
 
 #ifdef JACK_MIDI_NEEDS_NFRAMES
 	jack_midi_clear_buffer(buf, nframes);
@@ -250,8 +261,9 @@ JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
 				len = jack_buffer[4 * rx_in_pos];
 		if (len == 0) {
 			rx_in_pos++;
-			if (rx_in_pos >= JACK_MIDI_BUFFER_MAX)
+			if (rx_in_pos >= JACK_MIDI_BUFFER_MAX) {
 				rx_in_pos = 0;
+			}
 			continue;
 		}
 
@@ -260,12 +272,14 @@ JackMidiDriver::JackMidiRead(jack_nframes_t nframes)
 #else
 		buffer = jack_midi_event_reserve(buf, t, len);
 #endif
-		if (buffer == nullptr)
+		if (buffer == nullptr) {
 			break;
+		}
 		t++;
 		rx_in_pos++;
-		if (rx_in_pos >= JACK_MIDI_BUFFER_MAX)
+		if (rx_in_pos >= JACK_MIDI_BUFFER_MAX) {
 			rx_in_pos = 0;
+		}
 		memcpy(buffer, jack_buffer + (4 * rx_in_pos) + 1, len);
 	}
 	unlock();
@@ -279,8 +293,9 @@ JackMidiDriver::JackMidiOutEvent(uint8_t buf[4], uint8_t len)
 	lock();
 
 	next_pos = rx_out_pos + 1;
-	if (next_pos >= JACK_MIDI_BUFFER_MAX)
+	if (next_pos >= JACK_MIDI_BUFFER_MAX) {
 		next_pos = 0;
+	}
 
 	if (next_pos == rx_in_pos) {
 		/* buffer is full */
@@ -288,13 +303,14 @@ JackMidiDriver::JackMidiOutEvent(uint8_t buf[4], uint8_t len)
 		return;
 	}
 
-	if (len > 3)
+	if (len > 3) {
 		len = 3;
+	}
 
-		jack_buffer[(4 * next_pos)] = len;
-		jack_buffer[(4 * next_pos) + 1] = buf[0];
-		jack_buffer[(4 * next_pos) + 2] = buf[1];
-		jack_buffer[(4 * next_pos) + 3] = buf[2];
+	jack_buffer[(4 * next_pos)] = len;
+	jack_buffer[(4 * next_pos) + 1] = buf[0];
+	jack_buffer[(4 * next_pos) + 2] = buf[1];
+	jack_buffer[(4 * next_pos) + 3] = buf[2];
 
 	rx_out_pos = next_pos;
 
@@ -306,8 +322,9 @@ JackMidiProcessCallback(jack_nframes_t nframes, void *arg)
 {
 	JackMidiDriver *jmd = (JackMidiDriver *)arg;
 
-	if (nframes <= 0)
+	if (nframes <= 0) {
 		return (0);
+	}
 
 	jmd->JackMidiRead(nframes);
 	jmd->JackMidiWrite(nframes);
@@ -349,8 +366,9 @@ JackMidiDriver::JackMidiDriver()
 	jack_client = jack_client_open(jackMidiClientId.toLocal8Bit(),
 		JackNoStartServer, nullptr);
 
-	if (jack_client == nullptr)
+	if (jack_client == nullptr) {
 		return;
+	}
 
 	jack_set_process_callback(jack_client,
 		JackMidiProcessCallback, this);
@@ -449,16 +467,19 @@ void JackMidiDriver::handleQueueNote(Note* pNote)
 	int vel;
 
 	channel = pNote->get_instrument()->get_midi_out_channel();
-	if (channel < 0 || channel > 15)
+	if (channel < 0 || channel > 15) {
 		return;
+	}
 
 	key = pNote->get_midi_key();
-	if (key < 0 || key > 127)
+	if (key < 0 || key > 127) {
 		return;
+	}
 
 	vel = pNote->get_midi_velocity();
-	if (vel < 0 || vel > 127)
+	if (vel < 0 || vel > 127) {
 		return;
+	}
 
 	buffer[0] = 0x80 | channel;	/* note off */
 	buffer[1] = key;
@@ -480,12 +501,17 @@ JackMidiDriver::handleQueueNoteOff(int channel, int key, int vel)
 {
 	uint8_t buffer[4];
 
-	if (channel < 0 || channel > 15)
+	if (channel < 0 || channel > 15) {
 		return;
-	if (key < 0 || key > 127)
+	}
+	
+	if (key < 0 || key > 127) {
 		return;
-	if (vel < 0 || vel > 127)
+	}
+	
+	if (vel < 0 || vel > 127) {
 		return;
+	}
 
 	buffer[0] = 0x80 | channel;	/* note off */
 	buffer[1] = key;
@@ -497,22 +523,25 @@ JackMidiDriver::handleQueueNoteOff(int channel, int key, int vel)
 
 void JackMidiDriver::handleQueueAllNoteOff()
 {
-	InstrumentList *instList = Hydrogen::get_instance()->getSong()->get_instrument_list();
-	Instrument *curInst;
-	unsigned int numInstruments = instList->size();
-	unsigned int i;
-	int channel;
-	int key;
+	InstrumentList *	pInstrList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+	Instrument *		pCurInstr;
+	unsigned int numInstruments = pInstrList->size();
+	unsigned int i = 0;
+	int channel = 0;
+	int key = 0;
 
 	for (i = 0; i < numInstruments; i++) {
-		curInst = instList->get(i);
+			pCurInstr = pInstrList->get(i);
 
-		channel = curInst->get_midi_out_channel();
-		if (channel < 0 || channel > 15)
+		channel = 	pCurInstr->get_midi_out_channel();
+		if (channel < 0 || channel > 15) {
 			continue;
-		key = curInst->get_midi_out_note();
-		if (key < 0 || key > 127)
+		}
+		
+		key = 	pCurInstr->get_midi_out_note();
+		if (key < 0 || key > 127) {
 			continue;
+		}
 
 		handleQueueNoteOff(channel, key, 0);
 	}

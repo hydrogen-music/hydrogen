@@ -41,7 +41,7 @@ class ToggleButton;
 class SongEditor;
 class SongEditorPatternList;
 class SongEditorPositionRuler;
-
+class SongEditorPanel;
 
 static const uint SONG_EDITOR_MIN_GRID_WIDTH = 8;
 static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
@@ -65,7 +65,7 @@ class SongEditor : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
-		SongEditor( QWidget *parent );
+		SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPanel *pSongEditorPanel );
 		~SongEditor();
 
 		void createBackground();
@@ -79,11 +79,14 @@ class SongEditor : public QWidget, public H2Core::Object
 		void deletePattern( int nColumn, int nRow );
 		void clearThePatternSequenceVector( QString filename );
 		void updateEditorandSetTrue();
-                void movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, std::vector<QPoint> m_existingCells, bool bIsCtrlPressed, bool undo);
+		void movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, std::vector<QPoint> m_existingCells, bool bIsCtrlPressed, bool undo);
 
 	private:
-                //holds a list for active patterns for each pattern
-                QList<SongEditorGridRepresentationItem*> gridRepresentation;
+		//holds a list for active patterns for each pattern
+		QList<SongEditorGridRepresentationItem*> gridRepresentation;
+
+		QScrollArea *m_pScrollView;
+		SongEditorPanel *m_pSongEditorPanel;
 
 		unsigned m_nGridHeight;
 		unsigned m_nGridWidth;
@@ -91,23 +94,47 @@ class SongEditor : public QWidget, public H2Core::Object
 		bool m_bSequenceChanged;
 		bool m_bIsMoving;
 		bool m_bIsCtrlPressed;
+		bool m_bDrawingActiveCell;
 
 		QPixmap *m_pBackgroundPixmap;
 		QPixmap *m_pSequencePixmap;
 
 		std::vector<QPoint> m_selectedCells;
 		std::vector<QPoint> m_movingCells;
-                std::vector<QPoint> m_existingCells;
+		std::vector<QPoint> m_existingCells;
 
 		QPoint m_clickPoint;	// Usato come riferimento per le operazioni di spostamento
 		bool m_bShowLasso;
 		QRect m_lasso;
+		QPoint m_clickStartPoint;
+		bool m_bDragging;
+
+		int m_nCursorRow;
+		int m_nCursorColumn;
+		int m_bCursorHidden;
+
+		QPoint xyToColumnRow( QPoint p );
+		QPoint columnRowToXy( QPoint p );
 
 		virtual void mousePressEvent(QMouseEvent *ev);
 		virtual void mouseReleaseEvent(QMouseEvent *ev);
 		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void keyPressEvent (QKeyEvent *ev);
 		virtual void paintEvent(QPaintEvent *ev);
+		virtual void focusInEvent( QFocusEvent *ev );
+
+		// User action intentions
+		void startSelectionAtCursor();
+		void startSelectionOrMove( int nColumn, int nRow, QPoint pos, bool bClearSelection = true );
+		void updateSelectionOrMove( int nColumn, int nRow, QPoint pos );
+		void finishSelectionOrMove( int nColumn, int nRow );
+
+		bool togglePatternActive( int nColumn, int nRow );
+		void setPatternActive( int nColumn, int nRow, bool value );
+
+		void togglePatternSelected( int nColumn, int nRow );
+
+		void cancelSelectionOrMove();
 
 		void drawSequence();
 		void drawPattern( int pos, int number, bool invertColour );

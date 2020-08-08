@@ -126,8 +126,6 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	painter.setPen(rulerPen);
 
 	/* Paint min, max  */
-	int contentHeight = height() - 2* m_nMarginHeight;
-
 	painter.drawLine(0, m_nMarginHeight, width(), m_nMarginHeight);
 	painter.drawLine(0, height()-m_nMarginHeight, width(), height()-m_nMarginHeight);
 
@@ -138,8 +136,6 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 	/* Paint default */
 	QPoint def = translatePoint(0, _path->get_default());
 	painter.drawLine(0, def.y(), width(), def.y());
-
-	int slotWidth = 22;
 
 	QPen linePen(QColor(99, 165, 255));
 	linePen.setWidth(2);
@@ -175,16 +171,6 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
 		painter.drawEllipse(center, 3, 3);
 
 	}
-
-	/*
-	int x = m_nMarginWidth;
-	while(x < width()) {
-
-		painter.drawLine(x, m_nMarginHeight, x, contentHeight);
-
-		x += m_nGridWidth;
-	}
-	*/
 }
 
 
@@ -197,8 +183,9 @@ void AutomationPathView::paintEvent(QPaintEvent *event)
  */
 void AutomationPathView::mousePressEvent(QMouseEvent *event)
 {
-	if (! checkBounds(event) || !_path)
+	if (! checkBounds(event) || !_path) {
 		return;
+	}
 
 	auto p = locate(event);
 	float x = p.first;
@@ -234,16 +221,18 @@ void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
 {
 	m_bIsHolding = false;
 
-	if (! checkBounds(event) || !_path)
+	if (! checkBounds(event) || !_path) {
 		return;
+	}
 
 	auto p = locate(event);
 	float x = p.first;
 	float y = p.second;
-	if (m_bPointAdded)
+	if (m_bPointAdded) {
 		emit pointAdded(x, y);
-	else
+	} else {
 		emit pointMoved(m_fOriginX, m_fOriginY, x, y);
+	}
 
 	emit valueChanged();
 }
@@ -256,8 +245,9 @@ void AutomationPathView::mouseReleaseEvent(QMouseEvent *event)
  */
 void AutomationPathView::mouseMoveEvent(QMouseEvent *event)
 {
-	if (! checkBounds(event) || !_path)
+	if (! checkBounds(event) || !_path) {
 		return;
+	}
 
 	auto p = locate(event);
 	float x = p.first;

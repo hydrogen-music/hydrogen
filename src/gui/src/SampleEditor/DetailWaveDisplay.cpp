@@ -105,14 +105,15 @@ void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 	painter.drawLine( 0, VCenterl, width(),VCenterl );
 	painter.drawLine( 0, VCenterr, width(),VCenterr );
 	QColor _color;
-	if ( m_pType == "Start" )
+	if ( m_pType == "Start" ) {
 		 _color = QColor( 32, 173, 0 );
-	else if ( m_pType == "Loop" )
+	} else if ( m_pType == "Loop" ) {
 		_color = QColor( 93, 170, 254 );
-	else if ( m_pType == "End" )
+	} else if ( m_pType == "End" ) {
 		_color = QColor( 217, 68, 0 );
-	else
+	} else {
 		_color = QColor(  255, 255, 255 );
+	}
 
 	painter.setPen( QPen( _color, 1, Qt::SolidLine ) );
 	painter.drawLine( 90, 0, 90,265 );

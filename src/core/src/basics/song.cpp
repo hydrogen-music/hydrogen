@@ -212,8 +212,9 @@ Song* Song::get_empty_song()
 DrumkitComponent* Song::get_component( int ID )
 {
 	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-		if( (*it)->get_id() == ID )
+		if( (*it)->get_id() == ID ) {
 			return *it;
+		}
 	}
 
 	return nullptr;
@@ -243,6 +244,24 @@ void Song::set_is_modified(bool is_modified)
 
 	if(Notify) {
 		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
+	}
+}
+
+bool Song::has_missing_samples()
+{
+	InstrumentList *pInstrumentList = get_instrument_list();
+	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
+		if ( pInstrumentList->get( i )->has_missing_samples() ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Song::clear_missing_samples() {
+	InstrumentList *pInstrumentList = get_instrument_list();
+	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
+		pInstrumentList->get (i )->set_missing_samples( false );
 	}
 }
 
@@ -447,8 +466,9 @@ QString Song::copyInstrumentLineToString( int selectedPattern, int selectedInstr
 bool Song::pasteInstrumentLineFromString( const QString& serialized, int selectedPattern, int selectedInstrument, std::list<Pattern *>& patterns )
 {
 	QDomDocument doc;
-	if (!doc.setContent(serialized))
+	if (!doc.setContent(serialized)) {
 		return false;
+	}
 
 	// Get current instrument
 	Instrument *pInstr = get_instrument_list()->get( selectedInstrument );
@@ -476,8 +496,9 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 	// Parse each pattern if needed
 	QDomNode patternNode = patternList.firstChildElement( "pattern" );
 	bool is_single = true;
-	if (!patternNode.isNull())
+	if (!patternNode.isNull()) {
 		is_single = (( QDomNode )patternNode.nextSiblingElement( "pattern" )).isNull();
+	}
 
 	while (!patternNode.isNull())
 	{
@@ -504,8 +525,9 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 				nSize = LocalFileMng::readXmlInt(patternNode, "size", nSize, false, false);
 
 				// Change name of pattern to selected pattern
-				if (pSelected != nullptr)
+				if (pSelected != nullptr) {
 					patternName = pSelected->get_name();
+				}
 
 				pat = new Pattern( patternName, sInfo, sCategory, nSize );
 
@@ -575,8 +597,9 @@ SongReader::~SongReader()
 const QString SongReader::getPath ( const QString& filename )
 {
 	/* Try direct path */
-	if ( QFile( filename ).exists() )
+	if ( QFile( filename ).exists() ) {
 		return QFileInfo ( filename ).absoluteFilePath();
+	}
 
 	/* Try search in Session Directory */
 	char* sesdir = getenv ( "SESSION_DIR" );
@@ -585,8 +608,9 @@ const QString SongReader::getPath ( const QString& filename )
 		QDir SesDir( sesdir );
 		QString BaseFileName = QFileInfo( filename ).fileName();
 		QString SesFileName = SesDir.filePath( BaseFileName );
-		if ( QFile( SesFileName ).exists() )
+		if ( QFile( SesFileName ).exists() ) {
 			return QFileInfo( SesFileName ).absoluteFilePath();
+		}
 	}
 
 	ERRORLOG( "Song file " + filename + " not found." );
@@ -761,12 +785,13 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_hihat_grp( iIsHiHat );
 			pInstrument->set_lower_cc( iLowerCC );
 			pInstrument->set_higher_cc( iHigherCC );
-			if ( sRead_sample_select_algo.compare("VELOCITY") == 0 )
+			if ( sRead_sample_select_algo.compare("VELOCITY") == 0 ) {
 				pInstrument->set_sample_selection_alg( Instrument::VELOCITY );
-			else if ( sRead_sample_select_algo.compare("ROUND_ROBIN") == 0 )
+			} else if ( sRead_sample_select_algo.compare("ROUND_ROBIN") == 0 ) {
 				pInstrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
-			else if ( sRead_sample_select_algo.compare("RANDOM") == 0 )
+			} else if ( sRead_sample_select_algo.compare("RANDOM") == 0 ) {
 				pInstrument->set_sample_selection_alg( Instrument::RANDOM );
+			}
 			pInstrument->set_midi_out_channel( nMidiOutChannel );
 			pInstrument->set_midi_out_note( nMidiOutNote );
 
@@ -798,6 +823,7 @@ Song* SongReader::readSong( const QString& filename )
 				if ( pSample == nullptr ) {
 					ERRORLOG( "Error loading sample: " + sFilename + " not found" );
 					pInstrument->set_muted( true );
+					pInstrument->set_missing_samples( true );
 				}
 				InstrumentComponent* pCompo = new InstrumentComponent ( 0 );
 				InstrumentLayer* pLayer = new InstrumentLayer( pSample );
@@ -884,6 +910,7 @@ Song* SongReader::readSong( const QString& filename )
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
 							pInstrument->set_muted( true );
+							pInstrument->set_missing_samples( true );
 						}
 						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
 						pLayer->set_start_velocity( fMin );
@@ -971,6 +998,7 @@ Song* SongReader::readSong( const QString& filename )
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
 							pInstrument->set_muted( true );
+							pInstrument->set_missing_samples( true );
 						}
 						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
 						pLayer->set_start_velocity( fMin );
@@ -997,6 +1025,7 @@ Song* SongReader::readSong( const QString& filename )
 	} else {
 		ERRORLOG( "Error reading song: instrumentList node not found" );
 		delete pSong;
+		delete pInstrList;
 		return nullptr;
 	}
 
@@ -1085,7 +1114,7 @@ Song* SongReader::readSong( const QString& filename )
 	QDomNode pPatternIDNode = patternSequenceNode.firstChildElement( "patternID" );
 	while ( ! pPatternIDNode.isNull()  ) {
 		WARNINGLOG( "Using old patternSequence code for back compatibility" );
-		PatternList* patternSequence = new PatternList();
+		PatternList* pPatternSequence = new PatternList();
 		QString patId = pPatternIDNode.firstChildElement().text();
 		ERRORLOG( patId );
 
@@ -1102,11 +1131,14 @@ Song* SongReader::readSong( const QString& filename )
 		if ( pPattern == nullptr ) {
 			WARNINGLOG( "patternid not found in patternSequence" );
 			pPatternIDNode = ( QDomNode ) pPatternIDNode.nextSiblingElement( "patternID" );
+			
+			delete pPatternSequence;
+			
 			continue;
 		}
-		patternSequence->add( pPattern );
+		pPatternSequence->add( pPattern );
 
-		pPatternGroupVector->push_back( patternSequence );
+		pPatternGroupVector->push_back( pPatternSequence );
 
 		pPatternIDNode = ( QDomNode ) pPatternIDNode.nextSiblingElement( "patternID" );
 	}

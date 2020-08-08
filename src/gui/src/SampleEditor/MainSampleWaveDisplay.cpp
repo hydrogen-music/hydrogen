@@ -201,23 +201,11 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 
 }
 
-
-
-void MainSampleWaveDisplay::testPositionFromSampleeditor()
-{
-	testPosition( nullptr );
-	update();
-}
-
-
-
 void MainSampleWaveDisplay::mouseMoveEvent(QMouseEvent *ev)
 {
 	testPosition( ev );
 	update();
 }
-
-
 
 void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
 {
@@ -225,9 +213,10 @@ void MainSampleWaveDisplay::mousePressEvent(QMouseEvent *ev)
 	update();
 }
 
-
 void MainSampleWaveDisplay::testPosition( QMouseEvent *ev )
 {
+	assert(ev);
+	
 //startframepointer
 	if  (ev->y()>=200 ) {
 		m_pStartFramePosition = ev->x() ;

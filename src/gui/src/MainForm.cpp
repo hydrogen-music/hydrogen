@@ -98,8 +98,9 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	setMinimumSize( QSize( 1000, 500 ) );
 
 #ifndef WIN32
-	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigusr1Fd))
+	if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigusr1Fd)) {
 		qFatal("Couldn't create HUP socketpair");
+	}
 	snUsr1 = new QSocketNotifier(sigusr1Fd[1], QSocketNotifier::Read, this);
 	connect(snUsr1, SIGNAL(activated(int)), this, SLOT( handleSigUsr1() ));
 #endif
@@ -148,6 +149,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	h2app->addEventListener( this );
 	createMenuBar();
 	checkMidiSetup();
+	checkMissingSamples();
 
 	h2app->setStatusBarMessage( tr("Hydrogen Ready."), 10000 );
 
@@ -394,8 +396,9 @@ void MainForm::createMenuBar()
 		// DEBUG menu
 		QMenu *m_pDebugMenu = m_pMenubar->addMenu( tr("De&bug") );
 		m_pDebugMenu->addAction( tr( "Show &audio engine info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
-		if(pLogger->bit_mask() == 8) // hydrogen -V8 list object map in console
+		if(pLogger->bit_mask() == 8) { // hydrogen -V8 list object map in console 
 			m_pDebugMenu->addAction( tr( "Print Objects" ), this, SLOT( action_debug_printObjects() ) );
+		}
 		//~ DEBUG menu
 	}
 
@@ -600,6 +603,19 @@ void MainForm::action_file_save()
 	if ( filename.isEmpty() ) {
 		// just in case!
 		return action_file_save_as();
+	}
+
+	if ( pSong->has_missing_samples() ) {
+		if ( QMessageBox::information( this, "Hydrogen",
+		                               tr( "Some samples used by this song failed to load. If you save the song now "
+		                                   "these missing samples will be removed from the song entirely.\n"
+			                               "Are you sure you want to save?" ),
+		                               QMessageBox::Save | QMessageBox::Cancel,
+		                               QMessageBox::Save )
+		     == QMessageBox::Cancel ) {
+			return;
+		}
+		pSong->clear_missing_samples();
 	}
 
 	bool saved = false;
@@ -1359,6 +1375,7 @@ void MainForm::openSongFile( const QString& sFilename )
 	recentFiles.insert( recentFiles.begin(), sFilename );
 	pPref->setRecentFiles( recentFiles );
 
+
 	h2app->setSong( pSong );
 
 	updateRecentUsedSongList();
@@ -1367,24 +1384,40 @@ void MainForm::openSongFile( const QString& sFilename )
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
 	checkMidiSetup();
+	checkMissingSamples();
+}
+
+
+void MainForm::checkMissingSamples()
+{
+	if ( Hydrogen::get_instance()->getSong()->has_missing_samples() ) {
+		m_pMissingSamplesInfoBar = h2app->addInfoBar();
+		m_pMissingSamplesInfoBar->setTitle( tr( "Song drumkit samples" ) );
+		m_pMissingSamplesInfoBar->setText( tr( "Some samples used in this song could not be loaded. This may be because it uses an older default drumkit. This might be fixed by opening a new drumkit." ) );
+
+		QPushButton *fix = m_pMissingSamplesInfoBar->addButton( tr( "Open drumkit" ) );
+		QObject::connect( fix, SIGNAL( clicked() ),
+						  this, SLOT( onFixMissingSamples() ) );
+		m_pMissingSamplesInfoBar->show();
+	}
 }
 
 
 void MainForm::checkMidiSetup()
 {
-	InfoBar *pInfoBar = h2app->getInfoBar();
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong->get_instrument_list()->has_all_midi_notes_same() ) {
 		WARNINGLOG( "Incorrect MIDI setup" );
 
-		pInfoBar->reset();
-		pInfoBar->setTitle( tr("MIDI setup advice") );
-		pInfoBar->setText( tr("MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?") );
-		QPushButton *fix = pInfoBar->addButton( tr("Set default values") );
+		m_pMidiSetupInfoBar = h2app->addInfoBar();
+		m_pMidiSetupInfoBar->reset();
+		m_pMidiSetupInfoBar->setTitle( tr("MIDI setup advice") );
+		m_pMidiSetupInfoBar->setText( tr("MIDI out notes are not configured for this drumkit, so exporting this song to MIDI file may fail. Would you like Hydrogen to automatically fix this by assigning default values?") );
+		QPushButton *fix = m_pMidiSetupInfoBar->addButton( tr("Set default values") );
 		QObject::connect( fix, SIGNAL(clicked()), this, SLOT(onFixMidiSetup()) );
-		pInfoBar->show();
+		m_pMidiSetupInfoBar->show();
 	} else {
-		pInfoBar->hide();
+		m_pMidiSetupInfoBar = nullptr;
 	}
 }
 
@@ -1396,8 +1429,17 @@ void MainForm::onFixMidiSetup()
 	pSong->get_instrument_list()->set_default_midi_out_notes();
 	pSong->set_is_modified( true );
 
-	InfoBar *pInfoBar = h2app->getInfoBar();
-	pInfoBar->hide();
+	m_pMidiSetupInfoBar->hide();
+}
+
+
+void MainForm::onFixMissingSamples()
+{
+	INFOLOG( "Fixing MIDI setup" );
+	SoundLibraryOpenDialog dialog( this );
+	dialog.exec();
+
+	m_pMissingSamplesInfoBar->hide();
 }
 
 
@@ -1501,12 +1543,32 @@ void MainForm::initKeyInstMap()
 }
 
 
-
 bool MainForm::eventFilter( QObject *o, QEvent *e )
 {
 	UNUSED( o );
+	if ( e->type() == QEvent::FileOpen ) {
+		// Mac OS always opens files (including via double click in Finder) via a FileOpenEvent.
+		QFileOpenEvent *fe = dynamic_cast<QFileOpenEvent*>(e);
+		assert( fe != nullptr );
+		QString sFileName = fe->file();
 
-	if ( e->type() == QEvent::KeyPress) {
+		if ( sFileName.endsWith( H2Core::Filesystem::songs_ext ) ) {
+			if ( handleUnsavedChanges() ) {
+				openSongFile( sFileName );
+			}
+
+		} else if ( sFileName.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
+			H2Core::Drumkit::install( sFileName );
+
+		} else if ( sFileName.endsWith( H2Core::Filesystem::playlist_ext ) ) {
+			bool loadlist = HydrogenApp::get_instance()->getPlayListDialog()->loadListByFileName( sFileName );
+			if ( loadlist ) {
+				H2Core::Playlist::get_instance()->setNextSongByNumber( 0 );
+			}
+		}
+		return true;
+
+	} else if ( e->type() == QEvent::KeyPress ) {
 		// special processing for key press
 		QKeyEvent *k = (QKeyEvent *)e;
 
@@ -1551,20 +1613,22 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			break;
 
 		case  Qt::Key_F5 :
-			if( Playlist::get_instance()->size() == 0)
+			if( Playlist::get_instance()->size() == 0) {
 				break;
+			}
 			return handleSelectNextPrevSongOnPlaylist( -1 );
 			break;
 
 		case  Qt::Key_F6 :
-			if( Playlist::get_instance()->size() == 0)
+			if( Playlist::get_instance()->size() == 0) {
 				break;
+			}
 			return handleSelectNextPrevSongOnPlaylist( 1 );
 			break;
 
 		case  Qt::Key_F12 : //panic button stop all playing notes
 			engine->__panic();
-			//				QMessageBox::information( this, "Hydrogen", tr( "Panic" ) );
+			//QMessageBox::information( this, "Hydrogen", tr( "Panic" ) );
 			return true;
 			break;
 
@@ -1918,14 +1982,14 @@ bool MainForm::handleUnsavedChanges()
 void MainForm::usr1SignalHandler(int)
 {
 	char a = 1;
-	size_t ret = ::write(sigusr1Fd[0], &a, sizeof(a));
+	::write(sigusr1Fd[0], &a, sizeof(a));
 }
 
 void MainForm::handleSigUsr1()
 {
 	snUsr1->setEnabled(false);
 	char tmp;
-	size_t ret = ::read(sigusr1Fd[1], &tmp, sizeof(tmp));
+	::read(sigusr1Fd[1], &tmp, sizeof(tmp));
 
 	action_file_save();
 	snUsr1->setEnabled(true);
@@ -1946,23 +2010,23 @@ void MainForm::action_redo(){
 }
 
 void MainForm::undoRedoActionEvent( int nEvent ){
-	if(nEvent == 0)
+	if( nEvent == 0 ) {
 		h2app->m_pUndoStack->undo();
-	else if(nEvent == 1)
+	} else if(nEvent == 1) {
 		h2app->m_pUndoStack->redo();
+	}
 }
 
 bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 {
-	int playlistSize = Playlist::get_instance()->size();
-
-	HydrogenApp* app = HydrogenApp::get_instance();
-	int songnumber = Playlist::get_instance()->getActiveSongNumber();
-	if(songnumber+step >= 0 && songnumber+step <= playlistSize-1){
-		Playlist::get_instance()->setNextSongByNumber( songnumber + step );
-	}
-	else
+	int nPlaylistSize = Playlist::get_instance()->size();
+	int nSongnumber = Playlist::get_instance()->getActiveSongNumber();
+	
+	if( nSongnumber+step >= 0 && nSongnumber+step <= nPlaylistSize-1 ){
+		Playlist::get_instance()->setNextSongByNumber( nSongnumber + step );
+	} else {
 		return false;
+	}
 
 	return true;
 }

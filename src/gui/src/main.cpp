@@ -122,8 +122,9 @@ static int setup_unix_signal_handlers()
 	usr1.sa_flags = 0;
 	usr1.sa_flags |= SA_RESTART;
 
-	if (sigaction(SIGUSR1, &usr1, nullptr) > 0)
+	if (sigaction(SIGUSR1, &usr1, nullptr) > 0) {
 		return 1;
+	}
 
 	return 0;
 #endif
@@ -140,13 +141,57 @@ static void setApplicationIcon(QApplication *app)
 	app->setWindowIcon(icon);
 }
 
+
+// QApplication class.
+class H2QApplication : public QApplication {
+
+	QString m_sInitialFileOpen;
+	QWidget *m_pMainForm;
+
+public:
+	H2QApplication( int &argc, char **argv )
+		: QApplication(argc, argv) {
+		m_pMainForm = nullptr;
+	}
+
+	bool event( QEvent *e ) override
+	{
+		if ( e->type() == QEvent::FileOpen ) {
+			QFileOpenEvent *fe = dynamic_cast<QFileOpenEvent*>( e );
+			assert( fe != nullptr );
+
+			if ( m_pMainForm ) {
+				// Forward to MainForm if it's initialised and ready to handle a FileOpenEvent.
+				QApplication::sendEvent( m_pMainForm, e );
+			} else  {
+				// Keep requested file until ready
+				m_sInitialFileOpen = fe->file();
+			}
+			return true;
+		}
+		return QApplication::event( e );
+	}
+
+	// Set the MainForm pointer and forward any requested open event.
+	void setMainForm( QWidget *pMainForm )
+	{
+		m_pMainForm = pMainForm;
+		if ( !m_sInitialFileOpen.isEmpty() ) {
+			QFileOpenEvent ev( m_sInitialFileOpen );
+			QApplication::sendEvent( m_pMainForm, &ev );
+
+		}
+	}
+};
+
+
 int main(int argc, char *argv[])
 {
 	try {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
 		QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
-		QApplication* pQApp = new QApplication( argc, argv );
+		H2QApplication* pQApp = new H2QApplication( argc, argv );
 		pQApp->setApplicationName( "Hydrogen" );
 		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
 		
@@ -177,7 +222,7 @@ int main(int argc, char *argv[])
 		parser.addOption( songFileOption );
 		parser.addOption( kitOption );
 		parser.addOption( verboseOption );
-		
+		parser.addPositionalArgument( "file", "Song, playlist or Drumkit file" );
 		
 		//Conditional options
 		#ifdef H2CORE_HAVE_JACKSESSION
@@ -203,6 +248,23 @@ int main(int argc, char *argv[])
 				logLevelOpt =  H2Core::Logger::parse_log_level( sVerbosityString.toLocal8Bit() );
 			} else {
 				logLevelOpt = H2Core::Logger::Error|H2Core::Logger::Warning;
+			}
+		}
+
+		// Operating system GUIs typically pass documents to open as
+		// simple positional arguments to the process command
+		// line. Handling this here enables "Open with" as well as
+		// default document bindings to work.
+		QString sArg;
+		foreach ( sArg, parser.positionalArguments() ) {
+			if ( sArg.endsWith( H2Core::Filesystem::songs_ext ) ) {
+				sSongFilename = sArg;
+			}
+			if ( sArg.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
+				sDrumkitName = sArg;
+			}
+			if ( sArg.endsWith( H2Core::Filesystem::playlist_ext ) ) {
+				sPlaylistFilename = sArg;
 			}
 		}
 		
@@ -266,11 +328,12 @@ int main(int argc, char *argv[])
 		QTranslator tor( nullptr );
 		QLocale locale = QLocale::system();
 		if ( locale != QLocale::c() ) {
-			if (qttor.load( locale, QString( "qt" ), QString( "_" ),
-				QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+			if (qttor.load( locale, QString( "qt" ), QString( "_" ), QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
 				pQApp->installTranslator( &qttor );
-			else
+			} else {
 				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(locale.name()));
+			}
+			
 			QString sTranslationPath = H2Core::Filesystem::i18n_dir();
 			QString sTranslationFile( "hydrogen" );
 			bool bTransOk = tor.load( locale, sTranslationFile, QString( "_" ), sTranslationPath );
@@ -393,6 +456,8 @@ int main(int argc, char *argv[])
 				___ERRORLOG ( "Error loading the drumkit" );
 			}
 		}
+
+		pQApp->setMainForm( pMainForm );
 
 		pQApp->exec();
 

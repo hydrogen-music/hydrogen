@@ -270,8 +270,9 @@ LadspaFXGroup* Effects::getLadspaFXGroup()
 
 void Effects::updateRecentGroup()
 {
-	if ( m_pRecentGroup == nullptr )
+	if ( m_pRecentGroup == nullptr ) {
 		return;  // Too early :s
+	}
 
 	m_pRecentGroup->clear();
 

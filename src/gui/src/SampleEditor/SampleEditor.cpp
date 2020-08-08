@@ -148,18 +148,16 @@ SampleEditor::~SampleEditor()
 
 void SampleEditor::closeEvent(QCloseEvent *event)
 {
-	if ( !m_pSampleEditorStatus ){
-		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. These changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
-		if ( err == 0 ){
+	if ( !m_pSampleEditorStatus ) {
+		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. These changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
+		if ( err == 0 ) {
 			m_pSampleEditorStatus = true;
 			accept();
-		}else
-		{
+		} else {
 			event->ignore();
 			return;
 		}
-	}else
-	{
+	} else {
 		accept();
 	}
 }
@@ -170,6 +168,7 @@ void SampleEditor::getAllFrameInfos()
 	H2Core::Instrument *pInstrument = nullptr;
 	Sample* pSample = nullptr;
 	Song *pSong = Hydrogen::get_instance()->getSong();
+	
 	if (pSong != nullptr) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
@@ -185,10 +184,15 @@ void SampleEditor::getAllFrameInfos()
 			//INFOLOG( "new instr: " + pInstrument->m_sName );
 		}
 	}
+	
+	assert( pInstrument );
+	
 	H2Core::InstrumentLayer *pLayer = pInstrument->get_component(0)->get_layer( m_pSelectedLayer );
 	if ( pLayer ) {
 		pSample = pLayer->get_sample();
 	}
+	
+	assert( pSample );
 
 //this values are needed if we restore a sample from disk if a new song with sample changes will load
 	m_sample_is_modified = pSample->get_is_modified();
@@ -220,13 +224,16 @@ void SampleEditor::getAllFrameInfos()
 
 	if (m_sample_is_modified) {
 		__loops.end_frame = pSample->get_loops().end_frame;
-		if ( __loops.mode == Sample::Loops::FORWARD )
+		if ( __loops.mode == Sample::Loops::FORWARD ) {
 			ProcessingTypeComboBox->setCurrentIndex ( 0 );
-		if ( __loops.mode == Sample::Loops::REVERSE )
+		}
+		if ( __loops.mode == Sample::Loops::REVERSE ) {
 			ProcessingTypeComboBox->setCurrentIndex ( 1 );
-		if ( __loops.mode == Sample::Loops::PINGPONG )
+		}
+		if ( __loops.mode == Sample::Loops::PINGPONG ) {
 			ProcessingTypeComboBox->setCurrentIndex ( 2 );
-
+		}
+		
 		StartFrameSpinBox->setValue( __loops.start_frame );
 		LoopFrameSpinBox->setValue( __loops.loop_frame );
 		EndFrameSpinBox->setValue( __loops.end_frame );
@@ -239,19 +246,37 @@ void SampleEditor::getAllFrameInfos()
 		m_pMainSampleWaveDisplay->m_pEndFramePosition =  __loops.end_frame / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 
-		if( !__rubberband.use )rubberComboBox->setCurrentIndex( 0 );
+		if( !__rubberband.use ) { 
+			rubberComboBox->setCurrentIndex( 0 );
+		}
+		
 		rubberbandCsettingscomboBox->setCurrentIndex( __rubberband.c_settings );
-		if( !__rubberband.use )rubberbandCsettingscomboBox->setCurrentIndex( 4 );
+		if( !__rubberband.use ) {
+			rubberbandCsettingscomboBox->setCurrentIndex( 4 );
+		}
+		
 		pitchdoubleSpinBox->setValue( __rubberband.pitch );
-		if( !__rubberband.use ) pitchdoubleSpinBox->setValue( 0.0 );
+		if( !__rubberband.use ) { 
+			pitchdoubleSpinBox->setValue( 0.0 );
+		}
 
-		if( __rubberband.divider == 1.0/64.0) rubberComboBox->setCurrentIndex( 1 );
-		else if( __rubberband.divider == 1.0/32.0) rubberComboBox->setCurrentIndex( 2 );
-		else if( __rubberband.divider == 1.0/16.0) rubberComboBox->setCurrentIndex( 3 );
-		else if( __rubberband.divider == 1.0/8.0) rubberComboBox->setCurrentIndex( 4 );
-		else if( __rubberband.divider == 1.0/4.0) rubberComboBox->setCurrentIndex( 5 );
-		else if( __rubberband.divider == 1.0/2.0) rubberComboBox->setCurrentIndex( 6 );
-		else if( __rubberband.use && ( __rubberband.divider >= 1.0 ) ) rubberComboBox->setCurrentIndex(  (int)(__rubberband.divider + 6) );
+		if( __rubberband.divider == 1.0/64.0) {
+			rubberComboBox->setCurrentIndex( 1 );
+		}
+		else if( __rubberband.divider == 1.0/32.0) {
+			rubberComboBox->setCurrentIndex( 2 );
+		} else if( __rubberband.divider == 1.0/16.0) {
+			rubberComboBox->setCurrentIndex( 3 );
+		} else if( __rubberband.divider == 1.0/8.0) {
+			rubberComboBox->setCurrentIndex( 4 );
+		} else if( __rubberband.divider == 1.0/4.0) {
+			rubberComboBox->setCurrentIndex( 5 );
+		} else if( __rubberband.divider == 1.0/2.0) {
+			rubberComboBox->setCurrentIndex( 6 );
+		} else if( __rubberband.use && ( __rubberband.divider >= 1.0 ) ) { 
+			rubberComboBox->setCurrentIndex(  (int)(__rubberband.divider + 6) );
+		}
+		
 		setSamplelengthFrames();
 		checkRatioSettings();
 
@@ -315,7 +340,7 @@ void SampleEditor::openDisplays()
 void SampleEditor::on_ClosePushButton_clicked()
 {
 	if ( !m_pSampleEditorStatus ){
-		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. These changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		int err = QMessageBox::information( this, "Hydrogen", tr( "Unsaved changes left. These changes will be lost. \nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
 		if ( err == 0 ){
 			m_pSampleEditorStatus = true;
 			accept();
@@ -345,7 +370,7 @@ void SampleEditor::on_PrevChangesPushButton_clicked()
 bool SampleEditor::getCloseQuestion()
 {
 	bool close = false;
-	int err = QMessageBox::information( this, "Hydrogen", tr( "Close dialog! maybe there is some unsaved work on sample.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+	int err = QMessageBox::information( this, "Hydrogen", tr( "Close dialog! maybe there is some unsaved work on sample.\nAre you sure?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
 	if ( err == 0 ) close = true;
 
 	return close;

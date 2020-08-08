@@ -289,6 +289,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
 	restoreLastUsedPlaylistCheckbox->setChecked( pPref->isRestoreLastPlaylistEnabled() );
 	useRelativePlaylistPathsCheckbox->setChecked( pPref->isPlaylistUsingRelativeFilenames() );
+	hideKeyboardCursor->setChecked( pPref->hideKeyboardCursor() );
 
 	//restore the right m_bsetlash value
 	if ( pPref->m_brestartLash == true ){
@@ -486,6 +487,7 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->setRestoreLastPlaylistEnabled( restoreLastUsedPlaylistCheckbox->isChecked() );
 	pPref->setUseRelativeFilenamesForPlaylists( useRelativePlaylistPathsCheckbox->isChecked() );
 	pPref->m_bsetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref.
+	pPref->setHideKeyboardCursor( hideKeyboardCursor->isChecked() );
 
 	//path to rubberband
 	pPref-> m_rubberBandCLIexecutable = rubberbandLineEdit->text();
@@ -723,7 +725,7 @@ void PreferencesDialog::on_selectApplicationFontBtn_clicked()
 void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )
 {
 	UNUSED( i );
-	m_bNeedDriverRestart = false;
+	m_bNeedDriverRestart = true;
 }
 
 

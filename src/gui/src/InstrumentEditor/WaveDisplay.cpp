@@ -114,7 +114,8 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 	if(!pLayer || currentWidth <= 0){
 		m_pLayer = nullptr;
 		m_sSampleName = "-";
-		
+
+		update();
 		return;
 	}
 	

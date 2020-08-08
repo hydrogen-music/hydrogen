@@ -74,6 +74,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __is_metronome_instrument(false)
 	, __apply_velocity( true )
 	, __current_instr_for_export(false)
+	, m_bHasMissingSamples( false )
 {
 	if ( __adsr == nullptr ) {
 		__adsr = new ADSR();
@@ -171,6 +172,8 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 		AudioEngine::get_instance()->unlock();
 	}
 
+	set_missing_samples( false );
+
 	for (std::vector<InstrumentComponent*>::iterator it = pInstrument->get_components()->begin() ; it != pInstrument->get_components()->end(); ++it) {
 		InstrumentComponent* pSrcComponent = *it;
 
@@ -196,6 +199,7 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 				Sample* pSample = Sample::load( sample_path );
 				if ( pSample == nullptr ) {
 					_ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." ).arg( sample_path ) );
+					set_missing_samples( true );
 					if ( is_live ) {
 						AudioEngine::get_instance()->lock( RIGHT_HERE );
 					}
@@ -205,11 +209,13 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 						AudioEngine::get_instance()->unlock();
 					}
 				} else {
-					if ( is_live )
+					if ( is_live ) {
 						AudioEngine::get_instance()->lock( RIGHT_HERE );
+					}
 					pMyComponent->set_layer( new InstrumentLayer( src_layer, pSample ), i );
-					if ( is_live )
+					if ( is_live ) {
 						AudioEngine::get_instance()->unlock();
+					}
 				}
 			}
 			delete my_layer;
@@ -295,12 +301,15 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	pInstrument->set_stop_notes( node->read_bool( "isStopNote", true,false ) );
 
 	QString sRead_sample_select_algo = node->read_string( "sampleSelectionAlgo", "VELOCITY" );
-	if ( sRead_sample_select_algo.compare("VELOCITY") == 0 )
+	if ( sRead_sample_select_algo.compare("VELOCITY") == 0 ) {
 		pInstrument->set_sample_selection_alg( VELOCITY );
-	else if ( sRead_sample_select_algo.compare("ROUND_ROBIN") == 0 )
+	}
+	else if ( sRead_sample_select_algo.compare("ROUND_ROBIN") == 0 ) {
 		pInstrument->set_sample_selection_alg( ROUND_ROBIN );
-	else if ( sRead_sample_select_algo.compare("RANDOM") == 0 )
+	}
+	else if ( sRead_sample_select_algo.compare("RANDOM") == 0 ) {
 		pInstrument->set_sample_selection_alg( RANDOM );
+	}
 
 	pInstrument->set_hihat_grp( node->read_int( "isHihat", -1, true ) );
 	pInstrument->set_lower_cc( node->read_int( "lower_cc", 0, true ) );

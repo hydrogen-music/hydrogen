@@ -53,6 +53,11 @@ void exportSong( const QString &songFile, const QString &fileName )
 
 	Song *pSong = Song::load( songFile );
 	CPPUNIT_ASSERT( pSong != nullptr );
+	
+	if( !pSong ) {
+		return;
+	}
+	
 	pHydrogen->setSong( pSong );
 
 	InstrumentList *pInstrumentList = pSong->get_instrument_list();
@@ -90,7 +95,6 @@ void exportMIDI( const QString &songFile, const QString &fileName, SMFWriter& wr
 {
 	auto t0 = std::chrono::high_resolution_clock::now();
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	std::unique_ptr<Song> pSong { Song::load( songFile ) };
 	CPPUNIT_ASSERT( pSong != nullptr );
 

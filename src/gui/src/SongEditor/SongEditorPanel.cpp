@@ -1,4 +1,4 @@
-	/*
+/*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
  *
@@ -32,6 +32,7 @@
 #include "../Widgets/LCDCombo.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../Skin.h"
+#include "../WidgetScrollArea.h"
 
 #include "SongEditor.h"
 #include "UndoActions.h"
@@ -81,7 +82,17 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pTimeLineToggleBtn->move( 133, 6 );
 	m_pTimeLineToggleBtn->setToolTip( tr( "Enable time line edit") );
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
-	m_pTimeLineToggleBtn->setPressed( pPref->getUseTimelineBpm() );
+	
+	if ( pPref->getUseTimelineBpm() &&
+		 !pEngine->haveJackTimebaseClient() ) {
+		m_pTimeLineToggleBtn->setPressed( true );
+		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
+
+	} else {
+		m_pTimeLineToggleBtn->setPressed( false );
+		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") );
+
+	}
 
 
 	// clear sequence button
@@ -171,6 +182,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 // ZOOM
 	m_pHScrollBar = new QScrollBar( Qt::Horizontal, nullptr );
+	m_pHScrollBar->setObjectName( "SongEditorPanel HScrollBar" );
 	connect( m_pHScrollBar, SIGNAL(valueChanged(int)), this, SLOT( hScrollTo(int) ) );
 
 	// zoom-in btn
@@ -272,7 +284,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	//~ ZOOM
 
 	// PATTERN LIST
-	m_pPatternListScrollView = new QScrollArea( nullptr );
+	m_pPatternListScrollView = new WidgetScrollArea( nullptr );
 	m_pPatternListScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPatternListScrollView->setFixedWidth( m_nPatternListWidth );
 	m_pPatternListScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -280,16 +292,21 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pPatternListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( vScrollTo(int) ) );
 
 	m_pPatternList = new SongEditorPatternList( m_pPatternListScrollView->viewport() );
+	m_pPatternList->setFocusPolicy( Qt::ClickFocus );
 	m_pPatternListScrollView->setWidget( m_pPatternList );
+	m_pPatternListScrollView->setFocusProxy( m_pPatternList );
 
 
 	// EDITOR
-	m_pEditorScrollView = new QScrollArea( nullptr );
+	m_pEditorScrollView = new WidgetScrollArea( nullptr );
 	m_pEditorScrollView->setFrameShape( QFrame::NoFrame );
 	m_pEditorScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
-	m_pSongEditor = new SongEditor( m_pEditorScrollView->viewport() );
+	m_pSongEditor = new SongEditor( m_pEditorScrollView->viewport(), m_pEditorScrollView, this );
 	m_pEditorScrollView->setWidget( m_pSongEditor );
+	m_pEditorScrollView->setFocusProxy( m_pSongEditor );
+
+	m_pPatternList->setFocusProxy( m_pSongEditor );
 
 	connect( m_pEditorScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( hScrollTo(int) ) );
 	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( vScrollTo(int) ) );
@@ -299,16 +316,19 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pWidgetStack = new QStackedWidget( nullptr );
 	m_pWidgetStack->setFixedHeight( 50 );
 	
-	m_pPositionRulerScrollView = new QScrollArea( m_pWidgetStack );
+	m_pPositionRulerScrollView = new WidgetScrollArea( m_pWidgetStack );
 	m_pPositionRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPositionRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPositionRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+	m_pPositionRulerScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pPositionRuler = new SongEditorPositionRuler( m_pPositionRulerScrollView->viewport() );
 	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
 	m_pPositionRulerScrollView->setFixedHeight( 50 );
 	connect( m_pPositionRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( hScrollTo(int) ) );
+	m_pPositionRuler->setFocusProxy( m_pSongEditor );
+	m_pPositionRuler->setFocusPolicy( Qt::ClickFocus );
 	
-	m_pPlaybackTrackScrollView = new QScrollArea( m_pWidgetStack );
+	m_pPlaybackTrackScrollView = new WidgetScrollArea( m_pWidgetStack );
 	m_pPlaybackTrackScrollView->setFrameShape( QFrame::NoFrame );
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPlaybackTrackScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -324,7 +344,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaybackTrackScrollView->setWidget( m_pPlaybackTrackWaveDisplay );
 	m_pPlaybackTrackScrollView->setFixedHeight( 50 );
 	
-	m_pAutomationPathScrollView = new QScrollArea( nullptr );
+	m_pAutomationPathScrollView = new WidgetScrollArea( nullptr );
 	m_pAutomationPathScrollView->setFrameShape( QFrame::NoFrame );
 	m_pAutomationPathScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pAutomationPathScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
@@ -342,6 +362,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pAutomationCombo->select( 0 );
 
 	m_pVScrollBar = new QScrollBar( Qt::Vertical, nullptr );
+	m_pVScrollBar->setObjectName( "SongEditorPanel VScrollBar" );
 	connect( m_pVScrollBar, SIGNAL(valueChanged(int)), this, SLOT( vScrollTo(int) ) );
 
 	m_pWidgetStack->addWidget( m_pPositionRulerScrollView );
@@ -506,6 +527,8 @@ void SongEditorPanel::updateAll()
 
 	m_pSongEditor->createBackground();
 	m_pSongEditor->update();
+	
+	updateTimelineUsage();
 
  	m_pAutomationPathView->setAutomationPath( pSong->get_velocity_automation_path() );
 
@@ -605,7 +628,10 @@ void SongEditorPanel::downBtnClicked( Button* btn )
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
 
-	if( pEngine->getSelectedPatternNumber() +1 >=  pSong->get_pattern_list()->size() ) return;
+	if( pEngine->getSelectedPatternNumber() +1 >=  pPatternList->size() ) { 
+		return;
+	}
+	
 	int nSelectedPatternPos = pEngine->getSelectedPatternNumber();
 
 	SE_movePatternListItemAction *pAction = new SE_movePatternListItemAction( nSelectedPatternPos, nSelectedPatternPos +1 ) ;
@@ -651,6 +677,7 @@ void SongEditorPanel::restoreGroupVector( QString filename )
 
 void SongEditorPanel::resyncExternalScrollBar()
 {
+	int nGridHeight = m_pPatternList->getGridHeight();
 	m_pHScrollBar->setMinimum( m_pEditorScrollView->horizontalScrollBar()->minimum() );
 	m_pHScrollBar->setMaximum( m_pEditorScrollView->horizontalScrollBar()->maximum() );
 	m_pHScrollBar->setSingleStep( m_pEditorScrollView->horizontalScrollBar()->singleStep() );
@@ -663,7 +690,10 @@ void SongEditorPanel::resyncExternalScrollBar()
 	m_pVScrollBar->setPageStep( m_pEditorScrollView->verticalScrollBar()->pageStep() );
 	m_pVScrollBar->setValue( m_pEditorScrollView->verticalScrollBar()->value() );
 
-	vScrollTo( m_pPatternList->getGridHeight() * Hydrogen::get_instance()->getSelectedPatternNumber() );
+	// Make sure currently selected pattern is visible.
+	m_pPatternListScrollView->ensureVisible( 0, (Hydrogen::get_instance()->getSelectedPatternNumber()
+												 * nGridHeight + nGridHeight/2 ),
+											 0, m_pPatternList->getGridHeight() );
 }
 
 
@@ -689,20 +719,49 @@ void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 	m_actionMode = DRAW_ACTION;
 }
 
+void SongEditorPanel::updateTimelineUsage() {
 
+	auto pHydrogen = Hydrogen::get_instance();
+	
+	if ( pHydrogen->haveJackTimebaseClient() ) {
+		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") );
+		m_pTimeLineToggleBtn->setPressed( false );
+		m_pTimeLineToggleBtn->setDisabled( true );
+		Preferences::get_instance()->setUseTimelineBpm( false );
+		m_pPositionRuler->createBackground();
+		return;
+	} else if ( m_pTimeLineToggleBtn->toolTip() == 
+				trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") ) {
+		// No external timebase master present anymore.
+		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
+		m_pTimeLineToggleBtn->setDisabled( false );
+	}
+	
+}
 
 void SongEditorPanel::timeLineBtnPressed( Button* pBtn )
 {
-	if( m_pTimeLineToggleBtn->isPressed() ){
-		Preferences::get_instance()->setUseTimelineBpm( false );
-		Hydrogen::get_instance()->setTimelineBpm();
+	
+	auto pHydrogen = Hydrogen::get_instance();
+	
+	if ( pHydrogen->haveJackTimebaseClient() ) {
+		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") );
+		return;
+	} else {
+		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
 	}
-	else
-	{
+
+	if ( m_pTimeLineToggleBtn->isPressed() ){
 		Preferences::get_instance()->setUseTimelineBpm( true );
+		
+		if ( !pHydrogen->haveJackTransport() ) {
+			pHydrogen->setTimelineBpm();
+		}
+	} else {
+		Preferences::get_instance()->setUseTimelineBpm( false );
 	}
 	
-	m_pPositionRuler->createBackground();	
+	m_pPositionRuler->createBackground();
 }
 
 void SongEditorPanel::showTimeline()

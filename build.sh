@@ -110,6 +110,7 @@ if [ $# -eq 0 ]; then
     echo "   c[lean]  => remove cache files"
     echo "   m[ake]   => launch the build process"
     echo "   mm       => launch the build process using ccache"
+    echo "   mt       => launch the build process with enabled clang tidy checks"
     echo "   d[oc]    => build html documentation"
     echo "   g[raph]  => draw a dependencies graph"
     echo "   h[elp]   => show the build options"
@@ -131,6 +132,9 @@ for arg in $@; do
             cmd="cmake_make";;
         mm)
             CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            cmd="cmake_make";;
+        mt)
+            CMAKE_OPTIONS="$CMAKE_OPTIONS -DWANT_CLANG_TIDY=1"
             cmd="cmake_make";;
         g|graph)
             cmd="cmake_graph";;
