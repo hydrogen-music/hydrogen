@@ -231,24 +231,21 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pMainForm->setCentralWidget( mainArea );
 
 	// LAYOUT!!
-	QVBoxLayout *pMainVBox = new QVBoxLayout();
-	pMainVBox->setSpacing( 1 );
-	pMainVBox->setMargin( 0 );
-	pMainVBox->addWidget( m_pPlayerControl );
+	m_pMainVBox = new QVBoxLayout();
+	m_pMainVBox->setSpacing( 1 );
+	m_pMainVBox->setMargin( 0 );
+	m_pMainVBox->addWidget( m_pPlayerControl );
 
-	m_pInfoBar = new InfoBar();
-	m_pInfoBar->hide();
-	pMainVBox->addWidget( m_pInfoBar );
-	pMainVBox->addSpacing( 3 );
+	m_pMainVBox->addSpacing( 3 );
 
 	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
-		pMainVBox->addWidget( m_pSplitter );
+		m_pMainVBox->addWidget( m_pSplitter );
 	else {
-		pMainVBox->addWidget( m_pTab );
+		m_pMainVBox->addWidget( m_pTab );
 
 	}
 
-	mainArea->setLayout( pMainVBox );
+	mainArea->setLayout( m_pMainVBox );
 
 
 
@@ -299,6 +296,13 @@ void HydrogenApp::setupSinglePanedInterface()
 		m_pTab->setCurrentIndex( Preferences::get_instance()->getLastOpenTab() );
 		QObject::connect(m_pTab, SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
 	}
+}
+
+
+InfoBar *HydrogenApp::addInfoBar() {
+	InfoBar *pInfoBar = new InfoBar();
+	m_pMainVBox->insertWidget( 1, pInfoBar );
+	return pInfoBar;
 }
 
 

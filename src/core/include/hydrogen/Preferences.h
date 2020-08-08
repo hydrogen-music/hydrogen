@@ -499,6 +499,9 @@ public:
 	bool			useLash();
 	void			setUseLash( bool b );
 
+	bool			hideKeyboardCursor();
+	void			setHideKeyboardCursor( bool b );
+
 	/** @param bars Sets #m_nMaxBars.*/
 	void				setMaxBars( const int bars );
 	/** @return #m_nMaxBars.*/
@@ -624,6 +627,7 @@ private:
 	bool				readPrefFileforotherplaces;
 	int					punchInPos;
 	int					punchOutPos;
+	bool				m_bHideKeyboardCursor;
 	/** Maximum number of bars shown in the Song Editor at
 	 * once. 
 	 *
@@ -829,6 +833,14 @@ inline void Preferences::setShowDevelWarning( bool value ) {
 
 inline bool Preferences::getShowDevelWarning() {
 	return m_bShowDevelWarning;
+}
+
+inline void Preferences::setHideKeyboardCursor( bool value ) {
+	m_bHideKeyboardCursor = value;
+}
+
+inline bool Preferences::hideKeyboardCursor() {
+	return m_bHideKeyboardCursor;
 }
 
 inline bool Preferences::isRestoreLastSongEnabled() {

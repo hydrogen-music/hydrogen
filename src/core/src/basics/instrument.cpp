@@ -74,6 +74,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __is_metronome_instrument(false)
 	, __apply_velocity( true )
 	, __current_instr_for_export(false)
+	, m_bHasMissingSamples( false )
 {
 	if ( __adsr == nullptr ) {
 		__adsr = new ADSR();
@@ -171,6 +172,8 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 		AudioEngine::get_instance()->unlock();
 	}
 
+	set_missing_samples( false );
+
 	for (std::vector<InstrumentComponent*>::iterator it = pInstrument->get_components()->begin() ; it != pInstrument->get_components()->end(); ++it) {
 		InstrumentComponent* pSrcComponent = *it;
 
@@ -196,6 +199,7 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 				Sample* pSample = Sample::load( sample_path );
 				if ( pSample == nullptr ) {
 					_ERRORLOG( QString( "Error loading sample %1. Creating a new empty layer." ).arg( sample_path ) );
+					set_missing_samples( true );
 					if ( is_live ) {
 						AudioEngine::get_instance()->lock( RIGHT_HERE );
 					}

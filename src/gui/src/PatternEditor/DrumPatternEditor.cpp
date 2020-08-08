@@ -63,7 +63,7 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  , m_pPattern( nullptr )
  , m_pPatternEditorPanel( panel )
 {
-	setFocusPolicy(Qt::ClickFocus);
+	setFocusPolicy(Qt::StrongFocus);
 
 	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
 	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
@@ -143,6 +143,54 @@ int DrumPatternEditor::getColumn(QMouseEvent *ev)
 }
 
 
+void DrumPatternEditor::addOrRemoveNote(int nColumn, int nRealColumn, int row) {
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
+	H2Core::Note *pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument );
+
+	int oldLength = -1;
+	float oldVelocity = 0.8f;
+	float oldPan_L = 0.5f;
+	float oldPan_R = 0.5f;
+	float oldLeadLag = 0.0f;
+	Note::Key oldNoteKeyVal = Note::C;
+	Note::Octave oldOctaveKeyVal = Note::P8;
+	bool isNoteOff = false;
+
+	bool noteExisted = false;
+	if ( pDraggedNote ) {
+		oldLength = pDraggedNote->get_length();
+		oldVelocity = pDraggedNote->get_velocity();
+		oldPan_L = pDraggedNote->get_pan_l();
+		oldPan_R = pDraggedNote->get_pan_r();
+		oldLeadLag = pDraggedNote->get_lead_lag();
+		oldNoteKeyVal = pDraggedNote->get_key();
+		oldOctaveKeyVal = pDraggedNote->get_octave();
+		isNoteOff = pDraggedNote->get_note_off();
+		noteExisted = true;
+	}
+
+	SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
+																	 row,
+																	 __selectedPatternNumber,
+																	 oldLength,
+																	 oldVelocity,
+																	 oldPan_L,
+																	 oldPan_R,
+																	 oldLeadLag,
+																	 oldNoteKeyVal,
+																	 oldOctaveKeyVal,
+																	 noteExisted,
+																	 Preferences::get_instance()->getHearNewNotes(),
+																	 false,
+																	 false,
+																	 isNoteOff );
+
+	HydrogenApp::get_instance()->m_pUndoStack->push( action );
+
+
+}
+
 
 void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 {
@@ -165,7 +213,6 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 		return;
 	}
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
-
 
 	if( ev->button() == Qt::LeftButton && (ev->modifiers() & Qt::ShiftModifier) )
 	{
@@ -195,50 +242,9 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 	}
-	else if (ev->button() == Qt::LeftButton ) {
+	else if ( ev->button() == Qt::LeftButton ) {
 
-		H2Core::Note *pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument );
-
-		int oldLength = -1;
-		float oldVelocity = 0.8f;
-		float oldPan_L = 0.5f;
-		float oldPan_R = 0.5f;
-		float oldLeadLag = 0.0f;
-		Note::Key oldNoteKeyVal = Note::C;
-		Note::Octave oldOctaveKeyVal = Note::P8;
-		bool isNoteOff = false;
-
-		bool noteExisted = false;
-		if( pDraggedNote ){
-			oldLength = pDraggedNote->get_length();
-			oldVelocity = pDraggedNote->get_velocity();
-			oldPan_L = pDraggedNote->get_pan_l();
-			oldPan_R = pDraggedNote->get_pan_r();
-			oldLeadLag = pDraggedNote->get_lead_lag();
-			oldNoteKeyVal = pDraggedNote->get_key();
-			oldOctaveKeyVal = pDraggedNote->get_octave();
-			isNoteOff = pDraggedNote->get_note_off();
-			noteExisted = true;
-		}
-
-
-		SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
-																		 row,
-																		 __selectedPatternNumber,
-																		 oldLength,
-																		 oldVelocity,
-																		 oldPan_L,
-																		 oldPan_R,
-																		 oldLeadLag,
-																		 oldNoteKeyVal,
-																		 oldOctaveKeyVal,
-																		 noteExisted,
-																		 Preferences::get_instance()->getHearNewNotes(),
-																		 false,
-																		 false,
-																		 isNoteOff );
-
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		addOrRemoveNote( nColumn, nRealColumn, row );
 
 	} else if (ev->button() == Qt::RightButton ) {
 		m_bRightBtnPressed = true;
@@ -254,6 +260,9 @@ void DrumPatternEditor::mousePressEvent(QMouseEvent *ev)
 			__oldLength = -1;
 		}
 	}
+
+	m_pPatternEditorPanel->setCursorPosition( nColumn );
+	m_pPatternEditorPanel->setCursorHidden( true );
 }
 
 void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
@@ -470,12 +479,60 @@ void DrumPatternEditor::mouseMoveEvent(QMouseEvent *ev)
 }
 
 
-
-void DrumPatternEditor::keyPressEvent (QKeyEvent *ev)
+void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 {
-	ev->ignore();
-}
+	Hydrogen *pH2 = Hydrogen::get_instance();
+	int nSelectedInstrument = pH2->getSelectedInstrumentNumber();
+	int nMaxInstrument = pH2->getSong()->get_instrument_list()->size();
 
+	m_pPatternEditorPanel->setCursorHidden( false );
+
+	// Basic directional movement using standard keys
+	if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
+		// ->
+		m_pPatternEditorPanel->moveCursorRight();
+
+	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ) {
+		// -->|
+		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
+
+	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ) {
+		// <-
+		m_pPatternEditorPanel->moveCursorLeft();
+
+	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ) {
+		// |<--
+		m_pPatternEditorPanel->setCursorPosition( 0 );
+
+	} else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
+		if ( nSelectedInstrument + 1 < nMaxInstrument )
+			pH2->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
+
+	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
+		pH2->setSelectedInstrumentNumber( nMaxInstrument-1 );
+
+	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
+		if ( nSelectedInstrument > 0 )
+			pH2->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
+
+	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
+		pH2->setSelectedInstrumentNumber( 0 );
+
+	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+		// Key: Enter / Return: add or remove note at current position
+		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument );
+
+	} else {
+		ev->ignore();
+		m_pPatternEditorPanel->setCursorHidden( true );
+		return;
+	}
+
+	m_pPatternEditorPanel->ensureCursorVisible();
+	update( 0, 0, width(), height() );
+	ev->accept();
+
+}
 
 
 ///
@@ -515,6 +572,17 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 	// draw the grid
 	__draw_grid( painter );
+
+
+	// Draw cursor
+	if ( hasFocus() && !m_pPatternEditorPanel->cursorHidden() ) {
+		uint x = 20 + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
+		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		uint y = nSelectedInstrument * m_nGridHeight;
+		painter.setPen( QColor( 0,0,0 ) );
+		painter.setRenderHint( QPainter::Antialiasing );
+		painter.drawRoundedRect( QRect( x-m_nGridWidth*3, y+1, m_nGridWidth*6, m_nGridHeight-2 ), 4, 4 );
+	}
 
 
 	/*
@@ -826,6 +894,18 @@ void DrumPatternEditor::hideEvent ( QHideEvent *ev )
 	UNUSED( ev );
 }
 
+
+
+void DrumPatternEditor::focusInEvent ( QFocusEvent *ev )
+{
+	UNUSED( ev );
+	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason
+		 && ev->reason() != Qt::ActiveWindowFocusReason ) {
+		m_pPatternEditorPanel->ensureCursorVisible();
+		m_pPatternEditorPanel->setCursorHidden( false );
+	}
+	updateEditor();
+}
 
 
 void DrumPatternEditor::setResolution(uint res, bool bUseTriplets)

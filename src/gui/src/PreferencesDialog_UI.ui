@@ -79,6 +79,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="hideKeyboardCursor">
+         <property name="text">
+          <string>Hide keyboard input cursor</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="useLashCheckbox">
          <property name="text">
           <string>Use lash</string>
