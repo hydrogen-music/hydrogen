@@ -160,6 +160,7 @@ void DrumPatternEditor::addOrRemoveNote(int nColumn, int nRealColumn, int row) {
 	float oldLeadLag = 0.0f;
 	Note::Key oldNoteKeyVal = Note::C;
 	Note::Octave oldOctaveKeyVal = Note::P8;
+	bool isNoteOff = false;
 
 	bool noteExisted = false;
 	if ( pDraggedNote ) {
@@ -170,23 +171,25 @@ void DrumPatternEditor::addOrRemoveNote(int nColumn, int nRealColumn, int row) {
 		oldLeadLag = pDraggedNote->get_lead_lag();
 		oldNoteKeyVal = pDraggedNote->get_key();
 		oldOctaveKeyVal = pDraggedNote->get_octave();
+		isNoteOff = pDraggedNote->get_note_off();
 		noteExisted = true;
 	}
 
-	SE_addNoteAction *action = new SE_addNoteAction( nColumn,
-													 row,
-													 __selectedPatternNumber,
-													 oldLength,
-													 oldVelocity,
-													 oldPan_L,
-													 oldPan_R,
-													 oldLeadLag,
-													 oldNoteKeyVal,
-													 oldOctaveKeyVal,
-													 noteExisted,
-													 Preferences::get_instance()->getHearNewNotes(),
-													 false,
-													 false );
+	SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
+																	 row,
+																	 __selectedPatternNumber,
+																	 oldLength,
+																	 oldVelocity,
+																	 oldPan_L,
+																	 oldPan_R,
+																	 oldLeadLag,
+																	 oldNoteKeyVal,
+																	 oldOctaveKeyVal,
+																	 noteExisted,
+																	 Preferences::get_instance()->getHearNewNotes(),
+																	 false,
+																	 false,
+																	 isNoteOff );
 
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
@@ -241,8 +244,30 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	if( ev->button() == Qt::LeftButton && (ev->modifiers() & Qt::ShiftModifier) )
 	{
 		//shift + leftClick: add noteOff note
-		SE_addNoteRightClickAction *action = new SE_addNoteRightClickAction( nColumn, row, __selectedPatternNumber );
-		HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		Note *pNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
+		if ( pNote != nullptr ) {
+			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
+																			 row,
+																			 __selectedPatternNumber,
+																			 pNote->get_length(),
+																			 pNote->get_velocity(),
+																			 pNote->get_pan_l(),
+																			 pNote->get_pan_r(),
+																			 pNote->get_lead_lag(),
+																			 pNote->get_key(),
+																			 pNote->get_octave(),
+																			 true,
+																			 false,
+																			 false,
+																			 false,
+																			 pNote->get_note_off() );
+			HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		} else {
+			// Add stop-note
+			SE_addNoteOffAction *action = new SE_addNoteOffAction( nColumn, row,__selectedPatternNumber,
+																   pNote != nullptr );
+			HydrogenApp::get_instance()->m_pUndoStack->push( action );
+		}
 	}
 	else if ( ev->button() == Qt::LeftButton ) {
 
@@ -295,7 +320,8 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 												bool listen,
 												bool isMidi,
 												bool isInstrumentMode,
-												bool isNoteOff)
+												bool isNoteOff,
+												bool isDelete )
 {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
@@ -316,36 +342,30 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
-	bool bNoteAlreadyExist = false;
-	if(!isInstrumentMode){
-		Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
-		FOREACH_NOTE_IT_BOUND(notes,it,nColumn) {
+
+	if ( isDelete ) {
+		// Find and delete an existing (matching) note.
+		Pattern::notes_t *notes = (Pattern::notes_t *)pPattern->get_notes();
+		bool bFound = false;
+		FOREACH_NOTE_IT_BOUND( notes, it, nColumn ) {
 			Note *pNote = it->second;
 			assert( pNote );
-			if ( pNote->get_instrument() == pSelectedInstrument ) {
-
-				// the note exists...remove it!
-				bNoteAlreadyExist = true;
+			if ( ( isNoteOff && pNote->get_note_off() )
+				 || ( pNote->get_instrument() == pSelectedInstrument
+					  && pNote->get_key() == oldNoteKeyVal 
+					  && pNote->get_octave() == oldOctaveKeyVal
+					  && pNote->get_velocity() == oldVelocity ) ) {
 				delete pNote;
 				notes->erase( it );
+				bFound = true;
 				break;
 			}
 		}
-	}
-	else
-	{
-		Note* note = pPattern->find_note( nColumn, -1, pSelectedInstrument, (Note::Key)oldNoteKeyVal, (Note::Octave)oldOctaveKeyVal );
-		if( note ) {
-
-			// the note exists...remove it!
-			bNoteAlreadyExist = true;
-			m_pPattern->remove_note( note );
-			delete note;
+		if ( !bFound ) {
+			ERRORLOG( "Did not find note to delete" );
 		}
-	}
 
-
-	if ( bNoteAlreadyExist == false ) {
+	} else {
 		// create the new note
 		unsigned nPosition = nColumn;
 		float fVelocity = oldVelocity;
@@ -354,7 +374,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		int nLength = oldLength;
 
 
-		if( isNoteOff )
+		if ( isNoteOff )
 		{
 			fVelocity = 0.0f;
 			fPan_L = 0.5f;
@@ -365,11 +385,13 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		const float fPitch = 0.0f;
 		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 		pNote->set_note_off( isNoteOff );
-		if( !isNoteOff ) pNote->set_lead_lag( oldLeadLag );
+		if ( !isNoteOff ) {
+			pNote->set_lead_lag( oldLeadLag );
+		}
 		pNote->set_key_octave( (Note::Key)oldNoteKeyVal, (Note::Octave)oldOctaveKeyVal );
 		pPattern->insert_note( pNote );
 
-		if(isMidi){
+		if ( isMidi ) {
 			pNote->set_just_recorded(true);
 		}
 		// hear note
@@ -571,39 +593,41 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 				// Copying a note to an out-of-range location. Nothing to do.
 			} else {
 				// Note is moved out of range. Delete it.
-				pUndo->push( new SE_addNoteAction( nPosition,
-												   nInstrument,
-												   __selectedPatternNumber,
-												   pNote->get_length(),
-												   pNote->get_velocity(),
-												   pNote->get_pan_l(),
-												   pNote->get_pan_r(),
-												   pNote->get_lead_lag(),
-												   pNote->get_key(),
-												   pNote->get_octave(),
-												   true,
-												   false,
-												   false,
-												   false ) );
+				pUndo->push( new SE_addOrDeleteNoteAction( nPosition,
+														   nInstrument,
+														   __selectedPatternNumber,
+														   pNote->get_length(),
+														   pNote->get_velocity(),
+														   pNote->get_pan_l(),
+														   pNote->get_pan_r(),
+														   pNote->get_lead_lag(),
+														   pNote->get_key(),
+														   pNote->get_octave(),
+														   true,
+														   false,
+														   false,
+														   false,
+														   true ) );
 			}
 
 		} else {
 			if ( m_bCopyNotMove ) {
 				// Copy note to a new note.
-				pUndo->push( new SE_addNoteAction( nNewPosition,
-												   nNewInstrument,
-												   __selectedPatternNumber,
-												   pNote->get_length(),
-												   pNote->get_velocity(),
-												   pNote->get_pan_l(),
-												   pNote->get_pan_r(),
-												   pNote->get_lead_lag(),
-												   pNote->get_key(),
-												   pNote->get_octave(),
-												   false,
-												   false,
-												   false,
-												   false ) );
+				pUndo->push( new SE_addOrDeleteNoteAction( nNewPosition,
+														   nNewInstrument,
+														   __selectedPatternNumber,
+														   pNote->get_length(),
+														   pNote->get_velocity(),
+														   pNote->get_pan_l(),
+														   pNote->get_pan_r(),
+														   pNote->get_lead_lag(),
+														   pNote->get_key(),
+														   pNote->get_octave(),
+														   false,
+														   false,
+														   false,
+														   false,
+														   false ) );
 
 			} else {
 				// Move note

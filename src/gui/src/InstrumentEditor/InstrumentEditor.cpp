@@ -909,9 +909,6 @@ void InstrumentEditor::loadLayer()
 		fnc = true;
 	}
 
-	//use auto velocity if we want to work with multiple filenames
-	if ( filename.size() > 3) filename[1] = "true";
-
 	int selectedLayer =  m_nSelectedLayer;
 	int firstSelection = selectedLayer;
 

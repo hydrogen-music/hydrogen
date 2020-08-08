@@ -83,7 +83,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 										bool listen,
 										bool isMidi,
 										bool isInstrumentMode,
-										bool isNoteOff);
+										bool isNoteOff,
+										bool isDelete );
 		void moveNoteAction( int nColumn,
 							 int nRow,
 							 int nPattern,

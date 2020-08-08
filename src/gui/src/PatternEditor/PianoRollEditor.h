@@ -60,18 +60,20 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 
 		void zoom_in();
 		void zoom_out();
-		void addOrDeleteNoteAction(  int nColumn,
-									 int pressedLine,
-									 int selectedPatternNumber,
-									 int selectedinstrument,
-									 int oldLength,
-									 float oldVelocity,
-									 float oldPan_L,
-									 float oldPan_R,
-									 float oldLeadLag,
-									 int oldNoteKeyVal,
-									 int oldOctaveKeyVal,
-									 bool noteOff);
+
+		void addOrDeleteNoteAction( int nColumn,
+									int pressedLine,
+									int selectedPatternNumber,
+									int selectedinstrument,
+									int oldLength,
+									float oldVelocity,
+									float oldPan_L,
+									float oldPan_R,
+									float oldLeadLag,
+									int oldNoteKeyVal,
+									int oldOctaveKeyVal,
+									bool noteOff,
+									bool isDelete );
 
 		void updateModifiers( QInputEvent *ev );
 		QPoint movingGridOffset( );
