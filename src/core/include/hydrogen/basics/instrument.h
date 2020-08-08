@@ -268,6 +268,8 @@ class Instrument : public H2Core::Object
 		bool is_currently_exported() const;
 		void set_currently_exported( bool isCurrentlyExported );
 
+		bool has_missing_samples() const { return m_bHasMissingSamples; }
+		void set_missing_samples( bool bHasMissingSamples ) { m_bHasMissingSamples = bHasMissingSamples; }
 
 	private:
 	        /** Identifier of an instrument, which should be
@@ -307,6 +309,7 @@ class Instrument : public H2Core::Object
 		std::vector<InstrumentComponent*>* __components;		///< InstrumentLayer array
 		bool					__apply_velocity;				///< change the sample gain based on velocity
 		bool					__current_instr_for_export;		///< is the instrument currently being exported?
+		bool 					m_bHasMissingSamples;	///< does the instrument have missing sample files?
 };
 // DEFINITIONS
 /** Sets the name of the Instrument #__name.

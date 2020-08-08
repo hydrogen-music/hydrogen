@@ -103,7 +103,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		PatternEditorPanel*		getPatternEditorPanel();
 		PlayerControl*			getPlayerControl();
 		InstrumentRack*			getInstrumentRack();
-		InfoBar *			getInfoBar() const;
+		InfoBar *			addInfoBar();
 
 		QUndoStack*			m_pUndoStack;
 
@@ -197,12 +197,12 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		PlayerControl *			m_pPlayerControl;
 		PlaylistDialog *		m_pPlaylistDialog;
 		SampleEditor *			m_pSampleEditor;
-		InfoBar *			m_pInfoBar;
 		Director *			m_pDirector;
 		QTimer *			m_pEventQueueTimer;
 		std::vector<EventListener*> 	m_EventListeners;
 		QTabWidget *			m_pTab;
 		QSplitter *			m_pSplitter;
+		QVBoxLayout * m_pMainVBox;
 
 		// implement EngineListener interface
 		void engineError(uint nErrorCode);
@@ -283,11 +283,6 @@ inline PlayerControl* HydrogenApp::getPlayerControl()
 inline InstrumentRack* HydrogenApp::getInstrumentRack()
 {
 	return m_pInstrumentRack;
-}
-
-inline InfoBar* HydrogenApp::getInfoBar() const
-{
-	return m_pInfoBar;
 }
 
 #endif
