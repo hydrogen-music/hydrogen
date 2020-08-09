@@ -552,8 +552,8 @@ int PianoRollEditor::getColumn(QMouseEvent *ev)
 void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 									   int nNotekey, int nOctave )
 {
-	Note::Octave octave = (Note::Octave)nNotekey;
-	Note::Key notekey = (Note::Key)nOctave;
+	Note::Octave octave = (Note::Octave)nOctave;
+	Note::Key notekey = (Note::Key)nNotekey;
 	int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
