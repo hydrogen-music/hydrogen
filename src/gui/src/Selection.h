@@ -393,7 +393,7 @@ public:
 				}
 			} else {
 				m_selectionState = Idle;
-                                widget->unsetCursor();
+				widget->unsetCursor();
 				widget->update();
 				return true;
 			}

@@ -104,6 +104,7 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 
 		typedef H2Core::Note* SelectionIndex;
 		std::vector<SelectionIndex> elementsIntersecting( QRect r );
+		void validateSelection();
 		void mouseClickEvent( QMouseEvent *ev );
 		void mouseDragStartEvent( QMouseEvent *ev );
 		void mouseDragUpdateEvent( QMouseEvent *ev );
@@ -114,6 +115,10 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 
 	public slots:
 		void updateEditor();
+
+		void selectAll();
+		void selectNone();
+		void deleteSelection();
 
 	private:
 
