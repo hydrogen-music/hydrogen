@@ -1294,7 +1294,6 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	updateEditor();
 	ev->accept();
-
 }
 
 
@@ -1499,21 +1498,15 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	uint h = m_nRowHeight - 2;
 	int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Instrument *pInstr = Hydrogen::get_instance()->getSong()->get_instrument_list()->get( nInstr );
-	// Expand the region by approximately the size of the note
-	// ellipse, equivalent to testing for intersection between `r'
-	// and the equivalent rect around the note.  We'll also allow
-	// a few extra pixels if it's a single point click, to make it
-	// easier to grab notes.
 
 	r = r.normalized();
 	if ( r.top() == r.bottom() && r.left() == r.right() ) {
 		r += QMargins( 2, 2, 2, 2 );
 	}
-	r += QMargins( 4, h/2, 4, h/2 );
 
 	// Calculate the first and last position values that this rect will intersect with
-	int x_min = (r.left() - 20) / m_nGridWidth;
-	int x_max = (r.right() - 20) / m_nGridWidth;
+	int x_min = (r.left() - w - 20) / m_nGridWidth;
+	int x_max = (r.right() + w - 20) / m_nGridWidth;
 
 	const Pattern::notes_t* pNotes = m_pPattern->get_notes();
 	std::vector<SelectionIndex> result;
@@ -1524,7 +1517,8 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 			uint start_x = 20 + pNote->get_position() * m_nGridWidth;
 			uint start_y = height() - m_nRowHeight - ( m_nRowHeight * pNote->get_key()
 													   + ( 12 * (pNote->get_octave() +3) ) * m_nRowHeight ) + 1;
-			if ( r.contains( QPoint( start_x, start_y ) ) ) {
+
+			if ( r.intersects( QRect( start_x -4 , start_y, w, h ) ) ) {
 				result.push_back( pNote );
 			}
 		}

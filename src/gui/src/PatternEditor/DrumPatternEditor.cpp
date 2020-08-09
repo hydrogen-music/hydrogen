@@ -837,7 +837,7 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 
 
 	// Calculate the first and last position values that this rect will intersect with
-	int x_min = (r.left() - 20) / m_nGridWidth;
+	int x_min = (r.left() - 20 - 1) / m_nGridWidth;
 	int x_max = (r.right() - 20) / m_nGridWidth;
 
 	const Pattern::notes_t* notes = m_pPattern->get_notes();
