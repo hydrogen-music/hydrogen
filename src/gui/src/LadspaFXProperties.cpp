@@ -144,12 +144,11 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 #ifdef H2CORE_HAVE_LADSPA
 	H2FX *pH2FX = Effects::get_instance()->getLadspaFX( m_nLadspaFX );
 	
-	if( pH2FX && pH2FX->isLadspaFX() )
+	if( pH2FX )
 	{
-		LadspaFX* pFX = pH2FX->isLadspaFX();
 		for ( uint i = 0; i < m_pInputControlFaders.size(); i++ ) {
 			if (ref == m_pInputControlFaders[ i ] ) {
-				LadspaControlPort *pControl = pFX->inputControlPorts[ i ];
+				LadspaControlPort *pControl = pH2FX->inputControlPorts[ i ];
 	
 				pControl->fControlValue = ref->getValue();
 				//float fInterval = pControl->fUpperBound - pControl->fLowerBound;
@@ -185,10 +184,8 @@ void LadspaFXProperties::updateControls()
 
 	H2FX *pH2FX = Effects::get_instance()->getLadspaFX( m_nLadspaFX );
 	
-	if( pH2FX && pH2FX->isLadspaFX() )
+	if( pH2FX )
 	{
-		LadspaFX* pFX = pH2FX->isLadspaFX();
-		
 		// svuoto i vettori..
 		if ( m_pInputControlNames.size() != 0 ) {
 			for (uint i = 0; i < m_pInputControlNames.size(); i++) {
@@ -221,135 +218,138 @@ void LadspaFXProperties::updateControls()
 			}
 			m_pOutputControlNames.clear();
 		}
-	
-		if (pFX) {
-			QString sPluginName = pFX->getPluginLabel();
-			setWindowTitle( tr( "[%1] LADSPA FX Properties" ).arg( sPluginName ) );
-	
-			int nControlsFrameWidth = 10 + 45 * (pFX->inputControlPorts.size() + pFX->outputControlPorts.size()) + 10 + 45;
-			if ( nControlsFrameWidth < width() ) {
-				nControlsFrameWidth = width();
-			}
-			m_pFrame->resize( nControlsFrameWidth, height() );
-	
-			m_pActivateBtn->setEnabled(true);
-			if (pFX->isEnabled()) {
-				m_pActivateBtn->setText( tr("Deactivate") );
-			}
-			else {
-				m_pActivateBtn->setText( tr("Activate") );
-			}
-	
-			QString mixerline_text_path = Skin::getImagePath() + "/mixerPanel/mixer_background.png";
-			QPixmap textBackground;
-			if( textBackground.load( mixerline_text_path ) == false ){
-				ERRORLOG( "Error loading pixmap"  );
-			}
-	
-			// input controls
-			uint nInputControl_X = 0;
-			for (uint i = 0; i < pFX->inputControlPorts.size(); i++) {
-				LadspaControlPort *pControlPort = pFX->inputControlPorts[ i ];
-	
-				nInputControl_X = 10 + 45 * i;
-	
-				if (pControlPort->isToggle){	// toggle button
-					WARNINGLOG( "[updateControls] LADSPA toggle controls not implemented yet");
-				}
-	
-				// peak volume label
-				QString sValue;
-				if (pControlPort->fControlValue < 1.0 ) {
-					sValue = QString("%1").arg( pControlPort->fControlValue, 0, 'f', 2);
-				}
-				else if ( pControlPort->fControlValue < 100.0 ) {
-					sValue = QString("%1").arg( pControlPort->fControlValue, 0, 'f', 1);
-				}
-				else {
-					sValue = QString("%1").arg( pControlPort->fControlValue, 0, 'f', 0);
-				}
-	
-				LCDDisplay *pLCD = new LCDDisplay( m_pFrame, LCDDigit::SMALL_BLUE, 4 );
-				pLCD->move( nInputControl_X, 40 );
-				pLCD->setText( sValue );
-				pLCD->show();
-				QPalette lcdPalette;
-				lcdPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
-				pLCD->setPalette( lcdPalette );
-	
-				m_pInputControlLabel.push_back( pLCD );
-	
-				InstrumentNameWidget *pName = new InstrumentNameWidget( m_pFrame );
-				pName->move( nInputControl_X, 60 );
-				pName->show();
-				pName->setText( pControlPort->sName );
-				m_pInputControlNames.push_back( pName );
-				pName->setToolTip( pName->text() );
-	
-	
-				// fader
-				Fader *pFader = new Fader( m_pFrame, pControlPort->m_bIsInteger, false );
-				connect( pFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
-				m_pInputControlFaders.push_back( pFader );
-				pFader->move( nInputControl_X + 20, 60 );
-				pFader->show();
-				pFader->setMaxValue( pControlPort->fUpperBound );
-				pFader->setMinValue( pControlPort->fLowerBound );
-				pFader->setMaxPeak( pControlPort->fUpperBound );
-				pFader->setMinPeak( pControlPort->fLowerBound );
-				pFader->setValue( pControlPort->fControlValue );
-				pFader->setPeak_L( pControlPort->fControlValue );
-				pFader->setPeak_R( pControlPort->fControlValue );
-				pFader->setDefaultValue( pControlPort->fDefaultValue );
-	
-				//float fInterval = pControlPort->fUpperBound - pControlPort->fLowerBound;
-				//float fValue = ( pControlPort->fControlValue - pControlPort->fLowerBound ) / fInterval;
-				//pFader->setValue( fValue );
-				//pFader->setPeak_L( fValue );
-				//pFader->setPeak_R( fValue );
-	
-				faderChanged( pFader );
-	
-				m_pNameLbl->setText( pFX->getPluginName() );
-			}
-	
-			nInputControl_X += 45;
-			for (uint i = 0; i < pFX->outputControlPorts.size(); i++) {
-				LadspaControlPort *pControl = pFX->outputControlPorts[ i ];
-	
-				uint xPos = nInputControl_X + 10 + 45 * i;
-	
-				InstrumentNameWidget *pName = new InstrumentNameWidget( m_pFrame );
-				pName->move( xPos, 60 );
-				pName->show();
-				pName->setText( pControl->sName );
-				m_pInputControlNames.push_back( pName );
-				pName->setToolTip( pName->text() );
-	
-				// fader
-				Fader *pFader = new Fader( m_pFrame, true, true );	// without knob!
-				pFader->move( xPos + 20, 60 );
-				//float fInterval = pControl->fUpperBound - pControl->fLowerBound;
-				//float fValue = pControl->fControlValue / fInterval;
-				pFader->show();
-				pFader->setMaxValue( pControl->fUpperBound );
-				pFader->setMinValue( pControl->fLowerBound );
-				pFader->setMaxPeak( pControl->fUpperBound );
-				pFader->setMinPeak( pControl->fLowerBound );
-				pFader->setValue( pControl->fControlValue );
-				pFader->setPeak_L( pControl->fControlValue );
-				pFader->setPeak_R( pControl->fControlValue );
-				pFader->setDefaultValue( pControl->fDefaultValue );
-	
-				m_pOutputControlFaders.push_back( pFader );
-			}
+		
+		QString sPluginName = pH2FX->getPluginName();
+		setWindowTitle( tr( "[%1] FX Properties" ).arg( sPluginName ) );
+		
+		int nControlsFrameWidth = 10 + 45 * (pH2FX->inputControlPorts.size() + pH2FX->outputControlPorts.size()) + 10 + 45;
+		if ( nControlsFrameWidth < width() ) {
+			nControlsFrameWidth = width();
+		}
+		m_pFrame->resize( nControlsFrameWidth, height() );
+		
+		m_pActivateBtn->setEnabled(true);
+		if (pH2FX->isEnabled()) {
+			m_pActivateBtn->setText( tr("Deactivate") );
 		}
 		else {
-			INFOLOG( "NULL PLUGIN" );
-			setWindowTitle( tr( "LADSPA FX %1 Properties" ).arg( m_nLadspaFX) );
-			m_pNameLbl->setText( tr("No plugin") );
-			m_pActivateBtn->setEnabled(false);
+			m_pActivateBtn->setText( tr("Activate") );
 		}
+		
+		QString mixerline_text_path = Skin::getImagePath() + "/mixerPanel/mixer_background.png";
+		QPixmap textBackground;
+		if( textBackground.load( mixerline_text_path ) == false ){
+			ERRORLOG( "Error loading pixmap"  );
+		}
+		
+		// input controls
+		uint nInputControl_X = 0;
+		for (uint i = 0; i < pH2FX->inputControlPorts.size(); i++) {
+			LadspaControlPort *pControlPort = pH2FX->inputControlPorts[ i ];
+			
+			nInputControl_X = 10 + 45 * i;
+			
+			if (pControlPort->isToggle){	// toggle button
+				WARNINGLOG( "[updateControls] LADSPA toggle controls not implemented yet");
+			}
+			
+			// peak volume label
+			QString sValue;
+			if (pControlPort->fControlValue < 1.0 ) {
+				sValue = QString("%1").arg( pControlPort->fControlValue, 0, 'f', 2);
+			}
+			else if ( pControlPort->fControlValue < 100.0 ) {
+				sValue = QString("%1").arg( pControlPort->fControlValue, 0, 'f', 1);
+			}
+			else {
+				sValue = QString("%1").arg( pControlPort->fControlValue, 0, 'f', 0);
+			}
+			
+			LCDDisplay *pLCD = new LCDDisplay( m_pFrame, LCDDigit::SMALL_BLUE, 4 );
+			pLCD->move( nInputControl_X, 40 );
+			pLCD->setText( sValue );
+			pLCD->show();
+			QPalette lcdPalette;
+			lcdPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
+			pLCD->setPalette( lcdPalette );
+			
+			m_pInputControlLabel.push_back( pLCD );
+			
+			InstrumentNameWidget *pName = new InstrumentNameWidget( m_pFrame );
+			pName->move( nInputControl_X, 60 );
+			pName->show();
+			pName->setText( pControlPort->sName );
+			m_pInputControlNames.push_back( pName );
+			pName->setToolTip( pName->text() );
+			
+			
+			// fader
+			Fader *pFader = new Fader( m_pFrame, pControlPort->m_bIsInteger, false );
+			connect( pFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
+			m_pInputControlFaders.push_back( pFader );
+			pFader->move( nInputControl_X + 20, 60 );
+			pFader->show();
+			pFader->setMaxValue( pControlPort->fUpperBound );
+			pFader->setMinValue( pControlPort->fLowerBound );
+			pFader->setMaxPeak( pControlPort->fUpperBound );
+			pFader->setMinPeak( pControlPort->fLowerBound );
+			pFader->setValue( pControlPort->fControlValue );
+			pFader->setPeak_L( pControlPort->fControlValue );
+			pFader->setPeak_R( pControlPort->fControlValue );
+			pFader->setDefaultValue( pControlPort->fDefaultValue );
+			
+			//float fInterval = pControlPort->fUpperBound - pControlPort->fLowerBound;
+			//float fValue = ( pControlPort->fControlValue - pControlPort->fLowerBound ) / fInterval;
+			//pFader->setValue( fValue );
+			//pFader->setPeak_L( fValue );
+			//pFader->setPeak_R( fValue );
+			
+			faderChanged( pFader );
+			
+			m_pNameLbl->setText( pH2FX->getPluginName() );
+		}
+		
+		nInputControl_X += 45;
+		for (uint i = 0; i < pH2FX->outputControlPorts.size(); i++) {
+			LadspaControlPort *pControl = pH2FX->outputControlPorts[ i ];
+			
+			uint xPos = nInputControl_X + 10 + 45 * i;
+			
+			InstrumentNameWidget *pName = new InstrumentNameWidget( m_pFrame );
+			pName->move( xPos, 60 );
+			pName->show();
+			pName->setText( pControl->sName );
+			m_pInputControlNames.push_back( pName );
+			pName->setToolTip( pName->text() );
+			
+			// fader
+			Fader *pFader = new Fader( m_pFrame, true, true );	// without knob!
+			pFader->move( xPos + 20, 60 );
+			//float fInterval = pControl->fUpperBound - pControl->fLowerBound;
+			//float fValue = pControl->fControlValue / fInterval;
+			
+			float fValue = pControl->fControlValue;
+			if( isnan(fValue) ) {
+				fValue = 0.0f;
+			}
+			
+			pFader->show();
+			pFader->setMaxValue( pControl->fUpperBound );
+			pFader->setMinValue( pControl->fLowerBound );
+			pFader->setMaxPeak( pControl->fUpperBound );
+			pFader->setMinPeak( pControl->fLowerBound );
+			pFader->setValue( fValue );
+			pFader->setPeak_L( fValue );
+			pFader->setPeak_R( fValue );
+			pFader->setDefaultValue( pControl->fDefaultValue );
+			
+			m_pOutputControlFaders.push_back( pFader );
+		}
+	} else {
+		INFOLOG( "NULL PLUGIN" );
+		setWindowTitle( tr( "LADSPA FX %1 Properties" ).arg( m_nLadspaFX) );
+		m_pNameLbl->setText( tr("No plugin") );
+		m_pActivateBtn->setEnabled(false);
 	}
 
 	m_pTimer->start(100);
@@ -429,11 +429,9 @@ void LadspaFXProperties::updateOutputControls()
 			m_pActivateBtn->setText( tr("Activate") );
 		}
 		
-		if( pH2FX->isLadspaFX() ) {
-			LadspaFX *pFX = pH2FX->isLadspaFX();
-
-			for (uint i = 0; i < pFX->outputControlPorts.size(); i++) {
-				LadspaControlPort *pControl = pFX->outputControlPorts[i];
+		if( pH2FX ) {
+			for (uint i = 0; i < pH2FX->outputControlPorts.size(); i++) {
+				LadspaControlPort *pControl = pH2FX->outputControlPorts[i];
 	
 				vector<Fader*>::iterator it = m_pOutputControlFaders.begin() + i;
 				if (it != m_pOutputControlFaders.end() ) {

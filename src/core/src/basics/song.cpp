@@ -1207,9 +1207,8 @@ Song* SongReader::readSong( const QString& filename )
 					Effects::get_instance()->setLadspaFX( pFX, nFX );
 					if ( pFX ) {
 						pFX->setEnabled( bEnabled );
-						//pFX->setVolume( fVolume );
+						pFX->setVolume( fVolume );
 					
-						/*
 						QDomNode inputControlNode = fxNode.firstChildElement( "inputControlPort" );
 						while ( !inputControlNode.isNull() ) {
 							QString sName = LocalFileMng::readXmlString( inputControlNode, "name", "" );
@@ -1223,7 +1222,6 @@ Song* SongReader::readSong( const QString& filename )
 							}
 							inputControlNode = ( QDomNode ) inputControlNode.nextSiblingElement( "inputControlPort" );
 						}
-						*/
 					}
 				}
 #endif

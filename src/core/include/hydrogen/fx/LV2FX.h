@@ -40,11 +40,6 @@ class Lv2FX : public H2Core::H2FX
 	H2_OBJECT
 public:
 
-	//unsigned m_nBufferSize;
-
-	//std::vector<LadspaControlPort*> inputControlPorts;
-	//std::vector<LadspaControlPort*> outputControlPorts;
-
 	virtual ~Lv2FX();
 
 	virtual void connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float* pOut_R ) override;
@@ -62,37 +57,14 @@ public:
 		m_sURI = sLabel;
 	}
 
-	virtual const QString& getPluginName() override {
-		return m_sName;
-	}
-	void setPluginName( const QString& sName ) {
-		m_sName = sName;
-	}
-
-	bool isEnabled() {
-		return m_bEnabled;
-	}
-	void setEnabled( bool value ) {
-		m_bEnabled = value;
-	}
-
 	static Lv2FX* load(const QString& sPluginURI, long nSampleRate );
-
-	void setVolume( float fValue );
-	float getVolume() {
-		return m_fVolume;
-	}
 
 
 private:
-	bool m_bEnabled;
 	bool m_bActivated;	// Guard against plugins that can't be deactivated before being activated (
 	QString m_sURI;
-	QString m_sName;
 
 	LilvInstance * m_pLilvInstance;
-	LADSPA_Handle m_handle;
-	float m_fVolume;
 
 	unsigned m_nICPorts;	///< input control port
 	unsigned m_nOCPorts;	///< output control port

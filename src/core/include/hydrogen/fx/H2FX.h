@@ -22,9 +22,6 @@
 #ifndef H2_FX_H
 #define H2_FX_H
 
-#include "hydrogen/config.h"
-#if defined(H2CORE_HAVE_LILV) || _DOXYGEN_
-
 #include <hydrogen/object.h>
 
 namespace H2Core
@@ -32,6 +29,23 @@ namespace H2Core
 
 class Lv2FX;
 class LadspaFX;
+
+class LadspaControlPort : public H2Core::Object
+{
+	H2_OBJECT
+public:
+	QString		sName;
+	bool		isToggle;
+	bool		m_bIsInteger;
+	float		fDefaultValue;
+	float		fControlValue;
+	float		fLowerBound;
+	float		fUpperBound;
+	int			nPortIndex;
+
+	LadspaControlPort() : Object( "LadspaControlPort" ) { }
+};
+
 
 class H2FX : public H2Core::Object
 {
@@ -60,9 +74,7 @@ class H2FX : public H2Core::Object
 		
 		virtual Lv2FX* isLv2FX() { return nullptr; }
 		virtual LadspaFX* isLadspaFX() { return nullptr; }
-		
-		virtual const QString& getPluginName() = 0;
-		
+				
 		int getPluginType() {
 			return m_pluginType;
 		}
@@ -87,11 +99,22 @@ class H2FX : public H2Core::Object
 		void setEnabled( bool value ) {
 			m_bEnabled = value;
 		}
+		
+		const QString& getPluginName() {
+			return m_sName;
+		}
+		void setPluginName( const QString& sName ) {
+			m_sName = sName;
+		}
 			
 		float* m_pBuffer_L;
 		float* m_pBuffer_R;
 		
+		std::vector<LadspaControlPort*> inputControlPorts;
+		std::vector<LadspaControlPort*> outputControlPorts;
+		
 	protected:
+		QString m_sName;
 		bool	m_pluginType;
 		float	m_fVolume;
 		bool	m_bEnabled;
@@ -100,5 +123,3 @@ class H2FX : public H2Core::Object
 };
 
 #endif
-
-#endif // H2CORE_HAVE_LILV

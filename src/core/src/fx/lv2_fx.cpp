@@ -47,7 +47,6 @@ Lv2FX::Lv2FX( LilvWorld* pWorld, const LilvPlugin* pPlugin, long nSampleRate)
 		, m_bActivated( false )
 		, m_sURI("none")
 		, m_pLilvInstance( nullptr )
-		, m_handle( nullptr )
 		, m_nICPorts( 0 )
 		, m_nOCPorts( 0 )
 		, m_nIAPorts( 0 )
@@ -68,27 +67,46 @@ Lv2FX::Lv2FX( LilvWorld* pWorld, const LilvPlugin* pPlugin, long nSampleRate)
 	LilvNode* lv2_AudioPort    = lilv_new_uri(pWorld, LV2_CORE__AudioPort);
 	LilvNode* lv2_ControlPort  = lilv_new_uri(pWorld, LV2_CORE__ControlPort);
 	
-	float* values = (float*)calloc(n_ports, sizeof(float));
-	lilv_plugin_get_port_ranges_float(pPlugin, nullptr, nullptr, values);
-	for (uint i = 0; i < n_ports; ++i) {
-		std::cout << "Default value for port " << i << ":" << values[i] << std::endl;
-	}
+	float* fDefaultValues = (float*)calloc(n_ports, sizeof(float));
+	float* fMinValues = (float*)calloc(n_ports, sizeof(float));
+	float* fMaxValues = (float*)calloc(n_ports, sizeof(float));
 	
+	lilv_plugin_get_port_ranges_float(pPlugin, fMinValues, fMaxValues, fDefaultValues);
+
+	bool bIsInputPort = false;
 	for (uint i = 0; i < n_ports; ++i) {
 		const LilvPort* lport = lilv_plugin_get_port_by_index(pPlugin, i);
 		
 		/* Check if port is an input or output */
 		if (lilv_port_is_a(pPlugin, lport, lv2_InputPort)) {
-			std::cout << "Port " << i << " is a input"<< std::endl;
+			bIsInputPort = true;
 		} else if (lilv_port_is_a(pPlugin, lport, lv2_OutputPort)) {
-			std::cout << "Port " << i << " is a output"<< std::endl;
+			bIsInputPort =  false;
 		}
 		
 		if(lilv_port_is_a(pPlugin, lport, lv2_ControlPort)) {
-			std::cout << "Port " << i << " is a control port"<< std::endl;
-			m_fDefaultValues.emplace_back(std::make_pair(i, values[i]));
+			LilvNode* pName = lilv_port_get_name(pPlugin, lport);
+			
+			LadspaControlPort* pControl = new LadspaControlPort();
+			pControl->sName = lilv_node_as_string(pName);
+			pControl->fLowerBound = fMinValues[i];
+			pControl->fUpperBound = fMaxValues[i];
+			pControl->fControlValue = fDefaultValues[i];
+			pControl->fDefaultValue = fDefaultValues[i];
+			pControl->isToggle = false;
+			pControl->m_bIsInteger = false;
+			pControl->nPortIndex = i;
+			
+			if( bIsInputPort ) {
+				inputControlPorts.push_back( pControl );
+			} else {
+				outputControlPorts.push_back( pControl );
+			}
+			
+			m_fDefaultValues.emplace_back(std::make_pair(i, fDefaultValues[i]));
+			
+			lilv_node_free(pName);
 		} else if(lilv_port_is_a(pPlugin, lport, lv2_AudioPort)) {
-			std::cout << "Port " << i << " is a audio port"<< std::endl;
 			/* Check if port is an input or output */
 			if (lilv_port_is_a(pPlugin, lport, lv2_InputPort)) {
 				if( m_nIAPorts == 0) {
@@ -132,14 +150,17 @@ Lv2FX::Lv2FX( LilvWorld* pWorld, const LilvPlugin* pPlugin, long nSampleRate)
 		m_pBuffer_L[ i ] = 0;
 		m_pBuffer_R[ i ] = 0;
 	}
-
+	
+	free(fMinValues);
+	free(fMaxValues);
+	free(fDefaultValues);
 }
 
 
 // dtor
 Lv2FX::~Lv2FX()
 {
-	ERRORLOG(QString("Destroy plugin").arg(m_sURI));
+	ERRORLOG(QString("Destroy plugin %1").arg(m_sURI));
 	
 	lilv_instance_free( m_pLilvInstance );
 	
@@ -198,13 +219,13 @@ void Lv2FX::connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float*
 	std::cout << "Audio out1 is " << m_nAudioOutput1Idx << std::endl;
 	std::cout << "Audio out2 is " << m_nAudioOutput2Idx << std::endl;
 	
-	if( m_nAudioInput1Idx > 0 && m_nAudioInput2Idx < 0 ) {
+	if( m_nAudioInput1Idx >= 0 && m_nAudioInput2Idx < 0 ) {
 		//mono
 		lilv_instance_connect_port( m_pLilvInstance, m_nAudioInput1Idx, pIn_L );
 		lilv_instance_connect_port( m_pLilvInstance, m_nAudioOutput1Idx, pOut_L );
 		
 		m_pluginType = MONO_FX;
-	} else if( m_nAudioInput1Idx > 0 && m_nAudioInput2Idx > 0 ) {
+	} else if( m_nAudioInput1Idx >= 0 && m_nAudioInput2Idx >= 0 ) {
 		//stereo
 		lilv_instance_connect_port( m_pLilvInstance, m_nAudioInput1Idx, pIn_L );
 		lilv_instance_connect_port( m_pLilvInstance, m_nAudioOutput1Idx, pOut_L );
@@ -214,13 +235,21 @@ void Lv2FX::connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, float*
 		
 		m_pluginType = STEREO_FX;
 	} else {
-		//should never happen..
+		//should never happen..		
 		assert(nullptr);
 	}
 	
 	for( auto& indexPair : m_fDefaultValues ) {
 		INFOLOG(QString("Connecting port %1 to control port value: %2").arg(indexPair.first).arg(indexPair.second));
 		lilv_instance_connect_port( m_pLilvInstance, indexPair.first, &(indexPair.second) );
+	}
+	
+	for( auto& controlPort : inputControlPorts) {
+		lilv_instance_connect_port( m_pLilvInstance, controlPort->nPortIndex, &( controlPort->fControlValue ));
+	}
+	
+	for( auto& controlPort : outputControlPorts) {
+		lilv_instance_connect_port( m_pLilvInstance, controlPort->nPortIndex, &( controlPort->fControlValue ));
 	}
 }
 

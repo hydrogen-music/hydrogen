@@ -618,7 +618,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 				fxNode.appendChild( controlPortNode );
 			}
 			for ( unsigned nControl = 0; nControl < pFX->outputControlPorts.size(); nControl++ ) {
-				LadspaControlPort *pControlPort = pFX->inputControlPorts[ nControl ];
+				LadspaControlPort *pControlPort = pFX->outputControlPorts[ nControl ];
 				QDomNode controlPortNode = doc.createElement( "outputControlPort" );
 				LocalFileMng::writeXmlString( controlPortNode, "name", pControlPort->sName );
 				LocalFileMng::writeXmlString( controlPortNode, "value", QString("%1").arg( pControlPort->fControlValue ) );
@@ -639,7 +639,6 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 			LocalFileMng::writeXmlBool( fxNode, "enabled", pFX->isEnabled() );
 			LocalFileMng::writeXmlString( fxNode, "volume", QString("%1").arg( pFX->getVolume() ) );
 			
-			/*
 			for ( unsigned nControl = 0; nControl < pFX->inputControlPorts.size(); nControl++ ) {
 				LadspaControlPort *pControlPort = pFX->inputControlPorts[ nControl ];
 				QDomNode controlPortNode = doc.createElement( "inputControlPort" );
@@ -647,14 +646,14 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 				LocalFileMng::writeXmlString( controlPortNode, "value", QString("%1").arg( pControlPort->fControlValue ) );
 				fxNode.appendChild( controlPortNode );
 			}
+			
 			for ( unsigned nControl = 0; nControl < pFX->outputControlPorts.size(); nControl++ ) {
-				LadspaControlPort *pControlPort = pFX->inputControlPorts[ nControl ];
+				LadspaControlPort *pControlPort = pFX->outputControlPorts[ nControl ];
 				QDomNode controlPortNode = doc.createElement( "outputControlPort" );
 				LocalFileMng::writeXmlString( controlPortNode, "name", pControlPort->sName );
 				LocalFileMng::writeXmlString( controlPortNode, "value", QString("%1").arg( pControlPort->fControlValue ) );
 				fxNode.appendChild( controlPortNode );
 			}
-			*/
 		}
 #else
 		else if ( false ) {

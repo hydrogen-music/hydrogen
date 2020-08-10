@@ -24,7 +24,6 @@
 #define EFFECTS_H
 
 #include "hydrogen/config.h"
-#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 
 #include <hydrogen/globals.h>
 #include <hydrogen/object.h>
@@ -95,8 +94,5 @@ private:
 };
 
 };
-
-#endif
-
 
 #endif

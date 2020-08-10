@@ -127,32 +127,10 @@ private:
 
 
 
-class LadspaControlPort : public H2Core::Object
-{
-	H2_OBJECT
-public:
-	QString sName;
-	bool isToggle;
-	bool m_bIsInteger;
-	LADSPA_Data fDefaultValue;
-	LADSPA_Data fControlValue;
-	LADSPA_Data fLowerBound;
-	LADSPA_Data fUpperBound;
-
-	LadspaControlPort() : Object( "LadspaControlPort" ) { }
-};
-
-
-
 class LadspaFX : public H2Core::H2FX
 {
 	H2_OBJECT
 public:
-
-	//unsigned m_nBufferSize;
-
-	std::vector<LadspaControlPort*> inputControlPorts;
-	std::vector<LadspaControlPort*> outputControlPorts;
 
 	virtual ~LadspaFX();
 	
@@ -168,22 +146,8 @@ public:
 		return m_sLabel;
 	}
 
-	virtual const QString& getPluginName() override {
-		return m_sName;
-	}
-	void setPluginName( const QString& sName ) {
-		m_sName = sName;
-	}
-
 	const QString& getLibraryPath() {
 		return m_sLibraryPath;
-	}
-
-	bool isEnabled() {
-		return m_bEnabled;
-	}
-	void setEnabled( bool value ) {
-		m_bEnabled = value;
 	}
 
 	static LadspaFX* load( const QString& sLibraryPath, const QString& sPluginLabel, long nSampleRate );
@@ -191,10 +155,8 @@ public:
 
 
 private:
-	bool m_bEnabled;
 	bool m_bActivated;	// Guard against plugins that can't be deactivated before being activated (
 	QString m_sLabel;
-	QString m_sName;
 	QString m_sLibraryPath;
 
 	QLibrary *m_pLibrary;
