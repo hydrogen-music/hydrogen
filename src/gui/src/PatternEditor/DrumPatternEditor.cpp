@@ -520,9 +520,9 @@ void DrumPatternEditor::updateModifiers( QInputEvent *ev ) {
 		// If a selection is currently being moved, change the cursor
 		// appropriately. Selection will change it back after the move
 		// is complete (or abandoned)
-		if ( m_bCopyNotMove &&  cursor() != Qt::DragCopyCursor ) {
+		if ( m_bCopyNotMove &&  cursor().shape() != Qt::DragCopyCursor ) {
 			setCursor( QCursor( Qt::DragCopyCursor ) );
-		} else if ( !m_bCopyNotMove && cursor() != Qt::DragMoveCursor ) {
+		} else if ( !m_bCopyNotMove && cursor().shape() != Qt::DragMoveCursor ) {
 			setCursor( QCursor( Qt::DragMoveCursor ) );
 		}
 	}

@@ -30,6 +30,7 @@
 #include <vector>
 #include <set>
 #include <QDebug>
+#include <cassert>
 
 
 
