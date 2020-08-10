@@ -778,22 +778,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 
 	} else if ( ev->key() == Qt::Key_Delete || ev->key() == Qt::Key_Backspace ) {
 		// Key: Delete / Backspace: delete selected notes
-		if ( m_selection.begin() != m_selection.end() ) {
-			// Delete a selection.
-			InstrumentList *pInstrumentList = pH2->getSong()->get_instrument_list();
-			QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-			pUndo->beginMacro("delete notes");
-			validateSelection();
-			for ( Note *pNote : m_selection ) {
-				// There must be a note there to be selected, so we can use the existing 
-				// addOrRemove method to remove.
-				if ( m_selection.isSelected( pNote ) ) {
-					addOrRemoveNote( pNote->get_position(), -1, pInstrumentList->index( pNote->get_instrument() ) );
-				}
-			}
-			pUndo->endMacro();
-			m_selection.clearSelection();
-		}
+		deleteSelection();
 
 	} else if ( ev->matches( QKeySequence::SelectAll ) ) {
 		selectAll();
@@ -901,6 +886,26 @@ void DrumPatternEditor::selectNone()
 {
 	m_selection.clearSelection();
 	update();
+}
+
+void DrumPatternEditor::deleteSelection()
+{
+	if ( m_selection.begin() != m_selection.end() ) {
+		// Delete a selection.
+		InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+		pUndo->beginMacro("delete notes");
+		validateSelection();
+		for ( Note *pNote : m_selection ) {
+			// There must be a note there to be selected, so we can use the existing 
+			// addOrRemove method to remove.
+			if ( m_selection.isSelected( pNote ) ) {
+				addOrRemoveNote( pNote->get_position(), -1, pInstrumentList->index( pNote->get_instrument() ) );
+			}
+		}
+		pUndo->endMacro();
+		m_selection.clearSelection();
+	}
 }
 
 
