@@ -95,7 +95,7 @@ void PianoRollEditor::setResolution(uint res, bool bUseTriplets)
 }
 
 
-void PianoRollEditor::updateEditor()
+void PianoRollEditor::updateEditor( bool bPatternOnly )
 {
 	//	uint nEditorWidth;
 	if ( m_pPattern ) {
@@ -103,6 +103,9 @@ void PianoRollEditor::updateEditor()
 	}
 	else {
 		m_nEditorWidth = 20 + m_nGridWidth * MAX_NOTES;
+	}
+	if ( !bPatternOnly ) {
+		m_bNeedsBackgroundUpdate = true;
 	}
 	if ( !m_bNeedsUpdate ) {
 		m_bNeedsUpdate = true;
@@ -115,10 +118,14 @@ void PianoRollEditor::finishUpdateEditor()
 	assert( m_bNeedsUpdate );
 	resize( m_nEditorWidth, height() );
 
-	createBackground();
+	if ( m_bNeedsBackgroundUpdate ) {
+		qDebug() << "XXX Update background";
+		createBackground();
+	}
 	drawPattern();
 	//	ERRORLOG(QString("update editor %1").arg(m_nEditorWidth));
 	m_bNeedsUpdate = false;
+	m_bNeedsBackgroundUpdate = false;
 }
 
 
@@ -133,7 +140,8 @@ void PianoRollEditor::patternModifiedEvent()
 
 void PianoRollEditor::selectedInstrumentChangedEvent()
 {
-	updateEditor();
+	// Update pattern only
+	updateEditor( true );
 }
 
 
@@ -606,7 +614,7 @@ void PianoRollEditor::mouseMoveEvent( QMouseEvent *ev )
 {
 	updateModifiers( ev );
 	if ( m_selection.isMoving() ) {
-		updateEditor();
+		updateEditor( true );
 	}
 	m_selection.mouseMoveEvent( ev );
 }
@@ -847,7 +855,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	pSong->set_is_modified( true );
 	AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-	updateEditor();
+	updateEditor( true );
 	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 	m_pPatternEditorPanel->getPanEditor()->updateEditor();
 	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
@@ -950,7 +958,7 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 
 	AudioEngine::get_instance()->unlock();
 
-	updateEditor();
+	updateEditor( true );
 	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 	m_pPatternEditorPanel->getPanEditor()->updateEditor();
 	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
@@ -995,8 +1003,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-		//__draw_pattern();
-		updateEditor();
+		updateEditor( true );
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
 		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
@@ -1030,8 +1037,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-		//__draw_pattern();
-		updateEditor();
+		updateEditor( true );
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
 		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
@@ -1071,8 +1077,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-		//__draw_pattern();
-		updateEditor();
+		updateEditor( true );
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
 		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
@@ -1117,8 +1122,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-		//__draw_pattern();
-		updateEditor();
+		updateEditor( true );
 		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 		m_pPatternEditorPanel->getPanEditor()->updateEditor();
 		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
@@ -1181,13 +1185,13 @@ void PianoRollEditor::selectAll()
 	{
 		m_selection.addToSelection( it->second );
 	}
-	updateEditor();
+	updateEditor( true );
 }
 
 void PianoRollEditor::selectNone()
 {
 	m_selection.clearSelection();
-	updateEditor();
+	updateEditor( true );
 }
 
 void PianoRollEditor::deleteSelection()
@@ -1292,7 +1296,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 	QPoint pos = cursorPosition();
 	m_pScrollView->ensureVisible( pos.x(), pos.y() );
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
-	updateEditor();
+	updateEditor( true );
 	ev->accept();
 }
 
@@ -1305,7 +1309,7 @@ void PianoRollEditor::focusInEvent( QFocusEvent * ev )
 		m_pPatternEditorPanel->setCursorHidden( false );
 		m_pPatternEditorPanel->ensureCursorVisible();
 	}
-	updateEditor();
+	updateEditor( true );
 }
 
 
@@ -1346,7 +1350,7 @@ void PianoRollEditor::editNoteLengthAction( int nColumn,  int nRealColumn,  int 
 		pDraggedNote->set_length( length );
 	}
 	AudioEngine::get_instance()->unlock();
-	updateEditor();
+	updateEditor( true );
 	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 	m_pPatternEditorPanel->getPanEditor()->updateEditor();
 	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
@@ -1404,7 +1408,7 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 		pDraggedNote->set_lead_lag( leadLag );
 	}
 	AudioEngine::get_instance()->unlock();
-	updateEditor();
+	updateEditor( true );
 	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
 	m_pPatternEditorPanel->getPanEditor()->updateEditor();
 	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
@@ -1523,7 +1527,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 			}
 		}
 	}
-	updateEditor();
+	updateEditor( true );
 	return std::move( result );
 }
 

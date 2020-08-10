@@ -114,7 +114,7 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 
 
 	public slots:
-		void updateEditor();
+		void updateEditor( bool bPatternOnly = false );
 
 		void selectAll();
 		void selectNone();
@@ -123,6 +123,7 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 	private:
 
 		bool m_bNeedsUpdate;
+		bool m_bNeedsBackgroundUpdate;
 		bool m_bFineGrained;
 		bool m_bCopyNotMove;
 
