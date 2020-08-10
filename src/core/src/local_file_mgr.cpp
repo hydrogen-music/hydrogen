@@ -615,7 +615,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 				fxNode.appendChild( controlPortNode );
 			}
 			for ( unsigned nControl = 0; nControl < pFX->outputControlPorts.size(); nControl++ ) {
-				LadspaControlPort *pControlPort = pFX->inputControlPorts[ nControl ];
+				LadspaControlPort *pControlPort = pFX->outputControlPorts[ nControl ];
 				QDomNode controlPortNode = doc.createElement( "outputControlPort" );
 				LocalFileMng::writeXmlString( controlPortNode, "name", pControlPort->sName );
 				LocalFileMng::writeXmlString( controlPortNode, "value", QString("%1").arg( pControlPort->fControlValue ) );
