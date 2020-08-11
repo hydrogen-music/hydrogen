@@ -119,7 +119,6 @@ void PianoRollEditor::finishUpdateEditor()
 	resize( m_nEditorWidth, height() );
 
 	if ( m_bNeedsBackgroundUpdate ) {
-		qDebug() << "XXX Update background";
 		createBackground();
 	}
 	drawPattern();
