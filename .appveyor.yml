@@ -76,7 +76,7 @@ build_script:
       REM *** Deploy other libraries ***
       set PYTHON=C:\Python38\python
       %PYTHON% -m pip install -r %APPVEYOR_BUILD_FOLDER%\windows\requirements.txt
-      %PYTHON% %APPVEYOR_BUILD_FOLDER%\windows\copy_thirdparty_dlls.py --no-overwrite -V info -L %MSYS%\bin -d %APPVEYOR_BUILD_FOLDER%\windows\extralibs src/gui/hydrogen.exe src/core/libhydrogen-core-1.0.0.dll
+      %PYTHON% %APPVEYOR_BUILD_FOLDER%\windows\copy_thirdparty_dlls.py --no-overwrite -V info -L %MSYS%\bin -d %APPVEYOR_BUILD_FOLDER%\windows\extralibs src/gui/hydrogen.exe src/core/libhydrogen-core-1.1.0.dll
 
       REM *** Build installer ***
       cpack -G NSIS -v
