@@ -6,7 +6,6 @@ import os.path
 
 FILES = [
     "hydrogen.exe",
-    "libhydrogen-core-1.1.0.dll",
     "data/hydrogen.default.conf",
     "data/i18n/hydrogen_hu_HU.qm"
 ]
