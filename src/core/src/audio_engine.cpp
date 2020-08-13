@@ -118,7 +118,7 @@ bool AudioEngine::try_lock( const char* file, unsigned int line, const char* fun
 	return true;
 }
 
-float AudioEngine::compute_tick_size(int sampleRate, int bpm, int resolution)
+float AudioEngine::compute_tick_size(int sampleRate, float bpm, int resolution)
 {
 	float tickSize = sampleRate * 60.0 / bpm / resolution;
 	
