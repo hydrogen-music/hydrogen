@@ -170,16 +170,16 @@ bool SongEditor::togglePatternActive( int nColumn, int nRow )
 
 		if ( nColumnIndex != -1 ) {
 			// Delete pattern
-			h2app->m_pUndoStack->push( new SE_deletePatternAction( nColumn, nRow, nColumnIndex ) );
+			h2app->m_pUndoStack->push( new SE_deletePatternAction( nColumn, nRow ) );
 			return false;
 
 		} else {
-			h2app->m_pUndoStack->push( new SE_addPatternAction( nColumn, nRow, pColumn->size() ) );
+			h2app->m_pUndoStack->push( new SE_addPatternAction( nColumn, nRow ) );
 			return true;
 		}
 	}
 	else {
-		SE_addPatternAction *action = new SE_addPatternAction( nColumn, nRow, 0 ) ;
+		SE_addPatternAction *action = new SE_addPatternAction( nColumn, nRow ) ;
 		h2app->m_pUndoStack->push( action );
 		return true;
 	}
@@ -206,15 +206,15 @@ void SongEditor::setPatternActive( int nColumn, int nRow, bool value )
 
 		if ( nColumnIndex != -1 && value == false ) {
 			// Delete existing pattern
-			h2app->m_pUndoStack->push( new SE_deletePatternAction( nColumn, nRow, nColumnIndex ) );
+			h2app->m_pUndoStack->push( new SE_deletePatternAction( nColumn, nRow ) );
 
 		} else if ( nColumnIndex == -1 && value == true ) {
 			// Add pattern to  column
-			h2app->m_pUndoStack->push( new SE_addPatternAction( nColumn, nRow, pColumn->size() ) );
+			h2app->m_pUndoStack->push( new SE_addPatternAction( nColumn, nRow ) );
 		}
 	} else if ( value == true ) {
 		// Add a new pattern
-		SE_addPatternAction *action = new SE_addPatternAction( nColumn, nRow, 0 ) ;
+		SE_addPatternAction *action = new SE_addPatternAction( nColumn, nRow ) ;
 		h2app->m_pUndoStack->push( action );
 	}
 
@@ -447,7 +447,8 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 // Make cursor visible on focus
 void SongEditor::focusInEvent( QFocusEvent *ev )
 {
-	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason ) {
+	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason
+		 && ev->reason() != Qt::ActiveWindowFocusReason ) {
 		QPoint pos = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ))
 			+ QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
 		m_pScrollView->ensureVisible( pos.x(), pos.y() );
@@ -610,7 +611,7 @@ void SongEditor::addPattern( int nColumn , int nRow )
 }
 
 
-void SongEditor::deletePattern( int nColumn , int nRow, unsigned nColumnIndex )
+void SongEditor::deletePattern( int nColumn , int nRow )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
@@ -622,7 +623,7 @@ void SongEditor::deletePattern( int nColumn , int nRow, unsigned nColumnIndex )
 
 	PatternList *pColumn = ( *pColumns )[ nColumn ];
 
-	pColumn->del( nColumnIndex );
+	pColumn->del( pPattern );
 
 	// elimino le colonne vuote
 	for ( int i = pColumns->size() - 1; i >= 0; i-- ) {
