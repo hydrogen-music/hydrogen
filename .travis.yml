@@ -76,7 +76,7 @@ script:
 - TMPDIR=/tmp src/tests/tests
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  sudo make install; fi
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  test -f /usr/local/bin/hydrogen; fi
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  test -f /usr/local/lib/libhydrogen-core-1.0.0.so; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  test -f /usr/local/lib/libhydrogen-core-*.so; fi
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  test -d /usr/local/share/hydrogen/data/; fi
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  test -f /usr/local/share/hydrogen/data/hydrogen.default.conf; fi
 deploy:
