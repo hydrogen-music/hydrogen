@@ -51,7 +51,7 @@ before_build:
       c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portaudio
       c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libwinpthread-git
       c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-qt5%QTVER%
-      c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-skd
+      c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-sdk
 
       REM *** INIT SUBMODULES ***
       git submodule init
