@@ -51,6 +51,11 @@ before_build:
       c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portaudio
       c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libwinpthread-git
       c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-qt5%QTVER%
+      c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-skd
+
+      REM *** INIT SUBMODULES ***
+      git submodule init
+      git submodule update
 
       REM *** Configure build ***
       rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
