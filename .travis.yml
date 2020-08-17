@@ -69,7 +69,7 @@ before_install:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && [[ "$HOMEBREW_NO_AUTO_UPDATE" -eq "1" ]];
   then test $(PKG_CONFIG_PATH=$(brew --prefix qt5)/lib/pkgconfig pkg-config --modversion Qt5Core) == 5.9.1; fi
 script:
-- mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 ${CMAKE_OPTIONS}
+- git submodule init && git submodule update && mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 ${CMAKE_OPTIONS}
   .. && make
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PATH="$(brew --prefix qt5)/bin:$PATH"
   ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg; fi
