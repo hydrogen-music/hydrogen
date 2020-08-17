@@ -142,6 +142,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		void selectAll();
 		void selectNone();
 		void deleteSelection();
+		void copy();
+		void paste();
 
 	private:
 		float m_nGridWidth;
@@ -149,6 +151,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		int m_nEditorHeight;
 		uint m_nResolution;
 		bool m_bUseTriplets;
+
+		bool m_bSelectNewNotes;
 
 		H2Core::Note *m_pDraggedNote;
 		//~

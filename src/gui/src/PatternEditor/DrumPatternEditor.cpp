@@ -38,6 +38,7 @@
 #include <hydrogen/basics/adsr.h>
 #include <hydrogen/basics/note.h>
 #include <hydrogen/audio_engine.h>
+#include <hydrogen/helpers/xml.h>
 
 #include "UndoActions.h"
 #include "../HydrogenApp.h"
@@ -79,6 +80,7 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
 
 	m_bFineGrained = false;
 	m_bCopyNotMove = false;
+	m_bSelectNewNotes = false;
 
 }
 
@@ -391,6 +393,10 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		pNote->set_key_octave( (Note::Key)oldNoteKeyVal, (Note::Octave)oldOctaveKeyVal );
 		pPattern->insert_note( pNote );
 
+		if ( m_bSelectNewNotes ) {
+			m_selection.addToSelection( pNote );
+		}
+
 		if ( isMidi ) {
 			pNote->set_just_recorded(true);
 		}
@@ -472,8 +478,12 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 		pPattern->insert_note( pFoundNote );
 	} else {
 		pPattern->remove_note( pFoundNote );
-		m_selection.removeFromSelection( pFoundNote );
 		Note *pNewNote = new Note( pFoundNote, pToInstrument );
+
+		if ( m_selection.isSelected( pFoundNote) ) {
+			m_selection.removeFromSelection( pFoundNote );
+			m_selection.addToSelection( pNewNote );
+		}
 		pNewNote->set_position( nNewColumn );
 		m_selection.addToSelection( pNewNote );
 		pPattern->insert_note( pNewNote );
@@ -581,6 +591,14 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		selectedNotes.push_back( pNote );
 	}
 
+	if ( m_bCopyNotMove ) {
+		// Clear selection so the new notes can be selection instead
+		// of the originals.
+		m_selection.clearSelection();
+	}
+
+	m_bSelectNewNotes = true;
+
 	for ( auto pNote : selectedNotes ) {
 		int nInstrument = pInstrumentList->index( pNote->get_instrument() );
 		int nPosition = pNote->get_position();
@@ -628,7 +646,6 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   false,
 														   false,
 														   false ) );
-
 			} else {
 				// Move note
 				pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, __selectedPatternNumber,
@@ -636,6 +653,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 			}
 		}
 	}
+	m_bSelectNewNotes = false;
 	pUndo->endMacro();
 }
 
@@ -786,6 +804,12 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	} else if ( ev->matches( QKeySequence::Deselect ) ) {
 		selectNone();
 
+	} else if ( ev->matches( QKeySequence::Copy ) ) {
+		copy();
+
+	} else if ( ev->matches( QKeySequence::Paste ) ) {
+		paste();
+
 	} else {
 		ev->ignore();
 		m_pPatternEditorPanel->setCursorHidden( true );
@@ -906,6 +930,79 @@ void DrumPatternEditor::deleteSelection()
 		pUndo->endMacro();
 		m_selection.clearSelection();
 	}
+}
+
+
+///
+/// Copy selection to clipboard in XML
+///
+void DrumPatternEditor::copy()
+{
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "note_selection", "note_selection" );
+
+	for ( Note *pNote : m_selection ) {
+		XMLNode note_node = root.createNode( "note" );
+		pNote->save_to( &note_node );
+	}
+
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setText( doc.toString() );
+}
+
+
+///
+/// Paste selection
+///
+/// Selection is XML containing notes, contained in a root 'note_selection' element.
+///
+void DrumPatternEditor::paste()
+{
+	QClipboard *clipboard = QApplication::clipboard();
+	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+	InstrumentList *pInstrList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+
+	XMLDoc doc;
+	if ( ! doc.setContent( clipboard->text() ) ) {
+		// Pasted something that's not valid XML.
+		return;
+	}
+
+	XMLNode selection = doc.firstChildElement( "note_selection" );
+	if ( selection.isNull() ) {
+		return;
+	}
+
+	m_selection.clearSelection();
+	m_bSelectNewNotes = true;
+
+	if ( selection.hasChildNodes() ) {
+		pUndo->beginMacro( "paste notes" );
+		for ( XMLNode n = selection.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {
+			Note *pNote = Note::load_from( &n, pInstrList );
+			pUndo->push( new SE_addOrDeleteNoteAction( pNote->get_position(),
+													   pInstrList->index( pNote->get_instrument() ) ,
+													   __selectedPatternNumber,
+													   pNote->get_length(),
+													   pNote->get_velocity(),
+													   pNote->get_pan_l(),
+													   pNote->get_pan_r(),
+													   pNote->get_lead_lag(),
+													   pNote->get_key(),
+													   pNote->get_octave(),
+													   false, // isDelete
+													   false, // listen
+													   false, // isMidi
+													   false, // isInstrumentMode
+													   pNote->get_note_off()
+													   ) );
+			delete pNote;
+		}
+		pUndo->endMacro();
+	}
+
+	m_bSelectNewNotes = false;
 }
 
 
