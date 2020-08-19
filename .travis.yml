@@ -74,6 +74,11 @@ script:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then PATH="$(brew --prefix qt5)/bin:$PATH"
   ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg; fi
 - TMPDIR=/tmp src/tests/tests
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  sudo make install; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  test -f /usr/local/bin/hydrogen; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  test -f /usr/local/lib/libhydrogen-core-*.so; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  test -d /usr/local/share/hydrogen/data/; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then  test -f /usr/local/share/hydrogen/data/hydrogen.default.conf; fi
 deploy:
   skip_cleanup: true
   provider: releases

@@ -1,5 +1,6 @@
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
+#include <cppunit/TestResult.h>
 
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/Preferences.h>
@@ -8,6 +9,8 @@
 #include <QCoreApplication>
 
 #include "test_helper.h"
+#include "utils/appveyor_test_listener.h"
+#include "utils/appveyor_rest_client.h"
 
 void setupEnvironment(unsigned log_level)
 {
@@ -37,8 +40,10 @@ int main( int argc, char **argv)
 
 	QCommandLineParser parser;
 	QCommandLineOption verboseOption( QStringList() << "V" << "verbose", "Level, if present, may be None, Error, Warning, Info, Debug or 0xHHHH","Level");
+    QCommandLineOption appveyorOption( QStringList() << "appveyor", "Report test progress to AppVeyor build worker" );
 	parser.addHelpOption();
 	parser.addOption( verboseOption );
+    parser.addOption( appveyorOption );
 	parser.process(app);
 	QString sVerbosityString = parser.value( verboseOption );
 	unsigned logLevelOpt = H2Core::Logger::None;
@@ -56,6 +61,15 @@ int main( int argc, char **argv)
 	CppUnit::TextUi::TestRunner runner;
 	CppUnit::TestFactoryRegistry &registry = CppUnit::TestFactoryRegistry::getRegistry();
 	runner.addTest( registry.makeTest() );
+
+    std::unique_ptr<AppVeyor::BuildWorkerApiClient> appveyorApiClient;
+    std::unique_ptr<AppVeyorTestListener> avtl;
+    if( parser.isSet( appveyorOption )) {
+        qDebug() << "Enabled AppVeyor reporting";
+        appveyorApiClient.reset( new AppVeyor::BuildWorkerApiClient() );
+        avtl.reset( new AppVeyorTestListener( *appveyorApiClient ));
+        runner.eventManager().addListener( avtl.get() );
+    }
 	bool wasSuccessful = runner.run( "", false );
 
 	return wasSuccessful ? 0 : 1;
