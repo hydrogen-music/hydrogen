@@ -5,31 +5,21 @@ environment:
       MSYS_REPO: 'mingw64/mingw-w64-x86_64'
       BUILD_TYPE: "Release"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DFIXME_DISABLE_OPTIMIZATIONS=ON"
-      QTVER: ">=15.0"
 
     - MSYS: 'C:\msys64\mingw32'
       MSYS_REPO: 'mingw32/mingw-w64-i686'
       BUILD_TYPE: "Release"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DFIXME_DISABLE_OPTIMIZATIONS=ON"
-      QTVER: ">=15.0"
 
     - MSYS: 'C:\msys64\mingw64'
       MSYS_REPO: 'mingw64/mingw-w64-x86_64'
       BUILD_TYPE: "Debug"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON -DWIN64:BOOL=ON"
-      QTVER: ">=15.0"
 
     - MSYS: 'C:\msys64\mingw32'
       MSYS_REPO: 'mingw32/mingw-w64-i686'
       BUILD_TYPE: "Debug"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON"
-      QTVER: ">=15.0"
-
-    - MSYS: 'C:\msys64\mingw32'
-      MSYS_REPO: 'mingw32/mingw-w64-i686'
-      BUILD_TYPE: "Debug"
-      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON"
-      QTVER: "<5.7"
 
 image:
   - "Visual Studio 2015"
@@ -50,7 +40,7 @@ before_build:
       c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-cppunit
       c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portaudio
       c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libwinpthread-git
-      c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-qt5%QTVER%
+      c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-qt5
       c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-sdk
 
       REM *** INIT SUBMODULES ***
