@@ -220,6 +220,7 @@ static bool loadTranslation( QLocale &locale, QTranslator &tor, QString fileName
 			language.truncate( i );
 		}
 	}
+	return false;
 }
 
 
