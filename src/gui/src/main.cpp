@@ -185,6 +185,44 @@ public:
 };
 
 
+///
+/// Load translation
+///
+/// The standard QTranslation::load will prefer a exact match of a
+/// languae-REGION pair, regardless of its position in the preferred
+/// UI languages list. This can lead, for instance, to Qt selecting
+/// Hungarian or Brazilian Portugese just because they have exact
+/// matching translations, even if they're the last on the system's
+/// preferred UI language list. This seems wrong, as the user's
+/// preference for *language* shoud be considered more important than
+/// region, particularly here since Hydrogen has no particular region
+/// dependencies.
+///
+/// So instead, we'll exhaustively search for a match for each of the
+/// user's preferred languages in turn.
+///
+static bool loadTranslation( QLocale &locale, QTranslator &tor, QString fileName, QString prefix, QString directory ) {
+	for ( QString language : QLocale::system().uiLanguages() ) {
+		language.replace( '-', '_' );
+		int i = 0;
+		for (;;) {
+			QString transName = fileName + prefix + language + ".qm";
+			QFileInfo fi( directory, transName );
+			if ( fi.exists() && fi.isFile() ) {
+				if ( tor.load( transName, directory ) ) {
+					return true;
+				}
+			}
+			int i = language.lastIndexOf( '_' );
+			if ( i == -1 ) {
+				break;
+			}
+			language.truncate( i );
+		}
+	}
+}
+
+
 int main(int argc, char *argv[])
 {
 	try {
@@ -328,7 +366,7 @@ int main(int argc, char *argv[])
 		QTranslator tor( nullptr );
 		QLocale locale = QLocale::system();
 		if ( locale != QLocale::c() ) {
-			if (qttor.load( locale, QString( "qt" ), QString( "_" ), QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
+			if ( loadTranslation( locale, qttor, QString( "qt" ), QString( "_" ), QLibraryInfo::location(QLibraryInfo::TranslationsPath) ) ) {
 				pQApp->installTranslator( &qttor );
 			} else {
 				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(locale.name()));
@@ -336,7 +374,7 @@ int main(int argc, char *argv[])
 			
 			QString sTranslationPath = H2Core::Filesystem::i18n_dir();
 			QString sTranslationFile( "hydrogen" );
-			bool bTransOk = tor.load( locale, sTranslationFile, QString( "_" ), sTranslationPath );
+			bool bTransOk = loadTranslation( locale, tor, sTranslationFile, "_", sTranslationPath );
 			if (bTransOk) {
 				___INFOLOG( "Using locale: " + sTranslationPath );
 			} else {
