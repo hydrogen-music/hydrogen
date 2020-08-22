@@ -810,6 +810,9 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	} else if ( ev->matches( QKeySequence::Paste ) ) {
 		paste();
 
+	} else if ( ev->matches( QKeySequence::Cut ) ) {
+		cut();
+
 	} else {
 		ev->ignore();
 		m_pPatternEditorPanel->setCursorHidden( true );
@@ -951,6 +954,12 @@ void DrumPatternEditor::copy()
 	clipboard->setText( doc.toString() );
 }
 
+void DrumPatternEditor::cut()
+{
+	copy();
+	deleteSelection();
+}
+
 
 ///
 /// Paste selection
@@ -981,6 +990,7 @@ void DrumPatternEditor::paste()
 		pUndo->beginMacro( "paste notes" );
 		for ( XMLNode n = selection.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {
 			Note *pNote = Note::load_from( &n, pInstrList );
+
 			pUndo->push( new SE_addOrDeleteNoteAction( pNote->get_position(),
 													   pInstrList->index( pNote->get_instrument() ) ,
 													   __selectedPatternNumber,
