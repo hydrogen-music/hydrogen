@@ -462,7 +462,10 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 			 && pCandidateNote->get_pan_l() == pNote->get_pan_r()
 			 && pCandidateNote->get_note_off() == pNote->get_note_off() ) {
 			pFoundNote = pCandidateNote;
-			break;
+			if ( m_selection.isSelected( pCandidateNote ) ) {
+				// If a candidate note is in the selection, this will be the one to move.
+				break;
+			}
 		}
 	}
 	if ( pFoundNote == nullptr ) {
