@@ -417,18 +417,8 @@ QString Song::copyInstrumentLineToString( int selectedPattern, int selectedInstr
 			// Export only specified instrument
 			if (pNote->get_instrument() == pInstr)
 			{
-				QDomNode noteNode = doc.createElement( "note" );
-				LocalFileMng::writeXmlString( noteNode, "position", QString("%1").arg( pNote->get_position() ) );
-				LocalFileMng::writeXmlString( noteNode, "leadlag", QString("%1").arg( pNote->get_lead_lag() ) );
-				LocalFileMng::writeXmlString( noteNode, "velocity", QString("%1").arg( pNote->get_velocity() ) );
-				LocalFileMng::writeXmlString( noteNode, "pan_L", QString("%1").arg( pNote->get_pan_l() ) );
-				LocalFileMng::writeXmlString( noteNode, "pan_R", QString("%1").arg( pNote->get_pan_r() ) );
-				LocalFileMng::writeXmlString( noteNode, "pitch", QString("%1").arg( pNote->get_pitch() ) );
-				LocalFileMng::writeXmlString( noteNode, "probability", QString("%1").arg( pNote->get_probability() ) );
-
-				LocalFileMng::writeXmlString( noteNode, "key", pNote->key_to_string() );
-
-				LocalFileMng::writeXmlString( noteNode, "length", QString("%1").arg( pNote->get_length() ) );
+				XMLNode noteNode = doc.createElement( "note" );
+				pNote->save_to( &noteNode );
 				noteListNode.appendChild( noteNode );
 			}
 		}
@@ -518,29 +508,15 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 				if ( ! pNoteListNode.isNull() )
 				{
 					// Parse note-by-note
-					QDomNode noteNode = pNoteListNode.firstChildElement( "note" );
+					XMLNode noteNode = pNoteListNode.firstChildElement( "note" );
 					while ( ! noteNode.isNull() )
 					{
-						Note* pNote = nullptr;
+						QDomNode instrument = noteNode.firstChildElement( "instrument" );
+						QDomNode instrumentText = instrument.firstChild();
 
-						unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
-						float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0 , false , false );
-						float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
-						float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
-						float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
-						int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
-						float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
-						float fProbability = LocalFileMng::readXmlFloat( noteNode, "probability", 1.0 , false , false );
-						QString sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
-						QString nNoteOff = LocalFileMng::readXmlString( noteNode, "note_off", "false", false, false );
+						instrumentText.setNodeValue( QString::number( pInstr->get_id() ) );
+						Note *pNote = Note::load_from( &noteNode, get_instrument_list() );
 
-						bool noteoff = ( nNoteOff == "true" );
-
-						pNote = new Note( pInstr, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
-						pNote->set_key_octave( sKey );
-						pNote->set_lead_lag( fLeadLag );
-						pNote->set_note_off( noteoff );
-						pNote->set_probability( fProbability );
 						pat->insert_note( pNote ); // Add note to created pattern
 
 						noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );
