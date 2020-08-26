@@ -113,6 +113,8 @@ void MidiMap::reset()
 		__cc_array[ i ] = new Action("NOTHING");
 	}
 
+	delete __pc_action;
+	__pc_action = new Action("NOTHING");
 }
 
 
