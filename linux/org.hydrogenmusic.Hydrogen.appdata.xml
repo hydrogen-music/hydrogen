@@ -37,6 +37,9 @@
  <project_group>hydrogen</project_group>
  <content_rating type="oars-1.0"/>
  <releases>
+   <release version="1.0.1" date="2020-08-29">
+     <url>https://github.com/hydrogen-music/hydrogen/releases/tag/1.0.1</url>
+   </release>
     <release version="1.0.0" date="2020-08-03">
      <url>https://github.com/hydrogen-music/hydrogen/releases/tag/1.0.0</url>
    </release>
