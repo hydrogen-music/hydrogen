@@ -1,3 +1,11 @@
+
+2020-08-29 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
+	* Release 1.0.1
+	* Fixed compilation with libtar
+	* Fixed jack transport tempo drift when using non-integer bpm values
+	* Disabled "development mode" warning
+	* Fix crash on saving ladspa settings
+
 2020-08-03 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.0
 	* QT 5 support
