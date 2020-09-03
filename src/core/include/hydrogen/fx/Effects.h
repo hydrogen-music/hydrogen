@@ -34,8 +34,6 @@
 #include <vector>
 #include <cassert>
 
-#include <lilv-0/lilv/lilv.h>
-
 namespace H2Core
 {
 class Effects : public H2Core::Object
@@ -66,8 +64,6 @@ public:
 
 	
 	H2FXGroup* getLadspaFXGroup();
-
-	Lv2FX* m_pLv2FX;
 
 private:
 	/**

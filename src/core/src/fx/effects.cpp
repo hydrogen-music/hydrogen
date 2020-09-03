@@ -21,8 +21,6 @@
  */
 #include <hydrogen/fx/Effects.h>
 
-#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
-
 #include <hydrogen/Preferences.h>
 #include <hydrogen/fx/LadspaFX.h>
 #include <hydrogen/fx/H2FX.h>
@@ -33,10 +31,13 @@
 #include <QDir>
 #include <QLibrary>
 #include <cassert>
-#include "lilv-0/lilv/lilv.h"
 
 #ifdef H2CORE_HAVE_LRDF
 #include <lrdf.h>
+#endif
+
+#ifdef H2CORE_HAVE_LILV
+#include <lilv-0/lilv/lilv.h>
 #endif
 
 using namespace std;
@@ -53,7 +54,6 @@ Effects::Effects()
 		: Object( __class_name )
 		, m_pRootGroup( nullptr )
 		, m_pRecentGroup( nullptr )
-		, m_pLv2FX( nullptr )
 {
 	__instance = this;
 
@@ -63,8 +63,6 @@ Effects::Effects()
 
 	fillLadspaPluginList();
 	fillLV2PluginList();
-	
-	m_pLv2FX = Lv2FX::load(QString("http://plugin.org.uk/swh-plugins/hardLimiter"), 44100);
 }
 
 void Effects::create_instance()
@@ -136,6 +134,7 @@ std::vector<H2FXInfo*> Effects::getPluginList()
 ///
 void Effects::fillLadspaPluginList()
 {
+#ifdef H2CORE_HAVE_LADSPA
 	if ( m_pluginList.size() != 0 ) {
 		return;
 	}
@@ -225,10 +224,13 @@ void Effects::fillLadspaPluginList()
 
 	INFOLOG( QString( "Loaded %1 LADSPA plugins" ).arg( m_pluginList.size() ) );
 	std::sort( m_pluginList.begin(), m_pluginList.end(), H2FXInfo::alphabeticOrder );
+    
+#endif //H2CORE_HAVE_LADSPA
 }
 
 void Effects::fillLV2PluginList()
 {
+#ifdef H2CORE_HAVE_LILV
 	int nAudioIn = 0;
 	int nAudioOut = 0;
 	
@@ -276,7 +278,8 @@ void Effects::fillLV2PluginList()
 		
 	lilv_world_free(world);
 	
-	std::sort( m_pluginList.begin(), m_pluginList.end(), LV2FXInfo::alphabeticOrder );	
+	std::sort( m_pluginList.begin(), m_pluginList.end(), LV2FXInfo::alphabeticOrder );
+#endif // H2CORE_HAVE_LILV
 }
 
 
@@ -446,5 +449,3 @@ void Effects::RDFDescend( const QString& sBase, H2FXGroup *pGroup, vector<H2FXIn
 #endif // H2CORE_HAVE_LRDF
 
 };
-
-#endif // H2CORE_HAVE_LADSPA

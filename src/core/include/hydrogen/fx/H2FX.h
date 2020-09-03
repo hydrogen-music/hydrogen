@@ -30,6 +30,70 @@ namespace H2Core
 class Lv2FX;
 class LadspaFX;
 
+class LadspaFXInfo;
+class LV2FXInfo;
+
+class H2FXInfo : public H2Core::Object
+{
+	H2_OBJECT
+public:
+	 H2FXInfo( const QString& sName );
+	 ~H2FXInfo();
+
+	QString m_sFilename;	///< plugin filename
+	QString m_sID;
+	QString m_sLabel;
+	QString m_sName;
+	QString m_sMaker;
+	QString m_sCopyright;
+	
+	unsigned m_nICPorts;	///< input control port
+	unsigned m_nOCPorts;	///< output control port
+	unsigned m_nIAPorts;	///< input audio port
+	unsigned m_nOAPorts;	///< output audio port
+	
+	static bool				alphabeticOrder( H2FXInfo* a, H2FXInfo* b );
+	
+	virtual LV2FXInfo*		isLV2FXInfo();
+	virtual LadspaFXInfo*	isLadspaFXInfo();
+};
+
+class H2FXGroup : public H2Core::Object
+{
+	H2_OBJECT
+public:
+	H2FXGroup( const QString& sName );
+	 ~H2FXGroup();
+
+	const QString& getName() {
+		return m_sName;
+	}
+
+	void addLadspaInfo( H2FXInfo *pInfo );
+	std::vector<H2FXInfo*> getLadspaInfo() {
+		return m_ladspaList;
+	}
+
+	void addChild( H2FXGroup *pChild );
+	std::vector<H2FXGroup*> getChildList() {
+		return m_childGroups;
+	}
+
+	void clear() {
+		m_childGroups.clear();
+		m_ladspaList.clear();
+	}
+
+	static bool alphabeticOrder( H2FXGroup*, H2FXGroup* );
+	void sort();
+
+
+private:
+	QString m_sName;
+	std::vector<H2FXInfo*>		m_ladspaList;
+	std::vector<H2FXGroup*>		m_childGroups;
+};
+
 class LadspaControlPort : public H2Core::Object
 {
 	H2_OBJECT

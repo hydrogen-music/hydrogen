@@ -48,9 +48,6 @@
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/sampler/Sampler.h>
 
-#include <lilv-0/lilv/lilv.h>
-
-#include <iostream>
 #include <QDebug>
 
 namespace H2Core

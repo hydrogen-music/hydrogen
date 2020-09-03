@@ -121,7 +121,7 @@ Mixer::Mixer( QWidget* pParent )
 	connect( m_pShowFXPanelBtn, SIGNAL(clicked(Button*)), this, SLOT( showFXPanelClicked(Button*)));
 	m_pShowFXPanelBtn->setPressed( Preferences::get_instance()->isFXTabVisible() );
 
-#ifndef H2CORE_HAVE_LADSPA
+#if not defined(H2CORE_HAVE_LADSPA) && not defined (H2CORE_HAVE_LILV)
 	m_pShowFXPanelBtn->hide();
 #endif
 
@@ -834,7 +834,7 @@ void Mixer::showPeaksBtnClicked(Button* ref)
 
 void Mixer::ladspaActiveBtnClicked( LadspaFXMixerLine* ref )
 {
-#ifdef H2CORE_HAVE_LADSPA
+#if defined (H2CORE_HAVE_LADSPA) || defined(H2CORE_HAVE_LILV)
 	bool bActive = ref->isFxActive();
 
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
@@ -847,7 +847,7 @@ void Mixer::ladspaActiveBtnClicked( LadspaFXMixerLine* ref )
 		}
 	}
 #else
-	QMessageBox::critical( this, "Hydrogen", tr("LADSPA effects are not available in this version of Hydrogen.") );
+	QMessageBox::critical( this, "Hydrogen", tr("LADSPA or LV2 effects are not available in this version of Hydrogen.") );
 #endif
 }
 
@@ -855,7 +855,7 @@ void Mixer::ladspaActiveBtnClicked( LadspaFXMixerLine* ref )
 
 void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 {
-#ifdef H2CORE_HAVE_LADSPA
+#if defined (H2CORE_HAVE_LADSPA) || defined(H2CORE_HAVE_LILV)
 
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		if (ref == m_pLadspaFXLine[ nFX ] ) {
@@ -865,7 +865,7 @@ void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 	}
 	Hydrogen::get_instance()->getSong()->set_is_modified( true );
 #else
-	QMessageBox::critical( this, "Hydrogen", tr("LADSPA effects are not available in this version of Hydrogen.") );
+	QMessageBox::critical( this, "Hydrogen", tr("LADSPA or LV2 effects are not available in this version of Hydrogen.") );
 #endif
 }
 
@@ -873,7 +873,7 @@ void Mixer::ladspaEditBtnClicked( LadspaFXMixerLine *ref )
 
 void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
 {
-#ifdef H2CORE_HAVE_LADSPA
+#if defined (H2CORE_HAVE_LADSPA) || defined(H2CORE_HAVE_LILV)
 	Song *pSong = (Hydrogen::get_instance() )->getSong();
 	pSong->set_is_modified( true );
 

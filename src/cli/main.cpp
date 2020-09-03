@@ -30,10 +30,6 @@
 #include <hydrogen/LashClient.h>
 #endif
 
-#ifndef H2CORE_HAVE_LILV
-bla!
-#endif
-
 #include <hydrogen/basics/song.h>
 #include <hydrogen/midi_map.h>
 #include <hydrogen/audio_engine.h>

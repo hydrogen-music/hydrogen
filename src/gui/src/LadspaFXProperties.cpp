@@ -140,8 +140,6 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 	ref->setPeak_R( ref->getValue() );
 
 	Song *pSong = (Hydrogen::get_instance() )->getSong();
-
-#ifdef H2CORE_HAVE_LADSPA
 	H2FX *pH2FX = Effects::get_instance()->getLadspaFX( m_nLadspaFX );
 	
 	if( pH2FX )
@@ -169,16 +167,12 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 		}
 		pSong->set_is_modified( true );
 	}
-
-
-#endif
 }
 
 
 
 void LadspaFXProperties::updateControls()
 {
-#ifdef H2CORE_HAVE_LADSPA
 	INFOLOG( "*** [updateControls] ***" );
 	m_pTimer->stop();
 
@@ -353,14 +347,13 @@ void LadspaFXProperties::updateControls()
 	}
 
 	m_pTimer->start(100);
-#endif
 }
 
 
 
 void LadspaFXProperties::selectFXBtnClicked()
 {
-#ifdef H2CORE_HAVE_LADSPA
+
 	LadspaFXSelector fxSelector(m_nLadspaFX);
 	if (fxSelector.exec() == QDialog::Accepted) {
 		QString sSelectedFX = fxSelector.getSelectedFX();
@@ -371,14 +364,18 @@ void LadspaFXProperties::selectFXBtnClicked()
 			for (uint i = 0; i < pluginList.size(); i++) {
 				H2Core::H2FXInfo *pFXInfo = pluginList[i];
 				if (pFXInfo->m_sName == sSelectedFX && pFXInfo->isLadspaFXInfo()) {
+#ifdef H2CORE_HAVE_LADSPA
 					int nSampleRate = Hydrogen::get_instance()->getAudioOutput()->getSampleRate();
 					pFX = LadspaFX::load( pFXInfo->m_sFilename, pFXInfo->m_sLabel, nSampleRate );
 					pFX->setEnabled( true );
+#endif
 					break;
 				} else if (pFXInfo->m_sName == sSelectedFX && pFXInfo->isLV2FXInfo()){
+#ifdef H2CORE_HAVE_LILV
 					int nSampleRate = Hydrogen::get_instance()->getAudioOutput()->getSampleRate();
 					pFX = Lv2FX::load( pFXInfo->m_sID, nSampleRate );
 					pFX->setEnabled( true );
+#endif
 					break;
 				}
 			}
@@ -396,28 +393,22 @@ void LadspaFXProperties::selectFXBtnClicked()
 			INFOLOG( "no plugin selected" );
 		}
 	}
-#endif
 }
 
 
 void LadspaFXProperties::removeFXBtnClicked()
 {
-#ifdef H2CORE_HAVE_LADSPA
 	Song *pSong = (Hydrogen::get_instance() )->getSong();
 	pSong->set_is_modified( true );
 	Effects::get_instance()->setLadspaFX( nullptr, m_nLadspaFX );
 	Hydrogen::get_instance()->restartLadspaFX();
 	updateControls();	
-#endif
 }
 
 
 void LadspaFXProperties::updateOutputControls()
 {
-#ifdef H2CORE_HAVE_LADSPA
-
 //	INFOLOG( "[updateOutputControls]" );
-//	Song *pSong = (Hydrogen::get_instance() )->getSong();
 	H2FX *pH2FX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
 
 	if ( pH2FX ) {
@@ -456,7 +447,6 @@ void LadspaFXProperties::updateOutputControls()
 	else {
 		m_pActivateBtn->setEnabled(false);
 	}
-#endif
 }
 
 
@@ -464,13 +454,10 @@ void LadspaFXProperties::updateOutputControls()
 
 void LadspaFXProperties::activateBtnClicked()
 {
-#ifdef H2CORE_HAVE_LADSPA
-//	Song *pSong = (Hydrogen::get_instance() )->getSong();
 	H2FX *pFX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
 	if (pFX) {
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pFX->setEnabled( !pFX->isEnabled() );
 		AudioEngine::get_instance()->unlock();
 	}
-#endif
 }
