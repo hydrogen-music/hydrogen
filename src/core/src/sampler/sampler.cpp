@@ -957,7 +957,7 @@ bool Sampler::__render_note_no_resample(
     
 	float masterVol =  pSong->get_volume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		H2FX *pFX = Effects::get_instance()->getLadspaFX( nFX );
+		H2FX *pFX = Effects::get_instance()->getFX( nFX );
 
 		float fLevel = pNote->get_instrument()->get_fx_level( nFX );
 
@@ -1165,7 +1165,7 @@ bool Sampler::__render_note_resample(
 	if (pNote->get_instrument()->is_muted() || pSong->__is_muted) return retValue;
 	float masterVol = pSong->get_volume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		H2FX *pFX = Effects::get_instance()->getLadspaFX( nFX );
+		H2FX *pFX = Effects::get_instance()->getFX( nFX );
 		float fLevel = pNote->get_instrument()->get_fx_level( nFX );
 		if ( ( pFX ) && ( fLevel != 0.0 ) ) {
 			fLevel = fLevel * pFX->getVolume();
