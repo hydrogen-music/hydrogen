@@ -140,7 +140,7 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 	ref->setPeak_R( ref->getValue() );
 
 	Song *pSong = (Hydrogen::get_instance() )->getSong();
-	H2FX *pH2FX = Effects::get_instance()->getLadspaFX( m_nLadspaFX );
+	H2FX *pH2FX = Effects::get_instance()->getFX( m_nLadspaFX );
 	
 	if( pH2FX )
 	{
@@ -176,7 +176,7 @@ void LadspaFXProperties::updateControls()
 	INFOLOG( "*** [updateControls] ***" );
 	m_pTimer->stop();
 
-	H2FX *pH2FX = Effects::get_instance()->getLadspaFX( m_nLadspaFX );
+	H2FX *pH2FX = Effects::get_instance()->getFX( m_nLadspaFX );
 	
 	if( pH2FX )
 	{
@@ -409,7 +409,7 @@ void LadspaFXProperties::removeFXBtnClicked()
 void LadspaFXProperties::updateOutputControls()
 {
 //	INFOLOG( "[updateOutputControls]" );
-	H2FX *pH2FX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
+	H2FX *pH2FX = Effects::get_instance()->getFX(m_nLadspaFX);
 
 	if ( pH2FX ) {
 		m_pActivateBtn->setEnabled(true);
@@ -454,7 +454,7 @@ void LadspaFXProperties::updateOutputControls()
 
 void LadspaFXProperties::activateBtnClicked()
 {
-	H2FX *pFX = Effects::get_instance()->getLadspaFX(m_nLadspaFX);
+	H2FX *pFX = Effects::get_instance()->getFX(m_nLadspaFX);
 	if (pFX) {
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pFX->setEnabled( !pFX->isEnabled() );

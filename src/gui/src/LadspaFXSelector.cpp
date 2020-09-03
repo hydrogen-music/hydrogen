@@ -44,9 +44,9 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 
 	setupUi( this );
 
-	//setFixedSize( width(), height() );
+	setFixedSize( width(), height() );
 
-	setWindowTitle( tr( "Select LADSPA FX" ) );
+	setWindowTitle( tr( "Select FX" ) );
 
 	m_sSelectedPluginName = "";
 
@@ -62,7 +62,7 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 	m_pGroupsListView->setHeaderLabels( QStringList( tr( "Groups" ) ) );
 
 #ifdef H2CORE_HAVE_LADSPA
-	H2FX *pFX = Effects::get_instance()->getLadspaFX(nLadspaFX);
+	H2FX *pFX = Effects::get_instance()->getFX(nLadspaFX);
 	if (pFX) {
 		m_sSelectedPluginName = pFX->getPluginName();
 	}

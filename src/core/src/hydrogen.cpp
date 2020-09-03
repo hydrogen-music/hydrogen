@@ -275,10 +275,8 @@ float *				m_pMainBuffer_R = nullptr;
  */	
 int				m_audioEngineState = STATE_UNINITIALIZED;	
 
-#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 float				m_fFXPeak_L[MAX_FX];
 float				m_fFXPeak_R[MAX_FX];
-#endif
 
 /**
  * Beginning of the current pattern in ticks.
@@ -757,9 +755,7 @@ void audioEngine_init()
 	// Change the current audio engine state
 	m_audioEngineState = STATE_INITIALIZED;
 
-#ifdef H2CORE_HAVE_LADSPA
 	Effects::create_instance();
-#endif
 	AudioEngine::create_instance();
 	Playlist::create_instance();
 
@@ -827,6 +823,12 @@ int audioEngine_start( bool bLockEngine, unsigned nTotalFrames )
 
 	m_fMasterPeak_L = 0.0f;
 	m_fMasterPeak_R = 0.0f;
+	
+	for(int i=0; i < MAX_FX; i++) {
+		m_fFXPeak_L[i] = 0.0f;
+		m_fFXPeak_R[i] = 0.0f;
+	}
+	
 	// Reset the current transport position.
 	m_pAudioDriver->m_transport.m_nFrames = nTotalFrames;
 	m_nSongPos = -1;
@@ -1189,9 +1191,9 @@ void audioEngine_clearNoteQueue()
  *
  * If the JACK driver is used and Preferences::m_bJackTrackOuts is set
  * to true, the stereo buffers for all tracks of the components of
- * each instrument will be reset as well.  If LadspaFX are used, the
- * output buffers of all effects LadspaFX::m_pBuffer_L and
- * LadspaFX::m_pBuffer_L have to be reset as well.
+ * each instrument will be reset as well.  If FX are used, the
+ * output buffers of all effects m_pBuffer_L and
+ * m_pBuffer_L have to be reset as well.
  *
  * If the audio driver #m_pAudioDriver isn't set yet, it will just
  * unlock and return.
@@ -1241,7 +1243,7 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 	if ( m_audioEngineState >= STATE_READY ) {
 		Effects* pEffects = Effects::get_instance();
 		for ( unsigned i = 0; i < MAX_FX; ++i ) {	// clear FX buffers
-			H2FX* pFX = pEffects->getLadspaFX( i );
+			H2FX* pFX = pEffects->getFX( i );
 			if ( pFX ) {
 				assert( pFX->m_pBuffer_L );
 				assert( pFX->m_pBuffer_R );
@@ -1361,16 +1363,15 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	timeval renderTime_end = currentTime2();
 	timeval ladspaTime_start = renderTime_end;
 
-#ifdef H2CORE_HAVE_LADSPA
-	// Process LADSPA FX
+	// Process FX
 	if ( m_audioEngineState >= STATE_READY ) {
 		for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-			H2FX *pFX = Effects::get_instance()->getLadspaFX( nFX );
+			H2FX *pFX = Effects::get_instance()->getFX( nFX );
 			if ( ( pFX ) && ( pFX->isEnabled() ) ) {
 				pFX->processFX( nframes );
 
 				float *buf_L, *buf_R;
-				if ( pFX->getPluginType() == LadspaFX::STEREO_FX ) {
+				if ( pFX->getPluginType() == H2FX::STEREO_FX ) {
 					buf_L = pFX->m_pBuffer_L;
 					buf_R = pFX->m_pBuffer_R;
 				} else { // MONO FX
@@ -1392,41 +1393,6 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			}
 		}
 	}
-#endif
-	
-#ifdef H2CORE_HAVE_LILV
-	// Process LV2
-	if ( m_audioEngineState >= STATE_READY ) {
-		//for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-			int nFX = 0;
-			Lv2FX *pFX = Effects::get_instance()->m_pLv2FX;
-			if ( ( pFX ) && ( pFX->isEnabled() ) ) {
-				pFX->processFX( nframes );
-
-				float *buf_L, *buf_R;
-				if ( pFX->getPluginType() == Lv2FX::STEREO_FX ) {
-					buf_L = pFX->m_pBuffer_L;
-					buf_R = pFX->m_pBuffer_R;
-				} else { // MONO FX
-					buf_L = pFX->m_pBuffer_L;
-					buf_R = buf_L;
-				}
-
-				for ( unsigned i = 0; i < nframes; ++i ) {
-					m_pMainBuffer_L[ i ] += buf_L[ i ];
-					m_pMainBuffer_R[ i ] += buf_R[ i ];
-					if ( buf_L[ i ] > m_fFXPeak_L[nFX] )
-						m_fFXPeak_L[nFX] = buf_L[ i ];
-
-					if ( buf_R[ i ] > m_fFXPeak_R[nFX] )
-						m_fFXPeak_R[nFX] = buf_R[ i ];
-				}
-			}
-		}
-	//}
-#endif
-
-	
 	
 	timeval ladspaTime_end = currentTime2();
 
@@ -1539,14 +1505,14 @@ void audioEngine_setupLadspaFX( unsigned nBufferSize )
 	
 #ifdef H2CORE_HAVE_LADSPA
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		H2FX *pFX = Effects::get_instance()->getLadspaFX( nFX );
+		H2FX *pFX = Effects::get_instance()->getFX( nFX );
 		if ( pFX == nullptr ) {
 			return;
 		}
 
 		pFX->deactivate();
 
-		Effects::get_instance()->getLadspaFX( nFX )->connectAudioPorts(
+		Effects::get_instance()->getFX( nFX )->connectAudioPorts(
 					pFX->m_pBuffer_L,
 					pFX->m_pBuffer_R,
 					pFX->m_pBuffer_L,
@@ -3568,21 +3534,14 @@ void Hydrogen::setPatternPos( int pos )
 
 void Hydrogen::getLadspaFXPeak( int nFX, float *fL, float *fR )
 {
-#ifdef H2CORE_HAVE_LADSPA
 	( *fL ) = m_fFXPeak_L[nFX];
 	( *fR ) = m_fFXPeak_R[nFX];
-#else
-	( *fL ) = 0;
-	( *fR ) = 0;
-#endif
 }
 
 void Hydrogen::setLadspaFXPeak( int nFX, float fL, float fR )
 {
-#ifdef H2CORE_HAVE_LADSPA
 	m_fFXPeak_L[nFX] = fL;
 	m_fFXPeak_R[nFX] = fR;
-#endif
 }
 
 void Hydrogen::onTapTempoAccelEvent()

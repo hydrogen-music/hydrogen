@@ -54,7 +54,7 @@ public:
 	static Effects* get_instance() { assert(__instance); return __instance; }
 	~Effects();
 
-	H2FX* getLadspaFX( int nFX );
+	H2FX* getFX( int nFX );
 	void  setLadspaFX( H2FX* pFX, int nFX );
 	
 	void                       fillLV2PluginList();

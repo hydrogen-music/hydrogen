@@ -27,11 +27,12 @@
 namespace H2Core
 {
 
-class Lv2FX;
 class LadspaFX;
-
 class LadspaFXInfo;
+
+class Lv2FX;
 class LV2FXInfo;
+
 
 class H2FXInfo : public H2Core::Object
 {

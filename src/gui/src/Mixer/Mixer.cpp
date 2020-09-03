@@ -692,7 +692,7 @@ void Mixer::updateMixer()
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
-		H2FX *pFX = Effects::get_instance()->getLadspaFX( nFX );
+		H2FX *pFX = Effects::get_instance()->getFX( nFX );
 		if ( pFX ) {
 			m_pLadspaFXLine[nFX]->setName( pFX->getPluginName() );
 			float fNewPeak_L = 0.0;
@@ -839,7 +839,7 @@ void Mixer::ladspaActiveBtnClicked( LadspaFXMixerLine* ref )
 
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		if (ref == m_pLadspaFXLine[ nFX ] ) {
-			H2FX *pFX = Effects::get_instance()->getLadspaFX(nFX);
+			H2FX *pFX = Effects::get_instance()->getFX(nFX);
 			if (pFX) {
 				pFX->setEnabled( bActive );
 			}
@@ -879,7 +879,7 @@ void Mixer::ladspaVolumeChanged( LadspaFXMixerLine* ref)
 
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		if (ref == m_pLadspaFXLine[ nFX ] ) {
-			H2FX *pFX = Effects::get_instance()->getLadspaFX(nFX);
+			H2FX *pFX = Effects::get_instance()->getFX(nFX);
 			if (pFX) {
 				pFX->setVolume( ref->getVolume() );
 				QString sInfo = tr( "Set LADSPA FX ( %1 ) volume").arg( QString(pFX->getPluginName() ) );

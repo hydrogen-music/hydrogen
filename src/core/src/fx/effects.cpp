@@ -93,7 +93,7 @@ Effects::~Effects()
 
 
 
-H2FX* Effects::getLadspaFX( int nFX )
+H2FX* Effects::getFX( int nFX )
 {
 	assert( nFX < MAX_FX );
 	return m_FXList[ nFX ];

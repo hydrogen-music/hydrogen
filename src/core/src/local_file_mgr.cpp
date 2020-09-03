@@ -599,7 +599,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 
 	for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 		QDomNode fxNode = doc.createElement( "fx" );
-		H2FX *pH2FX = Effects::get_instance()->getLadspaFX( nFX );
+		H2FX *pH2FX = Effects::get_instance()->getFX( nFX );
 
 #ifdef H2CORE_HAVE_LADSPA
 		if ( pH2FX && pH2FX->isLadspaFX() ) {

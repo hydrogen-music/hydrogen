@@ -951,10 +951,10 @@ bool Sampler::__render_note_no_resample(
 	pNote->get_instrument()->set_peak_r( fInstrPeak_R );
 
 
-#ifdef H2CORE_HAVE_LADSPA
-	// LADSPA
+#if defined (H2CORE_HAVE_LADSPA) || defined(H2CORE_HAVE_LILV)
 	// change the below return logic if you add code after that ifdef
 	if (pNote->get_instrument()->is_muted() || pSong->__is_muted) return retValue;
+    
 	float masterVol =  pSong->get_volume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		H2FX *pFX = Effects::get_instance()->getLadspaFX( nFX );
@@ -979,15 +979,8 @@ bool Sampler::__render_note_no_resample(
 			}
 		}
 	}
-	// ~LADSPA
+	// ~LADSPA || LILV
 #endif
-	
-	/*
-	LilvInstance* pLilvInstance = Effects::get_instance()->m_pLv2Instance;
-	if( pLilvInstance) {
-		lilv_instance_connect_port(pLilvInstance, )
-	}
-	*/
 
 	return retValue;
 }
