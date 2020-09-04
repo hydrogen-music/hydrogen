@@ -1253,6 +1253,7 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 #endif
 }
 
+
 int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 {
 	// ___INFOLOG( QString( "[begin] status: %1, frame: %2, ticksize: %3, bpm: %4" )
@@ -1265,6 +1266,22 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// Resetting all audio output buffers with zeros.
 	audioEngine_process_clearAudioBuffers( nframes );
 
+	// Calculate maximum time to wait for audio engine lock. Using the
+	// last calculated processing time as an estimate of the expected
+	// processing time for this frame, the amount of slack time that
+	// we can afford to wait is: m_fMaxProcessTime - m_fProcessTime.
+
+	float sampleRate = ( float )m_pAudioDriver->getSampleRate();
+	m_fMaxProcessTime = 1000.0 / ( sampleRate / nframes );
+	float fSlackTime = m_fMaxProcessTime - m_fProcessTime;
+
+	// If we expect to take longer than the available time to process,
+	// require immediate locking or not at all: we're bound to drop a
+	// buffer anyway.
+	if ( fSlackTime < 0.0 ) {
+		fSlackTime = 0.0;
+	}
+
 	/*
 	 * The "try_lock" was introduced for Bug #164 (Deadlock after during
 	 * alsa driver shutdown). The try_lock *should* only fail in rare circumstances
@@ -1272,11 +1289,15 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	 * audio processing. Returning the special return value "2" enables the disk 
 	 * writer driver to repeat the processing of the current data.
 	 */
-	if(!AudioEngine::get_instance()->try_lock( RIGHT_HERE )) {
+				
+	if ( !AudioEngine::get_instance()->try_lock_for( std::chrono::microseconds( (int)(1000.0*fSlackTime) ),
+													 RIGHT_HERE ) ) {
+		___ERRORLOG( QString( "Failed to lock audioEngine in allowed %1 ms, missed buffer" ).arg( fSlackTime ) );
+
 		if ( m_pAudioDriver->class_name() == DiskWriterDriver::class_name() ) {
 			return 2;	// inform the caller that we could not aquire the lock
 		}
-		
+
 		return 0;
 	}
 
@@ -1395,6 +1416,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 #endif
 	timeval ladspaTime_end = currentTime2();
 
+
 	// update master peaks
 	float val_L, val_R;
 	if ( m_audioEngineState >= STATE_READY ) {
@@ -1435,9 +1457,6 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	m_fProcessTime =
 			( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
 			+ ( finishTimeval.tv_usec - startTimeval.tv_usec ) / 1000.0;
-
-	float sampleRate = ( float )m_pAudioDriver->getSampleRate();
-	m_fMaxProcessTime = 1000.0 / ( sampleRate / nframes );
 
 #ifdef CONFIG_DEBUG
 	if ( m_fProcessTime > m_fMaxProcessTime ) {
