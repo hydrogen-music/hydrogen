@@ -28,12 +28,10 @@ $CMD ../../data/i18n/hydrogen_es.ts
 $CMD ../../data/i18n/hydrogen_ru.ts
 $CMD ../../data/i18n/hydrogen_fr.ts
 $CMD ../../data/i18n/hydrogen_pt_BR.ts
-$CMD ../../data/i18n/hydrogen_hu_HU.ts
 $CMD ../../data/i18n/hydrogen_pl.ts
 $CMD ../../data/i18n/hydrogen_nl.ts
 $CMD ../../data/i18n/hydrogen_ja.ts
 $CMD ../../data/i18n/hydrogen_de.ts
-$CMD ../../data/i18n/hydrogen_sv.ts
 $CMD ../../data/i18n/hydrogen_hr.ts
 $CMD ../../data/i18n/hydrogen_cs.ts
 $CMD ../../data/i18n/hydrogen_el.ts
