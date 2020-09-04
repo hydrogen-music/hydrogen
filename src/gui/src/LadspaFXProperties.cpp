@@ -383,7 +383,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 			Song *pSong = (Hydrogen::get_instance() )->getSong();
 			pSong->set_is_modified(true);
 
-			Effects::get_instance()->setLadspaFX( pFX, m_nLadspaFX );
+			Effects::get_instance()->setFX( pFX, m_nLadspaFX );
 
 			//AudioEngine::get_instance()->unlock();
 			Hydrogen::get_instance()->restartLadspaFX();
@@ -400,7 +400,7 @@ void LadspaFXProperties::removeFXBtnClicked()
 {
 	Song *pSong = (Hydrogen::get_instance() )->getSong();
 	pSong->set_is_modified( true );
-	Effects::get_instance()->setLadspaFX( nullptr, m_nLadspaFX );
+	Effects::get_instance()->setFX( nullptr, m_nLadspaFX );
 	Hydrogen::get_instance()->restartLadspaFX();
 	updateControls();	
 }

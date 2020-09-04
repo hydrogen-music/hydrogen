@@ -23,6 +23,7 @@
 
 #include <hydrogen/Preferences.h>
 #include <hydrogen/fx/LadspaFX.h>
+#include <hydrogen/fx/LV2FX.h>
 #include <hydrogen/fx/H2FX.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/helpers/filesystem.h>
@@ -101,10 +102,9 @@ H2FX* Effects::getFX( int nFX )
 
 
 
-void  Effects::setLadspaFX( H2FX* pFX, int nFX )
+void  Effects::setFX( H2FX* pFX, int nFX )
 {
 	assert( nFX < MAX_FX );
-	//INFOLOG( "[setLadspaFX] FX: " + pFX->getPluginLabel() + ", " + to_string( nFX ) );
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 

@@ -1159,7 +1159,7 @@ Song* SongReader::readSong( const QString& filename )
 	for ( int fx = 0; fx < MAX_FX; ++fx ) {
 		//LadspaFX* pFX = Effects::get_instance()->getLadspaFX( fx );
 		//delete pFX;
-		Effects::get_instance()->setLadspaFX( nullptr, fx );
+		Effects::get_instance()->setFX( nullptr, fx );
 	}
 #endif
 
@@ -1180,7 +1180,7 @@ Song* SongReader::readSong( const QString& filename )
 #ifdef H2CORE_HAVE_LADSPA
 				if(sType == "LADSPA") {
 					LadspaFX* pFX = LadspaFX::load( sFilename, sName, 44100 );
-					Effects::get_instance()->setLadspaFX( pFX, nFX );
+					Effects::get_instance()->setFX( pFX, nFX );
 					if ( pFX ) {
 						pFX->setEnabled( bEnabled );
 						pFX->setVolume( fVolume );
@@ -1204,7 +1204,7 @@ Song* SongReader::readSong( const QString& filename )
 #ifdef H2CORE_HAVE_LILV
 				if(sType == "LV2") {
 					Lv2FX* pFX = Lv2FX::load( sName, 44100 );
-					Effects::get_instance()->setLadspaFX( pFX, nFX );
+					Effects::get_instance()->setFX( pFX, nFX );
 					if ( pFX ) {
 						pFX->setEnabled( bEnabled );
 						pFX->setVolume( fVolume );

@@ -55,7 +55,7 @@ public:
 	~Effects();
 
 	H2FX* getFX( int nFX );
-	void  setLadspaFX( H2FX* pFX, int nFX );
+	void  setFX( H2FX* pFX, int nFX );
 	
 	void                       fillLV2PluginList();
 	void                       fillLadspaPluginList();

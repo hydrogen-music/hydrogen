@@ -41,25 +41,12 @@ class LadspaFXInfo;
 class LV2FXInfo;
 
 
-
 class LadspaFXInfo : public H2Core::H2FXInfo
 {
 	H2_OBJECT
 public:
 	LadspaFXInfo( const QString& sName );
 	~LadspaFXInfo();
-	
-	LV2FXInfo*		isLV2FXInfo() override;
-	LadspaFXInfo*	isLadspaFXInfo() override;
-};
-
-
-class LV2FXInfo : public H2Core::H2FXInfo
-{
-	H2_OBJECT
-public:
-	LV2FXInfo( const QString& sName );
-	~LV2FXInfo();
 	
 	LV2FXInfo*		isLV2FXInfo() override;
 	LadspaFXInfo*	isLadspaFXInfo() override;

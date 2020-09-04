@@ -61,13 +61,14 @@ class LadspaFXSelector : public QDialog, public Ui_LadspaFXSelector_UI, public H
 		QString m_sSelectedPluginName;
 		void buildLadspaGroups();
 
-#ifdef H2CORE_HAVE_LADSPA
+#if defined(H2CORE_HAVE_LADSPA) || defined (H2CORE_HAVE_LILV)
 		void addGroup(QTreeWidgetItem *parent, H2Core::H2FXGroup *pGroup);
 		void addGroup( QTreeWidget *parent, H2Core::H2FXGroup *pGroup );
 		void buildGroup(QTreeWidgetItem *pNewItem, H2Core::H2FXGroup *pGroup);
+#endif
 
 		std::vector<H2Core::H2FXInfo*> findPluginsInGroup( const QString& sSelectedGroup, H2Core::H2FXGroup *pGroup );
-#endif
+
 
 };
 

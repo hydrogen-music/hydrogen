@@ -1482,28 +1482,8 @@ void audioEngine_setupLadspaFX( unsigned nBufferSize )
 		___ERRORLOG( "nBufferSize=0" );
 		return;
 	}
-
-#ifdef H2CORE_HAVE_LILV
-	//for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
-		Lv2FX *pFX = Effects::get_instance()->m_pLv2FX;
-		if ( pFX == nullptr ) {
-			___ERRORLOG( "pFX=0" );
-			return;
-		}
-
-		pFX->deactivate();
-
-		pFX->connectAudioPorts(
-					pFX->m_pBuffer_L,
-					pFX->m_pBuffer_R,
-					pFX->m_pBuffer_L,
-					pFX->m_pBuffer_R
-					);
-		pFX->activate();
-	//}
-#endif
 	
-#ifdef H2CORE_HAVE_LADSPA
+#if defined (H2CORE_HAVE_LADSPA) || defined (H2CORE_HAVE_LILV)
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		H2FX *pFX = Effects::get_instance()->getFX( nFX );
 		if ( pFX == nullptr ) {

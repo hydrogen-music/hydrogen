@@ -111,7 +111,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		void setScrollStatusBarMessage( const QString& msg, int msec = 0, bool test = true );
 		void updateWindowTitle();
 
-#ifdef H2CORE_HAVE_LADSPA
+#if defined (H2CORE_HAVE_LADSPA) || defined (H2CORE_HAVE_LILV)
 		LadspaFXProperties* getLadspaFXProperties(uint nFX) {	return m_pLadspaFXProperties[nFX];	}
 #endif
 		void addEventListener( EventListener* pListener );
@@ -182,7 +182,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 	private:
 		static HydrogenApp *		m_pInstance;	///< HydrogenApp instance
 
-#ifdef H2CORE_HAVE_LADSPA
+#if defined (H2CORE_HAVE_LADSPA) || defined (H2CORE_HAVE_LILV)
 		LadspaFXProperties *		m_pLadspaFXProperties[MAX_FX];
 #endif
 

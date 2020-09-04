@@ -27,13 +27,25 @@
 
 #include <vector>
 #include <list>
-#include "ladspa.h"
 #include <hydrogen/object.h>
 #include <lilv-0/lilv/lilv.h>
 #include "H2FX.h"
 
 namespace H2Core
 {
+
+class LadspaFXInfo;
+
+class LV2FXInfo : public H2Core::H2FXInfo
+{
+	H2_OBJECT
+public:
+	LV2FXInfo( const QString& sName );
+	~LV2FXInfo();
+	
+	LV2FXInfo*		isLV2FXInfo() override;
+	LadspaFXInfo*	isLadspaFXInfo() override;
+};
 
 class Lv2FX : public H2Core::H2FX
 {

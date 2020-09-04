@@ -30,13 +30,37 @@
 #include <algorithm>
 #include <cstdio>
 #include <vector>
-using namespace std;
 
 namespace H2Core
 {
 
 ///////////////////
 
+const char* LV2FXInfo::__class_name = "LV2FXInfo";
+
+LV2FXInfo::LV2FXInfo( const QString& sName )
+		: H2FXInfo( sName )
+{
+//	infoLog( "INIT - " + sName );
+}
+
+
+LV2FXInfo::~LV2FXInfo()
+{
+//	infoLog( "DESTROY " + m_sName );
+}
+
+LadspaFXInfo* LV2FXInfo::isLadspaFXInfo()
+{
+	return nullptr;
+}
+
+LV2FXInfo* LV2FXInfo::isLV2FXInfo()
+{
+	return this;
+}
+
+///////////////////
 
 const char* Lv2FX::__class_name = "Lv2FX";
 

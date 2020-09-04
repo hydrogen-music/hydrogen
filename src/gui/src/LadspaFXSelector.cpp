@@ -61,7 +61,6 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 
 	m_pGroupsListView->setHeaderLabels( QStringList( tr( "Groups" ) ) );
 
-#ifdef H2CORE_HAVE_LADSPA
 	H2FX *pFX = Effects::get_instance()->getFX(nLadspaFX);
 	if (pFX) {
 		m_sSelectedPluginName = pFX->getPluginName();
@@ -69,8 +68,6 @@ LadspaFXSelector::LadspaFXSelector(int nLadspaFX)
 	buildLadspaGroups();
 
 	m_pGroupsListView->headerItem()->setHidden( true );
-
-#endif
 
 	connect( m_pPluginsListBox, SIGNAL( itemSelectionChanged () ), this, SLOT( pluginSelected() ) );
 	pluginSelected();
@@ -87,7 +84,7 @@ LadspaFXSelector::~LadspaFXSelector()
 
 void LadspaFXSelector::buildLadspaGroups()
 {
-#ifdef H2CORE_HAVE_LADSPA
+#if defined (H2CORE_HAVE_LADSPA) || defined (H2CORE_HAVE_LILV)
 	m_pGroupsListView->clear();
 	
 	H2Core::H2FXGroup* pFXGroup = Effects::get_instance()->getLadspaFXGroup();
@@ -108,7 +105,7 @@ void LadspaFXSelector::buildLadspaGroups()
 
 
 
-#ifdef H2CORE_HAVE_LADSPA
+#if defined (H2CORE_HAVE_LADSPA) || defined (H2CORE_HAVE_LILV)
 void LadspaFXSelector::addGroup( QTreeWidget *parent, H2Core::H2FXGroup *pGroup )
 {
 	QTreeWidgetItem* pNewItem = new QTreeWidgetItem( parent );
@@ -164,7 +161,7 @@ QString LadspaFXSelector::getSelectedFX()
 
 void LadspaFXSelector::pluginSelected()
 {
-#ifdef H2CORE_HAVE_LADSPA
+#if defined (H2CORE_HAVE_LADSPA) || defined (H2CORE_HAVE_LILV)
 	//INFOLOG( "[pluginSelected]" );
 	//
 
@@ -215,7 +212,7 @@ void LadspaFXSelector::pluginSelected()
 void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem * currentItem, QTreeWidgetItem * previous )
 {
 	UNUSED( previous );
-#ifdef H2CORE_HAVE_LADSPA
+#if defined (H2CORE_HAVE_LADSPA) || defined (H2CORE_HAVE_LILV)
 	//INFOLOG( "new selection: " + currentItem->text(0).toLocal8Bit().constData() );
 
 	m_pOkBtn->setEnabled(false);
@@ -252,14 +249,12 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 
 		if( pluginList[ i ]->isLadspaFXInfo() ) {
 			QVariant PluginType("LADSPA");
-			std::cout << "Found ladspa fx info" << std::endl;
 			listWidgetItem->setData( Qt::UserRole, PluginType );
 		} else if( pluginList[ i ]->isLV2FXInfo() ) {
 			QVariant PluginType("LV2");
-			std::cout << "Found lv2 fx info" << std::endl;
 			listWidgetItem->setData( Qt::UserRole, PluginType );
 		} else {
-			std::cout << "ERROR: No LV2 or LADSPA" << std::endl;
+			continue;
 		}
 		
 		m_pPluginsListBox->addItem( listWidgetItem );
@@ -273,8 +268,6 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 #endif
 }
 
-
-#ifdef H2CORE_HAVE_LADSPA
 std::vector<H2Core::H2FXInfo*> LadspaFXSelector::findPluginsInGroup( const QString& sSelectedGroup, H2Core::H2FXGroup *pGroup )
 {
 	//INFOLOG( "group: " + sSelectedGroup );
@@ -302,4 +295,3 @@ std::vector<H2Core::H2FXInfo*> LadspaFXSelector::findPluginsInGroup( const QStri
 	//WARNINGLOG( "[findPluginsInGroup] no group found ('" + sSelectedGroup + "')" );
 	return list;
 }
-#endif

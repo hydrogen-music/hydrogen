@@ -150,7 +150,7 @@ HydrogenApp::~HydrogenApp()
 		delete pSong;
 	}
 
-	#ifdef H2CORE_HAVE_LADSPA
+	#if defined (H2CORE_HAVE_LADSPA) || defined (H2CORE_HAVE_LILV)
 	for (uint nFX = 0; nFX < MAX_FX; nFX++) {
 		delete m_pLadspaFXProperties[nFX];
 	}
