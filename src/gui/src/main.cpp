@@ -149,9 +149,8 @@ int main(int argc, char *argv[])
 		QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 
-		QApplication* pQApp = new QApplication( argc, argv );
-		pQApp->setApplicationName( "Hydrogen" );
-		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
+		// Create bootstrap QApplication to get H2 Core set up with correct Filesystem paths before starting GUI application.
+		QCoreApplication *pBootStrApp = new QCoreApplication( argc, argv );
 		
 		QCommandLineParser parser;
 		
@@ -189,7 +188,7 @@ int main(int argc, char *argv[])
 		#endif
 			
 		// Evaluate the options
-		parser.process(*pQApp);
+		parser.process( *pBootStrApp );
 		QString sSelectedDriver = parser.value( audioDriverOption );
 		QString sDrumkitName = parser.value( installDrumkitOption );
 		bool	bNoSplash = parser.isSet( noSplashScreenOption );
@@ -279,6 +278,12 @@ int main(int argc, char *argv[])
 		else if ( sSelectedDriver == "alsa" ) {
 			pPref->m_sAudioDriver = "Alsa";
 		}
+
+		// Bootstrap is complete, start GUI
+		delete pBootStrApp;
+		QApplication* pQApp = new QApplication( argc, argv );
+		pQApp->setApplicationName( "Hydrogen" );
+		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
 
 		QString family = pPref->getApplicationFontFamily();
 		pQApp->setFont( QFont( family, pPref->getApplicationFontPointSize() ) );
