@@ -7,7 +7,7 @@ import os.path
 FILES = [
     "hydrogen.exe",
     "data/hydrogen.default.conf",
-    "data/i18n/hydrogen_hu_HU.qm"
+    "data/i18n/hydrogen_fr.qm"
 ]
 
 ROOT = os.getenv("INSTDIR", default=r"C:\Program Files\Hydrogen")
