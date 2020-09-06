@@ -84,7 +84,6 @@ public:
       return false;
     }
     QString transName = fileName + "_" + language + ".qm";
-    qDebug() << "XXX Loading translation " << transName;
     return tor.load( transName, directory );
 
   }
