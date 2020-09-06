@@ -110,7 +110,7 @@ Logger* Logger::create_instance() {
 	return __instance;
 }
 
-Logger::Logger() : __use_file( false ), __running( true ) {
+Logger::Logger() : __use_file( true ), __running( true ) {
 	__instance = this;
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );

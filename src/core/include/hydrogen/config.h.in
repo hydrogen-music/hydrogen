@@ -33,6 +33,9 @@
 #cmakedefine HAVE_RTCLOCK
 #cmakedefine HAVE_JACK_PORT_RENAME
 
+#ifndef H2CORE_HAVE_LV2PLUGIN
+#cmakedefine H2CORE_HAVE_LV2PLUGIN
+#endif
 #ifndef H2CORE_HAVE_DEBUG
 #cmakedefine H2CORE_HAVE_DEBUG
 #endif

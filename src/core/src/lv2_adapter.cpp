@@ -24,6 +24,7 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include "hydrogen/logger.h"
 #include <hydrogen/object.h>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/Preferences.h>
@@ -32,24 +33,39 @@
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/midi_map.h>
+#include <hydrogen/IO/MidiInput.h>
+#include <hydrogen/IO/LV2MidiDriver.h>
+#include <hydrogen/IO/LV2AudioDriver.h>
 
 #include "lv2/lv2plug.in/ns/lv2core/lv2.h"
+#include "lv2/lv2plug.in/ns/ext/atom/atom.h"
+#include "lv2/lv2plug.in/ns/ext/atom/util.h"
+#include "lv2/lv2plug.in/ns/ext/midi/midi.h"
+#include "lv2/lv2plug.in/ns/ext/urid/urid.h"
+
+
 
 #define H2_URI "http://lv2plug.in/plugins/h2"
 
 typedef enum {
-	AMP_GAIN   = 0,
-	AMP_INPUT  = 1,
-	AMP_OUTPUT = 2
+	H2_OUTPUT_L = 0,
+	H2_OUTPUT_R = 1,
+	H2_CONTROL = 2
 } PortIndex;
 
 typedef struct {
-	// Port buffers
-	const float* gain;
-	const float* input;
-	float*       output;
-} Amp;
+		// Port buffers
+		const LV2_Atom_Sequence* control;
+		float*                   out_L;
+		float*                   out_R;
 
+		// Features
+		LV2_URID_Map* map;
+
+		struct {
+			LV2_URID midi_MidiEvent;
+		} uris;
+} H2Lv2Adapter;
 
 static LV2_Handle
 instantiate(const LV2_Descriptor*     descriptor,
@@ -57,6 +73,22 @@ instantiate(const LV2_Descriptor*     descriptor,
             const char*               bundle_path,
             const LV2_Feature* const* features)
 {
+	LV2_URID_Map* map = nullptr;
+	for (int i = 0; features[i]; ++i) {
+			if (!strcmp(features[i]->URI, LV2_URID__map)) {
+					map = (LV2_URID_Map*)features[i]->data;
+					break;
+			}
+	}
+	if (!map) {
+		return nullptr;
+	}
+	
+	H2Lv2Adapter* self = (H2Lv2Adapter*)calloc(1, sizeof(H2Lv2Adapter));
+	self->map = map;
+	self->uris.midi_MidiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
+	
+	
 	unsigned logLevelOpt = H2Core::Logger::Error;
 	H2Core::Logger::create_instance();
 	H2Core::Logger::set_bit_mask( logLevelOpt );
@@ -67,23 +99,22 @@ instantiate(const LV2_Descriptor*     descriptor,
 
 	H2Core::Filesystem::bootstrap( logger );
 
-	QString filename = "/hla";
 
 	MidiMap::create_instance();
 	H2Core::Preferences::create_instance();
 	H2Core::Hydrogen::create_instance();
-	H2Core::Preferences *preferences = H2Core::Preferences::get_instance();
-
-	/*
-	H2Core::Song *pSong = H2Core::Song::load( filename );
-	if (pSong == nullptr) {
-		cout << "Error loading song!" << endl;
-		exit(2);
-	}*/
-
-	H2Core::Hydrogen *hydrogen = H2Core::Hydrogen::get_instance();
 	
-	return (LV2_Handle) hydrogen;
+	QString filename = "/home/sebastian/src/hydrogen/data/DefaultSong.h2song";
+	H2Core::Song *pSong = H2Core::Song::load( filename );
+
+	//Misuse the central config here to store our LV2 driver specific properties
+	H2Core::Preferences* pPref = H2Core::Preferences::get_instance();
+	pPref->m_nSampleRate = rate;
+	
+	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
+	pHydrogen->setSong( pSong );
+	
+	return (LV2_Handle) self;
 }
 
 static void
@@ -91,21 +122,20 @@ connect_port(LV2_Handle instance,
              uint32_t   port,
              void*      data)
 {
-	/*
-	Amp* amp = (Amp*)instance;
+
+	H2Lv2Adapter* pH2Lv2Adapter = (H2Lv2Adapter*)instance;
 
 	switch ((PortIndex)port) {
-	case AMP_GAIN:
-		amp->gain = (const float*)data;
-		break;
-	case AMP_INPUT:
-		amp->input = (const float*)data;
-		break;
-	case AMP_OUTPUT:
-		amp->output = (float*)data;
-		break;
+		case H2_OUTPUT_L:
+			pH2Lv2Adapter->out_L = (float*)data;
+			break;
+		case H2_OUTPUT_R:
+			pH2Lv2Adapter->out_R = (float*)data;
+			break;
+		case H2_CONTROL:
+			pH2Lv2Adapter->control = (const LV2_Atom_Sequence*)data;
+			break;
 	}
-	*/
 }
 
 static void
@@ -121,25 +151,58 @@ deactivate(LV2_Handle instance)
 static void
 run(LV2_Handle instance, uint32_t n_samples)
 {
-	/*
-	const Amp* amp = (const Amp*)instance;
+	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
+	H2Core::LV2MidiDriver *lv2MidiDriver = dynamic_cast< H2Core::LV2MidiDriver* >( pHydrogen->getMidiInput() );
+	H2Core::LV2AudioDriver *lv2AudioDriver = dynamic_cast< H2Core::LV2AudioDriver* >( pHydrogen->getAudioOutput() );
+	H2Lv2Adapter* self   = (H2Lv2Adapter*) instance;
 
-	const float        gain   = *(amp->gain);
-	const float* const input  = amp->input;
-	float* const       output = amp->output;
+	LV2_ATOM_SEQUENCE_FOREACH(self->control, ev) {
+			
+			if (ev->body.type == self->uris.midi_MidiEvent) {
+					
+					H2Core::MidiMessage midiMsg;
 
-	const float coef = DB_CO(gain);
-
-	for (uint32_t pos = 0; pos < n_samples; pos++) {
-		output[pos] = input[pos] * coef;
+					const uint8_t* const pRawLv2Msg = (const uint8_t*)(ev + 1);
+					switch (lv2_midi_message_type(pRawLv2Msg)) {
+						case LV2_MIDI_MSG_NOTE_ON:
+									midiMsg.m_type = H2Core::MidiMessage::NOTE_ON;
+									midiMsg.m_nData1 =pRawLv2Msg[1];
+									midiMsg.m_nData2 = pRawLv2Msg[2];
+									midiMsg.m_nChannel = pRawLv2Msg[0];
+							
+									___ERRORLOG( QString( "Incoming NOTE ON midi message."));
+									lv2MidiDriver->forwardMidiMessage(midiMsg);
+								
+									break;
+						case LV2_MIDI_MSG_NOTE_OFF:
+								break;
+							
+						default: break;
+					}
+					
+					
+			}
 	}
-	*/
+
+	lv2AudioDriver->handleData(n_samples, self->out_L, self->out_R);
 }
 
 static void
 cleanup(LV2_Handle instance)
 {
-	//free(instance);
+	___ERRORLOG( QString( "Running Cleanup"));	
+	
+	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
+	
+	pHydrogen->sequencer_stop();
+
+	delete pHydrogen;
+	delete H2Core::EventQueue::get_instance();
+	delete H2Core::AudioEngine::get_instance();
+	delete H2Core::Preferences::get_instance();
+	delete H2Core::Logger::get_instance();
+	
+	free(instance);
 }
 
 static const void*

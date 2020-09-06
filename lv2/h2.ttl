@@ -1,5 +1,7 @@
+@prefix atom: <http://lv2plug.in/ns/ext/atom#> .
 @prefix doap:  <http://usefulinc.com/ns/doap#> .
 @prefix lv2:   <http://lv2plug.in/ns/lv2core#> .
+@prefix midi: <http://lv2plug.in/ns/ext/midi#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
@@ -9,59 +11,31 @@
 	a lv2:Plugin ,
 		lv2:AmplifierPlugin ;
     	lv2:project <http://lv2plug.in/ns/lv2> ;
+    
+	doap:maintainer "Sebastian Moors";
 
 	doap:name "Hydrogen LV2";
 	doap:license <http://opensource.org/licenses/isc> ;
 	lv2:optionalFeature lv2:hardRTCapable ;
 	lv2:port [
-# Every port must have at least two types, one that specifies direction
-# (lv2:InputPort or lv2:OutputPort), and another to describe the data type.
-# This port is a lv2:ControlPort, which means it contains a single float.
+		a lv2:AudioPort ,
+		lv2:OutputPort ;
+		lv2:index 0;
+		lv2:symbol "out_l" ;
+		lv2:name "Out (L)"
+	] , [
+		a lv2:AudioPort ,
+		lv2:OutputPort ;
+		lv2:index 1;
+		lv2:symbol "out_r" ;
+		lv2:name "Out (R)"
+	] , [
 		a lv2:InputPort ,
-			lv2:ControlPort ;
-		lv2:index 0 ;
-		lv2:symbol "gain" ;
-		lv2:name "Gain" ,
-			"收益"@ch ,
-			"Gewinn"@de ,
-			"Gain"@en-gb ,
-			"Aumento"@es ,
-			"Gain"@fr ,
-			"Guadagno"@it ,
-			"利益"@jp ,
-			"Увеличение"@ru ;
-# An lv2:ControlPort should always describe its default value, and usually a
-# minimum and maximum value.  Defining a range is not strictly required, but
-# should be done wherever possible to aid host support, particularly for UIs.
-		lv2:default 0.0 ;
-		lv2:minimum -90.0 ;
-		lv2:maximum 24.0 ;
-# Ports can describe units and control detents to allow better UI generation
-# and host automation.
-		units:unit units:db ;
-		lv2:scalePoint [
-			rdfs:label "+5" ;
-			rdf:value 5.0
-		] , [
-			rdfs:label "0" ;
-			rdf:value 0.0
-		] , [
-			rdfs:label "-5" ;
-			rdf:value -5.0
-		] , [
-			rdfs:label "-10" ;
-			rdf:value -10.0
-		]
-	] , [
-		a lv2:AudioPort ,
-			lv2:InputPort ;
-		lv2:index 1 ;
-		lv2:symbol "in" ;
-		lv2:name "In"
-	] , [
-		a lv2:AudioPort ,
-			lv2:OutputPort ;
-		lv2:index 2 ;
-		lv2:symbol "out" ;
-		lv2:name "Out"
-	] .
+		atom:AtomPort ;
+		atom:bufferType atom:Sequence ;
+		atom:supports midi:MidiEvent ;
+		lv2:designation lv2:control ;
+		lv2:index 2;
+		lv2:symbol "control" ;
+		lv2:name "Control"
+    	] .

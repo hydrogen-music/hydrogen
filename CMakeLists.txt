@@ -75,6 +75,8 @@ OPTION(WANT_PULSEAUDIO   "Include PulseAudio support" ON)
 OPTION(WANT_LASH         "Include LASH (Linux Audio Session Handler) support" OFF)
 OPTION(WANT_LRDF         "Include LRDF (Lightweight Resource Description Framework with special support for LADSPA plugins) support" OFF)
 OPTION(WANT_RUBBERBAND   "Include RubberBand (Audio Time Stretcher Library) support" OFF)
+OPTION(WANT_LV2PLUGIN    "Build LV2 plugin iso. standalone application" OFF)
+
 IF(APPLE)
     OPTION(WANT_COREAUDIO   "Include CoreAudio support" ON)
     OPTION(WANT_COREMIDI    "Include CoreMidi support" ON)
@@ -92,6 +94,10 @@ IF(WANT_DEBUG)
 ELSE()
     SET(CMAKE_BUILD_TYPE Release)
     SET(H2CORE_HAVE_DEBUG FALSE)
+ENDIF()
+
+IF(WANT_LV2PLUGIN)
+    SET(H2CORE_HAVE_LV2PLUGIN TRUE)
 ENDIF()
 
 OPTION(WANT_CLANG_TIDY "Use clang-tidy to check the sourcecode" OFF)
@@ -313,6 +319,7 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}
+* Build LV2 plugin             : ${H2CORE_HAVE_LV2PLUGIN}
 * fat build                    : ${WANT_FAT_BUILD}\n"
 )
 

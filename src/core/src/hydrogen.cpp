@@ -89,6 +89,8 @@
 #include <hydrogen/IO/PortMidiDriver.h>
 #include <hydrogen/IO/CoreAudioDriver.h>
 #include <hydrogen/IO/PulseAudioDriver.h>
+#include <hydrogen/IO/LV2AudioDriver.h>
+#include <hydrogen/IO/LV2MidiDriver.h>
 
 namespace H2Core
 {
@@ -2049,7 +2051,7 @@ void audioEngine_noteOn( Note *note )
  */
 AudioOutput* createDriver( const QString& sDriver )
 {
-	___INFOLOG( QString( "Driver: '%1'" ).arg( sDriver ) );
+	___WARNINGLOG( QString( "Driver: '%1'" ).arg( sDriver ) );
 	Preferences *pPref = Preferences::get_instance();
 	AudioOutput *pDriver = nullptr;
 
@@ -2096,6 +2098,13 @@ AudioOutput* createDriver( const QString& sDriver )
 	//#endif
 	else if ( sDriver == "PulseAudio" ) {
 		pDriver = new PulseAudioDriver( audioEngine_process );
+		if ( pDriver->class_name() == NullDriver::class_name() ) {
+			delete pDriver;
+			pDriver = nullptr;
+		}
+	}
+	else if( sDriver == "LV2") {
+		pDriver = new LV2AudioDriver( audioEngine_process );
 		if ( pDriver->class_name() == NullDriver::class_name() ) {
 			delete pDriver;
 			pDriver = nullptr;
@@ -2152,25 +2161,25 @@ void audioEngine_startAudioDrivers()
 	QString sAudioDriver = preferencesMng->m_sAudioDriver;
 	if ( sAudioDriver == "Auto" ) {
 	#ifndef WIN32
-		if ( ( m_pAudioDriver = createDriver( "Jack" ) ) == nullptr ) {
-			if ( ( m_pAudioDriver = createDriver( "Alsa" ) ) == nullptr ) {
-				if ( ( m_pAudioDriver = createDriver( "CoreAudio" ) ) == nullptr ) {
-					if ( ( m_pAudioDriver = createDriver( "PortAudio" ) ) == nullptr ) {
-						if ( ( m_pAudioDriver = createDriver( "Oss" ) ) == nullptr ) {
-							if ( ( m_pAudioDriver = createDriver( "PulseAudio" ) ) == nullptr ) {
-								audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
-								___ERRORLOG( "Error starting audio driver" );
-								___ERRORLOG( "Using the NULL output audio driver" );
-
-								// use the NULL output driver
-								m_pAudioDriver = new NullDriver( audioEngine_process );
-								m_pAudioDriver->init( 0 );
+			if ( ( m_pAudioDriver = createDriver( "Jack" ) ) == nullptr ) {
+				if ( ( m_pAudioDriver = createDriver( "Alsa" ) ) == nullptr ) {
+					if ( ( m_pAudioDriver = createDriver( "CoreAudio" ) ) == nullptr ) {
+						if ( ( m_pAudioDriver = createDriver( "PortAudio" ) ) == nullptr ) {
+							if ( ( m_pAudioDriver = createDriver( "Oss" ) ) == nullptr ) {
+								if ( ( m_pAudioDriver = createDriver( "PulseAudio" ) ) == nullptr ) {
+									audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
+									___ERRORLOG( "Error starting audio driver" );
+									___ERRORLOG( "Using the NULL output audio driver" );
+	
+									// use the NULL output driver
+									m_pAudioDriver = new NullDriver( audioEngine_process );
+									m_pAudioDriver->init( 0 );
+								}
 							}
 						}
 					}
 				}
 			}
-		}
 	#else
 		//On Windows systems, use PortAudio is the prioritized backend
 		if ( ( m_pAudioDriver = createDriver( "PortAudio" ) ) == nullptr ) {
@@ -2194,6 +2203,7 @@ void audioEngine_startAudioDrivers()
 		}
 	#endif
 	} else {
+	 #ifndef H2CORE_HAVE_LV2PLUGIN
 		m_pAudioDriver = createDriver( sAudioDriver );
 		if ( m_pAudioDriver == nullptr ) {
 			audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
@@ -2204,42 +2214,62 @@ void audioEngine_startAudioDrivers()
 			m_pAudioDriver = new NullDriver( audioEngine_process );
 			m_pAudioDriver->init( 0 );
 		}
+	#else
+		if ( ( m_pAudioDriver = createDriver( "LV2" ) ) == nullptr ) {
+			audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
+			___ERRORLOG( "Error starting audio driver" );
+			___ERRORLOG( "Using the NULL output audio driver" );
+		
+			// use the NULL output driver
+			m_pAudioDriver = new NullDriver( audioEngine_process );
+			m_pAudioDriver->init( 0 );
+		}
+	#endif
 	}
 
-	if ( preferencesMng->m_sMidiDriver == "ALSA" ) {
-#ifdef H2CORE_HAVE_ALSA
-		// Create MIDI driver
-		AlsaMidiDriver *alsaMidiDriver = new AlsaMidiDriver();
-		m_pMidiDriverOut = alsaMidiDriver;
-		m_pMidiDriver = alsaMidiDriver;
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
+#ifndef H2CORE_HAVE_LV2PLUGIN
+		if ( preferencesMng->m_sMidiDriver == "ALSA" ) {
+	#ifdef H2CORE_HAVE_ALSA
+			// Create MIDI driver
+			AlsaMidiDriver *alsaMidiDriver = new AlsaMidiDriver();
+			m_pMidiDriverOut = alsaMidiDriver;
+			m_pMidiDriver = alsaMidiDriver;
+			m_pMidiDriver->open();
+			m_pMidiDriver->setActive( true );
+	#endif
+		} else if ( preferencesMng->m_sMidiDriver == "PortMidi" ) {
+	#ifdef H2CORE_HAVE_PORTMIDI
+			PortMidiDriver* pPortMidiDriver = new PortMidiDriver();
+			m_pMidiDriver = pPortMidiDriver;
+			m_pMidiDriverOut = pPortMidiDriver;
+			m_pMidiDriver->open();
+			m_pMidiDriver->setActive( true );
+	#endif
+		} else if ( preferencesMng->m_sMidiDriver == "CoreMidi" ) {
+	#ifdef H2CORE_HAVE_COREMIDI
+			CoreMidiDriver *coreMidiDriver = new CoreMidiDriver();
+			m_pMidiDriver = coreMidiDriver;
+			m_pMidiDriverOut = coreMidiDriver;
+			m_pMidiDriver->open();
+			m_pMidiDriver->setActive( true );
+	#endif
+		} else if ( preferencesMng->m_sMidiDriver == "JackMidi" ) {
+	#ifdef H2CORE_HAVE_JACK
+			JackMidiDriver *jackMidiDriver = new JackMidiDriver();
+			m_pMidiDriverOut = jackMidiDriver;
+			m_pMidiDriver = jackMidiDriver;
+			m_pMidiDriver->open();
+			m_pMidiDriver->setActive( true );
+	#endif
+		}
+#else
+	LV2MidiDriver *lv2MidiDriver = new LV2MidiDriver();
+	m_pMidiDriver = lv2MidiDriver;
+	m_pMidiDriverOut = lv2MidiDriver;
+	m_pMidiDriver->open();
+	m_pMidiDriver->setActive( true );
 #endif
-	} else if ( preferencesMng->m_sMidiDriver == "PortMidi" ) {
-#ifdef H2CORE_HAVE_PORTMIDI
-		PortMidiDriver* pPortMidiDriver = new PortMidiDriver();
-		m_pMidiDriver = pPortMidiDriver;
-		m_pMidiDriverOut = pPortMidiDriver;
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
-	} else if ( preferencesMng->m_sMidiDriver == "CoreMidi" ) {
-#ifdef H2CORE_HAVE_COREMIDI
-		CoreMidiDriver *coreMidiDriver = new CoreMidiDriver();
-		m_pMidiDriver = coreMidiDriver;
-		m_pMidiDriverOut = coreMidiDriver;
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
-	} else if ( preferencesMng->m_sMidiDriver == "JackMidi" ) {
-#ifdef H2CORE_HAVE_JACK
-		JackMidiDriver *jackMidiDriver = new JackMidiDriver();
-		m_pMidiDriverOut = jackMidiDriver;
-		m_pMidiDriver = jackMidiDriver;
-		m_pMidiDriver->open();
-		m_pMidiDriver->setActive( true );
-#endif
-	}
+	
 
 	// change the current audio engine state
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
