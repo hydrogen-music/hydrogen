@@ -1,0 +1,29 @@
+# ==== Bundles ====
+#
+# LV2 plugins are installed in ``bundles'', a directory with a particular
+# format.  Inside the bundle, the entry point is a file called `manifest.ttl`.
+# The manifest lists the plugins (or other resources) that are in this bundle,
+# and the files that contain further information.
+#
+# Hosts typically read the `manifest.ttl` of every bundle when starting up to
+# discover what LV2 plugins and other resources are present.  Accordingly,
+# manifest files should be as small as possible for performance reasons.
+#
+#
+# ==== Namespace Prefixes ====
+#
+# Turtle files contain many URIs.  To make this more readable, prefixes can be
+# defined.  For example, with the `lv2:` prefix below, instead of
+# <http://lv2plug.in/ns/lv2core#Plugin> the shorter form `lv2:Plugin` can be
+# used.  This is just a shorthand for URIs within one file, the prefixes are
+# not significant otherwise.
+
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# ==== A Plugin Entry ====
+
+<http://lv2plug.in/plugins/h2>
+	a lv2:Plugin ;
+	lv2:binary <libhydrogen-core-1.1.0.so>;
+	rdfs:seeAlso <h2.ttl> .
