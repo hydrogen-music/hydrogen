@@ -96,6 +96,8 @@ Preferences::Preferences()
 		}
 	}
 
+	m_sPreferredLanguage = QString();
+
 	m_pDefaultUIStyle = new UIStyle();
 	m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
 
@@ -293,6 +295,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			}
 
 			//////// GENERAL ///////////
+			m_sPreferredLanguage = LocalFileMng::readXmlString( rootNode, "preferredLanguage", QString() );
 			__playselectedinstrument = LocalFileMng::readXmlBool( rootNode, "instrumentInputMode", __playselectedinstrument );
 			m_bShowDevelWarning = LocalFileMng::readXmlBool( rootNode, "showDevelWarning", m_bShowDevelWarning );
 			m_brestoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", m_brestoreLastSong );
@@ -683,6 +686,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "version", QString( get_version().c_str() ) );
 
 	////// GENERAL ///////
+	LocalFileMng::writeXmlString( rootNode, "preferredLanguage", m_sPreferredLanguage );
 	LocalFileMng::writeXmlString( rootNode, "restoreLastSong", m_brestoreLastSong ? "true": "false" );
 	LocalFileMng::writeXmlString( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist ? "true": "false" );
 

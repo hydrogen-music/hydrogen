@@ -65,6 +65,7 @@ public:
         QString transName = fileName + "_" + language + ".qm";
         QFileInfo fi( directory, transName );
         if ( fi.exists() && fi.isFile() ) {
+          language.replace( '_', '-' );
           return language;
         }
         int i = language.lastIndexOf( '_' );
@@ -83,6 +84,7 @@ public:
     if ( language.isNull() ) {
       return false;
     }
+    language.replace( '-', '_' );
     QString transName = fileName + "_" + language + ".qm";
     return tor.load( transName, directory );
 

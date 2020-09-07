@@ -329,7 +329,13 @@ int main(int argc, char *argv[])
 		QTranslator tor( nullptr );
 		QLocale locale = QLocale::system();
 		if ( locale != QLocale::c() ) {
-			if ( H2Core::Translations::loadTranslation( locale.uiLanguages(), qttor, QString( "qt" ),
+			QStringList languages;
+			QString sPreferredLanguage = pPref->getPreferredLanguage();
+			if ( !sPreferredLanguage.isNull() ) {
+				languages << sPreferredLanguage;
+			}
+			languages << locale.uiLanguages();
+			if ( H2Core::Translations::loadTranslation( languages, qttor, QString( "qt" ),
 														QLibraryInfo::location(QLibraryInfo::TranslationsPath) ) ) {
 				pQApp->installTranslator( &qttor );
 			} else {
@@ -338,7 +344,7 @@ int main(int argc, char *argv[])
 			
 			QString sTranslationPath = H2Core::Filesystem::i18n_dir();
 			QString sTranslationFile( "hydrogen" );
-			bool bTransOk = H2Core::Translations::loadTranslation( locale.uiLanguages(), tor, sTranslationFile, sTranslationPath );
+			bool bTransOk = H2Core::Translations::loadTranslation( languages, tor, sTranslationFile, sTranslationPath );
 			if (bTransOk) {
 				___INFOLOG( "Using locale: " + sTranslationPath );
 			} else {
