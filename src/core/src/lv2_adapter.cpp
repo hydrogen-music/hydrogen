@@ -21,9 +21,6 @@
  */
 
 #include <iostream>
-#include <cstdio>
-#include <cstdlib>
-
 #include "hydrogen/logger.h"
 #include <hydrogen/object.h>
 #include <hydrogen/hydrogen.h>
@@ -43,9 +40,7 @@
 #include "lv2/lv2plug.in/ns/ext/midi/midi.h"
 #include "lv2/lv2plug.in/ns/ext/urid/urid.h"
 
-
-
-#define H2_URI "http://lv2plug.in/plugins/h2"
+#define H2_URI "http://hydrogen-music.org/plugins/hydrogen"
 
 typedef enum {
 	H2_OUTPUT_L = 0,
@@ -94,18 +89,13 @@ instantiate(const LV2_Descriptor*     descriptor,
 	H2Core::Logger::set_bit_mask( logLevelOpt );
 	H2Core::Logger* logger = H2Core::Logger::get_instance();
 	H2Core::Object::bootstrap( logger, logger->should_log(H2Core::Logger::Debug) );
-
-	QCoreApplication a();
-
 	H2Core::Filesystem::bootstrap( logger );
-
 
 	MidiMap::create_instance();
 	H2Core::Preferences::create_instance();
 	H2Core::Hydrogen::create_instance();
 	
-	QString filename = "/home/sebastian/src/hydrogen/data/DefaultSong.h2song";
-	H2Core::Song *pSong = H2Core::Song::load( filename );
+	H2Core::Song *pSong = H2Core::Song::load( H2Core::Filesystem::empty_song_path() );
 
 	//Misuse the central config here to store our LV2 driver specific properties
 	H2Core::Preferences* pPref = H2Core::Preferences::get_instance();
@@ -170,7 +160,6 @@ run(LV2_Handle instance, uint32_t n_samples)
 									midiMsg.m_nData2 = pRawLv2Msg[2];
 									midiMsg.m_nChannel = pRawLv2Msg[0];
 							
-									___ERRORLOG( QString( "Incoming NOTE ON midi message."));
 									lv2MidiDriver->forwardMidiMessage(midiMsg);
 								
 									break;
@@ -179,8 +168,6 @@ run(LV2_Handle instance, uint32_t n_samples)
 							
 						default: break;
 					}
-					
-					
 			}
 	}
 
@@ -190,8 +177,6 @@ run(LV2_Handle instance, uint32_t n_samples)
 static void
 cleanup(LV2_Handle instance)
 {
-	___ERRORLOG( QString( "Running Cleanup"));	
-	
 	H2Core::Hydrogen* pHydrogen = H2Core::Hydrogen::get_instance();
 	
 	pHydrogen->sequencer_stop();

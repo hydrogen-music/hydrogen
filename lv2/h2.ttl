@@ -1,5 +1,6 @@
 @prefix atom: <http://lv2plug.in/ns/ext/atom#> .
 @prefix doap:  <http://usefulinc.com/ns/doap#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix lv2:   <http://lv2plug.in/ns/lv2core#> .
 @prefix midi: <http://lv2plug.in/ns/ext/midi#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -7,15 +8,15 @@
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
 
 
-<http://lv2plug.in/plugins/h2>
+<http://hydrogen-music.org/plugins/hydrogen>
 	a lv2:Plugin ,
-		lv2:AmplifierPlugin ;
-    	lv2:project <http://lv2plug.in/ns/lv2> ;
-    
-	doap:maintainer "Sebastian Moors";
-
-	doap:name "Hydrogen LV2";
-	doap:license <http://opensource.org/licenses/isc> ;
+		lv2:InstrumentPlugin;
+		lv2:project <http://lv2plug.in/ns/lv2> ;
+	doap:maintainer [
+	  foaf:name     "Hydrogen team" ;
+	  ];
+	doap:name "Hydrogen";
+	doap:license <https://opensource.org/licenses/GPL-2.0> ;
 	lv2:optionalFeature lv2:hardRTCapable ;
 	lv2:port [
 		a lv2:AudioPort ,
