@@ -379,7 +379,7 @@
         <translation>Exporter le fichier MIDI</translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation>Le répertoire %1 n&apos;existe pas</translation>
     </message>
     <message>
@@ -453,7 +453,7 @@ Overwrite the existing file?</source>
         <translation>Mode multipistes</translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation>Le répertoire %1 n&apos;existe pas</translation>
     </message>
 </context>

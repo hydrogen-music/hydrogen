@@ -2337,6 +2337,10 @@ The path to the script and the scriptname must without whitespaces.</source>
         <source>Color (Hue value)</source>
         <translation>Colour (Hue value)</translation>
     </message>
+    <message>
+        <source>Hydrogen must be restarted for language change to take effect</source>
+        <translation></translation>
+    </message>
 </context>
 <context>
     <name>PreferencesDialog_UI</name>
@@ -2702,6 +2706,10 @@ The path to the script and the scriptname must without whitespaces.</source>
     </message>
     <message>
         <source>Alt+O</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Language / Γλώσσα / Язык / 言語</source>
         <translation></translation>
     </message>
 </context>
