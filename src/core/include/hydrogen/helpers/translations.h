@@ -25,18 +25,18 @@ class Translations : public Object
   // find appropriate translation given list of user prefs
 public:
   
-  static QStringList availableTranslations( QString fileName,
-                                            QString directory = H2Core::Filesystem::i18n_dir() ) {
+  static QStringList availableTranslations( QString sFileName,
+                                            QString sDirectory = H2Core::Filesystem::i18n_dir() ) {
     QStringList translations;
-    QDir d( directory );
-    QStringList filter = QStringList( fileName + "_*.qm" );
+    QDir d( sDirectory );
+    QStringList filter = QStringList( sFileName + "_*.qm" );
 
-    for ( QString entry : d.entryList( filter ) ) {
+    for ( QString sEntry : d.entryList( filter ) ) {
       // Extract language or language_REGION string
-      entry.remove( 0, fileName.size() + 1 );
-      entry.remove( entry.size() - 3, 3);
-      entry.replace( '_', '-' );
-      translations << entry;
+      sEntry.remove( 0, sFileName.size() + 1 );
+      sEntry.remove( sEntry.size() - 3, 3);
+      sEntry.replace( '_', '-' );
+      translations << sEntry;
     }
     return translations;
   }
@@ -56,37 +56,37 @@ public:
   /// user's preferred languages in turn.
   ///
 
-  static QString findTranslation( QStringList languages, QString fileName, QString directory = H2Core::Filesystem::i18n_dir() )
+  static QString findTranslation( QStringList languages, QString sFileName, QString sDirectory = H2Core::Filesystem::i18n_dir() )
   {
-    for ( QString language : languages ) {
-      language.replace( '-', '_' );
+    for ( QString sLanguage : languages ) {
+      sLanguage.replace( '-', '_' );
       
       for (;;) {
-        QString transName = fileName + "_" + language + ".qm";
-        QFileInfo fi( directory, transName );
+        QString sTransName = sFileName + "_" + sLanguage + ".qm";
+        QFileInfo fi( sDirectory, sTransName );
         if ( fi.exists() && fi.isFile() ) {
-          language.replace( '_', '-' );
-          return language;
+          sLanguage.replace( '_', '-' );
+          return sLanguage;
         }
-        int i = language.lastIndexOf( '_' );
+        int i = sLanguage.lastIndexOf( '_' );
         if ( i == -1 ) {
           break;
         }
-        language.truncate( i );
+        sLanguage.truncate( i );
       }
     }
     return QString();
   }
 
-  static bool loadTranslation( QStringList languages, QTranslator &tor, QString fileName, QString directory = H2Core::Filesystem::i18n_dir() )
+  static bool loadTranslation( QStringList languages, QTranslator &tor, QString sFileName, QString sDirectory = H2Core::Filesystem::i18n_dir() )
   {
-    QString language = findTranslation( languages, fileName, directory );
-    if ( language.isNull() ) {
+    QString sLanguage = findTranslation( languages, sFileName, sDirectory );
+    if ( sLanguage.isNull() ) {
       return false;
     }
-    language.replace( '-', '_' );
-    QString transName = fileName + "_" + language + ".qm";
-    return tor.load( transName, directory );
+    sLanguage.replace( '-', '_' );
+    QString sTransName = sFileName + "_" + sLanguage + ".qm";
+    return tor.load( sTransName, sDirectory );
 
   }
 
