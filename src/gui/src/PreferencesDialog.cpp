@@ -552,7 +552,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	QString sPreferredLanguage = languageComboBox->currentData().toString();
 	if ( sPreferredLanguage != m_sInitialLanguage ) {
-		QMessageBox::information( this, "Hydrogen", tr( "Hydrogen must be restarted for languague change to take effect" ));
+		QMessageBox::information( this, "Hydrogen", tr( "Hydrogen must be restarted for language change to take effect" ));
 		pPref->setPreferredLanguage( sPreferredLanguage );
 	}
 
