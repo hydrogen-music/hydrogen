@@ -30,7 +30,6 @@ ELSE()
 	SET(DISPLAY_VERSION "${VERSION}-${GIT_REVISION}")
 ENDIF(VERSION_SUFFIX)
 
-include(GNUInstallDirs)
 
 SET(LIBSNDFILE_VERSION_PREV "1.0.17")
 
@@ -83,6 +82,7 @@ IF(APPLE)
 ENDIF()
 
 OPTION(WANT_CPPUNIT         "Include CppUnit test suite" ON)
+OPTION(FIXME_DISABLE_OPTIMIZATIONS "Fix broken builds by turning off optimizations" OFF)
 
 include(Sanitizers)
 
@@ -130,6 +130,12 @@ SET(CMAKE_CXX_FLAGS_RELEASE "")
 
 SET(CMAKE_CXX_FLAGS_DEBUG "-g ")#-Winline")
 
+IF(FIXME_DISABLE_OPTIMIZATIONS)
+    string(REGEX REPLACE "-O[0123s]" "-O0" CMAKE_CXX_FLAGS                "${CMAKE_CXX_FLAGS}")
+    string(REGEX REPLACE "-O[0123s]" "-O0" CMAKE_CXX_FLAGS_RELEASE        "${CMAKE_CXX_FLAGS_RELEASE}")
+    string(REGEX REPLACE "-O[0123s]" "-O0" CMAKE_CXX_FLAGS_DEBUG          "${CMAKE_CXX_FLAGS_DEBUG}")
+    string(REGEX REPLACE "-O[0123s]" "-O0" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+ENDIF()
 
 IF(APPLE)
 	#Compile for 32bit and 64bit intel macs
@@ -163,9 +169,18 @@ ENDIF(APPLE)
 
 
 #Installation paths
-# TODO remove data from path
-SET(H2_SYS_PATH "${CMAKE_INSTALL_FULL_DATAROOTDIR}/hydrogen")
-# TODO remove data from path, could be .config/hydrogen
+INCLUDE(GNUInstallDirs)
+IF(WIN32)
+    SET(H2_BIN_PATH ".")
+    SET(H2_LIB_PATH ".")
+    SET(H2_DATA_PATH ".")
+    SET(H2_SYS_PATH "hydrogen")
+ELSE()
+    SET(H2_BIN_PATH ${CMAKE_INSTALL_BINDIR})
+    SET(H2_LIB_PATH ${CMAKE_INSTALL_LIBDIR})
+    SET(H2_DATA_PATH "${CMAKE_INSTALL_DATADIR}/hydrogen")
+    SET(H2_SYS_PATH "${CMAKE_INSTALL_FULL_DATAROOTDIR}/hydrogen")
+ENDIF()
 SET(H2_USR_PATH ".hydrogen")
 
 SET(MAX_INSTRUMENTS 1000 CACHE STRING "Maximum number of instruments")
@@ -292,6 +307,9 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * Install Directory            : ${CMAKE_INSTALL_PREFIX}
 * User path                    : ${H2_USR_PATH}
 * System path                  : ${H2_SYS_PATH}
+* Bin path                     : ${H2_BIN_PATH}
+* Lib path                     : ${H2_LIB_PATH}
+* Data path                    : ${H2_DATA_PATH}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}
@@ -379,11 +397,7 @@ ADD_SUBDIRECTORY(src/gui)
 IF(EXISTS ${CMAKE_SOURCE_DIR}/data/doc/CMakeLists.txt)
 	ADD_SUBDIRECTORY(data/doc)
 ENDIF()
-IF (MINGW)
-	INSTALL(DIRECTORY data DESTINATION . PATTERN ".git" EXCLUDE PATTERN "i18n" EXCLUDE PATTERN doc EXCLUDE)
-ELSE()
-	INSTALL(DIRECTORY data DESTINATION ${H2_SYS_PATH} PATTERN ".git" EXCLUDE PATTERN "i18n" EXCLUDE PATTERN doc EXCLUDE)
-ENDIF()
+INSTALL(DIRECTORY data DESTINATION ${H2_DATA_PATH} PATTERN ".git" EXCLUDE PATTERN "i18n" EXCLUDE PATTERN doc EXCLUDE)
 IF(NOT MINGW AND NOT APPLE)
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.appdata.xml DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/appdata")
 	INSTALL(FILES ${CMAKE_SOURCE_DIR}/linux/org.hydrogenmusic.Hydrogen.desktop DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
@@ -411,10 +425,13 @@ SET(CPACK_PACKAGE_INSTALL_DIRECTORY "Hydrogen")
 IF(MINGW)
     #Set the other files that will be used in CPack
     SET(WIN64 "OFF" CACHE BOOL "Windows 64 Bit")
-	SET(CPACK_STRIP_FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe")
+    if (CMAKE_BUILD_TYPE MATCHES Release)
+         SET(CPACK_STRIP_FILES TRUE)
+    else()
+         SET(CPACK_STRIP_FILES FALSE)
+    endif()
     #Program Files for Hydrogen
     SET(WINDOWS_DIR "windows")
-    INSTALL(FILES "${WINDOWS_DIR}/src/cli/h2cli.exe" "${WINDOWS_DIR}/src/core/libhydrogen-core-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dll" "${WINDOWS_DIR}/src/gui/hydrogen.exe" "${WINDOWS_DIR}/src/player/h2player.exe" DESTINATION ./)
     #Install files from the extralibs dir
     INSTALL(DIRECTORY ${WINDOWS_DIR}/extralibs/ DESTINATION ./)
 

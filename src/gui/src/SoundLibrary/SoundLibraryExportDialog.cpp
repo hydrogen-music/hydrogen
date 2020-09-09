@@ -90,6 +90,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	Drumkit*	pDrumkit = nullptr;
 	
 	QDir qdTempFolder( Filesystem::tmp_dir() );
+	bool TmpFileCreated = false;
 
 	int componentID = -1;
 	
@@ -100,7 +101,8 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 				QString temporaryDrumkitXML = qdTempFolder.filePath( "drumkit.xml" );
 				INFOLOG( "[ExportSoundLibrary]" );
 				INFOLOG( "Saving temporary file into: " + temporaryDrumkitXML );
-				
+				TmpFileCreated = true;
+
 				for (std::vector<DrumkitComponent*>::iterator it = pDrumkit->get_components()->begin() ; it != pDrumkit->get_components()->end(); ++it) {
 					DrumkitComponent* pComponent = *it;
 					if( pComponent->get_name().compare( componentList->currentText() ) == 0) {
@@ -211,7 +213,6 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QApplication::restoreOverrideCursor();
 	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
 #elif !defined(WIN32)
-
 
 	if(TmpFileCreated)
 	{

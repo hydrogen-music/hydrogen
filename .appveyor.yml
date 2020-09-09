@@ -1,0 +1,110 @@
+environment:
+  GENERATOR: "MinGW Makefiles"
+  matrix:
+    - MSYS: 'C:\msys64\mingw64'
+      MSYS_REPO: 'mingw64/mingw-w64-x86_64'
+      BUILD_TYPE: "Release"
+      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DFIXME_DISABLE_OPTIMIZATIONS=ON"
+
+    - MSYS: 'C:\msys64\mingw32'
+      MSYS_REPO: 'mingw32/mingw-w64-i686'
+      BUILD_TYPE: "Release"
+      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DFIXME_DISABLE_OPTIMIZATIONS=ON"
+
+    - MSYS: 'C:\msys64\mingw64'
+      MSYS_REPO: 'mingw64/mingw-w64-x86_64'
+      BUILD_TYPE: "Debug"
+      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON -DWIN64:BOOL=ON"
+
+    - MSYS: 'C:\msys64\mingw32'
+      MSYS_REPO: 'mingw32/mingw-w64-i686'
+      BUILD_TYPE: "Debug"
+      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON"
+
+image:
+  - "Visual Studio 2015"
+
+before_build:
+  cmd: |-
+      set QTDIR=%MSYS%
+      set CMAKE_PREFIX_PATH=%QTDIR%
+      set PATH=%MSYS%\bin;%PATH%
+      set PKG_CONFIG_PATH=%MSYS%\lib\pkgconfig
+
+      cmake --version
+      g++ --version
+
+      REM *** Install dependencies ***
+      c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libarchive
+      c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libsndfile
+      c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-cppunit
+      c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portaudio
+      c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-portmidi
+      c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libwinpthread-git
+      c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-qt5
+      c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-sdk
+
+      REM *** INIT SUBMODULES ***
+      git submodule init
+      git submodule update
+
+      REM *** Configure build ***
+      rename "C:\Program Files\Git\usr\bin\sh.exe" "sh2.exe"
+      mkdir build
+      cd build
+      cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% ..
+
+build:
+  verbosity: detailed
+
+build_script:
+  - cmd: |-
+      REM *** Build ***
+      cmake --build . -j %NUMBER_OF_PROCESSORS%
+
+      REM *** Run tests and report results ***
+      set H2_HOME=%APPVEYOR_BUILD_FOLDER%
+      echo %H2_HOME%
+      SET CORE_PATH=%cd%\src\core
+      echo %CORE_PATH%
+      set PATH=%CORE_PATH%;%PATH%
+      src\tests\tests.exe --appveyor || cmd /c "exit /b 0"
+      7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen
+      appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
+
+      mkdir %APPVEYOR_BUILD_FOLDER%\windows\extralibs
+
+      REM *** Deploy Qt ***
+      set DEPLOY_MODE=--release
+      if %BUILD_TYPE% == "Debug" set DEPLOY_MODE=--debug
+      %QTDIR%\bin\windeployqt.exe -xmlpatterns --no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\windows\extralibs %DEPLOY_MODE% src/gui/hydrogen.exe
+
+      REM *** Deploy other libraries ***
+      set PYTHON=C:\Python38\python
+      %PYTHON% -m pip install -r %APPVEYOR_BUILD_FOLDER%\windows\ci\requirements.txt
+      %PYTHON% %APPVEYOR_BUILD_FOLDER%\windows\ci\copy_thirdparty_dlls.py --no-overwrite -V info -L %MSYS%\bin -d %APPVEYOR_BUILD_FOLDER%\windows\extralibs src/gui/hydrogen.exe src/core/libhydrogen-core-1.1.0.dll
+
+      REM *** Build installer ***
+      cpack -G NSIS -v
+
+      REM *** Run and verify installer ***
+      set INSTDIR=C:\hydrogen
+      mkdir %INSTDIR%
+      FOR %%F IN (Hydrogen-*.exe) DO %%F /S /D=%INSTDIR%
+      %PYTHON% -m pytest %APPVEYOR_BUILD_FOLDER%\windows\ci\test_installation.py --junitxml=test_installation.xml
+
+
+artifacts:
+  - path: build\Hydrogen-*.exe
+    name: Installer
+
+# cache:
+#   - C:\msys64\mingw32
+#   - C:\msys64\mingw64
+
+on_finish:
+  - cmd: appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
+  - cmd: appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeOutput.log
+  - cmd: appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeError.log
+  - cmd: |
+      curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%

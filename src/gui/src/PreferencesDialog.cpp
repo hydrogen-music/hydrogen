@@ -192,6 +192,13 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	uiLayoutComboBox->setCurrentIndex(  pPref->getDefaultUILayout() );
 
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+	uiScalingPolicyComboBox->setCurrentIndex( pPref->getUIScalingPolicy() );
+#else
+	uiScalingPolicyComboBox->setEnabled( false );
+        uiScalingPolicyLabel->setEnabled( false );
+#endif
+
 	// Style
 	QStringList list = QStyleFactory::keys();
 	uint i = 0;
@@ -506,6 +513,10 @@ void PreferencesDialog::on_okBtn_clicked()
 	Hydrogen::get_instance()->setBcOffsetAdjust();
 
 	pPref->setDefaultUILayout( uiLayoutComboBox->currentIndex() );
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+	pPref->setUIScalingPolicy( uiScalingPolicyComboBox->currentIndex() );
+#endif
+
 
 	int coloringMethod = coloringMethodCombo->currentIndex();
 
