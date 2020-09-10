@@ -75,7 +75,7 @@ OPTION(WANT_PULSEAUDIO   "Include PulseAudio support" ON)
 OPTION(WANT_LASH         "Include LASH (Linux Audio Session Handler) support" OFF)
 OPTION(WANT_LRDF         "Include LRDF (Lightweight Resource Description Framework with special support for LADSPA plugins) support" OFF)
 OPTION(WANT_RUBBERBAND   "Include RubberBand (Audio Time Stretcher Library) support" OFF)
-OPTION(WANT_LV2PLUGIN    "Build LV2 plugin iso. standalone application" OFF)
+OPTION(WANT_LV2          "Build LV2 plugin in addition to standalone application" ON)
 
 IF(APPLE)
     OPTION(WANT_COREAUDIO   "Include CoreAudio support" ON)
@@ -227,11 +227,17 @@ FIND_HELPER(LIBARCHIVE libarchive archive.h archive)
 IF( WANT_LIBARCHIVE AND LIBARCHIVE_FOUND)
     SET(WANT_LIBTAR FALSE)
 ENDIF()
+
+IF(WANT_LV2)
+	CHECK_INCLUDE_FILES(lv2.h LV2_FOUND)
+ENDIF()
+
 FIND_HELPER(LIBSNDFILE sndfile sndfile.h sndfile)
 FIND_HELPER(ALSA alsa alsa/asoundlib.h asound )
 FIND_LADSPA(LADSPA ladspa.h noise)
 
 FIND_HELPER(OSC liblo lo/lo.h lo)
+
 
 IF("${CMAKE_SYSTEM_NAME}" MATCHES "NetBSD")
 	FIND_HELPER(OSS oss sys/soundcard.h ossaudio )
@@ -280,7 +286,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
+SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT LV2)
 FOREACH( _pkg ${STATUS_LIST})
     COMPUTE_PKGS_FLAGS(${_pkg})
 ENDFOREACH()
@@ -319,7 +325,6 @@ COLOR_MESSAGE("${cyan}Installation Summary${reset}
 * core library build as        : ${H2CORE_LIBRARY_TYPE}
 * debug capabilities           : ${H2CORE_HAVE_DEBUG}
 * macosx bundle                : ${H2CORE_HAVE_BUNDLE}
-* Build LV2 plugin             : ${H2CORE_HAVE_LV2PLUGIN}
 * fat build                    : ${WANT_FAT_BUILD}\n"
 )
 
@@ -329,7 +334,9 @@ COLOR_MESSAGE("* ${purple}libsndfile${reset}                   : ${LIBSNDFILE_ST
 *                                ${LIBSNDFILE_MSG}
 * ${purple}libtar${reset}                       : ${LIBTAR_STATUS}
 * ${purple}libarchive${reset}                   : ${LIBARCHIVE_STATUS}
-* ${purple}ladspa${reset}                       : ${LADSPA_STATUS}\n"
+* ${purple}ladspa${reset}                       : ${LADSPA_STATUS}
+* ${purple}lv2 plugin${reset}                   : ${LV2_STATUS}\n"
+
 )
 
 COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}

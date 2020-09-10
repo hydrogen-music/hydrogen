@@ -71,6 +71,13 @@ ELSE()
         RUNTIME DESTINATION "${H2_LIB_PATH}"
         ARCHIVE DESTINATION "${H2_LIB_PATH}"
     )
+
+    IF(LV2_FOUND)
+        INSTALL(FILES ${CMAKE_SOURCE_DIR}/lv2/hydrogen.ttl DESTINATION "/usr/lib/lv2/hydrogen.lv2/")
+        INSTALL(FILES ${CMAKE_SOURCE_DIR}/lv2/manifest.ttl DESTINATION "/usr/lib/lv2/hydrogen.lv2/")
+        INSTALL(TARGETS hydrogen-core-${VERSION} LIBRARY DESTINATION "/usr/lib/lv2/hydrogen.lv2/")
+    ENDIF()
+
 ENDIF()
 
 IF(NOT APPLE AND NOT WIN32)

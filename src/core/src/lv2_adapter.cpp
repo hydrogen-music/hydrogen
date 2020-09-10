@@ -20,6 +20,8 @@
  *
  */
 
+#ifdef H2CORE_HAVE_LV2
+
 #include <iostream>
 #include "hydrogen/logger.h"
 #include <hydrogen/object.h>
@@ -216,3 +218,5 @@ lv2_descriptor(uint32_t index)
 	default: return nullptr;
 	}
 }
+
+#endif // H2CORE_HAVE_LV2

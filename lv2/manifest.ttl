@@ -4,4 +4,4 @@
 <http://hydrogen-music.org/plugins/hydrogen>
 	a lv2:Plugin ;
 	lv2:binary <libhydrogen-core-1.1.0.so>;
-	rdfs:seeAlso <h2.ttl> .
+	rdfs:seeAlso <hydrogen.ttl> .
