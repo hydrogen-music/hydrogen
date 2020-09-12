@@ -947,6 +947,10 @@ void DrumPatternEditor::copy()
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "note_selection", "note_selection" );
+	XMLNode positionNode = root.createNode( "sourcePosition" );
+
+	positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
+	positionNode.write_int( "instrument", Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 
 	for ( Note *pNote : m_selection ) {
 		XMLNode note_node = root.createNode( "note" );
@@ -990,26 +994,45 @@ void DrumPatternEditor::paste()
 	m_bSelectNewNotes = true;
 
 	if ( selection.hasChildNodes() ) {
+
+		XMLNode positionNode = selection.firstChildElement( "sourcePosition" );
+		int nDeltaPos = 0, nDeltaInstrument = 0;
+
+		// If position information is supplied in the selection, use
+		// it to adjust the location relative to the current keyboard
+		// input cursor.
+		if ( !positionNode.isNull() ) {
+			int nCurrentPos = m_pPatternEditorPanel->getCursorPosition();
+			int nCurrentInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+
+			nDeltaPos = nCurrentPos - positionNode.read_int( "position", nCurrentPos );
+			nDeltaInstrument = nCurrentInstrument - positionNode.read_int( "instrument", nCurrentInstrument );
+		}
+
 		pUndo->beginMacro( "paste notes" );
 		for ( XMLNode n = selection.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {
 			Note *pNote = Note::load_from( &n, pInstrList );
+			int nPos = pNote->get_position() + nDeltaPos;
+			int nInstrument = pInstrList->index( pNote->get_instrument() ) + nDeltaInstrument;
 
-			pUndo->push( new SE_addOrDeleteNoteAction( pNote->get_position(),
-													   pInstrList->index( pNote->get_instrument() ) ,
-													   __selectedPatternNumber,
-													   pNote->get_length(),
-													   pNote->get_velocity(),
-													   pNote->get_pan_l(),
-													   pNote->get_pan_r(),
-													   pNote->get_lead_lag(),
-													   pNote->get_key(),
-													   pNote->get_octave(),
-													   false, // isDelete
-													   false, // listen
-													   false, // isMidi
-													   false, // isInstrumentMode
-													   pNote->get_note_off()
-													   ) );
+			if ( nPos >= 0 && nInstrument >= 0 && nInstrument < pInstrList->size() ) {
+				pUndo->push( new SE_addOrDeleteNoteAction( nPos,
+														   nInstrument,
+														   __selectedPatternNumber,
+														   pNote->get_length(),
+														   pNote->get_velocity(),
+														   pNote->get_pan_l(),
+														   pNote->get_pan_r(),
+														   pNote->get_lead_lag(),
+														   pNote->get_key(),
+														   pNote->get_octave(),
+														   false, // isDelete
+														   false, // listen
+														   false, // isMidi
+														   false, // isInstrumentMode
+														   pNote->get_note_off()
+														   ) );
+			}
 			delete pNote;
 		}
 		pUndo->endMacro();
