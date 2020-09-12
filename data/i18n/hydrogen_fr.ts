@@ -379,14 +379,14 @@
         <translation>Exporter le fichier MIDI</translation>
     </message>
     <message>
-        <source>Directory %1 does not exist</source>
-        <translation>Le répertoire %1 n&apos;existe pas</translation>
-    </message>
-    <message>
         <source>The file %1 exists. 
 Overwrite the existing file?</source>
         <translation>Le fichier %1 existe. 
 Écraser le fichier existant ?</translation>
+    </message>
+    <message>
+        <source>Directory %1 does not exist</source>
+        <translation>Le répertoire %1 n&apos;existe pas</translation>
     </message>
 </context>
 <context>
@@ -576,10 +576,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Interpolation: </source>
         <translation>Interpolation : </translation>
-    </message>
-    <message>
-        <source>Choose type of interpolation methode</source>
-        <translation>Choisir le type de méthode d&apos;interpolation</translation>
     </message>
     <message>
         <source>Linear</source>
@@ -2699,10 +2695,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Créer une sortie par instrument</translation>
     </message>
     <message>
-        <source>Enable feedback</source>
-        <translation>Activer la boucle de retour</translation>
-    </message>
-    <message>
         <source>&amp;OSC</source>
         <translation>&amp;OSC</translation>
     </message>
@@ -3200,7 +3192,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
-        <translation type="unfinished"></translation>
+        <translation>L&apos;utilisation de la ligne temporelle est désactivée en présence d&apos;un maître de base temporelle JACK externe</translation>
     </message>
 </context>
 <context>

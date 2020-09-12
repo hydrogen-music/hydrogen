@@ -126,9 +126,9 @@ static int setup_unix_signal_handlers()
 	if (sigaction(SIGUSR1, &usr1, nullptr) > 0) {
 		return 1;
 	}
-
-	return 0;
 #endif
+	
+	return 0;
 }
 
 static void setApplicationIcon(QApplication *app)
@@ -192,9 +192,9 @@ int main(int argc, char *argv[])
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
 		QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
-		H2QApplication* pQApp = new H2QApplication( argc, argv );
-		pQApp->setApplicationName( "Hydrogen" );
-		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
+
+		// Create bootstrap QApplication to get H2 Core set up with correct Filesystem paths before starting GUI application.
+		QCoreApplication *pBootStrApp = new QCoreApplication( argc, argv );
 		
 		QCommandLineParser parser;
 		
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
 		#endif
 			
 		// Evaluate the options
-		parser.process(*pQApp);
+		parser.process( *pBootStrApp );
 		QString sSelectedDriver = parser.value( audioDriverOption );
 		QString sDrumkitName = parser.value( installDrumkitOption );
 		bool	bNoSplash = parser.isSet( noSplashScreenOption );
@@ -298,6 +298,24 @@ int main(int argc, char *argv[])
 		H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 		pPref->setH2ProcessName( QString(argv[0]) );
 
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0)
+		/* Apply user-specified rounding policy. This is mostly to handle non-integral factors on Windows. */
+		Qt::HighDpiScaleFactorRoundingPolicy policy;
+
+		switch ( pPref->getUIScalingPolicy() ) {
+		case H2Core::Preferences::UI_SCALING_SMALLER:
+			policy = Qt::HighDpiScaleFactorRoundingPolicy::RoundPreferFloor;
+			break;
+		case H2Core::Preferences::UI_SCALING_SYSTEM:
+			policy = Qt::HighDpiScaleFactorRoundingPolicy::PassThrough;
+			break;
+		case H2Core::Preferences::UI_SCALING_LARGER:
+			policy = Qt::HighDpiScaleFactorRoundingPolicy::Ceil;
+			break;
+		}
+		QGuiApplication::setHighDpiScaleFactorRoundingPolicy( policy );
+#endif
+
 #ifdef H2CORE_HAVE_LASH
 
 		LashClient::create_instance("hydrogen", "Hydrogen", &argc, &argv);
@@ -321,6 +339,12 @@ int main(int argc, char *argv[])
 		else if ( sSelectedDriver == "alsa" ) {
 			pPref->m_sAudioDriver = "Alsa";
 		}
+
+		// Bootstrap is complete, start GUI
+		delete pBootStrApp;
+		H2QApplication* pQApp = new H2QApplication( argc, argv );
+		pQApp->setApplicationName( "Hydrogen" );
+		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
 
 		QString family = pPref->getApplicationFontFamily();
 		pQApp->setFont( QFont( family, pPref->getApplicationFontPointSize() ) );

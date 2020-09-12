@@ -1017,6 +1017,26 @@
        </item>
        <item>
         <layout class="QGridLayout" name="_2">
+         <item row="0" column="1">
+          <widget class="QComboBox" name="uiLayoutComboBox">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>Single pane</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Tabbed</string>
+            </property>
+           </item>
+          </widget>
+         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="mixerFontLbl_2">
            <property name="minimumSize">
@@ -1045,22 +1065,28 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="uiLayoutComboBox">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>22</height>
-            </size>
+         <item row="1" column="0">
+          <widget class="QLabel" name="uiScalingPolicyLabel">
+           <property name="text">
+            <string>High-resolution display scaling</string>
            </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="uiScalingPolicyComboBox">
            <item>
             <property name="text">
-             <string>Single pane</string>
+             <string>Prefer smaller</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Tabbed</string>
+             <string>Scale to system setting</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Prefer larger</string>
             </property>
            </item>
           </widget>

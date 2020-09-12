@@ -181,6 +181,12 @@ public:
 			UI_LAYOUT_TABBED
 	};
 
+	enum UI_SCALING_POLICY {
+		UI_SCALING_SMALLER,
+		UI_SCALING_SYSTEM,
+		UI_SCALING_LARGER
+	};
+
 	QString				__lastspatternDirectory;
 	QString				__lastsampleDirectory; // audio file browser
 	bool				__playsamplesonclicking; // audio file browser
@@ -381,6 +387,9 @@ public:
 
 	int				getDefaultUILayout();
 	void			setDefaultUILayout( int layout);
+
+	int				getUIScalingPolicy();
+	void			setUIScalingPolicy( int nPolicy );
 
 	// General
 	const QString&	getPreferredLanguage();
@@ -678,6 +687,7 @@ private:
 	QString					m_sQTStyle;
 	int						m_nLastOpenTab;
 	int						m_nDefaultUILayout;
+	int						m_nUIScalingPolicy;
 	bool					m_bShowPlaybackTrack;
 
 	QString					applicationFontFamily;
@@ -815,6 +825,15 @@ inline int Preferences::getDefaultUILayout(){
 inline void Preferences::setDefaultUILayout( int layout){
 	m_nDefaultUILayout = layout;
 }
+
+inline int Preferences::getUIScalingPolicy() {
+	return m_nUIScalingPolicy;
+}
+
+inline void Preferences::setUIScalingPolicy( int nPolicy ) {
+	m_nUIScalingPolicy = nPolicy;
+}
+
 
 
 // General

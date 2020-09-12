@@ -100,6 +100,7 @@ Preferences::Preferences()
 
 	m_pDefaultUIStyle = new UIStyle();
 	m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
+	m_nUIScalingPolicy = UI_SCALING_SMALLER;
 
 	__lastspatternDirectory = QDir::homePath();
 	__lastsampleDirectory = QDir::homePath(); //audio file browser
@@ -306,6 +307,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_nMaxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
 			m_nMaxLayers = LocalFileMng::readXmlInt( rootNode, "maxLayers", 16 );
 			m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
+			m_nUIScalingPolicy = LocalFileMng::readXmlInt( rootNode, "uiScalingPolicy", UI_SCALING_SMALLER );
 			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
 			m_bHideKeyboardCursor = LocalFileMng::readXmlBool( rootNode, "hideKeyboardCursor", true );
@@ -699,6 +701,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "maxLayers", QString::number( m_nMaxLayers ) );
 
 	LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( m_nDefaultUILayout ) );
+	LocalFileMng::writeXmlString( rootNode, "uiScalingPolicy", QString::number( m_nUIScalingPolicy ) );
 	LocalFileMng::writeXmlString( rootNode, "lastOpenTab", QString::number( m_nLastOpenTab ) );
 
 	LocalFileMng::writeXmlString( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent ? "true": "false" );
