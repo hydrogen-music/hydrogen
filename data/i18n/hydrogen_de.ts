@@ -379,7 +379,7 @@
         <translation>Mididatei exportieren</translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation>Verzeichnis %1 existiert nicht</translation>
     </message>
     <message>
@@ -451,7 +451,7 @@ Overwrite the existing file?</source>
         <translation>Als separate Spur exportieren</translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation type="unfinished">Verzeichnis %1 existiert nicht</translation>
     </message>
 </context>

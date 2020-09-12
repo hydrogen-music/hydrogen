@@ -392,6 +392,9 @@ public:
 	void			setUIScalingPolicy( int nPolicy );
 
 	// General
+	const QString&	getPreferredLanguage();
+	void			setPreferredLanguage( const QString& sLanguage );
+
 	void			setRestoreLastSongEnabled( bool restore );
 	void			setRestoreLastPlaylistEnabled( bool restore );
 	void			setUseRelativeFilenamesForPlaylists( bool value );
@@ -440,7 +443,6 @@ public:
 	// GUI Properties
 	const QString&	getQTStyle();
 	void			setQTStyle( const QString& sStyle );
-
 
 	const QString&	getApplicationFontFamily();
 	void			setApplicationFontFamily( const QString& family );
@@ -710,6 +712,7 @@ private:
 	WindowProperties		m_ladspaProperties[MAX_FX];
 
 	UIStyle*				m_pDefaultUIStyle;
+	QString					m_sPreferredLanguage;
 
 	//Appearance: SongEditor coloring
 	int						m_nColoringMethod;
@@ -834,6 +837,14 @@ inline void Preferences::setUIScalingPolicy( int nPolicy ) {
 
 
 // General
+inline const QString& Preferences::getPreferredLanguage() {
+	return m_sPreferredLanguage;
+}
+
+inline void Preferences::setPreferredLanguage( const QString& sLanguage ) {
+	m_sPreferredLanguage = sLanguage;
+}
+
 inline void Preferences::setRestoreLastSongEnabled( bool restore ) {
 	m_brestoreLastSong = restore;
 }

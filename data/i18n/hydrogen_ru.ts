@@ -379,7 +379,7 @@
         <translation>Экспорт файла MIDI</translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation>Каталог %1 не существует</translation>
     </message>
     <message>
@@ -453,7 +453,7 @@ Overwrite the existing file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation type="unfinished">Каталог %1 не существует</translation>
     </message>
 </context>
