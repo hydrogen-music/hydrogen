@@ -916,7 +916,8 @@ void DrumPatternEditor::deleteSelection()
 {
 	if ( m_selection.begin() != m_selection.end() ) {
 		// Delete a selection.
-		InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+		Hydrogen *pHydrogen = Hydrogen::get_instance();
+		InstrumentList *pInstrumentList = pHydrogen->getSong()->get_instrument_list();
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 		pUndo->beginMacro("delete notes");
 		validateSelection();
@@ -924,7 +925,21 @@ void DrumPatternEditor::deleteSelection()
 			// There must be a note there to be selected, so we can use the existing 
 			// addOrRemove method to remove.
 			if ( m_selection.isSelected( pNote ) ) {
-				addOrRemoveNote( pNote->get_position(), -1, pInstrumentList->index( pNote->get_instrument() ) );
+				pUndo->push( new SE_addOrDeleteNoteAction( pNote->get_position(),
+														   pInstrumentList->index( pNote->get_instrument() ),
+														   __selectedPatternNumber,
+														   pNote->get_length(),
+														   pNote->get_velocity(),
+														   pNote->get_pan_l(),
+														   pNote->get_pan_r(),
+														   pNote->get_lead_lag(),
+														   pNote->get_key(),
+														   pNote->get_octave(),
+														   true, // noteExisted
+														   false, // listen
+														   false,
+														   false,
+														   pNote->get_note_off() ) );
 			}
 		}
 		pUndo->endMacro();
