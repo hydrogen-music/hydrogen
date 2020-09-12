@@ -273,6 +273,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	}
 	else if ( ev->button() == Qt::LeftButton ) {
 
+		Hydrogen::get_instance()->setSelectedInstrumentNumber( row );
 		addOrRemoveNote( nColumn, nRealColumn, row );
 		m_selection.clearSelection();
 
@@ -409,19 +410,12 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 	pSong->set_is_modified( true );
 	AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-	// update the selected line
-	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	if (nSelectedInstrument != row) {
-		Hydrogen::get_instance()->setSelectedInstrumentNumber( row );
-	}
-	else {
-		update( 0, 0, width(), height() );
-		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-		m_pPatternEditorPanel->getPanEditor()->updateEditor();
-		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
-	}
+	update( 0, 0, width(), height() );
+	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
+	m_pPatternEditorPanel->getPanEditor()->updateEditor();
+	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
+	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 }
 
 
