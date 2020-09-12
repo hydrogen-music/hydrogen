@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="de_DE">
+<TS version="2.1" language="cs">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -379,7 +379,7 @@
         <translation type="unfinished">Export MIDI souboru</translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -451,7 +451,7 @@ Overwrite the existing file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
