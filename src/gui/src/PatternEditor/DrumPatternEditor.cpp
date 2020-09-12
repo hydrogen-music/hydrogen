@@ -223,10 +223,11 @@ void DrumPatternEditor::mouseMoveEvent( QMouseEvent *ev )
 
 void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 {
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	Song *pSong = pHydrogen->getSong();
 	int nInstruments = pSong->get_instrument_list()->size();
 	int row = (int)( ev->y()  / (float)m_nGridHeight);
 	if (row >= nInstruments) {
@@ -246,6 +247,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	if( ev->button() == Qt::LeftButton && (ev->modifiers() & Qt::ShiftModifier) )
 	{
 		//shift + leftClick: add noteOff note
+		HydrogenApp *pApp = HydrogenApp::get_instance();
 		Note *pNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
 		if ( pNote != nullptr ) {
 			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
@@ -263,17 +265,17 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 																			 false,
 																			 false,
 																			 pNote->get_note_off() );
-			HydrogenApp::get_instance()->m_pUndoStack->push( action );
+			pApp->m_pUndoStack->push( action );
 		} else {
 			// Add stop-note
 			SE_addNoteOffAction *action = new SE_addNoteOffAction( nColumn, row,__selectedPatternNumber,
 																   pNote != nullptr );
-			HydrogenApp::get_instance()->m_pUndoStack->push( action );
+			pApp->m_pUndoStack->push( action );
 		}
 	}
 	else if ( ev->button() == Qt::LeftButton ) {
 
-		Hydrogen::get_instance()->setSelectedInstrumentNumber( row );
+		pHydrogen->setSelectedInstrumentNumber( row );
 		addOrRemoveNote( nColumn, nRealColumn, row );
 		m_selection.clearSelection();
 
@@ -289,12 +291,13 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 
 void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 {
-	if (ev->button() == Qt::RightButton ) {
-
-		int nColumn = getColumn( ev );
+	int row = (int)( ev->y()  / (float)m_nGridHeight);
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
+	int nColumn = getColumn( ev );
+	if ( ev->button() == Qt::RightButton ) {
+		// Right button drag: adjust note length
 		int nRealColumn = 0;
-		int row = (int)( ev->y()  / (float)m_nGridHeight);
-		Song *pSong = Hydrogen::get_instance()->getSong();
 		Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
 
 		m_pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, false );
@@ -307,6 +310,11 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 		} else {
 			__oldLength = -1;
 		}
+	} else {
+		// Other drag (selection or move) we'll set the cursor input position to the start of the gesture
+		pHydrogen->setSelectedInstrumentNumber( row );
+		m_pPatternEditorPanel->setCursorPosition( nColumn );
+		m_pPatternEditorPanel->setCursorHidden( true );
 	}
 }
 
@@ -915,15 +923,13 @@ void DrumPatternEditor::selectNone()
 void DrumPatternEditor::deleteSelection()
 {
 	if ( m_selection.begin() != m_selection.end() ) {
-		// Delete a selection.
+		// Selection exists, delete it.
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
 		InstrumentList *pInstrumentList = pHydrogen->getSong()->get_instrument_list();
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 		pUndo->beginMacro("delete notes");
 		validateSelection();
 		for ( Note *pNote : m_selection ) {
-			// There must be a note there to be selected, so we can use the existing 
-			// addOrRemove method to remove.
 			if ( m_selection.isSelected( pNote ) ) {
 				pUndo->push( new SE_addOrDeleteNoteAction( pNote->get_position(),
 														   pInstrumentList->index( pNote->get_instrument() ),
