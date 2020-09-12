@@ -61,6 +61,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 
 	private:
 		bool m_bNeedDriverRestart;
+		QString m_sInitialLanguage;
 
 		void updateDriverInfo();
 };

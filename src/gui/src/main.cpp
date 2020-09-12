@@ -51,6 +51,7 @@
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/basics/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/helpers/translations.h>
 
 #include <signal.h>
 #include <iostream>
@@ -267,7 +268,14 @@ int main(int argc, char *argv[])
 		QTranslator tor( nullptr );
 		QLocale locale = QLocale::system();
 		if ( locale != QLocale::c() ) {
-			if (qttor.load( locale, QString( "qt" ), QString( "_" ), QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
+			QStringList languages;
+			QString sPreferredLanguage = pPref->getPreferredLanguage();
+			if ( !sPreferredLanguage.isNull() ) {
+				languages << sPreferredLanguage;
+			}
+			languages << locale.uiLanguages();
+			if ( H2Core::Translations::loadTranslation( languages, qttor, QString( "qt" ),
+														QLibraryInfo::location(QLibraryInfo::TranslationsPath) ) ) {
 				pQApp->installTranslator( &qttor );
 			} else {
 				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(locale.name()));
@@ -275,7 +283,7 @@ int main(int argc, char *argv[])
 			
 			QString sTranslationPath = H2Core::Filesystem::i18n_dir();
 			QString sTranslationFile( "hydrogen" );
-			bool bTransOk = tor.load( locale, sTranslationFile, QString( "_" ), sTranslationPath );
+			bool bTransOk = H2Core::Translations::loadTranslation( languages, tor, sTranslationFile, sTranslationPath );
 			if (bTransOk) {
 				___INFOLOG( "Using locale: " + sTranslationPath );
 			} else {

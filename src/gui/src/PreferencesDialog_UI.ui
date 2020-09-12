@@ -40,6 +40,20 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
+        <layout class="QHBoxLayout" name="languageHorizontalLayout">
+         <item>
+          <widget class="QLabel" name="languageLabel">
+           <property name="text">
+            <string>Language / Γλώσσα / Язык / 言語</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="languageComboBox"/>
+         </item>
+        </layout>
+       </item>
+       <item>
         <widget class="QCheckBox" name="restoreLastUsedSongCheckbox">
          <property name="minimumSize">
           <size>
