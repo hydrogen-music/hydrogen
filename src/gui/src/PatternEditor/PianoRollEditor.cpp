@@ -34,6 +34,7 @@
 #include <hydrogen/basics/pattern.h>
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/audio_engine.h>
+#include <hydrogen/helpers/xml.h>
 using namespace H2Core;
 
 #include "../HydrogenApp.h"
@@ -77,6 +78,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 	HydrogenApp::get_instance()->addEventListener( this );
 
 	m_bNeedsUpdate = true;
+	m_bSelectNewNotes = false;
 }
 
 
@@ -843,6 +845,11 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 		if(! noteOff) pNote->set_lead_lag( oldLeadLag );
 		pNote->set_key_octave( pressednotekey, pressedoctave );
 		pPattern->insert_note( pNote );
+
+		if ( m_bSelectNewNotes ) {
+			m_selection.addToSelection( pNote );
+		}
+
 		// hear note
 		Preferences *pref = Preferences::get_instance();
 		if ( pref->getHearNewNotes() && !noteOff ) {
@@ -1228,6 +1235,106 @@ void PianoRollEditor::deleteSelection()
 	}
 }
 
+///
+/// Copy selection to clipboard in XML
+///
+void PianoRollEditor::copy()
+{
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	XMLDoc doc;
+	XMLNode root = doc.set_root( "note_selection", "note_selection" );
+	XMLNode positionNode = root.createNode( "sourcePosition" );
+
+	positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
+	positionNode.write_int( "note", m_nCursorNote );
+
+	for ( Note *pNote : m_selection ) {
+		XMLNode note_node = root.createNode( "note" );
+		pNote->save_to( &note_node );
+	}
+
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setText( doc.toString() );
+}
+
+void PianoRollEditor::cut()
+{
+	copy();
+	deleteSelection();
+}
+
+
+///
+/// Paste selection
+///
+/// Selection is XML containing notes, contained in a root 'note_selection' element.
+///
+void PianoRollEditor::paste()
+{
+	QClipboard *clipboard = QApplication::clipboard();
+	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+	InstrumentList *pInstrList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+	int nInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+
+	XMLDoc doc;
+	if ( ! doc.setContent( clipboard->text() ) ) {
+		// Pasted something that's not valid XML.
+		return;
+	}
+
+	XMLNode selection = doc.firstChildElement( "note_selection" );
+	if ( selection.isNull() ) {
+		return;
+	}
+
+	m_selection.clearSelection();
+	m_bSelectNewNotes = true;
+
+	if ( selection.hasChildNodes() ) {
+
+		XMLNode positionNode = selection.firstChildElement( "sourcePosition" );
+		int nDeltaPos = 0, nDeltaNote = 0;
+
+		// If position information is supplied in the selection, use
+		// it to adjust the location relative to the current keyboard
+		// input cursor.
+		if ( !positionNode.isNull() ) {
+			int nCurrentPos = m_pPatternEditorPanel->getCursorPosition();
+
+			nDeltaPos = nCurrentPos - positionNode.read_int( "position", nCurrentPos );
+			nDeltaNote = m_nCursorNote - positionNode.read_int( "note", m_nCursorNote );
+		}
+
+		pUndo->beginMacro( "paste notes" );
+		for ( XMLNode n = selection.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {
+			Note *pNote = Note::load_from( &n, pInstrList );
+			int nPos = pNote->get_position() + nDeltaPos;
+			int nNote = pNote->get_notekey_pitch() + nDeltaNote;
+
+			if ( nPos >= 0 && nNote >= 12 * OCTAVE_MIN && nNote < 12 * (OCTAVE_MAX+1) ) {
+				int nLine = 12 * (m_nOctaves) - (nNote - 12 * OCTAVE_MIN) - 1;
+				pUndo->push( new SE_addOrDeleteNotePianoRollAction( nPos,
+																	nLine,
+																	__selectedPatternNumber,
+																	nInstrument,
+																	pNote->get_length(),
+																	pNote->get_velocity(),
+																	pNote->get_pan_l(),
+																	pNote->get_pan_r(),
+																	pNote->get_lead_lag(),
+																	0,
+																	0,
+																	false ) );
+			}
+			delete pNote;
+		}
+		pUndo->endMacro();
+	}
+
+	m_bSelectNewNotes = false;
+}
+
+
 void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 {
 	m_pPatternEditorPanel->setCursorHidden( false );
@@ -1287,6 +1394,15 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 	} else if ( ev->key() == Qt::Key_Delete || ev->key() == Qt::Key_Backspace ) {
 		// Key: Delete: delete selection
 		deleteSelection();
+
+	} else if ( ev->matches( QKeySequence::Copy ) ) {
+		copy();
+
+	} else if ( ev->matches( QKeySequence::Paste ) ) {
+		paste();
+
+	} else if ( ev->matches( QKeySequence::Cut ) ) {
+		cut();
 
 	} else {
 		m_pPatternEditorPanel->setCursorHidden( true );
@@ -1475,6 +1591,13 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 		selectedNotes.push_back( pNote );
 	}
 
+	if ( m_bCopyNotMove ) {
+		// Clear selection so the new notes can be selection instead
+		// of the originals.
+		m_selection.clearSelection();
+	}
+	m_bSelectNewNotes = true;
+
 	for ( auto pNote : selectedNotes ) {
 		int nPosition = pNote->get_position();
 		int nNewPosition = nPosition + offset.x();
@@ -1495,6 +1618,7 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 		}
 	}
 
+	m_bSelectNewNotes = false;
 	pUndo->endMacro();
 }
 

@@ -119,6 +119,9 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		void selectAll();
 		void selectNone();
 		void deleteSelection();
+		void copy();
+		void paste();
+		void cut();
 
 	private:
 
@@ -134,6 +137,8 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 
 		uint m_nResolution;
 		bool m_bUseTriplets;
+
+		bool m_bSelectNewNotes;
 
 		H2Core::Pattern *m_pPattern;
 
