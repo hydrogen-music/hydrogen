@@ -710,29 +710,28 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 {
 	m_pDraggedNote = nullptr;
+	Hydrogen *pH2 = Hydrogen::get_instance();
+	int nColumn = getColumn( ev );
+	Song *pSong = pH2->getSong();
+	int nSelectedInstrumentnumber = pH2->getSelectedInstrumentNumber();
+	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
+	m_pPatternEditorPanel->setCursorPosition( nColumn );
+	m_pPatternEditorPanel->setCursorHidden( true );
+
+	int pressedline = ((int) ev->y()) / ((int) m_nRowHeight);
+
+	//ERRORLOG(QString("pressedline: %1, column %2, event ev: %3, editorhight %4").arg(pressedline).arg(nColumn).arg(ev->y()).arg(m_nEditorHeight));
+
+	Note::Octave pressedoctave = (Note::Octave)(3 - (pressedline / 12 ));
+	Note::Key pressednotekey;
+	if ( pressedline < 12 ){
+		pressednotekey = (Note::Key)(11 - pressedline);
+	} else {
+		pressednotekey = (Note::Key)(11 - pressedline % 12);
+	}
+	m_nCursorNote = (pressedoctave + OCTAVE_OFFSET) * 12 + pressednotekey;
+
 	if (ev->button() == Qt::RightButton ) {
-		Hydrogen *pH2 = Hydrogen::get_instance();
-		int nColumn = getColumn( ev );
-		Song *pSong = pH2->getSong();
-		int nSelectedInstrumentnumber = pH2->getSelectedInstrumentNumber();
-		Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
-		m_pPatternEditorPanel->setCursorPosition( nColumn );
-		m_pPatternEditorPanel->setCursorHidden( true );
-
-		int pressedline = ((int) ev->y()) / ((int) m_nRowHeight);
-
-		//ERRORLOG(QString("pressedline: %1, column %2, event ev: %3, editorhight %4").arg(pressedline).arg(nColumn).arg(ev->y()).arg(m_nEditorHeight));
-
-		Note::Octave pressedoctave = (Note::Octave)(3 - (pressedline / 12 ));
-		Note::Key pressednotekey;
-		if ( pressedline < 12 ){
-			pressednotekey = (Note::Key)(11 - pressedline);
-		} else {
-			pressednotekey = (Note::Key)(11 - pressedline % 12);
-		}
-		m_nCursorNote = (pressedoctave + OCTAVE_OFFSET) * 12 + pressednotekey;
-
-
 		m_pOldPoint = ev->y();
 
 		unsigned nRealColumn = 0;
