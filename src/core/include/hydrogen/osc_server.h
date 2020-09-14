@@ -631,6 +631,11 @@ class OscServer : public H2Core::Object
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
 		static void QUIT_Handler(lo_arg **argv, int argc);
+		static void TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc);
+		static void TIMELINE_ADD_MARKER_Handler(lo_arg **argv, int argc);
+		static void TIMELINE_DELETE_MARKER_Handler(lo_arg **argv, int argc);
+		static void JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc);
+		static void JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc);
 		/** 
 		 * Catches any incoming messages and display them. 
 		 *

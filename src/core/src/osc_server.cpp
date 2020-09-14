@@ -633,6 +633,50 @@ void OscServer::QUIT_Handler(lo_arg **argv, int argc) {
 	pController->quit();
 }
 
+void OscServer::TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc) {
+
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+
+	if ( &argv[0]->i != 0 ) { 
+		pController->activateTimeline( true );
+	} else {
+		pController->activateTimeline( false );
+	}
+}
+
+void OscServer::TIMELINE_ADD_MARKER_Handler(lo_arg **argv, int argc) {
+
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	pController->addTempoMarker(argv[0]->i, argv[1]->f);
+}
+
+void OscServer::TIMELINE_DELETE_MARKER_Handler(lo_arg **argv, int argc) {
+
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	pController->deleteTempoMarker(argv[0]->i);
+}
+
+void OscServer::JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc) {
+	
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+
+	if ( &argv[1]->i != 0 ) {
+		pController->activateJackTransport( true );
+	} else {
+		pController->activateJackTransport( false );
+	}
+}
+
+void OscServer::JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc) {
+	
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	if ( &argv[1]->i != 0 ) {
+		pController->activateJackTimebaseMaster( true );
+	} else {
+		pController->activateJackTimebaseMaster( false );
+	}
+}
+
 // -------------------------------------------------------------------
 // Helper functions
 
@@ -906,6 +950,12 @@ bool OscServer::start()
 	m_pServerThread->add_method("/Hydrogen/SAVE_SONG_AS", "s", SAVE_SONG_AS_Handler);
 	m_pServerThread->add_method("/Hydrogen/QUIT", "", QUIT_Handler);
 
+	m_pServerThread->add_method("/Hydrogen/TIMELINE_ACTIVATION", "i", TIMELINE_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/TIMELINE_ADD_MARKER", "if", TIMELINE_ADD_MARKER_Handler);
+	m_pServerThread->add_method("/Hydrogen/TIMELINE_DELETE_MARKER", "i", TIMELINE_DELETE_MARKER_Handler);
+
+	m_pServerThread->add_method("/Hydrogen/JACK_TRANSPORT_ACTIVATION", "i", JACK_TRANSPORT_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", "", JACK_TIMEBASE_MASTER_ACTIVATION_Handler);
 	/*
 	 * Start the server.
 	 */

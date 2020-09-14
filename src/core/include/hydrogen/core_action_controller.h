@@ -117,6 +117,12 @@ class CoreActionController : public H2Core::Object {
 		 * \return true on success
 		 */
 		bool quit();
+
+		bool activateTimeline( bool bActivate );
+		bool addTempoMarker( int nPosition, float fBpm );
+		bool deleteTempoMarker( int nPosition );
+		bool activateJackTransport( bool bActivate );
+		bool activateJackTimebaseMaster( bool bActivate );
 		
 		// -----------------------------------------------------------
 		// Helper functions
