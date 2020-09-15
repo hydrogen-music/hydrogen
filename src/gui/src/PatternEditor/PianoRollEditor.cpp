@@ -1623,8 +1623,8 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 
 std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecting( QRect r ) {
 
-	uint w = 8;
-	uint h = m_nRowHeight - 2;
+	int w = 8;
+	int h = m_nRowHeight - 2;
 	int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Instrument *pInstr = Hydrogen::get_instance()->getSong()->get_instrument_list()->get( nInstr );
 
