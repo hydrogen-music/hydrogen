@@ -34,13 +34,6 @@ namespace H2Core
 		public:
 			Timeline();
 
-			void		addTempoMarker( int nPosition, float fBpm );
-			void		deleteTempoMarker( int nPosition );
-
-			///sample editor vectors
-			void		sortTimelineVector();
-			void		sortTimelineTagVector();
-
 			/// timeline vector
 			struct HTimelineVector
 			{
@@ -55,6 +48,29 @@ namespace H2Core
 				QString m_htimelinetag;			// tag
 			};
 
+			void		addTempoMarker( int nBar, float fBpm );
+			void		deleteTempoMarker( int nBar );
+			void		deleteAllTempoMarkers();
+			/**
+			 * Returns the tempo of the Song at a given bar.
+			 *
+			 * TODO: For now the function returns 0 if the bar is
+			 * positioned _before_ the first tempo marker. The calling
+			 * routine Hydrogen::getTimelineBpm() will take care of
+			 * this and replaces it with pSong->__bpm. This will be
+			 * taken care of with #854.
+			 */
+			float		getTempoAtBar( int nBar ) const;
+			std::vector<HTimelineVector> getAllTempoMarkers() const;
+
+			void		addTag( int nBar, QString sTag );
+			void		deleteTag( int nBar );
+			void 		deleteAllTags();
+			std::vector<Timeline::HTimelineTagVector> getAllTags() const;
+
+			///sample editor vectors
+			void		sortTimelineVector();
+			void		sortTimelineTagVector();
 
 			std::vector<HTimelineVector> m_timelinevector;
 			std::vector<HTimelineTagVector> m_timelinetagvector;
@@ -79,6 +95,17 @@ namespace H2Core
 		private:
 
 	};
+inline void Timeline::deleteAllTempoMarkers() {
+	m_timelinevector.clear();
+}
+inline void Timeline::deleteAllTags() {
+	m_timelinevector.clear();
+}
+inline std::vector<Timeline::HTimelineVector> Timeline::getAllTempoMarkers() const {
+	return m_timelinevector;
+}
+inline std::vector<Timeline::HTimelineTagVector> Timeline::getAllTags() const {
+	return m_timelinetagvector;
+}
 };
-
 #endif // TIMELINE_H

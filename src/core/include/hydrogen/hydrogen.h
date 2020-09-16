@@ -527,10 +527,6 @@ void			previewSample( Sample *pSample );
 	 * Returns the local speed at a specific @a nBar in the
 	 * Timeline.
 	 *
-	 * Timeline::HTimelineVector::m_htimelinebpm of the first
-	 * Timeline::HTimelineVector::m_htimelinebeat bigger than @a
-	 * nBar will be returned.
-	 *
 	 * If Hydrogen is in Song::PATTERN_MODE or
 	 * Preferences::__useTimelineBpm is set to false, the global
 	 * speed of the current Song Song::__bpm or, if no Song is

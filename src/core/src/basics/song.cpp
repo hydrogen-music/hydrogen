@@ -1203,32 +1203,26 @@ Song* SongReader::readSong( const QString& filename )
 	}
 
 	Timeline* pTimeline = Hydrogen::get_instance()->getTimeline();
-	pTimeline->m_timelinevector.clear();
-	Timeline::HTimelineVector tlvector;
+	pTimeline->deleteAllTempoMarkers();
 	QDomNode bpmTimeLine = songNode.firstChildElement( "BPMTimeLine" );
 	if ( !bpmTimeLine.isNull() ) {
 		QDomNode newBPMNode = bpmTimeLine.firstChildElement( "newBPM" );
 		while( !newBPMNode.isNull() ) {
-			tlvector.m_htimelinebeat = LocalFileMng::readXmlInt( newBPMNode, "BAR", 0 );
-			tlvector.m_htimelinebpm = LocalFileMng::readXmlFloat( newBPMNode, "BPM", 120.0 );
-			pTimeline->m_timelinevector.push_back( tlvector );
-			pTimeline->sortTimelineVector();
+			pTimeline->addTempoMarker( LocalFileMng::readXmlInt( newBPMNode, "BAR", 0 ),
+									   LocalFileMng::readXmlFloat( newBPMNode, "BPM", 120.0 ) );
 			newBPMNode = newBPMNode.nextSiblingElement( "newBPM" );
 		}
 	} else {
 		WARNINGLOG( "bpmTimeLine node not found" );
 	}
 
-	pTimeline->m_timelinetagvector.clear();
-	Timeline::HTimelineTagVector tltagvector;
+	pTimeline->deleteAllTags();
 	QDomNode timeLineTag = songNode.firstChildElement( "timeLineTag" );
 	if ( !timeLineTag.isNull() ) {
 		QDomNode newTAGNode = timeLineTag.firstChildElement( "newTAG" );
 		while( !newTAGNode.isNull() ) {
-			tltagvector.m_htimelinetagbeat = LocalFileMng::readXmlInt( newTAGNode, "BAR", 0 );
-			tltagvector.m_htimelinetag = LocalFileMng::readXmlString( newTAGNode, "TAG", "" );
-			pTimeline->m_timelinetagvector.push_back( tltagvector );
-			pTimeline->sortTimelineTagVector();
+			pTimeline->addTag( LocalFileMng::readXmlInt( newTAGNode, "BAR", 0 ),
+							   LocalFileMng::readXmlString( newTAGNode, "TAG", "" ) );
 			newTAGNode = newTAGNode.nextSiblingElement( "newTAG" );
 		}
 	} else {

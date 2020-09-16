@@ -32,9 +32,7 @@ namespace H2Core
 	{
 	}
 
-	void Timeline::addTempoMarker( int nPosition, float fBpm ) {
-
-		deleteTempoMarker( nPosition );
+	void Timeline::addTempoMarker( int nBar, float fBpm ) {
 		
 		if ( fBpm < 30.0 ) {
 			fBpm = 30.0;
@@ -42,19 +40,54 @@ namespace H2Core
 			fBpm = 500.0;
 		}
 
-		HTimelineVector tlvector = { nPosition - 1, fBpm };
+		HTimelineVector tlvector = { nBar, fBpm };
 
 		m_timelinevector.push_back( tlvector );
 		sortTimelineVector();
 	}
 
-	void Timeline::deleteTempoMarker( int nPosition ) {
+	void Timeline::deleteTempoMarker( int nBar ) {
 
 		// Erase the value to set the new value
 		if ( m_timelinevector.size() >= 1 ){
 			for ( int t = 0; t < m_timelinevector.size(); t++ ){
-				if ( m_timelinevector[t].m_htimelinebeat == nPosition -1 ) {
+				if ( m_timelinevector[t].m_htimelinebeat == nBar ) {
 					m_timelinevector.erase( m_timelinevector.begin() +  t);
+				}
+			}
+		}
+	}
+
+	float Timeline::getTempoAtBar( int nBar ) const
+	{
+		float fBpm = 0;
+		
+		for ( int i = 0; i < static_cast<int>(m_timelinevector.size()); i++) {
+			if ( m_timelinevector[i].m_htimelinebeat > nBar ) {
+				break;
+			}
+
+			fBpm = m_timelinevector[i].m_htimelinebpm;
+		}
+
+		return fBpm;
+	}
+
+	void Timeline::addTag( int nBar, QString sTag ) {
+		
+		HTimelineTagVector tlvector = { nBar, sTag };
+
+		m_timelinetagvector.push_back( tlvector );
+		sortTimelineTagVector();
+	}
+
+	void Timeline::deleteTag( int nBar ) {
+
+		// Erase the value to set the new value
+		if ( m_timelinetagvector.size() >= 1 ){
+			for ( int t = 0; t < m_timelinetagvector.size(); t++ ){
+				if ( m_timelinetagvector[t].m_htimelinetagbeat == nBar ) {
+					m_timelinetagvector.erase( m_timelinetagvector.begin() +  t);
 				}
 			}
 		}

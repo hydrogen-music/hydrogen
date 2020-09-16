@@ -304,7 +304,7 @@ bool CoreActionController::newSong( const QString& songPath ) {
 	}
 	
 	// Remove all BPM tags on the Timeline.
-	pHydrogen->getTimeline()->m_timelinevector.clear();
+	pHydrogen->getTimeline()->deleteAllTempoMarkers();
 	
 	// Create an empty Song.
 	auto pSong = Song::get_empty_song();
@@ -351,7 +351,7 @@ bool CoreActionController::openSong (const QString& songPath ) {
 	}
 	
 	// Remove all BPM tags on the Timeline.
-	pHydrogen->getTimeline()->m_timelinevector.clear();
+	pHydrogen->getTimeline()->deleteAllTempoMarkers();
 	
 	// Check whether the provided path is valid.
 	if ( !isSongPathValid( songPath ) ) {
@@ -506,7 +506,9 @@ bool CoreActionController::activateTimeline( bool active ) {
 }
 
 bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
-	Hydrogen::get_instance()->getTimeline()->addTempoMarker( nPosition, fBpm );
+	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+	pTimeline->deleteTempoMarker( nPosition );
+	pTimeline->addTempoMarker( nPosition, fBpm );
 
 	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
 
