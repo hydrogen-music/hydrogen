@@ -34,6 +34,9 @@ namespace H2Core
 		public:
 			Timeline();
 
+			void		addTempoMarker( int nPosition, float fBpm );
+			void		deleteTempoMarker( int nPosition );
+
 			///sample editor vectors
 			void		sortTimelineVector();
 			void		sortTimelineTagVector();

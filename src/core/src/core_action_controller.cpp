@@ -469,7 +469,6 @@ bool CoreActionController::quit() {
 	return true;
 }
 
-
 bool CoreActionController::isSongPathValid( const QString& songPath ) {
 	
 	QFileInfo songFileInfo = QFileInfo( songPath );
@@ -496,6 +495,36 @@ bool CoreActionController::isSongPathValid( const QString& songPath ) {
 	
 	return true;
 }
+
+bool CoreActionController::activateTimeline( bool active ) {
+
+	Preferences::get_instance()->setUseTimelineBpm( active );
 	
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>(active) );
 	
+	return true;
+}
+
+bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
+	Hydrogen::get_instance()->getTimeline()->addTempoMarker( nPosition, fBpm );
+
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
+
+	return true;
+}
+
+bool CoreActionController::deleteTempoMarker( int nPosition ) {
+	Hydrogen::get_instance()->getTimeline()->deleteTempoMarker( nPosition );
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
+
+	return true;
+}
+
+bool CoreActionController::activateJackTransport( bool bActivate ) {
+	return true;
+}
+
+bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
+	return true;
+}
 }

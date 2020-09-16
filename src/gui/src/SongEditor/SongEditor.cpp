@@ -2585,47 +2585,17 @@ void SongEditorPositionRuler::updatePosition()
 }
 
 
-void SongEditorPositionRuler::editTimeLineAction( int newPosition, float newBpm )
+void SongEditorPositionRuler::editTimeLineAction( int nNewPosition, float fNewBpm )
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	Timeline* pTimeline = pEngine->getTimeline();
-
-	//erase the value to set the new value
-	if( pTimeline->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
-			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == newPosition -1 ) {
-				pTimeline->m_timelinevector.erase( pTimeline->m_timelinevector.begin() +  t);
-			}
-		}
-	}
-
-	Timeline::HTimelineVector tlvector;
-
-	tlvector.m_htimelinebeat = newPosition -1 ;
-
-	if( newBpm < 30.0 ) newBpm = 30.0;
-	if( newBpm > 500.0 ) newBpm = 500.0;
-	tlvector.m_htimelinebpm = newBpm;
-	pTimeline->m_timelinevector.push_back( tlvector );
-	pTimeline->sortTimelineVector();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getTimeline()->addTempoMarker( nNewPosition, fNewBpm );
 	createBackground();
 }
 
-
-
-void SongEditorPositionRuler::deleteTimeLinePosition( int position )
+void SongEditorPositionRuler::deleteTimeLinePosition( int nPosition )
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	Timeline* pTimeline = pEngine->getTimeline();
-
-	//erase the value to set the new value
-	if( pTimeline->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
-			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == position -1 ) {
-				pTimeline->m_timelinevector.erase( pTimeline->m_timelinevector.begin() +  t);
-			}
-		}
-	}
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getTimeline()->deleteTempoMarker( nPosition );
 	createBackground();
 }
 

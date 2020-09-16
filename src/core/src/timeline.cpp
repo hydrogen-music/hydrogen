@@ -32,6 +32,34 @@ namespace H2Core
 	{
 	}
 
+	void Timeline::addTempoMarker( int nPosition, float fBpm ) {
+
+		deleteTempoMarker( nPosition );
+		
+		if ( fBpm < 30.0 ) {
+			fBpm = 30.0;
+		} else if ( fBpm > 500.0 ) {
+			fBpm = 500.0;
+		}
+
+		HTimelineVector tlvector = { nPosition - 1, fBpm };
+
+		m_timelinevector.push_back( tlvector );
+		sortTimelineVector();
+	}
+
+	void Timeline::deleteTempoMarker( int nPosition ) {
+
+		// Erase the value to set the new value
+		if ( m_timelinevector.size() >= 1 ){
+			for ( int t = 0; t < m_timelinevector.size(); t++ ){
+				if ( m_timelinevector[t].m_htimelinebeat == nPosition -1 ) {
+					m_timelinevector.erase( m_timelinevector.begin() +  t);
+				}
+			}
+		}
+	}
+
 	void Timeline::sortTimelineVector()
 	{
 		//sort the timeline vector to beats a < b
