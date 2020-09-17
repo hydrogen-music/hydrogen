@@ -609,7 +609,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		int nPosition = pNote->get_position();
 		int nNewInstrument = nInstrument + offset.y();
 		int nNewPosition = nPosition + offset.x();
-		if ( nNewInstrument < 0 || nNewInstrument > pInstrumentList->size()
+		if ( nNewInstrument < 0 || nNewInstrument >= pInstrumentList->size()
 			 || nNewPosition < 0 ) {
 
 			if ( m_bCopyNotMove ) {
