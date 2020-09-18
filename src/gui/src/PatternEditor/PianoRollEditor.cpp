@@ -1605,15 +1605,25 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 		// Transpose note
 		int n = 12 * (octave - OCTAVE_MIN) + key - offset.y();
 		int nLine = 12 * m_nOctaves - n - 1;
+		bool bNoteInRange = nLine >= 0 && nLine < 12 * m_nOctaves && nNewPosition >= 0;
 		Note::Octave newOctave = (Note::Octave)(n / 12 + OCTAVE_MIN);
 		Note::Key newKey = (Note::Key)(n % 12);
 		if ( m_bCopyNotMove ) {
-			pUndo->push( new SE_addOrDeleteNotePianoRollAction( nNewPosition, nLine, nSelectedPatternNumber,
-																nSelectedInstrumentNumber, pNote->get_length(), pNote->get_velocity(),
-																pNote->get_pan_l(), pNote->get_pan_r(),
-																pNote->get_lead_lag(), newKey, newOctave, false ) );
+			if ( bNoteInRange ) {
+				pUndo->push( new SE_addOrDeleteNotePianoRollAction( nNewPosition, nLine, nSelectedPatternNumber,
+																	nSelectedInstrumentNumber, pNote->get_length(), pNote->get_velocity(),
+																	pNote->get_pan_l(), pNote->get_pan_r(),
+																	pNote->get_lead_lag(), newKey, newOctave, false ) );
+			}
 		} else {
-			pUndo->push( new SE_moveNotePianoRollAction( nPosition, octave, key, nSelectedPatternNumber, nNewPosition, newOctave, newKey, pNote ) );
+			if ( bNoteInRange ) {
+				pUndo->push( new SE_moveNotePianoRollAction( nPosition, octave, key, nSelectedPatternNumber, nNewPosition, newOctave, newKey, pNote ) );
+			} else {
+				pUndo->push( new SE_addOrDeleteNotePianoRollAction( pNote->get_position(), nLine - offset.y(),  nSelectedPatternNumber,
+																	nSelectedInstrumentNumber, pNote->get_length(), pNote->get_velocity(),
+																	pNote->get_pan_l(), pNote->get_pan_r(),
+																	pNote->get_lead_lag(), key, octave, true ) );
+			}
 		}
 	}
 
