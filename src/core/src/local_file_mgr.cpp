@@ -649,8 +649,8 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 	if ( tempoMarkerVector.size() >= 1 ){
 		for ( int t = 0; t < static_cast<int>(tempoMarkerVector.size()); t++){
 			QDomNode newBPMNode = doc.createElement( "newBPM" );
-			LocalFileMng::writeXmlString( newBPMNode, "BAR",QString("%1").arg( tempoMarkerVector[t].m_htimelinebeat ));
-			LocalFileMng::writeXmlString( newBPMNode, "BPM", QString("%1").arg( tempoMarkerVector[t].m_htimelinebpm  ) );
+			LocalFileMng::writeXmlString( newBPMNode, "BAR",QString("%1").arg( tempoMarkerVector[t]->m_htimelinebeat ));
+			LocalFileMng::writeXmlString( newBPMNode, "BPM", QString("%1").arg( tempoMarkerVector[t]->m_htimelinebpm  ) );
 			bpmTimeLine.appendChild( newBPMNode );
 		}
 	}
@@ -664,8 +664,8 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 	if ( tagVector.size() >= 1 ){
 		for ( int t = 0; t < static_cast<int>(tagVector.size()); t++){
 			QDomNode newTAGNode = doc.createElement( "newTAG" );
-			LocalFileMng::writeXmlString( newTAGNode, "BAR",QString("%1").arg( tagVector[t].m_htimelinetagbeat ));
-			LocalFileMng::writeXmlString( newTAGNode, "TAG", QString("%1").arg( tagVector[t].m_htimelinetag ) );
+			LocalFileMng::writeXmlString( newTAGNode, "BAR",QString("%1").arg( tagVector[t]->m_htimelinetagbeat ));
+			LocalFileMng::writeXmlString( newTAGNode, "TAG", QString("%1").arg( tagVector[t]->m_htimelinetag ) );
 			timeLineTag.appendChild( newTAGNode );
 		}
 	}

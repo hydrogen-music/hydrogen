@@ -76,14 +76,14 @@ void SongEditorPanelTagWidget::createTheTagTableWidget()
 		tagTableWidget->insertRow( i );
 	}
 
-	std::vector<Timeline::HTimelineTagVector> tagVector = pTimeline->getAllTags();
+	auto tagVector = pTimeline->getAllTags();
 
 	//read the tag vector and fill all tags into items
 	if( tagVector.size() > 0 ){
 		for ( unsigned int t = 0; t < tagVector.size(); t++ ){
 			QTableWidgetItem *newTagItem = new QTableWidgetItem();
-			newTagItem->setText( QString( "%1" ).arg( tagVector[t].m_htimelinetag ) );
-			tagTableWidget->setItem( tagVector[t].m_htimelinetagbeat, 0, newTagItem );
+			newTagItem->setText( QString( "%1" ).arg( tagVector[t]->m_htimelinetag ) );
+			tagTableWidget->setItem( tagVector[t]->m_htimelinetagbeat, 0, newTagItem );
 			tagTableWidget->setCurrentItem( newTagItem );
 			tagTableWidget->openPersistentEditor( newTagItem );
 		}
@@ -96,13 +96,13 @@ void SongEditorPanelTagWidget::createTheTagTableWidget()
 		QTableWidgetItem *newTagItem2 = new QTableWidgetItem();
 		newTagItem2->setText( QString( "" ) );
 		for ( unsigned int t = 0; t < tagVector.size(); t++ ){
-			if( tagVector[t].m_htimelinetagbeat == m_stimelineposition){
+			if( tagVector[t]->m_htimelinetagbeat == m_stimelineposition){
 				vpos = t;
 			}
 		}
 
 		if( vpos >-1 ){
-			newTagItem2->setText( QString( "%1" ).arg( tagVector[vpos].m_htimelinetag ) );
+			newTagItem2->setText( QString( "%1" ).arg( tagVector[vpos]->m_htimelinetag ) );
 		}
 		tagTableWidget->setItem( m_stimelineposition , 0, newTagItem2 );
 		tagTableWidget->setCurrentItem( newTagItem2 );
@@ -143,8 +143,8 @@ void SongEditorPanelTagWidget::on_okBtn_clicked()
 			sOldText << "";
 		}
 		for(int i = 0; i < tagVector.size(); ++i){
-			sOldText.replace(tagVector[i].m_htimelinetagbeat,
-							 tagVector[i].m_htimelinetag);
+			sOldText.replace(tagVector[i]->m_htimelinetagbeat,
+							 tagVector[i]->m_htimelinetag);
 		}
 	}
 

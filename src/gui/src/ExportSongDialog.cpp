@@ -689,10 +689,10 @@ void ExportSongDialog::calculateRubberbandTime()
 	float oldBPM = m_pEngine->getSong()->__bpm;
 	float lowBPM = oldBPM;
 
-	if( tempoMarkerVector.size() >= 1 ){
+	if ( tempoMarkerVector.size() >= 1 ){
 		for ( int t = 0; t < tempoMarkerVector.size(); t++){
-			if(tempoMarkerVector[t].m_htimelinebpm < lowBPM){
-				lowBPM =  tempoMarkerVector[t].m_htimelinebpm;
+			if(tempoMarkerVector[t]->m_htimelinebpm < lowBPM){
+				lowBPM =  tempoMarkerVector[t]->m_htimelinebpm;
 			}
 
 		}

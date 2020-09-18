@@ -42,7 +42,7 @@ namespace H2Core
 
 		HTimelineVector tlvector = { nBar, fBpm };
 
-		m_timelinevector.push_back( tlvector );
+		m_timelinevector.push_back( &tlvector );
 		sortTimelineVector();
 	}
 
@@ -51,7 +51,7 @@ namespace H2Core
 		// Erase the value to set the new value
 		if ( m_timelinevector.size() >= 1 ){
 			for ( int t = 0; t < m_timelinevector.size(); t++ ){
-				if ( m_timelinevector[t].m_htimelinebeat == nBar ) {
+				if ( m_timelinevector[t]->m_htimelinebeat == nBar ) {
 					m_timelinevector.erase( m_timelinevector.begin() +  t);
 				}
 			}
@@ -63,15 +63,15 @@ namespace H2Core
 
 		if ( bSticky ) {
 			for ( int i = 0; i < static_cast<int>(m_timelinevector.size()); i++) {
-				if ( m_timelinevector[i].m_htimelinebeat > nBar ) {
+				if ( m_timelinevector[i]->m_htimelinebeat > nBar ) {
 					break;
 				}
-				fBpm = m_timelinevector[i].m_htimelinebpm;
+				fBpm = m_timelinevector[i]->m_htimelinebpm;
 			}
 		} else {
 			for ( int t = 0; t < static_cast<int>(m_timelinevector.size()); t++ ){
-				if ( m_timelinevector[t].m_htimelinebeat == nBar ){
-					fBpm = m_timelinevector[t].m_htimelinebpm;
+				if ( m_timelinevector[t]->m_htimelinebeat == nBar ){
+					fBpm = m_timelinevector[t]->m_htimelinebpm;
 				}
 			}
 		}
@@ -83,7 +83,7 @@ namespace H2Core
 		
 		HTimelineTagVector tlvector = { nBar, sTag };
 
-		m_timelinetagvector.push_back( tlvector );
+		m_timelinetagvector.push_back( &tlvector );
 		sortTimelineTagVector();
 	}
 
@@ -92,7 +92,7 @@ namespace H2Core
 		// Erase the value to set the new value
 		if ( m_timelinetagvector.size() >= 1 ){
 			for ( int t = 0; t < m_timelinetagvector.size(); t++ ){
-				if ( m_timelinetagvector[t].m_htimelinetagbeat == nBar ) {
+				if ( m_timelinetagvector[t]->m_htimelinetagbeat == nBar ) {
 					m_timelinetagvector.erase( m_timelinetagvector.begin() +  t);
 				}
 			}
@@ -107,15 +107,15 @@ namespace H2Core
 
 		if ( bSticky ) {
 			for ( int t = 0; t < static_cast<int>(m_timelinetagvector.size()); t++ ){
-				if ( m_timelinetagvector[t].m_htimelinetagbeat > nBar ){
+				if ( m_timelinetagvector[t]->m_htimelinetagbeat > nBar ){
 					break;
 				}
-				sTag = m_timelinetagvector[t].m_htimelinetag;
+				sTag = m_timelinetagvector[t]->m_htimelinetag;
 			}
 		} else {
 			for ( int t = 0; t < static_cast<int>(m_timelinetagvector.size()); t++ ){
-				if ( m_timelinetagvector[t].m_htimelinetagbeat == nBar ){
-					sTag =  m_timelinetagvector[t].m_htimelinetag;
+				if ( m_timelinetagvector[t]->m_htimelinetagbeat == nBar ){
+					sTag =  m_timelinetagvector[t]->m_htimelinetag;
 				}
 			}
 		}

@@ -72,7 +72,7 @@ namespace H2Core
 			 * taken care of with #854.
 			 */
 			float		getTempoAtBar( int nBar, bool bSticky ) const;
-			std::vector<HTimelineVector> getAllTempoMarkers() const;
+			const std::vector<const HTimelineVector*> getAllTempoMarkers() const;
 
 			void		addTag( int nBar, QString sTag );
 			void		deleteTag( int nBar );
@@ -92,35 +92,30 @@ namespace H2Core
 			 */
 
 			const QString getTagAtBar( int nBar, bool bSticky ) const;
-		
-			std::vector<Timeline::HTimelineTagVector> getAllTags() const;
-
+			const std::vector<const Timeline::HTimelineTagVector*> getAllTags() const;
+		private:
 			///sample editor vectors
 			void		sortTimelineVector();
 			void		sortTimelineTagVector();
 
-			std::vector<HTimelineVector> m_timelinevector;
-			std::vector<HTimelineTagVector> m_timelinetagvector;
+			std::vector<const HTimelineVector*> m_timelinevector;
+			std::vector<const HTimelineTagVector*> m_timelinetagvector;
 
 			struct TimelineComparator
 			{
-				bool operator()( HTimelineVector const& lhs, HTimelineVector const& rhs)
+				bool operator()( HTimelineVector const *lhs, HTimelineVector const *rhs)
 				{
-					return lhs.m_htimelinebeat < rhs.m_htimelinebeat;
+					return lhs->m_htimelinebeat < rhs->m_htimelinebeat;
 				}
 			};
 
 			struct TimelineTagComparator
 			{
-				bool operator()( HTimelineTagVector const& lhs, HTimelineTagVector const& rhs)
+				bool operator()( HTimelineTagVector const *lhs, HTimelineTagVector const *rhs)
 				{
-					return lhs.m_htimelinetagbeat < rhs.m_htimelinetagbeat;
+					return lhs->m_htimelinetagbeat < rhs->m_htimelinetagbeat;
 				}
 			};
-
-
-		private:
-
 	};
 inline void Timeline::deleteAllTempoMarkers() {
 	m_timelinevector.clear();
@@ -128,10 +123,10 @@ inline void Timeline::deleteAllTempoMarkers() {
 inline void Timeline::deleteAllTags() {
 	m_timelinevector.clear();
 }
-inline std::vector<Timeline::HTimelineVector> Timeline::getAllTempoMarkers() const {
+inline const std::vector<const Timeline::HTimelineVector*> Timeline::getAllTempoMarkers() const {
 	return m_timelinevector;
 }
-inline std::vector<Timeline::HTimelineTagVector> Timeline::getAllTags() const {
+inline const std::vector<const Timeline::HTimelineTagVector*> Timeline::getAllTags() const {
 	return m_timelinetagvector;
 }
 };

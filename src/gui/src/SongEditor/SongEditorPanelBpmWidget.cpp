@@ -53,13 +53,13 @@ SongEditorPanelBpmWidget::SongEditorPanelBpmWidget( QWidget* pParent, int beat )
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Timeline* pTimeline = pHydrogen->getTimeline();
-	std::vector<Timeline::HTimelineVector> tempoMarkers = pTimeline->getAllTempoMarkers();
+	auto tempoMarkers = pTimeline->getAllTempoMarkers();
 
 	//restore the bpm value
 	if( tempoMarkers.size() > 0 ){
 		for ( int t = 0; t < tempoMarkers.size(); t++ ){
-			if ( tempoMarkers[t].m_htimelinebeat == m_stimelineposition ) {
-				lineEditBpm->setText( QString("%1").arg( tempoMarkers[t].m_htimelinebpm ) );
+			if ( tempoMarkers[t]->m_htimelinebeat == m_stimelineposition ) {
+				lineEditBpm->setText( QString("%1").arg( tempoMarkers[t]->m_htimelinebpm ) );
 				deleteBtn->setEnabled ( true );
 				return;
 			}
@@ -101,8 +101,8 @@ void SongEditorPanelBpmWidget::on_okBtn_clicked()
 	//search for an old entry
 	if( tempoMarkerVector.size() >= 1 ){
 		for ( int t = 0; t < tempoMarkerVector.size(); t++){
-			if ( tempoMarkerVector[t].m_htimelinebeat == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
-				fOldBpm = tempoMarkerVector[t].m_htimelinebpm;
+			if ( tempoMarkerVector[t]->m_htimelinebeat == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
+				fOldBpm = tempoMarkerVector[t]->m_htimelinebpm;
 			}
 		}
 	}
@@ -124,8 +124,8 @@ void SongEditorPanelBpmWidget::on_deleteBtn_clicked()
 	//search for an old entry
 	if( tempoMarkerVector.size() >= 1 ){
 		for ( int t = 0; t < tempoMarkerVector.size(); t++){
-			if ( tempoMarkerVector[t].m_htimelinebeat == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
-				fOldBpm = tempoMarkerVector[t].m_htimelinebpm;
+			if ( tempoMarkerVector[t]->m_htimelinebeat == ( QString( lineEditBeat->text() ).toInt() ) -1 ) {
+				fOldBpm = tempoMarkerVector[t]->m_htimelinebpm;
 			}
 		}
 	}
