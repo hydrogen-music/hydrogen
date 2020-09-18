@@ -58,16 +58,22 @@ namespace H2Core
 		}
 	}
 
-	float Timeline::getTempoAtBar( int nBar ) const
-	{
+	float Timeline::getTempoAtBar( int nBar, bool bSticky ) const {
 		float fBpm = 0;
-		
-		for ( int i = 0; i < static_cast<int>(m_timelinevector.size()); i++) {
-			if ( m_timelinevector[i].m_htimelinebeat > nBar ) {
-				break;
-			}
 
-			fBpm = m_timelinevector[i].m_htimelinebpm;
+		if ( bSticky ) {
+			for ( int i = 0; i < static_cast<int>(m_timelinevector.size()); i++) {
+				if ( m_timelinevector[i].m_htimelinebeat > nBar ) {
+					break;
+				}
+				fBpm = m_timelinevector[i].m_htimelinebpm;
+			}
+		} else {
+			for ( int t = 0; t < static_cast<int>(m_timelinevector.size()); t++ ){
+				if ( m_timelinevector[t].m_htimelinebeat == nBar ){
+					fBpm = m_timelinevector[t].m_htimelinebpm;
+				}
+			}
 		}
 
 		return fBpm;
@@ -91,8 +97,32 @@ namespace H2Core
 				}
 			}
 		}
+		
+		sortTimelineTagVector();
 	}
 
+	const QString Timeline::getTagAtBar( int nBar, bool bSticky ) const {
+
+		QString sTag("");
+
+		if ( bSticky ) {
+			for ( int t = 0; t < static_cast<int>(m_timelinetagvector.size()); t++ ){
+				if ( m_timelinetagvector[t].m_htimelinetagbeat > nBar ){
+					break;
+				}
+				sTag = m_timelinetagvector[t].m_htimelinetag;
+			}
+		} else {
+			for ( int t = 0; t < static_cast<int>(m_timelinetagvector.size()); t++ ){
+				if ( m_timelinetagvector[t].m_htimelinetagbeat == nBar ){
+					sTag =  m_timelinetagvector[t].m_htimelinetag;
+				}
+			}
+		}
+
+		return sTag;
+	}
+	
 	void Timeline::sortTimelineVector()
 	{
 		//sort the timeline vector to beats a < b

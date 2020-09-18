@@ -54,18 +54,45 @@ namespace H2Core
 			/**
 			 * Returns the tempo of the Song at a given bar.
 			 *
+			 * If there is no tempo marker at the provided `nBar`, the
+			 * value of the most previous one will be returned
+			 * instead.
+			 *
+			 * @param nBar Position of the Timeline to query for a 
+			 *   tag.
+			 * @param bSticky If set to true either the tag at `nBar`
+			 *   or - if none is present - the nearest previous tag is
+			 *   returned. If set to false, only the precise position
+			 *   `nBar` is taken into account.
+			 *
 			 * TODO: For now the function returns 0 if the bar is
 			 * positioned _before_ the first tempo marker. The calling
 			 * routine Hydrogen::getTimelineBpm() will take care of
 			 * this and replaces it with pSong->__bpm. This will be
 			 * taken care of with #854.
 			 */
-			float		getTempoAtBar( int nBar ) const;
+			float		getTempoAtBar( int nBar, bool bSticky ) const;
 			std::vector<HTimelineVector> getAllTempoMarkers() const;
 
 			void		addTag( int nBar, QString sTag );
 			void		deleteTag( int nBar );
 			void 		deleteAllTags();
+			/**
+			 * Returns the tag of the Song at a given bar.
+			 *
+			 * @param nBar Position of the Timeline to query for a 
+			 *   tag.
+			 * @param bSticky If set to true either the tag at `nBar`
+			 *   or - if none is present - the nearest previous tag is
+			 *   returned. If set to false, only the precise position
+			 *   `nBar` is taken into account.
+			 * 
+			 * The function returns "" if the bar is positioned
+			 * _before_ the first tag or none is present at all.
+			 */
+
+			const QString getTagAtBar( int nBar, bool bSticky ) const;
+		
 			std::vector<Timeline::HTimelineTagVector> getAllTags() const;
 
 			///sample editor vectors

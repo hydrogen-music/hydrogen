@@ -4003,7 +4003,7 @@ float Hydrogen::getTimelineBpm( int nBar )
 	}
 
 	// Determine the speed at the supplied beat.
-	float fTimelineBpm = m_pTimeline->getTempoAtBar( nBar );
+	float fTimelineBpm = m_pTimeline->getTempoAtBar( nBar, true );
 	if ( fTimelineBpm != 0 ) {
 		/* TODO: For now the function returns 0 if the bar is
 		 * positioned _before_ the first tempo marker. This will be

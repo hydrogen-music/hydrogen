@@ -175,7 +175,7 @@ void* diskWriterDriver_thread( void* param )
 		Timeline* pTimeline = pEngine->getTimeline();
 		if(Preferences::get_instance()->getUseTimelineBpm() ){
 
-			float fTimelineBpm = pTimeline->getTempoAtBar( patternPosition );
+			float fTimelineBpm = pTimeline->getTempoAtBar( patternPosition, true );
 			if ( fTimelineBpm != 0 ) {
 				validBpm = fTimelineBpm;
 			}
