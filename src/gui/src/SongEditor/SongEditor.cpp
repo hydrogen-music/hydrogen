@@ -2359,7 +2359,7 @@ void SongEditorPositionRuler::createBackground()
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
 		uint x = 10 + i * m_nGridWidth;
 		for ( int t = 0; t < static_cast<int>(tagVector.size()); t++){
-			if ( tagVector[t]->m_htimelinetagbeat == i ) {
+			if ( tagVector[t]->nBar == i ) {
 				p.setPen( Qt::cyan );
 				p.drawText( x - m_nGridWidth / 2 , 12, m_nGridWidth * 2, height() , Qt::AlignCenter, "T");
 			}
@@ -2390,8 +2390,8 @@ void SongEditorPositionRuler::createBackground()
 		p.drawLine( x, 2, x, 5 );
 		p.drawLine( x, 19, x, 20 );
 		for ( int t = 0; t < static_cast<int>(tempoMarkerVector.size()); t++){
-			if ( tempoMarkerVector[t]->m_htimelinebeat == i ) {
-				sprintf( tempo, "%d",  ((int)tempoMarkerVector[t]->m_htimelinebpm) );
+			if ( tempoMarkerVector[t]->nBar == i ) {
+				sprintf( tempo, "%d",  ((int)tempoMarkerVector[t]->fBpm) );
 				p.drawText( x - m_nGridWidth, 3, m_nGridWidth * 2, height() / 2 - 5, Qt::AlignCenter, tempo );
 			}
 		}

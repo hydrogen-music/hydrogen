@@ -40,19 +40,19 @@ namespace H2Core
 			fBpm = 500.0;
 		}
 
-		HTimelineVector tlvector = { nBar, fBpm };
+		TempoMarker tempoMarker = { nBar, fBpm };
 
-		m_timelinevector.push_back( &tlvector );
-		sortTimelineVector();
+		m_tempoMarkers.push_back( &tempoMarker );
+		sortTempoMarkers();
 	}
 
 	void Timeline::deleteTempoMarker( int nBar ) {
 
 		// Erase the value to set the new value
-		if ( m_timelinevector.size() >= 1 ){
-			for ( int t = 0; t < m_timelinevector.size(); t++ ){
-				if ( m_timelinevector[t]->m_htimelinebeat == nBar ) {
-					m_timelinevector.erase( m_timelinevector.begin() +  t);
+		if ( m_tempoMarkers.size() >= 1 ){
+			for ( int t = 0; t < m_tempoMarkers.size(); t++ ){
+				if ( m_tempoMarkers[t]->nBar == nBar ) {
+					m_tempoMarkers.erase( m_tempoMarkers.begin() +  t);
 				}
 			}
 		}
@@ -62,16 +62,16 @@ namespace H2Core
 		float fBpm = 0;
 
 		if ( bSticky ) {
-			for ( int i = 0; i < static_cast<int>(m_timelinevector.size()); i++) {
-				if ( m_timelinevector[i]->m_htimelinebeat > nBar ) {
+			for ( int i = 0; i < static_cast<int>(m_tempoMarkers.size()); i++) {
+				if ( m_tempoMarkers[i]->nBar > nBar ) {
 					break;
 				}
-				fBpm = m_timelinevector[i]->m_htimelinebpm;
+				fBpm = m_tempoMarkers[i]->fBpm;
 			}
 		} else {
-			for ( int t = 0; t < static_cast<int>(m_timelinevector.size()); t++ ){
-				if ( m_timelinevector[t]->m_htimelinebeat == nBar ){
-					fBpm = m_timelinevector[t]->m_htimelinebpm;
+			for ( int t = 0; t < static_cast<int>(m_tempoMarkers.size()); t++ ){
+				if ( m_tempoMarkers[t]->nBar == nBar ){
+					fBpm = m_tempoMarkers[t]->fBpm;
 				}
 			}
 		}
@@ -81,58 +81,58 @@ namespace H2Core
 
 	void Timeline::addTag( int nBar, QString sTag ) {
 		
-		HTimelineTagVector tlvector = { nBar, sTag };
+		Tag tag = { nBar, sTag };
 
-		m_timelinetagvector.push_back( &tlvector );
-		sortTimelineTagVector();
+		m_tags.push_back( &tag );
+		sortTags();
 	}
 
 	void Timeline::deleteTag( int nBar ) {
 
 		// Erase the value to set the new value
-		if ( m_timelinetagvector.size() >= 1 ){
-			for ( int t = 0; t < m_timelinetagvector.size(); t++ ){
-				if ( m_timelinetagvector[t]->m_htimelinetagbeat == nBar ) {
-					m_timelinetagvector.erase( m_timelinetagvector.begin() +  t);
+		if ( m_tags.size() >= 1 ){
+			for ( int t = 0; t < m_tags.size(); t++ ){
+				if ( m_tags[t]->nBar == nBar ) {
+					m_tags.erase( m_tags.begin() +  t);
 				}
 			}
 		}
 		
-		sortTimelineTagVector();
+		sortTags();
 	}
 
 	const QString Timeline::getTagAtBar( int nBar, bool bSticky ) const {
 
-		QString sTag("");
+		QString sCurrentTag("");
 
 		if ( bSticky ) {
-			for ( int t = 0; t < static_cast<int>(m_timelinetagvector.size()); t++ ){
-				if ( m_timelinetagvector[t]->m_htimelinetagbeat > nBar ){
+			for ( int t = 0; t < static_cast<int>(m_tags.size()); t++ ){
+				if ( m_tags[t]->nBar > nBar ){
 					break;
 				}
-				sTag = m_timelinetagvector[t]->m_htimelinetag;
+				sCurrentTag = m_tags[t]->sTag;
 			}
 		} else {
-			for ( int t = 0; t < static_cast<int>(m_timelinetagvector.size()); t++ ){
-				if ( m_timelinetagvector[t]->m_htimelinetagbeat == nBar ){
-					sTag =  m_timelinetagvector[t]->m_htimelinetag;
+			for ( int t = 0; t < static_cast<int>(m_tags.size()); t++ ){
+				if ( m_tags[t]->nBar == nBar ){
+					sCurrentTag =  m_tags[t]->sTag;
 				}
 			}
 		}
 
-		return sTag;
+		return sCurrentTag;
 	}
 	
-	void Timeline::sortTimelineVector()
+	void Timeline::sortTempoMarkers()
 	{
 		//sort the timeline vector to beats a < b
-		sort(m_timelinevector.begin(), m_timelinevector.end(), TimelineComparator());
+		sort(m_tempoMarkers.begin(), m_tempoMarkers.end(), TempoMarkerComparator());
 	}
 
-	void Timeline::sortTimelineTagVector()
+	void Timeline::sortTags()
 	{
 		//sort the timeline vector to beats a < b
-		sort(m_timelinetagvector.begin(), m_timelinetagvector.end(), TimelineTagComparator());
+		sort(m_tags.begin(), m_tags.end(), TagComparator());
 	}
 
 };

@@ -35,17 +35,17 @@ namespace H2Core
 			Timeline();
 
 			/// timeline vector
-			struct HTimelineVector
+			struct TempoMarker
 			{
-				int		m_htimelinebeat;		//beat position in timeline
-				float	m_htimelinebpm;		//BPM
+				int		nBar;		// beat position in timeline
+				float	fBpm;		// tempo in beats per minute
 			};
 
 			/// timeline tag vector
-			struct HTimelineTagVector
+			struct Tag
 			{
-				int		m_htimelinetagbeat;		//beat position in timeline
-				QString m_htimelinetag;			// tag
+				int		nBar;		// beat position in timeline
+				QString sTag;		// tag
 			};
 
 			void		addTempoMarker( int nBar, float fBpm );
@@ -72,7 +72,7 @@ namespace H2Core
 			 * taken care of with #854.
 			 */
 			float		getTempoAtBar( int nBar, bool bSticky ) const;
-			const std::vector<const HTimelineVector*> getAllTempoMarkers() const;
+			const std::vector<const TempoMarker*> getAllTempoMarkers() const;
 
 			void		addTag( int nBar, QString sTag );
 			void		deleteTag( int nBar );
@@ -92,42 +92,42 @@ namespace H2Core
 			 */
 
 			const QString getTagAtBar( int nBar, bool bSticky ) const;
-			const std::vector<const Timeline::HTimelineTagVector*> getAllTags() const;
+			const std::vector<const Timeline::Tag*> getAllTags() const;
 		private:
 			///sample editor vectors
-			void		sortTimelineVector();
-			void		sortTimelineTagVector();
+			void		sortTempoMarkers();
+			void		sortTags();
 
-			std::vector<const HTimelineVector*> m_timelinevector;
-			std::vector<const HTimelineTagVector*> m_timelinetagvector;
+			std::vector<const TempoMarker*> m_tempoMarkers;
+			std::vector<const Tag*> m_tags;
 
-			struct TimelineComparator
+			struct TempoMarkerComparator
 			{
-				bool operator()( HTimelineVector const *lhs, HTimelineVector const *rhs)
+				bool operator()( TempoMarker const *lhs, TempoMarker const *rhs)
 				{
-					return lhs->m_htimelinebeat < rhs->m_htimelinebeat;
+					return lhs->nBar < rhs->nBar;
 				}
 			};
 
-			struct TimelineTagComparator
+			struct TagComparator
 			{
-				bool operator()( HTimelineTagVector const *lhs, HTimelineTagVector const *rhs)
+				bool operator()( Tag const *lhs, Tag const *rhs)
 				{
-					return lhs->m_htimelinetagbeat < rhs->m_htimelinetagbeat;
+					return lhs->nBar < rhs->nBar;
 				}
 			};
 	};
 inline void Timeline::deleteAllTempoMarkers() {
-	m_timelinevector.clear();
+	m_tempoMarkers.clear();
 }
 inline void Timeline::deleteAllTags() {
-	m_timelinevector.clear();
+	m_tags.clear();
 }
-inline const std::vector<const Timeline::HTimelineVector*> Timeline::getAllTempoMarkers() const {
-	return m_timelinevector;
+inline const std::vector<const Timeline::TempoMarker*> Timeline::getAllTempoMarkers() const {
+	return m_tempoMarkers;
 }
-inline const std::vector<const Timeline::HTimelineTagVector*> Timeline::getAllTags() const {
-	return m_timelinetagvector;
+inline const std::vector<const Timeline::Tag*> Timeline::getAllTags() const {
+	return m_tags;
 }
 };
 #endif // TIMELINE_H

@@ -82,13 +82,13 @@ void SongEditorPanelTagWidget::createTheTagTableWidget()
 	if( tagVector.size() > 0 ){
 		for ( unsigned int t = 0; t < tagVector.size(); t++ ){
 			QTableWidgetItem *newTagItem = new QTableWidgetItem();
-			newTagItem->setText( QString( "%1" ).arg( tagVector[t]->m_htimelinetag ) );
-			tagTableWidget->setItem( tagVector[t]->m_htimelinetagbeat, 0, newTagItem );
+			newTagItem->setText( QString( "%1" ).arg( tagVector[t]->sTag ) );
+			tagTableWidget->setItem( tagVector[t]->nBar, 0, newTagItem );
 			tagTableWidget->setCurrentItem( newTagItem );
 			tagTableWidget->openPersistentEditor( newTagItem );
 		}
 	}
-
+	
 	// activate the clicked item and if you click on an existing tag
 	// fill in the old contend
 	if( tagVector.size() > 0 ){
@@ -96,13 +96,13 @@ void SongEditorPanelTagWidget::createTheTagTableWidget()
 		QTableWidgetItem *newTagItem2 = new QTableWidgetItem();
 		newTagItem2->setText( QString( "" ) );
 		for ( unsigned int t = 0; t < tagVector.size(); t++ ){
-			if( tagVector[t]->m_htimelinetagbeat == m_stimelineposition){
+			if( tagVector[t]->nBar == m_stimelineposition){
 				vpos = t;
 			}
 		}
 
 		if( vpos >-1 ){
-			newTagItem2->setText( QString( "%1" ).arg( tagVector[vpos]->m_htimelinetag ) );
+			newTagItem2->setText( QString( "%1" ).arg( tagVector[vpos]->sTag ) );
 		}
 		tagTableWidget->setItem( m_stimelineposition , 0, newTagItem2 );
 		tagTableWidget->setCurrentItem( newTagItem2 );
@@ -137,14 +137,13 @@ void SongEditorPanelTagWidget::on_okBtn_clicked()
 
 	//oldText list contains all old item values. we need them for undo an item
 	QStringList sOldText;
-
 	if(tagVector.size() > 0){
 		for (int i = 0; i < nPatternGroupVectorSize; i++){
 			sOldText << "";
 		}
 		for(int i = 0; i < tagVector.size(); ++i){
-			sOldText.replace(tagVector[i]->m_htimelinetagbeat,
-							 tagVector[i]->m_htimelinetag);
+			sOldText.replace(tagVector[i]->nBar,
+							 tagVector[i]->sTag);
 		}
 	}
 
