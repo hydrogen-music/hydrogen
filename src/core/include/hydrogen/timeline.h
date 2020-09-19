@@ -33,6 +33,7 @@ namespace H2Core
 
 		public:
 			Timeline();
+			~Timeline();
 
 			/// timeline vector
 			struct TempoMarker
@@ -72,7 +73,8 @@ namespace H2Core
 			 * taken care of with #854.
 			 */
 			float		getTempoAtBar( int nBar, bool bSticky ) const;
-			const std::vector<const TempoMarker*> getAllTempoMarkers() const;
+
+			const std::vector<std::shared_ptr<const TempoMarker>> getAllTempoMarkers() const;
 
 			void		addTag( int nBar, QString sTag );
 			void		deleteTag( int nBar );
@@ -92,26 +94,25 @@ namespace H2Core
 			 */
 
 			const QString getTagAtBar( int nBar, bool bSticky ) const;
-			const std::vector<const Timeline::Tag*> getAllTags() const;
+			const std::vector<std::shared_ptr<const Tag>> getAllTags() const;
 		private:
 			///sample editor vectors
 			void		sortTempoMarkers();
 			void		sortTags();
 
-			std::vector<const TempoMarker*> m_tempoMarkers;
-			std::vector<const Tag*> m_tags;
+			std::vector<std::shared_ptr<const TempoMarker>> m_tempoMarkers;
+			std::vector<std::shared_ptr<const Tag>> m_tags;
 
 			struct TempoMarkerComparator
 			{
-				bool operator()( TempoMarker const *lhs, TempoMarker const *rhs)
+				bool operator()( const std::shared_ptr<const TempoMarker> lhs, const std::shared_ptr<const TempoMarker> rhs)
 				{
 					return lhs->nBar < rhs->nBar;
 				}
 			};
-
 			struct TagComparator
 			{
-				bool operator()( Tag const *lhs, Tag const *rhs)
+				bool operator()( const std::shared_ptr<const Tag> lhs, const std::shared_ptr<const Tag> rhs)
 				{
 					return lhs->nBar < rhs->nBar;
 				}
@@ -123,10 +124,10 @@ inline void Timeline::deleteAllTempoMarkers() {
 inline void Timeline::deleteAllTags() {
 	m_tags.clear();
 }
-inline const std::vector<const Timeline::TempoMarker*> Timeline::getAllTempoMarkers() const {
+inline const std::vector<std::shared_ptr<const Timeline::TempoMarker>> Timeline::getAllTempoMarkers() const {
 	return m_tempoMarkers;
 }
-inline const std::vector<const Timeline::Tag*> Timeline::getAllTags() const {
+inline const std::vector<std::shared_ptr<const Timeline::Tag>> Timeline::getAllTags() const {
 	return m_tags;
 }
 };

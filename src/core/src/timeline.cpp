@@ -32,6 +32,11 @@ namespace H2Core
 	{
 	}
 
+	Timeline::~Timeline() {
+		m_tempoMarkers.clear();
+		m_tags.clear();
+	}
+
 	void Timeline::addTempoMarker( int nBar, float fBpm ) {
 		
 		if ( fBpm < 30.0 ) {
@@ -40,9 +45,11 @@ namespace H2Core
 			fBpm = 500.0;
 		}
 
-		TempoMarker tempoMarker = { nBar, fBpm };
+		std::shared_ptr<TempoMarker> pTempoMarker( new TempoMarker );
+		pTempoMarker->nBar = nBar;
+		pTempoMarker->fBpm = fBpm;
 
-		m_tempoMarkers.push_back( &tempoMarker );
+		m_tempoMarkers.push_back( pTempoMarker );
 		sortTempoMarkers();
 	}
 
@@ -81,9 +88,11 @@ namespace H2Core
 
 	void Timeline::addTag( int nBar, QString sTag ) {
 		
-		Tag tag = { nBar, sTag };
+		std::shared_ptr<Tag> pTag( new Tag );
+		pTag->nBar = nBar;
+		pTag->sTag = sTag;
 
-		m_tags.push_back( &tag );
+		m_tags.push_back( std::move( pTag ) );
 		sortTags();
 	}
 
