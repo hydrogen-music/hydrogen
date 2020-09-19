@@ -27,6 +27,14 @@
 
 namespace H2Core
 {
+	/**
+	 * Timeline class storing and handling all TempoMarkers and Tags.
+	 *
+	 * All methods altering the TempoMarker and Tag are members of
+	 * this class and the former are added as const structs to
+	 * m_tempoMarkers or m_tags. To alter one of them, one has to
+	 * delete it and add a new, altered version.
+	 */
 	class Timeline : public H2Core::Object
 	{
 		H2_OBJECT
@@ -35,36 +43,50 @@ namespace H2Core
 			Timeline();
 			~Timeline();
 
-			/// timeline vector
+			/**
+			 * TempoMarker specifies a change in speed during the
+			 * Song.
+			 */
 			struct TempoMarker
 			{
 				int		nBar;		// beat position in timeline
 				float	fBpm;		// tempo in beats per minute
 			};
 
-			/// timeline tag vector
+			/** 
+			 * Tag specifies a note added to a certain position in the
+			Song.
+			*/
 			struct Tag
 			{
 				int		nBar;		// beat position in timeline
 				QString sTag;		// tag
 			};
 
+
+			/**
+			 * @param nBar Position of the Timeline to query for a 
+			 *   tempo marker.
+			 * @param fBpm New tempo in beats per minute. All values
+			 *   below 30 and above 500 will be cut.
+			 */
 			void		addTempoMarker( int nBar, float fBpm );
+			/**
+			 * @param nBar Position of the Timeline to delete the
+			 * tempo marker at (if one is present).
+			 */
 			void		deleteTempoMarker( int nBar );
 			void		deleteAllTempoMarkers();
 			/**
 			 * Returns the tempo of the Song at a given bar.
 			 *
-			 * If there is no tempo marker at the provided `nBar`, the
-			 * value of the most previous one will be returned
-			 * instead.
-			 *
 			 * @param nBar Position of the Timeline to query for a 
-			 *   tag.
-			 * @param bSticky If set to true either the tag at `nBar`
-			 *   or - if none is present - the nearest previous tag is
-			 *   returned. If set to false, only the precise position
-			 *   `nBar` is taken into account.
+			 *   tempo marker.
+			 * @param bSticky If set to true either the tempo marker
+			 *   at `nBar` or - if none is present - the nearest
+			 *   previous tempo marker is returned. If set to false,
+			 *   only the precise position `nBar` is taken into
+			 *   account.
 			 *
 			 * TODO: For now the function returns 0 if the bar is
 			 * positioned _before_ the first tempo marker. The calling
@@ -74,9 +96,22 @@ namespace H2Core
 			 */
 			float		getTempoAtBar( int nBar, bool bSticky ) const;
 
+			/**
+			 * @return std::vector<std::shared_ptr<const TempoMarker>>
+			 * Provides read-only access to m_tempoMarker.
+			 */
 			const std::vector<std::shared_ptr<const TempoMarker>> getAllTempoMarkers() const;
 
+			/**
+			 * @param nBar Position of the Timeline to query for a 
+			 *   tag.
+			 * @param sTag New tag in beats per minute.
+			 */
 			void		addTag( int nBar, QString sTag );
+			/**
+			 * @param nBar Position of the Timeline to delete the tag
+			 * at (if one is present).
+			 */
 			void		deleteTag( int nBar );
 			void 		deleteAllTags();
 			/**
@@ -94,9 +129,12 @@ namespace H2Core
 			 */
 
 			const QString getTagAtBar( int nBar, bool bSticky ) const;
+			/**
+			 * @return std::vector<std::shared_ptr<const Tag>>
+			 * Provides read-only access to m_tags.
+			 */
 			const std::vector<std::shared_ptr<const Tag>> getAllTags() const;
 		private:
-			///sample editor vectors
 			void		sortTempoMarkers();
 			void		sortTags();
 
