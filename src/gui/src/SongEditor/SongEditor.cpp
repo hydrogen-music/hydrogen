@@ -2588,6 +2588,8 @@ void SongEditorPositionRuler::updatePosition()
 void SongEditorPositionRuler::editTimeLineAction( int nNewPosition, float fNewBpm )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
+
+	pHydrogen->getTimeline()->deleteTempoMarker( nNewPosition - 1 );
 	pHydrogen->getTimeline()->addTempoMarker( nNewPosition - 1, fNewBpm );
 	createBackground();
 }
