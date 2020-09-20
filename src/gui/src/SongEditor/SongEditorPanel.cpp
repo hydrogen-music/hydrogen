@@ -527,7 +527,8 @@ void SongEditorPanel::updateAll()
 
 	m_pSongEditor->createBackground();
 	m_pSongEditor->update();
-	
+
+	updatePositionRuler();
 	updateTimelineUsage();
 
  	m_pAutomationPathView->setAutomationPath( pSong->get_velocity_automation_path() );
