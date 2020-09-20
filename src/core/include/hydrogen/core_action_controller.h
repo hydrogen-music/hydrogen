@@ -118,10 +118,61 @@ class CoreActionController : public H2Core::Object {
 		 */
 		bool quit();
 
+		/**
+		 * (De)activates the usage of the Timeline.
+		 *
+		 * Note that this function will fail in the presence of the
+		 * Jack audio driver and an external timebase master (see Hydrogen::haveJackTimebaseClient()).
+		 *
+		 * @param bActivate If true - activate or if false -
+		 * deactivate.
+		 *
+		 * @return bool true on success
+		 */
 		bool activateTimeline( bool bActivate );
+		/**
+		 * Adds a tempo marker to the Timeline.
+		 *
+		 * @param nPosition Location of the tempo marker in bars.
+		 * @param fBpm Speed associated with the tempo marker.
+		 *
+		 * @return bool true on success
+		 */
 		bool addTempoMarker( int nPosition, float fBpm );
+		/**
+		 * Delete a tempo marker from the Timeline.
+		 *
+		 * If no Tempo marker is present at @a nPosition, the function
+		 * will return true as well.
+		 *
+		 * @param nPosition Location of the tempo marker in bars.
+		 *
+		 * @return bool true on success
+		 */
 		bool deleteTempoMarker( int nPosition );
+		/**
+		 * (De)activates the usage of Jack transport.
+		 *
+		 * Note that this function will fail if Jack is not used as
+		 * audio driver.
+		 *
+		 * @param bActivate If true - activate or if false -
+		 * deactivate.
+		 *
+		 * @return bool true on success
+		 */
 		bool activateJackTransport( bool bActivate );
+		/**
+		 * (De)activates the usage of Jack timebase master.
+		 *
+		 * Note that this function will fail if Jack is not used as
+		 * audio driver.
+		 *
+		 * @param bActivate If true - activate or if false -
+		 * deactivate.
+		 *
+		 * @return bool true on success
+		 */
 		bool activateJackTimebaseMaster( bool bActivate );
 		
 		// -----------------------------------------------------------

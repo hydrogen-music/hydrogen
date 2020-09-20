@@ -631,10 +631,49 @@ class OscServer : public H2Core::Object
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
 		static void QUIT_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::activateTimeline().
+		 *
+		 * \param argv The "i" field does contain the value supplied
+		 * by the user. If it is 0, the Timeline will be
+		 * deactivated. Else, it will be activated instead.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
 		static void TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::addTempoMarker().
+		 *
+		 * \param argv The first field "i" does contain the bar at
+		 * which to place the new Timeline::TempoMarker while the
+		 * second one "f" specifies its tempo in bpm.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
 		static void TIMELINE_ADD_MARKER_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::deleteTempoMarker().
+		 *
+		 * \param argv The first field "i" does contain the bar at
+		 * which to delete a Timeline::TempoMarker.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
 		static void TIMELINE_DELETE_MARKER_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::activatedJackTransport().
+		 *
+		 * \param argv The "i" field does contain the value supplied
+		 * by the user. If it is 0, the Jack transport will be
+		 * deactivated. Else, it will be activated instead.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
 		static void JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::activateJackTimebaseMaster().
+		 *
+		 * \param argv The "i" field does contain the value supplied
+		 * by the user. If it is 0, the Jack timebase master will be
+		 * deactivated. Else, it will be activated instead.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
 		static void JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc);
 		/** 
 		 * Catches any incoming messages and display them. 
