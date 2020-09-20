@@ -964,3 +964,16 @@ void SongEditorPanel::toggleAutomationAreaVisibility()
 	}
 }
 
+
+void SongEditorPanel::timelineActivationEvent( int nEvent ){
+
+	if ( nEvent == 0 && m_pTimeLineToggleBtn->isPressed() ) {
+		m_pTimeLineToggleBtn->setPressed( false );
+		HydrogenApp::get_instance()->setStatusBarMessage(tr(" Timeline = Off"), 5000);
+	} else if ( nEvent != 0 && !m_pTimeLineToggleBtn->isPressed() ) {
+		m_pTimeLineToggleBtn->setPressed( true );
+		HydrogenApp::get_instance()->setStatusBarMessage(tr(" Timeline = On"), 5000);
+	}
+	
+	m_pPositionRuler->createBackground();
+}

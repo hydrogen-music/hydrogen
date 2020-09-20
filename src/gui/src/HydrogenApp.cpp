@@ -575,6 +575,22 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->quitEvent( event.value );
 				break;
 
+			case EVENT_TIMELINE_ACTIVATION:
+				pListener->timelineActivationEvent( event.value );
+				break;
+
+			case EVENT_TIMELINE_UPDATE:
+				pListener->timelineUpdateEvent( event.value );
+				break;
+
+			case EVENT_JACK_TRANSPORT_ACTIVATION:
+				pListener->jackTransportActivationEvent( event.value );
+				break;
+
+			case EVENT_JACK_TIMEBASE_ACTIVATION:
+				pListener->jackTimebaseActivationEvent( event.value );
+				break;
+				
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}

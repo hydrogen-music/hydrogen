@@ -93,6 +93,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
  , m_pSongEditorPanel( pSongEditorPanel )
  , m_bDragging( false )
 {
+
 	setAttribute(Qt::WA_NoBackground);
 	setFocusPolicy (Qt::StrongFocus);
 
@@ -1344,6 +1345,7 @@ void SongEditor::updateEditorandSetTrue()
 	m_bSequenceChanged = true;
 	update();
 }
+
 // :::::::::::::::::::
 
 
@@ -2269,6 +2271,11 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	pDrag->exec( Qt::CopyAction | Qt::MoveAction );
 
 	QWidget::mouseMoveEvent(event);
+}
+
+void SongEditorPatternList::timelineUpdateEvent( int nEvent ){
+	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
+	Hydrogen::get_instance()->getSong()->set_is_modified( true );
 }
 
 // ::::::::::::::::::::::::::
