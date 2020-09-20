@@ -498,7 +498,6 @@ bool CoreActionController::isSongPathValid( const QString& songPath ) {
 }
 
 bool CoreActionController::activateTimeline( bool bActivate ) {
-
 	auto pHydrogen = Hydrogen::get_instance();
 	
 	if ( pHydrogen->haveJackTimebaseClient() ) {

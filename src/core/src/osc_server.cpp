@@ -637,7 +637,7 @@ void OscServer::TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
 
-	if ( &argv[0]->i != 0 ) { 
+	if ( argv[0]->i != 0 ) { 
 		pController->activateTimeline( true );
 	} else {
 		pController->activateTimeline( false );
@@ -660,7 +660,7 @@ void OscServer::JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
 
-	if ( &argv[1]->i != 0 ) {
+	if ( argv[0]->i != 0 ) {
 		pController->activateJackTransport( true );
 	} else {
 		pController->activateJackTransport( false );
@@ -668,9 +668,9 @@ void OscServer::JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc) {
 }
 
 void OscServer::JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc) {
-	
+
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-	if ( &argv[1]->i != 0 ) {
+	if ( argv[0]->i != 0 ) {
 		pController->activateJackTimebaseMaster( true );
 	} else {
 		pController->activateJackTimebaseMaster( false );
@@ -955,7 +955,7 @@ bool OscServer::start()
 	m_pServerThread->add_method("/Hydrogen/TIMELINE_DELETE_MARKER", "i", TIMELINE_DELETE_MARKER_Handler);
 
 	m_pServerThread->add_method("/Hydrogen/JACK_TRANSPORT_ACTIVATION", "i", JACK_TRANSPORT_ACTIVATION_Handler);
-	m_pServerThread->add_method("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", "", JACK_TIMEBASE_MASTER_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", "i", JACK_TIMEBASE_MASTER_ACTIVATION_Handler);
 	/*
 	 * Start the server.
 	 */
