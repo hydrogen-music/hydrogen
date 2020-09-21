@@ -567,39 +567,47 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
 
-	H2Core::Note* pDraggedNote = nullptr;
-	pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, notekey, octave );
+	H2Core::Note* pFoundNote = nullptr;
+	pFoundNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, notekey, octave );
 
-	int oldLength = -1;
-	float oldVelocity = 0.8f;
-	float oldPan_L = 0.5f;
-	float oldPan_R = 0.5f;
-	float oldLeadLag = 0.0f;
-	int oldNoteKeyVal = 0;
-	int oldOctaveKeyVal = 0;
+	int nLength = -1;
+	float fVelocity = 0.8f;
+	float fPan_L = 0.5f;
+	float fPan_R = 0.5f;
+	float fLeadLag = 0.0f;
 
-	if( pDraggedNote ){
-		oldLength = pDraggedNote->get_length();
-		oldVelocity = pDraggedNote->get_velocity();
-		oldPan_L = pDraggedNote->get_pan_l();
-		oldPan_R = pDraggedNote->get_pan_r();
-		oldLeadLag = pDraggedNote->get_lead_lag();
-		oldNoteKeyVal = pDraggedNote->get_key();
-		oldOctaveKeyVal = pDraggedNote->get_octave();
+	if( pFoundNote ){
+		nLength = pFoundNote->get_length();
+		fVelocity = pFoundNote->get_velocity();
+		fPan_L = pFoundNote->get_pan_l();
+		fPan_R = pFoundNote->get_pan_r();
+		fLeadLag = pFoundNote->get_lead_lag();
+		notekey= pFoundNote->get_key();
+		octave = pFoundNote->get_octave();
+	}
+
+	if ( pFoundNote == nullptr ) {
+		// hear note
+		Preferences *pref = Preferences::get_instance();
+		if ( pref->getHearNewNotes() ) {
+			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, 0.0);
+			pNote2->set_key_octave( notekey, octave );
+			AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
+		}
 	}
 
 	SE_addOrDeleteNotePianoRollAction *action = new SE_addOrDeleteNotePianoRollAction( nColumn,
 																					   nLine,
 																					   __selectedPatternNumber,
 																					   nSelectedInstrumentnumber,
-																					   oldLength,
-																					   oldVelocity,
-																					   oldPan_L,
-																					   oldPan_R,
-																					   oldLeadLag,
-																					   oldNoteKeyVal,
-																					   oldOctaveKeyVal,
-																					   pDraggedNote != nullptr );
+																					   nLength,
+																					   fVelocity,
+																					   fPan_L,
+																					   fPan_R,
+																					   fLeadLag,
+																					   notekey,
+																					   octave,
+																					   pFoundNote != nullptr );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
 }
@@ -847,14 +855,6 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 
 		if ( m_bSelectNewNotes ) {
 			m_selection.addToSelection( pNote );
-		}
-
-		// hear note
-		Preferences *pref = Preferences::get_instance();
-		if ( pref->getHearNewNotes() && !noteOff ) {
-			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
-			pNote2->set_key_octave( pressednotekey, pressedoctave );
-			AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
 		}
 	}
 	pSong->set_is_modified( true );
