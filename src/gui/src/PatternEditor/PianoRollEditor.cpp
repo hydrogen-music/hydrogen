@@ -563,12 +563,13 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 {
 	Note::Octave octave = (Note::Octave)nOctave;
 	Note::Key notekey = (Note::Key)nNotekey;
-	int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	int nSelectedInstrumentnumber = pHydrogen->getSelectedInstrumentNumber();
+	Song *pSong = pHydrogen->getSong();
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
 
-	H2Core::Note* pFoundNote = nullptr;
-	pFoundNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, notekey, octave );
+	H2Core::Note* pFoundNote = pFoundNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument,
+																   notekey, octave );
 
 	int nLength = -1;
 	float fVelocity = 0.8f;
@@ -576,13 +577,13 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	float fPan_R = 0.5f;
 	float fLeadLag = 0.0f;
 
-	if( pFoundNote ){
+	if ( pFoundNote ) {
 		nLength = pFoundNote->get_length();
 		fVelocity = pFoundNote->get_velocity();
 		fPan_L = pFoundNote->get_pan_l();
 		fPan_R = pFoundNote->get_pan_r();
 		fLeadLag = pFoundNote->get_lead_lag();
-		notekey= pFoundNote->get_key();
+		notekey = pFoundNote->get_key();
 		octave = pFoundNote->get_octave();
 	}
 
@@ -590,9 +591,9 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 		// hear note
 		Preferences *pref = Preferences::get_instance();
 		if ( pref->getHearNewNotes() ) {
-			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, 0.0);
+			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, 0.0 );
 			pNote2->set_key_octave( notekey, octave );
-			AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
+			AudioEngine::get_instance()->get_sampler()->note_on( pNote2 );
 		}
 	}
 
@@ -795,30 +796,25 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	H2Core::Pattern *pPattern;
 
-	Instrument *pSelectedInstrument = nullptr;
-	pSelectedInstrument = pSong->get_instrument_list()->get( selectedinstrument );
+	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( selectedinstrument );
 	assert(pSelectedInstrument);
 
+	H2Core::Pattern *pPattern = nullptr;
 	if ( ( selectedPatternNumber != -1 ) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
 		pPattern = pPatternList->get( selectedPatternNumber );
-	}
-	else {
-		pPattern = nullptr;
 	}
 
 	Note::Octave pressedoctave = (Note::Octave)(3 - (pressedLine / 12 ));
 	Note::Key pressednotekey;
 	if ( pressedLine < 12 ){
 		pressednotekey = (Note::Key)(11 - pressedLine);
-	}
-	else
-	{
+	} else {
 		pressednotekey = (Note::Key)(11 - pressedLine % 12);
 	}
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
+
 	if ( isDelete ) {
 		Note* note = m_pPattern->find_note( nColumn, -1, pSelectedInstrument, pressednotekey, pressedoctave );
 		if ( note ) {
@@ -837,15 +833,13 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 		int nLength = oldLength;
 		float fPitch = 0.0f;
 
-		if(noteOff)
-		{
+		if ( noteOff ) {
 			fVelocity = 0.0f;
 			fPan_L = 0.5f;
 			fPan_R = 0.5f;
 			nLength = 1;
 			fPitch = 0.0f;
 		}
-
 
 		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 		pNote->set_note_off( noteOff );
