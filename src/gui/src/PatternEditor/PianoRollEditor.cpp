@@ -1182,10 +1182,15 @@ QPoint PianoRollEditor::cursorPosition()
 void PianoRollEditor::selectAll()
 {
 	m_selection.clearSelection();
-	Pattern *pPattern = Hydrogen::get_instance()->getSong()->get_pattern_list()->get( Hydrogen::get_instance()->getSelectedPatternNumber() );
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
+	Pattern *pPattern = pSong->get_pattern_list()->get( pHydrogen->getSelectedPatternNumber() );
+	Instrument *pInstrument =  pSong->get_instrument_list()->get( pHydrogen->getSelectedInstrumentNumber() );
 	FOREACH_NOTE_CST_IT_BEGIN_END( pPattern->get_notes(), it )
 	{
-		m_selection.addToSelection( it->second );
+		if ( it->second->get_instrument() == pInstrument ) {
+			m_selection.addToSelection( it->second );
+		}
 	}
 	updateEditor( true );
 }
