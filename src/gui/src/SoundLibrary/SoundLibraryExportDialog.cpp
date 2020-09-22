@@ -211,7 +211,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	filesList.clear();
 
 	QApplication::restoreOverrideCursor();
-	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
+	QMessageBox::information( this, "Hydrogen", tr("Drumkit exported.") );
 #elif !defined(WIN32)
 
 	if(TmpFileCreated)
@@ -251,10 +251,10 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 
 
 	QApplication::restoreOverrideCursor();
-	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
+	QMessageBox::information( this, "Hydrogen", tr("Drumkit exported.") );
 #else
 	QApplication::restoreOverrideCursor();
-	QMessageBox::information( this, "Hydrogen", "Drumkit not exported. Operation not supported." );
+	QMessageBox::information( this, "Hydrogen", tr("Drumkit not exported. Operation not supported.") );
 #endif
 }
 
