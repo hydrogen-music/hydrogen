@@ -536,7 +536,8 @@ bool CoreActionController::deleteTempoMarker( int nPosition ) {
 }
 
 bool CoreActionController::activateJackTransport( bool bActivate ) {
-
+	
+#ifdef H2CORE_HAVE_JACK
 	if ( !Hydrogen::get_instance()->haveJackAudioDriver() ) {
 		ERRORLOG( "Unable to (de)activate Jack transport. Please select the Jack driver first." );
 		return false;
@@ -553,10 +554,15 @@ bool CoreActionController::activateJackTransport( bool bActivate ) {
 	EventQueue::get_instance()->push_event( EVENT_JACK_TRANSPORT_ACTIVATION, static_cast<int>( bActivate ) );
 	
 	return true;
+#else
+	ERRORLOG( "Unable to (de)activate Jack transport. Your Hydrogen version was not compiled with jack support." );
+	return false;
+#endif
 }
 
 bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 
+#ifdef H2CORE_HAVE_JACK
 	if ( !Hydrogen::get_instance()->haveJackAudioDriver() ) {
 		ERRORLOG( "Unable to (de)activate Jack timebase master. Please select the Jack driver first." );
 		return false;
@@ -575,5 +581,9 @@ bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 	EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_ACTIVATION, static_cast<int>( bActivate ) );
 	
 	return true;
+#else
+	ERRORLOG( "Unable to (de)activate Jack timebase master. Your Hydrogen version was not compiled with jack support." );
+	return false;
+#endif
 }
 }
