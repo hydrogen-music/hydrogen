@@ -23,6 +23,8 @@
 #ifndef TIMELINE_H
 #define TIMELINE_H
 
+#include <memory>
+
 #include <hydrogen/object.h>
 
 namespace H2Core
