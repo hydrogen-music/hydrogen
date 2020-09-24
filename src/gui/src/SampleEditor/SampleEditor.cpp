@@ -36,6 +36,7 @@
 #include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_list.h>
 #include <hydrogen/basics/instrument_layer.h>
+#include <hydrogen/helpers/filesystem.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/hydrogen.h>
 
@@ -109,7 +110,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	getAllFrameInfos();
 
 #ifndef H2CORE_HAVE_RUBBERBAND
-	if ( QFile( Preferences::get_instance()->m_rubberBandCLIexecutable ).exists() == false ){
+	if ( !Filesystem::file_executable( Preferences::get_instance()->m_rubberBandCLIexecutable , true /* silent */) ) {
 		RubberbandCframe->setDisabled ( true );
 		__rubberband.use = false;
 		m_pSampleEditorStatus = true;
