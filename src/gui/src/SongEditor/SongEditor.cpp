@@ -1732,7 +1732,7 @@ void SongEditorPatternList::patternPopup_load()
 
 	QString prevPatternPath = Files::savePatternTmp( pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
 	if ( prevPatternPath.isEmpty() ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
+		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		return;
 	}
 	LocalFileMng fileMng;
@@ -1871,7 +1871,7 @@ void SongEditorPatternList::patternPopup_delete()
 
 	QString patternPath = Files::savePatternTmp( pattern->get_name(), pattern, pSong, pEngine->getCurrentDrumkitname() );
 	if ( patternPath.isEmpty() ) {
-		QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
+		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		return;
 	}
 	LocalFileMng fileMng;
@@ -1995,7 +1995,7 @@ void SongEditorPatternList::patternPopup_copy()
 	if ( dialog->exec() == QDialog::Accepted ) {
 		QString filePath = Files::savePatternTmp( pNewPattern->get_name(), pNewPattern, pSong, pEngine->getCurrentDrumkitname() );
 		if ( filePath.isEmpty() ) {
-			QMessageBox::warning( this, "Hydrogen", tr("Could not export pattern.") );
+			QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 			return;
 		}
 		SE_copyPatternAction *action = new SE_copyPatternAction( filePath, nSelectedPattern + 1 );
