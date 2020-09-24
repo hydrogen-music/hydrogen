@@ -559,8 +559,9 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 
 		pRrubberbandProc->start( program, arguments );
 
-		while( !	pRrubberbandProc->waitForFinished() ) {
-			//_ERRORLOG( QString( "prozessing" ));
+		while(     pRrubberbandProc->state() != QProcess::NotRunning 
+			   && !pRrubberbandProc->waitForFinished() ) {
+			//_ERRORLOG( QString( "processing" ));
 		}
 		if ( QFile( rubberResultPath ).exists() == false ) {
 			_ERRORLOG( QString( "Rubberband reimporter File %1 not found" ).arg( rubberResultPath ) );
