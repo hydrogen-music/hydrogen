@@ -219,7 +219,7 @@ int AlsaAudioDriver::connect()
 
 	snd_pcm_uframes_t period_size = m_nBufferSize;
 
-	if ( ( err = snd_pcm_hw_params_set_period_size_near( m_pPlayback_handle, hw_params, &period_size, 0 ) ) < 0 ) {
+	if ( ( err = snd_pcm_hw_params_set_period_size_near( m_pPlayback_handle, hw_params, &period_size, nullptr ) ) < 0 ) {
 		ERRORLOG( QString( "error in snd_pcm_hw_params_set_period_size: %1" ).arg( QString::fromLocal8Bit(snd_strerror(err)) ) );
 		return 1;
 	}

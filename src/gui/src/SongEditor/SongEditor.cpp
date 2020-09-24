@@ -223,7 +223,6 @@ void SongEditor::setPatternActive( int nColumn, int nRow, bool value )
 
 void SongEditor::togglePatternSelected( int nColumn, int nRow )
 {
-	HydrogenApp* h2app = HydrogenApp::get_instance();
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();

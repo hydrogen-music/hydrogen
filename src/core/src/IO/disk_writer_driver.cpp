@@ -170,7 +170,6 @@ void* diskWriterDriver_thread( void* param )
 			nPatternSize = MAX_NOTES;
 		}
 		
-		fTicksize = pDriver->m_nSampleRate * 60.0 /  pEngine->getSong()->__bpm / pEngine->getSong()->__resolution;
 		// check pattern bpm if timeline bpm is in use
 		Timeline* pTimeline = pEngine->getTimeline();
 		if(Preferences::get_instance()->getUseTimelineBpm() ){

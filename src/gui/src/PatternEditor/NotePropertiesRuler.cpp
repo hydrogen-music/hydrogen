@@ -1257,8 +1257,9 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 	for (unsigned y = 90; y < 210; y = y + 10 ) {
 		p.setPen( QPen( QColor( 255, 255, 255 ), 9, Qt::SolidLine, Qt::FlatCap) );
-		if ( y == 100 ||y == 120 ||y == 140 ||y == 170 ||y == 190)
+		if ( y == 100 ||y == 120 ||y == 140 ||y == 170 ||y == 190) {
 			p.setPen( QPen( QColor( 0, 0, 0 ), 7, Qt::SolidLine, Qt::FlatCap ) );
+		}
 		p.drawLine(20, y, 20 + nNotes * m_nGridWidth, y);
 	}
 
