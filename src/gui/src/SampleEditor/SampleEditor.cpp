@@ -117,7 +117,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	}
 #else
 	RubberbandCframe->setDisabled ( false );
-	m_pSampleEditorStatus = true;
+	m_bSampleEditorStatus = true;
 #endif
 
 	__rubberband.pitch = 0.0;
