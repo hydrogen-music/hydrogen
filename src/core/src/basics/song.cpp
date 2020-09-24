@@ -258,7 +258,7 @@ bool Song::has_missing_samples()
 	return false;
 }
 
-bool Song::clear_missing_samples() {
+void Song::clear_missing_samples() {
 	InstrumentList *pInstrumentList = get_instrument_list();
 	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
 		pInstrumentList->get (i )->set_missing_samples( false );

@@ -210,7 +210,7 @@ class Song : public H2Core::Object
 		/** Song was incompletely loaded from file (missing samples)
 		 */
 		bool has_missing_samples();
-		bool clear_missing_samples();
+		void clear_missing_samples();
 
 	private:
 		///< volume of the song (0.0..1.0)
