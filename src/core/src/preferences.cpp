@@ -715,7 +715,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "quantizeEvents", quantizeEvents ? "true": "false" );
 
 	//extern executables
-	if ( QFile( m_rubberBandCLIexecutable ).exists() == false ) {
+	if ( !Filesystem::file_executable( m_rubberBandCLIexecutable , true /* silent */) ) {
 		m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
 	}
 	LocalFileMng::writeXmlString( rootNode, "path_to_rubberband", QString(m_rubberBandCLIexecutable));
