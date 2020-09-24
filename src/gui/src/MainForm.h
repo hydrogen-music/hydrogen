@@ -184,8 +184,10 @@ public slots:
 		void createMenuBar();
 
 		void openSongFile( const QString& sFilename );
+		
 		void checkMidiSetup();
 		void checkMissingSamples();
+		void checkNecessaryDirectories();
 
 		bool eventFilter( QObject *o, QEvent *e );
 

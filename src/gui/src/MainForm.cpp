@@ -150,6 +150,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	createMenuBar();
 	checkMidiSetup();
 	checkMissingSamples();
+	checkNecessaryDirectories();
 
 	h2app->setStatusBarMessage( tr("Hydrogen Ready."), 10000 );
 
@@ -1421,6 +1422,16 @@ void MainForm::checkMidiSetup()
 	}
 }
 
+void MainForm::checkNecessaryDirectories()
+{
+	//Make sure that all directories which are needed by Hydrogen are existing and usable.
+	QString sTempDir = Filesystem::tmp_dir();
+	
+	if( !Filesystem::dir_writable(sTempDir))
+	{
+		QMessageBox::warning( this, "Hydrogen", tr("Could not write to temporary directory %1.").arg(sTempDir) );
+	}
+}
 
 void MainForm::onFixMidiSetup()
 {
