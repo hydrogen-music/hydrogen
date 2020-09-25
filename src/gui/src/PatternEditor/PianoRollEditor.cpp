@@ -467,7 +467,18 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 	QColor color = m_pPatternEditorPanel->getDrumPatternEditor()->computeNoteColor( pNote->get_velocity() );
 
 	bool bSelected = m_selection.isSelected( pNote );
-	QPen selectedPen( QColor( 0, 0, 255 ) );
+	QPen selectedPen;
+	if ( hasFocus() ) {
+		static const QColor selectHilightColor( pStyle->m_selectionHighlightColor.getRed(),
+												pStyle->m_selectionHighlightColor.getGreen(),
+												pStyle->m_selectionHighlightColor.getBlue() );
+		selectedPen = selectHilightColor;
+	} else {
+		static const QColor selectInactiveColor( pStyle->m_selectionInactiveColor.getRed(),
+												 pStyle->m_selectionInactiveColor.getGreen(),
+												 pStyle->m_selectionInactiveColor.getBlue() );
+		selectedPen = selectInactiveColor;
+	}
 
 	if ( bSelected ) {
 		selectedPen.setWidth( 2 );

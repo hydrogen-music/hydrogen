@@ -243,6 +243,8 @@ Preferences::Preferences()
 	uis->m_patternEditor_line3Color = H2RGBColor(115, 115, 115);
 	uis->m_patternEditor_line4Color = H2RGBColor(125, 125, 125);
 	uis->m_patternEditor_line5Color = H2RGBColor(135, 135, 135);
+	uis->m_selectionHighlightColor = H2RGBColor(0, 0, 255);
+	uis->m_selectionInactiveColor = H2RGBColor(85, 85, 85);
 
 	/////////////////////////////////////////////////////////////////////////
 	//////////////// END OF DEFAULT SETTINGS ////////////////////////////////
@@ -1180,6 +1182,11 @@ void Preferences::writeUIStyle( QDomNode parent )
 	LocalFileMng::writeXmlString( patternEditorNode, "line5Color", m_pDefaultUIStyle->m_patternEditor_line5Color.toStringFmt() );
 	node.appendChild( patternEditorNode );
 
+	QDomNode selectionNode = doc.createElement( "selection" );
+	LocalFileMng::writeXmlString( selectionNode, "highlightColor", m_pDefaultUIStyle->m_selectionHighlightColor.toStringFmt() );
+	LocalFileMng::writeXmlString( selectionNode, "inactiveColor", m_pDefaultUIStyle->m_selectionInactiveColor.toStringFmt() );
+	node.appendChild( selectionNode );
+
 	parent.appendChild( node );
 }
 
@@ -1217,6 +1224,14 @@ void Preferences::readUIStyle( QDomNode parent )
 		m_pDefaultUIStyle->m_patternEditor_line5Color = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "line5Color", m_pDefaultUIStyle->m_patternEditor_line5Color.toStringFmt() ) );
 	} else {
 		WARNINGLOG( "patternEditor node not found" );
+	}
+
+	QDomNode pSelectionNode = parent.firstChildElement( "selection" );
+	if ( !pSelectionNode.isNull() ) {
+		m_pDefaultUIStyle->m_selectionHighlightColor = H2RGBColor( LocalFileMng::readXmlString( pSelectionNode, "highlightColor", m_pDefaultUIStyle->m_selectionHighlightColor.toStringFmt() ) );
+		m_pDefaultUIStyle->m_selectionInactiveColor = H2RGBColor( LocalFileMng::readXmlString( pSelectionNode, "inactiveColor", m_pDefaultUIStyle->m_selectionInactiveColor.toStringFmt() ) );
+	} else {
+		WARNINGLOG( "selection node not found" );
 	}
 }
 
