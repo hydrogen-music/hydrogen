@@ -505,16 +505,16 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		m_pPatternEditorPanel->setCursorPosition( 0 );
 
 	} else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
-		if ( nSelectedInstrument + 1 < nMaxInstrument )
+		if ( nSelectedInstrument + 1 < nMaxInstrument ) {
 			pH2->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
-
+		}
 	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
 		pH2->setSelectedInstrumentNumber( nMaxInstrument-1 );
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
-		if ( nSelectedInstrument > 0 )
+		if ( nSelectedInstrument > 0 ) {
 			pH2->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
-
+		}
 	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
 		pH2->setSelectedInstrumentNumber( 0 );
 
@@ -1096,7 +1096,7 @@ void DrumPatternEditor::functionPasteNotesUndoAction(std::list<H2Core::Pattern*>
 		// Find destination pattern to perform undo
 		Pattern *pat = patternList->find(pApplied->get_name());
 
-		if (pat != NULL)
+		if (pat != nullptr)
 		{
 			// Remove all notes of applied pattern from destination pattern
 			const Pattern::notes_t* notes = pApplied->get_notes();
@@ -1155,7 +1155,7 @@ void DrumPatternEditor::functionPasteNotesRedoAction(std::list<H2Core::Pattern*>
 
 		Pattern *pat = patternList->find(pPattern->get_name()); // Destination pattern
 
-		if (pat != NULL)
+		if (pat != nullptr)
 		{
 			// Create applied pattern
 			Pattern *pApplied = new Pattern(

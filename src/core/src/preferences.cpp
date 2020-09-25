@@ -1060,8 +1060,9 @@ void Preferences::savePreferences()
 	doc.appendChild( rootNode );
 
 	QFile file( Filesystem::usr_config_path() );
-	if ( !file.open(QIODevice::WriteOnly) )
+	if ( !file.open(QIODevice::WriteOnly) ) {
 		return;
+	}
 
 	QTextStream TextStream( &file );
 	doc.save( TextStream, 1 );
@@ -1073,8 +1074,9 @@ void Preferences::setMostRecentFX( QString FX_name )
 {
 	int pos = m_recentFX.indexOf( FX_name );
 
-	if ( pos != -1 )
+	if ( pos != -1 ) {
 		m_recentFX.removeAt( pos );
+	}
 
 	m_recentFX.push_front( FX_name );
 }

@@ -571,7 +571,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 
 	if (m_bNeedDriverRestart) {
-		int res = QMessageBox::information( this, "Hydrogen", tr( "Driver restart required.\n Restart driver?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		int res = QMessageBox::information( this, "Hydrogen", tr( "Driver restart required.\n Restart driver?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
 		if ( res == 0 ) {
 			Hydrogen::get_instance()->restartDrivers();
 		}
