@@ -422,8 +422,9 @@ void LadspaFX::connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, flo
 void LadspaFX::processFX( unsigned nFrames )
 {
 //	infoLog( "[LadspaFX::applyFX()]" );
-	if( m_bActivated )
-	m_d->run( m_handle, nFrames );
+	if( m_bActivated ) {
+		m_d->run( m_handle, nFrames );
+	}
 }
 
 void LadspaFX::activate()

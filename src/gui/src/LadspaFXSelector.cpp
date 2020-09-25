@@ -253,8 +253,9 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 			selectedIndex = i;
 		}
 	}
-	if ( selectedIndex >= 0 )
+	if ( selectedIndex >= 0 ) {
 		m_pPluginsListBox->setCurrentRow( selectedIndex );
+	}
 #endif
 }
 

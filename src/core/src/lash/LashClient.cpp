@@ -36,7 +36,7 @@
 
 using namespace H2Core;
 
-LashClient* LashClient::__instance = NULL; /// static reference of LashClient class (Singleton)
+LashClient* LashClient::__instance = nullptr; /// static reference of LashClient class (Singleton)
 
 void LashClient::create_instance( const char *lashClass,
 				  const char *viewName,
@@ -97,13 +97,13 @@ lash_event_t* LashClient::getNextEvent()
 
 void LashClient::sendEvent(LASH_Event_Type eventType)
 {
-	sendEvent(eventType, NULL);
+	sendEvent(eventType, nullptr);
 }
 
 void LashClient::sendEvent(LASH_Event_Type eventType, const char* value)
 {
 	lash_event_t *event = lash_event_new_with_type(eventType);
-	if (value != NULL)
+	if (value != nullptr)
 	{
 		lash_event_set_string(event, value);
 	}

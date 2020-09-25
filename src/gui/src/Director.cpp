@@ -153,8 +153,9 @@ void Director::metronomeEvent( int nValue )
 	}
 	else {	//foregroundcolor "rect" for all other blinks
 		m_nCounter++;
-		if( m_nCounter %2 == 0 )
+		if( m_nCounter %2 == 0 ) {
 			m_nFlashingArea = width() * 52.5/100;
+		}
 
 		m_Color = QColor( 24, 250, 31, 255 );
 	}
