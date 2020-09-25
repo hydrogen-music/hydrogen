@@ -88,13 +88,14 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	QString		drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
 	QString		saveDir = drumkitPathTxt->text();
 	Drumkit*	pDrumkit = nullptr;
+	int nVersionListIndex = versionList->currentIndex();
 	
 	QDir qdTempFolder( Filesystem::tmp_dir() );
 	bool TmpFileCreated = false;
 
 	int componentID = -1;
 	
-	if( versionList->currentIndex() == 1 ) {
+	if( nVersionListIndex == 1 ) {
 		for (uint i = 0; i < drumkitInfoList.size(); i++ ) {
 			pDrumkit = drumkitInfoList[i];
 			if( pDrumkit->get_name().compare( drumkitName ) == 0 ) {
@@ -153,7 +154,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		QString filename = fullDir + "/" + filesList.at(i);
 		QString targetFilename = drumkitName + "/" + filesList.at(i);
 
-		if( versionList->currentIndex() == 1 ) {
+		if( nVersionListIndex == 1 ) {
 			if( filesList.at(i).compare( QString("drumkit.xml") ) == 0 ) {
 				filename = qdTempFolder.filePath( "drumkit.xml" );
 			}

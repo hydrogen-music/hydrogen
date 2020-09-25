@@ -407,14 +407,20 @@ void SampleEditor::createNewLayer()
 				pInstrument = pInstrList->get( nInstr );
 			}
 		}
+		
+		H2Core::InstrumentLayer *pLayer = nullptr;
+		if( pInstrument ) {
+			H2Core::InstrumentLayer *pLayer = pInstrument->get_component(0)->get_layer( m_nSelectedLayer );
 
-		H2Core::InstrumentLayer *pLayer = pInstrument->get_component(0)->get_layer( m_nSelectedLayer );
-
-		// insert new sample from newInstrument
-		pLayer->set_sample( pEditSample );
+			// insert new sample from newInstrument
+			pLayer->set_sample( pEditSample );
+		}
 
 		AudioEngine::get_instance()->unlock();
-		m_pTargetSampleView->updateDisplay( pLayer );
+
+		if( pLayer ) {
+			m_pTargetSampleView->updateDisplay( pLayer );
+		}
 	}
 }
 

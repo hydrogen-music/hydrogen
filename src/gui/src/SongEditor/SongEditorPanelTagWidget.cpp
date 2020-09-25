@@ -149,11 +149,10 @@ void SongEditorPanelTagWidget::on_okBtn_clicked()
 
 	for( int i = 0; i < __theChangedItems.size() ; i++ )
 	{
-		QTableWidgetItem *newTagItem = new QTableWidgetItem();
 		int songPosition = __theChangedItems.value( i ).toInt();
-		newTagItem = tagTableWidget->item( songPosition, 0 );
-		if ( newTagItem ) {
-			SE_editTagAction *action = new SE_editTagAction(  newTagItem->text() ,oldText.value( songPosition ), songPosition );
+		QTableWidgetItem * pNewTagItem = tagTableWidget->item( songPosition, 0 );
+		if ( pNewTagItem ) {
+			SE_editTagAction *action = new SE_editTagAction(  pNewTagItem->text() ,oldText.value( songPosition ), songPosition );
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 	}

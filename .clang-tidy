@@ -1,3 +1,3 @@
 Checks:          '-*, modernize-use-nullptr,modernize-use-default, google-readability-braces-around-statements'
 
-WarningsAsErrors: modernize-*
+WarningsAsErrors: 'modernize-*, google-readability-braces-around-statements'
