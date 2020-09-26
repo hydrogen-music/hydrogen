@@ -623,8 +623,9 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		std::vector<DrumkitComponent*>* compoList = pSong->get_components();
 		for (auto& it : *pSong->get_components() ) {
 			DrumkitComponent* pDrumkitComponent = it;
-			if( !itemsCompo.contains( pDrumkitComponent->get_name() ) )
+			if( !itemsCompo.contains( pDrumkitComponent->get_name() ) ) {
 				itemsCompo.append( pDrumkitComponent->get_name() );
+			}
 		}
 		itemsCompo.append("--sep--");
 		itemsCompo.append("add");
@@ -1224,10 +1225,11 @@ int InstrumentEditor::findFreeDrumkitComponentId( int startingPoint )
 		}
 	}
 
-	if(bFoundFreeSlot)
+	if(bFoundFreeSlot) {
 		return startingPoint;
-	else
+	} else {
 		return findFreeDrumkitComponentId( startingPoint + 1 );
+	}
 }
 
 void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
@@ -1282,8 +1284,9 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 				if( pInstrumentComponent->get_drumkit_componentID() == pDrumkitComponent->get_id() ) {
 					for( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 						InstrumentLayer* pLayer = pInstrumentComponent->get_layer( nLayer );
-						if( pLayer )
+						if( pLayer ) {
 							delete pLayer;
+						}
 					}
 					pInstrument->get_components()->erase( pInstrument->get_components()->begin() + o );;
 					break;

@@ -188,16 +188,18 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pTab = new QTabWidget( nullptr );
 
 	// SONG EDITOR
-	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
+	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE) {
 		m_pSongEditorPanel = new SongEditorPanel( m_pSplitter );
-	else
+	} else {
 		m_pSongEditorPanel = new SongEditorPanel( m_pTab );
+	}
 
 	WindowProperties songEditorProp = pPref->getSongEditorProperties();
 	m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
 
-	if( uiLayout == Preferences::UI_LAYOUT_TABBED)
+	if( uiLayout == Preferences::UI_LAYOUT_TABBED) {
 		m_pTab->addTab( m_pSongEditorPanel, tr("Song Editor") );
+	}
 
 	// this HBox will contain the InstrumentRack and the Pattern editor
 	QWidget *pSouthPanel = new QWidget( m_pSplitter );
@@ -238,9 +240,9 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	m_pMainVBox->addSpacing( 3 );
 
-	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
+	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE) {
 		m_pMainVBox->addWidget( m_pSplitter );
-	else {
+	} else {
 		m_pMainVBox->addWidget( m_pTab );
 
 	}
@@ -586,8 +588,9 @@ void HydrogenApp::onEventQueueTimer()
 	while(!pQueue->m_addMidiNoteVector.empty()){
 
 		int rounds = 1;
-		if(pQueue->m_addMidiNoteVector[0].b_noteExist)// runn twice, delete old note and add new note. this let the undo stack consistent
+		if(pQueue->m_addMidiNoteVector[0].b_noteExist) { // run twice, delete old note and add new note. this let the undo stack consistent 
 			rounds = 2;
+		}
 		for(int i = 0; i<rounds; i++){
 			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
 																			 pQueue->m_addMidiNoteVector[0].m_row,

@@ -150,6 +150,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	createMenuBar();
 	checkMidiSetup();
 	checkMissingSamples();
+	checkNecessaryDirectories();
 
 	h2app->setStatusBarMessage( tr("Hydrogen Ready."), 10000 );
 
@@ -965,17 +966,15 @@ void MainForm::action_banks_open()
 void MainForm::action_instruments_clearAll()
 {
 	switch(
-			 QMessageBox::information( this,
-									 "Hydrogen",
-									 tr("Clear all instruments?"),
-									 tr("Ok"),
-									 tr("Cancel"),
-									 0,      // Enter == button 0
-									 1 )) { // Escape == button 2
-	case 0:
+			 QMessageBox::information( 	this,
+						   	"Hydrogen",
+							tr("Clear all instruments?"),
+							QMessageBox::Cancel | QMessageBox::Ok,
+							QMessageBox::Cancel)) {
+	case QMessageBox::Ok:
 		// ok btn pressed
 		break;
-	case 1:
+	case QMessageBox::Cancel:
 		// cancel btn pressed
 		return;
 	}
@@ -1420,6 +1419,16 @@ void MainForm::checkMidiSetup()
 	}
 }
 
+void MainForm::checkNecessaryDirectories()
+{
+	//Make sure that all directories which are needed by Hydrogen are existing and usable.
+	QString sTempDir = Filesystem::tmp_dir();
+	
+	if( !Filesystem::dir_writable(sTempDir))
+	{
+		QMessageBox::warning( this, "Hydrogen", tr("Could not write to temporary directory %1.").arg(sTempDir) );
+	}
+}
 
 void MainForm::onFixMidiSetup()
 {
@@ -1711,19 +1720,14 @@ void MainForm::action_file_export_lilypond()
 	if ( ( ( Hydrogen::get_instance() )->getState() == STATE_PLAYING ) ) {
 		Hydrogen::get_instance()->sequencer_stop();
 	}
-	switch ( QMessageBox::information(
-					this,
-					"Hydrogen",
-					tr( "\nThe LilyPond export is an experimental feature.\n"
-									"It should work like a charm provided that you use the "
-									"GM-kit, and that you do not use triplet.\n" ),
-					tr( "Ok" ),
-					tr( "&Cancel" ),
-					0,
-					2 ) ) {
-	case 1:
-	case 2: return;
-	}
+
+	QMessageBox::information(
+		this,
+		"Hydrogen",
+		tr( "\nThe LilyPond export is an experimental feature.\n"
+		"It should work like a charm provided that you use the "
+		"GM-kit, and that you do not use triplet.\n" ),
+		QMessageBox::Ok ); 
 
 	QFileDialog fd( this );
 	fd.setFileMode( QFileDialog::AnyFile );
@@ -1954,12 +1958,14 @@ bool MainForm::handleUnsavedChanges()
 	{
 		while ( !done && Playlist::get_instance()->getIsModified() ) {
 			switch(
-					QMessageBox::information( this, "Hydrogen",
-											 tr("\nThe current playlist contains unsaved changes.\n"
-													"Do you want to discard the changes?\n"),
-											tr("&Discard"), tr("&Cancel"),
-											 0,      // Enter == button 0
-											 2 ) ) { // Escape == button 1
+					QMessageBox::information(
+								this, 
+								"Hydrogen",
+								tr("\nThe current playlist contains unsaved changes.\n"
+								"Do you want to discard the changes?\n"),
+								tr("&Discard"), tr("&Cancel"),
+								 nullptr,      // Enter == button 0
+								 2 ) ) { // Escape == button 1
 			case 0: // Discard clicked or Alt+D pressed
 				// don't save but exit
 				done = true;

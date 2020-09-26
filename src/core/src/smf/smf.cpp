@@ -281,7 +281,6 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 						int nVelocity =
 							(int)( 127.0 * pNote->get_velocity() * velocity_adjustment );
 
-						int nInstr = iList->index(pNote->get_instrument());
 						Instrument *pInstr = pNote->get_instrument();
 						int nPitch = pNote->get_midi_key();
 						
@@ -353,8 +352,9 @@ void SMFWriter::saveSMF( const QString& sFilename, SMF*  pSmf )
 	// save the midi file
 	FILE* file = fopen( sFilename.toLocal8Bit(), "wb" );
 
-    if( file == nullptr )
+	if( file == nullptr ) {
 		return;
+	}
 
 	vector<char> smfVect = pSmf->getBuffer();
 	for ( unsigned i = 0; i < smfVect.size(); i++ ) {

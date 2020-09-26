@@ -559,8 +559,9 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 
 		pRrubberbandProc->start( program, arguments );
 
-		while( !	pRrubberbandProc->waitForFinished() ) {
-			//_ERRORLOG( QString( "prozessing" ));
+		while(     pRrubberbandProc->state() != QProcess::NotRunning 
+			   && !pRrubberbandProc->waitForFinished() ) {
+			//_ERRORLOG( QString( "processing" ));
 		}
 		if ( QFile( rubberResultPath ).exists() == false ) {
 			_ERRORLOG( QString( "Rubberband reimporter File %1 not found" ).arg( rubberResultPath ) );
@@ -591,7 +592,7 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 Sample::Loops::LoopMode Sample::parse_loop_mode( const QString& string )
 {
 	QByteArray byteArray =	string.toLocal8Bit();
-	char* mode = byteArray.data();
+	const char* mode = byteArray.data();
 	for( int i=Loops::FORWARD; i<=Loops::PINGPONG; i++ ) {
 		if( 0 == strncasecmp( mode, __loop_modes[i], sizeof( __loop_modes[i] ) ) ) return ( Loops::LoopMode )i;
 	}

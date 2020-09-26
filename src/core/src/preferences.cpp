@@ -727,7 +727,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "quantizeEvents", quantizeEvents ? "true": "false" );
 
 	//extern executables
-	if ( QFile( m_rubberBandCLIexecutable ).exists() == false ) {
+	if ( !Filesystem::file_executable( m_rubberBandCLIexecutable , true /* silent */) ) {
 		m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
 	}
 	LocalFileMng::writeXmlString( rootNode, "path_to_rubberband", QString(m_rubberBandCLIexecutable));
@@ -1062,8 +1062,9 @@ void Preferences::savePreferences()
 	doc.appendChild( rootNode );
 
 	QFile file( Filesystem::usr_config_path() );
-	if ( !file.open(QIODevice::WriteOnly) )
+	if ( !file.open(QIODevice::WriteOnly) ) {
 		return;
+	}
 
 	QTextStream TextStream( &file );
 	doc.save( TextStream, 1 );
@@ -1075,8 +1076,9 @@ void Preferences::setMostRecentFX( QString FX_name )
 {
 	int pos = m_recentFX.indexOf( FX_name );
 
-	if ( pos != -1 )
+	if ( pos != -1 ) {
 		m_recentFX.removeAt( pos );
+	}
 
 	m_recentFX.push_front( FX_name );
 }

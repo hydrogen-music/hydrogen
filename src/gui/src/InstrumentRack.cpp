@@ -49,11 +49,12 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	// instrument editor button
 	m_pShowInstrumentEditorBtn = new ToggleButton(
 			pTabButtonsPanel,
-			"/instrumentEditor/instrument_show_on.png",
-			"/instrumentEditor/instrument_show_off.png",
-			"/instrumentEditor/instrument_show_off.png",
-			QSize( 130, 24 )
-	);
+			"/skin_btn_on.png",
+			"/skin_btn_off.png",
+			"/skin_btn_over.png",
+			QSize( 130, 17 ), 
+			true );
+
 	m_pShowInstrumentEditorBtn->setToolTip( tr( "Show Instrument editor" ) );
 	m_pShowInstrumentEditorBtn->setText( tr( "Instrument" ) );
 	connect( m_pShowInstrumentEditorBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showInstrumentEditorBtnClicked() ) );
@@ -61,11 +62,12 @@ InstrumentRack::InstrumentRack( QWidget *pParent )
 	// show sound library button
 	m_pShowSoundLibraryBtn = new ToggleButton(
 			pTabButtonsPanel,
-			"/instrumentEditor/library_show_on.png",
-			"/instrumentEditor/library_show_off.png",
-			"/instrumentEditor/library_show_off.png",
-			QSize( 150, 24 )
-	);
+			"/skin_btn_on.png",
+			"/skin_btn_off.png",
+			"/skin_btn_over.png",
+			QSize( 150, 17 ), 
+			true );
+
 	m_pShowSoundLibraryBtn->setToolTip( tr( "Show sound library" ) );
 	m_pShowSoundLibraryBtn->setText( tr( "Sound library" ) );
 	connect( m_pShowSoundLibraryBtn, SIGNAL( clicked( Button* ) ), this, SLOT( on_showSoundLibraryBtnClicked() ) );

@@ -253,6 +253,8 @@ void MidiTable::saveMidiTable()
 				mM->registerNoteEvent( eventSpinner->cleanText().toInt() , pAction );
 			} else if( eventString.left(14) == "PROGRAM_CHANGE" ){
 				mM->registerPCEvent( pAction );
+			} else {
+				delete pAction;
 			}
 		}
 	}

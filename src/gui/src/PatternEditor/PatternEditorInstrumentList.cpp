@@ -188,10 +188,11 @@ void InstrumentLine::setSoloed( bool soloed )
 
 void InstrumentLine::setSamplesMissing( bool bSamplesMissing )
 {
-	if ( bSamplesMissing )
+	if ( bSamplesMissing ) {
 		m_pSampleWarning->show();
-	else
+	} else {
 		m_pSampleWarning->hide();
+	}
 }
 
 
@@ -341,12 +342,14 @@ void InstrumentLine::functionPasteInstrumentPatternExec(int patternID)
 	// Get from clipboard & deserialize
 	QClipboard *clipboard = QApplication::clipboard();
 	QString serialized = clipboard->text();
-	if ( !song->pasteInstrumentLineFromString( serialized, patternID, m_nInstrumentNumber, patternList ) )
+	if ( !song->pasteInstrumentLineFromString( serialized, patternID, m_nInstrumentNumber, patternList ) ) {
 		return;
+	}
 
 	// Ignore empty result
-	if (patternList.size() <= 0)
+	if (patternList.size() <= 0) {
 		return;
+	}
 
 	// Create action
 	SE_pasteNotesPatternEditorAction *action = new SE_pasteNotesPatternEditorAction(patternList);
