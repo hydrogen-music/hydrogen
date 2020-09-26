@@ -779,9 +779,9 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		m_pPatternEditorPanel->setCursorPosition( 0 );
 
 	} else if ( ev->matches( QKeySequence::MoveToNextLine ) || ev->matches( QKeySequence::SelectNextLine ) ) {
-		if ( nSelectedInstrument + 1 < nMaxInstrument )
+		if ( nSelectedInstrument + 1 < nMaxInstrument ) {
 			pH2->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
-
+		}
 	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) || ev->matches( QKeySequence::SelectEndOfDocument ) ) {
 		pH2->setSelectedInstrumentNumber( nMaxInstrument-1 );
 
