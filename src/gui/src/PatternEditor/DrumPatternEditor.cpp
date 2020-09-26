@@ -1065,6 +1065,8 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 	const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor.getRed(), pStyle->m_patternEditor_selectedRowColor.getGreen(), pStyle->m_patternEditor_selectedRowColor.getBlue() );
 
+	validateSelection();
+
 	__create_background( painter );
 
 	if (m_pPattern == nullptr) {

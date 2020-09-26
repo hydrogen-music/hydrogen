@@ -403,8 +403,9 @@ void PianoRollEditor::drawPattern()
 		return;
 	}
 
-
 	//INFOLOG( "draw pattern" );
+
+	validateSelection();
 
 	QPainter p( m_pTemp );
 	// copy the background image
