@@ -54,6 +54,8 @@ using namespace H2Core;
 
 const char* DrumPatternEditor::__class_name = "DrumPatternEditor";
 
+
+
 DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  : QWidget( parent )
  , Object( __class_name )
@@ -82,6 +84,14 @@ DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
 	m_bCopyNotMove = false;
 	m_bSelectNewNotes = false;
 
+	// Popup context menu
+	m_pPopupMenu = new QMenu( this );
+	m_pPopupMenu->addAction( tr( "&Cut" ), this, &DrumPatternEditor::cut );
+	m_pPopupMenu->addAction( tr( "&Copy" ), this, &DrumPatternEditor::copy );
+	m_pPopupMenu->addAction( tr( "&Paste" ), this, &DrumPatternEditor::paste );
+	m_pPopupMenu->addAction( tr( "&Delete" ), this, &DrumPatternEditor::deleteSelection );
+	m_pPopupMenu->addAction( tr( "Select &all" ), this, &DrumPatternEditor::selectAll );
+	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &DrumPatternEditor::selectNone );
 }
 
 
@@ -279,9 +289,13 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		addOrRemoveNote( nColumn, nRealColumn, row );
 		m_selection.clearSelection();
 
+	} else if ( ev->button() == Qt::RightButton ) {
+		m_pPopupMenu->popup( ev->globalPos() );
+		pHydrogen->setSelectedInstrumentNumber( row );
+
 	} else {
 		// Other clicks may also set instrument
-		Hydrogen::get_instance()->setSelectedInstrumentNumber( row );
+		pHydrogen->setSelectedInstrumentNumber( row );
 	}
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
@@ -961,11 +975,19 @@ void DrumPatternEditor::copy()
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "note_selection", "note_selection" );
 	XMLNode positionNode = root.createNode( "sourcePosition" );
+	bool bWroteNote = false;
 
 	positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
 	positionNode.write_int( "instrument", Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 
 	for ( Note *pNote : m_selection ) {
+		if ( ! bWroteNote ) {
+			/* Set the note pitch for the 'position' the selection is
+			** copied from to the pitch of the first note we find.
+			*/
+			bWroteNote = true;
+			positionNode.write_int( "note", pNote->get_notekey_pitch() + 12*OCTAVE_OFFSET );
+		}
 		XMLNode note_node = root.createNode( "note" );
 		pNote->save_to( &note_node );
 	}

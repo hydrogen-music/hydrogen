@@ -178,6 +178,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		virtual void focusInEvent( QFocusEvent *ev );
 
 		Selection<DrumPatternEditor, SelectionIndex > m_selection;
+		QMenu *m_pPopupMenu;
 
 		int getColumn(QMouseEvent *ev);
 		QPoint movingGridOffset();

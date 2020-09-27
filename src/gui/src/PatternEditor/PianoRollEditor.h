@@ -174,6 +174,7 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		int getColumn(QMouseEvent *ev);
 
 		Selection<PianoRollEditor, SelectionIndex> m_selection;
+		QMenu *m_pPopupMenu;
 
 		int __selectedInstrumentnumber;
 		int __selectedPatternNumber;

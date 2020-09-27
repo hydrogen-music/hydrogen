@@ -79,6 +79,16 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 
 	m_bNeedsUpdate = true;
 	m_bSelectNewNotes = false;
+
+	// Popup context menu
+	m_pPopupMenu = new QMenu( this );
+	m_pPopupMenu->addAction( tr( "&Cut" ), this, &PianoRollEditor::cut );
+	m_pPopupMenu->addAction( tr( "&Copy" ), this, &PianoRollEditor::copy );
+	m_pPopupMenu->addAction( tr( "&Paste" ), this, &PianoRollEditor::paste );
+	m_pPopupMenu->addAction( tr( "&Delete" ), this, &PianoRollEditor::deleteSelection );
+	m_pPopupMenu->addAction( tr( "Select &all" ), this, &PianoRollEditor::selectAll );
+	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &PianoRollEditor::selectNone );
+
 }
 
 
@@ -724,6 +734,10 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 
 		addOrRemoveNote( nColumn, nRealColumn, pressedline, pressednotekey, pressedoctave );
 
+	} else if ( ev->button() == Qt::RightButton ) {
+		// Show context menu
+		m_pPopupMenu->popup( ev->globalPos() );
+
 	}
 
 }
@@ -1257,6 +1271,7 @@ void PianoRollEditor::copy()
 
 	positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
 	positionNode.write_int( "note", m_nCursorNote );
+	positionNode.write_int( "instrument", Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 
 	for ( Note *pNote : m_selection ) {
 		XMLNode note_node = root.createNode( "note" );
