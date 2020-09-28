@@ -1325,6 +1325,7 @@ void JackAudioDriver::printState() const {
 			  << ", m_JackTransportState: " << m_JackTransportState
 			  << ", m_nIsTimebaseMaster: " << m_nIsTimebaseMaster
 			  << ", m_currentPos: " << m_currentPos
+			  << ", m_nWaitNCycles: " << m_nWaitNCycles
 			  << ", pHydrogen->getPatternPos(): " << pHydrogen->getPatternPos()
 			  << "\33[0m" << std::endl;
 }
