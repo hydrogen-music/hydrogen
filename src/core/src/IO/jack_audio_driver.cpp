@@ -86,11 +86,21 @@ JackAudioDriver* JackAudioDriver::pJackDriverInstance = nullptr;
 int JackAudioDriver::nWaits = 0;
 
 JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
-	: AudioOutput( __class_name )
+	: AudioOutput( __class_name ),
+	  m_frameOffset( 0 ),
+	  m_nTrackPortCount( 0 ),
+	  m_pClient( nullptr ),
+	  m_pOutputPort1( nullptr ),
+	  m_pOutputPort2( nullptr ),
+	  m_nIsTimebaseMaster( -1 )
 {
 	INFOLOG( "INIT" );
 	
 	auto pPreferences = Preferences::get_instance();
+	
+	m_bConnectDefaults = pPreferences->m_bJackConnectDefaults;
+	
+	__track_out_enabled = pPreferences->m_bJackTrackOuts;
 
 	m_transport.m_status = TransportInfo::STOPPED;
 	m_transport.m_nFrames = 0;
@@ -100,12 +110,6 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	JackAudioDriver::pJackDriverInstance = this;
 	this->m_processCallback = m_processCallback;
 
-	m_frameOffset = 0;
-	m_nTrackPortCount = 0;
-	m_pClient = nullptr;
-	m_pOutputPort1 = nullptr;
-	m_pOutputPort2 = nullptr;
-	m_bConnectDefaults = pPreferences->m_bJackConnectDefaults;
 	m_nTimebaseTracking = -1;
 	m_timebaseState = Timebase::None;
 	
@@ -318,6 +322,8 @@ void JackAudioDriver::updateTransportInfo()
 	default:
 		ERRORLOG( "Unknown jack transport state" );
 	}
+
+	// printState();
 	
 	m_currentPos = m_JackTransportPos.frame;
 	
@@ -344,19 +350,17 @@ void JackAudioDriver::updateTransportInfo()
 	}
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-
+	
 	// The relocation could be either triggered by an user interaction
 	// (e.g. clicking the forward button or clicking somewhere on the
 	// timeline) or by a different JACK client.
 	if ( m_transport.m_nFrames + m_frameOffset != m_JackTransportPos.frame ) {
-			
-		m_transport.m_nFrames = m_JackTransportPos.frame;
-		
-		
 		// Reset playback to the beginning of the pattern if Hydrogen
 		// is in pattern mode.
 		pHydrogen->resetPatternStartTick();
-			
+
+		m_transport.m_nFrames = m_JackTransportPos.frame;
+		
 		// There maybe was an offset introduced when passing a tempo
 		// marker.
 		m_frameOffset = 0;
@@ -1078,11 +1082,51 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		pJackPosition->tick = nTicksFromBar % static_cast<int32_t>(pJackPosition->ticks_per_beat);
 				
 	}
+
+	// JackAudioDriver::printJackTransportPos( pJackPosition );
     
 	// Tell Hydrogen it is still timebase master.
 	pDriver->m_nTimebaseTracking = 2;
 }
 
+void JackAudioDriver::printState() const {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	
+	std::cout << "\033[35m[Hydrogen] JackAudioDriver state: "
+			  << ", m_transport.m_nFrames: " << m_transport.m_nFrames
+			  << ", m_transport.m_fBPM: " << m_transport.m_fBPM
+			  << ", m_transport.m_fTickSize: " << m_transport.m_fTickSize
+			  << ", m_transport.m_status: " << m_transport.m_status
+			  << ", m_frameOffset: " << m_frameOffset
+			  << ", m_JackTransportState: " << m_JackTransportState
+			  << ", m_nIsTimebaseMaster: " << m_nIsTimebaseMaster
+			  << ", m_currentPos: " << m_currentPos
+			  << ", m_nWaitNCycles: " << m_nWaitNCycles
+			  << ", pHydrogen->getPatternPos(): " << pHydrogen->getPatternPos()
+			  << "\33[0m" << std::endl;
+	
+	printJackTransportPos( &m_JackTransportPos );
 }
+
+
+void JackAudioDriver::printJackTransportPos( const jack_position_t* pPos ) {
+	std::cout << "\033[36m[Hydrogen] JackTransportPosition: "
+			  << ", frame: " << pPos->frame 
+			  << ", frame_rate: " << pPos->frame_rate
+			  << ", valid: " << pPos->valid
+			  << ", bar: " << pPos->bar
+			  << ", beat: " << pPos->beat
+			  << ", tick: " << pPos->tick
+			  << ", bar_start_tick: " << pPos->bar_start_tick
+			  << ", beats_per_bar: " << pPos->beats_per_bar
+			  << ", beat_type: " << pPos->beat_type
+			  << ", ticks_per_beat: " << pPos->ticks_per_beat
+			  << ", beats_per_minute: " << pPos->beats_per_minute
+			  << ", frame_time: " << pPos->frame_time
+			  << ", next_time: " << pPos->next_time
+			  << "\033[0m" << std::endl;
+}
+};
 
 #endif // H2CORE_HAVE_JACK

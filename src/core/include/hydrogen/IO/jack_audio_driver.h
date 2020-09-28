@@ -529,15 +529,16 @@ public:
 	/** Stores the latest transport position (for both rolling and
 	 * stopped transport).
 	 *
-	 * In case the user is clicking on the
-	 * SongEditor::mousePressEvent() will trigger both a relocation
-	 * and a change in speed. The change in speed causes the
-	 * audioEngine_checkBPMChange() function to update the ticksize in
-	 * case transported got moved into a region of different tempo and
-	 * triggers the calculateFrameOffset() function. But the latter
-	 * can only work properly if transport is rolling since it has to
-	 * know the frame position prior to the change in tick size and
-	 * there is no up-to-date JACK query providing this information.
+	 * In case the user is clicking on a different location
+	 * SongEditorPositionRuler::mousePressEvent() will trigger both a
+	 * relocation and a (possible) change in speed. The change in
+	 * speed causes the audioEngine_checkBPMChange() function to
+	 * update the ticksize in case playhead got moved into a region of
+	 * different tempo and triggers the calculateFrameOffset()
+	 * function. But the latter can only work properly if transport is
+	 * rolling since it has to know the frame position prior to the
+	 * change in tick size and there is no up-to-date JACK query
+	 * providing this information.
 	 */
 	int m_currentPos;
 	
@@ -685,7 +686,13 @@ protected:
 	void jack_session_callback_impl( jack_session_event_t* event );
 #endif
 
+	static void printJackTransportPos( const jack_position_t* pPos );
+
 private:
+
+	/** Show debugging information.*/
+	void printState() const;
+
 	/**
 	 * Renames the @a n 'th port of JACK client and creates it if
 	 * it's not already present. 
