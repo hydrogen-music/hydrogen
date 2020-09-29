@@ -1039,19 +1039,8 @@ void PianoRollEditor::editNoteLengthAction( int nColumn,  int nRealColumn,  int 
 {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-
-	H2Core::Pattern *pPattern;
-	if ( (selectedPatternNumber != -1) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
-		pPattern = pPatternList->get( selectedPatternNumber );
-	}
-	else {
-		pPattern = nullptr;
-	}
 
 	Song *pSong = pEngine->getSong();
-	int nInstruments = pSong->get_instrument_list()->size();
-
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
 
 
@@ -1094,16 +1083,6 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-
-	H2Core::Pattern *pPattern;
-	if ( (selectedPatternNumber != -1) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
-		pPattern = pPatternList->get( selectedPatternNumber );
-	}
-	else {
-		pPattern = nullptr;
-	}
-
 
 	Note::Octave pressedoctave = (Note::Octave)(3 - (pressedline / 12 ));
 	Note::Key pressednotekey;
@@ -1116,7 +1095,6 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 	}
 
 	Song *pSong = pEngine->getSong();
-	int nInstruments = pSong->get_instrument_list()->size();
 
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( selectedInstrumentnumber );
 
