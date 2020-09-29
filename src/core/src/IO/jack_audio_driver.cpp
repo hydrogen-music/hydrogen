@@ -459,7 +459,7 @@ void JackAudioDriver::updateTransportInfo()
 		ERRORLOG( "Unknown jack transport state" );
 	}
 
-	// printState();
+	printState();
 	
 	m_currentPos = m_JackTransportPos.frame;
 	
@@ -497,6 +497,9 @@ void JackAudioDriver::updateTransportInfo()
 
 		if ( m_nIsTimebaseMaster != 0 ) {
 			m_transport.m_nFrames = m_JackTransportPos.frame;
+		} else {
+			relocateUsingBBT();
+		}
 		
 			// There maybe was an offset introduced when passing a
 			// tempo marker.
@@ -1325,7 +1328,6 @@ void JackAudioDriver::printState() const {
 			  << ", m_JackTransportState: " << m_JackTransportState
 			  << ", m_nIsTimebaseMaster: " << m_nIsTimebaseMaster
 			  << ", m_currentPos: " << m_currentPos
-			  << ", m_nWaitNCycles: " << m_nWaitNCycles
 			  << ", pHydrogen->getPatternPos(): " << pHydrogen->getPatternPos()
 			  << "\33[0m" << std::endl;
 }
