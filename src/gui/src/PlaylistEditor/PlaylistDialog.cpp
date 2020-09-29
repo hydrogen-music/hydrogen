@@ -503,12 +503,8 @@ void PlaylistDialog::newScript()
 	}
 
 	QString  openfile = pPref->getDefaultEditor() + " " + filename + "&";
+	std::system(openfile.toLatin1());
 
-	char *ofile;
-	ofile = new char[openfile.length() + 1];
-	strcpy(ofile, openfile.toLatin1());
-	std::system( ofile );
-	delete [] ofile;
 	return;
 }
 
@@ -649,13 +645,9 @@ void PlaylistDialog::editScript()
 		return;
 	}
 
-	char *file;
-	file = new char[ filename.length() + 1 ];
-	strcpy( file , filename.toLatin1() );
-	std::system( file );
-	delete [] file;
+	std::system( filename.toLatin1() );
+	
 	return;
-
 }
 
 void PlaylistDialog::o_upBClicked()
@@ -871,11 +863,8 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 		return;
 	}
 
-	char *file;
-	file = new char[ selected.length() + 1 ];
-	strcpy( file , selected.toLatin1() );
-	std::system( file );
-	delete [] file;
+	std::system( selected.toLatin1() );
+	
 	return;
 #endif
 
