@@ -44,7 +44,6 @@ class AudioEngineInfoForm : public QWidget, public Ui_AudioEngineInfoForm_UI, pu
 	private:
 		QTimer *timer;
 
-		virtual void updateAudioEngineState();
 
 		// EventListener implementation
 		virtual void stateChangedEvent(int nState);
@@ -60,6 +59,9 @@ class AudioEngineInfoForm : public QWidget, public Ui_AudioEngineInfoForm_UI, pu
 
 	public slots:
 		void updateInfo();
+
+	private:
+		void updateAudioEngineState();
 };
 
 #endif
