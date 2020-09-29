@@ -723,12 +723,14 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 			fPitch = 0.0f;
 		}
 
+		if( pPattern ) {
+			Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
+			pNote->set_note_off( noteOff );
+			if(! noteOff) pNote->set_lead_lag( oldLeadLag );
+			pNote->set_key_octave( pressednotekey, pressedoctave );
+			pPattern->insert_note( pNote );
+		}
 
-		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
-		pNote->set_note_off( noteOff );
-		if(! noteOff) pNote->set_lead_lag( oldLeadLag );
-		pNote->set_key_octave( pressednotekey, pressedoctave );
-		pPattern->insert_note( pNote );
 		// hear note
 		Preferences *pref = Preferences::get_instance();
 		if ( pref->getHearNewNotes() && !noteOff ) {

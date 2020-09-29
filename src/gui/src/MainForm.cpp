@@ -966,8 +966,8 @@ void MainForm::action_banks_open()
 
 void MainForm::action_instruments_clearAll()
 {
-	switch(
-			 QMessageBox::information( 	this,
+	switch( 
+			 QMessageBox::information( 	this,					//NOLINT
 						   	"Hydrogen",
 							tr("Clear all instruments?"),
 							QMessageBox::Cancel | QMessageBox::Ok,
