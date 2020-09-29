@@ -693,6 +693,17 @@ private:
 	/** Show debugging information.*/
 	void printState() const;
 
+	/** 
+	 * Uses the bar-beat-tick information to relocate the transport
+	 * position.
+	 *
+	 * This type of operation is triggered whenever the transport
+	 * position got relocated using Jack in the presence of an
+	 * external timebase master. In addition, the function also
+	 * updates the current tick size to prevent the
+	 * audioEngine_checkBPMUpdate() function from doing so.*/
+	void relocateUsingBBT();
+
 	/**
 	 * Renames the @a n 'th port of JACK client and creates it if
 	 * it's not already present. 

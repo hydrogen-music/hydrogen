@@ -286,6 +286,45 @@ void JackAudioDriver::calculateFrameOffset(long long oldFrame)
 	}
 }
 
+void JackAudioDriver::relocateUsingBBT()
+{
+	if ( m_nIsTimebaseMaster != 0 ) {
+		ERRORLOG( QString( "Relocation using BBT information can only be used in the presence of another Jack timebase master" ) );
+		return;
+	}
+
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Song* pSong = pHydrogen->getSong();
+
+	float fTicksPerBeat = static_cast<float>( pSong->__resolution / m_JackTransportPos.beat_type * 4 );
+
+	long barTicks = 0;
+	if ( pSong->get_mode() == Song::SONG_MODE ) {
+		// (Reasonable?) assumption that one pattern is _always_ 1 bar long!
+		barTicks = pHydrogen->getTickForPosition( m_JackTransportPos.bar - 1 );
+		if ( barTicks < 0 ) {
+			barTicks = 0;
+		}
+	}
+
+	float fNewTick = barTicks +
+		( m_JackTransportPos.beat - 1 ) * fTicksPerBeat +
+		m_JackTransportPos.tick * ( fTicksPerBeat / m_JackTransportPos.ticks_per_beat );
+
+	float fNewTickSize = getSampleRate() * 60.0 /  m_transport.m_fBPM / pSong->__resolution;
+
+	if ( fNewTickSize == 0 ) {
+		ERRORLOG(QString("Improper tick size [%1] for tick [%2]" )
+				 .arg( fNewTickSize ).arg( fNewTick ) );
+		return;
+	}
+
+	// NOTE this _should_ prevent audioEngine_process_checkBPMChanged
+	// in Hydrogen.cpp from recalculating things.
+	m_transport.m_fTickSize = fNewTickSize;
+	m_transport.m_nFrames = static_cast<long long>(fNewTick * fNewTickSize);
+}
+
 void JackAudioDriver::updateTransportInfo()
 {
 	if ( Preferences::get_instance()->m_bJackTransportMode !=
@@ -323,7 +362,7 @@ void JackAudioDriver::updateTransportInfo()
 		ERRORLOG( "Unknown jack transport state" );
 	}
 
-	// printState();
+	printState();
 	
 	m_currentPos = m_JackTransportPos.frame;
 	
@@ -359,7 +398,11 @@ void JackAudioDriver::updateTransportInfo()
 		// is in pattern mode.
 		pHydrogen->resetPatternStartTick();
 
-		m_transport.m_nFrames = m_JackTransportPos.frame;
+		if ( m_nIsTimebaseMaster != 0 ) {
+			m_transport.m_nFrames = m_JackTransportPos.frame;
+		} else {
+			relocateUsingBBT();
+		}
 		
 		// There maybe was an offset introduced when passing a tempo
 		// marker.
@@ -1102,7 +1145,6 @@ void JackAudioDriver::printState() const {
 			  << ", m_JackTransportState: " << m_JackTransportState
 			  << ", m_nIsTimebaseMaster: " << m_nIsTimebaseMaster
 			  << ", m_currentPos: " << m_currentPos
-			  << ", m_nWaitNCycles: " << m_nWaitNCycles
 			  << ", pHydrogen->getPatternPos(): " << pHydrogen->getPatternPos()
 			  << "\33[0m" << std::endl;
 	
