@@ -833,7 +833,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	m_pPlayBtn->setPressed(false);
 
 	Timeline* pTimeline = pEngine->getTimeline();
-	pTimeline->m_timelinetagvector.clear();
+	pTimeline->deleteAllTags();
 
 	Song *pSong = Song::load ( selected );
 	if ( pSong == nullptr ){

@@ -20,6 +20,7 @@
  *
  */
 
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/core_action_controller.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
@@ -304,7 +305,7 @@ bool CoreActionController::newSong( const QString& songPath ) {
 	}
 	
 	// Remove all BPM tags on the Timeline.
-	pHydrogen->getTimeline()->m_timelinevector.clear();
+	pHydrogen->getTimeline()->deleteAllTempoMarkers();
 	
 	// Create an empty Song.
 	auto pSong = Song::get_empty_song();
@@ -351,7 +352,7 @@ bool CoreActionController::openSong (const QString& songPath ) {
 	}
 	
 	// Remove all BPM tags on the Timeline.
-	pHydrogen->getTimeline()->m_timelinevector.clear();
+	pHydrogen->getTimeline()->deleteAllTempoMarkers();
 	
 	// Check whether the provided path is valid.
 	if ( !isSongPathValid( songPath ) ) {
@@ -469,7 +470,6 @@ bool CoreActionController::quit() {
 	return true;
 }
 
-
 bool CoreActionController::isSongPathValid( const QString& songPath ) {
 	
 	QFileInfo songFileInfo = QFileInfo( songPath );
@@ -496,6 +496,94 @@ bool CoreActionController::isSongPathValid( const QString& songPath ) {
 	
 	return true;
 }
+
+bool CoreActionController::activateTimeline( bool bActivate ) {
+	auto pHydrogen = Hydrogen::get_instance();
 	
+	if ( pHydrogen->haveJackTimebaseClient() ) {
+		ERRORLOG( "Timeline usage is disabled in the presence of an external JACK timebase master." );
+		return false;
+	}
 	
+	Preferences::get_instance()->setUseTimelineBpm( bActivate );
+
+	if ( bActivate && !pHydrogen->haveJackTransport() ) {
+		// In case another driver than Jack is used, we have to update
+		// the tempo explicitly.
+		pHydrogen->setTimelineBpm();
+	}
+	
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bActivate ) );
+	
+	return true;
+}
+
+bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
+	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+	pTimeline->deleteTempoMarker( nPosition );
+	pTimeline->addTempoMarker( nPosition, fBpm );
+
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
+
+	return true;
+}
+
+bool CoreActionController::deleteTempoMarker( int nPosition ) {
+	Hydrogen::get_instance()->getTimeline()->deleteTempoMarker( nPosition );
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
+
+	return true;
+}
+
+bool CoreActionController::activateJackTransport( bool bActivate ) {
+	
+#ifdef H2CORE_HAVE_JACK
+	if ( !Hydrogen::get_instance()->haveJackAudioDriver() ) {
+		ERRORLOG( "Unable to (de)activate Jack transport. Please select the Jack driver first." );
+		return false;
+	}
+	
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	if ( bActivate ) {
+		Preferences::get_instance()->m_bJackTransportMode = Preferences::USE_JACK_TRANSPORT;
+	} else {
+		Preferences::get_instance()->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
+	}
+	AudioEngine::get_instance()->unlock();
+	
+	EventQueue::get_instance()->push_event( EVENT_JACK_TRANSPORT_ACTIVATION, static_cast<int>( bActivate ) );
+	
+	return true;
+#else
+	ERRORLOG( "Unable to (de)activate Jack transport. Your Hydrogen version was not compiled with jack support." );
+	return false;
+#endif
+}
+
+bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
+
+#ifdef H2CORE_HAVE_JACK
+	if ( !Hydrogen::get_instance()->haveJackAudioDriver() ) {
+		ERRORLOG( "Unable to (de)activate Jack timebase master. Please select the Jack driver first." );
+		return false;
+	}
+	
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	if ( bActivate ) {
+		Preferences::get_instance()->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
+		Hydrogen::get_instance()->onJackMaster();
+	} else {
+		Preferences::get_instance()->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
+		Hydrogen::get_instance()->offJackMaster();
+	}
+	AudioEngine::get_instance()->unlock();
+	
+	EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_ACTIVATION, static_cast<int>( bActivate ) );
+	
+	return true;
+#else
+	ERRORLOG( "Unable to (de)activate Jack timebase master. Your Hydrogen version was not compiled with jack support." );
+	return false;
+#endif
+}
 }

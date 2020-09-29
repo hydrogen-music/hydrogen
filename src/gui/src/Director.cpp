@@ -161,20 +161,8 @@ void Director::metronomeEvent( int nValue )
 	}
 
 	// get tags
-	m_sTAG="";
-	m_sTAG2="";
-	for ( size_t t = 0; t < m_pTimeline->m_timelinetagvector.size(); t++){
-		if(t+1<m_pTimeline->m_timelinetagvector.size() &&
-				m_pTimeline->m_timelinetagvector[t+1].m_htimelinetagbeat == m_nBar ){
-			m_sTAG2 =  m_pTimeline->m_timelinetagvector[t+1].m_htimelinetag ;
-		}
-		if ( m_pTimeline->m_timelinetagvector[t].m_htimelinetagbeat <= m_nBar-1){
-			m_sTAG =  m_pTimeline->m_timelinetagvector[t].m_htimelinetag ;
-		}
-		if( m_pTimeline->m_timelinetagvector[t].m_htimelinetagbeat > m_nBar-1){
-			break;
-		}
-	}
+	m_sTAG = m_pTimeline->getTagAtBar( m_nBar, false );
+	m_sTAG2 = m_pTimeline->getTagAtBar( m_nBar - 1, true );
 	update();
 }
 

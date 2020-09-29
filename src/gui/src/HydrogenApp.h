@@ -227,6 +227,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		 * \param nValue unused
 		 */
 		virtual void quitEvent( int nValue );
+	
 };
 
 

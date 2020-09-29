@@ -93,6 +93,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
  , m_pSongEditorPanel( pSongEditorPanel )
  , m_bDragging( false )
 {
+
 	setAttribute(Qt::WA_NoBackground);
 	setFocusPolicy (Qt::StrongFocus);
 
@@ -1343,6 +1344,7 @@ void SongEditor::updateEditorandSetTrue()
 	m_bSequenceChanged = true;
 	update();
 }
+
 // :::::::::::::::::::
 
 
@@ -1417,13 +1419,11 @@ void SongEditorPatternList::patternChangedEvent() {
 	Timeline* pTimeline = pHydrogen->getTimeline();
 	if ( ( Preferences::get_instance()->getUseTimelineBpm() ) &&
 		 ( pHydrogen->getSong()->get_mode() == Song::SONG_MODE ) ){
+
+		float fTimelineBpm = pTimeline->getTempoAtBar( pHydrogen->getPatternPos(), false );
 		
-		for ( int i = 0; i < static_cast<int>(pTimeline->m_timelinevector.size()); i++){
-			
-			if ( ( pTimeline->m_timelinevector[i].m_htimelinebeat == pHydrogen->getPatternPos() )
-				&& ( pHydrogen->getNewBpmJTM() != pTimeline->m_timelinevector[i].m_htimelinebpm ) ){
-				pHydrogen->setBPM( pTimeline->m_timelinevector[i].m_htimelinebpm );
-			}
+		if ( pHydrogen->getNewBpmJTM() != fTimelineBpm ){
+				pHydrogen->setBPM( fTimelineBpm );
 		}
 	}
 }
@@ -2272,6 +2272,11 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	QWidget::mouseMoveEvent(event);
 }
 
+void SongEditorPatternList::timelineUpdateEvent( int nEvent ){
+	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();
+	Hydrogen::get_instance()->getSong()->set_is_modified( true );
+}
+
 // ::::::::::::::::::::::::::
 
 const char* SongEditorPositionRuler::__class_name = "SongEditorPositionRuler";
@@ -2337,6 +2342,8 @@ void SongEditorPositionRuler::createBackground()
 {
 	Preferences *pPref = Preferences::get_instance();
 	Timeline * pTimeline = Hydrogen::get_instance()->getTimeline();
+	auto tagVector = pTimeline->getAllTags();
+	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 	
 	UIStyle *pStyle = pPref->getDefaultUIStyle();
 	QColor backgroundColor( pStyle->m_songEditor_backgroundColor.getRed(), pStyle->m_songEditor_backgroundColor.getGreen(), pStyle->m_songEditor_backgroundColor.getBlue() );
@@ -2357,8 +2364,8 @@ void SongEditorPositionRuler::createBackground()
 	char tmp[10];
 	for (uint i = 0; i < m_nMaxPatternSequence + 1; i++) {
 		uint x = 10 + i * m_nGridWidth;
-		for ( int t = 0; t < static_cast<int>(pTimeline->m_timelinetagvector.size()); t++){
-			if ( pTimeline->m_timelinetagvector[t].m_htimelinetagbeat == i ) {
+		for ( int t = 0; t < static_cast<int>(tagVector.size()); t++){
+			if ( tagVector[t]->nBar == i ) {
 				p.setPen( Qt::cyan );
 				p.drawText( x - m_nGridWidth / 2 , 12, m_nGridWidth * 2, height() , Qt::AlignCenter, "T");
 			}
@@ -2388,9 +2395,9 @@ void SongEditorPositionRuler::createBackground()
 		uint x = 10 + i * m_nGridWidth;
 		p.drawLine( x, 2, x, 5 );
 		p.drawLine( x, 19, x, 20 );
-		for ( int t = 0; t < static_cast<int>(pTimeline->m_timelinevector.size()); t++){
-			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == i ) {
-				sprintf( tempo, "%d",  ((int)pTimeline->m_timelinevector[t].m_htimelinebpm) );
+		for ( int t = 0; t < static_cast<int>(tempoMarkerVector.size()); t++){
+			if ( tempoMarkerVector[t]->nBar == i ) {
+				sprintf( tempo, "%d",  ((int)tempoMarkerVector[t]->fBpm) );
 				p.drawText( x - m_nGridWidth, 3, m_nGridWidth * 2, height() / 2 - 5, Qt::AlignCenter, tempo );
 			}
 		}
@@ -2584,89 +2591,47 @@ void SongEditorPositionRuler::updatePosition()
 }
 
 
-void SongEditorPositionRuler::editTimeLineAction( int newPosition, float newBpm )
+void SongEditorPositionRuler::editTimeLineAction( int nNewPosition, float fNewBpm )
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	Timeline* pTimeline = pEngine->getTimeline();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
 
-	//erase the value to set the new value
-	if( pTimeline->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
-			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == newPosition -1 ) {
-				pTimeline->m_timelinevector.erase( pTimeline->m_timelinevector.begin() +  t);
-			}
-		}
-	}
-
-	Timeline::HTimelineVector tlvector;
-
-	tlvector.m_htimelinebeat = newPosition -1 ;
-
-	if( newBpm < 30.0 ) newBpm = 30.0;
-	if( newBpm > 500.0 ) newBpm = 500.0;
-	tlvector.m_htimelinebpm = newBpm;
-	pTimeline->m_timelinevector.push_back( tlvector );
-	pTimeline->sortTimelineVector();
+	pHydrogen->getTimeline()->deleteTempoMarker( nNewPosition - 1 );
+	pHydrogen->getTimeline()->addTempoMarker( nNewPosition - 1, fNewBpm );
 	createBackground();
 }
 
-
-
-void SongEditorPositionRuler::deleteTimeLinePosition( int position )
+void SongEditorPositionRuler::deleteTimeLinePosition( int nPosition )
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	Timeline* pTimeline = pEngine->getTimeline();
-
-	//erase the value to set the new value
-	if( pTimeline->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
-			if ( pTimeline->m_timelinevector[t].m_htimelinebeat == position -1 ) {
-				pTimeline->m_timelinevector.erase( pTimeline->m_timelinevector.begin() +  t);
-			}
-		}
-	}
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getTimeline()->deleteTempoMarker( nPosition - 1 );
 	createBackground();
 }
 
 
 void SongEditorPositionRuler::editTagAction( QString text, int position, QString textToReplace)
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	Timeline* pTimeline = pEngine->getTimeline();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Timeline* pTimeline = pHydrogen->getTimeline();
 
-	//check vector for old entries and remove them.
-	for( int i = 0; i < pTimeline->m_timelinetagvector.size(); ++i ){
-		if( ( pTimeline->m_timelinetagvector[i].m_htimelinetag == textToReplace ) &&
-			( pTimeline->m_timelinetagvector[i].m_htimelinetagbeat == position ) ){
-
-			pTimeline->m_timelinetagvector.erase( pTimeline->m_timelinetagvector.begin() + i );
-			break;
-		}
+	const QString sTag = pTimeline->getTagAtBar( position, false );
+	if ( sTag == textToReplace ) {
+		pTimeline->deleteTag( position );
+		pTimeline->addTag( position, text );
 	}
 	
-	Timeline::HTimelineTagVector tlvector;
-	tlvector.m_htimelinetagbeat = position;
-	tlvector.m_htimelinetag = text;
-	pTimeline->m_timelinetagvector.push_back( tlvector );
-	pTimeline->sortTimelineTagVector();
 	createBackground();
 }
 
 void SongEditorPositionRuler::deleteTagAction( QString text, int position )
 {
 
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	Timeline* pTimeline = pEngine->getTimeline();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Timeline* pTimeline = pHydrogen->getTimeline();
 
-	for( int i = 0; i < pTimeline->m_timelinetagvector.size(); ++i ){
-		if( ( pTimeline->m_timelinetagvector[i].m_htimelinetag == text ) &&
-			( pTimeline->m_timelinetagvector[i].m_htimelinetagbeat == position ) ){
-
-			pTimeline->m_timelinetagvector.erase( pTimeline->m_timelinetagvector.begin() + i );
-			break;
-		}
+	const QString sTag = pTimeline->getTagAtBar( position, false );
+	if ( sTag == text ) {
+		pTimeline->deleteTag( position );
 	}
 	
-	pTimeline->sortTimelineTagVector();
 	createBackground();
 }

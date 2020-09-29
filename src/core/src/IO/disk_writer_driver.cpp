@@ -173,16 +173,12 @@ void* diskWriterDriver_thread( void* param )
 		// check pattern bpm if timeline bpm is in use
 		Timeline* pTimeline = pEngine->getTimeline();
 		if(Preferences::get_instance()->getUseTimelineBpm() ){
-			if( pTimeline->m_timelinevector.size() >= 1 ){
-				
-				for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
-					if(pTimeline->m_timelinevector[t].m_htimelinebeat == patternPosition &&
-							pTimeline->m_timelinevector[t].m_htimelinebpm != validBpm){
-						validBpm =  pTimeline->m_timelinevector[t].m_htimelinebpm;
-					}
-					
-				}
+
+			float fTimelineBpm = pTimeline->getTempoAtBar( patternPosition, true );
+			if ( fTimelineBpm != 0 ) {
+				validBpm = fTimelineBpm;
 			}
+			
 			pDriver->setBpm(validBpm);
 			fTicksize = pDriver->m_nSampleRate * 60.0 / validBpm / Hydrogen::get_instance()->getSong()->__resolution;
 			pDriver->audioEngine_process_checkBPMChanged();

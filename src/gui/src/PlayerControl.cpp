@@ -1115,6 +1115,31 @@ void PlayerControl::tempoChangedEvent( int nValue )
 	m_pLCDBPMSpinbox->setValue( m_pEngine->getSong()->__bpm );
 }
 
+void PlayerControl::jackTransportActivationEvent( int nValue ) {
+
+	if ( nValue == 0 && m_pJackTransportBtn->isPressed() ){
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-transport mode = Off"), 5000);
+		m_pJackMasterBtn->setPressed( false );
+		m_pJackMasterBtn->setDisabled( true );
+	} else if ( nValue != 0 && !m_pJackTransportBtn->isPressed() ) {
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-transport mode = On"), 5000);
+		m_pJackMasterBtn->setDisabled( false );
+	}
+}
+
+void PlayerControl::jackTimebaseActivationEvent( int nValue ) {
+	if ( nValue == 0 && m_pJackMasterBtn->isPressed() ){
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-Time-Master mode = Off"), 5000);
+		m_pJackMasterBtn->setPressed( false );
+		
+	} else if ( nValue != 0 && !m_pJackMasterBtn->isPressed() ) {
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-Time-Master mode = On"), 5000);
+		m_pJackMasterBtn->setPressed( true );
+	}
+	
+	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
+}
+
 //::::::::::::::::::::::::::::::::::::::::::::::::
 
 const char* MetronomeWidget::__class_name = "MetronomeWidget";

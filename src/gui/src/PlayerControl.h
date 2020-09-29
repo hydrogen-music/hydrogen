@@ -94,8 +94,11 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		void showMessage( const QString& msg, int msec );
 		void showScrollMessage( const QString& msg, int msec, bool test );
 		void resetStatusLabel();
-		
+
 		virtual void tempoChangedEvent( int nValue );
+		virtual void jackTransportActivationEvent( int nValue );
+		virtual void jackTimebaseActivationEvent( int nValue );
+													
 
 	private slots:
 		void recBtnClicked(Button* ref);
