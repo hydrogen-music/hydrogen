@@ -58,6 +58,28 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		//~ Implements EventListener interface
 		void setResolution(uint res, bool bUseTriplets);
 
+		// Pitch / line conversions
+		int lineToPitch( int nLine ) {
+			return 12 * (OCTAVE_MIN+m_nOctaves) - 1 - nLine;
+		}
+		int pitchToLine( int nPitch ) {
+			return 12 * (OCTAVE_MIN+m_nOctaves) - 1 - nPitch;
+		}
+
+		H2Core::Note::Octave pitchToOctave( int nPitch ) {
+			if ( nPitch >= 0 ) {
+				return (H2Core::Note::Octave)(nPitch / 12);
+			} else {
+				return (H2Core::Note::Octave)((nPitch-11) / 12);
+			}
+		}
+		H2Core::Note::Key pitchToKey( int nPitch ) {
+			return (H2Core::Note::Key)(nPitch - 12 * pitchToOctave( nPitch ));
+		}
+		int octaveKeyToPitch( H2Core::Note::Octave octave, H2Core::Note::Key key ) {
+			return 12 * (int)octave + (int)key;
+		}
+
 		void zoom_in();
 		void zoom_out();
 
