@@ -308,7 +308,8 @@ void JackAudioDriver::relocateUsingBBT()
 	float fNumberOfBarsPassed = 0;
 	if ( pSong->get_mode() == Song::SONG_MODE ) {
 
-		// Length of a pattern * fBarConversion provides the number of bars in Jack's point of view a pattern does cover.
+		// Length of a pattern * fBarConversion provides the number of
+		// bars in Jack's point of view a Hydrogen pattern does cover.
 		float fBarConversion = pSong->__resolution * 4 *
 			m_JackTransportPos.beats_per_bar /
 			m_JackTransportPos.beat_type;
@@ -318,10 +319,15 @@ void JackAudioDriver::relocateUsingBBT()
 		int nMinimumPatternLength = nLargeNumber;
 		int nNumberOfPatternsPassed = 0;
 
+		// Checking how many of Hydrogen's patterns are covered by the
+		// bar provided by Jack.
 		auto pPatternGroup = pSong->get_pattern_group_vector();
 		for ( const PatternList* ppPatternList : *pPatternGroup ) {
 			nMinimumPatternLength = nLargeNumber;
 
+			// If there are multiple patterns at a single bar (in
+			// Hydrogen) the length of the shortest one used for
+			// playback.
 			for ( int ii = 0; ii < ppPatternList->size(); ++ii ) {
 				if ( ppPatternList->get( ii )->get_length() <
 					 nMinimumPatternLength ) {
@@ -343,40 +349,28 @@ void JackAudioDriver::relocateUsingBBT()
 			
 			fNumberOfBarsPassed += fNextIncrement;
 			++nNumberOfPatternsPassed;
-
-			// std::cout << "[BBT]" 
-			// 		  << " fBarConversion: " << fBarConversion
-			// 		  << ", fNumberOfBarsPassed: " << fNumberOfBarsPassed
-			// 		  << ", nNumberOfPatternsPassed: " << nNumberOfPatternsPassed
-			// 		  << ", fNextIncrement: " << fNextIncrement
-			// 		  << ", nMinimumPatternLength: " << nMinimumPatternLength
-			// 		  << ", nBarJack: " << nBarJack
-			// 		  << std::endl;
 		}
-		
+
+		// Position of the resulting pattern in ticks.
 		barTicks = pHydrogen->getTickForPosition( nNumberOfPatternsPassed );
 		if ( barTicks < 0 ) {
 			barTicks = 0;
 		} else if ( fNextIncrement > 1 &&
 					fNumberOfBarsPassed != nBarJack ) {
+			// If pattern is longer than what is considered a bar in
+			// Jack's point of view, some additional ticks have to be
+			// added whenever transport passes the first bar contained
+			// in the pattern.
 			fAdditionalTicks = fTicksPerBeat * 4 *
 				( fNextIncrement - 1 );
-		}
-
-		// std::cout << "[BBT] barTicks: " << barTicks
-		// 		  << ", fAdditionalTicks: " << fAdditionalTicks
-		// 		  << ", fNextIncrement: " << fNextIncrement
-		// 		  << ", fNumberOfBarsPassed: " << fNumberOfBarsPassed
-		// 		  << ", 2nd: " << ( m_JackTransportPos.beat - 1 ) * fTicksPerBeat
-		// 		  << ", 3rd: " << m_JackTransportPos.tick * ( fTicksPerBeat / m_JackTransportPos.ticks_per_beat )
-		// 		  << std::endl;
+		}		
 	}
 
 	float fNewTick = static_cast<float>(barTicks) + fAdditionalTicks +
 		( m_JackTransportPos.beat - 1 ) * fTicksPerBeat +
 		m_JackTransportPos.tick * ( fTicksPerBeat / m_JackTransportPos.ticks_per_beat );
 
-	float fNewTickSize = getSampleRate() * 60.0 /  m_JackTransportPos.beats_per_minute / pSong->__resolution;
+	float fNewTickSize = AudioEngine::compute_tick_size( getSampleRate(), m_JackTransportPos.beats_per_minute, pSong->__resolution );
 
 	if ( fNewTickSize == 0 ) {
 		ERRORLOG(QString("Improper tick size [%1] for tick [%2]" )
@@ -387,17 +381,7 @@ void JackAudioDriver::relocateUsingBBT()
 	int nPatternStart;
 	int nPattern = pHydrogen->getPosForTick( fNewTick, &nPatternStart );
 
-	// std::cout << "[relocateUsingBBT] "
-	// 		  << "barTicks: " << barTicks
-	// 		  << ", fTicksPerBeat: " << fTicksPerBeat
-	// 		  << ", nPattern: " << nPattern
-	// 		  << ", nPatternStart: " << nPatternStart
-	// 		  << ", fNewTick: " << fNewTick
-	// 		  << ", fNewTickSize: " << fNewTickSize
-	// 		  << ", nNewFrame: " << static_cast<long long>(fNewTick * fNewTickSize)
-	// 		  << std::endl;
-
-	// NOTE this _should_ prevent audioEngine_process_checkBPMChanged
+	// NOTE this prevents audioEngine_process_checkBPMChanged
 	// in Hydrogen.cpp from recalculating things.
 	m_transport.m_fTickSize = fNewTickSize;
 	m_transport.m_nFrames = static_cast<long long>(fNewTick * fNewTickSize);
@@ -1121,7 +1105,8 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	// There is no formal definition in the JACK API but the way it is
 	// interpreted by Hydrogen is the following:
 	//
-	// bar: Number of patterns played since the beginning of the song.
+	// bar: Number of measures played since the beginning of the
+	// song. (Note that this may not coincide with the length of a pattern).
 	// beat: Number of quarters passed since the beginning of the the
 	//     pattern. 
 	// tick: Number of ticks passed since the last beat (with respect

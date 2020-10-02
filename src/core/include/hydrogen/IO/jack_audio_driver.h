@@ -452,19 +452,9 @@ public:
      * to TransportInfo::ROLLING.
 	 *
      * The function will check whether a relocation took place by the
-	 * JACK server and (afterwards) whether the current tempo did
-	 * change with respect to the last transport cycle. In case of a
-	 * relocation, #m_frameOffset will be reset to 0,
-	 * TransportInfo::m_nFrames updated to the new value provided by
-	 * JACK, and - if Hydrogen is in Song::PATTERN_MODE - the playback
-	 * moved to the beginning of the pattern. A change in speed, on
-	 * the other hand, depends on the local JACK setup. If there is a
-	 * timebase master, which broadcasts tempo information via JACK,
-	 * and it's not Hydrogen itself, all customizations in the
-	 * Timeline will be disregarded and the tempo of the master will
-	 * be used instead. If Hydrogen is the timebase master or there is
-	 * none at all, Hydrogen::setTimelineBpm() will be used to keep
-	 * the transport tempo aligned the settings in the Timeline.
+	 * JACK server and whether the current tempo did
+	 * change with respect to the last transport cycle and updates the
+	 * transport information accordingly.
 	 *
 	 * If Preferences::USE_JACK_TRANSPORT was not selected in
 	 * Preferences::m_bJackTransportMode, the function will return
@@ -698,10 +688,10 @@ private:
 	 * position.
 	 *
 	 * This type of operation is triggered whenever the transport
-	 * position got relocated using Jack in the presence of an
-	 * external timebase master. In addition, the function also
-	 * updates the current tick size to prevent the
-	 * audioEngine_checkBPMUpdate() function from doing so.*/
+	 * position gets relocated or the tempo is changed using Jack in
+	 * the presence of an external timebase master. In addition, the
+	 * function also updates the current tick size to prevent
+	 * the audioEngine_checkBPMUpdate() function from doing so.*/
 	void relocateUsingBBT();
 
 	/**
