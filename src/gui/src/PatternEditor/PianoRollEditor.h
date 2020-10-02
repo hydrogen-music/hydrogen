@@ -171,8 +171,8 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		QPixmap *m_pTemp;
 		int m_pOldPoint;
 
-		// Note pitch position of cursor, from 0.
-		int m_nCursorNote;
+		// Note pitch position of cursor
+		int m_nCursorPitch;
 		QPoint cursorPosition();
 
 		PatternEditorPanel *m_pPatternEditorPanel;

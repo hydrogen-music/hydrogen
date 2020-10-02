@@ -69,7 +69,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 	m_pBackground = new QPixmap( m_nEditorWidth, m_nEditorHeight );
 	m_pTemp = new QPixmap( m_nEditorWidth, m_nEditorHeight );
 
-	m_nCursorNote = 12 * OCTAVE_OFFSET;
+	m_nCursorPitch = 0;
 
 	resize( m_nEditorWidth, m_nEditorHeight );
 	
@@ -691,7 +691,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	int nPitch = lineToPitch( pressedline );
 	Note::Octave pressedoctave = pitchToOctave( nPitch );
 	Note::Key pressednotekey = pitchToKey( nPitch );
-	m_nCursorNote = OCTAVE_OFFSET * 12 + nPitch;
+	m_nCursorPitch = nPitch;
 	
 	//ERRORLOG(QString("pressedline: %1, octave %2, notekey: %3").arg(pressedline).arg(pressedoctave).arg(pressednotekey));
 
@@ -752,7 +752,7 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 
 	Note::Octave pressedoctave = pitchToOctave( lineToPitch( pressedline ) );
 	Note::Key pressednotekey = pitchToKey( lineToPitch( pressedline ) );
-	m_nCursorNote = lineToPitch( pressedline ) + 12 * OCTAVE_OFFSET;
+	m_nCursorPitch = lineToPitch( pressedline );
 
 	if (ev->button() == Qt::RightButton ) {
 		m_pOldPoint = ev->y();
@@ -1185,7 +1185,7 @@ void PianoRollEditor::mouseDragEndEvent( QMouseEvent *ev )
 QPoint PianoRollEditor::cursorPosition()
 {
 	uint x = 20 + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
-	uint y = m_nEditorHeight - m_nRowHeight - ( m_nRowHeight * m_nCursorNote) + 1;
+	uint y = m_nRowHeight * pitchToLine( m_nCursorPitch ) + 1;
 	return QPoint(x, y);
 }
 
@@ -1253,7 +1253,7 @@ void PianoRollEditor::copy()
 	XMLNode positionNode = root.createNode( "sourcePosition" );
 
 	positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
-	positionNode.write_int( "note", m_nCursorNote );
+	positionNode.write_int( "pitch", m_nCursorPitch );
 	positionNode.write_int( "instrument", Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 
 	for ( Note *pNote : m_selection ) {
@@ -1310,7 +1310,7 @@ void PianoRollEditor::paste()
 			int nCurrentPos = m_pPatternEditorPanel->getCursorPosition();
 
 			nDeltaPos = nCurrentPos - positionNode.read_int( "position", nCurrentPos );
-			nDeltaPitch = m_nCursorNote - positionNode.read_int( "note", m_nCursorNote );
+			nDeltaPitch = m_nCursorPitch - positionNode.read_int( "pitch", m_nCursorPitch );
 		}
 
 		pUndo->beginMacro( "paste notes" );
@@ -1368,24 +1368,24 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 		m_pPatternEditorPanel->setCursorPosition( 0 );
 
 	} else if ( ev->matches( QKeySequence::MoveToNextLine ) || ev->matches( QKeySequence::SelectNextLine ) ) {
-		if ( m_nCursorNote > 0 ) {
-			m_nCursorNote --;
+		if ( m_nCursorPitch > octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN ) ) {
+			m_nCursorPitch --;
 		}
 
 	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) || ev->matches( QKeySequence::SelectEndOfDocument ) ) {
-		m_nCursorNote = 0;
+		m_nCursorPitch = octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN );
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) || ev->matches( QKeySequence::SelectPreviousLine ) ) {
-		if ( m_nCursorNote < 12 * m_nOctaves -1 ) {
-			m_nCursorNote ++;
+		if ( m_nCursorPitch < octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX ) ) {
+			m_nCursorPitch ++;
 		}
 
 	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) || ev->matches( QKeySequence::SelectStartOfDocument ) ) {
-		m_nCursorNote = 12 * m_nOctaves -1;
+		m_nCursorPitch = octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX );
 
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		// Key: Enter/Return : Place or remove note at current position
-		int pressedline = pitchToLine( m_nCursorNote ) + 12 * OCTAVE_OFFSET;
+		int pressedline = pitchToLine( m_nCursorPitch );
 		int nPitch = lineToPitch( pressedline );
 		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, pressedline,
 						 pitchToKey( nPitch ), pitchToOctave( nPitch ) );
