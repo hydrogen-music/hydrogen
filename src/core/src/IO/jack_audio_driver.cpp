@@ -97,7 +97,8 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	  m_pClient( nullptr ),
 	  m_pOutputPort1( nullptr ),
 	  m_pOutputPort2( nullptr ),
-	  m_nIsTimebaseMaster( -1 )
+	  m_nIsTimebaseMaster( -1 ),
+	  m_nWaitNCycles( 0 )
 {
 	INFOLOG( "INIT" );
 	
@@ -386,6 +387,12 @@ void JackAudioDriver::relocateUsingBBT()
 			ERRORLOG( QString( "Unsupported m_JackBBTSync option [%1]" )
 					  .arg( static_cast<int>(Preferences::get_instance()->m_JackBBTSync) ) );
 		}
+
+		// std::cout << "[BBT] barTicks: " << barTicks
+		// 		  << ", fAdditionalTicks: " << fAdditionalTicks
+		// 		  << ", 2nd: " << ( m_JackTransportPos.beat - 1 ) * fTicksPerBeat
+		// 		  << ", 3rd: " << m_JackTransportPos.tick * ( fTicksPerBeat / m_JackTransportPos.ticks_per_beat )
+		// 		  << std::endl;
 	}
 
 	float fNewTick = static_cast<float>(barTicks) + fAdditionalTicks +
@@ -442,6 +449,12 @@ void JackAudioDriver::updateTransportInfo()
 		
 	case JackTransportRolling: // Transport is playing
 		m_transport.m_status = TransportInfo::ROLLING;
+
+		if ( m_nWaitNCycles > 0 ) {
+			--m_nWaitNCycles;
+			return;
+		}
+		
 		break;
 
 	case JackTransportStarting: 
@@ -450,9 +463,9 @@ void JackAudioDriver::updateTransportInfo()
 		m_transport.m_status = TransportInfo::STOPPED;
 
 		if ( m_nIsTimebaseMaster == 0 ) {
+			m_nWaitNCycles = 1;
 			return;
 		}
-		
 		break;
 		
 	default:
@@ -497,9 +510,6 @@ void JackAudioDriver::updateTransportInfo()
 
 		if ( m_nIsTimebaseMaster != 0 ) {
 			m_transport.m_nFrames = m_JackTransportPos.frame;
-		} else {
-			relocateUsingBBT();
-		}
 		
 			// There maybe was an offset introduced when passing a
 			// tempo marker.
