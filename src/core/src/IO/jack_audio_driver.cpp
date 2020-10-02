@@ -307,33 +307,13 @@ void JackAudioDriver::relocateUsingBBT()
 	float fAdditionalTicks = 0;
 	float fNumberOfBarsPassed = 0;
 	if ( pSong->get_mode() == Song::SONG_MODE ) {
-
+ 
 		if ( Preferences::get_instance()->m_JackBBTSync ==
 			 Preferences::JackBBTSyncMethod::identicalBars ) {
 			barTicks = pHydrogen->getTickForPosition( m_JackTransportPos.bar - 1 );
 
 			if ( barTicks < 0 ) {
 				barTicks = 0;
-			} else {
-		// Length of a pattern * fBarConversion provides the number of bars in Jack's point of view a pattern does cover.
-		float fBarConversion = pSong->__resolution * 4 *
-			m_JackTransportPos.beats_per_bar /
-			m_JackTransportPos.beat_type;
-		float fNextIncrement = 0;
-		int nBarJack = m_JackTransportPos.bar - 1;
-		int nLargeNumber = 100000;
-		int nMinimumPatternLength = nLargeNumber;
-		int nNumberOfPatternsPassed = 0;
-
-		auto pPatternGroup = pSong->get_pattern_group_vector();
-		for ( const PatternList* ppPatternList : *pPatternGroup ) {
-			nMinimumPatternLength = nLargeNumber;
-
-			for ( int ii = 0; ii < ppPatternList->size(); ++ii ) {
-				if ( ppPatternList->get( ii )->get_length() <
-					 nMinimumPatternLength ) {
-					nMinimumPatternLength = ppPatternList->get( ii )->get_length();
-				}
 			}
 		} else if ( Preferences::get_instance()->m_JackBBTSync ==
 					Preferences::JackBBTSyncMethod::constMeasure ) {
@@ -406,23 +386,20 @@ void JackAudioDriver::relocateUsingBBT()
 			ERRORLOG( QString( "Unsupported m_JackBBTSync option [%1]" )
 					  .arg( static_cast<int>(Preferences::get_instance()->m_JackBBTSync) ) );
 		}
-		
+
+		// Position of the resulting pattern in ticks.
 		barTicks = pHydrogen->getTickForPosition( nNumberOfPatternsPassed );
 		if ( barTicks < 0 ) {
 			barTicks = 0;
 		} else if ( fNextIncrement > 1 &&
 					fNumberOfBarsPassed != nBarJack ) {
+			// If pattern is longer than what is considered a bar in
+			// Jack's point of view, some additional ticks have to be
+			// added whenever transport passes the first bar contained
+			// in the pattern.
 			fAdditionalTicks = fTicksPerBeat * 4 *
 				( fNextIncrement - 1 );
-		}
-
-		// std::cout << "[BBT] barTicks: " << barTicks
-		// 		  << ", fAdditionalTicks: " << fAdditionalTicks
-		// 		  << ", fNextIncrement: " << fNextIncrement
-		// 		  << ", fNumberOfBarsPassed: " << fNumberOfBarsPassed
-		// 		  << ", 2nd: " << ( m_JackTransportPos.beat - 1 ) * fTicksPerBeat
-		// 		  << ", 3rd: " << m_JackTransportPos.tick * ( fTicksPerBeat / m_JackTransportPos.ticks_per_beat )
-		// 		  << std::endl;
+		}		
 	}
 
 	float fNewTick = static_cast<float>(barTicks) + fAdditionalTicks +
