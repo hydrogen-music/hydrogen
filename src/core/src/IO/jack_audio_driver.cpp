@@ -97,8 +97,7 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	  m_pClient( nullptr ),
 	  m_pOutputPort1( nullptr ),
 	  m_pOutputPort2( nullptr ),
-	  m_nIsTimebaseMaster( -1 ),
-	  m_nWaitNCycles( 0 )
+	  m_nIsTimebaseMaster( -1 )
 {
 	INFOLOG( "INIT" );
 	
@@ -306,18 +305,18 @@ void JackAudioDriver::relocateUsingBBT()
 
 	long barTicks = 0;
 	float fAdditionalTicks = 0;
+	float fNumberOfBarsPassed = 0;
 	if ( pSong->get_mode() == Song::SONG_MODE ) {
 
 		// Length of a pattern * fBarConversion provides the number of bars in Jack's point of view a pattern does cover.
 		float fBarConversion = pSong->__resolution * 4 *
 			m_JackTransportPos.beats_per_bar /
 			m_JackTransportPos.beat_type;
-		int nMinimumPatternLength;
-		float fNextIncrement;
+		float fNextIncrement = 0;
 		int nBarJack = m_JackTransportPos.bar - 1;
 		int nLargeNumber = 100000;
+		int nMinimumPatternLength = nLargeNumber;
 		int nNumberOfPatternsPassed = 0;
-		float fNumberOfBarsPassed = 0;
 
 		auto pPatternGroup = pSong->get_pattern_group_vector();
 		for ( const PatternList* ppPatternList : *pPatternGroup ) {
@@ -358,13 +357,16 @@ void JackAudioDriver::relocateUsingBBT()
 		barTicks = pHydrogen->getTickForPosition( nNumberOfPatternsPassed );
 		if ( barTicks < 0 ) {
 			barTicks = 0;
-		} else {
+		} else if ( fNextIncrement > 1 &&
+					fNumberOfBarsPassed != nBarJack ) {
 			fAdditionalTicks = fTicksPerBeat * 4 *
 				( fNextIncrement - 1 );
 		}
 
 		// std::cout << "[BBT] barTicks: " << barTicks
 		// 		  << ", fAdditionalTicks: " << fAdditionalTicks
+		// 		  << ", fNextIncrement: " << fNextIncrement
+		// 		  << ", fNumberOfBarsPassed: " << fNumberOfBarsPassed
 		// 		  << ", 2nd: " << ( m_JackTransportPos.beat - 1 ) * fTicksPerBeat
 		// 		  << ", 3rd: " << m_JackTransportPos.tick * ( fTicksPerBeat / m_JackTransportPos.ticks_per_beat )
 		// 		  << std::endl;
@@ -400,6 +402,13 @@ void JackAudioDriver::relocateUsingBBT()
 	m_transport.m_fTickSize = fNewTickSize;
 	m_transport.m_nFrames = static_cast<long long>(fNewTick * fNewTickSize);
 	m_frameOffset = m_JackTransportPos.frame - m_transport.m_nFrames;
+
+	float fBPM = static_cast<float>(m_JackTransportPos.beats_per_minute);
+	if ( m_transport.m_fBPM != fBPM ) {
+		setBpm( fBPM );
+		pHydrogen->getSong()->__bpm = fBPM;
+		pHydrogen->setNewBpmJTM( fBPM );
+	}
 }
 
 void JackAudioDriver::updateTransportInfo()
@@ -427,12 +436,6 @@ void JackAudioDriver::updateTransportInfo()
 		
 	case JackTransportRolling: // Transport is playing
 		m_transport.m_status = TransportInfo::ROLLING;
-
-		if ( m_nWaitNCycles > 0 ) {
-			--m_nWaitNCycles;
-			return;
-		}
-		
 		break;
 
 	case JackTransportStarting: 
@@ -441,16 +444,16 @@ void JackAudioDriver::updateTransportInfo()
 		m_transport.m_status = TransportInfo::STOPPED;
 
 		if ( m_nIsTimebaseMaster == 0 ) {
-			m_nWaitNCycles = 1;
 			return;
 		}
+		
 		break;
 		
 	default:
 		ERRORLOG( "Unknown jack transport state" );
 	}
 
-	printState();
+	// printState();
 	
 	m_currentPos = m_JackTransportPos.frame;
 	
@@ -501,12 +504,8 @@ void JackAudioDriver::updateTransportInfo()
 		// There is a JACK timebase master and it's not us. If it
 		// provides a tempo that differs from the local one, we will
 		// use the former instead.
-		float fBPM = static_cast<float>(m_JackTransportPos.beats_per_minute);
-
-		if ( m_transport.m_fBPM != fBPM ) {
-			setBpm( fBPM );
-			pHydrogen->getSong()->__bpm = fBPM;
-			pHydrogen->setNewBpmJTM( fBPM );
+		if ( m_transport.m_fBPM != static_cast<float>(m_JackTransportPos.beats_per_minute ) ) {
+			relocateUsingBBT();
 		}
 	} else {
 		// Checks for local changes in speed (introduced by the user

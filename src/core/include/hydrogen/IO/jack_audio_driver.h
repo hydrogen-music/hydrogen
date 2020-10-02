@@ -704,8 +704,6 @@ private:
 	 * audioEngine_checkBPMUpdate() function from doing so.*/
 	void relocateUsingBBT();
 
-	int m_nWaitNCycles;
-
 	/**
 	 * Renames the @a n 'th port of JACK client and creates it if
 	 * it's not already present. 
