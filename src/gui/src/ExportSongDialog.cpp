@@ -97,7 +97,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	}
 
 	// use of timeline
-	if( m_pEngine->getTimeline()->m_timelinevector.size() > 0 ){
+	if( m_pEngine->getTimeline()->getAllTempoMarkers().size() > 0 ){
 		toggleTimeLineBPMCheckBox->setChecked(m_pPreferences->getUseTimelineBpm());
 		m_bOldTimeLineBPMMode = m_pPreferences->getUseTimelineBpm();
 		connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTimeLineBPMMode( bool )));
@@ -684,14 +684,15 @@ void ExportSongDialog::calculateRubberbandTime()
 	okBtn->setEnabled(false);
 	
 	Timeline* pTimeline = m_pEngine->getTimeline();
+	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 
 	float oldBPM = m_pEngine->getSong()->__bpm;
 	float lowBPM = oldBPM;
 
-	if( pTimeline->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
-			if(pTimeline->m_timelinevector[t].m_htimelinebpm < lowBPM){
-				lowBPM =  pTimeline->m_timelinevector[t].m_htimelinebpm;
+	if ( tempoMarkerVector.size() >= 1 ){
+		for ( int t = 0; t < tempoMarkerVector.size(); t++){
+			if(tempoMarkerVector[t]->fBpm < lowBPM){
+				lowBPM =  tempoMarkerVector[t]->fBpm;
 			}
 
 		}

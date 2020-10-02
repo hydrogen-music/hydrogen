@@ -181,6 +181,7 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		void inlineEditingEntered();
 		virtual void dragEnterEvent(QDragEnterEvent *event);
 		virtual void dropEvent(QDropEvent *event);
+		virtual void timelineUpdateEvent( int nValue );
 
 	private:
 		uint m_nGridHeight;

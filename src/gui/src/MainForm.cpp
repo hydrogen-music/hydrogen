@@ -528,14 +528,14 @@ void MainForm::action_file_new()
 	}
 
 	h2app->m_pUndoStack->clear();
-	pEngine->getTimeline()->m_timelinevector.clear();
+	pEngine->getTimeline()->deleteAllTempoMarkers();
+	pEngine->getTimeline()->deleteAllTags();
 	Song * pSong = Song::get_empty_song();
 	pSong->set_filename( "" );
 	h2app->setSong(pSong);
 	pEngine->setSelectedPatternNumber( 0 );
 	h2app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	h2app->getSongEditorPanel()->updatePositionRuler();
-	pEngine->getTimeline()->m_timelinetagvector.clear();
 
 	// update director tags
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
@@ -965,8 +965,8 @@ void MainForm::action_banks_open()
 
 void MainForm::action_instruments_clearAll()
 {
-	switch(
-			 QMessageBox::information( 	this,
+	switch( 
+			 QMessageBox::information( 	this,					//NOLINT
 						   	"Hydrogen",
 							tr("Clear all instruments?"),
 							QMessageBox::Cancel | QMessageBox::Ok,
@@ -1355,7 +1355,7 @@ void MainForm::openSongFile( const QString& sFilename )
 		pEngine->sequencer_stop();
 	}
 
-	pEngine->getTimeline()->m_timelinetagvector.clear();
+	pEngine->getTimeline()->deleteAllTags();
 
 	h2app->closeFXProperties();
 

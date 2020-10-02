@@ -306,26 +306,7 @@ void SampleEditor::getAllLocalFrameInfos()
 
 void SampleEditor::openDisplays()
 {
-	H2Core::Instrument *pInstrument = nullptr;
-	Song *pSong = Hydrogen::get_instance()->getSong();
-	if (pSong != nullptr) {
-		InstrumentList *pInstrList = pSong->get_instrument_list();
-		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
-			nInstr = -1;
-		}
-
-		if (nInstr == -1) {
-			pInstrument = nullptr;
-		}
-		else {
-			pInstrument = pInstrList->get( nInstr );
-			//INFOLOG( "new instr: " + pInstrument->m_sName );
-		}
-	}
-
-
-// wavedisplays
+	// wavedisplays
 	m_divider = m_pSampleFromFile->get_frames() / 574.0F;
 	m_pMainSampleWaveDisplay->updateDisplay( m_sSampleName );
 	m_pMainSampleWaveDisplay->move( 1, 1 );

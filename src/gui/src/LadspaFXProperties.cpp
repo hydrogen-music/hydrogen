@@ -421,9 +421,8 @@ void LadspaFXProperties::updateOutputControls()
 					continue;
 				}
 
-				float fValue = pControl->fControlValue;
 				float fInterval = pControl->fUpperBound - pControl->fLowerBound;
-				fValue = pControl->fControlValue / fInterval;
+				float fValue = pControl->fControlValue / fInterval;
 
 				if (fValue < 0) fValue = -fValue;
 

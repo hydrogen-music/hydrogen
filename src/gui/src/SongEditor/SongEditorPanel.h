@@ -88,6 +88,8 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		 * gone or Hydrogen itself becomes the timebase master.
 		 */
 		void updateTimelineUsage();
+		virtual void timelineActivationEvent( int nValue );
+
 	private slots:
 		void vScrollTo( int value );
 		void hScrollTo( int value );

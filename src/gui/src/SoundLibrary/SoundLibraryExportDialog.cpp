@@ -91,7 +91,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	int nVersionListIndex = versionList->currentIndex();
 	
 	QDir qdTempFolder( Filesystem::tmp_dir() );
-	bool TmpFileCreated = false;
+	bool TmpFileCreated = false; 
 
 	int componentID = -1;
 	
@@ -102,7 +102,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 				QString temporaryDrumkitXML = qdTempFolder.filePath( "drumkit.xml" );
 				INFOLOG( "[ExportSoundLibrary]" );
 				INFOLOG( "Saving temporary file into: " + temporaryDrumkitXML );
-				TmpFileCreated = true;
+				TmpFileCreated = true; //NOLINT
 
 				for (std::vector<DrumkitComponent*>::iterator it = pDrumkit->get_components()->begin() ; it != pDrumkit->get_components()->end(); ++it) {
 					DrumkitComponent* pComponent = *it;

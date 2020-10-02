@@ -577,6 +577,22 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->quitEvent( event.value );
 				break;
 
+			case EVENT_TIMELINE_ACTIVATION:
+				pListener->timelineActivationEvent( event.value );
+				break;
+
+			case EVENT_TIMELINE_UPDATE:
+				pListener->timelineUpdateEvent( event.value );
+				break;
+
+			case EVENT_JACK_TRANSPORT_ACTIVATION:
+				pListener->jackTransportActivationEvent( event.value );
+				break;
+
+			case EVENT_JACK_TIMEBASE_ACTIVATION:
+				pListener->jackTimebaseActivationEvent( event.value );
+				break;
+				
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}
@@ -662,7 +678,7 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		updateWindowTitle();
 		getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 		getSongEditorPanel()->updatePositionRuler();
-		pHydrogen->getTimeline()->m_timelinetagvector.clear();
+		pHydrogen->getTimeline()->deleteAllTags();
 	
 		// Trigger a reset of the Director and MetronomeWidget.
 		EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );

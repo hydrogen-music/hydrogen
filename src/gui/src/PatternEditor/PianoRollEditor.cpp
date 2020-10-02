@@ -850,14 +850,15 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 			fPitch = 0.0f;
 		}
 
-		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
-		pNote->set_note_off( noteOff );
-		if(! noteOff) pNote->set_lead_lag( oldLeadLag );
-		pNote->set_key_octave( pressednotekey, pressedoctave );
-		pPattern->insert_note( pNote );
-
-		if ( m_bSelectNewNotes ) {
-			m_selection.addToSelection( pNote );
+		if( pPattern ) {
+			Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
+			pNote->set_note_off( noteOff );
+			if(! noteOff) pNote->set_lead_lag( oldLeadLag );
+			pNote->set_key_octave( pressednotekey, pressedoctave );
+			pPattern->insert_note( pNote );
+			if ( m_bSelectNewNotes ) {
+				m_selection.addToSelection( pNote );
+			}
 		}
 	}
 	pSong->set_is_modified( true );
@@ -1441,19 +1442,8 @@ void PianoRollEditor::editNoteLengthAction( int nColumn,  int nRealColumn,  int 
 {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-
-	H2Core::Pattern *pPattern;
-	if ( (selectedPatternNumber != -1) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
-		pPattern = pPatternList->get( selectedPatternNumber );
-	}
-	else {
-		pPattern = nullptr;
-	}
 
 	Song *pSong = pEngine->getSong();
-	int nInstruments = pSong->get_instrument_list()->size();
-
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
 
 
@@ -1491,19 +1481,10 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 
-	H2Core::Pattern *pPattern;
-	if ( (selectedPatternNumber != -1) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
-		pPattern = pPatternList->get( selectedPatternNumber );
-	}
-	else {
-		pPattern = nullptr;
-	}
-
 	Note::Octave pressedoctave = pitchToOctave( lineToPitch( pressedline ) );
 	Note::Key pressednotekey = pitchToKey( lineToPitch( pressedline ) );
 
 	Song *pSong = pEngine->getSong();
-	int nInstruments = pSong->get_instrument_list()->size();
 
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( selectedInstrumentnumber );
 
