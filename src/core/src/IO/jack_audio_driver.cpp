@@ -28,12 +28,16 @@
 #include <cstdlib>
 #include <cassert>
 #include <algorithm>
+#include <cmath>
+
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/basics/drumkit_component.h>
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/instrument_list.h>
+#include <hydrogen/basics/pattern.h>
+#include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/basics/playlist.h>
 #include <hydrogen/basics/song.h>
 #include <hydrogen/helpers/files.h>
@@ -79,6 +83,7 @@ void JackAudioDriver::jackDriverShutdown( void* arg )
 	Hydrogen::get_instance()->raiseError( Hydrogen::JACK_SERVER_SHUTDOWN );
 }
 
+
 const char* JackAudioDriver::__class_name = "JackAudioDriver";
 unsigned long JackAudioDriver::jackServerSampleRate = 0;
 jack_nframes_t JackAudioDriver::jackServerBufferSize = 0;
@@ -92,7 +97,8 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	  m_pClient( nullptr ),
 	  m_pOutputPort1( nullptr ),
 	  m_pOutputPort2( nullptr ),
-	  m_nIsTimebaseMaster( -1 )
+	  m_nIsTimebaseMaster( -1 ),
+	  m_nWaitNCycles( 0 )
 {
 	INFOLOG( "INIT" );
 	
@@ -299,19 +305,76 @@ void JackAudioDriver::relocateUsingBBT()
 	float fTicksPerBeat = static_cast<float>( pSong->__resolution / m_JackTransportPos.beat_type * 4 );
 
 	long barTicks = 0;
+	float fAdditionalTicks = 0;
 	if ( pSong->get_mode() == Song::SONG_MODE ) {
-		// (Reasonable?) assumption that one pattern is _always_ 1 bar long!
-		barTicks = pHydrogen->getTickForPosition( m_JackTransportPos.bar - 1 );
+
+		// Length of a pattern * fBarConversion provides the number of bars in Jack's point of view a pattern does cover.
+		float fBarConversion = pSong->__resolution * 4 *
+			m_JackTransportPos.beats_per_bar /
+			m_JackTransportPos.beat_type;
+		int nMinimumPatternLength;
+		float fNextIncrement;
+		int nBarJack = m_JackTransportPos.bar - 1;
+		int nLargeNumber = 100000;
+		int nNumberOfPatternsPassed = 0;
+		float fNumberOfBarsPassed = 0;
+
+		auto pPatternGroup = pSong->get_pattern_group_vector();
+		for ( const PatternList* ppPatternList : *pPatternGroup ) {
+			nMinimumPatternLength = nLargeNumber;
+
+			for ( int ii = 0; ii < ppPatternList->size(); ++ii ) {
+				if ( ppPatternList->get( ii )->get_length() <
+					 nMinimumPatternLength ) {
+					nMinimumPatternLength = ppPatternList->get( ii )->get_length();
+				}
+			}
+			
+			if ( nMinimumPatternLength == nLargeNumber ){
+				fNextIncrement = 0;
+			} else {
+				fNextIncrement =
+					static_cast<float>(nMinimumPatternLength) /
+					fBarConversion;
+			}
+			
+			if ( static_cast<float>(nBarJack) < ( fNumberOfBarsPassed + fNextIncrement ) ) {
+				break;
+			}
+			
+			fNumberOfBarsPassed += fNextIncrement;
+			++nNumberOfPatternsPassed;
+
+			// std::cout << "[BBT]" 
+			// 		  << " fBarConversion: " << fBarConversion
+			// 		  << ", fNumberOfBarsPassed: " << fNumberOfBarsPassed
+			// 		  << ", nNumberOfPatternsPassed: " << nNumberOfPatternsPassed
+			// 		  << ", fNextIncrement: " << fNextIncrement
+			// 		  << ", nMinimumPatternLength: " << nMinimumPatternLength
+			// 		  << ", nBarJack: " << nBarJack
+			// 		  << std::endl;
+		}
+		
+		barTicks = pHydrogen->getTickForPosition( nNumberOfPatternsPassed );
 		if ( barTicks < 0 ) {
 			barTicks = 0;
+		} else {
+			fAdditionalTicks = fTicksPerBeat * 4 *
+				( fNextIncrement - 1 );
 		}
+
+		// std::cout << "[BBT] barTicks: " << barTicks
+		// 		  << ", fAdditionalTicks: " << fAdditionalTicks
+		// 		  << ", 2nd: " << ( m_JackTransportPos.beat - 1 ) * fTicksPerBeat
+		// 		  << ", 3rd: " << m_JackTransportPos.tick * ( fTicksPerBeat / m_JackTransportPos.ticks_per_beat )
+		// 		  << std::endl;
 	}
 
-	float fNewTick = barTicks +
+	float fNewTick = static_cast<float>(barTicks) + fAdditionalTicks +
 		( m_JackTransportPos.beat - 1 ) * fTicksPerBeat +
 		m_JackTransportPos.tick * ( fTicksPerBeat / m_JackTransportPos.ticks_per_beat );
 
-	float fNewTickSize = getSampleRate() * 60.0 /  m_transport.m_fBPM / pSong->__resolution;
+	float fNewTickSize = getSampleRate() * 60.0 /  m_JackTransportPos.beats_per_minute / pSong->__resolution;
 
 	if ( fNewTickSize == 0 ) {
 		ERRORLOG(QString("Improper tick size [%1] for tick [%2]" )
@@ -319,10 +382,24 @@ void JackAudioDriver::relocateUsingBBT()
 		return;
 	}
 
+	int nPatternStart;
+	int nPattern = pHydrogen->getPosForTick( fNewTick, &nPatternStart );
+
+	// std::cout << "[relocateUsingBBT] "
+	// 		  << "barTicks: " << barTicks
+	// 		  << ", fTicksPerBeat: " << fTicksPerBeat
+	// 		  << ", nPattern: " << nPattern
+	// 		  << ", nPatternStart: " << nPatternStart
+	// 		  << ", fNewTick: " << fNewTick
+	// 		  << ", fNewTickSize: " << fNewTickSize
+	// 		  << ", nNewFrame: " << static_cast<long long>(fNewTick * fNewTickSize)
+	// 		  << std::endl;
+
 	// NOTE this _should_ prevent audioEngine_process_checkBPMChanged
 	// in Hydrogen.cpp from recalculating things.
 	m_transport.m_fTickSize = fNewTickSize;
 	m_transport.m_nFrames = static_cast<long long>(fNewTick * fNewTickSize);
+	m_frameOffset = m_JackTransportPos.frame - m_transport.m_nFrames;
 }
 
 void JackAudioDriver::updateTransportInfo()
@@ -350,12 +427,23 @@ void JackAudioDriver::updateTransportInfo()
 		
 	case JackTransportRolling: // Transport is playing
 		m_transport.m_status = TransportInfo::ROLLING;
+
+		if ( m_nWaitNCycles > 0 ) {
+			--m_nWaitNCycles;
+			return;
+		}
+		
 		break;
 
 	case JackTransportStarting: 
 		// Waiting for sync ready. If there are slow-sync clients,
 		// this can take more than one cycle.
 		m_transport.m_status = TransportInfo::STOPPED;
+
+		if ( m_nIsTimebaseMaster == 0 ) {
+			m_nWaitNCycles = 1;
+			return;
+		}
 		break;
 		
 	default:
@@ -400,13 +488,13 @@ void JackAudioDriver::updateTransportInfo()
 
 		if ( m_nIsTimebaseMaster != 0 ) {
 			m_transport.m_nFrames = m_JackTransportPos.frame;
+		
+			// There maybe was an offset introduced when passing a
+			// tempo marker.
+			m_frameOffset = 0;
 		} else {
 			relocateUsingBBT();
 		}
-		
-		// There maybe was an offset introduced when passing a tempo
-		// marker.
-		m_frameOffset = 0;
 	}
 
 	if ( m_timebaseState == Timebase::Slave ){
@@ -1136,6 +1224,8 @@ void JackAudioDriver::printState() const {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	
+	printJackTransportPos( &m_JackTransportPos );
+	
 	std::cout << "\033[35m[Hydrogen] JackAudioDriver state: "
 			  << ", m_transport.m_nFrames: " << m_transport.m_nFrames
 			  << ", m_transport.m_fBPM: " << m_transport.m_fBPM
@@ -1147,8 +1237,6 @@ void JackAudioDriver::printState() const {
 			  << ", m_currentPos: " << m_currentPos
 			  << ", pHydrogen->getPatternPos(): " << pHydrogen->getPatternPos()
 			  << "\33[0m" << std::endl;
-	
-	printJackTransportPos( &m_JackTransportPos );
 }
 
 
