@@ -97,8 +97,7 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	  m_pClient( nullptr ),
 	  m_pOutputPort1( nullptr ),
 	  m_pOutputPort2( nullptr ),
-	  m_nIsTimebaseMaster( -1 ),
-	  m_nWaitNCycles( 0 )
+	  m_nIsTimebaseMaster( -1 )
 {
 	INFOLOG( "INIT" );
 	
@@ -315,6 +314,26 @@ void JackAudioDriver::relocateUsingBBT()
 
 			if ( barTicks < 0 ) {
 				barTicks = 0;
+			} else {
+		// Length of a pattern * fBarConversion provides the number of bars in Jack's point of view a pattern does cover.
+		float fBarConversion = pSong->__resolution * 4 *
+			m_JackTransportPos.beats_per_bar /
+			m_JackTransportPos.beat_type;
+		float fNextIncrement = 0;
+		int nBarJack = m_JackTransportPos.bar - 1;
+		int nLargeNumber = 100000;
+		int nMinimumPatternLength = nLargeNumber;
+		int nNumberOfPatternsPassed = 0;
+
+		auto pPatternGroup = pSong->get_pattern_group_vector();
+		for ( const PatternList* ppPatternList : *pPatternGroup ) {
+			nMinimumPatternLength = nLargeNumber;
+
+			for ( int ii = 0; ii < ppPatternList->size(); ++ii ) {
+				if ( ppPatternList->get( ii )->get_length() <
+					 nMinimumPatternLength ) {
+					nMinimumPatternLength = ppPatternList->get( ii )->get_length();
+				}
 			}
 		} else if ( Preferences::get_instance()->m_JackBBTSync ==
 					Preferences::JackBBTSyncMethod::constMeasure ) {
@@ -387,9 +406,20 @@ void JackAudioDriver::relocateUsingBBT()
 			ERRORLOG( QString( "Unsupported m_JackBBTSync option [%1]" )
 					  .arg( static_cast<int>(Preferences::get_instance()->m_JackBBTSync) ) );
 		}
+		
+		barTicks = pHydrogen->getTickForPosition( nNumberOfPatternsPassed );
+		if ( barTicks < 0 ) {
+			barTicks = 0;
+		} else if ( fNextIncrement > 1 &&
+					fNumberOfBarsPassed != nBarJack ) {
+			fAdditionalTicks = fTicksPerBeat * 4 *
+				( fNextIncrement - 1 );
+		}
 
 		// std::cout << "[BBT] barTicks: " << barTicks
 		// 		  << ", fAdditionalTicks: " << fAdditionalTicks
+		// 		  << ", fNextIncrement: " << fNextIncrement
+		// 		  << ", fNumberOfBarsPassed: " << fNumberOfBarsPassed
 		// 		  << ", 2nd: " << ( m_JackTransportPos.beat - 1 ) * fTicksPerBeat
 		// 		  << ", 3rd: " << m_JackTransportPos.tick * ( fTicksPerBeat / m_JackTransportPos.ticks_per_beat )
 		// 		  << std::endl;
@@ -449,12 +479,6 @@ void JackAudioDriver::updateTransportInfo()
 		
 	case JackTransportRolling: // Transport is playing
 		m_transport.m_status = TransportInfo::ROLLING;
-
-		if ( m_nWaitNCycles > 0 ) {
-			--m_nWaitNCycles;
-			return;
-		}
-		
 		break;
 
 	case JackTransportStarting: 
@@ -463,16 +487,16 @@ void JackAudioDriver::updateTransportInfo()
 		m_transport.m_status = TransportInfo::STOPPED;
 
 		if ( m_nIsTimebaseMaster == 0 ) {
-			m_nWaitNCycles = 1;
 			return;
 		}
+		
 		break;
 		
 	default:
 		ERRORLOG( "Unknown jack transport state" );
 	}
 
-	printState();
+	// printState();
 	
 	m_currentPos = m_JackTransportPos.frame;
 	
@@ -526,7 +550,6 @@ void JackAudioDriver::updateTransportInfo()
 		if ( m_transport.m_fBPM !=
 			 static_cast<float>(m_JackTransportPos.beats_per_minute ) ||
 			 !compareAdjacentBBT() ) {
-			// printState();
 			relocateUsingBBT();
 		}
 	} else {
