@@ -54,8 +54,6 @@ using namespace H2Core;
 
 const char* DrumPatternEditor::__class_name = "DrumPatternEditor";
 
-
-
 DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
  : QWidget( parent )
  , Object( __class_name )

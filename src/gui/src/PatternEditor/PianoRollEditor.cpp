@@ -590,8 +590,8 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	Song *pSong = pHydrogen->getSong();
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
 
-	H2Core::Note* pFoundNote = pFoundNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument,
-																   notekey, octave );
+	Note* pFoundNote = pFoundNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument,
+														   notekey, octave );
 
 	int nLength = -1;
 	float fVelocity = 0.8f;
@@ -814,7 +814,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( selectedinstrument );
 	assert(pSelectedInstrument);
 
-	H2Core::Pattern *pPattern = nullptr;
+	Pattern *pPattern = nullptr;
 	if ( ( selectedPatternNumber != -1 ) && ( (uint)selectedPatternNumber < pPatternList->size() ) ) {
 		pPattern = pPatternList->get( selectedPatternNumber );
 	}
