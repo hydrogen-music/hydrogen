@@ -1258,9 +1258,19 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	for (unsigned y = 90; y < 210; y = y + 10 ) {
 		p.setPen( QPen( QColor( 255, 255, 255 ), 9, Qt::SolidLine, Qt::FlatCap) );
 		if ( y == 100 ||y == 120 ||y == 140 ||y == 170 ||y == 190) {
-			p.setPen( QPen( QColor( 0, 0, 0 ), 7, Qt::SolidLine, Qt::FlatCap ) );
+			p.setPen( QPen( QColor( 128, 128, 128 ), 9, Qt::SolidLine, Qt::FlatCap ) );
 		}
 		p.drawLine(20, y, 20 + nNotes * m_nGridWidth, y);
+	}
+
+	// Annotate with note class names
+	static char const *noteNames[] = { "B", "A#", "A", "G#", "G", "F#", "F", "E", "D#", "D", "C#", "C" };
+	QFont font;
+	font.setPointSize( 9 );
+	p.setFont( font );
+	p.setPen( QColor( 0, 0, 0 ) );
+	for ( int n = 0; n < 12; n++ ) {
+		p.drawText( 5, 90 + 10 * n +3, noteNames[n] );
 	}
 
 	// vertical lines
@@ -1343,7 +1353,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	p.drawLine(0, 0, m_nEditorWidth, 0);
 	p.drawLine(0, m_nEditorHeight - 1, m_nEditorWidth, m_nEditorHeight - 1);
 
-//paint the oktave	
+//paint the octave
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
@@ -1380,19 +1390,11 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 				int k = pNote->get_key();
 				uint x_pos = 17 + pNote->get_position() * m_nGridWidth;
 				uint y_pos = 200-(k*10)-3;
-				if(k<5) {
-					if(!(k&0x01)) {
-						x_pos-=1;
-						y_pos-=1;
-						d+=2;
-					}
-				} else {
-					if(k&0x01) {
-						x_pos-=1;
-						y_pos-=1;
-						d+=2;
-					}
-				}
+
+				x_pos -= 1;
+				y_pos -= 1;
+				d += 2;
+
 				p.setBrush(QColor( 0, 0, 0));
 				p.drawEllipse( x_pos, y_pos, d, d);
 			}
