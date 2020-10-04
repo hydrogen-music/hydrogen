@@ -220,9 +220,6 @@ public:
 	 * callback function.
 	 */
 	void clearPerTrackAudioBuffers( uint32_t nFrames );
-
-	/** @return #m_bUsePerTrackOutputs */
-	bool getUsePerTrackOutputs() const;
 	
 	/**
 	 * Creates per component output ports for each instrument.
@@ -787,12 +784,6 @@ private:
 	 */
 	int				m_trackMap[MAX_INSTRUMENTS][MAX_COMPONENTS];
 	/**
-	 * Whether to create per-track audio output ports. The choice of
-	 * the user queried from Preferences::m_bJackTrackOuts and stored
-	 * in this variable at the moment of creation of an instance.
-	 */
-	bool			m_bUsePerTrackOutputs;
-	/**
 	 * Total number of output ports currently in use. It gets updated
 	 * by makeTrackOutputs().
 	 */
@@ -920,9 +911,6 @@ private:
 	
 inline JackAudioDriver::Timebase JackAudioDriver::getTimebaseState() const {
 	return m_timebaseState;
-}
-inline bool JackAudioDriver::getUsePerTrackOutputs() const {
-	return m_bUsePerTrackOutputs;
 }
 
 

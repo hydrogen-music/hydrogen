@@ -898,11 +898,11 @@ bool Sampler::__render_note_no_resample(
 
 
 #ifdef H2CORE_HAVE_JACK
-	auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput);
 	float *		pTrackOutL = nullptr;
 	float *		pTrackOutR = nullptr;
 
-	if ( pJackAudioDriver->getUsePerTrackOutputs() ) {
+	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
+		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput);
 		 pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
 		 pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
 	}
@@ -1056,11 +1056,11 @@ bool Sampler::__render_note_resample(
 
 
 #ifdef H2CORE_HAVE_JACK
-	auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput);
 	float *		pTrackOutL = nullptr;
 	float *		pTrackOutR = nullptr;
 
-	if ( pJackAudioDriver->getUsePerTrackOutputs() ) {
+	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
+		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput);
 		pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
 		pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
 	}

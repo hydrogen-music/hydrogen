@@ -85,8 +85,7 @@ JackAudioDriver* JackAudioDriver::pJackDriverInstance = nullptr;
 int JackAudioDriver::nWaits = 0;
 
 JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
-	: AudioOutput( __class_name ),
-	  m_bUsePerTrackOutputs( Preferences::get_instance()->m_bJackTrackOuts )
+	: AudioOutput( __class_name )
 {
 	INFOLOG( "INIT" );
 	
@@ -256,7 +255,8 @@ unsigned JackAudioDriver::getSampleRate()
 
 void JackAudioDriver::clearPerTrackAudioBuffers( uint32_t nFrames )
 {
-	if ( m_pClient != nullptr && m_bUsePerTrackOutputs ) {
+	if ( m_pClient != nullptr &&
+		 Preferences::get_instance()->m_bJackTrackOuts ) {
 		float* pBuffer;
 		
 		for ( int ii = 0; ii < m_nTrackPortCount; ++ii ) {
