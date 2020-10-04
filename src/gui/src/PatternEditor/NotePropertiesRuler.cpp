@@ -1264,7 +1264,8 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	}
 
 	// Annotate with note class names
-	static char const *noteNames[] = { "B", "A#", "A", "G#", "G", "F#", "F", "E", "D#", "D", "C#", "C" };
+	static QString noteNames[] = { tr( "B" ), tr( "A#" ), tr( "A" ), tr( "G#" ), tr( "G" ), tr( "F#" ),
+								   tr( "F" ), tr( "E" ), tr( "D#" ), tr( "D" ), tr( "C#" ), tr( "C" ) };
 	QFont font;
 	font.setPointSize( 9 );
 	p.setFont( font );
