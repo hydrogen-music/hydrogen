@@ -3642,7 +3642,7 @@ void Hydrogen::setBPM( float fBPM )
 		return;
 	}
 
-	if ( haveJackTimebaseClient() ) {
+	if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		ERRORLOG( "Unable to change tempo directly in the presence of an external JACK timebase master. Press 'J.MASTER' get tempo control." );
 		return;
 	}
@@ -4043,7 +4043,7 @@ float Hydrogen::getTimelineBpm( int nBar )
 void Hydrogen::setTimelineBpm()
 {
 	if ( ! Preferences::get_instance()->getUseTimelineBpm() ||
-		 haveJackTimebaseClient() ) {
+		 getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		return;
 	}
 
@@ -4096,16 +4096,14 @@ bool Hydrogen::haveJackTransport() const {
 #endif	
 }
 
-bool Hydrogen::haveJackTimebaseClient() const {
+JackAudioDriver::Timebase Hydrogen::getJackTimebaseState() const {
 #ifdef H2CORE_HAVE_JACK
 	if ( haveJackTransport() ) {
-		if ( static_cast<JackAudioDriver*>(m_pAudioDriver)->getIsTimebaseMaster() == 0 ) {
-			return true;
-		}
+		return static_cast<JackAudioDriver*>(m_pAudioDriver)->getTimebaseState();
 	} 
-	return false;
+	return JackAudioDriver::Timebase::None;
 #else
-	return false;
+	return JackAudioDriver::Timebase::None;
 #endif	
 }
 

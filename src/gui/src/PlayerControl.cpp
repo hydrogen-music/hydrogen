@@ -589,8 +589,6 @@ void PlayerControl::updatePlayerControl()
 
 
 #ifdef H2CORE_HAVE_JACK
-	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
-
 	if ( m_pEngine->haveJackAudioDriver() ) {
 		m_pJackTransportBtn->show();
 		m_pJackMasterBtn->show();
@@ -604,7 +602,7 @@ void PlayerControl::updatePlayerControl()
 			case Preferences::USE_JACK_TRANSPORT:
 				m_pJackTransportBtn->setPressed(true);
 				
-				if ( static_cast<JackAudioDriver*>(p_Driver)->getIsTimebaseMaster() > 0 ) {
+				if ( m_pEngine->getJackTimebaseState() == JackAudioDriver::Timebase::Master ) {
 					m_pJackMasterBtn->setPressed( true );
 				} else {
 					m_pJackMasterBtn->setPressed( false );

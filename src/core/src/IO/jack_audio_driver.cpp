@@ -198,7 +198,8 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	m_pOutputPort1 = nullptr;
 	m_pOutputPort2 = nullptr;
 	m_bConnectDefaults = pPreferences->m_bJackConnectDefaults;
-	m_nIsTimebaseMaster = -1;
+	m_nTimebaseTracking = -1;
+	m_timebaseState = Timebase::None;
 	
 	// Destination ports the output of Hydrogen will be connected
 	// to.
@@ -395,21 +396,24 @@ void JackAudioDriver::updateTransportInfo()
 	
 	// Update the status regrading JACK timebase master.
 	if ( m_JackTransportState != JackTransportStopped ) {
-		if ( m_nIsTimebaseMaster > 1 ) {
-			m_nIsTimebaseMaster--;
-		} else if ( m_nIsTimebaseMaster == 1 ) {
+		if ( m_nTimebaseTracking > 1 ) {
+			m_nTimebaseTracking--;
+		} else if ( m_nTimebaseTracking == 1 ) {
 			// JackTimebaseCallback not called anymore -> timebase client
-			m_nIsTimebaseMaster = 0;
+			m_nTimebaseTracking = 0;
+			m_timebaseState = Timebase::Slave;
 		}
 	}
-	if ( m_nIsTimebaseMaster == 0 && 
+	if ( m_nTimebaseTracking == 0 && 
 				!(m_JackTransportPos.valid & JackPositionBBT) ) {
 		// No external timebase master anymore -> regular client
-		m_nIsTimebaseMaster = -1;
-	} else if ( m_nIsTimebaseMaster < 0 && 
+		m_nTimebaseTracking = -1;
+		m_timebaseState = Timebase::None;
+	} else if ( m_nTimebaseTracking < 0 && 
 				(m_JackTransportPos.valid & JackPositionBBT) ) {
 		// External timebase master detected -> timebase client
-		m_nIsTimebaseMaster = 0;
+		m_nTimebaseTracking = 0;
+		m_timebaseState = Timebase::Slave;
 	}
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
@@ -431,7 +435,7 @@ void JackAudioDriver::updateTransportInfo()
 		m_frameOffset = 0;
 	}
 
-	if ( m_nIsTimebaseMaster == 0 ){
+	if ( m_timebaseState == Timebase::Slave ){
 		// There is a JACK timebase master and it's not us. If it
 		// provides a tempo that differs from the local one, we will
 		// use the former instead.
@@ -1007,7 +1011,8 @@ void JackAudioDriver::initTimebaseMaster()
 		if ( nReturnValue != 0 ){
 			pPreferences->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
 		} else {
-			m_nIsTimebaseMaster = 2;
+			m_nTimebaseTracking = 2;
+			m_timebaseState = Timebase::Master;
 		}
 	} else {
 	    releaseTimebaseMaster();
@@ -1024,9 +1029,11 @@ void JackAudioDriver::releaseTimebaseMaster()
 	jack_release_timebase( m_pClient );
 	
 	if ( m_JackTransportPos.valid & JackPositionBBT ) {
-		m_nIsTimebaseMaster = 0;
+		m_nTimebaseTracking = 0;
+		m_timebaseState = Timebase::Slave;
 	} else {
-		m_nIsTimebaseMaster = -1;
+		m_nTimebaseTracking = -1;
+		m_timebaseState = Timebase::None;
 	}
 }
 
@@ -1146,7 +1153,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	}
     
 	// Tell Hydrogen it is still timebase master.
-	pDriver->m_nIsTimebaseMaster = 2;
+	pDriver->m_nTimebaseTracking = 2;
 }
 
 }

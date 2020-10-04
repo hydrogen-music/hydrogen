@@ -2459,7 +2459,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			pHydrogen->getCoreActionController()->relocate( column );
 			update();
 		}
-
+		
 	} else if (ev->button() == Qt::MidButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);
 		SongEditorPanelTagWidget dialog( this , column );

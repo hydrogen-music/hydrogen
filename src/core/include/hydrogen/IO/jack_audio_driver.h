@@ -41,16 +41,16 @@
 #include <jack/transport.h>
 
 #include <hydrogen/globals.h>
-#include <hydrogen/hydrogen.h>
 
 
 
 namespace H2Core
 {
-
+	
 class Song;
 class Instrument;
 class InstrumentComponent;
+
 /**
  * JACK (Jack Audio Connection Kit) server driver.
  *
@@ -115,6 +115,20 @@ class JackAudioDriver : public AudioOutput
 {
 	H2_OBJECT
 public:
+	/**
+	 * Whether Hydrogen or another program is Jack timebase master.
+	 */
+	enum class Timebase {
+		/** Hydrogen itself is timebase master.*/
+		Master = 1,
+		/** An external program is timebase master and Hydrogen will
+         * disregard all tempo marker on the Timeline and, instead,
+         * only use the BPM provided by JACK.*/
+		Slave = 0,
+		/** Only normal clients registered */
+		None = -1
+	};
+	
 	/** 
 	 * Object holding the external client session with the JACK
 	 * server. 
@@ -540,9 +554,9 @@ public:
 	void releaseTimebaseMaster();
 	
 	/**
-	 * \return #m_nIsTimebaseMaster
+	 * \return #m_timebaseState
 	 */
-	int getIsTimebaseMaster() const;
+	Timebase getTimebaseState() const;
 	/** Stores the latest transport position (for both rolling and
 	 * stopped transport).
 	 *
@@ -757,7 +771,7 @@ private:
 	 * documentation of JackTimebaseCallback() for more information
 	 * about its different members.
 	 */
-	jack_position_t			m_JackTransportPos;
+	jack_position_t		m_JackTransportPos;
 
 	/**
 	 * Specifies whether the default left and right (master) audio
@@ -772,12 +786,12 @@ private:
 	/**
 	 * Whether Hydrogen or another program is Jack timebase master.
 	 *
-	 * - #m_nIsTimebaseMaster > 0 - Hydrogen itself is timebase
+	 * - #m_nTimebaseTracking > 0 - Hydrogen itself is timebase
           master.
-	 * - #m_nIsTimebaseMaster == 0 - an external program is timebase
+	 * - #m_nTimebaseTracking == 0 - an external program is timebase
           master and Hydrogen will disregard all tempo marker on the
           Timeline and, instead, only use the BPM provided by JACK.
-	 * - #m_nIsTimebaseMaster < 0 - only normal clients registered.
+	 * - #m_nTimebaseTracking < 0 - only normal clients registered.
 	 *
 	 * While Hydrogen can unregister as timebase master on its own, it
 	 * can not be observed directly whether another application has
@@ -792,15 +806,20 @@ private:
 	 * initTimebaseMaster() it will be initialized with 1, decremented
 	 * in updateTransportInfo(), and reset to 1 in
 	 * JackTimebaseCallback(). Whenever it is zero in
-	 * updateTransportInfo(), #m_nIsTimebaseMaster will be updated
+	 * updateTransportInfo(), #m_nTimebaseTracking will be updated
 	 * accordingly.
 	 */
-	int				m_nIsTimebaseMaster;
+	int				m_nTimebaseTracking;
+
+	/**
+	 * More user-friendly version of #m_nTimebaseTracking.
+	 */ 
+	Timebase m_timebaseState;
 
 };
 	
-inline int JackAudioDriver::getIsTimebaseMaster() const {
-	return m_nIsTimebaseMaster;
+inline JackAudioDriver::Timebase JackAudioDriver::getTimebaseState() const {
+	return m_timebaseState;
 }
 inline int JackAudioDriver::getNumTracks() {
 	return m_nTrackPortCount;
@@ -818,6 +837,19 @@ namespace H2Core {
 class JackAudioDriver : public NullDriver {
 	H2_OBJECT
 public:
+	/**
+	 * Whether Hydrogen or another program is Jack timebase master.
+	 */
+	enum class Timebase {
+		/** Hydrogen itself is timebase master.*/
+		Master = 1,
+		/** An external program is timebase master and Hydrogen will
+         * disregard all tempo marker on the Timeline and, instead,
+         * only use the BPM provided by JACK.*/
+		Slave = 0,
+		/** Only normal clients registered */
+		None = -1
+	};
 	/**
 	 * Fallback version of the JackAudioDriver in case
 	 * #H2CORE_HAVE_JACK was not defined during the configuration

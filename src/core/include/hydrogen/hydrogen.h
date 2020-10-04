@@ -32,6 +32,7 @@
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
+#include <hydrogen/IO/jack_audio_driver.h>
 #include <hydrogen/basics/drumkit.h>
 #include <hydrogen/core_action_controller.h>
 #include <cassert>
@@ -647,9 +648,9 @@ void			previewSample( Sample *pSample );
 	 * \return Whether we haveJackTransport() and there is an external
 	 * JACK timebase master broadcasting us tempo information and
 	 * making use disregard Hydrogen's Timeline information (see
-	 * #JackAudioDriver::m_nIsTimebaseMaster).
+	 * #JackAudioDriver::m_timebaseState).
 	 */
-	bool			haveJackTimebaseClient() const;
+	JackAudioDriver::Timebase		getJackTimebaseState() const;
 
 	///midi lookuptable
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
