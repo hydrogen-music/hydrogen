@@ -1224,24 +1224,7 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 	}
 
 #ifdef H2CORE_HAVE_JACK
-	JackAudioDriver * jo = dynamic_cast<JackAudioDriver*>(m_pAudioDriver);
-	// Check whether the Preferences::m_bJackTrackOuts option was
-	// set. It enables a per-track creation of the output
-	// ports. All of them have to be reset as well.
-	if( jo && jo->has_track_outs() ) {
-		float* buf;
-		int k;
-		for( k=0 ; k<jo->getNumTracks() ; ++k ) {
-			buf = jo->getTrackOut_L(k);
-			if( buf ) {
-				memset( buf, 0, nFrames * sizeof( float ) );
-			}
-			buf = jo->getTrackOut_R(k);
-			if( buf ) {
-				memset( buf, 0, nFrames * sizeof( float ) );
-			}
-		}
-	}
+	dynamic_cast<JackAudioDriver*>(m_pAudioDriver)->clearPerTrackAudioBuffers( nFrames );
 #endif
 
 	mx.unlock();

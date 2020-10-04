@@ -898,14 +898,13 @@ bool Sampler::__render_note_no_resample(
 
 
 #ifdef H2CORE_HAVE_JACK
-	JackAudioDriver* pJackAudioDriver = nullptr;
+	auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput);
 	float *		pTrackOutL = nullptr;
 	float *		pTrackOutR = nullptr;
 
-	if( pAudioOutput->has_track_outs()
-	&& (pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput)) ) {
+	if ( pJackAudioDriver->getUsePerTrackOutputs() ) {
 		 pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
-		pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
+		 pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
 	}
 #endif
 
@@ -1057,14 +1056,13 @@ bool Sampler::__render_note_resample(
 
 
 #ifdef H2CORE_HAVE_JACK
-	JackAudioDriver* pJackAudioDriver = nullptr;
+	auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput);
 	float *		pTrackOutL = nullptr;
 	float *		pTrackOutR = nullptr;
 
-	if( pAudioOutput->has_track_outs()
-	&& (pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput)) ) {
-				pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
-				pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
+	if ( pJackAudioDriver->getUsePerTrackOutputs() ) {
+		pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
+		pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
 	}
 #endif
 
