@@ -184,6 +184,11 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	// per-track audio output ports.
 	__track_out_enabled = pPreferences->m_bJackTrackOuts;
 
+	m_transport.m_status = TransportInfo::STOPPED;
+	m_transport.m_nFrames = 0;
+	m_transport.m_fTickSize = 100;
+	m_transport.m_fBPM = 120;
+
 	pJackDriverInstance = this;
 	this->m_processCallback = m_processCallback;
 
@@ -202,6 +207,8 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	
 	memset( m_pTrackOutputPortsL, 0, sizeof(m_pTrackOutputPortsL) );
 	memset( m_pTrackOutputPortsR, 0, sizeof(m_pTrackOutputPortsR) );
+
+	m_JackTransportState  = JackTransportStopped;
 }
 
 JackAudioDriver::~JackAudioDriver()
@@ -349,7 +356,6 @@ void JackAudioDriver::calculateFrameOffset(long long oldFrame)
 
 void JackAudioDriver::updateTransportInfo()
 {
-	
 	if ( Preferences::get_instance()->m_bJackTransportMode !=
 	     Preferences::USE_JACK_TRANSPORT ){
 		return;
@@ -360,7 +366,7 @@ void JackAudioDriver::updateTransportInfo()
 	// process thread, the second argument, which is a pointer to
 	// a structure for returning current transport, corresponds to
 	// the first frame of the current cycle and the state returned
-	// is valid for the entire cycle. #m_JackTransportPos->valid
+	// is valid for the entire cycle. #m_JackTransportPos.valid
 	// will show which fields contain valid data. If
 	// #m_JackTransportPos is NULL, do not return position
 	// information.
@@ -1011,6 +1017,7 @@ void JackAudioDriver::initTimebaseMaster()
 void JackAudioDriver::releaseTimebaseMaster()
 {
 	if ( m_pClient == nullptr ) {
+		ERRORLOG( QString( "Not fully initialized yet" ) );
 		return;
 	}
 
