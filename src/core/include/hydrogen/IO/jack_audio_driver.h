@@ -214,7 +214,7 @@ public:
 	unsigned getSampleRate();
 
 	/** Resets the buffers contained in #m_pTrackOutputPortsL and
-	 * #m_pTrackOutputPortR.
+	 * #m_pTrackOutputPortsR.
 	 * 
 	 * @param nFrames Size of the buffers used in the audio process
 	 * callback function.
@@ -360,8 +360,8 @@ public:
 	 * them in #jackServerSampleRate, Preferences::m_nSampleRate,
 	 * #jackServerBufferSize, and Preferences::m_nBufferSize. In
 	 * addition, it also registers JackAudioDriver::m_processCallback,
-	 * H2Core::jackDriverSampleRate, H2Core::jackDriverBufferSize, and
-	 * H2Core::jackDriverShutdown using _jack_set_process_callback()_,
+	 * jackDriverSampleRate, jackDriverBufferSize, and
+	 * jackDriverShutdown using _jack_set_process_callback()_,
 	 * _jack_set_sample_rate_callback()_,
 	 * _jack_set_buffer_size_callback()_, and _jack_on_shutdown()_
 	 * (all in jack/jack.h).
@@ -584,7 +584,7 @@ public:
 	static int					nWaits;
 	/**
 	 * Callback function for the JACK audio server to set the sample
-	 * rate #H2Core::jackServerSampleRate and prints a message to the
+	 * rate #jackServerSampleRate and prints a message to the
 	 * #__INFOLOG, which has to be included via a Logger instance in
 	 * the provided @a param.
 	 *
@@ -603,7 +603,7 @@ public:
 	
 	/**
 	 * Callback function for the JACK audio server to set the buffer
-	 * size #H2Core::jackServerBufferSize.
+	 * size #jackServerBufferSize.
 	 *
 	 * It gets registered as a callback function of the JACK server in
 	 * JackAudioDriver::init() using
