@@ -399,7 +399,7 @@ void JackAudioDriver::relocateUsingBBT()
 			// in the pattern.
 			fAdditionalTicks = fTicksPerBeat * 4 *
 				( fNextIncrement - 1 );
-		}		
+		}
 	}
 
 	float fNewTick = static_cast<float>(barTicks) + fAdditionalTicks +
@@ -603,6 +603,9 @@ bool JackAudioDriver::compareAdjacentBBT() const
 		return false;
 	}
 
+	// The rounding is the task of the external timebase master. So,
+	// we need to be a little generous in here to be sure to match its
+	// decision.
 	if ( abs( m_JackTransportPos.tick - nNewTick ) > 1 &&
 		 abs( m_JackTransportPos.tick -
 			  m_JackTransportPos.ticks_per_beat - nNewTick ) > 1 &&
