@@ -683,6 +683,15 @@ private:
 	/** Show debugging information.*/
 	void printState() const;
 
+	/** Compares the BBT information stored in #m_JackTransportPos and
+	 * #m_previousJackTransportPos with respect to the tempo and the
+	 * transport position in bars, beats, and ticks.
+	 *
+	 * @return true If #m_JackTransportPos is expected to follow
+	 * #m_previousJackTransportPos.
+	 */
+	bool compareAdjacentBBT() const;
+
 	/** 
 	 * Uses the bar-beat-tick information to relocate the transport
 	 * position.
@@ -870,7 +879,12 @@ private:
 	 * documentation of JackTimebaseCallback() for more information
 	 * about its different members.
 	 */
-	jack_position_t		m_JackTransportPos;
+	jack_position_t			m_JackTransportPos;
+	/** Used for detecting changes in the BBT transport information
+	 * with external timebase master application, which do not
+	 * propagate these changes on time.
+	 */
+	jack_position_t			m_previousJackTransportPos;
 
 	/**
 	 * Specifies whether the default left and right (master) audio

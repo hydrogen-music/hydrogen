@@ -363,7 +363,7 @@ void JackAudioDriver::relocateUsingBBT()
 			// in the pattern.
 			fAdditionalTicks = fTicksPerBeat * 4 *
 				( fNextIncrement - 1 );
-		}		
+		}
 	}
 
 	float fNewTick = static_cast<float>(barTicks) + fAdditionalTicks +
@@ -488,7 +488,10 @@ void JackAudioDriver::updateTransportInfo()
 		// There is a JACK timebase master and it's not us. If it
 		// provides a tempo that differs from the local one, we will
 		// use the former instead.
-		if ( m_transport.m_fBPM != static_cast<float>(m_JackTransportPos.beats_per_minute ) ) {
+		if ( m_transport.m_fBPM !=
+			 static_cast<float>(m_JackTransportPos.beats_per_minute ) ||
+			 !compareAdjacentBBT() ) {
+			// printState();
 			relocateUsingBBT();
 		}
 	} else {
@@ -497,6 +500,87 @@ void JackAudioDriver::updateTransportInfo()
 		// accordingly.
 		pHydrogen->setTimelineBpm();
 	}
+
+	if ( m_nIsTimebaseMaster == 0 ) {
+		m_previousJackTransportPos = m_JackTransportPos;
+	}
+}
+
+bool JackAudioDriver::compareAdjacentBBT() const
+{
+	if ( m_JackTransportPos.beats_per_minute !=
+		 m_previousJackTransportPos.beats_per_minute ) {
+		INFOLOG( QString( "Change in tempo from [%1] to [%2]" )
+				 .arg( m_previousJackTransportPos.beats_per_minute )
+				 .arg( m_JackTransportPos.beats_per_minute ) );
+		return false;
+	}
+
+	double expectedTickUpdate =
+		( m_JackTransportPos.frame - m_previousJackTransportPos.frame ) *
+		m_JackTransportPos.beats_per_minute *
+		m_JackTransportPos.ticks_per_beat /
+		m_JackTransportPos.frame_rate / 60;
+	
+	int32_t nNewTick = m_previousJackTransportPos.tick +
+		floor( expectedTickUpdate );
+
+	if ( nNewTick > m_JackTransportPos.ticks_per_beat ) {
+		nNewTick = remainder( nNewTick, m_JackTransportPos.ticks_per_beat );
+
+		if ( m_previousJackTransportPos.beat + 1 >
+			 m_previousJackTransportPos.beats_per_bar ) {
+			if ( m_JackTransportPos.bar !=
+				m_previousJackTransportPos.bar + 1 ||
+				m_JackTransportPos.beat != 1 ) {
+				INFOLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]" )
+						 .arg( m_previousJackTransportPos.bar )
+						 .arg( m_previousJackTransportPos.beat )
+						 .arg( m_JackTransportPos.bar )
+						 .arg( m_JackTransportPos.beat ) );
+				return false;
+			}
+		} else {
+			if ( m_JackTransportPos.bar !=
+				m_previousJackTransportPos.bar ||
+				m_JackTransportPos.beat !=
+				m_previousJackTransportPos.beat + 1 ) {
+				INFOLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]" )
+						 .arg( m_previousJackTransportPos.bar )
+						 .arg( m_previousJackTransportPos.beat )
+						 .arg( m_JackTransportPos.bar )
+						 .arg( m_JackTransportPos.beat ) );
+				return false;
+			}
+		}
+	} else if ( m_JackTransportPos.bar !=
+				m_previousJackTransportPos.bar ||
+				m_JackTransportPos.beat !=
+				m_previousJackTransportPos.beat ) {
+		INFOLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]" )
+				 .arg( m_previousJackTransportPos.bar )
+				 .arg( m_previousJackTransportPos.beat )
+				 .arg( m_JackTransportPos.bar )
+				 .arg( m_JackTransportPos.beat ) );
+		return false;
+	}
+
+	// The rounding is the task of the external timebase master. So,
+	// we need to be a little generous in here to be sure to match its
+	// decision.
+	if ( abs( m_JackTransportPos.tick - nNewTick ) > 1 &&
+		 abs( m_JackTransportPos.tick -
+			  m_JackTransportPos.ticks_per_beat - nNewTick ) > 1 &&
+		 abs( m_JackTransportPos.tick +
+			  m_JackTransportPos.ticks_per_beat - nNewTick ) > 1 ) {
+		INFOLOG( QString( "Change in position from tick [%1] to [%2] instead of [%3]" )
+				 .arg( m_previousJackTransportPos.tick )
+				 .arg( m_JackTransportPos.tick )
+				 .arg( nNewTick ));
+		return false;
+	}
+		
+	return true;
 }
 
 float* JackAudioDriver::getOut_L()
