@@ -586,4 +586,22 @@ bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 	return false;
 #endif
 }
+
+bool CoreActionController::activateSongMode( bool bActivate, bool bTriggerEvent ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->sequencer_stop();
+	if ( bActivate ) {
+		pHydrogen->setPatternPos( 0 );
+		pHydrogen->getSong()->set_mode( Song::SONG_MODE );
+	} else {
+		pHydrogen->getSong()->set_mode( Song::PATTERN_MODE );
+	}
+	
+	if ( bTriggerEvent ) {
+		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, static_cast<int>( bActivate ) );
+	}
+	
+	return true;
+}
 }

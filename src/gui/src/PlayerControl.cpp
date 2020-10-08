@@ -742,15 +742,10 @@ void PlayerControl::songModeBtnClicked(Button* ref)
 {
 	UNUSED( ref );
 
-	m_pEngine->sequencer_stop();
-	m_pEngine->setPatternPos( 0 );	// from start
-	m_pEngine->getSong()->set_mode( Song::SONG_MODE );
-	m_pSongModeBtn->setPressed(true);
-	m_pLiveModeBtn->setPressed(false);
-	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Song mode selected."), 5000);
+	Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true, false );
+
+	songModeActivationEvent( 1 );
 }
-
-
 
 
 ///Set Live mode
@@ -758,14 +753,23 @@ void PlayerControl::liveModeBtnClicked(Button* ref)
 {
 	UNUSED( ref );
 
-	m_pEngine->sequencer_stop();
-	m_pEngine->getSong()->set_mode( Song::PATTERN_MODE );
-	m_pSongModeBtn->setPressed(false);
-	m_pLiveModeBtn->setPressed(true);
-	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Pattern mode selected."), 5000);
+	Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false, false );
+
+	songModeActivationEvent( 0 );
 }
 
-
+void PlayerControl::songModeActivationEvent( int nValue )
+{
+	if ( nValue != 0 ) {
+		m_pSongModeBtn->setPressed(true);
+		m_pLiveModeBtn->setPressed(false);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Song mode selected."), 5000);
+	} else {
+		m_pSongModeBtn->setPressed(false);
+		m_pLiveModeBtn->setPressed(true);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Pattern mode selected."), 5000);
+	}
+}
 
 void PlayerControl::bpmChanged() {
 	float fNewBpmValue = m_pLCDBPMSpinbox->getValue();
