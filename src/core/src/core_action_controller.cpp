@@ -604,4 +604,17 @@ bool CoreActionController::activateSongMode( bool bActivate, bool bTriggerEvent 
 	
 	return true;
 }
+
+bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent ) {
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	pSong->set_loop_enabled( bActivate );
+	pSong->set_is_modified( true );
+	
+	if ( bTriggerEvent ) {
+		EventQueue::get_instance()->push_event( EVENT_LOOP_MODE_ACTIVATION, static_cast<int>( bActivate ) );
+	}
+	
+	return true;
+}
 }

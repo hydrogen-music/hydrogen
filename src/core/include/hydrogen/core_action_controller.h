@@ -189,6 +189,19 @@ class CoreActionController : public H2Core::Object {
 		 * @return bool true on success
 		 */
 		bool activateSongMode( bool bActivate, bool bTriggerEvent );
+	     /**
+		 * Toggle loop mode of playback.
+		 *
+		 * @param bActivate If true - activates loop mode.
+		 * @param bTriggerEvent Setting this variable to true is
+		 * intended for its use as a batch function from within
+		 * Hydrogen's core, which will inform the GUI via an Event
+		 * about the change of mode. When used from the GUI itself,
+		 * this parameter has to be set to false.
+		 *
+		 * @return bool true on success
+		 */
+		bool activateLoopMode( bool bActivate, bool bTriggerEvent );
 		
 		// -----------------------------------------------------------
 		// Helper functions

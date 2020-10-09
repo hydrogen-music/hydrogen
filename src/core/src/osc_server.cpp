@@ -687,6 +687,16 @@ void OscServer::SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	}
 }
 
+void OscServer::LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
+
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	if ( argv[0]->i != 0 ) {
+		pController->activateLoopMode( true, true );
+	} else {
+		pController->activateLoopMode( false, true );
+	}
+}
+
 // -------------------------------------------------------------------
 // Helper functions
 
@@ -967,6 +977,7 @@ bool OscServer::start()
 	m_pServerThread->add_method("/Hydrogen/JACK_TRANSPORT_ACTIVATION", "i", JACK_TRANSPORT_ACTIVATION_Handler);
 	m_pServerThread->add_method("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", "i", JACK_TIMEBASE_MASTER_ACTIVATION_Handler);
 	m_pServerThread->add_method("/Hydrogen/SONG_MODE_ACTIVATION", "i", SONG_MODE_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOOP_MODE_ACTIVATION", "i", LOOP_MODE_ACTIVATION_Handler);
 	/*
 	 * Start the server.
 	 */

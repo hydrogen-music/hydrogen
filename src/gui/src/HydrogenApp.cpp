@@ -597,6 +597,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->songModeActivationEvent( event.value );
 				break;
 				
+			case EVENT_LOOP_MODE_ACTIVATION:
+				pListener->loopModeActivationEvent( event.value );
+				break;
+				
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}

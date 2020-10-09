@@ -142,6 +142,13 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		 * Song mode will be activated instead.
 		 */
 		void songModeActivationEvent( int nValue );
+		/**
+		 * Shared GUI update when activating loop mode via button
+		 * click or via OSC command.
+		 *
+		 * @param nValue If 0, loop mode will be deactivate.
+		 */
+		void loopModeActivationEvent( int nValue );
 		H2Core::Hydrogen *m_pEngine;
 		QPixmap m_background;
 

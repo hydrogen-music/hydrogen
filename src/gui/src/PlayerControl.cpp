@@ -1009,18 +1009,26 @@ void PlayerControl::RewindBtnClicked( Button* )
 }
 
 
-void PlayerControl::songLoopBtnClicked( Button* )
+void PlayerControl::songLoopBtnClicked( Button* pButton )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *song = pEngine->getSong();
-	song->set_loop_enabled( ! song->is_loop_enabled() );
-	song->set_is_modified( true );
+	Hydrogen::get_instance()->getCoreActionController()->activateLoopMode( pButton->isPressed(), false );
 
-	if ( song->is_loop_enabled() ) {
-		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = On"), 5000);
+	if ( pButton->isPressed() ){
+		loopModeActivationEvent( 1 );
+	} else {
+		loopModeActivationEvent( 0 );
+	}
+}
+
+void PlayerControl::loopModeActivationEvent( int nValue ) {
+
+	if ( nValue == 0 ) {
+		m_pSongLoopBtn->setPressed( false );
+		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = Off"), 5000);
 	}
 	else {
-		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = Off"), 5000);
+		m_pSongLoopBtn->setPressed( true );
+		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = On"), 5000);
 	}
 }
 
