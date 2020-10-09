@@ -4103,14 +4103,6 @@ bool Hydrogen::haveJackTimebaseClient() const {
 }
 
 #ifdef H2CORE_HAVE_OSC
-void startOscServer()
-{
-	OscServer* pOscServer = OscServer::get_instance();
-	
-	if( pOscServer ){
-		pOscServer->start();
-	}
-}
 
 void Hydrogen::startNsmClient()
 {

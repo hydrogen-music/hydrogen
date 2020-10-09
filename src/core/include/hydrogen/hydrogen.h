@@ -459,7 +459,6 @@ void			previewSample( Sample *pSample );
 #endif
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
-	void			startOscServer();
 	void			startNsmClient();
 #endif
 
