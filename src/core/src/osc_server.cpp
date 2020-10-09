@@ -153,8 +153,6 @@ int OscServer::generic_handler(const char *	path,
 							   void *		data,
 							   void *		user_data)
 {
-	INFOLOG("GENERIC HANDLER");
-
 	//First we're trying to map TouchOSC messages from multi-fader widgets
 	QString oscPath( path );
 	QRegExp rxStripVol( "/Hydrogen/STRIP_VOLUME_ABSOLUTE/(\\d+)" );
@@ -852,7 +850,6 @@ bool OscServer::start()
 
 	//This handler is responsible for registering clients
 	m_pServerThread->add_method(nullptr, nullptr, [&](lo_message msg){
-									INFOLOG("OSC REGISTER HANDLER");
 									lo_address a = lo_message_get_source(msg);
 
 									bool AddressRegistered = false;
@@ -865,7 +862,6 @@ bool OscServer::start()
 									}
 
 									if( !AddressRegistered ){
-										INFOLOG("REGISTERING CLIENT");
 										lo_address newAddr = lo_address_new_with_proto(	lo_address_get_protocol( a ),
 																						lo_address_get_hostname( a ),
 																						lo_address_get_port( a ) );
