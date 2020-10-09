@@ -727,11 +727,12 @@ void PlayerControl::playBtnClicked(Button* ref) {
 void PlayerControl::stopBtnClicked(Button* ref)
 {
 	UNUSED( ref );
+
+	auto pHydrogen = Hydrogen::get_instance();
 	m_pPlayBtn->setPressed(false);
-	m_pEngine->sequencer_stop();
-	m_pEngine->setPatternPos( 0 );
+	pHydrogen->sequencer_stop();
+	pHydrogen->getCoreActionController()->relocate( 0 );
 	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Stopped."), 5000);
-	Hydrogen::get_instance()->setTimelineBpm();
 }
 
 
@@ -993,9 +994,9 @@ void PlayerControl::bpmButtonClicked( Button* pBtn )
 void PlayerControl::FFWDBtnClicked( Button* )
 {
 	WARNINGLOG( "relocate via button press" );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setPatternPos( pEngine->getPatternPos() + 1 );
-	Hydrogen::get_instance()->setTimelineBpm();
+
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
 }
 
 
@@ -1003,9 +1004,9 @@ void PlayerControl::FFWDBtnClicked( Button* )
 void PlayerControl::RewindBtnClicked( Button* )
 {
 	WARNINGLOG( "relocate via button press" );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setPatternPos( pEngine->getPatternPos() - 1 );
-	Hydrogen::get_instance()->setTimelineBpm();
+	
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
 }
 
 

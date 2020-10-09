@@ -33,6 +33,7 @@
 
 #include <hydrogen/IO/AlsaMidiDriver.h>
 #include <hydrogen/IO/MidiOutput.h>
+#include <hydrogen/IO/jack_audio_driver.h>
 
 namespace H2Core
 {
@@ -615,6 +616,25 @@ bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent 
 		EventQueue::get_instance()->push_event( EVENT_LOOP_MODE_ACTIVATION, static_cast<int>( bActivate ) );
 	}
 	
+	return true;
+}
+
+bool CoreActionController::relocate( int nPatternGroup ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->setPatternPos( nPatternGroup );
+	pHydrogen->setTimelineBpm();
+	
+#ifdef H2CORE_HAVE_JACK
+	auto pDriver = pHydrogen->getAudioOutput();
+
+	if ( pHydrogen->haveJackTransport() &&
+		 pDriver->m_transport.m_status != TransportInfo::ROLLING ) {
+	long totalTick = pHydrogen->getTickForPosition( nPatternGroup );
+	static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
+		totalTick * pDriver->m_transport.m_fTickSize;
+	}
+#endif
 	return true;
 }
 }

@@ -695,6 +695,11 @@ void OscServer::LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	}
 }
 
+void OscServer::RELOCATE_Handler(lo_arg **argv, int argc) {
+
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->relocate( argv[0]->i );
+}
+
 // -------------------------------------------------------------------
 // Helper functions
 
@@ -974,6 +979,7 @@ bool OscServer::start()
 	m_pServerThread->add_method("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", "i", JACK_TIMEBASE_MASTER_ACTIVATION_Handler);
 	m_pServerThread->add_method("/Hydrogen/SONG_MODE_ACTIVATION", "i", SONG_MODE_ACTIVATION_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOOP_MODE_ACTIVATION", "i", LOOP_MODE_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/RELOCATE", "i", RELOCATE_Handler);
 	/*
 	 * Start the server.
 	 */

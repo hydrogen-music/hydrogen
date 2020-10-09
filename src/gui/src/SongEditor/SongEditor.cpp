@@ -35,7 +35,6 @@
 #include <hydrogen/basics/instrument.h>
 #include <hydrogen/LocalFileMng.h>
 #include <hydrogen/timeline.h>
-#include <hydrogen/IO/jack_audio_driver.h>
 using namespace H2Core;
 
 #include "UndoActions.h"
@@ -2454,32 +2453,14 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 		if ( pHydrogen->getSong()->get_mode() == Song::PATTERN_MODE ) {
 			return;
 		}
-		AudioOutput* pDriver = pHydrogen->getAudioOutput();
 
 		int nPatternPos = pHydrogen->getPatternPos();
 		if ( nPatternPos != column ) {
 			WARNINGLOG( "relocate via mouse click" );
-			pHydrogen->setPatternPos( column );
+			
+			pHydrogen->getCoreActionController()->relocate( column );
 			update();
-
-#ifdef H2CORE_HAVE_JACK
-			if ( pHydrogen->haveJackTransport() ) {
-				long totalTick = pHydrogen->getTickForPosition( column );
-				static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
-					totalTick * pDriver->m_transport.m_fTickSize;
-			}
-#endif
 		}
-
-		//time line test
-	
-#ifdef H2CORE_HAVE_JACK
-		if ( !pHydrogen->haveJackTimebaseClient() ) {
-			pHydrogen->setTimelineBpm();
-		}
-#else
-		pHydrogen->setTimelineBpm();
-#endif
 
 	} else if (ev->button() == Qt::MidButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);
