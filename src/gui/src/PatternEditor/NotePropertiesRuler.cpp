@@ -1354,6 +1354,13 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	p.drawLine(0, 0, m_nEditorWidth, 0);
 	p.drawLine(0, m_nEditorHeight - 1, m_nEditorWidth, m_nEditorHeight - 1);
 
+
+	// Black outline each key
+	for (unsigned y = 90; y <= 210; y = y + 10 ) {
+		p.setPen( QPen( QColor( 0, 0, 0 ), 1, Qt::SolidLine));
+		p.drawLine(20, y-5, 20 + nNotes * m_nGridWidth, y-5);
+	}
+
 //paint the octave
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
@@ -1387,15 +1394,15 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 			}
 
 			if ( !pNote->get_note_off() ) {
-				int d = 6;
+				int d = 8;
 				int k = pNote->get_key();
-				uint x_pos = 17 + pNote->get_position() * m_nGridWidth;
-				uint y_pos = 200-(k*10)-3;
+				uint x_pos = 16 + pNote->get_position() * m_nGridWidth;
+				uint y_pos = 200-(k*10)-4;
 
 				x_pos -= 1;
 				y_pos -= 1;
 				d += 2;
-
+				p.setPen( Qt::NoPen );
 				p.setBrush(QColor( 0, 0, 0));
 				p.drawEllipse( x_pos, y_pos, d, d);
 			}
