@@ -364,6 +364,15 @@ void JackAudioDriver::relocateUsingBBT()
 			fAdditionalTicks = fTicksPerBeat * 4 *
 				( fNextIncrement - 1 );
 		}
+
+		// std::cout << "[relocateUsingBBT] "
+		// 		  << "nNumberOfPatternsPassed: " << nNumberOfPatternsPassed
+		// 		  << ", fAdditionalTicks: " << fAdditionalTicks
+		// 		  << ", nBarJack: " << nBarJack
+		// 		  << ", fNumberOfBarsPassed: " << fNumberOfBarsPassed
+		// 		  << ", fBarConversion: " << fBarConversion
+		// 		  << ", barTicks: " << barTicks
+		// 		  << std::endl;
 	}
 
 	float fNewTick = static_cast<float>(barTicks) + fAdditionalTicks +
@@ -525,7 +534,10 @@ bool JackAudioDriver::compareAdjacentBBT() const
 	int32_t nNewTick = m_previousJackTransportPos.tick +
 		floor( expectedTickUpdate );
 
-	if ( nNewTick > m_JackTransportPos.ticks_per_beat ) {
+	// The rounding is the task of the external timebase master. So,
+	// we need to be a little generous in here to be sure to match its
+	// decision.
+	if ( nNewTick + 1 >= m_JackTransportPos.ticks_per_beat ) {
 		nNewTick = remainder( nNewTick, m_JackTransportPos.ticks_per_beat );
 
 		if ( m_previousJackTransportPos.beat + 1 >
@@ -565,9 +577,6 @@ bool JackAudioDriver::compareAdjacentBBT() const
 		return false;
 	}
 
-	// The rounding is the task of the external timebase master. So,
-	// we need to be a little generous in here to be sure to match its
-	// decision.
 	if ( abs( m_JackTransportPos.tick - nNewTick ) > 1 &&
 		 abs( m_JackTransportPos.tick -
 			  m_JackTransportPos.ticks_per_beat - nNewTick ) > 1 &&
