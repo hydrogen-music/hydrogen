@@ -971,8 +971,9 @@ void DrumPatternEditor::copy()
 {
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	XMLDoc doc;
-	XMLNode root = doc.set_root( "note_selection", "note_selection" );
-	XMLNode positionNode = root.createNode( "sourcePosition" );
+	XMLNode selection = doc.set_root( "noteSelection" );
+	XMLNode noteList = selection.createNode( "noteList");
+	XMLNode positionNode = selection.createNode( "sourcePosition" );
 	bool bWroteNote = false;
 
 	positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
@@ -986,7 +987,7 @@ void DrumPatternEditor::copy()
 			bWroteNote = true;
 			positionNode.write_int( "note", pNote->get_notekey_pitch() + 12*OCTAVE_OFFSET );
 		}
-		XMLNode note_node = root.createNode( "note" );
+		XMLNode note_node = noteList.createNode( "note" );
 		pNote->save_to( &note_node );
 	}
 
@@ -1018,15 +1019,19 @@ void DrumPatternEditor::paste()
 		return;
 	}
 
-	XMLNode selection = doc.firstChildElement( "note_selection" );
+	XMLNode selection = doc.firstChildElement( "noteSelection" );
 	if ( selection.isNull() ) {
+		return;
+	}
+	XMLNode noteList = selection.firstChildElement( "noteList" );
+	if ( noteList.isNull() ) {
 		return;
 	}
 
 	m_selection.clearSelection();
 	m_bSelectNewNotes = true;
 
-	if ( selection.hasChildNodes() ) {
+	if ( noteList.hasChildNodes() ) {
 
 		XMLNode positionNode = selection.firstChildElement( "sourcePosition" );
 		int nDeltaPos = 0, nDeltaInstrument = 0;
@@ -1043,7 +1048,7 @@ void DrumPatternEditor::paste()
 		}
 
 		pUndo->beginMacro( "paste notes" );
-		for ( XMLNode n = selection.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {
+		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {
 			Note *pNote = Note::load_from( &n, pInstrList );
 			int nPos = pNote->get_position() + nDeltaPos;
 			int nInstrument = pInstrList->index( pNote->get_instrument() ) + nDeltaInstrument;
