@@ -1284,6 +1284,9 @@ void PianoRollEditor::paste()
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 	InstrumentList *pInstrList = Hydrogen::get_instance()->getSong()->get_instrument_list();
 	int nInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	XMLNode noteList;
+	int nDeltaPos = 0, nDeltaPitch = 0;
+
 
 	XMLDoc doc;
 	if ( ! doc.setContent( clipboard->text() ) ) {
@@ -1292,22 +1295,18 @@ void PianoRollEditor::paste()
 	}
 
 	XMLNode selection = doc.firstChildElement( "noteSelection" ); qDebug() << "noteSelection:";
-	if ( selection.isNull() ) {
-		return;
-	}
+	if ( ! selection.isNull() ) {
 
-	XMLNode noteList = selection.firstChildElement( "noteList" );
-	if ( noteList.isNull() ) {
-		return;
-	}
-
-	m_selection.clearSelection();
-	m_bSelectNewNotes = true;
-
-	if ( noteList.hasChildNodes() ) {
+		// Got a noteSelection.
+		// <noteSelection>
+		//   <noteList>
+		//     <note> ...
+		noteList = selection.firstChildElement( "noteList" );
+		if ( noteList.isNull() ) {
+			return;
+		}
 
 		XMLNode positionNode = selection.firstChildElement( "sourcePosition" );
-		int nDeltaPos = 0, nDeltaPitch = 0;
 
 		// If position information is supplied in the selection, use
 		// it to adjust the location relative to the current keyboard
@@ -1318,6 +1317,40 @@ void PianoRollEditor::paste()
 			nDeltaPos = nCurrentPos - positionNode.read_int( "position", nCurrentPos );
 			nDeltaPitch = m_nCursorPitch - positionNode.read_int( "pitch", m_nCursorPitch );
 		}
+	} else {
+
+		XMLNode instrumentLine = doc.firstChildElement( "instrument_line" );
+		if ( ! instrumentLine.isNull() ) {
+			// Found 'instrument_line', structure is:
+			// <instrument_line>
+			//   <patternList>
+			//     <pattern>
+			//       <noteList>
+			//         <note> ...
+			XMLNode patternList = instrumentLine.firstChildElement( "patternList" );
+			if ( patternList.isNull() ) {
+				return;
+			}
+			XMLNode pattern = patternList.firstChildElement( "pattern" );
+			if ( pattern.isNull() ) {
+				return;
+			}
+			// Don't attempt to paste multiple patterns
+			if ( ! pattern.nextSiblingElement( "pattern" ).isNull() ) {
+				QMessageBox::information( this, "Hydrogen", tr( "Cannot paste multi-pattern selection" ) );
+				return;
+			}
+			noteList = pattern.firstChildElement( "noteList" );
+			if ( noteList.isNull() ) {
+				return;
+			}
+		}
+	}
+
+	m_selection.clearSelection();
+	m_bSelectNewNotes = true;
+
+	if ( noteList.hasChildNodes() ) {
 
 		pUndo->beginMacro( "paste notes" );
 		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {

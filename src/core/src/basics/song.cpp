@@ -467,27 +467,37 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 	// Get pattern list
 	PatternList *pList = get_pattern_list();
 	Pattern *pSelected = (selectedPattern >= 0) ? pList->get(selectedPattern) : nullptr;
+	QDomNode patternNode;
+	bool bIsNoteSelection = false;
+	bool is_single = true;
 
 	// Check if document has correct structure
 	QDomNode rootNode = doc.firstChildElement( "instrument_line" );	// root element
+	if ( ! rootNode.isNull() ) {
+		// Find pattern list
+		QDomNode patternList = rootNode.firstChildElement( "patternList" );
+		if ( patternList.isNull() ) {
+			return false;
+		}
 
-	if ( rootNode.isNull() )
-	{
-		ERRORLOG( "Error pasting Clipboard:Instrument_line_info node not found ");
-		return false;
-	}
+		// Parse each pattern if needed
+		patternNode = patternList.firstChildElement( "pattern" );
+		if (!patternNode.isNull()) {
+			is_single = (( QDomNode )patternNode.nextSiblingElement( "pattern" )).isNull();
+		}
 
-	// Find pattern list
-	QDomNode patternList = rootNode.firstChildElement( "patternList" );
-	if ( patternList.isNull() ) {
-		return false;
-	}
+	} else {
+		rootNode = doc.firstChildElement( "noteSelection" );
+		if ( ! rootNode.isNull() ) {
+			// Found a noteSelection. This contains a noteList, as a <pattern> does, so treat this as an anonymous pattern.
+			bIsNoteSelection = true;
+			is_single = true;
+			patternNode = rootNode;
 
-	// Parse each pattern if needed
-	QDomNode patternNode = patternList.firstChildElement( "pattern" );
-	bool is_single = true;
-	if (!patternNode.isNull()) {
-		is_single = (( QDomNode )patternNode.nextSiblingElement( "pattern" )).isNull();
+		} else {
+			ERRORLOG( "Error pasting Clipboard:instrument_line or noteSelection node not found ");
+			return false;
+		}
 	}
 
 	while (!patternNode.isNull())
@@ -495,7 +505,7 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 		QString patternName(LocalFileMng::readXmlString(patternNode, "pattern_name", ""));
 
 		// Check if pattern name specified
-		if (patternName.length() > 0)
+		if (patternName.length() > 0 || bIsNoteSelection )
 		{
 			// Try to find pattern by name
 			Pattern* pat = pList->find(patternName);

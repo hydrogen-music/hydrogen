@@ -1005,13 +1005,15 @@ void DrumPatternEditor::cut()
 ///
 /// Paste selection
 ///
-/// Selection is XML containing notes, contained in a root 'note_selection' element.
+/// Selection is XML containing notes, contained in a root 'noteSelection' element.
 ///
 void DrumPatternEditor::paste()
 {
 	QClipboard *clipboard = QApplication::clipboard();
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 	InstrumentList *pInstrList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+	XMLNode noteList;
+	int nDeltaPos = 0, nDeltaInstrument = 0;
 
 	XMLDoc doc;
 	if ( ! doc.setContent( clipboard->text() ) ) {
@@ -1020,21 +1022,17 @@ void DrumPatternEditor::paste()
 	}
 
 	XMLNode selection = doc.firstChildElement( "noteSelection" );
-	if ( selection.isNull() ) {
-		return;
-	}
-	XMLNode noteList = selection.firstChildElement( "noteList" );
-	if ( noteList.isNull() ) {
-		return;
-	}
-
-	m_selection.clearSelection();
-	m_bSelectNewNotes = true;
-
-	if ( noteList.hasChildNodes() ) {
+	if ( ! selection.isNull() ) {
+		// Found a noteSelection. Structure is:
+		// <noteSelection>
+		//   <noteList>
+		//     <note> ...
+		noteList = selection.firstChildElement( "noteList" );
+		if ( noteList.isNull() ) {
+			return;
+		}
 
 		XMLNode positionNode = selection.firstChildElement( "sourcePosition" );
-		int nDeltaPos = 0, nDeltaInstrument = 0;
 
 		// If position information is supplied in the selection, use
 		// it to adjust the location relative to the current keyboard
@@ -1046,6 +1044,40 @@ void DrumPatternEditor::paste()
 			nDeltaPos = nCurrentPos - positionNode.read_int( "position", nCurrentPos );
 			nDeltaInstrument = nCurrentInstrument - positionNode.read_int( "instrument", nCurrentInstrument );
 		}
+
+	} else {
+		XMLNode instrumentLine = doc.firstChildElement( "instrument_line" );
+		if ( ! instrumentLine.isNull() ) {
+			// Found 'instrument_line', structure is:
+			// <instrument_line>
+			//   <patternList>
+			//     <pattern>
+			//       <noteList>
+			//         <note> ...
+			XMLNode patternList = instrumentLine.firstChildElement( "patternList" );
+			if ( patternList.isNull() ) {
+				return;
+			}
+			XMLNode pattern = patternList.firstChildElement( "pattern" );
+			if ( pattern.isNull() ) {
+				return;
+			}
+			// Don't attempt to paste multiple patterns
+			if ( ! pattern.nextSiblingElement( "pattern" ).isNull() ) {
+				QMessageBox::information( this, "Hydrogen", tr( "Cannot paste multi-pattern selection" ) );
+				return;
+			}
+			noteList = pattern.firstChildElement( "noteList" );
+			if ( noteList.isNull() ) {
+				return;
+			}
+		}
+	}
+
+	m_selection.clearSelection();
+	m_bSelectNewNotes = true;
+
+	if ( noteList.hasChildNodes() ) {
 
 		pUndo->beginMacro( "paste notes" );
 		for ( XMLNode n = noteList.firstChildElement( "note" ); ! n.isNull(); n = n.nextSiblingElement() ) {
