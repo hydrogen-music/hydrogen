@@ -141,6 +141,7 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		void updateEditor();
 		void selectAll();
 		void selectNone();
+		void selectInstrumentNotes( int nInstrument );
 		void deleteSelection();
 		void copy();
 		void paste();

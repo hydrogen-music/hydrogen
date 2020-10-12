@@ -930,6 +930,20 @@ void DrumPatternEditor::selectNone()
 	update();
 }
 
+void DrumPatternEditor::selectInstrumentNotes( int nInstrument )
+{
+	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+	Instrument *pInstrument = pInstrumentList->get( nInstrument );
+
+	m_selection.clearSelection();
+	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
+		if ( it->second->get_instrument() == pInstrument ) {
+			m_selection.addToSelection( it->second );
+		}
+	}
+	update();
+}
+
 void DrumPatternEditor::deleteSelection()
 {
 	if ( m_selection.begin() != m_selection.end() ) {

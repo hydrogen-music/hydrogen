@@ -140,6 +140,7 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 
 		void selectAll();
 		void selectNone();
+		void selectInstrumentNotes( int nInstrument );
 		void deleteSelection();
 		void copy();
 		void paste();
