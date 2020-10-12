@@ -348,20 +348,20 @@ public:
 
 	/**
 	 * Specifies the variable, which has to remain constant in order
-	 * to guarantee working synchronization and relocation with
+	 * to guarantee a working synchronization and relocation with
 	 * Hydrogen as Jack timebase client.
 	 */
 	enum class JackBBTSyncMethod {
 		/** The measure - could be any - does not change during the
 			song.*/
-		constMeasure,
+		constMeasure = 0,
 		/** The tempo does not change during the song.*/
-		constTempo,
+		constTempo = 1,
 		/** The length of each pattern must match the measure of the
 			corresponding bar in the timebase master. This way both
 			the pattern position of Hydrogen and the bar information
 			provided by Jack can be assumed to be identical.*/
-		identicalBars };
+		identicalBars = 2 };
 	/**
 	 * Since Hydrogen uses both fixed pattern lengths and recalculates
 	 * the tick size each time it encounters an alternative tempo, its
