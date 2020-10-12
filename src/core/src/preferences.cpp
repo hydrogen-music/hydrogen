@@ -433,9 +433,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					int nBBTSync = LocalFileMng::readXmlInt( jackDriverNode, "jack_bbt_sync", 0 );
 					if ( nBBTSync == 0 ){
 						m_JackBBTSync = JackBBTSyncMethod::constMeasure;
-					} else if ( nBBTSync == 1 ){
-							m_JackBBTSync = JackBBTSyncMethod::constTempo;
-					} else if ( nBBTSync == 2 ) {
+					} else if ( nBBTSync == 1 ) {
 						m_JackBBTSync = JackBBTSyncMethod::identicalBars;
 					} else {
 						ERRORLOG( QString( "Unknown jack_bbt_sync value [%1]. Using JackBBTSyncMethod::constMeasure instead." )
@@ -838,10 +836,8 @@ void Preferences::savePreferences()
 			int nBBTSync = 0;
 			if ( m_JackBBTSync == JackBBTSyncMethod::constMeasure ) {
 				nBBTSync = 0;
-			} else if ( m_JackBBTSync == JackBBTSyncMethod::constTempo ) {
-				nBBTSync = 1;
 			} else if ( m_JackBBTSync == JackBBTSyncMethod::identicalBars ) {
-				nBBTSync = 2;
+				nBBTSync = 1;
 			}
 			LocalFileMng::writeXmlString( jackDriverNode, "jack_bbt_sync",
 										  QString::number( nBBTSync ) );

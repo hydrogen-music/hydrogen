@@ -355,13 +355,11 @@ public:
 		/** The measure - could be any - does not change during the
 			song.*/
 		constMeasure = 0,
-		/** The tempo does not change during the song.*/
-		constTempo = 1,
 		/** The length of each pattern must match the measure of the
 			corresponding bar in the timebase master. This way both
 			the pattern position of Hydrogen and the bar information
 			provided by Jack can be assumed to be identical.*/
-		identicalBars = 2 };
+		identicalBars = 1 };
 	/**
 	 * Since Hydrogen uses both fixed pattern lengths and recalculates
 	 * the tick size each time it encounters an alternative tempo, its

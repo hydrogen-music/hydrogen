@@ -308,71 +308,84 @@ void JackAudioDriver::relocateUsingBBT()
 	float fNumberOfBarsPassed = 0;
 	if ( pSong->get_mode() == Song::SONG_MODE ) {
 
-		// Length of a pattern * fBarConversion provides the number of
-		// bars in Jack's point of view a Hydrogen pattern does cover.
-		float fBarConversion = pSong->__resolution * 4 *
-			m_JackTransportPos.beats_per_bar /
-			m_JackTransportPos.beat_type;
-		float fNextIncrement = 0;
-		int nBarJack = m_JackTransportPos.bar - 1;
-		int nLargeNumber = 100000;
-		int nMinimumPatternLength = nLargeNumber;
-		int nNumberOfPatternsPassed = 0;
+		if ( Preferences::get_instance()->m_JackBBTSync ==
+			 Preferences::JackBBTSyncMethod::identicalBars ) {
+			barTicks = pHydrogen->getTickForPosition( m_JackTransportPos.bar - 1 );
 
-		// Checking how many of Hydrogen's patterns are covered by the
-		// bar provided by Jack.
-		auto pPatternGroup = pSong->get_pattern_group_vector();
-		for ( const PatternList* ppPatternList : *pPatternGroup ) {
-			nMinimumPatternLength = nLargeNumber;
+			if ( barTicks < 0 ) {
+				barTicks = 0;
+			}
+		} else if ( Preferences::get_instance()->m_JackBBTSync ==
+					Preferences::JackBBTSyncMethod::constMeasure ) {
+			// Length of a pattern * fBarConversion provides the number of
+			// bars in Jack's point of view a Hydrogen pattern does cover.
+			float fBarConversion = pSong->__resolution * 4 *
+				m_JackTransportPos.beats_per_bar /
+				m_JackTransportPos.beat_type;
+			float fNextIncrement = 0;
+			int nBarJack = m_JackTransportPos.bar - 1;
+			int nLargeNumber = 100000;
+			int nMinimumPatternLength = nLargeNumber;
+			int nNumberOfPatternsPassed = 0;
 
-			// If there are multiple patterns at a single bar (in
-			// Hydrogen) the length of the shortest one used for
-			// playback.
-			for ( int ii = 0; ii < ppPatternList->size(); ++ii ) {
-				if ( ppPatternList->get( ii )->get_length() <
-					 nMinimumPatternLength ) {
-					nMinimumPatternLength = ppPatternList->get( ii )->get_length();
+			// Checking how many of Hydrogen's patterns are covered by the
+			// bar provided by Jack.
+			auto pPatternGroup = pSong->get_pattern_group_vector();
+			for ( const PatternList* ppPatternList : *pPatternGroup ) {
+				nMinimumPatternLength = nLargeNumber;
+
+				// If there are multiple patterns at a single bar (in
+				// Hydrogen) the length of the shortest one used for
+				// playback.
+				for ( int ii = 0; ii < ppPatternList->size(); ++ii ) {
+					if ( ppPatternList->get( ii )->get_length() <
+						 nMinimumPatternLength ) {
+						nMinimumPatternLength = ppPatternList->get( ii )->get_length();
+					}
 				}
-			}
 			
-			if ( nMinimumPatternLength == nLargeNumber ){
-				fNextIncrement = 0;
-			} else {
-				fNextIncrement =
-					static_cast<float>(nMinimumPatternLength) /
-					fBarConversion;
-			}
+				if ( nMinimumPatternLength == nLargeNumber ){
+					fNextIncrement = 0;
+				} else {
+					fNextIncrement =
+						static_cast<float>(nMinimumPatternLength) /
+						fBarConversion;
+				}
 			
-			if ( static_cast<float>(nBarJack) < ( fNumberOfBarsPassed + fNextIncrement ) ) {
-				break;
-			}
+				if ( static_cast<float>(nBarJack) < ( fNumberOfBarsPassed + fNextIncrement ) ) {
+					break;
+				}
 			
-			fNumberOfBarsPassed += fNextIncrement;
-			++nNumberOfPatternsPassed;
-		}
+				fNumberOfBarsPassed += fNextIncrement;
+				++nNumberOfPatternsPassed;
+			}
 
-		// Position of the resulting pattern in ticks.
-		barTicks = pHydrogen->getTickForPosition( nNumberOfPatternsPassed );
-		if ( barTicks < 0 ) {
-			barTicks = 0;
-		} else if ( fNextIncrement > 1 &&
-					fNumberOfBarsPassed != nBarJack ) {
-			// If pattern is longer than what is considered a bar in
-			// Jack's point of view, some additional ticks have to be
-			// added whenever transport passes the first bar contained
-			// in the pattern.
-			fAdditionalTicks = fTicksPerBeat * 4 *
-				( fNextIncrement - 1 );
-		}
+			// Position of the resulting pattern in ticks.
+			barTicks = pHydrogen->getTickForPosition( nNumberOfPatternsPassed );
+			if ( barTicks < 0 ) {
+				barTicks = 0;
+			} else if ( fNextIncrement > 1 &&
+						fNumberOfBarsPassed != nBarJack ) {
+				// If pattern is longer than what is considered a bar in
+				// Jack's point of view, some additional ticks have to be
+				// added whenever transport passes the first bar contained
+				// in the pattern.
+				fAdditionalTicks = fTicksPerBeat * 4 *
+					( fNextIncrement - 1 );
+			}
 
-		// std::cout << "[relocateUsingBBT] "
-		// 		  << "nNumberOfPatternsPassed: " << nNumberOfPatternsPassed
-		// 		  << ", fAdditionalTicks: " << fAdditionalTicks
-		// 		  << ", nBarJack: " << nBarJack
-		// 		  << ", fNumberOfBarsPassed: " << fNumberOfBarsPassed
-		// 		  << ", fBarConversion: " << fBarConversion
-		// 		  << ", barTicks: " << barTicks
-		// 		  << std::endl;
+			// std::cout << "[relocateUsingBBT] "
+			// 		  << "nNumberOfPatternsPassed: " << nNumberOfPatternsPassed
+			// 		  << ", fAdditionalTicks: " << fAdditionalTicks
+			// 		  << ", nBarJack: " << nBarJack
+			// 		  << ", fNumberOfBarsPassed: " << fNumberOfBarsPassed
+			// 		  << ", fBarConversion: " << fBarConversion
+			// 		  << ", barTicks: " << barTicks
+			// 		  << std::endl;
+		} else {
+			ERRORLOG( QString( "Unsupported m_JackBBTSync option [%1]" )
+					  .arg( static_cast<int>(Preferences::get_instance()->m_JackBBTSync) ) );
+		}
 	}
 
 	float fNewTick = static_cast<float>(barTicks) + fAdditionalTicks +

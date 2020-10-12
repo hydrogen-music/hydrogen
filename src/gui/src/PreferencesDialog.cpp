@@ -164,11 +164,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	case Preferences::JackBBTSyncMethod::constMeasure:
 		jackBBTSyncComboBox->setCurrentIndex( 0 );
 		break;
-	case Preferences::JackBBTSyncMethod::constTempo:
-		jackBBTSyncComboBox->setCurrentIndex( 1 );
-		break;
 	case Preferences::JackBBTSyncMethod::identicalBars:
-		jackBBTSyncComboBox->setCurrentIndex( 2 );
+		jackBBTSyncComboBox->setCurrentIndex( 1 );
 		break;
 	default:
 		ERRORLOG( QString( "Unknown Jack BBT synchronization method [%1]" )
@@ -451,9 +448,6 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::constMeasure;
 		break;
 	case 1:
-		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::constTempo;
-		break;
-	case 2:
 		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::identicalBars;
 		break;
 	default:

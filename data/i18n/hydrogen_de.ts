@@ -2777,10 +2777,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>konstanter Takt</translation>
     </message>
     <message>
-        <source>constant tempo</source>
-        <translation>konstantes Tempo</translation>
-    </message>
-    <message>
         <source>matching bars</source>
         <translation>Übereinstimmende Takte</translation>
     </message>

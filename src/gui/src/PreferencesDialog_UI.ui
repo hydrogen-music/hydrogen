@@ -447,11 +447,6 @@
 				   </item>
 				   <item>
 					 <property name="text">
-					   <string>constant tempo</string>
-					 </property>
-				   </item>
-				   <item>
-					 <property name="text">
 					   <string>matching bars</string>
 					 </property>
 				   </item>
