@@ -386,29 +386,6 @@ void JackAudioDriver::relocateUsingBBT()
 			ERRORLOG( QString( "Unsupported m_JackBBTSync option [%1]" )
 					  .arg( static_cast<int>(Preferences::get_instance()->m_JackBBTSync) ) );
 		}
-
-		// Position of the resulting pattern in ticks.
-		barTicks = pHydrogen->getTickForPosition( nNumberOfPatternsPassed );
-		if ( barTicks < 0 ) {
-			barTicks = 0;
-		} else if ( fNextIncrement > 1 &&
-					fNumberOfBarsPassed != nBarJack ) {
-			// If pattern is longer than what is considered a bar in
-			// Jack's point of view, some additional ticks have to be
-			// added whenever transport passes the first bar contained
-			// in the pattern.
-			fAdditionalTicks = fTicksPerBeat * 4 *
-				( fNextIncrement - 1 );
-		}
-
-		// std::cout << "[relocateUsingBBT] "
-		// 		  << "nNumberOfPatternsPassed: " << nNumberOfPatternsPassed
-		// 		  << ", fAdditionalTicks: " << fAdditionalTicks
-		// 		  << ", nBarJack: " << nBarJack
-		// 		  << ", fNumberOfBarsPassed: " << fNumberOfBarsPassed
-		// 		  << ", fBarConversion: " << fBarConversion
-		// 		  << ", barTicks: " << barTicks
-		// 		  << std::endl;
 	}
 
 	float fNewTick = static_cast<float>(barTicks) + fAdditionalTicks +
