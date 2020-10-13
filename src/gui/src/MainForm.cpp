@@ -567,6 +567,7 @@ void MainForm::action_file_new()
 #endif
 	
 	Hydrogen * pEngine = Hydrogen::get_instance();
+	auto pSong = pEngine->getSong();
 	if ( (pEngine->getState() == STATE_PLAYING) ) {
 		pEngine->sequencer_stop();
 	}

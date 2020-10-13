@@ -225,6 +225,7 @@ class MidiActionManager : public H2Core::Object
 		 * \return true on success
 		 */
 		bool save_preferences(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
+		bool save_drumkit(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
 		/**
 		 * Saves the current H2Core::Song.
 		 *

@@ -740,8 +740,6 @@ private:
     QString					m_sMidiExportDirectory;
     int						m_nMidiExportMode;
     //~ Export midi dialog
-
-    Preferences();
 	
 	/** Full path to local preferences file.
 	 *

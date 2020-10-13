@@ -2397,7 +2397,7 @@ Hydrogen::Hydrogen()
 	m_bExportSessionIsActive = false;
 	m_pTimeline = new Timeline();
 	m_pCoreActionController = new CoreActionController();
-	m_bActiveGUI = false;
+	m_iActiveGUI = 0;
 	m_nMaxTimeHumanize = 2000;
 
 	initBeatcounter();
