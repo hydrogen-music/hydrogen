@@ -269,8 +269,10 @@ public:
 		if ( m_selectionState == MouseLasso) {
 			m_lasso.setBottomRight( ev->pos() );
 
-			// Clear and rebuild selection. 
-			m_selectedElements.clear();
+			// Clear and rebuild selection.
+			if ( ! ( ev->modifiers() & Qt::ControlModifier ) ) {
+				m_selectedElements.clear();
+			}
 			auto selected = widget->elementsIntersecting( m_lasso );
 			for ( auto s : selected ) {
 				m_selectedElements.insert( s );
