@@ -620,7 +620,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		int nNewInstrument = nInstrument + offset.y();
 		int nNewPosition = nPosition + offset.x();
 		if ( nNewInstrument < 0 || nNewInstrument >= pInstrumentList->size()
-			 || nNewPosition < 0 ) {
+			 || nNewPosition < 0 || nNewPosition >= m_pPattern->get_length() ) {
 
 			if ( m_bCopyNotMove ) {
 				// Copying a note to an out-of-range location. Nothing to do.
@@ -1099,7 +1099,8 @@ void DrumPatternEditor::paste()
 			int nPos = pNote->get_position() + nDeltaPos;
 			int nInstrument = pInstrList->index( pNote->get_instrument() ) + nDeltaInstrument;
 
-			if ( nPos >= 0 && nInstrument >= 0 && nInstrument < pInstrList->size() ) {
+			if ( nPos >= 0 && nPos < m_pPattern->get_length()
+				 && nInstrument >= 0 && nInstrument < pInstrList->size() ) {
 				pUndo->push( new SE_addOrDeleteNoteAction( nPos,
 														   nInstrument,
 														   __selectedPatternNumber,

@@ -1372,7 +1372,7 @@ void PianoRollEditor::paste()
 			int nPos = pNote->get_position() + nDeltaPos;
 			int nPitch = pNote->get_notekey_pitch() + nDeltaPitch;
 
-			if ( nPos >= 0 && nPitch >= 12 * OCTAVE_MIN && nPitch < 12 * (OCTAVE_MAX+1) ) {
+			if ( nPos >= 0 && nPos < m_pPattern->get_length() && nPitch >= 12 * OCTAVE_MIN && nPitch < 12 * (OCTAVE_MAX+1) ) {
 				int nLine = pitchToLine( nPitch );
 				pUndo->push( new SE_addOrDeleteNotePianoRollAction( nPos,
 																	nLine,
@@ -1634,7 +1634,8 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 		int nLine = pitchToLine( nNewPitch );
 		Note::Octave newOctave = pitchToOctave( nNewPitch );
 		Note::Key newKey = pitchToKey( nNewPitch );
-		bool bNoteInRange = newOctave >= OCTAVE_MIN && newOctave <= OCTAVE_MAX && nNewPosition >= 0;
+		bool bNoteInRange = ( newOctave >= OCTAVE_MIN && newOctave <= OCTAVE_MAX && nNewPosition >= 0
+							  && nNewPosition < m_pPattern->get_length() );
 
 		if ( m_bCopyNotMove ) {
 			if ( bNoteInRange ) {
