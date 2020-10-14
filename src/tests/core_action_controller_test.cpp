@@ -70,18 +70,18 @@ void CoreActionControllerTest::testSessionManagement() {
 	// ---------------------------------------------------------------
 	
 	// Attempt to load a non-existing song.
-	CPPUNIT_ASSERT( !m_pController->openSong( m_sFileNameImproper ) );
+	CPPUNIT_ASSERT( !m_pController->openSong( m_sFileNameImproper, false ) );
 	
 	// The previous action should have not affected the current song.
 	CPPUNIT_ASSERT( m_sFileName2 == m_pHydrogen->getSong()->get_filename() );
 	
 	// Load the first song (which was saved).
-	CPPUNIT_ASSERT( m_pController->openSong( m_sFileName ) );
+	CPPUNIT_ASSERT( m_pController->openSong( m_sFileName, false ) );
 	CPPUNIT_ASSERT( m_sFileName == m_pHydrogen->getSong()->get_filename() );
 
 	// Attempt to load the second song. This will fail since Hydrogen
 	// did not stored the song to disk.
-	CPPUNIT_ASSERT( !m_pController->openSong( m_sFileName2 ) );
+	CPPUNIT_ASSERT( !m_pController->openSong( m_sFileName2, false ) );
 	
 	// ---------------------------------------------------------------
 	// Test CoreActionController::saveSongAs()
@@ -92,9 +92,9 @@ void CoreActionControllerTest::testSessionManagement() {
 	CPPUNIT_ASSERT( m_pController->saveSongAs( m_sFileName2 ) );
 	
 	// Check if everything worked out.
-	CPPUNIT_ASSERT( m_pController->openSong( m_sFileName ) );
+	CPPUNIT_ASSERT( m_pController->openSong( m_sFileName, false ) );
 	CPPUNIT_ASSERT( m_sFileName == m_pHydrogen->getSong()->get_filename() );
-	CPPUNIT_ASSERT( m_pController->openSong( m_sFileName2 ) );
+	CPPUNIT_ASSERT( m_pController->openSong( m_sFileName2, false ) );
 	CPPUNIT_ASSERT( m_sFileName2 == m_pHydrogen->getSong()->get_filename() );
 
 	// ---------------------------------------------------------------

@@ -298,7 +298,7 @@ void CoreActionController::initExternalControlInterfaces()
 	setMasterIsMuted( Hydrogen::get_instance()->getSong()->__is_muted );
 }
 
-bool CoreActionController::newSong( const QString& songPath ) {
+bool CoreActionController::newSong( const QString& sSongPath ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
 
@@ -315,15 +315,15 @@ bool CoreActionController::newSong( const QString& songPath ) {
 	auto pSong = Song::get_empty_song();
 	
 	// Check whether the provided path is valid.
-	if ( !isSongPathValid( songPath ) ) {
+	if ( !isSongPathValid( sSongPath ) ) {
 		// isSongPathValid takes care of the error log message.
 
 		return false;
 	}
 	
-	pSong->set_filename( songPath );
+	pSong->set_filename( sSongPath );
 	
-	if ( pHydrogen->getActiveGUI() ) {
+	if ( pHydrogen->getActiveGUI() != 0 ) {
 		
 		// Store the prepared Song for the GUI to access after the
 		// EVENT_UPDATE_SONG event was triggered.
@@ -345,7 +345,7 @@ bool CoreActionController::newSong( const QString& songPath ) {
 	return true;
 }
 
-bool CoreActionController::openSong (const QString& songPath ) {
+bool CoreActionController::openSong( const QString& sSongPath, bool bRestartDriver ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
  
@@ -359,45 +359,55 @@ bool CoreActionController::openSong (const QString& songPath ) {
 	pHydrogen->getTimeline()->deleteAllTempoMarkers();
 	
 	// Check whether the provided path is valid.
-	if ( !isSongPathValid( songPath ) ) {
+	if ( !isSongPathValid( sSongPath ) ) {
 		// isSongPathValid takes care of the error log message.
 		return false;
 	}
 	
-	QFileInfo songFileInfo = QFileInfo( songPath );
+	QFileInfo songFileInfo = QFileInfo( sSongPath );
 	if ( !songFileInfo.exists() ) {
 		ERRORLOG( QString( "Selected song [%1] does not exist." )
-				 .arg( songPath ) );
+				 .arg( sSongPath ) );
 		return false;
 	}
 	
 	// Create an empty Song.
-	auto pSong = Song::load( songPath );
+	auto pSong = Song::load( sSongPath );
 	
 	if ( pSong == nullptr ) {
 		ERRORLOG( QString( "Unable to open song [%1]." )
-				  .arg( songPath ) );
+				  .arg( sSongPath ) );
 		
 		return false;
 	}
-	
-	if ( pHydrogen->getActiveGUI() ) {
+
+	if ( pHydrogen->getActiveGUI() != 0 ) {
 		
 		// Store the prepared Song for the GUI to access after the
 		// EVENT_UPDATE_SONG event was triggered.
 		pHydrogen->setNextSong( pSong );
+
+		int nVal;
+		if ( bRestartDriver ) {
+			nVal = 1;
+		} else {
+			nVal = 0;
+		}
 		
 		// If the GUI is active, the Song *must not* be set by the
 		// core part itself.
 		// Triggers an update of the Qt5 GUI and tells it to update
 		// the song itself.
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 0 );
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, nVal );
 		
 	} else {
 
 		// Update the Song.
 		pHydrogen->setSong( pSong );
-		
+
+		if ( bRestartDriver ) {
+			pHydrogen->restartDrivers();
+		}
 	}
 	
 	return true;
@@ -411,30 +421,30 @@ bool CoreActionController::saveSong() {
 	auto pSong = pHydrogen->getSong();
 	
 	// Extract the path to the associate .h2song file.
-	QString songPath = pSong->get_filename();
+	QString sSongPath = pSong->get_filename();
 	
-	if ( songPath.isEmpty() ) {
+	if ( sSongPath.isEmpty() ) {
 		ERRORLOG( "Unable to save song. Empty filename!" );
 		return false;
 	}
 	
 	// Actual saving
-	bool saved = pSong->save( songPath );
+	bool saved = pSong->save( sSongPath );
 	if ( !saved ) {
 		ERRORLOG( QString( "Current song [%1] could not be saved!" )
-				  .arg( songPath ) );
+				  .arg( sSongPath ) );
 		return false;
 	}
 	
 	// Update the status bar.
-	if ( pHydrogen->getActiveGUI() ) {
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
+	if ( pHydrogen->getActiveGUI() != 0 ) {
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
 	}
 	
 	return true;
 }
 
-bool CoreActionController::saveSongAs( const QString& songPath ) {
+bool CoreActionController::saveSongAs( const QString& sSongPath ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
 	
@@ -442,59 +452,87 @@ bool CoreActionController::saveSongAs( const QString& songPath ) {
 	auto pSong = pHydrogen->getSong();
 	
 	// Check whether the provided path is valid.
-	if ( !isSongPathValid( songPath ) ) {
+	if ( !isSongPathValid( sSongPath ) ) {
 		// isSongPathValid takes care of the error log message.
 		return false;
 	}
 	
-	if ( songPath.isEmpty() ) {
+	if ( sSongPath.isEmpty() ) {
 		ERRORLOG( "Unable to save song. Empty filename!" );
 		return false;
 	}
 	
 	// Actual saving
-	bool saved = pSong->save( songPath );
-	if ( !saved ) {
+	bool bSaved = pSong->save( sSongPath );
+	if ( !bSaved ) {
 		ERRORLOG( QString( "Current song [%1] could not be saved!" )
-				  .arg( songPath ) );
+				  .arg( sSongPath ) );
 		return false;
 	}
 	
 	// Update the status bar.
-	if ( pHydrogen->getActiveGUI() ) {
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 1 );
+	if ( pHydrogen->getActiveGUI() != 0 ) {
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
 	}
 	
 	return true;
 }
 
+bool CoreActionController::savePreferences() {
+	
+	if ( Hydrogen::get_instance()->getActiveGUI() != 0 ) {
+		// Update the status bar and let the GUI save the preferences
+		// (after writing its current settings to disk).
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_PREFERENCES, 0 );
+	} else {
+		Preferences::get_instance()->savePreferences();
+	}
+	
+	return true;
+
+}
+
+bool CoreActionController::saveDrumkit() {
+
+	return true;
+}
+
 bool CoreActionController::quit() {
-	EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
+
+	if ( Hydrogen::get_instance()->getActiveGUI() != 0 ) {
+		EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
+	} else {
+		// TODO: Close Hydrogen with no GUI present.
+		
+		ERRORLOG( QString( "Error: Closing the application via the core part is not supported yet!" ) );
+		return false;
+		
+	}
 	
 	return true;
 }
 
-bool CoreActionController::isSongPathValid( const QString& songPath ) {
+bool CoreActionController::isSongPathValid( const QString& sSongPath ) {
 	
-	QFileInfo songFileInfo = QFileInfo( songPath );
+	QFileInfo songFileInfo = QFileInfo( sSongPath );
 
 	if ( !songFileInfo.isAbsolute() ) {
 		ERRORLOG( QString( "Error: Unable to handle path [%1]. Please provide an absolute file path!" )
-						.arg( songPath.toLocal8Bit().data() ));
+						.arg( sSongPath.toLocal8Bit().data() ));
 		return false;
 	}
 	
 	if ( songFileInfo.exists() ) {
 		if ( !songFileInfo.isWritable() ) {
 			ERRORLOG( QString( "Error: Unable to handle path [%1]. You must have permissions to write the file!" )
-						.arg( songPath.toLocal8Bit().data() ));
+						.arg( sSongPath.toLocal8Bit().data() ));
 			return false;
 		}
 	}
 	
 	if ( songFileInfo.suffix() != "h2song" ) {
 		ERRORLOG( QString( "Error: Unable to handle path [%1]. The provided file must have the suffix '.h2song'!" )
-					.arg( songPath.toLocal8Bit().data() ));
+					.arg( sSongPath.toLocal8Bit().data() ));
 		return false;
 	}
 	

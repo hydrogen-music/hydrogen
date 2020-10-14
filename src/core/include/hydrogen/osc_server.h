@@ -166,6 +166,8 @@ class OscServer : public H2Core::Object
 		 * In case of the session managing handlers the following ones
 		 * only work with no argument present
 		 * - SAVE_SONG_Handler()
+		 * - SAVE_DRUMKIT_Handler()
+		 * - SAVE_PREFERENCES_Handler()
 		 * - QUIT_Handler()
 		 * and others only work by supplying a string "s" type message
 		 * - NEW_SONG_Handler()
@@ -623,6 +625,22 @@ class OscServer : public H2Core::Object
 		 * \param argc Number of arguments passed by the OSC
 		 * message.*/
 		static void SAVE_SONG_AS_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::saveDrumkit().
+		 *
+		 * \param argv Unused pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void SAVE_DRUMKIT_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::savePreferences().
+		 *
+		 * \param argv Unused pointer to a vector of arguments passed
+		 * by the OSC message.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void SAVE_PREFERENCES_Handler(lo_arg **argv, int argc);
 		/**
 		 * Triggers CoreActionController::quit().
 		 *

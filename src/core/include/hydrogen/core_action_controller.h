@@ -94,9 +94,11 @@ class CoreActionController : public H2Core::Object {
 		 *
 		 * \param songPath Absolute path to the .h2song file to be
 		 *    opened.
+		 * \param bRestartDriver Whether or not to restart the audio
+		 *    driver after successfully loading the new song.
 		 * \return true on success
 		 */
-		bool openSong( const QString& songPath );
+		bool openSong( const QString& songPath, bool bRestartDriver );
 		/**
 		 * Saves the current #Song.
 		 *
@@ -117,6 +119,18 @@ class CoreActionController : public H2Core::Object {
 		 * \return true on success
 		 */
 		bool saveSongAs( const QString& songPath );
+		/**
+		 * Saves all modifications of the current drumkit.
+		 *
+		 * \return true on success
+		 */
+		bool saveDrumkit();
+		/**
+		 * Saves the current state of the #Preferences.
+		 *
+		 * \return true on success
+		 */
+		bool savePreferences();
 		/**
 		 * Triggers the shutdown of Hydrogen.
 		 *
