@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
 		H2Core::Hydrogen::create_instance();
 		
 		// Tell Hydrogen it was started via the QT5 GUI.
-		H2Core::Hydrogen::get_instance()->setActiveGUI( -1 );
+		H2Core::Hydrogen::get_instance()->setGUIState( H2Core::Hydrogen::GUIState::notReady );
 		
 		// Whether or not to load a default song or supplied one when
 		// constructing the MainForm object.
@@ -519,7 +519,7 @@ int main(int argc, char *argv[])
 		pQApp->setMainForm( pMainForm );
 
 		// Tell the core that the GUI is now fully loaded and ready.
-		H2Core::Hydrogen::get_instance()->setActiveGUI( 1 );
+		H2Core::Hydrogen::get_instance()->setGUIState( H2Core::Hydrogen::GUIState::ready );
 
 		pQApp->exec();
 

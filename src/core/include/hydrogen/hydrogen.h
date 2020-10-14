@@ -606,11 +606,21 @@ void			previewSample( Sample *pSample );
 	 */
 	void			loadPlaybackTrack( const QString filename );
 
-	/**\return #m_iActiveGUI*/
-	int				getActiveGUI() const;
-	/**\param iActiveGUI Specifies whether the Qt5 GUI is active. Sets
-	   #m_iActiveGUI.*/
-	void			setActiveGUI( const int iActiveGUI );
+	/** Specifies the state of the Qt GUI*/
+	enum class		GUIState {
+		/**There is a GUI but it is not ready yet (during startup).*/
+		notReady = -1,
+		/**No GUI available.*/
+		unavailable = 0,
+		/**There is a working GUI.*/
+		ready = 1
+	};
+	
+	/**\return #m_GUIState*/
+	GUIState		getGUIState() const;
+	/**\param state Specifies whether the Qt5 GUI is active. Sets
+	   #m_GUIState.*/
+	void			setGUIState( const GUIState state );
 	
 	/**\return #m_pNextSong*/
 	Song*			getNextSong() const;
@@ -748,25 +758,18 @@ private:
 	/**
 	 * Specifies whether the Qt5 GUI is active.
 	 *
-	 * This variable has three states:
-	 * - `m_iActiveGUI == 0` - There is no Qt5 GUI.
-	 * - `m_iActiveGUI < 0` - There is a Qt5 GUI but it is not fully
-	 *                        loaded. 
-	 * - `m_iActiveGUI > 0` - There is a Qt5 GUI and it is fully
-	 *                        loaded.
-	 *
 	 * When a new Song is set via the core part of Hydrogen, e.g. in
 	 * the context of session management, the Song *must* be set via
 	 * the GUI if active. Else the GUI will freeze.
 	 *
-	 * Set by setActiveGUI() and accessed via getActiveGUI().
+	 * Set by setGUIState() and accessed via getGUIState().
 	 */
-	int				m_iActiveGUI;
+	GUIState		m_GUIState;
 	
 	/**
 	 * Stores a new Song which is about of the loaded by the GUI.
 	 *
-	 * If #m_iActiveGUI is true, the core part of must not load a new
+	 * If #m_GUIState is true, the core part of must not load a new
 	 * Song itself. Instead, the new Song is prepared and stored in
 	 * this object to be loaded by HydrogenApp::updateSongEvent() if
 	 * H2Core::EVENT_UPDATE_SONG is pushed with a '1'.
@@ -864,11 +867,11 @@ inline bool Hydrogen::getPlaybackTrackState() const
 	return 	bState;
 }
 
-inline int Hydrogen::getActiveGUI() const {
-	return m_iActiveGUI;
+inline Hydrogen::GUIState Hydrogen::getGUIState() const {
+	return m_GUIState;
 }
-inline void Hydrogen::setActiveGUI( const int iActiveGUI ) {
-	m_iActiveGUI = iActiveGUI;
+inline void Hydrogen::setGUIState( const Hydrogen::GUIState state ) {
+	m_GUIState = state;
 }
 inline Song* Hydrogen::getNextSong() const {
 	return m_pNextSong;

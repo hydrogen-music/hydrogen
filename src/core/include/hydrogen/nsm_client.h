@@ -196,7 +196,7 @@ class NsmClient : public H2Core::Object
 	 * H2Core::Song was asynchronously set by the GUI (as a response
 	 * to the action). This (regular) procedure is only done if a GUI
 	 * is present and fully loaded and thus
-	 * H2Core::Hydrogen::m_iActiveGUI is set to 1.
+	 * H2Core::Hydrogen::m_GUIState is set to H2Core::Hydrogen::GUIState::ready.
 	 *
 	 * All files and symbolic links will be stored in a folder created
 	 * by this function and named according to @a name.

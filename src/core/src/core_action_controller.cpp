@@ -323,7 +323,7 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 	
 	pSong->set_filename( sSongPath );
 	
-	if ( pHydrogen->getActiveGUI() != 0 ) {
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		
 		// Store the prepared Song for the GUI to access after the
 		// EVENT_UPDATE_SONG event was triggered.
@@ -381,7 +381,7 @@ bool CoreActionController::openSong( const QString& sSongPath, bool bRestartDriv
 		return false;
 	}
 
-	if ( pHydrogen->getActiveGUI() != 0 ) {
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		
 		// Store the prepared Song for the GUI to access after the
 		// EVENT_UPDATE_SONG event was triggered.
@@ -437,7 +437,7 @@ bool CoreActionController::saveSong() {
 	}
 	
 	// Update the status bar.
-	if ( pHydrogen->getActiveGUI() != 0 ) {
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
 	}
 	
@@ -471,7 +471,7 @@ bool CoreActionController::saveSongAs( const QString& sSongPath ) {
 	}
 	
 	// Update the status bar.
-	if ( pHydrogen->getActiveGUI() != 0 ) {
+	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 2 );
 	}
 	
@@ -480,7 +480,7 @@ bool CoreActionController::saveSongAs( const QString& sSongPath ) {
 
 bool CoreActionController::savePreferences() {
 	
-	if ( Hydrogen::get_instance()->getActiveGUI() != 0 ) {
+	if ( Hydrogen::get_instance()->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		// Update the status bar and let the GUI save the preferences
 		// (after writing its current settings to disk).
 		EventQueue::get_instance()->push_event( EVENT_UPDATE_PREFERENCES, 0 );
@@ -499,7 +499,7 @@ bool CoreActionController::saveDrumkit() {
 
 bool CoreActionController::quit() {
 
-	if ( Hydrogen::get_instance()->getActiveGUI() != 0 ) {
+	if ( Hydrogen::get_instance()->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
 	} else {
 		// TODO: Close Hydrogen with no GUI present.

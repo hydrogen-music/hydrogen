@@ -160,7 +160,8 @@ int NsmClient::OpenCallback( const char *name,
 	// the GUI or Hydrogen will get out of sync and freeze. The Song
 	// will be stored using setNextSong() and an event will be created
 	// to tell the GUI to load the Song itself.
-	if ( pHydrogen->getActiveGUI() <= 0 ) {
+	if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::notReady ||
+		 pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::unavailable ) {
 		
 		// No GUI. Just load the requested Song and restart the audio
 		// driver.
@@ -172,12 +173,12 @@ int NsmClient::OpenCallback( const char *name,
 		// If there will be a GUI but it is not ready yet, wait until
 		// the Song was set (asynchronously by the GUI) and the GUI is
 		// fully loaded.
-		if ( pHydrogen->getActiveGUI() < 0 ) {
+		if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::notReady ) {
 			const int nNumberOfChecks = 20;
 			int nCheck = 0;
 			while ( true ) {
 				if ( ( ( pSong == pHydrogen->getSong() ) &&
-					   ( pHydrogen->getActiveGUI() >= 0 ) ) ||
+					   ( pHydrogen->getGUIState() != H2Core::Hydrogen::GUIState::notReady ) ) ||
 					 ( nCheck > nNumberOfChecks ) ) {
 					break;
 				}
@@ -258,7 +259,7 @@ void NsmClient::copyPreferences( const char* name ) {
 
 	// If the GUI is active, we have to update it to reflect the
 	// changes in the preferences.
-	if ( pHydrogen->getActiveGUI() == 1 ) {
+	if ( pHydrogen->getGUIState() == H2Core::Hydrogen::GUIState::ready ) {
 		H2Core::EventQueue::get_instance()->push_event( H2Core::EVENT_UPDATE_PREFERENCES, 1 );
 	}
 	
