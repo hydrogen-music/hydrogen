@@ -71,9 +71,9 @@ int NsmClient::OpenCallback( const char *name,
 							 char **outMsg,
 							 void *userData ) {
 	
-	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
-	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
+	auto pHydrogen = H2Core::Hydrogen::get_instance();
+	auto pPref = H2Core::Preferences::get_instance();
+	auto pController = pHydrogen->getCoreActionController();
 	
 	if ( !name ) {
 		NsmClient::printError( "No `name` supplied in NSM open callback!" );
@@ -95,12 +95,12 @@ int NsmClient::OpenCallback( const char *name,
 	NsmClient::get_instance()->m_sSessionFolderPath = name;
 	
 	const QFileInfo sessionPath( name );
-	const QString songPath = QString( "%1/%2%3" )
+	const QString sSongPath = QString( "%1/%2%3" )
 		.arg( name )
 		.arg( sessionPath.fileName() )
 		.arg( H2Core::Filesystem::songs_ext );
 	
-	const QFileInfo songFileInfo = QFileInfo( songPath );
+	const QFileInfo songFileInfo = QFileInfo( sSongPath );
 
 	// When restarting the JACK client (later in this function) the
 	// clientID will be used as the name of the freshly created
@@ -118,13 +118,13 @@ int NsmClient::OpenCallback( const char *name,
 		return ERR_NOT_NOW;
 	}
 	
-	H2Core::Song *pSong = nullptr;
+	H2Core::Song* pSong = nullptr;
 	if ( songFileInfo.exists() ) {
 
-		pSong = H2Core::Song::load( songPath );
+		pSong = H2Core::Song::load( sSongPath );
 		if ( pSong == nullptr ) {
 			NsmClient::printError( QString( "Unable to open existing Song [%1]." )
-								   .arg( songPath ) );
+								   .arg( sSongPath ) );
 			return ERR_LAUNCH_FAILED;
 		}
 		
@@ -135,7 +135,7 @@ int NsmClient::OpenCallback( const char *name,
 			NsmClient::printError( "Unable to open new Song." );
 			return ERR_LAUNCH_FAILED;
 		}
-		pSong->set_filename( songPath );
+		pSong->set_filename( sSongPath );
 	}
 
 	// Usually, when starting Hydrogen with its Qt5 GUI activated, the
@@ -194,26 +194,16 @@ int NsmClient::OpenCallback( const char *name,
 		
 		// Check whether a file corresponding to the provided path does
 		// already exist.
-		QString actionType;
+		bool bSuccess;
 		if ( songFileInfo.exists() ) {
 			// Open the existing file.
-			actionType = "OPEN_SONG";
+			bSuccess = pController->openSong( sSongPath, true );
 		} else {
 			// Create a new file and save it as using the provided path.
-			actionType = "NEW_SONG";
+			bSuccess = pController->newSong( sSongPath );
 		}
 
-		Action currentAction( actionType );
-		
-		// Tell the action to load the desired file.
-		currentAction.setParameter1( songPath );
-		
-		// Tell the action to restart the audio engine.
-		currentAction.setParameter2( "1" );
-		
-		const bool ok = pActionManager->handleAction( &currentAction );
-
-		if ( !ok ) {
+		if ( !bSuccess ) {
 			NsmClient::printError( "Unable to handle opening action!" );
 			return ERR_LAUNCH_FAILED;
 		}
@@ -240,7 +230,7 @@ void NsmClient::copyPreferences( const char* name ) {
 		preferences.setFileName( H2Core::Filesystem::sys_config_path() );
 	}
 	
-	const QString newPreferencesPath = QString( "%1/%2" )
+	const QString sNewPreferencesPath = QString( "%1/%2" )
 		.arg( name )
 		.arg( QFileInfo( H2Core::Filesystem::usr_config_path() )
 			  .fileName() );
@@ -248,21 +238,21 @@ void NsmClient::copyPreferences( const char* name ) {
 	// Store the path in a session variable of the Preferences
 	// singleton, which allows overwriting the default path used
 	// throughout the application.
-	pPref->setPreferencesOverwritePath( newPreferencesPath );
+	pPref->setPreferencesOverwritePath( sNewPreferencesPath );
 	
-	const QFileInfo newPreferencesFileInfo( newPreferencesPath );
+	const QFileInfo newPreferencesFileInfo( sNewPreferencesPath );
 	if ( newPreferencesFileInfo.exists() ){
 		// If there's already a preference file present from a
 		// previous session, we load it instead of overwriting it.
 		pPref->loadPreferences( false );
 		
 	} else {
-		if ( !preferences.copy( newPreferencesPath ) ) {
+		if ( !preferences.copy( sNewPreferencesPath ) ) {
 			NsmClient::printError( QString( "Unable to copy preferences to [%1]" )
-								   .arg( newPreferencesPath ) );
+								   .arg( sNewPreferencesPath ) );
 		} else {
 			NsmClient::printMessage( QString( "Preferences copied to [%1]" )
-									 .arg( newPreferencesPath ) );
+									 .arg( sNewPreferencesPath ) );
 		}
 	}
 
@@ -390,12 +380,19 @@ void NsmClient::printMessage( const QString& msg ) {
 }
 
 int NsmClient::SaveCallback( char** outMsg, void* userData ) {
-	Action currentAction("SAVE_ALL");
-	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	pActionManager->handleAction(&currentAction);
-	
-	std::cout << "\033[1;30m[Hydrogen]\033[32m Song saved!\033[0m" << std::endl;
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+
+	if ( ! pController->saveSong() ) {
+		NsmClient::printError( "Unable to save Song!" );
+		return ERR_GENERAL;
+	}
+	if ( ! pController->savePreferences() ) {
+		NsmClient::printError( "Unable to save Preferences!" );
+		return ERR_GENERAL;
+	}
+
+	NsmClient::printMessage( "Song and Preferences saved!" );
 
 	return ERR_OK;
 }
@@ -403,8 +400,8 @@ int NsmClient::SaveCallback( char** outMsg, void* userData ) {
 void* NsmClient::ProcessEvent(void* data) {
 	nsm_client_t* nsm = (nsm_client_t*) data;
 
-	while(!NsmClient::bNsmShutdown && nsm){
-		nsm_check_wait( nsm, 1000);
+	while( !NsmClient::bNsmShutdown && nsm ){
+		nsm_check_wait( nsm, 1000 );
 	}
 
 	return nullptr;
@@ -456,7 +453,7 @@ void NsmClient::createInitialClient()
 				
 				nsm_send_announce( nsm, "Hydrogen", ":dirty:switch:", byteArray.data() );
 						
-				if(pthread_create(&m_NsmThread, nullptr, NsmClient::ProcessEvent, nsm)) {
+				if ( pthread_create( &m_NsmThread, nullptr, NsmClient::ProcessEvent, nsm ) ) {
 					___ERRORLOG("Error creating NSM thread\n	");
 					m_bUnderSessionManagement = false;
 					return;
