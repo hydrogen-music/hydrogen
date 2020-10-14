@@ -71,6 +71,7 @@ private:
 	enum SelectionState { Idle, MouseLasso, MouseMoving, KeyboardLasso, KeyboardMoving } m_selectionState;
 
 	std::set<Elem> m_selectedElements;
+	std::set<Elem> m_checkpointSelectedElements;
 
 	QRect m_keyboardCursorStart;
 
@@ -247,6 +248,7 @@ public:
 
 			if ( elems.empty() ) {
 				//  Didn't hit anything. Start new selection drag.
+				m_checkpointSelectedElements = m_selectedElements;
 				m_selectionState = MouseLasso;
 				m_lasso.setTopLeft( m_pClickEvent->pos() );
 				m_lasso.setBottomRight( ev->pos() );
@@ -270,8 +272,9 @@ public:
 			m_lasso.setBottomRight( ev->pos() );
 
 			// Clear and rebuild selection.
-			if ( ! ( ev->modifiers() & Qt::ControlModifier ) ) {
-				m_selectedElements.clear();
+			m_selectedElements.clear();
+			if ( ev->modifiers() & Qt::ControlModifier ) {
+				m_selectedElements = m_checkpointSelectedElements;
 			}
 			auto selected = widget->elementsIntersecting( m_lasso );
 			for ( auto s : selected ) {
@@ -291,6 +294,7 @@ public:
 
 	void mouseDragEnd( QMouseEvent *ev ) {
 		if ( m_selectionState == MouseLasso) {
+			m_checkpointSelectedElements.clear();
 			m_selectionState = Idle;
 			widget->unsetCursor();
 			widget->update();
