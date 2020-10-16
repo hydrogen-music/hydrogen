@@ -754,19 +754,10 @@ void SoundLibraryPanel::on_songLoadAction()
 	// This behavior is prohibited under session management. Only
 	// songs open during normal runs will be listed.
 	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
-		Preferences *pPref = Preferences::get_instance();
-
-		std::vector<QString> recentFiles = pPref->getRecentFiles();
-		recentFiles.insert( recentFiles.begin(), sFilename );
-		pPref->setRecentFiles( recentFiles );
+		Preferences::get_instance()->insertRecentFile( sFilename );
 	}
-#endif
-#ifndef H2CORE_HAVE_OSC
-	Preferences *pPref = Preferences::get_instance();
-
-	std::vector<QString> recentFiles = pPref->getRecentFiles();
-	recentFiles.insert( recentFiles.begin(), sFilename );
-	pPref->setRecentFiles( recentFiles );
+#else
+	Preferences::get_instance()->insertRecentFile( sFilename );
 #endif
 
 	HydrogenApp* pH2App = HydrogenApp::get_instance();

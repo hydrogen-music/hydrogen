@@ -609,7 +609,6 @@ void MainForm::action_file_new()
 	}
 
 	h2app->setSong(pSong);
-	pEngine->setSelectedPatternNumber( 0 );
 	h2app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	h2app->getSongEditorPanel()->updatePositionRuler();
 
@@ -736,20 +735,12 @@ void MainForm::action_file_save()
 		// This behavior is prohibited under session management. Only
 		// songs open during normal runs will be listed.
 		if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
-			Preferences *pPref = Preferences::get_instance();
-			vector<QString> recentFiles = pPref->getRecentFiles();
-			recentFiles.insert( recentFiles.begin(), filename );
-			pPref->setRecentFiles( recentFiles );
-
+			Preferences::get_instance()->insertRecentFile( filename );
 			updateRecentUsedSongList();
 		}
 #endif
 #ifndef H2CORE_HAVE_OSC
-		Preferences *pPref = Preferences::get_instance();
-		vector<QString> recentFiles = pPref->getRecentFiles();
-		recentFiles.insert( recentFiles.begin(), filename );
-		pPref->setRecentFiles( recentFiles );
-
+		Preferences::get_instance()->insertRecentFile( filename );
 		updateRecentUsedSongList();
 #endif
 
@@ -892,7 +883,7 @@ void MainForm::action_file_open() {
 			ERRORLOG( QString( "No song present while under session management" ) );
 			return;
 		}
-		pSong->set_filename( sFurrentFilename );
+		pSong->set_filename( sCurrentFilename );
 	}
 
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
@@ -1540,22 +1531,15 @@ void MainForm::openSongFile( const QString& sFilename )
 
 	// add the new loaded song in the "last used song" vector
 	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
-		Preferences* pPref = Preferences::get_instance();
-		vector<QString> recentFiles = pPref->getRecentFiles();
-		recentFiles.insert( recentFiles.begin(), sFilename );
-		pPref->setRecentFiles( recentFiles );
+		Preferences::get_instance()->insertRecentFile( sFilename );
 	}
 #else
-	Preferences* pPref = Preferences::get_instance();
-	vector<QString> recentFiles = pPref->getRecentFiles();
-	recentFiles.insert( recentFiles.begin(), sFilename );
-	pPref->setRecentFiles( recentFiles );
+	Preferences::get_instance()->insertRecentFile( sFilename );
 #endif
 	
 	h2app->setSong( pSong );
 
 	updateRecentUsedSongList();
-	pEngine->setSelectedPatternNumber( 0 );
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 

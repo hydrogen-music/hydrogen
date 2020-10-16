@@ -436,8 +436,9 @@ public:
 	void			setQuantizeEvents( bool value );
 	bool			getQuantizeEvents();
 
-	std::vector<QString> 		getRecentFiles();
-	void				setRecentFiles( std::vector<QString> recentFiles );
+	const std::vector<QString> 		getRecentFiles();
+	void			setRecentFiles( const std::vector<QString> recentFiles );
+	void			insertRecentFile( const QString sFilename ); 
 
 	QStringList		getRecentFX();
 	void			setMostRecentFX( QString );
@@ -982,7 +983,7 @@ inline bool Preferences::getQuantizeEvents() {
 	return quantizeEvents;
 }
 
-inline std::vector<QString> Preferences::getRecentFiles() {
+inline const std::vector<QString> Preferences::getRecentFiles() {
 	return m_recentFiles;
 }
 

@@ -36,6 +36,7 @@
 #include <iostream>
 #include <cstdio>
 #include <list>
+#include <algorithm>
 
 #include <hydrogen/midi_map.h>
 #include "hydrogen/version.h"
@@ -1098,26 +1099,34 @@ void Preferences::setMostRecentFX( QString FX_name )
 	m_recentFX.push_front( FX_name );
 }
 
-void Preferences::setRecentFiles( std::vector<QString> recentFiles )
+void Preferences::insertRecentFile( const QString sFilename ){
+
+	bool bAlreadyContained =
+		std::find( m_recentFiles.begin(), m_recentFiles.end(),
+				   sFilename ) == m_recentFiles.end();
+	
+	m_recentFiles.insert( m_recentFiles.begin(), sFilename );
+
+	if ( bAlreadyContained ) {
+		// Eliminate all duplicates in the list while keeping the one
+		// inserted at the beginning.
+		setRecentFiles( m_recentFiles );
+	}
+}
+
+void Preferences::setRecentFiles( const std::vector<QString> recentFiles )
 {
 	// find single filenames. (skip duplicates)
-	std::vector<QString> temp;
-	for ( unsigned i = 0; i < recentFiles.size(); i++ ) {
-		QString sFilename = recentFiles[ i ];
-
-		bool bExists = false;
-		for ( unsigned j = 0; j < temp.size(); j++ ) {
-			if ( sFilename == temp[ j ] ) {
-				bExists = true;
-				break;
-			}
-		}
-		if ( !bExists ) {
-			temp.push_back( sFilename );
+	std::vector<QString> sTmpVec;
+	for ( auto ssFilename : recentFiles ) {
+		if ( std::find( sTmpVec.begin(), sTmpVec.end(), ssFilename) ==
+			 sTmpVec.end() ) {
+			// Particular file is not contained yet.
+			sTmpVec.push_back( ssFilename );
 		}
 	}
 
-	m_recentFiles = temp;
+	m_recentFiles = sTmpVec;
 }
 
 
