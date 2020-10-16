@@ -768,7 +768,6 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 		Playlist::get_instance()->setActiveSongNumber( index );
 
 		pH2App->setSong ( pSong );
-		pEngine->setSelectedPatternNumber ( 0 );
 
 		pEngine->sequencer_play();
 	}else
@@ -834,7 +833,6 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	}
 
 	pH2App->setSong ( pSong );
-	pEngine->setSelectedPatternNumber ( 0 );
 
 	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
 	pH2App->setStatusBarMessage( tr( "Playlist: set song no. %1" ).arg( index +1 ), 5000 );

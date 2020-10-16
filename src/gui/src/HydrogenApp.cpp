@@ -97,12 +97,10 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
 		
 		Hydrogen::get_instance()->setSong( pFirstSong );
-		Preferences::get_instance()->setLastSongFilename( pFirstSong->get_filename() );
 	}
 #endif
 #ifndef H2CORE_HAVE_OSC
 	Hydrogen::get_instance()->setSong( pFirstSong );
-	Preferences::get_instance()->setLastSongFilename( pFirstSong->get_filename() );
 #endif
 	
 	SoundLibraryDatabase::create_instance();
@@ -343,14 +341,12 @@ void HydrogenApp::closeFXProperties()
 void HydrogenApp::setSong(Song* pSong)
 {
 	Hydrogen::get_instance()->setSong( pSong );
-	
-	Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
 
 	m_pSongEditorPanel->updateAll();
 	m_pPatternEditorPanel->updateSLnameLabel();
 
 	updateWindowTitle();
-	
+
 	m_pMainForm->updateRecentUsedSongList();
 }
 

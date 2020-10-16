@@ -842,28 +842,25 @@ void MainForm::action_file_export_pattern_as()
 
 void MainForm::action_file_open() {
 #ifdef H2CORE_HAVE_OSC
-	bool bUnderSessionManagement = NsmClient::get_instance()->m_bUnderSessionManagement;
-#endif
-#ifndef H2CORE_HAVE_OSC
-	bool bUnderSessionManagement = false;
+	const bool bUnderSessionManagement = NsmClient::get_instance()->m_bUnderSessionManagement;
+#else
+	const bool bUnderSessionManagement = false;
 #endif
 		
-	if ( ((Hydrogen::get_instance())->getState() == STATE_PLAYING) ) {
+	if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
 		Hydrogen::get_instance()->sequencer_stop();
-		
 	}
 
-	bool proceed = handleUnsavedChanges();
-	if(!proceed) {
+	bool bProceed = handleUnsavedChanges();
+	if( !bProceed ) {
 		return;
 	}
 
-	static QString lastUsedDir = Filesystem::songs_dir();
+	static QString sLastUsedDir = Filesystem::songs_dir();
 
-	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
 	QFileDialog fd(this);
-	fd.setFileMode(QFileDialog::ExistingFile);
-	fd.setDirectory( lastUsedDir );
+	fd.setFileMode( QFileDialog::ExistingFile );
+	fd.setDirectory( sLastUsedDir );
 	fd.setNameFilter( Filesystem::songs_filter_name );
 
 	if ( bUnderSessionManagement ) {
@@ -872,20 +869,20 @@ void MainForm::action_file_open() {
 		fd.setWindowTitle( trUtf8( "Open song" ) );
 	}
 
-	QString filename;
-	if (fd.exec() == QDialog::Accepted) {
-		filename = fd.selectedFiles().first();
-		lastUsedDir = fd.directory().absolutePath();
+	QString sFilename;
+	if ( fd.exec() == QDialog::Accepted ) {
+		sFilename = fd.selectedFiles().first();
+		sLastUsedDir = fd.directory().absolutePath();
 	}
 
 	// When under session management the filename of the current Song
 	// has to be preserved.
-	QString currentFilename;
+	QString sCurrentFilename;
 	if ( bUnderSessionManagement ) {
-		currentFilename = H2Core::Hydrogen::get_instance()->getSong()->get_filename();
+		sCurrentFilename = H2Core::Hydrogen::get_instance()->getSong()->get_filename();
 	}
-	if ( !filename.isEmpty() ) {
-		openSongFile( filename );
+	if ( !sFilename.isEmpty() ) {
+		openSongFile( sFilename );
 	}
 
 	if ( bUnderSessionManagement ) {
@@ -895,7 +892,7 @@ void MainForm::action_file_open() {
 			ERRORLOG( QString( "No song present while under session management" ) );
 			return;
 		}
-		pSong->set_filename( currentFilename );
+		pSong->set_filename( sFurrentFilename );
 	}
 
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
@@ -1519,16 +1516,16 @@ void MainForm::action_file_open_recent(QAction *pAction)
 
 void MainForm::openSongFile( const QString& sFilename )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	if ( pEngine->getState() == STATE_PLAYING ) {
-		pEngine->sequencer_stop();
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getState() == STATE_PLAYING ) {
+		pHydrogen->sequencer_stop();
 	}
 
-	pEngine->getTimeline()->deleteAllTags();
+	pHydrogen->getTimeline()->deleteAllTags();
 
 	h2app->closeFXProperties();
 
-	Song *pSong = Song::load( sFilename );
+	Song* pSong = Song::load( sFilename );
 	if ( pSong == nullptr ) {
 		QMessageBox::information( this, "Hydrogen", tr("Error loading song.") );
 		return;
@@ -1543,14 +1540,13 @@ void MainForm::openSongFile( const QString& sFilename )
 
 	// add the new loaded song in the "last used song" vector
 	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
-		Preferences *pPref = Preferences::get_instance();
+		Preferences* pPref = Preferences::get_instance();
 		vector<QString> recentFiles = pPref->getRecentFiles();
 		recentFiles.insert( recentFiles.begin(), sFilename );
 		pPref->setRecentFiles( recentFiles );
 	}
-#endif
-#ifndef H2CORE_HAVE_OSC
-	Preferences *pPref = Preferences::get_instance();
+#else
+	Preferences* pPref = Preferences::get_instance();
 	vector<QString> recentFiles = pPref->getRecentFiles();
 	recentFiles.insert( recentFiles.begin(), sFilename );
 	pPref->setRecentFiles( recentFiles );

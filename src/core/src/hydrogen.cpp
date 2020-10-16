@@ -2554,26 +2554,30 @@ void Hydrogen::setSong( Song *pSong )
 		return;
 	}
 
-	if ( pCurrentSong ) {
+	if ( pCurrentSong != nullptr ) {
 		/* NOTE: 
 		 *       - this is actually some kind of cleanup 
 		 *       - removeSong cares itself for acquiring a lock
 		 */
 		removeSong();
-
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		delete pCurrentSong;
-		pCurrentSong = nullptr;
-
-		AudioEngine::get_instance()->unlock();
-
 	}
 
-	/* Reset GUI */
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
-	EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	if ( m_GUIState != GUIState::unavailable ) {
+		/* Reset GUI */
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	}
 
+#ifdef H2CORE_HAVE_OSC
+	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
+		Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
+	}
+#else
+	Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
+#endif
+	
 	// In order to allow functions like audioEngine_setupLadspaFX() to
 	// load the settings of the new song, like whether the LADSPA FX
 	// are activated, __song has to be set prior to the call of

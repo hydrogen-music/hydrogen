@@ -772,9 +772,6 @@ void SoundLibraryPanel::on_songLoadAction()
 	HydrogenApp* pH2App = HydrogenApp::get_instance();
 
 	pH2App->setSong( pSong );
-
-	//updateRecentUsedSongList();
-	pHydrogen->setSelectedPatternNumber( 0 );
 }
 
 
