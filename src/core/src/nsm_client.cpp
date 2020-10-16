@@ -138,22 +138,24 @@ int NsmClient::OpenCallback( const char *name,
 		pSong->set_filename( sSongPath );
 	}
 
-	// Usually, when starting Hydrogen with its Qt5 GUI activated, the
-	// chosen Song will be set via the GUI. But since it is
-	// constructed after the NSM client, using the corresponding OSC
-	// message to open a Song won't work in this scenario (since this
-	// would set the Song asynchronously using the EventQueue and it
-	// is require during the construction of MainForm).
+	// When starting Hydrogen with its Qt5 GUI activated, the chosen
+	// Song will be set via the GUI. But since it is constructed after
+	// the NSM client, using the corresponding OSC message to open a
+	// Song won't work in this scenario (since this would set the Song
+	// asynchronously using the EventQueue and it is require during
+	// the construction of MainForm).
 	//
 	// Two different scenarios are considered in here:
-	// 1. <= 0: There is no GUI or there will be a GUI but it is not
-	//         created yet.
-	// 2. > 0: There is a GUI present and it is fully loaded.
+	// 1. notReady && unavailable:
+	//    There is no GUI or there will be a GUI but it is not
+	//    initialized yet.
+	// 2. > ready:
+	//    There is a GUI present and it is fully loaded.
 	//
 	// Scenario 2. is active when switching between sessions.
 	//
 	// Loading the Song is a little bit tricky in the first
-	// scenario. The much more slim setInitalSong() function is used
+	// scenario. The much more slim setInitialSong() function is used
 	// since setSong() requires the audio driver to be already present
 	// which would keep external tools from rewiring the per track
 	// outputs of the JACK client. In 2. the Song _must_ the loaded by
@@ -189,12 +191,9 @@ int NsmClient::OpenCallback( const char *name,
 		
 	} else {
 
-		// The opening of the Song will be done asynchronously using
-		// the MidiActionManager.
+		// The opening of the Song will be done asynchronously.
 		pHydrogen->setNextSong( pSong );
 		
-		// Check whether a file corresponding to the provided path does
-		// already exist.
 		bool bSuccess;
 		if ( songFileInfo.exists() ) {
 			// Open the existing file.
@@ -318,8 +317,6 @@ void NsmClient::linkDrumkit( const char* name ) {
 		} else {
 			NsmClient::printError( "Symlink does not point to valid drumkit." );
 		}				   
-	} else {
-		NsmClient::printError( "No symlink to drumkit exists." );
 	}
 	
 	// The symbolic link either does not exist, is not valid, or does
@@ -339,17 +336,17 @@ void NsmClient::linkDrumkit( const char* name ) {
 		// the user drumkits first and the system ones second.
 		QString sDrumkitAbsPath( "" );
 		const QStringList drumkitListUsr = H2Core::Filesystem::usr_drumkit_list();
-		for ( int ii = 0; ii < drumkitListUsr.size(); ++ii ) {
-			if ( drumkitListUsr[ii] == sDrumkitName ) {
-				sDrumkitAbsPath = H2Core::Filesystem::usr_drumkits_dir() + drumkitListUsr[ii];
+		for ( auto ssName : drumkitListUsr ) {
+			if ( ssName == sDrumkitName ) {
+				sDrumkitAbsPath = H2Core::Filesystem::usr_drumkits_dir() + ssName;
 			}
 		}
 		
 		if ( sDrumkitAbsPath.isEmpty() ) {
 			const QStringList drumkitListSys = H2Core::Filesystem::sys_drumkit_list();
-			for ( int ii = 0; ii < drumkitListSys.size(); ++ii ) {
-				if ( drumkitListSys[ii] == sDrumkitName ) {
-					sDrumkitAbsPath = H2Core::Filesystem::usr_drumkits_dir() + drumkitListSys[ii];
+			for ( auto ssName : drumkitListSys ) {
+				if ( ssName == sDrumkitName ) {
+					sDrumkitAbsPath = H2Core::Filesystem::sys_drumkits_dir() + ssName;
 				}
 			}
 		}
