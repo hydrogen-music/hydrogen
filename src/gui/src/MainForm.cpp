@@ -397,6 +397,8 @@ void MainForm::createMenuBar()
 		// DEBUG menu
 		QMenu *m_pDebugMenu = m_pMenubar->addMenu( tr("De&bug") );
 		m_pDebugMenu->addAction( tr( "Show &audio engine info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
+		m_pDebugMenu->addAction( tr( "Show filesystem info" ), this, SLOT( action_debug_showFilesystemInfo() ) );
+		
 		if(pLogger->bit_mask() == 8) { // hydrogen -V8 list object map in console 
 			m_pDebugMenu->addAction( tr( "Print Objects" ), this, SLOT( action_debug_printObjects() ) );
 		}
@@ -892,6 +894,10 @@ void MainForm::action_debug_showAudioEngineInfo()
 	h2app->showAudioEngineInfoForm();
 }
 
+void MainForm::action_debug_showFilesystemInfo()
+{
+	h2app->showFilesystemInfoForm();
+}
 
 
 ///

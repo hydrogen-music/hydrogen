@@ -34,6 +34,7 @@
 #include "MainForm.h"
 #include "PlayerControl.h"
 #include "AudioEngineInfoForm.h"
+#include "FilesystemInfoForm.h"
 #include "HelpBrowser.h"
 #include "LadspaFXProperties.h"
 #include "InstrumentRack.h"
@@ -112,6 +113,8 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	else {
 		m_pAudioEngineInfoForm->hide();
 	}
+	
+	m_pFilesystemInfoForm = new FilesystemInfoForm( nullptr );
 
 	m_pPlaylistDialog = new PlaylistDialog( nullptr );
 	m_pDirector = new Director( nullptr );
@@ -135,6 +138,7 @@ HydrogenApp::~HydrogenApp()
 
 	delete m_pHelpBrowser;
 	delete m_pAudioEngineInfoForm;
+	delete m_pFilesystemInfoForm;
 	delete m_pMixer;
 	delete m_pPlaylistDialog;
 	delete m_pDirector;
@@ -427,6 +431,12 @@ void HydrogenApp::showAudioEngineInfoForm()
 {
 	m_pAudioEngineInfoForm->hide();
 	m_pAudioEngineInfoForm->show();
+}
+
+void HydrogenApp::showFilesystemInfoForm()
+{
+	m_pFilesystemInfoForm->hide();
+	m_pFilesystemInfoForm->show();
 }
 
 void HydrogenApp::showPlaylistDialog()

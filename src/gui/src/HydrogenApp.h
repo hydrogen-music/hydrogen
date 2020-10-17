@@ -59,6 +59,7 @@ class InstrumentEditorPanel;
 class SongEditor;
 class Mixer;
 class AudioEngineInfoForm;
+class FilesystemInfoForm;
 class SimpleHTMLBrowser;
 class LadspaFXProperties;
 class LadspaFXInfo;
@@ -88,6 +89,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		void showMixer(bool bShow);
 		void showInstrumentPanel(bool);
 		void showAudioEngineInfoForm();
+		void showFilesystemInfoForm();
 		void showPlaylistDialog();
 		void showDirector();
 		void showSampleEditor( QString name, int mSelectedComponemt, int mSelectedLayer );
@@ -186,23 +188,24 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		LadspaFXProperties *		m_pLadspaFXProperties[MAX_FX];
 #endif
 
-		MainForm *			m_pMainForm;
-		Mixer *				m_pMixer;
-		PatternEditorPanel*		m_pPatternEditorPanel;
+		MainForm *					m_pMainForm;
+		Mixer *						m_pMixer;
+		PatternEditorPanel*			m_pPatternEditorPanel;
 		AudioEngineInfoForm *		m_pAudioEngineInfoForm;
-		SongEditorPanel *		m_pSongEditorPanel;
-		SimpleHTMLBrowser *		m_pHelpBrowser;
-		SimpleHTMLBrowser *		m_pFirstTimeInfo;
-		InstrumentRack*			m_pInstrumentRack;
-		PlayerControl *			m_pPlayerControl;
-		PlaylistDialog *		m_pPlaylistDialog;
-		SampleEditor *			m_pSampleEditor;
-		Director *			m_pDirector;
-		QTimer *			m_pEventQueueTimer;
+		FilesystemInfoForm *		m_pFilesystemInfoForm;
+		SongEditorPanel *			m_pSongEditorPanel;
+		SimpleHTMLBrowser *			m_pHelpBrowser;
+		SimpleHTMLBrowser *			m_pFirstTimeInfo;
+		InstrumentRack*				m_pInstrumentRack;
+		PlayerControl *				m_pPlayerControl;
+		PlaylistDialog *			m_pPlaylistDialog;
+		SampleEditor *				m_pSampleEditor;
+		Director *					m_pDirector;
+		QTimer *					m_pEventQueueTimer;
 		std::vector<EventListener*> 	m_EventListeners;
-		QTabWidget *			m_pTab;
-		QSplitter *			m_pSplitter;
-		QVBoxLayout * m_pMainVBox;
+		QTabWidget *				m_pTab;
+		QSplitter *					m_pSplitter;
+		QVBoxLayout *				m_pMainVBox;
 
 		// implement EngineListener interface
 		void engineError(uint nErrorCode);
