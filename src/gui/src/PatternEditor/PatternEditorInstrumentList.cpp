@@ -124,6 +124,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addAction( tr( "Randomize velocity" ), this, SLOT( functionRandomizeVelocity() ) );
 	m_pFunctionPopup->addSeparator();
 
+	m_pFunctionPopup->addAction( tr( "Select notes" ), this, &InstrumentLine::selectInstrumentNotes );
 	m_pCopyPopupSub = new QMenu( tr( "Copy notes ..." ), m_pFunctionPopup );
 	m_pCopyPopupSub->addAction( tr( "Only for this pattern" ), this, SLOT( functionCopyInstrumentPattern() ) );
 	m_pCopyPopupSub->addAction( tr( "For all patterns" ), this, SLOT( functionCopyAllInstrumentPatterns() ) );
@@ -223,6 +224,10 @@ void InstrumentLine::sampleWarningClicked()
 								  "drumkit." ) );
 }
 
+void InstrumentLine::selectInstrumentNotes()
+{
+	HydrogenApp::get_instance()->getPatternEditorPanel()->selectInstrumentNotes( m_nInstrumentNumber );
+}
 
 void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 {

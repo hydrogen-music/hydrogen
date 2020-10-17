@@ -84,6 +84,8 @@ class InstrumentLine : public PixmapWidget
 		void soloClicked();
 		void sampleWarningClicked();
 
+		void selectInstrumentNotes();
+
 
 	private:
 		QMenu *m_pFunctionPopup;

@@ -126,6 +126,9 @@ public:
 	H2RGBColor m_patternEditor_line3Color;
 	H2RGBColor m_patternEditor_line4Color;
 	H2RGBColor m_patternEditor_line5Color;
+
+	H2RGBColor m_selectionHighlightColor;
+	H2RGBColor m_selectionInactiveColor;
 };
 
 

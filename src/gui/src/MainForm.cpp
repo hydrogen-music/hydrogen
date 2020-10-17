@@ -160,7 +160,6 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 	// for all the window modes
 	h2app->getMixer()->installEventFilter (this);
 	h2app->getPatternEditorPanel()->installEventFilter (this);
-	h2app->getPatternEditorPanel()->getPianoRollEditor()->installEventFilter (this);
 	h2app->getSongEditorPanel()->installEventFilter (this);
 	h2app->getPlayerControl()->installEventFilter(this);
 	InstrumentEditorPanel::get_instance()->installEventFilter(this);

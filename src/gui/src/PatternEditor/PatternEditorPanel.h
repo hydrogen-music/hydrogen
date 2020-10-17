@@ -87,6 +87,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		bool cursorHidden()	{ return m_bCursorHidden; }
 		void setCursorHidden(bool hidden);
 
+		void selectInstrumentNotes( int nInstrument );
+
 	private slots:
 		void gridResolutionChanged( int nSelected );
 		void propertiesComboChanged( int nSelected );

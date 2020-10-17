@@ -25,6 +25,7 @@
 #define DRUM_PATTERN_EDITOR_H
 
 #include "../EventListener.h"
+#include "../Selection.h"
 
 #include <hydrogen/object.h>
 
@@ -37,6 +38,7 @@ namespace H2Core
 {
 	class Note;
 	class Pattern;
+	class Instrument;
 }
 
 class PatternEditorInstrumentList;
@@ -83,6 +85,13 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 										bool isInstrumentMode,
 										bool isNoteOff,
 										bool isDelete );
+		void moveNoteAction( int nColumn,
+							 int nRow,
+							 int nPattern,
+							 int nNewColumn,
+							 int nNewRow,
+							 H2Core::Note *note);
+
 		void addOrRemoveNote( int nColumn, int nRealColumn, int row );
 		void editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber );
 		void undoRedoAction(    int column,
@@ -110,8 +119,33 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		void functionPasteNotesRedoAction(std::list<H2Core::Pattern*> & changeList, std::list<H2Core::Pattern*> & appliedList);
 		void functionPasteNotesUndoAction(std::list<H2Core::Pattern*> & appliedList);
 
+		// Synthetic UI events from selection manager
+		void mouseClickEvent( QMouseEvent *ev );
+		void mouseDragStartEvent( QMouseEvent *ev );
+		void mouseDragUpdateEvent( QMouseEvent *ev );
+		void mouseDragEndEvent( QMouseEvent *ev );
+		void selectionMoveEndEvent( QInputEvent *ev );
+
+		// Selected notes are indexed by their address to ensure that a
+		// note is definitely uniquely identified. This carries the risk
+		// that state pointers to deleted notes may find their way into
+		// the selection.
+		typedef H2Core::Note* SelectionIndex;
+		std::vector<SelectionIndex> elementsIntersecting( QRect r );
+		void validateSelection();
+
+		QRect getKeyboardCursorRect();
+
+
 	public slots:
 		void updateEditor();
+		void selectAll();
+		void selectNone();
+		void selectInstrumentNotes( int nInstrument );
+		void deleteSelection();
+		void copy();
+		void paste();
+		void cut();
 
 	private:
 		float m_nGridWidth;
@@ -120,7 +154,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		uint m_nResolution;
 		bool m_bUseTriplets;
 
-		bool m_bRightBtnPressed;
+		bool m_bSelectNewNotes;
+
 		H2Core::Note *m_pDraggedNote;
 		//~
 
@@ -143,11 +178,19 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		virtual void paintEvent(QPaintEvent *ev);
 		virtual void focusInEvent( QFocusEvent *ev );
 
+		Selection<DrumPatternEditor, SelectionIndex > m_selection;
+		QMenu *m_pPopupMenu;
+
 		int getColumn(QMouseEvent *ev);
+		QPoint movingGridOffset();
+		void updateModifiers( QInputEvent *ev );
 
 		int findFreeCompoID( int startingPoint = 0 );
 		int findExistingCompo( QString SourceName );
 		QString renameCompo( QString OriginalName );
+
+		bool m_bFineGrained;
+		bool m_bCopyNotMove;
 
 		int __nRealColumn;
 		int __nColumn;

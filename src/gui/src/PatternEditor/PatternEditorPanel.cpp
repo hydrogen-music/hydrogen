@@ -760,6 +760,14 @@ void PatternEditorPanel::selectedInstrumentChangedEvent()
 	resizeEvent(nullptr);	// force a scrollbar update
 }
 
+void PatternEditorPanel::selectInstrumentNotes( int nInstrument )
+{
+	if ( __show_drum_btn->isPressed() ) {
+		m_pPianoRollEditor->selectInstrumentNotes( nInstrument );
+	} else {
+		m_pDrumPatternEditor->selectInstrumentNotes( nInstrument );
+	}
+}
 
 void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 {
@@ -775,6 +783,9 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 		m_pInstrListScrollView->setFocusProxy( m_pEditorScrollView );
 	
 		m_pDrumPatternEditor->selectedInstrumentChangedEvent(); // force an update
+
+		m_pDrumPatternEditor->selectNone();
+		m_pPianoRollEditor->selectNone();
 	
 		// force a re-sync of extern scrollbars
 		resizeEvent( nullptr );
@@ -791,6 +802,9 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 		m_pPianoRollScrollView->setFocus();
 		m_pRulerScrollView->setFocusProxy( m_pPianoRollScrollView );
 		m_pInstrListScrollView->setFocusProxy( m_pPianoRollScrollView );
+
+		m_pDrumPatternEditor->selectNone();
+		m_pPianoRollEditor->selectNone();
 
 		m_pPianoRollEditor->selectedPatternChangedEvent();
 		m_pPianoRollEditor->updateEditor(); // force an update	
