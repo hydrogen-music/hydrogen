@@ -153,8 +153,6 @@ int OscServer::generic_handler(const char *	path,
 							   void *		data,
 							   void *		user_data)
 {
-	INFOLOG("GENERIC HANDLER");
-
 	//First we're trying to map TouchOSC messages from multi-fader widgets
 	QString oscPath( path );
 	QRegExp rxStripVol( "/Hydrogen/STRIP_VOLUME_ABSOLUTE/(\\d+)" );
@@ -677,6 +675,31 @@ void OscServer::JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc)
 	}
 }
 
+void OscServer::SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
+
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	if ( argv[0]->i != 0 ) {
+		pController->activateSongMode( true, true );
+	} else {
+		pController->activateSongMode( false, true );
+	}
+}
+
+void OscServer::LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
+
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	if ( argv[0]->i != 0 ) {
+		pController->activateLoopMode( true, true );
+	} else {
+		pController->activateLoopMode( false, true );
+	}
+}
+
+void OscServer::RELOCATE_Handler(lo_arg **argv, int argc) {
+
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->relocate( argv[0]->i );
+}
+
 // -------------------------------------------------------------------
 // Helper functions
 
@@ -832,7 +855,6 @@ bool OscServer::start()
 
 	//This handler is responsible for registering clients
 	m_pServerThread->add_method(nullptr, nullptr, [&](lo_message msg){
-									INFOLOG("OSC REGISTER HANDLER");
 									lo_address a = lo_message_get_source(msg);
 
 									bool AddressRegistered = false;
@@ -845,7 +867,6 @@ bool OscServer::start()
 									}
 
 									if( !AddressRegistered ){
-										INFOLOG("REGISTERING CLIENT");
 										lo_address newAddr = lo_address_new_with_proto(	lo_address_get_protocol( a ),
 																						lo_address_get_hostname( a ),
 																						lo_address_get_port( a ) );
@@ -956,6 +977,9 @@ bool OscServer::start()
 
 	m_pServerThread->add_method("/Hydrogen/JACK_TRANSPORT_ACTIVATION", "i", JACK_TRANSPORT_ACTIVATION_Handler);
 	m_pServerThread->add_method("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", "i", JACK_TIMEBASE_MASTER_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/SONG_MODE_ACTIVATION", "i", SONG_MODE_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOOP_MODE_ACTIVATION", "i", LOOP_MODE_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/RELOCATE", "i", RELOCATE_Handler);
 	/*
 	 * Start the server.
 	 */

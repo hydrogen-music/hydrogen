@@ -783,21 +783,21 @@ void PlaylistDialog::nodeStopBTN( Button* ref )
 	UNUSED( ref );
 	m_pPlayBtn->setPressed(false);
 	Hydrogen::get_instance()->sequencer_stop();
-	Hydrogen::get_instance()->setPatternPos ( 0 );
+	Hydrogen::get_instance()->getCoreActionController()->relocate( 0 );
 }
 
 void PlaylistDialog::ffWDBtnClicked( Button* ref)
 {
 	UNUSED( ref );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setPatternPos( pEngine->getPatternPos() + 1 );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
 }
 
 void PlaylistDialog::rewindBtnClicked( Button* ref )
 {
 	UNUSED( ref );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setPatternPos( pEngine->getPatternPos() - 1 );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
 }
 
 void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()

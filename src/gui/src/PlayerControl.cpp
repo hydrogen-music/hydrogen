@@ -727,11 +727,12 @@ void PlayerControl::playBtnClicked(Button* ref) {
 void PlayerControl::stopBtnClicked(Button* ref)
 {
 	UNUSED( ref );
+
+	auto pHydrogen = Hydrogen::get_instance();
 	m_pPlayBtn->setPressed(false);
-	m_pEngine->sequencer_stop();
-	m_pEngine->setPatternPos( 0 );
+	pHydrogen->sequencer_stop();
+	pHydrogen->getCoreActionController()->relocate( 0 );
 	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Stopped."), 5000);
-	Hydrogen::get_instance()->setTimelineBpm();
 }
 
 
@@ -742,15 +743,10 @@ void PlayerControl::songModeBtnClicked(Button* ref)
 {
 	UNUSED( ref );
 
-	m_pEngine->sequencer_stop();
-	m_pEngine->setPatternPos( 0 );	// from start
-	m_pEngine->getSong()->set_mode( Song::SONG_MODE );
-	m_pSongModeBtn->setPressed(true);
-	m_pLiveModeBtn->setPressed(false);
-	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Song mode selected."), 5000);
+	Hydrogen::get_instance()->getCoreActionController()->activateSongMode( true, false );
+
+	songModeActivationEvent( 1 );
 }
-
-
 
 
 ///Set Live mode
@@ -758,14 +754,23 @@ void PlayerControl::liveModeBtnClicked(Button* ref)
 {
 	UNUSED( ref );
 
-	m_pEngine->sequencer_stop();
-	m_pEngine->getSong()->set_mode( Song::PATTERN_MODE );
-	m_pSongModeBtn->setPressed(false);
-	m_pLiveModeBtn->setPressed(true);
-	(HydrogenApp::get_instance())->setStatusBarMessage(tr("Pattern mode selected."), 5000);
+	Hydrogen::get_instance()->getCoreActionController()->activateSongMode( false, false );
+
+	songModeActivationEvent( 0 );
 }
 
-
+void PlayerControl::songModeActivationEvent( int nValue )
+{
+	if ( nValue != 0 ) {
+		m_pSongModeBtn->setPressed(true);
+		m_pLiveModeBtn->setPressed(false);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Song mode selected."), 5000);
+	} else {
+		m_pSongModeBtn->setPressed(false);
+		m_pLiveModeBtn->setPressed(true);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Pattern mode selected."), 5000);
+	}
+}
 
 void PlayerControl::bpmChanged() {
 	float fNewBpmValue = m_pLCDBPMSpinbox->getValue();
@@ -989,9 +994,9 @@ void PlayerControl::bpmButtonClicked( Button* pBtn )
 void PlayerControl::FFWDBtnClicked( Button* )
 {
 	WARNINGLOG( "relocate via button press" );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setPatternPos( pEngine->getPatternPos() + 1 );
-	Hydrogen::get_instance()->setTimelineBpm();
+
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
 }
 
 
@@ -999,24 +1004,32 @@ void PlayerControl::FFWDBtnClicked( Button* )
 void PlayerControl::RewindBtnClicked( Button* )
 {
 	WARNINGLOG( "relocate via button press" );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setPatternPos( pEngine->getPatternPos() - 1 );
-	Hydrogen::get_instance()->setTimelineBpm();
+	
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
 }
 
 
-void PlayerControl::songLoopBtnClicked( Button* )
+void PlayerControl::songLoopBtnClicked( Button* pButton )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *song = pEngine->getSong();
-	song->set_loop_enabled( ! song->is_loop_enabled() );
-	song->set_is_modified( true );
+	Hydrogen::get_instance()->getCoreActionController()->activateLoopMode( pButton->isPressed(), false );
 
-	if ( song->is_loop_enabled() ) {
-		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = On"), 5000);
+	if ( pButton->isPressed() ){
+		loopModeActivationEvent( 1 );
+	} else {
+		loopModeActivationEvent( 0 );
+	}
+}
+
+void PlayerControl::loopModeActivationEvent( int nValue ) {
+
+	if ( nValue == 0 ) {
+		m_pSongLoopBtn->setPressed( false );
+		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = Off"), 5000);
 	}
 	else {
-		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = Off"), 5000);
+		m_pSongLoopBtn->setPressed( true );
+		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = On"), 5000);
 	}
 }
 

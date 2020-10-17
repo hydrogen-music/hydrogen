@@ -33,6 +33,7 @@
 
 #include <hydrogen/IO/AlsaMidiDriver.h>
 #include <hydrogen/IO/MidiOutput.h>
+#include <hydrogen/IO/jack_audio_driver.h>
 
 namespace H2Core
 {
@@ -585,5 +586,55 @@ bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
 	ERRORLOG( "Unable to (de)activate Jack timebase master. Your Hydrogen version was not compiled with jack support." );
 	return false;
 #endif
+}
+
+bool CoreActionController::activateSongMode( bool bActivate, bool bTriggerEvent ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->sequencer_stop();
+	if ( bActivate ) {
+		pHydrogen->setPatternPos( 0 );
+		pHydrogen->getSong()->set_mode( Song::SONG_MODE );
+	} else {
+		pHydrogen->getSong()->set_mode( Song::PATTERN_MODE );
+	}
+	
+	if ( bTriggerEvent ) {
+		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, static_cast<int>( bActivate ) );
+	}
+	
+	return true;
+}
+
+bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent ) {
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	pSong->set_loop_enabled( bActivate );
+	pSong->set_is_modified( true );
+	
+	if ( bTriggerEvent ) {
+		EventQueue::get_instance()->push_event( EVENT_LOOP_MODE_ACTIVATION, static_cast<int>( bActivate ) );
+	}
+	
+	return true;
+}
+
+bool CoreActionController::relocate( int nPatternGroup ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->setPatternPos( nPatternGroup );
+	pHydrogen->setTimelineBpm();
+	
+#ifdef H2CORE_HAVE_JACK
+	auto pDriver = pHydrogen->getAudioOutput();
+
+	if ( pHydrogen->haveJackTransport() &&
+		 pDriver->m_transport.m_status != TransportInfo::ROLLING ) {
+	long totalTick = pHydrogen->getTickForPosition( nPatternGroup );
+	static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
+		totalTick * pDriver->m_transport.m_fTickSize;
+	}
+#endif
+	return true;
 }
 }

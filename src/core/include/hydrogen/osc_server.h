@@ -675,6 +675,33 @@ class OscServer : public H2Core::Object
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
 		static void JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::activateSongMode().
+		 *
+		 * \param argv The "i" field does contain the value supplied
+		 * by the user. If it is 0, Pattern mode of the playback will
+		 * be activated. Else, Song mode will be activated instead.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc);
+	/**
+		 * Triggers CoreActionController::activateLoopMode().
+		 *
+		 * \param argv The "i" field does contain the value supplied
+		 * by the user. If it is 0, loop mode will
+		 * be deactivated. Else, it will be activated instead.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::relocateToPattern().
+		 *
+		 * \param argv The "i" field does contain the desired
+		 * position / number of the pattern group (starting with
+		 * 0).
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void RELOCATE_Handler(lo_arg **argv, int argc);
 		/** 
 		 * Catches any incoming messages and display them. 
 		 *

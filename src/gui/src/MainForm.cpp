@@ -1264,8 +1264,8 @@ void MainForm::onPlayStopAccelEvent()
 
 void MainForm::onRestartAccelEvent()
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	pEngine->setPatternPos( 0 );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getCoreActionController()->relocate( 0 );
 }
 
 
@@ -1584,7 +1584,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		// qDebug( "Got key press for instrument '%c'", k->ascii() );
 		//int songnumber = 0;
 		HydrogenApp* app = HydrogenApp::get_instance();
-		Hydrogen* engine = Hydrogen::get_instance();
+		Hydrogen* pHydrogen = Hydrogen::get_instance();
 		switch (k->key()) {
 		case Qt::Key_Space:
 			onPlayStopAccelEvent();
@@ -1592,7 +1592,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 
 
 		case Qt::Key_Comma:
-			engine->handleBeatCounter();
+			pHydrogen->handleBeatCounter();
 			return true; // eat even
 			break;
 
@@ -1612,7 +1612,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			break;
 
 		case Qt::Key_Backslash:
-			engine->onTapTempoAccelEvent();
+			pHydrogen->onTapTempoAccelEvent();
 			return true; // eat event
 			break;
 
@@ -1636,23 +1636,23 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			break;
 
 		case  Qt::Key_F12 : //panic button stop all playing notes
-			engine->__panic();
+			pHydrogen->__panic();
 			//QMessageBox::information( this, "Hydrogen", tr( "Panic" ) );
 			return true;
 			break;
 
 		case  Qt::Key_F9 : // Qt::Key_Left do not work. Some ideas ?
-			engine->setPatternPos( Hydrogen::get_instance()->getPatternPos() - 1 );
+			pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
 			return true;
 			break;
 
 		case  Qt::Key_F10 : // Qt::Key_Right do not work. Some ideas ?
-			engine->setPatternPos( Hydrogen::get_instance()->getPatternPos() + 1 );
+			pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
 			return true;
 			break;
 
 		case Qt::Key_L :
-			engine->togglePlaysSelected();
+			pHydrogen->togglePlaysSelected();
 			QString msg = Preferences::get_instance()->patternModePlaysSelected() ? "Single pattern mode" : "Stacked pattern mode";
 			app->setStatusBarMessage( msg, 5000 );
 			app->getSongEditorPanel()->setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
@@ -1673,7 +1673,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			float pan_L = 0.5f;
 			float pan_R = 0.5f;
 
-			engine->addRealtimeNote (row, velocity, pan_L, pan_R, 0, false, false , row + 36);
+			pHydrogen->addRealtimeNote (row, velocity, pan_L, pan_R, 0, false, false , row + 36);
 
 			return true; // eat event
 		}
