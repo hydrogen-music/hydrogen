@@ -26,6 +26,7 @@
 
 #include "../EventListener.h"
 #include "../Selection.h"
+#include "PatternEditor.h"
 
 #include <hydrogen/object.h>
 
@@ -34,19 +35,12 @@
 #  include <QtWidgets>
 #endif
 
-namespace H2Core
-{
-	class Note;
-	class Pattern;
-	class Instrument;
-}
-
 class PatternEditorInstrumentList;
-class PatternEditorPanel;
+
 ///
 /// Drum pattern editor
 ///
-class DrumPatternEditor : public QWidget, public EventListener, public H2Core::Object
+class DrumPatternEditor : public PatternEditor
 {
     H2_OBJECT
 	Q_OBJECT
@@ -54,15 +48,6 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 	public:
 		DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel);
 		~DrumPatternEditor();
-
-		void setResolution(uint res, bool bUseTriplets);
-		uint getResolution() {	return m_nResolution;	}
-		bool isUsingTriplets() { return m_bUseTriplets;	}
-
-		void zoom_in();
-		void zoom_out();
-
-		static QColor computeNoteColor( float );
 
 		// Implements EventListener interface
 		virtual void patternModifiedEvent();
@@ -130,7 +115,6 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		// note is definitely uniquely identified. This carries the risk
 		// that state pointers to deleted notes may find their way into
 		// the selection.
-		typedef H2Core::Note* SelectionIndex;
 		std::vector<SelectionIndex> elementsIntersecting( QRect r );
 		void validateSelection();
 
@@ -138,59 +122,28 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 
 
 	public slots:
-		void updateEditor();
+		void updateEditor( bool bPatternOnly = false );
 		void selectAll();
-		void selectNone();
-		void selectInstrumentNotes( int nInstrument );
 		void deleteSelection();
 		void copy();
 		void paste();
 		void cut();
 
 	private:
-		float m_nGridWidth;
-		uint m_nGridHeight;
-		int m_nEditorHeight;
-		uint m_nResolution;
-		bool m_bUseTriplets;
-
-		bool m_bSelectNewNotes;
-
-		H2Core::Note *m_pDraggedNote;
-		//~
-
-
-		H2Core::Pattern *m_pPattern;
-
-		PatternEditorPanel *m_pPatternEditorPanel;
-
 		void __draw_note( H2Core::Note* note, QPainter& painter );
 		void __draw_pattern( QPainter& painter );
 		void __draw_grid( QPainter& painter );
 		void __create_background( QPainter& pointer );
 
-		virtual void mousePressEvent(QMouseEvent *ev);
-		virtual void mouseReleaseEvent(QMouseEvent *ev);
-		virtual void mouseMoveEvent(QMouseEvent *ev);
 		virtual void keyPressEvent (QKeyEvent *ev);
 		virtual void showEvent ( QShowEvent *ev );
 		virtual void hideEvent ( QHideEvent *ev );
 		virtual void paintEvent(QPaintEvent *ev);
 		virtual void focusInEvent( QFocusEvent *ev );
 
-		Selection<DrumPatternEditor, SelectionIndex > m_selection;
-		QMenu *m_pPopupMenu;
-
-		int getColumn(QMouseEvent *ev);
-		QPoint movingGridOffset();
-		void updateModifiers( QInputEvent *ev );
-
 		int findFreeCompoID( int startingPoint = 0 );
 		int findExistingCompo( QString SourceName );
 		QString renameCompo( QString OriginalName );
-
-		bool m_bFineGrained;
-		bool m_bCopyNotMove;
 
 		int __nRealColumn;
 		int __nColumn;

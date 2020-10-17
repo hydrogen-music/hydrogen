@@ -55,41 +55,13 @@ using namespace H2Core;
 const char* DrumPatternEditor::__class_name = "DrumPatternEditor";
 
 DrumPatternEditor::DrumPatternEditor(QWidget* parent, PatternEditorPanel *panel)
- : QWidget( parent )
- , Object( __class_name )
- , m_nResolution( 8 )
- , m_bUseTriplets( false )
- , m_pDraggedNote( nullptr )
- , m_pPattern( nullptr )
- , m_pPatternEditorPanel( panel )
- , m_selection( this )
+ : PatternEditor( parent, __class_name, panel )
 {
-	setFocusPolicy(Qt::StrongFocus);
-
-	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
 	m_nGridHeight = Preferences::get_instance()->getPatternEditorGridHeight();
-
-	unsigned nEditorWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
 	m_nEditorHeight = m_nGridHeight * MAX_INSTRUMENTS;
-
-	resize( nEditorWidth, m_nEditorHeight );
-
-	HydrogenApp::get_instance()->addEventListener( this );
+	resize( m_nEditorWidth, m_nEditorHeight );
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( 0 );
-
-	m_bFineGrained = false;
-	m_bCopyNotMove = false;
-	m_bSelectNewNotes = false;
-
-	// Popup context menu
-	m_pPopupMenu = new QMenu( this );
-	m_pPopupMenu->addAction( tr( "&Cut" ), this, &DrumPatternEditor::cut );
-	m_pPopupMenu->addAction( tr( "&Copy" ), this, &DrumPatternEditor::copy );
-	m_pPopupMenu->addAction( tr( "&Paste" ), this, &DrumPatternEditor::paste );
-	m_pPopupMenu->addAction( tr( "&Delete" ), this, &DrumPatternEditor::deleteSelection );
-	m_pPopupMenu->addAction( tr( "Select &all" ), this, &DrumPatternEditor::selectAll );
-	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &DrumPatternEditor::selectNone );
 }
 
 
@@ -100,7 +72,7 @@ DrumPatternEditor::~DrumPatternEditor()
 
 
 
-void DrumPatternEditor::updateEditor()
+void DrumPatternEditor::updateEditor( bool bPatternOnly )
 {
 	Hydrogen* engine = Hydrogen::get_instance();
 
@@ -123,38 +95,16 @@ void DrumPatternEditor::updateEditor()
 	__selectedPatternNumber = nSelectedPatternNumber;
 
 
-	uint nEditorWidth;
 	if ( m_pPattern ) {
-		nEditorWidth = 20 + m_nGridWidth * m_pPattern->get_length();
+		m_nEditorWidth = 20 + m_nGridWidth * m_pPattern->get_length();
 	}
 	else {
-		nEditorWidth = 20 + m_nGridWidth * MAX_NOTES;
+		m_nEditorWidth = 20 + m_nGridWidth * MAX_NOTES;
 	}
-	resize( nEditorWidth, height() );
+	resize( m_nEditorWidth, height() );
 
 	// redraw all
 	update( 0, 0, width(), height() );
-}
-
-
-
-int DrumPatternEditor::getColumn(QMouseEvent *ev)
-{
-	int nBase;
-	if (m_bUseTriplets) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-	float nWidth = (m_nGridWidth * 4 * MAX_NOTES) / (nBase * m_nResolution);
-
-	int x = ev->x();
-	int nColumn;
-	nColumn = x - 20 + (nWidth / 2);
-	nColumn = nColumn / nWidth;
-	nColumn = (nColumn * 4 * MAX_NOTES) / (nBase * m_nResolution);
-	return nColumn;
 }
 
 
@@ -205,28 +155,6 @@ void DrumPatternEditor::addOrRemoveNote(int nColumn, int nRealColumn, int row) {
 
 
 }
-
-
-// Delegate raw mouse events to Selection object
-
-void DrumPatternEditor::mousePressEvent( QMouseEvent *ev )
-{
-	updateModifiers( ev );
-	m_selection.mousePressEvent( ev );
-}
-
-void DrumPatternEditor::mouseReleaseEvent( QMouseEvent *ev )
-{
-	updateModifiers( ev );
-	m_selection.mouseReleaseEvent( ev );
-}
-
-void DrumPatternEditor::mouseMoveEvent( QMouseEvent *ev )
-{
-	updateModifiers( ev );
-	m_selection.mouseMoveEvent( ev );
-}
-
 
 
 void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
@@ -429,12 +357,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 	pSong->set_is_modified( true );
 	AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-	update( 0, 0, width(), height() );
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+	m_pPatternEditorPanel->updateEditors();
 }
 
 
@@ -508,12 +431,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 
 	AudioEngine::get_instance()->unlock();
 
-	update();
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+	m_pPatternEditorPanel->updateEditors();
 }
 
 
@@ -533,48 +451,6 @@ void DrumPatternEditor::mouseDragEndEvent( QMouseEvent *ev )
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		m_pDraggedNote = nullptr;
 	}
-}
-
-
-void DrumPatternEditor::updateModifiers( QInputEvent *ev ) {
-	// Key: Alt + drag: move notes with fine-grained positioning
-	m_bFineGrained = ev->modifiers() & Qt::AltModifier;
-	// Key: Ctrl + drag: copy notes rather than moving
-	m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
-
-	if ( m_selection.isMoving() ) {
-		// If a selection is currently being moved, change the cursor
-		// appropriately. Selection will change it back after the move
-		// is complete (or abandoned)
-		if ( m_bCopyNotMove &&  cursor().shape() != Qt::DragCopyCursor ) {
-			setCursor( QCursor( Qt::DragCopyCursor ) );
-		} else if ( !m_bCopyNotMove && cursor().shape() != Qt::DragMoveCursor ) {
-			setCursor( QCursor( Qt::DragMoveCursor ) );
-		}
-	}
-}
-
-
-QPoint DrumPatternEditor::movingGridOffset( ) {
-	QPoint rawOffset = m_selection.movingOffset();
-	// Quantize offset to multiples of m_nGrid{Width,Height}
-	int nQuantX = m_nGridWidth, nQuantY = m_nGridHeight;
-	float nFactor = 1;
-	if ( ! m_bFineGrained ) {
-		int nBase = m_bUseTriplets ? 3 : 4;
-		nFactor = (4 * MAX_NOTES) / (nBase * m_nResolution);
-		nQuantX = m_nGridWidth * nFactor;
-	}
-	int x_bias = nQuantX / 2, y_bias = nQuantY / 2;
-	if ( rawOffset.y() < 0 ) {
-		y_bias = -y_bias;
-	}
-	if ( rawOffset.x() < 0 ) {
-		x_bias = -x_bias;
-	}
-	int x_off = (rawOffset.x() + x_bias) / nQuantX;
-	int y_off = (rawOffset.y() + y_bias) / nQuantY;
-	return QPoint( nFactor * x_off, y_off);
 }
 
 
@@ -698,13 +574,7 @@ void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int 
 
 		AudioEngine::get_instance()->unlock();
 
-		update( 0, 0, width(), height() );
-
-		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-		m_pPatternEditorPanel->getPanEditor()->updateEditor();
-		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+		m_pPatternEditorPanel->updateEditors();
 	}
 }
 
@@ -747,11 +617,7 @@ void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-		update( 0, 0, width(), height() );
-		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-		m_pPatternEditorPanel->getPanEditor()->updateEditor();
-		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+		m_pPatternEditorPanel->updateEditors();
 	}
 
 }
@@ -925,25 +791,6 @@ void DrumPatternEditor::selectAll()
 	update();
 }
 
-void DrumPatternEditor::selectNone()
-{
-	m_selection.clearSelection();
-	update();
-}
-
-void DrumPatternEditor::selectInstrumentNotes( int nInstrument )
-{
-	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->get_instrument_list();
-	Instrument *pInstrument = pInstrumentList->get( nInstrument );
-
-	m_selection.clearSelection();
-	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
-		if ( it->second->get_instrument() == pInstrument ) {
-			m_selection.addToSelection( it->second );
-		}
-	}
-	update();
-}
 
 void DrumPatternEditor::deleteSelection()
 {
@@ -1208,36 +1055,6 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 			__draw_note( note, painter );
 		}
 	}
-}
-
-
-
-QColor DrumPatternEditor::computeNoteColor( float velocity ){
-	int red;
-	int green;
-	int blue;
-
-
-	/*
-	The note gets painted black if it has the default velocity (0.8).
-	The color changes if you alter the velocity..
-	*/
-
-	//qDebug() << "x: " << x;
-	//qDebug() << "x2: " << x*x;
-
-
-	if( velocity < 0.8){
-		red = fabs(-( velocity - 0.8))*255;
-		green =  fabs(-( velocity - 0.8))*255;
-		blue =  green * 1.25;
-	} else {
-		green = blue = 0;
-		red = (velocity-0.8)*5*255;
-	}
-
-	//qDebug() << "R " << red << "G " << green << "blue " << blue;
-	return QColor( red, green, blue );
 }
 
 
@@ -1556,48 +1373,6 @@ void DrumPatternEditor::focusInEvent ( QFocusEvent *ev )
 	updateEditor();
 }
 
-
-void DrumPatternEditor::setResolution(uint res, bool bUseTriplets)
-{
-	this->m_nResolution = res;
-	this->m_bUseTriplets = bUseTriplets;
-
-	// redraw all
-	update( 0, 0, width(), height() );
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-}
-
-
-
-void DrumPatternEditor::zoom_in()
-{
-	if (m_nGridWidth >= 3){
-		m_nGridWidth *= 2;
-	}else
-	{
-		m_nGridWidth *= 1.5;
-	}
-	updateEditor();
-}
-
-
-
-void DrumPatternEditor::zoom_out()
-{
-	if ( m_nGridWidth > 1.5 ) {
-		if (m_nGridWidth > 3){
-			m_nGridWidth /= 2;
-		}else
-		{
-			m_nGridWidth /= 1.5;
-		}
-		updateEditor();
-	}
-}
-
 void DrumPatternEditor::selectedInstrumentChangedEvent()
 {
 	update( 0, 0, width(), height() );
@@ -1677,13 +1452,7 @@ void DrumPatternEditor::undoRedoAction( int column,
 			break;
 		}
 
-		updateEditor();
-		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-		m_pPatternEditorPanel->getPanEditor()->updateEditor();
-		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
-		m_pPatternEditorPanel->getProbabilityEditor()->updateEditor();
+		m_pPatternEditorPanel->updateEditors();
 	}
 }
 
@@ -1719,13 +1488,8 @@ void DrumPatternEditor::functionClearNotesUndoAction( std::list< H2Core::Note* >
 		pPattern->insert_note( pNote );
 	}
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-	updateEditor();
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 
+	m_pPatternEditorPanel->updateEditors();
 }
 
 void DrumPatternEditor::functionPasteNotesUndoAction(std::list<H2Core::Pattern*> & appliedList)
@@ -1780,12 +1544,7 @@ void DrumPatternEditor::functionPasteNotesUndoAction(std::list<H2Core::Pattern*>
 
 	// Update editors
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-	updateEditor();
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+	m_pPatternEditorPanel->updateEditors();
 }
 
 void DrumPatternEditor::functionPasteNotesRedoAction(std::list<H2Core::Pattern*> & changeList, std::list<H2Core::Pattern*> & appliedList)
@@ -1849,14 +1608,9 @@ void DrumPatternEditor::functionPasteNotesRedoAction(std::list<H2Core::Pattern*>
 	}
 	AudioEngine::get_instance()->unlock();	// unlock the audio engine
 
-	// Update editors
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-	updateEditor();
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+	// Update editors
+	m_pPatternEditorPanel->updateEditors();
 }
 
 
@@ -1887,12 +1641,7 @@ void DrumPatternEditor::functionFillNotesUndoAction( QStringList noteList, int n
 	AudioEngine::get_instance()->unlock();	// unlock the audio engine
 
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-	updateEditor();
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+	m_pPatternEditorPanel->updateEditors();
 }
 
 
@@ -1920,12 +1669,7 @@ void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int n
 	AudioEngine::get_instance()->unlock();	// unlock the audio engine
 
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-	updateEditor();
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+	m_pPatternEditorPanel->updateEditors();
 }
 
 
@@ -1963,12 +1707,7 @@ void DrumPatternEditor::functionRandomVelocityAction( QStringList noteVeloValue,
 	AudioEngine::get_instance()->unlock();	// unlock the audio engine
 
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-	updateEditor();
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+	m_pPatternEditorPanel->updateEditors();
 }
 
 

@@ -753,10 +753,6 @@ void PatternEditorPanel::contentsMoving(int dummy)
 
 void PatternEditorPanel::selectedInstrumentChangedEvent()
 {
-  //m_pNoteVelocityEditor->updateEditor();
-  //m_pNotePanEditor->updateEditor();
-  //m_pNoteLeadLagEditor->updateEditor();
-
 	resizeEvent(nullptr);	// force a scrollbar update
 }
 
@@ -850,6 +846,17 @@ void PatternEditorPanel::zoomOutBtnClicked(Button *ref)
 }
 
 
+void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
+	m_pPatternEditorRuler->updateEditor( true );
+	m_pNoteVelocityEditor->updateEditor();
+	m_pNotePanEditor->updateEditor();
+	m_pNoteLeadLagEditor->updateEditor();
+	m_pNoteNoteKeyEditor->updateEditor();
+	m_pNoteProbabilityEditor->updateEditor();
+	m_pPianoRollEditor->updateEditor( bPatternOnly );
+	m_pDrumPatternEditor->updateEditor();
+}
+
 
 void PatternEditorPanel::patternSizeChanged( int nSelected )
 {
@@ -870,15 +877,7 @@ void PatternEditorPanel::patternSizeChanged( int nSelected )
 	}
 
 	m_pPattern->set_length( nEighth * ( nSelected + 1 ) );
-
-	m_pPatternEditorRuler->updateEditor( true );	// redraw all
-	m_pNoteVelocityEditor->updateEditor();
-	m_pNotePanEditor->updateEditor();
-	m_pNoteLeadLagEditor->updateEditor();
-	m_pNoteNoteKeyEditor->updateEditor();
-	m_pNoteProbabilityEditor->updateEditor();
-	m_pPianoRollEditor->updateEditor();
-
+	updateEditors();
 	resizeEvent( nullptr );
 
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );

@@ -44,27 +44,17 @@ const char* PianoRollEditor::__class_name = "PianoRollEditor";
 
 PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 								  QScrollArea *pScrollView)
-	: QWidget( pParent )
-	, Object( __class_name )
-	, m_nResolution( 8 )
-	, m_bUseTriplets( false )
-	, m_pPattern( nullptr )
-	, m_pPatternEditorPanel( panel )
-	, m_pDraggedNote( nullptr )
+	: PatternEditor( pParent, __class_name, panel )
 	, m_pScrollView( pScrollView )
-	, m_selection( this )
 {
 	INFOLOG( "INIT" );
 
-	m_nRowHeight = 10;
+	m_nGridHeight = 10;
 	m_nOctaves = 7;
 
 	setAttribute(Qt::WA_NoBackground);
-	setFocusPolicy(Qt::ClickFocus);
-	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
 
-	m_nEditorWidth = 20 + m_nGridWidth *  (MAX_NOTES * 4);
-	m_nEditorHeight = m_nOctaves * 12 * m_nRowHeight;
+	m_nEditorHeight = m_nOctaves * 12 * m_nGridHeight;
 
 	m_pBackground = new QPixmap( m_nEditorWidth, m_nEditorHeight );
 	m_pTemp = new QPixmap( m_nEditorWidth, m_nEditorHeight );
@@ -79,16 +69,6 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 
 	m_bNeedsUpdate = true;
 	m_bSelectNewNotes = false;
-
-	// Popup context menu
-	m_pPopupMenu = new QMenu( this );
-	m_pPopupMenu->addAction( tr( "&Cut" ), this, &PianoRollEditor::cut );
-	m_pPopupMenu->addAction( tr( "&Copy" ), this, &PianoRollEditor::copy );
-	m_pPopupMenu->addAction( tr( "&Paste" ), this, &PianoRollEditor::paste );
-	m_pPopupMenu->addAction( tr( "&Delete" ), this, &PianoRollEditor::deleteSelection );
-	m_pPopupMenu->addAction( tr( "Select &all" ), this, &PianoRollEditor::selectAll );
-	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &PianoRollEditor::selectNone );
-
 }
 
 
@@ -96,14 +76,6 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 PianoRollEditor::~PianoRollEditor()
 {
 	INFOLOG( "DESTROY" );
-}
-
-
-void PianoRollEditor::setResolution(uint res, bool bUseTriplets)
-{
-	this->m_nResolution = res;
-	this->m_bUseTriplets = bUseTriplets;
-	updateEditor();
 }
 
 
@@ -208,59 +180,59 @@ void PianoRollEditor::createBackground()
 	QPainter p( m_pBackground );
 
 	for ( uint octave = 0; octave < m_nOctaves; ++octave ) {
-		unsigned start_y = octave * 12 * m_nRowHeight;
+		unsigned start_y = octave * 12 * m_nGridHeight;
 
 		if ( octave % 2 ) {
 
 
 			if ( octave == 3 ){
 
-				//				p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nRowHeight, baseOctaveColor );
-				p.fillRect( start_x, start_y, end_x - start_x, start_y + 1 * m_nRowHeight, baseOctaveColor );
-				p.fillRect( start_x, start_y + 1 * m_nRowHeight, end_x - start_x, start_y + 2 * m_nRowHeight, fbk );
-				p.fillRect( start_x, start_y + 2 * m_nRowHeight, end_x - start_x, start_y + 3 * m_nRowHeight, baseOctaveColor );
-				p.fillRect( start_x, start_y + 3 * m_nRowHeight, end_x - start_x, start_y + 4 * m_nRowHeight, fbk );
-				p.fillRect( start_x, start_y + 4 * m_nRowHeight, end_x - start_x, start_y + 5 * m_nRowHeight, baseOctaveColor );
-				p.fillRect( start_x, start_y + 5 * m_nRowHeight, end_x - start_x, start_y + 6 * m_nRowHeight, fbk );
-				p.fillRect( start_x, start_y + 6 * m_nRowHeight, end_x - start_x, start_y + 7 * m_nRowHeight, baseOctaveColor );
-				p.fillRect( start_x, start_y + 7 * m_nRowHeight, end_x - start_x, start_y + 8 * m_nRowHeight, baseOctaveColor );
-				p.fillRect( start_x, start_y + 8 * m_nRowHeight, end_x - start_x, start_y + 9 * m_nRowHeight, fbk );
-				p.fillRect( start_x, start_y + 9 * m_nRowHeight, end_x - start_x, start_y + 10 * m_nRowHeight, baseOctaveColor );
-				p.fillRect( start_x, start_y + 10 * m_nRowHeight, end_x - start_x, start_y + 11 * m_nRowHeight, fbk );
-				p.fillRect( start_x, start_y + 11 * m_nRowHeight, end_x - start_x, start_y + 12 * m_nRowHeight, baseNoteColor );
+				//				p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nGridHeight, baseOctaveColor );
+				p.fillRect( start_x, start_y, end_x - start_x, start_y + 1 * m_nGridHeight, baseOctaveColor );
+				p.fillRect( start_x, start_y + 1 * m_nGridHeight, end_x - start_x, start_y + 2 * m_nGridHeight, fbk );
+				p.fillRect( start_x, start_y + 2 * m_nGridHeight, end_x - start_x, start_y + 3 * m_nGridHeight, baseOctaveColor );
+				p.fillRect( start_x, start_y + 3 * m_nGridHeight, end_x - start_x, start_y + 4 * m_nGridHeight, fbk );
+				p.fillRect( start_x, start_y + 4 * m_nGridHeight, end_x - start_x, start_y + 5 * m_nGridHeight, baseOctaveColor );
+				p.fillRect( start_x, start_y + 5 * m_nGridHeight, end_x - start_x, start_y + 6 * m_nGridHeight, fbk );
+				p.fillRect( start_x, start_y + 6 * m_nGridHeight, end_x - start_x, start_y + 7 * m_nGridHeight, baseOctaveColor );
+				p.fillRect( start_x, start_y + 7 * m_nGridHeight, end_x - start_x, start_y + 8 * m_nGridHeight, baseOctaveColor );
+				p.fillRect( start_x, start_y + 8 * m_nGridHeight, end_x - start_x, start_y + 9 * m_nGridHeight, fbk );
+				p.fillRect( start_x, start_y + 9 * m_nGridHeight, end_x - start_x, start_y + 10 * m_nGridHeight, baseOctaveColor );
+				p.fillRect( start_x, start_y + 10 * m_nGridHeight, end_x - start_x, start_y + 11 * m_nGridHeight, fbk );
+				p.fillRect( start_x, start_y + 11 * m_nGridHeight, end_x - start_x, start_y + 12 * m_nGridHeight, baseNoteColor );
 			}
 			else
 			{
-				//	p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nRowHeight, octaveColor );
-				p.fillRect( start_x, start_y, end_x - start_x, start_y + 1 * m_nRowHeight, octaveColor );
-				p.fillRect( start_x, start_y + 1 * m_nRowHeight, end_x - start_x, start_y + 2 * m_nRowHeight, fbk );
-				p.fillRect( start_x, start_y + 2 * m_nRowHeight, end_x - start_x, start_y + 3 * m_nRowHeight, octaveColor );
-				p.fillRect( start_x, start_y + 3 * m_nRowHeight, end_x - start_x, start_y + 4 * m_nRowHeight, fbk );
-				p.fillRect( start_x, start_y + 4 * m_nRowHeight, end_x - start_x, start_y + 5 * m_nRowHeight, octaveColor );
-				p.fillRect( start_x, start_y + 5 * m_nRowHeight, end_x - start_x, start_y + 6 * m_nRowHeight, fbk );
-				p.fillRect( start_x, start_y + 6 * m_nRowHeight, end_x - start_x, start_y + 7 * m_nRowHeight, octaveColor );
-				p.fillRect( start_x, start_y + 7 * m_nRowHeight, end_x - start_x, start_y + 8 * m_nRowHeight, octaveColor );
-				p.fillRect( start_x, start_y + 8 * m_nRowHeight, end_x - start_x, start_y + 9 * m_nRowHeight, fbk );
-				p.fillRect( start_x, start_y + 9 * m_nRowHeight, end_x - start_x, start_y + 10 * m_nRowHeight, octaveColor );
-				p.fillRect( start_x, start_y + 10 * m_nRowHeight, end_x - start_x, start_y + 11 * m_nRowHeight, fbk );
-				p.fillRect( start_x, start_y + 11 * m_nRowHeight, end_x - start_x, start_y + 12 * m_nRowHeight, octaveColor );
+				//	p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nGridHeight, octaveColor );
+				p.fillRect( start_x, start_y, end_x - start_x, start_y + 1 * m_nGridHeight, octaveColor );
+				p.fillRect( start_x, start_y + 1 * m_nGridHeight, end_x - start_x, start_y + 2 * m_nGridHeight, fbk );
+				p.fillRect( start_x, start_y + 2 * m_nGridHeight, end_x - start_x, start_y + 3 * m_nGridHeight, octaveColor );
+				p.fillRect( start_x, start_y + 3 * m_nGridHeight, end_x - start_x, start_y + 4 * m_nGridHeight, fbk );
+				p.fillRect( start_x, start_y + 4 * m_nGridHeight, end_x - start_x, start_y + 5 * m_nGridHeight, octaveColor );
+				p.fillRect( start_x, start_y + 5 * m_nGridHeight, end_x - start_x, start_y + 6 * m_nGridHeight, fbk );
+				p.fillRect( start_x, start_y + 6 * m_nGridHeight, end_x - start_x, start_y + 7 * m_nGridHeight, octaveColor );
+				p.fillRect( start_x, start_y + 7 * m_nGridHeight, end_x - start_x, start_y + 8 * m_nGridHeight, octaveColor );
+				p.fillRect( start_x, start_y + 8 * m_nGridHeight, end_x - start_x, start_y + 9 * m_nGridHeight, fbk );
+				p.fillRect( start_x, start_y + 9 * m_nGridHeight, end_x - start_x, start_y + 10 * m_nGridHeight, octaveColor );
+				p.fillRect( start_x, start_y + 10 * m_nGridHeight, end_x - start_x, start_y + 11 * m_nGridHeight, fbk );
+				p.fillRect( start_x, start_y + 11 * m_nGridHeight, end_x - start_x, start_y + 12 * m_nGridHeight, octaveColor );
 
 			}
 		}
 		else {
-			//			p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nRowHeight, octaveAlternateColor );
-			p.fillRect( start_x, start_y, end_x - start_x, start_y + 1 * m_nRowHeight, octaveAlternateColor );
-			p.fillRect( start_x, start_y + 1 * m_nRowHeight, end_x - start_x, start_y + 2 * m_nRowHeight, fbk );
-			p.fillRect( start_x, start_y + 2 * m_nRowHeight, end_x - start_x, start_y + 3 * m_nRowHeight, octaveAlternateColor );
-			p.fillRect( start_x, start_y + 3 * m_nRowHeight, end_x - start_x, start_y + 4 * m_nRowHeight, fbk );
-			p.fillRect( start_x, start_y + 4 * m_nRowHeight, end_x - start_x, start_y + 5 * m_nRowHeight, octaveAlternateColor );
-			p.fillRect( start_x, start_y + 5 * m_nRowHeight, end_x - start_x, start_y + 6 * m_nRowHeight, fbk );
-			p.fillRect( start_x, start_y + 6 * m_nRowHeight, end_x - start_x, start_y + 7 * m_nRowHeight, octaveAlternateColor );
-			p.fillRect( start_x, start_y + 7 * m_nRowHeight, end_x - start_x, start_y + 8 * m_nRowHeight, octaveAlternateColor );
-			p.fillRect( start_x, start_y + 8 * m_nRowHeight, end_x - start_x, start_y + 9 * m_nRowHeight, fbk );
-			p.fillRect( start_x, start_y + 9 * m_nRowHeight, end_x - start_x, start_y + 10 * m_nRowHeight, octaveAlternateColor );
-			p.fillRect( start_x, start_y + 10 * m_nRowHeight, end_x - start_x, start_y + 11 * m_nRowHeight, fbk );
-			p.fillRect( start_x, start_y + 11 * m_nRowHeight, end_x - start_x, start_y + 12 * m_nRowHeight, octaveAlternateColor );
+			//			p.fillRect( start_x, start_y, end_x - start_x, 12 * m_nGridHeight, octaveAlternateColor );
+			p.fillRect( start_x, start_y, end_x - start_x, start_y + 1 * m_nGridHeight, octaveAlternateColor );
+			p.fillRect( start_x, start_y + 1 * m_nGridHeight, end_x - start_x, start_y + 2 * m_nGridHeight, fbk );
+			p.fillRect( start_x, start_y + 2 * m_nGridHeight, end_x - start_x, start_y + 3 * m_nGridHeight, octaveAlternateColor );
+			p.fillRect( start_x, start_y + 3 * m_nGridHeight, end_x - start_x, start_y + 4 * m_nGridHeight, fbk );
+			p.fillRect( start_x, start_y + 4 * m_nGridHeight, end_x - start_x, start_y + 5 * m_nGridHeight, octaveAlternateColor );
+			p.fillRect( start_x, start_y + 5 * m_nGridHeight, end_x - start_x, start_y + 6 * m_nGridHeight, fbk );
+			p.fillRect( start_x, start_y + 6 * m_nGridHeight, end_x - start_x, start_y + 7 * m_nGridHeight, octaveAlternateColor );
+			p.fillRect( start_x, start_y + 7 * m_nGridHeight, end_x - start_x, start_y + 8 * m_nGridHeight, octaveAlternateColor );
+			p.fillRect( start_x, start_y + 8 * m_nGridHeight, end_x - start_x, start_y + 9 * m_nGridHeight, fbk );
+			p.fillRect( start_x, start_y + 9 * m_nGridHeight, end_x - start_x, start_y + 10 * m_nGridHeight, octaveAlternateColor );
+			p.fillRect( start_x, start_y + 10 * m_nGridHeight, end_x - start_x, start_y + 11 * m_nGridHeight, fbk );
+			p.fillRect( start_x, start_y + 11 * m_nGridHeight, end_x - start_x, start_y + 12 * m_nGridHeight, octaveAlternateColor );
 			
 		}
 	}
@@ -268,7 +240,7 @@ void PianoRollEditor::createBackground()
 
 	// horiz lines
 	for ( uint row = 0; row < ( 12 * m_nOctaves ); ++row ) {
-		unsigned y = row * m_nRowHeight;
+		unsigned y = row * m_nGridHeight;
 		p.drawLine( start_x, y,end_x , y );
 	}
 
@@ -283,34 +255,34 @@ void PianoRollEditor::createBackground()
 	int insertx = 3;
 	for ( int oct = 0; oct < (int)m_nOctaves; oct++ ){
 		if( oct > 3 ){
-			p.drawText( insertx, m_nRowHeight  + offset, "B" );
-			p.drawText( insertx, 10 + m_nRowHeight  + offset, "A#" );
-			p.drawText( insertx, 20 + m_nRowHeight  + offset, "A" );
-			p.drawText( insertx, 30 + m_nRowHeight  + offset, "G#" );
-			p.drawText( insertx, 40 + m_nRowHeight  + offset, "G" );
-			p.drawText( insertx, 50 + m_nRowHeight  + offset, "F#" );
-			p.drawText( insertx, 60 + m_nRowHeight  + offset, "F" );
-			p.drawText( insertx, 70 + m_nRowHeight  + offset, "E" );
-			p.drawText( insertx, 80 + m_nRowHeight  + offset, "D#" );
-			p.drawText( insertx, 90 + m_nRowHeight  + offset, "D" );
-			p.drawText( insertx, 100 + m_nRowHeight  + offset, "C#" );
-			p.drawText( insertx, 110 + m_nRowHeight  + offset, "C" );
-			offset += 12 * m_nRowHeight;
+			p.drawText( insertx, m_nGridHeight  + offset, "B" );
+			p.drawText( insertx, 10 + m_nGridHeight  + offset, "A#" );
+			p.drawText( insertx, 20 + m_nGridHeight  + offset, "A" );
+			p.drawText( insertx, 30 + m_nGridHeight  + offset, "G#" );
+			p.drawText( insertx, 40 + m_nGridHeight  + offset, "G" );
+			p.drawText( insertx, 50 + m_nGridHeight  + offset, "F#" );
+			p.drawText( insertx, 60 + m_nGridHeight  + offset, "F" );
+			p.drawText( insertx, 70 + m_nGridHeight  + offset, "E" );
+			p.drawText( insertx, 80 + m_nGridHeight  + offset, "D#" );
+			p.drawText( insertx, 90 + m_nGridHeight  + offset, "D" );
+			p.drawText( insertx, 100 + m_nGridHeight  + offset, "C#" );
+			p.drawText( insertx, 110 + m_nGridHeight  + offset, "C" );
+			offset += 12 * m_nGridHeight;
 		}else
 		{
-			p.drawText( insertx, m_nRowHeight  + offset, "b" );
-			p.drawText( insertx, 10 + m_nRowHeight  + offset, "a#" );
-			p.drawText( insertx, 20 + m_nRowHeight  + offset, "a" );
-			p.drawText( insertx, 30 + m_nRowHeight  + offset, "g#" );
-			p.drawText( insertx, 40 + m_nRowHeight  + offset, "g" );
-			p.drawText( insertx, 50 + m_nRowHeight  + offset, "f#" );
-			p.drawText( insertx, 60 + m_nRowHeight  + offset, "f" );
-			p.drawText( insertx, 70 + m_nRowHeight  + offset, "e" );
-			p.drawText( insertx, 80 + m_nRowHeight  + offset, "d#" );
-			p.drawText( insertx, 90 + m_nRowHeight  + offset, "d" );
-			p.drawText( insertx, 100 + m_nRowHeight  + offset, "c#" );
-			p.drawText( insertx, 110 + m_nRowHeight  + offset, "c" );
-			offset += 12 * m_nRowHeight;
+			p.drawText( insertx, m_nGridHeight  + offset, "b" );
+			p.drawText( insertx, 10 + m_nGridHeight  + offset, "a#" );
+			p.drawText( insertx, 20 + m_nGridHeight  + offset, "a" );
+			p.drawText( insertx, 30 + m_nGridHeight  + offset, "g#" );
+			p.drawText( insertx, 40 + m_nGridHeight  + offset, "g" );
+			p.drawText( insertx, 50 + m_nGridHeight  + offset, "f#" );
+			p.drawText( insertx, 60 + m_nGridHeight  + offset, "f" );
+			p.drawText( insertx, 70 + m_nGridHeight  + offset, "e" );
+			p.drawText( insertx, 80 + m_nGridHeight  + offset, "d#" );
+			p.drawText( insertx, 90 + m_nGridHeight  + offset, "d" );
+			p.drawText( insertx, 100 + m_nGridHeight  + offset, "c#" );
+			p.drawText( insertx, 110 + m_nGridHeight  + offset, "c" );
+			offset += 12 * m_nGridHeight;
 		}
 	}
 
@@ -440,7 +412,7 @@ void PianoRollEditor::drawPattern()
 		p.setBrush( Qt::NoBrush );
 		p.setRenderHint( QPainter::Antialiasing );
 		p.drawRoundedRect( QRect( pos.x() - m_nGridWidth*3, pos.y(),
-								  m_nGridWidth*6, m_nRowHeight ), 4, 4 );
+								  m_nGridWidth*6, m_nGridHeight ), 4, 4 );
 	}
 
 }
@@ -471,11 +443,11 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 	}
 
 	uint start_x = 20 + pNote->get_position() * m_nGridWidth;
-	uint start_y = m_nRowHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1;
+	uint start_y = m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1;
 	uint w = 8;
-	uint h = m_nRowHeight - 2;
+	uint h = m_nGridHeight - 2;
 
-	QColor color = m_pPatternEditorPanel->getDrumPatternEditor()->computeNoteColor( pNote->get_velocity() );
+	QColor color = computeNoteColor( pNote->get_velocity() );
 
 	bool bSelected = m_selection.isSelected( pNote );
 	QPen selectedPen;
@@ -506,7 +478,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 		movingPen.setWidth( 2 );
 		QPoint delta = movingGridOffset();
 		movingOffset = QPoint( delta.x() * m_nGridWidth,
-							   delta.y() * m_nRowHeight );
+							   delta.y() * m_nGridHeight );
 	}
 
 	pPainter->setRenderHint( QPainter::Antialiasing );
@@ -557,26 +529,6 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 		}
 
 	}
-}
-
-
-int PianoRollEditor::getColumn(QMouseEvent *ev)
-{
-	int nBase;
-	if (m_bUseTriplets) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-	int nWidth = (m_nGridWidth * 4 * MAX_NOTES) / (nBase * m_nResolution);
-
-	int x = ev->x();
-	int nColumn;
-	nColumn = x - 20 + (nWidth / 2);
-	nColumn = nColumn / nWidth;
-	nColumn = (nColumn * 4 * MAX_NOTES) / (nBase * m_nResolution);
-	return nColumn;
 }
 
 
@@ -636,27 +588,6 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 }
 
 
-void PianoRollEditor::mousePressEvent( QMouseEvent *ev )
-{
-	updateModifiers( ev );
-	m_selection.mousePressEvent( ev );
-}
-
-void PianoRollEditor::mouseMoveEvent( QMouseEvent *ev )
-{
-	updateModifiers( ev );
-	if ( m_selection.isMoving() ) {
-		updateEditor( true );
-	}
-	m_selection.mouseMoveEvent( ev );
-}
-
-void PianoRollEditor::mouseReleaseEvent( QMouseEvent *ev )
-{
-	updateModifiers( ev );
-	m_selection.mouseReleaseEvent( ev );
-}
-
 void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	//ERRORLOG("Mouse press event");
 	if ( m_pPattern == nullptr ) {
@@ -679,7 +610,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 	m_pPatternEditorPanel->setCursorHidden( true );
 	
-	int pressedline = ((int) ev->y()) / ((int) m_nRowHeight);
+	int pressedline = ((int) ev->y()) / ((int) m_nGridHeight);
 
 	Instrument *pSelectedInstrument = nullptr;
 	int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
@@ -746,7 +677,7 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 	m_pPatternEditorPanel->setCursorHidden( true );
 
-	int pressedline = ((int) ev->y()) / ((int) m_nRowHeight);
+	int pressedline = ((int) ev->y()) / ((int) m_nGridHeight);
 
 	//ERRORLOG(QString("pressedline: %1, column %2, event ev: %3, editorhight %4").arg(pressedline).arg(nColumn).arg(ev->y()).arg(m_nEditorHeight));
 
@@ -864,54 +795,9 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 	pSong->set_is_modified( true );
 	AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-	updateEditor( true );
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
+	m_pPatternEditorPanel->updateEditors( true );
 }
 
-void PianoRollEditor::updateModifiers( QInputEvent *ev ) {
-	// Key: Alt + drag: move notes with fine-grained positioning
-	m_bFineGrained = ev->modifiers() & Qt::AltModifier;
-	// Key: Ctrl + drag: copy notes rather than moving
-	m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
-
-	if ( m_selection.isMoving() ) {
-		// If a selection is currently being moved, change the cursor
-		// appropriately. Selection will change it back after the move
-		// is complete (or abandoned)
-		if ( m_bCopyNotMove &&  cursor().shape() != Qt::DragCopyCursor ) {
-			setCursor( QCursor( Qt::DragCopyCursor ) );
-		} else if ( !m_bCopyNotMove && cursor().shape() != Qt::DragMoveCursor ) {
-			setCursor( QCursor( Qt::DragMoveCursor ) );
-		}
-	}
-}
-
-
-QPoint PianoRollEditor::movingGridOffset( ) {
-	QPoint rawOffset = m_selection.movingOffset();
-	// Quantize offset to multiples of m_nGrid{Width,Height}
-	int nQuantX = m_nGridWidth, nQuantY = m_nRowHeight;
-	float nFactor = 1;
-	if ( ! m_bFineGrained ) {
-		int nBase = m_bUseTriplets ? 3 : 4;
-		nFactor = (4 * MAX_NOTES) / (nBase * m_nResolution);
-		nQuantX = m_nGridWidth * nFactor;
-	}
-	int x_bias = nQuantX / 2, y_bias = nQuantY / 2;
-	if ( rawOffset.y() < 0 ) {
-		y_bias = -y_bias;
-	}
-	if ( rawOffset.x() < 0 ) {
-		x_bias = -x_bias;
-	}
-	int x_off = (rawOffset.x() + x_bias) / nQuantX;
-	int y_off = (rawOffset.y() + y_bias) / nQuantY;
-	return QPoint( nFactor * x_off, y_off);
-}
 
 // Find a note that matches pNote, and move it from (nColumn, nRow) to (nNewColumn, nNewRow)
 void PianoRollEditor::moveNoteAction( int nColumn,
@@ -969,12 +855,7 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 
 	AudioEngine::get_instance()->unlock();
 
-	updateEditor( true );
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
+	m_pPatternEditorPanel->updateEditors( true );
 }
 
 
@@ -1014,11 +895,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-		updateEditor( true );
-		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-		m_pPatternEditorPanel->getPanEditor()->updateEditor();
-		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+		m_pPatternEditorPanel->updateEditors( true );
 	}
 
 	int selectedProperty = m_pPatternEditorPanel->getPropertiesComboValue();
@@ -1048,11 +925,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-		updateEditor( true );
-		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-		m_pPatternEditorPanel->getPanEditor()->updateEditor();
-		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+		m_pPatternEditorPanel->updateEditors( true );
 		m_pOldPoint = ev->y();
 	}
 
@@ -1088,11 +961,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-		updateEditor( true );
-		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-		m_pPatternEditorPanel->getPanEditor()->updateEditor();
-		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+		m_pPatternEditorPanel->updateEditors();
 		m_pOldPoint = ev->y();
 	}
 
@@ -1133,11 +1002,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		Hydrogen::get_instance()->getSong()->set_is_modified( true );
 		AudioEngine::get_instance()->unlock(); // unlock the audio engine
 
-		updateEditor( true );
-		m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-		m_pPatternEditorPanel->getPanEditor()->updateEditor();
-		m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-		m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
+		m_pPatternEditorPanel->updateEditors( true );
 		m_pOldPoint = ev->y();
 	}
 
@@ -1184,7 +1049,7 @@ void PianoRollEditor::mouseDragEndEvent( QMouseEvent *ev )
 QPoint PianoRollEditor::cursorPosition()
 {
 	uint x = 20 + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
-	uint y = m_nRowHeight * pitchToLine( m_nCursorPitch ) + 1;
+	uint y = m_nGridHeight * pitchToLine( m_nCursorPitch ) + 1;
 	return QPoint(x, y);
 }
 
@@ -1204,25 +1069,6 @@ void PianoRollEditor::selectAll()
 	updateEditor( true );
 }
 
-void PianoRollEditor::selectNone()
-{
-	m_selection.clearSelection();
-	updateEditor( true );
-}
-
-void PianoRollEditor::selectInstrumentNotes( int nInstrument )
-{
-	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->get_instrument_list();
-	Instrument *pInstrument = pInstrumentList->get( nInstrument );
-
-	m_selection.clearSelection();
-	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
-		if ( it->second->get_instrument() == pInstrument ) {
-			m_selection.addToSelection( it->second );
-		}
-	}
-	update();
-}
 
 void PianoRollEditor::deleteSelection()
 {
@@ -1506,12 +1352,7 @@ void PianoRollEditor::editNoteLengthAction( int nColumn,  int nRealColumn,  int 
 		pDraggedNote->set_length( length );
 	}
 	AudioEngine::get_instance()->unlock();
-	updateEditor( true );
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
+	m_pPatternEditorPanel->updateEditors( true );
 }
 
 
@@ -1546,40 +1387,7 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 		pDraggedNote->set_lead_lag( leadLag );
 	}
 	AudioEngine::get_instance()->unlock();
-	updateEditor( true );
-	m_pPatternEditorPanel->getVelocityEditor()->updateEditor();
-	m_pPatternEditorPanel->getPanEditor()->updateEditor();
-	m_pPatternEditorPanel->getLeadLagEditor()->updateEditor();
-	m_pPatternEditorPanel->getNoteKeyEditor()->updateEditor();
-	m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
-}
-
-
-
-void PianoRollEditor::zoom_in()
-{
-	if (m_nGridWidth >= 3){
-		m_nGridWidth *= 2;
-	}else
-	{
-		m_nGridWidth *= 1.5;
-	}
-	updateEditor();
-}
-
-
-
-void PianoRollEditor::zoom_out()
-{
-	if ( m_nGridWidth > 1.5 ) {
-		if (m_nGridWidth > 3){
-			m_nGridWidth /= 2;
-		}else
-		{
-			m_nGridWidth /= 1.5;
-		}
-		updateEditor();
-	}
+	m_pPatternEditorPanel->updateEditors( true );
 }
 
 
@@ -1658,7 +1466,7 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecting( QRect r ) {
 
 	int w = 8;
-	int h = m_nRowHeight - 2;
+	int h = m_nGridHeight - 2;
 	int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Instrument *pInstr = Hydrogen::get_instance()->getSong()->get_instrument_list()->get( nInstr );
 
@@ -1678,7 +1486,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 		Note *pNote = it->second;
 		if ( pNote->get_instrument() == pInstr ) {
 			uint start_x = 20 + pNote->get_position() * m_nGridWidth;
-			uint start_y = m_nRowHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1;
+			uint start_y = m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1;
 
 			if ( r.intersects( QRect( start_x -4 , start_y, w, h ) ) ) {
 				result.push_back( pNote );
@@ -1713,5 +1521,5 @@ void PianoRollEditor::validateSelection()
 QRect PianoRollEditor::getKeyboardCursorRect() {
 	QPoint pos = cursorPosition();
 	return QRect( pos.x() - m_nGridWidth*3, pos.y(),
-				  m_nGridWidth*6, m_nRowHeight );
+				  m_nGridWidth*6, m_nGridHeight );
 }
