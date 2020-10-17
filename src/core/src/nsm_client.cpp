@@ -79,6 +79,14 @@ int NsmClient::OpenCallback( const char *name,
 		NsmClient::printError( "No `name` supplied in NSM open callback!" );
 		return ERR_LAUNCH_FAILED;
 	}
+
+	// Cause there is no newline in the output of nsmd shown
+	// beforehand.
+	std::cout << std::endl;
+	
+	// At this point the GUI can be assumed to have to be fully
+	// initialized.
+	NsmClient::copyPreferences( name );
 	
 	// NSM sends a unique string, like - if the displayName ==
 	// Hydrogen - "Hydrogen.nJKUV". In order to make the whole
@@ -211,10 +219,6 @@ int NsmClient::OpenCallback( const char *name,
 	
 	NsmClient::printMessage( "Song loaded!" );
 	
-	// At this point the GUI can be assumed to have to be fully
-	// initialized.
-	NsmClient::copyPreferences( name );
-	
 	NsmClient::linkDrumkit( name );
 			
 	return ERR_OK;
@@ -253,6 +257,7 @@ void NsmClient::copyPreferences( const char* name ) {
 		} else {
 			NsmClient::printMessage( QString( "Preferences copied to [%1]" )
 									 .arg( sNewPreferencesPath ) );
+			// The copied preferences file is already loaded.
 		}
 	}
 
