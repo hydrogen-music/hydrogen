@@ -232,12 +232,13 @@ public:
 			widget->update();
 		} else {
 			if ( ev->button() != Qt::RightButton && !m_selectedElements.empty() ) {
-				// Click without ctrl will clear selection
-				// TODO: right-click should not clear selection as we may want context menus
+				// Click without control or right button, and
+				// non-empty selection, will just clear selection
 				m_selectedElements.clear();
 				widget->update();
+			} else {
+				widget->mouseClickEvent( ev );
 			}
-			widget->mouseClickEvent( ev );
 		}
 	}
 

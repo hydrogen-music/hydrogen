@@ -288,6 +288,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		m_selection.clearSelection();
 
 	} else if ( ev->button() == Qt::RightButton ) {
+
 		m_pPopupMenu->popup( ev->globalPos() );
 		pHydrogen->setSelectedInstrumentNumber( row );
 
@@ -1548,8 +1549,7 @@ void DrumPatternEditor::hideEvent ( QHideEvent *ev )
 void DrumPatternEditor::focusInEvent ( QFocusEvent *ev )
 {
 	UNUSED( ev );
-	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason
-		 && ev->reason() != Qt::ActiveWindowFocusReason ) {
+	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
 		m_pPatternEditorPanel->ensureCursorVisible();
 		m_pPatternEditorPanel->setCursorHidden( false );
 	}

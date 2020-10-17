@@ -590,8 +590,8 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	Song *pSong = pHydrogen->getSong();
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
 
-	Note* pFoundNote = pFoundNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument,
-														   notekey, octave );
+	Note* pFoundNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument,
+											  notekey, octave );
 
 	int nLength = -1;
 	float fVelocity = 0.8f;
@@ -928,7 +928,6 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	PatternList *pPatternList = pSong->get_pattern_list();
-	InstrumentList *pInstrumentList = pSong->get_instrument_list();
 	Note *pFoundNote = nullptr;
 
 	if ( nPattern < 0 || nPattern > pPatternList->size() ) {
@@ -1229,7 +1228,6 @@ void PianoRollEditor::deleteSelection()
 {
 	if ( m_selection.begin() != m_selection.end() ) {
 		// Delete a selection.
-		InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->get_instrument_list();
 		int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 		pUndo->beginMacro("delete notes");
@@ -1261,7 +1259,6 @@ void PianoRollEditor::deleteSelection()
 ///
 void PianoRollEditor::copy()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
 	XMLDoc doc;
 	XMLNode root = doc.set_root( "noteSelection" );
 	XMLNode positionNode = root.createNode( "sourcePosition" );
@@ -1482,8 +1479,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 void PianoRollEditor::focusInEvent( QFocusEvent * ev )
 {
 	UNUSED( ev );
-	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason
-		 && ev->reason() != Qt::ActiveWindowFocusReason ) {
+	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
 		m_pPatternEditorPanel->setCursorHidden( false );
 		m_pPatternEditorPanel->ensureCursorVisible();
 	}
@@ -1532,7 +1528,6 @@ void PianoRollEditor::editNotePropertiesAction( int nColumn,
 {
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 
 	Note::Octave pressedoctave = pitchToOctave( lineToPitch( pressedline ) );
 	Note::Key pressednotekey = pitchToKey( lineToPitch( pressedline ) );
