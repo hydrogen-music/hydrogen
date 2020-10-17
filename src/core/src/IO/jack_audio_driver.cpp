@@ -225,9 +225,6 @@ int JackAudioDriver::connect()
 
 	bool bConnectDefaults = m_bConnectDefaults;
 
-	memset( m_pTrackOutputPortsL, 0, sizeof(m_pTrackOutputPortsL) );
-	memset( m_pTrackOutputPortsR, 0, sizeof(m_pTrackOutputPortsR) );
-
 #ifdef H2CORE_HAVE_LASH
 	if ( Preferences::get_instance()->useLash() ){
 		LashClient* lashClient = LashClient::get_instance();
