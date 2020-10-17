@@ -718,6 +718,15 @@ int JackAudioDriver::init( unsigned bufferSize )
 		initTimebaseMaster();
 	}
 	
+	// Whenever there is a Song present, create per track outputs (if
+	// activated in the Preferences).
+	Song* pSong = pHydrogen->getSong();
+	if ( pSong != nullptr ) {
+		makeTrackOutputs( pSong );
+		setBpm( pSong->__bpm );
+		locate( 0 );
+	}
+	
 	return 0;
 }
 
