@@ -1103,7 +1103,7 @@ void Preferences::insertRecentFile( const QString sFilename ){
 
 	bool bAlreadyContained =
 		std::find( m_recentFiles.begin(), m_recentFiles.end(),
-				   sFilename ) == m_recentFiles.end();
+				   sFilename ) != m_recentFiles.end();
 	
 	m_recentFiles.insert( m_recentFiles.begin(), sFilename );
 

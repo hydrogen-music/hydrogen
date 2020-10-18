@@ -744,22 +744,11 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 			m_pPlayBtn->setPressed(false);
 			return;
 		}
-		QString selected = "";
-		selected = m_pPlaylistItem->text ( 0 );
+		QString sFilename = "";
+		sFilename = m_pPlaylistItem->text ( 0 );
 
-		if( selected == pEngine->getSong()->get_filename()){
+		if( sFilename == pEngine->getSong()->get_filename()){
 			pEngine->sequencer_play();
-			return;
-		}
-
-		if ( pEngine->getState() == STATE_PLAYING ){
-			pEngine->sequencer_stop();
-		}
-
-		Song *pSong = Song::load ( selected );
-		if ( pSong == nullptr ){
-			QMessageBox::information ( this, "Hydrogen", tr ( "Error loading song." ) );
-			m_pPlayBtn->setPressed(false);
 			return;
 		}
 
@@ -767,7 +756,9 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 		int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
 		Playlist::get_instance()->setActiveSongNumber( index );
 
-		pH2App->setSong ( pSong );
+		if ( ! pH2App->openSong( sFilename, true ) ) {
+			m_pPlayBtn->setPressed(false);
+		}
 
 		pEngine->sequencer_play();
 	}else
@@ -807,39 +798,20 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 		return;
 	}
 	
-	QString selected;
-	selected = pPlaylistItem->text ( 0 );
+	QString sFilename;
+	sFilename = pPlaylistItem->text( 0 );
 
 	int index = m_pPlaylistTree->indexOfTopLevelItem ( pPlaylistItem );
 	Playlist::get_instance()->setSelectedSongNr( index );
 	Playlist::get_instance()->setActiveSongNumber( index );
 
 	HydrogenApp *pH2App = HydrogenApp::get_instance();
-	Hydrogen *pEngine = Hydrogen::get_instance();
-
-	if ( pEngine->getState() == STATE_PLAYING ){
-		pEngine->sequencer_stop();
-	}
 
 	m_pPlayBtn->setPressed(false);
 
-	Timeline* pTimeline = pEngine->getTimeline();
-	pTimeline->deleteAllTags();
+	pH2App->openSong( sFilename, true );
 
-	Song *pSong = Song::load ( selected );
-	if ( pSong == nullptr ){
-		QMessageBox::information ( this, "Hydrogen", tr ( "Error loading song." ) );
-		return;
-	}
-
-	pH2App->setSong ( pSong );
-
-	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
 	pH2App->setStatusBarMessage( tr( "Playlist: set song no. %1" ).arg( index +1 ), 5000 );
-
-	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
-
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 
 ///exec script
 ///this is very very simple and only an experiment
@@ -848,7 +820,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	return;
 #else
 	QString execscript;
-	selected = pPlaylistItem->text ( 1 );
+	sFilename = pPlaylistItem->text ( 1 );
 	bool execcheckbox = pPlaylistItem->checkState ( 2 );
 
 	if( execcheckbox == false){
@@ -861,7 +833,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 		return;
 	}
 
-	std::system( selected.toLatin1() );
+	std::system( sFilename.toLatin1() );
 	
 	return;
 #endif

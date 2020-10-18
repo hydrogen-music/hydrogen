@@ -506,7 +506,7 @@ void MainForm::onLashPollTimer()
 
 				filenameSong = QString::fromLocal8Bit( songFilename.c_str() );
 
-				openSongFile( filenameSong );
+				HydrogenApp::get_instance()->openSong( filenameSong, true );
 
 				client->sendEvent(LASH_Restore_File);
 
@@ -567,7 +567,6 @@ void MainForm::action_file_new()
 #endif
 	
 	Hydrogen * pEngine = Hydrogen::get_instance();
-	auto pSong = pEngine->getSong();
 	if ( (pEngine->getState() == STATE_PLAYING) ) {
 		pEngine->sequencer_stop();
 	}
@@ -580,6 +579,7 @@ void MainForm::action_file_new()
 	h2app->m_pUndoStack->clear();
 	pEngine->getTimeline()->deleteAllTempoMarkers();
 	pEngine->getTimeline()->deleteAllTags();
+	Song* pSong = Song::get_empty_song();
 
 	// When under session management the filename of the current Song
 	// has to be preserved.
@@ -608,7 +608,7 @@ void MainForm::action_file_new()
 		pSong->set_filename( "" );
 	}
 
-	h2app->setSong(pSong);
+	h2app->setSong( pSong, false );
 	h2app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	h2app->getSongEditorPanel()->updatePositionRuler();
 
@@ -873,7 +873,7 @@ void MainForm::action_file_open() {
 		sCurrentFilename = H2Core::Hydrogen::get_instance()->getSong()->get_filename();
 	}
 	if ( !sFilename.isEmpty() ) {
-		openSongFile( sFilename );
+		HydrogenApp::get_instance()->openSong( sFilename, true );
 	}
 
 	if ( bUnderSessionManagement ) {
@@ -961,7 +961,7 @@ void MainForm::action_file_openDemo()
 	}
 
 	if ( !filename.isEmpty() ) {
-		openSongFile( filename );
+		HydrogenApp::get_instance()->openSong( filename, true );
 		Hydrogen::get_instance()->getSong()->set_filename( "" );
 	}
 }
@@ -1496,57 +1496,12 @@ void MainForm::action_file_open_recent(QAction *pAction)
 		currentFilename = H2Core::Hydrogen::get_instance()->getSong()->get_filename();
 	}
 	
-	openSongFile( pAction->text() );
+	HydrogenApp::get_instance()->openSong( pAction->text(), true );
 	
 	if ( bUnderSessionManagement ) {
 		H2Core::Hydrogen::get_instance()->getSong()->set_filename( currentFilename );
 	}
 }
-
-
-
-void MainForm::openSongFile( const QString& sFilename )
-{
-	auto pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
-		pHydrogen->sequencer_stop();
-	}
-
-	pHydrogen->getTimeline()->deleteAllTags();
-
-	h2app->closeFXProperties();
-
-	Song* pSong = Song::load( sFilename );
-	if ( pSong == nullptr ) {
-		QMessageBox::information( this, "Hydrogen", tr("Error loading song.") );
-		return;
-	}
-
-	h2app->m_pUndoStack->clear();
-	
-#ifdef H2CORE_HAVE_OSC
-	// Add the new loaded song in the "last used song" vector.  This
-	// behavior is prohibited under session management. Only songs
-	// open during normal runs will be listed.
-
-	// add the new loaded song in the "last used song" vector
-	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
-		Preferences::get_instance()->insertRecentFile( sFilename );
-	}
-#else
-	Preferences::get_instance()->insertRecentFile( sFilename );
-#endif
-	
-	h2app->setSong( pSong );
-
-	updateRecentUsedSongList();
-	HydrogenApp::get_instance()->getSongEditorPanel()->updatePositionRuler();
-	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
-
-	checkMidiSetup();
-	checkMissingSamples();
-}
-
 
 void MainForm::checkMissingSamples()
 {
@@ -1724,7 +1679,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 
 		if ( sFileName.endsWith( H2Core::Filesystem::songs_ext ) ) {
 			if ( handleUnsavedChanges() ) {
-				openSongFile( sFileName );
+				HydrogenApp::get_instance()->openSong( sFileName, true );
 			}
 
 		} else if ( sFileName.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
@@ -1969,7 +1924,7 @@ void MainForm::playlistLoadSongEvent (int nIndex)
 		return;
 	}
 	
-	openSongFile( songFilename );
+	HydrogenApp::get_instance()->openSong( songFilename, true );
 	
 	pPlaylist->activateSong( nIndex );
 

@@ -738,31 +738,7 @@ void SoundLibraryPanel::on_songLoadAction()
 {
 	QString sFilename = Filesystem::song_path( __sound_library_tree->currentItem()->text( 0 ) );
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
-		pHydrogen->sequencer_stop();
-	}
-	
-	Song *pSong = Song::load( sFilename );
-	if ( pSong == nullptr ) {
-		QMessageBox::information( this, "Hydrogen", tr("Error loading song.") );
-		return;
-	}
-
-#ifdef H2CORE_HAVE_OSC
-	// Add the new loaded song in the "last used song" vector. 
-	// This behavior is prohibited under session management. Only
-	// songs open during normal runs will be listed.
-	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
-		Preferences::get_instance()->insertRecentFile( sFilename );
-	}
-#else
-	Preferences::get_instance()->insertRecentFile( sFilename );
-#endif
-
-	HydrogenApp* pH2App = HydrogenApp::get_instance();
-
-	pH2App->setSong( pSong );
+	HydrogenApp::get_instance()->openSong( sFilename, true );
 }
 
 

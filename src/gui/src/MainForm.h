@@ -203,6 +203,8 @@ public slots:
 		 * H2Core::Preferences.
 		 */
 		void savePreferences();
+		void checkMidiSetup();
+		void checkMissingSamples();
 
 	private slots:
 		void onAutoSaveTimer();
@@ -246,11 +248,7 @@ public slots:
 
 		/** Create the menubar */
 		void createMenuBar();
-
-		void openSongFile( const QString& sFilename );
 		
-		void checkMidiSetup();
-		void checkMissingSamples();
 		void checkNecessaryDirectories();
 
 		bool eventFilter( QObject *o, QEvent *e );

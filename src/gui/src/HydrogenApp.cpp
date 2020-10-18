@@ -338,8 +338,45 @@ void HydrogenApp::closeFXProperties()
 #endif
 }
 
-void HydrogenApp::setSong(Song* pSong)
+bool HydrogenApp::openSong( const QString sFilename, bool bRecentSong ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	if ( pHydrogen->getState() == STATE_PLAYING ) {
+		pHydrogen->sequencer_stop();
+	}
+
+	Song* pSong = Song::load( sFilename );
+	if ( pSong == nullptr ) {
+		QMessageBox::information( m_pMainForm, "Hydrogen", tr("Error loading song.") );
+		return false;
+	}
+	
+	setSong( pSong, bRecentSong );
+
+	return true;
+}
+
+void HydrogenApp::setSong( Song* pSong, bool bRecentSong )
 {
+	closeFXProperties();
+
+	m_pUndoStack->clear();
+
+	if ( bRecentSong ) {
+#ifdef H2CORE_HAVE_OSC
+		// Add the new loaded song in the "last used song" vector.  This
+		// behavior is prohibited under session management. Only songs
+		// open during normal runs will be listed.
+
+		// add the new loaded song in the "last used song" vector
+		if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
+			Preferences::get_instance()->insertRecentFile( pSong->get_filename() );
+		}
+#else
+		Preferences::get_instance()->insertRecentFile( pSong->get_filename() );
+#endif
+	}
+	
 	Hydrogen::get_instance()->setSong( pSong );
 
 	m_pSongEditorPanel->updateAll();
@@ -347,7 +384,16 @@ void HydrogenApp::setSong(Song* pSong)
 
 	updateWindowTitle();
 
+	// update director tags
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );
+	// update director songname
+	EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
+
 	m_pMainForm->updateRecentUsedSongList();
+	m_pMainForm->checkMidiSetup();
+	m_pMainForm->checkMissingSamples();
+
+	m_pInstrumentRack->getSoundLibraryPanel()->update_background_color();
 }
 
 void HydrogenApp::showMixer(bool show)
