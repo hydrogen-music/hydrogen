@@ -2569,14 +2569,6 @@ void Hydrogen::setSong( Song *pSong )
 		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
 		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 	}
-
-#ifdef H2CORE_HAVE_OSC
-	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
-		Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
-	}
-#else
-	Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
-#endif
 	
 	// In order to allow functions like audioEngine_setupLadspaFX() to
 	// load the settings of the new song, like whether the LADSPA FX
@@ -2593,6 +2585,15 @@ void Hydrogen::setSong( Song *pSong )
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
 	m_pCoreActionController->initExternalControlInterfaces();
+
+#ifdef H2CORE_HAVE_OSC
+	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
+		Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
+		NsmClient::linkDrumkit( pSong->get_filename().toLocal8Bit().data() );
+	}
+#else
+	Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
+#endif
 }
 
 /* Mean: remove current song from memory */

@@ -125,6 +125,25 @@ class NsmClient : public H2Core::Object
 		 *
 		 * Sets #NsmShutdown to true.*/
 		void shutdown();
+	/**
+	 * Part of OpenCallback() responsible for linking and loading of
+	 * the drumkit samples.
+	 *
+	 * Upon first invocation of this function in a new project, a
+	 * symbolic link to the folder containing the samples of the
+	 * current drumkit will be created in @name /`drumkit`. In all
+	 * following runs of the session the linked samples will be used
+	 * over the default ones.
+	 *
+	 * If the session were archived, the symbolic link would had
+	 * been replaced by a folder containing the samples. In such an
+	 * occasion the samples located in the folder will be loaded. This
+	 * ensure portability of Hydrogen within a session regardless of
+	 * the local drumkits present in the user's home.
+	 *
+	 * \param name Absolute path to the session folder.
+	 */
+	static void linkDrumkit( const char* name );
 
 		/**
 		 * To determine whether Hydrogen is under Non session management,
@@ -273,25 +292,6 @@ class NsmClient : public H2Core::Object
 	 * \param name Absolute path to the session folder.
 	 */
 	static void copyPreferences( const char* name );
-	/**
-	 * Part of OpenCallback() responsible for linking and loading of
-	 * the drumkit samples.
-	 *
-	 * Upon first invocation of this function in a new project, a
-	 * symbolic link to the folder containing the samples of the
-	 * current drumkit will be created in @name /`drumkit`. In all
-	 * following runs of the session the linked samples will be used
-	 * over the default ones.
-	 *
-	 * If the session were archived, the symbolic link would had
-	 * been replaced by a folder containing the samples. In such an
-	 * occasion the samples located in the folder will be loaded. This
-	 * ensure portability of Hydrogen within a session regardless of
-	 * the local drumkits present in the user's home.
-	 *
-	 * \param name Absolute path to the session folder.
-	 */
-	static void linkDrumkit( const char* name );
 	/** Custom function to print a colored error message.
 	 *
 	 * Since the OpenCallback() and SaveCallback() functions will be
