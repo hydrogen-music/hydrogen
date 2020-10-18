@@ -619,8 +619,7 @@ QString Filesystem::drumkit_path_search( const QString& dk_name )
 			QDomNodeList nodeList = drumkitXML.elementsByTagName( "drumkit_info" );
 	
 			if( nodeList.isEmpty() ) {
-				std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Local drumkit does not seem valid\033[0m"
-						  << std::endl;
+				NsmClient::printError( "Local drumkit does not seem valid" );
 			} else {
 				QDomNode drumkitInfoNode = nodeList.at( 0 );
 				QString sDrumkitNameXML = H2Core::LocalFileMng::readXmlString( drumkitInfoNode, "name", "" );
@@ -630,12 +629,9 @@ QString Filesystem::drumkit_path_search( const QString& dk_name )
 					return sDrumkitPath;
 					
 				} else {
-					std::cerr << "\033[1;30m[Hydrogen]\033[32m Error: Local drumkit ["
-							  << sDrumkitNameXML.toLocal8Bit().data()
-							  << "] and the one referenced in the .h2song file ["
-							  << dk_name.toLocal8Bit().data()
-							  << "] do not match\033[0m"
-							  << std::endl;
+					NsmClient::printError( QString( "Local drumkit [%1] and the one referenced in the .h2song file [%2] do not match!" )
+										   .arg( sDrumkitNameXML )
+										   .arg( dk_name ) );
 				}
 			}
 		}

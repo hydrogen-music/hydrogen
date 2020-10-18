@@ -144,6 +144,24 @@ class NsmClient : public H2Core::Object
 	 * \param name Absolute path to the session folder.
 	 */
 	static void linkDrumkit( const char* name );
+	/** Custom function to print a colored error message.
+	 *
+	 * Since the OpenCallback() and SaveCallback() functions will be
+	 * invoked by the NSM server and not by Hydrogen itself, we can
+	 * not use our usual log macros in there.
+	 *
+	 * \param msg String to print to std::cerr.
+	 */
+	static void printError( const QString& msg );
+	/** Custom function to print a colored message.
+	 *
+	 * Since the OpenCallback() and SaveCallback() functions will be
+	 * invoked by the NSM server and not by Hydrogen itself, we can
+	 * not use our usual log macros in there.
+	 *
+	 * \param msg String to print to std::cout.
+	 */
+	static void printMessage( const QString& msg );
 
 		/**
 		 * To determine whether Hydrogen is under Non session management,
@@ -292,24 +310,6 @@ class NsmClient : public H2Core::Object
 	 * \param name Absolute path to the session folder.
 	 */
 	static void copyPreferences( const char* name );
-	/** Custom function to print a colored error message.
-	 *
-	 * Since the OpenCallback() and SaveCallback() functions will be
-	 * invoked by the NSM server and not by Hydrogen itself, we can
-	 * not use our usual log macros in there.
-	 *
-	 * \param msg String to print to std::cerr.
-	 */
-	static void printError( const QString& msg );
-	/** Custom function to print a colored message.
-	 *
-	 * Since the OpenCallback() and SaveCallback() functions will be
-	 * invoked by the NSM server and not by Hydrogen itself, we can
-	 * not use our usual log macros in there.
-	 *
-	 * \param msg String to print to std::cout.
-	 */
-	static void printMessage( const QString& msg );
 	
 	/** Indicates whether the NsmClient::NsmProcessEvent() function
 	 * should continue processing events.

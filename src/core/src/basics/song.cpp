@@ -798,6 +798,8 @@ Song* SongReader::readSong( const QString& filename )
 			QString drumkitPath;
 			if ( ( !sDrumkit.isEmpty() ) && ( sDrumkit != "-" ) ) {
 				drumkitPath = Filesystem::drumkit_path_search( sDrumkit );
+			} else {
+				ERRORLOG( "Missing drumkit path" );
 			}
 
 

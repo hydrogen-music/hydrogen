@@ -374,11 +374,11 @@ void NsmClient::linkDrumkit( const char* name ) {
 }
 
 void NsmClient::printError( const QString& msg ) {
-	std::cerr << "\033[1;30m[Hydrogen]\033[31m Error: "
-			  << msg.toLocal8Bit().data() << "\033[0m" << std::endl;
+	std::cerr << "[\033[30mHydrogen\033[0m]\033[31m "
+			  << "Error " << msg.toLocal8Bit().data() << "\033[0m" << std::endl;
 }
 void NsmClient::printMessage( const QString& msg ) {
-	std::cerr << "\033[1;30m[Hydrogen]\033[32m "
+	std::cerr << "[\033[30mHydrogen\033[0m]\033[32m "
 			  << msg.toLocal8Bit().data() << "\033[0m" << std::endl;
 }
 
