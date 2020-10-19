@@ -121,7 +121,7 @@ bool AudioEngine::try_lock_for( std::chrono::microseconds duration, const char* 
 	bool res = __engine_mutex.try_lock_for( duration );
 	if ( !res ) {
 		// Lock not obtained
-		WARNINGLOG( QString( "Lock timeout: lock timeout %1:%2%3, lock held by %s:%s:%s" )
+		WARNINGLOG( QString( "Lock timeout: lock timeout %1:%2%3, lock held by %4:%5:%6" )
 					.arg( file ).arg( function ).arg( line )
 					.arg( __locker.file ).arg( __locker.function ).arg( __locker.line ));
 		return false;
