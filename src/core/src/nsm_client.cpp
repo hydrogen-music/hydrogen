@@ -331,9 +331,24 @@ void NsmClient::linkDrumkit( const char* name ) {
 		QFile linkedDrumkitFile( sLinkedDrumkitPath );
 		
 		if ( linkedDrumkitFile.exists() ) {
-			if ( !linkedDrumkitFile.remove() ) {
-				NsmClient::printError( QString( "Unable to remove drumkit file/symlink [%1]." )
-									   .arg( sLinkedDrumkitPath ) );
+			if ( linkedDrumkitPathInfo.isDir() &&
+				 ! linkedDrumkitPathInfo.isSymLink() ) {
+				// Move the folder so we don't use the precious old
+				// drumkit. But in order to use it again, it has to be
+				// renamed to 'drumkit' manually again.
+				QDir oldDrumkitFolder( sLinkedDrumkitPath );
+				if ( ! oldDrumkitFolder.rename( sLinkedDrumkitPath,
+												QString( "%1/drumkit_old" ).arg( name ) ) ) {
+					NsmClient::printError( QString( "Unable to rename drumkit folder [%1]." )
+										   .arg( sLinkedDrumkitPath ) );
+					return;
+				}
+			} else {
+				if ( !linkedDrumkitFile.remove() ) {
+					NsmClient::printError( QString( "Unable to remove symlink to drumkit [%1]." )
+										   .arg( sLinkedDrumkitPath ) );
+					return;
+				}
 			}
 		}
 		
