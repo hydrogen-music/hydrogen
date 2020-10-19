@@ -636,9 +636,6 @@ QString Filesystem::drumkit_path_search( const QString& dk_name )
 			}
 		}
 
-	} else {
-
-		DEBUGLOG( QString( "Not under session management" ) );
 	}
 			
 #endif
