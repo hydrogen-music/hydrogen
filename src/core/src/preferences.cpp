@@ -277,6 +277,11 @@ Preferences::~Preferences()
 ///
 void Preferences::loadPreferences( bool bGlobal )
 {
+	// We do not required the recently used variables to be
+	// accumulated throughout various configuration files.
+	m_recentFiles.clear();
+	m_recentFX.clear();
+
 	bool recreate = false;	// configuration file must be recreated?
 
 	QString sPreferencesFilename;
