@@ -226,9 +226,15 @@ int				m_nSongPos; // TODO: rename it to something more
  */
 int				m_nSelectedPatternNumber;
 /**
+ * Instrument currently focused/selected in the GUI. 
  *
+ * Within the core it is relevant for the MIDI input. Using
+ * Preferences::__playselectedinstrument incoming MIDI signals can be
+ * used to play back only the selected instrument or the whole
+ * drumkit.
  *
- * Initialized to 0 in audioEngine_init().
+ * Queried using Hydrogen::getSelectedInstrumentNumber() and set by
+ * Hydrogen::setSelectedInstrumentNumber().
  */
 int				m_nSelectedInstrumentNumber;
 /**
@@ -3703,7 +3709,9 @@ int Hydrogen::getSelectedInstrumentNumber()
 
 void Hydrogen::setSelectedInstrumentNumber( int nInstrument )
 {
-	if ( m_nSelectedInstrumentNumber == nInstrument )	return;
+	if ( m_nSelectedInstrumentNumber == nInstrument ) {
+		return;
+	}
 
 	m_nSelectedInstrumentNumber = nInstrument;
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );

@@ -36,8 +36,20 @@ class CoreActionController : public H2Core::Object {
 		~CoreActionController();
 	
 		void setMasterVolume( float masterVolumeValue );
-		void setStripVolume( int nStrip, float masterVolumeValue );
-		void setStripPan( int nStrip, float panValue );
+		/**
+		 * \param nStrip Instrument which to set the volume for.
+		 * \param fVolumeValue New volume.
+		 * \param bSelectedStrip Whether the corresponding instrument
+		 * should be selected.
+		 */
+		void setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip );
+		/**
+		 * \param nStrip Instrument which to set the volume for.
+		 * \param fPanValue New pan.
+		 * \param bSelectedStrip Whether the corresponding instrument
+		 * should be selected.
+		 */
+		void setStripPan( int nStrip, float fPanValue, bool bSelectStrip );
 		void setMetronomeIsActive( bool isActive );
 		void setMasterIsMuted( bool isMuted );
 		void setStripIsMuted( int nStrip, bool isMuted );
