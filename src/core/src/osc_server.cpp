@@ -73,7 +73,7 @@ QString OscServer::qPrettyPrint(lo_type type,void * data)
 			val64.nl = *(int64_t *)data;
 	} else {
 		//error case
-		formattedString = QString("Unhandled size:").arg(size);
+		formattedString = QString("Unhandled size: %1").arg(size);
 		
 		return formattedString;
 	}
