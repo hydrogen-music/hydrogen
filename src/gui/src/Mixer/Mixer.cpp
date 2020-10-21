@@ -403,7 +403,7 @@ void Mixer::volumeChanged(MixerLine* ref)
 	CoreActionController* pController = pEngine->getCoreActionController();
 
 	int nLine = findMixerLineByRef(ref);
-	pController->setStripVolume( nLine, ref->getVolume() );
+	pController->setStripVolume( nLine, ref->getVolume(), true );
 }
 
 void Mixer::masterVolumeChanged(MasterMixerLine* ref)
@@ -762,7 +762,7 @@ void Mixer::panChanged(MixerLine* ref) {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	CoreActionController* pController = pEngine->getCoreActionController();
 
-	pController->setStripPan( nLine, panValue );
+	pController->setStripPan( nLine, panValue, true );
 }
 
 

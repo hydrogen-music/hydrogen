@@ -53,8 +53,8 @@ CoreActionController::~CoreActionController() {
 
 void CoreActionController::setMasterVolume( float masterVolumeValue )
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	pEngine->getSong()->set_volume( masterVolumeValue );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getSong()->set_volume( masterVolumeValue );
 	
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "MASTER_VOLUME_ABSOLUTE" );
@@ -69,22 +69,25 @@ void CoreActionController::setMasterVolume( float masterVolumeValue )
 	handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127 );
 }
 
-void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
+void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setSelectedInstrumentNumber( nStrip );
-	
-	Song *pSong = pEngine->getSong();
-	InstrumentList *instrList = pSong->get_instrument_list();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-	Instrument *pInstr = instrList->get( nStrip );
-	pInstr->set_volume( masterVolumeValue );
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
+	}
+	
+	Song *pSong = pHydrogen->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+
+	Instrument *pInstr = pInstrList->get( nStrip );
+	pInstr->set_volume( fVolumeValue );
 	
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "STRIP_VOLUME_ABSOLUTE" );
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
-	FeedbackAction.setParameter2( QString("%1").arg( masterVolumeValue ) );
+	FeedbackAction.setParameter2( QString("%1").arg( fVolumeValue ) );
 	OscServer::handleAction( &FeedbackAction );
 #endif
 
@@ -93,7 +96,7 @@ void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
 
-	handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127 );
+	handleOutgoingControlChange( ccParamValue, (fVolumeValue / 1.5) * 127 );
 
 }
 
@@ -117,8 +120,8 @@ void CoreActionController::setMetronomeIsActive( bool isActive )
 
 void CoreActionController::setMasterIsMuted( bool isMuted )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->getSong()->__is_muted = isMuted;
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getSong()->__is_muted = isMuted;
 	
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "MUTE_TOGGLE" );
@@ -136,8 +139,8 @@ void CoreActionController::setMasterIsMuted( bool isMuted )
 
 void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 
 	Instrument *pInstr = pInstrList->get( nStrip );
@@ -160,8 +163,8 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 
 void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 	
 	if ( isSoloed ) {
@@ -193,37 +196,37 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 
 
 
-void CoreActionController::setStripPan( int nStrip, float panValue )
+void CoreActionController::setStripPan( int nStrip, float fPanValue, bool bSelectStrip )
 {
-	float	pan_L;
-	float	pan_R;
+	float	fPan_L;
+	float	fPan_R;
 
-	if (panValue >= 0.5) {
-		pan_L = (1.0 - panValue) * 2;
-		pan_R = 1.0;
+	if ( fPanValue >= 0.5 ) {
+		fPan_L = (1.0 - fPanValue) * 2;
+		fPan_R = 1.0;
 	}
 	else {
-		pan_L = 1.0;
-		pan_R = panValue * 2;
+		fPan_L = 1.0;
+		fPan_R = fPanValue * 2;
 	}
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setSelectedInstrumentNumber( nStrip );
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
+	}
 	
-	Song *pSong = pEngine->getSong();
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 
 	Instrument *pInstr = pInstrList->get( nStrip );
-	pInstr->set_pan_l( pan_L );
-	pInstr->set_pan_r( pan_R );
-
-	pEngine->setSelectedInstrumentNumber( nStrip );
+	pInstr->set_pan_l( fPan_L );
+	pInstr->set_pan_r( fPan_R );
 	
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "PAN_ABSOLUTE" );
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
-	FeedbackAction.setParameter2( QString("%1").arg( panValue ) );
+	FeedbackAction.setParameter2( QString("%1").arg( fPanValue ) );
 	OscServer::handleAction( &FeedbackAction );
 #endif
 	
@@ -232,14 +235,14 @@ void CoreActionController::setStripPan( int nStrip, float panValue )
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
 
-	handleOutgoingControlChange( ccParamValue, panValue * 127 );
+	handleOutgoingControlChange( ccParamValue, fPanValue * 127 );
 }
 
 void CoreActionController::handleOutgoingControlChange(int param, int value)
 {
 	Preferences *pPref = Preferences::get_instance();
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	MidiOutput *pMidiDriver = pHydrogen->getMidiOutput();
 	
 	if(	pMidiDriver 
 		&& pPref->m_bEnableMidiFeedback 
@@ -255,8 +258,8 @@ void CoreActionController::initExternalControlInterfaces()
 	 */
 	
 	//MASTER_VOLUME_ABSOLUTE
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	setMasterVolume( pSong->get_volume() );
 	
 	//PER-INSTRUMENT/STRIP STATES
@@ -265,7 +268,7 @@ void CoreActionController::initExternalControlInterfaces()
 		
 			//STRIP_VOLUME_ABSOLUTE
 			Instrument *pInstr = pInstrList->get( i );
-			setStripVolume( i, pInstr->get_volume() );
+			setStripVolume( i, pInstr->get_volume(), false );
 			
 			float fPan_L = pInstr->get_pan_l();
 			float fPan_R = pInstr->get_pan_r();
@@ -279,7 +282,7 @@ void CoreActionController::initExternalControlInterfaces()
 				fPanValue = fPan_R / 2.0;
 			}
 		
-			setStripPan( i, fPanValue );
+			setStripPan( i, fPanValue, false );
 			
 			//STRIP_MUTE_TOGGLE
 			setStripIsMuted( i, pInstr->is_muted() );

@@ -173,7 +173,7 @@ int OscServer::generic_handler(const char *	path,
 			H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
 			H2Core::CoreActionController* pController = pEngine->getCoreActionController();
 		
-			pController->setStripPan( value, argv[0]->f );
+			pController->setStripPan( value, argv[0]->f, false );
 		}
 	}
 	
@@ -453,7 +453,7 @@ void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
 	H2Core::CoreActionController* pController = pEngine->getCoreActionController();
 
-	pController->setStripVolume( param1, param2 );
+	pController->setStripVolume( param1, param2, false );
 }
 
 void OscServer::STRIP_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
