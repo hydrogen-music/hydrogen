@@ -589,15 +589,15 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 
 
 void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
-	//ERRORLOG("Mouse press event");
+
 	if ( m_pPattern == nullptr ) {
 		return;
 	}
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
 
-	int row = ((int) ev->y()) / ((int) m_nEditorHeight);
-	if (row >= (int) m_nOctaves * 12 ) {
+	int nPressedLine = ((int) ev->y()) / ((int) m_nGridHeight);
+	if ( nPressedLine >= (int) m_nOctaves * 12 ) {
 		return;
 	}
 
@@ -609,22 +609,17 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	}
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 	m_pPatternEditorPanel->setCursorHidden( true );
-	
-	int pressedline = ((int) ev->y()) / ((int) m_nGridHeight);
+
 
 	Instrument *pSelectedInstrument = nullptr;
 	int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
 	assert(pSelectedInstrument);
 
-	//ERRORLOG(QString("pressedline: %1, column %2, event ev: %3, editorhight %4").arg(pressedline).arg(nColumn).arg(ev->y()).arg(m_nEditorHeight));
-
-	int nPitch = lineToPitch( pressedline );
+	int nPitch = lineToPitch( nPressedLine );
 	Note::Octave pressedoctave = pitchToOctave( nPitch );
 	Note::Key pressednotekey = pitchToKey( nPitch );
 	m_nCursorPitch = nPitch;
-	
-	//ERRORLOG(QString("pressedline: %1, octave %2, notekey: %3").arg(pressedline).arg(pressedoctave).arg(pressednotekey));
 
 	if (ev->button() == Qt::LeftButton ) {
 
@@ -637,7 +632,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 			H2Core::Note *pNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument, pressednotekey, pressedoctave );
 			if ( pNote != nullptr ) {
 				SE_addOrDeleteNotePianoRollAction *action = new SE_addOrDeleteNotePianoRollAction( nColumn,
-																								   pressedline,
+																								   nPressedLine,
 																								   __selectedPatternNumber,
 																								   nSelectedInstrumentnumber,
 																								   pNote->get_length(),
@@ -650,13 +645,13 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 																								   pNote != nullptr );
 				HydrogenApp::get_instance()->m_pUndoStack->push( action );
 			} else {
-				SE_addPianoRollNoteOffAction *action = new SE_addPianoRollNoteOffAction( nColumn, pressedline, __selectedPatternNumber, nSelectedInstrumentnumber );
+				SE_addPianoRollNoteOffAction *action = new SE_addPianoRollNoteOffAction( nColumn, nPressedLine, __selectedPatternNumber, nSelectedInstrumentnumber );
 				HydrogenApp::get_instance()->m_pUndoStack->push( action );
 			}
 			return;
 		}
 
-		addOrRemoveNote( nColumn, nRealColumn, pressedline, pressednotekey, pressedoctave );
+		addOrRemoveNote( nColumn, nRealColumn, nPressedLine, pressednotekey, pressedoctave );
 
 	} else if ( ev->button() == Qt::RightButton ) {
 		// Show context menu
@@ -677,13 +672,11 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
 	m_pPatternEditorPanel->setCursorHidden( true );
 
-	int pressedline = ((int) ev->y()) / ((int) m_nGridHeight);
+	int nPressedLine = ((int) ev->y()) / ((int) m_nGridHeight);
 
-	//ERRORLOG(QString("pressedline: %1, column %2, event ev: %3, editorhight %4").arg(pressedline).arg(nColumn).arg(ev->y()).arg(m_nEditorHeight));
-
-	Note::Octave pressedoctave = pitchToOctave( lineToPitch( pressedline ) );
-	Note::Key pressednotekey = pitchToKey( lineToPitch( pressedline ) );
-	m_nCursorPitch = lineToPitch( pressedline );
+	Note::Octave pressedoctave = pitchToOctave( lineToPitch( nPressedLine ) );
+	Note::Key pressednotekey = pitchToKey( lineToPitch( nPressedLine ) );
+	m_nCursorPitch = lineToPitch( nPressedLine );
 
 	if (ev->button() == Qt::RightButton ) {
 		m_pOldPoint = ev->y();
@@ -701,7 +694,7 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 		//needed for undo note length
 		__nRealColumn = nRealColumn;
 		__nColumn = nColumn;
-		__pressedLine = pressedline;
+		__pressedLine = nPressedLine;
 		__selectedInstrumentnumber = nSelectedInstrumentnumber;
 		if( m_pDraggedNote ){
 			__oldLength = m_pDraggedNote->get_length();
@@ -863,17 +856,19 @@ void PianoRollEditor::moveNoteAction( int nColumn,
 
 void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 {
-	if (m_pPattern == nullptr) {
+	if ( m_pPattern == nullptr ) {
 		return;
 	}
 
-	int row = ((int) ev->y()) / ((int) m_nEditorHeight);
-	if (row >= (int) m_nOctaves * 12 ) {
+	int nRow = ((int) ev->y()) / ((int) m_nGridHeight);
+	if ( nRow >= (int) m_nOctaves * 12 ) {
 		return;
 	}
 
 	if ( m_pDraggedNote ) {
-		if ( m_pDraggedNote->get_note_off() ) return;
+		if ( m_pDraggedNote->get_note_off() ) {
+			return;
+		}
 		int nTickColumn = getColumn( ev );
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
