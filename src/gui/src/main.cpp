@@ -520,6 +520,9 @@ int main(int argc, char *argv[])
 
 		// Tell the core that the GUI is now fully loaded and ready.
 		H2Core::Hydrogen::get_instance()->setGUIState( H2Core::Hydrogen::GUIState::ready );
+#ifdef H2CORE_HAVE_OSC
+		NsmClient::get_instance()->sendDirtyState( false );
+#endif
 
 		pQApp->exec();
 
