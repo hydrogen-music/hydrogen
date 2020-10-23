@@ -14,7 +14,7 @@ void rubberband_test( const QString& sample_path ) {
 	RubberBand::RubberBandStretcher::Options options = 131088; //RubberBand::RubberBandStretcher::DefaultOptions;
 	
 	// load a sample
-	H2Core::Sample* sample = H2Core::Sample::load( sample_path );
+	auto sample = H2Core::Sample::load( sample_path );
 	if( sample==nullptr ) {
 		___ERRORLOG( QString( "unable to load %1" ).arg( sample_path ) );
 		return;
@@ -59,7 +59,7 @@ void rubberband_test( const QString& sample_path ) {
 	// buffers
 	float* obuf[2];
 	int out_buffer_size = (int)(sample->get_frames()*time_ratio)+1000;
-	float* out_data_l= new float[ out_buffer_size ];
+	float* out_data_l = new float[ out_buffer_size ];
 	float* out_data_r = new float[ out_buffer_size ];
 	int processed = 0;
 	int retrieved = 0;
@@ -108,20 +108,20 @@ void rubberband_test( const QString& sample_path ) {
 	// final data buffers
 	float* data_l = new float[ retrieved ];
 	float* data_r = new float[ retrieved ];
-	for( int i=0; i<retrieved; i++) data_r[i] = data_l[i] = 0.5;
-	
+	for( int i=0; i<retrieved; i++) {
+		data_r[i] = data_l[i] = 0.5;
+	}
+       
 	// feed final data buffers
 	memcpy( data_l, out_data_l, retrieved*sizeof(float) );
 	memcpy( data_r, out_data_r, retrieved*sizeof(float) );
 	
 	// new sample
-	H2Core::Sample* sample2 = new H2Core::Sample( "/tmp/after.wav", retrieved, sample->get_sample_rate(), data_l, data_r );
+	auto sample2 = std::make_shared<H2Core::Sample>( "/tmp/after.wav", retrieved, sample->get_sample_rate(), data_l, data_r );
 	sample2->write( "/tmp/after.wav" );
 	
 	// clean
 	delete rubber;
-	delete sample;
-	delete sample2;
 	delete[] out_data_l;
 	delete[] out_data_r;
 }

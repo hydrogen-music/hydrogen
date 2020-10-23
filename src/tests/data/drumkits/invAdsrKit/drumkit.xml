@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<drumkit_info xmlns="http://www.hydrogen-music.org/drumkit" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<drumkit_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.hydrogen-music.org/drumkit">
  <name>H2 test DK</name>
  <author>Zurcher Jérémy</author>
  <info>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
@@ -18,7 +18,7 @@ p, li { white-space: pre-wrap; }
   </drumkitComponent>
  </componentList>
  <instrumentList>
- <instrument>
+  <instrument>
    <id>0</id>
    <name>SnareFloatAttack</name>
    <volume>1</volume>
@@ -31,7 +31,7 @@ p, li { white-space: pre-wrap; }
    <filterActive>false</filterActive>
    <filterCutoff>1</filterCutoff>
    <filterResonance>0</filterResonance>
-   <Attack>0.123</Attack>
+   <Attack>0</Attack>
    <Decay>0</Decay>
    <Sustain>1</Sustain>
    <Release>5800</Release>
@@ -75,7 +75,7 @@ p, li { white-space: pre-wrap; }
    <Attack>0</Attack>
    <Decay>0</Decay>
    <Sustain>1</Sustain>
-   <Release>5800.123</Release>
+   <Release>5800</Release>
    <muteGroup>-1</muteGroup>
    <midiOutChannel>-1</midiOutChannel>
    <midiOutNote>60</midiOutNote>

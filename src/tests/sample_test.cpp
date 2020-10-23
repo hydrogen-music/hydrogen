@@ -11,7 +11,7 @@ class SampleTest : public CppUnit::TestCase {
 
 	void testLoadInvalidSample()
 	{
-		H2Core::Sample* pSample = nullptr;
+		std::shared_ptr<H2Core::Sample> pSample;
 		
 		//TC1: Sample does not exist
 		QString SamplePath("PathDoesNotExist");

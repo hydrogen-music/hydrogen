@@ -63,7 +63,6 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	connect(m_pTargetDisplayTimer, SIGNAL(timeout()), this, SLOT(updateTargetsamplePositionRuler()));
 
 	m_bSampleEditorStatus = true;
-	m_pSampleFromFile = nullptr;
 	m_nSelectedLayer = nSelectedLayer;
 	m_nSelectedComponent = nSelectedComponent;
 	m_sSampleName = sSampleFilename;
@@ -92,7 +91,9 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 
 	//this new sample give us the not changed real samplelength
 	m_pSampleFromFile = Sample::load( sSampleFilename );
-	if (!m_pSampleFromFile) reject();
+	if ( m_pSampleFromFile == nullptr ) {
+		reject();
+	}
 
 	unsigned slframes = m_pSampleFromFile->get_frames();
 
@@ -140,9 +141,6 @@ SampleEditor::~SampleEditor()
 	delete m_pTargetSampleView;
 	m_pTargetSampleView = nullptr;
 
-	delete m_pSampleFromFile;
-	m_pSampleFromFile = nullptr;
-
 	INFOLOG ( "DESTROY" );
 }
 
@@ -167,7 +165,7 @@ void SampleEditor::closeEvent(QCloseEvent *event)
 void SampleEditor::getAllFrameInfos()
 {
 	H2Core::Instrument *pInstrument = nullptr;
-	Sample* pSample = nullptr;
+	std::shared_ptr<Sample> pSample;
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	
 	if (pSong != nullptr) {
@@ -364,7 +362,7 @@ void SampleEditor::createNewLayer()
 {
 	if ( !m_bSampleEditorStatus ){
 
-		Sample *pEditSample = Sample::load( m_sSampleName, __loops, __rubberband, *m_pTargetSampleView->get_velocity(), *m_pTargetSampleView->get_pan() );
+		auto pEditSample = Sample::load( m_sSampleName, __loops, __rubberband, *m_pTargetSampleView->get_velocity(), *m_pTargetSampleView->get_pan() );
 
 		if( pEditSample == nullptr ){
 			return;
@@ -567,9 +565,9 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 	 *instrument. Otherwise pInstr would be deleted if consumed by preview_instrument.
 	*/
 	Instrument *pTmpInstrument = Instrument::load_instrument( pInstr->get_drumkit_name(), pInstr->get_name() );
-	Sample *pNewSample = Sample::load( pInstr->get_component(0)->get_layer( selectedlayer )->get_sample()->get_filepath() );
+	auto pNewSample = Sample::load( pInstr->get_component(0)->get_layer( selectedlayer )->get_sample()->get_filepath() );
 
-	if ( pNewSample ){
+	if ( pNewSample != nullptr ){
 		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
 		AudioEngine::get_instance()->get_sampler()->preview_instrument( pTmpInstrument );
 		AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );

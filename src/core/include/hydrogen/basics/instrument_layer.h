@@ -23,6 +23,8 @@
 #ifndef H2C_INSTRUMENT_LAYER_H
 #define H2C_INSTRUMENT_LAYER_H
 
+#include <memory>
+
 #include <hydrogen/object.h>
 
 namespace H2Core
@@ -46,7 +48,7 @@ namespace H2Core
 		/** constructor
 		 * \param sample the sample to use
 		 * */
-		InstrumentLayer( Sample* sample );
+		InstrumentLayer( std::shared_ptr<Sample> sample );
 		/** copy constructor, will be initialized with an empty sample
 		 * \param other the instrument layer to copy from
 		 */
@@ -55,7 +57,7 @@ namespace H2Core
 		 * \param other the instrument layer to copy from
 		 * \param sample the sample to use
 		 */
-		InstrumentLayer( InstrumentLayer* other, Sample* sample );
+		InstrumentLayer( InstrumentLayer* other, std::shared_ptr<Sample> sample );
 		/** destructor */
 		~InstrumentLayer();
 
@@ -77,9 +79,9 @@ namespace H2Core
 		/** get the end velocity of the layer */
 		float get_end_velocity() const;
 		/** set the sample of the layer */
-		void set_sample( Sample* sample );
+		void set_sample( std::shared_ptr<Sample> sample );
 		/** get the sample of the layer */
-		Sample* get_sample() const;
+		std::shared_ptr<Sample> get_sample() const;
 
 		/**
 		 * Calls the #H2Core::Sample::load()
@@ -109,7 +111,7 @@ namespace H2Core
 		float __pitch;              ///< the frequency of the sample, 0.0 by default which means output pitch is the same as input pitch
 		float __start_velocity;     ///< the start velocity of the sample, 0.0 by default
 		float __end_velocity;       ///< the end velocity of the sample, 1.0 by default
-		Sample* __sample;           ///< the underlaying sample
+		std::shared_ptr<Sample> __sample;           ///< the underlaying sample
 	};
 
 	// DEFINITIONS
@@ -154,7 +156,7 @@ namespace H2Core
 		return __end_velocity;
 	}
 
-	inline Sample* InstrumentLayer::get_sample() const
+	inline std::shared_ptr<Sample> InstrumentLayer::get_sample() const
 	{
 		return __sample;
 	}

@@ -29,7 +29,7 @@
 
 #include <inttypes.h>
 #include <vector>
-
+#include <memory>
 
 namespace H2Core
 {
@@ -77,7 +77,7 @@ public:
 		return __playing_notes_queue.size();
 	}
 
-	void preview_sample( Sample* sample, int length );
+	void preview_sample( std::shared_ptr<Sample> sample, int length );
 	void preview_instrument( Instrument* instr );
 
 	void setPlayingNotelength( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick );
@@ -233,7 +233,7 @@ private:
 		};
 
 	bool __render_note_no_resample(
-		Sample *pSample,
+	    std::shared_ptr<Sample> pSample,
 		Note *pNote,
 		SelectedLayerInfo *pSelectedLayerInfo,
 		InstrumentComponent *pCompo,
@@ -248,7 +248,7 @@ private:
 	);
 
 	bool __render_note_resample(
-		Sample *pSample,
+		std::shared_ptr<Sample> pSample,
 		Note *pNote,
 		SelectedLayerInfo *pSelectedLayerInfo,
 		InstrumentComponent *pCompo,
