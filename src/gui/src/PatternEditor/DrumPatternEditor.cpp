@@ -1188,91 +1188,15 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 void DrumPatternEditor::__draw_grid( QPainter& p )
 {
+	// Start with generic pattern editor grid lining.
+	drawGridLines( p );
+
 	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	static const QColor res_1( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() );
-	static const QColor res_2( pStyle->m_patternEditor_line2Color.getRed(), pStyle->m_patternEditor_line2Color.getGreen(), pStyle->m_patternEditor_line2Color.getBlue() );
-	static const QColor res_3( pStyle->m_patternEditor_line3Color.getRed(), pStyle->m_patternEditor_line3Color.getGreen(), pStyle->m_patternEditor_line3Color.getBlue() );
-	static const QColor res_4( pStyle->m_patternEditor_line4Color.getRed(), pStyle->m_patternEditor_line4Color.getGreen(), pStyle->m_patternEditor_line4Color.getBlue() );
-	static const QColor res_5( pStyle->m_patternEditor_line5Color.getRed(), pStyle->m_patternEditor_line5Color.getGreen(), pStyle->m_patternEditor_line5Color.getBlue() );
-
-	// vertical lines
-	p.setPen( QPen( res_1, 0, Qt::DotLine ) );
-
-	int nBase;
-	if (m_bUseTriplets) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-
-	int n4th = 4 * MAX_NOTES / (nBase * 4);
-	int n8th = 4 * MAX_NOTES / (nBase * 8);
-	int n16th = 4 * MAX_NOTES / (nBase * 16);
-	int n32th = 4 * MAX_NOTES / (nBase * 32);
-	int n64th = 4 * MAX_NOTES / (nBase * 64);
-
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
 	}
-	if (!m_bUseTriplets) {
-		for ( int i = 0; i < nNotes + 1; i++ ) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % n4th) == 0 ) {
-				if (m_nResolution >= 4) {
-					p.setPen( QPen( res_1, 0 ) );
-					p.drawLine(x, 1, x, m_nEditorHeight - 1);
-				}
-			}
-			else if ( (i % n8th) == 0 ) {
-				if (m_nResolution >= 8) {
-					p.setPen( QPen( res_2, 0 ) );
-					p.drawLine(x, 1, x, m_nEditorHeight - 1);
-				}
-			}
-			else if ( (i % n16th) == 0 ) {
-				if (m_nResolution >= 16) {
-					p.setPen( QPen( res_3, 0 ) );
-					p.drawLine(x, 1, x, m_nEditorHeight - 1);
-				}
-			}
-			else if ( (i % n32th) == 0 ) {
-				if (m_nResolution >= 32) {
-					p.setPen( QPen( res_4, 0 ) );
-					p.drawLine(x, 1, x, m_nEditorHeight - 1);
-				}
-			}
-			else if ( (i % n64th) == 0 ) {
-				if (m_nResolution >= 64) {
-					p.setPen( QPen( res_5, 0 ) );
-					p.drawLine(x, 1, x, m_nEditorHeight - 1);
-				}
-			}
-		}
-	}
-	else {	// Triplets
-		uint nCounter = 0;
-		int nSize = 4 * MAX_NOTES / (nBase * m_nResolution);
-
-		for ( int i = 0; i < nNotes + 1; i++ ) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % nSize) == 0) {
-				if ((nCounter % 3) == 0) {
-					p.setPen( QPen( res_1, 0 ) );
-				}
-				else {
-					p.setPen( QPen( res_3, 0 ) );
-				}
-				p.drawLine(x, 1, x, m_nEditorHeight - 1);
-				nCounter++;
-			}
-		}
-	}
-
-
+	
 	// fill the first half of the rect with a solid color
 	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
 	static const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor.getRed(), pStyle->m_patternEditor_selectedRowColor.getGreen(), pStyle->m_patternEditor_selectedRowColor.getBlue() );
@@ -1534,7 +1458,6 @@ void DrumPatternEditor::functionPasteNotesUndoAction(std::list<H2Core::Pattern*>
 			}
 		}
 
-
 		// Remove applied pattern;
 		delete pApplied;
 		appliedList.pop_front();
@@ -1683,15 +1606,7 @@ void DrumPatternEditor::functionRandomVelocityAction( QStringList noteVeloValue,
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
-	int nBase;
-	if ( isUsingTriplets() ) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-
-	int nResolution = 4 * MAX_NOTES / ( nBase * getResolution() );
+	int nResolution = granularity();
 	int positionCount = 0;
 	for (int i = 0; i < pPattern->get_length(); i += nResolution) {
 		const Pattern::notes_t* notes = pPattern->get_notes();

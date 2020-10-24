@@ -56,8 +56,8 @@ public:
 	PatternEditor( QWidget *pParent, const char *sClassName,
 				   PatternEditorPanel *panel );
 
-	void setResolution(uint res, bool bUseTriplets);
-	uint getResolution() {	return m_nResolution;	}
+	void setResolution( uint res, bool bUseTriplets );
+	uint getResolution() { return m_nResolution; }
 	bool isUsingTriplets() { return m_bUseTriplets;	}
 
 	//! Zoom in / out on the time axis
@@ -119,8 +119,21 @@ public slots:
 
 
 protected:
-	float m_nGridWidth;
+
+	unsigned m_nGridWidth;
 	unsigned m_nGridHeight;
+
+	//! Granularity of grid positioning
+	int granularity() const {
+		int nBase;
+		if (m_bUseTriplets) {
+			nBase = 3;
+		}
+		else {
+			nBase = 4;
+		}
+		return 4 * MAX_NOTES / ( nBase * m_nResolution );
+	}
 
 	int m_nEditorHeight;
 	uint m_nEditorWidth;
@@ -136,8 +149,11 @@ protected:
 	PatternEditorPanel *m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
 
-	int getColumn(QMouseEvent *ev);
-	QPoint movingGridOffset();
+	int getColumn(QMouseEvent *ev) const;
+	QPoint movingGridOffset() const;
+
+	// Draw lines for note grid.
+	void drawGridLines( QPainter &p, Qt::PenStyle style = Qt::SolidLine ) const;
 
 };
 

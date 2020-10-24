@@ -149,7 +149,6 @@ class PianoRollEditor: public PatternEditor
 
 		void createBackground();
 		void drawPattern();
-		void draw_grid(QPainter& p );
 		void drawNote( H2Core::Note *pNote, QPainter *pPainter );
 
 		void addOrRemoveNote( int nColumn, int nRealColumn, int nLine,

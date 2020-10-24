@@ -142,22 +142,11 @@ QColor PatternEditor::computeNoteColor( float velocity ){
 	return QColor( red, green, blue );
 }
 
-int PatternEditor::getColumn(QMouseEvent *ev)
+int PatternEditor::getColumn(QMouseEvent *ev) const
 {
-	int nBase;
-	if (m_bUseTriplets) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-	float nWidth = (m_nGridWidth * 4 * MAX_NOTES) / (nBase * m_nResolution);
-
-	int x = ev->x();
-	int nColumn;
-	nColumn = x - 20 + (nWidth / 2);
-	nColumn = nColumn / nWidth;
-	nColumn = (nColumn * 4 * MAX_NOTES) / (nBase * m_nResolution);
+	int nWidth = m_nGridWidth * granularity();
+	int nColumn = ( ev->x() - 20 + (nWidth / 2) ) / nWidth;
+	nColumn = nColumn * granularity();
 	return nColumn;
 }
 
@@ -220,14 +209,13 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 	}
 }
 
-QPoint PatternEditor::movingGridOffset( ) {
+QPoint PatternEditor::movingGridOffset( ) const {
 	QPoint rawOffset = m_selection.movingOffset();
 	// Quantize offset to multiples of m_nGrid{Width,Height}
 	int nQuantX = m_nGridWidth, nQuantY = m_nGridHeight;
 	float nFactor = 1;
 	if ( ! m_bFineGrained ) {
-		int nBase = m_bUseTriplets ? 3 : 4;
-		nFactor = (4 * MAX_NOTES) / (nBase * m_nResolution);
+		nFactor = granularity();
 		nQuantX = m_nGridWidth * nFactor;
 	}
 	int x_bias = nQuantX / 2, y_bias = nQuantY / 2;
@@ -240,4 +228,82 @@ QPoint PatternEditor::movingGridOffset( ) {
 	int x_off = (rawOffset.x() + x_bias) / nQuantX;
 	int y_off = (rawOffset.y() + y_bias) / nQuantY;
 	return QPoint( nFactor * x_off, y_off);
+}
+
+
+//! Draw lines for note grid.
+void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
+{
+	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
+	static const QColor res[5] = {
+		QColor( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() ),
+		QColor( pStyle->m_patternEditor_line2Color.getRed(), pStyle->m_patternEditor_line2Color.getGreen(), pStyle->m_patternEditor_line2Color.getBlue() ),
+		QColor( pStyle->m_patternEditor_line3Color.getRed(), pStyle->m_patternEditor_line3Color.getGreen(), pStyle->m_patternEditor_line3Color.getBlue() ),
+		QColor( pStyle->m_patternEditor_line4Color.getRed(), pStyle->m_patternEditor_line4Color.getGreen(), pStyle->m_patternEditor_line4Color.getBlue() ),
+		QColor( pStyle->m_patternEditor_line5Color.getRed(), pStyle->m_patternEditor_line5Color.getGreen(), pStyle->m_patternEditor_line5Color.getBlue() ),
+	};
+
+	int nGranularity = granularity() * m_nResolution;
+	int nNotes = MAX_NOTES;
+	if ( m_pPattern ) {
+		nNotes = m_pPattern->get_length();
+	}
+	int nMaxX = m_nGridWidth * nNotes + 20;
+
+	if ( !m_bUseTriplets ) {
+
+		// Draw vertical lines. To minimise pen colour changes (and
+		// avoid unnecessary division operations), we draw them in
+		// multiple passes, of successively finer spacing (and
+		// advancing the colour selection at each refinement) until
+		// we've drawn enough to satisfy the resolution setting.
+		//
+		// The drawing sequence looks something like:
+		// |       |       |       |         - first pass, all 1/4 notes
+		// |   :   |   :   |   :   |   :     - second pass, odd 1/8th notes
+		// | . : . | . : . | . : . | . : .   - third pass, odd 1/6th notes
+
+		uint nRes = 4;
+		uint nStep = nGranularity / nRes * m_nGridWidth;
+
+		// First quarter note markers, each one must be drawn explicitly
+		if ( m_nResolution >= nRes ) {
+			p.setPen( QPen( res[ 0 ], 0, style ) );
+			for ( int x = 20 ; x < nMaxX; x += nStep ) {
+				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+			}
+		}
+		nRes *= 2;
+		nStep /= 2;
+
+		// For each successive set of finer-spaced lines, the even
+		// lines will have already been drawn at the previous coarser
+		// pitch, so only the odd numbered lines need to be drawn.
+		int nColour = 1;
+		while ( m_nResolution >= nRes ) {
+			p.setPen( QPen( res[ nColour++ ], 0, style ) );
+			for ( int x = 20 + nStep; x < nMaxX; x += nStep * 2) {
+				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+			}
+			nRes *= 2;
+			nStep /= 2;
+		}
+
+	} else {
+
+		// Triplet style markers, we only differentiate colours on the
+		// first of every triplet.
+		uint nStep = granularity() * m_nGridWidth;
+		p.setPen(  QPen( res[ 0 ], 0, style ) );
+		for ( uint x = 20; x < nMaxX; x += nStep * 3 ) {
+			p.drawLine(x, 1, x, m_nEditorHeight - 1);
+		}
+		// Second and third marks
+		p.setPen(  QPen( res[ 2 ], 0, style ) );
+		for ( uint x = 20 + nStep; x < nMaxX; x += nStep * 3 ) {
+			p.drawLine(x, 1, x, m_nEditorHeight - 1);
+			p.drawLine(x + nStep, 1, x + nStep, m_nEditorHeight - 1);
+		}
+	}
+
 }

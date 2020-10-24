@@ -96,11 +96,11 @@ public:
 
 	// ----------------------------------------------------------------------
 	// Selection operation interfaces
-	bool isMoving() {
+	bool isMoving() const {
 		return m_selectionState == MouseMoving || m_selectionState == KeyboardMoving;
 	}
 
-	QPoint movingOffset() {
+	QPoint movingOffset() const {
 		return m_movingOffset;
 	}
 
