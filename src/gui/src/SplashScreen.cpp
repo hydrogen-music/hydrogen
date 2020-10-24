@@ -32,7 +32,7 @@
 const char* SplashScreen::__class_name = "SplashScreen";
 
 SplashScreen::SplashScreen()
- : QSplashScreen( (QScreen*) nullptr )
+ : QSplashScreen( (QWidget*) nullptr )
  , Object( __class_name )
 {
 	//INFOLOG( "SplashScreen" );

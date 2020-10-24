@@ -207,16 +207,16 @@ class Pattern : public H2Core::Object
 };
 
 #define FOREACH_NOTE_CST_IT_BEGIN_END(_notes,_it) \
-	for( Pattern::notes_cst_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end(); (_it)++ )
+	for( Pattern::notes_cst_it_t (_it)=(_notes)->begin(); (_it)!=(_notes)->end(); (_it)++ )
 
 #define FOREACH_NOTE_CST_IT_BOUND(_notes,_it,_bound) \
-	for( Pattern::notes_cst_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->upper_bound((_bound)); (_it)++ )
+	for( Pattern::notes_cst_it_t (_it)=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->upper_bound((_bound)); (_it)++ )
 
 #define FOREACH_NOTE_IT_BEGIN_END(_notes,_it) \
-	for( Pattern::notes_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end(); (_it)++ )
+	for( Pattern::notes_it_t (_it)=(_notes)->begin(); (_it)!=(_notes)->end(); (_it)++ )
 
 #define FOREACH_NOTE_IT_BOUND(_notes,_it,_bound) \
-	for( Pattern::notes_it_t _it=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->upper_bound((_bound)); (_it)++ )
+	for( Pattern::notes_it_t (_it)=(_notes)->lower_bound((_bound)); (_it)!=(_notes)->upper_bound((_bound)); (_it)++ )
 
 // DEFINITIONS
 

@@ -134,7 +134,7 @@ void Fader::wheelEvent ( QWheelEvent *ev )
 	ev->accept();
 
 	if ( m_bUseIntSteps ) {
-		if ( ev->angleDelta().y() > 0 ) {
+		if ( ev->delta() > 0 ) {
 			setValue( m_fValue + 1 );
 		}
 		else {
@@ -144,7 +144,7 @@ void Fader::wheelEvent ( QWheelEvent *ev )
 	else {
 		float step = ( m_fMaxValue - m_fMinValue ) / 50.0;
 
-		if ( ev->angleDelta().y() > 0 ) {
+		if ( ev->delta() > 0 ) {
 			setValue( m_fValue + step );
 		}
 		else {
@@ -350,14 +350,14 @@ VerticalFader::VerticalFader( QWidget *pParent, bool bUseIntSteps, bool bWithout
 	setMaximumSize( 116, 23);
 	resize( 116, 23 );
 	
-	QTransform transform;
-	transform.rotate(90);
+	QMatrix matrix;
+	matrix.rotate(90);
 	
 
 	// Background image
 	QString background_path = Skin::getImagePath() + "/mixerPanel/fader_background.png";
 	bool ok = m_back.load( background_path );
-	m_back=m_back.transformed( transform );
+	m_back=m_back.transformed(matrix);
 	if( ok == false ) {
 		ERRORLOG("Fader: Error loading pixmap");
 	}
@@ -365,7 +365,7 @@ VerticalFader::VerticalFader( QWidget *pParent, bool bUseIntSteps, bool bWithout
 	// Leds image
 	QString leds_path = Skin::getImagePath()  + "/mixerPanel/fader_leds.png";
 	ok = m_leds.load( leds_path );
-	m_leds=m_leds.transformed( transform );
+	m_leds=m_leds.transformed(matrix);
 	
 	if( ok == false ){
 		ERRORLOG( "Error loading pixmap" );
@@ -374,7 +374,7 @@ VerticalFader::VerticalFader( QWidget *pParent, bool bUseIntSteps, bool bWithout
 	// Knob image
 	QString knob_path = Skin::getImagePath() + "/mixerPanel/fader_knob.png";
 	ok = m_knob.load( knob_path );
-	m_knob = m_knob.transformed( transform );
+	m_knob = m_knob.transformed(matrix);
 	if( ok == false ){
 		ERRORLOG( "Error loading pixmap" );
 	}
@@ -499,7 +499,7 @@ void MasterFader::wheelEvent ( QWheelEvent *ev )
 
 	float step = ( m_fMax - m_fMin ) / 50.0;
 
-	if ( ev->angleDelta().y() > 0 ) {
+	if ( ev->delta() > 0 ) {
 		setValue( m_fValue + step );
 	}
 	else {
@@ -846,7 +846,7 @@ void Knob::wheelEvent ( QWheelEvent *ev )
 {
 	ev->accept();
 
-	if ( ev->angleDelta().y() > 0 ) {
+	if ( ev->delta() > 0 ) {
 		setValue( m_fValue + 0.025 );
 	}
 	else {

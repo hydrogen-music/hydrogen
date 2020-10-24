@@ -92,7 +92,7 @@ int MainForm::sigusr1Fd[2];
 const char* MainForm::__class_name = "MainForm";
 
 MainForm::MainForm( QApplication *app, const QString& songFilename )
-	: QMainWindow( nullptr )
+	: QMainWindow( nullptr, nullptr )
 	, Object( __class_name )
 {
 	setMinimumSize( QSize( 1000, 500 ) );
@@ -983,8 +983,6 @@ void MainForm::action_instruments_clearAll()
 	case QMessageBox::Cancel:
 		// cancel btn pressed
 		return;
-	default:
-		ERRORLOG( "[MainForm::action_instruments_clearAll()] Unhandled case." );
 	}
 
 	// Remove all instruments

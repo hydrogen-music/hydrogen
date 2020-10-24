@@ -420,7 +420,7 @@ void LCDSpinBox::wheelEvent ( QWheelEvent *ev )
 {
 	ev->accept();
 
-	if ( ev->angleDelta().y() > 0 ) {
+	if ( ev->delta() > 0 ) {
 		switch( m_type ) {
 			case INTEGER:
 				setValue( m_fValue + 1);

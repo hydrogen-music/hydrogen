@@ -95,7 +95,7 @@ void LCDCombo::wheelEvent( QWheelEvent * ev )
 {
 	ev->ignore();
 	const int n = actions.size();
-	const int d = ( ev->angleDelta().y() > 0 ) ? -1: 1;
+	const int d = ( ev->delta() > 0 ) ? -1: 1;
 	int next = ( n + active + d ) % n;
 	if ( actions.at( next )->isSeparator() ) {
 		next = ( n + next + d ) % n;

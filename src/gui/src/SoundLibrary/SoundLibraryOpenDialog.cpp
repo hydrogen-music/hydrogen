@@ -43,7 +43,7 @@ SoundLibraryOpenDialog::SoundLibraryOpenDialog( QWidget* pParent )
 
 	// Sound Library Panel
 	m_pSoundLibraryPanel = new SoundLibraryPanel( nullptr, true );
-	pVBox->addWidget( m_pSoundLibraryPanel, 0 );
+	pVBox->addWidget( m_pSoundLibraryPanel, 0, nullptr );
 
 
 	// Buttons
