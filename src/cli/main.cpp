@@ -429,6 +429,10 @@ int main(int argc, char *argv[])
 							 // corresponding OSC message.
 				quit = true;
 				break;
+
+			default:
+				// Other event. No action.
+				break;
 			}
 		}
 

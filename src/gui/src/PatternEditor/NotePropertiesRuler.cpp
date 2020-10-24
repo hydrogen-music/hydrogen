@@ -101,7 +101,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 	if (m_pPattern == nullptr) return;
 
-	prepareUndoAction( ev->x() ); //get all old values
+	prepareUndoAction( ev->position().x() ); //get all old values
 
 	float delta;
 	if (ev->modifiers() == Qt::ControlModifier) {
@@ -109,8 +109,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	} else {
 		delta = 0.05; // course control
 	}
-		
-	if ( ev->delta() < 0 ) {
+
+	if ( ev->angleDelta().y() < 0 ) {
 		delta = (delta * -1.0);
 	}
 
@@ -123,7 +123,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		nBase = 4;
 	}
 	int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
-	int x_pos = ev->x();
+	int x_pos = ev->position().x();
 	int column;
 	column = (x_pos - 20) + (width / 2);
 	column = column / width;

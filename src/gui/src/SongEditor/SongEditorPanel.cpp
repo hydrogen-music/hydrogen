@@ -86,11 +86,11 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	if ( pPref->getUseTimelineBpm() &&
 		 !pEngine->haveJackTimebaseClient() ) {
 		m_pTimeLineToggleBtn->setPressed( true );
-		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
+		m_pTimeLineToggleBtn->setToolTip( tr( "Enable time line edit") );
 
 	} else {
 		m_pTimeLineToggleBtn->setPressed( false );
-		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") );
+		m_pTimeLineToggleBtn->setToolTip( tr( "Timeline usage is disabled in the presence of an external JACK timebase master") );
 
 	}
 
@@ -725,16 +725,16 @@ void SongEditorPanel::updateTimelineUsage() {
 	auto pHydrogen = Hydrogen::get_instance();
 	
 	if ( pHydrogen->haveJackTimebaseClient() ) {
-		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") );
+		m_pTimeLineToggleBtn->setToolTip( tr( "Timeline usage is disabled in the presence of an external JACK timebase master" ) );
 		m_pTimeLineToggleBtn->setPressed( false );
 		m_pTimeLineToggleBtn->setDisabled( true );
 		Preferences::get_instance()->setUseTimelineBpm( false );
 		m_pPositionRuler->createBackground();
 		return;
 	} else if ( m_pTimeLineToggleBtn->toolTip() == 
-				trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") ) {
+				tr( "Timeline usage is disabled in the presence of an external JACK timebase master" ) ) {
 		// No external timebase master present anymore.
-		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
+		m_pTimeLineToggleBtn->setToolTip( tr( "Enable time line edit" ) );
 		m_pTimeLineToggleBtn->setDisabled( false );
 	}
 	
@@ -746,10 +746,10 @@ void SongEditorPanel::timeLineBtnPressed( Button* pBtn )
 	auto pHydrogen = Hydrogen::get_instance();
 	
 	if ( pHydrogen->haveJackTimebaseClient() ) {
-		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") );
+		m_pTimeLineToggleBtn->setToolTip( tr( "Timeline usage is disabled in the presence of an external JACK timebase master" ) );
 		return;
 	} else {
-		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
+		m_pTimeLineToggleBtn->setToolTip( tr( "Enable time line edit" ) );
 	}
 
 	if ( m_pTimeLineToggleBtn->isPressed() ){
