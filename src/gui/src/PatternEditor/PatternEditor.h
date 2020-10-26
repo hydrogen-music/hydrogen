@@ -120,8 +120,6 @@ public slots:
 
 protected:
 
-	unsigned m_nGridWidth;
-	unsigned m_nGridHeight;
 
 	//! Granularity of grid positioning
 	int granularity() const {
@@ -135,8 +133,14 @@ protected:
 		return 4 * MAX_NOTES / ( nBase * m_nResolution );
 	}
 
-	int m_nEditorHeight;
+	uint m_nEditorHeight;
 	uint m_nEditorWidth;
+
+	unsigned m_nGridWidth;
+	unsigned m_nGridHeight;
+
+	const unsigned nMargin = 20;
+
 	uint m_nResolution;
 	bool m_bUseTriplets;
 	bool m_bFineGrained;

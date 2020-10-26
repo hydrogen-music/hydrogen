@@ -63,7 +63,7 @@ PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
 	m_bCopyNotMove = false;
 
 	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
-	m_nEditorWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
+	m_nEditorWidth = nMargin + m_nGridWidth * ( MAX_NOTES * 4 );
 
 	setFocusPolicy(Qt::StrongFocus);
 
@@ -145,7 +145,7 @@ QColor PatternEditor::computeNoteColor( float velocity ){
 int PatternEditor::getColumn(QMouseEvent *ev) const
 {
 	int nWidth = m_nGridWidth * granularity();
-	int nColumn = ( ev->x() - 20 + (nWidth / 2) ) / nWidth;
+	int nColumn = ( ev->x() - nMargin + (nWidth / 2) ) / nWidth;
 	nColumn = nColumn * granularity();
 	return nColumn;
 }
@@ -248,7 +248,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
 	}
-	int nMaxX = m_nGridWidth * nNotes + 20;
+	int nMaxX = m_nGridWidth * nNotes + nMargin;
 
 	if ( !m_bUseTriplets ) {
 
@@ -269,7 +269,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		// First quarter note markers, each one must be drawn explicitly
 		if ( m_nResolution >= nRes ) {
 			p.setPen( QPen( res[ 0 ], 0, style ) );
-			for ( int x = 20 ; x < nMaxX; x += nStep ) {
+			for ( int x = nMargin ; x < nMaxX; x += nStep ) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 			}
 		}
@@ -282,7 +282,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		int nColour = 1;
 		while ( m_nResolution >= nRes ) {
 			p.setPen( QPen( res[ nColour++ ], 0, style ) );
-			for ( int x = 20 + nStep; x < nMaxX; x += nStep * 2) {
+			for ( int x = nMargin + nStep; x < nMaxX; x += nStep * 2) {
 				p.drawLine( x, 1, x, m_nEditorHeight - 1 );
 			}
 			nRes *= 2;
@@ -295,12 +295,12 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		// first of every triplet.
 		uint nStep = granularity() * m_nGridWidth;
 		p.setPen(  QPen( res[ 0 ], 0, style ) );
-		for ( uint x = 20; x < nMaxX; x += nStep * 3 ) {
+		for ( uint x = nMargin; x < nMaxX; x += nStep * 3 ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 		}
 		// Second and third marks
 		p.setPen(  QPen( res[ 2 ], 0, style ) );
-		for ( uint x = 20 + nStep; x < nMaxX; x += nStep * 3 ) {
+		for ( uint x = nMargin + nStep; x < nMaxX; x += nStep * 3 ) {
 			p.drawLine(x, 1, x, m_nEditorHeight - 1);
 			p.drawLine(x + nStep, 1, x + nStep, m_nEditorHeight - 1);
 		}
