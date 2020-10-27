@@ -139,7 +139,7 @@ protected:
 	unsigned m_nGridWidth;
 	unsigned m_nGridHeight;
 
-	const unsigned nMargin = 20;
+	const unsigned m_nMargin = 20;
 
 	uint m_nResolution;
 	bool m_bUseTriplets;

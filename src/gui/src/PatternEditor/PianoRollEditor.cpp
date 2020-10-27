@@ -83,10 +83,10 @@ void PianoRollEditor::updateEditor( bool bPatternOnly )
 {
 	//	uint nEditorWidth;
 	if ( m_pPattern ) {
-		m_nEditorWidth = nMargin + m_nGridWidth * m_pPattern->get_length();
+		m_nEditorWidth = m_nMargin + m_nGridWidth * m_pPattern->get_length();
 	}
 	else {
-		m_nEditorWidth = nMargin + m_nGridWidth * MAX_NOTES;
+		m_nEditorWidth = m_nMargin + m_nGridWidth * MAX_NOTES;
 	}
 	if ( !bPatternOnly ) {
 		m_bNeedsBackgroundUpdate = true;
@@ -353,7 +353,7 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 		return;
 	}
 
-	uint start_x = nMargin + pNote->get_position() * m_nGridWidth;
+	uint start_x = m_nMargin + pNote->get_position() * m_nGridWidth;
 	uint start_y = m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1;
 	uint w = 8;
 	uint h = m_nGridHeight - 2;
@@ -535,8 +535,8 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 	if (ev->button() == Qt::LeftButton ) {
 
 		unsigned nRealColumn = 0;
-		if( ev->x() > nMargin ) {
-			nRealColumn = (ev->x() - nMargin) / static_cast<float>(m_nGridWidth);
+		if( ev->x() > m_nMargin ) {
+			nRealColumn = (ev->x() - m_nMargin) / static_cast<float>(m_nGridWidth);
 		}
 
 		if ( ev->modifiers() & Qt::ShiftModifier ) {
@@ -593,8 +593,8 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 		m_pOldPoint = ev->y();
 
 		unsigned nRealColumn = 0;
-		if( ev->x() > nMargin ) {
-			nRealColumn = (ev->x() - nMargin) / static_cast<float>(m_nGridWidth);
+		if( ev->x() > m_nMargin ) {
+			nRealColumn = (ev->x() - m_nMargin) / static_cast<float>(m_nGridWidth);
 		}
 
 
@@ -954,7 +954,7 @@ void PianoRollEditor::mouseDragEndEvent( QMouseEvent *ev )
 
 QPoint PianoRollEditor::cursorPosition()
 {
-	uint x = nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
+	uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
 	uint y = m_nGridHeight * pitchToLine( m_nCursorPitch ) + 1;
 	return QPoint(x, y);
 }
@@ -1382,8 +1382,8 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	}
 
 	// Calculate the first and last position values that this rect will intersect with
-	int x_min = (r.left() - w - nMargin) / m_nGridWidth;
-	int x_max = (r.right() + w - nMargin) / m_nGridWidth;
+	int x_min = (r.left() - w - m_nMargin) / m_nGridWidth;
+	int x_max = (r.right() + w - m_nMargin) / m_nGridWidth;
 
 	const Pattern::notes_t* pNotes = m_pPattern->get_notes();
 	std::vector<SelectionIndex> result;
@@ -1391,7 +1391,7 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 	for ( auto it = pNotes->lower_bound( x_min ); it != pNotes->end() && it->first <= x_max; ++it ) {
 		Note *pNote = it->second;
 		if ( pNote->get_instrument() == pInstr ) {
-			uint start_x = nMargin + pNote->get_position() * m_nGridWidth;
+			uint start_x = m_nMargin + pNote->get_position() * m_nGridWidth;
 			uint start_y = m_nGridHeight * pitchToLine( pNote->get_notekey_pitch() ) + 1;
 
 			if ( r.intersects( QRect( start_x -4 , start_y, w, h ) ) ) {

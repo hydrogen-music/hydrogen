@@ -96,10 +96,10 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 
 
 	if ( m_pPattern ) {
-		m_nEditorWidth = nMargin + m_nGridWidth * m_pPattern->get_length();
+		m_nEditorWidth = m_nMargin + m_nGridWidth * m_pPattern->get_length();
 	}
 	else {
-		m_nEditorWidth = nMargin + m_nGridWidth * MAX_NOTES;
+		m_nEditorWidth = m_nMargin + m_nGridWidth * MAX_NOTES;
 	}
 	resize( m_nEditorWidth, height() );
 
@@ -171,8 +171,8 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	}
 	int nColumn = getColumn( ev );
 	int nRealColumn = 0;
-	if( ev->x() > nMargin ) {
-		nRealColumn = ev->x() / static_cast<float>(m_nGridWidth) - nMargin;
+	if( ev->x() > m_nMargin ) {
+		nRealColumn = ev->x() / static_cast<float>(m_nGridWidth) - m_nMargin;
 	}
 	if ( nColumn >= (int)m_pPattern->get_length() ) {
 		update( 0, 0, width(), height() );
@@ -731,8 +731,8 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 
 
 	// Calculate the first and last position values that this rect will intersect with
-	int x_min = (r.left() - nMargin - 1) / m_nGridWidth;
-	int x_max = (r.right() - nMargin) / m_nGridWidth;
+	int x_min = (r.left() - m_nMargin - 1) / m_nGridWidth;
+	int x_max = (r.right() - m_nMargin) / m_nGridWidth;
 
 	const Pattern::notes_t* notes = m_pPattern->get_notes();
 	std::vector<SelectionIndex> result;
@@ -740,7 +740,7 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 	for (auto it = notes->lower_bound( x_min ); it != notes->end() && it->first <= x_max; ++it ) {
 		Note *note = it->second;
 		int nInstrument = pInstrList->index( note->get_instrument() );
-		uint x_pos = nMargin + (it->first * m_nGridWidth);
+		uint x_pos = m_nMargin + (it->first * m_nGridWidth);
 		uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 
 		if ( r.contains( QPoint( x_pos, y_pos + h/2) ) ) {
@@ -775,7 +775,7 @@ void DrumPatternEditor::validateSelection()
 QRect DrumPatternEditor::getKeyboardCursorRect()
 {
 
-	uint x = nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
+	uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	uint y = nSelectedInstrument * m_nGridHeight;
 	return QRect( x-m_nGridWidth*3, y+1, m_nGridWidth*6, m_nGridHeight-2 );
@@ -1007,7 +1007,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 	for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
 		uint y = m_nGridHeight * nInstr;
 		if ( nInstr == (uint)nSelectedInstrument ) {	// selected instrument
-			painter.fillRect( 0, y + 1, ( nMargin + nNotes * m_nGridWidth ), m_nGridHeight - 1, selectedRowColor );
+			painter.fillRect( 0, y + 1, ( m_nMargin + nNotes * m_nGridWidth ), m_nGridHeight - 1, selectedRowColor );
 		}
 	}
 
@@ -1018,7 +1018,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 	// Draw cursor
 	if ( hasFocus() && !m_pPatternEditorPanel->cursorHidden() ) {
-		uint x = nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
+		uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		uint y = nSelectedInstrument * m_nGridHeight;
 		painter.setPen( QColor( 0,0,0 ) );
@@ -1090,7 +1090,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 	uint w = 8;
 	uint h =  m_nGridHeight / 3;
-	uint x_pos = nMargin + (pos * m_nGridWidth);
+	uint x_pos = m_nMargin + (pos * m_nGridWidth);
 	uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 
 	bool bSelected = m_selection.isSelected( note );
@@ -1161,7 +1161,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 		float fNotePitch = note->get_octave() * 12 + note->get_key();
 		float fStep = pow( 1.0594630943593, ( double )fNotePitch );
 
-		uint x = nMargin + (pos * m_nGridWidth);
+		uint x = m_nMargin + (pos * m_nGridWidth);
 		int w = m_nGridWidth * note->get_length() / fStep;
 		w = w - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
@@ -1206,10 +1206,10 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
 		uint y = m_nGridHeight * i + 1;
 		if ( i == (uint)nSelectedInstrument ) {
-			p.fillRect( 0, y, (nMargin + nNotes * m_nGridWidth), (int)( m_nGridHeight * 0.7 ), selectedRowColor );
+			p.fillRect( 0, y, (m_nMargin + nNotes * m_nGridWidth), (int)( m_nGridHeight * 0.7 ), selectedRowColor );
 		}
 		else {
-			p.fillRect( 0, y, (nMargin + nNotes * m_nGridWidth), (int)( m_nGridHeight * 0.7 ), backgroundColor );
+			p.fillRect( 0, y, (m_nMargin + nNotes * m_nGridWidth), (int)( m_nGridHeight * 0.7 ), backgroundColor );
 		}
 	}
 
@@ -1237,11 +1237,11 @@ void DrumPatternEditor::__create_background( QPainter& p)
 		resize( width(), m_nEditorHeight );
 	}
 
-	p.fillRect(0, 0, nMargin + nNotes * m_nGridWidth, height(), backgroundColor);
+	p.fillRect(0, 0, m_nMargin + nNotes * m_nGridWidth, height(), backgroundColor);
 	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
 		uint y = m_nGridHeight * i;
 		if ( ( i % 2) != 0) {
-			p.fillRect( 0, y, (nMargin + nNotes * m_nGridWidth), m_nGridHeight, alternateRowColor );
+			p.fillRect( 0, y, (m_nMargin + nNotes * m_nGridWidth), m_nGridHeight, alternateRowColor );
 		}
 	}
 
@@ -1249,10 +1249,10 @@ void DrumPatternEditor::__create_background( QPainter& p)
 	p.setPen( lineColor );
 	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
 		uint y = m_nGridHeight * i + m_nGridHeight;
-		p.drawLine( 0, y, (nMargin + nNotes * m_nGridWidth), y);
+		p.drawLine( 0, y, (m_nMargin + nNotes * m_nGridWidth), y);
 	}
 
-	p.drawLine( 0, m_nEditorHeight, (nMargin + nNotes * m_nGridWidth), m_nEditorHeight );
+	p.drawLine( 0, m_nEditorHeight, (m_nMargin + nNotes * m_nGridWidth), m_nEditorHeight );
 }
 
 
