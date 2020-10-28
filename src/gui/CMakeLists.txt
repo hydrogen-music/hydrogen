@@ -78,6 +78,17 @@ TARGET_LINK_LIBRARIES(hydrogen
 	hydrogen-core-${VERSION}
 	Qt5::Widgets
 )
+
+# Precompiled headers for Qt and std::vector. These dramatically reduce GUI build times
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.16)
+	target_precompile_headers(hydrogen
+		PUBLIC
+			<QtGui>
+			<QtWidgets>
+			<vector> )
+endif()
+
+
 ADD_DEPENDENCIES(hydrogen hydrogen-core-${VERSION})
 
 INSTALL(TARGETS hydrogen RUNTIME DESTINATION ${H2_BIN_PATH} BUNDLE DESTINATION ${H2_BIN_PATH})
