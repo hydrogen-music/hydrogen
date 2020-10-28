@@ -61,8 +61,8 @@ public:
 	bool isUsingTriplets() { return m_bUseTriplets;	}
 
 	//! Zoom in / out on the time axis
-	void zoom_in();
-	void zoom_out();
+	void zoomIn();
+	void zoomOut();
 
 	static QColor computeNoteColor( float velocity );
 

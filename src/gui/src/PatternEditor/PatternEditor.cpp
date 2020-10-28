@@ -92,7 +92,7 @@ void PatternEditor::setResolution(uint res, bool bUseTriplets)
 	m_pPatternEditorPanel->updateEditors();
 }
 
-void PatternEditor::zoom_in()
+void PatternEditor::zoomIn()
 {
 	if (m_nGridWidth >= 3) {
 		m_nGridWidth *= 2;
@@ -102,7 +102,7 @@ void PatternEditor::zoom_in()
 	updateEditor();
 }
 
-void PatternEditor::zoom_out()
+void PatternEditor::zoomOut()
 {
 	if ( m_nGridWidth > 1.5 ) {
 		if (m_nGridWidth > 3) {

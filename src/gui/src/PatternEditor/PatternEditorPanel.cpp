@@ -817,13 +817,13 @@ void PatternEditorPanel::zoomInBtnClicked(Button *ref)
 	}
 	UNUSED( ref );
 	m_pPatternEditorRuler->zoomIn();
-	m_pDrumPatternEditor->zoom_in();
+	m_pDrumPatternEditor->zoomIn();
 	m_pNoteVelocityEditor->zoomIn();
 	m_pNoteLeadLagEditor->zoomIn();
 	m_pNoteNoteKeyEditor->zoomIn();
 	m_pNoteProbabilityEditor->zoomIn();
 	m_pNotePanEditor->zoomIn();
-	m_pPianoRollEditor->zoom_in();		
+	m_pPianoRollEditor->zoomIn();
 
 	resizeEvent( nullptr );
 }
@@ -834,13 +834,13 @@ void PatternEditorPanel::zoomOutBtnClicked(Button *ref)
 {
 	UNUSED( ref );
 	m_pPatternEditorRuler->zoomOut();
-	m_pDrumPatternEditor->zoom_out();
+	m_pDrumPatternEditor->zoomOut();
 	m_pNoteVelocityEditor->zoomOut();
 	m_pNoteLeadLagEditor->zoomOut();
 	m_pNoteNoteKeyEditor->zoomOut();
 	m_pNoteProbabilityEditor->zoomOut();
 	m_pNotePanEditor->zoomOut();
-	m_pPianoRollEditor->zoom_out();	
+	m_pPianoRollEditor->zoomOut();
 
 	resizeEvent( nullptr );
 }
