@@ -130,6 +130,17 @@ void PianoRollEditor::finishUpdateEditor()
 	assert( m_bNeedsUpdate );
 	resize( m_nEditorWidth, height() );
 
+	// Ensure that m_pPattern is up to date.
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	PatternList *pPatternList = pHydrogen->getSong()->get_pattern_list();
+	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
+	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
+		m_pPattern = pPatternList->get( nSelectedPatternNumber );
+	}
+	else {
+		m_pPattern = nullptr;
+	}
+
 	if ( m_bNeedsBackgroundUpdate ) {
 		createBackground();
 	}
