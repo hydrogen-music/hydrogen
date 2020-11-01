@@ -257,7 +257,15 @@ bool Filesystem::file_copy( const QString& src, const QString& dst, bool overwri
 		return false;
 	}
 	INFOLOG( QString( "copy %1 to %2" ).arg( src ).arg( dst ) );
-	return QFile::copy( src,dst );
+
+	
+	// Since QFile::copy does not overwrite, we have to make sure the
+	// destination does not exist.
+	if ( overwrite && file_exists( dst, true ) ) {
+		rm( dst, true );
+	}
+	
+	return QFile::copy( src, dst );
 }
 
 bool Filesystem::rm( const QString& path, bool recursive )
