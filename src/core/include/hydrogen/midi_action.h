@@ -42,15 +42,15 @@ class Action : public H2Core::Object {
 			parameter2 = text;
 		}
 
-		QString getParameter1(){
+		QString getParameter1() const {
 			return parameter1;
 		}
 
-		QString getParameter2(){
+		QString getParameter2() const {
 			return parameter2;
 		}
 
-		QString getType(){
+		QString getType() const {
 			return type;
 		}
 

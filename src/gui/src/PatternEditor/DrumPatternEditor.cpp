@@ -983,8 +983,6 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 	const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor.getRed(), pStyle->m_patternEditor_selectedRowColor.getGreen(), pStyle->m_patternEditor_selectedRowColor.getBlue() );
 
-	validateSelection();
-
 	__create_background( painter );
 
 	if (m_pPattern == nullptr) {
@@ -1048,6 +1046,8 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 	if( m_pPattern ) {
 		const Pattern::notes_t* pNotes = m_pPattern->get_notes();
 		if( pNotes->size() == 0) return;
+
+		validateSelection();
 
 		FOREACH_NOTE_CST_IT_BEGIN_END(pNotes,it) {
 			Note *note = it->second;
