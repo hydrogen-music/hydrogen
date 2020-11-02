@@ -42,7 +42,6 @@
 
 OscServer * OscServer::__instance = nullptr;
 const char* OscServer::__class_name = "OscServer";
-std::list<lo_address> OscServer::m_pClientRegistry;
 
 QString OscServer::qPrettyPrint(lo_type type,void * data)
 {
@@ -245,7 +244,8 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name )
+OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name ),
+															m_bInitialized( false )
 {
 	m_pPreferences = pPreferences;
 	
@@ -282,10 +282,13 @@ OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name
 }
 
 OscServer::~OscServer(){
+
 	for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
 		lo_address_free( *it );
 	}
 
+	delete m_pServerThread;
+	
 	__instance = nullptr;
 }
 
@@ -841,11 +844,10 @@ void OscServer::handleAction( Action* pAction )
 	}
 }
 
-
-bool OscServer::start()
+bool OscServer::init()
 {
 	if ( m_pServerThread == nullptr || !m_pServerThread->is_valid() ) {
-		ERRORLOG("Failed to start OSC server.");
+		ERRORLOG("Failed to initialize OSC server. No valid server thread.");
 		return false;
 	}
 
@@ -980,16 +982,41 @@ bool OscServer::start()
 	m_pServerThread->add_method("/Hydrogen/SONG_MODE_ACTIVATION", "i", SONG_MODE_ACTIVATION_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOOP_MODE_ACTIVATION", "i", LOOP_MODE_ACTIVATION_Handler);
 	m_pServerThread->add_method("/Hydrogen/RELOCATE", "i", RELOCATE_Handler);
-	/*
-	 * Start the server.
-	 */
-	m_pServerThread->start();
-	
-	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->getOscServerPort() ));
+
+	m_bInitialized = true;
 	
 	return true;
 }
 
+bool OscServer::start() {
+	if ( m_pServerThread == nullptr || !m_pServerThread->is_valid() ) {
+		ERRORLOG("Failed to start OSC server. No valid server thread.");
+		return false;
+	}
+
+	if ( ! m_bInitialized ) {
+		if ( ! init() ) {
+			return false;
+		}
+	}
+
+	m_pServerThread->start();
+	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->getOscServerPort() ));
+
+	return true;
+}
+
+bool OscServer::stop() {
+	if ( m_pServerThread == nullptr || !m_pServerThread->is_valid() ) {
+		ERRORLOG("Failed to stop OSC server. No valid server thread.");
+		return false;
+	}
+
+	m_pServerThread->stop();
+	INFOLOG(QString("Osc server stopped" ));
+
+	return true;
+}
 
 #endif /* H2CORE_HAVE_OSC */
 

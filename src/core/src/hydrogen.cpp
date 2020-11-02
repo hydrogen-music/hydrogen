@@ -2396,8 +2396,7 @@ Hydrogen::Hydrogen()
 #ifdef H2CORE_HAVE_OSC
 	if( Preferences::get_instance()->getOscServerEnabled() )
 	{
-		OscServer* pOscServer = OscServer::get_instance();
-		pOscServer->start();
+		toggleOscServer( true );
 	}
 #endif
 }
@@ -4111,6 +4110,27 @@ bool Hydrogen::haveJackTimebaseClient() const {
 }
 
 #ifdef H2CORE_HAVE_OSC
+
+void Hydrogen::toggleOscServer( bool bEnable ) {
+	if ( bEnable ) {
+		OscServer::get_instance()->start();
+	} else {
+		OscServer::get_instance()->stop();
+	}
+}
+
+void Hydrogen::recreateOscServer() {
+	OscServer* pOscServer = OscServer::get_instance();
+	if( pOscServer ) {
+		delete pOscServer;
+	}
+
+	OscServer::create_instance( Preferences::get_instance() );
+	
+	if ( Preferences::get_instance()->getOscServerEnabled() ) {
+		toggleOscServer( true );
+	}
+}
 
 void Hydrogen::startNsmClient()
 {

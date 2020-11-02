@@ -141,8 +141,7 @@ class OscServer : public H2Core::Object
 		static QString qPrettyPrint(lo_type type,void * data);
 		
 		/**
-		 * Registers all handler functions defined for this class
-		 * starts the OscServer.
+		 * Registers all handler functions.
 		 *
 		 * The path the handlers will be registered at always starts
 		 * with \e /Hydrogen/ followed by the name of the handler
@@ -186,13 +185,20 @@ class OscServer : public H2Core::Object
 		 * clients. This will happen each time the state of Hydrogen
 		 * does change.
 		 *
-		 * This function will only be processed if the created server
-		 * thread #m_pServerThread is valid.
-		 *
-		 * \return `true` if #m_pServerThread could be successfully
-		 *   created..
+		 * \return `true` on success.
 		 */
+		bool init();
+		/** Starts the OSC server and makes it available to handle
+		 * commands.
+		 *
+		 * If the server was not properly initialized, this function
+		 * will do so.
+		 *
+		 * \return `true` on success*/
 		bool start();
+		/** Stops the OSC server and makes it unavailable.
+		 * \return `true` on success*/
+		bool stop();
 		/**
 		 * Function called by
 		 * H2Core::CoreActionController::initExternalControlInterfaces()
@@ -234,7 +240,7 @@ class OscServer : public H2Core::Object
 		 * \param pAction Action to be sent to all registered
 		 * clients. 
 		 */
-		static void handleAction(Action* pAction);
+		void handleAction(Action* pAction);
 
 		/**
 		 * Creates an Action of type @b PLAY and passes its
@@ -750,7 +756,11 @@ class OscServer : public H2Core::Object
 		 * H2Core::Preferences::get_instance(), this is an appetizer
 		 * for internal changes happening after the 1.0 release.*/
 		H2Core::Preferences*			m_pPreferences;
-		
+		/**
+		 * Used to determine whether the callback methods were already
+		 * added to #m_pServerThread.
+		 */
+		bool m_bInitialized;
 		/**
 		 * Object containing the actual thread with an OSC server
 		 * running in.
@@ -769,7 +779,7 @@ class OscServer : public H2Core::Object
 		 * will be added to it and the current state Hydrogen will be
 		 * propagated to all registered clients.
 		 */
-		static std::list<lo_address>	m_pClientRegistry;
+		std::list<lo_address>	m_pClientRegistry;
 };
 
 #endif /* H2CORE_HAVE_OSC */
