@@ -459,6 +459,12 @@ void			previewSample( Sample *pSample );
 #endif
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
+	/** Starts/stops the OSC server
+	 * \param bEnable `true` = start, `false` = stop.*/
+	void			toggleOscServer( bool bEnable );
+	/** Destroys and recreates the OscServer singleton in order to
+		adopt a new OSC port.*/
+	void			recreateOscServer();
 	void			startNsmClient();
 #endif
 

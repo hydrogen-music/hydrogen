@@ -505,9 +505,15 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->m_nMidiChannelFilter = midiPortChannelComboBox->currentIndex() - 1;
 
 	//OSC tab
-	pPref->setOscServerEnabled( enableOscCheckbox->isChecked() );
+	if ( enableOscCheckbox->isChecked() != pPref->getOscServerEnabled() ) {
+		pPref->setOscServerEnabled( enableOscCheckbox->isChecked() );
+		H2Core::Hydrogen::get_instance()->toggleOscServer( enableOscCheckbox->isChecked() );
+	}
 	pPref->setOscFeedbackEnabled( enableOscFeedbackCheckbox->isChecked() );
-	pPref->setOscServerPort( incomingOscPortSpinBox->value() );
+	if ( incomingOscPortSpinBox->value() != pPref->getOscServerPort() ) {
+		pPref->setOscServerPort( incomingOscPortSpinBox->value() );
+		H2Core::Hydrogen::get_instance()->recreateOscServer();
+	}
 	
 	// General tab
 	pPref->setRestoreLastSongEnabled( restoreLastUsedSongCheckbox->isChecked() );

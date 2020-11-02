@@ -59,7 +59,7 @@ void CoreActionController::setMasterVolume( float masterVolumeValue )
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "MASTER_VOLUME_ABSOLUTE" );
 	FeedbackAction.setParameter2( QString("%1").arg( masterVolumeValue ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -88,7 +88,7 @@ void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
 	FeedbackAction.setParameter2( QString("%1").arg( fVolumeValue ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -108,7 +108,7 @@ void CoreActionController::setMetronomeIsActive( bool isActive )
 	Action FeedbackAction( "TOGGLE_METRONOME" );
 	
 	FeedbackAction.setParameter1( QString("%1").arg( (int) isActive ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -127,7 +127,7 @@ void CoreActionController::setMasterIsMuted( bool isMuted )
 	Action FeedbackAction( "MUTE_TOGGLE" );
 	
 	FeedbackAction.setParameter1( QString("%1").arg( (int) isMuted ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -151,7 +151,7 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
 	FeedbackAction.setParameter2( QString("%1").arg( (int) isMuted ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -184,7 +184,7 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
 	FeedbackAction.setParameter2( QString("%1").arg( (int) isSoloed ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -227,7 +227,7 @@ void CoreActionController::setStripPan( int nStrip, float fPanValue, bool bSelec
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
 	FeedbackAction.setParameter2( QString("%1").arg( fPanValue ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
