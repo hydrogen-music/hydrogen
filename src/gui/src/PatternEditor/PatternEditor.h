@@ -136,10 +136,10 @@ protected:
 	uint m_nEditorHeight;
 	uint m_nEditorWidth;
 
-	unsigned m_nGridWidth;
+	float m_nGridWidth;
 	unsigned m_nGridHeight;
 
-	const unsigned m_nMargin = 20;
+	const int m_nMargin = 20;
 
 	uint m_nResolution;
 	bool m_bUseTriplets;
