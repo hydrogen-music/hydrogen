@@ -278,12 +278,12 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		// The drawing sequence looks something like:
 		// |       |       |       |         - first pass, all 1/4 notes
 		// |   :   |   :   |   :   |   :     - second pass, odd 1/8th notes
-		// | . : . | . : . | . : . | . : .   - third pass, odd 1/6th notes
+		// | . : . | . : . | . : . | . : .   - third pass, odd 1/16th notes
 
 		uint nRes = 4;
 		uint nStep = nGranularity / nRes * m_nGridWidth;
 
-		// First quarter note markers, each one must be drawn explicitly
+		// First, quarter note markers. All the quarter note markers must be drawn.
 		if ( m_nResolution >= nRes ) {
 			p.setPen( QPen( res[ 0 ], 0, style ) );
 			for ( int x = m_nMargin ; x < nMaxX; x += nStep ) {
