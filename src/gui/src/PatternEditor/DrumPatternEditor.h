@@ -149,7 +149,6 @@ class DrumPatternEditor : public PatternEditor
 		int __nColumn;
 		int __row;
 		int __oldLength;
-		int __selectedPatternNumber;
 };
 
 

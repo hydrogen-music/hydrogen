@@ -103,15 +103,7 @@ void PianoRollEditor::finishUpdateEditor()
 	resize( m_nEditorWidth, height() );
 
 	// Ensure that m_pPattern is up to date.
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	PatternList *pPatternList = pHydrogen->getSong()->get_pattern_list();
-	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
-	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
-		m_pPattern = pPatternList->get( nSelectedPatternNumber );
-	}
-	else {
-		m_pPattern = nullptr;
-	}
+	updatePatternInfo();
 
 	if ( m_bNeedsBackgroundUpdate ) {
 		createBackground();
@@ -141,18 +133,7 @@ void PianoRollEditor::selectedInstrumentChangedEvent()
 
 void PianoRollEditor::selectedPatternChangedEvent()
 {
-	//INFOLOG( "updating m_pPattern pointer" );
-
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
-	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
-		m_pPattern = pPatternList->get( nSelectedPatternNumber );
-	}
-	else {
-		m_pPattern = nullptr;
-	}
-	__selectedPatternNumber = nSelectedPatternNumber;
+	updatePatternInfo();
 	updateEditor();
 }
 
@@ -495,7 +476,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 
 	SE_addOrDeleteNotePianoRollAction *action = new SE_addOrDeleteNotePianoRollAction( nColumn,
 																					   nLine,
-																					   __selectedPatternNumber,
+																					   m_nSelectedPatternNumber,
 																					   nSelectedInstrumentnumber,
 																					   nLength,
 																					   fVelocity,
@@ -555,7 +536,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 			if ( pNote != nullptr ) {
 				SE_addOrDeleteNotePianoRollAction *action = new SE_addOrDeleteNotePianoRollAction( nColumn,
 																								   nPressedLine,
-																								   __selectedPatternNumber,
+																								   m_nSelectedPatternNumber,
 																								   nSelectedInstrumentnumber,
 																								   pNote->get_length(),
 																								   pNote->get_velocity(),
@@ -567,7 +548,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 																								   pNote != nullptr );
 				HydrogenApp::get_instance()->m_pUndoStack->push( action );
 			} else {
-				SE_addPianoRollNoteOffAction *action = new SE_addPianoRollNoteOffAction( nColumn, nPressedLine, __selectedPatternNumber, nSelectedInstrumentnumber );
+				SE_addPianoRollNoteOffAction *action = new SE_addPianoRollNoteOffAction( nColumn, nPressedLine, m_nSelectedPatternNumber, nSelectedInstrumentnumber );
 				HydrogenApp::get_instance()->m_pUndoStack->push( action );
 			}
 			return;
@@ -940,7 +921,7 @@ void PianoRollEditor::mouseDragEndEvent( QMouseEvent *ev )
 
 		if( m_pDraggedNote->get_length() != __oldLength )
 		{
-			SE_editPianoRollNoteLengthAction *action = new SE_editPianoRollNoteLengthAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber, __selectedInstrumentnumber, __pressedLine );
+			SE_editPianoRollNoteLengthAction *action = new SE_editPianoRollNoteLengthAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), m_pDraggedNote->get_length(),__oldLength, m_nSelectedPatternNumber, __selectedInstrumentnumber, __pressedLine );
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 
@@ -948,7 +929,7 @@ void PianoRollEditor::mouseDragEndEvent( QMouseEvent *ev )
 		if( __velocity == __oldVelocity &&  __oldLeadLag == __leadLag && __oldPan_L == __pan_L && __oldPan_R == __pan_R ) return;
 		SE_editNotePropertiesPianoRollAction *action = new SE_editNotePropertiesPianoRollAction( m_pDraggedNote->get_position(),
 																								 m_pDraggedNote->get_position(),
-																								 __selectedPatternNumber,
+																								 m_nSelectedPatternNumber,
 																								 __selectedInstrumentnumber,
 																								 __velocity,
 																								 __oldVelocity,
@@ -1000,7 +981,7 @@ void PianoRollEditor::deleteSelection()
 				int nLine = pitchToLine( pNote->get_notekey_pitch() );
 				pUndo->push( new SE_addOrDeleteNotePianoRollAction( pNote->get_position(),
 																	nLine,
-																	__selectedPatternNumber,
+																	m_nSelectedPatternNumber,
 																	nSelectedInstrumentnumber,
 																	pNote->get_length(),
 																	pNote->get_velocity(),
@@ -1136,7 +1117,7 @@ void PianoRollEditor::paste()
 				int nLine = pitchToLine( nPitch );
 				pUndo->push( new SE_addOrDeleteNotePianoRollAction( nPos,
 																	nLine,
-																	__selectedPatternNumber,
+																	m_nSelectedPatternNumber,
 																	nInstrument,
 																	pNote->get_length(),
 																	pNote->get_velocity(),

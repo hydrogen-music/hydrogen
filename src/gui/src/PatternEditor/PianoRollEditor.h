@@ -159,7 +159,6 @@ class PianoRollEditor: public PatternEditor
 		virtual void focusInEvent ( QFocusEvent * ev );
 
 		int __selectedInstrumentnumber;
-		int __selectedPatternNumber;
 		int __nRealColumn;
 		int __nColumn;
 		int __pressedLine;

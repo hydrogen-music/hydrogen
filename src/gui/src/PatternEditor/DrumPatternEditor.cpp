@@ -83,17 +83,7 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 		return;
 	}
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
-	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
-		m_pPattern = pPatternList->get( nSelectedPatternNumber );
-	}
-	else {
-		m_pPattern = nullptr;
-	}
-	__selectedPatternNumber = nSelectedPatternNumber;
-
+	updatePatternInfo();
 
 	if ( m_pPattern ) {
 		m_nEditorWidth = m_nMargin + m_nGridWidth * m_pPattern->get_length();
@@ -137,7 +127,7 @@ void DrumPatternEditor::addOrRemoveNote(int nColumn, int nRealColumn, int row) {
 
 	SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
 																	 row,
-																	 __selectedPatternNumber,
+																	 m_nSelectedPatternNumber,
 																	 oldLength,
 																	 oldVelocity,
 																	 oldPan_L,
@@ -188,7 +178,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		if ( pNote != nullptr ) {
 			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
 																			 row,
-																			 __selectedPatternNumber,
+																			 m_nSelectedPatternNumber,
 																			 pNote->get_length(),
 																			 pNote->get_velocity(),
 																			 pNote->get_pan_l(),
@@ -204,7 +194,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 			pApp->m_pUndoStack->push( action );
 		} else {
 			// Add stop-note
-			SE_addNoteOffAction *action = new SE_addNoteOffAction( nColumn, row,__selectedPatternNumber,
+			SE_addNoteOffAction *action = new SE_addNoteOffAction( nColumn, row, m_nSelectedPatternNumber,
 																   pNote != nullptr );
 			pApp->m_pUndoStack->push( action );
 		}
@@ -447,7 +437,7 @@ void DrumPatternEditor::mouseDragEndEvent( QMouseEvent *ev )
 	if ( m_pDraggedNote ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
 
-		SE_editNoteLenghtAction *action = new SE_editNoteLenghtAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), __row, m_pDraggedNote->get_length(),__oldLength, __selectedPatternNumber);
+		SE_editNoteLenghtAction *action = new SE_editNoteLenghtAction( m_pDraggedNote->get_position(),  m_pDraggedNote->get_position(), __row, m_pDraggedNote->get_length(),__oldLength, m_nSelectedPatternNumber );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		m_pDraggedNote = nullptr;
 	}
@@ -505,7 +495,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 				// Note is moved out of range. Delete it.
 				pUndo->push( new SE_addOrDeleteNoteAction( nPosition,
 														   nInstrument,
-														   __selectedPatternNumber,
+														   m_nSelectedPatternNumber,
 														   pNote->get_length(),
 														   pNote->get_velocity(),
 														   pNote->get_pan_l(),
@@ -525,7 +515,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 				// Copy note to a new note.
 				pUndo->push( new SE_addOrDeleteNoteAction( nNewPosition,
 														   nNewInstrument,
-														   __selectedPatternNumber,
+														   m_nSelectedPatternNumber,
 														   pNote->get_length(),
 														   pNote->get_velocity(),
 														   pNote->get_pan_l(),
@@ -540,7 +530,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   false ) );
 			} else {
 				// Move note
-				pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, __selectedPatternNumber,
+				pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, m_nSelectedPatternNumber,
 													nNewPosition, nNewInstrument, pNote ) );
 			}
 		}
@@ -805,7 +795,7 @@ void DrumPatternEditor::deleteSelection()
 			if ( m_selection.isSelected( pNote ) ) {
 				pUndo->push( new SE_addOrDeleteNoteAction( pNote->get_position(),
 														   pInstrumentList->index( pNote->get_instrument() ),
-														   __selectedPatternNumber,
+														   m_nSelectedPatternNumber,
 														   pNote->get_length(),
 														   pNote->get_velocity(),
 														   pNote->get_pan_l(),
@@ -951,7 +941,7 @@ void DrumPatternEditor::paste()
 				 && nInstrument >= 0 && nInstrument < pInstrList->size() ) {
 				pUndo->push( new SE_addOrDeleteNoteAction( nPos,
 														   nInstrument,
-														   __selectedPatternNumber,
+														   m_nSelectedPatternNumber,
 														   pNote->get_length(),
 														   pNote->get_velocity(),
 														   pNote->get_pan_l(),
@@ -1032,16 +1022,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 		hydrogen will crash after you save a song and create a new one.
 		-smoors
 	*/
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
-	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
-		m_pPattern = pPatternList->get( nSelectedPatternNumber );
-	}
-	else {
-		m_pPattern = nullptr;
-	}
-	// ~ FIX
+	updatePatternInfo();
 
 	if( m_pPattern ) {
 		const Pattern::notes_t* pNotes = m_pPattern->get_notes();

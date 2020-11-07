@@ -139,6 +139,9 @@ protected:
 	float m_nGridWidth;
 	unsigned m_nGridHeight;
 
+	int m_nSelectedPatternNumber;
+	H2Core::Pattern *m_pPattern;
+
 	const int m_nMargin = 20;
 
 	uint m_nResolution;
@@ -149,15 +152,17 @@ protected:
 	bool m_bSelectNewNotes;
 	H2Core::Note *m_pDraggedNote;
 
-	H2Core::Pattern *m_pPattern;
 	PatternEditorPanel *m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
 
 	int getColumn(QMouseEvent *ev) const;
 	QPoint movingGridOffset() const;
 
-	// Draw lines for note grid.
+	//! Draw lines for note grid.
 	void drawGridLines( QPainter &p, Qt::PenStyle style = Qt::SolidLine ) const;
+
+	//! Update current pattern information
+	void updatePatternInfo();
 
 };
 

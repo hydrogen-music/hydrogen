@@ -209,6 +209,23 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 	}
 }
 
+
+void PatternEditor::updatePatternInfo() {
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
+
+	m_pPattern = nullptr;
+	m_nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
+
+	if ( pSong ) {
+		PatternList *pPatternList = pSong->get_pattern_list();
+		if ( ( m_nSelectedPatternNumber != -1 ) && ( m_nSelectedPatternNumber < pPatternList->size() ) ) {
+			m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
+		}
+	}
+}
+
+
 QPoint PatternEditor::movingGridOffset( ) const {
 	QPoint rawOffset = m_selection.movingOffset();
 	// Quantize offset to multiples of m_nGrid{Width,Height}
