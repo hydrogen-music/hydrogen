@@ -30,8 +30,6 @@
 #include <hydrogen/basics/pattern_list.h>
 #include <hydrogen/Preferences.h>
 
-
-using namespace std;
 using namespace H2Core;
 
 PatternPropertiesDialog::PatternPropertiesDialog(QWidget* parent, Pattern *pattern, int nselectedPattern, bool savepattern)

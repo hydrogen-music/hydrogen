@@ -37,8 +37,6 @@
 #include <lrdf.h>
 #endif
 
-using namespace std;
-
 namespace H2Core
 {
 

@@ -46,7 +46,6 @@
 #include <time.h>
 #endif
 using namespace H2Core;
-using namespace std;
 
 const char* SongEditorPanel::__class_name = "SongEditorPanel";
 
@@ -662,7 +661,7 @@ void SongEditorPanel::clearSequence( Button* btn)
 void SongEditorPanel::restoreGroupVector( QString filename )
 {
 	//clear the old sequese
-	vector<PatternList*> *pPatternGroupsVect = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
+	std::vector<PatternList*> *pPatternGroupsVect = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
 		PatternList *pPatternList = (*pPatternGroupsVect)[i];
 		pPatternList->clear();

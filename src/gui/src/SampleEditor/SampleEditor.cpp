@@ -676,33 +676,33 @@ void SampleEditor::createPositionsRulerPath()
 	}
 
 	if ( loopmode == Sample::Loops::REVERSE ){
-		reverse(loopFrames, loopFrames + loopLength);
+		std::reverse(loopFrames, loopFrames + loopLength);
 	}
 
 	if ( loopmode == Sample::Loops::REVERSE && __loops.count > 0 && __loops.start_frame == __loops.loop_frame ){
-		reverse( tempFrames, tempFrames + oneSampleLength );
+		std::reverse( tempFrames, tempFrames + oneSampleLength );
 		}
 
 	if ( loopmode == Sample::Loops::PINGPONG &&  __loops.start_frame == __loops.loop_frame){
-		reverse(loopFrames, loopFrames + loopLength);
+		std::reverse(loopFrames, loopFrames + loopLength);
 	}
 
 	for ( int i = 0; i< __loops.count ;i++){
 		unsigned tempdataend = oneSampleLength + ( loopLength * i );
 		if ( __loops.start_frame == __loops.loop_frame ){
-			copy( loopFrames, loopFrames+loopLength ,tempFrames+ tempdataend );
+			std::copy( loopFrames, loopFrames+loopLength ,tempFrames+ tempdataend );
 		}
 		if ( loopmode == Sample::Loops::PINGPONG && __loops.count > 1){
-			reverse(loopFrames, loopFrames + loopLength);
+			std::reverse(loopFrames, loopFrames + loopLength);
 		}
 		if ( __loops.start_frame != __loops.loop_frame ){
-			copy( loopFrames, loopFrames+loopLength ,tempFrames+ tempdataend );
+			std::copy( loopFrames, loopFrames+loopLength ,tempFrames+ tempdataend );
 		}
 	}
 
 
 	if ( __loops.count == 0 && loopmode == Sample::Loops::REVERSE ){
-		reverse( tempFrames + __loops.loop_frame, tempFrames + newLength);
+		std::reverse( tempFrames + __loops.loop_frame, tempFrames + newLength);
 	}
 
 	if(m_pPositionsRulerPath)

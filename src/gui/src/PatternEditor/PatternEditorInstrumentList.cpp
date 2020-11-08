@@ -51,8 +51,6 @@ using namespace H2Core;
 #include <cassert>
 #include <algorithm> // for std::min
 
-using namespace std;
-
 const char* InstrumentLine::__class_name = "InstrumentLine";
 
 InstrumentLine::InstrumentLine(QWidget* pParent)

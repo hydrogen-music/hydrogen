@@ -358,10 +358,10 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == nullptr ) continue;
 							
-							if ( min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+							if ( std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 								  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
 							     shortestDistance ){
-								shortestDistance = min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+								shortestDistance = std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 											abs( pLayer->get_start_velocity() - pNote->get_velocity() ) );
 								nearestLayer = nLayer;
 							}
@@ -421,10 +421,10 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 								InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 								if ( pLayer == nullptr ) continue;
 								
-								if ( min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+								if ( std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 									  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
 								     shortestDistance ){
-									shortestDistance = min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+									shortestDistance = std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 												abs( pLayer->get_start_velocity() - pNote->get_velocity() ) );
 									nearestLayer = nLayer;
 								}
@@ -503,10 +503,10 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 								}
 								
 								
-								if ( min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+								if ( std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 									  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
 								     shortestDistance ){
-									shortestDistance = min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+									shortestDistance = std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 												abs( pLayer->get_start_velocity() - pNote->get_velocity() ) );
 									nearestLayer = nLayer;
 								}

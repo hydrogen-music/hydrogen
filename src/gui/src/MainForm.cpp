@@ -84,7 +84,6 @@
 #include <memory>
 #include <cassert>
 
-using namespace std;
 using namespace H2Core;
 
 int MainForm::sigusr1Fd[2];
@@ -631,7 +630,7 @@ void MainForm::action_file_save()
 
 		// add the new loaded song in the "last used song" vector
 		Preferences *pPref = Preferences::get_instance();
-		vector<QString> recentFiles = pPref->getRecentFiles();
+		std::vector<QString> recentFiles = pPref->getRecentFiles();
 		recentFiles.insert( recentFiles.begin(), filename );
 		pPref->setRecentFiles( recentFiles );
 
@@ -1329,7 +1328,7 @@ void MainForm::updateRecentUsedSongList()
 	m_pRecentFilesMenu->clear();
 
 	Preferences *pPref = Preferences::get_instance();
-	vector<QString> recentUsedSongs = pPref->getRecentFiles();
+	std::vector<QString> recentUsedSongs = pPref->getRecentFiles();
 
 	QString sFilename;
 
@@ -1375,7 +1374,7 @@ void MainForm::openSongFile( const QString& sFilename )
 
 	// add the new loaded song in the "last used song" vector
 	Preferences *pPref = Preferences::get_instance();
-	vector<QString> recentFiles = pPref->getRecentFiles();
+	std::vector<QString> recentFiles = pPref->getRecentFiles();
 	recentFiles.insert( recentFiles.begin(), sFilename );
 	pPref->setRecentFiles( recentFiles );
 
@@ -1667,7 +1666,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		}
 
 		// virtual keyboard handling
-		map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
+		std::map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
 		if (found != keycodeInstrumentMap.end()) {
 			//			INFOLOG( "[eventFilter] virtual keyboard event" );
 			// insert note at the current column in time

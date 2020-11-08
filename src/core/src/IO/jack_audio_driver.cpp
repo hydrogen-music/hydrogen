@@ -1111,7 +1111,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		pJackPosition->beats_per_minute = (double)pDriver->m_transport.m_fBPM;
 	}
 		
-	nWaits = max( int(0), nWaits - 1);
+	nWaits = std::max( int(0), nWaits - 1);
 
 	if ( pDriver->m_transport.m_nFrames < 1 ) {
 		pJackPosition->bar = 0;

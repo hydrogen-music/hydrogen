@@ -30,7 +30,6 @@
 #include <hydrogen/fx/Effects.h>
 #include <hydrogen/fx/LadspaFX.h>
 
-using namespace std;
 using namespace H2Core;
 
 const char* LadspaFXSelector::__class_name = "LadspaFXSelector";
@@ -264,7 +263,7 @@ void LadspaFXSelector::on_m_pGroupsListView_currentItemChanged( QTreeWidgetItem 
 std::vector<H2Core::LadspaFXInfo*> LadspaFXSelector::findPluginsInGroup( const QString& sSelectedGroup, H2Core::LadspaFXGroup *pGroup )
 {
 	//INFOLOG( "group: " + sSelectedGroup );
-	vector<H2Core::LadspaFXInfo*> list;
+	std::vector<H2Core::LadspaFXInfo*> list;
 
 	if ( pGroup->getName() == sSelectedGroup ) {
 		//INFOLOG( "found..." );

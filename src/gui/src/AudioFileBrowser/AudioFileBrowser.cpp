@@ -36,7 +36,6 @@
 #include <QMessageBox>
 
 using namespace H2Core;
-using namespace std;
 
 const char* AudioFileBrowser::__class_name = "AudioFileBrowser";
 

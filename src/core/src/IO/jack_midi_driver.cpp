@@ -40,8 +40,6 @@
 #include <hydrogen/LashClient.h>
 #endif
 
-using namespace std;
-
 namespace H2Core
 {
 
@@ -62,12 +60,12 @@ JackMidiDriver::unlock(void)
 void
 JackMidiDriver::JackMidiWrite(jack_nframes_t nframes)
 {
-		int error;
+	int error;
 	int events;
 	int i;
 	void *buf;
 	jack_midi_event_t event;
-		uint8_t buffer[13];// 13 is needed if we get sysex goto messages
+	uint8_t buffer[13];// 13 is needed if we get sysex goto messages
 
 	if (input_port == nullptr) {
 		return;
@@ -428,7 +426,7 @@ JackMidiDriver::close()
 std::vector<QString>
 JackMidiDriver::getInputPortList()
 {
-	vector<QString> inputList;
+	std::vector<QString> inputList;
 
 	inputList.push_back("Default");
 
@@ -438,7 +436,7 @@ JackMidiDriver::getInputPortList()
 std::vector<QString>
 JackMidiDriver::getOutputPortList()
 {
-	vector<QString> outputList;
+	std::vector<QString> outputList;
 
 	outputList.push_back("Default");
 
