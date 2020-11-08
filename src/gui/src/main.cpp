@@ -504,7 +504,7 @@ int main(int argc, char *argv[])
 		delete MidiActionManager::get_instance();
 
 		___INFOLOG( "Quitting..." );
-		std::cout << "\nBye..." << endl;
+		std::cout << "\nBye..." << std::endl;
 		delete H2Core::Logger::get_instance();
 
 		if (H2Core::Object::count_active()) {
