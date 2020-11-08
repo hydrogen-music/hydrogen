@@ -39,8 +39,6 @@
 #include <hydrogen/LashClient.h>
 #endif
 
-using namespace std;
-
 namespace H2Core
 {
 
@@ -367,7 +365,7 @@ void AlsaMidiDriver::midi_action( snd_seq_t *seq_handle )
 
 std::vector<QString> AlsaMidiDriver::getInputPortList()
 {
-	vector<QString> inputList;
+	std::vector<QString> inputList;
 
 	if ( seq_handle == nullptr ) {
 		return inputList;
@@ -416,7 +414,7 @@ std::vector<QString> AlsaMidiDriver::getInputPortList()
 
 std::vector<QString> AlsaMidiDriver::getOutputPortList()
 {
-	vector<QString> outputList;
+	std::vector<QString> outputList;
 
 	if ( seq_handle == nullptr ) {
 		return outputList;

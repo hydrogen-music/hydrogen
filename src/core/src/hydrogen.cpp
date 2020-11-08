@@ -28,6 +28,7 @@
 #    include <sys/time.h>
 #endif
 
+
 #include <pthread.h>
 #include <cassert>
 #include <cstdio>
@@ -37,6 +38,8 @@
 #include <ctime>
 #include <cmath>
 #include <algorithm>
+#include <thread>
+#include <chrono>
 
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
@@ -3855,11 +3858,8 @@ void Hydrogen::handleBeatCounter()
 							  * (int) 1000 )
 							+ (int)m_nCoutOffset
 							+ (int) m_nStartOffset;
-#ifdef WIN32
-					Sleep( sleeptime );
-#else
-					usleep( 1000 * sleeptime );
-#endif
+					
+					std::this_thread::sleep_for( std::chrono::milliseconds( sleeptime ) );
 
 					sequencer_play();
 				}

@@ -62,7 +62,6 @@
 #include <hydrogen/helpers/filesystem.h>
 
 using namespace H2Core;
-using namespace std;
 
 Director::Director ( QWidget* pParent )
 		: QDialog ( pParent )

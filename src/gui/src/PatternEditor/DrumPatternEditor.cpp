@@ -49,7 +49,6 @@
 #include <cassert>
 #include <algorithm>
 
-using namespace std;
 using namespace H2Core;
 
 const char* DrumPatternEditor::__class_name = "DrumPatternEditor";

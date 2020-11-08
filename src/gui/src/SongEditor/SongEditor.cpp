@@ -63,8 +63,6 @@ using namespace H2Core;
 #include <windows.h>
 #endif
 
-using namespace std;
-
 const char* SongEditor::__class_name = "SongEditor";
 
 struct PatternDisplayInfo {
@@ -163,7 +161,7 @@ bool SongEditor::togglePatternActive( int nColumn, int nRow )
 	H2Core::Pattern *pPattern = pPatternList->get( nRow );
 	assert( pPattern != nullptr );
 
-	vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
+	std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 	if ( nColumn < pColumns->size() ) {
 		PatternList *pColumn = ( *pColumns )[ nColumn ];
 		unsigned nColumnIndex = pColumn->index( pPattern );
@@ -199,7 +197,7 @@ void SongEditor::setPatternActive( int nColumn, int nRow, bool value )
 	H2Core::Pattern *pPattern = pPatternList->get( nRow );
 	assert( pPattern != nullptr );
 
-	vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
+	std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 	if ( nColumn < pColumns->size() ) {
 		PatternList *pColumn = ( *pColumns )[ nColumn ];
 		unsigned nColumnIndex = pColumn->index( pPattern );
@@ -243,7 +241,7 @@ void SongEditor::togglePatternSelected( int nColumn, int nRow )
 	H2Core::Pattern *pPattern = pPatternList->get( nRow );
 	assert( pPattern != nullptr );
 
-	vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
+	std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 	if ( nColumn < pColumns->size() ) {
 		PatternList *pColumn = ( *pColumns )[ nColumn ];
 		unsigned nColumnIndex = pColumn->index( pPattern );
@@ -259,7 +257,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	vector<PatternList*>* pColumns = pEngine->getSong()->get_pattern_group_vector();
+	std::vector<PatternList*>* pColumns = pEngine->getSong()->get_pattern_group_vector();
 	const QPoint centre = QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
 	SongEditorActionMode actionMode = m_pSongEditorPanel->getActionMode();
 
@@ -580,7 +578,7 @@ void SongEditor::addPattern( int nColumn , int nRow )
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
 	H2Core::Pattern *pPattern = pPatternList->get( nRow );
-	vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
+	std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	if ( nColumn < (int)pColumns->size() ) {
@@ -616,7 +614,7 @@ void SongEditor::deletePattern( int nColumn , int nRow )
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
 	H2Core::Pattern *pPattern = pPatternList->get( nRow );
-	vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
+	std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
@@ -645,7 +643,7 @@ void SongEditor::deletePattern( int nColumn , int nRow )
 void SongEditor::updateSelectionOrMove( int nColumn, int nRow, QPoint pos )
 {
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
-	vector<PatternList*>* pColumns = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
+	std::vector<PatternList*>* pColumns = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
 
 	if ( m_bIsMoving ) {
 
@@ -872,7 +870,7 @@ void SongEditor::movePatternCellAction( std::vector<QPoint> movingCells, std::ve
 	Hydrogen *pEngine = Hydrogen::get_instance();
 
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	vector<PatternList*>* pColumns = pEngine->getSong()->get_pattern_group_vector();
+	std::vector<PatternList*>* pColumns = pEngine->getSong()->get_pattern_group_vector();
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
@@ -1148,7 +1146,7 @@ void SongEditor::drawSequence()
 
 	Song* song = Hydrogen::get_instance()->getSong();
 	PatternList *patList = song->get_pattern_list();
-	vector<PatternList*>* pColumns = song->get_pattern_group_vector();
+	std::vector<PatternList*>* pColumns = song->get_pattern_group_vector();
 	uint listLength = patList->size();
 
 	//Drawing the pattern based on the gridRepresentation array
@@ -1323,7 +1321,7 @@ void SongEditor::clearThePatternSequenceVector( QString filename )
 	//before deleting the sequence, write a temp sequence file to disk
 	song->writeTempPatternList( filename );
 
-	vector<PatternList*> *pPatternGroupsVect = song->get_pattern_group_vector();
+	std::vector<PatternList*> *pPatternGroupsVect = song->get_pattern_group_vector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
 		PatternList *pPatternList = (*pPatternGroupsVect)[i];
 		pPatternList->clear();
@@ -1900,7 +1898,7 @@ void SongEditorPatternList::deletePatternFromList( QString patternFilename, QStr
 	INFOLOG( QString("[patternPopup_delete] Delete pattern: %1 @%2").arg(pattern->get_name()).arg( (long long)pattern ) );
 	pSongPatternList->del(pattern);
 
-	vector<PatternList*> *patternGroupVect = song->get_pattern_group_vector();
+	std::vector<PatternList*> *patternGroupVect = song->get_pattern_group_vector();
 
 	uint i = 0;
 	while (i < patternGroupVect->size() ) {
@@ -2055,7 +2053,7 @@ void SongEditorPatternList::fillRangeWithPattern( FillRange* pRange, int nPatter
 	Song *pSong = pEngine->getSong();
 	PatternList *pPatternList = pSong->get_pattern_list();
 	H2Core::Pattern *pPattern = pPatternList->get( nPattern );
-	vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();	// E' la lista di "colonne" di pattern
+	std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();	// E' la lista di "colonne" di pattern
 	PatternList *pColumn = nullptr;
 
 	int nColumn, nColumnIndex;
