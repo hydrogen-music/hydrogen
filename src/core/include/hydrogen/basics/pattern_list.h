@@ -166,6 +166,15 @@ inline void PatternList::clear()
 	__patterns.clear();
 }
 
+inline void PatternList::operator<<( Pattern* pattern )
+{
+	add( pattern );
+}
+
+inline Pattern *PatternList::operator[]( int idx ) {
+	return get( idx );
+}
+
 };
 
 #endif // H2C_PATTERN_LIST_H
