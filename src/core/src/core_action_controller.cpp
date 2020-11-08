@@ -167,17 +167,8 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 	
-	if ( isSoloed ) {
-		for ( int i = 0; i < pInstrList->size(); ++i ) {
-			setStripIsMuted( i, true );
-		}
-
-		setStripIsMuted( nStrip, false );
-	} else {
-		for ( int i = 0; i < pInstrList->size(); ++i ) {
-			setStripIsMuted( i, false );
-		}
-	}
+	Instrument* pInstr = pInstrList->get( nStrip );
+	pInstr->set_soloed( isSoloed );
 	
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "STRIP_SOLO_TOGGLE" );
@@ -288,7 +279,9 @@ void CoreActionController::initExternalControlInterfaces()
 			setStripIsMuted( i, pInstr->is_muted() );
 			
 			//SOLO
-			setStripIsSoloed( i, pInstr->is_soloed() );
+			if(pInstr->is_soloed()) {
+				setStripIsSoloed( i, pInstr->is_soloed() );
+			}
 	}
 	
 	//TOGGLE_METRONOME

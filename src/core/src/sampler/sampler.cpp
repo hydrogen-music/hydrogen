@@ -593,15 +593,18 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		assert(pMainCompo);
 		
 		bool isMutedForExport = (pEngine->getIsExportSessionActive() && !pInstr->is_currently_exported());
+		bool isMutedBecauseOfSolo = (is_any_instrument_soloed() && !pInstr->is_soloed());
 		
 		/*
 		 *  Is instrument muted?
 		 *
-		 *  This can be the case either if the song, instrument or component is muted or if we're in an
-		 *  export session and we're doing per-instruments exports, but this instrument is not currently
-		 *  being exported.
+		 *  This can be the case either if: 
+		 *   - the song, instrument or component is muted 
+		 *   - if we're in an export session and we're doing per-instruments exports, 
+		 *       but this instrument is not currently being exported.
+		 *   - if at least one instrument is soloed (but not this instrument)
 		 */
-		if ( isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {	
+		if ( isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() || isMutedBecauseOfSolo) {	
 			cost_L = 0.0;
 			cost_R = 0.0;
 			if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
@@ -1384,6 +1387,24 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 		}
 
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
+}
+
+bool Sampler::is_any_instrument_soloed() 
+{
+	Hydrogen*		pEngine = Hydrogen::get_instance();
+	Song*			pSong = pEngine->getSong();
+	InstrumentList* pInstrList = pSong->get_instrument_list();
+	bool			bAnyInstrumentIsSoloed = false;
+	
+	for(int i=0; i < pInstrList->size(); i++) {
+		Instrument* pInstr = pInstrList->get( i );
+		
+		if( pInstr->is_soloed() )	{
+			bAnyInstrumentIsSoloed = true;
+		}
+	}
+	
+	return bAnyInstrumentIsSoloed;
 }
 
 bool Sampler::is_instrument_playing( Instrument* instrument )
