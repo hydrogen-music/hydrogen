@@ -65,9 +65,7 @@ build_script:
       mkdir %APPVEYOR_BUILD_FOLDER%\windows\extralibs
 
       REM *** Deploy Qt ***
-      set DEPLOY_MODE=--release
-      if %BUILD_TYPE% == "Debug" set DEPLOY_MODE=--debug
-      %QTDIR%\bin\windeployqt.exe -xmlpatterns --no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\windows\extralibs %DEPLOY_MODE% src/gui/hydrogen.exe
+      %QTDIR%\bin\windeployqt.exe -xmlpatterns --no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\windows\extralibs src/gui/hydrogen.exe
 
       REM *** Deploy other libraries ***
       set PYTHON=C:\Python38\python
