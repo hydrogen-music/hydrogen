@@ -553,7 +553,7 @@ void Mixer::updateMixer()
 	}
 
 	if( pDrumkitComponentList->size() < m_pComponentMixerLine.size() ) {
-		std::vector<int>* pIdsToDelete = new std::vector<int>();
+		std::vector<int> IdsToDelete;
 		for (std::map<int, ComponentMixerLine*>::iterator it=m_pComponentMixerLine.begin(); it!=m_pComponentMixerLine.end(); ++it) {
 
 			bool bFoundExistingRelatedComponent = false;
@@ -565,11 +565,11 @@ void Mixer::updateMixer()
 				}
 			}
 			if( !bFoundExistingRelatedComponent ) {
-				pIdsToDelete->push_back( it->first ) ;
+				IdsToDelete.push_back( it->first ) ;
 			}
 		}
 
-		for ( const int nCompoID : *pIdsToDelete ) {
+		for ( const int nCompoID : IdsToDelete ) {
 			delete m_pComponentMixerLine[nCompoID];
 			m_pComponentMixerLine.erase( nCompoID );
 
