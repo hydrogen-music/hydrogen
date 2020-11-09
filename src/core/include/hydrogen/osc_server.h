@@ -750,6 +750,10 @@ class OscServer : public H2Core::Object
 		 * for internal changes happening after the 1.0 release.
 		 */
 		OscServer( H2Core::Preferences* pPreferences );
+		
+		/** Helper function which sends a message with msgText to all 
+		 * connected clients. **/
+		static void broadcastMessage( const char* msgText, lo_message message);
 	
 		/** Pointer to the H2Core::Preferences singleton. Although it
 		 * could be accessed internally using

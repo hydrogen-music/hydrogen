@@ -52,8 +52,12 @@ class CoreActionController : public H2Core::Object {
 		void setStripPan( int nStrip, float fPanValue, bool bSelectStrip );
 		void setMetronomeIsActive( bool isActive );
 		void setMasterIsMuted( bool isMuted );
+		
 		void setStripIsMuted( int nStrip, bool isMuted );
+		void toggleStripIsMuted( int nStrip );
+		
 		void setStripIsSoloed( int nStrip, bool isSoloed );
+		void toggleStripIsSoloed( int nStrip );
 		
 		void initExternalControlInterfaces();
 		void handleOutgoingControlChange( int param, int value);

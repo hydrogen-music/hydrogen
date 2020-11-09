@@ -202,13 +202,8 @@ int OscServer::generic_handler(const char *	path,
 			
 			H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
 			H2Core::CoreActionController* pController = pEngine->getCoreActionController();
-			
-			bool isMuted = false;
-			if(argv[0]->f != 0){
-				isMuted = true;
-			}
 		
-			pController->setStripIsMuted( value, isMuted );
+			pController->toggleStripIsMuted( value );
 		}
 	}
 	
@@ -220,13 +215,8 @@ int OscServer::generic_handler(const char *	path,
 			
 			H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
 			H2Core::CoreActionController* pController = pEngine->getCoreActionController();
-			
-			bool isSoloed = false;
-			if(argv[0]->f != 0){
-				isSoloed = true;
-			}
 		
-			pController->setStripIsSoloed( value, isSoloed );
+			pController->toggleStripIsSoloed( value );
 		}
 	}
 
@@ -715,6 +705,22 @@ bool IsLoAddressEqual( lo_address first, lo_address second )
 	return portEqual && hostEqual && protoEqual;
 }
 
+void OscServer::broadcastMessage( const char* msgText, lo_message message) {
+	for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
+		lo_address clientAddress = *it;
+		
+		INFOLOG( QString( "Outgoing OSC broadcast message %1" ).arg( msgText ));
+		
+		int i;
+		for (i = 0; i < lo_message_get_argc( message ); i++) {
+			QString formattedArgument = qPrettyPrint( (lo_type)lo_message_get_types(message)[i], lo_message_get_argv(message)[i] );
+			INFOLOG(QString("Argument %1: %2 %3").arg(i).arg(lo_message_get_types(message)[i]).arg(formattedArgument));
+		}
+		
+		lo_send_message(clientAddress, msgText, message);
+	}
+}
+
 // -------------------------------------------------------------------
 // Main action handler
 
@@ -733,10 +739,7 @@ void OscServer::handleAction( Action* pAction )
 		lo_message reply = lo_message_new();
 		lo_message_add_float(reply, param2);
 
-		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-			lo_address clientAddress = *it;
-			lo_send_message(clientAddress, "/Hydrogen/MASTER_VOLUME_ABSOLUTE" , reply);
-		}
+		broadcastMessage("/Hydrogen/MASTER_VOLUME_ABSOLUTE", reply);
 		
 		lo_message_free( reply );
 	}
@@ -751,10 +754,7 @@ void OscServer::handleAction( Action* pAction )
 		QByteArray ba = QString("/Hydrogen/STRIP_VOLUME_ABSOLUTE/%1").arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
 
-		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-			lo_address clientAddress = *it;
-			lo_send_message(clientAddress, c_str2, reply);
-		}
+		broadcastMessage( c_str2, reply);
 		
 		lo_message_free( reply );
 	}
@@ -766,10 +766,7 @@ void OscServer::handleAction( Action* pAction )
 		lo_message reply = lo_message_new();
 		lo_message_add_float(reply, param1);
 
-		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-			lo_address clientAddress = *it;
-			lo_send_message(clientAddress, "/Hydrogen/TOGGLE_METRONOME", reply);
-		}
+		broadcastMessage("/Hydrogen/TOGGLE_METRONOME", reply);
 		
 		lo_message_free( reply );
 	}
@@ -780,11 +777,8 @@ void OscServer::handleAction( Action* pAction )
 
 		lo_message reply = lo_message_new();
 		lo_message_add_float(reply, param1);
-
-		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-			lo_address clientAddress = *it;
-			lo_send_message(clientAddress, "/Hydrogen/MUTE_TOGGLE", reply);
-		}
+		
+		broadcastMessage("/Hydrogen/MUTE_TOGGLE", reply);
 		
 		lo_message_free( reply );
 	}
@@ -799,10 +793,7 @@ void OscServer::handleAction( Action* pAction )
 		QByteArray ba = QString("/Hydrogen/STRIP_MUTE_TOGGLE/%1").arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
 
-		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-			lo_address clientAddress = *it;
-			lo_send_message(clientAddress, c_str2, reply);
-		}
+		broadcastMessage( c_str2, reply);
 		
 		lo_message_free( reply );
 	}
@@ -817,10 +808,7 @@ void OscServer::handleAction( Action* pAction )
 		QByteArray ba = QString("/Hydrogen/STRIP_SOLO_TOGGLE/%1").arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
 
-		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-			lo_address clientAddress = *it;
-			lo_send_message(clientAddress, c_str2, reply);
-		}
+		broadcastMessage( c_str2, reply);
 		
 		lo_message_free( reply );
 	}
@@ -835,10 +823,7 @@ void OscServer::handleAction( Action* pAction )
 		QByteArray ba = QString("/Hydrogen/PAN_ABSOLUTE/%1").arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
 
-		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-			lo_address clientAddress = *it;
-			lo_send_message(clientAddress, c_str2, reply);
-		}
+		broadcastMessage( c_str2, reply);
 		
 		lo_message_free( reply );
 	}
