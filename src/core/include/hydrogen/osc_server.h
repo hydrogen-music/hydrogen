@@ -753,7 +753,7 @@ class OscServer : public H2Core::Object
 		
 		/** Helper function which sends a message with msgText to all 
 		 * connected clients. **/
-		static void broadcastMessage( const char* msgText, lo_message message);
+		void broadcastMessage( const char* msgText, lo_message message);
 	
 		/** Pointer to the H2Core::Preferences singleton. Although it
 		 * could be accessed internally using
@@ -783,7 +783,7 @@ class OscServer : public H2Core::Object
 		 * will be added to it and the current state Hydrogen will be
 		 * propagated to all registered clients.
 		 */
-		std::list<lo_address>	m_pClientRegistry;
+		std::list<lo_address> m_pClientRegistry;
 };
 
 #endif /* H2CORE_HAVE_OSC */
