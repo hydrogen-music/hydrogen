@@ -1224,7 +1224,11 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 	}
 
 #ifdef H2CORE_HAVE_JACK
-	dynamic_cast<JackAudioDriver*>(m_pAudioDriver)->clearPerTrackAudioBuffers( nFrames );
+	JackAudioDriver * pJackAudioDriver = dynamic_cast<JackAudioDriver*>(m_pAudioDriver);
+	
+	if( pJackAudioDriver ) {
+		pJackAudioDriver->clearPerTrackAudioBuffers( nFrames );
+	}
 #endif
 
 	mx.unlock();
