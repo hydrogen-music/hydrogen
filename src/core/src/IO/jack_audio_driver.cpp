@@ -97,7 +97,8 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	  m_pClient( nullptr ),
 	  m_pOutputPort1( nullptr ),
 	  m_pOutputPort2( nullptr ),
-	  m_nIsTimebaseMaster( -1 )
+	  m_nTimebaseTracking( -1 ),
+	  m_timebaseState( Timebase::None )
 {
 	INFOLOG( "INIT" );
 	
@@ -105,8 +106,6 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	
 	m_bConnectDefaults = pPreferences->m_bJackConnectDefaults;
 	
-	__track_out_enabled = pPreferences->m_bJackTrackOuts;
-
 	m_transport.m_status = TransportInfo::STOPPED;
 	m_transport.m_nFrames = 0;
 	m_transport.m_fTickSize = 100;
@@ -115,8 +114,6 @@ JackAudioDriver::JackAudioDriver( JackProcessCallback m_processCallback )
 	JackAudioDriver::pJackDriverInstance = this;
 	this->m_processCallback = m_processCallback;
 
-	m_nTimebaseTracking = -1;
-	m_timebaseState = Timebase::None;
 	
 	// Destination ports the output of Hydrogen will be connected
 	// to.
@@ -293,7 +290,7 @@ void JackAudioDriver::calculateFrameOffset(long long oldFrame)
 
 void JackAudioDriver::relocateUsingBBT()
 {
-	if ( m_nIsTimebaseMaster != 0 ) {
+	if ( m_timebaseState != Timebase::Slave ) {
 		ERRORLOG( QString( "Relocation using BBT information can only be used in the presence of another Jack timebase master" ) );
 		return;
 	}
@@ -449,7 +446,7 @@ void JackAudioDriver::updateTransportInfo()
 		// this can take more than one cycle.
 		m_transport.m_status = TransportInfo::STOPPED;
 
-		if ( m_nIsTimebaseMaster == 0 ) {
+		if ( m_timebaseState == Timebase::Slave ) {
 			return;
 		}
 		
@@ -495,7 +492,7 @@ void JackAudioDriver::updateTransportInfo()
 		// is in pattern mode.
 		pHydrogen->resetPatternStartTick();
 
-		if ( m_nIsTimebaseMaster != 0 ) {
+		if ( m_timebaseState != Timebase::Slave ) {
 			m_transport.m_nFrames = m_JackTransportPos.frame;
 		
 			// There maybe was an offset introduced when passing a
@@ -522,7 +519,7 @@ void JackAudioDriver::updateTransportInfo()
 		pHydrogen->setTimelineBpm();
 	}
 
-	if ( m_nIsTimebaseMaster == 0 ) {
+	if ( m_timebaseState == Timebase::Slave ) {
 		m_previousJackTransportPos = m_JackTransportPos;
 	}
 }
@@ -1322,7 +1319,7 @@ void JackAudioDriver::printState() const {
 			  << ", m_transport.m_status: " << m_transport.m_status
 			  << ", m_frameOffset: " << m_frameOffset
 			  << ", m_JackTransportState: " << m_JackTransportState
-			  << ", m_nIsTimebaseMaster: " << m_nIsTimebaseMaster
+			  << ", m_timebaseState: " << static_cast<int>(m_timebaseState)
 			  << ", m_currentPos: " << m_currentPos
 			  << ", pHydrogen->getPatternPos(): " << pHydrogen->getPatternPos()
 			  << "\33[0m" << std::endl;
