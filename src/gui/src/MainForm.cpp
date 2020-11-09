@@ -432,7 +432,7 @@ void MainForm::onLashPollTimer()
 
 		lash_event_t* event;
 
-		string songFilename;
+		std::string songFilename;
 		QString filenameSong;
 		Song *song = Hydrogen::get_instance()->getSong();
 		// Extra parentheses for -Wparentheses
