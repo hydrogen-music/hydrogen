@@ -502,9 +502,9 @@ void showUsage()
 #endif
 
 #ifdef H2CORE_HAVE_LASH
-	cout << "   --lash-no-start-server - If LASH server not running, don't start" << std::endl
+	std::cout << "   --lash-no-start-server - If LASH server not running, don't start" << std::endl
 			  << "                            it (LASH 0.5.3 and later)." << std::endl;
-	cout << "   --lash-no-autoresume - Tell LASH server not to assume I'm returning" << std::endl
+	std::cout << "   --lash-no-autoresume - Tell LASH server not to assume I'm returning" << std::endl
 			  << "                          from a crash." << std::endl;
 #endif
 	std::cout << "   -V[Level], --verbose[=Level] - Print a lot of debugging info" << std::endl;
