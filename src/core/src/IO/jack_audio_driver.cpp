@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <cassert>
+#include <algorithm>
 #include <hydrogen/hydrogen.h>
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/basics/drumkit_component.h>
@@ -1051,7 +1052,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 		pJackPosition->beats_per_minute = static_cast<double>(pDriver->m_transport.m_fBPM);
 	}
 		
-	JackAudioDriver::nWaits = max( int(0), JackAudioDriver::nWaits - 1);
+	JackAudioDriver::nWaits = std::max( int(0), JackAudioDriver::nWaits - 1);
 
 	if ( pDriver->m_transport.m_nFrames < 1 ) {
 		pJackPosition->bar = 0;
