@@ -97,8 +97,10 @@ void LCDCombo::wheelEvent( QWheelEvent * ev )
 	const int n = actions.size();
 	const int d = ( ev->delta() > 0 ) ? -1: 1;
 	int next = ( n + active + d ) % n;
-	if ( actions.at( next )->isSeparator() )
+	if ( actions.at( next )->isSeparator() ) {
 		next = ( n + next + d ) % n;
+	}
+	
 	select( next );
 }
 
@@ -114,8 +116,9 @@ bool LCDCombo::select( int idx )
 
 bool LCDCombo::select( int idx, bool emitValueChanged )
 {
-	if (active == idx)
+	if (active == idx) {
 		return false;
+	}
 
 	if (idx < 0 || idx >= actions.size()) {
 		WARNINGLOG(QString("out of index %1 >= %2").arg(idx).arg(actions.size()));
@@ -124,7 +127,9 @@ bool LCDCombo::select( int idx, bool emitValueChanged )
 
 	active = idx;
 	display->setText( actions.at( idx )->text() );
-	if ( emitValueChanged )
+	if ( emitValueChanged ) {
 		emit valueChanged( idx );
+	}
+	
 	return true;
 }

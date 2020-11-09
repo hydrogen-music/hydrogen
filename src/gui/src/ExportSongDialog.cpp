@@ -97,7 +97,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	}
 
 	// use of timeline
-	if( m_pEngine->getTimeline()->m_timelinevector.size() > 0 ){
+	if( m_pEngine->getTimeline()->getAllTempoMarkers().size() > 0 ){
 		toggleTimeLineBPMCheckBox->setChecked(m_pPreferences->getUseTimelineBpm());
 		m_bOldTimeLineBPMMode = m_pPreferences->getUseTimelineBpm();
 		connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTimeLineBPMMode( bool )));
@@ -164,10 +164,10 @@ void ExportSongDialog::saveSettingsToPreferences()
 	m_pPreferences->setExportDirectory( sSelectedDirname );
 	
 	// saving other options
-	m_pPreferences->setExportMode( exportTypeCombo->currentIndex() );
-	m_pPreferences->setExportTemplate( templateCombo->currentIndex() );
-	m_pPreferences->setExportSampleRate( sampleRateCombo->currentIndex() );
-	m_pPreferences->setExportSampleDepth( sampleDepthCombo->currentIndex() );
+	m_pPreferences->setExportModeIdx( exportTypeCombo->currentIndex() );
+	m_pPreferences->setExportTemplateIdx( templateCombo->currentIndex() );
+	m_pPreferences->setExportSampleRateIdx( sampleRateCombo->currentIndex() );
+	m_pPreferences->setExportSampleDepthIdx( sampleDepthCombo->currentIndex() );
 }
 
 void ExportSongDialog::restoreSettingsFromPreferences()
@@ -187,10 +187,19 @@ void ExportSongDialog::restoreSettingsFromPreferences()
 	exportNameTxt->setText( sFullPath );
 	
 	// loading rest of the options
-	templateCombo->setCurrentIndex( m_pPreferences->getExportTemplate() );
-	exportTypeCombo->setCurrentIndex( m_pPreferences->getExportMode() );
-	sampleRateCombo->setCurrentIndex( m_pPreferences->getExportSampleRate() );
-	sampleDepthCombo->setCurrentIndex( m_pPreferences->getExportSampleDepth() );
+	templateCombo->setCurrentIndex( m_pPreferences->getExportTemplateIdx() );
+	exportTypeCombo->setCurrentIndex( m_pPreferences->getExportModeIdx() );
+	
+	int nExportSampleRateIdx = m_pPreferences->getExportSampleRateIdx();
+	if( nExportSampleRateIdx >= 0 ) {
+		sampleRateCombo->setCurrentIndex( nExportSampleRateIdx );
+	}
+	
+	
+	int nExportBithDepthIdx = m_pPreferences->getExportSampleDepthIdx();
+	if( nExportBithDepthIdx >= 0 ) {
+		sampleDepthCombo->setCurrentIndex( nExportBithDepthIdx );
+	}
 }
 
 void ExportSongDialog::on_browseBtn_clicked()
@@ -247,7 +256,7 @@ bool ExportSongDialog::validateUserInput()
 	if( !dir.exists() ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
-			tr( "Directory %1 does not exists").arg( dir.absolutePath() ),
+			tr( "Directory %1 does not exist").arg( dir.absolutePath() ),
 			QMessageBox::Ok
 		);
 		return false;
@@ -500,7 +509,7 @@ void ExportSongDialog::on_templateCombo_currentIndexChanged(int index )
 	case 4:
 		sampleRateCombo->show();
 		sampleDepthCombo->show();
-		sampleRateCombo->setCurrentIndex ( 3 ); //96000hz
+		sampleRateCombo->setCurrentIndex ( 4 ); //96000hz
 		sampleDepthCombo->setCurrentIndex ( 3 ); //32bit
 		filename += ".wav";
 		m_sExtension = ".wav";
@@ -675,14 +684,15 @@ void ExportSongDialog::calculateRubberbandTime()
 	okBtn->setEnabled(false);
 	
 	Timeline* pTimeline = m_pEngine->getTimeline();
+	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 
 	float oldBPM = m_pEngine->getSong()->__bpm;
 	float lowBPM = oldBPM;
 
-	if( pTimeline->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
-			if(pTimeline->m_timelinevector[t].m_htimelinebpm < lowBPM){
-				lowBPM =  pTimeline->m_timelinevector[t].m_htimelinebpm;
+	if ( tempoMarkerVector.size() >= 1 ){
+		for ( int t = 0; t < tempoMarkerVector.size(); t++){
+			if(tempoMarkerVector[t]->fBpm < lowBPM){
+				lowBPM =  tempoMarkerVector[t]->fBpm;
 			}
 
 		}

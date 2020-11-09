@@ -66,6 +66,9 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		static const int m_nKeys = 24;
 		static const int m_nBasePitch = 12;
 
+		bool m_bNeedsUpdate;
+		void finishUpdateEditor();
+
 		NotePropertiesMode m_Mode;
 
 		PatternEditorPanel *m_pPatternEditorPanel;
@@ -76,6 +79,9 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 
 		QPixmap *m_pBackground;
 
+		double m_fLastSetValue;
+		bool m_bValueHasBeenSet;
+
 		void createVelocityBackground(QPixmap *pixmap);
 		void createPanBackground(QPixmap *pixmap);
 		void createLeadLagBackground(QPixmap *pixmap);
@@ -85,8 +91,11 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		void mouseMoveEvent(QMouseEvent *ev);
 		void wheelEvent(QWheelEvent *ev);
 		void mouseReleaseEvent(QMouseEvent *ev);
-		void startUndoAction();
-		void pressAction( int x, int y);
+		void keyPressEvent( QKeyEvent *ev );
+		void focusInEvent( QFocusEvent *ev );
+		void focusOutEvent( QFocusEvent *ev );
+		void addUndoAction();
+		void prepareUndoAction( int x );
 
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent();

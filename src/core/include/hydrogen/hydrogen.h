@@ -32,6 +32,7 @@
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
+#include <hydrogen/IO/jack_audio_driver.h>
 #include <hydrogen/basics/drumkit.h>
 #include <hydrogen/core_action_controller.h>
 #include <cassert>
@@ -215,15 +216,13 @@ public:
 
 		void			getLadspaFXPeak( int nFX, float *fL, float *fR );
 		void			setLadspaFXPeak( int nFX, float fL, float fR );
-	/**
-	 * \return The global variable H2Core::m_nPatternTickPosition
-	 */
+	/** \return #m_nPatternTickPosition */
 	unsigned long		getTickPosition();
 	/** Keep track of the tick position in realtime.
 	 *
 	 * Firstly, it gets the current transport position in frames
 	 * #m_nRealtimeFrames and converts it into ticks using
-	 * TransportInfo::m_nTickSize. Afterwards, it accesses how
+	 * TransportInfo::m_fTickSize. Afterwards, it accesses how
 	 * much time passed since the last update of
 	 * #m_currentTickTime, converts the time difference +
 	 * AudioOutput::getBufferSize()/ AudioOutput::getSampleRate()
@@ -256,40 +255,53 @@ public:
 
 	/** \return #m_pNextPatterns*/
 	PatternList *		getNextPatterns();
-
-		/** Get the position of the current Pattern in the Song.
-		 * \return #m_nSongPos */
-		int			getPatternPos();
-		/**
-		 * Relocate the beginning of a Pattern.
-		 *
-		 * \param nPatternNumber Pattern to relocate to. All values
-		 *   smaller than -1 will be set to -1, which marks the
-		 *   beginning of the Song.
-		 */
-		void			setPatternPos( int nPatternNumber );
-		/** Returns the pattern number corresponding to the tick
-		 * position @a TickPos.
-		 *
-		 * Wrapper around function findPatternInTick() (globally defined
-		 * in hydrogen.cpp).
-		 *
-		 * \param TickPos Position in ticks.
-		 * \param nPatternStartTick Pointer to an int the starting
-		 * position (in ticks) of the corresponding pattern will be
-		 * written to.
-		 *
-		 * \return 
-		 * - __0__ : if the Song isn't specified yet.
-		 * - the output of the findPatternInTick() function called
-		 *   with @a TickPos and Song::is_loop_enabled() as input
-		 *   arguments.
-		 */
-		int			getPosForTick( unsigned long TickPos, int* nPatternStartTick );
-		/** Resetting #m_nPatternStartTick to -1 if the current Song
-		    mode is Song::PATTERN_MODE
-		*/
-		void			triggerRelocateDuringPlay();
+	/** Get the position of the current Pattern in the Song.
+	 * \return #m_nSongPos */
+	int			getPatternPos();
+	/**
+	 * Relocate the position to another Pattern in the Song.
+	 *
+	 * The position of a Pattern in frames (see
+	 * TransportInfo::m_nFrames for details) will be determined by
+	 * retrieving the tick number the Pattern is located at using
+	 * getTickForPosition() and multiplying it with
+	 * TransportInfo::m_fTickSize. The resulting value will be
+	 * used by the AudioOutput::locate() function of your audio
+	 * driver to relocate the playback position.
+	 *
+	 * If #m_audioEngineState is not #STATE_PLAYING, the variables
+	 * #m_nSongPos and #m_nPatternTickPosition will be set to @a
+	 * pos and 0 right away.
+	 *
+	 * \param pos Position of the Pattern to relocate at. All
+	 *   values smaller than -1 will be set to -1, which marks the
+	 *   beginning of the Song.
+	 */
+	void			setPatternPos( int pos );
+	/** Returns the pattern number corresponding to the tick
+	 * position @a TickPos.
+	 *
+	 * Wrapper around function findPatternInTick() (globally defined
+	 * in hydrogen.cpp).
+	 *
+	 * \param TickPos Position in ticks.
+	 * \param nPatternStartTick Pointer to an int the starting
+	 * position (in ticks) of the corresponding pattern will be
+	 * written to.
+	 *
+	 * \return 
+	 * - __0__ : if the Song isn't specified yet.
+	 * - the output of the findPatternInTick() function called
+	 *   with @a TickPos and Song::is_loop_enabled() as input
+	 *   arguments.
+	 */
+	int			getPosForTick( unsigned long TickPos, int* nPatternStartTick );
+	/** Move playback in Pattern mode to the beginning of the pattern.
+	 *
+	 * Resetting the global variable #m_nPatternStartTick to -1 if the
+	 * current Song mode is Song::PATTERN_MODE.
+	 */
+	void			resetPatternStartTick();
 	
 		/**
 		 * Get the total number of ticks passed up to a Pattern at
@@ -447,7 +459,12 @@ void			previewSample( Sample *pSample );
 #endif
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
-	void			startOscServer();
+	/** Starts/stops the OSC server
+	 * \param bEnable `true` = start, `false` = stop.*/
+	void			toggleOscServer( bool bEnable );
+	/** Destroys and recreates the OscServer singleton in order to
+		adopt a new OSC port.*/
+	void			recreateOscServer();
 	void			startNsmClient();
 #endif
 
@@ -460,39 +477,35 @@ void			previewSample( Sample *pSample );
 	void			handleBeatCounter();
 	void			setBcOffsetAdjust();
 
-	/** Returns the latest transport position of the JACK server.
-	 * \return #m_nHumantimeFrames*/
-	unsigned long		getHumantimeFrames();
-	/** Sets #m_nHumantimeFrames.
-	    \param hframes New transport position in frames.*/
-	void			setHumantimeFrames(unsigned long hframes);
-	/** Calling JackAudioDriver::com_release() directly from
+	/** Calling JackAudioDriver::releaseTimebaseMaster() directly from
 	    the GUI*/
 	void			offJackMaster();
-	/** Calling JackAudioDriver::initTimeMaster() directly from
+	/** Calling JackAudioDriver::initTimebaseMaster() directly from
 	    the GUI*/
 	void			onJackMaster();
 	/**
+	 * Get the length (in ticks) of the @a nPattern th pattern.
+	 *
 	 * Access the length of the first Pattern found in the
-	 * PatternList at @a humanpos - 1.
+	 * PatternList at @a nPattern - 1.
 	 *
 	 * This function should also work if the loop mode is enabled
 	 * in Song::is_loop_enabled().
 	 *
-	 * \param humanpos Position + 1 of the desired PatternList.
+	 * \param nPattern Position + 1 of the desired PatternList.
 	 * \return 
 	 * - __-1__ : if not Song was initialized yet.
-	 * - #MAX_NOTES : if @a humanpos was smaller than 1, larger
+	 * - #MAX_NOTES : if @a nPattern was smaller than 1, larger
 	 * than the length of the vector of the PatternList in
 	 * Song::__pattern_group_sequence or no Pattern could be found
-	 * in the PatternList at @a humanpos - 1.
-	 * - __else__ : length of first Pattern found at @a humanpos.
+	 * in the PatternList at @a nPattern - 1.
+	 * - __else__ : length of first Pattern found at @a nPattern.
 	 */
-	long			getTickForHumanPosition( int humanpos );
+	long			getPatternLength( int nPattern );
 	/** Returns the fallback speed.
-	 * \return #m_nNewBpmJTM */
+	 * \return #m_fNewBpmJTM */
 	float			getNewBpmJTM();
-	/** Set the fallback speed #m_nNewBpmJTM.
+	/** Set the fallback speed #m_fNewBpmJTM.
 	 * \param bpmJTM New default tempo. */ 
 	void			setNewBpmJTM( float bpmJTM);
 
@@ -500,25 +513,24 @@ void			previewSample( Sample *pSample );
 	unsigned int	__getMidiRealtimeNoteTickPosition();
 
 	/**
-	 * Updates Song::__bpm and #m_nNewBpmJTM to the local speed.
+	 * Updates Song::__bpm, TransportInfo::m_fBPM, and #m_fNewBpmJTM
+	 * to the local speed.
 	 *
-	 * To set the of the Song Song::__bpm, the local speed will be
-	 * obtained by calling getTimelineBpm() with getPatternPos()
-	 * as input argument. For setting the fallback speed
-	 * #m_nNewBpmJTM, getRealtimeTickPosition() will be used
-	 * instead.
+	 * The local speed will be obtained by calling getTimelineBpm()
+	 * with getPatternPos() as input argument and set for the current
+	 * song and transport. For setting the
+	 * fallback speed #m_fNewBpmJTM, getRealtimeTickPosition() will be
+	 * used instead.
 	 *
-	 * If Preferences::__useTimelineBpm is set to false, the
-	 * function will return without performing any actions.
+	 * If Preferences::__useTimelineBpm is set to false or Hydrogen
+	 * uses JACK transport in the presence of an external timebase
+	 * master, the function will return without performing any
+	 * actions.
 	 */
 	void			setTimelineBpm();
 	/**
-	 * Returns the local speed at a specific @a Beat in the
+	 * Returns the local speed at a specific @a nBar in the
 	 * Timeline.
-	 *
-	 * Timeline::HTimelineVector::m_htimelinebpm of the first
-	 * Timeline::HTimelineVector::m_htimelinebeat bigger than @a
-	 * Beat will be returned.
 	 *
 	 * If Hydrogen is in Song::PATTERN_MODE or
 	 * Preferences::__useTimelineBpm is set to false, the global
@@ -528,12 +540,12 @@ void			previewSample( Sample *pSample );
 	 *
 	 * Its counterpart is setTimelineBpm().
 	 *
-	 * \param Beat Position along the Timeline to access the tempo
-	 *   at.
+	 * \param nBar Position (in whole patterns) along the Timeline to
+	 *   access the tempo at.
+	 *
 	 * \return Speed in beats per minute.
 	 */
-	float			getTimelineBpm( int Beat );
-	/** \return #m_pTimeline*/
+	float			getTimelineBpm( int nBar );
 	Timeline*		getTimeline() const;
 	
 	//export management
@@ -588,9 +600,66 @@ void			previewSample( Sample *pSample );
 	/**\param pNextSong Sets #m_pNextSong. #Song which is about to be
 	   loaded by the GUI.*/
 	void			setNextSong( Song* pNextSong );
+	/** Calculates the lookahead for a specific tick size.
+	 *
+	 * During the humanization the onset of a Note will be moved
+	 * Note::__lead_lag times the value calculated by this function.
+	 *
+	 * Since the size of a tick is tempo dependent, @a fTickSize
+	 * allows you to calculate the lead-lag factor for an arbitrary
+	 * position on the Timeline.
+	 *
+	 * \param fTickSize Number of frames that make up one tick.
+	 *
+	 * \return Five times the current size of a tick
+	 * (TransportInfo::m_fTickSize) (in frames)
+	 */
+	int 			calculateLeadLagFactor( float fTickSize );
+	/** Calculates time offset (in frames) used to determine the notes
+	 * process by the audio engine.
+	 *
+	 * Due to the humanization there might be negative offset in the
+	 * position of a particular note. To be able to still render it
+	 * appropriately, we have to look into and handle notes from the
+	 * future.
+	 *
+	 * The Lookahead is the sum of the #m_nMaxTimeHumanize and
+	 * calculateLeadLagFactor() plus one (since it has to be larger
+	 * than that).
+	 *
+	 * \param fTickSize Number of frames that make up one tick. Passed
+	 * to calculateLeadLagFactor().
+	 *
+	 * \return Frame offset*/
+	int 			calculateLookahead( float fTickSize );
+	/**
+	 * \return Whether JackAudioDriver is used as current audio
+	 * driver.
+	 */
+	bool			haveJackAudioDriver() const;
+	/**
+	 * \return Whether JackAudioDriver is used as current audio driver
+	 * and JACK transport was activated via the GUI
+	 * (#Preferences::m_bJackTransportMode).
+	 */
+	bool			haveJackTransport() const;
+	/**
+	 * \return Whether we haveJackTransport() and there is an external
+	 * JACK timebase master broadcasting us tempo information and
+	 * making use disregard Hydrogen's Timeline information (see
+	 * #JackAudioDriver::m_timebaseState).
+	 */
+	JackAudioDriver::Timebase		getJackTimebaseState() const;
 
 	///midi lookuptable
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
+	/**
+	 * Maximum time (in frames) a note's position can be off due to
+	 * the humanization (lead-lag).
+	 *
+	 * Required to calculateLookahead(). Set to 2000.
+	 */
+	int 			m_nMaxTimeHumanize;
 
 private:
 	/**

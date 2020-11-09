@@ -84,37 +84,40 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 {
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	QString drumkitName = drumkitList->currentText();
-	QString drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
-	QString saveDir = drumkitPathTxt->text();
-
-	Preferences *pref = Preferences::get_instance();
+	QString		drumkitName = drumkitList->currentText();
+	QString		drumkitDir = Filesystem::drumkit_dir_search( drumkitName );
+	QString		saveDir = drumkitPathTxt->text();
+	Drumkit*	pDrumkit = nullptr;
+	int nVersionListIndex = versionList->currentIndex();
+	
 	QDir qdTempFolder( Filesystem::tmp_dir() );
-	bool TmpFileCreated = false;
-
+	bool TmpFileCreated = false; 
 
 	int componentID = -1;
-	Drumkit* info;
-	if( versionList->currentIndex() == 1 ) {
+	
+	if( nVersionListIndex == 1 ) {
 		for (uint i = 0; i < drumkitInfoList.size(); i++ ) {
-			info = drumkitInfoList[i];
-			if( info->get_name().compare( drumkitName ) == 0 ) {
+			pDrumkit = drumkitInfoList[i];
+			if( pDrumkit->get_name().compare( drumkitName ) == 0 ) {
 				QString temporaryDrumkitXML = qdTempFolder.filePath( "drumkit.xml" );
 				INFOLOG( "[ExportSoundLibrary]" );
 				INFOLOG( "Saving temporary file into: " + temporaryDrumkitXML );
-				TmpFileCreated = true;
-				for (std::vector<DrumkitComponent*>::iterator it = info->get_components()->begin() ; it != info->get_components()->end(); ++it) {
+				TmpFileCreated = true; //NOLINT
+
+				for (std::vector<DrumkitComponent*>::iterator it = pDrumkit->get_components()->begin() ; it != pDrumkit->get_components()->end(); ++it) {
 					DrumkitComponent* pComponent = *it;
 					if( pComponent->get_name().compare( componentList->currentText() ) == 0) {
 						componentID = pComponent->get_id();
 						break;
 					}
 				}
-				info->save_file( temporaryDrumkitXML, true, componentID );
+				pDrumkit->save_file( temporaryDrumkitXML, true, componentID );
 				break;
 			}
 		}
+		assert( pDrumkit );
 	}
+
 
 #if defined(H2CORE_HAVE_LIBARCHIVE)
 	QString fullDir = drumkitDir + "/" + drumkitName;
@@ -142,19 +145,23 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	#endif
 
 	archive_write_set_format_pax_restricted(a);
-	archive_write_open_filename(a, outname.toUtf8().constData());
+	int ret = archive_write_open_filename(a, outname.toUtf8().constData());
+	if ( ret != ARCHIVE_OK ) {
+		QMessageBox::critical( this, "Hydrogen", QString("Couldn't create archive '%0'").arg( outname ) );
+		return;
+	}
 	for (int i = 0; i < filesList.size(); i++) {
 		QString filename = fullDir + "/" + filesList.at(i);
 		QString targetFilename = drumkitName + "/" + filesList.at(i);
 
-		if( versionList->currentIndex() == 1 ) {
+		if( nVersionListIndex == 1 ) {
 			if( filesList.at(i).compare( QString("drumkit.xml") ) == 0 ) {
 				filename = qdTempFolder.filePath( "drumkit.xml" );
 			}
 			else {
 				bool bFoundFileInRightComponent = false;
-				for( int j = 0; j < info->get_instruments()->size() ; j++){
-					InstrumentList instrList = info->get_instruments();
+				for( int j = 0; j < pDrumkit->get_instruments()->size() ; j++){
+					InstrumentList instrList = pDrumkit->get_instruments();
 					Instrument* instr = instrList[j];
 					for (std::vector<InstrumentComponent*>::iterator it = instr->get_components()->begin() ; it != instr->get_components()->end(); ++it) {
 						InstrumentComponent* component = *it;
@@ -171,8 +178,9 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 						}
 					}
 				}
-				if( !bFoundFileInRightComponent )
+				if( !bFoundFileInRightComponent ) {
 					continue;
+				}
 			}
 		}
 
@@ -204,9 +212,8 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	filesList.clear();
 
 	QApplication::restoreOverrideCursor();
-	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
+	QMessageBox::information( this, "Hydrogen", tr("Drumkit exported.") );
 #elif !defined(WIN32)
-
 
 	if(TmpFileCreated)
 	{
@@ -245,10 +252,10 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 
 
 	QApplication::restoreOverrideCursor();
-	QMessageBox::information( this, "Hydrogen", "Drumkit exported." );
+	QMessageBox::information( this, "Hydrogen", tr("Drumkit exported.") );
 #else
 	QApplication::restoreOverrideCursor();
-	QMessageBox::information( this, "Hydrogen", "Drumkit not exported. Operation not supported." );
+	QMessageBox::information( this, "Hydrogen", tr("Drumkit not exported. Operation not supported.") );
 #endif
 }
 
@@ -297,10 +304,11 @@ void SoundLibraryExportDialog::on_drumkitList_currentIndexChanged( QString str )
 
 void SoundLibraryExportDialog::on_versionList_currentIndexChanged( int index )
 {
-	if( index == 0 )
+	if( index == 0 ) {
 		componentList->setEnabled( false );
-	else if( index == 1 )
+	} else if( index == 1 ) {
 		componentList->setEnabled(  true );
+	}
 }
 
 void SoundLibraryExportDialog::updateDrumkitList()

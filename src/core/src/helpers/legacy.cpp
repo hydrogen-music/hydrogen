@@ -90,12 +90,15 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				pInstrument->set_midi_out_note( instrument_node.read_int( "midiOutNote", MIDI_MIDDLE_C, true, false ) );
 				pInstrument->set_stop_notes( instrument_node.read_bool( "isStopNote", true ,false ) );
 				QString read_sample_select_algo = instrument_node.read_string( "sampleSelectionAlgo", "VELOCITY" );
-				if ( read_sample_select_algo.compare("VELOCITY") == 0)
+				
+				if ( read_sample_select_algo.compare("VELOCITY") == 0) {
 					pInstrument->set_sample_selection_alg( Instrument::VELOCITY );
-				else if ( read_sample_select_algo.compare("ROUND_ROBIN") == 0 )
+				} else if ( read_sample_select_algo.compare("ROUND_ROBIN") == 0 ) {
 					pInstrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
-				else if ( read_sample_select_algo.compare("RANDOM") == 0 )
+				} else if ( read_sample_select_algo.compare("RANDOM") == 0 ) {
 					pInstrument->set_sample_selection_alg( Instrument::RANDOM );
+				}
+				
 				pInstrument->set_hihat_grp( instrument_node.read_int( "isHihat", -1, true ) );
 				pInstrument->set_lower_cc( instrument_node.read_int( "lower_cc", 0, true ) );
 				pInstrument->set_higher_cc( instrument_node.read_int( "higher_cc", 127, true ) );
@@ -230,12 +233,14 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 			if ( !instrRef ) {
 				ERRORLOG( QString( "Instrument with ID: '%1' not found. Note skipped." ).arg( instrId ) );
 				note_node = note_node.nextSiblingElement( "note" );
+				
 				continue;
 			}
 			//assert( instrRef );
 			bool noteoff = false;
-			if ( nNoteOff == "true" )
+			if ( nNoteOff == "true" ) {
 				noteoff = true;
+			}
 
 			pNote = new Note( instrRef, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch);
 			pNote->set_key_octave( sKey );

@@ -168,8 +168,8 @@ void Sample::apply( const Loops& loops, const Rubberband& rubber, const Velocity
 bool Sample::load()
 {
 	// Will contain a bunch of metadata about the loaded sample.
-	SF_INFO sound_info;
-	
+	SF_INFO sound_info = {0};
+
 	// Opens file in read-only mode.
 	SNDFILE* file = sf_open( __filepath.toLocal8Bit(), SFM_READ, &sound_info );
 	if ( !file ) {
@@ -559,8 +559,9 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 
 		pRrubberbandProc->start( program, arguments );
 
-		while( !	pRrubberbandProc->waitForFinished() ) {
-			//_ERRORLOG( QString( "prozessing" ));
+		while(     pRrubberbandProc->state() != QProcess::NotRunning 
+			   && !pRrubberbandProc->waitForFinished() ) {
+			//_ERRORLOG( QString( "processing" ));
 		}
 		if ( QFile( rubberResultPath ).exists() == false ) {
 			_ERRORLOG( QString( "Rubberband reimporter File %1 not found" ).arg( rubberResultPath ) );
@@ -591,7 +592,7 @@ bool Sample::exec_rubberband_cli( const Rubberband& rb )
 Sample::Loops::LoopMode Sample::parse_loop_mode( const QString& string )
 {
 	QByteArray byteArray =	string.toLocal8Bit();
-	char* mode = byteArray.data();
+	const char* mode = byteArray.data();
 	for( int i=Loops::FORWARD; i<=Loops::PINGPONG; i++ ) {
 		if( 0 == strncasecmp( mode, __loop_modes[i], sizeof( __loop_modes[i] ) ) ) return ( Loops::LoopMode )i;
 	}
@@ -604,10 +605,17 @@ bool Sample::write( const QString& path, int format )
 	for ( int i = 0; i < __frames; ++i ) {
 		float value_l = __data_l[i];
 		float value_r = __data_r[i];
-		if ( value_l > 1.f ) value_l = 1.f;
-		else if ( value_l < -1.f ) value_l = -1.f;
-		else if ( value_r > 1.f ) value_r = 1.f;
-		else if ( value_r < -1.f ) value_r = -1.f;
+		
+		if ( value_l > 1.f ) {
+			value_l = 1.f;
+		} else if ( value_l < -1.f ) {
+			value_l = -1.f;
+		} else if ( value_r > 1.f ) {
+			value_r = 1.f;
+		} else if ( value_r < -1.f ) {
+			value_r = -1.f;
+		}
+		
 		obuf[ i* SAMPLE_CHANNELS + 0 ] = value_l;
 		obuf[ i* SAMPLE_CHANNELS + 1 ] = value_r;
 	}

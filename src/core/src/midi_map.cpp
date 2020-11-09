@@ -113,6 +113,8 @@ void MidiMap::reset()
 		__cc_array[ i ] = new Action("NOTHING");
 	}
 
+	delete __pc_action;
+	__pc_action = new Action("NOTHING");
 }
 
 
@@ -161,7 +163,7 @@ void MidiMap::registerCCEvent( int parameter , Action * pAction ){
 	}
 }
 
-int MidiMap::findCCValueByActionParam1( QString actionType, QString param1 )
+int MidiMap::findCCValueByActionParam1 ( QString actionType, QString param1 ) const
 {
 	int nParam = -1;
 
@@ -178,7 +180,7 @@ int MidiMap::findCCValueByActionParam1( QString actionType, QString param1 )
 	return nParam;
 }
 
-int MidiMap::findCCValueByActionType( QString actionType )
+int MidiMap::findCCValueByActionType( QString actionType ) const
 {
 	int nParam = -1;
 

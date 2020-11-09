@@ -232,8 +232,9 @@ bool XMLDoc::write( const QString& filepath )
 	out.flush();
 
 	bool rv = true;
-	if ( !toString().isEmpty() && file.size() == 0 )
+	if ( !toString().isEmpty() && file.size() == 0 ) {
 		rv = false;
+	}
 
 	file.close();
 	return rv;

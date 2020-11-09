@@ -123,7 +123,21 @@ enum EventType {
 	 * Triggering HydrogenApp::quitEvent() and enables a shutdown of
 	 * the entire application via the command line.
 	 */
-	EVENT_QUIT
+	EVENT_QUIT,
+
+	/** Enables/disables the usage of the Timeline.*/ 
+	EVENT_TIMELINE_ACTIVATION,
+	/** Tells the GUI some parts of the Timeline - currently
+		adding/deleting of tempo markers - were modified.*/
+	EVENT_TIMELINE_UPDATE,
+	/** Toggles the button indicating the usage Jack transport.*/
+	EVENT_JACK_TRANSPORT_ACTIVATION,
+	/** Toggles the button indicating the usage Jack timebase master.*/
+	EVENT_JACK_TIMEBASE_ACTIVATION,
+	/** Activates either Pattern mode (0) or Song mode (else) of the playback.*/
+	EVENT_SONG_MODE_ACTIVATION,
+	/** Toggles the button indicating the usage loop mode.*/
+	EVENT_LOOP_MODE_ACTIVATION
 };
 
 /** Basic building block for the communication between the core of

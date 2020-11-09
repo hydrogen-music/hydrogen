@@ -100,8 +100,9 @@ void* diskWriterDriver_thread( void* param )
 //	#ifdef HAVE_OGGVORBIS
 
 	//ogg vorbis option
-	if( pDriver->m_sFilename.endsWith( ".ogg" ) | pDriver->m_sFilename.endsWith( ".OGG" ) )
+	if( pDriver->m_sFilename.endsWith( ".ogg" ) | pDriver->m_sFilename.endsWith( ".OGG" ) ) {
 		soundInfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
+	}
 
 //	#endif
 
@@ -169,20 +170,15 @@ void* diskWriterDriver_thread( void* param )
 			nPatternSize = MAX_NOTES;
 		}
 		
-		fTicksize = pDriver->m_nSampleRate * 60.0 /  pEngine->getSong()->__bpm / pEngine->getSong()->__resolution;
 		// check pattern bpm if timeline bpm is in use
 		Timeline* pTimeline = pEngine->getTimeline();
 		if(Preferences::get_instance()->getUseTimelineBpm() ){
-			if( pTimeline->m_timelinevector.size() >= 1 ){
-				
-				for ( int t = 0; t < pTimeline->m_timelinevector.size(); t++){
-					if(pTimeline->m_timelinevector[t].m_htimelinebeat == patternPosition &&
-							pTimeline->m_timelinevector[t].m_htimelinebpm != validBpm){
-						validBpm =  pTimeline->m_timelinevector[t].m_htimelinebpm;
-					}
-					
-				}
+
+			float fTimelineBpm = pTimeline->getTempoAtBar( patternPosition, true );
+			if ( fTimelineBpm != 0 ) {
+				validBpm = fTimelineBpm;
 			}
+			
 			pDriver->setBpm(validBpm);
 			fTicksize = pDriver->m_nSampleRate * 60.0 / validBpm / Hydrogen::get_instance()->getSong()->__resolution;
 			pDriver->audioEngine_process_checkBPMChanged();
@@ -200,7 +196,7 @@ void* diskWriterDriver_thread( void* param )
 		else
 		{
 			fTicksize = pDriver->m_nSampleRate * 60.0 /  Hydrogen::get_instance()->getSong()->__bpm / Hydrogen::get_instance()->getSong()->__resolution;
-			//pDriver->m_transport.m_nTickSize = ticksize;
+			//pDriver->m_transport.m_fTickSize = ticksize;
 		}
 		
 		
@@ -225,6 +221,9 @@ void* diskWriterDriver_thread( void* param )
 			//pDriver->m_transport.m_nFrames = frameNumber;
 			
 			int ret = pDriver->m_processCallback( usedBuffer, nullptr );
+			while( ret != 0) {
+				ret = pDriver->m_processCallback( usedBuffer, nullptr );
+			}
 			
 			for ( unsigned i = 0; i < usedBuffer; i++ ) {
 				if(pData_L[i] > 1){
@@ -377,7 +376,7 @@ void DiskWriterDriver::updateTransportInfo()
 void DiskWriterDriver::setBpm( float fBPM )
 {
 	INFOLOG( QString( "SetBpm: %1" ).arg( fBPM ) );
-	m_transport.m_nBPM = fBPM;
+	m_transport.m_fBPM = fBPM;
 }
 
 void DiskWriterDriver::audioEngine_process_checkBPMChanged()
@@ -387,15 +386,15 @@ void DiskWriterDriver::audioEngine_process_checkBPMChanged()
 						/ Hydrogen::get_instance()->getSong()->__bpm
 						/ Hydrogen::get_instance()->getSong()->__resolution;
 
-		if ( fNewTickSize != m_transport.m_nTickSize ) {
+		if ( fNewTickSize != m_transport.m_fTickSize ) {
 				// cerco di convertire ...
 				float fTickNumber =
 								( float )m_transport.m_nFrames
-								/ ( float )m_transport.m_nTickSize;
+								/ ( float )m_transport.m_fTickSize;
 
-				m_transport.m_nTickSize = fNewTickSize;
+				m_transport.m_fTickSize = fNewTickSize;
 
-				if ( m_transport.m_nTickSize == 0 ) {
+				if ( m_transport.m_fTickSize == 0 ) {
 						return;
 				}
 

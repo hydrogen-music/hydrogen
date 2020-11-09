@@ -51,7 +51,6 @@
 #include <memory>
 
 using namespace H2Core;
-using namespace std;
 
 const char* PlaylistDialog::__class_name = "PlaylistDialog";
 
@@ -411,7 +410,6 @@ void PlaylistDialog::loadList()
 		pPlaylist = Playlist::get_instance();
 	}
 
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Playlist* playlist = Playlist::get_instance();
 	if( playlist->size() > 0 ) {
 		QTreeWidget* m_pPlaylist = m_pPlaylistTree;
@@ -471,8 +469,9 @@ void PlaylistDialog::newScript()
 	}
 
 	QFile chngPerm ( filename );
-	if (!chngPerm.open(QIODevice::WriteOnly | QIODevice::Text))
+	if (!chngPerm.open(QIODevice::WriteOnly | QIODevice::Text)) {
 		return;
+	}
 
 	QTextStream out(&chngPerm);
 	out <<  "#!/bin/sh\n\n#have phun";
@@ -503,12 +502,8 @@ void PlaylistDialog::newScript()
 	}
 
 	QString  openfile = pPref->getDefaultEditor() + " " + filename + "&";
+	std::system(openfile.toLatin1());
 
-	char *ofile;
-	ofile = new char[openfile.length() + 1];
-	strcpy(ofile, openfile.toLatin1());
-	int ret = std::system( ofile );
-	delete [] ofile;
 	return;
 }
 
@@ -649,13 +644,9 @@ void PlaylistDialog::editScript()
 		return;
 	}
 
-	char *file;
-	file = new char[ filename.length() + 1 ];
-	strcpy( file , filename.toLatin1() );
-	int ret = std::system( file );
-	delete [] file;
+	std::system( filename.toLatin1() );
+	
 	return;
-
 }
 
 void PlaylistDialog::o_upBClicked()
@@ -711,8 +702,9 @@ void PlaylistDialog::o_downBClicked()
 	m_pPlaylist->insertTopLevelItem ( index +1, pTmpPlaylistItem );
 	m_pPlaylist->setCurrentItem ( pTmpPlaylistItem );
 
-	if ( pPlaylist->getSelectedSongNr() >= 0 )
+	if ( pPlaylist->getSelectedSongNr() >= 0 ) {
 		pPlaylist->setSelectedSongNr( pPlaylist->getSelectedSongNr() +1 );
+	}
 
 	if (pPlaylist ->getActiveSongNumber() == index ){
 		pPlaylist->setActiveSongNumber( pPlaylist->getActiveSongNumber() +1 );
@@ -790,21 +782,21 @@ void PlaylistDialog::nodeStopBTN( Button* ref )
 	UNUSED( ref );
 	m_pPlayBtn->setPressed(false);
 	Hydrogen::get_instance()->sequencer_stop();
-	Hydrogen::get_instance()->setPatternPos ( 0 );
+	Hydrogen::get_instance()->getCoreActionController()->relocate( 0 );
 }
 
 void PlaylistDialog::ffWDBtnClicked( Button* ref)
 {
 	UNUSED( ref );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setPatternPos( pEngine->getPatternPos() + 1 );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
 }
 
 void PlaylistDialog::rewindBtnClicked( Button* ref )
 {
 	UNUSED( ref );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setPatternPos( pEngine->getPatternPos() - 1 );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() - 1 );
 }
 
 void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
@@ -832,7 +824,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 	m_pPlayBtn->setPressed(false);
 
 	Timeline* pTimeline = pEngine->getTimeline();
-	pTimeline->m_timelinetagvector.clear();
+	pTimeline->deleteAllTags();
 
 	Song *pSong = Song::load ( selected );
 	if ( pSong == nullptr ){
@@ -870,11 +862,8 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 		return;
 	}
 
-	char *file;
-	file = new char[ selected.length() + 1 ];
-	strcpy( file , selected.toLatin1() );
-	int ret = std::system( file );
-	delete [] file;
+	std::system( selected.toLatin1() );
+	
 	return;
 #endif
 
@@ -905,8 +894,9 @@ void PlaylistDialog::updatePlayListVector()
 void PlaylistDialog::updateActiveSongNumber()
 {
 	for ( uint i = 0; i < Playlist::get_instance()->size(); ++i ){
-		if ( !m_pPlaylistTree->topLevelItem( i ) )
+		if ( !m_pPlaylistTree->topLevelItem( i ) ) {
 			break;
+		}
 		( m_pPlaylistTree->topLevelItem( i ) )->setBackground( 0, QBrush() );
 		( m_pPlaylistTree->topLevelItem( i ) )->setBackground( 1, QBrush() );
 		( m_pPlaylistTree->topLevelItem( i ) )->setBackground( 2, QBrush() );
@@ -914,8 +904,9 @@ void PlaylistDialog::updateActiveSongNumber()
 	}
 
 	int selected = Playlist::get_instance()->getActiveSongNumber();
-	if ( selected == -1 )
+	if ( selected == -1 ) {
 		return;
+	}
 
 	QTreeWidgetItem* pPlaylistItem = m_pPlaylistTree->topLevelItem ( selected );
 	if ( pPlaylistItem != nullptr ){
@@ -934,17 +925,20 @@ bool PlaylistDialog::eventFilter ( QObject *o, QEvent *e )
 
 		switch ( k->key() ) {
 		case  Qt::Key_F5 :
-			if( Playlist::get_instance()->size() == 0
-					|| Playlist::get_instance()->getActiveSongNumber() <=0)
+			if(    Playlist::get_instance()->size() == 0 
+				|| Playlist::get_instance()->getActiveSongNumber() <=0) {
 				break;
+			}
 
 			Playlist::get_instance()->setNextSongByNumber(Playlist::get_instance()->getActiveSongNumber()-1);
 			return true;
 			break;
 		case  Qt::Key_F6 :
-			if( Playlist::get_instance()->size() == 0
-					|| Playlist::get_instance()->getActiveSongNumber() >= Playlist::get_instance()->size() -1)
+			if(		Playlist::get_instance()->size() == 0
+				||	Playlist::get_instance()->getActiveSongNumber() >= Playlist::get_instance()->size() -1) {
 				break;
+			}
+			
 			Playlist::get_instance()->setNextSongByNumber(Playlist::get_instance()->getActiveSongNumber()+1);
 			return true;
 			break;
@@ -961,7 +955,7 @@ bool PlaylistDialog::loadListByFileName( QString filename )
 	bool bUseRelativeFilenames = Preferences::get_instance()->isPlaylistUsingRelativeFilenames();
 	
 	Playlist* pPlaylist = Playlist::load ( filename, bUseRelativeFilenames );
-	if ( ! pPlaylist ) {
+	if ( !pPlaylist ) {
 		_ERRORLOG( "Error loading the playlist" );
 		return false;
 	}

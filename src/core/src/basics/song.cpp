@@ -212,8 +212,9 @@ Song* Song::get_empty_song()
 DrumkitComponent* Song::get_component( int ID )
 {
 	for (std::vector<DrumkitComponent*>::iterator it = __components->begin() ; it != __components->end(); ++it) {
-		if( (*it)->get_id() == ID )
+		if( (*it)->get_id() == ID ) {
 			return *it;
+		}
 	}
 
 	return nullptr;
@@ -243,6 +244,24 @@ void Song::set_is_modified(bool is_modified)
 
 	if(Notify) {
 		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
+	}
+}
+
+bool Song::has_missing_samples()
+{
+	InstrumentList *pInstrumentList = get_instrument_list();
+	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
+		if ( pInstrumentList->get( i )->has_missing_samples() ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void Song::clear_missing_samples() {
+	InstrumentList *pInstrumentList = get_instrument_list();
+	for ( int i = 0; i < pInstrumentList->size(); i++ ) {
+		pInstrumentList->get (i )->set_missing_samples( false );
 	}
 }
 
@@ -416,18 +435,8 @@ QString Song::copyInstrumentLineToString( int selectedPattern, int selectedInstr
 			// Export only specified instrument
 			if (pNote->get_instrument() == pInstr)
 			{
-				QDomNode noteNode = doc.createElement( "note" );
-				LocalFileMng::writeXmlString( noteNode, "position", QString("%1").arg( pNote->get_position() ) );
-				LocalFileMng::writeXmlString( noteNode, "leadlag", QString("%1").arg( pNote->get_lead_lag() ) );
-				LocalFileMng::writeXmlString( noteNode, "velocity", QString("%1").arg( pNote->get_velocity() ) );
-				LocalFileMng::writeXmlString( noteNode, "pan_L", QString("%1").arg( pNote->get_pan_l() ) );
-				LocalFileMng::writeXmlString( noteNode, "pan_R", QString("%1").arg( pNote->get_pan_r() ) );
-				LocalFileMng::writeXmlString( noteNode, "pitch", QString("%1").arg( pNote->get_pitch() ) );
-				LocalFileMng::writeXmlString( noteNode, "probability", QString("%1").arg( pNote->get_probability() ) );
-
-				LocalFileMng::writeXmlString( noteNode, "key", pNote->key_to_string() );
-
-				LocalFileMng::writeXmlString( noteNode, "length", QString("%1").arg( pNote->get_length() ) );
+				XMLNode noteNode = doc.createElement( "note" );
+				pNote->save_to( &noteNode );
 				noteListNode.appendChild( noteNode );
 			}
 		}
@@ -447,8 +456,9 @@ QString Song::copyInstrumentLineToString( int selectedPattern, int selectedInstr
 bool Song::pasteInstrumentLineFromString( const QString& serialized, int selectedPattern, int selectedInstrument, std::list<Pattern *>& patterns )
 {
 	QDomDocument doc;
-	if (!doc.setContent(serialized))
+	if (!doc.setContent(serialized)) {
 		return false;
+	}
 
 	// Get current instrument
 	Instrument *pInstr = get_instrument_list()->get( selectedInstrument );
@@ -457,34 +467,45 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 	// Get pattern list
 	PatternList *pList = get_pattern_list();
 	Pattern *pSelected = (selectedPattern >= 0) ? pList->get(selectedPattern) : nullptr;
+	QDomNode patternNode;
+	bool bIsNoteSelection = false;
+	bool is_single = true;
 
 	// Check if document has correct structure
 	QDomNode rootNode = doc.firstChildElement( "instrument_line" );	// root element
+	if ( ! rootNode.isNull() ) {
+		// Find pattern list
+		QDomNode patternList = rootNode.firstChildElement( "patternList" );
+		if ( patternList.isNull() ) {
+			return false;
+		}
 
-	if ( rootNode.isNull() )
-	{
-		ERRORLOG( "Error pasting Clipboard:Instrument_line_info node not found ");
-		return false;
+		// Parse each pattern if needed
+		patternNode = patternList.firstChildElement( "pattern" );
+		if (!patternNode.isNull()) {
+			is_single = (( QDomNode )patternNode.nextSiblingElement( "pattern" )).isNull();
+		}
+
+	} else {
+		rootNode = doc.firstChildElement( "noteSelection" );
+		if ( ! rootNode.isNull() ) {
+			// Found a noteSelection. This contains a noteList, as a <pattern> does, so treat this as an anonymous pattern.
+			bIsNoteSelection = true;
+			is_single = true;
+			patternNode = rootNode;
+
+		} else {
+			ERRORLOG( "Error pasting Clipboard:instrument_line or noteSelection node not found ");
+			return false;
+		}
 	}
-
-	// Find pattern list
-	QDomNode patternList = rootNode.firstChildElement( "patternList" );
-	if ( patternList.isNull() ) {
-		return false;
-	}
-
-	// Parse each pattern if needed
-	QDomNode patternNode = patternList.firstChildElement( "pattern" );
-	bool is_single = true;
-	if (!patternNode.isNull())
-		is_single = (( QDomNode )patternNode.nextSiblingElement( "pattern" )).isNull();
 
 	while (!patternNode.isNull())
 	{
 		QString patternName(LocalFileMng::readXmlString(patternNode, "pattern_name", ""));
 
 		// Check if pattern name specified
-		if (patternName.length() > 0)
+		if (patternName.length() > 0 || bIsNoteSelection )
 		{
 			// Try to find pattern by name
 			Pattern* pat = pList->find(patternName);
@@ -504,8 +525,9 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 				nSize = LocalFileMng::readXmlInt(patternNode, "size", nSize, false, false);
 
 				// Change name of pattern to selected pattern
-				if (pSelected != nullptr)
+				if (pSelected != nullptr) {
 					patternName = pSelected->get_name();
+				}
 
 				pat = new Pattern( patternName, sInfo, sCategory, nSize );
 
@@ -514,29 +536,15 @@ bool Song::pasteInstrumentLineFromString( const QString& serialized, int selecte
 				if ( ! pNoteListNode.isNull() )
 				{
 					// Parse note-by-note
-					QDomNode noteNode = pNoteListNode.firstChildElement( "note" );
+					XMLNode noteNode = pNoteListNode.firstChildElement( "note" );
 					while ( ! noteNode.isNull() )
 					{
-						Note* pNote = nullptr;
+						QDomNode instrument = noteNode.firstChildElement( "instrument" );
+						QDomNode instrumentText = instrument.firstChild();
 
-						unsigned nPosition = LocalFileMng::readXmlInt( noteNode, "position", 0 );
-						float fLeadLag = LocalFileMng::readXmlFloat( noteNode, "leadlag", 0.0 , false , false );
-						float fVelocity = LocalFileMng::readXmlFloat( noteNode, "velocity", 0.8f );
-						float fPan_L = LocalFileMng::readXmlFloat( noteNode, "pan_L", 0.5 );
-						float fPan_R = LocalFileMng::readXmlFloat( noteNode, "pan_R", 0.5 );
-						int nLength = LocalFileMng::readXmlInt( noteNode, "length", -1, true );
-						float nPitch = LocalFileMng::readXmlFloat( noteNode, "pitch", 0.0, false, false );
-						float fProbability = LocalFileMng::readXmlFloat( noteNode, "probability", 1.0 , false , false );
-						QString sKey = LocalFileMng::readXmlString( noteNode, "key", "C0", false, false );
-						QString nNoteOff = LocalFileMng::readXmlString( noteNode, "note_off", "false", false, false );
+						instrumentText.setNodeValue( QString::number( pInstr->get_id() ) );
+						Note *pNote = Note::load_from( &noteNode, get_instrument_list() );
 
-						bool noteoff = ( nNoteOff == "true" );
-
-						pNote = new Note( pInstr, nPosition, fVelocity, fPan_L, fPan_R, nLength, nPitch );
-						pNote->set_key_octave( sKey );
-						pNote->set_lead_lag( fLeadLag );
-						pNote->set_note_off( noteoff );
-						pNote->set_probability( fProbability );
 						pat->insert_note( pNote ); // Add note to created pattern
 
 						noteNode = ( QDomNode ) noteNode.nextSiblingElement( "note" );
@@ -575,8 +583,9 @@ SongReader::~SongReader()
 const QString SongReader::getPath ( const QString& filename )
 {
 	/* Try direct path */
-	if ( QFile( filename ).exists() )
+	if ( QFile( filename ).exists() ) {
 		return QFileInfo ( filename ).absoluteFilePath();
+	}
 
 	/* Try search in Session Directory */
 	char* sesdir = getenv ( "SESSION_DIR" );
@@ -585,8 +594,9 @@ const QString SongReader::getPath ( const QString& filename )
 		QDir SesDir( sesdir );
 		QString BaseFileName = QFileInfo( filename ).fileName();
 		QString SesFileName = SesDir.filePath( BaseFileName );
-		if ( QFile( SesFileName ).exists() )
+		if ( QFile( SesFileName ).exists() ) {
 			return QFileInfo( SesFileName ).absoluteFilePath();
+		}
 	}
 
 	ERRORLOG( "Song file " + filename + " not found." );
@@ -761,12 +771,13 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_hihat_grp( iIsHiHat );
 			pInstrument->set_lower_cc( iLowerCC );
 			pInstrument->set_higher_cc( iHigherCC );
-			if ( sRead_sample_select_algo.compare("VELOCITY") == 0 )
+			if ( sRead_sample_select_algo.compare("VELOCITY") == 0 ) {
 				pInstrument->set_sample_selection_alg( Instrument::VELOCITY );
-			else if ( sRead_sample_select_algo.compare("ROUND_ROBIN") == 0 )
+			} else if ( sRead_sample_select_algo.compare("ROUND_ROBIN") == 0 ) {
 				pInstrument->set_sample_selection_alg( Instrument::ROUND_ROBIN );
-			else if ( sRead_sample_select_algo.compare("RANDOM") == 0 )
+			} else if ( sRead_sample_select_algo.compare("RANDOM") == 0 ) {
 				pInstrument->set_sample_selection_alg( Instrument::RANDOM );
+			}
 			pInstrument->set_midi_out_channel( nMidiOutChannel );
 			pInstrument->set_midi_out_note( nMidiOutNote );
 
@@ -798,6 +809,7 @@ Song* SongReader::readSong( const QString& filename )
 				if ( pSample == nullptr ) {
 					ERRORLOG( "Error loading sample: " + sFilename + " not found" );
 					pInstrument->set_muted( true );
+					pInstrument->set_missing_samples( true );
 				}
 				InstrumentComponent* pCompo = new InstrumentComponent ( 0 );
 				InstrumentLayer* pLayer = new InstrumentLayer( pSample );
@@ -884,6 +896,7 @@ Song* SongReader::readSong( const QString& filename )
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
 							pInstrument->set_muted( true );
+							pInstrument->set_missing_samples( true );
 						}
 						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
 						pLayer->set_start_velocity( fMin );
@@ -971,6 +984,7 @@ Song* SongReader::readSong( const QString& filename )
 						if ( pSample == nullptr ) {
 							ERRORLOG( "Error loading sample: " + sFilename + " not found" );
 							pInstrument->set_muted( true );
+							pInstrument->set_missing_samples( true );
 						}
 						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
 						pLayer->set_start_velocity( fMin );
@@ -997,6 +1011,7 @@ Song* SongReader::readSong( const QString& filename )
 	} else {
 		ERRORLOG( "Error reading song: instrumentList node not found" );
 		delete pSong;
+		delete pInstrList;
 		return nullptr;
 	}
 
@@ -1085,7 +1100,7 @@ Song* SongReader::readSong( const QString& filename )
 	QDomNode pPatternIDNode = patternSequenceNode.firstChildElement( "patternID" );
 	while ( ! pPatternIDNode.isNull()  ) {
 		WARNINGLOG( "Using old patternSequence code for back compatibility" );
-		PatternList* patternSequence = new PatternList();
+		PatternList* pPatternSequence = new PatternList();
 		QString patId = pPatternIDNode.firstChildElement().text();
 		ERRORLOG( patId );
 
@@ -1102,11 +1117,14 @@ Song* SongReader::readSong( const QString& filename )
 		if ( pPattern == nullptr ) {
 			WARNINGLOG( "patternid not found in patternSequence" );
 			pPatternIDNode = ( QDomNode ) pPatternIDNode.nextSiblingElement( "patternID" );
+			
+			delete pPatternSequence;
+			
 			continue;
 		}
-		patternSequence->add( pPattern );
+		pPatternSequence->add( pPattern );
 
-		pPatternGroupVector->push_back( patternSequence );
+		pPatternGroupVector->push_back( pPatternSequence );
 
 		pPatternIDNode = ( QDomNode ) pPatternIDNode.nextSiblingElement( "patternID" );
 	}
@@ -1195,32 +1213,26 @@ Song* SongReader::readSong( const QString& filename )
 	}
 
 	Timeline* pTimeline = Hydrogen::get_instance()->getTimeline();
-	pTimeline->m_timelinevector.clear();
-	Timeline::HTimelineVector tlvector;
+	pTimeline->deleteAllTempoMarkers();
 	QDomNode bpmTimeLine = songNode.firstChildElement( "BPMTimeLine" );
 	if ( !bpmTimeLine.isNull() ) {
 		QDomNode newBPMNode = bpmTimeLine.firstChildElement( "newBPM" );
 		while( !newBPMNode.isNull() ) {
-			tlvector.m_htimelinebeat = LocalFileMng::readXmlInt( newBPMNode, "BAR", 0 );
-			tlvector.m_htimelinebpm = LocalFileMng::readXmlFloat( newBPMNode, "BPM", 120.0 );
-			pTimeline->m_timelinevector.push_back( tlvector );
-			pTimeline->sortTimelineVector();
+			pTimeline->addTempoMarker( LocalFileMng::readXmlInt( newBPMNode, "BAR", 0 ),
+									   LocalFileMng::readXmlFloat( newBPMNode, "BPM", 120.0 ) );
 			newBPMNode = newBPMNode.nextSiblingElement( "newBPM" );
 		}
 	} else {
 		WARNINGLOG( "bpmTimeLine node not found" );
 	}
 
-	pTimeline->m_timelinetagvector.clear();
-	Timeline::HTimelineTagVector tltagvector;
+	pTimeline->deleteAllTags();
 	QDomNode timeLineTag = songNode.firstChildElement( "timeLineTag" );
 	if ( !timeLineTag.isNull() ) {
 		QDomNode newTAGNode = timeLineTag.firstChildElement( "newTAG" );
 		while( !newTAGNode.isNull() ) {
-			tltagvector.m_htimelinetagbeat = LocalFileMng::readXmlInt( newTAGNode, "BAR", 0 );
-			tltagvector.m_htimelinetag = LocalFileMng::readXmlString( newTAGNode, "TAG", "" );
-			pTimeline->m_timelinetagvector.push_back( tltagvector );
-			pTimeline->sortTimelineTagVector();
+			pTimeline->addTag( LocalFileMng::readXmlInt( newTAGNode, "BAR", 0 ),
+							   LocalFileMng::readXmlString( newTAGNode, "TAG", "" ) );
 			newTAGNode = newTAGNode.nextSiblingElement( "newTAG" );
 		}
 	} else {

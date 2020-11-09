@@ -36,8 +36,20 @@ class CoreActionController : public H2Core::Object {
 		~CoreActionController();
 	
 		void setMasterVolume( float masterVolumeValue );
-		void setStripVolume( int nStrip, float masterVolumeValue );
-		void setStripPan( int nStrip, float panValue );
+		/**
+		 * \param nStrip Instrument which to set the volume for.
+		 * \param fVolumeValue New volume.
+		 * \param bSelectedStrip Whether the corresponding instrument
+		 * should be selected.
+		 */
+		void setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip );
+		/**
+		 * \param nStrip Instrument which to set the volume for.
+		 * \param fPanValue New pan.
+		 * \param bSelectedStrip Whether the corresponding instrument
+		 * should be selected.
+		 */
+		void setStripPan( int nStrip, float fPanValue, bool bSelectStrip );
 		void setMetronomeIsActive( bool isActive );
 		void setMasterIsMuted( bool isMuted );
 		void setStripIsMuted( int nStrip, bool isMuted );
@@ -117,6 +129,100 @@ class CoreActionController : public H2Core::Object {
 		 * \return true on success
 		 */
 		bool quit();
+
+		/**
+		 * (De)activates the usage of the Timeline.
+		 *
+		 * Note that this function will fail in the presence of the
+		 * Jack audio driver and an external timebase master (see Hydrogen::getJackTimebaseState()).
+		 *
+		 * @param bActivate If true - activate or if false -
+		 * deactivate.
+		 *
+		 * @return bool true on success
+		 */
+		bool activateTimeline( bool bActivate );
+		/**
+		 * Adds a tempo marker to the Timeline.
+		 *
+		 * @param nPosition Location of the tempo marker in bars.
+		 * @param fBpm Speed associated with the tempo marker.
+		 *
+		 * @return bool true on success
+		 */
+		bool addTempoMarker( int nPosition, float fBpm );
+		/**
+		 * Delete a tempo marker from the Timeline.
+		 *
+		 * If no Tempo marker is present at @a nPosition, the function
+		 * will return true as well.
+		 *
+		 * @param nPosition Location of the tempo marker in bars.
+		 *
+		 * @return bool true on success
+		 */
+		bool deleteTempoMarker( int nPosition );
+		/**
+		 * (De)activates the usage of Jack transport.
+		 *
+		 * Note that this function will fail if Jack is not used as
+		 * audio driver.
+		 *
+		 * @param bActivate If true - activate or if false -
+		 * deactivate.
+		 *
+		 * @return bool true on success
+		 */
+		bool activateJackTransport( bool bActivate );
+		/**
+		 * (De)activates the usage of Jack timebase master.
+		 *
+		 * Note that this function will fail if Jack is not used as
+		 * audio driver.
+		 *
+		 * @param bActivate If true - activate or if false -
+		 * deactivate.
+		 *
+		 * @return bool true on success
+		 */
+		bool activateJackTimebaseMaster( bool bActivate );
+
+		/**
+		 * Switches between Song and Pattern mode of playback.
+		 *
+		 * @param bActivate If true - activates Song mode or if false -
+		 * activates Pattern mode.
+		 * @param bTriggerEvent Setting this variable to true is
+		 * intended for its use as a batch function from within
+		 * Hydrogen's core, which will inform the GUI via an Event
+		 * about the change of mode. When used from the GUI itself,
+		 * this parameter has to be set to false.
+		 *
+		 * @return bool true on success
+		 */
+		bool activateSongMode( bool bActivate, bool bTriggerEvent );
+	     /**
+		 * Toggle loop mode of playback.
+		 *
+		 * @param bActivate If true - activates loop mode.
+		 * @param bTriggerEvent Setting this variable to true is
+		 * intended for its use as a batch function from within
+		 * Hydrogen's core, which will inform the GUI via an Event
+		 * about the change of mode. When used from the GUI itself,
+		 * this parameter has to be set to false.
+		 *
+		 * @return bool true on success
+		 */
+		bool activateLoopMode( bool bActivate, bool bTriggerEvent );
+		/** Relocates transport to the beginning of a particular
+		 * Pattern.
+		 * 
+		 * @param nPatternGroup Position of the Song provided as the
+		 * index of a particular pattern group (starting at zero).
+		 *
+		 * @return bool true on success
+		 */
+		bool relocate( int nPatternGroup );
 		
 		// -----------------------------------------------------------
 		// Helper functions

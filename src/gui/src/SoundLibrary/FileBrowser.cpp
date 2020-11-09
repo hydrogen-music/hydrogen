@@ -114,11 +114,14 @@ void FileBrowser::loadDirectoryTree( const QString& sBasedir )
 		QListWidgetItem *pItem = new QListWidgetItem();
 		if ( fileInfo.isDir() ) {
 			if ( fileInfo.fileName().startsWith( "." ) ) {
+				delete pItem;
 				continue;
 			}
 
 			pItem->setText( fileInfo.fileName() );
 			m_pDirList->insertItem( 0, pItem);
+		} else {
+			delete pItem;
 		}
 	}
 	m_pDirList->sortItems( Qt::AscendingOrder );
@@ -146,7 +149,11 @@ void FileBrowser::loadDirectoryTree( const QString& sBasedir )
 			if ( bOk ) {
 				pItem->setText( fileInfo.fileName() );
 				m_pFileList->insertItem( 0, pItem);
+			} else {
+				delete pItem;
 			}
+		} else {
+			delete pItem;
 		}
 	}
 	m_pFileList->sortItems( Qt::AscendingOrder );

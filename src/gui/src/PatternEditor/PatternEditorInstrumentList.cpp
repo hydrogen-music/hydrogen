@@ -51,8 +51,6 @@ using namespace H2Core;
 #include <cassert>
 #include <algorithm> // for std::min
 
-using namespace std;
-
 const char* InstrumentLine::__class_name = "InstrumentLine";
 
 InstrumentLine::InstrumentLine(QWidget* pParent)
@@ -94,6 +92,16 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pSoloBtn->setToolTip( tr("Solo") );
 	connect(m_pSoloBtn, SIGNAL(clicked(Button*)), this, SLOT(soloClicked()));
 
+	m_pSampleWarning = new Button(
+			this,
+			"/patternEditor/icn_warning.png",
+			"/patternEditor/icn_warning.png",
+			"/patternEditor/icn_warning.png",
+			QSize( 15, 13 ) );
+	m_pSampleWarning->move( 128, 5 );
+	m_pSampleWarning->hide();
+	m_pSampleWarning->setToolTip( tr( "Some samples for this instrument failed to load." ) );
+	connect(m_pSampleWarning, SIGNAL(clicked(Button*)), this, SLOT(sampleWarningClicked()));
 
 
 	// Popup menu
@@ -114,6 +122,7 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addAction( tr( "Randomize velocity" ), this, SLOT( functionRandomizeVelocity() ) );
 	m_pFunctionPopup->addSeparator();
 
+	m_pFunctionPopup->addAction( tr( "Select notes" ), this, &InstrumentLine::selectInstrumentNotes );
 	m_pCopyPopupSub = new QMenu( tr( "Copy notes ..." ), m_pFunctionPopup );
 	m_pCopyPopupSub->addAction( tr( "Only for this pattern" ), this, SLOT( functionCopyInstrumentPattern() ) );
 	m_pCopyPopupSub->addAction( tr( "For all patterns" ), this, SLOT( functionCopyAllInstrumentPatterns() ) );
@@ -176,6 +185,16 @@ void InstrumentLine::setSoloed( bool soloed )
 }
 
 
+void InstrumentLine::setSamplesMissing( bool bSamplesMissing )
+{
+	if ( bSamplesMissing ) {
+		m_pSampleWarning->show();
+	} else {
+		m_pSampleWarning->hide();
+	}
+}
+
+
 
 void InstrumentLine::muteClicked()
 {
@@ -195,7 +214,18 @@ void InstrumentLine::soloClicked()
 	HydrogenApp::get_instance()->getMixer()->soloClicked( m_nInstrumentNumber );
 }
 
+void InstrumentLine::sampleWarningClicked()
+{
+	QMessageBox::information( this, "Hydrogen",
+							  tr( "One or more samples for this instrument failed to load. This may be because the"
+								  " songfile uses an older default drumkit. This might be fixed by opening a new "
+								  "drumkit." ) );
+}
 
+void InstrumentLine::selectInstrumentNotes()
+{
+	HydrogenApp::get_instance()->getPatternEditorPanel()->selectInstrumentNotes( m_nInstrumentNumber );
+}
 
 void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 {
@@ -315,12 +345,14 @@ void InstrumentLine::functionPasteInstrumentPatternExec(int patternID)
 	// Get from clipboard & deserialize
 	QClipboard *clipboard = QApplication::clipboard();
 	QString serialized = clipboard->text();
-	if ( !song->pasteInstrumentLineFromString( serialized, patternID, m_nInstrumentNumber, patternList ) )
+	if ( !song->pasteInstrumentLineFromString( serialized, patternID, m_nInstrumentNumber, patternList ) ) {
 		return;
+	}
 
 	// Ignore empty result
-	if (patternList.size() <= 0)
+	if (patternList.size() <= 0) {
 		return;
+	}
 
 	// Create action
 	SE_pasteNotesPatternEditorAction *action = new SE_pasteNotesPatternEditorAction(patternList);
@@ -613,6 +645,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 				pLine->setSoloed( mixer->isSoloClicked( nInstr ) );
 			}
 
+			pLine->setSamplesMissing( pInstr->has_missing_samples() );
 		}
 	}
 

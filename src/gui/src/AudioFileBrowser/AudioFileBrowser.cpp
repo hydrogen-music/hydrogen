@@ -36,7 +36,6 @@
 #include <QMessageBox>
 
 using namespace H2Core;
-using namespace std;
 
 const char* AudioFileBrowser::__class_name = "AudioFileBrowser";
 
@@ -212,8 +211,9 @@ void AudioFileBrowser::clicked( const QModelIndex& index )
 
 void AudioFileBrowser::doubleClicked( const QModelIndex& index )
 {
-	if(!m_SingleClick)
+	if(!m_SingleClick) {
 		browseTree( index );
+	}
 }
 
 

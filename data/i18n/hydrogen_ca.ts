@@ -380,7 +380,7 @@
         <translation type="unfinished">Exportar arxiu MIDI</translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -452,7 +452,7 @@ Overwrite the existing file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3134,6 +3134,10 @@ N&apos;estàs segur?</translation>
     <message>
         <source>Velocity</source>
         <translation type="unfinished">Velocitat</translation>
+    </message>
+    <message>
+        <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

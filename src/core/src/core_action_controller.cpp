@@ -20,6 +20,7 @@
  *
  */
 
+#include <hydrogen/audio_engine.h>
 #include <hydrogen/core_action_controller.h>
 #include <hydrogen/event_queue.h>
 #include <hydrogen/hydrogen.h>
@@ -32,6 +33,7 @@
 
 #include <hydrogen/IO/AlsaMidiDriver.h>
 #include <hydrogen/IO/MidiOutput.h>
+#include <hydrogen/IO/jack_audio_driver.h>
 
 namespace H2Core
 {
@@ -51,13 +53,13 @@ CoreActionController::~CoreActionController() {
 
 void CoreActionController::setMasterVolume( float masterVolumeValue )
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	pEngine->getSong()->set_volume( masterVolumeValue );
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getSong()->set_volume( masterVolumeValue );
 	
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "MASTER_VOLUME_ABSOLUTE" );
 	FeedbackAction.setParameter2( QString("%1").arg( masterVolumeValue ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -67,23 +69,26 @@ void CoreActionController::setMasterVolume( float masterVolumeValue )
 	handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127 );
 }
 
-void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
+void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool bSelectStrip )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setSelectedInstrumentNumber( nStrip );
-	
-	Song *pSong = pEngine->getSong();
-	InstrumentList *instrList = pSong->get_instrument_list();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
-	Instrument *pInstr = instrList->get( nStrip );
-	pInstr->set_volume( masterVolumeValue );
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
+	}
+	
+	Song *pSong = pHydrogen->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+
+	Instrument *pInstr = pInstrList->get( nStrip );
+	pInstr->set_volume( fVolumeValue );
 	
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "STRIP_VOLUME_ABSOLUTE" );
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
-	FeedbackAction.setParameter2( QString("%1").arg( masterVolumeValue ) );
-	OscServer::handleAction( &FeedbackAction );
+	FeedbackAction.setParameter2( QString("%1").arg( fVolumeValue ) );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -91,7 +96,7 @@ void CoreActionController::setStripVolume( int nStrip, float masterVolumeValue )
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
 
-	handleOutgoingControlChange( ccParamValue, (masterVolumeValue / 1.5) * 127 );
+	handleOutgoingControlChange( ccParamValue, (fVolumeValue / 1.5) * 127 );
 
 }
 
@@ -103,7 +108,7 @@ void CoreActionController::setMetronomeIsActive( bool isActive )
 	Action FeedbackAction( "TOGGLE_METRONOME" );
 	
 	FeedbackAction.setParameter1( QString("%1").arg( (int) isActive ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -115,14 +120,14 @@ void CoreActionController::setMetronomeIsActive( bool isActive )
 
 void CoreActionController::setMasterIsMuted( bool isMuted )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->getSong()->__is_muted = isMuted;
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getSong()->__is_muted = isMuted;
 	
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "MUTE_TOGGLE" );
 	
 	FeedbackAction.setParameter1( QString("%1").arg( (int) isMuted ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -134,8 +139,8 @@ void CoreActionController::setMasterIsMuted( bool isMuted )
 
 void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 
 	Instrument *pInstr = pInstrList->get( nStrip );
@@ -146,7 +151,7 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
 	FeedbackAction.setParameter2( QString("%1").arg( (int) isMuted ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -158,8 +163,8 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 
 void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 	
 	if ( isSoloed ) {
@@ -179,7 +184,7 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
 	FeedbackAction.setParameter2( QString("%1").arg( (int) isSoloed ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -191,38 +196,38 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 
 
 
-void CoreActionController::setStripPan( int nStrip, float panValue )
+void CoreActionController::setStripPan( int nStrip, float fPanValue, bool bSelectStrip )
 {
-	float	pan_L;
-	float	pan_R;
+	float	fPan_L;
+	float	fPan_R;
 
-	if (panValue >= 0.5) {
-		pan_L = (1.0 - panValue) * 2;
-		pan_R = 1.0;
+	if ( fPanValue >= 0.5 ) {
+		fPan_L = (1.0 - fPanValue) * 2;
+		fPan_R = 1.0;
 	}
 	else {
-		pan_L = 1.0;
-		pan_R = panValue * 2;
+		fPan_L = 1.0;
+		fPan_R = fPanValue * 2;
 	}
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->setSelectedInstrumentNumber( nStrip );
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	if ( bSelectStrip ) {
+		pHydrogen->setSelectedInstrumentNumber( nStrip );
+	}
 	
-	Song *pSong = pEngine->getSong();
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 
 	Instrument *pInstr = pInstrList->get( nStrip );
-	pInstr->set_pan_l( pan_L );
-	pInstr->set_pan_r( pan_R );
-
-	pEngine->setSelectedInstrumentNumber( nStrip );
+	pInstr->set_pan_l( fPan_L );
+	pInstr->set_pan_r( fPan_R );
 	
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "PAN_ABSOLUTE" );
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
-	FeedbackAction.setParameter2( QString("%1").arg( panValue ) );
-	OscServer::handleAction( &FeedbackAction );
+	FeedbackAction.setParameter2( QString("%1").arg( fPanValue ) );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -230,14 +235,14 @@ void CoreActionController::setStripPan( int nStrip, float panValue )
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("PAN_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
 
-	handleOutgoingControlChange( ccParamValue, panValue * 127 );
+	handleOutgoingControlChange( ccParamValue, fPanValue * 127 );
 }
 
 void CoreActionController::handleOutgoingControlChange(int param, int value)
 {
 	Preferences *pPref = Preferences::get_instance();
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	MidiOutput *pMidiDriver = pEngine->getMidiOutput();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	MidiOutput *pMidiDriver = pHydrogen->getMidiOutput();
 	
 	if(	pMidiDriver 
 		&& pPref->m_bEnableMidiFeedback 
@@ -253,8 +258,8 @@ void CoreActionController::initExternalControlInterfaces()
 	 */
 	
 	//MASTER_VOLUME_ABSOLUTE
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	setMasterVolume( pSong->get_volume() );
 	
 	//PER-INSTRUMENT/STRIP STATES
@@ -263,7 +268,7 @@ void CoreActionController::initExternalControlInterfaces()
 		
 			//STRIP_VOLUME_ABSOLUTE
 			Instrument *pInstr = pInstrList->get( i );
-			setStripVolume( i, pInstr->get_volume() );
+			setStripVolume( i, pInstr->get_volume(), false );
 			
 			float fPan_L = pInstr->get_pan_l();
 			float fPan_R = pInstr->get_pan_r();
@@ -277,7 +282,7 @@ void CoreActionController::initExternalControlInterfaces()
 				fPanValue = fPan_R / 2.0;
 			}
 		
-			setStripPan( i, fPanValue );
+			setStripPan( i, fPanValue, false );
 			
 			//STRIP_MUTE_TOGGLE
 			setStripIsMuted( i, pInstr->is_muted() );
@@ -304,7 +309,7 @@ bool CoreActionController::newSong( const QString& songPath ) {
 	}
 	
 	// Remove all BPM tags on the Timeline.
-	pHydrogen->getTimeline()->m_timelinevector.clear();
+	pHydrogen->getTimeline()->deleteAllTempoMarkers();
 	
 	// Create an empty Song.
 	auto pSong = Song::get_empty_song();
@@ -351,7 +356,7 @@ bool CoreActionController::openSong (const QString& songPath ) {
 	}
 	
 	// Remove all BPM tags on the Timeline.
-	pHydrogen->getTimeline()->m_timelinevector.clear();
+	pHydrogen->getTimeline()->deleteAllTempoMarkers();
 	
 	// Check whether the provided path is valid.
 	if ( !isSongPathValid( songPath ) ) {
@@ -464,14 +469,10 @@ bool CoreActionController::saveSongAs( const QString& songPath ) {
 }
 
 bool CoreActionController::quit() {
-	
-	auto pHydrogen = Hydrogen::get_instance();
-	
 	EventQueue::get_instance()->push_event( EVENT_QUIT, 0 );
 	
 	return true;
 }
-
 
 bool CoreActionController::isSongPathValid( const QString& songPath ) {
 	
@@ -499,6 +500,144 @@ bool CoreActionController::isSongPathValid( const QString& songPath ) {
 	
 	return true;
 }
+
+bool CoreActionController::activateTimeline( bool bActivate ) {
+	auto pHydrogen = Hydrogen::get_instance();
 	
+	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
+		ERRORLOG( "Timeline usage is disabled in the presence of an external JACK timebase master." );
+		return false;
+	}
 	
+	Preferences::get_instance()->setUseTimelineBpm( bActivate );
+
+	if ( bActivate && !pHydrogen->haveJackTransport() ) {
+		// In case another driver than Jack is used, we have to update
+		// the tempo explicitly.
+		pHydrogen->setTimelineBpm();
+	}
+	
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_ACTIVATION, static_cast<int>( bActivate ) );
+	
+	return true;
+}
+
+bool CoreActionController::addTempoMarker( int nPosition, float fBpm ) {
+	auto pTimeline = Hydrogen::get_instance()->getTimeline();
+	pTimeline->deleteTempoMarker( nPosition );
+	pTimeline->addTempoMarker( nPosition, fBpm );
+
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
+
+	return true;
+}
+
+bool CoreActionController::deleteTempoMarker( int nPosition ) {
+	Hydrogen::get_instance()->getTimeline()->deleteTempoMarker( nPosition );
+	EventQueue::get_instance()->push_event( EVENT_TIMELINE_UPDATE, 0 );
+
+	return true;
+}
+
+bool CoreActionController::activateJackTransport( bool bActivate ) {
+	
+#ifdef H2CORE_HAVE_JACK
+	if ( !Hydrogen::get_instance()->haveJackAudioDriver() ) {
+		ERRORLOG( "Unable to (de)activate Jack transport. Please select the Jack driver first." );
+		return false;
+	}
+	
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	if ( bActivate ) {
+		Preferences::get_instance()->m_bJackTransportMode = Preferences::USE_JACK_TRANSPORT;
+	} else {
+		Preferences::get_instance()->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
+	}
+	AudioEngine::get_instance()->unlock();
+	
+	EventQueue::get_instance()->push_event( EVENT_JACK_TRANSPORT_ACTIVATION, static_cast<int>( bActivate ) );
+	
+	return true;
+#else
+	ERRORLOG( "Unable to (de)activate Jack transport. Your Hydrogen version was not compiled with jack support." );
+	return false;
+#endif
+}
+
+bool CoreActionController::activateJackTimebaseMaster( bool bActivate ) {
+
+#ifdef H2CORE_HAVE_JACK
+	if ( !Hydrogen::get_instance()->haveJackAudioDriver() ) {
+		ERRORLOG( "Unable to (de)activate Jack timebase master. Please select the Jack driver first." );
+		return false;
+	}
+	
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	if ( bActivate ) {
+		Preferences::get_instance()->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
+		Hydrogen::get_instance()->onJackMaster();
+	} else {
+		Preferences::get_instance()->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
+		Hydrogen::get_instance()->offJackMaster();
+	}
+	AudioEngine::get_instance()->unlock();
+	
+	EventQueue::get_instance()->push_event( EVENT_JACK_TIMEBASE_ACTIVATION, static_cast<int>( bActivate ) );
+	
+	return true;
+#else
+	ERRORLOG( "Unable to (de)activate Jack timebase master. Your Hydrogen version was not compiled with jack support." );
+	return false;
+#endif
+}
+
+bool CoreActionController::activateSongMode( bool bActivate, bool bTriggerEvent ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->sequencer_stop();
+	if ( bActivate ) {
+		pHydrogen->setPatternPos( 0 );
+		pHydrogen->getSong()->set_mode( Song::SONG_MODE );
+	} else {
+		pHydrogen->getSong()->set_mode( Song::PATTERN_MODE );
+	}
+	
+	if ( bTriggerEvent ) {
+		EventQueue::get_instance()->push_event( EVENT_SONG_MODE_ACTIVATION, static_cast<int>( bActivate ) );
+	}
+	
+	return true;
+}
+
+bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent ) {
+
+	auto pSong = Hydrogen::get_instance()->getSong();
+	pSong->set_loop_enabled( bActivate );
+	pSong->set_is_modified( true );
+	
+	if ( bTriggerEvent ) {
+		EventQueue::get_instance()->push_event( EVENT_LOOP_MODE_ACTIVATION, static_cast<int>( bActivate ) );
+	}
+	
+	return true;
+}
+
+bool CoreActionController::relocate( int nPatternGroup ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	pHydrogen->setPatternPos( nPatternGroup );
+	pHydrogen->setTimelineBpm();
+	
+#ifdef H2CORE_HAVE_JACK
+	auto pDriver = pHydrogen->getAudioOutput();
+
+	if ( pHydrogen->haveJackTransport() &&
+		 pDriver->m_transport.m_status != TransportInfo::ROLLING ) {
+	long totalTick = pHydrogen->getTickForPosition( nPatternGroup );
+	static_cast<JackAudioDriver*>(pDriver)->m_currentPos = 
+		totalTick * pDriver->m_transport.m_fTickSize;
+	}
+#endif
+	return true;
+}
 }

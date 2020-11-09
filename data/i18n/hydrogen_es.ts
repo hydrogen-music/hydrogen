@@ -379,7 +379,7 @@
         <translation>Exportar archivo MIDI</translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation>El directorio %1 no existe</translation>
     </message>
     <message>
@@ -453,7 +453,7 @@ Overwrite the existing file?</source>
         <translation>Exportar a pistas separadas</translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation>El directorio %1 no existe</translation>
     </message>
 </context>
@@ -3195,6 +3195,10 @@ Are you sure?</source>
     <message>
         <source>Velocity</source>
         <translation>Intensidad</translation>
+    </message>
+    <message>
+        <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

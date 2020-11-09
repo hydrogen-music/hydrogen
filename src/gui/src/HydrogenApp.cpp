@@ -34,6 +34,7 @@
 #include "MainForm.h"
 #include "PlayerControl.h"
 #include "AudioEngineInfoForm.h"
+#include "FilesystemInfoForm.h"
 #include "HelpBrowser.h"
 #include "LadspaFXProperties.h"
 #include "InstrumentRack.h"
@@ -112,6 +113,8 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	else {
 		m_pAudioEngineInfoForm->hide();
 	}
+	
+	m_pFilesystemInfoForm = new FilesystemInfoForm( nullptr );
 
 	m_pPlaylistDialog = new PlaylistDialog( nullptr );
 	m_pDirector = new Director( nullptr );
@@ -135,6 +138,7 @@ HydrogenApp::~HydrogenApp()
 
 	delete m_pHelpBrowser;
 	delete m_pAudioEngineInfoForm;
+	delete m_pFilesystemInfoForm;
 	delete m_pMixer;
 	delete m_pPlaylistDialog;
 	delete m_pDirector;
@@ -188,16 +192,18 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pTab = new QTabWidget( nullptr );
 
 	// SONG EDITOR
-	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
+	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE) {
 		m_pSongEditorPanel = new SongEditorPanel( m_pSplitter );
-	else
+	} else {
 		m_pSongEditorPanel = new SongEditorPanel( m_pTab );
+	}
 
 	WindowProperties songEditorProp = pPref->getSongEditorProperties();
 	m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
 
-	if( uiLayout == Preferences::UI_LAYOUT_TABBED)
+	if( uiLayout == Preferences::UI_LAYOUT_TABBED) {
 		m_pTab->addTab( m_pSongEditorPanel, tr("Song Editor") );
+	}
 
 	// this HBox will contain the InstrumentRack and the Pattern editor
 	QWidget *pSouthPanel = new QWidget( m_pSplitter );
@@ -231,24 +237,21 @@ void HydrogenApp::setupSinglePanedInterface()
 	m_pMainForm->setCentralWidget( mainArea );
 
 	// LAYOUT!!
-	QVBoxLayout *pMainVBox = new QVBoxLayout();
-	pMainVBox->setSpacing( 1 );
-	pMainVBox->setMargin( 0 );
-	pMainVBox->addWidget( m_pPlayerControl );
+	m_pMainVBox = new QVBoxLayout();
+	m_pMainVBox->setSpacing( 1 );
+	m_pMainVBox->setMargin( 0 );
+	m_pMainVBox->addWidget( m_pPlayerControl );
 
-	m_pInfoBar = new InfoBar();
-	m_pInfoBar->hide();
-	pMainVBox->addWidget( m_pInfoBar );
-	pMainVBox->addSpacing( 3 );
+	m_pMainVBox->addSpacing( 3 );
 
-	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE)
-		pMainVBox->addWidget( m_pSplitter );
-	else {
-		pMainVBox->addWidget( m_pTab );
+	if( uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE) {
+		m_pMainVBox->addWidget( m_pSplitter );
+	} else {
+		m_pMainVBox->addWidget( m_pTab );
 
 	}
 
-	mainArea->setLayout( pMainVBox );
+	mainArea->setLayout( m_pMainVBox );
 
 
 
@@ -299,6 +302,13 @@ void HydrogenApp::setupSinglePanedInterface()
 		m_pTab->setCurrentIndex( Preferences::get_instance()->getLastOpenTab() );
 		QObject::connect(m_pTab, SIGNAL(currentChanged(int)),this,SLOT(currentTabChanged(int)));
 	}
+}
+
+
+InfoBar *HydrogenApp::addInfoBar() {
+	InfoBar *pInfoBar = new InfoBar();
+	m_pMainVBox->insertWidget( 1, pInfoBar );
+	return pInfoBar;
 }
 
 
@@ -421,6 +431,12 @@ void HydrogenApp::showAudioEngineInfoForm()
 {
 	m_pAudioEngineInfoForm->hide();
 	m_pAudioEngineInfoForm->show();
+}
+
+void HydrogenApp::showFilesystemInfoForm()
+{
+	m_pFilesystemInfoForm->hide();
+	m_pFilesystemInfoForm->show();
 }
 
 void HydrogenApp::showPlaylistDialog()
@@ -571,6 +587,30 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->quitEvent( event.value );
 				break;
 
+			case EVENT_TIMELINE_ACTIVATION:
+				pListener->timelineActivationEvent( event.value );
+				break;
+
+			case EVENT_TIMELINE_UPDATE:
+				pListener->timelineUpdateEvent( event.value );
+				break;
+
+			case EVENT_JACK_TRANSPORT_ACTIVATION:
+				pListener->jackTransportActivationEvent( event.value );
+				break;
+
+			case EVENT_JACK_TIMEBASE_ACTIVATION:
+				pListener->jackTimebaseActivationEvent( event.value );
+				break;
+				
+			case EVENT_SONG_MODE_ACTIVATION:
+				pListener->songModeActivationEvent( event.value );
+				break;
+				
+			case EVENT_LOOP_MODE_ACTIVATION:
+				pListener->loopModeActivationEvent( event.value );
+				break;
+				
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
 			}
@@ -582,23 +622,25 @@ void HydrogenApp::onEventQueueTimer()
 	while(!pQueue->m_addMidiNoteVector.empty()){
 
 		int rounds = 1;
-		if(pQueue->m_addMidiNoteVector[0].b_noteExist)// runn twice, delete old note and add new note. this let the undo stack consistent
+		if(pQueue->m_addMidiNoteVector[0].b_noteExist) { // run twice, delete old note and add new note. this let the undo stack consistent 
 			rounds = 2;
+		}
 		for(int i = 0; i<rounds; i++){
-			SE_addNoteAction *action = new SE_addNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
-															 pQueue->m_addMidiNoteVector[0].m_row,
-															 pQueue->m_addMidiNoteVector[0].m_pattern,
-															 pQueue->m_addMidiNoteVector[0].m_length,
-															 pQueue->m_addMidiNoteVector[0].f_velocity,
-															 pQueue->m_addMidiNoteVector[0].f_pan_L,
-															 pQueue->m_addMidiNoteVector[0].f_pan_R,
-															 0.0,
-															 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
-															 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
-															 false,
-															 false,
-															 pQueue->m_addMidiNoteVector[0].b_isMidi,
-															 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode);
+			SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( pQueue->m_addMidiNoteVector[0].m_column,
+																			 pQueue->m_addMidiNoteVector[0].m_row,
+																			 pQueue->m_addMidiNoteVector[0].m_pattern,
+																			 pQueue->m_addMidiNoteVector[0].m_length,
+																			 pQueue->m_addMidiNoteVector[0].f_velocity,
+																			 pQueue->m_addMidiNoteVector[0].f_pan_L,
+																			 pQueue->m_addMidiNoteVector[0].f_pan_R,
+																			 0.0,
+																			 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
+																			 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
+																			 false,
+																			 false,
+																			 pQueue->m_addMidiNoteVector[0].b_isMidi,
+																			 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
+																			 false );
 
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
@@ -654,7 +696,7 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		updateWindowTitle();
 		getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 		getSongEditorPanel()->updatePositionRuler();
-		pHydrogen->getTimeline()->m_timelinetagvector.clear();
+		pHydrogen->getTimeline()->deleteAllTags();
 	
 		// Trigger a reset of the Director and MetronomeWidget.
 		EventQueue::get_instance()->push_event( EVENT_METRONOME, 2 );

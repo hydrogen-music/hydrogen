@@ -18,6 +18,9 @@ INCLUDE_DIRECTORIES(
     ${QT_INCLUDES}
     ${LASH_INCLUDE_DIRS}
     ${LIBARCHIVE_INCLUDE_DIRS}
+    ${LIBSNDFILE_INCLUDE_DIRS}
+    ${JACK_INCLUDE_DIRS}
+
 )
 
 IF(APPLE)
@@ -43,7 +46,7 @@ IF(APPLE)
 ENDIF()
 
 ADD_EXECUTABLE(hydrogen WIN32 MACOSX_BUNDLE ${hydrogen_SRCS} ${hydrogen_MOC} ${hydrogen_UIS_H} ${CMAKE_SOURCE_DIR}/windows/icon.rc)
-SET_PROPERTY(TARGET hydrogen PROPERTY CXX_STANDARD 14)
+SET_PROPERTY(TARGET hydrogen PROPERTY CXX_STANDARD 17)
 if(APPLE)
     add_custom_command(
         TARGET hydrogen
@@ -55,6 +58,20 @@ if(APPLE)
         POST_BUILD
         COMMAND plutil -replace NSHighResolutionCapable -bool true hydrogen.app/Contents/Info.plist
     )
+    add_custom_command(
+        TARGET hydrogen
+        POST_BUILD
+        COMMAND
+            plutil -extract CFBundleDocumentTypes json
+                   -o /dev/null
+                   hydrogen.app/Contents/Info.plist >/dev/null
+            || plutil -insert CFBundleDocumentTypes
+                      -json
+                         \"` cat ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json `\"
+                       hydrogen.app/Contents/Info.plist )
+
+    ADD_DEPENDENCIES(hydrogen ${CMAKE_SOURCE_DIR}/macos/CFBundleDocumentTypes.json)
+
 endif()
 
 TARGET_LINK_LIBRARIES(hydrogen
@@ -63,4 +80,4 @@ TARGET_LINK_LIBRARIES(hydrogen
 )
 ADD_DEPENDENCIES(hydrogen hydrogen-core-${VERSION})
 
-INSTALL(TARGETS hydrogen RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR})
+INSTALL(TARGETS hydrogen RUNTIME DESTINATION ${H2_BIN_PATH} BUNDLE DESTINATION ${H2_BIN_PATH})

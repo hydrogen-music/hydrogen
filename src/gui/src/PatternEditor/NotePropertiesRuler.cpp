@@ -54,6 +54,9 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	m_nGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
 	m_nEditorWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
 
+	m_fLastSetValue = 0.0;
+	m_bValueHasBeenSet = false;
+
 	if (m_Mode == VELOCITY ) {
 		m_nEditorHeight = 100;
 	}
@@ -80,6 +83,8 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 
 	HydrogenApp::get_instance()->addEventListener( this );
 	m_bMouseIsPressed = false;
+
+	setFocusPolicy( Qt::StrongFocus );
 }
 
 
@@ -96,7 +101,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 	if (m_pPattern == nullptr) return;
 
-	pressAction( ev->x(), ev->y() ); //get all old values
+	prepareUndoAction( ev->x() ); //get all old values
 
 	float delta;
 	if (ev->modifiers() == Qt::ControlModifier) {
@@ -124,6 +129,9 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	column = column / width;
 	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
 
+	m_pPatternEditorPanel->setCursorPosition( column );
+	m_pPatternEditorPanel->setCursorHidden( true );
+
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 
@@ -146,12 +154,14 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 			pNote->set_velocity(val);
 			__velocity = val;
+			m_fLastSetValue = val;
+			m_bValueHasBeenSet = true;
 
 			char valueChar[100];
 			sprintf( valueChar, "%#.2f",  val);
 			( HydrogenApp::get_instance() )->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
 		}
-                else if ( m_Mode == PAN && !pNote->get_note_off() ){
+		else if ( m_Mode == PAN && !pNote->get_note_off() ){
 			float pan_L, pan_R;
 
 			float val = (pNote->get_pan_r() - pNote->get_pan_l() + 0.5) + delta;
@@ -169,7 +179,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 				pan_L = 0.5;
 				pan_R = val;
 			}
-
+			m_fLastSetValue = val;
+			m_bValueHasBeenSet = true;
 			pNote->set_pan_l(pan_L);
 			pNote->set_pan_r(pan_R);
 		}
@@ -181,6 +192,8 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 			else if (val < 0.0) {
 				val = 0.0;
 			}
+			m_fLastSetValue = val * -2.0 + 1.0;
+			m_bValueHasBeenSet = true;
 			pNote->set_lead_lag((val * -2.0) + 1.0);
 			char valueChar[100];
 			if (pNote->get_lead_lag() < 0.0) {
@@ -202,12 +215,14 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 				val = 0.0;
 			}
 
+			m_fLastSetValue = val;
+			m_bValueHasBeenSet = true;
 			pNote->set_probability(val);
 			__probability = val;
 
 		}
 		pSong->set_is_modified( true );
-		startUndoAction();
+		addUndoAction();
 		updateEditor();
 		break;
 	}
@@ -217,15 +232,19 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
 {
 	m_bMouseIsPressed = true;
-	pressAction( ev->x(), ev->y() );
+	prepareUndoAction( ev->x() );
 	mouseMoveEvent( ev );
 }
 
-void NotePropertiesRuler::pressAction( int x, int y)
+
+// Preserve current note properties at position x for use in later UndoAction.
+void NotePropertiesRuler::prepareUndoAction( int x )
 {
 
 	//create all needed old vars for undo
-	if (m_pPattern == nullptr) return;
+	if (m_pPattern == nullptr) {
+		return;
+	}
 
 	__oldVelocity = 0.8f;
 	__oldPan_L = 0.5f;
@@ -247,15 +266,6 @@ void NotePropertiesRuler::pressAction( int x, int y)
 	column = (x_pos - 20) + (width / 2);
 	column = column / width;
 	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
-	float val = height() - y;
-	if (val > height()) {
-		val = height();
-	}
-	else if (val < 0.0) {
-		val = 0.0;
-	}
-	int keyval = val;
-	val = val / height();
 
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = (Hydrogen::get_instance())->getSong();
@@ -275,7 +285,6 @@ void NotePropertiesRuler::pressAction( int x, int y)
 		if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
 			__oldVelocity = pNote->get_velocity();
 			__mode = "VELOCITY";
-
 		}
 		else if ( m_Mode == PAN && !pNote->get_note_off() ){
 
@@ -303,7 +312,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 	}
 }
 
- void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
+void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 {
 	if( m_bMouseIsPressed ){
 
@@ -329,6 +338,9 @@ void NotePropertiesRuler::pressAction( int x, int y)
 		column = (x_pos - 20) + (width / 2);
 		column = column / width;
 		column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
+
+		m_pPatternEditorPanel->setCursorPosition( column );
+		m_pPatternEditorPanel->setCursorHidden( true );
 
 		bool columnChange = false;
 		if( __columnCheckOnXmouseMouve != column ){
@@ -362,6 +374,8 @@ void NotePropertiesRuler::pressAction( int x, int y)
 					__oldVelocity = pNote->get_velocity();
 				}
 				pNote->set_velocity( val );
+				m_fLastSetValue = val;
+				m_bValueHasBeenSet = true;
 				__velocity = val;
 				char valueChar[100];
 				sprintf( valueChar, "%#.2f",  val);
@@ -384,7 +398,9 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				if( columnChange ){
 					__oldPan_L = pNote->get_pan_l();
 					__oldPan_R = pNote->get_pan_r();
-				}	
+				}
+				m_fLastSetValue = val;
+				m_bValueHasBeenSet = true;
 				pNote->set_pan_l( pan_L );
 				pNote->set_pan_r( pan_R );
 				__pan_L = pan_L;
@@ -398,7 +414,9 @@ void NotePropertiesRuler::pressAction( int x, int y)
 					if( columnChange ){
 						__oldLeadLag = pNote->get_lead_lag();
 					}
-	
+
+					m_fLastSetValue = val * -2.0 + 1.0;
+					m_bValueHasBeenSet = true;
 					pNote->set_lead_lag((val * -2.0) + 1.0);
 					__leadLag = (val * -2.0) + 1.0;
 					char valueChar[100];
@@ -429,8 +447,9 @@ void NotePropertiesRuler::pressAction( int x, int y)
 						o = (keyval-166)/10;
 						if(o==-4) o=-3; // 135
 					}
+					m_fLastSetValue = o * 12 + k;
+					m_bValueHasBeenSet = true;
 					pNote->set_key_octave((Note::Key)k,(Note::Octave)o); // won't set wrong values see Note::set_key_octave
-
 					__octaveKeyVal = pNote->get_octave();
 					__noteKeyVal = pNote->get_key();
 				}
@@ -439,6 +458,8 @@ void NotePropertiesRuler::pressAction( int x, int y)
 				if( columnChange ){
 					__oldProbability = pNote->get_probability();
 				}
+				m_fLastSetValue = val;
+				m_bValueHasBeenSet = true;
 				pNote->set_probability( val );
 				__probability = val;
 				char valueChar[100];
@@ -449,7 +470,7 @@ void NotePropertiesRuler::pressAction( int x, int y)
 	
 			if( columnChange ){
 				__columnCheckOnXmouseMouve = column;
-				startUndoAction();
+				addUndoAction();
 				return;
 			}
 				
@@ -467,10 +488,188 @@ void NotePropertiesRuler::pressAction( int x, int y)
 void NotePropertiesRuler::mouseReleaseEvent(QMouseEvent *ev)
 {
 	m_bMouseIsPressed = false;
-	startUndoAction();
+	addUndoAction();
 }
 
-void NotePropertiesRuler::startUndoAction()
+void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
+{
+	m_pPatternEditorPanel->setCursorHidden( false );
+
+	// Basic directional movement using standard keys
+	if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
+		// ->
+		m_pPatternEditorPanel->moveCursorRight();
+
+	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ) {
+		// -->|
+		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
+
+	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ) {
+		// <-
+		m_pPatternEditorPanel->moveCursorLeft();
+
+	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ) {
+		// |<--
+		m_pPatternEditorPanel->setCursorPosition(0);
+
+	} else {
+		// Value adjustments
+		double delta = 0.0;
+		bool bRepeatLastValue = false;
+
+		if ( ev->matches( QKeySequence::MoveToPreviousLine ) ) {
+			// Key: Up: increase note parameter value
+			delta = 0.1;
+
+		} else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
+			// Key: Down: decrease note parameter value
+			delta = -0.1;
+
+		} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
+			// Key: MoveToStartOfDocument: increase parameter to maximum value
+			delta = 1.0;
+
+		} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) ) {
+			// Key: MoveEndOfDocument: decrease parameter to minimum value
+			delta = -1.0;
+
+		} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
+			// Key: Enter/Return: repeat last parameter value set.
+			if (m_bValueHasBeenSet) {
+				bRepeatLastValue = true;
+			}
+		}
+
+		if ( delta != 0.0 || bRepeatLastValue ) {
+			int column = m_pPatternEditorPanel->getCursorPosition();
+			int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+			Song *pSong = (Hydrogen::get_instance())->getSong();
+
+
+			prepareUndoAction( 20 + column * m_nGridWidth );
+
+			const Pattern::notes_t* notes = m_pPattern->get_notes();
+			FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+				Note *pNote = it->second;
+				assert( pNote );
+				assert( (int)pNote->get_position() == column );
+				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+					continue;
+				}
+
+				switch (m_Mode) {
+				case VELOCITY:
+					if ( !pNote->get_note_off() ) {
+						if ( bRepeatLastValue ) {
+							__velocity = m_fLastSetValue;
+						} else {
+							__velocity = pNote->get_velocity() + delta;
+						}
+						__velocity = qBound( __velocity, VELOCITY_MIN, VELOCITY_MAX );
+						m_fLastSetValue = __velocity;
+						m_bValueHasBeenSet = true;
+					}
+					break;
+				case PAN:
+					if ( !pNote->get_note_off() ) {
+						double val;
+						if ( bRepeatLastValue ) {
+							val = m_fLastSetValue;
+						} else {
+							 val = (pNote->get_pan_r() - pNote->get_pan_l() + 0.5) + delta;
+						}
+						if ( val > PAN_MAX ) {
+							__pan_L = 2*PAN_MAX - val;
+							__pan_R = PAN_MAX;
+						} else {
+							__pan_L = PAN_MAX;
+							__pan_R = val;
+						}
+						m_fLastSetValue = val;
+						m_bValueHasBeenSet = true;
+						break;
+					}
+				case LEADLAG:
+					{
+						if ( bRepeatLastValue ) {
+							__leadLag = m_fLastSetValue;
+						} else {
+							__leadLag = pNote->get_lead_lag() - delta;
+						}
+						__leadLag = qBound( __leadLag, LEAD_LAG_MIN, LEAD_LAG_MAX );
+						m_fLastSetValue = __leadLag;
+						m_bValueHasBeenSet = true;
+						break;
+					}
+				case PROBABILITY:
+					if ( !pNote->get_note_off() ) {
+						if ( bRepeatLastValue ) {
+							__probability = m_fLastSetValue;
+						} else {
+							__probability = pNote->get_probability() + delta;
+						}
+						__probability = qBound( __probability, 0.0f, 1.0f );
+						m_fLastSetValue = __probability;
+						m_bValueHasBeenSet = true;
+					}
+					break;
+				case NOTEKEY:
+					if ( bRepeatLastValue ) {
+						__octaveKeyVal = (int)m_fLastSetValue / 12;
+						__noteKeyVal = (int)m_fLastSetValue % 12;
+					} else {
+						__octaveKeyVal = pNote->get_octave();
+						__noteKeyVal = pNote->get_key();
+						if (delta > 0) {
+							if (__noteKeyVal < 11) {
+								__noteKeyVal += 1;
+							} else if (__octaveKeyVal < 3) {
+								__octaveKeyVal += 1;
+								__noteKeyVal = 0;
+							}
+						} else {
+							if (__noteKeyVal > 0) {
+								__noteKeyVal -= 1;
+							} else if (__octaveKeyVal > -3) {
+								__octaveKeyVal -= 1;
+								__noteKeyVal = 11;
+							}
+						}
+					}
+					m_fLastSetValue = 12 * __octaveKeyVal + __noteKeyVal;
+					m_bValueHasBeenSet = true;
+					break;
+				}
+			}
+			addUndoAction();
+		} else {
+			m_pPatternEditorPanel->setCursorHidden( true );
+			ev->ignore();
+			return;
+		}
+	}
+	updateEditor();
+	ev->accept();
+
+}
+
+
+void NotePropertiesRuler::focusInEvent( QFocusEvent * ev )
+{
+	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason ) {
+		m_pPatternEditorPanel->setCursorHidden( false );
+	}
+	updateEditor();
+}
+
+
+void NotePropertiesRuler::focusOutEvent( QFocusEvent * ev )
+{
+	updateEditor();
+}
+
+
+void NotePropertiesRuler::addUndoAction()
 {
 
 	SE_editNotePropertiesVolumeAction *action = new SE_editNotePropertiesVolumeAction( __undoColumn,
@@ -498,6 +697,9 @@ void NotePropertiesRuler::startUndoAction()
 void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 {
 	QPainter painter(this);
+	if ( m_bNeedsUpdate ) {
+		finishUpdateEditor();
+	}
 	painter.drawPixmap( ev->rect(), *m_pBackground, ev->rect() );
 }
 
@@ -1058,9 +1260,21 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 	for (unsigned y = 90; y < 210; y = y + 10 ) {
 		p.setPen( QPen( QColor( 255, 255, 255 ), 9, Qt::SolidLine, Qt::FlatCap) );
-		if ( y == 100 ||y == 120 ||y == 140 ||y == 170 ||y == 190)
-			p.setPen( QPen( QColor( 0, 0, 0 ), 7, Qt::SolidLine, Qt::FlatCap ) );
+		if ( y == 100 ||y == 120 ||y == 140 ||y == 170 ||y == 190) {
+			p.setPen( QPen( QColor( 128, 128, 128 ), 9, Qt::SolidLine, Qt::FlatCap ) );
+		}
 		p.drawLine(20, y, 20 + nNotes * m_nGridWidth, y);
+	}
+
+	// Annotate with note class names
+	static QString noteNames[] = { tr( "B" ), tr( "A#" ), tr( "A" ), tr( "G#" ), tr( "G" ), tr( "F#" ),
+								   tr( "F" ), tr( "E" ), tr( "D#" ), tr( "D" ), tr( "C#" ), tr( "C" ) };
+	QFont font;
+	font.setPointSize( 9 );
+	p.setFont( font );
+	p.setPen( QColor( 0, 0, 0 ) );
+	for ( int n = 0; n < 12; n++ ) {
+		p.drawText( 5, 90 + 10 * n +3, noteNames[n] );
 	}
 
 	// vertical lines
@@ -1143,7 +1357,14 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	p.drawLine(0, 0, m_nEditorWidth, 0);
 	p.drawLine(0, m_nEditorHeight - 1, m_nEditorWidth, m_nEditorHeight - 1);
 
-//paint the oktave	
+
+	// Black outline each key
+	for (unsigned y = 90; y <= 210; y = y + 10 ) {
+		p.setPen( QPen( QColor( 0, 0, 0 ), 1, Qt::SolidLine));
+		p.drawLine(20, y-5, 20 + nNotes * m_nGridWidth, y-5);
+	}
+
+//paint the octave
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
@@ -1176,23 +1397,15 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 			}
 
 			if ( !pNote->get_note_off() ) {
-				int d = 6;
+				int d = 8;
 				int k = pNote->get_key();
-				uint x_pos = 17 + pNote->get_position() * m_nGridWidth;
-				uint y_pos = 200-(k*10)-3;
-				if(k<5) {
-					if(!(k&0x01)) {
-						x_pos-=1;
-						y_pos-=1;
-						d+=2;
-					}
-				} else {
-					if(k&0x01) {
-						x_pos-=1;
-						y_pos-=1;
-						d+=2;
-					}
-				}
+				uint x_pos = 16 + pNote->get_position() * m_nGridWidth;
+				uint y_pos = 200-(k*10)-4;
+
+				x_pos -= 1;
+				y_pos -= 1;
+				d += 2;
+				p.setPen( Qt::NoPen );
 				p.setBrush(QColor( 0, 0, 0));
 				p.drawEllipse( x_pos, y_pos, d, d);
 			}
@@ -1217,17 +1430,26 @@ void NotePropertiesRuler::updateEditor()
 	__nSelectedPatternNumber = nSelectedPatternNumber;
 
 	// update editor width
-	int editorWidth;
 	if ( m_pPattern ) {
-		editorWidth = 20 + m_pPattern->get_length() * m_nGridWidth;
+		m_nEditorWidth = 20 + m_pPattern->get_length() * m_nGridWidth;
 	}
 	else {
-		editorWidth =  20 + MAX_NOTES * m_nGridWidth;
+		m_nEditorWidth =  20 + MAX_NOTES * m_nGridWidth;
 	}
-	resize( editorWidth, height() );
+
+	if ( !m_bNeedsUpdate ) {
+		m_bNeedsUpdate = true;
+		update();
+	}
+}
+
+void NotePropertiesRuler::finishUpdateEditor()
+{
+	assert( m_bNeedsUpdate );
+	resize( m_nEditorWidth, height() );
 		
 	delete m_pBackground;
-	m_pBackground = new QPixmap( editorWidth, m_nEditorHeight );
+	m_pBackground = new QPixmap( m_nEditorWidth, m_nEditorHeight );
 
 	if ( m_Mode == VELOCITY || m_Mode == PROBABILITY ) {
 		createVelocityBackground( m_pBackground );
@@ -1242,7 +1464,18 @@ void NotePropertiesRuler::updateEditor()
 		createNoteKeyBackground( m_pBackground );
 	}
 
+	if ( hasFocus() && !m_pPatternEditorPanel->cursorHidden() ) {
+		QPainter p( m_pBackground );
+
+		uint x = 20 + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
+
+		p.setPen( QColor( 0,0,0 ) );
+		p.setRenderHint( QPainter::Antialiasing );
+		p.drawRoundedRect( QRect( x-m_nGridWidth*3, 0+1, m_nGridWidth*6, height()-2 ), 4, 4 );
+	}
+
 	// redraw all
+	m_bNeedsUpdate = false;
 	update();
 }
 

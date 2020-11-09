@@ -55,8 +55,6 @@ AudioEngine::AudioEngine()
 	__instance = this;
 	INFOLOG( "INIT" );
 
-	pthread_mutex_init( &__engine_mutex, nullptr );
-
 	__sampler = new Sampler;
 	__synth = new Synth;
 
@@ -99,7 +97,7 @@ Synth* AudioEngine::get_synth()
 
 void AudioEngine::lock( const char* file, unsigned int line, const char* function )
 {
-	pthread_mutex_lock( &__engine_mutex );
+	__engine_mutex.lock();
 	__locker.file = file;
 	__locker.line = line;
 	__locker.function = function;
@@ -109,9 +107,25 @@ void AudioEngine::lock( const char* file, unsigned int line, const char* functio
 
 bool AudioEngine::try_lock( const char* file, unsigned int line, const char* function )
 {
-	int res = pthread_mutex_trylock( &__engine_mutex );
-	if ( res != 0 ) {
+	bool res = __engine_mutex.try_lock();
+	if ( !res ) {
 		// Lock not obtained
+		return false;
+	}
+	__locker.file = file;
+	__locker.line = line;
+	__locker.function = function;
+	return true;
+}
+
+bool AudioEngine::try_lock_for( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function )
+{
+	bool res = __engine_mutex.try_lock_for( duration );
+	if ( !res ) {
+		// Lock not obtained
+		WARNINGLOG( QString( "Lock timeout: lock timeout %1:%2%3, lock held by %4:%5:%6" )
+					.arg( file ).arg( function ).arg( line )
+					.arg( __locker.file ).arg( __locker.function ).arg( __locker.line ));
 		return false;
 	}
 	__locker.file = file;
@@ -224,7 +238,7 @@ void AudioEngine::locate( const unsigned long nFrame ) {
 void AudioEngine::unlock()
 {
 	// Leave "__locker" dirty.
-	pthread_mutex_unlock( &__engine_mutex );
+	__engine_mutex.unlock();
 }
 
 

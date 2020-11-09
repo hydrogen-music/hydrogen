@@ -42,7 +42,6 @@
 
 OscServer * OscServer::__instance = nullptr;
 const char* OscServer::__class_name = "OscServer";
-std::list<lo_address> OscServer::m_pClientRegistry;
 
 QString OscServer::qPrettyPrint(lo_type type,void * data)
 {
@@ -59,20 +58,23 @@ QString OscServer::qPrettyPrint(lo_type type,void * data)
 		int64_t    i;
 		double     f;
 		uint64_t   nl;
-		lo_timetag tt;
 	} h2_pcast64;
 
 
-	h2_pcast32 val32;
-	h2_pcast64 val64;
+	h2_pcast32 val32 = {0};
+	h2_pcast64 val64 = {0};
 	int size;
-	int i;
 
 	size = lo_arg_size(type, data);
 	if (size == 4 || type == LO_BLOB) {
 			val32.nl = *(int32_t *)data;
 	} else if (size == 8) {
 			val64.nl = *(int64_t *)data;
+	} else {
+		//error case
+		formattedString = QString("Unhandled size: %1").arg(size);
+		
+		return formattedString;
 	}
 
 	switch (type) {
@@ -95,10 +97,6 @@ QString OscServer::qPrettyPrint(lo_type type,void * data)
 
 		case LO_INT64:
 			formattedString = QString("%1").arg(val64.i);
-			break;
-
-		case LO_TIMETAG:
-			formattedString = QString("%1.%2").arg(val64.tt.sec).arg(val64.tt.frac);
 			break;
 
 		case LO_DOUBLE:
@@ -133,7 +131,8 @@ QString OscServer::qPrettyPrint(lo_type type,void * data)
 		case LO_INFINITUM:
 			formattedString = QString("#INF");
 			break;
-
+			
+		case LO_TIMETAG:
 		default:
 			formattedString = QString("Unhandled type:").arg(type);
 			break;
@@ -153,8 +152,6 @@ int OscServer::generic_handler(const char *	path,
 							   void *		data,
 							   void *		user_data)
 {
-	INFOLOG("GENERIC HANDLER");
-
 	//First we're trying to map TouchOSC messages from multi-fader widgets
 	QString oscPath( path );
 	QRegExp rxStripVol( "/Hydrogen/STRIP_VOLUME_ABSOLUTE/(\\d+)" );
@@ -175,7 +172,7 @@ int OscServer::generic_handler(const char *	path,
 			H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
 			H2Core::CoreActionController* pController = pEngine->getCoreActionController();
 		
-			pController->setStripPan( value, argv[0]->f );
+			pController->setStripPan( value, argv[0]->f, false );
 		}
 	}
 	
@@ -247,7 +244,8 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name )
+OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name ),
+															m_bInitialized( false )
 {
 	m_pPreferences = pPreferences;
 	
@@ -284,10 +282,13 @@ OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name
 }
 
 OscServer::~OscServer(){
+
 	for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
 		lo_address_free( *it );
 	}
 
+	delete m_pServerThread;
+	
 	__instance = nullptr;
 }
 
@@ -455,7 +456,7 @@ void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
 	H2Core::CoreActionController* pController = pEngine->getCoreActionController();
 
-	pController->setStripVolume( param1, param2 );
+	pController->setStripVolume( param1, param2, false );
 }
 
 void OscServer::STRIP_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
@@ -633,6 +634,75 @@ void OscServer::QUIT_Handler(lo_arg **argv, int argc) {
 	pController->quit();
 }
 
+void OscServer::TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc) {
+
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+
+	if ( argv[0]->i != 0 ) { 
+		pController->activateTimeline( true );
+	} else {
+		pController->activateTimeline( false );
+	}
+}
+
+void OscServer::TIMELINE_ADD_MARKER_Handler(lo_arg **argv, int argc) {
+
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	pController->addTempoMarker(argv[0]->i, argv[1]->f);
+}
+
+void OscServer::TIMELINE_DELETE_MARKER_Handler(lo_arg **argv, int argc) {
+
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	pController->deleteTempoMarker(argv[0]->i);
+}
+
+void OscServer::JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc) {
+	
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+
+	if ( argv[0]->i != 0 ) {
+		pController->activateJackTransport( true );
+	} else {
+		pController->activateJackTransport( false );
+	}
+}
+
+void OscServer::JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc) {
+
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	if ( argv[0]->i != 0 ) {
+		pController->activateJackTimebaseMaster( true );
+	} else {
+		pController->activateJackTimebaseMaster( false );
+	}
+}
+
+void OscServer::SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
+
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	if ( argv[0]->i != 0 ) {
+		pController->activateSongMode( true, true );
+	} else {
+		pController->activateSongMode( false, true );
+	}
+}
+
+void OscServer::LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
+
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	if ( argv[0]->i != 0 ) {
+		pController->activateLoopMode( true, true );
+	} else {
+		pController->activateLoopMode( false, true );
+	}
+}
+
+void OscServer::RELOCATE_Handler(lo_arg **argv, int argc) {
+
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->relocate( argv[0]->i );
+}
+
 // -------------------------------------------------------------------
 // Helper functions
 
@@ -774,11 +844,10 @@ void OscServer::handleAction( Action* pAction )
 	}
 }
 
-
-bool OscServer::start()
+bool OscServer::init()
 {
 	if ( m_pServerThread == nullptr || !m_pServerThread->is_valid() ) {
-		ERRORLOG("Failed to start OSC server.");
+		ERRORLOG("Failed to initialize OSC server. No valid server thread.");
 		return false;
 	}
 
@@ -788,7 +857,6 @@ bool OscServer::start()
 
 	//This handler is responsible for registering clients
 	m_pServerThread->add_method(nullptr, nullptr, [&](lo_message msg){
-									INFOLOG("OSC REGISTER HANDLER");
 									lo_address a = lo_message_get_source(msg);
 
 									bool AddressRegistered = false;
@@ -801,7 +869,6 @@ bool OscServer::start()
 									}
 
 									if( !AddressRegistered ){
-										INFOLOG("REGISTERING CLIENT");
 										lo_address newAddr = lo_address_new_with_proto(	lo_address_get_protocol( a ),
 																						lo_address_get_hostname( a ),
 																						lo_address_get_port( a ) );
@@ -906,16 +973,50 @@ bool OscServer::start()
 	m_pServerThread->add_method("/Hydrogen/SAVE_SONG_AS", "s", SAVE_SONG_AS_Handler);
 	m_pServerThread->add_method("/Hydrogen/QUIT", "", QUIT_Handler);
 
-	/*
-	 * Start the server.
-	 */
-	m_pServerThread->start();
-	
-	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->getOscServerPort() ));
+	m_pServerThread->add_method("/Hydrogen/TIMELINE_ACTIVATION", "i", TIMELINE_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/TIMELINE_ADD_MARKER", "if", TIMELINE_ADD_MARKER_Handler);
+	m_pServerThread->add_method("/Hydrogen/TIMELINE_DELETE_MARKER", "i", TIMELINE_DELETE_MARKER_Handler);
+
+	m_pServerThread->add_method("/Hydrogen/JACK_TRANSPORT_ACTIVATION", "i", JACK_TRANSPORT_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", "i", JACK_TIMEBASE_MASTER_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/SONG_MODE_ACTIVATION", "i", SONG_MODE_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOOP_MODE_ACTIVATION", "i", LOOP_MODE_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/RELOCATE", "i", RELOCATE_Handler);
+
+	m_bInitialized = true;
 	
 	return true;
 }
 
+bool OscServer::start() {
+	if ( m_pServerThread == nullptr || !m_pServerThread->is_valid() ) {
+		ERRORLOG("Failed to start OSC server. No valid server thread.");
+		return false;
+	}
+
+	if ( ! m_bInitialized ) {
+		if ( ! init() ) {
+			return false;
+		}
+	}
+
+	m_pServerThread->start();
+	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->getOscServerPort() ));
+
+	return true;
+}
+
+bool OscServer::stop() {
+	if ( m_pServerThread == nullptr || !m_pServerThread->is_valid() ) {
+		ERRORLOG("Failed to stop OSC server. No valid server thread.");
+		return false;
+	}
+
+	m_pServerThread->stop();
+	INFOLOG(QString("Osc server stopped" ));
+
+	return true;
+}
 
 #endif /* H2CORE_HAVE_OSC */
 

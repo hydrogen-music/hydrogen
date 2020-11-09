@@ -141,8 +141,7 @@ class OscServer : public H2Core::Object
 		static QString qPrettyPrint(lo_type type,void * data);
 		
 		/**
-		 * Registers all handler functions defined for this class
-		 * starts the OscServer.
+		 * Registers all handler functions.
 		 *
 		 * The path the handlers will be registered at always starts
 		 * with \e /Hydrogen/ followed by the name of the handler
@@ -186,13 +185,20 @@ class OscServer : public H2Core::Object
 		 * clients. This will happen each time the state of Hydrogen
 		 * does change.
 		 *
-		 * This function will only be processed if the created server
-		 * thread #m_pServerThread is valid.
-		 *
-		 * \return `true` if #m_pServerThread could be successfully
-		 *   created..
+		 * \return `true` on success.
 		 */
+		bool init();
+		/** Starts the OSC server and makes it available to handle
+		 * commands.
+		 *
+		 * If the server was not properly initialized, this function
+		 * will do so.
+		 *
+		 * \return `true` on success*/
 		bool start();
+		/** Stops the OSC server and makes it unavailable.
+		 * \return `true` on success*/
+		bool stop();
 		/**
 		 * Function called by
 		 * H2Core::CoreActionController::initExternalControlInterfaces()
@@ -234,7 +240,7 @@ class OscServer : public H2Core::Object
 		 * \param pAction Action to be sent to all registered
 		 * clients. 
 		 */
-		static void handleAction(Action* pAction);
+		void handleAction(Action* pAction);
 
 		/**
 		 * Creates an Action of type @b PLAY and passes its
@@ -631,6 +637,77 @@ class OscServer : public H2Core::Object
 		 * \param argc Unused number of arguments passed by the OSC
 		 * message.*/
 		static void QUIT_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::activateTimeline().
+		 *
+		 * \param argv The "i" field does contain the value supplied
+		 * by the user. If it is 0, the Timeline will be
+		 * deactivated. Else, it will be activated instead.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::addTempoMarker().
+		 *
+		 * \param argv The first field "i" does contain the bar at
+		 * which to place the new Timeline::TempoMarker while the
+		 * second one "f" specifies its tempo in bpm.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void TIMELINE_ADD_MARKER_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::deleteTempoMarker().
+		 *
+		 * \param argv The first field "i" does contain the bar at
+		 * which to delete a Timeline::TempoMarker.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void TIMELINE_DELETE_MARKER_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::activatedJackTransport().
+		 *
+		 * \param argv The "i" field does contain the value supplied
+		 * by the user. If it is 0, the Jack transport will be
+		 * deactivated. Else, it will be activated instead.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::activateJackTimebaseMaster().
+		 *
+		 * \param argv The "i" field does contain the value supplied
+		 * by the user. If it is 0, the Jack timebase master will be
+		 * deactivated. Else, it will be activated instead.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::activateSongMode().
+		 *
+		 * \param argv The "i" field does contain the value supplied
+		 * by the user. If it is 0, Pattern mode of the playback will
+		 * be activated. Else, Song mode will be activated instead.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc);
+	/**
+		 * Triggers CoreActionController::activateLoopMode().
+		 *
+		 * \param argv The "i" field does contain the value supplied
+		 * by the user. If it is 0, loop mode will
+		 * be deactivated. Else, it will be activated instead.
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc);
+		/**
+		 * Triggers CoreActionController::relocateToPattern().
+		 *
+		 * \param argv The "i" field does contain the desired
+		 * position / number of the pattern group (starting with
+		 * 0).
+		 * \param argc Unused number of arguments passed by the OSC
+		 * message.*/
+		static void RELOCATE_Handler(lo_arg **argv, int argc);
 		/** 
 		 * Catches any incoming messages and display them. 
 		 *
@@ -679,7 +756,11 @@ class OscServer : public H2Core::Object
 		 * H2Core::Preferences::get_instance(), this is an appetizer
 		 * for internal changes happening after the 1.0 release.*/
 		H2Core::Preferences*			m_pPreferences;
-		
+		/**
+		 * Used to determine whether the callback methods were already
+		 * added to #m_pServerThread.
+		 */
+		bool m_bInitialized;
 		/**
 		 * Object containing the actual thread with an OSC server
 		 * running in.
@@ -698,7 +779,7 @@ class OscServer : public H2Core::Object
 		 * will be added to it and the current state Hydrogen will be
 		 * propagated to all registered clients.
 		 */
-		static std::list<lo_address>	m_pClientRegistry;
+		std::list<lo_address>	m_pClientRegistry;
 };
 
 #endif /* H2CORE_HAVE_OSC */

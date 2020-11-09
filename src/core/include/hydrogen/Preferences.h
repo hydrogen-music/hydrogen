@@ -126,6 +126,9 @@ public:
 	H2RGBColor m_patternEditor_line3Color;
 	H2RGBColor m_patternEditor_line4Color;
 	H2RGBColor m_patternEditor_line5Color;
+
+	H2RGBColor m_selectionHighlightColor;
+	H2RGBColor m_selectionInactiveColor;
 };
 
 
@@ -179,6 +182,12 @@ public:
 	enum UI_LAYOUT_TYPES {
 			UI_LAYOUT_SINGLE_PANE,
 			UI_LAYOUT_TABBED
+	};
+
+	enum UI_SCALING_POLICY {
+		UI_SCALING_SMALLER,
+		UI_SCALING_SYSTEM,
+		UI_SCALING_LARGER
 	};
 
 	QString				__lastspatternDirectory;
@@ -341,7 +350,7 @@ public:
 	 * has two states: Preferences::USE_JACK_TIME_MASTER and
 	 * Preferences::NO_JACK_TIME_MASTER. It is set to
 	 * Preferences::NO_JACK_TIME_MASTER by the
-	 * JackAudioDriver::initTimeMaster() if Hydrogen couldn't be
+	 * JackAudioDriver::initTimebaseMaster() if Hydrogen couldn't be
 	 * registered as time master.
 	 */
 	int				m_bJackMasterMode;
@@ -382,7 +391,13 @@ public:
 	int				getDefaultUILayout();
 	void			setDefaultUILayout( int layout);
 
+	int				getUIScalingPolicy();
+	void			setUIScalingPolicy( int nPolicy );
+
 	// General
+	const QString&	getPreferredLanguage();
+	void			setPreferredLanguage( const QString& sLanguage );
+
 	void			setRestoreLastSongEnabled( bool restore );
 	void			setRestoreLastPlaylistEnabled( bool restore );
 	void			setUseRelativeFilenamesForPlaylists( bool value );
@@ -431,7 +446,6 @@ public:
 	// GUI Properties
 	const QString&	getQTStyle();
 	void			setQTStyle( const QString& sStyle );
-
 
 	const QString&	getApplicationFontFamily();
 	void			setApplicationFontFamily( const QString& family );
@@ -499,6 +513,9 @@ public:
 	bool			useLash();
 	void			setUseLash( bool b );
 
+	bool			hideKeyboardCursor();
+	void			setHideKeyboardCursor( bool b );
+
 	/** @param bars Sets #m_nMaxBars.*/
 	void				setMaxBars( const int bars );
 	/** @return #m_nMaxBars.*/
@@ -565,20 +582,20 @@ public:
 
 	QString			getH2ProcessName();
 
-	int				getExportSampleDepth() const;
-	void			setExportSampleDepth( int nExportSampleDepth );
+	int				getExportSampleDepthIdx() const;
+	void			setExportSampleDepthIdx( int nExportSampleDepthIdx );
 	
-	int				getExportSampleRate() const;
-	void			setExportSampleRate( int nExportSampleRate );
+	int				getExportSampleRateIdx() const;
+	void			setExportSampleRateIdx( int nExportSampleRateIdx );
 
-	int				getExportMode() const;
-	void			setExportMode(int nExportMode);
+	int				getExportModeIdx() const;
+	void			setExportModeIdx(int nExportMode);
 	
 	QString			getExportDirectory() const;
 	void			setExportDirectory( const QString &sExportDirectory );
 	
-	int				getExportTemplate() const;
-	void			setExportTemplate( int nExportTemplate );
+	int				getExportTemplateIdx() const;
+	void			setExportTemplateIdx( int nExportTemplateIdx );
 
     int				getMidiExportMode() const;
     void			setMidiExportMode(int nExportMode);
@@ -624,6 +641,7 @@ private:
 	bool				readPrefFileforotherplaces;
 	int					punchInPos;
 	int					punchOutPos;
+	bool				m_bHideKeyboardCursor;
 	/** Maximum number of bars shown in the Song Editor at
 	 * once. 
 	 *
@@ -672,6 +690,7 @@ private:
 	QString					m_sQTStyle;
 	int						m_nLastOpenTab;
 	int						m_nDefaultUILayout;
+	int						m_nUIScalingPolicy;
 	bool					m_bShowPlaybackTrack;
 
 	QString					applicationFontFamily;
@@ -696,6 +715,7 @@ private:
 	WindowProperties		m_ladspaProperties[MAX_FX];
 
 	UIStyle*				m_pDefaultUIStyle;
+	QString					m_sPreferredLanguage;
 
 	//Appearance: SongEditor coloring
 	int						m_nColoringMethod;
@@ -703,10 +723,10 @@ private:
 
 	//Export dialog
 	QString					m_sExportDirectory;
-	int						m_nExportMode;
-	int						m_nExportSampleRate;
-	int						m_nExportSampleDepth;
-	int						m_nExportTemplate;
+	int						m_nExportModeIdx;
+	int						m_nExportSampleRateIdx;
+	int						m_nExportSampleDepthIdx;
+	int						m_nExportTemplateIdx;
 	//~ Export dialog
 
     // Export midi dialog
@@ -725,47 +745,47 @@ private:
 
 inline QString Preferences::getMidiExportDirectory() const
 {
-    return m_sMidiExportDirectory;
+	return m_sMidiExportDirectory;
 }
 
 inline void Preferences::setMidiExportDirectory(const QString &ExportDirectory)
 {
-    m_sMidiExportDirectory = ExportDirectory;
+	m_sMidiExportDirectory = ExportDirectory;
 }
 
 inline int Preferences::getMidiExportMode() const
 {
-    return m_nMidiExportMode;
+	return m_nMidiExportMode;
 }
 
 inline void Preferences::setMidiExportMode(int ExportMode)
 {
-    m_nMidiExportMode = ExportMode;
+	m_nMidiExportMode = ExportMode;
 }
 
-inline int Preferences::getExportSampleDepth() const
+inline int Preferences::getExportSampleDepthIdx() const
 {
-	return m_nExportSampleDepth;
+	return m_nExportSampleDepthIdx;
 }
 
-inline void Preferences::setExportSampleDepth(int ExportSampleDepth)
+inline void Preferences::setExportSampleDepthIdx(int ExportSampleDepth)
 {
-	m_nExportSampleDepth = ExportSampleDepth;
+	m_nExportSampleDepthIdx = ExportSampleDepth;
 }
 
-inline int Preferences::getExportSampleRate() const
+inline int Preferences::getExportSampleRateIdx() const
 {
-	return m_nExportSampleRate;
+	return m_nExportSampleRateIdx;
 }
 
-inline int Preferences::getExportMode() const
+inline int Preferences::getExportModeIdx() const
 {
-	return m_nExportMode;
+	return m_nExportModeIdx;
 }
 
-inline void Preferences::setExportMode(int ExportMode)
+inline void Preferences::setExportModeIdx(int ExportModeIdx)
 {
-	m_nExportMode = ExportMode;
+	m_nExportModeIdx = ExportModeIdx;
 }
 
 inline QString Preferences::getExportDirectory() const
@@ -778,19 +798,19 @@ inline void Preferences::setExportDirectory(const QString &ExportDirectory)
 	m_sExportDirectory = ExportDirectory;
 }
 
-inline void Preferences::setExportSampleRate(int ExportSampleRate)
+inline void Preferences::setExportSampleRateIdx(int ExportSampleRate)
 {
-	m_nExportSampleRate = ExportSampleRate;
+	m_nExportSampleRateIdx = ExportSampleRate;
 }
 
-inline int Preferences::getExportTemplate() const
+inline int Preferences::getExportTemplateIdx() const
 {
-	return m_nExportTemplate;
+	return m_nExportTemplateIdx;
 }
 
-inline void Preferences::setExportTemplate(int ExportTemplate)
+inline void Preferences::setExportTemplateIdx(int ExportTemplateIdx)
 {
-	m_nExportTemplate = ExportTemplate;
+	m_nExportTemplateIdx = ExportTemplateIdx;
 }
 
 inline const QString& Preferences::getDefaultEditor() {
@@ -809,8 +829,25 @@ inline void Preferences::setDefaultUILayout( int layout){
 	m_nDefaultUILayout = layout;
 }
 
+inline int Preferences::getUIScalingPolicy() {
+	return m_nUIScalingPolicy;
+}
+
+inline void Preferences::setUIScalingPolicy( int nPolicy ) {
+	m_nUIScalingPolicy = nPolicy;
+}
+
+
 
 // General
+inline const QString& Preferences::getPreferredLanguage() {
+	return m_sPreferredLanguage;
+}
+
+inline void Preferences::setPreferredLanguage( const QString& sLanguage ) {
+	m_sPreferredLanguage = sLanguage;
+}
+
 inline void Preferences::setRestoreLastSongEnabled( bool restore ) {
 	m_brestoreLastSong = restore;
 }
@@ -829,6 +866,14 @@ inline void Preferences::setShowDevelWarning( bool value ) {
 
 inline bool Preferences::getShowDevelWarning() {
 	return m_bShowDevelWarning;
+}
+
+inline void Preferences::setHideKeyboardCursor( bool value ) {
+	m_bHideKeyboardCursor = value;
+}
+
+inline bool Preferences::hideKeyboardCursor() {
+	return m_bHideKeyboardCursor;
 }
 
 inline bool Preferences::isRestoreLastSongEnabled() {

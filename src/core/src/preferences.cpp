@@ -96,8 +96,11 @@ Preferences::Preferences()
 		}
 	}
 
+	m_sPreferredLanguage = QString();
+
 	m_pDefaultUIStyle = new UIStyle();
 	m_nDefaultUILayout = UI_LAYOUT_SINGLE_PANE;
+	m_nUIScalingPolicy = UI_SCALING_SMALLER;
 
 	__lastspatternDirectory = QDir::homePath();
 	__lastsampleDirectory = QDir::homePath(); //audio file browser
@@ -115,9 +118,9 @@ Preferences::Preferences()
 	
 	//export dialog
 	m_sExportDirectory = QDir::homePath();
-	m_nExportMode = 0;
-	m_nExportSampleRate = 44100;
-	m_nExportSampleDepth = 0;
+	m_nExportModeIdx = 0;
+	m_nExportSampleRateIdx = 0;
+	m_nExportSampleDepthIdx = 0;
 
 	//export midi dialog
 	m_sMidiExportDirectory = QDir::homePath();
@@ -188,6 +191,7 @@ Preferences::Preferences()
 	quantizeEvents = true;
 	recordEvents = false;
 	m_bUseRelativeFilenamesForPlaylists = false;
+	m_bHideKeyboardCursor = true;
 
 	//___ GUI properties ___
 	m_sQTStyle = "Fusion";
@@ -239,6 +243,8 @@ Preferences::Preferences()
 	uis->m_patternEditor_line3Color = H2RGBColor(115, 115, 115);
 	uis->m_patternEditor_line4Color = H2RGBColor(125, 125, 125);
 	uis->m_patternEditor_line5Color = H2RGBColor(135, 135, 135);
+	uis->m_selectionHighlightColor = H2RGBColor(0, 0, 255);
+	uis->m_selectionInactiveColor = H2RGBColor(85, 85, 85);
 
 	/////////////////////////////////////////////////////////////////////////
 	//////////////// END OF DEFAULT SETTINGS ////////////////////////////////
@@ -292,6 +298,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			}
 
 			//////// GENERAL ///////////
+			m_sPreferredLanguage = LocalFileMng::readXmlString( rootNode, "preferredLanguage", QString() );
 			__playselectedinstrument = LocalFileMng::readXmlBool( rootNode, "instrumentInputMode", __playselectedinstrument );
 			m_bShowDevelWarning = LocalFileMng::readXmlBool( rootNode, "showDevelWarning", m_bShowDevelWarning );
 			m_brestoreLastSong = LocalFileMng::readXmlBool( rootNode, "restoreLastSong", m_brestoreLastSong );
@@ -302,8 +309,10 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_nMaxBars = LocalFileMng::readXmlInt( rootNode, "maxBars", 400 );
 			m_nMaxLayers = LocalFileMng::readXmlInt( rootNode, "maxLayers", 16 );
 			m_nDefaultUILayout =  LocalFileMng::readXmlInt( rootNode, "defaultUILayout", UI_LAYOUT_SINGLE_PANE );
+			m_nUIScalingPolicy = LocalFileMng::readXmlInt( rootNode, "uiScalingPolicy", UI_SCALING_SMALLER );
 			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
+			m_bHideKeyboardCursor = LocalFileMng::readXmlBool( rootNode, "hideKeyboardCursor", true );
 
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
@@ -516,10 +525,10 @@ void Preferences::loadPreferences( bool bGlobal )
 				setAudioEngineInfoProperties( readWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties ) );
 
 				//export dialog properties
-				m_nExportTemplate = LocalFileMng::readXmlInt( guiNode, "exportDialogTemplate", 0 );
-				m_nExportMode = LocalFileMng::readXmlInt( guiNode, "exportDialogMode", 0 );
-				m_nExportSampleRate = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleRate", 44100 );
-				m_nExportSampleDepth = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleDepth", 0 );
+				m_nExportTemplateIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogTemplate", 0 );
+				m_nExportModeIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogMode", 0 );
+				m_nExportSampleRateIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleRate", 0 );
+				m_nExportSampleDepthIdx = LocalFileMng::readXmlInt( guiNode, "exportDialogSampleDepth", 0 );
 				m_sExportDirectory = LocalFileMng::readXmlString( guiNode, "exportDialogDirectory", QDir::homePath(), true );
 					
 				m_bFollowPlayhead = LocalFileMng::readXmlBool( guiNode, "followPlayhead", true );
@@ -681,6 +690,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "version", QString( get_version().c_str() ) );
 
 	////// GENERAL ///////
+	LocalFileMng::writeXmlString( rootNode, "preferredLanguage", m_sPreferredLanguage );
 	LocalFileMng::writeXmlString( rootNode, "restoreLastSong", m_brestoreLastSong ? "true": "false" );
 	LocalFileMng::writeXmlString( rootNode, "restoreLastPlaylist", m_brestoreLastPlaylist ? "true": "false" );
 
@@ -693,6 +703,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "maxLayers", QString::number( m_nMaxLayers ) );
 
 	LocalFileMng::writeXmlString( rootNode, "defaultUILayout", QString::number( m_nDefaultUILayout ) );
+	LocalFileMng::writeXmlString( rootNode, "uiScalingPolicy", QString::number( m_nUIScalingPolicy ) );
 	LocalFileMng::writeXmlString( rootNode, "lastOpenTab", QString::number( m_nLastOpenTab ) );
 
 	LocalFileMng::writeXmlString( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent ? "true": "false" );
@@ -700,6 +711,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
 	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );
 	LocalFileMng::writeXmlString( rootNode, "useRelativeFilenamesForPlaylists", m_bUseRelativeFilenamesForPlaylists ? "true": "false" );
+	LocalFileMng::writeXmlBool( rootNode, "hideKeyboardCursor", m_bHideKeyboardCursor );
 	
 	// instrument input mode
 	LocalFileMng::writeXmlString( rootNode, "instrumentInputMode", __playselectedinstrument ? "true": "false" );
@@ -715,7 +727,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "quantizeEvents", quantizeEvents ? "true": "false" );
 
 	//extern executables
-	if ( QFile( m_rubberBandCLIexecutable ).exists() == false ) {
+	if ( !Filesystem::file_executable( m_rubberBandCLIexecutable , true /* silent */) ) {
 		m_rubberBandCLIexecutable = "Path to Rubberband-CLI";
 	}
 	LocalFileMng::writeXmlString( rootNode, "path_to_rubberband", QString(m_rubberBandCLIexecutable));
@@ -925,10 +937,10 @@ void Preferences::savePreferences()
 		
 		
 		//ExportSongDialog
-		LocalFileMng::writeXmlString( guiNode, "exportDialogMode", QString("%1").arg( m_nExportMode ) );
-		LocalFileMng::writeXmlString( guiNode, "exportDialogTemplate", QString("%1").arg( m_nExportTemplate ) );
-		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleRate",  QString("%1").arg( m_nExportSampleRate ) );
-		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleDepth", QString("%1").arg( m_nExportSampleDepth ) );
+		LocalFileMng::writeXmlString( guiNode, "exportDialogMode", QString("%1").arg( m_nExportModeIdx ) );
+		LocalFileMng::writeXmlString( guiNode, "exportDialogTemplate", QString("%1").arg( m_nExportTemplateIdx ) );
+		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleRate",  QString("%1").arg( m_nExportSampleRateIdx ) );
+		LocalFileMng::writeXmlString( guiNode, "exportDialogSampleDepth", QString("%1").arg( m_nExportSampleDepthIdx ) );
 		LocalFileMng::writeXmlString( guiNode, "exportDialogDirectory", m_sExportDirectory );
 
 		LocalFileMng::writeXmlBool( guiNode, "followPlayhead", m_bFollowPlayhead );
@@ -1050,8 +1062,9 @@ void Preferences::savePreferences()
 	doc.appendChild( rootNode );
 
 	QFile file( Filesystem::usr_config_path() );
-	if ( !file.open(QIODevice::WriteOnly) )
+	if ( !file.open(QIODevice::WriteOnly) ) {
 		return;
+	}
 
 	QTextStream TextStream( &file );
 	doc.save( TextStream, 1 );
@@ -1063,8 +1076,9 @@ void Preferences::setMostRecentFX( QString FX_name )
 {
 	int pos = m_recentFX.indexOf( FX_name );
 
-	if ( pos != -1 )
+	if ( pos != -1 ) {
 		m_recentFX.removeAt( pos );
+	}
 
 	m_recentFX.push_front( FX_name );
 }
@@ -1170,6 +1184,11 @@ void Preferences::writeUIStyle( QDomNode parent )
 	LocalFileMng::writeXmlString( patternEditorNode, "line5Color", m_pDefaultUIStyle->m_patternEditor_line5Color.toStringFmt() );
 	node.appendChild( patternEditorNode );
 
+	QDomNode selectionNode = doc.createElement( "selection" );
+	LocalFileMng::writeXmlString( selectionNode, "highlightColor", m_pDefaultUIStyle->m_selectionHighlightColor.toStringFmt() );
+	LocalFileMng::writeXmlString( selectionNode, "inactiveColor", m_pDefaultUIStyle->m_selectionInactiveColor.toStringFmt() );
+	node.appendChild( selectionNode );
+
 	parent.appendChild( node );
 }
 
@@ -1207,6 +1226,14 @@ void Preferences::readUIStyle( QDomNode parent )
 		m_pDefaultUIStyle->m_patternEditor_line5Color = H2RGBColor( LocalFileMng::readXmlString( pPatternEditorNode, "line5Color", m_pDefaultUIStyle->m_patternEditor_line5Color.toStringFmt() ) );
 	} else {
 		WARNINGLOG( "patternEditor node not found" );
+	}
+
+	QDomNode pSelectionNode = parent.firstChildElement( "selection" );
+	if ( !pSelectionNode.isNull() ) {
+		m_pDefaultUIStyle->m_selectionHighlightColor = H2RGBColor( LocalFileMng::readXmlString( pSelectionNode, "highlightColor", m_pDefaultUIStyle->m_selectionHighlightColor.toStringFmt() ) );
+		m_pDefaultUIStyle->m_selectionInactiveColor = H2RGBColor( LocalFileMng::readXmlString( pSelectionNode, "inactiveColor", m_pDefaultUIStyle->m_selectionInactiveColor.toStringFmt() ) );
+	} else {
+		WARNINGLOG( "selection node not found" );
 	}
 }
 

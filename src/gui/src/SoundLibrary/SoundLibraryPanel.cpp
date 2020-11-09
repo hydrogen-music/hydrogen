@@ -342,8 +342,9 @@ void SoundLibraryPanel::on_DrumkitList_itemActivated( QTreeWidgetItem * item, in
 
 void SoundLibraryPanel::on_DrumkitList_rightClicked( QPoint pos )
 {
-	if( __sound_library_tree->currentItem() == nullptr )
+	if( __sound_library_tree->currentItem() == nullptr ) {
 		return;
+	}
 	
 	if (
 		( __sound_library_tree->currentItem()->parent() == nullptr ) ||
@@ -476,13 +477,13 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 
-	Drumkit *drumkitInfo = nullptr;
+	Drumkit *pDrumkitInfo = nullptr;
 
 	// find the drumkit in the list
 	for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
 		Drumkit *pInfo = __system_drumkit_info_list[i];
 		if ( pInfo->get_name() == sDrumkitName ) {
-			drumkitInfo = pInfo;
+			pDrumkitInfo = pInfo;
 			break;
 		}
 	}
@@ -490,13 +491,17 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
 		Drumkit *pInfo = __user_drumkit_info_list[i];
 		if ( pInfo->get_name() == sDrumkitName ) {
-			drumkitInfo = pInfo;
+			pDrumkitInfo = pInfo;
 			break;
 		}
 	}
+	
+	if( !pDrumkitInfo ) {
+		return;
+	}
 
 	InstrumentList *pSongInstrList = Hydrogen::get_instance()->getSong()->get_instrument_list();
-	InstrumentList *pDrumkitInstrList = drumkitInfo->get_instruments();
+	InstrumentList *pDrumkitInstrList = pDrumkitInfo->get_instruments();
 
 	int oldCount = pSongInstrList->size();
 	int newCount = pDrumkitInstrList->size();
@@ -511,7 +516,6 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 		// Check if any of the instruments that will be removed have notes
 		for ( int i = 0; i < pSongInstrList->size(); i++)
 		{
-			
 			if ( i >= newCount )
 			{
 				INFOLOG("Checking if Instrument " + QString::number( i ) + " has notes..." );
@@ -520,7 +524,6 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 				{
 					hasNotes = true;
 					INFOLOG("Instrument " + QString::number( i ) + " has notes" );
-
 				}
 			}
 
@@ -559,14 +562,13 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	}
 
 
-	assert( drumkitInfo );
+	assert( pDrumkitInfo );
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-
-	Hydrogen::get_instance()->loadDrumkit( drumkitInfo, conditionalLoad );
+	Hydrogen::get_instance()->loadDrumkit( pDrumkitInfo, conditionalLoad );
 	Hydrogen::get_instance()->getSong()->set_is_modified( true );
-	HydrogenApp::get_instance()->onDrumkitLoad( drumkitInfo->get_name() );
+	HydrogenApp::get_instance()->onDrumkitLoad( pDrumkitInfo->get_name() );
 	HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()->updateEditor();
 	HydrogenApp::get_instance()->getPatternEditorPanel()->updatePianorollEditor();
 
@@ -602,17 +604,17 @@ void SoundLibraryPanel::restore_background_color()
 
 void SoundLibraryPanel::change_background_color()
 {
-	QString curlib =  Hydrogen::get_instance()->getCurrentDrumkitname();
+	QString sCurDrumkitName =  Hydrogen::get_instance()->getCurrentDrumkitname();
 
 	for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
-		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == curlib ){
+		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == sCurDrumkitName ){
 			( __system_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
 			break;
 		}
 	}
 
 	for (int i = 0; i < __user_drumkits_item->childCount() ; i++){
-		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == curlib ){
+		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == sCurDrumkitName ){
 			( __user_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
 			break;
 		}
@@ -623,17 +625,17 @@ void SoundLibraryPanel::change_background_color()
 
 void SoundLibraryPanel::on_drumkitDeleteAction()
 {
-	QTreeWidgetItem* item = __sound_library_tree->currentItem();
+	QTreeWidgetItem* pItem = __sound_library_tree->currentItem();
 	QString itemName = QString("%1").arg(__sound_library_tree->currentItem()->text(0));
 
 	//if we delete the current loaded drumkit we can get trouble with some empty pointers
 	// TODO this check is really unsafe
-	if ( item->text(0) == Hydrogen::get_instance()->getCurrentDrumkitname() ){
+	if ( pItem->text(0) == Hydrogen::get_instance()->getCurrentDrumkitname() ){
 		QMessageBox::warning( this, "Hydrogen", tr( "It is not possible to delete the currently loaded drumkit: \n  \"%1\".\nTo delete this drumkit first load another drumkit.").arg(itemName) );
 		return;
 	}
 
-	if ( item->parent() == __system_drumkits_item ) {
+	if ( pItem->parent() == __system_drumkits_item ) {
 		QMessageBox::warning( this, "Hydrogen", tr( "\"%1\"is a system drumkit and can't be deleted.").arg(itemName) );
 		return;
 	}
@@ -644,11 +646,13 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 	}
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	bool success = Drumkit::remove( item->text(0) );
+	bool success = Drumkit::remove( pItem->text(0) );
 	test_expandedItems();
 	updateDrumkitList();
 	QApplication::restoreOverrideCursor();
-	if ( !success) QMessageBox::warning( this, "Hydrogen", tr( "Drumkit deletion failed.") );
+	if ( !success) {
+		QMessageBox::warning( this, "Hydrogen", tr( "Drumkit deletion failed.") );
+	}
 }
 
 

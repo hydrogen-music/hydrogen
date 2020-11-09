@@ -111,9 +111,8 @@ class Pattern : public H2Core::Object
 		/**
 		 * insert a new note within __notes
 		 * \param note the note to be inserted
-		 * \param position if not -1 will be used as std::pair first element, otherwise note position will be used
 		 */
-		void insert_note( Note* note, int position=-1 );
+		void insert_note( Note* note );
 		/**
 		 * search for a note at a given index within __notes which correspond to the given arguments
 		 * \param idx_a the first __notes index to search in
@@ -276,9 +275,9 @@ inline const Pattern::virtual_patterns_t* Pattern::get_flattened_virtual_pattern
 	return &__flattened_virtual_patterns;
 }
 
-inline void Pattern::insert_note( Note* note, int position )
+inline void Pattern::insert_note( Note* note )
 {
-	__notes.insert( std::make_pair( ( position==-1 ? note->get_position() : position ), note ) );
+	__notes.insert( std::make_pair( note->get_position(), note ) );
 }
 
 inline bool Pattern::virtual_patterns_empty() const

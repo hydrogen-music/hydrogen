@@ -82,7 +82,9 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 			bIsChannelValid = true;
 		}
 
-		if ( !bIsChannelValid) return;
+		if ( !bIsChannelValid) {
+			return;
+		}
 
 		Hydrogen* pHydrogen = Hydrogen::get_instance();
 		if ( ! pHydrogen->getSong() ) {
@@ -147,14 +149,16 @@ void MidiInput::handleMidiMessage( const MidiMessage& msg )
 
 		case MidiMessage::CONTINUE: /* Just start */
 				ERRORLOG( "CONTINUE event" );
-				if ( pHydrogen->getState() != STATE_PLAYING )
+				if ( pHydrogen->getState() != STATE_PLAYING ) {
 					pHydrogen->sequencer_play();
+				}
 				break;
 
 		case MidiMessage::STOP: /* Stop in current position i.e. Pause */
 				INFOLOG( "STOP event" );
-				if ( pHydrogen->getState() == STATE_PLAYING )
+				if ( pHydrogen->getState() == STATE_PLAYING ) {
 					pHydrogen->sequencer_stop();
+				}
 				break;
 
 		case MidiMessage::SONG_POS:

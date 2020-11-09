@@ -116,6 +116,7 @@ public slots:
 
 		void action_debug_printObjects();
 		void action_debug_showAudioEngineInfo();
+		void action_debug_showFilesystemInfo();
 
 		void closeEvent( QCloseEvent* ev );
 
@@ -144,6 +145,7 @@ public slots:
 		void onAutoSaveTimer();
 		void onPlaylistDisplayTimer();
 		void onFixMidiSetup();
+		void onFixMissingSamples();
 
 	protected:
 		// Returns true if handled, false if aborted.
@@ -183,7 +185,10 @@ public slots:
 		void createMenuBar();
 
 		void openSongFile( const QString& sFilename );
+		
 		void checkMidiSetup();
+		void checkMissingSamples();
+		void checkNecessaryDirectories();
 
 		bool eventFilter( QObject *o, QEvent *e );
 
@@ -195,6 +200,8 @@ public slots:
 		QTimer *lashPollTimer;
 	#endif
 
+		InfoBar *m_pMidiSetupInfoBar;
+		InfoBar *m_pMissingSamplesInfoBar;
 
 		bool handleSelectNextPrevSongOnPlaylist(int step);
 

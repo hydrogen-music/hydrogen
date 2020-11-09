@@ -270,10 +270,11 @@ void Mixer::volumeChanged(ComponentMixerLine* ref)
 
 void Mixer::unmuteAll( bool findSelectedInstr )
 {
-	if(findSelectedInstr)
+	if(findSelectedInstr) {
 		unmuteAll( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
-	else
+	} else {
 		unmuteAll( 0 );
+	}
 }
 
 void Mixer::unmuteAll( int selectedInstrument )
@@ -387,8 +388,9 @@ uint Mixer::findMixerLineByRef(MixerLine* ref)
 uint Mixer::findCompoMixerLineByRef(ComponentMixerLine* ref)
 {
 	for (std::map<int, ComponentMixerLine*>::iterator it=m_pComponentMixerLine.begin(); it!=m_pComponentMixerLine.end(); ++it) {
-		if(it->second == ref)
+		if(it->second == ref) {
 			return it->first;
+		}
 	}
 
 	return 0;
@@ -401,7 +403,7 @@ void Mixer::volumeChanged(MixerLine* ref)
 	CoreActionController* pController = pEngine->getCoreActionController();
 
 	int nLine = findMixerLineByRef(ref);
-	pController->setStripVolume( nLine, ref->getVolume() );
+	pController->setStripVolume( nLine, ref->getVolume(), true );
 }
 
 void Mixer::masterVolumeChanged(MasterMixerLine* ref)
@@ -615,8 +617,9 @@ void Mixer::updateMixer()
 					break;
 				}
 			}
-			if( !p_foundExistingRelatedComponent )
+			if( !p_foundExistingRelatedComponent ) {
 				p_ids_to_delete->push_back( it->first ) ;
+			}
 		}
 
 		for ( std::vector<int>::iterator it = p_ids_to_delete->begin() ; it != p_ids_to_delete->end(); ++it ) {
@@ -759,7 +762,7 @@ void Mixer::panChanged(MixerLine* ref) {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	CoreActionController* pController = pEngine->getCoreActionController();
 
-	pController->setStripPan( nLine, panValue );
+	pController->setStripPan( nLine, panValue, true );
 }
 
 

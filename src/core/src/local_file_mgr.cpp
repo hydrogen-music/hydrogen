@@ -84,8 +84,9 @@ QString LocalFileMng::getDrumkitNameForPattern( const QString& patternDir )
 	}
 
 	QString dk_name = LocalFileMng::readXmlString( rootNode,"drumkit_name", "" );
-	if ( dk_name.isEmpty() )
+	if ( dk_name.isEmpty() ) {
 		dk_name = LocalFileMng::readXmlString( rootNode,"pattern_for_drumkit", "" );
+	}
 	return dk_name;
 }
 
@@ -244,8 +245,9 @@ bool LocalFileMng::checkTinyXMLCompatMode( const QString& filename )
 
 	QFile file( filename );
 
-	if ( !file.open(QIODevice::ReadOnly) )
+	if ( !file.open(QIODevice::ReadOnly) ) {
 		return false;
+	}
 
 	QString line = file.readLine();
 	file.close();
@@ -269,8 +271,9 @@ QDomDocument LocalFileMng::openXmlDocument( const QString& filename )
 	QDomDocument doc;
 	QFile file( filename );
 
-	if ( !file.open(QIODevice::ReadOnly) )
+	if ( !file.open(QIODevice::ReadOnly) ) {
 		return QDomDocument();
+	}
 
 	if( TinyXMLCompat ) {
 		QString enc = QTextCodec::codecForLocale()->name();
@@ -641,11 +644,13 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 
 	QDomNode bpmTimeLine = doc.createElement( "BPMTimeLine" );
 
-	if(pTimeline->m_timelinevector.size() >= 1 ){
-		for ( int t = 0; t < static_cast<int>(pTimeline->m_timelinevector.size()); t++){
+	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
+	
+	if ( tempoMarkerVector.size() >= 1 ){
+		for ( int t = 0; t < static_cast<int>(tempoMarkerVector.size()); t++){
 			QDomNode newBPMNode = doc.createElement( "newBPM" );
-			LocalFileMng::writeXmlString( newBPMNode, "BAR",QString("%1").arg( pTimeline->m_timelinevector[t].m_htimelinebeat ));
-			LocalFileMng::writeXmlString( newBPMNode, "BPM", QString("%1").arg( pTimeline->m_timelinevector[t].m_htimelinebpm  ) );
+			LocalFileMng::writeXmlString( newBPMNode, "BAR",QString("%1").arg( tempoMarkerVector[t]->nBar ));
+			LocalFileMng::writeXmlString( newBPMNode, "BPM", QString("%1").arg( tempoMarkerVector[t]->fBpm  ) );
 			bpmTimeLine.appendChild( newBPMNode );
 		}
 	}
@@ -653,11 +658,14 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 
 	//time line tag
 	QDomNode timeLineTag = doc.createElement( "timeLineTag" );
-	if(pTimeline->m_timelinetagvector.size() >= 1 ){
-		for ( int t = 0; t < static_cast<int>(pTimeline->m_timelinetagvector.size()); t++){
+
+	auto tagVector = pTimeline->getAllTags();
+	
+	if ( tagVector.size() >= 1 ){
+		for ( int t = 0; t < static_cast<int>(tagVector.size()); t++){
 			QDomNode newTAGNode = doc.createElement( "newTAG" );
-			LocalFileMng::writeXmlString( newTAGNode, "BAR",QString("%1").arg( pTimeline->m_timelinetagvector[t].m_htimelinetagbeat ));
-			LocalFileMng::writeXmlString( newTAGNode, "TAG", QString("%1").arg( pTimeline->m_timelinetagvector[t].m_htimelinetag  ) );
+			LocalFileMng::writeXmlString( newTAGNode, "BAR",QString("%1").arg( tagVector[t]->nBar ));
+			LocalFileMng::writeXmlString( newTAGNode, "TAG", QString("%1").arg( tagVector[t]->sTag ) );
 			timeLineTag.appendChild( newTAGNode );
 		}
 	}
@@ -678,14 +686,16 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 	songNode.appendChild( automationPathsTag );
 
 	QFile file(filename);
-	if ( !file.open(QIODevice::WriteOnly) )
+	if ( !file.open(QIODevice::WriteOnly) ) {
 		rv = 1;
+	}
 
 	QTextStream TextStream( &file );
 	doc.save( TextStream, 1 );
 
-	if( file.size() == 0)
+	if( file.size() == 0) {
 		rv = 1;
+	}
 
 	file.close();
 

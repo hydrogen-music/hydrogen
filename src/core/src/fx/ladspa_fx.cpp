@@ -27,12 +27,6 @@
 
 #include <QDir>
 
-#include <algorithm>
-#include <cstdio>
-#include <vector>
-using namespace std;
-
-
 #define LADSPA_IS_CONTROL_INPUT(x) (LADSPA_IS_PORT_INPUT(x) && LADSPA_IS_PORT_CONTROL(x))
 #define LADSPA_IS_AUDIO_INPUT(x) (LADSPA_IS_PORT_INPUT(x) && LADSPA_IS_PORT_AUDIO(x))
 #define LADSPA_IS_CONTROL_OUTPUT(x) (LADSPA_IS_PORT_OUTPUT(x) && LADSPA_IS_PORT_CONTROL(x))
@@ -422,8 +416,9 @@ void LadspaFX::connectAudioPorts( float* pIn_L, float* pIn_R, float* pOut_L, flo
 void LadspaFX::processFX( unsigned nFrames )
 {
 //	infoLog( "[LadspaFX::applyFX()]" );
-	if( m_bActivated )
-	m_d->run( m_handle, nFrames );
+	if( m_bActivated ) {
+		m_d->run( m_handle, nFrames );
+	}
 }
 
 void LadspaFX::activate()

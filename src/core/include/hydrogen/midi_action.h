@@ -26,9 +26,6 @@
 #include <string>
 #include <cassert>
 
-using namespace std;
-
-
 class Action : public H2Core::Object {
 	H2_OBJECT
 	public:
@@ -42,15 +39,15 @@ class Action : public H2Core::Object {
 			parameter2 = text;
 		}
 
-		QString getParameter1(){
+		QString getParameter1() const {
 			return parameter1;
 		}
 
-		QString getParameter2(){
+		QString getParameter2() const {
 			return parameter2;
 		}
 
-		QString getType(){
+		QString getType() const {
 			return type;
 		}
 
@@ -102,7 +99,7 @@ class MidiActionManager : public H2Core::Object
 		 *
 		 * It holds pointer to member function.
 		 */
-		map<string, pair<action_f, targeted_element> > actionMap;
+		std::map<std::string, std::pair<action_f, targeted_element> > actionMap;
 
 		bool play(Action * , H2Core::Hydrogen * , targeted_element );
 		bool play_stop_pause_toggle(Action * , H2Core::Hydrogen * , targeted_element );

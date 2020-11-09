@@ -53,13 +53,14 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 
 		void setSampleName( QString name);
 		bool getCloseQuestion();
-		bool m_pSampleEditorStatus;
 		bool returnAllMainWaveDisplayValues();
 		void returnAllTargetDisplayValues();
 		void setTrue();
+		
+		bool m_bSampleEditorStatus;
 
 		//this values come from the real sample to restore a frm song loaded sample
-		bool m_sample_is_modified;	///< true if sample is modified
+		bool m_bSampleIsModified;	///< true if sample is modified
 
 	private slots:
 		void valueChangedLoopCountSpinBox( int );
@@ -82,13 +83,6 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 
 	private:
 
-		H2Core::Sample *m_pSampleFromFile;
-		int m_pSelectedLayer;
-		int m_pSelectedComponent;
-		QString m_samplename;
-	
-		double m_divider;
-
 		void openDisplays();
 		void getAllFrameInfos();
 		void getAllLocalFrameInfos();
@@ -107,24 +101,31 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		TargetWaveDisplay *m_pTargetSampleView;
 		DetailWaveDisplay *m_pSampleAdjustView;
 
-		float m_pZoomfactor;
+		H2Core::Sample *m_pSampleFromFile;
+		int m_nSelectedLayer;
+		int m_nSelectedComponent;
+		QString m_sSampleName;
+	
+		double m_divider;
+		float m_fZoomfactor;
 		unsigned m_pDetailFrame;
 		QString m_pLineColor;
-		bool m_pOnewayStart;
-		bool m_pOnewayLoop;
-		bool m_pOnewayEnd;
-		unsigned long m_pRealtimeFrameEnd;
-		unsigned long m_prealtimeframeendfortarget;
-		unsigned m_pslframes;
-		unsigned m_pSamplerate;
+
+		bool m_bOnewayStart;
+		bool m_bOnewayLoop;
+		bool m_bOnewayEnd;
+		bool m_bPlayButton;
+		
+		unsigned long m_nRealtimeFrameEnd;
+		unsigned long m_nRealtimeFrameEndForTarget;
+		unsigned m_nSlframes;
+		unsigned m_nSamplerate;
 		QTimer *m_pTimer;
 		QTimer *m_pTargetDisplayTimer;
 		unsigned *m_pPositionsRulerPath;
-		bool m_pPlayButton;
-		float m_pRatio;
+		float m_fRatio;
 		H2Core::Sample::Loops __loops;
 		H2Core::Sample::Rubberband __rubberband;
-		
 };
 
 

@@ -94,8 +94,11 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		void showMessage( const QString& msg, int msec );
 		void showScrollMessage( const QString& msg, int msec, bool test );
 		void resetStatusLabel();
-		
+
 		virtual void tempoChangedEvent( int nValue );
+		virtual void jackTransportActivationEvent( int nValue );
+		virtual void jackTimebaseActivationEvent( int nValue );
+													
 
 	private slots:
 		void recBtnClicked(Button* ref);
@@ -131,6 +134,21 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		void rubberbandButtonToggle(Button* ref);
 
 	private:
+		/**
+		 * Shared GUI update when activating Song or Pattern mode via
+		 * button click or via OSC command.
+		 *
+		 * @param nValue If 0, Pattern mode will be activate. Else,
+		 * Song mode will be activated instead.
+		 */
+		void songModeActivationEvent( int nValue );
+		/**
+		 * Shared GUI update when activating loop mode via button
+		 * click or via OSC command.
+		 *
+		 * @param nValue If 0, loop mode will be deactivate.
+		 */
+		void loopModeActivationEvent( int nValue );
 		H2Core::Hydrogen *m_pEngine;
 		QPixmap m_background;
 

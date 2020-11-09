@@ -39,6 +39,7 @@
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/LashClient.h>
 #include <hydrogen/audio_engine.h>
+#include <hydrogen/helpers/translations.h>
 #include <hydrogen/sampler/Sampler.h>
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
@@ -82,6 +83,25 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	driverComboBox->addItem( "PulseAudio" );
 #endif
 
+	// Language selection menu
+	for ( QString sLang : Translations::availableTranslations( "hydrogen" ) ) {
+		QLocale loc( sLang );
+		QString sLabel = loc.nativeLanguageName() + " (" + loc.nativeCountryName() + ')';
+		languageComboBox->addItem( sLabel, QVariant( sLang ) );
+	}
+	// Find preferred language and select that in menu
+	QStringList languages;
+	QString sPreferredLanguage = pPref->getPreferredLanguage();
+	if ( !sPreferredLanguage.isNull() ) {
+		languages << sPreferredLanguage;
+	}
+	languages << QLocale::system().uiLanguages();
+	QString sLanguage = Translations::findTranslation( languages, "hydrogen" );
+	m_sInitialLanguage = sLanguage;
+	int nLanguage = languageComboBox->findData( QVariant( sLanguage ) );
+	if ( nLanguage != -1 ) {
+		languageComboBox->setCurrentIndex( nLanguage );
+	}
 
 	if( driverComboBox->findText(pPref->m_sAudioDriver) > -1){
 		driverComboBox->setCurrentIndex(driverComboBox->findText(pPref->m_sAudioDriver));
@@ -192,6 +212,13 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	uiLayoutComboBox->setCurrentIndex(  pPref->getDefaultUILayout() );
 
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+	uiScalingPolicyComboBox->setCurrentIndex( pPref->getUIScalingPolicy() );
+#else
+	uiScalingPolicyComboBox->setEnabled( false );
+        uiScalingPolicyLabel->setEnabled( false );
+#endif
+
 	// Style
 	QStringList list = QStyleFactory::keys();
 	uint i = 0;
@@ -289,6 +316,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
 	restoreLastUsedPlaylistCheckbox->setChecked( pPref->isRestoreLastPlaylistEnabled() );
 	useRelativePlaylistPathsCheckbox->setChecked( pPref->isPlaylistUsingRelativeFilenames() );
+	hideKeyboardCursor->setChecked( pPref->hideKeyboardCursor() );
 
 	//restore the right m_bsetlash value
 	if ( pPref->m_brestartLash == true ){
@@ -477,15 +505,28 @@ void PreferencesDialog::on_okBtn_clicked()
 	pPref->m_nMidiChannelFilter = midiPortChannelComboBox->currentIndex() - 1;
 
 	//OSC tab
-	pPref->setOscServerEnabled( enableOscCheckbox->isChecked() );
+	if ( enableOscCheckbox->isChecked() != pPref->getOscServerEnabled() ) {
+		pPref->setOscServerEnabled( enableOscCheckbox->isChecked() );
+#ifdef H2CORE_HAVE_OSC
+		H2Core::Hydrogen::get_instance()->toggleOscServer( enableOscCheckbox->isChecked() );
+#endif
+	}
+	
 	pPref->setOscFeedbackEnabled( enableOscFeedbackCheckbox->isChecked() );
-	pPref->setOscServerPort( incomingOscPortSpinBox->value() );
+	
+	if ( incomingOscPortSpinBox->value() != pPref->getOscServerPort() ) {
+		pPref->setOscServerPort( incomingOscPortSpinBox->value() );
+#ifdef H2CORE_HAVE_OSC
+		H2Core::Hydrogen::get_instance()->recreateOscServer();
+#endif
+	}
 	
 	// General tab
 	pPref->setRestoreLastSongEnabled( restoreLastUsedSongCheckbox->isChecked() );
 	pPref->setRestoreLastPlaylistEnabled( restoreLastUsedPlaylistCheckbox->isChecked() );
 	pPref->setUseRelativeFilenamesForPlaylists( useRelativePlaylistPathsCheckbox->isChecked() );
 	pPref->m_bsetLash = useLashCheckbox->isChecked(); //restore m_bsetLash after saving pref.
+	pPref->setHideKeyboardCursor( hideKeyboardCursor->isChecked() );
 
 	//path to rubberband
 	pPref-> m_rubberBandCLIexecutable = rubberbandLineEdit->text();
@@ -504,6 +545,10 @@ void PreferencesDialog::on_okBtn_clicked()
 	Hydrogen::get_instance()->setBcOffsetAdjust();
 
 	pPref->setDefaultUILayout( uiLayoutComboBox->currentIndex() );
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+	pPref->setUIScalingPolicy( uiScalingPolicyComboBox->currentIndex() );
+#endif
+
 
 	int coloringMethod = coloringMethodCombo->currentIndex();
 
@@ -528,11 +573,17 @@ void PreferencesDialog::on_okBtn_clicked()
 	SongEditor * pSongEditor = pSongEditorPanel->getSongEditor();
 	pSongEditor->updateEditorandSetTrue();
 
+	QString sPreferredLanguage = languageComboBox->currentData().toString();
+	if ( sPreferredLanguage != m_sInitialLanguage ) {
+		QMessageBox::information( this, "Hydrogen", tr( "Hydrogen must be restarted for language change to take effect" ));
+		pPref->setPreferredLanguage( sPreferredLanguage );
+	}
+
 	pPref->savePreferences();
 
 
 	if (m_bNeedDriverRestart) {
-		int res = QMessageBox::information( this, "Hydrogen", tr( "Driver restart required.\n Restart driver?"), tr("&Ok"), tr("&Cancel"), 0, 1 );
+		int res = QMessageBox::information( this, "Hydrogen", tr( "Driver restart required.\n Restart driver?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 );
 		if ( res == 0 ) {
 			Hydrogen::get_instance()->restartDrivers();
 		}
@@ -723,7 +774,7 @@ void PreferencesDialog::on_selectApplicationFontBtn_clicked()
 void PreferencesDialog::on_bufferSizeSpinBox_valueChanged( int i )
 {
 	UNUSED( i );
-	m_bNeedDriverRestart = false;
+	m_bNeedDriverRestart = true;
 }
 
 

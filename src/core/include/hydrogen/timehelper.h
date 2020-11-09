@@ -1,7 +1,7 @@
 #if defined(WIN32) || _DOXYGEN_
 
 #include <time.h>
-#include <windows.h>
+#include <sysinfoapi.h>
 
 #ifndef TIMEHELPER_H
 #define TIMEHELPER_H

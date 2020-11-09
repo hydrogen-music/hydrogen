@@ -162,7 +162,7 @@ bool ExportMidiDialog::validateUserInput( )
 	if( !dir.exists() ) {
 		QMessageBox::warning(
 			this, "Hydrogen",
-			tr( "Directory %1 does not exists").arg( dir.absolutePath() ),
+			tr( "Directory %1 does not exist").arg( dir.absolutePath() ),
 			QMessageBox::Ok
 		);
 		return false;
@@ -192,7 +192,7 @@ void ExportMidiDialog::on_okBtn_clicked()
 	}
 
 	// choosing writer
-	SMFWriter *pSmfWriter;
+	SMFWriter *pSmfWriter = nullptr;
 	if( exportTypeCombo->currentIndex() == EXPORT_SMF1_SINGLE ){
 		pSmfWriter = new SMF1WriterSingle();
 	} else if ( exportTypeCombo->currentIndex() == EXPORT_SMF1_MULTI ){
@@ -200,6 +200,8 @@ void ExportMidiDialog::on_okBtn_clicked()
 	} else if ( exportTypeCombo->currentIndex() == EXPORT_SMF0 ){
 		pSmfWriter = new SMF0Writer();
 	}
+	
+	assert( pSmfWriter );
 
 	pSmfWriter->save( sFilename, pSong );
 

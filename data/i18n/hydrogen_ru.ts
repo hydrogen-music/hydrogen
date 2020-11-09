@@ -283,7 +283,7 @@
     </message>
     <message>
         <source>Component name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Название компонента</translation>
     </message>
     <message>
         <source>Set instrument volume [%1]</source>
@@ -379,7 +379,7 @@
         <translation>Экспорт файла MIDI</translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation>Каталог %1 не существует</translation>
     </message>
     <message>
@@ -453,8 +453,8 @@ Overwrite the existing file?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
-        <translation type="unfinished"></translation>
+        <source>Directory %1 does not exist</source>
+        <translation type="unfinished">Каталог %1 не существует</translation>
     </message>
 </context>
 <context>
@@ -702,7 +702,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Image Files (*.png *.jpg *.jpeg)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Файлы изображений (*.png *.jpg *.jpeg)</translation>
     </message>
 </context>
 <context>
@@ -3163,6 +3163,10 @@ Are you sure?</source>
     <message>
         <source>Velocity</source>
         <translation>Сила нажатия</translation>
+    </message>
+    <message>
+        <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -1,4 +1,4 @@
-hydrogen (1.0.0-beta) unstable; urgency=low
+hydrogen (1.0.0) unstable; urgency=low
     * Release 1.0
     * QT5 support
     * Midi feedback
@@ -7,7 +7,7 @@ hydrogen (1.0.0-beta) unstable; urgency=low
     * Menu redesign
     * Note probability property
     * Velocity automation
-    * Full screen mode 
+    * Full screen mode
 
 
     * Release 0.9.7

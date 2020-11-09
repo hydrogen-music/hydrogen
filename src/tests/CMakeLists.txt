@@ -5,13 +5,15 @@ include_directories(
     ${CMAKE_BINARY_DIR}/src/core/include            # generated config.h
     ${QT_INCLUDES}                                  # TODO be able to remove this
     ${CPPUNIT_INCLUDE_DIRS}
+    ${LIBSNDFILE_INCLUDE_DIRS}
+    ${RUBBERBAND_INCLUDE_DIRS}
 )
 
 FILE(GLOB_RECURSE TESTS_SRCS *.cpp)
 link_directories()
 add_executable(tests ${TESTS_SRCS})
 
-SET_PROPERTY(TARGET tests PROPERTY CXX_STANDARD 14)
+SET_PROPERTY(TARGET tests PROPERTY CXX_STANDARD 17)
 
 target_link_libraries(tests
 	hydrogen-core-${VERSION}
