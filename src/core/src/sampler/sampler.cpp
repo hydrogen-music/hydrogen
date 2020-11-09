@@ -903,8 +903,10 @@ bool Sampler::__render_note_no_resample(
 
 	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
 		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput);
-		 pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
-		 pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
+		if( pJackAudioDriver ) {
+			pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
+			pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
+		}
 	}
 #endif
 
@@ -1061,8 +1063,10 @@ bool Sampler::__render_note_resample(
 
 	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
 		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput);
-		pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
-		pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
+		if( pJackAudioDriver ) {
+			pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
+			pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
+		}
 	}
 #endif
 
