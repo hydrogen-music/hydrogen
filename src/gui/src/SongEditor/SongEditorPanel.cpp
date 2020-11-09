@@ -42,6 +42,8 @@
 #include <hydrogen/audio_engine.h>
 #include <hydrogen/basics/instrument_component.h>
 #include <hydrogen/basics/pattern_list.h>
+#include <hydrogen/IO/jack_audio_driver.h>
+
 #ifdef WIN32
 #include <time.h>
 #endif
@@ -83,7 +85,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
 	
 	if ( pPref->getUseTimelineBpm() &&
-		 !pEngine->haveJackTimebaseClient() ) {
+		 pEngine->getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
 		m_pTimeLineToggleBtn->setPressed( true );
 		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
 
@@ -723,7 +725,7 @@ void SongEditorPanel::updateTimelineUsage() {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	if ( pHydrogen->haveJackTimebaseClient() ) {
+	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") );
 		m_pTimeLineToggleBtn->setPressed( false );
 		m_pTimeLineToggleBtn->setDisabled( true );
@@ -744,7 +746,7 @@ void SongEditorPanel::timeLineBtnPressed( Button* pBtn )
 	
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	if ( pHydrogen->haveJackTimebaseClient() ) {
+	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") );
 		return;
 	} else {

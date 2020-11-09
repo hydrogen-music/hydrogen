@@ -1224,24 +1224,7 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 	}
 
 #ifdef H2CORE_HAVE_JACK
-	JackAudioDriver * jo = dynamic_cast<JackAudioDriver*>(m_pAudioDriver);
-	// Check whether the Preferences::m_bJackTrackOuts option was
-	// set. It enables a per-track creation of the output
-	// ports. All of them have to be reset as well.
-	if( jo && jo->has_track_outs() ) {
-		float* buf;
-		int k;
-		for( k=0 ; k<jo->getNumTracks() ; ++k ) {
-			buf = jo->getTrackOut_L(k);
-			if( buf ) {
-				memset( buf, 0, nFrames * sizeof( float ) );
-			}
-			buf = jo->getTrackOut_R(k);
-			if( buf ) {
-				memset( buf, 0, nFrames * sizeof( float ) );
-			}
-		}
-	}
+	dynamic_cast<JackAudioDriver*>(m_pAudioDriver)->clearPerTrackAudioBuffers( nFrames );
 #endif
 
 	mx.unlock();
@@ -3642,7 +3625,7 @@ void Hydrogen::setBPM( float fBPM )
 		return;
 	}
 
-	if ( haveJackTimebaseClient() ) {
+	if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		ERRORLOG( "Unable to change tempo directly in the presence of an external JACK timebase master. Press 'J.MASTER' get tempo control." );
 		return;
 	}
@@ -4043,7 +4026,7 @@ float Hydrogen::getTimelineBpm( int nBar )
 void Hydrogen::setTimelineBpm()
 {
 	if ( ! Preferences::get_instance()->getUseTimelineBpm() ||
-		 haveJackTimebaseClient() ) {
+		 getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		return;
 	}
 
@@ -4096,16 +4079,14 @@ bool Hydrogen::haveJackTransport() const {
 #endif	
 }
 
-bool Hydrogen::haveJackTimebaseClient() const {
+JackAudioDriver::Timebase Hydrogen::getJackTimebaseState() const {
 #ifdef H2CORE_HAVE_JACK
 	if ( haveJackTransport() ) {
-		if ( static_cast<JackAudioDriver*>(m_pAudioDriver)->getIsTimebaseMaster() == 0 ) {
-			return true;
-		}
+		return static_cast<JackAudioDriver*>(m_pAudioDriver)->getTimebaseState();
 	} 
-	return false;
+	return JackAudioDriver::Timebase::None;
 #else
-	return false;
+	return JackAudioDriver::Timebase::None;
 #endif	
 }
 

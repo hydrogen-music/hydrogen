@@ -504,7 +504,7 @@ bool CoreActionController::isSongPathValid( const QString& songPath ) {
 bool CoreActionController::activateTimeline( bool bActivate ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	if ( pHydrogen->haveJackTimebaseClient() ) {
+	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		ERRORLOG( "Timeline usage is disabled in the presence of an external JACK timebase master." );
 		return false;
 	}

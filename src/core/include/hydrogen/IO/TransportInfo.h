@@ -72,7 +72,7 @@ public:
 	 *
 	 * A tick is the most fine-grained time scale handled by the
 	 * AudioEngine. The notes won't be processed frame by frame but,
-	 * instead, tick by tick. Therefore, #m_nTickSize represents the
+	 * instead, tick by tick. Therefore, #m_fTickSize represents the
 	 * minimum duration of a Note as well as the minimum distance
 	 * between two of them.
 	 * 

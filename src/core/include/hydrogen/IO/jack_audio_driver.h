@@ -41,16 +41,16 @@
 #include <jack/transport.h>
 
 #include <hydrogen/globals.h>
-#include <hydrogen/hydrogen.h>
 
 
 
 namespace H2Core
 {
-
+	
 class Song;
 class Instrument;
 class InstrumentComponent;
+
 /**
  * JACK (Jack Audio Connection Kit) server driver.
  *
@@ -115,11 +115,23 @@ class JackAudioDriver : public AudioOutput
 {
 	H2_OBJECT
 public:
+	/**
+	 * Whether Hydrogen or another program is Jack timebase master.
+	 */
+	enum class Timebase {
+		/** Hydrogen itself is timebase master.*/
+		Master = 1,
+		/** An external program is timebase master and Hydrogen will
+         * disregard all tempo marker on the Timeline and, instead,
+         * only use the BPM provided by JACK.*/
+		Slave = 0,
+		/** Only normal clients registered */
+		None = -1
+	};
+	
 	/** 
 	 * Object holding the external client session with the JACK
-	 * server. 
-	 *
-	 * It is set via init().
+	 * server.
 	 */
 	jack_client_t* m_pClient;
 	/**
@@ -200,18 +212,14 @@ public:
 	unsigned getBufferSize();
 	/** \return Global variable #jackServerSampleRate. */
 	unsigned getSampleRate();
-	/** Accesses the number of output ports currently in use.
-	 * \return #m_nTrackPortCount */
-	int getNumTracks();
 
-	/** \return #m_JackTransportState */
-	jack_transport_state_t getTransportState() {
-		return m_JackTransportState;
-	}
-	/** \return #m_JackTransportPos */
-	jack_position_t getTransportPos() {
-		return m_JackTransportPos;
-	}
+	/** Resets the buffers contained in #m_pTrackOutputPortsL and
+	 * #m_pTrackOutputPortsR.
+	 * 
+	 * @param nFrames Size of the buffers used in the audio process
+	 * callback function.
+	 */
+	void clearPerTrackAudioBuffers( uint32_t nFrames );
 	
 	/**
 	 * Creates per component output ports for each instrument.
@@ -231,32 +239,6 @@ public:
 	 * Preferences::m_bJackTrackOuts is set to true.
 	 */
 	void makeTrackOutputs( Song* pSong );
-	/**
-	 * Renames the @a n 'th port of JACK client and creates it if
-	 * it's not already present. 
-	 *
-	 * If the track number @a n is bigger than the number of ports
-	 * currently in usage #m_nTrackPortCount, @a n + 1 -
-	 * #m_nTrackPortCount new stereo ports will be created using
-	 * _jack_port_register()_ (jack/jack.h) and #m_nTrackPortCount
-	 * updated to @a n + 1.
-	 *
-	 * Afterwards, the @a n 'th port is renamed to a concatenation of
-	 * "Track_", DrumkitComponent::__name, "_", @a n + 1, "_",
-	 * Instrument::__name, and "_L", or "_R" using either
-	 * _jack_port_rename()_ (if HAVE_JACK_PORT_RENAME is defined) or
-	 * _jack_port_set_name()_ (both jack/jack.h). The former renaming
-	 * function triggers a _PortRename_ notifications to clients that
-	 * have registered a port rename handler.
-	 *
-	 * \param n Track number for which a port should be renamed
-	 *   (and created).
-	 * \param instr Pointer to the corresponding Instrument.
-	 * \param pCompo Pointer to the corresponding
-	 *   InstrumentComponent.
-	 * \param pSong Pointer to the corresponding Song.
-	 */
-	void setTrackOutput( int n, Instrument* instr, InstrumentComponent* pCompo, Song* pSong );
 
 	/** \param flag Sets #m_bConnectDefaults*/
 	void setConnectDefaults( bool flag ) {
@@ -378,8 +360,8 @@ public:
 	 * them in #jackServerSampleRate, Preferences::m_nSampleRate,
 	 * #jackServerBufferSize, and Preferences::m_nBufferSize. In
 	 * addition, it also registers JackAudioDriver::m_processCallback,
-	 * H2Core::jackDriverSampleRate, H2Core::jackDriverBufferSize, and
-	 * H2Core::jackDriverShutdown using _jack_set_process_callback()_,
+	 * jackDriverSampleRate, jackDriverBufferSize, and
+	 * jackDriverShutdown using _jack_set_process_callback()_,
 	 * _jack_set_sample_rate_callback()_,
 	 * _jack_set_buffer_size_callback()_, and _jack_on_shutdown()_
 	 * (all in jack/jack.h).
@@ -540,9 +522,10 @@ public:
 	void releaseTimebaseMaster();
 	
 	/**
-	 * \return #m_nIsTimebaseMaster
+	 * \return #m_timebaseState
 	 */
-	int getIsTimebaseMaster() const;
+	Timebase getTimebaseState() const;
+	
 	/** Stores the latest transport position (for both rolling and
 	 * stopped transport).
 	 *
@@ -557,6 +540,85 @@ public:
 	 * there is no up-to-date JACK query providing this information.
 	 */
 	int m_currentPos;
+	
+	/**
+	 * Sample rate of the JACK audio server.
+	 *
+	 * It is set by the callback function jackDriverSampleRate()
+	 * registered in the JACK server and accessed via
+	 * JackAudioDriver::getSampleRate(). Its initialization is handled by
+	 * JackAudioDriver::init(), which sets it to the sample rate of the
+	 * Hydrogen's external JACK client via _jack_get_sample_rate()_
+	 * (jack/jack.h).
+	 */
+	static unsigned long		jackServerSampleRate;
+	/**
+	 * Buffer size of the JACK audio server.
+	 *
+	 * It is set by the callback function jackDriverBufferSize()
+	 * registered in the JACK server and accessed via
+	 * JackAudioDriver::getBufferSize(). Its initialization is handled by
+	 * JackAudioDriver::init(), which sets it to the buffer size of the
+	 * Hydrogen's external JACK client via _jack_get_buffer_size()_
+	 * (jack/jack.h).
+	 */
+	static jack_nframes_t		jackServerBufferSize;
+	/**
+	 * Instance of the JackAudioDriver.
+	 */
+	static JackAudioDriver*		pJackDriverInstance;
+
+	/**
+	 * Required in JackTimebaseCallback() to keep the sync between the
+	 * timebase master and all other JACK clients.
+	 *
+	 * Whenever a relocation takes place in Hydrogen as timebase
+	 * master, the speed of the timeline at the destination frame must
+	 * not be sent in the timebase callback. Instead, Hydrogen must
+	 * wait two full cycles of the audioEngine before broadcasting the
+	 * new tempo again. This is because the Hydrogen (as timebase
+	 * master) requires two full cycles to set the tempo itself and
+	 * there is a rather intricate dependence on values calculate in
+	 * various other functions.
+	 */
+	static int					nWaits;
+	/**
+	 * Callback function for the JACK audio server to set the sample
+	 * rate #jackServerSampleRate and prints a message to the
+	 * #__INFOLOG, which has to be included via a Logger instance in
+	 * the provided @a param.
+	 *
+	 * It gets registered as a callback function of the JACK server in
+	 * JackAudioDriver::init() using
+	 * _jack_set_sample_rate_callback()_.
+	 *
+	 * \param nframes New sample rate. The object has to be of type
+	 * _jack_nframes_t_, which is defined in the jack/types.h header.
+	 * \param param Object containing a Logger member to display the
+	 * change in the sample rate in its INFOLOG.
+	 *
+	 * @return 0 on success
+	 */
+	static int jackDriverSampleRate( jack_nframes_t nframes, void* param );
+	
+	/**
+	 * Callback function for the JACK audio server to set the buffer
+	 * size #jackServerBufferSize.
+	 *
+	 * It gets registered as a callback function of the JACK server in
+	 * JackAudioDriver::init() using
+	 * _jack_set_buffer_size_callback()_.
+	 *
+	 * \param nframes New buffer size. The object has to be of type @a
+	 * jack_nframes_t, which is defined in the jack/types.h header.
+	 * \param arg Not used within the function but kept for compatibility
+	 * reasons since the _JackBufferSizeCallback_ (jack/types.h) requires a
+	 * second input argument @a arg of type _void_, which is a pointer
+	 * supplied by the jack_set_buffer_size_callback() function.
+	 *
+	 * @return 0 on success
+	 */
+	static int jackDriverBufferSize( jack_nframes_t nframes, void* arg );
 protected:
 	/**
 	 * Callback function registered to the JACK server in
@@ -584,6 +646,23 @@ protected:
 					    jack_position_t* pJackPosition,
 					    int new_pos,
 					    void* arg );
+	/**
+	 * Callback function for the JACK audio server to shutting down the
+	 * JACK driver.
+	 *
+	 * The JackAudioDriver::m_pClient pointer stored in the current
+	 * instance of the JACK audio driver #pJackDriverInstance is set to
+	 * the nullptr and a Hydrogen::JACK_SERVER_SHUTDOWN error is raised
+	 * using Hydrogen::raiseError().
+	 *
+	 * It gets registered as a callback function of the JACK server in
+	 * JackAudioDriver::init() using _jack_on_shutdown()_.
+	 *
+	 * \param arg Not used within the function but kept for compatibility
+	 * reasons since _jack_shutdown()_ (jack/jack.h) the argument @a arg
+	 * of type void.
+	 */	
+	static void jackDriverShutdown( void* arg );
 
 #if defined(H2CORE_HAVE_JACKSESSION) || _DOXYGEN_
 	/**
@@ -607,6 +686,32 @@ protected:
 #endif
 
 private:
+	/**
+	 * Renames the @a n 'th port of JACK client and creates it if
+	 * it's not already present. 
+	 *
+	 * If the track number @a n is bigger than the number of ports
+	 * currently in usage #m_nTrackPortCount, @a n + 1 -
+	 * #m_nTrackPortCount new stereo ports will be created using
+	 * _jack_port_register()_ (jack/jack.h) and #m_nTrackPortCount
+	 * updated to @a n + 1.
+	 *
+	 * Afterwards, the @a n 'th port is renamed to a concatenation of
+	 * "Track_", DrumkitComponent::__name, "_", @a n + 1, "_",
+	 * Instrument::__name, and "_L", or "_R" using either
+	 * _jack_port_rename()_ (if HAVE_JACK_PORT_RENAME is defined) or
+	 * _jack_port_set_name()_ (both jack/jack.h). The former renaming
+	 * function triggers a _PortRename_ notifications to clients that
+	 * have registered a port rename handler.
+	 *
+	 * \param n Track number for which a port should be renamed
+	 *   (and created).
+	 * \param instr Pointer to the corresponding Instrument.
+	 * \param pCompo Pointer to the corresponding
+	 *   InstrumentComponent.
+	 * \param pSong Pointer to the corresponding Song.
+	 */
+	void setTrackOutput( int n, Instrument* instr, InstrumentComponent* pCompo, Song* pSong );
 	/**
 	 * Constant offset between the internal transport position in
 	 * TransportInfo::m_nFrames and the external one.
@@ -757,7 +862,7 @@ private:
 	 * documentation of JackTimebaseCallback() for more information
 	 * about its different members.
 	 */
-	jack_position_t			m_JackTransportPos;
+	jack_position_t		m_JackTransportPos;
 
 	/**
 	 * Specifies whether the default left and right (master) audio
@@ -772,12 +877,12 @@ private:
 	/**
 	 * Whether Hydrogen or another program is Jack timebase master.
 	 *
-	 * - #m_nIsTimebaseMaster > 0 - Hydrogen itself is timebase
+	 * - #m_nTimebaseTracking > 0 - Hydrogen itself is timebase
           master.
-	 * - #m_nIsTimebaseMaster == 0 - an external program is timebase
+	 * - #m_nTimebaseTracking == 0 - an external program is timebase
           master and Hydrogen will disregard all tempo marker on the
           Timeline and, instead, only use the BPM provided by JACK.
-	 * - #m_nIsTimebaseMaster < 0 - only normal clients registered.
+	 * - #m_nTimebaseTracking < 0 - only normal clients registered.
 	 *
 	 * While Hydrogen can unregister as timebase master on its own, it
 	 * can not be observed directly whether another application has
@@ -792,18 +897,20 @@ private:
 	 * initTimebaseMaster() it will be initialized with 1, decremented
 	 * in updateTransportInfo(), and reset to 1 in
 	 * JackTimebaseCallback(). Whenever it is zero in
-	 * updateTransportInfo(), #m_nIsTimebaseMaster will be updated
+	 * updateTransportInfo(), #m_nTimebaseTracking will be updated
 	 * accordingly.
 	 */
-	int				m_nIsTimebaseMaster;
+	int				m_nTimebaseTracking;
+
+	/**
+	 * More user-friendly version of #m_nTimebaseTracking.
+	 */ 
+	Timebase m_timebaseState;
 
 };
 	
-inline int JackAudioDriver::getIsTimebaseMaster() const {
-	return m_nIsTimebaseMaster;
-}
-inline int JackAudioDriver::getNumTracks() {
-	return m_nTrackPortCount;
+inline JackAudioDriver::Timebase JackAudioDriver::getTimebaseState() const {
+	return m_timebaseState;
 }
 
 
@@ -818,6 +925,19 @@ namespace H2Core {
 class JackAudioDriver : public NullDriver {
 	H2_OBJECT
 public:
+	/**
+	 * Whether Hydrogen or another program is Jack timebase master.
+	 */
+	enum class Timebase {
+		/** Hydrogen itself is timebase master.*/
+		Master = 1,
+		/** An external program is timebase master and Hydrogen will
+         * disregard all tempo marker on the Timeline and, instead,
+         * only use the BPM provided by JACK.*/
+		Slave = 0,
+		/** Only normal clients registered */
+		None = -1
+	};
 	/**
 	 * Fallback version of the JackAudioDriver in case
 	 * #H2CORE_HAVE_JACK was not defined during the configuration

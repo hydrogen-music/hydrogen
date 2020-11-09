@@ -134,7 +134,7 @@ class CoreActionController : public H2Core::Object {
 		 * (De)activates the usage of the Timeline.
 		 *
 		 * Note that this function will fail in the presence of the
-		 * Jack audio driver and an external timebase master (see Hydrogen::haveJackTimebaseClient()).
+		 * Jack audio driver and an external timebase master (see Hydrogen::getJackTimebaseState()).
 		 *
 		 * @param bActivate If true - activate or if false -
 		 * deactivate.
