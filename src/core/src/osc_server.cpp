@@ -702,9 +702,8 @@ bool IsLoAddressEqual( lo_address first, lo_address second )
 	return portEqual && hostEqual && protoEqual;
 }
 
-void OscServer::broadcastMessage( const char* msgText, lo_message message) {
-	for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-		lo_address clientAddress = *it;
+void OscServer::broadcastMessage( const char* msgText, lo_message message ) {
+	for ( const auto& clientAddress: m_pClientRegistry ){
 		
 		INFOLOG( QString( "Outgoing OSC broadcast message %1" ).arg( msgText ));
 		
