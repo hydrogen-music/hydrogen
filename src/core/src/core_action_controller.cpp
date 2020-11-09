@@ -95,9 +95,7 @@ void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
-
 	handleOutgoingControlChange( ccParamValue, (fVolumeValue / 1.5) * 127 );
-
 }
 
 void CoreActionController::setMetronomeIsActive( bool isActive )
@@ -137,6 +135,22 @@ void CoreActionController::setMasterIsMuted( bool isMuted )
 	handleOutgoingControlChange( ccParamValue, (int) isMuted * 127 );
 }
 
+void CoreActionController::toggleStripIsMuted(int nStrip)
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+	
+	if( pInstrList->is_valid_index( nStrip ))
+	{
+		Instrument* pInstr = pInstrList->get( nStrip );
+		
+		if( pInstr ) {
+			setStripIsMuted( nStrip , !pInstr->is_muted() );
+		}
+	}
+}
+
 void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
@@ -159,6 +173,22 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_MUTE_TOGGLE"), QString("%1").arg( nStrip ) );
 	
 	handleOutgoingControlChange( ccParamValue, ((int) isMuted) * 127 );
+}
+
+void CoreActionController::toggleStripIsSoloed( int nStrip )
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+	
+	if( pInstrList->is_valid_index( nStrip ))
+	{
+		Instrument* pInstr = pInstrList->get( nStrip );
+	
+		if( pInstr ) {
+			setStripIsSoloed( nStrip , !pInstr->is_soloed() );
+		}
+	}
 }
 
 void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
