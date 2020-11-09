@@ -134,16 +134,16 @@ bool AudioEngine::try_lock_for( std::chrono::microseconds duration, const char* 
 	return true;
 }
 
-float AudioEngine::compute_tick_size( const int sampleRate, const int bpm, const int resolution)
+float AudioEngine::compute_tick_size( const int nSampleRate, const float fBpm, const int nResolution)
 {
-	float tickSize = sampleRate * 60.0 / bpm / resolution;
+	float fTickSize = nSampleRate * 60.0 / fBpm / nResolution;
 	
-	return tickSize;
+	return fTickSize;
 }
 	
 void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigned long nFrame, const int nResolution ) {
 	const auto pHydrogen = Hydrogen::get_instance();
-	float fTickSize = pHydrogen->getAudioOutput()->m_transport.m_nTickSize;
+	float fTickSize = pHydrogen->getAudioOutput()->m_transport.m_fTickSize;
 	
 	if ( fTickSize == 0 || sampleRate == 0 || nResolution == 0 ) {
 		ERRORLOG( "Not properly initialized yet" );
@@ -173,25 +173,24 @@ void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigne
 			static_cast<float>(sampleRate);
 	} else {
 
-		const auto pTimeline = pHydrogen->getTimeline();
-		
 		m_fElapsedTime = 0;
 
 		int nPatternStartInTicks;
 		long totalTicks;
 		long previousTicks = 0;
 		float fPreviousTickSize;
+
+		auto tempoMarkers = pHydrogen->getTimeline()->getAllTempoMarkers();
 		
 		// TODO: how to handle the BPM before the first marker?
 		fPreviousTickSize = compute_tick_size( static_cast<int>(sampleRate), 
-											   static_cast<int>(pTimeline->m_timelinevector[0].m_htimelinebpm),
-											   nResolution );
+											   tempoMarkers[0]->fBpm, nResolution );
 		
 		// For each BPM marker on the Timeline we will get the number
 		// of ticks since the previous marker/beginning and convert
 		// them into time using tick size corresponding to the tempo.
-		for ( auto const& mmarker: pTimeline->m_timelinevector ){
-			totalTicks = pHydrogen->getTickForPosition( mmarker.m_htimelinebeat );
+		for ( auto const& mmarker: tempoMarkers ){
+			totalTicks = pHydrogen->getTickForPosition( mmarker->nBar );
 			    
 			if ( totalTicks < currentTick ) {
 				m_fElapsedTime += static_cast<float>(totalTicks - previousTicks) * 
@@ -203,8 +202,7 @@ void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigne
 			}
 
 			fPreviousTickSize = compute_tick_size( static_cast<int>(sampleRate), 
-												   static_cast<int>(mmarker.m_htimelinebpm),
-												   nResolution );
+												   mmarker->fBpm, nResolution );
 			previousTicks = totalTicks;
 		}
 		

@@ -158,7 +158,7 @@ public:
 	void unlock();
 	
 	
-	 static float compute_tick_size(int sampleRate, float bpm, int resolution);
+	static float compute_tick_size( const int nSampleRate, const float fBpm, const int nResolution);
 
 	/** \return #__sampler */
 	Sampler* get_sampler();

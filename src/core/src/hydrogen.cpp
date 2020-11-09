@@ -1245,7 +1245,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// processing time for this frame, the amount of slack time that
 	// we can afford to wait is: m_fMaxProcessTime - m_fProcessTime.
 
-	float sampleRate = ( float )m_pAudioDriver->getSampleRate();
+	float sampleRate = static_cast<float>(m_pAudioDriver->getSampleRate());
 	m_fMaxProcessTime = 1000.0 / ( sampleRate / nframes );
 	float fSlackTime = m_fMaxProcessTime - m_fProcessTime;
 
@@ -1432,9 +1432,6 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 			( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
 			+ ( finishTimeval.tv_usec - startTimeval.tv_usec ) / 1000.0;
 
-	float sampleRate = static_cast<float>(m_pAudioDriver->getSampleRate());
-	m_fMaxProcessTime = 1000.0 / ( sampleRate / nframes );
-	
 	if ( m_audioEngineState == STATE_PLAYING ) {
 		AudioEngine::get_instance()->updateElapsedTime( m_pAudioDriver->getBufferSize(),
 														m_pAudioDriver->getSampleRate() );
@@ -1547,9 +1544,9 @@ void audioEngine_setSong( Song* pNewSong )
 	audioEngine_renameJackPorts( pNewSong );
 
 	m_pAudioDriver->setBpm( pNewSong->__bpm );
-	m_pAudioDriver->m_transport.m_nTickSize = 
+	m_pAudioDriver->m_transport.m_fTickSize = 
 		AudioEngine::compute_tick_size( static_cast<int>(m_pAudioDriver->getSampleRate()),
-										static_cast<int>(pNewSong->__bpm),
+										pNewSong->__bpm,
 										static_cast<int>(pNewSong->__resolution) );
 
 	// change the current audio engine state
@@ -3512,7 +3509,7 @@ void Hydrogen::setPatternPos( int nPatternNumber )
 	}
 	INFOLOG( "relocate" );
 	pAudioEngine->locate( static_cast<unsigned long>(static_cast<float>(totalTick) * 
-													 m_pAudioDriver->m_transport.m_nTickSize) );
+													 m_pAudioDriver->m_transport.m_fTickSize) );
 
 	pAudioEngine->unlock();
 }
