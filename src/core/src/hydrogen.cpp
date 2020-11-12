@@ -823,6 +823,11 @@ int audioEngine_start( bool bLockEngine, unsigned nTotalFrames )
 	m_nPatternStartTick = -1;
 	m_nPatternTickPosition = 0;
 
+	// prepare the tick size for this song
+	Song* pSong = Hydrogen::get_instance()->getSong();
+	m_pAudioDriver->m_transport.m_fTickSize =
+		AudioEngine::compute_tick_size( static_cast<float>(m_pAudioDriver->getSampleRate()), pSong->__bpm, pSong->__resolution );
+
 	// change the current audio engine state
 	m_audioEngineState = STATE_PLAYING;
 	EventQueue::get_instance()->push_event( EVENT_STATE, STATE_PLAYING );
@@ -3508,8 +3513,7 @@ void Hydrogen::setPatternPos( int nPatternNumber )
 		m_nPatternTickPosition = 0;
 	}
 	INFOLOG( "relocate" );
-	pAudioEngine->locate( static_cast<unsigned long>(static_cast<float>(totalTick) * 
-													 m_pAudioDriver->m_transport.m_fTickSize) );
+	m_pAudioDriver->locate( static_cast<int>( totalTick * m_pAudioDriver->m_transport.m_fTickSize ));
 
 	pAudioEngine->unlock();
 }
