@@ -88,7 +88,7 @@ const Pattern* PatternList::get( int idx ) const
 	return __patterns[idx];
 }
 
-int PatternList::index( Pattern* pattern )
+int PatternList::index( const Pattern* pattern )
 {
 	for( int i=0; i<__patterns.size(); i++ ) {
 		if ( __patterns[i]==pattern ) return i;

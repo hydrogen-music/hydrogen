@@ -2625,11 +2625,9 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 
 			// Convert from playlist index to actual pattern index
 			std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
-			for ( int i = 0; i <= ipattern; ++i ) {
-				PatternList *pColumn = ( *pColumns )[i];
-				currentPattern = pColumn->get( 0 );
-				currentPatternNumber = i;
-			}
+			PatternList *pColumn = ( *pColumns )[ ipattern ];
+			currentPattern = pColumn->get( 0 );
+			currentPatternNumber = pPatternList->index( currentPattern );
 			column = column + currentPattern->get_length();
 			// WARNINGLOG( "Undoing lookahead: corrected (" + to_string( ipattern+1 ) +
 			// "," + to_string( (int) ( column - currentPattern->get_length() ) -
@@ -2640,11 +2638,9 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		// Convert from playlist index to actual pattern index (if not already done above)
 		if ( currentPattern == nullptr ) {
 			std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
-			for ( int i = 0; i <= ipattern; ++i ) {
-				PatternList *pColumn = ( *pColumns )[i];
-				currentPattern = pColumn->get( 0 );
-				currentPatternNumber = i;
-			}
+			PatternList *pColumn = ( *pColumns )[ ipattern ];
+			currentPattern = pColumn->get( 0 );
+			currentPatternNumber = pPatternList->index( currentPattern );
 		}
 
 		// Cancel recording if punch area disagrees

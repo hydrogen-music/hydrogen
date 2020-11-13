@@ -96,7 +96,7 @@ class PatternList : public H2Core::Object
 		 * \param pattern a pointer to the pattern to find
 		 * \return -1 if not found
 		 */
-		int index( Pattern* pattern );
+		int index( const Pattern* pattern );
 		/**
 		 * replace the pattern at a given index with a new one
 		 * \param idx the index
