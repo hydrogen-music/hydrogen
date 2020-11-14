@@ -452,19 +452,9 @@ public:
      * to TransportInfo::ROLLING.
 	 *
      * The function will check whether a relocation took place by the
-	 * JACK server and (afterwards) whether the current tempo did
-	 * change with respect to the last transport cycle. In case of a
-	 * relocation, #m_frameOffset will be reset to 0,
-	 * TransportInfo::m_nFrames updated to the new value provided by
-	 * JACK, and - if Hydrogen is in Song::PATTERN_MODE - the playback
-	 * moved to the beginning of the pattern. A change in speed, on
-	 * the other hand, depends on the local JACK setup. If there is a
-	 * timebase master, which broadcasts tempo information via JACK,
-	 * and it's not Hydrogen itself, all customizations in the
-	 * Timeline will be disregarded and the tempo of the master will
-	 * be used instead. If Hydrogen is the timebase master or there is
-	 * none at all, Hydrogen::setTimelineBpm() will be used to keep
-	 * the transport tempo aligned the settings in the Timeline.
+	 * JACK server and whether the current tempo did
+	 * change with respect to the last transport cycle and updates the
+	 * transport information accordingly.
 	 *
 	 * If Preferences::USE_JACK_TRANSPORT was not selected in
 	 * Preferences::m_bJackTransportMode, the function will return
@@ -529,15 +519,16 @@ public:
 	/** Stores the latest transport position (for both rolling and
 	 * stopped transport).
 	 *
-	 * In case the user is clicking on the
-	 * SongEditor::mousePressEvent() will trigger both a relocation
-	 * and a change in speed. The change in speed causes the
-	 * audioEngine_checkBPMChange() function to update the ticksize in
-	 * case transported got moved into a region of different tempo and
-	 * triggers the calculateFrameOffset() function. But the latter
-	 * can only work properly if transport is rolling since it has to
-	 * know the frame position prior to the change in tick size and
-	 * there is no up-to-date JACK query providing this information.
+	 * In case the user is clicking on a different location
+	 * SongEditorPositionRuler::mousePressEvent() will trigger both a
+	 * relocation and a (possible) change in speed. The change in
+	 * speed causes the audioEngine_checkBPMChange() function to
+	 * update the ticksize in case playhead got moved into a region of
+	 * different tempo and triggers the calculateFrameOffset()
+	 * function. But the latter can only work properly if transport is
+	 * rolling since it has to know the frame position prior to the
+	 * change in tick size and there is no up-to-date JACK query
+	 * providing this information.
 	 */
 	int m_currentPos;
 	
@@ -685,7 +676,33 @@ protected:
 	void jack_session_callback_impl( jack_session_event_t* event );
 #endif
 
+	static void printJackTransportPos( const jack_position_t* pPos );
+
 private:
+
+	/** Show debugging information.*/
+	void printState() const;
+
+	/** Compares the BBT information stored in #m_JackTransportPos and
+	 * #m_previousJackTransportPos with respect to the tempo and the
+	 * transport position in bars, beats, and ticks.
+	 *
+	 * @return true If #m_JackTransportPos is expected to follow
+	 * #m_previousJackTransportPos.
+	 */
+	bool compareAdjacentBBT() const;
+
+	/** 
+	 * Uses the bar-beat-tick information to relocate the transport
+	 * position.
+	 *
+	 * This type of operation is triggered whenever the transport
+	 * position gets relocated or the tempo is changed using Jack in
+	 * the presence of an external timebase master. In addition, the
+	 * function also updates the current tick size to prevent
+	 * the audioEngine_checkBPMUpdate() function from doing so.*/
+	void relocateUsingBBT();
+
 	/**
 	 * Renames the @a n 'th port of JACK client and creates it if
 	 * it's not already present. 
@@ -862,7 +879,12 @@ private:
 	 * documentation of JackTimebaseCallback() for more information
 	 * about its different members.
 	 */
-	jack_position_t		m_JackTransportPos;
+	jack_position_t			m_JackTransportPos;
+	/** Used for detecting changes in the BBT transport information
+	 * with external timebase master application, which do not
+	 * propagate these changes on time.
+	 */
+	jack_position_t			m_previousJackTransportPos;
 
 	/**
 	 * Specifies whether the default left and right (master) audio
