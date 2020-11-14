@@ -150,6 +150,12 @@ class PatternList : public H2Core::Object
 		 */
 		QString find_unused_pattern_name( QString sourceName );
 
+		/**
+		 * Get the length of the longest pattern in the list
+		 * \return pattern length in ticks, -1 if list is empty
+		 */
+		int longest_pattern_length();
+
 	private:
 		std::vector<Pattern*> __patterns;            ///< the list of patterns
 };

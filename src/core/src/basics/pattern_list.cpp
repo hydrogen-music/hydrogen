@@ -20,6 +20,7 @@
  *
  */
 
+#include <algorithm>
 #include <hydrogen/basics/pattern_list.h>
 
 //#include <hydrogen/helpers/xml.h>
@@ -127,8 +128,7 @@ Pattern* PatternList::del( Pattern* pattern )
 {
 	for( int i=0; i<__patterns.size(); i++ ) {
 		if( __patterns[i]==pattern ) {
-			__patterns.erase( __patterns.begin() + i );
-			return pattern;
+			return del( i );
 		}
 	}
 	return nullptr;
@@ -237,6 +237,14 @@ QString PatternList::find_unused_pattern_name( QString sourceName )
 	unusedPatternNameCandidate += suffix;
 
 	return unusedPatternNameCandidate;
+}
+
+int PatternList::longest_pattern_length() {
+	int nMax = -1;
+	for ( int i = 0; i < __patterns.size(); i++ ) {
+		nMax = std::max( nMax, __patterns[i]->get_length() );
+	}
+	return nMax;
 }
 
 }
