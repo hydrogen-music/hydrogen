@@ -678,9 +678,13 @@ void PreferencesDialog::updateDriverInfo()
 
 		if ( std::strcmp( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name(),
 						  "JackAudioDriver" ) == 0 ) {
+			connectDefaultsCheckBox->show();
+			trackOutsCheckBox->show();
 			jackBBTSyncComboBox->show();
 			jackBBTSyncLbl->show();
 		} else {
+			connectDefaultsCheckBox->hide();
+			trackOutsCheckBox->hide();
 			jackBBTSyncComboBox->hide();
 			jackBBTSyncLbl->hide();
 		}
@@ -697,6 +701,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->setEnabled( false );
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
+		connectDefaultsCheckBox->hide();
+		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
 	}
@@ -712,6 +718,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->setEnabled( true );
 		connectDefaultsCheckBox->setEnabled(true);
 		trackOutsCheckBox->setEnabled( true );
+		connectDefaultsCheckBox->show();
+		trackOutsCheckBox->show();
 		jackBBTSyncComboBox->show();
 		jackBBTSyncLbl->show();
 	}
@@ -727,6 +735,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->setEnabled( false );
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
+		connectDefaultsCheckBox->hide();
+		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
 	}
@@ -741,6 +751,8 @@ void PreferencesDialog::updateDriverInfo()
 		sampleRateComboBox->setEnabled(true);
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
+		connectDefaultsCheckBox->hide();
+		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
 	}
@@ -756,6 +768,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->setEnabled( false );
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
+		connectDefaultsCheckBox->hide();
+		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
 	}
@@ -771,6 +785,8 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->setEnabled( false );
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
+		connectDefaultsCheckBox->hide();
+		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
 	}
