@@ -4,6 +4,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/core/include            # core headers
     ${CMAKE_BINARY_DIR}/src/core/include            # generated config.h
     ${QT_INCLUDES}                                  # TODO be able to remove this
+    ${JACK_INCLUDE_DIRS}
     ${CPPUNIT_INCLUDE_DIRS}
     ${LIBSNDFILE_INCLUDE_DIRS}
     ${RUBBERBAND_INCLUDE_DIRS}
