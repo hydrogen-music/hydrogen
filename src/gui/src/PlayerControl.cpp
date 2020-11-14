@@ -619,30 +619,25 @@ void PlayerControl::updatePlayerControl()
 #endif
 
 	// time
-	float fFrames = m_pEngine->getAudioOutput()->m_transport.m_nFrames;
+	float fSeconds = AudioEngine::get_instance()->getElapsedTime();
+	
+	int nMSec = (int)( (fSeconds - (int)fSeconds) * 1000.0 );
+	int nSeconds = ( (int)fSeconds ) % 60;
+	int nMins = (int)( fSeconds / 60.0 ) % 60;
+	int nHours = (int)( fSeconds / 3600.0 );
 
-	float fSampleRate = m_pEngine->getAudioOutput()->getSampleRate();
-	if ( fSampleRate != 0 ) {
-		float fSeconds = fFrames / fSampleRate;
+	char tmp[100];
+	sprintf(tmp, "%02d", nHours );
+	m_pTimeDisplayH->setText( QString( tmp ) );
 
-		int nMSec = (int)( (fSeconds - (int)fSeconds) * 1000.0 );
-		int nSeconds = ( (int)fSeconds ) % 60;
-		int nMins = (int)( fSeconds / 60.0 ) % 60;
-		int nHours = (int)( fSeconds / 3600.0 );
+	sprintf(tmp, "%02d", nMins );
+	m_pTimeDisplayM->setText( QString( tmp ) );
 
-		char tmp[100];
-		sprintf(tmp, "%02d", nHours );
-		m_pTimeDisplayH->setText( QString( tmp ) );
+	sprintf(tmp, "%02d", nSeconds );
+	m_pTimeDisplayS->setText( QString( tmp ) );
 
-		sprintf(tmp, "%02d", nMins );
-		m_pTimeDisplayM->setText( QString( tmp ) );
-
-		sprintf(tmp, "%02d", nSeconds );
-		m_pTimeDisplayS->setText( QString( tmp ) );
-
-		sprintf(tmp, "%03d", nMSec );
-		m_pTimeDisplayMS->setText( QString( tmp ) );
-	}
+	sprintf(tmp, "%03d", nMSec );
+	m_pTimeDisplayMS->setText( QString( tmp ) );
 
 	m_pMetronomeBtn->setPressed(pPref->m_bUseMetronome);
 

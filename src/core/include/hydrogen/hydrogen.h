@@ -255,7 +255,6 @@ public:
 
 	/** \return #m_pNextPatterns*/
 	PatternList *		getNextPatterns();
-
 	/** Get the position of the current Pattern in the Song.
 	 * \return #m_nSongPos */
 	int			getPatternPos();
