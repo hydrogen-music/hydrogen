@@ -1,10 +1,11 @@
 
 FILE(GLOB_RECURSE h2cli_SRCS *.cpp)
 
+MESSAGE( ${CMAKE_BINARY_DIR} )
+
 INCLUDE_DIRECTORIES(
-    ${CMAKE_SOURCE_DIR}/src/core/include        # core headers
     ${CMAKE_SOURCE_DIR}/src                     # top level headers
-    ${CMAKE_BINARY_DIR}/src/core/include        # generated config.h
+    ${CMAKE_BINARY_DIR}/src                     # generated config.h
     ${QT_INCLUDES}
     ${LASH_INCLUDE_DIRS}
     ${OSC_INCLUDE_DIRS}

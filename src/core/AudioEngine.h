@@ -23,7 +23,7 @@
 #ifndef AUDIO_ENGINE_H
 #define AUDIO_ENGINE_H
 
-#include "hydrogen/config.h"
+#include <core/config.h>
 #include <core/Object.h>
 #include <core/Sampler/Sampler.h>
 #include <core/Synth/Synth.h>

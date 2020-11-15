@@ -27,7 +27,7 @@
 #include <list>
 #include <pthread.h>
 
-#include "hydrogen/config.h"
+#include <core/config.h>
 
 class QString;
 class QStringList;

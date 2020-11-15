@@ -23,7 +23,7 @@
 #define H2_AUDIO_OUTPUT_H
 
 
-#include "hydrogen/config.h"
+#include <core/config.h>
 #include <core/Object.h>
 #include <core/IO/TransportInfo.h>
 

@@ -23,7 +23,7 @@
 #define HYDROGEN_H
 
 #include <stdint.h> // for uint32_t et al
-#include "hydrogen/config.h"
+#include <core/config.h>
 #include <core/MidiAction.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Sample.h>

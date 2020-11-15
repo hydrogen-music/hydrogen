@@ -26,7 +26,7 @@
 
 #include "ui_LadspaFXSelector_UI.h"
 
-#include <hydrogen/config.h>
+#include <core/config.h>
 #include <core/Object.h>
 
 #include <QtGui>

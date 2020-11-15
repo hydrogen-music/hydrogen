@@ -1,4 +1,4 @@
-#include "hydrogen/config.h"
+#include <core/config.h>
 
 #include <cppunit/extensions/HelperMacros.h>
 

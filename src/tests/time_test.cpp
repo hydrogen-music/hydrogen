@@ -1,4 +1,4 @@
-#include "hydrogen/config.h"
+#include <core/config.h>
 
 #include "time_test.h"
 #include <core/CoreActionController.h>

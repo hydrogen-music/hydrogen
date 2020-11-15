@@ -23,7 +23,7 @@
 #ifndef H2_RTCLOCK_H
 #define H2_RTCLOCK_H
 
-#include "hydrogen/config.h"
+#include <core/config.h>
 
 /*
 	RTCLOCK_SETUP

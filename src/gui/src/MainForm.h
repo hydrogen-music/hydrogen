@@ -34,7 +34,7 @@
 
 #include "EventListener.h"
 
-#include <hydrogen/config.h>
+#include <core/config.h>
 #include <core/Object.h>
 
 class HydrogenApp;

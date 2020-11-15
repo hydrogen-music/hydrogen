@@ -20,7 +20,7 @@
  *
  */
 
-#include "hydrogen/config.h"
+#include <core/config.h>
 
 #if defined(H2CORE_HAVE_LASH) || _DOXYGEN_
 

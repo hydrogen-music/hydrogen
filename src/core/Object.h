@@ -24,7 +24,7 @@
 #define H2C_OBJECT_H
 
 #include "core/Logger.h"
-#include "hydrogen/config.h"
+#include <core/config.h>
 #include "core/Globals.h"
 
 #include <unistd.h>

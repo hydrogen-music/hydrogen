@@ -1,4 +1,4 @@
-#include "hydrogen/config.h"
+#include <core/config.h>
 
 #ifdef H2CORE_HAVE_OSC
 

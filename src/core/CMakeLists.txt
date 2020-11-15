@@ -1,15 +1,17 @@
 
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/config.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/hydrogen/config.h" @ONLY)
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/config.h.in" "${CMAKE_CURRENT_BINARY_DIR}/config.h" @ONLY)
 
-FILE(GLOB_RECURSE hydrogen_INCLUDES include/*.h *.h)
+FILE(GLOB_RECURSE hydrogen_INCLUDES *.h)
 FILE(GLOB_RECURSE hydrogen_SOURCES *.cpp *.cc *.c)
-LIST(APPEND hydrogen_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/include/hydrogen/config.h)
+LIST(APPEND hydrogen_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+
+MESSAGE(${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 ADD_LIBRARY( hydrogen-core-${VERSION} ${H2CORE_LIBRARY_TYPE} ${hydrogen_SOURCES})
 INCLUDE_DIRECTORIES( include
     ${CMAKE_SOURCE_DIR}/src                     # regular headers
     ${CMAKE_SOURCE_DIR}/include                 # regular headers
-    ${CMAKE_CURRENT_BINARY_DIR}/include         # generated config.h
+    ${CMAKE_CURRENT_BINARY_DIR}/../             # generated config.h
     ${QT_INCLUDES}
     ${LIBTAR_INCLUDE_DIRS}
     ${LIBARCHIVE_INCLUDE_DIRS}
@@ -75,6 +77,6 @@ ELSE()
 ENDIF()
 
 IF(NOT APPLE AND NOT WIN32)
-    INSTALL(DIRECTORY include DESTINATION "${CMAKE_INSTALL_PREFIX}" FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE)
-    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/include/hydrogen/config.h" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/hydrogen" )
+    INSTALL(DIRECTORY . DESTINATION "${CMAKE_INSTALL_PREFIX}" FILES_MATCHING PATTERN "*.h" PATTERN ".svn" EXCLUDE)
+    INSTALL(FILES "${CMAKE_CURRENT_BINARY_DIR}/config.h" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/hydrogen" )
 ENDIF()

@@ -1,5 +1,5 @@
 
-#include <hydrogen/config.h>
+#include <core/config.h>
 #include <core/Helpers/Filesystem.h>
 
 #include <QtCore/QDir>

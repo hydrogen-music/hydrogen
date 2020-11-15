@@ -21,7 +21,7 @@
  */
 
 #include <core/Basics/Drumkit.h>
-#include <hydrogen/config.h>
+#include <core/config.h>
 #ifdef H2CORE_HAVE_LIBARCHIVE
 #include <archive.h>
 #include <archive_entry.h>

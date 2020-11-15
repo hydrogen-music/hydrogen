@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/config.h>
+#include <core/config.h>
 #include <core/Version.h>
 #include <core/Hydrogen.h>
 #include <core/EventQueue.h>
