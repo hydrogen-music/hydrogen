@@ -20,13 +20,13 @@
  *
  */
 
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/playlist.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/helpers/legacy.h>
-#include <hydrogen/helpers/xml.h>
-#include <hydrogen/event_queue.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Playlist.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Legacy.h>
+#include <core/Helpers/Xml.h>
+#include <core/EventQueue.h>
 
 namespace H2Core
 {

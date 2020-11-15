@@ -22,17 +22,17 @@
 
 #include "PatternEditorInstrumentList.h"
 
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/LocalFileMng.h>
+#include <core/AudioEngine.h>
+#include <core/EventQueue.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Preferences.h>
+#include <core/Basics/Song.h>
+#include <core/LocalFileMng.h>
 using namespace H2Core;
 
 #include "UndoActions.h"

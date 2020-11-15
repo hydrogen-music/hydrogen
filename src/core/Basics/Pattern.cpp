@@ -20,17 +20,17 @@
  *
  */
 
-#include <hydrogen/basics/pattern.h>
+#include <core/Basics/Pattern.h>
 
 #include <cassert>
 
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/audio_engine.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/PatternList.h>
+#include <core/AudioEngine.h>
 
-#include <hydrogen/helpers/xml.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/helpers/legacy.h>
+#include <core/Helpers/Xml.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Legacy.h>
 
 namespace H2Core
 {

@@ -13,8 +13,9 @@ ENDFOREACH()
 INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_BINARY_DIR}                 # ui_ headers
     ${CMAKE_CURRENT_SOURCE_DIR}/src             # gui headers
-    ${CMAKE_SOURCE_DIR}/src/core/include        # core headers
     ${CMAKE_BINARY_DIR}/src/core/include        # generated config.h
+    ${CMAKE_SOURCE_DIR}/src/core/include        # core headers
+    ${CMAKE_SOURCE_DIR}/src/                    # top level headers
     ${QT_INCLUDES}
     ${LASH_INCLUDE_DIRS}
     ${LIBARCHIVE_INCLUDE_DIRS}

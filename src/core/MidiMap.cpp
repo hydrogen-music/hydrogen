@@ -20,8 +20,8 @@
  *
  */
 
-#include <hydrogen/midi_action.h>
-#include <hydrogen/midi_map.h>
+#include <core/MidiAction.h>
+#include "MidiMap.h"
 #include <map>
 #include <QMutexLocker>
 

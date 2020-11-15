@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#include <hydrogen/automation_path_serializer.h>
+#include <core/AutomationPathSerializer.h>
 
 namespace H2Core
 {

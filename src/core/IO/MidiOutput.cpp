@@ -20,14 +20,7 @@
  *
  */
 
-#include <hydrogen/IO/MidiOutput.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/midi_action.h>
-#include <hydrogen/midi_map.h>
+#include <core/IO/MidiOutput.h>
 
 namespace H2Core
 {

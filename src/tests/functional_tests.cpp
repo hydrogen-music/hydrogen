@@ -23,13 +23,13 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <QString>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/smf/SMF.h>
+#include <core/Basics/Song.h>
+#include <core/EventQueue.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Instrument.h>
+#include <core/Smf/SMF.h>
 #include "test_helper.h"
 #include "assertions/file.h"
 #include "assertions/audiofile.h"

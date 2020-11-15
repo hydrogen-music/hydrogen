@@ -30,7 +30,7 @@
 #endif
 #include "ui_VirtualPatternDialog_UI.h"
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 namespace H2Core
 {

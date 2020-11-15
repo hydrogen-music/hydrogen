@@ -27,12 +27,12 @@
  * Added CFRelease code (20060514 Jonathan Dempsey)
  */
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/IO/CoreMidiDriver.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Preferences.h>
+#include <core/IO/CoreMidiDriver.h>
 
 #if defined(H2CORE_HAVE_COREMIDI) || _DOXYGEN_
 

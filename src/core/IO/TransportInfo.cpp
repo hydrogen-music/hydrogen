@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#include <hydrogen/IO/TransportInfo.h>
+#include <core/IO/TransportInfo.h>
 #include <cstdio>
 
 namespace H2Core

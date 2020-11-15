@@ -20,16 +20,16 @@
  *
  */
 
-#include <hydrogen/basics/note.h>
+#include <core/Basics/Note.h>
 
 #include <cassert>
 
-#include <hydrogen/helpers/xml.h>
+#include <core/Helpers/Xml.h>
 
-#include <hydrogen/basics/adsr.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument_list.h>
+#include <core/Basics/Adsr.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentList.h>
 
 namespace H2Core
 {

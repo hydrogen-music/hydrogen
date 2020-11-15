@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/basics/drumkit.h>
+#include <core/Basics/Drumkit.h>
 #include <hydrogen/config.h>
 #ifdef H2CORE_HAVE_LIBARCHIVE
 #include <archive.h>
@@ -34,16 +34,16 @@
 #endif
 #endif
 
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/drumkit_component.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument_layer.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
 
-#include <hydrogen/helpers/xml.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/helpers/legacy.h>
+#include <core/Helpers/Xml.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Legacy.h>
 
 namespace H2Core
 {

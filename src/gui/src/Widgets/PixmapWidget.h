@@ -28,7 +28,7 @@
 #  include <QtWidgets>
 #endif
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 class PixmapWidget : public H2Core::Object, public QWidget
 {

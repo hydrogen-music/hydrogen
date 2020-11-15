@@ -26,13 +26,13 @@
  * Created by Jaakko Sipari (jaakko.sipari@gmail.com)
  */
 
-#include <hydrogen/LashClient.h>
+#include <core/Lash/LashClient.h>
 
 #if defined(H2CORE_HAVE_LASH) || _DOXYGEN_
 
 #include <lash/lash.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/h2_exception.h>
+#include <core/Preferences.h>
+#include <core/H2Exception.h>
 
 using namespace H2Core;
 

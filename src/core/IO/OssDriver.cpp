@@ -20,12 +20,12 @@
  *
  */
 
-#include <hydrogen/IO/OssDriver.h>
+#include <core/IO/OssDriver.h>
 
 // check if OSS support is enabled
 #if defined(H2CORE_HAVE_OSS) || _DOXYGEN_
 
-#include <hydrogen/Preferences.h>
+#include <core/Preferences.h>
 
 #include <pthread.h>
 

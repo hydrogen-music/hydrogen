@@ -21,8 +21,8 @@
  */
 
 
-#include "hydrogen/helpers/filesystem.h"
-#include "hydrogen/Preferences.h"
+#include "core/Helpers/Filesystem.h"
+#include "core/Preferences.h"
 
 #include <pthread.h>
 #include <unistd.h>
@@ -33,12 +33,12 @@
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
 
-#include "hydrogen/osc_server.h"
-#include "hydrogen/core_action_controller.h"
-#include "hydrogen/event_queue.h"
-#include "hydrogen/hydrogen.h"
-#include "hydrogen/basics/song.h"
-#include "hydrogen/midi_action.h"
+#include "core/OscServer.h"
+#include "core/CoreActionController.h"
+#include "core/EventQueue.h"
+#include "core/Hydrogen.h"
+#include "core/Basics/Song.h"
+#include "core/MidiAction.h"
 
 OscServer * OscServer::__instance = nullptr;
 const char* OscServer::__class_name = "OscServer";

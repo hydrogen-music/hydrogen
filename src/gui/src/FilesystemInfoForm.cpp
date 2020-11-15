@@ -4,7 +4,7 @@
 #include "ui_FilesystemInfoForm_UI.h"
 #include "Skin.h"
 
-#include "hydrogen/helpers/filesystem.h"
+#include "core/Helpers/Filesystem.h"
 
 const char* FilesystemInfoForm::__class_name = "FilesystemInfoForm";
 

@@ -3,8 +3,8 @@
 #ifdef H2CORE_HAVE_OSC
 
 #include "osc_server_test.h"
-#include <hydrogen/Preferences.h>
-#include <hydrogen/osc_server.h>
+#include <core/Preferences.h>
+#include <core/OscServer.h>
 
 #include <QTest>
 

@@ -20,7 +20,7 @@
  *
  */
 
-#include "hydrogen/logger.h"
+#include "core/Logger.h"
 
 #include <cstdio>
 #include <QtCore/QDir>

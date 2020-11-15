@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/version.h>
+#include <core/Version.h>
 #include "SplashScreen.h"
 
 #include <QPainter>

@@ -21,19 +21,19 @@
  */
 
 
-#include "hydrogen/helpers/filesystem.h"
-#include "hydrogen/Preferences.h"
+#include "core/Helpers/Filesystem.h"
+#include "core/Preferences.h"
 
 #include <pthread.h>
 #include <unistd.h>
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 
-#include "hydrogen/nsm_client.h"
-#include "hydrogen/nsm.h"
-#include "hydrogen/event_queue.h"
-#include "hydrogen/hydrogen.h"
-#include "hydrogen/basics/song.h"
+#include "core/NsmClient.h"
+#include "core/Nsm.h"
+#include "core/EventQueue.h"
+#include "core/Hydrogen.h"
+#include "core/Basics/Song.h"
 
 
 

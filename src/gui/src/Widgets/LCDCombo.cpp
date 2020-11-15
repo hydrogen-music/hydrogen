@@ -26,7 +26,7 @@
 #include "LCD.h"
 #include "Button.h"
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 const char* LCDCombo::__class_name = "LCDCombo";
 

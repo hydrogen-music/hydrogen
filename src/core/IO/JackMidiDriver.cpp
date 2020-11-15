@@ -24,20 +24,20 @@
  * SUCH DAMAGE.
  */
 
-#include <hydrogen/IO/JackMidiDriver.h>
+#include <core/IO/JackMidiDriver.h>
 
 #if defined(H2CORE_HAVE_JACK) || _DOXYGEN_
 
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/globals.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/Globals.h>
+#include <core/EventQueue.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
 
 #ifdef H2CORE_HAVE_LASH
-#include <hydrogen/LashClient.h>
+#include <core/LashClient.h>
 #endif
 
 namespace H2Core

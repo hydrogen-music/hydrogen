@@ -22,13 +22,13 @@
 #include <unistd.h>
 
 
-#include <hydrogen/Preferences.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/timeline.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/IO/DiskWriterDriver.h>
+#include <core/Preferences.h>
+#include <core/EventQueue.h>
+#include <core/Hydrogen.h>
+#include <core/Timeline.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/IO/DiskWriterDriver.h>
 
 #include <pthread.h>
 #include <cassert>

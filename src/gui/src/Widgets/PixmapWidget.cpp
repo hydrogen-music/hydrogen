@@ -24,7 +24,7 @@
 #include "../Skin.h"
 #include <QPainter>
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 const char* PixmapWidget::__class_name = "PixmapWidget";
 

@@ -2,7 +2,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <QTranslator>
 
-#include "hydrogen/helpers/translations.h"
+#include "core/Helpers/Translations.h"
 
 class UITranslationTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( UITranslationTest );

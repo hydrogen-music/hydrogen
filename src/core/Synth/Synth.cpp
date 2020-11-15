@@ -21,7 +21,8 @@
  */
 
 
-#include <hydrogen/synth/Synth.h>
+#include <core/Synth/Synth.h>
+#include <core/Basics/Note.h>
 #include <cassert>
 #include <cmath>
 

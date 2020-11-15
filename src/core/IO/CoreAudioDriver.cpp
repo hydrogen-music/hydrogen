@@ -27,7 +27,7 @@
  * More cleaning . . . (2005/12/28 Jonathan Dempsey)
  */
 
-#include <hydrogen/IO/CoreAudioDriver.h>
+#include <core/IO/CoreAudioDriver.h>
 
 #if defined(H2CORE_HAVE_COREAUDIO) || _DOXYGEN_
 

@@ -21,9 +21,9 @@
  */
 
 #include <stdlib.h>
-#include <hydrogen/Preferences.h>
+#include <core/Preferences.h>
 
-#include <hydrogen/LocalFileMng.h>
+#include <core/LocalFileMng.h>
 
 #ifndef WIN32
 #include <pwd.h>
@@ -37,9 +37,9 @@
 #include <cstdio>
 #include <list>
 
-#include <hydrogen/midi_map.h>
-#include "hydrogen/version.h"
-#include "hydrogen/helpers/filesystem.h"
+#include "MidiMap.h"
+#include "Version.h"
+#include "core/Helpers/Filesystem.h"
 
 #include <QDir>
 //#include <QApplication>

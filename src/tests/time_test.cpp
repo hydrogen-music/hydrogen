@@ -1,11 +1,11 @@
 #include "hydrogen/config.h"
 
 #include "time_test.h"
-#include <hydrogen/core_action_controller.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/CoreActionController.h>
+#include <core/AudioEngine.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Song.h>
+#include <core/Helpers/Filesystem.h>
 
 #include <cmath>
 #include <QTest>

@@ -21,12 +21,12 @@
  */
 
 #include <hydrogen/config.h>
-#include <hydrogen/version.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/fx/LadspaFX.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/Version.h>
+#include <core/Hydrogen.h>
+#include <core/EventQueue.h>
+#include <core/FX/LadspaFX.h>
+#include <core/Preferences.h>
+#include <core/Helpers/Filesystem.h>
 
 #include "HydrogenApp.h"
 #include "Skin.h"

@@ -20,28 +20,28 @@
  *
  */
 
-#include "hydrogen/version.h"
-#include <hydrogen/basics/adsr.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/basics/drumkit_component.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/LocalFileMng.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/playlist.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/timeline.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/drumkit.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/automation_path_serializer.h>
-#include <hydrogen/fx/Effects.h>
+#include "Version.h"
+#include <core/Basics/Adsr.h>
+#include <core/Hydrogen.h>
+#include <core/H2Exception.h>
+#include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/LocalFileMng.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Playlist.h>
+#include <core/Preferences.h>
+#include <core/Timeline.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Sample.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/AutomationPathSerializer.h>
+#include <core/FX/Effects.h>
 
 #include <algorithm>
 #include <cassert>

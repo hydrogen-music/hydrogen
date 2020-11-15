@@ -21,13 +21,13 @@
  */
 
 
-#include <hydrogen/IO/PortMidiDriver.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/globals.h>
+#include <core/IO/PortMidiDriver.h>
+#include <core/Preferences.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Hydrogen.h>
+#include <core/Globals.h>
 
 
 #ifdef WIN32

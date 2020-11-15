@@ -25,10 +25,10 @@
 #include <limits>
 #include <memory>
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/basics/sample.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Basics/Sample.h>
 
 #if defined(H2CORE_HAVE_RUBBERBAND) || _DOXYGEN_
 #include <rubberband/RubberBandStretcher.h>

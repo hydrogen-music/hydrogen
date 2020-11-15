@@ -20,15 +20,15 @@
  *
  */
 
-#include <hydrogen/audio_engine.h>
+#include <core/AudioEngine.h>
 
-#include <hydrogen/fx/Effects.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/sampler/Sampler.h>
+#include <core/FX/Effects.h>
+#include <core/Basics/Song.h>
+#include <core/IO/AudioOutput.h>
+#include <core/Sampler/Sampler.h>
 
-#include <hydrogen/hydrogen.h>	// TODO: remove this line as soon as possible
-#include <hydrogen/Preferences.h>
+#include <core/Hydrogen.h>	// TODO: remove this line as soon as possible
+#include <core/Preferences.h>
 #include <cassert>
 
 namespace H2Core

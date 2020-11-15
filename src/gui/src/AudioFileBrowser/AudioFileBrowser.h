@@ -27,8 +27,8 @@
 #include "InstrumentEditor/InstrumentEditor.h"
 
 #include <QDialog>
-#include <hydrogen/object.h>
-#include <hydrogen/Preferences.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
 
 
 class Button;

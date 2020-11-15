@@ -29,14 +29,14 @@
 
 #include "HydrogenApp.h"
 
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/sampler/Sampler.h>
-#include <hydrogen/audio_engine.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/IO/MidiInput.h>
+#include <core/IO/AudioOutput.h>
+#include <core/Sampler/Sampler.h>
+#include <core/AudioEngine.h>
 using namespace H2Core;
 
 #include "Skin.h"

@@ -1,10 +1,10 @@
 
 #include <hydrogen/config.h>
-#include <hydrogen/helpers/files.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/playlist.h>
-#include <hydrogen/basics/song.h>
+#include <core/Helpers/Files.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/Playlist.h>
+#include <core/Basics/Song.h>
 
 namespace H2Core
 {

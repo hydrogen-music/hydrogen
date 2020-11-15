@@ -20,20 +20,21 @@
  *
  */
 
-#include <hydrogen/basics/drumkit_component.h>
+#include <core/Basics/DrumkitComponent.h>
 
 #include <cassert>
 
-#include <hydrogen/audio_engine.h>
+#include <core/AudioEngine.h>
 
-#include <hydrogen/helpers/xml.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/Helpers/Xml.h>
+#include <core/Helpers/Filesystem.h>
 
-#include <hydrogen/basics/adsr.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/drumkit.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_layer.h>
+#include <core/Basics/Adsr.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
 
 namespace H2Core
 {

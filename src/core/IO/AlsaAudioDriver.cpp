@@ -20,13 +20,13 @@
  *
  */
 
-#include <hydrogen/IO/AlsaAudioDriver.h>
+#include <core/IO/AlsaAudioDriver.h>
 
 #if defined(H2CORE_HAVE_ALSA) || _DOXYGEN_
 
 #include <pthread.h>
 #include <iostream>
-#include <hydrogen/Preferences.h>
+#include <core/Preferences.h>
 
 namespace H2Core
 {

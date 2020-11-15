@@ -20,8 +20,8 @@
  *
  */
 
-#include <hydrogen/smf/SMFEvent.h>
-#include <hydrogen/timehelper.h>
+#include <core/Smf/SMFEvent.h>
+#include <core/Timehelper.h>
 
 namespace H2Core
 {

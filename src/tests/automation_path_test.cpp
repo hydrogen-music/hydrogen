@@ -20,7 +20,7 @@
  *
  */
 #include <cppunit/extensions/HelperMacros.h>
-#include <hydrogen/basics/automation_path.h>
+#include <core/Basics/AutomationPath.h>
 
 using namespace H2Core;
 

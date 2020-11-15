@@ -4,7 +4,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <hydrogen/hydrogen.h>
+#include <core/Hydrogen.h>
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
 

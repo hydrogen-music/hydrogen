@@ -22,7 +22,7 @@
 #include "hydrogen/config.h"
 
 #ifdef WIN32
-#    include "hydrogen/timehelper.h"
+#    include "core/Timehelper.h"
 #else
 #    include <unistd.h>
 #    include <sys/time.h>
@@ -44,54 +44,54 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
-#include <hydrogen/event_queue.h>
-#include <hydrogen/basics/adsr.h>
-#include <hydrogen/basics/drumkit.h>
-#include <hydrogen/basics/drumkit_component.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/basics/playlist.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/automation_path.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/fx/LadspaFX.h>
-#include <hydrogen/fx/Effects.h>
+#include <core/EventQueue.h>
+#include <core/Basics/Adsr.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/DrumkitComponent.h>
+#include <core/H2Exception.h>
+#include <core/AudioEngine.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Playlist.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/AutomationPath.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Note.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/FX/LadspaFX.h>
+#include <core/FX/Effects.h>
 
-#include <hydrogen/Preferences.h>
-#include <hydrogen/sampler/Sampler.h>
-#include <hydrogen/midi_map.h>
-#include <hydrogen/timeline.h>
+#include <core/Preferences.h>
+#include <core/Sampler/Sampler.h>
+#include "MidiMap.h"
+#include <core/Timeline.h>
 
 #ifdef H2CORE_HAVE_OSC
-#include <hydrogen/nsm_client.h>
-#include <hydrogen/osc_server.h>
+#include <core/NsmClient.h>
+#include "OscServer.h"
 #endif
 
-#include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/IO/jack_audio_driver.h>
-#include <hydrogen/IO/NullDriver.h>
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/IO/MidiOutput.h>
-#include <hydrogen/IO/CoreMidiDriver.h>
-#include <hydrogen/IO/TransportInfo.h>
-#include <hydrogen/IO/OssDriver.h>
-#include <hydrogen/IO/FakeDriver.h>
-#include <hydrogen/IO/AlsaAudioDriver.h>
-#include <hydrogen/IO/PortAudioDriver.h>
-#include <hydrogen/IO/DiskWriterDriver.h>
-#include <hydrogen/IO/AlsaMidiDriver.h>
-#include <hydrogen/IO/JackMidiDriver.h>
-#include <hydrogen/IO/PortMidiDriver.h>
-#include <hydrogen/IO/CoreAudioDriver.h>
-#include <hydrogen/IO/PulseAudioDriver.h>
+#include <core/IO/AudioOutput.h>
+#include <core/IO/JackAudioDriver.h>
+#include <core/IO/NullDriver.h>
+#include <core/IO/MidiInput.h>
+#include <core/IO/MidiOutput.h>
+#include <core/IO/CoreMidiDriver.h>
+#include <core/IO/TransportInfo.h>
+#include <core/IO/OssDriver.h>
+#include <core/IO/FakeDriver.h>
+#include <core/IO/AlsaAudioDriver.h>
+#include <core/IO/PortAudioDriver.h>
+#include <core/IO/DiskWriterDriver.h>
+#include <core/IO/AlsaMidiDriver.h>
+#include <core/IO/JackMidiDriver.h>
+#include <core/IO/PortMidiDriver.h>
+#include <core/IO/CoreAudioDriver.h>
+#include <core/IO/PulseAudioDriver.h>
 
 namespace H2Core
 {

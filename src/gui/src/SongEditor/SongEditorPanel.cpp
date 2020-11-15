@@ -37,12 +37,12 @@
 #include "SongEditor.h"
 #include "UndoActions.h"
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/IO/jack_audio_driver.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/AudioEngine.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/PatternList.h>
+#include <core/IO/JackAudioDriver.h>
 
 #ifdef WIN32
 #include <time.h>

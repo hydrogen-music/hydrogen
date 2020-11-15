@@ -20,16 +20,16 @@
  *
  */
 
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/midi_action.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/midi_map.h>
+#include <core/IO/MidiInput.h>
+#include <core/EventQueue.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
+#include <core/MidiAction.h>
+#include <core/AudioEngine.h>
+#include <core/MidiMap.h>
 
 namespace H2Core
 {

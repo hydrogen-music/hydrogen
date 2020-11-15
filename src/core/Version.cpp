@@ -1,6 +1,6 @@
 
 #include "hydrogen/config.h"
-#include "hydrogen/version.h"
+#include "Version.h"
 
 namespace H2Core {
 

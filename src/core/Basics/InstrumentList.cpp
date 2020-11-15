@@ -20,10 +20,10 @@
  *
  */
 
-#include <hydrogen/basics/instrument_list.h>
+#include <core/Basics/InstrumentList.h>
 
-#include <hydrogen/helpers/xml.h>
-#include <hydrogen/basics/instrument.h>
+#include <core/Helpers/Xml.h>
+#include <core/Basics/Instrument.h>
 
 #include <set>
 

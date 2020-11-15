@@ -27,8 +27,8 @@
 #if QT_VERSION >= 0x050000
 #  include <QtWidgets>
 #endif
-#include <hydrogen/object.h>
-#include <hydrogen/basics/sample.h>
+#include <core/Object.h>
+#include <core/Basics/Sample.h>
 #include <memory>
 
 class SampleEditor;

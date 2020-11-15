@@ -23,8 +23,8 @@
 
 #include <QDomDocument>
 
-#include <hydrogen/basics/automation_path.h>
-#include <hydrogen/automation_path_serializer.h>
+#include <core/Basics/AutomationPath.h>
+#include <core/AutomationPathSerializer.h>
 
 using namespace H2Core;
 

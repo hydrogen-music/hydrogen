@@ -23,25 +23,25 @@
 #include <QLibraryInfo>
 #include <QThread>
 #include <hydrogen/config.h>
-#include <hydrogen/version.h>
+#include <core/Version.h>
 #include <getopt.h>
 
 #ifdef H2CORE_HAVE_LASH
-#include <hydrogen/LashClient.h>
+#include <core/LashClient.h>
 #endif
 
-#include <hydrogen/basics/song.h>
-#include <hydrogen/midi_map.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/globals.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/basics/playlist.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/Basics/Song.h>
+#include <core/MidiMap.h>
+#include <core/AudioEngine.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Instrument.h>
+#include <core/Globals.h>
+#include <core/EventQueue.h>
+#include <core/Preferences.h>
+#include <core/H2Exception.h>
+#include <core/Basics/Playlist.h>
+#include <core/Helpers/Filesystem.h>
 
 #include <iostream>
 #include <signal.h>

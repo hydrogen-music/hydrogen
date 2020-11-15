@@ -24,11 +24,11 @@
 #include "MidiSenseWidget.h"
 #include "MidiTable.h"
 
-#include <hydrogen/midi_map.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/globals.h>
-#include <hydrogen/midi_action.h>
-#include <hydrogen/hydrogen.h>
+#include <core/MidiMap.h>
+#include <core/Preferences.h>
+#include <core/Globals.h>
+#include <core/MidiAction.h>
+#include <core/Hydrogen.h>
 
 #include <QHeaderView>
 

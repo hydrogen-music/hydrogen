@@ -1,6 +1,6 @@
 
 #include <hydrogen/config.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/Helpers/Filesystem.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>

@@ -24,8 +24,8 @@
 #define HYDROGEN_APP_H
 
 #include <hydrogen/config.h>
-#include <hydrogen/object.h>
-#include <hydrogen/globals.h>
+#include <core/Object.h>
+#include <core/Globals.h>
 
 #include "EventListener.h"
 

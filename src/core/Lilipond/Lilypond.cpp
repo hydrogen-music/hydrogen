@@ -20,10 +20,10 @@
  *
  */
 
-#include <hydrogen/lilypond/lilypond.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/pattern.h>
+#include <core/Lilipond/Lilypond.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Pattern.h>
 
 /*
  * Header of LilyPond file

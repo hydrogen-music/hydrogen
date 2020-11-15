@@ -24,29 +24,29 @@
 #include <cmath>
 #include <cstdlib>
 
-#include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/IO/jack_audio_driver.h>
+#include <core/IO/AudioOutput.h>
+#include <core/IO/JackAudioDriver.h>
 
-#include <hydrogen/basics/adsr.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/globals.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/drumkit_component.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/event_queue.h>
+#include <core/Basics/Adsr.h>
+#include <core/AudioEngine.h>
+#include <core/Globals.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Note.h>
+#include <core/Preferences.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/EventQueue.h>
 
-#include <hydrogen/fx/Effects.h>
-#include <hydrogen/sampler/Sampler.h>
+#include <core/FX/Effects.h>
+#include <core/Sampler/Sampler.h>
 
 #include <iostream>
 #include <QDebug>

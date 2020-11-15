@@ -1,10 +1,10 @@
 
-#include <hydrogen/IO/PortAudioDriver.h>
+#include <core/IO/PortAudioDriver.h>
 #if defined(H2CORE_HAVE_PORTAUDIO) || _DOXYGEN_
 
 #include <iostream>
 
-#include <hydrogen/Preferences.h>
+#include <core/Preferences.h>
 namespace H2Core
 {
 

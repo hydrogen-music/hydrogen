@@ -20,8 +20,8 @@
  *
  */
 
-#include <hydrogen/IO/NullDriver.h>
-#include <hydrogen/globals.h>
+#include <core/IO/NullDriver.h>
+#include <core/Globals.h>
 
 
 namespace H2Core

@@ -27,11 +27,11 @@
 #include "../InstrumentEditor/InstrumentEditor.h"
 
 #include <QDialog>
-#include <hydrogen/object.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/instrument.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Instrument.h>
 
 
 class Button;

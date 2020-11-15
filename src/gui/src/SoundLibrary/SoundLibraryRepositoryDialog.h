@@ -24,7 +24,7 @@
 #define SOUND_LIBRARY_REPOSITORY_DIALOG_H
 
 #include "ui_SoundLibraryRepositoryDialog_UI.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 ///
 ///

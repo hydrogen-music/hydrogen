@@ -20,7 +20,7 @@
  *
  */
 
-#include <hydrogen/basics/adsr.h>
+#include <core/Basics/Adsr.h>
 
 #include "ExponentialTables.h"
 

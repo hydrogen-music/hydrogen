@@ -20,10 +20,10 @@
  *
  */
 
-#include <hydrogen/basics/instrument_layer.h>
+#include <core/Basics/InstrumentLayer.h>
 
-#include <hydrogen/helpers/xml.h>
-#include <hydrogen/basics/sample.h>
+#include <core/Helpers/Xml.h>
+#include <core/Basics/Sample.h>
 
 namespace H2Core
 {

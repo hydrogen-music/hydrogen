@@ -31,7 +31,7 @@
 #endif
 
 #include "../EventListener.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 class MidiActivityWidget : public QWidget, public EventListener, public H2Core::Object
 {

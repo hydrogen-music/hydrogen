@@ -37,11 +37,11 @@
 #include "PatternEditor/PatternEditorPanel.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/IO/jack_audio_driver.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/event_queue.h>
+#include <core/Hydrogen.h>
+#include <core/AudioEngine.h>
+#include <core/IO/JackAudioDriver.h>
+#include <core/Preferences.h>
+#include <core/EventQueue.h>
 using namespace H2Core;
 
 

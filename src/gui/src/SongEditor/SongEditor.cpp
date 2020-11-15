@@ -24,17 +24,17 @@
 #include <algorithm>
 #include <memory>
 
-#include <hydrogen/basics/song.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/helpers/files.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/LocalFileMng.h>
-#include <hydrogen/timeline.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/AudioEngine.h>
+#include <core/EventQueue.h>
+#include <core/Helpers/Files.h>
+#include <core/Basics/Instrument.h>
+#include <core/LocalFileMng.h>
+#include <core/Timeline.h>
 using namespace H2Core;
 
 #include "UndoActions.h"

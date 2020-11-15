@@ -25,10 +25,10 @@
 #include "HydrogenApp.h"
 #include "UndoActions.h"
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Preferences.h>
 
 using namespace H2Core;
 

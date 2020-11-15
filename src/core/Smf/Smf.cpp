@@ -20,13 +20,14 @@
  *
  */
 
-#include <hydrogen/smf/SMF.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/automation_path.h>
+#include <core/Smf/SMF.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/AutomationPath.h>
 #include <fstream>
 
 using std::vector;

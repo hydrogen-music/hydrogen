@@ -1,7 +1,7 @@
 #ifdef WIN32
 
 #include <time.h>
-#include <hydrogen/timehelper.h>
+#include "timehelper.h"
 
 
 int gettimeofday(struct timeval *tv, struct timezone *tz)

@@ -27,8 +27,8 @@
 #  include <QtWidgets>
 #endif
 
-#include <hydrogen/object.h>
-#include <hydrogen/midi_action.h>
+#include <core/Object.h>
+#include <core/MidiAction.h>
 
 class MidiSenseWidget : public QDialog ,public H2Core::Object
 	{

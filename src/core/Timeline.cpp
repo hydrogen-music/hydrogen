@@ -22,7 +22,7 @@
 
 
 #include <algorithm>
-#include <hydrogen/timeline.h>
+#include <core/Timeline.h>
 
 namespace H2Core
 {

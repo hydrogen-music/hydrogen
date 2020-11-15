@@ -19,14 +19,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-#include <hydrogen/fx/Effects.h>
+#include <core/FX/Effects.h>
 
 #if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 
-#include <hydrogen/Preferences.h>
-#include <hydrogen/fx/LadspaFX.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/Preferences.h>
+#include <core/FX/LadspaFX.h>
+#include <core/AudioEngine.h>
+#include <core/Helpers/Filesystem.h>
 
 #include <algorithm>
 #include <QDir>

@@ -28,9 +28,9 @@
 #include "math.h"
 #include "string.h"
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/audio_engine.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Sample.h>
+#include <core/AudioEngine.h>
 using namespace H2Core;
 
 const char* FileBrowser::__class_name = "FileBrowser";

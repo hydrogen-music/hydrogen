@@ -20,10 +20,10 @@
  *
  */
 
-#include <hydrogen/fx/LadspaFX.h>
+#include <core/FX/LadspaFX.h>
 
 #if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
-#include <hydrogen/Preferences.h>
+#include <core/Preferences.h>
 
 #include <QDir>
 

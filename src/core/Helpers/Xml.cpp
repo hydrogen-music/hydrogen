@@ -1,5 +1,5 @@
 
-#include <hydrogen/helpers/xml.h>
+#include <core/Helpers/Xml.h>
 
 #include <QtCore/QFile>
 #include <QtCore/QLocale>

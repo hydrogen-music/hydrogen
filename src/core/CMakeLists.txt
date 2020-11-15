@@ -1,12 +1,13 @@
 
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/include/hydrogen/config.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/hydrogen/config.h" @ONLY)
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/config.h.in" "${CMAKE_CURRENT_BINARY_DIR}/include/hydrogen/config.h" @ONLY)
 
-FILE(GLOB_RECURSE hydrogen_INCLUDES include/*.h)
-FILE(GLOB_RECURSE hydrogen_SOURCES src/*.cpp src/*.cc src/*.c)
+FILE(GLOB_RECURSE hydrogen_INCLUDES include/*.h *.h)
+FILE(GLOB_RECURSE hydrogen_SOURCES *.cpp *.cc *.c)
 LIST(APPEND hydrogen_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}/include/hydrogen/config.h)
 
 ADD_LIBRARY( hydrogen-core-${VERSION} ${H2CORE_LIBRARY_TYPE} ${hydrogen_SOURCES})
 INCLUDE_DIRECTORIES( include
+    ${CMAKE_SOURCE_DIR}/src                     # regular headers
     ${CMAKE_SOURCE_DIR}/include                 # regular headers
     ${CMAKE_CURRENT_BINARY_DIR}/include         # generated config.h
     ${QT_INCLUDES}
