@@ -1,5 +1,5 @@
 
-#include "hydrogen/basics/sample.h"
+#include "core/Basics/Sample.h"
 
 #include <sndfile.h>
 #ifdef H2CORE_HAVE_RUBBERBAND

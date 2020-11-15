@@ -2,7 +2,7 @@
 #define FILESYSTEMINFOFORM_H
 
 #include <QWidget>
-#include "hydrogen/object.h"
+#include "core/Object.h"
 
 namespace Ui {
 class FilesystemInfoForm;

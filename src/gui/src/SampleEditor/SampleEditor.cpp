@@ -30,15 +30,16 @@
 #include "DetailWaveDisplay.h"
 #include "TargetWaveDisplay.h"
 
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/hydrogen.h>
+#include <core/H2Exception.h>
+#include <core/Preferences.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/AudioEngine.h>
+#include <core/Hydrogen.h>
 
 #include <QModelIndex>
 #include <QTreeWidget>

@@ -29,18 +29,18 @@
 #include <assert.h>
 #include <vector>
 
-#include <hydrogen/basics/song.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/globals.h>
-#include <hydrogen/basics/adsr.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/drumkit_component.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/event_queue.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/Globals.h>
+#include <core/Basics/Adsr.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/AudioEngine.h>
+#include <core/EventQueue.h>
 using namespace H2Core;
 
 #include "../HydrogenApp.h"

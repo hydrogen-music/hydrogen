@@ -24,11 +24,11 @@
 #include "HydrogenApp.h"
 #include "Skin.h"
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/fx/Effects.h>
-#include <hydrogen/fx/LadspaFX.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Song.h>
+#include <core/Preferences.h>
+#include <core/FX/Effects.h>
+#include <core/FX/LadspaFX.h>
 
 using namespace H2Core;
 

@@ -2,9 +2,9 @@
 #include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/TestResult.h>
 
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
 
 #include <QCoreApplication>
 

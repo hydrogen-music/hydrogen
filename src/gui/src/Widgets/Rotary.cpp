@@ -23,7 +23,7 @@
 #include "LCD.h"
 #include "../Skin.h"
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 RotaryTooltip::RotaryTooltip( QPoint pos )
 //  : QWidget( 0, "RotaryTooltip", Qt::WStyle_Customize| Qt::WStyle_NoBorder | Qt::WStyle_StaysOnTop| Qt::WX11BypassWM )

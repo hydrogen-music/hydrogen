@@ -30,7 +30,7 @@
 #if QT_VERSION >= 0x050000
 #  include <QtWidgets>
 #endif
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 const char* Fader::__class_name = "Fader";
 

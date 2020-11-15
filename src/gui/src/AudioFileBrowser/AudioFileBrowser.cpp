@@ -27,9 +27,9 @@
 #include "../Widgets/Button.h"
 #include "../Skin.h"
 
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/audio_engine.h>
+#include <core/Preferences.h>
+#include <core/Basics/Sample.h>
+#include <core/AudioEngine.h>
 
 #include <QModelIndex>
 #include <QTreeWidget>

@@ -1,8 +1,8 @@
-#include "hydrogen/config.h"
+#include <core/config.h>
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <hydrogen/hydrogen.h>
+#include <core/Hydrogen.h>
 
 class TimeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( TimeTest );

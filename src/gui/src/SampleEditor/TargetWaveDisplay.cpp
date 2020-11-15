@@ -20,10 +20,10 @@
  *
  */
 
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_layer.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentLayer.h>
 
 #include <memory>
 

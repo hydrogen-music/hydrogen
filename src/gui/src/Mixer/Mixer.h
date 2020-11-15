@@ -30,8 +30,8 @@
 #  include <QtWidgets>
 #endif
 
-#include <hydrogen/object.h>
-#include <hydrogen/globals.h>
+#include <core/Object.h>
+#include <core/Globals.h>
 #include "../EventListener.h"
 
 class Button;

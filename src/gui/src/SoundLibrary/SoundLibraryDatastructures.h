@@ -1,7 +1,7 @@
 #ifndef SOUNDLIBRARYDATASTRUCTURES_H
 #define SOUNDLIBRARYDATASTRUCTURES_H
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 #include <vector>
 
 class SoundLibraryInfo;

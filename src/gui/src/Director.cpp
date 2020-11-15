@@ -56,10 +56,10 @@
 #include "HydrogenApp.h"
 #include "Widgets/PixmapWidget.h"
 
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/timeline.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/Timeline.h>
+#include <core/Helpers/Filesystem.h>
 
 using namespace H2Core;
 

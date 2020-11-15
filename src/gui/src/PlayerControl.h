@@ -29,7 +29,7 @@
 #endif
 
 #include "EventListener.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 namespace H2Core
 {

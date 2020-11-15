@@ -2,15 +2,15 @@
 
 #include <unistd.h>
 
-#include <hydrogen/basics/drumkit.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/sample.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/Sample.h>
 
-#include <hydrogen/helpers/filesystem.h>
+#include <core/Helpers/Filesystem.h>
 #include "test_helper.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlTest );
