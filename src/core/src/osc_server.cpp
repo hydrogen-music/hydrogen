@@ -42,7 +42,6 @@
 
 OscServer * OscServer::__instance = nullptr;
 const char* OscServer::__class_name = "OscServer";
-std::list<lo_address> OscServer::m_pClientRegistry;
 
 QString OscServer::qPrettyPrint(lo_type type,void * data)
 {
@@ -203,13 +202,8 @@ int OscServer::generic_handler(const char *	path,
 			
 			H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
 			H2Core::CoreActionController* pController = pEngine->getCoreActionController();
-			
-			bool isMuted = false;
-			if(argv[0]->f != 0){
-				isMuted = true;
-			}
 		
-			pController->setStripIsMuted( value, isMuted );
+			pController->toggleStripIsMuted( value );
 		}
 	}
 	
@@ -221,13 +215,8 @@ int OscServer::generic_handler(const char *	path,
 			
 			H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
 			H2Core::CoreActionController* pController = pEngine->getCoreActionController();
-			
-			bool isSoloed = false;
-			if(argv[0]->f != 0){
-				isSoloed = true;
-			}
 		
-			pController->setStripIsSoloed( value, isSoloed );
+			pController->toggleStripIsSoloed( value );
 		}
 	}
 
@@ -245,7 +234,8 @@ int OscServer::generic_handler(const char *	path,
 
 
 
-OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name )
+OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name ),
+															m_bInitialized( false )
 {
 	m_pPreferences = pPreferences;
 	
@@ -282,10 +272,13 @@ OscServer::OscServer( H2Core::Preferences* pPreferences ) : Object( __class_name
 }
 
 OscServer::~OscServer(){
+
 	for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
 		lo_address_free( *it );
 	}
 
+	delete m_pServerThread;
+	
 	__instance = nullptr;
 }
 
@@ -724,6 +717,21 @@ bool IsLoAddressEqual( lo_address first, lo_address second )
 	return portEqual && hostEqual && protoEqual;
 }
 
+void OscServer::broadcastMessage( const char* msgText, lo_message message ) {
+	for ( const auto& clientAddress: m_pClientRegistry ){
+		
+		INFOLOG( QString( "Outgoing OSC broadcast message %1" ).arg( msgText ));
+		
+		int i;
+		for (i = 0; i < lo_message_get_argc( message ); i++) {
+			QString formattedArgument = qPrettyPrint( (lo_type)lo_message_get_types(message)[i], lo_message_get_argv(message)[i] );
+			INFOLOG(QString("Argument %1: %2 %3").arg(i).arg(lo_message_get_types(message)[i]).arg(formattedArgument));
+		}
+		
+		lo_send_message(clientAddress, msgText, message);
+	}
+}
+
 // -------------------------------------------------------------------
 // Main action handler
 
@@ -742,10 +750,7 @@ void OscServer::handleAction( Action* pAction )
 		lo_message reply = lo_message_new();
 		lo_message_add_float(reply, param2);
 
-		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-			lo_address clientAddress = *it;
-			lo_send_message(clientAddress, "/Hydrogen/MASTER_VOLUME_ABSOLUTE" , reply);
-		}
+		broadcastMessage("/Hydrogen/MASTER_VOLUME_ABSOLUTE", reply);
 		
 		lo_message_free( reply );
 	}
@@ -760,10 +765,7 @@ void OscServer::handleAction( Action* pAction )
 		QByteArray ba = QString("/Hydrogen/STRIP_VOLUME_ABSOLUTE/%1").arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
 
-		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-			lo_address clientAddress = *it;
-			lo_send_message(clientAddress, c_str2, reply);
-		}
+		broadcastMessage( c_str2, reply);
 		
 		lo_message_free( reply );
 	}
@@ -775,10 +777,7 @@ void OscServer::handleAction( Action* pAction )
 		lo_message reply = lo_message_new();
 		lo_message_add_float(reply, param1);
 
-		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-			lo_address clientAddress = *it;
-			lo_send_message(clientAddress, "/Hydrogen/TOGGLE_METRONOME", reply);
-		}
+		broadcastMessage("/Hydrogen/TOGGLE_METRONOME", reply);
 		
 		lo_message_free( reply );
 	}
@@ -789,11 +788,8 @@ void OscServer::handleAction( Action* pAction )
 
 		lo_message reply = lo_message_new();
 		lo_message_add_float(reply, param1);
-
-		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-			lo_address clientAddress = *it;
-			lo_send_message(clientAddress, "/Hydrogen/MUTE_TOGGLE", reply);
-		}
+		
+		broadcastMessage("/Hydrogen/MUTE_TOGGLE", reply);
 		
 		lo_message_free( reply );
 	}
@@ -808,10 +804,7 @@ void OscServer::handleAction( Action* pAction )
 		QByteArray ba = QString("/Hydrogen/STRIP_MUTE_TOGGLE/%1").arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
 
-		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-			lo_address clientAddress = *it;
-			lo_send_message(clientAddress, c_str2, reply);
-		}
+		broadcastMessage( c_str2, reply);
 		
 		lo_message_free( reply );
 	}
@@ -826,10 +819,7 @@ void OscServer::handleAction( Action* pAction )
 		QByteArray ba = QString("/Hydrogen/STRIP_SOLO_TOGGLE/%1").arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
 
-		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-			lo_address clientAddress = *it;
-			lo_send_message(clientAddress, c_str2, reply);
-		}
+		broadcastMessage( c_str2, reply);
 		
 		lo_message_free( reply );
 	}
@@ -844,20 +834,16 @@ void OscServer::handleAction( Action* pAction )
 		QByteArray ba = QString("/Hydrogen/PAN_ABSOLUTE/%1").arg(pAction->getParameter1()).toLatin1();
 		const char *c_str2 = ba.data();
 
-		for (std::list<lo_address>::iterator it=m_pClientRegistry.begin(); it != m_pClientRegistry.end(); ++it){
-			lo_address clientAddress = *it;
-			lo_send_message(clientAddress, c_str2, reply);
-		}
+		broadcastMessage( c_str2, reply);
 		
 		lo_message_free( reply );
 	}
 }
 
-
-bool OscServer::start()
+bool OscServer::init()
 {
 	if ( m_pServerThread == nullptr || !m_pServerThread->is_valid() ) {
-		ERRORLOG("Failed to start OSC server.");
+		ERRORLOG("Failed to initialize OSC server. No valid server thread.");
 		return false;
 	}
 
@@ -994,16 +980,41 @@ bool OscServer::start()
 	m_pServerThread->add_method("/Hydrogen/SONG_MODE_ACTIVATION", "i", SONG_MODE_ACTIVATION_Handler);
 	m_pServerThread->add_method("/Hydrogen/LOOP_MODE_ACTIVATION", "i", LOOP_MODE_ACTIVATION_Handler);
 	m_pServerThread->add_method("/Hydrogen/RELOCATE", "i", RELOCATE_Handler);
-	/*
-	 * Start the server.
-	 */
-	m_pServerThread->start();
-	
-	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->getOscServerPort() ));
+
+	m_bInitialized = true;
 	
 	return true;
 }
 
+bool OscServer::start() {
+	if ( m_pServerThread == nullptr || !m_pServerThread->is_valid() ) {
+		ERRORLOG("Failed to start OSC server. No valid server thread.");
+		return false;
+	}
+
+	if ( ! m_bInitialized ) {
+		if ( ! init() ) {
+			return false;
+		}
+	}
+
+	m_pServerThread->start();
+	INFOLOG(QString("Osc server started. Listening on port %1").arg( m_pPreferences->getOscServerPort() ));
+
+	return true;
+}
+
+bool OscServer::stop() {
+	if ( m_pServerThread == nullptr || !m_pServerThread->is_valid() ) {
+		ERRORLOG("Failed to stop OSC server. No valid server thread.");
+		return false;
+	}
+
+	m_pServerThread->stop();
+	INFOLOG(QString("Osc server stopped" ));
+
+	return true;
+}
 
 #endif /* H2CORE_HAVE_OSC */
 

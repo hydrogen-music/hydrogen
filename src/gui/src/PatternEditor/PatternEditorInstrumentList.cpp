@@ -51,8 +51,6 @@ using namespace H2Core;
 #include <cassert>
 #include <algorithm> // for std::min
 
-using namespace std;
-
 const char* InstrumentLine::__class_name = "InstrumentLine";
 
 InstrumentLine::InstrumentLine(QWidget* pParent)
@@ -608,7 +606,6 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
-	Mixer * mixer = HydrogenApp::get_instance()->getMixer();
 
 	unsigned nSelectedInstr = pEngine->getSelectedInstrumentNumber();
 
@@ -643,9 +640,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 			pLine->setName( pInstr->get_name() );
 			pLine->setSelected( nInstr == nSelectedInstr );
 			pLine->setMuted( pInstr->is_muted() );
-			if ( mixer ) {
-				pLine->setSoloed( mixer->isSoloClicked( nInstr ) );
-			}
+			pLine->setSoloed( pInstr->is_soloed() );
 
 			pLine->setSamplesMissing( pInstr->has_missing_samples() );
 		}

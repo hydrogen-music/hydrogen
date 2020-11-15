@@ -401,6 +401,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 		LocalFileMng::writeXmlString( instrumentNode, "drumkit", pInstr->get_drumkit_name() );
 		LocalFileMng::writeXmlString( instrumentNode, "volume", QString("%1").arg( pInstr->get_volume() ) );
 		LocalFileMng::writeXmlBool( instrumentNode, "isMuted", pInstr->is_muted() );
+		LocalFileMng::writeXmlBool( instrumentNode, "isSoloed", pInstr->is_soloed() );
 		LocalFileMng::writeXmlString( instrumentNode, "pan_L", QString("%1").arg( pInstr->get_pan_l() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "pan_R", QString("%1").arg( pInstr->get_pan_r() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "gain", QString("%1").arg( pInstr->get_gain() ) );
@@ -457,7 +458,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 					continue;
 				}
 				
-				Sample *pSample = pLayer->get_sample();
+				auto pSample = pLayer->get_sample();
 				if ( pSample == nullptr ) {
 					continue;
 				}

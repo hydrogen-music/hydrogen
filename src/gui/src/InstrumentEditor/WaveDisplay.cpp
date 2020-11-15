@@ -137,7 +137,7 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 
 		float fGain = height() / 2.0 * pLayer->get_gain();
 
-		float *pSampleData = pLayer->get_sample()->get_data_l();
+		auto pSampleData = pLayer->get_sample()->get_data_l();
 
 		int nSamplePos =0;
 		int nVal;

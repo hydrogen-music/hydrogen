@@ -154,7 +154,7 @@ void MainSampleWaveDisplay::updateDisplayPointer()
 void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 {
 
-	Sample *pNewSample = Sample::load( filename );
+	auto pNewSample = Sample::load( filename );
 	
 	if ( pNewSample ) {
 
@@ -167,8 +167,8 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 
 		float fGain = height() / 4.0 * 1.0;
 
-		float *pSampleDatal = pNewSample->get_data_l();
-		float *pSampleDatar = pNewSample->get_data_r();
+		auto pSampleDatal = pNewSample->get_data_l();
+		auto pSampleDatar = pNewSample->get_data_r();
 
 		unsigned nSamplePos = 0;
 		int nVall = 0;
@@ -195,8 +195,6 @@ void MainSampleWaveDisplay::updateDisplay( const QString& filename )
 			m_pPeakDatar[ i ] = nValr;
 		}
 	}
-	delete pNewSample;
-	pNewSample = nullptr;
 	update();
 
 }

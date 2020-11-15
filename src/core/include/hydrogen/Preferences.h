@@ -345,6 +345,36 @@ public:
 	bool				m_bJackTrackOuts;
 	int					m_nJackTrackOutputMode;
 	//jack time master
+
+	/**
+	 * Specifies the variable, which has to remain constant in order
+	 * to guarantee a working synchronization and relocation with
+	 * Hydrogen as Jack timebase client.
+	 */
+	enum class JackBBTSyncMethod {
+		/** The measure - could be any - does not change during the
+			song.*/
+		constMeasure = 0,
+		/** The length of each pattern must match the measure of the
+			corresponding bar in the timebase master. This way both
+			the pattern position of Hydrogen and the bar information
+			provided by Jack can be assumed to be identical.*/
+		identicalBars = 1 };
+	/**
+	 * Since Hydrogen uses both fixed pattern lengths and recalculates
+	 * the tick size each time it encounters an alternative tempo, its
+	 * transport is incompatible to the BBT information provided by 
+	 * the Jack server. Only if the length of each pattern corresponds
+	 * to the measure of the respective bar in the timebase master
+	 * application, the bar information provided by Jack can be used
+	 * directly to determine chosen pattern. If this, however, is not
+	 * the case - which can quite easily happen - a complete history 
+	 * of all measure and tempo changes would be required to correctly
+	 * identify the pattern. Since this is not provided by Jack, one
+	 * has to either assume the measure or tempo to be constant or 
+	 * that the user took care of adjusting the lengths properly.
+	 */
+	JackBBTSyncMethod	m_JackBBTSync;
 	/**
 	 * Specifies if Hydrogen should run as JACK time master. It
 	 * has two states: Preferences::USE_JACK_TIME_MASTER and
@@ -353,7 +383,7 @@ public:
 	 * JackAudioDriver::initTimebaseMaster() if Hydrogen couldn't be
 	 * registered as time master.
 	 */
-	int				m_bJackMasterMode;
+	int					m_bJackMasterMode;
 	//~ jack driver properties
 
 	///Default text editor (used by Playlisteditor)

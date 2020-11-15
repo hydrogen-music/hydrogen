@@ -100,8 +100,8 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
 		TargetWaveDisplay *m_pTargetSampleView;
 		DetailWaveDisplay *m_pSampleAdjustView;
-
-		H2Core::Sample *m_pSampleFromFile;
+	
+		std::shared_ptr<H2Core::Sample> m_pSampleFromFile;
 		int m_nSelectedLayer;
 		int m_nSelectedComponent;
 		QString m_sSampleName;

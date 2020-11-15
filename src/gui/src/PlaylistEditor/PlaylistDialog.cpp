@@ -51,7 +51,6 @@
 #include <memory>
 
 using namespace H2Core;
-using namespace std;
 
 const char* PlaylistDialog::__class_name = "PlaylistDialog";
 

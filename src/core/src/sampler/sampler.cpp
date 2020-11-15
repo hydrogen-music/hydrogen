@@ -306,7 +306,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		float fLayerPitch = 0.0;
 
 		// scelgo il sample da usare in base alla velocity
-		Sample *pSample = nullptr;
+		std::shared_ptr<Sample> pSample;
 		SelectedLayerInfo *pSelectedLayer = pNote->get_layer_selected( pCompo->get_drumkit_componentID() );
 
 		if ( !pSelectedLayer ) {
@@ -358,10 +358,10 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 							InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 							if ( pLayer == nullptr ) continue;
 							
-							if ( min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+							if ( std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 								  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
 							     shortestDistance ){
-								shortestDistance = min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+								shortestDistance = std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 											abs( pLayer->get_start_velocity() - pNote->get_velocity() ) );
 								nearestLayer = nLayer;
 							}
@@ -421,10 +421,10 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 								InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 								if ( pLayer == nullptr ) continue;
 								
-								if ( min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+								if ( std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 									  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
 								     shortestDistance ){
-									shortestDistance = min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+									shortestDistance = std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 												abs( pLayer->get_start_velocity() - pNote->get_velocity() ) );
 									nearestLayer = nLayer;
 								}
@@ -503,10 +503,10 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 								}
 								
 								
-								if ( min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+								if ( std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 									  abs( pLayer->get_start_velocity() - pNote->get_velocity() ) ) <
 								     shortestDistance ){
-									shortestDistance = min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
+									shortestDistance = std::min( abs( pLayer->get_start_velocity() - pNote->get_velocity() ),
 												abs( pLayer->get_start_velocity() - pNote->get_velocity() ) );
 									nearestLayer = nLayer;
 								}
@@ -593,15 +593,18 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		assert(pMainCompo);
 		
 		bool isMutedForExport = (pEngine->getIsExportSessionActive() && !pInstr->is_currently_exported());
+		bool isMutedBecauseOfSolo = (is_any_instrument_soloed() && !pInstr->is_soloed());
 		
 		/*
 		 *  Is instrument muted?
 		 *
-		 *  This can be the case either if the song, instrument or component is muted or if we're in an
-		 *  export session and we're doing per-instruments exports, but this instrument is not currently
-		 *  being exported.
+		 *  This can be the case either if: 
+		 *   - the song, instrument or component is muted 
+		 *   - if we're in an export session and we're doing per-instruments exports, 
+		 *       but this instrument is not currently being exported.
+		 *   - if at least one instrument is soloed (but not this instrument)
 		 */
-		if ( isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() ) {	
+		if ( isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() || isMutedBecauseOfSolo) {	
 			cost_L = 0.0;
 			cost_R = 0.0;
 			if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
@@ -701,15 +704,15 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	}
 
 	InstrumentComponent *pCompo = __playback_instrument->get_components()->front();
-	Sample *pSample = pCompo->get_layer(0)->get_sample();
+	auto pSample = pCompo->get_layer(0)->get_sample();
 
 	assert(pSample);
 
 	float fVal_L;
 	float fVal_R;
 
-	float *pSample_data_L = pSample->get_data_l();
-	float *pSample_data_R = pSample->get_data_r();
+	auto pSample_data_L = pSample->get_data_l();
+	auto pSample_data_R = pSample->get_data_r();
 	
 	float fInstrPeak_L = __playback_instrument->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = __playback_instrument->get_peak_r(); // this value will be reset to 0 by the mixer..
@@ -848,7 +851,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 }
 
 bool Sampler::__render_note_no_resample(
-	Sample *pSample,
+	std::shared_ptr<Sample> pSample,
 	Note *pNote,
 	SelectedLayerInfo *pSelectedLayerInfo,
 	InstrumentComponent *pCompo,
@@ -886,8 +889,8 @@ bool Sampler::__render_note_no_resample(
 	int nSamplePos = nInitialSamplePos;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
 
-	float *pSample_data_L = pSample->get_data_l();
-	float *pSample_data_R = pSample->get_data_r();
+	auto pSample_data_L = pSample->get_data_l();
+	auto pSample_data_R = pSample->get_data_r();
 
 	float fInstrPeak_L = pNote->get_instrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = pNote->get_instrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
@@ -898,14 +901,15 @@ bool Sampler::__render_note_no_resample(
 
 
 #ifdef H2CORE_HAVE_JACK
-	JackAudioDriver* pJackAudioDriver = nullptr;
 	float *		pTrackOutL = nullptr;
 	float *		pTrackOutR = nullptr;
 
-	if( pAudioOutput->has_track_outs()
-	&& (pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput)) ) {
-		 pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
-		pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
+	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
+		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput);
+		if( pJackAudioDriver ) {
+			pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
+			pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
+		}
 	}
 #endif
 
@@ -995,7 +999,7 @@ bool Sampler::__render_note_no_resample(
 
 
 bool Sampler::__render_note_resample(
-	Sample *pSample,
+	std::shared_ptr<Sample> pSample,
 	Note *pNote,
 	SelectedLayerInfo *pSelectedLayerInfo,
 	InstrumentComponent *pCompo,
@@ -1044,8 +1048,8 @@ bool Sampler::__render_note_resample(
 	double fSamplePos = pSelectedLayerInfo->SamplePosition;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
 
-	float *pSample_data_L = pSample->get_data_l();
-	float *pSample_data_R = pSample->get_data_r();
+	auto pSample_data_L = pSample->get_data_l();
+	auto pSample_data_R = pSample->get_data_r();
 
 	float fInstrPeak_L = pNote->get_instrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = pNote->get_instrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
@@ -1057,14 +1061,15 @@ bool Sampler::__render_note_resample(
 
 
 #ifdef H2CORE_HAVE_JACK
-	JackAudioDriver* pJackAudioDriver = nullptr;
 	float *		pTrackOutL = nullptr;
 	float *		pTrackOutR = nullptr;
 
-	if( pAudioOutput->has_track_outs()
-	&& (pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput)) ) {
-				pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
-				pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
+	if ( Preferences::get_instance()->m_bJackTrackOuts ) {
+		auto pJackAudioDriver = dynamic_cast<JackAudioDriver*>(pAudioOutput);
+		if( pJackAudioDriver ) {
+			pTrackOutL = pJackAudioDriver->getTrackOut_L( pNote->get_instrument(), pCompo );
+			pTrackOutR = pJackAudioDriver->getTrackOut_R( pNote->get_instrument(), pCompo );
+		}
 	}
 #endif
 
@@ -1274,7 +1279,7 @@ void Sampler::stop_playing_notes( Instrument* instrument )
 
 
 /// Preview, uses only the first layer
-void Sampler::preview_sample( Sample* sample, int length )
+void Sampler::preview_sample( std::shared_ptr<Sample> sample, int length )
 {
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
@@ -1386,6 +1391,24 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
 }
 
+bool Sampler::is_any_instrument_soloed() 
+{
+	Hydrogen*		pEngine = Hydrogen::get_instance();
+	Song*			pSong = pEngine->getSong();
+	InstrumentList* pInstrList = pSong->get_instrument_list();
+	bool			bAnyInstrumentIsSoloed = false;
+	
+	for(int i=0; i < pInstrList->size(); i++) {
+		Instrument* pInstr = pInstrList->get( i );
+		
+		if( pInstr->is_soloed() )	{
+			bAnyInstrumentIsSoloed = true;
+		}
+	}
+	
+	return bAnyInstrumentIsSoloed;
+}
+
 bool Sampler::is_instrument_playing( Instrument* instrument )
 {
 	if ( instrument ) { // stop all notes using this instrument
@@ -1402,7 +1425,7 @@ void Sampler::reinitialize_playback_track()
 {
 	Hydrogen*	pEngine = Hydrogen::get_instance();
 	Song*		pSong = pEngine->getSong();
-	Sample*		pSample = nullptr;
+	std::shared_ptr<Sample>	pSample;
 
 	if(!pSong->get_playback_track_filename().isEmpty()){
 		pSample = Sample::load( pSong->get_playback_track_filename() );

@@ -32,6 +32,7 @@
 #include <hydrogen/IO/AudioOutput.h>
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/IO/MidiOutput.h>
+#include <hydrogen/IO/jack_audio_driver.h>
 #include <hydrogen/basics/drumkit.h>
 #include <hydrogen/core_action_controller.h>
 #include <cassert>
@@ -254,7 +255,6 @@ public:
 
 	/** \return #m_pNextPatterns*/
 	PatternList *		getNextPatterns();
-
 	/** Get the position of the current Pattern in the Song.
 	 * \return #m_nSongPos */
 	int			getPatternPos();
@@ -482,6 +482,12 @@ void			previewSample( Sample *pSample );
 #endif
 
 #if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
+	/** Starts/stops the OSC server
+	 * \param bEnable `true` = start, `false` = stop.*/
+	void			toggleOscServer( bool bEnable );
+	/** Destroys and recreates the OscServer singleton in order to
+		adopt a new OSC port.*/
+	void			recreateOscServer();
 	void			startNsmClient();
 #endif
 
@@ -674,9 +680,9 @@ void			previewSample( Sample *pSample );
 	 * \return Whether we haveJackTransport() and there is an external
 	 * JACK timebase master broadcasting us tempo information and
 	 * making use disregard Hydrogen's Timeline information (see
-	 * #JackAudioDriver::m_nIsTimebaseMaster).
+	 * #JackAudioDriver::m_timebaseState).
 	 */
-	bool			haveJackTimebaseClient() const;
+	JackAudioDriver::Timebase		getJackTimebaseState() const;
 	/** Sets the first Song to be loaded under session management.
 	 *
 	 * Enables the creation of a JACK client with all per track output

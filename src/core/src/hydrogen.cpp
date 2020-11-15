@@ -28,6 +28,7 @@
 #    include <sys/time.h>
 #endif
 
+
 #include <pthread.h>
 #include <cassert>
 #include <cstdio>
@@ -37,6 +38,8 @@
 #include <ctime>
 #include <cmath>
 #include <algorithm>
+#include <thread>
+#include <chrono>
 
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
@@ -370,7 +373,6 @@ void				audioEngine_destroy();
  * - sets TransportInfo::m_nFrames to @a nTotalFrames
  * - sets m_nSongPos and m_nPatternStartTick to -1
  * - m_nPatternTickPosition to 0
- * - calls updateTickSize()
  * - sets #m_audioEngineState to #STATE_PLAYING
  * - pushes the #EVENT_STATE #STATE_PLAYING using EventQueue::push_event()
  *
@@ -399,14 +401,11 @@ int				audioEngine_start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
  */
 void				audioEngine_stop( bool bLockEngine = false );
 /**
- * Updates the global objects of the audioEngine according to new Song.
+ * Updates the global objects of the audioEngine according to new
+ * Song.
  *
- * Calls audioEngine_setupLadspaFX() on
- * m_pAudioDriver->getBufferSize(),
- * audioEngine_process_checkBPMChanged(),
- * audioEngine_renameJackPorts(), adds its first pattern to
- * #m_pPlayingPatterns, relocates the audio driver to the beginning of
- * the Song, and updates the BPM.
+ * It also updates all member variables of the audio driver specific
+ * to the particular song (BPM and tick size).
  *
  * \param pNewSong Song to load.
  */
@@ -706,21 +705,6 @@ void audioEngine_raiseError( unsigned nErrorCode )
 {
 	EventQueue::get_instance()->push_event( EVENT_ERROR, nErrorCode );
 }
-/** Function calculating the tick size by
- * \code{.cpp}
- * m_pAudioDriver->getSampleRate() * 60.0 / Song::__bpm / Song::__resolution 
- * \endcode
- * and storing it in TransportInfo::m_fTickSize
- */
-void updateTickSize()
-{
-	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	Song* pSong = pHydrogen->getSong();
-
-	float sampleRate = ( float ) m_pAudioDriver->getSampleRate();
-	m_pAudioDriver->m_transport.m_fTickSize =
-		( sampleRate * 60.0 /  pSong->__bpm / pSong->__resolution );		
-}
 
 void audioEngine_init()
 {
@@ -762,7 +746,7 @@ void audioEngine_init()
 
 	// Change the current audio engine state
 	m_audioEngineState = STATE_INITIALIZED;
-
+	
 #ifdef H2CORE_HAVE_LADSPA
 	Effects::create_instance();
 #endif
@@ -840,7 +824,9 @@ int audioEngine_start( bool bLockEngine, unsigned nTotalFrames )
 	m_nPatternTickPosition = 0;
 
 	// prepare the tick size for this song
-	updateTickSize();
+	Song* pSong = Hydrogen::get_instance()->getSong();
+	m_pAudioDriver->m_transport.m_fTickSize =
+		AudioEngine::compute_tick_size( static_cast<float>(m_pAudioDriver->getSampleRate()), pSong->__bpm, pSong->__resolution );
 
 	// change the current audio engine state
 	m_audioEngineState = STATE_PLAYING;
@@ -1221,23 +1207,10 @@ inline void audioEngine_process_clearAudioBuffers( uint32_t nFrames )
 	}
 
 #ifdef H2CORE_HAVE_JACK
-	JackAudioDriver * jo = dynamic_cast<JackAudioDriver*>(m_pAudioDriver);
-	// Check whether the Preferences::m_bJackTrackOuts option was
-	// set. It enables a per-track creation of the output
-	// ports. All of them have to be reset as well.
-	if( jo && jo->has_track_outs() ) {
-		float* buf;
-		int k;
-		for( k=0 ; k<jo->getNumTracks() ; ++k ) {
-			buf = jo->getTrackOut_L(k);
-			if( buf ) {
-				memset( buf, 0, nFrames * sizeof( float ) );
-			}
-			buf = jo->getTrackOut_R(k);
-			if( buf ) {
-				memset( buf, 0, nFrames * sizeof( float ) );
-			}
-		}
+	JackAudioDriver * pJackAudioDriver = dynamic_cast<JackAudioDriver*>(m_pAudioDriver);
+	
+	if( pJackAudioDriver ) {
+		pJackAudioDriver->clearPerTrackAudioBuffers( nFrames );
 	}
 #endif
 
@@ -1277,7 +1250,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// processing time for this frame, the amount of slack time that
 	// we can afford to wait is: m_fMaxProcessTime - m_fProcessTime.
 
-	float sampleRate = ( float )m_pAudioDriver->getSampleRate();
+	float sampleRate = static_cast<float>(m_pAudioDriver->getSampleRate());
 	m_fMaxProcessTime = 1000.0 / ( sampleRate / nframes );
 	float fSlackTime = m_fMaxProcessTime - m_fProcessTime;
 
@@ -1349,7 +1322,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		___INFOLOG( "End of song received, calling engine_stop()" );
 		AudioEngine::get_instance()->unlock();
 		m_pAudioDriver->stop();
-		m_pAudioDriver->locate( 0 ); // locate 0, reposition from start of the song
+		AudioEngine::get_instance()->locate( 0 ); // locate 0, reposition from start of the song
 
 		if ( ( m_pAudioDriver->class_name() == DiskWriterDriver::class_name() )
 			 || ( m_pAudioDriver->class_name() == FakeDriver::class_name() )
@@ -1463,6 +1436,11 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	m_fProcessTime =
 			( finishTimeval.tv_sec - startTimeval.tv_sec ) * 1000.0
 			+ ( finishTimeval.tv_usec - startTimeval.tv_usec ) / 1000.0;
+
+	if ( m_audioEngineState == STATE_PLAYING ) {
+		AudioEngine::get_instance()->updateElapsedTime( m_pAudioDriver->getBufferSize(),
+														m_pAudioDriver->getSampleRate() );
+	}
 
 #ifdef CONFIG_DEBUG
 	if ( m_fProcessTime > m_fMaxProcessTime ) {
@@ -1584,11 +1562,15 @@ void audioEngine_setSong( Song* pNewSong )
 	audioEngine_renameJackPorts( pNewSong );
 
 	m_pAudioDriver->setBpm( pNewSong->__bpm );
+	m_pAudioDriver->m_transport.m_fTickSize = 
+		AudioEngine::compute_tick_size( static_cast<int>(m_pAudioDriver->getSampleRate()),
+										pNewSong->__bpm,
+										static_cast<int>(pNewSong->__resolution) );
 
 	// change the current audio engine state
 	m_audioEngineState = STATE_READY;
 
-	m_pAudioDriver->locate( 0 );
+	AudioEngine::get_instance()->locate( 0 );
 
 	AudioEngine::get_instance()->unlock();
 
@@ -2432,8 +2414,7 @@ Hydrogen::Hydrogen()
 #ifdef H2CORE_HAVE_OSC
 	if( Preferences::get_instance()->getOscServerEnabled() )
 	{
-		OscServer* pOscServer = OscServer::get_instance();
-		pOscServer->start();
+		toggleOscServer( true );
 	}
 #endif
 }
@@ -3554,18 +3535,20 @@ long Hydrogen::getTickForPosition( int pos )
 	return totalTick;
 }
 
-void Hydrogen::setPatternPos( int pos )
+void Hydrogen::setPatternPos( int nPatternNumber )
 {
-	if ( pos < -1 ) {
-		pos = -1;
+	if ( nPatternNumber < -1 ) {
+		nPatternNumber = -1;
 	}
 	
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	auto pAudioEngine = AudioEngine::get_instance();
+	
+	pAudioEngine->lock( RIGHT_HERE );
 	// TODO: why?
 	EventQueue::get_instance()->push_event( EVENT_METRONOME, 1 );
-	long totalTick = getTickForPosition( pos );
+	long totalTick = getTickForPosition( nPatternNumber );
 	if ( totalTick < 0 ) {
-		AudioEngine::get_instance()->unlock();
+		pAudioEngine->unlock();
 		return;
 	}
 
@@ -3575,14 +3558,13 @@ void Hydrogen::setPatternPos( int pos )
 		// 		m_nSongPos = findPatternInTick( totalTick,
 		//					        pSong->is_loop_enabled(),
 		//					        &dummy );
-		m_nSongPos = pos;
+		m_nSongPos = nPatternNumber;
 		m_nPatternTickPosition = 0;
 	}
-	m_pAudioDriver->locate(
-				( int ) ( totalTick * m_pAudioDriver->m_transport.m_fTickSize )
-				);
+	INFOLOG( "relocate" );
+	m_pAudioDriver->locate( static_cast<int>( totalTick * m_pAudioDriver->m_transport.m_fTickSize ));
 
-	AudioEngine::get_instance()->unlock();
+	pAudioEngine->unlock();
 }
 
 void Hydrogen::getLadspaFXPeak( int nFX, float *fL, float *fR )
@@ -3689,7 +3671,7 @@ void Hydrogen::setBPM( float fBPM )
 		return;
 	}
 
-	if ( haveJackTimebaseClient() ) {
+	if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		ERRORLOG( "Unable to change tempo directly in the presence of an external JACK timebase master. Press 'J.MASTER' get tempo control." );
 		return;
 	}
@@ -3905,11 +3887,8 @@ void Hydrogen::handleBeatCounter()
 							  * (int) 1000 )
 							+ (int)m_nCoutOffset
 							+ (int) m_nStartOffset;
-#ifdef WIN32
-					Sleep( sleeptime );
-#else
-					usleep( 1000 * sleeptime );
-#endif
+					
+					std::this_thread::sleep_for( std::chrono::milliseconds( sleeptime ) );
 
 					sequencer_play();
 				}
@@ -4093,7 +4072,7 @@ float Hydrogen::getTimelineBpm( int nBar )
 void Hydrogen::setTimelineBpm()
 {
 	if ( ! Preferences::get_instance()->getUseTimelineBpm() ||
-		 haveJackTimebaseClient() ) {
+		 getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		return;
 	}
 
@@ -4146,20 +4125,39 @@ bool Hydrogen::haveJackTransport() const {
 #endif	
 }
 
-bool Hydrogen::haveJackTimebaseClient() const {
+JackAudioDriver::Timebase Hydrogen::getJackTimebaseState() const {
 #ifdef H2CORE_HAVE_JACK
 	if ( haveJackTransport() ) {
-		if ( static_cast<JackAudioDriver*>(m_pAudioDriver)->getIsTimebaseMaster() == 0 ) {
-			return true;
-		}
+		return static_cast<JackAudioDriver*>(m_pAudioDriver)->getTimebaseState();
 	} 
-	return false;
+	return JackAudioDriver::Timebase::None;
 #else
-	return false;
+	return JackAudioDriver::Timebase::None;
 #endif	
 }
 
 #ifdef H2CORE_HAVE_OSC
+
+void Hydrogen::toggleOscServer( bool bEnable ) {
+	if ( bEnable ) {
+		OscServer::get_instance()->start();
+	} else {
+		OscServer::get_instance()->stop();
+	}
+}
+
+void Hydrogen::recreateOscServer() {
+	OscServer* pOscServer = OscServer::get_instance();
+	if( pOscServer ) {
+		delete pOscServer;
+	}
+
+	OscServer::create_instance( Preferences::get_instance() );
+	
+	if ( Preferences::get_instance()->getOscServerEnabled() ) {
+		toggleOscServer( true );
+	}
+}
 
 void Hydrogen::startNsmClient()
 {

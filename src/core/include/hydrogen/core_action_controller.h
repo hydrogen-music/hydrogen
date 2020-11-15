@@ -52,8 +52,12 @@ class CoreActionController : public H2Core::Object {
 		void setStripPan( int nStrip, float fPanValue, bool bSelectStrip );
 		void setMetronomeIsActive( bool isActive );
 		void setMasterIsMuted( bool isMuted );
+		
 		void setStripIsMuted( int nStrip, bool isMuted );
+		void toggleStripIsMuted( int nStrip );
+		
 		void setStripIsSoloed( int nStrip, bool isSoloed );
+		void toggleStripIsSoloed( int nStrip );
 		
 		void initExternalControlInterfaces();
 		void handleOutgoingControlChange( int param, int value);
@@ -148,7 +152,7 @@ class CoreActionController : public H2Core::Object {
 		 * (De)activates the usage of the Timeline.
 		 *
 		 * Note that this function will fail in the presence of the
-		 * Jack audio driver and an external timebase master (see Hydrogen::haveJackTimebaseClient()).
+		 * Jack audio driver and an external timebase master (see Hydrogen::getJackTimebaseState()).
 		 *
 		 * @param bActivate If true - activate or if false -
 		 * deactivate.

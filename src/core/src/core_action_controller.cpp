@@ -59,7 +59,7 @@ void CoreActionController::setMasterVolume( float masterVolumeValue )
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "MASTER_VOLUME_ABSOLUTE" );
 	FeedbackAction.setParameter2( QString("%1").arg( masterVolumeValue ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -88,16 +88,14 @@ void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
 	FeedbackAction.setParameter2( QString("%1").arg( fVolumeValue ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
 	
 	int ccParamValue = pMidiMap->findCCValueByActionParam1( QString("STRIP_VOLUME_ABSOLUTE"), QString("%1").arg( nStrip ) );
 	
-
 	handleOutgoingControlChange( ccParamValue, (fVolumeValue / 1.5) * 127 );
-
 }
 
 void CoreActionController::setMetronomeIsActive( bool isActive )
@@ -108,7 +106,7 @@ void CoreActionController::setMetronomeIsActive( bool isActive )
 	Action FeedbackAction( "TOGGLE_METRONOME" );
 	
 	FeedbackAction.setParameter1( QString("%1").arg( (int) isActive ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -127,7 +125,7 @@ void CoreActionController::setMasterIsMuted( bool isMuted )
 	Action FeedbackAction( "MUTE_TOGGLE" );
 	
 	FeedbackAction.setParameter1( QString("%1").arg( (int) isMuted ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -135,6 +133,22 @@ void CoreActionController::setMasterIsMuted( bool isMuted )
 	int ccParamValue = pMidiMap->findCCValueByActionType( QString("MUTE_TOGGLE") );
 
 	handleOutgoingControlChange( ccParamValue, (int) isMuted * 127 );
+}
+
+void CoreActionController::toggleStripIsMuted(int nStrip)
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+	
+	if( pInstrList->is_valid_index( nStrip ))
+	{
+		Instrument* pInstr = pInstrList->get( nStrip );
+		
+		if( pInstr ) {
+			setStripIsMuted( nStrip , !pInstr->is_muted() );
+		}
+	}
 }
 
 void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
@@ -151,7 +165,7 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
 	FeedbackAction.setParameter2( QString("%1").arg( (int) isMuted ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -161,30 +175,37 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 	handleOutgoingControlChange( ccParamValue, ((int) isMuted) * 127 );
 }
 
+void CoreActionController::toggleStripIsSoloed( int nStrip )
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
+	InstrumentList *pInstrList = pSong->get_instrument_list();
+	
+	if( pInstrList->is_valid_index( nStrip ))
+	{
+		Instrument* pInstr = pInstrList->get( nStrip );
+	
+		if( pInstr ) {
+			setStripIsSoloed( nStrip , !pInstr->is_soloed() );
+		}
+	}
+}
+
 void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 	
-	if ( isSoloed ) {
-		for ( int i = 0; i < pInstrList->size(); ++i ) {
-			setStripIsMuted( i, true );
-		}
-
-		setStripIsMuted( nStrip, false );
-	} else {
-		for ( int i = 0; i < pInstrList->size(); ++i ) {
-			setStripIsMuted( i, false );
-		}
-	}
+	Instrument* pInstr = pInstrList->get( nStrip );
+	pInstr->set_soloed( isSoloed );
 	
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "STRIP_SOLO_TOGGLE" );
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
 	FeedbackAction.setParameter2( QString("%1").arg( (int) isSoloed ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -227,7 +248,7 @@ void CoreActionController::setStripPan( int nStrip, float fPanValue, bool bSelec
 	
 	FeedbackAction.setParameter1( QString("%1").arg( nStrip + 1 ) );
 	FeedbackAction.setParameter2( QString("%1").arg( fPanValue ) );
-	OscServer::handleAction( &FeedbackAction );
+	OscServer::get_instance()->handleAction( &FeedbackAction );
 #endif
 	
 	MidiMap*	pMidiMap = MidiMap::get_instance();
@@ -288,7 +309,9 @@ void CoreActionController::initExternalControlInterfaces()
 			setStripIsMuted( i, pInstr->is_muted() );
 			
 			//SOLO
-			setStripIsSoloed( i, pInstr->is_soloed() );
+			if(pInstr->is_soloed()) {
+				setStripIsSoloed( i, pInstr->is_soloed() );
+			}
 	}
 	
 	//TOGGLE_METRONOME
@@ -542,7 +565,7 @@ bool CoreActionController::isSongPathValid( const QString& sSongPath ) {
 bool CoreActionController::activateTimeline( bool bActivate ) {
 	auto pHydrogen = Hydrogen::get_instance();
 	
-	if ( pHydrogen->haveJackTimebaseClient() ) {
+	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		ERRORLOG( "Timeline usage is disabled in the presence of an external JACK timebase master." );
 		return false;
 	}

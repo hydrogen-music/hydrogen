@@ -70,7 +70,7 @@ public:
 	 */
 	static void create_instance();
 	/**
-	 * Returns a pointer to the current AudioEngine singleton
+	 * \return a pointer to the current AudioEngine singleton
 	 * stored in #__instance.
 	 */
 	static AudioEngine* get_instance() { assert(__instance); return __instance; }
@@ -158,12 +158,53 @@ public:
 	void unlock();
 	
 	
-	 static float compute_tick_size(int sampleRate, float bpm, int resolution);
+	static float compute_tick_size( const int nSampleRate, const float fBpm, const int nResolution);
 
-	/** Returns #__sampler */
+	/** \return #__sampler */
 	Sampler* get_sampler();
-	/** Returns #__synth */
+	/** \return #__synth */
 	Synth* get_synth();
+	
+	/** \return #m_fElapsedTime */
+	float getElapsedTime() const;
+	/** Calculates the elapsed time for an arbitrary position.
+	 *
+	 * After locating the transport position to @a nFrame the function
+	 * calculates the amount of time required to reach the position
+	 * during playback. If the Timeline is activated, it will take all
+	 * markers and the resulting tempo changes into account.
+	 *
+	 * Right now the tempo in the region before the first marker
+	 * is undefined. In order to make reproducible estimates of the
+	 * elapsed time, this function assume it to have the same BPM as
+	 * the first marker.
+	 *
+	 * \param sampleRate Temporal resolution used by the sound card in
+	 * frames per second.
+	 * \param nFrame Next transport position in frames.
+	 * \param nResolution Resolution of the Song (number of ticks per 
+	 *   quarter).
+	 */
+	void calculateElapsedTime( unsigned sampleRate, unsigned long nFrame, int nResolution );
+	/** Increments #m_fElapsedTime at the end of a process cycle.
+	 *
+	 * At the end of H2Core::audioEngine_process() this function will
+	 * be used to add the time passed during the last process cycle to
+	 * #m_fElapsedTime.
+	 *
+	 * \param bufferSize Number of frames process during a cycle of
+	 * the audio engine.
+	 * \param sampleRate Temporal resolution used by the sound card in
+	 * frames per second.
+	 */
+	void updateElapsedTime( unsigned bufferSize, unsigned sampleRate );
+	
+	/** Relocate using the audio driver and update the
+	 * #m_fElapsedTime.
+	 *
+	 * \param nFrame Next transport position in frames.
+	 */
+	void  			locate( unsigned long nFrame );
 
 private:
 	/**
@@ -200,6 +241,31 @@ private:
 		    ///< used for logging the locking of the
 		    ///< AudioEngine. But neither it nor the
 		    ///< Logger::AELockTracing state is ever used.
+	
+	/** Time in seconds since the beginning of the Song.
+	 *
+	 * In Hydrogen the current transport position is not measured in
+	 * time but in past ticks. Whenever transport is passing a BPM
+	 * marker on the Timeline, the tick size and effectively also time
+	 * will be rescaled. To nevertheless show the correct time elapsed
+	 * since the beginning of the Song, this variable will be used.
+	 *
+	 * At the end of each transport cycle updateElapsedTime() will be
+	 * used to increment it (its smallest resolution is thus
+	 * controlled by the buffer size). If, instead, a relocation was
+	 * triggered by the user or an external transport control
+	 * (e.g. JACK server), calculateElapsedTime() will be used to
+	 * determine the time anew.
+	 *
+	 * If loop transport is enabled #Song::__is_loop_enabled, the
+	 * elapsed time will increase constantly. However, if relocation
+	 * did happen, only the time relative to the beginning of the Song
+	 * will be calculated irrespective of the number of loops played
+	 * so far. 
+	 *
+	 * Retrieved using getElapsedTime().
+	 */
+	float m_fElapsedTime;
 
 	/**
 	 * Constructor of the AudioEngine.
@@ -218,6 +284,10 @@ private:
 	AudioEngine();
 };
 
+inline float AudioEngine::getElapsedTime() const {
+	return m_fElapsedTime;
+}
+	
 };
 
 

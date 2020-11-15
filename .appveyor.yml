@@ -3,16 +3,6 @@ environment:
   matrix:
     - MSYS: 'C:\msys64\mingw64'
       MSYS_REPO: 'mingw64/mingw-w64-x86_64'
-      BUILD_TYPE: "Release"
-      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DWIN64:BOOL=ON -DFIXME_DISABLE_OPTIMIZATIONS=ON"
-
-    - MSYS: 'C:\msys64\mingw32'
-      MSYS_REPO: 'mingw32/mingw-w64-i686'
-      BUILD_TYPE: "Release"
-      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=OFF -DFIXME_DISABLE_OPTIMIZATIONS=ON"
-
-    - MSYS: 'C:\msys64\mingw64'
-      MSYS_REPO: 'mingw64/mingw-w64-x86_64'
       BUILD_TYPE: "Debug"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON -DWIN64:BOOL=ON"
 
@@ -22,7 +12,7 @@ environment:
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON"
 
 image:
-  - "Visual Studio 2015"
+  - "Visual Studio 2019"
 
 before_build:
   cmd: |-
@@ -75,9 +65,7 @@ build_script:
       mkdir %APPVEYOR_BUILD_FOLDER%\windows\extralibs
 
       REM *** Deploy Qt ***
-      set DEPLOY_MODE=--release
-      if %BUILD_TYPE% == "Debug" set DEPLOY_MODE=--debug
-      %QTDIR%\bin\windeployqt.exe -xmlpatterns --no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\windows\extralibs %DEPLOY_MODE% src/gui/hydrogen.exe
+      %QTDIR%\bin\windeployqt.exe -xmlpatterns --no-patchqt --dir %APPVEYOR_BUILD_FOLDER%\windows\extralibs src/gui/hydrogen.exe
 
       REM *** Deploy other libraries ***
       set PYTHON=C:\Python38\python

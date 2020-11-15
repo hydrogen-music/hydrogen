@@ -40,8 +40,7 @@ public:
 	TransportInfo m_transport;
 
 	AudioOutput( const char* class_name )
-			: Object( class_name )
-			, __track_out_enabled( false ) { }
+			: Object( class_name ) { }
 
 	virtual ~AudioOutput() { }
 
@@ -58,26 +57,6 @@ public:
 	virtual void stop() = 0;
 	virtual void locate( unsigned long nFrame ) = 0;
 	virtual void setBpm( float fBPM ) = 0;
-
-	/** Accesses the per-track output port settings of a driver.
-	 * \return __track_out_enabled */
-	bool has_track_outs() {
-		return __track_out_enabled;
-	}
-
-protected:
-	/**
-	 * Whether the JackAudioDriver is ordered to create per-track
-	 * audio output ports (true). The order comes from the
-	 * variable Preferences::m_bJackTrackOuts. It will be used by
-	 * the Sampler and Hydrogen itself to probe the behavior of
-	 * the JackAudioDriver.
-	 *
-	 * In all other drivers this variable isn't used. It gets
-	 * initialized to false.
-	 */
-	bool __track_out_enabled;
-
 };
 
 };

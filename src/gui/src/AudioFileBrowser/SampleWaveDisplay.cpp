@@ -88,9 +88,9 @@ void SampleWaveDisplay::paintEvent(QPaintEvent *ev)
 void SampleWaveDisplay::updateDisplay( QString filename )
 {
 
-	Sample *pNewSample = Sample::load( filename );
+	auto pNewSample = Sample::load( filename );
 
-	if ( pNewSample ) {
+	if ( pNewSample != nullptr ) {
 		// Extract the filename from the complete path
 		QString sName = filename;
 		int nPos = sName.lastIndexOf( "/" );
@@ -109,7 +109,7 @@ void SampleWaveDisplay::updateDisplay( QString filename )
 
 		float fGain = height() / 2.0 * 1.0;
 
-		float *pSampleData = pNewSample->get_data_l();
+		auto pSampleData = pNewSample->get_data_l();
 
 		int nSamplePos =0;
 		int nVal;
@@ -128,7 +128,6 @@ void SampleWaveDisplay::updateDisplay( QString filename )
 		}
 	}
 
-	delete pNewSample;
 	update();
 
 }

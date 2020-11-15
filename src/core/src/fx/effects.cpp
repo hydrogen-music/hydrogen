@@ -37,8 +37,6 @@
 #include <lrdf.h>
 #endif
 
-using namespace std;
-
 namespace H2Core
 {
 
@@ -291,7 +289,7 @@ void Effects::updateRecentGroup()
 #ifdef H2CORE_HAVE_LRDF
 
 
-void Effects::getRDF( LadspaFXGroup *pGroup, vector<LadspaFXInfo*> pluginList )
+void Effects::getRDF( LadspaFXGroup *pGroup, std::vector<LadspaFXInfo*> pluginList )
 {
 	lrdf_init();
 
@@ -326,7 +324,7 @@ void Effects::getRDF( LadspaFXGroup *pGroup, vector<LadspaFXInfo*> pluginList )
 
 
 // funzione ricorsiva
-void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<LadspaFXInfo*> pluginList )
+void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, std::vector<LadspaFXInfo*> pluginList )
 {
 	//cout << "LadspaFX::RDFDescend " << sBase.toLocal8Bit().constData() << endl;
 
@@ -337,7 +335,7 @@ void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<La
 
 			LadspaFXGroup *pNewGroup = nullptr;
 			// verifico se esiste gia una categoria con lo stesso nome
-			vector<LadspaFXGroup*> childGroups = pGroup-> getChildList();
+			std::vector<LadspaFXGroup*> childGroups = pGroup-> getChildList();
 			for ( unsigned nGroup = 0; nGroup < childGroups.size(); nGroup++ ) {
 				LadspaFXGroup *pOldGroup = childGroups[nGroup];
 				if ( pOldGroup->getName() == sGroup ) {
@@ -361,7 +359,7 @@ void Effects::RDFDescend( const QString& sBase, LadspaFXGroup *pGroup, vector<La
 
 			// verifico che il plugin non sia gia nella lista
 			bool bExists = false;
-			vector<LadspaFXInfo*> fxVect = pGroup->getLadspaInfo();
+			std::vector<LadspaFXInfo*> fxVect = pGroup->getLadspaInfo();
 			for ( unsigned nFX = 0; nFX < fxVect.size(); nFX++ ) {
 				LadspaFXInfo *pFX = fxVect[nFX];
 				if ( pFX->m_sID.toInt() == uid ) {

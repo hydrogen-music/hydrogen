@@ -724,6 +724,7 @@ Song* SongReader::readSong( const QString& filename )
 			QString sName = LocalFileMng::readXmlString( instrumentNode, "name", "" );		// name
 			float fVolume = LocalFileMng::readXmlFloat( instrumentNode, "volume", 1.0 );	// volume
 			bool bIsMuted = LocalFileMng::readXmlBool( instrumentNode, "isMuted", false );	// is muted
+			bool bIsSoloed = LocalFileMng::readXmlBool( instrumentNode, "isSoloed", false );	// is soloed
 			float fPan_L = LocalFileMng::readXmlFloat( instrumentNode, "pan_L", 0.5 );	// pan L
 			float fPan_R = LocalFileMng::readXmlFloat( instrumentNode, "pan_R", 0.5 );	// pan R
 			float fFX1Level = LocalFileMng::readXmlFloat( instrumentNode, "FX1Level", 0.0 );	// FX level
@@ -767,6 +768,7 @@ Song* SongReader::readSong( const QString& filename )
 			Instrument* pInstrument = new Instrument( id, sName, new ADSR( fAttack, fDecay, fSustain, fRelease ) );
 			pInstrument->set_volume( fVolume );
 			pInstrument->set_muted( bIsMuted );
+			pInstrument->set_soloed( bIsSoloed );
 			pInstrument->set_pan_l( fPan_L );
 			pInstrument->set_pan_r( fPan_R );
 			pInstrument->set_drumkit_name( sDrumkit );
@@ -813,7 +815,7 @@ Song* SongReader::readSong( const QString& filename )
 				if ( !QFile( sFilename ).exists() && !drumkitPath.isEmpty() ) {
 					sFilename = drumkitPath + "/" + sFilename;
 				}
-				Sample* pSample = Sample::load( sFilename );
+				auto pSample = Sample::load( sFilename );
 				if ( pSample == nullptr ) {
 					// nel passaggio tra 0.8.2 e 0.9.0 il drumkit di default e' cambiato.
 					// Se fallisce provo a caricare il corrispettivo file in formato flac
@@ -880,7 +882,7 @@ Song* SongReader::readSong( const QString& filename )
 							ro.use = false;
 						}
 
-						Sample* pSample = nullptr;
+						std::shared_ptr<Sample> pSample;
 						if ( !sIsModified ) {
 							pSample = Sample::load( sFilename );
 						} else {
@@ -969,7 +971,7 @@ Song* SongReader::readSong( const QString& filename )
 							ro.use = false;
 						}
 
-						Sample* pSample = nullptr;
+						std::shared_ptr<Sample> pSample = nullptr;
 						if ( !sIsModified ) {
 							pSample = Sample::load( sFilename );
 						} else {

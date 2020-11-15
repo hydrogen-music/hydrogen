@@ -99,53 +99,53 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 		it holds pointer to member function
 	*/
 	targeted_element empty = {0,0};
-	actionMap.insert(make_pair("PLAY", make_pair(&MidiActionManager::play, empty)));
-	actionMap.insert(make_pair("PLAY/STOP_TOGGLE", make_pair(&MidiActionManager::play_stop_pause_toggle, empty)));
-	actionMap.insert(make_pair("PLAY/PAUSE_TOGGLE", make_pair(&MidiActionManager::play_stop_pause_toggle, empty)));
-	actionMap.insert(make_pair("STOP", make_pair(&MidiActionManager::stop, empty)));
-	actionMap.insert(make_pair("PAUSE", make_pair(&MidiActionManager::pause, empty)));
-	actionMap.insert(make_pair("RECORD_READY", make_pair(&MidiActionManager::record_ready, empty)));
-	actionMap.insert(make_pair("RECORD/STROBE_TOGGLE", make_pair(&MidiActionManager::record_strobe_toggle, empty)));
-	actionMap.insert(make_pair("RECORD_STROBE", make_pair(&MidiActionManager::record_strobe, empty)));
-	actionMap.insert(make_pair("RECORD_EXIT", make_pair(&MidiActionManager::record_exit, empty)));
-	actionMap.insert(make_pair("MUTE", make_pair(&MidiActionManager::mute, empty)));
-	actionMap.insert(make_pair("UNMUTE", make_pair(&MidiActionManager::unmute, empty)));
-	actionMap.insert(make_pair("MUTE_TOGGLE", make_pair(&MidiActionManager::mute_toggle, empty)));
-	actionMap.insert(make_pair("STRIP_MUTE_TOGGLE", make_pair(&MidiActionManager::strip_mute_toggle, empty)));
-	actionMap.insert(make_pair("STRIP_SOLO_TOGGLE", make_pair(&MidiActionManager::strip_solo_toggle, empty)));	
-	actionMap.insert(make_pair(">>_NEXT_BAR", make_pair(&MidiActionManager::next_bar, empty)));
-	actionMap.insert(make_pair("<<_PREVIOUS_BAR", make_pair(&MidiActionManager::previous_bar, empty)));
-	actionMap.insert(make_pair("BPM_INCR", make_pair(&MidiActionManager::bpm_increase, empty)));
-	actionMap.insert(make_pair("BPM_DECR", make_pair(&MidiActionManager::bpm_decrease, empty)));
-	actionMap.insert(make_pair("BPM_CC_RELATIVE", make_pair(&MidiActionManager::bpm_cc_relative, empty)));
-	actionMap.insert(make_pair("BPM_FINE_CC_RELATIVE", make_pair(&MidiActionManager::bpm_fine_cc_relative, empty)));
-	actionMap.insert(make_pair("MASTER_VOLUME_RELATIVE", make_pair(&MidiActionManager::master_volume_relative, empty)));
-	actionMap.insert(make_pair("MASTER_VOLUME_ABSOLUTE", make_pair(&MidiActionManager::master_volume_absolute, empty)));
-	actionMap.insert(make_pair("STRIP_VOLUME_RELATIVE", make_pair(&MidiActionManager::strip_volume_relative, empty)));
-	actionMap.insert(make_pair("STRIP_VOLUME_ABSOLUTE", make_pair(&MidiActionManager::strip_volume_absolute, empty)));
+	actionMap.insert(std::make_pair("PLAY", std::make_pair(&MidiActionManager::play, empty)));
+	actionMap.insert(std::make_pair("PLAY/STOP_TOGGLE", std::make_pair(&MidiActionManager::play_stop_pause_toggle, empty)));
+	actionMap.insert(std::make_pair("PLAY/PAUSE_TOGGLE", std::make_pair(&MidiActionManager::play_stop_pause_toggle, empty)));
+	actionMap.insert(std::make_pair("STOP", std::make_pair(&MidiActionManager::stop, empty)));
+	actionMap.insert(std::make_pair("PAUSE", std::make_pair(&MidiActionManager::pause, empty)));
+	actionMap.insert(std::make_pair("RECORD_READY", std::make_pair(&MidiActionManager::record_ready, empty)));
+	actionMap.insert(std::make_pair("RECORD/STROBE_TOGGLE", std::make_pair(&MidiActionManager::record_strobe_toggle, empty)));
+	actionMap.insert(std::make_pair("RECORD_STROBE", std::make_pair(&MidiActionManager::record_strobe, empty)));
+	actionMap.insert(std::make_pair("RECORD_EXIT", std::make_pair(&MidiActionManager::record_exit, empty)));
+	actionMap.insert(std::make_pair("MUTE", std::make_pair(&MidiActionManager::mute, empty)));
+	actionMap.insert(std::make_pair("UNMUTE", std::make_pair(&MidiActionManager::unmute, empty)));
+	actionMap.insert(std::make_pair("MUTE_TOGGLE", std::make_pair(&MidiActionManager::mute_toggle, empty)));
+	actionMap.insert(std::make_pair("STRIP_MUTE_TOGGLE", std::make_pair(&MidiActionManager::strip_mute_toggle, empty)));
+	actionMap.insert(std::make_pair("STRIP_SOLO_TOGGLE", std::make_pair(&MidiActionManager::strip_solo_toggle, empty)));	
+	actionMap.insert(std::make_pair(">>_NEXT_BAR", std::make_pair(&MidiActionManager::next_bar, empty)));
+	actionMap.insert(std::make_pair("<<_PREVIOUS_BAR", std::make_pair(&MidiActionManager::previous_bar, empty)));
+	actionMap.insert(std::make_pair("BPM_INCR", std::make_pair(&MidiActionManager::bpm_increase, empty)));
+	actionMap.insert(std::make_pair("BPM_DECR", std::make_pair(&MidiActionManager::bpm_decrease, empty)));
+	actionMap.insert(std::make_pair("BPM_CC_RELATIVE", std::make_pair(&MidiActionManager::bpm_cc_relative, empty)));
+	actionMap.insert(std::make_pair("BPM_FINE_CC_RELATIVE", std::make_pair(&MidiActionManager::bpm_fine_cc_relative, empty)));
+	actionMap.insert(std::make_pair("MASTER_VOLUME_RELATIVE", std::make_pair(&MidiActionManager::master_volume_relative, empty)));
+	actionMap.insert(std::make_pair("MASTER_VOLUME_ABSOLUTE", std::make_pair(&MidiActionManager::master_volume_absolute, empty)));
+	actionMap.insert(std::make_pair("STRIP_VOLUME_RELATIVE", std::make_pair(&MidiActionManager::strip_volume_relative, empty)));
+	actionMap.insert(std::make_pair("STRIP_VOLUME_ABSOLUTE", std::make_pair(&MidiActionManager::strip_volume_absolute, empty)));
 	
 	for(int i = 0; i < MAX_FX; ++i) {
 		targeted_element effect = {i,0};
-		ostringstream toChar;
+		std::ostringstream toChar;
 		toChar << (i+1);
-		string keyAbsolute("EFFECT");
-		string keyRelative("EFFECT");
+		std::string keyAbsolute("EFFECT");
+		std::string keyRelative("EFFECT");
 		keyAbsolute += toChar.str();
 		keyRelative += toChar.str();
 		keyAbsolute += "_LEVEL_ABSOLUTE";
 		keyRelative += "_LEVEL_RELATIVE";
-		actionMap.insert(make_pair(keyAbsolute, make_pair(&MidiActionManager::effect_level_absolute, effect)));
-		actionMap.insert(make_pair(keyRelative, make_pair(&MidiActionManager::effect_level_relative, effect)));
+		actionMap.insert(std::make_pair(keyAbsolute, std::make_pair(&MidiActionManager::effect_level_absolute, effect)));
+		actionMap.insert(std::make_pair(keyRelative, std::make_pair(&MidiActionManager::effect_level_relative, effect)));
 	}
 	for(int i = 0; i < MAX_COMPONENTS; ++i) {
-		ostringstream componentToChar;
+		std::ostringstream componentToChar;
 		componentToChar << (i+1);
 		for(int j = 0; j < InstrumentComponent::getMaxLayers(); ++j ) {
 			targeted_element sample = {i,j};
-			ostringstream toChar;
+			std::ostringstream toChar;
 			toChar << (j+1);
-			string keyGain("GAIN_C");
-			string keyPitch("PITCH_C");
+			std::string keyGain("GAIN_C");
+			std::string keyPitch("PITCH_C");
 			keyGain += componentToChar.str();
 			keyPitch += componentToChar.str();
 			keyGain += "_L";
@@ -154,34 +154,33 @@ MidiActionManager::MidiActionManager() : Object( __class_name ) {
 			keyPitch += toChar.str();
 			keyGain += "_LEVEL_ABSOLUTE";
 			keyPitch += "_LEVEL_ABSOLUTE";
-			actionMap.insert(make_pair(keyGain, make_pair(&MidiActionManager::gain_level_absolute, sample)));
-			actionMap.insert(make_pair(keyPitch, make_pair(&MidiActionManager::pitch_level_absolute, sample)));
+			actionMap.insert(std::make_pair(keyGain, std::make_pair(&MidiActionManager::gain_level_absolute, sample)));
+			actionMap.insert(std::make_pair(keyPitch, std::make_pair(&MidiActionManager::pitch_level_absolute, sample)));
 		}
 	}
-	actionMap.insert(make_pair("SELECT_NEXT_PATTERN", make_pair(&MidiActionManager::select_next_pattern, empty)));
-	actionMap.insert(make_pair("SELECT_ONLY_NEXT_PATTERN", make_pair(&MidiActionManager::select_only_next_pattern, empty)));
-	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_CC_ABSOLUTE", make_pair(&MidiActionManager::select_next_pattern_cc_absolute, empty)));
-	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_PROMPTLY", make_pair(&MidiActionManager::select_next_pattern_promptly, empty)));
-	actionMap.insert(make_pair("SELECT_NEXT_PATTERN_RELATIVE", make_pair(&MidiActionManager::select_next_pattern_relative, empty)));
-	actionMap.insert(make_pair("SELECT_AND_PLAY_PATTERN", make_pair(&MidiActionManager::select_and_play_pattern, empty)));
-	actionMap.insert(make_pair("PAN_RELATIVE", make_pair(&MidiActionManager::pan_relative, empty)));
-	actionMap.insert(make_pair("PAN_ABSOLUTE", make_pair(&MidiActionManager::pan_absolute, empty)));
-	actionMap.insert(make_pair("FILTER_CUTOFF_LEVEL_ABSOLUTE", make_pair(&MidiActionManager::filter_cutoff_level_absolute, empty)));
-	actionMap.insert(make_pair("BEATCOUNTER", make_pair(&MidiActionManager::beatcounter, empty)));
-	actionMap.insert(make_pair("TAP_TEMPO", make_pair(&MidiActionManager::tap_tempo, empty)));
-	actionMap.insert(make_pair("PLAYLIST_SONG", make_pair(&MidiActionManager::playlist_song, empty)));
-	actionMap.insert(make_pair("PLAYLIST_NEXT_SONG", make_pair(&MidiActionManager::playlist_next_song, empty)));
-	actionMap.insert(make_pair("PLAYLIST_PREV_SONG", make_pair(&MidiActionManager::playlist_previous_song, empty)));
-	actionMap.insert(make_pair("TOGGLE_METRONOME", make_pair(&MidiActionManager::toggle_metronome, empty)));
-	actionMap.insert(make_pair("SELECT_INSTRUMENT", make_pair(&MidiActionManager::select_instrument, empty)));
-	actionMap.insert(make_pair("UNDO_ACTION", make_pair(&MidiActionManager::undo_action, empty)));
-	actionMap.insert(make_pair("REDO_ACTION", make_pair(&MidiActionManager::redo_action, empty)));
-
+	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN", std::make_pair(&MidiActionManager::select_next_pattern, empty)));
+	actionMap.insert(std::make_pair("SELECT_ONLY_NEXT_PATTERN", std::make_pair(&MidiActionManager::select_only_next_pattern, empty)));
+	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_CC_ABSOLUTE", std::make_pair(&MidiActionManager::select_next_pattern_cc_absolute, empty)));
+	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_PROMPTLY", std::make_pair(&MidiActionManager::select_next_pattern_promptly, empty)));
+	actionMap.insert(std::make_pair("SELECT_NEXT_PATTERN_RELATIVE", std::make_pair(&MidiActionManager::select_next_pattern_relative, empty)));
+	actionMap.insert(std::make_pair("SELECT_AND_PLAY_PATTERN", std::make_pair(&MidiActionManager::select_and_play_pattern, empty)));
+	actionMap.insert(std::make_pair("PAN_RELATIVE", std::make_pair(&MidiActionManager::pan_relative, empty)));
+	actionMap.insert(std::make_pair("PAN_ABSOLUTE", std::make_pair(&MidiActionManager::pan_absolute, empty)));
+	actionMap.insert(std::make_pair("FILTER_CUTOFF_LEVEL_ABSOLUTE", std::make_pair(&MidiActionManager::filter_cutoff_level_absolute, empty)));
+	actionMap.insert(std::make_pair("BEATCOUNTER", std::make_pair(&MidiActionManager::beatcounter, empty)));
+	actionMap.insert(std::make_pair("TAP_TEMPO", std::make_pair(&MidiActionManager::tap_tempo, empty)));
+	actionMap.insert(std::make_pair("PLAYLIST_SONG", std::make_pair(&MidiActionManager::playlist_song, empty)));
+	actionMap.insert(std::make_pair("PLAYLIST_NEXT_SONG", std::make_pair(&MidiActionManager::playlist_next_song, empty)));
+	actionMap.insert(std::make_pair("PLAYLIST_PREV_SONG", std::make_pair(&MidiActionManager::playlist_previous_song, empty)));
+	actionMap.insert(std::make_pair("TOGGLE_METRONOME", std::make_pair(&MidiActionManager::toggle_metronome, empty)));
+	actionMap.insert(std::make_pair("SELECT_INSTRUMENT", std::make_pair(&MidiActionManager::select_instrument, empty)));
+	actionMap.insert(std::make_pair("UNDO_ACTION", std::make_pair(&MidiActionManager::undo_action, empty)));
+	actionMap.insert(std::make_pair("REDO_ACTION", std::make_pair(&MidiActionManager::redo_action, empty)));
 	/*
 	  the actionList holds all Action identfiers which hydrogen is able to interpret.
 	*/
 	actionList <<"";
-	for(map<string, pair<action_f, targeted_element> >::const_iterator actionIterator = actionMap.begin();
+	for(std::map<std::string, std::pair<action_f, targeted_element> >::const_iterator actionIterator = actionMap.begin();
 	    actionIterator != actionMap.end();
 	    ++actionIterator) {
 		actionList << actionIterator->first.c_str();
@@ -1006,7 +1005,7 @@ bool MidiActionManager::handleAction( Action * pAction ) {
 
 	QString sActionString = pAction->getType();
 
-	map<string, pair<action_f, targeted_element> >::const_iterator foundAction = actionMap.find(sActionString.toStdString());
+	std::map<std::string, std::pair<action_f, targeted_element> >::const_iterator foundAction = actionMap.find(sActionString.toStdString());
 	if( foundAction != actionMap.end() ) {
 		action_f action = foundAction->second.first;
 		targeted_element nElement = foundAction->second.second;

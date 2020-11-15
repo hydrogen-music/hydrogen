@@ -88,7 +88,6 @@
 #include <memory>
 #include <cassert>
 
-using namespace std;
 using namespace H2Core;
 
 int MainForm::sigusr1Fd[2];
@@ -473,7 +472,7 @@ void MainForm::onLashPollTimer()
 
 		lash_event_t* event;
 
-		string songFilename;
+		std::string songFilename;
 		QString filenameSong;
 		Song *song = Hydrogen::get_instance()->getSong();
 		// Extra parentheses for -Wparentheses
@@ -1463,7 +1462,7 @@ void MainForm::updateRecentUsedSongList()
 	m_pRecentFilesMenu->clear();
 
 	Preferences *pPref = Preferences::get_instance();
-	vector<QString> recentUsedSongs = pPref->getRecentFiles();
+	std::vector<QString> recentUsedSongs = pPref->getRecentFiles();
 
 	QString sFilename;
 
@@ -1778,7 +1777,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		}
 
 		// virtual keyboard handling
-		map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
+		std::map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
 		if (found != keycodeInstrumentMap.end()) {
 			//			INFOLOG( "[eventFilter] virtual keyboard event" );
 			// insert note at the current column in time

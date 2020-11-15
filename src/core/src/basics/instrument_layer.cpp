@@ -30,7 +30,7 @@ namespace H2Core
 
 const char* InstrumentLayer::__class_name = "InstrumentLayer";
 
-InstrumentLayer::InstrumentLayer( Sample* sample ) : Object( __class_name ),
+InstrumentLayer::InstrumentLayer( std::shared_ptr<Sample> sample ) : Object( __class_name ),
 	__start_velocity( 0.0 ),
 	__end_velocity( 1.0 ),
 	__pitch( 0.0 ),
@@ -44,47 +44,46 @@ InstrumentLayer::InstrumentLayer( InstrumentLayer* other ) : Object( __class_nam
 	__end_velocity( other->get_end_velocity() ),
 	__pitch( other->get_pitch() ),
 	__gain( other->get_gain() ),
-	__sample( new Sample( other->get_sample() ) )
+	__sample( other->get_sample() )
 {
 }
 
-InstrumentLayer::InstrumentLayer( InstrumentLayer* other, Sample* sample ) : Object( __class_name ),
+InstrumentLayer::InstrumentLayer( InstrumentLayer* other, std::shared_ptr<Sample> sample ) : Object( __class_name ),
 	__start_velocity( other->get_start_velocity() ),
 	__end_velocity( other->get_end_velocity() ),
 	__pitch( other->get_pitch() ),
 	__gain( other->get_gain() ),
-	__sample( new Sample( sample ) )
+	__sample( sample )
 {
 }
 
 InstrumentLayer::~InstrumentLayer()
 {
-	delete __sample;
-	__sample = nullptr;
 }
 
-void InstrumentLayer::set_sample( Sample* sample )
+void InstrumentLayer::set_sample( std::shared_ptr<Sample> sample )
 {
-	if ( __sample ) {
-		delete __sample;
-	}
 	__sample = sample;
 }
 
 void InstrumentLayer::load_sample()
 {
-	if( __sample ) __sample->load();
+	if( __sample ) {
+		__sample->load();
+	}
 }
 
 void InstrumentLayer::unload_sample()
 {
-	if( __sample ) __sample->unload();
+	if( __sample ) {
+		__sample->unload();
+	}
 }
 
 InstrumentLayer* InstrumentLayer::load_from( XMLNode* node, const QString& dk_path )
 {
-	Sample* sample = new Sample( dk_path+"/"+node->read_string( "filename", "" ) );
-	InstrumentLayer* layer = new InstrumentLayer( sample );
+	auto pSample = std::make_shared<Sample>( dk_path+"/"+node->read_string( "filename", "" ) );
+	InstrumentLayer* layer = new InstrumentLayer( pSample );
 	layer->set_start_velocity( node->read_float( "min", 0.0 ) );
 	layer->set_end_velocity( node->read_float( "max", 1.0 ) );
 	layer->set_gain( node->read_float( "gain", 1.0, true, false ) );
