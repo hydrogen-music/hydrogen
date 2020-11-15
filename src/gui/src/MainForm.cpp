@@ -78,7 +78,7 @@
 
 #ifdef H2CORE_HAVE_LASH
 #include <lash/lash.h>
-#include <core/LashClient.h>
+#include <core/Lash/LashClient.h>
 #endif
 
 #include <memory>
