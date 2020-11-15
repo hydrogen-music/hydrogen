@@ -716,17 +716,17 @@ void ExportSongDialog::calculateRubberbandTime()
 					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
-							Sample *pSample = pLayer->get_sample();
-							if ( pSample ) {
+							auto pSample = pLayer->get_sample();
+							if ( pSample != nullptr ) {
 								if( pSample->get_rubberband().use ) {
-									Sample *pNewSample = Sample::load(
+									auto pNewSample = Sample::load(
 												pSample->get_filepath(),
 												pSample->get_loops(),
 												pSample->get_rubberband(),
 												*pSample->get_velocity_envelope(),
 												*pSample->get_pan_envelope()
 												);
-									if( !pNewSample ){
+									if( pNewSample == nullptr ){
 										continue;
 									}
 	
@@ -771,8 +771,8 @@ bool ExportSongDialog::checkUseOfRubberband()
 					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
-							Sample *pSample = pLayer->get_sample();
-							if ( pSample ) {
+							auto pSample = pLayer->get_sample();
+							if ( pSample != nullptr ) {
 								if( pSample->get_rubberband().use ) {
 									return true;
 								}

@@ -458,7 +458,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 					continue;
 				}
 				
-				Sample *pSample = pLayer->get_sample();
+				auto pSample = pLayer->get_sample();
 				if ( pSample == nullptr ) {
 					continue;
 				}

@@ -218,7 +218,7 @@ void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path)
 {
 	if(pDrumkit != nullptr)
 	{
-		WARNINGLOG( QString( "ugrade drumkit %1" ).arg( dk_path ) );
+		WARNINGLOG( QString( "upgrade drumkit %1" ).arg( dk_path ) );
 		
 		Filesystem::file_copy( dk_path,
 		                       dk_path + ".bak",
@@ -461,8 +461,8 @@ void Drumkit::dump()
 			for ( int j = 0; j < InstrumentComponent::getMaxLayers(); j++ ) {
 				InstrumentLayer* pLayer = pComponent->get_layer( j );
 				if ( pLayer ) {
-					Sample* pSample = pLayer->get_sample();
-					if ( pSample ) {
+					auto pSample = pLayer->get_sample();
+					if ( pSample != nullptr ) {
 						DEBUGLOG( QString( "   |- %1 [%2]" ).arg( pSample->get_filepath() ).arg( pSample->is_empty() ) );
 					} else {
 						DEBUGLOG( "   |- NULL sample" );

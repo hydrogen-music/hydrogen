@@ -107,7 +107,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, b
 
 AudioFileBrowser::~AudioFileBrowser()
 {
-	Sample *pNewSample = Sample::load( m_sEmptySampleFilename );
+	auto pNewSample = Sample::load( m_sEmptySampleFilename );
 	AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, 100 );
 	INFOLOG ( "DESTROY" );
 }
@@ -255,9 +255,9 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 	{
 
 		filelineedit->setText( fleTxt );
-		Sample *pNewSample = Sample::load( path2 );
+		auto pNewSample = Sample::load( path2 );
 
-		if ( pNewSample ) {
+		if ( pNewSample != nullptr ) {
 			m_pNBytesLable->setText( tr( "Size: %1 bytes" ).arg( pNewSample->get_size() / 2 ) );
 			m_pSamplerateLable->setText( tr( "Samplerate: %1" ).arg( pNewSample->get_sample_rate() ) );
 			float sec = ( float )( pNewSample->get_frames() / (float)pNewSample->get_sample_rate() );
@@ -265,7 +265,6 @@ void AudioFileBrowser::browseTree( const QModelIndex& index )
 			qsec = QString::asprintf( "%2.2f", sec );
 			m_pLengthLable->setText( tr( "Sample length: " ) + qsec + tr( " s" ) );
 
-			delete pNewSample;
 			m_pSampleFilename = path2;
 
 			m_pSampleWaveDisplay->updateDisplay( path2 );
@@ -313,7 +312,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 	
 	m_pStopBtn->setEnabled( true );
 	
-	Sample *pNewSample = Sample::load( m_pSampleFilename );
+	auto pNewSample = Sample::load( m_pSampleFilename );
 	if ( pNewSample ) {
 		assert(pNewSample->get_sample_rate() != 0);
 		
@@ -326,7 +325,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 
 void AudioFileBrowser::on_m_pStopBtn_clicked()
 {
-	Sample *pNewSample = Sample::load( m_sEmptySampleFilename );
+	auto pNewSample = Sample::load( m_sEmptySampleFilename );
 	AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, 100 );
 	m_pStopBtn->setEnabled( false );
 }

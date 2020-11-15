@@ -135,7 +135,7 @@ class Sample : public H2Core::Object
 		 */
 		Sample( const QString& filepath, int frames=0, int sample_rate=0, float* data_l=nullptr, float* data_r=nullptr );
 		/** copy constructor */
-		Sample( Sample* other );
+		Sample( std::shared_ptr<Sample> other );
 		/** destructor */
 		~Sample();
 
@@ -146,7 +146,7 @@ class Sample : public H2Core::Object
 		 * \param format the format of the output
 		 */
 		bool write( const QString& path, int format= ( SF_FORMAT_WAV|SF_FORMAT_PCM_16 ) );
-
+	
 		/**
 		 * Load a sample from a file.
 		 *
@@ -162,7 +162,7 @@ class Sample : public H2Core::Object
 		 *
 		 * \fn load(const QString& filepath)
 		 */
-		static Sample* load( const QString& filepath);
+		static std::shared_ptr<Sample> load( const QString& filepath);
 	
 		/**
 		 * Load a sample from a file and apply the
@@ -185,7 +185,7 @@ class Sample : public H2Core::Object
 		 *
 		 * \overload load(const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan)
 		 */
-		static Sample* load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan );
+		static std::shared_ptr<Sample> load( const QString& filepath, const Loops& loops, const Rubberband& rubber, const VelocityEnvelope& velocity, const PanEnvelope& pan );
 
 		/**
 		 * Load the sample stored in #__filepath into
@@ -286,7 +286,7 @@ class Sample : public H2Core::Object
 		int get_sample_rate() const;
 		/** \return sample duration in seconds */
 		double get_sample_duration( ) const;
-
+	
 		/** \return data size, which is calculated by
 		 * #__frames time sizeof( float ) * 2 
 		 */
@@ -330,18 +330,24 @@ class Sample : public H2Core::Object
 		Loops				__loops;             ///< set of loop parameters
 		Rubberband			__rubberband;        ///< set of rubberband parameters
 		/** loop modes string */
-		static const char* __loop_modes[];
+		static const std::vector<QString> __loop_modes;
 };
 
 // DEFINITIONS
 
 inline void Sample::unload()
 {
-	if( __data_l ) delete [] __data_l;
-	if( __data_r ) delete [] __data_r;
+	if ( __data_l != nullptr ) {
+		delete [] __data_l;
+	}
+	
+	if ( __data_r != nullptr ) {
+		delete [] __data_r;
+	}
 	__frames = __sample_rate = 0;
 	/** #__is_modified = false; leave this unchanged as pan,
 	    velocity, loop and rubberband are kept unchanged */
+
 	__data_l = __data_r = nullptr;
 }
 
@@ -382,7 +388,7 @@ inline void Sample::set_sample_rate( const int sampleRate )
 
 inline double Sample::get_sample_duration() const
 {
-	return ( double )__frames / ( double )__sample_rate;
+	return static_cast<double>(__frames) / static_cast<double>(__sample_rate);
 }
 
 inline int Sample::get_size() const
@@ -412,7 +418,7 @@ inline bool Sample::get_is_modified() const
 
 inline QString Sample::get_loop_mode_string() const
 {
-	return __loop_modes[__loops.mode];
+	return __loop_modes.at(__loops.mode);
 }
 
 inline Sample::PanEnvelope* Sample::get_pan_envelope()

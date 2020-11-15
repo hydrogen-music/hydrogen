@@ -306,7 +306,7 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 		float fLayerPitch = 0.0;
 
 		// scelgo il sample da usare in base alla velocity
-		Sample *pSample = nullptr;
+		std::shared_ptr<Sample> pSample;
 		SelectedLayerInfo *pSelectedLayer = pNote->get_layer_selected( pCompo->get_drumkit_componentID() );
 
 		if ( !pSelectedLayer ) {
@@ -704,15 +704,15 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	}
 
 	InstrumentComponent *pCompo = __playback_instrument->get_components()->front();
-	Sample *pSample = pCompo->get_layer(0)->get_sample();
+	auto pSample = pCompo->get_layer(0)->get_sample();
 
 	assert(pSample);
 
 	float fVal_L;
 	float fVal_R;
 
-	float *pSample_data_L = pSample->get_data_l();
-	float *pSample_data_R = pSample->get_data_r();
+	auto pSample_data_L = pSample->get_data_l();
+	auto pSample_data_R = pSample->get_data_r();
 	
 	float fInstrPeak_L = __playback_instrument->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = __playback_instrument->get_peak_r(); // this value will be reset to 0 by the mixer..
@@ -851,7 +851,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 }
 
 bool Sampler::__render_note_no_resample(
-	Sample *pSample,
+	std::shared_ptr<Sample> pSample,
 	Note *pNote,
 	SelectedLayerInfo *pSelectedLayerInfo,
 	InstrumentComponent *pCompo,
@@ -889,8 +889,8 @@ bool Sampler::__render_note_no_resample(
 	int nSamplePos = nInitialSamplePos;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
 
-	float *pSample_data_L = pSample->get_data_l();
-	float *pSample_data_R = pSample->get_data_r();
+	auto pSample_data_L = pSample->get_data_l();
+	auto pSample_data_R = pSample->get_data_r();
 
 	float fInstrPeak_L = pNote->get_instrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = pNote->get_instrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
@@ -999,7 +999,7 @@ bool Sampler::__render_note_no_resample(
 
 
 bool Sampler::__render_note_resample(
-	Sample *pSample,
+	std::shared_ptr<Sample> pSample,
 	Note *pNote,
 	SelectedLayerInfo *pSelectedLayerInfo,
 	InstrumentComponent *pCompo,
@@ -1048,8 +1048,8 @@ bool Sampler::__render_note_resample(
 	double fSamplePos = pSelectedLayerInfo->SamplePosition;
 	int nTimes = nInitialBufferPos + nAvail_bytes;
 
-	float *pSample_data_L = pSample->get_data_l();
-	float *pSample_data_R = pSample->get_data_r();
+	auto pSample_data_L = pSample->get_data_l();
+	auto pSample_data_R = pSample->get_data_r();
 
 	float fInstrPeak_L = pNote->get_instrument()->get_peak_l(); // this value will be reset to 0 by the mixer..
 	float fInstrPeak_R = pNote->get_instrument()->get_peak_r(); // this value will be reset to 0 by the mixer..
@@ -1279,7 +1279,7 @@ void Sampler::stop_playing_notes( Instrument* instrument )
 
 
 /// Preview, uses only the first layer
-void Sampler::preview_sample( Sample* sample, int length )
+void Sampler::preview_sample( std::shared_ptr<Sample> sample, int length )
 {
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
@@ -1425,7 +1425,7 @@ void Sampler::reinitialize_playback_track()
 {
 	Hydrogen*	pEngine = Hydrogen::get_instance();
 	Song*		pSong = pEngine->getSong();
-	Sample*		pSample = nullptr;
+	std::shared_ptr<Sample>	pSample;
 
 	if(!pSong->get_playback_track_filename().isEmpty()){
 		pSample = Sample::load( pSong->get_playback_track_filename() );

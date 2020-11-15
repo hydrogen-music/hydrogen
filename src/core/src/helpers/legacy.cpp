@@ -1,3 +1,4 @@
+#include <memory>
 
 #include <hydrogen/helpers/legacy.h>
 
@@ -113,7 +114,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 						ERRORLOG( "filename back compatibility node is empty" );
 					} else {
 
-						Sample* pSample = new Sample( dk_path+"/"+sFilename );
+						auto pSample = std::make_shared<Sample>( dk_path+"/"+sFilename );
 
 						bool bFoundMainCompo = false;
 						for (std::vector<DrumkitComponent*>::iterator it = pDrumkit->get_components()->begin() ; it != pDrumkit->get_components()->end(); ++it) {
@@ -158,7 +159,7 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 							ERRORLOG( QString( "n (%1) > m_nMaxLayers (%2)" ).arg ( n ).arg( InstrumentComponent::getMaxLayers() ) );
 							break;
 						}
-						Sample* pSample = new Sample( dk_path+"/"+layer_node.read_string( "filename", "" ) );
+						auto pSample = std::make_shared<Sample>( dk_path+"/"+layer_node.read_string( "filename", "" ) );
 						InstrumentLayer* pLayer = new InstrumentLayer( pSample );
 						pLayer->set_start_velocity( layer_node.read_float( "min", 0.0 ) );
 						pLayer->set_end_velocity( layer_node.read_float( "max", 1.0 ) );

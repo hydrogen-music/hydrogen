@@ -114,7 +114,7 @@ void LayerPreview::paintEvent(QPaintEvent *ev)
 				InstrumentLayer *pLayer = pComponent->get_layer( i );
 				
 				if ( pLayer && nLayers > 0 ) {
-					Sample* pSample = pLayer->get_sample();
+					auto pSample = pLayer->get_sample();
 					if( pSample != nullptr) {
 						label = pSample->get_filename();
 					}
