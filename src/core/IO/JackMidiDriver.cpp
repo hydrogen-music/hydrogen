@@ -37,7 +37,7 @@
 #include <core/Basics/InstrumentList.h>
 
 #ifdef H2CORE_HAVE_LASH
-#include <core/LashClient.h>
+#include <core/Lash/LashClient.h>
 #endif
 
 namespace H2Core
