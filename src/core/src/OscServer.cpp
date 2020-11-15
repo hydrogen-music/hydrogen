@@ -43,6 +43,7 @@
 OscServer * OscServer::__instance = nullptr;
 const char* OscServer::__class_name = "OscServer";
 
+
 QString OscServer::qPrettyPrint(lo_type type,void * data)
 {
 	QString formattedString;
