@@ -1,8 +1,6 @@
 
 FILE(GLOB_RECURSE h2cli_SRCS *.cpp)
 
-MESSAGE( ${CMAKE_BINARY_DIR} )
-
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}/src                     # top level headers
     ${CMAKE_BINARY_DIR}/src                     # generated config.h
