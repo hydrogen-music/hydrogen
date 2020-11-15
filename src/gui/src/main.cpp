@@ -36,7 +36,7 @@
 #include "Skin.h"
 
 #ifdef H2CORE_HAVE_LASH
-#include <core/LashClient.h>
+#include <core/Lash/LashClient.h>
 #endif
 #ifdef H2CORE_HAVE_JACKSESSION
 #include <jack/session.h>
