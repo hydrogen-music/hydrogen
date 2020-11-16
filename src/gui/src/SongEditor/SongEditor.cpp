@@ -72,11 +72,12 @@ struct PatternDisplayInfo {
 };
 
 
-SongEditorGridRepresentationItem::SongEditorGridRepresentationItem(int x, int y, bool value)
+SongEditorGridRepresentationItem::SongEditorGridRepresentationItem(int x, int y, bool value, double width)
 {
 	this->x = x;
 	this->y = y;
 	this->value = value;
+	this->width = width;
 }
 
 
@@ -1157,6 +1158,7 @@ void SongEditor::drawSequence()
 
 	for (uint i = 0; i < pColumns->size(); i++) {
 		PatternList* pColumn = (*pColumns)[ i ];
+		int nMaxLength = pColumn->longest_pattern_length();
 
 		std::set<Pattern*> drawnAsVirtual;
 
@@ -1178,7 +1180,9 @@ void SongEditor::drawSequence()
 				}
 				//normal pattern
 
-				gridRepresentation.append(new SongEditorGridRepresentationItem(i,position,false));
+				gridRepresentation.append( new SongEditorGridRepresentationItem( i, position, false,
+																				 (double) pat->get_length()
+																				 / nMaxLength ) );
 			}//if
 
 			for ( Pattern::virtual_patterns_cst_it_t it = pat->get_flattened_virtual_patterns()->begin(); it != pat->get_flattened_virtual_patterns()->end(); ++it) {
@@ -1188,7 +1192,9 @@ void SongEditor::drawSequence()
 						WARNINGLOG( QString("[drawSequence] position == -1, group = %1").arg( i ) );
 					}
 					//virtual pattern
-					gridRepresentation.append(new SongEditorGridRepresentationItem(i,position,true));
+					gridRepresentation.append( new SongEditorGridRepresentationItem( i, position, true,
+																					 (double) pat->get_length()
+																					 / nMaxLength ) );
 					drawnAsVirtual.insert(*it);
 				}
 			}
@@ -1200,7 +1206,7 @@ void SongEditor::drawSequence()
 	SongEditorGridRepresentationItem* s;
 	foreach(s, gridRepresentation)
 	{
-		drawPattern( s->x, s->y, s->value);
+		drawPattern( s->x, s->y, s->value, s->width );
 	}
 
 	// Moving cells
@@ -1225,7 +1231,7 @@ void SongEditor::drawSequence()
 
 
 
-void SongEditor::drawPattern( int pos, int number, bool invertColour )
+void SongEditor::drawPattern( int pos, int number, bool invertColour, double width )
 {
 	Preferences *pref = Preferences::get_instance();
 	UIStyle *pStyle = pref->getDefaultUIStyle();
@@ -1306,7 +1312,7 @@ void SongEditor::drawPattern( int pos, int number, bool invertColour )
 	int x = 10 + m_nGridWidth * pos;
 	int y = m_nGridHeight * number;
 
-	p.fillRect( x + 1, y + 3, m_nGridWidth - 1, m_nGridHeight - 5, patternColor );
+	p.fillRect( x + 1, y + 3, width * (m_nGridWidth - 1), m_nGridHeight - 5, patternColor );
 }
 
 

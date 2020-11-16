@@ -49,11 +49,12 @@ static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
 
 class SongEditorGridRepresentationItem
 {
-    public:
-            SongEditorGridRepresentationItem(int x, int y, bool value);
-            int x;
-            int y;
-            bool value;
+	public:
+		SongEditorGridRepresentationItem(int x, int y, bool value, double width);
+		int x;
+		int y;
+		bool value;
+		double width;
 };
 
 ///
@@ -137,7 +138,7 @@ class SongEditor : public QWidget, public H2Core::Object
 		void cancelSelectionOrMove();
 
 		void drawSequence();
-		void drawPattern( int pos, int number, bool invertColour );
+		void drawPattern( int pos, int number, bool invertColour, double width );
 };
 
 
