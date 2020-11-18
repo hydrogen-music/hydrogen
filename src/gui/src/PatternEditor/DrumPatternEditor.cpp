@@ -983,7 +983,6 @@ void DrumPatternEditor::deleteSelection()
 ///
 void DrumPatternEditor::copy()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
 	XMLDoc doc;
 	XMLNode selection = doc.set_root( "noteSelection" );
 	XMLNode noteList = selection.createNode( "noteList");
