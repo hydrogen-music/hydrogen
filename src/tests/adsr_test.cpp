@@ -1,6 +1,6 @@
 #include "adsr_test.h"
 
-#include <hydrogen/basics/adsr.h>
+#include <core/Basics/Adsr.h>
 #include <stdio.h>
 
 CPPUNIT_TEST_SUITE_REGISTRATION( ADSRTest );

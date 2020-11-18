@@ -1,8 +1,8 @@
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/core_action_controller.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Song.h>
+#include <core/CoreActionController.h>
 
 class CoreActionControllerTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( CoreActionControllerTest );

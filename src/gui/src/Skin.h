@@ -23,7 +23,7 @@
 #define H2_SKIN_H
 
 #include <QString>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/Helpers/Filesystem.h>
 
 ///
 /// Skin support

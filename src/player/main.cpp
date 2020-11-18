@@ -24,14 +24,14 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <hydrogen/object.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/fx/Effects.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/midi_map.h>
+#include <core/Object.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/FX/Effects.h>
+#include <core/EventQueue.h>
+#include <core/AudioEngine.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/MidiMap.h>
 
 using std::cout;
 using std::endl;

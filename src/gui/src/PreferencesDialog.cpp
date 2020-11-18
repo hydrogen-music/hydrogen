@@ -34,14 +34,14 @@
 #include <QFontDialog>
 #include "Widgets/MidiTable.h"
 
-#include <hydrogen/midi_map.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/LashClient.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/helpers/translations.h>
-#include <hydrogen/sampler/Sampler.h>
+#include <core/MidiMap.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/IO/MidiInput.h>
+#include <core/Lash/LashClient.h>
+#include <core/AudioEngine.h>
+#include <core/Helpers/Translations.h>
+#include <core/Sampler/Sampler.h>
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 

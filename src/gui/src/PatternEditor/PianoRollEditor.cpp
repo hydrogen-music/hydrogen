@@ -26,15 +26,15 @@
 #include "UndoActions.h"
 #include <cassert>
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/helpers/xml.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
+#include <core/Preferences.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/AudioEngine.h>
+#include <core/Helpers/Xml.h>
 using namespace H2Core;
 
 #include "../HydrogenApp.h"

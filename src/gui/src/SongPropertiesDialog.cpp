@@ -22,8 +22,8 @@
 
 #include "SongPropertiesDialog.h"
 #include "Skin.h"
-#include <hydrogen/basics/song.h>
-#include <hydrogen/hydrogen.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
 
 #include <QPixmap>
 

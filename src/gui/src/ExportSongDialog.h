@@ -27,7 +27,7 @@
 
 #include "ui_ExportSongDialog_UI.h"
 #include "EventListener.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 namespace H2Core {
 	class Instrument;

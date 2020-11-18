@@ -29,22 +29,22 @@
 #include "HydrogenApp.h"
 #include "Mixer/Mixer.h"
 
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/timeline.h>
-#include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/sampler/Sampler.h>
-#include <hydrogen/event_queue.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/Timeline.h>
+#include <core/IO/AudioOutput.h>
+#include <core/AudioEngine.h>
+#include <core/Sampler/Sampler.h>
+#include <core/EventQueue.h>
 
 #include <memory>
 
@@ -716,17 +716,17 @@ void ExportSongDialog::calculateRubberbandTime()
 					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
-							Sample *pSample = pLayer->get_sample();
-							if ( pSample ) {
+							auto pSample = pLayer->get_sample();
+							if ( pSample != nullptr ) {
 								if( pSample->get_rubberband().use ) {
-									Sample *pNewSample = Sample::load(
+									auto pNewSample = Sample::load(
 												pSample->get_filepath(),
 												pSample->get_loops(),
 												pSample->get_rubberband(),
 												*pSample->get_velocity_envelope(),
 												*pSample->get_pan_envelope()
 												);
-									if( !pNewSample ){
+									if( pNewSample == nullptr ){
 										continue;
 									}
 	
@@ -771,8 +771,8 @@ bool ExportSongDialog::checkUseOfRubberband()
 					for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 						InstrumentLayer *pLayer = pCompo->get_layer( nLayer );
 						if ( pLayer ) {
-							Sample *pSample = pLayer->get_sample();
-							if ( pSample ) {
+							auto pSample = pLayer->get_sample();
+							if ( pSample != nullptr ) {
 								if( pSample->get_rubberband().use ) {
 									return true;
 								}

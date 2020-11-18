@@ -2,7 +2,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 add_definitions()
 include_directories(
     ${CMAKE_SOURCE_DIR}/src/core/include            # core headers
-    ${CMAKE_BINARY_DIR}/src/core/include            # generated config.h
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_BINARY_DIR}/src                         # generated config.h
     ${QT_INCLUDES}                                  # TODO be able to remove this
     ${JACK_INCLUDE_DIRS}
     ${CPPUNIT_INCLUDE_DIRS}

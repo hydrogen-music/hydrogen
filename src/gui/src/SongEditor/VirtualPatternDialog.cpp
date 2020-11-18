@@ -23,10 +23,10 @@
 
 #include "VirtualPatternDialog.h"
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 
 #include "Skin.h"
 

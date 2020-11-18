@@ -1,7 +1,7 @@
 #include "pattern_test.h"
 #include "test_helper.h"
 
-#include <hydrogen/basics/sample.h>
+#include <core/Basics/Sample.h>
 
 class SampleTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( SampleTest );
@@ -11,7 +11,7 @@ class SampleTest : public CppUnit::TestCase {
 
 	void testLoadInvalidSample()
 	{
-		H2Core::Sample* pSample = nullptr;
+		std::shared_ptr<H2Core::Sample> pSample;
 		
 		//TC1: Sample does not exist
 		QString SamplePath("PathDoesNotExist");

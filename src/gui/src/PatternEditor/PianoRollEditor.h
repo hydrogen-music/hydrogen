@@ -23,8 +23,8 @@
 #ifndef PIANO_ROLL_EDITOR_H
 #define PIANO_ROLL_EDITOR_H
 
-#include <hydrogen/object.h>
-#include <hydrogen/basics/note.h>
+#include <core/Object.h>
+#include <core/Basics/Note.h>
 #include "../EventListener.h"
 #include "../Selection.h"
 

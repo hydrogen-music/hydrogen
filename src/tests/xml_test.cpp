@@ -2,15 +2,15 @@
 
 #include <unistd.h>
 
-#include <hydrogen/basics/drumkit.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/sample.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/Sample.h>
 
-#include <hydrogen/helpers/filesystem.h>
+#include <core/Helpers/Filesystem.h>
 #include "test_helper.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlTest );
@@ -29,11 +29,15 @@ static bool check_samples_data( H2Core::Drumkit* dk, bool loaded )
 			for ( int nLayer = 0; nLayer < H2Core::InstrumentComponent::getMaxLayers(); nLayer++ ) {
 				H2Core::InstrumentLayer* pLayer = pComponent->get_layer( nLayer );
 				if( pLayer ) {
-					H2Core::Sample* pSample = pLayer->get_sample();
+					auto pSample = pLayer->get_sample();
 					if( loaded ) {
-						if( pSample->get_data_l()==nullptr || pSample->get_data_l()==nullptr ) return false;
+						if( pSample->get_data_l()==nullptr || pSample->get_data_r()==nullptr ) {
+							return false;
+						}
 					} else {
-						if( pSample->get_data_l()!=nullptr || pSample->get_data_l()!=nullptr ) return false;
+						if( pSample->get_data_l() != nullptr || pSample->get_data_r() != nullptr ) {
+							return false;
+						}
 					}
 				}
 
@@ -128,7 +132,7 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 	H2Core::InstrumentLayer* pLayer = pFirstInstrument->get_components()->front()->get_layer(0);
 	CPPUNIT_ASSERT( pLayer != nullptr );
 	
-	H2Core::Sample* pSample = pLayer->get_sample();
+	auto pSample = pLayer->get_sample();
 	CPPUNIT_ASSERT( pSample != nullptr );
 	
 	CPPUNIT_ASSERT( pSample->get_filename() == QString("snare.wav"));

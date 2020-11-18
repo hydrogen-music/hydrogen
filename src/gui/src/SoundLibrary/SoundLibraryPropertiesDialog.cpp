@@ -31,7 +31,7 @@
 #include "SoundLibraryPropertiesDialog.h"
 #include "../InstrumentRack.h"
 #include "SoundLibraryPanel.h"
-#include <hydrogen/hydrogen.h>
+#include <core/Hydrogen.h>
 
 namespace H2Core
 {

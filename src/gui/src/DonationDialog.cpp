@@ -20,11 +20,11 @@
  *
  */
 
-#include <hydrogen/version.h>
+#include <core/Version.h>
 #include "DonationDialog.h"
 #include "Skin.h"
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 
 DonationDialog::DonationDialog(QWidget* parent)

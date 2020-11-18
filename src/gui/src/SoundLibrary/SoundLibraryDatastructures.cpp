@@ -6,18 +6,18 @@
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 
-#include <hydrogen/LocalFileMng.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/drumkit.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/LocalFileMng.h>
+#include <core/H2Exception.h>
+#include <core/Preferences.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Helpers/Filesystem.h>
 
 #include "SoundLibraryDatastructures.h"
 
-#include <hydrogen/object.h>
-#include <hydrogen/LocalFileMng.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/drumkit.h>
+#include <core/Object.h>
+#include <core/LocalFileMng.h>
+#include <core/Preferences.h>
+#include <core/Basics/Drumkit.h>
 
 using namespace H2Core;
 
