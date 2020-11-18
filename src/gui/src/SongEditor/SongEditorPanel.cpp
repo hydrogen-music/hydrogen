@@ -334,7 +334,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPlaybackTrackScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	
-	InstrumentComponent* pCompo = AudioEngine::get_instance()->get_sampler()->__playback_instrument->get_components()->front();
+	InstrumentComponent* pCompo = AudioEngine::get_instance()->get_sampler()->getPlaybackTrackInstrument()->get_components()->front();
 	assert(pCompo);
 
 	m_pPlaybackTrackWaveDisplay = new PlaybackTrackWaveDisplay( m_pPlaybackTrackScrollView->viewport() );
@@ -450,7 +450,7 @@ void SongEditorPanel::updatePlaybackFaderPeaks()
 {
 	Sampler*		pSampler = AudioEngine::get_instance()->get_sampler();
 	Preferences *	pPref = Preferences::get_instance();
-	Instrument*		pInstrument = pSampler->__playback_instrument;
+	Instrument*		pInstrument = pSampler->getPlaybackTrackInstrument();
 
 	
 	bool bShowPeaks = pPref->showInstrumentPeaks();
@@ -540,7 +540,7 @@ void SongEditorPanel::updateAll()
 void SongEditorPanel::updatePlaybackTrackIfNecessary()
 {
 	if( Preferences::get_instance()->getShowPlaybackTrack() ) {
-		InstrumentComponent *pCompo = AudioEngine::get_instance()->get_sampler()->__playback_instrument->get_components()->front();
+		InstrumentComponent *pCompo = AudioEngine::get_instance()->get_sampler()->getPlaybackTrackInstrument()->get_components()->front();
 		m_pPlaybackTrackWaveDisplay->updateDisplay( pCompo->get_layer(0) );
 	}
 }

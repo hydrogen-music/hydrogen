@@ -174,7 +174,7 @@ protected:
 	virtual void  packEvents( Song* pSong, SMF* pSmf );
 	virtual EventList* getEvents( Song* pSong, Instrument* pInstr );
 private:
-	SMFTrack* m_track;
+	SMFTrack* m_pTrack;
 	EventList m_eventList;
 };
 

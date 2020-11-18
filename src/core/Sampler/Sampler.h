@@ -26,6 +26,7 @@
 
 #include <core/Object.h>
 #include <core/Globals.h>
+#include <core/Sampler/Interpolation.h>
 
 #include <inttypes.h>
 #include <vector>
@@ -50,8 +51,8 @@ class Sampler : public H2Core::Object
 {
 	H2_OBJECT
 public:
-	float *__main_out_L;	///< sampler main out (left channel)
-	float *__main_out_R;	///< sampler main out (right channel)
+	float* m_pMainOut_L;	///< sampler main out (left channel)
+	float* m_pMainOut_R;	///< sampler main out (right channel)
 
 	/**
 	 * Constructor of the Sampler.
@@ -65,60 +66,59 @@ public:
 	void process( uint32_t nFrames, Song* pSong );
 
 	/// Start playing a note
-	void note_on( Note *note );
+	void noteOn( Note * pNote );
 
 	/// Stop playing a note.
-	void note_off( Note *note );
-	void midi_keyboard_note_off( int key );
+	void noteOff( Note *pNote );
+	void midiKeyboardNoteOff( int key );
 
-	void stop_playing_notes( Instrument *instr = nullptr );
+	void stopPlayingNotes( Instrument* pInstr = nullptr );
 
-	int get_playing_notes_number() {
-		return __playing_notes_queue.size();
+	int getPlayingNotesNumber() {
+		return m_playingNotesQueue.size();
 	}
 
-	void preview_sample( std::shared_ptr<Sample> sample, int length );
-	void preview_instrument( Instrument* instr );
+	void preview_sample( std::shared_ptr<Sample> pSample, int length );
+	void preview_instrument( Instrument* pInstr );
 
-	void setPlayingNotelength( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick );
-	bool is_instrument_playing( Instrument* pInstr );
+	void setPlayingNotelength( Instrument* pInstrument, unsigned long ticks, unsigned long noteOnTick );
+	bool isInstrumentPlaying( Instrument* pInstr );
+
+	void setInterpolateMode( Interpolation::InterpolateMode mode ){
+			 m_interpolateMode = mode;
+	}
 	
-	bool is_any_instrument_soloed();
+	Instrument* getPreviewInstrument() const {
+		return m_pPreviewInstrument;
+	}
+	
+	Instrument* getPlaybackTrackInstrument() const {
+		return m_pPlaybackTrackInstrument;
+	}
 
-		enum InterpolateMode { LINEAR,
-							   COSINE,
-							   THIRD,
-							   CUBIC,
-							   HERMITE };
+	Interpolation::InterpolateMode getInterpolateMode(){ return m_interpolateMode; }
 
-		void setInterpolateMode( InterpolateMode mode ){
-				 __interpolateMode = mode;
-		}
-
-		InterpolateMode getInterpolateMode(){ return __interpolateMode; }
-
-		/// Instrument used for the playback track feature.
-		Instrument* __playback_instrument;
-
-
-		/// Instrument used for the preview feature.
-		Instrument* __preview_instrument;
-
-		/**
-		 * Loading of the playback track.
-		 *
-		 * The playback track is added to
-		 * #__playback_instrument as a new InstrumentLayer
-		 * containing the loaded Sample. If
-		 * Song::__playback_track_filename is empty, the
-		 * layer will be loaded with a nullptr instead.
-		 */
-		void reinitialize_playback_track();
+	/**
+	 * Loading of the playback track.
+	 *
+	 * The playback track is added to
+	 * #__playback_instrument as a new InstrumentLayer
+	 * containing the loaded Sample. If
+	 * Song::__playback_track_filename is empty, the
+	 * layer will be loaded with a nullptr instead.
+	 */
+	void reinitializePlaybackTrack();
 
 
 private:
-	std::vector<Note*> __playing_notes_queue;
-	std::vector<Note*> __queuedNoteOffs;
+	std::vector<Note*> m_playingNotesQueue;
+	std::vector<Note*> m_queuedNoteOffs;
+	
+	/// Instrument used for the playback track feature.
+	Instrument* m_pPlaybackTrackInstrument;
+
+	/// Instrument used for the preview feature.
+	Instrument* m_pPreviewInstrument;
 
 	/** Maximum number of layers to be used in the Instrument
 	    editor. It will be inferred from
@@ -126,131 +126,19 @@ private:
 	    inferred from Preferences::m_nMaxLayers. Default value
 	    assigned in Preferences::Preferences(): 16.*/
 	int m_nMaxLayers;
+	
+	int m_nPlayBackSamplePosition;
+	
 
 	bool processPlaybackTrack(int nBufferSize);
+	
+	bool isAnyInstrumentSoloed() const;
+	
+	bool renderNote( Note* pNote, unsigned nBufferSize, Song* pSong );
 
-	int __playBackSamplePosition;
+	Interpolation::InterpolateMode m_interpolateMode;
 
-	bool __render_note( Note* pNote, unsigned nBufferSize, Song* pSong );
-
-		InterpolateMode __interpolateMode;
-
-		/*
-		double Interpolate( float y0, float y1, float y2, float y3, double mu )
-		{
-				switch( __interpolateMode ){
-
-				case LINEAR:
-						return linear_Interpolate( y1, y2, (float) mu );
-				case COSINE:
-						return cosine_Interpolate( y1, y2, mu );
-				case THIRD:
-						return third_Interpolate( y0, y1, y2, y3, mu );
-				case CUBIC:
-						return cubic_Interpolate( y0, y1, y2, y3, mu );
-				case HERMITE:
-						return hermite_Interpolate( y0, y1, y2, y3, mu );
-				}
-		};*/
-
-		inline static float linear_Interpolate( float y1, float y2, float mu )
-		{
-				/*
-				 * mu defines where to estimate the value on the interpolated line
-				 * y1 = buffervalue on position
-				 * y2 = buffervalue on position +1
-				 */
-				return y1 * ( 1 - mu ) + y2 * mu;
-		};
-
-		inline static float cosine_Interpolate( float y1, float y2, double mu )
-		{
-				/*
-				 * mu defines where to estimate the value on the interpolated line
-				 * y1 = buffervalue on position
-				 * y2 = buffervalue on position +1
-				 */
-				double mu2;
-
-				mu2 = ( 1 - cos ( mu * 3.14159 ) ) / 2;
-				return( y1 * (1 - mu2 ) + y2 * mu2 );
-		};
-
-		inline static float third_Interpolate( float y0, float y1, float y2, float y3, double mu )
-		{
-				/*
-				 * mu defines where to estimate the value on the interpolated line
-				 * y0 = buffervalue on position -1
-				 * y1 = buffervalue on position
-				 * y2 = buffervalue on position +1
-				 * y3 = buffervalue on position +2
-				 */
-
-				float c0 = y1;
-				float c1 = 0.5f * ( y2 - y0 );
-				float c3 = 1.5f * ( y1 - y2 ) + 0.5f * ( y3 - y0 );
-				float c2 = y0 - y1 + c1 - c3;
-				return ( ( c3 * mu + c2 ) * mu + c1 ) * mu + c0;
-		};
-
-		inline static float cubic_Interpolate( float y0, float y1, float y2, float y3, double mu)
-		{
-				/*
-				 * mu defines where to estimate the value on the interpolated line
-				 * y0 = buffervalue on position -1
-				 * y1 = buffervalue on position
-				 * y2 = buffervalue on position +1
-				 * y3 = buffervalue on position +2
-				 */
-
-				double a0, a1, a2, a3, mu2;
-
-				mu2 = mu * mu;
-				a0 = y3 - y2 - y0 + y1;
-				a1 = y0 - y1 - a0;
-				a2 = y2 - y0;
-				a3 = y1;
-
-				return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
-		};
-
-		inline static float hermite_Interpolate( float y0, float y1, float y2, float y3, double mu )
-		{
-				/*
-				 * mu defines where to estimate the value on the interpolated line
-				 * y0 = buffervalue on position -1
-				 * y1 = buffervalue on position
-				 * y2 = buffervalue on position +1
-				 * y3 = buffervalue on position +2
-				 */
-
-				double a0, a1, a2, a3, mu2;
-
-				mu2 = mu * mu;
-				a0 = -0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3;
-				a1 = y0 - 2.5 * y1 + 2 * y2 - 0.5 * y3;
-				a2 = -0.5 * y0 + 0.5 * y2;
-				a3 = y1;
-
-				return( a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3 );
-		};
-
-	bool __render_note_no_resample(
-	    std::shared_ptr<Sample> pSample,
-		Note *pNote,
-		SelectedLayerInfo *pSelectedLayerInfo,
-		InstrumentComponent *pCompo,
-		DrumkitComponent *pDrumCompo,
-		int nBufferSize,
-		int nInitialSilence,
-		float cost_L,
-		float cost_R,
-		float cost_track_L,
-			float cost_track_R,
-		Song* pSong
-	);
-
-	bool __render_note_resample(
+	bool renderNoteNoResample(
 		std::shared_ptr<Sample> pSample,
 		Note *pNote,
 		SelectedLayerInfo *pSelectedLayerInfo,
@@ -262,7 +150,22 @@ private:
 		float cost_R,
 		float cost_track_L,
 		float cost_track_R,
-			float fLayerPitch,
+		Song* pSong
+	);
+
+	bool renderNoteResample(
+		std::shared_ptr<Sample> pSample,
+		Note *pNote,
+		SelectedLayerInfo *pSelectedLayerInfo,
+		InstrumentComponent *pCompo,
+		DrumkitComponent *pDrumCompo,
+		int nBufferSize,
+		int nInitialSilence,
+		float cost_L,
+		float cost_R,
+		float cost_track_L,
+		float cost_track_R,
+		float fLayerPitch,
 		Song* pSong
 	);
 };

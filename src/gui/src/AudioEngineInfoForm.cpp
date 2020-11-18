@@ -200,7 +200,7 @@ void AudioEngineInfoForm::updateInfo()
 
 	// SAMPLER
 	Sampler *pSampler = AudioEngine::get_instance()->get_sampler();
-	sampler_playingNotesLbl->setText(QString( "%1 / %2" ).arg(pSampler->get_playing_notes_number()).arg(Preferences::get_instance()->m_nMaxNotes));
+	sampler_playingNotesLbl->setText(QString( "%1 / %2" ).arg(pSampler->getPlayingNotesNumber()).arg(Preferences::get_instance()->m_nMaxNotes));
 
 	// Synth
 	Synth *pSynth = AudioEngine::get_instance()->get_synth();
