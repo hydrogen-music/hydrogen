@@ -46,19 +46,19 @@
 #include "../InstrumentRack.h"
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
 
-#include <hydrogen/LocalFileMng.h>
-#include <hydrogen/basics/adsr.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/LocalFileMng.h>
+#include <core/Basics/Adsr.h>
+#include <core/AudioEngine.h>
+#include <core/H2Exception.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Preferences.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Helpers/Filesystem.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <hydrogen/nsm_client.h>

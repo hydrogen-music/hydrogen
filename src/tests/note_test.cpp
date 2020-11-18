@@ -1,8 +1,8 @@
 #include <cppunit/extensions/HelperMacros.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/helpers/xml.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Helpers/Xml.h>
 #include <QDomDocument>
 
 using namespace H2Core;

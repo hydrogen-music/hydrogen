@@ -27,8 +27,8 @@
 #  include <QtWidgets>
 #endif
 
-#include <hydrogen/object.h>
-#include <hydrogen/basics/instrument.h>
+#include <core/Object.h>
+#include <core/Basics/Instrument.h>
 #include "../EventListener.h"
 
 namespace H2Core

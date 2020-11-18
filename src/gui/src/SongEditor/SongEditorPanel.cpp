@@ -37,12 +37,12 @@
 #include "SongEditor.h"
 #include "UndoActions.h"
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/IO/jack_audio_driver.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/AudioEngine.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/PatternList.h>
+#include <core/IO/JackAudioDriver.h>
 
 #ifdef WIN32
 #include <time.h>
@@ -334,7 +334,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaybackTrackScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pPlaybackTrackScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	
-	InstrumentComponent* pCompo = AudioEngine::get_instance()->get_sampler()->__playback_instrument->get_components()->front();
+	InstrumentComponent* pCompo = AudioEngine::get_instance()->get_sampler()->getPlaybackTrackInstrument()->get_components()->front();
 	assert(pCompo);
 
 	m_pPlaybackTrackWaveDisplay = new PlaybackTrackWaveDisplay( m_pPlaybackTrackScrollView->viewport() );
@@ -450,7 +450,7 @@ void SongEditorPanel::updatePlaybackFaderPeaks()
 {
 	Sampler*		pSampler = AudioEngine::get_instance()->get_sampler();
 	Preferences *	pPref = Preferences::get_instance();
-	Instrument*		pInstrument = pSampler->__playback_instrument;
+	Instrument*		pInstrument = pSampler->getPlaybackTrackInstrument();
 
 	
 	bool bShowPeaks = pPref->showInstrumentPeaks();
@@ -540,7 +540,7 @@ void SongEditorPanel::updateAll()
 void SongEditorPanel::updatePlaybackTrackIfNecessary()
 {
 	if( Preferences::get_instance()->getShowPlaybackTrack() ) {
-		InstrumentComponent *pCompo = AudioEngine::get_instance()->get_sampler()->__playback_instrument->get_components()->front();
+		InstrumentComponent *pCompo = AudioEngine::get_instance()->get_sampler()->getPlaybackTrackInstrument()->get_components()->front();
 		m_pPlaybackTrackWaveDisplay->updateDisplay( pCompo->get_layer(0) );
 	}
 }

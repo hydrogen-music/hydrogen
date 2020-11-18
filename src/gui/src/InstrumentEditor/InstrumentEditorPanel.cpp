@@ -24,8 +24,8 @@
 #include <QPixmap>
 #include <QGridLayout>
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/drumkit_component.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/DrumkitComponent.h>
 
 #include "InstrumentEditorPanel.h"
 #include "../Skin.h"

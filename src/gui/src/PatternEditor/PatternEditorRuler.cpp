@@ -20,11 +20,11 @@
  *
  */
 
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/AudioEngine.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
 
 
 using namespace H2Core;

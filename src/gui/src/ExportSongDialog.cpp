@@ -29,22 +29,22 @@
 #include "HydrogenApp.h"
 #include "Mixer/Mixer.h"
 
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/timeline.h>
-#include <hydrogen/IO/AudioOutput.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/sampler/Sampler.h>
-#include <hydrogen/event_queue.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/Timeline.h>
+#include <core/IO/AudioOutput.h>
+#include <core/AudioEngine.h>
+#include <core/Sampler/Sampler.h>
+#include <core/EventQueue.h>
 
 #include <memory>
 
@@ -57,6 +57,31 @@ using namespace H2Core;
 const char* ExportSongDialog::__class_name = "ExportSongDialog";
 
 enum ExportModes { EXPORT_TO_SINGLE_TRACK, EXPORT_TO_SEPARATE_TRACKS, EXPORT_TO_BOTH };
+
+static int interpolateModeToComboBoxIndex(Interpolation::InterpolateMode interpolateMode)
+{
+	int Index = 0;
+	
+	switch ( interpolateMode ) {
+		case Interpolation::InterpolateMode::Linear:
+			Index = 0;
+			break;
+		case Interpolation::InterpolateMode::Cosine:
+			Index = 1;
+			break;
+		case Interpolation::InterpolateMode::Third:
+			Index = 2;
+			break;
+		case Interpolation::InterpolateMode::Cubic:
+			Index = 3;
+			break;
+		case Interpolation::InterpolateMode::Hermite:
+			Index = 4;
+			break;
+	}
+	
+	return Index;
+}
 
 // Here we are going to store export filename 
 QString ExportSongDialog::sLastFilename = "";
@@ -107,8 +132,8 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	}
 
 	// use of interpolation mode
-	m_nOldInterpolation = AudioEngine::get_instance()->get_sampler()->getInterpolateMode();
-	resampleComboBox->setCurrentIndex( m_nOldInterpolation );
+	m_OldInterpolationMode = AudioEngine::get_instance()->get_sampler()->getInterpolateMode();
+	resampleComboBox->setCurrentIndex( interpolateModeToComboBoxIndex( m_OldInterpolationMode ) );
 	connect(resampleComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(resampleComboBoIndexChanged(int)));
 
 	// if rubberbandBatch calculate time needed by lib rubberband to resample samples
@@ -433,7 +458,6 @@ void ExportSongDialog::exportTracks()
 
 void ExportSongDialog::on_closeBtn_clicked()
 {
-	
 	m_pEngine->stopExportSong();
 	m_pEngine->stopExportSession();
 	
@@ -444,9 +468,9 @@ void ExportSongDialog::on_closeBtn_clicked()
 	}
 	m_pPreferences->setRubberBandBatchMode( m_bOldRubberbandBatchMode );
 	m_pPreferences->setUseTimelineBpm( m_bOldTimeLineBPMMode );
-	setResamplerMode(m_nOldInterpolation);
+	
+	AudioEngine::get_instance()->get_sampler()->setInterpolateMode( m_OldInterpolationMode );
 	accept();
-
 }
 
 
@@ -658,23 +682,22 @@ void ExportSongDialog::setResamplerMode(int index)
 {
 	switch ( index ){
 	case 0:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::LINEAR );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
 		break;
 	case 1:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::COSINE );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
 		break;
 	case 2:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::THIRD );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
 		break;
 	case 3:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::CUBIC );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
 		break;
 	case 4:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::HERMITE );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
 		break;
 	}
 }
-
 
 void ExportSongDialog::calculateRubberbandTime()
 {

@@ -1,6 +1,6 @@
 #include "test_helper.h"
 
-#include "hydrogen/object.h"
+#include "core/Object.h"
 
 #include <QProcess>
 #include <QProcessEnvironment>

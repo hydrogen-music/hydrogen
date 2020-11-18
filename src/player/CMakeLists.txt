@@ -2,8 +2,8 @@
 FILE(GLOB_RECURSE h2player_SRCS *.cpp)
 
 INCLUDE_DIRECTORIES(
-    ${CMAKE_SOURCE_DIR}/src/core/include        # core headers
-    ${CMAKE_BINARY_DIR}/src/core/include        # generated config.h
+    ${CMAKE_SOURCE_DIR}/src                     # top level headers
+    ${CMAKE_BINARY_DIR}/src                     # generated config.h
     ${QT_INCLUDES}
     ${LIBSNDFILE_INCLUDE_DIRS}
     ${JACK_INCLUDE_DIRS}

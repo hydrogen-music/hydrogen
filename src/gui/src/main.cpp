@@ -25,8 +25,8 @@
 #  include <QtWidgets>
 #endif
 #include <QLibraryInfo>
-#include <hydrogen/config.h>
-#include <hydrogen/version.h>
+#include <core/config.h>
+#include <core/Version.h>
 #include <getopt.h>
 
 #include "SplashScreen.h"
@@ -36,22 +36,22 @@
 #include "Skin.h"
 
 #ifdef H2CORE_HAVE_LASH
-#include <hydrogen/LashClient.h>
+#include <core/Lash/LashClient.h>
 #endif
 #ifdef H2CORE_HAVE_JACKSESSION
 #include <jack/session.h>
 #endif
 
-#include <hydrogen/midi_map.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/globals.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/basics/playlist.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/helpers/translations.h>
+#include <core/MidiMap.h>
+#include <core/AudioEngine.h>
+#include <core/Hydrogen.h>
+#include <core/Globals.h>
+#include <core/EventQueue.h>
+#include <core/Preferences.h>
+#include <core/H2Exception.h>
+#include <core/Basics/Playlist.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Translations.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <hydrogen/nsm_client.h>

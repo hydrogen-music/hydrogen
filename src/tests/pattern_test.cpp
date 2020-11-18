@@ -1,7 +1,7 @@
 #include "pattern_test.h"
 
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/basics/pattern.h>
+#include <core/AudioEngine.h>
+#include <core/Basics/Pattern.h>
 
 CPPUNIT_TEST_SUITE_REGISTRATION( PatternTest );
 

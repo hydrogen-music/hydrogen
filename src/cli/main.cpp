@@ -22,26 +22,27 @@
 
 #include <QLibraryInfo>
 #include <QThread>
-#include <hydrogen/config.h>
-#include <hydrogen/version.h>
+#include <core/config.h>
+#include <core/Version.h>
 #include <getopt.h>
 
 #ifdef H2CORE_HAVE_LASH
-#include <hydrogen/LashClient.h>
+#include <core/Lash/LashClient.h>
 #endif
 
-#include <hydrogen/basics/song.h>
-#include <hydrogen/midi_map.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/globals.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/basics/playlist.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/Basics/Song.h>
+#include <core/MidiMap.h>
+#include <core/AudioEngine.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Instrument.h>
+#include <core/Globals.h>
+#include <core/EventQueue.h>
+#include <core/Preferences.h>
+#include <core/H2Exception.h>
+#include <core/Basics/Playlist.h>
+#include <core/Sampler/Interpolation.h>
+#include <core/Helpers/Filesystem.h>
 
 #include <iostream>
 #include <signal.h>
@@ -350,24 +351,24 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		AudioEngine* AudioEngine = AudioEngine::get_instance();
-		Sampler* sampler = AudioEngine->get_sampler();
+		AudioEngine* pAudioEngine = AudioEngine::get_instance();
+		Sampler* pSampler = pAudioEngine->get_sampler();
 		switch ( interpolation ) {
 			case 1:
-					sampler->setInterpolateMode( Sampler::COSINE );
+					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
 					break;
 			case 2:
-					sampler->setInterpolateMode( Sampler::THIRD );
+					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Third );
 					break;
 			case 3:
-					sampler->setInterpolateMode( Sampler::CUBIC );
+					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
 					break;
 			case 4:
-					sampler->setInterpolateMode( Sampler::HERMITE );
+					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
 					break;
 			case 0:
 			default:
-					sampler->setInterpolateMode( Sampler::LINEAR );
+					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Linear );
 		}
 
 		EventQueue *pQueue = EventQueue::get_instance();
@@ -441,7 +442,7 @@ int main(int argc, char *argv[])
 		delete pQueue;
 		delete pHydrogen;
 		delete preferences;
-		delete AudioEngine;
+		delete pAudioEngine;
 
 		delete MidiMap::get_instance();
 		delete MidiActionManager::get_instance();

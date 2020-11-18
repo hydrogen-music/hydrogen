@@ -30,16 +30,16 @@
 #include "../Widgets/Button.h"
 #include "../Widgets/PixmapWidget.h"
 
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/drumkit_component.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/fx/Effects.h>
+#include <core/AudioEngine.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Song.h>
+#include <core/Preferences.h>
+#include <core/Basics/Note.h>
+#include <core/FX/Effects.h>
 using namespace H2Core;
 
 #include <cassert>
@@ -229,7 +229,6 @@ void Mixer::soloClicked(ComponentMixerLine* ref)
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	std::vector<DrumkitComponent*> pCompoList = *(pSong->get_components());
-	int nComponents = pCompoList.size();
 	
 	bool isSoloClicked = ref->isSoloClicked();
 	int nLine = findCompoMixerLineByRef(ref);
@@ -303,7 +302,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
 
 	const float fPitch = 0.0f;
 	Note *pNote = new Note( pInstrList->get(nLine), 0, 1.0, 0.5f, 0.5f, -1, fPitch );
-	AudioEngine::get_instance()->get_sampler()->note_on(pNote);
+	AudioEngine::get_instance()->get_sampler()->noteOn(pNote);
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
 }
@@ -322,7 +321,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
 
 	const float fPitch = 0.0f;
 	Note *pNote = new Note( pInstrList->get( nLine ), 0, 1.0, 0.5, 0.5, -1, fPitch );
-	AudioEngine::get_instance()->get_sampler()->note_off(pNote);
+	AudioEngine::get_instance()->get_sampler()->noteOff(pNote);
 
 	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
 }

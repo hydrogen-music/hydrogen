@@ -1,10 +1,10 @@
-#include "hydrogen/config.h"
+#include <core/config.h>
 
 #ifdef H2CORE_HAVE_OSC
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include <hydrogen/hydrogen.h>
+#include <core/Hydrogen.h>
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
 

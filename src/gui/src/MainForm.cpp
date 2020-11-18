@@ -20,21 +20,21 @@
  *
  */
 
-#include <hydrogen/event_queue.h>
-#include <hydrogen/version.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/smf/SMF.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/timeline.h>
-#include <hydrogen/helpers/files.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/basics/drumkit_component.h>
-#include <hydrogen/basics/playlist.h>
-#include <hydrogen/lilypond/lilypond.h>
+#include <core/EventQueue.h>
+#include <core/Version.h>
+#include <core/Hydrogen.h>
+#include <core/AudioEngine.h>
+#include <core/Smf/SMF.h>
+#include <core/Preferences.h>
+#include <core/Timeline.h>
+#include <core/Helpers/Files.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/Playlist.h>
+#include <core/Lilipond/Lilypond.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <hydrogen/nsm_client.h>
@@ -82,7 +82,7 @@
 
 #ifdef H2CORE_HAVE_LASH
 #include <lash/lash.h>
-#include <hydrogen/LashClient.h>
+#include <core/Lash/LashClient.h>
 #endif
 
 #include <memory>
