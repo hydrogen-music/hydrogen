@@ -37,7 +37,7 @@
 #include <core/Lilipond/Lilypond.h>
 
 #ifdef H2CORE_HAVE_OSC
-#include <hydrogen/nsm_client.h>
+#include <core/NsmClient.h>
 #endif
 
 #include "AboutDialog.h"

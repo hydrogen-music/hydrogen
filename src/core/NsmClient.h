@@ -28,7 +28,7 @@
 #include <core/Object.h>
 #include <cassert>
 
-#include "hydrogen/nsm.h"
+#include "core/Nsm.h"
 
 
 /**

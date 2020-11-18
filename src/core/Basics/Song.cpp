@@ -48,7 +48,7 @@
 #include <core/Hydrogen.h>
 
 #ifdef H2CORE_HAVE_OSC
-#include <hydrogen/nsm_client.h>
+#include <core/NsmClient.h>
 #endif
 
 #include <QDomDocument>
