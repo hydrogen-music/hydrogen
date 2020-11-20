@@ -45,7 +45,8 @@ bool NsmClient::bNsmShutdown = false;
 
 
 NsmClient::NsmClient()
-	: Object( __class_name )
+	: Object( __class_name ),
+	  m_pNsm( nullptr )
 {
 	m_NsmThread = 0;
 	m_bUnderSessionManagement = false;
@@ -415,10 +416,10 @@ int NsmClient::SaveCallback( char** outMsg, void* userData ) {
 }
 
 void* NsmClient::ProcessEvent(void* data) {
-	nsm_client_t* nsm = (nsm_client_t*) data;
+	nsm_client_t* pNsm = (nsm_client_t*) data;
 
-	while( !NsmClient::bNsmShutdown && nsm ){
-		nsm_check_wait( nsm, 1000 );
+	while( !NsmClient::bNsmShutdown && pNsm ){
+		nsm_check_wait( pNsm, 1000 );
 	}
 
 	return nullptr;
@@ -435,7 +436,7 @@ void NsmClient::createInitialClient()
 	 * Make first contact with NSM server.
 	 */
 
-	nsm_client_t* nsm = nullptr;
+	nsm_client_t* pNsm = nullptr;
 
 	H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 	QString H2ProcessName = pPref->getH2ProcessName();
@@ -445,18 +446,18 @@ void NsmClient::createInitialClient()
 
 	if ( nsm_url )
 	{
-		nsm = nsm_new();
+		pNsm = nsm_new();
 		
 		// Store the nsm client in a private member variable for later
 		// access.
-		m_nsm = nsm;
+		m_pNsm = pNsm;
 
-		if ( nsm )
+		if ( pNsm )
 		{
-			nsm_set_open_callback( nsm, NsmClient::OpenCallback, (void*) nullptr );
-			nsm_set_save_callback( nsm, NsmClient::SaveCallback, (void*) nullptr );
+			nsm_set_open_callback( pNsm, NsmClient::OpenCallback, (void*) nullptr );
+			nsm_set_save_callback( pNsm, NsmClient::SaveCallback, (void*) nullptr );
 
-			if ( nsm_init( nsm, nsm_url ) == 0 )
+			if ( nsm_init( pNsm, nsm_url ) == 0 )
 			{
 				// Technically Hydrogen will be under session
 				// management after the nsm_send_announce and
@@ -468,9 +469,9 @@ void NsmClient::createInitialClient()
 				// be set here.
 				m_bUnderSessionManagement = true;
 				
-				nsm_send_announce( nsm, "Hydrogen", ":dirty:switch:", byteArray.data() );
+				nsm_send_announce( pNsm, "Hydrogen", ":dirty:switch:", byteArray.data() );
 						
-				if ( pthread_create( &m_NsmThread, nullptr, NsmClient::ProcessEvent, nsm ) ) {
+				if ( pthread_create( &m_NsmThread, nullptr, NsmClient::ProcessEvent, pNsm ) ) {
 					___ERRORLOG("Error creating NSM thread\n	");
 					m_bUnderSessionManagement = false;
 					return;
@@ -497,8 +498,9 @@ void NsmClient::createInitialClient()
 
 			} else {
 				___ERRORLOG("failed, freeing NSM client");
-				nsm_free( nsm );
-				nsm = nullptr;
+				nsm_free( pNsm );
+				pNsm = nullptr;
+				m_pNsm = nullptr;
 			}
 		}
 	}
@@ -509,11 +511,13 @@ void NsmClient::createInitialClient()
 }
 
 void NsmClient::sendDirtyState( const bool bIsDirty ) {
-	
-	if ( bIsDirty ) {
-		nsm_send_is_dirty( m_nsm );
-	} else {
-		nsm_send_is_clean( m_nsm );
+
+	if ( m_pNsm != nullptr ) {
+		if ( bIsDirty ) {
+			nsm_send_is_dirty( m_pNsm );
+		} else {
+			nsm_send_is_clean( m_pNsm );
+		}
 	}
 }
 

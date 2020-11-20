@@ -191,7 +191,7 @@ class NsmClient : public H2Core::Object
 		 * Used in sendDirtyState() to establish a communication to
 		 * the NSM server.
 		 */
-		nsm_client_t* m_nsm;
+		nsm_client_t* m_pNsm;
 	
 	/**
 	 * Callback function for the NSM server to tell Hydrogen to open a
