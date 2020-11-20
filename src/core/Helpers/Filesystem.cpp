@@ -73,6 +73,7 @@ QString Filesystem::__usr_data_path;
 QString Filesystem::__usr_cfg_path;
 QStringList Filesystem::__ladspa_paths;
 
+QString Filesystem::m_sPreferencesOverwritePath = "";
 
 /* TODO QCoreApplication is not instantiated */
 bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )

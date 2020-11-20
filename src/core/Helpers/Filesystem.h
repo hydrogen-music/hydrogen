@@ -287,12 +287,21 @@ namespace H2Core
 		 */
 		static bool mkdir( const QString& path );
 
+		/** \return m_sPreferencesOverwritePath*/
+		static const QString& getPreferencesOverwritePath();
+		/** \param sPath Sets m_sPreferencesOverwritePath*/
+		static void setPreferencesOverwritePath( const QString& sPath );
+
 	private:
 		static Logger* __logger;                    ///< a pointer to the logger
 		static bool check_sys_paths();              ///< returns true if the system path is consistent
 		static bool check_usr_paths();              ///< returns true if the user path is consistent
 		static bool rm_fr( const QString& path );   ///< recursively remove a path
 
+		/**
+		 * If this variable is non-empty, its content will be used as
+		 * an alternative to store and load the preferences.*/
+		static QString m_sPreferencesOverwritePath;
 		/**
 		 * \return a list of usable drumkits, which means having a readable drumkit.xml file
 		 * \param path the path to search in for drumkits
@@ -335,8 +344,14 @@ namespace H2Core
 		static QStringList __ladspa_paths;  ///< paths to laspa plugins
 	};
 
-};
+	inline const QString& Filesystem::getPreferencesOverwritePath() {
+		return Filesystem::m_sPreferencesOverwritePath;
+	}
+	inline void Filesystem::setPreferencesOverwritePath( const QString& sPath ) {
+		Filesystem::m_sPreferencesOverwritePath = sPath;
+	}
 
+};
 #endif  // H2C_FILESYSTEM_H
 
 /* vim: set softtabstop=4 noexpandtab: */

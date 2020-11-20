@@ -741,8 +741,8 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 	QString sPreferencesFilename;
 	
 	// Local path of the preferences used during session management.
-	QString sPreferencesOverwritePath = 
-		H2Core::Preferences::get_instance()->getPreferencesOverwritePath();
+	const QString sPreferencesOverwritePath = 
+		H2Core::Filesystem::getPreferencesOverwritePath();
 	if ( sPreferencesOverwritePath.isEmpty() ) {
 		sPreferencesFilename = Filesystem::usr_config_path();
 	} else {

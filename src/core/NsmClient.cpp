@@ -84,10 +84,6 @@ int NsmClient::OpenCallback( const char *name,
 	// beforehand.
 	std::cout << std::endl;
 	
-	// At this point the GUI can be assumed to have to be fully
-	// initialized.
-	NsmClient::copyPreferences( name );
-	
 	// NSM sends a unique string, like - if the displayName ==
 	// Hydrogen - "Hydrogen.nJKUV". In order to make the whole
 	// Hydrogen session reproducible, a folder will be created, which
@@ -99,6 +95,10 @@ int NsmClient::OpenCallback( const char *name,
 			NsmClient::printError( "Folder could not created." );
 		}
 	}
+	
+	// At this point the GUI can be assumed to have to be fully
+	// initialized.
+	NsmClient::copyPreferences( name );
 	
 	NsmClient::get_instance()->m_sSessionFolderPath = name;
 	
@@ -242,8 +242,8 @@ void NsmClient::copyPreferences( const char* name ) {
 	// Store the path in a session variable of the Preferences
 	// singleton, which allows overwriting the default path used
 	// throughout the application.
-	pPref->setPreferencesOverwritePath( sNewPreferencesPath );
-	
+	H2Core::Filesystem::setPreferencesOverwritePath( sNewPreferencesPath );
+
 	const QFileInfo newPreferencesFileInfo( sNewPreferencesPath );
 	if ( newPreferencesFileInfo.exists() ){
 		// If there's already a preference file present from a

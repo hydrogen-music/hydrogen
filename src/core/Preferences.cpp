@@ -195,7 +195,6 @@ Preferences::Preferences()
 	recordEvents = false;
 	m_bUseRelativeFilenamesForPlaylists = false;
 	m_bHideKeyboardCursor = true;
-	m_sPreferencesOverwritePath = "";
 
 	//___ GUI properties ___
 	m_sQTStyle = "Fusion";
@@ -287,11 +286,12 @@ void Preferences::loadPreferences( bool bGlobal )
 	bool recreate = false;	// configuration file must be recreated?
 
 	QString sPreferencesFilename;
-	if ( m_sPreferencesOverwritePath.isEmpty() ) {
+	const QString sPreferencesOverwritePath = Filesystem::getPreferencesOverwritePath();
+	if ( sPreferencesOverwritePath.isEmpty() ) {
 			sPreferencesFilename = ( bGlobal ? Filesystem::sys_config_path() : Filesystem::usr_config_path() );
 			INFOLOG( QString( "Loading preferences file (%1) [%2]" ).arg( bGlobal ? "SYS" : "USER" ).arg( sPreferencesFilename ) );
 	} else {
-		sPreferencesFilename = m_sPreferencesOverwritePath;
+		sPreferencesFilename = sPreferencesOverwritePath;
 		INFOLOG( QString( "Loading preferences file %1" ).arg( sPreferencesFilename ) );
 	}
 	
@@ -706,10 +706,11 @@ void Preferences::loadPreferences( bool bGlobal )
 void Preferences::savePreferences()
 {
 	QString sPreferencesFilename;
-	if ( m_sPreferencesOverwritePath.isEmpty() ) {
+	const QString sPreferencesOverwritePath = Filesystem::getPreferencesOverwritePath();
+	if ( sPreferencesOverwritePath.isEmpty() ) {
 		sPreferencesFilename = Filesystem::usr_config_path();
 	} else {
-		sPreferencesFilename = m_sPreferencesOverwritePath;
+		sPreferencesFilename = sPreferencesOverwritePath;
 	}
 	
 	INFOLOG( QString( "Saving preferences file %1" ).arg( sPreferencesFilename ) );

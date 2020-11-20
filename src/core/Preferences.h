@@ -1317,15 +1317,6 @@ inline QString Preferences::getH2ProcessName() {
 	return m_sH2ProcessName;
 }
 
-inline QString Preferences::getPreferencesOverwritePath() {
-	return m_sPreferencesOverwritePath;
-}
-inline void Preferences::setPreferencesOverwritePath( const QString& newPath ) {
-	m_sPreferencesOverwritePath = newPath;
-}
-
-
-
 };
 
 #endif
