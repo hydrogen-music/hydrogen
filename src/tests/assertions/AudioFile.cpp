@@ -20,63 +20,71 @@
  *
  */
 
-#include "file.h"
+#include "AudioFile.h"
 
-#include <QFile>
+#include <sndfile.h>
+#include <memory>
 
 static constexpr qint64 BUFFER_SIZE = 4096;
 
-
-void H2Test::checkFilesEqual(const QString &expected, const QString &actual, CppUnit::SourceLine sourceLine)
+void H2Test::checkAudioFilesEqual(const QString &expected, const QString &actual, CppUnit::SourceLine sourceLine)
 {
-	QFile f1(expected);
-	QFile f2(actual);
+	SF_INFO info1 = {0};
+	std::unique_ptr<SNDFILE, decltype(&sf_close)>
+		f1{ sf_open( expected.toLocal8Bit().data(), SFM_READ, &info1), sf_close };
+	if ( f1 == nullptr ) {
+		CppUnit::Message msg(
+			"Can't open reference file",
+			sf_strerror( nullptr )
+		);
+		throw CppUnit::Exception(msg, sourceLine);
+	}
 
-	if (! f1.open(QIODevice::ReadOnly)) {
+	SF_INFO info2 = {0};
+	std::unique_ptr<SNDFILE, decltype(&sf_close)>
+		f2{ sf_open( actual.toLocal8Bit().data(), SFM_READ, &info2), sf_close };
+	if ( f2 == nullptr ) {
 		CppUnit::Message msg(
-			std::string("Can't open reference file: ") + f1.errorString().toStdString(),
-			std::string("Expected: ") + expected.toStdString() );
+			"Can't open results file",
+			sf_strerror( nullptr )
+		);
 		throw CppUnit::Exception(msg, sourceLine);
 	}
-	if (! f2.open(QIODevice::ReadOnly)) {
+
+	if ( info1.frames != info2.frames ) {
 		CppUnit::Message msg(
-			std::string("Can't open result file: ") + f2.errorString().toStdString(),
-			std::string("Actual  : ") + actual.toStdString() );
-		throw CppUnit::Exception(msg, sourceLine);
-	}
-	if ( f1.size() != f2.size() ) {
-		CppUnit::Message msg(
-			"File size differ",
+			"Number of samples different",
 			std::string("Expected: ") + expected.toStdString(),
 			std::string("Actual  : ") + actual.toStdString() );
 		throw CppUnit::Exception(msg, sourceLine);
 	}
 
-	auto remaining = f1.size();
-	qint64 offset = 0;
-	while ( remaining > 0 ) {
-		char buf1[BUFFER_SIZE];
-		char buf2[BUFFER_SIZE];
+	auto remainingSamples = info1.frames * info1.channels;
+	auto offset = 0LL;
+	while ( remainingSamples > 0 ) {
+		short buf1[ BUFFER_SIZE ];
+		short buf2[ BUFFER_SIZE ];
+		auto toRead = qMin( remainingSamples, (sf_count_t)BUFFER_SIZE );
 
-		qint64 toRead = qMin( remaining, (qint64)BUFFER_SIZE );
-		auto r1 = f1.read( buf1, toRead );
-		if ( r1 != toRead ) throw CppUnit::Exception( CppUnit::Message( "Short read or read error" ), sourceLine );
+		auto read1 = sf_read_short( f1.get(), buf1, toRead);
+		if ( read1 != toRead ) throw CppUnit::Exception( CppUnit::Message( "Short read or read error" ), sourceLine );
 
-		auto r2 = f2.read( buf2, toRead );
-		if ( r2 != toRead ) throw CppUnit::Exception( CppUnit::Message( "Short read or read error" ), sourceLine );
+		auto read2= sf_read_short( f2.get(), buf2, toRead);
+		if ( read2 != toRead ) throw CppUnit::Exception( CppUnit::Message( "Short read or read error" ), sourceLine );
 
-		for (int i = 0; i < r1; i++) {
+		for ( sf_count_t i = 0; i < toRead; ++i ) {
 			if ( buf1[i] != buf2[i] ) {
 				auto diffLocation = offset + i + 1;
 				CppUnit::Message msg(
-					std::string("Files differ at byte ") + std::to_string(diffLocation),
+					std::string("Files differ at sample ") + std::to_string(diffLocation),
 					std::string("Expected: ") + expected.toStdString(),
 					std::string("Actual  : ") + actual.toStdString() );
 				throw CppUnit::Exception(msg, sourceLine);
+
 			}
 		}
 
-		offset += r1;
-		remaining -= r1;
+		offset += read1;
+		remainingSamples -= read1;
 	}
 }

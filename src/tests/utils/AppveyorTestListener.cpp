@@ -20,7 +20,7 @@
  *
  */
 
-#include "appveyor_test_listener.h"
+#include "AppveyorTestListener.h"
 
 #include <cppunit/SourceLine.h>
 #include <cppunit/Exception.h>

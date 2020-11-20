@@ -20,7 +20,7 @@
  *
  */
 
-#include "appveyor_rest_client.h"
+#include "AppveyorRestClient.h"
 
 #include <QBuffer>
 #include <QEventLoop>

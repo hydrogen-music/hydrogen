@@ -30,9 +30,9 @@
 #include <core/Basics/InstrumentList.h>
 #include <core/Basics/Instrument.h>
 #include <core/Smf/SMF.h>
-#include "test_helper.h"
-#include "assertions/file.h"
-#include "assertions/audiofile.h"
+#include "TestHelper.h"
+#include "assertions/File.h"
+#include "assertions/AudioFile.h"
 
 #include <chrono>
 #include <memory>

@@ -1,4 +1,4 @@
-#include "core_action_controller_test.h"
+#include "CoreActionControllerTest.h"
 
 #include <stdio.h>
 
