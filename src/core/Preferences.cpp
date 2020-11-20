@@ -1147,7 +1147,7 @@ void Preferences::setRecentFiles( const std::vector<QString> recentFiles )
 {
 	// find single filenames. (skip duplicates)
 	std::vector<QString> sTmpVec;
-	for ( auto ssFilename : recentFiles ) {
+	for ( const auto& ssFilename : recentFiles ) {
 		if ( std::find( sTmpVec.begin(), sTmpVec.end(), ssFilename) ==
 			 sTmpVec.end() ) {
 			// Particular file is not contained yet.
