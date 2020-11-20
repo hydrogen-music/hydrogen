@@ -124,12 +124,6 @@ class CoreActionController : public H2Core::Object {
 		 */
 		bool saveSongAs( const QString& songPath );
 		/**
-		 * Saves all modifications of the current drumkit.
-		 *
-		 * \return true on success
-		 */
-		bool saveDrumkit();
-		/**
 		 * Saves the current state of the #Preferences.
 		 *
 		 * \return true on success

@@ -515,11 +515,6 @@ bool CoreActionController::savePreferences() {
 
 }
 
-bool CoreActionController::saveDrumkit() {
-
-	return true;
-}
-
 bool CoreActionController::quit() {
 
 	if ( Hydrogen::get_instance()->getGUIState() != Hydrogen::GUIState::unavailable ) {

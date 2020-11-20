@@ -633,14 +633,6 @@ class OscServer : public H2Core::Object
 		 * message.*/
 		static void SAVE_SONG_AS_Handler(lo_arg **argv, int argc);
 		/**
-		 * Triggers CoreActionController::saveDrumkit().
-		 *
-		 * \param argv Unused pointer to a vector of arguments passed
-		 * by the OSC message.
-		 * \param argc Unused number of arguments passed by the OSC
-		 * message.*/
-		static void SAVE_DRUMKIT_Handler(lo_arg **argv, int argc);
-		/**
 		 * Triggers CoreActionController::savePreferences().
 		 *
 		 * \param argv Unused pointer to a vector of arguments passed

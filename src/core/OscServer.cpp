@@ -619,12 +619,6 @@ void OscServer::SAVE_SONG_AS_Handler(lo_arg **argv, int argc) {
 	pController->saveSongAs( QString::fromUtf8( &argv[0]->s ) );
 }
 
-void OscServer::SAVE_DRUMKIT_Handler(lo_arg **argv, int argc) {
-	
-	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-	pController->saveDrumkit();
-}
-
 void OscServer::SAVE_PREFERENCES_Handler(lo_arg **argv, int argc) {
 	
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
