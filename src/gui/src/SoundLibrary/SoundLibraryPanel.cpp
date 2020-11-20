@@ -738,7 +738,7 @@ void SoundLibraryPanel::on_songLoadAction()
 {
 	QString sFilename = Filesystem::song_path( __sound_library_tree->currentItem()->text( 0 ) );
 
-	HydrogenApp::get_instance()->openSong( sFilename, true );
+	HydrogenApp::get_instance()->openSong( sFilename );
 }
 
 

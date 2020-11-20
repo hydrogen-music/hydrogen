@@ -24,6 +24,7 @@
 #define CORE_ACTION_CONTROLLER_H
 
 #include <core/Object.h>
+#include <core/Basics/Song.h>
 
 namespace H2Core
 {
@@ -103,6 +104,24 @@ class CoreActionController : public H2Core::Object {
 		 * \return true on success
 		 */
 		bool openSong( const QString& songPath, bool bRestartDriver );
+		/**
+		 * Opens the #Song specified in @a songPath.
+		 *
+		 * This will be done immediately and without saving
+		 * the current #Song. All unsaved changes will be lost!
+		 *
+		 * The intended use of this function for session
+		 * management. Therefore, the function will *not* store the
+		 * provided @pSong in Preferences::m_lastSongFilename and
+		 * Hydrogen won't resume with the corresponding song on
+		 * restarting.
+		 *
+		 * \param pSong New Song.
+		 * \param bRestartDriver Whether or not to restart the audio
+		 *    driver after successfully loading the new song.
+		 * \return true on success
+		 */
+		bool openSong( Song* pSong, bool bRestartDriver );
 		/**
 		 * Saves the current #Song.
 		 *
@@ -253,6 +272,22 @@ class CoreActionController : public H2Core::Object {
 		bool isSongPathValid( const QString& songPath );
 		
 	private:
+		
+		/**
+		 * Sets a #Song to be used by Hydrogen.
+		 *
+		 * This will be done immediately and without saving the
+		 * current #Song. All unsaved changes will be lost!
+		 *
+		 * The intended use of this function for session
+		 * management.
+		 *
+		 * \param pSong Pointer to the #Song to set.
+		 * \param bRestartDriver Whether or not to restart the audio
+		 *    driver after successfully loading the new song.
+		 * \return true on success
+		 */
+		bool setSong( Song* pSong, bool bRestartDriver );
 		
 		const int m_nDefaultMidiFeedbackChannel;
 };

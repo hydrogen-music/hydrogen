@@ -378,9 +378,6 @@ bool CoreActionController::openSong( const QString& sSongPath, bool bRestartDriv
 		pHydrogen->sequencer_stop();
 	}
 	
-	// Remove all BPM tags on the Timeline.
-	pHydrogen->getTimeline()->deleteAllTempoMarkers();
-	
 	// Check whether the provided path is valid.
 	if ( !isSongPathValid( sSongPath ) ) {
 		// isSongPathValid takes care of the error log message.
@@ -396,14 +393,40 @@ bool CoreActionController::openSong( const QString& sSongPath, bool bRestartDriv
 	
 	// Create an empty Song.
 	auto pSong = Song::load( sSongPath );
-	
+
 	if ( pSong == nullptr ) {
 		ERRORLOG( QString( "Unable to open song [%1]." )
 				  .arg( sSongPath ) );
-		
+	}
+	
+	return setSong( pSong, bRestartDriver );
+}
+
+bool CoreActionController::openSong( Song* pSong, bool bRestartDriver ) {
+	
+	auto pHydrogen = Hydrogen::get_instance();
+ 
+	if ( pHydrogen->getState() == STATE_PLAYING ) {
+		// Stops recording, all queued MIDI notes, and the playback of
+		// the audio driver.
+		pHydrogen->sequencer_stop();
+	}
+	
+	if ( pSong == nullptr ) {
+		ERRORLOG( QString( "Unable to open song." ) );
 		return false;
 	}
 
+	return setSong( pSong, bRestartDriver );
+}
+
+bool CoreActionController::setSong( Song* pSong, bool bRestartDriver ) {
+
+	auto pHydrogen = Hydrogen::get_instance();
+	
+	// Remove all BPM tags on the Timeline.
+	pHydrogen->getTimeline()->deleteAllTempoMarkers();
+	
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		
 		// Store the prepared Song for the GUI to access after the
@@ -514,7 +537,6 @@ bool CoreActionController::savePreferences() {
 	return true;
 
 }
-
 bool CoreActionController::quit() {
 
 	if ( Hydrogen::get_instance()->getGUIState() != Hydrogen::GUIState::unavailable ) {

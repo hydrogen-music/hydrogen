@@ -755,7 +755,7 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 		int index = m_pPlaylist->indexOfTopLevelItem ( m_pPlaylistItem );
 		Playlist::get_instance()->setActiveSongNumber( index );
 
-		if ( ! pH2App->openSong( sFilename, true ) ) {
+		if ( ! pH2App->openSong( sFilename ) ) {
 			m_pPlayBtn->setPressed(false);
 		}
 
@@ -808,7 +808,7 @@ void PlaylistDialog::on_m_pPlaylistTree_itemDoubleClicked ()
 
 	m_pPlayBtn->setPressed(false);
 
-	pH2App->openSong( sFilename, true );
+	pH2App->openSong( sFilename );
 
 	pH2App->setStatusBarMessage( tr( "Playlist: set song no. %1" ).arg( index +1 ), 5000 );
 

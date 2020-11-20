@@ -505,7 +505,7 @@ void MainForm::onLashPollTimer()
 
 				filenameSong = QString::fromLocal8Bit( songFilename.c_str() );
 
-				HydrogenApp::get_instance()->openSong( filenameSong, true );
+				HydrogenApp::get_instance()->openSong( filenameSong );
 
 				client->sendEvent(LASH_Restore_File);
 
@@ -607,7 +607,7 @@ void MainForm::action_file_new()
 		pSong->set_filename( "" );
 	}
 
-	h2app->setSong( pSong, false );
+	h2app->openSong( pSong );
 	h2app->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
 	h2app->getSongEditorPanel()->updatePositionRuler();
 
@@ -872,7 +872,7 @@ void MainForm::action_file_open() {
 		sCurrentFilename = H2Core::Hydrogen::get_instance()->getSong()->get_filename();
 	}
 	if ( !sFilename.isEmpty() ) {
-		HydrogenApp::get_instance()->openSong( sFilename, true );
+		HydrogenApp::get_instance()->openSong( sFilename );
 	}
 
 	if ( bUnderSessionManagement ) {
@@ -960,7 +960,7 @@ void MainForm::action_file_openDemo()
 	}
 
 	if ( !filename.isEmpty() ) {
-		HydrogenApp::get_instance()->openSong( filename, true );
+		HydrogenApp::get_instance()->openSong( filename );
 		Hydrogen::get_instance()->getSong()->set_filename( "" );
 	}
 }
@@ -1495,7 +1495,7 @@ void MainForm::action_file_open_recent(QAction *pAction)
 		currentFilename = H2Core::Hydrogen::get_instance()->getSong()->get_filename();
 	}
 	
-	HydrogenApp::get_instance()->openSong( pAction->text(), true );
+	HydrogenApp::get_instance()->openSong( pAction->text() );
 	
 	if ( bUnderSessionManagement ) {
 		H2Core::Hydrogen::get_instance()->getSong()->set_filename( currentFilename );
@@ -1678,7 +1678,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 
 		if ( sFileName.endsWith( H2Core::Filesystem::songs_ext ) ) {
 			if ( handleUnsavedChanges() ) {
-				HydrogenApp::get_instance()->openSong( sFileName, true );
+				HydrogenApp::get_instance()->openSong( sFileName );
 			}
 
 		} else if ( sFileName.endsWith( H2Core::Filesystem::drumkit_ext ) ) {
@@ -1923,7 +1923,7 @@ void MainForm::playlistLoadSongEvent (int nIndex)
 		return;
 	}
 	
-	HydrogenApp::get_instance()->openSong( songFilename, true );
+	HydrogenApp::get_instance()->openSong( songFilename );
 	
 	pPlaylist->activateSong( nIndex );
 

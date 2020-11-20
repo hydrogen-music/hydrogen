@@ -83,14 +83,11 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		virtual ~HydrogenApp();
 
 		/** 
-		 * Wrapper around setSong.
-		 *
 		 * \param sFilename Absolute path used to load the next Song.
-		 * \param bRecentSong Whether the Song should be inserted into Preferences::m_recentFiles.
 		 * \return bool true on success
 		 */
-		bool openSong( const QString sFilename, bool bRecentSong );
-		void setSong( H2Core::Song* pSong, bool bRecentSong );
+		bool openSong( const QString sFilename );
+		bool openSong( H2Core::Song* pSong );
 
 		void showPreferencesDialog();
 		void updateMixerCheckbox();
