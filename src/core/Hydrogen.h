@@ -481,7 +481,6 @@ void			previewSample( Sample *pSample );
 	void			renameJackPorts(Song* pSong);
 #endif
 
-#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 	/** Starts/stops the OSC server
 	 * \param bEnable `true` = start, `false` = stop.*/
 	void			toggleOscServer( bool bEnable );
@@ -489,7 +488,6 @@ void			previewSample( Sample *pSample );
 		adopt a new OSC port.*/
 	void			recreateOscServer();
 	void			startNsmClient();
-#endif
 
 	// beatconter
 	void			setbeatsToCount( int beatstocount);
@@ -683,6 +681,9 @@ void			previewSample( Sample *pSample );
 	 * #JackAudioDriver::m_timebaseState).
 	 */
 	JackAudioDriver::Timebase		getJackTimebaseState() const;
+	/** \return NsmClient::m_bUnderSessionManagement if NSM is
+		supported.*/
+	bool			isUnderSessionManagement() const;
 	/** Sets the first Song to be loaded under session management.
 	 *
 	 * Enables the creation of a JACK client with all per track output

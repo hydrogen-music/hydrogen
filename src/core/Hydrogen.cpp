@@ -1518,19 +1518,14 @@ void audioEngine_renameJackPorts(Song * pSong)
 	if ( ! pSong ) return;
 
 	if ( Hydrogen::get_instance()->haveJackAudioDriver() ) {
-	
-#ifdef H2CORE_HAVE_OSC
+
 		// When restarting the audio driver after loading a new song under
 		// Non session management all ports have to be registered _prior_
 		// to the activation of the client.
-		if ( NsmClient::get_instance() != nullptr ) {
-			// The NSM client was already initialized.
-			if ( NsmClient::get_instance()->m_bUnderSessionManagement ){
-				return;
-			}
+		if ( Hydrogen::get_instance()->isUnderSessionManagement() ) {
+			return;
 		}
 		
-#endif
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->makeTrackOutputs( pSong );
 	}
 #endif
@@ -2411,12 +2406,9 @@ Hydrogen::Hydrogen()
 		m_nInstrumentLookupTable[i] = i;
 	}
 
-#ifdef H2CORE_HAVE_OSC
-	if( Preferences::get_instance()->getOscServerEnabled() )
-	{
+	if ( Preferences::get_instance()->getOscServerEnabled() ) {
 		toggleOscServer( true );
 	}
-#endif
 }
 
 Hydrogen::~Hydrogen()
@@ -2567,15 +2559,11 @@ void Hydrogen::setSong( Song *pSong )
 	// like OSC clients.
 	m_pCoreActionController->initExternalControlInterfaces();
 
-#ifdef H2CORE_HAVE_OSC
-	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
-		Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
-	} else {
+	if ( isUnderSessionManagement() ) {
 		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath.toLocal8Bit().data() );
+	} else {		
+		Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
 	}
-#else
-	Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
-#endif
 }
 
 /* Mean: remove current song from memory */
@@ -3362,13 +3350,11 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	
 	m_pCoreActionController->initExternalControlInterfaces();
 	
-#ifdef H2CORE_HAVE_OSC
 	// Create a symbolic link in the session folder when under session
 	// management.
-	if ( NsmClient::get_instance()->m_bUnderSessionManagement ){
+	if ( isUnderSessionManagement() ) {
 		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath.toLocal8Bit().data() );
 	}
-#endif
 
 	return 0;	//ok
 }
@@ -4136,17 +4122,34 @@ JackAudioDriver::Timebase Hydrogen::getJackTimebaseState() const {
 #endif	
 }
 
+bool Hydrogen::isUnderSessionManagement() const {
 #ifdef H2CORE_HAVE_OSC
+	if ( NsmClient::get_instance() != nullptr ) {
+		if ( NsmClient::get_instance()->getUnderSessionManagement() ) {
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
+	}
+#else
+	return false;
+#endif
+}		
 
 void Hydrogen::toggleOscServer( bool bEnable ) {
+#ifdef H2CORE_HAVE_OSC
 	if ( bEnable ) {
 		OscServer::get_instance()->start();
 	} else {
 		OscServer::get_instance()->stop();
 	}
+#endif
 }
 
 void Hydrogen::recreateOscServer() {
+#ifdef H2CORE_HAVE_OSC
 	OscServer* pOscServer = OscServer::get_instance();
 	if( pOscServer ) {
 		delete pOscServer;
@@ -4157,18 +4160,20 @@ void Hydrogen::recreateOscServer() {
 	if ( Preferences::get_instance()->getOscServerEnabled() ) {
 		toggleOscServer( true );
 	}
+#endif
 }
 
 void Hydrogen::startNsmClient()
 {
+#ifdef H2CORE_HAVE_OSC
 	//NSM has to be started before jack driver gets created
 	NsmClient* pNsmClient = NsmClient::get_instance();
 
 	if(pNsmClient){
 		pNsmClient->createInitialClient();
 	}
-}
 #endif
+}
 
 void Hydrogen::setInitialSong( Song *pSong ) {
 

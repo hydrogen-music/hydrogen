@@ -1,6 +1,7 @@
 #include <core/LocalFileMng.h>
 #include <core/config.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -604,8 +605,7 @@ QString Filesystem::drumkit_path_search( const QString& dk_name )
 	// folder. If it couldn't be found in there (or the found drumkit
 	// does not match `dk_name`), the session folder is skipped and
 	// the user and system paths will be traversed instead.
-	if ( NsmClient::get_instance() != nullptr &&
-		 NsmClient::get_instance()->m_bUnderSessionManagement ){
+	if ( Hydrogen::get_instance()->isUnderSessionManagement() ) {
 		
 		QString sDrumkitPath = QString( "%1/%2" )
 			.arg( NsmClient::get_instance()->m_sSessionFolderPath )

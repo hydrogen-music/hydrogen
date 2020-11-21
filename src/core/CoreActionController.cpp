@@ -439,13 +439,9 @@ bool CoreActionController::setSong( Song* pSong ) {
 		
 		int nRestartAudioDriver = 0;
 
-#ifdef H2CORE_HAVE_OSC
-		if ( NsmClient::get_instance() != nullptr ) {
-			if ( NsmClient::get_instance()->m_bUnderSessionManagement ) {
-				nRestartAudioDriver = 1;
-			}
+		if ( pHydrogen->isUnderSessionManagement() ) {
+			nRestartAudioDriver = 1;
 		}
-#endif
 		
 		// If the GUI is active, the Song *must not* be set by the
 		// core part itself.
@@ -458,14 +454,10 @@ bool CoreActionController::setSong( Song* pSong ) {
 		// Update the Song.
 		pHydrogen->setSong( pSong );
 		
-#ifdef H2CORE_HAVE_OSC
-		if ( NsmClient::get_instance() != nullptr ) {
-			if ( NsmClient::get_instance()->m_bUnderSessionManagement ) {
-				pHydrogen->restartDrivers();
-			}
+		if ( pHydrogen->isUnderSessionManagement() ) {
+			pHydrogen->restartDrivers();
 		}
 	}
-#endif
 	
 	return true;
 }

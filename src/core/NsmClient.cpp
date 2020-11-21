@@ -46,11 +46,11 @@ bool NsmClient::bNsmShutdown = false;
 
 NsmClient::NsmClient()
 	: Object( __class_name ),
-	  m_pNsm( nullptr )
+	  m_pNsm( nullptr ),
+	  m_bUnderSessionManagement( false ),
+	  m_NsmThread( 0 ),
+	  m_sSessionFolderPath( "" )
 {
-	m_NsmThread = 0;
-	m_bUnderSessionManagement = false;
-	m_sSessionFolderPath = "";
 }
 
 NsmClient::~NsmClient()

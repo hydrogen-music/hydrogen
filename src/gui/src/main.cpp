@@ -395,6 +395,8 @@ int main(int argc, char *argv[])
 		SplashScreen *pSplash = new SplashScreen();
 
 #ifdef H2CORE_HAVE_OSC
+		// Check for being under session management without the
+		// NsmClient class available yet.
 		if ( bNoSplash ||  getenv( "NSM_URL" ) ) {
 			pSplash->hide();
 		}
@@ -468,10 +470,9 @@ int main(int argc, char *argv[])
 		// constructing the MainForm object.
 		bool bLoadSong = true;
 
-#ifdef H2CORE_HAVE_OSC
 		H2Core::Hydrogen::get_instance()->startNsmClient();
 		
-		if ( NsmClient::get_instance()->m_bUnderSessionManagement ){
+		if ( H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ){
 			
 			// When using the Non Session Management system, the new
 			// Song will be loaded by the NSM client singleton itself
@@ -480,8 +481,7 @@ int main(int argc, char *argv[])
 			bLoadSong = false;
 			
 		}
-			
-#endif
+
 		// If the NSM_URL variable is present, Hydrogen will not
 		// initialize the audio driver and leaves this to the callback
 		// function nsm_open_cb of the NSM client (which will be

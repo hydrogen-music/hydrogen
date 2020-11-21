@@ -531,18 +531,14 @@ void PreferencesDialog::on_okBtn_clicked()
 	//OSC tab
 	if ( enableOscCheckbox->isChecked() != pPref->getOscServerEnabled() ) {
 		pPref->setOscServerEnabled( enableOscCheckbox->isChecked() );
-#ifdef H2CORE_HAVE_OSC
 		H2Core::Hydrogen::get_instance()->toggleOscServer( enableOscCheckbox->isChecked() );
-#endif
 	}
 	
 	pPref->setOscFeedbackEnabled( enableOscFeedbackCheckbox->isChecked() );
 	
 	if ( incomingOscPortSpinBox->value() != pPref->getOscServerPort() ) {
 		pPref->setOscServerPort( incomingOscPortSpinBox->value() );
-#ifdef H2CORE_HAVE_OSC
 		H2Core::Hydrogen::get_instance()->recreateOscServer();
-#endif
 	}
 	
 	// General tab

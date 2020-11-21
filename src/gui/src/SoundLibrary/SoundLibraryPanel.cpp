@@ -60,10 +60,6 @@
 #include <core/Basics/Song.h>
 #include <core/Helpers/Filesystem.h>
 
-#ifdef H2CORE_HAVE_OSC
-#include <core/NsmClient.h>
-#endif
-
 using namespace H2Core;
 
 #include <cassert>

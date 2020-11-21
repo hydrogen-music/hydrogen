@@ -163,14 +163,8 @@ class NsmClient : public H2Core::Object
 	 */
 	static void printMessage( const QString& msg );
 
-		/**
-		 * To determine whether Hydrogen is under Non session management,
-		 * it is not sufficient to check whether the NSM_URL environmental
-		 * variable is set but also whether the NSM server did respond
-		 * to the announce message appropriately. Therefore,
-		 * createInitialClient() has to be called first.
-		 */
-		bool m_bUnderSessionManagement;
+	/** \return m_bUnderSessionManagement*/
+	bool getUnderSessionManagement() const;
 
 		/** Folder all the content of the current session will be
 		 * stored in.
@@ -192,6 +186,15 @@ class NsmClient : public H2Core::Object
 		 * the NSM server.
 		 */
 		nsm_client_t* m_pNsm;
+	
+		/**
+		 * To determine whether Hydrogen is under Non session management,
+		 * it is not sufficient to check whether the NSM_URL environmental
+		 * variable is set but also whether the NSM server did respond
+		 * to the announce message appropriately. Therefore,
+		 * createInitialClient() has to be called first.
+		 */
+		bool m_bUnderSessionManagement;
 	
 	/**
 	 * Callback function for the NSM server to tell Hydrogen to open a
@@ -318,6 +321,10 @@ class NsmClient : public H2Core::Object
 	 */
 	static bool bNsmShutdown;
 };
+
+inline bool NsmClient::getUnderSessionManagement() const {
+	return m_bUnderSessionManagement;
+}
 
 #endif /* H2CORE_HAVE_OSC */
 

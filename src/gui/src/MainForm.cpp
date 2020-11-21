@@ -36,10 +36,6 @@
 #include <core/Basics/Playlist.h>
 #include <core/Lilipond/Lilypond.h>
 
-#ifdef H2CORE_HAVE_OSC
-#include <core/NsmClient.h>
-#endif
-
 #include "AboutDialog.h"
 #include "AudioEngineInfoForm.h"
 #include "DonationDialog.h"
@@ -276,14 +272,9 @@ void MainForm::createMenuBar()
 	// FILE menu
 	QMenu *m_pFileMenu = m_pMenubar->addMenu( tr( "Pro&ject" ) );
 
-#ifdef H2CORE_HAVE_OSC
 	// Then under session management a couple of options will be named
 	// differently and some must be even omitted. 
-	bool bUnderSessionManagement = NsmClient::get_instance()->m_bUnderSessionManagement;
-#endif
-#ifndef H2CORE_HAVE_OSC	
-	bool bUnderSessionManagement = false;
-#endif
+	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
 	
 	QString textFileNew, textFileOpen, textFileOpenRecent, textFileSaveAs;
 	
@@ -558,12 +549,7 @@ bool MainForm::action_file_exit()
 
 void MainForm::action_file_new()
 {
-#ifdef H2CORE_HAVE_OSC
-	bool bUnderSessionManagement = NsmClient::get_instance()->m_bUnderSessionManagement;
-#endif
-#ifndef H2CORE_HAVE_OSC
-	bool bUnderSessionManagement = false;
-#endif
+	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
 	
 	Hydrogen * pEngine = Hydrogen::get_instance();
 	if ( (pEngine->getState() == STATE_PLAYING) ) {
@@ -621,17 +607,12 @@ void MainForm::action_file_new()
 
 void MainForm::action_file_save_as()
 {
-#ifdef H2CORE_HAVE_OSC
-	bool bUnderSessionManagement = NsmClient::get_instance()->m_bUnderSessionManagement;
-#endif
-#ifndef H2CORE_HAVE_OSC	
-	bool bUnderSessionManagement = false;
-#endif
+	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
 		
-	Hydrogen* pEngine = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
 
-	if ( pEngine->getState() == STATE_PLAYING ) {
-			pEngine->sequencer_stop();
+	if ( pHydrogen->getState() == STATE_PLAYING ) {
+			pHydrogen->sequencer_stop();
 	}
 
 	//std::auto_ptr<QFileDialog> fd( new QFileDialog );
@@ -648,12 +629,12 @@ void MainForm::action_file_save_as()
 	
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
 
-	Song* pSong = pEngine->getSong();
+	Song* pSong = pHydrogen->getSong();
 	QString defaultFilename;
 	QString lastFilename = pSong->get_filename();
 
 	if ( lastFilename.isEmpty() ) {
-		defaultFilename = pEngine->getSong()->__name;
+		defaultFilename = pHydrogen->getSong()->__name;
 		defaultFilename += Filesystem::songs_ext;
 	}
 	else {
@@ -677,19 +658,14 @@ void MainForm::action_file_save_as()
 		action_file_save();
 	}
 	
-#ifdef H2CORE_HAVE_OSC
 	// When Hydrogen is under session management, the file name
 	// provided by the NSM server has to be preserved.
-	if ( bUnderSessionManagement ) {
+	if ( pHydrogen->isUnderSessionManagement() ) {
 		pSong->set_filename( lastFilename );
 		h2app->setScrollStatusBarMessage( trUtf8("Song exported as.") + QString(" Into: ") + defaultFilename, 2000 );
 	} else {
 		h2app->setScrollStatusBarMessage( trUtf8("Song saved as.") + QString(" Into: ") + defaultFilename, 2000 );
 	}
-#endif
-#ifndef H2CORE_HAVE_OSC
-	h2app->setScrollStatusBarMessage( trUtf8("Song saved as.") + QString(" Into: ") + defaultFilename, 2000 );
-#endif
 	
 	h2app->updateWindowTitle();
 }
@@ -728,20 +704,14 @@ void MainForm::action_file_save()
 	} else {
 		Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
 
-#ifdef H2CORE_HAVE_OSC
 		// Add the new loaded song in the "last used song"
 		// vector. 
 		// This behavior is prohibited under session management. Only
 		// songs open during normal runs will be listed.
-		if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
+		if ( ! H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ) {
 			Preferences::get_instance()->insertRecentFile( filename );
 			updateRecentUsedSongList();
 		}
-#endif
-#ifndef H2CORE_HAVE_OSC
-		Preferences::get_instance()->insertRecentFile( filename );
-		updateRecentUsedSongList();
-#endif
 
 		h2app->setScrollStatusBarMessage( tr("Song saved.") + QString(" Into: ") + filename, 2000 );
 		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
@@ -831,11 +801,7 @@ void MainForm::action_file_export_pattern_as()
 }
 
 void MainForm::action_file_open() {
-#ifdef H2CORE_HAVE_OSC
-	const bool bUnderSessionManagement = NsmClient::get_instance()->m_bUnderSessionManagement;
-#else
-	const bool bUnderSessionManagement = false;
-#endif
+	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
 		
 	if ( Hydrogen::get_instance()->getState() == STATE_PLAYING ) {
 		Hydrogen::get_instance()->sequencer_stop();
@@ -1481,14 +1447,9 @@ void MainForm::updateRecentUsedSongList()
 
 void MainForm::action_file_open_recent(QAction *pAction)
 {
-#ifdef H2CORE_HAVE_OSC
 	// When under session management the filename of the current Song
 	// has to be preserved.
-	bool bUnderSessionManagement = NsmClient::get_instance()->m_bUnderSessionManagement;
-#endif
-#ifndef H2CORE_HAVE_OSC
-	bool bUnderSessionManagement = false;
-#endif
+	const bool bUnderSessionManagement = H2Core::Hydrogen::get_instance()->isUnderSessionManagement();
 	
 	QString currentFilename;
 	if ( bUnderSessionManagement ) {

@@ -54,11 +54,6 @@
 
 #include "Widgets/InfoBar.h"
 
-#ifdef H2CORE_HAVE_OSC
-#include <core/NsmClient.h>
-#endif
-
-
 #include <QtGui>
 #if QT_VERSION >= 0x050000
 #  include <QtWidgets>
@@ -91,17 +86,11 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	connect( m_pEventQueueTimer, SIGNAL( timeout() ), this, SLOT( onEventQueueTimer() ) );
 	m_pEventQueueTimer->start( QUEUE_TIMER_PERIOD );
 
-#ifdef H2CORE_HAVE_OSC
-	// When under Non Session Management the new Song will be
-	// loaded by the corresponding NSM client instance.
-	if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
-		
+	if ( ! Hydrogen::get_instance()->isUnderSessionManagement() ) {
+		// When under Non Session Management the new Song will be
+		// loaded by the corresponding NSM client instance.
 		Hydrogen::get_instance()->setSong( pFirstSong );
-	}
-#endif
-#ifndef H2CORE_HAVE_OSC
-	Hydrogen::get_instance()->setSong( pFirstSong );
-#endif
+	} 
 	
 	SoundLibraryDatabase::create_instance();
 
@@ -808,18 +797,12 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		closeFXProperties();
 		m_pUndoStack->clear();
 		
-#ifdef H2CORE_HAVE_OSC
 		// Add the new loaded song in the "last used song" vector.
 		// This behavior is prohibited under session management. Only
 		// songs open during normal runs will be listed.
-
-		// add the new loaded song in the "last used song" vector
-		if ( ! NsmClient::get_instance()->m_bUnderSessionManagement ) {
+		if ( ! pHydrogen->isUnderSessionManagement() ) {
 			Preferences::get_instance()->insertRecentFile( pNextSong->get_filename() );
 		}
-#else
-		Preferences::get_instance()->insertRecentFile( pNextSong->get_filename() );
-#endif
 
 		// Update GUI components
 		m_pSongEditorPanel->updateAll();
