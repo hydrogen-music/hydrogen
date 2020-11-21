@@ -35,6 +35,10 @@
 #include <core/IO/MidiOutput.h>
 #include <core/IO/JackAudioDriver.h>
 
+#ifdef H2CORE_HAVE_OSC
+#include <core/NsmClient.h>
+#endif
+
 namespace H2Core
 {
 
@@ -368,7 +372,7 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 	return true;
 }
 
-bool CoreActionController::openSong( const QString& sSongPath, bool bRestartDriver ) {
+bool CoreActionController::openSong( const QString& sSongPath ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
  
@@ -399,10 +403,10 @@ bool CoreActionController::openSong( const QString& sSongPath, bool bRestartDriv
 				  .arg( sSongPath ) );
 	}
 	
-	return setSong( pSong, bRestartDriver );
+	return setSong( pSong );
 }
 
-bool CoreActionController::openSong( Song* pSong, bool bRestartDriver ) {
+bool CoreActionController::openSong( Song* pSong ) {
 	
 	auto pHydrogen = Hydrogen::get_instance();
  
@@ -417,44 +421,51 @@ bool CoreActionController::openSong( Song* pSong, bool bRestartDriver ) {
 		return false;
 	}
 
-	return setSong( pSong, bRestartDriver );
+	return setSong( pSong );
 }
 
-bool CoreActionController::setSong( Song* pSong, bool bRestartDriver ) {
+bool CoreActionController::setSong( Song* pSong ) {
 
 	auto pHydrogen = Hydrogen::get_instance();
 	
 	// Remove all BPM tags on the Timeline.
 	pHydrogen->getTimeline()->deleteAllTempoMarkers();
-	
+
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		
 		// Store the prepared Song for the GUI to access after the
 		// EVENT_UPDATE_SONG event was triggered.
 		pHydrogen->setNextSong( pSong );
+		
+		int nRestartAudioDriver = 0;
 
-		int nVal;
-		if ( bRestartDriver ) {
-			nVal = 1;
-		} else {
-			nVal = 0;
+#ifdef H2CORE_HAVE_OSC
+		if ( NsmClient::get_instance() != nullptr ) {
+			if ( NsmClient::get_instance()->m_bUnderSessionManagement ) {
+				nRestartAudioDriver = 1;
+			}
 		}
+#endif
 		
 		// If the GUI is active, the Song *must not* be set by the
 		// core part itself.
 		// Triggers an update of the Qt5 GUI and tells it to update
 		// the song itself.
-		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, nVal );
+		EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, nRestartAudioDriver );
 		
 	} else {
 
 		// Update the Song.
 		pHydrogen->setSong( pSong );
-
-		if ( bRestartDriver ) {
-			pHydrogen->restartDrivers();
+		
+#ifdef H2CORE_HAVE_OSC
+		if ( NsmClient::get_instance() != nullptr ) {
+			if ( NsmClient::get_instance()->m_bUnderSessionManagement ) {
+				pHydrogen->restartDrivers();
+			}
 		}
 	}
+#endif
 	
 	return true;
 }

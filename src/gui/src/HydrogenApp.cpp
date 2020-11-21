@@ -341,7 +341,7 @@ void HydrogenApp::closeFXProperties()
 bool HydrogenApp::openSong( const QString sFilename ) {
 
 	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-	if ( ! pCoreActionController->openSong( sFilename, false ) ) {
+	if ( ! pCoreActionController->openSong( sFilename ) ) {
 		QMessageBox::information( m_pMainForm, "Hydrogen", tr("Error loading song.") );
 		return false;
 	}
@@ -352,7 +352,7 @@ bool HydrogenApp::openSong( const QString sFilename ) {
 bool HydrogenApp::openSong( H2Core::Song* pSong ) {
 
 	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-	if ( ! pCoreActionController->openSong( pSong, false ) ) {
+	if ( ! pCoreActionController->openSong( pSong ) ) {
 		QMessageBox::information( m_pMainForm, "Hydrogen", tr("Error loading song.") );
 		return false;
 	}

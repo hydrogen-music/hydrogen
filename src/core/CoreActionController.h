@@ -99,11 +99,9 @@ class CoreActionController : public H2Core::Object {
 		 *
 		 * \param songPath Absolute path to the .h2song file to be
 		 *    opened.
-		 * \param bRestartDriver Whether or not to restart the audio
-		 *    driver after successfully loading the new song.
 		 * \return true on success
 		 */
-		bool openSong( const QString& songPath, bool bRestartDriver );
+		bool openSong( const QString& songPath );
 		/**
 		 * Opens the #Song specified in @a songPath.
 		 *
@@ -117,11 +115,9 @@ class CoreActionController : public H2Core::Object {
 		 * restarting.
 		 *
 		 * \param pSong New Song.
-		 * \param bRestartDriver Whether or not to restart the audio
-		 *    driver after successfully loading the new song.
 		 * \return true on success
 		 */
-		bool openSong( Song* pSong, bool bRestartDriver );
+		bool openSong( Song* pSong );
 		/**
 		 * Saves the current #Song.
 		 *
@@ -283,11 +279,9 @@ class CoreActionController : public H2Core::Object {
 		 * management.
 		 *
 		 * \param pSong Pointer to the #Song to set.
-		 * \param bRestartDriver Whether or not to restart the audio
-		 *    driver after successfully loading the new song.
 		 * \return true on success
 		 */
-		bool setSong( Song* pSong, bool bRestartDriver );
+		bool setSong( Song* pSong );
 		
 		const int m_nDefaultMidiFeedbackChannel;
 };

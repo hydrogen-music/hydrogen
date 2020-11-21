@@ -20,7 +20,7 @@ void TimeTest::setUp(){
 	// We need a song that has at least the maximum pattern group
 	// number provided in testElapsedTime(). An empty one won't do it.
 	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
-	pCoreActionController->openSong( QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demos_dir() ), false );
+	pCoreActionController->openSong( QString( "%1/GM_kit_demo3.h2song" ).arg( Filesystem::demos_dir() ) );
 	pCoreActionController->saveSongAs( m_sValidPath );
 }
 

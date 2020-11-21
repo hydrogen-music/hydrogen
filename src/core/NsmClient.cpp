@@ -205,7 +205,7 @@ int NsmClient::OpenCallback( const char *name,
 		bool bSuccess;
 		if ( songFileInfo.exists() ) {
 			// Open the existing file.
-			bSuccess = pController->openSong( sSongPath, true );
+			bSuccess = pController->openSong( sSongPath );
 		} else {
 			// Create a new file and save it as using the provided path.
 			bSuccess = pController->newSong( sSongPath );

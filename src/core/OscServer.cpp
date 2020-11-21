@@ -604,7 +604,7 @@ void OscServer::NEW_SONG_Handler(lo_arg **argv, int argc) {
 void OscServer::OPEN_SONG_Handler(lo_arg **argv, int argc) {
 
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-	pController->openSong( QString::fromUtf8( &argv[0]->s ), false );
+	pController->openSong( QString::fromUtf8( &argv[0]->s ) );
 }
 
 void OscServer::SAVE_SONG_Handler(lo_arg **argv, int argc) {
