@@ -2560,7 +2560,9 @@ void Hydrogen::setSong( Song *pSong )
 	m_pCoreActionController->initExternalControlInterfaces();
 
 	if ( isUnderSessionManagement() ) {
+#ifdef H2CORE_HAVE_OSC
 		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath.toLocal8Bit().data() );
+#endif
 	} else {		
 		Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
 	}
@@ -3353,7 +3355,9 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	// Create a symbolic link in the session folder when under session
 	// management.
 	if ( isUnderSessionManagement() ) {
+#ifdef H2CORE_HAVE_OSC
 		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath.toLocal8Bit().data() );
+#endif
 	}
 
 	return 0;	//ok
