@@ -25,6 +25,8 @@
 //#include <core/Helpers/Xml.h>
 #include <core/Basics/Pattern.h>
 
+#include <core/AudioEngine.h>
+
 namespace H2Core
 {
 
@@ -52,6 +54,7 @@ PatternList::~PatternList()
 
 void PatternList::operator<<( Pattern* pattern )
 {
+	assertLocked();
 	// do nothing if already in __patterns
 	for( int i=0; i<__patterns.size(); i++ ) {
 		if( __patterns[i]==pattern ) return;
@@ -61,6 +64,7 @@ void PatternList::operator<<( Pattern* pattern )
 
 void PatternList::add( Pattern* pattern )
 {
+	assertLocked();
 	// do nothing if already in __patterns
 	for( int i=0; i<__patterns.size(); i++ ) {
 		if( __patterns[i]==pattern ) return;
@@ -70,6 +74,7 @@ void PatternList::add( Pattern* pattern )
 
 void PatternList::insert( int idx, Pattern* pattern )
 {
+	assertLocked();
 	// do nothing if already in __patterns
 	for( int i=0; i<__patterns.size(); i++ ) {
 		if( __patterns[i]==pattern ) return;
@@ -79,6 +84,7 @@ void PatternList::insert( int idx, Pattern* pattern )
 
 Pattern* PatternList::operator[]( int idx )
 {
+	assertLocked();
 	if ( idx < 0 || idx >= __patterns.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
 		return nullptr;
@@ -89,6 +95,7 @@ Pattern* PatternList::operator[]( int idx )
 
 Pattern* PatternList::get( int idx )
 {
+	assertLocked();
 	if ( idx < 0 || idx >= __patterns.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
 		return nullptr;
@@ -99,6 +106,7 @@ Pattern* PatternList::get( int idx )
 
 const Pattern* PatternList::get( int idx ) const
 {
+	assertLocked();
 	if ( idx < 0 || idx >= __patterns.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
 		return nullptr;
@@ -117,6 +125,7 @@ int PatternList::index( Pattern* pattern )
 
 Pattern* PatternList::del( int idx )
 {
+	assertLocked();
 	assert( idx >= 0 && idx < __patterns.size() );
 	Pattern* pattern = __patterns[idx];
 	__patterns.erase( __patterns.begin() + idx );
@@ -125,6 +134,7 @@ Pattern* PatternList::del( int idx )
 
 Pattern* PatternList::del( Pattern* pattern )
 {
+	assertLocked();
 	for( int i=0; i<__patterns.size(); i++ ) {
 		if( __patterns[i]==pattern ) {
 			__patterns.erase( __patterns.begin() + i );
@@ -136,6 +146,7 @@ Pattern* PatternList::del( Pattern* pattern )
 
 Pattern* PatternList::replace( int idx, Pattern* pattern )
 {
+	assertLocked();
 	/*
 	 * if we insert a new pattern (copy, add new pattern, undo delete pattern and so on will do this)
 	 * idx is > __pattern.size(). that's why i add +1 to assert expression
@@ -172,6 +183,7 @@ Pattern*  PatternList::find( const QString& name )
 
 void PatternList::swap( int idx_a, int idx_b )
 {
+	assertLocked();
 	assert( idx_a >= 0 && idx_a < __patterns.size() );
 	assert( idx_b >= 0 && idx_b < __patterns.size() );
 	if( idx_a == idx_b ) return;
@@ -183,6 +195,7 @@ void PatternList::swap( int idx_a, int idx_b )
 
 void PatternList::move( int idx_a, int idx_b )
 {
+	assertLocked();
 	assert( idx_a >= 0 && idx_a < __patterns.size() );
 	assert( idx_b >= 0 && idx_b < __patterns.size() );
 	if( idx_a == idx_b ) return;

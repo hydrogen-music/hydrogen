@@ -101,6 +101,7 @@ void AudioEngine::lock( const char* file, unsigned int line, const char* functio
 	__locker.file = file;
 	__locker.line = line;
 	__locker.function = function;
+	m_lockingThread = std::this_thread::get_id();
 }
 
 
@@ -115,6 +116,7 @@ bool AudioEngine::try_lock( const char* file, unsigned int line, const char* fun
 	__locker.file = file;
 	__locker.line = line;
 	__locker.function = function;
+	m_lockingThread = std::this_thread::get_id();
 	return true;
 }
 
@@ -131,6 +133,7 @@ bool AudioEngine::try_lock_for( std::chrono::microseconds duration, const char* 
 	__locker.file = file;
 	__locker.line = line;
 	__locker.function = function;
+	m_lockingThread = std::this_thread::get_id();
 	return true;
 }
 
@@ -236,6 +239,7 @@ void AudioEngine::locate( const unsigned long nFrame ) {
 void AudioEngine::unlock()
 {
 	// Leave "__locker" dirty.
+	m_lockingThread = std::thread::id();
 	__engine_mutex.unlock();
 }
 

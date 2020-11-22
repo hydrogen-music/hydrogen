@@ -718,7 +718,9 @@ void audioEngine_init()
 	}
 
 	m_pPlayingPatterns = new PatternList();
+	m_pPlayingPatterns->setNeedsLock( true );
 	m_pNextPatterns = new PatternList();
+	m_pNextPatterns->setNeedsLock( true );
 	m_nSongPos = -1;
 	m_nSelectedPatternNumber = 0;
 	m_nSelectedInstrumentNumber = 0;
@@ -3193,7 +3195,11 @@ int Hydrogen::getState()
 void Hydrogen::setCurrentPatternList( PatternList *pPatternList )
 {
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	if ( m_pPlayingPatterns ) {
+		m_pPlayingPatterns->setNeedsLock( false );
+	}
 	m_pPlayingPatterns = pPatternList;
+	pPatternList->setNeedsLock( true );
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
 	AudioEngine::get_instance()->unlock();
 }

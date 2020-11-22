@@ -156,7 +156,12 @@ public:
 	 * Unlocks the AudioEngine to allow other threads acces, and leaves #__locker untouched.
 	 */
 	void unlock();
-	
+
+	/**
+	 * Assert that the calling thread is the current holder of the
+	 * AudioEngine lock.
+	 */
+	void assertLocked( );
 	
 	static float compute_tick_size( const int nSampleRate, const float fBpm, const int nResolution);
 
@@ -219,14 +224,20 @@ private:
 	/** Local instance of the Synth. */
 	Synth* __synth;
 
-	/** Mutex for synchronizing the access to the Song object and
-	    the AudioEngine. 
-	  * 
-	  * It can be used lock the access using either lock() or
-	  * try_lock() and to unlock it via unlock(). It is
-	  * initialized in AudioEngine() and not explicitly exited.
-	  */
+	/**
+	 * Mutex for synchronizing the access to the Song object and
+	 * the AudioEngine.
+	 *
+	 * It can be used lock the access using either lock() or
+	 * try_lock() and to unlock it via unlock(). It is
+	 * initialized in AudioEngine() and not explicitly exited.
+	 */
 	std::timed_mutex __engine_mutex;
+
+	/**
+	 * Thread ID of the current holder of the AudioEngine lock.
+	 */
+	std::thread::id m_lockingThread;
 
 	/**
 	 * This struct is most probably intended to be used for
@@ -284,11 +295,61 @@ private:
 	AudioEngine();
 };
 
+
+/**
+ * AudioEngineLocking
+ *
+ * This is a base class for shared data structures which may be
+ * modified by the AudioEngine. These should only be modified or
+ * trusted by a thread holding the AudioEngine lock.
+ *
+ * Any class which implements a data structure which can be modified
+ * by the AudioEngine can inherit from this, and use the protected
+ * "assertLocked()" method to ensure that methods are called only
+ * with appropriate locking.
+ *
+ * Checking is only done on debug builds.
+ */
+class AudioEngineLocking {
+
+	bool m_bNeedsLock;
+
+protected:
+	/**
+	 *  Assert that the AudioEngine lock is held if needed.
+	 */
+	void assertLocked() const {
+#ifndef NDEBUG
+		if ( m_bNeedsLock ) {
+			AudioEngine::get_instance()->assertLocked();
+		}
+#endif
+	}
+
+
+public:
+
+	/**
+	 * The audio processing thread can modify some PatternLists. For
+	 * these structures, the audio engine lock must be held for any
+	 * thread to access them.
+	 */
+	void setNeedsLock( bool bNeedsLock ) {
+		m_bNeedsLock = bNeedsLock;
+	}
+};
+
+
 inline float AudioEngine::getElapsedTime() const {
 	return m_fElapsedTime;
 }
-	
-};
 
+inline void AudioEngine::assertLocked( ) {
+#ifndef NDEBUG
+	assert( m_lockingThread == std::this_thread::get_id() );
+#endif
+}
+
+};
 
 #endif
