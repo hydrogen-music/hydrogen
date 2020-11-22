@@ -25,6 +25,8 @@
 #include <cmath>
 #include <cstdlib>
 #include <QNetworkReply>
+#include <QtNetwork>
+
 
 const char* Download::__class_name = "Download";
 

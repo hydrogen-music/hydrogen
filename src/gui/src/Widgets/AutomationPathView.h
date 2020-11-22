@@ -26,9 +26,7 @@
 #include <core/Basics/AutomationPath.h>
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 class AutomationPathView : public QWidget, public H2Core::Object
 {

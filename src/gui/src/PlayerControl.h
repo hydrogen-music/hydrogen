@@ -24,9 +24,7 @@
 #define PLAYER_CONTROL_H
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include "EventListener.h"
 #include <core/Object.h>

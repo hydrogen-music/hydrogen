@@ -26,7 +26,6 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Preferences.h>
 #include <core/H2Exception.h>
-
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Sample.h>
 #include <core/Basics/Instrument.h>
@@ -34,12 +33,13 @@
 #include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/DrumkitComponent.h>
+
 #include <QFileDialog>
-#include <memory>
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
+
+#include <memory>
+
 #if defined(H2CORE_HAVE_LIBARCHIVE)
 #include <archive.h>
 #include <archive_entry.h>

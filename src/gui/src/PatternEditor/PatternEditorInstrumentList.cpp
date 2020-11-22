@@ -44,10 +44,9 @@ using namespace H2Core;
 #include "../Widgets/Button.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 #include <QClipboard>
+
 #include <cassert>
 #include <algorithm> // for std::min
 

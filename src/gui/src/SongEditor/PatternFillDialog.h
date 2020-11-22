@@ -25,9 +25,8 @@
 
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
+
 #include "ui_PatternFillDialog_UI.h"
 
 #include <core/Object.h>
