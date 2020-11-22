@@ -24,10 +24,10 @@
 #ifndef SYNTH_H
 #define SYNTH_H
 
-#include <stdint.h> // For uint32_t et al
+#include <cstdint>
+#include <vector>
 
 #include <core/Object.h>
-#include <core/Globals.h>
 
 
 namespace H2Core

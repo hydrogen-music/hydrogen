@@ -56,40 +56,41 @@ namespace H2Core
 
 const char* Sampler::__class_name = "Sampler";
 
-
-static Instrument* create_instrument(int id, const QString& filepath, float volume )
+static Instrument* createInstrument(int id, const QString& filepath, float volume )
 {
-	Instrument* instrument = new Instrument( id, filepath );
-	instrument->set_volume( volume );
+	Instrument* pInstrument = new Instrument( id, filepath );
+	pInstrument->set_volume( volume );
 	InstrumentLayer* pLayer = new InstrumentLayer( Sample::load( filepath ) );
 	InstrumentComponent* pComponent = new InstrumentComponent( 0 );
+	
 	pComponent->set_layer( pLayer, 0 );
-	instrument->get_components()->push_back( pComponent );
-	return instrument;
+	pInstrument->get_components()->push_back( pComponent );
+	return pInstrument;
 }
 
 Sampler::Sampler()
 		: Object( __class_name )
-		, __main_out_L( nullptr )
-		, __main_out_R( nullptr )
-		, __preview_instrument( nullptr )
+		, m_pMainOut_L( nullptr )
+		, m_pMainOut_R( nullptr )
+		, m_pPreviewInstrument( nullptr )
+		, m_interpolateMode( Interpolation::InterpolateMode::Linear )
 {
 	INFOLOG( "INIT" );
-		__interpolateMode = LINEAR;
-	__main_out_L = new float[ MAX_BUFFER_SIZE ];
-	__main_out_R = new float[ MAX_BUFFER_SIZE ];
+	
+	m_pMainOut_L = new float[ MAX_BUFFER_SIZE ];
+	m_pMainOut_R = new float[ MAX_BUFFER_SIZE ];
 
 	m_nMaxLayers = InstrumentComponent::getMaxLayers();
 
 	QString sEmptySampleFilename = Filesystem::empty_sample_path();
 
 	// instrument used in file preview
-	__preview_instrument = create_instrument( EMPTY_INSTR_ID, sEmptySampleFilename, 0.8 );
-	__preview_instrument->set_is_preview_instrument( true );
+	m_pPreviewInstrument = createInstrument( EMPTY_INSTR_ID, sEmptySampleFilename, 0.8 );
+	m_pPreviewInstrument->set_is_preview_instrument( true );
 
 	// dummy instrument used for playback track
-	__playback_instrument = create_instrument( PLAYBACK_INSTR_ID, sEmptySampleFilename, 0.8 );
-	__playBackSamplePosition = 0;
+	m_pPlaybackTrackInstrument = createInstrument( PLAYBACK_INSTR_ID, sEmptySampleFilename, 0.8 );
+	m_nPlayBackSamplePosition = 0;
 }
 
 
@@ -97,71 +98,67 @@ Sampler::~Sampler()
 {
 	INFOLOG( "DESTROY" );
 
-	delete[] __main_out_L;
-	delete[] __main_out_R;
+	delete[] m_pMainOut_L;
+	delete[] m_pMainOut_R;
 
-	delete __preview_instrument;
-	__preview_instrument = nullptr;
+	delete m_pPreviewInstrument;
+	m_pPreviewInstrument = nullptr;
 
-	delete __playback_instrument;
-	__playback_instrument = nullptr;
+	delete m_pPlaybackTrackInstrument;
+	m_pPlaybackTrackInstrument = nullptr;
 }
 
-// perche' viene passata anche la canzone? E' davvero necessaria?
 void Sampler::process( uint32_t nFrames, Song* pSong )
 {
 	//infoLog( "[process]" );
-	AudioOutput* audio_output = Hydrogen::get_instance()->getAudioOutput();
-	assert( audio_output );
+	AudioOutput* pAudioOutpout = Hydrogen::get_instance()->getAudioOutput();
+	assert( pAudioOutpout );
 
-	memset( __main_out_L, 0, nFrames * sizeof( float ) );
-	memset( __main_out_R, 0, nFrames * sizeof( float ) );
+	memset( m_pMainOut_L, 0, nFrames * sizeof( float ) );
+	memset( m_pMainOut_R, 0, nFrames * sizeof( float ) );
 
 	// Track output queues are zeroed by
 	// audioEngine_process_clearAudioBuffers()
 
 	// Max notes limit
 	int m_nMaxNotes = Preferences::get_instance()->m_nMaxNotes;
-	while ( ( int )__playing_notes_queue.size() > m_nMaxNotes ) {
-		Note *oldNote = __playing_notes_queue[ 0 ];
-		__playing_notes_queue.erase( __playing_notes_queue.begin() );
-		oldNote->get_instrument()->dequeue();
-		delete oldNote;	// FIXME: send note-off instead of removing the note from the list?
+	while ( ( int )m_playingNotesQueue.size() > m_nMaxNotes ) {
+		Note * pOldNote = m_playingNotesQueue[ 0 ];
+		m_playingNotesQueue.erase( m_playingNotesQueue.begin() );
+		 pOldNote->get_instrument()->dequeue();
+		delete  pOldNote;	// FIXME: send note-off instead of removing the note from the list?
 	}
 
-	for (std::vector<DrumkitComponent*>::iterator it = pSong->get_components()->begin() ; it != pSong->get_components()->end(); ++it) {
-		DrumkitComponent* component = *it;
-		component->reset_outs(nFrames);
+	for ( auto& pComponent : *pSong->get_components() ) {
+		pComponent->reset_outs(nFrames);
 	}
-
 
 	// eseguo tutte le note nella lista di note in esecuzione
 	unsigned i = 0;
 	Note* pNote;
-	while ( i < __playing_notes_queue.size() ) {
-		pNote = __playing_notes_queue[ i ];		// recupero una nuova nota
-		if ( __render_note( pNote, nFrames, pSong ) ) {	// la nota e' finita
-			__playing_notes_queue.erase( __playing_notes_queue.begin() + i );
+	while ( i < m_playingNotesQueue.size() ) {
+		pNote = m_playingNotesQueue[ i ];		// recupero una nuova nota
+		if ( renderNote( pNote, nFrames, pSong ) ) {	// la nota e' finita
+			m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
 			pNote->get_instrument()->dequeue();
-			__queuedNoteOffs.push_back( pNote );
-//			delete pNote;
-//			pNote = NULL;
+			m_queuedNoteOffs.push_back( pNote );
 		} else {
 			++i; // carico la prox nota
 		}
 	}
 
 	//Queue midi note off messages for notes that have a length specified for them
-
-	while ( !__queuedNoteOffs.empty() ) {
-		pNote =  __queuedNoteOffs[0];
+	while ( !m_queuedNoteOffs.empty() ) {
+		pNote =  m_queuedNoteOffs[0];
 		MidiOutput* pMidiOut = Hydrogen::get_instance()->getMidiOutput();
 		
 		if( pMidiOut != nullptr && !pNote->get_instrument()->is_muted() ){
-			pMidiOut->handleQueueNoteOff( pNote->get_instrument()->get_midi_out_channel(), pNote->get_midi_key(),  pNote->get_midi_velocity() );
+			pMidiOut->handleQueueNoteOff(	pNote->get_instrument()->get_midi_out_channel(), 
+											pNote->get_midi_key(),
+											pNote->get_midi_velocity() );
 		}
 		
-		__queuedNoteOffs.erase( __queuedNoteOffs.begin() );
+		m_queuedNoteOffs.erase( m_queuedNoteOffs.begin() );
 		
 		if( pNote != nullptr ){
 			delete pNote;
@@ -175,31 +172,28 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 
 
 
-void Sampler::note_on( Note *note )
+void Sampler::noteOn(Note *pNote )
 {
 	//infoLog( "[noteOn]" );
-	assert( note );
+	assert( pNote );
 
-	note->get_adsr()->attack();
-	Instrument *pInstr = note->get_instrument();
+	pNote->get_adsr()->attack();
+	Instrument *pInstr = pNote->get_instrument();
 
 	// mute group
-	int mute_grp = pInstr->get_mute_group();
-	if ( mute_grp != -1 ) {
+	int nMuteGrp = pInstr->get_mute_group();
+	if ( nMuteGrp != -1 ) {
 		// remove all notes using the same mute group
-		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {	// delete older note
-			Note *pNote = __playing_notes_queue[ j ];
-			if ( ( pNote->get_instrument() != pInstr )  && ( pNote->get_instrument()->get_mute_group() == mute_grp ) ) {
+		for ( const auto& pNote: m_playingNotesQueue ) {	// delete older note
+			if ( ( pNote->get_instrument() != pInstr )  && ( pNote->get_instrument()->get_mute_group() == nMuteGrp ) ) {
 				pNote->get_adsr()->release();
 			}
 		}
 	}
 
 	//note off notes
-	if( note->get_note_off() ){
-		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
-			Note *pNote = __playing_notes_queue[ j ];
-
+	if( pNote->get_note_off() ){
+		for ( const auto& pNote: m_playingNotesQueue ) {
 			if ( ( pNote->get_instrument() == pInstr ) ) {
 				//ERRORLOG("note_off");
 				pNote->get_adsr()->release();
@@ -208,16 +202,14 @@ void Sampler::note_on( Note *note )
 	}
 
 	pInstr->enqueue();
-	if( !note->get_note_off() ){
-		__playing_notes_queue.push_back( note );
+	if( !pNote->get_note_off() ){
+		m_playingNotesQueue.push_back( pNote );
 	}
 }
 
-void Sampler::midi_keyboard_note_off( int key )
+void Sampler::midiKeyboardNoteOff( int key )
 {
-	for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
-		Note *pNote = __playing_notes_queue[ j ];
-
+	for ( const auto& pNote: m_playingNotesQueue ) {
 		if ( ( pNote->get_midi_msg() == key) ) {
 			pNote->get_adsr()->release();
 		}
@@ -225,42 +217,38 @@ void Sampler::midi_keyboard_note_off( int key )
 }
 
 
-
-void Sampler::note_off( Note* note )
-	/*
-	* this old note_off function is only used by right click on mixer channel strip play button
-	* all other note_off stuff will handle in midi_keyboard_note_off() and note_on()
-	*/
+/// This old note_off function is only used by right click on mixer channel strip play button
+/// all other note_off stuff will handle in midi_keyboard_note_off() and note_on()
+void Sampler::noteOff(Note* pNote )
 {
-
-	Instrument *pInstr = note->get_instrument();
+	Instrument *pInstr = pNote->get_instrument();
 	// find the notes using the same instrument, and release them
-	for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
-		Note *pNote = __playing_notes_queue[ j ];
+	for ( const auto& pNote: m_playingNotesQueue ) {
 		if ( pNote->get_instrument() == pInstr ) {
 			pNote->get_adsr()->release();
 		}
 	}
-	delete note;
+	
+	delete pNote;
 }
 
 
 /// Render a note
 /// Return false: the note is not ended
 /// Return true: the note is ended
-bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
+bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 {
 	//infoLog( "[renderNote] instr: " + pNote->getInstrument()->m_sName );
 	assert( pSong );
 
 	unsigned int nFramepos;
-	Hydrogen* pEngine = Hydrogen::get_instance();
-	AudioOutput* audio_output = pEngine->getAudioOutput();
-	if (  pEngine->getState() == STATE_PLAYING ) {
-		nFramepos = audio_output->m_transport.m_nFrames;
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	AudioOutput* pAudioOutput = pHydrogen->getAudioOutput();
+	if ( pHydrogen->getState() == STATE_PLAYING ) {
+		nFramepos = pAudioOutput->m_transport.m_nFrames;
 	} else {
 		// use this to support realtime events when not playing
-		nFramepos = pEngine->getRealtimeFrames();
+		nFramepos = pHydrogen->getRealtimeFrames();
 	}
 
 	Instrument *pInstr = pNote->get_instrument();
@@ -278,9 +266,8 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 	int nReturnValueIndex = 0;
 	int nAlreadySelectedLayer = -1;
 
-	for (std::vector<InstrumentComponent*>::iterator it = pInstr->get_components()->begin() ; it !=pInstr->get_components()->end(); ++it) {
+	for (const auto& pCompo : *pInstr->get_components()) {
 		nReturnValues[nReturnValueIndex] = false;
-		InstrumentComponent *pCompo = *it;
 		DrumkitComponent* pMainCompo = nullptr;
 
 		if( pNote->get_specific_compo_id() != -1 && pNote->get_specific_compo_id() != pCompo->get_drumkit_componentID() ) {
@@ -289,14 +276,14 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 		if(		pInstr->is_preview_instrument()
 			||	pInstr->is_metronome_instrument()){
-			pMainCompo = pEngine->getSong()->get_components()->front();
+			pMainCompo = pHydrogen->getSong()->get_components()->front();
 		} else {
 			int nComponentID = pCompo->get_drumkit_componentID();
 			if ( nComponentID >= 0 ) {
-				pMainCompo = pEngine->getSong()->get_component( nComponentID );
+				pMainCompo = pHydrogen->getSong()->get_component( nComponentID );
 			} else {
 				/* Invalid component found. This is possible on loading older or broken song files. */
-				pMainCompo = pEngine->getSong()->get_components()->front();
+				pMainCompo = pHydrogen->getSong()->get_components()->front();
 			}
 		}
 
@@ -563,14 +550,14 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 			continue;
 		}
 
-		int noteStartInFrames = ( int ) ( pNote->get_position() * audio_output->m_transport.m_fTickSize ) + pNote->get_humanize_delay();
+		int noteStartInFrames = ( int ) ( pNote->get_position() * pAudioOutput->m_transport.m_fTickSize ) + pNote->get_humanize_delay();
 
 		int nInitialSilence = 0;
 		if ( noteStartInFrames > ( int ) nFramepos ) {	// scrivo silenzio prima dell'inizio della nota
 			nInitialSilence = noteStartInFrames - nFramepos;
 			int nFrames = nBufferSize - nInitialSilence;
 			if ( nFrames < 0 ) {
-				int noteStartInFramesNoHumanize = ( int )pNote->get_position() * audio_output->m_transport.m_fTickSize;
+				int noteStartInFramesNoHumanize = ( int )pNote->get_position() * pAudioOutput->m_transport.m_fTickSize;
 				if ( noteStartInFramesNoHumanize > ( int )( nFramepos + nBufferSize ) ) {
 					// this note is not valid. it's in the future...let's skip it....
 					ERRORLOG( QString( "Note pos in the future?? Current frames: %1, note frame pos: %2" ).arg( nFramepos ).arg(noteStartInFramesNoHumanize ) );
@@ -592,8 +579,8 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 		assert(pMainCompo);
 		
-		bool isMutedForExport = (pEngine->getIsExportSessionActive() && !pInstr->is_currently_exported());
-		bool isMutedBecauseOfSolo = (is_any_instrument_soloed() && !pInstr->is_soloed());
+		bool isMutedForExport = (pHydrogen->getIsExportSessionActive() && !pInstr->is_currently_exported());
+		bool isMutedBecauseOfSolo = (isAnyInstrumentSoloed() && !pInstr->is_soloed());
 		
 		/*
 		 *  Is instrument muted?
@@ -673,11 +660,11 @@ bool Sampler::__render_note( Note* pNote, unsigned nBufferSize, Song* pSong )
 			}
 		}
 
-		if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == audio_output->getSampleRate() ) { // NO RESAMPLE
-			nReturnValues[nReturnValueIndex] = __render_note_no_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong );
+		if ( fTotalPitch == 0.0 && pSample->get_sample_rate() == pAudioOutput->getSampleRate() ) { // NO RESAMPLE
+			nReturnValues[nReturnValueIndex] = renderNoteNoResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, pSong );
 		}
 		else { // RESAMPLE
-			nReturnValues[nReturnValueIndex] = __render_note_resample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong );
+			nReturnValues[nReturnValueIndex] = renderNoteResample( pSample, pNote, pSelectedLayer, pCompo, pMainCompo, nBufferSize, nInitialSilence, cost_L, cost_R, cost_track_L, cost_track_R, fLayerPitch, pSong );
 		}
 
 		nReturnValueIndex++;
@@ -703,7 +690,7 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 		return false;
 	}
 
-	InstrumentComponent *pCompo = __playback_instrument->get_components()->front();
+	InstrumentComponent *pCompo = m_pPlaybackTrackInstrument->get_components()->front();
 	auto pSample = pCompo->get_layer(0)->get_sample();
 
 	assert(pSample);
@@ -714,28 +701,28 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	auto pSample_data_L = pSample->get_data_l();
 	auto pSample_data_R = pSample->get_data_r();
 	
-	float fInstrPeak_L = __playback_instrument->get_peak_l(); // this value will be reset to 0 by the mixer..
-	float fInstrPeak_R = __playback_instrument->get_peak_r(); // this value will be reset to 0 by the mixer..
+	float fInstrPeak_L = m_pPlaybackTrackInstrument->get_peak_l(); // this value will be reset to 0 by the mixer..
+	float fInstrPeak_R = m_pPlaybackTrackInstrument->get_peak_r(); // this value will be reset to 0 by the mixer..
 
 	int nAvail_bytes = 0;
 	int	nInitialBufferPos = 0;
 
 	if(pSample->get_sample_rate() == pAudioOutput->getSampleRate()){
 		//No resampling	
-		__playBackSamplePosition = pAudioOutput->m_transport.m_nFrames;
+		m_nPlayBackSamplePosition = pAudioOutput->m_transport.m_nFrames;
 	
-		nAvail_bytes = pSample->get_frames() - ( int )__playBackSamplePosition;
+		nAvail_bytes = pSample->get_frames() - ( int )m_nPlayBackSamplePosition;
 		
 		if ( nAvail_bytes > nBufferSize ) {
 			nAvail_bytes = nBufferSize;
 		}
 
-		int nInitialSamplePos = ( int ) __playBackSamplePosition;
+		int nInitialSamplePos = ( int ) m_nPlayBackSamplePosition;
 		int nSamplePos = nInitialSamplePos;
 	
 		int nTimes = nInitialBufferPos + nAvail_bytes;
 	
-		if(__playBackSamplePosition > pSample->get_frames()){
+		if(m_nPlayBackSamplePosition > pSample->get_frames()){
 			//playback track has ended..
 			return true;
 		}
@@ -757,8 +744,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 				fInstrPeak_R = fVal_R;
 			}
 			
-			__main_out_L[nBufferPos] += fVal_L;
-			__main_out_R[nBufferPos] += fVal_R;
+			m_pMainOut_L[nBufferPos] += fVal_L;
+			m_pMainOut_R[nBufferPos] += fVal_R;
 			
 			++nSamplePos;
 		}
@@ -804,28 +791,28 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 						last_r =  pSample_data_R[nSamplePos + 2];
 					}
 	
-					switch( __interpolateMode ){
+					switch( m_interpolateMode ){
 	
-							case LINEAR:
-									fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
-									fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
-									break;
-							case COSINE:
-									fVal_L = cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
-									fVal_R = cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
-									break;
-							case THIRD:
-									fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-									fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-									break;
-							case CUBIC:
-									fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-									fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-									break;
-							case HERMITE:
-									fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-									fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
-									break;
+						case Interpolation::InterpolateMode::Linear:
+								fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
+								fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
+								break;
+						case Interpolation::InterpolateMode::Cosine:
+								fVal_L = Interpolation::cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+								fVal_R = Interpolation::cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+								break;
+						case Interpolation::InterpolateMode::Third:
+								fVal_L = Interpolation::third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+								fVal_R = Interpolation::third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+								break;
+						case Interpolation::InterpolateMode::Cubic:
+								fVal_L = Interpolation::cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+								fVal_R = Interpolation::cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+								break;
+						case Interpolation::InterpolateMode::Hermite:
+								fVal_L = Interpolation::hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+								fVal_R = Interpolation::hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+								break;
 					}
 			}
 			
@@ -836,21 +823,21 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 				fInstrPeak_R = fVal_R;
 			}
 
-			__main_out_L[nBufferPos] += fVal_L;
-			__main_out_R[nBufferPos] += fVal_R;
+			m_pMainOut_L[nBufferPos] += fVal_L;
+			m_pMainOut_R[nBufferPos] += fVal_R;
 
 
 			fSamplePos += fStep;
 		} //for
 	}
 	
-	__playback_instrument->set_peak_l( fInstrPeak_L );
-	__playback_instrument->set_peak_r( fInstrPeak_R );
+	m_pPlaybackTrackInstrument->set_peak_l( fInstrPeak_L );
+	m_pPlaybackTrackInstrument->set_peak_r( fInstrPeak_R );
 
 	return true;
 }
 
-bool Sampler::__render_note_no_resample(
+bool Sampler::renderNoteNoResample(
 	std::shared_ptr<Sample> pSample,
 	Note *pNote,
 	SelectedLayerInfo *pSelectedLayerInfo,
@@ -952,8 +939,8 @@ bool Sampler::__render_note_no_resample(
 		pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
 
 		// to main mix
-		__main_out_L[nBufferPos] += fVal_L;
-		__main_out_R[nBufferPos] += fVal_R;
+		m_pMainOut_L[nBufferPos] += fVal_L;
+		m_pMainOut_R[nBufferPos] += fVal_R;
 
 		++nSamplePos;
 	}
@@ -998,7 +985,7 @@ bool Sampler::__render_note_no_resample(
 
 
 
-bool Sampler::__render_note_resample(
+bool Sampler::renderNoteResample(
 	std::shared_ptr<Sample> pSample,
 	Note *pNote,
 	SelectedLayerInfo *pSelectedLayerInfo,
@@ -1099,29 +1086,29 @@ bool Sampler::__render_note_resample(
 					last_r =  pSample_data_R[nSamplePos + 2];
 				}
 
-				switch( __interpolateMode ){
+				switch( m_interpolateMode ){
 
-						case LINEAR:
+						case Interpolation::InterpolateMode::Linear:
 								fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
 								fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
 								//fVal_L = linear_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
 								//fVal_R = linear_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
 								break;
-						case COSINE:
-								fVal_L = cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
-								fVal_R = cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+						case Interpolation::InterpolateMode::Cosine:
+								fVal_L = Interpolation::cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+								fVal_R = Interpolation::cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
 								break;
-						case THIRD:
-								fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-								fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+						case Interpolation::InterpolateMode::Third:
+								fVal_L = Interpolation::third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+								fVal_R = Interpolation::third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
 								break;
-						case CUBIC:
-								fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-								fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+						case Interpolation::InterpolateMode::Cubic:
+								fVal_L = Interpolation::cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+								fVal_R = Interpolation::cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
 								break;
-						case HERMITE:
-								fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-								fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+						case Interpolation::InterpolateMode::Hermite:
+								fVal_L = Interpolation::hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+								fVal_R = Interpolation::hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
 								break;
 				}
 		}
@@ -1160,8 +1147,8 @@ bool Sampler::__render_note_resample(
 		pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
 
 		// to main mix
-		__main_out_L[nBufferPos] += fVal_L;
-		__main_out_R[nBufferPos] += fVal_R;
+		m_pMainOut_L[nBufferPos] += fVal_L;
+		m_pMainOut_R[nBufferPos] += fVal_R;
 
 		fSamplePos += fStep;
 	}
@@ -1214,27 +1201,27 @@ bool Sampler::__render_note_resample(
 						last_r =  pSample_data_R[nSamplePos + 2];
 					}
 
-					switch( __interpolateMode ){
+					switch( m_interpolateMode ){
 
-					case LINEAR:
+					case Interpolation::InterpolateMode::Linear:
 						fVal_L = pSample_data_L[nSamplePos] * (1 - fDiff ) + pSample_data_L[nSamplePos + 1] * fDiff;
 						fVal_R = pSample_data_R[nSamplePos] * (1 - fDiff ) + pSample_data_R[nSamplePos + 1] * fDiff;
 						break;
-					case COSINE:
-						fVal_L = cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
-						fVal_R = cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
+					case Interpolation::InterpolateMode::Cosine:
+						fVal_L = Interpolation::cosine_Interpolate( pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], fDiff);
+						fVal_R = Interpolation::cosine_Interpolate( pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], fDiff);
 						break;
-					case THIRD:
-						fVal_L = third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-						fVal_R = third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+					case Interpolation::InterpolateMode::Third:
+						fVal_L = Interpolation::third_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+						fVal_R = Interpolation::third_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
 						break;
-					case CUBIC:
-						fVal_L = cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-						fVal_R = cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+					case Interpolation::InterpolateMode::Cubic:
+						fVal_L = Interpolation::cubic_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+						fVal_R = Interpolation::cubic_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
 						break;
-					case HERMITE:
-						fVal_L = hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
-						fVal_R = hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
+					case Interpolation::InterpolateMode::Hermite:
+						fVal_L = Interpolation::hermite_Interpolate( pSample_data_L[ nSamplePos -1], pSample_data_L[nSamplePos], pSample_data_L[nSamplePos + 1], last_l, fDiff);
+						fVal_R = Interpolation::hermite_Interpolate( pSample_data_R[ nSamplePos -1], pSample_data_R[nSamplePos], pSample_data_R[nSamplePos + 1], last_r, fDiff);
 						break;
 					}
 				}
@@ -1252,47 +1239,46 @@ bool Sampler::__render_note_resample(
 }
 
 
-void Sampler::stop_playing_notes( Instrument* instrument )
+void Sampler::stopPlayingNotes(Instrument* pInstr )
 {
-	if ( instrument ) { // stop all notes using this instrument
-		for ( unsigned i = 0; i < __playing_notes_queue.size(); ) {
-			Note *pNote = __playing_notes_queue[ i ];
+	if ( pInstr ) { // stop all notes using this instrument
+		for ( unsigned i = 0; i < m_playingNotesQueue.size(); ) {
+			Note *pNote = m_playingNotesQueue[ i ];
 			assert( pNote );
-			if ( pNote->get_instrument() == instrument ) {
+			if ( pNote->get_instrument() == pInstr ) {
 				delete pNote;
-				instrument->dequeue();
-				__playing_notes_queue.erase( __playing_notes_queue.begin() + i );
+				pInstr->dequeue();
+				m_playingNotesQueue.erase( m_playingNotesQueue.begin() + i );
 			}
 			++i;
 		}
 	} else { // stop all notes
 		// delete all copied notes in the playing notes queue
-		for ( unsigned i = 0; i < __playing_notes_queue.size(); ++i ) {
-			Note *pNote = __playing_notes_queue[i];
+		for ( unsigned i = 0; i < m_playingNotesQueue.size(); ++i ) {
+			Note *pNote = m_playingNotesQueue[i];
 			pNote->get_instrument()->dequeue();
 			delete pNote;
 		}
-		__playing_notes_queue.clear();
+		m_playingNotesQueue.clear();
 	}
 }
 
 
 
 /// Preview, uses only the first layer
-void Sampler::preview_sample( std::shared_ptr<Sample> sample, int length )
+void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
 {
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-	for (std::vector<InstrumentComponent*>::iterator it = __preview_instrument->get_components()->begin() ; it != __preview_instrument->get_components()->end(); ++it) {
-		InstrumentComponent* pComponent = *it;
+	for (const auto& pComponent: *m_pPreviewInstrument->get_components()) {
 		InstrumentLayer *pLayer = pComponent->get_layer( 0 );
 
-		pLayer->set_sample( sample );
+		pLayer->set_sample( pSample );
 
-		Note *pPreviewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, length, 0 );
+		Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.5, 0.5, length, 0 );
 
-		stop_playing_notes( __preview_instrument );
-		note_on( pPreviewNote );
+		stopPlayingNotes( m_pPreviewInstrument );
+		noteOn( pPreviewNote );
 
 	}
 
@@ -1301,41 +1287,41 @@ void Sampler::preview_sample( std::shared_ptr<Sample> sample, int length )
 
 
 
-void Sampler::preview_instrument( Instrument* instr )
+void Sampler::preview_instrument(Instrument* pInstr )
 {
 	Instrument * pOldPreview;
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-	stop_playing_notes( __preview_instrument );
+	stopPlayingNotes( m_pPreviewInstrument );
 
-	pOldPreview = __preview_instrument;
-	__preview_instrument = instr;
-	instr->set_is_preview_instrument(true);
+	pOldPreview = m_pPreviewInstrument;
+	m_pPreviewInstrument = pInstr;
+	pInstr->set_is_preview_instrument(true);
 
-	Note *pPreviewNote = new Note( __preview_instrument, 0, 1.0, 0.5, 0.5, MAX_NOTES, 0 );
+	Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.5, 0.5, MAX_NOTES, 0 );
 
-	note_on( pPreviewNote );	// exclusive note
+	noteOn( pPreviewNote );	// exclusive note
 	AudioEngine::get_instance()->unlock();
 	delete pOldPreview;
 }
 
 
 
-void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks, unsigned long noteOnTick )
+void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks, unsigned long noteOnTick )
 {
-	if ( instrument ) { // stop all notes using this instrument
+	if ( pInstrument ) { // stop all notes using this instrument
 		Hydrogen *pEngine = Hydrogen::get_instance();
 		Song* pSong = pEngine->getSong();
-		int selectedpattern = pEngine->getSelectedPatternNumber();
+		int nSelectedpattern = pEngine->getSelectedPatternNumber();
 		Pattern* pCurrentPattern = nullptr;
 
 
 		if ( pSong->get_mode() == Song::PATTERN_MODE ||
 		( pEngine->getState() != STATE_PLAYING )){
 			PatternList *pPatternList = pSong->get_pattern_list();
-			if ( ( selectedpattern != -1 )
-			&& ( selectedpattern < ( int )pPatternList->size() ) ) {
-				pCurrentPattern = pPatternList->get( selectedpattern );
+			if ( ( nSelectedpattern != -1 )
+			&& ( nSelectedpattern < ( int )pPatternList->size() ) ) {
+				pCurrentPattern = pPatternList->get( nSelectedpattern );
 			}
 		}else
 		{
@@ -1358,7 +1344,7 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 						Note *pNote = it->second;
 						if ( pNote!=nullptr ) {
 							if( !Preferences::get_instance()->__playselectedinstrument ){
-								if ( pNote->get_instrument() == instrument
+								if ( pNote->get_instrument() == pInstrument
 								&& pNote->get_position() == noteOnTick ) {
 									AudioEngine::get_instance()->lock( RIGHT_HERE );
 
@@ -1391,7 +1377,7 @@ void Sampler::setPlayingNotelength( Instrument* instrument, unsigned long ticks,
 	EventQueue::get_instance()->push_event( EVENT_PATTERN_MODIFIED, -1 );
 }
 
-bool Sampler::is_any_instrument_soloed() 
+bool Sampler::isAnyInstrumentSoloed() const
 {
 	Hydrogen*		pEngine = Hydrogen::get_instance();
 	Song*			pSong = pEngine->getSong();
@@ -1409,11 +1395,11 @@ bool Sampler::is_any_instrument_soloed()
 	return bAnyInstrumentIsSoloed;
 }
 
-bool Sampler::is_instrument_playing( Instrument* instrument )
+bool Sampler::isInstrumentPlaying( Instrument* instrument )
 {
 	if ( instrument ) { // stop all notes using this instrument
-		for ( unsigned j = 0; j < __playing_notes_queue.size(); j++ ) {
-			if ( instrument->get_name() == __playing_notes_queue[ j ]->get_instrument()->get_name()){
+		for ( unsigned j = 0; j < m_playingNotesQueue.size(); j++ ) {
+			if ( instrument->get_name() == m_playingNotesQueue[ j ]->get_instrument()->get_name()){
 				return true;
 			}
 		}
@@ -1421,7 +1407,7 @@ bool Sampler::is_instrument_playing( Instrument* instrument )
 	return false;
 }
 
-void Sampler::reinitialize_playback_track()
+void Sampler::reinitializePlaybackTrack()
 {
 	Hydrogen*	pEngine = Hydrogen::get_instance();
 	Song*		pSong = pEngine->getSong();
@@ -1433,8 +1419,8 @@ void Sampler::reinitialize_playback_track()
 	
 	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( pSample );
 
-	__playback_instrument->get_components()->front()->set_layer( pPlaybackTrackLayer, 0 );
-	__playBackSamplePosition = 0;
+	m_pPlaybackTrackInstrument->get_components()->front()->set_layer( pPlaybackTrackLayer, 0 );
+	m_nPlayBackSamplePosition = 0;
 }
 
 };

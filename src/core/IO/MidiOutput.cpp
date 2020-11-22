@@ -29,7 +29,6 @@ MidiOutput::MidiOutput( const char* class_name )
 		: Object( class_name )
 {
 	//INFOLOG( "INIT" );
-
 }
 
 

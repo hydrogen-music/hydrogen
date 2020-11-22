@@ -422,7 +422,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		// hear note
 		if ( listen && !isNoteOff ) {
 			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
-			AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
+			AudioEngine::get_instance()->get_sampler()->noteOn(pNote2);
 		}
 	}
 	pSong->set_is_modified( true );
@@ -983,7 +983,6 @@ void DrumPatternEditor::deleteSelection()
 ///
 void DrumPatternEditor::copy()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
 	XMLDoc doc;
 	XMLNode selection = doc.set_root( "noteSelection" );
 	XMLNode noteList = selection.createNode( "noteList");

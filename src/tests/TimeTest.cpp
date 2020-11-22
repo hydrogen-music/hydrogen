@@ -1,6 +1,6 @@
 #include <core/config.h>
 
-#include "time_test.h"
+#include "TimeTest.h"
 #include <core/CoreActionController.h>
 #include <core/AudioEngine.h>
 #include <core/Hydrogen.h>

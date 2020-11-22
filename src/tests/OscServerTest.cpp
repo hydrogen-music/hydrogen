@@ -2,7 +2,7 @@
 
 #ifdef H2CORE_HAVE_OSC
 
-#include "osc_server_test.h"
+#include "OscServerTest.h"
 #include <core/Preferences.h>
 #include <core/OscServer.h>
 

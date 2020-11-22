@@ -23,6 +23,8 @@
 
 #include <core/Synth/Synth.h>
 #include <core/Basics/Note.h>
+#include <core/Globals.h>
+
 #include <cassert>
 #include <cmath>
 
@@ -100,20 +102,18 @@ void Synth::process( uint32_t nFrames )
 	memset( m_pOut_R, 0, nFrames * sizeof( float ) );
 
 
-	for ( uint i = 0; i < m_playingNotesQueue.size(); ++i ) {
-		Note *pPlayingNote = m_playingNotesQueue[ i ];
-
+	for ( const auto& pPlayingNote :  m_playingNotesQueue ) {
 		//pPlayingNote->dumpInfo();
 
-		float amplitude = pPlayingNote->get_velocity();
-		float frequency = TWOPI * 220.0 / 44100.0;
+		float fAmplitude = pPlayingNote->get_velocity();
+		float fFrequency = TWOPI * 220.0 / 44100.0;
 
 		for ( uint i = 0; i < nFrames; ++i ) {
-			float fVal = sin( m_fTheta ) * amplitude;
+			float fVal = sin( m_fTheta ) * fAmplitude;
 			m_pOut_L[ i ] += fVal;
 			m_pOut_R[ i ] += fVal;
 
-			m_fTheta += frequency;
+			m_fTheta += fFrequency;
 		}
 	}
 }

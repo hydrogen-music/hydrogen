@@ -940,19 +940,19 @@ void PreferencesDialog::on_resampleComboBox_currentIndexChanged ( int index )
 {
 	switch ( index ){
 	case 0:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::LINEAR );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
 		break;
 	case 1:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::COSINE );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
 		break;
 	case 2:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::THIRD );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
 		break;
 	case 3:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::CUBIC );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
 		break;
 	case 4:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::HERMITE );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
 		break;
 	}
 

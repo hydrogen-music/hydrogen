@@ -244,7 +244,7 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 		Instrument *pInstr = pSong->get_instrument_list()->get( m_nInstrumentNumber );
 
 		Note *pNote = new Note( pInstr, 0, velocity, pan_L, pan_R, nLength, fPitch);
-		AudioEngine::get_instance()->get_sampler()->note_on(pNote);
+		AudioEngine::get_instance()->get_sampler()->noteOn(pNote);
 	}
 	else if (ev->button() == Qt::RightButton ) {
 		m_pFunctionPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );

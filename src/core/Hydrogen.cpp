@@ -764,7 +764,7 @@ void audioEngine_destroy()
 		___ERRORLOG( "Error the audio engine is not in INITIALIZED state" );
 		return;
 	}
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+	AudioEngine::get_instance()->get_sampler()->stopPlayingNotes();
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	___INFOLOG( "*** Hydrogen audio engine shutdown ***" );
@@ -1021,11 +1021,11 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 										   -1,
 										   0 );
 				pOffNote->set_note_off( true );
-				AudioEngine::get_instance()->get_sampler()->note_on( pOffNote );
+				AudioEngine::get_instance()->get_sampler()->noteOn( pOffNote );
 				delete pOffNote;
 			}
 
-			AudioEngine::get_instance()->get_sampler()->note_on( pNote );
+			AudioEngine::get_instance()->get_sampler()->noteOn( pNote );
 			m_songNoteQueue.pop(); // rimuovo la nota dalla lista di note
 			pNote->get_instrument()->dequeue();
 			// raise noteOn event
@@ -1157,7 +1157,7 @@ void audioEngine_clearNoteQueue()
 		m_songNoteQueue.pop();
 	}
 
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+	AudioEngine::get_instance()->get_sampler()->stopPlayingNotes();
 
 	// delete all copied notes in the midi notes queue
 	for ( unsigned i = 0; i < m_midiNoteQueue.size(); ++i ) {
@@ -1342,8 +1342,8 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 
 	// SAMPLER
 	AudioEngine::get_instance()->get_sampler()->process( nframes, pSong );
-	float* out_L = AudioEngine::get_instance()->get_sampler()->__main_out_L;
-	float* out_R = AudioEngine::get_instance()->get_sampler()->__main_out_R;
+	float* out_L = AudioEngine::get_instance()->get_sampler()->m_pMainOut_L;
+	float* out_R = AudioEngine::get_instance()->get_sampler()->m_pMainOut_R;
 	for ( unsigned i = 0; i < nframes; ++i ) {
 		m_pMainBuffer_L[ i ] += out_L[ i ];
 		m_pMainBuffer_R[ i ] += out_R[ i ];
@@ -2482,7 +2482,7 @@ void Hydrogen::loadPlaybackTrack( const QString filename )
 	Song* pSong = getSong();
 	pSong->set_playback_track_filename(filename);
 
-	AudioEngine::get_instance()->get_sampler()->reinitialize_playback_track();
+	AudioEngine::get_instance()->get_sampler()->reinitializePlaybackTrack();
 }
 
 void Hydrogen::setSong( Song *pSong )
@@ -2529,7 +2529,7 @@ void Hydrogen::setSong( Song *pSong )
 	audioEngine_setSong( pSong );
 
 	// load new playback track information
-	AudioEngine::get_instance()->get_sampler()->reinitialize_playback_track();
+	AudioEngine::get_instance()->get_sampler()->reinitializePlaybackTrack();
 	
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
@@ -3065,7 +3065,7 @@ void Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 	
 	unsigned nSamplerate = (unsigned) sampleRate;
 	
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+	AudioEngine::get_instance()->get_sampler()->stopPlayingNotes();
 
 	Song* pSong = getSong();
 	
@@ -3149,7 +3149,7 @@ void Hydrogen::stopExportSong()
 		return;
 	}
 
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+	AudioEngine::get_instance()->get_sampler()->stopPlayingNotes();
 	
 	m_pAudioDriver->disconnect();
 
@@ -3969,7 +3969,7 @@ void Hydrogen::__kill_instruments()
 void Hydrogen::__panic()
 {
 	sequencer_stop();
-	AudioEngine::get_instance()->get_sampler()->stop_playing_notes();
+	AudioEngine::get_instance()->get_sampler()->stopPlayingNotes();
 }
 
 unsigned int Hydrogen::__getMidiRealtimeNoteTickPosition()
