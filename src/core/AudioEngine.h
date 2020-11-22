@@ -31,6 +31,7 @@
 #include <string>
 #include <cassert>
 #include <mutex>
+#include <thread>
 #include <chrono>
 
 /** \def RIGHT_HERE
