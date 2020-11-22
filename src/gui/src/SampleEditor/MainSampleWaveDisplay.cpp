@@ -89,7 +89,7 @@ void MainSampleWaveDisplay::paintLocatorEvent( int pos, bool updateposi)
 void MainSampleWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
-	painter.setRenderHint( QPainter::HighQualityAntialiasing );
+	painter.setRenderHint( QPainter::Antialiasing );
 
 	bool issmaller = false;
 

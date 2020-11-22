@@ -86,7 +86,7 @@ void TargetWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
 
-	painter.setRenderHint( QPainter::HighQualityAntialiasing );
+	painter.setRenderHint( QPainter::Antialiasing );
 	painter.drawPixmap( ev->rect(), m_Background, ev->rect() );
 	painter.setPen( QColor( 252, 142, 73 ));
 

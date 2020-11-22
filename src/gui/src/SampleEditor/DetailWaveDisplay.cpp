@@ -75,7 +75,7 @@ void DetailWaveDisplay::setDetailSamplePosition( unsigned posi, float zoomfactor
 void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
-	painter.setRenderHint( QPainter::HighQualityAntialiasing );
+	painter.setRenderHint( QPainter::Antialiasing );
 	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
 
 	painter.setPen( QColor( 230, 230, 230 ) );
