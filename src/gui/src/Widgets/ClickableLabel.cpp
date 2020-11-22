@@ -32,7 +32,7 @@ ClickableLabel::ClickableLabel( QWidget *pParent )
 {
 
 	QPalette defaultPalette;
-	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
+	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	defaultPalette.setColor( QPalette::Foreground, QColor( 230, 230, 230 ) );
 	this->setPalette( defaultPalette );
 

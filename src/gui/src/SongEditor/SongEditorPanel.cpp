@@ -395,7 +395,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	
 	this->setLayout( pGridLayout );
 	QPalette defaultPalette;
-	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
+	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
 
 	show();

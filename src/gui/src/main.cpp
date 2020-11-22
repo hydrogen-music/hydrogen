@@ -64,7 +64,7 @@ void setPalette( QApplication *pQApp )
 	QPalette defaultPalette;
 
 	// A general background color.
-	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
+	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 
 	// A general foreground color.
 	defaultPalette.setColor( QPalette::Foreground, QColor( 255, 255, 255 ) );

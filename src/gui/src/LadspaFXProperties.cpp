@@ -261,7 +261,7 @@ void LadspaFXProperties::updateControls()
 			pLCD->setText( sValue );
 			pLCD->show();
 			QPalette lcdPalette;
-			lcdPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
+			lcdPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 			pLCD->setPalette( lcdPalette );
 
 			m_pInputControlLabel.push_back( pLCD );

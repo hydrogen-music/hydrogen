@@ -235,7 +235,7 @@ LCDDisplay::LCDDisplay( QWidget * pParent, LCDDigit::LCDType type, int nDigits, 
 	setText( "    ");
 
 	QPalette defaultPalette;
-	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
+	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
 
 }

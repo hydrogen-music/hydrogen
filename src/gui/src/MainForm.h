@@ -48,7 +48,7 @@ class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 	public:
 		QApplication* m_pQApp;
 
-		MainForm( QApplication *app, const QString& songFilename );
+		MainForm(QApplication *pApplication, const QString& songFilename );
 		~MainForm();
 
 		void updateRecentUsedSongList();

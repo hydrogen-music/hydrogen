@@ -36,7 +36,7 @@ RotaryTooltip::RotaryTooltip( QPoint pos )
 	resize( m_pDisplay->size() );
 
 	QPalette defaultPalette;
-	defaultPalette.setColor( QPalette::Background, QColor( 49, 53, 61 ) );
+	defaultPalette.setColor( QPalette::Window, QColor( 49, 53, 61 ) );
 	this->setPalette( defaultPalette );
 
 }

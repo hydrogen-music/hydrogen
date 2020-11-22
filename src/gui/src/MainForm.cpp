@@ -88,7 +88,7 @@ int MainForm::sigusr1Fd[2];
 
 const char* MainForm::__class_name = "MainForm";
 
-MainForm::MainForm( QApplication *app, const QString& songFilename )
+MainForm::MainForm( QApplication* pApplication, const QString& songFilename )
 	: QMainWindow( nullptr, nullptr )
 	, Object( __class_name )
 {
@@ -103,7 +103,7 @@ MainForm::MainForm( QApplication *app, const QString& songFilename )
 #endif
 
 
-	m_pQApp = app;
+	m_pQApp =  pApplication;
 
 	m_pQApp->processEvents();
 
