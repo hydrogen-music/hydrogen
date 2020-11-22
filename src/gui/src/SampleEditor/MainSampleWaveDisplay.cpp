@@ -36,7 +36,7 @@ MainSampleWaveDisplay::MainSampleWaveDisplay(QWidget* pParent)
  : QWidget( pParent )
  , Object( __class_name )
 {
-//	setAttribute(Qt::WA_NoBackground);
+//	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//INFOLOG( "INIT" );
 	int w = 624;

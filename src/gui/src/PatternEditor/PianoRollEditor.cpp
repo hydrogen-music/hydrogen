@@ -59,7 +59,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 	m_nRowHeight = 10;
 	m_nOctaves = 7;
 
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 	setFocusPolicy(Qt::ClickFocus);
 	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
 

@@ -49,7 +49,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
  , m_pPattern( nullptr )
 {
 	//infoLog("INIT");
-	//setAttribute(Qt::WA_NoBackground);
+	//setAttribute(Qt::WA_OpaquePaintEvent);
 
 	m_nGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
 	m_nEditorWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );

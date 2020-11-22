@@ -39,7 +39,7 @@ WaveDisplay::WaveDisplay(QWidget* pParent)
  , m_pLayer( nullptr )
  , m_SampleNameAlignment( Qt::AlignCenter )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//INFOLOG( "INIT" );
 

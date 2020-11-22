@@ -48,7 +48,7 @@ Fader::Fader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob)
  , m_fDefaultValue( m_fMaxValue )
  , m_bIgnoreMouseMove( false )
 {
-	setAttribute( Qt::WA_NoBackground );
+	setAttribute( Qt::WA_OpaquePaintEvent );
 	
 	setMinimumSize( 23, 116 );
 	setMaximumSize( 23, 116);
@@ -343,7 +343,7 @@ VerticalFader::VerticalFader( QWidget *pParent, bool bUseIntSteps, bool bWithout
 	m_fMinValue = 0.0;
 	m_fMaxValue = 1.0;
 	
-	setAttribute( Qt::WA_NoBackground );
+	setAttribute( Qt::WA_OpaquePaintEvent );
 	
 	setMinimumSize( 116, 23 );
 	setMaximumSize( 116, 23);
@@ -455,7 +455,7 @@ MasterFader::MasterFader(QWidget *pParent, bool bWithoutKnob)
  , m_fDefaultValue( m_fMax )
  , m_bIgnoreMouseMove( false )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	setMinimumSize( 34, 190 );
 	setMaximumSize( 34, 190);
@@ -702,7 +702,7 @@ Knob::Knob( QWidget* pParent )
  : QWidget( pParent )
  , Object( __class_name )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	m_nWidgetWidth = 18;
 	m_nWidgetHeight = 18;

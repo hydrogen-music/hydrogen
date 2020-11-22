@@ -91,7 +91,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
  , m_bDragging( false )
 {
 
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 	setFocusPolicy (Qt::StrongFocus);
 
 	m_nGridWidth = 16;
@@ -1355,7 +1355,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 {
 	m_nWidth = 200;
 	m_nGridHeight = 18;
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	setAcceptDrops(true);
 
@@ -2283,7 +2283,7 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
  , Object( __class_name )
  , m_bRightBtnPressed( false )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	m_nGridWidth = 16;
 	Preferences *pPref = Preferences::get_instance();

@@ -44,7 +44,7 @@ Button::Button( QWidget * pParent, const QString& sOnImage, const QString& sOffI
  , __enable_press_hold(enable_press_hold)
 {
 	// draw the background: slower but useful with transparent images!
-	//setAttribute(Qt::WA_NoBackground);
+	//setAttribute(Qt::WA_OpaquePaintEvent);
 
 	setMinimumSize( size );
 	setMaximumSize( size );

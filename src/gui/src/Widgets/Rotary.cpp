@@ -77,7 +77,7 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
  , m_bShowValueToolTip( bUseValueTip )
  , m_bIgnoreMouseMove( false )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 	setToolTip( sToolTip );
 
 	m_pValueToolTip = new RotaryTooltip( mapToGlobal( QPoint( 0, 0 ) ) );

@@ -35,7 +35,7 @@ DetailWaveDisplay::DetailWaveDisplay(QWidget* pParent )
  , Object( __class_name )
  , m_sSampleName( "" )
 {
-//	setAttribute(Qt::WA_NoBackground);
+//	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//INFOLOG( "INIT" );
 	int w = 180;

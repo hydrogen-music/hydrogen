@@ -49,7 +49,7 @@ LayerPreview::LayerPreview( QWidget* pParent )
  , m_nSelectedLayer( 0 )
  , m_bMouseGrab( false )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//INFOLOG( "INIT" );
 

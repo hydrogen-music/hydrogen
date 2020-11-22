@@ -37,7 +37,7 @@ LCDDigit::LCDDigit( QWidget * pParent, LCDType type )
  , Object( __class_name )
  , m_type( type )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	switch ( m_type ) {
 		case SMALL_BLUE:

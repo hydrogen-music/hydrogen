@@ -45,7 +45,7 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
  : QWidget( parent )
  , Object( __class_name )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//infoLog( "INIT" );
 
