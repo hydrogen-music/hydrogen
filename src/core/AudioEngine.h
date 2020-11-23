@@ -338,6 +338,10 @@ public:
 	void setNeedsLock( bool bNeedsLock ) {
 		m_bNeedsLock = bNeedsLock;
 	}
+
+	AudioEngineLocking() {
+		m_bNeedsLock = false;
+	}
 };
 
 
