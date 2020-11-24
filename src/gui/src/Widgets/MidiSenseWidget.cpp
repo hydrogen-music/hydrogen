@@ -20,9 +20,9 @@
  *
  */
 
-#include "hydrogen/midi_map.h"
+#include "core/MidiMap.h"
 #include "MidiSenseWidget.h"
-#include <hydrogen/hydrogen.h>
+#include <core/Hydrogen.h>
 
 const char* MidiSenseWidget::__class_name = "MidiSenseWidget";
 

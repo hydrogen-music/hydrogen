@@ -27,11 +27,11 @@
 #include "../InstrumentEditor/InstrumentEditor.h"
 
 #include <QDialog>
-#include <hydrogen/object.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/instrument.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
+#include <core/Basics/Song.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Instrument.h>
 
 
 class Button;
@@ -100,8 +100,8 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		MainSampleWaveDisplay *m_pMainSampleWaveDisplay;
 		TargetWaveDisplay *m_pTargetSampleView;
 		DetailWaveDisplay *m_pSampleAdjustView;
-
-		H2Core::Sample *m_pSampleFromFile;
+	
+		std::shared_ptr<H2Core::Sample> m_pSampleFromFile;
 		int m_nSelectedLayer;
 		int m_nSelectedComponent;
 		QString m_sSampleName;

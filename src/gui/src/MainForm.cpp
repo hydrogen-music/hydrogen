@@ -20,21 +20,21 @@
  *
  */
 
-#include <hydrogen/event_queue.h>
-#include <hydrogen/version.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/smf/SMF.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/timeline.h>
-#include <hydrogen/helpers/files.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/basics/drumkit_component.h>
-#include <hydrogen/basics/playlist.h>
-#include <hydrogen/lilypond/lilypond.h>
+#include <core/EventQueue.h>
+#include <core/Version.h>
+#include <core/Hydrogen.h>
+#include <core/AudioEngine.h>
+#include <core/Smf/SMF.h>
+#include <core/Preferences.h>
+#include <core/Timeline.h>
+#include <core/Helpers/Files.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/Playlist.h>
+#include <core/Lilipond/Lilypond.h>
 
 #include "AboutDialog.h"
 #include "AudioEngineInfoForm.h"
@@ -78,13 +78,12 @@
 
 #ifdef H2CORE_HAVE_LASH
 #include <lash/lash.h>
-#include <hydrogen/LashClient.h>
+#include <core/Lash/LashClient.h>
 #endif
 
 #include <memory>
 #include <cassert>
 
-using namespace std;
 using namespace H2Core;
 
 int MainForm::sigusr1Fd[2];
@@ -433,7 +432,7 @@ void MainForm::onLashPollTimer()
 
 		lash_event_t* event;
 
-		string songFilename;
+		std::string songFilename;
 		QString filenameSong;
 		Song *song = Hydrogen::get_instance()->getSong();
 		// Extra parentheses for -Wparentheses
@@ -631,7 +630,7 @@ void MainForm::action_file_save()
 
 		// add the new loaded song in the "last used song" vector
 		Preferences *pPref = Preferences::get_instance();
-		vector<QString> recentFiles = pPref->getRecentFiles();
+		std::vector<QString> recentFiles = pPref->getRecentFiles();
 		recentFiles.insert( recentFiles.begin(), filename );
 		pPref->setRecentFiles( recentFiles );
 
@@ -1329,7 +1328,7 @@ void MainForm::updateRecentUsedSongList()
 	m_pRecentFilesMenu->clear();
 
 	Preferences *pPref = Preferences::get_instance();
-	vector<QString> recentUsedSongs = pPref->getRecentFiles();
+	std::vector<QString> recentUsedSongs = pPref->getRecentFiles();
 
 	QString sFilename;
 
@@ -1375,7 +1374,7 @@ void MainForm::openSongFile( const QString& sFilename )
 
 	// add the new loaded song in the "last used song" vector
 	Preferences *pPref = Preferences::get_instance();
-	vector<QString> recentFiles = pPref->getRecentFiles();
+	std::vector<QString> recentFiles = pPref->getRecentFiles();
 	recentFiles.insert( recentFiles.begin(), sFilename );
 	pPref->setRecentFiles( recentFiles );
 
@@ -1667,7 +1666,7 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		}
 
 		// virtual keyboard handling
-		map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
+		std::map<int,int>::iterator found = keycodeInstrumentMap.find ( k->key() );
 		if (found != keycodeInstrumentMap.end()) {
 			//			INFOLOG( "[eventFilter] virtual keyboard event" );
 			// insert note at the current column in time

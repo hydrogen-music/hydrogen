@@ -20,6 +20,7 @@
  *
  */
 
+#include <cstring>
 
 #include "Skin.h"
 #include "PreferencesDialog.h"
@@ -33,14 +34,14 @@
 #include <QFontDialog>
 #include "Widgets/MidiTable.h"
 
-#include <hydrogen/midi_map.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/IO/MidiInput.h>
-#include <hydrogen/LashClient.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/helpers/translations.h>
-#include <hydrogen/sampler/Sampler.h>
+#include <core/MidiMap.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/IO/MidiInput.h>
+#include <core/Lash/LashClient.h>
+#include <core/AudioEngine.h>
+#include <core/Helpers/Translations.h>
+#include <core/Sampler/Sampler.h>
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
 
@@ -158,6 +159,18 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	connectDefaultsCheckBox->setChecked( pPref->m_bJackConnectDefaults );
 	trackOutputComboBox->setCurrentIndex( pPref->m_nJackTrackOutputMode );
+
+	switch ( pPref->m_JackBBTSync ) {
+	case Preferences::JackBBTSyncMethod::constMeasure:
+		jackBBTSyncComboBox->setCurrentIndex( 0 );
+		break;
+	case Preferences::JackBBTSyncMethod::identicalBars:
+		jackBBTSyncComboBox->setCurrentIndex( 1 );
+		break;
+	default:
+		ERRORLOG( QString( "Unknown Jack BBT synchronization method [%1]" )
+				  .arg( static_cast<int>(pPref->m_JackBBTSync) ) );
+	}
 	//~ JACK
 
 
@@ -429,6 +442,17 @@ void PreferencesDialog::on_okBtn_clicked()
 	} else {
 		pPref->m_nJackTrackOutputMode = Preferences::PRE_FADER;
 	}
+
+	switch ( jackBBTSyncComboBox->currentIndex() ) {
+	case 0:
+		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::constMeasure;
+		break;
+	case 1:
+		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::identicalBars;
+		break;
+	default:
+		ERRORLOG( QString( "Unexpected Jack BBT synchronization value" ) );
+	}
 	//~ JACK
 
 	pPref->m_nBufferSize = bufferSizeSpinBox->value();
@@ -511,7 +535,9 @@ void PreferencesDialog::on_okBtn_clicked()
 		H2Core::Hydrogen::get_instance()->toggleOscServer( enableOscCheckbox->isChecked() );
 #endif
 	}
+	
 	pPref->setOscFeedbackEnabled( enableOscFeedbackCheckbox->isChecked() );
+	
 	if ( incomingOscPortSpinBox->value() != pPref->getOscServerPort() ) {
 		pPref->setOscServerPort( incomingOscPortSpinBox->value() );
 #ifdef H2CORE_HAVE_OSC
@@ -649,6 +675,19 @@ void PreferencesDialog::updateDriverInfo()
 		sampleRateComboBox->setEnabled( false );
 		trackOutputComboBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled( false );
+
+		if ( std::strcmp( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name(),
+						  "JackAudioDriver" ) == 0 ) {
+			connectDefaultsCheckBox->show();
+			trackOutsCheckBox->show();
+			jackBBTSyncComboBox->show();
+			jackBBTSyncLbl->show();
+		} else {
+			connectDefaultsCheckBox->hide();
+			trackOutsCheckBox->hide();
+			jackBBTSyncComboBox->hide();
+			jackBBTSyncLbl->hide();
+		}
 	}
 	else if ( driverComboBox->currentText() == "OSS" ) {	// OSS
 		info += tr("<b>Open Sound System</b><br>Simple audio driver [/dev/dsp]");
@@ -662,6 +701,10 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->setEnabled( false );
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
+		connectDefaultsCheckBox->hide();
+		trackOutsCheckBox->hide();
+		jackBBTSyncComboBox->hide();
+		jackBBTSyncLbl->hide();
 	}
 	else if ( driverComboBox->currentText() == "Jack" ) {	// JACK
 		info += tr("<b>Jack Audio Connection Kit Driver</b><br>Low latency audio driver");
@@ -675,6 +718,10 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->setEnabled( true );
 		connectDefaultsCheckBox->setEnabled(true);
 		trackOutsCheckBox->setEnabled( true );
+		connectDefaultsCheckBox->show();
+		trackOutsCheckBox->show();
+		jackBBTSyncComboBox->show();
+		jackBBTSyncLbl->show();
 	}
 	else if ( driverComboBox->currentText() == "Alsa" ) {	// ALSA
 		info += tr("<b>ALSA Driver</b><br>");
@@ -688,6 +735,10 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->setEnabled( false );
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
+		connectDefaultsCheckBox->hide();
+		trackOutsCheckBox->hide();
+		jackBBTSyncComboBox->hide();
+		jackBBTSyncLbl->hide();
 	}
 	else if ( driverComboBox->currentText() == "PortAudio" ) {
 		info += tr( "<b>PortAudio Driver</b><br>" );
@@ -700,6 +751,10 @@ void PreferencesDialog::updateDriverInfo()
 		sampleRateComboBox->setEnabled(true);
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
+		connectDefaultsCheckBox->hide();
+		trackOutsCheckBox->hide();
+		jackBBTSyncComboBox->hide();
+		jackBBTSyncLbl->hide();
 	}
 	else if ( driverComboBox->currentText() == "CoreAudio" ) {
 		info += tr( "<b>CoreAudio Driver</b><br>" );
@@ -713,6 +768,10 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->setEnabled( false );
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
+		connectDefaultsCheckBox->hide();
+		trackOutsCheckBox->hide();
+		jackBBTSyncComboBox->hide();
+		jackBBTSyncLbl->hide();
 	}
 	else if ( driverComboBox->currentText() == "PulseAudio" ) {
 		info += tr("<b>PulseAudio Driver</b><br>");
@@ -726,6 +785,10 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->setEnabled( false );
 		trackOutsCheckBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled(false);
+		connectDefaultsCheckBox->hide();
+		trackOutsCheckBox->hide();
+		jackBBTSyncComboBox->hide();
+		jackBBTSyncLbl->hide();
 	}
 	else {
 		QString selectedDriver = driverComboBox->currentText();
@@ -877,19 +940,19 @@ void PreferencesDialog::on_resampleComboBox_currentIndexChanged ( int index )
 {
 	switch ( index ){
 	case 0:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::LINEAR );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
 		break;
 	case 1:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::COSINE );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
 		break;
 	case 2:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::THIRD );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
 		break;
 	case 3:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::CUBIC );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
 		break;
 	case 4:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Sampler::HERMITE );
+		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
 		break;
 	}
 

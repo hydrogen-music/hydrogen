@@ -24,21 +24,21 @@
 #include "PatternEditorPanel.h"
 #include "NotePropertiesRuler.h"
 
-#include <hydrogen/globals.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/basics/drumkit_component.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/adsr.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/helpers/xml.h>
+#include <core/Globals.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/EventQueue.h>
+#include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Adsr.h>
+#include <core/Basics/Note.h>
+#include <core/AudioEngine.h>
+#include <core/Helpers/Xml.h>
 
 #include "UndoActions.h"
 #include "../HydrogenApp.h"
@@ -49,7 +49,6 @@
 #include <cassert>
 #include <algorithm>
 
-using namespace std;
 using namespace H2Core;
 
 const char* DrumPatternEditor::__class_name = "DrumPatternEditor";
@@ -423,7 +422,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		// hear note
 		if ( listen && !isNoteOff ) {
 			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
-			AudioEngine::get_instance()->get_sampler()->note_on(pNote2);
+			AudioEngine::get_instance()->get_sampler()->noteOn(pNote2);
 		}
 	}
 	pSong->set_is_modified( true );
@@ -984,7 +983,6 @@ void DrumPatternEditor::deleteSelection()
 ///
 void DrumPatternEditor::copy()
 {
-	Song *pSong = Hydrogen::get_instance()->getSong();
 	XMLDoc doc;
 	XMLNode selection = doc.set_root( "noteSelection" );
 	XMLNode noteList = selection.createNode( "noteList");

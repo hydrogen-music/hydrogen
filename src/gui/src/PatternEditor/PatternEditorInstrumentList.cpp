@@ -22,17 +22,17 @@
 
 #include "PatternEditorInstrumentList.h"
 
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/LocalFileMng.h>
+#include <core/AudioEngine.h>
+#include <core/EventQueue.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Preferences.h>
+#include <core/Basics/Song.h>
+#include <core/LocalFileMng.h>
 using namespace H2Core;
 
 #include "UndoActions.h"
@@ -50,8 +50,6 @@ using namespace H2Core;
 #include <QClipboard>
 #include <cassert>
 #include <algorithm> // for std::min
-
-using namespace std;
 
 const char* InstrumentLine::__class_name = "InstrumentLine";
 
@@ -246,7 +244,7 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 		Instrument *pInstr = pSong->get_instrument_list()->get( m_nInstrumentNumber );
 
 		Note *pNote = new Note( pInstr, 0, velocity, pan_L, pan_R, nLength, fPitch);
-		AudioEngine::get_instance()->get_sampler()->note_on(pNote);
+		AudioEngine::get_instance()->get_sampler()->noteOn(pNote);
 	}
 	else if (ev->button() == Qt::RightButton ) {
 		m_pFunctionPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
@@ -608,7 +606,6 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
-	Mixer * mixer = HydrogenApp::get_instance()->getMixer();
 
 	unsigned nSelectedInstr = pEngine->getSelectedInstrumentNumber();
 
@@ -643,9 +640,7 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 			pLine->setName( pInstr->get_name() );
 			pLine->setSelected( nInstr == nSelectedInstr );
 			pLine->setMuted( pInstr->is_muted() );
-			if ( mixer ) {
-				pLine->setSoloed( mixer->isSoloClicked( nInstr ) );
-			}
+			pLine->setSoloed( pInstr->is_soloed() );
 
 			pLine->setSamplesMissing( pInstr->has_missing_samples() );
 		}

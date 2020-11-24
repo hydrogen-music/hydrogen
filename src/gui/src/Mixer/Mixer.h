@@ -30,8 +30,8 @@
 #  include <QtWidgets>
 #endif
 
-#include <hydrogen/object.h>
-#include <hydrogen/globals.h>
+#include <core/Object.h>
+#include <core/Globals.h>
 #include "../EventListener.h"
 
 class Button;
@@ -64,8 +64,6 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		void noteOffClicked(MixerLine* ref);
 		void muteClicked(MixerLine* ref);
 		void muteClicked(ComponentMixerLine* ref);
-		void unmuteAll( bool findSelectedInstr);
-		void unmuteAll( int selectedInstr);
 		void soloClicked(MixerLine* ref);
 		void soloClicked(ComponentMixerLine* ref);
 		void volumeChanged(MixerLine* ref);

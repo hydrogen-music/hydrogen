@@ -29,7 +29,7 @@
 #  include <QtWidgets>
 #endif
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 QPixmap* LCDDigit::m_pSmallBlueFontSet = nullptr;
 QPixmap* LCDDigit::m_pSmallRedFontSet = nullptr;

@@ -24,7 +24,7 @@
 #ifndef PATTERN_EDITOR_PANEL_H
 #define PATTERN_EDITOR_PANEL_H
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 #include "PianoRollEditor.h"
 #include "../EventListener.h"

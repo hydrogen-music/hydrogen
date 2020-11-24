@@ -30,7 +30,7 @@
 #endif
 #include <QtNetwork>
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 class Download : public QDialog, public H2Core::Object
 {

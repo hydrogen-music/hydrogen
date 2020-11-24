@@ -452,7 +452,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Directory %1 does not exist</source>
-        <translation type="unfinished">Verzeichnis %1 existiert nicht</translation>
+        <translation>Verzeichnis %1 existiert nicht</translation>
     </message>
 </context>
 <context>
@@ -572,10 +572,6 @@ Overwrite the existing file?</source>
     <message>
         <source>Interpolation: </source>
         <translation>Interpolation: </translation>
-    </message>
-    <message>
-        <source>Choose type of interpolation methode</source>
-        <translation>Wähle eine Interpolationsmethode</translation>
     </message>
     <message>
         <source>Linear</source>
@@ -912,6 +908,14 @@ Bist Du sicher?
         <source>Fill 1/16 notes</source>
         <translation>(1/16) Füge jede sechzehnte Note ein</translation>
     </message>
+    <message>
+        <source>Some samples for this instrument failed to load.</source>
+        <translation>Einige Sample für dieses Instrument konnten nicht geladen werden.</translation>
+    </message>
+    <message>
+        <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
+        <translation>Ein oder mehrere Samples für dieses Instrument konnten nicht geladen werden. Dies kann an einem veralteten Schlagzeug liegen, was durch das Laden eines neueren behoben werden kann.</translation>
+    </message>
 </context>
 <context>
     <name>InstrumentRack</name>
@@ -1172,10 +1176,6 @@ MIDI = %2</translation>
         <translation>Änderungen &amp;verwerfen</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
-    </message>
-    <message>
         <source>Error loading song.</source>
         <translation>Fehler beim Laden des Songs.</translation>
     </message>
@@ -1298,10 +1298,6 @@ MIDI = %2</translation>
     <message>
         <source>Clear all instruments?</source>
         <translation>Alle Instrumente löschen?</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>OK</translation>
     </message>
     <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
@@ -1537,15 +1533,15 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     </message>
     <message>
         <source>&amp;Timeline</source>
-        <translation type="unfinished"></translation>
+        <translation>Timeline</translation>
     </message>
     <message>
         <source>&amp;Playback track</source>
-        <translation type="unfinished"></translation>
+        <translation>Playback Track</translation>
     </message>
     <message>
         <source>Jack driver: cannot disconnect client</source>
-        <translation type="unfinished"></translation>
+        <translation>Jack Treiber: Trennen des Clients fehlgeschlagen</translation>
     </message>
     <message>
         <source>OSC Server: Cannot connect to given port, using temporary port instead</source>
@@ -1554,6 +1550,27 @@ It should work like a charm provided that you use the GM-kit, and that you do no
     <message>
         <source>Retrieving information about drumkit &apos;%1&apos; failed: drumkit does not exist.</source>
         <translation>Konnte keine Information zu Schlagzeug &apos;%1&apos; abrufen: Schlagzeug existiert nicht.</translation>
+    </message>
+    <message>
+        <source>Some samples used by this song failed to load. If you save the song now these missing samples will be removed from the song entirely.
+Are you sure you want to save?</source>
+        <translation>Einige Samples für dieses Lied konnten nicht geladen werden. Be erneutem Speichern werden die fehlenden vollständig entfernt.</translation>
+    </message>
+    <message>
+        <source>Song drumkit samples</source>
+        <translation>Lied: Schlagzeugsamples</translation>
+    </message>
+    <message>
+        <source>Some samples used in this song could not be loaded. This may be because it uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
+        <translation>Ein oder mehrere Samples für dieses Lied konnten nicht geladen werden. Dies kann an einem veralteten Schlagzeug liegen, was durch das Laden eines neueren behoben werden kann.</translation>
+    </message>
+    <message>
+        <source>Open drumkit</source>
+        <translation>Öffne Schlagzeug</translation>
+    </message>
+    <message>
+        <source>Could not write to temporary directory %1.</source>
+        <translation>Fehler beim Schreiben in temporären Ordner %1.</translation>
     </message>
 </context>
 <context>
@@ -2050,6 +2067,14 @@ It should work like a charm provided that you use the GM-kit, and that you do no
         <source>Switch metronome on/off</source>
         <translation>Metronom An/Aus</translation>
     </message>
+    <message>
+        <source>Jack-Time-Master mode = Off</source>
+        <translation>Jack-Time-Master Modus aus</translation>
+    </message>
+    <message>
+        <source>Jack-Time-Master mode = On</source>
+        <translation>Jack-Time-Master Modus aus</translation>
+    </message>
 </context>
 <context>
     <name>PlaylistDialog</name>
@@ -2354,7 +2379,7 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>Automatic driver selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische Treiberauswahl</translation>
     </message>
     <message>
         <source>&lt;br&gt;&lt;b&gt;</source>
@@ -2363,6 +2388,10 @@ The path to the script and the scriptname must be without whitespaces.</source>
     <message>
         <source>&lt;/b&gt; selected</source>
         <translation>&lt;/b&gt; selected</translation>
+    </message>
+    <message>
+        <source>Hydrogen must be restarted for language change to take effect</source>
+        <translation>Ein Neustart ist nötig, damit Sprachänderungen wirksam werden</translation>
     </message>
 </context>
 <context>
@@ -2688,10 +2717,6 @@ The path to the script and the scriptname must be without whitespaces.</source>
         <translation>Erzeuge Ausgänge für jedes einzelne Instrument</translation>
     </message>
     <message>
-        <source>Enable feedback</source>
-        <translation>Rückkopplung aktivieren</translation>
-    </message>
-    <message>
         <source>&amp;OSC</source>
         <translation>&amp;OSC</translation>
     </message>
@@ -2713,23 +2738,63 @@ The path to the script and the scriptname must be without whitespaces.</source>
     </message>
     <message>
         <source>second step, adjust offset between last controller/keyboard trigger and the deferred sequencer startup </source>
-        <translation type="unfinished"></translation>
+        <translation>Zweiter Schritt: Feinjustiere den Offset zwischen den letzten Anschlag des Keyboards und abgeleiteten Starten des Sequenzers</translation>
     </message>
     <message>
         <source>Maximum number of instrument layers</source>
-        <translation type="unfinished"></translation>
+        <translation>Größt möglichste Anzahl von Instrumentenebenen</translation>
     </message>
     <message>
         <source>Maximum number of layers (requires restart of Hydrogen)</source>
-        <translation type="unfinished"></translation>
+        <translation>Größt möglichste Anzahl von Ebenen (erfordert Neustart)</translation>
     </message>
     <message>
         <source>Output</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe</translation>
     </message>
     <message>
         <source>Enable midi feedback</source>
         <translation>Aktiviere Midi Feedback</translation>
+    </message>
+    <message>
+        <source>Language / Γλώσσα / Язык / 言語</source>
+        <translation>Sprache</translation>
+    </message>
+    <message>
+        <source>Hide keyboard input cursor</source>
+        <translation>Keyboard Eingabecursor ausblenden</translation>
+    </message>
+    <message>
+        <source>BBT sync method</source>
+        <translation>BBT Sync. Methode</translation>
+    </message>
+    <message>
+        <source>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</source>
+        <translation>Spezifiziert die Größe, welche über den gesamten Verlauf eine Liedes gleich bleiben muss, um das Funktionen der Synchronization mittels Jack durch einen externen timebase master zu gewährleisten</translation>
+    </message>
+    <message>
+        <source>constant measure</source>
+        <translation>konstanter Takt</translation>
+    </message>
+    <message>
+        <source>matching bars</source>
+        <translation>Übereinstimmende Takte</translation>
+    </message>
+    <message>
+        <source>High-resolution display scaling</source>
+        <translation>Hochauflösende Bildschirmskalierung</translation>
+    </message>
+    <message>
+        <source>Prefer smaller</source>
+        <translation>Bevorzuge Kleinere</translation>
+    </message>
+    <message>
+        <source>Scale to system setting</source>
+        <translation>Skalierung wie unter Systemeinstellungen</translation>
+    </message>
+    <message>
+        <source>Prefer larger</source>
+        <translation>Bevorzuge Größere</translation>
     </message>
 </context>
 <context>
@@ -2751,7 +2816,7 @@ Bist Du sicher?</translation>
     <message>
         <source>Unsaved changes left. These changes will be lost. 
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungespeichterte Änderungen. Diese werden verloren gehen. Trotzdem beenden?</translation>
     </message>
 </context>
 <context>
@@ -3191,6 +3256,14 @@ Fortsetzen?</translation>
         <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
         <translation>Die Verwendung der Timeline ist deaktiviert, solange JACK als timebase master verwendet wird.</translation>
     </message>
+    <message>
+        <source> Timeline = Off</source>
+        <translation>Timeline aus</translation>
+    </message>
+    <message>
+        <source> Timeline = On</source>
+        <translation>Timeline an</translation>
+    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -3320,15 +3393,19 @@ Soll sie überschrieben werden?</translation>
     </message>
     <message>
         <source>Could not export pattern.</source>
-        <translation type="unfinished">Pattern konnte nicht exportiert werden.</translation>
+        <translation>Pattern konnte nicht exportiert werden.</translation>
     </message>
     <message>
         <source>Could not export sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sequenz konnte nicht exportiert werden.</translation>
     </message>
     <message>
         <source>Pattern saved.</source>
         <translation>Pattern gespeichert.</translation>
+    </message>
+    <message>
+        <source>Could not save pattern to temporary directory.</source>
+        <translation>Pattern konnte nicht in temporären Ordner gespeichert.</translation>
     </message>
 </context>
 <context>
@@ -3386,6 +3463,14 @@ Soll sie überschrieben werden?</translation>
     <message>
         <source>Directory</source>
         <translation>Verzeichnis</translation>
+    </message>
+    <message>
+        <source>Drumkit exported.</source>
+        <translation>Schlagzeug exportiert.</translation>
+    </message>
+    <message>
+        <source>Drumkit not exported. Operation not supported.</source>
+        <translation>Schlagzeugexport fehlgeschlagen. Operation nicht unterstützt.</translation>
     </message>
 </context>
 <context>

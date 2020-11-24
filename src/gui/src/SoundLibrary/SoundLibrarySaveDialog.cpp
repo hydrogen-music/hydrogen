@@ -21,8 +21,8 @@
  */
 
 #include "SoundLibrarySaveDialog.h"
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/drumkit.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Drumkit.h>
 #include <QMessageBox>
 
 #include "../HydrogenApp.h"
