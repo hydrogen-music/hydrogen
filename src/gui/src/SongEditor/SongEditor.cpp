@@ -2513,6 +2513,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	int pIPos = Preferences::get_instance()->getPunchInPos();
 	int pOPos = Preferences::get_instance()->getPunchOutPos();
 
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	if ( pEngine->getCurrentPatternList()->size() != 0 ) {
 		H2Core::Pattern *pPattern = pEngine->getCurrentPatternList()->get( 0 );
 
@@ -2532,6 +2533,8 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		pIPos = 0;
 		pOPos = -1;
 	}
+
+	AudioEngine::get_instance()->unlock();
 
 	QPainter painter(this);
 	qreal pixelRatio = devicePixelRatio();
