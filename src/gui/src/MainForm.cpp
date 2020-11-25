@@ -397,6 +397,16 @@ void MainForm::createMenuBar()
 		m_pDebugMenu->addAction( tr( "Show &audio engine info" ), this, SLOT( action_debug_showAudioEngineInfo() ) );
 		m_pDebugMenu->addAction( tr( "Show filesystem info" ), this, SLOT( action_debug_showFilesystemInfo() ) );
 		
+		m_pLogLevelMenu = m_pDebugMenu->addMenu( tr( "Log level" ) );		
+		m_pLogLevelMenu->addAction( tr( "None" ), this, SLOT( action_debug_logLevel_none() ), QKeySequence( "" ) );
+		m_pLogLevelMenu->addAction( tr( "Error" ), this, SLOT( action_debug_logLevel_info() ), QKeySequence( "" ) );
+		m_pLogLevelMenu->addAction( tr( "Warning" ), this, SLOT( action_debug_logLevel_warn() ), QKeySequence( "" ) );
+		m_pLogLevelMenu->addAction( tr( "Info" ), this, SLOT( action_debug_logLevel_info() ), QKeySequence( "" ) );
+		m_pLogLevelMenu->addAction( tr( "Debug" ), this, SLOT( action_debug_logLevel_debug() ), QKeySequence( "" ) );
+		
+		m_pDebugMenu->addAction( tr( "Open log file" ), this, SLOT( action_debug_openLogfile()) );
+		
+		
 		if(pLogger->bit_mask() == 8) { // hydrogen -V8 list object map in console 
 			m_pDebugMenu->addAction( tr( "Print Objects" ), this, SLOT( action_debug_printObjects() ) );
 		}
@@ -412,9 +422,6 @@ void MainForm::createMenuBar()
 	m_pInfoMenu->addAction( tr("Donate"), this, SLOT( action_donate() ));
 	//~ INFO menu
 }
-
-
-
 
 void MainForm::onLashPollTimer()
 {
@@ -895,6 +902,41 @@ void MainForm::action_debug_showAudioEngineInfo()
 void MainForm::action_debug_showFilesystemInfo()
 {
 	h2app->showFilesystemInfoForm();
+}
+
+void MainForm::action_debug_logLevel_none()
+{
+	Logger* pLogger = Logger::get_instance();
+	pLogger->set_bit_mask( Logger::None );
+}
+
+void MainForm::action_debug_logLevel_error()
+{
+	Logger* pLogger = Logger::get_instance();
+	pLogger->set_bit_mask( Logger::Error );
+}
+
+void MainForm::action_debug_logLevel_warn()
+{
+	Logger* pLogger = Logger::get_instance();
+	pLogger->set_bit_mask( Logger::Error | Logger::Warning );
+}
+
+void MainForm::action_debug_logLevel_info()
+{
+	Logger* pLogger = Logger::get_instance();
+	pLogger->set_bit_mask( Logger::Error | Logger::Warning | Logger::Info );
+}
+
+void MainForm::action_debug_logLevel_debug()
+{
+	Logger* pLogger = Logger::get_instance();
+	pLogger->set_bit_mask( Logger::Error | Logger::Warning | Logger::Info );
+}
+
+void MainForm::action_debug_openLogfile()
+{
+	QDesktopServices::openUrl(QDir::homePath().append( "/.hydrogen/hydrogen.log" ));
 }
 
 
