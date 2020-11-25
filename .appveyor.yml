@@ -7,6 +7,7 @@ environment:
       MSYS_REPO: 'mingw64/mingw-w64-x86_64'
       BUILD_TYPE: "Debug"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON -DWIN64:BOOL=ON"
+      appveyor_build_worker_image: Visual Studio 2019
 
     - job_name: 'WindowsDebug32'
       job_group: 'Windows'
@@ -14,10 +15,7 @@ environment:
       MSYS_REPO: 'mingw32/mingw-w64-i686'
       BUILD_TYPE: "Debug"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON"
-
-image:
-  - Visual Studio 2019
-  - Ubuntu
+      appveyor_build_worker_image: Visual Studio 2019
 
 build:
   verbosity: detailed
@@ -27,6 +25,7 @@ for:
     matrix:
       only:
         - job_group: 'Windows'
+        
     before_build:
       cmd: |-
           set QTDIR=%MSYS%
@@ -56,6 +55,7 @@ for:
           mkdir build
           cd build
           cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=%BUILD_TYPE% %CMAKE_FLAGS% ..
+
     build_script:
       - cmd: |-
           REM *** Build ***
@@ -88,8 +88,7 @@ for:
           set INSTDIR=C:\hydrogen
           mkdir %INSTDIR%
           FOR %%F IN (Hydrogen-*.exe) DO %%F /S /D=%INSTDIR%
-          %PYTHON% -m pytest %APPVEYOR_BUILD_FOLDER%\windows\ci\test_installation.py --junitxml=test_installation.xml
-
+          %PYTHON% -m pytest %APPVEYOR_BUILD_FOLDER%\windows\ci\test_installation.py --junitxml=test_installation.xm
 
     artifacts:
       - path: build\Hydrogen-*.exe
