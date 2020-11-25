@@ -936,7 +936,7 @@ void MainForm::action_debug_logLevel_debug()
 
 void MainForm::action_debug_openLogfile()
 {
-	QDesktopServices::openUrl(QDir::homePath().append( "/.hydrogen/hydrogen.log" ));
+	QDesktopServices::openUrl( Filesystem::log_file_path() );
 }
 
 
