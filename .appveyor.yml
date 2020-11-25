@@ -6,6 +6,10 @@ environment:
       job_group: 'Linux'
       appveyor_build_worker_image: Ubuntu2004
 
+    - job_name: 'OS X'
+      job_group: 'Mac OS X'
+      appveyor_build_worker_image: macos
+
     - job_name: 'WindowsDebug64'
       job_group: 'Windows'
       MSYS: 'C:\msys64\mingw64'
@@ -42,6 +46,25 @@ for:
 
     build_script: |-
       mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 && make
+  - 
+    matrix:
+      only:
+        - job_group: 'Mac OS X'
+
+    init: |-
+      echo 'init phase'
+
+    before_build: |-
+      sudo ln -s /usr/local /opt/local;
+      sudo brew update
+      sudo brew install qt5; export CMAKE_PREFIX_PATH="$(brew --prefix qt5)";
+      sudo brew install libarchive; export PKG_CONFIG_PATH="$(brew --prefix libarchive)/lib/pkgconfig";
+      brew install libsndfile jack pulseaudio cppunit
+
+    build_script: |-
+      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
+      PATH="$(brew --prefix qt5)/bin:$PATH
+      ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
   -
     matrix:
       only:
