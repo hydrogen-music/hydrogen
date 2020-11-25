@@ -1,6 +1,11 @@
 environment:
   GENERATOR: "MinGW Makefiles"
   matrix:
+
+    - job_name: 'Ubuntu'
+      job_group: 'Linux'
+      appveyor_build_worker_image: Ubuntu2004
+
     - job_name: 'WindowsDebug64'
       job_group: 'Windows'
       MSYS: 'C:\msys64\mingw64'
@@ -16,10 +21,6 @@ environment:
       BUILD_TYPE: "Debug"
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON"
       appveyor_build_worker_image: Visual Studio 2019
-
-    - job_name: 'Ubuntu'
-      job_group: 'Linux'
-      appveyor_build_worker_image: Ubuntu2004
 
 build:
   verbosity: detailed
