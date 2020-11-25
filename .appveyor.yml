@@ -17,15 +17,33 @@ environment:
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON"
       appveyor_build_worker_image: Visual Studio 2019
 
+    - job_name: 'Ubuntu'
+      job_group: 'Linux'
+      appveyor_build_worker_image: Ubuntu2004
+
 build:
   verbosity: detailed
 
 for:
+  - 
+    matrix:
+      only:
+        - job_group: 'Linux'
+
+    before_build:
+      cmd: |-
+        apt-get update -qq
+        apt-get install -y clang qt5-default qttools5-dev qttools5-dev-tools libqt5xmlpatterns5-dev libarchive-dev libsndfile1-dev libasound2-dev libjack-jackd2-dev
+        apt-get install -y liblo-dev libpulse-dev libportmidi-dev portaudio19-dev libcppunit-dev liblrdf-dev liblash-compat-dev librubberband-dev ladspa-sdk
+
+    build_script:
+      - cmd: |-
+          mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 && make
   -
     matrix:
       only:
         - job_group: 'Windows'
-        
+
     before_build:
       cmd: |-
           set QTDIR=%MSYS%
@@ -88,7 +106,7 @@ for:
           set INSTDIR=C:\hydrogen
           mkdir %INSTDIR%
           FOR %%F IN (Hydrogen-*.exe) DO %%F /S /D=%INSTDIR%
-          %PYTHON% -m pytest %APPVEYOR_BUILD_FOLDER%\windows\ci\test_installation.py --junitxml=test_installation.xm
+          %PYTHON% -m pytest %APPVEYOR_BUILD_FOLDER%\windows\ci\test_installation.py --junitxml=test_installation.xml
 
     artifacts:
       - path: build\Hydrogen-*.exe
