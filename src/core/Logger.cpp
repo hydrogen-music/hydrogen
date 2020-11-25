@@ -21,6 +21,7 @@
  */
 
 #include "core/Logger.h"
+#include "core/Helpers/Filesystem.h"
 
 #include <cstdio>
 #include <QtCore/QDir>
@@ -54,11 +55,9 @@ void* loggerThread_func( void* param ) {
 #endif
 	FILE* log_file = nullptr;
 	if ( logger->__use_file ) {
-#ifdef Q_OS_MACX
-		QString sLogFilename = QDir::homePath().append( "/Library/Hydrogen/hydrogen.log" );
-#else
-		QString sLogFilename = QDir::homePath().append( "/.hydrogen/hydrogen.log" );
-#endif
+
+		QString sLogFilename = Filesystem::log_file_path();
+				
 		log_file = fopen( sLogFilename.toLocal8Bit(), "w" );
 		if ( log_file ) {
 			fprintf( log_file, "Start logger" );
@@ -68,7 +67,7 @@ void* loggerThread_func( void* param ) {
 	}
 	Logger::queue_t* queue = &logger->__msg_queue;
 	Logger::queue_t::iterator it, last;
-	//QString tmpString;
+
 	while ( logger->__running ) {
 		LOGGER_SLEEP;
 		if( !queue->empty() ) {
@@ -110,7 +109,7 @@ Logger* Logger::create_instance() {
 	return __instance;
 }
 
-Logger::Logger() : __use_file( false ), __running( true ) {
+Logger::Logger() : __use_file( true ), __running( true ) {
 	__instance = this;
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
