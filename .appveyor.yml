@@ -45,7 +45,7 @@ for:
     build_script: |-
       git submodule init && git submodule update
       mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
-      
+
     test_script: |-
       TMPDIR=/tmp src/tests/tests --appveyor
   - 
@@ -69,12 +69,12 @@ for:
       PATH="$(brew --prefix qt5)/bin:$PATH"
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
 
+      #make sure that the dmg is also deployed even if not all tests are successful
+      appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen*.dmg -DeploymentName Installer
+
     test_script: |-
       TMPDIR=/tmp src/tests/tests --appveyor
 
-    artifacts:
-      - path: build/Hydrogen*.dmg
-        name: Installer
   -
     matrix:
       only:
