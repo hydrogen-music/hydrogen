@@ -70,10 +70,10 @@ for:
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
 
       #make sure that the dmg is also deployed even if not all tests are successful
-      appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen*.dmg -DeploymentName Installer
+      appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer
 
     test_script: |-
-      TMPDIR=/tmp src/tests/tests --appveyor
+      TMPDIR=/tmp src/tests/tests --appveyor || true
 
   -
     matrix:
