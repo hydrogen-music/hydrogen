@@ -501,7 +501,7 @@ QString Filesystem::tmp_file_path( const QString& base )
 	} else {
 		templateName += f.completeBaseName() + "-XXXXXX." + f.suffix();
 	}
-	QTemporaryFile file( templateName.replace( " ", "_" ) );
+	QTemporaryFile file( templateName);
 	file.setAutoRemove( false );
 	file.open();
 	file.close();
