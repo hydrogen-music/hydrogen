@@ -15,8 +15,6 @@ build:
 
 init: |-
   echo 'init phase'
-  git submodule init
-  git submodule update
 
 for:
   - 
@@ -50,7 +48,7 @@ for:
 
     build_script: |-
       mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
-      PATH="$(brew --prefix qt5)/bin:$PATH
+      PATH="$(brew --prefix qt5)/bin:$PATH"
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
 
     artifacts:
