@@ -45,6 +45,7 @@ for:
     build_script: |-
       git submodule init && git submodule update
       mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
+      TMPDIR=/tmp src/tests/tests --appveyor || true
   - 
     matrix:
       only:
@@ -60,11 +61,12 @@ for:
     build_script: |-
       #fix use of register keyword in jack: https://github.com/jackaudio/jack1/issues/84
       sed -i 's/, int register,/, int,/g' /opt/local/include/jack/types.h 
+
       git submodule init && git submodule update
       mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
       PATH="$(brew --prefix qt5)/bin:$PATH"
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
-      TMPDIR=/tmp src/tests/tests || true
+      TMPDIR=/tmp src/tests/tests --appveyor || true
 
     artifacts:
       - path: build/Hydrogen*.dmg
