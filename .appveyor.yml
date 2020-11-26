@@ -13,9 +13,6 @@ environment:
 build:
   verbosity: detailed
 
-init: |-
-  echo 'init phase'
-
 for:
   - 
     matrix:
@@ -30,14 +27,12 @@ for:
       sudo rm /usr/local/bin/doxygen
 
     build_script: |-
+      git submodule init && git submodule update
       mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
   - 
     matrix:
       only:
         - job_group: 'Mac OS X'
-
-    init: |-
-      echo 'init phase'
 
     before_build: |-
       sudo ln -s /usr/local /opt/local;
@@ -47,6 +42,7 @@ for:
       brew install libsndfile jack pulseaudio cppunit
 
     build_script: |-
+      git submodule init && git submodule update
       mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
       PATH="$(brew --prefix qt5)/bin:$PATH"
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
@@ -126,10 +122,6 @@ for:
     artifacts:
       - path: build\Hydrogen-*.exe
         name: Installer
-
-# cache:
-#   - C:\msys64\mingw32
-#   - C:\msys64\mingw64
 
 on_finish:
   - cmd: appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
