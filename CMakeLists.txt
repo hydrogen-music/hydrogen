@@ -363,7 +363,7 @@ ${red}IMPORTANT:${reset}
 -----------------------------------------------------------------\n"
 )
 
-find_path( HYDROGEN_INSTALLED NAMES hydrogen/config.h )
+find_path( HYDROGEN_INSTALLED NAMES core/config.h )
 IF( HYDROGEN_INSTALLED )
     COLOR_MESSAGE("-----------------------------------------------------------------
 ${red}IMPORTANT${reset}:

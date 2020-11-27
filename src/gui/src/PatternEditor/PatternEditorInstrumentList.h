@@ -25,14 +25,14 @@
 #define PATTERN_EDITOR_INSTRUMENT_LIST_H
 
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000
 #  include <QtWidgets>
 #endif
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 #include "../Widgets/PixmapWidget.h"
 
 namespace H2Core

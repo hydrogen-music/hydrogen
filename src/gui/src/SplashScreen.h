@@ -28,7 +28,7 @@
 #include <QTimer>
 #include <QPixmap>
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 class SplashScreen : public QSplashScreen, public H2Core::Object
 {

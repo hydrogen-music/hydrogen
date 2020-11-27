@@ -29,7 +29,7 @@
 #  include <QtWidgets>
 #endif
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 class Button;
 class LCDDisplay;

@@ -24,7 +24,7 @@
 #define FILE_BROWSER_H
 
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000

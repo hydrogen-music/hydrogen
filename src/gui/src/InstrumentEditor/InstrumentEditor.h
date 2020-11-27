@@ -29,8 +29,8 @@
 #  include <QtWidgets>
 #endif
 
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/object.h>
+#include <core/Basics/Instrument.h>
+#include <core/Object.h>
 
 #include "../EventListener.h"
 #include "../Widgets/PixmapWidget.h"

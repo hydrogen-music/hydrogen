@@ -37,11 +37,11 @@
 #include "PatternEditor/PatternEditorPanel.h"
 #include "InstrumentEditor/InstrumentEditorPanel.h"
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/IO/jack_audio_driver.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/event_queue.h>
+#include <core/Hydrogen.h>
+#include <core/AudioEngine.h>
+#include <core/IO/JackAudioDriver.h>
+#include <core/Preferences.h>
+#include <core/EventQueue.h>
 using namespace H2Core;
 
 
@@ -589,8 +589,6 @@ void PlayerControl::updatePlayerControl()
 
 
 #ifdef H2CORE_HAVE_JACK
-	AudioOutput *p_Driver = m_pEngine->getAudioOutput();
-
 	if ( m_pEngine->haveJackAudioDriver() ) {
 		m_pJackTransportBtn->show();
 		m_pJackMasterBtn->show();
@@ -604,7 +602,7 @@ void PlayerControl::updatePlayerControl()
 			case Preferences::USE_JACK_TRANSPORT:
 				m_pJackTransportBtn->setPressed(true);
 				
-				if ( static_cast<JackAudioDriver*>(p_Driver)->getIsTimebaseMaster() > 0 ) {
+				if ( m_pEngine->getJackTimebaseState() == JackAudioDriver::Timebase::Master ) {
 					m_pJackMasterBtn->setPressed( true );
 				} else {
 					m_pJackMasterBtn->setPressed( false );
@@ -621,30 +619,25 @@ void PlayerControl::updatePlayerControl()
 #endif
 
 	// time
-	float fFrames = m_pEngine->getAudioOutput()->m_transport.m_nFrames;
+	float fSeconds = AudioEngine::get_instance()->getElapsedTime();
+	
+	int nMSec = (int)( (fSeconds - (int)fSeconds) * 1000.0 );
+	int nSeconds = ( (int)fSeconds ) % 60;
+	int nMins = (int)( fSeconds / 60.0 ) % 60;
+	int nHours = (int)( fSeconds / 3600.0 );
 
-	float fSampleRate = m_pEngine->getAudioOutput()->getSampleRate();
-	if ( fSampleRate != 0 ) {
-		float fSeconds = fFrames / fSampleRate;
+	char tmp[100];
+	sprintf(tmp, "%02d", nHours );
+	m_pTimeDisplayH->setText( QString( tmp ) );
 
-		int nMSec = (int)( (fSeconds - (int)fSeconds) * 1000.0 );
-		int nSeconds = ( (int)fSeconds ) % 60;
-		int nMins = (int)( fSeconds / 60.0 ) % 60;
-		int nHours = (int)( fSeconds / 3600.0 );
+	sprintf(tmp, "%02d", nMins );
+	m_pTimeDisplayM->setText( QString( tmp ) );
 
-		char tmp[100];
-		sprintf(tmp, "%02d", nHours );
-		m_pTimeDisplayH->setText( QString( tmp ) );
+	sprintf(tmp, "%02d", nSeconds );
+	m_pTimeDisplayS->setText( QString( tmp ) );
 
-		sprintf(tmp, "%02d", nMins );
-		m_pTimeDisplayM->setText( QString( tmp ) );
-
-		sprintf(tmp, "%02d", nSeconds );
-		m_pTimeDisplayS->setText( QString( tmp ) );
-
-		sprintf(tmp, "%03d", nMSec );
-		m_pTimeDisplayMS->setText( QString( tmp ) );
-	}
+	sprintf(tmp, "%03d", nMSec );
+	m_pTimeDisplayMS->setText( QString( tmp ) );
 
 	m_pMetronomeBtn->setPressed(pPref->m_bUseMetronome);
 

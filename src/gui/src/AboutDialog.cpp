@@ -20,11 +20,11 @@
  *
  */
 
-#include <hydrogen/version.h>
+#include <core/Version.h>
 #include "AboutDialog.h"
 #include "Skin.h"
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 #include <vector>
 

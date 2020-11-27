@@ -30,7 +30,7 @@
 #  include <QtWidgets>
 #endif
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 namespace H2Core
 {

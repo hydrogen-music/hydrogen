@@ -31,7 +31,7 @@
 
 #include <vector>
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 namespace H2Core
 {

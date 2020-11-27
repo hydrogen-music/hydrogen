@@ -27,10 +27,10 @@
 #include "Skin.h"
 #include "HydrogenApp.h"
 
-#include <hydrogen/basics/song.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/smf/SMF.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/Smf/SMF.h>
 
 using namespace H2Core;
 

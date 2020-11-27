@@ -26,7 +26,7 @@
 
 
 #include "ui_ExportMidiDialog_UI.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 namespace H2Core {
     class Preferences;

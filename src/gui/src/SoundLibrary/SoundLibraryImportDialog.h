@@ -25,10 +25,10 @@
 
 
 #include "ui_SoundLibraryImportDialog_UI.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 #include <QNetworkReply>
 
-#include <hydrogen/Preferences.h>
+#include <core/Preferences.h>
 #include "SoundLibraryDatastructures.h"
 
 ///

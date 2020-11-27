@@ -30,8 +30,8 @@
 #include "SongEditorPanelBpmWidget.h"
 #include "SongEditorPanel.h"
 #include "SongEditor.h"
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/timeline.h>
+#include <core/Hydrogen.h>
+#include <core/Timeline.h>
 
 namespace H2Core
 {

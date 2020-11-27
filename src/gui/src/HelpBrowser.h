@@ -32,7 +32,7 @@
 #  include <QtWidgets>
 #endif
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 class SimpleHTMLBrowser : public QDialog, public H2Core::Object
 {

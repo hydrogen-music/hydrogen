@@ -6,15 +6,15 @@ INCLUDE(AddFileDependencies)
 FOREACH( _file ${hydrogen_H} ${hydrogen_SRCS})
     FILE(READ "${_file}" _FILE_CONTENT)
     IF( "${_FILE_CONTENT}" MATCHES "H2CORE_HAVE_" )
-        ADD_FILE_DEPENDENCIES( ${_file} ${CMAKE_BINARY_DIR}/src/core/include/hydrogen/config.h)
+        ADD_FILE_DEPENDENCIES( ${_file} ${CMAKE_BINARY_DIR}/src/core/config.h)
     ENDIF()
 ENDFOREACH()
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_BINARY_DIR}                 # ui_ headers
     ${CMAKE_CURRENT_SOURCE_DIR}/src             # gui headers
-    ${CMAKE_SOURCE_DIR}/src/core/include        # core headers
-    ${CMAKE_BINARY_DIR}/src/core/include        # generated config.h
+    ${CMAKE_BINARY_DIR}/src                     # generated config.h
+    ${CMAKE_SOURCE_DIR}/src                     # top level headers
     ${QT_INCLUDES}
     ${LASH_INCLUDE_DIRS}
     ${LIBARCHIVE_INCLUDE_DIRS}
@@ -46,7 +46,7 @@ IF(APPLE)
 ENDIF()
 
 ADD_EXECUTABLE(hydrogen WIN32 MACOSX_BUNDLE ${hydrogen_SRCS} ${hydrogen_MOC} ${hydrogen_UIS_H} ${CMAKE_SOURCE_DIR}/windows/icon.rc)
-SET_PROPERTY(TARGET hydrogen PROPERTY CXX_STANDARD 14)
+SET_PROPERTY(TARGET hydrogen PROPERTY CXX_STANDARD 17)
 if(APPLE)
     add_custom_command(
         TARGET hydrogen

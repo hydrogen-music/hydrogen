@@ -26,10 +26,10 @@
 
 #include <QDialog>
 #include "ui_Director_UI.h"
-#include <hydrogen/object.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/timeline.h>
+#include <core/Object.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/Timeline.h>
 #include "EventListener.h"
 
 

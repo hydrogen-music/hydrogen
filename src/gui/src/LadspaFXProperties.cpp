@@ -20,12 +20,12 @@
  *
  */
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/fx/Effects.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/IO/AudioOutput.h>
+#include <core/Hydrogen.h>
+#include <core/AudioEngine.h>
+#include <core/Basics/Song.h>
+#include <core/FX/Effects.h>
+#include <core/Preferences.h>
+#include <core/IO/AudioOutput.h>
 
 
 #include "LadspaFXProperties.h"
@@ -38,7 +38,6 @@
 #include "Mixer/Mixer.h"
 #include "Mixer/MixerLine.h"
 
-using namespace std;
 using namespace H2Core;
 
 const char* LadspaFXProperties::__class_name = "LadspaFXProperties";
@@ -354,7 +353,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 		if ( !sSelectedFX.isEmpty() ) {
 			LadspaFX *pFX = nullptr;
 
-			vector<H2Core::LadspaFXInfo*> pluginList = Effects::get_instance()->getPluginList();
+			std::vector<H2Core::LadspaFXInfo*> pluginList = Effects::get_instance()->getPluginList();
 			for (uint i = 0; i < pluginList.size(); i++) {
 				H2Core::LadspaFXInfo *pFXInfo = pluginList[i];
 				if (pFXInfo->m_sName == sSelectedFX ) {
@@ -413,7 +412,7 @@ void LadspaFXProperties::updateOutputControls()
 		for (uint i = 0; i < pFX->outputControlPorts.size(); i++) {
 			LadspaControlPort *pControl = pFX->outputControlPorts[i];
 
-			vector<Fader*>::iterator it = m_pOutputControlFaders.begin() + i;
+			std::vector<Fader*>::iterator it = m_pOutputControlFaders.begin() + i;
 			if (it != m_pOutputControlFaders.end() ) {
 				Fader *pFader = *it;
 				if (pFader == nullptr) {

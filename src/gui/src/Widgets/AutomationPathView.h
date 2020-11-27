@@ -22,8 +22,8 @@
 #ifndef AUTOMATION_PATH_VIEW_H
 #define AUTOMATION_PATH_VIEW_H
 
-#include <hydrogen/object.h>
-#include <hydrogen/basics/automation_path.h>
+#include <core/Object.h>
+#include <core/Basics/AutomationPath.h>
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000

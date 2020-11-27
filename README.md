@@ -1,6 +1,6 @@
 # Hydrogen drum machine
 
-[![Travis Build Status](https://travis-ci.org/hydrogen-music/hydrogen.svg?branch=master)](https://travis-ci.org/hydrogen-music/hydrogen)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?svg=true)](https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?svg=true)
 [![Coverity Scan Build](https://scan.coverity.com/projects/2965/badge.svg?flat=1)](https://scan.coverity.com/projects/2965)
 [![Packaging status](https://repology.org/badge/tiny-repos/hydrogen.svg)](https://repology.org/project/hydrogen/versions)
 

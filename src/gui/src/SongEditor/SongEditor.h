@@ -32,7 +32,7 @@
 #endif
 #include <QList>
 
-#include <hydrogen/object.h>
+#include <core/Object.h>
 #include "../EventListener.h"
 #include "PatternFillDialog.h"
 

@@ -22,7 +22,7 @@
 
 
 #include "CpuLoadWidget.h"
-#include <hydrogen/hydrogen.h>
+#include <core/Hydrogen.h>
 
 #include "../Skin.h"
 #include "../HydrogenApp.h"

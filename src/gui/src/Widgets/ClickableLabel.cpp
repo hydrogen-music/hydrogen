@@ -27,7 +27,7 @@
 #  include <QtWidgets>
 #endif
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 ClickableLabel::ClickableLabel( QWidget *pParent )
  : QLabel( pParent )

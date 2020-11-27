@@ -28,9 +28,9 @@
 #include "math.h"
 #include "string.h"
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/audio_engine.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Sample.h>
+#include <core/AudioEngine.h>
 using namespace H2Core;
 
 const char* FileBrowser::__class_name = "FileBrowser";
@@ -234,8 +234,8 @@ void FileBrowser::on_fileList_ItemActivated( QListWidgetItem* item )
 			if ( !fileInfo.isDir() ) {
 
 				// FIXME: evitare di caricare il sample, visualizzare solo le info del file
-				Sample *pNewSample = Sample::load( fileInfo.absoluteFilePath() );
-				if (pNewSample) {
+				auto pNewSample = Sample::load( fileInfo.absoluteFilePath() );
+				if ( pNewSample != nullptr ) {
 					updateFileInfo( fileInfo.absoluteFilePath(), pNewSample->get_sample_rate(), pNewSample->get_size() );
 					AudioEngine::get_instance()->get_sampler()->preview_sample(pNewSample, 192);
 				}

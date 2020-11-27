@@ -20,14 +20,14 @@
  *
  */
 
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/song.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/basics/pattern_list.h>
-#include <hydrogen/basics/pattern.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Pattern.h>
 using namespace H2Core;
 
 
@@ -110,7 +110,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		m_pLayer = pLayer;
 		m_sSampleName = m_pLayer->get_sample()->get_filename();
 		
-		float *	pSampleData = pLayer->get_sample()->get_data_l();
+		auto	pSampleData = pLayer->get_sample()->get_data_l();
 		int		nSampleLength = m_pLayer->get_sample()->get_frames();
 		float	fLengthOfPlaybackTrackInSecs = ( float )( nSampleLength / (float) m_pLayer->get_sample()->get_sample_rate() );
 		float	fRemainingLengthOfPlaybackTrack = fLengthOfPlaybackTrackInSecs;		

@@ -32,7 +32,7 @@
 	#include <QSvgRenderer>
 #endif
 
-#include <hydrogen/globals.h>
+#include <core/Globals.h>
 
 const char* Button::__class_name = "Button";
 

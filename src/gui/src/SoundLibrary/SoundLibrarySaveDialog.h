@@ -24,7 +24,7 @@
 #define SOUND_LIBRARY_SAVE_DIALOG_H
 
 #include "ui_SoundLibrarySaveDialog_UI.h"
-#include <hydrogen/object.h>
+#include <core/Object.h>
 
 ///
 ///

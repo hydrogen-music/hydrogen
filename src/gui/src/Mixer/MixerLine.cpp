@@ -32,10 +32,10 @@
 #include "../Widgets/Button.h"
 #include "../Widgets/LCD.h"
 
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/midi_action.h>
+#include <core/Hydrogen.h>
+#include <core/Preferences.h>
+#include <core/AudioEngine.h>
+#include <core/MidiAction.h>
 using namespace H2Core;
 
 #include "MixerLine.h"

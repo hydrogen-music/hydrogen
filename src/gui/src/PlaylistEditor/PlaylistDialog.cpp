@@ -28,14 +28,14 @@
 #include "SongEditor/SongEditorPanel.h"
 #include "Widgets/PixmapWidget.h"
 
-#include <hydrogen/helpers/files.h>
-#include <hydrogen/helpers/filesystem.h>
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/timeline.h>
-#include <hydrogen/event_queue.h>
-#include <hydrogen/basics/playlist.h>
+#include <core/Helpers/Files.h>
+#include <core/Helpers/Filesystem.h>
+#include <core/H2Exception.h>
+#include <core/Preferences.h>
+#include <core/Hydrogen.h>
+#include <core/Timeline.h>
+#include <core/EventQueue.h>
+#include <core/Basics/Playlist.h>
 
 #include "../Widgets/Button.h"
 
@@ -51,7 +51,6 @@
 #include <memory>
 
 using namespace H2Core;
-using namespace std;
 
 const char* PlaylistDialog::__class_name = "PlaylistDialog";
 

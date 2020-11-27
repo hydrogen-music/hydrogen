@@ -8,9 +8,9 @@
 #include <QDebug>
 #include <QUndoCommand>
 #include <QPoint>
-#include <hydrogen/basics/note.h>
-#include <hydrogen/basics/pattern.h>
-#include <hydrogen/basics/automation_path.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/AutomationPath.h>
 
 #include "HydrogenApp.h"
 #include "SongEditor/SongEditor.h"

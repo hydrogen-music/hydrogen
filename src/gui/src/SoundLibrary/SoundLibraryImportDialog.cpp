@@ -29,10 +29,10 @@
 #include "../HydrogenApp.h"
 #include "../InstrumentRack.h"
 
-#include <hydrogen/h2_exception.h>
-#include <hydrogen/Preferences.h>
-#include <hydrogen/basics/drumkit.h>
-#include <hydrogen/helpers/filesystem.h>
+#include <core/H2Exception.h>
+#include <core/Preferences.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Helpers/Filesystem.h>
 
 
 #include <QTreeWidget>

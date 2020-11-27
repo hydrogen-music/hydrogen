@@ -29,18 +29,18 @@
 #include <assert.h>
 #include <vector>
 
-#include <hydrogen/basics/song.h>
-#include <hydrogen/hydrogen.h>
-#include <hydrogen/globals.h>
-#include <hydrogen/basics/adsr.h>
-#include <hydrogen/basics/sample.h>
-#include <hydrogen/basics/drumkit_component.h>
-#include <hydrogen/basics/instrument.h>
-#include <hydrogen/basics/instrument_list.h>
-#include <hydrogen/basics/instrument_component.h>
-#include <hydrogen/basics/instrument_layer.h>
-#include <hydrogen/audio_engine.h>
-#include <hydrogen/event_queue.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
+#include <core/Globals.h>
+#include <core/Basics/Adsr.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/Instrument.h>
+#include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentComponent.h>
+#include <core/Basics/InstrumentLayer.h>
+#include <core/AudioEngine.h>
+#include <core/EventQueue.h>
 using namespace H2Core;
 
 #include "../HydrogenApp.h"
@@ -805,9 +805,9 @@ void InstrumentEditor::waveDisplayDoubleClicked( QWidget* pRef )
 			
 	H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
 	if ( pLayer ) {
-		Sample* pSample = pLayer->get_sample();
+		auto pSample = pLayer->get_sample();
 		
-		if( pSample ) {
+		if( pSample != nullptr ) {
 			QString name = pSample->get_filepath();
 			HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
 		}
@@ -872,9 +872,11 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
 				H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
-				if ( pLayer ) {
-					Sample* pSample = pLayer->get_sample();
-					if( pSample == nullptr) return;
+				if ( pLayer != nullptr ) {
+					auto pSample = pLayer->get_sample();
+					if ( pSample == nullptr ) {
+						return;
+					}
 					QString name = pSample->get_filepath();
 					HydrogenApp::get_instance()->showSampleEditor( name, m_nSelectedComponent, m_nSelectedLayer );
 				}
@@ -922,7 +924,7 @@ void InstrumentEditor::loadLayer()
 			selectedLayer = m_nSelectedLayer + i - 2;
 			if( ( i-2 >= InstrumentComponent::getMaxLayers() ) || ( selectedLayer + 1  > InstrumentComponent::getMaxLayers() ) ) break;
 
-			Sample *pNewSample = Sample::load( filename[i] );
+			auto pNewSample = Sample::load( filename[i] );
 
 			H2Core::Instrument *pInstr = nullptr;
 
@@ -1374,11 +1376,11 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 				for ( int nLayer = 0; nLayer < InstrumentComponent::getMaxLayers(); nLayer++ ) {
 					InstrumentLayer *pLayer = pInstrumentComponent->get_layer( nLayer );
 					if ( pLayer ) {
-						Sample *pSample = pLayer->get_sample();
+						auto pSample = pLayer->get_sample();
 						if ( pSample ) {
 							if( pSample->get_rubberband().use ) {
 								//INFOLOG( QString("Instrument %1 Layer %2" ).arg(nInstr).arg(nLayer));
-								Sample *pNewSample = Sample::load(
+								auto pNewSample = Sample::load(
 														pSample->get_filepath(),
 														pSample->get_loops(),
 														pSample->get_rubberband(),
