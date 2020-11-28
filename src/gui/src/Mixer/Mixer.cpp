@@ -226,10 +226,6 @@ void Mixer::muteClicked(ComponentMixerLine* ref)
 
 void Mixer::soloClicked(ComponentMixerLine* ref)
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	std::vector<DrumkitComponent*> pCompoList = *(pSong->get_components());
-	
 	bool isSoloClicked = ref->isSoloClicked();
 	int nLine = findCompoMixerLineByRef(ref);
 	
