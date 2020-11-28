@@ -55,8 +55,8 @@ void FilesystemInfoForm::updateInfo()
 		ui->usrDataDirWarningLabel->setText("");
 	}
 	
-	ui->sysDataDirLineEdit->setText( H2Core::Filesystem::sys_drumkits_dir() );
-	ui->sysDataDirLineEdit->setToolTip( H2Core::Filesystem::sys_drumkits_dir() );
+	ui->sysDataDirLineEdit->setText( sysDataDir );
+	ui->sysDataDirLineEdit->setToolTip( sysDataDir );
 	
 	//System data dir is not writable for the user, so no warning here...
 }
