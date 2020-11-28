@@ -96,7 +96,7 @@ public slots:
 
 		void action_banks_properties();
 		void action_banks_open();
-
+		
 		void action_window_showMixer();
 		void action_window_showPlaylistDialog();
 		void action_window_show_DirectorWidget();
@@ -117,7 +117,16 @@ public slots:
 		void action_debug_printObjects();
 		void action_debug_showAudioEngineInfo();
 		void action_debug_showFilesystemInfo();
+		void action_debug_openLogfile();
+		
 
+		void action_debug_logLevel_none();
+		void action_debug_logLevel_error();
+		void action_debug_logLevel_warn();
+		void action_debug_logLevel_info();
+		void action_debug_logLevel_debug();
+		
+		
 		void closeEvent( QCloseEvent* ev );
 
 		void onPlayStopAccelEvent();
@@ -159,6 +168,7 @@ public slots:
 
 		void functionDeleteInstrument(int instrument);
 
+		QMenu *		m_pLogLevelMenu;		
 		QMenu *		m_pInputModeMenu;
 		QAction *	m_pViewPlaylistEditorAction;
 		QAction *	m_pViewDirectorAction;
