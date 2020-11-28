@@ -101,9 +101,10 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		void prepareUndoAction( int x );
 
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent();
-		virtual void selectedInstrumentChangedEvent();
+		virtual void selectedPatternChangedEvent() override;
+		virtual void selectedInstrumentChangedEvent() override;
 		//~ Implements EventListener interface
+		
 		int __nSelectedPatternNumber;
 		int __nSelectedInstrument;
 		bool m_bMouseIsPressed;

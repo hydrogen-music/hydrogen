@@ -48,11 +48,11 @@ class MidiActivityWidget : public QWidget, public EventListener, public H2Core::
 		void restoreMidiActivityWidget();
 
 	private:
-		bool m_bValue;
-		QTimer *m_qTimer;
-		QPixmap m_back;
-		QPixmap m_leds;
-		virtual void midiActivityEvent();
+		bool		m_bValue;
+		QTimer *	m_qTimer;
+		QPixmap		m_back;
+		QPixmap		m_leds;
+		virtual void midiActivityEvent() override;
 };
 
 #endif

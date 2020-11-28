@@ -64,7 +64,7 @@ class InstrumentNameWidget : public PixmapWidget
 		void	doubleClicked();
 
 	protected:
-		virtual void paintEvent(QPaintEvent *ev);
+		virtual void paintEvent(QPaintEvent *ev) override;
 
 	private:
 		int			m_nWidgetWidth;
@@ -190,7 +190,7 @@ class ComponentMixerLine: public PixmapWidget
 		void	setName(QString name) {     m_pNameWidget->setText( name );        }
 		QString getName() {      return m_pNameWidget->text();        }
 
-		int		getCompoID(){ return __compoID; }
+		int		getComponentID(){ return m_nComponentID; }
 
 	signals:
 		void	muteBtnClicked(ComponentMixerLine *ref);
@@ -203,7 +203,7 @@ class ComponentMixerLine: public PixmapWidget
 
 
 	private:
-		int		__compoID;
+		int		m_nComponentID;
 		uint	m_nWidth;
 		uint	m_nHeight;
 		bool	m_bIsSelected;

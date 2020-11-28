@@ -219,7 +219,7 @@ void Mixer::muteClicked(ComponentMixerLine* ref)
 {
 	bool isMuteClicked = ref->isMuteClicked();
 
-	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->get_component( ref->getCompoID() );
+	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->get_component( ref->getComponentID() );
 
 	pCompo->set_muted( isMuteClicked );
 }
@@ -238,7 +238,7 @@ void Mixer::volumeChanged(ComponentMixerLine* ref)
 {
 	float newVolume = ref->getVolume();
 
-	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->get_component( ref->getCompoID() );
+	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->get_component( ref->getComponentID() );
 
 	pCompo->set_volume( newVolume );
 }

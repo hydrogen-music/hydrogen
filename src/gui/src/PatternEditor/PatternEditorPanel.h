@@ -75,8 +75,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void updatePianorollEditor();
 
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent();
-		virtual void selectedInstrumentChangedEvent();
+		virtual void selectedPatternChangedEvent() override;
+		virtual void selectedInstrumentChangedEvent() override;
 		//~ Implements EventListener interface
 
 		void ensureCursorVisible();

@@ -103,11 +103,8 @@ public:
 		VerticalFader(QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob );
 		~VerticalFader();
 		
-		virtual void paintEvent(QPaintEvent *ev);
-		virtual void mouseMoveEvent(QMouseEvent *ev);
-		
-		
-	
+		virtual void paintEvent(QPaintEvent *ev) override;
+		virtual void mouseMoveEvent(QMouseEvent *ev) override;	
 };
 
 

@@ -1359,14 +1359,14 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 	setAcceptDrops(true);
 
-	patternBeingEdited = nullptr;
+	m_pPatternBeingEdited = nullptr;
 
-	line = new QLineEdit( "Inline Pattern Name", this );
-	line->setFrame( false );
-	line->hide();
-	line->setAcceptDrops( false );
-	connect( line, SIGNAL(editingFinished()), this, SLOT(inlineEditingFinished()) );
-	connect( line, SIGNAL(returnPressed()), this, SLOT(inlineEditingEntered()) );
+	m_pLineEdit = new QLineEdit( "Inline Pattern Name", this );
+	m_pLineEdit->setFrame( false );
+	m_pLineEdit->hide();
+	m_pLineEdit->setAcceptDrops( false );
+	connect( m_pLineEdit, SIGNAL(editingFinished()), this, SLOT(inlineEditingFinished()) );
+	connect( m_pLineEdit, SIGNAL(returnPressed()), this, SLOT(inlineEditingEntered()) );
 
 	this->resize( m_nWidth, m_nInitialHeight );
 
@@ -1480,17 +1480,17 @@ void SongEditorPatternList::inlineEditPatternName( int row )
 	if ( row >= (int)pPatternList->size() ) {
 		return;
 	}
-	patternBeingEdited = pPatternList->get( row );
-	line->setGeometry( 23, row * m_nGridHeight , m_nWidth - 23, m_nGridHeight  );
-	line->setText( patternBeingEdited->get_name() );
-	line->selectAll();
-	line->show();
-	line->setFocus();
+	m_pPatternBeingEdited = pPatternList->get( row );
+	m_pLineEdit->setGeometry( 23, row * m_nGridHeight , m_nWidth - 23, m_nGridHeight  );
+	m_pLineEdit->setText( m_pPatternBeingEdited->get_name() );
+	m_pLineEdit->selectAll();
+	m_pLineEdit->show();
+	m_pLineEdit->setFocus();
 }
 
 void SongEditorPatternList::inlineEditingEntered()
 {
-	assert( patternBeingEdited != nullptr );
+	assert( m_pPatternBeingEdited != nullptr );
 	
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
@@ -1501,20 +1501,20 @@ void SongEditorPatternList::inlineEditingEntered()
 	 * If it is not, use an unused patten name.
 	 */
 	
-	QString patternName = pPatternList->find_unused_pattern_name( line->text() );
+	QString patternName = pPatternList->find_unused_pattern_name( m_pLineEdit->text() );
 
 	int nSelectedPattern = pEngine->getSelectedPatternNumber();
 
-	SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  patternBeingEdited->get_name() , patternBeingEdited->get_info(), patternBeingEdited->get_category(),
-												patternName, patternBeingEdited->get_info(), patternBeingEdited->get_category(), nSelectedPattern );
+	SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  m_pPatternBeingEdited->get_name() , m_pPatternBeingEdited->get_info(), m_pPatternBeingEdited->get_category(),
+												patternName, m_pPatternBeingEdited->get_info(), m_pPatternBeingEdited->get_category(), nSelectedPattern );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 
 void SongEditorPatternList::inlineEditingFinished()
 {
-	patternBeingEdited = nullptr;
-	line->hide();
+	m_pPatternBeingEdited = nullptr;
+	m_pLineEdit->hide();
 }
 
 

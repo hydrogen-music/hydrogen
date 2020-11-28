@@ -56,10 +56,10 @@ class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 
 		void updateRecentUsedSongList();
 
-		virtual void errorEvent( int nErrorCode );
-		virtual void jacksessionEvent( int nValue);
-		virtual void playlistLoadSongEvent(int nIndex);
-		virtual void undoRedoActionEvent( int nEvent );
+		virtual void errorEvent( int nErrorCode ) override;
+		virtual void jacksessionEvent( int nValue) override;
+		virtual void playlistLoadSongEvent(int nIndex) override;
+		virtual void undoRedoActionEvent( int nEvent ) override;
 		static void usr1SignalHandler(int unused);
 
 

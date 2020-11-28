@@ -64,8 +64,8 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void selectComponent( int nComponent );
 
 		// implements EventListener interface
-		virtual void selectedInstrumentChangedEvent();
-		virtual void rubberbandbpmchangeEvent();
+		virtual void selectedInstrumentChangedEvent() override;
+		virtual void rubberbandbpmchangeEvent() override;
 		//~ implements EventListener interface
 		void update();
 

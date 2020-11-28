@@ -211,7 +211,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		void engineError(uint nErrorCode);
 
 		void setupSinglePanedInterface();
-		virtual void songModifiedEvent();
+		virtual void songModifiedEvent() override;
 
 		/**
 		 * Refreshes and updates the GUI after the Song was changed in
@@ -223,13 +223,13 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		 *
 		 * \param nValue unused
 		 */
-		virtual void updateSongEvent( int nValue );
+		virtual void updateSongEvent( int nValue ) override;
 		/**
 		 * Calls closeAll() to shutdown Hydrogen.
 		 *
 		 * \param nValue unused
 		 */
-		virtual void quitEvent( int nValue );
+		virtual void quitEvent( int nValue ) override;
 	
 };
 
