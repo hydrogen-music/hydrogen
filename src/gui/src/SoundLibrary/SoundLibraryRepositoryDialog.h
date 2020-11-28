@@ -40,6 +40,7 @@ class SoundLibraryRepositoryDialog : public QDialog, public Ui_SoundLibraryRepos
 	private slots:
 		void on_AddBtn_clicked();
 		void on_DeleteBtn_clicked();
+		void on_CloseBtn_clicked();		
 
 	private:
 		void updateDialog();
