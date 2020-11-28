@@ -41,6 +41,9 @@ class InstrumentEditorPanel : public QWidget, private H2Core::Object, public Eve
 	public:
 		static InstrumentEditorPanel* get_instance();
 		~InstrumentEditorPanel();
+	
+		explicit InstrumentEditorPanel(const InstrumentEditorPanel&) = delete;
+		InstrumentEditorPanel& operator=( const InstrumentEditorPanel& rhs ) = delete;
 
 		virtual void parametersInstrumentChangedEvent();
 
