@@ -20,10 +20,13 @@
  *
  */
 
+#include <algorithm>
 #include <core/Basics/PatternList.h>
 
 //#include <core/Helpers/Xml.h>
 #include <core/Basics/Pattern.h>
+
+#include <core/AudioEngine.h>
 
 namespace H2Core
 {
@@ -52,6 +55,7 @@ PatternList::~PatternList()
 
 void PatternList::add( Pattern* pattern )
 {
+	assertAudioEngineLocked();
 	// do nothing if already in __patterns
 	if ( index( pattern) != -1) {
 		return;
@@ -61,6 +65,7 @@ void PatternList::add( Pattern* pattern )
 
 void PatternList::insert( int idx, Pattern* pattern )
 {
+	assertAudioEngineLocked();
 	// do nothing if already in __patterns
 	if ( index( pattern) != -1) {
 		return;
@@ -70,6 +75,7 @@ void PatternList::insert( int idx, Pattern* pattern )
 
 Pattern* PatternList::get( int idx )
 {
+	assertAudioEngineLocked();
 	if ( idx < 0 || idx >= __patterns.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
 		return nullptr;
@@ -80,6 +86,7 @@ Pattern* PatternList::get( int idx )
 
 const Pattern* PatternList::get( int idx ) const
 {
+	assertAudioEngineLocked();
 	if ( idx < 0 || idx >= __patterns.size() ) {
 		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
 		return nullptr;
@@ -98,6 +105,7 @@ int PatternList::index( const Pattern* pattern )
 
 Pattern* PatternList::del( int idx )
 {
+	assertAudioEngineLocked();
 	assert( idx >= 0 && idx < __patterns.size() );
 	Pattern* pattern = __patterns[idx];
 	__patterns.erase( __patterns.begin() + idx );
@@ -106,10 +114,10 @@ Pattern* PatternList::del( int idx )
 
 Pattern* PatternList::del( Pattern* pattern )
 {
+	assertAudioEngineLocked();
 	for( int i=0; i<__patterns.size(); i++ ) {
 		if( __patterns[i]==pattern ) {
-			__patterns.erase( __patterns.begin() + i );
-			return pattern;
+			return del( i );
 		}
 	}
 	return nullptr;
@@ -117,6 +125,7 @@ Pattern* PatternList::del( Pattern* pattern )
 
 Pattern* PatternList::replace( int idx, Pattern* pattern )
 {
+	assertAudioEngineLocked();
 	/*
 	 * if we insert a new pattern (copy, add new pattern, undo delete pattern and so on will do this)
 	 * idx is > __pattern.size(). that's why i add +1 to assert expression
@@ -153,6 +162,7 @@ Pattern*  PatternList::find( const QString& name )
 
 void PatternList::swap( int idx_a, int idx_b )
 {
+	assertAudioEngineLocked();
 	assert( idx_a >= 0 && idx_a < __patterns.size() );
 	assert( idx_b >= 0 && idx_b < __patterns.size() );
 	if( idx_a == idx_b ) return;
@@ -164,6 +174,7 @@ void PatternList::swap( int idx_a, int idx_b )
 
 void PatternList::move( int idx_a, int idx_b )
 {
+	assertAudioEngineLocked();
 	assert( idx_a >= 0 && idx_a < __patterns.size() );
 	assert( idx_b >= 0 && idx_b < __patterns.size() );
 	if( idx_a == idx_b ) return;
@@ -218,6 +229,14 @@ QString PatternList::find_unused_pattern_name( QString sourceName )
 	unusedPatternNameCandidate += suffix;
 
 	return unusedPatternNameCandidate;
+}
+
+int PatternList::longest_pattern_length() {
+	int nMax = -1;
+	for ( int i = 0; i < __patterns.size(); i++ ) {
+		nMax = std::max( nMax, __patterns[i]->get_length() );
+	}
+	return nMax;
 }
 
 }

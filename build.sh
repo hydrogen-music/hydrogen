@@ -56,14 +56,14 @@ function cmake_make() {
         make translations $MAKE_OPTS || exit 1
         make $MAKE_OPTS || exit 1
     fi
-	
-	if [[ "$PLATFORM_STR" == 'Linux' ]]; then
-		cp src/gui/hydrogen ..
-	elif [[ "$PLATFORM_STR" == *BSD ]]; then
-		cp src/gui/hydrogen ..
-	elif [[ "$PLATFORM_STR" == 'Darwin' ]]; then
-		cp -rf src/gui/hydrogen.app ..
-	fi
+
+    if [[ "$PLATFORM_STR" == 'Linux' ]]; then
+        cp src/gui/hydrogen ..
+    elif [[ "$PLATFORM_STR" == *BSD ]]; then
+        cp src/gui/hydrogen ..
+    elif [[ "$PLATFORM_STR" == 'Darwin' ]]; then
+        cp -rf src/gui/hydrogen.app ..
+    fi
 
     cd ..
 }
@@ -110,11 +110,11 @@ if [ $# -eq 0 ]; then
     echo "   c[lean]  => remove cache files"
     echo "   m[ake]   => launch the build process"
     echo "   mm       => launch the build process using ccache"
-    echo "   mt       => launch the build process with enabled clang tidy checks"
+    echo "   mt       => launch the build process with clang tidy checks enabled"
     echo "   d[oc]    => build html documentation"
     echo "   g[raph]  => draw a dependencies graph"
     echo "   h[elp]   => show the build options"
-    echo "   x|exec   => execute hydrogen"
+    echo "   x[exec]  => execute hydrogen"
     echo "   t[ests]  => execute tests"
     echo "   p[kg]    => build source package"
     echo "   z        => build using ccache and run from tree"
@@ -152,7 +152,9 @@ for arg in $@; do
             CMAKE_OPTIONS="$CMAKE_OPTIONS -DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
             cmd="zoop";;
         *)
-         echo "unknown command ${arg}" && exit 1
-     esac
-     $cmd
+            echo "unknown command ${arg}" && exit 1
+    esac
+    $cmd
 done
+
+# vim: set softtabstop=4 expandtab:

@@ -165,7 +165,7 @@ void* diskWriterDriver_thread( void* param )
 	for ( int patternPosition = 0; patternPosition < nColumns; ++patternPosition ) {
 		PatternList *pColumn = ( *pPatternColumns )[ patternPosition ];
 		if ( pColumn->size() != 0 ) {
-			nPatternSize = pColumn->get( 0 )->get_length();
+			nPatternSize = pColumn->longest_pattern_length();
 		} else {
 			nPatternSize = MAX_NOTES;
 		}
