@@ -2519,7 +2519,9 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	int pIPos = Preferences::get_instance()->getPunchInPos();
 	int pOPos = Preferences::get_instance()->getPunchOutPos();
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	AudioEngine *pAudioEngine = AudioEngine::get_instance();
+	pAudioEngine->lock( RIGHT_HERE );
+
 	if ( pEngine->getCurrentPatternList()->size() != 0 ) {
 		int nLength = pEngine->getCurrentPatternList()->longest_pattern_length();
 		fPos += (float)pEngine->getTickPosition() / (float)nLength;
@@ -2535,7 +2537,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		pOPos = -1;
 	}
 
-	AudioEngine::get_instance()->unlock();
+	pAudioEngine->unlock();
 
 	QPainter painter(this);
 	qreal pixelRatio = devicePixelRatio();
