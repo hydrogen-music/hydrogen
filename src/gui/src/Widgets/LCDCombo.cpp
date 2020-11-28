@@ -114,6 +114,17 @@ bool LCDCombo::select( int idx )
 	return select(idx, true);
 }
 
+void LCDCombo::deactivate()
+{
+	deactivate("");
+}
+
+void LCDCombo::deactivate(QString text)
+{
+	active = -1;
+	display->setText( text );
+}
+
 bool LCDCombo::select( int idx, bool emitValueChanged )
 {
 	if (active == idx) {

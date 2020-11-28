@@ -44,6 +44,7 @@ using namespace H2Core;
 #include "../Widgets/Fader.h"
 #include "../Widgets/PixmapWidget.h"
 #include "../Widgets/LCDCombo.h"
+#include "../Widgets/LCD.h"
 #include "../WidgetScrollArea.h"
 
 #include "../Skin.h"
@@ -107,23 +108,20 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 //wolke some background images back_size_res
 	PixmapWidget *pSizeResol = new PixmapWidget( nullptr );
 	pSizeResol->setFixedSize( 200, 20 );
-	pSizeResol->setPixmap( "/patternEditor/background_res-new.png" );
+	pSizeResol->setPixmap( "/patternEditor/background_res-new4.png" );
 	pSizeResol->move( 0, 3 );
 	editor_top_hbox_2->addWidget( pSizeResol );
 
 	// PATTERN size
-	__pattern_size_combo = new LCDCombo(pSizeResol, 4);
-	__pattern_size_combo->move( 34, 2 );
-	__pattern_size_combo->setToolTip( tr("Select pattern size") );
-	for ( int i = 1; i <= 32; i++) {
-		__pattern_size_combo->addItem( QString( "%1" ).arg( i ) );
-	}
-	// is triggered from inside selectedPatternChangedEvent()
-	connect(__pattern_size_combo, SIGNAL( valueChanged( int ) ), this, SLOT( patternSizeChanged( int ) ) );
+	__pattern_size_LCD = new LCDDisplay( pSizeResol, LCDDigit::SMALL_BLUE, 10 );
+	__pattern_size_LCD->move( 31, 2 );
+	__pattern_size_LCD->setToolTip( tr("Select pattern size (in eights)") );
 
 
+	connect( __pattern_size_LCD, SIGNAL(displayClicked(LCDDisplay*)), this, SLOT(patternSizeLCDClicked()));
+	
 	// GRID resolution
-	__resolution_combo = new LCDCombo( pSizeResol , 7);
+	__resolution_combo = new LCDCombo( pSizeResol , 3);
 	__resolution_combo->setToolTip(tr("Select grid resolution"));
 	__resolution_combo->addItem( "4" );
 	__resolution_combo->addItem( "8" );
@@ -137,13 +135,13 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__resolution_combo->addItem( "32T" );
 	__resolution_combo->addSeparator();
 	__resolution_combo->addItem( "off" );
-	__resolution_combo->move( 121, 2 );
+	__resolution_combo->move( 154, 2 );
 	// is triggered from inside PatternEditorPanel()
 	connect(__resolution_combo, SIGNAL(valueChanged( int )), this, SLOT(gridResolutionChanged( int )));
 
 
 	PixmapWidget *pRec = new PixmapWidget( nullptr );
-	pRec->setFixedSize( 158, 20 );
+	pRec->setFixedSize( 300, 20 );
 	pRec->setPixmap( "/patternEditor/background_rec-new.png" );
 	pRec->move( 0, 3 );
 	editor_top_hbox_2->addWidget( pRec );
@@ -666,13 +664,9 @@ void PatternEditorPanel::selectedPatternChangedEvent()
 		this->setWindowTitle( ( tr( "Pattern editor - %1").arg( sCurrentPatternName ) ) );
 		m_pPatternNameLbl->setText( sCurrentPatternName );
 
-		// update pattern size combobox
-		int nPatternSize = m_pPattern->get_length();
-		int nEighth = MAX_NOTES / 8;
+		// update pattern size LCD
+		updatePatternSizeLCD();
 		
-		// do no emit the changed value, otherwise patternSizeChanged() would be triggered,
-		// which handles a manual pattern size change
-		__pattern_size_combo->select( (nPatternSize / nEighth) - 1 , false);
 	}
 	else {
 		m_pPattern = nullptr;
@@ -853,26 +847,18 @@ void PatternEditorPanel::zoomOutBtnClicked(Button *ref)
 
 
 
-void PatternEditorPanel::patternSizeChanged( int nSelected )
+void PatternEditorPanel::patternLengthChanged()
 {
 	// INFOLOG( QString("idx %1 -> %2 eighth").arg( nSelected ).arg( ( MAX_NOTES / 8 ) * ( nSelected + 1 ) ) );
 
 	if ( !m_pPattern ) {
 		return;
 	}
+	int den = m_pPattern->get_denominator(); //TODO check
+	int nBeatUnit = MAX_NOTES / den;
 
-	int nEighth = MAX_NOTES / 8;
+	updatePatternSizeLCD();
 	
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	
-	if ( pEngine->getState() != STATE_READY ) {	
-		__pattern_size_combo->select( ((m_pPattern->get_length() / nEighth) - 1), false );
-		QMessageBox::information( this, "Hydrogen", tr( "Is not possible to change the pattern size when playing." ) );
-		return;
-	}
-
-	m_pPattern->set_length( nEighth * ( nSelected + 1 ) );
-
 	m_pPatternEditorRuler->updateEditor( true );	// redraw all
 	m_pNoteVelocityEditor->updateEditor();
 	m_pNotePanEditor->updateEditor();
@@ -886,6 +872,47 @@ void PatternEditorPanel::patternSizeChanged( int nSelected )
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
 }
 
+void PatternEditorPanel::updatePatternSizeLCD(){
+	// update pattern size
+	int nPatternSize = m_pPattern->get_length();
+	int den = m_pPattern->get_denominator(); //TODO check
+	int nBeatUnit = MAX_NOTES / den;
+
+	char tmp[20];
+	if (nPatternSize % nBeatUnit == 0) {
+		sprintf( tmp, "%d/%d", nPatternSize / nBeatUnit, den);
+	} 
+	else {
+		sprintf( tmp, "%.3f/%d", (float) nPatternSize / nBeatUnit, den);
+	}
+	__pattern_size_LCD->setText( tmp );//
+}
+
+
+void PatternEditorPanel::patternSizeLCDClicked()
+{
+	Hydrogen *pEngine = Hydrogen::get_instance();
+	if ( pEngine->getState() != STATE_READY ) {	
+		QMessageBox::information( this, "Hydrogen", tr( "Is not possible to change the pattern size when playing." ) );
+		return;
+	} //TODO is it really impossible to change the pattern size when playing?
+
+	bool bIsOkPressed;
+	double fNewVal= QInputDialog::getDouble( this, "Hydrogen", tr( "New Size value in quarter-notes" ), m_pPattern->get_length() * 4 / (double) MAX_NOTES, 0, 10000, 5, &bIsOkPressed );
+	if ( bIsOkPressed  ) {
+		if ( fNewVal < 0 ) {
+			return;
+		}
+
+		else {
+		        m_pPattern->set_length( (int) round(MAX_NOTES/4 * fNewVal) );
+		        patternLengthChanged();
+		}
+	}
+	else {
+		// user entered nothing or pressed Cancel
+	}
+}
 
 
 void PatternEditorPanel::moveUpBtnClicked(Button *)
