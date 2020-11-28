@@ -51,7 +51,7 @@ class AudioEngineInfoForm : public QWidget, public Ui_AudioEngineInfoForm_UI, pu
 		//~ EventListener implementation
 
 	public:
-		AudioEngineInfoForm(QWidget* parent);
+		explicit AudioEngineInfoForm(QWidget* parent);
 		~AudioEngineInfoForm();
 
 		void showEvent ( QShowEvent *ev );

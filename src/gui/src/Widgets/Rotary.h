@@ -38,7 +38,7 @@ class LCDDisplay;
 class RotaryTooltip : public QWidget
 {
 	public:
-		RotaryTooltip( QPoint pos );
+		explicit RotaryTooltip( QPoint pos );
 		~RotaryTooltip();
 		void showTip( QPoint pos, QString sText );
 
@@ -58,6 +58,9 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 			TYPE_CENTER
 		};
 
+		Rotary(const Rotary&) = delete;
+		Rotary& operator=( const Rotary& rhs ) = delete;
+	
 		Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip );
 		~Rotary();
 

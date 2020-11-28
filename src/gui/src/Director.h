@@ -39,8 +39,11 @@ class Director : public QDialog, public Ui_Director_UI, public H2Core::Object, p
 	Q_OBJECT
 public:
 
-	Director( QWidget* pParent );
+	explicit Director( QWidget* pParent );
 	~Director();
+	
+	Director(const Director&) = delete;
+	Director& operator=( const Director& rhs ) = delete;
 
 	virtual void metronomeEvent( int nValue );
 	virtual void paintEvent( QPaintEvent*);

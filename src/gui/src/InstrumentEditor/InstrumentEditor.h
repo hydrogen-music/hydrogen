@@ -55,7 +55,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 	Q_OBJECT
 
 	public:
-		InstrumentEditor( QWidget* parent );
+		explicit InstrumentEditor( QWidget* parent );
 		~InstrumentEditor();
 
 		void selectLayer( int nLayer );

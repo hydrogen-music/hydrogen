@@ -52,7 +52,7 @@ class MetronomeWidget : public QWidget,public EventListener, public H2Core::Obje
     H2_OBJECT
 	Q_OBJECT
 	public:
-		MetronomeWidget(QWidget *pParent);
+		explicit MetronomeWidget(QWidget *pParent);
 		~MetronomeWidget();
 
 		virtual void metronomeEvent( int nValue );
@@ -88,7 +88,7 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
     H2_OBJECT
 	Q_OBJECT
 	public:
-		PlayerControl(QWidget *parent);
+		explicit PlayerControl(QWidget *parent);
 		~PlayerControl();
 
 		void showMessage( const QString& msg, int msec );

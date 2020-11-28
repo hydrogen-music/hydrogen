@@ -55,6 +55,9 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 
 		NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode );
 		~NotePropertiesRuler();
+		
+		NotePropertiesRuler(const NotePropertiesRuler&) = delete;
+		NotePropertiesRuler& operator=( const NotePropertiesRuler& rhs ) = delete;
 
 		void zoomIn();
 		void zoomOut();

@@ -47,7 +47,7 @@ class LadspaFXSelector : public QDialog, public Ui_LadspaFXSelector_UI, public H
 	Q_OBJECT
 
 	public:
-		LadspaFXSelector(int nLadspaFX);
+		explicit LadspaFXSelector(int nLadspaFX);
 		~LadspaFXSelector();
 
 		QString getSelectedFX();

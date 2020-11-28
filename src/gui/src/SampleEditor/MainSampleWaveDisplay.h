@@ -37,7 +37,7 @@ class MainSampleWaveDisplay : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
-		MainSampleWaveDisplay(QWidget* pParent);
+		explicit MainSampleWaveDisplay(QWidget* pParent);
 		~MainSampleWaveDisplay();
 
 		void updateDisplay( const QString& filename );

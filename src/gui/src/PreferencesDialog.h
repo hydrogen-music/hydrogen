@@ -36,7 +36,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		PreferencesDialog( QWidget* parent );
+		explicit PreferencesDialog( QWidget* parent );
 		~PreferencesDialog();
 
 	private slots:

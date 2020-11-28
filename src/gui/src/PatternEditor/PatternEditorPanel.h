@@ -57,7 +57,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 	Q_OBJECT
 
 	public:
-		PatternEditorPanel(QWidget *parent);
+		explicit PatternEditorPanel(QWidget *parent);
 		~PatternEditorPanel();
 
 		DrumPatternEditor* getDrumPatternEditor() {	return m_pDrumPatternEditor;	}

@@ -50,7 +50,7 @@ class InstrumentNameWidget : public PixmapWidget
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		InstrumentNameWidget(QWidget* parent);
+		explicit InstrumentNameWidget(QWidget* parent);
 		~InstrumentNameWidget();
 
 		void	setText(QString text);
@@ -230,7 +230,7 @@ class MasterMixerLine: public PixmapWidget
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		MasterMixerLine(QWidget* parent);
+		explicit MasterMixerLine(QWidget* parent);
 		~MasterMixerLine();
 
 		void	updateMixerLine();
@@ -285,7 +285,7 @@ class FxMixerLine: public PixmapWidget
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		FxMixerLine(QWidget* parent);
+		explicit FxMixerLine(QWidget* parent);
 		~FxMixerLine();
 
 		float	getVolume();
@@ -331,7 +331,7 @@ class LadspaFXMixerLine : public PixmapWidget
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		LadspaFXMixerLine(QWidget* parent);
+		explicit LadspaFXMixerLine(QWidget* parent);
 		~LadspaFXMixerLine();
 
 		bool	isFxActive();

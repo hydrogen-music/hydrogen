@@ -34,7 +34,7 @@ class ClickableLabel : public QLabel
 	Q_OBJECT
 
 	public:
-		ClickableLabel( QWidget *pParent );
+		explicit ClickableLabel( QWidget *pParent );
 		void mousePressEvent( QMouseEvent * e );
 
 	signals:

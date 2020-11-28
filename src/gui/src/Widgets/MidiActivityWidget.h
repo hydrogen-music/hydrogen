@@ -38,7 +38,7 @@ class MidiActivityWidget : public QWidget, public EventListener, public H2Core::
     H2_OBJECT
 	Q_OBJECT
 	public:
-		MidiActivityWidget(QWidget * parent);
+		explicit MidiActivityWidget(QWidget * parent);
 		~MidiActivityWidget();
 
 		void mousePressEvent(QMouseEvent *ev);

@@ -34,7 +34,7 @@ class SoundLibraryRepositoryDialog : public QDialog, public Ui_SoundLibraryRepos
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		SoundLibraryRepositoryDialog( QWidget* pParent );
+		explicit SoundLibraryRepositoryDialog( QWidget* pParent );
 		~SoundLibraryRepositoryDialog();
 
 	private slots:

@@ -152,8 +152,11 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 	Q_OBJECT
 
 	public:
-		SongEditorPatternList( QWidget *parent );
+		explicit SongEditorPatternList( QWidget *parent );
 		~SongEditorPatternList();
+	
+		SongEditorPatternList(const SongEditorPatternList&) = delete;
+		SongEditorPatternList& operator=( const SongEditorPatternList& rhs ) = delete;
 
 		void updateEditor();
 		void createBackground();
@@ -225,7 +228,7 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
-		SongEditorPositionRuler( QWidget *parent );
+		explicit SongEditorPositionRuler( QWidget *parent );
 		~SongEditorPositionRuler();	
 
 		void createBackground();

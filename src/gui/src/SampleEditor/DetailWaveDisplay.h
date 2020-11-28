@@ -40,7 +40,7 @@ class DetailWaveDisplay : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
-		DetailWaveDisplay(QWidget* pParent);
+		explicit DetailWaveDisplay(QWidget* pParent);
 		~DetailWaveDisplay();
 
 		void updateDisplay( QString filename );

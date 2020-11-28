@@ -45,7 +45,7 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 	Q_OBJECT
 
 	public:
-		LayerPreview(QWidget* pParent);
+		explicit LayerPreview(QWidget* pParent);
 		~LayerPreview();
 
 		void updateAll();

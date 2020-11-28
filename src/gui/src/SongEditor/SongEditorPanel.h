@@ -56,7 +56,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 	Q_OBJECT
 
 	public:
-		SongEditorPanel( QWidget *parent );
+		explicit SongEditorPanel( QWidget *parent );
 		~SongEditorPanel();
 
 		SongEditor* getSongEditor(){ return m_pSongEditor; }
