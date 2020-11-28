@@ -1,7 +1,6 @@
 # Hydrogen drum machine
 
 [![Travis Build Status](https://travis-ci.org/hydrogen-music/hydrogen.svg?branch=master)](https://travis-ci.org/hydrogen-music/hydrogen)
-[![Coverity Scan Build](https://scan.coverity.com/projects/2965/badge.svg?flat=1)](https://scan.coverity.com/projects/2965)
 [![Packaging status](https://repology.org/badge/tiny-repos/hydrogen.svg)](https://repology.org/project/hydrogen/versions)
 
 Hydrogen is an advanced drum machine for GNU/Linux, Mac and Windows.
