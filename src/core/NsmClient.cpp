@@ -28,7 +28,6 @@
 #include "core/Basics/Song.h"
 #include "core/AudioEngine.h"
 #include "core/NsmClient.h"
-#include "core/Nsm.h"
 
 #include <QDir>
 #include <QFile>
