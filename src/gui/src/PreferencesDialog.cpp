@@ -39,6 +39,7 @@
 #include <hydrogen/IO/MidiInput.h>
 #include <hydrogen/LashClient.h>
 #include <hydrogen/audio_engine.h>
+#include <hydrogen/helpers/translations.h>
 #include <hydrogen/sampler/Sampler.h>
 #include "SongEditor/SongEditor.h"
 #include "SongEditor/SongEditorPanel.h"
@@ -82,6 +83,25 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	driverComboBox->addItem( "PulseAudio" );
 #endif
 
+	// Language selection menu
+	for ( QString sLang : Translations::availableTranslations( "hydrogen" ) ) {
+		QLocale loc( sLang );
+		QString sLabel = loc.nativeLanguageName() + " (" + loc.nativeCountryName() + ')';
+		languageComboBox->addItem( sLabel, QVariant( sLang ) );
+	}
+	// Find preferred language and select that in menu
+	QStringList languages;
+	QString sPreferredLanguage = pPref->getPreferredLanguage();
+	if ( !sPreferredLanguage.isNull() ) {
+		languages << sPreferredLanguage;
+	}
+	languages << QLocale::system().uiLanguages();
+	QString sLanguage = Translations::findTranslation( languages, "hydrogen" );
+	m_sInitialLanguage = sLanguage;
+	int nLanguage = languageComboBox->findData( QVariant( sLanguage ) );
+	if ( nLanguage != -1 ) {
+		languageComboBox->setCurrentIndex( nLanguage );
+	}
 
 	if( driverComboBox->findText(pPref->m_sAudioDriver) > -1){
 		driverComboBox->setCurrentIndex(driverComboBox->findText(pPref->m_sAudioDriver));
@@ -191,6 +211,13 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 
 	uiLayoutComboBox->setCurrentIndex(  pPref->getDefaultUILayout() );
+
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+	uiScalingPolicyComboBox->setCurrentIndex( pPref->getUIScalingPolicy() );
+#else
+	uiScalingPolicyComboBox->setEnabled( false );
+        uiScalingPolicyLabel->setEnabled( false );
+#endif
 
 	// Style
 	QStringList list = QStyleFactory::keys();
@@ -504,6 +531,10 @@ void PreferencesDialog::on_okBtn_clicked()
 	Hydrogen::get_instance()->setBcOffsetAdjust();
 
 	pPref->setDefaultUILayout( uiLayoutComboBox->currentIndex() );
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+	pPref->setUIScalingPolicy( uiScalingPolicyComboBox->currentIndex() );
+#endif
+
 
 	int coloringMethod = coloringMethodCombo->currentIndex();
 
@@ -527,6 +558,12 @@ void PreferencesDialog::on_okBtn_clicked()
 	SongEditorPanel* pSongEditorPanel = pH2App->getSongEditorPanel();
 	SongEditor * pSongEditor = pSongEditorPanel->getSongEditor();
 	pSongEditor->updateEditorandSetTrue();
+
+	QString sPreferredLanguage = languageComboBox->currentData().toString();
+	if ( sPreferredLanguage != m_sInitialLanguage ) {
+		QMessageBox::information( this, "Hydrogen", tr( "Hydrogen must be restarted for language change to take effect" ));
+		pPref->setPreferredLanguage( sPreferredLanguage );
+	}
 
 	pPref->savePreferences();
 

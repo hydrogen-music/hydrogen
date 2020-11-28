@@ -51,6 +51,7 @@
 #include <hydrogen/h2_exception.h>
 #include <hydrogen/basics/playlist.h>
 #include <hydrogen/helpers/filesystem.h>
+#include <hydrogen/helpers/translations.h>
 
 #include <signal.h>
 #include <iostream>
@@ -147,9 +148,9 @@ int main(int argc, char *argv[])
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
 		QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
-		QApplication* pQApp = new QApplication( argc, argv );
-		pQApp->setApplicationName( "Hydrogen" );
-		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
+
+		// Create bootstrap QApplication to get H2 Core set up with correct Filesystem paths before starting GUI application.
+		QCoreApplication *pBootStrApp = new QCoreApplication( argc, argv );
 		
 		QCommandLineParser parser;
 		
@@ -187,7 +188,7 @@ int main(int argc, char *argv[])
 		#endif
 			
 		// Evaluate the options
-		parser.process(*pQApp);
+		parser.process( *pBootStrApp );
 		QString sSelectedDriver = parser.value( audioDriverOption );
 		QString sDrumkitName = parser.value( installDrumkitOption );
 		bool	bNoSplash = parser.isSet( noSplashScreenOption );
@@ -236,6 +237,24 @@ int main(int argc, char *argv[])
 		H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
 		pPref->setH2ProcessName( QString(argv[0]) );
 
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0)
+		/* Apply user-specified rounding policy. This is mostly to handle non-integral factors on Windows. */
+		Qt::HighDpiScaleFactorRoundingPolicy policy;
+
+		switch ( pPref->getUIScalingPolicy() ) {
+		case H2Core::Preferences::UI_SCALING_SMALLER:
+			policy = Qt::HighDpiScaleFactorRoundingPolicy::RoundPreferFloor;
+			break;
+		case H2Core::Preferences::UI_SCALING_SYSTEM:
+			policy = Qt::HighDpiScaleFactorRoundingPolicy::PassThrough;
+			break;
+		case H2Core::Preferences::UI_SCALING_LARGER:
+			policy = Qt::HighDpiScaleFactorRoundingPolicy::Ceil;
+			break;
+		}
+		QGuiApplication::setHighDpiScaleFactorRoundingPolicy( policy );
+#endif
+
 #ifdef H2CORE_HAVE_LASH
 
 		LashClient::create_instance("hydrogen", "Hydrogen", &argc, &argv);
@@ -260,6 +279,12 @@ int main(int argc, char *argv[])
 			pPref->m_sAudioDriver = "Alsa";
 		}
 
+		// Bootstrap is complete, start GUI
+		delete pBootStrApp;
+		QApplication* pQApp = new QApplication( argc, argv );
+		pQApp->setApplicationName( "Hydrogen" );
+		pQApp->setApplicationVersion( QString::fromStdString( H2Core::get_version() ) );
+
 		QString family = pPref->getApplicationFontFamily();
 		pQApp->setFont( QFont( family, pPref->getApplicationFontPointSize() ) );
 
@@ -267,7 +292,14 @@ int main(int argc, char *argv[])
 		QTranslator tor( nullptr );
 		QLocale locale = QLocale::system();
 		if ( locale != QLocale::c() ) {
-			if (qttor.load( locale, QString( "qt" ), QString( "_" ), QLibraryInfo::location(QLibraryInfo::TranslationsPath))) {
+			QStringList languages;
+			QString sPreferredLanguage = pPref->getPreferredLanguage();
+			if ( !sPreferredLanguage.isNull() ) {
+				languages << sPreferredLanguage;
+			}
+			languages << locale.uiLanguages();
+			if ( H2Core::Translations::loadTranslation( languages, qttor, QString( "qt" ),
+														QLibraryInfo::location(QLibraryInfo::TranslationsPath) ) ) {
 				pQApp->installTranslator( &qttor );
 			} else {
 				___INFOLOG( QString("Warning: No Qt translation for locale %1 found.").arg(locale.name()));
@@ -275,7 +307,7 @@ int main(int argc, char *argv[])
 			
 			QString sTranslationPath = H2Core::Filesystem::i18n_dir();
 			QString sTranslationFile( "hydrogen" );
-			bool bTransOk = tor.load( locale, sTranslationFile, QString( "_" ), sTranslationPath );
+			bool bTransOk = H2Core::Translations::loadTranslation( languages, tor, sTranslationFile, sTranslationPath );
 			if (bTransOk) {
 				___INFOLOG( "Using locale: " + sTranslationPath );
 			} else {

@@ -379,7 +379,7 @@
         <translation type="unfinished">Exportar ficheiro MIDI</translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -453,7 +453,7 @@ Sobrescribir o ficheiro existente?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Directory %1 does not exists</source>
+        <source>Directory %1 does not exist</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
