@@ -1749,8 +1749,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			}
 
 			if ( m_pPlayingPatterns->size() != 0 ) {
-				const Pattern *pFirstPattern = m_pPlayingPatterns->get( 0 );
-				nPatternSize = pFirstPattern->get_length();
+				nPatternSize = m_pPlayingPatterns->longest_pattern_length();
 			}
 
 			if ( nPatternSize == 0 ) {
@@ -1963,7 +1962,7 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 	for ( int i = 0; i < nColumns; ++i ) {
 		PatternList *pColumn = ( *pPatternColumns )[ i ];
 		if ( pColumn->size() != 0 ) {
-			nPatternSize = pColumn->get( 0 )->get_length();
+			nPatternSize = pColumn->longest_pattern_length();
 		} else {
 			nPatternSize = MAX_NOTES;
 		}
@@ -1989,7 +1988,7 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 		for ( int i = 0; i < nColumns; ++i ) {
 			PatternList *pColumn = ( *pPatternColumns )[ i ];
 			if ( pColumn->size() != 0 ) {
-				nPatternSize = pColumn->get( 0 )->get_length();
+				nPatternSize = pColumn->longest_pattern_length();
 			} else {
 				nPatternSize = MAX_NOTES;
 			}
@@ -2612,7 +2611,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 				currentPattern = pColumn->get( 0 );
 				currentPatternNumber = i;
 			}
-			column = column + currentPattern->get_length();
+			column = column + (*pColumns)[ipattern]->longest_pattern_length();
 			// WARNINGLOG( "Undoing lookahead: corrected (" + to_string( ipattern+1 ) +
 			// "," + to_string( (int) ( column - currentPattern->get_length() ) -
 			// (int) lookaheadTicks ) + ") -> (" + to_string(ipattern) +
@@ -2873,7 +2872,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			if ( pPreferences->getHearNewNotes() && position <= getTickPosition() ) {
 				hearnote = true;
 			}
-		} /* if doRecord */
+		}/* if doRecord */
 	} else if ( pPreferences->getHearNewNotes() ) {
 			hearnote = true;
 	} /* if .. STATE_PLAYING */
@@ -3471,12 +3470,7 @@ long Hydrogen::getTickForPosition( int pos )
 		
 		if( pColumn->size() > 0)
 		{
-			pPattern = pColumn->get( 0 );
-			if ( pPattern ) {
-				nPatternSize = pPattern->get_length();
-			} else {
-				nPatternSize = MAX_NOTES;
-			}
+			nPatternSize = pColumn->longest_pattern_length();
 		} else {
 			nPatternSize = MAX_NOTES;
 		}
@@ -3896,9 +3890,8 @@ long Hydrogen::getPatternLength( int nPattern )
 	}
 
 	PatternList* pPatternList = pColumns->at( nPattern - 1 );
-	Pattern* pPattern = pPatternList->get( 0 );
-	if ( pPattern ) {
-		return pPattern->get_length();
+	if ( pPatternList->size() > 0 ) {
+		return pPatternList->longest_pattern_length();
 	} else {
 		return MAX_NOTES;
 	}
