@@ -319,7 +319,7 @@ protected:
 	/**
 	 *  Assert that the AudioEngine lock is held if needed.
 	 */
-	void assertLocked() const {
+	void assertAudioEngineLocked() const {
 #ifndef NDEBUG
 		if ( m_bNeedsLock ) {
 			AudioEngine::get_instance()->assertLocked();
