@@ -239,11 +239,11 @@ void SampleEditor::getAllFrameInfos()
 		EndFrameSpinBox->setValue( __loops.end_frame );
 		LoopCountSpinBox->setValue( __loops.count );
 
-		m_pMainSampleWaveDisplay->m_pStartFramePosition = __loops.start_frame / m_divider + 25 ;
+		m_pMainSampleWaveDisplay->m_nStartFramePosition = __loops.start_frame / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pMainSampleWaveDisplay->m_pLoopFramePosition =  __loops.loop_frame / m_divider + 25 ;
+		m_pMainSampleWaveDisplay->m_nLoopFramePosition =  __loops.loop_frame / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pMainSampleWaveDisplay->m_pEndFramePosition =  __loops.end_frame / m_divider + 25 ;
+		m_pMainSampleWaveDisplay->m_nEndFramePosition =  __loops.end_frame / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 
 		if( !__rubberband.use ) { 
@@ -418,9 +418,9 @@ bool SampleEditor::returnAllMainWaveDisplayValues()
 	testpTimer();
 //	QMessageBox::information ( this, "Hydrogen", tr ( "jep %1" ).arg(m_pSample->get_frames()));
 	m_bSampleIsModified = true;
-	if( m_pMainSampleWaveDisplay->__startsliderismoved ) __loops.start_frame = m_pMainSampleWaveDisplay->m_pStartFramePosition * m_divider - 25 * m_divider;
-	if( m_pMainSampleWaveDisplay->__loopsliderismoved ) __loops.loop_frame = m_pMainSampleWaveDisplay->m_pLoopFramePosition  * m_divider - 25 * m_divider;
-	if( m_pMainSampleWaveDisplay->__endsliderismoved ) __loops.end_frame = m_pMainSampleWaveDisplay->m_pEndFramePosition  * m_divider - 25 * m_divider ;
+	if( m_pMainSampleWaveDisplay->m_bStartSliderIsMoved ) __loops.start_frame = m_pMainSampleWaveDisplay->m_nStartFramePosition * m_divider - 25 * m_divider;
+	if( m_pMainSampleWaveDisplay->m_bLoopSliderIsMoved ) __loops.loop_frame = m_pMainSampleWaveDisplay->m_nLoopFramePosition  * m_divider - 25 * m_divider;
+	if( m_pMainSampleWaveDisplay->m_bEndSliderIsmoved ) __loops.end_frame = m_pMainSampleWaveDisplay->m_nEndFramePosition  * m_divider - 25 * m_divider ;
 	StartFrameSpinBox->setValue( __loops.start_frame );
 	LoopFrameSpinBox->setValue( __loops.loop_frame );
 	EndFrameSpinBox->setValue( __loops.end_frame );
@@ -450,7 +450,7 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 	m_pDetailFrame = StartFrameSpinBox->value();
 	m_pLineColor = "Start";
 	if ( !m_bOnewayStart ){
-		m_pMainSampleWaveDisplay->m_pStartFramePosition = StartFrameSpinBox->value() / m_divider + 25 ;
+		m_pMainSampleWaveDisplay->m_nStartFramePosition = StartFrameSpinBox->value() / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_pLineColor);
 		__loops.start_frame = StartFrameSpinBox->value();
@@ -471,7 +471,7 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 	m_pDetailFrame = LoopFrameSpinBox->value();
 	m_pLineColor = "Loop";
 	if ( !m_bOnewayLoop ){
-		m_pMainSampleWaveDisplay->m_pLoopFramePosition = LoopFrameSpinBox->value() / m_divider + 25 ;
+		m_pMainSampleWaveDisplay->m_nLoopFramePosition = LoopFrameSpinBox->value() / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_pLineColor);
 		__loops.loop_frame = LoopFrameSpinBox->value();
@@ -491,7 +491,7 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 	m_pDetailFrame = EndFrameSpinBox->value();
 	m_pLineColor = "End";
 	if ( !m_bOnewayEnd ){
-		m_pMainSampleWaveDisplay->m_pEndFramePosition = EndFrameSpinBox->value() / m_divider + 25 ;
+		m_pMainSampleWaveDisplay->m_nEndFramePosition = EndFrameSpinBox->value() / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
 		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_pLineColor);
 		__loops.end_frame = EndFrameSpinBox->value();
