@@ -51,7 +51,7 @@ class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 	public:
 		QApplication* m_pQApp;
 
-		MainForm( QApplication *app, const QString& songFilename );
+		MainForm( QApplication *app, const QString& songFilename, const bool bLoadSong );
 		~MainForm();
 
 		void updateRecentUsedSongList();
@@ -59,6 +59,24 @@ class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 		virtual void errorEvent( int nErrorCode );
 		virtual void jacksessionEvent( int nValue);
 		virtual void playlistLoadSongEvent(int nIndex);
+
+		/** Handles the loading and saving of the H2Core::Preferences
+		 * from the core part of H2Core::Hydrogen.
+		 *
+		 * If \a nValue is 0 - the H2Core::Preferences should be saved
+		 * - it triggers savePreferences() to write the state of the
+		 * GUI into the H2Core::Preferences instance and write it
+		 * subsequentially to disk using
+		 * H2Core::Preferences::savePreferences(). If, on the other
+		 * hand, \a nValue is 1 and the configuration file has been
+		 * reloaded, it gets a fresh version of H2Core::Preferences
+		 * and updates #m_pInstrumentAction and #m_pDrumkitAction to
+		 * reflect the changes in the configuration.
+		 *
+		 * \param nValue If 0, H2Core::Preferences was save. If 1, it was
+		 *     loaded.
+		 */
+		virtual void updatePreferencesEvent( int nValue );
 		virtual void undoRedoActionEvent( int nEvent );
 		static void usr1SignalHandler(int unused);
 
@@ -67,10 +85,48 @@ public slots:
 		void showPreferencesDialog();
 		void showUserManual();
 
+		/**
+		 * Project > New handling function.
+		 *
+		 * Creates an empty Song and set it as the current one.
+		 *
+		 * When Hydrogen is under session management (NSM) this
+		 * function will assume that there is already a Song present
+		 * (which is the case). Else it will return without doing
+		 * anything. It uses the current Song to assign the it file
+		 * path to the empty one since the name provided by the NSM
+		 * server must be used or the restart of the session fails.
+		 */
 		void action_file_new();
+		
+		/**
+		 * Project > Open / Import into Session handling function.
+		 *
+		 * Opens an existing Song.
+		 *
+		 * When Hydrogen is under session management (NSM) this
+		 * function will assume that there is already a Song present
+		 * (which is the case). Else it will return without doing
+		 * anything. It opens the chosen file and uses the current
+		 * Song to assign its file path to the opened one since the
+		 * name provided by the NSM server must be used or the restart
+		 * of the session fails.
+		 */
 		void action_file_open();
 		void action_file_openDemo();
 		void action_file_save();
+		
+		/**
+		 * Project > Save As / Export from Session handling function.
+		 *
+		 * Saves the current Song in a different path.
+		 *
+		 * When Hydrogen is under session management (NSM) this
+		 * function will store the Song in the chosen location but
+		 * keeps its previous file path associated with it since the
+		 * name provided by the NSM server must be used or the restart
+		 * of the session fails.
+		 */
 		void action_file_save_as();
 		void action_file_openPattern();
 		void action_file_export_pattern_as();
@@ -148,7 +204,16 @@ public slots:
 		void action_toggle_input_mode();
 
 		void handleSigUsr1();
+		/** Wrapper around savePreferences() and quit() method of
+			#m_pQApp.*/
 		void closeAll();
+		/** Stores the current state of the GUI (position, width,
+		 * height, and visibility of the widgets) in the
+		 * H2Core::Preferences.
+		 */
+		void savePreferences();
+		void checkMidiSetup();
+		void checkMissingSamples();
 
 	private slots:
 		void onAutoSaveTimer();
@@ -193,11 +258,7 @@ public slots:
 
 		/** Create the menubar */
 		void createMenuBar();
-
-		void openSongFile( const QString& sFilename );
 		
-		void checkMidiSetup();
-		void checkMissingSamples();
 		void checkNecessaryDirectories();
 
 		bool eventFilter( QObject *o, QEvent *e );

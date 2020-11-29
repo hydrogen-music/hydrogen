@@ -1,11 +1,17 @@
-
+#include <core/LocalFileMng.h>
 #include <core/config.h>
 #include <core/Helpers/Filesystem.h>
+#include <core/Hydrogen.h>
 
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
+#include <QDomDocument>
+
+#ifdef H2CORE_HAVE_OSC
+#include <core/NsmClient.h>
+#endif
 
 // directories
 #define LOCAL_DATA_PATH "data/"
@@ -71,6 +77,7 @@ QString Filesystem::__usr_log_path;
 
 QStringList Filesystem::__ladspa_paths;
 
+QString Filesystem::m_sPreferencesOverwritePath = "";
 
 /* TODO QCoreApplication is not instantiated */
 bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
@@ -601,11 +608,68 @@ QString Filesystem::drumkit_usr_path( const QString& dk_name )
 }
 QString Filesystem::drumkit_path_search( const QString& dk_name )
 {
-	if( usr_drumkit_list().contains( dk_name ) ) return usr_drumkits_dir() + dk_name;
-	if( sys_drumkit_list().contains( dk_name ) ) return sys_drumkits_dir() + dk_name;
+
+#ifdef H2CORE_HAVE_OSC
+	// When under session management the drumkit can also be located
+	// in - apart from the user and system path - a particular session
+	// folder. If it couldn't be found in there (or the found drumkit
+	// does not match `dk_name`), the session folder is skipped and
+	// the user and system paths will be traversed instead.
+	if ( Hydrogen::get_instance()->isUnderSessionManagement() ) {
+		
+		QString sDrumkitPath = QString( "%1/%2" )
+			.arg( NsmClient::get_instance()->m_sSessionFolderPath )
+			.arg( "drumkit" );
+		
+		// If the path is symbolic link, dereference it.
+		QFileInfo drumkitPathInfo( sDrumkitPath );
+		if ( drumkitPathInfo.isSymLink() ) {
+			sDrumkitPath = drumkitPathInfo.symLinkTarget();
+		}
+		
+		// Check whether the local drumkit does hold the right
+		// drumkit (using its name).
+		QString sDrumkitXMLPath = QString( "%1/%2" )
+				.arg( sDrumkitPath ).arg( "drumkit.xml" );
+		QFileInfo drumkitXMLInfo( sDrumkitXMLPath );
+		if ( drumkitXMLInfo.exists() ) {
+	
+			QDomDocument drumkitXML = H2Core::LocalFileMng::openXmlDocument( sDrumkitXMLPath );
+			QDomNodeList nodeList = drumkitXML.elementsByTagName( "drumkit_info" );
+	
+			if( nodeList.isEmpty() ) {
+				NsmClient::printError( "Local drumkit does not seem valid" );
+			} else {
+				QDomNode drumkitInfoNode = nodeList.at( 0 );
+				QString sDrumkitNameXML = H2Core::LocalFileMng::readXmlString( drumkitInfoNode, "name", "" );
+	
+				if ( sDrumkitNameXML == dk_name ) {
+					// Jackpot. The local drumkit seems legit.	
+					return sDrumkitPath;
+					
+				} else {
+					NsmClient::printError( QString( "Local drumkit [%1] and the one referenced in the .h2song file [%2] do not match!" )
+										   .arg( sDrumkitNameXML )
+										   .arg( dk_name ) );
+				}
+			}
+		}
+
+	}
+			
+#endif
+	if( usr_drumkit_list().contains( dk_name ) ){
+		return usr_drumkits_dir() + dk_name;
+	}
+	
+	if( sys_drumkit_list().contains( dk_name ) ){
+		return sys_drumkits_dir() + dk_name;
+	}
+	
 	ERRORLOG( QString( "drumkit %1 not found" ).arg( dk_name ) );
-	return "";
+	return QString("");
 }
+
 QString Filesystem::drumkit_dir_search( const QString& dk_name )
 {
 	if( usr_drumkit_list().contains( dk_name ) ) return usr_drumkits_dir();

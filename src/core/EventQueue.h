@@ -109,13 +109,28 @@ enum EventType {
 	EVENT_SONG_MODIFIED,
 	EVENT_TEMPO_CHANGED,
 	/**
+	 * Event triggering the loading or saving of the
+	 * H2Core::Preferences whenever they were changed outside of the
+	 * GUI, e.g. by session management or an OSC command.
+	 *
+	 * If the value of the event is 
+	 * - 0 - tells the GUI to save the current geometry settings in
+	 * the H2Core::Preferences file.
+	 * - 1 - tells the GUI to load the Preferences file and to  update
+	 * a bunch of widgets, checkboxes etc. to reflect the changes in
+	 * the configuration.
+	 */
+	EVENT_UPDATE_PREFERENCES,
+	/**
 	 * Event triggering HydrogenApp::updateSongEvent() whenever the
 	 * Song was changed outside of the GUI, e.g. by session management
 	 * or and OSC command.
 	 *
 	 * If the value of the event is 
 	 * - 0 - Hydrogen::m_pNextSong will be loaded.
-	 * - 1 - triggered whenever the #Song was saved via the core part
+	 * - 1 - Hydrogen::m_pNextSong will be loaded and the audio
+	 *       drivers will be restarted via Hydrogen::restartDrivers()
+	 * - 2 - triggered whenever the Song was saved via the core part
 	 *       (updated the title and status bar).
 	 */
 	EVENT_UPDATE_SONG,

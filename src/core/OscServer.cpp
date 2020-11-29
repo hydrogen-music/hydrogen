@@ -619,6 +619,12 @@ void OscServer::SAVE_SONG_AS_Handler(lo_arg **argv, int argc) {
 	pController->saveSongAs( QString::fromUtf8( &argv[0]->s ) );
 }
 
+void OscServer::SAVE_PREFERENCES_Handler(lo_arg **argv, int argc) {
+	
+	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
+	pController->savePreferences();
+}
+
 void OscServer::QUIT_Handler(lo_arg **argv, int argc) {
 	
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
@@ -956,6 +962,8 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/OPEN_SONG", "s", OPEN_SONG_Handler);
 	m_pServerThread->add_method("/Hydrogen/SAVE_SONG", "", SAVE_SONG_Handler);
 	m_pServerThread->add_method("/Hydrogen/SAVE_SONG_AS", "s", SAVE_SONG_AS_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_DRUMKIT", "", SAVE_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/SAVE_PREFERENCES", "", SAVE_SONG_Handler);
 	m_pServerThread->add_method("/Hydrogen/QUIT", "", QUIT_Handler);
 
 	m_pServerThread->add_method("/Hydrogen/TIMELINE_ACTIVATION", "i", TIMELINE_ACTIVATION_Handler);

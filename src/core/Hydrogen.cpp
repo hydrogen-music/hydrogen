@@ -1520,6 +1520,14 @@ void audioEngine_renameJackPorts(Song * pSong)
 	if ( ! pSong ) return;
 
 	if ( Hydrogen::get_instance()->haveJackAudioDriver() ) {
+
+		// When restarting the audio driver after loading a new song under
+		// Non session management all ports have to be registered _prior_
+		// to the activation of the client.
+		if ( Hydrogen::get_instance()->isUnderSessionManagement() ) {
+			return;
+		}
+		
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->makeTrackOutputs( pSong );
 	}
 #endif
@@ -2120,7 +2128,7 @@ void audioEngine_startAudioDrivers()
 	QMutexLocker mx(&mutex_OutputPointer);
 
 	___INFOLOG( "[audioEngine_startAudioDrivers]" );
-
+	
 	// check current state
 	if ( m_audioEngineState != STATE_INITIALIZED ) {
 		___ERRORLOG( QString( "Error the audio engine is not in INITIALIZED"
@@ -2328,12 +2336,17 @@ void audioEngine_stopAudioDrivers()
 
 
 
-/// Restart all audio and midi drivers by calling first
-/// audioEngine_stopAudioDrivers() and then
-/// audioEngine_startAudioDrivers().
+/** Restart all audio and midi drivers by calling first
+ * audioEngine_stopAudioDrivers() and then
+ * audioEngine_startAudioDrivers().
+ *
+ * If no audio driver is set yet, audioEngine_stopAudioDrivers() is
+ * omitted and the audio driver will be started right away.*/
 void audioEngine_restartAudioDrivers()
 {
-	audioEngine_stopAudioDrivers();
+	if ( m_pAudioDriver != nullptr ) {
+		audioEngine_stopAudioDrivers();
+	}
 	audioEngine_startAudioDrivers();
 }
 
@@ -2357,11 +2370,12 @@ Hydrogen::Hydrogen()
 	INFOLOG( "[Hydrogen]" );
 
 	__song = nullptr;
+	m_pNextSong = nullptr;
 
 	m_bExportSessionIsActive = false;
 	m_pTimeline = new Timeline();
 	m_pCoreActionController = new CoreActionController();
-	m_bActiveGUI = false;
+	m_GUIState = GUIState::unavailable;
 	m_nMaxTimeHumanize = 2000;
 
 	initBeatcounter();
@@ -2371,17 +2385,31 @@ Hydrogen::Hydrogen()
 	// Prevent double creation caused by calls from MIDI thread
 	__instance = this;
 
-	audioEngine_startAudioDrivers();
+	// When under session management and using JACK as audio driver,
+	// it is crucial for Hydrogen to activate the JACK client _after_
+	// the initial Song was set. Else the per track outputs will not
+	// be registered in time and the session software won't be able to
+	// rewire them properly. Therefore, the audio driver is started in
+	// the callback function for opening a Song in nsm_open_cb().
+	//
+	// But the presence of the environmental variable NSM_URL does not
+	// guarantee for a session management to be present (and at this
+	// early point of initialization it's basically impossible to
+	// tell). As a fallback the main() function will check for the
+	// presence of the audio driver after creating both the Hydrogen
+	// and NsmClient instance and prior to the creation of the GUI. If
+	// absent, the starting of the audio driver will be triggered.
+	if ( ! getenv( "NSM_URL" ) ){
+		audioEngine_startAudioDrivers();
+	}
+	
 	for(int i = 0; i< MAX_INSTRUMENTS; i++){
 		m_nInstrumentLookupTable[i] = i;
 	}
 
-#ifdef H2CORE_HAVE_OSC
-	if( Preferences::get_instance()->getOscServerEnabled() )
-	{
+	if ( Preferences::get_instance()->getOscServerEnabled() ) {
 		toggleOscServer( true );
 	}
-#endif
 }
 
 Hydrogen::~Hydrogen()
@@ -2500,42 +2528,45 @@ void Hydrogen::setSong( Song *pSong )
 		return;
 	}
 
-	if ( pCurrentSong ) {
+	if ( pCurrentSong != nullptr ) {
 		/* NOTE: 
 		 *       - this is actually some kind of cleanup 
 		 *       - removeSong cares itself for acquiring a lock
 		 */
 		removeSong();
-
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		delete pCurrentSong;
-		pCurrentSong = nullptr;
-
-		AudioEngine::get_instance()->unlock();
-
 	}
 
-	/* Reset GUI */
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
-	EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
-	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
-
+	if ( m_GUIState != GUIState::unavailable ) {
+		/* Reset GUI */
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
+		EventQueue::get_instance()->push_event( EVENT_PATTERN_CHANGED, -1 );
+		EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
+	}
+	
 	// In order to allow functions like audioEngine_setupLadspaFX() to
 	// load the settings of the new song, like whether the LADSPA FX
 	// are activated, __song has to be set prior to the call of
 	// audioEngine_setSong().
 	__song = pSong;
 
-	
 	// Update the audio engine to work with the new song.
 	audioEngine_setSong( pSong );
 
 	// load new playback track information
 	AudioEngine::get_instance()->get_sampler()->reinitializePlaybackTrack();
-	
+
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
 	m_pCoreActionController->initExternalControlInterfaces();
+
+	if ( isUnderSessionManagement() ) {
+#ifdef H2CORE_HAVE_OSC
+		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath.toLocal8Bit().data() );
+#endif
+	} else {		
+		Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
+	}
 }
 
 /* Mean: remove current song from memory */
@@ -3160,18 +3191,18 @@ void Hydrogen::stopExportSong()
 }
 
 /// Used to display audio driver info
-AudioOutput* Hydrogen::getAudioOutput()
+AudioOutput* Hydrogen::getAudioOutput() const
 {
 	return m_pAudioDriver;
 }
 
 /// Used to display midi driver info
-MidiInput* Hydrogen::getMidiInput()
+MidiInput* Hydrogen::getMidiInput() const 
 {
 	return m_pMidiDriver;
 }
 
-MidiOutput* Hydrogen::getMidiOutput()
+MidiOutput* Hydrogen::getMidiOutput() const
 {
 	return m_pMidiDriverOut;
 }
@@ -3186,7 +3217,7 @@ void Hydrogen::setMasterPeak_R( float value )
 	m_fMasterPeak_R = value;
 }
 
-int Hydrogen::getState()
+int Hydrogen::getState() const
 {
 	return m_audioEngineState;
 }
@@ -3203,12 +3234,12 @@ void Hydrogen::setCurrentPatternList( PatternList *pPatternList )
 	AudioEngine::get_instance()->unlock();
 }
 
-float Hydrogen::getProcessTime()
+float Hydrogen::getProcessTime() const
 {
 	return m_fProcessTime;
 }
 
-float Hydrogen::getMaxProcessTime()
+float Hydrogen::getMaxProcessTime() const
 {
 	return m_fMaxProcessTime;
 }
@@ -3325,6 +3356,14 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	m_audioEngineState = old_ae_state;
 	
 	m_pCoreActionController->initExternalControlInterfaces();
+	
+	// Create a symbolic link in the session folder when under session
+	// management.
+	if ( isUnderSessionManagement() ) {
+#ifdef H2CORE_HAVE_OSC
+		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath.toLocal8Bit().data() );
+#endif
+	}
 
 	return 0;	//ok
 }
@@ -3903,7 +3942,7 @@ long Hydrogen::getPatternLength( int nPattern )
 	}
 }
 
-float Hydrogen::getNewBpmJTM()
+float Hydrogen::getNewBpmJTM() const
 {
 	return m_fNewBpmJTM;
 }
@@ -3978,7 +4017,7 @@ void Hydrogen::__panic()
 	AudioEngine::get_instance()->get_sampler()->stopPlayingNotes();
 }
 
-unsigned int Hydrogen::__getMidiRealtimeNoteTickPosition()
+unsigned int Hydrogen::__getMidiRealtimeNoteTickPosition() const
 {
 	return m_naddrealtimenotetickposition;
 }
@@ -4086,17 +4125,34 @@ JackAudioDriver::Timebase Hydrogen::getJackTimebaseState() const {
 #endif	
 }
 
+bool Hydrogen::isUnderSessionManagement() const {
 #ifdef H2CORE_HAVE_OSC
+	if ( NsmClient::get_instance() != nullptr ) {
+		if ( NsmClient::get_instance()->getUnderSessionManagement() ) {
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
+	}
+#else
+	return false;
+#endif
+}		
 
 void Hydrogen::toggleOscServer( bool bEnable ) {
+#ifdef H2CORE_HAVE_OSC
 	if ( bEnable ) {
 		OscServer::get_instance()->start();
 	} else {
 		OscServer::get_instance()->stop();
 	}
+#endif
 }
 
 void Hydrogen::recreateOscServer() {
+#ifdef H2CORE_HAVE_OSC
 	OscServer* pOscServer = OscServer::get_instance();
 	if( pOscServer ) {
 		delete pOscServer;
@@ -4107,17 +4163,56 @@ void Hydrogen::recreateOscServer() {
 	if ( Preferences::get_instance()->getOscServerEnabled() ) {
 		toggleOscServer( true );
 	}
+#endif
 }
 
 void Hydrogen::startNsmClient()
 {
+#ifdef H2CORE_HAVE_OSC
 	//NSM has to be started before jack driver gets created
 	NsmClient* pNsmClient = NsmClient::get_instance();
 
 	if(pNsmClient){
 		pNsmClient->createInitialClient();
 	}
-}
 #endif
+}
+
+void Hydrogen::setInitialSong( Song *pSong ) {
+
+	// Since the function is only intended to set a Song prior to the
+	// initial creation of the audio driver, it will cause the
+	// application to get out of sync if used elsewhere. The following
+	// checks ensure it is called in the right context.
+	if ( pSong == nullptr ) {
+		return;
+	}
+	if ( __song != nullptr ) {
+		return;
+	}
+	if ( m_pAudioDriver != nullptr ) {
+		return;
+	}
+	
+	// Just to be sure.
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+
+	// Find the first pattern and set as current.
+	if ( pSong->get_pattern_list()->size() > 0 ) {
+		m_pPlayingPatterns->add( pSong->get_pattern_list()->get( 0 ) );
+	}
+
+	AudioEngine::get_instance()->unlock();
+
+	// Move to the beginning.
+	setSelectedPatternNumber( 0 );
+
+	__song = pSong;
+
+	// Push current state of Hydrogen to attached control interfaces,
+	// like OSC clients.
+	m_pCoreActionController->initExternalControlInterfaces();
+			
+}
 
 }; /* Namespace */
