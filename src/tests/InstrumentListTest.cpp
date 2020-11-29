@@ -19,9 +19,9 @@ class InstrumentListTest : public CppUnit::TestCase {
 	void test_one_instrument()
 	{
 		InstrumentList list;
-		Instrument *kick = new Instrument(EMPTY_INSTR_ID, "Kick");
-		kick->set_midi_out_note(42);
-		list.add(kick);
+		Instrument *pKick = new Instrument(EMPTY_INSTR_ID, "Kick");
+		pKick->set_midi_out_note(42);
+		list.add(pKick);
 
 		CPPUNIT_ASSERT( !list.has_all_midi_notes_same() );
 	}
@@ -31,17 +31,17 @@ class InstrumentListTest : public CppUnit::TestCase {
 	{
 		InstrumentList list;
 
-		Instrument *kick = new Instrument(EMPTY_INSTR_ID, "Kick");
-		kick->set_midi_out_note(10);
-		list.add(kick);
+		Instrument *pKick = new Instrument(EMPTY_INSTR_ID, "Kick");
+		pKick->set_midi_out_note(10);
+		list.add(pKick);
 
-		Instrument *snare = new Instrument(EMPTY_INSTR_ID, "Snare");
-		snare->set_midi_out_note(10);
-		list.add(snare);
+		Instrument *pSnare = new Instrument(EMPTY_INSTR_ID, "Snare");
+		pSnare->set_midi_out_note(10);
+		list.add(pSnare);
 
-		Instrument *hh = new Instrument(EMPTY_INSTR_ID, "HiHat");
-		hh->set_midi_out_note(10);
-		list.add(hh);
+		Instrument *pHihat = new Instrument(EMPTY_INSTR_ID, "HiHat");
+		pHihat->set_midi_out_note(10);
+		list.add(pHihat);
 
 		CPPUNIT_ASSERT_EQUAL( 3, list.size() );
 		CPPUNIT_ASSERT( list.has_all_midi_notes_same() );
@@ -52,21 +52,21 @@ class InstrumentListTest : public CppUnit::TestCase {
 	{
 		InstrumentList list;
 
-		Instrument *kick = new Instrument(EMPTY_INSTR_ID, "Kick");
-		kick->set_midi_out_note(36);
-		list.add(kick);
+		Instrument *pKick = new Instrument(EMPTY_INSTR_ID, "Kick");
+		pKick->set_midi_out_note(36);
+		list.add(pKick);
 
-		Instrument *clap = new Instrument(EMPTY_INSTR_ID, "Clap");
-		clap->set_midi_out_note(37);
-		list.add(clap);
+		Instrument *pClap = new Instrument(EMPTY_INSTR_ID, "Clap");
+		pClap->set_midi_out_note(37);
+		list.add(pClap);
 
-		Instrument *ride = new Instrument(EMPTY_INSTR_ID, "Ride");
-		ride->set_midi_out_note(38);
-		list.add(ride);
+		Instrument *pRide = new Instrument(EMPTY_INSTR_ID, "Ride");
+		pRide->set_midi_out_note(38);
+		list.add(pRide);
 
-		Instrument *dummy = new Instrument(EMPTY_INSTR_ID, "Dummy Instrument");
-		dummy->set_midi_out_note(36); // duplicate
-		list.add(dummy);
+		Instrument *pDummy = new Instrument(EMPTY_INSTR_ID, "Dummy Instrument");
+		pDummy->set_midi_out_note(36); // duplicate
+		list.add(pDummy);
 
 		CPPUNIT_ASSERT_EQUAL( 4, list.size() );
 		CPPUNIT_ASSERT( !list.has_all_midi_notes_same() );

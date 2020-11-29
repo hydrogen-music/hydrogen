@@ -25,7 +25,7 @@
 
 #include <cppunit/TestListener.h>
 
-#include "appveyor_rest_client.h"
+#include "AppveyorRestClient.h"
 
 #include <chrono>
 #include <unordered_map>

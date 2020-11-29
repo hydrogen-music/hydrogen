@@ -1,4 +1,4 @@
-#include "test_helper.h"
+#include "TestHelper.h"
 
 #include "core/Object.h"
 
@@ -10,12 +10,12 @@
 static const QString APP_DATA_DIR = "/data/";
 static const QString TEST_DATA_DIR = "/src/tests/data/";
 
-TestHelper* TestHelper::__instance = nullptr;
+TestHelper* TestHelper::m_pInstance = nullptr;
 
-void TestHelper::create_instance()
+void TestHelper::createInstance()
 {
-	if ( __instance == nullptr ) {
-		__instance = new TestHelper;
+	if ( m_pInstance == nullptr ) {
+		m_pInstance = new TestHelper;
 	}
 }
 
@@ -43,7 +43,7 @@ QString qx(QStringList args)
  * \param dir Path to directory
  * \return Whether dir points to Hydrogen source dir
  **/
-bool check_root_dir(const QString &dir)
+bool checkRootDir(const QString &dir)
 {
 	QFile f( dir + TEST_DATA_DIR + "/drumkits/baseKit/drumkit.xml" );
 	return f.exists();
@@ -62,12 +62,12 @@ bool check_root_dir(const QString &dir)
  * current directory is examined. If it doesn't point to
  * source dir, std::runtime_error is thrown.
  **/
-QString find_root_dir()
+QString findRootDir()
 {
 	/* Get root dir from H2_HOME env variable */
 	auto env_root_dir = QProcessEnvironment::systemEnvironment().value("H2_HOME", "");
 	if (env_root_dir != "") {
-		if (check_root_dir( env_root_dir ) ) {
+		if (checkRootDir( env_root_dir ) ) {
 			return env_root_dir;
 		} else {
 			___ERRORLOG( QString( "Directory %1 not usable" ).arg( env_root_dir ) );
@@ -77,7 +77,7 @@ QString find_root_dir()
 	/* Try git root directory */
 	try {
 		auto git_root_dir = qx({"git", "rev-parse", "--show-toplevel"});
-		if (check_root_dir( git_root_dir ) ) {
+		if (checkRootDir( git_root_dir ) ) {
 			return git_root_dir;
 		} else {
 			___ERRORLOG( QString( "Directory %1 not usable" ).arg( git_root_dir ) );
@@ -87,7 +87,7 @@ QString find_root_dir()
 	}
 
 	/* As last resort, use current dir */
-	if (check_root_dir( "." ) ) {
+	if (checkRootDir( "." ) ) {
 		return ".";
 	}
 	throw std::runtime_error( "Can't find suitable data directory. Consider setting H2_HOME environment variable" );
@@ -96,7 +96,7 @@ QString find_root_dir()
 
 TestHelper::TestHelper()
 {
-	auto root_dir = find_root_dir();
+	auto root_dir = findRootDir();
 	___INFOLOG( QString( "Using test data directory: %1" ).arg( root_dir ) );
 	m_sDataDir = root_dir + APP_DATA_DIR;
 	m_sTestDataDir = root_dir + TEST_DATA_DIR;

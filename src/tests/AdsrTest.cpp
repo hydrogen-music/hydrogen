@@ -1,4 +1,4 @@
-#include "adsr_test.h"
+#include "AdsrTest.h"
 
 #include <core/Basics/Adsr.h>
 #include <stdio.h>

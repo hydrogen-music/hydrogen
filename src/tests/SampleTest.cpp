@@ -1,5 +1,5 @@
-#include "pattern_test.h"
-#include "test_helper.h"
+#include "PatternTest.h"
+#include "TestHelper.h"
 
 #include <core/Basics/Sample.h>
 

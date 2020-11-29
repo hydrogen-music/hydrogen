@@ -1,7 +1,7 @@
 #ifdef WIN32
 
 #include <time.h>
-#include "timehelper.h"
+#include "Timehelper.h"
 
 
 int gettimeofday(struct timeval *tv, struct timezone *tz)

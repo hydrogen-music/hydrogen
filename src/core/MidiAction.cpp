@@ -71,7 +71,7 @@ const char* Action::__class_name = "MidiAction";
 Action::Action( QString typeString ) : Object( __class_name ) {
 	m_sType = typeString;
 	QString m_sParameter1 = "0";
-	QString m_sParameter2 = "0" ;
+	QString m_sParameter2 = "0";
 }
 
 /**

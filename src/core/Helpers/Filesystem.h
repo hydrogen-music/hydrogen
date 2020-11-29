@@ -73,6 +73,8 @@ namespace H2Core
 		static QString pattern_xsd_path( );
 		/** returns the path to the playlist pattern XSD (xml schema definition) file */
 		static QString playlist_xsd_path( );
+		/** returns the full path (including filename) of the logfile */
+		static QString log_file_path();
 
 		/** returns gui image path */
 		static QString img_dir();
@@ -341,6 +343,7 @@ namespace H2Core
 		static QString __sys_data_path;     ///< the path to the system files
 		static QString __usr_data_path;     ///< the path to the user files
 		static QString __usr_cfg_path;      ///< the path to the user config file
+		static QString __usr_log_path;      ///< the path to the log file
 		static QStringList __ladspa_paths;  ///< paths to laspa plugins
 	};
 

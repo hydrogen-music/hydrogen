@@ -1,4 +1,4 @@
-#include "xml_test.h"
+#include "XmlTest.h"
 
 #include <unistd.h>
 
@@ -11,7 +11,7 @@
 #include <core/Basics/Sample.h>
 
 #include <core/Helpers/Filesystem.h>
-#include "test_helper.h"
+#include "TestHelper.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlTest );
 
