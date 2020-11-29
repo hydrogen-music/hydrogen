@@ -833,8 +833,14 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		updateWindowTitle();
 		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 		
-	}
+	} else if ( nValue == 3 ) {
 
+		// The event was triggered before the Song was fully loaded by
+		// the core. It's most likely to be present by now, but it's
+		// probably better to avoid displaying its path just to be
+		// sure.
+		QMessageBox::information( m_pMainForm, "Hydrogen", tr("Song is read-only.\nUse 'Save as' to enable autosave." ) );
+	}
 }
 
 void HydrogenApp::quitEvent( int nValue ) {
