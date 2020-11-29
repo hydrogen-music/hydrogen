@@ -353,6 +353,37 @@
     </message>
 </context>
 <context>
+    <name>DrumPatternEditor</name>
+    <message>
+        <source>&amp;Cut</source>
+        <translation>&amp;Couper</translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation>&amp;Copier</translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation>&amp;Coller</translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation>&amp;Effacer</translation>
+    </message>
+    <message>
+        <source>Select &amp;all</source>
+        <translation>&amp;Tout sélectionner</translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation>Effacer la sélection</translation>
+    </message>
+    <message>
+        <source>Cannot paste multi-pattern selection</source>
+        <translation>Impossible de coller une sélection multi-motifs</translation>
+    </message>
+</context>
+<context>
     <name>ExportMidiDialog</name>
     <message>
         <source>Export midi</source>
@@ -642,6 +673,29 @@ Overwrite the existing file?</source>
     </message>
 </context>
 <context>
+    <name>FilesystemInfoForm</name>
+    <message>
+        <source>Filesystem information</source>
+        <translation>Informations sur le système de fichier</translation>
+    </message>
+    <message>
+        <source>Open</source>
+        <translation>Ouvrir</translation>
+    </message>
+    <message>
+        <source>Temporary directory</source>
+        <translation>Répertoire temporaire</translation>
+    </message>
+    <message>
+        <source>System data directory</source>
+        <translation>Répertoire des données du système</translation>
+    </message>
+    <message>
+        <source>User data directory</source>
+        <translation>Répertoire des données utilisateur</translation>
+    </message>
+</context>
+<context>
     <name>FxMixerLine</name>
     <message>
         <source>FX on/off</source>
@@ -727,6 +781,18 @@ Are you sure?</source>
     <message>
         <source>Song saved.</source>
         <translation>Morceau sauvegardé.</translation>
+    </message>
+    <message>
+        <source>Error loading song.</source>
+        <translation>Erreur au chargement du morceau.</translation>
+    </message>
+    <message>
+        <source>Preferences saved.</source>
+        <translation>Préférences sauvegardées.</translation>
+    </message>
+    <message>
+        <source>Preferences loaded.</source>
+        <translation>Préférences chargées.</translation>
     </message>
 </context>
 <context>
@@ -909,6 +975,18 @@ Are you sure?</source>
     <message>
         <source>Fill 1/16 notes</source>
         <translation>Remplir une note sur 16</translation>
+    </message>
+    <message>
+        <source>Some samples for this instrument failed to load.</source>
+        <translation>Certains échantillons pour cet instrument n'ont pas pu être chargés.</translation>
+    </message>
+    <message>
+        <source>Select notes</source>
+        <translation>Sélectionner des notes</translation>
+    </message>
+    <message>
+        <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
+        <translation>Un ou plusieurs échantillons pour cet instrument n'ont pas pu être chargés. Cela peut être dû au fait que le fichier du morceau utilise un kit de batterie par défaut ancien. Ce problème pourrait être corrigé en ouvrant un nouveau kit de batterie.</translation>
     </message>
 </context>
 <context>
@@ -1162,10 +1240,6 @@ MIDI = %2</translation>
 <context>
     <name>MainForm</name>
     <message>
-        <source>Error loading song.</source>
-        <translation>Erreur au chargement du morceau.</translation>
-    </message>
-    <message>
         <source>Hydrogen Ready.</source>
         <translation>Hydrogen est pret.</translation>
     </message>
@@ -1178,10 +1252,6 @@ MIDI = %2</translation>
         <translation>&amp;Détruire</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
-    </message>
-    <message>
         <source>Save song</source>
         <translation>Sauvegarder le morceau</translation>
     </message>
@@ -1190,24 +1260,8 @@ MIDI = %2</translation>
         <translation>Ouvrir un morceau</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Nouveau</translation>
-    </message>
-    <message>
-        <source>&amp;Open</source>
-        <translation>&amp;Ouvrir...</translation>
-    </message>
-    <message>
         <source>Open &amp;Demo</source>
         <translation>Ouvrir une &amp;démo</translation>
-    </message>
-    <message>
-        <source>Open &amp;recent</source>
-        <translation>Ouvrir un fichier ré&amp;cent...</translation>
-    </message>
-    <message>
-        <source>Save &amp;as...</source>
-        <translation>Sauveg&amp;arder sous...</translation>
     </message>
     <message>
         <source>Export &amp;MIDI file</source>
@@ -1296,10 +1350,6 @@ MIDI = %2</translation>
     <message>
         <source>Clear all instruments?</source>
         <translation>Effacer tous les instruments ?</translation>
-    </message>
-    <message>
-        <source>Ok</source>
-        <translation>OK</translation>
     </message>
     <message>
         <source>You&apos;re using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.&lt;br&gt;&lt;br&gt;Thank you!</source>
@@ -1557,6 +1607,73 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
         <source>Retrieving information about drumkit &apos;%1&apos; failed: drumkit does not exist.</source>
         <translation>Échec de la recherche d&apos;informations sur le kit de batterie apos;%1&apos; : le kit n&apos;existe pas.</translation>
     </message>
+    <message>
+        <source>Show filesystem info</source>
+        <translation>Afficher les informations sur le système de fichiers</translation>
+    </message>
+    <message>
+        <source>Log level</source>
+        <translation>Niveau de journalisation</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Aucun</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Erreur</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Avertissement</translation>
+    </message>
+    <message>
+        <source>Info</source>
+        <translation>Infos</translation>
+    </message>
+    <message>
+        <source>Debug</source>
+        <translation>Débogage</translation>
+    </message>
+    <message>
+        <source>Open log file</source>
+        <translation>Ouvrir le fichier journal</translation>
+    </message>
+    <message>
+        <source>Export song from Session</source>
+        <translation>Exporter le morceau de la session</translation>
+    </message>
+    <message>
+        <source>Song exported as.</source>
+        <translation>Morceau exporté en tant que.</translation>
+    </message>
+    <message>
+        <source>Some samples used by this song failed to load. If you save the song now these missing samples will be removed from the song entirely.
+Are you sure you want to save?</source>
+        <translation>Certains échantillons utilisés par ce morceau n'ont pas pu être chargés. Si vous sauvegarder le morceau maintenant, ces échantillons manquants seront entièrement supprimés du morceau.
+Êtes-vous sûr de vouloir sauvegarder ?
+</translation>
+    </message>
+    <message>
+        <source>Import song into Session</source>
+        <translation>Importer un morceau à l'intérieur de la session</translation>
+    </message>
+    <message>
+        <source>Song drumkit samples</source>
+        <translation>Échantillons du kit de batterie du morceau</translation>
+    </message>
+    <message>
+        <source>Some samples used in this song could not be loaded. This may be because it uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
+        <translation>Certains échantillons utilisés dans ce morceau n'ont pas pu être chargés. Cela peut être dû au fait qu'il utilise un kit de batterie par défaut ancien. Ce problème pourrait être résolu en ouvrant un nouveau kit de batterie.</translation>
+    </message>
+    <message>
+        <source>Open drumkit</source>
+        <translation>Ouvrir un kit de batterie</translation>
+    </message>
+    <message>
+        <source>Could not write to temporary directory %1.</source>
+        <translation>Impossible d'écrire dans le répertoire temporaire %1.</translation>
+    </message>
 </context>
 <context>
     <name>MasterMixerLine</name>
@@ -1683,6 +1800,57 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Set instr. pan [%1]</source>
         <translation>Régler l&apos;effet pan. de l&apos;instrument [%1]</translation>
+    </message>
+</context>
+<context>
+    <name>NotePropertiesRuler</name>
+    <message>
+        <source>B</source>
+        <translation>Si</translation>
+    </message>
+    <message>
+        <source>A#</source>
+        <translation>La#</translation>
+    </message>
+    <message>
+        <source>A</source>
+        <translation>La</translation>
+    </message>
+    <message>
+        <source>G#</source>
+        <translation>Sol#</translation>
+    </message>
+    <message>
+        <source>G</source>
+        <translation>Sol</translation>
+    </message>
+    <message>
+        <source>F#</source>
+        <translation>Fa#</translation>
+    </message>
+    <message>
+        <source>F</source>
+        <translation>Fa</translation>
+    </message>
+    <message>
+        <source>E</source>
+        <translation>Mi</translation>
+    </message>
+    <message>
+        <source>D#</source>
+        <translation>Ré#</translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation>Ré</translation>
+    </message>
+    <message>
+        <source>C#</source>
+        <translation>Do#</translation>
+    </message>
+    <message>
+        <source>C</source>
+        <translation>Do</translation>
     </message>
 </context>
 <context>
@@ -1881,6 +2049,37 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     </message>
 </context>
 <context>
+    <name>PianoRollEditor</name>
+    <message>
+        <source>&amp;Cut</source>
+        <translation>&amp;Couper</translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation>&amp;Copier</translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation>&amp;Coller</translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation>&amp;Effacer</translation>
+    </message>
+    <message>
+        <source>Select &amp;all</source>
+        <translation>&amp;Tout sélectionner</translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation>Effacer la sélection</translation>
+    </message>
+    <message>
+        <source>Cannot paste multi-pattern selection</source>
+        <translation>Impossible de coller une sélection multi-motifs</translation>
+    </message>
+</context>
+<context>
     <name>PlayerControl</name>
     <message>
         <source>Stop</source>
@@ -2050,6 +2249,14 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
         <source>Switch metronome on/off</source>
         <translation>Active/désactive le métronome</translation>
     </message>
+    <message>
+        <source>Jack-Time-Master mode = Off</source>
+        <translation>Mode Jack-Time-Master = off</translation>
+    </message>
+    <message>
+        <source>Jack-Time-Master mode = On</source>
+        <translation>Mode Jack-Time-Master = on</translation>
+    </message>
 </context>
 <context>
     <name>PlaylistDialog</name>
@@ -2112,10 +2319,6 @@ Désolé, mais un éditeur en mode console ne fonctionne pas pour l&apos;instant
     <message>
         <source>No Script selected!</source>
         <translation>Aucun script de sélectionné !</translation>
-    </message>
-    <message>
-        <source>Error loading song.</source>
-        <translation>Erreur au chargement du morceau.</translation>
     </message>
     <message>
         <source>sort</source>
@@ -2370,6 +2573,10 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>&lt;/b&gt; selected</source>
         <translation>&lt;/b&gt; sélectionné</translation>
+    </message>
+    <message>
+        <source>Hydrogen must be restarted for language change to take effect</source>
+        <translation>Hydrogen doit être redémarré pour que le changement de langue soit pris en compte</translation>
     </message>
 </context>
 <context>
@@ -2733,6 +2940,46 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Enable midi feedback</source>
         <translation>Activer le retour d&apos;information MIDI</translation>
+    </message>
+    <message>
+        <source>Language / Γλώσσα / Язык / 言語</source>
+        <translation>Langue / Γλώσσα / Язык / 言語</translation>
+    </message>
+    <message>
+        <source>Hide keyboard input cursor</source>
+        <translation>Cacher le curseur de saisie au clavier</translation>
+    </message>
+    <message>
+        <source>BBT sync method</source>
+        <translation>Méthode de synchronisation BBT</translation>
+    </message>
+    <message>
+        <source>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</source>
+        <translation>Spécifie la variable, qui doit rester constante afin de garantir une synchronisation et un déplacement fonctionnels en présence d'un autre maître de la base de temps JACK.</translation>
+    </message>
+    <message>
+        <source>constant measure</source>
+        <translation>mesure constante</translation>
+    </message>
+    <message>
+        <source>matching bars</source>
+        <translation>barres de correspondance</translation>
+    </message>
+    <message>
+        <source>High-resolution display scaling</source>
+        <translation>Adaptation de l'affichage haute résolution</translation>
+    </message>
+    <message>
+        <source>Prefer smaller</source>
+        <translation>Préférer les plus petits</translation>
+    </message>
+    <message>
+        <source>Scale to system setting</source>
+        <translation>Adaptation aux paramètres du système</translation>
+    </message>
+    <message>
+        <source>Prefer larger</source>
+        <translation>Préférer les plus larges</translation>
     </message>
 </context>
 <context>
@@ -3194,6 +3441,14 @@ Voulez-vous continuer?</translation>
         <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
         <translation>L&apos;utilisation de la ligne temporelle est désactivée en présence d&apos;un maître de base temporelle JACK externe</translation>
     </message>
+    <message>
+        <source> Timeline = Off</source>
+        <translation> Ligne temporelle = off</translation>
+    </message>
+    <message>
+        <source> Timeline = On</source>
+        <translation> Ligne temporelle = on</translation>
+    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -3332,6 +3587,10 @@ Overwrite the existing pattern?</source>
         <source>Pattern saved.</source>
         <translation>Motif sauvegardé.</translation>
     </message>
+    <message>
+        <source>Could not save pattern to temporary directory.</source>
+        <translation>Impossible de sauvegarder le motif dans le répertoire temporaire.</translation>
+    </message>
 </context>
 <context>
     <name>SongPropertiesDialog</name>
@@ -3388,6 +3647,14 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Directory</source>
         <translation>Répertoire</translation>
+    </message>
+    <message>
+        <source>Drumkit exported.</source>
+        <translation>Kit de batterie exporté.</translation>
+    </message>
+    <message>
+        <source>Drumkit not exported. Operation not supported.</source>
+        <translation>Kit de batterie non exporté. Opération non permise.</translation>
     </message>
 </context>
 <context>
@@ -3617,10 +3884,6 @@ Overwrite the existing pattern?</source>
         <translation>Motifs</translation>
     </message>
     <message>
-        <source>Error loading song.</source>
-        <translation>Erreur au chargement du morceau.</translation>
-    </message>
-    <message>
         <source>Properties</source>
         <translation>Propriété</translation>
     </message>
@@ -3747,6 +4010,10 @@ Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
     <message>
         <source>Delete</source>
         <translation>Effacer</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Fermer</translation>
     </message>
 </context>
 <context>
