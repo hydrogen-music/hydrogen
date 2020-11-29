@@ -268,7 +268,6 @@ public:
 	}
 
 	void mouseDragUpdate( QMouseEvent *ev ) {
-
 		if ( m_selectionState == MouseLasso) {
 			m_lasso.setBottomRight( ev->pos() );
 

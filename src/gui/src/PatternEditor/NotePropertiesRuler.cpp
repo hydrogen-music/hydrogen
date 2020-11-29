@@ -42,14 +42,12 @@ using namespace H2Core;
 const char* NotePropertiesRuler::__class_name = "NotePropertiesRuler";
 
 NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode )
- : QWidget( parent )
- , Object( __class_name )
- , m_Mode( mode )
- , m_pPatternEditorPanel( pPatternEditorPanel )
- , m_pPattern( nullptr )
+	: PatternEditor( parent, __class_name, pPatternEditorPanel )
 {
 	//infoLog("INIT");
 	//setAttribute(Qt::WA_NoBackground);
+
+	m_Mode = mode;
 
 	m_nGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
 	m_nEditorWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
@@ -82,7 +80,6 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	show();
 
 	HydrogenApp::get_instance()->addEventListener( this );
-	m_bMouseIsPressed = false;
 
 	setFocusPolicy( Qt::StrongFocus );
 }
@@ -229,9 +226,13 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 }
 
 
-void NotePropertiesRuler::mousePressEvent(QMouseEvent *ev)
+void NotePropertiesRuler::mousePressEvent( QMouseEvent *ev )
 {
-	m_bMouseIsPressed = true;
+	m_selection.mousePressEvent( ev );
+}
+
+void NotePropertiesRuler::propertyAdjustStart( QMouseEvent *ev )
+{
 	prepareUndoAction( ev->x() );
 	mouseMoveEvent( ev );
 }
@@ -312,182 +313,187 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 	}
 }
 
-void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
+void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev ) {
+	m_selection.mouseMoveEvent( ev );
+}
+
+void NotePropertiesRuler::propertyAdjustUpdate( QMouseEvent *ev )
 {
-	if( m_bMouseIsPressed ){
+	__velocity = 0.8f;
+	__pan_L = 0.5f;
+	__pan_R = 0.5f;
+	__leadLag = 0.0f ;
+	__noteKeyVal = 10;
 
-		__velocity = 0.8f;
-		__pan_L = 0.5f;
-		__pan_R = 0.5f;
-		__leadLag = 0.0f ;
-		__noteKeyVal = 10;
+	if (m_pPattern == nullptr) return;
 
-		if (m_pPattern == nullptr) return;
-	
-		DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
-		int nBase;
-		if (pPatternEditor->isUsingTriplets()) {
-			nBase = 3;
-		}
-		else {
-			nBase = 4;
-		}
-		int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
-		int x_pos = ev->x();
-		int column;
-		column = (x_pos - 20) + (width / 2);
-		column = column / width;
-		column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
-
-		m_pPatternEditorPanel->setCursorPosition( column );
-		m_pPatternEditorPanel->setCursorHidden( true );
-
-		bool columnChange = false;
-		if( __columnCheckOnXmouseMouve != column ){
-			__undoColumn = column;
-			columnChange = true;
-		}
-
-		float val = height() - ev->y();
-		if (val > height()) {
-			val = height();
-		}
-		else if (val < 0.0) {
-			val = 0.0;
-		}
-		int keyval = val;
-		val = val / height();
-
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		Song *pSong = (Hydrogen::get_instance())->getSong();
-
-		const Pattern::notes_t* notes = m_pPattern->get_notes();
-		FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
-			Note *pNote = it->second;
-			assert( pNote );
-			assert( (int)pNote->get_position() == column );
-			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
-				continue;
-			}
-			if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
-				if( columnChange ){
-					__oldVelocity = pNote->get_velocity();
-				}
-				pNote->set_velocity( val );
-				m_fLastSetValue = val;
-				m_bValueHasBeenSet = true;
-				__velocity = val;
-				char valueChar[100];
-				sprintf( valueChar, "%#.2f",  val);
-				HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
-			}
-			else if ( m_Mode == PAN && !pNote->get_note_off() ){
-				float pan_L, pan_R;
-				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
-					val = 0.5;
-				}
-				if ( val > 0.5 ) {
-					pan_L = 1.0 - val;
-					pan_R = 0.5;
-				}
-				else {
-					pan_L = 0.5;
-					pan_R = val;
-				}
-
-				if( columnChange ){
-					__oldPan_L = pNote->get_pan_l();
-					__oldPan_R = pNote->get_pan_r();
-				}
-				m_fLastSetValue = val;
-				m_bValueHasBeenSet = true;
-				pNote->set_pan_l( pan_L );
-				pNote->set_pan_r( pan_R );
-				__pan_L = pan_L;
-				__pan_R = pan_R;
-			}
-			else if ( m_Mode == LEADLAG ){
-				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
-					pNote->set_lead_lag(0.0);
-					__leadLag = 0.0;
-				} else {
-					if( columnChange ){
-						__oldLeadLag = pNote->get_lead_lag();
-					}
-
-					m_fLastSetValue = val * -2.0 + 1.0;
-					m_bValueHasBeenSet = true;
-					pNote->set_lead_lag((val * -2.0) + 1.0);
-					__leadLag = (val * -2.0) + 1.0;
-					char valueChar[100];
-					if (pNote->get_lead_lag() < 0.0) {
-						sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-						HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
-					} else if (pNote->get_lead_lag() > 0.0) {
-						sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-						HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
-					} else {
-						HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
-					}
-	
-				}
-			}
-	
-			else if ( m_Mode == NOTEKEY ){
-				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
-					;
-				} else {
-					//set the note height
-					//QMessageBox::information ( this, "Hydrogen", tr( "val: %1" ).arg(keyval)  );
-					int k = 666;
-					int o = 666;
-					if(keyval >=6 && keyval<=125) {
-						k = (keyval-6)/10;
-					} else if(keyval>=135 && keyval<=205) {
-						o = (keyval-166)/10;
-						if(o==-4) o=-3; // 135
-					}
-					m_fLastSetValue = o * 12 + k;
-					m_bValueHasBeenSet = true;
-					pNote->set_key_octave((Note::Key)k,(Note::Octave)o); // won't set wrong values see Note::set_key_octave
-					__octaveKeyVal = pNote->get_octave();
-					__noteKeyVal = pNote->get_key();
-				}
-			}
-			else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
-				if( columnChange ){
-					__oldProbability = pNote->get_probability();
-				}
-				m_fLastSetValue = val;
-				m_bValueHasBeenSet = true;
-				pNote->set_probability( val );
-				__probability = val;
-				char valueChar[100];
-				sprintf( valueChar, "%#.2f",  val);
-				HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note probability [%1]").arg( valueChar ), 2000 );
-			}
-
-	
-			if( columnChange ){
-				__columnCheckOnXmouseMouve = column;
-				addUndoAction();
-				return;
-			}
-				
-			__columnCheckOnXmouseMouve = column;
-	
-			pSong->set_is_modified( true );
-			updateEditor();
-			break;
-		}
-		m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
-		pPatternEditor->updateEditor();
+	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
+	int nBase;
+	if (pPatternEditor->isUsingTriplets()) {
+		nBase = 3;
 	}
+	else {
+		nBase = 4;
+	}
+	int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
+	int x_pos = ev->x();
+	int column;
+	column = (x_pos - 20) + (width / 2);
+	column = column / width;
+	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
+
+	m_pPatternEditorPanel->setCursorPosition( column );
+	m_pPatternEditorPanel->setCursorHidden( true );
+
+	bool columnChange = false;
+	if( __columnCheckOnXmouseMouve != column ){
+		__undoColumn = column;
+		columnChange = true;
+	}
+
+	float val = height() - ev->y();
+	if (val > height()) {
+		val = height();
+	}
+	else if (val < 0.0) {
+		val = 0.0;
+	}
+	int keyval = val;
+	val = val / height();
+
+	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	Song *pSong = (Hydrogen::get_instance())->getSong();
+
+	const Pattern::notes_t* notes = m_pPattern->get_notes();
+	FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
+		Note *pNote = it->second;
+		assert( pNote );
+		assert( (int)pNote->get_position() == column );
+		if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+			continue;
+		}
+		if ( m_Mode == VELOCITY && !pNote->get_note_off() ) {
+			if( columnChange ){
+				__oldVelocity = pNote->get_velocity();
+			}
+			pNote->set_velocity( val );
+			m_fLastSetValue = val;
+			m_bValueHasBeenSet = true;
+			__velocity = val;
+			char valueChar[100];
+			sprintf( valueChar, "%#.2f",  val);
+			HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
+		}
+		else if ( m_Mode == PAN && !pNote->get_note_off() ){
+			float pan_L, pan_R;
+			if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+				val = 0.5;
+			}
+			if ( val > 0.5 ) {
+				pan_L = 1.0 - val;
+				pan_R = 0.5;
+			}
+			else {
+				pan_L = 0.5;
+				pan_R = val;
+			}
+			
+			if( columnChange ){
+				__oldPan_L = pNote->get_pan_l();
+				__oldPan_R = pNote->get_pan_r();
+			}
+			m_fLastSetValue = val;
+			m_bValueHasBeenSet = true;
+			pNote->set_pan_l( pan_L );
+			pNote->set_pan_r( pan_R );
+			__pan_L = pan_L;
+			__pan_R = pan_R;
+		}
+		else if ( m_Mode == LEADLAG ){
+			if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+				pNote->set_lead_lag(0.0);
+				__leadLag = 0.0;
+			} else {
+				if( columnChange ){
+					__oldLeadLag = pNote->get_lead_lag();
+				}
+				
+				m_fLastSetValue = val * -2.0 + 1.0;
+				m_bValueHasBeenSet = true;
+				pNote->set_lead_lag((val * -2.0) + 1.0);
+				__leadLag = (val * -2.0) + 1.0;
+				char valueChar[100];
+				if (pNote->get_lead_lag() < 0.0) {
+					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
+				} else if (pNote->get_lead_lag() > 0.0) {
+					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+				} else {
+					HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
+				}
+				
+			}
+		}
+		
+		else if ( m_Mode == NOTEKEY ){
+			if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+				;
+			} else {
+				//set the note height
+				//QMessageBox::information ( this, "Hydrogen", tr( "val: %1" ).arg(keyval)  );
+				int k = 666;
+				int o = 666;
+				if(keyval >=6 && keyval<=125) {
+					k = (keyval-6)/10;
+				} else if(keyval>=135 && keyval<=205) {
+					o = (keyval-166)/10;
+					if(o==-4) o=-3; // 135
+				}
+				m_fLastSetValue = o * 12 + k;
+				m_bValueHasBeenSet = true;
+				pNote->set_key_octave((Note::Key)k,(Note::Octave)o); // won't set wrong values see Note::set_key_octave
+				__octaveKeyVal = pNote->get_octave();
+				__noteKeyVal = pNote->get_key();
+			}
+		}
+		else if ( m_Mode == PROBABILITY && !pNote->get_note_off() ) {
+			if( columnChange ){
+				__oldProbability = pNote->get_probability();
+			}
+			m_fLastSetValue = val;
+			m_bValueHasBeenSet = true;
+			pNote->set_probability( val );
+			__probability = val;
+			char valueChar[100];
+			sprintf( valueChar, "%#.2f",  val);
+			HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note probability [%1]").arg( valueChar ), 2000 );
+		}
+
+	
+		if( columnChange ){
+			__columnCheckOnXmouseMouve = column;
+			addUndoAction();
+			return;
+		}
+				
+		__columnCheckOnXmouseMouve = column;
+	
+		pSong->set_is_modified( true );
+		updateEditor();
+		break;
+	}
+	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
+	pPatternEditor->updateEditor();
 }
 
 void NotePropertiesRuler::mouseReleaseEvent(QMouseEvent *ev)
 {
-	m_bMouseIsPressed = false;
+	m_selection.mouseReleaseEvent( ev );
+}
+
+void NotePropertiesRuler::propertyAdjustEnd(QMouseEvent *ev)
+{
 	addUndoAction();
 }
 
@@ -701,6 +707,7 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 		finishUpdateEditor();
 	}
 	painter.drawPixmap( ev->rect(), *m_pBackground, ev->rect() );
+	m_selection.paintSelection( &painter );
 }
 
 
@@ -1416,7 +1423,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 
 
-void NotePropertiesRuler::updateEditor()
+void NotePropertiesRuler::updateEditor( bool bPatternOnly )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
@@ -1480,34 +1487,6 @@ void NotePropertiesRuler::finishUpdateEditor()
 }
 
 
-
-void NotePropertiesRuler::zoomIn()
-{
-	if (m_nGridWidth >= 3){
-		m_nGridWidth *= 2;
-	}else
-	{
-		m_nGridWidth *= 1.5;
-	}
-	updateEditor();
-}
-
-
-
-void NotePropertiesRuler::zoomOut()
-{
-	if ( m_nGridWidth > 1.5 ) {
-		if (m_nGridWidth > 3){
-			m_nGridWidth /=  2;
-		}else
-		{
-			m_nGridWidth /= 1.5;
-		}
-	updateEditor();
-	}
-}
-
-
 void NotePropertiesRuler::selectedPatternChangedEvent()
 {
 	updateEditor();
@@ -1521,4 +1500,22 @@ void NotePropertiesRuler::selectedInstrumentChangedEvent()
 }
 
 
+std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIntersecting( QRect r ) {
+	std::vector<SelectionIndex> result;
+	const Pattern::notes_t* notes = m_pPattern->get_notes();
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	Instrument *pInstrument = pSong->get_instrument_list()->get( nSelectedInstrument );
+	FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
+		if ( it->second->get_instrument() !=  pInstrument ) {
+			continue;
+		}
 
+		int pos = it->first;
+		uint x_pos = 20 + pos * m_nGridWidth;
+		if ( r.intersects( QRect( x_pos-2, 0, 5, height() ) ) ) {
+			result.push_back( it->second );
+		}
+	}
+	return std::move(result);
+}

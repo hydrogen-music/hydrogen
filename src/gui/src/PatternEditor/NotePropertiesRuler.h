@@ -32,6 +32,8 @@
 
 #include <core/Object.h>
 
+#include "PatternEditor.h"
+
 namespace H2Core
 {
 	class Pattern;
@@ -40,7 +42,7 @@ namespace H2Core
 
 class PatternEditorPanel;
 
-class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventListener
+class NotePropertiesRuler : public PatternEditor
 {
     H2_OBJECT
 	Q_OBJECT
@@ -56,11 +58,39 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode );
 		~NotePropertiesRuler();
 
-		void zoomIn();
-		void zoomOut();
+		void propertyAdjustStart( QMouseEvent *ev );
+		void propertyAdjustUpdate( QMouseEvent *ev );
+		void propertyAdjustEnd( QMouseEvent *ev );
 
-		//public slots:
-		void updateEditor();
+		// PatternEditor interfaces
+		std::vector<SelectionIndex> elementsIntersecting( QRect r );
+		void validateSelection() {}
+		void mouseClickEvent( QMouseEvent *ev ) {
+			propertyAdjustStart( ev );
+			propertyAdjustUpdate( ev );
+			propertyAdjustEnd( ev );
+		}
+		virtual void mouseDragStartEvent( QMouseEvent *ev ) {
+			propertyAdjustStart( ev );
+		}
+		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) {
+			propertyAdjustUpdate( ev );
+		}
+		virtual void mouseDragEndEvent( QMouseEvent *ev ) {
+			propertyAdjustEnd( ev );
+		}
+		virtual void selectionMoveEndEvent( QInputEvent *ev ) {}
+		virtual QRect getKeyboardCursorRect() {}
+		virtual void updateModifiers( QInputEvent *ev ) {};
+
+	public slots:
+		void updateEditor( bool bPatternOnly = false );
+		virtual void selectAll() {}
+		virtual void selectNone() {}
+		virtual void deleteSelection() {}
+		virtual void copy() {}
+		virtual void paste() {}
+		virtual void cut() {}
 
 	private:
 		static const int m_nKeys = 24;
@@ -70,12 +100,6 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		void finishUpdateEditor();
 
 		NotePropertiesMode m_Mode;
-
-		PatternEditorPanel *m_pPatternEditorPanel;
-		H2Core::Pattern *m_pPattern;
-		float m_nGridWidth;
-		uint m_nEditorWidth;
-		uint m_nEditorHeight;
 
 		QPixmap *m_pBackground;
 
@@ -103,7 +127,6 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		//~ Implements EventListener interface
 		int __nSelectedPatternNumber;
 		int __nSelectedInstrument;
-		bool m_bMouseIsPressed;
 
 		float __velocity;
 		float __oldVelocity;
