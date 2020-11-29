@@ -978,7 +978,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Some samples for this instrument failed to load.</source>
-        <translation>Certains échantillons pour cet instrument n'ont pas pu être chargés.</translation>
+        <translation>Certains échantillons pour cet instrument n&apos;ont pas pu être chargés.</translation>
     </message>
     <message>
         <source>Select notes</source>
@@ -986,7 +986,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>One or more samples for this instrument failed to load. This may be because the songfile uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
-        <translation>Un ou plusieurs échantillons pour cet instrument n'ont pas pu être chargés. Cela peut être dû au fait que le fichier du morceau utilise un kit de batterie par défaut ancien. Ce problème pourrait être corrigé en ouvrant un nouveau kit de batterie.</translation>
+        <translation>Un ou plusieurs échantillons pour cet instrument n&apos;ont pas pu être chargés. Cela peut être dû au fait que le fichier du morceau utilise un kit de batterie par défaut ancien. Ce problème pourrait être corrigé en ouvrant un nouveau kit de batterie.</translation>
     </message>
 </context>
 <context>
@@ -1650,13 +1650,13 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Some samples used by this song failed to load. If you save the song now these missing samples will be removed from the song entirely.
 Are you sure you want to save?</source>
-        <translation>Certains échantillons utilisés par ce morceau n'ont pas pu être chargés. Si vous sauvegarder le morceau maintenant, ces échantillons manquants seront entièrement supprimés du morceau.
+        <translation>Certains échantillons utilisés par ce morceau n&apos;ont pas pu être chargés. Si vous sauvegarder le morceau maintenant, ces échantillons manquants seront entièrement supprimés du morceau.
 Êtes-vous sûr de vouloir sauvegarder ?
 </translation>
     </message>
     <message>
         <source>Import song into Session</source>
-        <translation>Importer un morceau à l'intérieur de la session</translation>
+        <translation>Importer un morceau à l&apos;intérieur de la session</translation>
     </message>
     <message>
         <source>Song drumkit samples</source>
@@ -1664,7 +1664,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Some samples used in this song could not be loaded. This may be because it uses an older default drumkit. This might be fixed by opening a new drumkit.</source>
-        <translation>Certains échantillons utilisés dans ce morceau n'ont pas pu être chargés. Cela peut être dû au fait qu'il utilise un kit de batterie par défaut ancien. Ce problème pourrait être résolu en ouvrant un nouveau kit de batterie.</translation>
+        <translation>Certains échantillons utilisés dans ce morceau n&apos;ont pas pu être chargés. Cela peut être dû au fait qu&apos;il utilise un kit de batterie par défaut ancien. Ce problème pourrait être résolu en ouvrant un nouveau kit de batterie.</translation>
     </message>
     <message>
         <source>Open drumkit</source>
@@ -1672,7 +1672,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Could not write to temporary directory %1.</source>
-        <translation>Impossible d'écrire dans le répertoire temporaire %1.</translation>
+        <translation>Impossible d&apos;écrire dans le répertoire temporaire %1.</translation>
     </message>
 </context>
 <context>
@@ -2955,7 +2955,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</source>
-        <translation>Spécifie la variable, qui doit rester constante afin de garantir une synchronisation et un déplacement fonctionnels en présence d'un autre maître de la base de temps JACK.</translation>
+        <translation>Spécifie la variable, qui doit rester constante afin de garantir une synchronisation et un déplacement fonctionnels en présence d&apos;un autre maître de la base de temps JACK.</translation>
     </message>
     <message>
         <source>constant measure</source>
@@ -2967,7 +2967,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>High-resolution display scaling</source>
-        <translation>Adaptation de l'affichage haute résolution</translation>
+        <translation>Adaptation de l&apos;affichage haute résolution</translation>
     </message>
     <message>
         <source>Prefer smaller</source>
