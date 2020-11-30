@@ -105,6 +105,11 @@ void SoundLibraryRepositoryDialog::on_DeleteBtn_clicked()
 	updateDialog();
 }
 
+void SoundLibraryRepositoryDialog::on_CloseBtn_clicked()
+{
+	accept();
+}
+
 SoundLibraryRepositoryDialog::~SoundLibraryRepositoryDialog()
 {
 	INFOLOG( "DESTROY" );

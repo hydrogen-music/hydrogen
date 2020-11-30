@@ -284,7 +284,7 @@ STRING( COMPARE GREATER "${LIBSNDFILE_VERSION}" "${LIBSNDFILE_VERSION_PREV}" LIB
 IF(LIBSNDFILE_VERSION_OK)
     SET(LIBSNDFILE_MSG "libsndfile supports FLAC and OGG sound file formats")
 ELSE()
-    SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support FLAC and OGG sound file formats")
+	SET(LIBSNDFILE_MSG "libsndfile version must be greater than ${LIBSNDFILE_VERSION_PREV} to support FLAC and OGG sound file formats. Found version: ${LIBSNDFILE_VERSION}")
 ENDIF()
 
 # RUBBERBAND information
