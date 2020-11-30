@@ -55,7 +55,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 	Q_OBJECT
 
 	public:
-		InstrumentEditor( QWidget* parent );
+		explicit InstrumentEditor( QWidget* parent );
 		~InstrumentEditor();
 
 		void selectLayer( int nLayer );
@@ -64,8 +64,8 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void selectComponent( int nComponent );
 
 		// implements EventListener interface
-		virtual void selectedInstrumentChangedEvent();
-		virtual void rubberbandbpmchangeEvent();
+		virtual void selectedInstrumentChangedEvent() override;
+		virtual void rubberbandbpmchangeEvent() override;
 		//~ implements EventListener interface
 		void update();
 

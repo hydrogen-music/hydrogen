@@ -56,9 +56,9 @@ class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 
 		void updateRecentUsedSongList();
 
-		virtual void errorEvent( int nErrorCode );
-		virtual void jacksessionEvent( int nValue);
-		virtual void playlistLoadSongEvent(int nIndex);
+		virtual void errorEvent( int nErrorCode ) override;
+		virtual void jacksessionEvent( int nValue) override;
+		virtual void playlistLoadSongEvent(int nIndex) override;
 
 		/** Handles the loading and saving of the H2Core::Preferences
 		 * from the core part of H2Core::Hydrogen.
@@ -76,8 +76,8 @@ class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 		 * \param nValue If 0, H2Core::Preferences was save. If 1, it was
 		 *     loaded.
 		 */
-		virtual void updatePreferencesEvent( int nValue );
-		virtual void undoRedoActionEvent( int nEvent );
+		virtual void updatePreferencesEvent( int nValue ) override;
+		virtual void undoRedoActionEvent( int nEvent ) override;
 		static void usr1SignalHandler(int unused);
 
 

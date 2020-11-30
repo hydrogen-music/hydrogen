@@ -36,7 +36,7 @@ class FileBrowser : public QWidget, private H2Core::Object
     H2_OBJECT
 	Q_OBJECT
 	public:
-		FileBrowser( QWidget* pParent );
+		explicit FileBrowser( QWidget* pParent );
 		~FileBrowser();
 
 	private slots:

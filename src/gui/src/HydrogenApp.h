@@ -218,7 +218,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		void engineError(uint nErrorCode);
 
 		void setupSinglePanedInterface();
-		virtual void songModifiedEvent();
+		virtual void songModifiedEvent() override;
 
 		/** Handles the loading and saving of the H2Core::Preferences
 		 * from the core part of H2Core::Hydrogen.
@@ -249,13 +249,13 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		 *     notifying the user about the saving of the current Song
 		 *     to the config file.
 		 */
-		virtual void updateSongEvent( int nValue );
+		virtual void updateSongEvent( int nValue ) override;
 		/**
 		 * Calls closeAll() to shutdown Hydrogen.
 		 *
 		 * \param nValue unused
 		 */
-		virtual void quitEvent( int nValue );
+		virtual void quitEvent( int nValue ) override;
 	
 };
 

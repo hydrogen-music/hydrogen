@@ -65,10 +65,10 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		static QColor computeNoteColor( float );
 
 		// Implements EventListener interface
-		virtual void patternModifiedEvent();
-		virtual void patternChangedEvent();
-		virtual void selectedPatternChangedEvent();
-		virtual void selectedInstrumentChangedEvent();
+		virtual void patternModifiedEvent() override;
+		virtual void patternChangedEvent() override;
+		virtual void selectedPatternChangedEvent() override;
+		virtual void selectedInstrumentChangedEvent() override;
 		//~ Implements EventListener interface
 		void addOrDeleteNoteAction(		int nColumn,
 										int row,

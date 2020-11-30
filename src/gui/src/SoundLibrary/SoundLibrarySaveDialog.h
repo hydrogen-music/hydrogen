@@ -34,7 +34,7 @@ class SoundLibrarySaveDialog : public QDialog, public Ui_SoundLibrarySaveDialog_
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		SoundLibrarySaveDialog( QWidget* pParent );
+		explicit SoundLibrarySaveDialog( QWidget* pParent );
 		~SoundLibrarySaveDialog();
 
 	private slots:

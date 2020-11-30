@@ -56,6 +56,9 @@ class Button : public QWidget, public H2Core::Object, public MidiLearnable
 				bool enable_press_hold = false
 		);
 		virtual ~Button();
+	
+		Button(const Button&) = delete;
+		Button& operator=( const Button& rhs ) = delete;
 
 		bool isPressed() {	return m_bPressed;	}
 		void setPressed(bool pressed);
