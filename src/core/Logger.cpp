@@ -185,7 +185,7 @@ unsigned Logger::parse_log_level( const char* level ) {
 			log_level = Logger::Error;
 		}
 #else
-		int log_level = hextoi( level, -1 );
+		log_level = hextoi( level, -1 );
 		if( log_level==-1 ) {
 			log_level = Logger::Error;
 		}

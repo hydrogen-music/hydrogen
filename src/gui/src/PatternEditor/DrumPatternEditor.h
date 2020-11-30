@@ -50,10 +50,10 @@ class DrumPatternEditor : public PatternEditor
 		~DrumPatternEditor();
 
 		// Implements EventListener interface
-		virtual void patternModifiedEvent();
-		virtual void patternChangedEvent();
-		virtual void selectedPatternChangedEvent();
-		virtual void selectedInstrumentChangedEvent();
+		virtual void patternModifiedEvent() override;
+		virtual void patternChangedEvent() override;
+		virtual void selectedPatternChangedEvent() override;
+		virtual void selectedInstrumentChangedEvent() override;
 		//~ Implements EventListener interface
 		void addOrDeleteNoteAction(		int nColumn,
 										int row,

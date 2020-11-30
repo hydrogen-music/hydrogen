@@ -147,9 +147,6 @@ int JackAudioDriver::connect()
 
 	bool bConnectDefaults = m_bConnectDefaults;
 
-	memset( m_pTrackOutputPortsL, 0, sizeof(m_pTrackOutputPortsL) );
-	memset( m_pTrackOutputPortsR, 0, sizeof(m_pTrackOutputPortsR) );
-
 #ifdef H2CORE_HAVE_LASH
 	if ( Preferences::get_instance()->useLash() ){
 		LashClient* lashClient = LashClient::get_instance();
@@ -873,6 +870,15 @@ int JackAudioDriver::init( unsigned bufferSize )
 	if ( pPreferences->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT &&
 		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ){
 		initTimebaseMaster();
+	}
+	
+	// Whenever there is a Song present, create per track outputs (if
+	// activated in the Preferences).
+	Song* pSong = pHydrogen->getSong();
+	if ( pSong != nullptr ) {
+		makeTrackOutputs( pSong );
+		setBpm( pSong->__bpm );
+		locate( 0 );
 	}
 	
 	return 0;

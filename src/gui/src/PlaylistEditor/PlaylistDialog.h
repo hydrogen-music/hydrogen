@@ -46,7 +46,7 @@ class PlaylistDialog : public QDialog, public Ui_PlaylistDialog_UI, public H2Cor
 	Q_OBJECT
 	public:
 
-		PlaylistDialog( QWidget* pParent );
+		explicit PlaylistDialog( QWidget* pParent );
 		~PlaylistDialog();
 
 		bool loadListByFileName( QString filename);

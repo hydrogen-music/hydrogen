@@ -45,9 +45,9 @@ class PianoRollEditor: public PatternEditor
 
 
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent();
-		virtual void selectedInstrumentChangedEvent();
-		virtual void patternModifiedEvent();
+		virtual void selectedPatternChangedEvent() override;
+		virtual void selectedInstrumentChangedEvent() override;
+		virtual void patternModifiedEvent() override;
 		//~ Implements EventListener interface
 
 		// Pitch / line conversions

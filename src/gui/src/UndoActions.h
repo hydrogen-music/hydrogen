@@ -109,7 +109,7 @@ private:
 class SE_deletePatternSequenceAction : public QUndoCommand
 {
 public:
-	SE_deletePatternSequenceAction(  QString pFilename ){
+	explicit SE_deletePatternSequenceAction(  QString pFilename ){
 		setText( QString( "Delete complete pattern-sequence" ) );
 		__pFilename = pFilename ;
 	}
@@ -737,7 +737,7 @@ private:
 class SE_pasteNotesPatternEditorAction : public QUndoCommand
 {
 public:
-	SE_pasteNotesPatternEditorAction(const std::list<H2Core::Pattern*> & patternList)
+	explicit SE_pasteNotesPatternEditorAction(const std::list<H2Core::Pattern*> & patternList)
 	{
 		//qDebug() << "paste note sequence Create ";
 		setText( QString( "Paste instrument notes" ) );

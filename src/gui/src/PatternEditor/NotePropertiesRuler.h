@@ -57,6 +57,9 @@ class NotePropertiesRuler : public PatternEditor
 
 		NotePropertiesRuler( QWidget *parent, PatternEditorPanel *pPatternEditorPanel, NotePropertiesMode mode );
 		~NotePropertiesRuler();
+		
+		NotePropertiesRuler(const NotePropertiesRuler&) = delete;
+		NotePropertiesRuler& operator=( const NotePropertiesRuler& rhs ) = delete;
 
 		void propertyAdjustStart( QMouseEvent *ev );
 		void propertyAdjustUpdate( QMouseEvent *ev );
@@ -122,9 +125,10 @@ class NotePropertiesRuler : public PatternEditor
 		void prepareUndoAction( int x );
 
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent();
-		virtual void selectedInstrumentChangedEvent();
+		virtual void selectedPatternChangedEvent() override;
+		virtual void selectedInstrumentChangedEvent() override;
 		//~ Implements EventListener interface
+		
 		int __nSelectedPatternNumber;
 		int __nSelectedInstrument;
 

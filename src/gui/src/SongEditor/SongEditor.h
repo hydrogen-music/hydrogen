@@ -153,8 +153,11 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 	Q_OBJECT
 
 	public:
-		SongEditorPatternList( QWidget *parent );
+		explicit SongEditorPatternList( QWidget *parent );
 		~SongEditorPatternList();
+	
+		SongEditorPatternList(const SongEditorPatternList&) = delete;
+		SongEditorPatternList& operator=( const SongEditorPatternList& rhs ) = delete;
 
 		void updateEditor();
 		void createBackground();
@@ -180,26 +183,27 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		void patternPopup_virtualPattern();
 		void inlineEditingFinished();
 		void inlineEditingEntered();
-		virtual void dragEnterEvent(QDragEnterEvent *event);
-		virtual void dropEvent(QDropEvent *event);
-		virtual void timelineUpdateEvent( int nValue );
+		virtual void dragEnterEvent(QDragEnterEvent *event) override;
+		virtual void dropEvent(QDropEvent *event) override;
+		virtual void timelineUpdateEvent( int nValue ) override;
 
 	private:
 		uint m_nGridHeight;
 		uint m_nWidth;
 		static const uint m_nInitialHeight = 10;
 
-		QPixmap *m_pBackgroundPixmap;
-
-		QPixmap m_labelBackgroundLight;
-		QPixmap m_labelBackgroundDark;
-		QPixmap m_labelBackgroundSelected;
-		QPixmap m_playingPattern_on_Pixmap;
-		QPixmap m_playingPattern_off_Pixmap;
-
-		QMenu *m_pPatternPopup;
-		QLineEdit *line;
-		H2Core::Pattern *patternBeingEdited;
+		QPixmap *			m_pBackgroundPixmap;
+							
+		QPixmap				m_labelBackgroundLight;
+		QPixmap				m_labelBackgroundDark;
+		QPixmap				m_labelBackgroundSelected;
+		QPixmap				m_playingPattern_on_Pixmap;
+		QPixmap				m_playingPattern_off_Pixmap;
+							
+		QMenu *				m_pPatternPopup;
+		QLineEdit *			m_pLineEdit;
+		H2Core::Pattern *	m_pPatternBeingEdited;
+		
 		void inlineEditPatternName( int row );
 
 		virtual void mousePressEvent( QMouseEvent *ev );
@@ -208,7 +212,7 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 
 		void togglePattern( int );
 
-		virtual void patternChangedEvent();
+		virtual void patternChangedEvent() override;
 		void mouseMoveEvent(QMouseEvent *event);
 		QPoint __drag_start_position;
 
@@ -226,7 +230,7 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
-		SongEditorPositionRuler( QWidget *parent );
+		explicit SongEditorPositionRuler( QWidget *parent );
 		~SongEditorPositionRuler();	
 
 		void createBackground();

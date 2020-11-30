@@ -57,7 +57,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 	Q_OBJECT
 
 	public:
-		PatternEditorPanel(QWidget *parent);
+		explicit PatternEditorPanel(QWidget *parent);
 		~PatternEditorPanel();
 
 		DrumPatternEditor* getDrumPatternEditor() {	return m_pDrumPatternEditor;	}
@@ -75,8 +75,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void updatePianorollEditor();
 
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent();
-		virtual void selectedInstrumentChangedEvent();
+		virtual void selectedPatternChangedEvent() override;
+		virtual void selectedInstrumentChangedEvent() override;
 		//~ Implements EventListener interface
 
 		void ensureCursorVisible();

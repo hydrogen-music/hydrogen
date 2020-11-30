@@ -43,8 +43,11 @@ class PatternEditorRuler : public QWidget, public H2Core::Object, public EventLi
 	Q_OBJECT
 
 	public:
-		PatternEditorRuler( QWidget* parent );
+		explicit PatternEditorRuler( QWidget* parent );
 		~PatternEditorRuler();
+	
+		PatternEditorRuler(const PatternEditorRuler&) = delete;
+		PatternEditorRuler& operator=( const PatternEditorRuler& rhs ) = delete;
 
 		void paintEvent(QPaintEvent *ev);
 		void updateStart(bool start);
@@ -75,7 +78,7 @@ class PatternEditorRuler : public QWidget, public H2Core::Object, public EventLi
 		H2Core::Pattern *m_pPattern;
 
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent();
+		virtual void selectedPatternChangedEvent() override;
 		//~ Implements EventListener interface
 };
 

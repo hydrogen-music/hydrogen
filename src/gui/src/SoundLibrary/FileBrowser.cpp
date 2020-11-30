@@ -224,8 +224,7 @@ void FileBrowser::on_fileList_ItemActivated( QListWidgetItem* item )
 	if ( !item ) {
 		return;
 	}
-	QString sFileName = m_directory.absolutePath() + "/" + ( item->text() );
-
+	
 	QFileInfoList list = m_directory.entryInfoList();
 	for (int i = 0; i < list.size(); ++i) {
 		QFileInfo fileInfo = list.at(i);
@@ -253,7 +252,6 @@ void FileBrowser::on_dirList_ItemActivated( QListWidgetItem* pItem )
 	if ( !pItem ) {
 		return;
 	}
-	QString sFileName = m_directory.absolutePath() + "/" + ( pItem->text() );
 
 	QFileInfoList list = m_directory.entryInfoList();
 	for (int i = 0; i < list.size(); ++i) {
