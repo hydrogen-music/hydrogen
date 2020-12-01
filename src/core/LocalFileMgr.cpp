@@ -432,7 +432,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 		LocalFileMng::writeXmlString( instrumentNode, "Decay", QString("%1").arg( pInstr->get_adsr()->get_decay() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "Sustain", QString("%1").arg( pInstr->get_adsr()->get_sustain() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "Release", QString("%1").arg( pInstr->get_adsr()->get_release() ) );
-
+		LocalFileMng::writeXmlString( instrumentNode, "pitchOffset", QString("%1").arg( pInstr->get_pitch_offset() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "randomPitchFactor", QString("%1").arg( pInstr->get_random_pitch_factor() ) );
 
 		LocalFileMng::writeXmlString( instrumentNode, "muteGroup", QString("%1").arg( pInstr->get_mute_group() ) );
