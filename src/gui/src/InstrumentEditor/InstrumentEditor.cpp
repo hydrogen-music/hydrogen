@@ -611,7 +611,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		// instr gain
 		sprintf( tmp, "%#.2f", m_pInstrument->get_gain() );
 		m_pInstrumentGainLCD->setText( tmp );
-		//m_pInstrumentGain->setValue( m_pInstrument->get_gain()/ 5.0 ); //TODO check if necessary
+		m_pInstrumentGain->setValue( m_pInstrument->get_gain()/ 5.0 );
 
 		// instr mute group
 		QString sMuteGroup = QString("%1").arg( m_pInstrument->get_mute_group() );
