@@ -235,6 +235,7 @@ void NotePropertiesRuler::propertyAdjustStart( QMouseEvent *ev )
 {
 	prepareUndoAction( ev->x() );
 	mouseMoveEvent( ev );
+	updateEditor();
 }
 
 
@@ -315,6 +316,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 
 void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev ) {
 	m_selection.mouseMoveEvent( ev );
+	updateEditor();
 }
 
 void NotePropertiesRuler::propertyAdjustUpdate( QMouseEvent *ev )
@@ -490,11 +492,13 @@ void NotePropertiesRuler::propertyAdjustUpdate( QMouseEvent *ev )
 void NotePropertiesRuler::mouseReleaseEvent(QMouseEvent *ev)
 {
 	m_selection.mouseReleaseEvent( ev );
+	updateEditor();
 }
 
 void NotePropertiesRuler::propertyAdjustEnd(QMouseEvent *ev)
 {
 	addUndoAction();
+	updateEditor();
 }
 
 void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
@@ -837,6 +841,9 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
 
+		QPen selectedPen( selectedNoteColor( pStyle ) );
+		selectedPen.setWidth( 2 );
+
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pposNote = it->second;
@@ -863,6 +870,14 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 				uint line_start = line_end - value;
 				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
 				int nLineWidth = 3;
+				if ( m_selection.isSelected( pNote ) ) {
+					p.setPen( selectedPen );
+					p.setRenderHint( QPainter::Antialiasing );
+					p.drawRoundedRect( x_pos - 1 -2 + xoffset, line_start - 2,
+									   nLineWidth + 4,  line_end - line_start + 4 ,
+									   4, 4 );
+				}
+
 				p.fillRect( x_pos - 1 + xoffset, line_start, nLineWidth,  line_end - line_start , centerColor );
 				xoffset++;
 			}
@@ -1506,6 +1521,16 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Instrument *pInstrument = pSong->get_instrument_list()->get( nSelectedInstrument );
+
+	// Account for the notional active area of the slider. We allow a
+	// width of 8 as this is the size of the circle used for the zero
+	// position on the lead/lag editor.
+	r = r.normalized();
+	if ( r.top() == r.bottom() && r.left() == r.right() ) {
+		r += QMargins( 2, 2, 2, 2 );
+	}
+	r += QMargins( 4, 4, 4, 4 );
+
 	FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 		if ( it->second->get_instrument() !=  pInstrument ) {
 			continue;
@@ -1513,9 +1538,13 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 
 		int pos = it->first;
 		uint x_pos = 20 + pos * m_nGridWidth;
-		if ( r.intersects( QRect( x_pos-2, 0, 5, height() ) ) ) {
+		if ( r.intersects( QRect( x_pos, 0, 1, height() ) ) ) {
 			result.push_back( it->second );
 		}
 	}
+
+	// Updating selection, we may need to repaint the whole widget. 
+	updateEditor();
 	return std::move(result);
 }
+

@@ -85,11 +85,17 @@ public:
 	}
 
 	void dump() {
-		qDebug() << "Selection state: " << ( m_mouseState == Up ? "Up" :
-											 m_mouseState == Down ? "Down" :
-											 m_mouseState == Dragging ? "Dragging" : "-" )
+		qDebug() << "Mouse state: " << ( m_mouseState == Up ? "Up" :
+										 m_mouseState == Down ? "Down" :
+										 m_mouseState == Dragging ? "Dragging" : "-" )
 				 << "\n"
 				 << "button: " << m_mouseButton << "\n"
+				 << "Selection state: " << ( m_selectionState == Idle ? "Idle" :
+											 m_selectionState == MouseLasso ? "MouseLasso" :
+											 m_selectionState == MouseMoving ? "MouseMoving" :
+											 m_selectionState == KeyboardLasso ? "KeyboardLasso" :
+											 m_selectionState == KeyboardMoving ? "KeyboardMoving" :
+											 "-")
 				 << "";
 	}
 
