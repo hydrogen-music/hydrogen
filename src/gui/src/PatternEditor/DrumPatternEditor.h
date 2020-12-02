@@ -116,7 +116,6 @@ class DrumPatternEditor : public PatternEditor
 		// that state pointers to deleted notes may find their way into
 		// the selection.
 		std::vector<SelectionIndex> elementsIntersecting( QRect r );
-		void validateSelection();
 
 		QRect getKeyboardCursorRect();
 

@@ -111,7 +111,6 @@ class PianoRollEditor: public PatternEditor
 		//! Selections are indexed by Note pointers.
 
 		std::vector<SelectionIndex> elementsIntersecting( QRect r );
-		void validateSelection();
 		void mouseClickEvent( QMouseEvent *ev );
 		void mouseDragStartEvent( QMouseEvent *ev );
 		void mouseDragUpdateEvent( QMouseEvent *ev );

@@ -76,7 +76,7 @@ public:
 	virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) = 0;
 
 	//! Ensure that the Selection contains only valid elements
-	virtual void validateSelection() = 0;
+	virtual void validateSelection();
 
 	//! Selection manager interface:
 	//! called by Selection when click detected

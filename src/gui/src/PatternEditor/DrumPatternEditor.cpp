@@ -741,24 +741,6 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 }
 
 ///
-/// Ensure selection only refers to valid notes, and does not contain any stale references to deleted notes.
-///
-void DrumPatternEditor::validateSelection()
-{
-	// Rebuild selection from valid notes.
-	std::set<Note *> valid;
-	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
-		if ( m_selection.isSelected( it->second ) ) {
-			valid.insert( it->second );
-		}
-	}
-	m_selection.clearSelection();
-	for (auto i : valid ) {
-		m_selection.addToSelection( i );
-	}
-}
-
-///
 /// The screen area occupied by the keyboard cursor
 ///
 QRect DrumPatternEditor::getKeyboardCursorRect()
