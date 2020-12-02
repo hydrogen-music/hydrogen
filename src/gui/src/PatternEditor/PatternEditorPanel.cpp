@@ -53,7 +53,6 @@ using namespace H2Core;
 #include <cmath>
 
 //functions to avoid / warn strange inputs in patternSizeLCD Dialog
-bool isAcceptedCharacter(char);
 bool isGoodDenominator(int);
 
 
@@ -892,17 +891,6 @@ void PatternEditorPanel::updatePatternSizeLCD(){
 	__pattern_size_LCD->setText( tmp );//
 }
 
-//function to avoid strange input in patternSizeLCD Dialog
-bool isAcceptedCharacter(char c) {
-	if (c != '0' && c != '1' && c != '2' && c != '3' && c != '4' && c != '5' && c != '6'
-			 && c != '7' && c != '8' && c != '9' && c != ',' && c != '.' && c != '/'){
-		return false;
-	}
-	else{
-		return true;
-	}
-}
-
 //function to warn strange denominator input in patternSizeLCD Dialog.
 bool isGoodDenominator(int d){
        if (d==1 || d==2 || d==4 || d==8 || d==16 || d==32 || d==64 || d==128 ||
@@ -915,8 +903,6 @@ bool isGoodDenominator(int d){
 }
 
 
-
-
 void PatternEditorPanel::patternSizeLCDClicked()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
@@ -927,112 +913,54 @@ void PatternEditorPanel::patternSizeLCDClicked()
 
 	bool bIsOkPressed;
 	int denominator;
-
-
-       //   Dialog with text input and post processing for num/den 
-       // Disclaimer --- that was done with poor knowledge of strings in c++ and should be revised.
-       // Also, some user may prefer a custom dialog, while input is certainly faster in this way!
+	
 	QString qtmp = QInputDialog::getText( this, "Hydrogen",
 				tr( "New Pattern Size\nIndicate numerator / denominator (eg. \"4/4\") or just numerator"),
 				QLineEdit::Normal, __pattern_size_LCD->getText(), &bIsOkPressed );
-	std::string newtmp = qtmp.toStdString().c_str();
 	
-	if ( bIsOkPressed  ) {
-		float numerator;
-		
-		//parse input text
-		char num_string[20], den_string[20];
-		bool isUsingSlash = false;
-		int i = 0;
-		char c;
-		bool c_is_accepted;
-		do {
-			num_string[i] = c = newtmp[i];
-			i++;
-			c_is_accepted = isAcceptedCharacter(c);
-		} while (i < newtmp.size() && c != '/' && c_is_accepted);
-		if (c == '/'){
-		    if (i == 1){
-			QMessageBox::information( this, "Hydrogen", tr( "Text rejected" ) );
-			return;
+	if ( bIsOkPressed  ) {		
+		QStringList parts = qtmp.split('/');
+		double fDenominator = m_pPattern->get_denominator();
+		if ( parts.size() >= 1 ) {
+		    bool bOk;
+		    double fNumerator = parts[0].toDouble( &bOk );
+		    if ( bOk && parts.size() == 2 ) {
+			fDenominator = parts[1].toDouble( &bOk );
+			if (bOk && (fDenominator <= 0 || fDenominator > 192) ){
+			   QMessageBox::information( this, "Hydrogen", tr( "Denominator value rejected.\nLimits: (0, 192]" ) );
+			   return;
+			}
 		    }
-		    else {
-			isUsingSlash = true;
-			num_string[i - 1] = '\0'; //replace '/' with string terminator character
-			int j = 0;
-			do {
-				den_string[j] = c = newtmp[i];
-				c_is_accepted = isAcceptedCharacter(c);
-				i++;
-				j++;
-			} while (i < newtmp.size() && c_is_accepted);
-			if( !c_is_accepted ){ //avoid crashes or unpredictable behaviour
-				QMessageBox::information( this, "Hydrogen", tr( "Denominator text rejected" ) );
+		    if ( bOk && fNumerator > 0) {
+			if (fNumerator / fDenominator > 4.){ 
+			     //this is limited because the pattern editor ruler goes up to 16/4. Limit might be extended
+				QMessageBox::information( this, "Hydrogen", tr( "Pattern size too big.\nMaximum = 16/4" ) );
 				return;
 			}
-			else {
-				den_string[i] = '\0';
-				denominator = std::stoi (den_string, nullptr);
-				if (denominator <= 0 || denominator > 192){
-					QMessageBox::information( this, "Hydrogen",
-						tr( "Denominator value rejected.\nLimits: (0, 192]" ) );
-					return;
-				}
-				else if (!isGoodDenominator(denominator) ){
+			else {	 
+				if (!isGoodDenominator((int) fDenominator) ){
 					QMessageBox::information( this, "Hydrogen",
 						tr("Warning: current resolution can handle precisely only denominators that are "
 				    		   "powers of 2 (also multiplied by 3), up to 192") );
 				}
-				m_pPattern->set_denominator( denominator );
+				// set numerator and denominator
+				double fLength = MAX_NOTES / fDenominator * fNumerator;
+				if (fLength - round(fLength) != 0){
+					fLength = round(fLength);
+					QMessageBox::information( this, "Hydrogen",
+						tr("Pattern size was rounded.\n(resolution = 48 ticks/quarter note)" ));
+				}
+				m_pPattern->set_length( (int) fLength);
+				m_pPattern->set_denominator( (int) fDenominator );
+				patternLengthChanged();
 			}
 		    }
-		}
-		else if ( !c_is_accepted ){ //avoid crashes or unpredictable behaviour
-			QMessageBox::information( this, "Hydrogen", tr( "Text rejected" ) );
-			return;
-		}
-
-		numerator = std::stod (num_string,nullptr);
-		if ( numerator < 0 ) {
-			return;
-		}
-		else {
-			denominator = m_pPattern->get_denominator();
-			float flength = (float) MAX_NOTES / denominator * numerator;
-			if (flength - round(flength) != 0){
-				flength = round(flength);
-				QMessageBox::information( this, "Hydrogen",
-					tr("Pattern size was rounded.\n(resolution = 48 ticks/quarter note)" ));
-			}
-		        m_pPattern->set_length( (int) flength);
-		        m_pPattern->set_denominator( denominator );
-		        patternLengthChanged();
+		    else {
+		    	QMessageBox::information( this, "Hydrogen", tr( "Text rejected" ) );
+		    	return;
+		    }
 		}
 	}
-	else {
-		// user entered nothing or pressed Cancel
-	}
-
-
-/*	
-	//-----Dialog for changing numerator, assuming fixed denominator (4 = default, but you can change it...)
-	denominator = 4; //default
-	double fNewVal= QInputDialog::getDouble( this, "Hydrogen", tr( "New Size value in quarter-notes" ),
-				 m_pPattern->get_length() * denominator / (double) MAX_NOTES, 0, 10000, 3, &bIsOkPressed );
-	if ( bIsOkPressed  ) {
-		if ( fNewVal < 0 ) {
-			return;
-		}
-
-		else {
-		        m_pPattern->set_length( (int) round( (double) MAX_NOTES / denominator * fNewVal) );
-		        m_pPattern->set_denominator( denominator );
-		        patternLengthChanged();
-		}
-	}
-	else {
-		// user entered nothing or pressed Cancel
-	}*/
 }
 
 
