@@ -115,7 +115,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// PATTERN size
 	__pattern_size_LCD = new LCDDisplay( pSizeResol, LCDDigit::SMALL_BLUE, 10 );
 	__pattern_size_LCD->move( 31, 2 );
-	__pattern_size_LCD->setToolTip( tr("Select pattern size (in eights)") );
+	__pattern_size_LCD->setToolTip( tr("Select pattern size") );
 
 
 	connect( __pattern_size_LCD, SIGNAL(displayClicked(LCDDisplay*)), this, SLOT(patternSizeLCDClicked()));
@@ -898,14 +898,16 @@ void PatternEditorPanel::patternSizeLCDClicked()
 	} //TODO is it really impossible to change the pattern size when playing?
 
 	bool bIsOkPressed;
-	double fNewVal= QInputDialog::getDouble( this, "Hydrogen", tr( "New Size value in quarter-notes" ), m_pPattern->get_length() * 4 / (double) MAX_NOTES, 0, 10000, 5, &bIsOkPressed );
+	double den = 4; //would be cast as double later.
+	double fNewVal= QInputDialog::getDouble( this, "Hydrogen", tr( "New Size value in quarter-notes" ),
+				 m_pPattern->get_length() * den / (double) MAX_NOTES, 0, 10000, 3, &bIsOkPressed );
 	if ( bIsOkPressed  ) {
 		if ( fNewVal < 0 ) {
 			return;
 		}
 
 		else {
-		        m_pPattern->set_length( (int) round(MAX_NOTES/4 * fNewVal) );
+		        m_pPattern->set_length( (int) round(MAX_NOTES / den * fNewVal) );
 		        patternLengthChanged();
 		}
 	}
