@@ -50,7 +50,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	m_Mode = mode;
 
 	m_nGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
-	m_nEditorWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
+	m_nEditorWidth = m_nMargin + m_nGridWidth * ( MAX_NOTES * 4 );
 
 	m_fLastSetValue = 0.0;
 	m_bValueHasBeenSet = false;
@@ -122,7 +122,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
 	int x_pos = ev->x();
 	int column;
-	column = (x_pos - 20) + (width / 2);
+	column = (x_pos - m_nMargin) + (width / 2);
 	column = column / width;
 	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
 
@@ -265,7 +265,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 	int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
 	int x_pos = x;
 	int column;
-	column = (x_pos - 20) + (width / 2);
+	column = (x_pos - m_nMargin) + (width / 2);
 	column = column / width;
 	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
 
@@ -340,7 +340,7 @@ void NotePropertiesRuler::propertyAdjustUpdate( QMouseEvent *ev )
 	int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
 	int x_pos = ev->x();
 	int column;
-	column = (x_pos - 20) + (width / 2);
+	column = (x_pos - m_nMargin) + (width / 2);
 	column = column / width;
 	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
 
@@ -559,7 +559,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			Song *pSong = (Hydrogen::get_instance())->getSong();
 
 
-			prepareUndoAction( 20 + column * m_nGridWidth );
+			prepareUndoAction( m_nMargin + column * m_nGridWidth );
 
 			const Pattern::notes_t* notes = m_pPattern->get_notes();
 			FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
@@ -729,14 +729,17 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
-	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() );
+	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(),
+				  pStyle->m_patternEditor_line1Color.getGreen(),
+				  pStyle->m_patternEditor_line1Color.getBlue() );
 
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
-	QColor horizLinesColor(
-			pStyle->m_patternEditor_backgroundColor.getRed() - 20,
-			pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
-			pStyle->m_patternEditor_backgroundColor.getBlue() - 20
-	);
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(),
+							pStyle->m_patternEditor_backgroundColor.getGreen(),
+							pStyle->m_patternEditor_backgroundColor.getBlue() );
+
+	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.getRed() - 20,
+							pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
+							pStyle->m_patternEditor_backgroundColor.getBlue() - 20 );
 
 	unsigned nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
@@ -745,14 +748,14 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 
 	QPainter p( pixmap );
 
-	p.fillRect( 0, 0, 20 + nNotes * m_nGridWidth, height(), backgroundColor );
+	p.fillRect( 0, 0, m_nMargin + nNotes * m_nGridWidth, height(), backgroundColor );
 
 	drawGridLines( p, Qt::DotLine );
 
 	// Horizontal lines at 10% intervals
 	p.setPen( horizLinesColor );
 	for (unsigned y = 0; y < m_nEditorHeight; y = y + (m_nEditorHeight / 10)) {
-		p.drawLine(20, y, 20 + nNotes * m_nGridWidth, y);
+		p.drawLine( m_nMargin, y, 20 + nNotes * m_nGridWidth, y );
 	}
 
 	// draw velocity lines
@@ -775,7 +778,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
 					continue;
 				}
-				uint x_pos = 20 + pos * m_nGridWidth;
+				uint x_pos = m_nMargin + pos * m_nGridWidth;
 				uint line_end = height();
 
 
@@ -817,15 +820,17 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(),
+							pStyle->m_patternEditor_backgroundColor.getGreen(),
+							pStyle->m_patternEditor_backgroundColor.getBlue() );
 
-	QColor horizLinesColor(
-			pStyle->m_patternEditor_backgroundColor.getRed() - 20,
-			pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
-			pStyle->m_patternEditor_backgroundColor.getBlue() - 20
-	);
+	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.getRed() - 20,
+							pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
+							pStyle->m_patternEditor_backgroundColor.getBlue() - 20 );
 
-	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() );
+	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(),
+				  pStyle->m_patternEditor_line1Color.getGreen(),
+				  pStyle->m_patternEditor_line1Color.getBlue() );
 
 	QPainter p( pixmap );
 
@@ -833,7 +838,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 	if (m_pPattern) {
 		nNotes = m_pPattern->get_length();
 	}
-	p.fillRect( 0, 0, 20 + nNotes * m_nGridWidth, height(), backgroundColor );
+	p.fillRect( 0, 0, m_nMargin + nNotes * m_nGridWidth, height(), backgroundColor );
 
 	// central line
 	p.setPen( horizLinesColor );
@@ -855,10 +860,11 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
 				Note *pNote = coit->second;
 				assert( pNote );
-				if ( pNote->get_note_off() || pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				if ( pNote->get_note_off() || (pNote->get_instrument()
+											   != pSong->get_instrument_list()->get( nSelectedInstrument ) ) ) {
 					continue;
 				}
-				uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
+				uint x_pos = m_nMargin + pNote->get_position() * m_nGridWidth;
 				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
 				if (pNote->get_pan_r() == pNote->get_pan_l()) {
 					// pan value is centered - draw circle
@@ -890,15 +896,17 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(),
+							pStyle->m_patternEditor_backgroundColor.getGreen(),
+							pStyle->m_patternEditor_backgroundColor.getBlue() );
 
-	QColor horizLinesColor(
-			pStyle->m_patternEditor_backgroundColor.getRed() - 20,
-			pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
-			pStyle->m_patternEditor_backgroundColor.getBlue() - 20
-	);
+	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.getRed() - 20,
+							pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
+							pStyle->m_patternEditor_backgroundColor.getBlue() - 20 );
 
-	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() );
+	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(),
+				  pStyle->m_patternEditor_line1Color.getGreen(),
+				  pStyle->m_patternEditor_line1Color.getBlue() );
 
 	QPainter p( pixmap );
 
@@ -906,7 +914,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 	if (m_pPattern) {
 		nNotes = m_pPattern->get_length();
 	}
-	p.fillRect( 0, 0, 20 + nNotes * m_nGridWidth, height(), backgroundColor );
+	p.fillRect( 0, 0, m_nMargin + nNotes * m_nGridWidth, height(), backgroundColor );
 
 	// central line
 	p.setPen( horizLinesColor );
@@ -932,7 +940,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 					continue;
 				}
 
-				uint x_pos = 20 + pNote->get_position() * m_nGridWidth;
+				uint x_pos = m_nMargin + pNote->get_position() * m_nGridWidth;
 
 				int red1 = (int) (pNote->get_velocity() * 255);
 				int green1;
@@ -986,14 +994,17 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
-	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() );
+	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(),
+				  pStyle->m_patternEditor_line1Color.getGreen(),
+				  pStyle->m_patternEditor_line1Color.getBlue() );
 
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
-	QColor horizLinesColor(
-			pStyle->m_patternEditor_backgroundColor.getRed() - 100,
-			pStyle->m_patternEditor_backgroundColor.getGreen() - 100,
-			pStyle->m_patternEditor_backgroundColor.getBlue() - 100
-	);
+	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(),
+							pStyle->m_patternEditor_backgroundColor.getGreen(),
+							pStyle->m_patternEditor_backgroundColor.getBlue() );
+
+	QColor horizLinesColor( pStyle->m_patternEditor_backgroundColor.getRed() - 100,
+							pStyle->m_patternEditor_backgroundColor.getGreen() - 100,
+							pStyle->m_patternEditor_backgroundColor.getBlue() - 100 );
 
 	unsigned nNotes = MAX_NOTES;
 	if (m_pPattern) {
@@ -1001,13 +1012,13 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	}
 	QPainter p( pixmap );
 
-	p.fillRect( 0, 0, 20 + nNotes * m_nGridWidth, height(), backgroundColor );
+	p.fillRect( 0, 0, m_nMargin + nNotes * m_nGridWidth, height(), backgroundColor );
 
 	p.setPen( horizLinesColor );
 	for (unsigned y = 10; y < 80; y = y + 10 ) {
 		p.setPen( QPen( res_1, 1, Qt::DashLine ) );
 		if (y == 40) p.setPen( QPen( QColor(0,0,0), 1, Qt::SolidLine ) );
-		p.drawLine(20, y, 20 + nNotes * m_nGridWidth, y);
+		p.drawLine( m_nMargin, y, m_nMargin + nNotes * m_nGridWidth, y );
 	}
 
 	for (unsigned y = 90; y < 210; y = y + 10 ) {
@@ -1015,7 +1026,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		if ( y == 100 ||y == 120 ||y == 140 ||y == 170 ||y == 190) {
 			p.setPen( QPen( QColor( 128, 128, 128 ), 9, Qt::SolidLine, Qt::FlatCap ) );
 		}
-		p.drawLine(20, y, 20 + nNotes * m_nGridWidth, y);
+		p.drawLine( m_nMargin, y, m_nMargin + nNotes * m_nGridWidth, y );
 	}
 
 	// Annotate with note class names
@@ -1040,10 +1051,10 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	// Black outline each key
 	for (unsigned y = 90; y <= 210; y = y + 10 ) {
 		p.setPen( QPen( QColor( 0, 0, 0 ), 1, Qt::SolidLine));
-		p.drawLine(20, y-5, 20 + nNotes * m_nGridWidth, y-5);
+		p.drawLine( m_nMargin, y-5, m_nMargin + nNotes * m_nGridWidth, y-5);
 	}
 
-//paint the octave
+	//paint the octave
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
@@ -1063,7 +1074,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		}
 	}
 
-//paint the note
+	//paint the note
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
@@ -1093,8 +1104,6 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 }
 
 
-
-
 void NotePropertiesRuler::updateEditor( bool bPatternOnly )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
@@ -1110,10 +1119,10 @@ void NotePropertiesRuler::updateEditor( bool bPatternOnly )
 
 	// update editor width
 	if ( m_pPattern ) {
-		m_nEditorWidth = 20 + m_pPattern->get_length() * m_nGridWidth;
+		m_nEditorWidth = m_nMargin + m_pPattern->get_length() * m_nGridWidth;
 	}
 	else {
-		m_nEditorWidth =  20 + MAX_NOTES * m_nGridWidth;
+		m_nEditorWidth =  m_nMargin + MAX_NOTES * m_nGridWidth;
 	}
 
 	if ( !m_bNeedsUpdate ) {
@@ -1146,7 +1155,7 @@ void NotePropertiesRuler::finishUpdateEditor()
 	if ( hasFocus() && !m_pPatternEditorPanel->cursorHidden() ) {
 		QPainter p( m_pBackground );
 
-		uint x = 20 + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
+		uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
 
 		p.setPen( QColor( 0,0,0 ) );
 		p.setRenderHint( QPainter::Antialiasing );
@@ -1194,7 +1203,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 		}
 
 		int pos = it->first;
-		uint x_pos = 20 + pos * m_nGridWidth;
+		uint x_pos = m_nMargin + pos * m_nGridWidth;
 		if ( r.intersects( QRect( x_pos, 0, 1, height() ) ) ) {
 			result.push_back( it->second );
 		}
