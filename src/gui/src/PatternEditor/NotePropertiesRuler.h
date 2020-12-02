@@ -83,7 +83,7 @@ class NotePropertiesRuler : public PatternEditor
 			propertyAdjustEnd( ev );
 		}
 		virtual void selectionMoveEndEvent( QInputEvent *ev ) {}
-		virtual QRect getKeyboardCursorRect() {}
+		virtual QRect getKeyboardCursorRect();
 		virtual void updateModifiers( QInputEvent *ev ) {};
 
 	public slots:

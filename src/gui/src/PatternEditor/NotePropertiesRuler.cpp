@@ -503,22 +503,26 @@ void NotePropertiesRuler::propertyAdjustEnd(QMouseEvent *ev)
 
 void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 {
+	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
+
 	m_pPatternEditorPanel->setCursorHidden( false );
 
-	// Basic directional movement using standard keys
-	if ( ev->matches( QKeySequence::MoveToNextChar ) ) {
+	if ( bIsSelectionKey ) {
+		// Key was claimed by selection
+		qDebug() << "XXX selection press " << ev;
+	} if ( ev->matches( QKeySequence::MoveToNextChar ) || ev->matches( QKeySequence::SelectNextChar ) ) {
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
 
-	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine ) ) {
 		// -->|
 		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
 
-	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
 		// <-
 		m_pPatternEditorPanel->moveCursorLeft();
 
-	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ev->matches( QKeySequence::SelectStartOfLine ) ) {
 		// |<--
 		m_pPatternEditorPanel->setCursorPosition(0);
 
@@ -658,6 +662,8 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			return;
 		}
 	}
+
+	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	updateEditor();
 	ev->accept();
 
@@ -1548,3 +1554,13 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	return std::move(result);
 }
 
+///
+/// The screen area occupied by the keyboard cursor
+///
+QRect NotePropertiesRuler::getKeyboardCursorRect()
+{
+	uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
+	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+	uint y = nSelectedInstrument * m_nGridHeight;
+	return QRect( x-m_nGridWidth*3, 0+1, m_nGridWidth*6, height()-2 );
+}
