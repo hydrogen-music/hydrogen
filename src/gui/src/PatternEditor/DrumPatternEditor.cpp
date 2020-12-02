@@ -1073,20 +1073,9 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 	uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 
 	bool bSelected = m_selection.isSelected( note );
-	QPen selectedPen;
-	if ( hasFocus() ) {
-		static const QColor selectHilightColor( pStyle->m_selectionHighlightColor.getRed(),
-												pStyle->m_selectionHighlightColor.getGreen(),
-												pStyle->m_selectionHighlightColor.getBlue() );
-		selectedPen = selectHilightColor;
-	} else {
-		static const QColor selectInactiveColor( pStyle->m_selectionInactiveColor.getRed(),
-												 pStyle->m_selectionInactiveColor.getGreen(),
-												 pStyle->m_selectionInactiveColor.getBlue() );
-		selectedPen = selectInactiveColor;
-	}
 
 	if ( bSelected ) {
+		QPen selectedPen( selectedNoteColor( pStyle ) );
 		selectedPen.setWidth( 2 );
 		p.setPen( selectedPen );
 		p.setBrush( Qt::NoBrush );

@@ -38,6 +38,7 @@ namespace H2Core
 	class Note;
 	class Pattern;
 	class Instrument;
+	class UIStyle;
 }
 
 class PatternEditorPanel;
@@ -120,7 +121,6 @@ public slots:
 
 protected:
 
-
 	//! Granularity of grid positioning
 	int granularity() const {
 		int nBase;
@@ -160,6 +160,9 @@ protected:
 
 	//! Draw lines for note grid.
 	void drawGridLines( QPainter &p, Qt::PenStyle style = Qt::SolidLine ) const;
+
+	//! Colour to use for outlining selected notes
+	QColor selectedNoteColor( const H2Core::UIStyle *pStyle );
 
 	//! Update current pattern information
 	void updatePatternInfo();

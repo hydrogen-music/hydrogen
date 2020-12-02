@@ -324,3 +324,18 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 	}
 
 }
+
+
+QColor PatternEditor::selectedNoteColor( const UIStyle *pStyle ) {
+	if ( hasFocus() ) {
+		static const QColor selectHilightColor( pStyle->m_selectionHighlightColor.getRed(),
+												pStyle->m_selectionHighlightColor.getGreen(),
+												pStyle->m_selectionHighlightColor.getBlue() );
+		return selectHilightColor;
+	} else {
+		static const QColor selectInactiveColor( pStyle->m_selectionInactiveColor.getRed(),
+												 pStyle->m_selectionInactiveColor.getGreen(),
+												 pStyle->m_selectionInactiveColor.getBlue() );
+		return selectInactiveColor;
+	}
+}
