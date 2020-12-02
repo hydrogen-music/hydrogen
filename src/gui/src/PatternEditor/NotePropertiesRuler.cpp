@@ -509,7 +509,6 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 	if ( bIsSelectionKey ) {
 		// Key was claimed by selection
-		qDebug() << "XXX selection press " << ev;
 	} if ( ev->matches( QKeySequence::MoveToNextChar ) || ev->matches( QKeySequence::SelectNextChar ) ) {
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
@@ -730,17 +729,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
-	H2RGBColor valueColor(
-			(int)( pStyle->m_patternEditor_backgroundColor.getRed() * ( 1 - 0.3 ) ),
-			(int)( pStyle->m_patternEditor_backgroundColor.getGreen() * ( 1 - 0.3 ) ),
-			(int)( pStyle->m_patternEditor_backgroundColor.getBlue() * ( 1 - 0.3 ) )
-	);
-
 	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() );
-	QColor res_2( pStyle->m_patternEditor_line2Color.getRed(), pStyle->m_patternEditor_line2Color.getGreen(), pStyle->m_patternEditor_line2Color.getBlue() );
-	QColor res_3( pStyle->m_patternEditor_line3Color.getRed(), pStyle->m_patternEditor_line3Color.getGreen(), pStyle->m_patternEditor_line3Color.getBlue() );
-	QColor res_4( pStyle->m_patternEditor_line4Color.getRed(), pStyle->m_patternEditor_line4Color.getGreen(), pStyle->m_patternEditor_line4Color.getBlue() );
-	QColor res_5( pStyle->m_patternEditor_line5Color.getRed(), pStyle->m_patternEditor_line5Color.getGreen(), pStyle->m_patternEditor_line5Color.getBlue() );
 
 	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
 	QColor horizLinesColor(
@@ -750,93 +739,17 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 	);
 
 	unsigned nNotes = MAX_NOTES;
-	if (m_pPattern) {
+	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
 	}
 
-
 	QPainter p( pixmap );
 
-	p.fillRect( 0, 0, width(), height(), QColor(0,0,0) );
 	p.fillRect( 0, 0, 20 + nNotes * m_nGridWidth, height(), backgroundColor );
 
+	drawGridLines( p, Qt::DotLine );
 
-	// vertical lines
-
-	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
-	int nBase;
-	if (pPatternEditor->isUsingTriplets()) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-
-	int n4th = 4 * MAX_NOTES / (nBase * 4);
-	int n8th = 4 * MAX_NOTES / (nBase * 8);
-	int n16th = 4 * MAX_NOTES / (nBase * 16);
-	int n32th = 4 * MAX_NOTES / (nBase * 32);
-	int n64th = 4 * MAX_NOTES / (nBase * 64);
-	int nResolution = pPatternEditor->getResolution();
-
-
-	if ( !pPatternEditor->isUsingTriplets() ) {
-
-		for (uint i = 0; i < nNotes + 1; i++) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % n4th) == 0 ) {
-				if (nResolution >= 4) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n8th) == 0 ) {
-				if (nResolution >= 8) {
-					p.setPen( QPen( res_2, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n16th) == 0 ) {
-				if (nResolution >= 16) {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n32th) == 0 ) {
-				if (nResolution >= 32) {
-					p.setPen( QPen( res_4, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n64th) == 0 ) {
-				if (nResolution >= 64) {
-					p.setPen( QPen( res_5, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-		}
-	}
-	else {	// Triplets
-		uint nCounter = 0;
-		int nSize = 4 * MAX_NOTES / (nBase * nResolution);
-
-		for (uint i = 0; i < nNotes + 1; i++) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % nSize) == 0) {
-				if ((nCounter % 3) == 0) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
-				}
-				else {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
-				}
-				p.drawLine(x, 0, x, m_nEditorHeight);
-				nCounter++;
-			}
-		}
-	}
-
+	// Horizontal lines at 10% intervals
 	p.setPen( horizLinesColor );
 	for (unsigned y = 0; y < m_nEditorHeight; y = y + (m_nEditorHeight / 10)) {
 		p.drawLine(20, y, 20 + nNotes * m_nGridWidth, y);
@@ -902,33 +815,19 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 		return;
 	}
 
-
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
 	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
 
-	//QColor backgroundColor( 255, 255, 255 );
-	QColor blackKeysColor( 240, 240, 240 );
 	QColor horizLinesColor(
 			pStyle->m_patternEditor_backgroundColor.getRed() - 20,
 			pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
 			pStyle->m_patternEditor_backgroundColor.getBlue() - 20
 	);
-	H2RGBColor valueColor(
-			(int)( pStyle->m_patternEditor_backgroundColor.getRed() * ( 1 - 0.3 ) ),
-			(int)( pStyle->m_patternEditor_backgroundColor.getGreen() * ( 1 - 0.3 ) ),
-			(int)( pStyle->m_patternEditor_backgroundColor.getBlue() * ( 1 - 0.3 ) )
-	);
 
 	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() );
-	QColor res_2( pStyle->m_patternEditor_line2Color.getRed(), pStyle->m_patternEditor_line2Color.getGreen(), pStyle->m_patternEditor_line2Color.getBlue() );
-	QColor res_3( pStyle->m_patternEditor_line3Color.getRed(), pStyle->m_patternEditor_line3Color.getGreen(), pStyle->m_patternEditor_line3Color.getBlue() );
-	QColor res_4( pStyle->m_patternEditor_line4Color.getRed(), pStyle->m_patternEditor_line4Color.getGreen(), pStyle->m_patternEditor_line4Color.getBlue() );
-	QColor res_5( pStyle->m_patternEditor_line5Color.getRed(), pStyle->m_patternEditor_line5Color.getGreen(), pStyle->m_patternEditor_line5Color.getBlue() );
 
 	QPainter p( pixmap );
-
-	p.fillRect( 0, 0, width(), height(), QColor(0, 0, 0) );
 
 	unsigned nNotes = MAX_NOTES;
 	if (m_pPattern) {
@@ -936,87 +835,12 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 	}
 	p.fillRect( 0, 0, 20 + nNotes * m_nGridWidth, height(), backgroundColor );
 
-
 	// central line
 	p.setPen( horizLinesColor );
 	p.drawLine(0, height() / 2.0, m_nEditorWidth, height() / 2.0);
 
-
-
 	// vertical lines
-	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
-	int nBase;
-	if (pPatternEditor->isUsingTriplets()) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-
-	int n4th = 4 * MAX_NOTES / (nBase * 4);
-	int n8th = 4 * MAX_NOTES / (nBase * 8);
-	int n16th = 4 * MAX_NOTES / (nBase * 16);
-	int n32th = 4 * MAX_NOTES / (nBase * 32);
-	int n64th = 4 * MAX_NOTES / (nBase * 64);
-
-	int nResolution = pPatternEditor->getResolution();
-
-	if ( !pPatternEditor->isUsingTriplets() ) {
-
-		for (uint i = 0; i < nNotes +1 ; i++) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % n4th) == 0 ) {
-				if (nResolution >= 4) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n8th) == 0 ) {
-				if (nResolution >= 8) {
-					p.setPen( QPen( res_2, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n16th) == 0 ) {
-				if (nResolution >= 16) {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n32th) == 0 ) {
-				if (nResolution >= 32) {
-					p.setPen( QPen( res_4, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n64th) == 0 ) {
-				if (nResolution >= 64) {
-					p.setPen( QPen( res_5, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-		}
-	}
-	else {	// Triplets
-		uint nCounter = 0;
-		int nSize = 4 * MAX_NOTES / (nBase * nResolution);
-
-		for (uint i = 0; i < nNotes +1; i++) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % nSize) == 0) {
-				if ((nCounter % 3) == 0) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
-				}
-				else {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
-				}
-				p.drawLine(x, 0, x, m_nEditorHeight);
-				nCounter++;
-			}
-		}
-	}
+	drawGridLines( p, Qt::DotLine );
 
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
@@ -1064,31 +888,19 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 		return;
 	}
 
-
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	
 	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
-	QColor blackKeysColor( 240, 240, 240 );
+
 	QColor horizLinesColor(
 			pStyle->m_patternEditor_backgroundColor.getRed() - 20,
 			pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
 			pStyle->m_patternEditor_backgroundColor.getBlue() - 20
 	);
-	H2RGBColor valueColor(
-			(int)( pStyle->m_patternEditor_backgroundColor.getRed() * ( 1 - 0.3 ) ),
-			(int)( pStyle->m_patternEditor_backgroundColor.getGreen() * ( 1 - 0.3 ) ),
-			(int)( pStyle->m_patternEditor_backgroundColor.getBlue() * ( 1 - 0.3 ) )
-	);
 
 	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() );
-	QColor res_2( pStyle->m_patternEditor_line2Color.getRed(), pStyle->m_patternEditor_line2Color.getGreen(), pStyle->m_patternEditor_line2Color.getBlue() );
-	QColor res_3( pStyle->m_patternEditor_line3Color.getRed(), pStyle->m_patternEditor_line3Color.getGreen(), pStyle->m_patternEditor_line3Color.getBlue() );
-	QColor res_4( pStyle->m_patternEditor_line4Color.getRed(), pStyle->m_patternEditor_line4Color.getGreen(), pStyle->m_patternEditor_line4Color.getBlue() );
-	QColor res_5( pStyle->m_patternEditor_line5Color.getRed(), pStyle->m_patternEditor_line5Color.getGreen(), pStyle->m_patternEditor_line5Color.getBlue() );
 
 	QPainter p( pixmap );
-
-	p.fillRect( 0, 0, width(), height(), QColor(0, 0, 0) );
 
 	unsigned nNotes = MAX_NOTES;
 	if (m_pPattern) {
@@ -1096,87 +908,12 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 	}
 	p.fillRect( 0, 0, 20 + nNotes * m_nGridWidth, height(), backgroundColor );
 
-
 	// central line
 	p.setPen( horizLinesColor );
 	p.drawLine(0, height() / 2.0, m_nEditorWidth, height() / 2.0);
 
-
-
 	// vertical lines
-	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
-	int nBase;
-	if (pPatternEditor->isUsingTriplets()) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-
-	int n4th = 4 * MAX_NOTES / (nBase * 4);
-	int n8th = 4 * MAX_NOTES / (nBase * 8);
-	int n16th = 4 * MAX_NOTES / (nBase * 16);
-	int n32th = 4 * MAX_NOTES / (nBase * 32);
-	int n64th = 4 * MAX_NOTES / (nBase * 64);
-
-	int nResolution = pPatternEditor->getResolution();
-
-	if ( !pPatternEditor->isUsingTriplets() ) {
-
-		for (uint i = 0; i < nNotes + 1; i++) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % n4th) == 0 ) {
-				if (nResolution >= 4) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n8th) == 0 ) {
-				if (nResolution >= 8) {
-					p.setPen( QPen( res_2, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n16th) == 0 ) {
-				if (nResolution >= 16) {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n32th) == 0 ) {
-				if (nResolution >= 32) {
-					p.setPen( QPen( res_4, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n64th) == 0 ) {
-				if (nResolution >= 64) {
-					p.setPen( QPen( res_5, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-		}
-	}
-	else {  // Triplets
-		uint nCounter = 0;
-		int nSize = 4 * MAX_NOTES / (nBase * nResolution);
-
-		for (uint i = 0; i < nNotes + 1; i++) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % nSize) == 0) {
-				if ((nCounter % 3) == 0) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
-				}
-				else {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
-				}
-				p.drawLine(x, 0, x, m_nEditorHeight);
-				nCounter++;
-			}
-		}
-	}
+	drawGridLines( p, Qt::DotLine );
 
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
@@ -1249,17 +986,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 
-	H2RGBColor valueColor(
-			(int)( pStyle->m_patternEditor_backgroundColor.getRed() * ( 1 - 0.3 ) ),
-			(int)( pStyle->m_patternEditor_backgroundColor.getGreen() * ( 1 - 0.3 ) ),
-			(int)( pStyle->m_patternEditor_backgroundColor.getBlue() * ( 1 - 0.3 ) )
-	);
-
 	QColor res_1( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() );
-	QColor res_2( pStyle->m_patternEditor_line2Color.getRed(), pStyle->m_patternEditor_line2Color.getGreen(), pStyle->m_patternEditor_line2Color.getBlue() );
-	QColor res_3( pStyle->m_patternEditor_line3Color.getRed(), pStyle->m_patternEditor_line3Color.getGreen(), pStyle->m_patternEditor_line3Color.getBlue() );
-	QColor res_4( pStyle->m_patternEditor_line4Color.getRed(), pStyle->m_patternEditor_line4Color.getGreen(), pStyle->m_patternEditor_line4Color.getBlue() );
-	QColor res_5( pStyle->m_patternEditor_line5Color.getRed(), pStyle->m_patternEditor_line5Color.getGreen(), pStyle->m_patternEditor_line5Color.getBlue() );
 
 	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
 	QColor horizLinesColor(
@@ -1274,10 +1001,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	}
 	QPainter p( pixmap );
 
-
-	p.fillRect( 0, 0, width(), height(), QColor(0,0,0) );
 	p.fillRect( 0, 0, 20 + nNotes * m_nGridWidth, height(), backgroundColor );
-
 
 	p.setPen( horizLinesColor );
 	for (unsigned y = 10; y < 80; y = y + 10 ) {
@@ -1306,80 +1030,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	}
 
 	// vertical lines
-	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
-	int nBase;
-	if (pPatternEditor->isUsingTriplets()) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-
-	int n4th = 4 * MAX_NOTES / (nBase * 4);
-	int n8th = 4 * MAX_NOTES / (nBase * 8);
-	int n16th = 4 * MAX_NOTES / (nBase * 16);
-	int n32th = 4 * MAX_NOTES / (nBase * 32);
-	int n64th = 4 * MAX_NOTES / (nBase * 64);
-	int nResolution = pPatternEditor->getResolution();
-
-
-	if ( !pPatternEditor->isUsingTriplets() ) {
-
-		for (uint i = 0; i < nNotes + 1; i++) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % n4th) == 0 ) {
-				if (nResolution >= 4) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n8th) == 0 ) {
-				if (nResolution >= 8) {
-					p.setPen( QPen( res_2, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n16th) == 0 ) {
-				if (nResolution >= 16) {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n32th) == 0 ) {
-				if (nResolution >= 32) {
-					p.setPen( QPen( res_4, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-			else if ( (i % n64th) == 0 ) {
-				if (nResolution >= 64) {
-					p.setPen( QPen( res_5, 0, Qt::DotLine ) );
-					p.drawLine(x, 0, x, m_nEditorHeight);
-				}
-			}
-		}
-	}
-	else {	// Triplets
-		uint nCounter = 0;
-		int nSize = 4 * MAX_NOTES / (nBase * nResolution);
-
-		for (uint i = 0; i < nNotes + 1; i++) {
-			uint x = 20 + i * m_nGridWidth;
-
-			if ( (i % nSize) == 0) {
-				if ((nCounter % 3) == 0) {
-					p.setPen( QPen( res_1, 0, Qt::DotLine ) );
-				}
-				else {
-					p.setPen( QPen( res_3, 0, Qt::DotLine ) );
-				}
-				p.drawLine(x, 0, x, m_nEditorHeight);
-				nCounter++;
-			}
-		}
-	}
-
+	drawGridLines( p, Qt::DotLine );
 
 	p.setPen(res_1);
 	p.drawLine(0, 0, m_nEditorWidth, 0);

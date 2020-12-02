@@ -640,8 +640,14 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 	}
 
 	// INFOLOG( QString("idx %1 -> %2 resolution").arg( nSelected ).arg( nResolution ) );
+
 	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
 	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
+	m_pNoteVelocityEditor->setResolution( nResolution, bUseTriplets );
+	m_pNoteLeadLagEditor->setResolution( nResolution, bUseTriplets );
+	m_pNoteNoteKeyEditor->setResolution( nResolution, bUseTriplets );
+	m_pNoteProbabilityEditor->setResolution( nResolution, bUseTriplets );
+	m_pNotePanEditor->setResolution( nResolution, bUseTriplets );
 
 	m_nCursorIncrement = (bUseTriplets ? 4 : 3) * MAX_NOTES / (nResolution * 3);
 	m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement);
