@@ -111,26 +111,17 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		delta = (delta * -1.0);
 	}
 
-	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
-	int nBase;
-	if (pPatternEditor->isUsingTriplets()) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-	int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
+	int width = m_nGridWidth * granularity();
 	int x_pos = ev->x();
 	int column;
 	column = (x_pos - m_nMargin) + (width / 2);
-	column = column / width;
-	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
+	column = (column / width) * granularity();
 
 	m_pPatternEditorPanel->setCursorPosition( column );
 	m_pPatternEditorPanel->setCursorHidden( true );
 
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	Song *pSong = (Hydrogen::get_instance())->getSong();
+	Song *pSong = Hydrogen::get_instance()->getSong();
 
 	const Pattern::notes_t* notes = m_pPattern->get_notes();
 	FOREACH_NOTE_CST_IT_BOUND(notes,it,column) {
@@ -254,20 +245,11 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 	__oldLeadLag = 0.0f;
 	__oldNoteKeyVal = 10;
 
-	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
-	int nBase;
-	if (pPatternEditor->isUsingTriplets()) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-	int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
+	int width = m_nGridWidth * granularity();
 	int x_pos = x;
 	int column;
 	column = (x_pos - m_nMargin) + (width / 2);
-	column = column / width;
-	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
+	column = (column / width) * granularity();
 
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	Song *pSong = (Hydrogen::get_instance())->getSong();
@@ -329,20 +311,12 @@ void NotePropertiesRuler::propertyAdjustUpdate( QMouseEvent *ev )
 
 	if (m_pPattern == nullptr) return;
 
-	DrumPatternEditor *pPatternEditor = m_pPatternEditorPanel->getDrumPatternEditor();
-	int nBase;
-	if (pPatternEditor->isUsingTriplets()) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-	int width = (m_nGridWidth * 4 *  MAX_NOTES) / ( nBase * pPatternEditor->getResolution());
+	int width = m_nGridWidth * granularity();
 	int x_pos = ev->x();
 	int column;
 	column = (x_pos - m_nMargin) + (width / 2);
 	column = column / width;
-	column = (column * 4 * MAX_NOTES) / ( nBase * pPatternEditor->getResolution() );
+	column = column * granularity();
 
 	m_pPatternEditorPanel->setCursorPosition( column );
 	m_pPatternEditorPanel->setCursorHidden( true );
@@ -486,7 +460,7 @@ void NotePropertiesRuler::propertyAdjustUpdate( QMouseEvent *ev )
 		break;
 	}
 	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
-	pPatternEditor->updateEditor();
+	m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
 }
 
 void NotePropertiesRuler::mouseReleaseEvent(QMouseEvent *ev)
