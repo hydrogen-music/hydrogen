@@ -70,7 +70,7 @@ for:
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
 
       #make sure that the dmg is also deployed even if not all tests are successful
-      appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer
+      #appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer
 
     test_script: |-
       TMPDIR=/tmp src/tests/tests --appveyor || true
@@ -144,9 +144,9 @@ for:
           FOR %%F IN (Hydrogen-*.exe) DO %%F /S /D=%INSTDIR%
           %PYTHON% -m pytest %APPVEYOR_BUILD_FOLDER%\windows\ci\test_installation.py --junitxml=test_installation.xml
 
-    artifacts:
-      - path: build\Hydrogen-*.exe
-        name: Installer
+#    artifacts:
+#      - path: build\Hydrogen-*.exe
+#        name: Installer
 
 on_finish:
   - cmd: appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
