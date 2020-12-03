@@ -52,7 +52,7 @@ for:
 
     test_script: |-
       TMPDIR=/tmp src/tests/tests --appveyor || true
-      otool -L ./build/src/tests/tests
+      otool -L src/tests/tests
       otool -L /usr/local/lib/libsndfile.dylib 
 
   -
