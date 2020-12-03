@@ -52,9 +52,6 @@ using namespace H2Core;
 
 #include <cmath>
 
-//functions to avoid / warn strange inputs in patternSizeLCD Dialog
-bool isGoodDenominator(int);
-
 
 void PatternEditorPanel::updateSLnameLabel( )
 {
@@ -891,18 +888,6 @@ void PatternEditorPanel::updatePatternSizeLCD(){
 	__pattern_size_LCD->setText( tmp );//
 }
 
-//function to warn strange denominator input in patternSizeLCD Dialog.
-bool isGoodDenominator(int d){
-       if (d==1 || d==2 || d==4 || d==8 || d==16 || d==32 || d==64 || d==128 ||
-           d==3 || d==6 || d==12 || d==24 || d==48 || d==96 || d==192){
-       	return true;
-       }
-       else { //resolution 48 ticks per quarter notes does not allow precise pattern size
-       	return false;
-       }
-}
-
-
 void PatternEditorPanel::patternSizeLCDClicked()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
@@ -938,10 +923,10 @@ void PatternEditorPanel::patternSizeLCDClicked()
 				return;
 			}
 			else {	 
-				if (!isGoodDenominator((int) fDenominator) ){
+				if ( MAX_NOTES %  (int) fDenominator != 0 ){
 					QMessageBox::information( this, "Hydrogen",
-						tr("Warning: current resolution can handle precisely only denominators that are "
-				    		   "powers of 2 (also multiplied by 3), up to 192") );
+						tr("Warning: since finite resolution, Hydrogen can handle precisely only "
+						"denominators that divide 192 (i.e. powers of 2, also multiplied by 3)") );
 				}
 				// set numerator and denominator
 				double fLength = MAX_NOTES / fDenominator * fNumerator;
