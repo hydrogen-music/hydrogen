@@ -905,38 +905,38 @@ void PatternEditorPanel::patternSizeLCDClicked()
 	
 	if ( bIsOkPressed  ) {		
 		QStringList parts = qtmp.split('/');
-		double fDenominator = m_pPattern->get_denominator();
-		if ( parts.size() >= 1 ) {
+		int nDenominator = m_pPattern->get_denominator();
+		if ( parts.size() == 1 && parts.size() == 2) { // must reject if parts.size > 2 or null
 		    bool bOk;
 		    double fNumerator = parts[0].toDouble( &bOk );
 		    if ( bOk && parts.size() == 2 ) {
-			fDenominator = parts[1].toDouble( &bOk );
-			if (bOk && (fDenominator <= 0 || fDenominator > 192) ){
+			nDenominator = parts[1].toInt( &bOk );
+			if (bOk && (nDenominator <= 0 || nDenominator > 192) ){
 			   QMessageBox::information( this, "Hydrogen", tr( "Denominator value rejected.\nLimits: (0, 192]" ) );
 			   return;
 			}
 		    }
 		    if ( bOk && fNumerator > 0) {
-			if (fNumerator / fDenominator > 4.){ 
+			if (fNumerator / nDenominator > 4.){ 
 			     //this is limited because the pattern editor ruler goes up to 16/4. Limit might be extended
 				QMessageBox::information( this, "Hydrogen", tr( "Pattern size too big.\nMaximum = 16/4" ) );
 				return;
 			}
 			else {	 
-				if ( MAX_NOTES %  (int) fDenominator != 0 ){
+				if ( MAX_NOTES % nDenominator != 0 ){
 					QMessageBox::information( this, "Hydrogen",
 						tr("Warning: since finite resolution, Hydrogen can handle precisely only "
 						"denominators that divide 192 (i.e. powers of 2, also multiplied by 3)") );
 				}
 				// set numerator and denominator
-				double fLength = MAX_NOTES / fDenominator * fNumerator;
+				double fLength = MAX_NOTES / (double) nDenominator * fNumerator;
 				if (fLength - round(fLength) != 0){
 					fLength = round(fLength);
 					QMessageBox::information( this, "Hydrogen",
 						tr("Pattern size was rounded.\n(resolution = 48 ticks/quarter note)" ));
 				}
 				m_pPattern->set_length( (int) fLength);
-				m_pPattern->set_denominator( (int) fDenominator );
+				m_pPattern->set_denominator( nDenominator );
 				patternLengthChanged();
 			}
 		    }
@@ -944,6 +944,10 @@ void PatternEditorPanel::patternSizeLCDClicked()
 		    	QMessageBox::information( this, "Hydrogen", tr( "Text rejected" ) );
 		    	return;
 		    }
+		}
+		else { //other cases: user entered '' or '/' more than 2 slashes
+		    	QMessageBox::information( this, "Hydrogen", tr( "Text rejected" ) );
+		    	return;
 		}
 	}
 }
