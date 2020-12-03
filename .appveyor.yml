@@ -54,7 +54,7 @@ for:
       TMPDIR=/tmp src/tests/tests --appveyor || true
       otool -L src/tests/tests
       otool -L /usr/local/lib/libsndfile.dylib 
-
+      otool -L /usr/local/opt/libsndfile/lib/libsndfile.1.dylib
   -
     matrix:
       only:
