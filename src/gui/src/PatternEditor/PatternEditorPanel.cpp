@@ -906,7 +906,7 @@ void PatternEditorPanel::patternSizeLCDClicked()
 	if ( bIsOkPressed  ) {		
 		QStringList parts = qtmp.split('/');
 		int nDenominator = m_pPattern->get_denominator();
-		if ( parts.size() == 1 && parts.size() == 2) { // must reject if parts.size > 2 or null
+		if ( parts.size() == 1 || parts.size() == 2) { // must reject if parts.size > 2 or null
 		    bool bOk;
 		    double fNumerator = parts[0].toDouble( &bOk );
 		    if ( bOk && parts.size() == 2 ) {
