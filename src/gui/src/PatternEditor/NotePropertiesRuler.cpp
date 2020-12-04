@@ -483,7 +483,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 	if ( bIsSelectionKey ) {
 		// Key was claimed by selection
-	} if ( ev->matches( QKeySequence::MoveToNextChar ) || ev->matches( QKeySequence::SelectNextChar ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToNextChar ) || ev->matches( QKeySequence::SelectNextChar ) ) {
 		// ->
 		m_pPatternEditorPanel->moveCursorRight();
 
