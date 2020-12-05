@@ -1,4 +1,5 @@
 #include "CoreActionControllerTest.h"
+#include <core/Helpers/Filesystem.h>
 
 #include <stdio.h>
 
@@ -8,6 +9,9 @@ void CoreActionControllerTest::setUp() {
 	
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pController = m_pHydrogen->getCoreActionController();
+	m_sFileName = Filesystem::tmp_dir().append( "test1.h2song" );
+	m_sFileName2 = Filesystem::tmp_dir().append( "test2.h2song" );
+	m_sFileNameImproper = Filesystem::tmp_dir().append( "test3.h2song" );
 	
 	m_pHydrogen->setSong( Song::get_empty_song() );
 }
