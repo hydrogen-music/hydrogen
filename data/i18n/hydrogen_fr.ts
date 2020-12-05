@@ -1700,11 +1700,11 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Song exported as: </source>
-        <translation>Morceau sauvegardé sous.</translation>
+        <translation>Morceau exporté sous : </translation>
     </message>
     <message>
         <source>Song saved as: </source>
-        <translation>Morceau exporté en tant que.</translation>
+        <translation>Morceau sauvegardé sous : </translation>
     </message>
 </context>
 <context>
