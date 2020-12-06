@@ -73,7 +73,15 @@ const QString Filesystem::playlists_filter_name = "Hydrogen Playlists (*.h2playl
 QString Filesystem::__sys_data_path;
 QString Filesystem::__usr_data_path;
 QString Filesystem::__usr_cfg_path;
-QString Filesystem::__usr_log_path;
+
+#ifdef Q_OS_MACX
+	QString Filesystem::__usr_log_path =QDir::homePath().append( "/Library/Application Support/Hydrogen/" LOG_FILE );
+#elif WIN32
+	QString Filesystem::__usr_log_path = QDir::homePath().append( "/.hydrogen/" LOG_FILE );
+#else
+	QString Filesystem::__usr_log_path = QDir::homePath().append( "/" H2_USR_PATH "/" LOG_FILE);
+#endif
+
 
 QStringList Filesystem::__ladspa_paths;
 
@@ -97,17 +105,14 @@ bool Filesystem::bootstrap( Logger* logger, const QString& sys_path )
 #endif
 	__usr_data_path = QDir::homePath().append( "/Library/Application Support/Hydrogen/data/" );
 	__usr_cfg_path = QDir::homePath().append( "/Library/Application Support/Hydrogen/" USR_CONFIG );
-	__usr_log_path = QDir::homePath().append( "/Library/Application Support/Hydrogen/" LOG_FILE );
 #elif WIN32
 	__sys_data_path = QCoreApplication::applicationDirPath().append( "/data/" ) ;
 	__usr_data_path = QDir::homePath().append( "/.hydrogen/data/" ) ;
 	__usr_cfg_path = QDir::homePath().append( "/.hydrogen/" USR_CONFIG ) ;
-	__usr_log_path = QDir::homePath().append( "/.hydrogen/" LOG_FILE ) ;
 #else
 	__sys_data_path = H2_SYS_PATH "/data/";
 	__usr_data_path = QDir::homePath().append( "/" H2_USR_PATH "/data/" );
 	__usr_cfg_path = QDir::homePath().append( "/" H2_USR_PATH "/" USR_CONFIG );
-	__usr_log_path = QDir::homePath().append( "/" H2_USR_PATH "/" LOG_FILE);
 #endif
 	if( sys_path!=nullptr ) __sys_data_path = sys_path;
 

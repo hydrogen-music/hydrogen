@@ -388,19 +388,13 @@ bool CoreActionController::openSong( const QString& sSongPath ) {
 		return false;
 	}
 	
-	QFileInfo songFileInfo = QFileInfo( sSongPath );
-	if ( !songFileInfo.exists() ) {
-		ERRORLOG( QString( "Selected song [%1] does not exist." )
-				 .arg( sSongPath ) );
-		return false;
-	}
-	
 	// Create an empty Song.
 	auto pSong = Song::load( sSongPath );
 
 	if ( pSong == nullptr ) {
 		ERRORLOG( QString( "Unable to open song [%1]." )
 				  .arg( sSongPath ) );
+		return false;
 	}
 	
 	return setSong( pSong );
@@ -566,10 +560,15 @@ bool CoreActionController::isSongPathValid( const QString& sSongPath ) {
 	}
 	
 	if ( songFileInfo.exists() ) {
-		if ( !songFileInfo.isWritable() ) {
-			ERRORLOG( QString( "Error: Unable to handle path [%1]. You must have permissions to write the file!" )
+		if ( !songFileInfo.isReadable() ) {
+			ERRORLOG( QString( "Error: Unable to handle path [%1]. You must have permissions to read the file!" )
 						.arg( sSongPath.toLocal8Bit().data() ));
 			return false;
+		}
+		if ( !songFileInfo.isWritable() ) {
+			WARNINGLOG( QString( "You don't have permissions to write to the Song found in path [%1]. It will be opened as read-only (no autosave)." )
+						.arg( sSongPath.toLocal8Bit().data() ));
+			EventQueue::get_instance()->push_event( EVENT_UPDATE_SONG, 3 );
 		}
 	}
 	

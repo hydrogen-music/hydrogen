@@ -23,6 +23,7 @@ p, li { white-space: pre-wrap; }
    <name>Kick Long</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -64,6 +65,7 @@ p, li { white-space: pre-wrap; }
    <name>Kick Short</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -105,6 +107,7 @@ p, li { white-space: pre-wrap; }
    <name>Snare 1</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -146,6 +149,7 @@ p, li { white-space: pre-wrap; }
    <name>Snare 2</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -187,6 +191,7 @@ p, li { white-space: pre-wrap; }
    <name>Clap</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -228,6 +233,7 @@ p, li { white-space: pre-wrap; }
    <name>Tom Low</name>
    <volume>0.77</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>0.52</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -269,6 +275,7 @@ p, li { white-space: pre-wrap; }
    <name>Tom Mid</name>
    <volume>0.79</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -310,6 +317,7 @@ p, li { white-space: pre-wrap; }
    <name>Tom Hi</name>
    <volume>0.79</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>0.48</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -351,6 +359,7 @@ p, li { white-space: pre-wrap; }
    <name>Closed Hat</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -392,6 +401,7 @@ p, li { white-space: pre-wrap; }
    <name>Pedal Hat</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -433,6 +443,7 @@ p, li { white-space: pre-wrap; }
    <name>Open Hat</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -474,6 +485,7 @@ p, li { white-space: pre-wrap; }
    <name>Cymbal</name>
    <volume>0.82</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -515,6 +527,7 @@ p, li { white-space: pre-wrap; }
    <name>Shaker</name>
    <volume>0.84</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -556,6 +569,7 @@ p, li { white-space: pre-wrap; }
    <name>Conga</name>
    <volume>0.88</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>0.9</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -597,6 +611,7 @@ p, li { white-space: pre-wrap; }
    <name>Clave</name>
    <volume>0.84</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>0.96</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -638,6 +653,7 @@ p, li { white-space: pre-wrap; }
    <name>Cowbell</name>
    <volume>0.85</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>0.96</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
