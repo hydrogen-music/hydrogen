@@ -32,7 +32,48 @@
 #include <QDebug>
 #include <cassert>
 
+template <class Elem>
+class SelectionWidget {
+public:
+	// Selection manager interface
 
+	//! Selections are indexed by Note pointers.
+	typedef Elem SelectionIndex;
+
+	//! Find list of elements which intersect a selection drag rectangle
+	virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) = 0;
+
+	//! Ensure that the Selection contains only valid elements
+	virtual void validateSelection() = 0;
+
+	//! Selection manager interface:
+	//! called by Selection when click detected
+	virtual void mouseClickEvent( QMouseEvent *ev ) = 0;
+
+	//! Called by Selection when drag started
+	virtual void mouseDragStartEvent( QMouseEvent *ev ) = 0;
+
+	//! Called by Selection when drag position changes
+	virtual void mouseDragUpdateEvent( QMouseEvent *ev ) = 0;
+
+	//! Called by Selection when drag ends
+	virtual void mouseDragEndEvent( QMouseEvent *ev ) = 0;
+
+	//! Called by Selection when a move drag is completed.
+	virtual void selectionMoveEndEvent( QInputEvent *ev ) = 0;
+
+	//! Calculate screen position of keyboard input cursor
+	virtual QRect getKeyboardCursorRect() = 0;
+
+	//! Selection or selection-related things have changed, widget needs to be updated.
+	virtual void updateWidget() = 0;
+
+	//! Hooks for starting and ending selection mouse gestures
+	virtual void startMouseLasso() {}
+	virtual void startMouseMove() {}
+	virtual void endMouseGesture() {}
+
+};
 
 //! Selection management for editor widgets
 //!
@@ -55,11 +96,11 @@
 //!      - paint any moving elements
 //!      - call paintSelection() to allow the Selection to paint a lasso
 
-template<class Widget, class Elem>
+template<class Elem>
 class Selection {
 
 private:
-	Widget *widget;
+	SelectionWidget<Elem> *widget;
 
 	enum MouseState { Up, Down, Dragging } m_mouseState;
 	Qt::MouseButton m_mouseButton;
@@ -77,7 +118,7 @@ private:
 
 public:
 
-	Selection( Widget *w ) {
+	Selection( SelectionWidget<Elem> *w ) {
 		widget = w;
 		m_mouseState = Up;
 		m_pClickEvent = nullptr;
@@ -235,13 +276,13 @@ public:
 					m_selectedElements.erase( e );
 				}
 			}
-			widget->update();
+			widget->updateWidget();
 		} else {
 			if ( ev->button() != Qt::RightButton && !m_selectedElements.empty() ) {
 				// Click without control or right button, and
 				// non-empty selection, will just clear selection
 				m_selectedElements.clear();
-				widget->update();
+				widget->updateWidget();
 			} else {
 				widget->mouseClickEvent( ev );
 			}
@@ -259,8 +300,8 @@ public:
 				m_selectionState = MouseLasso;
 				m_lasso.setTopLeft( m_pClickEvent->pos() );
 				m_lasso.setBottomRight( ev->pos() );
-				widget->setCursor( Qt::CrossCursor );
-				widget->update();
+				widget->startMouseLasso();
+				widget->updateWidget();
 
 			} else {
 				/* Did the user start dragging a selected element, on an unselected element?
@@ -275,7 +316,7 @@ public:
 				/* Move selection */
 				if ( bHitselected ) {
 					m_selectionState = MouseMoving;
-					widget->setCursor( Qt::DragMoveCursor );
+					widget->startMouseMove();
 					m_movingOffset = ev->pos() - m_pClickEvent->pos();
 				}
 			}
@@ -297,11 +338,11 @@ public:
 			for ( auto s : selected ) {
 				m_selectedElements.insert( s );
 			}
-			widget->update();
+			widget->updateWidget();
 
 		} else if ( m_selectionState == MouseMoving ) {
 			m_movingOffset = ev->pos() - m_pClickEvent->pos();
-			widget->update();
+			widget->updateWidget();
 
 		} else {
 			// Pass drag update to widget
@@ -313,14 +354,14 @@ public:
 		if ( m_selectionState == MouseLasso) {
 			m_checkpointSelectedElements.clear();
 			m_selectionState = Idle;
-			widget->unsetCursor();
-			widget->update();
+			widget->endMouseGesture();
+			widget->updateWidget();
 
 		} else if ( m_selectionState == MouseMoving ) {
 			m_selectionState = Idle;
-			widget->unsetCursor();
+			widget->endMouseGesture();
 			widget->selectionMoveEndEvent( ev );
-			widget->update();
+			widget->updateWidget();
 
 		} else {
 			// Pass drag end to widget
@@ -380,29 +421,26 @@ public:
 					// Hit "Enter" over a selected element. Begin move.
 					m_keyboardCursorStart = widget->getKeyboardCursorRect();
 					m_selectionState = KeyboardMoving;
-					widget->update();
+					widget->updateWidget();
 					return true;
 				}
 
 			} else if ( m_selectionState == KeyboardLasso ) {
-
 				// If we hit 'Enter' from lasso mode, go directly to move
 				m_keyboardCursorStart = widget->getKeyboardCursorRect();
 				m_selectionState = KeyboardMoving;
-				widget->update();
+				widget->updateWidget();
 				return true;
 
 			} else if ( m_selectionState == KeyboardMoving ) {
 				// End keyboard move
 				m_selectionState = Idle;
-                                widget->unsetCursor();
 				widget->selectionMoveEndEvent( ev );
 				return true;
 
 			} else if ( m_selectionState == KeyboardLasso ) {
 				// end keyboard lasso
 				m_selectionState = Idle;
-                                widget->unsetCursor();
 				return true;
 			}
 
@@ -412,13 +450,15 @@ public:
 			if ( m_selectionState == Idle ) {
 				if ( !m_selectedElements.empty() ) {
 					m_selectedElements.clear();
-					widget->update();
+					widget->updateWidget();
 					return true;
 				}
 			} else {
+				if ( m_selectionState == MouseMoving || m_selectionState == MouseLasso ) {
+					widget->endMouseGesture();
+				}
 				m_selectionState = Idle;
-				widget->unsetCursor();
-				widget->update();
+				widget->updateWidget();
 				return true;
 			}
 
@@ -426,8 +466,7 @@ public:
 			// Other keys should probably also cancel lasso, but not move?
 			if ( m_selectionState == KeyboardLasso ) {
 				m_selectionState = Idle;
-                                widget->unsetCursor();
-				widget->update();
+				widget->updateWidget();
 			}
 
 		}

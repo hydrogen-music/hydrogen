@@ -253,11 +253,21 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 {
 	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
 	static const QColor res[5] = {
-		QColor( pStyle->m_patternEditor_line1Color.getRed(), pStyle->m_patternEditor_line1Color.getGreen(), pStyle->m_patternEditor_line1Color.getBlue() ),
-		QColor( pStyle->m_patternEditor_line2Color.getRed(), pStyle->m_patternEditor_line2Color.getGreen(), pStyle->m_patternEditor_line2Color.getBlue() ),
-		QColor( pStyle->m_patternEditor_line3Color.getRed(), pStyle->m_patternEditor_line3Color.getGreen(), pStyle->m_patternEditor_line3Color.getBlue() ),
-		QColor( pStyle->m_patternEditor_line4Color.getRed(), pStyle->m_patternEditor_line4Color.getGreen(), pStyle->m_patternEditor_line4Color.getBlue() ),
-		QColor( pStyle->m_patternEditor_line5Color.getRed(), pStyle->m_patternEditor_line5Color.getGreen(), pStyle->m_patternEditor_line5Color.getBlue() ),
+		QColor( pStyle->m_patternEditor_line1Color.getRed(),
+				pStyle->m_patternEditor_line1Color.getGreen(),
+				pStyle->m_patternEditor_line1Color.getBlue() ),
+		QColor( pStyle->m_patternEditor_line2Color.getRed(),
+				pStyle->m_patternEditor_line2Color.getGreen(),
+				pStyle->m_patternEditor_line2Color.getBlue() ),
+		QColor( pStyle->m_patternEditor_line3Color.getRed(),
+				pStyle->m_patternEditor_line3Color.getGreen(),
+				pStyle->m_patternEditor_line3Color.getBlue() ),
+		QColor( pStyle->m_patternEditor_line4Color.getRed(),
+				pStyle->m_patternEditor_line4Color.getGreen(),
+				pStyle->m_patternEditor_line4Color.getBlue() ),
+		QColor( pStyle->m_patternEditor_line5Color.getRed(),
+				pStyle->m_patternEditor_line5Color.getGreen(),
+				pStyle->m_patternEditor_line5Color.getBlue() ),
 	};
 
 	int nGranularity = granularity() * m_nResolution;

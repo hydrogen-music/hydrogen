@@ -66,34 +66,33 @@ class NotePropertiesRuler : public PatternEditor
 		void propertyAdjustEnd( QMouseEvent *ev );
 
 		// PatternEditor interfaces
-		std::vector<SelectionIndex> elementsIntersecting( QRect r );
-		void validateSelection() {}
-		void mouseClickEvent( QMouseEvent *ev ) {
+		virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) override;
+
+		virtual void mouseClickEvent( QMouseEvent *ev ) override {
 			propertyAdjustStart( ev );
 			propertyAdjustUpdate( ev );
 			propertyAdjustEnd( ev );
 		}
-		virtual void mouseDragStartEvent( QMouseEvent *ev ) {
+		virtual void mouseDragStartEvent( QMouseEvent *ev ) override {
 			propertyAdjustStart( ev );
 		}
-		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) {
+		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override {
 			propertyAdjustUpdate( ev );
 		}
-		virtual void mouseDragEndEvent( QMouseEvent *ev ) {
+		virtual void mouseDragEndEvent( QMouseEvent *ev ) override {
 			propertyAdjustEnd( ev );
 		}
-		virtual void selectionMoveEndEvent( QInputEvent *ev ) {}
-		virtual QRect getKeyboardCursorRect();
-		virtual void updateModifiers( QInputEvent *ev ) {};
+		virtual void selectionMoveEndEvent( QInputEvent *ev ) override {}
+		virtual QRect getKeyboardCursorRect() override;
 
 	public slots:
-		void updateEditor( bool bPatternOnly = false );
-		virtual void selectAll() {}
-		virtual void selectNone() {}
-		virtual void deleteSelection() {}
-		virtual void copy() {}
-		virtual void paste() {}
-		virtual void cut() {}
+		virtual void updateEditor( bool bPatternOnly = false ) override;
+		virtual void selectAll() override {}
+		virtual void selectNone() override {}
+		virtual void deleteSelection() override {}
+		virtual void copy() override {}
+		virtual void paste() override {}
+		virtual void cut() override {}
 
 	private:
 		static const int m_nKeys = 24;
@@ -113,14 +112,14 @@ class NotePropertiesRuler : public PatternEditor
 		void createPanBackground(QPixmap *pixmap);
 		void createLeadLagBackground(QPixmap *pixmap);
 		void createNoteKeyBackground(QPixmap *pixmap);
-		void paintEvent(QPaintEvent *ev);
-		void mousePressEvent(QMouseEvent *ev);
-		void mouseMoveEvent(QMouseEvent *ev);
-		void wheelEvent(QWheelEvent *ev);
-		void mouseReleaseEvent(QMouseEvent *ev);
-		void keyPressEvent( QKeyEvent *ev );
-		void focusInEvent( QFocusEvent *ev );
-		void focusOutEvent( QFocusEvent *ev );
+		virtual void paintEvent(QPaintEvent *ev) override;
+		virtual void mousePressEvent(QMouseEvent *ev) override;
+		virtual void mouseMoveEvent(QMouseEvent *ev) override;
+		virtual void wheelEvent(QWheelEvent *ev) override;
+		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
+		virtual void keyPressEvent( QKeyEvent *ev ) override;
+		virtual void focusInEvent( QFocusEvent *ev ) override;
+		virtual void focusOutEvent( QFocusEvent *ev ) override;
 		void addUndoAction();
 		void prepareUndoAction( int x );
 

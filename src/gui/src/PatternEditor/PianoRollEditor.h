@@ -110,22 +110,22 @@ class PianoRollEditor: public PatternEditor
 		// Selection manager interface
 		//! Selections are indexed by Note pointers.
 
-		std::vector<SelectionIndex> elementsIntersecting( QRect r );
-		void mouseClickEvent( QMouseEvent *ev );
-		void mouseDragStartEvent( QMouseEvent *ev );
-		void mouseDragUpdateEvent( QMouseEvent *ev );
-		void mouseDragEndEvent( QMouseEvent *ev );
-		void selectionMoveEndEvent( QInputEvent *ev );
-		QRect getKeyboardCursorRect();
+		virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) override;
+		virtual void mouseClickEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
+		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
+		virtual QRect getKeyboardCursorRect() override;
 
 
 	public slots:
-		void updateEditor( bool bPatternOnly = false );
-		void selectAll();
-		void deleteSelection();
-		void copy();
-		void paste();
-		void cut();
+		virtual void updateEditor( bool bPatternOnly = false ) override;
+		virtual void selectAll() override;
+		virtual void deleteSelection() override;
+		virtual void copy() override;
+		virtual void paste() override;
+		virtual void cut() override;
 
 	private:
 
@@ -153,9 +153,9 @@ class PianoRollEditor: public PatternEditor
 		void addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 							  int nNotekey, int nOctave );
 
-		virtual void paintEvent(QPaintEvent *ev);
-		virtual void keyPressEvent ( QKeyEvent * ev );
-		virtual void focusInEvent ( QFocusEvent * ev );
+		virtual void paintEvent(QPaintEvent *ev) override;
+		virtual void keyPressEvent ( QKeyEvent * ev ) override;
+		virtual void focusInEvent ( QFocusEvent * ev ) override;
 
 		int __selectedInstrumentnumber;
 		int __nRealColumn;

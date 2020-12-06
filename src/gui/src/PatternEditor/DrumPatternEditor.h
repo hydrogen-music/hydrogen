@@ -105,28 +105,28 @@ class DrumPatternEditor : public PatternEditor
 		void functionPasteNotesUndoAction(std::list<H2Core::Pattern*> & appliedList);
 
 		// Synthetic UI events from selection manager
-		void mouseClickEvent( QMouseEvent *ev );
-		void mouseDragStartEvent( QMouseEvent *ev );
-		void mouseDragUpdateEvent( QMouseEvent *ev );
-		void mouseDragEndEvent( QMouseEvent *ev );
-		void selectionMoveEndEvent( QInputEvent *ev );
+		virtual void mouseClickEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
+		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
 
 		// Selected notes are indexed by their address to ensure that a
 		// note is definitely uniquely identified. This carries the risk
 		// that state pointers to deleted notes may find their way into
 		// the selection.
-		std::vector<SelectionIndex> elementsIntersecting( QRect r );
+		virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) override;
 
-		QRect getKeyboardCursorRect();
+		virtual QRect getKeyboardCursorRect() override;
 
 
 	public slots:
-		void updateEditor( bool bPatternOnly = false );
-		void selectAll();
-		void deleteSelection();
-		void copy();
-		void paste();
-		void cut();
+		virtual void updateEditor( bool bPatternOnly = false ) override;
+		virtual void selectAll() override;
+		virtual void deleteSelection() override;
+		virtual void copy() override;
+		virtual void paste() override;
+		virtual void cut() override;
 
 	private:
 		void __draw_note( H2Core::Note* note, QPainter& painter );
@@ -134,11 +134,11 @@ class DrumPatternEditor : public PatternEditor
 		void __draw_grid( QPainter& painter );
 		void __create_background( QPainter& pointer );
 
-		virtual void keyPressEvent (QKeyEvent *ev);
-		virtual void showEvent ( QShowEvent *ev );
-		virtual void hideEvent ( QHideEvent *ev );
-		virtual void paintEvent(QPaintEvent *ev);
-		virtual void focusInEvent( QFocusEvent *ev );
+		virtual void keyPressEvent (QKeyEvent *ev) override;
+		virtual void showEvent ( QShowEvent *ev ) override;
+		virtual void hideEvent ( QHideEvent *ev ) override;
+		virtual void paintEvent(QPaintEvent *ev) override;
+		virtual void focusInEvent( QFocusEvent *ev ) override;
 
 		int findFreeCompoID( int startingPoint = 0 );
 		int findExistingCompo( QString SourceName );

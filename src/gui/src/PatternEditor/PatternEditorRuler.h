@@ -49,11 +49,11 @@ class PatternEditorRuler : public QWidget, public H2Core::Object, public EventLi
 		PatternEditorRuler(const PatternEditorRuler&) = delete;
 		PatternEditorRuler& operator=( const PatternEditorRuler& rhs ) = delete;
 
-		void paintEvent(QPaintEvent *ev);
+		void paintEvent(QPaintEvent *ev) override;
 		void updateStart(bool start);
 
-		void showEvent( QShowEvent *ev );
-		void hideEvent( QHideEvent *ev );
+		void showEvent( QShowEvent *ev ) override;
+		void hideEvent( QHideEvent *ev ) override;
 
 		void zoomIn();
 		void zoomOut();

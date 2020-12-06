@@ -48,7 +48,10 @@ class PatternEditorPanel;
 //! The PatternEditor class is an abstract base class for functionality common to
 //! Pattern Editor components, specifically the DrumPatternEditor and PianoRollEditor.
 //!
-class PatternEditor : public QWidget, public EventListener, public H2Core::Object
+class PatternEditor : public QWidget,
+                      public EventListener,
+                      public H2Core::Object,
+                      public SelectionWidget<H2Core::Note *>
 {
 	H2_OBJECT
 		Q_OBJECT
@@ -69,44 +72,36 @@ public:
 
 	// Selection manager interface
 
-	//! Selections are indexed by Note pointers.
-	typedef H2Core::Note* SelectionIndex;
-
-	//! Find list of elements which intersect a selection drag rectangle
-	virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) = 0;
-
 	//! Ensure that the Selection contains only valid elements
-	virtual void validateSelection();
-
-	//! Selection manager interface:
-	//! called by Selection when click detected
-	virtual void mouseClickEvent( QMouseEvent *ev ) = 0;
-
-	//! Called by Selection when drag started
-	virtual void mouseDragStartEvent( QMouseEvent *ev ) = 0;
-
-	//! Called by Selection when drag position changes
-	virtual void mouseDragUpdateEvent( QMouseEvent *ev ) = 0;
-
-	//! Called by Selection when drag ends
-	virtual void mouseDragEndEvent( QMouseEvent *ev ) = 0;
-
-	//! Called by Selection when a move drag is completed.
-	virtual void selectionMoveEndEvent( QInputEvent *ev ) = 0;
-
-	//! Calculate screen position of keyboard input cursor
-	virtual QRect getKeyboardCursorRect() = 0;
-
-	//! Raw Qt mouse events are passed to the Selection
-	virtual void mousePressEvent( QMouseEvent *ev );
-	virtual void mouseMoveEvent( QMouseEvent *ev );
-	virtual void mouseReleaseEvent( QMouseEvent *ev );
+	virtual void validateSelection() override;
 
 	//! Update the status of modifier keys in response to input events
 	virtual void updateModifiers( QInputEvent *ev );
 
+	virtual void updateWidget() override {
+		update();
+	}
+
+	//! Change the mouse cursor during mouse gestures
+	virtual void startMouseLasso() override {
+		setCursor( Qt::CrossCursor );
+	}
+
+	virtual void startMouseMove() override {
+		setCursor( Qt::DragMoveCursor );
+	}
+
+	virtual void endMouseGesture() override {
+		unsetCursor();
+	}
+
+	//! Raw Qt mouse events are passed to the Selection
+	virtual void mousePressEvent( QMouseEvent *ev ) override;
+	virtual void mouseMoveEvent( QMouseEvent *ev ) override;
+	virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
+
 protected:
-	Selection< PatternEditor, SelectionIndex > m_selection;
+	Selection< SelectionIndex > m_selection;
 
 public slots:
 	virtual void updateEditor( bool bPatternOnly = false ) = 0;
