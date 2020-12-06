@@ -33,8 +33,6 @@
 namespace H2Core
 {
 
-typedef int  ( *audioProcessCallback )( uint32_t, void * );
-
 class AlsaAudioDriver : public AudioOutput
 {
 	H2_OBJECT

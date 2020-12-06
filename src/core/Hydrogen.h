@@ -74,6 +74,11 @@ class Hydrogen : public H2Core::Object
 {
 	H2_OBJECT
 public:
+	
+	//Temporary helpermethod, remove after AudioEngine refactoring is ready..
+	void	stopAudioEngine();
+	
+	
 	/**
 	 * Creates all the instances used within Hydrogen in the right
 	 * order. 
