@@ -228,9 +228,30 @@ void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path)
 			return;
 		}
 		WARNINGLOG( QString( "Upgrading drumkit %1" ).arg( dk_path ) );
-		
-		Filesystem::file_copy( dk_path,
-		                       dk_path + ".bak",
+
+		QString sBackupPath = dk_path + ".bak";
+		if ( Filesystem::file_exists( sBackupPath, true ) ) {
+			int nnSuffix = 1;
+
+			while ( true ) {
+				if ( ! Filesystem::file_exists( QString( "%1.%2" ).
+												arg( sBackupPath ).
+												arg( nnSuffix ), true ) ) {
+					sBackupPath = QString( "%1.%2" ).arg( sBackupPath ).arg( nnSuffix );
+					break;
+				} else {
+					++nnSuffix;
+				}
+
+				if ( nnSuffix > 100 ) {
+					ERRORLOG( QString( "More than 100 backups written for a single drumkit [%1]? This sounds like a bug. Please report this issue." )
+							  .arg( dk_path ) );
+					return;
+				}
+			}
+		}
+			
+		Filesystem::file_copy( dk_path, sBackupPath,
 		                       false /* do not overwrite existing files */ );
 		
 		pDrumkit->save_file( dk_path, true, -1 );
