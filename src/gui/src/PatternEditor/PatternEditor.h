@@ -70,6 +70,11 @@ public:
 
 	static QColor computeNoteColor( float velocity );
 
+	void mergeSelectionGroups( PatternEditor *pPatternEditor ) {
+		m_selection.merge( &pPatternEditor->m_selection );
+	}
+
+
 	// Selection manager interface
 
 	//! Ensure that the Selection contains only valid elements
@@ -79,7 +84,7 @@ public:
 	virtual void updateModifiers( QInputEvent *ev );
 
 	virtual void updateWidget() override {
-		update();
+		updateEditor( true );
 	}
 
 	//! Change the mouse cursor during mouse gestures

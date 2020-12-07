@@ -315,6 +315,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPianoRollScrollView->hide();
 	m_pPianoRollScrollView->setFocusProxy( m_pPianoRollEditor );
 
+	m_pPianoRollEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
 //~ EDITOR
 
 
@@ -357,6 +359,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteVelocityScrollView->setFixedHeight( 100 );
 	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 
+	m_pNoteVelocityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
 //~ NOTE_VELOCITY EDITOR
 
 
@@ -371,6 +375,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNotePanScrollView->setWidget( m_pNotePanEditor );
 	m_pNotePanScrollView->setFixedHeight( 100 );
 	connect( m_pNotePanScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
+
+	m_pNotePanEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
 //~ NOTE_PAN EDITOR
 
 
@@ -385,7 +392,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteLeadLagScrollView->setWidget( m_pNoteLeadLagEditor );
 	m_pNoteLeadLagScrollView->setFixedHeight( 100 );
 	connect( m_pNoteLeadLagScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
-//~ NOTE_LEADLAG EDITOR
+
+	m_pNoteLeadLagEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
+	//~ NOTE_LEADLAG EDITOR
 
 
 // NOTE_NOTEKEY EDITOR
@@ -402,6 +412,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteNoteKeyScrollView->setFixedHeight( 210 );
 	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 
+	m_pNoteNoteKeyEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
 //~ NOTE_NOTEKEY EDITOR
 
@@ -416,6 +427,9 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteProbabilityScrollView->setWidget( m_pNoteProbabilityEditor );
 	m_pNoteProbabilityScrollView->setFixedHeight( 100 );
 	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
+	
+	m_pNoteProbabilityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
 //~ NOTE_PROBABILITY EDITOR
 
 

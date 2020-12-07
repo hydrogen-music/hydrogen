@@ -153,7 +153,7 @@ int PatternEditor::getColumn(QMouseEvent *ev) const
 void PatternEditor::selectNone()
 {
 	m_selection.clearSelection();
-	update();
+	m_selection.updateWidgetGroup();
 }
 
 void PatternEditor::selectInstrumentNotes( int nInstrument )
@@ -167,7 +167,7 @@ void PatternEditor::selectInstrumentNotes( int nInstrument )
 			m_selection.addToSelection( it->second );
 		}
 	}
-	update();
+	m_selection.updateWidgetGroup();
 }
 
 void PatternEditor::mousePressEvent( QMouseEvent *ev )

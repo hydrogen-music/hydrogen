@@ -960,25 +960,29 @@ void PianoRollEditor::deleteSelection()
 {
 	if ( m_selection.begin() != m_selection.end() ) {
 		// Delete a selection.
-		int nSelectedInstrumentnumber = Hydrogen::get_instance()->getSelectedInstrumentNumber();
+		Hydrogen *pHydrogen = Hydrogen::get_instance();
+		int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
+		InstrumentList *pInstrumentList = pHydrogen->getSong()->get_instrument_list();
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 		pUndo->beginMacro("delete notes");
 		validateSelection();
 		for ( Note *pNote : m_selection ) {
 			if ( m_selection.isSelected( pNote ) ) {
-				int nLine = pitchToLine( pNote->get_notekey_pitch() );
-				pUndo->push( new SE_addOrDeleteNotePianoRollAction( pNote->get_position(),
-																	nLine,
-																	m_nSelectedPatternNumber,
-																	nSelectedInstrumentnumber,
-																	pNote->get_length(),
-																	pNote->get_velocity(),
-																	pNote->get_pan_l(),
-																	pNote->get_pan_r(),
-																	pNote->get_lead_lag(),
-																	pNote->get_key(),
-																	pNote->get_octave(),
-																	true ) );
+				if ( pNote->get_instrument() == pInstrumentList->get( nSelectedInstrumentNumber ) ) {
+					int nLine = pitchToLine( pNote->get_notekey_pitch() );
+					pUndo->push( new SE_addOrDeleteNotePianoRollAction( pNote->get_position(),
+																		nLine,
+																		m_nSelectedPatternNumber,
+																		nSelectedInstrumentNumber,
+																		pNote->get_length(),
+																		pNote->get_velocity(),
+																		pNote->get_pan_l(),
+																		pNote->get_pan_r(),
+																		pNote->get_lead_lag(),
+																		pNote->get_key(),
+																		pNote->get_octave(),
+																		true ) );
+				}
 			}
 		}
 		pUndo->endMacro();
@@ -996,13 +1000,19 @@ void PianoRollEditor::copy()
 	XMLNode positionNode = root.createNode( "sourcePosition" );
 	XMLNode noteList = root.createNode( "noteList" );
 
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
+	InstrumentList *pInstrumentList = pHydrogen->getSong()->get_instrument_list();
+
 	positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
 	positionNode.write_int( "pitch", m_nCursorPitch );
 	positionNode.write_int( "instrument", Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 
 	for ( Note *pNote : m_selection ) {
-		XMLNode note_node = noteList.createNode( "note" );
-		pNote->save_to( &note_node );
+		if ( pNote->get_instrument() == pInstrumentList->get( nSelectedInstrumentNumber ) ) {
+			XMLNode note_node = noteList.createNode( "note" );
+			pNote->save_to( &note_node );
+		}
 	}
 
 	QClipboard *clipboard = QApplication::clipboard();

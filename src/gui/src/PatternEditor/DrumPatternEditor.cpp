@@ -759,7 +759,7 @@ void DrumPatternEditor::selectAll()
 	FOREACH_NOTE_CST_IT_BEGIN_END(m_pPattern->get_notes(), it) {
 		m_selection.addToSelection( it->second );
 	}
-	update();
+	m_selection.updateWidgetGroup();
 }
 
 

@@ -32,6 +32,7 @@
 #include <QDebug>
 #include <cassert>
 
+
 template <class Elem>
 class SelectionWidget {
 public:
@@ -75,6 +76,16 @@ public:
 
 };
 
+
+//! XXX A shared selection group
+template <class Elem>
+struct SelectionGroup {
+	std::set<Elem> m_selectedElements;
+	std::set< SelectionWidget<Elem> *> m_selectionWidgets;
+};
+
+
+
 //! Selection management for editor widgets
 //!
 //! This template class bundles up the functionality necessary for
@@ -100,7 +111,7 @@ template<class Elem>
 class Selection {
 
 private:
-	SelectionWidget<Elem> *widget;
+	SelectionWidget< Elem > *widget;
 
 	enum MouseState { Up, Down, Dragging } m_mouseState;
 	Qt::MouseButton m_mouseButton;
@@ -111,21 +122,35 @@ private:
 
 	enum SelectionState { Idle, MouseLasso, MouseMoving, KeyboardLasso, KeyboardMoving } m_selectionState;
 
-	std::set<Elem> m_selectedElements;
-	std::set<Elem> m_checkpointSelectedElements;
+	std::shared_ptr< SelectionGroup< Elem > > m_pSelectionGroup;
+	std::set< Elem > m_checkpointSelectedElements;
 
 	QRect m_keyboardCursorStart;
 
 public:
 
 	Selection( SelectionWidget<Elem> *w ) {
+
 		widget = w;
 		m_mouseState = Up;
 		m_pClickEvent = nullptr;
 		m_selectionState = Idle;
+		m_pSelectionGroup = std::make_shared< SelectionGroup< Elem > >();
+		m_pSelectionGroup->m_selectionWidgets.insert( w );
+
+	}
+
+	void merge( Selection *pOther ) {
+		if ( pOther != this ) {
+			pOther->m_pSelectionGroup->m_selectionWidgets.insert
+				( m_pSelectionGroup->m_selectionWidgets.begin(),
+				  m_pSelectionGroup->m_selectionWidgets.end() );
+		}
+		m_pSelectionGroup = pOther->m_pSelectionGroup;
 	}
 
 	void dump() {
+
 		qDebug() << "Mouse state: " << ( m_mouseState == Up ? "Up" :
 										 m_mouseState == Down ? "Down" :
 										 m_mouseState == Dragging ? "Dragging" : "-" )
@@ -138,6 +163,7 @@ public:
 											 m_selectionState == KeyboardMoving ? "KeyboardMoving" :
 											 "-")
 				 << "";
+
 	}
 
 
@@ -152,24 +178,38 @@ public:
 	}
 
 	bool isSelected( Elem e ) {
-		return m_selectedElements.find( e ) != m_selectedElements.end();
+		return m_pSelectionGroup->m_selectedElements.find( e ) != m_pSelectionGroup->m_selectedElements.end();
 	}
 
 	typedef typename std::set<Elem>::iterator iterator;
 
-	iterator begin() { return m_selectedElements.begin(); }
-	iterator end() { return m_selectedElements.end(); }
+	iterator begin() { return m_pSelectionGroup->m_selectedElements.begin(); }
+	iterator end() { return m_pSelectionGroup->m_selectedElements.end(); }
 
 	void removeFromSelection( Elem e ) {
-		m_selectedElements.erase( e );
+		m_pSelectionGroup->m_selectedElements.erase( e );
 	}
 
 	void addToSelection( Elem e ) {
-		m_selectedElements.insert( e );
+		m_pSelectionGroup->m_selectedElements.insert( e );
 	}
 
 	void clearSelection() {
-		m_selectedElements.clear();
+		m_pSelectionGroup->m_selectedElements.clear();
+	}
+
+	bool checkSelectionChanged() {
+		if ( m_checkpointSelectedElements != m_pSelectionGroup->m_selectedElements ) {
+			m_checkpointSelectedElements = m_pSelectionGroup->m_selectedElements;
+			return true;
+		}
+		return false;
+	}
+
+	void updateWidgetGroup() {
+		for ( auto pW : m_pSelectionGroup->m_selectionWidgets ) {
+			pW->updateWidget();
+		}
 	}
 
 	// ---------------------------------------------------------------------
@@ -270,19 +310,20 @@ public:
 			QRect r = QRect( ev->pos(), ev->pos() );
 			std::vector<Elem> elems = widget->elementsIntersecting( r );
 			for ( Elem e : elems) {
-				if ( m_selectedElements.find( e ) == m_selectedElements.end() ) {
-					m_selectedElements.insert( e );
+				if ( m_pSelectionGroup->m_selectedElements.find( e )
+					 == m_pSelectionGroup->m_selectedElements.end() ) {
+					m_pSelectionGroup->m_selectedElements.insert( e );
 				} else {
-					m_selectedElements.erase( e );
+					m_pSelectionGroup->m_selectedElements.erase( e );
 				}
 			}
-			widget->updateWidget();
+			updateWidgetGroup();
 		} else {
-			if ( ev->button() != Qt::RightButton && !m_selectedElements.empty() ) {
+			if ( ev->button() != Qt::RightButton && !m_pSelectionGroup->m_selectedElements.empty() ) {
 				// Click without control or right button, and
 				// non-empty selection, will just clear selection
-				m_selectedElements.clear();
-				widget->updateWidget();
+				m_pSelectionGroup->m_selectedElements.clear();
+				updateWidgetGroup();
 			} else {
 				widget->mouseClickEvent( ev );
 			}
@@ -296,7 +337,7 @@ public:
 
 			if ( elems.empty() ) {
 				//  Didn't hit anything. Start new selection drag.
-				m_checkpointSelectedElements = m_selectedElements;
+				m_checkpointSelectedElements = m_pSelectionGroup->m_selectedElements;
 				m_selectionState = MouseLasso;
 				m_lasso.setTopLeft( m_pClickEvent->pos() );
 				m_lasso.setBottomRight( ev->pos() );
@@ -330,19 +371,19 @@ public:
 			m_lasso.setBottomRight( ev->pos() );
 
 			// Clear and rebuild selection.
-			m_selectedElements.clear();
+			m_pSelectionGroup->m_selectedElements.clear();
 			if ( ev->modifiers() & Qt::ControlModifier ) {
-				m_selectedElements = m_checkpointSelectedElements;
+				m_pSelectionGroup->m_selectedElements = m_checkpointSelectedElements;
 			}
 			auto selected = widget->elementsIntersecting( m_lasso );
 			for ( auto s : selected ) {
-				m_selectedElements.insert( s );
+				m_pSelectionGroup->m_selectedElements.insert( s );
 			}
-			widget->updateWidget();
+			updateWidgetGroup();
 
 		} else if ( m_selectionState == MouseMoving ) {
 			m_movingOffset = ev->pos() - m_pClickEvent->pos();
-			widget->updateWidget();
+			updateWidgetGroup();
 
 		} else {
 			// Pass drag update to widget
@@ -355,13 +396,13 @@ public:
 			m_checkpointSelectedElements.clear();
 			m_selectionState = Idle;
 			widget->endMouseGesture();
-			widget->updateWidget();
+			updateWidgetGroup();
 
 		} else if ( m_selectionState == MouseMoving ) {
 			m_selectionState = Idle;
 			widget->endMouseGesture();
 			widget->selectionMoveEndEvent( ev );
-			widget->updateWidget();
+			updateWidgetGroup();
 
 		} else {
 			// Pass drag end to widget
@@ -412,7 +453,8 @@ public:
 
 				bool bHitselected = false;
 				for ( Elem e : widget->elementsIntersecting( widget->getKeyboardCursorRect() ) ) {
-					if ( m_selectedElements.find( e ) != m_selectedElements.end() ) {
+					if ( m_pSelectionGroup->m_selectedElements.find( e )
+						 != m_pSelectionGroup->m_selectedElements.end() ) {
 						bHitselected = true;
 						break;
 					}
@@ -421,7 +463,7 @@ public:
 					// Hit "Enter" over a selected element. Begin move.
 					m_keyboardCursorStart = widget->getKeyboardCursorRect();
 					m_selectionState = KeyboardMoving;
-					widget->updateWidget();
+					updateWidgetGroup();
 					return true;
 				}
 
@@ -429,7 +471,7 @@ public:
 				// If we hit 'Enter' from lasso mode, go directly to move
 				m_keyboardCursorStart = widget->getKeyboardCursorRect();
 				m_selectionState = KeyboardMoving;
-				widget->updateWidget();
+				updateWidgetGroup();
 				return true;
 
 			} else if ( m_selectionState == KeyboardMoving ) {
@@ -448,9 +490,9 @@ public:
 
 			// Key: Escape: cancel any lasso or move/copy in progress; or clear any selection.
 			if ( m_selectionState == Idle ) {
-				if ( !m_selectedElements.empty() ) {
-					m_selectedElements.clear();
-					widget->updateWidget();
+				if ( !m_pSelectionGroup->m_selectedElements.empty() ) {
+					m_pSelectionGroup->m_selectedElements.clear();
+					updateWidgetGroup();
 					return true;
 				}
 			} else {
@@ -458,7 +500,7 @@ public:
 					widget->endMouseGesture();
 				}
 				m_selectionState = Idle;
-				widget->updateWidget();
+				updateWidgetGroup();
 				return true;
 			}
 
@@ -466,7 +508,7 @@ public:
 			// Other keys should probably also cancel lasso, but not move?
 			if ( m_selectionState == KeyboardLasso ) {
 				m_selectionState = Idle;
-				widget->updateWidget();
+				updateWidgetGroup();
 			}
 
 		}
@@ -482,10 +524,10 @@ public:
 			m_lasso = m_keyboardCursorStart.united( widget->getKeyboardCursorRect() );
 
 			// Clear and rebuild selection
-			m_selectedElements.clear();
+			m_pSelectionGroup->m_selectedElements.clear();
 			auto selected = widget->elementsIntersecting( m_lasso );
 			for ( auto s : selected ) {
-				m_selectedElements.insert( s );
+				m_pSelectionGroup->m_selectedElements.insert( s );
 			}
 
 		} else if ( m_selectionState == KeyboardMoving ) {
