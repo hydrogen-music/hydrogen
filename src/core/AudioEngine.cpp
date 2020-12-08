@@ -112,8 +112,8 @@ void AudioEngine::create_instance()
 
 AudioEngine::AudioEngine()
 		: Object( __class_name )
-		, __sampler( nullptr )
-		, __synth( nullptr )
+		, m_pSampler( nullptr )
+		, m_pSynth( nullptr )
 		, m_fElapsedTime( 0 )
 		, m_pMainBuffer_L( nullptr )
 		, m_pMainBuffer_R( nullptr )
@@ -134,8 +134,8 @@ AudioEngine::AudioEngine()
 	__instance = this;
 	INFOLOG( "INIT" );
 
-	__sampler = new Sampler;
-	__synth = new Synth;
+	m_pSampler = new Sampler;
+	m_pSynth = new Synth;
 	
 	m_pEventQueue = EventQueue::get_instance();
 	
@@ -178,20 +178,20 @@ AudioEngine::~AudioEngine()
 #endif
 
 //	delete Sequencer::get_instance();
-	delete __sampler;
-	delete __synth;
+	delete m_pSampler;
+	delete m_pSynth;
 }
 
 Sampler* AudioEngine::get_sampler()
 {
-	assert(__sampler);
-	return __sampler;
+	assert(m_pSampler);
+	return m_pSampler;
 }
 
 Synth* AudioEngine::get_synth()
 {
-	assert(__synth);
-	return __synth;
+	assert(m_pSynth);
+	return m_pSynth;
 }
 
 void AudioEngine::lock( const char* file, unsigned int line, const char* function )
@@ -249,7 +249,7 @@ void AudioEngine::destroy()
 		___ERRORLOG( "Error the audio engine is not in INITIALIZED state" );
 		return;
 	}
-	__sampler->stopPlayingNotes();
+	m_pSampler->stopPlayingNotes();
 
 	this->lock( RIGHT_HERE );
 	___INFOLOG( "*** Hydrogen audio engine shutdown ***" );
@@ -1014,7 +1014,7 @@ inline void AudioEngine::process_playNotes( unsigned long nframes )
 				delete pOffNote;
 			}
 
-			__sampler->noteOn( pNote );
+			m_pSampler->noteOn( pNote );
 			m_songNoteQueue.pop(); // rimuovo la nota dalla lista di note
 			pNote->get_instrument()->dequeue();
 			// raise noteOn event
@@ -1147,7 +1147,7 @@ void AudioEngine::clearNoteQueue()
 		m_songNoteQueue.pop();
 	}
 
-	__sampler->stopPlayingNotes();
+	m_pSampler->stopPlayingNotes();
 
 	// delete all copied notes in the midi notes queue
 	for ( unsigned i = 0; i < m_midiNoteQueue.size(); ++i ) {

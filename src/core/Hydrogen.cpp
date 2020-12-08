@@ -939,7 +939,7 @@ void Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 	 */
 	pAudioEngine->stopAudioDrivers();
 
-	pAudioEngine->m_pAudioDriver = new DiskWriterDriver( AudioEngine::audioEngine_process, nSamplerate, sampleDepth );
+	pAudioEngine->setAudioDriver( new DiskWriterDriver( AudioEngine::audioEngine_process, nSamplerate, sampleDepth ) );
 	
 	m_bExportSessionIsActive = true;
 }
@@ -953,7 +953,7 @@ void Hydrogen::stopExportSession()
  	pAudioEngine->stopAudioDrivers();
 	
 	delete pAudioEngine->getAudioDriver();
-	pAudioEngine->m_pAudioDriver = nullptr;
+	pAudioEngine->setAudioDriver( nullptr );
 	
 	Song* pSong = getSong();
 	pSong->set_mode( m_oldEngineMode );
@@ -987,8 +987,8 @@ void Hydrogen::startExportSong( const QString& filename)
 		ERRORLOG( "Error starting disk writer driver [DiskWriterDriver::init()]" );
 	}
 
-	pAudioEngine->m_pMainBuffer_L = pAudioEngine->getAudioDriver()->getOut_L();
-	pAudioEngine->m_pMainBuffer_R = pAudioEngine->getAudioDriver()->getOut_R();
+	pAudioEngine->setMainBuffer_L( pAudioEngine->getAudioDriver()->getOut_L() );
+	pAudioEngine->setMainBuffer_R( pAudioEngine->getAudioDriver()->getOut_R() );
 
 	pAudioEngine->setupLadspaFX( pAudioEngine->getAudioDriver()->getBufferSize() );
 

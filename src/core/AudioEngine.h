@@ -64,7 +64,7 @@ namespace H2Core
  * Audio Engine main class (Singleton).
  *
  * It serves as a container for the Sampler and Synth stored in the
- * #__sampler and #__synth member objects and provides a mutex
+ * #m_pSampler and #m_pSynth member objects and provides a mutex
  * #__engine_mutex enabling the user to synchronize the access of the
  * Song object and the AudioEngine itself. lock() and try_lock() can
  * be called by a thread to lock the engine and unlock() to make it
@@ -89,8 +89,8 @@ public:
 	/** 
 	 * Destructor of the AudioEngine.
 	 *
-	 * Deletes the Effects singleton and the #__sampler and
-	 * #__synth objects.
+	 * Deletes the Effects singleton and the #m_pSampler and
+	 * #m_pSynth objects.
 	 */
 	~AudioEngine();
 
@@ -129,6 +129,7 @@ public:
 	 * \param function Function the locking occurs in.
 	 */
 	void lock( const char* file, unsigned int line, const char* function );
+
 	/**
 	 * Mutex locking of the AudioEngine.
 	 *
@@ -144,9 +145,41 @@ public:
 	 * - false : Else
 	 */
 	bool try_lock( const char* file, unsigned int line, const char* function );
+
+	/**
+	 * Mutex locking of the AudioEngine.
+	 *
+	 * This function is equivalent to lock() but will only wait for a
+	 * given period of time. If the lock cannot be acquired in this
+	 * time, it will return false.
+	 *
+	 * \param duration Time (in microseconds) to wait for the lock.
+	 * \param file File the locking occurs in.
+	 * \param line Line of the file the locking occurs in.
+	 * \param function Function the locking occurs in.
+	 *
+	 * \return
+	 * - true : On successful acquisition of the lock
+	 * - false : On failure
+	 */
+	bool try_lock_for( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function );
+
+	/**
+	 * Mutex unlocking of the AudioEngine.
+	 *
+	 * Unlocks the AudioEngine to allow other threads acces, and leaves #__locker untouched.
+	 */
+	void unlock();
+
+	/**
+	 * Assert that the calling thread is the current holder of the
+	 * AudioEngine lock.
+	 */
+	void assertLocked( );
 	
 	
 	void	destroy();
+
 	/**
 	 * If the audio engine is in state #m_audioEngineState #STATE_READY,
 	 * this function will
@@ -193,6 +226,7 @@ public:
 	 * \param pNewSong Song to load.
 	 */
 	void	setSong(Song *pNewSong );
+
 	/**
 	 * Does the necessary cleanup of the global objects in the audioEngine.
 	 *
@@ -368,42 +402,11 @@ public:
 	void	seek( long long nFrames, bool bLoopMode = false );
 	
 	
-
-	/**
-	 * Mutex locking of the AudioEngine.
-	 *
-	 * This function is equivalent to lock() but will only wait for a
-	 * given period of time. If the lock cannot be acquired in this
-	 * time, it will return false.
-	 *
-	 * \param duration Time (in microseconds) to wait for the lock.
-	 * \param file File the locking occurs in.
-	 * \param line Line of the file the locking occurs in.
-	 * \param function Function the locking occurs in.
-	 *
-	 * \return
-	 * - true : On successful acquisition of the lock
-	 * - false : On failure
-	 */
-	bool try_lock_for( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function );
-	/**
-	 * Mutex unlocking of the AudioEngine.
-	 *
-	 * Unlocks the AudioEngine to allow other threads acces, and leaves #__locker untouched.
-	 */
-	void unlock();
-
-	/**
-	 * Assert that the calling thread is the current holder of the
-	 * AudioEngine lock.
-	 */
-	void assertLocked( );
-	
 	static float compute_tick_size( const int nSampleRate, const float fBpm, const int nResolution);
 
-	/** \return #__sampler */
+	/** \return #m_pSampler */
 	Sampler* get_sampler();
-	/** \return #__synth */
+	/** \return #m_pSynth */
 	Synth* get_synth();
 	
 	/** \return #m_fElapsedTime */
@@ -593,17 +596,14 @@ public:
 	 */
 	void	renameJackPorts(Song * pSong);
 	
-	/**
-	 * Pointer to the current instance of the audio driver.
-	 *
-	 * Initialized with NULL inside audioEngine_init(). Inside
-	 * audioEngine_startAudioDrivers() either the audio driver specified
-	 * in Preferences::m_sAudioDriver and created via createDriver() or
-	 * the NullDriver, in case the former failed, will be assigned.
-	 */	
-	AudioOutput *		m_pAudioDriver;
-	
-	AudioOutput *		getAudioDriver();
+ 
+	void				setAudioDriver( AudioOutput* pAudioDriver );
+	AudioOutput*		getAudioDriver() const;
+
+	/* retrieve the midi (input) driver */
+	MidiInput*			getMidiDriver() const;
+	/* retrieve the midi (output) driver */
+	MidiOutput*			getMidiOutDriver() const;
 	
 	/**
 	 * Mutex for locking the pointer to the audio output buffer, allowing
@@ -615,43 +615,18 @@ public:
 	 * mutex.
 	 */
 	QMutex				mutex_OutputPointer;
-	
-	/**
-	 * MIDI input
-	 *
-	 * In audioEngine_startAudioDrivers() it is assigned the midi driver
-	 * specified in Preferences::m_sMidiDriver.
-	 */
-	MidiInput *			m_pMidiDriver;
-	MidiInput*			getMidiDriver();
-	
-	/**
-	 * MIDI output
-	 *
-	 * In audioEngine_startAudioDrivers() it is assigned the midi driver
-	 * specified in Preferences::m_sMidiDriver.
-	 */
-	MidiOutput *		m_pMidiDriverOut;
-	MidiOutput*			getMidiOutDriver();
-	
-	/**
-	 * Pointer to the audio buffer of the left stereo output returned by
-	 * AudioOutput::getOut_L().
-	 */
-	float*	m_pMainBuffer_L;
-	
-	/**
-	 * Pointer to the audio buffer of the right stereo output returned by
-	 * AudioOutput::getOut_R().
-	 */
-	float*	m_pMainBuffer_R;
+		
 	
 	void raiseError( unsigned nErrorCode );
 	
-	int getState() const;
-	
-	void setState(int state);
-	
+	//retrieve the current state of the audio engine state, see #m_State
+	int 				getState() const;
+	//set the current state of the audio engine state, see #m_State
+	void 				setState( int state );
+
+	void				setMainBuffer_L( float* pMainBufferL );
+	void				setMainBuffer_R( float* pMainBufferR );
+
 	#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 	float				m_fFXPeak_L[MAX_FX];
 	float				m_fFXPeak_R[MAX_FX];
@@ -733,8 +708,8 @@ public:
 	 * and processed in audioEngine_updateNoteQueue(). Please note that
 	 * ALL of these functions do access the variable directly!
 	 */
-	
 	PatternList*		m_pPlayingPatterns;
+
 	/**
 	 * Index of the current PatternList in the
 	 * Song::__pattern_group_sequence.
@@ -778,8 +753,7 @@ public:
 	float				m_fMaxProcessTime;	///< max ms usable in process with no xrun
 	//~ info
 	
-	// Buffers used in the process function
-	unsigned			m_nBufferSize;
+
 	
 private:
 	/**
@@ -796,8 +770,8 @@ private:
 	 * - Initializes the Mutex of the AudioEngine #__engine_mutex
 	 *   by calling _pthread_mutex_init()_ (pthread.h) on its
 	 *   address.
-	 * - Assigns a new instance of the Sampler to #__sampler and of
-	 *   the Synth to #__synth.
+	 * - Assigns a new instance of the Sampler to #m_pSampler and of
+	 *   the Synth to #m_pSynth.
 	 * - Creates an instance of the Effects singleton. This call
 	 *   should not be necessary since this singleton was created
 	 *   right before creating the AudioEngine. But its costs are
@@ -806,11 +780,52 @@ private:
 	AudioEngine();
 
 	/** Local instance of the Sampler. */
-	Sampler* __sampler;
+	Sampler* 			m_pSampler;
 	/** Local instance of the Synth. */
-	Synth* __synth;
+	Synth* 				m_pSynth;
+
+	/**
+	 * Pointer to the current instance of the audio driver.
+	 *
+	 * Inside audioEngine_startAudioDrivers() either the audio driver specified
+	 * in Preferences::m_sAudioDriver and created via createDriver() or
+	 * the NullDriver, in case the former failed, will be assigned.
+	 */	
+	AudioOutput *		m_pAudioDriver;
+
+	/**
+	 * MIDI input
+	 *
+	 * In audioEngine_startAudioDrivers() it is assigned the midi driver
+	 * specified in Preferences::m_sMidiDriver.
+	 */
+	MidiInput *			m_pMidiDriver;
+
+	/**
+	 * MIDI output
+	 *
+	 * In audioEngine_startAudioDrivers() it is assigned the midi driver
+	 * specified in Preferences::m_sMidiDriver.
+	 */
+	MidiOutput *		m_pMidiDriverOut;
 	
-	EventQueue* m_pEventQueue;
+	EventQueue* 		m_pEventQueue;
+
+	// Buffers used in the process function
+	unsigned			m_nBufferSize;
+
+
+	/**
+	 * Pointer to the audio buffer of the left stereo output returned by
+	 * AudioOutput::getOut_L().
+	 */
+	float*	m_pMainBuffer_L;
+	
+	/**
+	 * Pointer to the audio buffer of the right stereo output returned by
+	 * AudioOutput::getOut_R().
+	 */
+	float*	m_pMainBuffer_R;
 
 	/**
 	 * Mutex for synchronizing the access to the Song object and
@@ -820,12 +835,12 @@ private:
 	 * try_lock() and to unlock it via unlock(). It is
 	 * initialized in AudioEngine() and not explicitly exited.
 	 */
-	std::timed_mutex __engine_mutex;
+	std::timed_mutex 	__engine_mutex;
 
 	/**
 	 * Thread ID of the current holder of the AudioEngine lock.
 	 */
-	std::thread::id m_lockingThread;
+	std::thread::id 	m_lockingThread;
 
 	/**
 	 * This struct is most probably intended to be used for
@@ -864,7 +879,7 @@ private:
 	 *
 	 * Retrieved using getElapsedTime().
 	 */
-	float	m_fElapsedTime;
+	float				m_fElapsedTime;
 	
 	/**
 	 * Current state of the H2Core::AudioEngine. 
@@ -879,7 +894,7 @@ private:
 	 * 
 	 * It gets initialized with #STATE_UNINITIALIZED.
 	 */	
-	int	m_State;
+	int					m_State;
 	
 	audioProcessCallback m_AudioProcessCallback;
 	
@@ -965,6 +980,14 @@ inline void AudioEngine::assertLocked( ) {
 #endif
 }
 
+inline void AudioEngine::setMainBuffer_R( float* pMainBufferR ) {
+	m_pMainBuffer_R = pMainBufferR;
+}
+
+inline void AudioEngine::setMainBuffer_L( float* pMainBufferL ) {
+	m_pMainBuffer_L = pMainBufferL;
+}
+
 inline int AudioEngine::getState() const {
 	return m_State;
 }
@@ -973,15 +996,19 @@ inline void AudioEngine::setState(int state) {
 	m_State = state;
 }
 
-inline 	AudioOutput *	AudioEngine::getAudioDriver() {
+inline void AudioEngine::setAudioDriver( AudioOutput* pAudioDriver ) {
+	m_pAudioDriver = pAudioDriver;
+}
+
+inline AudioOutput*	AudioEngine::getAudioDriver() const {
 	return m_pAudioDriver;
 }
 
-inline 	MidiInput *	AudioEngine::getMidiDriver() {
+inline 	MidiInput*	AudioEngine::getMidiDriver() const {
 	return m_pMidiDriver;
 }
 
-inline 	MidiOutput *	AudioEngine::getMidiOutDriver() {
+inline MidiOutput*	AudioEngine::getMidiOutDriver() const {
 	return m_pMidiDriverOut;
 }
 
