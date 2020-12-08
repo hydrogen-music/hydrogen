@@ -11,6 +11,8 @@ class XmlTest : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
+		// Removes all .bak backup files from the test data folder.
+		void tearDown();
 		void testDrumkit();
 		void testDrumkit_UpgradeInvalidADSRValues();
 		void testPattern();
