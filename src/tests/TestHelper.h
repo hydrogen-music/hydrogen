@@ -13,6 +13,7 @@ class TestHelper {
 		TestHelper();
 	
 		QString getDataDir() const;
+		QString getTestDataDir() const;
 		QString getTestFile(const QString& file);
 	
 		static void			createInstance();
@@ -27,6 +28,11 @@ inline TestHelper*	TestHelper::get_instance()
 inline QString TestHelper::getDataDir() const 
 { 
 	return m_sDataDir; 
+}
+
+inline QString TestHelper::getTestDataDir() const 
+{ 
+	return m_sTestDataDir;
 }
 
 inline QString TestHelper::getTestFile(const QString& file)
