@@ -113,7 +113,6 @@ libraries and development header files installed on your system:
 - OSC (Open Sound Control)
 - LASH (Linux Audio Session Handler)
 - NSM (Non Session Manager)
-- JACK Session need Jack Audio Connection Kit(>=0.120.0/1.9.7) 
 - liblrdf for LADSPA plugins
 - librubberband2 (Rubberband support is experimental)
 
