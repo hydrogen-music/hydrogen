@@ -96,6 +96,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void patternLengthChanged();
 		void updatePatternSizeLCD();
 		void patternSizeLCDClicked();
+		void denominatorWarningClicked();
 
 
 		void hearNotesBtnClick(Button *ref);
@@ -125,6 +126,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		// Editor top
 		LCDDisplay *			__pattern_size_LCD;
+		Button *			m_pDenominatorWarning;
 		LCDCombo *			__resolution_combo;
 		ToggleButton *		__show_drum_btn;
 		ToggleButton *		__show_piano_btn;

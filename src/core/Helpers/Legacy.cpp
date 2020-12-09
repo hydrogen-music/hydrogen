@@ -210,9 +210,9 @@ Pattern* Legacy::load_drumkit_pattern( const QString& pattern_path, InstrumentLi
 		QString sInfo = pattern_node.read_string( "info", "" );
 		QString sCategory = pattern_node.read_string( "category", "" );
 		int nSize = pattern_node.read_int( "size", -1, false, false );
-		int nDenominator = pattern_node.read_int( "denominator", -1, false, false );
-
-		pPattern = new Pattern( sName, sInfo, sCategory, nSize, nDenominator );
+		
+        //default nDenominator = 4 since old patterns have not <denominator> setting
+		pPattern = new Pattern( sName, sInfo, sCategory, nSize, 4 );
 
 		XMLNode note_list_node = pattern_node.firstChildElement( "noteList" );
 

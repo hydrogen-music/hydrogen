@@ -95,7 +95,7 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 	    node->read_string( "info", "", false, false ),
 	    node->read_string( "category", "unknown", false, false ),
 	    node->read_int( "size", -1, false, false ),
-	    node->read_int( "denominator", -1, false, false )
+	    node->read_int( "denominator", 4, false, false )
 	);
 	// FIXME support legacy xml element pattern_name, should once be removed
 	if ( pattern->get_name().isEmpty() ) {

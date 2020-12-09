@@ -108,7 +108,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 //wolke some background images back_size_res
 	PixmapWidget *pSizeResol = new PixmapWidget( nullptr );
 	pSizeResol->setFixedSize( 200, 20 );
-	pSizeResol->setPixmap( "/patternEditor/background_res-new4.png" );
+	pSizeResol->setPixmap( "/patternEditor/background_res-new.png" );
 	pSizeResol->move( 0, 3 );
 	editor_top_hbox_2->addWidget( pSizeResol );
 
@@ -117,8 +117,18 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__pattern_size_LCD->move( 31, 2 );
 	__pattern_size_LCD->setToolTip( tr("Select pattern size") );
 
-
 	connect( __pattern_size_LCD, SIGNAL(displayClicked(LCDDisplay*)), this, SLOT(patternSizeLCDClicked()));
+	
+	m_pDenominatorWarning = new Button(
+			pSizeResol,
+			"/patternEditor/icn_warning.png",
+			"/patternEditor/icn_warning.png",
+			"/patternEditor/icn_warning.png",
+			QSize( 15, 13 ) );
+	m_pDenominatorWarning->move( 114, 2 );
+	m_pDenominatorWarning->hide();
+	m_pDenominatorWarning->setToolTip( tr( "I don't like this denominator" ) );
+	connect(m_pDenominatorWarning, SIGNAL(clicked(Button*)), this, SLOT(denominatorWarningClicked()));
 	
 	// GRID resolution
 	__resolution_combo = new LCDCombo( pSizeResol , 3);
@@ -854,8 +864,6 @@ void PatternEditorPanel::patternLengthChanged()
 	if ( !m_pPattern ) {
 		return;
 	}
-	int den = m_pPattern->get_denominator();
-	int nBeatUnit = MAX_NOTES / den;
 
 	updatePatternSizeLCD();
 	
@@ -875,17 +883,29 @@ void PatternEditorPanel::patternLengthChanged()
 void PatternEditorPanel::updatePatternSizeLCD(){
 	// update pattern size
 	int nPatternSize = m_pPattern->get_length();
-	int den = m_pPattern->get_denominator();
-	int nBeatUnit = MAX_NOTES / den;
+	int nDen = m_pPattern->get_denominator();
 
+	int nBeatUnit = MAX_NOTES / nDen; //used only if MAX_NOTES % den == 0
 	char tmp[20];
-	if (nPatternSize % nBeatUnit == 0) {
-		sprintf( tmp, "%d/%d", nPatternSize / nBeatUnit, den);
+	if ( (nPatternSize % nBeatUnit == 0) && (MAX_NOTES % nDen == 0) ) {
+		sprintf( tmp, "%d/%d", nPatternSize / nBeatUnit, nDen);
 	} 
 	else {
-		sprintf( tmp, "%.3f/%d", (float) nPatternSize / nBeatUnit, den);
+		//accepting here denominators that don't divide MAX_NOTES, hence can't use nBeatUnit which is int.
+		sprintf( tmp, "%.3f/%d", (float) nPatternSize / MAX_NOTES * nDen, nDen);
 	}
-	__pattern_size_LCD->setText( tmp );//
+	__pattern_size_LCD->setText( tmp );
+
+	//hide or show warning icon if denominator doesn't divide MAX_NOTES
+	//TODO should the warning appear if nPatternSize % nDen == 0 ?
+	if(MAX_NOTES % nDen != 0)	m_pDenominatorWarning->show();
+	else	m_pDenominatorWarning->hide();
+}
+
+void PatternEditorPanel::denominatorWarningClicked()
+{
+	QMessageBox::information( this, "Hydrogen",
+							  tr( "Explanation..." ) );
 }
 
 void PatternEditorPanel::patternSizeLCDClicked()
@@ -900,7 +920,7 @@ void PatternEditorPanel::patternSizeLCDClicked()
 	int denominator;
 	
 	QString qtmp = QInputDialog::getText( this, "Hydrogen",
-				tr( "New Pattern Size\nIndicate numerator / denominator (eg. \"4/4\") or just numerator"),
+				tr( "New Pattern length (beats/note value)"),
 				QLineEdit::Normal, __pattern_size_LCD->getText(), &bIsOkPressed );
 	
 	if ( bIsOkPressed  ) {		
@@ -910,34 +930,42 @@ void PatternEditorPanel::patternSizeLCDClicked()
 		    bool bOk;
 		    double fNumerator = parts[0].toDouble( &bOk );
 		    if ( bOk && parts.size() == 2 ) {
-			nDenominator = parts[1].toInt( &bOk );
-			if (bOk && (nDenominator <= 0 || nDenominator > 192) ){
-			   QMessageBox::information( this, "Hydrogen", tr( "Denominator value rejected.\nLimits: (0, 192]" ) );
-			   return;
-			}
+				nDenominator = parts[1].toInt( &bOk );
+				if (bOk && (nDenominator <= 0 || nDenominator > MAX_NOTES) ) {
+			   		QMessageBox::information( this, "Hydrogen", tr( "Denominator value rejected.\nLimits: (0, %1]" ).arg(MAX_NOTES) );
+			   		return;
+				}
 		    }
 		    if ( bOk && fNumerator > 0) {
-			if (fNumerator / nDenominator > 4.){ 
+			if (fNumerator / nDenominator > 4.) { 
 			     //this is limited because the pattern editor ruler goes up to 16/4. Limit might be extended
 				QMessageBox::information( this, "Hydrogen", tr( "Pattern size too big.\nMaximum = 16/4" ) );
 				return;
 			}
 			else {	 
-				if ( MAX_NOTES % nDenominator != 0 ){
+				if ( MAX_NOTES % nDenominator != 0 ) {
 					QMessageBox::information( this, "Hydrogen",
-						tr("Warning: since finite resolution, Hydrogen can handle precisely only "
-						"denominators that divide 192 (i.e. powers of 2, also multiplied by 3)") );
+						tr("Warning: since finite resolution, Hydrogen can handle precisely only denominators that divide") +
+						QString(" %1 \n(1, 2, 3, 4, 8, 12, 16, 32, 48, 64, 96, 192)").arg(MAX_NOTES) );
+						/* Note: the divisor list is a help for the user, but it should dependend on MAX_NOTES:
+						if MAX_NOTES is changed the list is no more valid */
 				}
-				// set numerator and denominator
-				double fLength = MAX_NOTES / (double) nDenominator * fNumerator;
-				if (fLength - round(fLength) != 0){
-					fLength = round(fLength);
-					QMessageBox::information( this, "Hydrogen",
-						tr("Pattern size was rounded.\n(resolution = 48 ticks/quarter note)" ));
-				}
-				m_pPattern->set_length( (int) fLength);
+
+				int nLength = round( MAX_NOTES / (double) nDenominator * fNumerator );
+
+				// set size and denominator				
+				m_pPattern->set_length( nLength);
 				m_pPattern->set_denominator( nDenominator );
 				patternLengthChanged();
+
+				/* Message to tell the user why the pattern display won't respect the input value. 
+				Note: constant = 1000 since the displayed numerator has 3 decimal digits*/
+				int displayedNum_x1000 = round( (double) nLength / MAX_NOTES * nDenominator * 1000);
+				int roundInputNum_x1000 = round( fNumerator * 1000);
+				if (displayedNum_x1000 != roundInputNum_x1000) {
+					QMessageBox::information( this, "Hydrogen",
+						tr("Pattern size was rounded.\n(resolution = %1 ticks/quarter note)" ).arg(MAX_NOTES/4));
+				}
 			}
 		    }
 		    else {
