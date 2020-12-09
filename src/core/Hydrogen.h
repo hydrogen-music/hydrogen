@@ -209,14 +209,6 @@ public:
 							  bool forcePlay=false,
 							  int msg1=0 );
 
-		float			getMasterPeak_L();
-		void			setMasterPeak_L( float value );
-
-		float			getMasterPeak_R();
-		void			setMasterPeak_R( float value );
-
-		void			getLadspaFXPeak( int nFX, float *fL, float *fR );
-		void			setLadspaFXPeak( int nFX, float fL, float fR );
 	/** \return #m_nPatternTickPosition */
 	unsigned long		getTickPosition();
 	/** Keep track of the tick position in realtime.
@@ -334,9 +326,6 @@ public:
 		/** Returns the current state of the audio engine.
 		 * \return #m_audioEngineState*/
 		int			getState() const;
-
-		float			getProcessTime() const;
-		float			getMaxProcessTime() const;
 
 		/** Wrapper around loadDrumkit( Drumkit, bool ) with the
 			conditional argument set to true.

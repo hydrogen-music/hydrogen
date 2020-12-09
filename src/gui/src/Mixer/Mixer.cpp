@@ -208,9 +208,9 @@ void Mixer::muteClicked(MixerLine* ref)
 	int nLine = findMixerLineByRef(ref);
 	bool isMuteClicked = ref->isMuteClicked();
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	CoreActionController* pController = pEngine->getCoreActionController();
-	pEngine->setSelectedInstrumentNumber( nLine );
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	CoreActionController* pController = pHydrogen->getCoreActionController();
+	pHydrogen->setSelectedInstrumentNumber( nLine );
 
 	pController->setStripIsMuted( nLine, isMuteClicked );
 }
@@ -245,9 +245,9 @@ void Mixer::volumeChanged(ComponentMixerLine* ref)
 
 void Mixer::soloClicked(MixerLine* ref)
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	CoreActionController* pController = pEngine->getCoreActionController();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	CoreActionController* pController = pHydrogen->getCoreActionController();
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 	int nInstruments = pInstrList->size();
 
@@ -292,8 +292,8 @@ void Mixer::noteOnClicked( MixerLine* ref )
 	int nLine = findMixerLineByRef( ref );
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 
 	const float fPitch = 0.0f;
@@ -311,8 +311,8 @@ void Mixer::noteOnClicked( MixerLine* ref )
 	int nLine = findMixerLineByRef( ref );
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 
 	const float fPitch = 0.0f;
@@ -349,8 +349,8 @@ uint Mixer::findCompoMixerLineByRef(ComponentMixerLine* ref)
 
 void Mixer::volumeChanged(MixerLine* ref)
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	CoreActionController* pController = pEngine->getCoreActionController();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	CoreActionController* pController = pHydrogen->getCoreActionController();
 
 	int nLine = findMixerLineByRef(ref);
 	pController->setStripVolume( nLine, ref->getVolume(), true );
@@ -358,8 +358,8 @@ void Mixer::volumeChanged(MixerLine* ref)
 
 void Mixer::masterVolumeChanged(MasterMixerLine* ref)
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	CoreActionController* pController = pEngine->getCoreActionController();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	CoreActionController* pController = pHydrogen->getCoreActionController();
 
 	float Volume = ref->getVolume();
 	pController->setMasterVolume( Volume );
@@ -372,12 +372,13 @@ void Mixer::updateMixer()
 	Preferences *pPref = Preferences::get_instance();
 	bool bShowPeaks = pPref->showInstrumentPeaks();
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	AudioEngine* pAudioEngine = AudioEngine::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 	std::vector<DrumkitComponent*>* pDrumkitComponentList = pSong->get_components();
 
-	uint nSelectedInstr = pEngine->getSelectedInstrumentNumber();
+	uint nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
 
 	float fallOff = pPref->getMixerFalloffSpeed();
 
@@ -578,11 +579,11 @@ void Mixer::updateMixer()
 
 	// update MasterPeak
 	float fOldPeak_L = m_pMasterLine->getPeak_L();
-	float fNewPeak_L = pEngine->getMasterPeak_L();
-	pEngine->setMasterPeak_L(0.0);
+	float fNewPeak_L = pAudioEngine->getMasterPeak_L();
+	pAudioEngine->setMasterPeak_L(0.0);
 	float fOldPeak_R = m_pMasterLine->getPeak_R();
-	float fNewPeak_R = pEngine->getMasterPeak_R();
-	pEngine->setMasterPeak_R(0.0);
+	float fNewPeak_R = pAudioEngine->getMasterPeak_R();
+	pAudioEngine->setMasterPeak_R(0.0);
 
 	if (!bShowPeaks) {
 		fNewPeak_L = 0.0;
@@ -682,8 +683,8 @@ void Mixer::panChanged(MixerLine* ref) {
 	float	panValue = ref->getPan();
 	int		nLine = findMixerLineByRef(ref);
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	CoreActionController* pController = pEngine->getCoreActionController();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	CoreActionController* pController = pHydrogen->getCoreActionController();
 
 	pController->setStripPan( nLine, panValue, true );
 }
@@ -694,8 +695,8 @@ void Mixer::knobChanged(MixerLine* ref, int nKnob) {
 	int nLine = findMixerLineByRef(ref);
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 	Instrument *pInstr = pInstrList->get(nLine);
 	pInstr->set_fx_level( ref->getFXLevel(nKnob), nKnob );

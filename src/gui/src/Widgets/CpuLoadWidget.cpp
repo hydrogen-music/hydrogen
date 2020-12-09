@@ -23,6 +23,7 @@
 
 #include "CpuLoadWidget.h"
 #include <core/Hydrogen.h>
+#include <core/AudioEngine.h>
 
 #include "../Skin.h"
 #include "../HydrogenApp.h"
@@ -138,10 +139,10 @@ void CpuLoadWidget::paintEvent( QPaintEvent*)
 void CpuLoadWidget::updateCpuLoadWidget()
 {
 	// Process time
-	H2Core::Hydrogen *engine = H2Core::Hydrogen::get_instance();
+	H2Core::AudioEngine *pAudioEngine = H2Core::AudioEngine::get_instance();
 	int perc = 0;
-	if ( engine->getMaxProcessTime() != 0.0 ) {
-		perc = (int)( engine->getProcessTime() / ( engine->getMaxProcessTime() / 100.0 ) );
+	if ( pAudioEngine->getMaxProcessTime() != 0.0 ) {
+		perc = (int)( pAudioEngine->getProcessTime() / ( pAudioEngine->getMaxProcessTime() / 100.0 ) );
 	}
 	setValue( perc / 100.0 );
 

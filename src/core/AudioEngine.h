@@ -627,11 +627,16 @@ public:
 	void				setMainBuffer_L( float* pMainBufferL );
 	void				setMainBuffer_R( float* pMainBufferR );
 
-	#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
-	float				m_fFXPeak_L[MAX_FX];
-	float				m_fFXPeak_R[MAX_FX];
-	#endif
-	
+	void 				setMasterPeak_L( float value );
+	float 				getMasterPeak_L() const;
+
+	void	 			setMasterPeak_R( float value );
+	float 				getMasterPeak_R() const;
+
+
+	float				getProcessTime() const;
+	float				getMaxProcessTime() const;
+
 	/**
 	 * Beginning of the current pattern in ticks.
 	 *
@@ -746,15 +751,6 @@ public:
 	 */
 	int					m_nSelectedPatternNumber;
 	
-	// info
-	float				m_fMasterPeak_L;	///< Master peak (left channel)
-	float				m_fMasterPeak_R;	///< Master peak (right channel)
-	float				m_fProcessTime;		///< time used in process function
-	float				m_fMaxProcessTime;	///< max ms usable in process with no xrun
-	//~ info
-	
-
-	
 private:
 	/**
 	 * Object holding the current AudioEngine singleton. It is
@@ -827,6 +823,17 @@ private:
 	 */
 	float*	m_pMainBuffer_R;
 
+	#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
+	float				m_fFXPeak_L[MAX_FX];
+	float				m_fFXPeak_R[MAX_FX];
+	#endif
+
+	//Master peak (left channel)
+	float				m_fMasterPeak_L;
+
+	//Master peak (right channel)
+	float				m_fMasterPeak_R;
+
 	/**
 	 * Mutex for synchronizing the access to the Song object and
 	 * the AudioEngine.
@@ -880,7 +887,13 @@ private:
 	 * Retrieved using getElapsedTime().
 	 */
 	float				m_fElapsedTime;
-	
+
+	// time used in process function
+	float				m_fProcessTime;
+
+	// max ms usable in process with no xrun
+	float				m_fMaxProcessTime;
+
 	/**
 	 * Current state of the H2Core::AudioEngine. 
 	 *
@@ -986,6 +999,30 @@ inline void AudioEngine::setMainBuffer_R( float* pMainBufferR ) {
 
 inline void AudioEngine::setMainBuffer_L( float* pMainBufferL ) {
 	m_pMainBuffer_L = pMainBufferL;
+}
+
+inline void	AudioEngine::setMasterPeak_L( float value ) {
+	m_fMasterPeak_L = value;
+}
+
+inline float AudioEngine::getMasterPeak_L() const {
+	return m_fMasterPeak_L;
+}
+
+inline void	AudioEngine::setMasterPeak_R( float value ) {
+	m_fMasterPeak_R = value;
+}
+
+inline float AudioEngine::getMasterPeak_R() const {
+	return m_fMasterPeak_R;
+}
+
+inline float AudioEngine::getProcessTime() const {
+	return m_fProcessTime;
+}
+
+inline float AudioEngine::getMaxProcessTime() const {
+	return m_fMaxProcessTime;
 }
 
 inline int AudioEngine::getState() const {

@@ -748,16 +748,6 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	AudioEngine::get_instance()->unlock(); // unlock the audio engine
 }
 
-float Hydrogen::getMasterPeak_L()
-{
-	return AudioEngine::get_instance()->m_fMasterPeak_L;
-}
-
-float Hydrogen::getMasterPeak_R()
-{
-	return AudioEngine::get_instance()->m_fMasterPeak_R;
-}
-
 unsigned long Hydrogen::getTickPosition()
 {
 	return AudioEngine::get_instance()->m_nPatternTickPosition;
@@ -1038,16 +1028,6 @@ MidiOutput* Hydrogen::getMidiOutput() const
 	return AudioEngine::get_instance()->getMidiOutDriver();
 }
 
-void Hydrogen::setMasterPeak_L( float value )
-{
-	AudioEngine::get_instance()->m_fMasterPeak_L = value;
-}
-
-void Hydrogen::setMasterPeak_R( float value )
-{
-	AudioEngine::get_instance()->m_fMasterPeak_R = value;
-}
-
 int Hydrogen::getState() const
 {
 	return AudioEngine::get_instance()->getState();
@@ -1068,17 +1048,6 @@ void Hydrogen::setCurrentPatternList( PatternList *pPatternList )
 	
 	pAudioEngine->unlock();
 }
-
-float Hydrogen::getProcessTime() const
-{
-	return AudioEngine::get_instance()->m_fProcessTime;
-}
-
-float Hydrogen::getMaxProcessTime() const
-{
-	return AudioEngine::get_instance()->m_fMaxProcessTime;
-}
-
 
 // Setting conditional to true will keep instruments that have notes if new kit has less instruments than the old one
 int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo )
@@ -1393,29 +1362,6 @@ void Hydrogen::setPatternPos( int nPatternNumber )
 	pAudioEngine->getAudioDriver()->locate( static_cast<int>( totalTick * pAudioEngine->getAudioDriver()->m_transport.m_fTickSize ));
 
 	pAudioEngine->unlock();
-}
-
-void Hydrogen::getLadspaFXPeak( int nFX, float *fL, float *fR )
-{
-	auto pAudioEngine = AudioEngine::get_instance();
-	
-#ifdef H2CORE_HAVE_LADSPA
-	( *fL ) = pAudioEngine->m_fFXPeak_L[nFX];
-	( *fR ) = pAudioEngine->m_fFXPeak_R[nFX];
-#else
-	( *fL ) = 0;
-	( *fR ) = 0;
-#endif
-}
-
-void Hydrogen::setLadspaFXPeak( int nFX, float fL, float fR )
-{
-	auto pAudioEngine = AudioEngine::get_instance();
-	
-#ifdef H2CORE_HAVE_LADSPA
-	pAudioEngine->m_fFXPeak_L[nFX] = fL;
-	pAudioEngine->m_fFXPeak_R[nFX] = fR;
-#endif
 }
 
 void Hydrogen::onTapTempoAccelEvent()
