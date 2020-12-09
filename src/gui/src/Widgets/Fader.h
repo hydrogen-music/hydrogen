@@ -31,6 +31,7 @@
 #endif
 
 #include <core/Object.h>
+#include "Rotary.h"
 #include "MidiLearnable.h"
 
 ///
@@ -170,7 +171,7 @@ class Knob : public QWidget, public H2Core::Object, public MidiLearnable
     H2_OBJECT
 	Q_OBJECT
 	public:
-		explicit Knob( QWidget* parent );
+		explicit Knob( QWidget* parent, QString sToolTip, bool bUseValueTip );
 		~Knob();
 
 		void setValue( float fValue );
@@ -195,6 +196,9 @@ class Knob : public QWidget, public H2Core::Object, public MidiLearnable
 		float m_fDefaultValue;
 		float m_fMousePressValue;
 		float m_fMousePressY;
+		
+		RotaryTooltip *m_pValueToolTip;
+		bool m_bShowValueToolTip;
 
 		virtual void paintEvent( QPaintEvent *ev );
 		virtual void mousePressEvent( QMouseEvent *ev );

@@ -130,7 +130,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	// FX send
 	uint y = 0;
 	for (uint i = 0; i < MAX_FX; i++) {
-		m_pKnob[i] = new Knob(this);
+		m_pKnob[i] = new Knob(this, tr("FX %1 send").arg(i+1), true);
 		pAction = new Action(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number(i+1) ));
 		pAction->setParameter1( QString::number( nInstr ) );
 		m_pKnob[i]->setAction( pAction );
