@@ -244,6 +244,7 @@ void MixerLine::faderChanged(Fader *ref)
 
 	double value = (double) ref->getValue();
 	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set instrument volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
+	//the following is not necessary because every 1/20 seconds updateMixer() calls setVolume()
 /*	char m_pVolumePos[7];
 	snprintf( m_pVolumePos, 6," %#.2f", value);
 	ref->setToolTip( tr("Volume") + QString( m_pVolumePos ) );*/
@@ -568,9 +569,10 @@ void ComponentMixerLine::faderChanged(Fader *ref)
 
 	double value = (double) ref->getValue();
 	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set main volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
-	char m_pVolumePos[7];
+	//the following is not necessary because every 1/20 seconds updateMixer() calls setVolume()
+	/*char m_pVolumePos[7];
 	snprintf( m_pVolumePos, 6," %#.2f", value);
-	ref->setToolTip(tr("Volume") + QString( m_pVolumePos ) );
+	ref->setToolTip(tr("Volume") + QString( m_pVolumePos ) );*/
 }
 
 bool ComponentMixerLine::isMuteClicked() {
@@ -697,15 +699,15 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	lcdPalette.setColor( QPalette::Background, QColor( 49, 53, 61 ) );
 	m_pPeakLCD->setPalette( lcdPalette );
 
-	m_pHumanizeVelocityRotary = new Rotary( this, Rotary::TYPE_NORMAL, tr( "Humanize velocity" ), false, false );
+	m_pHumanizeVelocityRotary = new Rotary( this, Rotary::TYPE_NORMAL, tr( "Humanize velocity" ), false, true );
 	m_pHumanizeVelocityRotary->move( 74, 88 );
 	connect( m_pHumanizeVelocityRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
-	m_pHumanizeTimeRotary = new Rotary( this, Rotary::TYPE_NORMAL, tr( "Humanize time" ), false, false );
+	m_pHumanizeTimeRotary = new Rotary( this, Rotary::TYPE_NORMAL, tr( "Humanize time" ), false, true );
 	m_pHumanizeTimeRotary->move( 74, 125 );
 	connect( m_pHumanizeTimeRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
-	m_pSwingRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "Swing" ), false, false );
+	m_pSwingRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "Swing" ), false, true );
 	m_pSwingRotary->move( 74, 162 );
 	connect( m_pSwingRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
@@ -734,12 +736,9 @@ void MasterMixerLine::muteClicked(Button* pBtn)
 
 void MasterMixerLine::faderChanged(MasterFader *ref)
 {
-	m_pMasterFader->setValue( ref->getValue() );
-
-	emit volumeChanged(this);
-
-	Song *pSong = Hydrogen::get_instance()->getSong();
+	Song *pSong = (Hydrogen::get_instance())->getSong();
 	pSong->set_is_modified( true );
+	emit volumeChanged(this);
 
 	double value = (double) ref->getValue();
 	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set master volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
@@ -754,7 +753,7 @@ float MasterMixerLine::getVolume()
 }
 
 void MasterMixerLine::setVolume( float value )
-{
+{		printf("arr\n");
 	m_pMasterFader->setValue( value );
 	char m_pVolumePos[7];
 	snprintf( m_pVolumePos, 6," %#.2f", value);
@@ -859,11 +858,11 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 
 	if ( pRef == m_pHumanizeTimeRotary ) {
 		pEngine->getSong()->set_humanize_time_value( fVal );
-		sMsg = tr( "Set humanize time parameter [%1]").arg( fVal, 0, 'f', 2 );
+		sMsg = tr( "Set hum. time parameter [%1]").arg( fVal, 0, 'f', 2 ); //not too long for display
 	}
 	else if ( pRef == m_pHumanizeVelocityRotary ) {
 		pEngine->getSong()->set_humanize_velocity_value( fVal );
-		sMsg = tr( "Set humanize velocity parameter [%1]").arg( fVal, 0, 'f', 2 );
+		sMsg = tr( "Set hum. vel. parameter [%1]").arg( fVal, 0, 'f', 2 );//not too long for display
 	}
 	else if ( pRef == m_pSwingRotary ) {
 		pEngine->getSong()->set_swing_factor( fVal );
@@ -1139,7 +1138,7 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 	m_pNameLCD->setToolTip( tr( "Ladspa FX name" ) );
 
 	// m_pRotary
-	m_pRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "Effect return" ), false, false );
+	m_pRotary = new Rotary( this,  Rotary::TYPE_NORMAL, tr( "Effect return" ), false, true );
 	m_pRotary->setDefaultValue( m_pRotary->getMax() );
 	m_pRotary->move( 132, 4 );
 	connect( m_pRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
@@ -1185,6 +1184,9 @@ void LadspaFXMixerLine::rotaryChanged(Rotary *ref)
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	pSong->set_is_modified( true );
 	emit volumeChanged(this);
+	
+	double value = (double) ref->getValue();
+	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set FX volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
 }
 
 void LadspaFXMixerLine::setPeaks( float fPeak_L, float fPeak_R )
