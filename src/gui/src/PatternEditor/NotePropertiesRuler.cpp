@@ -824,6 +824,8 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
+		QPen selectedPen( selectedNoteColor( pStyle ) );
+		selectedPen.setWidth( 2 );
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
@@ -851,6 +853,16 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 					int nLineWidth = 3;
 					p.fillRect( x_pos - 1 + xoffset, y_start, nLineWidth, y_end - y_start, QColor(  centerColor) );
 					p.fillRect( x_pos - 1 + xoffset, ( height() / 2.0 ) - 2 , nLineWidth, 5, QColor(  centerColor ) );
+				}
+
+				int nLineWidth = 3;
+				if ( m_selection.isSelected( pNote ) ) {
+					p.setPen( selectedPen );
+					p.setBrush( Qt::NoBrush );
+					p.setRenderHint( QPainter::Antialiasing );
+					p.drawRoundedRect( x_pos - 1 -2 + xoffset, 0,
+									   nLineWidth + 4,  height() ,
+									   4, 4 );
 				}
 				xoffset++;
 			}
@@ -900,6 +912,8 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
+		QPen selectedPen( selectedNoteColor( pStyle ) );
+		selectedPen.setWidth( 2 );
 
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
@@ -948,7 +962,18 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 		
 					p.fillRect( x_pos - 1 + xoffset, ( height() / 2.0 ) - 2 , nLineWidth, 5, QColor( red1, green1 ,blue1 ) );
 				}
-			xoffset++;
+
+				int nLineWidth = 3;
+				if ( m_selection.isSelected( pNote ) ) {
+					p.setPen( selectedPen );
+					p.setBrush( Qt::NoBrush );
+					p.setRenderHint( QPainter::Antialiasing );
+					p.drawRoundedRect( x_pos - 1 -2 + xoffset, 0,
+									   nLineWidth + 4,  height() ,
+									   4, 4 );
+				}
+
+				xoffset++;
  			}
 		}
 	}
@@ -1032,6 +1057,9 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
+		QPen selectedPen( selectedNoteColor( pStyle ) );
+		selectedPen.setWidth( 2 );
+
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
@@ -1052,6 +1080,9 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 	if ( m_pPattern ) {
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		Song *pSong = Hydrogen::get_instance()->getSong();
+		QPen selectedPen( selectedNoteColor( pStyle ) );
+		selectedPen.setWidth( 2 );
+
 		const Pattern::notes_t* notes = m_pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
@@ -1072,6 +1103,17 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 				p.setPen( Qt::NoPen );
 				p.setBrush(QColor( 0, 0, 0));
 				p.drawEllipse( x_pos, y_pos, d, d);
+
+				// Paint selection outlines
+				int nLineWidth = 3;
+				if ( m_selection.isSelected( pNote ) ) {
+					p.setPen( selectedPen );
+					p.setBrush( Qt::NoBrush );
+					p.setRenderHint( QPainter::Antialiasing );
+					p.drawRoundedRect( x_pos - 1 -2 +3, 0,
+									   nLineWidth + 4 + 4,  height() ,
+									   4, 4 );
+				}
 			}
 		}
 	}
