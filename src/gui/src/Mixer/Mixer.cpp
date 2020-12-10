@@ -292,15 +292,13 @@ void Mixer::noteOnClicked( MixerLine* ref )
 	int nLine = findMixerLineByRef( ref );
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	Instrument *pInstr = Hydrogen::get_instance()->getSong()->get_instrument_list()->get( nLine );
+	const float fPitch = pInstr->get_pitch_offset();
 
-	const float fPitch = 0.0f;
-	Note *pNote = new Note( pInstrList->get(nLine), 0, 1.0, 0.5f, 0.5f, -1, fPitch );
+	Note *pNote = new Note( pInstr, 0, 1.0, 0.5f, 0.5f, -1, fPitch );
 	AudioEngine::get_instance()->get_sampler()->noteOn(pNote);
 
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	//Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine); //TODO Why this?
 }
 
 
@@ -311,15 +309,13 @@ void Mixer::noteOnClicked( MixerLine* ref )
 	int nLine = findMixerLineByRef( ref );
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	Instrument *pInstr = Hydrogen::get_instance()->getSong()->get_instrument_list()->get( nLine );
 
 	const float fPitch = 0.0f;
-	Note *pNote = new Note( pInstrList->get( nLine ), 0, 1.0, 0.5, 0.5, -1, fPitch );
+	Note *pNote = new Note( pInstr, 0, 1.0, 0.5, 0.5, -1, fPitch );
 	AudioEngine::get_instance()->get_sampler()->noteOff(pNote);
 
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	//Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine); //TODO Why this?
 }
 
 

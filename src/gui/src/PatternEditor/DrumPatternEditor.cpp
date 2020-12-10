@@ -403,7 +403,8 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 			nLength = 1;
 		}
 
-		const float fPitch = 0.0f;
+		float fPitch = 0.f;
+		
 		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 		pNote->set_note_off( isNoteOff );
 		if ( !isNoteOff ) {
@@ -421,6 +422,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		}
 		// hear note
 		if ( listen && !isNoteOff ) {
+			fPitch = pSelectedInstrument->get_pitch_offset();
 			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch);
 			AudioEngine::get_instance()->get_sampler()->noteOn(pNote2);
 		}
