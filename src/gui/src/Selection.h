@@ -86,14 +86,6 @@ public:
 };
 
 
-template <class Elem>
-struct SelectionGroup {
-	std::set<Elem> m_selectedElements;
-	std::set< SelectionWidget<Elem> *> m_selectionWidgets;
-};
-
-
-
 //! Selection management for editor widgets
 //!
 //! This template class bundles up the functionality necessary for
@@ -117,6 +109,11 @@ struct SelectionGroup {
 
 template<class Elem>
 class Selection {
+
+	struct SelectionGroup {
+		std::set<Elem> m_selectedElements;
+		std::set< SelectionWidget<Elem> *> m_selectionWidgets;
+	};
 
 private:
 	SelectionWidget< Elem > *widget;
@@ -145,7 +142,7 @@ private:
 
 	enum SelectionState { Idle, MouseLasso, MouseMoving, KeyboardLasso, KeyboardMoving } m_selectionState;
 
-	std::shared_ptr< SelectionGroup< Elem > > m_pSelectionGroup;
+	std::shared_ptr< SelectionGroup > m_pSelectionGroup;
 	std::set< Elem > m_checkpointSelectedElements;
 
 	QRect m_keyboardCursorStart;
@@ -158,7 +155,7 @@ public:
 		m_mouseState = Up;
 		m_pClickEvent = nullptr;
 		m_selectionState = Idle;
-		m_pSelectionGroup = std::make_shared< SelectionGroup< Elem > >();
+		m_pSelectionGroup = std::make_shared< SelectionGroup >();
 		m_pSelectionGroup->m_selectionWidgets.insert( w );
 
 	}
