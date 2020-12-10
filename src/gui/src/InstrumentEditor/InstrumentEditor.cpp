@@ -102,7 +102,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	// Instrument properties
 	m_pInstrumentProp = new PixmapWidget( this );
 	m_pInstrumentProp->move(0, 31);
-	m_pInstrumentProp->setPixmap( "/instrumentEditor/instrumentTab_new2.png" );
+	m_pInstrumentProp->setPixmap( "/instrumentEditor/instrumentTab.png" );
 
 	m_pNameLbl = new ClickableLabel( m_pInstrumentProp );
 	m_pNameLbl->setGeometry( 8, 5, 275, 28 );
