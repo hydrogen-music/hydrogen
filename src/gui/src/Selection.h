@@ -32,52 +32,60 @@
 #include <QDebug>
 #include <cassert>
 
+//! SelectionWidget defines the interface used by the Selection manager to communicate with a widget
+//! implementing selection, and provides for event translation, testing for intersection with selectable
+//! objects, keyboard input cursor geometry, and screen refresh. It must be subclassed and
+//! implemented by any widget which uses the Selection class.
+//!
 
 template <class Elem>
 class SelectionWidget {
 public:
-	// Selection manager interface
 
-	//! Selections are indexed by Note pointers.
 	typedef Elem SelectionIndex;
 
-	//! Find list of elements which intersect a selection drag rectangle
+	//! Find list of elements which intersect a rectangular area. This may be a selection lasso rectangle, or
+	//! a single point such as a mouse click. This should concern itself only with the geometry.
 	virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) = 0;
 
-	//! Ensure that the Selection contains only valid elements
-	virtual void validateSelection() = 0;
-
-	//! Selection manager interface:
-	//! called by Selection when click detected
-	virtual void mouseClickEvent( QMouseEvent *ev ) = 0;
-
-	//! Called by Selection when drag started
-	virtual void mouseDragStartEvent( QMouseEvent *ev ) = 0;
-
-	//! Called by Selection when drag position changes
-	virtual void mouseDragUpdateEvent( QMouseEvent *ev ) = 0;
-
-	//! Called by Selection when drag ends
-	virtual void mouseDragEndEvent( QMouseEvent *ev ) = 0;
-
-	//! Called by Selection when a move drag is completed.
-	virtual void selectionMoveEndEvent( QInputEvent *ev ) = 0;
-
-	//! Calculate screen position of keyboard input cursor
+	//! Calculate screen space occupied by keyboard cursor
 	virtual QRect getKeyboardCursorRect() = 0;
 
-	//! Selection or selection-related things have changed, widget needs to be updated.
+	//! Ensure that the Selection contains only valid elements.
+	virtual void validateSelection() = 0;
+
+	//! Selection or selection-related visual elements have changed, widget needs to be updated.
+	//! At a minumum, the widget's own update() method should be called.
 	virtual void updateWidget() = 0;
 
-	//! Hooks for starting and ending selection mouse gestures
+	//! @name User-level mouse events
+	//! Inform client of user-level mouse actions.
+	//!
+	//!   - Clicks are delivered as a single event callback
+	//!   - Drags have separate events for start, update and end
+	//!
+	//! Additionally, dragging a selection is managed by the Selection class and only an 'end' event is
+	//! delivered to the client.
+	//! 
+	//! @{
+	virtual void mouseClickEvent( QMouseEvent *ev ) = 0;
+	virtual void mouseDragStartEvent( QMouseEvent *ev ) = 0;
+	virtual void mouseDragUpdateEvent( QMouseEvent *ev ) = 0;
+	virtual void mouseDragEndEvent( QMouseEvent *ev ) = 0;
+	virtual void selectionMoveEndEvent( QInputEvent *ev ) = 0;
+	//! @}
+
+	//! @name Mouse gesture hooks
+	//! Hooks for extra actons (eg. changing the mouse cursor) at the beginning and end of mouse gestures.
+	//! @{
 	virtual void startMouseLasso() {}
 	virtual void startMouseMove() {}
 	virtual void endMouseGesture() {}
+	//! @}
 
 };
 
 
-//! XXX A shared selection group
 template <class Elem>
 struct SelectionGroup {
 	std::set<Elem> m_selectedElements;
@@ -113,6 +121,21 @@ class Selection {
 private:
 	SelectionWidget< Elem > *widget;
 
+	//! The state of the mouse is modeled as a simple state machine to distinguish user-level mouse
+	//! actions (click, drag) using the information available in the lower-level Qt events (mouse press,
+	//! release and move). This also filters out the potential ordering effects of non-standard user
+	//! behaviour, such as pressing multiple mouse buttons at once.
+	//!
+	//! The Qt standard drag distance and time are used to identify the transition from a click to a drag.
+	//!
+	//! @dot
+	//! digraph "states" {
+	//!   Up -> Down [ label="mousePressEvent" ];
+	//!   Down -> Up [ label="mouseReleaseEvent" ];
+	//!   Down -> Drag [ label="mouseMoveEvent by distance > startDragDistance() or after startDragTime()" ];
+	//!   Drag -> Up [ label="mouseReleaseEvent" ];
+	//! }
+	//! @enddot
 	enum MouseState { Up, Down, Dragging } m_mouseState;
 	Qt::MouseButton m_mouseButton;
 

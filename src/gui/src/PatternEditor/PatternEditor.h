@@ -43,10 +43,14 @@ namespace H2Core
 
 class PatternEditorPanel;
 
-//! Abstract pattern editor common functionality
+//! Pattern Editor
 //!
-//! The PatternEditor class is an abstract base class for functionality common to
-//! Pattern Editor components, specifically the DrumPatternEditor and PianoRollEditor.
+//! The PatternEditor class is an abstract base class for
+//! functionality common to Pattern Editor components
+//! (DrumPatternEditor, PianoRollEditor, NotePropertiesRuler).
+//!
+//! This covers common elements such as some selection handling,
+//! timebase functions, and drawing grid lines.
 //!
 class PatternEditor : public QWidget,
                       public EventListener,
@@ -60,6 +64,8 @@ public:
 	PatternEditor( QWidget *pParent, const char *sClassName,
 				   PatternEditorPanel *panel );
 
+
+	//! Set the editor grid resolution, dividing a whole note into `res` subdivisions. 
 	void setResolution( uint res, bool bUseTriplets );
 	uint getResolution() { return m_nResolution; }
 	bool isUsingTriplets() { return m_bUseTriplets;	}
@@ -68,21 +74,22 @@ public:
 	void zoomIn();
 	void zoomOut();
 
+	//! Calculate colour to use for note representation based on note velocity. 
 	static QColor computeNoteColor( float velocity );
 
+
+	//! Merge together the selection groups of two PatternEditor objects to share a common selection.
 	void mergeSelectionGroups( PatternEditor *pPatternEditor ) {
 		m_selection.merge( &pPatternEditor->m_selection );
 	}
 
-
-	// Selection manager interface
-
-	//! Ensure that the Selection contains only valid elements
+	//! Ensure that the Selection contains only valid elements.
 	virtual void validateSelection() override;
 
-	//! Update the status of modifier keys in response to input events
+	//! Update the status of modifier keys in response to input events.
 	virtual void updateModifiers( QInputEvent *ev );
 
+	//! Update a widget in response to a change in selection
 	virtual void updateWidget() override {
 		updateEditor( true );
 	}
@@ -106,6 +113,8 @@ public:
 	virtual void mouseReleaseEvent( QMouseEvent *ev ) override;
 
 protected:
+
+	//! The Selection object.
 	Selection< SelectionIndex > m_selection;
 
 public slots:
