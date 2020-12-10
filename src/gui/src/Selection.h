@@ -66,7 +66,7 @@ public:
 	//!
 	//! Additionally, dragging a selection is managed by the Selection class and only an 'end' event is
 	//! delivered to the client.
-	//! 
+	//!
 	//! @{
 	virtual void mouseClickEvent( QMouseEvent *ev ) = 0;
 	virtual void mouseDragStartEvent( QMouseEvent *ev ) = 0;
@@ -100,24 +100,35 @@ public:
 //!
 //! The client widget must:
 //!   - pass mouse and keyboard events to the Selection
-//!   - provide query methods for
-//!      - elements intersecting a selection area
-//!      - providing the location of keyboard input cursor
-//!      - receiving user-level mouse gestures
-//!      - paint any moving elements
-//!      - call paintSelection() to allow the Selection to paint a lasso
+//!   - implement the SelectionWidget interface, which Selection uses to:
+//!      - find elements intersecting a selection area
+//!      - get the location of the keyboard input cursor
+//!      - pass on user-level mouse gestures
+//!   - paint any moving elements
+//!   - call paintSelection() to allow the Selection to paint a lasso
+//!
+//! Selections can be shared between multiple widgets providing different views of the same underlying model,
+//! so long as they share the same element type.
 
 template<class Elem>
 class Selection {
 
+	//! Group of SelectionWidget objects sharing the same selection set.
+	//! @{
 	struct SelectionGroup {
 		std::set<Elem> m_selectedElements;
 		std::set< SelectionWidget<Elem> *> m_selectionWidgets;
 	};
 
+	std::shared_ptr< SelectionGroup > m_pSelectionGroup;
+	//! @}
+
+
 private:
 	SelectionWidget< Elem > *widget;
 
+	//! @name Mouse state model
+	//!
 	//! The state of the mouse is modeled as a simple state machine to distinguish user-level mouse
 	//! actions (click, drag) using the information available in the lower-level Qt events (mouse press,
 	//! release and move). This also filters out the potential ordering effects of non-standard user
@@ -133,19 +144,45 @@ private:
 	//!   Drag -> Up [ label="mouseReleaseEvent" ];
 	//! }
 	//! @enddot
+	//! @{
 	enum MouseState { Up, Down, Dragging } m_mouseState;
-	Qt::MouseButton m_mouseButton;
+	Qt::MouseButton m_mouseButton; //!< Mouse button that began the gesture
+	QMouseEvent *m_pClickEvent;	   //!< Mouse event to deliver as 'click' or 'drag' events
+	//! @}
 
-	QMouseEvent *m_pClickEvent;
-	QRect m_lasso;
-	QPoint m_movingOffset;
 
+	//! @name Selection gestures
+	//!
+	//! The Selection class implements a few multi-step gestures:
+	//!    - Dragging a rectangular selection lasso
+	//!    - Dragging a selection to reposition it
+	//! Both of these are supported by mouse or by keyboard.
+	//!
+	//! @dot
+	//! digraph "states" {
+	//!   Idle -> MouseLasso [ label = "startDrag" ];
+	//!   MouseLasso -> Idle [ label = "endDrag" ];
+	//!   Idle -> MouseMoving [ label = "startDrag over selected" ];
+	//!   MouseMoving -> Idle [ label = "endDrag" ];
+	//!   Idle -> KeyboardLasso [ label = "Select with keyboard (shift)" ];
+	//!   KeyboardLasso -> Idle [ label = "any other input" ];
+	//!   KeyboardLasso -> KeyboardMoving [ label = "Return" ];
+	//!   Idle -> KeyboardMoving [ label = "Return over selected" ];
+	//!   KeyboardMoving -> Idle [ label = "Return or escape" ];
+	//! }
+	//! @enddot
+	//! @{
 	enum SelectionState { Idle, MouseLasso, MouseMoving, KeyboardLasso, KeyboardMoving } m_selectionState;
 
-	std::shared_ptr< SelectionGroup > m_pSelectionGroup;
+	QRect m_lasso;				//!< Dimensions of a current selection lasso
+	QPoint m_movingOffset;		//!< Offset that a selection has been moved by
+	QRect m_keyboardCursorStart; //!< Keyboard cursor position at the start of a keyboard gesture
+	//! @}
+
+	//! For gestures modifying a selection, store the initial selection set as a checkpoint to restore when
+	//! rebuilding the selection with the current lasso area.
 	std::set< Elem > m_checkpointSelectedElements;
 
-	QRect m_keyboardCursorStart;
 
 public:
 
@@ -160,6 +197,9 @@ public:
 
 	}
 
+	//! Merge the selection groups of two Selection widgets. After this is called, the set of selected items
+	//! will be shared between them, and any changes made by one widget will cause the other to be notified
+	//! and potentially refreshed.
 	void merge( Selection *pOther ) {
 		if ( pOther != this ) {
 			pOther->m_pSelectionGroup->m_selectionWidgets.insert
@@ -187,24 +227,21 @@ public:
 	}
 
 
-	// ----------------------------------------------------------------------
-	// Selection operation interfaces
+	//! Is there an ongoing (and incomplete) selection movement gesture?
 	bool isMoving() const {
 		return m_selectionState == MouseMoving || m_selectionState == KeyboardMoving;
 	}
 
+	//! During a selection "move" gesture, return the current movement position relative to the start
+	//! position, in screen coordinates.
 	QPoint movingOffset() const {
 		return m_movingOffset;
 	}
 
+	//! Is an element in the set of currently selected elements? 
 	bool isSelected( Elem e ) {
 		return m_pSelectionGroup->m_selectedElements.find( e ) != m_pSelectionGroup->m_selectedElements.end();
 	}
-
-	typedef typename std::set<Elem>::iterator iterator;
-
-	iterator begin() { return m_pSelectionGroup->m_selectedElements.begin(); }
-	iterator end() { return m_pSelectionGroup->m_selectedElements.end(); }
 
 	void removeFromSelection( Elem e ) {
 		m_pSelectionGroup->m_selectedElements.erase( e );
@@ -218,25 +255,39 @@ public:
 		m_pSelectionGroup->m_selectedElements.clear();
 	}
 
-	bool checkSelectionChanged() {
-		if ( m_checkpointSelectedElements != m_pSelectionGroup->m_selectedElements ) {
-			m_checkpointSelectedElements = m_pSelectionGroup->m_selectedElements;
-			return true;
-		}
-		return false;
-	}
+	//! @name Selection iteration
+	//!
+	//! Shorthand iteration is provided so that ranged for loops can be used for convenience:
+	//! ```
+	//!   Selection<items> selection;
+	//!   ...
+	//!   for ( auto i : selection ) {
+	//!     ...
+	//! ```
+	//! @{
+	typedef typename std::set<Elem>::iterator iterator;
 
+	iterator begin() { return m_pSelectionGroup->m_selectedElements.begin(); }
+	iterator end() { return m_pSelectionGroup->m_selectedElements.end(); }
+	//! @}
+
+	//! Update any widgets in this selection group.
 	void updateWidgetGroup() {
 		for ( auto pW : m_pSelectionGroup->m_selectionWidgets ) {
 			pW->updateWidget();
 		}
 	}
 
-	// ---------------------------------------------------------------------
-	// Raw mouse events from Qt. These are handled by a state machine
-	// that models the intended user interaction including clicks and
-	// drags, with single buttons held down, and translated to
-	// meaningful user-level interaction events.
+	// -------------------------------------------------------------------------------------------------------
+	//! @name Raw mouse events
+	//!
+	//! Raw mouse events from Qt. These are handled by a state machine that models the intended user
+	//! interaction including clicks and drags, with single buttons held down, and translated to meaningful
+	//! user-level interaction events.
+	//!
+	//! These are named identically for the corresponding QWidget event handlers and should be called from
+	//! those handlers of the SelectionWidget.
+	//! @{
 
 	void mousePressEvent( QMouseEvent *ev ) {
 
@@ -305,10 +356,10 @@ public:
 		}
 	}
 
+	//! @}
 
-	// ----------------------------------------------------------------------
-	// Paint selection-related elements (ie lasso)
 
+	//! Paint selection-related elements (ie lasso)
 	void paintSelection( QPainter *painter ) {
 		if ( m_selectionState == MouseLasso || m_selectionState == KeyboardLasso ) {
 			QPen pen( Qt::white );
@@ -322,8 +373,13 @@ public:
 	}
 
 
-	// ----------------------------------------------------------------------
-	// Higher-level mouse events -- clicks and drags
+	// -------------------------------------------------------------------------------------------------------
+	//! @name Higher-level mouse events
+	//!
+	//! These events are synthesised by the MouseState state machine, and are either processed by the
+	//! SelectionState state machine, or passed to the corresponding event handlers of the SelectionWidget.
+	//! @{
+
 	void mouseClick( QMouseEvent *ev ) {
 		if ( ev->modifiers() & Qt::ControlModifier ) {
 			// Ctrl+click to add or remove element from selection.
@@ -429,13 +485,16 @@ public:
 			widget->mouseDragEndEvent( ev );
 		}
 	}
+	//! @}
 
 
-	// ----------------------------------------------------------------------
-	// Keyboard interactions
+
+	// -------------------------------------------------------------------------------------------------------
+	//! @name Keyboard interactions
+	//! @{
 
 	//! Key press event filter.
-
+	//!
 	//! Called by the client Widget to allow Selection to take some
 	//! action on key presses. Must be called before the client Widget
 	//! decides to take action on the key event.
@@ -556,6 +615,8 @@ public:
 
 		}
 	}
+
+	//! @}
 
 };
 
