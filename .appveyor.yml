@@ -144,4 +144,4 @@ on_finish:
   - cmd: if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.0-win64.exe
 
   - cmd: |
-    if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%
+      if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%
