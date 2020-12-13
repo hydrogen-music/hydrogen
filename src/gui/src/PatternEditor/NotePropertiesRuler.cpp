@@ -217,9 +217,22 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 }
 
 
-void NotePropertiesRuler::mousePressEvent( QMouseEvent *ev )
-{
-	m_selection.mousePressEvent( ev );
+void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
+	propertyAdjustStart( ev );
+	propertyAdjustUpdate( ev );
+	propertyAdjustEnd( ev );
+}
+
+void NotePropertiesRuler::mouseDragStartEvent( QMouseEvent *ev ) {
+	propertyAdjustStart( ev );
+}
+
+void NotePropertiesRuler::mouseDragUpdateEvent( QMouseEvent *ev ) {
+	propertyAdjustUpdate( ev );
+}
+
+void NotePropertiesRuler::mouseDragEndEvent( QMouseEvent *ev ) {
+	propertyAdjustEnd( ev );
 }
 
 void NotePropertiesRuler::propertyAdjustStart( QMouseEvent *ev )
@@ -294,11 +307,6 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 		}
 
 	}
-}
-
-void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev ) {
-	m_selection.mouseMoveEvent( ev );
-	updateEditor();
 }
 
 void NotePropertiesRuler::propertyAdjustUpdate( QMouseEvent *ev )
@@ -461,12 +469,6 @@ void NotePropertiesRuler::propertyAdjustUpdate( QMouseEvent *ev )
 	}
 	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
 	m_pPatternEditorPanel->getDrumPatternEditor()->updateEditor();
-}
-
-void NotePropertiesRuler::mouseReleaseEvent(QMouseEvent *ev)
-{
-	m_selection.mouseReleaseEvent( ev );
-	updateEditor();
 }
 
 void NotePropertiesRuler::propertyAdjustEnd(QMouseEvent *ev)

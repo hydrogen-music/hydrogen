@@ -68,20 +68,10 @@ class NotePropertiesRuler : public PatternEditor
 		// PatternEditor interfaces
 		virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) override;
 
-		virtual void mouseClickEvent( QMouseEvent *ev ) override {
-			propertyAdjustStart( ev );
-			propertyAdjustUpdate( ev );
-			propertyAdjustEnd( ev );
-		}
-		virtual void mouseDragStartEvent( QMouseEvent *ev ) override {
-			propertyAdjustStart( ev );
-		}
-		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override {
-			propertyAdjustUpdate( ev );
-		}
-		virtual void mouseDragEndEvent( QMouseEvent *ev ) override {
-			propertyAdjustEnd( ev );
-		}
+		virtual void mouseClickEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
 		virtual void selectionMoveEndEvent( QInputEvent *ev ) override {}
 		virtual QRect getKeyboardCursorRect() override;
 
@@ -113,10 +103,7 @@ class NotePropertiesRuler : public PatternEditor
 		void createLeadLagBackground(QPixmap *pixmap);
 		void createNoteKeyBackground(QPixmap *pixmap);
 		virtual void paintEvent(QPaintEvent *ev) override;
-		virtual void mousePressEvent(QMouseEvent *ev) override;
-		virtual void mouseMoveEvent(QMouseEvent *ev) override;
 		virtual void wheelEvent(QWheelEvent *ev) override;
-		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
 		virtual void keyPressEvent( QKeyEvent *ev ) override;
 		virtual void focusInEvent( QFocusEvent *ev ) override;
 		virtual void focusOutEvent( QFocusEvent *ev ) override;
