@@ -1269,16 +1269,5 @@ QRect NotePropertiesRuler::getKeyboardCursorRect()
 }
 
 void NotePropertiesRuler::selectAll() {
-	m_selection.clearSelection();
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	Song *pSong = pHydrogen->getSong();
-	Pattern *pPattern = pSong->get_pattern_list()->get( pHydrogen->getSelectedPatternNumber() );
-	Instrument *pInstrument =  pSong->get_instrument_list()->get( pHydrogen->getSelectedInstrumentNumber() );
-	FOREACH_NOTE_CST_IT_BEGIN_END( pPattern->get_notes(), it )
-		{
-			if ( it->second->get_instrument() == pInstrument ) {
-				m_selection.addToSelection( it->second );
-			}
-		}
-	m_selection.updateWidgetGroup();
+	selectInstrumentNotes( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 }
