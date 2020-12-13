@@ -51,9 +51,7 @@ OPTION(WANT_LADSPA          "Enable use of LADSPA plugins" ON)
 
 IF(APPLE)
 	OPTION(WANT_OSC  "Enable OSC support" OFF)
-	OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" OFF)
 ELSE()
-	OPTION(WANT_JACKSESSION "Enable use of Jack-Session-Handler" ON)
 	OPTION(WANT_OSC  "Enable OSC support" ON)
 ENDIF()
 
@@ -235,7 +233,6 @@ ENDIF()
 
 FIND_HELPER(JACK jack jack/jack.h jack)
 CHECK_LIBRARY_EXISTS(jack jack_port_rename "" HAVE_JACK_PORT_RENAME)
-FIND_HELPER(JACKSESSION jack jack/session.h jack)
 IF(APPLE)
     FIND_LIBRARY(AUDIOUNIT_LIBRARY AudioUnit)
     FIND_LIBRARY(CORESERVICES_LIBRARY CoreServices)
@@ -274,7 +271,7 @@ endif(DOXYGEN_FOUND)
 #
 # COMPUTE H2CORE_HAVE_xxx xxx_STATUS_REPORT
 #
-SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK JACKSESSION OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
+SET(STATUS_LIST LIBSNDFILE LIBTAR LIBARCHIVE LADSPA ALSA OSS JACK OSC COREAUDIO COREMIDI PORTAUDIO PORTMIDI PULSEAUDIO LASH LRDF RUBBERBAND CPPUNIT )
 FOREACH( _pkg ${STATUS_LIST})
     COMPUTE_PKGS_FLAGS(${_pkg})
 ENDFOREACH()
@@ -330,7 +327,6 @@ COLOR_MESSAGE("${cyan}Supported audio interfaces${reset}
 * ${purple}ALSA${reset}                         : ${ALSA_STATUS}
 * ${purple}OSS${reset}                          : ${OSS_STATUS}
 * ${purple}JACK${reset}                         : ${JACK_STATUS}
-* ${purple}JACKSESSION${reset}                  : ${JACKSESSION_STATUS}
 * ${purple}OSC${reset}                          : ${OSC_STATUS}
 * ${purple}CoreAudio${reset}                    : ${COREAUDIO_STATUS}
 * ${purple}CoreMidi${reset}                     : ${COREMIDI_STATUS}

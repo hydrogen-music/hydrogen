@@ -109,6 +109,8 @@ Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples )
 
 Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 {
+	bool bReadingSuccessful = true;
+	
 	XMLDoc doc;
 	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path() ) ) {
 		
@@ -129,19 +131,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 			//If the drumkit does not comply witht the current xsd, but has components, it may suffer from
 			// problems with invalid values (for example float ADSR values, see #658). Lets try to load it
 			// with our current drumkit.
-			
-			XMLNode root = doc.firstChildElement( "drumkit_info" );
-			if ( root.isNull() ) {
-				ERRORLOG( "drumkit_info node not found" );
-				return nullptr;
-			}
-			
-			Drumkit* pDrumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
-			upgrade_drumkit(pDrumkit, dk_path);
-			
-			if( load_samples ){
-				pDrumkit->load_samples();
-			}
+			bReadingSuccessful = false;
 		}
 	}
 	
@@ -152,6 +142,9 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 	}
 	
 	Drumkit* pDrumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
+	if ( ! bReadingSuccessful ) {
+		upgrade_drumkit( pDrumkit, dk_path );
+	}
 	if( load_samples ){
 		pDrumkit->load_samples();
 	}

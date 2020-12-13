@@ -279,15 +279,15 @@ void MainForm::createMenuBar()
 	QString textFileNew, textFileOpen, textFileOpenRecent, textFileSaveAs;
 	
 	if ( bUnderSessionManagement ) {
-		textFileNew = "Replace with &new Song";
-		textFileOpen = "&Import into Session";
-		textFileOpenRecent = "Import &recent into Session";
-		textFileSaveAs = "Export from Session &as...";
+		textFileNew = tr( "Replace with &new Song" );
+		textFileOpen = tr( "&Import into Session" );
+		textFileOpenRecent = tr( "Import &recent into Session" );
+		textFileSaveAs = tr( "Export from Session &as..." );
 	} else {
-		textFileNew = "&New";
-		textFileOpen = "&Open";
-		textFileOpenRecent = "Open &recent";
-		textFileSaveAs = "Save &as...";
+		textFileNew = tr( "&New" );
+		textFileOpen = tr( "&Open" );
+		textFileOpenRecent = tr( "Open &recent" );
+		textFileSaveAs = tr( "Save &as..." );
 	}
 	
 	m_pFileMenu->addAction( textFileNew, this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
@@ -669,9 +669,9 @@ void MainForm::action_file_save_as()
 	// provided by the NSM server has to be preserved.
 	if ( pHydrogen->isUnderSessionManagement() ) {
 		pSong->set_filename( lastFilename );
-		h2app->setScrollStatusBarMessage( trUtf8("Song exported as.") + QString(" Into: ") + defaultFilename, 2000 );
+		h2app->setScrollStatusBarMessage( trUtf8("Song exported as: ") + defaultFilename, 2000 );
 	} else {
-		h2app->setScrollStatusBarMessage( trUtf8("Song saved as.") + QString(" Into: ") + defaultFilename, 2000 );
+		h2app->setScrollStatusBarMessage( trUtf8("Song saved as: ") + defaultFilename, 2000 );
 	}
 	
 	h2app->updateWindowTitle();

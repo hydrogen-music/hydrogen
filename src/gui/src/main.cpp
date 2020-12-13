@@ -514,6 +514,7 @@ int main(int argc, char *argv[])
 			} else {
 				___ERRORLOG ( "Error loading the drumkit" );
 			}
+			delete pDrumkitInfo;
 		}
 
 		pQApp->setMainForm( pMainForm );
