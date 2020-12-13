@@ -53,12 +53,12 @@ class PatternEditorPanel;
 //! timebase functions, and drawing grid lines.
 //!
 class PatternEditor : public QWidget,
-                      public EventListener,
-                      public H2Core::Object,
-                      public SelectionWidget<H2Core::Note *>
+					  public EventListener,
+					  public H2Core::Object,
+					  public SelectionWidget<H2Core::Note *>
 {
 	H2_OBJECT
-		Q_OBJECT
+	Q_OBJECT
 
 public:
 	PatternEditor( QWidget *pParent, const char *sClassName,
@@ -130,7 +130,7 @@ public slots:
 
 protected:
 
-	//! Granularity of grid positioning
+	//! Granularity of grid positioning (in ticks)
 	int granularity() const {
 		int nBase;
 		if (m_bUseTriplets) {
