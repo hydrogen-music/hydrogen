@@ -39,6 +39,7 @@ namespace H2Core
 	class Note;
 	class Pattern;
 	class Instrument;
+	class AudioEngine;
 }
 
 class PatternEditorInstrumentList;
@@ -153,6 +154,8 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		int m_nEditorHeight;
 		uint m_nResolution;
 		bool m_bUseTriplets;
+
+		H2Core::AudioEngine* m_pAudioEngine;
 
 		bool m_bSelectNewNotes;
 

@@ -44,7 +44,7 @@ QString ExportMidiDialog::sLastFilename = "";
 ExportMidiDialog::ExportMidiDialog( QWidget* parent )
 	: QDialog( parent )
 	, Object( __class_name )
-	, m_pEngine( Hydrogen::get_instance() )
+	, m_pHydrogen( Hydrogen::get_instance() )
 	, m_pPreferences( Preferences::get_instance() )
 	, m_bFileSelected( false )
 	, m_sExtension( ".mid" )
@@ -86,10 +86,10 @@ void ExportMidiDialog::saveSettingsToPreferences()
 
 QString ExportMidiDialog::createDefaultFilename()
 {
-	QString sDefaultFilename = m_pEngine->getSong()->get_filename();
+	QString sDefaultFilename = m_pHydrogen->getSong()->get_filename();
 
 	if( sDefaultFilename.isEmpty() ){
-		sDefaultFilename = m_pEngine->getSong()->__name;
+		sDefaultFilename = m_pHydrogen->getSong()->__name;
 	} else {
 		// extracting filename from full path
 		QFileInfo qDefaultFile( sDefaultFilename ); 
@@ -179,7 +179,7 @@ void ExportMidiDialog::on_okBtn_clicked()
 	
 	saveSettingsToPreferences();
 
-	Song *pSong = m_pEngine->getSong();
+	Song *pSong = m_pHydrogen->getSong();
 	
 	QString sFilename = exportNameTxt->text();
 	QFileInfo qFile( sFilename );

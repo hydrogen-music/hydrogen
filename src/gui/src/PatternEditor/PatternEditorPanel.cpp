@@ -888,24 +888,26 @@ void PatternEditorPanel::patternSizeChanged( int nSelected )
 
 void PatternEditorPanel::moveUpBtnClicked(Button *)
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	int nSelectedInstrument = engine->getSelectedInstrumentNumber();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
-	Song *pSong = engine->getSong();
+	pAudioEngine->lock( RIGHT_HERE );
+
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrumentList = pSong->get_instrument_list();
 
 	if ( ( nSelectedInstrument - 1 ) >= 0 ) {
 		pInstrumentList->swap( nSelectedInstrument -1, nSelectedInstrument );
 
-		AudioEngine::get_instance()->unlock();
-		engine->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
+		pAudioEngine->unlock();
+		pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
 
 		pSong->set_is_modified( true );
 	}
 	else {
-		AudioEngine::get_instance()->unlock();
+		pAudioEngine->unlock();
 	}
 }
 
@@ -913,24 +915,26 @@ void PatternEditorPanel::moveUpBtnClicked(Button *)
 
 void PatternEditorPanel::moveDownBtnClicked(Button *)
 {
-	Hydrogen *engine = Hydrogen::get_instance();
-	int nSelectedInstrument = engine->getSelectedInstrumentNumber();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
-	Song *pSong = engine->getSong();
+	pAudioEngine->lock( RIGHT_HERE );
+
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrumentList = pSong->get_instrument_list();
 
 	if ( ( nSelectedInstrument + 1 ) < (int)pInstrumentList->size() ) {
 		pInstrumentList->swap( nSelectedInstrument, nSelectedInstrument + 1 );
 
-		AudioEngine::get_instance()->unlock();
-		engine->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
+		pAudioEngine->unlock();
+		pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
 
 		pSong->set_is_modified( true );
 	}
 	else {
-		AudioEngine::get_instance()->unlock();
+		pAudioEngine->unlock();
 	}
 
 }

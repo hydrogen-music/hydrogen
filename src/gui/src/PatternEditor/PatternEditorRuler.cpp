@@ -117,16 +117,16 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 {
 	static int oldNTicks = 0;
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	//Do not redraw anything if Export is active.
 	//https://github.com/hydrogen-music/hydrogen/issues/857	
-	if( pEngine->getIsExportSessionActive() ) {
+	if( pHydrogen->getIsExportSessionActive() ) {
 		return;
 	}
 	
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
+	PatternList *pPatternList = pHydrogen->getSong()->get_pattern_list();
+	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() )  ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
@@ -141,9 +141,9 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 	 * Lock audio engine to make sure pattern list does not get
 	 * modified / cleared during iteration 
 	 */
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
-	PatternList *pList = pEngine->getCurrentPatternList();
+	PatternList *pList = pHydrogen->getCurrentPatternList();
 	for (uint i = 0; i < pList->size(); i++) {
 		if ( m_pPattern == pList->get(i) ) {
 			bActive = true;
@@ -151,12 +151,12 @@ void PatternEditorRuler::updateEditor( bool bRedrawAll )
 		}
 	}
 
-	AudioEngine::get_instance()->unlock();
+	pHydrogen->getAudioEngine()->unlock();
 
 
-	int state = pEngine->getState();
+	int state = pHydrogen->getState();
 	if ( ( state == STATE_PLAYING ) && (bActive) ) {
-		m_nTicks = pEngine->getTickPosition();
+		m_nTicks = pHydrogen->getTickPosition();
 	}
 	else {
 		m_nTicks = -1;	// hide the tickPosition

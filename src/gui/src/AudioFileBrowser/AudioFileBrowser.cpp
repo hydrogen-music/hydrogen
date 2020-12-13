@@ -29,7 +29,7 @@
 
 #include <core/Preferences.h>
 #include <core/Basics/Sample.h>
-#include <core/AudioEngine.h>
+#include <core/Hydrogen.h>
 
 #include <QModelIndex>
 #include <QTreeWidget>
@@ -108,7 +108,7 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, b
 AudioFileBrowser::~AudioFileBrowser()
 {
 	auto pNewSample = Sample::load( m_sEmptySampleFilename );
-	AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, 100 );
+	H2Core::Hydrogen::get_instance()->getAudioEngine()->get_sampler()->preview_sample( pNewSample, 100 );
 	INFOLOG ( "DESTROY" );
 }
 
@@ -317,7 +317,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 		assert(pNewSample->get_sample_rate() != 0);
 		
 		int length = ( ( pNewSample->get_frames() / pNewSample->get_sample_rate() + 1) * 100 );
-		AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, length );
+		H2Core::Hydrogen::get_instance()->getAudioEngine()->get_sampler()->preview_sample( pNewSample, length );
 	}
 }
 
@@ -326,7 +326,7 @@ void AudioFileBrowser::on_m_pPlayBtn_clicked()
 void AudioFileBrowser::on_m_pStopBtn_clicked()
 {
 	auto pNewSample = Sample::load( m_sEmptySampleFilename );
-	AudioEngine::get_instance()->get_sampler()->preview_sample( pNewSample, 100 );
+	H2Core::Hydrogen::get_instance()->getAudioEngine()->get_sampler()->preview_sample( pNewSample, 100 );
 	m_pStopBtn->setEnabled( false );
 }
 

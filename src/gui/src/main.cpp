@@ -533,7 +533,6 @@ int main(int argc, char *argv[])
 		delete pQApp;
 		delete pPref;
 		delete H2Core::EventQueue::get_instance();
-		delete H2Core::AudioEngine::get_instance();
 
 		delete MidiMap::get_instance();
 		delete MidiActionManager::get_instance();

@@ -59,6 +59,7 @@ namespace H2Core
 	class MidiInput;
 	class EventQueue;
 	class PatternList;
+	class Hydrogen;
 	
 /**
  * Audio Engine main class (Singleton).
@@ -74,18 +75,45 @@ class AudioEngine : public H2Core::Object
 {
 	H2_OBJECT
 public:
+
 	/**
-	 * If #__instance equals 0, a new AudioEngine singleton will
-	 * be created and stored in it.
+	* Initialization of the H2Core::AudioEngine (concstructed in Hydrogen::Hydrogen()).
+	*
+	* -# It creates two new instances of the H2Core::PatternList and stores them 
+	* in #m_pPlayingPatterns and #m_pNextPatterns.
+	* -# It sets #m_nSongPos = -1.
+	* -# It sets #m_nSelectedPatternNumber, #m_nSelectedInstrumentNumber,
+	*	and #m_nPatternTickPosition to 0.
+	* -# It sets #m_pMetronomeInstrument, #m_pAudioDriver,
+	*	#m_pMainBuffer_L, #m_pMainBuffer_R to NULL.
+	* -# It uses the current time to a random seed via std::srand(). This
+	*	way the states of the pseudo-random number generator are not
+	*	cross-correlated between different runs of Hydrogen.
+	* -# It initializes the metronome with the sound stored in
+	*	H2Core::Filesystem::click_file_path() by creating a new
+	*	Instrument with #METRONOME_INSTR_ID as first argument.
+	* -# It sets the H2Core::AudioEngine state #m_audioEngineState to
+	*	#STATE_INITIALIZED.
+	* -# It calls H2Core::Effects::create_instance() (if the
+	*	#H2CORE_HAVE_LADSPA is set),
+	*
+	* If the current state of the H2Core::AudioEngine #m_audioEngineState is not
+	* ::STATE_UNINITIALIZED, it will thrown an error and
+	* H2Core::AudioEngine::unlock() it.
+	*/
+
+	/**
+	 * Constructor of the AudioEngine.
 	 *
-	 * It is called in Hydrogen::audioEngine_init().
+	 * - Initializes the Mutex of the AudioEngine #__engine_mutex
+	 *   by calling _pthread_mutex_init()_ (pthread.h) on its
+	 *   address.
+	 * - Assigns a new instance of the Sampler to #m_pSampler and of
+	 *   the Synth to #m_pSynth.
 	 */
-	static void create_instance();
-	/**
-	 * \return a pointer to the current AudioEngine singleton
-	 * stored in #__instance.
-	 */
-	static AudioEngine* get_instance() { assert(__instance); return __instance; }
+	AudioEngine();
+
+
 	/** 
 	 * Destructor of the AudioEngine.
 	 *
@@ -637,119 +665,29 @@ public:
 	float				getProcessTime() const;
 	float				getMaxProcessTime() const;
 
-	/**
-	 * Beginning of the current pattern in ticks.
-	 *
-	 * It is set using finPatternInTick() and reset to -1 in
-	 * audioEngine_start(), audioEngine_stop(),
-	 * Hydrogen::startExportSong(), and
-	 * Hydrogen::triggerRelocateDuringPlay() (if the playback it in
-	 * Song::PATTERN_MODE).
-	 */
-	int					m_nPatternStartTick;
+	int					getSelectedPatternNumber() const;
+	void				setSelectedPatternNumber( int number );
+
+	void				setPatternStartTick( int tick );
+
+	void				setPatternTickPosition( int tick );
+	int					getPatternTickPosition() const;
+
+	void				setSongPos( int songPos );
+	int					getSongPos() const;
+
+	PatternList*		getNextPatterns() const;
+	PatternList*		getPlayingPatterns() const;
 	
-	/**
-	 * Ticks passed since the beginning of the current pattern.
-	 *
-	 * Queried using Hydrogen::getTickPosition().
-	 *
-	 * Initialized to 0 in audioEngine_init() and reset to 0 in
-	 * Hydrogen::setPatternPos(), if the AudioEngine is not playing, in
-	 * audioEngine_start(), Hydrogen::startExportSong() and
-	 * Hydrogen::stopExportSong(), which marks the beginning of a Song.
-	 */
-	unsigned int		m_nPatternTickPosition;
-	
-	/** Set to the total number of ticks in a Song in findPatternInTick()
-		if Song::SONG_MODE is chosen and playback is at least in the
-		second loop.*/
-	int					m_nSongSizeInTicks;
+	unsigned long		getRealtimeFrames() const;
+	void				setRealtimeFrames( unsigned long nFrames );
+
+	unsigned int		getAddRealtimeNoteTickPosition() const; 
+	void				setAddRealtimeNoteTickPosition( unsigned int tickPosition );
 	
 	/** Updated in audioEngine_updateNoteQueue().*/
 	struct timeval		m_currentTickTime;
-	
-	/**
-	 * Variable keeping track of the transport position in realtime.
-	 *
-	 * Even if the audio engine is stopped, the variable will be
-	 * incremented by #m_nBufferSize (as audioEngine_process() would do at
-	 * the end of each cycle) to support realtime keyboard and MIDI event
-	 * timing. It is set using Hydrogen::setRealtimeFrames(), accessed via
-	 * Hydrogen::getRealtimeFrames(), and updated in
-	 * audioEngine_process_transport() using the current transport
-	 * position TransportInfo::m_nFrames.
-	 */
-	unsigned long		m_nRealtimeFrames;
-	unsigned int		m_naddrealtimenotetickposition;
-	
-	/**
-	 * Patterns to be played next in Song::PATTERN_MODE.
-	 *
-	 * In audioEngine_updateNoteQueue() whenever the end of the current
-	 * pattern is reached the content of #m_pNextPatterns will be added to
-	 * #m_pPlayingPatterns.
-	 *
-	 * Queried with Hydrogen::getNextPatterns(), set by
-	 * Hydrogen::sequencer_setNextPattern() and
-	 * Hydrogen::sequencer_setOnlyNextPattern(), initialized with an empty
-	 * PatternList in audioEngine_init(), destroyed and set to NULL in
-	 * audioEngine_destroy(), cleared in audioEngine_remove_Song(), and
-	 * updated in audioEngine_updateNoteQueue(). Please note that ALL of
-	 * these functions do access the variable directly!
-	 */
-	PatternList*		m_pNextPatterns;
-	bool				m_bAppendNextPattern;		///< Add the next pattern to the list instead of replace.
-	bool				m_bDeleteNextPattern;		///< Delete the next pattern from the list.
-	
-	/**
-	 * PatternList containing all Patterns currently played back.
-	 *
-	 * Queried using Hydrogen::getCurrentPatternList(), set using
-	 * Hydrogen::setCurrentPatternList(), initialized with an empty
-	 * PatternList in audioEngine_init(), destroyed and set to NULL in
-	 * audioEngine_destroy(), set to the first pattern list of the new
-	 * song in audioEngine_setSong(), cleared in
-	 * audioEngine_removeSong(), reset in Hydrogen::togglePlaysSelected()
-	 * and processed in audioEngine_updateNoteQueue(). Please note that
-	 * ALL of these functions do access the variable directly!
-	 */
-	PatternList*		m_pPlayingPatterns;
 
-	/**
-	 * Index of the current PatternList in the
-	 * Song::__pattern_group_sequence.
-	 *
-	 * A value of -1 corresponds to "pattern list could not be found".
-	 *
-	 * Assigned using findPatternInTick() in
-	 * audioEngine_updateNoteQueue(), queried using
-	 * Hydrogen::getPatternPos() and set using Hydrogen::setPatternPos()
-	 * if it AudioEngine is playing.
-	 *
-	 * It is initialized with -1 value in audioEngine_init(), and reset to
-	 * the same value in audioEngine_start(), and
-	 * Hydrogen::stopExportSong(). In Hydrogen::startExportSong() it will
-	 * be set to 0. Please note that ALL of these functions do access the
-	 * variable directly!
-	 */
-	int					m_nSongPos; // TODO: rename it to something more
-									// accurate, like m_nPatternListNumber
-	
-	/**
-	 * Index of the pattern selected in the GUI or by a MIDI event.
-	 *
-	 * If Preferences::m_bPatternModePlaysSelected is set to true and the
-	 * playback is in Song::PATTERN_MODE, the corresponding pattern will
-	 * be assigned to #m_pPlayingPatterns in
-	 * audioEngine_updateNoteQueue(). This way the user can specify to
-	 * play back the pattern she is currently viewing/editing.
-	 *
-	 * Queried using Hydrogen::getSelectedPatternNumber() and set by
-	 * Hydrogen::setSelectedPatternNumber().
-	 *
-	 * Initialized to 0 in audioEngine_init().
-	 */
-	int					m_nSelectedPatternNumber;
 	
 private:
 	/**
@@ -758,22 +696,6 @@ private:
 	 * accessed with get_instance().
 	 */
 	static AudioEngine* __instance;
-	
-	/**
-	 * Constructor of the AudioEngine.
-	 *
-	 * - Assigns #__instance to itself.
-	 * - Initializes the Mutex of the AudioEngine #__engine_mutex
-	 *   by calling _pthread_mutex_init()_ (pthread.h) on its
-	 *   address.
-	 * - Assigns a new instance of the Sampler to #m_pSampler and of
-	 *   the Synth to #m_pSynth.
-	 * - Creates an instance of the Effects singleton. This call
-	 *   should not be necessary since this singleton was created
-	 *   right before creating the AudioEngine. But its costs are
-	 *   cheap, so I just keep it.
-	 */
-	AudioEngine();
 
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;
@@ -895,6 +817,115 @@ private:
 	float				m_fMaxProcessTime;
 
 	/**
+	 * Index of the pattern selected in the GUI or by a MIDI event.
+	 *
+	 * If Preferences::m_bPatternModePlaysSelected is set to true and the
+	 * playback is in Song::PATTERN_MODE, the corresponding pattern will
+	 * be assigned to #m_pPlayingPatterns in
+	 * audioEngine_updateNoteQueue(). This way the user can specify to
+	 * play back the pattern she is currently viewing/editing.
+	 *
+	 * Queried using Hydrogen::getSelectedPatternNumber() and set by
+	 * Hydrogen::setSelectedPatternNumber().
+	 *
+	 * Initialized to 0 in audioEngine_init().
+	 */
+	int					m_nSelectedPatternNumber;
+
+	/**
+	 * Beginning of the current pattern in ticks.
+	 *
+	 * It is set using finPatternInTick() and reset to -1 in
+	 * audioEngine_start(), audioEngine_stop(),
+	 * Hydrogen::startExportSong(), and
+	 * Hydrogen::triggerRelocateDuringPlay() (if the playback it in
+	 * Song::PATTERN_MODE).
+	 */
+	int					m_nPatternStartTick;
+
+	/**
+	 * Ticks passed since the beginning of the current pattern.
+	 *
+	 * Queried using Hydrogen::getTickPosition().
+	 *
+	 * Initialized to 0 in audioEngine_init() and reset to 0 in
+	 * Hydrogen::setPatternPos(), if the AudioEngine is not playing, in
+	 * audioEngine_start(), Hydrogen::startExportSong() and
+	 * Hydrogen::stopExportSong(), which marks the beginning of a Song.
+	 */
+	unsigned int		m_nPatternTickPosition;
+
+	/**
+	 * Index of the current PatternList in the
+	 * Song::__pattern_group_sequence.
+	 *
+	 * A value of -1 corresponds to "pattern list could not be found".
+	 *
+	 * Assigned using findPatternInTick() in
+	 * audioEngine_updateNoteQueue(), queried using
+	 * Hydrogen::getPatternPos() and set using Hydrogen::setPatternPos()
+	 * if it AudioEngine is playing.
+	 *
+	 * It is initialized with -1 value in audioEngine_init(), and reset to
+	 * the same value in audioEngine_start(), and
+	 * Hydrogen::stopExportSong(). In Hydrogen::startExportSong() it will
+	 * be set to 0. Please note that ALL of these functions do access the
+	 * variable directly!
+	 */
+	int					m_nSongPos; // TODO: rename it to something more
+									// accurate, like m_nPatternListNumber
+
+	/** Set to the total number of ticks in a Song in findPatternInTick()
+		if Song::SONG_MODE is chosen and playback is at least in the
+		second loop.*/
+	int					m_nSongSizeInTicks;
+
+		/**
+	 * Patterns to be played next in Song::PATTERN_MODE.
+	 *
+	 * In audioEngine_updateNoteQueue() whenever the end of the current
+	 * pattern is reached the content of #m_pNextPatterns will be added to
+	 * #m_pPlayingPatterns.
+	 *
+	 * Queried with Hydrogen::getNextPatterns(), set by
+	 * Hydrogen::sequencer_setNextPattern() and
+	 * Hydrogen::sequencer_setOnlyNextPattern(), initialized with an empty
+	 * PatternList in audioEngine_init(), destroyed and set to NULL in
+	 * audioEngine_destroy(), cleared in audioEngine_remove_Song(), and
+	 * updated in audioEngine_updateNoteQueue(). Please note that ALL of
+	 * these functions do access the variable directly!
+	 */
+	PatternList*		m_pNextPatterns;
+	
+	/**
+	 * PatternList containing all Patterns currently played back.
+	 *
+	 * Queried using Hydrogen::getCurrentPatternList(), set using
+	 * Hydrogen::setCurrentPatternList(), initialized with an empty
+	 * PatternList in audioEngine_init(), destroyed and set to NULL in
+	 * audioEngine_destroy(), set to the first pattern list of the new
+	 * song in audioEngine_setSong(), cleared in
+	 * audioEngine_removeSong(), reset in Hydrogen::togglePlaysSelected()
+	 * and processed in audioEngine_updateNoteQueue(). Please note that
+	 * ALL of these functions do access the variable directly!
+	 */
+	PatternList*		m_pPlayingPatterns;
+
+	/**
+	 * Variable keeping track of the transport position in realtime.
+	 *
+	 * Even if the audio engine is stopped, the variable will be
+	 * incremented by #m_nBufferSize (as audioEngine_process() would do at
+	 * the end of each cycle) to support realtime keyboard and MIDI event
+	 * timing. It is set using Hydrogen::setRealtimeFrames(), accessed via
+	 * Hydrogen::getRealtimeFrames(), and updated in
+	 * audioEngine_process_transport() using the current transport
+	 * position TransportInfo::m_nFrames.
+	 */
+	unsigned long		m_nRealtimeFrames;
+	unsigned int		m_naddrealtimenotetickposition;
+
+	/**
 	 * Current state of the H2Core::AudioEngine. 
 	 *
 	 * It is supposed to take five different states:
@@ -911,18 +942,12 @@ private:
 	
 	audioProcessCallback m_AudioProcessCallback;
 	
+	/// Song Note FIFO
 	// overload the > operator of Note objects for priority_queue
 	struct compare_pNotes {
-		bool operator() (Note* pNote1, Note* pNote2) {
-			return (pNote1->get_humanize_delay()
-					+ pNote1->get_position() * AudioEngine::get_instance()->getAudioDriver()->m_transport.m_fTickSize)
-				    >
-				    (pNote2->get_humanize_delay()
-				    + pNote2->get_position() * AudioEngine::get_instance()->getAudioDriver()->m_transport.m_fTickSize);
-		}
+		bool operator() (Note* pNote1, Note* pNote2);
 	};
-	
-	/// Song Note FIFO
+
 	std::priority_queue<Note*, std::deque<Note*>, compare_pNotes > m_songNoteQueue;
 	std::deque<Note*>		m_midiNoteQueue;	///< Midi Note FIFO
 	
@@ -957,13 +982,7 @@ protected:
 	/**
 	 *  Assert that the AudioEngine lock is held if needed.
 	 */
-	void assertAudioEngineLocked() const {
-#ifndef NDEBUG
-		if ( m_bNeedsLock ) {
-			AudioEngine::get_instance()->assertLocked();
-		}
-#endif
-	}
+	void assertAudioEngineLocked() const;
 
 
 public:
@@ -1047,6 +1066,58 @@ inline 	MidiInput*	AudioEngine::getMidiDriver() const {
 
 inline MidiOutput*	AudioEngine::getMidiOutDriver() const {
 	return m_pMidiDriverOut;
+}
+
+inline int AudioEngine::getSelectedPatternNumber() const {
+	return m_nSelectedPatternNumber;
+}
+
+inline void AudioEngine::setSelectedPatternNumber(int number) {
+	m_nSelectedPatternNumber = number;
+}
+
+inline void AudioEngine::setPatternStartTick(int tick) {
+	m_nPatternStartTick = tick;
+}
+
+inline void AudioEngine::setPatternTickPosition(int tick) {
+	m_nPatternTickPosition = tick;
+}
+
+inline int AudioEngine::getPatternTickPosition() const {
+	return m_nPatternTickPosition;
+}
+
+inline void AudioEngine::setSongPos( int songPos ) {
+	m_nSongPos = songPos;
+}
+
+inline int AudioEngine::getSongPos() const {
+	return m_nSongPos;
+}
+
+inline PatternList* AudioEngine::getPlayingPatterns() const {
+	return m_pPlayingPatterns;
+}
+
+inline PatternList* AudioEngine::getNextPatterns() const {
+	return m_pNextPatterns;
+}
+
+inline unsigned long AudioEngine::getRealtimeFrames() const {
+	return m_nRealtimeFrames;
+}
+
+inline void AudioEngine::setRealtimeFrames( unsigned long nFrames ) {
+	m_nRealtimeFrames = nFrames;
+}
+
+inline unsigned int AudioEngine::getAddRealtimeNoteTickPosition() const {
+	return m_naddrealtimenotetickposition;
+}
+
+inline void AudioEngine::setAddRealtimeNoteTickPosition( unsigned int tickPosition) {
+	m_naddrealtimenotetickposition = tickPosition;
 }
 
 };

@@ -1268,7 +1268,7 @@ void Sampler::stopPlayingNotes(Instrument* pInstr )
 /// Preview, uses only the first layer
 void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
 {
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	for (const auto& pComponent: *m_pPreviewInstrument->get_components()) {
 		InstrumentLayer *pLayer = pComponent->get_layer( 0 );
@@ -1282,7 +1282,7 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
 
 	}
 
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 }
 
 
@@ -1290,7 +1290,7 @@ void Sampler::preview_sample(std::shared_ptr<Sample> pSample, int length )
 void Sampler::preview_instrument(Instrument* pInstr )
 {
 	Instrument * pOldPreview;
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	stopPlayingNotes( m_pPreviewInstrument );
 
@@ -1301,7 +1301,7 @@ void Sampler::preview_instrument(Instrument* pInstr )
 	Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.5, 0.5, MAX_NOTES, 0 );
 
 	noteOn( pPreviewNote );	// exclusive note
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 	delete pOldPreview;
 }
 
@@ -1346,26 +1346,26 @@ void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks,
 							if( !Preferences::get_instance()->__playselectedinstrument ){
 								if ( pNote->get_instrument() == pInstrument
 								&& pNote->get_position() == noteOnTick ) {
-									AudioEngine::get_instance()->lock( RIGHT_HERE );
+									Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 									if ( ticks >  patternsize ) {
 										ticks = patternsize - noteOnTick;
 									}
 									pNote->set_length( ticks );
 									Hydrogen::get_instance()->getSong()->set_is_modified( true );
-									AudioEngine::get_instance()->unlock(); // unlock the audio engine
+									Hydrogen::get_instance()->getAudioEngine()->unlock(); // unlock the audio engine
 								}
 							}else
 							{
 								if ( pNote->get_instrument() == pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber())
 								&& pNote->get_position() == noteOnTick ) {
-									AudioEngine::get_instance()->lock( RIGHT_HERE );
+									Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 									if ( ticks >  patternsize ) {
 										ticks = patternsize - noteOnTick;
 									}
 									pNote->set_length( ticks );
 									Hydrogen::get_instance()->getSong()->set_is_modified( true );
-									AudioEngine::get_instance()->unlock(); // unlock the audio engine
+									Hydrogen::get_instance()->getAudioEngine()->unlock(); // unlock the audio engine
 								}
 							}
 						}

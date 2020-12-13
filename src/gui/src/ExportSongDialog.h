@@ -88,7 +88,7 @@ private:
 	bool					m_bOldTimeLineBPMMode;
 	InterpolateMode			m_OldInterpolationMode;
 	bool					m_bQfileDialog;
-	H2Core::Hydrogen *		m_pEngine;
+	H2Core::Hydrogen *		m_pHydrogen;
 	H2Core::Preferences*	m_pPreferences;
 	
 	static QString 			sLastFilename;

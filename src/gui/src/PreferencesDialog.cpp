@@ -192,7 +192,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		ERRORLOG( QString("Wrong samplerate: %1").arg( pPref->m_nSampleRate ) );
 	}
 
-	resampleComboBox->setCurrentIndex( (int) AudioEngine::get_instance()->get_sampler()->getInterpolateMode() );
+	resampleComboBox->setCurrentIndex( (int) Hydrogen::get_instance()->getAudioEngine()->get_sampler()->getInterpolateMode() );
 
 	// Appearance tab
 	QString applicationFamily = pPref->getApplicationFontFamily();
@@ -936,19 +936,19 @@ void PreferencesDialog::on_resampleComboBox_currentIndexChanged ( int index )
 {
 	switch ( index ){
 	case 0:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
+		Hydrogen::get_instance()->getAudioEngine()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
 		break;
 	case 1:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
+		Hydrogen::get_instance()->getAudioEngine()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
 		break;
 	case 2:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
+		Hydrogen::get_instance()->getAudioEngine()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
 		break;
 	case 3:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
+		Hydrogen::get_instance()->getAudioEngine()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
 		break;
 	case 4:
-		AudioEngine::get_instance()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
+		Hydrogen::get_instance()->getAudioEngine()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
 		break;
 	}
 

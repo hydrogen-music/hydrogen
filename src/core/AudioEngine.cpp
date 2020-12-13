@@ -68,6 +68,7 @@
 namespace H2Core
 {
 
+
 inline int randomValue( int max )
 {
 	return rand() % max;
@@ -101,14 +102,6 @@ inline timeval currentTime2()
 
 AudioEngine* AudioEngine::__instance = nullptr;
 const char* AudioEngine::__class_name = "AudioEngine";
-
-
-void AudioEngine::create_instance()
-{
-	if( __instance == nullptr ) {
-		__instance = new AudioEngine;
-	}
-}
 
 AudioEngine::AudioEngine()
 		: Object( __class_name )
@@ -461,9 +454,9 @@ void AudioEngine::locate( const unsigned long nFrame ) {
 	const auto pHydrogen = Hydrogen::get_instance();
 	const auto pDriver = pHydrogen->getAudioOutput();
 	pDriver->locate( nFrame );
-	AudioEngine::get_instance()->calculateElapsedTime( pDriver->getSampleRate(),
-													   nFrame,
-													   pHydrogen->getSong()->__resolution );
+	calculateElapsedTime( pDriver->getSampleRate(),
+						  nFrame,
+						  pHydrogen->getSong()->__resolution );
 }
 
 void AudioEngine::clearAudioBuffers( uint32_t nFrames )
@@ -776,7 +769,7 @@ void AudioEngine::stopAudioDrivers()
 	m_State = STATE_INITIALIZED;
 	m_pEventQueue->push_event( EVENT_STATE, STATE_INITIALIZED );
 
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	this->lock( RIGHT_HERE );
 
 	// delete MIDI driver
 	if ( m_pMidiDriver ) {
@@ -795,7 +788,7 @@ void AudioEngine::stopAudioDrivers()
 		mx.unlock();
 	}
 
-	AudioEngine::get_instance()->unlock();
+	this->unlock();
 }
 
 /** 
@@ -1010,7 +1003,7 @@ inline void AudioEngine::process_playNotes( unsigned long nframes )
 										   -1,
 										   0 );
 				pOffNote->set_note_off( true );
-				AudioEngine::get_instance()->get_sampler()->noteOn( pOffNote );
+				pHydrogen->getAudioEngine()->get_sampler()->noteOn( pOffNote );
 				delete pOffNote;
 			}
 
@@ -1159,7 +1152,7 @@ void AudioEngine::clearNoteQueue()
 
 int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 {
-	AudioEngine* pAudioEngine = AudioEngine::get_instance();
+	AudioEngine* pAudioEngine = Hydrogen::get_instance()->getAudioEngine();
 	// ___INFOLOG( QString( "[begin] status: %1, frame: %2, ticksize: %3, bpm: %4" )
 	// 	    .arg( m_pAudioDriver->m_transport.m_status )
 	// 	    .arg( m_pAudioDriver->m_transport.m_nFrames )
@@ -1891,8 +1884,25 @@ void AudioEngine::noteOn( Note *note )
 	m_midiNoteQueue.push_back( note );
 }
 
+bool AudioEngine::compare_pNotes::operator()(Note* pNote1, Note* pNote2)
+{
+	return (pNote1->get_humanize_delay() +
+			pNote1->get_position() *
+				Hydrogen::get_instance()->getAudioEngine()->getAudioDriver()->m_transport.m_fTickSize) >
+		   (pNote2->get_humanize_delay() +
+			pNote2->get_position() *
+				Hydrogen::get_instance()->getAudioEngine()->getAudioDriver()->m_transport.m_fTickSize);
+}
 
 
+void AudioEngineLocking::assertAudioEngineLocked() const 
+{
+#ifndef NDEBUG
+		if ( m_bNeedsLock ) {
+			H2Core::Hydrogen::get_instance()->getAudioEngine()->assertLocked();
+		}
+#endif
+	}
 
 
 }; // namespace H2Core

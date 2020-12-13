@@ -836,26 +836,26 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 	QString sMsg;
 	double fVal = (double) pRef->getValue();
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 
 	if ( pRef == m_pHumanizeTimeRotary ) {
-		pEngine->getSong()->set_humanize_time_value( fVal );
+		pHydrogen->getSong()->set_humanize_time_value( fVal );
 		sMsg = tr( "Set humanize time parameter [%1]").arg( fVal, 0, 'f', 2 );
 	}
 	else if ( pRef == m_pHumanizeVelocityRotary ) {
-		pEngine->getSong()->set_humanize_velocity_value( fVal );
+		pHydrogen->getSong()->set_humanize_velocity_value( fVal );
 		sMsg = tr( "Set humanize velocity parameter [%1]").arg( fVal, 0, 'f', 2 );
 	}
 	else if ( pRef == m_pSwingRotary ) {
-		pEngine->getSong()->set_swing_factor( fVal );
+		pHydrogen->getSong()->set_swing_factor( fVal );
 		sMsg = tr( "Set swing factor [%1]").arg( fVal, 0, 'f', 2 );
 	}
 	else {
 		ERRORLOG( "[knobChanged] Unhandled knob" );
 	}
 
-	AudioEngine::get_instance()->unlock();
+	pHydrogen->getAudioEngine()->unlock();
 
 	( HydrogenApp::get_instance() )->setStatusBarMessage( sMsg, 2000 );
 }

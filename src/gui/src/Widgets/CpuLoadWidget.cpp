@@ -139,7 +139,7 @@ void CpuLoadWidget::paintEvent( QPaintEvent*)
 void CpuLoadWidget::updateCpuLoadWidget()
 {
 	// Process time
-	H2Core::AudioEngine *pAudioEngine = H2Core::AudioEngine::get_instance();
+	H2Core::AudioEngine *pAudioEngine = H2Core::Hydrogen::get_instance()->getAudioEngine();
 	int perc = 0;
 	if ( pAudioEngine->getMaxProcessTime() != 0.0 ) {
 		perc = (int)( pAudioEngine->getProcessTime() / ( pAudioEngine->getMaxProcessTime() / 100.0 ) );

@@ -526,7 +526,7 @@ InstrumentEditor::~InstrumentEditor()
 
 void InstrumentEditor::selectedInstrumentChangedEvent()
 {
-	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
@@ -549,7 +549,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	else {
 		m_pInstrument = nullptr;
 	}
-	AudioEngine::get_instance()->unlock();
+	Hydrogen::get_instance()->getAudioEngine()->unlock();
 
 	// update layer list
 	if ( m_pInstrument ) {
@@ -843,7 +843,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 	}
 	else if ( pButton == m_pRemoveLayerBtn ) {
 		//Hydrogen *pEngine = Hydrogen::get_instance();
-		AudioEngine::get_instance()->lock( RIGHT_HERE );
+		Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 		if ( m_pInstrument ) {
 			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
@@ -863,7 +863,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 				}
 			}
 		}
-		AudioEngine::get_instance()->unlock();
+		Hydrogen::get_instance()->getAudioEngine()->unlock();
 		selectedInstrumentChangedEvent();    // update all
 		m_pLayerPreview->updateAll();
 	}
@@ -928,7 +928,7 @@ void InstrumentEditor::loadLayer()
 
 			H2Core::Instrument *pInstr = nullptr;
 
-			AudioEngine::get_instance()->lock( RIGHT_HERE );
+			Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 			Song *pSong = pEngine->getSong();
 			InstrumentList *pInstrList = pSong->get_instrument_list();
 			pInstr = pInstrList->get( pEngine->getSelectedInstrumentNumber() );
@@ -966,7 +966,7 @@ void InstrumentEditor::loadLayer()
 				setAutoVelocity();
 			}
 
-			AudioEngine::get_instance()->unlock();
+			Hydrogen::get_instance()->getAudioEngine()->unlock();
 		}
 	}
 
@@ -1049,10 +1049,10 @@ void InstrumentEditor::labelClicked( ClickableLabel* pRef )
 			selectedInstrumentChangedEvent();
 
 #ifdef H2CORE_HAVE_JACK
-			AudioEngine::get_instance()->lock( RIGHT_HERE );
+			Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 			Hydrogen *engine = Hydrogen::get_instance();
 			engine->renameJackPorts(engine->getSong());
-			AudioEngine::get_instance()->unlock();
+			Hydrogen::get_instance()->getAudioEngine()->unlock();
 #endif
 
 			// this will force an update...
@@ -1392,9 +1392,9 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 								}
 								
 								// insert new sample from newInstrument
-								AudioEngine::get_instance()->lock( RIGHT_HERE );
+								Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 								pLayer->set_sample( pNewSample );
-								AudioEngine::get_instance()->unlock();
+								Hydrogen::get_instance()->getAudioEngine()->unlock();
 
 							}
 						}

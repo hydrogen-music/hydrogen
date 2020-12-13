@@ -36,6 +36,11 @@
 #include "../EventListener.h"
 #include "PatternFillDialog.h"
 
+namespace H2Core {
+	class Hydrogen;
+	class AudioEngine;
+}
+
 class Button;
 class ToggleButton;
 class SongEditor;
@@ -86,16 +91,19 @@ class SongEditor : public QWidget, public H2Core::Object
 		//holds a list for active patterns for each pattern
 		QList<SongEditorGridRepresentationItem*> gridRepresentation;
 
-		QScrollArea *m_pScrollView;
-		SongEditorPanel *m_pSongEditorPanel;
+		QScrollArea *			m_pScrollView;
+		SongEditorPanel *		m_pSongEditorPanel;
 
-		unsigned m_nGridHeight;
-		unsigned m_nGridWidth;
-		unsigned m_nMaxPatternSequence;
-		bool m_bSequenceChanged;
-		bool m_bIsMoving;
-		bool m_bIsCtrlPressed;
-		bool m_bDrawingActiveCell;
+		H2Core::Hydrogen* 		m_pHydrogen;
+		H2Core::AudioEngine* 	m_pAudioEngine;
+
+		unsigned 				m_nGridHeight;
+		unsigned 				m_nGridWidth;
+		unsigned 				m_nMaxPatternSequence;
+		bool 					m_bSequenceChanged;
+		bool 					m_bIsMoving;
+		bool 					m_bIsCtrlPressed;
+		bool 					m_bDrawingActiveCell;
 
 		QPixmap *m_pBackgroundPixmap;
 		QPixmap *m_pSequencePixmap;
@@ -188,9 +196,11 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		virtual void timelineUpdateEvent( int nValue ) override;
 
 	private:
-		uint m_nGridHeight;
-		uint m_nWidth;
-		static const uint m_nInitialHeight = 10;
+		H2Core::Hydrogen* 		m_pHydrogen;
+		H2Core::AudioEngine* 	m_pAudioEngine;
+		uint 				m_nGridHeight;
+		uint 				m_nWidth;
+		static const uint 	m_nInitialHeight = 10;
 
 		QPixmap *			m_pBackgroundPixmap;
 							
@@ -246,6 +256,8 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 		void updatePosition();
 
 	private:
+		H2Core::Hydrogen* 		m_pHydrogen;
+		H2Core::AudioEngine* 	m_pAudioEngine;
 		QTimer *			m_pTimer;
 		uint				m_nGridWidth;
 		uint				m_nMaxPatternSequence;

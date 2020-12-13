@@ -22,9 +22,7 @@
 #ifndef HYDROGEN_H
 #define HYDROGEN_H
 
-#include <stdint.h> // for uint32_t et al
 #include <core/config.h>
-#include <core/MidiAction.h>
 #include <core/Basics/Song.h>
 #include <core/Basics/Sample.h>
 #include <core/Object.h>
@@ -35,8 +33,11 @@
 #include <core/IO/JackAudioDriver.h>
 #include <core/Basics/Drumkit.h>
 #include <core/CoreActionController.h>
-#include <cassert>
 #include <core/Timehelper.h>
+#include <core/AudioEngine.h>
+
+#include <stdint.h> // for uint32_t et al
+#include <cassert>
 // Engine states  (It's ok to use ==, <, and > when testing)
 /**
  * State of the H2Core::AudioEngine H2Core::m_audioEngineState. Not even the
@@ -67,6 +68,7 @@ inline int randomValue( int max );
 
 namespace H2Core
 {
+	class CoreActionController;
 ///
 /// Hydrogen Audio Engine.
 ///
@@ -105,6 +107,11 @@ public:
 	 * Returns the current Hydrogen instance #__instance.
 	 */
 	static Hydrogen*	get_instance(){ assert(__instance); return __instance; };
+
+	/*
+	 * return central instance of the audio engine
+	 */
+	AudioEngine*		getAudioEngine() const;
 
 	/**
 	 * Destructor taking care of most of the clean up.
@@ -521,8 +528,6 @@ void			previewSample( Sample *pSample );
 	void			setNewBpmJTM( float bpmJTM);
 
 	void			__panic();
-	unsigned int	__getMidiRealtimeNoteTickPosition() const;
-
 	/**
 	 * Updates Song::__bpm, TransportInfo::m_fBPM, and #m_fNewBpmJTM
 	 * to the local speed.
@@ -786,6 +791,32 @@ private:
 	
 	/// Deleting instruments too soon leads to potential crashes.
 	std::list<Instrument*> 	__instrument_death_row; 
+	
+	/**
+	 * Fallback speed in beats per minute.
+	 *
+	 * It is set by Hydrogen::setNewBpmJTM() and accessed via
+	 * Hydrogen::getNewBpmJTM().
+	 */
+	float				m_fNewBpmJTM;
+
+	/**
+	 * Instrument currently focused/selected in the GUI. 
+	 *
+	 * Within the core it is relevant for the MIDI input. Using
+	 * Preferences::__playselectedinstrument incoming MIDI signals can be
+	 * used to play back only the selected instrument or the whole
+	 * drumkit.
+	 *
+	 * Queried using Hydrogen::getSelectedInstrumentNumber() and set by
+	 * Hydrogen::setSelectedInstrumentNumber().
+	 */
+	int				m_nSelectedInstrumentNumber;
+
+	/*
+	 * Central instance of the audio engine. 
+	 */
+	AudioEngine*	m_pAudioEngine;
 
 	/** 
 	 * Constructor, entry point, and initialization of the
@@ -851,6 +882,10 @@ inline void Hydrogen::setCurrentDrumkitname( const QString& currentdrumkitname )
 	this->m_currentDrumkit = currentdrumkitname;
 }
 
+inline AudioEngine* Hydrogen::getAudioEngine() const {
+	return m_pAudioEngine;
+}
+
 inline bool Hydrogen::getPlaybackTrackState() const
 {
 	Song* pSong = getSong();
@@ -867,14 +902,27 @@ inline bool Hydrogen::getPlaybackTrackState() const
 inline Hydrogen::GUIState Hydrogen::getGUIState() const {
 	return m_GUIState;
 }
+
 inline void Hydrogen::setGUIState( const Hydrogen::GUIState state ) {
 	m_GUIState = state;
 }
+
 inline Song* Hydrogen::getNextSong() const {
 	return m_pNextSong;
 }
+
 inline void Hydrogen::setNextSong( Song* pNextSong ) {
 	m_pNextSong = pNextSong;
+}
+
+inline PatternList* Hydrogen::getCurrentPatternList()
+{
+	return m_pAudioEngine->getPlayingPatterns();
+}
+
+inline PatternList * Hydrogen::getNextPatterns()
+{
+	return m_pAudioEngine->getNextPatterns();
 }
 
 };

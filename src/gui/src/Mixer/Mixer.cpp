@@ -289,18 +289,19 @@ bool Mixer::isSoloClicked( uint n )
 
 void Mixer::noteOnClicked( MixerLine* ref )
 {
-	int nLine = findMixerLineByRef( ref );
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
-
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
+
+	int nLine = findMixerLineByRef( ref );
+	pHydrogen->setSelectedInstrumentNumber( nLine );
+
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 
 	const float fPitch = 0.0f;
 	Note *pNote = new Note( pInstrList->get(nLine), 0, 1.0, 0.5f, 0.5f, -1, fPitch );
-	AudioEngine::get_instance()->get_sampler()->noteOn(pNote);
+	pHydrogen->getAudioEngine()->get_sampler()->noteOn(pNote);
 
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	pHydrogen->setSelectedInstrumentNumber(nLine);
 }
 
 
@@ -308,18 +309,19 @@ void Mixer::noteOnClicked( MixerLine* ref )
 /// Play sample button, right-clicked (note off)
  void Mixer::noteOffClicked( MixerLine* ref )
 {
-	int nLine = findMixerLineByRef( ref );
-	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
-
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
+	
+	int nLine = findMixerLineByRef( ref );
+	pHydrogen->setSelectedInstrumentNumber( nLine );
+
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 
 	const float fPitch = 0.0f;
 	Note *pNote = new Note( pInstrList->get( nLine ), 0, 1.0, 0.5, 0.5, -1, fPitch );
-	AudioEngine::get_instance()->get_sampler()->noteOff(pNote);
+	pHydrogen->getAudioEngine()->get_sampler()->noteOff(pNote);
 
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
+	pHydrogen->setSelectedInstrumentNumber(nLine);
 }
 
 
@@ -373,7 +375,7 @@ void Mixer::updateMixer()
 	bool bShowPeaks = pPref->showInstrumentPeaks();
 
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	AudioEngine* pAudioEngine = AudioEngine::get_instance();
+	AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
 	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 	std::vector<DrumkitComponent*>* pDrumkitComponentList = pSong->get_components();

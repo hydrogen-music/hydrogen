@@ -37,6 +37,7 @@ namespace H2Core
 {
 	class Pattern;
 	class Note;
+	class AudioEngine;
 }
 
 class PatternEditorPanel;
@@ -147,6 +148,7 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		void cut();
 
 	private:
+		H2Core::AudioEngine* m_pAudioEngine;
 
 		bool m_bNeedsUpdate;
 		bool m_bNeedsBackgroundUpdate;
