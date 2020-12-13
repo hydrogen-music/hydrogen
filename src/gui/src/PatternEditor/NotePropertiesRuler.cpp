@@ -82,6 +82,14 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	HydrogenApp::get_instance()->addEventListener( this );
 
 	setFocusPolicy( Qt::StrongFocus );
+
+	// Generic pattern editor menu contains some operations that don't apply here, and we will want to add
+	// menu options specific to this later.
+	delete m_pPopupMenu;
+	m_pPopupMenu = new QMenu( this );
+	m_pPopupMenu->addAction( tr( "Select &all" ), this, &PatternEditor::selectAll );
+	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &PatternEditor::selectNone );
+
 }
 
 
@@ -218,9 +226,14 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 
 
 void NotePropertiesRuler::mouseClickEvent( QMouseEvent *ev ) {
-	propertyAdjustStart( ev );
-	propertyAdjustUpdate( ev );
-	propertyAdjustEnd( ev );
+	if ( ev->button() == Qt::RightButton ) {
+		m_pPopupMenu->popup( ev->globalPos() );
+
+	} else {
+		propertyAdjustStart( ev );
+		propertyAdjustUpdate( ev );
+		propertyAdjustEnd( ev );
+	}
 }
 
 void NotePropertiesRuler::mouseDragStartEvent( QMouseEvent *ev ) {
@@ -527,6 +540,15 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			if (m_bValueHasBeenSet) {
 				bRepeatLastValue = true;
 			}
+
+		} else if ( ev->matches( QKeySequence::SelectAll ) ) {
+			// Key: Ctrl + A: Select all
+			selectAll();
+
+		} else if ( ev->matches( QKeySequence::Deselect ) ) {
+			// Key: Shift + Ctrl + A: clear selection
+			selectNone();
+
 		}
 
 		if ( delta != 0.0 || bRepeatLastValue ) {
@@ -1241,4 +1263,19 @@ QRect NotePropertiesRuler::getKeyboardCursorRect()
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	uint y = nSelectedInstrument * m_nGridHeight;
 	return QRect( x-m_nGridWidth*3, 0+1, m_nGridWidth*6, height()-2 );
+}
+
+void NotePropertiesRuler::selectAll() {
+	m_selection.clearSelection();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
+	Pattern *pPattern = pSong->get_pattern_list()->get( pHydrogen->getSelectedPatternNumber() );
+	Instrument *pInstrument =  pSong->get_instrument_list()->get( pHydrogen->getSelectedInstrumentNumber() );
+	FOREACH_NOTE_CST_IT_BEGIN_END( pPattern->get_notes(), it )
+		{
+			if ( it->second->get_instrument() == pInstrument ) {
+				m_selection.addToSelection( it->second );
+			}
+		}
+	m_selection.updateWidgetGroup();
 }

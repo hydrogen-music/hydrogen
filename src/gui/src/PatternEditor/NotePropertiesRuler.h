@@ -77,8 +77,7 @@ class NotePropertiesRuler : public PatternEditor
 
 	public slots:
 		virtual void updateEditor( bool bPatternOnly = false ) override;
-		virtual void selectAll() override {}
-		virtual void selectNone() override {}
+		virtual void selectAll() override;
 		virtual void deleteSelection() override {}
 		virtual void copy() override {}
 		virtual void paste() override {}

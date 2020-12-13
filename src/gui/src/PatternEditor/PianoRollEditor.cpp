@@ -952,7 +952,7 @@ void PianoRollEditor::selectAll()
 			m_selection.addToSelection( it->second );
 		}
 	}
-	updateEditor( true );
+	m_selection.updateWidgetGroup();
 }
 
 
