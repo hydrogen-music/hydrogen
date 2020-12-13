@@ -866,6 +866,8 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 				}
 				uint x_pos = m_nMargin + pNote->get_position() * m_nGridWidth;
 				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
+
+				p.setPen( Qt::NoPen );
 				if (pNote->get_pan_r() == pNote->get_pan_l()) {
 					// pan value is centered - draw circle
 					int y_pos = (int)( height() * 0.5 );
@@ -959,7 +961,8 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 				int blue1;
 				blue1 = ( 255 - (int) red1 )* .33;
 				green1 =  ( 255 - (int) red1 );
-	
+
+				p.setPen( Qt::NoPen );
 				if (pNote->get_lead_lag() == 0) {
 				
 					// leadlag value is centered - draw circle
