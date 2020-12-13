@@ -379,6 +379,7 @@ void Instrument::save_to( XMLNode* node, int component_id )
 	InstrumentNode.write_int( "midiOutChannel", __midi_out_channel );
 	InstrumentNode.write_int( "midiOutNote", __midi_out_note );
 	InstrumentNode.write_bool( "isStopNote", __stop_notes );
+	InstrumentNode.write_bool( "isSoloed", __soloed );
 
 	switch ( __sample_selection_alg ) {
 	case VELOCITY:
