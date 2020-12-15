@@ -1289,7 +1289,8 @@ void Hydrogen::setPatternPos( int nPatternNumber )
 		pAudioEngine->setPatternTickPosition( 0 );
 	}
 	INFOLOG( "relocate" );
-	pAudioEngine->getAudioDriver()->locate( static_cast<int>( totalTick * pAudioEngine->getAudioDriver()->m_transport.m_fTickSize ));
+
+	pAudioEngine->locate( static_cast<int>( totalTick * pAudioEngine->getAudioDriver()->m_transport.m_fTickSize ));
 
 	pAudioEngine->unlock();
 }
