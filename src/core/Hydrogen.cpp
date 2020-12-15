@@ -715,7 +715,7 @@ unsigned long Hydrogen::getRealtimeTickPosition()
 	// (`currtime`-`m_currentTickTime`) and storing the results in
 	// `deltatime`. It uses both the .tv_sec (seconds) and
 	// .tv_usec (microseconds) members of the timeval struct.
-	timersub( &currtime, &pAudioEngine->m_currentTickTime, &deltatime );
+	timersub( &currtime, &pAudioEngine->getCurrentTickTime(), &deltatime );
 
 	// add a buffers worth for jitter resistance
 	double deltaSec =

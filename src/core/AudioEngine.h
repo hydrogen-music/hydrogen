@@ -661,9 +661,10 @@ public:
 	void	 			setMasterPeak_R( float value );
 	float 				getMasterPeak_R() const;
 
-
 	float				getProcessTime() const;
 	float				getMaxProcessTime() const;
+
+	struct timeval& 	getCurrentTickTime(); 
 
 	int					getSelectedPatternNumber() const;
 	void				setSelectedPatternNumber( int number );
@@ -684,9 +685,7 @@ public:
 
 	unsigned int		getAddRealtimeNoteTickPosition() const; 
 	void				setAddRealtimeNoteTickPosition( unsigned int tickPosition );
-	
-	/** Updated in audioEngine_updateNoteQueue().*/
-	struct timeval		m_currentTickTime;
+
 
 	
 private:
@@ -737,13 +736,13 @@ private:
 	 * Pointer to the audio buffer of the left stereo output returned by
 	 * AudioOutput::getOut_L().
 	 */
-	float*	m_pMainBuffer_L;
+	float*				m_pMainBuffer_L;
 	
 	/**
 	 * Pointer to the audio buffer of the right stereo output returned by
 	 * AudioOutput::getOut_R().
 	 */
-	float*	m_pMainBuffer_R;
+	float*				m_pMainBuffer_R;
 
 	#if defined(H2CORE_HAVE_LADSPA) || _DOXYGEN_
 	float				m_fFXPeak_L[MAX_FX];
@@ -815,6 +814,9 @@ private:
 
 	// max ms usable in process with no xrun
 	float				m_fMaxProcessTime;
+
+	// updated in audioEngine_updateNoteQueue()
+	struct timeval		m_currentTickTime;
 
 	/**
 	 * Index of the pattern selected in the GUI or by a MIDI event.
@@ -949,7 +951,7 @@ private:
 	};
 
 	std::priority_queue<Note*, std::deque<Note*>, compare_pNotes > m_songNoteQueue;
-	std::deque<Note*>		m_midiNoteQueue;	///< Midi Note FIFO
+	std::deque<Note*>	m_midiNoteQueue;	///< Midi Note FIFO
 	
 	/**
 	 * Pointer to the metronome.
@@ -1042,6 +1044,10 @@ inline float AudioEngine::getProcessTime() const {
 
 inline float AudioEngine::getMaxProcessTime() const {
 	return m_fMaxProcessTime;
+}
+
+inline struct timeval& AudioEngine::getCurrentTickTime() {
+	return m_currentTickTime;
 }
 
 inline int AudioEngine::getState() const {
