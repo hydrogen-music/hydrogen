@@ -29,6 +29,7 @@
 #include <cassert>
 #include <algorithm>
 #include <cmath>
+#include <jack/metadata.h>
 
 #include <core/Hydrogen.h>
 #include <core/AudioEngine.h>
@@ -146,9 +147,6 @@ int JackAudioDriver::connect()
 	}
 
 	bool bConnectDefaults = m_bConnectDefaults;
-
-	memset( m_pTrackOutputPortsL, 0, sizeof(m_pTrackOutputPortsL) );
-	memset( m_pTrackOutputPortsR, 0, sizeof(m_pTrackOutputPortsR) );
 
 #ifdef H2CORE_HAVE_LASH
 	if ( Preferences::get_instance()->useLash() ){
@@ -848,8 +846,12 @@ int JackAudioDriver::init( unsigned bufferSize )
 	// It returns a _jack_port_t_ pointer on success, otherwise NULL.
 	m_pOutputPort1 = jack_port_register( m_pClient, "out_L", JACK_DEFAULT_AUDIO_TYPE,
 					    JackPortIsOutput, 0 );
+	jack_set_property( m_pClient, jack_port_uuid( m_pOutputPort1 ),
+					   JACK_METADATA_PRETTY_NAME, "Main Output L", "text/plain" );
 	m_pOutputPort2 = jack_port_register( m_pClient, "out_R", JACK_DEFAULT_AUDIO_TYPE,
 					    JackPortIsOutput, 0 );
+	jack_set_property( m_pClient, jack_port_uuid( m_pOutputPort2 ),
+					   JACK_METADATA_PRETTY_NAME, "Main Output R", "text/plain" );
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	if ( ( m_pOutputPort1 == nullptr ) || ( m_pOutputPort2 == nullptr ) ) {
@@ -873,6 +875,15 @@ int JackAudioDriver::init( unsigned bufferSize )
 	if ( pPreferences->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT &&
 		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ){
 		initTimebaseMaster();
+	}
+	
+	// Whenever there is a Song present, create per track outputs (if
+	// activated in the Preferences).
+	Song* pSong = pHydrogen->getSong();
+	if ( pSong != nullptr ) {
+		makeTrackOutputs( pSong );
+		setBpm( pSong->__bpm );
+		locate( 0 );
 	}
 	
 	return 0;

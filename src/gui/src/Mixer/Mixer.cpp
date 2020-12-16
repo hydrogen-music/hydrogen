@@ -219,17 +219,13 @@ void Mixer::muteClicked(ComponentMixerLine* ref)
 {
 	bool isMuteClicked = ref->isMuteClicked();
 
-	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->get_component( ref->getCompoID() );
+	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->get_component( ref->getComponentID() );
 
 	pCompo->set_muted( isMuteClicked );
 }
 
 void Mixer::soloClicked(ComponentMixerLine* ref)
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
-	std::vector<DrumkitComponent*> pCompoList = *(pSong->get_components());
-	
 	bool isSoloClicked = ref->isSoloClicked();
 	int nLine = findCompoMixerLineByRef(ref);
 	
@@ -242,7 +238,7 @@ void Mixer::volumeChanged(ComponentMixerLine* ref)
 {
 	float newVolume = ref->getVolume();
 
-	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->get_component( ref->getCompoID() );
+	DrumkitComponent *pCompo = Hydrogen::get_instance()->getSong()->get_component( ref->getComponentID() );
 
 	pCompo->set_volume( newVolume );
 }

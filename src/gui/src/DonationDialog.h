@@ -35,7 +35,7 @@ class DonationDialog : public QDialog, public Ui_DonationDialog_UI
 {
 Q_OBJECT
 public:
-	DonationDialog(QWidget* parent);
+	explicit DonationDialog(QWidget* parent);
 	~DonationDialog();
 
 private slots:

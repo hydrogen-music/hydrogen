@@ -52,11 +52,11 @@ class MetronomeWidget : public QWidget,public EventListener, public H2Core::Obje
     H2_OBJECT
 	Q_OBJECT
 	public:
-		MetronomeWidget(QWidget *pParent);
+		explicit MetronomeWidget(QWidget *pParent);
 		~MetronomeWidget();
 
-		virtual void metronomeEvent( int nValue );
-		virtual void paintEvent( QPaintEvent*);
+		virtual void metronomeEvent( int nValue ) override;
+		virtual void paintEvent( QPaintEvent*) override;
 
 
 	public slots:
@@ -88,16 +88,16 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
     H2_OBJECT
 	Q_OBJECT
 	public:
-		PlayerControl(QWidget *parent);
+		explicit PlayerControl(QWidget *parent);
 		~PlayerControl();
 
 		void showMessage( const QString& msg, int msec );
 		void showScrollMessage( const QString& msg, int msec, bool test );
 		void resetStatusLabel();
 
-		virtual void tempoChangedEvent( int nValue );
-		virtual void jackTransportActivationEvent( int nValue );
-		virtual void jackTimebaseActivationEvent( int nValue );
+		virtual void tempoChangedEvent( int nValue ) override;
+		virtual void jackTransportActivationEvent( int nValue ) override;
+		virtual void jackTimebaseActivationEvent( int nValue ) override;
 													
 
 	private slots:
@@ -141,14 +141,14 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		 * @param nValue If 0, Pattern mode will be activate. Else,
 		 * Song mode will be activated instead.
 		 */
-		void songModeActivationEvent( int nValue );
+		void songModeActivationEvent( int nValue ) override;
 		/**
 		 * Shared GUI update when activating loop mode via button
 		 * click or via OSC command.
 		 *
 		 * @param nValue If 0, loop mode will be deactivate.
 		 */
-		void loopModeActivationEvent( int nValue );
+		void loopModeActivationEvent( int nValue ) override;
 		H2Core::Hydrogen *m_pEngine;
 		QPixmap m_background;
 

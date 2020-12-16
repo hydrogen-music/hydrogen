@@ -190,7 +190,7 @@ public:
 		 * Get the current song.
 		 * \return #__song
 		 */ 	
-		Song*			getSong(){ return __song; }
+		Song*			getSong() const{ return __song; }
 		/**
 		 * Sets the current song #__song to @a newSong.
 		 * \param newSong Pointer to the new Song object.
@@ -326,18 +326,41 @@ public:
 
 		void			restartDrivers();
 
-		AudioOutput*		getAudioOutput();
-		MidiInput*		getMidiInput();
-		MidiOutput*		getMidiOutput();
+		AudioOutput*		getAudioOutput() const;
+		MidiInput*		getMidiInput() const;
+		MidiOutput*		getMidiOutput() const;
 
 		/** Returns the current state of the audio engine.
 		 * \return #m_audioEngineState*/
-		int			getState();
+		int			getState() const;
 
-		float			getProcessTime();
-		float			getMaxProcessTime();
+		float			getProcessTime() const;
+		float			getMaxProcessTime() const;
 
+		/** Wrapper around loadDrumkit( Drumkit, bool ) with the
+			conditional argument set to true.
+		 *
+		 * \returns 0 In case something unexpected happens, it will be
+		 *   indicated with #ERRORLOG messages.
+		 */
 		int			loadDrumkit( Drumkit *pDrumkitInfo );
+		/** Loads the H2Core::Drumkit provided in \a pDrumkitInfo into
+		 * the current session.
+		 *
+		 * When under session management (see
+		 * NsmClient::m_bUnderSessionManagement) the function will
+		 * create a symlink to the loaded H2Core::Drumkit using the
+		 * name "drumkit" in the folder
+		 * NsmClient::m_sSessionFolderPath.
+		 *
+		 * \param pDrumkitInfo Full-fledged H2Core::Drumkit to load.
+		 * \param conditional Argument passed on as second input
+		 *   argument to removeInstrument().
+		 *
+		 * \returns 0 In case something unexpected happens, it will be
+		 *   indicated with #ERRORLOG messages.
+		 */
+
 		int			loadDrumkit( Drumkit *pDrumkitInfo, bool conditional );
 
 		/** Test if an Instrument has some Note in the Pattern (used to
@@ -458,7 +481,6 @@ void			previewSample( Sample *pSample );
 	void			renameJackPorts(Song* pSong);
 #endif
 
-#if defined(H2CORE_HAVE_OSC) || _DOXYGEN_
 	/** Starts/stops the OSC server
 	 * \param bEnable `true` = start, `false` = stop.*/
 	void			toggleOscServer( bool bEnable );
@@ -466,7 +488,6 @@ void			previewSample( Sample *pSample );
 		adopt a new OSC port.*/
 	void			recreateOscServer();
 	void			startNsmClient();
-#endif
 
 	// beatconter
 	void			setbeatsToCount( int beatstocount);
@@ -504,13 +525,13 @@ void			previewSample( Sample *pSample );
 	long			getPatternLength( int nPattern );
 	/** Returns the fallback speed.
 	 * \return #m_fNewBpmJTM */
-	float			getNewBpmJTM();
-	/** Set the fallback speed #m_fNewBpmJTM.
+	float			getNewBpmJTM() const;
+	/** Set the fallback speed #m_nNewBpmJTM.
 	 * \param bpmJTM New default tempo. */ 
 	void			setNewBpmJTM( float bpmJTM);
 
 	void			__panic();
-	unsigned int	__getMidiRealtimeNoteTickPosition();
+	unsigned int	__getMidiRealtimeNoteTickPosition() const;
 
 	/**
 	 * Updates Song::__bpm, TransportInfo::m_fBPM, and #m_fNewBpmJTM
@@ -573,7 +594,7 @@ void			previewSample( Sample *pSample );
 	 * \return Whether the playback track is enabled or false, if
 	 * no Song was selected (getSong() return nullptr).
 	 */
-	bool			getPlaybackTrackState();
+	bool			getPlaybackTrackState() const;
 	/**
 	 * Wrapper function for loading the playback track.
 	 *
@@ -589,15 +610,25 @@ void			previewSample( Sample *pSample );
 	 */
 	void			loadPlaybackTrack( const QString filename );
 
-	/**\return #m_bActiveGUI*/
-	bool			getActiveGUI() const;
-	/**\param bActiveGUI Specifies whether the Qt5 GUI is active. Sets
-	   #m_bActiveGUI.*/
-	void			setActiveGUI( const bool bActiveGUI );
+	/** Specifies the state of the Qt GUI*/
+	enum class		GUIState {
+		/**There is a GUI but it is not ready yet (during startup).*/
+		notReady = -1,
+		/**No GUI available.*/
+		unavailable = 0,
+		/**There is a working GUI.*/
+		ready = 1
+	};
+	
+	/**\return #m_GUIState*/
+	GUIState		getGUIState() const;
+	/**\param state Specifies whether the Qt5 GUI is active. Sets
+	   #m_GUIState.*/
+	void			setGUIState( const GUIState state );
 	
 	/**\return #m_pNextSong*/
 	Song*			getNextSong() const;
-	/**\param pNextSong Sets #m_pNextSong. #Song which is about to be
+	/**\param pNextSong Sets #m_pNextSong. Song which is about to be
 	   loaded by the GUI.*/
 	void			setNextSong( Song* pNextSong );
 	/** Calculates the lookahead for a specific tick size.
@@ -650,6 +681,23 @@ void			previewSample( Sample *pSample );
 	 * #JackAudioDriver::m_timebaseState).
 	 */
 	JackAudioDriver::Timebase		getJackTimebaseState() const;
+	/** \return NsmClient::m_bUnderSessionManagement if NSM is
+		supported.*/
+	bool			isUnderSessionManagement() const;
+	/** Sets the first Song to be loaded under session management.
+	 *
+	 * Enables the creation of a JACK client with all per track output
+	 * ports present right from the start. This is necessary to ensure
+	 * their connection can be properly restored by external tools.
+	 *
+	 * The function will only work if no audio driver is present
+	 * (since this is the intended use case and the function will be
+	 * harmful if used otherwise. Use setSong() instead.) and fails if
+	 * there is already a Song present.
+	 *
+	 * \param pSong Song to be loaded.
+	 */
+	void			setInitialSong( Song* pSong );
 
 	///midi lookuptable
 	int 			m_nInstrumentLookupTable[MAX_INSTRUMENTS];
@@ -717,19 +765,19 @@ private:
 	/**
 	 * Specifies whether the Qt5 GUI is active.
 	 *
-	 * When a new #Song is set via the core part of Hydrogen, e.g. in
-	 * the context of session management, the #Song *must* be set via
+	 * When a new Song is set via the core part of Hydrogen, e.g. in
+	 * the context of session management, the Song *must* be set via
 	 * the GUI if active. Else the GUI will freeze.
 	 *
-	 * Set by setActiveGUI() and accessed via getActiveGUI().
+	 * Set by setGUIState() and accessed via getGUIState().
 	 */
-	bool			m_bActiveGUI;
+	GUIState		m_GUIState;
 	
 	/**
-	 * Stores a new #Song which is about of the loaded by the GUI.
+	 * Stores a new Song which is about of the loaded by the GUI.
 	 *
-	 * If #m_bActiveGUI is true, the core part of must not load a new
-	 * #Song itself. Instead, the new #Song is prepared and stored in
+	 * If #m_GUIState is true, the core part of must not load a new
+	 * Song itself. Instead, the new Song is prepared and stored in
 	 * this object to be loaded by HydrogenApp::updateSongEvent() if
 	 * H2Core::EVENT_UPDATE_SONG is pushed with a '1'.
 	 *
@@ -813,7 +861,7 @@ inline void Hydrogen::setCurrentDrumkitname( const QString& currentdrumkitname )
 	this->m_currentDrumkit = currentdrumkitname;
 }
 
-inline bool Hydrogen::getPlaybackTrackState()
+inline bool Hydrogen::getPlaybackTrackState() const
 {
 	Song* pSong = getSong();
 	bool  bState;
@@ -826,11 +874,11 @@ inline bool Hydrogen::getPlaybackTrackState()
 	return 	bState;
 }
 
-inline bool Hydrogen::getActiveGUI() const {
-	return m_bActiveGUI;
+inline Hydrogen::GUIState Hydrogen::getGUIState() const {
+	return m_GUIState;
 }
-inline void Hydrogen::setActiveGUI( const bool bActiveGUI ) {
-	m_bActiveGUI = bActiveGUI;
+inline void Hydrogen::setGUIState( const Hydrogen::GUIState state ) {
+	m_GUIState = state;
 }
 inline Song* Hydrogen::getNextSong() const {
 	return m_pNextSong;

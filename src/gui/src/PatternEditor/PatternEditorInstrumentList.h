@@ -50,7 +50,7 @@ class InstrumentLine : public PixmapWidget
 	Q_OBJECT
 
 	public:
-		InstrumentLine(QWidget* pParent);
+		explicit InstrumentLine(QWidget* pParent);
 
 		void setName(const QString& sName);
 		void setSelected(bool isSelected);

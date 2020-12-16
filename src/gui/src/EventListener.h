@@ -52,6 +52,7 @@ class EventListener
 		virtual void jackTimebaseActivationEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void songModeActivationEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void loopModeActivationEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void updatePreferencesEvent( int nValue ){ UNUSED( nValue ); }
 
 		virtual ~EventListener() {}
 };

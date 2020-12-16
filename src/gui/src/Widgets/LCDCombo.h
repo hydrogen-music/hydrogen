@@ -39,7 +39,7 @@ class LCDCombo : public QWidget, public H2Core::Object
 		H2_OBJECT
 		Q_OBJECT
 	public:
-		LCDCombo( QWidget *pParent, int digits = 5 );
+		explicit LCDCombo( QWidget *pParent, int digits = 5 );
 		~LCDCombo();
 
 		bool addItem( const QString &text );

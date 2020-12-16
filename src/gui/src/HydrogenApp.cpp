@@ -54,7 +54,6 @@
 
 #include "Widgets/InfoBar.h"
 
-
 #include <QtGui>
 #if QT_VERSION >= 0x050000
 #  include <QtWidgets>
@@ -87,11 +86,12 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 	connect( m_pEventQueueTimer, SIGNAL( timeout() ), this, SLOT( onEventQueueTimer() ) );
 	m_pEventQueueTimer->start( QUEUE_TIMER_PERIOD );
 
-
-	// Create the audio engine :)
-	Hydrogen::create_instance();
-	Hydrogen::get_instance()->setSong( pFirstSong );
-	Preferences::get_instance()->setLastSongFilename( pFirstSong->get_filename() );
+	if ( ! Hydrogen::get_instance()->isUnderSessionManagement() ) {
+		// When under Non Session Management the new Song will be
+		// loaded by the corresponding NSM client instance.
+		Hydrogen::get_instance()->setSong( pFirstSong );
+	} 
+	
 	SoundLibraryDatabase::create_instance();
 
 	//setup the undo stack
@@ -327,17 +327,26 @@ void HydrogenApp::closeFXProperties()
 #endif
 }
 
-void HydrogenApp::setSong(Song* song)
-{
-	Hydrogen::get_instance()->setSong( song );
-	Preferences::get_instance()->setLastSongFilename( song->get_filename() );
+bool HydrogenApp::openSong( const QString sFilename ) {
 
-	m_pSongEditorPanel->updateAll();
-	m_pPatternEditorPanel->updateSLnameLabel();
+	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
+	if ( ! pCoreActionController->openSong( sFilename ) ) {
+		QMessageBox::information( m_pMainForm, "Hydrogen", tr("Error loading song.") );
+		return false;
+	}
 
-	updateWindowTitle();
+	return true;
+}
 
-	m_pMainForm->updateRecentUsedSongList();
+bool HydrogenApp::openSong( H2Core::Song* pSong ) {
+
+	auto pCoreActionController = Hydrogen::get_instance()->getCoreActionController();
+	if ( ! pCoreActionController->openSong( pSong ) ) {
+		QMessageBox::information( m_pMainForm, "Hydrogen", tr("Error loading song.") );
+		return false;
+	}
+
+	return true;
 }
 
 void HydrogenApp::showMixer(bool show)
@@ -579,6 +588,10 @@ void HydrogenApp::onEventQueueTimer()
 				pListener->tempoChangedEvent( event.value );
 				break;
 				
+			case EVENT_UPDATE_PREFERENCES:
+				pListener->updatePreferencesEvent( event.value );
+				break;
+			
 			case EVENT_UPDATE_SONG:
 				pListener->updateSongEvent( event.value );
 				break;
@@ -676,20 +689,121 @@ void HydrogenApp::cleanupTemporaryFiles()
 	Filesystem::rm( Filesystem::tmp_dir(), true );
 }
 
-void HydrogenApp::updateSongEvent( int nValue ) {
+void HydrogenApp::updatePreferencesEvent( int nValue ) {
 	
-	Hydrogen* pHydrogen = Hydrogen::get_instance();	
-
+	QString sPreferencesFilename;
+	
+	// Local path of the preferences used during session management.
+	const QString sPreferencesOverwritePath = 
+		H2Core::Filesystem::getPreferencesOverwritePath();
+	if ( sPreferencesOverwritePath.isEmpty() ) {
+		sPreferencesFilename = Filesystem::usr_config_path();
+	} else {
+		sPreferencesFilename = sPreferencesOverwritePath;
+	}
+		
 	if ( nValue == 0 ) {
+		setScrollStatusBarMessage( trUtf8("Preferences saved.") + 
+								   QString(" Into: ") + 
+								   sPreferencesFilename, 2000 );
+	} else if ( nValue == 1 ) {
+		
+		// Since the Preferences have changed, we also have to reflect
+		// these changes in the GUI - its format, colors, fonts,
+		// selections etc.
+		// But we won't change the layout!
+		Preferences *pPref = Preferences::get_instance();
+		int uiLayout = pPref->getDefaultUILayout();
+
+		WindowProperties audioEngineInfoProp = pPref->getAudioEngineInfoProperties();
+		m_pAudioEngineInfoForm->move( audioEngineInfoProp.x, audioEngineInfoProp.y );
+		if ( audioEngineInfoProp.visible ) {
+			m_pAudioEngineInfoForm->show();
+		}
+		else {
+			m_pAudioEngineInfoForm->hide();
+		}
+
+		// MAINFORM
+		WindowProperties mainFormProp = pPref->getMainFormProperties();
+		m_pMainForm->resize( mainFormProp.width, mainFormProp.height );
+		m_pMainForm->move( mainFormProp.x, mainFormProp.y );
+
+		m_pSplitter->setOrientation( Qt::Vertical );
+		m_pSplitter->setOpaqueResize( true );
+
+		// SONG EDITOR
+		WindowProperties songEditorProp = pPref->getSongEditorProperties();
+		m_pSongEditorPanel->resize( songEditorProp.width, songEditorProp.height );
+
+		// PATTERN EDITOR
+		WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
+		m_pPatternEditorPanel->resize( patternEditorProp.width, patternEditorProp.height );
+
+		WindowProperties mixerProp = pPref->getMixerProperties();
+
+		m_pMixer->resize( mixerProp.width, mixerProp.height );
+		m_pMixer->move( mixerProp.x, mixerProp.y );
+
+		m_pMixer->updateMixer();
+
+		if ( mixerProp.visible && uiLayout == Preferences::UI_LAYOUT_SINGLE_PANE ) {
+			m_pMixer->show();
+		}
+		else {
+			m_pMixer->hide();
+		}
+		
+#ifdef H2CORE_HAVE_LADSPA
+		// LADSPA FX
+		for (uint nFX = 0; nFX < MAX_FX; nFX++) {
+			m_pLadspaFXProperties[nFX]->hide();
+			WindowProperties prop = pPref->getLadspaProperties(nFX);
+			m_pLadspaFXProperties[nFX]->move( prop.x, prop.y );
+			if ( prop.visible ) {
+				m_pLadspaFXProperties[nFX]->show();
+			}
+			else {
+				m_pLadspaFXProperties[nFX]->hide();
+			}
+		}
+#endif
+
+		// Inform the user about which file was loaded.
+		setScrollStatusBarMessage( trUtf8("Preferences loaded.") + 
+								   QString(" From: ") + 
+								   sPreferencesFilename, 2000 );
+
+	
+	} else {
+		ERRORLOG( QString( "Unknown event parameter [%1] in HydrogenApp::updatePreferencesEvent" )
+				  .arg( nValue ) );
+	}
+	
+}
+
+void HydrogenApp::updateSongEvent( int nValue ) {
+
+	Hydrogen* pHydrogen = Hydrogen::get_instance();	
+	
+	if ( nValue == 0 || nValue == 1 ) {
 
 		// Set a Song prepared by the core part.
 		Song* pNextSong = pHydrogen->getNextSong();
+		
 		pHydrogen->setSong( pNextSong );
-	
+
 		// Cleanup
 		closeFXProperties();
 		m_pUndoStack->clear();
-	
+		
+		// Add the new loaded song in the "last used song" vector.
+		// This behavior is prohibited under session management. Only
+		// songs open during normal runs will be listed.
+		if ( ! pHydrogen->isUnderSessionManagement() ) {
+			Preferences::get_instance()->insertRecentFile( pNextSong->get_filename() );
+		}
+
 		// Update GUI components
 		m_pSongEditorPanel->updateAll();
 		m_pPatternEditorPanel->updateSLnameLabel();
@@ -706,7 +820,11 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		m_pPatternEditorPanel->updateSLnameLabel();
 		updateWindowTitle();
 		
-	} else if ( nValue == 1 ) {
+		if ( nValue == 1 ) {	
+			pHydrogen->restartDrivers();
+		}
+		
+	} else if ( nValue == 2 ) {
 		
 		QString filename = pHydrogen->getSong()->get_filename();
 		
@@ -715,8 +833,14 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		updateWindowTitle();
 		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 		
-	}
+	} else if ( nValue == 3 ) {
 
+		// The event was triggered before the Song was fully loaded by
+		// the core. It's most likely to be present by now, but it's
+		// probably better to avoid displaying its path just to be
+		// sure.
+		QMessageBox::information( m_pMainForm, "Hydrogen", tr("Song is read-only.\nUse 'Save as' to enable autosave." ) );
+	}
 }
 
 void HydrogenApp::quitEvent( int nValue ) {

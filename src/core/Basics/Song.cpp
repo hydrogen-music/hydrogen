@@ -47,6 +47,10 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
 
+#ifdef H2CORE_HAVE_OSC
+#include <core/NsmClient.h>
+#endif
+
 #include <QDomDocument>
 #include <QDir>
 
@@ -244,7 +248,16 @@ void Song::set_is_modified(bool is_modified)
 
 	if(Notify) {
 		EventQueue::get_instance()->push_event( EVENT_SONG_MODIFIED, -1 );
+
+		if ( Hydrogen::get_instance()->isUnderSessionManagement() ) {
+			// If Hydrogen is under session management (NSM), tell the
+			// NSM server that the Song was modified.
+#ifdef H2CORE_HAVE_OSC
+			NsmClient::get_instance()->sendDirtyState( is_modified );
+#endif
+		}
 	}
+	
 }
 
 bool Song::has_missing_samples()
@@ -786,6 +799,8 @@ Song* SongReader::readSong( const QString& filename )
 			QString drumkitPath;
 			if ( ( !sDrumkit.isEmpty() ) && ( sDrumkit != "-" ) ) {
 				drumkitPath = Filesystem::drumkit_path_search( sDrumkit );
+			} else {
+				ERRORLOG( "Missing drumkit path" );
 			}
 
 
@@ -1008,7 +1023,6 @@ Song* SongReader::readSong( const QString& filename )
 		if ( instrumentList_count == 0 ) {
 			WARNINGLOG( "0 instruments?" );
 		}
-
 		pSong->set_instrument_list( pInstrList );
 	} else {
 		ERRORLOG( "Error reading song: instrumentList node not found" );

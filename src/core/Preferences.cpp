@@ -36,6 +36,7 @@
 #include <iostream>
 #include <cstdio>
 #include <list>
+#include <algorithm>
 
 #include "MidiMap.h"
 #include "Version.h"
@@ -277,10 +278,23 @@ Preferences::~Preferences()
 ///
 void Preferences::loadPreferences( bool bGlobal )
 {
+	// We do not required the recently used variables to be
+	// accumulated throughout various configuration files.
+	m_recentFiles.clear();
+	m_recentFX.clear();
+
 	bool recreate = false;	// configuration file must be recreated?
 
-	QString sPreferencesFilename = ( bGlobal ? Filesystem::sys_config_path() : Filesystem::usr_config_path() );
-	INFOLOG( QString( "Loading preferences file (%1) [%2]" ).arg( bGlobal ? "SYS" : "USER" ).arg( sPreferencesFilename ) );
+	QString sPreferencesFilename;
+	const QString sPreferencesOverwritePath = Filesystem::getPreferencesOverwritePath();
+	if ( sPreferencesOverwritePath.isEmpty() ) {
+			sPreferencesFilename = ( bGlobal ? Filesystem::sys_config_path() : Filesystem::usr_config_path() );
+			INFOLOG( QString( "Loading preferences file (%1) [%2]" ).arg( bGlobal ? "SYS" : "USER" ).arg( sPreferencesFilename ) );
+	} else {
+		sPreferencesFilename = sPreferencesOverwritePath;
+		INFOLOG( QString( "Loading preferences file %1" ).arg( sPreferencesFilename ) );
+	}
+	
 	Filesystem::file_readable( sPreferencesFilename );
 
 	// pref file exists?
@@ -691,7 +705,15 @@ void Preferences::loadPreferences( bool bGlobal )
 ///
 void Preferences::savePreferences()
 {
-	INFOLOG( "Saving preferences file: " + Filesystem::usr_config_path() );
+	QString sPreferencesFilename;
+	const QString sPreferencesOverwritePath = Filesystem::getPreferencesOverwritePath();
+	if ( sPreferencesOverwritePath.isEmpty() ) {
+		sPreferencesFilename = Filesystem::usr_config_path();
+	} else {
+		sPreferencesFilename = sPreferencesOverwritePath;
+	}
+	
+	INFOLOG( QString( "Saving preferences file %1" ).arg( sPreferencesFilename ) );
 
 	QDomDocument doc;
 	QDomProcessingInstruction header = doc.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\"");
@@ -1084,7 +1106,7 @@ void Preferences::savePreferences()
 
 	doc.appendChild( rootNode );
 
-	QFile file( Filesystem::usr_config_path() );
+	QFile file( sPreferencesFilename );
 	if ( !file.open(QIODevice::WriteOnly) ) {
 		return;
 	}
@@ -1106,26 +1128,34 @@ void Preferences::setMostRecentFX( QString FX_name )
 	m_recentFX.push_front( FX_name );
 }
 
-void Preferences::setRecentFiles( std::vector<QString> recentFiles )
+void Preferences::insertRecentFile( const QString sFilename ){
+
+	bool bAlreadyContained =
+		std::find( m_recentFiles.begin(), m_recentFiles.end(),
+				   sFilename ) != m_recentFiles.end();
+	
+	m_recentFiles.insert( m_recentFiles.begin(), sFilename );
+
+	if ( bAlreadyContained ) {
+		// Eliminate all duplicates in the list while keeping the one
+		// inserted at the beginning.
+		setRecentFiles( m_recentFiles );
+	}
+}
+
+void Preferences::setRecentFiles( const std::vector<QString> recentFiles )
 {
 	// find single filenames. (skip duplicates)
-	std::vector<QString> temp;
-	for ( unsigned i = 0; i < recentFiles.size(); i++ ) {
-		QString sFilename = recentFiles[ i ];
-
-		bool bExists = false;
-		for ( unsigned j = 0; j < temp.size(); j++ ) {
-			if ( sFilename == temp[ j ] ) {
-				bExists = true;
-				break;
-			}
-		}
-		if ( !bExists ) {
-			temp.push_back( sFilename );
+	std::vector<QString> sTmpVec;
+	for ( const auto& ssFilename : recentFiles ) {
+		if ( std::find( sTmpVec.begin(), sTmpVec.end(), ssFilename) ==
+			 sTmpVec.end() ) {
+			// Particular file is not contained yet.
+			sTmpVec.push_back( ssFilename );
 		}
 	}
 
-	m_recentFiles = temp;
+	m_recentFiles = sTmpVec;
 }
 
 

@@ -53,6 +53,10 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Translations.h>
 
+#ifdef H2CORE_HAVE_OSC
+#include <core/NsmClient.h>
+#endif
+
 #include <signal.h>
 #include <iostream>
 
@@ -390,12 +394,19 @@ int main(int argc, char *argv[])
 
 		SplashScreen *pSplash = new SplashScreen();
 
-		if (bNoSplash) {
+#ifdef H2CORE_HAVE_OSC
+		// Check for being under session management without the
+		// NsmClient class available yet.
+		if ( bNoSplash ||  getenv( "NSM_URL" ) ) {
 			pSplash->hide();
 		}
 		else {
 			pSplash->show();
 		}
+#endif
+#ifndef H2CORE_HAVE_OSC
+		pSplash->show();
+#endif
 
 #ifdef H2CORE_HAVE_LASH
 		if ( H2Core::Preferences::get_instance()->useLash() ){
@@ -453,21 +464,37 @@ int main(int argc, char *argv[])
 		H2Core::Hydrogen::create_instance();
 		
 		// Tell Hydrogen it was started via the QT5 GUI.
-		H2Core::Hydrogen::get_instance()->setActiveGUI( true );
+		H2Core::Hydrogen::get_instance()->setGUIState( H2Core::Hydrogen::GUIState::notReady );
+		
+		// Whether or not to load a default song or supplied one when
+		// constructing the MainForm object.
+		bool bLoadSong = true;
 
-#ifdef H2CORE_HAVE_OSC
 		H2Core::Hydrogen::get_instance()->startNsmClient();
-
-		QString NsmSongFilename = pPref->getNsmSongName();
-
-		if(!NsmSongFilename.isEmpty())
-		{
-			sSongFilename = NsmSongFilename;
+		
+		if ( H2Core::Hydrogen::get_instance()->isUnderSessionManagement() ){
+			
+			// When using the Non Session Management system, the new
+			// Song will be loaded by the NSM client singleton itself
+			// and not by the MainForm. The latter will just access
+			// the already loaded Song.
+			bLoadSong = false;
+			
 		}
-#endif
 
-		MainForm *pMainForm = new MainForm( pQApp, sSongFilename );
+		// If the NSM_URL variable is present, Hydrogen will not
+		// initialize the audio driver and leaves this to the callback
+		// function nsm_open_cb of the NSM client (which will be
+		// called by now). However, the presence of the environmental
+		// variable does not guarantee for a session management and if
+		// no audio driver is initialized yet, we will do it here. 
+		if ( H2Core::Hydrogen::get_instance()->getAudioOutput() == nullptr ) {
+			H2Core::Hydrogen::get_instance()->restartDrivers();
+		}
+
+		MainForm *pMainForm = new MainForm( pQApp, sSongFilename, bLoadSong );
 		pMainForm->show();
+		
 		pSplash->finish( pMainForm );
 
 		if( ! sPlaylistFilename.isEmpty() ){
@@ -487,9 +514,18 @@ int main(int argc, char *argv[])
 			} else {
 				___ERRORLOG ( "Error loading the drumkit" );
 			}
+			delete pDrumkitInfo;
 		}
 
 		pQApp->setMainForm( pMainForm );
+
+		// Tell the core that the GUI is now fully loaded and ready.
+		H2Core::Hydrogen::get_instance()->setGUIState( H2Core::Hydrogen::GUIState::ready );
+#ifdef H2CORE_HAVE_OSC
+		if ( NsmClient::get_instance() != nullptr ) {
+			NsmClient::get_instance()->sendDirtyState( false );
+		}
+#endif
 
 		pQApp->exec();
 

@@ -47,7 +47,7 @@ class VirtualPatternDialog : public QDialog, public Ui_VirtualPatternDialog_UI, 
     H2_OBJECT
 	Q_OBJECT
 	public:
-		VirtualPatternDialog( QWidget* parent );
+		explicit VirtualPatternDialog( QWidget* parent );
 		~VirtualPatternDialog();
 
 	private slots:

@@ -18,13 +18,6 @@ environment:
       CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON -DWIN64:BOOL=ON"
       appveyor_build_worker_image: Visual Studio 2019
 
-    - job_name: 'WindowsDebug32'
-      job_group: 'Windows'
-      MSYS: 'C:\msys64\mingw32'
-      MSYS_REPO: 'mingw32/mingw-w64-i686'
-      BUILD_TYPE: "Debug"
-      CMAKE_FLAGS: "-DWANT_DEBUG:BOOL=ON"
-      appveyor_build_worker_image: Visual Studio 2019
 
 build:
   verbosity: detailed
@@ -69,8 +62,8 @@ for:
       PATH="$(brew --prefix qt5)/bin:$PATH"
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
 
-      #make sure that the dmg is also deployed even if not all tests are successful
-      appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer
+      #deploy dmg only on branch appveyor-build-with-artifacts
+      if [ "$APPVEYOR_REPO_BRANCH" = appveyor-build-with-artifacts ]; then appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer; fi
 
     test_script: |-
       TMPDIR=/tmp src/tests/tests --appveyor || true
@@ -123,7 +116,7 @@ for:
           set PATH=%CORE_PATH%;%PATH%
           src\tests\tests.exe --appveyor || cmd /c "exit /b 0"
           7z a %APPVEYOR_BUILD_FOLDER%\testresults.zip %TEMP%\hydrogen
-          appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
+          if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\testresults.zip
 
           mkdir %APPVEYOR_BUILD_FOLDER%\windows\extralibs
 
@@ -144,13 +137,11 @@ for:
           FOR %%F IN (Hydrogen-*.exe) DO %%F /S /D=%INSTDIR%
           %PYTHON% -m pytest %APPVEYOR_BUILD_FOLDER%\windows\ci\test_installation.py --junitxml=test_installation.xml
 
-    artifacts:
-      - path: build\Hydrogen-*.exe
-        name: Installer
-
 on_finish:
-  - cmd: appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
-  - cmd: appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeOutput.log
-  - cmd: appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeError.log
+  - cmd: if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeCache.txt
+  - cmd: if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeOutput.log
+  - cmd: if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\CMakeFiles\CMakeError.log
+  - cmd: if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts appveyor PushArtifact %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.0-win64.exe
+
   - cmd: |
-      curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%
+      if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts curl -F file=@%APPVEYOR_BUILD_FOLDER%\build\test_installation.xml https://ci.appveyor.com/api/testresults/junit/%APPVEYOR_JOB_ID%

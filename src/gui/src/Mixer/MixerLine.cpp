@@ -435,7 +435,7 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 {
 //	INFOLOG( "INIT" );
 
-	__compoID = CompoID;
+	m_nComponentID = CompoID;
 
 	m_nWidth = MIXERLINE_WIDTH;
 	m_nHeight = MIXERLINE_HEIGHT;
