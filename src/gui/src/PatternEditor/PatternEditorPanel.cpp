@@ -896,20 +896,25 @@ void PatternEditorPanel::patternLengthChanged()
 
 void PatternEditorPanel::updatePatternSizeLCD(){
 	// update pattern size
-	int nPatternSize = m_pPattern->get_length();
+	int nPatternSize = m_pPattern->get_length(); // in ticks
 	int nDen = m_pPattern->get_denominator();
-
 	char tmp[20];
-	if ( ( nPatternSize * nDen ) % MAX_NOTES == 0 ) {
+	
+	// Note: numerator = ( nPatternSize * nDen ) / MAX_NOTES
+	if ( ( nPatternSize * nDen ) % MAX_NOTES == 0 ) { // numerator is integer. Print with no decimal digits.
 		sprintf( tmp, "%d/%d", ( nPatternSize * nDen ) / MAX_NOTES, nDen );
 	} 
-	else {
-		sprintf( tmp, "%.3f/%d", (float) nPatternSize / MAX_NOTES * nDen, nDen );
+	else { // numerator is not integer
+				/* Note: print numerator using 3 decimal digits: enough for the resolution = 192 ticks/whole note.
+					In fact the minimum representable note value is 1/192 of a whole note = 0.00520333 whole notes 
+					or alternatively 1/48 of a quarter note = 0.02083333 quarter notes. */
+		sprintf( tmp, "%.3f/%d", (nPatternSize * nDen)/ (float) MAX_NOTES , nDen );
 	}
 	__pattern_size_LCD->setText( tmp );
 
-	//hide or show warning icon if denominator doesn't divide MAX_NOTES
-	/*TODO should the warning appear if ( nPatternSize * nDen ) % MAX_NOTES == 0 ? */
+	// hide or show warning icon if denominator doesn't divide MAX_NOTES
+		/* Note: warning even if ( nPatternSize * nDen ) % MAX_NOTES == 0 . In that case the displayed numerator is
+			integer and correct (e.g. size = 5/5), but the user may think that denominator is fully supported. */
 	if( MAX_NOTES % nDen != 0 )	{
 		m_pDenominatorWarning->show();
 	}
@@ -922,10 +927,10 @@ void PatternEditorPanel::denominatorWarningClicked()
 {
 	QMessageBox::information( this, "Hydrogen",
 							  tr( "Hydrogen can only represent notes as small as 1/%1 of a whole note, "
-							  	  "so note denominators must be factors of this.\nSupported values are: "
+							  	  "so note values must be multiple of this.\nSupported values are: "
 							  	  "1/1, 1/2, 1/3, 1/4, 1/6, 1/8, 1/12, 1/16, 1/24, 1/32, 1/48, 1/64, 1/96, 1/192" 
 							  	  ).arg( MAX_NOTES ) );
-							  	  //Note: the previous values are valid if and only if MAX_NOTES = 192
+							  	  // Note: the previous values are valid if and only if MAX_NOTES = 192
 }
 
 void PatternEditorPanel::patternSizeLCDClicked()
@@ -934,21 +939,22 @@ void PatternEditorPanel::patternSizeLCDClicked()
 	if ( pEngine->getState() != STATE_READY ) {	
 		QMessageBox::information( this, "Hydrogen", tr( "Is not possible to change the pattern size when playing." ) );
 		return;
-	} //TODO is it really impossible to change the pattern size when playing?
+	} // TODO is it really impossible to change the pattern size when playing?
 
 	bool bIsOkPressed;
 	int denominator;
 	
 	QString qtmp = QInputDialog::getText( this, "Hydrogen", tr( "New Pattern length (beats/note value)" ),
 													QLineEdit::Normal, __pattern_size_LCD->getText(), &bIsOkPressed );
+													//Note: actually is (beats * note value) but looks less clear
 	
 	if ( bIsOkPressed ) {		
 		QStringList parts = qtmp.split( '/' );
-		int nDenominator = m_pPattern->get_denominator();
+		int nDenominator;
 		if ( parts.size() == 1 || parts.size() == 2 ) { // must reject if parts.size > 2 or null
 		    bool bOk;
 		    double fNumerator = parts[0].toDouble( &bOk );
-		    if ( bOk && parts.size() == 2 ) {
+		    if ( bOk && parts.size() == 2 ) { // user entered both numerator and denominator
 				nDenominator = parts[1].toInt( &bOk );
 				if ( bOk && ( nDenominator <= 0 || nDenominator > MAX_NOTES ) ) {
 			   		QMessageBox::information( this, "Hydrogen", tr( "Denominator value rejected.\nLimits: (0, %1]"
@@ -956,41 +962,49 @@ void PatternEditorPanel::patternSizeLCDClicked()
 			   		return;
 				}
 		    }
+		    else { // user entered numerator only. keep the current pattern denominator
+		    	nDenominator = m_pPattern->get_denominator();
+		    } 
 		    if ( bOk && fNumerator > 0 ) {
-			if ( fNumerator / nDenominator > 4. ) { 
-			     //this is limited because the pattern editor ruler goes up to 16/4. Limit might be extended
-				QMessageBox::information( this, "Hydrogen", tr( "Pattern size too big.\nMaximum = 16/4" ) );
-				return;
-			}
-			else {	 
-				if ( MAX_NOTES % nDenominator != 0 ) {
-					QMessageBox::information( this, "Hydrogen", tr( "Pattern length in 1/%1 notes is not supported. "
-																"Length will be approximated.").arg( nDenominator ) );
+				if ( fNumerator / nDenominator > 4. ) { 
+					 // pattern size is limited because the pattern editor ruler goes up to 16/4. Limit might be extended
+					QMessageBox::information( this, "Hydrogen", tr( "Pattern size too big.\nMaximum = 16/4" ) );
+					return;
 				}
+				else {	 
+					if ( MAX_NOTES % nDenominator != 0 ) {
+						QMessageBox::information( this, "Hydrogen", tr( "Pattern length in 1/%1 notes is not supported. "
+																	"Length may be approximated.").arg( nDenominator ) );
+						/* Note: such denominators are not rejected even if not supported:
+						in fact user can input a non integer numerator and this feature is very powerful
+						because it allows to set really any possible pattern size (in ticks) using ANY arbitrary denominator.
+						e.g. pattern size of 38 ticks will result from both inputs 1/5 (quintuplet) and 0.79/4 of a whole note,
+						since both are rounded and BOTH are UNSUPPORTED, but the first notation looks more meaningful */
+					}
 
-				int nLength = round( MAX_NOTES / (double) nDenominator * fNumerator );
+					int nLength = round( MAX_NOTES / (double) nDenominator * fNumerator );
 
-				// set size and denominator				
-				m_pPattern->set_length( nLength);
-				m_pPattern->set_denominator( nDenominator );
-				patternLengthChanged();
+					// set length and denominator				
+					m_pPattern->set_length( nLength);
+					m_pPattern->set_denominator( nDenominator );
+					patternLengthChanged();
 
-				/* Message to tell the user why the pattern display won't respect the input value. 
-				Note: constant = 1000 since the displayed numerator has 3 decimal digits*/
-				int displayedNum_x1000 = round( (double) nLength / MAX_NOTES * nDenominator * 1000 );
-				int roundInputNum_x1000 = round( fNumerator * 1000);
-				if ( displayedNum_x1000 != roundInputNum_x1000 ) {
-					QMessageBox::information( this, "Hydrogen",
-						tr( "Pattern size was rounded.\n(resolution = %1 ticks/quarter note)" ).arg( MAX_NOTES / 4 ));
+					/* Message to tell the user why the pattern display won't respect the input value. 
+					Note: constant = 1000 since the displayed numerator has 3 decimal digits*/
+					int displayedNum_x1000 = round( (double) nLength / MAX_NOTES * nDenominator * 1000 );
+					int roundInputNum_x1000 = round( fNumerator * 1000);
+					if ( displayedNum_x1000 != roundInputNum_x1000 ) {
+						QMessageBox::information( this, "Hydrogen",
+							tr( "Pattern size was approximated.\n(resolution = %1 ticks/quarter note)" ).arg( MAX_NOTES / 4 ));
+					}
 				}
-			}
 		    }
-		    else {
+		    else { // user entered invalid text
 		    	QMessageBox::information( this, "Hydrogen", tr( "Text rejected" ) );
 		    	return;
 		    }
 		}
-		else { //other cases: user entered '' or '/' more than 2 slashes
+		else { // last case: user entered more than 2 slashes
 		    	QMessageBox::information( this, "Hydrogen", tr( "Text rejected" ) );
 		    	return;
 		}
