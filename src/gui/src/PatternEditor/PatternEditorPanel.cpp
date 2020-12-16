@@ -948,7 +948,11 @@ void PatternEditorPanel::patternSizeLCDClicked()
 													QLineEdit::Normal, __pattern_size_LCD->getText(), &bIsOkPressed );
 													//Note: actually is (beats * note value) but looks less clear
 	
-	if ( bIsOkPressed ) {		
+	if ( bIsOkPressed ) {
+	    if	(__pattern_size_LCD->getText() == qtmp ) { // text unchanged
+	    	return;
+	    }
+	    
 		QStringList parts = qtmp.split( '/' );
 		int nDenominator;
 		if ( parts.size() == 1 || parts.size() == 2 ) { // must reject if parts.size > 2 or null
