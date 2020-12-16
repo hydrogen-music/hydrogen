@@ -57,7 +57,7 @@ void PatternList::add( Pattern* pattern )
 {
 	assertAudioEngineLocked();
 	// do nothing if already in __patterns
-	if ( index( pattern) != -1) {
+	if ( index( pattern) != -1 ) {
 		return;
 	}
 	__patterns.push_back( pattern );
@@ -67,7 +67,7 @@ void PatternList::insert( int idx, Pattern* pattern )
 {
 	assertAudioEngineLocked();
 	// do nothing if already in __patterns
-	if ( index( pattern) != -1) {
+	if ( index( pattern) != -1 ) {
 		return;
 	}
 	__patterns.insert( __patterns.begin() + idx, pattern );

@@ -2641,7 +2641,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 			PatternList *pColumn = ( *pColumns )[ ipattern ];
 			currentPatternNumber = -1;
-			for ( int n = 0; n < pColumn->size(); n++) {
+			for ( int n = 0; n < pColumn->size(); n++ ) {
 				Pattern *pPattern = pColumn->get( n );
 				int nIndex = pPatternList->index( pPattern );
 				if ( nIndex > currentPatternNumber ) {
@@ -2661,7 +2661,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 			std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 			PatternList *pColumn = ( *pColumns )[ ipattern ];
 			currentPatternNumber = -1;
-			for ( int n = 0; n < pColumn->size(); n++) {
+			for ( int n = 0; n < pColumn->size(); n++ ) {
 				Pattern *pPattern = pColumn->get( n );
 				int nIndex = pPatternList->index( pPattern );
 				if ( nIndex > currentPatternNumber ) {
