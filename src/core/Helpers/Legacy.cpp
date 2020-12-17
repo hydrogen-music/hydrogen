@@ -79,7 +79,6 @@ Drumkit* Legacy::load_drumkit( const QString& dk_path ) {
 				pInstrument->set_filter_active( instrument_node.read_bool( "filterActive", true, false ) );
 				pInstrument->set_filter_cutoff( instrument_node.read_float( "filterCutoff", 1.0f, true, false ) );
 				pInstrument->set_filter_resonance( instrument_node.read_float( "filterResonance", 0.0f, true, false ) );
-				pInstrument->set_pitch_offset( instrument_node.read_float( "pitchOffset", 0.0f, true, false ) );
 				pInstrument->set_random_pitch_factor( instrument_node.read_float( "randomPitchFactor", 0.0f, true, false ) );
 				float attack = instrument_node.read_float( "Attack", 0.0f, true, false );
 				float decay = instrument_node.read_float( "Decay", 0.0f, true, false  );

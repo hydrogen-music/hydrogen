@@ -180,16 +180,17 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pPitchLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 6 );
 	m_pPitchLCD->move(25, 215 );
 
-	m_pPitchCoarseRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_CENTER, tr( "Layer pitch (Coarse)" ), true, false );
+	m_pPitchCoarseRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_CENTER, tr( "Pitch offset (Coarse)" ), true, false );
 	m_pPitchCoarseRotary->setMin( -24.0 );
 	m_pPitchCoarseRotary->setMax( 24.0 );
 	m_pPitchCoarseRotary->move( 92, 210 );
 
 	connect( m_pPitchCoarseRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
-	m_pPitchFineRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_CENTER, tr( "Layer pitch (Fine)" ), true, false );
-	m_pPitchFineRotary->setMin( -50.0 );
-	m_pPitchFineRotary->setMax( 50.0 );
+	m_pPitchFineRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_CENTER, tr( "Pitch offset (Fine)" ), false, false );
+	m_pPitchFineRotary->setMin( -0.5 );
+	m_pPitchFineRotary->setMax( 0.5 );
+	//it will have resolution of 100 steps between Min and Max => quantum delta = 0.01
 	m_pPitchFineRotary->move( 144, 210 );
 	connect( m_pPitchFineRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
@@ -491,7 +492,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_sampleSelectionAlg = new LCDCombo(m_pLayerProp, 25);
 	m_sampleSelectionAlg->move( 60, 434 );
-	m_sampleSelectionAlg->setToolTip( tr("Select pattern size") );
+	m_sampleSelectionAlg->setToolTip( tr( "Select selection algorithm" ) );
 	m_sampleSelectionAlg->addItem( QString( "First in Velocity" ) );
 	m_sampleSelectionAlg->addItem( QString( "Round Robin" ) );
 	m_sampleSelectionAlg->addItem( QString( "Random" ) );
@@ -590,16 +591,22 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pResonanceRotary->setValue( m_pInstrument->get_filter_resonance() );
 		//~ filter
 
-		// pitch offset + random
-		char tmp[20];
+		// pitch offset
+		char tmp[7];
 		sprintf( tmp, "%#.2f", m_pInstrument->get_pitch_offset() );
 		m_pPitchLCD->setText( tmp );
 		
-		int nCoarsePitch = (int) ::round(m_pInstrument->get_pitch_offset());
-		float fFinePitch = m_pInstrument->get_pitch_offset() - nCoarsePitch;
-		//INFOLOG( "fine pitch: " + to_string( fFinePitch ) );
-		m_pPitchCoarseRotary->setValue( nCoarsePitch );
-		m_pPitchFineRotary->setValue( fFinePitch * 100 );
+		/* fCoarsePitch is the closest integer to pitch_offset (represents the pitch shift interval in half steps)
+		while it is an integer number, it's defined float to be used in next lines */
+		float fCoarsePitch = round( m_pInstrument->get_pitch_offset() );
+
+		//fFinePitch represents the fine adjustment (between -0.5 and +0.5) if pitch_offset has decimal part
+		float fFinePitch = m_pInstrument->get_pitch_offset() - fCoarsePitch;
+
+		m_pPitchCoarseRotary->setValue( fCoarsePitch );
+		m_pPitchFineRotary->setValue( fFinePitch );
+		
+		// pitch random
 		m_pRandomPitchRotary->setValue( m_pInstrument->get_random_pitch_factor() );
 
 		//Stop Note
@@ -724,18 +731,19 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			m_pInstrument->set_random_pitch_factor( fVal );
 		}
 		else if ( ref == m_pPitchCoarseRotary ) {
-			float newPitch = m_pPitchFineRotary->getValue() / 100.0 + (int)fVal ;
+			//round fVal, since Coarse is the integer number of half steps
+			float newPitch = round( fVal ) + m_pPitchFineRotary->getValue();
 			m_pInstrument->set_pitch_offset( newPitch );
-			char tmp[20];
+			char tmp[7];
 			sprintf( tmp, "%#.2f", newPitch);
 			m_pPitchLCD->setText( tmp );
 		}
 		else if ( ref == m_pPitchFineRotary ) {
-			float newPitch = fVal / 100.0 + (int) m_pPitchCoarseRotary->getValue() ;
-			m_pInstrument->set_pitch_offset( newPitch );
-			char tmp[20];
-			sprintf( tmp, "%#.2f", newPitch);
-			m_pPitchLCD->setText( tmp );
+			float newPitch = round( m_pPitchCoarseRotary->getValue() ) + fVal;
+ 			m_pInstrument->set_pitch_offset( newPitch );
+			char tmp[7];
+ 			sprintf( tmp, "%#.2f", newPitch);
+ 			m_pPitchLCD->setText( tmp );
 		}
 		else if ( ref == m_pCutoffRotary ) {
 			m_pInstrument->set_filter_cutoff( fVal );
@@ -783,17 +791,16 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			pCompo->set_gain( fVal );
 		}
 		else if ( ref == m_pLayerPitchCoarseRotary ) {
-			//fVal = fVal * 24.0 - 12.0;
-			m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int)fVal ) );
+			m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int) round( fVal ) ) );
 
 			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
 				H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
 				if ( pLayer ) {
-					int nCoarse = (int)m_pLayerPitchCoarseRotary->getValue();
+					float fCoarse = round( m_pLayerPitchCoarseRotary->getValue() );
 					float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
-					pLayer->set_pitch( nCoarse + fFine );
-					INFOLOG( QString("layer pitch: %1").arg( pLayer->get_pitch() ) );
+					pLayer->set_pitch( fCoarse + fFine );
+					INFOLOG( tr( "layer pitch: %1" ).arg( pLayer->get_pitch() ) );
 				}
 			}
 		}
@@ -803,10 +810,10 @@ void InstrumentEditor::rotaryChanged(Rotary *ref)
 			if( pCompo ) {
 				H2Core::InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
 				if ( pLayer ) {
-					int nCoarse = (int)m_pLayerPitchCoarseRotary->getValue();
+					float fCoarse = round( m_pLayerPitchCoarseRotary->getValue() );
 					float fFine = m_pLayerPitchFineRotary->getValue() / 100.0;
-					pLayer->set_pitch( nCoarse + fFine );
-					INFOLOG( QString("layer pitch: %1").arg( pLayer->get_pitch()) );
+					pLayer->set_pitch( fCoarse + fFine );
+					INFOLOG( tr( "layer pitch: %1" ).arg( pLayer->get_pitch() ) );
 				}
 			}
 		}
@@ -1131,13 +1138,13 @@ void InstrumentEditor::selectLayer( int nLayer )
 			m_pCompoGainLCD->setText( tmp2 );
 
 			// Layer PITCH
-			int nCoarsePitch = (int) ::round(pLayer->get_pitch());
-			float fFinePitch = pLayer->get_pitch() - nCoarsePitch;
+			float fCoarsePitch = round( pLayer->get_pitch() );
+			float fFinePitch = pLayer->get_pitch() - fCoarsePitch;
 			//INFOLOG( "fine pitch: " + to_string( fFinePitch ) );
-			m_pLayerPitchCoarseRotary->setValue( nCoarsePitch );
+			m_pLayerPitchCoarseRotary->setValue( fCoarsePitch );
 			m_pLayerPitchFineRotary->setValue( fFinePitch * 100 );
 
-			m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( nCoarsePitch ) );
+			m_pLayerPitchCoarseLCD->setText( QString( "%1" ).arg( (int) fCoarsePitch ) );
 			m_pLayerPitchFineLCD->setText( QString( "%1" ).arg( fFinePitch * 100 ) );
 		}
 		else {
