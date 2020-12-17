@@ -898,19 +898,20 @@ void PatternEditorPanel::updatePatternSizeLCD(){
 	// update pattern size
 	int nPatternSize = m_pPattern->get_length(); // in ticks
 	int nDen = m_pPattern->get_denominator();
-	char tmp[20];
+	QString qtmp;
 	
 	// Note: numerator = ( nPatternSize * nDen ) / MAX_NOTES
 	if ( ( nPatternSize * nDen ) % MAX_NOTES == 0 ) { // numerator is integer. Print with no decimal digits.
-		sprintf( tmp, "%d/%d", ( nPatternSize * nDen ) / MAX_NOTES, nDen );
+		qtmp = QString( "%1/%2" ).arg(( nPatternSize * nDen ) / MAX_NOTES ).arg( nDen );
 	} 
 	else { // numerator is not integer
 				/* Note: print numerator using 3 decimal digits: enough for the resolution = 192 ticks/whole note.
 					In fact the minimum representable note value is 1/192 of a whole note = 0.00520333 whole notes 
 					or alternatively 1/48 of a quarter note = 0.02083333 quarter notes. */
-		sprintf( tmp, "%.3f/%d", (nPatternSize * nDen)/ (float) MAX_NOTES , nDen );
+		QLocale loc = QLocale::system(); // to use locale decimal separator
+		qtmp = QString( "%1/%2" ).arg( loc.toString( ( nPatternSize * nDen ) / (float) MAX_NOTES, 'f', 3 ) ).arg( nDen );
 	}
-	__pattern_size_LCD->setText( tmp );
+	__pattern_size_LCD->setText( qtmp );
 
 	// hide or show warning icon if denominator doesn't divide MAX_NOTES
 		/* Note: warning even if ( nPatternSize * nDen ) % MAX_NOTES == 0 . In that case the displayed numerator is
@@ -954,6 +955,7 @@ void PatternEditorPanel::patternSizeLCDClicked()
 	    }
 	    
 		QStringList parts = qtmp.split( '/' );
+		parts[0].replace( ",", "." ); // allowing both point or comma decimal separator
 		int nDenominator;
 		if ( parts.size() == 1 || parts.size() == 2 ) { // must reject if parts.size > 2 or null
 		    bool bOk;
