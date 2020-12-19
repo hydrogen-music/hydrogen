@@ -22,6 +22,13 @@ environment:
 build:
   verbosity: detailed
 
+
+deploy:
+  - provider: Environment
+    name: h2deploy
+    on:
+      branch: appveyor-build-with-artifacts
+
 for:
   - 
     matrix:
@@ -62,8 +69,10 @@ for:
       PATH="$(brew --prefix qt5)/bin:$PATH"
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
 
-      #deploy dmg only on branch appveyor-build-with-artifacts
-      [ "$APPVEYOR_REPO_BRANCH" = appveyor-build-with-artifacts ] && appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer
+    artifacts:
+        - path: build\Hydrogen-*.exe
+          name: Installer
+
 
     test_script: |-
       TMPDIR=/tmp src/tests/tests --appveyor || true
