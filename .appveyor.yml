@@ -73,7 +73,7 @@ for:
       mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
       PATH="$(brew --prefix qt5)/bin:$PATH"
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
-      Push-AppveyorArtifact Hydrogen*.dmg 
+      appveyor PushArtifact Hydrogen*.dmg 
 
     test_script: |-
       TMPDIR=/tmp src/tests/tests --appveyor || true
