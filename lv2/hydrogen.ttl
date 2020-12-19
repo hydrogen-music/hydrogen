@@ -6,7 +6,10 @@
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix units: <http://lv2plug.in/ns/extensions/units#> .
-
+@prefix ui:    <http://lv2plug.in/ns/extensions/ui#> .
+@prefix urid:  <http://lv2plug.in/ns/ext/urid#> .
+@prefix work:  <http://lv2plug.in/ns/ext/worker#> .
+@prefix state: <http://lv2plug.in/ns/ext/state#> .
 
 <http://hydrogen-music.org/plugins/hydrogen>
 	a lv2:Plugin ,
@@ -18,6 +21,9 @@
 	doap:name "Hydrogen";
 	doap:license <https://opensource.org/licenses/GPL-2.0> ;
 	lv2:optionalFeature lv2:hardRTCapable ;
+	lv2:extensionData state:interface ,
+		work:interface ;
+	ui:ui <http://hydrogen-music.org/plugins/hydrogen#ui>;
 	lv2:port [
 		a lv2:AudioPort ,
 		lv2:OutputPort ;
@@ -40,3 +46,10 @@
 		lv2:symbol "control" ;
 		lv2:name "Control"
     	] .
+
+
+<http://hydrogen-music.org/plugins/hydrogen#ui>
+	a ui:Qt5UI ;
+	lv2:requiredFeature urid:map ;
+	lv2:optionalFeature ui:requestValue ;
+	lv2:extensionData ui:showInterface .

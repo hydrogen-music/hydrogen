@@ -20,6 +20,8 @@
  *
  */
 
+#include "hydrogen/config.h"
+
 #ifdef H2CORE_HAVE_LV2
 
 #include <iostream>
@@ -36,11 +38,15 @@
 #include <hydrogen/IO/LV2MidiDriver.h>
 #include <hydrogen/IO/LV2AudioDriver.h>
 
+#include "lv2/atom/atom.h"
+#include "lv2/atom/forge.h"
 #include "lv2/lv2plug.in/ns/lv2core/lv2.h"
 #include "lv2/lv2plug.in/ns/ext/atom/atom.h"
 #include "lv2/lv2plug.in/ns/ext/atom/util.h"
 #include "lv2/lv2plug.in/ns/ext/midi/midi.h"
 #include "lv2/lv2plug.in/ns/ext/urid/urid.h"
+#include "lv2/log/log.h"
+#include "lv2/log/logger.h"
 
 #define H2_URI "http://hydrogen-music.org/plugins/hydrogen"
 
@@ -51,8 +57,10 @@ typedef enum {
 } PortIndex;
 
 typedef struct {
+		LV2_Log_Logger           logger;
 		// Port buffers
 		const LV2_Atom_Sequence* control;
+		LV2_Atom_Forge           forge;
 		float*                   out_L;
 		float*                   out_R;
 
@@ -81,10 +89,9 @@ instantiate(const LV2_Descriptor*     descriptor,
 		return nullptr;
 	}
 	
-	H2Lv2Adapter* self = (H2Lv2Adapter*)calloc(1, sizeof(H2Lv2Adapter));
-	self->map = map;
-	self->uris.midi_MidiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
-	
+	H2Lv2Adapter* pH2Lv2Adapter = (H2Lv2Adapter*) calloc(1, sizeof(H2Lv2Adapter));
+	pH2Lv2Adapter->map = map;
+	pH2Lv2Adapter->uris.midi_MidiEvent = map->map(map->handle, LV2_MIDI__MidiEvent);
 	
 	unsigned logLevelOpt = H2Core::Logger::Error;
 	H2Core::Logger::create_instance();
@@ -106,7 +113,7 @@ instantiate(const LV2_Descriptor*     descriptor,
 	H2Core::Hydrogen *pHydrogen = H2Core::Hydrogen::get_instance();
 	pHydrogen->setSong( pSong );
 	
-	return (LV2_Handle) self;
+	return (LV2_Handle) pH2Lv2Adapter;
 }
 
 static void
@@ -147,6 +154,11 @@ run(LV2_Handle instance, uint32_t n_samples)
 	H2Core::LV2MidiDriver *lv2MidiDriver = dynamic_cast< H2Core::LV2MidiDriver* >( pHydrogen->getMidiInput() );
 	H2Core::LV2AudioDriver *lv2AudioDriver = dynamic_cast< H2Core::LV2AudioDriver* >( pHydrogen->getAudioOutput() );
 	H2Lv2Adapter* self   = (H2Lv2Adapter*) instance;
+	
+	assert(lv2AudioDriver);
+	assert(lv2MidiDriver);
+	
+	std::cout << "Here is an object.." << std::endl;	
 
 	LV2_ATOM_SEQUENCE_FOREACH(self->control, ev) {
 			
@@ -170,6 +182,8 @@ run(LV2_Handle instance, uint32_t n_samples)
 							
 						default: break;
 					}
+			}  else if (lv2_atom_forge_is_object_type(&self->forge, ev->body.type)) {
+				std::cout << "Here is an object.." << std::endl;
 			}
 	}
 

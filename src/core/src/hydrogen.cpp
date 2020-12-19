@@ -2105,6 +2105,9 @@ AudioOutput* createDriver( const QString& sDriver )
 	}
 	else if( sDriver == "LV2") {
 		pDriver = new LV2AudioDriver( audioEngine_process );
+		
+		assert(pDriver);
+		
 		if ( pDriver->class_name() == NullDriver::class_name() ) {
 			delete pDriver;
 			pDriver = nullptr;
@@ -2219,7 +2222,7 @@ void audioEngine_startAudioDrivers()
 			audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
 			___ERRORLOG( "Error starting audio driver" );
 			___ERRORLOG( "Using the NULL output audio driver" );
-		
+
 			// use the NULL output driver
 			m_pAudioDriver = new NullDriver( audioEngine_process );
 			m_pAudioDriver->init( 0 );
