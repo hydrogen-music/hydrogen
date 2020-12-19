@@ -70,7 +70,7 @@ for:
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
 
     artifacts:
-        - path: build\Hydrogen-*.exe
+        - path: build\Hydrogen*.dmg
           name: Installer
 
 
