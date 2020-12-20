@@ -37,7 +37,7 @@ for:
 
     build_script: |-
       git submodule init && git submodule update
-      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
+      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make -j2
 
     test_script: |-
       TMPDIR=/tmp src/tests/tests --appveyor
@@ -45,6 +45,13 @@ for:
     matrix:
       only:
         - job_group: 'Mac OS X'
+
+    install:
+      - mkdir $HOME/.ssh
+      - echo "-----BEGIN OPENSSH PRIVATE KEY-----" > $HOME/.ssh/id_rsa
+      - echo "${priv_key}" | tr " " "\n" >> $HOME/.ssh/id_rsa
+      - echo "-----END OPENSSH PRIVATE KEY-----" >> $HOME/.ssh/id_rsa
+      - chmod 600 $HOME/.ssh/id_rsa
 
     before_build: |-
       sudo ln -s /usr/local /opt/local;
@@ -58,12 +65,10 @@ for:
       sed -i '' 's/, int register,/, int,/g' /opt/local/include/jack/types.h
 
       git submodule init && git submodule update
-      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
+      mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make -j2
       PATH="$(brew --prefix qt5)/bin:$PATH"
-      ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
-
-      #deploy dmg only on branch appveyor-build-with-artifacts
-      [ "$APPVEYOR_REPO_BRANCH" = appveyor-build-with-artifacts ] && appveyor PushArtifact Hydrogen*.dmg -DeploymentName Installer
+      ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen-$(date +"%Y-%m-%d").dmg
+      if [ "$APPVEYOR_REPO_BRANCH" = appveyor-build-with-artifacts ]; then scp -oStrictHostKeyChecking=no -i $HOME/.ssh/id_rsa Hydrogen*.dmg h2buildbot@frs.sourceforge.net:/home/frs/project/hydrogen/Hydrogen/CI; fi
 
     test_script: |-
       TMPDIR=/tmp src/tests/tests --appveyor || true
@@ -72,6 +77,12 @@ for:
     matrix:
       only:
         - job_group: 'Windows'
+
+    install:
+      - ps: $fileContent = "-----BEGIN OPENSSH PRIVATE KEY-----`n"
+      - ps: $fileContent += $env:priv_key.Replace(' ', "`n")
+      - ps: $fileContent += "`n-----END OPENSSH PRIVATE KEY-----`n"
+      - ps: Set-Content $env:userprofile\.ssh\id_rsa $fileContent
 
     before_build:
       cmd: |-
@@ -92,6 +103,7 @@ for:
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-libwinpthread-git
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-qt5
           c:\msys64\usr\bin\pacman --noconfirm -S -q %MSYS_REPO%-ladspa-sdk
+          c:\msys64\usr\bin\pacman --noconfirm -S -q openssh
 
           REM *** INIT SUBMODULES ***
           git submodule init
@@ -130,6 +142,8 @@ for:
 
           REM *** Build installer ***
           cpack -G NSIS -v
+
+          if %APPVEYOR_REPO_BRANCH%==appveyor-build-with-artifacts scp -v -oStrictHostKeyChecking=no -i %USERPROFILE%\.ssh\id_rsa %APPVEYOR_BUILD_FOLDER%\build\Hydrogen-1.1.0-win64.exe h2buildbot@frs.sourceforge.net:/home/frs/project/hydrogen/Hydrogen/CI
 
           REM *** Run and verify installer ***
           set INSTDIR=C:\hydrogen
