@@ -72,14 +72,16 @@ public:
 	virtual void mouseDragStartEvent( QMouseEvent *ev ) = 0;
 	virtual void mouseDragUpdateEvent( QMouseEvent *ev ) = 0;
 	virtual void mouseDragEndEvent( QMouseEvent *ev ) = 0;
+	virtual void selectionMoveUpdateEvent( QMouseEvent *ev ) {};
 	virtual void selectionMoveEndEvent( QInputEvent *ev ) = 0;
+	virtual void selectionMoveCancelEvent() {};
 	//! @}
 
 	//! @name Mouse gesture hooks
 	//! Hooks for extra actons (eg. changing the mouse cursor) at the beginning and end of mouse gestures.
 	//! @{
-	virtual void startMouseLasso() {}
-	virtual void startMouseMove() {}
+	virtual void startMouseLasso( QMouseEvent *ev ) {}
+	virtual void startMouseMove( QMouseEvent *ev ) {}
 	virtual void endMouseGesture() {}
 	//! @}
 
@@ -417,11 +419,11 @@ public:
 				m_selectionState = MouseLasso;
 				m_lasso.setTopLeft( m_pClickEvent->pos() );
 				m_lasso.setBottomRight( ev->pos() );
-				widget->startMouseLasso();
+				widget->startMouseLasso( ev );
 				widget->updateWidget();
 
 			} else {
-				/* Did the user start dragging a selected element, on an unselected element?
+				/* Did the user start dragging a selected element, or an unselected element?
 				 */
 				bool bHitselected = false;
 				for ( Elem elem : elems ) {
@@ -433,8 +435,8 @@ public:
 				/* Move selection */
 				if ( bHitselected ) {
 					m_selectionState = MouseMoving;
-					widget->startMouseMove();
 					m_movingOffset = ev->pos() - m_pClickEvent->pos();
+					widget->startMouseMove( ev );
 				}
 			}
 
@@ -459,6 +461,7 @@ public:
 
 		} else if ( m_selectionState == MouseMoving ) {
 			m_movingOffset = ev->pos() - m_pClickEvent->pos();
+			widget->selectionMoveUpdateEvent( ev );
 			updateWidgetGroup();
 
 		} else {
@@ -577,6 +580,7 @@ public:
 			} else {
 				if ( m_selectionState == MouseMoving || m_selectionState == MouseLasso ) {
 					widget->endMouseGesture();
+					widget->selectionMoveCancelEvent();
 				}
 				m_selectionState = Idle;
 				updateWidgetGroup();
@@ -589,7 +593,6 @@ public:
 				m_selectionState = Idle;
 				updateWidgetGroup();
 			}
-
 		}
 		return false;
 	}

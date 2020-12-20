@@ -492,7 +492,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 		return;
 	}
 
-	int nColumn = getColumn( ev );
+	int nColumn = getColumn( ev->x() );
 
 	if ( nColumn >= (int)m_pPattern->get_length() ) {
 		update( 0, 0, width(), height() );
@@ -556,7 +556,7 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 {
 	m_pDraggedNote = nullptr;
 	Hydrogen *pH2 = Hydrogen::get_instance();
-	int nColumn = getColumn( ev );
+	int nColumn = getColumn( ev->x() );
 	Song *pSong = pH2->getSong();
 	int nSelectedInstrumentnumber = pH2->getSelectedInstrumentNumber();
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrumentnumber );
@@ -760,7 +760,7 @@ void PianoRollEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 		if ( m_pDraggedNote->get_note_off() ) {
 			return;
 		}
-		int nTickColumn = getColumn( ev );
+		int nTickColumn = getColumn( ev->x() );
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 		int nLen = nTickColumn - (int)m_pDraggedNote->get_position();

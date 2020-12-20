@@ -142,10 +142,10 @@ QColor PatternEditor::computeNoteColor( float velocity ){
 	return QColor( red, green, blue );
 }
 
-int PatternEditor::getColumn(QMouseEvent *ev) const
+int PatternEditor::getColumn( int x ) const
 {
 	int nWidth = m_nGridWidth * granularity();
-	int nColumn = ( ev->x() - m_nMargin + (nWidth / 2) ) / nWidth;
+	int nColumn = ( x - m_nMargin + (nWidth / 2) ) / nWidth;
 	nColumn = nColumn * granularity();
 	return nColumn;
 }

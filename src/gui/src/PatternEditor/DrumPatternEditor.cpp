@@ -158,7 +158,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	if (row >= nInstruments) {
 		return;
 	}
-	int nColumn = getColumn( ev );
+	int nColumn = getColumn( ev->x() );
 	int nRealColumn = 0;
 	if( ev->x() > m_nMargin ) {
 		nRealColumn = ev->x() / static_cast<float>(m_nGridWidth) - m_nMargin;
@@ -224,7 +224,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 	int row = (int)( ev->y()  / (float)m_nGridHeight);
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
-	int nColumn = getColumn( ev );
+	int nColumn = getColumn( ev->x() );
 	if ( ev->button() == Qt::RightButton ) {
 		// Right button drag: adjust note length
 		int nRealColumn = 0;
@@ -584,7 +584,7 @@ void DrumPatternEditor::mouseDragUpdateEvent( QMouseEvent *ev )
 
 	if ( m_pDraggedNote ) {
 		if ( m_pDraggedNote->get_note_off() ) return;
-		int nTickColumn = getColumn( ev );
+		int nTickColumn = getColumn( ev->x() );
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 		int nLen = nTickColumn - (int)m_pDraggedNote->get_position();

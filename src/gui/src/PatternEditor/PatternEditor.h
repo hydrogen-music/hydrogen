@@ -95,11 +95,11 @@ public:
 	}
 
 	//! Change the mouse cursor during mouse gestures
-	virtual void startMouseLasso() override {
+	virtual void startMouseLasso( QMouseEvent *ev ) override {
 		setCursor( Qt::CrossCursor );
 	}
 
-	virtual void startMouseMove() override {
+	virtual void startMouseMove( QMouseEvent *ev ) override {
 		setCursor( Qt::DragMoveCursor );
 	}
 
@@ -164,7 +164,7 @@ protected:
 	PatternEditorPanel *m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
 
-	int getColumn(QMouseEvent *ev) const;
+	int getColumn( int x ) const;
 	QPoint movingGridOffset() const;
 
 	//! Draw lines for note grid.
