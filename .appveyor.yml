@@ -22,6 +22,18 @@ environment:
 build:
   verbosity: detailed
 
+deploy:
+  - provider: FTP
+    protocol: ftp
+    host: smoors.de
+    username:
+      secure: 9a2aLgCiKtnbFTqgJ/SMCw==
+    password:
+      secure: 4KLhNpRwfRB5Q5D03ATK6ATBHp0XGvfaswABUyBgFjc=
+    debug: true
+    on:
+      branch: appveyor-build-with-artifacts
+
 for:
   - 
     matrix:
