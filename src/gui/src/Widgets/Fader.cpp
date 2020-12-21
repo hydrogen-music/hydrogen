@@ -133,7 +133,7 @@ void Fader::wheelEvent ( QWheelEvent *ev )
 	ev->accept();
 
 	if ( m_bUseIntSteps ) {
-		if ( ev->delta() > 0 ) {
+		if ( ev->angleDelta().y() > 0 ) {
 			setValue( m_fValue + 1 );
 		}
 		else {
@@ -143,7 +143,7 @@ void Fader::wheelEvent ( QWheelEvent *ev )
 	else {
 		float step = ( m_fMaxValue - m_fMinValue ) / 50.0;
 
-		if ( ev->delta() > 0 ) {
+		if ( ev->angleDelta().y() > 0 ) {
 			setValue( m_fValue + step );
 		}
 		else {
@@ -498,7 +498,7 @@ void MasterFader::wheelEvent ( QWheelEvent *ev )
 
 	float step = ( m_fMax - m_fMin ) / 50.0;
 
-	if ( ev->delta() > 0 ) {
+	if ( ev->angleDelta().y() > 0 ) {
 		setValue( m_fValue + step );
 	}
 	else {
@@ -845,7 +845,7 @@ void Knob::wheelEvent ( QWheelEvent *ev )
 {
 	ev->accept();
 
-	if ( ev->delta() > 0 ) {
+	if ( ev->angleDelta().y() > 0 ) {
 		setValue( m_fValue + 0.025 );
 	}
 	else {

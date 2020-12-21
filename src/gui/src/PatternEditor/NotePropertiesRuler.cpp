@@ -110,7 +110,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		delta = 0.05; // course control
 	}
 		
-	if ( ev->delta() < 0 ) {
+	if ( ev->angleDelta().y() < 0 ) {
 		delta = (delta * -1.0);
 	}
 

@@ -235,7 +235,7 @@ void Rotary::wheelEvent ( QWheelEvent *ev )
 		float fRange = fabs( m_fMax ) + fabs( m_fMin );
 		delta = fRange / 100.0;
 	}
-	if ( ev->delta() < 0 ) {
+	if ( ev->angleDelta().y() < 0 ) {
 		delta = delta * -1.0;
 	}
 	setValue( getValue() + (delta * stepfactor) );
