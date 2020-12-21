@@ -64,11 +64,6 @@ Preferences::Preferences()
 {
 	__instance = this;
 	INFOLOG( "INIT" );
-
-	//Default jack track-outputs are post fader
-	m_nJackTrackOutputMode = POST_FADER;
-	m_bJackTrackOuts = false;
-	m_JackBBTSync = JackBBTSyncMethod::constMeasure;
 	
 	// switch to enable / disable lash, only on h2 startup
 	m_brestartLash = false;
@@ -173,8 +168,9 @@ Preferences::Preferences()
 	m_bJackTransportMode = true;
 	m_bJackConnectDefaults = true;
 	m_bJackTrackOuts = false;
-	m_nJackTrackOutputMode = 0;
 	m_bJackMasterMode = false ;
+	m_JackTrackOutputMode = JackTrackOutputMode::postFader;
+	m_JackBBTSync = JackBBTSyncMethod::constMeasure;
 
 	// OSC configuration
 	m_bOscServerEnabled = false;
@@ -450,7 +446,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					} else if ( nBBTSync == 1 ) {
 						m_JackBBTSync = JackBBTSyncMethod::identicalBars;
 					} else {
-						ERRORLOG( QString( "Unknown jack_bbt_sync value [%1]. Using JackBBTSyncMethod::constMeasure instead." )
+						WARNINGLOG( QString( "Unknown jack_bbt_sync value [%1]. Using JackBBTSyncMethod::constMeasure instead." )
 								  .arg( nBBTSync ) );
 						m_JackBBTSync = JackBBTSyncMethod::constMeasure;
 					}
@@ -459,7 +455,19 @@ void Preferences::loadPreferences( bool bGlobal )
 					m_bJackTrackOuts = LocalFileMng::readXmlBool( jackDriverNode, "jack_track_outs", m_bJackTrackOuts );
 					m_bJackConnectDefaults = LocalFileMng::readXmlBool( jackDriverNode, "jack_connect_defaults", m_bJackConnectDefaults );
 
-					m_nJackTrackOutputMode = LocalFileMng::readXmlInt( jackDriverNode, "jack_track_output_mode", m_nJackTrackOutputMode );
+					int nJackTrackOutputMode = LocalFileMng::readXmlInt( jackDriverNode, "jack_track_output_mode", 0 );
+					switch ( nJackTrackOutputMode ) {
+					case 0:
+						m_JackTrackOutputMode = JackTrackOutputMode::postFader;
+						break;
+					case 1:
+						m_JackTrackOutputMode = JackTrackOutputMode::preFader;
+						break;
+					default:
+						WARNINGLOG( QString( "Unknown jack_track_output_mode value [%1]. Using JackTrackOutputMode::postFader instead." )
+								  .arg( nJackTrackOutputMode ) );
+						m_JackTrackOutputMode = JackTrackOutputMode::postFader;
+					}
 				}
 
 
@@ -873,8 +881,13 @@ void Preferences::savePreferences()
 			}
 			LocalFileMng::writeXmlString( jackDriverNode, "jack_connect_defaults", jackConnectDefaultsString );
 
-			//pre-fader or post-fader track outputs ?
-			LocalFileMng::writeXmlString( jackDriverNode, "jack_track_output_mode", QString("%1").arg( m_nJackTrackOutputMode ));
+			int nJackTrackOutputMode;
+			if ( m_JackTrackOutputMode == JackTrackOutputMode::postFader ) {
+				nJackTrackOutputMode = 0;
+			} else if ( m_JackTrackOutputMode == JackTrackOutputMode::preFader ) {
+				nJackTrackOutputMode = 1;
+			}
+			LocalFileMng::writeXmlString( jackDriverNode, "jack_track_output_mode", QString("%1").arg( nJackTrackOutputMode ));
 
 			// jack track outs
 			QString jackTrackOutsString = "false";
