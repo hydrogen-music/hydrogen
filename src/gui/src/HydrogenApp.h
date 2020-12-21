@@ -231,7 +231,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		 * \param nValue If 0, Preferences was save. If 1, it was
 		 *     loaded.
 		 */
-		virtual void updatePreferencesEvent( int nValue );
+		virtual void updatePreferencesEvent( int nValue ) override;
 		/**
 		 * Refreshes and updates the GUI after the Song was changed in
 		 * the core part of Hydrogen.

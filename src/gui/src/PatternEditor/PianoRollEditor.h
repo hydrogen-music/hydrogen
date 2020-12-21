@@ -186,12 +186,12 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 		void addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 							  int nNotekey, int nOctave );
 
-		virtual void paintEvent(QPaintEvent *ev);
-		virtual void mousePressEvent(QMouseEvent *ev);
-		virtual void mouseMoveEvent(QMouseEvent *ev);
-		virtual void mouseReleaseEvent(QMouseEvent *ev);
-		virtual void keyPressEvent ( QKeyEvent * ev );
-		virtual void focusInEvent ( QFocusEvent * ev );
+		virtual void paintEvent(QPaintEvent *ev) override;
+		virtual void mousePressEvent(QMouseEvent *ev) override;
+		virtual void mouseMoveEvent(QMouseEvent *ev) override;
+		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
+		virtual void keyPressEvent ( QKeyEvent * ev ) override;
+		virtual void focusInEvent ( QFocusEvent * ev ) override;
 		int getColumn(QMouseEvent *ev);
 
 		Selection<PianoRollEditor, SelectionIndex> m_selection;
