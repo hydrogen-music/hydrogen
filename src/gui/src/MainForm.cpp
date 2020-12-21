@@ -89,7 +89,7 @@ int MainForm::sigusr1Fd[2];
 const char* MainForm::__class_name = "MainForm";
 
 MainForm::MainForm( QApplication * pQApplication, const QString& songFilename, const bool bLoadSong )
-	: QMainWindow( nullptr, nullptr )
+	: QMainWindow( nullptr )
 	, Object( __class_name )
 {
 	setMinimumSize( QSize( 1000, 500 ) );
