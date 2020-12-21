@@ -128,7 +128,7 @@ MainForm::MainForm( QApplication * pQApplication, const QString& songFilename, c
 			if ( restoreLastSong && ( !filename.isEmpty() )) {
 				pSong = Song::load( filename );
 				if ( pSong == nullptr ) {
-					//QMessageBox::warning( this, "Hydrogen", trUtf8("Error restoring last song.") );
+					//QMessageBox::warning( this, "Hydrogen", tr("Error restoring last song.") );
 					pSong = Song::get_empty_song();
 					pSong->set_filename( "" );
 				}
@@ -290,19 +290,19 @@ void MainForm::createMenuBar()
 	
 	m_pFileMenu->addAction( textFileNew, this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
 	
-	m_pFileMenu->addAction( trUtf8( "Show &info" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
+	m_pFileMenu->addAction( tr( "Show &info" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
 	
 	m_pFileMenu->addSeparator();				// -----
 
 	m_pFileMenu->addAction( textFileOpen, this, SLOT( action_file_open() ), QKeySequence( "Ctrl+O" ) );
 	if ( ! bUnderSessionManagement ) {
-		m_pFileMenu->addAction( trUtf8( "Open &Demo" ), this, SLOT( action_file_openDemo() ), QKeySequence( "Ctrl+D" ) );
+		m_pFileMenu->addAction( tr( "Open &Demo" ), this, SLOT( action_file_openDemo() ), QKeySequence( "Ctrl+D" ) );
 	}
 	m_pRecentFilesMenu = m_pFileMenu->addMenu( textFileOpenRecent );
 
 	m_pFileMenu->addSeparator();				// -----
 
-	m_pFileMenu->addAction( trUtf8( "&Save" ), this, SLOT( action_file_save() ), QKeySequence( "Ctrl+S" ) );
+	m_pFileMenu->addAction( tr( "&Save" ), this, SLOT( action_file_save() ), QKeySequence( "Ctrl+S" ) );
 	m_pFileMenu->addAction( textFileSaveAs, this, SLOT( action_file_save_as() ), QKeySequence( "Ctrl+Shift+S" ) );
 	
 	m_pFileMenu->addSeparator();				// -----
@@ -627,9 +627,9 @@ void MainForm::action_file_save_as()
 	fd.setAcceptMode( QFileDialog::AcceptSave );
 
 	if ( bUnderSessionManagement ) {	
-		fd.setWindowTitle( trUtf8( "Export song from Session" ) );
+		fd.setWindowTitle( tr( "Export song from Session" ) );
 	} else {
-		fd.setWindowTitle( trUtf8( "Save song" ) );
+		fd.setWindowTitle( tr( "Save song" ) );
 	}
 	
 	fd.setSidebarUrls( fd.sidebarUrls() << QUrl::fromLocalFile( Filesystem::songs_dir() ) );
@@ -667,9 +667,9 @@ void MainForm::action_file_save_as()
 	// provided by the NSM server has to be preserved.
 	if ( pHydrogen->isUnderSessionManagement() ) {
 		pSong->set_filename( lastFilename );
-		h2app->setScrollStatusBarMessage( trUtf8("Song exported as: ") + defaultFilename, 2000 );
+		h2app->setScrollStatusBarMessage( tr("Song exported as: ") + defaultFilename, 2000 );
 	} else {
-		h2app->setScrollStatusBarMessage( trUtf8("Song saved as: ") + defaultFilename, 2000 );
+		h2app->setScrollStatusBarMessage( tr("Song saved as: ") + defaultFilename, 2000 );
 	}
 	
 	h2app->updateWindowTitle();
@@ -825,9 +825,9 @@ void MainForm::action_file_open() {
 	fd.setNameFilter( Filesystem::songs_filter_name );
 
 	if ( bUnderSessionManagement ) {
-		fd.setWindowTitle( trUtf8( "Import song into Session" ) );
+		fd.setWindowTitle( tr( "Import song into Session" ) );
 	} else {
-		fd.setWindowTitle( trUtf8( "Open song" ) );
+		fd.setWindowTitle( tr( "Open song" ) );
 	}
 
 	QString sFilename;

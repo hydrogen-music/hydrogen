@@ -702,7 +702,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 	}
 		
 	if ( nValue == 0 ) {
-		setScrollStatusBarMessage( trUtf8("Preferences saved.") + 
+		setScrollStatusBarMessage( tr("Preferences saved.") + 
 								   QString(" Into: ") + 
 								   sPreferencesFilename, 2000 );
 	} else if ( nValue == 1 ) {
@@ -769,7 +769,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 #endif
 
 		// Inform the user about which file was loaded.
-		setScrollStatusBarMessage( trUtf8("Preferences loaded.") + 
+		setScrollStatusBarMessage( tr("Preferences loaded.") + 
 								   QString(" From: ") + 
 								   sPreferencesFilename, 2000 );
 
