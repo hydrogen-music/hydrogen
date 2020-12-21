@@ -34,6 +34,14 @@ for:
     matrix:
       only:
         - job_group: 'Mac OS X'
+    
+    install:
+      - mkdir $HOME/.ssh
+      - echo "-----BEGIN OPENSSH PRIVATE KEY-----" > $HOME/.ssh/id_rsa
+      - echo "${priv_key}" | tr " " "\n" >> $HOME/.ssh/id_rsa
+      - echo "-----END OPENSSH PRIVATE KEY-----" >> $HOME/.ssh/id_rsa
+      - chmod 600 $HOME/.ssh/id_rsa
+
 
     before_build: |-
       sudo ln -s /usr/local /opt/local;
@@ -47,11 +55,9 @@ for:
       mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
       PATH="$(brew --prefix qt5)/bin:$PATH"
       ../macos/build_dmg.sh -v src/gui/hydrogen.app Hydrogen${PKG_SUFFIX}.dmg
+      scp -oStrictHostKeyChecking=no -i $HOME/.ssh/id_rsa Hydrogen*.dmg h2buildbot@frs.sourceforge.net:/home/frs/project/hydrogen/Hydrogen/CI
       TMPDIR=/tmp src/tests/tests || true
 
-    artifacts:
-      - path: build/Hydrogen*.dmg
-        name: Installer
   -
     matrix:
       only:
