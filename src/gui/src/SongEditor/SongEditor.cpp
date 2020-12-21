@@ -1445,7 +1445,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		return;
 	}
 
-	if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ){
+	if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ){
 		togglePattern( row );
 	} else {
 		engine->setSelectedPatternNumber( row );
@@ -2466,7 +2466,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			update();
 		}
 		
-	} else if (ev->button() == Qt::MidButton && ev->y() >= 26) {
+	} else if (ev->button() == Qt::MiddleButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);
 		SongEditorPanelTagWidget dialog( this , column );
 		if (dialog.exec() == QDialog::Accepted) {
