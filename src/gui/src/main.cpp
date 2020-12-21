@@ -71,7 +71,7 @@ void setPalette( QApplication *pQApp )
 	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 
 	// A general foreground color.
-	defaultPalette.setColor( QPalette::Foreground, QColor( 255, 255, 255 ) );
+	defaultPalette.setColor( QPalette::WindowText, QColor( 255, 255, 255 ) );
 
 	// Used as the background color for text entry widgets; usually white or another light color.
 	defaultPalette.setColor( QPalette::Base, QColor( 88, 94, 112 ) );
