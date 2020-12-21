@@ -43,7 +43,7 @@
 class WidgetScrollArea : public QScrollArea
 {
 public:
-	WidgetScrollArea( QWidget *parent ) : QScrollArea( parent ) {}
+	explicit WidgetScrollArea( QWidget *parent ) : QScrollArea( parent ) {}
 
 	bool focusNextPrevChild( bool next ) override
 	{

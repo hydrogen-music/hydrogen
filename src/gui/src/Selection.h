@@ -257,10 +257,21 @@ public:
 				widget->update();
 
 			} else {
+				/* Did the user start dragging a selected element, on an unselected element?
+				 */
+				bool bHitselected = false;
+				for ( Elem elem : elems ) {
+					if ( isSelected( elem ) ) {
+						bHitselected = true;
+						break;
+					}
+				}
 				/* Move selection */
-				m_selectionState = MouseMoving;
-				widget->setCursor( Qt::DragMoveCursor );
-				m_movingOffset = ev->pos() - m_pClickEvent->pos();
+				if ( bHitselected ) {
+					m_selectionState = MouseMoving;
+					widget->setCursor( Qt::DragMoveCursor );
+					m_movingOffset = ev->pos() - m_pClickEvent->pos();
+				}
 			}
 
 		}

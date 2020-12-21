@@ -113,7 +113,6 @@ libraries and development header files installed on your system:
 - OSC (Open Sound Control)
 - LASH (Linux Audio Session Handler)
 - NSM (Non Session Manager)
-- JACK Session need Jack Audio Connection Kit(>=0.120.0/1.9.7) 
 - liblrdf for LADSPA plugins
 - librubberband2 (Rubberband support is experimental)
 
@@ -190,12 +189,14 @@ $ make && sudo make install
 After installation, Hydrogen's binaries can be found in CMAKE_INSTALL_PREFIX/bin.
 If this path is not in your PATH environment variable, consider adding it to it
 
-If Hydrogen doesn't start, it might be because it's shared library is not found.
-You can verify this with the above command :
+If Hydrogen doesn't start, and you have the above message :
+```… error while loading shared libraries: libhydrogen-core-1.1.0.so …```
+it's because hydrogen's shared library is not found.
+You can verify this with the below command :
 ```ldd CMAKE_INSTALL_PREFIX/bin/hydrogen | grep 'not found'```
 
-To fix this, you can use LD_PRELOAD or LD_LIBRARY_PATH environment variables,
-or configure ldconfig (man ldconfig).
+To fix it, you can use LD_PRELOAD or LD_LIBRARY_PATH environment variables,
+or configure ldconfig (see man ldconfig, man ld.so).
 
 Another option is to set -DCMAKE_INSTALL_PREFIX=/usr, recompile and reinstall Hydrogen.
 But be aware that you will certainly overwrite Hydrogen files that you might have

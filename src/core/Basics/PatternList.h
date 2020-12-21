@@ -26,16 +26,18 @@
 #include <vector>
 
 #include <core/Object.h>
+#include <core/AudioEngine.h>
 
 namespace H2Core
 {
 
 class Pattern;
+class AudioEngineLocking;
 
 /**
  * PatternList is a collection of patterns
 */
-class PatternList : public H2Core::Object
+  class PatternList : public H2Core::Object, public H2Core::AudioEngineLocking
 {
 		H2_OBJECT
 	public:
@@ -96,7 +98,7 @@ class PatternList : public H2Core::Object
 		 * \param pattern a pointer to the pattern to find
 		 * \return -1 if not found
 		 */
-		int index( Pattern* pattern );
+		int index( const Pattern* pattern );
 		/**
 		 * replace the pattern at a given index with a new one
 		 * \param idx the index
@@ -150,8 +152,15 @@ class PatternList : public H2Core::Object
 		 */
 		QString find_unused_pattern_name( QString sourceName );
 
+		/**
+		 * Get the length of the longest pattern in the list
+		 * \return pattern length in ticks, -1 if list is empty
+		 */
+		int longest_pattern_length();
+
 	private:
 		std::vector<Pattern*> __patterns;            ///< the list of patterns
+
 };
 
 // DEFINITIONS
@@ -164,6 +173,15 @@ inline int PatternList::size() const
 inline void PatternList::clear()
 {
 	__patterns.clear();
+}
+
+inline void PatternList::operator<<( Pattern* pattern )
+{
+	add( pattern );
+}
+
+inline Pattern *PatternList::operator[]( int idx ) {
+	return get( idx );
 }
 
 };

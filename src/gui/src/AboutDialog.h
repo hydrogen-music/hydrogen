@@ -33,7 +33,7 @@ class AboutDialog : public QDialog, public Ui_AboutDialog_UI
 {
 Q_OBJECT
 public:
-	AboutDialog(QWidget* parent);
+	explicit AboutDialog(QWidget* parent);
 	~AboutDialog();
 
 private slots:

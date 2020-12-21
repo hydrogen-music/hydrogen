@@ -33,7 +33,7 @@ class SoundLibraryTree : public QTreeWidget, private H2Core::Object
     H2_OBJECT
 	Q_OBJECT
 	public:
-		SoundLibraryTree( QWidget *pParent );
+		explicit SoundLibraryTree( QWidget *pParent );
 
 	signals:
 		void leftClicked( QPoint pos );

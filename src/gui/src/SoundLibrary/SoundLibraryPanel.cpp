@@ -732,30 +732,7 @@ void SoundLibraryPanel::on_songLoadAction()
 {
 	QString sFilename = Filesystem::song_path( __sound_library_tree->currentItem()->text( 0 ) );
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	if ( pHydrogen->getState() == STATE_PLAYING ) {
-		pHydrogen->sequencer_stop();
-	}
-
-	Song *pSong = Song::load( sFilename );
-	if ( pSong == nullptr ) {
-		QMessageBox::information( this, "Hydrogen", tr("Error loading song.") );
-		return;
-	}
-
-	// add the new loaded song in the "last used song" vector
-	Preferences *pPref = Preferences::get_instance();
-
-	std::vector<QString> recentFiles = pPref->getRecentFiles();
-	recentFiles.insert( recentFiles.begin(), sFilename );
-	pPref->setRecentFiles( recentFiles );
-
-	HydrogenApp* pH2App = HydrogenApp::get_instance();
-
-	pH2App->setSong( pSong );
-
-	//updateRecentUsedSongList();
-	pHydrogen->setSelectedPatternNumber( 0 );
+	HydrogenApp::get_instance()->openSong( sFilename );
 }
 
 

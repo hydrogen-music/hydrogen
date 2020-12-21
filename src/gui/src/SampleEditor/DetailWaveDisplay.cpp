@@ -34,6 +34,8 @@ DetailWaveDisplay::DetailWaveDisplay(QWidget* pParent )
  : QWidget( pParent )
  , Object( __class_name )
  , m_sSampleName( "" )
+ , m_pPeakDatal( nullptr )
+ , m_pPeakDatar( nullptr )  
 {
 //	setAttribute(Qt::WA_OpaquePaintEvent);
 

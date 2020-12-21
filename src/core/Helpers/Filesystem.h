@@ -8,20 +8,20 @@
 namespace H2Core
 {
 
-/**
- * Filesystem is a thin layer over QDir, QFile and QFileInfo
- */
-class Filesystem : public H2Core::Object
-{
+	/**
+	 * Filesystem is a thin layer over QDir, QFile and QFileInfo
+	 */
+	class Filesystem : public H2Core::Object
+	{
 		H2_OBJECT
-	public:
+		public:
 		/** flags available for check_permissions() */
 		enum file_perms {
-			is_dir =0x01,
-			is_file=0x02,
-			is_readable=0x04,
-			is_writable=0x08,
-			is_executable=0x10
+						 is_dir =0x01,
+						 is_file=0x02,
+						 is_readable=0x04,
+						 is_writable=0x08,
+						 is_executable=0x10
 		};
 		static const QString songs_ext;
 		static const QString scripts_ext;
@@ -60,10 +60,10 @@ class Filesystem : public H2Core::Object
 		static QString untitled_song_file_name();
 		/** Returns a string containing the path to the
 		    _click.wav_ file used in the metronome. 
-		  *
-		  * It is a concatenation of #__sys_data_path and
-		  * #CLICK_SAMPLE.
-		  */
+			*
+			* It is a concatenation of #__sys_data_path and
+			* #CLICK_SAMPLE.
+			*/
 		static QString click_file_path();
 		/** returns click file path from user directory if exists, otherwise from system */
 		static QString usr_click_file_path();
@@ -73,6 +73,8 @@ class Filesystem : public H2Core::Object
 		static QString pattern_xsd_path( );
 		/** returns the path to the playlist pattern XSD (xml schema definition) file */
 		static QString playlist_xsd_path( );
+		/** returns the full path (including filename) of the logfile */
+		static QString log_file_path();
 
 		/** returns gui image path */
 		static QString img_dir();
@@ -142,9 +144,32 @@ class Filesystem : public H2Core::Object
 		 * \param dk_name the drumkit name
 		 */
 		static QString drumkit_usr_path( const QString& dk_name );
-		/**
-		 * returns path for a drumkit searching within user then system drumkits
-		 * \param dk_name the drumkit name
+		/** Returns the path to a H2Core::Drumkit folder.
+		 *
+		 * The search will first be performed within user-level
+		 * drumkits system drumkits using usr_drumkit_list() and
+		 * usr_drumkits_dir() and later, in case the H2Core::Drumkit
+		 * could not be found, within the system-level drumkits using
+		 * sys_drumkit_list() and sys_drumkits_dir().
+		 *
+		 * When under session management (see
+		 * NsmClient::m_bUnderSessionManagement) the function will
+		 * first look for a "drumkit" symlink or folder within
+		 * NsmClient::m_sSessionFolderPath. If it either is not a
+		 * valid H2Core::Drumkit or the not the one corresponding to
+		 * \a dk_name, the user- and system-level drumkits will be
+		 * searched instead.
+		 *
+		 * \param dk_name Name of the H2Core::Drumkit. In the
+		 *   user-level and system-level lookup it has to correspond
+		 *   to the name of the folder holding the samples and the
+		 *   #DRUMKIT_XML file. For the usage of a local
+		 *   H2Core::Drumkit under session management it has to match
+		 *   the second-level "name" node within the
+		 *   #DRUMKIT_XML file.
+		 *
+		 * \returns Full path to the folder containing the samples of
+		 *   the H2Core::Drumkit corresponding to \a dk_name.
 		 */
 		static QString drumkit_path_search( const QString& dk_name );
 		/**
@@ -264,12 +289,21 @@ class Filesystem : public H2Core::Object
 		 */
 		static bool mkdir( const QString& path );
 
+		/** \return m_sPreferencesOverwritePath*/
+		static const QString& getPreferencesOverwritePath();
+		/** \param sPath Sets m_sPreferencesOverwritePath*/
+		static void setPreferencesOverwritePath( const QString& sPath );
+
 	private:
 		static Logger* __logger;                    ///< a pointer to the logger
 		static bool check_sys_paths();              ///< returns true if the system path is consistent
 		static bool check_usr_paths();              ///< returns true if the user path is consistent
 		static bool rm_fr( const QString& path );   ///< recursively remove a path
 
+		/**
+		 * If this variable is non-empty, its content will be used as
+		 * an alternative to store and load the preferences.*/
+		static QString m_sPreferencesOverwritePath;
 		/**
 		 * \return a list of usable drumkits, which means having a readable drumkit.xml file
 		 * \param path the path to search in for drumkits
@@ -309,11 +343,18 @@ class Filesystem : public H2Core::Object
 		static QString __sys_data_path;     ///< the path to the system files
 		static QString __usr_data_path;     ///< the path to the user files
 		static QString __usr_cfg_path;      ///< the path to the user config file
+		static QString __usr_log_path;      ///< the path to the log file
 		static QStringList __ladspa_paths;  ///< paths to laspa plugins
-};
+	};
+
+	inline const QString& Filesystem::getPreferencesOverwritePath() {
+		return Filesystem::m_sPreferencesOverwritePath;
+	}
+	inline void Filesystem::setPreferencesOverwritePath( const QString& sPath ) {
+		Filesystem::m_sPreferencesOverwritePath = sPath;
+	}
 
 };
-
 #endif  // H2C_FILESYSTEM_H
 
 /* vim: set softtabstop=4 noexpandtab: */

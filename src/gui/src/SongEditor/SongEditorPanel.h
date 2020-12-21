@@ -54,7 +54,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 	Q_OBJECT
 
 	public:
-		SongEditorPanel( QWidget *parent );
+		explicit SongEditorPanel( QWidget *parent );
 		~SongEditorPanel();
 
 		SongEditor* getSongEditor(){ return m_pSongEditor; }
@@ -70,10 +70,10 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		
 		void showTimeline();
 		void showPlaybackTrack();
-		void updatePlaybackTrackIfNecessary();		
+		void updatePlaybackTrackIfNecessary();
 		
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent();
+		virtual void selectedPatternChangedEvent() override;
 		void restoreGroupVector( QString filename );
 		//~ Implements EventListener interface	
 		///< an empty new pattern will be added to pattern list at idx
@@ -86,7 +86,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		 * gone or Hydrogen itself becomes the timebase master.
 		 */
 		void updateTimelineUsage();
-		virtual void timelineActivationEvent( int nValue );
+		virtual void timelineActivationEvent( int nValue ) override;
 
 	private slots:
 		void vScrollTo( int value );

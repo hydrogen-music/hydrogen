@@ -72,11 +72,12 @@ struct PatternDisplayInfo {
 };
 
 
-SongEditorGridRepresentationItem::SongEditorGridRepresentationItem(int x, int y, bool value)
+SongEditorGridRepresentationItem::SongEditorGridRepresentationItem(int x, int y, bool value, double width)
 {
 	this->x = x;
 	this->y = y;
 	this->value = value;
+	this->width = width;
 }
 
 
@@ -1157,6 +1158,7 @@ void SongEditor::drawSequence()
 
 	for (uint i = 0; i < pColumns->size(); i++) {
 		PatternList* pColumn = (*pColumns)[ i ];
+		int nMaxLength = pColumn->longest_pattern_length();
 
 		std::set<Pattern*> drawnAsVirtual;
 
@@ -1178,7 +1180,9 @@ void SongEditor::drawSequence()
 				}
 				//normal pattern
 
-				gridRepresentation.append(new SongEditorGridRepresentationItem(i,position,false));
+				gridRepresentation.append( new SongEditorGridRepresentationItem( i, position, false,
+																				 (double) pat->get_length()
+																				 / nMaxLength ) );
 			}//if
 
 			for ( Pattern::virtual_patterns_cst_it_t it = pat->get_flattened_virtual_patterns()->begin(); it != pat->get_flattened_virtual_patterns()->end(); ++it) {
@@ -1188,7 +1192,9 @@ void SongEditor::drawSequence()
 						WARNINGLOG( QString("[drawSequence] position == -1, group = %1").arg( i ) );
 					}
 					//virtual pattern
-					gridRepresentation.append(new SongEditorGridRepresentationItem(i,position,true));
+					gridRepresentation.append( new SongEditorGridRepresentationItem( i, position, true,
+																					 (double) pat->get_length()
+																					 / nMaxLength ) );
 					drawnAsVirtual.insert(*it);
 				}
 			}
@@ -1200,7 +1206,7 @@ void SongEditor::drawSequence()
 	SongEditorGridRepresentationItem* s;
 	foreach(s, gridRepresentation)
 	{
-		drawPattern( s->x, s->y, s->value);
+		drawPattern( s->x, s->y, s->value, s->width );
 	}
 
 	// Moving cells
@@ -1225,7 +1231,7 @@ void SongEditor::drawSequence()
 
 
 
-void SongEditor::drawPattern( int pos, int number, bool invertColour )
+void SongEditor::drawPattern( int pos, int number, bool invertColour, double width )
 {
 	Preferences *pref = Preferences::get_instance();
 	UIStyle *pStyle = pref->getDefaultUIStyle();
@@ -1306,7 +1312,7 @@ void SongEditor::drawPattern( int pos, int number, bool invertColour )
 	int x = 10 + m_nGridWidth * pos;
 	int y = m_nGridHeight * number;
 
-	p.fillRect( x + 1, y + 3, m_nGridWidth - 1, m_nGridHeight - 5, patternColor );
+	p.fillRect( x + 1, y + 3, width * (m_nGridWidth - 1), m_nGridHeight - 5, patternColor );
 }
 
 
@@ -1359,14 +1365,14 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 	setAcceptDrops(true);
 
-	patternBeingEdited = nullptr;
+	m_pPatternBeingEdited = nullptr;
 
-	line = new QLineEdit( "Inline Pattern Name", this );
-	line->setFrame( false );
-	line->hide();
-	line->setAcceptDrops( false );
-	connect( line, SIGNAL(editingFinished()), this, SLOT(inlineEditingFinished()) );
-	connect( line, SIGNAL(returnPressed()), this, SLOT(inlineEditingEntered()) );
+	m_pLineEdit = new QLineEdit( "Inline Pattern Name", this );
+	m_pLineEdit->setFrame( false );
+	m_pLineEdit->hide();
+	m_pLineEdit->setAcceptDrops( false );
+	connect( m_pLineEdit, SIGNAL(editingFinished()), this, SLOT(inlineEditingFinished()) );
+	connect( m_pLineEdit, SIGNAL(returnPressed()), this, SLOT(inlineEditingEntered()) );
 
 	this->resize( m_nWidth, m_nInitialHeight );
 
@@ -1480,17 +1486,17 @@ void SongEditorPatternList::inlineEditPatternName( int row )
 	if ( row >= (int)pPatternList->size() ) {
 		return;
 	}
-	patternBeingEdited = pPatternList->get( row );
-	line->setGeometry( 23, row * m_nGridHeight , m_nWidth - 23, m_nGridHeight  );
-	line->setText( patternBeingEdited->get_name() );
-	line->selectAll();
-	line->show();
-	line->setFocus();
+	m_pPatternBeingEdited = pPatternList->get( row );
+	m_pLineEdit->setGeometry( 23, row * m_nGridHeight , m_nWidth - 23, m_nGridHeight  );
+	m_pLineEdit->setText( m_pPatternBeingEdited->get_name() );
+	m_pLineEdit->selectAll();
+	m_pLineEdit->show();
+	m_pLineEdit->setFocus();
 }
 
 void SongEditorPatternList::inlineEditingEntered()
 {
-	assert( patternBeingEdited != nullptr );
+	assert( m_pPatternBeingEdited != nullptr );
 	
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
@@ -1501,20 +1507,20 @@ void SongEditorPatternList::inlineEditingEntered()
 	 * If it is not, use an unused patten name.
 	 */
 	
-	QString patternName = pPatternList->find_unused_pattern_name( line->text() );
+	QString patternName = pPatternList->find_unused_pattern_name( m_pLineEdit->text() );
 
 	int nSelectedPattern = pEngine->getSelectedPatternNumber();
 
-	SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  patternBeingEdited->get_name() , patternBeingEdited->get_info(), patternBeingEdited->get_category(),
-												patternName, patternBeingEdited->get_info(), patternBeingEdited->get_category(), nSelectedPattern );
+	SE_modifyPatternPropertiesAction *action = new SE_modifyPatternPropertiesAction(  m_pPatternBeingEdited->get_name() , m_pPatternBeingEdited->get_info(), m_pPatternBeingEdited->get_category(),
+												patternName, m_pPatternBeingEdited->get_info(), m_pPatternBeingEdited->get_category(), nSelectedPattern );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 
 
 void SongEditorPatternList::inlineEditingFinished()
 {
-	patternBeingEdited = nullptr;
-	line->hide();
+	m_pPatternBeingEdited = nullptr;
+	m_pLineEdit->hide();
 }
 
 
@@ -2513,14 +2519,12 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	int pIPos = Preferences::get_instance()->getPunchInPos();
 	int pOPos = Preferences::get_instance()->getPunchOutPos();
 
-	if ( pEngine->getCurrentPatternList()->size() != 0 ) {
-		H2Core::Pattern *pPattern = pEngine->getCurrentPatternList()->get( 0 );
+	AudioEngine *pAudioEngine = AudioEngine::get_instance();
+	pAudioEngine->lock( RIGHT_HERE );
 
-		if (pPattern != nullptr){
-			fPos += (float)pEngine->getTickPosition() / (float)pPattern->get_length();
-		} else {
-			fPos += (float)pEngine->getTickPosition() / (float)MAX_NOTES;
-		}
+	if ( pEngine->getCurrentPatternList()->size() != 0 ) {
+		int nLength = pEngine->getCurrentPatternList()->longest_pattern_length();
+		fPos += (float)pEngine->getTickPosition() / (float)nLength;
 	}
 	else {
 		// nessun pattern, uso la grandezza di default
@@ -2532,6 +2536,8 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 		pIPos = 0;
 		pOPos = -1;
 	}
+
+	pAudioEngine->unlock();
 
 	QPainter painter(this);
 	qreal pixelRatio = devicePixelRatio();

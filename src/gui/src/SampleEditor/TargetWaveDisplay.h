@@ -44,7 +44,7 @@ class TargetWaveDisplay : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
-		TargetWaveDisplay(QWidget* pParent);
+		explicit TargetWaveDisplay(QWidget* pParent);
 		~TargetWaveDisplay();
 
 		void updateDisplay( H2Core::InstrumentLayer *pLayer );

@@ -40,7 +40,7 @@ class PlaybackTrackWaveDisplay : public WaveDisplay
 	Q_OBJECT
 
 	public:
-		PlaybackTrackWaveDisplay(QWidget* pParent);
+		explicit PlaybackTrackWaveDisplay(QWidget* pParent);
 		~PlaybackTrackWaveDisplay() = default;
 
 		void	updateDisplay( H2Core::InstrumentLayer *pLayer ) override;

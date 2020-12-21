@@ -101,11 +101,8 @@ public:
 		VerticalFader(QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob );
 		~VerticalFader();
 		
-		virtual void paintEvent(QPaintEvent *ev);
-		virtual void mouseMoveEvent(QMouseEvent *ev);
-		
-		
-	
+		virtual void paintEvent(QPaintEvent *ev) override;
+		virtual void mouseMoveEvent(QMouseEvent *ev) override;	
 };
 
 
@@ -115,7 +112,7 @@ class MasterFader : public QWidget, public H2Core::Object, public MidiLearnable
 	Q_OBJECT
 
 	public:
-		MasterFader(QWidget *pParent, bool bWithoutKnob = false);
+		explicit MasterFader(QWidget *pParent, bool bWithoutKnob = false);
 		~MasterFader();
 
 		void setMin( float fMin );
@@ -171,7 +168,7 @@ class Knob : public QWidget, public H2Core::Object, public MidiLearnable
     H2_OBJECT
 	Q_OBJECT
 	public:
-		Knob( QWidget* parent );
+		explicit Knob( QWidget* parent );
 		~Knob();
 
 		void setValue( float fValue );

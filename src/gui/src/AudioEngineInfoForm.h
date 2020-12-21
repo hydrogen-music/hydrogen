@@ -40,16 +40,15 @@ class AudioEngineInfoForm : public QWidget, public Ui_AudioEngineInfoForm_UI, pu
     H2_OBJECT
 	Q_OBJECT
 	private:
-		QTimer *timer;
-
+		QTimer* m_pTimer;
 
 		// EventListener implementation
-		virtual void stateChangedEvent(int nState);
-		virtual void patternChangedEvent();
+		virtual void stateChangedEvent(int nState) override;
+		virtual void patternChangedEvent() override;
 		//~ EventListener implementation
 
 	public:
-		AudioEngineInfoForm(QWidget* parent);
+		explicit AudioEngineInfoForm(QWidget* parent);
 		~AudioEngineInfoForm();
 
 		void showEvent ( QShowEvent *ev );

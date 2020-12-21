@@ -37,7 +37,7 @@ class InstrumentRack : public QWidget, private H2Core::Object
     H2_OBJECT
 	Q_OBJECT
 	public:
-		InstrumentRack( QWidget *pParent );
+		explicit InstrumentRack( QWidget *pParent );
 		~InstrumentRack();
 
 		SoundLibraryPanel* getSoundLibraryPanel() {	return m_pSoundLibraryPanel;	}

@@ -32,29 +32,29 @@ class Action : public H2Core::Object {
 		Action( QString );
 
 		void setParameter1( QString text ){
-			parameter1 = text;
+			m_sParameter1 = text;
 		}
 
 		void setParameter2( QString text ){
-			parameter2 = text;
+			m_sParameter2 = text;
 		}
 
-		QString getParameter1() const {
-			return parameter1;
+		QString getParameter1() const{
+			return m_sParameter1;
 		}
 
-		QString getParameter2() const {
-			return parameter2;
+		QString getParameter2() const{
+			return m_sParameter2;
 		}
 
-		QString getType() const {
-			return type;
+		QString getType() const{
+			return m_sType;
 		}
 
 	private:
-		QString type;
-		QString parameter1;
-		QString parameter2;
+		QString m_sType;
+		QString m_sParameter1;
+		QString m_sParameter2;
 };
 
 namespace H2Core
@@ -147,117 +147,9 @@ class MidiActionManager : public H2Core::Object
 		bool gain_level_absolute(Action * , H2Core::Hydrogen * , targeted_element );
 		bool pitch_level_absolute(Action * , H2Core::Hydrogen * , targeted_element );
 
-		// Actions required for session management.
-		/**
-		 * Create an empty Song which will be stored at to the path
-		 * provided in @a pAction.
-		 *
-		 * This will be done without immediately and without saving
-		 * the current #Song. All unsaved changes will be lost! In
-		 * addition, the new Song won't be saved by this function. You
-		 * can do so using save_song().
-		 *
-		 * The intended use of this function for session
-		 * management. Therefore the function will *not* store the
-		 * provided in Preferences::m_lastSongFilename and thus
-		 * Hydrogen does not resumes with the particular #Song upon
-		 * restarting.
-		 *
-		 * Right now the function is only able to handle the provided
-		 * path as is. Therefore it is important to provide an absolute
-		 * path to a .h2song file.
-		 *
-		 * \param pAction Action "NEW_SONG" uniquely triggering this function.
-		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
-		 * \param element Unused.
-		 * \return true on success
-		 */
-		bool new_song(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
-		/**
-		 * Opens the Song specified in the path provided in @a
-		 * pAction.
-		 *
-		 * This will be done without immediately and without saving
-		 * the current #Song. All unsaved changes will be lost!
-		 *
-		 * The intended use of this function for session
-		 * management. Therefore the function will *not* store the
-		 * provided in Preferences::m_lastSongFilename and thus
-		 * Hydrogen does not resumes with the particular #Song upon
-		 * restarting.
-		 *
-		 * Right now the function is only able to handle the provided
-		 * path as is. Therefore it is important to provide an absolute
-		 * path to a .h2song file.
-		 *
-		 * \param pAction Action "OPEN_SONG" uniquely triggering this function.
-		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
-		 * \param element Unused.
-		 * \return true on success
-		 */
-		bool open_song(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
-		/**
-		 * Saves the current #Song.
-		 *
-		 * The intended use of this function for session
-		 * management. Therefore the function will *not* store the
-		 * provided in Preferences::m_lastSongFilename and thus
-		 * Hydrogen does not resumes with the particular #Song upon
-		 * restarting.
-		 *
-		 * \param pAction Action "SAVE_SONG" uniquely triggering this function.
-		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
-		 * \param element Unused.
-		 * \return true on success
-		 */
-		bool save_song(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
-		/**
-		 * Saves the current Song to the path provided in @a pAction.
-		 *
-		 * The intended use of this function for session
-		 * management. Therefore the function will *not* store the
-		 * provided in Preferences::m_lastSongFilename and thus
-		 * Hydrogen does not resumes with the particular #Song upon
-		 * restarting.
-		 *
-		 * \param pAction Action "SAVE_SONG_AS" uniquely triggering this function.
-		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
-		 * \param element Unused.
-		 * \return true on success
-		 */
-		bool save_song_as(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
-		/**
-		 * Triggers the shutdown of Hydrogen.
-		 *
-		 * This will be done without immediately and without saving
-		 * the current #Song. All unsaved changes will be lost!
-		 *
-		 * The shutdown will only be triggered if
-		 * Hydrogen::m_bActiveGUI is true and the Qt5 GUI is present.
-		 *
-		 * \param pAction Action "QUIT" uniquely triggering this function.
-		 * \param pHydrogen Pointer to the instance of the Hydrogen singleton.
-		 * \param element Unused.
-		 * \return true on success
-		 */
-		bool quit(Action* pAction, H2Core::Hydrogen* pHydrogen, targeted_element element);
-
 		QStringList eventList;
 
 		int m_nLastBpmChangeCCParameter;
-
-		/**
-		 * Checks the path of the .h2song provided via OSC.
-		 *
-		 * It will be checked whether @a songPath
-		 * - is absolute
-		 * - has the '.h2song' suffix
-		 * - is writable (if it exists)
-		 *
-		 * \param songPath Absolute path to an .h2song file.
-		 * \return true - if valid.
-		 */
-		bool isSongPathValid( const QString& songPath );
 
 	public:
 

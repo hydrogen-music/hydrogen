@@ -45,7 +45,7 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		Mixer(QWidget* parent);
+		explicit Mixer(QWidget* parent);
 		~Mixer();
 
 		void showEvent ( QShowEvent *ev );
@@ -95,13 +95,13 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 
 		QTimer *				m_pUpdateTimer;
 
-		uint findMixerLineByRef(MixerLine* ref);
-		uint findCompoMixerLineByRef(ComponentMixerLine* ref);
-		MixerLine* createMixerLine( int );
-		ComponentMixerLine* createComponentMixerLine( int );
+		uint					findMixerLineByRef(MixerLine* ref);
+		uint					findCompoMixerLineByRef(ComponentMixerLine* ref);
+		MixerLine*				createMixerLine( int );
+		ComponentMixerLine*		createComponentMixerLine( int );
 
 		// Implements EventListener interface
-		virtual void noteOnEvent( int nInstrument );
+		virtual void noteOnEvent( int nInstrument ) override;
 		//~ Implements EventListener interface
 
 };

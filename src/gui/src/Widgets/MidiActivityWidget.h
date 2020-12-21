@@ -36,7 +36,7 @@ class MidiActivityWidget : public QWidget, public EventListener, public H2Core::
     H2_OBJECT
 	Q_OBJECT
 	public:
-		MidiActivityWidget(QWidget * parent);
+		explicit MidiActivityWidget(QWidget * parent);
 		~MidiActivityWidget();
 
 		void mousePressEvent(QMouseEvent *ev);
@@ -46,11 +46,11 @@ class MidiActivityWidget : public QWidget, public EventListener, public H2Core::
 		void restoreMidiActivityWidget();
 
 	private:
-		bool m_bValue;
-		QTimer *m_qTimer;
-		QPixmap m_back;
-		QPixmap m_leds;
-		virtual void midiActivityEvent();
+		bool		m_bValue;
+		QTimer *	m_qTimer;
+		QPixmap		m_back;
+		QPixmap		m_leds;
+		virtual void midiActivityEvent() override;
 };
 
 #endif

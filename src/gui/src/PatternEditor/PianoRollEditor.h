@@ -50,9 +50,9 @@ class PianoRollEditor: public QWidget, public EventListener, public H2Core::Obje
 
 
 		// Implements EventListener interface
-		virtual void selectedPatternChangedEvent();
-		virtual void selectedInstrumentChangedEvent();
-		virtual void patternModifiedEvent();
+		virtual void selectedPatternChangedEvent() override;
+		virtual void selectedInstrumentChangedEvent() override;
+		virtual void patternModifiedEvent() override;
 		//~ Implements EventListener interface
 		void setResolution(uint res, bool bUseTriplets);
 

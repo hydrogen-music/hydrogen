@@ -55,8 +55,8 @@ AudioEngineInfoForm::AudioEngineInfoForm(QWidget* parent)
 
 	updateInfo();
 
-	timer = new QTimer(this);
-	connect(timer, SIGNAL(timeout()), this, SLOT(updateInfo()));
+	m_pTimer = new QTimer(this);
+	connect(m_pTimer, SIGNAL(timeout()), this, SLOT(updateInfo()));
 
 	HydrogenApp::get_instance()->addEventListener( this );
 	updateAudioEngineState();
@@ -78,7 +78,7 @@ AudioEngineInfoForm::~AudioEngineInfoForm()
 void AudioEngineInfoForm::showEvent ( QShowEvent* )
 {
 	updateInfo();
-	timer->start(200);
+	m_pTimer->start(200);
 }
 
 
@@ -87,7 +87,7 @@ void AudioEngineInfoForm::showEvent ( QShowEvent* )
  */
 void AudioEngineInfoForm::hideEvent ( QHideEvent* )
 {
-	timer->stop();
+	m_pTimer->stop();
 }
 
 

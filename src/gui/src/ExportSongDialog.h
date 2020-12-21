@@ -47,10 +47,10 @@ class ExportSongDialog : public QDialog, public Ui_ExportSongDialog_UI, public E
 	Q_OBJECT
 
 	public:
-		ExportSongDialog(QWidget* parent);
+		explicit ExportSongDialog(QWidget* parent);
 		~ExportSongDialog();
 
-		virtual void progressEvent( int nValue );
+		virtual void progressEvent( int nValue ) override;
 
 
 private slots:

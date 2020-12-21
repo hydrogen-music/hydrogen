@@ -69,9 +69,9 @@ using namespace H2Core;
 const char* Action::__class_name = "MidiAction";
 
 Action::Action( QString typeString ) : Object( __class_name ) {
-	type = typeString;
-	QString parameter1 = "0";
-	QString parameter2 = "0" ;
+	m_sType = typeString;
+	m_sParameter1 = "0";
+	m_sParameter2 = "0";
 }
 
 /**

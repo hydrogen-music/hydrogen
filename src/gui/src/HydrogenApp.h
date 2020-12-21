@@ -80,7 +80,12 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 
 		virtual ~HydrogenApp();
 
-		void setSong( H2Core::Song* pSong );
+		/** 
+		 * \param sFilename Absolute path used to load the next Song.
+		 * \return bool true on success
+		 */
+		bool openSong( const QString sFilename );
+		bool openSong( H2Core::Song* pSong );
 
 		void showPreferencesDialog();
 		void updateMixerCheckbox();
@@ -167,6 +172,8 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		     EventListener::undoRedoActionEvent()
 		 * - H2Core::EVENT_TEMPO_CHANGED -> 
 		     EventListener::tempoChangedEvent()
+		 * - H2Core::EVENT_UPDATE_PREFERENCES -> 
+		     EventListener::updatePreferencesEvent()
 		 * - H2Core::EVENT_UPDATE_SONG -> 
 		     EventListener::updateSongEvent()
 		 * - H2Core::EVENT_NONE -> nothing
@@ -209,8 +216,22 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		void engineError(uint nErrorCode);
 
 		void setupSinglePanedInterface();
-		virtual void songModifiedEvent();
+		virtual void songModifiedEvent() override;
 
+		/** Handles the loading and saving of the H2Core::Preferences
+		 * from the core part of H2Core::Hydrogen.
+		 *
+		 * If \a nValue is 0 - the H2Core::Preferences got saved - it
+		 * triggers the display of a message in the status bar. If, on
+		 * the other hand, \a nValue is 1 and the configuration file
+		 * has been reloaded, it gets a fresh version of
+		 * H2Core::Preferences and updates all widgets and setting to
+		 * reflect the changes in the configuration.
+		 *
+		 * \param nValue If 0, Preferences was save. If 1, it was
+		 *     loaded.
+		 */
+		virtual void updatePreferencesEvent( int nValue );
 		/**
 		 * Refreshes and updates the GUI after the Song was changed in
 		 * the core part of Hydrogen.
@@ -219,15 +240,20 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		 * an OSC message, this command will get core and GUI in sync
 		 * again. 
 		 *
-		 * \param nValue unused
+		 * \param nValue If 0 or 1, loads the Song stored in
+		 *     H2Core::Hydrogen::m_pNextSong. If 1, also restarts the
+		 *     audio driver via H2Core::Hydrogen::restartDrivers(). If
+		 *     2, a message in the status bar will be displayed
+		 *     notifying the user about the saving of the current Song
+		 *     to the config file.
 		 */
-		virtual void updateSongEvent( int nValue );
+		virtual void updateSongEvent( int nValue ) override;
 		/**
 		 * Calls closeAll() to shutdown Hydrogen.
 		 *
 		 * \param nValue unused
 		 */
-		virtual void quitEvent( int nValue );
+		virtual void quitEvent( int nValue ) override;
 	
 };
 

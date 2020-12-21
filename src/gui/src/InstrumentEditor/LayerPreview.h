@@ -43,7 +43,7 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 	Q_OBJECT
 
 	public:
-		LayerPreview(QWidget* pParent);
+		explicit LayerPreview(QWidget* pParent);
 		~LayerPreview();
 
 		void updateAll();
@@ -89,7 +89,7 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 		 */
 		void showLayerEndVelocity( const InstrumentLayer* pLayer, const QMouseEvent* pEvent );
 
-		virtual void selectedInstrumentChangedEvent();
+		virtual void selectedInstrumentChangedEvent() override;
 };
 
 

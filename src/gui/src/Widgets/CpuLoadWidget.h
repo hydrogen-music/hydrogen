@@ -41,7 +41,7 @@ class CpuLoadWidget : public QWidget, public EventListener, public H2Core::Objec
 	Q_OBJECT
 
 	public:
-		CpuLoadWidget(QWidget *pParent );
+		explicit CpuLoadWidget(QWidget *pParent );
 		~CpuLoadWidget();
 
 		void setValue( float newValue );

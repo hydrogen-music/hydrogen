@@ -39,7 +39,7 @@ class WaveDisplay : public QWidget, public H2Core::Object
 	Q_OBJECT
 
 	public:
-		WaveDisplay(QWidget* pParent);
+		explicit WaveDisplay(QWidget* pParent);
 		~WaveDisplay();
 
 		virtual void	updateDisplay( H2Core::InstrumentLayer *pLayer );

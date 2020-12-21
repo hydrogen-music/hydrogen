@@ -33,7 +33,7 @@ class MidiTable : public QTableWidget, public H2Core::Object
     H2_OBJECT
 	Q_OBJECT
 	public:
-		MidiTable( QWidget* pParent );
+		explicit MidiTable( QWidget* pParent );
 		~MidiTable();
 
 		void setupMidiTable();
