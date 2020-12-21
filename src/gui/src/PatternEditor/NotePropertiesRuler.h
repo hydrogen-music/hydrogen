@@ -26,9 +26,7 @@
 #include "../EventListener.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include <core/Object.h>
 
@@ -89,14 +87,14 @@ class NotePropertiesRuler : public QWidget, public H2Core::Object, public EventL
 		void createPanBackground(QPixmap *pixmap);
 		void createLeadLagBackground(QPixmap *pixmap);
 		void createNoteKeyBackground(QPixmap *pixmap);
-		void paintEvent(QPaintEvent *ev);
-		void mousePressEvent(QMouseEvent *ev);
-		void mouseMoveEvent(QMouseEvent *ev);
-		void wheelEvent(QWheelEvent *ev);
-		void mouseReleaseEvent(QMouseEvent *ev);
-		void keyPressEvent( QKeyEvent *ev );
-		void focusInEvent( QFocusEvent *ev );
-		void focusOutEvent( QFocusEvent *ev );
+		void paintEvent(QPaintEvent *ev) override;
+		void mousePressEvent(QMouseEvent *ev) override;
+		void mouseMoveEvent(QMouseEvent *ev) override;
+		void wheelEvent(QWheelEvent *ev) override;
+		void mouseReleaseEvent(QMouseEvent *ev) override;
+		void keyPressEvent( QKeyEvent *ev ) override;
+		void focusInEvent( QFocusEvent *ev ) override;
+		void focusOutEvent( QFocusEvent *ev ) override;
 		void addUndoAction();
 		void prepareUndoAction( int x );
 

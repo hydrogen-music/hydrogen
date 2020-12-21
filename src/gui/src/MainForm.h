@@ -23,11 +23,8 @@
 #ifndef MAINFORM_H
 #define MAINFORM_H
 
-#include <QtNetwork>
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include <map>
 #include <unistd.h>
@@ -51,7 +48,7 @@ class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 	public:
 		QApplication* m_pQApp;
 
-		MainForm( QApplication *app, const QString& songFilename, const bool bLoadSong );
+		MainForm( QApplication * pQApplication, const QString& songFilename, const bool bLoadSong );
 		~MainForm();
 
 		void updateRecentUsedSongList();
@@ -183,7 +180,7 @@ public slots:
 		void action_debug_logLevel_debug();
 		
 		
-		void closeEvent( QCloseEvent* ev );
+		void closeEvent( QCloseEvent* ev ) override;
 
 		void onPlayStopAccelEvent();
 		void onRestartAccelEvent();
@@ -261,7 +258,7 @@ public slots:
 		
 		void checkNecessaryDirectories();
 
-		bool eventFilter( QObject *o, QEvent *e );
+		bool eventFilter( QObject *o, QEvent *e ) override;
 
 		std::map<int,int>  keycodeInstrumentMap;
 		void initKeyInstMap();

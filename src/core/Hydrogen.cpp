@@ -396,10 +396,15 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 
 			// Convert from playlist index to actual pattern index
 			std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
-			for ( int i = 0; i <= ipattern; ++i ) {
-				PatternList *pColumn = ( *pColumns )[i];
-				currentPattern = pColumn->get( 0 );
-				currentPatternNumber = i;
+			PatternList *pColumn = ( *pColumns )[ ipattern ];
+			currentPatternNumber = -1;
+			for ( int n = 0; n < pColumn->size(); n++ ) {
+				Pattern *pPattern = pColumn->get( n );
+				int nIndex = pPatternList->index( pPattern );
+				if ( nIndex > currentPatternNumber ) {
+					currentPatternNumber = nIndex;
+					currentPattern = pPattern;
+				}
 			}
 			column = column + (*pColumns)[ipattern]->longest_pattern_length();
 			// WARNINGLOG( "Undoing lookahead: corrected (" + to_string( ipattern+1 ) +
@@ -411,10 +416,15 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 		// Convert from playlist index to actual pattern index (if not already done above)
 		if ( currentPattern == nullptr ) {
 			std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
-			for ( int i = 0; i <= ipattern; ++i ) {
-				PatternList *pColumn = ( *pColumns )[i];
-				currentPattern = pColumn->get( 0 );
-				currentPatternNumber = i;
+			PatternList *pColumn = ( *pColumns )[ ipattern ];
+			currentPatternNumber = -1;
+			for ( int n = 0; n < pColumn->size(); n++ ) {
+				Pattern *pPattern = pColumn->get( n );
+				int nIndex = pPatternList->index( pPattern );
+				if ( nIndex > currentPatternNumber ) {
+					currentPatternNumber = nIndex;
+					currentPattern = pPattern;
+				}
 			}
 		}
 
@@ -450,7 +460,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 
 	nRealColumn = getRealtimeTickPosition();
 
-	if ( pPreferences->getQuantizeEvents() ) {
+	if ( currentPattern && pPreferences->getQuantizeEvents() ) {
 		// quantize it to scale
 		unsigned qcolumn = ( unsigned )::round( column / ( double )scalar ) * scalar;
 

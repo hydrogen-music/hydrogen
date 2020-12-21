@@ -30,20 +30,18 @@
 #include "EventListener.h"
 
 #include <iostream>
+#include <cstdint>
 #include <vector>
-#include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
- #include <QStringList>
 
-//#include <QUndoStack>
+#include <QtGui>
+#include <QtWidgets>
+#include <QStringList>
 
 /** Amount of time to pass between successive calls to
  * HydrogenApp::onEventQueueTimer() in milliseconds.
  *
  * This causes the GUI to update at 20 frames per second.*/
-#define QUEUE_TIMER_PERIOD 50
+constexpr uint16_t QUEUE_TIMER_PERIOD = 50;
 
 
 namespace H2Core
@@ -233,7 +231,7 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		 * \param nValue If 0, Preferences was save. If 1, it was
 		 *     loaded.
 		 */
-		virtual void updatePreferencesEvent( int nValue );
+		virtual void updatePreferencesEvent( int nValue ) override;
 		/**
 		 * Refreshes and updates the GUI after the Song was changed in
 		 * the core part of Hydrogen.

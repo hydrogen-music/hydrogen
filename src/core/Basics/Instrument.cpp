@@ -363,6 +363,7 @@ void Instrument::save_to( XMLNode* node, int component_id )
 	InstrumentNode.write_string( "name", __name );
 	InstrumentNode.write_float( "volume", __volume );
 	InstrumentNode.write_bool( "isMuted", __muted );
+	InstrumentNode.write_bool( "isSoloed", __soloed );
 	InstrumentNode.write_float( "pan_L", __pan_l );
 	InstrumentNode.write_float( "pan_R", __pan_r );
 	InstrumentNode.write_float( "randomPitchFactor", __random_pitch_factor );
@@ -379,7 +380,6 @@ void Instrument::save_to( XMLNode* node, int component_id )
 	InstrumentNode.write_int( "midiOutChannel", __midi_out_channel );
 	InstrumentNode.write_int( "midiOutNote", __midi_out_note );
 	InstrumentNode.write_bool( "isStopNote", __stop_notes );
-	InstrumentNode.write_bool( "isSoloed", __soloed );
 
 	switch ( __sample_selection_alg ) {
 	case VELOCITY:

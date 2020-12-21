@@ -96,7 +96,7 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
 
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 	setFocusPolicy (Qt::StrongFocus);
 
 	m_nGridWidth = 16;
@@ -1358,7 +1358,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 	m_nWidth = 200;
 	m_nGridHeight = 18;
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	setAcceptDrops(true);
 
@@ -1441,7 +1441,7 @@ void SongEditorPatternList::mousePressEvent( QMouseEvent *ev )
 		return;
 	}
 
-	if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ){
+	if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::RightButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ){
 		togglePattern( row );
 	} else {
 		engine->setSelectedPatternNumber( row );
@@ -2273,7 +2273,7 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 	m_pHydrogen = Hydrogen::get_instance();
 	m_pAudioEngine = m_pHydrogen->getAudioEngine();
 
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	m_nGridWidth = 16;
 	Preferences *pPref = Preferences::get_instance();
@@ -2450,7 +2450,7 @@ void SongEditorPositionRuler::mousePressEvent( QMouseEvent *ev )
 			update();
 		}
 		
-	} else if (ev->button() == Qt::MidButton && ev->y() >= 26) {
+	} else if (ev->button() == Qt::MiddleButton && ev->y() >= 26) {
 		int column = (ev->x() / m_nGridWidth);
 		SongEditorPanelTagWidget dialog( this , column );
 		if (dialog.exec() == QDialog::Accepted) {

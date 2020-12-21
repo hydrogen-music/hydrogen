@@ -53,22 +53,12 @@ PatternList::~PatternList()
 	}
 }
 
-void PatternList::operator<<( Pattern* pattern )
-{
-	assertAudioEngineLocked();
-	// do nothing if already in __patterns
-	for( int i=0; i<__patterns.size(); i++ ) {
-		if( __patterns[i]==pattern ) return;
-	}
-	__patterns.push_back( pattern );
-}
-
 void PatternList::add( Pattern* pattern )
 {
 	assertAudioEngineLocked();
 	// do nothing if already in __patterns
-	for( int i=0; i<__patterns.size(); i++ ) {
-		if( __patterns[i]==pattern ) return;
+	if ( index( pattern) != -1 ) {
+		return;
 	}
 	__patterns.push_back( pattern );
 }
@@ -77,21 +67,10 @@ void PatternList::insert( int idx, Pattern* pattern )
 {
 	assertAudioEngineLocked();
 	// do nothing if already in __patterns
-	for( int i=0; i<__patterns.size(); i++ ) {
-		if( __patterns[i]==pattern ) return;
+	if ( index( pattern) != -1 ) {
+		return;
 	}
 	__patterns.insert( __patterns.begin() + idx, pattern );
-}
-
-Pattern* PatternList::operator[]( int idx )
-{
-	assertAudioEngineLocked();
-	if ( idx < 0 || idx >= __patterns.size() ) {
-		ERRORLOG( QString( "idx %1 out of [0;%2]" ).arg( idx ).arg( size() ) );
-		return nullptr;
-	}
-	assert( idx >= 0 && idx < __patterns.size() );
-	return __patterns[idx];
 }
 
 Pattern* PatternList::get( int idx )
@@ -116,7 +95,7 @@ const Pattern* PatternList::get( int idx ) const
 	return __patterns[idx];
 }
 
-int PatternList::index( Pattern* pattern )
+int PatternList::index( const Pattern* pattern )
 {
 	for( int i=0; i<__patterns.size(); i++ ) {
 		if ( __patterns[i]==pattern ) return i;

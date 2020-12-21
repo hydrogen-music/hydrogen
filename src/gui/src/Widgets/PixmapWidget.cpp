@@ -35,7 +35,7 @@ PixmapWidget::PixmapWidget( QWidget *pParent, const char* sClassName )
  , __expand_horiz(false)
 {
 	// draw the background: slower but useful with transparent images!
-	//setAttribute(Qt::WA_NoBackground);
+	//setAttribute(Qt::WA_OpaquePaintEvent);
 	__color = QColor(200, 0, 0);
 }
 

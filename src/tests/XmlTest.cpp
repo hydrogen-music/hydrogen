@@ -64,6 +64,9 @@ void XmlTest::testDrumkit()
 	CPPUNIT_ASSERT( check_samples_data( dk0, false ) );
 	CPPUNIT_ASSERT_EQUAL( 4, dk0->get_instruments()->size() );
 	//dk0->dump();
+
+	// Check if drumkit was valid (what we assume in this test)
+	CPPUNIT_ASSERT( ! H2Core::Filesystem::file_exists( H2TEST_FILE( "/drumkits/baseKit/drumkit.xml.bak" ) ) );
 	
 	// manually load samples
 	dk0->load_samples();
@@ -144,6 +147,15 @@ void XmlTest::testDrumkit_UpgradeInvalidADSRValues()
 		delete pDrumkit;
 	}
 
+	//4. Load the drumkit again to assure updated file is valid
+	pDrumkit = H2Core::Drumkit::load( H2TEST_FILE( "/drumkits/invAdsrKit") );
+	CPPUNIT_ASSERT( pDrumkit != nullptr );
+	CPPUNIT_ASSERT( ! H2Core::Filesystem::file_exists( H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml.bak.1") ) );
+		 
+	if ( pDrumkit ) {
+		delete pDrumkit;
+	}
+	
 	// Cleanup
 	CPPUNIT_ASSERT( H2Core::Filesystem::file_copy( H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml.bak" ), H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml" ), true ) );
 	CPPUNIT_ASSERT( H2Core::Filesystem::rm( H2TEST_FILE( "/drumkits/invAdsrKit/drumkit.xml.bak"), false ) );
@@ -171,3 +183,23 @@ void XmlTest::testPattern()
 	delete dk0;
 }
 
+void XmlTest::tearDown() {
+
+	QDirIterator it( TestHelper::get_instance()->getTestDataDir(),
+					 QDirIterator::Subdirectories);
+	QStringList filters;
+	filters << "*.bak*";
+	
+	while ( it.hasNext() ) {
+		it.next();
+		const QDir testFolder( it.next() );
+		const QStringList backupFiles = testFolder.entryList( filters, QDir::NoFilter, QDir::NoSort );
+
+		for ( auto& bbackupFile : backupFiles ) {
+			
+			H2Core::Filesystem::rm( testFolder.absolutePath()
+									.append( "/" )
+									.append( bbackupFile ), false );
+		}
+	}
+}

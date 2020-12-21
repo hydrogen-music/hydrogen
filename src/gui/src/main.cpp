@@ -21,10 +21,9 @@
  */
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 #include <QLibraryInfo>
+
 #include <core/config.h>
 #include <core/Version.h>
 #include <getopt.h>
@@ -69,10 +68,10 @@ void setPalette( QApplication *pQApp )
 	QPalette defaultPalette;
 
 	// A general background color.
-	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
+	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 
 	// A general foreground color.
-	defaultPalette.setColor( QPalette::Foreground, QColor( 255, 255, 255 ) );
+	defaultPalette.setColor( QPalette::WindowText, QColor( 255, 255, 255 ) );
 
 	// Used as the background color for text entry widgets; usually white or another light color.
 	defaultPalette.setColor( QPalette::Base, QColor( 88, 94, 112 ) );

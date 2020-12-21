@@ -23,9 +23,7 @@
 #define LAYER_PREVIEW_H
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include <core/Object.h>
 #include <core/Basics/Instrument.h>
@@ -50,10 +48,10 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 
 		void updateAll();
 
-		void paintEvent(QPaintEvent *ev);
-		virtual void mousePressEvent(QMouseEvent *ev);
-		virtual void mouseReleaseEvent(QMouseEvent *ev);
-		virtual void mouseMoveEvent ( QMouseEvent *ev );
+		void paintEvent(QPaintEvent *ev) override;
+		virtual void mousePressEvent(QMouseEvent *ev) override;
+		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
+		virtual void mouseMoveEvent ( QMouseEvent *ev ) override;
 
 		void set_selected_component( int SelectedComponent );
 

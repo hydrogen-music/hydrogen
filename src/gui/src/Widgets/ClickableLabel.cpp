@@ -23,9 +23,7 @@
 #include "ClickableLabel.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include <core/Globals.h>
 
@@ -34,8 +32,8 @@ ClickableLabel::ClickableLabel( QWidget *pParent )
 {
 
 	QPalette defaultPalette;
-	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
-	defaultPalette.setColor( QPalette::Foreground, QColor( 230, 230, 230 ) );
+	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
+	defaultPalette.setColor( QPalette::WindowText, QColor( 230, 230, 230 ) );
 	this->setPalette( defaultPalette );
 
 	this->setAlignment( Qt::AlignCenter );

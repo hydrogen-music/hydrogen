@@ -49,7 +49,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
  , m_pPattern( nullptr )
 {
 	//infoLog("INIT");
-	//setAttribute(Qt::WA_NoBackground);
+	//setAttribute(Qt::WA_OpaquePaintEvent);
 
 	m_nGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
 	m_nEditorWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
@@ -110,7 +110,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		delta = 0.05; // course control
 	}
 		
-	if ( ev->delta() < 0 ) {
+	if ( ev->angleDelta().y() < 0 ) {
 		delta = (delta * -1.0);
 	}
 
@@ -383,7 +383,7 @@ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 			}
 			else if ( m_Mode == PAN && !pNote->get_note_off() ){
 				float pan_L, pan_R;
-				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+				if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 					val = 0.5;
 				}
 				if ( val > 0.5 ) {
@@ -407,7 +407,7 @@ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 				__pan_R = pan_R;
 			}
 			else if ( m_Mode == LEADLAG ){
-				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+				if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 					pNote->set_lead_lag(0.0);
 					__leadLag = 0.0;
 				} else {
@@ -434,7 +434,7 @@ void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
 			}
 	
 			else if ( m_Mode == NOTEKEY ){
-				if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+				if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 					;
 				} else {
 					//set the note height

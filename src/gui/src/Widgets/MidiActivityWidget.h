@@ -26,9 +26,7 @@
 
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include "../EventListener.h"
 #include <core/Object.h>
@@ -41,8 +39,8 @@ class MidiActivityWidget : public QWidget, public EventListener, public H2Core::
 		explicit MidiActivityWidget(QWidget * parent);
 		~MidiActivityWidget();
 
-		void mousePressEvent(QMouseEvent *ev);
-		void paintEvent(QPaintEvent *ev);
+		void mousePressEvent(QMouseEvent *ev) override;
+		void paintEvent(QPaintEvent *ev) override;
 
 	public slots:
 		void restoreMidiActivityWidget();

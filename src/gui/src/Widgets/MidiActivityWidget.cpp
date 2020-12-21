@@ -37,7 +37,7 @@ MidiActivityWidget::MidiActivityWidget( QWidget * parent )
  , Object( __class_name )
  , m_bValue( false )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	static const uint WIDTH = 58;
 	static const uint HEIGHT = 9;

@@ -23,11 +23,8 @@
 #ifndef INSTRUMENT_EDITOR_DIALOG_H
 #define INSTRUMENT_EDITOR_DIALOG_H
 
-
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include <core/Basics/Instrument.h>
 #include <core/Object.h>
