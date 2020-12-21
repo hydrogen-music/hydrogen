@@ -29,9 +29,7 @@
 #include <core/Basics/Pattern.h>
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 class Button;
 class SongEditor;
@@ -169,7 +167,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		LCDCombo*				m_pAutomationCombo;
 
 
-		virtual void resizeEvent( QResizeEvent *ev );
+		virtual void resizeEvent( QResizeEvent *ev ) override;
 		void resyncExternalScrollBar();
 };
 

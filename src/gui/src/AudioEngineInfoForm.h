@@ -30,9 +30,7 @@
 #include "ui_AudioEngineInfoForm_UI.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 /**
  * Audio Engine information form
@@ -53,8 +51,8 @@ class AudioEngineInfoForm : public QWidget, public Ui_AudioEngineInfoForm_UI, pu
 		explicit AudioEngineInfoForm(QWidget* parent);
 		~AudioEngineInfoForm();
 
-		void showEvent ( QShowEvent *ev );
-		void hideEvent ( QHideEvent *ev );
+		void showEvent ( QShowEvent *ev ) override;
+		void hideEvent ( QHideEvent *ev ) override;
 
 	public slots:
 		void updateInfo();

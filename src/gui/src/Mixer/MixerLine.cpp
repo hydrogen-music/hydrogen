@@ -179,7 +179,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pPeakLCD->move( 10, 106 );
 	m_pPeakLCD->setText( "0.00" );
 	QPalette lcdPalette;
-	lcdPalette.setColor( QPalette::Background, QColor( 49, 53, 61 ) );
+	lcdPalette.setColor( QPalette::Window, QColor( 49, 53, 61 ) );
 	m_pPeakLCD->setPalette( lcdPalette );
 }
 
@@ -506,7 +506,7 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 	m_pPeakLCD->move( 10, 106 );
 	m_pPeakLCD->setText( "0.00" );
 	QPalette lcdPalette;
-	lcdPalette.setColor( QPalette::Background, QColor( 49, 53, 61 ) );
+	lcdPalette.setColor( QPalette::Window, QColor( 49, 53, 61 ) );
 	m_pPeakLCD->setPalette( lcdPalette );
 }
 
@@ -657,7 +657,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	setMaximumSize( m_nWidth, m_nHeight );
 	resize( m_nWidth, m_nHeight );
 	QPalette defaultPalette;
-	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
+	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
 
 	// Background image
@@ -682,7 +682,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	m_pPeakLCD->move( 23, 53 );
 	m_pPeakLCD->setText( "0.00" );
 	QPalette lcdPalette;
-	lcdPalette.setColor( QPalette::Background, QColor( 49, 53, 61 ) );
+	lcdPalette.setColor( QPalette::Window, QColor( 49, 53, 61 ) );
 	m_pPeakLCD->setPalette( lcdPalette );
 
 	m_pHumanizeVelocityRotary = new Rotary( this, Rotary::TYPE_NORMAL, tr( "Humanize velocity" ), false, false );

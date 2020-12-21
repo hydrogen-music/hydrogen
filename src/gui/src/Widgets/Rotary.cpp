@@ -36,7 +36,7 @@ RotaryTooltip::RotaryTooltip( QPoint pos )
 	resize( m_pDisplay->size() );
 
 	QPalette defaultPalette;
-	defaultPalette.setColor( QPalette::Background, QColor( 49, 53, 61 ) );
+	defaultPalette.setColor( QPalette::Window, QColor( 49, 53, 61 ) );
 	this->setPalette( defaultPalette );
 
 }
@@ -77,7 +77,7 @@ Rotary::Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseInt
  , m_bShowValueToolTip( bUseValueTip )
  , m_bIgnoreMouseMove( false )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 	setToolTip( sToolTip );
 
 	m_pValueToolTip = new RotaryTooltip( mapToGlobal( QPoint( 0, 0 ) ) );
@@ -235,7 +235,7 @@ void Rotary::wheelEvent ( QWheelEvent *ev )
 		float fRange = fabs( m_fMax ) + fabs( m_fMin );
 		delta = fRange / 100.0;
 	}
-	if ( ev->delta() < 0 ) {
+	if ( ev->angleDelta().y() < 0 ) {
 		delta = delta * -1.0;
 	}
 	setValue( getValue() + (delta * stepfactor) );
