@@ -51,8 +51,8 @@ class AudioEngineInfoForm : public QWidget, public Ui_AudioEngineInfoForm_UI, pu
 		explicit AudioEngineInfoForm(QWidget* parent);
 		~AudioEngineInfoForm();
 
-		void showEvent ( QShowEvent *ev );
-		void hideEvent ( QHideEvent *ev );
+		void showEvent ( QShowEvent *ev ) override;
+		void hideEvent ( QHideEvent *ev ) override;
 
 	public slots:
 		void updateInfo();

@@ -53,8 +53,8 @@ class InstrumentNameWidget : public PixmapWidget
 		void	setText(QString text);
 		QString text();
 
-		void	mousePressEvent( QMouseEvent * e );
-		void	mouseDoubleClickEvent( QMouseEvent * e );
+		void	mousePressEvent( QMouseEvent * e ) override;
+		void	mouseDoubleClickEvent( QMouseEvent * e ) override;
 
 	signals:
 		void	clicked();

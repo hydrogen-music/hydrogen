@@ -204,14 +204,14 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		
 		void inlineEditPatternName( int row );
 
-		virtual void mousePressEvent( QMouseEvent *ev );
-		virtual void mouseDoubleClickEvent( QMouseEvent *ev );
-		virtual void paintEvent( QPaintEvent *ev );
+		virtual void mousePressEvent( QMouseEvent *ev ) override;
+		virtual void mouseDoubleClickEvent( QMouseEvent *ev ) override;
+		virtual void paintEvent( QPaintEvent *ev ) override;
 
 		void togglePattern( int );
 
 		virtual void patternChangedEvent() override;
-		void mouseMoveEvent(QMouseEvent *event);
+		void mouseMoveEvent(QMouseEvent *event) override;
 		QPoint __drag_start_position;
 
 };

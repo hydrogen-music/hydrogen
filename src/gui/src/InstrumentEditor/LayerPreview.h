@@ -48,10 +48,10 @@ class LayerPreview : public QWidget, public H2Core::Object, public EventListener
 
 		void updateAll();
 
-		void paintEvent(QPaintEvent *ev);
-		virtual void mousePressEvent(QMouseEvent *ev);
-		virtual void mouseReleaseEvent(QMouseEvent *ev);
-		virtual void mouseMoveEvent ( QMouseEvent *ev );
+		void paintEvent(QPaintEvent *ev) override;
+		virtual void mousePressEvent(QMouseEvent *ev) override;
+		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
+		virtual void mouseMoveEvent ( QMouseEvent *ev ) override;
 
 		void set_selected_component( int SelectedComponent );
 

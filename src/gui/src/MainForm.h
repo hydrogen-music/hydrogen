@@ -180,7 +180,7 @@ public slots:
 		void action_debug_logLevel_debug();
 		
 		
-		void closeEvent( QCloseEvent* ev );
+		void closeEvent( QCloseEvent* ev ) override;
 
 		void onPlayStopAccelEvent();
 		void onRestartAccelEvent();
@@ -258,7 +258,7 @@ public slots:
 		
 		void checkNecessaryDirectories();
 
-		bool eventFilter( QObject *o, QEvent *e );
+		bool eventFilter( QObject *o, QEvent *e ) override;
 
 		std::map<int,int>  keycodeInstrumentMap;
 		void initKeyInstMap();
