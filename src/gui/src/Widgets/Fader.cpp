@@ -349,14 +349,14 @@ VerticalFader::VerticalFader( QWidget *pParent, bool bUseIntSteps, bool bWithout
 	setMaximumSize( 116, 23);
 	resize( 116, 23 );
 	
-	QMatrix matrix;
-	matrix.rotate(90);
+	QTransform transform;
+	transform.rotate(90);
 	
 
 	// Background image
 	QString background_path = Skin::getImagePath() + "/mixerPanel/fader_background.png";
 	bool ok = m_back.load( background_path );
-	m_back=m_back.transformed(matrix);
+	m_back=m_back.transformed(transform);
 	if( ok == false ) {
 		ERRORLOG("Fader: Error loading pixmap");
 	}
@@ -364,7 +364,7 @@ VerticalFader::VerticalFader( QWidget *pParent, bool bUseIntSteps, bool bWithout
 	// Leds image
 	QString leds_path = Skin::getImagePath()  + "/mixerPanel/fader_leds.png";
 	ok = m_leds.load( leds_path );
-	m_leds=m_leds.transformed(matrix);
+	m_leds=m_leds.transformed(transform);
 	
 	if( ok == false ){
 		ERRORLOG( "Error loading pixmap" );
@@ -373,7 +373,7 @@ VerticalFader::VerticalFader( QWidget *pParent, bool bUseIntSteps, bool bWithout
 	// Knob image
 	QString knob_path = Skin::getImagePath() + "/mixerPanel/fader_knob.png";
 	ok = m_knob.load( knob_path );
-	m_knob = m_knob.transformed(matrix);
+	m_knob = m_knob.transformed(transform);
 	if( ok == false ){
 		ERRORLOG( "Error loading pixmap" );
 	}
