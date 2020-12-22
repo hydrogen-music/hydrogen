@@ -299,7 +299,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
 
 	const float fPitch = 0.0f;
 	Note *pNote = new Note( pInstrList->get(nLine), 0, 1.0, 0.5f, 0.5f, -1, fPitch );
-	pHydrogen->getAudioEngine()->get_sampler()->noteOn(pNote);
+	pHydrogen->getAudioEngine()->getSampler()->noteOn(pNote);
 
 	pHydrogen->setSelectedInstrumentNumber(nLine);
 }
@@ -319,7 +319,7 @@ void Mixer::noteOnClicked( MixerLine* ref )
 
 	const float fPitch = 0.0f;
 	Note *pNote = new Note( pInstrList->get( nLine ), 0, 1.0, 0.5, 0.5, -1, fPitch );
-	pHydrogen->getAudioEngine()->get_sampler()->noteOff(pNote);
+	pHydrogen->getAudioEngine()->getSampler()->noteOff(pNote);
 
 	pHydrogen->setSelectedInstrumentNumber(nLine);
 }

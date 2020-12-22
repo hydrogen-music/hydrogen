@@ -1418,9 +1418,9 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::updateEditor()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
-	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	PatternList *pPatternList = pHydrogen->getSong()->get_pattern_list();
+	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}

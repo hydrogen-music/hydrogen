@@ -679,12 +679,12 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 bool Sampler::processPlaybackTrack(int nBufferSize)
 {
-	Hydrogen* pEngine = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
-	Song* pSong = pEngine->getSong();
+	Song* pSong = pHydrogen->getSong();
 
 	if(   !pSong->get_playback_track_enabled()
-	   || pEngine->getState() != STATE_PLAYING
+	   || pHydrogen->getState() != STATE_PLAYING
 	   || pSong->get_mode() != Song::SONG_MODE)
 	{
 		return false;
@@ -1005,7 +1005,7 @@ bool Sampler::renderNoteResample(
 
 	int nNoteLength = -1;
 	if ( pNote->get_length() != -1 ) {
-		float resampledTickSize = AudioEngine::compute_tick_size( pSample->get_sample_rate(),
+		float resampledTickSize = AudioEngine::computeTickSize( pSample->get_sample_rate(),
 		                                                          pAudioOutput->m_transport.m_fBPM,
 		                                                          pSong->__resolution );
 		
@@ -1310,14 +1310,14 @@ void Sampler::preview_instrument(Instrument* pInstr )
 void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks, unsigned long noteOnTick )
 {
 	if ( pInstrument ) { // stop all notes using this instrument
-		Hydrogen *pEngine = Hydrogen::get_instance();
-		Song* pSong = pEngine->getSong();
-		int nSelectedpattern = pEngine->getSelectedPatternNumber();
+		Hydrogen *pHydrogen = Hydrogen::get_instance();
+		Song* pSong = pHydrogen->getSong();
+		int nSelectedpattern = pHydrogen->getSelectedPatternNumber();
 		Pattern* pCurrentPattern = nullptr;
 
 
 		if ( pSong->get_mode() == Song::PATTERN_MODE ||
-		( pEngine->getState() != STATE_PLAYING )){
+		( pHydrogen->getState() != STATE_PLAYING )){
 			PatternList *pPatternList = pSong->get_pattern_list();
 			if ( ( nSelectedpattern != -1 )
 			&& ( nSelectedpattern < ( int )pPatternList->size() ) ) {
@@ -1327,7 +1327,7 @@ void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks,
 		{
 			std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
 //			Pattern *pPattern = NULL;
-			int pos = pEngine->getPatternPos() +1;
+			int pos = pHydrogen->getPatternPos() +1;
 			for ( int i = 0; i < pos; ++i ) {
 				PatternList *pColumn = ( *pColumns )[i];
 				pCurrentPattern = pColumn->get( 0 );
@@ -1357,7 +1357,7 @@ void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks,
 								}
 							}else
 							{
-								if ( pNote->get_instrument() == pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber())
+								if ( pNote->get_instrument() == pHydrogen->getSong()->get_instrument_list()->get( pHydrogen->getSelectedInstrumentNumber())
 								&& pNote->get_position() == noteOnTick ) {
 									Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 									if ( ticks >  patternsize ) {
@@ -1379,8 +1379,8 @@ void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks,
 
 bool Sampler::isAnyInstrumentSoloed() const
 {
-	Hydrogen*		pEngine = Hydrogen::get_instance();
-	Song*			pSong = pEngine->getSong();
+	Hydrogen*		pHydrogen = Hydrogen::get_instance();
+	Song*			pSong = pHydrogen->getSong();
 	InstrumentList* pInstrList = pSong->get_instrument_list();
 	bool			bAnyInstrumentIsSoloed = false;
 	
@@ -1409,8 +1409,8 @@ bool Sampler::isInstrumentPlaying( Instrument* instrument )
 
 void Sampler::reinitializePlaybackTrack()
 {
-	Hydrogen*	pEngine = Hydrogen::get_instance();
-	Song*		pSong = pEngine->getSong();
+	Hydrogen*	pHydrogen = Hydrogen::get_instance();
+	Song*		pSong = pHydrogen->getSong();
 	std::shared_ptr<Sample>	pSample;
 
 	if(!pSong->get_playback_track_filename().isEmpty()){

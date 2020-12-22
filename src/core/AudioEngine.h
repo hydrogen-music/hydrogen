@@ -62,7 +62,7 @@ namespace H2Core
 	class Hydrogen;
 	
 /**
- * Audio Engine main class (Singleton).
+ * Audio Engine main class.
  *
  * It serves as a container for the Sampler and Synth stored in the
  * #m_pSampler and #m_pSynth member objects and provides a mutex
@@ -156,7 +156,7 @@ public:
 	 * \param line Line of the file the locking occurs in.
 	 * \param function Function the locking occurs in.
 	 */
-	void lock( const char* file, unsigned int line, const char* function );
+	void			lock( const char* file, unsigned int line, const char* function );
 
 	/**
 	 * Mutex locking of the AudioEngine.
@@ -172,7 +172,9 @@ public:
 	 * - true : On success
 	 * - false : Else
 	 */
-	bool try_lock( const char* file, unsigned int line, const char* function );
+	bool			tryLock( const char* file, 
+						   unsigned int line, 
+						   const char* function );
 
 	/**
 	 * Mutex locking of the AudioEngine.
@@ -190,23 +192,26 @@ public:
 	 * - true : On successful acquisition of the lock
 	 * - false : On failure
 	 */
-	bool try_lock_for( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function );
+	bool			tryLockFor( std::chrono::microseconds duration, 
+								  const char* file, 
+								  unsigned int line, 
+								  const char* function );
 
 	/**
 	 * Mutex unlocking of the AudioEngine.
 	 *
 	 * Unlocks the AudioEngine to allow other threads acces, and leaves #__locker untouched.
 	 */
-	void unlock();
+	void			unlock();
 
 	/**
 	 * Assert that the calling thread is the current holder of the
 	 * AudioEngine lock.
 	 */
-	void assertLocked( );
+	void			assertLocked( );
 	
 	
-	void	destroy();
+	void			destroy();
 
 	/**
 	 * If the audio engine is in state #m_audioEngineState #STATE_READY,
@@ -225,7 +230,7 @@ public:
 	 * \param nTotalFrames New value of the transport position.
 	 * \return 0 regardless what happens inside the function.
 	 */
-	int		start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
+	int				start( bool bLockEngine = false, unsigned nTotalFrames = 0 );
 	
 	/**
 	 * If the audio engine is in state #m_audioEngineState #STATE_PLAYING,
@@ -242,7 +247,7 @@ public:
 	 *   option should only be used, if the process calling this function
 	 *   did already locked it.
 	 */
-	void	stop( bool bLockEngine = false );
+	void			stop( bool bLockEngine = false );
 	
 	/**
 	 * Updates the global objects of the audioEngine according to new
@@ -253,7 +258,7 @@ public:
 	 *
 	 * \param pNewSong Song to load.
 	 */
-	void	setSong(Song *pNewSong );
+	void			setSong(Song *pNewSong );
 
 	/**
 	 * Does the necessary cleanup of the global objects in the audioEngine.
@@ -261,8 +266,8 @@ public:
 	 * Class the clear() member of #m_pPlayingPatterns and
 	 * #m_pNextPatterns as well as audioEngine_clearNoteQueue();
 	 */
-	void	removeSong();
-	void	noteOn( Note *note );
+	void			removeSong();
+	void			noteOn( Note *note );
 	
 	/**
 	 * Main audio processing function called by the audio drivers whenever
@@ -320,11 +325,11 @@ public:
 	 * is reached (audioEngine_updateNoteQueue() returned -1 ). 
 	 * - __0__ : else
 	 */
-	static int		audioEngine_process( uint32_t nframes, void *arg );
+	static int			audioEngine_process( uint32_t nframes, void *arg );
 	
-	inline void		clearNoteQueue();
+	inline void			clearNoteQueue();
 	
-	inline void		process_playNotes( unsigned long nframes );
+	inline void			processPlayNotes( unsigned long nframes );
 	/**
 	 * Updating the TransportInfo of the audio driver.
 	 *
@@ -349,7 +354,7 @@ public:
 	 * If the H2Core::m_audioEngineState is neither in #STATE_READY nor
 	 * #STATE_PLAYING the function will immediately return.
 	 */
-	inline void		process_transport();
+	inline void			processTransport();
 	
 	inline unsigned		renderNote( Note* pNote, const unsigned& nBufferSize );
 	// TODO: Add documentation of doErase, inPunchArea, and
@@ -405,8 +410,8 @@ public:
 	 * - 2 if the current pattern changed with respect to the last
 	 * cycle.
 	 */
-	int			updateNoteQueue( unsigned nFrames );
-	void		prepNoteQueue();
+	int				updateNoteQueue( unsigned nFrames );
+	void			prepNoteQueue();
 	
 	/**
 	 * Find a PatternList corresponding to the supplied tick position @a
@@ -425,20 +430,20 @@ public:
 	 *   - -1 : pattern list couldn't be found.
 	 *   - >=0 : PatternList index in Song::__pattern_group_sequence.
 	 */
-	int		findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick );
+	int				findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick );
 	
-	void	seek( long long nFrames, bool bLoopMode = false );
+	void			seek( long long nFrames, bool bLoopMode = false );
 	
 	
-	static float compute_tick_size( const int nSampleRate, const float fBpm, const int nResolution);
+	static float	computeTickSize( const int nSampleRate, const float fBpm, const int nResolution);
 
 	/** \return #m_pSampler */
-	Sampler* get_sampler();
+	Sampler*		getSampler();
 	/** \return #m_pSynth */
-	Synth* get_synth();
+	Synth*			getSynth();
 	
 	/** \return #m_fElapsedTime */
-	float getElapsedTime() const;
+	float			getElapsedTime() const;
 	
 	/** Calculates the elapsed time for an arbitrary position.
 	 *
@@ -458,7 +463,7 @@ public:
 	 * \param nResolution Resolution of the Song (number of ticks per 
 	 *   quarter).
 	 */
-	void calculateElapsedTime( unsigned sampleRate, unsigned long nFrame, int nResolution );
+	void			calculateElapsedTime( unsigned sampleRate, unsigned long nFrame, int nResolution );
 	
 	/** Increments #m_fElapsedTime at the end of a process cycle.
 	 *
@@ -471,7 +476,7 @@ public:
 	 * \param sampleRate Temporal resolution used by the sound card in
 	 * frames per second.
 	 */
-	void updateElapsedTime( unsigned bufferSize, unsigned sampleRate );
+	void			updateElapsedTime( unsigned bufferSize, unsigned sampleRate );
 	
 	/**
 	 * Update the tick size based on the current tempo without affecting
@@ -502,14 +507,14 @@ public:
 	 * function will only perform actions if #m_audioEngineState is in
 	 * either #STATE_READY or #STATE_PLAYING.
 	 */
-	void	process_checkBPMChanged(Song *pSong);
+	void			processCheckBPMChanged(Song *pSong);
 	
 	/** Relocate using the audio driver and update the
 	 * #m_fElapsedTime.
 	 *
 	 * \param nFrame Next transport position in frames.
 	 */
-	void locate( unsigned long nFrame );
+	void			locate( unsigned long nFrame );
 	
 	
 	/** Clear all audio buffers.
@@ -533,7 +538,7 @@ public:
 	 * If the audio driver #m_pAudioDriver isn't set yet, it will just
 	 * unlock and return.
 	 */
-	void clearAudioBuffers( uint32_t nFrames );
+	void			clearAudioBuffers( uint32_t nFrames );
 	
 	/**
 	 * Create an audio driver using audioEngine_process() as its argument
@@ -549,7 +554,7 @@ public:
 	 * creation resulted in a NullDriver, the corresponding object will be
 	 * deleted and a null pointer returned instead.
 	 */
-	AudioOutput* createDriver( const QString& sDriver );
+	AudioOutput*	createDriver( const QString& sDriver );
 	
 	/** 
 	 * Creation and initialization of all audio and MIDI drivers called in
@@ -596,7 +601,7 @@ public:
 	 * #STATE_INITIALIZED or the function will just unlock both mutex and
 	 * returns.
 	 */
-	void	startAudioDrivers();
+	void			startAudioDrivers();
 	
 	/**
 	 * Stops all audio and MIDI drivers.
@@ -610,11 +615,11 @@ public:
 	 * If #m_audioEngineState is neither in #STATE_PREPARED or
 	 * #STATE_READY, the function returns before deleting anything.
 	 */
-	void	stopAudioDrivers();
-	
-	void	restartAudioDrivers();
-	
-	void	setupLadspaFX( unsigned nBufferSize );
+	void			stopAudioDrivers();
+					
+	void			restartAudioDrivers();
+					
+	void			setupLadspaFX( unsigned nBufferSize );
 	
 	/**
 	 * Hands the provided Song to JackAudioDriver::makeTrackOutputs() if
@@ -622,79 +627,63 @@ public:
 	 * is an instance of the JackAudioDriver.
 	 * \param pSong Song for which per-track output ports should be generated.
 	 */
-	void	renameJackPorts(Song * pSong);
+	void			renameJackPorts(Song * pSong);
 	
  
-	void				setAudioDriver( AudioOutput* pAudioDriver );
-	AudioOutput*		getAudioDriver() const;
+	void			setAudioDriver( AudioOutput* pAudioDriver );
+	AudioOutput*	getAudioDriver() const;
 
 	/* retrieve the midi (input) driver */
-	MidiInput*			getMidiDriver() const;
+	MidiInput*		getMidiDriver() const;
 	/* retrieve the midi (output) driver */
-	MidiOutput*			getMidiOutDriver() const;
+	MidiOutput*		getMidiOutDriver() const;
 	
-	/**
-	 * Mutex for locking the pointer to the audio output buffer, allowing
-	 * multiple readers.
-	 *
-	 * When locking this __and__ the AudioEngine, always lock the
-	 * AudioEngine first using AudioEngine::lock() or
-	 * AudioEngine::try_lock(). Always use a QMutexLocker to lock this
-	 * mutex.
-	 */
-	QMutex				mutex_OutputPointer;
+
 		
 	
 	void raiseError( unsigned nErrorCode );
 	
 	//retrieve the current state of the audio engine state, see #m_State
-	int 				getState() const;
+	int 			getState() const;
 	//set the current state of the audio engine state, see #m_State
-	void 				setState( int state );
+	void 			setState( int state );
 
-	void				setMainBuffer_L( float* pMainBufferL );
-	void				setMainBuffer_R( float* pMainBufferR );
-
-	void 				setMasterPeak_L( float value );
-	float 				getMasterPeak_L() const;
-
-	void	 			setMasterPeak_R( float value );
-	float 				getMasterPeak_R() const;
-
-	float				getProcessTime() const;
-	float				getMaxProcessTime() const;
-
-	struct timeval& 	getCurrentTickTime(); 
-
-	int					getSelectedPatternNumber() const;
-	void				setSelectedPatternNumber( int number );
-
-	void				setPatternStartTick( int tick );
-
-	void				setPatternTickPosition( int tick );
-	int					getPatternTickPosition() const;
-
-	void				setSongPos( int songPos );
-	int					getSongPos() const;
-
-	PatternList*		getNextPatterns() const;
-	PatternList*		getPlayingPatterns() const;
+	void			setMainBuffer_L( float* pMainBufferL );
+	void			setMainBuffer_R( float* pMainBufferR );
 	
-	unsigned long		getRealtimeFrames() const;
-	void				setRealtimeFrames( unsigned long nFrames );
+	void 			setMasterPeak_L( float value );
+	float 			getMasterPeak_L() const;
 
-	unsigned int		getAddRealtimeNoteTickPosition() const; 
-	void				setAddRealtimeNoteTickPosition( unsigned int tickPosition );
+	void	 		setMasterPeak_R( float value );
+	float 			getMasterPeak_R() const;
 
+	float			getProcessTime() const;
+	float			getMaxProcessTime() const;
 
+	int				getSelectedPatternNumber() const;
+	void			setSelectedPatternNumber( int number );
+
+	void			setPatternStartTick( int tick );
+
+	void			setPatternTickPosition( int tick );
+	int				getPatternTickPosition() const;
+
+	void			setSongPos( int songPos );
+	int				getSongPos() const;
+
+	PatternList*	getNextPatterns() const;
+	PatternList*	getPlayingPatterns() const;
+	
+	unsigned long	getRealtimeFrames() const;
+	void			setRealtimeFrames( unsigned long nFrames );
+
+	unsigned int	getAddRealtimeNoteTickPosition() const; 
+	void			setAddRealtimeNoteTickPosition( unsigned int tickPosition );
+
+	
+	struct timeval& 	getCurrentTickTime(); 
 	
 private:
-	/**
-	 * Object holding the current AudioEngine singleton. It is
-	 * initialized with NULL, set with create_instance(), and
-	 * accessed with get_instance().
-	 */
-	static AudioEngine* __instance;
 
 	/** Local instance of the Sampler. */
 	Sampler* 			m_pSampler;
@@ -763,12 +752,23 @@ private:
 	 * try_lock() and to unlock it via unlock(). It is
 	 * initialized in AudioEngine() and not explicitly exited.
 	 */
-	std::timed_mutex 	__engine_mutex;
+	std::timed_mutex 	m_EngineMutex;
+	
+	/**
+	 * Mutex for locking the pointer to the audio output buffer, allowing
+	 * multiple readers.
+	 *
+	 * When locking this __and__ the AudioEngine, always lock the
+	 * AudioEngine first using AudioEngine::lock() or
+	 * AudioEngine::try_lock(). Always use a QMutexLocker to lock this
+	 * mutex.
+	 */
+	QMutex				m_MutexOutputPointer;
 
 	/**
 	 * Thread ID of the current holder of the AudioEngine lock.
 	 */
-	std::thread::id 	m_lockingThread;
+	std::thread::id 	m_LockingThread;
 
 	/**
 	 * This struct is most probably intended to be used for
@@ -925,7 +925,7 @@ private:
 	 * position TransportInfo::m_nFrames.
 	 */
 	unsigned long		m_nRealtimeFrames;
-	unsigned int		m_naddrealtimenotetickposition;
+	unsigned int		m_nAddRealtimeNoteTickPosition;
 
 	/**
 	 * Current state of the H2Core::AudioEngine. 
@@ -1010,7 +1010,7 @@ inline float AudioEngine::getElapsedTime() const {
 
 inline void AudioEngine::assertLocked( ) {
 #ifndef NDEBUG
-	assert( m_lockingThread == std::this_thread::get_id() );
+	assert( m_LockingThread == std::this_thread::get_id() );
 #endif
 }
 
@@ -1119,11 +1119,11 @@ inline void AudioEngine::setRealtimeFrames( unsigned long nFrames ) {
 }
 
 inline unsigned int AudioEngine::getAddRealtimeNoteTickPosition() const {
-	return m_naddrealtimenotetickposition;
+	return m_nAddRealtimeNoteTickPosition;
 }
 
 inline void AudioEngine::setAddRealtimeNoteTickPosition( unsigned int tickPosition) {
-	m_naddrealtimenotetickposition = tickPosition;
+	m_nAddRealtimeNoteTickPosition = tickPosition;
 }
 
 };

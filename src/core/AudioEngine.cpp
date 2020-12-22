@@ -98,9 +98,6 @@ inline timeval currentTime2()
 	return now;
 }
 
-
-
-AudioEngine* AudioEngine::__instance = nullptr;
 const char* AudioEngine::__class_name = "AudioEngine";
 
 AudioEngine::AudioEngine()
@@ -120,11 +117,10 @@ AudioEngine::AudioEngine()
 		, m_nPatternTickPosition( 0 )
 		, m_nSongSizeInTicks( 0 )
 		, m_nRealtimeFrames( 0 )
-		, m_naddrealtimenotetickposition( 0 )
+		, m_nAddRealtimeNoteTickPosition( 0 )
 		, m_nSongPos( -1 )
 		, m_nSelectedPatternNumber( 0 )
 {
-	__instance = this;
 	INFOLOG( "INIT" );
 
 	m_pSampler = new Sampler;
@@ -175,13 +171,13 @@ AudioEngine::~AudioEngine()
 	delete m_pSynth;
 }
 
-Sampler* AudioEngine::get_sampler()
+Sampler* AudioEngine::getSampler()
 {
 	assert(m_pSampler);
 	return m_pSampler;
 }
 
-Synth* AudioEngine::get_synth()
+Synth* AudioEngine::getSynth()
 {
 	assert(m_pSynth);
 	return m_pSynth;
@@ -189,16 +185,16 @@ Synth* AudioEngine::get_synth()
 
 void AudioEngine::lock( const char* file, unsigned int line, const char* function )
 {
-	__engine_mutex.lock();
+	m_EngineMutex.lock();
 	__locker.file = file;
 	__locker.line = line;
 	__locker.function = function;
-	m_lockingThread = std::this_thread::get_id();
+	m_LockingThread = std::this_thread::get_id();
 }
 
-bool AudioEngine::try_lock( const char* file, unsigned int line, const char* function )
+bool AudioEngine::tryLock( const char* file, unsigned int line, const char* function )
 {
-	bool res = __engine_mutex.try_lock();
+	bool res = m_EngineMutex.try_lock();
 	if ( !res ) {
 		// Lock not obtained
 		return false;
@@ -206,13 +202,13 @@ bool AudioEngine::try_lock( const char* file, unsigned int line, const char* fun
 	__locker.file = file;
 	__locker.line = line;
 	__locker.function = function;
-	m_lockingThread = std::this_thread::get_id();
+	m_LockingThread = std::this_thread::get_id();
 	return true;
 }
 
-bool AudioEngine::try_lock_for( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function )
+bool AudioEngine::tryLockFor( std::chrono::microseconds duration, const char* file, unsigned int line, const char* function )
 {
-	bool res = __engine_mutex.try_lock_for( duration );
+	bool res = m_EngineMutex.try_lock_for( duration );
 	if ( !res ) {
 		// Lock not obtained
 		WARNINGLOG( QString( "Lock timeout: lock timeout %1:%2%3, lock held by %4:%5:%6" )
@@ -223,15 +219,15 @@ bool AudioEngine::try_lock_for( std::chrono::microseconds duration, const char* 
 	__locker.file = file;
 	__locker.line = line;
 	__locker.function = function;
-	m_lockingThread = std::this_thread::get_id();
+	m_LockingThread = std::this_thread::get_id();
 	return true;
 }
 
 void AudioEngine::unlock()
 {
 	// Leave "__locker" dirty.
-	m_lockingThread = std::thread::id();
-	__engine_mutex.unlock();
+	m_LockingThread = std::thread::id();
+	m_EngineMutex.unlock();
 }
 
 
@@ -304,7 +300,7 @@ int AudioEngine::start( bool bLockEngine, unsigned nTotalFrames )
 	// prepare the tick size for this song
 	Song* pSong = Hydrogen::get_instance()->getSong();
 	m_pAudioDriver->m_transport.m_fTickSize =
-		AudioEngine::compute_tick_size( static_cast<float>(m_pAudioDriver->getSampleRate()), pSong->__bpm, pSong->__resolution );
+		AudioEngine::computeTickSize( static_cast<float>(m_pAudioDriver->getSampleRate()), pSong->__bpm, pSong->__resolution );
 
 	// change the current audio engine state
 	setState( STATE_PLAYING );
@@ -360,7 +356,7 @@ void AudioEngine::stop( bool bLockEngine )
 }
 
 
-float AudioEngine::compute_tick_size( const int nSampleRate, const float fBpm, const int nResolution)
+float AudioEngine::computeTickSize( const int nSampleRate, const float fBpm, const int nResolution)
 {
 	float fTickSize = nSampleRate * 60.0 / fBpm / nResolution;
 	
@@ -409,7 +405,7 @@ void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigne
 		auto tempoMarkers = pHydrogen->getTimeline()->getAllTempoMarkers();
 		
 		// TODO: how to handle the BPM before the first marker?
-		fPreviousTickSize = compute_tick_size( static_cast<int>(sampleRate), 
+		fPreviousTickSize = computeTickSize( static_cast<int>(sampleRate), 
 											   tempoMarkers[0]->fBpm, nResolution );
 		
 		// For each BPM marker on the Timeline we will get the number
@@ -427,7 +423,7 @@ void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigne
 				return;
 			}
 
-			fPreviousTickSize = compute_tick_size( static_cast<int>(sampleRate), 
+			fPreviousTickSize = computeTickSize( static_cast<int>(sampleRate), 
 												   mmarker->fBpm, nResolution );
 			previousTicks = totalTicks;
 		}
@@ -461,7 +457,7 @@ void AudioEngine::locate( const unsigned long nFrame ) {
 
 void AudioEngine::clearAudioBuffers( uint32_t nFrames )
 {
-	QMutexLocker mx( &mutex_OutputPointer );
+	QMutexLocker mx( &m_MutexOutputPointer );
 
 	// clear main out Left and Right
 	if ( m_pAudioDriver ) {
@@ -584,7 +580,7 @@ void AudioEngine::startAudioDrivers()
 
 	// Lock both the AudioEngine and the audio output buffers.
 	this->lock( RIGHT_HERE );
-	QMutexLocker mx(&mutex_OutputPointer);
+	QMutexLocker mx(&m_MutexOutputPointer);
 
 	___INFOLOG( "[audioEngine_startAudioDrivers]" );
 	
@@ -782,7 +778,7 @@ void AudioEngine::stopAudioDrivers()
 	// delete audio driver
 	if ( m_pAudioDriver ) {
 		m_pAudioDriver->disconnect();
-		QMutexLocker mx( &mutex_OutputPointer );
+		QMutexLocker mx( &m_MutexOutputPointer );
 		delete m_pAudioDriver;
 		m_pAudioDriver = nullptr;
 		mx.unlock();
@@ -803,7 +799,7 @@ void AudioEngine::restartAudioDrivers()
 	startAudioDrivers();
 }
 
-void AudioEngine::process_checkBPMChanged(Song* pSong)
+void AudioEngine::processCheckBPMChanged(Song* pSong)
 {
 	if ( m_State != STATE_READY
 		 && m_State != STATE_PLAYING ) {
@@ -823,7 +819,7 @@ void AudioEngine::process_checkBPMChanged(Song* pSong)
 	oldFrame = m_pAudioDriver->m_transport.m_nFrames;
 #endif
 	float fOldTickSize = m_pAudioDriver->m_transport.m_fTickSize;
-	float fNewTickSize = AudioEngine::compute_tick_size( m_pAudioDriver->getSampleRate(), pSong->__bpm, pSong->__resolution );
+	float fNewTickSize = AudioEngine::computeTickSize( m_pAudioDriver->getSampleRate(), pSong->__bpm, pSong->__resolution );
 
 	// Nothing changed - avoid recomputing
 	if ( fNewTickSize == fOldTickSize ) {
@@ -912,7 +908,7 @@ void AudioEngine::raiseError( unsigned nErrorCode )
 	m_pEventQueue->push_event( EVENT_ERROR, nErrorCode );
 }
 
-inline void AudioEngine::process_playNotes( unsigned long nframes )
+inline void AudioEngine::processPlayNotes( unsigned long nframes )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
@@ -1003,7 +999,7 @@ inline void AudioEngine::process_playNotes( unsigned long nframes )
 										   -1,
 										   0 );
 				pOffNote->set_note_off( true );
-				pHydrogen->getAudioEngine()->get_sampler()->noteOn( pOffNote );
+				pHydrogen->getAudioEngine()->getSampler()->noteOn( pOffNote );
 				delete pOffNote;
 			}
 
@@ -1067,7 +1063,7 @@ void AudioEngine::seek( long long nFrames, bool bLoopMode )
 	clearNoteQueue();
 }
 
-inline void AudioEngine::process_transport()
+inline void AudioEngine::processTransport()
 {
 	if (   getState() != STATE_READY
 		&& getState() != STATE_PLAYING
@@ -1187,7 +1183,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	 * writer driver to repeat the processing of the current data.
 	 */
 				
-	if ( !pAudioEngine->try_lock_for( std::chrono::microseconds( (int)(1000.0*fSlackTime) ),
+	if ( !pAudioEngine->tryLockFor( std::chrono::microseconds( (int)(1000.0*fSlackTime) ),
 							  RIGHT_HERE ) ) {
 		___ERRORLOG( QString( "Failed to lock audioEngine in allowed %1 ms, missed buffer" ).arg( fSlackTime ) );
 
@@ -1221,7 +1217,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// the one used by the JACK server, and adjust the current
 	// transport position if it was changed by an user interaction
 	// (e.g. clicking on the timeline).
-	pAudioEngine->process_transport();
+	pAudioEngine->processTransport();
 	
 
 	// ___INFOLOG( QString( "[after process] status: %1, frame: %2, ticksize: %3, bpm: %4" )
@@ -1230,7 +1226,7 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	// 	    .arg( m_pAudioDriver->m_transport.m_fTickSize )
 	// 	    .arg( m_pAudioDriver->m_transport.m_fBPM ) );
 	// Check whether the tick size has changed.
-	pAudioEngine->process_checkBPMChanged(pSong);
+	pAudioEngine->processCheckBPMChanged(pSong);
 
 	bool bSendPatternChange = false;
 	// always update note queue.. could come from pattern or realtime input
@@ -1256,21 +1252,21 @@ int AudioEngine::audioEngine_process( uint32_t nframes, void* /*arg*/ )
 	}
 
 	// play all notes
-	pAudioEngine->process_playNotes( nframes );
+	pAudioEngine->processPlayNotes( nframes );
 
 	// SAMPLER
-	pAudioEngine->get_sampler()->process( nframes, pSong );
-	float* out_L = pAudioEngine->get_sampler()->m_pMainOut_L;
-	float* out_R = pAudioEngine->get_sampler()->m_pMainOut_R;
+	pAudioEngine->getSampler()->process( nframes, pSong );
+	float* out_L = pAudioEngine->getSampler()->m_pMainOut_L;
+	float* out_R = pAudioEngine->getSampler()->m_pMainOut_R;
 	for ( unsigned i = 0; i < nframes; ++i ) {
 		pAudioEngine->m_pMainBuffer_L[ i ] += out_L[ i ];
 		pAudioEngine->m_pMainBuffer_R[ i ] += out_R[ i ];
 	}
 
 	// SYNTH
-	pAudioEngine->get_synth()->process( nframes );
-	out_L = pAudioEngine->get_synth()->m_pOut_L;
-	out_R = pAudioEngine->get_synth()->m_pOut_R;
+	pAudioEngine->getSynth()->process( nframes );
+	out_L = pAudioEngine->getSynth()->m_pOut_L;
+	out_R = pAudioEngine->getSynth()->m_pOut_R;
 	for ( unsigned i = 0; i < nframes; ++i ) {
 		pAudioEngine->m_pMainBuffer_L[ i ] += out_L[ i ];
 		pAudioEngine->m_pMainBuffer_R[ i ] += out_R[ i ];
@@ -1403,7 +1399,7 @@ void AudioEngine::setSong( Song* pNewSong )
 	setupLadspaFX( m_pAudioDriver->getBufferSize() );
 
 	// update tick size
-	process_checkBPMChanged( pNewSong );
+	processCheckBPMChanged( pNewSong );
 
 	// find the first pattern and set as current
 	if ( pNewSong->get_pattern_list()->size() > 0 ) {
@@ -1414,7 +1410,7 @@ void AudioEngine::setSong( Song* pNewSong )
 
 	m_pAudioDriver->setBpm( pNewSong->__bpm );
 	m_pAudioDriver->m_transport.m_fTickSize = 
-		AudioEngine::compute_tick_size( static_cast<int>(m_pAudioDriver->getSampleRate()),
+		AudioEngine::computeTickSize( static_cast<int>(m_pAudioDriver->getSampleRate()),
 										pNewSong->__bpm,
 										static_cast<int>(pNewSong->__resolution) );
 

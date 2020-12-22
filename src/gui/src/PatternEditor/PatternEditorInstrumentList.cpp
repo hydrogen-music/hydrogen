@@ -197,12 +197,12 @@ void InstrumentLine::setSamplesMissing( bool bSamplesMissing )
 
 void InstrumentLine::muteClicked()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 	Instrument *pInstr = pInstrList->get( m_nInstrumentNumber );
 
-	CoreActionController* pCoreActionController = pEngine->getCoreActionController();
+	CoreActionController* pCoreActionController = pHydrogen->getCoreActionController();
 	pCoreActionController->setStripIsMuted( m_nInstrumentNumber, !pInstr->is_muted() );
 }
 
@@ -243,7 +243,7 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 		Instrument *pInstr = pSong->get_instrument_list()->get( m_nInstrumentNumber );
 
 		Note *pNote = new Note( pInstr, 0, velocity, pan_L, pan_R, nLength, fPitch);
-		Hydrogen::get_instance()->getAudioEngine()->get_sampler()->noteOn(pNote);
+		Hydrogen::get_instance()->getAudioEngine()->getSampler()->noteOn(pNote);
 	}
 	else if (ev->button() == Qt::RightButton ) {
 		m_pFunctionPopup->popup( QPoint( ev->globalX(), ev->globalY() ) );
@@ -257,11 +257,11 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 
 H2Core::Pattern* InstrumentLine::getCurrentPattern()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	PatternList *pPatternList = pHydrogen->getSong()->get_pattern_list();
 	assert( pPatternList != nullptr );
 
-	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
+	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 	if ( nSelectedPatternNumber != -1 ) {
 		Pattern* pCurrentPattern = pPatternList->get( nSelectedPatternNumber );
 		return pCurrentPattern;
@@ -274,10 +274,10 @@ H2Core::Pattern* InstrumentLine::getCurrentPattern()
 
 void InstrumentLine::functionClearNotes()
 {
-	Hydrogen * pEngine = Hydrogen::get_instance();
-	int selectedPatternNr = pEngine->getSelectedPatternNumber();
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
+	int selectedPatternNr = pHydrogen->getSelectedPatternNumber();
 	Pattern *pPattern = getCurrentPattern();
-	Instrument *pSelectedInstrument = pEngine->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
+	Instrument *pSelectedInstrument = pHydrogen->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
 
 	std::list< Note* > noteList;
 	const Pattern::notes_t* notes = pPattern->get_notes();
@@ -296,9 +296,9 @@ void InstrumentLine::functionClearNotes()
 
 void InstrumentLine::functionCopyInstrumentPattern()
 {
-	Hydrogen * pEngine = Hydrogen::get_instance();
-	int selectedPatternNr = pEngine->getSelectedPatternNumber();
-	Song *song = pEngine->getSong();
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
+	int selectedPatternNr = pHydrogen->getSelectedPatternNumber();
+	Song *song = pHydrogen->getSong();
 	assert(song);
 
 	// Serialize & put to clipboard
@@ -309,8 +309,8 @@ void InstrumentLine::functionCopyInstrumentPattern()
 
 void InstrumentLine::functionCopyAllInstrumentPatterns()
 {
-	Hydrogen * pEngine = Hydrogen::get_instance();
-	Song *song = pEngine->getSong();
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
+	Song *song = pHydrogen->getSong();
 	assert(song);
 
 	// Serialize & put to clipboard
@@ -321,8 +321,8 @@ void InstrumentLine::functionCopyAllInstrumentPatterns()
 
 void InstrumentLine::functionPasteInstrumentPattern()
 {
-	Hydrogen * pEngine = Hydrogen::get_instance();
-	int selectedPatternNr = pEngine->getSelectedPatternNumber();
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
+	int selectedPatternNr = pHydrogen->getSelectedPatternNumber();
 
 	functionPasteInstrumentPatternExec(selectedPatternNr);
 }
@@ -334,8 +334,8 @@ void InstrumentLine::functionPasteAllInstrumentPatterns()
 
 void InstrumentLine::functionPasteInstrumentPatternExec(int patternID)
 {
-	Hydrogen * pEngine = Hydrogen::get_instance();
-	Song *song = pEngine->getSong();
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
+	Song *song = pHydrogen->getSong();
 	assert(song);
 
 	// This is a note list for pasted notes collection
@@ -370,7 +370,7 @@ void InstrumentLine::functionFillEverySixteenNotes(){ functionFillNotes(16); }
 
 void InstrumentLine::functionFillNotes( int every )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
@@ -384,14 +384,14 @@ void InstrumentLine::functionFillNotes( int every )
 	int nResolution = 4 * MAX_NOTES * every / ( nBase * pPatternEditor->getResolution() );
 
 
-	Song *pSong = pEngine->getSong();
+	Song *pSong = pHydrogen->getSong();
 
 	QStringList notePositions;
 
 	Pattern* pCurrentPattern = getCurrentPattern();
 	if (pCurrentPattern != nullptr) {
 		int nPatternSize = pCurrentPattern->get_length();
-		int nSelectedInstrument = pEngine->getSelectedInstrumentNumber();
+		int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
 		if (nSelectedInstrument != -1) {
 			Instrument *instrRef = (pSong->get_instrument_list())->get( nSelectedInstrument );
@@ -412,7 +412,7 @@ void InstrumentLine::functionFillNotes( int every )
 					notePositions << QString("%1").arg(i);
 				}
 			}
-			SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction( notePositions, nSelectedInstrument, pEngine->getSelectedPatternNumber() );
+			SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction( notePositions, nSelectedInstrument, pHydrogen->getSelectedPatternNumber() );
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 	}
@@ -423,7 +423,7 @@ void InstrumentLine::functionFillNotes( int every )
 
 void InstrumentLine::functionRandomizeVelocity()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
@@ -438,7 +438,7 @@ void InstrumentLine::functionRandomizeVelocity()
 	}
 	int nResolution = 4 * MAX_NOTES / ( nBase * pPatternEditor->getResolution() );
 
-	Song *pSong = pEngine->getSong();
+	Song *pSong = pHydrogen->getSong();
 
 	QStringList noteVeloValue;
 	QStringList oldNoteVeloValue;
@@ -446,7 +446,7 @@ void InstrumentLine::functionRandomizeVelocity()
 	Pattern* pCurrentPattern = getCurrentPattern();
 	if (pCurrentPattern != nullptr) {
 		int nPatternSize = pCurrentPattern->get_length();
-		int nSelectedInstrument = pEngine->getSelectedInstrumentNumber();
+		int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 
 		if (nSelectedInstrument != -1) {
 			Instrument *instrRef = (pSong->get_instrument_list())->get( nSelectedInstrument );
@@ -469,7 +469,7 @@ void InstrumentLine::functionRandomizeVelocity()
 					}
 				}
 			}
-			SE_randomVelocityRightClickAction *action = new SE_randomVelocityRightClickAction( noteVeloValue, oldNoteVeloValue, nSelectedInstrument, pEngine->getSelectedPatternNumber() );
+			SE_randomVelocityRightClickAction *action = new SE_randomVelocityRightClickAction( noteVeloValue, oldNoteVeloValue, nSelectedInstrument, pHydrogen->getSelectedPatternNumber() );
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 	}
@@ -481,8 +481,8 @@ void InstrumentLine::functionRenameInstrument()
 {
 	// This code is pretty much a duplicate of void InstrumentEditor::labelClicked
 	// in InstrumentEditor.cpp
-	Hydrogen * pEngine = Hydrogen::get_instance();
-	Instrument *pSelectedInstrument = pEngine->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
+	Instrument *pSelectedInstrument = pHydrogen->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
 
 	QString sOldName = pSelectedInstrument->get_name();
 	bool bIsOkPressed;
@@ -491,10 +491,10 @@ void InstrumentLine::functionRenameInstrument()
 		pSelectedInstrument->set_name( sNewName );
 
 #ifdef H2CORE_HAVE_JACK
-		pEngine->getAudioEngine()->lock( RIGHT_HERE );
+		pHydrogen->getAudioEngine()->lock( RIGHT_HERE );
 		Hydrogen *engine = Hydrogen::get_instance();
 		engine->renameJackPorts(engine->getSong());
-		pEngine->getAudioEngine()->unlock();
+		pHydrogen->getAudioEngine()->unlock();
 #endif
 
 		// this will force an update...
@@ -510,15 +510,15 @@ void InstrumentLine::functionRenameInstrument()
 
 void InstrumentLine::functionDeleteInstrument()
 {
-	Hydrogen * pEngine = Hydrogen::get_instance();
-	Instrument *pSelectedInstrument = pEngine->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
+	Instrument *pSelectedInstrument = pHydrogen->getSong()->get_instrument_list()->get( m_nInstrumentNumber );
 
 	std::list< Note* > noteList;
-	Song* song = pEngine->getSong();
+	Song* song = pHydrogen->getSong();
 	PatternList *patList = song->get_pattern_list();
 
 	QString instrumentName =  pSelectedInstrument->get_name();
-	QString drumkitName = pEngine->getCurrentDrumkitname();
+	QString drumkitName = pHydrogen->getCurrentDrumkitname();
 
 	for ( int i = 0; i < patList->size(); i++ ) {
 		H2Core::Pattern *pPattern = song->get_pattern_list()->get(i);
@@ -602,11 +602,11 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 {
 	//INFOLOG( "Update lines" );
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	InstrumentList *pInstrList = pSong->get_instrument_list();
 
-	unsigned nSelectedInstr = pEngine->getSelectedInstrumentNumber();
+	unsigned nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
 
 	unsigned nInstruments = pInstrList->size();
 	for ( unsigned nInstr = 0; nInstr < MAX_INSTRUMENTS; ++nInstr ) {
@@ -747,9 +747,9 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 		return;
 	}
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	int nSelectedInstr = pEngine->getSelectedInstrumentNumber();
-	Instrument *pInstr = pEngine->getSong()->get_instrument_list()->get(nSelectedInstr);
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	int nSelectedInstr = pHydrogen->getSelectedInstrumentNumber();
+	Instrument *pInstr = pHydrogen->getSong()->get_instrument_list()->get(nSelectedInstr);
 
 	QString sText = QString("move instrument:%1").arg( pInstr->get_name() );
 

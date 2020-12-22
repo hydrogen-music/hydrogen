@@ -527,12 +527,12 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 {
 	Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *pSong = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *pSong = pHydrogen->getSong();
 	
 	if ( pSong != nullptr ) {
 		InstrumentList *pInstrList = pSong->get_instrument_list();
-		int nInstr = pEngine->getSelectedInstrumentNumber();
+		int nInstr = pHydrogen->getSelectedInstrumentNumber();
 		if ( nInstr >= pInstrList->size() ) {
 			nInstr = -1;
 		}
@@ -841,7 +841,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		loadLayer();
 	}
 	else if ( pButton == m_pRemoveLayerBtn ) {
-		//Hydrogen *pEngine = Hydrogen::get_instance();
+		//Hydrogen *pHydrogen = Hydrogen::get_instance();
 		Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
 
 		if ( m_pInstrument ) {
@@ -892,7 +892,7 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 
 void InstrumentEditor::loadLayer()
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	AudioFileBrowser *pFileBrowser = new AudioFileBrowser( nullptr, true, true);
 	QStringList filename;
@@ -928,9 +928,9 @@ void InstrumentEditor::loadLayer()
 			H2Core::Instrument *pInstr = nullptr;
 
 			Hydrogen::get_instance()->getAudioEngine()->lock( RIGHT_HERE );
-			Song *pSong = pEngine->getSong();
+			Song *pSong = pHydrogen->getSong();
 			InstrumentList *pInstrList = pSong->get_instrument_list();
-			pInstr = pInstrList->get( pEngine->getSelectedInstrumentNumber() );
+			pInstr = pInstrList->get( pHydrogen->getSelectedInstrumentNumber() );
 
 			/*
 				if we're using multiple layers, we start inserting the first layer
@@ -1237,7 +1237,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 {
 	QString sSelectedAction = pAction->text();
 
-	Hydrogen * pEngine = Hydrogen::get_instance();
+	Hydrogen * pHydrogen = Hydrogen::get_instance();
 
 	if( sSelectedAction.compare("add") == 0 ) {
 		if ( m_pInstrument ) {
@@ -1245,7 +1245,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 			QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
 			if ( bIsOkPressed  ) {
 				DrumkitComponent* pDrumkitComponent = new DrumkitComponent( findFreeDrumkitComponentId(), sNewName );
-				pEngine->getSong()->get_components()->push_back( pDrumkitComponent );
+				pHydrogen->getSong()->get_components()->push_back( pDrumkitComponent );
 
 				//InstrumentComponent* instrument_component = new InstrumentComponent( dm_component->get_id() );
 				//instrument_component->set_gain( 1.0f );
@@ -1260,7 +1260,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 				EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );
 
 #ifdef H2CORE_HAVE_JACK
-				pEngine->renameJackPorts(pEngine->getSong());
+				pHydrogen->renameJackPorts(pHydrogen->getSong());
 #endif
 			}
 			else {
@@ -1269,15 +1269,15 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		}
 	}
 	else if( sSelectedAction.compare("delete") == 0 ) {
-		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->get_components();
+		std::vector<DrumkitComponent*>* pDrumkitComponents = pHydrogen->getSong()->get_components();
 
 		if(pDrumkitComponents->size() == 1){
 			return;
 		}
 
-		DrumkitComponent* pDrumkitComponent = pEngine->getSong()->get_component( m_nSelectedComponent );
+		DrumkitComponent* pDrumkitComponent = pHydrogen->getSong()->get_component( m_nSelectedComponent );
 
-		InstrumentList* pInstruments = pEngine->getSong()->get_instrument_list();
+		InstrumentList* pInstruments = pHydrogen->getSong()->get_instrument_list();
 		for ( int n = ( int )pInstruments->size() - 1; n >= 0; n-- ) {
 			Instrument* pInstrument = pInstruments->get( n );
 			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {
@@ -1314,7 +1314,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 	}
 	else {
 		m_nSelectedComponent = -1;
-		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->get_components();
+		std::vector<DrumkitComponent*>* pDrumkitComponents = pHydrogen->getSong()->get_components();
 		for (std::vector<DrumkitComponent*>::iterator it = pDrumkitComponents->begin() ; it != pDrumkitComponents->end(); ++it) {
 			DrumkitComponent* pDrumkitComponent = *it;
 			if( pDrumkitComponent->get_name().compare( sSelectedAction ) == 0) {
@@ -1335,7 +1335,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 
 
 #ifdef H2CORE_HAVE_JACK
-			pEngine->renameJackPorts(pEngine->getSong());
+			pHydrogen->renameJackPorts(pHydrogen->getSong());
 #endif
 		}
 
@@ -1357,8 +1357,8 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 		return;
 	}
 	//	INFOLOG( "Tempo change: Recomputing rubberband samples." );
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	Song *song = pEngine->getSong();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	Song *song = pHydrogen->getSong();
 	assert(song);
 	if(song){
 		InstrumentList *pSongInstrList = song->get_instrument_list();

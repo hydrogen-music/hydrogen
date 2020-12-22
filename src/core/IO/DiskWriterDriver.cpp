@@ -152,13 +152,13 @@ void* diskWriterDriver_thread( void* param )
 	float *pData_R = pDriver->m_pOut_R;
 
 
-	Hydrogen* pEngine = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
 
 	std::vector<PatternList*> *pPatternColumns = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
 	int nColumns = pPatternColumns->size();
 	
 	int nPatternSize;
-	int validBpm = pEngine->getSong()->__bpm;
+	int validBpm = pHydrogen->getSong()->__bpm;
 	float oldBPM = 0;
 	float fTicksize = 0;
 	
@@ -171,7 +171,7 @@ void* diskWriterDriver_thread( void* param )
 		}
 		
 		// check pattern bpm if timeline bpm is in use
-		Timeline* pTimeline = pEngine->getTimeline();
+		Timeline* pTimeline = pHydrogen->getTimeline();
 		if(Preferences::get_instance()->getUseTimelineBpm() ){
 
 			float fTimelineBpm = pTimeline->getTempoAtBar( patternPosition, true );
@@ -182,7 +182,7 @@ void* diskWriterDriver_thread( void* param )
 			pDriver->setBpm(validBpm);
 			fTicksize = pDriver->m_nSampleRate * 60.0 / validBpm / Hydrogen::get_instance()->getSong()->__resolution;
 			pDriver->audioEngine_process_checkBPMChanged();
-			pEngine->setPatternPos(patternPosition);
+			pHydrogen->setPatternPos(patternPosition);
 			
 			// delay needed time to calculate all rubberband samples
 			if( Preferences::get_instance()->getRubberBandBatchMode() && validBpm != oldBPM ){

@@ -1028,8 +1028,8 @@ void PlayerControl::loopModeActivationEvent( int nValue ) {
 
 void PlayerControl::metronomeButtonClicked(Button* ref)
 {
-	Hydrogen*	pEngine = Hydrogen::get_instance();
-	CoreActionController* pController = pEngine->getCoreActionController();
+	Hydrogen*	pHydrogen = Hydrogen::get_instance();
+	CoreActionController* pController = pHydrogen->getCoreActionController();
 	
 	pController->setMetronomeIsActive( ref->isPressed() );
 }

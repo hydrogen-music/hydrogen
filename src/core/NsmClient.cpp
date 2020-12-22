@@ -177,7 +177,7 @@ int NsmClient::OpenCallback( const char *name,
 		pHydrogen->setInitialSong( pSong );
 		pHydrogen->restartDrivers();
 		pHydrogen->restartLadspaFX();
-		pHydrogen->getAudioEngine()->get_sampler()->reinitializePlaybackTrack();
+		pHydrogen->getAudioEngine()->getSampler()->reinitializePlaybackTrack();
 
 		// If there will be a GUI but it is not ready yet, wait until
 		// the Song was set (asynchronously by the GUI) and the GUI is

@@ -132,7 +132,7 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	}
 
 	// use of interpolation mode
-	m_OldInterpolationMode = m_pHydrogen->getAudioEngine()->get_sampler()->getInterpolateMode();
+	m_OldInterpolationMode = m_pHydrogen->getAudioEngine()->getSampler()->getInterpolateMode();
 	resampleComboBox->setCurrentIndex( interpolateModeToComboBoxIndex( m_OldInterpolationMode ) );
 	connect(resampleComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(resampleComboBoIndexChanged(int)));
 
@@ -469,7 +469,7 @@ void ExportSongDialog::on_closeBtn_clicked()
 	m_pPreferences->setRubberBandBatchMode( m_bOldRubberbandBatchMode );
 	m_pPreferences->setUseTimelineBpm( m_bOldTimeLineBPMMode );
 	
-	m_pHydrogen->getAudioEngine()->get_sampler()->setInterpolateMode( m_OldInterpolationMode );
+	m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( m_OldInterpolationMode );
 	accept();
 }
 
@@ -682,19 +682,19 @@ void ExportSongDialog::setResamplerMode(int index)
 {
 	switch ( index ){
 	case 0:
-		m_pHydrogen->getAudioEngine()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Linear );
 		break;
 	case 1:
-		m_pHydrogen->getAudioEngine()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cosine );
 		break;
 	case 2:
-		m_pHydrogen->getAudioEngine()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Third );
 		break;
 	case 3:
-		m_pHydrogen->getAudioEngine()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Cubic );
 		break;
 	case 4:
-		m_pHydrogen->getAudioEngine()->get_sampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
+		m_pHydrogen->getAudioEngine()->getSampler()->setInterpolateMode( Interpolation::InterpolateMode::Hermite );
 		break;
 	}
 }

@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
 		}
 
 		AudioEngine* pAudioEngine = pHydrogen->getAudioEngine();
-		Sampler* pSampler = pAudioEngine->get_sampler();
+		Sampler* pSampler = pAudioEngine->getSampler();
 		switch ( interpolation ) {
 			case 1:
 					pSampler->setInterpolateMode( Interpolation::InterpolateMode::Cosine );

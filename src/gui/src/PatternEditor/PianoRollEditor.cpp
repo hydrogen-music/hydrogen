@@ -628,7 +628,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 		if ( pref->getHearNewNotes() ) {
 			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, 0.0 );
 			pNote2->set_key_octave( notekey, octave );
-			m_pAudioEngine->get_sampler()->noteOn( pNote2 );
+			m_pAudioEngine->getSampler()->noteOn( pNote2 );
 		}
 	}
 

@@ -268,7 +268,7 @@ void Hydrogen::loadPlaybackTrack( const QString filename )
 	Song* pSong = getSong();
 	pSong->set_playback_track_filename(filename);
 
-	m_pAudioEngine->get_sampler()->reinitializePlaybackTrack();
+	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();
 }
 
 void Hydrogen::setSong( Song *pSong )
@@ -310,7 +310,7 @@ void Hydrogen::setSong( Song *pSong )
 	m_pAudioEngine->setSong( pSong );
 
 	// load new playback track information
-	m_pAudioEngine->get_sampler()->reinitializePlaybackTrack();
+	m_pAudioEngine->getSampler()->reinitializePlaybackTrack();
 
 	// Push current state of Hydrogen to attached control interfaces,
 	// like OSC clients.
@@ -851,7 +851,7 @@ void Hydrogen::startExportSession(int sampleRate, int sampleDepth )
 	
 	unsigned nSamplerate = (unsigned) sampleRate;
 	
-	pAudioEngine->get_sampler()->stopPlayingNotes();
+	pAudioEngine->getSampler()->stopPlayingNotes();
 
 	Song* pSong = getSong();
 	
@@ -940,7 +940,7 @@ void Hydrogen::stopExportSong()
 		return;
 	}
 
-	pAudioEngine->get_sampler()->stopPlayingNotes();
+	pAudioEngine->getSampler()->stopPlayingNotes();
 	
 	pAudioEngine->getAudioDriver()->disconnect();
 
@@ -1757,7 +1757,7 @@ void Hydrogen::__kill_instruments()
 void Hydrogen::__panic()
 {
 	sequencer_stop();
-	m_pAudioEngine->get_sampler()->stopPlayingNotes();
+	m_pAudioEngine->getSampler()->stopPlayingNotes();
 }
 
 float Hydrogen::getTimelineBpm( int nBar )
