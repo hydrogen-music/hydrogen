@@ -22,11 +22,8 @@
 #ifndef MIXERLINE_H
 #define MIXERLINE_H
 
-
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include <core/Object.h>
 #include <core/Globals.h>
@@ -56,8 +53,8 @@ class InstrumentNameWidget : public PixmapWidget
 		void	setText(QString text);
 		QString text();
 
-		void	mousePressEvent( QMouseEvent * e );
-		void	mouseDoubleClickEvent( QMouseEvent * e );
+		void	mousePressEvent( QMouseEvent * e ) override;
+		void	mouseDoubleClickEvent( QMouseEvent * e ) override;
 
 	signals:
 		void	clicked();

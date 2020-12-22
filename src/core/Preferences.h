@@ -157,7 +157,6 @@ public:
 	       * #NO_JACK_TIME_MASTER.
 	       */
 	      USE_JACK_TIME_MASTER = 0,
-	      POST_FADER = 0,
 	      SET_PLAY_ON = 0,
 	      BC_ON = 0,/** 
 	       * Specifies whether or not to use JACK transport
@@ -173,7 +172,6 @@ public:
 	       * #USE_JACK_TIME_MASTER.
 	       */
 	      NO_JACK_TIME_MASTER = 1,
-	      PRE_FADER = 1,
 	      SET_PLAY_OFF = 1,
 	      BC_OFF = 1
 	};
@@ -335,6 +333,8 @@ public:
 	 * #USE_JACK_TRANSPORT and #NO_JACK_TRANSPORT.
 	 */
 	int					m_bJackTransportMode;
+	/** Toggles auto-connecting of the main stereo output ports to the
+		system's default ports when starting the JACK server.*/
 	bool				m_bJackConnectDefaults;
 	/** 
 	 * If set to _true_, JackAudioDriver::makeTrackOutputs() will
@@ -343,7 +343,20 @@ public:
 	 * output will be created.
 	 */
 	bool				m_bJackTrackOuts;
-	int					m_nJackTrackOutputMode;
+
+	/** Specifies which audio settings will be applied to the sample
+		supplied in the Jack per track output ports.*/
+	enum class JackTrackOutputMode {
+		/** Applies layer, component, and instrument gain, note and
+		instrument pan, note velocity, and main component and
+		instrument volume to the samples. */
+		postFader = 0,
+		/** Only layer gain and note velocity will be applied to the samples.*/
+		preFader = 1 };
+
+	/** Specifies which audio settings will be applied to the sample
+		supplied in the Jack per track output ports.*/
+	JackTrackOutputMode		m_JackTrackOutputMode;
 	//jack time master
 
 	/**

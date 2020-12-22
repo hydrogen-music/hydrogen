@@ -45,7 +45,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	: PatternEditor( parent, __class_name, pPatternEditorPanel )
 {
 	//infoLog("INIT");
-	//setAttribute(Qt::WA_NoBackground);
+	//setAttribute(Qt::WA_OpaquePaintEvent);
 
 	m_Mode = mode;
 
@@ -119,7 +119,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	} else {
 		fDelta = 0.05; // coarse control
 	}
-	if ( ev->delta() < 0 ) {
+	if ( ev->angleDelta().y() < 0 ) {
 		fDelta = fDelta * -1.0;
 	}
 
@@ -351,7 +351,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 		}
 		else if ( m_Mode == PAN && !pNote->get_note_off() ){
 			float pan_L, pan_R;
-			if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+			if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 				val = 0.5;
 			}
 			if ( val > 0.5 ) {
@@ -368,7 +368,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 			pNote->set_pan_r( pan_R );
 		}
 		else if ( m_Mode == LEADLAG ){
-			if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+			if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 				pNote->set_lead_lag(0.0);
 			} else {
 				
@@ -390,7 +390,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 		}
 		
 		else if ( m_Mode == NOTEKEY ){
-			if ( (ev->button() == Qt::MidButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
+			if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 				;
 			} else {
 				//set the note height

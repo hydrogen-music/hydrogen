@@ -52,7 +52,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 	m_nGridHeight = 10;
 	m_nOctaves = 7;
 
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	m_nEditorHeight = m_nOctaves * 12 * m_nGridHeight;
 

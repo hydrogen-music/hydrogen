@@ -80,7 +80,7 @@ class AudioFileBrowser : public QDialog, public Ui_AudioFileBrowser_UI, public H
 		QStringList			m_pSelectedFile;
 
 		bool				m_SingleClick;
-		QDirModel *			m_pDirModel;
+		QFileSystemModel *	m_pDirModel;
 		QTreeView *			m_pTree;
 
 		QModelIndex			m_ModelIndex;

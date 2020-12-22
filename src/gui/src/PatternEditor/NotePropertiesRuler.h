@@ -26,9 +26,7 @@
 #include "../EventListener.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include <core/Object.h>
 #include <map>
@@ -112,11 +110,12 @@ class NotePropertiesRuler : public PatternEditor
 		void createPanBackground(QPixmap *pixmap);
 		void createLeadLagBackground(QPixmap *pixmap);
 		void createNoteKeyBackground(QPixmap *pixmap);
-		virtual void paintEvent(QPaintEvent *ev) override;
-		virtual void wheelEvent(QWheelEvent *ev) override;
-		virtual void keyPressEvent( QKeyEvent *ev ) override;
-		virtual void focusInEvent( QFocusEvent *ev ) override;
-		virtual void focusOutEvent( QFocusEvent *ev ) override;
+
+		void paintEvent(QPaintEvent *ev) override;
+		void wheelEvent(QWheelEvent *ev) override;
+		void keyPressEvent( QKeyEvent *ev ) override;
+		void focusInEvent( QFocusEvent *ev ) override;
+		void focusOutEvent( QFocusEvent *ev ) override;
 		void addUndoAction();
 		void prepareUndoAction( int x );
 
