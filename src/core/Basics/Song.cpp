@@ -736,7 +736,8 @@ Song* SongReader::readSong( const QString& filename )
 			int fDecay = LocalFileMng::readXmlInt( instrumentNode, "Decay", 0, false, false );		// Decay
 			float fSustain = LocalFileMng::readXmlFloat( instrumentNode, "Sustain", 1.0, false, false );	// Sustain
 			int fRelease = LocalFileMng::readXmlFloat( instrumentNode, "Release", 1000.0, false, false );	// Release
-
+			
+			float fPitchOffset = LocalFileMng::readXmlFloat( instrumentNode, "pitchOffset", 0.0f, false, false );
 			float fRandomPitchFactor = LocalFileMng::readXmlFloat( instrumentNode, "randomPitchFactor", 0.0f, false, false );
 
 			bool bApplyVelocity = LocalFileMng::readXmlBool( instrumentNode, "applyVelocity", true );
@@ -776,6 +777,7 @@ Song* SongReader::readSong( const QString& filename )
 			pInstrument->set_fx_level( fFX2Level, 1 );
 			pInstrument->set_fx_level( fFX3Level, 2 );
 			pInstrument->set_fx_level( fFX4Level, 3 );
+			pInstrument->set_pitch_offset( fPitchOffset );
 			pInstrument->set_random_pitch_factor( fRandomPitchFactor );
 			pInstrument->set_filter_active( bFilterActive );
 			pInstrument->set_filter_cutoff( fFilterCutoff );

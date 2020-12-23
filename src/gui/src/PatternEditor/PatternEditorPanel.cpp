@@ -74,7 +74,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_nCursorPosition = 0;
 	m_nCursorIncrement = 0;
-	m_bCursorHidden = true;
+	m_bCursorHidden = pPref->hideKeyboardCursor();
 
 // Editor TOP
 	PixmapWidget *editor_top = new PixmapWidget(nullptr);
@@ -263,13 +263,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// Ruler ScrollView
 	m_pRulerScrollView = new WidgetScrollArea( nullptr );
 	m_pRulerScrollView->setObjectName( "RulerScrollView" );
-	m_pRulerScrollView->setFocusPolicy( Qt::ClickFocus );
+	m_pRulerScrollView->setFocusPolicy( Qt::NoFocus );
 	m_pRulerScrollView->setFrameShape( QFrame::NoFrame );
 	m_pRulerScrollView->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pRulerScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pRulerScrollView->setFixedHeight( 25 );
 	// Ruler
 	m_pPatternEditorRuler = new PatternEditorRuler( m_pRulerScrollView->viewport() );
+	m_pPatternEditorRuler->setFocusPolicy( Qt::ClickFocus );
 
 	m_pRulerScrollView->setWidget( m_pPatternEditorRuler );
 	connect( m_pRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
@@ -291,9 +292,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pDrumPatternEditor = new DrumPatternEditor( m_pEditorScrollView->viewport(), this );
 
 	m_pEditorScrollView->setWidget( m_pDrumPatternEditor );
+	m_pEditorScrollView->setFocusPolicy( Qt::ClickFocus );
 	m_pEditorScrollView->setFocusProxy( m_pDrumPatternEditor );
 
-	m_pRulerScrollView->setFocusProxy( m_pEditorScrollView );
+	m_pPatternEditorRuler->setFocusProxy( m_pEditorScrollView );
 
 	connect( m_pEditorScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
 	connect( m_pEditorScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
@@ -310,7 +312,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPianoRollEditor = new PianoRollEditor( m_pPianoRollScrollView->viewport(), this, m_pPianoRollScrollView );
 	m_pPianoRollScrollView->setWidget( m_pPianoRollEditor );
 	connect( m_pPianoRollScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
-	m_pPianoRollScrollView->setFocusPolicy( Qt::StrongFocus );
 
 	m_pPianoRollScrollView->hide();
 	m_pPianoRollScrollView->setFocusProxy( m_pPianoRollEditor );
@@ -337,10 +338,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pInstrumentList = new PatternEditorInstrumentList( m_pInstrListScrollView->viewport(), this );
 	m_pInstrListScrollView->setWidget( m_pInstrumentList );
 	m_pInstrListScrollView->setFixedWidth( m_pInstrumentList->width() );
+	m_pInstrumentList->setFocusPolicy( Qt::ClickFocus );
+	m_pInstrumentList->setFocusProxy( m_pEditorScrollView );
 
 	connect( m_pInstrListScrollView->verticalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorVScroll(int) ) );
-
-	m_pInstrListScrollView->setFocusProxy( m_pEditorScrollView );
+	m_pInstrListScrollView->setFocusProxy( m_pInstrumentList );
 
 //~ INSTRUMENT LIST
 
@@ -795,9 +797,9 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 		m_pInstrListScrollView->show();
 
 		m_pEditorScrollView->setFocus();
-		m_pRulerScrollView->setFocusProxy( m_pEditorScrollView );
-		m_pInstrListScrollView->setFocusProxy( m_pEditorScrollView );
-	
+		m_pPatternEditorRuler->setFocusProxy( m_pEditorScrollView );
+		m_pInstrumentList->setFocusProxy( m_pEditorScrollView );
+
 		m_pDrumPatternEditor->selectedInstrumentChangedEvent(); // force an update
 
 		m_pDrumPatternEditor->selectNone();
@@ -816,8 +818,8 @@ void PatternEditorPanel::showDrumEditorBtnClick(Button *ref)
 		m_pInstrListScrollView->show();
 
 		m_pPianoRollScrollView->setFocus();
-		m_pRulerScrollView->setFocusProxy( m_pPianoRollScrollView );
-		m_pInstrListScrollView->setFocusProxy( m_pPianoRollScrollView );
+		m_pPatternEditorRuler->setFocusProxy( m_pPianoRollScrollView );
+		m_pInstrumentList->setFocusProxy( m_pPianoRollScrollView );
 
 		m_pDrumPatternEditor->selectNone();
 		m_pPianoRollEditor->selectNone();

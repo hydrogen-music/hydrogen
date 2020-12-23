@@ -294,9 +294,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	m_pPatternList = new SongEditorPatternList( m_pPatternListScrollView->viewport() );
 	m_pPatternList->setFocusPolicy( Qt::ClickFocus );
+	m_pPatternListScrollView->setFocusPolicy( Qt::ClickFocus );
 	m_pPatternListScrollView->setWidget( m_pPatternList );
-	m_pPatternListScrollView->setFocusProxy( m_pPatternList );
-
 
 	// EDITOR
 	m_pEditorScrollView = new WidgetScrollArea( nullptr );
@@ -305,7 +304,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pSongEditor = new SongEditor( m_pEditorScrollView->viewport(), m_pEditorScrollView, this );
 	m_pEditorScrollView->setWidget( m_pSongEditor );
-	m_pEditorScrollView->setFocusProxy( m_pSongEditor );
+	m_pEditorScrollView->setFocusPolicy( Qt::ClickFocus );
 
 	m_pPatternList->setFocusProxy( m_pSongEditor );
 
@@ -326,8 +325,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
 	m_pPositionRulerScrollView->setFixedHeight( 50 );
 	connect( m_pPositionRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( hScrollTo(int) ) );
-	m_pPositionRuler->setFocusProxy( m_pSongEditor );
 	m_pPositionRuler->setFocusPolicy( Qt::ClickFocus );
+	m_pPositionRuler->setFocusProxy( m_pSongEditor );
 	
 	m_pPlaybackTrackScrollView = new WidgetScrollArea( m_pWidgetStack );
 	m_pPlaybackTrackScrollView->setFrameShape( QFrame::NoFrame );
