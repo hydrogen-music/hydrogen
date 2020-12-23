@@ -211,6 +211,11 @@ class Instrument : public H2Core::Object
 		void set_random_pitch_factor( float val );
 		/** get the random pitch factor of the instrument */
 		float get_random_pitch_factor() const;
+		
+		/** set the pitch offset of the instrument */
+		void set_pitch_offset( float val );
+		/** get the pitch offset of the instrument */
+		float get_pitch_offset() const;
 
 		/** set the active status of the instrument */
 		void set_active( bool active );
@@ -291,6 +296,7 @@ class Instrument : public H2Core::Object
 		float					__filter_cutoff;		///< filter cutoff (0..1)
 		float					__filter_resonance;		///< filter resonant frequency (0..1)
 		float					__random_pitch_factor;	///< random pitch factor
+		float					__pitch_offset;	///< instrument main pitch offset
 		int						__midi_out_note;		///< midi out note
 		int						__midi_out_channel;		///< midi out channel
 		bool					__stop_notes;			///< will the note automatically generate a note off after being on
@@ -500,9 +506,19 @@ inline void Instrument::set_random_pitch_factor( float val )
 	__random_pitch_factor = val;
 }
 
+inline void Instrument::set_pitch_offset( float val )
+{
+	__pitch_offset = val;
+}
+
 inline float Instrument::get_random_pitch_factor() const
 {
 	return __random_pitch_factor;
+}
+
+inline float Instrument::get_pitch_offset() const
+{
+	return __pitch_offset;
 }
 
 inline void Instrument::set_active( bool active )

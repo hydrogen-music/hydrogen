@@ -7,6 +7,7 @@
 		toggle song/pattern playback mode)
 	* NSM support reworked
 	* Deprecating JACK-session
+	* Instrument main pitch shift offset
 
 2020-08-03 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.0
