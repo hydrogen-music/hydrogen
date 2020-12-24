@@ -1413,10 +1413,6 @@ MIDI = %2</translation>
         <translation>Info|À propos</translation>
     </message>
     <message>
-        <source>Song saved as.</source>
-        <translation>Morceau sauvegardé sous.</translation>
-    </message>
-    <message>
         <source>Playlist: Song No. %1</source>
         <translation>Liste de lecture : morceau %1</translation>
     </message>
@@ -1644,10 +1640,6 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
         <translation>Exporter le morceau de la session</translation>
     </message>
     <message>
-        <source>Song exported as.</source>
-        <translation>Morceau exporté en tant que.</translation>
-    </message>
-    <message>
         <source>Some samples used by this song failed to load. If you save the song now these missing samples will be removed from the song entirely.
 Are you sure you want to save?</source>
         <translation>Certains échantillons utilisés par ce morceau n&apos;ont pas pu être chargés. Si vous sauvegarder le morceau maintenant, ces échantillons manquants seront entièrement supprimés du morceau.
@@ -1673,6 +1665,46 @@ Are you sure you want to save?</source>
     <message>
         <source>Could not write to temporary directory %1.</source>
         <translation>Impossible d&apos;écrire dans le répertoire temporaire %1.</translation>
+    </message>
+    <message>
+        <source>Replace with &amp;new Song</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Import into Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import &amp;recent into Session</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export from Session &amp;as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New</source>
+        <translation>&amp;Nouveau</translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation>&amp;Ouvrir...</translation>
+    </message>
+    <message>
+        <source>Open &amp;recent</source>
+        <translation>Ouvrir un fichier ré&amp;cent...</translation>
+    </message>
+    <message>
+        <source>Save &amp;as...</source>
+        <translation>Sauveg&amp;arder sous...</translation>
+    </message>
+    <message>
+        <source>Song exported as: </source>
+        <translation>Morceau exporté sous : </translation>
+    </message>
+    <message>
+        <source>Song saved as: </source>
+        <translation>Morceau sauvegardé sous : </translation>
     </message>
 </context>
 <context>

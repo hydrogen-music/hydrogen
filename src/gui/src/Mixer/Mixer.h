@@ -24,11 +24,8 @@
 #ifndef MIXER_H
 #define MIXER_H
 
-
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 #include <core/Object.h>
 #include <core/Globals.h>
@@ -51,9 +48,9 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		explicit Mixer(QWidget* parent);
 		~Mixer();
 
-		void showEvent ( QShowEvent *ev );
-		void hideEvent ( QHideEvent *ev );
-		void resizeEvent ( QResizeEvent *ev );
+		void showEvent ( QShowEvent *ev ) override;
+		void hideEvent ( QHideEvent *ev ) override;
+		void resizeEvent ( QResizeEvent *ev ) override;
 		void soloClicked(uint nLine);
 		bool isSoloClicked(uint nLine);
 
@@ -79,7 +76,7 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		void ladspaActiveBtnClicked( LadspaFXMixerLine* ref );
 		void ladspaEditBtnClicked( LadspaFXMixerLine *ref );
 		void ladspaVolumeChanged( LadspaFXMixerLine* ref);
-		void closeEvent(QCloseEvent *event);
+		void closeEvent(QCloseEvent *event) override;
 
 	private:
 		QHBoxLayout *			m_pFaderHBox;

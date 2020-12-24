@@ -21,13 +21,7 @@
  */
 
 #include "LCD.h"
-
 #include "../Skin.h"
-
-#include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
 
 #include <core/Globals.h>
 
@@ -43,7 +37,7 @@ LCDDigit::LCDDigit( QWidget * pParent, LCDType type )
  , Object( __class_name )
  , m_type( type )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	switch ( m_type ) {
 		case SMALL_BLUE:
@@ -241,7 +235,7 @@ LCDDisplay::LCDDisplay( QWidget * pParent, LCDDigit::LCDType type, int nDigits, 
 	setText( "    ");
 
 	QPalette defaultPalette;
-	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
+	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
 
 }
@@ -420,7 +414,7 @@ void LCDSpinBox::wheelEvent ( QWheelEvent *ev )
 {
 	ev->accept();
 
-	if ( ev->delta() > 0 ) {
+	if ( ev->angleDelta().y() > 0 ) {
 		switch( m_type ) {
 			case INTEGER:
 				setValue( m_fValue + 1);

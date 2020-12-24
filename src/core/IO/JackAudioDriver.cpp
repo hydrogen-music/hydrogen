@@ -29,6 +29,7 @@
 #include <cassert>
 #include <algorithm>
 #include <cmath>
+#include <jack/metadata.h>
 
 #include <core/Hydrogen.h>
 #include <core/AudioEngine.h>
@@ -845,8 +846,12 @@ int JackAudioDriver::init( unsigned bufferSize )
 	// It returns a _jack_port_t_ pointer on success, otherwise NULL.
 	m_pOutputPort1 = jack_port_register( m_pClient, "out_L", JACK_DEFAULT_AUDIO_TYPE,
 					    JackPortIsOutput, 0 );
+	jack_set_property( m_pClient, jack_port_uuid( m_pOutputPort1 ),
+					   JACK_METADATA_PRETTY_NAME, "Main Output L", "text/plain" );
 	m_pOutputPort2 = jack_port_register( m_pClient, "out_R", JACK_DEFAULT_AUDIO_TYPE,
 					    JackPortIsOutput, 0 );
+	jack_set_property( m_pClient, jack_port_uuid( m_pOutputPort2 ),
+					   JACK_METADATA_PRETTY_NAME, "Main Output R", "text/plain" );
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	if ( ( m_pOutputPort1 == nullptr ) || ( m_pOutputPort2 == nullptr ) ) {

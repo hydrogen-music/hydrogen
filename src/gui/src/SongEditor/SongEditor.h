@@ -27,9 +27,7 @@
 #include <unistd.h>
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 #include <QList>
 
 #include <core/Object.h>
@@ -117,12 +115,12 @@ class SongEditor : public QWidget, public H2Core::Object
 		QPoint xyToColumnRow( QPoint p );
 		QPoint columnRowToXy( QPoint p );
 
-		virtual void mousePressEvent(QMouseEvent *ev);
-		virtual void mouseReleaseEvent(QMouseEvent *ev);
-		virtual void mouseMoveEvent(QMouseEvent *ev);
-		virtual void keyPressEvent (QKeyEvent *ev);
-		virtual void paintEvent(QPaintEvent *ev);
-		virtual void focusInEvent( QFocusEvent *ev );
+		virtual void mousePressEvent(QMouseEvent *ev) override;
+		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
+		virtual void mouseMoveEvent(QMouseEvent *ev) override;
+		virtual void keyPressEvent (QKeyEvent *ev) override;
+		virtual void paintEvent(QPaintEvent *ev) override;
+		virtual void focusInEvent( QFocusEvent *ev ) override;
 
 		// User action intentions
 		void startSelectionAtCursor();
@@ -206,14 +204,14 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		
 		void inlineEditPatternName( int row );
 
-		virtual void mousePressEvent( QMouseEvent *ev );
-		virtual void mouseDoubleClickEvent( QMouseEvent *ev );
-		virtual void paintEvent( QPaintEvent *ev );
+		virtual void mousePressEvent( QMouseEvent *ev ) override;
+		virtual void mouseDoubleClickEvent( QMouseEvent *ev ) override;
+		virtual void paintEvent( QPaintEvent *ev ) override;
 
 		void togglePattern( int );
 
 		virtual void patternChangedEvent() override;
-		void mouseMoveEvent(QMouseEvent *event);
+		void mouseMoveEvent(QMouseEvent *event) override;
 		QPoint __drag_start_position;
 
 };

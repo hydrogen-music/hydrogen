@@ -594,8 +594,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 		if ( isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() || isMutedBecauseOfSolo) {	
 			cost_L = 0.0;
 			cost_R = 0.0;
-			if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
-				// Post-Fader
+			if ( Preferences::get_instance()->m_JackTrackOutputMode == Preferences::JackTrackOutputMode::postFader ) {
 				cost_track_L = 0.0;
 				cost_track_R = 0.0;
 			}
@@ -614,9 +613,8 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 			cost_L = cost_L * pMainCompo->get_volume(); // Component volument
 
 			cost_L = cost_L * pInstr->get_volume();		// instrument volume
-			if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
-			// Post-Fader
-			cost_track_L = cost_L * 2;
+			if ( Preferences::get_instance()->m_JackTrackOutputMode == Preferences::JackTrackOutputMode::postFader ) {
+				cost_track_L = cost_L * 2;
 			}
 			cost_L = cost_L * pSong->get_volume();	// song volume
 			cost_L = cost_L * 2; // max pan is 0.5
@@ -630,16 +628,15 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 			cost_R = cost_R * pMainCompo->get_volume(); // Component volument
 
 			cost_R = cost_R * pInstr->get_volume();		// instrument volume
-			if ( Preferences::get_instance()->m_nJackTrackOutputMode == 0 ) {
-			// Post-Fader
-			cost_track_R = cost_R * 2;
+			if ( Preferences::get_instance()->m_JackTrackOutputMode == Preferences::JackTrackOutputMode::postFader ) {
+				cost_track_R = cost_R * 2;
 			}
 			cost_R = cost_R * pSong->get_volume();	// song pan
 			cost_R = cost_R * 2; // max pan is 0.5
 		}
 
 		// direct track outputs only use velocity
-		if ( Preferences::get_instance()->m_nJackTrackOutputMode == 1 ) {
+		if ( Preferences::get_instance()->m_JackTrackOutputMode == Preferences::JackTrackOutputMode::preFader ) {
 			cost_track_L = cost_track_L * pNote->get_velocity();
 			cost_track_L = cost_track_L * fLayerGain;
 			cost_track_R = cost_track_L;

@@ -31,6 +31,7 @@
 #include <core/Basics/Sample.h>
 #include <core/AudioEngine.h>
 
+#include <QFileSystemModel>
 #include <QModelIndex>
 #include <QTreeWidget>
 #include <QMessageBox>
@@ -51,11 +52,13 @@ AudioFileBrowser::AudioFileBrowser ( QWidget* pParent, bool bAllowMultiSelect, b
 	m_bAllowMultiSelect = bAllowMultiSelect;
 	m_bShowInstrumentManipulationControls = bShowInstrumentManipulationControls;
 
-	m_pDirModel = new QDirModel();
+	m_pDirModel = new QFileSystemModel();
+	m_pDirModel->setRootPath(""); //see https://forum.qt.io/topic/99513/qfilesystemmodel-qtreeview-doesn-t-sort/2
 	m_pDirModel->setFilter( QDir::AllDirs | QDir::AllEntries | QDir::NoDotAndDotDot );
 	m_pDirModel->setNameFilters( QStringList() << "*.ogg" << "*.OGG" << "*.wav" << "*.WAV" << "*.flac"<< "*.FLAC" << "*.aiff" << "*.AIFF"<< "*.au" << "*.AU" );
-	m_pDirModel->setSorting( QDir::DirsFirst |QDir::Name );
-	m_ModelIndex = m_pDirModel->index( QDir::currentPath() );
+	m_pDirModel->setNameFilterDisables(false);
+
+	 m_ModelIndex = m_pDirModel->index( QDir::currentPath() );
 	
 	m_pPlayBtn->setEnabled( false );
 	m_pStopBtn->setEnabled( false );

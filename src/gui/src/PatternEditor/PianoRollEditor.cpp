@@ -59,7 +59,7 @@ PianoRollEditor::PianoRollEditor( QWidget *pParent, PatternEditorPanel *panel,
 	m_nRowHeight = 10;
 	m_nOctaves = 7;
 
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 	setFocusPolicy(Qt::ClickFocus);
 	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
 
@@ -624,7 +624,8 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 		// hear note
 		Preferences *pref = Preferences::get_instance();
 		if ( pref->getHearNewNotes() ) {
-			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, 0.0 );
+			const float fPitch = pSelectedInstrument->get_pitch_offset();
+			Note *pNote2 = new Note( pSelectedInstrument, 0, fVelocity, fPan_L, fPan_R, nLength, fPitch );
 			pNote2->set_key_octave( notekey, octave );
 			AudioEngine::get_instance()->get_sampler()->noteOn( pNote2 );
 		}
@@ -851,15 +852,15 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 		float fPan_L = oldPan_L;
 		float fPan_R = oldPan_R;
 		int nLength = oldLength;
-		float fPitch = 0.0f;
 
 		if ( noteOff ) {
 			fVelocity = 0.0f;
 			fPan_L = 0.5f;
 			fPan_R = 0.5f;
 			nLength = 1;
-			fPitch = 0.0f;
 		}
+		
+		const float fPitch = 0.f;
 
 		if( pPattern ) {
 			Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );

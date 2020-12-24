@@ -37,7 +37,7 @@ DetailWaveDisplay::DetailWaveDisplay(QWidget* pParent )
  , m_pPeakDatal( nullptr )
  , m_pPeakDatar( nullptr )  
 {
-//	setAttribute(Qt::WA_NoBackground);
+//	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	//INFOLOG( "INIT" );
 	int w = 180;
@@ -77,7 +77,7 @@ void DetailWaveDisplay::setDetailSamplePosition( unsigned posi, float zoomfactor
 void DetailWaveDisplay::paintEvent(QPaintEvent *ev)
 {
 	QPainter painter( this );
-	painter.setRenderHint( QPainter::HighQualityAntialiasing );
+	painter.setRenderHint( QPainter::Antialiasing );
 	painter.drawPixmap( ev->rect(), m_background, ev->rect() );
 
 	painter.setPen( QColor( 230, 230, 230 ) );

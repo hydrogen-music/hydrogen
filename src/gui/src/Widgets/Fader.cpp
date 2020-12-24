@@ -28,9 +28,8 @@
 #include "MidiSenseWidget.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
+
 #include <core/Globals.h>
 
 const char* Fader::__class_name = "Fader";
@@ -50,7 +49,7 @@ Fader::Fader( QWidget *pParent, bool bUseIntSteps, bool bWithoutKnob)
  , m_fDefaultValue( m_fMaxValue )
  , m_bIgnoreMouseMove( false )
 {
-	setAttribute( Qt::WA_NoBackground );
+	setAttribute( Qt::WA_OpaquePaintEvent );
 	
 	setMinimumSize( 23, 116 );
 	setMaximumSize( 23, 116);
@@ -135,7 +134,7 @@ void Fader::wheelEvent ( QWheelEvent *ev )
 	ev->accept();
 
 	if ( m_bUseIntSteps ) {
-		if ( ev->delta() > 0 ) {
+		if ( ev->angleDelta().y() > 0 ) {
 			setValue( m_fValue + 1 );
 		}
 		else {
@@ -145,7 +144,7 @@ void Fader::wheelEvent ( QWheelEvent *ev )
 	else {
 		float step = ( m_fMaxValue - m_fMinValue ) / 50.0;
 
-		if ( ev->delta() > 0 ) {
+		if ( ev->angleDelta().y() > 0 ) {
 			setValue( m_fValue + step );
 		}
 		else {
@@ -345,20 +344,20 @@ VerticalFader::VerticalFader( QWidget *pParent, bool bUseIntSteps, bool bWithout
 	m_fMinValue = 0.0;
 	m_fMaxValue = 1.0;
 	
-	setAttribute( Qt::WA_NoBackground );
+	setAttribute( Qt::WA_OpaquePaintEvent );
 	
 	setMinimumSize( 116, 23 );
 	setMaximumSize( 116, 23);
 	resize( 116, 23 );
 	
-	QMatrix matrix;
-	matrix.rotate(90);
+	QTransform transform;
+	transform.rotate(90);
 	
 
 	// Background image
 	QString background_path = Skin::getImagePath() + "/mixerPanel/fader_background.png";
 	bool ok = m_back.load( background_path );
-	m_back=m_back.transformed(matrix);
+	m_back=m_back.transformed(transform);
 	if( ok == false ) {
 		ERRORLOG("Fader: Error loading pixmap");
 	}
@@ -366,7 +365,7 @@ VerticalFader::VerticalFader( QWidget *pParent, bool bUseIntSteps, bool bWithout
 	// Leds image
 	QString leds_path = Skin::getImagePath()  + "/mixerPanel/fader_leds.png";
 	ok = m_leds.load( leds_path );
-	m_leds=m_leds.transformed(matrix);
+	m_leds=m_leds.transformed(transform);
 	
 	if( ok == false ){
 		ERRORLOG( "Error loading pixmap" );
@@ -375,7 +374,7 @@ VerticalFader::VerticalFader( QWidget *pParent, bool bUseIntSteps, bool bWithout
 	// Knob image
 	QString knob_path = Skin::getImagePath() + "/mixerPanel/fader_knob.png";
 	ok = m_knob.load( knob_path );
-	m_knob = m_knob.transformed(matrix);
+	m_knob = m_knob.transformed(transform);
 	if( ok == false ){
 		ERRORLOG( "Error loading pixmap" );
 	}
@@ -457,7 +456,7 @@ MasterFader::MasterFader(QWidget *pParent, bool bWithoutKnob)
  , m_fDefaultValue( m_fMax )
  , m_bIgnoreMouseMove( false )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	setMinimumSize( 34, 190 );
 	setMaximumSize( 34, 190);
@@ -500,7 +499,7 @@ void MasterFader::wheelEvent ( QWheelEvent *ev )
 
 	float step = ( m_fMax - m_fMin ) / 50.0;
 
-	if ( ev->delta() > 0 ) {
+	if ( ev->angleDelta().y() > 0 ) {
 		setValue( m_fValue + step );
 	}
 	else {
@@ -706,7 +705,7 @@ Knob::Knob( QWidget* pParent, QString sToolTip, bool bUseValueTip )
  , m_bShowValueToolTip( bUseValueTip )
  , Object( __class_name )
 {
-	setAttribute(Qt::WA_NoBackground);
+	setAttribute(Qt::WA_OpaquePaintEvent);
 	setToolTip( sToolTip );
 	
 	m_pValueToolTip = new RotaryTooltip( mapToGlobal( QPoint( 0, 0 ) ) );
@@ -864,7 +863,7 @@ void Knob::wheelEvent ( QWheelEvent *ev )
 {
 	ev->accept();
 
-	if ( ev->delta() > 0 ) {
+	if ( ev->angleDelta().y() > 0 ) {
 		setValue( m_fValue + 0.025 );
 	}
 	else {

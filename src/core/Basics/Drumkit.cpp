@@ -109,6 +109,8 @@ Drumkit* Drumkit::load( const QString& dk_dir, const bool load_samples )
 
 Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 {
+	bool bReadingSuccessful = true;
+	
 	XMLDoc doc;
 	if( !doc.read( dk_path, Filesystem::drumkit_xsd_path() ) ) {
 		
@@ -129,19 +131,7 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 			//If the drumkit does not comply witht the current xsd, but has components, it may suffer from
 			// problems with invalid values (for example float ADSR values, see #658). Lets try to load it
 			// with our current drumkit.
-			
-			XMLNode root = doc.firstChildElement( "drumkit_info" );
-			if ( root.isNull() ) {
-				ERRORLOG( "drumkit_info node not found" );
-				return nullptr;
-			}
-			
-			Drumkit* pDrumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
-			upgrade_drumkit(pDrumkit, dk_path);
-			
-			if( load_samples ){
-				pDrumkit->load_samples();
-			}
+			bReadingSuccessful = false;
 		}
 	}
 	
@@ -152,6 +142,9 @@ Drumkit* Drumkit::load_file( const QString& dk_path, const bool load_samples )
 	}
 	
 	Drumkit* pDrumkit = Drumkit::load_from( &root, dk_path.left( dk_path.lastIndexOf( "/" ) ) );
+	if ( ! bReadingSuccessful ) {
+		upgrade_drumkit( pDrumkit, dk_path );
+	}
 	if( load_samples ){
 		pDrumkit->load_samples();
 	}
@@ -203,6 +196,7 @@ Drumkit* Drumkit::load_from( XMLNode* node, const QString& dk_path )
 		pDrumkit->set_instruments( InstrumentList::load_from( &instruments_node, dk_path, drumkit_name ) );
 	}
 	return pDrumkit;
+
 }
 
 void Drumkit::load_samples()
@@ -216,12 +210,41 @@ void Drumkit::load_samples()
 
 void Drumkit::upgrade_drumkit(Drumkit* pDrumkit, const QString& dk_path)
 {
-	if(pDrumkit != nullptr)
-	{
-		WARNINGLOG( QString( "upgrade drumkit %1" ).arg( dk_path ) );
-		
-		Filesystem::file_copy( dk_path,
-		                       dk_path + ".bak",
+	if( pDrumkit != nullptr ) {
+		if ( ! Filesystem::file_exists( dk_path, true ) ) {
+			ERRORLOG( QString( "No drumkit found at path %1" ).arg( dk_path ) );
+			return;
+		}
+		QFileInfo fi( dk_path );
+		if ( ! Filesystem::dir_writable( fi.dir().absolutePath(), true ) ) {
+			ERRORLOG( QString( "Drumkit %1 is out of date but can not be upgraded since path is not writable (please copy it to your user's home instead)" ).arg( dk_path ) );
+			return;
+		}
+		WARNINGLOG( QString( "Upgrading drumkit %1" ).arg( dk_path ) );
+
+		QString sBackupPath = dk_path + ".bak";
+		if ( Filesystem::file_exists( sBackupPath, true ) ) {
+			int nnSuffix = 1;
+
+			while ( true ) {
+				if ( ! Filesystem::file_exists( QString( "%1.%2" ).
+												arg( sBackupPath ).
+												arg( nnSuffix ), true ) ) {
+					sBackupPath = QString( "%1.%2" ).arg( sBackupPath ).arg( nnSuffix );
+					break;
+				} else {
+					++nnSuffix;
+				}
+
+				if ( nnSuffix > 100 ) {
+					ERRORLOG( QString( "More than 100 backups written for a single drumkit [%1]? This sounds like a bug. Please report this issue." )
+							  .arg( dk_path ) );
+					return;
+				}
+			}
+		}
+			
+		Filesystem::file_copy( dk_path, sBackupPath,
 		                       false /* do not overwrite existing files */ );
 		
 		pDrumkit->save_file( dk_path, true, -1 );

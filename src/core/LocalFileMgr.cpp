@@ -330,12 +330,23 @@ SongWriter::~SongWriter()
 // Returns 0 on success, passes the TinyXml error code otherwise.
 int SongWriter::writeSong( Song * pSong, const QString& filename )
 {
+	QFileInfo fi( filename );
+	if ( Filesystem::file_exists( filename, true ) && ! Filesystem::file_writable( filename, true ) ||
+		 ! Filesystem::file_exists( filename, true ) && ! Filesystem::dir_writable( fi.dir().absolutePath(), true ) ) {
+		// In case a read-only file is loaded by Hydrogen. Beware:
+		// .isWritable() will return false if the song does not exist.
+		ERRORLOG( QString( "Unable to save song to %1. Path is not writable!" )
+				  .arg( filename ) );
+		return 1;
+	}
+	
 	INFOLOG( "Saving song " + filename );
 	int rv = 0; // return value
 
-	// FIXME: has the file write-permssion?
+	// ???
 	// FIXME: verificare che il file non sia gia' esistente
 	// FIXME: effettuare copia di backup per il file gia' esistente
+	// ???
 
 
 	QDomDocument doc;
@@ -421,7 +432,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 		LocalFileMng::writeXmlString( instrumentNode, "Decay", QString("%1").arg( pInstr->get_adsr()->get_decay() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "Sustain", QString("%1").arg( pInstr->get_adsr()->get_sustain() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "Release", QString("%1").arg( pInstr->get_adsr()->get_release() ) );
-
+		LocalFileMng::writeXmlString( instrumentNode, "pitchOffset", QString("%1").arg( pInstr->get_pitch_offset() ) );
 		LocalFileMng::writeXmlString( instrumentNode, "randomPitchFactor", QString("%1").arg( pInstr->get_random_pitch_factor() ) );
 
 		LocalFileMng::writeXmlString( instrumentNode, "muteGroup", QString("%1").arg( pInstr->get_mute_group() ) );

@@ -55,9 +55,8 @@
 #include "Widgets/InfoBar.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
+
 
 using namespace H2Core;
 
@@ -703,7 +702,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 	}
 		
 	if ( nValue == 0 ) {
-		setScrollStatusBarMessage( trUtf8("Preferences saved.") + 
+		setScrollStatusBarMessage( tr("Preferences saved.") + 
 								   QString(" Into: ") + 
 								   sPreferencesFilename, 2000 );
 	} else if ( nValue == 1 ) {
@@ -770,7 +769,7 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 #endif
 
 		// Inform the user about which file was loaded.
-		setScrollStatusBarMessage( trUtf8("Preferences loaded.") + 
+		setScrollStatusBarMessage( tr("Preferences loaded.") + 
 								   QString(" From: ") + 
 								   sPreferencesFilename, 2000 );
 
@@ -833,8 +832,14 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		updateWindowTitle();
 		EventQueue::get_instance()->push_event( EVENT_METRONOME, 3 );
 		
-	}
+	} else if ( nValue == 3 ) {
 
+		// The event was triggered before the Song was fully loaded by
+		// the core. It's most likely to be present by now, but it's
+		// probably better to avoid displaying its path just to be
+		// sure.
+		QMessageBox::information( m_pMainForm, "Hydrogen", tr("Song is read-only.\nUse 'Save as' to enable autosave." ) );
+	}
 }
 
 void HydrogenApp::quitEvent( int nValue ) {

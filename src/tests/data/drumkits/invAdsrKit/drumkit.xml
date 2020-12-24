@@ -23,6 +23,7 @@ p, li { white-space: pre-wrap; }
    <name>SnareFloatAttack</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>
@@ -64,6 +65,7 @@ p, li { white-space: pre-wrap; }
    <name>KickFloatRelease</name>
    <volume>1</volume>
    <isMuted>false</isMuted>
+   <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
    <randomPitchFactor>0</randomPitchFactor>

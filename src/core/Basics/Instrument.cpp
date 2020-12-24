@@ -56,6 +56,7 @@ Instrument::Instrument( const int id, const QString& name, ADSR* adsr )
 	, __filter_active( false )
 	, __filter_cutoff( 1.0 )
 	, __filter_resonance( 0.0 )
+	, __pitch_offset( 0.0 )
 	, __random_pitch_factor( 0.0 )
 	, __midi_out_note( 36 + id )
 	, __midi_out_channel( -1 )
@@ -108,6 +109,7 @@ Instrument::Instrument( Instrument* other )
 	, __filter_active( other->is_filter_active() )
 	, __filter_cutoff( other->get_filter_cutoff() )
 	, __filter_resonance( other->get_filter_resonance() )
+	, __pitch_offset( other->get_pitch_offset() )
 	, __random_pitch_factor( other->get_random_pitch_factor() )
 	, __midi_out_note( other->get_midi_out_note() )
 	, __midi_out_channel( other->get_midi_out_channel() )
@@ -236,6 +238,7 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 	this->set_filter_active( pInstrument->is_filter_active() );
 	this->set_filter_cutoff( pInstrument->get_filter_cutoff() );
 	this->set_filter_resonance( pInstrument->get_filter_resonance() );
+	this->set_pitch_offset( pInstrument->get_pitch_offset() );
 	this->set_random_pitch_factor( pInstrument->get_random_pitch_factor() );
 	this->set_muted( pInstrument->is_muted() );
 	this->set_mute_group( pInstrument->get_mute_group() );
@@ -288,6 +291,7 @@ Instrument* Instrument::load_from( XMLNode* node, const QString& dk_path, const 
 	pInstrument->set_filter_active( node->read_bool( "filterActive", true, false ) );
 	pInstrument->set_filter_cutoff( node->read_float( "filterCutoff", 1.0f, true, false ) );
 	pInstrument->set_filter_resonance( node->read_float( "filterResonance", 0.0f, true, false ) );
+	pInstrument->set_pitch_offset( node->read_float( "pitchOffset", 0.0f, true, false ) );
 	pInstrument->set_random_pitch_factor( node->read_float( "randomPitchFactor", 0.0f, true, false ) );
 	float attack = node->read_float( "Attack", 0.0f, true, false );
 	float decay = node->read_float( "Decay", 0.0f, true, false  );
@@ -360,8 +364,10 @@ void Instrument::save_to( XMLNode* node, int component_id )
 	InstrumentNode.write_string( "name", __name );
 	InstrumentNode.write_float( "volume", __volume );
 	InstrumentNode.write_bool( "isMuted", __muted );
+	InstrumentNode.write_bool( "isSoloed", __soloed );
 	InstrumentNode.write_float( "pan_L", __pan_l );
 	InstrumentNode.write_float( "pan_R", __pan_r );
+	InstrumentNode.write_float( "pitchOffset", __pitch_offset );
 	InstrumentNode.write_float( "randomPitchFactor", __random_pitch_factor );
 	InstrumentNode.write_float( "gain", __gain );
 	InstrumentNode.write_bool( "applyVelocity", __apply_velocity );

@@ -44,10 +44,9 @@ using namespace H2Core;
 #include "../Widgets/Button.h"
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 #include <QClipboard>
+
 #include <cassert>
 #include <algorithm> // for std::min
 
@@ -238,10 +237,10 @@ void InstrumentLine::mousePressEvent(QMouseEvent *ev)
 		const float pan_L = 0.5f;
 		const float pan_R = 0.5f;
 		const int nLength = -1;
-		const float fPitch = 0.0f;
-		Song *pSong = Hydrogen::get_instance()->getSong();
 
+		Song *pSong = Hydrogen::get_instance()->getSong();
 		Instrument *pInstr = pSong->get_instrument_list()->get( m_nInstrumentNumber );
+		const float fPitch = pInstr->get_pitch_offset();
 
 		Note *pNote = new Note( pInstr, 0, velocity, pan_L, pan_R, nLength, fPitch);
 		AudioEngine::get_instance()->get_sampler()->noteOn(pNote);

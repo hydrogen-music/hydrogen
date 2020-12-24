@@ -30,9 +30,7 @@
 #include <core/Object.h>
 
 #include <QtGui>
-#if QT_VERSION >= 0x050000
-#  include <QtWidgets>
-#endif
+#include <QtWidgets>
 
 namespace H2Core
 {
@@ -169,14 +167,14 @@ class DrumPatternEditor : public QWidget, public EventListener, public H2Core::O
 		void __draw_grid( QPainter& painter );
 		void __create_background( QPainter& pointer );
 
-		virtual void mousePressEvent(QMouseEvent *ev);
-		virtual void mouseReleaseEvent(QMouseEvent *ev);
-		virtual void mouseMoveEvent(QMouseEvent *ev);
-		virtual void keyPressEvent (QKeyEvent *ev);
-		virtual void showEvent ( QShowEvent *ev );
-		virtual void hideEvent ( QHideEvent *ev );
-		virtual void paintEvent(QPaintEvent *ev);
-		virtual void focusInEvent( QFocusEvent *ev );
+		virtual void mousePressEvent(QMouseEvent *ev) override;
+		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
+		virtual void mouseMoveEvent(QMouseEvent *ev) override;
+		virtual void keyPressEvent (QKeyEvent *ev) override;
+		virtual void showEvent ( QShowEvent *ev ) override;
+		virtual void hideEvent ( QHideEvent *ev ) override;
+		virtual void paintEvent(QPaintEvent *ev) override;
+		virtual void focusInEvent( QFocusEvent *ev ) override;
 
 		Selection<DrumPatternEditor, SelectionIndex > m_selection;
 		QMenu *m_pPopupMenu;

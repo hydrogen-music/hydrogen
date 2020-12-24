@@ -87,11 +87,11 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	if ( pPref->getUseTimelineBpm() &&
 		 pEngine->getJackTimebaseState() != JackAudioDriver::Timebase::Slave ) {
 		m_pTimeLineToggleBtn->setPressed( true );
-		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
+		m_pTimeLineToggleBtn->setToolTip( tr( "Enable time line edit") );
 
 	} else {
 		m_pTimeLineToggleBtn->setPressed( false );
-		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") );
+		m_pTimeLineToggleBtn->setToolTip( tr( "Timeline usage is disabled in the presence of an external JACK timebase master") );
 
 	}
 
@@ -294,9 +294,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 
 	m_pPatternList = new SongEditorPatternList( m_pPatternListScrollView->viewport() );
 	m_pPatternList->setFocusPolicy( Qt::ClickFocus );
+	m_pPatternListScrollView->setFocusPolicy( Qt::ClickFocus );
 	m_pPatternListScrollView->setWidget( m_pPatternList );
-	m_pPatternListScrollView->setFocusProxy( m_pPatternList );
-
 
 	// EDITOR
 	m_pEditorScrollView = new WidgetScrollArea( nullptr );
@@ -305,7 +304,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pEditorScrollView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 	m_pSongEditor = new SongEditor( m_pEditorScrollView->viewport(), m_pEditorScrollView, this );
 	m_pEditorScrollView->setWidget( m_pSongEditor );
-	m_pEditorScrollView->setFocusProxy( m_pSongEditor );
+	m_pEditorScrollView->setFocusPolicy( Qt::ClickFocus );
 
 	m_pPatternList->setFocusProxy( m_pSongEditor );
 
@@ -326,8 +325,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPositionRulerScrollView->setWidget( m_pPositionRuler );
 	m_pPositionRulerScrollView->setFixedHeight( 50 );
 	connect( m_pPositionRulerScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( hScrollTo(int) ) );
-	m_pPositionRuler->setFocusProxy( m_pSongEditor );
 	m_pPositionRuler->setFocusPolicy( Qt::ClickFocus );
+	m_pPositionRuler->setFocusProxy( m_pSongEditor );
 	
 	m_pPlaybackTrackScrollView = new WidgetScrollArea( m_pWidgetStack );
 	m_pPlaybackTrackScrollView->setFrameShape( QFrame::NoFrame );
@@ -395,7 +394,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	
 	this->setLayout( pGridLayout );
 	QPalette defaultPalette;
-	defaultPalette.setColor( QPalette::Background, QColor( 58, 62, 72 ) );
+	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
 
 	show();
@@ -726,16 +725,16 @@ void SongEditorPanel::updateTimelineUsage() {
 	auto pHydrogen = Hydrogen::get_instance();
 	
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") );
+		m_pTimeLineToggleBtn->setToolTip( tr( "Timeline usage is disabled in the presence of an external JACK timebase master") );
 		m_pTimeLineToggleBtn->setPressed( false );
 		m_pTimeLineToggleBtn->setDisabled( true );
 		Preferences::get_instance()->setUseTimelineBpm( false );
 		m_pPositionRuler->createBackground();
 		return;
 	} else if ( m_pTimeLineToggleBtn->toolTip() == 
-				trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") ) {
+				tr( "Timeline usage is disabled in the presence of an external JACK timebase master") ) {
 		// No external timebase master present anymore.
-		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
+		m_pTimeLineToggleBtn->setToolTip( tr( "Enable time line edit") );
 		m_pTimeLineToggleBtn->setDisabled( false );
 	}
 	
@@ -747,10 +746,10 @@ void SongEditorPanel::timeLineBtnPressed( Button* pBtn )
 	auto pHydrogen = Hydrogen::get_instance();
 	
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Timeline usage is disabled in the presence of an external JACK timebase master") );
+		m_pTimeLineToggleBtn->setToolTip( tr( "Timeline usage is disabled in the presence of an external JACK timebase master") );
 		return;
 	} else {
-		m_pTimeLineToggleBtn->setToolTip( trUtf8( "Enable time line edit") );
+		m_pTimeLineToggleBtn->setToolTip( tr( "Enable time line edit") );
 	}
 
 	if ( m_pTimeLineToggleBtn->isPressed() ){

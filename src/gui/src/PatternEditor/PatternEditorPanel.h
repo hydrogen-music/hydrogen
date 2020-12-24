@@ -188,11 +188,11 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		bool				m_bCursorHidden;
 		//~ Cursor
 
-		virtual void dragEnterEvent(QDragEnterEvent *event);
-		virtual void dropEvent(QDropEvent *event);
+		virtual void dragEnterEvent(QDragEnterEvent *event) override;
+		virtual void dropEvent(QDropEvent *event) override;
 
-		virtual void resizeEvent(QResizeEvent *ev);
-		virtual void showEvent(QShowEvent *ev);
+		virtual void resizeEvent(QResizeEvent *ev) override;
+		virtual void showEvent(QShowEvent *ev) override;
 };
 
 
