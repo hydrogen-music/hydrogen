@@ -244,10 +244,10 @@ void MixerLine::faderChanged(Fader *ref)
 
 	double value = (double) ref->getValue();
 	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set instrument volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
-	//the following is not necessary because every 1/20 seconds updateMixer() calls setVolume()
-/*	char m_pVolumePos[7];
+
+	char m_pVolumePos[7];
 	snprintf( m_pVolumePos, 6," %#.2f", value);
-	ref->setToolTip( tr("Volume") + QString( m_pVolumePos ) );*/
+	ref->setToolTip( tr("Volume") + QString( m_pVolumePos ) );
 }
 
 bool MixerLine::isMuteClicked() {
@@ -358,7 +358,6 @@ void MixerLine::panChanged(Rotary *ref)
 	char m_pFaderPos[100];
 	snprintf( m_pFaderPos, 99, "%#.2fL, %#.2fR",  pan_L, pan_R);
 	HydrogenApp::get_instance()->setStatusBarMessage( tr( "Set instr. pan [%1]" ).arg( m_pFaderPos ), 2000 );
-
 	m_pPanRotary->setToolTip( QString("Pan ") + QString( m_pFaderPos ) );
 }
 
@@ -569,10 +568,10 @@ void ComponentMixerLine::faderChanged(Fader *ref)
 
 	double value = (double) ref->getValue();
 	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set main volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
-	//the following is not necessary because every 1/20 seconds updateMixer() calls setVolume()
-	/*char m_pVolumePos[7];
+
+	char m_pVolumePos[7];
 	snprintf( m_pVolumePos, 6," %#.2f", value);
-	ref->setToolTip(tr("Volume") + QString( m_pVolumePos ) );*/
+	ref->setToolTip(tr("Volume") + QString( m_pVolumePos ) );
 }
 
 bool ComponentMixerLine::isMuteClicked() {
