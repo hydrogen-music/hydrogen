@@ -44,6 +44,7 @@ for:
 
 
     before_build: |-
+      export MACOSX_DEPLOYMENT_TARGET=10.12
       sudo ln -s /usr/local /opt/local;
       brew update
       brew install qt5; export CMAKE_PREFIX_PATH="$(brew --prefix qt5)";
@@ -51,7 +52,6 @@ for:
       brew install libsndfile jack pulseaudio cppunit
 
     build_script: |-
-      export MACOSX_DEPLOYMENT_TARGET=10.12
       git submodule init && git submodule update
       mkdir build && cd build && cmake -DWANT_LASH=1 -DWANT_LRDF=1 -DWANT_RUBBERBAND=1 .. && make
       PATH="$(brew --prefix qt5)/bin:$PATH"
