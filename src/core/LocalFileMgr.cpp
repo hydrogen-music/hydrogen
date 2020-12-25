@@ -536,6 +536,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 		LocalFileMng::writeXmlString( patternNode, "name", pPattern->get_name() );
 		LocalFileMng::writeXmlString( patternNode, "category", pPattern->get_category() );
 		LocalFileMng::writeXmlString( patternNode, "size", QString("%1").arg( pPattern->get_length() ) );
+		LocalFileMng::writeXmlString( patternNode, "denominator", QString("%1").arg( pPattern->get_denominator() ) );
 		LocalFileMng::writeXmlString( patternNode, "info", pPattern->get_info() );
 
 		QDomNode noteListNode = doc.createElement( "noteList" );

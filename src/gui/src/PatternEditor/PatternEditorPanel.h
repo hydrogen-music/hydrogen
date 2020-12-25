@@ -29,6 +29,7 @@
 #include "PianoRollEditor.h"
 #include "../EventListener.h"
 #include "../Widgets/LCDCombo.h"
+#include "../Widgets/LCD.h"
 
 class Button;
 class ToggleButton;
@@ -94,7 +95,11 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 	private slots:
 		void gridResolutionChanged( int nSelected );
 		void propertiesComboChanged( int nSelected );
-		void patternSizeChanged( int nSelected );
+		void patternLengthChanged();
+		void updatePatternSizeLCD();
+		void patternSizeLCDClicked();
+		void denominatorWarningClicked();
+
 
 		void hearNotesBtnClick(Button *ref);
 		void quantizeEventsBtnClick(Button *ref);
@@ -122,7 +127,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		QLabel *			pSLlabel;
 
 		// Editor top
-		LCDCombo *			__pattern_size_combo;
+		LCDDisplay *			__pattern_size_LCD;
+		Button *			m_pDenominatorWarning;
 		LCDCombo *			__resolution_combo;
 		ToggleButton *		__show_drum_btn;
 		ToggleButton *		__show_piano_btn;

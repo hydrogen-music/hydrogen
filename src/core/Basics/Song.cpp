@@ -437,7 +437,7 @@ QString Song::copyInstrumentLineToString( int selectedPattern, int selectedInstr
 		LocalFileMng::writeXmlString( patternNode, "info", pPattern->get_info() );
 		LocalFileMng::writeXmlString( patternNode, "category", category  );
 		LocalFileMng::writeXmlString( patternNode, "size", QString("%1").arg( pPattern->get_length() ) );
-
+		LocalFileMng::writeXmlString( patternNode, "denominator", QString("%1").arg( pPattern->get_denominator() ) );
 		QDomNode noteListNode = doc.createElement( "noteList" );
 		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it)
@@ -1299,8 +1299,10 @@ Pattern* SongReader::getPattern( QDomNode pattern, InstrumentList* instrList )
 
 	int nSize = -1;
 	nSize = LocalFileMng::readXmlInt( pattern, "size", nSize, false, false );
+	int nDenominator = 4;
+	nDenominator = LocalFileMng::readXmlInt( pattern, "denominator", nDenominator, false, false );
 
-	pPattern = new Pattern( sName, sInfo, sCategory, nSize );
+	pPattern = new Pattern( sName, sInfo, sCategory, nSize, nDenominator );
 
 	QDomNode pNoteListNode = pattern.firstChildElement( "noteList" );
 	if ( ! pNoteListNode.isNull() ) {
