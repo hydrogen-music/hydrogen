@@ -50,6 +50,7 @@ for:
       brew install qt5; export CMAKE_PREFIX_PATH="$(brew --prefix qt5)";
       brew install libarchive; export PKG_CONFIG_PATH="$(brew --prefix libarchive)/lib/pkgconfig";
       brew install libsndfile jack pulseaudio cppunit
+      brew reinstall --build-from-source libsndfile
 
     build_script: |-
       git submodule init && git submodule update
