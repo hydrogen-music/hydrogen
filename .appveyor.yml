@@ -8,7 +8,7 @@ environment:
 
     - job_name: 'OS X'
       job_group: 'Mac OS X'
-      appveyor_build_worker_image: macos
+      appveyor_build_worker_image: macos-mojave
 
 build:
   verbosity: detailed
