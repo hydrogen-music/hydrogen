@@ -624,11 +624,10 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	Hydrogen *pH2 = Hydrogen::get_instance();
 	int nSelectedInstrument = pH2->getSelectedInstrumentNumber();
 	int nMaxInstrument = pH2->getSong()->get_instrument_list()->size();
+	bool bUnhideCursor = true;
 
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
 	updateModifiers( ev );
-
-	m_pPatternEditorPanel->setCursorHidden( false );
 
 	if ( bIsSelectionKey ) {
 		// Key was claimed by Selection
@@ -669,27 +668,35 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 
 	} else if ( ev->key() == Qt::Key_Delete || ev->key() == Qt::Key_Backspace ) {
 		// Key: Delete / Backspace: delete selected notes
+		bUnhideCursor = false;
 		deleteSelection();
 
 	} else if ( ev->matches( QKeySequence::SelectAll ) ) {
+		bUnhideCursor = false;
 		selectAll();
 
 	} else if ( ev->matches( QKeySequence::Deselect ) ) {
+		bUnhideCursor = false;
 		selectNone();
 
 	} else if ( ev->matches( QKeySequence::Copy ) ) {
+		bUnhideCursor = false;
 		copy();
 
 	} else if ( ev->matches( QKeySequence::Paste ) ) {
+		bUnhideCursor = false;
 		paste();
 
 	} else if ( ev->matches( QKeySequence::Cut ) ) {
+		bUnhideCursor = false;
 		cut();
 
 	} else {
 		ev->ignore();
-		m_pPatternEditorPanel->setCursorHidden( true );
 		return;
+	}
+	if ( bUnhideCursor ) {
+		m_pPatternEditorPanel->setCursorHidden( false );
 	}
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	m_pPatternEditorPanel->ensureCursorVisible();

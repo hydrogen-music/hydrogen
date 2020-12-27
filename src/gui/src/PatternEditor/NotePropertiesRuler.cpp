@@ -521,8 +521,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 {
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
-
-	m_pPatternEditorPanel->setCursorHidden( false );
+	bool bUnhideCursor = true;
 
 	if ( bIsSelectionKey ) {
 		// Key was claimed by selection
@@ -571,10 +570,12 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 		} else if ( ev->matches( QKeySequence::SelectAll ) ) {
 			// Key: Ctrl + A: Select all
+			bUnhideCursor = false;
 			selectAll();
 
 		} else if ( ev->matches( QKeySequence::Deselect ) ) {
 			// Key: Shift + Ctrl + A: clear selection
+			bUnhideCursor = false;
 			selectNone();
 
 		}
@@ -661,7 +662,9 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			return;
 		}
 	}
-
+	if ( bUnhideCursor ) {
+		m_pPatternEditorPanel->setCursorHidden( false );
+	}
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	updateEditor();
 	ev->accept();

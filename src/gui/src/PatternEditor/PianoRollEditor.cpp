@@ -1127,8 +1127,8 @@ void PianoRollEditor::paste()
 
 void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 {
-	m_pPatternEditorPanel->setCursorHidden( false );
 	bool bIsSelectionKey = m_selection.keyPressEvent( ev );
+	bool bUnhideCursor = true;
 	updateModifiers( ev );
 
 	if ( bIsSelectionKey ) {
@@ -1174,33 +1174,41 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 
 	} else if ( ev->matches( QKeySequence::SelectAll ) ) {
 		// Key: Ctrl + A: Select all
+		bUnhideCursor = false;
 		selectAll();
 
 	} else if ( ev->matches( QKeySequence::Deselect ) ) {
 		// Key: Shift + Ctrl + A: clear selection
+		bUnhideCursor = false;
 		selectNone();
 
 	} else if ( ev->key() == Qt::Key_Delete || ev->key() == Qt::Key_Backspace ) {
 		// Key: Delete: delete selection
+		bUnhideCursor = false;
 		deleteSelection();
 
 	} else if ( ev->matches( QKeySequence::Copy ) ) {
+		bUnhideCursor = false;
 		copy();
 
 	} else if ( ev->matches( QKeySequence::Paste ) ) {
+		bUnhideCursor = false;
 		paste();
 
 	} else if ( ev->matches( QKeySequence::Cut ) ) {
+		bUnhideCursor = false;
 		cut();
 
 	} else {
-		m_pPatternEditorPanel->setCursorHidden( true );
 		ev->ignore();
 		return;
 	}
 
 	// Update editor
 	QPoint pos = cursorPosition();
+	if ( bUnhideCursor ) {
+		m_pPatternEditorPanel->setCursorHidden( false );
+	}
 	m_pScrollView->ensureVisible( pos.x(), pos.y() );
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	updateEditor( true );
