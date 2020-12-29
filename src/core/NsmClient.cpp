@@ -218,7 +218,7 @@ int NsmClient::OpenCallback( const char *name,
 	
 	NsmClient::printMessage( "Song loaded!" );
 	
-	NsmClient::linkDrumkit( name );
+	NsmClient::linkDrumkit( name, true );
 			
 	return ERR_OK;
 }
@@ -269,7 +269,7 @@ void NsmClient::copyPreferences( const char* name ) {
 	NsmClient::printMessage( "Preferences loaded!" );
 }
 
-void NsmClient::linkDrumkit( const char* name ) {	
+void NsmClient::linkDrumkit( const char* name, bool bCheckLinkage ) {	
 	
 	const auto pHydrogen = H2Core::Hydrogen::get_instance();
 	
@@ -280,47 +280,49 @@ void NsmClient::linkDrumkit( const char* name ) {
 	const QString sLinkedDrumkitPath = QString( "%1/%2" )
 		.arg( name ).arg( "drumkit" );
 	const QFileInfo linkedDrumkitPathInfo( sLinkedDrumkitPath );
-	
-	// Check whether the linked folder is still valid.
-	if ( linkedDrumkitPathInfo.isSymLink() || 
-		 linkedDrumkitPathInfo.isDir() ) {
+
+	if ( bCheckLinkage ) {
+		// Check whether the linked folder is still valid.
+		if ( linkedDrumkitPathInfo.isSymLink() || 
+			 linkedDrumkitPathInfo.isDir() ) {
 		
-		// In case of a symbolic link, the target it is pointing to
-		// has to be resolved. If drumkit is a real folder, we will
-		// search for a drumkit.xml therein.
-		QString sDrumkitXMLPath;
-		if ( linkedDrumkitPathInfo.isSymLink() ) {
-			sDrumkitXMLPath = QString( "%1/%2" )
-				.arg( linkedDrumkitPathInfo.symLinkTarget() )
-				.arg( "drumkit.xml" );
-		} else {
-			sDrumkitXMLPath = QString( "%1/%2" )
-				.arg( sLinkedDrumkitPath ).arg( "drumkit.xml" );
-		}
-		
-		const QFileInfo drumkitXMLInfo( sDrumkitXMLPath );
-		if ( drumkitXMLInfo.exists() ) {
-	
-			const QDomDocument drumkitXML = H2Core::LocalFileMng::openXmlDocument( sDrumkitXMLPath );
-			const QDomNodeList nodeList = drumkitXML.elementsByTagName( "drumkit_info" );
-	
-			if( nodeList.isEmpty() ) {
-				NsmClient::printError( "Linked drumkit does not seem valid." );
+			// In case of a symbolic link, the target it is pointing to
+			// has to be resolved. If drumkit is a real folder, we will
+			// search for a drumkit.xml therein.
+			QString sDrumkitXMLPath;
+			if ( linkedDrumkitPathInfo.isSymLink() ) {
+				sDrumkitXMLPath = QString( "%1/%2" )
+					.arg( linkedDrumkitPathInfo.symLinkTarget() )
+					.arg( "drumkit.xml" );
 			} else {
-				const QDomNode drumkitInfoNode = nodeList.at( 0 );
-				const QString sDrumkitNameXML = H2Core::LocalFileMng::readXmlString( drumkitInfoNode, "name", "" );
-	
-				if ( sDrumkitNameXML == sDrumkitName ) {
-					bRelinkDrumkit = false;
-				} else {
-					NsmClient::printError( QString( "Linked [%1] and loaded [%2] drumkit do not match." )
-										   .arg( sDrumkitNameXML )
-										   .arg( sDrumkitName ) );
-				}
+				sDrumkitXMLPath = QString( "%1/%2" )
+					.arg( sLinkedDrumkitPath ).arg( "drumkit.xml" );
 			}
-		} else {
-			NsmClient::printError( "Symlink does not point to valid drumkit." );
-		}				   
+		
+			const QFileInfo drumkitXMLInfo( sDrumkitXMLPath );
+			if ( drumkitXMLInfo.exists() ) {
+	
+				const QDomDocument drumkitXML = H2Core::LocalFileMng::openXmlDocument( sDrumkitXMLPath );
+				const QDomNodeList nodeList = drumkitXML.elementsByTagName( "drumkit_info" );
+	
+				if( nodeList.isEmpty() ) {
+					NsmClient::printError( "Linked drumkit does not seem valid." );
+				} else {
+					const QDomNode drumkitInfoNode = nodeList.at( 0 );
+					const QString sDrumkitNameXML = H2Core::LocalFileMng::readXmlString( drumkitInfoNode, "name", "" );
+	
+					if ( sDrumkitNameXML == sDrumkitName ) {
+						bRelinkDrumkit = false;
+					} else {
+						NsmClient::printError( QString( "Linked [%1] and loaded [%2] drumkit do not match." )
+											   .arg( sDrumkitNameXML )
+											   .arg( sDrumkitName ) );
+					}
+				}
+			} else {
+				NsmClient::printError( "Symlink does not point to valid drumkit." );
+			}				   
+		}
 	}
 	
 	// The symbolic link either does not exist, is not valid, or does
@@ -389,7 +391,7 @@ void NsmClient::linkDrumkit( const char* name ) {
 
 void NsmClient::printError( const QString& msg ) {
 	std::cerr << "[\033[30mHydrogen\033[0m]\033[31m "
-			  << "Error " << msg.toLocal8Bit().data() << "\033[0m" << std::endl;
+			  << "Error: " << msg.toLocal8Bit().data() << "\033[0m" << std::endl;
 }
 void NsmClient::printMessage( const QString& msg ) {
 	std::cerr << "[\033[30mHydrogen\033[0m]\033[32m "
