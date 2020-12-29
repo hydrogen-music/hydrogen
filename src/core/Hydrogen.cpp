@@ -1521,14 +1521,6 @@ void audioEngine_renameJackPorts(Song * pSong)
 	if ( ! pSong ) return;
 
 	if ( Hydrogen::get_instance()->haveJackAudioDriver() ) {
-
-		// When restarting the audio driver after loading a new song under
-		// Non session management all ports have to be registered _prior_
-		// to the activation of the client.
-		if ( Hydrogen::get_instance()->isUnderSessionManagement() ) {
-			return;
-		}
-		
 		static_cast< JackAudioDriver* >( m_pAudioDriver )->makeTrackOutputs( pSong );
 	}
 #endif
@@ -2563,7 +2555,7 @@ void Hydrogen::setSong( Song *pSong )
 
 	if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
-		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath.toLocal8Bit().data() );
+		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath.toLocal8Bit().data(), true );
 #endif
 	} else {		
 		Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
@@ -3372,7 +3364,7 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	// management.
 	if ( isUnderSessionManagement() ) {
 #ifdef H2CORE_HAVE_OSC
-		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath.toLocal8Bit().data() );
+		NsmClient::linkDrumkit( NsmClient::get_instance()->m_sSessionFolderPath.toLocal8Bit().data(), false );
 #endif
 	}
 
