@@ -544,7 +544,8 @@ bool JackAudioDriver::compareAdjacentBBT() const
 	// The rounding is the task of the external timebase master. So,
 	// we need to be a little generous in here to be sure to match its
 	// decision.
-	if ( nNewTick + 1 >= m_JackTransportPos.ticks_per_beat ) {
+	if ( m_JackTransportPos.tick != nNewTick &&
+		 nNewTick + 1 >= m_JackTransportPos.ticks_per_beat ) {
 		nNewTick = remainder( nNewTick, m_JackTransportPos.ticks_per_beat );
 
 		if ( m_previousJackTransportPos.beat + 1 >
@@ -552,7 +553,7 @@ bool JackAudioDriver::compareAdjacentBBT() const
 			if ( m_JackTransportPos.bar !=
 				m_previousJackTransportPos.bar + 1 ||
 				m_JackTransportPos.beat != 1 ) {
-				INFOLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]" )
+				INFOLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]*" )
 						 .arg( m_previousJackTransportPos.bar )
 						 .arg( m_previousJackTransportPos.beat )
 						 .arg( m_JackTransportPos.bar )
@@ -564,7 +565,7 @@ bool JackAudioDriver::compareAdjacentBBT() const
 				m_previousJackTransportPos.bar ||
 				m_JackTransportPos.beat !=
 				m_previousJackTransportPos.beat + 1 ) {
-				INFOLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]" )
+				INFOLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]**" )
 						 .arg( m_previousJackTransportPos.bar )
 						 .arg( m_previousJackTransportPos.beat )
 						 .arg( m_JackTransportPos.bar )
@@ -576,7 +577,7 @@ bool JackAudioDriver::compareAdjacentBBT() const
 				m_previousJackTransportPos.bar ||
 				m_JackTransportPos.beat !=
 				m_previousJackTransportPos.beat ) {
-		INFOLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]" )
+		INFOLOG( QString( "Change in position from bar:beat [%1]:[%2] to [%3]:[%4]***" )
 				 .arg( m_previousJackTransportPos.bar )
 				 .arg( m_previousJackTransportPos.beat )
 				 .arg( m_JackTransportPos.bar )
