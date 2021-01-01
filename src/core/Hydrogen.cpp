@@ -1002,12 +1002,9 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			}
 
 			// Offset + Random Pitch ;)
-			const float fMaxPitchDeviation = 2.0;
 			pNote->set_pitch( pNote->get_pitch()
 						 + pNote->get_instrument()->get_pitch_offset()
-						 + ( fMaxPitchDeviation * getGaussian( 0.2 )
-							  - fMaxPitchDeviation / 2.0 )
-							  * pNote->get_instrument()->get_random_pitch_factor() );
+						 + getGaussian( 0.4 ) * pNote->get_instrument()->get_random_pitch_factor() );
 
 
 			/*
