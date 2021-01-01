@@ -119,6 +119,9 @@ class NotePropertiesRuler : public PatternEditor
 		void addUndoAction();
 		void prepareUndoAction( int x );
 
+		virtual void mouseMoveEvent( QMouseEvent *ev ) override;
+
+
 		// Implements EventListener interface
 		virtual void selectedPatternChangedEvent() override;
 		virtual void selectedInstrumentChangedEvent() override;

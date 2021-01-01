@@ -90,6 +90,8 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	m_pPopupMenu->addAction( tr( "Select &all" ), this, &PatternEditor::selectAll );
 	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &PatternEditor::selectNone );
 
+	setMouseTracking( true );
+
 }
 
 
@@ -260,8 +262,31 @@ void NotePropertiesRuler::selectionMoveCancelEvent() {
 	clearOldNotes();
 }
 
+
+void NotePropertiesRuler::mouseMoveEvent( QMouseEvent *ev )
+{
+	if ( ev->buttons() == Qt::NoButton ) {
+		int nColumn = getColumn( ev->x() );
+		bool bFound = false;
+		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, nColumn ) {
+			bFound = true;
+			break;
+		}
+		if ( bFound ) {
+			setCursor( Qt::PointingHandCursor );
+		} else {
+			unsetCursor();
+		}
+
+	} else {
+		PatternEditor::mouseMoveEvent( ev );
+	}
+}
+
+
 void NotePropertiesRuler::propertyDragStart( QMouseEvent *ev )
 {
+	setCursor( Qt::CrossCursor );
 	prepareUndoAction( ev->x() );
 	updateEditor();
 }
@@ -429,6 +454,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 void NotePropertiesRuler::propertyDragEnd()
 {
 	addUndoAction();
+	unsetCursor();
 	updateEditor();
 }
 
