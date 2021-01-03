@@ -221,6 +221,18 @@ QString PatternList::find_unused_pattern_name( QString sourceName )
 	QString suffix = "";
 	unusedPatternNameCandidate = sourceName;
 
+	// Check if the sourceName already has a number suffix, and if so, start
+	// searching for an unused name from that number.
+	QRegularExpression numberSuffixRe("(.+) #(\\d+)$");
+	QRegularExpressionMatch match = numberSuffixRe.match(sourceName);
+	if (match.hasMatch()) {
+		QString numberSuffix = match.captured(2);
+
+		i = numberSuffix.toInt();
+		suffix = " #" + QString::number(i);
+		unusedPatternNameCandidate = match.captured(1);
+	}
+
 	while( !check_name( unusedPatternNameCandidate + suffix ) ) {
 		suffix = " #" + QString::number(i);
 		i++;
