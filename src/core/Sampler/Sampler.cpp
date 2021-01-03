@@ -233,6 +233,28 @@ void Sampler::noteOff(Note* pNote )
 }
 
 
+
+float getRatioPan( float fPan_L, float fPan_R ) {
+	// returns the single pan parameter in [-1,1] from the L,R gains
+	// It doesn't return ERROR if (L,R) = (0,0) nor if they are negative!!!!!
+	if ( fPan_L >= fPan_R ) {
+		return fPan_R / fPan_L - 1.;
+	} else {
+		return 1. - fPan_L / fPan_R;
+	}
+}
+
+float ratioStraightPolPanLaw( float fPan ) {
+	// this return pan_L in the straight polygonal pan law, "ratio" pan parameter in [-1;1]
+	// It doesn't return ERROR if p is out of [-1;1] !!!!!
+	if ( fPan <= 0 ) {
+		return 1.;
+	} else {
+		return ( 1. - fPan );
+	}
+}
+
+
 /// Render a note
 /// Return false: the note is not ended
 /// Return true: the note is ended
@@ -256,6 +278,28 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 		ERRORLOG( "NULL instrument" );
 		return 1;
 	}
+	// new instrument and note pan interaction--------------------------
+	// note pan moves the pan in a smaller pan range centered at instrument pan
+
+	// get the note and instrument pan parameters in [-1,1]
+
+	float (*getPan)( float, float ); // TODO must be a song member, set in preferences to point the desired pan parameter
+	// use "ratio" pan parameter (due to the current pan law)
+    getPan = &getRatioPan;
+	float fNotePan = getPan( pNote->get_pan_l(), pNote->get_pan_r() );
+	float fInstrPan = getPan( pInstr->get_pan_l(), pInstr->get_pan_r() );
+	
+	// resultant pan: note pan moves the pan in a smaller pan range centered at instrument pan
+	float fPan = fInstrPan + fNotePan * ( 1 - fabs( fInstrPan ) );
+	
+	// Pass fResPan to the Pan Law
+	// use Straight pol pan law.			
+	float (*panLaw)( float ); // TODO must be a song member, set in preferences to point the desired pan law
+    panLaw = &ratioStraightPolPanLaw;
+    float a = 0.5; // max gain (it has been 0.5 until version 1.0)
+    float fPan_L = a * panLaw( fPan);
+    float fPan_R = a * panLaw( -fPan);
+	//---------------------------------------------------------
 
 	bool nReturnValues [pInstr->get_components()->size()];
 	
@@ -604,9 +648,12 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 				cost_L = cost_L * pNote->get_velocity();		// note velocity
 				cost_R = cost_R * pNote->get_velocity();		// note velocity
 			}
-			cost_L = cost_L * pNote->get_pan_l();		// note pan
+
+
+			cost_L *= fPan_L;							//pan
+			//cost_L = cost_L * pNote->get_pan_l();		// note pan
 			cost_L = cost_L * fLayerGain;				// layer gain
-			cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
+			//cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
 			cost_L = cost_L * pInstr->get_gain();		// instrument gain
 
 			cost_L = cost_L * pCompo->get_gain();		// Component gain
@@ -619,9 +666,10 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 			cost_L = cost_L * pSong->get_volume();	// song volume
 			cost_L = cost_L * 2; // max pan is 0.5
 
-			cost_R = cost_R * pNote->get_pan_r();		// note pan
+			cost_R *= fPan_R;							// pan
+			//cost_R = cost_R * pNote->get_pan_r();		// note pan
 			cost_R = cost_R * fLayerGain;				// layer gain
-			cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
+			//cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
 			cost_R = cost_R * pInstr->get_gain();		// instrument gain
 
 			cost_R = cost_R * pCompo->get_gain();		// Component gain
