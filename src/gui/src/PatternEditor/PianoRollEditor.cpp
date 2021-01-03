@@ -1154,12 +1154,27 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 			m_nCursorPitch --;
 		}
 
+	} else if ( ev->matches( QKeySequence::MoveToNextPage ) || ev->matches( QKeySequence::SelectNextPage ) ) {
+		// Page down -- move down by a whole octave
+		int nMinPitch = octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN );
+		m_nCursorPitch -= 12;
+		if ( m_nCursorPitch < nMinPitch ) {
+			m_nCursorPitch = nMinPitch;
+		}
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) || ev->matches( QKeySequence::SelectEndOfDocument ) ) {
 		m_nCursorPitch = octaveKeyToPitch( (Note::Octave)OCTAVE_MIN, (Note::Key)KEY_MIN );
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) || ev->matches( QKeySequence::SelectPreviousLine ) ) {
 		if ( m_nCursorPitch < octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX ) ) {
 			m_nCursorPitch ++;
+		}
+
+	} else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ev->matches( QKeySequence::SelectPreviousPage ) ) {
+		int nMaxPitch = octaveKeyToPitch( (Note::Octave)OCTAVE_MAX, (Note::Key)KEY_MAX );
+		m_nCursorPitch += 12;
+		if ( m_nCursorPitch >= nMaxPitch ) {
+			m_nCursorPitch = nMaxPitch;
 		}
 
 	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) || ev->matches( QKeySequence::SelectStartOfDocument ) ) {

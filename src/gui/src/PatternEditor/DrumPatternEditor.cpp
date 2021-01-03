@@ -651,6 +651,17 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		if ( nSelectedInstrument + 1 < nMaxInstrument ) {
 			pH2->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
 		}
+	} else if ( ev->matches( QKeySequence::MoveToNextPage ) || ev->matches( QKeySequence::SelectNextPage ) ) {
+		// Page down, scroll by the number of instruments that fit into the viewport
+		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
+		assert( pParent );
+		nSelectedInstrument += pParent->height() / m_nGridHeight;
+
+		if ( nSelectedInstrument >= nMaxInstrument ) {
+			nSelectedInstrument = nMaxInstrument - 1;
+		}
+		pH2->setSelectedInstrumentNumber( nSelectedInstrument );
+
 	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) || ev->matches( QKeySequence::SelectEndOfDocument ) ) {
 		pH2->setSelectedInstrumentNumber( nMaxInstrument-1 );
 
@@ -658,6 +669,15 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		if ( nSelectedInstrument > 0 ) {
 			pH2->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
 		}
+	} else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ev->matches( QKeySequence::SelectPreviousPage ) ) {
+		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
+		assert( pParent );
+		nSelectedInstrument -= pParent->height() / m_nGridHeight;
+		if ( nSelectedInstrument < 0 ) {
+			nSelectedInstrument = 0;
+		}
+		pH2->setSelectedInstrumentNumber( nSelectedInstrument );
+
 	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) || ev->matches( QKeySequence::SelectStartOfDocument ) ) {
 		pH2->setSelectedInstrumentNumber( 0 );
 
