@@ -233,8 +233,8 @@ void Sampler::noteOff(Note* pNote )
 }
 
 
-
-float getRatioPan( float fPan_L, float fPan_R ) {
+/// functions for pan parameters and laws-----------------
+float Sampler::getRatioPan( float fPan_L, float fPan_R ) {
 	// returns the single pan parameter in [-1,1] from the L,R gains
 	// It doesn't return ERROR if (L,R) = (0,0) nor if they are negative!!!!!
 	if ( fPan_L >= fPan_R ) {
@@ -244,7 +244,8 @@ float getRatioPan( float fPan_L, float fPan_R ) {
 	}
 }
 
-float ratioStraightPolPanLaw( float fPan ) {
+//pan laws
+float Sampler::ratioStraightPolPanLaw( float fPan ) {
 	// this return pan_L in the straight polygonal pan law, "ratio" pan parameter in [-1;1]
 	// It doesn't return ERROR if p is out of [-1;1] !!!!!
 	if ( fPan <= 0 ) {
@@ -253,7 +254,7 @@ float ratioStraightPolPanLaw( float fPan ) {
 		return ( 1. - fPan );
 	}
 }
-
+//------------------------------------------------------------------
 
 /// Render a note
 /// Return false: the note is not ended
@@ -278,14 +279,15 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 		ERRORLOG( "NULL instrument" );
 		return 1;
 	}
+
 	// new instrument and note pan interaction--------------------------
 	// note pan moves the pan in a smaller pan range centered at instrument pan
 
 	// get the note and instrument pan parameters in [-1,1]
-
-	float (*getPan)( float, float ); // TODO must be a song member, set in preferences to point the desired pan parameter
+	// TODO a new song member, set in preferences, must point the desired pan parameter Sampler member function
+	float (*getPan)( float, float );
 	// use "ratio" pan parameter (due to the current pan law)
-    getPan = &getRatioPan;
+    getPan = &this->getRatioPan;
 	float fNotePan = getPan( pNote->get_pan_l(), pNote->get_pan_r() );
 	float fInstrPan = getPan( pInstr->get_pan_l(), pInstr->get_pan_r() );
 	
@@ -293,12 +295,13 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 	float fPan = fInstrPan + fNotePan * ( 1 - fabs( fInstrPan ) );
 	
 	// Pass fResPan to the Pan Law
-	// use Straight pol pan law.			
-	float (*panLaw)( float ); // TODO must be a song member, set in preferences to point the desired pan law
-    panLaw = &ratioStraightPolPanLaw;
+	// use Straight pol pan law.
+	// TODO a new song member, set in preferences, must point the desired pan law Sampler member function		
+	float (*panLaw)( float );
+    panLaw = &this->ratioStraightPolPanLaw;
     float a = 0.5; // max gain (it has been 0.5 until version 1.0)
-    float fPan_L = a * panLaw( fPan);
-    float fPan_R = a * panLaw( -fPan);
+    float fPan_L = a * panLaw( fPan );
+    float fPan_R = a * panLaw( -fPan );
 	//---------------------------------------------------------
 
 	bool nReturnValues [pInstr->get_components()->size()];
