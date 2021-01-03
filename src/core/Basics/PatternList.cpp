@@ -195,21 +195,21 @@ void PatternList::virtual_pattern_del( Pattern* pattern )
 	for( int i=0; i<__patterns.size(); i++ ) __patterns[i]->virtual_patterns_del( pattern );
 }
 
-bool PatternList::check_name( QString patternName )
+bool PatternList::check_name( QString patternName, Pattern* ignore )
 {
 	if (patternName == "") {
 		return false;
 	}
 
 	for (uint i = 0; i < __patterns.size(); i++) {
-		if ( __patterns[i]->get_name() == patternName) {
+		if ( __patterns[i] != ignore && __patterns[i]->get_name() == patternName ) {
 			return false;
 		}
 	}
 	return true;
 }
 
-QString PatternList::find_unused_pattern_name( QString sourceName )
+QString PatternList::find_unused_pattern_name( QString sourceName, Pattern* ignore )
 {
 	QString unusedPatternNameCandidate;
 
@@ -233,7 +233,7 @@ QString PatternList::find_unused_pattern_name( QString sourceName )
 		unusedPatternNameCandidate = match.captured(1);
 	}
 
-	while( !check_name( unusedPatternNameCandidate + suffix ) ) {
+	while( !check_name( unusedPatternNameCandidate + suffix, ignore ) ) {
 		suffix = " #" + QString::number(i);
 		i++;
 	}

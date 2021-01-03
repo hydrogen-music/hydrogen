@@ -1507,7 +1507,7 @@ void SongEditorPatternList::inlineEditingEntered()
 	 * If it is not, use an unused patten name.
 	 */
 	
-	QString patternName = pPatternList->find_unused_pattern_name( m_pLineEdit->text() );
+	QString patternName = pPatternList->find_unused_pattern_name( m_pLineEdit->text(), m_pPatternBeingEdited );
 
 	int nSelectedPattern = pEngine->getSelectedPatternNumber();
 
