@@ -635,7 +635,7 @@ void OscServer::TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
 
-	if ( argv[0]->i != 0 ) { 
+	if ( argv[0]->f != 0 ) { 
 		pController->activateTimeline( true );
 	} else {
 		pController->activateTimeline( false );
@@ -645,20 +645,21 @@ void OscServer::TIMELINE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 void OscServer::TIMELINE_ADD_MARKER_Handler(lo_arg **argv, int argc) {
 
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-	pController->addTempoMarker(argv[0]->i, argv[1]->f);
+	pController->addTempoMarker( static_cast<int>(std::round( argv[0]->f )),
+								 argv[1]->f);
 }
 
 void OscServer::TIMELINE_DELETE_MARKER_Handler(lo_arg **argv, int argc) {
 
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-	pController->deleteTempoMarker(argv[0]->i);
+	pController->deleteTempoMarker( static_cast<int>( std::round( argv[0]->f ) ) );
 }
 
 void OscServer::JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc) {
 	
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
 
-	if ( argv[0]->i != 0 ) {
+	if ( argv[0]->f != 0 ) {
 		pController->activateJackTransport( true );
 	} else {
 		pController->activateJackTransport( false );
@@ -668,7 +669,7 @@ void OscServer::JACK_TRANSPORT_ACTIVATION_Handler(lo_arg **argv, int argc) {
 void OscServer::JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc) {
 
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-	if ( argv[0]->i != 0 ) {
+	if ( argv[0]->f != 0 ) {
 		pController->activateJackTimebaseMaster( true );
 	} else {
 		pController->activateJackTimebaseMaster( false );
@@ -678,7 +679,7 @@ void OscServer::JACK_TIMEBASE_MASTER_ACTIVATION_Handler(lo_arg **argv, int argc)
 void OscServer::SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-	if ( argv[0]->i != 0 ) {
+	if ( argv[0]->f != 0 ) {
 		pController->activateSongMode( true, true );
 	} else {
 		pController->activateSongMode( false, true );
@@ -688,7 +689,7 @@ void OscServer::SONG_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 void OscServer::LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 
 	auto pController = H2Core::Hydrogen::get_instance()->getCoreActionController();
-	if ( argv[0]->i != 0 ) {
+	if ( argv[0]->f != 0 ) {
 		pController->activateLoopMode( true, true );
 	} else {
 		pController->activateLoopMode( false, true );
@@ -697,7 +698,7 @@ void OscServer::LOOP_MODE_ACTIVATION_Handler(lo_arg **argv, int argc) {
 
 void OscServer::RELOCATE_Handler(lo_arg **argv, int argc) {
 
-	H2Core::Hydrogen::get_instance()->getCoreActionController()->relocate( argv[0]->i );
+	H2Core::Hydrogen::get_instance()->getCoreActionController()->relocate( static_cast<int>(std::round( argv[0]->f ) ) );
 }
 
 // -------------------------------------------------------------------
@@ -932,15 +933,15 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/SAVE_PREFERENCES", "", SAVE_SONG_Handler);
 	m_pServerThread->add_method("/Hydrogen/QUIT", "", QUIT_Handler);
 
-	m_pServerThread->add_method("/Hydrogen/TIMELINE_ACTIVATION", "i", TIMELINE_ACTIVATION_Handler);
-	m_pServerThread->add_method("/Hydrogen/TIMELINE_ADD_MARKER", "if", TIMELINE_ADD_MARKER_Handler);
-	m_pServerThread->add_method("/Hydrogen/TIMELINE_DELETE_MARKER", "i", TIMELINE_DELETE_MARKER_Handler);
+	m_pServerThread->add_method("/Hydrogen/TIMELINE_ACTIVATION", "f", TIMELINE_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/TIMELINE_ADD_MARKER", "ff", TIMELINE_ADD_MARKER_Handler);
+	m_pServerThread->add_method("/Hydrogen/TIMELINE_DELETE_MARKER", "f", TIMELINE_DELETE_MARKER_Handler);
 
-	m_pServerThread->add_method("/Hydrogen/JACK_TRANSPORT_ACTIVATION", "i", JACK_TRANSPORT_ACTIVATION_Handler);
-	m_pServerThread->add_method("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", "i", JACK_TIMEBASE_MASTER_ACTIVATION_Handler);
-	m_pServerThread->add_method("/Hydrogen/SONG_MODE_ACTIVATION", "i", SONG_MODE_ACTIVATION_Handler);
-	m_pServerThread->add_method("/Hydrogen/LOOP_MODE_ACTIVATION", "i", LOOP_MODE_ACTIVATION_Handler);
-	m_pServerThread->add_method("/Hydrogen/RELOCATE", "i", RELOCATE_Handler);
+	m_pServerThread->add_method("/Hydrogen/JACK_TRANSPORT_ACTIVATION", "f", JACK_TRANSPORT_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/JACK_TIMEBASE_MASTER_ACTIVATION", "f", JACK_TIMEBASE_MASTER_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/SONG_MODE_ACTIVATION", "f", SONG_MODE_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/LOOP_MODE_ACTIVATION", "f", LOOP_MODE_ACTIVATION_Handler);
+	m_pServerThread->add_method("/Hydrogen/RELOCATE", "f", RELOCATE_Handler);
 
 	m_bInitialized = true;
 	
