@@ -182,7 +182,7 @@ int OscServer::generic_handler(const char *	path,
 	if ( pos > -1 ) {
 		if( argc == 1 ){
 			int value = rxStripPanRel.cap(1).toInt() - 1;
-			PAN_RELATIVE_Handler( QString::number( value ) , QString::number( argv[0]->i ) );
+			PAN_RELATIVE_Handler( QString::number( value ) , QString::number( argv[0]->f, 'f', 0 ) );
 		}
 	}
 	
@@ -191,7 +191,7 @@ int OscServer::generic_handler(const char *	path,
 	if ( pos > -1 ) {
 		if( argc == 1 ){
 			int value = rxStripFilterCutoffAbs.cap(1).toInt() - 1;
-			FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( QString::number( value ) , QString::number( argv[0]->i ) );
+			FILTER_CUTOFF_LEVEL_ABSOLUTE_Handler( QString::number( value ) , QString::number( argv[0]->f, 'f', 0 ) );
 		}
 	}
 	
@@ -410,7 +410,7 @@ void OscServer::BPM_INCR_Handler(lo_arg **argv,int i)
 	Action currentAction("BPM_INCR");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 	
-	currentAction.setParameter1( QString::number( argv[0]->i ));
+	currentAction.setParameter1( QString::number( argv[0]->f, 'f', 0 ));
 
 	pActionManager->handleAction( &currentAction );
 }
@@ -420,7 +420,7 @@ void OscServer::BPM_DECR_Handler(lo_arg **argv,int i)
 	Action currentAction("BPM_DECR");
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
-	currentAction.setParameter1( QString::number( argv[0]->i ));
+	currentAction.setParameter1( QString::number( argv[0]->f, 'f', 0 ));
 	
 	pActionManager->handleAction( &currentAction );
 }
@@ -430,13 +430,13 @@ void OscServer::MASTER_VOLUME_ABSOLUTE_Handler(lo_arg **argv,int i)
 	H2Core::Hydrogen *pEngine = H2Core::Hydrogen::get_instance();
 	H2Core::CoreActionController* pController = pEngine->getCoreActionController();
 
-	pController->setMasterVolume( argv[0]->i );
+	pController->setMasterVolume( argv[0]->f );
 }
 
 void OscServer::MASTER_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 {
 	Action currentAction("MASTER_VOLUME_RELATIVE");
-	currentAction.setParameter2( QString::number( argv[0]->i ));
+	currentAction.setParameter2( QString::number( argv[0]->f, 'f', 0 ));
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	pActionManager->handleAction( &currentAction );
@@ -453,7 +453,7 @@ void OscServer::STRIP_VOLUME_ABSOLUTE_Handler(int param1, float param2)
 void OscServer::STRIP_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 {
 	Action currentAction("STRIP_VOLUME_RELATIVE");
-	currentAction.setParameter2( QString::number( argv[0]->i ));
+	currentAction.setParameter2( QString::number( argv[0]->f, 'f', 0 ));
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	pActionManager->handleAction( &currentAction );
@@ -462,7 +462,7 @@ void OscServer::STRIP_VOLUME_RELATIVE_Handler(lo_arg **argv,int i)
 void OscServer::SELECT_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 {
 	Action currentAction("SELECT_NEXT_PATTERN");
-	currentAction.setParameter1(  QString::number( argv[0]->i ) );
+	currentAction.setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	pActionManager->handleAction( &currentAction );
@@ -471,7 +471,7 @@ void OscServer::SELECT_NEXT_PATTERN_Handler(lo_arg **argv,int i)
 void OscServer::SELECT_NEXT_PATTERN_PROMPTLY_Handler(lo_arg **argv,int i)
 {
 	Action currentAction("SELECT_NEXT_PATTERN_PROMPTLY");
-	currentAction.setParameter1(  QString::number( argv[0]->i ) );
+	currentAction.setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	pActionManager->handleAction( &currentAction );
@@ -480,7 +480,7 @@ void OscServer::SELECT_NEXT_PATTERN_PROMPTLY_Handler(lo_arg **argv,int i)
 void OscServer::SELECT_AND_PLAY_PATTERN_Handler(lo_arg **argv,int i)
 {
 	Action currentAction("SELECT_AND_PLAY_PATTERN");
-	currentAction.setParameter1(  QString::number( argv[0]->i ) );
+	currentAction.setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();
 
 	pActionManager->handleAction( &currentAction );
@@ -535,7 +535,7 @@ void OscServer::TAP_TEMPO_Handler(lo_arg **argv,int i)
 void OscServer::PLAYLIST_SONG_Handler(lo_arg **argv,int i)
 {
 	Action currentAction("PLAYLIST_SONG");
-	currentAction.setParameter1(  QString::number( argv[0]->i ) );
+	currentAction.setParameter1(  QString::number( argv[0]->f, 'f', 0 ) );
 
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();	
 
@@ -569,7 +569,7 @@ void OscServer::TOGGLE_METRONOME_Handler(lo_arg **argv,int i)
 void OscServer::SELECT_INSTRUMENT_Handler(lo_arg **argv,int i)
 {
 	Action currentAction("SELECT_INSTRUMENT");
-	currentAction.setParameter2(  QString::number( argv[0]->i ) );
+	currentAction.setParameter2(  QString::number( argv[0]->f, 'f', 0 ) );
 
 	MidiActionManager* pActionManager = MidiActionManager::get_instance();	
 
@@ -898,29 +898,29 @@ bool OscServer::init()
 	m_pServerThread->add_method("/Hydrogen/NEXT_BAR", "", NEXT_BAR_Handler);
 	m_pServerThread->add_method("/Hydrogen/PREVIOUS_BAR", "", PREVIOUS_BAR_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/BPM_DECR", "i", BPM_DECR_Handler);
-	m_pServerThread->add_method("/Hydrogen/BPM_INCR", "i", BPM_INCR_Handler);
+	m_pServerThread->add_method("/Hydrogen/BPM_DECR", "f", BPM_DECR_Handler);
+	m_pServerThread->add_method("/Hydrogen/BPM_INCR", "f", BPM_INCR_Handler);
 
-	m_pServerThread->add_method("/Hydrogen/MASTER_VOLUME_ABSOLUTE", "i", MASTER_VOLUME_ABSOLUTE_Handler);
-	m_pServerThread->add_method("/Hydrogen/MASTER_VOLUME_RELATIVE", "i", MASTER_VOLUME_RELATIVE_Handler);
+	m_pServerThread->add_method("/Hydrogen/MASTER_VOLUME_ABSOLUTE", "f", MASTER_VOLUME_ABSOLUTE_Handler);
+	m_pServerThread->add_method("/Hydrogen/MASTER_VOLUME_RELATIVE", "f", MASTER_VOLUME_RELATIVE_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/STRIP_VOLUME_RELATIVE", "i", STRIP_VOLUME_RELATIVE_Handler);
+	m_pServerThread->add_method("/Hydrogen/STRIP_VOLUME_RELATIVE", "f", STRIP_VOLUME_RELATIVE_Handler);
 
-	m_pServerThread->add_method("/Hydrogen/SELECT_NEXT_PATTERN", "i", SELECT_NEXT_PATTERN_Handler);
-	m_pServerThread->add_method("/Hydrogen/SELECT_NEXT_PATTERN_PROMPTLY", "i", SELECT_NEXT_PATTERN_PROMPTLY_Handler);
-	m_pServerThread->add_method("/Hydrogen/SELECT_AND_PLAY_PATTERN", "i", SELECT_AND_PLAY_PATTERN_Handler);
+	m_pServerThread->add_method("/Hydrogen/SELECT_NEXT_PATTERN", "f", SELECT_NEXT_PATTERN_Handler);
+	m_pServerThread->add_method("/Hydrogen/SELECT_NEXT_PATTERN_PROMPTLY", "f", SELECT_NEXT_PATTERN_PROMPTLY_Handler);
+	m_pServerThread->add_method("/Hydrogen/SELECT_AND_PLAY_PATTERN", "f", SELECT_AND_PLAY_PATTERN_Handler);
 	
 	m_pServerThread->add_method("/Hydrogen/BEATCOUNTER", "", BEATCOUNTER_Handler);
 	
 	m_pServerThread->add_method("/Hydrogen/TAP_TEMPO", "", TAP_TEMPO_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/PLAYLIST_SONG", "i", PLAYLIST_SONG_Handler);
+	m_pServerThread->add_method("/Hydrogen/PLAYLIST_SONG", "f", PLAYLIST_SONG_Handler);
 	m_pServerThread->add_method("/Hydrogen/PLAYLIST_NEXT_SONG", "", PLAYLIST_NEXT_SONG_Handler);
 	m_pServerThread->add_method("/Hydrogen/PLAYLIST_PREV_SONG", "", PLAYLIST_PREV_SONG_Handler);
 	
 	m_pServerThread->add_method("/Hydrogen/TOGGLE_METRONOME", "", TOGGLE_METRONOME_Handler);
 	
-	m_pServerThread->add_method("/Hydrogen/SELECT_INSTRUMENT", "i", SELECT_INSTRUMENT_Handler);
+	m_pServerThread->add_method("/Hydrogen/SELECT_INSTRUMENT", "f", SELECT_INSTRUMENT_Handler);
 	
 	m_pServerThread->add_method("/Hydrogen/UNDO_ACTION", "", UNDO_ACTION_Handler);
 	m_pServerThread->add_method("/Hydrogen/REDO_ACTION", "", REDO_ACTION_Handler);
