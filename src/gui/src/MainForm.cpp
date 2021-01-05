@@ -1906,7 +1906,7 @@ void MainForm::errorEvent( int nErrorCode )
 		break;
 		
 	case Hydrogen::OSC_CANNOT_CONNECT_TO_PORT:
-		msg = tr( "OSC Server: Cannot connect to given port, using temporary port instead" );
+		msg = QString( tr( "OSC Server: Cannot connect to given port, using port %1 instead" ) ).arg( Preferences::get_instance()->m_nOscTemporaryPort );
 		break;
 
 	default:
