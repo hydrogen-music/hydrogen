@@ -127,7 +127,7 @@ class Selection {
 
 
 private:
-	SelectionWidget< Elem > *widget;
+	SelectionWidget< Elem > *m_pWidget;
 
 	//! @name Mouse state model
 	//!
@@ -190,7 +190,7 @@ public:
 
 	Selection( SelectionWidget<Elem> *w ) {
 
-		widget = w;
+		m_pWidget = w;
 		m_mouseState = Up;
 		m_pClickEvent = nullptr;
 		m_selectionState = Idle;
@@ -386,7 +386,7 @@ public:
 		if ( ev->modifiers() & Qt::ControlModifier ) {
 			// Ctrl+click to add or remove element from selection.
 			QRect r = QRect( ev->pos(), ev->pos() );
-			std::vector<Elem> elems = widget->elementsIntersecting( r );
+			std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );
 			for ( Elem e : elems) {
 				if ( m_pSelectionGroup->m_selectedElements.find( e )
 					 == m_pSelectionGroup->m_selectedElements.end() ) {
@@ -403,7 +403,7 @@ public:
 				m_pSelectionGroup->m_selectedElements.clear();
 				updateWidgetGroup();
 			} else {
-				widget->mouseClickEvent( ev );
+				m_pWidget->mouseClickEvent( ev );
 			}
 		}
 	}
@@ -411,7 +411,7 @@ public:
 	void mouseDragStart( QMouseEvent *ev ) {
 		if ( ev->button() == Qt::LeftButton) {
 			QRect r = QRect( m_pClickEvent->pos(), ev->pos() );
-			std::vector<Elem> elems = widget->elementsIntersecting( r );
+			std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );
 
 			if ( elems.empty() ) {
 				//  Didn't hit anything. Start new selection drag.
@@ -419,8 +419,8 @@ public:
 				m_selectionState = MouseLasso;
 				m_lasso.setTopLeft( m_pClickEvent->pos() );
 				m_lasso.setBottomRight( ev->pos() );
-				widget->startMouseLasso( ev );
-				widget->updateWidget();
+				m_pWidget->startMouseLasso( ev );
+				m_pWidget->updateWidget();
 
 			} else {
 				/* Did the user start dragging a selected element, or an unselected element?
@@ -436,12 +436,12 @@ public:
 				if ( bHitselected ) {
 					m_selectionState = MouseMoving;
 					m_movingOffset = ev->pos() - m_pClickEvent->pos();
-					widget->startMouseMove( ev );
+					m_pWidget->startMouseMove( ev );
 				}
 			}
 
 		}
-		widget->mouseDragStartEvent( ev );
+		m_pWidget->mouseDragStartEvent( ev );
 	}
 
 	void mouseDragUpdate( QMouseEvent *ev ) {
@@ -453,7 +453,7 @@ public:
 			if ( ev->modifiers() & Qt::ControlModifier ) {
 				m_pSelectionGroup->m_selectedElements = m_checkpointSelectedElements;
 			}
-			auto selected = widget->elementsIntersecting( m_lasso );
+			auto selected = m_pWidget->elementsIntersecting( m_lasso );
 			for ( auto s : selected ) {
 				m_pSelectionGroup->m_selectedElements.insert( s );
 			}
@@ -461,12 +461,12 @@ public:
 
 		} else if ( m_selectionState == MouseMoving ) {
 			m_movingOffset = ev->pos() - m_pClickEvent->pos();
-			widget->selectionMoveUpdateEvent( ev );
+			m_pWidget->selectionMoveUpdateEvent( ev );
 			updateWidgetGroup();
 
 		} else {
 			// Pass drag update to widget
-			widget->mouseDragUpdateEvent( ev );
+			m_pWidget->mouseDragUpdateEvent( ev );
 		}
 	}
 
@@ -474,18 +474,18 @@ public:
 		if ( m_selectionState == MouseLasso) {
 			m_checkpointSelectedElements.clear();
 			m_selectionState = Idle;
-			widget->endMouseGesture();
+			m_pWidget->endMouseGesture();
 			updateWidgetGroup();
 
 		} else if ( m_selectionState == MouseMoving ) {
 			m_selectionState = Idle;
-			widget->endMouseGesture();
-			widget->selectionMoveEndEvent( ev );
+			m_pWidget->endMouseGesture();
+			m_pWidget->selectionMoveEndEvent( ev );
 			updateWidgetGroup();
 
 		} else {
 			// Pass drag end to widget
-			widget->mouseDragEndEvent( ev );
+			m_pWidget->mouseDragEndEvent( ev );
 		}
 	}
 	//! @}
@@ -524,7 +524,7 @@ public:
 			} else {
 				// Begin keyboard cursor lasso.
 				m_selectionState = KeyboardLasso;
-				m_keyboardCursorStart = widget->getKeyboardCursorRect();
+				m_keyboardCursorStart = m_pWidget->getKeyboardCursorRect();
 				m_lasso = m_keyboardCursorStart;
 			}
 
@@ -534,7 +534,7 @@ public:
 			if ( m_selectionState == Idle ) {
 
 				bool bHitselected = false;
-				for ( Elem e : widget->elementsIntersecting( widget->getKeyboardCursorRect() ) ) {
+				for ( Elem e : m_pWidget->elementsIntersecting( m_pWidget->getKeyboardCursorRect() ) ) {
 					if ( m_pSelectionGroup->m_selectedElements.find( e )
 						 != m_pSelectionGroup->m_selectedElements.end() ) {
 						bHitselected = true;
@@ -543,7 +543,7 @@ public:
 				}
 				if ( bHitselected ) {
 					// Hit "Enter" over a selected element. Begin move.
-					m_keyboardCursorStart = widget->getKeyboardCursorRect();
+					m_keyboardCursorStart = m_pWidget->getKeyboardCursorRect();
 					m_selectionState = KeyboardMoving;
 					updateWidgetGroup();
 					return true;
@@ -551,7 +551,7 @@ public:
 
 			} else if ( m_selectionState == KeyboardLasso ) {
 				// If we hit 'Enter' from lasso mode, go directly to move
-				m_keyboardCursorStart = widget->getKeyboardCursorRect();
+				m_keyboardCursorStart = m_pWidget->getKeyboardCursorRect();
 				m_selectionState = KeyboardMoving;
 				updateWidgetGroup();
 				return true;
@@ -559,7 +559,7 @@ public:
 			} else if ( m_selectionState == KeyboardMoving ) {
 				// End keyboard move
 				m_selectionState = Idle;
-				widget->selectionMoveEndEvent( ev );
+				m_pWidget->selectionMoveEndEvent( ev );
 				return true;
 
 			} else if ( m_selectionState == KeyboardLasso ) {
@@ -579,8 +579,8 @@ public:
 				}
 			} else {
 				if ( m_selectionState == MouseMoving || m_selectionState == MouseLasso ) {
-					widget->endMouseGesture();
-					widget->selectionMoveCancelEvent();
+					m_pWidget->endMouseGesture();
+					m_pWidget->selectionMoveCancelEvent();
 				}
 				m_selectionState = Idle;
 				updateWidgetGroup();
@@ -603,17 +603,17 @@ public:
 	//! location of the keyboard input cursor.
 	void updateKeyboardCursorPosition( QRect cursor ) {
 		if ( m_selectionState == KeyboardLasso ) {
-			m_lasso = m_keyboardCursorStart.united( widget->getKeyboardCursorRect() );
+			m_lasso = m_keyboardCursorStart.united( m_pWidget->getKeyboardCursorRect() );
 
 			// Clear and rebuild selection
 			m_pSelectionGroup->m_selectedElements.clear();
-			auto selected = widget->elementsIntersecting( m_lasso );
+			auto selected = m_pWidget->elementsIntersecting( m_lasso );
 			for ( auto s : selected ) {
 				m_pSelectionGroup->m_selectedElements.insert( s );
 			}
 
 		} else if ( m_selectionState == KeyboardMoving ) {
-			QRect cursorPosition = widget->getKeyboardCursorRect();
+			QRect cursorPosition = m_pWidget->getKeyboardCursorRect();
 			m_movingOffset = cursorPosition.topLeft() - m_keyboardCursorStart.topLeft();
 
 		}
