@@ -1,5 +1,5 @@
 
-FILE(GLOB_RECURSE hydrogen_SRCS src/*.cpp)
+FILE(GLOB_RECURSE hydrogen_SRCS src/*.cpp src/*.h)
 
 # add undiscovered dependencies to generated config.h
 INCLUDE(AddFileDependencies)

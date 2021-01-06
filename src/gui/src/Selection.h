@@ -85,8 +85,69 @@ public:
 	virtual void endMouseGesture() {}
 	//! @}
 
+
+	//! Find the QScrollArea, if any, which contains the widget. This will be used to scroll the widget during
+	//! drag operations.
+	virtual QScrollArea *findScrollArea() {
+		QWidget *pThisWidget = dynamic_cast< QWidget *>( this );
+		if ( pThisWidget ) {
+			QWidget *pParent = dynamic_cast< QWidget *>( pThisWidget->parent() );
+			if ( pParent ) {
+				QScrollArea *pScrollArea = dynamic_cast< QScrollArea *>( pParent->parent() );
+				if ( pScrollArea ) {
+					return pScrollArea;
+				}
+			}
+		}
+		return nullptr;
+	}
+
 };
 
+
+//! Drag scroller object. When attached to a QScrollArea, this will scroll the widget whenever the mouse
+//! cursor goes out of bounds.
+//!
+//! Scrolling is timer-driven to keep a predictable and uniform scroll rate, which increases the further out
+//! of bounds the user moves the cursor.
+class DragScroller : public QObject {
+	Q_OBJECT
+	QTimer *m_pTimer;
+	QScrollArea *m_pScrollArea;
+	const int m_nInterval = 20; // ms
+
+public:
+	DragScroller( QScrollArea *pScrollArea ) {
+		m_pTimer = nullptr;
+		m_pScrollArea = pScrollArea;
+	}
+
+	~DragScroller() {
+		if ( m_pTimer != nullptr) {
+			delete m_pTimer;
+		}
+	}
+
+	void startDrag( QMouseEvent *ev ) {
+		if ( m_pTimer == nullptr ) {
+			m_pTimer = new QTimer( this );
+			m_pTimer->setInterval( m_nInterval );
+			connect( m_pTimer, &QTimer::timeout, this, &DragScroller::timeout );
+		}
+		m_pTimer->start();
+	}
+
+	void endDrag() {
+		m_pTimer->stop();
+	}
+
+public slots:
+	void timeout( void ) {
+		QWidget *pWidget = m_pScrollArea->widget();
+		QPoint pos = pWidget->mapFromGlobal( QCursor::pos() );
+		m_pScrollArea->ensureVisible( pos.x(), pos.y(), 1, 1 );
+	}
+};
 
 //! Selection management for editor widgets
 //!
@@ -185,6 +246,9 @@ private:
 	//! rebuilding the selection with the current lasso area.
 	std::set< Elem > m_checkpointSelectedElements;
 
+	//! Scroller to use while dragging selections
+	DragScroller *m_pDragScroller;
+
 
 public:
 
@@ -196,6 +260,7 @@ public:
 		m_selectionState = Idle;
 		m_pSelectionGroup = std::make_shared< SelectionGroup >();
 		m_pSelectionGroup->m_selectionWidgets.insert( w );
+		m_pDragScroller = nullptr;
 
 	}
 
@@ -409,6 +474,12 @@ public:
 	}
 
 	void mouseDragStart( QMouseEvent *ev ) {
+
+		if ( m_pDragScroller == nullptr ) {
+			m_pDragScroller = new DragScroller( m_pWidget->findScrollArea() );
+		}
+		m_pDragScroller->startDrag( ev );
+
 		if ( ev->button() == Qt::LeftButton) {
 			QRect r = QRect( m_pClickEvent->pos(), ev->pos() );
 			std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );
@@ -445,6 +516,7 @@ public:
 	}
 
 	void mouseDragUpdate( QMouseEvent *ev ) {
+
 		if ( m_selectionState == MouseLasso) {
 			m_lasso.setBottomRight( ev->pos() );
 
@@ -471,6 +543,9 @@ public:
 	}
 
 	void mouseDragEnd( QMouseEvent *ev ) {
+
+		m_pDragScroller->endDrag();
+
 		if ( m_selectionState == MouseLasso) {
 			m_checkpointSelectedElements.clear();
 			m_selectionState = Idle;

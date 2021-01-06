@@ -178,13 +178,6 @@ void PatternEditor::mousePressEvent( QMouseEvent *ev )
 
 void PatternEditor::mouseMoveEvent( QMouseEvent *ev )
 {
-	if ( ev->buttons() != Qt::NoButton ) {
-		// Scroll to keep whatever the user is pointing at visible.
-		QWidget *pViewPort = dynamic_cast< QWidget *>( parent() );
-		QScrollArea *pScrollArea = dynamic_cast< QScrollArea *>( pViewPort->parent() );
-		pScrollArea->ensureVisible( ev->x(), ev->y(), 5, 5 );
-	}
-
 	updateModifiers( ev );
 	if ( m_selection.isMoving() ) {
 		updateEditor( true );
