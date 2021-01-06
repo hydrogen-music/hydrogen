@@ -35,6 +35,7 @@
 #include <core/Basics/Instrument.h>
 #include <core/LocalFileMng.h>
 #include <core/Timeline.h>
+#include <core/IO/DiskWriterDriver.h>
 using namespace H2Core;
 
 #include "UndoActions.h"
@@ -1418,6 +1419,15 @@ void SongEditorPatternList::patternChangedEvent() {
 		return;
 	}
 #endif
+
+	// The disk writer runs at it's own pace. Due to the following
+	// lines of code the GUI, instead, just sets the speed to 0 BPM.
+	auto pDriver = pHydrogen->getAudioOutput();
+	if ( pDriver != nullptr ) {
+		if ( DiskWriterDriver::class_name() == pDriver->class_name() ) {
+			return;
+		}
+	}
 	
 	Timeline* pTimeline = pHydrogen->getTimeline();
 	if ( ( Preferences::get_instance()->getUseTimelineBpm() ) &&
