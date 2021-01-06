@@ -261,8 +261,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	std::vector<PatternList*>* pColumns = pEngine->getSong()->get_pattern_group_vector();
 	const QPoint centre = QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
 	SongEditorActionMode actionMode = m_pSongEditorPanel->getActionMode();
-
-	m_bCursorHidden = false;
+	bool bUnhideCursor = true;
 
 	if ( ev->matches( QKeySequence::Delete ) ) {
 		// Key: Delete: delete selected pattern cells, or cell at current position
@@ -369,10 +368,12 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 
 	} else if ( ev->key() == Qt::Key_Escape ) {
 		// Key: Escape: cancel selection or move
+		bUnhideCursor = false;
 		cancelSelectionOrMove();
 
 	} else if ( ev->matches( QKeySequence::SelectAll ) ) {
 		// Key: Ctrl + A: Select all pattern
+		bUnhideCursor = false;
 		if ( actionMode == SELECT_ACTION ) {
 			m_selectedCells.clear();
 			for ( int nRow = 0; nRow < pPatternList->size(); nRow++ ) {
@@ -391,6 +392,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 
 	} else if ( ev->matches( QKeySequence::Deselect ) ) {
 		// Key: Shift + Ctrl + A: deselect any selected cells
+		bUnhideCursor = false;
 		if ( actionMode == SELECT_ACTION ) {
 			m_selectedCells.clear();
 			m_bSequenceChanged = false;
@@ -430,6 +432,9 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			m_bCursorHidden = true;
 		}
 		return;
+	}
+	if ( bUnhideCursor ) {
+		m_bCursorHidden = false;
 	}
 
 	QPoint cursorCentre = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre;
