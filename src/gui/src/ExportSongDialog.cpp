@@ -216,14 +216,18 @@ void ExportSongDialog::restoreSettingsFromPreferences()
 	exportTypeCombo->setCurrentIndex( m_pPreferences->getExportModeIdx() );
 	
 	int nExportSampleRateIdx = m_pPreferences->getExportSampleRateIdx();
-	if( nExportSampleRateIdx >= 0 ) {
+	if( nExportSampleRateIdx > 0 ) {
 		sampleRateCombo->setCurrentIndex( nExportSampleRateIdx );
+	} else {
+		sampleRateCombo->setCurrentIndex( 0 );
 	}
 	
 	
 	int nExportBithDepthIdx = m_pPreferences->getExportSampleDepthIdx();
-	if( nExportBithDepthIdx >= 0 ) {
+	if( nExportBithDepthIdx > 0 ) {
 		sampleDepthCombo->setCurrentIndex( nExportBithDepthIdx );
+	} else {
+		sampleDepthCombo->setCurrentIndex( 0 );
 	}
 }
 
@@ -337,7 +341,7 @@ void ExportSongDialog::on_okBtn_clicked()
 		for (auto i = 0; i < pInstrumentList->size(); i++) {
 			pInstrumentList->get(i)->set_currently_exported( true );
 		}
-		
+
 		m_pEngine->startExportSession( sampleRateCombo->currentText().toInt(), sampleDepthCombo->currentText().toInt());
 		m_pEngine->startExportSong( filename );
 
