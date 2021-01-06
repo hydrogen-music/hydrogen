@@ -429,6 +429,9 @@ int main(int argc, char *argv[])
 							 // corresponding OSC message.
 				quit = true;
 				break;
+			default:
+				// EVENT_STATE, EVENT_PATTERN_CHANGED, etc are ignored
+				break;
 			}
 		}
 
