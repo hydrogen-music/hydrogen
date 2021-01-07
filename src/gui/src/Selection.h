@@ -48,6 +48,9 @@ public:
 	//! a single point such as a mouse click. This should concern itself only with the geometry.
 	virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) = 0;
 
+	//! Can elements be dragged as well as being selected? This may change to suit widget's current state.
+	virtual bool canDragElements() { return true; }
+
 	//! Calculate screen space occupied by keyboard cursor
 	virtual QRect getKeyboardCursorRect() = 0;
 
@@ -484,7 +487,28 @@ public:
 			QRect r = QRect( m_pClickEvent->pos(), ev->pos() );
 			std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );
 
-			if ( elems.empty() ) {
+			/* Did the user start dragging a selected element, or an unselected element?
+			 */
+			bool bHitSelected = false, bHitAny = false;
+			for ( Elem elem : elems ) {
+				bHitAny = true;
+				if ( isSelected( elem ) ) {
+					bHitSelected = true;
+					break;
+				}
+			}
+
+			if ( bHitSelected ) {
+				/* Move selection */
+				if ( bHitSelected ) {
+					m_selectionState = MouseMoving;
+					m_movingOffset = ev->pos() - m_pClickEvent->pos();
+					m_pWidget->startMouseMove( ev );
+				}
+			} else if ( bHitAny && m_pWidget->canDragElements() ) {
+				// Allow mouseDragStartEvent to handle anything
+
+			} else {
 				//  Didn't hit anything. Start new selection drag.
 				m_checkpointSelectedElements = m_pSelectionGroup->m_selectedElements;
 				m_selectionState = MouseLasso;
@@ -493,22 +517,6 @@ public:
 				m_pWidget->startMouseLasso( ev );
 				m_pWidget->updateWidget();
 
-			} else {
-				/* Did the user start dragging a selected element, or an unselected element?
-				 */
-				bool bHitselected = false;
-				for ( Elem elem : elems ) {
-					if ( isSelected( elem ) ) {
-						bHitselected = true;
-						break;
-					}
-				}
-				/* Move selection */
-				if ( bHitselected ) {
-					m_selectionState = MouseMoving;
-					m_movingOffset = ev->pos() - m_pClickEvent->pos();
-					m_pWidget->startMouseMove( ev );
-				}
 			}
 
 		}
