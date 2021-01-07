@@ -924,27 +924,6 @@ void SongEditor::drawSequence()
 	for ( auto it : m_gridCells ) {
 		drawPattern( it.first.x(), it.first.y(), it.second.m_bDrawnVirtual, it.second.m_fWidth );
 	}
-
-	// Moving cells
-	p.begin( m_pSequencePixmap );
-//	p.setRasterOp( Qt::XorROP );
-
-// comix: this composition mode seems to be not available on Mac
-//	p.setCompositionMode( QPainter::CompositionMode_Xor );
-	QPen pen( Qt::gray );
-	pen.setStyle( Qt::DotLine );
-	p.setPen( pen );
-#ifdef CUT
-	for ( uint i = 0; i < m_movingCells.size(); i++ ) {
-		int x = m_nMargin + m_nGridWidth * ( m_movingCells[ i ] ).x();
-		int y = m_nGridHeight * ( m_movingCells[ i ] ).y();
-
-		QColor patternColor;
-		patternColor.setRgb( 255, 255, 255 );
-		p.fillRect( x + 2, y + 4, m_nGridWidth - 3, m_nGridHeight - 7, patternColor );
-	}
-#endif
-
 }
 
 
