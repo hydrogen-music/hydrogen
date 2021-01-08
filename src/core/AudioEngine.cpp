@@ -160,8 +160,11 @@ void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigne
 	}
 	
 	const unsigned long currentTick = static_cast<unsigned long>(static_cast<float>(nFrame) / fTickSize );
+
+	const auto tempoMarkers = pHydrogen->getTimeline()->getAllTempoMarkers();
 	
-	if ( !Preferences::get_instance()->getUseTimelineBpm() ){
+	if ( !Preferences::get_instance()->getUseTimelineBpm() ||
+		 tempoMarkers.size() == 0 ){
 		
 		int nPatternStartInTicks;
 		const int nCurrentPatternNumber = pHydrogen->getPosForTick( currentTick, &nPatternStartInTicks );
@@ -183,8 +186,6 @@ void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigne
 		long previousTicks = 0;
 		float fPreviousTickSize;
 
-		auto tempoMarkers = pHydrogen->getTimeline()->getAllTempoMarkers();
-		
 		// TODO: how to handle the BPM before the first marker?
 		fPreviousTickSize = compute_tick_size( static_cast<int>(sampleRate), 
 											   tempoMarkers[0]->fBpm, nResolution );
@@ -208,7 +209,6 @@ void AudioEngine::calculateElapsedTime( const unsigned sampleRate, const unsigne
 												   mmarker->fBpm, nResolution );
 			previousTicks = totalTicks;
 		}
-		
 		const int nCurrentPatternNumber = pHydrogen->getPosForTick( currentTick, &nPatternStartInTicks );
 		totalTicks = pHydrogen->getTickForPosition( nCurrentPatternNumber );
 		

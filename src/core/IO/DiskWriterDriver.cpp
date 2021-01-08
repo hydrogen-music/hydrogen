@@ -23,6 +23,7 @@
 
 
 #include <core/Preferences.h>
+#include <core/AudioEngine.h>
 #include <core/EventQueue.h>
 #include <core/Hydrogen.h>
 #include <core/Timeline.h>
@@ -153,8 +154,9 @@ void* diskWriterDriver_thread( void* param )
 
 
 	Hydrogen* pEngine = Hydrogen::get_instance();
+	auto pSong = pEngine->getSong();
 
-	std::vector<PatternList*> *pPatternColumns = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
+	std::vector<PatternList*> *pPatternColumns = pSong->get_pattern_group_vector();
 	int nColumns = pPatternColumns->size();
 	
 	int nPatternSize;
@@ -180,7 +182,9 @@ void* diskWriterDriver_thread( void* param )
 			}
 			
 			pDriver->setBpm(validBpm);
-			fTicksize = pDriver->m_nSampleRate * 60.0 / validBpm / Hydrogen::get_instance()->getSong()->__resolution;
+			fTicksize = AudioEngine::compute_tick_size( pDriver->m_nSampleRate,
+														validBpm,
+														pSong->__resolution );
 			pDriver->audioEngine_process_checkBPMChanged();
 			pEngine->setPatternPos(patternPosition);
 			
@@ -195,7 +199,9 @@ void* diskWriterDriver_thread( void* param )
 		}
 		else
 		{
-			fTicksize = pDriver->m_nSampleRate * 60.0 /  Hydrogen::get_instance()->getSong()->__bpm / Hydrogen::get_instance()->getSong()->__resolution;
+			fTicksize = AudioEngine::compute_tick_size( pDriver->m_nSampleRate,
+														pSong->__bpm,
+														pSong->__resolution );
 			//pDriver->m_transport.m_fTickSize = ticksize;
 		}
 		
@@ -381,29 +387,29 @@ void DiskWriterDriver::setBpm( float fBPM )
 
 void DiskWriterDriver::audioEngine_process_checkBPMChanged()
 {
-		float fNewTickSize =
-						getSampleRate() * 60.0
-						/ Hydrogen::get_instance()->getSong()->__bpm
-						/ Hydrogen::get_instance()->getSong()->__resolution;
+	auto pSong = Hydrogen::get_instance()->getSong();
+	float fNewTickSize = AudioEngine::compute_tick_size( getSampleRate(),
+														 pSong->__bpm,
+														 pSong->__resolution );
 
-		if ( fNewTickSize != m_transport.m_fTickSize ) {
-				// cerco di convertire ...
-				float fTickNumber =
-								( float )m_transport.m_nFrames
-								/ ( float )m_transport.m_fTickSize;
+	if ( fNewTickSize != m_transport.m_fTickSize ) {
+		// cerco di convertire ...
+		float fTickNumber =
+			( float )m_transport.m_nFrames
+			/ ( float )m_transport.m_fTickSize;
 
-				m_transport.m_fTickSize = fNewTickSize;
+		m_transport.m_fTickSize = fNewTickSize;
 
-				if ( m_transport.m_fTickSize == 0 ) {
-						return;
-				}
-
-				// update frame position
-				m_transport.m_nFrames = ( long long )( fTickNumber * fNewTickSize );
-
-				// currently unuseble here
-				//EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
+		if ( m_transport.m_fTickSize == 0 ) {
+			return;
 		}
+
+		// update frame position
+		m_transport.m_nFrames = ( long long )( fTickNumber * fNewTickSize );
+
+		// currently unuseble here
+		//EventQueue::get_instance()->push_event( EVENT_RECALCULATERUBBERBAND, -1);
+	}
 }
 
 };
