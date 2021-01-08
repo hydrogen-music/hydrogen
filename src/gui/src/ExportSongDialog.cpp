@@ -122,14 +122,9 @@ ExportSongDialog::ExportSongDialog(QWidget* parent)
 	}
 
 	// use of timeline
-	if( m_pEngine->getTimeline()->getAllTempoMarkers().size() > 0 ){
-		toggleTimeLineBPMCheckBox->setChecked(m_pPreferences->getUseTimelineBpm());
-		m_bOldTimeLineBPMMode = m_pPreferences->getUseTimelineBpm();
-		connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTimeLineBPMMode( bool )));
-	} else {
-		m_bOldTimeLineBPMMode = m_pPreferences->getUseTimelineBpm();
-		toggleTimeLineBPMCheckBox->setEnabled( false );
-	}
+	toggleTimeLineBPMCheckBox->setChecked(m_pPreferences->getUseTimelineBpm());
+	m_bOldTimeLineBPMMode = m_pPreferences->getUseTimelineBpm();
+	connect(toggleTimeLineBPMCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTimeLineBPMMode( bool )));
 
 	// use of interpolation mode
 	m_OldInterpolationMode = AudioEngine::get_instance()->get_sampler()->getInterpolateMode();
