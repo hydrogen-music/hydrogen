@@ -348,6 +348,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	PatternList *pPatternList = pHydrogen->getSong()->get_pattern_list();
 	const QPoint centre = QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
+	bool bSelectionKey = false;
 
 	if ( bIsSelectionKey ) {
 		// Key was claimed by selection
@@ -361,33 +362,33 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			pUndo->push( new SE_deletePatternAction( m_nCursorColumn, m_nCursorRow ) );
 		}
 
-	} else if ( ev->matches( QKeySequence::MoveToNextChar ) || ev->matches( QKeySequence::SelectNextChar ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToNextChar ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextChar ) ) ) {
 		// ->
 		if ( m_nCursorColumn < m_nMaxPatternSequence -1 ) {
 			m_nCursorColumn += 1;
 		}
 
-	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine )) {
+	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ( bSelectionKey = ev->matches( QKeySequence::SelectEndOfLine ) ) ) {
 		// ->|
 		m_nCursorColumn = m_nMaxPatternSequence -1;
 
-	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ( bSelectionKey = ev->matches( QKeySequence::SelectPreviousChar ) ) ) {
 		// <-
 		if ( m_nCursorColumn > 0 ) {
 			m_nCursorColumn -= 1;
 		}
 
-	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ev->matches( QKeySequence::SelectStartOfLine ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ( bSelectionKey = ev->matches( QKeySequence::SelectStartOfLine ) ) ) {
 		// |<-
 		m_nCursorColumn = 0;
 
-	} else if ( ev->matches( QKeySequence::MoveToNextLine ) || ev->matches( QKeySequence::SelectNextLine ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToNextLine ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextLine ) ) ) {
 		if ( m_nCursorRow < pPatternList->size()-1 ) {
 			m_nCursorRow += 1;
 		}
 
-	} else if ( ev->matches( QKeySequence::MoveToNextPage ) || ev->matches( QKeySequence::SelectNextPage ) ) {
-		// Page down, scroll by the number of instruments that fit into the viewport
+	} else if ( ev->matches( QKeySequence::MoveToNextPage ) || ( bSelectionKey = ev->matches( QKeySequence::SelectNextPage ) ) ) {
+		// Page down, scroll by the number of patterns that fit into the viewport
 		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
 		assert( pParent );
 		m_nCursorRow += pParent->height() / m_nGridHeight;
@@ -396,15 +397,15 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			m_nCursorRow = pPatternList->size()-1;
 		}
 
-	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) || ev->matches( QKeySequence::SelectEndOfDocument ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToEndOfDocument ) || ( bSelectionKey = ev->matches( QKeySequence::SelectEndOfDocument ) ) ) {
 		m_nCursorRow = pPatternList->size() -1;
 
-	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) || ev->matches( QKeySequence::SelectPreviousLine ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToPreviousLine ) || ( bSelectionKey = ev->matches( QKeySequence::SelectPreviousLine ) ) ) {
 		if ( m_nCursorRow > 0 ) {
 			m_nCursorRow -= 1;
 		}
 
-	} else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ev->matches( QKeySequence::SelectPreviousPage ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToPreviousPage ) || ( bSelectionKey = ev->matches( QKeySequence::SelectPreviousPage ) ) ) {
 		QWidget *pParent = dynamic_cast< QWidget *>( parent() );
 		assert( pParent );
 		m_nCursorRow -= pParent->height() / m_nGridHeight;
@@ -413,11 +414,12 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 			m_nCursorRow = 0;
 		}
 
-	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) || ev->matches( QKeySequence::SelectStartOfDocument ) ) {
+	} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) || ( bSelectionKey = ev->matches( QKeySequence::SelectStartOfDocument ) ) ) {
 		m_nCursorRow = 0;
 
 	} else if ( ev->matches( QKeySequence::SelectAll ) ) {
 		// Key: Ctrl + A: Select all pattern
+		bSelectionKey = true;
 		bUnhideCursor = false;
 		if ( actionMode == SELECT_ACTION ) {
 			selectAll();
@@ -425,6 +427,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 
 	} else if ( ev->matches( QKeySequence::Deselect ) ) {
 		// Key: Shift + Ctrl + A: deselect any selected cells
+		bSelectionKey = true;
 		bUnhideCursor = false;
 		if ( actionMode == SELECT_ACTION ) {
 			selectNone();
@@ -459,8 +462,13 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 		m_bCursorHidden = false;
 	}
 
-	QPoint cursorCentre = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre;
+	// If a "select" key movement is used in "draw" mode, it's probably a good idea to go straight into
+	// "select" mode.
+	if ( actionMode == DRAW_ACTION && bSelectionKey ) {
+		m_pSongEditorPanel->setActionMode( SELECT_ACTION );
+	}
 
+	QPoint cursorCentre = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre;
 	m_pScrollView->ensureVisible( cursorCentre.x(), cursorCentre.y() );
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	update();

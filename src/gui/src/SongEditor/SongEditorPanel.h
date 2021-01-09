@@ -66,6 +66,7 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void updatePositionRuler();
 		void setModeActionBtn( bool mode );
 		SongEditorActionMode getActionMode() {	return m_actionMode;	}
+		void setActionMode( SongEditorActionMode actionMode );
 		void toggleAutomationAreaVisibility();
 		
 		void showTimeline();
