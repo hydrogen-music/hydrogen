@@ -1119,6 +1119,9 @@ void MainForm::action_instruments_clearAll()
 	case QMessageBox::Cancel:
 		// cancel btn pressed
 		return;
+	default:
+		// Not reached
+		return;
 	}
 
 	// Remove all instruments

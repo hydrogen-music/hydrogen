@@ -36,6 +36,7 @@
 #include <core/LocalFileMng.h>
 #include <core/Timeline.h>
 #include <core/Helpers/Xml.h>
+#include <core/IO/DiskWriterDriver.h>
 using namespace H2Core;
 
 #include "UndoActions.h"
@@ -469,8 +470,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 // Make cursor visible on focus
 void SongEditor::focusInEvent( QFocusEvent *ev )
 {
-	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason
-		 && ev->reason() != Qt::ActiveWindowFocusReason ) {
+	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
 		QPoint pos = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ))
 			+ QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
 		m_pScrollView->ensureVisible( pos.x(), pos.y() );
@@ -1117,6 +1117,15 @@ void SongEditorPatternList::patternChangedEvent() {
 		return;
 	}
 #endif
+
+	// The disk writer runs at it's own pace. Due to the following
+	// lines of code the GUI, instead, just sets the speed to 0 BPM.
+	auto pDriver = pHydrogen->getAudioOutput();
+	if ( pDriver != nullptr ) {
+		if ( DiskWriterDriver::class_name() == pDriver->class_name() ) {
+			return;
+		}
+	}
 	
 	Timeline* pTimeline = pHydrogen->getTimeline();
 	if ( ( Preferences::get_instance()->getUseTimelineBpm() ) &&

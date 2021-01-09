@@ -149,7 +149,8 @@ class PianoRollEditor: public PatternEditor
 		void drawNote( H2Core::Note *pNote, QPainter *pPainter );
 
 		void addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
-							  int nNotekey, int nOctave );
+							  int nNotekey, int nOctave,
+							  bool bDoAdd = true, bool bDoDelete = true );
 
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void keyPressEvent ( QKeyEvent * ev ) override;

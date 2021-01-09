@@ -97,10 +97,11 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 }
 
 
-void DrumPatternEditor::addOrRemoveNote(int nColumn, int nRealColumn, int row) {
+void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int row,
+										 bool bDoAdd, bool bDoDelete ) {
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( row );
-	H2Core::Note *pDraggedNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument );
+	H2Core::Note *pOldNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument );
 
 	int oldLength = -1;
 	float oldVelocity = 0.8f;
@@ -111,17 +112,23 @@ void DrumPatternEditor::addOrRemoveNote(int nColumn, int nRealColumn, int row) {
 	Note::Octave oldOctaveKeyVal = Note::P8;
 	bool isNoteOff = false;
 
-	bool noteExisted = false;
-	if ( pDraggedNote ) {
-		oldLength = pDraggedNote->get_length();
-		oldVelocity = pDraggedNote->get_velocity();
-		oldPan_L = pDraggedNote->get_pan_l();
-		oldPan_R = pDraggedNote->get_pan_r();
-		oldLeadLag = pDraggedNote->get_lead_lag();
-		oldNoteKeyVal = pDraggedNote->get_key();
-		oldOctaveKeyVal = pDraggedNote->get_octave();
-		isNoteOff = pDraggedNote->get_note_off();
-		noteExisted = true;
+	if ( pOldNote && !bDoDelete ) {
+		// Found an old note, but we don't want to delete, so just return.
+		return;
+	} else if ( !pOldNote && !bDoAdd ) {
+		// No note there, but we don't want to add a new one, so return.
+		return;
+	}
+
+	if ( pOldNote ) {
+		oldLength = pOldNote->get_length();
+		oldVelocity = pOldNote->get_velocity();
+		oldPan_L = pOldNote->get_pan_l();
+		oldPan_R = pOldNote->get_pan_r();
+		oldLeadLag = pOldNote->get_lead_lag();
+		oldNoteKeyVal = pOldNote->get_key();
+		oldOctaveKeyVal = pOldNote->get_octave();
+		isNoteOff = pOldNote->get_note_off();
 	}
 
 	SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
@@ -134,7 +141,7 @@ void DrumPatternEditor::addOrRemoveNote(int nColumn, int nRealColumn, int row) {
 																	 oldLeadLag,
 																	 oldNoteKeyVal,
 																	 oldOctaveKeyVal,
-																	 noteExisted,
+																	 pOldNote != nullptr,
 																	 Preferences::get_instance()->getHearNewNotes(),
 																	 false,
 																	 false,
@@ -687,9 +694,17 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument );
 
 	} else if ( ev->key() == Qt::Key_Delete || ev->key() == Qt::Key_Backspace ) {
-		// Key: Delete / Backspace: delete selected notes
+		// Key: Delete / Backspace: delete selected notes, or note under keyboard cursor
 		bUnhideCursor = false;
-		deleteSelection();
+		if ( m_selection.begin() != m_selection.end() ) {
+			// Delete selected notes if any
+			deleteSelection();
+		} else {
+			// Delete note under the keyboard cursor.
+			addOrRemoveNote(  m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument,
+							  /*bDoAdd=*/false, /*bDoDelete=*/true);
+
+		}
 
 	} else if ( ev->matches( QKeySequence::SelectAll ) ) {
 		bUnhideCursor = false;
