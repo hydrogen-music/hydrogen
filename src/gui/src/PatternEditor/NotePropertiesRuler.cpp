@@ -700,7 +700,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 void NotePropertiesRuler::focusInEvent( QFocusEvent * ev )
 {
-	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason ) {
+	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
 		m_pPatternEditorPanel->setCursorHidden( false );
 	}
 	updateEditor();
