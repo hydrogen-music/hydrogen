@@ -46,14 +46,11 @@ class PatternPropertiesDialog : public QDialog, public Ui_PatternPropertiesDialo
 		~PatternPropertiesDialog();
 
 		/// Does some name check
-		static bool nameCheck( QString );
 		void defaultNameCheck( QString , bool);
 
 	private slots:
 		void on_cancelBtn_clicked();
 		void on_okBtn_clicked();
-		void on_patternNameTxt_textChanged();
-		void on_categoryComboBox_editTextChanged();
 
 	private:
 		H2Core::Pattern *pattern;
