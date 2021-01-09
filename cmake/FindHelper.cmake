@@ -48,5 +48,8 @@ macro(FIND_HELPER prefix pkg_name header lib)
         if(NOT "${PC_${prefix}_INCLUDE_DIRS}" STREQUAL "")
             set(${prefix}_INCLUDE_DIRS "${${prefix}_INCLUDE_DIRS};${PC_${prefix}_INCLUDE_DIRS}")
         endif()
+        # Update variables in the cache (these are set by find_path/find_library) after modifying
+        set(${prefix}_INCLUDE_DIRS "${${prefix}_INCLUDE_DIRS}" CACHE PATH "Path to ${pkg_name} include files" FORCE)
+        set(${prefix}_LIBRARIES "${${prefix}_LIBRARIES}" CACHE FILEPATH "Path to ${pkg_name} libraries" FORCE)
     endif()
 endmacro()
