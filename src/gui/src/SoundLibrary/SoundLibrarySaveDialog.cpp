@@ -138,8 +138,8 @@ void SoundLibrarySaveDialog::on_saveBtn_clicked()
 								licenseTxt->text(),
 								H2Core::Filesystem::usr_drumkits_dir() + "/" + nameTxt->text() + "/" + imageText->text(),
 								imageLicenseText->text(),
-								H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(),
-								H2Core::Hydrogen::get_instance()->getSong()->get_components(),
+								H2Core::Hydrogen::get_instance()->getSong()->getInstrumentList(),
+								H2Core::Hydrogen::get_instance()->getSong()->getComponents(),
 								Overwrite ) ) {
 		QMessageBox::information( this, "Hydrogen", tr ( "Saving of this library failed."));
 		return;

@@ -131,7 +131,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	m_pPatternEditorPanel->setCursorHidden( true );
 
 	Song *pSong = pHydrogen->getSong();
-	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( pHydrogen->getSelectedInstrumentNumber() );
+	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( pHydrogen->getSelectedInstrumentNumber() );
 
 	// Gather notes to act on: selected or under the mouse cursor
 	std::list< Note *> notes;
@@ -153,7 +153,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 		adjustNotePropertyDelta( pNote, fDelta, /* bMessage=*/ true );
 	}
 
-	pSong->set_is_modified( true );
+	pSong->setIsModified( true );
 	addUndoAction();
 	updateEditor();
 }
@@ -197,7 +197,7 @@ void NotePropertiesRuler::selectionMoveUpdateEvent( QMouseEvent *ev ) {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 
 	Song *pSong = pHydrogen->getSong();
-	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( pHydrogen->getSelectedInstrumentNumber() );
+	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( pHydrogen->getSelectedInstrumentNumber() );
 	float fDelta;
 
 	QPoint movingOffset = m_selection.movingOffset();
@@ -304,7 +304,7 @@ void NotePropertiesRuler::prepareUndoAction( int x )
 
 	Song *pSong = pHydrogen->getSong();
 	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
-	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrument );
+	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
 
 	if ( m_selection.begin() != m_selection.end() ) {
 		// If there is a selection, preserve the initial state of all the selected notes.
@@ -358,7 +358,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
 	Song *pSong = pHydrogen->getSong();
-	Instrument *pSelectedInstrument = pSong->get_instrument_list()->get( nSelectedInstrument );
+	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
 
 	FOREACH_NOTE_CST_IT_BOUND(  m_pPattern->get_notes(), it, nColumn ) {
 		Note *pNote = it->second;
@@ -444,7 +444,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 
 	m_nDragPreviousColumn = nColumn;
 
-	Hydrogen::get_instance()->getSong()->set_is_modified( true );
+	Hydrogen::get_instance()->getSong()->setIsModified( true );
 	updateEditor();
 
 	m_pPatternEditorPanel->getPianoRollEditor()->updateEditor();
@@ -639,7 +639,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 			for ( Note *pNote : notes ) {
 
-				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
 					continue;
 				}
 
@@ -838,7 +838,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
 				Note *pNote = coit->second;
 				assert( pNote );
-				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
 					continue;
 				}
 				uint x_pos = m_nMargin + pos * m_nGridWidth;
@@ -926,7 +926,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 				Note *pNote = coit->second;
 				assert( pNote );
 				if ( pNote->get_note_off() || (pNote->get_instrument()
-											   != pSong->get_instrument_list()->get( nSelectedInstrument ) ) ) {
+											   != pSong->getInstrumentList()->get( nSelectedInstrument ) ) ) {
 					continue;
 				}
 				uint x_pos = m_nMargin + pNote->get_position() * m_nGridWidth;
@@ -1015,7 +1015,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 			FOREACH_NOTE_CST_IT_BOUND(notes,coit,pos) {
 				Note *pNote = coit->second;
 				assert( pNote );
-				if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+				if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
 					continue;
 				}
 
@@ -1156,7 +1156,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
-			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
 				continue;
 			}
 			if ( !pNote->get_note_off() ) {
@@ -1179,7 +1179,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
-			if ( pNote->get_instrument() != pSong->get_instrument_list()->get( nSelectedInstrument ) ) {
+			if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
 				continue;
 			}
 
@@ -1215,7 +1215,7 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 void NotePropertiesRuler::updateEditor( bool bPatternOnly )
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
+	PatternList *pPatternList = pEngine->getSong()->getPatternList();
 	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
@@ -1294,7 +1294,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 	const Pattern::notes_t* notes = m_pPattern->get_notes();
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	Instrument *pInstrument = pSong->get_instrument_list()->get( nSelectedInstrument );
+	Instrument *pInstrument = pSong->getInstrumentList()->get( nSelectedInstrument );
 
 	// Account for the notional active area of the slider. We allow a
 	// width of 8 as this is the size of the circle used for the zero
