@@ -652,7 +652,6 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 	}
 	std::vector< QPoint > addCells;
 	std::vector< QPoint > deleteCells;
-	std::list< QPoint > selectedCells;
 
 	updateGridCells();
 
@@ -668,16 +667,6 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 			 && ( m_gridCells.find( newCell ) == m_gridCells.end()
 				  || m_selection.isSelected( newCell ) ) ) {
 			addCells.push_back( newCell );
-		}
-		selectedCells.push_back( cell );
-	}
-
-	// Rebuild the selection, adjusting by the offset that's been moved.
-	m_selection.clearSelection();
-	for ( QPoint cell : selectedCells ) {
-		QPoint newCell = cell + offset;
-		if ( newCell.x() >= 0 && newCell.y() >= 0 && newCell.y() < nMaxPattern ) {
-			m_selection.addToSelection( newCell );
 		}
 	}
 
@@ -716,8 +705,10 @@ void SongEditor::modifyPatternCellsAction( std::vector<QPoint> & addCells, std::
 		deletePattern( cell.x(), cell.y() );
 	}
 
+	m_selection.clearSelection();
 	for ( QPoint cell : addCells ) {
 		addPattern( cell.x(), cell.y() );
+		m_selection.addToSelection( cell );
 	}
 }
 
