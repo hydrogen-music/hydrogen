@@ -46,6 +46,7 @@
 #include <core/Helpers/Xml.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
+#include <core/Sampler/Sampler.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -86,6 +87,7 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 	, __playback_track_enabled( false )
 	, __playback_track_volume( 0.0 )
 	, __velocity_automation_path( nullptr )
+	, m_nPanLawIdx( RATIO_STRAIGHT_POLYGONAL )
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( __name ) );
 

@@ -32,7 +32,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
@@ -384,45 +384,45 @@
              </property>
             </widget>
            </item>
-		   <item row="4" column="0">
-			 <widget class="QLabel" name="jackBBTSyncLbl">
-			   <property name="minimumSize">
-				 <size>
-				   <width>0</width>
-				   <height>22</height>
-				 </size>
-			   </property>
-			   <property name="text">
-				 <string>BBT sync method</string>
-			   </property>
-			   <property name="toolTip">
-				 <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
-			   </property>
-			 </widget>
-		   </item>
-		   <item row="4" column="1">	 
-			 <widget class="QComboBox" name="jackBBTSyncComboBox">
-			   <property name="minimumSize">
-				 <size>
-				   <width>0</width>
-				   <height>22</height>
-				 </size>
-			   </property>
-			   <property name="toolTip">
-				 <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
-			   </property>
-			   <item>
-				 <property name="text">
-				   <string>constant measure</string>
-				 </property>
-			   </item>
-			   <item>
-				 <property name="text">
-				   <string>matching bars</string>
-				 </property>
-			   </item>
-			 </widget>
-		   </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="jackBBTSyncLbl">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
+             </property>
+             <property name="text">
+              <string>BBT sync method</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QComboBox" name="jackBBTSyncComboBox">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>constant measure</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>matching bars</string>
+              </property>
+             </item>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>
@@ -563,6 +563,32 @@
             </widget>
            </item>
           </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="panLawLbl">
+           <property name="text">
+            <string>Pan Law</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="panLawComboBox">
+           <item>
+            <property name="text">
+             <string>Balance Law (0 compensation)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Costant Power</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Constant Sum</string>
+            </property>
+           </item>
+          </widget>
          </item>
          <item>
           <spacer name="verticalSpacer_2">

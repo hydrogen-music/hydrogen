@@ -292,7 +292,7 @@ float Sampler::getRatioPan( float fPan_L, float fPan_R ) {
 	*		has 0 dB center compensation.
 	*/
 
-float Sampler::ratioConstantSumPanLaw( float fPan ) {
+float Sampler::ratioConstSumPanLaw( float fPan ) {
 	// the constant Sum pan law interpreting fPan as the "ratio" parameter
 	if ( fPan <= 0 ) {
 		return 1. / (2. + fPan );
@@ -301,7 +301,7 @@ float Sampler::ratioConstantSumPanLaw( float fPan ) {
 	}
 }
 
-float Sampler::ratioConstantPowerPanLaw( float fPan ) {
+float Sampler::ratioConstPowerPanLaw( float fPan ) {
 	// the constant power pan law interpreting fPan as the "ratio" parameter
 	if ( fPan <= 0 ) {
 		return 1. / sqrt( 1 + ( 1. + fPan ) * ( 1. + fPan ) );
@@ -372,7 +372,8 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 	// use Straight pol pan law.
 	// TODO a new song member, set in preferences, must point the desired pan law Sampler member function		
 	float (*panLaw)( float );
-    panLaw = &this->ratioStraightPolygonalPanLaw;
+	panLaw = getPanLawAddress( pSong->getPanLawIdx() );
+    //panLaw = &this->ratioStraightPolygonalPanLaw;
     float fPan_L = panLaw( fPan );
     float fPan_R = panLaw( -fPan );
 	//---------------------------------------------------------
@@ -1542,6 +1543,19 @@ void Sampler::reinitializePlaybackTrack()
 
 	m_pPlaybackTrackInstrument->get_components()->front()->set_layer( pPlaybackTrackLayer, 0 );
 	m_nPlayBackSamplePosition = 0;
+}
+
+inline float ( *Sampler::getPanLawAddress( int idx ) ) ( float ) {
+	if ( idx == RATIO_STRAIGHT_POLYGONAL ) {
+		return &ratioStraightPolygonalPanLaw;
+	} else if ( idx == RATIO_CONST_POWER ) {
+		return &ratioConstPowerPanLaw;
+	} else if ( idx == RATIO_CONST_SUM ) {
+		return &ratioConstSumPanLaw;
+	} else {
+		//TODO warning
+		return &ratioStraightPolygonalPanLaw; // default value
+	}
 }
 
 };

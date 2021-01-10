@@ -32,6 +32,11 @@
 #include <vector>
 #include <memory>
 
+// NOTE: the following value must be respected by the indices in GUI preferences combo box!!!
+#define RATIO_STRAIGHT_POLYGONAL 0
+#define RATIO_CONST_POWER 1
+#define RATIO_CONST_SUM 2
+
 namespace H2Core
 {
 
@@ -111,9 +116,11 @@ public:
 	
 	// functions for pan law
 	static float getRatioPan( float fPan_L, float fPan_R );
-	static float ratioConstantSumPanLaw( float fPan );
-	static float ratioConstantPowerPanLaw( float fPan );
 	static float ratioStraightPolygonalPanLaw( float fPan );
+	static float ratioConstPowerPanLaw( float fPan );
+	static float ratioConstSumPanLaw( float fPan );
+
+	float ( *getPanLawAddress( int idx ) ) ( float );
 
 private:
 	std::vector<Note*> m_playingNotesQueue;
@@ -174,6 +181,7 @@ private:
 		Song* pSong
 	);
 };
+
 
 } // namespace
 

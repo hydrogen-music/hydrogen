@@ -205,6 +205,9 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	resampleComboBox->setCurrentIndex( (int) AudioEngine::get_instance()->get_sampler()->getInterpolateMode() );
 
+	Song* pSong = Hydrogen::get_instance()->getSong();
+	panLawComboBox->setCurrentIndex( pSong->getPanLawIdx() );
+
 	// Appearance tab
 	QString applicationFamily = pPref->getApplicationFontFamily();
 	int applicationPointSize = pPref->getApplicationFontPointSize();
@@ -478,6 +481,10 @@ void PreferencesDialog::on_okBtn_clicked()
 	else if ( sampleRateComboBox->currentText() == "96000" ) {
 		pPref->m_nSampleRate = 96000;
 	}
+	
+	Song* pSong = Hydrogen::get_instance()->getSong();
+	pSong->setPanLawIdx( panLawComboBox->currentIndex() );
+
 
 
 	// metronome
