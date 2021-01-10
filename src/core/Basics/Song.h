@@ -214,6 +214,8 @@ class Song : public H2Core::Object
 		
 		void setPanLawIdx( int idx );
 		int getPanLawIdx() const ;
+		void setPanLawKNorm( float fKNorm );
+		float getPanLawKNorm() const;
 
 	private:
 		///< volume of the song (0.0..1.0)
@@ -271,6 +273,7 @@ class Song : public H2Core::Object
 		/** this is set in preferences
 		 */
 		int m_nPanLawIdx;
+		float m_fPanLawKNorm;
 };
 
 
@@ -432,6 +435,14 @@ inline void Song::setPanLawIdx( int idx ) {
 
 inline int Song::getPanLawIdx() const {
 	return m_nPanLawIdx;
+}
+
+inline void Song::setPanLawKNorm( float fKNorm ) {
+	m_fPanLawKNorm = fKNorm;
+}
+
+inline float Song::getPanLawKNorm() const {
+	return m_fPanLawKNorm;
 }
 
 /**

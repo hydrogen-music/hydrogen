@@ -88,6 +88,7 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 	, __playback_track_volume( 0.0 )
 	, __velocity_automation_path( nullptr )
 	, m_nPanLawIdx( RATIO_STRAIGHT_POLYGONAL )
+	, m_fPanLawKNorm( K_NORM_DEFAULT )
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( __name ) );
 
@@ -675,6 +676,7 @@ Song* SongReader::readSong( const QString& filename )
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
 	int nPanLawIdx = LocalFileMng::readXmlFloat( songNode, "pan_law", RATIO_STRAIGHT_POLYGONAL );
+	float nPanLawKNorm = LocalFileMng::readXmlFloat( songNode, "pan_law_k_norm", K_NORM_DEFAULT );
 
 	pSong = new Song( sName, sAuthor, fBpm, fVolume );
 	pSong->set_metronome_volume( fMetronomeVolume );
@@ -686,6 +688,7 @@ Song* SongReader::readSong( const QString& filename )
 	pSong->set_humanize_velocity_value( fHumanizeVelocityValue );
 	pSong->set_swing_factor( fSwingFactor );
 	pSong->setPanLawIdx( nPanLawIdx );
+	pSong->setPanLawKNorm( nPanLawKNorm );
 	pSong->set_playback_track_filename( sPlaybackTrack );
 	pSong->set_playback_track_enabled( bPlaybackTrackEnabled );
 	pSong->set_playback_track_volume( fPlaybackTrackVolume );

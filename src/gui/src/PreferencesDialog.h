@@ -57,6 +57,7 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 		void toggleTrackOutsCheckBox(bool toggled);
 		void toggleOscCheckBox(bool toggled);
 		void coloringMethodCombo_currentIndexChanged (int index);
+		void panLawChanged();
 
 
 	private:

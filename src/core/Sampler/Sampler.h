@@ -33,7 +33,8 @@
 #include <memory>
 
 /* indices for pan law types
- NOTE: the following values must be respected by the indices in GUI preferences combo box!!!	
+ NOTE: the following values must be respected by the indices in GUI preferences combo box!!!
+ TODO is there a way to define an hidden value for each index in combobox? so the order is safe
 */
 #define RATIO_STRAIGHT_POLYGONAL 0
 #define RATIO_CONST_POWER 1
@@ -44,6 +45,12 @@
 #define POLAR_STRAIGHT_POLYGONAL 6
 #define POLAR_CONST_POWER 7
 #define POLAR_CONST_SUM 8
+#define LINEAR_CONST_K_NORM 9
+
+
+/* define default k for pan law with -4.5dB center compensation, given L^k + R^k = const
+ it is the mean compromise between constant sum and constant power */
+#define K_NORM_DEFAULT 1.3333333333333
 
 namespace H2Core
 {
@@ -134,7 +141,8 @@ public:
 	static float polarStraightPolygonalPanLaw( float fPan );
 	static float polarConstPowerPanLaw( float fPan );
 	static float polarConstSumPanLaw( float fPan );
-	float ( *m_panLawAddresses[9] ) ( float );	
+	static float linearConstKNormPanLaw( float fPan );
+	float ( *m_panLawAddresses[10] ) ( float );
 	float ( *getPanLawAddress( int idx ) ) ( float );
 
 private:

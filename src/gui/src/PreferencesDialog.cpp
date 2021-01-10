@@ -207,7 +207,21 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 
 	Song* pSong = Hydrogen::get_instance()->getSong();
 	panLawComboBox->setCurrentIndex( pSong->getPanLawIdx() );
+	connect(panLawComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT( panLawChanged() ));
+	
+	QValidator *validator = new QDoubleValidator( -10000., 0., 20, this );
+	dBCompensationLineEdit->setValidator( validator );
 
+	dBCompensationLineEdit->setText( QString( "%1" ).arg( -6.0206 / pSong->getPanLawKNorm() ) );
+	
+	if ( panLawComboBox->currentIndex() == 9 ) {
+		dBCompensationLineEdit->show();
+		dBCompensationLbl->show();
+	} else {
+		dBCompensationLineEdit->hide();
+		dBCompensationLbl->hide();
+	}
+	
 	// Appearance tab
 	QString applicationFamily = pPref->getApplicationFontFamily();
 	int applicationPointSize = pPref->getApplicationFontPointSize();
@@ -484,8 +498,20 @@ void PreferencesDialog::on_okBtn_clicked()
 	
 	Song* pSong = Hydrogen::get_instance()->getSong();
 	pSong->setPanLawIdx( panLawComboBox->currentIndex() );
-
-
+	bool bOk;
+	// allowing both point or comma decimal separator
+	float fdBCenterCompensation = ( dBCompensationLineEdit->text() ).replace( ",", "." ).toFloat( &bOk );
+	if ( !bOk ) { // this should never happen
+		QMessageBox::information( this, "Hydrogen", tr( "dB Center Compensation rejected" ) );
+		return;
+	} else if (fdBCenterCompensation > -0.01 ) { // due to computer approximation
+		QMessageBox::information( this, "Hydrogen", tr( "dB Center Compensation must be less than -0.01" ) );
+		return;
+	}
+	/** converts the dB Compensation to corresponding exponent k: assuming L^k + R^k = const
+	* For example -6.0206 dB => k = 1 => L + R = const (i.e. constant sum)
+	*/
+	pSong->setPanLawKNorm( - 6.0206 / fdBCenterCompensation );
 
 	// metronome
 	pPref->m_fMetronomeVolume = (metronomeVolumeSpinBox->value()) / 100.0;
@@ -990,4 +1016,14 @@ void PreferencesDialog::toggleTrackOutsCheckBox(bool toggled)
 void PreferencesDialog::toggleOscCheckBox(bool toggled)
 {
 	oscWidget->setEnabled( toggled );
+}
+
+void PreferencesDialog::panLawChanged(){
+	if ( panLawComboBox->currentIndex() == 9 ) {
+		dBCompensationLineEdit->show();
+		dBCompensationLbl->show();
+	} else {
+		dBCompensationLineEdit->hide();
+		dBCompensationLbl->hide();
+	}
 }

@@ -102,6 +102,7 @@ Sampler::Sampler()
 	m_panLawAddresses[ POLAR_STRAIGHT_POLYGONAL ] = &this->polarStraightPolygonalPanLaw;
 	m_panLawAddresses[ POLAR_CONST_POWER ] = &this->polarConstPowerPanLaw;
 	m_panLawAddresses[ POLAR_CONST_SUM ] = &this->polarConstSumPanLaw;
+	m_panLawAddresses[ LINEAR_CONST_K_NORM ] = &this->linearConstKNormPanLaw;
 }
 
 
@@ -297,6 +298,9 @@ float Sampler::getRatioPan( float fPan_L, float fPan_R ) {
 	*	"ConstantPower":
 	*		probably makes uniform volumes in a common room,
 	*		has -3.01 dB center compensation.
+	*	"ConstantKNorm":
+	*		L^k + R^k = const
+	*		generalises constant sum (k = 1) and constant power (k = 2)
 	* 	"StraightPolygonal":
 	*		one gain is constant while the other is progressively decreased.
 	*		It's ideal as BALANCE law of DUAL-channel track,
@@ -369,6 +373,14 @@ float Sampler::polarConstSumPanLaw( float fPan ) {
 	// the constant Sum pan law interpreting fPan as the "linear" parameter
 	return cos( fTheta ) / ( cos( fTheta ) + sin( fTheta ) );
 }
+
+float Sampler::linearConstKNormPanLaw( float fPan ) {
+	// the constant k norm pan law interpreting fPan as the "linear" parameter
+	Song* pSong = Hydrogen::get_instance()->getSong();
+	float k = pSong->getPanLawKNorm(); //TODO move k from song to sampler class? pass it as argument?
+	return ( 1. - fPan ) / pow( ( pow( (1. - fPan), k ) + pow( (1. + fPan), k ) ), 1./k );
+}
+
 //------------------------------------------------------------------
 
 /// Render a note
