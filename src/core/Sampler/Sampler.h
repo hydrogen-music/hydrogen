@@ -36,6 +36,9 @@
 #define RATIO_STRAIGHT_POLYGONAL 0
 #define RATIO_CONST_POWER 1
 #define RATIO_CONST_SUM 2
+#define LINEAR_STRAIGHT_POLYGONAL 3
+#define LINEAR_CONST_POWER 4
+#define LINEAR_CONST_SUM 5
 
 namespace H2Core
 {
@@ -116,10 +119,14 @@ public:
 	
 	// functions for pan law
 	static float getRatioPan( float fPan_L, float fPan_R );
+	
 	static float ratioStraightPolygonalPanLaw( float fPan );
 	static float ratioConstPowerPanLaw( float fPan );
 	static float ratioConstSumPanLaw( float fPan );
-
+	static float linearStraightPolygonalPanLaw( float fPan );
+	static float linearConstPowerPanLaw( float fPan );
+	static float linearConstSumPanLaw( float fPan );
+	float ( *m_panLawAddresses[6] ) ( float );	
 	float ( *getPanLawAddress( int idx ) ) ( float );
 
 private:

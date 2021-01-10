@@ -91,6 +91,14 @@ Sampler::Sampler()
 	// dummy instrument used for playback track
 	m_pPlaybackTrackInstrument = createInstrument( PLAYBACK_INSTR_ID, sEmptySampleFilename, 0.8 );
 	m_nPlayBackSamplePosition = 0;
+	
+	// write the addresses of pan law function to avoid many switch - case later
+	m_panLawAddresses[ RATIO_STRAIGHT_POLYGONAL ] = &this->ratioStraightPolygonalPanLaw;
+	m_panLawAddresses[ RATIO_CONST_POWER ] = &this->ratioConstPowerPanLaw;
+	m_panLawAddresses[ RATIO_CONST_SUM ] = &this->ratioConstSumPanLaw;
+	m_panLawAddresses[ LINEAR_STRAIGHT_POLYGONAL ] = &this->linearStraightPolygonalPanLaw;
+	m_panLawAddresses[ LINEAR_CONST_POWER ] = &this->linearConstPowerPanLaw;
+	m_panLawAddresses[ LINEAR_CONST_SUM ] = &this->linearConstSumPanLaw;
 }
 
 
@@ -291,13 +299,12 @@ float Sampler::getRatioPan( float fPan_L, float fPan_R ) {
 	*		It's ideal as BALANCE law of DUAL-channel track,
 	*		has 0 dB center compensation.
 	*/
-
-float Sampler::ratioConstSumPanLaw( float fPan ) {
-	// the constant Sum pan law interpreting fPan as the "ratio" parameter
+float Sampler::ratioStraightPolygonalPanLaw( float fPan ) {
+	// the straight polygonal pan law interpreting fPan as the "ratio" parameter
 	if ( fPan <= 0 ) {
-		return 1. / (2. + fPan );
+		return 1.;
 	} else {
-		return ( 1. - fPan) / ( 2. - fPan );
+		return ( 1. - fPan );
 	}
 }
 
@@ -306,17 +313,36 @@ float Sampler::ratioConstPowerPanLaw( float fPan ) {
 	if ( fPan <= 0 ) {
 		return 1. / sqrt( 1 + ( 1. + fPan ) * ( 1. + fPan ) );
 	} else {
-		return ( 1. - fPan) / sqrt( 1 + ( 1. - fPan ) * ( 1. - fPan ) );
+		return ( 1. - fPan ) / sqrt( 1 + ( 1. - fPan ) * ( 1. - fPan ) );
 	}
 }
 
-float Sampler::ratioStraightPolygonalPanLaw( float fPan ) {
-	// the straight polygonal pan law interpreting fPan as the "ratio" parameter
+float Sampler::ratioConstSumPanLaw( float fPan ) {
+	// the constant Sum pan law interpreting fPan as the "ratio" parameter
+	if ( fPan <= 0 ) {
+		return 1. / ( 2. + fPan );
+	} else {
+		return ( 1. - fPan ) / ( 2. - fPan );
+	}
+}
+
+float Sampler::linearStraightPolygonalPanLaw( float fPan ) {
+	// the constant power pan law interpreting fPan as the "linear" parameter
 	if ( fPan <= 0 ) {
 		return 1.;
 	} else {
-		return ( 1. - fPan );
+		return ( 1. - fPan ) / ( 1. + fPan );
 	}
+}
+
+float Sampler::linearConstPowerPanLaw( float fPan ) {
+	// the constant power pan law interpreting fPan as the "linear" parameter
+	return ( 1. - fPan ) / sqrt( 2. * ( 1 + fPan * fPan ) );
+}
+
+float Sampler::linearConstSumPanLaw( float fPan ) {
+	// the constant Sum pan law interpreting fPan as the "linear" parameter
+	return ( 1. - fPan ) * 0.5;
 }
 //------------------------------------------------------------------
 
@@ -372,8 +398,9 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 	// use Straight pol pan law.
 	// TODO a new song member, set in preferences, must point the desired pan law Sampler member function		
 	float (*panLaw)( float );
-	panLaw = getPanLawAddress( pSong->getPanLawIdx() );
+	//panLaw = getPanLawAddress( pSong->getPanLawIdx() );
     //panLaw = &this->ratioStraightPolygonalPanLaw;
+    panLaw = m_panLawAddresses[ pSong->getPanLawIdx() ];
     float fPan_L = panLaw( fPan );
     float fPan_R = panLaw( -fPan );
 	//---------------------------------------------------------
