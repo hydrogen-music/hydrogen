@@ -236,12 +236,12 @@ void SongEditor::selectNone() {
 
 void SongEditor::deleteSelection() {
 	QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-	std::vector< QPoint > addCells;
-	std::vector< QPoint > deleteCells;
+	std::vector< QPoint > addCells, deleteCells, mergeCells;
 	for ( QPoint cell : m_selection ) {
 		deleteCells.push_back( cell );
 	}
-	pUndo->push( new SE_modifyPatternCellsAction( addCells, deleteCells, tr( "Delete selected cells" ) ) );
+	pUndo->push( new SE_modifyPatternCellsAction( addCells, deleteCells, mergeCells,
+												  tr( "Delete selected cells" ) ) );
 	m_selection.clearSelection();
 }
 
@@ -289,7 +289,7 @@ void SongEditor::paste() {
 	XMLNode selection = doc.firstChildElement( "patternSelection" );
 	if ( ! selection.isNull() ) {
 		// Got pattern selection.
-		std::vector< QPoint > addCells;
+		std::vector< QPoint > addCells, deleteCells, mergeCells;
 
 		XMLNode cellList = selection.firstChildElement( "cellList" );
 		if ( cellList.isNull() ) {
@@ -319,12 +319,15 @@ void SongEditor::paste() {
 					if ( m_gridCells.find( p ) == m_gridCells.end() ) {
 						// Cell is not active. Activate it.
 						addCells.push_back( p );
+					} else {
+						// Merge cell with existing
+						mergeCells.push_back( p );
 					}
 				}
 			}
 
-			std::vector< QPoint > deleteCells;
-			pUndo->push( new SE_modifyPatternCellsAction( addCells, deleteCells, tr( "Paste cells" ) ) );
+			pUndo->push( new SE_modifyPatternCellsAction( addCells, deleteCells, mergeCells,
+														  tr( "Paste cells" ) ) );
 		}
 	}
 }
@@ -658,8 +661,7 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 	if ( offset == QPoint( 0, 0 ) ) {
 		return;
 	}
-	std::vector< QPoint > addCells;
-	std::vector< QPoint > deleteCells;
+	std::vector< QPoint > addCells, deleteCells, mergeCells;
 
 	updateGridCells();
 
@@ -670,15 +672,17 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 		}
 		QPoint newCell = cell + offset;
 		// Place new cell if not already active
-		if ( newCell.x() >= 0
-			 && newCell.y() >= 0 && newCell.y() < nMaxPattern
-			 && ( m_gridCells.find( newCell ) == m_gridCells.end()
-				  || m_selection.isSelected( newCell ) ) ) {
-			addCells.push_back( newCell );
+		if ( newCell.x() >= 0 && newCell.y() >= 0 && newCell.y() < nMaxPattern ) {
+			if ( m_gridCells.find( newCell ) == m_gridCells.end() || m_selection.isSelected( newCell ) ) {
+				addCells.push_back( newCell );
+			} else {
+				// Cell is moved, but merges with existing cell
+				mergeCells.push_back( newCell );
+			}
 		}
 	}
 
-	pApp->m_pUndoStack->push( new SE_modifyPatternCellsAction( addCells, deleteCells,
+	pApp->m_pUndoStack->push( new SE_modifyPatternCellsAction( addCells, deleteCells, mergeCells,
 															   (m_bCopyNotMove
 																? tr( "Copy selected cells" )
 																: tr( "Move selected cells" ) ) ) );
@@ -707,7 +711,7 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 
 //! Modify pattern cells by first deleting some, then adding some.
 //! deleteCells and addCells *may* safely overlap
-void SongEditor::modifyPatternCellsAction( std::vector<QPoint> & addCells, std::vector<QPoint> & deleteCells ) {
+void SongEditor::modifyPatternCellsAction( std::vector<QPoint> & addCells, std::vector<QPoint> & deleteCells, std::vector<QPoint> & selectCells ) {
 
 	for ( QPoint cell : deleteCells ) {
 		deletePattern( cell.x(), cell.y() );
@@ -716,6 +720,10 @@ void SongEditor::modifyPatternCellsAction( std::vector<QPoint> & addCells, std::
 	m_selection.clearSelection();
 	for ( QPoint cell : addCells ) {
 		addPattern( cell.x(), cell.y() );
+		m_selection.addToSelection( cell );
+	}
+	// Select additional cells (probably merged cells on redo)
+	for ( QPoint cell : selectCells ) {
 		m_selection.addToSelection( cell );
 	}
 }

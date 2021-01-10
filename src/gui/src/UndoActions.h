@@ -346,24 +346,28 @@ private:
 class SE_modifyPatternCellsAction : public QUndoCommand
 {
 public:
-	SE_modifyPatternCellsAction( std::vector< QPoint > & addCells, std::vector< QPoint > & deleteCells, QString sText ) {
+	SE_modifyPatternCellsAction( std::vector< QPoint > & addCells, std::vector< QPoint > & deleteCells,
+								 std::vector< QPoint > & mergeCells, QString sText ) {
 		setText( sText );
 		m_addCells = addCells;
 		m_deleteCells = deleteCells;
+		m_mergeCells = mergeCells;
 	}
 	virtual void redo()
 	{
 		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
-			->modifyPatternCellsAction( m_addCells, m_deleteCells );
+			->modifyPatternCellsAction( m_addCells, m_deleteCells, m_mergeCells );
 	}
 	virtual void undo()
 	{
+		std::vector< QPoint > selectCells;
 		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
-			->modifyPatternCellsAction( m_deleteCells, m_addCells );
+			->modifyPatternCellsAction( m_deleteCells, m_addCells, selectCells );
 	}
 private:
 	std::vector< QPoint > m_addCells;
 	std::vector< QPoint > m_deleteCells;
+	std::vector< QPoint > m_mergeCells;
 };
 
 class SE_editTimeLineAction : public QUndoCommand
