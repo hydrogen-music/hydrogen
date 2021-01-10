@@ -867,6 +867,9 @@ void PatternEditorPanel::zoomInBtnClicked( Button *ref )
 	m_pNoteProbabilityEditor->zoomIn();
 	m_pNotePanEditor->zoomIn();
 	m_pPianoRollEditor->zoomIn();
+	
+	Preferences::get_instance()->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
+	Preferences::get_instance()->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
 
 	resizeEvent( nullptr );
 }
@@ -886,6 +889,9 @@ void PatternEditorPanel::zoomOutBtnClicked( Button *ref )
 	m_pPianoRollEditor->zoomOut();
 
 	resizeEvent( nullptr );
+	
+	Preferences::get_instance()->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
+	Preferences::get_instance()->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
 }
 
 
