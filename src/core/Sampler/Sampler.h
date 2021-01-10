@@ -108,7 +108,11 @@ public:
 	 * layer will be loaded with a nullptr instead.
 	 */
 	void reinitializePlaybackTrack();
+	
+	// functions for pan law
 	static float getRatioPan( float fPan_L, float fPan_R );
+	static float ratioConstantSumPanLaw( float fPan );
+	static float ratioConstantPowerPanLaw( float fPan );
 	static float ratioStraightPolygonalPanLaw( float fPan );
 
 private:

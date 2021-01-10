@@ -272,14 +272,44 @@ float Sampler::getRatioPan( float fPan_L, float fPan_R ) {
 	*    fPan = 4 / pi * arctan( R/L ) - 1	if L != 0,
 	*    fPan = 1	if L == 0.
 	*
-	* Note: using a different fPan interpretation makes the pan law output more central or more lateral:
-	* from more central to more lateral:
+	* Note: using a different fPan interpretation makes the output more central or more lateral.
+	* From more central to more lateral:
 	* "ratio" ---> "polar" ---> "linear"
 	*---------------------------------------------
 	* After the prefix, the name describes the Image of the pan law in the LR plane.
 	* (remember that each pan law is a parametrized curve in LR plane.
-	* E.g.: "StraightPolygonal", "ConstantSum", "ConstantPower"...
+	* E.g.:
+	*	"ConstantSum":
+	*		it's properly used in an anechoic room, where there are no reflections.
+	*		Ensures uniform volumes in MONO export,
+	*		has -6.02 dB center compensation.
+	*	"ConstantPower":
+	*		probably makes uniform volumes in a common room,
+	*		has -3.01 dB center compensation.
+	* 	"StraightPolygonal":
+	*		one gain is constant while the other is progressively decreased.
+	*		It's ideal as BALANCE law of DUAL-channel track,
+	*		has 0 dB center compensation.
 	*/
+
+float Sampler::ratioConstantSumPanLaw( float fPan ) {
+	// the constant Sum pan law interpreting fPan as the "ratio" parameter
+	if ( fPan <= 0 ) {
+		return 1. / (2. + fPan );
+	} else {
+		return ( 1. - fPan) / ( 2. - fPan );
+	}
+}
+
+float Sampler::ratioConstantPowerPanLaw( float fPan ) {
+	// the constant power pan law interpreting fPan as the "ratio" parameter
+	if ( fPan <= 0 ) {
+		return 1. / sqrt( 1 + ( 1. + fPan ) * ( 1. + fPan ) );
+	} else {
+		return ( 1. - fPan) / sqrt( 1 + ( 1. - fPan ) * ( 1. - fPan ) );
+	}
+}
+
 float Sampler::ratioStraightPolygonalPanLaw( float fPan ) {
 	// the straight polygonal pan law interpreting fPan as the "ratio" parameter
 	if ( fPan <= 0 ) {
