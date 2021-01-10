@@ -380,6 +380,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 	LocalFileMng::writeXmlString( songNode, "humanize_time", QString("%1").arg( pSong->get_humanize_time_value() ) );
 	LocalFileMng::writeXmlString( songNode, "humanize_velocity", QString("%1").arg( pSong->get_humanize_velocity_value() ) );
 	LocalFileMng::writeXmlString( songNode, "swing_factor", QString("%1").arg( pSong->get_swing_factor() ) );
+	LocalFileMng::writeXmlString( songNode, "pan_law", QString("%1").arg( pSong->getPanLawIdx() ) );
 
 	// component List
 	QDomNode componentListNode = doc.createElement( "componentList" );

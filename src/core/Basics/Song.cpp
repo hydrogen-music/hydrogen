@@ -168,6 +168,7 @@ Song* Song::get_default_song()
 	pSong->set_humanize_time_value( 0.0 );
 	pSong->set_humanize_velocity_value( 0.0 );
 	pSong->set_swing_factor( 0.0 );
+	pSong->setPanLawIdx( RATIO_STRAIGHT_POLYGONAL );
 
 	InstrumentList* pInstrList = new InstrumentList();
 	Instrument* pNewInstr = new Instrument( EMPTY_INSTR_ID, "New instrument" );
@@ -673,6 +674,7 @@ Song* SongReader::readSong( const QString& filename )
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
+	int nPanLawIdx = LocalFileMng::readXmlFloat( songNode, "pan_law", RATIO_STRAIGHT_POLYGONAL );
 
 	pSong = new Song( sName, sAuthor, fBpm, fVolume );
 	pSong->set_metronome_volume( fMetronomeVolume );
@@ -683,6 +685,7 @@ Song* SongReader::readSong( const QString& filename )
 	pSong->set_humanize_time_value( fHumanizeTimeValue );
 	pSong->set_humanize_velocity_value( fHumanizeVelocityValue );
 	pSong->set_swing_factor( fSwingFactor );
+	pSong->setPanLawIdx( nPanLawIdx );
 	pSong->set_playback_track_filename( sPlaybackTrack );
 	pSong->set_playback_track_enabled( bPlaybackTrackEnabled );
 	pSong->set_playback_track_volume( fPlaybackTrackVolume );
