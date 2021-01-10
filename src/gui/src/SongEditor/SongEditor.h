@@ -94,6 +94,8 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		QScrollArea *m_pScrollView;
 		SongEditorPanel *m_pSongEditorPanel;
 
+		QMenu *m_pPopupMenu;
+
 		unsigned m_nGridHeight;
 		unsigned m_nGridWidth;
 		unsigned m_nMaxPatternSequence;

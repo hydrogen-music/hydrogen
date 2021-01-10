@@ -102,6 +102,16 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 
 	createBackground();	// create m_backgroundPixmap pixmap
 
+	// Popup context menu
+	m_pPopupMenu = new QMenu( this );
+	m_pPopupMenu->addAction( tr( "&Cut" ), this, &SongEditor::cut );
+	m_pPopupMenu->addAction( tr( "&Copy" ), this, &SongEditor::copy );
+	m_pPopupMenu->addAction( tr( "&Paste" ), this, &SongEditor::paste );
+	m_pPopupMenu->addAction( tr( "&Delete" ), this, &SongEditor::deleteSelection );
+	m_pPopupMenu->addAction( tr( "Select &all" ), this, &SongEditor::selectAll );
+	m_pPopupMenu->addAction( tr( "Clear selection" ), this, &SongEditor::selectNone );
+
+
 	update();
 }
 
@@ -228,10 +238,14 @@ void SongEditor::selectAll() {
 		}
 	}
 	m_bSequenceChanged = true;
+	update();
 }
 
 void SongEditor::selectNone() {
 	m_selection.clearSelection();
+
+	m_bSequenceChanged = true;
+	update();
 }
 
 void SongEditor::deleteSelection() {
@@ -355,13 +369,13 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 
 	if ( bIsSelectionKey ) {
 		// Key was claimed by selection
-	} else if ( ev->matches( QKeySequence::Delete ) ) {
-		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+	} else if ( ev->key() == Qt::Key_Delete || ev->key() == Qt::Key_Backspace ) {
 		// Key: Delete: delete selected pattern cells, or cell at current position
 		if ( m_selection.begin() != m_selection.end() ) {
 			deleteSelection();
 		} else {
 			// No selection, delete at the current cursor position
+			QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
 			pUndo->push( new SE_deletePatternAction( m_nCursorColumn, m_nCursorRow ) );
 		}
 
@@ -517,10 +531,15 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 		m_selection.mousePressEvent( ev );
 
 	} else {
-		// Start of a drawing gesture. Pick up whether we are painting Active or Inactive cells.
-		QPoint p = xyToColumnRow( ev->pos() );
-		m_bDrawingActiveCell = togglePatternActive( p.x(), p.y() );
-		m_pSongEditorPanel->updatePlaybackTrackIfNecessary();
+		if ( ev->button() == Qt::LeftButton ) {
+			// Start of a drawing gesture. Pick up whether we are painting Active or Inactive cells.
+			QPoint p = xyToColumnRow( ev->pos() );
+			m_bDrawingActiveCell = togglePatternActive( p.x(), p.y() );
+			m_pSongEditorPanel->updatePlaybackTrackIfNecessary();
+
+		} else if ( ev->button() == Qt::RightButton ) {
+			m_pPopupMenu->popup( ev->globalPos() );
+		}
 	}
 }
 
@@ -692,12 +711,17 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 void SongEditor::mouseClickEvent( QMouseEvent *ev )
 {
 	assert(m_pSongEditorPanel->getActionMode() == SELECT_ACTION );
-	QPoint p = xyToColumnRow( ev->pos() );
+	if ( ev->button() == Qt::LeftButton ) {
+		QPoint p = xyToColumnRow( ev->pos() );
 
-	m_selection.clearSelection();
-	togglePatternActive( p.x(), p.y() );
-	m_bSequenceChanged = true;
-	update();
+		m_selection.clearSelection();
+		togglePatternActive( p.x(), p.y() );
+		m_bSequenceChanged = true;
+		update();
+
+	} else if ( ev->button() == Qt::RightButton ) {
+		m_pPopupMenu->popup( ev->globalPos() );
+	}
 }
 
 void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
