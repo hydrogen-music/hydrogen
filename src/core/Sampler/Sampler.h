@@ -109,7 +109,7 @@ public:
 	 */
 	void reinitializePlaybackTrack();
 	static float getRatioPan( float fPan_L, float fPan_R );
-	static float ratioStraightPolPanLaw( float fPan );
+	static float ratioStraightPolygonalPanLaw( float fPan );
 
 private:
 	std::vector<Note*> m_playingNotesQueue;

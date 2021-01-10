@@ -233,21 +233,55 @@ void Sampler::noteOff(Note* pNote )
 }
 
 
-/// functions for pan parameters and laws-----------------
+// functions for pan parameters and laws-----------------
+
 float Sampler::getRatioPan( float fPan_L, float fPan_R ) {
-	// returns the single pan parameter in [-1,1] from the L,R gains
-	// It doesn't return ERROR if (L,R) = (0,0) nor if they are negative!!!!!
-	if ( fPan_L >= fPan_R ) {
-		return fPan_R / fPan_L - 1.;
+	/* returns the single pan parameter in [-1,1] from the L,R gains
+	* as it was input from the GUI (up to scale and translation, which is arbitrary)
+	*/
+	if ( fPan_L < 0. || fPan_R < 0. || ( fPan_L == 0. && fPan_R == 0.) ) { // invalid input
+		//TODO Warning
+		return 0.; // default central value
 	} else {
-		return 1. - fPan_L / fPan_R;
+		if ( fPan_L >= fPan_R ) {
+			return fPan_R / fPan_L - 1.;
+		} else {
+			return 1. - fPan_L / fPan_R;
+		}
 	}
 }
 
-//pan laws
-float Sampler::ratioStraightPolPanLaw( float fPan ) {
-	// this return pan_L in the straight polygonal pan law, "ratio" pan parameter in [-1;1]
-	// It doesn't return ERROR if p is out of [-1;1] !!!!!
+   /** PAN LAWS
+	* The following pan law functions return pan_L (==L, which is the gain for Left channel).
+	* They assume a fPan argument domain in [-1;1], and this always happens
+	* thanks to the previously called getRatioPan().
+	*----------------------------
+	* For the right channel use: R(p) == pan_R(p) = pan_L(-p) == L(-p)
+	* thanks to the Left-Right symmetry.
+	*--------------------------------------
+	* The prefix of the function names tells the interpretation of the fPan argument:
+	*
+	* "ratio" parameter:
+	* 	 fPan = R/L - 1	if panned to the left,
+	* 	 fPan = 1 - L/R	if panned to the right.
+	*
+	* "linear" parameter (arithmetic weighted mean):
+	*	 fPan = ( R - L ) / ( R + L ).
+	*
+	* "polar" parameter (polar coordinate in LR plane):
+	*    fPan = 4 / pi * arctan( R/L ) - 1	if L != 0,
+	*    fPan = 1	if L == 0.
+	*
+	* Note: using a different fPan interpretation makes the pan law output more central or more lateral:
+	* from more central to more lateral:
+	* "ratio" ---> "polar" ---> "linear"
+	*---------------------------------------------
+	* After the prefix, the name describes the Image of the pan law in the LR plane.
+	* (remember that each pan law is a parametrized curve in LR plane.
+	* E.g.: "StraightPolygonal", "ConstantSum", "ConstantPower"...
+	*/
+float Sampler::ratioStraightPolygonalPanLaw( float fPan ) {
+	// the straight polygonal pan law interpreting fPan as the "ratio" parameter
 	if ( fPan <= 0 ) {
 		return 1.;
 	} else {
@@ -283,25 +317,34 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 	// new instrument and note pan interaction--------------------------
 	// note pan moves the pan in a smaller pan range centered at instrument pan
 
-	// get the note and instrument pan parameters in [-1,1]
-	// TODO a new song member, set in preferences, must point the desired pan parameter Sampler member function
-	float (*getPan)( float, float );
-	// use "ratio" pan parameter (due to the current pan law)
-    getPan = &this->getRatioPan;
-	float fNotePan = getPan( pNote->get_pan_l(), pNote->get_pan_r() );
-	float fInstrPan = getPan( pInstr->get_pan_l(), pInstr->get_pan_r() );
+   /** reconvert (pan_L,pan_R) to a single pan parameter (as it was input from the GUI) in [-1,1].
+	* This redundance avoids to import old files as legacy.
+	* ALWAYS use getRatioPan(), since H2 always stores pan_L,pan_R with a ratioStraightPolygonalPanLaw,
+	* up to constant multiplication, even if user chooses another type of pan law.
+	*-----Historical Note-----
+	* Originally pan_L,pan_R were actually gains for each channel.
+	* "instrument" and "note" pans were multiplied as in a gain CHAIN in each separate channel,
+	* so the chain killed the signal if instrument and note pans were hard-sided to opposites sides!
+	*/
+	float fNotePan = getRatioPan( pNote->get_pan_l(), pNote->get_pan_r() );
+	float fInstrPan = getRatioPan( pInstr->get_pan_l(), pInstr->get_pan_r() );
 	
-	// resultant pan: note pan moves the pan in a smaller pan range centered at instrument pan
+   /** Get the resultant pan, following a "matryoshka" multi panning:
+	* note pan moves the pan in a smaller pan range centered at instrument pan.
+	* The "note resultant pan range" depends on instrPan value:
+	*	if instrPan is central, notePan moves the signal in the whole pan range (really from left to right);
+	*	if instrPan is sided, notePan moves the signal in a progressively smaller pan range centered at instrument pan;
+	*	if instrPan is HARD-sided, notePan doesn't have any effect.
+	*/
 	float fPan = fInstrPan + fNotePan * ( 1 - fabs( fInstrPan ) );
 	
-	// Pass fResPan to the Pan Law
+	// Pass fPan to the Pan Law
 	// use Straight pol pan law.
 	// TODO a new song member, set in preferences, must point the desired pan law Sampler member function		
 	float (*panLaw)( float );
-    panLaw = &this->ratioStraightPolPanLaw;
-    float a = 0.5; // max gain (it has been 0.5 until version 1.0)
-    float fPan_L = a * panLaw( fPan );
-    float fPan_R = a * panLaw( -fPan );
+    panLaw = &this->ratioStraightPolygonalPanLaw;
+    float fPan_L = panLaw( fPan );
+    float fPan_R = panLaw( -fPan );
 	//---------------------------------------------------------
 
 	bool nReturnValues [pInstr->get_components()->size()];
@@ -667,7 +710,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 				cost_track_L = cost_L * 2;
 			}
 			cost_L = cost_L * pSong->get_volume();	// song volume
-			cost_L = cost_L * 2; // max pan is 0.5
+			// cost_L = cost_L * 2; // max pan is 0.5
 
 			cost_R *= fPan_R;							// pan
 			//cost_R = cost_R * pNote->get_pan_r();		// note pan
@@ -683,7 +726,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 				cost_track_R = cost_R * 2;
 			}
 			cost_R = cost_R * pSong->get_volume();	// song pan
-			cost_R = cost_R * 2; // max pan is 0.5
+			// cost_R = cost_R * 2; // max pan is 0.5
 		}
 
 		// direct track outputs only use velocity
