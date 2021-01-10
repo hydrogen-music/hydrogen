@@ -213,7 +213,7 @@ Preferences::Preferences()
 	mixerProperties.set(10, 350, 829, 276, true);
 	patternEditorProperties.set(280, 100, 706, 439, true);
 	songEditorProperties.set(10, 10, 600, 250, true);
-	drumkitManagerProperties.set(500, 20, 526, 437, true);
+	instrumentRackProperties.set(500, 20, 526, 437, true);
 	audioEngineInfoProperties.set(720, 120, 0, 0, false);
 	m_ladspaProperties[0].set(2, 20, 0, 0, false);
 	m_ladspaProperties[1].set(2, 20, 0, 0, false);
@@ -561,6 +561,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				setMixerProperties( readWindowProperties( guiNode, "mixer_properties", mixerProperties ) );
 				setPatternEditorProperties( readWindowProperties( guiNode, "patternEditor_properties", patternEditorProperties ) );
 				setSongEditorProperties( readWindowProperties( guiNode, "songEditor_properties", songEditorProperties ) );
+				setInstrumentRackProperties( readWindowProperties( guiNode, "instrumentRack_properties", instrumentRackProperties ) );
 				setAudioEngineInfoProperties( readWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties ) );
 
 				//export dialog properties
@@ -992,7 +993,7 @@ void Preferences::savePreferences()
 		writeWindowProperties( guiNode, "mixer_properties", mixerProperties );
 		writeWindowProperties( guiNode, "patternEditor_properties", patternEditorProperties );
 		writeWindowProperties( guiNode, "songEditor_properties", songEditorProperties );
-		writeWindowProperties( guiNode, "drumkitManager_properties", drumkitManagerProperties );
+		writeWindowProperties( guiNode, "instrumentRack_properties", instrumentRackProperties );
 		writeWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties );
 		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 			QString sNode = QString("ladspaFX_properties%1").arg( nFX );

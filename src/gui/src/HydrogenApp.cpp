@@ -213,6 +213,8 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// INSTRUMENT RACK
 	m_pInstrumentRack = new InstrumentRack( nullptr );
+	WindowProperties instrumentRackProp = pPref->getInstrumentRackProperties();
+	m_pInstrumentRack->setHidden( !instrumentRackProp.visible );
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED ){
 		m_pTab->setMovable( false );
@@ -738,6 +740,9 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		// PATTERN EDITOR
 		WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
 		m_pPatternEditorPanel->resize( patternEditorProp.width, patternEditorProp.height );
+		
+		WindowProperties instrumentRackProp = pPref->getInstrumentRackProperties();
+		m_pInstrumentRack->setHidden( !instrumentRackProp.visible );
 
 		WindowProperties mixerProp = pPref->getMixerProperties();
 

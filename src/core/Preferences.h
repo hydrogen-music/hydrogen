@@ -548,6 +548,9 @@ public:
 	WindowProperties	getSongEditorProperties();
 	void				setSongEditorProperties( const WindowProperties& prop );
 
+	WindowProperties	getInstrumentRackProperties();
+	void				setInstrumentRackProperties( const WindowProperties& prop );
+
 	WindowProperties	getAudioEngineInfoProperties();
 	void				setAudioEngineInfoProperties( const WindowProperties& prop );
 
@@ -769,7 +772,7 @@ private:
 	WindowProperties		mixerProperties;
 	WindowProperties		patternEditorProperties;
 	WindowProperties		songEditorProperties;
-	WindowProperties		drumkitManagerProperties;
+	WindowProperties		instrumentRackProperties;
 	WindowProperties		audioEngineInfoProperties;
 	WindowProperties		m_ladspaProperties[MAX_FX];
 
@@ -1191,6 +1194,13 @@ inline void Preferences::setSongEditorProperties( const WindowProperties& prop )
 }
 
 
+inline WindowProperties Preferences::getInstrumentRackProperties() {
+	return instrumentRackProperties;
+}
+inline void Preferences::setInstrumentRackProperties( const WindowProperties& prop ) {
+	instrumentRackProperties = prop;
+}
+ 
 inline WindowProperties Preferences::getAudioEngineInfoProperties() {
 	return audioEngineInfoProperties;
 }
