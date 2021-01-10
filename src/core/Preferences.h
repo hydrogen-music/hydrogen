@@ -524,6 +524,12 @@ public:
 	unsigned		getPatternEditorGridWidth();
 	void			setPatternEditorGridWidth( unsigned value );
 
+	unsigned		getSongEditorGridHeight();
+	void			setSongEditorGridHeight( unsigned value );
+
+	unsigned		getSongEditorGridWidth();
+	void			setSongEditorGridWidth( unsigned value );
+
 	void			setColoringMethodAuxValue( int value );
 	int				getColoringMethodAuxValue() const;
 
@@ -757,6 +763,8 @@ private:
 	bool					m_bUseRelativeFilenamesForPlaylists;
 	unsigned				m_nPatternEditorGridHeight;
 	unsigned				m_nPatternEditorGridWidth;
+	unsigned				m_nSongEditorGridHeight;
+	unsigned				m_nSongEditorGridWidth;
 	WindowProperties		mainFormProperties;
 	WindowProperties		mixerProperties;
 	WindowProperties		patternEditorProperties;
@@ -1112,13 +1120,25 @@ inline void Preferences::setShowAutomationArea( bool value ) {
 }
 
 
+inline unsigned Preferences::getSongEditorGridHeight() {
+	return m_nSongEditorGridHeight;
+}
+inline void Preferences::setSongEditorGridHeight( unsigned value ) {
+	m_nSongEditorGridHeight = value;
+}
+inline unsigned Preferences::getSongEditorGridWidth() {
+	return m_nSongEditorGridWidth;
+}
+inline void Preferences::setSongEditorGridWidth( unsigned value ) {
+	m_nSongEditorGridWidth = value;
+}
+
 inline unsigned Preferences::getPatternEditorGridHeight() {
 	return m_nPatternEditorGridHeight;
 }
 inline void Preferences::setPatternEditorGridHeight( unsigned value ) {
 	m_nPatternEditorGridHeight = value;
 }
-
 inline unsigned Preferences::getPatternEditorGridWidth() {
 	return m_nPatternEditorGridWidth;
 }

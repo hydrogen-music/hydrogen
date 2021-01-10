@@ -73,6 +73,7 @@ class SongEditor : public QWidget, public H2Core::Object
 
 		int getGridWidth ();
 		void setGridWidth( uint width);
+		int getGridHeight () { return m_nGridHeight; }
 
 		void addPattern( int nColumn, int nRow);
 		void deletePattern( int nColumn, int nRow );

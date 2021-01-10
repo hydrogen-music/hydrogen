@@ -877,12 +877,15 @@ void SongEditorPanel::setModeActionBtn( bool mode )
 void SongEditorPanel::zoomInBtnPressed( Button* pBtn )
 {
 	UNUSED( pBtn );
-	unsigned width = m_pSongEditor->getGridWidth ();
+	unsigned width = m_pSongEditor->getGridWidth();
 	--width;
-	m_pSongEditor->setGridWidth (width);
-	m_pPositionRuler->setGridWidth (width);
-	m_pAutomationPathView->setGridWidth (width);
+	m_pSongEditor->setGridWidth( width );
+	m_pPositionRuler->setGridWidth( width );
+	m_pAutomationPathView->setGridWidth( width );
 
+	Preferences::get_instance()->setSongEditorGridWidth( width );
+	Preferences::get_instance()->setSongEditorGridHeight( m_pSongEditor->getGridHeight() );
+	
 	updateAll();
 }
 
@@ -890,11 +893,15 @@ void SongEditorPanel::zoomInBtnPressed( Button* pBtn )
 void SongEditorPanel::zoomOutBtnPressed( Button* pBtn )
 {
 	UNUSED( pBtn );
-	unsigned width = m_pSongEditor->getGridWidth ();
+	unsigned width = m_pSongEditor->getGridWidth();
 	++width;
-	m_pSongEditor->setGridWidth (width);
-	m_pPositionRuler->setGridWidth (width);
-	m_pAutomationPathView->setGridWidth (width);
+	m_pSongEditor->setGridWidth( width );
+	m_pPositionRuler->setGridWidth( width );
+	m_pAutomationPathView->setGridWidth( width );
+
+	Preferences::get_instance()->setSongEditorGridWidth( width );
+	Preferences::get_instance()->setSongEditorGridHeight( m_pSongEditor->getGridHeight() );
+	
 	updateAll();
 }
 

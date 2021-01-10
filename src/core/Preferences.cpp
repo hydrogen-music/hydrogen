@@ -207,6 +207,8 @@ Preferences::Preferences()
 	m_bShowPlaybackTrack = false;
 	m_nPatternEditorGridHeight = 21;
 	m_nPatternEditorGridWidth = 3;
+	m_nSongEditorGridHeight = 18;
+	m_nSongEditorGridWidth = 16;
 	mainFormProperties.set(0, 0, 1000, 700, true);
 	mixerProperties.set(10, 350, 829, 276, true);
 	patternEditorProperties.set(280, 100, 706, 439, true);
@@ -546,11 +548,13 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_bShowPlaybackTrack = LocalFileMng::readXmlBool( guiNode, "showPlaybackTrack", m_bShowPlaybackTrack );
 
 
-				// pattern editor grid height
+				// pattern editor grid geometry
 				m_nPatternEditorGridHeight = LocalFileMng::readXmlInt( guiNode, "patternEditorGridHeight", m_nPatternEditorGridHeight );
-
-				// pattern editor grid width
 				m_nPatternEditorGridWidth = LocalFileMng::readXmlInt( guiNode, "patternEditorGridWidth", m_nPatternEditorGridWidth );
+
+				// song editor grid geometry
+				m_nSongEditorGridHeight = LocalFileMng::readXmlInt( guiNode, "songEditorGridHeight", m_nSongEditorGridHeight );
+				m_nSongEditorGridWidth = LocalFileMng::readXmlInt( guiNode, "songEditorGridWidth", m_nSongEditorGridWidth );
 
 				// mainForm window properties
 				setMainFormProperties( readWindowProperties( guiNode, "mainForm_properties", mainFormProperties ) );
@@ -976,6 +980,8 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridHeight", QString("%1").arg( m_nPatternEditorGridHeight ) );
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridWidth", QString("%1").arg( m_nPatternEditorGridWidth ) );
 		LocalFileMng::writeXmlBool( guiNode, "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets );
+		LocalFileMng::writeXmlString( guiNode, "songEditorGridHeight", QString("%1").arg( m_nSongEditorGridHeight ) );
+		LocalFileMng::writeXmlString( guiNode, "songEditorGridWidth", QString("%1").arg( m_nSongEditorGridWidth ) );
 		LocalFileMng::writeXmlBool( guiNode, "showInstrumentPeaks", m_bShowInstrumentPeaks );
 		LocalFileMng::writeXmlBool( guiNode, "isFXTabVisible", m_bIsFXTabVisible );
 		LocalFileMng::writeXmlBool( guiNode, "showAutomationArea", m_bShowAutomationArea );

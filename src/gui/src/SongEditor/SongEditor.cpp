@@ -92,19 +92,19 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
  , m_pSongEditorPanel( pSongEditorPanel )
  , m_bDragging( false )
 {
+	Preferences* pPref = Preferences::get_instance();
 
 	setAttribute(Qt::WA_OpaquePaintEvent);
 	setFocusPolicy (Qt::StrongFocus);
 
-	m_nGridWidth = 16;
-	m_nGridHeight = 18;
+	m_nGridWidth = pPref->getSongEditorGridWidth();
+	m_nGridHeight = pPref->getSongEditorGridHeight();
 
 	m_nCursorRow = 0;
 	m_nCursorColumn = 0;
-	m_bCursorHidden = Preferences::get_instance()->hideKeyboardCursor();
+	m_bCursorHidden = pPref->hideKeyboardCursor();
 
-	Preferences *pref = Preferences::get_instance();
-	m_nMaxPatternSequence = pref->getMaxBars();
+	m_nMaxPatternSequence = pPref->getMaxBars();
 	int m_nInitialWidth = 10 + m_nMaxPatternSequence * m_nGridWidth;
 	int m_nInitialHeight = 10;
 
@@ -1365,7 +1365,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
  , m_pBackgroundPixmap( nullptr )
 {
 	m_nWidth = 200;
-	m_nGridHeight = 18;
+	m_nGridHeight = Preferences::get_instance()->getSongEditorGridHeight();
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	setAcceptDrops(true);
@@ -2305,8 +2305,9 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
-	m_nGridWidth = 16;
 	Preferences *pPref = Preferences::get_instance();
+
+	m_nGridWidth = pPref->getSongEditorGridWidth();
 	m_nMaxPatternSequence = pPref->getMaxBars();
 
 	m_nInitialWidth = m_nMaxPatternSequence * 16;
