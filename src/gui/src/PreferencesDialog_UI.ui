@@ -575,22 +575,22 @@
           <widget class="QComboBox" name="panLawComboBox">
            <item>
             <property name="text">
-             <string>Balance Law (0 compensation)</string>
+             <string>Balance Law (0 compensation) - ratio pan parameter</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Constant Power</string>
+             <string>Constant Power - ratio pan parameter</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Constant Sum</string>
+             <string>Constant Sum - ratio pan parameter</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Balance Law - linear weighted parameter</string>
+             <string>Balance Law - linear weighted pan parameter</string>
             </property>
            </item>
            <item>
@@ -601,6 +601,21 @@
            <item>
             <property name="text">
              <string>Constant Sum - linear weighted pan parameter</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Balance Law - polar pan parameter</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Constant Power - polar pan parameter</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Constant Sum - polar pan parameter</string>
             </property>
            </item>
           </widget>

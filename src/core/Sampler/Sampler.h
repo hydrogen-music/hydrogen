@@ -32,13 +32,18 @@
 #include <vector>
 #include <memory>
 
-// NOTE: the following value must be respected by the indices in GUI preferences combo box!!!
+/* indices for pan law types
+ NOTE: the following values must be respected by the indices in GUI preferences combo box!!!	
+*/
 #define RATIO_STRAIGHT_POLYGONAL 0
 #define RATIO_CONST_POWER 1
 #define RATIO_CONST_SUM 2
 #define LINEAR_STRAIGHT_POLYGONAL 3
 #define LINEAR_CONST_POWER 4
 #define LINEAR_CONST_SUM 5
+#define POLAR_STRAIGHT_POLYGONAL 6
+#define POLAR_CONST_POWER 7
+#define POLAR_CONST_SUM 8
 
 namespace H2Core
 {
@@ -126,7 +131,10 @@ public:
 	static float linearStraightPolygonalPanLaw( float fPan );
 	static float linearConstPowerPanLaw( float fPan );
 	static float linearConstSumPanLaw( float fPan );
-	float ( *m_panLawAddresses[6] ) ( float );	
+	static float polarStraightPolygonalPanLaw( float fPan );
+	static float polarConstPowerPanLaw( float fPan );
+	static float polarConstSumPanLaw( float fPan );
+	float ( *m_panLawAddresses[9] ) ( float );	
 	float ( *getPanLawAddress( int idx ) ) ( float );
 
 private:

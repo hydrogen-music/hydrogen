@@ -99,6 +99,9 @@ Sampler::Sampler()
 	m_panLawAddresses[ LINEAR_STRAIGHT_POLYGONAL ] = &this->linearStraightPolygonalPanLaw;
 	m_panLawAddresses[ LINEAR_CONST_POWER ] = &this->linearConstPowerPanLaw;
 	m_panLawAddresses[ LINEAR_CONST_SUM ] = &this->linearConstSumPanLaw;
+	m_panLawAddresses[ POLAR_STRAIGHT_POLYGONAL ] = &this->polarStraightPolygonalPanLaw;
+	m_panLawAddresses[ POLAR_CONST_POWER ] = &this->polarConstPowerPanLaw;
+	m_panLawAddresses[ POLAR_CONST_SUM ] = &this->polarConstSumPanLaw;
 }
 
 
@@ -343,6 +346,28 @@ float Sampler::linearConstPowerPanLaw( float fPan ) {
 float Sampler::linearConstSumPanLaw( float fPan ) {
 	// the constant Sum pan law interpreting fPan as the "linear" parameter
 	return ( 1. - fPan ) * 0.5;
+}
+
+float Sampler::polarStraightPolygonalPanLaw( float fPan ) {
+	// the constant power pan law interpreting fPan as the "linear" parameter
+	float fTheta = 0.25 * M_PI * ( fPan + 1 );
+	if ( fPan <= 0 ) {
+		return 1.;
+	} else {
+		return cos( fTheta ) / sin( fTheta );
+	}
+}
+
+float Sampler::polarConstPowerPanLaw( float fPan ) {
+	float fTheta = 0.25 * M_PI * ( fPan + 1 );
+	// the constant power pan law interpreting fPan as the "linear" parameter
+	return cos( fTheta );
+}
+
+float Sampler::polarConstSumPanLaw( float fPan ) {
+	float fTheta = 0.25 * M_PI * ( fPan + 1 );
+	// the constant Sum pan law interpreting fPan as the "linear" parameter
+	return cos( fTheta ) / ( cos( fTheta ) + sin( fTheta ) );
 }
 //------------------------------------------------------------------
 
