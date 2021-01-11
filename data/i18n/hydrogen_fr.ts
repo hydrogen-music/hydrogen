@@ -1941,6 +1941,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Velocity</source>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Velocite</translation>
     </message>
     <message>
@@ -1961,7 +1962,8 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>NoteKey</source>
-        <translation>Numéro de note</translation>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Numero de note</translation>
     </message>
     <message>
         <source>destructive mode pre delete settings</source>
@@ -1981,7 +1983,8 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Probability</source>
-        <translation>Probabilité</translation>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Probabilite</translation>
     </message>
 </context>
 <context>
@@ -2139,7 +2142,8 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Pattern mode selected.</source>
-        <translation>Mode motif sélectionné.</translation>
+        <translatorcomment>Faute sur les accents aigus faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Mode motif selectionne.</translation>
     </message>
     <message>
         <source>Jack-transport on/off</source>
@@ -2171,7 +2175,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Loop song</source>
-        <translation>Morceau en boucle</translation>
+        <translation>Lecture en boucle</translation>
     </message>
     <message>
         <source>Mixer</source>
@@ -2199,11 +2203,11 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Loop song = On</source>
-        <translation>Morceau en boucle = Actif</translation>
+        <translation>Lecture en boucle = active</translation>
     </message>
     <message>
         <source>Loop song = Off</source>
-        <translation>Morceau en boucle = Inactif</translation>
+        <translation>Lecture en boucle = inactive</translation>
     </message>
     <message>
         <source>BeatCounter Panel on</source>
@@ -2231,7 +2235,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source> Count and set BPM</source>
-        <translatorcomment>Faute sur l'accent aigu faite exprès pour "régler". C'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translatorcomment>Faute sur l'accent aigu faite exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation> Compter et regler les BPM</translation>
     </message>
     <message>
@@ -2272,11 +2276,13 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband ON</source>
-        <translation>Recalcule tous les échantillons qui utilisent Rubberband</translation>
+        <translatorcomment>Faute sur l'accent aigu faite exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Recalcule tous les echantillons qui utilisent Rubberband</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
-        <translation>Recalcule tous les échantillons qui n&apos;utilisent pas Rubberband</translation>
+        <translatorcomment>Fautes sur l'accent aigu et l'apostrophe manquant faite sexprès car c'est sur l'affichage LCD et les accents et l'apostrophe n'y sont pas gérés.</translatorcomment>
+        <translation>Recalcule tous les echantillons qui n utilisent pas Rubberband</translation>
     </message>
     <message>
         <source>Switch metronome on/off</source>
@@ -3468,6 +3474,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Velocity</source>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Velocite</translation>
     </message>
     <message>
