@@ -38,7 +38,8 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog_UI, publi
 	public:
 		explicit PreferencesDialog( QWidget* parent );
 		~PreferencesDialog();
-
+		static QString m_sColorRed;
+							  
 	private slots:
 		void on_okBtn_clicked();
 		void on_cancelBtn_clicked();

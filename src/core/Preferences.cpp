@@ -176,6 +176,7 @@ Preferences::Preferences()
 	m_bOscServerEnabled = false;
 	m_bOscFeedbackEnabled = true;
 	m_nOscServerPort = 9000;
+	m_nOscTemporaryPort = -1;
 
 	//___ General properties ___
 	m_bPatternModePlaysSelected = true;
