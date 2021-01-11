@@ -78,7 +78,7 @@ Director::Director ( QWidget* pParent )
 	m_nBar = 1;	// default bar
 	m_nFlashingArea = width() * 5/100;
 
-	m_fBpm = Hydrogen::get_instance()->getSong()->__bpm;
+	m_fBpm = Hydrogen::get_instance()->getSong()->getBpm();
 	m_pTimeline = Hydrogen::get_instance()->getTimeline();
 	m_pTimer = new QTimer( this );
 	connect( m_pTimer, SIGNAL( timeout() ), this, SLOT( updateMetronomBackground() ) );
@@ -109,7 +109,7 @@ void Director::metronomeEvent( int nValue )
 	if( nValue == 3 ){
 
 		//update songname
-		QStringList list = Hydrogen::get_instance()->getSong()->get_filename().split("/");
+		QStringList list = Hydrogen::get_instance()->getSong()->getFilename().split("/");
 
 		if ( !list.isEmpty() ){
 			m_sSongName = list.last().replace( Filesystem::songs_ext, "" );
@@ -125,7 +125,7 @@ void Director::metronomeEvent( int nValue )
 	}
 
 	//bpm
-	m_fBpm = Hydrogen::get_instance()->getSong()->__bpm;
+	m_fBpm = Hydrogen::get_instance()->getSong()->getBpm();
 	//bar
 	m_nBar = Hydrogen::get_instance()->getPatternPos() + 1;
 

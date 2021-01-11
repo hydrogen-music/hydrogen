@@ -334,8 +334,8 @@ int main(int argc, char *argv[])
 			/* Still not loaded */
 			if (! pSong) {
 				___INFOLOG("Starting with empty song");
-				pSong = Song::get_empty_song();
-				pSong->set_filename( "" );
+				pSong = Song::getEmptySong();
+				pSong->setFilename( "" );
 			}
 
 			pHydrogen->setSong( pSong );
@@ -378,7 +378,7 @@ int main(int argc, char *argv[])
 		
 		bool ExportMode = false;
 		if ( ! outFilename.isEmpty() ) {
-			InstrumentList *pInstrumentList = pSong->get_instrument_list();
+			InstrumentList *pInstrumentList = pSong->getInstrumentList();
 			for (auto i = 0; i < pInstrumentList->size(); i++) {
 				pInstrumentList->get(i)->set_currently_exported( true );
 			}

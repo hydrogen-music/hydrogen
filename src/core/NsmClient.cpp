@@ -137,12 +137,12 @@ int NsmClient::OpenCallback( const char *name,
 		
 	} else {
 
-		pSong = H2Core::Song::get_empty_song();
+		pSong = H2Core::Song::getEmptySong();
 		if ( pSong == nullptr ) {
 			NsmClient::printError( "Unable to open new Song." );
 			return ERR_LAUNCH_FAILED;
 		}
-		pSong->set_filename( sSongPath );
+		pSong->setFilename( sSongPath );
 	}
 
 	// When starting Hydrogen with its Qt5 GUI activated, the chosen

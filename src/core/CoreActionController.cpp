@@ -58,7 +58,7 @@ CoreActionController::~CoreActionController() {
 void CoreActionController::setMasterVolume( float masterVolumeValue )
 {
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getSong()->set_volume( masterVolumeValue );
+	pHydrogen->getSong()->setVolume( masterVolumeValue );
 	
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "MASTER_VOLUME_ABSOLUTE" );
@@ -82,7 +82,7 @@ void CoreActionController::setStripVolume( int nStrip, float fVolumeValue, bool 
 	}
 	
 	Song *pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	Instrument *pInstr = pInstrList->get( nStrip );
 	pInstr->set_volume( fVolumeValue );
@@ -123,7 +123,7 @@ void CoreActionController::setMetronomeIsActive( bool isActive )
 void CoreActionController::setMasterIsMuted( bool isMuted )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	pHydrogen->getSong()->__is_muted = isMuted;
+	pHydrogen->getSong()->setIsMuted( isMuted );
 	
 #ifdef H2CORE_HAVE_OSC
 	Action FeedbackAction( "MUTE_TOGGLE" );
@@ -143,7 +143,7 @@ void CoreActionController::toggleStripIsMuted(int nStrip)
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nStrip ))
 	{
@@ -159,7 +159,7 @@ void CoreActionController::setStripIsMuted( int nStrip, bool isMuted )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	Instrument *pInstr = pInstrList->get( nStrip );
 	pInstr->set_muted( isMuted );
@@ -183,7 +183,7 @@ void CoreActionController::toggleStripIsSoloed( int nStrip )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nStrip ))
 	{
@@ -199,7 +199,7 @@ void CoreActionController::setStripIsSoloed( int nStrip, bool isSoloed )
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	Instrument* pInstr = pInstrList->get( nStrip );
 	pInstr->set_soloed( isSoloed );
@@ -241,7 +241,7 @@ void CoreActionController::setStripPan( int nStrip, float fPanValue, bool bSelec
 	}
 	
 	Song *pSong = pHydrogen->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	Instrument *pInstr = pInstrList->get( nStrip );
 	pInstr->set_pan_l( fPan_L );
@@ -285,10 +285,10 @@ void CoreActionController::initExternalControlInterfaces()
 	//MASTER_VOLUME_ABSOLUTE
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
-	setMasterVolume( pSong->get_volume() );
+	setMasterVolume( pSong->getVolume() );
 	
 	//PER-INSTRUMENT/STRIP STATES
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 	for(int i=0; i < pInstrList->size(); i++){
 		
 			//STRIP_VOLUME_ABSOLUTE
@@ -322,7 +322,7 @@ void CoreActionController::initExternalControlInterfaces()
 	setMetronomeIsActive( Preferences::get_instance()->m_bUseMetronome );
 	
 	//MUTE_TOGGLE
-	setMasterIsMuted( Hydrogen::get_instance()->getSong()->__is_muted );
+	setMasterIsMuted( Hydrogen::get_instance()->getSong()->getIsMuted() );
 }
 
 bool CoreActionController::newSong( const QString& sSongPath ) {
@@ -339,7 +339,7 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 	pHydrogen->getTimeline()->deleteAllTempoMarkers();
 	
 	// Create an empty Song.
-	auto pSong = Song::get_empty_song();
+	auto pSong = Song::getEmptySong();
 	
 	// Check whether the provided path is valid.
 	if ( !isSongPathValid( sSongPath ) ) {
@@ -348,7 +348,7 @@ bool CoreActionController::newSong( const QString& sSongPath ) {
 		return false;
 	}
 	
-	pSong->set_filename( sSongPath );
+	pSong->setFilename( sSongPath );
 	
 	if ( pHydrogen->getGUIState() != Hydrogen::GUIState::unavailable ) {
 		
@@ -464,7 +464,7 @@ bool CoreActionController::saveSong() {
 	auto pSong = pHydrogen->getSong();
 	
 	// Extract the path to the associate .h2song file.
-	QString sSongPath = pSong->get_filename();
+	QString sSongPath = pSong->getFilename();
 	
 	if ( sSongPath.isEmpty() ) {
 		ERRORLOG( "Unable to save song. Empty filename!" );
@@ -677,9 +677,9 @@ bool CoreActionController::activateSongMode( bool bActivate, bool bTriggerEvent 
 	pHydrogen->sequencer_stop();
 	if ( bActivate ) {
 		pHydrogen->setPatternPos( 0 );
-		pHydrogen->getSong()->set_mode( Song::SONG_MODE );
+		pHydrogen->getSong()->setMode( Song::SONG_MODE );
 	} else {
-		pHydrogen->getSong()->set_mode( Song::PATTERN_MODE );
+		pHydrogen->getSong()->setMode( Song::PATTERN_MODE );
 	}
 	
 	if ( bTriggerEvent ) {
@@ -692,8 +692,8 @@ bool CoreActionController::activateSongMode( bool bActivate, bool bTriggerEvent 
 bool CoreActionController::activateLoopMode( bool bActivate, bool bTriggerEvent ) {
 
 	auto pSong = Hydrogen::get_instance()->getSong();
-	pSong->set_loop_enabled( bActivate );
-	pSong->set_is_modified( true );
+	pSong->setIsLoopEnabled( bActivate );
+	pSong->setIsModified( true );
 	
 	if ( bTriggerEvent ) {
 		EventQueue::get_instance()->push_event( EVENT_LOOP_MODE_ACTIVATION, static_cast<int>( bActivate ) );

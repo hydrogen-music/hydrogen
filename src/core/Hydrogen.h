@@ -140,16 +140,16 @@ public:
 	 * Adding and removing a Pattern from #m_pNextPatterns.
 	 *
 	 * After locking the AudioEngine the function retrieves the
-	 * particular pattern @a pos from the Song::__pattern_list and
+	 * particular pattern @a pos from the Song::m_pPatternList and
 	 * either deletes it from #m_pNextPatterns if already present or
 	 * add it to the same pattern list if not present yet.
 	 *
 	 * If the Song is not in Song::PATTERN_MODE or @a pos is not
-	 * within the range of Song::__pattern_list, #m_pNextPatterns will
+	 * within the range of Song::m_pPatternList, #m_pNextPatterns will
 	 * be cleared instead.
 	 *
 	 * \param pos Index of a particular pattern in
-	 * Song::__pattern_list, which should be added to
+	 * Song::m_pPatternList, which should be added to
 	 * #m_pNextPatterns.
 	 */
 	void			sequencer_setNextPattern( int pos );
@@ -160,14 +160,14 @@ public:
 	 * After locking the AudioEngine the function clears
 	 * #m_pNextPatterns, fills it with all currently played one in
 	 * #m_pPlayingPatterns, and appends the particular pattern @a pos
-	 * from the Song::__pattern_list.
+	 * from the Song::m_pPatternList.
 	 *
 	 * If the Song is not in Song::PATTERN_MODE or @a pos is not
-	 * within the range of Song::__pattern_list, #m_pNextPatterns will
+	 * within the range of Song::m_pPatternList, #m_pNextPatterns will
 	 * be just cleared.
 	 *
 	 * \param pos Index of a particular pattern in
-	 * Song::__pattern_list, which should be added to
+	 * Song::m_pPatternList, which should be added to
 	 * #m_pNextPatterns.
 	 */
 	void			sequencer_setOnlyNextPattern( int pos );
@@ -292,7 +292,7 @@ public:
 	 * \return 
 	 * - __0__ : if the Song isn't specified yet.
 	 * - the output of the findPatternInTick() function called
-	 *   with @a TickPos and Song::is_loop_enabled() as input
+	 *   with @a TickPos and Song::getIsLoopEnabled() as input
 	 *   arguments.
 	 */
 	int			getPosForTick( unsigned long TickPos, int* nPatternStartTick );
@@ -318,7 +318,7 @@ public:
 		 *   Song::__pattern_group_sequence.
 		 * \return
 		 *  - -1 : if @a pos is bigger than the number of patterns in
-		 *   the Song and Song::__is_loop_enabled is set to false or
+		 *   the Song and Song::getIsLoopEnabled() is set to false or
 		 *   no Patterns could be found at all.
 		 *  - >= 0 : the total number of ticks passed.
 		 */
@@ -437,7 +437,7 @@ void			previewSample( Sample *pSample );
 	 * Updates the speed.
 	 *
 	 * It calls AudioOutput::setBpm() and setNewBpmJTM() with @a
-	 * fBPM as input argument and sets Song::__bpm to @a fBPM.
+	 * fBPM as input argument and sets Song::m_fBpm to @a fBPM.
 	 *
 	 * This function will be called with the AudioEngine in LOCKED
 	 * state.
@@ -511,14 +511,14 @@ void			previewSample( Sample *pSample );
 	 * PatternList at @a nPattern - 1.
 	 *
 	 * This function should also work if the loop mode is enabled
-	 * in Song::is_loop_enabled().
+	 * in Song::getIsLoopEnabled().
 	 *
 	 * \param nPattern Position + 1 of the desired PatternList.
 	 * \return 
 	 * - __-1__ : if not Song was initialized yet.
 	 * - #MAX_NOTES : if @a nPattern was smaller than 1, larger
 	 * than the length of the vector of the PatternList in
-	 * Song::__pattern_group_sequence or no Pattern could be found
+	 * Song::m_pPatternGroupSequence or no Pattern could be found
 	 * in the PatternList at @a nPattern - 1.
 	 * - __else__ : length of first Pattern found at @a nPattern.
 	 */
@@ -534,7 +534,7 @@ void			previewSample( Sample *pSample );
 	unsigned int	__getMidiRealtimeNoteTickPosition() const;
 
 	/**
-	 * Updates Song::__bpm, TransportInfo::m_fBPM, and #m_fNewBpmJTM
+	 * Updates Song::m_fBpm, TransportInfo::m_fBPM, and #m_fNewBpmJTM
 	 * to the local speed.
 	 *
 	 * The local speed will be obtained by calling getTimelineBpm()
@@ -555,7 +555,7 @@ void			previewSample( Sample *pSample );
 	 *
 	 * If Hydrogen is in Song::PATTERN_MODE or
 	 * Preferences::__useTimelineBpm is set to false, the global
-	 * speed of the current Song Song::__bpm or, if no Song is
+	 * speed of the current Song Song::m_fBpm or, if no Song is
 	 * present yet, the result of getNewBpmJTM() will be
 	 * returned. 
 	 *
@@ -581,7 +581,7 @@ void			previewSample( Sample *pSample );
 	/************************************************************/
 	/********************** Playback track **********************/
 	/**
-	 * Wrapper around Song::set_playback_track_enabled().
+	 * Wrapper around Song::setPlaybackTrackEnabled().
 	 *
 	 * \param state Whether the playback track is enabled. It will
 	 * be replaced by false, if no Song was selected (getSong()
@@ -589,7 +589,7 @@ void			previewSample( Sample *pSample );
 	 */
 	bool			setPlaybackTrackState( const bool state );
 	/**
-	 * Wrapper around Song::get_playback_track_enabled().
+	 * Wrapper around Song::getPlaybackTrackEnabled().
 	 *
 	 * \return Whether the playback track is enabled or false, if
 	 * no Song was selected (getSong() return nullptr).
@@ -598,7 +598,7 @@ void			previewSample( Sample *pSample );
 	/**
 	 * Wrapper function for loading the playback track.
 	 *
-	 * Calls Song::set_playback_track_filename() and
+	 * Calls Song::setPlaybackTrackFilename() and
 	 * Sampler::reinitialize_playback_track(). While the former
 	 * one is responsible to store metadata about the playback
 	 * track, the latter one does load it to a new
@@ -869,7 +869,7 @@ inline bool Hydrogen::getPlaybackTrackState() const
 	if(!pSong){
 		bState = false;
 	} else {
-		bState = pSong->get_playback_track_enabled();
+		bState = pSong->getPlaybackTrackEnabled();
 	}
 	return 	bState;
 }

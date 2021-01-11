@@ -556,11 +556,11 @@ void PlayerControl::updatePlayerControl()
 
 	Song *song = m_pEngine->getSong();
 
-	m_pSongLoopBtn->setPressed( song->is_loop_enabled() );
+	m_pSongLoopBtn->setPressed( song->getIsLoopEnabled() );
 
-	m_pLCDBPMSpinbox->setValue( song->__bpm );
+	m_pLCDBPMSpinbox->setValue( song->getBpm() );
 
-	if ( song->get_mode() == Song::PATTERN_MODE ) {
+	if ( song->getMode() == Song::PATTERN_MODE ) {
 		m_pLiveModeBtn->setPressed( true );
 		m_pSongModeBtn->setPressed( false );
 	}
@@ -774,7 +774,7 @@ void PlayerControl::bpmChanged() {
 		fNewBpmValue = 400;
 	}
 
-	m_pEngine->getSong()->set_is_modified( true );
+	m_pEngine->getSong()->setIsModified( true );
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	m_pEngine->setBPM( fNewBpmValue );
@@ -961,7 +961,7 @@ void PlayerControl::bpmClicked()
 			return;
 		}
 
-		m_pEngine->getSong()->set_is_modified( true );
+		m_pEngine->getSong()->setIsModified( true );
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
@@ -1118,7 +1118,7 @@ void PlayerControl::tempoChangedEvent( int nValue )
 	 * of the song.
 	 */
 	
-	m_pLCDBPMSpinbox->setValue( m_pEngine->getSong()->__bpm );
+	m_pLCDBPMSpinbox->setValue( m_pEngine->getSong()->getBpm() );
 }
 
 void PlayerControl::jackTransportActivationEvent( int nValue ) {

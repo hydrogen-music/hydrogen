@@ -58,7 +58,7 @@ void* diskWriterDriver_thread( void* param )
 
 	EventQueue::get_instance()->push_event( EVENT_PROGRESS, 0 );
 	
-	pDriver->setBpm( Hydrogen::get_instance()->getSong()->__bpm );
+	pDriver->setBpm( Hydrogen::get_instance()->getSong()->getBpm() );
 	pDriver->audioEngine_process_checkBPMChanged();
 	
 	__INFOLOG( "DiskWriterDriver thread start" );
@@ -156,11 +156,11 @@ void* diskWriterDriver_thread( void* param )
 	Hydrogen* pEngine = Hydrogen::get_instance();
 	auto pSong = pEngine->getSong();
 
-	std::vector<PatternList*> *pPatternColumns = pSong->get_pattern_group_vector();
+	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
 	
 	int nPatternSize;
-	int validBpm = pEngine->getSong()->__bpm;
+	int validBpm = pEngine->getSong()->getBpm();
 	float oldBPM = 0;
 	float fTicksize = 0;
 	
@@ -184,7 +184,7 @@ void* diskWriterDriver_thread( void* param )
 			pDriver->setBpm(validBpm);
 			fTicksize = AudioEngine::compute_tick_size( pDriver->m_nSampleRate,
 														validBpm,
-														pSong->__resolution );
+														pSong->getResolution() );
 			pDriver->audioEngine_process_checkBPMChanged();
 			pEngine->setPatternPos(patternPosition);
 			
@@ -200,8 +200,8 @@ void* diskWriterDriver_thread( void* param )
 		else
 		{
 			fTicksize = AudioEngine::compute_tick_size( pDriver->m_nSampleRate,
-														pSong->__bpm,
-														pSong->__resolution );
+														pSong->getBpm(),
+														pSong->getResolution() );
 			//pDriver->m_transport.m_fTickSize = ticksize;
 		}
 		
@@ -389,8 +389,8 @@ void DiskWriterDriver::audioEngine_process_checkBPMChanged()
 {
 	auto pSong = Hydrogen::get_instance()->getSong();
 	float fNewTickSize = AudioEngine::compute_tick_size( getSampleRate(),
-														 pSong->__bpm,
-														 pSong->__resolution );
+														 pSong->getBpm(),
+														 pSong->getResolution() );
 
 	if ( fNewTickSize != m_transport.m_fTickSize ) {
 		// cerco di convertire ...

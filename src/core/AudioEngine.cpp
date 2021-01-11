@@ -233,7 +233,7 @@ void AudioEngine::locate( const unsigned long nFrame ) {
 	pDriver->locate( nFrame );
 	AudioEngine::get_instance()->calculateElapsedTime( pDriver->getSampleRate(),
 													   nFrame,
-													   pHydrogen->getSong()->__resolution );
+													   pHydrogen->getSong()->getResolution() );
 }
 
 void AudioEngine::unlock()

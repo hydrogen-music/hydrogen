@@ -86,10 +86,10 @@ void ExportMidiDialog::saveSettingsToPreferences()
 
 QString ExportMidiDialog::createDefaultFilename()
 {
-	QString sDefaultFilename = m_pEngine->getSong()->get_filename();
+	QString sDefaultFilename = m_pEngine->getSong()->getFilename();
 
 	if( sDefaultFilename.isEmpty() ){
-		sDefaultFilename = m_pEngine->getSong()->__name;
+		sDefaultFilename = m_pEngine->getSong()->getName();
 	} else {
 		// extracting filename from full path
 		QFileInfo qDefaultFile( sDefaultFilename ); 

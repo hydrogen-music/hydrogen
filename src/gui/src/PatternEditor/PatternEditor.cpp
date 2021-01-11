@@ -158,7 +158,7 @@ void PatternEditor::selectNone()
 
 void PatternEditor::selectInstrumentNotes( int nInstrument )
 {
-	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->get_instrument_list();
+	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();
 	Instrument *pInstrument = pInstrumentList->get( nInstrument );
 
 	m_selection.clearSelection();
@@ -218,7 +218,7 @@ void PatternEditor::updatePatternInfo() {
 	m_nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 
 	if ( pSong ) {
-		PatternList *pPatternList = pSong->get_pattern_list();
+		PatternList *pPatternList = pSong->getPatternList();
 		if ( ( m_nSelectedPatternNumber != -1 ) && ( m_nSelectedPatternNumber < pPatternList->size() ) ) {
 			m_pPattern = pPatternList->get( m_nSelectedPatternNumber );
 		}
