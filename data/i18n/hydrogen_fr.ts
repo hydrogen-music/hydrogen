@@ -3572,7 +3572,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Fill/Clear ...</source>
-        <translation>Remplir/Effacer ...</translation>
+        <translation>Remplir/effacer ...</translation>
     </message>
     <message>
         <source>Save Pattern</source>
