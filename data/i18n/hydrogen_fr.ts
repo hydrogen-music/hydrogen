@@ -3089,11 +3089,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>&amp;Play</source>
-        <translation>Jouer (&amp;P)</translation>
+        <translation>&amp;Lecture</translation>
     </message>
     <message>
         <source>new sample length:</source>
-        <translation>nouvelle longueur de l&apos;échantillon:</translation>
+        <translation>nouvelle longueur de l&apos;échantillon :</translation>
     </message>
     <message>
         <source>fade-out type</source>
@@ -3321,11 +3321,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&quot;Rubberband Audio Processor&quot; : Change the tempo (sample length) and pitch of audio.</source>
-        <translation>&quot;Processeur audio Rubberband&quot; : Modifie le tempo et la hauteur de l&apos;échantillon.</translation>
+        <translation>&quot;Processeur audio Rubberband&quot; : modifie le tempo (la longueur de l'échantillon) et la tonalité de l&apos;audio.</translation>
     </message>
     <message>
         <source> Pitch (Semitone,Cent)</source>
-        <translation>Hauteur (Demi-ton,cent)</translation>
+        <translation>Hauteur (demi-ton,cent)</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
