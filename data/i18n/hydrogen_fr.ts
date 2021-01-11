@@ -642,7 +642,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Enable use of rubberband&apos;s batch processor</source>
-        <translation>Autorise l&apos;utilisation du traitement en lot de rubberband</translation>
+        <translation>Active l&apos;utilisation du traitement en lot de rubberband</translation>
     </message>
     <message>
         <source>Rubberband Batch</source>
@@ -863,7 +863,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample.</source>
-        <translation>Arrêter la note actuelle avant de déclencher l&apos;échantillon suivant.</translation>
+        <translation>Arrêter la note actuelle avant de déclencher l&apos;échantillon suivant</translation>
     </message>
     <message>
         <source>New component name</source>
@@ -1941,6 +1941,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Velocity</source>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Velocite</translation>
     </message>
     <message>
@@ -1961,7 +1962,8 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>NoteKey</source>
-        <translation>Numéro de note</translation>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Numero de note</translation>
     </message>
     <message>
         <source>destructive mode pre delete settings</source>
@@ -1981,7 +1983,8 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Probability</source>
-        <translation>Probabilité</translation>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Probabilite</translation>
     </message>
 </context>
 <context>
@@ -2139,7 +2142,8 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Pattern mode selected.</source>
-        <translation>Mode motif sélectionné.</translation>
+        <translatorcomment>Faute sur les accents aigus faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Mode motif selectionne.</translation>
     </message>
     <message>
         <source>Jack-transport on/off</source>
@@ -2199,11 +2203,11 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Loop song = On</source>
-        <translation>Morceau en boucle = Actif</translation>
+        <translation>Morceau en boucle = actif</translation>
     </message>
     <message>
         <source>Loop song = Off</source>
-        <translation>Morceau en boucle = Inactif</translation>
+        <translation>Morceau en boucle = inactif</translation>
     </message>
     <message>
         <source>BeatCounter Panel on</source>
@@ -2231,7 +2235,8 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source> Count and set BPM</source>
-        <translation> Compter et régler les BPM</translation>
+        <translatorcomment>Faute sur l'accent aigu faite exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation> Compter et regler les BPM</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = On</source>
@@ -2271,11 +2276,13 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband ON</source>
-        <translation>Recalcule tous les échantillons qui utilisent Rubberband</translation>
+        <translatorcomment>Faute sur l'accent aigu faite exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Recalcule tous les echantillons qui utilisent Rubberband</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
-        <translation>Recalcule tous les échantillons qui n&apos;utilisent pas Rubberband</translation>
+        <translatorcomment>Fautes sur l'accent aigu et l'apostrophe manquant faite sexprès car c'est sur l'affichage LCD et les accents et l'apostrophe n'y sont pas gérés.</translatorcomment>
+        <translation>Recalcule tous les echantillons qui n utilisent pas Rubberband</translation>
     </message>
     <message>
         <source>Switch metronome on/off</source>
@@ -3467,6 +3474,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Velocity</source>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Velocite</translation>
     </message>
     <message>
@@ -3518,7 +3526,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Delete BPM Marker</source>
-        <translation>Effacer les marqueurs BPM</translation>
+        <translation>Effacer le marqueur BPM</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -3564,7 +3572,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Fill/Clear ...</source>
-        <translation>Remplir/Effacer ...</translation>
+        <translation>Remplir/effacer ...</translation>
     </message>
     <message>
         <source>Save Pattern</source>
