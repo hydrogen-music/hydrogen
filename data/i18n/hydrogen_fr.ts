@@ -863,7 +863,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample.</source>
-        <translation>Arrêter la note actuelle avant de déclencher l&apos;échantillon suivant.</translation>
+        <translation>Arrêter la note actuelle avant de déclencher l&apos;échantillon suivant</translation>
     </message>
     <message>
         <source>New component name</source>
