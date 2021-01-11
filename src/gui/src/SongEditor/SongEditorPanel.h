@@ -41,13 +41,6 @@ class AutomationPathView;
 class LCDCombo;
 class PlaybackTrackWaveDisplay;
 
-enum SongEditorActionMode
-{
-	SELECT_ACTION,
-	DRAW_ACTION
-};
-
-
 class SongEditorPanel : public QWidget, public EventListener, public H2Core::Object
 {
 	H2_OBJECT
@@ -65,7 +58,6 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void updateAll();
 		void updatePositionRuler();
 		void setModeActionBtn( bool mode );
-		SongEditorActionMode getActionMode() {	return m_actionMode;	}
 		void toggleAutomationAreaVisibility();
 		
 		void showTimeline();
@@ -120,8 +112,6 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		void automationPathPointMoved(float ox, float oy, float tx, float ty);
 
 	private:
-		SongEditorActionMode	m_actionMode;
-
 		uint					m_nInitialWidth;
 		uint					m_nInitialHeight;
 

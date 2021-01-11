@@ -261,7 +261,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	PatternList *pPatternList = pEngine->getSong()->get_pattern_list();
 	std::vector<PatternList*>* pColumns = pEngine->getSong()->get_pattern_group_vector();
 	const QPoint centre = QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
-	SongEditorActionMode actionMode = m_pSongEditorPanel->getActionMode();
+	Preferences::ActionMode actionMode = Preferences::get_instance()->m_actionMode;
 	bool bUnhideCursor = true;
 
 	if ( ev->matches( QKeySequence::Delete ) ) {
@@ -375,7 +375,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	} else if ( ev->matches( QKeySequence::SelectAll ) ) {
 		// Key: Ctrl + A: Select all pattern
 		bUnhideCursor = false;
-		if ( actionMode == SELECT_ACTION ) {
+		if ( actionMode == Preferences::ActionMode::selectMode ) {
 			m_selectedCells.clear();
 			for ( int nRow = 0; nRow < pPatternList->size(); nRow++ ) {
 				H2Core::Pattern *pPattern = pPatternList->get( nRow );
@@ -394,19 +394,19 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	} else if ( ev->matches( QKeySequence::Deselect ) ) {
 		// Key: Shift + Ctrl + A: deselect any selected cells
 		bUnhideCursor = false;
-		if ( actionMode == SELECT_ACTION ) {
+		if ( actionMode == Preferences::ActionMode::selectMode ) {
 			m_selectedCells.clear();
 			m_bSequenceChanged = false;
 		}
 
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		// Key: Return: Set or clear cell (draw mode), or start/end selection or move (select mode)
-		if ( actionMode == DRAW_ACTION ) {
+		if ( actionMode == Preferences::ActionMode::drawMode ) {
 			// In DRAW mode, Enter's obvious action is the same as a
 			// click - insert or delete pattern.
 			togglePatternActive( m_nCursorColumn, m_nCursorRow );
 
-		} else if ( actionMode == SELECT_ACTION ) {
+		} else if ( actionMode == Preferences::ActionMode::selectMode ) {
 			// TBD. There's no clear and obvious default
 			// single-keypress action to take in select mode, as all
 			// associated mouse actions are drags (define selection,
@@ -476,7 +476,7 @@ void SongEditor::cancelSelectionOrMove()
 void SongEditor::startSelectionAtCursor( void )
 {
 	if ( !m_bShowLasso
-		 && m_pSongEditorPanel->getActionMode() == SELECT_ACTION ) {
+		 && Preferences::get_instance()->m_actionMode == Preferences::ActionMode::selectMode ) {
 		QPoint pos = (columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) )
 					  + QPoint( m_nGridWidth / 2, m_nGridHeight / 2) );
 		m_bShowLasso = true;
@@ -736,7 +736,7 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 		m_bCursorHidden = true;
 	}
 
-	SongEditorActionMode actionMode = m_pSongEditorPanel->getActionMode();
+	Preferences::ActionMode actionMode = Preferences::get_instance()->m_actionMode;
 
 	if ( !m_bDragging ) {
 		if ( (ev->pos() - m_clickStartPoint).manhattanLength()
@@ -744,10 +744,10 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 
 			m_bDragging = true;
 			QPoint p0 = xyToColumnRow( m_clickStartPoint );
-			if ( actionMode == SELECT_ACTION ) {
+			if ( actionMode == Preferences::ActionMode::selectMode ) {
 				startSelectionOrMove( p0.x(), p0.y(), m_clickStartPoint, !m_bIsCtrlPressed );
 
-			} else if ( actionMode == DRAW_ACTION ) {
+			} else if ( actionMode == Preferences::ActionMode::drawMode ) {
 				m_bDrawingActiveCell = togglePatternActive( p0.x(), p0.y() );
 			}
 
@@ -756,9 +756,9 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 	}
 
 	if ( m_bDragging ) {
-		if ( m_pSongEditorPanel->getActionMode() == SELECT_ACTION ) {
+		if ( Preferences::get_instance()->m_actionMode == Preferences::ActionMode::selectMode ) {
 			updateSelectionOrMove( p.x(), p.y(), ev->pos() );
-		} else if ( m_pSongEditorPanel->getActionMode() == DRAW_ACTION ) {
+		} else if ( Preferences::get_instance()->m_actionMode == Preferences::ActionMode::drawMode ) {
 			// Drawing mode: continue drawing over other cells
 			setPatternActive( p.x(), p.y(), m_bDrawingActiveCell );
 		}
@@ -845,10 +845,10 @@ void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 		finishSelectionOrMove( p.x(), p.y() );
 	} else {
 		// Completed a single click.
-		if ( m_pSongEditorPanel->getActionMode() == DRAW_ACTION ) {
+		if ( Preferences::get_instance()->m_actionMode == Preferences::ActionMode::drawMode ) {
 			// Draw mode click -> add or remove
 			togglePatternActive( p.x(), p.y() );
-		} else if ( m_pSongEditorPanel->getActionMode() == SELECT_ACTION ) {
+		} else if ( Preferences::get_instance()->m_actionMode == Preferences::ActionMode::selectMode ) {
 			if ( m_bIsCtrlPressed ) {
 				togglePatternSelected( p.x(), p.y() );
 			} else {

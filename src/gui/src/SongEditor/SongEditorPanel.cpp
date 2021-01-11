@@ -55,7 +55,6 @@ const char* SongEditorPanel::__class_name = "SongEditorPanel";
 SongEditorPanel::SongEditorPanel(QWidget *pParent)
  : QWidget( pParent )
  , Object( __class_name )
- , m_actionMode( DRAW_ACTION )
 {
 	m_nInitialWidth = 600;
 	m_nInitialHeight = 250;
@@ -167,7 +166,14 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pDrawActionBtn->move( 147, 5 + 25 );
 	m_pDrawActionBtn->setToolTip( tr( "Draw mode") );
 	connect( m_pDrawActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( drawActionBtnPressed(Button* ) ) );
-	m_pDrawActionBtn->setPressed( true );
+
+	if ( pPref->m_actionMode == Preferences::ActionMode::selectMode ) {
+		m_pPointerActionBtn->setPressed( true );
+		m_pDrawActionBtn->setPressed( false );
+	} else {
+		m_pPointerActionBtn->setPressed( false );
+		m_pDrawActionBtn->setPressed( true );
+	}
 
 	m_pModeActionBtn = new ToggleButton(
 			pBackPanel,
@@ -708,7 +714,7 @@ void SongEditorPanel::pointerActionBtnPressed( Button* pBtn )
 {
 	pBtn->setPressed( true );
 	m_pDrawActionBtn->setPressed( false );
-	m_actionMode = SELECT_ACTION;
+	Preferences::get_instance()->m_actionMode = Preferences::ActionMode::selectMode;
 }
 
 
@@ -717,7 +723,7 @@ void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 {
 	pBtn->setPressed( true );
 	m_pPointerActionBtn->setPressed( false );
-	m_actionMode = DRAW_ACTION;
+	Preferences::get_instance()->m_actionMode = Preferences::ActionMode::drawMode;
 }
 
 void SongEditorPanel::updateTimelineUsage() {

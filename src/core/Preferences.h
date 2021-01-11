@@ -188,6 +188,18 @@ public:
 		UI_SCALING_LARGER
 	};
 
+	/** Defines the type of user interaction experienced in the 
+		SongEditor.*/
+	enum class ActionMode {
+		/** Holding a pressed left mouse key will draw a rectangle to
+			select a group of Notes.*/
+		selectMode = 0,
+		/** Holding a pressed left mouse key will draw/delete patterns
+			in all grid cells encountered.*/
+		drawMode = 1
+	};
+	ActionMode 			m_actionMode;
+
 	QString				__lastspatternDirectory;
 	QString				__lastsampleDirectory; // audio file browser
 	bool				__playsamplesonclicking; // audio file browser
