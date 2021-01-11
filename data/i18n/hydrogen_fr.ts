@@ -642,7 +642,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Enable use of rubberband&apos;s batch processor</source>
-        <translation>Autorise l&apos;utilisation du traitement en lot de rubberband</translation>
+        <translation>Active l&apos;utilisation du traitement en lot de rubberband</translation>
     </message>
     <message>
         <source>Rubberband Batch</source>
