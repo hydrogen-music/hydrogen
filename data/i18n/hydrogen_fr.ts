@@ -2175,7 +2175,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Loop song</source>
-        <translation>Lecture en boucle</translation>
+        <translation>Morceau en boucle</translation>
     </message>
     <message>
         <source>Mixer</source>
@@ -2203,11 +2203,11 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Loop song = On</source>
-        <translation>Lecture en boucle = active</translation>
+        <translation>Morceau en boucle = actif</translation>
     </message>
     <message>
         <source>Loop song = Off</source>
-        <translation>Lecture en boucle = inactive</translation>
+        <translation>Morceau en boucle = inactif</translation>
     </message>
     <message>
         <source>BeatCounter Panel on</source>
