@@ -2231,7 +2231,8 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source> Count and set BPM</source>
-        <translation> Compter et régler les BPM</translation>
+        <translatorcomment>Faute sur l'accent aigu faite exprès pour "régler". C'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation> Compter et regler les BPM</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = On</source>
