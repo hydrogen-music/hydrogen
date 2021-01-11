@@ -3321,7 +3321,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&quot;Rubberband Audio Processor&quot; : Change the tempo (sample length) and pitch of audio.</source>
-        <translation>&quot;Processeur audio Rubberband&quot; : modifie le tempo (la longueur de l'échantillon) et la tonalité de l&apos;audio.</translation>
+        <translation>&quot;Processeur audio Rubberband&quot; : modifie le tempo (la longueur de l&apos;échantillon) et la tonalité de l&apos;audio.</translation>
     </message>
     <message>
         <source> Pitch (Semitone,Cent)</source>
@@ -3467,7 +3467,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation>Vélocité</translation>
+        <translation>Velocite</translation>
     </message>
     <message>
         <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
