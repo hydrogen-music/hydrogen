@@ -280,7 +280,7 @@
         <rect>
          <x>10</x>
          <y>10</y>
-         <width>451</width>
+         <width>458</width>
          <height>451</height>
         </rect>
        </property>
@@ -619,56 +619,6 @@
               <height>16777215</height>
              </size>
             </property>
-            <item>
-             <property name="text">
-              <string>Balance Law (0dB) - ratio pan parameter</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Constant Power (-3dB) - ratio pan parameter</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Constant Sum (-6dB) - ratio pan parameter</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Balance Law - linear weighted pan parameter</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Constant Power - linear weighted pan parameter</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Constant Sum - linear weighted pan parameter</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Balance Law - polar pan parameter</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Constant Power - polar pan parameter</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Constant Sum - polar pan parameter</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Constant k-Norm (Custom dB compensation!) - linear parameter</string>
-             </property>
-            </item>
            </widget>
           </item>
           <item row="0" column="0">

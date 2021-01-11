@@ -204,23 +204,37 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 
 	resampleComboBox->setCurrentIndex( (int) AudioEngine::get_instance()->get_sampler()->getInterpolateMode() );
+	
+	
+	// pan law
+	// insert the item here so they are consistent with sampler indices, no matter of their order in this menu
+	panLawComboBox->addItem( QString("Balance Law (0dB) - linear pan parameter"), QVariant( LINEAR_STRAIGHT_POLYGONAL ) );
+	panLawComboBox->addItem( QString("Constant Power (-3dB) - linear pan parameter"), QVariant( LINEAR_CONST_POWER ) );
+	panLawComboBox->addItem( QString("Constant Sum (-6dB) - linear pan parameter"), QVariant( LINEAR_CONST_SUM ) );
+	panLawComboBox->addItem( QString("Constant k-Norm (Custom dB compensation) - linear parameter"),
+																							QVariant( LINEAR_CONST_K_NORM ) );
+	panLawComboBox->insertSeparator(100);
+	panLawComboBox->addItem( QString("Balance Law (0dB) - polar pan parameter"), QVariant( POLAR_STRAIGHT_POLYGONAL ) );
+	panLawComboBox->addItem( QString("Constant Power (-3dB) - polar pan parameter"), QVariant( POLAR_CONST_POWER ) );
+	panLawComboBox->addItem( QString("Constant Sum (-6dB) - polar pan parameter"), QVariant( POLAR_CONST_SUM ) );
+	panLawComboBox->insertSeparator(100);
+	panLawComboBox->addItem( QString("Balance Law (0dB) - ratio pan parameter"), QVariant( RATIO_STRAIGHT_POLYGONAL ) );
+	panLawComboBox->addItem( QString("Constant Power (-3dB) - ratio pan parameter"), QVariant( RATIO_CONST_POWER ) );
+	panLawComboBox->addItem( QString("Constant Sum (-6dB) - ratio pan parameter"), QVariant( RATIO_CONST_SUM ) );
+	panLawComboBox->insertSeparator(100);
+	panLawComboBox->addItem( QString("Balance Law (0dB) - quadratic pan parameter"), QVariant( QUADRATIC_STRAIGHT_POLYGONAL ) );
+	panLawComboBox->addItem( QString("Constant Power (-3dB) - quadratic pan parameter"), QVariant( QUADRATIC_CONST_POWER ) );
+	panLawComboBox->addItem( QString("Constant Sum (-6dB) - quadratic pan parameter"), QVariant( QUADRATIC_CONST_SUM ) );
 
 	Song* pSong = Hydrogen::get_instance()->getSong();
-	panLawComboBox->setCurrentIndex( pSong->getPanLawIdx() );
+	panLawComboBox->setCurrentIndex( panLawComboBox->findData( pSong->getPanLawIdx() ) );
+	panLawChanged(); // to hide dB SPL compensation
 	connect(panLawComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT( panLawChanged() ));
 	
 	QValidator *validator = new QDoubleValidator( -10000., 0., 20, this );
 	dBCompensationLineEdit->setValidator( validator );
 
 	dBCompensationLineEdit->setText( QString( "%1" ).arg( -6.0206 / pSong->getPanLawKNorm() ) );
-	
-	if ( panLawComboBox->currentIndex() == 9 ) {
-		dBCompensationLineEdit->show();
-		dBCompensationLbl->show();
-	} else {
-		dBCompensationLineEdit->hide();
-		dBCompensationLbl->hide();
-	}
 	
 	// Appearance tab
 	QString applicationFamily = pPref->getApplicationFontFamily();
@@ -496,9 +510,10 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->m_nSampleRate = 96000;
 	}
 	
+	
 	Song* pSong = Hydrogen::get_instance()->getSong();
-	pSong->setPanLawIdx( panLawComboBox->currentIndex() );
 	bool bOk;
+	pSong->setPanLawIdx( ( panLawComboBox->currentData() ).toInt( &bOk ) );
 	// allowing both point or comma decimal separator
 	float fdBCenterCompensation = ( dBCompensationLineEdit->text() ).replace( ",", "." ).toFloat( &bOk );
 	if ( !bOk ) { // this should never happen
@@ -1019,7 +1034,8 @@ void PreferencesDialog::toggleOscCheckBox(bool toggled)
 }
 
 void PreferencesDialog::panLawChanged(){
-	if ( panLawComboBox->currentIndex() == 9 ) {
+	bool bOk;
+	if ( ( panLawComboBox->currentData() ).toInt( &bOk) == LINEAR_CONST_K_NORM ) {
 		dBCompensationLineEdit->show();
 		dBCompensationLbl->show();
 	} else {

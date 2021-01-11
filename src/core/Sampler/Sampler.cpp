@@ -102,6 +102,9 @@ Sampler::Sampler()
 	m_panLawAddresses[ POLAR_STRAIGHT_POLYGONAL ] = &this->polarStraightPolygonalPanLaw;
 	m_panLawAddresses[ POLAR_CONST_POWER ] = &this->polarConstPowerPanLaw;
 	m_panLawAddresses[ POLAR_CONST_SUM ] = &this->polarConstSumPanLaw;
+	m_panLawAddresses[ QUADRATIC_STRAIGHT_POLYGONAL ] = &this->quadraticStraightPolygonalPanLaw;
+	m_panLawAddresses[ QUADRATIC_CONST_POWER ] = &this->quadraticConstPowerPanLaw;
+	m_panLawAddresses[ QUADRATIC_CONST_SUM ] = &this->quadraticConstSumPanLaw;
 	m_panLawAddresses[ LINEAR_CONST_K_NORM ] = &this->linearConstKNormPanLaw;
 }
 
@@ -372,6 +375,25 @@ float Sampler::polarConstSumPanLaw( float fPan ) {
 	float fTheta = 0.25 * M_PI * ( fPan + 1 );
 	// the constant Sum pan law interpreting fPan as the "linear" parameter
 	return cos( fTheta ) / ( cos( fTheta ) + sin( fTheta ) );
+}
+
+float Sampler::quadraticStraightPolygonalPanLaw( float fPan ) {
+	// the straight polygonal pan law interpreting fPan as the "quadratic" parameter
+	if ( fPan <= 0 ) {
+		return 1.;
+	} else {
+		return sqrt( ( 1. - fPan ) / ( 1. + fPan ) );
+	}
+}
+
+float Sampler::quadraticConstPowerPanLaw( float fPan ) {
+	// the constant power pan law interpreting fPan as the "quadratic" parameter
+		return sqrt( ( 1. - fPan ) * 0.5 );
+}
+
+float Sampler::quadraticConstSumPanLaw( float fPan ) {
+	// the constant Sum pan law interpreting fPan as the "quadratic" parameter
+	return sqrt( 1. - fPan ) / ( sqrt( 1. - fPan ) +  sqrt( 1. + fPan ) );
 }
 
 float Sampler::linearConstKNormPanLaw( float fPan ) {

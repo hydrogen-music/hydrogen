@@ -33,8 +33,7 @@
 #include <memory>
 
 /* indices for pan law types
- NOTE: the following values must be respected by the indices in GUI preferences combo box!!!
- TODO is there a way to define an hidden value for each index in combobox? so the order is safe
+ NOTE: the following values are saved in songs, so developers should not change them... TODO better way to save?
 */
 #define RATIO_STRAIGHT_POLYGONAL 0
 #define RATIO_CONST_POWER 1
@@ -45,7 +44,10 @@
 #define POLAR_STRAIGHT_POLYGONAL 6
 #define POLAR_CONST_POWER 7
 #define POLAR_CONST_SUM 8
-#define LINEAR_CONST_K_NORM 9
+#define QUADRATIC_STRAIGHT_POLYGONAL 9
+#define QUADRATIC_CONST_POWER 10
+#define QUADRATIC_CONST_SUM 11
+#define LINEAR_CONST_K_NORM 12
 
 
 /* define default k for pan law with -4.5dB center compensation, given L^k + R^k = const
@@ -141,8 +143,11 @@ public:
 	static float polarStraightPolygonalPanLaw( float fPan );
 	static float polarConstPowerPanLaw( float fPan );
 	static float polarConstSumPanLaw( float fPan );
+	static float quadraticStraightPolygonalPanLaw( float fPan );
+	static float quadraticConstPowerPanLaw( float fPan );
+	static float quadraticConstSumPanLaw( float fPan );
 	static float linearConstKNormPanLaw( float fPan );
-	float ( *m_panLawAddresses[10] ) ( float );
+	float ( *m_panLawAddresses[13] ) ( float );
 	float ( *getPanLawAddress( int idx ) ) ( float );
 
 private:
