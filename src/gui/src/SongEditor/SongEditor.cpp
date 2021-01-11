@@ -1390,7 +1390,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_pPatternPopup = new QMenu( this );
 	m_pPatternPopup->addAction( tr("Copy"),  this, SLOT( patternPopup_copy() ) );
 	m_pPatternPopup->addAction( tr("Delete"),  this, SLOT( patternPopup_delete() ) );
-	m_pPatternPopup->addAction( tr("Fill/Clear ..."),  this, SLOT( patternPopup_fill() ) );
+	m_pPatternPopup->addAction( tr("Fill/Clear..."),  this, SLOT( patternPopup_fill() ) );
 	m_pPatternPopup->addAction( tr("Properties"),  this, SLOT( patternPopup_properties() ) );
 	m_pPatternPopup->addAction( tr("Load Pattern"),  this, SLOT( patternPopup_load() ) );
 	m_pPatternPopup->addAction( tr("Save Pattern"),  this, SLOT( patternPopup_save() ) );
