@@ -451,8 +451,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 // Make cursor visible on focus
 void SongEditor::focusInEvent( QFocusEvent *ev )
 {
-	if ( ev->reason() != Qt::MouseFocusReason && ev->reason() != Qt::OtherFocusReason
-		 && ev->reason() != Qt::ActiveWindowFocusReason ) {
+	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
 		QPoint pos = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ))
 			+ QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
 		m_pScrollView->ensureVisible( pos.x(), pos.y() );

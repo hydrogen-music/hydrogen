@@ -424,7 +424,8 @@ void PianoRollEditor::drawNote( Note *pNote, QPainter *pPainter )
 
 
 void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
-									   int nNotekey, int nOctave )
+									   int nNotekey, int nOctave,
+									   bool bDoAdd, bool bDoDelete )
 {
 	Note::Octave octave = (Note::Octave)nOctave;
 	Note::Key notekey = (Note::Key)nNotekey;
@@ -433,7 +434,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	Song *pSong = pHydrogen->getSong();
 	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
 
-	Note* pFoundNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument,
+	Note* pOldNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument,
 											  notekey, octave );
 
 	int nLength = -1;
@@ -442,17 +443,25 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	float fPan_R = 0.5f;
 	float fLeadLag = 0.0f;
 
-	if ( pFoundNote ) {
-		nLength = pFoundNote->get_length();
-		fVelocity = pFoundNote->get_velocity();
-		fPan_L = pFoundNote->get_pan_l();
-		fPan_R = pFoundNote->get_pan_r();
-		fLeadLag = pFoundNote->get_lead_lag();
-		notekey = pFoundNote->get_key();
-		octave = pFoundNote->get_octave();
+	if ( pOldNote && !bDoDelete ) {
+		// Found an old note, but we don't want to delete, so just return.
+		return;
+	} else if ( !pOldNote && !bDoAdd ) {
+		// No note there, but we don't want to add a new one, so return.
+		return;
 	}
 
-	if ( pFoundNote == nullptr ) {
+	if ( pOldNote ) {
+		nLength = pOldNote->get_length();
+		fVelocity = pOldNote->get_velocity();
+		fPan_L = pOldNote->get_pan_l();
+		fPan_R = pOldNote->get_pan_r();
+		fLeadLag = pOldNote->get_lead_lag();
+		notekey = pOldNote->get_key();
+		octave = pOldNote->get_octave();
+	}
+
+	if ( pOldNote == nullptr ) {
 		// hear note
 		Preferences *pref = Preferences::get_instance();
 		if ( pref->getHearNewNotes() ) {
@@ -474,7 +483,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 																					   fLeadLag,
 																					   notekey,
 																					   octave,
-																					   pFoundNote != nullptr );
+																					   pOldNote != nullptr );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
 }
@@ -1198,9 +1207,18 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 		selectNone();
 
 	} else if ( ev->key() == Qt::Key_Delete || ev->key() == Qt::Key_Backspace ) {
-		// Key: Delete: delete selection
+		// Key: Delete: delete selection or note at keyboard cursor
 		bUnhideCursor = false;
-		deleteSelection();
+		if ( m_selection.begin() != m_selection.end() ) {
+			deleteSelection();
+		} else {
+			// Delete a note under the keyboard cursor
+			int pressedline = pitchToLine( m_nCursorPitch );
+			int nPitch = lineToPitch( pressedline );
+			addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, pressedline,
+							 pitchToKey( nPitch ), pitchToOctave( nPitch ),
+							 /*bDoAdd=*/false, /*bDoDelete=*/true );
+		}
 
 	} else if ( ev->matches( QKeySequence::Copy ) ) {
 		bUnhideCursor = false;
