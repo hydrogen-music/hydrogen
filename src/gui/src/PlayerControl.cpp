@@ -183,7 +183,8 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pFfwdBtn->setToolTip( tr("Fast Forward") );
 	connect(m_pFfwdBtn, SIGNAL(clicked(Button*)), this, SLOT(FFWDBtnClicked(Button*)));
 
-	// Loop song button button
+	// Loop play button button
+	// It is called "loop play" on the GUI but "loop song" (or similar) in the code for historical reason
 	m_pSongLoopBtn = new ToggleButton(
 			pControlsPanel,
 			"/playerControlPanel/btn_loop_on.png",
@@ -192,7 +193,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 			QSize(21, 15)
 	);
 	m_pSongLoopBtn->move(310, 17);
-	m_pSongLoopBtn->setToolTip( tr("Loop song") );
+	m_pSongLoopBtn->setToolTip( tr("Loop play") );
 	connect( m_pSongLoopBtn, SIGNAL( clicked(Button*) ), this, SLOT( songLoopBtnClicked(Button*) ) );
 
 
@@ -1018,11 +1019,11 @@ void PlayerControl::loopModeActivationEvent( int nValue ) {
 
 	if ( nValue == 0 ) {
 		m_pSongLoopBtn->setPressed( false );
-		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = Off"), 5000);
+		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop play = Off"), 5000);
 	}
 	else {
 		m_pSongLoopBtn->setPressed( true );
-		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop song = On"), 5000);
+		HydrogenApp::get_instance()->setStatusBarMessage(tr("Loop play = On"), 5000);
 	}
 }
 
