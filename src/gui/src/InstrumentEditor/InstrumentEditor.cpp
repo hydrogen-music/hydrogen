@@ -274,7 +274,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_pIsStopNoteCheckBox = new QCheckBox ( tr( "" ), m_pInstrumentProp );
 	m_pIsStopNoteCheckBox->move( 63, 138 );
-	m_pIsStopNoteCheckBox->setToolTip( tr( "Stop the current playing instrument-note before trigger the next note sample." ) );
+	m_pIsStopNoteCheckBox->setToolTip( tr( "Stop the current playing instrument-note before trigger the next note sample" ) );
 	m_pIsStopNoteCheckBox->setFocusPolicy ( Qt::NoFocus );
 	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
 
