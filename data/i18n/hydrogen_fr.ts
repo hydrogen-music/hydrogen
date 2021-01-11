@@ -3526,7 +3526,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Delete BPM Marker</source>
-        <translation>Effacer les marqueurs BPM</translation>
+        <translation>Effacer le marqueur BPM</translation>
     </message>
     <message>
         <source>Cancel</source>
