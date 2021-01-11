@@ -212,28 +212,36 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	panLawComboBox->addItem( QString("Constant Power (-3dB) - linear pan parameter"), QVariant( LINEAR_CONST_POWER ) );
 	panLawComboBox->addItem( QString("Constant Sum (-6dB) - linear pan parameter"), QVariant( LINEAR_CONST_SUM ) );
 	panLawComboBox->addItem( QString("Constant k-Norm (Custom dB compensation) - linear parameter"),
-																							QVariant( LINEAR_CONST_K_NORM ) );
+																						QVariant( LINEAR_CONST_K_NORM ) );
 	panLawComboBox->insertSeparator(100);
 	panLawComboBox->addItem( QString("Balance Law (0dB) - polar pan parameter"), QVariant( POLAR_STRAIGHT_POLYGONAL ) );
 	panLawComboBox->addItem( QString("Constant Power (-3dB) - polar pan parameter"), QVariant( POLAR_CONST_POWER ) );
 	panLawComboBox->addItem( QString("Constant Sum (-6dB) - polar pan parameter"), QVariant( POLAR_CONST_SUM ) );
+	panLawComboBox->addItem( QString("Constant k-Norm (Custom dB compensation) - polar parameter"),
+																						QVariant( POLAR_CONST_K_NORM ) );
 	panLawComboBox->insertSeparator(100);
 	panLawComboBox->addItem( QString("Balance Law (0dB) - ratio pan parameter"), QVariant( RATIO_STRAIGHT_POLYGONAL ) );
 	panLawComboBox->addItem( QString("Constant Power (-3dB) - ratio pan parameter"), QVariant( RATIO_CONST_POWER ) );
 	panLawComboBox->addItem( QString("Constant Sum (-6dB) - ratio pan parameter"), QVariant( RATIO_CONST_SUM ) );
+	panLawComboBox->addItem( QString("Constant k-Norm (Custom dB compensation) - ratio parameter"),
+																						QVariant( RATIO_CONST_K_NORM ) );
 	panLawComboBox->insertSeparator(100);
 	panLawComboBox->addItem( QString("Balance Law (0dB) - quadratic pan parameter"), QVariant( QUADRATIC_STRAIGHT_POLYGONAL ) );
 	panLawComboBox->addItem( QString("Constant Power (-3dB) - quadratic pan parameter"), QVariant( QUADRATIC_CONST_POWER ) );
 	panLawComboBox->addItem( QString("Constant Sum (-6dB) - quadratic pan parameter"), QVariant( QUADRATIC_CONST_SUM ) );
+	panLawComboBox->addItem( QString("Constant k-Norm (Custom dB compensation) - quadratic parameter"),
+																						QVariant( QUADRATIC_CONST_K_NORM ) );
 
 	Song* pSong = Hydrogen::get_instance()->getSong();
 	panLawComboBox->setCurrentIndex( panLawComboBox->findData( pSong->getPanLawIdx() ) );
 	panLawChanged(); // to hide dB SPL compensation
 	connect(panLawComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT( panLawChanged() ));
 	
+	/* dB SPL Center Compensation (will be converted to the corresponding k assuming L^k + R^k = 1 )
+	* this is for the engineers!
+	*/
 	QValidator *validator = new QDoubleValidator( -10000., 0., 20, this );
 	dBCompensationLineEdit->setValidator( validator );
-
 	dBCompensationLineEdit->setText( QString( "%1" ).arg( -6.0206 / pSong->getPanLawKNorm() ) );
 	
 	// Appearance tab
@@ -1035,7 +1043,13 @@ void PreferencesDialog::toggleOscCheckBox(bool toggled)
 
 void PreferencesDialog::panLawChanged(){
 	bool bOk;
-	if ( ( panLawComboBox->currentData() ).toInt( &bOk) == LINEAR_CONST_K_NORM ) {
+	int nPanLaw = ( panLawComboBox->currentData() ).toInt( &bOk);
+	if (   nPanLaw == LINEAR_CONST_K_NORM
+		|| nPanLaw == POLAR_CONST_K_NORM
+		|| nPanLaw == RATIO_CONST_K_NORM
+		|| nPanLaw == QUADRATIC_CONST_K_NORM
+	   )
+	{
 		dBCompensationLineEdit->show();
 		dBCompensationLbl->show();
 	} else {

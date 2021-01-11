@@ -106,6 +106,9 @@ Sampler::Sampler()
 	m_panLawAddresses[ QUADRATIC_CONST_POWER ] = &this->quadraticConstPowerPanLaw;
 	m_panLawAddresses[ QUADRATIC_CONST_SUM ] = &this->quadraticConstSumPanLaw;
 	m_panLawAddresses[ LINEAR_CONST_K_NORM ] = &this->linearConstKNormPanLaw;
+	m_panLawAddresses[ POLAR_CONST_K_NORM ] = &this->polarConstKNormPanLaw;
+	m_panLawAddresses[ RATIO_CONST_K_NORM ] = &this->ratioConstKNormPanLaw;
+	m_panLawAddresses[ QUADRATIC_CONST_K_NORM ] = &this->quadraticConstKNormPanLaw;
 }
 
 
@@ -401,6 +404,35 @@ float Sampler::linearConstKNormPanLaw( float fPan ) {
 	Song* pSong = Hydrogen::get_instance()->getSong();
 	float k = pSong->getPanLawKNorm(); //TODO move k from song to sampler class? pass it as argument?
 	return ( 1. - fPan ) / pow( ( pow( (1. - fPan), k ) + pow( (1. + fPan), k ) ), 1./k );
+}
+
+float Sampler::quadraticConstKNormPanLaw( float fPan ) {
+	// the constant k norm pan law interpreting fPan as the "quadratic" parameter
+	Song* pSong = Hydrogen::get_instance()->getSong();
+	float k = pSong->getPanLawKNorm(); //TODO move k from song to sampler class? pass it as argument?
+	return sqrt( 1. - fPan ) / pow( ( pow( (1. - fPan), 0.5 * k ) + pow( (1. + fPan), 0.5 * k ) ), 1./k );
+}
+
+float Sampler::polarConstKNormPanLaw( float fPan ) {
+	// the constant k norm pan law interpreting fPan as the "polar" parameter
+	float fTheta = 0.25 * M_PI * ( fPan + 1 );
+	Song* pSong = Hydrogen::get_instance()->getSong();
+	float k = pSong->getPanLawKNorm(); //TODO move k from song to sampler class? pass it as argument?
+	float cosTheta = cos( fTheta );
+	return cosTheta / pow( ( pow( cosTheta, k ) + pow( sin( fTheta ), k ) ), 1./k );
+}
+
+float Sampler::ratioConstKNormPanLaw( float fPan ) {
+	// the constant k norm pan law interpreting fPan as the "ratio" parameter
+	Song* pSong = Hydrogen::get_instance()->getSong();
+	float k = pSong->getPanLawKNorm(); //TODO move k from song to sampler class? pass it as argument?
+	
+	if ( fPan <= 0 ) {
+		return 1. / pow( ( 1. + pow( (1. + fPan), k ) ), 1./k );
+	} else {
+		return ( 1. - fPan ) / pow( ( 1. + pow( (1. - fPan), k ) ), 1./k );
+	}
+
 }
 
 //------------------------------------------------------------------
@@ -1630,7 +1662,7 @@ void Sampler::reinitializePlaybackTrack()
 	m_pPlaybackTrackInstrument->get_components()->front()->set_layer( pPlaybackTrackLayer, 0 );
 	m_nPlayBackSamplePosition = 0;
 }
-
+/*
 inline float ( *Sampler::getPanLawAddress( int idx ) ) ( float ) {
 	if ( idx == RATIO_STRAIGHT_POLYGONAL ) {
 		return &ratioStraightPolygonalPanLaw;
@@ -1642,7 +1674,7 @@ inline float ( *Sampler::getPanLawAddress( int idx ) ) ( float ) {
 		//TODO warning
 		return &ratioStraightPolygonalPanLaw; // default value
 	}
-}
+}*/
 
 };
 

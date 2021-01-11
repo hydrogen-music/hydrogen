@@ -48,6 +48,9 @@
 #define QUADRATIC_CONST_POWER 10
 #define QUADRATIC_CONST_SUM 11
 #define LINEAR_CONST_K_NORM 12
+#define RATIO_CONST_K_NORM 13
+#define POLAR_CONST_K_NORM 14
+#define QUADRATIC_CONST_K_NORM 15
 
 
 /* define default k for pan law with -4.5dB center compensation, given L^k + R^k = const
@@ -146,9 +149,13 @@ public:
 	static float quadraticStraightPolygonalPanLaw( float fPan );
 	static float quadraticConstPowerPanLaw( float fPan );
 	static float quadraticConstSumPanLaw( float fPan );
+	// customly compensated
 	static float linearConstKNormPanLaw( float fPan );
-	float ( *m_panLawAddresses[13] ) ( float );
-	float ( *getPanLawAddress( int idx ) ) ( float );
+	static float polarConstKNormPanLaw( float fPan );
+	static float ratioConstKNormPanLaw( float fPan );
+	static float quadraticConstKNormPanLaw( float fPan );
+	float ( *m_panLawAddresses[16] ) ( float );
+	// float ( *getPanLawAddress( int idx ) ) ( float );
 
 private:
 	std::vector<Note*> m_playingNotesQueue;
