@@ -254,7 +254,7 @@ void Sampler::noteOff(Note* pNote )
 // functions for pan parameters and laws-----------------
 
 float Sampler::getRatioPan( float fPan_L, float fPan_R ) {
-	/* returns the single pan parameter in [-1,1] from the L,R gains
+   /** returns the single pan parameter in [-1,1] from the L,R gains
 	* as it was input from the GUI (up to scale and translation, which is arbitrary)
 	*/
 	if ( fPan_L < 0. || fPan_R < 0. || ( fPan_L == 0. && fPan_R == 0.) ) { // invalid input
@@ -277,22 +277,25 @@ float Sampler::getRatioPan( float fPan_L, float fPan_R ) {
 	* For the right channel use: R(p) == pan_R(p) = pan_L(-p) == L(-p)
 	* thanks to the Left-Right symmetry.
 	*--------------------------------------
-	* The prefix of the function names tells the interpretation of the fPan argument:
+	* The prefix of the function name tells the interpretation of the fPan argument:
 	*
 	* "ratio" parameter:
 	* 	 fPan = R/L - 1	if panned to the left,
 	* 	 fPan = 1 - L/R	if panned to the right.
 	*
-	* "linear" parameter (arithmetic weighted mean):
+	* "linear" parameter (arithmetic mean with linear weights):
 	*	 fPan = ( R - L ) / ( R + L ).
 	*
 	* "polar" parameter (polar coordinate in LR plane):
 	*    fPan = 4 / pi * arctan( R/L ) - 1	if L != 0,
 	*    fPan = 1	if L == 0.
 	*
+	* "quadratic" parameter (arithmetic mean with squared weights):
+	*	 fPan = ( R^2 - L^2 ) / ( R^2 + L^2 ).
+	*
 	* Note: using a different fPan interpretation makes the output more central or more lateral.
 	* From more central to more lateral:
-	* "ratio" ---> "polar" ---> "linear"
+	* "quadratic" ---> "ratio" ---> "polar" ---> "linear"
 	*---------------------------------------------
 	* After the prefix, the name describes the Image of the pan law in the LR plane.
 	* (remember that each pan law is a parametrized curve in LR plane.
@@ -308,10 +311,11 @@ float Sampler::getRatioPan( float fPan_L, float fPan_R ) {
 	*		L^k + R^k = const
 	*		generalises constant sum (k = 1) and constant power (k = 2)
 	* 	"StraightPolygonal":
-	*		one gain is constant while the other is progressively decreased.
+	*		one gain is constant while the other varies.
 	*		It's ideal as BALANCE law of DUAL-channel track,
 	*		has 0 dB center compensation.
 	*/
+	
 float Sampler::ratioStraightPolygonalPanLaw( float fPan ) {
 	// the straight polygonal pan law interpreting fPan as the "ratio" parameter
 	if ( fPan <= 0 ) {
@@ -369,14 +373,14 @@ float Sampler::polarStraightPolygonalPanLaw( float fPan ) {
 }
 
 float Sampler::polarConstPowerPanLaw( float fPan ) {
-	float fTheta = 0.25 * M_PI * ( fPan + 1 );
 	// the constant power pan law interpreting fPan as the "linear" parameter
+	float fTheta = 0.25 * M_PI * ( fPan + 1 );
 	return cos( fTheta );
 }
 
 float Sampler::polarConstSumPanLaw( float fPan ) {
-	float fTheta = 0.25 * M_PI * ( fPan + 1 );
 	// the constant Sum pan law interpreting fPan as the "linear" parameter
+	float fTheta = 0.25 * M_PI * ( fPan + 1 );
 	return cos( fTheta ) / ( cos( fTheta ) + sin( fTheta ) );
 }
 
@@ -391,7 +395,7 @@ float Sampler::quadraticStraightPolygonalPanLaw( float fPan ) {
 
 float Sampler::quadraticConstPowerPanLaw( float fPan ) {
 	// the constant power pan law interpreting fPan as the "quadratic" parameter
-		return sqrt( ( 1. - fPan ) * 0.5 );
+	return sqrt( ( 1. - fPan ) * 0.5 );
 }
 
 float Sampler::quadraticConstSumPanLaw( float fPan ) {
