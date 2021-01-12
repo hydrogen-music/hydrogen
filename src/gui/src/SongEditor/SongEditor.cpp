@@ -479,10 +479,18 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 		m_bCursorHidden = false;
 	}
 
-	// If a "select" key movement is used in "draw" mode, it's probably a good idea to go straight into
-	// "select" mode.
-	if ( actionMode == DRAW_ACTION && bSelectionKey ) {
-		m_pSongEditorPanel->setActionMode( SELECT_ACTION );
+	if ( bSelectionKey ) {
+		// If a "select" key movement is used in "draw" mode, it's probably a good idea to go straight into
+		// "select" mode.
+		if ( actionMode == DRAW_ACTION ) {
+			m_pSongEditorPanel->setActionMode( SELECT_ACTION );
+		}
+		// Any selection key may need a repaint of the selection
+		m_bSequenceChanged = true;
+	}
+	if ( m_selection.isMoving() ) {
+		// If a selection is being moved, it will need to be repainted
+		m_bSequenceChanged = true;
 	}
 
 	QPoint cursorCentre = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ) + centre;
@@ -518,6 +526,8 @@ int operator<(QPoint a, QPoint b) {
 void SongEditor::mousePressEvent( QMouseEvent *ev )
 {
 	updateModifiers( ev );
+	m_currentMousePosition = ev->pos();
+	m_bSequenceChanged = true;
 
 	// Update keyboard cursor position
 	QPoint p = xyToColumnRow( ev->pos() );
@@ -635,6 +645,8 @@ void SongEditor::deletePattern( int nColumn , int nRow )
 void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 {
 	updateModifiers( ev );
+	m_currentMousePosition = ev->pos();
+
 	if (m_pSongEditorPanel->getActionMode() == SELECT_ACTION ) {
 		m_selection.mouseMoveEvent( ev );
 	} else {

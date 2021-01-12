@@ -76,7 +76,8 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		void deletePattern( int nColumn, int nRow );
 		void clearThePatternSequenceVector( QString filename );
 		void updateEditorandSetTrue();
-		void modifyPatternCellsAction( std::vector<QPoint> & addCells, std::vector<QPoint> & deleteCells, std::vector<QPoint> & selectCells );
+		void modifyPatternCellsAction( std::vector<QPoint> & addCells, std::vector<QPoint> & deleteCells,
+									   std::vector<QPoint> & selectCells );
 
 	public slots:
 
@@ -116,8 +117,12 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		QPoint columnRowToXy( QPoint p );
 		QPoint movingGridOffset() const;
 
+		//! Mouse position during selection gestures (used to detect crossing cell boundaries)
+		QPoint m_previousMousePosition, m_currentMousePosition;
+
 		//! Change the mouse cursor during mouse gestures
 		virtual void startMouseLasso( QMouseEvent *ev ) override {
+			m_bSequenceChanged = true;
 			setCursor( Qt::CrossCursor );
 		}
 
@@ -148,7 +153,11 @@ public:
 	virtual QRect getKeyboardCursorRect() override;
 	virtual void validateSelection() override {};
 	virtual void updateWidget() override {
-		m_bSequenceChanged = true;
+		// Only update the drawn sequence if necessary. This is only possible when the c
+		if ( xyToColumnRow( m_previousMousePosition ) != xyToColumnRow( m_currentMousePosition ) ) {
+			m_bSequenceChanged = true;
+			m_previousMousePosition = m_currentMousePosition;
+		}
 		update();
 	}
 	virtual void mouseClickEvent( QMouseEvent *ev ) override;
