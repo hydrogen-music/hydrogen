@@ -391,15 +391,15 @@
     </message>
     <message>
         <source>SMF1 single: export all instruments to a single track</source>
-        <translation>SMF1 simple : exporter tous les instruments dans une piste unique&gt;</translation>
+        <translation>SMF1 simple : exporter tous les instruments dans une piste unique</translation>
     </message>
     <message>
         <source>SMF1 multi: export each instrument to separate track</source>
-        <translation>SMF1 multi : exporter chaque instrument dans des pistes séparées&gt;</translation>
+        <translation>SMF1 multi : exporter chaque instrument dans des pistes séparées</translation>
     </message>
     <message>
         <source>SMF0: export all events to one track</source>
-        <translation>SMF0 : exporter tous les événements vers une piste&gt;</translation>
+        <translation>SMF0 : exporter tous les événements vers une piste</translation>
     </message>
     <message>
         <source>Midi file (*%1)</source>
