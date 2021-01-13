@@ -43,13 +43,17 @@ AboutDialog::AboutDialog(QWidget* parent)
 
 	QString about;
 	about += QString("<center><b>Hydrogen Drum Machine %1 [%2] </b><br>").arg( H2Core::get_version().c_str() ).arg( __DATE__ );
-	about += tr( "<b>Website</b><br>" );
-	about += "http://www.hydrogen-music.org<br><br>";
-	about += tr( "<b>Project page</b><br>");
-	about += "http://sourceforge.net/projects/hydrogen<br><br>";
-	about += tr( "<b>Development mailing list</b><br>");
-	about += "http://lists.sourceforge.net/lists/listinfo/hydrogen-devel<br>";
+	about += tr( "<br><b>Website</b><br>" );
+	about += "<a href='http://www.hydrogen-music.org' style='color: #EEE;'>http://www.hydrogen-music.org</a><br>";
+	about += tr( "<br><b>Project page</b><br>");
+	about += "<a href='https://github.com/hydrogen-music/hydrogen' style='color: #EEE;'>https://github.com/hydrogen-music/hydrogen</a><br>";
+	about += tr( "<br><b>Forum</b><br>");
+	about += "<a href='https://github.com/hydrogen-music/hydrogen/discussions' style='color: #EEE;'>https://github.com/hydrogen-music/hydrogen/discussions</a><br>";
+	about += tr( "<br><b>Development mailing list</b><br>");
+	about += "<a href='https://lists.sourceforge.net/lists/listinfo/hydrogen-devel' style='color: #EEE;'>https://lists.sourceforge.net/lists/listinfo/hydrogen-devel</a>";
+
 	aboutTxt->setText( about );
+	aboutTxt->setOpenExternalLinks( true );
 
 
 
@@ -95,10 +99,11 @@ AboutDialog::AboutDialog(QWidget* parent)
 	authorList.push_back( Author( "Miguel Anxo Bouzada","mbouzada@gmail.com","Galician translation" ) );
 	authorList.push_back( Author( "Nikos Papadopoylos", "", "Greek translation" ) );
 	authorList.push_back( Author( "Noel Darlow", "", "manual review" ) );
-	authorList.push_back( Author( "Olivier Humbert", "", "French translation" ) );
+	authorList.push_back( Author( "Olivier Humbert", "trebmuh@tuxfamily.org", "French translation" ) );
 	authorList.push_back( Author( "Paul Dorman", "", "" ) );
 	authorList.push_back( Author( "Pawel Piatek (aka Xj)","xj@wp.pl","coding, bugfixing" ) );
 	authorList.push_back( Author( "Pieter Van Isacker (aka aikie)", "", "Dutch manual and translation" ) );
+	authorList.push_back( Author( "Philipp Müller (aka theGreatWhiteShark)", "thetruephil@googlemail.com", "coding" ) );
 	authorList.push_back( Author( "Przemysław Sitek", "el.pescado@gazeta.pl", "coding" ) );
 	authorList.push_back( Author( "Samuel Mimram", "", "packages" ) );
 	authorList.push_back( Author( "Sebastian Moors (aka mauser)", "mauser@smoors.de", "coding" ) );
