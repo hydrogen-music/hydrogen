@@ -3660,6 +3660,16 @@ void Hydrogen::setBPM( float fBPM )
 	if ( ! m_pAudioDriver || ! pSong ){
 		return;
 	}
+	
+	if ( fBPM > MAX_BPM ) {
+		fBPM = MAX_BPM;
+		WARNINGLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
+					.arg( fBPM ).arg( MAX_BPM ) );
+	} else if ( fBPM < MIN_BPM ) {
+		fBPM = MIN_BPM;
+		WARNINGLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
+					.arg( fBPM ).arg( MIN_BPM ) );
+	}
 
 	if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		ERRORLOG( "Unable to change tempo directly in the presence of an external JACK timebase master. Press 'J.MASTER' get tempo control." );
@@ -3798,35 +3808,35 @@ void Hydrogen::handleBeatCounter()
 
 	m_nEventCount++;
 
-	// Set wm_LastTime to wm_CurrentTime to remind the time:
-	m_LastTime = m_CurrentTime;
+	// Set lastTime to m_CurrentTime to remind the time:
+	timeval lastTime = m_CurrentTime;
 
 	// Get new time:
 	gettimeofday(&m_CurrentTime,nullptr);
 
 
 	// Build doubled time difference:
-	m_nLastBeatTime = (double)(
-				m_LastTime.tv_sec
-				+ (double)(m_LastTime.tv_usec * US_DIVIDER)
+	double lastBeatTime = (double)(
+				lastTime.tv_sec
+				+ (double)(lastTime.tv_usec * US_DIVIDER)
 				+ (int)m_nCoutOffset * .0001
 				);
-	m_nCurrentBeatTime = (double)(
+	double currentBeatTime = (double)(
 				m_CurrentTime.tv_sec
 				+ (double)(m_CurrentTime.tv_usec * US_DIVIDER)
 				);
-	m_nBeatDiff = m_nBeatCount == 1 ? 0 : m_nCurrentBeatTime - m_nLastBeatTime;
+	double beatDiff = m_nBeatCount == 1 ? 0 : currentBeatTime - lastBeatTime;
 
 	//if differences are to big reset the beatconter
-	if( m_nBeatDiff > 3.001 * 1/m_ntaktoMeterCompute ) {
+	if( beatDiff > 3.001 * 1/m_ntaktoMeterCompute ) {
 		m_nEventCount = 1;
 		m_nBeatCount = 1;
 		return;
 	}
 	// Only accept differences big enough
-	if (m_nBeatCount == 1 || m_nBeatDiff > .001) {
+	if (m_nBeatCount == 1 || beatDiff > .001) {
 		if (m_nBeatCount > 1) {
-			m_nBeatDiffs[m_nBeatCount - 2] = m_nBeatDiff ;
+			m_nBeatDiffs[m_nBeatCount - 2] = beatDiff ;
 		}
 		// Compute and reset:
 		if (m_nBeatCount == m_nbeatsToCount){
@@ -3835,20 +3845,18 @@ void Hydrogen::handleBeatCounter()
 			for(int i = 0; i < (m_nbeatsToCount - 1); i++) {
 				beatTotalDiffs += m_nBeatDiffs[i];
 			}
-			double m_nBeatDiffAverage =
+			double nBeatDiffAverage =
 					beatTotalDiffs
 					/ (m_nBeatCount - 1)
 					* m_ntaktoMeterCompute ;
-			m_fBeatCountBpm	 =
-					(float) ((int) (60 / m_nBeatDiffAverage * 100))
+			float fBeatCountBpm	 =
+					(float) ((int) (60 / nBeatDiffAverage * 100))
 					/ 100;
-			AudioEngine::get_instance()->lock( RIGHT_HERE );
-			if ( m_fBeatCountBpm > MAX_BPM) {
-				m_fBeatCountBpm = MAX_BPM;
-			}
 			
-			setBPM( m_fBeatCountBpm );
+			AudioEngine::get_instance()->lock( RIGHT_HERE );
+			setBPM( fBeatCountBpm );
 			AudioEngine::get_instance()->unlock();
+			
 			if (Preferences::get_instance()->m_mmcsetplay
 					== Preferences::SET_PLAY_OFF) {
 				m_nBeatCount = 1;
@@ -3861,13 +3869,13 @@ void Hydrogen::handleBeatCounter()
 					if ( m_ntaktoMeterCompute <= 1){
 						rtstartframe =
 								bcsamplerate
-								* m_nBeatDiffAverage
+								* nBeatDiffAverage
 								* ( 1/ m_ntaktoMeterCompute );
 					}else
 					{
 						rtstartframe =
 								bcsamplerate
-								* m_nBeatDiffAverage
+								* nBeatDiffAverage
 								/ m_ntaktoMeterCompute ;
 					}
 

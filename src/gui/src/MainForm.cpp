@@ -1423,9 +1423,7 @@ void MainForm::onBPMPlusAccelEvent()
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	Song* pSong = pEngine->getSong();
-	if ( pSong->getBpm() < MAX_BPM ) {
-		pEngine->setBPM( pSong->getBpm() + 0.1 );
-	}
+	pEngine->setBPM( pSong->getBpm() + 0.1 );
 	AudioEngine::get_instance()->unlock();
 }
 
@@ -1437,9 +1435,7 @@ void MainForm::onBPMMinusAccelEvent()
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	Song* pSong = pEngine->getSong();
-	if ( pSong->getBpm() > MIN_BPM ) {
-		pEngine->setBPM( pSong->getBpm() - 0.1 );
-	}
+	pEngine->setBPM( pSong->getBpm() - 0.1 );
 	AudioEngine::get_instance()->unlock();
 }
 

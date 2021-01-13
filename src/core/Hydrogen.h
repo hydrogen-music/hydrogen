@@ -747,11 +747,6 @@ private:
 	int			m_nBeatCount;		///< beatcounter beat to count
 	double			m_nBeatDiffs[16];	///< beat diff
 	timeval 		m_CurrentTime;		///< timeval
-	timeval			m_LastTime;		///< timeval
-	double			m_nLastBeatTime;	///< timediff
-	double			m_nCurrentBeatTime;	///< timediff
-	double			m_nBeatDiff;		///< timediff
-	float			m_fBeatCountBpm;	///< bpm
 	int			m_nCoutOffset;		///ms default 0
 	int			m_nStartOffset;		///ms default 0
 	//~ beatcounter

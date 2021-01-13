@@ -329,7 +329,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->addWidget( pBPMPanel );
 
 	// LCD BPM SpinBox
-	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, 6, LCDSpinBox::FLOAT, 30, 400 );
+	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, 6, LCDSpinBox::FLOAT, MIN_BPM, MAX_BPM );
 	m_pLCDBPMSpinbox->move( 43, 6 );
 	connect( m_pLCDBPMSpinbox, SIGNAL(changed(LCDSpinBox*)), this, SLOT(bpmChanged()));
 	connect( m_pLCDBPMSpinbox, SIGNAL(spinboxClicked()), this, SLOT(bpmClicked()));
@@ -767,12 +767,6 @@ void PlayerControl::songModeActivationEvent( int nValue )
 
 void PlayerControl::bpmChanged() {
 	float fNewBpmValue = m_pLCDBPMSpinbox->getValue();
-	if (fNewBpmValue < 30) {
-		fNewBpmValue = 30;
-	}
-	else if (fNewBpmValue > 400 ) {
-		fNewBpmValue = 400;
-	}
 
 	m_pEngine->getSong()->setIsModified( true );
 
@@ -955,11 +949,8 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 void PlayerControl::bpmClicked()
 {
 	bool bIsOkPressed;
-	double fNewVal= QInputDialog::getDouble( this, "Hydrogen", tr( "New BPM value" ),  m_pLCDBPMSpinbox->getValue(), 10, 400, 2, &bIsOkPressed );
+	double fNewVal= QInputDialog::getDouble( this, "Hydrogen", tr( "New BPM value" ),  m_pLCDBPMSpinbox->getValue(), MIN_BPM, MAX_BPM, 2, &bIsOkPressed );
 	if ( bIsOkPressed  ) {
-		if ( fNewVal < 30 ) {
-			return;
-		}
 
 		m_pEngine->getSong()->setIsModified( true );
 

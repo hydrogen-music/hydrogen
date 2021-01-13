@@ -196,7 +196,7 @@ class Song : public H2Core::Object
 		 * One of its purposes is an intermediate storage of the
 		 * tempo at the current transport position in
 		 * Hydrogen::setTimelineBpm() in order to detect local changes
-		 * in speed (set by the user).
+		 * in speed (set by the user). Bounded by [#MIN_BPM,#MAX_BPM].
 		 */
 		float m_fBpm;
 		
@@ -282,11 +282,6 @@ inline void Song::setResolution( unsigned resolution )
 inline float Song::getBpm() const
 {
 	return m_fBpm;
-}
-
-inline void Song::setBpm( float fBpm )
-{
-	m_fBpm = fBpm;
 }
 
 inline void Song::setName( const QString& sName )

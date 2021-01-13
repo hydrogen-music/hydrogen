@@ -133,6 +133,20 @@ void Song::purgeInstrument( Instrument* pInstr )
 	}
 }
 
+void Song::setBpm( float fBpm ) {
+	if ( fBpm > MAX_BPM ) {
+		m_fBpm = MAX_BPM;
+		WARNINGLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
+					.arg( fBpm ).arg( MAX_BPM ) );
+	} else if ( fBpm < MIN_BPM ) {
+		m_fBpm = MIN_BPM;
+		WARNINGLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
+					.arg( fBpm ).arg( MIN_BPM ) );
+	} else {
+		m_fBpm = fBpm;
+	}
+}
+	
 ///Load a song from file
 Song* Song::load( const QString& sFilename )
 {
