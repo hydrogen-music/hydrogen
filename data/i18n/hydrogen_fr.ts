@@ -4003,7 +4003,7 @@ Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
     </message>
     <message>
         <source>Save changes made to instruments into sound library</source>
-        <translation>Enregistrer les changements appliqués aux instruments dans la bibliothèque de sons</translation>
+        <translation>Sauvegarder les changements appliqués aux instruments dans la bibliothèque de sons</translation>
     </message>
     <message>
         <source>Drumkit License</source>
