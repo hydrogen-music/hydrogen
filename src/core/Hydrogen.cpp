@@ -3660,6 +3660,16 @@ void Hydrogen::setBPM( float fBPM )
 	if ( ! m_pAudioDriver || ! pSong ){
 		return;
 	}
+	
+	if ( fBPM > MAX_BPM ) {
+		fBPM = MAX_BPM;
+		WARNINGLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
+					.arg( fBPM ).arg( MAX_BPM ) );
+	} else if ( fBPM < MIN_BPM ) {
+		fBPM = MIN_BPM;
+		WARNINGLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
+					.arg( fBPM ).arg( MIN_BPM ) );
+	}
 
 	if ( getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
 		ERRORLOG( "Unable to change tempo directly in the presence of an external JACK timebase master. Press 'J.MASTER' get tempo control." );

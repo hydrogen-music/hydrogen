@@ -91,6 +91,20 @@ void SongEditorPanelBpmWidget::on_CancelBtn_clicked()
 
 void SongEditorPanelBpmWidget::on_okBtn_clicked()
 {
+	float fNewBpm = lineEditBpm->text().toFloat( nullptr );
+
+	// In case the input text can not be parsed by Qt `fNewBpm' is 0
+	// and also covered by the warning below.
+	if ( fNewBpm > MAX_BPM || fNewBpm < MIN_BPM ){
+		QMessageBox::warning( this, "Hydrogen",
+							  QString( tr( "Please enter a number within the range of " )
+									   .append( QString( "[%1,%2]" )
+												.arg( MIN_BPM )
+												.arg( MAX_BPM ) ) ),
+							  tr("&Cancel") );
+		return;
+	}
+	
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Timeline* pTimeline = pHydrogen->getTimeline();
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();

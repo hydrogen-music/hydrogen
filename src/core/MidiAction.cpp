@@ -877,9 +877,8 @@ bool MidiActionManager::bpm_increase(Action * pAction, Hydrogen* pEngine, target
 	int mult = pAction->getParameter1().toInt(&ok,10);
 
 	Song* pSong = pEngine->getSong();
-	if ( pSong->getBpm()  < 300) {
-		pEngine->setBPM( pSong->getBpm() + 1*mult );
-	}
+	pEngine->setBPM( pSong->getBpm() + 1*mult );
+
 	AudioEngine::get_instance()->unlock();
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
@@ -894,9 +893,8 @@ bool MidiActionManager::bpm_decrease(Action * pAction, Hydrogen* pEngine, target
 	int mult = pAction->getParameter1().toInt(&ok,10);
 
 	Song* pSong = pEngine->getSong();
-	if (pSong->getBpm()  > 40 ) {
-		pEngine->setBPM( pSong->getBpm() - 1*mult );
-	}
+	pEngine->setBPM( pSong->getBpm() - 1*mult );
+	
 	AudioEngine::get_instance()->unlock();
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );

@@ -1024,7 +1024,15 @@ void JackAudioDriver::locate( unsigned long frame )
 
 void JackAudioDriver::setBpm( float fBPM )
 {
-	if ( fBPM >= 1 ) {
+	if ( fBPM > MAX_BPM ) {
+		m_transport.m_fBPM = MAX_BPM;
+		ERRORLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
+					.arg( fBPM ).arg( MAX_BPM ) );
+	} else if ( fBPM < MIN_BPM ) {
+		m_transport.m_fBPM = fBPM;
+		ERRORLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
+					.arg( fBPM ).arg( MIN_BPM ) );
+	} else {
 		m_transport.m_fBPM = fBPM;
 	}
 }
