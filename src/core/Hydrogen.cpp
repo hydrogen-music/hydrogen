@@ -469,7 +469,7 @@ static void			audioEngine_noteOn( Note *note );
    latter will be set to @a nframes.
  * \param arg Unused.
  * \return
- * - __2__ : Failed to aquire the audio engine lock, no processing took place.
+ * - __2__ : Failed to acquire the audio engine lock, no processing took place.
  * - __1__ : kill the audio driver thread. This will be used if either
  * the DiskWriterDriver or FakeDriver are used and the end of the Song
  * is reached (audioEngine_updateNoteQueue() returned -1 ). 
@@ -1274,7 +1274,7 @@ int audioEngine_process( uint32_t nframes, void* /*arg*/ )
 		___ERRORLOG( QString( "Failed to lock audioEngine in allowed %1 ms, missed buffer" ).arg( fSlackTime ) );
 
 		if ( m_pAudioDriver->class_name() == DiskWriterDriver::class_name() ) {
-			return 2;	// inform the caller that we could not aquire the lock
+			return 2;	// inform the caller that we could not acquire the lock
 		}
 
 		return 0;
