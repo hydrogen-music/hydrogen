@@ -153,12 +153,23 @@ public:
 	virtual QRect getKeyboardCursorRect() override;
 	virtual void validateSelection() override {};
 	virtual void updateWidget() override {
+		bool bCellBoundaryCrossed = xyToColumnRow( m_previousMousePosition ) != xyToColumnRow( m_currentMousePosition );
 		// Only update the drawn sequence if necessary. This is only possible when the c
-		if ( xyToColumnRow( m_previousMousePosition ) != xyToColumnRow( m_currentMousePosition ) ) {
-			m_bSequenceChanged = true;
-			m_previousMousePosition = m_currentMousePosition;
+		if ( m_selection.isMoving() ) {
+			// Moving a selection never has to update the sequence (it's drawn on top of the sequence). Update
+			// is only ever needed when moving across a cell boundary.
+			if ( bCellBoundaryCrossed ) {
+				update();
+			}
+		} else {
+			// Selection must redraw the pattern when a cell boundary is crossed, as the selected cells are
+			// drawn when drawing the pattern.
+			if ( bCellBoundaryCrossed ) {
+				m_bSequenceChanged = true;
+			}
+			update();
 		}
-		update();
+		m_previousMousePosition = m_currentMousePosition;
 	}
 	virtual void mouseClickEvent( QMouseEvent *ev ) override;
 	virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
