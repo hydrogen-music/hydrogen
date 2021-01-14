@@ -370,7 +370,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 
 	if ( bIsSelectionKey ) {
 		// Key was claimed by selection
-	} else if ( ev->key() == Qt::Key_Delete || ev->key() == Qt::Key_Backspace ) {
+	} else if ( ev->key() == Qt::Key_Delete ) {
 		// Key: Delete: delete selected pattern cells, or cell at current position
 		if ( m_selection.begin() != m_selection.end() ) {
 			deleteSelection();
