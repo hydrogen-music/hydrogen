@@ -1206,7 +1206,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 		bUnhideCursor = false;
 		selectNone();
 
-	} else if ( ev->key() == Qt::Key_Delete || ev->key() == Qt::Key_Backspace ) {
+	} else if ( ev->key() == Qt::Key_Delete ) {
 		// Key: Delete: delete selection or note at keyboard cursor
 		bUnhideCursor = false;
 		if ( m_selection.begin() != m_selection.end() ) {
