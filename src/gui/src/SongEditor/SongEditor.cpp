@@ -260,12 +260,13 @@ void SongEditor::deleteSelection() {
 }
 
 
-// Cut and paste buffer format is:
-// <patternSelection>
-//    <sourcePosition>
-//  <cellList>
-//    <cell>
-//    ...
+//! Copy a selection of cells to an XML representation in the clipboard
+//!
+//! <patternSelection>
+//!    <sourcePosition>
+//!  <cellList>
+//!    <cell>
+//!    ...
 
 void SongEditor::copy() {
 	XMLDoc doc;
@@ -764,17 +765,29 @@ void SongEditor::modifyPatternCellsAction( std::vector<QPoint> & addCells, std::
 	}
 }
 
+void SongEditor::updateWidget() {
+	bool bCellBoundaryCrossed = xyToColumnRow( m_previousMousePosition ) != xyToColumnRow( m_currentMousePosition );
+	// Only update the drawn sequence if necessary. This is only possible when the c
+	if ( m_selection.isMoving() ) {
+		// Moving a selection never has to update the sequence (it's drawn on top of the sequence). Update
+		// is only ever needed when moving across a cell boundary.
+		if ( bCellBoundaryCrossed ) {
+			update();
+		}
+	} else {
+		// Selection must redraw the pattern when a cell boundary is crossed, as the selected cells are
+		// drawn when drawing the pattern.
+		if ( bCellBoundaryCrossed ) {
+			m_bSequenceChanged = true;
+		}
+		update();
+	}
+	m_previousMousePosition = m_currentMousePosition;
+}
 
 
 void SongEditor::paintEvent( QPaintEvent *ev )
 {
-/*	INFOLOG(
-			"[paintEvent] x: " + to_string( ev->rect().x() ) +
-			" y: " + to_string( ev->rect().y() ) +
-			" w: " + to_string( ev->rect().width() ) +
-			" h: " + to_string( ev->rect().height() )
-	);
-*/
 
 	// ridisegno tutto solo se sono cambiate le note
 	if (m_bSequenceChanged) {
@@ -902,8 +915,7 @@ void SongEditor::cleanUp(){
 	delete m_pSequencePixmap;
 }
 
-// XXX Update the GridCell representation. This should be changed to update incrementally to avoid this
-// monolithic rebuild.
+// Update the GridCell representation.
 void SongEditor::updateGridCells() {
 
 	m_gridCells.clear();

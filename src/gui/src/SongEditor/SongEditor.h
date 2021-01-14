@@ -47,9 +47,15 @@ static const uint SONG_EDITOR_MIN_GRID_WIDTH = 8;
 static const uint SONG_EDITOR_MAX_GRID_WIDTH = 16;
 
 
-///
-/// Song editor
-///
+//!
+//! Song editor
+//!
+//! The main widget of SongEditorPanel, responsible for altering the sequence of patterns.
+//!
+//! It supports mouse and keyboard based activation of patterns in timeslots, as well as visual editing of
+//! multiple pattern+timeslot cells using a 2-dimensional visual representation, with copy, paste, move,
+//! delete, duplicate etc.
+//!
 class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget<QPoint>
 {
     H2_OBJECT
@@ -72,12 +78,16 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		int getGridWidth ();
 		void setGridWidth( uint width);
 
+		//! Add or delete pattern in the sequence grid.
 		void addPattern( int nColumn, int nRow);
 		void deletePattern( int nColumn, int nRow );
-		void clearThePatternSequenceVector( QString filename );
-		void updateEditorandSetTrue();
+
+		//! Modify many pattern cells at once, for use in a single efficient undo/redo action
 		void modifyPatternCellsAction( std::vector<QPoint> & addCells, std::vector<QPoint> & deleteCells,
 									   std::vector<QPoint> & selectCells );
+
+		void clearThePatternSequenceVector( QString filename );
+		void updateEditorandSetTrue();
 
 	public slots:
 
@@ -100,27 +110,51 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		unsigned m_nGridHeight;
 		unsigned m_nGridWidth;
 		unsigned m_nMaxPatternSequence;
-		bool m_bSequenceChanged;
 		bool m_bCopyNotMove;
+
+		//! Pattern sequence or selection has changed, so must be redrawn.
+		bool m_bSequenceChanged;
+
+		//! In "draw" mode, whether we're activating pattern cells ("drawing") or deactivating ("erasing") is
+		//! set at the start of the draw gesture.
 		bool m_bDrawingActiveCell;
 
+		//! @name Background pixmap caching
+		//!
+		//! To make painting the song editor sequence grid more efficient, the drawing uses multiple levels of lazy painting.
+		//!   * The grid background pixmap is only updated when the size of the pattern grid changes.
+		//!   * The sequence pixmap are only updated when cells are added/removed or selections change
+		//!       * the cached grid background pixmap is used when repainting the pattern
+		//!   * selections and moving cells are painted on top of the cached sequence pixmap
+		//! @{
 		QPixmap *m_pBackgroundPixmap;
 		QPixmap *m_pSequencePixmap;
+		//! @}
 
 		const int m_nMargin = 10;
-	
+
+		//! @name Position of the keyboard input cursor
+		//! @{
 		int m_nCursorRow;
 		int m_nCursorColumn;
+		//! @}
+
 		int m_bCursorHidden;
 
+		//! @name Conversion between sequence grid coordinates and screen (widget) coordinates.
+		//! @{
 		QPoint xyToColumnRow( QPoint p );
 		QPoint columnRowToXy( QPoint p );
+		//! @}
+
+		//! Quantise the selection move offset to the sequence grid
 		QPoint movingGridOffset() const;
 
 		//! Mouse position during selection gestures (used to detect crossing cell boundaries)
 		QPoint m_previousMousePosition, m_currentMousePosition;
 
-		//! Change the mouse cursor during mouse gestures
+		//! @name Change the mouse cursor during mouse gestures
+		//! @{
 		virtual void startMouseLasso( QMouseEvent *ev ) override {
 			m_bSequenceChanged = true;
 			setCursor( Qt::CrossCursor );
@@ -129,13 +163,17 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		virtual void endMouseGesture() override {
 			unsetCursor();
 		}
+		//! @}
 
+		//! @name System events
+		//! @{
 		virtual void mousePressEvent(QMouseEvent *ev) override;
 		virtual void mouseReleaseEvent(QMouseEvent *ev) override;
 		virtual void mouseMoveEvent(QMouseEvent *ev) override;
 		virtual void keyPressEvent (QKeyEvent *ev) override;
 		virtual void paintEvent(QPaintEvent *ev) override;
 		virtual void focusInEvent( QFocusEvent *ev ) override;
+		//! @}
 
 		bool togglePatternActive( int nColumn, int nRow );
 		void setPatternActive( int nColumn, int nRow, bool value );
@@ -146,41 +184,25 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 
 		std::map< QPoint, GridCell > m_gridCells;
 		void updateGridCells();
-
-	// Selection interfaces
 public:
-	virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) override;
-	virtual QRect getKeyboardCursorRect() override;
-	virtual void validateSelection() override {};
-	virtual void updateWidget() override {
-		bool bCellBoundaryCrossed = xyToColumnRow( m_previousMousePosition ) != xyToColumnRow( m_currentMousePosition );
-		// Only update the drawn sequence if necessary. This is only possible when the c
-		if ( m_selection.isMoving() ) {
-			// Moving a selection never has to update the sequence (it's drawn on top of the sequence). Update
-			// is only ever needed when moving across a cell boundary.
-			if ( bCellBoundaryCrossed ) {
-				update();
-			}
-		} else {
-			// Selection must redraw the pattern when a cell boundary is crossed, as the selected cells are
-			// drawn when drawing the pattern.
-			if ( bCellBoundaryCrossed ) {
-				m_bSequenceChanged = true;
-			}
-			update();
-		}
-		m_previousMousePosition = m_currentMousePosition;
-	}
-	virtual void mouseClickEvent( QMouseEvent *ev ) override;
-	virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
-	virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
-	virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
-	virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
-	virtual void updateModifiers( QInputEvent *ev );
 
-	virtual bool canDragElements() override {
-		return false;
-	}
+		//! @name Selection interfaces
+		//! see Selection.h for details.
+		//! @{
+		virtual std::vector<SelectionIndex> elementsIntersecting( QRect r ) override;
+		virtual QRect getKeyboardCursorRect() override;
+		virtual void validateSelection() override {};
+		virtual void updateWidget() override;
+		virtual void mouseClickEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragStartEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragUpdateEvent( QMouseEvent *ev ) override;
+		virtual void mouseDragEndEvent( QMouseEvent *ev ) override;
+		virtual void selectionMoveEndEvent( QInputEvent *ev ) override;
+		virtual void updateModifiers( QInputEvent *ev );
+		virtual bool canDragElements() override {
+			return false;
+		}
+		//! @}
 
 };
 
