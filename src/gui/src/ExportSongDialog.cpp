@@ -150,11 +150,11 @@ ExportSongDialog::~ExportSongDialog()
 
 QString ExportSongDialog::createDefaultFilename()
 {
-	QString sDefaultFilename = m_pEngine->getSong()->get_filename();
+	QString sDefaultFilename = m_pEngine->getSong()->getFilename();
 
 	// If song is not saved then use song name otherwise use the song filename
 	if( sDefaultFilename.isEmpty() ){
-		sDefaultFilename = m_pEngine->getSong()->__name;
+		sDefaultFilename = m_pEngine->getSong()->getName();
 	} else {
 		// extracting filename from full path
 		QFileInfo qDefaultFile( sDefaultFilename ); 
@@ -302,7 +302,7 @@ void ExportSongDialog::on_okBtn_clicked()
 	saveSettingsToPreferences();
 	
 	Song *pSong = m_pEngine->getSong();
-	InstrumentList *pInstrumentList = pSong->get_instrument_list();
+	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
 	m_bOverwriteFiles = false;
 
@@ -355,18 +355,18 @@ void ExportSongDialog::on_okBtn_clicked()
 bool ExportSongDialog::currentInstrumentHasNotes()
 {
 	Song *pSong = m_pEngine->getSong();
-	unsigned nPatterns = pSong->get_pattern_list()->size();
+	unsigned nPatterns = pSong->getPatternList()->size();
 	
 	bool bInstrumentHasNotes = false;
 	
 	for ( unsigned i = 0; i < nPatterns; i++ ) {
-		Pattern *pPattern = pSong->get_pattern_list()->get( i );
+		Pattern *pPattern = pSong->getPatternList()->get( i );
 		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
 			assert( pNote );
 
-			if( pNote->get_instrument()->get_id() == pSong->get_instrument_list()->get(m_nInstrument)->get_id() ){
+			if( pNote->get_instrument()->get_id() == pSong->getInstrumentList()->get(m_nInstrument)->get_id() ){
 				bInstrumentHasNotes = true;
 				break;
 			}
@@ -382,8 +382,8 @@ QString ExportSongDialog::findUniqueExportFilenameForInstrument(Instrument* pIns
 	QString uniqueInstrumentName;
 	
 	int instrumentOccurence = 0;
-	for(int i=0; i  < pSong->get_instrument_list()->size(); i++ ){
-		if( pSong->get_instrument_list()->get(m_nInstrument)->get_name() == pInstrument->get_name()){
+	for(int i=0; i  < pSong->getInstrumentList()->size(); i++ ){
+		if( pSong->getInstrumentList()->get(m_nInstrument)->get_name() == pInstrument->get_name()){
 			instrumentOccurence++;
 		}
 	}
@@ -400,7 +400,7 @@ QString ExportSongDialog::findUniqueExportFilenameForInstrument(Instrument* pIns
 void ExportSongDialog::exportTracks()
 {
 	Song *pSong = m_pEngine->getSong();
-	InstrumentList *pInstrumentList = pSong->get_instrument_list();
+	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 	
 	if( m_nInstrument < pInstrumentList->size() ){
 		
@@ -444,7 +444,7 @@ void ExportSongDialog::exportTracks()
 			pInstrumentList->get(i)->set_currently_exported( false );
 		}
 		
-		pSong->get_instrument_list()->get(m_nInstrument)->set_currently_exported( true );
+		pSong->getInstrumentList()->get(m_nInstrument)->set_currently_exported( true );
 		
 		m_pEngine->startExportSong( filename );
 
@@ -638,7 +638,7 @@ void ExportSongDialog::progressEvent( int nValue )
 
 		m_bExporting = false;
 
-		if( m_nInstrument == Hydrogen::get_instance()->getSong()->get_instrument_list()->size()){
+		if( m_nInstrument == Hydrogen::get_instance()->getSong()->getInstrumentList()->size()){
 			m_nInstrument = 0;
 			m_bExportTrackouts = false;
 		}
@@ -708,7 +708,7 @@ void ExportSongDialog::calculateRubberbandTime()
 	Timeline* pTimeline = m_pEngine->getTimeline();
 	auto tempoMarkerVector = pTimeline->getAllTempoMarkers();
 
-	float oldBPM = m_pEngine->getSong()->__bpm;
+	float oldBPM = m_pEngine->getSong()->getBpm();
 	float lowBPM = oldBPM;
 
 	if ( tempoMarkerVector.size() >= 1 ){
@@ -727,7 +727,7 @@ void ExportSongDialog::calculateRubberbandTime()
 	assert(pSong);
 	
 	if(pSong){
-		InstrumentList *songInstrList = pSong->get_instrument_list();
+		InstrumentList *songInstrList = pSong->getInstrumentList();
 		assert(songInstrList);
 		for ( unsigned nInstr = 0; nInstr < songInstrList->size(); ++nInstr ) {
 			Instrument *pInstr = songInstrList->get( nInstr );
@@ -782,7 +782,7 @@ bool ExportSongDialog::checkUseOfRubberband()
 	assert(pSong);
 	
 	if(pSong){
-		InstrumentList *pSongInstrList = pSong->get_instrument_list();
+		InstrumentList *pSongInstrList = pSong->getInstrumentList();
 		assert(pSongInstrList);
 		for ( unsigned nInstr = 0; nInstr < pSongInstrList->size(); ++nInstr ) {
 			Instrument *pInstr = pSongInstrList->get( nInstr );

@@ -128,7 +128,7 @@ void PatternPropertiesDialog::defaultNameCheck( QString pattName, bool savepatte
 {
 	if ( savepattern && !nameCheck(pattName) )
 	{
-		PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
+		PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 		QString newPattName = pPatternList->find_unused_pattern_name(pattName);
 		patternNameTxt->setText( tr( "%1").arg(newPattName) );
 	}
@@ -141,7 +141,7 @@ void PatternPropertiesDialog::defaultNameCheck( QString pattName, bool savepatte
 
 bool PatternPropertiesDialog::nameCheck( QString pattName )
 {
-	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
+	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	
 	return pPatternList->check_name(pattName);
 }

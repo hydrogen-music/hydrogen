@@ -170,7 +170,7 @@ void SampleEditor::getAllFrameInfos()
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	
 	if (pSong != nullptr) {
-		InstrumentList *pInstrList = pSong->get_instrument_list();
+		InstrumentList *pInstrList = pSong->getInstrumentList();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
 			nInstr = -1;
@@ -374,7 +374,7 @@ void SampleEditor::createNewLayer()
 		H2Core::Instrument *pInstrument = nullptr;
 		Song *pSong = Hydrogen::get_instance()->getSong();
 		if (pSong != nullptr) {
-			InstrumentList *pInstrList = pSong->get_instrument_list();
+			InstrumentList *pInstrList = pSong->getInstrumentList();
 			int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 			if ( nInstr >= static_cast<int>(pInstrList->size()) ) {
 				nInstr = -1;
@@ -519,7 +519,7 @@ void SampleEditor::on_PlayPushButton_clicked()
 	const int selectedLayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	Instrument *pInstr = pSong->get_instrument_list()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	Instrument *pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 
 	Note *pNote = new Note( pInstr, 0, pInstr->get_component( m_nSelectedComponent )->get_layer( selectedLayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
 	pNote->set_specific_compo_id( m_nSelectedComponent );
@@ -559,7 +559,7 @@ void SampleEditor::on_PlayOrigPushButton_clicked()
 
 	const int selectedlayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	Instrument *pInstr = pSong->get_instrument_list()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
+	Instrument *pInstr = pSong->getInstrumentList()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
 
 	/*
 	 *preview_instrument deletes the last used preview instrument, therefore we have to construct a temporary

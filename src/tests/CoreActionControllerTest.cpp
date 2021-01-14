@@ -13,12 +13,12 @@ void CoreActionControllerTest::setUp() {
 	m_sFileName2 = Filesystem::tmp_dir().append( "test2.h2song" );
 	m_sFileNameImproper = Filesystem::tmp_dir().append( "test3.h2song" );
 	
-	m_pHydrogen->setSong( Song::get_empty_song() );
+	m_pHydrogen->setSong( Song::getEmptySong() );
 }
 
 void CoreActionControllerTest::tearDown() {
 	
-	m_pHydrogen->setSong( Song::get_empty_song() );
+	m_pHydrogen->setSong( Song::getEmptySong() );
 
 	if ( QFile::exists( m_sFileName ) ) {
 		QFile::remove( m_sFileName );
@@ -52,7 +52,7 @@ void CoreActionControllerTest::testSessionManagement() {
 	if ( fileProperName.open( QIODevice::ReadWrite ) ) {
 		
 		CPPUNIT_ASSERT( m_pController->newSong( fileProperName.fileName() ) );
-		CPPUNIT_ASSERT( m_sFileName == m_pHydrogen->getSong()->get_filename() );
+		CPPUNIT_ASSERT( m_sFileName == m_pHydrogen->getSong()->getFilename() );
 	
 		// -----------------------------------------------------------
 		// Test CoreActionController::saveSong()
@@ -67,7 +67,7 @@ void CoreActionControllerTest::testSessionManagement() {
 	// Create a new song with proper a file name but no existing file.
 	m_sFileName2 = QString( "%1_new.h2song" ).arg( m_sFileNameImproper );
 	CPPUNIT_ASSERT( m_pController->newSong( m_sFileName2 ) ); 
-	CPPUNIT_ASSERT( m_sFileName2 == m_pHydrogen->getSong()->get_filename() );
+	CPPUNIT_ASSERT( m_sFileName2 == m_pHydrogen->getSong()->getFilename() );
 	
 	// ---------------------------------------------------------------
 	// Test CoreActionController::openSong()
@@ -77,11 +77,11 @@ void CoreActionControllerTest::testSessionManagement() {
 	CPPUNIT_ASSERT( !m_pController->openSong( m_sFileNameImproper ) );
 	
 	// The previous action should have not affected the current song.
-	CPPUNIT_ASSERT( m_sFileName2 == m_pHydrogen->getSong()->get_filename() );
+	CPPUNIT_ASSERT( m_sFileName2 == m_pHydrogen->getSong()->getFilename() );
 	
 	// Load the first song (which was saved).
 	CPPUNIT_ASSERT( m_pController->openSong( m_sFileName ) );
-	CPPUNIT_ASSERT( m_sFileName == m_pHydrogen->getSong()->get_filename() );
+	CPPUNIT_ASSERT( m_sFileName == m_pHydrogen->getSong()->getFilename() );
 
 	// Attempt to load the second song. This will fail since Hydrogen
 	// did not stored the song to disk.
@@ -97,9 +97,9 @@ void CoreActionControllerTest::testSessionManagement() {
 	
 	// Check if everything worked out.
 	CPPUNIT_ASSERT( m_pController->openSong( m_sFileName ) );
-	CPPUNIT_ASSERT( m_sFileName == m_pHydrogen->getSong()->get_filename() );
+	CPPUNIT_ASSERT( m_sFileName == m_pHydrogen->getSong()->getFilename() );
 	CPPUNIT_ASSERT( m_pController->openSong( m_sFileName2 ) );
-	CPPUNIT_ASSERT( m_sFileName2 == m_pHydrogen->getSong()->get_filename() );
+	CPPUNIT_ASSERT( m_sFileName2 == m_pHydrogen->getSong()->getFilename() );
 
 	// ---------------------------------------------------------------
 	
