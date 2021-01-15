@@ -27,6 +27,7 @@
 #include <QWidget>
 #include <QMouseEvent>
 #include <QApplication>
+#include <QScrollArea>
 #include <vector>
 #include <set>
 #include <QDebug>
