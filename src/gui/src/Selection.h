@@ -55,7 +55,7 @@ public:
 	virtual void validateSelection() = 0;
 
 	//! Selection or selection-related visual elements have changed, widget needs to be updated.
-	//! At a minumum, the widget's own update() method should be called.
+	//! At a minimum, the widget's own update() method should be called.
 	virtual void updateWidget() = 0;
 
 	//! @name User-level mouse events
