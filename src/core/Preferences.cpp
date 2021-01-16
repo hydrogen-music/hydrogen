@@ -222,7 +222,6 @@ Preferences::Preferences()
 	m_ladspaProperties[3].set(2, 20, 0, 0, false);
 	m_nMaxBars = 400;
 	m_nMaxLayers = 16;
-	m_actionMode = ActionMode::selectMode;
 
 	m_nColoringMethod = 2;
 	m_nColoringMethodAuxValue = 213;
@@ -579,17 +578,6 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_nMidiExportMode = LocalFileMng::readXmlInt( guiNode, "midiExportDialogMode", 0 );
 				m_sMidiExportDirectory = LocalFileMng::readXmlString( guiNode, "midiExportDialogDirectory", QDir::homePath(), true );
 				
-				int nActionMode = LocalFileMng::readXmlInt( guiNode, "action_mode", 0 );
-				if ( nActionMode == 0 ){
-					m_actionMode = ActionMode::selectMode;
-				} else if ( nActionMode == 1 ) {
-					m_actionMode = ActionMode::drawMode;
-				} else {
-					WARNINGLOG( QString( "Unknown action_mode value [%1]. Using ActionMode::selectMode instead." )
-								.arg( nActionMode ) );
-					m_actionMode = ActionMode::selectMode;
-				}
-
 				//beatcounter
 				QString bcMode = LocalFileMng::readXmlString( guiNode, "bc", "BC_OFF" );
 					if ( bcMode == "BC_OFF" ) {
@@ -1027,16 +1015,6 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( guiNode, "midiExportDialogMode", QString("%1").arg( m_nMidiExportMode ) );
 		LocalFileMng::writeXmlString( guiNode, "midiExportDialogDirectory", m_sMidiExportDirectory );
 
-		
-		int nActionMode = 0;
-		if ( m_actionMode == ActionMode::selectMode ) {
-			nActionMode = 0;
-		} else if ( m_actionMode == ActionMode::drawMode ) {
-			nActionMode = 1;
-		}
-		LocalFileMng::writeXmlString( guiNode, "action_mode",
-									  QString::number( nActionMode ) );
-
 		//beatcounter
 		QString bcMode;
 
@@ -1046,8 +1024,6 @@ void Preferences::savePreferences()
 			bcMode = "BC_ON";
 		}
 		LocalFileMng::writeXmlString( guiNode, "bc", bcMode );
-
-
 
 		QString setPlay;
 		if ( m_mmcsetplay == SET_PLAY_OFF ) {

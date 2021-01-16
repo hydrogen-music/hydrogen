@@ -167,7 +167,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pDrawActionBtn->setToolTip( tr( "Draw mode") );
 	connect( m_pDrawActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( drawActionBtnPressed(Button* ) ) );
 
-	if ( pPref->m_actionMode == Preferences::ActionMode::selectMode ) {
+	if ( pSong->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_pPointerActionBtn->setPressed( true );
 		m_pDrawActionBtn->setPressed( false );
 	} else {
@@ -714,7 +714,7 @@ void SongEditorPanel::pointerActionBtnPressed( Button* pBtn )
 {
 	pBtn->setPressed( true );
 	m_pDrawActionBtn->setPressed( false );
-	Preferences::get_instance()->m_actionMode = Preferences::ActionMode::selectMode;
+	Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::selectMode );
 }
 
 
@@ -723,7 +723,7 @@ void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 {
 	pBtn->setPressed( true );
 	m_pPointerActionBtn->setPressed( false );
-	Preferences::get_instance()->m_actionMode = Preferences::ActionMode::drawMode;
+	Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::drawMode );
 }
 
 void SongEditorPanel::updateTimelineUsage() {
