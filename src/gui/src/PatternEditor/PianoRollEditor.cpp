@@ -311,11 +311,13 @@ void PianoRollEditor::drawPattern()
 	if ( hasFocus() && !m_pPatternEditorPanel->cursorHidden() ) {
 		QPoint pos = cursorPosition();
 
-		p.setPen( QColor(0,0,0) );
+		QPen pen( Qt::black );
+		pen.setWidth( 2 );
+		p.setPen( pen );
 		p.setBrush( Qt::NoBrush );
 		p.setRenderHint( QPainter::Antialiasing );
-		p.drawRoundedRect( QRect( pos.x() - m_nGridWidth*3, pos.y(),
-								  m_nGridWidth*6, m_nGridHeight ), 4, 4 );
+		p.drawRoundedRect( QRect( pos.x() - m_nGridWidth*3, pos.y()-2,
+								  m_nGridWidth*6, m_nGridHeight+3 ), 4, 4 );
 	}
 
 }
@@ -1394,6 +1396,6 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 ///
 QRect PianoRollEditor::getKeyboardCursorRect() {
 	QPoint pos = cursorPosition();
-	return QRect( pos.x() - m_nGridWidth*3, pos.y(),
-				  m_nGridWidth*6, m_nGridHeight );
+	return QRect( pos.x() - m_nGridWidth*3, pos.y()-2,
+				  m_nGridWidth*6, m_nGridHeight+3 );
 }

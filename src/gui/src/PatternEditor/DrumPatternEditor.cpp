@@ -793,7 +793,7 @@ QRect DrumPatternEditor::getKeyboardCursorRect()
 	uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	uint y = nSelectedInstrument * m_nGridHeight;
-	return QRect( x-m_nGridWidth*3, y+1, m_nGridWidth*6, m_nGridHeight-2 );
+	return QRect( x-m_nGridWidth*3, y+2, m_nGridWidth*6, m_nGridHeight-3 );
 
 }
 
@@ -996,9 +996,11 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 		uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		uint y = nSelectedInstrument * m_nGridHeight;
-		painter.setPen( QColor( 0,0,0 ) );
+		QPen p( Qt::black );
+		p.setWidth( 2 );
+		painter.setPen( p );
 		painter.setRenderHint( QPainter::Antialiasing );
-		painter.drawRoundedRect( QRect( x-m_nGridWidth*3, y+1, m_nGridWidth*6, m_nGridHeight-2 ), 4, 4 );
+		painter.drawRoundedRect( QRect( x-m_nGridWidth*3, y+2, m_nGridWidth*6, m_nGridHeight-3 ), 4, 4 );
 	}
 
 

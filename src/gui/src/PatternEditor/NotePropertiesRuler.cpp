@@ -1265,7 +1265,9 @@ void NotePropertiesRuler::finishUpdateEditor()
 
 		uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
 
-		p.setPen( QColor( 0,0,0 ) );
+		QPen pen( Qt::black );
+		pen.setWidth( 2 );
+		p.setPen( pen );
 		p.setRenderHint( QPainter::Antialiasing );
 		p.drawRoundedRect( QRect( x-m_nGridWidth*3, 0+1, m_nGridWidth*6, height()-2 ), 4, 4 );
 	}

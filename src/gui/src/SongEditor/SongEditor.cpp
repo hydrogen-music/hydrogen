@@ -826,13 +826,15 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 
 	// Draw cursor
 	if ( ! m_bCursorHidden && hasFocus() ) {
-		painter.setPen( Qt::black );
+		QPen p( Qt::black );
+		p.setWidth( 2 );
+		painter.setPen( p );
 		painter.setRenderHint( QPainter::Antialiasing );
 		// Aim to leave a visible gap between the border of the
 		// pattern cell, and the cursor line, for consistency and
 		// visibility.
-		painter.drawRoundedRect( QRect( columnRowToXy( QPoint(m_nCursorColumn, m_nCursorRow ) ),
-										QSize( m_nGridWidth, m_nGridHeight ) ),
+		painter.drawRoundedRect( QRect( QPoint(0, 1 ) + columnRowToXy( QPoint(m_nCursorColumn, m_nCursorRow ) ),
+										QSize( m_nGridWidth+1, m_nGridHeight-1 ) ),
 								 4, 4 );
 	}
 
@@ -1088,8 +1090,8 @@ std::vector<SongEditor::SelectionIndex> SongEditor::elementsIntersecting( QRect 
 }
 
 QRect SongEditor::getKeyboardCursorRect() {
-	return QRect( columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ),
-				  QSize( m_nGridWidth, m_nGridHeight ) );
+	return QRect( QPoint( 0, 1 ) + columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ),
+				  QSize( m_nGridWidth +1, m_nGridHeight -1 ) );
 }
 
 void SongEditor::clearThePatternSequenceVector( QString filename )
