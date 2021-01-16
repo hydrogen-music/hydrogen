@@ -787,12 +787,16 @@ void SongEditor::updateWidget() {
 		if ( bCellBoundaryCrossed ) {
 			update();
 		}
-	} else {
+	} else if ( m_selection.isLasso() ) {
 		// Selection must redraw the pattern when a cell boundary is crossed, as the selected cells are
 		// drawn when drawing the pattern.
 		if ( bCellBoundaryCrossed ) {
 			m_bSequenceChanged = true;
 		}
+		update();
+	} else {
+		// Other reasons: force update
+		m_bSequenceChanged = true;
 		update();
 	}
 	m_previousMousePosition = m_currentMousePosition;

@@ -309,6 +309,11 @@ public:
 		return m_movingOffset;
 	}
 
+	//! Is there an ongoing lasso gesture?
+	bool isLasso() const {
+		return m_selectionState == MouseLasso || m_selectionState == KeyboardLasso;
+	}
+
 	//! Is an element in the set of currently selected elements? 
 	bool isSelected( Elem e ) {
 		return m_pSelectionGroup->m_selectedElements.find( e ) != m_pSelectionGroup->m_selectedElements.end();
