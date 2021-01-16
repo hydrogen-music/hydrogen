@@ -25,7 +25,7 @@ class LibraryKind(Enum):
 
 
 class Library:
-    """ Library inforamtion """
+    """ Library information """
 
     def __init__(self, name: str, path: str, kind: LibraryKind, deps: List[str]):
         self.name = name
