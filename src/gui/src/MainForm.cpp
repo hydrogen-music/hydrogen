@@ -1974,7 +1974,7 @@ void MainForm::showDevelWarning()
 			develMessageBox.addButton( tr( "Ok" ), QMessageBox::YesRole );
 			develMessageBox.addButton( tr( "Don't show this message anymore" ) , QMessageBox::AcceptRole );
 
-			if( develMessageBox.exec() == 0 ){
+			if( develMessageBox.exec() == 1 ){
 				//don't show warning again
 				pPreferences->setShowDevelWarning( false );
 			}
