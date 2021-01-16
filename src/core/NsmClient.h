@@ -91,7 +91,7 @@ class NsmClient : public H2Core::Object
 		 * modified or not.
 		 *
 		 * This function is triggered within
-		 * H2Core::Song::set_is_modified().
+		 * H2Core::Song::setIsModified().
 		 *
 		 * \param isDirty true, if the current H2Core::Song was
 		 * modified, and false if it wasn't

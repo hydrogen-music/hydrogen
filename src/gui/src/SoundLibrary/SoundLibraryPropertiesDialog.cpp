@@ -177,7 +177,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	if ( pGlobalDrumkitInfo != nullptr && ( !saveChanges_checkBox->isChecked() ) ){
 		if ( Hydrogen::get_instance()->getCurrentDrumkitname() != pGlobalDrumkitInfo->get_name() ){
 			Hydrogen::get_instance()->loadDrumkit( pGlobalDrumkitInfo );
-			Hydrogen::get_instance()->getSong()->set_is_modified( true );
+			Hydrogen::get_instance()->getSong()->setIsModified( true );
 		}
 	}
 
@@ -207,7 +207,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	// Note: The full path of the image is passed to make copying to a new drumkit easy
 	if( pGlobalDrumkitInfo != nullptr)
 	{
-		if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), pGlobalDrumkitInfo->get_path() + "/" + pGlobalDrumkitInfo->get_image(), pGlobalDrumkitInfo->get_image_license(), H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(), H2Core::Hydrogen::get_instance()->getSong()->get_components(), true ) )
+		if( !H2Core::Drumkit::save( nameTxt->text(), authorTxt->text(), infoTxt->toHtml(), licenseTxt->text(), pGlobalDrumkitInfo->get_path() + "/" + pGlobalDrumkitInfo->get_image(), pGlobalDrumkitInfo->get_image_license(), H2Core::Hydrogen::get_instance()->getSong()->getInstrumentList(), H2Core::Hydrogen::get_instance()->getSong()->getComponents(), true ) )
 		{
 			QMessageBox::information( this, "Hydrogen", tr ( "Saving of this drumkit failed."));
 		}
@@ -217,7 +217,7 @@ void SoundLibraryPropertiesDialog::on_saveBtn_clicked()
 	if ( pGlobalPreDrumkit != nullptr ){
 		if ( pGlobalPreDrumkit->get_name() !=  Hydrogen::get_instance()->getCurrentDrumkitname() ){
 			Hydrogen::get_instance()->loadDrumkit( pGlobalPreDrumkit );
-			Hydrogen::get_instance()->getSong()->set_is_modified( true );
+			Hydrogen::get_instance()->getSong()->setIsModified( true );
 		}
 	}
 

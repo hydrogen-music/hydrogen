@@ -225,9 +225,9 @@ SMFWriter::~SMFWriter()
 
 SMFTrack* SMFWriter::createTrack0( Song* pSong ) {
 	SMFTrack *pTrack0 = new SMFTrack();
-	pTrack0->addEvent( new SMFCopyRightNoticeMetaEvent( pSong->__author , 0 ) );
-	pTrack0->addEvent( new SMFTrackNameMetaEvent( pSong->__name , 0 ) );
-	pTrack0->addEvent( new SMFSetTempoMetaEvent( pSong->__bpm , 0 ) );
+	pTrack0->addEvent( new SMFCopyRightNoticeMetaEvent( pSong->getAuthor() , 0 ) );
+	pTrack0->addEvent( new SMFTrackNameMetaEvent( pSong->getName() , 0 ) );
+	pTrack0->addEvent( new SMFSetTempoMetaEvent( pSong->getBpm() , 0 ) );
 	pTrack0->addEvent( new SMFTimeSignatureMetaEvent( 4 , 4 , 24 , 8 , 0 ) );
 	return pTrack0;
 }
@@ -239,20 +239,20 @@ void SMFWriter::save( const QString& sFilename, Song *pSong )
 
 	SMF* pSmf = createSMF( pSong );
 
-	AutomationPath* pAutomationPath = pSong->get_velocity_automation_path();
+	AutomationPath* pAutomationPath = pSong->getVelocityAutomationPath();
 
 	// here writers must prepare to receive pattern events
 	prepareEvents( pSong, pSmf );
 
-	InstrumentList* pInstrumentList = pSong->get_instrument_list();
+	InstrumentList* pInstrumentList = pSong->getInstrumentList();
 	// ogni pattern sara' una diversa traccia
 	int nTick = 1;
 	for ( unsigned nPatternList = 0 ;
-		  nPatternList < pSong->get_pattern_group_vector()->size() ;
+		  nPatternList < pSong->getPatternGroupVector()->size() ;
 		  nPatternList++ ) {
 		// infoLog( "[save] pattern list pos: " + toString( nPatternList ) );
 		PatternList *pPatternList =
-			( *(pSong->get_pattern_group_vector()) )[ nPatternList ];
+			( *(pSong->getPatternGroupVector()) )[ nPatternList ];
 
 		int nStartTicks = nTick;
 		int nMaxPatternLength = 0;
@@ -465,7 +465,7 @@ SMF1WriterMulti::~SMF1WriterMulti()
 
 void SMF1WriterMulti::prepareEvents( Song *pSong, SMF* pSmf )
 {
-	InstrumentList* pInstrumentList = pSong->get_instrument_list();
+	InstrumentList* pInstrumentList = pSong->getInstrumentList();
 	m_eventLists.clear();
 	for( unsigned nInstr=0; nInstr <  pInstrumentList->size(); nInstr++ ){
 		m_eventLists.push_back( new EventList() );
@@ -475,7 +475,7 @@ void SMF1WriterMulti::prepareEvents( Song *pSong, SMF* pSmf )
 
 EventList* SMF1WriterMulti::getEvents( Song* pSong,  Instrument* pInstr )
 {
-	int nInstr = pSong->get_instrument_list()->index(pInstr);
+	int nInstr = pSong->getInstrumentList()->index(pInstr);
 	EventList* pEventList = m_eventLists.at( nInstr );
 	
 	return pEventList;
@@ -484,7 +484,7 @@ EventList* SMF1WriterMulti::getEvents( Song* pSong,  Instrument* pInstr )
 
 void SMF1WriterMulti::packEvents( Song *pSong, SMF* pSmf )
 {
-	InstrumentList* pInstrumentList = pSong->get_instrument_list();
+	InstrumentList* pInstrumentList = pSong->getInstrumentList();
 	for ( unsigned nTrack = 0; nTrack < m_eventLists.size(); nTrack++ ) {
 		EventList* pEventList = m_eventLists.at( nTrack );
 		Instrument* instrument =  pInstrumentList->get( nTrack );

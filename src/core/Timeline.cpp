@@ -39,10 +39,14 @@ namespace H2Core
 
 	void Timeline::addTempoMarker( int nBar, float fBpm ) {
 		
-		if ( fBpm < 30.0 ) {
-			fBpm = 30.0;
-		} else if ( fBpm > 500.0 ) {
-			fBpm = 500.0;
+		if ( fBpm < MIN_BPM ) {
+			fBpm = MIN_BPM;
+			WARNINGLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
+						.arg( fBpm ).arg( MIN_BPM ) );
+		} else if ( fBpm > MAX_BPM ) {
+			fBpm = MAX_BPM;
+			WARNINGLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
+						.arg( fBpm ).arg( MAX_BPM ) );
 		}
 
 		std::shared_ptr<TempoMarker> pTempoMarker( new TempoMarker );

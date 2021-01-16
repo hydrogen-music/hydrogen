@@ -270,7 +270,7 @@ bool MidiActionManager::unmute(Action * , Hydrogen* pEngine, targeted_element ) 
 }
 
 bool MidiActionManager::mute_toggle(Action * , Hydrogen* pEngine, targeted_element ) {
-	pEngine->getCoreActionController()->setMasterIsMuted( !Hydrogen::get_instance()->getSong()->__is_muted );
+	pEngine->getCoreActionController()->setMasterIsMuted( !Hydrogen::get_instance()->getSong()->getIsMuted() );
 	return true;
 }
 
@@ -282,7 +282,7 @@ bool MidiActionManager::strip_mute_toggle(Action * pAction, Hydrogen* pEngine, t
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 
 	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if ( pInstrList->is_valid_index( nLine ) ) {
 		Instrument *pInstr = pInstrList->get( nLine );
@@ -307,7 +307,7 @@ bool MidiActionManager::strip_solo_toggle(Action * pAction, Hydrogen* pEngine, t
 	int nLine = pAction->getParameter1().toInt(&ok,10);
 
 	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	if ( pInstrList->is_valid_index( nLine ) ) {
 		Instrument *pInstr = pInstrList->get( nLine );
@@ -337,7 +337,7 @@ bool MidiActionManager::tap_tempo(Action * , Hydrogen* pEngine, targeted_element
 bool MidiActionManager::select_next_pattern(Action * pAction, Hydrogen* pEngine, targeted_element ) {
 	bool ok;
 	int row = pAction->getParameter1().toInt(&ok,10);
-	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
+	if( row > pEngine->getSong()->getPatternList()->size() -1 ) {
 		return false;
 	}
 	if(Preferences::get_instance()->patternModePlaysSelected()) {
@@ -352,7 +352,7 @@ bool MidiActionManager::select_next_pattern(Action * pAction, Hydrogen* pEngine,
 bool MidiActionManager::select_only_next_pattern(Action * pAction, Hydrogen* pEngine, targeted_element ) {
 	bool ok;
 	int row = pAction->getParameter1().toInt(&ok,10);
-	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
+	if( row > pEngine->getSong()->getPatternList()->size() -1 ) {
 		return false;
 	}
 	if(Preferences::get_instance()->patternModePlaysSelected())
@@ -370,7 +370,7 @@ bool MidiActionManager::select_next_pattern_relative(Action * pAction, Hydrogen*
 		return true;
 	}
 	int row = pEngine->getSelectedPatternNumber() + pAction->getParameter1().toInt(&ok,10);
-	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
+	if( row > pEngine->getSong()->getPatternList()->size() -1 ) {
 		return false;
 	}
 
@@ -382,7 +382,7 @@ bool MidiActionManager::select_next_pattern_cc_absolute(Action * pAction, Hydrog
 	bool ok;
 	int row = pAction->getParameter2().toInt(&ok,10);
 	
-	if( row > pEngine->getSong()->get_pattern_list()->size() -1 ) {
+	if( row > pEngine->getSong()->getPatternList()->size() -1 ) {
 		return false;
 	}
 	
@@ -423,8 +423,8 @@ bool MidiActionManager::select_instrument(Action * pAction, Hydrogen* pEngine, t
 	bool ok;
 	int  instrument_number = pAction->getParameter2().toInt(&ok,10) ;
 	
-	if ( pEngine->getSong()->get_instrument_list()->size() < instrument_number ) {
-		instrument_number = pEngine->getSong()->get_instrument_list()->size() -1;
+	if ( pEngine->getSong()->getInstrumentList()->size() < instrument_number ) {
+		instrument_number = pEngine->getSong()->getInstrumentList()->size() -1;
 	}
 	
 	pEngine->setSelectedInstrumentNumber( instrument_number );
@@ -438,7 +438,7 @@ bool MidiActionManager::effect_level_absolute(Action * pAction, Hydrogen* pEngin
 	int fx_param = pAction->getParameter2().toInt(&ok,10);
 
 	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if ( pInstrList->is_valid_index( nLine) )
 	{
@@ -475,9 +475,9 @@ bool MidiActionManager::master_volume_absolute(Action * pAction, Hydrogen* pEngi
 	Song *song = pEngine->getSong();
 
 	if( vol_param != 0 ){
-		song->set_volume( 1.5* ( (float) (vol_param / 127.0 ) ));
+		song->setVolume( 1.5* ( (float) (vol_param / 127.0 ) ));
 	} else {
-		song->set_volume( 0 );
+		song->setVolume( 0 );
 	}
 
 	return true;
@@ -492,15 +492,15 @@ bool MidiActionManager::master_volume_relative(Action * pAction, Hydrogen* pEngi
 	Song *song = pEngine->getSong();
 
 	if( vol_param != 0 ) {
-		if ( vol_param == 1 && song->get_volume() < 1.5 ) {
-			song->set_volume( song->get_volume() + 0.05 );
+		if ( vol_param == 1 && song->getVolume() < 1.5 ) {
+			song->setVolume( song->getVolume() + 0.05 );
 		} else {
-			if( song->get_volume() >= 0.0 ) {
-				song->set_volume( song->get_volume() - 0.05 );
+			if( song->getVolume() >= 0.0 ) {
+				song->setVolume( song->getVolume() - 0.05 );
 			}
 		}
 	} else {
-		song->set_volume( 0 );
+		song->setVolume( 0 );
 	}
 
 	return true;
@@ -514,7 +514,7 @@ bool MidiActionManager::strip_volume_absolute(Action * pAction, Hydrogen* pEngin
 	int vol_param = pAction->getParameter2().toInt(&ok,10);
 
 	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if ( pInstrList->is_valid_index( nLine) )
 	{
@@ -544,7 +544,7 @@ bool MidiActionManager::strip_volume_relative(Action * pAction, Hydrogen* pEngin
 	int vol_param = pAction->getParameter2().toInt(&ok,10);
 
 	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	if ( pInstrList->is_valid_index( nLine) )
 	{
@@ -580,7 +580,7 @@ bool MidiActionManager::pan_absolute(Action * pAction, Hydrogen* pEngine, target
 	int pan_param = pAction->getParameter2().toInt(&ok,10);
 
 	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nLine ) )
 	{
@@ -637,7 +637,7 @@ bool MidiActionManager::pan_relative(Action * pAction, Hydrogen* pEngine, target
 	int pan_param = pAction->getParameter2().toInt(&ok,10);
 
 	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nLine ) )
 	{
@@ -696,7 +696,7 @@ bool MidiActionManager::gain_level_absolute(Action * pAction, Hydrogen* pEngine,
 	int gain_param = pAction->getParameter2().toInt(&ok,10);
 
 	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 	
 	if( pInstrList->is_valid_index( nLine ) )
 	{
@@ -735,7 +735,7 @@ bool MidiActionManager::pitch_level_absolute(Action * pAction, Hydrogen* pEngine
 	int pitch_param = pAction->getParameter2().toInt(&ok,10);
 
 	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	if( pInstrList->is_valid_index( nLine ) )
 	{
@@ -774,7 +774,7 @@ bool MidiActionManager::filter_cutoff_level_absolute(Action * pAction, Hydrogen*
 	int filter_cutoff_param = pAction->getParameter2().toInt(&ok,10);
 
 	Song *pSong = pEngine->getSong();
-	InstrumentList *pInstrList = pSong->get_instrument_list();
+	InstrumentList *pInstrList = pSong->getInstrumentList();
 
 	if( pInstrList->is_valid_index( nLine ) )
 	{
@@ -820,12 +820,12 @@ bool MidiActionManager::bpm_cc_relative(Action * pAction, Hydrogen* pEngine, tar
 
 	Song* pSong = pEngine->getSong();
 
-	if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->__bpm  < 300) {
-		pEngine->setBPM( pSong->__bpm - 1*mult );
+	if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->getBpm()  < 300) {
+		pEngine->setBPM( pSong->getBpm() - 1*mult );
 	}
 
-	if ( m_nLastBpmChangeCCParameter < cc_param && pSong->__bpm  > 40 ) {
-		pEngine->setBPM( pSong->__bpm + 1*mult );
+	if ( m_nLastBpmChangeCCParameter < cc_param && pSong->getBpm()  > 40 ) {
+		pEngine->setBPM( pSong->getBpm() + 1*mult );
 	}
 
 	m_nLastBpmChangeCCParameter = cc_param;
@@ -855,12 +855,12 @@ bool MidiActionManager::bpm_fine_cc_relative(Action * pAction, Hydrogen* pEngine
 
 	Song* pSong = pEngine->getSong();
 
-	if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->__bpm  < 300) {
-		pEngine->setBPM( pSong->__bpm - 0.01*mult );
+	if ( m_nLastBpmChangeCCParameter >= cc_param && pSong->getBpm()  < 300) {
+		pEngine->setBPM( pSong->getBpm() - 0.01*mult );
 	}
 
-	if ( m_nLastBpmChangeCCParameter < cc_param && pSong->__bpm  > 40 ) {
-		pEngine->setBPM( pSong->__bpm + 0.01*mult );
+	if ( m_nLastBpmChangeCCParameter < cc_param && pSong->getBpm()  > 40 ) {
+		pEngine->setBPM( pSong->getBpm() + 0.01*mult );
 	}
 
 	m_nLastBpmChangeCCParameter = cc_param;
@@ -877,9 +877,8 @@ bool MidiActionManager::bpm_increase(Action * pAction, Hydrogen* pEngine, target
 	int mult = pAction->getParameter1().toInt(&ok,10);
 
 	Song* pSong = pEngine->getSong();
-	if (pSong->__bpm  < 300) {
-		pEngine->setBPM( pSong->__bpm + 1*mult );
-	}
+	pEngine->setBPM( pSong->getBpm() + 1*mult );
+
 	AudioEngine::get_instance()->unlock();
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );
@@ -894,9 +893,8 @@ bool MidiActionManager::bpm_decrease(Action * pAction, Hydrogen* pEngine, target
 	int mult = pAction->getParameter1().toInt(&ok,10);
 
 	Song* pSong = pEngine->getSong();
-	if (pSong->__bpm  > 40 ) {
-		pEngine->setBPM( pSong->__bpm - 1*mult );
-	}
+	pEngine->setBPM( pSong->getBpm() - 1*mult );
+	
 	AudioEngine::get_instance()->unlock();
 	
 	EventQueue::get_instance()->push_event( EVENT_TEMPO_CHANGED, -1 );

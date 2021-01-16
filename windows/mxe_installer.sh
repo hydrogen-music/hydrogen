@@ -51,7 +51,7 @@ while :
 	echo "Note: this script was made using the requirement information found at http://mxe.cc/#requirements"
 	echo "You can visit the above site for manual instructions on what packages are required. For instructions on how to build MXE you can visit this link: http://mxe.cc/#tutorial"
 	echo "Select an option:"
-	echo " 1: Debian and derrivatives"
+	echo " 1: Debian and derivatives"
 	echo " 2: Fedora"
 	echo " 3: FreeBSD (NOTE: No longer fully supported by MXE. See above requirements link.)"
 	echo " 4: Frugalware"

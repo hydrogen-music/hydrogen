@@ -64,12 +64,12 @@ H2Core::LilyPond::LilyPond() :
 
 void H2Core::LilyPond::extractData( const Song &song ) {
 	// Retrieve metadata
-	m_sName = song.__name;
-	m_sAuthor = song.__author;
-	m_fBPM = song.__bpm;
+	m_sName = song.getName();
+	m_sAuthor = song.getAuthor();
+	m_fBPM = song.getBpm();
 
 	// Get the main information about the music
-	const std::vector<PatternList *> *group = song.get_pattern_group_vector();
+	const std::vector<PatternList *> *group = song.getPatternGroupVector();
 	if ( !group ) {
 		m_Measures.clear();
 		return;

@@ -329,7 +329,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	hbox->addWidget( pBPMPanel );
 
 	// LCD BPM SpinBox
-	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, 6, LCDSpinBox::FLOAT, 30, 400 );
+	m_pLCDBPMSpinbox = new LCDSpinBox( pBPMPanel, 6, LCDSpinBox::FLOAT, MIN_BPM, MAX_BPM );
 	m_pLCDBPMSpinbox->move( 43, 6 );
 	connect( m_pLCDBPMSpinbox, SIGNAL(changed(LCDSpinBox*)), this, SLOT(bpmChanged()));
 	connect( m_pLCDBPMSpinbox, SIGNAL(spinboxClicked()), this, SLOT(bpmClicked()));
@@ -556,11 +556,11 @@ void PlayerControl::updatePlayerControl()
 
 	Song *song = m_pEngine->getSong();
 
-	m_pSongLoopBtn->setPressed( song->is_loop_enabled() );
+	m_pSongLoopBtn->setPressed( song->getIsLoopEnabled() );
 
-	m_pLCDBPMSpinbox->setValue( song->__bpm );
+	m_pLCDBPMSpinbox->setValue( song->getBpm() );
 
-	if ( song->get_mode() == Song::PATTERN_MODE ) {
+	if ( song->getMode() == Song::PATTERN_MODE ) {
 		m_pLiveModeBtn->setPressed( true );
 		m_pSongModeBtn->setPressed( false );
 	}
@@ -767,14 +767,8 @@ void PlayerControl::songModeActivationEvent( int nValue )
 
 void PlayerControl::bpmChanged() {
 	float fNewBpmValue = m_pLCDBPMSpinbox->getValue();
-	if (fNewBpmValue < 30) {
-		fNewBpmValue = 30;
-	}
-	else if (fNewBpmValue > 400 ) {
-		fNewBpmValue = 400;
-	}
 
-	m_pEngine->getSong()->set_is_modified( true );
+	m_pEngine->getSong()->setIsModified( true );
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	m_pEngine->setBPM( fNewBpmValue );
@@ -955,13 +949,10 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 void PlayerControl::bpmClicked()
 {
 	bool bIsOkPressed;
-	double fNewVal= QInputDialog::getDouble( this, "Hydrogen", tr( "New BPM value" ),  m_pLCDBPMSpinbox->getValue(), 10, 400, 2, &bIsOkPressed );
+	double fNewVal= QInputDialog::getDouble( this, "Hydrogen", tr( "New BPM value" ),  m_pLCDBPMSpinbox->getValue(), MIN_BPM, MAX_BPM, 2, &bIsOkPressed );
 	if ( bIsOkPressed  ) {
-		if ( fNewVal < 30 ) {
-			return;
-		}
 
-		m_pEngine->getSong()->set_is_modified( true );
+		m_pEngine->getSong()->setIsModified( true );
 
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 
@@ -1118,7 +1109,7 @@ void PlayerControl::tempoChangedEvent( int nValue )
 	 * of the song.
 	 */
 	
-	m_pLCDBPMSpinbox->setValue( m_pEngine->getSong()->__bpm );
+	m_pLCDBPMSpinbox->setValue( m_pEngine->getSong()->getBpm() );
 }
 
 void PlayerControl::jackTransportActivationEvent( int nValue ) {
