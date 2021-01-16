@@ -706,11 +706,9 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 }
 
 void SongEditorPanel::setActionMode( SongEditorActionMode actionMode ) {
-	if ( actionMode != m_actionMode ) {
-		m_actionMode = actionMode;
-		m_pDrawActionBtn->setPressed( actionMode == DRAW_ACTION );
-		m_pPointerActionBtn->setPressed( actionMode == SELECT_ACTION );
-	}
+	m_actionMode = actionMode;
+	m_pDrawActionBtn->setPressed( actionMode == DRAW_ACTION );
+	m_pPointerActionBtn->setPressed( actionMode == SELECT_ACTION );
 }
 
 void SongEditorPanel::pointerActionBtnPressed( Button* pBtn )
