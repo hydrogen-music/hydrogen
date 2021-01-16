@@ -1765,7 +1765,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>press button to record midi event</source>
-        <translation>Appuyer sur le bouton pour enregistrer les événements midi</translation>
+        <translation>Appuyer sur le bouton pour enregistrer les événements MIDI</translation>
     </message>
 </context>
 <context>
@@ -1909,7 +1909,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = On</source>
-        <translation>Quantifier les événements clavier/MIDI entrant = Actif</translation>
+        <translation>Quantifier les événements clavier/MIDI entrant = actif</translation>
     </message>
     <message>
         <source>Select pattern size</source>
@@ -1958,7 +1958,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
-        <translation>Quantifier les événements entrant du clavier/midi = Inactif</translation>
+        <translation>Quantifier les événements entrant du clavier/MIDI = inactif</translation>
     </message>
     <message>
         <source>NoteKey</source>
@@ -2256,11 +2256,13 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Record midi events = On</source>
-        <translation>Enregistrer les événements midi = actif</translation>
+        <translatorcomment>Fautes sur les accents aigus faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Enregistrer les evenements MIDI = actif</translation>
     </message>
     <message>
         <source>Record midi events = Off</source>
-        <translation>Enregistrer les événements midi = inactif</translation>
+        <translatorcomment>Fautes sur les accents aigus faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Enregistrer les evenements MIDI = inactif</translation>
     </message>
     <message>
         <source>Destructive mode = Off</source>
