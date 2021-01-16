@@ -1971,7 +1971,7 @@ void MainForm::showDevelWarning()
 			QString msg = tr( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
 			QMessageBox develMessageBox( this );
 			develMessageBox.setText( msg );
-			develMessageBox.addButton( QMessageBox::Ok );
+			develMessageBox.addButton( tr( "Ok" ), QMessageBox::YesRole );
 			develMessageBox.addButton( tr( "Don't show this message anymore" ) , QMessageBox::AcceptRole );
 
 			if( develMessageBox.exec() == 0 ){

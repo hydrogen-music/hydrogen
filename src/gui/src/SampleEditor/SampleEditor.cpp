@@ -69,7 +69,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	m_sSampleName = sSampleFilename;
 	m_fZoomfactor = 1;
 	m_pDetailFrame = 0;
-	m_pLineColor = "default";
+	m_sLineColor = "default";
 	m_bOnewayStart = false;
 	m_bOnewayLoop = false;
 	m_bOnewayEnd = false;
@@ -86,7 +86,7 @@ SampleEditor::SampleEditor ( QWidget* pParent, int nSelectedComponent, int nSele
 	m_pSampleAdjustView = new DetailWaveDisplay( mainSampleAdjustView );
 	m_pTargetSampleView = new TargetWaveDisplay( targetSampleView );
 
-	setWindowTitle ( QString( "SampleEditor " + newfilename) );
+	setWindowTitle ( QString( tr( "SampleEditor " ) + newfilename) );
 	setFixedSize ( width(), height() );
 	setModal ( true );
 
@@ -448,16 +448,16 @@ void SampleEditor::valueChangedStartFrameSpinBox( int )
 {
 	testpTimer();
 	m_pDetailFrame = StartFrameSpinBox->value();
-	m_pLineColor = "Start";
+	m_sLineColor = "Start";
 	if ( !m_bOnewayStart ){
 		m_pMainSampleWaveDisplay->m_nStartFramePosition = StartFrameSpinBox->value() / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_pLineColor);
+		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_sLineColor);
 		__loops.start_frame = StartFrameSpinBox->value();
 
 	}else
 	{
-		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_pLineColor);
+		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_sLineColor);
 		m_bOnewayStart = false;
 	}
 	testPositionsSpinBoxes();
@@ -469,15 +469,15 @@ void SampleEditor::valueChangedLoopFrameSpinBox( int )
 {
 	testpTimer();
 	m_pDetailFrame = LoopFrameSpinBox->value();
-	m_pLineColor = "Loop";
+	m_sLineColor = "Loop";
 	if ( !m_bOnewayLoop ){
 		m_pMainSampleWaveDisplay->m_nLoopFramePosition = LoopFrameSpinBox->value() / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_pLineColor);
+		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_sLineColor);
 		__loops.loop_frame = LoopFrameSpinBox->value();
 	}else
 	{
-		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_pLineColor);
+		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_sLineColor);
 		m_bOnewayLoop = false;
 	}
 	testPositionsSpinBoxes();
@@ -489,16 +489,16 @@ void SampleEditor::valueChangedEndFrameSpinBox( int )
 {
 	testpTimer();
 	m_pDetailFrame = EndFrameSpinBox->value();
-	m_pLineColor = "End";
+	m_sLineColor = "End";
 	if ( !m_bOnewayEnd ){
 		m_pMainSampleWaveDisplay->m_nEndFramePosition = EndFrameSpinBox->value() / m_divider + 25 ;
 		m_pMainSampleWaveDisplay->updateDisplayPointer();
-		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_pLineColor);
+		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_sLineColor);
 		__loops.end_frame = EndFrameSpinBox->value();
 	}else
 	{
 		m_bOnewayEnd = false;
-		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_pLineColor);
+		m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor , m_sLineColor);
 	}
 	testPositionsSpinBoxes();
 	m_bSampleEditorStatus = false;
@@ -599,8 +599,8 @@ void SampleEditor::updateMainsamplePositionRuler()
 	{
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
 		m_pTimer->stop();
-		PlayPushButton->setText( QString("&Play") );
-		PlayOrigPushButton->setText( QString( "P&lay original sample") );
+		PlayPushButton->setText( QString( tr( "&Play" )) );
+		PlayOrigPushButton->setText( QString( tr( "P&lay original sample" ) ) );
 		m_bPlayButton = false;
 	}
 }
@@ -623,8 +623,8 @@ void SampleEditor::updateTargetsamplePositionRuler()
 	{
 		m_pTargetSampleView->paintLocatorEventTargetDisplay( -1 , false);
 		m_pTargetDisplayTimer->stop();
-		PlayPushButton->setText(QString( "&Play") );
-		PlayOrigPushButton->setText( QString( "P&lay original sample") );
+		PlayPushButton->setText(QString( tr( "&Play" )) );
+		PlayOrigPushButton->setText( QString( tr( "P&lay original sample" ) ) );
 		m_bPlayButton = false;
 	}
 }
@@ -733,7 +733,9 @@ void SampleEditor::setSamplelengthFrames()
 	}
 
 	m_nSlframes = newLength;
-	newlengthLabel->setText(QString("new sample length: %1 frames").arg(newLength));
+	newlengthLabel->setText(QString( tr( "new sample length" ) )
+							.append( QString( ": %1 " ).arg(newLength) )
+							.append( tr( "frames" )));
 	checkRatioSettings();
 }
 
@@ -849,7 +851,8 @@ void SampleEditor::checkRatioSettings()
 	else{
 		rubberComboBox->setStyleSheet("QComboBox { background-color: red; }");
 	}
-	QString text = QString( " RB-Ratio = %1").arg(m_fRatio);
+	QString text = QString( tr(" RB-Ratio" ) )
+		.append( QString( " %1" ).arg( m_fRatio ) );
 	ratiolabel->setText( text );
 
 	//no rubberband = default
@@ -883,7 +886,7 @@ void SampleEditor::valueChangedProcessingTypeComboBox( const QString unused )
 void SampleEditor::on_verticalzoomSlider_valueChanged( int value )
 {
 	m_fZoomfactor = value / 10 +1;
-	m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor, m_pLineColor );
+	m_pSampleAdjustView->setDetailSamplePosition( m_pDetailFrame, m_fZoomfactor, m_sLineColor );
 }
 
 
@@ -908,8 +911,8 @@ void SampleEditor::testpTimer()
 		m_pMainSampleWaveDisplay->paintLocatorEvent( -1 , false);
 		m_pTimer->stop();
 		m_pTargetDisplayTimer->stop();
-		PlayPushButton->setText( QString( "&Play" ) );
-		PlayOrigPushButton->setText( QString( "P&lay original sample") );
+		PlayPushButton->setText( QString( tr( "&Play" ) ) );
+		PlayOrigPushButton->setText( QString( tr( "P&lay original sample" ) ) );
 		AudioEngine::get_instance()->get_sampler()->stopPlayingNotes();
 		m_bPlayButton = false;
 	}
