@@ -121,9 +121,7 @@ class PianoRollEditor: public PatternEditor
 		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
 		virtual void deleteSelection() override;
-		virtual void copy() override;
 		virtual void paste() override;
-		virtual void cut() override;
 
 	private:
 

@@ -989,41 +989,6 @@ void PianoRollEditor::deleteSelection()
 	}
 }
 
-///
-/// Copy selection to clipboard in XML
-///
-void PianoRollEditor::copy()
-{
-	XMLDoc doc;
-	XMLNode root = doc.set_root( "noteSelection" );
-	XMLNode positionNode = root.createNode( "sourcePosition" );
-	XMLNode noteList = root.createNode( "noteList" );
-
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
-	InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
-
-	positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
-	positionNode.write_int( "pitch", m_nCursorPitch );
-	positionNode.write_int( "instrument", Hydrogen::get_instance()->getSelectedInstrumentNumber() );
-
-	for ( Note *pNote : m_selection ) {
-		if ( pNote->get_instrument() == pInstrumentList->get( nSelectedInstrumentNumber ) ) {
-			XMLNode note_node = noteList.createNode( "note" );
-			pNote->save_to( &note_node );
-		}
-	}
-
-	QClipboard *clipboard = QApplication::clipboard();
-	clipboard->setText( doc.toString() );
-}
-
-void PianoRollEditor::cut()
-{
-	copy();
-	deleteSelection();
-}
-
 
 ///
 /// Paste selection

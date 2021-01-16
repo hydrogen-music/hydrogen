@@ -842,43 +842,6 @@ void DrumPatternEditor::deleteSelection()
 
 
 ///
-/// Copy selection to clipboard in XML
-///
-void DrumPatternEditor::copy()
-{
-	XMLDoc doc;
-	XMLNode selection = doc.set_root( "noteSelection" );
-	XMLNode noteList = selection.createNode( "noteList");
-	XMLNode positionNode = selection.createNode( "sourcePosition" );
-	bool bWroteNote = false;
-
-	positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
-	positionNode.write_int( "instrument", Hydrogen::get_instance()->getSelectedInstrumentNumber() );
-
-	for ( Note *pNote : m_selection ) {
-		if ( ! bWroteNote ) {
-			/* Set the note pitch for the 'position' the selection is
-			** copied from to the pitch of the first note we find.
-			*/
-			bWroteNote = true;
-			positionNode.write_int( "note", pNote->get_notekey_pitch() + 12*OCTAVE_OFFSET );
-		}
-		XMLNode note_node = noteList.createNode( "note" );
-		pNote->save_to( &note_node );
-	}
-
-	QClipboard *clipboard = QApplication::clipboard();
-	clipboard->setText( doc.toString() );
-}
-
-void DrumPatternEditor::cut()
-{
-	copy();
-	deleteSelection();
-}
-
-
-///
 /// Paste selection
 ///
 /// Selection is XML containing notes, contained in a root 'noteSelection' element.

@@ -262,26 +262,39 @@ void SongEditor::deleteSelection() {
 
 //! Copy a selection of cells to an XML representation in the clipboard
 //!
-//! <patternSelection>
-//!    <sourcePosition>
-//!  <cellList>
-//!    <cell>
-//!    ...
-
+//! * <patternSelection>
+//!    * <sourcePosition>
+//! * <cellList>
+//!    * <cell>
+//!    * ...
 void SongEditor::copy() {
 	XMLDoc doc;
 	XMLNode selection = doc.set_root( "patternSelection" );
 	XMLNode cellList = selection.createNode( "cellList" );
 	XMLNode positionNode = selection.createNode( "sourcePosition" );
-
-	positionNode.write_int( "column", m_nCursorColumn );
-	positionNode.write_int( "row", m_nCursorRow );
+	// Top left of selection
+	int nMinX, nMinY;
+	bool bWrotePattern = false;
 
 	for ( QPoint cell : m_selection ) {
 		XMLNode cellNode = cellList.createNode( "cell" );
 		cellNode.write_int( "x", cell.x() );
 		cellNode.write_int( "y", cell.y() );
+		if ( bWrotePattern ) {
+			nMinX = std::min( nMinX, cell.x() );
+			nMinY = std::min( nMinY, cell.y() );
+		} else {
+			nMinX = cell.x();
+			nMinY = cell.y();
+			bWrotePattern = true;
+		}
 	}
+	if ( !bWrotePattern) {
+		nMinX = m_nCursorColumn;
+		nMinY = m_nCursorRow;
+	}
+	positionNode.write_int( "column", nMinX );
+	positionNode.write_int( "row", nMinY );
 
 	QApplication::clipboard()->setText( doc.toString() );
 }
