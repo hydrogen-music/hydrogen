@@ -134,5 +134,5 @@ void PatternPropertiesDialog::defaultNameCheck( QString pattName, bool savepatte
 		pattName = pPatternList->find_unused_pattern_name(pattName, pattern);
 	}
 
-	patternNameTxt->setText( tr("%1").arg(pattName) );
+	patternNameTxt->setText(pattName);
 }
