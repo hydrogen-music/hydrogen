@@ -128,7 +128,7 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	int nColumn = getColumn( ev->x() );
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
-	m_pPatternEditorPanel->setCursorHidden( true );
+	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 	Song *pSong = pHydrogen->getSong();
 	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( pHydrogen->getSelectedInstrumentNumber() );
@@ -338,7 +338,7 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	int nColumn = getColumn( ev->x() );
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
-	m_pPatternEditorPanel->setCursorHidden( true );
+	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 	if ( m_nDragPreviousColumn != nColumn ) {
 		// Complete current undo action, and start a new one.
@@ -683,13 +683,13 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			}
 			addUndoAction();
 		} else {
-			m_pPatternEditorPanel->setCursorHidden( true );
+			HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 			ev->ignore();
 			return;
 		}
 	}
 	if ( bUnhideCursor ) {
-		m_pPatternEditorPanel->setCursorHidden( false );
+		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	updateEditor();
@@ -701,7 +701,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 void NotePropertiesRuler::focusInEvent( QFocusEvent * ev )
 {
 	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
-		m_pPatternEditorPanel->setCursorHidden( false );
+		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
 	updateEditor();
 }
@@ -1260,7 +1260,7 @@ void NotePropertiesRuler::finishUpdateEditor()
 		createNoteKeyBackground( m_pBackground );
 	}
 
-	if ( hasFocus() && !m_pPatternEditorPanel->cursorHidden() ) {
+	if ( hasFocus() && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		QPainter p( m_pBackground );
 
 		uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;

@@ -91,7 +91,6 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
 
 	m_nCursorRow = 0;
 	m_nCursorColumn = 0;
-	m_bCursorHidden = Preferences::get_instance()->hideKeyboardCursor();
 
 	Preferences *pref = Preferences::get_instance();
 	m_nMaxPatternSequence = pref->getMaxBars();
@@ -297,6 +296,9 @@ void SongEditor::copy() {
 	positionNode.write_int( "row", nMinY );
 
 	QApplication::clipboard()->setText( doc.toString() );
+
+	// Show the keyboard cursor so the user knows where the insertion point will be
+	HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 }
 
 void SongEditor::paste() {
@@ -484,13 +486,11 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 
 	} else {
 		ev->ignore();
-		if ( Preferences::get_instance()->hideKeyboardCursor() ) {
-			m_bCursorHidden = true;
-		}
+		HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 		return;
 	}
 	if ( bUnhideCursor ) {
-		m_bCursorHidden = false;
+		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
 
 	if ( bSelectionKey ) {
@@ -521,13 +521,13 @@ void SongEditor::focusInEvent( QFocusEvent *ev )
 		QPoint pos = columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ))
 			+ QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
 		m_pScrollView->ensureVisible( pos.x(), pos.y() );
-		m_bCursorHidden = false;
+		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
 	update();
 }
 
 // Implement comparison between QPoints needed for std::set
-int operator<(QPoint a, QPoint b) {
+int operator<( QPoint a, QPoint b ) {
 	int nAx = a.x(), nBx = b.x();
 	if ( nAx != nBx ) {
 		return nAx < nBx;
@@ -547,9 +547,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 	QPoint p = xyToColumnRow( ev->pos() );
 	m_nCursorColumn = p.x();
 	m_nCursorRow = p.y();
-	if ( Preferences::get_instance()->hideKeyboardCursor() ) {
-		m_bCursorHidden = true;
-	}
+	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 	if ( m_pSongEditorPanel->getActionMode() == SELECT_ACTION ) {
 		m_selection.mousePressEvent( ev );
@@ -671,9 +669,7 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 		QPoint p = xyToColumnRow( ev->pos() );
 		m_nCursorColumn = p.x();
 		m_nCursorRow = p.y();
-		if ( Preferences::get_instance()->hideKeyboardCursor() ) {
-			m_bCursorHidden = true;
-		}
+		HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 		// Drawing mode: continue drawing over other cells
 		setPatternActive( p.x(), p.y(), m_bDrawingActiveCell );
@@ -829,7 +825,7 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 	}
 
 	// Draw cursor
-	if ( ! m_bCursorHidden && hasFocus() ) {
+	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() && hasFocus() ) {
 		QPen p( Qt::black );
 		p.setWidth( 2 );
 		painter.setPen( p );

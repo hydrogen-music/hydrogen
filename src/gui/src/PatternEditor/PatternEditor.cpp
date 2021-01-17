@@ -200,6 +200,10 @@ void PatternEditor::copy()
 
 	QClipboard *clipboard = QApplication::clipboard();
 	clipboard->setText( doc.toString() );
+
+	// This selection will probably be pasted at some point. So show the keyboard cursor as this is the place
+	// where the selection will be pasted.
+	HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 }
 
 

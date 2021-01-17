@@ -139,8 +139,6 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		int m_nCursorColumn;
 		//! @}
 
-		int m_bCursorHidden;
-
 		//! @name Conversion between sequence grid coordinates and screen (widget) coordinates.
 		//! @{
 		QPoint xyToColumnRow( QPoint p );

@@ -222,7 +222,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	}
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
-	m_pPatternEditorPanel->setCursorHidden( true );
+	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 	update();
 }
 
@@ -251,7 +251,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 		// Other drag (selection or move) we'll set the cursor input position to the start of the gesture
 		pHydrogen->setSelectedInstrumentNumber( row );
 		m_pPatternEditorPanel->setCursorPosition( nColumn );
-		m_pPatternEditorPanel->setCursorHidden( true );
+		HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 	}
 }
 
@@ -731,7 +731,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		return;
 	}
 	if ( bUnhideCursor ) {
-		m_pPatternEditorPanel->setCursorHidden( false );
+		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	m_pPatternEditorPanel->ensureCursorVisible();
@@ -992,7 +992,7 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 
 	// Draw cursor
-	if ( hasFocus() && !m_pPatternEditorPanel->cursorHidden() ) {
+	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		uint y = nSelectedInstrument * m_nGridHeight;
@@ -1251,7 +1251,7 @@ void DrumPatternEditor::focusInEvent ( QFocusEvent *ev )
 	UNUSED( ev );
 	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
 		m_pPatternEditorPanel->ensureCursorVisible();
-		m_pPatternEditorPanel->setCursorHidden( false );
+		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
 	updateEditor();
 }

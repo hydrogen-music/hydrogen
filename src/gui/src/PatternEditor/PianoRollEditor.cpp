@@ -308,7 +308,7 @@ void PianoRollEditor::drawPattern()
 	}
 
 	// Draw cursor
-	if ( hasFocus() && !m_pPatternEditorPanel->cursorHidden() ) {
+	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		QPoint pos = cursorPosition();
 
 		QPen pen( Qt::black );
@@ -511,7 +511,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 		return;
 	}
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
-	m_pPatternEditorPanel->setCursorHidden( true );
+	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 
 	Instrument *pSelectedInstrument = nullptr;
@@ -573,7 +573,7 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	int nSelectedInstrumentnumber = pH2->getSelectedInstrumentNumber();
 	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
-	m_pPatternEditorPanel->setCursorHidden( true );
+	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 	int nPressedLine = ((int) ev->y()) / ((int) m_nGridHeight);
 
@@ -1207,7 +1207,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 	// Update editor
 	QPoint pos = cursorPosition();
 	if ( bUnhideCursor ) {
-		m_pPatternEditorPanel->setCursorHidden( false );
+		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
 	m_pScrollView->ensureVisible( pos.x(), pos.y() );
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
@@ -1220,7 +1220,7 @@ void PianoRollEditor::focusInEvent( QFocusEvent * ev )
 {
 	UNUSED( ev );
 	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
-		m_pPatternEditorPanel->setCursorHidden( false );
+		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 		m_pPatternEditorPanel->ensureCursorVisible();
 	}
 	updateEditor( true );
