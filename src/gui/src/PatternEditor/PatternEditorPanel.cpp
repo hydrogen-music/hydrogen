@@ -107,7 +107,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 //wolke some background images back_size_res
 	PixmapWidget *pSizeResol = new PixmapWidget( nullptr );
-	pSizeResol->setFixedSize( 200, 20 );
+	pSizeResol->setFixedSize( 216, 20 );
 	pSizeResol->setPixmap( "/patternEditor/background_res-new.png" );
 	pSizeResol->move( 0, 3 );
 	editor_top_hbox_2->addWidget( pSizeResol );
@@ -131,20 +131,29 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( m_pDenominatorWarning, SIGNAL( clicked( Button* ) ), this, SLOT( denominatorWarningClicked() ) );
 	
 	// GRID resolution
-	__resolution_combo = new LCDCombo( pSizeResol , 3 );
+	__resolution_combo = new LCDCombo( pSizeResol , 5, true );
 	__resolution_combo->setToolTip(tr( "Select grid resolution" ));
-	__resolution_combo->addItem( "4" );
-	__resolution_combo->addItem( "8" );
-	__resolution_combo->addItem( "16" );
-	__resolution_combo->addItem( "32" );
-	__resolution_combo->addItem( "64" );
+	__resolution_combo->addItem( QString( "  1/4   - " )
+								 .append( tr( "quarter" ) ) );
+	__resolution_combo->addItem( QString( "  1/8   - " )
+								 .append( tr( "eighth" ) ) );
+	__resolution_combo->addItem( QString( " 1/16  - " )
+								 .append( tr( "sixteenth" ) ) );
+	__resolution_combo->addItem( QString( " 1/32  - " )
+								 .append( tr( "thirty-second" ) ) );
+	__resolution_combo->addItem( QString( " 1/64  - " )
+								 .append( tr( "sixty-fourth" ) ) );
 	__resolution_combo->addSeparator();
-	__resolution_combo->addItem( "4T" );
-	__resolution_combo->addItem( "8T" );
-	__resolution_combo->addItem( "16T" );
-	__resolution_combo->addItem( "32T" );
+	__resolution_combo->addItem( QString( " 1/4T  - " )
+								 .append( tr( "quarter triplet" ) ) );
+	__resolution_combo->addItem( QString( " 1/8T  - " )
+								 .append( tr( "eighth triplet" ) ) );
+	__resolution_combo->addItem( QString( "1/16T - " )
+								 .append( tr( "sixteenth triplet" ) ) );
+	__resolution_combo->addItem( QString( "1/32T - " )
+								 .append( tr( "thirty-second triplet" ) ) );
 	__resolution_combo->addSeparator();
-	__resolution_combo->addItem( "off" );
+	__resolution_combo->addItem( tr( "off" ) );
 	__resolution_combo->move( 154, 2 );
 	// is triggered from inside PatternEditorPanel()
 	connect( __resolution_combo, SIGNAL( valueChanged( int ) ), this, SLOT( gridResolutionChanged( int ) ) );
