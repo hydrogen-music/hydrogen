@@ -847,7 +847,6 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 }
 
 
-
 void SongEditor::createBackground()
 {
 	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
@@ -1095,7 +1094,7 @@ std::vector<SongEditor::SelectionIndex> SongEditor::elementsIntersecting( QRect 
 
 QRect SongEditor::getKeyboardCursorRect() {
 	return QRect( QPoint( 0, 1 ) + columnRowToXy( QPoint( m_nCursorColumn, m_nCursorRow ) ),
-				  QSize( m_nGridWidth +1, m_nGridHeight -1 ) );
+				  QSize( m_nGridWidth, m_nGridHeight -1 ) );
 }
 
 void SongEditor::clearThePatternSequenceVector( QString filename )
