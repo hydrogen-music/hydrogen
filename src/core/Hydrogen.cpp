@@ -979,12 +979,17 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 		if ( isNoteStart || isOldNote ) {
 			// Humanize - Velocity parameter
 			pNote->set_velocity( pNote->get_velocity() * velocity_adjustment );
-
-			float rnd = (float)rand()/(float)RAND_MAX;
-			if (pNote->get_probability() < rnd) {
-				m_songNoteQueue.pop();
-				pNote->get_instrument()->dequeue();
-				continue;
+			
+			/* Check if the current note has probability != 1
+			 * If yes remove call random function to dequeue or not the note
+			 */
+			float fNoteProbability = pNote->get_probability();
+			if ( fNoteProbability != 1. ) {
+				if ( fNoteProbability < (float) rand() / (float) RAND_MAX ) {
+					m_songNoteQueue.pop();
+					pNote->get_instrument()->dequeue();
+					continue;
+				}
 			}
 
 			if ( pSong->getHumanizeVelocityValue() != 0 ) {
@@ -1002,9 +1007,15 @@ inline void audioEngine_process_playNotes( unsigned long nframes )
 			}
 
 			// Offset + Random Pitch ;)
-			pNote->set_pitch( pNote->get_pitch()
-						 + pNote->get_instrument()->get_pitch_offset()
-						 + getGaussian( 0.4 ) * pNote->get_instrument()->get_random_pitch_factor() );
+			float fPitch = pNote->get_pitch() + pNote->get_instrument()->get_pitch_offset();
+			/* Check if the current instrument has random picth factor != 0.
+			 * If yes add a gaussian perturbation to the pitch
+			 */
+			float fRandomPitchFactor = pNote->get_instrument()->get_random_pitch_factor();
+			if ( fRandomPitchFactor != 0. ) {
+				fPitch += getGaussian( 0.4 ) * fRandomPitchFactor;
+			}
+			pNote->set_pitch( fPitch );
 
 
 			/*
