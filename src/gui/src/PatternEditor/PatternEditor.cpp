@@ -156,6 +156,64 @@ void PatternEditor::selectNone()
 	m_selection.updateWidgetGroup();
 }
 
+///
+/// Copy selection to clipboard in XML
+///
+void PatternEditor::copy()
+{
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+	XMLDoc doc;
+	XMLNode selection = doc.set_root( "noteSelection" );
+	XMLNode noteList = selection.createNode( "noteList");
+	XMLNode positionNode = selection.createNode( "sourcePosition" );
+	bool bWroteNote = false;
+	// "Top left" of selection, in the three dimensional time*instrument*pitch space.
+	int nLowestPos, nLowestInstrument, nHighestPitch;
+
+	for ( Note *pNote : m_selection ) {
+		int nPitch = pNote->get_notekey_pitch() + 12*OCTAVE_OFFSET;
+		int nPos = pNote->get_position();
+		int nInstrument = pInstrumentList->index( pNote->get_instrument() );
+		if ( bWroteNote ) {
+			nLowestPos = std::min( nPos, nLowestPos );
+			nLowestInstrument = std::min( nInstrument, nLowestInstrument );
+			nHighestPitch = std::max( nPitch, nHighestPitch );
+		} else {
+			nLowestPos = nPos;
+			nLowestInstrument = nInstrument;
+			nHighestPitch = nPitch;
+			bWroteNote = true;
+		}
+		XMLNode note_node = noteList.createNode( "note" );
+		pNote->save_to( &note_node );
+	}
+
+	if ( bWroteNote ) {
+		positionNode.write_int( "position", nLowestPos );
+		positionNode.write_int( "instrument", nLowestInstrument );
+		positionNode.write_int( "note", nHighestPitch );
+	} else {
+		positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
+		positionNode.write_int( "instrument", pHydrogen->getSelectedInstrumentNumber() );
+	}
+
+	QClipboard *clipboard = QApplication::clipboard();
+	clipboard->setText( doc.toString() );
+
+	// This selection will probably be pasted at some point. So show the keyboard cursor as this is the place
+	// where the selection will be pasted.
+	HydrogenApp::get_instance()->setHideKeyboardCursor( false );
+}
+
+
+void PatternEditor::cut()
+{
+	copy();
+	deleteSelection();
+}
+
+
 void PatternEditor::selectInstrumentNotes( int nInstrument )
 {
 	InstrumentList *pInstrumentList = Hydrogen::get_instance()->getSong()->getInstrumentList();

@@ -191,7 +191,7 @@ Preferences::Preferences()
 	quantizeEvents = true;
 	recordEvents = false;
 	m_bUseRelativeFilenamesForPlaylists = false;
-	m_bHideKeyboardCursor = true;
+	m_bHideKeyboardCursor = false;
 
 	//___ GUI properties ___
 	m_sQTStyle = "Fusion";
@@ -325,7 +325,7 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_nUIScalingPolicy = LocalFileMng::readXmlInt( rootNode, "uiScalingPolicy", UI_SCALING_SMALLER );
 			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
-			m_bHideKeyboardCursor = LocalFileMng::readXmlBool( rootNode, "hideKeyboardCursor", true );
+			m_bHideKeyboardCursor = LocalFileMng::readXmlBool( rootNode, "hideKeyboardCursorWhenUnused", false );
 
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
@@ -755,7 +755,7 @@ void Preferences::savePreferences()
 	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
 	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );
 	LocalFileMng::writeXmlString( rootNode, "useRelativeFilenamesForPlaylists", m_bUseRelativeFilenamesForPlaylists ? "true": "false" );
-	LocalFileMng::writeXmlBool( rootNode, "hideKeyboardCursor", m_bHideKeyboardCursor );
+	LocalFileMng::writeXmlBool( rootNode, "hideKeyboardCursorWhenUnused", m_bHideKeyboardCursor );
 	
 	// instrument input mode
 	LocalFileMng::writeXmlString( rootNode, "instrumentInputMode", __playselectedinstrument ? "true": "false" );

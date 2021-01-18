@@ -122,9 +122,7 @@ class DrumPatternEditor : public PatternEditor
 		virtual void updateEditor( bool bPatternOnly = false ) override;
 		virtual void selectAll() override;
 		virtual void deleteSelection() override;
-		virtual void copy() override;
 		virtual void paste() override;
-		virtual void cut() override;
 
 	private:
 		void __draw_note( H2Core::Note* note, QPainter& painter );

@@ -55,7 +55,6 @@ const char* SongEditorPanel::__class_name = "SongEditorPanel";
 SongEditorPanel::SongEditorPanel(QWidget *pParent)
  : QWidget( pParent )
  , Object( __class_name )
- , m_actionMode( DRAW_ACTION )
 {
 	m_nInitialWidth = 600;
 	m_nInitialHeight = 250;
@@ -398,6 +397,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
 
+	setActionMode( SELECT_ACTION );
+
 	show();
 
 	updateAll();
@@ -705,20 +706,20 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 	resyncExternalScrollBar();
 }
 
-void SongEditorPanel::pointerActionBtnPressed( Button* pBtn )
-{
-	pBtn->setPressed( true );
-	m_pDrawActionBtn->setPressed( false );
-	m_actionMode = SELECT_ACTION;
+void SongEditorPanel::setActionMode( SongEditorActionMode actionMode ) {
+	m_actionMode = actionMode;
+	m_pDrawActionBtn->setPressed( actionMode == DRAW_ACTION );
+	m_pPointerActionBtn->setPressed( actionMode == SELECT_ACTION );
 }
 
-
+void SongEditorPanel::pointerActionBtnPressed( Button* pBtn )
+{
+	setActionMode( SELECT_ACTION );
+}
 
 void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 {
-	pBtn->setPressed( true );
-	m_pPointerActionBtn->setPressed( false );
-	m_actionMode = DRAW_ACTION;
+	setActionMode( DRAW_ACTION );
 }
 
 void SongEditorPanel::updateTimelineUsage() {

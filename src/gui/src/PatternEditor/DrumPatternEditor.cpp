@@ -222,7 +222,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	}
 
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
-	m_pPatternEditorPanel->setCursorHidden( true );
+	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 	update();
 }
 
@@ -251,7 +251,7 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 		// Other drag (selection or move) we'll set the cursor input position to the start of the gesture
 		pHydrogen->setSelectedInstrumentNumber( row );
 		m_pPatternEditorPanel->setCursorPosition( nColumn );
-		m_pPatternEditorPanel->setCursorHidden( true );
+		HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 	}
 }
 
@@ -731,7 +731,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		return;
 	}
 	if ( bUnhideCursor ) {
-		m_pPatternEditorPanel->setCursorHidden( false );
+		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
 	m_pPatternEditorPanel->ensureCursorVisible();
@@ -793,7 +793,7 @@ QRect DrumPatternEditor::getKeyboardCursorRect()
 	uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	uint y = nSelectedInstrument * m_nGridHeight;
-	return QRect( x-m_nGridWidth*3, y+1, m_nGridWidth*6, m_nGridHeight-2 );
+	return QRect( x-m_nGridWidth*3, y+2, m_nGridWidth*6, m_nGridHeight-3 );
 
 }
 
@@ -838,43 +838,6 @@ void DrumPatternEditor::deleteSelection()
 		pUndo->endMacro();
 		m_selection.clearSelection();
 	}
-}
-
-
-///
-/// Copy selection to clipboard in XML
-///
-void DrumPatternEditor::copy()
-{
-	XMLDoc doc;
-	XMLNode selection = doc.set_root( "noteSelection" );
-	XMLNode noteList = selection.createNode( "noteList");
-	XMLNode positionNode = selection.createNode( "sourcePosition" );
-	bool bWroteNote = false;
-
-	positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
-	positionNode.write_int( "instrument", Hydrogen::get_instance()->getSelectedInstrumentNumber() );
-
-	for ( Note *pNote : m_selection ) {
-		if ( ! bWroteNote ) {
-			/* Set the note pitch for the 'position' the selection is
-			** copied from to the pitch of the first note we find.
-			*/
-			bWroteNote = true;
-			positionNode.write_int( "note", pNote->get_notekey_pitch() + 12*OCTAVE_OFFSET );
-		}
-		XMLNode note_node = noteList.createNode( "note" );
-		pNote->save_to( &note_node );
-	}
-
-	QClipboard *clipboard = QApplication::clipboard();
-	clipboard->setText( doc.toString() );
-}
-
-void DrumPatternEditor::cut()
-{
-	copy();
-	deleteSelection();
 }
 
 
@@ -1029,13 +992,15 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 
 	// Draw cursor
-	if ( hasFocus() && !m_pPatternEditorPanel->cursorHidden() ) {
+	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_nGridWidth;
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		uint y = nSelectedInstrument * m_nGridHeight;
-		painter.setPen( QColor( 0,0,0 ) );
+		QPen p( Qt::black );
+		p.setWidth( 2 );
+		painter.setPen( p );
 		painter.setRenderHint( QPainter::Antialiasing );
-		painter.drawRoundedRect( QRect( x-m_nGridWidth*3, y+1, m_nGridWidth*6, m_nGridHeight-2 ), 4, 4 );
+		painter.drawRoundedRect( QRect( x-m_nGridWidth*3, y+2, m_nGridWidth*6, m_nGridHeight-3 ), 4, 4 );
 	}
 
 
@@ -1286,7 +1251,7 @@ void DrumPatternEditor::focusInEvent ( QFocusEvent *ev )
 	UNUSED( ev );
 	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
 		m_pPatternEditorPanel->ensureCursorVisible();
-		m_pPatternEditorPanel->setCursorHidden( false );
+		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
 	updateEditor();
 }
