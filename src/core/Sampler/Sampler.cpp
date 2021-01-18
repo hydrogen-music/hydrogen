@@ -391,14 +391,14 @@ float Sampler::quadraticConstSumPanLaw( float fPan ) {
 float Sampler::linearConstKNormPanLaw( float fPan ) {
 	// the constant k norm pan law interpreting fPan as the "linear" parameter
 	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
-	float k = pSampler->getPanLawKNorm(); //TODO move k from song to sampler class? pass it as argument?
+	float k = pSampler->getPanLawKNorm(); //TODO pass it as argument?
 	return ( 1. - fPan ) / pow( ( pow( (1. - fPan), k ) + pow( (1. + fPan), k ) ), 1./k );
 }
 
 float Sampler::quadraticConstKNormPanLaw( float fPan ) {
 	// the constant k norm pan law interpreting fPan as the "quadratic" parameter
 	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
-	float k = pSampler->getPanLawKNorm(); //TODO move k from song to sampler class? pass it as argument?
+	float k = pSampler->getPanLawKNorm(); //TODO pass it as argument?
 	return sqrt( 1. - fPan ) / pow( ( pow( (1. - fPan), 0.5 * k ) + pow( (1. + fPan), 0.5 * k ) ), 1./k );
 }
 
@@ -406,7 +406,7 @@ float Sampler::polarConstKNormPanLaw( float fPan ) {
 	// the constant k norm pan law interpreting fPan as the "polar" parameter
 	float fTheta = 0.25 * M_PI * ( fPan + 1 );
 	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
-	float k = pSampler->getPanLawKNorm(); //TODO move k from song to sampler class? pass it as argument?
+	float k = pSampler->getPanLawKNorm(); //TODO pass it as argument?
 	float cosTheta = cos( fTheta );
 	return cosTheta / pow( ( pow( cosTheta, k ) + pow( sin( fTheta ), k ) ), 1./k );
 }
@@ -414,7 +414,7 @@ float Sampler::polarConstKNormPanLaw( float fPan ) {
 float Sampler::ratioConstKNormPanLaw( float fPan ) {
 	// the constant k norm pan law interpreting fPan as the "ratio" parameter
 	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
-	float k = pSampler->getPanLawKNorm(); //TODO move k from song to sampler class? pass it as argument?
+	float k = pSampler->getPanLawKNorm(); //TODO pass it as argument?
 	
 	if ( fPan <= 0 ) {
 		return 1. / pow( ( 1. + pow( (1. + fPan), k ) ), 1./k );
@@ -475,14 +475,8 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 	float fPan = fInstrPan + fNotePan * ( 1 - fabs( fInstrPan ) );
 	
 	// Pass fPan to the Pan Law
-	// use Straight pol pan law.
-	// TODO a new song member, set in preferences, must point the desired pan law Sampler member function		
-	//float (*panLaw)( float );
-	//panLaw = getPanLawAddress( pSong->getPanLawIdx() );
-    //panLaw = &this->ratioStraightPolygonalPanLaw;
-    //panLaw = m_panLawAddresses[ pSong->getPanLawIdx() ];
-    float fPan_L = m_pPanLaw( fPan );
-    float fPan_R = m_pPanLaw( -fPan );
+	float fPan_L = m_pPanLaw( fPan );
+	float fPan_R = m_pPanLaw( -fPan );
 	//---------------------------------------------------------
 
 	bool nReturnValues [pInstr->get_components()->size()];
@@ -1651,20 +1645,6 @@ void Sampler::reinitializePlaybackTrack()
 	m_pPlaybackTrackInstrument->get_components()->front()->set_layer( pPlaybackTrackLayer, 0 );
 	m_nPlayBackSamplePosition = 0;
 }
-/*
-inline float ( *Sampler::getPanLawAddress( int idx ) ) ( float ) {
-	if ( idx == RATIO_STRAIGHT_POLYGONAL ) {
-		return &ratioStraightPolygonalPanLaw;
-	} else if ( idx == RATIO_CONST_POWER ) {
-		return &ratioConstPowerPanLaw;
-	} else if ( idx == RATIO_CONST_SUM ) {
-		return &ratioConstSumPanLaw;
-	} else {
-		//TODO warning
-		return &ratioStraightPolygonalPanLaw; // default value
-	}
-}*/
-
 
 void Sampler::setPanLawType( int nPanLawType ) {
 	if ( nPanLawType == this->RATIO_STRAIGHT_POLYGONAL ) {

@@ -291,6 +291,7 @@ void MainForm::createMenuBar()
 	m_pFileMenu->addAction( textFileNew, this, SLOT( action_file_new() ), QKeySequence( "Ctrl+N" ) );
 	
 	m_pFileMenu->addAction( tr( "Show &info" ), this, SLOT( action_file_songProperties() ), QKeySequence( "" ) );
+	m_pFileMenu->addAction( tr( "Select Pan Law" ), this, SLOT( showPanLawDialog() ), QKeySequence( "" ) );
 	
 	m_pFileMenu->addSeparator();				// -----
 
@@ -936,6 +937,10 @@ void MainForm::action_file_openDemo()
 	}
 }
 
+void MainForm::showPanLawDialog()
+{
+	h2app->showPanLawDialog();
+}
 
 
 void MainForm::showPreferencesDialog()

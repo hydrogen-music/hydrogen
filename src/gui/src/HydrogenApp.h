@@ -86,7 +86,8 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		 */
 		bool openSong( const QString sFilename );
 		bool openSong( H2Core::Song* pSong );
-
+		
+		void showPanLawDialog();
 		void showPreferencesDialog();
 		void updateMixerCheckbox();
 		void showMixer(bool bShow);

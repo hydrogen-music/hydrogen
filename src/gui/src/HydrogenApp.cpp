@@ -31,6 +31,7 @@
 #include "HydrogenApp.h"
 #include "Skin.h"
 #include "PreferencesDialog.h"
+#include "PanLawDialog.h"
 #include "MainForm.h"
 #include "PlayerControl.h"
 #include "AudioEngineInfoForm.h"
@@ -388,7 +389,11 @@ void HydrogenApp::showInstrumentPanel(bool show)
 		m_pMainForm->update_instrument_checkbox( !show );
 }
 
-
+void HydrogenApp::showPanLawDialog()
+{
+	PanLawDialog panLawDialog(m_pMainForm);
+	panLawDialog.exec();
+}
 
 void HydrogenApp::showPreferencesDialog()
 {

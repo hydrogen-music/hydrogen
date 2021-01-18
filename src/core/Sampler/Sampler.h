@@ -154,8 +154,6 @@ public:
 	static float polarConstKNormPanLaw( float fPan );
 	static float ratioConstKNormPanLaw( float fPan );
 	static float quadraticConstKNormPanLaw( float fPan );
-	//float ( *m_panLawAddresses[16] ) ( float );
-	// float ( *getPanLawAddress( int idx ) ) ( float );
 	int getPanLawType();
 	void setPanLawType( int nPanLawType );
 	void setPanLawKNorm( float fKNorm );
