@@ -327,6 +327,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pPianoRollScrollView->hide();
 	m_pPianoRollScrollView->setFocusProxy( m_pPianoRollEditor );
 
+	m_pPianoRollEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
 //~ EDITOR
 
 
@@ -371,6 +373,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNoteVelocityScrollView->setFixedHeight( 100 );
 	connect( m_pNoteVelocityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ), this, SLOT( on_patternEditorHScroll(int) ) );
 
+	m_pNoteVelocityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
 //~ NOTE_VELOCITY EDITOR
 
 
@@ -384,8 +388,12 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	m_pNotePanEditor = new NotePropertiesRuler( m_pNotePanScrollView->viewport(), this, NotePropertiesRuler::PAN );
 	m_pNotePanScrollView->setWidget( m_pNotePanEditor );
 	m_pNotePanScrollView->setFixedHeight( 100 );
-	connect( m_pNotePanScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ), this,
-																			SLOT( on_patternEditorHScroll( int ) ) );
+
+	connect( m_pNotePanScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorHScroll(int) ) );
+
+	m_pNotePanEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
 //~ NOTE_PAN EDITOR
 
 
@@ -400,7 +408,12 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 																						NotePropertiesRuler::LEADLAG );
 	m_pNoteLeadLagScrollView->setWidget( m_pNoteLeadLagEditor );
 	m_pNoteLeadLagScrollView->setFixedHeight( 100 );
-	connect( m_pNoteLeadLagScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ), this, SLOT( on_patternEditorHScroll(int) ) );
+
+	connect( m_pNoteLeadLagScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorHScroll(int) ) );
+
+	m_pNoteLeadLagEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
 //~ NOTE_LEADLAG EDITOR
 
 
@@ -420,6 +433,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( m_pNoteNoteKeyScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ), this,
 																			SLOT( on_patternEditorHScroll( int ) ) );
 
+	m_pNoteNoteKeyEditor->mergeSelectionGroups( m_pDrumPatternEditor );
 
 //~ NOTE_NOTEKEY EDITOR
 
@@ -434,8 +448,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 																					NotePropertiesRuler::PROBABILITY );
 	m_pNoteProbabilityScrollView->setWidget( m_pNoteProbabilityEditor );
 	m_pNoteProbabilityScrollView->setFixedHeight( 100 );
-	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged( int ) ), this,
-																			 SLOT( on_patternEditorHScroll( int ) ) );
+	connect( m_pNoteProbabilityScrollView->horizontalScrollBar(), SIGNAL( valueChanged(int) ),
+			 this, SLOT( on_patternEditorHScroll(int) ) );
+	
+	m_pNoteProbabilityEditor->mergeSelectionGroups( m_pDrumPatternEditor );
+
 //~ NOTE_PROBABILITY EDITOR
 
 
@@ -662,8 +679,14 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 	}
 
 	// INFOLOG( QString("idx %1 -> %2 resolution").arg( nSelected ).arg( nResolution ) );
+
 	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
 	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
+	m_pNoteVelocityEditor->setResolution( nResolution, bUseTriplets );
+	m_pNoteLeadLagEditor->setResolution( nResolution, bUseTriplets );
+	m_pNoteNoteKeyEditor->setResolution( nResolution, bUseTriplets );
+	m_pNoteProbabilityEditor->setResolution( nResolution, bUseTriplets );
+	m_pNotePanEditor->setResolution( nResolution, bUseTriplets );
 
 	m_nCursorIncrement = ( bUseTriplets ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
 	m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement );
@@ -676,7 +699,7 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 
 void PatternEditorPanel::selectedPatternChangedEvent()
 {
-	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->get_pattern_list();
+	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
 	int nSelectedPatternNumber = Hydrogen::get_instance()->getSelectedPatternNumber();
 
 	if ( ( nSelectedPatternNumber != -1 ) && ( (uint) nSelectedPatternNumber < pPatternList->size() ) ) {
@@ -773,10 +796,6 @@ void PatternEditorPanel::contentsMoving( int dummy )
 
 void PatternEditorPanel::selectedInstrumentChangedEvent()
 {
-  //m_pNoteVelocityEditor->updateEditor();
-  //m_pNotePanEditor->updateEditor();
-  //m_pNoteLeadLagEditor->updateEditor();
-
 	resizeEvent( nullptr );	// force a scrollbar update
 }
 
@@ -841,13 +860,13 @@ void PatternEditorPanel::zoomInBtnClicked( Button *ref )
 	}
 	UNUSED( ref );
 	m_pPatternEditorRuler->zoomIn();
-	m_pDrumPatternEditor->zoom_in();
+	m_pDrumPatternEditor->zoomIn();
 	m_pNoteVelocityEditor->zoomIn();
 	m_pNoteLeadLagEditor->zoomIn();
 	m_pNoteNoteKeyEditor->zoomIn();
 	m_pNoteProbabilityEditor->zoomIn();
 	m_pNotePanEditor->zoomIn();
-	m_pPianoRollEditor->zoom_in();		
+	m_pPianoRollEditor->zoomIn();
 
 	resizeEvent( nullptr );
 }
@@ -858,17 +877,28 @@ void PatternEditorPanel::zoomOutBtnClicked( Button *ref )
 {
 	UNUSED( ref );
 	m_pPatternEditorRuler->zoomOut();
-	m_pDrumPatternEditor->zoom_out();
+	m_pDrumPatternEditor->zoomOut();
 	m_pNoteVelocityEditor->zoomOut();
 	m_pNoteLeadLagEditor->zoomOut();
 	m_pNoteNoteKeyEditor->zoomOut();
 	m_pNoteProbabilityEditor->zoomOut();
 	m_pNotePanEditor->zoomOut();
-	m_pPianoRollEditor->zoom_out();	
+	m_pPianoRollEditor->zoomOut();
 
 	resizeEvent( nullptr );
 }
 
+
+void PatternEditorPanel::updateEditors( bool bPatternOnly ) {
+	m_pPatternEditorRuler->updateEditor( true );
+	m_pNoteVelocityEditor->updateEditor();
+	m_pNotePanEditor->updateEditor();
+	m_pNoteLeadLagEditor->updateEditor();
+	m_pNoteNoteKeyEditor->updateEditor();
+	m_pNoteProbabilityEditor->updateEditor();
+	m_pPianoRollEditor->updateEditor( bPatternOnly );
+	m_pDrumPatternEditor->updateEditor();
+}
 
 
 void PatternEditorPanel::patternLengthChanged()
@@ -880,15 +910,8 @@ void PatternEditorPanel::patternLengthChanged()
 	}
 
 	updatePatternSizeLCD();
-	
-	m_pPatternEditorRuler->updateEditor( true );	// redraw all
-	m_pNoteVelocityEditor->updateEditor();
-	m_pNotePanEditor->updateEditor();
-	m_pNoteLeadLagEditor->updateEditor();
-	m_pNoteNoteKeyEditor->updateEditor();
-	m_pNoteProbabilityEditor->updateEditor();
-	m_pPianoRollEditor->updateEditor();
 
+	updateEditors();
 	resizeEvent( nullptr );
 
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_PATTERN_CHANGED, -1 );
@@ -1026,7 +1049,7 @@ void PatternEditorPanel::moveUpBtnClicked( Button * )
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	Song *pSong = engine->getSong();
-	InstrumentList *pInstrumentList = pSong->get_instrument_list();
+	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
 	if ( ( nSelectedInstrument - 1 ) >= 0 ) {
 		pInstrumentList->swap( nSelectedInstrument -1, nSelectedInstrument );
@@ -1034,7 +1057,7 @@ void PatternEditorPanel::moveUpBtnClicked( Button * )
 		AudioEngine::get_instance()->unlock();
 		engine->setSelectedInstrumentNumber( nSelectedInstrument - 1 );
 
-		pSong->set_is_modified( true );
+		pSong->setIsModified( true );
 	}
 	else {
 		AudioEngine::get_instance()->unlock();
@@ -1051,7 +1074,7 @@ void PatternEditorPanel::moveDownBtnClicked( Button * )
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	Song *pSong = engine->getSong();
-	InstrumentList *pInstrumentList = pSong->get_instrument_list();
+	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 
 	if ( ( nSelectedInstrument + 1 ) < (int)pInstrumentList->size() ) {
 		pInstrumentList->swap( nSelectedInstrument, nSelectedInstrument + 1 );
@@ -1059,7 +1082,7 @@ void PatternEditorPanel::moveDownBtnClicked( Button * )
 		AudioEngine::get_instance()->unlock();
 		engine->setSelectedInstrumentNumber( nSelectedInstrument + 1 );
 
-		pSong->set_is_modified( true );
+		pSong->setIsModified( true );
 	}
 	else {
 		AudioEngine::get_instance()->unlock();

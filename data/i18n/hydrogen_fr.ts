@@ -391,15 +391,15 @@
     </message>
     <message>
         <source>SMF1 single: export all instruments to a single track</source>
-        <translation>SMF1 simple : exporter tous les instruments dans une piste unique&gt;</translation>
+        <translation>SMF1 simple : exporter tous les instruments dans une piste unique</translation>
     </message>
     <message>
         <source>SMF1 multi: export each instrument to separate track</source>
-        <translation>SMF1 multi : exporter chaque instrument dans des pistes séparées&gt;</translation>
+        <translation>SMF1 multi : exporter chaque instrument dans des pistes séparées</translation>
     </message>
     <message>
         <source>SMF0: export all events to one track</source>
-        <translation>SMF0 : exporter tous les événements vers une piste&gt;</translation>
+        <translation>SMF0 : exporter tous les événements vers une piste</translation>
     </message>
     <message>
         <source>Midi file (*%1)</source>
@@ -642,7 +642,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Enable use of rubberband&apos;s batch processor</source>
-        <translation>Autorise l&apos;utilisation du traitement en lot de rubberband</translation>
+        <translation>Active l&apos;utilisation du traitement en lot de rubberband</translation>
     </message>
     <message>
         <source>Rubberband Batch</source>
@@ -863,7 +863,7 @@ Are you sure?</source>
     </message>
     <message>
         <source>Stop the current playing instrument-note before trigger the next note sample.</source>
-        <translation>Arrêter la note actuelle avant de déclencher l&apos;échantillon suivant.</translation>
+        <translation>Arrêter la note actuelle avant de déclencher l&apos;échantillon suivant</translation>
     </message>
     <message>
         <source>New component name</source>
@@ -1765,7 +1765,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>press button to record midi event</source>
-        <translation>Appuyer sur le bouton pour enregistrer les événements midi</translation>
+        <translation>Appuyer sur le bouton pour enregistrer les événements MIDI</translation>
     </message>
 </context>
 <context>
@@ -1909,7 +1909,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = On</source>
-        <translation>Quantifier les événements clavier/MIDI entrant = Actif</translation>
+        <translation>Quantifier les événements clavier/MIDI entrant = actif</translation>
     </message>
     <message>
         <source>Select pattern size</source>
@@ -1941,6 +1941,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Velocity</source>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Velocite</translation>
     </message>
     <message>
@@ -1957,11 +1958,12 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Quantize incoming keyboard/midi events = Off</source>
-        <translation>Quantifier les événements entrant du clavier/midi = Inactif</translation>
+        <translation>Quantifier les événements entrant du clavier/MIDI = inactif</translation>
     </message>
     <message>
         <source>NoteKey</source>
-        <translation>Numéro de note</translation>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Numero de note</translation>
     </message>
     <message>
         <source>destructive mode pre delete settings</source>
@@ -1981,7 +1983,8 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Probability</source>
-        <translation>Probabilité</translation>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Probabilite</translation>
     </message>
 </context>
 <context>
@@ -2139,7 +2142,8 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Pattern mode selected.</source>
-        <translation>Mode motif sélectionné.</translation>
+        <translatorcomment>Faute sur les accents aigus faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Mode motif selectionne.</translation>
     </message>
     <message>
         <source>Jack-transport on/off</source>
@@ -2199,11 +2203,11 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Loop song = On</source>
-        <translation>Morceau en boucle = Actif</translation>
+        <translation>Morceau en boucle = actif</translation>
     </message>
     <message>
         <source>Loop song = Off</source>
-        <translation>Morceau en boucle = Inactif</translation>
+        <translation>Morceau en boucle = inactif</translation>
     </message>
     <message>
         <source>BeatCounter Panel on</source>
@@ -2231,7 +2235,8 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source> Count and set BPM</source>
-        <translation> Compter et régler les BPM</translation>
+        <translatorcomment>Faute sur l'accent aigu faite exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation> Compter et regler les BPM</translation>
     </message>
     <message>
         <source> Jack-Time-Master mode = On</source>
@@ -2251,11 +2256,13 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Record midi events = On</source>
-        <translation>Enregistrer les événements midi = actif</translation>
+        <translatorcomment>Fautes sur les accents aigus faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Enregistrer les evenements MIDI = actif</translation>
     </message>
     <message>
         <source>Record midi events = Off</source>
-        <translation>Enregistrer les événements midi = inactif</translation>
+        <translatorcomment>Fautes sur les accents aigus faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Enregistrer les evenements MIDI = inactif</translation>
     </message>
     <message>
         <source>Destructive mode = Off</source>
@@ -2271,11 +2278,13 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband ON</source>
-        <translation>Recalcule tous les échantillons qui utilisent Rubberband</translation>
+        <translatorcomment>Faute sur l'accent aigu faite exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Recalcule tous les echantillons qui utilisent Rubberband</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
-        <translation>Recalcule tous les échantillons qui n&apos;utilisent pas Rubberband</translation>
+        <translatorcomment>Fautes sur l'accent aigu et l'apostrophe manquant faite sexprès car c'est sur l'affichage LCD et les accents et l'apostrophe n'y sont pas gérés.</translatorcomment>
+        <translation>Recalcule tous les echantillons qui n utilisent pas Rubberband</translation>
     </message>
     <message>
         <source>Switch metronome on/off</source>
@@ -2719,7 +2728,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     </message>
     <message>
         <source>Audio &amp;System</source>
-        <translation>&amp;Système Audio</translation>
+        <translation>&amp;Système audio</translation>
     </message>
     <message>
         <source>###</source>
@@ -3089,11 +3098,11 @@ Are you sure?</source>
     </message>
     <message>
         <source>&amp;Play</source>
-        <translation>Jouer (&amp;P)</translation>
+        <translation>&amp;Lecture</translation>
     </message>
     <message>
         <source>new sample length:</source>
-        <translation>nouvelle longueur de l&apos;échantillon:</translation>
+        <translation>nouvelle longueur de l&apos;échantillon :</translation>
     </message>
     <message>
         <source>fade-out type</source>
@@ -3321,11 +3330,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&quot;Rubberband Audio Processor&quot; : Change the tempo (sample length) and pitch of audio.</source>
-        <translation>&quot;Processeur audio Rubberband&quot; : Modifie le tempo et la hauteur de l&apos;échantillon.</translation>
+        <translation>&quot;Processeur audio Rubberband&quot; : modifie le tempo (la longueur de l&apos;échantillon) et la tonalité de l&apos;audio.</translation>
     </message>
     <message>
         <source> Pitch (Semitone,Cent)</source>
-        <translation>Hauteur (Demi-ton,cent)</translation>
+        <translation>Hauteur (demi-ton,cent)</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -3467,7 +3476,8 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translation>Vélocité</translation>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
+        <translation>Velocite</translation>
     </message>
     <message>
         <source>Timeline usage is disabled in the presence of an external JACK timebase master</source>
@@ -3518,7 +3528,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Delete BPM Marker</source>
-        <translation>Effacer les marqueurs BPM</translation>
+        <translation>Effacer le marqueur BPM</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -3564,7 +3574,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Fill/Clear ...</source>
-        <translation>Remplir/Effacer ...</translation>
+        <translation>Remplir/effacer ...</translation>
     </message>
     <message>
         <source>Save Pattern</source>
@@ -3995,7 +4005,7 @@ Souhaitez-vous conserver ou abandonner les instruments et notes restant ?
     </message>
     <message>
         <source>Save changes made to instruments into sound library</source>
-        <translation>Enregistrer les changements appliqués aux instruments dans la bibliothèque de sons</translation>
+        <translation>Sauvegarder les changements appliqués aux instruments dans la bibliothèque de sons</translation>
     </message>
     <message>
         <source>Drumkit License</source>

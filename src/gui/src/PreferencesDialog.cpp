@@ -342,7 +342,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		oscTemporaryPortLabel->setText( QString( "<b><i><font color=" )
 										.append( m_sColorRed )
 										.append( ">" )
-										.append( tr( "The select port is unavailable. This instance use the following temporary port instead:" ) )
+										.append( tr( "The select port is unavailable. This instance uses the following temporary port instead:" ) )
 										.append( "</font></i></b>" ) );
 		oscTemporaryPort->show();
 		oscTemporaryPort->setEnabled( false );

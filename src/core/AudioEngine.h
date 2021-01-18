@@ -122,7 +122,7 @@ public:
 	 * Mutex locking of the AudioEngine.
 	 *
 	 * This function is equivalent to lock() but returns false
-	 * immediaely if the lock canot be obtained immediately.
+	 * immediaely if the lock cannot be obtained immediately.
 	 *
 	 * \param file File the locking occurs in.
 	 * \param line Line of the file the locking occurs in.
