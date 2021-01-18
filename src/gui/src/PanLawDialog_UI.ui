@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>508</width>
-    <height>171</height>
+    <width>490</width>
+    <height>157</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,7 +16,7 @@
   <widget class="QComboBox" name="panLawComboBox">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
      <y>40</y>
      <width>471</width>
      <height>26</height>
@@ -38,7 +38,7 @@
   <widget class="QLabel" name="panLawLbl">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
      <y>20</y>
      <width>121</width>
      <height>18</height>
@@ -51,7 +51,7 @@
   <widget class="QLabel" name="dBCompensationLbl">
    <property name="geometry">
     <rect>
-     <x>180</x>
+     <x>170</x>
      <y>80</y>
      <width>220</width>
      <height>26</height>
@@ -70,7 +70,7 @@
   <widget class="QLineEdit" name="dBCompensationLineEdit">
    <property name="geometry">
     <rect>
-     <x>410</x>
+     <x>400</x>
      <y>80</y>
      <width>80</width>
      <height>26</height>
@@ -87,8 +87,8 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>130</y>
-     <width>491</width>
+     <y>120</y>
+     <width>471</width>
      <height>28</height>
     </rect>
    </property>

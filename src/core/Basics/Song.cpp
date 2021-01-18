@@ -692,7 +692,6 @@ Song* SongReader::readSong( const QString& filename )
 	// pan law
 	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
 	QString sPanLawType( LocalFileMng::readXmlString( songNode, "pan_law", "RATIO_STRAIGHT_POLYGONAL" ) );
-	float nPanLawKNorm = LocalFileMng::readXmlFloat( songNode, "pan_law_k_norm", K_NORM_DEFAULT );
 	if ( sPanLawType == "RATIO_STRAIGHT_POLYGONAL" ) {
 		pSampler->setPanLawType( pSampler->RATIO_STRAIGHT_POLYGONAL );
 	} else if ( sPanLawType == "RATIO_CONST_POWER" ) {
@@ -727,10 +726,15 @@ Song* SongReader::readSong( const QString& filename )
 		pSampler->setPanLawType( pSampler->QUADRATIC_CONST_K_NORM );
 	} else {
 		pSampler->setPanLawType( pSampler->RATIO_STRAIGHT_POLYGONAL );
-	//WARNING( failed setting pan law...)
+		WARNINGLOG( "Unknown pan law type in import song. Set default." );
 	}
 
-	pSampler->setPanLawKNorm( nPanLawKNorm );
+	float fPanLawKNorm = LocalFileMng::readXmlFloat( songNode, "pan_law_k_norm", K_NORM_DEFAULT );
+	if ( fPanLawKNorm <= 0.0 ) {
+		fPanLawKNorm = K_NORM_DEFAULT;
+		WARNINGLOG( "Invalid pan law k in import song (<= 0). Set default k." );
+	}
+	pSampler->setPanLawKNorm( fPanLawKNorm );
 
 	QDomNode componentListNode = songNode.firstChildElement( "componentList" );
 	if ( ( ! componentListNode.isNull()  ) ) {

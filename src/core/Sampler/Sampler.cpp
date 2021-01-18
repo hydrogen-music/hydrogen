@@ -93,7 +93,8 @@ Sampler::Sampler()
 	m_nPlayBackSamplePosition = 0;
 
 	// default pan law
-	m_pPanLaw = &this->linearStraightPolygonalPanLaw;
+	m_nPanLawType = RATIO_STRAIGHT_POLYGONAL;
+	//m_pPanLaw = &this->linearStraightPolygonalPanLaw;
 }
 
 
@@ -243,7 +244,7 @@ float Sampler::getRatioPan( float fPan_L, float fPan_R ) {
 	* as it was input from the GUI (up to scale and translation, which is arbitrary)
 	*/
 	if ( fPan_L < 0. || fPan_R < 0. || ( fPan_L == 0. && fPan_R == 0.) ) { // invalid input
-		//TODO Warning
+		WARNINGLOG( "Invalid (panL, panR): both zero or some is negative. Pan set to center." );
 		return 0.; // default central value
 	} else {
 		if ( fPan_L >= fPan_R ) {
@@ -388,33 +389,33 @@ float Sampler::quadraticConstSumPanLaw( float fPan ) {
 	return sqrt( 1. - fPan ) / ( sqrt( 1. - fPan ) +  sqrt( 1. + fPan ) );
 }
 
-float Sampler::linearConstKNormPanLaw( float fPan ) {
+float Sampler::linearConstKNormPanLaw( float fPan, float k ) {
 	// the constant k norm pan law interpreting fPan as the "linear" parameter
-	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
-	float k = pSampler->getPanLawKNorm(); //TODO pass it as argument?
+	//Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
+	//float k = pSampler->getPanLawKNorm(); //TODO pass it as argument?
 	return ( 1. - fPan ) / pow( ( pow( (1. - fPan), k ) + pow( (1. + fPan), k ) ), 1./k );
 }
 
-float Sampler::quadraticConstKNormPanLaw( float fPan ) {
+float Sampler::quadraticConstKNormPanLaw( float fPan, float k ) {
 	// the constant k norm pan law interpreting fPan as the "quadratic" parameter
-	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
-	float k = pSampler->getPanLawKNorm(); //TODO pass it as argument?
+	//Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
+	//float k = pSampler->getPanLawKNorm(); //TODO pass it as argument?
 	return sqrt( 1. - fPan ) / pow( ( pow( (1. - fPan), 0.5 * k ) + pow( (1. + fPan), 0.5 * k ) ), 1./k );
 }
 
-float Sampler::polarConstKNormPanLaw( float fPan ) {
+float Sampler::polarConstKNormPanLaw( float fPan, float k ) {
 	// the constant k norm pan law interpreting fPan as the "polar" parameter
 	float fTheta = 0.25 * M_PI * ( fPan + 1 );
-	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
-	float k = pSampler->getPanLawKNorm(); //TODO pass it as argument?
+	//Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
+	//float k = pSampler->getPanLawKNorm(); //TODO pass it as argument?
 	float cosTheta = cos( fTheta );
 	return cosTheta / pow( ( pow( cosTheta, k ) + pow( sin( fTheta ), k ) ), 1./k );
 }
 
-float Sampler::ratioConstKNormPanLaw( float fPan ) {
+float Sampler::ratioConstKNormPanLaw( float fPan, float k) {
 	// the constant k norm pan law interpreting fPan as the "ratio" parameter
-	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
-	float k = pSampler->getPanLawKNorm(); //TODO pass it as argument?
+	//Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
+	//float k = pSampler->getPanLawKNorm(); //TODO pass it as argument?
 	
 	if ( fPan <= 0 ) {
 		return 1. / pow( ( 1. + pow( (1. + fPan), k ) ), 1./k );
@@ -423,6 +424,49 @@ float Sampler::ratioConstKNormPanLaw( float fPan ) {
 	}
 
 }
+
+/* function to address the previous.
+*/
+inline float Sampler::panLaw( float fPan ) {
+	if ( m_nPanLawType == RATIO_STRAIGHT_POLYGONAL ) {
+		return ratioStraightPolygonalPanLaw( fPan );
+	} else if ( m_nPanLawType == RATIO_CONST_POWER ) {
+		return ratioConstPowerPanLaw( fPan );
+	} else if ( m_nPanLawType == RATIO_CONST_SUM ) {
+		return ratioConstPowerPanLaw( fPan );
+	} else if ( m_nPanLawType == LINEAR_STRAIGHT_POLYGONAL ) {
+		return linearStraightPolygonalPanLaw( fPan );
+	} else if ( m_nPanLawType == LINEAR_CONST_POWER ) {
+		return linearConstPowerPanLaw( fPan );
+	} else if ( m_nPanLawType == LINEAR_CONST_SUM ) {
+		return linearConstSumPanLaw( fPan );
+	} else if ( m_nPanLawType == POLAR_STRAIGHT_POLYGONAL ) {
+		return polarStraightPolygonalPanLaw( fPan );
+	} else if ( m_nPanLawType == POLAR_CONST_POWER ) {
+		return polarConstPowerPanLaw( fPan );
+	} else if ( m_nPanLawType == POLAR_CONST_SUM ) {
+		return polarConstSumPanLaw( fPan );
+	} else if ( m_nPanLawType == QUADRATIC_STRAIGHT_POLYGONAL ) {
+		return quadraticStraightPolygonalPanLaw( fPan );
+	} else if ( m_nPanLawType == QUADRATIC_CONST_POWER ) {
+		return quadraticConstPowerPanLaw( fPan );
+	} else if ( m_nPanLawType == QUADRATIC_CONST_SUM ) {
+		return quadraticConstSumPanLaw( fPan );
+	} else if ( m_nPanLawType == LINEAR_CONST_K_NORM ) {
+		return linearConstKNormPanLaw( fPan, m_fPanLawKNorm );
+	} else if ( m_nPanLawType == POLAR_CONST_K_NORM ) {
+		return polarConstKNormPanLaw( fPan, m_fPanLawKNorm );
+	} else if ( m_nPanLawType == RATIO_CONST_K_NORM ) {
+		return ratioConstKNormPanLaw( fPan, m_fPanLawKNorm );
+	} else if ( m_nPanLawType == QUADRATIC_CONST_K_NORM ) {
+		return quadraticConstKNormPanLaw( fPan, m_fPanLawKNorm );
+	} else {
+		WARNINGLOG( "Unknown pan law type. Used default" );
+		return ratioStraightPolygonalPanLaw( fPan );
+	}
+}
+
+
 
 //------------------------------------------------------------------
 
@@ -475,8 +519,10 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 	float fPan = fInstrPan + fNotePan * ( 1 - fabs( fInstrPan ) );
 	
 	// Pass fPan to the Pan Law
-	float fPan_L = m_pPanLaw( fPan );
-	float fPan_R = m_pPanLaw( -fPan );
+	//float fPan_L = m_pPanLaw( fPan );
+	//float fPan_R = m_pPanLaw( -fPan );
+	float fPan_L = panLaw( fPan );
+	float fPan_R = panLaw( -fPan );
 	//---------------------------------------------------------
 
 	bool nReturnValues [pInstr->get_components()->size()];
@@ -828,10 +874,8 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 			}
 
 
-			cost_L *= fPan_L;							//pan
-			//cost_L = cost_L * pNote->get_pan_l();		// note pan
+			cost_L *= fPan_L;							// pan
 			cost_L = cost_L * fLayerGain;				// layer gain
-			//cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
 			cost_L = cost_L * pInstr->get_gain();		// instrument gain
 
 			cost_L = cost_L * pCompo->get_gain();		// Component gain
@@ -842,12 +886,9 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 				cost_track_L = cost_L * 2;
 			}
 			cost_L = cost_L * pSong->get_volume();	// song volume
-			// cost_L = cost_L * 2; // max pan is 0.5
 
 			cost_R *= fPan_R;							// pan
-			//cost_R = cost_R * pNote->get_pan_r();		// note pan
 			cost_R = cost_R * fLayerGain;				// layer gain
-			//cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
 			cost_R = cost_R * pInstr->get_gain();		// instrument gain
 
 			cost_R = cost_R * pCompo->get_gain();		// Component gain
@@ -857,8 +898,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 			if ( Preferences::get_instance()->m_JackTrackOutputMode == Preferences::JackTrackOutputMode::postFader ) {
 				cost_track_R = cost_R * 2;
 			}
-			cost_R = cost_R * pSong->get_volume();	// song pan
-			// cost_R = cost_R * 2; // max pan is 0.5
+			cost_R = cost_R * pSong->get_volume();	// song volume
 		}
 
 		// direct track outputs only use velocity
@@ -1646,7 +1686,8 @@ void Sampler::reinitializePlaybackTrack()
 	m_nPlayBackSamplePosition = 0;
 }
 
-void Sampler::setPanLawType( int nPanLawType ) {
+/*
+void Sampler::setPanLawType( int nPanLawType ) { // TODO simplify with enum
 	if ( nPanLawType == this->RATIO_STRAIGHT_POLYGONAL ) {
 		m_pPanLaw =	&this->ratioStraightPolygonalPanLaw;
 	} else if ( nPanLawType == this->RATIO_CONST_POWER ) {
@@ -1680,11 +1721,12 @@ void Sampler::setPanLawType( int nPanLawType ) {
 	} else if ( nPanLawType == this->QUADRATIC_CONST_K_NORM ) {
 		m_pPanLaw =	&this->quadraticConstKNormPanLaw;
 	} else {
-	//WARNING( failed setting pan law...)
+		WARNINGLOG( "Failed setting pan law: unknown type. Set default.");
+		m_pPanLaw =	&this->ratioStraightPolygonalPanLaw;
 	}
 }
 
-int Sampler::getPanLawType() {
+int Sampler::getPanLawType() { // TODO simplify with enum
 	if ( m_pPanLaw == &this->ratioStraightPolygonalPanLaw ) {
 		return this->RATIO_STRAIGHT_POLYGONAL;
 	} else if ( m_pPanLaw == &this->ratioConstPowerPanLaw ) {
@@ -1718,9 +1760,11 @@ int Sampler::getPanLawType() {
 	} else if ( m_pPanLaw == &this->quadraticConstKNormPanLaw ) {
 		return this->QUADRATIC_CONST_K_NORM;
 	} else {
+		WARNINGLOG( "Failed getting pan law: unknown type. set default.");
 		return 0;
 	}
 }
+*/
 
 };
 

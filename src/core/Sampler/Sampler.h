@@ -150,10 +150,10 @@ public:
 	static float quadraticConstPowerPanLaw( float fPan );
 	static float quadraticConstSumPanLaw( float fPan );
 	// customly compensated
-	static float linearConstKNormPanLaw( float fPan );
-	static float polarConstKNormPanLaw( float fPan );
-	static float ratioConstKNormPanLaw( float fPan );
-	static float quadraticConstKNormPanLaw( float fPan );
+	static float linearConstKNormPanLaw( float fPan, float k );
+	static float polarConstKNormPanLaw( float fPan, float k );
+	static float ratioConstKNormPanLaw( float fPan, float k );
+	static float quadraticConstKNormPanLaw( float fPan, float k );
 	int getPanLawType();
 	void setPanLawType( int nPanLawType );
 	void setPanLawKNorm( float fKNorm );
@@ -180,7 +180,10 @@ private:
 	int m_nPlayBackSamplePosition;
 	
 	// points the pan law function
-	float (*m_pPanLaw)( float );
+	//float (*m_pPanLaw)( float ); // TODO change to method panLaw(pan)
+	int m_nPanLawType;
+	float panLaw( float fPan );
+
 	// k such that L^k+R^k = 1. Used in constant k-Norm pan law
 	float m_fPanLawKNorm;
 
@@ -224,6 +227,15 @@ private:
 	);
 
 };
+
+inline void Sampler::setPanLawType( int nPanLawType ) {
+	m_nPanLawType = nPanLawType;
+}
+
+inline int Sampler::getPanLawType() {
+	return m_nPanLawType;
+} 
+
 
 inline void Sampler::setPanLawKNorm( float fKNorm ) {
 	m_fPanLawKNorm = fKNorm;
