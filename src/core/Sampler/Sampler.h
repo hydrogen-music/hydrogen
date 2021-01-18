@@ -32,29 +32,10 @@
 #include <vector>
 #include <memory>
 
-/* indices for pan law types
- NOTE: the following values are saved in songs, so developers should not change them... TODO better way to save?
-*/
-#define RATIO_STRAIGHT_POLYGONAL 0
-#define RATIO_CONST_POWER 1
-#define RATIO_CONST_SUM 2
-#define LINEAR_STRAIGHT_POLYGONAL 3
-#define LINEAR_CONST_POWER 4
-#define LINEAR_CONST_SUM 5
-#define POLAR_STRAIGHT_POLYGONAL 6
-#define POLAR_CONST_POWER 7
-#define POLAR_CONST_SUM 8
-#define QUADRATIC_STRAIGHT_POLYGONAL 9
-#define QUADRATIC_CONST_POWER 10
-#define QUADRATIC_CONST_SUM 11
-#define LINEAR_CONST_K_NORM 12
-#define RATIO_CONST_K_NORM 13
-#define POLAR_CONST_K_NORM 14
-#define QUADRATIC_CONST_K_NORM 15
 
-
-/* define default k for pan law with -4.5dB center compensation, given L^k + R^k = const
- it is the mean compromise between constant sum and constant power */
+/** define default k for pan law with -4.5dB center compensation, given L^k + R^k = const
+ * it is the mean compromise between constant sum and constant power
+ */
 #define K_NORM_DEFAULT 1.3333333333333
 
 namespace H2Core
@@ -76,6 +57,25 @@ class Sampler : public H2Core::Object
 {
 	H2_OBJECT
 public:
+	enum PAN_LAW_TYPES {
+		RATIO_STRAIGHT_POLYGONAL = 0,
+		RATIO_CONST_POWER,
+		RATIO_CONST_SUM,
+		LINEAR_STRAIGHT_POLYGONAL,
+		LINEAR_CONST_POWER,
+		LINEAR_CONST_SUM,
+		POLAR_STRAIGHT_POLYGONAL,
+		POLAR_CONST_POWER,
+		POLAR_CONST_SUM,
+		QUADRATIC_STRAIGHT_POLYGONAL,
+		QUADRATIC_CONST_POWER,
+		QUADRATIC_CONST_SUM,
+		LINEAR_CONST_K_NORM,
+		RATIO_CONST_K_NORM,
+		POLAR_CONST_K_NORM,
+		QUADRATIC_CONST_K_NORM
+	};
+
 	float* m_pMainOut_L;	///< sampler main out (left channel)
 	float* m_pMainOut_R;	///< sampler main out (right channel)
 
@@ -154,8 +154,13 @@ public:
 	static float polarConstKNormPanLaw( float fPan );
 	static float ratioConstKNormPanLaw( float fPan );
 	static float quadraticConstKNormPanLaw( float fPan );
-	float ( *m_panLawAddresses[16] ) ( float );
+	//float ( *m_panLawAddresses[16] ) ( float );
 	// float ( *getPanLawAddress( int idx ) ) ( float );
+	int getPanLawType();
+	void setPanLawType( int nPanLawType );
+	void setPanLawKNorm( float fKNorm );
+	float getPanLawKNorm() const;
+
 
 private:
 	std::vector<Note*> m_playingNotesQueue;
@@ -176,6 +181,10 @@ private:
 	
 	int m_nPlayBackSamplePosition;
 	
+	// points the pan law function
+	float (*m_pPanLaw)( float );
+	// k such that L^k+R^k = 1. Used in constant k-Norm pan law
+	float m_fPanLawKNorm;
 
 	bool processPlaybackTrack(int nBufferSize);
 	
@@ -215,7 +224,16 @@ private:
 		float fLayerPitch,
 		Song* pSong
 	);
+
 };
+
+inline void Sampler::setPanLawKNorm( float fKNorm ) {
+	m_fPanLawKNorm = fKNorm;
+}
+
+inline float Sampler::getPanLawKNorm() const {
+	return m_fPanLawKNorm;
+}
 
 
 } // namespace

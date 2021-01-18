@@ -87,8 +87,8 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 	, __playback_track_enabled( false )
 	, __playback_track_volume( 0.0 )
 	, __velocity_automation_path( nullptr )
-	, m_nPanLawIdx( RATIO_STRAIGHT_POLYGONAL )
-	, m_fPanLawKNorm( K_NORM_DEFAULT )
+	//, m_nPanLawIdx( RATIO_STRAIGHT_POLYGONAL )
+	//, m_fPanLawKNorm( K_NORM_DEFAULT )
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( __name ) );
 
@@ -169,7 +169,7 @@ Song* Song::get_default_song()
 	pSong->set_humanize_time_value( 0.0 );
 	pSong->set_humanize_velocity_value( 0.0 );
 	pSong->set_swing_factor( 0.0 );
-	pSong->setPanLawIdx( RATIO_STRAIGHT_POLYGONAL );
+//	pSong->setPanLawIdx( RATIO_STRAIGHT_POLYGONAL );
 
 	InstrumentList* pInstrList = new InstrumentList();
 	Instrument* pNewInstr = new Instrument( EMPTY_INSTR_ID, "New instrument" );
@@ -675,8 +675,6 @@ Song* SongReader::readSong( const QString& filename )
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
-	int nPanLawIdx = LocalFileMng::readXmlFloat( songNode, "pan_law", RATIO_STRAIGHT_POLYGONAL );
-	float nPanLawKNorm = LocalFileMng::readXmlFloat( songNode, "pan_law_k_norm", K_NORM_DEFAULT );
 
 	pSong = new Song( sName, sAuthor, fBpm, fVolume );
 	pSong->set_metronome_volume( fMetronomeVolume );
@@ -687,11 +685,52 @@ Song* SongReader::readSong( const QString& filename )
 	pSong->set_humanize_time_value( fHumanizeTimeValue );
 	pSong->set_humanize_velocity_value( fHumanizeVelocityValue );
 	pSong->set_swing_factor( fSwingFactor );
-	pSong->setPanLawIdx( nPanLawIdx );
-	pSong->setPanLawKNorm( nPanLawKNorm );
 	pSong->set_playback_track_filename( sPlaybackTrack );
 	pSong->set_playback_track_enabled( bPlaybackTrackEnabled );
 	pSong->set_playback_track_volume( fPlaybackTrackVolume );
+	
+	// pan law
+	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
+	QString sPanLawType( LocalFileMng::readXmlString( songNode, "pan_law", "RATIO_STRAIGHT_POLYGONAL" ) );
+	float nPanLawKNorm = LocalFileMng::readXmlFloat( songNode, "pan_law_k_norm", K_NORM_DEFAULT );
+	if ( sPanLawType == "RATIO_STRAIGHT_POLYGONAL" ) {
+		pSampler->setPanLawType( pSampler->RATIO_STRAIGHT_POLYGONAL );
+	} else if ( sPanLawType == "RATIO_CONST_POWER" ) {
+		pSampler->setPanLawType( pSampler->RATIO_CONST_POWER );
+	} else if ( sPanLawType == "RATIO_CONST_SUM" ) {
+		pSampler->setPanLawType( pSampler->RATIO_CONST_SUM );
+	} else if ( sPanLawType == "LINEAR_STRAIGHT_POLYGONAL" ) {
+		pSampler->setPanLawType( pSampler->LINEAR_STRAIGHT_POLYGONAL );
+	} else if ( sPanLawType == "LINEAR_CONST_POWER" ) {
+		pSampler->setPanLawType( pSampler->LINEAR_CONST_POWER );
+	} else if ( sPanLawType == "LINEAR_CONST_SUM" ) {
+		pSampler->setPanLawType( pSampler->LINEAR_CONST_SUM );
+	} else if ( sPanLawType == "POLAR_STRAIGHT_POLYGONAL" ) {
+		pSampler->setPanLawType( pSampler->POLAR_STRAIGHT_POLYGONAL );
+	} else if ( sPanLawType == "POLAR_CONST_POWER" ) {
+		pSampler->setPanLawType( pSampler->POLAR_CONST_POWER );
+	} else if ( sPanLawType == "POLAR_CONST_SUM" ) {
+		pSampler->setPanLawType( pSampler->POLAR_CONST_SUM );
+	} else if ( sPanLawType == "QUADRATIC_STRAIGHT_POLYGONAL" ) {
+		pSampler->setPanLawType( pSampler->QUADRATIC_STRAIGHT_POLYGONAL );
+	} else if ( sPanLawType == "QUADRATIC_CONST_POWER" ) {
+		pSampler->setPanLawType( pSampler->QUADRATIC_CONST_POWER );
+	} else if ( sPanLawType == "QUADRATIC_CONST_SUM" ) {
+		pSampler->setPanLawType( pSampler->QUADRATIC_CONST_SUM );
+	} else if ( sPanLawType == "LINEAR_CONST_K_NORM" ) {
+		pSampler->setPanLawType( pSampler->LINEAR_CONST_K_NORM );
+	} else if ( sPanLawType == "POLAR_CONST_K_NORM" ) {
+		pSampler->setPanLawType( pSampler->POLAR_CONST_K_NORM );
+	} else if ( sPanLawType == "RATIO_CONST_K_NORM" ) {
+		pSampler->setPanLawType( pSampler->RATIO_CONST_K_NORM );
+	} else if ( sPanLawType == "QUADRATIC_CONST_K_NORM" ) {
+		pSampler->setPanLawType( pSampler->QUADRATIC_CONST_K_NORM );
+	} else {
+		pSampler->setPanLawType( pSampler->RATIO_STRAIGHT_POLYGONAL );
+	//WARNING( failed setting pan law...)
+	}
+
+	pSampler->setPanLawKNorm( nPanLawKNorm );
 
 	QDomNode componentListNode = songNode.firstChildElement( "componentList" );
 	if ( ( ! componentListNode.isNull()  ) ) {

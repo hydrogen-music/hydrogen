@@ -212,11 +212,9 @@ class Song : public H2Core::Object
 		bool has_missing_samples();
 		void clear_missing_samples();
 		
-		void setPanLawIdx( int idx );
-		int getPanLawIdx() const ;
-		void setPanLawKNorm( float fKNorm );
-		float getPanLawKNorm() const;
-
+		//void setPanLawIdx( int idx );
+		//int getPanLawIdx() const ;
+		
 	private:
 		///< volume of the song (0.0..1.0)
 		float			__volume;
@@ -270,10 +268,6 @@ class Song : public H2Core::Object
 		AutomationPath*		__velocity_automation_path;
 		///< license of the song
 		QString			__license;
-		/** this is set in preferences
-		 */
-		int m_nPanLawIdx;
-		float m_fPanLawKNorm;
 };
 
 
@@ -428,22 +422,15 @@ inline void Song::set_playback_track_volume( const float volume )
 {
 	__playback_track_volume = volume;
 }
-
+/*
 inline void Song::setPanLawIdx( int idx ) {
 	m_nPanLawIdx = idx;
 }
 
 inline int Song::getPanLawIdx() const {
 	return m_nPanLawIdx;
-}
+}*/
 
-inline void Song::setPanLawKNorm( float fKNorm ) {
-	m_fPanLawKNorm = fKNorm;
-}
-
-inline float Song::getPanLawKNorm() const {
-	return m_fPanLawKNorm;
-}
 
 /**
 \ingroup H2CORE

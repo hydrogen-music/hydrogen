@@ -380,8 +380,48 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 	LocalFileMng::writeXmlString( songNode, "humanize_time", QString("%1").arg( pSong->get_humanize_time_value() ) );
 	LocalFileMng::writeXmlString( songNode, "humanize_velocity", QString("%1").arg( pSong->get_humanize_velocity_value() ) );
 	LocalFileMng::writeXmlString( songNode, "swing_factor", QString("%1").arg( pSong->get_swing_factor() ) );
-	LocalFileMng::writeXmlString( songNode, "pan_law", QString("%1").arg( pSong->getPanLawIdx() ) );
-	LocalFileMng::writeXmlString( songNode, "pan_law_k_norm", QString("%1").arg( pSong->getPanLawKNorm() ) );
+	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
+	//LocalFileMng::writeXmlString( songNode, "pan_law", QString("%1").arg( pSampler->getPanLawType() ) ); //TODO write as string
+	
+	QString sPanLawType;
+	int nPanLawType = pSampler->getPanLawType();
+	if ( nPanLawType == pSampler->RATIO_STRAIGHT_POLYGONAL ) {
+		sPanLawType = "RATIO_STRAIGHT_POLYGONAL";
+	} else if ( nPanLawType == pSampler->RATIO_CONST_POWER ) {
+		sPanLawType = "RATIO_CONST_POWER";
+	} else if ( nPanLawType == pSampler->RATIO_CONST_SUM ) {
+		sPanLawType = "RATIO_CONST_SUM";
+	} else if ( nPanLawType == pSampler->LINEAR_STRAIGHT_POLYGONAL ) {
+		sPanLawType = "LINEAR_STRAIGHT_POLYGONAL";
+	} else if ( nPanLawType == pSampler->LINEAR_CONST_POWER ) {
+		sPanLawType = "LINEAR_CONST_POWER";
+	} else if ( nPanLawType == pSampler->LINEAR_CONST_SUM ) {
+		sPanLawType = "LINEAR_CONST_SUM";
+	} else if ( nPanLawType == pSampler->POLAR_STRAIGHT_POLYGONAL ) {
+		sPanLawType = "POLAR_STRAIGHT_POLYGONAL";
+	} else if ( nPanLawType == pSampler->POLAR_CONST_POWER ) {
+		sPanLawType = "POLAR_CONST_POWER";
+	} else if ( nPanLawType == pSampler->POLAR_CONST_SUM ) {
+		sPanLawType = "POLAR_CONST_SUM";
+	} else if ( nPanLawType == pSampler->QUADRATIC_STRAIGHT_POLYGONAL ) {
+		sPanLawType = "QUADRATIC_STRAIGHT_POLYGONAL";
+	} else if ( nPanLawType == pSampler->QUADRATIC_CONST_POWER ) {
+		sPanLawType = "QUADRATIC_CONST_POWER";
+	} else if ( nPanLawType == pSampler->QUADRATIC_CONST_SUM ) {
+		sPanLawType = "QUADRATIC_CONST_SUM";
+	} else if ( nPanLawType == pSampler->LINEAR_CONST_K_NORM ) {
+		sPanLawType = "LINEAR_CONST_K_NORM";
+	} else if ( nPanLawType == pSampler->POLAR_CONST_K_NORM ) {
+		sPanLawType = "POLAR_CONST_K_NORM";
+	} else if ( nPanLawType == pSampler->RATIO_CONST_K_NORM ) {
+		sPanLawType = "RATIO_CONST_K_NORM";
+	} else if ( nPanLawType == pSampler->QUADRATIC_CONST_K_NORM ) {
+		sPanLawType = "QUADRATIC_CONST_K_NORM";
+	} else {
+	//WARNING( failed setting pan law...)
+	}
+	LocalFileMng::writeXmlString( songNode, "pan_law", sPanLawType );
+	LocalFileMng::writeXmlString( songNode, "pan_law_k_norm", QString("%1").arg( pSampler->getPanLawKNorm() ) );
 
 	// component List
 	QDomNode componentListNode = doc.createElement( "componentList" );
