@@ -381,7 +381,6 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 	LocalFileMng::writeXmlString( songNode, "humanize_velocity", QString("%1").arg( pSong->get_humanize_velocity_value() ) );
 	LocalFileMng::writeXmlString( songNode, "swing_factor", QString("%1").arg( pSong->get_swing_factor() ) );
 	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
-	//LocalFileMng::writeXmlString( songNode, "pan_law", QString("%1").arg( pSampler->getPanLawType() ) ); //TODO write as string
 	
 	QString sPanLawType;
 	int nPanLawType = pSampler->getPanLawType();
@@ -418,7 +417,8 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 	} else if ( nPanLawType == pSampler->QUADRATIC_CONST_K_NORM ) {
 		sPanLawType = "QUADRATIC_CONST_K_NORM";
 	} else {
-	//WARNING( failed setting pan law...)
+		WARNINGLOG( "Unknown pan law in saving song. Saved default type." );
+		sPanLawType = "RATIO_STRAIGHT_POLYGONAL";
 	}
 	LocalFileMng::writeXmlString( songNode, "pan_law", sPanLawType );
 	LocalFileMng::writeXmlString( songNode, "pan_law_k_norm", QString("%1").arg( pSampler->getPanLawKNorm() ) );

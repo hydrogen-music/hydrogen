@@ -94,7 +94,6 @@ Sampler::Sampler()
 
 	// default pan law
 	m_nPanLawType = RATIO_STRAIGHT_POLYGONAL;
-	//m_pPanLaw = &this->linearStraightPolygonalPanLaw;
 }
 
 
@@ -509,8 +508,6 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 	float fPan = fInstrPan + fNotePan * ( 1 - fabs( fInstrPan ) );
 	
 	// Pass fPan to the Pan Law
-	//float fPan_L = m_pPanLaw( fPan );
-	//float fPan_R = m_pPanLaw( -fPan );
 	float fPan_L = panLaw( fPan );
 	float fPan_R = panLaw( -fPan );
 	//---------------------------------------------------------
