@@ -348,11 +348,13 @@ void MixerLine::panChanged(Rotary *ref)
 		pan_R = panValue * 2.0;
 	}
 
-	char m_pFaderPos[100];
+	/* do not print messages in the old fashion panL and panL style since inconsistent with new pan implementation.
+		the rotary widget knob value tip is enough*/
+	/*char m_pFaderPos[100]; 
 	snprintf( m_pFaderPos, 99, "%#.2fL, %#.2fR",  pan_L, pan_R);
-	HydrogenApp::get_instance()->setStatusBarMessage( tr( "Set instr. pan [%1]" ).arg( m_pFaderPos ), 2000 );
+	 HydrogenApp::get_instance()->setStatusBarMessage( tr( "Set instr. pan [%1]" ).arg( m_pFaderPos ), 2000 );
 
-	m_pPanRotary->setToolTip( QString("Pan ") + QString( m_pFaderPos ) );
+	m_pPanRotary->setToolTip( QString("Pan ") + QString( m_pFaderPos ) );*/
 }
 
 float MixerLine::getPan()
@@ -372,9 +374,12 @@ void MixerLine::setPan(float fValue)
 			pan_L = 1.0;
 			pan_R = fValue * 2.0;
 		}
+		/* do not set tooltip in the old fashion panL and panL style since inconsistent with new pan implementation.
+		the rotary widget knob value tip is enough*/
+	/*
 		char m_pFaderPos[100];
 		snprintf( m_pFaderPos, 99,"Pan %#.2fL, %#.2fR",  pan_L, pan_R);
-		m_pPanRotary->setToolTip( QString( m_pFaderPos ) );
+		m_pPanRotary->setToolTip( QString( m_pFaderPos ) );*/
 	}
 }
 

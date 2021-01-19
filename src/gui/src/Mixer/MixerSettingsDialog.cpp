@@ -23,7 +23,7 @@
 #include <cstring>
 
 #include "Skin.h"
-#include "PanLawDialog.h"
+#include "MixerSettingsDialog.h"
 #include "HydrogenApp.h"
 #include "MainForm.h"
 
@@ -45,15 +45,15 @@
 
 using namespace H2Core;
 
-const char* PanLawDialog::__class_name = "PanLawDialog";
+const char* MixerSettingsDialog::__class_name = "MixerSettingsDialog";
 
-PanLawDialog::PanLawDialog(QWidget* parent)
+MixerSettingsDialog::MixerSettingsDialog(QWidget* parent)
  : QDialog( parent )
  , Object( __class_name )
 {
 	setupUi( this );
 
-	setWindowTitle( tr( "Pan Law Settings" ) );
+	setWindowTitle( tr( "Mixer Settings" ) );
 
 	setMinimumSize( width(), height() );
 
@@ -112,23 +112,26 @@ PanLawDialog::PanLawDialog(QWidget* parent)
 
 
 
-PanLawDialog::~PanLawDialog()
+MixerSettingsDialog::~MixerSettingsDialog()
 {
-	INFOLOG("~PAN_LAW_DIALOG");
+	INFOLOG("~MIXER_SETTINGS_DIALOG");
 }
 
 
 
-void PanLawDialog::on_cancelBtn_clicked()
+void MixerSettingsDialog::on_cancelBtn_clicked()
 {
 	reject();
 }
 
 
-void PanLawDialog::on_okBtn_clicked()
+void MixerSettingsDialog::on_okBtn_clicked()
 {	
 	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
 	bool bOk;
+	
+	
+	// Pan Law settings
 
 	pSampler->setPanLawType( ( panLawComboBox->currentData() ).toInt( &bOk ) );
 	
@@ -153,7 +156,7 @@ void PanLawDialog::on_okBtn_clicked()
 	accept();
 }
 
-void PanLawDialog::panLawChanged(){
+void MixerSettingsDialog::panLawChanged(){
 	bool bOk;
 	int nPanLawType = ( panLawComboBox->currentData() ).toInt( &bOk);
 	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();

@@ -20,32 +20,29 @@
  *
  */
 
-#ifndef PAN_LAW_DIALOG_H
-#define PAN_LAW_DIALOG_H
+#ifndef MIXER_SETTINGS_DIALOG_H
+#define MIXER_SETTINGS_DIALOG_H
 
 
-#include "ui_PanLawDialog_UI.h"
+#include "ui_MixerSettingsDialog_UI.h"
 
 #include <core/Object.h>
 
 ///
-/// Preferences Dialog
+/// Mixer Settings Dialog
 ///
-class PanLawDialog : public QDialog, private Ui_PanLawDialog_UI, public H2Core::Object
+class MixerSettingsDialog : public QDialog, private Ui_MixerSettingsDialog_UI, public H2Core::Object
 {
 	H2_OBJECT
 	Q_OBJECT
 	public:
-		explicit PanLawDialog( QWidget* parent );
-		~PanLawDialog();
+		explicit MixerSettingsDialog( QWidget* parent );
+		~MixerSettingsDialog();
 
 	private slots:
 		void on_okBtn_clicked();
 		void on_cancelBtn_clicked();
 		void panLawChanged();
-
-	private:
-		void updateInfo();
 };
 
 #endif

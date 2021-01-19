@@ -80,7 +80,6 @@ class MainForm : public QMainWindow, public EventListener, public H2Core::Object
 
 public slots:
 		void showPreferencesDialog();
-		void showPanLawDialog();
 		void showUserManual();
 
 		/**
