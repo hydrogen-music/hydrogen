@@ -801,6 +801,8 @@ void SongEditor::updateWidget() {
 
 void SongEditor::paintEvent( QPaintEvent *ev )
 {
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	HydrogenApp *pHydrogenApp = HydrogenApp::get_instance();
 
 	// ridisegno tutto solo se sono cambiate le note
 	if (m_bSequenceChanged) {
@@ -810,6 +812,28 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 
 	QPainter painter(this);
 	painter.drawPixmap( ev->rect(), *m_pSequencePixmap, ev->rect() );
+
+	// Draw the song position cursor
+	if ( pHydrogen->getSong()->getMode() != Song::PATTERN_MODE ) {
+		float fPos = pHydrogen->getPatternPos();
+		if ( pHydrogen->getCurrentPatternList()->size() != 0 ) {
+			int nLength = pHydrogen->getCurrentPatternList()->longest_pattern_length();
+			fPos += (float)pHydrogen->getTickPosition() / (float)nLength;
+		}
+		else {
+			// nessun pattern, uso la grandezza di default
+			fPos += (float)pHydrogen->getTickPosition() / (float)MAX_NOTES;
+		}
+		uint x = (int)( m_nMargin + fPos * m_nGridWidth - 11 / 2 );
+		painter.setPen( QColor(35, 39, 51) );
+		painter.drawLine( x + 5 , 0, x + 5 , height() );
+
+		// Update the position ruler to redraw the cursor there as well.
+		// Without this they can get separated from each other if e.g. user
+		// input causes the SongEditor to redraw.
+		SongEditorPanel *pSEPanel = pHydrogenApp->getSongEditorPanel();
+		pSEPanel->updatePositionRuler();
+	}
 
 	// Draw moving selected cells
 	QColor patternColor( 0, 0, 0 );
@@ -825,7 +849,7 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 	}
 
 	// Draw cursor
-	if ( ! HydrogenApp::get_instance()->hideKeyboardCursor() && hasFocus() ) {
+	if ( ! pHydrogenApp->hideKeyboardCursor() && hasFocus() ) {
 		QPen p( Qt::black );
 		p.setWidth( 2 );
 		painter.setPen( p );
@@ -2337,9 +2361,9 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 	if (fPos != -1) {
 		uint x = (int)( m_nMargin + fPos * m_nGridWidth - 11 / 2 );
-		painter.drawPixmap( QRect( x, height() / 2, 11, 8), m_tickPositionPixmap, QRect(0, 0, 11, 8) );
 		painter.setPen( QColor(35, 39, 51) );
-		painter.drawLine( x + 5 , 8, x +5 , 24 );
+		painter.drawLine( x + 5 , 0, x + 5 , height() );
+		painter.drawPixmap( QRect( x, height() / 2, 11, 8), m_tickPositionPixmap, QRect(0, 0, 11, 8) );
 	}
 
 	if ( pIPos <= pOPos ) {
@@ -2357,7 +2381,9 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 
 void SongEditorPositionRuler::updatePosition()
 {
-	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
+	SongEditorPanel *pSEPanel = HydrogenApp::get_instance()->getSongEditorPanel();
+	pSEPanel->updateTimelineUsage();
+	pSEPanel->getSongEditor()->update();
 	update();
 }
 

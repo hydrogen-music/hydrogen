@@ -550,6 +550,7 @@ void SongEditorPanel::updatePlaybackTrackIfNecessary()
 void SongEditorPanel::updatePositionRuler()
 {
 	m_pPositionRuler->createBackground();
+	m_pPositionRuler->update();
 }
 
 ///
