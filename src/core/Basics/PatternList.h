@@ -144,13 +144,15 @@ class AudioEngineLocking;
 		/**
 		 * check if a pattern with name patternName already exists in this list
 		 * \param patternName name of a pattern to check
+		 * \param ignore optional pattern in the list to ignore
 		 */
-		bool check_name( QString patternName );
+		bool check_name( QString patternName, Pattern* ignore = NULL );
 		/**
 		 * find unused patternName
 		 * \param sourceName base name to start with
+		 * \param ignore optional pattern in the list to ignore
 		 */
-		QString find_unused_pattern_name( QString sourceName );
+		QString find_unused_pattern_name( QString sourceName, Pattern* ignore = NULL );
 
 		/**
 		 * Get the length of the longest pattern in the list

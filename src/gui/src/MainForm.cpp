@@ -117,8 +117,8 @@ MainForm::MainForm( QApplication * pQApplication, const QString& songFilename, c
 			 * a new one with the specified filename
 			 */
 			if ( pSong == nullptr ) {
-				pSong = Song::get_empty_song();
-				pSong->set_filename( songFilename );
+				pSong = Song::getEmptySong();
+				pSong->setFilename( songFilename );
 			}
 		}
 		else {
@@ -129,13 +129,13 @@ MainForm::MainForm( QApplication * pQApplication, const QString& songFilename, c
 				pSong = Song::load( filename );
 				if ( pSong == nullptr ) {
 					//QMessageBox::warning( this, "Hydrogen", tr("Error restoring last song.") );
-					pSong = Song::get_empty_song();
-					pSong->set_filename( "" );
+					pSong = Song::getEmptySong();
+					pSong->setFilename( "" );
 				}
 			}
 			else {
-				pSong = Song::get_empty_song();
-				pSong->set_filename( "" );
+				pSong = Song::getEmptySong();
+				pSong->setFilename( "" );
 			}
 		}
 	} else {
@@ -149,8 +149,8 @@ MainForm::MainForm( QApplication * pQApplication, const QString& songFilename, c
 		// loaded by the GUI via an OSC command, load the default Song
 		// instead.
 		if ( pSong == nullptr ) {
-			pSong = Song::get_empty_song();
-			pSong->set_filename( songFilename );
+			pSong = Song::getEmptySong();
+			pSong->setFilename( songFilename );
 		}
 		
 	}
@@ -484,7 +484,7 @@ void MainForm::onLashPollTimer()
 				songFilename.append("/hydrogen.h2song");
 
 				filenameSong = QString::fromLocal8Bit( songFilename.c_str() );
-				song->set_filename( filenameSong );
+				song->setFilename( filenameSong );
 				action_file_save();
 
 				client->sendEvent(LASH_Save_File);
@@ -569,13 +569,13 @@ void MainForm::action_file_new()
 	h2app->m_pUndoStack->clear();
 	pEngine->getTimeline()->deleteAllTempoMarkers();
 	pEngine->getTimeline()->deleteAllTags();
-	Song* pSong = Song::get_empty_song();
+	Song* pSong = Song::getEmptySong();
 
 	// When under session management the filename of the current Song
 	// has to be preserved.
 	QString currentFilename;
 	if ( bUnderSessionManagement ) {
-		currentFilename = H2Core::Hydrogen::get_instance()->getSong()->get_filename();
+		currentFilename = H2Core::Hydrogen::get_instance()->getSong()->getFilename();
 		
 		// Just a single click will allow the user to discard the
 		// current song and replace it with an empty one with now way
@@ -593,9 +593,9 @@ void MainForm::action_file_new()
 			return;
 		}
 								 
-		pSong->set_filename( currentFilename );
+		pSong->setFilename( currentFilename );
 	} else {
-		pSong->set_filename( "" );
+		pSong->setFilename( "" );
 	}
 
 	h2app->openSong( pSong );
@@ -636,10 +636,10 @@ void MainForm::action_file_save_as()
 
 	Song* pSong = pHydrogen->getSong();
 	QString defaultFilename;
-	QString lastFilename = pSong->get_filename();
+	QString lastFilename = pSong->getFilename();
 
 	if ( lastFilename.isEmpty() ) {
-		defaultFilename = pHydrogen->getSong()->__name;
+		defaultFilename = pHydrogen->getSong()->getName();
 		defaultFilename += Filesystem::songs_ext;
 	}
 	else {
@@ -659,14 +659,14 @@ void MainForm::action_file_save_as()
 			filename += Filesystem::songs_ext;
 		}
 
-		pSong->set_filename(filename);
+		pSong->setFilename(filename);
 		action_file_save();
 	}
 	
 	// When Hydrogen is under session management, the file name
 	// provided by the NSM server has to be preserved.
 	if ( pHydrogen->isUnderSessionManagement() ) {
-		pSong->set_filename( lastFilename );
+		pSong->setFilename( lastFilename );
 		h2app->setScrollStatusBarMessage( tr("Song exported as: ") + defaultFilename, 2000 );
 	} else {
 		h2app->setScrollStatusBarMessage( tr("Song saved as: ") + defaultFilename, 2000 );
@@ -680,14 +680,14 @@ void MainForm::action_file_save_as()
 void MainForm::action_file_save()
 {
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	QString filename = pSong->get_filename();
+	QString filename = pSong->getFilename();
 
 	if ( filename.isEmpty() ) {
 		// just in case!
 		return action_file_save_as();
 	}
 
-	if ( pSong->has_missing_samples() ) {
+	if ( pSong->hasMissingSamples() ) {
 		if ( QMessageBox::information( this, "Hydrogen",
 		                               tr( "Some samples used by this song failed to load. If you save the song now "
 		                                   "these missing samples will be removed from the song entirely.\n"
@@ -697,7 +697,7 @@ void MainForm::action_file_save()
 		     == QMessageBox::Cancel ) {
 			return;
 		}
-		pSong->clear_missing_samples();
+		pSong->clearMissingSamples();
 	}
 
 	bool saved = false;
@@ -707,7 +707,7 @@ void MainForm::action_file_save()
 	if(! saved) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save song.") );
 	} else {
-		Preferences::get_instance()->setLastSongFilename( pSong->get_filename() );
+		Preferences::get_instance()->setLastSongFilename( pSong->getFilename() );
 
 		// Add the new loaded song in the "last used song"
 		// vector. 
@@ -762,7 +762,7 @@ void MainForm::action_file_export_pattern_as()
 
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
-	Pattern *pPattern = pSong->get_pattern_list()->get( pEngine->getSelectedPatternNumber() );
+	Pattern *pPattern = pSong->getPatternList()->get( pEngine->getSelectedPatternNumber() );
 
 	QDir dir = Preferences::get_instance()->__lastspatternDirectory;
 
@@ -840,7 +840,7 @@ void MainForm::action_file_open() {
 	// has to be preserved.
 	QString sCurrentFilename;
 	if ( bUnderSessionManagement ) {
-		sCurrentFilename = H2Core::Hydrogen::get_instance()->getSong()->get_filename();
+		sCurrentFilename = H2Core::Hydrogen::get_instance()->getSong()->getFilename();
 	}
 	if ( !sFilename.isEmpty() ) {
 		HydrogenApp::get_instance()->openSong( sFilename );
@@ -853,7 +853,7 @@ void MainForm::action_file_open() {
 			ERRORLOG( QString( "No song present while under session management" ) );
 			return;
 		}
-		pSong->set_filename( sCurrentFilename );
+		pSong->setFilename( sCurrentFilename );
 	}
 
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->update_background_color();
@@ -864,10 +864,10 @@ void MainForm::action_file_openPattern()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
-	PatternList *pPatternList = pSong->get_pattern_list();
+	PatternList *pPatternList = pSong->getPatternList();
 	int selectedPatternPosition = pEngine->getSelectedPatternNumber();
 
-	Instrument *pInstrument = pSong->get_instrument_list()->get ( 0 );
+	Instrument *pInstrument = pSong->getInstrumentList()->get ( 0 );
 	assert ( pInstrument );
 
 	QFileDialog fd(this);
@@ -885,7 +885,7 @@ void MainForm::action_file_openPattern()
 	}
 	QString patternname = filename;
 
-	Pattern* err = Pattern::load_file( patternname, pSong->get_instrument_list() );
+	Pattern* err = Pattern::load_file( patternname, pSong->getInstrumentList() );
 	if ( err == nullptr )
 	{
 		_ERRORLOG( "Error loading the pattern" );
@@ -932,7 +932,7 @@ void MainForm::action_file_openDemo()
 
 	if ( !filename.isEmpty() ) {
 		HydrogenApp::get_instance()->openSong( filename );
-		Hydrogen::get_instance()->getSong()->set_filename( "" );
+		Hydrogen::get_instance()->getSong()->setFilename( "" );
 	}
 }
 
@@ -1081,7 +1081,7 @@ void MainForm::action_instruments_addComponent()
 		Hydrogen *pEngine = Hydrogen::get_instance();
 
 		DrumkitComponent* pDrumkitComponent = new DrumkitComponent( InstrumentEditor::findFreeDrumkitComponentId(), sNewName );
-		pEngine->getSong()->get_components()->push_back( pDrumkitComponent );
+		pEngine->getSong()->getComponents()->push_back( pDrumkitComponent );
 
 		selectedInstrumentChangedEvent();
 
@@ -1119,11 +1119,14 @@ void MainForm::action_instruments_clearAll()
 	case QMessageBox::Cancel:
 		// cancel btn pressed
 		return;
+	default:
+		// Not reached
+		return;
 	}
 
 	// Remove all instruments
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	InstrumentList* pList = pSong->get_instrument_list();
+	InstrumentList* pList = pSong->getInstrumentList();
 	for (uint i = pList->size(); i > 0; i--) {
 		functionDeleteInstrument(i - 1);
 	}
@@ -1134,17 +1137,17 @@ void MainForm::action_instruments_clearAll()
 void MainForm::functionDeleteInstrument(int instrument)
 {
 	Hydrogen * pEngine = Hydrogen::get_instance();
-	Instrument *pSelectedInstrument = pEngine->getSong()->get_instrument_list()->get( instrument );
+	Instrument *pSelectedInstrument = pEngine->getSong()->getInstrumentList()->get( instrument );
 
 	std::list< Note* > noteList;
 	Song* pSong = pEngine->getSong();
-	PatternList *pPatternList = pSong->get_pattern_list();
+	PatternList *pPatternList = pSong->getPatternList();
 
 	QString instrumentName =  pSelectedInstrument->get_name();
 	QString drumkitName = pEngine->getCurrentDrumkitname();
 
 	for ( int i = 0; i < pPatternList->size(); i++ ) {
-		const H2Core::Pattern *pPattern = pSong->get_pattern_list()->get(i);
+		const H2Core::Pattern *pPattern = pSong->getPatternList()->get(i);
 		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
@@ -1230,8 +1233,8 @@ void MainForm::action_instruments_saveLibrary()
 									QString( pDrumkitInfo->get_license() ),
 									QString( pDrumkitInfo->get_image() ),
 									QString( pDrumkitInfo->get_image_license() ),
-									H2Core::Hydrogen::get_instance()->getSong()->get_instrument_list(),
-									H2Core::Hydrogen::get_instance()->getSong()->get_components(),
+									H2Core::Hydrogen::get_instance()->getSong()->getInstrumentList(),
+									H2Core::Hydrogen::get_instance()->getSong()->getComponents(),
 									true ) ) {
 			QMessageBox::information( this, "Hydrogen", tr ( "Saving of this library failed."));
 		}
@@ -1420,9 +1423,7 @@ void MainForm::onBPMPlusAccelEvent()
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	Song* pSong = pEngine->getSong();
-	if (pSong->__bpm  < MAX_BPM) {
-		pEngine->setBPM( pSong->__bpm + 0.1 );
-	}
+	pEngine->setBPM( pSong->getBpm() + 0.1 );
 	AudioEngine::get_instance()->unlock();
 }
 
@@ -1434,9 +1435,7 @@ void MainForm::onBPMMinusAccelEvent()
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	Song* pSong = pEngine->getSong();
-	if (pSong->__bpm > MIN_BPM ) {
-		pEngine->setBPM( pSong->__bpm - 0.1 );
-	}
+	pEngine->setBPM( pSong->getBpm() - 0.1 );
 	AudioEngine::get_instance()->unlock();
 }
 
@@ -1493,19 +1492,19 @@ void MainForm::action_file_open_recent(QAction *pAction)
 	
 	QString currentFilename;
 	if ( bUnderSessionManagement ) {
-		currentFilename = H2Core::Hydrogen::get_instance()->getSong()->get_filename();
+		currentFilename = H2Core::Hydrogen::get_instance()->getSong()->getFilename();
 	}
 	
 	HydrogenApp::get_instance()->openSong( pAction->text() );
 	
 	if ( bUnderSessionManagement ) {
-		H2Core::Hydrogen::get_instance()->getSong()->set_filename( currentFilename );
+		H2Core::Hydrogen::get_instance()->getSong()->setFilename( currentFilename );
 	}
 }
 
 void MainForm::checkMissingSamples()
 {
-	if ( Hydrogen::get_instance()->getSong()->has_missing_samples() ) {
+	if ( Hydrogen::get_instance()->getSong()->hasMissingSamples() ) {
 		m_pMissingSamplesInfoBar = h2app->addInfoBar();
 		m_pMissingSamplesInfoBar->setTitle( tr( "Song drumkit samples" ) );
 		m_pMissingSamplesInfoBar->setText( tr( "Some samples used in this song could not be loaded. This may be because it uses an older default drumkit. This might be fixed by opening a new drumkit." ) );
@@ -1521,7 +1520,7 @@ void MainForm::checkMissingSamples()
 void MainForm::checkMidiSetup()
 {
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	if ( pSong->get_instrument_list()->has_all_midi_notes_same() ) {
+	if ( pSong->getInstrumentList()->has_all_midi_notes_same() ) {
 		WARNINGLOG( "Incorrect MIDI setup" );
 
 		m_pMidiSetupInfoBar = h2app->addInfoBar();
@@ -1551,8 +1550,8 @@ void MainForm::onFixMidiSetup()
 {
 	INFOLOG( "Fixing MIDI setup" );
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	pSong->get_instrument_list()->set_default_midi_out_notes();
-	pSong->set_is_modified( true );
+	pSong->getInstrumentList()->set_default_midi_out_notes();
+	pSong->setIsModified( true );
 
 	m_pMidiSetupInfoBar->hide();
 }
@@ -1843,7 +1842,7 @@ void MainForm::action_file_export_lilypond()
 		"Hydrogen",
 		tr( "\nThe LilyPond export is an experimental feature.\n"
 		"It should work like a charm provided that you use the "
-		"GM-kit, and that you do not use triplet.\n" ),
+		"GMRockKit, and that you do not use triplet.\n" ),
 		QMessageBox::Ok ); 
 
 	QFileDialog fd( this );
@@ -1906,7 +1905,7 @@ void MainForm::errorEvent( int nErrorCode )
 		break;
 		
 	case Hydrogen::OSC_CANNOT_CONNECT_TO_PORT:
-		msg = tr( "OSC Server: Cannot connect to given port, using temporary port instead" );
+		msg = QString( tr( "OSC Server: Cannot connect to given port, using port %1 instead" ) ).arg( Preferences::get_instance()->m_nOscTemporaryPort );
 		break;
 
 	default:
@@ -1948,7 +1947,7 @@ void MainForm::action_file_songProperties()
 {
 	SongPropertiesDialog *pDialog = new SongPropertiesDialog( this );
 	if ( pDialog->exec() == QDialog::Accepted ) {
-		Hydrogen::get_instance()->getSong()->set_is_modified( true );
+		Hydrogen::get_instance()->getSong()->setIsModified( true );
 	}
 	delete pDialog;
 }
@@ -1989,7 +1988,7 @@ QString MainForm::getAutoSaveFilename()
 {
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
-	QString sOldFilename = pSong->get_filename();
+	QString sOldFilename = pSong->getFilename();
 	QString newName = "autosave.h2song";
 
 	if ( !sOldFilename.isEmpty() ) {
@@ -2006,11 +2005,11 @@ void MainForm::onAutoSaveTimer()
 	//INFOLOG( "[onAutoSaveTimer]" );
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	assert( pSong );
-	QString sOldFilename = pSong->get_filename();
+	QString sOldFilename = pSong->getFilename();
 
 	pSong->save( getAutoSaveFilename() );
 
-	pSong->set_filename(sOldFilename);
+	pSong->setFilename(sOldFilename);
 }
 
 
@@ -2026,12 +2025,12 @@ void MainForm::onPlaylistDisplayTimer()
 		return;
 	}
 
-	if ( Hydrogen::get_instance()->getSong()->__name == "Untitled Song" ){
-		songname = Hydrogen::get_instance()->getSong()->get_filename();
+	if ( Hydrogen::get_instance()->getSong()->getName() == "Untitled Song" ){
+		songname = Hydrogen::get_instance()->getSong()->getFilename();
 	} else {
-		songname = Hydrogen::get_instance()->getSong()->__name;
+		songname = Hydrogen::get_instance()->getSong()->getName();
 	}
-	QString message = (tr("Playlist: Song No. %1").arg( songnumber + 1)) + QString("  ---  Songname: ") + songname + QString("  ---  Author: ") + Hydrogen::get_instance()->getSong()->__author;
+	QString message = (tr("Playlist: Song No. %1").arg( songnumber + 1)) + QString("  ---  Songname: ") + songname + QString("  ---  Author: ") + Hydrogen::get_instance()->getSong()->getAuthor();
 	HydrogenApp::get_instance()->setScrollStatusBarMessage( message, 2000 );
 }
 
@@ -2041,7 +2040,7 @@ bool MainForm::handleUnsavedChanges()
 {
 	bool done = false;
 	bool rv = true;
-	while ( !done && Hydrogen::get_instance()->getSong()->get_is_modified() ) {
+	while ( !done && Hydrogen::get_instance()->getSong()->getIsModified() ) {
 		switch(
 				 QMessageBox::information( this, "Hydrogen",
 										 tr("\nThe document contains unsaved changes.\n"
@@ -2051,7 +2050,7 @@ bool MainForm::handleUnsavedChanges()
 										 2 ) ) { // Escape == button 2
 		case 0: // Save clicked or Alt+S pressed or Enter pressed.
 			// If the save fails, the __is_modified flag will still be true
-			if ( ! Hydrogen::get_instance()->getSong()->get_filename().isEmpty() ) {
+			if ( ! Hydrogen::get_instance()->getSong()->getFilename().isEmpty() ) {
 				action_file_save();
 			} else {
 				// never been saved

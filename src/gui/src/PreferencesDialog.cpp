@@ -50,6 +50,8 @@ using namespace H2Core;
 
 const char* PreferencesDialog::__class_name = "PreferencesDialog";
 
+QString PreferencesDialog::m_sColorRed = "#ca0003";
+
 PreferencesDialog::PreferencesDialog(QWidget* parent)
  : QDialog( parent )
  , Object( __class_name )
@@ -334,7 +336,21 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	
 	incomingOscPortSpinBox->setValue( pPref->getOscServerPort() );
 	oscWidget->setEnabled( pPref->getOscServerEnabled() );
-	
+
+	if ( pPref->m_nOscTemporaryPort != -1 ) {
+		oscTemporaryPortLabel->show();
+		oscTemporaryPortLabel->setText( QString( "<b><i><font color=" )
+										.append( m_sColorRed )
+										.append( ">" )
+										.append( tr( "The select port is unavailable. This instance uses the following temporary port instead:" ) )
+										.append( "</font></i></b>" ) );
+		oscTemporaryPort->show();
+		oscTemporaryPort->setEnabled( false );
+		oscTemporaryPort->setText( QString::number( pPref->m_nOscTemporaryPort ) );
+	} else {
+		oscTemporaryPortLabel->hide();
+		oscTemporaryPort->hide();
+	}
 
 	// General tab
 	restoreLastUsedSongCheckbox->setChecked( pPref->isRestoreLastSongEnabled() );
@@ -721,7 +737,10 @@ void PreferencesDialog::updateDriverInfo()
 	else if ( driverComboBox->currentText() == "Jack" ) {	// JACK
 		info += tr("<b>Jack Audio Connection Kit Driver</b><br>Low latency audio driver");
 		if ( !bJack_support ) {
-			info += tr("<br><b><font color=\"red\">Not compiled</font></b>");
+			info += QString("<br><b><font color=")
+				.append( m_sColorRed ).append( ">")
+				.append( tr( "Not compiled" ) )
+				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->setText( "" );
@@ -740,7 +759,10 @@ void PreferencesDialog::updateDriverInfo()
 	else if ( driverComboBox->currentText() == "Alsa" ) {	// ALSA
 		info += tr("<b>ALSA Driver</b><br>");
 		if ( !bAlsa_support ) {
-			info += tr("<br><b><font color=\"red\">Not compiled</font></b>");
+			info += QString("<br><b><font color=")
+				.append( m_sColorRed ).append( ">")
+				.append( tr( "Not compiled" ) )
+				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(true);
 		m_pAudioDeviceTxt->setText( pPref->m_sAlsaAudioDevice );
@@ -756,7 +778,10 @@ void PreferencesDialog::updateDriverInfo()
 	else if ( driverComboBox->currentText() == "PortAudio" ) {
 		info += tr( "<b>PortAudio Driver</b><br>" );
 		if ( !bPortAudio_support ) {
-			info += tr("<br><b><font color=\"red\">Not compiled</font></b>");
+			info += QString("<br><b><font color=")
+				.append( m_sColorRed ).append( ">")
+				.append( tr( "Not compiled" ) )
+				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->setText( "" );
@@ -772,7 +797,10 @@ void PreferencesDialog::updateDriverInfo()
 	else if ( driverComboBox->currentText() == "CoreAudio" ) {
 		info += tr( "<b>CoreAudio Driver</b><br>" );
 		if ( !bCoreAudio_support ) {
-			info += tr("<br><b><font color=\"red\">Not compiled</font></b>");
+			info += QString("<br><b><font color=")
+				.append( m_sColorRed ).append( ">")
+				.append( tr( "Not compiled" ) )
+				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->setText( "" );
@@ -788,7 +816,10 @@ void PreferencesDialog::updateDriverInfo()
 	else if ( driverComboBox->currentText() == "PulseAudio" ) {
 		info += tr("<b>PulseAudio Driver</b><br>");
 		if ( !bPulseAudio_support ) {
-			info += tr("<br><b><font color=\"red\">Not compiled</font></b>");
+			info += QString("<br><b><font color=")
+				.append( m_sColorRed ).append( ">")
+				.append( tr( "Not compiled" ) )
+				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->setText("");

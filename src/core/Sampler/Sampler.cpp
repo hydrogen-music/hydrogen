@@ -132,7 +132,7 @@ void Sampler::process( uint32_t nFrames, Song* pSong )
 		delete  pOldNote;	// FIXME: send note-off instead of removing the note from the list?
 	}
 
-	for ( auto& pComponent : *pSong->get_components() ) {
+	for ( auto& pComponent : *pSong->getComponents() ) {
 		pComponent->reset_outs(nFrames);
 	}
 
@@ -531,14 +531,14 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 		if(		pInstr->is_preview_instrument()
 			||	pInstr->is_metronome_instrument()){
-			pMainCompo = pHydrogen->getSong()->get_components()->front();
+			pMainCompo = pHydrogen->getSong()->getComponents()->front();
 		} else {
 			int nComponentID = pCompo->get_drumkit_componentID();
 			if ( nComponentID >= 0 ) {
-				pMainCompo = pHydrogen->getSong()->get_component( nComponentID );
+				pMainCompo = pHydrogen->getSong()->getComponent( nComponentID );
 			} else {
 				/* Invalid component found. This is possible on loading older or broken song files. */
-				pMainCompo = pHydrogen->getSong()->get_components()->front();
+				pMainCompo = pHydrogen->getSong()->getComponents()->front();
 			}
 		}
 
@@ -773,12 +773,12 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 
 						if( __foundSamples > 0 ) {
 							__roundRobinID = pInstr->get_id() * 10 + __roundRobinID;
-							int p_indexToUse = pSong->get_latest_round_robin(__roundRobinID)+1;
+							int p_indexToUse = pSong->getLatestRoundRobin(__roundRobinID)+1;
 							if( p_indexToUse > __foundSamples - 1) {
 								p_indexToUse = 0;
 							}
 
-							pSong->set_latest_round_robin(__roundRobinID, p_indexToUse);
+							pSong->setLatestRoundRobin(__roundRobinID, p_indexToUse);
 							nAlreadySelectedLayer = __possibleIndex[p_indexToUse];
 
 							pSelectedLayer->SelectedLayer = nAlreadySelectedLayer;
@@ -846,7 +846,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 		 *       but this instrument is not currently being exported.
 		 *   - if at least one instrument is soloed (but not this instrument)
 		 */
-		if ( isMutedForExport || pInstr->is_muted() || pSong->__is_muted || pMainCompo->is_muted() || isMutedBecauseOfSolo) {	
+		if ( isMutedForExport || pInstr->is_muted() || pSong->getIsMuted() || pMainCompo->is_muted() || isMutedBecauseOfSolo) {	
 			cost_L = 0.0;
 			cost_R = 0.0;
 			if ( Preferences::get_instance()->m_JackTrackOutputMode == Preferences::JackTrackOutputMode::postFader ) {
@@ -872,7 +872,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 			if ( Preferences::get_instance()->m_JackTrackOutputMode == Preferences::JackTrackOutputMode::postFader ) {
 				cost_track_L = cost_L * 2;
 			}
-			cost_L = cost_L * pSong->get_volume();	// song volume
+			cost_L = cost_L * pSong->getVolume();	// song volume
 
 			cost_R *= fPan_R;							// pan
 			cost_R = cost_R * fLayerGain;				// layer gain
@@ -885,7 +885,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 			if ( Preferences::get_instance()->m_JackTrackOutputMode == Preferences::JackTrackOutputMode::postFader ) {
 				cost_track_R = cost_R * 2;
 			}
-			cost_R = cost_R * pSong->get_volume();	// song volume
+			cost_R = cost_R * pSong->getVolume();	// song pan
 		}
 
 		// direct track outputs only use velocity
@@ -933,9 +933,9 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 	AudioOutput* pAudioOutput = Hydrogen::get_instance()->getAudioOutput();
 	Song* pSong = pEngine->getSong();
 
-	if(   !pSong->get_playback_track_enabled()
+	if(   !pSong->getPlaybackTrackEnabled()
 	   || pEngine->getState() != STATE_PLAYING
-	   || pSong->get_mode() != Song::SONG_MODE)
+	   || pSong->getMode() != Song::SONG_MODE)
 	{
 		return false;
 	}
@@ -981,8 +981,8 @@ bool Sampler::processPlaybackTrack(int nBufferSize)
 			fVal_L = pSample_data_L[ nSamplePos ];
 			fVal_R = pSample_data_R[ nSamplePos ];
 	
-			fVal_L = fVal_L * 1.0f * pSong->get_playback_track_volume(); //costr
-			fVal_R = fVal_R * 1.0f * pSong->get_playback_track_volume(); //cost l
+			fVal_L = fVal_L * 1.0f * pSong->getPlaybackTrackVolume(); //costr
+			fVal_R = fVal_R * 1.0f * pSong->getPlaybackTrackVolume(); //cost l
 	
 			//pDrumCompo->set_outs( nBufferPos, fVal_L, fVal_R );
 	
@@ -1202,8 +1202,8 @@ bool Sampler::renderNoteNoResample(
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
 	// change the below return logic if you add code after that ifdef
-	if (pNote->get_instrument()->is_muted() || pSong->__is_muted) return retValue;
-	float masterVol =  pSong->get_volume();
+	if (pNote->get_instrument()->is_muted() || pSong->getIsMuted() ) return retValue;
+	float masterVol =  pSong->getVolume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 
@@ -1257,7 +1257,7 @@ bool Sampler::renderNoteResample(
 	if ( pNote->get_length() != -1 ) {
 		float resampledTickSize = AudioEngine::compute_tick_size( pSample->get_sample_rate(),
 		                                                          pAudioOutput->m_transport.m_fBPM,
-		                                                          pSong->__resolution );
+		                                                          pSong->getResolution() );
 		
 		nNoteLength = ( int )( pNote->get_length() * resampledTickSize);
 	}
@@ -1411,8 +1411,8 @@ bool Sampler::renderNoteResample(
 #ifdef H2CORE_HAVE_LADSPA
 	// LADSPA
 	// change the below return logic if you add code after that ifdef
-	if (pNote->get_instrument()->is_muted() || pSong->__is_muted) return retValue;
-	float masterVol = pSong->get_volume();
+	if (pNote->get_instrument()->is_muted() || pSong->getIsMuted() ) return retValue;
+	float masterVol = pSong->getVolume();
 	for ( unsigned nFX = 0; nFX < MAX_FX; ++nFX ) {
 		LadspaFX *pFX = Effects::get_instance()->getLadspaFX( nFX );
 		float fLevel = pNote->get_instrument()->get_fx_level( nFX );
@@ -1566,16 +1566,16 @@ void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks,
 		Pattern* pCurrentPattern = nullptr;
 
 
-		if ( pSong->get_mode() == Song::PATTERN_MODE ||
+		if ( pSong->getMode() == Song::PATTERN_MODE ||
 		( pEngine->getState() != STATE_PLAYING )){
-			PatternList *pPatternList = pSong->get_pattern_list();
+			PatternList *pPatternList = pSong->getPatternList();
 			if ( ( nSelectedpattern != -1 )
 			&& ( nSelectedpattern < ( int )pPatternList->size() ) ) {
 				pCurrentPattern = pPatternList->get( nSelectedpattern );
 			}
 		}else
 		{
-			std::vector<PatternList*> *pColumns = pSong->get_pattern_group_vector();
+			std::vector<PatternList*> *pColumns = pSong->getPatternGroupVector();
 //			Pattern *pPattern = NULL;
 			int pos = pEngine->getPatternPos() +1;
 			for ( int i = 0; i < pos; ++i ) {
@@ -1602,19 +1602,19 @@ void Sampler::setPlayingNotelength(Instrument* pInstrument, unsigned long ticks,
 										ticks = patternsize - noteOnTick;
 									}
 									pNote->set_length( ticks );
-									Hydrogen::get_instance()->getSong()->set_is_modified( true );
+									Hydrogen::get_instance()->getSong()->setIsModified( true );
 									AudioEngine::get_instance()->unlock(); // unlock the audio engine
 								}
 							}else
 							{
-								if ( pNote->get_instrument() == pEngine->getSong()->get_instrument_list()->get( pEngine->getSelectedInstrumentNumber())
+								if ( pNote->get_instrument() == pEngine->getSong()->getInstrumentList()->get( pEngine->getSelectedInstrumentNumber())
 								&& pNote->get_position() == noteOnTick ) {
 									AudioEngine::get_instance()->lock( RIGHT_HERE );
 									if ( ticks >  patternsize ) {
 										ticks = patternsize - noteOnTick;
 									}
 									pNote->set_length( ticks );
-									Hydrogen::get_instance()->getSong()->set_is_modified( true );
+									Hydrogen::get_instance()->getSong()->setIsModified( true );
 									AudioEngine::get_instance()->unlock(); // unlock the audio engine
 								}
 							}
@@ -1631,7 +1631,7 @@ bool Sampler::isAnyInstrumentSoloed() const
 {
 	Hydrogen*		pEngine = Hydrogen::get_instance();
 	Song*			pSong = pEngine->getSong();
-	InstrumentList* pInstrList = pSong->get_instrument_list();
+	InstrumentList* pInstrList = pSong->getInstrumentList();
 	bool			bAnyInstrumentIsSoloed = false;
 	
 	for(int i=0; i < pInstrList->size(); i++) {
@@ -1663,8 +1663,8 @@ void Sampler::reinitializePlaybackTrack()
 	Song*		pSong = pEngine->getSong();
 	std::shared_ptr<Sample>	pSample;
 
-	if(!pSong->get_playback_track_filename().isEmpty()){
-		pSample = Sample::load( pSong->get_playback_track_filename() );
+	if(!pSong->getPlaybackTrackFilename().isEmpty()){
+		pSample = Sample::load( pSong->getPlaybackTrackFilename() );
 	}
 	
 	InstrumentLayer* pPlaybackTrackLayer = new InstrumentLayer( pSample );

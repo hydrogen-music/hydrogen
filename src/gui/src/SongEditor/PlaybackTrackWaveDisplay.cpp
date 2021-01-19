@@ -118,7 +118,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		int		nSamplePos = 0;
 		int		nMaxBars = pPref->getMaxBars();
 		
-		std::vector<PatternList*> *pPatternColumns = pSong->get_pattern_group_vector();
+		std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 		int nColumns = pPatternColumns->size();
 
 		int nSongEditorGridWith;
@@ -151,7 +151,7 @@ void PlaybackTrackWaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 			if(maxPatternSize == 0) maxPatternSize = 192;
 			
 			//length (in seconds) of one pattern is: (nPatternSize/24) / ((pEngine->getSong()->__bpm * 2) / 60)
-			float fLengthOfCurrentPatternInSecs = (maxPatternSize/24) / ((pSong->__bpm * 2) / 60);
+			float fLengthOfCurrentPatternInSecs = (maxPatternSize/24) / ((pSong->getBpm() * 2) / 60);
 			
 			if( fRemainingLengthOfPlaybackTrack >= fLengthOfCurrentPatternInSecs ) {
 				//only a part of the PlaybackTrack will fit into this Pattern

@@ -296,12 +296,12 @@ void JackAudioDriver::relocateUsingBBT()
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
 
-	float fTicksPerBeat = static_cast<float>( pSong->__resolution / m_JackTransportPos.beat_type * 4 );
+	float fTicksPerBeat = static_cast<float>( pSong->getResolution() / m_JackTransportPos.beat_type * 4 );
 
 	long barTicks = 0;
 	float fAdditionalTicks = 0;
 	float fNumberOfBarsPassed = 0;
-	if ( pSong->get_mode() == Song::SONG_MODE ) {
+	if ( pSong->getMode() == Song::SONG_MODE ) {
  
 		if ( Preferences::get_instance()->m_JackBBTSync ==
 			 Preferences::JackBBTSyncMethod::identicalBars ) {
@@ -314,7 +314,7 @@ void JackAudioDriver::relocateUsingBBT()
 					Preferences::JackBBTSyncMethod::constMeasure ) {
 			// Length of a pattern * fBarConversion provides the number of
 			// bars in Jack's point of view a Hydrogen pattern does cover.
-			float fBarConversion = pSong->__resolution * 4 *
+			float fBarConversion = pSong->getResolution() * 4 *
 				m_JackTransportPos.beats_per_bar /
 				m_JackTransportPos.beat_type;
 			float fNextIncrement = 0;
@@ -325,7 +325,7 @@ void JackAudioDriver::relocateUsingBBT()
 
 			// Checking how many of Hydrogen's patterns are covered by the
 			// bar provided by Jack.
-			auto pPatternGroup = pSong->get_pattern_group_vector();
+			auto pPatternGroup = pSong->getPatternGroupVector();
 			for ( const PatternList* ppPatternList : *pPatternGroup ) {
 				nMinimumPatternLength = nLargeNumber;
 
@@ -387,7 +387,7 @@ void JackAudioDriver::relocateUsingBBT()
 		( m_JackTransportPos.beat - 1 ) * fTicksPerBeat +
 		m_JackTransportPos.tick * ( fTicksPerBeat / m_JackTransportPos.ticks_per_beat );
 
-	float fNewTickSize = AudioEngine::compute_tick_size( getSampleRate(), m_JackTransportPos.beats_per_minute, pSong->__resolution );
+	float fNewTickSize = AudioEngine::compute_tick_size( getSampleRate(), m_JackTransportPos.beats_per_minute, pSong->getResolution() );
 
 	if ( fNewTickSize == 0 ) {
 		ERRORLOG(QString("Improper tick size [%1] for tick [%2]" )
@@ -407,7 +407,7 @@ void JackAudioDriver::relocateUsingBBT()
 	float fBPM = static_cast<float>(m_JackTransportPos.beats_per_minute);
 	if ( m_transport.m_fBPM != fBPM ) {
 		setBpm( fBPM );
-		pHydrogen->getSong()->__bpm = fBPM;
+		pHydrogen->getSong()->setBpm( fBPM );
 		pHydrogen->setNewBpmJTM( fBPM );
 	}
 }
@@ -883,7 +883,7 @@ int JackAudioDriver::init( unsigned bufferSize )
 	Song* pSong = pHydrogen->getSong();
 	if ( pSong != nullptr ) {
 		makeTrackOutputs( pSong );
-		setBpm( pSong->__bpm );
+		setBpm( pSong->getBpm() );
 		locate( 0 );
 	}
 	
@@ -896,7 +896,7 @@ void JackAudioDriver::makeTrackOutputs( Song* pSong )
 		return;
 	}
 
-	InstrumentList* pInstrumentList = pSong->get_instrument_list();
+	InstrumentList* pInstrumentList = pSong->getInstrumentList();
 	Instrument* pInstrument;
 	int nInstruments = static_cast<int>(pInstrumentList->size());
 
@@ -965,7 +965,7 @@ void JackAudioDriver::setTrackOutput( int n, Instrument* pInstrument, Instrument
 	}
 
 	// Now that we're sure there is an n'th port, rename it.
-	DrumkitComponent* pDrumkitComponent = pSong->get_component( pInstrumentComponent->get_drumkit_componentID() );
+	DrumkitComponent* pDrumkitComponent = pSong->getComponent( pInstrumentComponent->get_drumkit_componentID() );
 	sComponentName = QString( "Track_%1_%2_%3_" ).arg( n + 1 )
 		.arg( pInstrument->get_name() ).arg( pDrumkitComponent->get_name() );
 
@@ -1024,7 +1024,15 @@ void JackAudioDriver::locate( unsigned long frame )
 
 void JackAudioDriver::setBpm( float fBPM )
 {
-	if ( fBPM >= 1 ) {
+	if ( fBPM > MAX_BPM ) {
+		m_transport.m_fBPM = MAX_BPM;
+		ERRORLOG( QString( "Provided bpm %1 is too high. Assigning upper bound %2 instead" )
+					.arg( fBPM ).arg( MAX_BPM ) );
+	} else if ( fBPM < MIN_BPM ) {
+		m_transport.m_fBPM = fBPM;
+		ERRORLOG( QString( "Provided bpm %1 is too low. Assigning lower bound %2 instead" )
+					.arg( fBPM ).arg( MIN_BPM ) );
+	} else {
 		m_transport.m_fBPM = fBPM;
 	}
 }
@@ -1098,13 +1106,13 @@ void JackAudioDriver::jack_session_callback_impl(jack_session_event_t* event)
 		/* Song Mode */
 	} else {
 		/* Valid Song is needed */
-		if ( pSong->get_filename().isEmpty() ) {
-			pSong->set_filename( Filesystem::untitled_song_file_name() );
+		if ( pSong->getFilename().isEmpty() ) {
+			pSong->setFilename( Filesystem::untitled_song_file_name() );
 		}
 
-		QString sFileName = baseName( pSong->get_filename() );
+		QString sFileName = baseName( pSong->getFilename() );
 		sFileName.replace( QString(" "), QString("_") );
-		pSong->set_filename( sJackSessionDirectory + sFileName);
+		pSong->setFilename( sJackSessionDirectory + sFileName);
 
 		/* SongReader will look into SESSION DIR anyway */
 		sRetval += " -s \"" + sFileName + "\"";
@@ -1265,7 +1273,7 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
 	pJackPosition->valid = JackPositionBBT;
 	// Time signature "numerator"
 	pJackPosition->beats_per_bar = 
-		(static_cast<float>(ticksPerBar) /  static_cast<float>(pSong->__resolution));
+		(static_cast<float>(ticksPerBar) /  static_cast<float>(pSong->getResolution()));
 	// Time signature "denominator"
 	pJackPosition->beat_type = 4.0;
 	

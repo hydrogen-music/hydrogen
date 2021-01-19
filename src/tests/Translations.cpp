@@ -48,8 +48,8 @@ public:
 
 		// Language selection order test, issue #929
 
-		// Regional English, French, or Brazilian Portugese. We should
-		// find an English translation, *not* Brazillian. This covers
+		// Regional English, French, or Brazilian Portuguese. We should
+		// find an English translation, *not* Brazilian. This covers
 		// non-preferred languages matching just because they have the
 		// more exact match.
 		{

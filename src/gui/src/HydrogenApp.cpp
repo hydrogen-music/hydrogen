@@ -117,6 +117,9 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 
 	m_pPlaylistDialog = new PlaylistDialog( nullptr );
 	m_pDirector = new Director( nullptr );
+
+	// Initially keyboard cursor is hidden.
+	m_bHideKeyboardCursor = true;
 	
 	// Since HydrogenApp does implement some handler functions for
 	// Events as well, it should be registered as an Eventlistener
@@ -413,13 +416,13 @@ void HydrogenApp::updateWindowTitle()
 	QString title;
 
 	// special handling for initial title
-	QString qsSongName( pSong->__name );
+	QString qsSongName( pSong->getName() );
 
-	if( qsSongName == "Untitled Song" && !pSong->get_filename().isEmpty() ){
-		qsSongName = pSong->get_filename().section( '/', -1 );
+	if( qsSongName == "Untitled Song" && !pSong->getFilename().isEmpty() ){
+		qsSongName = pSong->getFilename().section( '/', -1 );
 	}
 
-	if(pSong->get_is_modified()){
+	if(pSong->getIsModified()){
 		title = qsSongName + " (" + QString(tr("modified")) + ")";
 	} else {
 		title = qsSongName;
@@ -800,7 +803,7 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		// This behavior is prohibited under session management. Only
 		// songs open during normal runs will be listed.
 		if ( ! pHydrogen->isUnderSessionManagement() ) {
-			Preferences::get_instance()->insertRecentFile( pNextSong->get_filename() );
+			Preferences::get_instance()->insertRecentFile( pNextSong->getFilename() );
 		}
 
 		// Update GUI components
@@ -825,7 +828,7 @@ void HydrogenApp::updateSongEvent( int nValue ) {
 		
 	} else if ( nValue == 2 ) {
 		
-		QString filename = pHydrogen->getSong()->get_filename();
+		QString filename = pHydrogen->getSong()->getFilename();
 		
 		// Song was saved.
 		setScrollStatusBarMessage( tr("Song saved.") + QString(" Into: ") + filename, 2000 );

@@ -274,7 +274,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_pIsStopNoteCheckBox = new QCheckBox ( tr( "" ), m_pInstrumentProp );
 	m_pIsStopNoteCheckBox->move( 63, 138 );
-	m_pIsStopNoteCheckBox->setToolTip( tr( "Stop the current playing instrument-note before trigger the next note sample." ) );
+	m_pIsStopNoteCheckBox->setToolTip( tr( "Stop the current playing instrument-note before trigger the next note sample" ) );
 	m_pIsStopNoteCheckBox->setFocusPolicy ( Qt::NoFocus );
 	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
 
@@ -504,7 +504,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	popCompo = new QMenu( this );
 	itemsCompo.clear();
 
-	std::vector<DrumkitComponent*>* pComponentList = Hydrogen::get_instance()->getSong()->get_components();
+	std::vector<DrumkitComponent*>* pComponentList = Hydrogen::get_instance()->getSong()->getComponents();
 	for (std::vector<DrumkitComponent*>::iterator it = pComponentList->begin() ; it != pComponentList->end(); ++it) {
 		DrumkitComponent* pComponent = *it;
 		if( !itemsCompo.contains( pComponent->get_name() ) ) {
@@ -550,7 +550,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	Song *pSong = pEngine->getSong();
 	
 	if ( pSong != nullptr ) {
-		InstrumentList *pInstrList = pSong->get_instrument_list();
+		InstrumentList *pInstrList = pSong->getInstrumentList();
 		int nInstr = pEngine->getSelectedInstrumentNumber();
 		if ( nInstr >= pInstrList->size() ) {
 			nInstr = -1;
@@ -652,8 +652,8 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_sampleSelectionAlg->select( m_pInstrument->sample_selection_alg(), false);
 
 		itemsCompo.clear();
-		std::vector<DrumkitComponent*>* compoList = pSong->get_components();
-		for (auto& it : *pSong->get_components() ) {
+		std::vector<DrumkitComponent*>* compoList = pSong->getComponents();
+		for (auto& it : *pSong->getComponents() ) {
 			DrumkitComponent* pDrumkitComponent = it;
 			if( !itemsCompo.contains( pDrumkitComponent->get_name() ) ) {
 				itemsCompo.append( pDrumkitComponent->get_name() );
@@ -678,7 +678,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			m_nSelectedComponent = compoList->front()->get_id();
 		}
 
-		DrumkitComponent* pTmpComponent = pSong->get_component( m_nSelectedComponent );
+		DrumkitComponent* pTmpComponent = pSong->getComponent( m_nSelectedComponent );
 
 		assert(pTmpComponent);
 
@@ -976,7 +976,7 @@ void InstrumentEditor::loadLayer()
 
 			AudioEngine::get_instance()->lock( RIGHT_HERE );
 			Song *pSong = pEngine->getSong();
-			InstrumentList *pInstrList = pSong->get_instrument_list();
+			InstrumentList *pInstrList = pSong->getInstrumentList();
 			pInstr = pInstrList->get( pEngine->getSelectedInstrumentNumber() );
 
 			/*
@@ -1056,7 +1056,7 @@ void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
 {
 	UNUSED( pRef );
 
-	DrumkitComponent* pComponent = Hydrogen::get_instance()->getSong()->get_component( m_nSelectedComponent );
+	DrumkitComponent* pComponent = Hydrogen::get_instance()->getSong()->getComponent( m_nSelectedComponent );
 
 	QString sOldName = pComponent->get_name();
 	bool bIsOkPressed;
@@ -1264,7 +1264,7 @@ void InstrumentEditor::update()
 int InstrumentEditor::findFreeDrumkitComponentId( int startingPoint )
 {
 	bool bFoundFreeSlot = true;
-	std::vector<DrumkitComponent*>* pDrumkitComponentList = Hydrogen::get_instance()->getSong()->get_components();
+	std::vector<DrumkitComponent*>* pDrumkitComponentList = Hydrogen::get_instance()->getSong()->getComponents();
 	for (std::vector<DrumkitComponent*>::iterator it = pDrumkitComponentList->begin() ; it != pDrumkitComponentList->end(); ++it) {
 		DrumkitComponent* pDrumkitComponent = *it;
 		if( pDrumkitComponent->get_id() == startingPoint ) {
@@ -1292,7 +1292,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 			QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
 			if ( bIsOkPressed  ) {
 				DrumkitComponent* pDrumkitComponent = new DrumkitComponent( findFreeDrumkitComponentId(), sNewName );
-				pEngine->getSong()->get_components()->push_back( pDrumkitComponent );
+				pEngine->getSong()->getComponents()->push_back( pDrumkitComponent );
 
 				//InstrumentComponent* instrument_component = new InstrumentComponent( dm_component->get_id() );
 				//instrument_component->set_gain( 1.0f );
@@ -1316,15 +1316,15 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		}
 	}
 	else if( sSelectedAction.compare("delete") == 0 ) {
-		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->get_components();
+		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->getComponents();
 
 		if(pDrumkitComponents->size() == 1){
 			return;
 		}
 
-		DrumkitComponent* pDrumkitComponent = pEngine->getSong()->get_component( m_nSelectedComponent );
+		DrumkitComponent* pDrumkitComponent = pEngine->getSong()->getComponent( m_nSelectedComponent );
 
-		InstrumentList* pInstruments = pEngine->getSong()->get_instrument_list();
+		InstrumentList* pInstruments = pEngine->getSong()->getInstrumentList();
 		for ( int n = ( int )pInstruments->size() - 1; n >= 0; n-- ) {
 			Instrument* pInstrument = pInstruments->get( n );
 			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {
@@ -1361,7 +1361,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 	}
 	else {
 		m_nSelectedComponent = -1;
-		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->get_components();
+		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->getComponents();
 		for (std::vector<DrumkitComponent*>::iterator it = pDrumkitComponents->begin() ; it != pDrumkitComponents->end(); ++it) {
 			DrumkitComponent* pDrumkitComponent = *it;
 			if( pDrumkitComponent->get_name().compare( sSelectedAction ) == 0) {
@@ -1408,7 +1408,7 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 	Song *song = pEngine->getSong();
 	assert(song);
 	if(song){
-		InstrumentList *pSongInstrList = song->get_instrument_list();
+		InstrumentList *pSongInstrList = song->getInstrumentList();
 		assert(pSongInstrList);
 		for ( unsigned nInstr = 0; nInstr < pSongInstrList->size(); ++nInstr ) {
 			Instrument *pInstr = pSongInstrList->get( nInstr );

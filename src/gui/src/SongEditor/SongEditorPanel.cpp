@@ -55,7 +55,6 @@ const char* SongEditorPanel::__class_name = "SongEditorPanel";
 SongEditorPanel::SongEditorPanel(QWidget *pParent)
  : QWidget( pParent )
  , Object( __class_name )
- , m_actionMode( DRAW_ACTION )
 {
 	m_nInitialWidth = 600;
 	m_nInitialHeight = 250;
@@ -73,6 +72,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	pBackPanel->setPixmap( "/songEditor/bg_topPanel.png" );
 
 	// time line toggle button
+	m_sTimelineToolTip = tr( "Enable time line edit");
 	m_pTimeLineToggleBtn = new ToggleButton(
 			pBackPanel,
 			"/songEditor/btn_bpm_on.png",
@@ -81,7 +81,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize( 54, 13 )
 	);
 	m_pTimeLineToggleBtn->move( 133, 6 );
-	m_pTimeLineToggleBtn->setToolTip( tr( "Enable time line edit") );
+	m_pTimeLineToggleBtn->setToolTip( m_sTimelineToolTip );
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
 	
 	if ( pPref->getUseTimelineBpm() &&
@@ -225,7 +225,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pPlaybackTrackFader->move( 6, 2 );
 	m_pPlaybackTrackFader->setMinValue( 0.0 );
 	m_pPlaybackTrackFader->setMaxValue( 1.5 );
-	m_pPlaybackTrackFader->setValue( pSong->get_playback_track_volume() );
+	m_pPlaybackTrackFader->setValue( pSong->getPlaybackTrackVolume() );
 	m_pPlaybackTrackFader->hide();
 	connect( m_pPlaybackTrackFader, SIGNAL( valueChanged(Fader*) ), this, SLOT( faderChanged(Fader*) ) );
 
@@ -241,7 +241,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pMutePlaybackToggleBtn->move( 151, 6 );
 	m_pMutePlaybackToggleBtn->hide();
 	connect( m_pMutePlaybackToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( mutePlaybackTrackBtnPressed(Button* ) ) );
-	m_pMutePlaybackToggleBtn->setPressed( !pSong->get_playback_track_enabled() );
+	m_pMutePlaybackToggleBtn->setPressed( !pSong->getPlaybackTrackEnabled() );
 	
 	// edit playback track toggle button
 	m_pEditPlaybackBtn = new Button(
@@ -397,6 +397,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
 
+	setActionMode( SELECT_ACTION );
+
 	show();
 
 	updateAll();
@@ -424,7 +426,7 @@ void SongEditorPanel::updatePlayHeadPosition()
 {
 	Song *pSong = Hydrogen::get_instance()->getSong();
 
-	if ( Preferences::get_instance()->m_bFollowPlayhead && pSong->get_mode() == Song::SONG_MODE) {
+	if ( Preferences::get_instance()->m_bFollowPlayhead && pSong->getMode() == Song::SONG_MODE) {
 		if ( Hydrogen::get_instance()->getState() != STATE_PLAYING ) {
 			return;
 		}
@@ -531,7 +533,7 @@ void SongEditorPanel::updateAll()
 	updatePositionRuler();
 	updateTimelineUsage();
 
- 	m_pAutomationPathView->setAutomationPath( pSong->get_velocity_automation_path() );
+ 	m_pAutomationPathView->setAutomationPath( pSong->getVelocityAutomationPath() );
 
 	resyncExternalScrollBar();
 }
@@ -558,7 +560,7 @@ void SongEditorPanel::newPatBtnClicked( Button* btn )
 	UNUSED( btn );
 	Hydrogen	*pEngine = Hydrogen::get_instance();
 	Song		*pSong = pEngine->getSong();
-	PatternList *pPatternList = pSong->get_pattern_list();
+	PatternList *pPatternList = pSong->getPatternList();
 	Pattern		*pNewPattern = new Pattern( tr("Pattern %1").arg(pPatternList->size()+1));
 	PatternPropertiesDialog *pDialog = new PatternPropertiesDialog( this, pNewPattern, 0, true );
 
@@ -577,11 +579,11 @@ void SongEditorPanel::insertPattern( int idx, Pattern* pPattern )
 {
 	Hydrogen	*pEngine = Hydrogen::get_instance();
 	Song		*pSong = pEngine->getSong();
-	PatternList *pPatternList = pSong->get_pattern_list();
+	PatternList *pPatternList = pSong->getPatternList();
 
 	pPatternList->insert( idx, pPattern );
 	pEngine->setSelectedPatternNumber( idx );
-	pSong->set_is_modified( true );
+	pSong->setIsModified( true );
 	updateAll();
 }
 
@@ -589,7 +591,7 @@ void SongEditorPanel::deletePattern( int idx )
 {
 	Hydrogen	*pEngine = Hydrogen::get_instance();
 	Song		*pSong = 	pEngine->getSong();
-	PatternList *pPatternList = pSong->get_pattern_list();
+	PatternList *pPatternList = pSong->getPatternList();
 	H2Core::Pattern *pPattern = pPatternList->get( idx );
 	
 	if( idx == 	pEngine->getSelectedPatternNumber() ) {
@@ -598,7 +600,7 @@ void SongEditorPanel::deletePattern( int idx )
 	
 	pPatternList->del( pPattern );
 	delete pPattern;
-	pSong->set_is_modified( true );
+	pSong->setIsModified( true );
 	updateAll();
 }
 
@@ -627,7 +629,7 @@ void SongEditorPanel::downBtnClicked( Button* btn )
 	UNUSED( btn );
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
-	PatternList *pPatternList = pSong->get_pattern_list();
+	PatternList *pPatternList = pSong->getPatternList();
 
 	if( pEngine->getSelectedPatternNumber() +1 >=  pPatternList->size() ) { 
 		return;
@@ -662,7 +664,7 @@ void SongEditorPanel::clearSequence( Button* btn)
 void SongEditorPanel::restoreGroupVector( QString filename )
 {
 	//clear the old sequese
-	std::vector<PatternList*> *pPatternGroupsVect = Hydrogen::get_instance()->getSong()->get_pattern_group_vector();
+	std::vector<PatternList*> *pPatternGroupsVect = Hydrogen::get_instance()->getSong()->getPatternGroupVector();
 	for (uint i = 0; i < pPatternGroupsVect->size(); i++) {
 		PatternList *pPatternList = (*pPatternGroupsVect)[i];
 		pPatternList->clear();
@@ -704,37 +706,36 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 	resyncExternalScrollBar();
 }
 
-void SongEditorPanel::pointerActionBtnPressed( Button* pBtn )
-{
-	pBtn->setPressed( true );
-	m_pDrawActionBtn->setPressed( false );
-	m_actionMode = SELECT_ACTION;
+void SongEditorPanel::setActionMode( SongEditorActionMode actionMode ) {
+	m_actionMode = actionMode;
+	m_pDrawActionBtn->setPressed( actionMode == DRAW_ACTION );
+	m_pPointerActionBtn->setPressed( actionMode == SELECT_ACTION );
 }
 
-
+void SongEditorPanel::pointerActionBtnPressed( Button* pBtn )
+{
+	setActionMode( SELECT_ACTION );
+}
 
 void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 {
-	pBtn->setPressed( true );
-	m_pPointerActionBtn->setPressed( false );
-	m_actionMode = DRAW_ACTION;
+	setActionMode( DRAW_ACTION );
 }
 
 void SongEditorPanel::updateTimelineUsage() {
 
 	auto pHydrogen = Hydrogen::get_instance();
-	
+	QString sTBMToolTip( tr( "In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen" ) );
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-		m_pTimeLineToggleBtn->setToolTip( tr( "Timeline usage is disabled in the presence of an external JACK timebase master") );
+		m_pTimeLineToggleBtn->setToolTip( sTBMToolTip );
 		m_pTimeLineToggleBtn->setPressed( false );
 		m_pTimeLineToggleBtn->setDisabled( true );
 		Preferences::get_instance()->setUseTimelineBpm( false );
 		m_pPositionRuler->createBackground();
 		return;
-	} else if ( m_pTimeLineToggleBtn->toolTip() == 
-				tr( "Timeline usage is disabled in the presence of an external JACK timebase master") ) {
+	} else {
 		// No external timebase master present anymore.
-		m_pTimeLineToggleBtn->setToolTip( tr( "Enable time line edit") );
+		m_pTimeLineToggleBtn->setToolTip( m_sTimelineToolTip );
 		m_pTimeLineToggleBtn->setDisabled( false );
 	}
 	
@@ -906,7 +907,7 @@ void SongEditorPanel::faderChanged(Fader *pFader)
 	Song*		pSong = pHydrogen->getSong();
 	
 	if( pSong ){
-		pSong->set_playback_track_volume( pFader->getValue() );
+		pSong->setPlaybackTrackVolume( pFader->getValue() );
 	}
 }
 
@@ -922,7 +923,7 @@ void SongEditorPanel::automationPathChanged()
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	Song *pSong = pEngine->getSong();
-	pSong->set_is_modified(true);
+	pSong->setIsModified(true);
 }
 
 

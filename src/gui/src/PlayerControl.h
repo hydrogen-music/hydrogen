@@ -163,6 +163,9 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		ToggleButton *m_pLiveModeBtn;
 
 		//beatcounter
+		/** Store the tool tip of the beat counter since it gets
+			overwritten during deactivation.*/
+		QString m_sBConoffBtnToolTip;
 		ToggleButton *m_pBConoffBtn;
 		ToggleButton *m_pBCSpaceBtn;
 		ToggleButton *m_pBCSetPlayBtn;
