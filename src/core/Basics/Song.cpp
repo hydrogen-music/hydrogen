@@ -87,8 +87,6 @@ Song::Song( const QString& name, const QString& author, float bpm, float volume 
 	, __playback_track_enabled( false )
 	, __playback_track_volume( 0.0 )
 	, __velocity_automation_path( nullptr )
-	//, m_nPanLawIdx( RATIO_STRAIGHT_POLYGONAL )
-	//, m_fPanLawKNorm( K_NORM_DEFAULT )
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( __name ) );
 
@@ -169,7 +167,6 @@ Song* Song::get_default_song()
 	pSong->set_humanize_time_value( 0.0 );
 	pSong->set_humanize_velocity_value( 0.0 );
 	pSong->set_swing_factor( 0.0 );
-//	pSong->setPanLawIdx( RATIO_STRAIGHT_POLYGONAL );
 
 	InstrumentList* pInstrList = new InstrumentList();
 	Instrument* pNewInstr = new Instrument( EMPTY_INSTR_ID, "New instrument" );

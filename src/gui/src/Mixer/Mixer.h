@@ -26,6 +26,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+
 #include <core/Object.h>
 #include <core/Globals.h>
 #include "../EventListener.h"
@@ -106,6 +107,7 @@ class Mixer : public QWidget, public EventListener, public H2Core::Object
 		//~ Implements EventListener interface
 
 };
+
 
 
 #endif

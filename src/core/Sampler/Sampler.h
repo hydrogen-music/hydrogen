@@ -154,8 +154,9 @@ public:
 	static float polarConstKNormPanLaw( float fPan, float k );
 	static float ratioConstKNormPanLaw( float fPan, float k );
 	static float quadraticConstKNormPanLaw( float fPan, float k );
-	int getPanLawType();
+
 	void setPanLawType( int nPanLawType );
+	int getPanLawType() const;
 	void setPanLawKNorm( float fKNorm );
 	float getPanLawKNorm() const;
 
@@ -178,9 +179,7 @@ private:
 	int m_nMaxLayers;
 	
 	int m_nPlayBackSamplePosition;
-	
-	// points the pan law function
-	//float (*m_pPanLaw)( float ); // TODO change to method panLaw(pan)
+
 	int m_nPanLawType;
 	float panLaw( float fPan );
 
@@ -225,14 +224,13 @@ private:
 		float fLayerPitch,
 		Song* pSong
 	);
-
 };
 
 inline void Sampler::setPanLawType( int nPanLawType ) {
 	m_nPanLawType = nPanLawType;
 }
 
-inline int Sampler::getPanLawType() {
+inline int Sampler::getPanLawType() const {
 	return m_nPanLawType;
 } 
 
