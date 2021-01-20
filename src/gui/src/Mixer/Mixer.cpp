@@ -114,9 +114,9 @@ Mixer::Mixer( QWidget* pParent )
 			"/mixerPanel/openMixerSettings_over.png",
 			"/mixerPanel/openMixerSettings_off.png",
 			"/mixerPanel/openMixerSettings_over.png",
-			QSize(15, 15)
+			QSize(17, 17)
 	);
-	m_pOpenMixerSettingsBtn->move( 96, 8 );
+	m_pOpenMixerSettingsBtn->move( 96, 6 );
 	m_pOpenMixerSettingsBtn->setToolTip( tr( "Mixer Settings" ) );
 	connect( m_pOpenMixerSettingsBtn, SIGNAL( clicked( Button* ) ), this, SLOT( openMixerSettingsDialog( Button* ) ) );
 
