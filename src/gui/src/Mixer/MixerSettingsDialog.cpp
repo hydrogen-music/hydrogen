@@ -98,6 +98,9 @@ MixerSettingsDialog::MixerSettingsDialog(QWidget* parent)
 
 	panLawComboBox->setCurrentIndex( panLawComboBox->findData( pSampler->getPanLawType() ) );
 	panLawChanged(); // to hide dB SPL compensation
+	panLawComboBox->setToolTip( tr("Relationship between the sound's apparent image position and the pan knob control"
+								 																					) );
+
 	connect(panLawComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT( panLawChanged() ));
 	
 	/** dB SPL Center Compensation, audio engineers friendly.
