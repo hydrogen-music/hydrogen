@@ -317,7 +317,7 @@ class SongEditorPositionRuler : public QWidget, public H2Core::Object
 		const int m_nMargin = 10;
 
 		QPixmap *			m_pBackgroundPixmap;
-		QPixmap				m_tickPositionPixmap;
+		QPainterPath		m_tickPositionPath;
 		bool				m_bRightBtnPressed;
 		
 		virtual void mouseMoveEvent(QMouseEvent *ev);

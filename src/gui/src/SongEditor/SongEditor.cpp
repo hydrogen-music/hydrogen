@@ -824,9 +824,9 @@ void SongEditor::paintEvent( QPaintEvent *ev )
 			// nessun pattern, uso la grandezza di default
 			fPos += (float)pHydrogen->getTickPosition() / (float)MAX_NOTES;
 		}
-		uint x = (int)( m_nMargin + fPos * m_nGridWidth - 11 / 2 );
+		uint x = (int)( m_nMargin + fPos * m_nGridWidth );
 		painter.setPen( QColor(35, 39, 51) );
-		painter.drawLine( x + 5 , 0, x + 5 , height() );
+		painter.drawLine( x, 0, x, height() );
 
 		// Update the position ruler to redraw the cursor there as well.
 		// Without this they can get separated from each other if e.g. user
@@ -2116,11 +2116,11 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 
 	createBackground();	// create m_backgroundPixmap pixmap
 
-	// create tick position pixmap
-	bool ok = m_tickPositionPixmap.load( Skin::getImagePath() + "/patternEditor/tickPosition.png" );
-	if( ok == false ){
-		ERRORLOG( "Error loading pixmap" );
-	}
+	// Create tick position QPainterPath
+	m_tickPositionPath = QPainterPath( QPointF( 0, 6 ) );
+	m_tickPositionPath.lineTo( -4, 2 );
+	m_tickPositionPath.lineTo( 4, 2 );
+	m_tickPositionPath.closeSubpath();
 
 	update();
 
@@ -2360,10 +2360,13 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	painter.drawPixmap( ev->rect(), *m_pBackgroundPixmap, srcRect );
 
 	if (fPos != -1) {
-		uint x = (int)( m_nMargin + fPos * m_nGridWidth - 11 / 2 );
+		uint x = (int)( m_nMargin + fPos * m_nGridWidth );
 		painter.setPen( QColor(35, 39, 51) );
-		painter.drawLine( x + 5 , 0, x + 5 , height() );
-		painter.drawPixmap( QRect( x, height() / 2, 11, 8), m_tickPositionPixmap, QRect(0, 0, 11, 8) );
+		painter.drawLine( x, 0, x, height() );
+		painter.translate( x, height() / 2 );
+		painter.fillPath( m_tickPositionPath, Qt::black );
+		painter.drawPath( m_tickPositionPath );
+		painter.resetTransform();
 	}
 
 	if ( pIPos <= pOPos ) {
