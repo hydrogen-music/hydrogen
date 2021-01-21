@@ -1332,8 +1332,8 @@ void JackAudioDriver::printState() const {
 	
 	printJackTransportPos( &m_JackTransportPos );
 	
-	std::cout << "\033[35m[Hydrogen] JackAudioDriver state: "
-			  << ", m_transport.m_nFrames: " << m_transport.m_nFrames
+	std::cout << "\033[35m[Hydrogen] [JackAudioDriver state]"
+			  << " m_transport.m_nFrames: " << m_transport.m_nFrames
 			  << ", m_transport.m_fBPM: " << m_transport.m_fBPM
 			  << ", m_transport.m_fTickSize: " << m_transport.m_fTickSize
 			  << ", m_transport.m_status: " << m_transport.m_status
@@ -1347,11 +1347,11 @@ void JackAudioDriver::printState() const {
 
 
 void JackAudioDriver::printJackTransportPos( const jack_position_t* pPos ) {
-	std::cout << "\033[36m[Hydrogen] JackTransportPosition: "
-			  << ", frame: " << pPos->frame 
+	std::cout << "\033[36m[Hydrogen] [JACK transport]"
+			  << " frame: " << pPos->frame
 			  << ", frame_rate: " << pPos->frame_rate
-			  << ", valid: " << pPos->valid
-			  << ", bar: " << pPos->bar
+			  << std::hex << ", valid: 0x" << pPos->valid
+			  << std::dec << ", bar: " << pPos->bar
 			  << ", beat: " << pPos->beat
 			  << ", tick: " << pPos->tick
 			  << ", bar_start_tick: " << pPos->bar_start_tick

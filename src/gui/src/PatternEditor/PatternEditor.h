@@ -124,9 +124,9 @@ public slots:
 	virtual void selectAll() = 0;
 	virtual void selectNone();
 	virtual void deleteSelection() = 0;
-	virtual void copy() = 0;
+	virtual void copy();
 	virtual void paste() = 0;
-	virtual void cut() = 0;
+	virtual void cut();
 	virtual void selectInstrumentNotes( int nInstrument );
 
 

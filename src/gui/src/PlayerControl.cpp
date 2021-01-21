@@ -233,6 +233,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	pControlsBBTBConoffPanel->setPixmap( "/playerControlPanel/onoff.png" );
 	hbox->addWidget( pControlsBBTBConoffPanel );
 
+	m_sBConoffBtnToolTip = tr("BeatCounter Panel on");
 	m_pBConoffBtn = new ToggleButton(
 			pControlsBBTBConoffPanel,
 			"/playerControlPanel/bc_on.png",
@@ -242,7 +243,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	);
 	m_pBConoffBtn->move(1, 1);
 	m_pBConoffBtn->setPressed(false);
-	m_pBConoffBtn->setToolTip( tr("BeatCounter Panel on") );
+	m_pBConoffBtn->setToolTip( m_sBConoffBtnToolTip );
 	connect(m_pBConoffBtn, SIGNAL(clicked(Button*)), this, SLOT(bconoffBtnClicked(Button*)));
 //~  BC on off
 
@@ -588,7 +589,6 @@ void PlayerControl::updatePlayerControl()
 	//~ beatcounter
 
 
-#ifdef H2CORE_HAVE_JACK
 	if ( m_pEngine->haveJackAudioDriver() ) {
 		m_pJackTransportBtn->show();
 		m_pJackMasterBtn->show();
@@ -607,6 +607,31 @@ void PlayerControl::updatePlayerControl()
 				} else {
 					m_pJackMasterBtn->setPressed( false );
 				}
+
+				if ( m_pEngine->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
+					QString sTBMToolTip( tr( "In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen" ) );
+					m_pBConoffBtn->setPressed( false );
+					m_pBConoffBtn->setDisabled( true );
+					m_pBConoffBtn->setToolTip( sTBMToolTip );
+					m_pControlsBCPanel->hide();
+					pPref->m_bbc = Preferences::BC_OFF;
+					m_pLCDBPMSpinbox->setDisabled( true );
+					m_pLCDBPMSpinbox->setToolTip( sTBMToolTip );
+					m_pBPMUpBtn->setDisabled( true );
+					m_pBPMUpBtn->setToolTip( sTBMToolTip );
+					m_pBPMDownBtn->setDisabled( true );
+					m_pBPMDownBtn->setToolTip( sTBMToolTip );
+					
+				} else {
+					m_pBConoffBtn->setDisabled( false );
+					m_pBConoffBtn->setToolTip( m_sBConoffBtnToolTip );
+					m_pLCDBPMSpinbox->setDisabled( false );
+					m_pBConoffBtn->setToolTip( "" );
+					m_pBPMUpBtn->setDisabled( false );
+					m_pBConoffBtn->setToolTip( "" );
+					m_pBPMDownBtn->setDisabled( false );
+					m_pBConoffBtn->setToolTip( "" );
+				}
 				
 				break;
 		}
@@ -616,7 +641,6 @@ void PlayerControl::updatePlayerControl()
 		m_pJackTransportBtn->hide();
 		m_pJackMasterBtn->hide();
 	}
-#endif
 
 	// time
 	float fSeconds = AudioEngine::get_instance()->getElapsedTime();

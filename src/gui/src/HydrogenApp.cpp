@@ -117,6 +117,9 @@ HydrogenApp::HydrogenApp( MainForm *pMainForm, Song *pFirstSong )
 
 	m_pPlaylistDialog = new PlaylistDialog( nullptr );
 	m_pDirector = new Director( nullptr );
+
+	// Initially keyboard cursor is hidden.
+	m_bHideKeyboardCursor = true;
 	
 	// Since HydrogenApp does implement some handler functions for
 	// Events as well, it should be registered as an Eventlistener

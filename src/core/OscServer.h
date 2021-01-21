@@ -77,6 +77,11 @@ namespace H2Core
 * true. H2Core::Preferences::m_nOscServerPort contains the port number
 * the OSC server will be started at.
 *
+* Please note that the way generic_handler() is implemented, the
+* additional registration of commands without argument to require a
+* float input, and the usage of float arguments instead of int are all
+* because of the limitations of TouchOSC.
+*
 * @author Sebastian Moors
 *
 */

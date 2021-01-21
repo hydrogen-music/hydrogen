@@ -72,6 +72,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	pBackPanel->setPixmap( "/songEditor/bg_topPanel.png" );
 
 	// time line toggle button
+	m_sTimelineToolTip = tr( "Enable time line edit");
 	m_pTimeLineToggleBtn = new ToggleButton(
 			pBackPanel,
 			"/songEditor/btn_bpm_on.png",
@@ -80,7 +81,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 			QSize( 54, 13 )
 	);
 	m_pTimeLineToggleBtn->move( 133, 6 );
-	m_pTimeLineToggleBtn->setToolTip( tr( "Enable time line edit") );
+	m_pTimeLineToggleBtn->setToolTip( m_sTimelineToolTip );
 	connect( m_pTimeLineToggleBtn, SIGNAL( clicked( Button* ) ), this, SLOT( timeLineBtnPressed(Button* ) ) );
 	
 	if ( pPref->getUseTimelineBpm() &&
@@ -403,6 +404,8 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
 
+	setActionMode( SELECT_ACTION );
+
 	show();
 
 	updateAll();
@@ -710,37 +713,36 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 	resyncExternalScrollBar();
 }
 
+void SongEditorPanel::setActionMode( SongEditorActionMode actionMode ) {
+	m_actionMode = actionMode;
+	m_pDrawActionBtn->setPressed( actionMode == DRAW_ACTION );
+	m_pPointerActionBtn->setPressed( actionMode == SELECT_ACTION );
+}
+
 void SongEditorPanel::pointerActionBtnPressed( Button* pBtn )
 {
-	pBtn->setPressed( true );
-	m_pDrawActionBtn->setPressed( false );
 	Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::selectMode );
 }
 
-
-
 void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 {
-	pBtn->setPressed( true );
-	m_pPointerActionBtn->setPressed( false );
 	Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::drawMode );
 }
 
 void SongEditorPanel::updateTimelineUsage() {
 
 	auto pHydrogen = Hydrogen::get_instance();
-	
+	QString sTBMToolTip( tr( "In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen" ) );
 	if ( pHydrogen->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
-		m_pTimeLineToggleBtn->setToolTip( tr( "Timeline usage is disabled in the presence of an external JACK timebase master") );
+		m_pTimeLineToggleBtn->setToolTip( sTBMToolTip );
 		m_pTimeLineToggleBtn->setPressed( false );
 		m_pTimeLineToggleBtn->setDisabled( true );
 		Preferences::get_instance()->setUseTimelineBpm( false );
 		m_pPositionRuler->createBackground();
 		return;
-	} else if ( m_pTimeLineToggleBtn->toolTip() == 
-				tr( "Timeline usage is disabled in the presence of an external JACK timebase master") ) {
+	} else {
 		// No external timebase master present anymore.
-		m_pTimeLineToggleBtn->setToolTip( tr( "Enable time line edit") );
+		m_pTimeLineToggleBtn->setToolTip( m_sTimelineToolTip );
 		m_pTimeLineToggleBtn->setDisabled( false );
 	}
 	

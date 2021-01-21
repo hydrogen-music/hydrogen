@@ -342,35 +342,32 @@ private:
 	int __nPattern;
 };
 
-class SE_movePatternCellAction : public QUndoCommand
+
+class SE_modifyPatternCellsAction : public QUndoCommand
 {
 public:
-	SE_movePatternCellAction( std::vector<QPoint> movingCells, std::vector<QPoint> selectedCells, std::vector<QPoint> existingCells, bool bIsCtrlPressed ){
-		setText( QString( "Move/copy selected cells" ) );
-		__selectedCells = selectedCells;
-		__movingCells = movingCells;
-		__existingCells = existingCells;
-		__bIsCtrlPressed = bIsCtrlPressed;
-
+	SE_modifyPatternCellsAction( std::vector< QPoint > & addCells, std::vector< QPoint > & deleteCells,
+								 std::vector< QPoint > & mergeCells, QString sText ) {
+		setText( sText );
+		m_addCells = addCells;
+		m_deleteCells = deleteCells;
+		m_mergeCells = mergeCells;
+	}
+	virtual void redo()
+	{
+		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
+			->modifyPatternCellsAction( m_addCells, m_deleteCells, m_mergeCells );
 	}
 	virtual void undo()
 	{
-		//qDebug() <<  "move/copy selected cells undo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->movePatternCellAction( __selectedCells, __movingCells, __existingCells, __bIsCtrlPressed, true );
-	}
-
-	virtual void redo()
-	{
-		//qDebug() <<  "move/copy selected cells redo";
-		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditor()->movePatternCellAction( __movingCells, __selectedCells, __existingCells, __bIsCtrlPressed, false );
+		std::vector< QPoint > selectCells;
+		HydrogenApp::get_instance()->getSongEditorPanel()->getSongEditor()
+			->modifyPatternCellsAction( m_deleteCells, m_addCells, selectCells );
 	}
 private:
-	std::vector<QPoint> __selectedCells;
-	std::vector<QPoint> __movingCells;
-	std::vector<QPoint> __existingCells;
-	bool __bIsCtrlPressed;
+	std::vector< QPoint > m_addCells;
+	std::vector< QPoint > m_deleteCells;
+	std::vector< QPoint > m_mergeCells;
 };
 
 class SE_editTimeLineAction : public QUndoCommand

@@ -308,14 +308,16 @@ void PianoRollEditor::drawPattern()
 	}
 
 	// Draw cursor
-	if ( hasFocus() && !m_pPatternEditorPanel->cursorHidden() ) {
+	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		QPoint pos = cursorPosition();
 
-		p.setPen( QColor(0,0,0) );
+		QPen pen( Qt::black );
+		pen.setWidth( 2 );
+		p.setPen( pen );
 		p.setBrush( Qt::NoBrush );
 		p.setRenderHint( QPainter::Antialiasing );
-		p.drawRoundedRect( QRect( pos.x() - m_nGridWidth*3, pos.y(),
-								  m_nGridWidth*6, m_nGridHeight ), 4, 4 );
+		p.drawRoundedRect( QRect( pos.x() - m_nGridWidth*3, pos.y()-2,
+								  m_nGridWidth*6, m_nGridHeight+3 ), 4, 4 );
 	}
 
 }
@@ -509,7 +511,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 		return;
 	}
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
-	m_pPatternEditorPanel->setCursorHidden( true );
+	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 
 	Instrument *pSelectedInstrument = nullptr;
@@ -571,7 +573,7 @@ void PianoRollEditor::mouseDragStartEvent( QMouseEvent *ev )
 	int nSelectedInstrumentnumber = pH2->getSelectedInstrumentNumber();
 	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( nSelectedInstrumentnumber );
 	m_pPatternEditorPanel->setCursorPosition( nColumn );
-	m_pPatternEditorPanel->setCursorHidden( true );
+	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 	int nPressedLine = ((int) ev->y()) / ((int) m_nGridHeight);
 
@@ -989,41 +991,6 @@ void PianoRollEditor::deleteSelection()
 	}
 }
 
-///
-/// Copy selection to clipboard in XML
-///
-void PianoRollEditor::copy()
-{
-	XMLDoc doc;
-	XMLNode root = doc.set_root( "noteSelection" );
-	XMLNode positionNode = root.createNode( "sourcePosition" );
-	XMLNode noteList = root.createNode( "noteList" );
-
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
-	int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
-	InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
-
-	positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
-	positionNode.write_int( "pitch", m_nCursorPitch );
-	positionNode.write_int( "instrument", Hydrogen::get_instance()->getSelectedInstrumentNumber() );
-
-	for ( Note *pNote : m_selection ) {
-		if ( pNote->get_instrument() == pInstrumentList->get( nSelectedInstrumentNumber ) ) {
-			XMLNode note_node = noteList.createNode( "note" );
-			pNote->save_to( &note_node );
-		}
-	}
-
-	QClipboard *clipboard = QApplication::clipboard();
-	clipboard->setText( doc.toString() );
-}
-
-void PianoRollEditor::cut()
-{
-	copy();
-	deleteSelection();
-}
-
 
 ///
 /// Paste selection
@@ -1240,7 +1207,7 @@ void PianoRollEditor::keyPressEvent( QKeyEvent * ev )
 	// Update editor
 	QPoint pos = cursorPosition();
 	if ( bUnhideCursor ) {
-		m_pPatternEditorPanel->setCursorHidden( false );
+		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 	}
 	m_pScrollView->ensureVisible( pos.x(), pos.y() );
 	m_selection.updateKeyboardCursorPosition( getKeyboardCursorRect() );
@@ -1253,7 +1220,7 @@ void PianoRollEditor::focusInEvent( QFocusEvent * ev )
 {
 	UNUSED( ev );
 	if ( ev->reason() == Qt::TabFocusReason || ev->reason() == Qt::BacktabFocusReason ) {
-		m_pPatternEditorPanel->setCursorHidden( false );
+		HydrogenApp::get_instance()->setHideKeyboardCursor( false );
 		m_pPatternEditorPanel->ensureCursorVisible();
 	}
 	updateEditor( true );
@@ -1429,6 +1396,6 @@ std::vector<PianoRollEditor::SelectionIndex> PianoRollEditor::elementsIntersecti
 ///
 QRect PianoRollEditor::getKeyboardCursorRect() {
 	QPoint pos = cursorPosition();
-	return QRect( pos.x() - m_nGridWidth*3, pos.y(),
-				  m_nGridWidth*6, m_nGridHeight );
+	return QRect( pos.x() - m_nGridWidth*3, pos.y()-2,
+				  m_nGridWidth*6, m_nGridHeight+3 );
 }

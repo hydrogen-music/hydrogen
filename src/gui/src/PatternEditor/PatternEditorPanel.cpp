@@ -75,7 +75,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	m_nCursorPosition = 0;
 	m_nCursorIncrement = 0;
-	m_bCursorHidden = pPref->hideKeyboardCursor();
 
 // Editor TOP
 	PixmapWidget *editor_top = new PixmapWidget( nullptr );
@@ -1215,16 +1214,6 @@ int PatternEditorPanel::getCursorPosition()
 {
 	return m_nCursorPosition;
 }
-
-void PatternEditorPanel::setCursorHidden( bool hidden ) {
-	m_bCursorHidden = false;
-	if ( hidden ) {
-		if ( Preferences::get_instance()->hideKeyboardCursor() ) {
-			m_bCursorHidden = true;
-		}
-	}
-}
-
 
 void PatternEditorPanel::ensureCursorVisible()
 {

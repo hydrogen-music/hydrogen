@@ -144,6 +144,10 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		ToggleButton *			m_pTagbarToggleBtn;
 		
 		Fader*					m_pPlaybackTrackFader;
+
+		/** Store the tool tip of the Timeline since it gets
+			overwritten during deactivation.*/
+		QString					m_sTimelineToolTip;
 		ToggleButton *			m_pTimeLineToggleBtn;
 		ToggleButton *			m_pPlaybackToggleBtn;
 		ToggleButton *			m_pViewTimeLineToggleBtn;
