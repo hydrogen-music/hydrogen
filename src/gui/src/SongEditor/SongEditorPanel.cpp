@@ -404,7 +404,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
 
-	setActionMode( SELECT_ACTION );
+	Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::selectMode );
 
 	show();
 
@@ -713,10 +713,17 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 	resyncExternalScrollBar();
 }
 
-void SongEditorPanel::setActionMode( SongEditorActionMode actionMode ) {
-	m_actionMode = actionMode;
-	m_pDrawActionBtn->setPressed( actionMode == DRAW_ACTION );
-	m_pPointerActionBtn->setPressed( actionMode == SELECT_ACTION );
+void SongEditorPanel::actionModeChangeEvent( int nValue ) {
+
+	if ( nValue == 0 ) {
+		m_pPointerActionBtn->setPressed( true );
+		m_pDrawActionBtn->setPressed( false );
+	} else if ( nValue == 1 ) {
+		m_pPointerActionBtn->setPressed( false );
+		m_pDrawActionBtn->setPressed( true );
+	} else {
+		ERRORLOG( QString( "Unknown EVENT_ACTION_MODE_CHANGE value" ) );
+	}
 }
 
 void SongEditorPanel::pointerActionBtnPressed( Button* pBtn )

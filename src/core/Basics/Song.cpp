@@ -148,6 +148,18 @@ void Song::setBpm( float fBpm ) {
 		m_fBpm = fBpm;
 	}
 }
+
+void Song::setActionMode( Song::ActionMode actionMode ) {
+	m_actionMode = actionMode;
+
+	if ( actionMode == Song::ActionMode::selectMode ) {
+		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE, 0 );
+	} else if ( actionMode == Song::ActionMode::drawMode ) {
+		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE, 1 );
+	} else {
+		ERRORLOG( QString( "Unknown actionMode" ) );
+	}
+}
 	
 ///Load a song from file
 Song* Song::load( const QString& sFilename )

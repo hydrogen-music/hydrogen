@@ -53,6 +53,7 @@ class EventListener
 		virtual void songModeActivationEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void loopModeActivationEvent( int nValue ){ UNUSED( nValue ); }
 		virtual void updatePreferencesEvent( int nValue ){ UNUSED( nValue ); }
+		virtual void actionModeChangeEvent( int nValue ){ UNUSED( nValue ); }
 
 		virtual ~EventListener() {}
 };

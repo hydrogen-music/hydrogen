@@ -515,9 +515,6 @@ inline void Song::setPlaybackTrackVolume( const float fVolume )
 inline Song::ActionMode Song::getActionMode() const {
 	return m_actionMode;
 }
-inline void Song::setActionMode( const Song::ActionMode actionMode ) {
-	m_actionMode = actionMode;
-}
 
 /**
 \ingroup H2CORE

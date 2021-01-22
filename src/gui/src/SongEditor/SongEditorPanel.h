@@ -79,6 +79,12 @@ class SongEditorPanel : public QWidget, public EventListener, public H2Core::Obj
 		 */
 		void updateTimelineUsage();
 		virtual void timelineActivationEvent( int nValue ) override;
+		/** Updates the associated buttons if the action mode was
+		 * changed within the core.
+		 *
+		 * \param nValue 0 - select mode and 1 - draw mode.
+		 */
+		void actionModeChangeEvent( int nValue );
 
 	private slots:
 		void vScrollTo( int value );
