@@ -153,7 +153,9 @@ enum EventType {
 	/** Activates either Pattern mode (0) or Song mode (else) of the playback.*/
 	EVENT_SONG_MODE_ACTIVATION,
 	/** Toggles the button indicating the usage loop mode.*/
-	EVENT_LOOP_MODE_ACTIVATION
+	EVENT_LOOP_MODE_ACTIVATION,
+	/** Switches between select mode (0) and draw mode (1) in the *SongEditor.*/
+	EVENT_ACTION_MODE_CHANGE
 };
 
 /** Basic building block for the communication between the core of

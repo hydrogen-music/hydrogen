@@ -77,6 +77,7 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 
 		int getGridWidth ();
 		void setGridWidth( uint width);
+		int getGridHeight () { return m_nGridHeight; }
 
 		//! Add or delete pattern in the sequence grid.
 		void addPattern( int nColumn, int nRow);

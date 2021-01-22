@@ -89,6 +89,8 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_fPlaybackTrackVolume( 0.0 )
 	, m_pVelocityAutomationPath( nullptr )
 	, m_sLicense( "" )
+	, m_actionMode( ActionMode::selectMode )
+
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( sName ) );
 
@@ -144,6 +146,18 @@ void Song::setBpm( float fBpm ) {
 					.arg( fBpm ).arg( MIN_BPM ) );
 	} else {
 		m_fBpm = fBpm;
+	}
+}
+
+void Song::setActionMode( Song::ActionMode actionMode ) {
+	m_actionMode = actionMode;
+
+	if ( actionMode == Song::ActionMode::selectMode ) {
+		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE, 0 );
+	} else if ( actionMode == Song::ActionMode::drawMode ) {
+		EventQueue::get_instance()->push_event( EVENT_ACTION_MODE_CHANGE, 1 );
+	} else {
+		ERRORLOG( QString( "Unknown actionMode" ) );
 	}
 }
 	
@@ -682,6 +696,17 @@ Song* SongReader::readSong( const QString& sFileName )
 	bool bPlaybackTrackEnabled = LocalFileMng::readXmlBool( songNode, "playbackTrackEnabled", false );
 	float fPlaybackTrackVolume = LocalFileMng::readXmlFloat( songNode, "playbackTrackVolume", 0.0 );
 
+	Song::ActionMode actionMode;
+ 	int nActionMode = LocalFileMng::readXmlInt( songNode, "action_mode", 0 );
+	if ( nActionMode == 0 ){
+		actionMode = Song::ActionMode::selectMode;
+	} else if ( nActionMode == 1 ) {
+		actionMode = Song::ActionMode::drawMode;
+	} else {
+		WARNINGLOG( QString( "Unknown action_mode value [%1]. Using Song::ActionMode::selectMode instead." )
+					.arg( nActionMode ) );
+		actionMode = Song::ActionMode::selectMode;
+	}
 
 	float fHumanizeTimeValue = LocalFileMng::readXmlFloat( songNode, "humanize_time", 0.0 );
 	float fHumanizeVelocityValue = LocalFileMng::readXmlFloat( songNode, "humanize_velocity", 0.0 );
@@ -699,6 +724,7 @@ Song* SongReader::readSong( const QString& sFileName )
 	pSong->setPlaybackTrackFilename( sPlaybackTrack );
 	pSong->setPlaybackTrackEnabled( bPlaybackTrackEnabled );
 	pSong->setPlaybackTrackVolume( fPlaybackTrackVolume );
+	pSong->setActionMode( actionMode );
 
 	QDomNode componentListNode = songNode.firstChildElement( "componentList" );
 	if ( ( ! componentListNode.isNull()  ) ) {
