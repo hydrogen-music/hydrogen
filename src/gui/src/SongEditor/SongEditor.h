@@ -79,6 +79,9 @@ class SongEditor : public QWidget, public H2Core::Object, public SelectionWidget
 		void setGridWidth( uint width);
 		int getGridHeight () { return m_nGridHeight; }
 
+		int getCursorRow() const;
+		int getCursorColumn() const;
+
 		//! Add or delete pattern in the sequence grid.
 		void addPattern( int nColumn, int nRow);
 		void deletePattern( int nColumn, int nRow );
@@ -206,7 +209,13 @@ public:
 
 };
 
+inline int SongEditor::getCursorRow() const {
+	return m_nCursorRow;
+}
 
+inline int SongEditor::getCursorColumn() const {
+	return m_nCursorColumn;
+}
 
 
 ///
