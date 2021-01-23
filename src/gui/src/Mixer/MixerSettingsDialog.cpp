@@ -93,7 +93,7 @@ MixerSettingsDialog::MixerSettingsDialog(QWidget* parent)
 	panLawComboBox->insertSeparator(100);
 	
 	// heading
-	panLawComboBox->addItem( tr("----- Quadratic pan parameter ------"), QVariant( -10000 ) );
+	panLawComboBox->addItem( tr("------ Quadratic pan parameter ------"), QVariant( -10000 ) );
 	qobject_cast< QStandardItemModel * >( panLawComboBox->model() )->item( 18 )->setEnabled( false );
 	panLawComboBox->addItem( tr("Balance Law (0dB)"), QVariant( pSampler->QUADRATIC_STRAIGHT_POLYGONAL ) );
 	panLawComboBox->addItem( tr("Constant Power (-3dB)"), QVariant( pSampler->QUADRATIC_CONST_POWER ) );
