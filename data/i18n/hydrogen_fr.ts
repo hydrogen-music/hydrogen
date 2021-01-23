@@ -355,7 +355,7 @@
     </message>
     <message>
         <source>Choose random entry</source>
-        <translation>Choisissez une entrée aléatoire</translation>
+        <translation>Choisir une entrée au hasard</translation>
     </message>
 </context>
 <context>
@@ -512,7 +512,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Samplerate in Hz:</source>
-        <translatorcomment>L&apos;ancienne étiquette &quot;Taux d&apos;échantillonnage en Hz:&quot; était beaucoup trop longue</translatorcomment>
+        <translatorcomment>L'ancienne étiquette "Taux d'échantillonnage en Hz:" était beaucoup trop longue</translatorcomment>
         <translation>Fréquence :</translation>
     </message>
     <message>
@@ -537,7 +537,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>SampleDepth in Bit:</source>
-        <translatorcomment>L&apos;ancienne étiquette &quot;Profondeur d&apos;échantillonnage en Bit:&quot; était beaucoup trop longue</translatorcomment>
+        <translatorcomment>L'ancienne étiquette "Profondeur d'échantillonnage en Bit:" était beaucoup trop longue</translatorcomment>
         <translation>Résolution :</translation>
     </message>
     <message>
@@ -2005,7 +2005,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Velocity</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Velocite</translation>
     </message>
     <message>
@@ -2026,7 +2026,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>NoteKey</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Numero de note</translation>
     </message>
     <message>
@@ -2047,7 +2047,7 @@ L&apos;exportation LilyPond est une fonctionnalité expérimentale.
     </message>
     <message>
         <source>Probability</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Probabilite</translation>
     </message>
     <message>
@@ -2254,7 +2254,7 @@ Maximum = 16/4</translation>
     </message>
     <message>
         <source>Pattern mode selected.</source>
-        <translatorcomment>Faute sur les accents aigus faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
+        <translatorcomment>Faute sur les accents aigus faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Mode motif selectionne.</translation>
     </message>
     <message>
@@ -2327,7 +2327,7 @@ Maximum = 16/4</translation>
     </message>
     <message>
         <source> Count and set BPM</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faite exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
+        <translatorcomment>Faute sur l'accent aigu faite exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation> Compter et regler les BPM</translation>
     </message>
     <message>
@@ -2340,12 +2340,12 @@ Maximum = 16/4</translation>
     </message>
     <message>
         <source>Record midi events = On</source>
-        <translatorcomment>Fautes sur les accents aigus faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
+        <translatorcomment>Fautes sur les accents aigus faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Enregistrer les evenements MIDI = actif</translation>
     </message>
     <message>
         <source>Record midi events = Off</source>
-        <translatorcomment>Fautes sur les accents aigus faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
+        <translatorcomment>Fautes sur les accents aigus faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Enregistrer les evenements MIDI = inactif</translation>
     </message>
     <message>
@@ -2362,12 +2362,12 @@ Maximum = 16/4</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband ON</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faite exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
+        <translatorcomment>Faute sur l'accent aigu faite exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Recalcule tous les echantillons qui utilisent Rubberband</translation>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
-        <translatorcomment>Fautes sur l&apos;accent aigu et l&apos;apostrophe manquant faite sexprès car c&apos;est sur l&apos;affichage LCD et les accents et l&apos;apostrophe n&apos;y sont pas gérés.</translatorcomment>
+        <translatorcomment>Fautes sur l'accent aigu et l'apostrophe manquant faites exprès car c'est sur l'affichage LCD et les accents et l'apostrophe n'y sont pas gérés.</translatorcomment>
         <translation>Recalcule tous les echantillons qui n utilisent pas Rubberband</translation>
     </message>
     <message>
@@ -3671,7 +3671,7 @@ Voulez-vous continuer?</translation>
     </message>
     <message>
         <source>Velocity</source>
-        <translatorcomment>Faute sur l&apos;accent aigu faites exprès car c&apos;est sur l&apos;affichage LCD et les accents n&apos;y sont pas gérés.</translatorcomment>
+        <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Velocite</translation>
     </message>
     <message>
