@@ -68,13 +68,13 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	driverComboBox->clear();
 	driverComboBox->addItem( "Auto" );
 #ifdef H2CORE_HAVE_JACK
-	driverComboBox->addItem( "Jack" );
+	driverComboBox->addItem( "JACK" );
 #endif
 #ifdef H2CORE_HAVE_ALSA
-	driverComboBox->addItem( "Alsa" );
+	driverComboBox->addItem( "ALSA" );
 #endif
 #ifdef H2CORE_HAVE_OSS
-	driverComboBox->addItem( "Oss" );
+	driverComboBox->addItem( "OSS" );
 #endif
 #ifdef H2CORE_HAVE_PORTAUDIO
 	driverComboBox->addItem( "PortAudio" );
@@ -111,8 +111,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 	else
 	{
-		driverInfoLbl->setText("Select your Audio Driver");
-		ERRORLOG( "Unknown midi input from preferences [" + pPref->m_sAudioDriver + "]" );
+		driverInfoLbl->setText( tr("Select your Audio Driver" ));
+		ERRORLOG( "Unknown MIDI input from preferences [" + pPref->m_sAudioDriver + "]" );
 	}
 
 
@@ -124,10 +124,10 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	m_pMidiDriverComboBox->addItem( "PortMidi" );
 #endif
 #ifdef H2CORE_HAVE_COREMIDI
-	m_pMidiDriverComboBox->addItem( "CoreMidi" );
+	m_pMidiDriverComboBox->addItem( "CoreMIDI" );
 #endif
 #ifdef H2CORE_HAVE_JACK
-	m_pMidiDriverComboBox->addItem( "JackMidi" );
+	m_pMidiDriverComboBox->addItem( "JACK-MIDI" );
 #endif
 
 
@@ -136,8 +136,8 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	}
 	else
 	{
-		driverInfoLbl->setText("Select your Midi Driver");
-		ERRORLOG( "Unknown midi input from preferences [" + pPref->m_sMidiDriver + "]" );
+		driverInfoLbl->setText( tr("Select your MIDI Driver" ) );
+		ERRORLOG( "Unknown MIDI input from preferences [" + pPref->m_sMidiDriver + "]" );
 	}
 
 	m_pIgnoreNoteOffCheckBox->setChecked( pPref->m_bMidiNoteOffIgnore );
@@ -169,7 +169,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		trackOutputComboBox->setCurrentIndex( 1 );
 		break;
 	default:
-		ERRORLOG( QString( "Unknown Jack track output mode [%1]" )
+		ERRORLOG( QString( "Unknown JACK track output mode [%1]" )
 				  .arg( static_cast<int>( pPref->m_JackTrackOutputMode ) ) );
 	}
 
@@ -181,7 +181,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 		jackBBTSyncComboBox->setCurrentIndex( 1 );
 		break;
 	default:
-		ERRORLOG( QString( "Unknown Jack BBT synchronization method [%1]" )
+		ERRORLOG( QString( "Unknown JACK BBT synchronization method [%1]" )
 				  .arg( static_cast<int>(pPref->m_JackBBTSync) ) );
 	}
 	//~ JACK
@@ -284,7 +284,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	
 	// list midi input ports
 	midiPortComboBox->clear();
-	midiPortComboBox->addItem( "None" );
+	midiPortComboBox->addItem( tr( "None" ) );
 	if ( Hydrogen::get_instance()->getMidiInput() ) {
 		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiInput()->getOutputPortList();
 
@@ -304,7 +304,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	
 	// list midi output ports
 	midiOutportComboBox->clear();
-	midiOutportComboBox->addItem( "None" );
+	midiOutportComboBox->addItem( tr( "None" ) );
 	if ( Hydrogen::get_instance()->getMidiOutput() ) {
 		std::vector<QString> midiOutList = Hydrogen::get_instance()->getMidiOutput()->getInputPortList();
 
@@ -431,14 +431,14 @@ void PreferencesDialog::on_okBtn_clicked()
 	if (driverComboBox->currentText() == "Auto" ) {
 		pPref->m_sAudioDriver = "Auto";
 	}
-	else if (driverComboBox->currentText() == "Jack" ) {
+	else if (driverComboBox->currentText() == "JACK" ) {
 		pPref->m_sAudioDriver = "Jack";
 	}
-	else if (driverComboBox->currentText() == "Alsa" ) {
+	else if (driverComboBox->currentText() == "ALSA" ) {
 		pPref->m_sAudioDriver = "Alsa";
 		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->text();
 	}
-	else if (driverComboBox->currentText() == "Oss" ) {
+	else if (driverComboBox->currentText() == "OSS" ) {
 		pPref->m_sAudioDriver = "Oss";
 		pPref->m_sOSSDevice = m_pAudioDeviceTxt->text();
 	}
@@ -477,7 +477,7 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->m_JackBBTSync = Preferences::JackBBTSyncMethod::identicalBars;
 		break;
 	default:
-		ERRORLOG( QString( "Unexpected Jack BBT synchronization value" ) );
+		ERRORLOG( QString( "Unexpected JACK BBT synchronization value" ) );
 	}
 	//~ JACK
 
@@ -508,10 +508,10 @@ void PreferencesDialog::on_okBtn_clicked()
 	else if ( m_pMidiDriverComboBox->currentText() == "PortMidi" ) {
 		pPref->m_sMidiDriver = "PortMidi";
 	}
-	else if ( m_pMidiDriverComboBox->currentText() == "CoreMidi" ) {
+	else if ( m_pMidiDriverComboBox->currentText() == "CoreMIDI" ) {
 		pPref->m_sMidiDriver = "CoreMidi";
 	}
-	else if ( m_pMidiDriverComboBox->currentText() == "JackMidi" ) {
+	else if ( m_pMidiDriverComboBox->currentText() == "JACK-MIDI" ) {
 		pPref->m_sMidiDriver = "JackMidi";
 	}
 
@@ -687,9 +687,9 @@ void PreferencesDialog::updateDriverInfo()
 		
 		// Display the selected driver as well.
 		if ( H2Core::Hydrogen::get_instance()->getAudioOutput() != nullptr ) {
-			info += tr("<br><b>")+
-				H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name()+
-				tr("</b> selected");
+			info.append( "<br><b>" )
+				.append( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name() )
+				.append( "</b> " ).append( tr( "selected") );
 		}
 		m_pAudioDeviceTxt->setEnabled(false);
 		m_pAudioDeviceTxt->setText( "" );
@@ -719,9 +719,13 @@ void PreferencesDialog::updateDriverInfo()
 		}
 	}
 	else if ( driverComboBox->currentText() == "OSS" ) {	// OSS
-		info += tr("<b>Open Sound System</b><br>Simple audio driver [/dev/dsp]");
+		info.append( "<b>" ).append( tr( "Open Sound System" ) )
+			.append( "</b><br>" )
+			.append( tr( "Simple audio driver [/dev/dsp]" ) );
 		if ( !bOss_support ) {
-			info += tr("<br><b><font color=\"red\">Not compiled</font></b>");
+			info.append( "<br><b><font color=\"red\">" )
+				.append( tr( "Not compiled" ) )
+				.append( "</font></b>" );
 		}
 		m_pAudioDeviceTxt->setEnabled(true);
 		m_pAudioDeviceTxt->setText( pPref->m_sOSSDevice );
@@ -734,8 +738,11 @@ void PreferencesDialog::updateDriverInfo()
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
 	}
-	else if ( driverComboBox->currentText() == "Jack" ) {	// JACK
-		info += tr("<b>Jack Audio Connection Kit Driver</b><br>Low latency audio driver");
+	else if ( driverComboBox->currentText() == "JACK" ) {	// JACK
+		info.append( "<b>" )
+			.append( tr( "JACK Audio Connection Kit Driver" ) )
+			.append( "</b><br>" )
+			.append( tr( "Low latency audio driver" ) );
 		if ( !bJack_support ) {
 			info += QString("<br><b><font color=")
 				.append( m_sColorRed ).append( ">")
@@ -756,8 +763,9 @@ void PreferencesDialog::updateDriverInfo()
 		jackBBTSyncComboBox->show();
 		jackBBTSyncLbl->show();
 	}
-	else if ( driverComboBox->currentText() == "Alsa" ) {	// ALSA
-		info += tr("<b>ALSA Driver</b><br>");
+	else if ( driverComboBox->currentText() == "ALSA" ) {	// ALSA
+		info.append( "<b>" ).append( tr( "ALSA Driver" ) )
+			.append( "</b><br>" );
 		if ( !bAlsa_support ) {
 			info += QString("<br><b><font color=")
 				.append( m_sColorRed ).append( ">")
@@ -776,7 +784,8 @@ void PreferencesDialog::updateDriverInfo()
 		jackBBTSyncLbl->hide();
 	}
 	else if ( driverComboBox->currentText() == "PortAudio" ) {
-		info += tr( "<b>PortAudio Driver</b><br>" );
+		info.append( "<b>" ).append( tr( "PortAudio Driver" ) )
+			.append( "</b><br>" );
 		if ( !bPortAudio_support ) {
 			info += QString("<br><b><font color=")
 				.append( m_sColorRed ).append( ">")
@@ -795,7 +804,8 @@ void PreferencesDialog::updateDriverInfo()
 		jackBBTSyncLbl->hide();
 	}
 	else if ( driverComboBox->currentText() == "CoreAudio" ) {
-		info += tr( "<b>CoreAudio Driver</b><br>" );
+		info.append( "<b>" ).append( tr( "CoreAudio Driver" ) )
+			.append( "</b><br>" );
 		if ( !bCoreAudio_support ) {
 			info += QString("<br><b><font color=")
 				.append( m_sColorRed ).append( ">")
@@ -814,7 +824,8 @@ void PreferencesDialog::updateDriverInfo()
 		jackBBTSyncLbl->hide();
 	}
 	else if ( driverComboBox->currentText() == "PulseAudio" ) {
-		info += tr("<b>PulseAudio Driver</b><br>");
+		info.append( "<b>" ).append( tr( "PulseAudio Driver" ) )
+			.append( "</b><br>" );
 		if ( !bPulseAudio_support ) {
 			info += QString("<br><b><font color=")
 				.append( m_sColorRed ).append( ">")
