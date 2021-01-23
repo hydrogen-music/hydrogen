@@ -111,7 +111,7 @@
           <item>
            <widget class="QPushButton" name="randomizeBtn">
             <property name="text">
-             <string>Choose random entry.</string>
+             <string>Choose random entry</string>
             </property>
            </widget>
           </item>

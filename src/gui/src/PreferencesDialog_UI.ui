@@ -102,7 +102,7 @@
        <item>
         <widget class="QCheckBox" name="useLashCheckbox">
          <property name="text">
-          <string>Use lash</string>
+          <string>Use LASH</string>
          </property>
         </widget>
        </item>
@@ -605,7 +605,7 @@
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>&amp;Midi System</string>
+       <string>&amp;MIDI System</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
@@ -615,7 +615,7 @@
            <item>
             <widget class="QLabel" name="textLabel1_5">
              <property name="text">
-              <string>Midi driver</string>
+              <string>MIDI driver</string>
              </property>
             </widget>
            </item>
@@ -790,14 +790,14 @@
          <item>
           <widget class="QCheckBox" name="m_pEnableMidiFeedbackCheckBox">
            <property name="text">
-            <string>Enable midi feedback</string>
+            <string>Enable MIDI feedback</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QCheckBox" name="m_pDiscardMidiMsgCheckbox">
            <property name="text">
-            <string>Discard midi messages after action has been triggered</string>
+            <string>Discard MIDI messages after action has been triggered</string>
            </property>
           </widget>
          </item>

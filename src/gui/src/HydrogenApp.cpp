@@ -216,6 +216,8 @@ void HydrogenApp::setupSinglePanedInterface()
 
 	// INSTRUMENT RACK
 	m_pInstrumentRack = new InstrumentRack( nullptr );
+	WindowProperties instrumentRackProp = pPref->getInstrumentRackProperties();
+	m_pInstrumentRack->setHidden( !instrumentRackProp.visible );
 
 	if( uiLayout == Preferences::UI_LAYOUT_TABBED ){
 		m_pTab->setMovable( false );
@@ -625,6 +627,10 @@ void HydrogenApp::onEventQueueTimer()
 			case EVENT_LOOP_MODE_ACTIVATION:
 				pListener->loopModeActivationEvent( event.value );
 				break;
+
+			case EVENT_ACTION_MODE_CHANGE:
+				pListener->actionModeChangeEvent( event.value );
+				break;
 				
 			default:
 				ERRORLOG( QString("[onEventQueueTimer] Unhandled event: %1").arg( event.type ) );
@@ -741,6 +747,9 @@ void HydrogenApp::updatePreferencesEvent( int nValue ) {
 		// PATTERN EDITOR
 		WindowProperties patternEditorProp = pPref->getPatternEditorProperties();
 		m_pPatternEditorPanel->resize( patternEditorProp.width, patternEditorProp.height );
+		
+		WindowProperties instrumentRackProp = pPref->getInstrumentRackProperties();
+		m_pInstrumentRack->setHidden( !instrumentRackProp.visible );
 
 		WindowProperties mixerProp = pPref->getMixerProperties();
 

@@ -155,7 +155,7 @@ public slots:
 		void action_window_show_DirectorWidget();
 		void action_window_showSongEditor();
 		void action_window_showPatternEditor();
-		void action_window_showDrumkitManagerPanel();
+		void action_window_showInstrumentRack();
 		void action_window_showAutomationArea();
 		void action_window_showTimeline();
 		void action_window_showPlaybackTrack();

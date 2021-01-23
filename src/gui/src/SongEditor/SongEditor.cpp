@@ -82,18 +82,18 @@ SongEditor::SongEditor( QWidget *parent, QScrollArea *pScrollView, SongEditorPan
  , m_pSongEditorPanel( pSongEditorPanel )
  , m_selection( this )
 {
+	Preferences* pPref = Preferences::get_instance();
 
 	setAttribute(Qt::WA_OpaquePaintEvent);
 	setFocusPolicy (Qt::StrongFocus);
 
-	m_nGridWidth = 16;
-	m_nGridHeight = 18;
+	m_nGridWidth = pPref->getSongEditorGridWidth();
+	m_nGridHeight = pPref->getSongEditorGridHeight();
 
 	m_nCursorRow = 0;
 	m_nCursorColumn = 0;
 
-	Preferences *pref = Preferences::get_instance();
-	m_nMaxPatternSequence = pref->getMaxBars();
+	m_nMaxPatternSequence = pPref->getMaxBars();
 	int m_nInitialWidth = m_nMargin + m_nMaxPatternSequence * m_nGridWidth;
 	int m_nInitialHeight = 10;
 
@@ -369,16 +369,17 @@ void SongEditor::cut() {
 
 void SongEditor::keyPressEvent( QKeyEvent * ev )
 {
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	
 	bool bIsSelectionKey = false;
-
-	SongEditorActionMode actionMode = m_pSongEditorPanel->getActionMode();
 	bool bUnhideCursor = true;
 
-	if ( actionMode == SELECT_ACTION ) {
+	H2Core::Song::ActionMode actionMode = pHydrogen->getSong()->getActionMode();
+		
+	if ( actionMode == H2Core::Song::ActionMode::selectMode ) {
 		bIsSelectionKey = m_selection.keyPressEvent( ev );
 	}
 
-	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
 	const QPoint centre = QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
 	bool bSelectionKey = false;
@@ -454,7 +455,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 		// Key: Ctrl + A: Select all pattern
 		bSelectionKey = true;
 		bUnhideCursor = false;
-		if ( actionMode == SELECT_ACTION ) {
+		if ( actionMode == H2Core::Song::ActionMode::selectMode ) {
 			selectAll();
 		}
 
@@ -462,7 +463,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 		// Key: Shift + Ctrl + A: deselect any selected cells
 		bSelectionKey = true;
 		bUnhideCursor = false;
-		if ( actionMode == SELECT_ACTION ) {
+		if ( actionMode == H2Core::Song::ActionMode::selectMode ) {
 			selectNone();
 			m_bSequenceChanged = false;
 		}
@@ -480,6 +481,7 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		// Key: Return: Set or clear cell (draw mode), or start/end selection or move (select mode)
+
 		// In DRAW mode, Enter's obvious action is the same as a
 		// click - insert or delete pattern.
 		togglePatternActive( m_nCursorColumn, m_nCursorRow );
@@ -496,8 +498,8 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	if ( bSelectionKey ) {
 		// If a "select" key movement is used in "draw" mode, it's probably a good idea to go straight into
 		// "select" mode.
-		if ( actionMode == DRAW_ACTION ) {
-			m_pSongEditorPanel->setActionMode( SELECT_ACTION );
+		if ( actionMode == H2Core::Song::ActionMode::drawMode ) {
+			Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::selectMode );
 		}
 		// Any selection key may need a repaint of the selection
 		m_bSequenceChanged = true;
@@ -526,6 +528,7 @@ void SongEditor::focusInEvent( QFocusEvent *ev )
 	update();
 }
 
+
 // Implement comparison between QPoints needed for std::set
 int operator<( QPoint a, QPoint b ) {
 	int nAx = a.x(), nBx = b.x();
@@ -549,7 +552,7 @@ void SongEditor::mousePressEvent( QMouseEvent *ev )
 	m_nCursorRow = p.y();
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
-	if ( m_pSongEditorPanel->getActionMode() == SELECT_ACTION ) {
+	if ( Hydrogen::get_instance()->getSong()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_selection.mousePressEvent( ev );
 
 	} else {
@@ -659,7 +662,7 @@ void SongEditor::mouseMoveEvent(QMouseEvent *ev)
 	updateModifiers( ev );
 	m_currentMousePosition = ev->pos();
 
-	if (m_pSongEditorPanel->getActionMode() == SELECT_ACTION ) {
+	if ( Hydrogen::get_instance()->getSong()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_selection.mouseMoveEvent( ev );
 	} else {
 		if ( ev->x() < m_nMargin ) {
@@ -732,7 +735,7 @@ void SongEditor::selectionMoveEndEvent( QInputEvent *ev )
 
 void SongEditor::mouseClickEvent( QMouseEvent *ev )
 {
-	assert(m_pSongEditorPanel->getActionMode() == SELECT_ACTION );
+	assert( Hydrogen::get_instance()->getSong()->getActionMode() == H2Core::Song::ActionMode::selectMode );
 	if ( ev->button() == Qt::LeftButton ) {
 		QPoint p = xyToColumnRow( ev->pos() );
 
@@ -748,7 +751,7 @@ void SongEditor::mouseClickEvent( QMouseEvent *ev )
 
 void SongEditor::mouseReleaseEvent( QMouseEvent *ev )
 {
-	if (m_pSongEditorPanel->getActionMode() == SELECT_ACTION ) {
+	if ( Hydrogen::get_instance()->getSong()->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
 		m_selection.mouseReleaseEvent( ev );
 		return;
 	}
@@ -1137,7 +1140,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
  , m_pBackgroundPixmap( nullptr )
 {
 	m_nWidth = 200;
-	m_nGridHeight = 18;
+	m_nGridHeight = Preferences::get_instance()->getSongEditorGridHeight();
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
 	setAcceptDrops(true);
@@ -2077,8 +2080,9 @@ SongEditorPositionRuler::SongEditorPositionRuler( QWidget *parent )
 {
 	setAttribute(Qt::WA_OpaquePaintEvent);
 
-	m_nGridWidth = 16;
 	Preferences *pPref = Preferences::get_instance();
+
+	m_nGridWidth = pPref->getSongEditorGridWidth();
 	m_nMaxPatternSequence = pPref->getMaxBars();
 
 	m_nInitialWidth = m_nMaxPatternSequence * 16;

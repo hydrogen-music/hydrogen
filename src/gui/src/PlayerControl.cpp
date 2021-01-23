@@ -418,7 +418,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	} else {
 		m_pJackTransportBtn->setPressed( false );
 	}
-	m_pJackTransportBtn->setToolTip( tr("Jack-transport on/off") );
+	m_pJackTransportBtn->setToolTip( tr("JACK transport on/off") );
 	connect(m_pJackTransportBtn, SIGNAL(clicked(Button*)), this, SLOT(jackTransportBtnClicked(Button*)));
 	m_pJackTransportBtn->move(10, 26);
 
@@ -437,7 +437,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	} else {
 		m_pJackMasterBtn->setPressed( false );
 	}
-	m_pJackMasterBtn->setToolTip( tr("Jack-Time-Master on/off") );
+	m_pJackMasterBtn->setToolTip( tr("JACK Timebase master on/off") );
 	connect(m_pJackMasterBtn, SIGNAL(clicked(Button*)), this, SLOT(jackMasterBtnClicked(Button*)));
 	m_pJackMasterBtn->move(56, 26);
 	//~ jack time master
@@ -918,7 +918,7 @@ void PlayerControl::jackTransportBtnClicked( Button* )
 	Preferences *pPref = Preferences::get_instance();
 
 	if ( !m_pEngine->haveJackAudioDriver() ) {
-		QMessageBox::warning( this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
+		QMessageBox::warning( this, "Hydrogen", tr( "JACK transport will work only with JACK driver." ) );
 		return;
 	}
 
@@ -926,14 +926,14 @@ void PlayerControl::jackTransportBtnClicked( Button* )
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pPref->m_bJackTransportMode = Preferences::USE_JACK_TRANSPORT;
 		AudioEngine::get_instance()->unlock();
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-transport mode = On"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK transport mode = On"), 5000);
 		m_pJackMasterBtn->setDisabled( false );
 	}
 	else {
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pPref->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
 		AudioEngine::get_instance()->unlock();
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-transport mode = Off"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK transport mode = Off"), 5000);
 		m_pJackMasterBtn->setPressed( false );
 		m_pJackMasterBtn->setDisabled( true );
 	}
@@ -947,7 +947,7 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 	Preferences *pPref = Preferences::get_instance();
 
 	if ( !m_pEngine->haveJackTransport() ) {
-		QMessageBox::warning( this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
+		QMessageBox::warning( this, "Hydrogen", tr( "JACK transport will work only with JACK driver." ) );
 		return;
 	}
 
@@ -955,14 +955,14 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pPref->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
 		AudioEngine::get_instance()->unlock();
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr(" Jack-Time-Master mode = On"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK Timebase master mode = On"), 5000);
 		Hydrogen::get_instance()->onJackMaster();
 
 	} else {
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pPref->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
 		AudioEngine::get_instance()->unlock();
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr(" Jack-Time-Master mode = Off"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK Timebase master mode = Off"), 5000);
 		Hydrogen::get_instance()->offJackMaster();
 	}
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
@@ -1139,22 +1139,22 @@ void PlayerControl::tempoChangedEvent( int nValue )
 void PlayerControl::jackTransportActivationEvent( int nValue ) {
 
 	if ( nValue == 0 && m_pJackTransportBtn->isPressed() ){
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-transport mode = Off"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK transport mode = Off"), 5000);
 		m_pJackMasterBtn->setPressed( false );
 		m_pJackMasterBtn->setDisabled( true );
 	} else if ( nValue != 0 && !m_pJackTransportBtn->isPressed() ) {
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-transport mode = On"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK transport mode = On"), 5000);
 		m_pJackMasterBtn->setDisabled( false );
 	}
 }
 
 void PlayerControl::jackTimebaseActivationEvent( int nValue ) {
 	if ( nValue == 0 && m_pJackMasterBtn->isPressed() ){
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-Time-Master mode = Off"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK Timebase master mode = Off"), 5000);
 		m_pJackMasterBtn->setPressed( false );
 		
 	} else if ( nValue != 0 && !m_pJackMasterBtn->isPressed() ) {
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-Time-Master mode = On"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK Timebase master mode = On"), 5000);
 		m_pJackMasterBtn->setPressed( true );
 	}
 	

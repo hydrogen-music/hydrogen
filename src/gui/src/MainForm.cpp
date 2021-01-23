@@ -372,9 +372,9 @@ void MainForm::createMenuBar()
 	m_pViewMixerAction->setCheckable( true );
 	update_mixer_checkbox();						// if checkbox need to be checked.
 
-	m_pViewMixerInstrumentRackAction = m_pViewMenu->addAction( tr("&Instrument Rack"), this, SLOT( action_window_showDrumkitManagerPanel() ), QKeySequence( "Alt+I" ) );
+	m_pViewMixerInstrumentRackAction = m_pViewMenu->addAction( tr("&Instrument Rack"), this, SLOT( action_window_showInstrumentRack() ), QKeySequence( "Alt+I" ) );
 	m_pViewMixerInstrumentRackAction->setCheckable( true );
-	update_instrument_checkbox( true );	// check it as Instrument panel is always open on start
+	update_instrument_checkbox( Preferences::get_instance()->getInstrumentRackProperties().visible );
 
 	m_pViewAutomationPathAction = m_pViewMenu->addAction( tr("&Automation path"), this, SLOT( action_window_showAutomationArea() ), QKeySequence( "Alt+A" ) );
 	m_pViewAutomationPathAction->setCheckable( true );
@@ -1296,7 +1296,7 @@ void MainForm::action_file_export()
 
 
 
-void MainForm::action_window_showDrumkitManagerPanel()
+void MainForm::action_window_showInstrumentRack()
 {
 	InstrumentRack *pPanel = HydrogenApp::get_instance()->getInstrumentRack();
 	pPanel->setHidden( pPanel->isVisible() );
@@ -1360,6 +1360,14 @@ void MainForm::savePreferences() {
 	songEditorProp.visible = h2app->getSongEditorPanel()->isVisible();
 	pPreferences->setSongEditorProperties( songEditorProp );
 
+
+	WindowProperties instrumentRackProp;
+	instrumentRackProp.x = h2app->getInstrumentRack()->x();
+	instrumentRackProp.y = h2app->getInstrumentRack()->y();
+	instrumentRackProp.width = h2app->getInstrumentRack()->width();
+	instrumentRackProp.height = h2app->getInstrumentRack()->height();
+	instrumentRackProp.visible = h2app->getInstrumentRack()->isVisible();
+	pPreferences->setInstrumentRackProperties( instrumentRackProp );
 
 	// save audio engine info properties
 	WindowProperties audioEngineInfoProp;
@@ -1971,10 +1979,10 @@ void MainForm::showDevelWarning()
 			QString msg = tr( "You're using a development version of Hydrogen, please help us reporting bugs or suggestions in the hydrogen-devel mailing list.<br><br>Thank you!" );
 			QMessageBox develMessageBox( this );
 			develMessageBox.setText( msg );
-			develMessageBox.addButton( QMessageBox::Ok );
+			develMessageBox.addButton( tr( "Ok" ), QMessageBox::YesRole );
 			develMessageBox.addButton( tr( "Don't show this message anymore" ) , QMessageBox::AcceptRole );
 
-			if( develMessageBox.exec() == 0 ){
+			if( develMessageBox.exec() == 1 ){
 				//don't show warning again
 				pPreferences->setShowDevelWarning( false );
 			}
