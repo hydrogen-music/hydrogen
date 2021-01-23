@@ -467,14 +467,14 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 	switch (m_Mode) {
 	case VELOCITY:
 		if ( !pNote->get_note_off() ) {
-			float fVelocity = qBound( (pOldNote->get_velocity() + fDelta), VELOCITY_MIN, VELOCITY_MAX );
+			float fVelocity = qBound(  VELOCITY_MIN, (pOldNote->get_velocity() + fDelta), VELOCITY_MAX );
 			pNote->set_velocity( fVelocity );
 			m_fLastSetValue = fVelocity;
 			m_bValueHasBeenSet = true;
 			if ( bMessage ) {
 				char valueChar[100];
 				sprintf( valueChar, "%#.2f",  fVelocity );
-				( HydrogenApp::get_instance() )->setStatusBarMessage( QString("Set note velocity [%1]")
+				( HydrogenApp::get_instance() )->setStatusBarMessage( QString( tr( "Set note velocity [%1]" ) )
 																	  .arg( valueChar ), 2000 );
 			}
 		}
@@ -499,7 +499,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 		break;
 	case LEADLAG:
 		{
-			float fLeadLag = qBound( pOldNote->get_lead_lag() - fDelta, LEAD_LAG_MIN, LEAD_LAG_MAX );
+			float fLeadLag = qBound( LEAD_LAG_MIN, pOldNote->get_lead_lag() - fDelta, LEAD_LAG_MAX );
 			pNote->set_lead_lag( fLeadLag );
 			m_fLastSetValue = fLeadLag;
 			m_bValueHasBeenSet = true;
@@ -519,26 +519,26 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 		break;
 	case PROBABILITY:
 		if ( !pNote->get_note_off() ) {
-			float fProbability = qBound( pOldNote->get_probability() + fDelta, 0.0f, 1.0f );
+			float fProbability = qBound( 0.0f, pOldNote->get_probability() + fDelta, 1.0f );
 			pNote->set_probability( fProbability );
 			m_fLastSetValue = fProbability;
 			m_bValueHasBeenSet = true;
 		}
 		break;
 	case NOTEKEY:
-		int nPitch = qBound( (int)( pOldNote->get_notekey_pitch() + fDelta ),
-							 12 * OCTAVE_MIN, 12 * OCTAVE_MAX + KEY_MAX );
-		Note::Key key;
+		int nPitch = qBound( 12 * OCTAVE_MIN, (int)( pOldNote->get_notekey_pitch() + fDelta ),
+							 12 * OCTAVE_MAX + KEY_MAX );
 		Note::Octave octave;
 		if ( nPitch >= 0 ) {
-			key = (Note::Key)( nPitch % 12 );
 			octave = (Note::Octave)( nPitch / 12 );
 		} else {
-			key = (Note::Key)( nPitch % 12 );
 			octave = (Note::Octave)( (nPitch-11) / 12 );
 		}
+		Note::Key key = (Note::Key)( nPitch - 12 * (int)octave );
+
 		pNote->set_key_octave( key, octave );
 		m_fLastSetValue = 12 * octave + key;
+
 		m_bValueHasBeenSet = true;
 		break;
 	}
@@ -576,9 +576,17 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			// Key: Up: increase note parameter value
 			fDelta = 0.1;
 
+		} else if ( ev->key() == Qt::Key_Up && ev->modifiers() & Qt::AltModifier ) {
+			// Key: Alt+Up: increase parameter slightly
+			fDelta = 0.01;
+
 		} else if ( ev->matches( QKeySequence::MoveToNextLine ) ) {
 			// Key: Down: decrease note parameter value
 			fDelta = -0.1;
+
+		} else if ( ev->key() == Qt::Key_Down && ev->modifiers() & Qt::AltModifier ) {
+			// Key: Alt+Up: decrease parameter slightly
+			fDelta = -0.01;
 
 		} else if ( ev->matches( QKeySequence::MoveToStartOfDocument ) ) {
 			// Key: MoveToStartOfDocument: increase parameter to maximum value
@@ -610,11 +618,13 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 			int column = m_pPatternEditorPanel->getCursorPosition();
 			int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 			Song *pSong = (Hydrogen::get_instance())->getSong();
+			int nNotes = 0;
 
 			// Collect notes to apply the change to
 			std::list< Note *> notes;
 			if ( m_selection.begin() != m_selection.end() ) {
 				for ( Note *pNote : m_selection ) {
+					nNotes++;
 					notes.push_back( pNote );
 				}
 			} else {
@@ -622,6 +632,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 					Note *pNote = it->second;
 					assert( pNote );
 					assert( pNote->get_position() == column );
+					nNotes++;
 					notes.push_back( pNote );
 				}
 			}
@@ -645,7 +656,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 				if ( !bRepeatLastValue ) {
 					// Apply delta to the property
-					adjustNotePropertyDelta( pNote, fDelta );
+					adjustNotePropertyDelta( pNote, fDelta, nNotes == 1 );
 
 				} else {
 					// Repeating last value
