@@ -273,6 +273,18 @@ public slots:
 
 		bool handleSelectNextPrevSongOnPlaylist(int step);
 
+		/**
+		 * Toggles playback at current position of the cursor.
+		 *
+		 * If triggered while focusing the song editor, the song will
+		 * be set to H2Core::Song::SONE_MODE. Similarly,
+		 * H2Core::Song::PATTERN_MODE will be activated if triggered
+		 * in the pattern editor of note properties ruler.
+		 *
+		 * \param pObject Used to determine the focused part of the
+		 * application.
+		 */
+		void startStopPlaybackAtCursor( QObject* pObject );
 };
 
 #endif
