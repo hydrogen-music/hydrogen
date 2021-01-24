@@ -142,11 +142,15 @@ QColor PatternEditor::computeNoteColor( float velocity ){
 	return QColor( red, green, blue );
 }
 
-int PatternEditor::getColumn( int x ) const
+int PatternEditor::getColumn( int x, bool bUseFineGrained ) const
 {
-	int nWidth = m_nGridWidth * granularity();
+	int nGranularity = 1;
+	if ( !( bUseFineGrained && m_bFineGrained ) ) {
+		nGranularity = granularity();
+	}
+	int nWidth = m_nGridWidth * nGranularity;
 	int nColumn = ( x - m_nMargin + (nWidth / 2) ) / nWidth;
-	nColumn = nColumn * granularity();
+	nColumn = nColumn * nGranularity;
 	return nColumn;
 }
 

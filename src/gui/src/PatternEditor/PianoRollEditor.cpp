@@ -504,7 +504,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 		return;
 	}
 
-	int nColumn = getColumn( ev->x() );
+	int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
 
 	if ( nColumn >= (int)m_pPattern->get_length() ) {
 		update( 0, 0, width(), height() );

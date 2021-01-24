@@ -165,7 +165,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	if (row >= nInstruments) {
 		return;
 	}
-	int nColumn = getColumn( ev->x() );
+	int nColumn = getColumn( ev->x(), /* bUseFineGrained=*/ true );
 	int nRealColumn = 0;
 	if( ev->x() > m_nMargin ) {
 		nRealColumn = ev->x() / static_cast<float>(m_nGridWidth) - m_nMargin;

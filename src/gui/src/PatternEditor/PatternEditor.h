@@ -166,7 +166,7 @@ protected:
 	PatternEditorPanel *m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
 
-	int getColumn( int x ) const;
+	int getColumn( int x, bool bUseFineGrained = false ) const;
 	QPoint movingGridOffset() const;
 
 	//! Draw lines for note grid.
