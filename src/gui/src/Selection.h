@@ -32,6 +32,7 @@
 #include <set>
 #include <QDebug>
 #include <cassert>
+#include <memory>
 
 //! SelectionWidget defines the interface used by the Selection manager to communicate with a widget
 //! implementing selection, and provides for event translation, testing for intersection with selectable
