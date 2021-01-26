@@ -965,26 +965,30 @@ void PianoRollEditor::deleteSelection()
 		int nSelectedInstrumentNumber = pHydrogen->getSelectedInstrumentNumber();
 		InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-		pUndo->beginMacro("delete notes");
 		validateSelection();
+		std::list< QUndoCommand * > actions;
 		for ( Note *pNote : m_selection ) {
 			if ( m_selection.isSelected( pNote ) ) {
 				if ( pNote->get_instrument() == pInstrumentList->get( nSelectedInstrumentNumber ) ) {
 					int nLine = pitchToLine( pNote->get_notekey_pitch() );
-					pUndo->push( new SE_addOrDeleteNotePianoRollAction( pNote->get_position(),
-																		nLine,
-																		m_nSelectedPatternNumber,
-																		nSelectedInstrumentNumber,
-																		pNote->get_length(),
-																		pNote->get_velocity(),
-																		pNote->get_pan_l(),
-																		pNote->get_pan_r(),
-																		pNote->get_lead_lag(),
-																		pNote->get_key(),
-																		pNote->get_octave(),
-																		true ) );
+					actions.push_back( new SE_addOrDeleteNotePianoRollAction( pNote->get_position(),
+																			  nLine,
+																			  m_nSelectedPatternNumber,
+																			  nSelectedInstrumentNumber,
+																			  pNote->get_length(),
+																			  pNote->get_velocity(),
+																			  pNote->get_pan_l(),
+																			  pNote->get_pan_r(),
+																			  pNote->get_lead_lag(),
+																			  pNote->get_key(),
+																			  pNote->get_octave(),
+																			  true ) );
 				}
 			}
+		}
+		pUndo->beginMacro("delete notes");
+		for ( QUndoCommand * pAction : actions ) {
+			pUndo->push( pAction );
 		}
 		pUndo->endMacro();
 		m_selection.clearSelection();
@@ -1013,7 +1017,7 @@ void PianoRollEditor::paste()
 		return;
 	}
 
-	XMLNode selection = doc.firstChildElement( "noteSelection" ); qDebug() << "noteSelection:";
+	XMLNode selection = doc.firstChildElement( "noteSelection" );
 	if ( ! selection.isNull() ) {
 
 		// Got a noteSelection.
