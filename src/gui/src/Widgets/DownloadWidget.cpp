@@ -40,7 +40,7 @@ Download::Download( QWidget* pParent, const QString& download_url, const QString
 		, __remote_url( download_url )
 		, __local_file( local_file )
 		, __reply(nullptr)
-		, __error(false)
+		, __error( "" )
 {
 	if ( !__local_file.isEmpty() ) {
 		INFOLOG( QString( "Downloading '%1' in '%2'" ).arg( __remote_url.toString() ).arg( __local_file ) );
@@ -90,9 +90,8 @@ Download::~Download()
 void Download::finished()
 {
 	if ( __reply->error() ) {
-		__error = true;
-		ERRORLOG(QString( tr( "Importing item failed: %1" ) ).arg( __reply->errorString() ));
-		QMessageBox::information( this, "Hydrogen", QString( tr( "Importing item failed: %1" ) ).arg( __reply->errorString() ) );
+		__error = QString( tr( "Importing item failed: %1" ) ).arg( __reply->errorString() );
+		ERRORLOG( __error );
 		reject();
 		return;
 	}
