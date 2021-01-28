@@ -57,7 +57,7 @@ MixerSettingsDialog::MixerSettingsDialog(QWidget* parent)
 
 	setMinimumSize( width(), height() );
 
-	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
+	Song* pSong = Hydrogen::get_instance()->getSong();
 	
 	/* insert the items here so they work consistently no matter of their order in the menu (except the headings)
 	 */
@@ -65,43 +65,43 @@ MixerSettingsDialog::MixerSettingsDialog(QWidget* parent)
 	// heading
 	panLawComboBox->addItem( tr("------ Linear pan parameter ------"), QVariant( -10000 ) );
 	qobject_cast< QStandardItemModel * >( panLawComboBox->model() )->item( 0 )->setEnabled( false );
-	panLawComboBox->addItem( tr("Balance Law (0dB)"), QVariant( pSampler->LINEAR_STRAIGHT_POLYGONAL ) );
-	panLawComboBox->addItem( tr("Constant Power (-3dB)"), QVariant( pSampler->LINEAR_CONST_POWER ) );
-	panLawComboBox->addItem( tr("Constant Sum (-6dB)"), QVariant( pSampler->LINEAR_CONST_SUM ) );
+	panLawComboBox->addItem( tr("Balance Law (0dB)"), QVariant( Sampler::LINEAR_STRAIGHT_POLYGONAL ) );
+	panLawComboBox->addItem( tr("Constant Power (-3dB)"), QVariant( Sampler::LINEAR_CONST_POWER ) );
+	panLawComboBox->addItem( tr("Constant Sum (-6dB)"), QVariant( Sampler::LINEAR_CONST_SUM ) );
 	panLawComboBox->addItem( tr("Constant k-Norm (Custom dB compensation)"),
-																		QVariant( pSampler->LINEAR_CONST_K_NORM ) );
+																		QVariant( Sampler::LINEAR_CONST_K_NORM ) );
 	panLawComboBox->insertSeparator(100);
 	
 	// heading	
 	panLawComboBox->addItem( tr("------ Polar pan parameter ------"), QVariant( -10000 ) );
 	qobject_cast< QStandardItemModel * >( panLawComboBox->model() )->item( 6 )->setEnabled( false );
-	panLawComboBox->addItem( tr("Balance Law (0dB)"), QVariant( pSampler->POLAR_STRAIGHT_POLYGONAL ) );
-	panLawComboBox->addItem( tr("Constant Power (-3dB)"), QVariant( pSampler->POLAR_CONST_POWER ) );
-	panLawComboBox->addItem( tr("Constant Sum (-6dB)"), QVariant( pSampler->POLAR_CONST_SUM ) );
+	panLawComboBox->addItem( tr("Balance Law (0dB)"), QVariant( Sampler::POLAR_STRAIGHT_POLYGONAL ) );
+	panLawComboBox->addItem( tr("Constant Power (-3dB)"), QVariant( Sampler::POLAR_CONST_POWER ) );
+	panLawComboBox->addItem( tr("Constant Sum (-6dB)"), QVariant( Sampler::POLAR_CONST_SUM ) );
 	panLawComboBox->addItem( tr("Constant k-Norm (Custom dB compensation)"),
-																		QVariant( pSampler->POLAR_CONST_K_NORM ) );
+																		QVariant( Sampler::POLAR_CONST_K_NORM ) );
 	panLawComboBox->insertSeparator(100);
 	
 	// heading
 	panLawComboBox->addItem( tr("------ Ratio pan parameter ------"), QVariant( -10000 ) );
 	qobject_cast< QStandardItemModel * >( panLawComboBox->model() )->item( 12 )->setEnabled( false );
-	panLawComboBox->addItem( tr("Balance Law (0dB)"), QVariant( pSampler->RATIO_STRAIGHT_POLYGONAL ) );
-	panLawComboBox->addItem( tr("Constant Power (-3dB)"), QVariant( pSampler->RATIO_CONST_POWER ) );
-	panLawComboBox->addItem( tr("Constant Sum (-6dB)"), QVariant( pSampler->RATIO_CONST_SUM ) );
+	panLawComboBox->addItem( tr("Balance Law (0dB)"), QVariant( Sampler::RATIO_STRAIGHT_POLYGONAL ) );
+	panLawComboBox->addItem( tr("Constant Power (-3dB)"), QVariant( Sampler::RATIO_CONST_POWER ) );
+	panLawComboBox->addItem( tr("Constant Sum (-6dB)"), QVariant( Sampler::RATIO_CONST_SUM ) );
 	panLawComboBox->addItem( tr("Constant k-Norm (Custom dB compensation)"),
-																		QVariant( pSampler->RATIO_CONST_K_NORM ) );
+																		QVariant( Sampler::RATIO_CONST_K_NORM ) );
 	panLawComboBox->insertSeparator(100);
 	
 	// heading
 	panLawComboBox->addItem( tr("------ Quadratic pan parameter ------"), QVariant( -10000 ) );
 	qobject_cast< QStandardItemModel * >( panLawComboBox->model() )->item( 18 )->setEnabled( false );
-	panLawComboBox->addItem( tr("Balance Law (0dB)"), QVariant( pSampler->QUADRATIC_STRAIGHT_POLYGONAL ) );
-	panLawComboBox->addItem( tr("Constant Power (-3dB)"), QVariant( pSampler->QUADRATIC_CONST_POWER ) );
-	panLawComboBox->addItem( tr("Constant Sum (-6dB)"), QVariant( pSampler->QUADRATIC_CONST_SUM ) );
+	panLawComboBox->addItem( tr("Balance Law (0dB)"), QVariant( Sampler::QUADRATIC_STRAIGHT_POLYGONAL ) );
+	panLawComboBox->addItem( tr("Constant Power (-3dB)"), QVariant( Sampler::QUADRATIC_CONST_POWER ) );
+	panLawComboBox->addItem( tr("Constant Sum (-6dB)"), QVariant( Sampler::QUADRATIC_CONST_SUM ) );
 	panLawComboBox->addItem( tr("Constant k-Norm (Custom dB compensation)"),
-																		QVariant( pSampler->QUADRATIC_CONST_K_NORM ) );
+																		QVariant( Sampler::QUADRATIC_CONST_K_NORM ) );
 
-	panLawComboBox->setCurrentIndex( panLawComboBox->findData( pSampler->getPanLawType() ) );
+	panLawComboBox->setCurrentIndex( panLawComboBox->findData( pSong->getPanLawType() ) );
 	panLawChanged(); // to hide custom dB SPL compensation
 	panLawComboBox->setToolTip( tr("Relationship between the sound's apparent image position and the pan knob control"
 								 																					) );
@@ -113,8 +113,7 @@ MixerSettingsDialog::MixerSettingsDialog(QWidget* parent)
 	 */
 	QValidator *validator = new QDoubleValidator( -10000., 0., 20, this );
 	dBCompensationLineEdit->setValidator( validator );
-	dBCompensationLineEdit->setText( QString( "%1" ).arg( -6.0206 / pSampler->getPanLawKNorm() ) );
-	
+	dBCompensationLineEdit->setText( QString( "%1" ).arg( -6.0206 / pSong->getPanLawKNorm() ) );
 }
 
 
@@ -133,16 +132,12 @@ void MixerSettingsDialog::on_cancelBtn_clicked()
 }
 
 
-void MixerSettingsDialog::on_okBtn_clicked()
-{	
-	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
+void MixerSettingsDialog::on_okBtn_clicked() {
+	Song* pSong = Hydrogen::get_instance()->getSong();
 	bool bOk;
 	
-	
 	// Pan Law settings
-
-	pSampler->setPanLawType( ( panLawComboBox->currentData() ).toInt( &bOk ) );
-	
+	pSong->setPanLawType( ( panLawComboBox->currentData() ).toInt( &bOk ) );
 	
 	// allowing both point or comma decimal separator
 	float fdBCenterCompensation = ( dBCompensationLineEdit->text() ).replace( ",", "." ).toFloat( &bOk );
@@ -159,19 +154,18 @@ void MixerSettingsDialog::on_okBtn_clicked()
 	/** convert the dB Compensation to the corresponding exponent k: assuming constraint L^k + R^k = 1
 	* For example -6.0206 dB <=> k = 1 <=> L + R = 1 (i.e. constant sum)
 	*/
-	pSampler->setPanLawKNorm( - 6.0206 / fdBCenterCompensation );
+	pSong->setPanLawKNorm( - 6.0206 / fdBCenterCompensation );
 
 	accept();
 }
 
-void MixerSettingsDialog::panLawChanged(){
+void MixerSettingsDialog::panLawChanged(){ // hide/show some widgets
 	bool bOk;
 	int nPanLawType = ( panLawComboBox->currentData() ).toInt( &bOk);
-	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
-	if (   nPanLawType == pSampler->LINEAR_CONST_K_NORM
-		|| nPanLawType == pSampler->POLAR_CONST_K_NORM
-		|| nPanLawType == pSampler->RATIO_CONST_K_NORM
-		|| nPanLawType == pSampler->QUADRATIC_CONST_K_NORM
+	if (   nPanLawType == Sampler::LINEAR_CONST_K_NORM
+		|| nPanLawType == Sampler::POLAR_CONST_K_NORM
+		|| nPanLawType == Sampler::RATIO_CONST_K_NORM
+		|| nPanLawType == Sampler::QUADRATIC_CONST_K_NORM
 	   )
 	{
 		dBCompensationLineEdit->show();

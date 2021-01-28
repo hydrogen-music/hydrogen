@@ -10,9 +10,6 @@
     <height>157</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Form1</string>
-  </property>
   <widget class="QComboBox" name="panLawComboBox">
    <property name="geometry">
     <rect>

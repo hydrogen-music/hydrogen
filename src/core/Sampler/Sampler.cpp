@@ -92,8 +92,6 @@ Sampler::Sampler()
 	m_pPlaybackTrackInstrument = createInstrument( PLAYBACK_INSTR_ID, sEmptySampleFilename, 0.8 );
 	m_nPlayBackSamplePosition = 0;
 
-	// default pan law
-	m_nPanLawType = RATIO_STRAIGHT_POLYGONAL;
 }
 
 
@@ -110,6 +108,11 @@ Sampler::~Sampler()
 	delete m_pPlaybackTrackInstrument;
 	m_pPlaybackTrackInstrument = nullptr;
 }
+
+/** set default k for pan law with -4.5dB center compensation, given L^k + R^k = const
+ * it is the mean compromise between constant sum and constant power
+ */
+float const Sampler::K_NORM_DEFAULT = 1.33333333333333;
 
 void Sampler::process( uint32_t nFrames, Song* pSong )
 {
@@ -239,9 +242,6 @@ void Sampler::noteOff(Note* pNote )
 // functions for pan parameters and laws-----------------
 
 float Sampler::getRatioPan( float fPan_L, float fPan_R ) {
-   /** returns the single pan parameter in [-1,1] from the L,R gains
-	* as it was input from the GUI (up to scale and translation, which is arbitrary)
-	*/
 	if ( fPan_L < 0. || fPan_R < 0. || ( fPan_L == 0. && fPan_R == 0.) ) { // invalid input
 		WARNINGLOG( "Invalid (panL, panR): both zero or some is negative. Pan set to center." );
 		return 0.; // default central value
@@ -254,52 +254,6 @@ float Sampler::getRatioPan( float fPan_L, float fPan_R ) {
 	}
 }
 
-   /** PAN LAWS
-	* The following pan law functions return pan_L (==L, which is the gain for Left channel).
-	* They assume a fPan argument domain in [-1;1], and this always happens
-	* thanks to the previously called getRatioPan().
-	*----------------------------
-	* For the right channel use: R(p) == pan_R(p) = pan_L(-p) == L(-p)
-	* thanks to the Left-Right symmetry.
-	*--------------------------------------
-	* The prefix of the function name tells the interpretation of the fPan argument:
-	*
-	* "ratio" parameter:
-	* 	 fPan = R/L - 1	if panned to the left,
-	* 	 fPan = 1 - L/R	if panned to the right.
-	*
-	* "linear" parameter (arithmetic mean with linear weights):
-	*	 fPan = ( R - L ) / ( R + L ).
-	*
-	* "polar" parameter (polar coordinate in LR plane):
-	*    fPan = 4 / pi * arctan( R/L ) - 1	if L != 0,
-	*    fPan = 1	if L == 0.
-	*
-	* "quadratic" parameter (arithmetic mean with squared weights):
-	*	 fPan = ( R^2 - L^2 ) / ( R^2 + L^2 ).
-	*
-	* Note: using a different fPan interpretation makes the output signal more central or more lateral.
-	* From more central to more lateral:
-	* "quadratic" ---> "ratio" ---> "polar" ---> "linear"
-	*---------------------------------------------
-	* After the prefix, the name describes the Image of the pan law in the LR plane.
-	* (remember that each pan law is a parametrized curve in LR plane.
-	* E.g.:
-	*	"ConstantSum":
-	*		it's properly used in an anechoic room, where there are no reflections.
-	*		Ensures uniform volumes in MONO export,
-	*		has -6.02 dB center compensation.
-	*	"ConstantPower":
-	*		probably makes uniform volumes in a common room,
-	*		has -3.01 dB center compensation.
-	*	"ConstantKNorm":
-	*		L^k + R^k = const
-	*		generalises constant sum (k = 1) and constant power (k = 2)
-	* 	"StraightPolygonal":
-	*		one gain is constant while the other varies.
-	*		It's ideal as BALANCE law of DUAL-channel track,
-	*		has 0 dB center compensation.
-	*/
 	
 float Sampler::ratioStraightPolygonalPanLaw( float fPan ) {
 	// the straight polygonal pan law interpreting fPan as the "ratio" parameter
@@ -415,47 +369,45 @@ float Sampler::ratioConstKNormPanLaw( float fPan, float k) {
 }
 
 // function to direct the computation to the selected pan law.
-inline float Sampler::panLaw( float fPan ) {
-	if ( m_nPanLawType == RATIO_STRAIGHT_POLYGONAL ) {
+inline float Sampler::panLaw( float fPan, Song* pSong ) {
+	int nPanLawType = pSong->getPanLawType();
+	if ( nPanLawType == RATIO_STRAIGHT_POLYGONAL ) {
 		return ratioStraightPolygonalPanLaw( fPan );
-	} else if ( m_nPanLawType == RATIO_CONST_POWER ) {
+	} else if ( nPanLawType == RATIO_CONST_POWER ) {
 		return ratioConstPowerPanLaw( fPan );
-	} else if ( m_nPanLawType == RATIO_CONST_SUM ) {
+	} else if ( nPanLawType == RATIO_CONST_SUM ) {
 		return ratioConstSumPanLaw( fPan );
-	} else if ( m_nPanLawType == LINEAR_STRAIGHT_POLYGONAL ) {
+	} else if ( nPanLawType == LINEAR_STRAIGHT_POLYGONAL ) {
 		return linearStraightPolygonalPanLaw( fPan );
-	} else if ( m_nPanLawType == LINEAR_CONST_POWER ) {
+	} else if ( nPanLawType == LINEAR_CONST_POWER ) {
 		return linearConstPowerPanLaw( fPan );
-	} else if ( m_nPanLawType == LINEAR_CONST_SUM ) {
+	} else if ( nPanLawType == LINEAR_CONST_SUM ) {
 		return linearConstSumPanLaw( fPan );
-	} else if ( m_nPanLawType == POLAR_STRAIGHT_POLYGONAL ) {
+	} else if ( nPanLawType == POLAR_STRAIGHT_POLYGONAL ) {
 		return polarStraightPolygonalPanLaw( fPan );
-	} else if ( m_nPanLawType == POLAR_CONST_POWER ) {
+	} else if ( nPanLawType == POLAR_CONST_POWER ) {
 		return polarConstPowerPanLaw( fPan );
-	} else if ( m_nPanLawType == POLAR_CONST_SUM ) {
+	} else if ( nPanLawType == POLAR_CONST_SUM ) {
 		return polarConstSumPanLaw( fPan );
-	} else if ( m_nPanLawType == QUADRATIC_STRAIGHT_POLYGONAL ) {
+	} else if ( nPanLawType == QUADRATIC_STRAIGHT_POLYGONAL ) {
 		return quadraticStraightPolygonalPanLaw( fPan );
-	} else if ( m_nPanLawType == QUADRATIC_CONST_POWER ) {
+	} else if ( nPanLawType == QUADRATIC_CONST_POWER ) {
 		return quadraticConstPowerPanLaw( fPan );
-	} else if ( m_nPanLawType == QUADRATIC_CONST_SUM ) {
+	} else if ( nPanLawType == QUADRATIC_CONST_SUM ) {
 		return quadraticConstSumPanLaw( fPan );
-	} else if ( m_nPanLawType == LINEAR_CONST_K_NORM ) {
-		return linearConstKNormPanLaw( fPan, m_fPanLawKNorm );
-	} else if ( m_nPanLawType == POLAR_CONST_K_NORM ) {
-		return polarConstKNormPanLaw( fPan, m_fPanLawKNorm );
-	} else if ( m_nPanLawType == RATIO_CONST_K_NORM ) {
-		return ratioConstKNormPanLaw( fPan, m_fPanLawKNorm );
-	} else if ( m_nPanLawType == QUADRATIC_CONST_K_NORM ) {
-		return quadraticConstKNormPanLaw( fPan, m_fPanLawKNorm );
+	} else if ( nPanLawType == LINEAR_CONST_K_NORM ) {
+		return linearConstKNormPanLaw( fPan, pSong->getPanLawKNorm() );
+	} else if ( nPanLawType == POLAR_CONST_K_NORM ) {
+		return polarConstKNormPanLaw( fPan, pSong->getPanLawKNorm() );
+	} else if ( nPanLawType == RATIO_CONST_K_NORM ) {
+		return ratioConstKNormPanLaw( fPan, pSong->getPanLawKNorm() );
+	} else if ( nPanLawType == QUADRATIC_CONST_K_NORM ) {
+		return quadraticConstKNormPanLaw( fPan, pSong->getPanLawKNorm() );
 	} else {
-		WARNINGLOG( "Unknown pan law type. Set default." );
-		m_nPanLawType = RATIO_STRAIGHT_POLYGONAL;
+		WARNINGLOG( "Unknown pan law type. Used default." );
 		return ratioStraightPolygonalPanLaw( fPan );
 	}
 }
-
-
 
 //------------------------------------------------------------------
 
@@ -508,8 +460,8 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 	float fPan = fInstrPan + fNotePan * ( 1 - fabs( fInstrPan ) );
 	
 	// Pass fPan to the Pan Law
-	float fPan_L = panLaw( fPan );
-	float fPan_R = panLaw( -fPan );
+	float fPan_L = panLaw( fPan, pSong );
+	float fPan_R = panLaw( -fPan, pSong );
 	//---------------------------------------------------------
 
 	bool nReturnValues [pInstr->get_components()->size()];
