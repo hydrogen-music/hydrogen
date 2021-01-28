@@ -91,7 +91,6 @@ Sampler::Sampler()
 	// dummy instrument used for playback track
 	m_pPlaybackTrackInstrument = createInstrument( PLAYBACK_INSTR_ID, sEmptySampleFilename, 0.8 );
 	m_nPlayBackSamplePosition = 0;
-
 }
 
 
@@ -404,7 +403,8 @@ inline float Sampler::panLaw( float fPan, Song* pSong ) {
 	} else if ( nPanLawType == QUADRATIC_CONST_K_NORM ) {
 		return quadraticConstKNormPanLaw( fPan, pSong->getPanLawKNorm() );
 	} else {
-		WARNINGLOG( "Unknown pan law type. Used default." );
+		WARNINGLOG( "Unknown pan law type. Set default." );
+		pSong->setPanLawType( RATIO_STRAIGHT_POLYGONAL );
 		return ratioStraightPolygonalPanLaw( fPan );
 	}
 }
