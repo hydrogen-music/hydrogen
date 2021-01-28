@@ -54,7 +54,8 @@ PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
 							  PatternEditorPanel *panel )
 	: Object ( sClassName ), QWidget( pParent ), m_selection( this ) {
 	m_nResolution = 8;
-	m_bUseTriplets = false;
+ 	m_nTupletNumerator = 4;
+ 	m_nTupletDenominator = 4;
 	m_pDraggedNote = nullptr;
 	m_pPatternEditorPanel = panel;
 	m_pPattern = nullptr;
@@ -82,11 +83,19 @@ PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
 }
 
 
-void PatternEditor::setResolution(uint res, bool bUseTriplets)
+void PatternEditor::setResolution( uint res )
 {
-	this->m_nResolution = res;
-	this->m_bUseTriplets = bUseTriplets;
+	m_nResolution = res;
 
+	// redraw all
+	update( 0, 0, width(), height() );
+	m_pPatternEditorPanel->updateEditors();
+}
+
+void PatternEditor::setTupletRatio( int nTupletNumerator, int nTupletDenominator ) {
+	m_nTupletNumerator = nTupletNumerator;
+	m_nTupletDenominator = nTupletDenominator;
+	
 	// redraw all
 	update( 0, 0, width(), height() );
 	m_pPatternEditorPanel->updateEditors();
@@ -143,11 +152,22 @@ QColor PatternEditor::computeNoteColor( float velocity ){
 }
 
 int PatternEditor::getColumn( int x ) const
-{
-	int nWidth = m_nGridWidth * granularity();
-	int nColumn = ( x - m_nMargin + (nWidth / 2) ) / nWidth;
-	nColumn = nColumn * granularity();
+{	// converts the position in ticks, rounded to place the tuplets.
+	float fWidth = m_nGridWidth * granularity();
+	int nColumn = ( x - m_nMargin + (fWidth / 2) ) / fWidth;
+	nColumn = round ( nColumn * granularity() );
+	printf( "round column = %d\n", nColumn);
 	return nColumn;
+}
+
+float PatternEditor::getFloatColumn( int x ) const
+{	// converts the position in ticks, unrounded for calculate tuplets position mismatch
+	float fWidth = m_nGridWidth * granularity();
+	float fColumn =  floor ( x - m_nMargin + (fWidth / 2) );
+	fColumn = floor ( fColumn / fWidth ) ;
+	fColumn = fColumn * granularity();
+	printf( "float column = %f\n", fColumn);
+	return fColumn;
 }
 
 void PatternEditor::selectNone()
@@ -328,14 +348,14 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 				pStyle->m_patternEditor_line5Color.getBlue() ),
 	};
 
-	int nGranularity = granularity() * m_nResolution;
+	int nGranularity = round( granularity() * m_nResolution );
 	int nNotes = MAX_NOTES;
 	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
 	}
 	int nMaxX = m_nGridWidth * nNotes + m_nMargin;
 
-	if ( !m_bUseTriplets ) {
+	if ( m_nTupletNumerator == 4 && m_nTupletDenominator == 4 ) { //TODO if they are equal
 
 		// Draw vertical lines. To minimise pen colour changes (and
 		// avoid unnecessary division operations), we draw them in
@@ -376,18 +396,26 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 
 	} else {
 
-		// Triplet style markers, we only differentiate colours on the
-		// first of every triplet.
-		uint nStep = granularity() * m_nGridWidth;
+		// Tuplets style markers, we only differentiate colours on the
+		// first of every tuplet.
+		//float fStep = granularity() * m_nGridWidth;
+		float fStep = (float) MAX_NOTES * m_nTupletDenominator / ( m_nTupletNumerator * m_nResolution ) * m_nGridWidth; //TODO use granularity(), change granularity()?
+		printf("%f\n", fStep);
 		p.setPen(  QPen( res[ 0 ], 0, style ) );
-		for ( uint x = m_nMargin; x < nMaxX; x += nStep * 3 ) {
-			p.drawLine(x, 1, x, m_nEditorHeight - 1);
+		for ( float x = m_nMargin; x < nMaxX; x += fStep * m_nTupletNumerator ) {
+			p.drawLine( x, 1, x, m_nEditorHeight - 1);
 		}
-		// Second and third marks
+		// Second, third... n-th marks
 		p.setPen(  QPen( res[ 2 ], 0, style ) );
-		for ( uint x = m_nMargin + nStep; x < nMaxX; x += nStep * 3 ) {
-			p.drawLine(x, 1, x, m_nEditorHeight - 1);
-			p.drawLine(x + nStep, 1, x + nStep, m_nEditorHeight - 1);
+		for ( float x0 = m_nMargin; x0 < nMaxX; x0 += fStep * m_nTupletNumerator ) {
+			for ( uint i = 1; i < m_nTupletNumerator; i++ ) {
+				int x = round( x0 + i * fStep );
+				if ( x < nMaxX ) {
+					p.drawLine( x, 1, x, m_nEditorHeight - 1 );
+				} else {
+					i = m_nTupletNumerator; // trick to break
+				}
+			}
 		}
 	}
 

@@ -374,14 +374,7 @@ void InstrumentLine::functionFillNotes( int every )
 
 	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
-	int nBase;
-	if ( pPatternEditor->isUsingTriplets() ) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-	int nResolution = 4 * MAX_NOTES * every / ( nBase * pPatternEditor->getResolution() );
+	int nResolution = 4 * MAX_NOTES * every / ( pPatternEditor->getTupletNumerator() * pPatternEditor->getResolution() );
 
 
 	Song *pSong = pEngine->getSong();
@@ -429,14 +422,7 @@ void InstrumentLine::functionRandomizeVelocity()
 	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
 
 
-	int nBase;
-	if ( pPatternEditor->isUsingTriplets() ) {
-		nBase = 3;
-	}
-	else {
-		nBase = 4;
-	}
-	int nResolution = 4 * MAX_NOTES / ( nBase * pPatternEditor->getResolution() );
+	int nResolution = 4 * MAX_NOTES / ( pPatternEditor->getTupletNumerator() * pPatternEditor->getResolution() );
 
 	Song *pSong = pEngine->getSong();
 

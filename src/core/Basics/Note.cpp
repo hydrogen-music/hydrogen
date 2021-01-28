@@ -52,6 +52,8 @@ Note::Note( Instrument* instrument, int position, float velocity, float pan_l, f
 	  __octave( P8 ),
 	  __adsr( nullptr ),
 	  __lead_lag( 0.0 ),
+	  m_nTimeOffsetNumerator( 0 ),
+	  m_nTupletNumerator( 4 ),
 	  __cut_off( 1.0 ),
 	  __resonance( 0.0 ),
 	  __humanize_delay( 0 ),

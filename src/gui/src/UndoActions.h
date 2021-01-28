@@ -492,6 +492,8 @@ public:
 							   float oldPan_L,
 							   float oldPan_R,
 							   float oldLeadLag,
+							   int oldTimeOffsetNumerator,
+							   int oldDivisionBase,
 							   int oldNoteKeyVal,
 							   int oldOctaveKeyVal,
 							   bool isDelete,
@@ -513,6 +515,8 @@ public:
 		__oldPan_L = oldPan_L;
 		__oldPan_R = oldPan_R;
 		__oldLeadLag = oldLeadLag;
+		m_nOldTimeOffsetNumerator = oldTimeOffsetNumerator;
+		m_nOldDivisionBase = oldDivisionBase;
 		__oldNoteKeyVal = oldNoteKeyVal;
 		__oldOctaveKeyVal = oldOctaveKeyVal;
 		__listen = listen;
@@ -534,6 +538,8 @@ public:
 												__oldPan_L,
 												__oldPan_R,
 												__oldLeadLag,
+												m_nOldTimeOffsetNumerator,
+												m_nOldDivisionBase,
 												__oldNoteKeyVal,
 												__oldOctaveKeyVal,
 												__listen,
@@ -554,6 +560,8 @@ public:
 												__oldPan_L,
 												__oldPan_R,
 												__oldLeadLag,
+												m_nOldTimeOffsetNumerator,
+												m_nOldDivisionBase,
 												__oldNoteKeyVal,
 												__oldOctaveKeyVal,
 												__listen,
@@ -571,6 +579,8 @@ private:
 	float __oldPan_L;
 	float __oldPan_R;
 	float __oldLeadLag;
+	int m_nOldTimeOffsetNumerator;
+	int m_nOldDivisionBase;
 	int __oldNoteKeyVal;
 	int __oldOctaveKeyVal;
 	bool __listen;
@@ -594,12 +604,44 @@ public:
 	virtual void undo()
 	{
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, false, false, false, true, !__isDelete ) ;
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn,
+																						__nRow,
+																						__selectedPatternNumber,
+																						-1,
+																						0.8f,
+																						0.5f,
+																						0.5f,
+																						0.0,
+																						0, //TODO 0 4 ?! divbase...
+																						4,
+																						0,
+																						0,
+																						false,
+																						false,
+																						false,
+																						true,
+																						!__isDelete ) ;
 	}
 	virtual void redo()
 	{
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, false, false, false, true, __isDelete );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn,
+																						__nRow,
+																						__selectedPatternNumber,
+																						-1,
+																						0.8f,
+																						0.5f,
+																						0.5f,
+																						0.0,
+																						0, //TODO 0 4 ?! divbase...
+																						4,
+																						0,
+																						0,
+																						false,
+																						false,
+																						false,
+																						true,
+																						__isDelete );
 	}
 private:
 	int __nColumn;
@@ -1317,6 +1359,8 @@ public:
 											__oldPan_L,
 											__oldPan_R,
 											__oldLeadLag,
+											//m_nOldTimeOffsetNumerator,
+											//m_nOldDivisionBase,
 											__oldProbability,
 											__oldNoteKeyVal,
 											__oldOctaveKeyVal );
@@ -1333,6 +1377,8 @@ public:
 											__pan_L,
 											__pan_R,
 											__leadLag,
+											//m_nOldTimeOffsetNumerator,
+											//m_nOldDivisionBase,
 											__probability,
 											__noteKeyVal,
 											__octaveKeyVal );
@@ -1351,6 +1397,8 @@ private:
 	float __pan_R;
 	float __oldPan_R;
 	float __leadLag;
+	//int m_nOldTimeOffsetNumerator;
+	//int m_nOldDivisionBase;
 	float __oldLeadLag;
 	float __probability;
 	float __oldProbability;

@@ -566,7 +566,10 @@ inline unsigned		audioEngine_renderNote( Note* pNote, const unsigned& nBufferSiz
  * which position enclose the current tick too, will be added to the
  * #m_songNoteQueue. If the Song is in Song::PATTERN_MODE, the
  * patterns used are not chosen by the actual position but by
- * #m_nSelectedPatternNumber and #m_pNextPatterns. 
+ * #m_nSelectedPatternNumber and #m_pNextPatterns.
+ *
+ * - ALong with the position, a note carrys information for the
+ * start time offset (for tuplet notes start_time compensation)
  *
  * All notes obtained by the current patterns (and only those) are
  * also subject to humanization in the onset position of the created
@@ -1888,7 +1891,12 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 					Note *pNote = it->second;
 					if ( pNote ) {
 						pNote->set_just_recorded( false );
-						int nOffset = 0;
+						// offset in frames (relative to sample rate)
+						int nOffset = fTickSize * pNote->getFloatTimeOffsetInTicks();
+						printf("FloatTimeOffsetInTicks = %f\n", pNote->getFloatTimeOffsetInTicks() );
+						printf("TimeOffsetNumerator() = %d\n", pNote->getTimeOffsetNumerator() );
+						printf("getTupletNumerator() = %d\n", pNote->getTupletNumerator() );
+						printf("fTickSize = %f\n", fTickSize );
 
 						// Swing //
 						// Add a constant and periodic offset at
@@ -2596,8 +2604,9 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	Preferences *pPreferences = Preferences::get_instance();
 	unsigned int nRealColumn = 0;
 	unsigned res = pPreferences->getPatternEditorGridResolution();
-	int nBase = pPreferences->isPatternEditorUsingTriplets() ? 3 : 4;
-	int scalar = ( 4 * MAX_NOTES ) / ( res * nBase );
+	int nBase = pPreferences->getPatternEditorGridTupletNumerator();
+	int nTupletDenominator = pPreferences->getPatternEditorGridTupletDenominator();
+	int scalar = ( 4 * MAX_NOTES ) / ( res * nBase ); // TODO float? TupletDenominator??
 	bool hearnote = forcePlay;
 	int currentPatternNumber;
 
@@ -2705,7 +2714,7 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 
 	if ( currentPattern && pPreferences->getQuantizeEvents() ) {
 		// quantize it to scale
-		unsigned qcolumn = ( unsigned )::round( column / ( double )scalar ) * scalar;
+		unsigned qcolumn = ( unsigned )::round( column / ( double )scalar ) * scalar; //TODO TupletDenominator??
 
 		//we have to make sure that no beat is added on the last displayed note in a bar
 		//for example: if the pattern has 4 beats, the editor displays 5 beats, so we should avoid adding beats an note 5.

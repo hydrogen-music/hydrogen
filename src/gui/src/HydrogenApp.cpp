@@ -655,13 +655,15 @@ void HydrogenApp::onEventQueueTimer()
 																			 pQueue->m_addMidiNoteVector[0].f_pan_L,
 																			 pQueue->m_addMidiNoteVector[0].f_pan_R,
 																			 0.0,
+																			 0,
+																			 4,
 																			 pQueue->m_addMidiNoteVector[0].nk_noteKeyVal,
 																			 pQueue->m_addMidiNoteVector[0].no_octaveKeyVal,
 																			 false,
 																			 false,
 																			 pQueue->m_addMidiNoteVector[0].b_isMidi,
 																			 pQueue->m_addMidiNoteVector[0].b_isInstrumentMode,
-																			 false );
+																			 false ); //TODO 0 4 ?! divbase...
 
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}

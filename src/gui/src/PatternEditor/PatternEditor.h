@@ -66,12 +66,26 @@ public:
 
 
 	//! Set the editor grid resolution, dividing a whole note into `res` subdivisions. 
-	void setResolution( uint res, bool bUseTriplets );
+	void setResolution( uint res );
 	uint getResolution() const { return m_nResolution; }
-	bool isUsingTriplets() const { return m_bUseTriplets;	}
+	
+	//void setTupletNumerator( int n ) { m_nTupletNumerator = n; }
+	int	getTupletNumerator() const { return m_nTupletNumerator; }
+
+	//void setTupletDenominator( int n ) { m_nTupletDenominator = n; }
+	int	getTupletDenominator() const { return m_nTupletDenominator; }
+	
+	void setTupletRatio( int nTupletNumerator, int nTupletDenominator );
 
 	float getGridWidth() const { return m_nGridWidth; }
 	unsigned getGridHeight() const { return m_nGridHeight; }
+	
+	void setTupletResolution( int nRes, int nTupletNum,  int nTupletDen) { //TODO needed?
+		m_nResolution = nRes;
+		m_nTupletNumerator = nTupletNum;
+		m_nTupletDenominator = nTupletDen;
+	 }
+
 	//! Zoom in / out on the time axis
 	void zoomIn();
 	void zoomOut();
@@ -132,16 +146,10 @@ public slots:
 
 protected:
 
-	//! Granularity of grid positioning (in ticks)
-	int granularity() const {
-		int nBase;
-		if (m_bUseTriplets) {
-			nBase = 3;
-		}
-		else {
-			nBase = 4;
-		}
-		return 4 * MAX_NOTES / ( nBase * m_nResolution );
+	//! Granularity of grid positioning ( = distance between grid marks, in ticks unit)
+	float granularity() const { // float for tuplets
+		//return (float) 4. * MAX_NOTES / ( m_nTupletNumerator * m_nResolution );
+		return (float) MAX_NOTES * m_nTupletDenominator / ( m_nTupletNumerator * m_nResolution );
 	}
 
 	uint m_nEditorHeight;
@@ -156,7 +164,20 @@ protected:
 	const int m_nMargin = 20;
 
 	uint m_nResolution;
-	bool m_bUseTriplets;
+	/** 
+	* A tuplet is explicitly specified by a rational number, i.e. the fraction = m_nTupletNumerator / m_nTupletDenominator
+	* in fact this fraction divides the note value returning its resultant length (in whole note units).
+	* example: standard triplets 3:2 = 3/2,
+	*	 in fact a single eight note under a triplet has length = 1/8 * 2/3 of whole note = 1/12 of whole note;
+	* other examples: standard quintuplets: 5:4 = 5/4;
+	* weird (wrongly written?) quintuplets: 5:2;
+	* std quartuplets: 4:3;
+	* a difficult tuplet: 5:3.
+	* Note: when the TupletDenominator is hidden, a power of 2 is usually assumed (the biggest but not bigger than TupletNumerator)
+	* except for quartuplets or 2-tuplets (in those cases there isn't a more used assumed TupletDenominator).
+	*/
+	int m_nTupletNumerator; // TODO rename TupletNumerator
+	int m_nTupletDenominator; //TODO rename? TupletDenominator
 	bool m_bFineGrained;
 	bool m_bCopyNotMove;
 
@@ -167,6 +188,7 @@ protected:
 	QMenu *m_pPopupMenu;
 
 	int getColumn( int x ) const;
+	float getFloatColumn( int x ) const;
 	QPoint movingGridOffset() const;
 
 	//! Draw lines for note grid.

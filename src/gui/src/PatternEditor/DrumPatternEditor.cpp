@@ -97,8 +97,8 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 }
 
 
-void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int row,
-										 bool bDoAdd, bool bDoDelete ) {
+void DrumPatternEditor::addOrRemoveNote( float fColumn, int nColumn, int nRealColumn, int row,
+										 bool bDoAdd, bool bDoDelete ) { //TODO avoid fColumn
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( row );
 	H2Core::Note *pOldNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument );
@@ -108,6 +108,21 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int row,
 	float oldPan_L = 0.5f;
 	float oldPan_R = 0.5f;
 	float oldLeadLag = 0.0f;
+	int oldTimeOffsetNumerator = 0;
+	if ( m_nTupletDenominator != m_nTupletNumerator ) { // it's a tuplet!
+		//oldTimeOffsetInTicks = (float) ( fColumn - nColumn); // adjust for tuplets that don't fit the grid
+		//int i = round( fColumn / 8 * m_nTupletDenominator / m_nTupletNumerator);
+
+		//oldTimeOffsetNumerator = ( i * MAX_NOTES / 8 * m_nTupletDenominator ) % m_nTupletNumerator;
+		oldTimeOffsetNumerator = round( ( fColumn - nColumn ) * m_nTupletNumerator ); // TODO avoid fColumn, get a formula
+		if ( 2 * oldTimeOffsetNumerator >= m_nTupletNumerator ) {
+			// since note position will be rounded, time-offset adjustion must be < 0.5 and > -0.5
+			oldTimeOffsetNumerator -= m_nTupletNumerator;
+		}
+	}
+	printf( "oldTimeOffsetNumerator = %d \n", oldTimeOffsetNumerator );
+	printf( "m_nTupletNumerator = %d \n", m_nTupletNumerator );
+	printf( "m_nTupletDenominator = %d \n\n", m_nTupletDenominator );
 	Note::Key oldNoteKeyVal = Note::C;
 	Note::Octave oldOctaveKeyVal = Note::P8;
 	bool isNoteOff = false;
@@ -139,6 +154,8 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int row,
 																	 oldPan_L,
 																	 oldPan_R,
 																	 oldLeadLag,
+																	 oldTimeOffsetNumerator,
+																	 m_nTupletNumerator,
 																	 oldNoteKeyVal,
 																	 oldOctaveKeyVal,
 																	 pOldNote != nullptr,
@@ -166,6 +183,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		return;
 	}
 	int nColumn = getColumn( ev->x() );
+	float fColumn = getFloatColumn( ev->x() );
 	int nRealColumn = 0;
 	if( ev->x() > m_nMargin ) {
 		nRealColumn = ev->x() / static_cast<float>(m_nGridWidth) - m_nMargin;
@@ -190,6 +208,8 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 																			 pNote->get_pan_l(),
 																			 pNote->get_pan_r(),
 																			 pNote->get_lead_lag(),
+																			 pNote->getTimeOffsetNumerator(),
+																			 pNote->getTupletNumerator(),
 																			 pNote->get_key(),
 																			 pNote->get_octave(),
 																			 true,
@@ -208,7 +228,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	else if ( ev->button() == Qt::LeftButton ) {
 
 		pHydrogen->setSelectedInstrumentNumber( row );
-		addOrRemoveNote( nColumn, nRealColumn, row );
+		addOrRemoveNote( fColumn, nColumn, nRealColumn, row );
 		m_selection.clearSelection();
 
 	} else if ( ev->button() == Qt::RightButton ) {
@@ -263,6 +283,8 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 												float oldPan_L,
 												float oldPan_R,
 												float oldLeadLag,
+												int  oldTimeOffsetNumerator,
+												int oldTupletNumerator,
 												int oldNoteKeyVal,
 												int oldOctaveKeyVal,
 												bool listen,
@@ -331,6 +353,8 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		float fPitch = 0.f;
 		
 		Note *pNote = new Note( pSelectedInstrument, nPosition, fVelocity, fPan_L, fPan_R, nLength, fPitch );
+		pNote->setTimeOffsetNumerator( oldTimeOffsetNumerator );
+		pNote->setTupletNumerator( oldTupletNumerator );
 		pNote->set_note_off( isNoteOff );
 		if ( !isNoteOff ) {
 			pNote->set_lead_lag( oldLeadLag );
@@ -509,6 +533,8 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   pNote->get_pan_l(),
 														   pNote->get_pan_r(),
 														   pNote->get_lead_lag(),
+														   pNote->getTimeOffsetNumerator(),
+														   pNote->getTupletNumerator(),
 														   pNote->get_key(),
 														   pNote->get_octave(),
 														   true,
@@ -529,6 +555,8 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   pNote->get_pan_l(),
 														   pNote->get_pan_r(),
 														   pNote->get_lead_lag(),
+														   pNote->getTimeOffsetNumerator(),
+														   pNote->getTupletNumerator(),
 														   pNote->get_key(),
 														   pNote->get_octave(),
 														   false,
@@ -691,7 +719,8 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		// Key: Enter / Return: add or remove note at current position
 		m_selection.clearSelection();
-		addOrRemoveNote( m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument );
+		addOrRemoveNote( -1, m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument );
+		//TODO replace -1 with fcolumn
 
 	} else if ( ev->key() == Qt::Key_Delete ) {
 		// Key: Delete / Backspace: delete selected notes, or note under keyboard cursor
@@ -701,7 +730,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 			deleteSelection();
 		} else {
 			// Delete note under the keyboard cursor.
-			addOrRemoveNote(  m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument,
+			addOrRemoveNote( -1, m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument,
 							  /*bDoAdd=*/false, /*bDoDelete=*/true);
 
 		}
@@ -829,6 +858,8 @@ void DrumPatternEditor::deleteSelection()
 																 pNote->get_pan_l(),
 																 pNote->get_pan_r(),
 																 pNote->get_lead_lag(),
+																 pNote->getTimeOffsetNumerator(),
+																 pNote->getTupletNumerator(),
 																 pNote->get_key(),
 																 pNote->get_octave(),
 																 true, // noteExisted
@@ -942,6 +973,8 @@ void DrumPatternEditor::paste()
 														   pNote->get_pan_l(),
 														   pNote->get_pan_r(),
 														   pNote->get_lead_lag(),
+														   pNote->getTimeOffsetNumerator(),
+														   pNote->getTupletNumerator(),
 														   pNote->get_key(),
 														   pNote->get_octave(),
 														   false, // isDelete
@@ -1062,13 +1095,13 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 		return;
 	}
 
-	uint pos = note->get_position();
+	float fPos = note->get_position() + note->getFloatTimeOffsetInTicks();
 
 	QColor color = computeNoteColor( note->get_velocity() );
 
 	uint w = 8;
 	uint h =  m_nGridHeight / 3;
-	uint x_pos = m_nMargin + (pos * m_nGridWidth);
+	uint x_pos = m_nMargin + ( fPos * m_nGridWidth );
 	uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 
 	bool bSelected = m_selection.isSelected( note );
@@ -1128,7 +1161,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 		float fNotePitch = note->get_octave() * 12 + note->get_key();
 		float fStep = pow( 1.0594630943593, ( double )fNotePitch );
 
-		uint x = m_nMargin + (pos * m_nGridWidth);
+		uint x = m_nMargin + (fPos * m_nGridWidth);
 		int w = m_nGridWidth * note->get_length() / fStep;
 		w = w - 1;	// lascio un piccolo spazio tra una nota ed un altra
 

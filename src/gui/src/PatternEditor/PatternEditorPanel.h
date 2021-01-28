@@ -97,6 +97,9 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void updatePatternSizeLCD();
 		void patternSizeLCDClicked();
 		void denominatorWarningClicked();
+		void tupletLCDClicked();
+		void setResolutionToAllEditors( int nResolution );
+		void setTupletRatioToAllEditors( int nTupletNum, int nTupletDen );
 
 
 		void hearNotesBtnClick(Button *ref);
@@ -128,6 +131,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		LCDDisplay *			__pattern_size_LCD;
 		Button *			m_pDenominatorWarning;
 		LCDCombo *			__resolution_combo;
+		LCDDisplay *		m_pTupletLCD;
 		ToggleButton *		__show_drum_btn;
 		ToggleButton *		__show_piano_btn;
 		QComboBox *			__recpredelete;

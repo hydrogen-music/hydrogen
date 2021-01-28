@@ -106,7 +106,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 //wolke some background images back_size_res
 	PixmapWidget *pSizeResol = new PixmapWidget( nullptr );
-	pSizeResol->setFixedSize( 216, 20 );
+	pSizeResol->setFixedSize( 300, 20 );
 	pSizeResol->setPixmap( "/patternEditor/background_res-new.png" );
 	pSizeResol->move( 0, 3 );
 	editor_top_hbox_2->addWidget( pSizeResol );
@@ -156,7 +156,12 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__resolution_combo->move( 154, 2 );
 	// is triggered from inside PatternEditorPanel()
 	connect( __resolution_combo, SIGNAL( valueChanged( int ) ), this, SLOT( gridResolutionChanged( int ) ) );
-
+	
+	// TUPLET LCD
+	m_pTupletLCD = new LCDDisplay( pSizeResol, LCDDigit::SMALL_BLUE, 5 );
+	m_pTupletLCD->move( 252, 2 );
+	m_pTupletLCD->setToolTip( tr( "Select resolution Tuplet" ) );
+	connect( m_pTupletLCD, SIGNAL( displayClicked( LCDDisplay* ) ), this, SLOT( tupletLCDClicked() ) );
 
 	PixmapWidget *pRec = new PixmapWidget( nullptr );
 	pRec->setFixedSize( 300, 20 );
@@ -566,7 +571,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	int nRes = pPref->getPatternEditorGridResolution();
 	if ( nRes == MAX_NOTES ) {
 		nIndex = 11;
-	} else if ( pPref->isPatternEditorUsingTriplets() == false ) {
+	} else if ( pPref->getPatternEditorGridTupletNumerator() == 4 ) {
 		switch ( nRes ) {
 			case  4: nIndex = 0; break;
 			case  8: nIndex = 1; break;
@@ -577,7 +582,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				nIndex = 0;
 				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
 		}
-	} else {
+	} else if ( pPref->getPatternEditorGridTupletNumerator() == 3 ) {
 		switch ( nRes ) {
 			case  8: nIndex = 6; break;
 			case 16: nIndex = 7; break;
@@ -589,6 +594,14 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		}
 	}
 	__resolution_combo->select( nIndex );
+	
+	int nBase = pPref->getPatternEditorGridTupletNumerator();
+	int nTupletDenominator = pPref->getPatternEditorGridTupletDenominator();
+	if ( nBase == 4 && nTupletDenominator == 4 ) {
+		m_pTupletLCD->setText( tr( "off" ) );
+	} else {
+		m_pTupletLCD->setText( QString("%1:%1").arg( nBase ).arg( nTupletDenominator ) );
+	}
 
 	//set pre delete
 	__recpredelete->setCurrentIndex( pPref->m_nRecPreDelete );
@@ -670,17 +683,30 @@ void PatternEditorPanel::on_patternEditorHScroll( int nValue )
 
 
 
-void PatternEditorPanel::gridResolutionChanged( int nSelected )
+void PatternEditorPanel::gridResolutionChanged( int nSelected /*, int nBase, int nTupletDenominator*/ )
 {
 	int nResolution;
-	bool bUseTriplets = false;
 
 	if ( nSelected == 11 ) {
 		nResolution = MAX_NOTES;
+		int nTupletNumerator = 4;
+		int nTupletDenominator = 4;
+				
+		Preferences::get_instance()->setPatternEditorGridTupletRatio( nTupletNumerator, nTupletDenominator );
+		
+		m_pTupletLCD->setText( QString( "%1:%2" ).arg( nTupletNumerator ).arg( nTupletDenominator ) );
+		setTupletRatioToAllEditors( nTupletNumerator, nTupletDenominator );
 	}
-	else if ( nSelected > 4 ) {
-		bUseTriplets = true;
-		nResolution = 0x1 << ( nSelected - 3 );
+	else if ( nSelected > 4 ) { // TODO deprecate or keep triplets here?
+		int nTupletNumerator = 3;
+		int nTupletDenominator = 2;
+		
+		Preferences::get_instance()->setPatternEditorGridTupletRatio( nTupletNumerator, nTupletDenominator );
+		
+		m_pTupletLCD->setText( QString( "%1:%2" ).arg( nTupletNumerator ).arg( nTupletDenominator ) );
+		setTupletRatioToAllEditors( nTupletNumerator, nTupletDenominator );
+		
+		nResolution = 0x1 << ( nSelected - 4 );
 	}
 	else {
 		nResolution = 0x1 << ( nSelected + 2 );
@@ -688,22 +714,36 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 
 	// INFOLOG( QString("idx %1 -> %2 resolution").arg( nSelected ).arg( nResolution ) );
 
-	m_pDrumPatternEditor->setResolution( nResolution, bUseTriplets );
-	m_pPianoRollEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteVelocityEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteLeadLagEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteNoteKeyEditor->setResolution( nResolution, bUseTriplets );
-	m_pNoteProbabilityEditor->setResolution( nResolution, bUseTriplets );
-	m_pNotePanEditor->setResolution( nResolution, bUseTriplets );
+	setResolutionToAllEditors( nResolution );
+	
 
-	m_nCursorIncrement = ( bUseTriplets ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
+	//TODO check consistency with tuplets
+	int nTupletNumerator = Preferences::get_instance()->getPatternEditorGridTupletNumerator();
+	m_nCursorIncrement = ( nTupletNumerator == 3 ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
 	m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement );
 
 	Preferences::get_instance()->setPatternEditorGridResolution( nResolution );
-	Preferences::get_instance()->setPatternEditorUsingTriplets( bUseTriplets );
 }
 
+void PatternEditorPanel::setResolutionToAllEditors( int nResolution ) {
+	m_pDrumPatternEditor->setResolution( nResolution );
+	m_pPianoRollEditor->setResolution( nResolution );
+	m_pNoteVelocityEditor->setResolution( nResolution );
+	m_pNoteLeadLagEditor->setResolution( nResolution );
+	m_pNoteNoteKeyEditor->setResolution( nResolution );
+	m_pNoteProbabilityEditor->setResolution( nResolution );
+	m_pNotePanEditor->setResolution( nResolution );
+}
 
+void PatternEditorPanel::setTupletRatioToAllEditors( int nTupletNum, int nTupletDen ) {
+	m_pDrumPatternEditor->setTupletRatio( nTupletNum, nTupletDen );
+	m_pPianoRollEditor->setTupletRatio( nTupletNum, nTupletDen );
+	m_pNoteVelocityEditor->setTupletRatio( nTupletNum, nTupletDen );
+	m_pNoteLeadLagEditor->setTupletRatio( nTupletNum, nTupletDen );
+	m_pNoteNoteKeyEditor->setTupletRatio( nTupletNum, nTupletDen );
+	m_pNoteProbabilityEditor->setTupletRatio( nTupletNum, nTupletDen );
+	m_pNotePanEditor->setTupletRatio( nTupletNum, nTupletDen );
+}
 
 void PatternEditorPanel::selectedPatternChangedEvent()
 {
@@ -1048,6 +1088,75 @@ void PatternEditorPanel::patternSizeLCDClicked()
 		    }
 		}
 		else { // last case: user entered more than 2 slashes
+		    	QMessageBox::information( this, "Hydrogen", tr( "Text rejected" ) );
+		    	return;
+		}
+	}
+}
+
+void PatternEditorPanel::tupletLCDClicked()
+{
+	Preferences *pPref = Preferences::get_instance();
+	bool bIsOkPressed;
+	int nTupletNumerator;
+	int nTupletDenominator;
+	// want to show ratio to see the input format, even if tuplet is currently off 
+	QString text = QString( "%1:%2" ).arg( pPref->getPatternEditorGridTupletNumerator() )
+									.arg( pPref->getPatternEditorGridTupletDenominator() );
+									
+	/*QString text = m_pTupletLCD->getText(); //TODO cancel
+	if ( text == "off" ) {
+		text = "4:4";
+	}*/
+	
+	QString qtmp = QInputDialog::getText( this, "Tuplet Resolution", tr( "Enter tuplet ratio (\"4\" to set off)" ),
+											QLineEdit::Normal, text, &bIsOkPressed );
+	
+	if ( bIsOkPressed ) {
+	    if	( m_pTupletLCD->getText() == qtmp ) { // text unchanged
+	    	return;
+	    }
+	    
+		QStringList parts = qtmp.split( ':' );
+		if ( parts.size() == 1 || parts.size() == 2 ) { // must reject if parts.size > 2 or null
+		    bool bOk;
+		    nTupletNumerator = parts[0].toInt( &bOk );
+		    if ( bOk && parts.size() == 2 ) { // user entered both numerator and denominator
+				nTupletDenominator = parts[1].toInt( &bOk );
+				if ( bOk && ( nTupletDenominator <= 0 || nTupletDenominator > MAX_NOTES ) ) { //TODO limit?
+			   		QMessageBox::information( this, "Hydrogen", tr( "Denominator value rejected.\nLimits: (0, %1]"
+			   														 ).arg(MAX_NOTES) );
+			   		return;
+				}
+		    }
+		    else { // user entered numerator only. compute the standard denominator
+		    	nTupletDenominator = 1; //TODO binary operator
+		    	while ( ( 2 * nTupletDenominator ) <= nTupletNumerator ) {
+		    		nTupletDenominator *= 2;
+		    	}
+		    } 
+		    if ( bOk && nTupletNumerator > 0 ) {
+				if ( nTupletNumerator > 20 ) { //TODO limit? 
+					 // pattern size is limited because the pattern editor ruler goes up to 16/4. Limit might be extended
+					QMessageBox::information( this, "Hydrogen", tr( "Tuplet numerator too big.\nMaximum = 20" ) );
+					return;
+				}
+				else {
+					// set tublet numerator and denominator
+						//TODO set in gridresolutionchanged()
+						pPref->setPatternEditorGridTupletRatio( nTupletNumerator, nTupletDenominator );
+
+						setTupletRatioToAllEditors( nTupletNumerator, nTupletDenominator );
+
+						m_pTupletLCD->setText( QString( "%1:%2" ).arg( nTupletNumerator ).arg( nTupletDenominator ) );
+				}
+		    }
+		    else { // user entered invalid text
+		    	QMessageBox::information( this, "Hydrogen", tr( "Text rejected" ) );
+		    	return;
+		    }
+		}
+		else { // last case: user entered more than 2 ':'
 		    	QMessageBox::information( this, "Hydrogen", tr( "Text rejected" ) );
 		    	return;
 		}
