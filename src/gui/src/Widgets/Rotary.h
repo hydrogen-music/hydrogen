@@ -59,7 +59,7 @@ class Rotary : public QWidget, public H2Core::Object, public MidiLearnable
 		Rotary(const Rotary&) = delete;
 		Rotary& operator=( const Rotary& rhs ) = delete;
 	
-		Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip );
+		Rotary( QWidget* parent, RotaryType type, QString sToolTip, bool bUseIntSteps, bool bUseValueTip, float fMin = 0.0, float fMax = 1.0 );
 		~Rotary();
 
 		void setMin( float fMin );
