@@ -399,10 +399,10 @@ void MainForm::createMenuBar()
 	QMenu *m_pOptionsMenu = m_pMenubar->addMenu( tr( "&Options" ));
 
 	m_pInputModeMenu = m_pOptionsMenu->addMenu( tr( "Input mode" ) );
-	m_pInstrumentAction = m_pInputModeMenu->addAction( tr( "Instrument" ), this, SLOT( action_toggle_input_mode()), QKeySequence( "Ctrl+Alt+I" ) );
+	m_pInstrumentAction = m_pInputModeMenu->addAction( tr( "Instrument" ), this, SLOT( action_inputMode_instrument() ), QKeySequence( "Ctrl+Alt+I" ) );
 	m_pInstrumentAction->setCheckable( true );
 
-	m_pDrumkitAction = m_pInputModeMenu->addAction( tr( "Drumkit" ), this, SLOT( action_toggle_input_mode()), QKeySequence( "Ctrl+Alt+D" ) );
+	m_pDrumkitAction = m_pInputModeMenu->addAction( tr( "Drumkit" ), this, SLOT( action_inputMode_drumkit() ), QKeySequence( "Ctrl+Alt+D" ) );
 	m_pDrumkitAction->setCheckable( true );
 
 	if( Preferences::get_instance()->__playselectedinstrument )
@@ -724,18 +724,24 @@ void MainForm::action_file_save()
 }
 
 
-void MainForm::action_toggle_input_mode()
+void MainForm::action_inputMode_instrument()
 {
 	if( !Preferences::get_instance()->__playselectedinstrument )
 	{
 		Preferences::get_instance()->__playselectedinstrument = true;
-		m_pInstrumentAction->setChecked( true );
 		m_pDrumkitAction->setChecked (false );
-	} else {
+	}
+	m_pInstrumentAction->setChecked( true );
+}
+
+void MainForm::action_inputMode_drumkit()
+{
+	if( Preferences::get_instance()->__playselectedinstrument )
+	{
 		Preferences::get_instance()->__playselectedinstrument = false;
 		m_pInstrumentAction->setChecked( false );
-		m_pDrumkitAction->setChecked (true );
 	}
+	m_pDrumkitAction->setChecked (true );
 }
 
 void MainForm::action_help_about() {
