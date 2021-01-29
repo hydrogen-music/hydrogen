@@ -80,7 +80,7 @@ public:
 	float getGridWidth() const { return m_nGridWidth; }
 	unsigned getGridHeight() const { return m_nGridHeight; }
 	
-	void setTupletResolution( int nRes, int nTupletNum,  int nTupletDen) { //TODO needed?
+	void setTupletResolution( int nRes, int nTupletNum, int nTupletDen) { //TODO needed?
 		m_nResolution = nRes;
 		m_nTupletNumerator = nTupletNum;
 		m_nTupletDenominator = nTupletDen;
@@ -176,8 +176,8 @@ protected:
 	* Note: when the TupletDenominator is hidden, a power of 2 is usually assumed (the biggest but not bigger than TupletNumerator)
 	* except for quartuplets or 2-tuplets (in those cases there isn't a more used assumed TupletDenominator).
 	*/
-	int m_nTupletNumerator; // TODO rename TupletNumerator
-	int m_nTupletDenominator; //TODO rename? TupletDenominator
+	int m_nTupletNumerator;
+	int m_nTupletDenominator;
 	bool m_bFineGrained;
 	bool m_bCopyNotMove;
 

@@ -1891,44 +1891,63 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 					Note *pNote = it->second;
 					if ( pNote ) {
 						pNote->set_just_recorded( false );
-						// offset in frames (relative to sample rate)
-						int nOffset = fTickSize * pNote->getFloatTimeOffsetInTicks();
+						
+						/** Time Offset in frames (relative to sample rate)
+						*	Sum of 4 components: tuplet compensation, swing, humanized timing, lead_lag
+						*/
+						int nOffset = 0;
+						
+						/** Tuplet time compensation //
+						 * It's non-null only if the note is inside a tuplet that does not divide
+						 * max resolution = MAX_NOTES.
+						 * E.g.: if MAX_NOTES = 192 => MAX_NOTES % 5 != 0 => quintuplet notes exact start-time
+						 * in ticks is fractional (while note position is rounded)
+						 */
+						if( pNote->getTimeOffsetNumerator() != 0 ) {
+							// note: fTickSize is in frames
+							nOffset += (int) round( fTickSize * pNote->getFloatTimeOffsetInTicks() );
+						}
+
 						printf("FloatTimeOffsetInTicks = %f\n", pNote->getFloatTimeOffsetInTicks() );
 						printf("TimeOffsetNumerator() = %d\n", pNote->getTimeOffsetNumerator() );
 						printf("getTupletNumerator() = %d\n", pNote->getTupletNumerator() );
-						printf("fTickSize = %f\n", fTickSize );
+						printf("fTickSize in frames = %f\n\n", fTickSize );
 
-						// Swing //
-						// Add a constant and periodic offset at
-						// predefined positions to the note position.
-						// TODO: incorporate the factor of 6.0 either
-						// in Song::m_fSwingFactor or make it a member
-						// variable.
+					   /** Swing 16ths //
+						* delay the upbeat 16th-notes by a constant (manual) offset
+						*/
 						float fSwingFactor = pSong->getSwingFactor();
-						if ( ( ( m_nPatternTickPosition % 12 ) == 0 )
-							 && ( ( m_nPatternTickPosition % 24 ) != 0 ) ) {
-							// da l'accento al tick 4, 12, 20, 36...
-							nOffset += (int)( 6.0 * fTickSize * fSwingFactor );
+						if ( ( ( m_nPatternTickPosition % ( MAX_NOTES / 16 ) ) == 0 )
+							 && ( ( m_nPatternTickPosition % ( MAX_NOTES / 8 ) ) != 0 ) ) {
+							/* TODO: incorporate the factor MAX_NOTES / 32. either in Song::m_fSwingFactor
+							* or make it a member variable.
+							* comment by oddtime:
+							* 32 depends on the fact that the swing is applied to the upbeat 16th-notes.
+							* (not to upbeat 8th-notes as in jazz swing!).
+							* however 32 could be changed but must be >16, otherwise the delay is too much and note
+							* will be played after the next downbeat!
+							*/
+							nOffset += (int) ( ( (float) MAX_NOTES / 32. ) * fTickSize * fSwingFactor );
 						}
 
-						// Humanize - Time parameter //
-						// Add a random offset to each note. Due to
-						// the nature of the Gaussian distribution,
-						// the factor Song::m_fHumanizeTimeValue will
-						// also scale the variance of the generated
-						// random variable.
+					   /** Humanize - Time parameter //
+						* Add a random offset to each note.
+						* Due to the nature of the Gaussian distribution,
+						* the factor Song::m_fHumanizeTimeValue will also scale
+						* the variance of the generated random variable.
+						*/
 						if ( pSong->getHumanizeTimeValue() != 0 ) {
-							nOffset += ( int )(
+							nOffset += (int) (
 										getGaussian( 0.3 )
 										* pSong->getHumanizeTimeValue()
 										* pHydrogen->m_nMaxTimeHumanize
 										);
 						}
 
-						// Lead or Lag - timing parameter //
-						// Add a constant offset to all notes.
-						nOffset += (int) ( pNote->get_lead_lag()
-										   * nLeadLagFactor );
+						/** Lead or Lag - timing parameter //
+						 * Add a (manual) offset to the note.
+						 */
+						nOffset += (int) ( pNote->get_lead_lag() * nLeadLagFactor );
 
 						// No note is allowed to start prior to the
 						// beginning of the song.
