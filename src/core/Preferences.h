@@ -194,9 +194,6 @@ public:
 
 	bool				__playselectedinstrument; // midi keys and keys play instrument or drumset
 
-	int					m_nRecPreDelete; //index of record note pre delete function 0 = off
-	int					m_nRecPostDelete;
-
 	bool				m_bFollowPlayhead;
 
 	// switch to enable / disable lash, only on h2 startup
@@ -472,9 +469,6 @@ public:
 	void			setRecordEvents( bool value );
 	bool			getRecordEvents();
 
-	void			setDestructiveRecord ( bool value );
-	bool			getDestructiveRecord();
-
 	void			setPunchInPos ( unsigned pos );
 	int				getPunchInPos();
 
@@ -705,7 +699,6 @@ private:
 
 	bool				quantizeEvents;
 	bool				recordEvents;
-	bool				destructiveRecord;
 	bool				readPrefFileforotherplaces;
 	int					punchInPos;
 	int					punchOutPos;
@@ -1000,13 +993,6 @@ inline void Preferences::setRecordEvents( bool value ) {
 }
 inline bool Preferences::getRecordEvents() {
 	return recordEvents;
-}
-
-inline void Preferences::setDestructiveRecord ( bool value ) {
-	destructiveRecord = value;
-}
-inline bool Preferences::getDestructiveRecord() {
-	return destructiveRecord;
 }
 
 inline void Preferences::setPunchInPos ( unsigned pos ) {

@@ -100,7 +100,6 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 
 	private slots:
 		void recBtnClicked(Button* ref);
-		void recBtnRightClicked(Button* ref);
 		void playBtnClicked(Button* ref);
 		void stopBtnClicked(Button* ref);
 		void updatePlayerControl();
@@ -152,7 +151,6 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 
 		Button *m_pRwdBtn;
 		ToggleButton *m_pRecBtn;
-		ToggleButton *m_pRecDelBtn;
 		ToggleButton *m_pPlayBtn;
 		Button *m_pStopBtn;
 		Button *m_pFfwdBtn;

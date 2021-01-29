@@ -69,10 +69,6 @@ Preferences::Preferences()
 	m_brestartLash = false;
 	m_bsetLash = false;
 
-	//init pre delete default
-	m_nRecPreDelete = 0;
-	m_nRecPostDelete = 0;
-
 	//rubberband bpm change queue
 	m_useTheRubberbandBpmChangeEvent = false;
 	__rubberBandCalcTime = 5;
@@ -106,7 +102,6 @@ Preferences::Preferences()
 	__playselectedinstrument = false; // midi keyboard and keyboard play only selected instrument
 
 	recordEvents = false; // not recording by default
-	destructiveRecord = false; // not destructively recording by default
 	punchInPos = 0;
 	punchOutPos = -1;
 
@@ -332,8 +327,6 @@ void Preferences::loadPreferences( bool bGlobal )
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
 			m_useTheRubberbandBpmChangeEvent = LocalFileMng::readXmlBool( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent );
-			m_nRecPreDelete = LocalFileMng::readXmlInt( rootNode, "preDelete", 0 );
-			m_nRecPostDelete = LocalFileMng::readXmlInt( rootNode, "postDelete", 0 );
 
 			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
 			quantizeEvents = LocalFileMng::readXmlBool( rootNode, "quantizeEvents", quantizeEvents );
@@ -757,8 +750,6 @@ void Preferences::savePreferences()
 
 	LocalFileMng::writeXmlString( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent ? "true": "false" );
 
-	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
-	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );
 	LocalFileMng::writeXmlString( rootNode, "useRelativeFilenamesForPlaylists", m_bUseRelativeFilenamesForPlaylists ? "true": "false" );
 	LocalFileMng::writeXmlBool( rootNode, "hideKeyboardCursorWhenUnused", m_bHideKeyboardCursor );
 	
