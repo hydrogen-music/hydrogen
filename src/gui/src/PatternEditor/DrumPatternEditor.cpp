@@ -814,26 +814,34 @@ void DrumPatternEditor::deleteSelection()
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
 		InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-		pUndo->beginMacro("delete notes");
 		validateSelection();
+
+		// Construct list of UndoActions to perform before performing any of them, as the
+		// addOrDeleteNoteAction may delete duplicate notes in undefined order.
+		std::list< QUndoCommand *> actions;
 		for ( Note *pNote : m_selection ) {
 			if ( m_selection.isSelected( pNote ) ) {
-				pUndo->push( new SE_addOrDeleteNoteAction( pNote->get_position(),
-														   pInstrumentList->index( pNote->get_instrument() ),
-														   m_nSelectedPatternNumber,
-														   pNote->get_length(),
-														   pNote->get_velocity(),
-														   pNote->get_pan_l(),
-														   pNote->get_pan_r(),
-														   pNote->get_lead_lag(),
-														   pNote->get_key(),
-														   pNote->get_octave(),
-														   true, // noteExisted
-														   false, // listen
-														   false,
-														   false,
-														   pNote->get_note_off() ) );
+				actions.push_back( new SE_addOrDeleteNoteAction( pNote->get_position(),
+																 pInstrumentList->index( pNote->get_instrument() ),
+																 m_nSelectedPatternNumber,
+																 pNote->get_length(),
+																 pNote->get_velocity(),
+																 pNote->get_pan_l(),
+																 pNote->get_pan_r(),
+																 pNote->get_lead_lag(),
+																 pNote->get_key(),
+																 pNote->get_octave(),
+																 true, // noteExisted
+																 false, // listen
+																 false,
+																 false,
+																 pNote->get_note_off() ) );
 			}
+		}
+
+		pUndo->beginMacro("delete notes");
+		for ( QUndoCommand *pAction : actions ) {
+			pUndo->push( pAction );
 		}
 		pUndo->endMacro();
 		m_selection.clearSelection();
