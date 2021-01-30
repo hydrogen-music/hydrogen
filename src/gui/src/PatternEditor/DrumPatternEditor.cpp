@@ -1114,7 +1114,7 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 	uint w = 8;
 	uint h =  m_nGridHeight / 3;
-	uint x_pos = m_nMargin + ( fPos * m_fGridWidth );
+	uint x_pos = round( m_nMargin + ( fPos * m_fGridWidth ) );
 	uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
 
 	bool bSelected = m_selection.isSelected( note );
@@ -1174,23 +1174,23 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 		float fNotePitch = note->get_octave() * 12 + note->get_key();
 		float fStep = pow( 1.0594630943593, ( double )fNotePitch );
 
-		uint x = m_nMargin + (fPos * m_fGridWidth);
+		// uint x = round( m_nMargin + ( fPos * m_fGridWidth ) ); 
 		int w = m_fGridWidth * note->get_length() / fStep;
 		w = w - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
 		int y = (int) ( ( nInstrument ) * m_nGridHeight  + (m_nGridHeight / 100.0 * 30.0) );
 		int h = (int) (m_nGridHeight - ((m_nGridHeight / 100.0 * 30.0) * 2.0) );
 		if ( bSelected ) {
-			p.drawRoundedRect( x-2, y+1-2, w+4, h+1+4, 4, 4 );
+			p.drawRoundedRect( x_pos -2, y+1-2, w+4, h+1+4, 4, 4 );
 		}
 		p.setPen(noteColor);
 		p.setBrush( color );
-		p.fillRect( x, y + 1, w, h + 1, color );	/// \todo: definire questo colore nelle preferenze
-		p.drawRect( x, y + 1, w, h + 1 );
+		p.fillRect( x_pos, y + 1, w, h + 1, color );
+		p.drawRect( x_pos, y + 1, w, h + 1 );
 		if ( bMoving ) {
 			p.setPen( movingPen );
 			p.setBrush( Qt::NoBrush );
-			p.drawRoundedRect( movingOffset.x() + x-2, movingOffset.y() + y+1-2, w+4, h+1+4, 4, 4 );
+			p.drawRoundedRect( movingOffset.x() + x_pos-2, movingOffset.y() + y+1-2, w+4, h+1+4, 4, 4 );
 		}
 
 	}

@@ -363,7 +363,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 	}
 	int nMaxX = m_fGridWidth * nNotes + m_nMargin;
 
-	if ( m_nTupletNumerator == 4 && m_nTupletDenominator == 4 ) { //TODO if they are equal
+	if ( m_nTupletNumerator == 4 && m_nTupletDenominator == 4 ) { // every other case is drawn in tuplet mode
 
 		// Draw vertical lines. To minimise pen colour changes (and
 		// avoid unnecessary division operations), we draw them in
@@ -406,8 +406,8 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 
 		// Tuplets style markers, we only differentiate colours on the
 		// first of every tuplet.
-		//float fStep = granularity() * m_fGridWidth;
-		float fStep = (float) MAX_NOTES * m_nTupletDenominator / ( m_nTupletNumerator * m_nResolution ) * m_fGridWidth; //TODO use granularity(), change granularity()?
+		// float fStep = granularity() * m_fGridWidth;
+		float fStep = granularity() * m_fGridWidth;
 		printf("%f\n", fStep);
 		p.setPen(  QPen( res[ 0 ], 0, style ) );
 		for ( float x = m_nMargin; x < nMaxX; x += fStep * m_nTupletNumerator ) {
