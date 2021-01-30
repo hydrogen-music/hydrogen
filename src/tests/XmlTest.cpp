@@ -11,6 +11,7 @@
 #include <core/Basics/Sample.h>
 
 #include <core/Helpers/Filesystem.h>
+#include <core/Helpers/Xml.h>
 #include "TestHelper.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlTest );
@@ -111,6 +112,18 @@ void XmlTest::testDrumkit()
 	delete dk0;
 	//delete dk1;
 	//delete dk2;
+}
+
+void XmlTest::testShippedDrumkits()
+{
+	H2Core::XMLDoc doc;
+	for ( auto ii : H2Core::Filesystem::sys_drumkit_list() ) {
+		CPPUNIT_ASSERT( doc.read( QString( "%1%2/drumkit.xml" )
+								  .arg( H2Core::Filesystem::sys_drumkits_dir() )
+								  .arg( ii ),
+								  H2Core::Filesystem::drumkit_xsd_path() ) );
+
+	}
 }
 
 //Load drumkit which includes instrument with invalid ADSR values.
