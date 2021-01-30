@@ -541,9 +541,15 @@ void Preferences::loadPreferences( bool bGlobal )
 				mixerFalloffSpeed = LocalFileMng::readXmlFloat( guiNode, "mixer_falloff_speed", 1.1f );
 
 				// pattern editor grid resolution
-				m_nPatternEditorGridResolution = LocalFileMng::readXmlInt( guiNode, "patternEditorGridResolution", m_nPatternEditorGridResolution );
-				m_nPatternEditorGridTupletNumerator = LocalFileMng::readXmlInt( guiNode, "patternEditorGridTupletNumerator", m_nPatternEditorGridTupletNumerator );
-				
+				m_nPatternEditorGridResolution = LocalFileMng::readXmlInt( guiNode,
+											"patternEditorGridResolution", m_nPatternEditorGridResolution );
+
+				// pattern editor grid Tuplet ratio	
+				m_nPatternEditorGridTupletNumerator = LocalFileMng::readXmlInt( guiNode,
+											 "patternEditorGridTupletNumerator", m_nPatternEditorGridTupletNumerator );
+				m_nPatternEditorGridTupletDenominator = LocalFileMng::readXmlInt( guiNode,
+										  "patternEditorGridTupletDenominator", m_nPatternEditorGridTupletDenominator );
+
 				m_bShowInstrumentPeaks = LocalFileMng::readXmlBool( guiNode, "showInstrumentPeaks", m_bShowInstrumentPeaks );
 				m_bIsFXTabVisible = LocalFileMng::readXmlBool( guiNode, "isFXTabVisible", m_bIsFXTabVisible );
 				m_bShowAutomationArea = LocalFileMng::readXmlBool( guiNode, "showAutomationArea", m_bShowAutomationArea );

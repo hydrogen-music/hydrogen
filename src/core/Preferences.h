@@ -522,7 +522,7 @@ public:
 	int				getPatternEditorGridTupletDenominator() const;
 	//void			setPatternEditorGridTupletDenominator( int n );
 	
-	// setter for both Tuplet numerator and denominator
+	// setter for both Tuplet numerator and denominator together
 	void			setPatternEditorGridTupletRatio( int nTupletNumerator, int nTupletDenominator );
 
 	bool			isFXTabVisible();
