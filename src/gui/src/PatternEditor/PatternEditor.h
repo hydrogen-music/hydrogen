@@ -75,9 +75,10 @@ public:
 	//void setTupletDenominator( int n ) { m_nTupletDenominator = n; }
 	int	getTupletDenominator() const { return m_nTupletDenominator; }
 	
+	// tuplet numerator and denominator should be set together
 	void setTupletRatio( int nTupletNumerator, int nTupletDenominator );
 
-	float getGridWidth() const { return m_nGridWidth; }
+	float getGridWidth() const { return m_fGridWidth; }
 	unsigned getGridHeight() const { return m_nGridHeight; }
 	
 	void setTupletResolution( int nRes, int nTupletNum, int nTupletDen) { //TODO needed?
@@ -146,38 +147,62 @@ public slots:
 
 protected:
 
-	//! Granularity of grid positioning ( = distance between grid marks, in ticks unit)
+	//! Granularity of grid positioning ( = distance between grid marks), in tick units
 	float granularity() const { // float for tuplets
-		//return (float) 4. * MAX_NOTES / ( m_nTupletNumerator * m_nResolution );
 		return (float) MAX_NOTES * m_nTupletDenominator / ( m_nTupletNumerator * m_nResolution );
 	}
 
 	uint m_nEditorHeight;
 	uint m_nEditorWidth;
-
-	float m_nGridWidth;
+	
+	/* the graphic width of a tick (whose duration is defined: whole note / MAX_NOTES ) in pixel units.
+	*	it depends on zoom.
+	*/
+	float m_fGridWidth;
+	
 	unsigned m_nGridHeight;
 
 	int m_nSelectedPatternNumber;
 	H2Core::Pattern *m_pPattern;
 
+	/* use it to add a left margin in the editor, before the first tick */
 	const int m_nMargin = 20;
 
+	/** the inverse of grid quantum duration in whole notes
+	* e.g. quantum = 1/16 of whole note <=> resolution = 16
+	* Ideally one could set any (fractional) resolution, but the GUI doesn't allow this:
+	* possible values are only powers of 2 in the GUI (or MAX_NOTES if resolution is set to off)
+	*
+	* comment by oddtime:
+	* 	It would be so cool entering resolutions like 12 (8th triplets) or 20 (16ths quintuplets)
+	* 	or 3/20 (quarter 5:3 tuplets)...!!!
+	* 	However the same result is possible with tuplets, accordingly to music notation style.
+	*/
 	uint m_nResolution;
-	/** 
-	* A tuplet is explicitly specified by a rational number, i.e. the fraction = m_nTupletNumerator / m_nTupletDenominator
-	* in fact this fraction divides the note value returning its resultant length (in whole note units).
-	* example: standard triplets 3:2 = 3/2,
-	*	 in fact a single eight note under a triplet has length = 1/8 * 2/3 of whole note = 1/12 of whole note;
-	* other examples: standard quintuplets: 5:4 = 5/4;
-	* weird (wrongly written?) quintuplets: 5:2;
-	* std quartuplets: 4:3;
-	* a difficult tuplet: 5:3.
-	* Note: when the TupletDenominator is hidden, a power of 2 is usually assumed (the biggest but not bigger than TupletNumerator)
-	* except for quartuplets or 2-tuplets (in those cases there isn't a more used assumed TupletDenominator).
+	
+	/** Tuplet notation is used to represent ANY rational note value in whole notes, using the std music symbols
+	* (quarters, 8ths, 16ths...).
+	* A tuplet is explicitly specified by a rational number: the fraction = m_nTupletNumerator / m_nTupletDenominator,
+	* in fact this fraction DIVIDES the note value returning its resultant length (in whole note units).
+	*
+	* Example: for standard triplets the ratio is 3:2,
+	*	 in fact a single 1/8 note under a triplet has length = 1/8 * 2/3 of whole note = 1/12 of whole note.
+	* Other examples: standard quintuplets: 5:4;
+	* 	weird (wrongly written?) quintuplets: 5:2;
+	* 	quartuplets in compound meters: 4:3;
+	* 	a difficult tuplet: 5:7.
+	*
+	* Note: when the TupletDenominator is hidden, a power of 2 is usually assumed for it (the biggest but not bigger
+	*	than TupletNumerator) except for quartuplets or 2-tuplets (in those cases there isn't a more used assumed
+	*	TupletDenominator).
+	* Note: since the music symbols provides all the (inverse) powers of 2 (quarters, 8ths, 16ths...)
+	*	plus a sum operator (the tie!),	the tuplet denominator (which becomes a numerator ;) ) is actually REDUNDANT
+	*	to get any rational note duration in whole notes,
+	* 	BUT music notation provides it and user may benefit from it	(tuplet is more clear with the explicit ratio).
 	*/
 	int m_nTupletNumerator;
 	int m_nTupletDenominator;
+	
 	bool m_bFineGrained;
 	bool m_bCopyNotMove;
 
@@ -187,8 +212,13 @@ protected:
 	PatternEditorPanel *m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
 
+	/* the ROUNDED position of the nearest grid mark, in tick units */
 	int getColumn( int x ) const;
+	/* the position of the nearest grid mark, in tick units (unrounded value!) */
 	float getFloatColumn( int x ) const;
+	/* The index of the nearest grid mark */
+	int getGridIndex( int x ) const;
+	
 	QPoint movingGridOffset() const;
 
 	//! Draw lines for note grid.

@@ -63,8 +63,9 @@ PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
 	m_bFineGrained = false;
 	m_bCopyNotMove = false;
 
-	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
-	m_nEditorWidth = m_nMargin + m_nGridWidth * ( MAX_NOTES * 4 );
+	m_fGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
+	/* default width is four 4/4 bars, in pixels units */
+	m_nEditorWidth = m_nMargin + m_fGridWidth * ( MAX_NOTES * 4 );
 
 	setFocusPolicy(Qt::StrongFocus);
 
@@ -103,21 +104,21 @@ void PatternEditor::setTupletRatio( int nTupletNumerator, int nTupletDenominator
 
 void PatternEditor::zoomIn()
 {
-	if (m_nGridWidth >= 3) {
-		m_nGridWidth *= 2;
+	if ( m_fGridWidth >= 3. ) {
+		m_fGridWidth *= 2.;
 	} else {
-		m_nGridWidth *= 1.5;
+		m_fGridWidth *= 1.5;
 	}
 	updateEditor();
 }
 
 void PatternEditor::zoomOut()
 {
-	if ( m_nGridWidth > 1.5 ) {
-		if (m_nGridWidth > 3) {
-			m_nGridWidth /= 2;
+	if ( m_fGridWidth > 1.5 ) {
+		if ( m_fGridWidth > 3. ) {
+			m_fGridWidth /= 2.;
 		} else {
-			m_nGridWidth /= 1.5;
+			m_fGridWidth /= 1.5;
 		}
 		updateEditor();
 	}
@@ -152,23 +153,30 @@ QColor PatternEditor::computeNoteColor( float velocity ){
 }
 
 int PatternEditor::getColumn( int x ) const
-{	// converts the position in ticks, rounded to place the tuplets.
-	float fWidth = m_nGridWidth * granularity();
-	int nColumn = ( x - m_nMargin + (fWidth / 2) ) / fWidth;
-	nColumn = round ( nColumn * granularity() );
-	printf( "round column = %d\n", nColumn);
+{	// returns the position of the nearest grid mark, in tick units (rounded value!)
+	float fWidth = m_fGridWidth * granularity(); // distance between grid marks, in pixel units
+	float fGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark
+	int nColumn = round( fGridIndex * granularity() ); // the rounded position of the nearest grid mark, in tick units
+	printf( "round column = %d\n", nColumn );
 	return nColumn;
 }
 
-float PatternEditor::getFloatColumn( int x ) const
-{	// converts the position in ticks, unrounded for calculate tuplets position mismatch
-	float fWidth = m_nGridWidth * granularity();
-	float fColumn =  floor ( x - m_nMargin + (fWidth / 2) );
-	fColumn = floor ( fColumn / fWidth ) ;
-	fColumn = fColumn * granularity();
-	printf( "float column = %f\n", fColumn);
+float PatternEditor::getFloatColumn( int x ) const {
+	// converts the position in ticks, unrounded for calculate tuplets position mismatch
+	float fWidth = m_fGridWidth * granularity(); // distance between grid marks, in pixel units
+	float fGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark
+	float fColumn = fGridIndex * granularity(); // the position of the nearest grid mark, in tick units
+	printf( "float column = %f\n", fColumn );
 	return fColumn;
 }
+
+int PatternEditor::getGridIndex( int x ) const {
+	float fWidth = m_fGridWidth * granularity(); // distance between grid marks, in pixel units
+	int nGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark
+	printf( "grid index = %d\n", nGridIndex );
+	return nGridIndex;
+}
+
 
 void PatternEditor::selectNone()
 {
@@ -307,11 +315,11 @@ void PatternEditor::updatePatternInfo() {
 QPoint PatternEditor::movingGridOffset( ) const {
 	QPoint rawOffset = m_selection.movingOffset();
 	// Quantize offset to multiples of m_nGrid{Width,Height}
-	int nQuantX = m_nGridWidth, nQuantY = m_nGridHeight;
+	int nQuantX = m_fGridWidth, nQuantY = m_nGridHeight;
 	float nFactor = 1;
 	if ( ! m_bFineGrained ) {
 		nFactor = granularity();
-		nQuantX = m_nGridWidth * nFactor;
+		nQuantX = m_fGridWidth * nFactor;
 	}
 	int x_bias = nQuantX / 2, y_bias = nQuantY / 2;
 	if ( rawOffset.y() < 0 ) {
@@ -353,7 +361,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
 	}
-	int nMaxX = m_nGridWidth * nNotes + m_nMargin;
+	int nMaxX = m_fGridWidth * nNotes + m_nMargin;
 
 	if ( m_nTupletNumerator == 4 && m_nTupletDenominator == 4 ) { //TODO if they are equal
 
@@ -369,7 +377,7 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 		// | . : . | . : . | . : . | . : .   - third pass, odd 1/16th notes
 
 		uint nRes = 4;
-		uint nStep = nGranularity / nRes * m_nGridWidth;
+		uint nStep = nGranularity / nRes * m_fGridWidth;
 
 		// First, quarter note markers. All the quarter note markers must be drawn.
 		if ( m_nResolution >= nRes ) {
@@ -398,8 +406,8 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 
 		// Tuplets style markers, we only differentiate colours on the
 		// first of every tuplet.
-		//float fStep = granularity() * m_nGridWidth;
-		float fStep = (float) MAX_NOTES * m_nTupletDenominator / ( m_nTupletNumerator * m_nResolution ) * m_nGridWidth; //TODO use granularity(), change granularity()?
+		//float fStep = granularity() * m_fGridWidth;
+		float fStep = (float) MAX_NOTES * m_nTupletDenominator / ( m_nTupletNumerator * m_nResolution ) * m_fGridWidth; //TODO use granularity(), change granularity()?
 		printf("%f\n", fStep);
 		p.setPen(  QPen( res[ 0 ], 0, style ) );
 		for ( float x = m_nMargin; x < nMaxX; x += fStep * m_nTupletNumerator ) {
