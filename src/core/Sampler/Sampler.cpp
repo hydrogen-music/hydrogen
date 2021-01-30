@@ -436,7 +436,7 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 	}
 
 	// new instrument and note pan interaction--------------------------
-	// note pan moves the pan in a smaller pan range centered at instrument pan
+	// notePan moves the RESULTANT pan in a smaller pan range centered at instrumentPan
 
    /** reconvert (pan_L,pan_R) to a single pan parameter (as it was input from the GUI) in [-1,1].
 	* This redundance avoids to import old files as legacy.
@@ -450,11 +450,21 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 	float fNotePan = getRatioPan( pNote->get_pan_l(), pNote->get_pan_r() );
 	float fInstrPan = getRatioPan( pInstr->get_pan_l(), pInstr->get_pan_r() );
 	
-   /** Get the resultant pan, following a "matryoshka" multi panning:
-	* note pan moves the pan in a smaller pan range centered at instrument pan.
-	* The "note resultant pan range" depends on instrPan value:
+   /** Get the RESULTANT pan, following a "matryoshka" multi panning, like in this graphic:
+    *
+    *   L--------------instrPan---------C------------------------------>R			(instrumentPan = -0.4)
+    *                     |
+    *                     V
+    *   L-----------------C---notePan-------->R									    (notePan = +0.3)
+    *                            |
+    *                            V
+    *   L----------------------resPan---C------------------------------>R		    (resultantPan = -0.22)
+    *
+    * Explanation:
+	* notePan moves the RESULTANT pan in a smaller pan range centered at instrumentPan value,
+	* whose extension depends on instrPan value:
 	*	if instrPan is central, notePan moves the signal in the whole pan range (really from left to right);
-	*	if instrPan is sided, notePan moves the signal in a progressively smaller pan range centered at instrument pan;
+	*	if instrPan is sided, notePan moves the signal in a progressively smaller pan range centered at instrPan;
 	*	if instrPan is HARD-sided, notePan doesn't have any effect.
 	*/
 	float fPan = fInstrPan + fNotePan * ( 1 - fabs( fInstrPan ) );
