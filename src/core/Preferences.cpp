@@ -985,9 +985,12 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( guiNode, "mixer_font_family", mixerFontFamily );
 		LocalFileMng::writeXmlString( guiNode, "mixer_font_pointsize", QString("%1").arg( mixerFontPointSize ) );
 		LocalFileMng::writeXmlString( guiNode, "mixer_falloff_speed", QString("%1").arg( mixerFalloffSpeed ) );
-		LocalFileMng::writeXmlString( guiNode, "patternEditorGridResolution", QString("%1").arg( m_nPatternEditorGridResolution ) );
-		LocalFileMng::writeXmlString( guiNode, "patternEditorGridTupletNumerator", QString("%1").arg( m_nPatternEditorGridTupletNumerator ) );
-		LocalFileMng::writeXmlString( guiNode, "patternEditorGridTupletDenominator", QString("%1").arg( m_nPatternEditorGridTupletDenominator ) );
+		LocalFileMng::writeXmlString( guiNode, "patternEditorGridResolution",
+																QString("%1").arg( m_nPatternEditorGridResolution ) );
+		LocalFileMng::writeXmlString( guiNode, "patternEditorGridTupletNumerator",
+															QString("%1").arg( m_nPatternEditorGridTupletNumerator ) );
+		LocalFileMng::writeXmlString( guiNode, "patternEditorGridTupletDenominator",
+														 QString("%1").arg( m_nPatternEditorGridTupletDenominator ) );
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridHeight", QString("%1").arg( m_nPatternEditorGridHeight ) );
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridWidth", QString("%1").arg( m_nPatternEditorGridWidth ) );
 		LocalFileMng::writeXmlString( guiNode, "songEditorGridHeight", QString("%1").arg( m_nSongEditorGridHeight ) );

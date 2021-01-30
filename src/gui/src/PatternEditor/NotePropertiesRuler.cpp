@@ -841,7 +841,8 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 				if ( pNote->get_instrument() != pSong->getInstrumentList()->get( nSelectedInstrument ) ) {
 					continue;
 				}
-				uint x_pos = m_nMargin + pos * m_fGridWidth;
+				float fPos = pos + pposNote->getFloatTimeOffsetInTicks();
+				uint x_pos = round( m_nMargin + ( fPos * m_fGridWidth ) );
 				uint line_end = height();
 
 
@@ -929,7 +930,9 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 											   != pSong->getInstrumentList()->get( nSelectedInstrument ) ) ) {
 					continue;
 				}
-				uint x_pos = m_nMargin + pNote->get_position() * m_fGridWidth;
+				float fPos = pos + pposNote->getFloatTimeOffsetInTicks();
+				uint x_pos = round( m_nMargin + ( fPos * m_fGridWidth ) );
+
 				QColor centerColor = DrumPatternEditor::computeNoteColor( pNote->get_velocity() );
 
 				p.setPen( Qt::NoPen );
@@ -1019,7 +1022,8 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 					continue;
 				}
 
-				uint x_pos = m_nMargin + pNote->get_position() * m_fGridWidth;
+				float fPos = pos + pposNote->getFloatTimeOffsetInTicks();
+				uint x_pos = round( m_nMargin + ( fPos * m_fGridWidth ) );
 
 				int red1 = (int) (pNote->get_velocity() * 255);
 				int green1;
@@ -1160,7 +1164,8 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 				continue;
 			}
 			if ( !pNote->get_note_off() ) {
-				uint x_pos = 17 + pNote->get_position() * m_fGridWidth;
+				uint x_pos = round ( ( pNote->get_position() + pNote->getFloatTimeOffsetInTicks() ) * m_fGridWidth );
+				x_pos += 17;
 				uint y_pos = (4-pNote->get_octave())*10-3;
 				p.setBrush(QColor( 99, 160, 233 ));
 				p.drawEllipse( x_pos, y_pos, 6, 6);
@@ -1186,7 +1191,8 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 			if ( !pNote->get_note_off() ) {
 				int d = 8;
 				int k = pNote->get_key();
-				uint x_pos = 16 + pNote->get_position() * m_fGridWidth;
+				uint x_pos = round ( ( pNote->get_position() + pNote->getFloatTimeOffsetInTicks() ) * m_fGridWidth );
+				x_pos += 16;
 				uint y_pos = 200-(k*10)-4;
 
 				x_pos -= 1;

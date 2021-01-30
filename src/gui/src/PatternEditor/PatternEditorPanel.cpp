@@ -569,9 +569,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// restore grid resolution
 	int nIndex;
 	int nRes = pPref->getPatternEditorGridResolution();
+	int nTupletNumerator = pPref->getPatternEditorGridTupletNumerator();
+	int nTupletDenominator = pPref->getPatternEditorGridTupletDenominator();
 	if ( nRes == MAX_NOTES ) {
 		nIndex = 11;
-	} else if ( pPref->getPatternEditorGridTupletNumerator() == 4 ) {
+	} else if ( nTupletNumerator != 3 || nTupletDenominator != 2 ) {
 		switch ( nRes ) {
 			case  4: nIndex = 0; break;
 			case  8: nIndex = 1; break;
@@ -582,12 +584,12 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 				nIndex = 0;
 				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
 		}
-	} else if ( pPref->getPatternEditorGridTupletNumerator() == 3 ) {
+	} else {
 		switch ( nRes ) {
-			case  8: nIndex = 6; break;
-			case 16: nIndex = 7; break;
-			case 32: nIndex = 8; break;
-			case 64: nIndex = 9; break;
+			case  4: nIndex = 6; break;
+			case  8: nIndex = 7; break;
+			case 16: nIndex = 8; break;
+			case 32: nIndex = 9; break;
 			default:
 				nIndex = 6;
 				ERRORLOG( QString( "Wrong grid resolution: %1" ).arg( pPref->getPatternEditorGridResolution() ) );
@@ -595,12 +597,11 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	}
 	__resolution_combo->select( nIndex );
 	
-	int nBase = pPref->getPatternEditorGridTupletNumerator();
-	int nTupletDenominator = pPref->getPatternEditorGridTupletDenominator();
-	if ( nBase == 4 && nTupletDenominator == 4 ) {
+	printf(" preferences tuplet: %d : %d\n", nTupletNumerator, nTupletDenominator );
+	if ( nTupletNumerator == 4 && nTupletDenominator == 4 ) {
 		m_pTupletLCD->setText( tr( "off" ) );
 	} else {
-		m_pTupletLCD->setText( QString("%1:%1").arg( nBase ).arg( nTupletDenominator ) );
+		m_pTupletLCD->setText( QString("%1:%2").arg( nTupletNumerator ).arg( nTupletDenominator ) );
 	}
 
 	//set pre delete
@@ -683,7 +684,7 @@ void PatternEditorPanel::on_patternEditorHScroll( int nValue )
 
 
 
-void PatternEditorPanel::gridResolutionChanged( int nSelected /*, int nBase, int nTupletDenominator*/ )
+void PatternEditorPanel::gridResolutionChanged( int nSelected /*, int nTupletNumerator, int nTupletDenominator*/ )
 {
 	int nResolution;
 
@@ -705,6 +706,7 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected /*, int nBase, int
 		
 		m_pTupletLCD->setText( QString( "%1:%2" ).arg( nTupletNumerator ).arg( nTupletDenominator ) );
 		setTupletRatioToAllEditors( nTupletNumerator, nTupletDenominator );
+		// TODO why all the editors have the same grid members and there is no a unique variable for them to read?
 		
 		nResolution = 0x1 << ( nSelected - 4 );
 	}
@@ -717,10 +719,14 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected /*, int nBase, int
 	setResolutionToAllEditors( nResolution );
 	
 
-	//TODO check consistency with tuplets
+	//TODO move cursor to the nearest grid mark. M
 	int nTupletNumerator = Preferences::get_instance()->getPatternEditorGridTupletNumerator();
 	m_nCursorIncrement = ( nTupletNumerator == 3 ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
+	/* problem: the increment is not uniform in the grid for tuplet grids. 
+	this could be resolved 	if cursor position was represented by a gridIndex referring to the grid marks
+ 	rather than the tick position of grid marks*/
 	m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement );
+	
 
 	Preferences::get_instance()->setPatternEditorGridResolution( nResolution );
 }
