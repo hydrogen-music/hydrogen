@@ -83,8 +83,10 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void ensureCursorVisible();
 		int getCursorIndexPosition();
 		int getCursorPosition(); // TODO use this in many lines rather than the explicit expression? and make inline
+		float getCursorFloatPosition(); // TODO use this in many lines rather than the explicit expression? and make inline
 		void setCursorIndexPosition( int nGridIndex );
-		void setCursorPosition(int nColumn ); //TODO deprecate or use?
+		void setCursorPosition(int nColumn ); //TODO deprecate and use next
+		void setCursorPosition(float fColumn ); //TODO rename setCursorFloatTickPosition
 		int moveCursorLeft();
 		int moveCursorRight();
 

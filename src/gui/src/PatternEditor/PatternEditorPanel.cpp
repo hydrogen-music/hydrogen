@@ -74,6 +74,10 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	Preferences *pPref = Preferences::get_instance();
 
 	m_nCursorIndexPosition = 0;
+	m_nResolution = 8;
+	
+	m_nTupletNumerator = 4;
+	m_nTupletDenominator = 4;
 	//m_nCursorIncrement = 0; //TODO deprecate
 
 // Editor TOP
@@ -687,6 +691,7 @@ void PatternEditorPanel::on_patternEditorHScroll( int nValue )
 void PatternEditorPanel::gridResolutionChanged( int nSelected /*, int nTupletNumerator, int nTupletDenominator*/ )
 {
 	int nResolution;
+	float fOldCursorTickPosition = getCursorFloatPosition();
 
 	if ( nSelected == 11 ) {
 		nResolution = MAX_NOTES;
@@ -718,13 +723,11 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected /*, int nTupletNum
 
 	setResolutionToAllEditors( nResolution );
 	
+	// move cursor to the nearest grid mark.
+	setCursorPosition( fOldCursorTickPosition );
 
-	//TODO move cursor to the nearest grid mark. M
-	int nTupletNumerator = Preferences::get_instance()->getPatternEditorGridTupletNumerator();
-	m_nCursorIncrement = ( nTupletNumerator == 3 ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
-	/* problem: the increment is not uniform in the grid for tuplet grids. 
-	this could be resolved 	if cursor position was represented by a gridIndex referring to the grid marks
- 	rather than the tick position of grid marks*/
+	// m_nCursorIncrement = ( nTupletNumerator == 3 ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 ); // TODO deprecate
+
 	//m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement );
 	
 
@@ -1157,7 +1160,12 @@ void PatternEditorPanel::tupletLCDClicked()
 						//TODO set in gridresolutionchanged()
 						pPref->setPatternEditorGridTupletRatio( nTupletNumerator, nTupletDenominator );
 
+						float fOldCursorTickPosition = getCursorFloatPosition();
+						
 						setTupletRatioToAllEditors( nTupletNumerator, nTupletDenominator );
+						
+						// move cursor to the nearest grid mark.
+						setCursorPosition( fOldCursorTickPosition );
 
 						m_pTupletLCD->setText( QString( "%1:%2" ).arg( nTupletNumerator ).arg( nTupletDenominator ) );
 				}
@@ -1348,6 +1356,10 @@ int PatternEditorPanel::getCursorPosition()
 {
 	return round( m_nCursorIndexPosition * granularity() );
 }
+float PatternEditorPanel::getCursorFloatPosition()
+{
+	return (float) m_nCursorIndexPosition * granularity();
+}
 
 void PatternEditorPanel::ensureCursorVisible()
 {
@@ -1358,7 +1370,7 @@ void PatternEditorPanel::ensureCursorVisible()
 							 y );
 }
 
-void PatternEditorPanel::setCursorIndexPosition(int nGridIndex )
+void PatternEditorPanel::setCursorIndexPosition( int nGridIndex )
 {
 	if ( nGridIndex < 0 ) {
 		m_nCursorIndexPosition = 0;
@@ -1369,14 +1381,30 @@ void PatternEditorPanel::setCursorIndexPosition(int nGridIndex )
 	}
 }
 
-void PatternEditorPanel::setCursorPosition(int nColumn ) //TODO deprecate or use?
+void PatternEditorPanel::setCursorPosition( int nColumn ) //TODO deprecate and use next function?
 {
 	if ( nColumn < 0 ) {
+		m_nCursorIndexPosition = 0; 
+	} else if ( m_pPattern != nullptr) { // avoid segm fault at start //TODO look down better statements
+		if ( nColumn >= m_pPattern->get_length() ) { // THIS CAUSES segmentation fault at start because there's no pPattern?)
+			m_nCursorIndexPosition = m_pPattern->get_length() / granularity(); // will be floored by (int) cast
+		}
+	 	else {
+		m_nCursorIndexPosition = round( (float) nColumn / granularity() ); //TODO round? since it is used in resolutionChanged, floor ensure to not exceed the pattern length
+		}
+	}
+}
+void PatternEditorPanel::setCursorPosition( float fColumn )
+{
+	if ( fColumn < 0. ) {
 		m_nCursorIndexPosition = 0;
-	} else if ( nColumn >= m_pPattern->get_length() ) {
-		m_nCursorIndexPosition = m_pPattern->get_length() / granularity(); // will be floored by (int) cast
-	} else {
-		m_nCursorIndexPosition = round( nColumn / granularity() );
+	} else { // avoid segm fault at start
+		m_nCursorIndexPosition = round( (float) fColumn / granularity() ); //TODO round()? since it is used in resolutionChanged, floor() ensures to not exceed the pattern length... should floor() cause problems?
+		if ( m_pPattern != nullptr) {
+			if ( m_nCursorIndexPosition * granularity() >= m_pPattern->get_length() ) { // THIS CAUSES segmentation fault at start because there's no pPattern)
+				m_nCursorIndexPosition--;
+			}
+		}
 	}
 }
 
