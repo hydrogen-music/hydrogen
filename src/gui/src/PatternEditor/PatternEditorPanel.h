@@ -206,9 +206,8 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		int m_nTupletNumerator;
 		int m_nTupletDenominator;
 
-		// Cursor positioning
+		// Cursor positioning it refers to the current grid granularity (which depends on resolution and tuplet ratio)
 		int					m_nCursorIndexPosition;
-		int					m_nCursorIncrement = +1; //TODO deprecate
 		//~ Cursor
 
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;

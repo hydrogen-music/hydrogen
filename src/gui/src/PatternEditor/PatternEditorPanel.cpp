@@ -78,7 +78,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	
 	m_nTupletNumerator = 4;
 	m_nTupletDenominator = 4;
-	//m_nCursorIncrement = 0; //TODO deprecate
 
 // Editor TOP
 	PixmapWidget *editor_top = new PixmapWidget( nullptr );
@@ -722,21 +721,15 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected /*, int nTupletNum
 	// INFOLOG( QString("idx %1 -> %2 resolution").arg( nSelected ).arg( nResolution ) );
 
 	setResolutionToAllEditors( nResolution );
-	
-	// move cursor to the nearest grid mark.
-	setCursorPosition( fOldCursorTickPosition );
-
-	// m_nCursorIncrement = ( nTupletNumerator == 3 ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 ); // TODO deprecate
-
-	//m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement );
-	
-
 	Preferences::get_instance()->setPatternEditorGridResolution( nResolution );
+	
+	// move cursor to the nearest grid mark (since granularity changed)
+	setCursorPosition( fOldCursorTickPosition );
 }
 
 void PatternEditorPanel::setResolutionToAllEditors( int nResolution ) {
+	// TODO should the resolution be saved only in Preferences or in all these classes?
 	m_nResolution = nResolution;
-	//TODO deprecate nResolution member in the following class. replace this function in each line with previous line
 	m_pDrumPatternEditor->setResolution( nResolution );
 	m_pPianoRollEditor->setResolution( nResolution );
 	m_pNoteVelocityEditor->setResolution( nResolution );
@@ -1151,23 +1144,19 @@ void PatternEditorPanel::tupletLCDClicked()
 		    } 
 		    if ( bOk && nTupletNumerator > 0 ) {
 				if ( nTupletNumerator > 20 ) { //TODO limit? 
-					 // pattern size is limited because the pattern editor ruler goes up to 16/4. Limit might be extended
 					QMessageBox::information( this, "Hydrogen", tr( "Tuplet numerator too big.\nMaximum = 20" ) );
 					return;
 				}
-				else {
-					// set tublet numerator and denominator
-						//TODO set in gridresolutionchanged()
-						pPref->setPatternEditorGridTupletRatio( nTupletNumerator, nTupletDenominator );
-
-						float fOldCursorTickPosition = getCursorFloatPosition();
+				else { // set tuplet numerator and denominator
+					float fOldCursorTickPosition = getCursorFloatPosition();
 						
-						setTupletRatioToAllEditors( nTupletNumerator, nTupletDenominator );
+					setTupletRatioToAllEditors( nTupletNumerator, nTupletDenominator );
 						
-						// move cursor to the nearest grid mark.
-						setCursorPosition( fOldCursorTickPosition );
+					// move cursor to the nearest grid mark.
+					setCursorPosition( fOldCursorTickPosition );
 
-						m_pTupletLCD->setText( QString( "%1:%2" ).arg( nTupletNumerator ).arg( nTupletDenominator ) );
+					m_pTupletLCD->setText( QString( "%1:%2" ).arg( nTupletNumerator ).arg( nTupletDenominator ) );
+					pPref->setPatternEditorGridTupletRatio( nTupletNumerator, nTupletDenominator );
 				}
 		    }
 		    else { // user entered invalid text
