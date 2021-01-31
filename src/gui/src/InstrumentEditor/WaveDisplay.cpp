@@ -156,6 +156,7 @@ void WaveDisplay::updateDisplay( H2Core::InstrumentLayer *pLayer )
 		}
 	}
 	else {
+		m_pLayer = nullptr;
 		m_sSampleName = "-";
 		for ( int i =0; i < m_nCurrentWidth; ++i ){
 			m_pPeakData[ i ] = 0;
