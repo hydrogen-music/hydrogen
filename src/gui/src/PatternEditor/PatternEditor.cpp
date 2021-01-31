@@ -222,7 +222,7 @@ void PatternEditor::copy()
 		positionNode.write_int( "instrument", nLowestInstrument );
 		positionNode.write_int( "note", nHighestPitch );
 	} else {
-		positionNode.write_int( "position", m_pPatternEditorPanel->getCursorPosition() );
+		positionNode.write_int( "index_position", m_pPatternEditorPanel->getCursorIndexPosition() );
 		positionNode.write_int( "instrument", pHydrogen->getSelectedInstrumentNumber() );
 	}
 

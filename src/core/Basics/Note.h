@@ -327,6 +327,11 @@ class Note : public H2Core::Object
 		* Note: while ONE only RATIONAL variable is perfect to represent the offset, splitting this information
 		* in two integers (numerator and denominator) simplifys the gui, letting know the tuplet type (quintuplets,
 		* septuplets...), and avoids finite-digits approximation.
+		*---------------------
+		*	TODO: think
+		* Another way could be to store TimeOffset as a float, but keeping the m_nTupletNumerator for GUI issue
+		* (draw the tuplet notes). But could this resolve the grid magnetic selection of notes??
+		* -------------
 		* Note that a tuplet is explicitly specified by a rational number = a fraction.
 		* in fact this fraction divides the note value returning its resultant length (in whole note units).
 		* examples: standard triplets 3:2 = 3/2,

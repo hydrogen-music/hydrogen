@@ -81,14 +81,20 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		//~ Implements EventListener interface
 
 		void ensureCursorVisible();
-		int getCursorPosition();
-		void setCursorPosition(int nCursorPosition);
+		int getCursorIndexPosition();
+		int getCursorPosition(); // TODO use this in many lines rather than the explicit expression? and make inline
+		void setCursorIndexPosition( int nGridIndex );
+		void setCursorPosition(int nColumn ); //TODO deprecate or use?
 		int moveCursorLeft();
 		int moveCursorRight();
 
 		void selectInstrumentNotes( int nInstrument );
 
 		void updateEditors( bool bPatternOnly = false );
+		//! Granularity of grid positioning ( = distance between grid marks), in tick units
+		float granularity() const { // float for tuplets
+			return (float) MAX_NOTES * m_nTupletDenominator / ( m_nTupletNumerator * m_nResolution );
+		}
 
 	private slots:
 		void gridResolutionChanged( int nSelected );
@@ -191,10 +197,16 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		Button *			resDropdownBtn;
 
 		bool				m_bEnablePatternResize;
+		
+		
+		uint m_nResolution;
+	
+		int m_nTupletNumerator;
+		int m_nTupletDenominator;
 
 		// Cursor positioning
-		int					m_nCursorPosition;
-		int					m_nCursorIncrement;
+		int					m_nCursorIndexPosition;
+		int					m_nCursorIncrement = +1; //TODO deprecate
 		//~ Cursor
 
 		virtual void dragEnterEvent(QDragEnterEvent *event) override;

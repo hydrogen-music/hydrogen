@@ -126,8 +126,9 @@ void NotePropertiesRuler::wheelEvent(QWheelEvent *ev )
 	}
 
 	int nColumn = getColumn( ev->x() );
+	int nGridIndex = getGridIndex( ev->x() );
 
-	m_pPatternEditorPanel->setCursorPosition( nColumn );
+	m_pPatternEditorPanel->setCursorIndexPosition( nGridIndex );
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 	Song *pSong = pHydrogen->getSong();
@@ -336,8 +337,9 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 	}
 
 	int nColumn = getColumn( ev->x() );
+	int nGridIndex = getGridIndex( ev->x() );
 
-	m_pPatternEditorPanel->setCursorPosition( nColumn );
+	m_pPatternEditorPanel->setCursorIndexPosition( nGridIndex );
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 
 	if ( m_nDragPreviousColumn != nColumn ) {
@@ -557,7 +559,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine ) ) {
 		// -->|
-		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
+		m_pPatternEditorPanel->setCursorIndexPosition( m_pPattern->get_length() / granularity() );
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
 		// <-
@@ -565,7 +567,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ev->matches( QKeySequence::SelectStartOfLine ) ) {
 		// |<--
-		m_pPatternEditorPanel->setCursorPosition(0);
+		m_pPatternEditorPanel->setCursorIndexPosition(0);
 
 	} else {
 		// Value adjustments
@@ -607,7 +609,7 @@ void NotePropertiesRuler::keyPressEvent( QKeyEvent *ev )
 		}
 
 		if ( fDelta != 0.0 || bRepeatLastValue ) {
-			int column = m_pPatternEditorPanel->getCursorPosition();
+			int column = round( m_pPatternEditorPanel->getCursorIndexPosition() * granularity() );
 			int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 			Song *pSong = (Hydrogen::get_instance())->getSong();
 
@@ -1269,7 +1271,7 @@ void NotePropertiesRuler::finishUpdateEditor()
 	if ( hasFocus() && ! HydrogenApp::get_instance()->hideKeyboardCursor() ) {
 		QPainter p( m_pBackground );
 
-		uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
+		uint x = round( m_nMargin + m_pPatternEditorPanel->getCursorIndexPosition()* granularity() * m_fGridWidth ); // TODO check
 
 		QPen pen( Qt::black );
 		pen.setWidth( 2 );
@@ -1335,7 +1337,7 @@ std::vector<NotePropertiesRuler::SelectionIndex> NotePropertiesRuler::elementsIn
 ///
 QRect NotePropertiesRuler::getKeyboardCursorRect()
 {
-	uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
+	uint x = round( m_nMargin + m_pPatternEditorPanel->getCursorIndexPosition()* granularity() * m_fGridWidth ); // TODO check
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	uint y = nSelectedInstrument * m_nGridHeight;
 	return QRect( x-m_fGridWidth*3, 0+1, m_fGridWidth*6, height()-2 );

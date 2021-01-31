@@ -73,8 +73,8 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 	Preferences *pPref = Preferences::get_instance();
 
-	m_nCursorPosition = 0;
-	m_nCursorIncrement = 0;
+	m_nCursorIndexPosition = 0;
+	//m_nCursorIncrement = 0; //TODO deprecate
 
 // Editor TOP
 	PixmapWidget *editor_top = new PixmapWidget( nullptr );
@@ -725,13 +725,15 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected /*, int nTupletNum
 	/* problem: the increment is not uniform in the grid for tuplet grids. 
 	this could be resolved 	if cursor position was represented by a gridIndex referring to the grid marks
  	rather than the tick position of grid marks*/
-	m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement );
+	//m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement );
 	
 
 	Preferences::get_instance()->setPatternEditorGridResolution( nResolution );
 }
 
 void PatternEditorPanel::setResolutionToAllEditors( int nResolution ) {
+	m_nResolution = nResolution;
+	//TODO deprecate nResolution member in the following class. replace this function in each line with previous line
 	m_pDrumPatternEditor->setResolution( nResolution );
 	m_pPianoRollEditor->setResolution( nResolution );
 	m_pNoteVelocityEditor->setResolution( nResolution );
@@ -742,6 +744,9 @@ void PatternEditorPanel::setResolutionToAllEditors( int nResolution ) {
 }
 
 void PatternEditorPanel::setTupletRatioToAllEditors( int nTupletNum, int nTupletDen ) {
+	m_nTupletNumerator = nTupletNum;
+	m_nTupletDenominator = nTupletDen;
+	//TODO deprecate nTuplet member in the following class. replace this function in each line with previous lines
 	m_pDrumPatternEditor->setTupletRatio( nTupletNum, nTupletDen );
 	m_pPianoRollEditor->setTupletRatio( nTupletNum, nTupletDen );
 	m_pNoteVelocityEditor->setTupletRatio( nTupletNum, nTupletDen );
@@ -1334,47 +1339,65 @@ void PatternEditorPanel::updatePianorollEditor()
 	m_pDrumPatternEditor->updateEditor(); // force an update
 }
 
+int PatternEditorPanel::getCursorIndexPosition()
+{
+	return m_nCursorIndexPosition;
+}
+
 int PatternEditorPanel::getCursorPosition()
 {
-	return m_nCursorPosition;
+	return round( m_nCursorIndexPosition * granularity() );
 }
 
 void PatternEditorPanel::ensureCursorVisible()
 {
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	uint y = nSelectedInstrument * Preferences::get_instance()->getPatternEditorGridHeight();
-	m_pEditorScrollView->ensureVisible( m_nCursorPosition * m_pPatternEditorRuler->getGridWidth(), y );
+	m_pEditorScrollView->ensureVisible(
+							round( m_nCursorIndexPosition * granularity() * m_pPatternEditorRuler->getGridWidth() ),
+							 y );
 }
 
-void PatternEditorPanel::setCursorPosition(int nCursorPosition)
+void PatternEditorPanel::setCursorIndexPosition(int nGridIndex )
 {
-	if ( nCursorPosition < 0 ) {
-		m_nCursorPosition = 0;
-	} else if ( nCursorPosition >= m_pPattern->get_length() ) {
-		m_nCursorPosition = m_pPattern->get_length() - m_nCursorIncrement;
+	if ( nGridIndex < 0 ) {
+		m_nCursorIndexPosition = 0;
+	} else if ( round( nGridIndex * granularity() ) >= m_pPattern->get_length() ) { // TODO check boundary
+		m_nCursorIndexPosition = m_pPattern->get_length() / granularity(); // will be floored by (int) cast
 	} else {
-		m_nCursorPosition = nCursorPosition;
+		m_nCursorIndexPosition = nGridIndex;
+	}
+}
+
+void PatternEditorPanel::setCursorPosition(int nColumn ) //TODO deprecate or use?
+{
+	if ( nColumn < 0 ) {
+		m_nCursorIndexPosition = 0;
+	} else if ( nColumn >= m_pPattern->get_length() ) {
+		m_nCursorIndexPosition = m_pPattern->get_length() / granularity(); // will be floored by (int) cast
+	} else {
+		m_nCursorIndexPosition = round( nColumn / granularity() );
 	}
 }
 
 int PatternEditorPanel::moveCursorLeft()
 {
-	if ( m_nCursorPosition >= m_nCursorIncrement ) {
-		m_nCursorPosition -= m_nCursorIncrement;
+	if ( m_nCursorIndexPosition > 0 ) {
+		m_nCursorIndexPosition--;
 	}
 
 	ensureCursorVisible();
 
-	return m_nCursorPosition;
+	return m_nCursorIndexPosition;
 }
 
 int PatternEditorPanel::moveCursorRight()
 {
-	if ( m_nCursorPosition + m_nCursorIncrement < m_pPattern->get_length() ) {
-		m_nCursorPosition += m_nCursorIncrement;
+	if ( round( m_nCursorIndexPosition + 1 ) * granularity() < m_pPattern->get_length() ) {
+		m_nCursorIndexPosition++;
 	}
 
 	ensureCursorVisible();
 
-	return m_nCursorPosition;
+	return m_nCursorIndexPosition;
 }

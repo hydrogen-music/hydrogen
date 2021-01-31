@@ -97,11 +97,15 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 }
 
 
-void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nColumn, int nRealColumn, int row,
-										 bool bDoAdd, bool bDoDelete ) { //TODO avoid fColumn
+void DrumPatternEditor::addOrRemoveNote( int nGridIndex, /*int nColumn,*/ int nRealColumn, int row,
+										 bool bDoAdd, bool bDoDelete ) { // TODO eliminate nColumn arg
+
+	/* convert gridIndex into the nearest tick */
+	int nTickPosition = round( nGridIndex * granularity() ); // TODO make this a function?
+	
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( row );
-	H2Core::Note *pOldNote = m_pPattern->find_note( nColumn, nRealColumn, pSelectedInstrument );
+	H2Core::Note *pOldNote = m_pPattern->find_note( nTickPosition, nRealColumn, pSelectedInstrument );
 
 	// why naming "old" ?
 	int oldLength = -1;
@@ -118,11 +122,26 @@ void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nColumn, int nRealC
 	if ( ( m_nTupletDenominator != m_nTupletNumerator ) && ( nGridIndex % m_nTupletNumerator != 0 ) ) {
 
 		/** calculate the oldTimeOffsetNumerator such that
-		* 	oldTimeOffsetNumerator / tupletNumerator = timeAdjustOffset in ticks
-		* 	Note: the use of fraction and % operator on integer numbers is strategical and correct.
+		* 		oldTimeOffsetNumerator / tupletNumerator = timeAdjustOffset in ticks
+		* 	Note: the use of fraction and % operator on integer numbers is strategical and correct
+		* 	if MAX_NOTES is multiple of 64 (like 192).
 		*  	otherwise the same result is achieved by:
 		*		oldTimeOffsetNumerator = round( ( fColumn - nColumn ) * m_nTupletNumerator );
-		*	  (but is actually more intricate, and you should pass fColumn as argument rather than nGridIndex)
+		*	for any MAX_NOTES, where should calculate fColumn like nColumn but without round() in the last line
+		*	(but maybe more intricate, because it uses round() to get a mathematical exact integer value), 
+		*---------------------
+		*	TODO: think
+		* what if you move m_nResolution out of the division like this?
+		* 		oldTimeOffsetNumerator = ( nGridIndex * MAX_NOTES * m_nTupletDenominator ) % (m_nTupletNumerator *m_nResolution)
+		* then you should save m_nResolution inside the TupletNumerator note member (and name it differently) so that
+		* 		oldTimeOffsetNumerator / tupletNumerator = timeAdjustOffset
+		*	would be still valid
+		*---------------------
+		*	TODO: think
+		* Another way could be to store TimeOffset as a float, but keeping the TupletNumerator for GUI issue
+		* (draw the tuplet notes). But could this resolve the grid magnetic selection of notes??
+		* -------------
+		*
 		*/
 		oldTimeOffsetNumerator = ( nGridIndex * MAX_NOTES * m_nTupletDenominator / m_nResolution) % m_nTupletNumerator;
 
@@ -158,7 +177,7 @@ void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nColumn, int nRealC
 		isNoteOff = pOldNote->get_note_off();
 	}
 
-	SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
+	SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nTickPosition,
 																	 row,
 																	 m_nSelectedPatternNumber,
 																	 oldLength,
@@ -194,14 +213,13 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	if (row >= nInstruments) {
 		return;
 	}
-	int nColumn = getColumn( ev->x() );
-	//float fColumn = getFloatColumn( ev->x() );
-	int nGridIndex = getGridIndex( ev->x() );
+	int nColumn = getColumn( ev->x() ); // position in ticks
+	int nGridIndex = getGridIndex( ev->x() ); // position in grid marks
 	int nRealColumn = 0;
 	if( ev->x() > m_nMargin ) {
-		nRealColumn = ev->x() / static_cast<float>(m_fGridWidth) - m_nMargin;
+		nRealColumn = static_cast<float> ( ev->x() - m_nMargin ) / m_fGridWidth;
 	}
-	if ( nColumn >= (int)m_pPattern->get_length() ) {
+	if ( nColumn >= m_pPattern->get_length() ) {
 		update( 0, 0, width(), height() );
 		return;
 	}
@@ -241,7 +259,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	else if ( ev->button() == Qt::LeftButton ) {
 
 		pHydrogen->setSelectedInstrumentNumber( row );
-		addOrRemoveNote( nGridIndex, nColumn, nRealColumn, row );
+		addOrRemoveNote( nGridIndex, nRealColumn, row ); // TODO deprecate nColumn and calculate it inside from GridINdex
 		m_selection.clearSelection();
 
 	} else if ( ev->button() == Qt::RightButton ) {
@@ -254,7 +272,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 		pHydrogen->setSelectedInstrumentNumber( row );
 	}
 
-	m_pPatternEditorPanel->setCursorPosition( nColumn );
+	m_pPatternEditorPanel->setCursorIndexPosition( nGridIndex );
 	HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 	update();
 }
@@ -282,8 +300,9 @@ void DrumPatternEditor::mouseDragStartEvent( QMouseEvent *ev )
 		}
 	} else {
 		// Other drag (selection or move) we'll set the cursor input position to the start of the gesture
-		pHydrogen->setSelectedInstrumentNumber( row );
-		m_pPatternEditorPanel->setCursorPosition( nColumn );
+		pHydrogen->setSelectedInstrumentNumber( row );		
+		int nGridIndex = getGridIndex( ev->x() ); // position in grid marks
+		m_pPatternEditorPanel->setCursorIndexPosition( nGridIndex );
 		HydrogenApp::get_instance()->setHideKeyboardCursor( true );
 	}
 }
@@ -685,7 +704,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 
 	} else if ( ev->matches( QKeySequence::MoveToEndOfLine ) || ev->matches( QKeySequence::SelectEndOfLine ) ) {
 		// -->|
-		m_pPatternEditorPanel->setCursorPosition( m_pPattern->get_length() );
+		m_pPatternEditorPanel->setCursorIndexPosition( (int) m_pPattern->get_length() / granularity() );
 
 	} else if ( ev->matches( QKeySequence::MoveToPreviousChar ) || ev->matches( QKeySequence::SelectPreviousChar ) ) {
 		// <-
@@ -693,7 +712,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 
 	} else if ( ev->matches( QKeySequence::MoveToStartOfLine ) || ev->matches( QKeySequence::SelectStartOfLine ) ) {
 		// |<--
-		m_pPatternEditorPanel->setCursorPosition( 0 );
+		m_pPatternEditorPanel->setCursorIndexPosition( 0 );
 
 	} else if ( ev->matches( QKeySequence::MoveToNextLine ) || ev->matches( QKeySequence::SelectNextLine ) ) {
 		if ( nSelectedInstrument + 1 < nMaxInstrument ) {
@@ -732,8 +751,8 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	} else if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return ) {
 		// Key: Enter / Return: add or remove note at current position
 		m_selection.clearSelection();
-		addOrRemoveNote( -1, m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument );
-		//TODO replace -1 with fcolumn
+		addOrRemoveNote( m_pPatternEditorPanel->getCursorIndexPosition(), -1, nSelectedInstrument );
+		//TODO replace -1 
 
 	} else if ( ev->key() == Qt::Key_Delete ) {
 		// Key: Delete / Backspace: delete selected notes, or note under keyboard cursor
@@ -743,7 +762,7 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 			deleteSelection();
 		} else {
 			// Delete note under the keyboard cursor.
-			addOrRemoveNote( -1, m_pPatternEditorPanel->getCursorPosition(), -1, nSelectedInstrument,
+			addOrRemoveNote( m_pPatternEditorPanel->getCursorIndexPosition(), -1, nSelectedInstrument,
 							  /*bDoAdd=*/false, /*bDoDelete=*/true);
 
 		}
@@ -831,12 +850,10 @@ std::vector<DrumPatternEditor::SelectionIndex> DrumPatternEditor::elementsInters
 ///
 QRect DrumPatternEditor::getKeyboardCursorRect()
 {
-
-	uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
+	uint x = round( m_nMargin + m_pPatternEditorPanel->getCursorIndexPosition()* granularity() * m_fGridWidth ); // TODO check
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 	uint y = nSelectedInstrument * m_nGridHeight;
 	return QRect( x-m_fGridWidth*3, y+2, m_fGridWidth*6, m_nGridHeight-3 );
-
 }
 
 void DrumPatternEditor::selectAll()
@@ -929,7 +946,7 @@ void DrumPatternEditor::paste()
 		// it to adjust the location relative to the current keyboard
 		// input cursor.
 		if ( !positionNode.isNull() ) {
-			int nCurrentPos = m_pPatternEditorPanel->getCursorPosition();
+			int nCurrentPos = round( m_pPatternEditorPanel->getCursorIndexPosition() * granularity() );
 			int nCurrentInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 
 			nDeltaPos = nCurrentPos - positionNode.read_int( "position", nCurrentPos );
@@ -1047,7 +1064,8 @@ void DrumPatternEditor::__draw_pattern(QPainter& painter)
 
 	// Draw cursor
 	if ( hasFocus() && !HydrogenApp::get_instance()->hideKeyboardCursor() ) {
-		uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;
+		//uint x = m_nMargin + m_pPatternEditorPanel->getCursorPosition() * m_fGridWidth;	
+		uint x = m_nMargin + m_pPatternEditorPanel->getCursorIndexPosition()* granularity() * m_fGridWidth; //TODO check
 		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		uint y = nSelectedInstrument * m_nGridHeight;
 		QPen p( Qt::black );
