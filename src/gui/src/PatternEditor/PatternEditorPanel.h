@@ -82,11 +82,12 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 
 		void ensureCursorVisible();
 		int getCursorIndexPosition();
-		int getCursorPosition(); // TODO use this in many lines rather than the explicit expression? and make inline
-		float getCursorFloatPosition(); // TODO use this in many lines rather than the explicit expression? and make inline
+		int getCursorPosition(); // TODO use this in many lines rather than the explicit expression? make inline
+		float getCursorFloatPosition(); // TODO use this in many lines rather than the explicit expression? make inline
 		void setCursorIndexPosition( int nGridIndex );
 		void setCursorPosition(int nColumn ); //TODO deprecate and use next
-		void setCursorPosition(float fColumn ); //TODO rename setCursorFloatTickPosition
+		// used to update the cursor when changing resolution
+		void setCursorPosition(float fColumn ); //TODO rename setCursorFloatTickPosition. 
 		int moveCursorLeft();
 		int moveCursorRight();
 
@@ -136,7 +137,7 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		QLabel *			pSLlabel;
 
 		// Editor top
-		LCDDisplay *			__pattern_size_LCD;
+		LCDDisplay *		__pattern_size_LCD;
 		Button *			m_pDenominatorWarning;
 		LCDCombo *			__resolution_combo;
 		LCDDisplay *		m_pTupletLCD;
@@ -201,12 +202,13 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		bool				m_bEnablePatternResize;
 		
 		
+		//TODO should these 3 members be here or only in preferences?
 		uint m_nResolution;
-	
-		int m_nTupletNumerator;
-		int m_nTupletDenominator;
+		int	m_nTupletNumerator;
+		int	m_nTupletDenominator;
 
-		// Cursor positioning it refers to the current grid granularity (which depends on resolution and tuplet ratio)
+		/* Cursor positioning
+		* it refers to the current grid granularity (which depends on resolution and tuplet ratio) */
 		int					m_nCursorIndexPosition;
 		//~ Cursor
 

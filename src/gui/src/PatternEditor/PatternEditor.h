@@ -178,6 +178,7 @@ protected:
 	* 	or 3/20 (quarter 5:3 tuplets)...!!!
 	* 	However the same result is possible with tuplets, accordingly to music notation style.
 	*/
+	//TODO should next 3 members be here or only in preferences?
 	uint m_nResolution;
 	
 	/** Tuplet notation is used to represent ANY rational note value in whole notes, using the std music symbols
@@ -212,11 +213,12 @@ protected:
 	PatternEditorPanel *m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
 
-	/* the ROUNDED position of the nearest grid mark, in tick units */
+	// Magnetic conversions (quantized by the grid granularity)
+	/* from the pixel position to the ROUNDED position of the nearest grid mark, in tick units */
 	int getColumn( int x ) const;
-	/* the position of the nearest grid mark, in tick units (unrounded value!) */
+	/* from the pixel position to the position of the nearest grid mark, in tick units (unrounded value!) */
 	float getFloatColumn( int x ) const;
-	/* The index of the nearest grid mark */
+	/* from the pixel position to the index of the nearest grid mark */
 	int getGridIndex( int x ) const;
 	
 	QPoint movingGridOffset() const;

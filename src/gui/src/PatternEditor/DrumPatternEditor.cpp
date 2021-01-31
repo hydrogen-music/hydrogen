@@ -213,9 +213,9 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	if (row >= nInstruments) {
 		return;
 	}
-	int nColumn = getColumn( ev->x() ); // position in ticks
-	int nGridIndex = getGridIndex( ev->x() ); // position in grid marks
-	int nRealColumn = 0;
+	int nColumn = getColumn( ev->x() ); // position of nearest grid mark in ticks
+	int nGridIndex = getGridIndex( ev->x() ); // index of nearest grid mark
+	int nRealColumn = 0; // TODO what is the use of this? does it affect tuplets? currently it is not rounded
 	if( ev->x() > m_nMargin ) {
 		nRealColumn = static_cast<float> ( ev->x() - m_nMargin ) / m_fGridWidth;
 	}
@@ -259,7 +259,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 	else if ( ev->button() == Qt::LeftButton ) {
 
 		pHydrogen->setSelectedInstrumentNumber( row );
-		addOrRemoveNote( nGridIndex, nRealColumn, row ); // TODO deprecate nColumn and calculate it inside from GridINdex
+		addOrRemoveNote( nGridIndex, nRealColumn, row );
 		m_selection.clearSelection();
 
 	} else if ( ev->button() == Qt::RightButton ) {
@@ -752,7 +752,6 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 		// Key: Enter / Return: add or remove note at current position
 		m_selection.clearSelection();
 		addOrRemoveNote( m_pPatternEditorPanel->getCursorIndexPosition(), -1, nSelectedInstrument );
-		//TODO replace -1 
 
 	} else if ( ev->key() == Qt::Key_Delete ) {
 		// Key: Delete / Backspace: delete selected notes, or note under keyboard cursor

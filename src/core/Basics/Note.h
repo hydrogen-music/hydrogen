@@ -331,9 +331,10 @@ class Note : public H2Core::Object
 		*	TODO: think
 		* Another way could be to store TimeOffset as a float, but keeping the m_nTupletNumerator for GUI issue
 		* (draw the tuplet notes). But could this resolve the grid magnetic selection of notes??
+		* doesn't avoid finite-digits approximation => GUI should call round() and that's not elegant.
 		* -------------
 		* Note that a tuplet is explicitly specified by a rational number = a fraction.
-		* in fact this fraction divides the note value returning its resultant length (in whole note units).
+		* in fact this fraction is used to divide the note value returning its resultant length (in whole note units).
 		* examples: standard triplets 3:2 = 3/2,
 		*	 In fact a single eight note under triplet has length = 1/8 * 2/3 of whole note = 1/12 of whole note;
 		* standard quintuplets: 5:4 = 5/4;
