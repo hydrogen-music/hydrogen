@@ -132,8 +132,7 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 	struct stat st;
 	char buff[8192];
 	int len;
-	int fd;
-
+	FILE *f;
 
 	a = archive_write_new();
 
@@ -191,13 +190,13 @@ void SoundLibraryExportDialog::on_exportBtn_clicked()
 		archive_entry_set_filetype(entry, AE_IFREG);
 		archive_entry_set_perm(entry, 0644);
 		archive_write_header(a, entry);
-		fd = ::open(filename.toUtf8().constData(), O_RDONLY);
-		len = read(fd, buff, sizeof(buff));
+		f = fopen(filename.toUtf8().constData(), "rb");
+		len = fread(buff, sizeof(char), sizeof(buff), f);
 		while ( len > 0 ) {
 				archive_write_data(a, buff, len);
-				len = read(fd, buff, sizeof(buff));
+				len = fread(buff, sizeof(char), sizeof(buff), f);
 		}
-		::close(fd);
+		fclose(f);
 		archive_entry_free(entry);
 	}
 	archive_write_close(a);
