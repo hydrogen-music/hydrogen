@@ -432,12 +432,14 @@ PlayerControl::PlayerControl(QWidget *parent)
 	);
 	m_pJackMasterBtn->hide();
 	if ( m_pJackTransportBtn->isPressed() &&
-		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
+		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&
+		 pPreferences->m_bJackTimebaseEnabled ) {
 		m_pJackMasterBtn->setPressed( true );
 	} else {
 		m_pJackMasterBtn->setPressed( false );
 	}
-	m_pJackMasterBtn->setToolTip( tr("JACK Timebase master on/off") );
+	m_sJackMasterModeToolTip = tr("JACK Timebase master on/off");
+	m_pJackMasterBtn->setToolTip( m_sJackMasterModeToolTip );
 	connect(m_pJackMasterBtn, SIGNAL(clicked(Button*)), this, SLOT(jackMasterBtnClicked(Button*)));
 	m_pJackMasterBtn->move(56, 26);
 	//~ jack time master
@@ -606,6 +608,14 @@ void PlayerControl::updatePlayerControl()
 					m_pJackMasterBtn->setPressed( true );
 				} else {
 					m_pJackMasterBtn->setPressed( false );
+				}
+
+				if ( pPref->m_bJackTimebaseEnabled ) {
+					m_pJackMasterBtn->setDisabled( false );
+					m_pJackMasterBtn->setToolTip( m_sJackMasterModeToolTip );
+				} else {
+					m_pJackMasterBtn->setDisabled( true );
+					m_pJackMasterBtn->setToolTip( tr( "JACK timebase support is disabled in the Preferences" ) );
 				}
 
 				if ( m_pEngine->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {

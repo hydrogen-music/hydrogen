@@ -181,6 +181,7 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		ToggleButton *m_pJackTransportBtn;
 		//jack time master
 		ToggleButton *m_pJackMasterBtn;
+		QString m_sJackMasterModeToolTip;
 		//~ jack time master
 		Button *m_pBPMUpBtn;
 		Button *m_pBPMDownBtn;
