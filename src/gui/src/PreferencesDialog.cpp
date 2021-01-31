@@ -68,7 +68,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	driverComboBox->clear();
 	driverComboBox->addItem( "Auto" );
 #ifdef H2CORE_HAVE_JACK
-	driverComboBox->addItem( "Jack" );
+	driverComboBox->addItem( "JACK" );
 #endif
 #ifdef H2CORE_HAVE_ALSA
 	driverComboBox->addItem( "ALSA" );
@@ -433,14 +433,14 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->m_sAudioDriver = "Auto";
 	}
 	else if (driverComboBox->currentText() == "JACK" ) {
-		pPref->m_sAudioDriver = "Jack";
+		pPref->m_sAudioDriver = "JACK";
 	}
 	else if (driverComboBox->currentText() == "ALSA" ) {
-		pPref->m_sAudioDriver = "Alsa";
+		pPref->m_sAudioDriver = "ALSA";
 		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->text();
 	}
 	else if (driverComboBox->currentText() == "OSS" ) {
-		pPref->m_sAudioDriver = "Oss";
+		pPref->m_sAudioDriver = "OSS";
 		pPref->m_sOSSDevice = m_pAudioDeviceTxt->text();
 	}
 	else if (driverComboBox->currentText() == "PortAudio" ) {
@@ -511,10 +511,10 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->m_sMidiDriver = "PortMidi";
 	}
 	else if ( m_pMidiDriverComboBox->currentText() == "CoreMIDI" ) {
-		pPref->m_sMidiDriver = "CoreMidi";
+		pPref->m_sMidiDriver = "CoreMIDI";
 	}
 	else if ( m_pMidiDriverComboBox->currentText() == "JACK-MIDI" ) {
-		pPref->m_sMidiDriver = "JackMidi";
+		pPref->m_sMidiDriver = "JACK-MIDI";
 	}
 
 

@@ -620,10 +620,10 @@ void				audioEngine_restartAudioDrivers();
  * Which audio driver to use is specified in
  * Preferences::m_sAudioDriver. If "Auto" is selected, it will try to
  * initialize drivers using createDriver() in the following order: 
- * - Windows:  "PortAudio", "Alsa", "CoreAudio", "Jack", "Oss",
+ * - Windows:  "PortAudio", "ALSA", "CoreAudio", "JACK", "OSS",
  *   and "PulseAudio" 
- * - all other systems: "Jack", "Alsa", "CoreAudio", "PortAudio",
- *   "Oss", and "PulseAudio".
+ * - all other systems: "JACK", "ALSA", "CoreAudio", "PortAudio",
+ *   "OSS", and "PulseAudio".
  * If all of them return NULL, #m_pAudioDriver will be initialized
  * with the NullDriver instead. If a specific choice is contained in
  * Preferences::m_sAudioDriver and createDriver() returns NULL, the
@@ -2051,13 +2051,13 @@ AudioOutput* createDriver( const QString& sDriver )
 	Preferences *pPref = Preferences::get_instance();
 	AudioOutput *pDriver = nullptr;
 
-	if ( sDriver == "Oss" ) {
+	if ( sDriver == "OSS" ) {
 		pDriver = new OssDriver( audioEngine_process );
 		if ( pDriver->class_name() == NullDriver::class_name() ) {
 			delete pDriver;
 			pDriver = nullptr;
 		}
-	} else if ( sDriver == "Jack" ) {
+	} else if ( sDriver == "JACK" ) {
 		pDriver = new JackAudioDriver( audioEngine_process );
 		if ( pDriver->class_name() == NullDriver::class_name() ) {
 			delete pDriver;
@@ -2069,7 +2069,7 @@ AudioOutput* createDriver( const QString& sDriver )
 						);
 #endif
 		}
-	} else if ( sDriver == "Alsa" ) {
+	} else if ( sDriver == "ALSA" ) {
 		pDriver = new AlsaAudioDriver( audioEngine_process );
 		if ( pDriver->class_name() == NullDriver::class_name() ) {
 			delete pDriver;
@@ -2150,11 +2150,11 @@ void audioEngine_startAudioDrivers()
 	QString sAudioDriver = preferencesMng->m_sAudioDriver;
 	if ( sAudioDriver == "Auto" ) {
 	#ifndef WIN32
-		if ( ( m_pAudioDriver = createDriver( "Jack" ) ) == nullptr ) {
-			if ( ( m_pAudioDriver = createDriver( "Alsa" ) ) == nullptr ) {
+		if ( ( m_pAudioDriver = createDriver( "JACK" ) ) == nullptr ) {
+			if ( ( m_pAudioDriver = createDriver( "ALSA" ) ) == nullptr ) {
 				if ( ( m_pAudioDriver = createDriver( "CoreAudio" ) ) == nullptr ) {
 					if ( ( m_pAudioDriver = createDriver( "PortAudio" ) ) == nullptr ) {
-						if ( ( m_pAudioDriver = createDriver( "Oss" ) ) == nullptr ) {
+						if ( ( m_pAudioDriver = createDriver( "OSS" ) ) == nullptr ) {
 							if ( ( m_pAudioDriver = createDriver( "PulseAudio" ) ) == nullptr ) {
 								audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
 								___ERRORLOG( "Error starting audio driver" );
@@ -2172,10 +2172,10 @@ void audioEngine_startAudioDrivers()
 	#else
 		//On Windows systems, use PortAudio is the prioritized backend
 		if ( ( m_pAudioDriver = createDriver( "PortAudio" ) ) == nullptr ) {
-			if ( ( m_pAudioDriver = createDriver( "Alsa" ) ) == nullptr ) {
+			if ( ( m_pAudioDriver = createDriver( "ALSA" ) ) == nullptr ) {
 				if ( ( m_pAudioDriver = createDriver( "CoreAudio" ) ) == nullptr ) {
-					if ( ( m_pAudioDriver = createDriver( "Jack" ) ) == nullptr ) {
-						if ( ( m_pAudioDriver = createDriver( "Oss" ) ) == nullptr ) {
+					if ( ( m_pAudioDriver = createDriver( "JACK" ) ) == nullptr ) {
+						if ( ( m_pAudioDriver = createDriver( "OSS" ) ) == nullptr ) {
 							if ( ( m_pAudioDriver = createDriver( "PulseAudio" ) ) == nullptr ) {
 								audioEngine_raiseError( Hydrogen::ERROR_STARTING_DRIVER );
 								___ERRORLOG( "Error starting audio driver" );
@@ -2221,7 +2221,7 @@ void audioEngine_startAudioDrivers()
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif
-	} else if ( preferencesMng->m_sMidiDriver == "CoreMidi" ) {
+	} else if ( preferencesMng->m_sMidiDriver == "CoreMIDI" ) {
 #ifdef H2CORE_HAVE_COREMIDI
 		CoreMidiDriver *coreMidiDriver = new CoreMidiDriver();
 		m_pMidiDriver = coreMidiDriver;
@@ -2229,7 +2229,7 @@ void audioEngine_startAudioDrivers()
 		m_pMidiDriver->open();
 		m_pMidiDriver->setActive( true );
 #endif
-	} else if ( preferencesMng->m_sMidiDriver == "JackMidi" ) {
+	} else if ( preferencesMng->m_sMidiDriver == "JACK-MIDI" ) {
 #ifdef H2CORE_HAVE_JACK
 		JackMidiDriver *jackMidiDriver = new JackMidiDriver();
 		m_pMidiDriverOut = jackMidiDriver;
