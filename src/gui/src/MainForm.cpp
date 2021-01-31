@@ -1779,15 +1779,6 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			pHydrogen->getCoreActionController()->relocate( pHydrogen->getPatternPos() + 1 );
 			return true;
 			break;
-
-		case Qt::Key_L :
-			pHydrogen->togglePlaysSelected();
-			QString msg = Preferences::get_instance()->patternModePlaysSelected() ? "Single pattern mode" : "Stacked pattern mode";
-			app->setStatusBarMessage( msg, 5000 );
-			app->getSongEditorPanel()->setModeActionBtn( Preferences::get_instance()->patternModePlaysSelected() );
-			app->getSongEditorPanel()->updateAll();
-			return true;
-			break;
 		}
 
 		// virtual keyboard handling
