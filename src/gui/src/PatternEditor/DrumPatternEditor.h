@@ -32,6 +32,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <vector>
 
 class PatternEditorInstrumentList;
 
@@ -92,8 +93,14 @@ class DrumPatternEditor : public PatternEditor
 								int octaveKeyVal );
 		void functionClearNotesRedoAction( int nSelectedInstrument, int selectedPatternNumber );
 		void functionClearNotesUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, int patternNumber );
-		void functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
-		void functionFillNotesRedoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
+		//void functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
+		void functionFillNotesUndoAction( std::vector<int> notePositions, std::vector<int> noteTimeOffsetNumerators,
+											std::vector<int> noteTupletNumerators, int nSelectedInstrument,
+											 int patternNumber );
+		//void functionFillNotesRedoAction( QStringList noteList, int nSelectedInstrument, int patternNumber );
+		void functionFillNotesRedoAction( std::vector<int> notePositions, std::vector<int> noteTimeOffsetNumerators,
+											std::vector<int> noteTupletNumerators, int nSelectedInstrument,
+											int patternNumber );
 		void functionRandomVelocityAction( QStringList noteVeloValue, int nSelectedInstrument, int selectedPatternNumber );
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
 		void functionDropInstrumentUndoAction( int nTargetInstrument, std::vector<int>* AddedComponents );

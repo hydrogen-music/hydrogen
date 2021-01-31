@@ -98,6 +98,9 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		float granularity() const { // float for tuplets
 			return (float) MAX_NOTES * m_nTupletDenominator / ( m_nTupletNumerator * m_nResolution );
 		}
+		int getTupletNumerator(){ return m_nTupletNumerator; }
+		int getTupletDenominator(){ return m_nTupletDenominator; }
+		int getResolution(){ return m_nResolution; }
 
 	private slots:
 		void gridResolutionChanged( int nSelected );

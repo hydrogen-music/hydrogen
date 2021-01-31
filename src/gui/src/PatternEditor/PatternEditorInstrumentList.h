@@ -29,6 +29,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <vector>
 
 #include <core/Object.h>
 #include "../Widgets/PixmapWidget.h"
@@ -60,15 +61,19 @@ class InstrumentLine : public PixmapWidget
 	private slots:
 		void functionClearNotes();
 
+		// TODO use parametric fillNotes(every) with Qvariant in menu item?
 		void functionFillAllNotes();
 		void functionFillEveryTwoNotes();
 		void functionFillEveryThreeNotes();
 		void functionFillEveryFourNotes();
+		void functionFillEveryFiveNotes();
 		void functionFillEverySixNotes();
+		void functionFillEverySevenNotes();
 		void functionFillEveryEightNotes();
 		void functionFillEveryTwelveNotes();
 		void functionFillEverySixteenNotes();
 		void functionFillNotes( int every );
+
 		void functionCopyInstrumentPattern();
 		void functionCopyAllInstrumentPatterns();
 		void functionPasteInstrumentPattern();

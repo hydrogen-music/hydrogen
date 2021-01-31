@@ -1129,10 +1129,10 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 
 	QColor color = computeNoteColor( note->get_velocity() );
 
-	uint w = 8;
+	uint nWidth = 8;
 	uint h =  m_nGridHeight / 3;
 	uint x_pos = round( m_nMargin + ( fPos * m_fGridWidth ) );
-	uint y_pos = ( nInstrument * m_nGridHeight) + (m_nGridHeight / 2) - 3;
+	uint y_pos = ( nInstrument * m_nGridHeight) + ( m_nGridHeight / 2 ) - 3;
 
 	bool bSelected = m_selection.isSelected( note );
 
@@ -1158,58 +1158,56 @@ void DrumPatternEditor::__draw_note( Note *note, QPainter& p )
 	if ( note->get_length() == -1 && note->get_note_off() == false ) {	// trigger note
 
 		if ( bSelected ) {
-			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
+			p.drawEllipse( x_pos -4 -2, y_pos-2, nWidth + 4, h+4 );
 		}
 		p.setPen(noteColor);
 		p.setBrush( color );
-		p.drawEllipse( x_pos -4 , y_pos, w, h );
+		p.drawEllipse( x_pos -4 , y_pos, nWidth, h );
 
 		if ( bMoving ) {
 			p.setPen( movingPen );
 			p.setBrush( Qt::NoBrush );
-			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2 , w + 4, h + 4 );
+			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2 , nWidth + 4, h + 4 );
 		}
 
 	}
 	else if ( note->get_length() == 1 && note->get_note_off() == true ){
 
 		if ( bSelected ) {
-			p.drawEllipse( x_pos -4 -2, y_pos-2, w+4, h+4 );
+			p.drawEllipse( x_pos -4 -2, y_pos-2, nWidth + 4, h+4 );
 		}
 		p.setPen( noteoffColor );
 		p.setBrush(QColor( noteoffColor));
-		p.drawEllipse( x_pos -4 , y_pos, w, h );
+		p.drawEllipse( x_pos -4 , y_pos, nWidth, h );
 
 		if ( bMoving ) {
 			p.setPen( movingPen );
 			p.setBrush( Qt::NoBrush );
-			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2, w + 4, h + 4 );
+			p.drawEllipse( movingOffset.x() + x_pos -4 -2, movingOffset.y() + y_pos -2, nWidth + 4, h + 4 );
 		}
 
 	}
-	else {
+	else { // draw note as rectangle
+		// scale the length according to the doppler effect due to pitch shift
 		float fNotePitch = note->get_octave() * 12 + note->get_key();
 		float fStep = pow( 1.0594630943593, ( double )fNotePitch );
+		nWidth = m_fGridWidth * note->get_length() / fStep;
+		nWidth = nWidth - 1;	// lascio un piccolo spazio tra una nota ed un altra
 
-		// uint x = round( m_nMargin + ( fPos * m_fGridWidth ) ); 
-		int w = m_fGridWidth * note->get_length() / fStep;
-		w = w - 1;	// lascio un piccolo spazio tra una nota ed un altra
-
-		int y = (int) ( ( nInstrument ) * m_nGridHeight  + (m_nGridHeight / 100.0 * 30.0) );
-		int h = (int) (m_nGridHeight - ((m_nGridHeight / 100.0 * 30.0) * 2.0) );
+		int y = (int) ( ( nInstrument ) * m_nGridHeight  + ( m_nGridHeight / 100.0 * 30.0) );
+		int h = (int) ( m_nGridHeight - (( m_nGridHeight / 100.0 * 30.0) * 2.0) );
 		if ( bSelected ) {
-			p.drawRoundedRect( x_pos -2, y+1-2, w+4, h+1+4, 4, 4 );
+			p.drawRoundedRect( x_pos -2, y+1-2, nWidth + 4, h+1+4, 4, 4 );
 		}
 		p.setPen(noteColor);
 		p.setBrush( color );
-		p.fillRect( x_pos, y + 1, w, h + 1, color );
-		p.drawRect( x_pos, y + 1, w, h + 1 );
+		p.fillRect( x_pos, y + 1, nWidth, h + 1, color );
+		p.drawRect( x_pos, y + 1, nWidth, h + 1 );
 		if ( bMoving ) {
 			p.setPen( movingPen );
 			p.setBrush( Qt::NoBrush );
-			p.drawRoundedRect( movingOffset.x() + x_pos-2, movingOffset.y() + y+1-2, w+4, h+1+4, 4, 4 );
+			p.drawRoundedRect( movingOffset.x() + x_pos-2, movingOffset.y() + y+1-2, nWidth +4, h+1+4, 4, 4 );
 		}
-
 	}
 }
 
@@ -1568,7 +1566,11 @@ void DrumPatternEditor::functionPasteNotesRedoAction(std::list<H2Core::Pattern*>
 
 
 
-void DrumPatternEditor::functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber )
+//void DrumPatternEditor::functionFillNotesUndoAction( QStringList noteList, int nSelectedInstrument, int patternNumber )
+void DrumPatternEditor::functionFillNotesUndoAction( std::vector<int> notePositions,
+													 std::vector<int> noteTimeOffsetNumerators,
+													 std::vector<int> noteTupletNumerators,
+													  int nSelectedInstrument, int patternNumber )
 {
 	Hydrogen * H = Hydrogen::get_instance();
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
@@ -1577,13 +1579,16 @@ void DrumPatternEditor::functionFillNotesUndoAction( QStringList noteList, int n
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
 
-	for (int i = 0; i < noteList.size(); i++ ) {
-		int nColumn  = noteList.value(i).toInt();
+	//for (int i = 0; i < noteList.size(); i++ ) {
+	for (int i = 0; i < notePositions.size(); i++ ) {
+		// int nColumn  = noteList.value(i).toInt();
 		Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
-		FOREACH_NOTE_IT_BOUND(notes,it,nColumn) {
+		FOREACH_NOTE_IT_BOUND( notes, it, notePositions[i] ) {
 			Note *pNote = it->second;
 			assert( pNote );
-			if ( pNote->get_instrument() == pSelectedInstrument ) {
+			if ( pNote->get_instrument() == pSelectedInstrument
+					&& pNote->getTimeOffsetNumerator() == noteTimeOffsetNumerators[i]
+					&& pNote->getTupletNumerator() == noteTupletNumerators[i] ) {
 				// the note exists...remove it!
 				notes->erase( it );
 				delete pNote;
@@ -1598,7 +1603,12 @@ void DrumPatternEditor::functionFillNotesUndoAction( QStringList noteList, int n
 }
 
 
-void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int nSelectedInstrument, int patternNumber )
+//void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int nSelectedInstrument, int patternNumber )
+
+void DrumPatternEditor::functionFillNotesRedoAction( std::vector<int> notePositions,
+													 std::vector<int> noteTimeOffsetNumerators,
+													 std::vector<int> noteTupletNumerators,
+													 int nSelectedInstrument, int patternNumber )
 {
 	Hydrogen * H = Hydrogen::get_instance();
 	PatternList *pPatternList = Hydrogen::get_instance()->getSong()->getPatternList();
@@ -1612,11 +1622,13 @@ void DrumPatternEditor::functionFillNotesRedoAction( QStringList noteList, int n
 	const int nLength = -1;
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );	// lock the audio engine
-	for (int i = 0; i < noteList.size(); i++ ) {
+	for (int i = 0; i < notePositions.size(); i++ ) {
 
 		// create the new note
-		int position = noteList.value(i).toInt();
-		Note *pNote = new Note( pSelectedInstrument, position, velocity, pan_L, pan_R, nLength, fPitch );
+		//int position = noteList.value(i).toInt();
+		Note *pNote = new Note( pSelectedInstrument, notePositions[i], velocity, pan_L, pan_R, nLength, fPitch );
+		pNote->setTimeOffsetNumerator( noteTimeOffsetNumerators[i] );
+		pNote->setTupletNumerator( noteTupletNumerators[i] );
 		pPattern->insert_note( pNote );
 	}
 	AudioEngine::get_instance()->unlock();	// unlock the audio engine

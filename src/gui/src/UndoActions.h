@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QUndoCommand>
 #include <QPoint>
+#include <vector>
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/AutomationPath.h>
@@ -826,9 +827,17 @@ private:
 class SE_fillNotesRightClickAction : public QUndoCommand
 {
 public:
-	SE_fillNotesRightClickAction( QStringList notePositions, int nSelectedInstrument, int selectedPatternNumber  ){
+	//SE_fillNotesRightClickAction( QStringList notePositions, int nSelectedInstrument, int selectedPatternNumber  ){
+	SE_fillNotesRightClickAction( 	std::vector<int> notePositions,
+									std::vector<int> noteTimeOffsetNumerators,
+									std::vector<int> noteTupletNumerators,
+									int nSelectedInstrument, int selectedPatternNumber  ){
+
 		setText( QString( "Fill notes" ) );
-		__notePositions = notePositions;
+		//__notePositions = notePositions;
+		m_notePositions = notePositions;
+		m_noteTimeOffsetNumerators = noteTimeOffsetNumerators;
+		m_noteTupletNumerators = noteTupletNumerators;
 		__nSelectedInstrument= nSelectedInstrument;
 		__selectedPatternNumber = selectedPatternNumber;
 	}
@@ -836,16 +845,25 @@ public:
 	{
 		//qDebug() << "fill notes Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesUndoAction( __notePositions, __nSelectedInstrument, __selectedPatternNumber );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesUndoAction( m_notePositions,
+																							m_noteTimeOffsetNumerators,
+																							m_noteTupletNumerators,
+																	__nSelectedInstrument, __selectedPatternNumber );
 	}
 	virtual void redo()
 	{
 		//qDebug() << "fill notes Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesRedoAction( __notePositions, __nSelectedInstrument, __selectedPatternNumber );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->functionFillNotesRedoAction(  m_notePositions,
+																							m_noteTimeOffsetNumerators,
+																							m_noteTupletNumerators,
+																	 __nSelectedInstrument, __selectedPatternNumber );
 	}
 private:
-	QStringList __notePositions;
+	std::vector<int> m_notePositions;
+	std::vector<int> m_noteTimeOffsetNumerators;
+	std::vector<int> m_noteTupletNumerators;
+	//QStringList __notePositions;
 	int __nSelectedInstrument;
 	int __selectedPatternNumber;
 };

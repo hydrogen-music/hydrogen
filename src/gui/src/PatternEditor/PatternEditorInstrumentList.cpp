@@ -112,7 +112,9 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/2 notes" ), this, SLOT( functionFillEveryTwoNotes() ) );
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/3 notes" ), this, SLOT( functionFillEveryThreeNotes() ) );
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/4 notes" ), this, SLOT( functionFillEveryFourNotes() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/5 notes" ), this, SLOT( functionFillEveryFiveNotes() ) );
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/6 notes" ), this, SLOT( functionFillEverySixNotes() ) );
+	m_pFunctionPopupSub->addAction( tr( "Fill 1/7 notes" ), this, SLOT( functionFillEverySevenNotes() ) );
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/8 notes" ), this, SLOT( functionFillEveryEightNotes() ) );
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/12 notes" ), this, SLOT( functionFillEveryTwelveNotes() ) );
 	m_pFunctionPopupSub->addAction( tr( "Fill 1/16 notes" ), this, SLOT( functionFillEverySixteenNotes() ) );
@@ -363,7 +365,9 @@ void InstrumentLine::functionFillAllNotes(){ functionFillNotes(1); }
 void InstrumentLine::functionFillEveryTwoNotes(){ functionFillNotes(2); }
 void InstrumentLine::functionFillEveryThreeNotes(){ functionFillNotes(3); }
 void InstrumentLine::functionFillEveryFourNotes(){ functionFillNotes(4); }
+void InstrumentLine::functionFillEveryFiveNotes(){ functionFillNotes(5); }
 void InstrumentLine::functionFillEverySixNotes(){ functionFillNotes(6); }
+void InstrumentLine::functionFillEverySevenNotes(){ functionFillNotes(7); }
 void InstrumentLine::functionFillEveryEightNotes(){ functionFillNotes(8); }
 void InstrumentLine::functionFillEveryTwelveNotes(){ functionFillNotes(12); }
 void InstrumentLine::functionFillEverySixteenNotes(){ functionFillNotes(16); }
@@ -374,25 +378,28 @@ void InstrumentLine::functionFillNotes( int every )
 
 	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
-	int nResolution = 4 * MAX_NOTES * every / ( pPatternEditor->getTupletNumerator() * pPatternEditor->getResolution() );
-
 
 	Song *pSong = pEngine->getSong();
 
-	QStringList notePositions;
+	//QStringList notePositions; // TODO why using QStringList instead of a list of int ?
+	std::vector<int> notePositions;
+	std::vector<int> noteTimeOffsetNumerators;
+	std::vector<int> noteTupletNumerators;
 
 	Pattern* pCurrentPattern = getCurrentPattern();
-	if (pCurrentPattern != nullptr) {
+	if ( pCurrentPattern != nullptr ) {
 		int nPatternSize = pCurrentPattern->get_length();
 		int nSelectedInstrument = pEngine->getSelectedInstrumentNumber();
 
-		if (nSelectedInstrument != -1) {
+		if ( nSelectedInstrument != -1 ) {
 			Instrument *instrRef = (pSong->getInstrumentList())->get( nSelectedInstrument );
 
-			for (int i = 0; i < nPatternSize; i += nResolution) {
+			int i = 0;
+			int nColumn = 0;
+			while ( nColumn < nPatternSize) {
 				bool noteAlreadyPresent = false;
 				const Pattern::notes_t* notes = pCurrentPattern->get_notes();
-				FOREACH_NOTE_CST_IT_BOUND(notes,it,i) {
+				FOREACH_NOTE_CST_IT_BOUND( notes, it, nColumn ) {
 					Note *pNote = it->second;
 					if ( pNote->get_instrument() == instrRef ) {
 						// note already exists
@@ -402,10 +409,33 @@ void InstrumentLine::functionFillNotes( int every )
 				}
 
 				if ( noteAlreadyPresent == false ) {
-					notePositions << QString("%1").arg(i);
+					//notePositions << QString("%1").arg( nColumn );
+					notePositions.push_back( nColumn );
+					
+					int nTupletNumerator = pPatternEditorPanel->getTupletNumerator();
+					int nTupletDenominator = pPatternEditorPanel->getTupletDenominator();
+					int nResolution = pPatternEditorPanel->getResolution();
+					//TODO next lines are in common with DrumPatternEditor, a function in pattern returning oldTimeOffsetNumerator
+					// from nGridIndex = i. Is valid if MAX_NOTES % 64 = 0
+					int nTimeOffsetNumerator = ( i * MAX_NOTES * nTupletDenominator / nResolution) % nTupletNumerator;
+					/* since note position is rounded and not floored, time-offset adjustion must be < 0.5 and > -0.5 */
+					if ( 2 * nTimeOffsetNumerator >= nTupletNumerator ) {
+						nTimeOffsetNumerator -= nTupletNumerator;
+					}
+					
+					noteTimeOffsetNumerators.push_back( nTimeOffsetNumerator );
+					noteTupletNumerators.push_back( nTupletNumerator );
+					
 				}
-			}
-			SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction( notePositions, nSelectedInstrument, pEngine->getSelectedPatternNumber() );
+				i += every;
+				nColumn = round( i * pPatternEditorPanel->granularity() );
+			} 
+			 // TODO pass tuplet compensation and numerator
+			SE_fillNotesRightClickAction *action = new SE_fillNotesRightClickAction( notePositions,
+																					noteTimeOffsetNumerators,
+																					noteTupletNumerators,
+																					 nSelectedInstrument,
+																				pEngine->getSelectedPatternNumber() );
 			HydrogenApp::get_instance()->m_pUndoStack->push( action );
 		}
 	}
