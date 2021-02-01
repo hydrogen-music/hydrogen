@@ -664,8 +664,6 @@ void Mixer::nameSelected(MixerLine* ref)
 {
 	int nLine = findMixerLineByRef(ref);
 	Hydrogen::get_instance()->setSelectedInstrumentNumber( nLine );
-
-	Hydrogen::get_instance()->setSelectedInstrumentNumber(nLine);
 }
 
 

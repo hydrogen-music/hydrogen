@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr_FR">
+<TS version="2.0" language="fr_FR">
 <context>
     <name>AboutDialog</name>
     <message>
-        <source>&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Page du projet&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
         <source>About</source>
         <translation>À propos</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Site internet&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Main coder and maintainer:&lt;/b&gt;&lt;br&gt;</source>
@@ -24,8 +16,20 @@
         <translation>&lt;b&gt;Merci à :&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Liste de discussion pour le développement&lt;/b&gt;&lt;br&gt;</translation>
+        <source>&lt;br&gt;&lt;b&gt;Website&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;br&gt;&lt;b&gt;Site ouèbe (en anglais)&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;&lt;b&gt;Project page&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;br&gt;&lt;b&gt;Page du projet (en anglais)&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;&lt;b&gt;Forum&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;br&gt;&lt;b&gt;Forum (en anglais)&lt;/b&gt;&lt;br&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;br&gt;&lt;b&gt;Development mailing list&lt;/b&gt;&lt;br&gt;</source>
+        <translation>&lt;br&gt;&lt;b&gt;Liste de discussion pour le développement (en anglais)&lt;/b&gt;&lt;br&gt;</translation>
     </message>
 </context>
 <context>
@@ -113,10 +117,6 @@
         <translation>Instrument sélectionné</translation>
     </message>
     <message>
-        <source>Form1</source>
-        <translation>Form1</translation>
-    </message>
-    <message>
         <source>###</source>
         <translation>###</translation>
     </message>
@@ -202,6 +202,26 @@
     <message>
         <source>Unable to load that sample file.</source>
         <translation>Impossible de charger ce fichier échantillon.</translation>
+    </message>
+    <message>
+        <source>Parent Folder</source>
+        <translation>Dossier parent</translation>
+    </message>
+    <message>
+        <source>Home</source>
+        <translation>Maison</translation>
+    </message>
+    <message>
+        <source>Play selected</source>
+        <translation>Lecture de la sélection</translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation>Arrêter</translation>
+    </message>
+    <message>
+        <source>Name: </source>
+        <translation>Nom : </translation>
     </message>
 </context>
 <context>
@@ -322,10 +342,6 @@
         <translation>Donner !</translation>
     </message>
     <message>
-        <source>Choose random entry.</source>
-        <translation>Choisir au hasard</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen is an open source project which is developed by multiple people in their spare time. By making a donation you can say &amp;quot;thank you&amp;quot; to the involved persons.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;Hydrogen est un projet à source ouverte qui est développé par plusieurs personnes sur leur temps libre. En faisant un don, vous pouvez dire &amp;quot;merci à vous&amp;quot; aux personnes impliquées.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -336,6 +352,10 @@
     <message>
         <source>Michael Wolkstein (aka wolke): Forum hosting</source>
         <translation>Michael Wolkstein (dit : wolke) : hébergement des forums</translation>
+    </message>
+    <message>
+        <source>Choose random entry</source>
+        <translation>Choisir une entrée au hasard</translation>
     </message>
 </context>
 <context>
@@ -354,30 +374,6 @@
 </context>
 <context>
     <name>DrumPatternEditor</name>
-    <message>
-        <source>&amp;Cut</source>
-        <translation>&amp;Couper</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation>&amp;Copier</translation>
-    </message>
-    <message>
-        <source>&amp;Paste</source>
-        <translation>&amp;Coller</translation>
-    </message>
-    <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Effacer</translation>
-    </message>
-    <message>
-        <source>Select &amp;all</source>
-        <translation>&amp;Tout sélectionner</translation>
-    </message>
-    <message>
-        <source>Clear selection</source>
-        <translation>Effacer la sélection</translation>
-    </message>
     <message>
         <source>Cannot paste multi-pattern selection</source>
         <translation>Impossible de coller une sélection multi-motifs</translation>
@@ -516,7 +512,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>Samplerate in Hz:</source>
-        <translatorcomment>L&apos;ancienne étiquette &quot;Taux d&apos;échantillonnage en Hz:&quot; était beaucoup trop longue</translatorcomment>
+        <translatorcomment>L'ancienne étiquette "Taux d'échantillonnage en Hz:" était beaucoup trop longue</translatorcomment>
         <translation>Fréquence :</translation>
     </message>
     <message>
@@ -541,7 +537,7 @@ Overwrite the existing file?</source>
     </message>
     <message>
         <source>SampleDepth in Bit:</source>
-        <translatorcomment>L&apos;ancienne étiquette &quot;Profondeur d&apos;échantillonnage en Bit:&quot; était beaucoup trop longue</translatorcomment>
+        <translatorcomment>L'ancienne étiquette "Profondeur d'échantillonnage en Bit:" était beaucoup trop longue</translatorcomment>
         <translation>Résolution :</translation>
     </message>
     <message>
@@ -712,6 +708,14 @@ Overwrite the existing file?</source>
         <source>BPM</source>
         <translation>BPM</translation>
     </message>
+    <message>
+        <source>Please enter a number within the range of </source>
+        <translation>Veuillez entrer un nombre compris dans la fourchette de </translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation>Annuler (&amp;C)</translation>
+    </message>
 </context>
 <context>
     <name>H2Core::SongEditorPanelTagWidget</name>
@@ -794,6 +798,12 @@ Are you sure?</source>
         <source>Preferences loaded.</source>
         <translation>Préférences chargées.</translation>
     </message>
+    <message>
+        <source>Song is read-only.
+Use &apos;Save as&apos; to enable autosave.</source>
+        <translation>Le morceau est en lecture seule.
+Utilisez &apos;Sauvegarder sous&apos; pour activer la sauvegarde automatique.</translation>
+    </message>
 </context>
 <context>
     <name>InstrumentEditor</name>
@@ -862,10 +872,6 @@ Are you sure?</source>
         <translation>Couches</translation>
     </message>
     <message>
-        <source>Stop the current playing instrument-note before trigger the next note sample.</source>
-        <translation>Arrêter la note actuelle avant de déclencher l&apos;échantillon suivant</translation>
-    </message>
-    <message>
         <source>New component name</source>
         <translation>Nom du nouveau composant</translation>
     </message>
@@ -890,8 +896,24 @@ Are you sure?</source>
         <translation>Ne pas modifier le gain de la couche basé sur la vélocité</translation>
     </message>
     <message>
-        <source>Select pattern size</source>
-        <translation>Sélectionner la taille du motif</translation>
+        <source>Pitch offset (Coarse)</source>
+        <translation>Décalage de hauteur (grossier)</translation>
+    </message>
+    <message>
+        <source>Pitch offset (Fine)</source>
+        <translation>Décalage de hauteur (fin)</translation>
+    </message>
+    <message>
+        <source>Stop the current playing instrument-note before trigger the next note sample</source>
+        <translation>Arrêtez la note de l&apos;instrument en cours de lecture avant de déclencher l&apos;échantillon de note suivant</translation>
+    </message>
+    <message>
+        <source>Select selection algorithm</source>
+        <translation>Sélectionner l&apos;algorithme de sélection</translation>
+    </message>
+    <message>
+        <source>layer pitch: %1</source>
+        <translation>hauteur de la couche : %1</translation>
     </message>
 </context>
 <context>
@@ -1574,16 +1596,6 @@ Voulez-vous abandonner ces changements ?
         <translation>Paramètre les valeurs par défaut</translation>
     </message>
     <message>
-        <source>
-The LilyPond export is an experimental feature.
-It should work like a charm provided that you use the GM-kit, and that you do not use triplet.
-</source>
-        <translation>
-L&apos;export LilyPond est une fonctionnalité expérimentale.
-Ça devrait fonctionner comme un charme tant que vous utilisez le GM-kit, et que vous n&apos;utilisez pas de triolet.
-</translation>
-    </message>
-    <message>
         <source>&amp;Timeline</source>
         <translation>Ligne &amp;temporelle</translation>
     </message>
@@ -1594,10 +1606,6 @@ L&apos;export LilyPond est une fonctionnalité expérimentale.
     <message>
         <source>Jack driver: cannot disconnect client</source>
         <translation>Pilote Jack : impossible de déconnecter le client</translation>
-    </message>
-    <message>
-        <source>OSC Server: Cannot connect to given port, using temporary port instead</source>
-        <translation>Serveur OSC : impossible de se connecter au port donné, on utilise un port temporaire à la place</translation>
     </message>
     <message>
         <source>Retrieving information about drumkit &apos;%1&apos; failed: drumkit does not exist.</source>
@@ -1668,19 +1676,19 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Replace with &amp;new Song</source>
-        <translation type="unfinished"></translation>
+        <translation>Remplacer avec un &amp;nouveau morceau</translation>
     </message>
     <message>
         <source>&amp;Import into Session</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Importer dans la session</translation>
     </message>
     <message>
         <source>Import &amp;recent into Session</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Importer le &amp;recent dans la session</translation>
     </message>
     <message>
         <source>Export from Session &amp;as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Exporter depuis l&amp;a session sous...</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -1705,6 +1713,23 @@ Are you sure you want to save?</source>
     <message>
         <source>Song saved as: </source>
         <translation>Morceau sauvegardé sous : </translation>
+    </message>
+    <message>
+        <source>
+The LilyPond export is an experimental feature.
+It should work like a charm provided that you use the GMRockKit, and that you do not use triplet.
+</source>
+        <translation>
+L&apos;exportation LilyPond est une fonctionnalité expérimentale.
+Ça devrait fonctionner comme un charme à condition que vous utilisiez le GMRockKit, et que vous n&apos;utilisiez pas de triolet.</translation>
+    </message>
+    <message>
+        <source>OSC Server: Cannot connect to given port, using port %1 instead</source>
+        <translation>Serveur OSC : impossible de se connecter à un port donné, utilisation du port %1 à la place</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -1884,6 +1909,45 @@ Are you sure you want to save?</source>
         <source>C</source>
         <translation>Do</translation>
     </message>
+    <message>
+        <source>Select &amp;all</source>
+        <translation>&amp;Tout sélectionner</translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation>Effacer la sélection</translation>
+    </message>
+    <message>
+        <source>Edit %1 property of %2 notes</source>
+        <translation>Édition de la propriété %1 de %2 notes</translation>
+    </message>
+</context>
+<context>
+    <name>PatternEditor</name>
+    <message>
+        <source>&amp;Cut</source>
+        <translation>&amp;Couper</translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation>&amp;Copier</translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation>&amp;Coller</translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation>&amp;Effacer</translation>
+    </message>
+    <message>
+        <source>Select &amp;all</source>
+        <translation>&amp;Tout sélectionner</translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation>Effacer la sélection</translation>
+    </message>
 </context>
 <context>
     <name>PatternEditorPanel</name>
@@ -1986,6 +2050,86 @@ Are you sure you want to save?</source>
         <translatorcomment>Faute sur l'accent aigu faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Probabilite</translation>
     </message>
+    <message>
+        <source>Unsupported note denominator. Click for more information.</source>
+        <translation>Dénominateur de note non pris en charge. Cliquez pour plus d&apos;informations.</translation>
+    </message>
+    <message>
+        <source>quarter</source>
+        <translation>noire</translation>
+    </message>
+    <message>
+        <source>eighth</source>
+        <translation>croche</translation>
+    </message>
+    <message>
+        <source>sixteenth</source>
+        <translation>double-croche</translation>
+    </message>
+    <message>
+        <source>thirty-second</source>
+        <translation>triple-croche</translation>
+    </message>
+    <message>
+        <source>sixty-fourth</source>
+        <translation>quadruple-croche</translation>
+    </message>
+    <message>
+        <source>quarter triplet</source>
+        <translation>noire triolet</translation>
+    </message>
+    <message>
+        <source>eighth triplet</source>
+        <translation>croche triolet</translation>
+    </message>
+    <message>
+        <source>sixteenth triplet</source>
+        <translation>double-croche triolet</translation>
+    </message>
+    <message>
+        <source>thirty-second triplet</source>
+        <translation>triple-croche triolet</translation>
+    </message>
+    <message>
+        <source>off</source>
+        <translation>sans</translation>
+    </message>
+    <message>
+        <source>Hydrogen can only represent notes as small as 1/%1 of a whole note, so note values must be multiple of this.
+Supported values are: 1/1, 1/2, 1/3, 1/4, 1/6, 1/8, 1/12, 1/16, 1/24, 1/32, 1/48, 1/64, 1/96, 1/192</source>
+        <translation>Hydrogen peut uniquement représenter les notes jusqu&apos;à 1/%1 d&apos;une note entière, les valeurs de note doivent donc être multiples de ce chiffre.
+Les valeurs prises en charge sont : 1/1, 1/2, 1/3, 1/4, 1/6, 1/8, 1/12, 1/16, 1/24, 1/32, 1/48, 1/64, 1/96, 1/192</translation>
+    </message>
+    <message>
+        <source>New Pattern length (beats/note value)</source>
+        <translation>Nouvelle longueur du motif (battements/valeur de la note)</translation>
+    </message>
+    <message>
+        <source>Denominator value rejected.
+Limits: (0, %1]</source>
+        <translation>Valeur du dénominateur rejetée.
+Limites : (0, %1]</translation>
+    </message>
+    <message>
+        <source>Pattern size too big.
+Maximum = 16/4</source>
+        <translation>La taille du motif est trop grande.
+Maximum = 16/4</translation>
+    </message>
+    <message>
+        <source>Pattern length in 1/%1 notes is not supported. Length may be approximated.</source>
+        <translation>La longueur du motif en notes 1/%1 n&apos;est pas prise en charge. La longueur pourrait être approximative.</translation>
+    </message>
+    <message>
+        <source>Pattern size was approximated.
+(resolution = %1 ticks/quarter note)</source>
+        <translation>La taille du motif a été approximée.
+(résolution = %1 tics/noire)</translation>
+    </message>
+    <message>
+        <source>Text rejected</source>
+        <translation>Texte rejeté</translation>
+    </message>
 </context>
 <context>
     <name>PatternFillDialog</name>
@@ -2039,14 +2183,6 @@ Are you sure you want to save?</source>
         <source>Pattern properties</source>
         <translation>Propriétés du motif</translation>
     </message>
-    <message>
-        <source>%1#2</source>
-        <translation>%1#2</translation>
-    </message>
-    <message>
-        <source>%1</source>
-        <translation>%1</translation>
-    </message>
 </context>
 <context>
     <name>PatternPropertiesDialog_UI</name>
@@ -2086,30 +2222,6 @@ Are you sure you want to save?</source>
 <context>
     <name>PianoRollEditor</name>
     <message>
-        <source>&amp;Cut</source>
-        <translation>&amp;Couper</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation>&amp;Copier</translation>
-    </message>
-    <message>
-        <source>&amp;Paste</source>
-        <translation>&amp;Coller</translation>
-    </message>
-    <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Effacer</translation>
-    </message>
-    <message>
-        <source>Select &amp;all</source>
-        <translation>&amp;Tout sélectionner</translation>
-    </message>
-    <message>
-        <source>Clear selection</source>
-        <translation>Effacer la sélection</translation>
-    </message>
-    <message>
         <source>Cannot paste multi-pattern selection</source>
         <translation>Impossible de coller une sélection multi-motifs</translation>
     </message>
@@ -2144,18 +2256,6 @@ Are you sure you want to save?</source>
         <source>Pattern mode selected.</source>
         <translatorcomment>Faute sur les accents aigus faites exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation>Mode motif selectionne.</translation>
-    </message>
-    <message>
-        <source>Jack-transport on/off</source>
-        <translation>Transport JACK actif/inactif</translation>
-    </message>
-    <message>
-        <source>Jack-transport mode = On</source>
-        <translation>Transport JACK = Actif</translation>
-    </message>
-    <message>
-        <source>Jack-transport mode = Off</source>
-        <translation>Transport JACK = Inactif</translation>
     </message>
     <message>
         <source>Show mixer</source>
@@ -2194,10 +2294,6 @@ Are you sure you want to save?</source>
         <translation>Pause.</translation>
     </message>
     <message>
-        <source>JACK-transport will work only with JACK driver.</source>
-        <translation>Le transport JACK fonctionne seulement avec le pilote JACK.</translation>
-    </message>
-    <message>
         <source>New BPM value</source>
         <translation>Nouvelle valeur du BPM</translation>
     </message>
@@ -2218,10 +2314,6 @@ Are you sure you want to save?</source>
         <translation>Régler le BPM / régler le BPM et jouer</translation>
     </message>
     <message>
-        <source>Jack-Time-Master on/off</source>
-        <translation>JACK-time-master actif/inactif</translation>
-    </message>
-    <message>
         <source> BC Panel on</source>
         <translation> Panneau du compteur BPM actif</translation>
     </message>
@@ -2237,14 +2329,6 @@ Are you sure you want to save?</source>
         <source> Count and set BPM</source>
         <translatorcomment>Faute sur l'accent aigu faite exprès car c'est sur l'affichage LCD et les accents n'y sont pas gérés.</translatorcomment>
         <translation> Compter et regler les BPM</translation>
-    </message>
-    <message>
-        <source> Jack-Time-Master mode = On</source>
-        <translation> Mode JACK-time-master = Actif</translation>
-    </message>
-    <message>
-        <source> Jack-Time-Master mode = Off</source>
-        <translation> Mode JACK-time-master = Inactif</translation>
     </message>
     <message>
         <source>Record</source>
@@ -2283,7 +2367,7 @@ Are you sure you want to save?</source>
     </message>
     <message>
         <source>Recalculate all samples using Rubberband OFF</source>
-        <translatorcomment>Fautes sur l'accent aigu et l'apostrophe manquant faite sexprès car c'est sur l'affichage LCD et les accents et l'apostrophe n'y sont pas gérés.</translatorcomment>
+        <translatorcomment>Fautes sur l'accent aigu et l'apostrophe manquant faites exprès car c'est sur l'affichage LCD et les accents et l'apostrophe n'y sont pas gérés.</translatorcomment>
         <translation>Recalcule tous les echantillons qui n utilisent pas Rubberband</translation>
     </message>
     <message>
@@ -2291,12 +2375,36 @@ Are you sure you want to save?</source>
         <translation>Active/désactive le métronome</translation>
     </message>
     <message>
-        <source>Jack-Time-Master mode = Off</source>
-        <translation>Mode Jack-Time-Master = off</translation>
+        <source>JACK transport on/off</source>
+        <translation>Transport JACK on/off</translation>
     </message>
     <message>
-        <source>Jack-Time-Master mode = On</source>
-        <translation>Mode Jack-Time-Master = on</translation>
+        <source>JACK Timebase master on/off</source>
+        <translation>Maître JACK Timebase on/off</translation>
+    </message>
+    <message>
+        <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
+        <translation>En présence d&apos;un maître JACK Timebase externe, le tempo ne peut être modifié à partir d&apos;Hydrogen</translation>
+    </message>
+    <message>
+        <source>JACK transport will work only with JACK driver.</source>
+        <translation>Le transport JACK ne fonctionne qu&apos;avec le pilote JACK.</translation>
+    </message>
+    <message>
+        <source>JACK transport mode = On</source>
+        <translation>Mode transport JACK = on</translation>
+    </message>
+    <message>
+        <source>JACK transport mode = Off</source>
+        <translation>Mode transport JACK = off</translation>
+    </message>
+    <message>
+        <source>JACK Timebase master mode = On</source>
+        <translation>Mode maitre JACK Timebase = on</translation>
+    </message>
+    <message>
+        <source>JACK Timebase master mode = Off</source>
+        <translation>Mode maitre JACK Timebase = off</translation>
     </message>
 </context>
 <context>
@@ -2534,32 +2642,8 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Rapide</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Simple audio driver [/dev/dsp]</source>
-        <translation>&lt;b&gt;Open Sound System&lt;/b&gt;&lt;br&gt;Pilote audio simple [/dev/dsp]</translation>
-    </message>
-    <message>
-        <source>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Not compiled&lt;/font&gt;&lt;/b&gt;</source>
-        <translation>&lt;br&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;Non compilé&lt;/font&gt;&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Jack Audio Connection Kit Driver&lt;/b&gt;&lt;br&gt;Low latency audio driver</source>
-        <translation>&lt;b&gt;Pilote Jack Audio Connection Kit&lt;/b&gt;&lt;br&gt;Pilote audio faible latence</translation>
-    </message>
-    <message>
         <source>Preferences</source>
         <translation>Préférences</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;ALSA Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Pilote ALSA&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;PortAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Pilote PortAudio&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;CoreAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Pilote CoreAudio&lt;/b&gt;&lt;br&gt;</translation>
     </message>
     <message>
         <source>Please restart hydrogen to enable/disable LASH support</source>
@@ -2592,10 +2676,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Fixe</translation>
     </message>
     <message>
-        <source>&lt;b&gt;PulseAudio Driver&lt;/b&gt;&lt;br&gt;</source>
-        <translation>&lt;b&gt;Pilote PulseAudio&lt;/b&gt;&lt;br&gt;</translation>
-    </message>
-    <message>
         <source>Number of steps</source>
         <translation>Nombre de pas</translation>
     </message>
@@ -2608,16 +2688,64 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Sélection de pilote automatique</translation>
     </message>
     <message>
-        <source>&lt;br&gt;&lt;b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;/b&gt; selected</source>
-        <translation>&lt;/b&gt; sélectionné</translation>
-    </message>
-    <message>
         <source>Hydrogen must be restarted for language change to take effect</source>
         <translation>Hydrogen doit être redémarré pour que le changement de langue soit pris en compte</translation>
+    </message>
+    <message>
+        <source>Select your Audio Driver</source>
+        <translation>Sélectionner votre pilote audio</translation>
+    </message>
+    <message>
+        <source>Select your MIDI Driver</source>
+        <translation>Sélectionner votre pilote MIDI</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Aucun</translation>
+    </message>
+    <message>
+        <source>The select port is unavailable. This instance uses the following temporary port instead:</source>
+        <translation>Le port sélectionné est indisponible. Cette instance utilise le port temporaire suivant à la place :</translation>
+    </message>
+    <message>
+        <source>selected</source>
+        <translation>sélectionné</translation>
+    </message>
+    <message>
+        <source>Open Sound System</source>
+        <translation>Open Sound System</translation>
+    </message>
+    <message>
+        <source>Simple audio driver [/dev/dsp]</source>
+        <translation>Pilote audio simple [/dev/dsp]</translation>
+    </message>
+    <message>
+        <source>Not compiled</source>
+        <translation>non-compilé</translation>
+    </message>
+    <message>
+        <source>JACK Audio Connection Kit Driver</source>
+        <translation>Pilote JACK Audio Connection Kit</translation>
+    </message>
+    <message>
+        <source>Low latency audio driver</source>
+        <translation>Pilote audio basse-latence</translation>
+    </message>
+    <message>
+        <source>ALSA Driver</source>
+        <translation>Pilote ALSA</translation>
+    </message>
+    <message>
+        <source>PortAudio Driver</source>
+        <translation>Pilote PortAudio</translation>
+    </message>
+    <message>
+        <source>CoreAudio Driver</source>
+        <translation>Pilote CoreAudio</translation>
+    </message>
+    <message>
+        <source>PulseAudio Driver</source>
+        <translation>Pilote PulseAudio</translation>
     </message>
 </context>
 <context>
@@ -2695,10 +2823,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>96000</translation>
     </message>
     <message>
-        <source>Midi driver</source>
-        <translation>Pilote MIDI</translation>
-    </message>
-    <message>
         <source>Form1</source>
         <translation>Form1</translation>
     </message>
@@ -2753,10 +2877,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
     <message>
         <source>Metronome volume</source>
         <translation>Volume du métronome</translation>
-    </message>
-    <message>
-        <source>&amp;Midi System</source>
-        <translation>Système MIDI</translation>
     </message>
     <message>
         <source>Ignore note-off</source>
@@ -2851,10 +2971,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Piste de sortie</translation>
     </message>
     <message>
-        <source>Use lash</source>
-        <translation>Utiliser LASH (système de gestion de session JACK/ALSA)</translation>
-    </message>
-    <message>
         <source>first step, adjust timing mismatch between controller/keyboard trigger latency and computed bpm</source>
         <translation>première étape: synchroniser la latence du déclencheur du contrôleur/clavier et le BPM calculé.</translation>
     </message>
@@ -2935,10 +3051,6 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <translation>Utiliser la note de sortie en tant que note d&apos;entrée</translation>
     </message>
     <message>
-        <source>Discard midi messages after action has been triggered</source>
-        <translation>Abandonner les messages MIDI après que l&apos;action ait été déclenchée</translation>
-    </message>
-    <message>
         <source>Create per-instrument outputs</source>
         <translation>Créer une sortie par instrument</translation>
     </message>
@@ -2978,11 +3090,7 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Output</source>
         <translation>Sortie</translation>
     </message>
-    <message>
-        <source>Enable midi feedback</source>
-        <translation>Activer le retour d&apos;information MIDI</translation>
-    </message>
-    <message>
+    <message utf8="true">
         <source>Language / Γλώσσα / Язык / 言語</source>
         <translation>Langue / Γλώσσα / Язык / 言語</translation>
     </message>
@@ -3022,6 +3130,26 @@ Le chemin vers le script et le nom du script doivent être sans espaces.</transl
         <source>Prefer larger</source>
         <translation>Préférer les plus larges</translation>
     </message>
+    <message>
+        <source>Use LASH</source>
+        <translation>Utilisation de LASH</translation>
+    </message>
+    <message>
+        <source>&amp;MIDI System</source>
+        <translation>Système &amp;MIDI</translation>
+    </message>
+    <message>
+        <source>MIDI driver</source>
+        <translation>Pilote MIDI</translation>
+    </message>
+    <message>
+        <source>Enable MIDI feedback</source>
+        <translation>Active le retour MIDI</translation>
+    </message>
+    <message>
+        <source>Discard MIDI messages after action has been triggered</source>
+        <translation>Abandonner les messages MIDI après le déclenchement d&apos;une action</translation>
+    </message>
 </context>
 <context>
     <name>SampleEditor</name>
@@ -3044,6 +3172,30 @@ Are you sure?</source>
 Are you sure?</source>
         <translation>Il reste des changements non sauvegardés. Ces changements seront perdus. 
 Êtes-vous sûr ?</translation>
+    </message>
+    <message>
+        <source>SampleEditor </source>
+        <translation>Éditeur d&apos;échantillon</translation>
+    </message>
+    <message>
+        <source>&amp;Play</source>
+        <translation>&amp;Lecture</translation>
+    </message>
+    <message>
+        <source>P&amp;lay original sample</source>
+        <translation>&amp;Lecture de l&apos;échantillon original</translation>
+    </message>
+    <message>
+        <source>new sample length</source>
+        <translation>nouvelle longueur d&apos;échantillon</translation>
+    </message>
+    <message>
+        <source>frames</source>
+        <translation>trames</translation>
+    </message>
+    <message>
+        <source> RB-Ratio</source>
+        <translation> Ratio-RB</translation>
     </message>
 </context>
 <context>
@@ -3391,6 +3543,49 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>SongEditor</name>
+    <message>
+        <source>&amp;Cut</source>
+        <translation>&amp;Couper</translation>
+    </message>
+    <message>
+        <source>&amp;Copy</source>
+        <translation>&amp;Copier</translation>
+    </message>
+    <message>
+        <source>&amp;Paste</source>
+        <translation>&amp;Coller</translation>
+    </message>
+    <message>
+        <source>&amp;Delete</source>
+        <translation>&amp;Effacer</translation>
+    </message>
+    <message>
+        <source>Select &amp;all</source>
+        <translation>&amp;Tout sélectionner</translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation>Effacer la sélection</translation>
+    </message>
+    <message>
+        <source>Delete selected cells</source>
+        <translation>Supprimer les cellules sélectionnées</translation>
+    </message>
+    <message>
+        <source>Paste cells</source>
+        <translation>Coller les cellules</translation>
+    </message>
+    <message>
+        <source>Copy selected cells</source>
+        <translation>Copier les cellules sélectionnées</translation>
+    </message>
+    <message>
+        <source>Move selected cells</source>
+        <translation>Déplacer les cellules sélectionnées</translation>
+    </message>
+</context>
+<context>
     <name>SongEditorPanel</name>
     <message>
         <source>Create new pattern</source>
@@ -3491,6 +3686,10 @@ Voulez-vous continuer?</translation>
         <source> Timeline = On</source>
         <translation> Ligne temporelle = on</translation>
     </message>
+    <message>
+        <source>In the presence of an external JACK Timebase master the tempo can not be altered from within Hydrogen</source>
+        <translation>En présence d&apos;un maître JACK Timebase externe, le tempo ne peut être modifié à partir d&apos;Hydrogen</translation>
+    </message>
 </context>
 <context>
     <name>SongEditorPanelBpmWidget_UI</name>
@@ -3573,10 +3772,6 @@ Voulez-vous continuer?</translation>
         <translation>Propriétés</translation>
     </message>
     <message>
-        <source>Fill/Clear ...</source>
-        <translation>Remplir/effacer ...</translation>
-    </message>
-    <message>
         <source>Save Pattern</source>
         <translation>Sauvegarder un motif</translation>
     </message>
@@ -3632,6 +3827,10 @@ Overwrite the existing pattern?</source>
     <message>
         <source>Could not save pattern to temporary directory.</source>
         <translation>Impossible de sauvegarder le motif dans le répertoire temporaire.</translation>
+    </message>
+    <message>
+        <source>Fill/Clear...</source>
+        <translation>Remplir/effacer...</translation>
     </message>
 </context>
 <context>

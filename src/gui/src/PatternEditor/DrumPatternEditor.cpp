@@ -814,26 +814,34 @@ void DrumPatternEditor::deleteSelection()
 		Hydrogen *pHydrogen = Hydrogen::get_instance();
 		InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
 		QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-		pUndo->beginMacro("delete notes");
 		validateSelection();
+
+		// Construct list of UndoActions to perform before performing any of them, as the
+		// addOrDeleteNoteAction may delete duplicate notes in undefined order.
+		std::list< QUndoCommand *> actions;
 		for ( Note *pNote : m_selection ) {
 			if ( m_selection.isSelected( pNote ) ) {
-				pUndo->push( new SE_addOrDeleteNoteAction( pNote->get_position(),
-														   pInstrumentList->index( pNote->get_instrument() ),
-														   m_nSelectedPatternNumber,
-														   pNote->get_length(),
-														   pNote->get_velocity(),
-														   pNote->get_pan_l(),
-														   pNote->get_pan_r(),
-														   pNote->get_lead_lag(),
-														   pNote->get_key(),
-														   pNote->get_octave(),
-														   true, // noteExisted
-														   false, // listen
-														   false,
-														   false,
-														   pNote->get_note_off() ) );
+				actions.push_back( new SE_addOrDeleteNoteAction( pNote->get_position(),
+																 pInstrumentList->index( pNote->get_instrument() ),
+																 m_nSelectedPatternNumber,
+																 pNote->get_length(),
+																 pNote->get_velocity(),
+																 pNote->get_pan_l(),
+																 pNote->get_pan_r(),
+																 pNote->get_lead_lag(),
+																 pNote->get_key(),
+																 pNote->get_octave(),
+																 true, // noteExisted
+																 false, // listen
+																 false,
+																 false,
+																 pNote->get_note_off() ) );
 			}
+		}
+
+		pUndo->beginMacro("delete notes");
+		for ( QUndoCommand *pAction : actions ) {
+			pUndo->push( pAction );
 		}
 		pUndo->endMacro();
 		m_selection.clearSelection();
@@ -1613,10 +1621,10 @@ void DrumPatternEditor::functionMoveInstrumentAction( int nSourceInstrument,  in
 
 void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument, std::vector<int>* AddedComponents )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	pEngine->removeInstrument( nTargetInstrument, false );
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
+	pHydrogen->removeInstrument( nTargetInstrument, false );
 
-	std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->getComponents();
+	std::vector<DrumkitComponent*>* pDrumkitComponents = pHydrogen->getSong()->getComponents();
 
 	for (std::vector<int>::iterator it = AddedComponents->begin() ; it != AddedComponents->end(); ++it) {
 		int p_compoID = *it;
@@ -1632,8 +1640,8 @@ void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 #ifdef H2CORE_HAVE_JACK
-	Song *pSong = pEngine->getSong();
-	pEngine->renameJackPorts(pSong);
+	Song *pSong = pHydrogen->getSong();
+	pHydrogen->renameJackPorts( pSong );
 #endif
 	AudioEngine::get_instance()->unlock();
 	updateEditor();
@@ -1763,22 +1771,23 @@ int DrumPatternEditor::findExistingCompo( QString SourceName )
 
 
 
-void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString instrumentName, QString drumkitName )
+void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString sInstrumentName, QString sDrumkitName )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Instrument *pNewInstrument;
-	if( drumkitName == "" ){
-		pNewInstrument = new Instrument( pEngine->getSong()->getInstrumentList()->size() -1, instrumentName );
-	}else
-	{
-		pNewInstrument = Instrument::load_instrument( drumkitName, instrumentName );
+	if( sDrumkitName == "" ){
+		pNewInstrument = new Instrument( pHydrogen->getSong()->getInstrumentList()->size() -1, sInstrumentName );
+	} else {
+		pNewInstrument = Instrument::load_instrument( sDrumkitName, sInstrumentName );
 	}
-	if( pNewInstrument == nullptr ) return;
+	if( pNewInstrument == nullptr ) {
+		return;
+	}
 
 	// create a new valid ID for this instrument
 	int nID = -1;
-	for ( uint i = 0; i < pEngine->getSong()->getInstrumentList()->size(); ++i ) {
-		Instrument* pInstr = pEngine->getSong()->getInstrumentList()->get( i );
+	for ( uint i = 0; i < pHydrogen->getSong()->getInstrumentList()->size(); ++i ) {
+		Instrument* pInstr = pHydrogen->getSong()->getInstrumentList()->get( i );
 		if ( pInstr->get_id() > nID ) {
 			nID = pInstr->get_id();
 		}
@@ -1789,22 +1798,22 @@ void DrumPatternEditor::functionDeleteInstrumentUndoAction( std::list< H2Core::N
 //	pNewInstrument->set_adsr( new ADSR( 0, 0, 1.0, 1000 ) );
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
-	pEngine->getSong()->getInstrumentList()->add( pNewInstrument );
+	pHydrogen->getSong()->getInstrumentList()->add( pNewInstrument );
 
 	#ifdef H2CORE_HAVE_JACK
-	pEngine->renameJackPorts( pEngine->getSong() );
+	pHydrogen->renameJackPorts( pHydrogen->getSong() );
 	#endif
 
 	AudioEngine::get_instance()->unlock();	// unlock the audio engine
 
 	//move instrument to the position where it was dropped
-	functionMoveInstrumentAction(pEngine->getSong()->getInstrumentList()->size() - 1 , nSelectedInstrument );
+	functionMoveInstrumentAction(pHydrogen->getSong()->getInstrumentList()->size() - 1 , nSelectedInstrument );
 
 	// select the new instrument
-	pEngine->setSelectedInstrumentNumber( nSelectedInstrument );
+	pHydrogen->setSelectedInstrumentNumber( nSelectedInstrument );
 
 	H2Core::Pattern *pPattern;
-	PatternList *pPatternList = pEngine->getSong()->getPatternList();
+	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
 
 	updateEditor();
 	EventQueue::get_instance()->push_event( EVENT_SELECTED_INSTRUMENT_CHANGED, -1 );

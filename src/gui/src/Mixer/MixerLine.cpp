@@ -159,7 +159,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	// instrument name widget
 	m_pNameWidget = new InstrumentNameWidget( this );
 	m_pNameWidget->move( 6, 128 );
-	m_pNameWidget->setToolTip( tr( "Instrument name (double click to edit)" ) );
+	m_pNameWidget->setToolTip( tr( "Instrument name" ) );
 	connect( m_pNameWidget, SIGNAL( doubleClicked () ), this, SLOT( nameClicked() ) );
 	connect( m_pNameWidget, SIGNAL( clicked () ), this, SLOT( nameSelected() ) );
 
