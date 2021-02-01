@@ -97,34 +97,37 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 }
 
 
-void DrumPatternEditor::addOrRemoveNote( int nGridIndex, /*int nColumn,*/ int nRealColumn, int row,
-										 bool bDoAdd, bool bDoDelete ) { // TODO eliminate nColumn arg
+void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nRealColumn, int row,
+										 bool bDoAdd, bool bDoDelete ) {
 
 	/* convert gridIndex into the nearest tick */
-	int nTickPosition = round( nGridIndex * granularity() ); // TODO make this a function?
+	int nTickPosition = round( nGridIndex * granularity() ); // TODO make this an inline function?
 	
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( row );
 	H2Core::Note *pOldNote = m_pPattern->find_note( nTickPosition, nRealColumn, pSelectedInstrument );
 
-	// why naming "old" ?
+	// why naming "old"?! old or new depends if the note is already present (delete or add)
 	int oldLength = -1;
 	float oldVelocity = 0.8f;
 	float oldPan_L = 0.5f;
 	float oldPan_R = 0.5f;
 	float oldLeadLag = 0.0f;
 	int oldTimeOffsetNumerator = 0;
+	int oldTupletNumerator = m_nTupletNumerator;
 	
-	/** check the note is in a real tuplet position!
+	/** check the note is in a real tuplet position! otherwise TimeOffsetNumerator = 0
 	*	Note: user may enter fake tuplets like 2:1... the only reason to do this is to increase the max
 	*	 resolution, and in that case the following scope is necessary!
+	*	TODO In case MAX_NOTES != 192 should next scope be always executed?? (changing the internal formula
+	*	TimeOffsetNumerator)
 	*/
 	if ( ( m_nTupletDenominator != m_nTupletNumerator ) && ( nGridIndex % m_nTupletNumerator != 0 ) ) {
 
 		/** calculate the oldTimeOffsetNumerator such that
 		* 		oldTimeOffsetNumerator / tupletNumerator = timeAdjustOffset in ticks
-		* 	Note: the use of fraction and % operator on integer numbers is strategical and correct
-		* 	if MAX_NOTES is multiple of 64 (like 192).
+		* 	Note: the next formula applying % operator on integer numbers is strategical and correct if
+		* 	MAX_NOTES % m_nResolution for any m_nResolution (192 is ok, unless one changes or bypass the GUI Res combobox).
 		*  	otherwise the same result is achieved by:
 		*		oldTimeOffsetNumerator = round( ( fColumn - nColumn ) * m_nTupletNumerator );
 		*	for any MAX_NOTES, where should calculate fColumn like nColumn but without round() in the last line
@@ -133,13 +136,18 @@ void DrumPatternEditor::addOrRemoveNote( int nGridIndex, /*int nColumn,*/ int nR
 		*	TODO: think
 		* what if you move m_nResolution out of the division like this?
 		* 		oldTimeOffsetNumerator = ( nGridIndex * MAX_NOTES * m_nTupletDenominator ) % (m_nTupletNumerator *m_nResolution)
-		* then you should save m_nResolution inside the TupletNumerator note member (and name it differently) so that
-		* 		oldTimeOffsetNumerator / tupletNumerator = timeAdjustOffset
-		*	would be still valid
+		* then you should save m_nTupletNumerator * m_nResolution = timeOffsetDenominator as note member
+		* (deprecating tupletNumerator note member) so that
+		* 		oldTimeOffsetNumerator / timeOffsetDenominator = timeAdjustOffset
+		*	or save both TupletNumerator and Resolution as separate members in the note (redundant but clear) so that
+		* oldTimeOffsetNumerator / (Resolution * tupletNumerator) = timeAdjustOffset
+		* This avoids the use of fColumn and allows EXACT note playback start-times for ANY value of MAX_NOTES
+		*	in that case must control how the statement (2 * oldTimeOffsetNumerator >= m_nTupletNumerator ) changes !
 		*---------------------
 		*	TODO: think
-		* Another way could be to store TimeOffset as a float, but keeping the TupletNumerator for GUI issue
-		* (draw the tuplet notes). But could this resolve the grid magnetic selection of notes??
+		* Another way could be to store -0.5 <= TimeOffset < 0.5 as a float, but keep storing the TupletNumerator for GUI issue
+		* (show the tuplet notes as tuplets). But could this resolve the grid magnetic selection of notes??
+		*	Maybe yes, with an epsilon tolerance
 		* -------------
 		*
 		*/
@@ -158,23 +166,31 @@ void DrumPatternEditor::addOrRemoveNote( int nGridIndex, /*int nColumn,*/ int nR
 	Note::Octave oldOctaveKeyVal = Note::P8;
 	bool isNoteOff = false;
 
-	if ( pOldNote && !bDoDelete ) {
-		// Found an old note, but we don't want to delete, so just return.
-		return;
+	/* Check if there is an old note matching the same fractional position
+	* (oldTimeOffsetNumerator and oldTupletNumerator are not uniquely defined).
+	* can we trust that the (float) ratio between proportional integers is always equal e.g. (float) 6/4 == (float) 3/2 == ... ?
+	* if not we must reduce the fractions to lowest terms and compare (long but exact),
+	* or allow tolerance (simpler, how small fEpsilon?):
+	*     fabs( (float) oldTimeOffsetNumerator / oldTupletNumerator - pOldNote->getTimeOffsetInTicks() ) < fEpsilon 
+	*/
+	if ( pOldNote &&
+		(float) oldTimeOffsetNumerator / oldTupletNumerator == pOldNote->getFloatTimeOffsetInTicks() ) {
+		// Found an old note matching the same fractional position
+		if ( !bDoDelete ) { // we don't want to delete, so just return.
+			return;
+		} else { // note will be deleted, so here "old" has sense
+			oldLength = pOldNote->get_length();
+			oldVelocity = pOldNote->get_velocity();
+			oldPan_L = pOldNote->get_pan_l();
+			oldPan_R = pOldNote->get_pan_r();
+			oldLeadLag = pOldNote->get_lead_lag();
+			oldNoteKeyVal = pOldNote->get_key();
+			oldOctaveKeyVal = pOldNote->get_octave();
+			isNoteOff = pOldNote->get_note_off(); // not "old" here?! ;)
+		}
 	} else if ( !pOldNote && !bDoAdd ) {
 		// No note there, but we don't want to add a new one, so return.
 		return;
-	}
-
-	if ( pOldNote ) {
-		oldLength = pOldNote->get_length();
-		oldVelocity = pOldNote->get_velocity();
-		oldPan_L = pOldNote->get_pan_l();
-		oldPan_R = pOldNote->get_pan_r();
-		oldLeadLag = pOldNote->get_lead_lag();
-		oldNoteKeyVal = pOldNote->get_key();
-		oldOctaveKeyVal = pOldNote->get_octave();
-		isNoteOff = pOldNote->get_note_off();
 	}
 
 	SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nTickPosition,
@@ -186,7 +202,7 @@ void DrumPatternEditor::addOrRemoveNote( int nGridIndex, /*int nColumn,*/ int nR
 																	 oldPan_R,
 																	 oldLeadLag,
 																	 oldTimeOffsetNumerator,
-																	 m_nTupletNumerator,
+																	 oldTupletNumerator,
 																	 oldNoteKeyVal,
 																	 oldOctaveKeyVal,
 																	 pOldNote != nullptr,
