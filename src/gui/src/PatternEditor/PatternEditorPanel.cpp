@@ -687,49 +687,47 @@ void PatternEditorPanel::on_patternEditorHScroll( int nValue )
 
 
 
-void PatternEditorPanel::gridResolutionChanged( int nSelected /*, int nTupletNumerator, int nTupletDenominator*/ )
-{
-	int nResolution;
+void PatternEditorPanel::gridResolutionChanged( int nSelected ) {
 	float fOldCursorTickPosition = getCursorFloatPosition();
 
 	if ( nSelected == 11 ) {
-		nResolution = MAX_NOTES;
-		int nTupletNumerator = 4;
-		int nTupletDenominator = 4;
-				
-		Preferences::get_instance()->setPatternEditorGridTupletRatio( nTupletNumerator, nTupletDenominator );
-		
-		m_pTupletLCD->setText( QString( "%1:%2" ).arg( nTupletNumerator ).arg( nTupletDenominator ) );
-		setTupletRatioToAllEditors( nTupletNumerator, nTupletDenominator );
+		m_nResolution = MAX_NOTES;
+		m_nTupletNumerator = 4;
+		m_nTupletDenominator = 4;
+
+		setTupletRatioToAllEditors( m_nTupletNumerator, m_nTupletDenominator );
+		// TODO why all the editors have the same grid members and there is no a unique variable for them to read?
+
+		m_pTupletLCD->setText( QString( "%1:%2" ).arg( m_nTupletNumerator ).arg( m_nTupletDenominator ) );
+		Preferences::get_instance()->setPatternEditorGridTupletRatio( m_nTupletNumerator, m_nTupletDenominator );		
 	}
 	else if ( nSelected > 4 ) { // TODO deprecate or keep triplets here?
-		int nTupletNumerator = 3;
-		int nTupletDenominator = 2;
+		m_nTupletNumerator = 3;
+		m_nTupletDenominator = 2;
+		m_nResolution = 0x1 << ( nSelected - 4 );
 		
-		Preferences::get_instance()->setPatternEditorGridTupletRatio( nTupletNumerator, nTupletDenominator );
-		
-		m_pTupletLCD->setText( QString( "%1:%2" ).arg( nTupletNumerator ).arg( nTupletDenominator ) );
-		setTupletRatioToAllEditors( nTupletNumerator, nTupletDenominator );
+		setTupletRatioToAllEditors( m_nTupletNumerator, m_nTupletDenominator );
 		// TODO why all the editors have the same grid members and there is no a unique variable for them to read?
-		
-		nResolution = 0x1 << ( nSelected - 4 );
+
+		m_pTupletLCD->setText( QString( "%1:%2" ).arg( m_nTupletNumerator ).arg( m_nTupletDenominator ) );
+		Preferences::get_instance()->setPatternEditorGridTupletRatio( m_nTupletNumerator, m_nTupletDenominator );
 	}
-	else {
-		nResolution = 0x1 << ( nSelected + 2 );
+	else { // plain note value symbols
+		m_nResolution = 0x1 << ( nSelected + 2 );
 	}
 
 	// INFOLOG( QString("idx %1 -> %2 resolution").arg( nSelected ).arg( nResolution ) );
 
-	setResolutionToAllEditors( nResolution );
-	Preferences::get_instance()->setPatternEditorGridResolution( nResolution );
+	setResolutionToAllEditors( m_nResolution );
+	// TODO why all the editors have the same grid members and there is no a unique variable for them to read?
+	Preferences::get_instance()->setPatternEditorGridResolution( m_nResolution );
 	
 	// move cursor to the nearest grid mark (since granularity changed)
 	setCursorPosition( fOldCursorTickPosition );
 }
 
 void PatternEditorPanel::setResolutionToAllEditors( int nResolution ) {
-	// TODO should the resolution be saved only in Preferences or in all these classes?
-	m_nResolution = nResolution;
+	// TODO should this be saved only in Preferences or Editor Panel or in all these classes?
 	m_pDrumPatternEditor->setResolution( nResolution );
 	m_pPianoRollEditor->setResolution( nResolution );
 	m_pNoteVelocityEditor->setResolution( nResolution );
@@ -740,9 +738,7 @@ void PatternEditorPanel::setResolutionToAllEditors( int nResolution ) {
 }
 
 void PatternEditorPanel::setTupletRatioToAllEditors( int nTupletNum, int nTupletDen ) {
-	m_nTupletNumerator = nTupletNum;
-	m_nTupletDenominator = nTupletDen;
-	//TODO deprecate nTuplet member in the following class. replace this function in each line with previous lines
+	//TODO should these be saved only in Preferences or Editor Panel or in all these classes?
 	m_pDrumPatternEditor->setTupletRatio( nTupletNum, nTupletDen );
 	m_pPianoRollEditor->setTupletRatio( nTupletNum, nTupletDen );
 	m_pNoteVelocityEditor->setTupletRatio( nTupletNum, nTupletDen );
@@ -1105,8 +1101,6 @@ void PatternEditorPanel::tupletLCDClicked()
 {
 	Preferences *pPref = Preferences::get_instance();
 	bool bIsOkPressed;
-	int nTupletNumerator;
-	int nTupletDenominator;
 	// want to show ratio to see the input format, even if tuplet is currently off 
 	QString text = QString( "%1:%2" ).arg( pPref->getPatternEditorGridTupletNumerator() )
 									.arg( pPref->getPatternEditorGridTupletDenominator() );
@@ -1118,6 +1112,7 @@ void PatternEditorPanel::tupletLCDClicked()
 	
 	QString qtmp = QInputDialog::getText( this, "Tuplet Resolution", tr( "Enter tuplet ratio (\"4\" to set off)" ),
 											QLineEdit::Normal, text, &bIsOkPressed );
+	qtmp.replace( "/", ":" ); // allow both '/' and ':' separators
 	
 	if ( bIsOkPressed ) {
 	    if	( m_pTupletLCD->getText() == qtmp ) { // text unchanged
@@ -1127,36 +1122,36 @@ void PatternEditorPanel::tupletLCDClicked()
 		QStringList parts = qtmp.split( ':' );
 		if ( parts.size() == 1 || parts.size() == 2 ) { // must reject if parts.size > 2 or null
 		    bool bOk;
-		    nTupletNumerator = parts[0].toInt( &bOk );
+		    m_nTupletNumerator = parts[0].toInt( &bOk );
 		    if ( bOk && parts.size() == 2 ) { // user entered both numerator and denominator
-				nTupletDenominator = parts[1].toInt( &bOk );
-				if ( bOk && ( nTupletDenominator <= 0 || nTupletDenominator > MAX_NOTES ) ) { //TODO limit?
+				m_nTupletDenominator = parts[1].toInt( &bOk );
+				if ( bOk && ( m_nTupletDenominator <= 0 || m_nTupletDenominator > MAX_NOTES ) ) { //TODO what limit?
 			   		QMessageBox::information( this, "Hydrogen", tr( "Denominator value rejected.\nLimits: (0, %1]"
 			   														 ).arg(MAX_NOTES) );
 			   		return;
 				}
 		    }
 		    else { // user entered numerator only. compute the standard denominator
-		    	nTupletDenominator = 1; //TODO binary operator
-		    	while ( ( 2 * nTupletDenominator ) <= nTupletNumerator ) {
-		    		nTupletDenominator *= 2;
+		    	m_nTupletDenominator = 1; //TODO binary operator
+		    	while ( ( 2 * m_nTupletDenominator ) <= m_nTupletNumerator ) {
+		    		m_nTupletDenominator *= 2;
 		    	}
 		    } 
-		    if ( bOk && nTupletNumerator > 0 ) {
-				if ( nTupletNumerator > 20 ) { //TODO limit? 
-					QMessageBox::information( this, "Hydrogen", tr( "Tuplet numerator too big.\nMaximum = 20" ) );
+		    if ( bOk && m_nTupletNumerator > 0 ) {
+				if ( m_nTupletNumerator > 99 ) { //TODO what limit? 
+					QMessageBox::information( this, "Hydrogen", tr( "Tuplet numerator too big.\nMaximum = 99" ) );
 					return;
 				}
 				else { // set tuplet numerator and denominator
 					float fOldCursorTickPosition = getCursorFloatPosition();
 						
-					setTupletRatioToAllEditors( nTupletNumerator, nTupletDenominator );
+					setTupletRatioToAllEditors( m_nTupletNumerator, m_nTupletDenominator );
 						
 					// move cursor to the nearest grid mark.
 					setCursorPosition( fOldCursorTickPosition );
 
-					m_pTupletLCD->setText( QString( "%1:%2" ).arg( nTupletNumerator ).arg( nTupletDenominator ) );
-					pPref->setPatternEditorGridTupletRatio( nTupletNumerator, nTupletDenominator );
+					m_pTupletLCD->setText( QString( "%1:%2" ).arg( m_nTupletNumerator ).arg( m_nTupletDenominator ) );
+					pPref->setPatternEditorGridTupletRatio( m_nTupletNumerator, m_nTupletDenominator );
 				}
 		    }
 		    else { // user entered invalid text

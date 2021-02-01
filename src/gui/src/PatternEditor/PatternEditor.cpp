@@ -53,9 +53,11 @@ const char* PatternEditor::__class_name = "PatternEditor";
 PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
 							  PatternEditorPanel *panel )
 	: Object ( sClassName ), QWidget( pParent ), m_selection( this ) {
-	m_nResolution = 8;
- 	m_nTupletNumerator = 4;
- 	m_nTupletDenominator = 4;
+	m_nTupletNumerator = Preferences::get_instance()->getPatternEditorGridTupletNumerator();
+	m_nTupletDenominator = Preferences::get_instance()->getPatternEditorGridTupletDenominator();
+	m_nResolution = 8; //TODO where is this update to match preferences?
+ 	//m_nTupletNumerator = 4;
+ 	//m_nTupletDenominator = 4;
 	m_pDraggedNote = nullptr;
 	m_pPatternEditorPanel = panel;
 	m_pPattern = nullptr;
