@@ -197,6 +197,11 @@ class Song : public H2Core::Object
 		 */
 		bool hasMissingSamples() const;
 		void clearMissingSamples();
+		
+		void setPanLawType( int nPanLawType );
+		int getPanLawType() const;
+		void setPanLawKNorm( float fKNorm );
+		float getPanLawKNorm() const;
 
 	private:
 
@@ -273,6 +278,10 @@ class Song : public H2Core::Object
 
 		/** Stores the type of interaction with the SongEditor. */
 		ActionMode		m_actionMode;
+		
+		int m_nPanLawType;
+		// k such that L^k+R^k = 1. Used in constant k-Norm pan law
+		float m_fPanLawKNorm;
 
 };
 
@@ -514,6 +523,18 @@ inline void Song::setPlaybackTrackVolume( const float fVolume )
 
 inline Song::ActionMode Song::getActionMode() const {
 	return m_actionMode;
+}
+
+inline void Song::setPanLawType( int nPanLawType ) {
+	m_nPanLawType = nPanLawType;
+}
+
+inline int Song::getPanLawType() const {
+	return m_nPanLawType;
+} 
+
+inline float Song::getPanLawKNorm() const {
+	return m_fPanLawKNorm;
 }
 
 /**

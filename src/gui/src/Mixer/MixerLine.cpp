@@ -337,22 +337,10 @@ void MixerLine::panChanged(Rotary *ref)
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	pSong->setIsModified( true );
 	emit panChanged( this );
-
-	float panValue = ref->getValue();
-	float pan_L, pan_R;
-	if (panValue > 0.5) {
-		pan_L = (1.0 - panValue) * 2.0;
-		pan_R = 1.0;
-	} else {
-		pan_L = 1.0;
-		pan_R = panValue * 2.0;
-	}
-
-	char m_pFaderPos[100];
-	snprintf( m_pFaderPos, 99, "%#.2fL, %#.2fR",  pan_L, pan_R);
-	HydrogenApp::get_instance()->setStatusBarMessage( tr( "Set instr. pan [%1]" ).arg( m_pFaderPos ), 2000 );
-
-	m_pPanRotary->setToolTip( QString("Pan ") + QString( m_pFaderPos ) );
+	/** Do not update tooltip nor print status message in the old fashion panL and panL style
+	 *	since inconsistent with new pan implementation. The resultant pan depends also on note pan.
+	 *	The rotary widget valuetip is enough to read the value.
+	 */
 }
 
 float MixerLine::getPan()
@@ -364,17 +352,10 @@ void MixerLine::setPan(float fValue)
 {
 	if ( fValue != m_pPanRotary->getValue() ) {
 		m_pPanRotary->setValue( fValue );
-		float pan_L, pan_R;
-		if (fValue > 0.5) {
-			pan_L = (1.0 - fValue) * 2.0;
-			pan_R = 1.0;
-		} else {
-			pan_L = 1.0;
-			pan_R = fValue * 2.0;
-		}
-		char m_pFaderPos[100];
-		snprintf( m_pFaderPos, 99,"Pan %#.2fL, %#.2fR",  pan_L, pan_R);
-		m_pPanRotary->setToolTip( QString( m_pFaderPos ) );
+		/** Do not update tooltip in the old fashion panL and panL style
+		 * since inconsistent with new pan implementation. The resultant pan depends also on note pan.
+		 * The rotary widget valuetip is enough to read the value.
+		 */
 	}
 }
 

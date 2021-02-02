@@ -108,6 +108,11 @@ Sampler::~Sampler()
 	m_pPlaybackTrackInstrument = nullptr;
 }
 
+/** set default k for pan law with -4.5dB center compensation, given L^k + R^k = const
+ * it is the mean compromise between constant sum and constant power
+ */
+float const Sampler::K_NORM_DEFAULT = 1.33333333333333;
+
 void Sampler::process( uint32_t nFrames, Song* pSong )
 {
 	//infoLog( "[process]" );
@@ -233,6 +238,179 @@ void Sampler::noteOff(Note* pNote )
 }
 
 
+// functions for pan parameters and laws-----------------
+
+float Sampler::getRatioPan( float fPan_L, float fPan_R ) {
+	if ( fPan_L < 0. || fPan_R < 0. || ( fPan_L == 0. && fPan_R == 0.) ) { // invalid input
+		WARNINGLOG( "Invalid (panL, panR): both zero or some is negative. Pan set to center." );
+		return 0.; // default central value
+	} else {
+		if ( fPan_L >= fPan_R ) {
+			return fPan_R / fPan_L - 1.;
+		} else {
+			return 1. - fPan_L / fPan_R;
+		}
+	}
+}
+
+	
+float Sampler::ratioStraightPolygonalPanLaw( float fPan ) {
+	// the straight polygonal pan law interpreting fPan as the "ratio" parameter
+	if ( fPan <= 0 ) {
+		return 1.;
+	} else {
+		return ( 1. - fPan );
+	}
+}
+
+float Sampler::ratioConstPowerPanLaw( float fPan ) {
+	// the constant power pan law interpreting fPan as the "ratio" parameter
+	if ( fPan <= 0 ) {
+		return 1. / sqrt( 1 + ( 1. + fPan ) * ( 1. + fPan ) );
+	} else {
+		return ( 1. - fPan ) / sqrt( 1 + ( 1. - fPan ) * ( 1. - fPan ) );
+	}
+}
+
+float Sampler::ratioConstSumPanLaw( float fPan ) {
+	// the constant Sum pan law interpreting fPan as the "ratio" parameter
+	if ( fPan <= 0 ) {
+		return 1. / ( 2. + fPan );
+	} else {
+		return ( 1. - fPan ) / ( 2. - fPan );
+	}
+}
+
+float Sampler::linearStraightPolygonalPanLaw( float fPan ) {
+	// the constant power pan law interpreting fPan as the "linear" parameter
+	if ( fPan <= 0 ) {
+		return 1.;
+	} else {
+		return ( 1. - fPan ) / ( 1. + fPan );
+	}
+}
+
+float Sampler::linearConstPowerPanLaw( float fPan ) {
+	// the constant power pan law interpreting fPan as the "linear" parameter
+	return ( 1. - fPan ) / sqrt( 2. * ( 1 + fPan * fPan ) );
+}
+
+float Sampler::linearConstSumPanLaw( float fPan ) {
+	// the constant Sum pan law interpreting fPan as the "linear" parameter
+	return ( 1. - fPan ) * 0.5;
+}
+
+float Sampler::polarStraightPolygonalPanLaw( float fPan ) {
+	// the constant power pan law interpreting fPan as the "polar" parameter
+	float fTheta = 0.25 * M_PI * ( fPan + 1 );
+	if ( fPan <= 0 ) {
+		return 1.;
+	} else {
+		return cos( fTheta ) / sin( fTheta );
+	}
+}
+
+float Sampler::polarConstPowerPanLaw( float fPan ) {
+	// the constant power pan law interpreting fPan as the "polar" parameter
+	float fTheta = 0.25 * M_PI * ( fPan + 1 );
+	return cos( fTheta );
+}
+
+float Sampler::polarConstSumPanLaw( float fPan ) {
+	// the constant Sum pan law interpreting fPan as the "polar" parameter
+	float fTheta = 0.25 * M_PI * ( fPan + 1 );
+	return cos( fTheta ) / ( cos( fTheta ) + sin( fTheta ) );
+}
+
+float Sampler::quadraticStraightPolygonalPanLaw( float fPan ) {
+	// the straight polygonal pan law interpreting fPan as the "quadratic" parameter
+	if ( fPan <= 0 ) {
+		return 1.;
+	} else {
+		return sqrt( ( 1. - fPan ) / ( 1. + fPan ) );
+	}
+}
+
+float Sampler::quadraticConstPowerPanLaw( float fPan ) {
+	// the constant power pan law interpreting fPan as the "quadratic" parameter
+	return sqrt( ( 1. - fPan ) * 0.5 );
+}
+
+float Sampler::quadraticConstSumPanLaw( float fPan ) {
+	// the constant Sum pan law interpreting fPan as the "quadratic" parameter
+	return sqrt( 1. - fPan ) / ( sqrt( 1. - fPan ) +  sqrt( 1. + fPan ) );
+}
+
+float Sampler::linearConstKNormPanLaw( float fPan, float k ) {
+	// the constant k norm pan law interpreting fPan as the "linear" parameter
+	return ( 1. - fPan ) / pow( ( pow( (1. - fPan), k ) + pow( (1. + fPan), k ) ), 1./k );
+}
+
+float Sampler::quadraticConstKNormPanLaw( float fPan, float k ) {
+	// the constant k norm pan law interpreting fPan as the "quadratic" parameter
+	return sqrt( 1. - fPan ) / pow( ( pow( (1. - fPan), 0.5 * k ) + pow( (1. + fPan), 0.5 * k ) ), 1./k );
+}
+
+float Sampler::polarConstKNormPanLaw( float fPan, float k ) {
+	// the constant k norm pan law interpreting fPan as the "polar" parameter
+	float fTheta = 0.25 * M_PI * ( fPan + 1 );
+	float cosTheta = cos( fTheta );
+	return cosTheta / pow( ( pow( cosTheta, k ) + pow( sin( fTheta ), k ) ), 1./k );
+}
+
+float Sampler::ratioConstKNormPanLaw( float fPan, float k) {
+	// the constant k norm pan law interpreting fPan as the "ratio" parameter
+	if ( fPan <= 0 ) {
+		return 1. / pow( ( 1. + pow( (1. + fPan), k ) ), 1./k );
+	} else {
+		return ( 1. - fPan ) / pow( ( 1. + pow( (1. - fPan), k ) ), 1./k );
+	}
+}
+
+// function to direct the computation to the selected pan law.
+inline float Sampler::panLaw( float fPan, Song* pSong ) {
+	int nPanLawType = pSong->getPanLawType();
+	if ( nPanLawType == RATIO_STRAIGHT_POLYGONAL ) {
+		return ratioStraightPolygonalPanLaw( fPan );
+	} else if ( nPanLawType == RATIO_CONST_POWER ) {
+		return ratioConstPowerPanLaw( fPan );
+	} else if ( nPanLawType == RATIO_CONST_SUM ) {
+		return ratioConstSumPanLaw( fPan );
+	} else if ( nPanLawType == LINEAR_STRAIGHT_POLYGONAL ) {
+		return linearStraightPolygonalPanLaw( fPan );
+	} else if ( nPanLawType == LINEAR_CONST_POWER ) {
+		return linearConstPowerPanLaw( fPan );
+	} else if ( nPanLawType == LINEAR_CONST_SUM ) {
+		return linearConstSumPanLaw( fPan );
+	} else if ( nPanLawType == POLAR_STRAIGHT_POLYGONAL ) {
+		return polarStraightPolygonalPanLaw( fPan );
+	} else if ( nPanLawType == POLAR_CONST_POWER ) {
+		return polarConstPowerPanLaw( fPan );
+	} else if ( nPanLawType == POLAR_CONST_SUM ) {
+		return polarConstSumPanLaw( fPan );
+	} else if ( nPanLawType == QUADRATIC_STRAIGHT_POLYGONAL ) {
+		return quadraticStraightPolygonalPanLaw( fPan );
+	} else if ( nPanLawType == QUADRATIC_CONST_POWER ) {
+		return quadraticConstPowerPanLaw( fPan );
+	} else if ( nPanLawType == QUADRATIC_CONST_SUM ) {
+		return quadraticConstSumPanLaw( fPan );
+	} else if ( nPanLawType == LINEAR_CONST_K_NORM ) {
+		return linearConstKNormPanLaw( fPan, pSong->getPanLawKNorm() );
+	} else if ( nPanLawType == POLAR_CONST_K_NORM ) {
+		return polarConstKNormPanLaw( fPan, pSong->getPanLawKNorm() );
+	} else if ( nPanLawType == RATIO_CONST_K_NORM ) {
+		return ratioConstKNormPanLaw( fPan, pSong->getPanLawKNorm() );
+	} else if ( nPanLawType == QUADRATIC_CONST_K_NORM ) {
+		return quadraticConstKNormPanLaw( fPan, pSong->getPanLawKNorm() );
+	} else {
+		WARNINGLOG( "Unknown pan law type. Set default." );
+		pSong->setPanLawType( RATIO_STRAIGHT_POLYGONAL );
+		return ratioStraightPolygonalPanLaw( fPan );
+	}
+}
+
+//------------------------------------------------------------------
+
 /// Render a note
 /// Return false: the note is not ended
 /// Return true: the note is ended
@@ -256,6 +434,45 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 		ERRORLOG( "NULL instrument" );
 		return 1;
 	}
+
+	// new instrument and note pan interaction--------------------------
+	// notePan moves the RESULTANT pan in a smaller pan range centered at instrumentPan
+
+   /** reconvert (pan_L,pan_R) to a single pan parameter (as it was input from the GUI) in [-1,1].
+	* This redundance avoids to import old files as legacy.
+	* ALWAYS use getRatioPan(), since H2 always stores pan_L,pan_R with a ratioStraightPolygonalPanLaw,
+	* up to constant multiplication, even if user chooses another type of pan law.
+	*-----Historical Note-----
+	* Originally pan_L,pan_R were actually gains for each channel.
+	* "instrument" and "note" pans were multiplied as in a gain CHAIN in each separate channel,
+	* so the chain killed the signal if instrument and note pans were hard-sided to opposites sides!
+	*/
+	float fNotePan = getRatioPan( pNote->get_pan_l(), pNote->get_pan_r() );
+	float fInstrPan = getRatioPan( pInstr->get_pan_l(), pInstr->get_pan_r() );
+	
+   /** Get the RESULTANT pan, following a "matryoshka" multi panning, like in this graphic:
+    *
+    *   L--------------instrPan---------C------------------------------>R			(instrumentPan = -0.4)
+    *                     |
+    *                     V
+    *   L-----------------C---notePan-------->R									    (notePan = +0.3)
+    *                            |
+    *                            V
+    *   L----------------------resPan---C------------------------------>R		    (resultantPan = -0.22)
+    *
+    * Explanation:
+	* notePan moves the RESULTANT pan in a smaller pan range centered at instrumentPan value,
+	* whose extension depends on instrPan value:
+	*	if instrPan is central, notePan moves the signal in the whole pan range (really from left to right);
+	*	if instrPan is sided, notePan moves the signal in a progressively smaller pan range centered at instrPan;
+	*	if instrPan is HARD-sided, notePan doesn't have any effect.
+	*/
+	float fPan = fInstrPan + fNotePan * ( 1 - fabs( fInstrPan ) );
+	
+	// Pass fPan to the Pan Law
+	float fPan_L = panLaw( fPan, pSong );
+	float fPan_R = panLaw( -fPan, pSong );
+	//---------------------------------------------------------
 
 	bool nReturnValues [pInstr->get_components()->size()];
 	
@@ -604,9 +821,10 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 				cost_L = cost_L * pNote->get_velocity();		// note velocity
 				cost_R = cost_R * pNote->get_velocity();		// note velocity
 			}
-			cost_L = cost_L * pNote->get_pan_l();		// note pan
+
+
+			cost_L *= fPan_L;							// pan
 			cost_L = cost_L * fLayerGain;				// layer gain
-			cost_L = cost_L * pInstr->get_pan_l();		// instrument pan
 			cost_L = cost_L * pInstr->get_gain();		// instrument gain
 
 			cost_L = cost_L * pCompo->get_gain();		// Component gain
@@ -617,11 +835,9 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 				cost_track_L = cost_L * 2;
 			}
 			cost_L = cost_L * pSong->getVolume();	// song volume
-			cost_L = cost_L * 2; // max pan is 0.5
 
-			cost_R = cost_R * pNote->get_pan_r();		// note pan
+			cost_R *= fPan_R;							// pan
 			cost_R = cost_R * fLayerGain;				// layer gain
-			cost_R = cost_R * pInstr->get_pan_r();		// instrument pan
 			cost_R = cost_R * pInstr->get_gain();		// instrument gain
 
 			cost_R = cost_R * pCompo->get_gain();		// Component gain
@@ -632,7 +848,6 @@ bool Sampler::renderNote( Note* pNote, unsigned nBufferSize, Song* pSong )
 				cost_track_R = cost_R * 2;
 			}
 			cost_R = cost_R * pSong->getVolume();	// song pan
-			cost_R = cost_R * 2; // max pan is 0.5
 		}
 
 		// direct track outputs only use velocity
