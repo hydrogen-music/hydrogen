@@ -474,27 +474,40 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 	restore_background_color();
 
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
+	// Whether we deal with a system or a user drumkit.
+	QString sDrumkitType = __sound_library_tree->currentItem()->parent()->text(0);
 
 	Drumkit *pDrumkitInfo = nullptr;
 
-	// find the drumkit in the list
-	for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
-		Drumkit *pInfo = __system_drumkit_info_list[i];
-		if ( pInfo->get_name() == sDrumkitName ) {
-			pDrumkitInfo = pInfo;
-			break;
+	// Find the drumkit in the list. If the drumkit was listed as a
+	// "System drumkit", it won't be searched in the user ones and
+	// vice versa.
+	if ( sDrumkitType == __system_drumkits_item->text(0) ) {
+		
+		for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
+			Drumkit *pInfo = __system_drumkit_info_list[i];
+			if ( pInfo->get_name() == sDrumkitName ) {
+				pDrumkitInfo = pInfo;
+				break;
+			}
 		}
-	}
-	
-	for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
-		Drumkit *pInfo = __user_drumkit_info_list[i];
-		if ( pInfo->get_name() == sDrumkitName ) {
-			pDrumkitInfo = pInfo;
-			break;
+	} else if ( sDrumkitType == __user_drumkits_item->text(0) ) {
+		
+		for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
+			Drumkit *pInfo = __user_drumkit_info_list[i];
+			if ( pInfo->get_name() == sDrumkitName ) {
+				pDrumkitInfo = pInfo;
+				break;
+			}
 		}
+	} else {
+		ERRORLOG( QString( "Unknown drumkit type [%1] for drumkit [%2]" )
+				  .arg( sDrumkitType ).arg( sDrumkitName ) );
+		return;
 	}
 	
 	if( !pDrumkitInfo ) {
+		ERRORLOG( QString( "Unable to find drumkit [%1]" ).arg( sDrumkitName ) );
 		return;
 	}
 
@@ -658,7 +671,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 void SoundLibraryPanel::on_drumkitExportAction()
 {
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
-	SoundLibraryExportDialog exportDialog( this, sDrumkitName);
+	SoundLibraryExportDialog exportDialog( this, sDrumkitName );
 	exportDialog.exec();
 }
 
@@ -667,26 +680,42 @@ void SoundLibraryPanel::on_drumkitExportAction()
 void SoundLibraryPanel::on_drumkitPropertiesAction()
 {
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
+	// Whether we deal with a system or a user drumkit.
+	QString sDrumkitType = __sound_library_tree->currentItem()->parent()->text(0);
 
 	Drumkit *drumkitInfo = nullptr;
 
-	// find the drumkit in the list
-	for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
-		Drumkit *pInfo = __system_drumkit_info_list[i];
-		if ( pInfo->get_name() == sDrumkitName ) {
-			drumkitInfo = pInfo;
-			break;
+	// Find the drumkit in the list. If the drumkit was listed as a
+	// "System drumkit", it won't be searched in the user ones and
+	// vice versa.
+	if ( sDrumkitType == __system_drumkits_item->text(0) ) {
+		
+		for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
+			Drumkit *pInfo = __system_drumkit_info_list[i];
+			if ( pInfo->get_name() == sDrumkitName ) {
+				drumkitInfo = pInfo;
+				break;
+			}
 		}
-	}
-	for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
-		Drumkit*pInfo = __user_drumkit_info_list[i];
-		if ( pInfo->get_name() == sDrumkitName ) {
-			drumkitInfo = pInfo;
-			break;
+	} else if ( sDrumkitType == __user_drumkits_item->text(0) ) {
+		
+		for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
+			Drumkit*pInfo = __user_drumkit_info_list[i];
+			if ( pInfo->get_name() == sDrumkitName ) {
+				drumkitInfo = pInfo;
+				break;
+			}
 		}
+	} else {
+		ERRORLOG( QString( "Unknown drumkit type [%1] for drumkit [%2]" )
+				  .arg( sDrumkitType ).arg( sDrumkitName ) );
+		return;
 	}
-
-	assert( drumkitInfo );
+	
+	if( !drumkitInfo ) {
+		ERRORLOG( QString( "Unable to find drumkit [%1]" ).arg( sDrumkitName ) );
+		return;
+	}
 
 	QString sPreDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitname();
 
