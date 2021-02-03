@@ -533,7 +533,7 @@ void DrumPatternEditor::mouseDragEndEvent( QMouseEvent *ev )
 void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 {
 	updateModifiers( ev );
-	QPoint offset = movingGridOffset();
+	QPoint offset = movingGridOffset(); //TODO calculate offset differently = FinalfPosInTick - startfPosInTicks
 	if ( offset.x() == 0 && offset.y() == 0 ) {
 		// Move with no effect.
 		return;
@@ -565,7 +565,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 		int nInstrument = pInstrumentList->index( pNote->get_instrument() );
 		int nPosition = pNote->get_position();
 		int nNewInstrument = nInstrument + offset.y();
-		int nNewPosition = nPosition + offset.x();
+		int nNewPosition = nPosition + offset.x();  //TODO
 		if ( nNewInstrument < 0 || nNewInstrument >= pInstrumentList->size()
 			 || nNewPosition < 0 || nNewPosition >= m_pPattern->get_length() ) {
 
@@ -581,8 +581,8 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   pNote->get_pan_l(),
 														   pNote->get_pan_r(),
 														   pNote->get_lead_lag(),
-														   pNote->getTimeOffsetNumerator(),
-														   pNote->getTupletNumerator(),
+														   pNote->getTimeOffsetNumerator(), //TODO recalc
+														   pNote->getTupletNumerator(), //TODO recalc
 														   pNote->get_key(),
 														   pNote->get_octave(),
 														   true,
@@ -603,8 +603,8 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   pNote->get_pan_l(),
 														   pNote->get_pan_r(),
 														   pNote->get_lead_lag(),
-														   pNote->getTimeOffsetNumerator(),
-														   pNote->getTupletNumerator(),
+														   pNote->getTimeOffsetNumerator(), //TODO recalc
+														   pNote->getTupletNumerator(), //TODO recalc
 														   pNote->get_key(),
 														   pNote->get_octave(),
 														   false,
@@ -614,7 +614,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   false ) );
 			} else {
 				// Move note
-				pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, m_nSelectedPatternNumber,
+				pUndo->push( new SE_moveNoteAction( nPosition, nInstrument, m_nSelectedPatternNumber, //TODO
 													nNewPosition, nNewInstrument, pNote ) );
 			}
 		}
@@ -624,7 +624,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 }
 
 
-void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber )
+void DrumPatternEditor::editNoteLengthAction( int nColumn, int nRealColumn, int row, int length, int selectedPatternNumber ) //TODO quantized the endtime to tuplet grid
 {
 	Hydrogen *pEngine = Hydrogen::get_instance();
 	PatternList *pPatternList = pEngine->getSong()->getPatternList();
