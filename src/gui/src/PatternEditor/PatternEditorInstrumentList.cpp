@@ -526,18 +526,17 @@ void InstrumentLine::functionRenameInstrument()
 
 void InstrumentLine::functionDeleteInstrument()
 {
-	Hydrogen * pEngine = Hydrogen::get_instance();
-	Instrument *pSelectedInstrument = pEngine->getSong()->getInstrumentList()->get( m_nInstrumentNumber );
-
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	Song* pSong = pHydrogen->getSong();
+		
+	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( m_nInstrumentNumber );
 	std::list< Note* > noteList;
-	Song* song = pEngine->getSong();
-	PatternList *patList = song->getPatternList();
 
-	QString instrumentName =  pSelectedInstrument->get_name();
-	QString drumkitName = pEngine->getCurrentDrumkitname();
+	QString sInstrumentName =  pSelectedInstrument->get_name();
+	QString sDrumkitName = pHydrogen->getCurrentDrumkitname();
 
-	for ( int i = 0; i < patList->size(); i++ ) {
-		H2Core::Pattern *pPattern = song->getPatternList()->get(i);
+	for ( int i = 0; i < pSong->getPatternList()->size(); i++ ) {
+		H2Core::Pattern *pPattern = pSong->getPatternList()->get(i);
 		const Pattern::notes_t* notes = pPattern->get_notes();
 		FOREACH_NOTE_CST_IT_BEGIN_END(notes,it) {
 			Note *pNote = it->second;
@@ -548,7 +547,7 @@ void InstrumentLine::functionDeleteInstrument()
 			}
 		}
 	}
-	SE_deleteInstrumentAction *action = new SE_deleteInstrumentAction( noteList, drumkitName, instrumentName, m_nInstrumentNumber );
+	SE_deleteInstrumentAction *action = new SE_deleteInstrumentAction( noteList, sDrumkitName, sInstrumentName, m_nInstrumentNumber );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 }
 

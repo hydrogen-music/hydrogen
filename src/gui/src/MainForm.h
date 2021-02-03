@@ -197,8 +197,9 @@ public slots:
 		void openUndoStack();
 		void action_undo();
 		void action_redo();
-
-		void action_toggle_input_mode();
+		
+		void action_inputMode_instrument();
+		void action_inputMode_drumkit();
 
 		void handleSigUsr1();
 		/** Wrapper around savePreferences() and quit() method of

@@ -154,11 +154,20 @@ QColor PatternEditor::computeNoteColor( float velocity ){
 	return QColor( red, green, blue );
 }
 
-int PatternEditor::getColumn( int x ) const
-{	// returns the position of the nearest grid mark, in tick units (rounded value!)
-	float fWidth = m_fGridWidth * granularity(); // distance between grid marks, in pixel units
-	float fGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark
-	int nColumn = round( fGridIndex * granularity() ); // the rounded position of the nearest grid mark, in tick units
+int PatternEditor::getColumn( int x, bool bUseFineGrained ) const
+{	// without fineGrain, returns the position of the nearest grid mark, in tick units (rounded value!)
+	// with fineGrain, returns the position of nearest tick
+
+	float fGranularity;
+	if ( bUseFineGrained && m_bFineGrained ) {
+		fGranularity = 1.;
+	} else {
+		fGranularity = granularity();
+	}
+
+	float fWidth = m_fGridWidth * fGranularity; // distance between grid marks (or ticks), in pixel units
+	float fGridIndex = round( ( x - m_nMargin ) / fWidth ); // The index of the nearest grid mark (or tick)
+	int nColumn = round( fGridIndex * fGranularity ); // the rounded position of the nearest grid mark (or tick), in tick units
 	printf( "round column = %d\n", nColumn );
 	return nColumn;
 }

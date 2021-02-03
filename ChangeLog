@@ -9,6 +9,7 @@
 	* Deprecating JACK-session
 	* Instrument main pitch shift offset
 	* Custom pattern size support with representation in note values
+	* Custom pan law support in mixer
 
 2020-08-03 the hydrogen team <hydrogen-devel@lists.sourceforge.net>
 	* Release 1.0

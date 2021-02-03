@@ -26,6 +26,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -68,6 +69,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -110,6 +112,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -152,6 +155,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -194,6 +198,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -236,6 +241,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>0.52</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -278,6 +284,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -320,6 +327,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>0.48</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -362,6 +370,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -404,6 +413,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -446,6 +456,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -488,6 +499,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -530,6 +542,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>1</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -572,6 +585,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>0.9</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -614,6 +628,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>0.96</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>
@@ -656,6 +671,7 @@ p, li { white-space: pre-wrap; }
    <isSoloed>false</isSoloed>
    <pan_L>0.96</pan_L>
    <pan_R>1</pan_R>
+   <pitchOffset>0</pitchOffset>
    <randomPitchFactor>0</randomPitchFactor>
    <gain>1</gain>
    <applyVelocity>true</applyVelocity>

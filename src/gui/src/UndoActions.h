@@ -966,7 +966,7 @@ private:
 class SE_deleteInstrumentAction : public QUndoCommand
 {
 public:
-	SE_deleteInstrumentAction(  std::list<  H2Core::Note* > noteList, QString drumkitName, QString instrumentName, int nSelectedInstrument ){
+	SE_deleteInstrumentAction(  std::list<  H2Core::Note* > noteList, QString sDrumkitName, QString sInstrumentName, int nSelectedInstrument ){
 		setText( QString( "Delete instrument " ) );
 
 		std::list < H2Core::Note *>::iterator pos;
@@ -976,8 +976,8 @@ public:
 			assert( pNote );
 			__noteList.push_back( pNote );
 		}
-		__drumkitName = drumkitName;
-		__instrumentName = instrumentName;
+		__drumkitName = sDrumkitName;
+		__instrumentName = sInstrumentName;
 		__nSelectedInstrument = nSelectedInstrument;
 	}
 
