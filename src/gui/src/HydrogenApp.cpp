@@ -495,10 +495,6 @@ void HydrogenApp::onDrumkitLoad( QString name ){
 	m_pPatternEditorPanel->updateSLnameLabel( );
 }
 
-void HydrogenApp::enableDestructiveRecMode(){
-	m_pPatternEditorPanel->displayorHidePrePostCB();
-}
-
 void HydrogenApp::songModifiedEvent()
 {
 	updateWindowTitle();

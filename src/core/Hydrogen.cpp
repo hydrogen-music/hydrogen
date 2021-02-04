@@ -535,7 +535,7 @@ inline void			audioEngine_process_playNotes( unsigned long nframes );
 inline void			audioEngine_process_transport();
 
 inline unsigned		audioEngine_renderNote( Note* pNote, const unsigned& nBufferSize );
-// TODO: Add documentation of doErase, inPunchArea, and
+// TODO: Add documentation of inPunchArea, and
 // m_addMidiNoteVector
 /**
  * Takes all notes from the current patterns, from the MIDI queue
@@ -1659,11 +1659,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 			// only keep going if we're playing
 			continue;
 		}
-
-		bool doErase = m_audioEngineState == STATE_PLAYING
-				&& Preferences::get_instance()->getRecordEvents()
-				&& Preferences::get_instance()->getDestructiveRecord()
-				&& Preferences::get_instance()->m_nRecPreDelete == 0;
 		
 		//////////////////////////////////////////////////////////////
 		// SONG MODE
@@ -1737,8 +1732,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 				m_pPlayingPatterns->add( pPattern );
 				pPattern->extand_with_flattened_virtual_patterns( m_pPlayingPatterns );
 			}
-			// Set destructive record depending on punch area
-			doErase = doErase && Preferences::get_instance()->inPunchArea(m_nSongPos);
 		}
 		
 		//////////////////////////////////////////////////////////////
@@ -1855,29 +1848,6 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 				Pattern *pPattern = m_pPlayingPatterns->get( nPat );
 				assert( pPattern != nullptr );
 				Pattern::notes_t* notes = (Pattern::notes_t*)pPattern->get_notes();
-				// Delete notes before attempting to play them
-				if ( doErase ) {
-					FOREACH_NOTE_IT_BOUND(notes,it,m_nPatternTickPosition) {
-						Note* pNote = it->second;
-						assert( pNote != nullptr );
-						if ( pNote->get_just_recorded() == false ) {
-							EventQueue::AddMidiNoteVector noteAction;
-							noteAction.m_column = pNote->get_position();
-							noteAction.m_row = pNote->get_instrument_id();
-							noteAction.m_pattern = nPat;
-							noteAction.f_velocity = pNote->get_velocity();
-							noteAction.f_pan_L = pNote->get_pan_l();
-							noteAction.f_pan_R = pNote->get_pan_r();
-							noteAction.m_length = -1;
-							noteAction.no_octaveKeyVal = pNote->get_octave();
-							noteAction.nk_noteKeyVal = pNote->get_key();
-							noteAction.b_isInstrumentMode = false;
-							noteAction.b_isMidi = false;
-							noteAction.b_noteExist = false;
-							EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
-						}
-					}
-				}
 
 				// Perform a loop over all notes, which are enclose
 				// the position of the current tick, using a constant
@@ -2723,164 +2693,6 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	}
 
 	if ( currentPattern && ( getState() == STATE_PLAYING ) ) {
-		if ( doRecord && pPreferences->getDestructiveRecord() && pPreferences->m_nRecPreDelete>0 ) {
-			// Delete notes around current note if option toggled
-			int postdelete = 0;
-			int predelete = 0;
-			int prefpredelete = pPreferences->m_nRecPreDelete-1;
-			int prefpostdelete = pPreferences->m_nRecPostDelete;
-			int length = currentPattern->get_length();
-			bool fp = false;
-			postdelete = column;
-
-			switch (prefpredelete) {
-			case 0: predelete = length ; postdelete = 0; fp = true; break;
-			case 1: predelete = length ; fp = true; break;
-			case 2: predelete = length / 2; fp = true; break;
-			case 3: predelete = length / 4; fp = true; break;
-			case 4: predelete = length / 8; fp = true; break;
-			case 5: predelete = length / 16; fp = true; break;
-			case 6: predelete = length / 32; fp = true; break;
-			case 7: predelete = length / 64; fp = true; break;
-			case 8: predelete = length / 64; break;
-			case 9: predelete = length / 32; break;
-			case 10: predelete = length / 16; break;
-			case 11: predelete = length / 8; break;
-			case 12: predelete = length / 4; break;
-			case 13: predelete = length / 2; break;
-			case 14: predelete = length; break;
-			case 15: break;
-			default : predelete = 1; break;
-			}
-
-			if (!fp ) {
-				switch (prefpostdelete) {
-				case 0: postdelete = column; break;
-				case 1: postdelete -= length / 64; break;
-				case 2: postdelete -= length / 32; break;
-				case 3: postdelete -= length / 16; break;
-				case 4: postdelete -= length / 8; break;
-				case 5: postdelete -= length / 4; break;
-				case 6: postdelete -= length / 2; break;
-				case 7: postdelete -= length ; break;
-				default : postdelete = column; break;
-				}
-
-				if (postdelete<0) postdelete = 0;
-			}
-
-			Pattern::notes_t* notes = (Pattern::notes_t*)currentPattern->get_notes();
-			FOREACH_NOTE_IT_BEGIN_END(notes,it) {
-				Note *pNote = it->second;
-				assert( pNote );
-
-				int currentPosition = pNote->get_position();
-				if ( pPreferences->__playselectedinstrument ) {//fix me
-					if ( pSong->getInstrumentList()->get( getSelectedInstrumentNumber()) == pNote->get_instrument() )
-					{
-						if (prefpredelete>=1 && prefpredelete <=14 ) pNote->set_just_recorded( false );
-
-						if ( (prefpredelete == 15) && (pNote->get_just_recorded() == false))
-						{
-							bool replaceExisting = false;
-							if (column == currentPosition) replaceExisting = true;
-							EventQueue::AddMidiNoteVector noteAction;
-							noteAction.m_column = currentPosition;
-							noteAction.m_row = pNote->get_instrument_id(); //getSelectedInstrumentNumber();
-							noteAction.m_pattern = currentPatternNumber;
-							noteAction.f_velocity = velocity;
-							noteAction.f_pan_L = pan_L;
-							noteAction.f_pan_R = pan_R;
-							noteAction.m_length = -1;
-							int divider = msg1 / 12;
-							noteAction.no_octaveKeyVal = (Note::Octave)(divider -3);
-							noteAction.nk_noteKeyVal = (Note::Key)(msg1 - (12 * divider));
-							noteAction.b_isInstrumentMode = replaceExisting;
-							noteAction.b_isMidi = true;
-							noteAction.b_noteExist = replaceExisting;
-							EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
-							continue;
-						}
-						if ( ( pNote->get_just_recorded() == false )
-							 && (static_cast<int>( pNote->get_position() ) >= postdelete
-								 && pNote->get_position() < column + predelete +1 )
-							 ) {
-							bool replaceExisting = false;
-							if ( column == currentPosition ) {
-								replaceExisting = true;
-							}
-							EventQueue::AddMidiNoteVector noteAction;
-							noteAction.m_column = currentPosition;
-							noteAction.m_row = pNote->get_instrument_id(); //getSelectedInstrumentNumber();
-							noteAction.m_pattern = currentPatternNumber;
-							noteAction.f_velocity = velocity;
-							noteAction.f_pan_L = pan_L;
-							noteAction.f_pan_R = pan_R;
-							noteAction.m_length = -1;
-							int divider = msg1 / 12;
-							noteAction.no_octaveKeyVal = (Note::Octave)(divider -3);
-							noteAction.nk_noteKeyVal = (Note::Key)(msg1 - (12 * divider));
-							noteAction.b_isInstrumentMode = replaceExisting;
-							noteAction.b_isMidi = true;
-							noteAction.b_noteExist = replaceExisting;
-							EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
-						}
-					}
-					continue;
-				}
-
-				if ( !fp && pNote->get_instrument() != instrRef ) {
-					continue;
-				}
-
-				if (prefpredelete>=1 && prefpredelete <=14 ) {
-					pNote->set_just_recorded( false );
-				}
-
-				if ( (prefpredelete == 15) && (pNote->get_just_recorded() == false)) {
-					bool replaceExisting = false;
-					if (column == currentPosition) replaceExisting = true;
-					EventQueue::AddMidiNoteVector noteAction;
-					noteAction.m_column = currentPosition;
-					noteAction.m_row =  pNote->get_instrument_id();//m_nInstrumentLookupTable[ instrument ];
-					noteAction.m_pattern = currentPatternNumber;
-					noteAction.f_velocity = velocity;
-					noteAction.f_pan_L = pan_L;
-					noteAction.f_pan_R = pan_R;
-					noteAction.m_length = -1;
-					noteAction.no_octaveKeyVal = (Note::Octave)0;
-					noteAction.nk_noteKeyVal = (Note::Key)0;
-					noteAction.b_isInstrumentMode = false;
-					noteAction.b_isMidi = false;
-					noteAction.b_noteExist = replaceExisting;
-					EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
-					continue;
-				}
-
-				if ( ( pNote->get_just_recorded() == false )
-					 && ( static_cast<int>( pNote->get_position() ) >= postdelete
-						  && pNote->get_position() <column + predelete +1 )
-					 ) {
-					bool replaceExisting = false;
-					if (column == currentPosition) replaceExisting = true;
-					EventQueue::AddMidiNoteVector noteAction;
-					noteAction.m_column = currentPosition;
-					noteAction.m_row =  pNote->get_instrument_id();//m_nInstrumentLookupTable[ instrument ];
-					noteAction.m_pattern = currentPatternNumber;
-					noteAction.f_velocity = velocity;
-					noteAction.f_pan_L = pan_L;
-					noteAction.f_pan_R = pan_R;
-					noteAction.m_length = -1;
-					noteAction.no_octaveKeyVal = (Note::Octave)0;
-					noteAction.nk_noteKeyVal = (Note::Key)0;
-					noteAction.b_isInstrumentMode = false;
-					noteAction.b_isMidi = false;
-					noteAction.b_noteExist = replaceExisting;
-					EventQueue::get_instance()->m_addMidiNoteVector.push_back(noteAction);
-				}
-			} /* FOREACH */
-		} /* if dorecord ... */
-
 		assert( currentPattern );
 		if ( doRecord ) {
 			EventQueue::AddMidiNoteVector noteAction;

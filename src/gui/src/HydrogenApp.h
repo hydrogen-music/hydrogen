@@ -128,7 +128,6 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		void closeFXProperties();
 
 		void onDrumkitLoad( QString name );
-		void enableDestructiveRecMode();
 
 		void cleanupTemporaryFiles();
 
