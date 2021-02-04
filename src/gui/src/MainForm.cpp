@@ -2261,9 +2261,9 @@ void MainForm::startStopPlaybackAtCursor( QObject* pObject ) {
 				pHydrogen->getCoreActionController()->activateSongMode( true, false );
 				pApp->getPlayerControl()->songModeActivationEvent( 1 );
 			}
-			
+
 			int nCursorColumn = pApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();
-			pHydrogen->setPatternPos( nCursorColumn );
+			pHydrogen->getCoreActionController()->relocate( nCursorColumn );
 			
 		} else if ( pObject->inherits( "PatternEditorPanel" ) ) {
 			// Covers both the PatternEditor and the
