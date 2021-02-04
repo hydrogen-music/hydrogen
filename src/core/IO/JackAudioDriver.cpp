@@ -293,6 +293,25 @@ void JackAudioDriver::relocateUsingBBT()
 		return;
 	}
 
+	// Sometime the JACK server does send seemingly random nuisance.
+	if ( m_JackTransportPos.beat_type < 1 ||
+		 m_JackTransportPos.bar < 1 ||
+		 m_JackTransportPos.beat < 1 ||
+		 m_JackTransportPos.beats_per_bar < 1 ||
+		 m_JackTransportPos.beats_per_minute < MIN_BPM ||
+		 m_JackTransportPos.beats_per_minute > MAX_BPM ||
+		 m_JackTransportPos.ticks_per_beat < 1 ) {
+		ERRORLOG( QString( "Unsupported to BBT content. beat_type: %1, bar: %2, beat: %3, beats_per_bar: %4, beats_per_minute: %5, ticks_per_beat: %6" )
+				  .arg( m_JackTransportPos.beat_type < 1 )
+				  .arg( m_JackTransportPos.bar < 1 )
+				  .arg( m_JackTransportPos.beat < 1 )
+				  .arg( m_JackTransportPos.beats_per_bar < 1 )
+				  .arg( m_JackTransportPos.beats_per_minute < MIN_BPM )
+				  .arg( m_JackTransportPos.beats_per_minute > MAX_BPM )
+				  .arg( m_JackTransportPos.ticks_per_beat < 1 ) );
+		return;
+	}
+
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	Song* pSong = pHydrogen->getSong();
 
