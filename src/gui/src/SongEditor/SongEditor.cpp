@@ -1163,7 +1163,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_playingPattern_off_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_off.png" );
 
 	m_pPatternPopup = new QMenu( this );
-	m_pPatternPopup->addAction( tr("Copy"),  this, SLOT( patternPopup_copy() ) );
+	m_pPatternPopup->addAction( tr("Duplicate"),  this, SLOT( patternPopup_copy() ) );
 	m_pPatternPopup->addAction( tr("Delete"),  this, SLOT( patternPopup_delete() ) );
 	m_pPatternPopup->addAction( tr("Fill/Clear..."),  this, SLOT( patternPopup_fill() ) );
 	m_pPatternPopup->addAction( tr("Properties"),  this, SLOT( patternPopup_properties() ) );
