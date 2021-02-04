@@ -101,6 +101,8 @@ Note::Note( Note* other, Instrument* instrument )
 	  __octave( other->get_octave() ),
 	  __adsr( nullptr ),
 	  __lead_lag( other->get_lead_lag() ),
+	  m_nTimeOffsetNumerator( other->getTimeOffsetNumerator() ),
+	  m_nTupletNumerator( other->getTupletNumerator() ),
 	  __cut_off( other->get_cut_off() ),
 	  __resonance( other->get_resonance() ),
 	  __humanize_delay( other->get_humanize_delay() ),
