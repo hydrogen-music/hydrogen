@@ -167,7 +167,14 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	m_pDrawActionBtn->move( 147, 5 + 25 );
 	m_pDrawActionBtn->setToolTip( tr( "Draw mode") );
 	connect( m_pDrawActionBtn, SIGNAL( clicked( Button* ) ), this, SLOT( drawActionBtnPressed(Button* ) ) );
-	m_pDrawActionBtn->setPressed( true );
+
+	if ( pSong->getActionMode() == H2Core::Song::ActionMode::selectMode ) {
+		m_pPointerActionBtn->setPressed( true );
+		m_pDrawActionBtn->setPressed( false );
+	} else {
+		m_pPointerActionBtn->setPressed( false );
+		m_pDrawActionBtn->setPressed( true );
+	}
 
 	m_pModeActionBtn = new ToggleButton(
 			pBackPanel,
@@ -397,7 +404,7 @@ SongEditorPanel::SongEditorPanel(QWidget *pParent)
 	defaultPalette.setColor( QPalette::Window, QColor( 58, 62, 72 ) );
 	this->setPalette( defaultPalette );
 
-	setActionMode( SELECT_ACTION );
+	Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::selectMode );
 
 	show();
 
@@ -706,20 +713,27 @@ void SongEditorPanel::resizeEvent( QResizeEvent *ev )
 	resyncExternalScrollBar();
 }
 
-void SongEditorPanel::setActionMode( SongEditorActionMode actionMode ) {
-	m_actionMode = actionMode;
-	m_pDrawActionBtn->setPressed( actionMode == DRAW_ACTION );
-	m_pPointerActionBtn->setPressed( actionMode == SELECT_ACTION );
+void SongEditorPanel::actionModeChangeEvent( int nValue ) {
+
+	if ( nValue == 0 ) {
+		m_pPointerActionBtn->setPressed( true );
+		m_pDrawActionBtn->setPressed( false );
+	} else if ( nValue == 1 ) {
+		m_pPointerActionBtn->setPressed( false );
+		m_pDrawActionBtn->setPressed( true );
+	} else {
+		ERRORLOG( QString( "Unknown EVENT_ACTION_MODE_CHANGE value" ) );
+	}
 }
 
 void SongEditorPanel::pointerActionBtnPressed( Button* pBtn )
 {
-	setActionMode( SELECT_ACTION );
+	Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::selectMode );
 }
 
 void SongEditorPanel::drawActionBtnPressed( Button* pBtn )
 {
-	setActionMode( DRAW_ACTION );
+	Hydrogen::get_instance()->getSong()->setActionMode( H2Core::Song::ActionMode::drawMode );
 }
 
 void SongEditorPanel::updateTimelineUsage() {
@@ -878,12 +892,15 @@ void SongEditorPanel::setModeActionBtn( bool mode )
 void SongEditorPanel::zoomInBtnPressed( Button* pBtn )
 {
 	UNUSED( pBtn );
-	unsigned width = m_pSongEditor->getGridWidth ();
+	unsigned width = m_pSongEditor->getGridWidth();
 	--width;
-	m_pSongEditor->setGridWidth (width);
-	m_pPositionRuler->setGridWidth (width);
-	m_pAutomationPathView->setGridWidth (width);
+	m_pSongEditor->setGridWidth( width );
+	m_pPositionRuler->setGridWidth( width );
+	m_pAutomationPathView->setGridWidth( width );
 
+	Preferences::get_instance()->setSongEditorGridWidth( width );
+	Preferences::get_instance()->setSongEditorGridHeight( m_pSongEditor->getGridHeight() );
+	
 	updateAll();
 }
 
@@ -891,11 +908,15 @@ void SongEditorPanel::zoomInBtnPressed( Button* pBtn )
 void SongEditorPanel::zoomOutBtnPressed( Button* pBtn )
 {
 	UNUSED( pBtn );
-	unsigned width = m_pSongEditor->getGridWidth ();
+	unsigned width = m_pSongEditor->getGridWidth();
 	++width;
-	m_pSongEditor->setGridWidth (width);
-	m_pPositionRuler->setGridWidth (width);
-	m_pAutomationPathView->setGridWidth (width);
+	m_pSongEditor->setGridWidth( width );
+	m_pPositionRuler->setGridWidth( width );
+	m_pAutomationPathView->setGridWidth( width );
+
+	Preferences::get_instance()->setSongEditorGridWidth( width );
+	Preferences::get_instance()->setSongEditorGridHeight( m_pSongEditor->getGridHeight() );
+	
 	updateAll();
 }
 

@@ -10,9 +10,6 @@
     <height>555</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Form1</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
     <widget class="QTabWidget" name="TabWidget2">
@@ -32,7 +29,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
@@ -62,7 +59,7 @@
           </size>
          </property>
          <property name="text">
-          <string>&amp;Reopen last used song</string>
+          <string>Reopen last used &amp;song</string>
          </property>
          <property name="shortcut">
           <string>Alt+R</string>
@@ -78,7 +75,7 @@
           </size>
          </property>
          <property name="text">
-          <string>&amp;Reopen last used playlist</string>
+          <string>Reopen last used &amp;playlist</string>
          </property>
          <property name="shortcut">
           <string>Alt+R</string>
@@ -88,21 +85,21 @@
        <item>
         <widget class="QCheckBox" name="useRelativePlaylistPathsCheckbox">
          <property name="text">
-          <string>Use relative paths for playlist</string>
+          <string>Use &amp;relative paths for playlist</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="hideKeyboardCursor">
          <property name="text">
-          <string>Hide keyboard input cursor</string>
+          <string>&amp;Hide keyboard input cursor</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="useLashCheckbox">
          <property name="text">
-          <string>Use lash</string>
+          <string>Use &amp;LASH</string>
          </property>
         </widget>
        </item>
@@ -433,7 +430,7 @@
            <item>
             <widget class="QCheckBox" name="connectDefaultsCheckBox">
              <property name="text">
-              <string>Connect to &amp;Default Output Pair</string>
+              <string>Connect to &amp;default JACK output ports</string>
              </property>
              <property name="shortcut">
               <string>Alt+D</string>
@@ -443,10 +440,17 @@
            <item>
             <widget class="QCheckBox" name="trackOutsCheckBox">
              <property name="text">
-              <string>Create per-instrument outputs</string>
+              <string>Create &amp;per-instrument JACK output ports</string>
              </property>
              <property name="shortcut">
               <string>Alt+D</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="enableTimebaseCheckBox">
+             <property name="text">
+              <string>Enable JACK &amp;timebase master support</string>
              </property>
             </widget>
            </item>
@@ -605,7 +609,7 @@
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>&amp;Midi System</string>
+       <string>&amp;MIDI System</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
@@ -615,7 +619,7 @@
            <item>
             <widget class="QLabel" name="textLabel1_5">
              <property name="text">
-              <string>Midi driver</string>
+              <string>MIDI driver</string>
              </property>
             </widget>
            </item>
@@ -781,7 +785,7 @@
            <item>
             <widget class="QCheckBox" name="m_pIgnoreNoteOffCheckBox">
              <property name="text">
-              <string>Ignore note-off</string>
+              <string>&amp;Ignore note-off</string>
              </property>
             </widget>
            </item>
@@ -790,14 +794,14 @@
          <item>
           <widget class="QCheckBox" name="m_pEnableMidiFeedbackCheckBox">
            <property name="text">
-            <string>Enable midi feedback</string>
+            <string>&amp;Enable MIDI feedback</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QCheckBox" name="m_pDiscardMidiMsgCheckbox">
            <property name="text">
-            <string>Discard midi messages after action has been triggered</string>
+            <string>&amp;Discard MIDI messages after action has been triggered</string>
            </property>
           </widget>
          </item>
@@ -806,7 +810,7 @@
            <item>
             <widget class="QCheckBox" name="m_pFixedMapping">
              <property name="text">
-              <string>Use output note as input note</string>
+              <string>&amp;Use output note as input note</string>
              </property>
             </widget>
            </item>

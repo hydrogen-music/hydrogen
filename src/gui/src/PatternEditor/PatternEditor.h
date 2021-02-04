@@ -67,9 +67,11 @@ public:
 
 	//! Set the editor grid resolution, dividing a whole note into `res` subdivisions. 
 	void setResolution( uint res, bool bUseTriplets );
-	uint getResolution() { return m_nResolution; }
-	bool isUsingTriplets() { return m_bUseTriplets;	}
+	uint getResolution() const { return m_nResolution; }
+	bool isUsingTriplets() const { return m_bUseTriplets;	}
 
+	float getGridWidth() const { return m_nGridWidth; }
+	unsigned getGridHeight() const { return m_nGridHeight; }
 	//! Zoom in / out on the time axis
 	void zoomIn();
 	void zoomOut();
@@ -164,7 +166,7 @@ protected:
 	PatternEditorPanel *m_pPatternEditorPanel;
 	QMenu *m_pPopupMenu;
 
-	int getColumn( int x ) const;
+	int getColumn( int x, bool bUseFineGrained = false ) const;
 	QPoint movingGridOffset() const;
 
 	//! Draw lines for note grid.

@@ -371,12 +371,64 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 	LocalFileMng::writeXmlBool( songNode, "playbackTrackEnabled", pSong->getPlaybackTrackEnabled() );
 	LocalFileMng::writeXmlString( songNode, "playbackTrackVolume", QString("%1").arg( pSong->getPlaybackTrackVolume() ) );
 
+	int nActionMode = 0;
+	if ( pSong->getActionMode() == Song::ActionMode::selectMode ) {
+		nActionMode = 0;
+	} else if ( pSong->getActionMode() == Song::ActionMode::drawMode ) {
+		nActionMode = 1;
+	}
+	LocalFileMng::writeXmlString( songNode, "action_mode",
+								  QString::number( nActionMode ) );
 	
 	if ( pSong->getMode() == Song::SONG_MODE ) {
 		LocalFileMng::writeXmlString( songNode, "mode", QString( "song" ) );
 	} else {
 		LocalFileMng::writeXmlString( songNode, "mode", QString( "pattern" ) );
 	}
+
+	Sampler* pSampler = AudioEngine::get_instance()->get_sampler();
+	
+	QString sPanLawType; // prepare the pan law string to write
+	int nPanLawType = pSong->getPanLawType();
+	if ( nPanLawType == Sampler::RATIO_STRAIGHT_POLYGONAL ) {
+		sPanLawType = "RATIO_STRAIGHT_POLYGONAL";
+	} else if ( nPanLawType == Sampler::RATIO_CONST_POWER ) {
+		sPanLawType = "RATIO_CONST_POWER";
+	} else if ( nPanLawType == Sampler::RATIO_CONST_SUM ) {
+		sPanLawType = "RATIO_CONST_SUM";
+	} else if ( nPanLawType == Sampler::LINEAR_STRAIGHT_POLYGONAL ) {
+		sPanLawType = "LINEAR_STRAIGHT_POLYGONAL";
+	} else if ( nPanLawType == Sampler::LINEAR_CONST_POWER ) {
+		sPanLawType = "LINEAR_CONST_POWER";
+	} else if ( nPanLawType == Sampler::LINEAR_CONST_SUM ) {
+		sPanLawType = "LINEAR_CONST_SUM";
+	} else if ( nPanLawType == Sampler::POLAR_STRAIGHT_POLYGONAL ) {
+		sPanLawType = "POLAR_STRAIGHT_POLYGONAL";
+	} else if ( nPanLawType == Sampler::POLAR_CONST_POWER ) {
+		sPanLawType = "POLAR_CONST_POWER";
+	} else if ( nPanLawType == Sampler::POLAR_CONST_SUM ) {
+		sPanLawType = "POLAR_CONST_SUM";
+	} else if ( nPanLawType == Sampler::QUADRATIC_STRAIGHT_POLYGONAL ) {
+		sPanLawType = "QUADRATIC_STRAIGHT_POLYGONAL";
+	} else if ( nPanLawType == Sampler::QUADRATIC_CONST_POWER ) {
+		sPanLawType = "QUADRATIC_CONST_POWER";
+	} else if ( nPanLawType == Sampler::QUADRATIC_CONST_SUM ) {
+		sPanLawType = "QUADRATIC_CONST_SUM";
+	} else if ( nPanLawType == Sampler::LINEAR_CONST_K_NORM ) {
+		sPanLawType = "LINEAR_CONST_K_NORM";
+	} else if ( nPanLawType == Sampler::POLAR_CONST_K_NORM ) {
+		sPanLawType = "POLAR_CONST_K_NORM";
+	} else if ( nPanLawType == Sampler::RATIO_CONST_K_NORM ) {
+		sPanLawType = "RATIO_CONST_K_NORM";
+	} else if ( nPanLawType == Sampler::QUADRATIC_CONST_K_NORM ) {
+		sPanLawType = "QUADRATIC_CONST_K_NORM";
+	} else {
+		WARNINGLOG( "Unknown pan law in saving song. Saved default type." );
+		sPanLawType = "RATIO_STRAIGHT_POLYGONAL";
+	}
+	// write the pan law string in file
+	LocalFileMng::writeXmlString( songNode, "pan_law_type", sPanLawType );
+	LocalFileMng::writeXmlString( songNode, "pan_law_k_norm", QString("%1").arg( pSong->getPanLawKNorm() ) );
 
 	LocalFileMng::writeXmlString( songNode, "humanize_time", QString("%1").arg( pSong->getHumanizeTimeValue() ) );
 	LocalFileMng::writeXmlString( songNode, "humanize_velocity", QString("%1").arg( pSong->getHumanizeVelocityValue() ) );

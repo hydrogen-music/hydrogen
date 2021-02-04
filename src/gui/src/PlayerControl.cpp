@@ -117,28 +117,9 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pRecBtn->setHidden(false);
 	m_pRecBtn->setToolTip( tr("Record") );
 	connect(m_pRecBtn, SIGNAL(clicked(Button*)), this, SLOT(recBtnClicked(Button*)));
-	connect(m_pRecBtn, SIGNAL(rightClicked(Button*)), this, SLOT(recBtnRightClicked(Button*)));
 
 	Action* pAction = new Action("RECORD_READY");
 	m_pRecBtn->setAction( pAction );
-
-
-	// Record+delete button
-	m_pRecDelBtn = new ToggleButton(
-			pControlsPanel,
-			"/playerControlPanel/btn_recdel_on.png",
-			"/playerControlPanel/btn_recdel_off.png",
-			"/playerControlPanel/btn_recdel_over.png",
-			QSize(21, 15)
-	);
-	m_pRecDelBtn->move(195, 17);
-	m_pRecDelBtn->setPressed(false);
-	m_pRecDelBtn->setHidden(true);
-	m_pRecDelBtn->setToolTip( tr("Destructive Record") );
-	connect(m_pRecDelBtn, SIGNAL(clicked(Button*)), this, SLOT(recBtnClicked(Button*)));
-	connect(m_pRecDelBtn, SIGNAL(rightClicked(Button*)), this, SLOT(recBtnRightClicked(Button*)));
-
-
 
 	// Play button
 	m_pPlayBtn = new ToggleButton(
@@ -418,7 +399,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	} else {
 		m_pJackTransportBtn->setPressed( false );
 	}
-	m_pJackTransportBtn->setToolTip( tr("Jack-transport on/off") );
+	m_pJackTransportBtn->setToolTip( tr("JACK transport on/off") );
 	connect(m_pJackTransportBtn, SIGNAL(clicked(Button*)), this, SLOT(jackTransportBtnClicked(Button*)));
 	m_pJackTransportBtn->move(10, 26);
 
@@ -432,12 +413,14 @@ PlayerControl::PlayerControl(QWidget *parent)
 	);
 	m_pJackMasterBtn->hide();
 	if ( m_pJackTransportBtn->isPressed() &&
-		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ) {
+		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&
+		 pPreferences->m_bJackTimebaseEnabled ) {
 		m_pJackMasterBtn->setPressed( true );
 	} else {
 		m_pJackMasterBtn->setPressed( false );
 	}
-	m_pJackMasterBtn->setToolTip( tr("Jack-Time-Master on/off") );
+	m_sJackMasterModeToolTip = tr("JACK Timebase master on/off");
+	m_pJackMasterBtn->setToolTip( m_sJackMasterModeToolTip );
 	connect(m_pJackMasterBtn, SIGNAL(clicked(Button*)), this, SLOT(jackMasterBtnClicked(Button*)));
 	m_pJackMasterBtn->move(56, 26);
 	//~ jack time master
@@ -535,24 +518,9 @@ void PlayerControl::updatePlayerControl()
 
 	if (pPref->getRecordEvents()) {
 		m_pRecBtn->setPressed(true);
-		m_pRecDelBtn->setPressed(true);
 	}
 	else {
 		m_pRecBtn->setPressed(false);
-		m_pRecDelBtn->setPressed(false);
-	}
-
-	if (pPref->getDestructiveRecord()) {
-		if (  m_pRecDelBtn->isHidden() ) {
-			m_pRecBtn->setHidden(true);
-			m_pRecDelBtn->setHidden(false);
-		}
-	}
-	else {
-		if (  m_pRecBtn->isHidden() ) {
-			m_pRecBtn->setHidden(false);
-			m_pRecDelBtn->setHidden(true);
-		}
 	}
 
 	Song *song = m_pEngine->getSong();
@@ -606,6 +574,14 @@ void PlayerControl::updatePlayerControl()
 					m_pJackMasterBtn->setPressed( true );
 				} else {
 					m_pJackMasterBtn->setPressed( false );
+				}
+
+				if ( pPref->m_bJackTimebaseEnabled ) {
+					m_pJackMasterBtn->setDisabled( false );
+					m_pJackMasterBtn->setToolTip( m_sJackMasterModeToolTip );
+				} else {
+					m_pJackMasterBtn->setDisabled( true );
+					m_pJackMasterBtn->setToolTip( tr( "JACK timebase support is disabled in the Preferences" ) );
 				}
 
 				if ( m_pEngine->getJackTimebaseState() == JackAudioDriver::Timebase::Slave ) {
@@ -708,22 +684,6 @@ void PlayerControl::recBtnClicked(Button* ref) {
 		}
 	}
 }
-
-
-/// Toggle destructive/nondestructive move
-void PlayerControl::recBtnRightClicked(Button* ref) {
-	UNUSED( ref );
-	if ( Preferences::get_instance()->getDestructiveRecord() ) {
-		Preferences::get_instance()->setDestructiveRecord(false);
-		(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Destructive mode = Off" ), 2000 );
-	}
-	else {
-		Preferences::get_instance()->setDestructiveRecord(true);
-		(HydrogenApp::get_instance())->setScrollStatusBarMessage(tr("Destructive mode = On" ), 2000 );
-	}
-	HydrogenApp::get_instance()->enableDestructiveRecMode();
-}
-
 
 /// Start audio engine
 void PlayerControl::playBtnClicked(Button* ref) {
@@ -918,7 +878,7 @@ void PlayerControl::jackTransportBtnClicked( Button* )
 	Preferences *pPref = Preferences::get_instance();
 
 	if ( !m_pEngine->haveJackAudioDriver() ) {
-		QMessageBox::warning( this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
+		QMessageBox::warning( this, "Hydrogen", tr( "JACK transport will work only with JACK driver." ) );
 		return;
 	}
 
@@ -926,14 +886,14 @@ void PlayerControl::jackTransportBtnClicked( Button* )
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pPref->m_bJackTransportMode = Preferences::USE_JACK_TRANSPORT;
 		AudioEngine::get_instance()->unlock();
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-transport mode = On"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK transport mode = On"), 5000);
 		m_pJackMasterBtn->setDisabled( false );
 	}
 	else {
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pPref->m_bJackTransportMode = Preferences::NO_JACK_TRANSPORT;
 		AudioEngine::get_instance()->unlock();
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-transport mode = Off"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK transport mode = Off"), 5000);
 		m_pJackMasterBtn->setPressed( false );
 		m_pJackMasterBtn->setDisabled( true );
 	}
@@ -947,7 +907,7 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 	Preferences *pPref = Preferences::get_instance();
 
 	if ( !m_pEngine->haveJackTransport() ) {
-		QMessageBox::warning( this, "Hydrogen", tr( "JACK-transport will work only with JACK driver." ) );
+		QMessageBox::warning( this, "Hydrogen", tr( "JACK transport will work only with JACK driver." ) );
 		return;
 	}
 
@@ -955,14 +915,14 @@ void PlayerControl::jackMasterBtnClicked( Button* )
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pPref->m_bJackMasterMode = Preferences::USE_JACK_TIME_MASTER;
 		AudioEngine::get_instance()->unlock();
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr(" Jack-Time-Master mode = On"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK Timebase master mode = On"), 5000);
 		Hydrogen::get_instance()->onJackMaster();
 
 	} else {
 		AudioEngine::get_instance()->lock( RIGHT_HERE );
 		pPref->m_bJackMasterMode = Preferences::NO_JACK_TIME_MASTER;
 		AudioEngine::get_instance()->unlock();
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr(" Jack-Time-Master mode = Off"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK Timebase master mode = Off"), 5000);
 		Hydrogen::get_instance()->offJackMaster();
 	}
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateTimelineUsage();
@@ -1139,22 +1099,22 @@ void PlayerControl::tempoChangedEvent( int nValue )
 void PlayerControl::jackTransportActivationEvent( int nValue ) {
 
 	if ( nValue == 0 && m_pJackTransportBtn->isPressed() ){
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-transport mode = Off"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK transport mode = Off"), 5000);
 		m_pJackMasterBtn->setPressed( false );
 		m_pJackMasterBtn->setDisabled( true );
 	} else if ( nValue != 0 && !m_pJackTransportBtn->isPressed() ) {
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-transport mode = On"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK transport mode = On"), 5000);
 		m_pJackMasterBtn->setDisabled( false );
 	}
 }
 
 void PlayerControl::jackTimebaseActivationEvent( int nValue ) {
 	if ( nValue == 0 && m_pJackMasterBtn->isPressed() ){
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-Time-Master mode = Off"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK Timebase master mode = Off"), 5000);
 		m_pJackMasterBtn->setPressed( false );
 		
 	} else if ( nValue != 0 && !m_pJackMasterBtn->isPressed() ) {
-		(HydrogenApp::get_instance())->setStatusBarMessage(tr("Jack-Time-Master mode = On"), 5000);
+		(HydrogenApp::get_instance())->setStatusBarMessage(tr("JACK Timebase master mode = On"), 5000);
 		m_pJackMasterBtn->setPressed( true );
 	}
 	

@@ -180,10 +180,28 @@ class Song : public H2Core::Object
 		/** \param volume Sets #m_fPlaybackTrackVolume. */
 		void			setPlaybackTrackVolume( const float fVolume );
 
+		/** Defines the type of user interaction experienced in the 
+			SongEditor.*/
+		enum class ActionMode {
+			/** Holding a pressed left mouse key will draw a rectangle to
+				select a group of Notes.*/
+			selectMode = 0,
+			/** Holding a pressed left mouse key will draw/delete patterns
+				in all grid cells encountered.*/
+			drawMode = 1
+		};
+		ActionMode		getActionMode() const;
+		void			setActionMode( const ActionMode actionMode );
+
 		/** Song was incompletely loaded from file (missing samples)
 		 */
 		bool hasMissingSamples() const;
 		void clearMissingSamples();
+		
+		void setPanLawType( int nPanLawType );
+		int getPanLawType() const;
+		void setPanLawKNorm( float fKNorm );
+		float getPanLawKNorm() const;
 
 	private:
 
@@ -257,6 +275,14 @@ class Song : public H2Core::Object
 		AutomationPath*		m_pVelocityAutomationPath;
 		///< license of the song
 		QString			m_sLicense;
+
+		/** Stores the type of interaction with the SongEditor. */
+		ActionMode		m_actionMode;
+		
+		int m_nPanLawType;
+		// k such that L^k+R^k = 1. Used in constant k-Norm pan law
+		float m_fPanLawKNorm;
+
 };
 
 inline bool Song::getIsMuted() const
@@ -493,6 +519,22 @@ inline float Song::getPlaybackTrackVolume() const
 inline void Song::setPlaybackTrackVolume( const float fVolume )
 {
 	m_fPlaybackTrackVolume = fVolume;
+}
+
+inline Song::ActionMode Song::getActionMode() const {
+	return m_actionMode;
+}
+
+inline void Song::setPanLawType( int nPanLawType ) {
+	m_nPanLawType = nPanLawType;
+}
+
+inline int Song::getPanLawType() const {
+	return m_nPanLawType;
+} 
+
+inline float Song::getPanLawKNorm() const {
+	return m_fPanLawKNorm;
 }
 
 /**

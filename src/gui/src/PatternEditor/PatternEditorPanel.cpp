@@ -106,7 +106,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 
 //wolke some background images back_size_res
 	PixmapWidget *pSizeResol = new PixmapWidget( nullptr );
-	pSizeResol->setFixedSize( 200, 20 );
+	pSizeResol->setFixedSize( 216, 20 );
 	pSizeResol->setPixmap( "/patternEditor/background_res-new.png" );
 	pSizeResol->move( 0, 3 );
 	editor_top_hbox_2->addWidget( pSizeResol );
@@ -130,20 +130,29 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	connect( m_pDenominatorWarning, SIGNAL( clicked( Button* ) ), this, SLOT( denominatorWarningClicked() ) );
 	
 	// GRID resolution
-	__resolution_combo = new LCDCombo( pSizeResol , 3 );
+	__resolution_combo = new LCDCombo( pSizeResol , 5, true );
 	__resolution_combo->setToolTip(tr( "Select grid resolution" ));
-	__resolution_combo->addItem( "4" );
-	__resolution_combo->addItem( "8" );
-	__resolution_combo->addItem( "16" );
-	__resolution_combo->addItem( "32" );
-	__resolution_combo->addItem( "64" );
+	__resolution_combo->addItem( QString( "  1/4   - " )
+								 .append( tr( "quarter" ) ) );
+	__resolution_combo->addItem( QString( "  1/8   - " )
+								 .append( tr( "eighth" ) ) );
+	__resolution_combo->addItem( QString( " 1/16  - " )
+								 .append( tr( "sixteenth" ) ) );
+	__resolution_combo->addItem( QString( " 1/32  - " )
+								 .append( tr( "thirty-second" ) ) );
+	__resolution_combo->addItem( QString( " 1/64  - " )
+								 .append( tr( "sixty-fourth" ) ) );
 	__resolution_combo->addSeparator();
-	__resolution_combo->addItem( "4T" );
-	__resolution_combo->addItem( "8T" );
-	__resolution_combo->addItem( "16T" );
-	__resolution_combo->addItem( "32T" );
+	__resolution_combo->addItem( QString( " 1/4T  - " )
+								 .append( tr( "quarter triplet" ) ) );
+	__resolution_combo->addItem( QString( " 1/8T  - " )
+								 .append( tr( "eighth triplet" ) ) );
+	__resolution_combo->addItem( QString( "1/16T - " )
+								 .append( tr( "sixteenth triplet" ) ) );
+	__resolution_combo->addItem( QString( "1/32T - " )
+								 .append( tr( "thirty-second triplet" ) ) );
 	__resolution_combo->addSeparator();
-	__resolution_combo->addItem( "off" );
+	__resolution_combo->addItem( tr( "off" ) );
 	__resolution_combo->move( 154, 2 );
 	// is triggered from inside PatternEditorPanel()
 	connect( __resolution_combo, SIGNAL( valueChanged( int ) ), this, SLOT( gridResolutionChanged( int ) ) );
@@ -195,48 +204,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__show_drum_btn->setPressed( false );
 	__show_drum_btn->setToolTip( tr( "Show piano roll editor" ) );
 	connect( __show_drum_btn, SIGNAL( clicked( Button* ) ), this, SLOT( showDrumEditorBtnClick( Button* ) ) );
-
-	__recpredelete = new QComboBox( nullptr );
-	__recpredelete->setFixedSize( 130, 20 );
-	__recpredelete->move( 2, 1 );
-	__recpredelete->addItem ( QString( "On play" ));
-	__recpredelete->addItem ( QString( "On rec: once fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/1 fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/2 fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/4 fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/8 fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/16 fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/32 fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/64 fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/64" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/32" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/16" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/8" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/4" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/2" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/1" ) );
-	__recpredelete->addItem ( QString( "On rec: once" ) );
-	__recpredelete->update();
-	__recpredelete->setToolTip( tr( "destructive mode pre delete settings" ) );
-	editor_top_hbox_2->addWidget( __recpredelete );
-	connect( __recpredelete, SIGNAL( currentIndexChanged( int ) ), this, SLOT( recPreDeleteSelect( int ) ) );
-
-	__recpostdelete = new QComboBox( nullptr );
-	__recpostdelete->setFixedSize( 60, 20 );
-	__recpostdelete->move( 2, 1 );
-	__recpostdelete->addItem ( QString( "off" ) );
-	__recpostdelete->addItem ( QString( "1/64" ) );
-	__recpostdelete->addItem ( QString( "1/32" ) );
-	__recpostdelete->addItem ( QString( "1/16" ) );
-	__recpostdelete->addItem ( QString( "1/8" ) );
-	__recpostdelete->addItem ( QString( "1/4" ) );
-	__recpostdelete->addItem ( QString( "1/2" ) );
-	__recpostdelete->addItem ( QString( "1/1" ) );
-	__recpostdelete->update();
-	__recpostdelete->setToolTip( tr( "destructive mode post delete settings" ) );
-	editor_top_hbox_2->addWidget( __recpostdelete );
-	connect( __recpostdelete, SIGNAL( currentIndexChanged( int ) ), this, SLOT( recPostDeleteSelect( int ) ) );
-
 
 	// zoom-in btn
 	Button *zoom_in_btn = new Button(
@@ -581,11 +548,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	}
 	__resolution_combo->select( nIndex );
 
-	//set pre delete
-	__recpredelete->setCurrentIndex( pPref->m_nRecPreDelete );
-	__recpostdelete->setCurrentIndex( pPref->m_nRecPostDelete );
-	displayorHidePrePostCB();
-
 	// LAYOUT
 	QVBoxLayout *pVBox = new QVBoxLayout();
 	pVBox->setSpacing( 0 );
@@ -866,6 +828,9 @@ void PatternEditorPanel::zoomInBtnClicked( Button *ref )
 	m_pNoteProbabilityEditor->zoomIn();
 	m_pNotePanEditor->zoomIn();
 	m_pPianoRollEditor->zoomIn();
+	
+	Preferences::get_instance()->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
+	Preferences::get_instance()->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
 
 	resizeEvent( nullptr );
 }
@@ -885,6 +850,9 @@ void PatternEditorPanel::zoomOutBtnClicked( Button *ref )
 	m_pPianoRollEditor->zoomOut();
 
 	resizeEvent( nullptr );
+	
+	Preferences::get_instance()->setPatternEditorGridWidth( m_pPatternEditorRuler->getGridWidth() );
+	Preferences::get_instance()->setPatternEditorGridHeight( m_pDrumPatternEditor->getGridHeight() );
 }
 
 
@@ -1161,41 +1129,6 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	*/
 	else {
 		ERRORLOG( QString( "unhandled value : %1" ).arg( nSelected ) );
-	}
-}
-
-
-void PatternEditorPanel::recPreDeleteSelect( int index )
-{
-	Preferences::get_instance()->m_nRecPreDelete = index;
-	if( index>=9 && index <=15 ){
-		__recpostdelete->show();
-	}else{
-		__recpostdelete->hide();
-	}
-}
-
-
-void PatternEditorPanel::recPostDeleteSelect( int index )
-{
-	Preferences::get_instance()->m_nRecPostDelete = index;
-}
-
-
-void PatternEditorPanel::displayorHidePrePostCB()
-{
-	int index = __recpredelete->currentIndex();
-	if( Preferences::get_instance()->getDestructiveRecord() ){
-		__recpostdelete->show();
-		if( index>=8 && index <=14 ){
-			__recpostdelete->show();
-		}else{
-			__recpostdelete->hide();
-		}
-		__recpredelete->show();
-	}else{
-		__recpostdelete->hide();
-		__recpredelete->hide();
 	}
 }
 
