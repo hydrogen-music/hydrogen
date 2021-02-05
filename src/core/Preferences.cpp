@@ -69,10 +69,6 @@ Preferences::Preferences()
 	m_brestartLash = false;
 	m_bsetLash = false;
 
-	//init pre delete default
-	m_nRecPreDelete = 0;
-	m_nRecPostDelete = 0;
-
 	//rubberband bpm change queue
 	m_useTheRubberbandBpmChangeEvent = false;
 	__rubberBandCalcTime = 5;
@@ -106,7 +102,6 @@ Preferences::Preferences()
 	__playselectedinstrument = false; // midi keyboard and keyboard play only selected instrument
 
 	recordEvents = false; // not recording by default
-	destructiveRecord = false; // not destructively recording by default
 	punchInPos = 0;
 	punchOutPos = -1;
 
@@ -168,7 +163,8 @@ Preferences::Preferences()
 	m_bJackTransportMode = true;
 	m_bJackConnectDefaults = true;
 	m_bJackTrackOuts = false;
-	m_bJackMasterMode = false ;
+	m_bJackTimebaseEnabled = true;
+	m_bJackMasterMode = NO_JACK_TIME_MASTER;
 	m_JackTrackOutputMode = JackTrackOutputMode::postFader;
 	m_JackBBTSync = JackBBTSyncMethod::constMeasure;
 
@@ -332,8 +328,6 @@ void Preferences::loadPreferences( bool bGlobal )
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
 			m_useTheRubberbandBpmChangeEvent = LocalFileMng::readXmlBool( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent );
-			m_nRecPreDelete = LocalFileMng::readXmlInt( rootNode, "preDelete", 0 );
-			m_nRecPostDelete = LocalFileMng::readXmlInt( rootNode, "postDelete", 0 );
 
 			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
 			quantizeEvents = LocalFileMng::readXmlBool( rootNode, "quantizeEvents", quantizeEvents );
@@ -405,6 +399,17 @@ void Preferences::loadPreferences( bool bGlobal )
 				recreate = true;
 			} else {
 				m_sAudioDriver = LocalFileMng::readXmlString( audioEngineNode, "audio_driver", m_sAudioDriver );
+				// Ensure compatibility will older versions of the
+				// files after capitalization in the GUI
+				// (2021-02-05). This can be dropped in releases >=
+				// 1.2
+				if ( m_sAudioDriver == "Jack" ) {
+					m_sAudioDriver = "JACK";
+				} else if ( m_sAudioDriver == "Oss" ) {
+					m_sAudioDriver = "OSS";
+				} else if ( m_sAudioDriver == "Alsa" ) {
+					m_sAudioDriver = "ALSA";
+				}
 				m_bUseMetronome = LocalFileMng::readXmlBool( audioEngineNode, "use_metronome", m_bUseMetronome );
 				m_fMetronomeVolume = LocalFileMng::readXmlFloat( audioEngineNode, "metronome_volume", 0.5f );
 				m_nMaxNotes = LocalFileMng::readXmlInt( audioEngineNode, "maxNotes", m_nMaxNotes );
@@ -436,6 +441,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					}
 
 					//jack time master
+					m_bJackTimebaseEnabled = LocalFileMng::readXmlBool( jackDriverNode, "jack_timebase_enabled", true );
 					QString tmMode = LocalFileMng::readXmlString( jackDriverNode, "jack_transport_mode_master", "NO_JACK_TIME_MASTER" );
 					if ( tmMode == "NO_JACK_TIME_MASTER" ) {
 						m_bJackMasterMode = NO_JACK_TIME_MASTER;
@@ -490,6 +496,15 @@ void Preferences::loadPreferences( bool bGlobal )
 					recreate = true;
 				} else {
 					m_sMidiDriver = LocalFileMng::readXmlString( midiDriverNode, "driverName", "ALSA" );
+					// Ensure compatibility will older versions of the
+					// files after capitalization in the GUI
+					// (2021-02-05). This can be dropped in releases
+					// >= 1.2
+					if ( m_sAudioDriver == "JackMidi" ) {
+						m_sAudioDriver = "JACK-MIDI";
+					} else if ( m_sAudioDriver == "CoreMidi" ) {
+						m_sAudioDriver = "CoreMIDI";
+					}
 					m_sMidiPortName = LocalFileMng::readXmlString( midiDriverNode, "port_name", "None" );
 					m_sMidiOutputPortName = LocalFileMng::readXmlString( midiDriverNode, "output_port_name", "None" );
 					m_nMidiChannelFilter = LocalFileMng::readXmlInt( midiDriverNode, "channel_filter", -1 );
@@ -757,8 +772,6 @@ void Preferences::savePreferences()
 
 	LocalFileMng::writeXmlString( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent ? "true": "false" );
 
-	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
-	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );
 	LocalFileMng::writeXmlString( rootNode, "useRelativeFilenamesForPlaylists", m_bUseRelativeFilenamesForPlaylists ? "true": "false" );
 	LocalFileMng::writeXmlBool( rootNode, "hideKeyboardCursorWhenUnused", m_bHideKeyboardCursor );
 	
@@ -861,6 +874,7 @@ void Preferences::savePreferences()
 			LocalFileMng::writeXmlString( jackDriverNode, "jack_transport_mode", sMode );
 
 			//jack time master
+			LocalFileMng::writeXmlBool( jackDriverNode, "jack_timebase_enabled", m_bJackTimebaseEnabled );
 			QString tmMode;
 			if ( m_bJackMasterMode == NO_JACK_TIME_MASTER ) {
 				tmMode = "NO_JACK_TIME_MASTER";

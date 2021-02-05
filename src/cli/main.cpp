@@ -234,13 +234,13 @@ int main(int argc, char *argv[])
 			preferences->m_sAudioDriver = "Auto";
 		}
 		else if (sSelectedDriver == "jack") {
-			preferences->m_sAudioDriver = "Jack";
+			preferences->m_sAudioDriver = "JACK";
 		}
 		else if ( sSelectedDriver == "oss" ) {
-			preferences->m_sAudioDriver = "Oss";
+			preferences->m_sAudioDriver = "OSS";
 		}
 		else if ( sSelectedDriver == "alsa" ) {
-			preferences->m_sAudioDriver = "Alsa";
+			preferences->m_sAudioDriver = "ALSA";
 		}
 		else if (sSelectedDriver == "CoreAudio") {
 			preferences->m_sAudioDriver = "CoreAudio";
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
 			 * here we make it save that hydrogen start in a jacksession case
 			 * every time with jack as audio driver
 			 */
-			preferences->m_sAudioDriver = "Jack";
+			preferences->m_sAudioDriver = "JACK";
 
 		}
 		/* the use of applicationFilePath() make it

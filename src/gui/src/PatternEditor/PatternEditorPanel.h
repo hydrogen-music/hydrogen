@@ -72,7 +72,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		int getPropertiesComboValue(){ return __pPropertiesCombo->selected(); }
 
 		void updateSLnameLabel();
-		void displayorHidePrePostCB();
 		void updatePianorollEditor();
 
 		// Implements EventListener interface
@@ -116,9 +115,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		void moveDownBtnClicked(Button *);
 		void moveUpBtnClicked(Button *);
 
-		void recPreDeleteSelect( int index );
-		void recPostDeleteSelect( int index );
-
 	private:
 		H2Core::Pattern *	m_pPattern;
 		QPixmap				m_backgroundPixmap;
@@ -130,10 +126,6 @@ class PatternEditorPanel : public QWidget, public EventListener, public H2Core::
 		LCDCombo *			__resolution_combo;
 		ToggleButton *		__show_drum_btn;
 		ToggleButton *		__show_piano_btn;
-		QComboBox *			__recpredelete;
-		QComboBox *			__recpostdelete;
-
-
 		// ~Editor top
 
 		//note properties combo
