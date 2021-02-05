@@ -187,8 +187,11 @@ void SampleEditor::getAllFrameInfos()
 	}
 	
 	assert( pInstrument );
-	
-	H2Core::InstrumentLayer *pLayer = pInstrument->get_component(0)->get_layer( m_pSelectedLayer );
+
+	InstrumentComponent *pCompo = pInstrument->get_component(0);
+	assert( pCompo );
+
+	InstrumentLayer *pLayer = pCompo->get_layer( m_pSelectedLayer );
 	if ( pLayer ) {
 		pSample = pLayer->get_sample();
 	}
@@ -544,8 +547,13 @@ void SampleEditor::on_PlayPushButton_clicked()
 	const int selectedLayer = InstrumentEditorPanel::get_instance()->getSelectedLayer();
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
 	Instrument *pInstr = pSong->get_instrument_list()->get( Hydrogen::get_instance()->getSelectedInstrumentNumber() );
-
+	if ( pInstr == nullptr ) {
+		return;
+	}
 	Note *pNote = new Note( pInstr, 0, pInstr->get_component( m_pSelectedComponent )->get_layer( selectedLayer )->get_end_velocity() - 0.01, pan_L, pan_R, nLength, fPitch);
 	pNote->set_specific_compo_id( m_pSelectedComponent );
 	AudioEngine::get_instance()->get_sampler()->note_on(pNote);

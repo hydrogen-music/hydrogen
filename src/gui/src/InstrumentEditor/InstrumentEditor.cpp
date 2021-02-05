@@ -845,11 +845,11 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		if ( m_pInstrument ) {
 			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
-				m_pInstrument->get_component(m_nSelectedComponent)->set_layer( nullptr, m_nSelectedLayer );
+				pCompo->set_layer( nullptr, m_nSelectedLayer );
 
 				int nCount = 0;
 				for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-					InstrumentLayer* pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( n );
+					InstrumentLayer* pLayer = pCompo->get_layer( n );
 					if( pLayer ){
 						nCount++;
 					}
@@ -913,7 +913,18 @@ void InstrumentEditor::loadLayer()
 	int selectedLayer =  m_nSelectedLayer;
 	int firstSelection = selectedLayer;
 
+	// Ensure instrument pointer is current
+	Song *pSong = pEngine->getSong();
+	if ( pSong ) {
+		InstrumentList *pInstrList = pSong->get_instrument_list();
+		m_pInstrument = pInstrList->get( pEngine->getSelectedInstrumentNumber() );
+	} else {
+		m_pInstrument = nullptr;
+	}
 
+	if ( m_pInstrument == nullptr ) {
+		return;
+	}
 
 	if (filename.size() > 2) {
 
@@ -924,25 +935,20 @@ void InstrumentEditor::loadLayer()
 
 			Sample *pNewSample = Sample::load( filename[i] );
 
-			H2Core::Instrument *pInstr = nullptr;
-
 			AudioEngine::get_instance()->lock( RIGHT_HERE );
-			Song *pSong = pEngine->getSong();
-			InstrumentList *pInstrList = pSong->get_instrument_list();
-			pInstr = pInstrList->get( pEngine->getSelectedInstrumentNumber() );
 
 			/*
 				if we're using multiple layers, we start inserting the first layer
 				at m_nSelectedLayer and the next layer at m_nSelectedLayer+1
 			*/
 
-			InstrumentComponent *pCompo = pInstr->get_component(m_nSelectedComponent);
+			InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( !pCompo ) {
 				pCompo = new InstrumentComponent( m_nSelectedComponent );
-				pInstr->get_components()->push_back( pCompo );
+				m_pInstrument->get_components()->push_back( pCompo );
 			}
 
-			H2Core::InstrumentLayer *pLayer = pInstr->get_component(m_nSelectedComponent)->get_layer( selectedLayer );
+			H2Core::InstrumentLayer *pLayer = pCompo->get_layer( selectedLayer );
 
 			if (pLayer != nullptr) {
 				// insert new sample from newInstrument, old sample gets deleted by set_sample
@@ -950,7 +956,7 @@ void InstrumentEditor::loadLayer()
 			}
 			else {
 				pLayer = new H2Core::InstrumentLayer(pNewSample);
-				pInstr->get_component(m_nSelectedComponent)->set_layer( pLayer, selectedLayer );
+				m_pInstrument->get_component(m_nSelectedComponent)->set_layer( pLayer, selectedLayer );
 			}
 
 			if ( fnc ){
@@ -976,10 +982,18 @@ void InstrumentEditor::loadLayer()
 
 void InstrumentEditor::setAutoVelocity()
 {
+	if ( m_pInstrument == nullptr ) {
+		return;
+	}
+	InstrumentComponent *pCompo = m_pInstrument->get_component( m_nSelectedComponent );
+	if ( pCompo == nullptr ) {
+		return;
+	}
 	std::vector<int> layerInUse( InstrumentComponent::getMaxLayers(), 0 );
 	int nLayers = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
-		InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
+
+		InstrumentLayer *pLayer = pCompo->get_layer( i );
 		if ( pLayer ) {
 			nLayers++;
 			layerInUse[i] = i;
@@ -995,7 +1009,7 @@ void InstrumentEditor::setAutoVelocity()
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 		if ( layerInUse[i] == i ){
 			nLayers--;
-			InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
+			InstrumentLayer *pLayer = pCompo->get_layer( i );
 			if ( pLayer ) {
 				pLayer->set_start_velocity( nLayers * velocityrange);
 				pLayer->set_end_velocity( nLayers * velocityrange + velocityrange );
@@ -1007,9 +1021,14 @@ void InstrumentEditor::setAutoVelocity()
 void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
 {
 	UNUSED( pRef );
-
-	DrumkitComponent* pComponent = Hydrogen::get_instance()->getSong()->get_component( m_nSelectedComponent );
-
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	DrumkitComponent* pComponent = pSong->get_component( m_nSelectedComponent );
+	if ( pComponent != nullptr ) {
+		return;
+	}
 	QString sOldName = pComponent->get_name();
 	bool bIsOkPressed;
 	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "New component name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
