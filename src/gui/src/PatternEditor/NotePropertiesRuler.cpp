@@ -370,27 +370,40 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 			pNote->set_velocity( val );
 			m_fLastSetValue = val;
 			m_bValueHasBeenSet = true;
-			char valueChar[100];
+			char valueChar[10];
 			sprintf( valueChar, "%#.2f",  val);
-			HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note velocity [%1]").arg( valueChar ), 2000 );
+			HydrogenApp::get_instance()->setStatusBarMessage( tr("Set note velocity [%1]").arg( valueChar ), 2000 );
 		}
 		else if ( m_Mode == PAN && !pNote->get_note_off() ){
 			float pan_L, pan_R;
 			if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
 				val = 0.5;
 			}
+			char valueChar[6];
+			QString valueString;
 			if ( val > 0.5 ) {
 				pan_L = 1.0 - val;
 				pan_R = 0.5;
+				sprintf( valueChar, "%#.2f ",  -1. + 2. * val );
+				valueString = QString( valueChar ) + tr( "R" );
 			}
 			else {
 				pan_L = 0.5;
 				pan_R = val;
+				if(val != 0.5) {
+					sprintf( valueChar, "%#.2f ",  1. - 2. * val );
+					valueString = QString( valueChar ) + tr( "L" );
+				}
+				else {
+					valueString = tr( "C" );
+				}
 			}
 			m_fLastSetValue = val;
 			m_bValueHasBeenSet = true;
 			pNote->set_pan_l( pan_L );
 			pNote->set_pan_r( pan_R );
+			( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set note pan " ) + valueString, 2000 );
+
 		}
 		else if ( m_Mode == LEADLAG ){
 			if ( (ev->button() == Qt::MiddleButton) || (ev->modifiers() == Qt::ControlModifier && ev->button() == Qt::LeftButton) ) {
@@ -400,15 +413,15 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 				m_fLastSetValue = val * -2.0 + 1.0;
 				m_bValueHasBeenSet = true;
 				pNote->set_lead_lag((val * -2.0) + 1.0);
-				char valueChar[100];
+				char valueChar[10];
 				if (pNote->get_lead_lag() < 0.0) {
 					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
+					HydrogenApp::get_instance()->setStatusBarMessage( tr("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
 				} else if (pNote->get_lead_lag() > 0.0) {
 					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+					HydrogenApp::get_instance()->setStatusBarMessage( tr("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
 				} else {
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
+					HydrogenApp::get_instance()->setStatusBarMessage( tr("Note on beat"), 2000 );
 				}
 				
 			}
@@ -436,9 +449,9 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 			m_fLastSetValue = val;
 			m_bValueHasBeenSet = true;
 			pNote->set_probability( val );
-			char valueChar[100];
+			char valueChar[10];
 			sprintf( valueChar, "%#.2f",  val);
-			HydrogenApp::get_instance()->setStatusBarMessage( QString("Set note probability [%1]").arg( valueChar ), 2000 );
+			HydrogenApp::get_instance()->setStatusBarMessage( tr("Set note probability [%1]").arg( valueChar ), 2000 );
 		}
 	}
 
@@ -472,9 +485,9 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			m_fLastSetValue = fVelocity;
 			m_bValueHasBeenSet = true;
 			if ( bMessage ) {
-				char valueChar[100];
+				char valueChar[10];
 				sprintf( valueChar, "%#.2f",  fVelocity );
-				( HydrogenApp::get_instance() )->setStatusBarMessage( QString( tr( "Set note velocity [%1]" ) )
+				( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set note velocity [%1]" )
 																	  .arg( valueChar ), 2000 );
 			}
 		}
@@ -482,14 +495,33 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 	case PAN:
 		if ( !pNote->get_note_off() ) {
 			float fPanL, fPanR;
-			float fValue = (pOldNote->get_pan_r() - pOldNote->get_pan_l() + 0.5) + fDelta;
+			//TODO here something doesn't works
+			// pan parameter in [0,1]. this inverse pan law formula is dimensionally incorrect
+			float fValue = ( pOldNote->get_pan_r() - pOldNote->get_pan_l() + 0.5 ) + fDelta;
 
-			if ( fValue > PAN_MAX ) {
-				fPanL = 2*PAN_MAX - fValue;
+			char valueChar[6];
+			QString valueString;
+
+			if ( fValue > 0.5 ) { // pan to the right
+				fPanL = 2*PAN_MAX - fValue; // this pan law formula is dimensionally incorrect
 				fPanR = PAN_MAX;
-			} else {
+				if ( bMessage ) {
+					sprintf( valueChar, "%#.2f ",  -1. + 2. * fValue);
+					valueString = QString( valueChar ) + tr( "R" ); 
+					( HydrogenApp::get_instance() )->setStatusBarMessage( tr("Set note pan ") + valueString, 2000 );
+				}
+			} else { // pan to the left or center
 				fPanL = PAN_MAX;
-				fPanR = fValue;
+				fPanR = fValue; // this pan law formula is dimensionally incorrect
+				if ( bMessage ) {
+					if( fValue != 0.5 ) { 
+						sprintf( valueChar, "%#.2f ",  1. - 2. * fValue);
+						valueString = QString(valueChar) + tr( "L" );
+					}
+					else {
+						valueString = tr( "C" );
+					}
+				}
 			}
 			pNote->set_pan_l( fPanL );
 			pNote->set_pan_r( fPanR );
@@ -504,13 +536,13 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			m_fLastSetValue = fLeadLag;
 			m_bValueHasBeenSet = true;
 			if ( bMessage ) {
-				char valueChar[100];
+				char valueChar[10];
 				if (pNote->get_lead_lag() < 0.0) {
 					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * -5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
+					HydrogenApp::get_instance()->setStatusBarMessage( tr("Leading beat by: %1 ticks").arg( valueChar ), 2000 );
 				} else if (pNote->get_lead_lag() > 0.0) {
 					sprintf( valueChar, "%.2f",  ( pNote->get_lead_lag() * 5)); // FIXME: '5' taken from fLeadLagFactor calculation in hydrogen.cpp
-					HydrogenApp::get_instance()->setStatusBarMessage( QString("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
+					HydrogenApp::get_instance()->setStatusBarMessage( tr("Lagging beat by: %1 ticks").arg( valueChar ), 2000 );
 				} else {
 					HydrogenApp::get_instance()->setStatusBarMessage( QString("Note on beat"), 2000 );
 				}
@@ -523,6 +555,7 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 			pNote->set_probability( fProbability );
 			m_fLastSetValue = fProbability;
 			m_bValueHasBeenSet = true;
+			//TODO status message
 		}
 		break;
 	case NOTEKEY:
@@ -1263,6 +1296,10 @@ void NotePropertiesRuler::finishUpdateEditor()
 	}
 	else if ( m_Mode == PAN ) {
 		createPanBackground( m_pBackground );
+		//rough "L", "R" on background
+		QPainter p( m_pBackground );
+		p.drawText( 5, 20, tr( "R" ) );
+		p.drawText( 5, m_nEditorHeight - 10, tr( "L" ) );
 	}
 	else if ( m_Mode == LEADLAG ) {
 		createLeadLagBackground( m_pBackground );
