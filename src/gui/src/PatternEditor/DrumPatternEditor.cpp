@@ -427,6 +427,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 		delete pFoundNote;
 	}
 
+	pSong->setIsModified( true );
 	AudioEngine::get_instance()->unlock();
 
 	m_pPatternEditorPanel->updateEditors();
@@ -739,6 +740,11 @@ void DrumPatternEditor::keyPressEvent( QKeyEvent *ev )
 	ev->accept();
 
 }
+
+void DrumPatternEditor::keyReleaseEvent( QKeyEvent *ev ) {
+	updateModifiers( ev );
+}
+
 
 
 ///

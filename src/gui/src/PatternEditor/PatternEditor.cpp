@@ -259,6 +259,17 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 	// Key: Ctrl + drag: copy notes rather than moving
 	m_bCopyNotMove = ev->modifiers() & Qt::ControlModifier;
 
+	if ( QKeyEvent *pEv = dynamic_cast<QKeyEvent*>( ev ) ) {
+		// Keyboard events for press and release of modifier keys don't have those keys in the modifiers set,
+		// so explicitly update these.
+		bool bPressed = ev->type() == QEvent::KeyPress;
+		if ( pEv->key() == Qt::Key_Control ) {
+			m_bCopyNotMove = bPressed;
+		} else if ( pEv->key() == Qt::Key_Alt ) {
+			m_bFineGrained = bPressed;
+		}
+	}
+
 	if ( m_selection.isMoving() ) {
 		// If a selection is currently being moved, change the cursor
 		// appropriately. Selection will change it back after the move

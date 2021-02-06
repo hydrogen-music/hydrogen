@@ -384,6 +384,8 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	const QPoint centre = QPoint( m_nGridWidth / 2, m_nGridHeight / 2 );
 	bool bSelectionKey = false;
 
+	updateModifiers( ev );
+
 	if ( bIsSelectionKey ) {
 		// Key was claimed by selection
 	} else if ( ev->key() == Qt::Key_Delete ) {
@@ -516,6 +518,10 @@ void SongEditor::keyPressEvent( QKeyEvent * ev )
 	ev->accept();
 }
 
+void SongEditor::keyReleaseEvent( QKeyEvent * ev ) {
+	updateModifiers( ev );
+}
+
 // Make cursor visible on focus
 void SongEditor::focusInEvent( QFocusEvent *ev )
 {
@@ -575,6 +581,14 @@ void SongEditor::updateModifiers( QInputEvent *ev )
 		m_bCopyNotMove = true;
 	} else {
 		m_bCopyNotMove = false;
+	}
+
+	if ( QKeyEvent *pEv = dynamic_cast<QKeyEvent*>( ev ) ) {
+		// Keyboard events for press and release of modifier keys don't have those keys in the modifiers set,
+		// so explicitly update these.
+		if ( pEv->key() == Qt::Key_Control ) {
+			m_bCopyNotMove = ( ev->type() == QEvent::KeyPress );
+		}
 	}
 
 	if ( m_selection.isMoving() ) {
