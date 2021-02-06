@@ -381,6 +381,10 @@ void NotePropertiesRuler::propertyDragUpdate( QMouseEvent *ev )
 			}
 			char valueChar[6];
 			QString valueString;
+
+			/**  pan parameter in [0;1] domain,
+			* store it with the L,R gains using the ratio straight polygonal pan law (redundant), with PAN_MAX = 0.5
+			*/
 			if ( val > 0.5 ) {
 				pan_L = 1.0 - val;
 				pan_R = 0.5;
@@ -495,34 +499,43 @@ void NotePropertiesRuler::adjustNotePropertyDelta( Note *pNote, float fDelta, bo
 	case PAN:
 		if ( !pNote->get_note_off() ) {
 			float fPanL, fPanR;
-			//TODO here something doesn't works
-			// pan parameter in [0,1]. this inverse pan law formula is dimensionally incorrect
+
+			// get pan parameter in [0,1] domain from L to R.
+			// this inverse pan law formula is dimensionally incorrect, BUT works because PAN_MAX = 0.5
 			float fValue = ( pOldNote->get_pan_r() - pOldNote->get_pan_l() + 0.5 ) + fDelta;
+			
+			// boundary control for the statusBarMessage, since the control is done in setPan() too
+			if ( fValue > 1 ) {
+				fValue = 1.;
+			} else if ( fValue < 0. ) {
+				fValue = 0.;
+			}
 
 			char valueChar[6];
 			QString valueString;
 
+			// use ratio straight polygonal pan law to store the pan parameter (redundant)
 			if ( fValue > 0.5 ) { // pan to the right
-				fPanL = 2*PAN_MAX - fValue; // this pan law formula is dimensionally incorrect
+				fPanL = /* PAN_MAX * 2. * */ ( 1. - fValue ); // here PAN_MAX = 0.5. uncomment if PAN_MAX changes
 				fPanR = PAN_MAX;
 				if ( bMessage ) {
-					sprintf( valueChar, "%#.2f ",  -1. + 2. * fValue);
+					sprintf( valueChar, "%#.2f ",  -1. + 2. * fValue );
 					valueString = QString( valueChar ) + tr( "R" ); 
-					( HydrogenApp::get_instance() )->setStatusBarMessage( tr("Set note pan ") + valueString, 2000 );
 				}
 			} else { // pan to the left or center
 				fPanL = PAN_MAX;
-				fPanR = fValue; // this pan law formula is dimensionally incorrect
+				fPanR = /* PAN_MAX * 2. * */ fValue; // here PAN_MAX = 0.5. uncomment if PAN_MAX changes
 				if ( bMessage ) {
 					if( fValue != 0.5 ) { 
-						sprintf( valueChar, "%#.2f ",  1. - 2. * fValue);
-						valueString = QString(valueChar) + tr( "L" );
+						sprintf( valueChar, "%#.2f ",  1. - 2. * fValue );
+						valueString = QString( valueChar ) + tr( "L" );
 					}
 					else {
 						valueString = tr( "C" );
 					}
 				}
 			}
+			( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set note pan " ) + valueString, 2000 );
 			pNote->set_pan_l( fPanL );
 			pNote->set_pan_r( fPanR );
 			m_fLastSetValue = fValue;
