@@ -275,7 +275,8 @@ public slots:
 		bool handleSelectNextPrevSongOnPlaylist(int step);
 
 		/**
-		 * Toggles playback at current position of the cursor.
+		 * Relocates to current position of the cursor and starts
+		 * playback if the transport isn't rolling yet.
 		 *
 		 * If triggered while focusing the song editor, the song will
 		 * be set to H2Core::Song::SONE_MODE. Similarly,
@@ -285,7 +286,7 @@ public slots:
 		 * \param pObject Used to determine the focused part of the
 		 * application.
 		 */
-		void startStopPlaybackAtCursor( QObject* pObject );
+		void startPlaybackAtCursor( QObject* pObject );
 };
 
 #endif

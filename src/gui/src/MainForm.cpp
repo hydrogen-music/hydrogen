@@ -1720,11 +1720,18 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 			case Qt::NoModifier:
 				onPlayStopAccelEvent();
 				break;
-				
+
+#ifndef Q_OS_MACX
 			case Qt::ControlModifier:
-				startStopPlaybackAtCursor( o );
+				startPlaybackAtCursor( o );
 				break;
 			}
+#else
+			case Qt::AltModifier:
+				startPlaybackAtCursor( o );
+				break;
+			}
+#endif
 			
 			return true; // eat event
 			break;
@@ -2246,7 +2253,7 @@ void MainForm::action_banks_properties()
 	delete pDrumkitInfo;
 }
 
-void MainForm::startStopPlaybackAtCursor( QObject* pObject ) {
+void MainForm::startPlaybackAtCursor( QObject* pObject ) {
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	HydrogenApp* pApp = HydrogenApp::get_instance();
