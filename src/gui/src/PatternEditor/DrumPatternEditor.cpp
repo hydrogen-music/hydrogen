@@ -105,7 +105,6 @@ void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nRealColumn, int ro
 	
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	Instrument *pSelectedInstrument = pSong->getInstrumentList()->get( row );
-	H2Core::Note *pOldNote = m_pPattern->find_note( nTickPosition, nRealColumn, pSelectedInstrument );
 
 	// why naming "old"?! old or new depends if the note is already present (delete or add)
 	int oldLength = -1;
@@ -113,7 +112,7 @@ void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nRealColumn, int ro
 	float oldPan_L = 0.5f;
 	float oldPan_R = 0.5f;
 	float oldLeadLag = 0.0f;
-	int oldTimeOffsetNumerator = 0;
+	int oldTimeOffsetNumerator = 0; //eventually modified
 	int oldTupletNumerator = m_nTupletNumerator;
 	
 	/** check the note is in a real tuplet position! otherwise TimeOffsetNumerator = 0
@@ -165,16 +164,17 @@ void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nRealColumn, int ro
 	Note::Key oldNoteKeyVal = Note::C;
 	Note::Octave oldOctaveKeyVal = Note::P8;
 	bool isNoteOff = false;
-
+	
 	/* Check if there is an old note matching the same fractional position
 	* (oldTimeOffsetNumerator and oldTupletNumerator are not uniquely defined).
-	* can we trust that the (float) ratio between proportional integers is always equal e.g. (float) 6/4 == (float) 3/2 == ... ?
-	* if not we must reduce the fractions to lowest terms and compare (long but exact),
+	* Can we trust that the (float) ratio between proportional integers is always equal e.g. (float) 6/4 == (float) 3/2 == ... ?
+	* If not we must reduce the fractions to lowest terms and compare (long but exact),
 	* or allow tolerance (simpler, how small fEpsilon?):
 	*     fabs( (float) oldTimeOffsetNumerator / oldTupletNumerator - pOldNote->getTimeOffsetInTicks() ) < fEpsilon 
 	*/
-	if ( pOldNote &&
-		(float) oldTimeOffsetNumerator / oldTupletNumerator == pOldNote->getFloatTimeOffsetInTicks() ) {
+	H2Core::Note *pOldNote = m_pPattern->find_note( nTickPosition, nRealColumn, pSelectedInstrument,
+																oldTimeOffsetNumerator / (float) m_nTupletNumerator );
+	if ( pOldNote ) {
 		// Found an old note matching the same fractional position
 		if ( !bDoDelete ) { // we don't want to delete, so just return.
 			return;
@@ -192,7 +192,7 @@ void DrumPatternEditor::addOrRemoveNote( int nGridIndex, int nRealColumn, int ro
 		// No note there, but we don't want to add a new one, so return.
 		return;
 	}
-
+	
 	SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nTickPosition,
 																	 row,
 																	 m_nSelectedPatternNumber,
@@ -362,7 +362,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 
 	if ( isDelete ) {
 		// Find and delete an existing (matching) note.
-		Pattern::notes_t *notes = (Pattern::notes_t *)pPattern->get_notes();
+		Pattern::notes_t *notes = (Pattern::notes_t *) pPattern->get_notes();
 		bool bFound = false;
 		FOREACH_NOTE_IT_BOUND( notes, it, nColumn ) {
 			Note *pNote = it->second;
@@ -371,7 +371,10 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 				 || ( pNote->get_instrument() == pSelectedInstrument
 					  && pNote->get_key() == oldNoteKeyVal 
 					  && pNote->get_octave() == oldOctaveKeyVal
-					  && pNote->get_velocity() == oldVelocity ) ) {
+					  && pNote->get_velocity() == oldVelocity
+					  && ((float) oldTimeOffsetNumerator / oldTupletNumerator ) == pNote->getFloatTimeOffsetInTicks()
+					 )
+				) {
 				delete pNote;
 				notes->erase( it );
 				bFound = true;
@@ -534,7 +537,7 @@ void DrumPatternEditor::mouseDragEndEvent( QMouseEvent *ev )
 void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 {
 	updateModifiers( ev );
-	QPoint offset = movingGridOffset(); //TODO calculate offset differently = FinalfPosInTick - startfPosInTicks
+	QPoint offset = movingGridOffset(); //TODO calculate x offset differently = FinalfPosInTick - startfPosInTicks
 	if ( offset.x() == 0 && offset.y() == 0 ) {
 		// Move with no effect.
 		return;

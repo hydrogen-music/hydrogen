@@ -202,6 +202,42 @@ Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, bool str
 	return nullptr;
 }
 
+Note* Pattern::find_note( int idx_a, int idx_b, Instrument* instrument, float fTimeOffset, bool strict ) const
+{
+	notes_cst_it_t it;
+	for( it=__notes.lower_bound( idx_a ); it!=__notes.upper_bound( idx_a ); it++ ) {
+		Note* note = it->second;
+		assert( note );
+		if ( note->get_instrument() == instrument && note->getFloatTimeOffsetInTicks() == fTimeOffset ) {
+			return note;
+		}
+	}
+	if( idx_b==-1 ) return nullptr;
+	for( it=__notes.lower_bound( idx_b ); it!=__notes.upper_bound( idx_b ); it++ ) {
+		Note* note = it->second;
+		assert( note );
+		if ( note->get_instrument() == instrument && note->getFloatTimeOffsetInTicks() == fTimeOffset ) {
+			return note;
+		}
+	}
+	if ( strict ) return nullptr;
+	// TODO maybe not start from 0 but idx_b-X
+	for ( int n=0; n<idx_b; n++ ) {
+		for( it=__notes.lower_bound( n ); it!=__notes.upper_bound( n ); it++ ) {
+			Note* note = it->second;
+			assert( note );
+			if ( note->get_instrument() == instrument
+				 && ( ( idx_b<=note->get_position()+note->get_length() ) && idx_b>=note->get_position() )
+				 && note->getFloatTimeOffsetInTicks() == fTimeOffset
+				 ) {
+				return note;
+			}
+		}
+	}
+
+	return nullptr;
+}
+
 void Pattern::remove_note( Note* note )
 {
 	int pos = note->get_position();

@@ -127,6 +127,8 @@ class Pattern : public H2Core::Object
 		 * \return the note if found, 0 otherwise
 		 */
 		Note* find_note( int idx_a, int idx_b, Instrument* instrument, bool strict=true ) const;
+		/* like before but check if has same time offset */
+		Note* find_note( int idx_a, int idx_b, Instrument* instrument, float fTimeOffset, bool strict=true ) const;
 		/**
 		 * search for a note at a given index within __notes which correspond to the given arguments
 		 * \param idx_a the first __notes index to search in

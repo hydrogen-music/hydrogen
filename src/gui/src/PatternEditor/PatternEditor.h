@@ -155,7 +155,7 @@ protected:
 	uint m_nEditorHeight;
 	uint m_nEditorWidth;
 	
-	/* the graphic width of a tick (whose duration is defined: whole note / MAX_NOTES ) in pixel units.
+	/* the width of a tick on the screen (whose duration is defined: whole note / MAX_NOTES ) in pixel units.
 	*	it depends on zoom.
 	*/
 	float m_fGridWidth;
