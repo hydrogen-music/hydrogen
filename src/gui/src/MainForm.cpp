@@ -2249,54 +2249,48 @@ void MainForm::action_banks_properties()
 void MainForm::startStopPlaybackAtCursor( QObject* pObject ) {
 
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
-	int nState = pHydrogen->getState();
-	switch (nState) {
-	case STATE_PLAYING:
-		Hydrogen::get_instance()->sequencer_stop();
-		break;
+	HydrogenApp* pApp = HydrogenApp::get_instance();
+	Song* pSong = pHydrogen->getSong();
 
-	case STATE_READY:
-
-		HydrogenApp* pApp = HydrogenApp::get_instance();
-		Song* pSong = pHydrogen->getSong();
-
-		if ( pObject->inherits( "SongEditorPanel" ) ) {
+	if ( pObject->inherits( "SongEditorPanel" ) ) {
 			
-			if ( pSong->getMode() != Song::SONG_MODE ) {
-				pHydrogen->getCoreActionController()->activateSongMode( true, false );
-				pApp->getPlayerControl()->songModeActivationEvent( 1 );
-			}
-
-			int nCursorColumn = pApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();
-			pHydrogen->getCoreActionController()->relocate( nCursorColumn );
-			
-		} else if ( pObject->inherits( "PatternEditorPanel" ) ) {
-			// Covers both the PatternEditor and the
-			// NotePropertiesRuler.
-			
-			if ( pSong->getMode() != Song::PATTERN_MODE ) {
-				pHydrogen->getCoreActionController()->activateSongMode( false, false );
-				pApp->getPlayerControl()->songModeActivationEvent( 0 );
-			}
-
-			// To provide a similar behaviour as when pressing
-			// [backspace], transport is relocated to the beginning of
-			// the song.
-			float fTickSize = pHydrogen->getAudioOutput()->m_transport.m_fTickSize;
-			int nCursorColumn = pApp->getPatternEditorPanel()->getCursorPosition();
-
-			// While updating the note queue the audio engine does add
-			// a "lookahead" to the position in order to avoid playing
-			// notes twice. This has to be taken into account or the
-			// note we start the playback at will be omitted.
-			if ( nCursorColumn > 0 ) {
-				nCursorColumn -= pHydrogen->calculateLookahead( fTickSize ) / fTickSize;
-			}
-			AudioEngine::get_instance()->locate( nCursorColumn * fTickSize );
-		} else {
-			ERRORLOG( QString( "Unknown object class" ) );
+		if ( pSong->getMode() != Song::SONG_MODE ) {
+			pHydrogen->getCoreActionController()->activateSongMode( true, false );
+			pApp->getPlayerControl()->songModeActivationEvent( 1 );
 		}
 
+		int nCursorColumn = pApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();
+		pHydrogen->getCoreActionController()->relocate( nCursorColumn );
+			
+	} else if ( pObject->inherits( "PatternEditorPanel" ) ) {
+		// Covers both the PatternEditor and the
+		// NotePropertiesRuler.
+			
+		if ( pSong->getMode() != Song::PATTERN_MODE ) {
+			pHydrogen->getCoreActionController()->activateSongMode( false, false );
+			pApp->getPlayerControl()->songModeActivationEvent( 0 );
+		}
+
+		// To provide a similar behaviour as when pressing
+		// [backspace], transport is relocated to the beginning of
+		// the song.
+		float fTickSize = pHydrogen->getAudioOutput()->m_transport.m_fTickSize;
+		int nCursorColumn = pApp->getPatternEditorPanel()->getCursorPosition();
+
+		// While updating the note queue the audio engine does add
+		// a "lookahead" to the position in order to avoid playing
+		// notes twice. This has to be taken into account or the
+		// note we start the playback at will be omitted.
+		if ( nCursorColumn > 0 ) {
+			nCursorColumn -= pHydrogen->calculateLookahead( fTickSize ) / fTickSize;
+		}
+		AudioEngine::get_instance()->locate( nCursorColumn * fTickSize );
+	} else {
+		ERRORLOG( QString( "Unknown object class" ) );
+	}
+
+	int nState = pHydrogen->getState();
+	if ( nState == STATE_READY ) {
 		pHydrogen->sequencer_play();
 		HydrogenApp::get_instance()->setStatusBarMessage(tr("Playing."), 5000);
 	}
