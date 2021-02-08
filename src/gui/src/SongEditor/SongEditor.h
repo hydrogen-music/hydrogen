@@ -242,7 +242,7 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		void patternPopup_load();
 		void patternPopup_properties();
 		void patternPopup_delete();
-		void patternPopup_copy();
+		void patternPopup_duplicate();
 		void patternPopup_fill();
 		void patternPopup_virtualPattern();
 		void inlineEditingFinished();
