@@ -1789,7 +1789,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 			QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 			return;
 		}
-		SE_copyPatternAction *action = new SE_copyPatternAction( filePath, nSelectedPattern + 1 );
+		SE_duplicatePatternAction *action = new SE_duplicatePatternAction( filePath, nSelectedPattern + 1 );
 		HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 		hydrogenApp->m_pUndoStack->push( action );
 	}
@@ -1801,7 +1801,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 }
 
 
-void SongEditorPatternList::patternPopup_copyAction( QString patternFilename, int patternposition )
+void SongEditorPatternList::patternPopup_duplicateAction( QString patternFilename, int patternposition )
 {
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *pSong = engine->getSong();

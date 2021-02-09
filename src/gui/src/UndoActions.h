@@ -196,11 +196,11 @@ private:
 };
 
 
-class SE_copyPatternAction : public QUndoCommand
+class SE_duplicatePatternAction : public QUndoCommand
 {
 public:
-	SE_copyPatternAction( QString patternFilename, int patternPosition ){
-		setText( QString( "Copy pattern" ) );
+	SE_duplicatePatternAction( QString patternFilename, int patternPosition ){
+		setText( QString( "Duplicate pattern" ) );
 		__patternFilename = patternFilename;
 		__patternPosition = patternPosition;
 	}
@@ -215,7 +215,7 @@ public:
 	{
 		//qDebug() << "copy pattern redo" ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getSongEditorPanel()->getSongEditorPatternList()->patternPopup_copyAction( __patternFilename, __patternPosition );
+		h2app->getSongEditorPanel()->getSongEditorPatternList()->patternPopup_duplicateAction( __patternFilename, __patternPosition );
 	}
 private:
 	QString __patternFilename;
