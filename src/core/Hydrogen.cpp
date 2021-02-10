@@ -1983,8 +1983,6 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 		}
 	}
 
-	QString err = QString( "[findPatternInTick] tick = %1. No pattern list found" ).arg( QString::number(nTick) );
-	___ERRORLOG( err );
 	return -1;
 }
 
