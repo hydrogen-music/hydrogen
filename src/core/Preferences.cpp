@@ -69,10 +69,6 @@ Preferences::Preferences()
 	m_brestartLash = false;
 	m_bsetLash = false;
 
-	//init pre delete default
-	m_nRecPreDelete = 0;
-	m_nRecPostDelete = 0;
-
 	//rubberband bpm change queue
 	m_useTheRubberbandBpmChangeEvent = false;
 	__rubberBandCalcTime = 5;
@@ -106,7 +102,6 @@ Preferences::Preferences()
 	__playselectedinstrument = false; // midi keyboard and keyboard play only selected instrument
 
 	recordEvents = false; // not recording by default
-	destructiveRecord = false; // not destructively recording by default
 	punchInPos = 0;
 	punchOutPos = -1;
 
@@ -168,7 +163,8 @@ Preferences::Preferences()
 	m_bJackTransportMode = true;
 	m_bJackConnectDefaults = true;
 	m_bJackTrackOuts = false;
-	m_bJackMasterMode = false ;
+	m_bJackTimebaseEnabled = true;
+	m_bJackMasterMode = NO_JACK_TIME_MASTER;
 	m_JackTrackOutputMode = JackTrackOutputMode::postFader;
 	m_JackBBTSync = JackBBTSyncMethod::constMeasure;
 
@@ -176,6 +172,7 @@ Preferences::Preferences()
 	m_bOscServerEnabled = false;
 	m_bOscFeedbackEnabled = true;
 	m_nOscServerPort = 9000;
+	m_nOscTemporaryPort = -1;
 
 	//___ General properties ___
 	m_bPatternModePlaysSelected = true;
@@ -190,7 +187,7 @@ Preferences::Preferences()
 	quantizeEvents = true;
 	recordEvents = false;
 	m_bUseRelativeFilenamesForPlaylists = false;
-	m_bHideKeyboardCursor = true;
+	m_bHideKeyboardCursor = false;
 
 	//___ GUI properties ___
 	m_sQTStyle = "Fusion";
@@ -207,11 +204,13 @@ Preferences::Preferences()
 	m_bShowPlaybackTrack = false;
 	m_nPatternEditorGridHeight = 21;
 	m_nPatternEditorGridWidth = 3;
+	m_nSongEditorGridHeight = 18;
+	m_nSongEditorGridWidth = 16;
 	mainFormProperties.set(0, 0, 1000, 700, true);
 	mixerProperties.set(10, 350, 829, 276, true);
 	patternEditorProperties.set(280, 100, 706, 439, true);
 	songEditorProperties.set(10, 10, 600, 250, true);
-	drumkitManagerProperties.set(500, 20, 526, 437, true);
+	instrumentRackProperties.set(500, 20, 526, 437, true);
 	audioEngineInfoProperties.set(720, 120, 0, 0, false);
 	m_ladspaProperties[0].set(2, 20, 0, 0, false);
 	m_ladspaProperties[1].set(2, 20, 0, 0, false);
@@ -324,13 +323,11 @@ void Preferences::loadPreferences( bool bGlobal )
 			m_nUIScalingPolicy = LocalFileMng::readXmlInt( rootNode, "uiScalingPolicy", UI_SCALING_SMALLER );
 			m_nLastOpenTab =  LocalFileMng::readXmlInt( rootNode, "lastOpenTab", 0 );
 			m_bUseRelativeFilenamesForPlaylists = LocalFileMng::readXmlBool( rootNode, "useRelativeFilenamesForPlaylists", false );
-			m_bHideKeyboardCursor = LocalFileMng::readXmlBool( rootNode, "hideKeyboardCursor", true );
+			m_bHideKeyboardCursor = LocalFileMng::readXmlBool( rootNode, "hideKeyboardCursorWhenUnused", false );
 
 			//restore the right m_bsetlash value
 			m_bsetLash = m_bUseLash;
 			m_useTheRubberbandBpmChangeEvent = LocalFileMng::readXmlBool( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent );
-			m_nRecPreDelete = LocalFileMng::readXmlInt( rootNode, "preDelete", 0 );
-			m_nRecPostDelete = LocalFileMng::readXmlInt( rootNode, "postDelete", 0 );
 
 			hearNewNotes = LocalFileMng::readXmlBool( rootNode, "hearNewNotes", hearNewNotes );
 			quantizeEvents = LocalFileMng::readXmlBool( rootNode, "quantizeEvents", quantizeEvents );
@@ -402,6 +399,17 @@ void Preferences::loadPreferences( bool bGlobal )
 				recreate = true;
 			} else {
 				m_sAudioDriver = LocalFileMng::readXmlString( audioEngineNode, "audio_driver", m_sAudioDriver );
+				// Ensure compatibility will older versions of the
+				// files after capitalization in the GUI
+				// (2021-02-05). This can be dropped in releases >=
+				// 1.2
+				if ( m_sAudioDriver == "Jack" ) {
+					m_sAudioDriver = "JACK";
+				} else if ( m_sAudioDriver == "Oss" ) {
+					m_sAudioDriver = "OSS";
+				} else if ( m_sAudioDriver == "Alsa" ) {
+					m_sAudioDriver = "ALSA";
+				}
 				m_bUseMetronome = LocalFileMng::readXmlBool( audioEngineNode, "use_metronome", m_bUseMetronome );
 				m_fMetronomeVolume = LocalFileMng::readXmlFloat( audioEngineNode, "metronome_volume", 0.5f );
 				m_nMaxNotes = LocalFileMng::readXmlInt( audioEngineNode, "maxNotes", m_nMaxNotes );
@@ -433,6 +441,7 @@ void Preferences::loadPreferences( bool bGlobal )
 					}
 
 					//jack time master
+					m_bJackTimebaseEnabled = LocalFileMng::readXmlBool( jackDriverNode, "jack_timebase_enabled", true );
 					QString tmMode = LocalFileMng::readXmlString( jackDriverNode, "jack_transport_mode_master", "NO_JACK_TIME_MASTER" );
 					if ( tmMode == "NO_JACK_TIME_MASTER" ) {
 						m_bJackMasterMode = NO_JACK_TIME_MASTER;
@@ -487,6 +496,15 @@ void Preferences::loadPreferences( bool bGlobal )
 					recreate = true;
 				} else {
 					m_sMidiDriver = LocalFileMng::readXmlString( midiDriverNode, "driverName", "ALSA" );
+					// Ensure compatibility will older versions of the
+					// files after capitalization in the GUI
+					// (2021-02-05). This can be dropped in releases
+					// >= 1.2
+					if ( m_sAudioDriver == "JackMidi" ) {
+						m_sAudioDriver = "JACK-MIDI";
+					} else if ( m_sAudioDriver == "CoreMidi" ) {
+						m_sAudioDriver = "CoreMIDI";
+					}
 					m_sMidiPortName = LocalFileMng::readXmlString( midiDriverNode, "port_name", "None" );
 					m_sMidiOutputPortName = LocalFileMng::readXmlString( midiDriverNode, "output_port_name", "None" );
 					m_nMidiChannelFilter = LocalFileMng::readXmlInt( midiDriverNode, "channel_filter", -1 );
@@ -546,17 +564,20 @@ void Preferences::loadPreferences( bool bGlobal )
 				m_bShowPlaybackTrack = LocalFileMng::readXmlBool( guiNode, "showPlaybackTrack", m_bShowPlaybackTrack );
 
 
-				// pattern editor grid height
+				// pattern editor grid geometry
 				m_nPatternEditorGridHeight = LocalFileMng::readXmlInt( guiNode, "patternEditorGridHeight", m_nPatternEditorGridHeight );
-
-				// pattern editor grid width
 				m_nPatternEditorGridWidth = LocalFileMng::readXmlInt( guiNode, "patternEditorGridWidth", m_nPatternEditorGridWidth );
+
+				// song editor grid geometry
+				m_nSongEditorGridHeight = LocalFileMng::readXmlInt( guiNode, "songEditorGridHeight", m_nSongEditorGridHeight );
+				m_nSongEditorGridWidth = LocalFileMng::readXmlInt( guiNode, "songEditorGridWidth", m_nSongEditorGridWidth );
 
 				// mainForm window properties
 				setMainFormProperties( readWindowProperties( guiNode, "mainForm_properties", mainFormProperties ) );
 				setMixerProperties( readWindowProperties( guiNode, "mixer_properties", mixerProperties ) );
 				setPatternEditorProperties( readWindowProperties( guiNode, "patternEditor_properties", patternEditorProperties ) );
 				setSongEditorProperties( readWindowProperties( guiNode, "songEditor_properties", songEditorProperties ) );
+				setInstrumentRackProperties( readWindowProperties( guiNode, "instrumentRack_properties", instrumentRackProperties ) );
 				setAudioEngineInfoProperties( readWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties ) );
 
 				//export dialog properties
@@ -571,7 +592,7 @@ void Preferences::loadPreferences( bool bGlobal )
 				// midi export dialog properties
 				m_nMidiExportMode = LocalFileMng::readXmlInt( guiNode, "midiExportDialogMode", 0 );
 				m_sMidiExportDirectory = LocalFileMng::readXmlString( guiNode, "midiExportDialogDirectory", QDir::homePath(), true );
-
+				
 				//beatcounter
 				QString bcMode = LocalFileMng::readXmlString( guiNode, "bc", "BC_OFF" );
 					if ( bcMode == "BC_OFF" ) {
@@ -751,10 +772,8 @@ void Preferences::savePreferences()
 
 	LocalFileMng::writeXmlString( rootNode, "useTheRubberbandBpmChangeEvent", m_useTheRubberbandBpmChangeEvent ? "true": "false" );
 
-	LocalFileMng::writeXmlString( rootNode, "preDelete", QString("%1").arg(m_nRecPreDelete) );
-	LocalFileMng::writeXmlString( rootNode, "postDelete", QString("%1").arg(m_nRecPostDelete) );
 	LocalFileMng::writeXmlString( rootNode, "useRelativeFilenamesForPlaylists", m_bUseRelativeFilenamesForPlaylists ? "true": "false" );
-	LocalFileMng::writeXmlBool( rootNode, "hideKeyboardCursor", m_bHideKeyboardCursor );
+	LocalFileMng::writeXmlBool( rootNode, "hideKeyboardCursorWhenUnused", m_bHideKeyboardCursor );
 	
 	// instrument input mode
 	LocalFileMng::writeXmlString( rootNode, "instrumentInputMode", __playselectedinstrument ? "true": "false" );
@@ -855,6 +874,7 @@ void Preferences::savePreferences()
 			LocalFileMng::writeXmlString( jackDriverNode, "jack_transport_mode", sMode );
 
 			//jack time master
+			LocalFileMng::writeXmlBool( jackDriverNode, "jack_timebase_enabled", m_bJackTimebaseEnabled );
 			QString tmMode;
 			if ( m_bJackMasterMode == NO_JACK_TIME_MASTER ) {
 				tmMode = "NO_JACK_TIME_MASTER";
@@ -976,6 +996,8 @@ void Preferences::savePreferences()
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridHeight", QString("%1").arg( m_nPatternEditorGridHeight ) );
 		LocalFileMng::writeXmlString( guiNode, "patternEditorGridWidth", QString("%1").arg( m_nPatternEditorGridWidth ) );
 		LocalFileMng::writeXmlBool( guiNode, "patternEditorUsingTriplets", m_bPatternEditorUsingTriplets );
+		LocalFileMng::writeXmlString( guiNode, "songEditorGridHeight", QString("%1").arg( m_nSongEditorGridHeight ) );
+		LocalFileMng::writeXmlString( guiNode, "songEditorGridWidth", QString("%1").arg( m_nSongEditorGridWidth ) );
 		LocalFileMng::writeXmlBool( guiNode, "showInstrumentPeaks", m_bShowInstrumentPeaks );
 		LocalFileMng::writeXmlBool( guiNode, "isFXTabVisible", m_bIsFXTabVisible );
 		LocalFileMng::writeXmlBool( guiNode, "showAutomationArea", m_bShowAutomationArea );
@@ -986,7 +1008,7 @@ void Preferences::savePreferences()
 		writeWindowProperties( guiNode, "mixer_properties", mixerProperties );
 		writeWindowProperties( guiNode, "patternEditor_properties", patternEditorProperties );
 		writeWindowProperties( guiNode, "songEditor_properties", songEditorProperties );
-		writeWindowProperties( guiNode, "drumkitManager_properties", drumkitManagerProperties );
+		writeWindowProperties( guiNode, "instrumentRack_properties", instrumentRackProperties );
 		writeWindowProperties( guiNode, "audioEngineInfo_properties", audioEngineInfoProperties );
 		for ( unsigned nFX = 0; nFX < MAX_FX; nFX++ ) {
 			QString sNode = QString("ladspaFX_properties%1").arg( nFX );
@@ -1016,8 +1038,6 @@ void Preferences::savePreferences()
 			bcMode = "BC_ON";
 		}
 		LocalFileMng::writeXmlString( guiNode, "bc", bcMode );
-
-
 
 		QString setPlay;
 		if ( m_mmcsetplay == SET_PLAY_OFF ) {

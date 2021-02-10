@@ -47,7 +47,7 @@ float TimeTest::locateAndLookupTime( int nPatternPos ){
 	
 	pAudioEngine->calculateElapsedTime( pAudioDriver->getSampleRate(),
 										nTick * pAudioDriver->m_transport.m_fTickSize,
-										pSong->__resolution );
+										pSong->getResolution() );
 	return pAudioEngine->getElapsedTime();
 }
 

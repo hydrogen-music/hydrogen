@@ -162,7 +162,7 @@ void LadspaFXProperties::faderChanged( Fader * ref )
 			m_pInputControlLabel[ i ]->setText( sValue );
 		}
 	}
-	pSong->set_is_modified( true );
+	pSong->setIsModified( true );
 #endif
 }
 
@@ -364,7 +364,7 @@ void LadspaFXProperties::selectFXBtnClicked()
 				}
 			}
 			Song *pSong = (Hydrogen::get_instance() )->getSong();
-			pSong->set_is_modified(true);
+			pSong->setIsModified(true);
 
 			Effects::get_instance()->setLadspaFX( pFX, m_nLadspaFX );
 
@@ -384,7 +384,7 @@ void LadspaFXProperties::removeFXBtnClicked()
 {
 #ifdef H2CORE_HAVE_LADSPA
 	Song *pSong = (Hydrogen::get_instance() )->getSong();
-	pSong->set_is_modified( true );
+	pSong->setIsModified( true );
 	Effects::get_instance()->setLadspaFX( nullptr, m_nLadspaFX );
 	Hydrogen::get_instance()->restartLadspaFX();
 	updateControls();	

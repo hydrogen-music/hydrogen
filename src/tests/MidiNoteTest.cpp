@@ -85,7 +85,7 @@ class MidiNoteTest : public CppUnit::TestCase {
 		auto song = reader.readSong( get_test_file("song/test_song_0.9.6.h2song") );
 		CPPUNIT_ASSERT( song != nullptr );
 
-		auto instruments = song->get_instrument_list();
+		auto instruments = song->getInstrumentList();
 		CPPUNIT_ASSERT( instruments != nullptr );
 		CPPUNIT_ASSERT_EQUAL( 16, instruments->size() );
 
@@ -106,7 +106,7 @@ class MidiNoteTest : public CppUnit::TestCase {
 		auto song = reader.readSong( get_test_file("song/test_song_0.9.7.h2song") );
 		CPPUNIT_ASSERT( song != nullptr );
 
-		auto instruments = song->get_instrument_list();
+		auto instruments = song->getInstrumentList();
 		CPPUNIT_ASSERT( instruments != nullptr );
 		CPPUNIT_ASSERT_EQUAL( 4, instruments->size() );
 

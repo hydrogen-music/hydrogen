@@ -45,10 +45,10 @@ public:
   /// The standard QTranslation::load will prefer an exact match of a
   /// languae-REGION pair, regardless of its position in the preferred
   /// UI languages list. This can lead, for instance, to Qt selecting
-  /// Hungarian or Brazilian Portugese just because they have exact
+  /// Hungarian or Brazilian Portuguese just because they have exact
   /// matching translations, even if they're the last on the system's
   /// preferred UI language list. This seems wrong, as the user's
-  /// preference for *language* shoud be considered more important than
+  /// preference for *language* should be considered more important than
   /// region, particularly here since Hydrogen has no particular region
   /// dependencies.
   ///

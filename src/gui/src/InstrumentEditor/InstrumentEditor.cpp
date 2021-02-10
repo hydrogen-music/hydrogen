@@ -179,16 +179,12 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pPitchLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 6 );
 	m_pPitchLCD->move(25, 215 );
 
-	m_pPitchCoarseRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_CENTER, tr( "Pitch offset (Coarse)" ), true, false );
-	m_pPitchCoarseRotary->setMin( -24.0 );
-	m_pPitchCoarseRotary->setMax( 24.0 );
+	m_pPitchCoarseRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_CENTER, tr( "Pitch offset (Coarse)" ), true, false, -24, 24 );
 	m_pPitchCoarseRotary->move( 92, 210 );
 
 	connect( m_pPitchCoarseRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
-	m_pPitchFineRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_CENTER, tr( "Pitch offset (Fine)" ), false, false );
-	m_pPitchFineRotary->setMin( -0.5 );
-	m_pPitchFineRotary->setMax( 0.5 );
+	m_pPitchFineRotary = new Rotary( m_pInstrumentProp, Rotary::TYPE_CENTER, tr( "Pitch offset (Fine)" ), false, false, -0.5, 0.5 );
 	//it will have resolution of 100 steps between Min and Max => quantum delta = 0.01
 	m_pPitchFineRotary->move( 144, 210 );
 	connect( m_pPitchFineRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
@@ -274,7 +270,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 	m_pIsStopNoteCheckBox = new QCheckBox ( tr( "" ), m_pInstrumentProp );
 	m_pIsStopNoteCheckBox->move( 63, 138 );
-	m_pIsStopNoteCheckBox->setToolTip( tr( "Stop the current playing instrument-note before trigger the next note sample." ) );
+	m_pIsStopNoteCheckBox->setToolTip( tr( "Stop the current playing instrument-note before trigger the next note sample" ) );
 	m_pIsStopNoteCheckBox->setFocusPolicy ( Qt::NoFocus );
 	connect( m_pIsStopNoteCheckBox, SIGNAL( toggled( bool ) ), this, SLOT( onIsStopNoteCheckBoxClicked( bool ) ) );
 
@@ -466,14 +462,10 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pLayerPitchCoarseLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
 	m_pLayerPitchFineLCD = new LCDDisplay( m_pLayerProp, LCDDigit::SMALL_BLUE, 4 );
 
-	m_pLayerPitchCoarseRotary = new Rotary( m_pLayerProp, Rotary::TYPE_CENTER, tr( "Layer pitch (Coarse)" ), true, false );
-	m_pLayerPitchCoarseRotary->setMin( -24.0 );
-	m_pLayerPitchCoarseRotary->setMax( 24.0 );
+	m_pLayerPitchCoarseRotary = new Rotary( m_pLayerProp, Rotary::TYPE_CENTER, tr( "Layer pitch (Coarse)" ), true, false, -24.0, 24.0 );
 	connect( m_pLayerPitchCoarseRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
-	m_pLayerPitchFineRotary = new Rotary( m_pLayerProp, Rotary::TYPE_CENTER, tr( "Layer pitch (Fine)" ), true, false );
-	m_pLayerPitchFineRotary->setMin( -50.0 );
-	m_pLayerPitchFineRotary->setMax( 50.0 );
+	m_pLayerPitchFineRotary = new Rotary( m_pLayerProp, Rotary::TYPE_CENTER, tr( "Layer pitch (Fine)" ), true, false, -50.0, 50.0 );
 	connect( m_pLayerPitchFineRotary, SIGNAL( valueChanged(Rotary*) ), this, SLOT( rotaryChanged(Rotary*) ) );
 
 	m_pLayerGainLCD->move( 54, 341 + 3 );
@@ -504,7 +496,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	popCompo = new QMenu( this );
 	itemsCompo.clear();
 
-	std::vector<DrumkitComponent*>* pComponentList = Hydrogen::get_instance()->getSong()->get_components();
+	std::vector<DrumkitComponent*>* pComponentList = Hydrogen::get_instance()->getSong()->getComponents();
 	for (std::vector<DrumkitComponent*>::iterator it = pComponentList->begin() ; it != pComponentList->end(); ++it) {
 		DrumkitComponent* pComponent = *it;
 		if( !itemsCompo.contains( pComponent->get_name() ) ) {
@@ -550,7 +542,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 	Song *pSong = pEngine->getSong();
 	
 	if ( pSong != nullptr ) {
-		InstrumentList *pInstrList = pSong->get_instrument_list();
+		InstrumentList *pInstrList = pSong->getInstrumentList();
 		int nInstr = pEngine->getSelectedInstrumentNumber();
 		if ( nInstr >= pInstrList->size() ) {
 			nInstr = -1;
@@ -652,8 +644,8 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_sampleSelectionAlg->select( m_pInstrument->sample_selection_alg(), false);
 
 		itemsCompo.clear();
-		std::vector<DrumkitComponent*>* compoList = pSong->get_components();
-		for (auto& it : *pSong->get_components() ) {
+		std::vector<DrumkitComponent*>* compoList = pSong->getComponents();
+		for (auto& it : *pSong->getComponents() ) {
 			DrumkitComponent* pDrumkitComponent = it;
 			if( !itemsCompo.contains( pDrumkitComponent->get_name() ) ) {
 				itemsCompo.append( pDrumkitComponent->get_name() );
@@ -678,7 +670,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			m_nSelectedComponent = compoList->front()->get_id();
 		}
 
-		DrumkitComponent* pTmpComponent = pSong->get_component( m_nSelectedComponent );
+		DrumkitComponent* pTmpComponent = pSong->getComponent( m_nSelectedComponent );
 
 		assert(pTmpComponent);
 
@@ -894,11 +886,11 @@ void InstrumentEditor::buttonClicked( Button* pButton )
 		if ( m_pInstrument ) {
 			InstrumentComponent* pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( pCompo ) {
-				m_pInstrument->get_component(m_nSelectedComponent)->set_layer( nullptr, m_nSelectedLayer );
+				pCompo->set_layer( nullptr, m_nSelectedLayer );
 
 				int nCount = 0;
 				for( int n = 0; n < InstrumentComponent::getMaxLayers(); n++ ) {
-					InstrumentLayer* pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( n );
+					InstrumentLayer* pLayer = pCompo->get_layer( n );
 					if( pLayer ){
 						nCount++;
 					}
@@ -961,7 +953,18 @@ void InstrumentEditor::loadLayer()
 	int selectedLayer =  m_nSelectedLayer;
 	int firstSelection = selectedLayer;
 
+	// Ensure instrument pointer is current
+	Song *pSong = pEngine->getSong();
+	if ( pSong ) {
+		InstrumentList *pInstrList = pSong->getInstrumentList();
+		m_pInstrument = pInstrList->get( pEngine->getSelectedInstrumentNumber() );
+	} else {
+		m_pInstrument = nullptr;
+	}
 
+	if ( m_pInstrument == nullptr ) {
+		return;
+	}
 
 	if (filename.size() > 2) {
 
@@ -972,25 +975,20 @@ void InstrumentEditor::loadLayer()
 
 			auto pNewSample = Sample::load( filename[i] );
 
-			H2Core::Instrument *pInstr = nullptr;
-
 			AudioEngine::get_instance()->lock( RIGHT_HERE );
-			Song *pSong = pEngine->getSong();
-			InstrumentList *pInstrList = pSong->get_instrument_list();
-			pInstr = pInstrList->get( pEngine->getSelectedInstrumentNumber() );
 
 			/*
 				if we're using multiple layers, we start inserting the first layer
 				at m_nSelectedLayer and the next layer at m_nSelectedLayer+1
 			*/
 
-			InstrumentComponent *pCompo = pInstr->get_component(m_nSelectedComponent);
+			InstrumentComponent *pCompo = m_pInstrument->get_component(m_nSelectedComponent);
 			if( !pCompo ) {
 				pCompo = new InstrumentComponent( m_nSelectedComponent );
-				pInstr->get_components()->push_back( pCompo );
+				m_pInstrument->get_components()->push_back( pCompo );
 			}
 
-			H2Core::InstrumentLayer *pLayer = pInstr->get_component(m_nSelectedComponent)->get_layer( selectedLayer );
+			H2Core::InstrumentLayer *pLayer = pCompo->get_layer( selectedLayer );
 
 			if (pLayer != nullptr) {
 				// insert new sample from newInstrument, old sample gets deleted by set_sample
@@ -998,7 +996,7 @@ void InstrumentEditor::loadLayer()
 			}
 			else {
 				pLayer = new H2Core::InstrumentLayer(pNewSample);
-				pInstr->get_component(m_nSelectedComponent)->set_layer( pLayer, selectedLayer );
+				m_pInstrument->get_component(m_nSelectedComponent)->set_layer( pLayer, selectedLayer );
 			}
 
 			if ( fnc ){
@@ -1024,10 +1022,18 @@ void InstrumentEditor::loadLayer()
 
 void InstrumentEditor::setAutoVelocity()
 {
+	if ( m_pInstrument == nullptr ) {
+		return;
+	}
+	InstrumentComponent *pCompo = m_pInstrument->get_component( m_nSelectedComponent );
+	if ( pCompo == nullptr ) {
+		return;
+	}
 	std::vector<int> layerInUse( InstrumentComponent::getMaxLayers(), 0 );
 	int nLayers = 0;
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
-		InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
+
+		InstrumentLayer *pLayer = pCompo->get_layer( i );
 		if ( pLayer ) {
 			nLayers++;
 			layerInUse[i] = i;
@@ -1043,7 +1049,7 @@ void InstrumentEditor::setAutoVelocity()
 	for ( int i = 0; i < InstrumentComponent::getMaxLayers() ; i++ ) {
 		if ( layerInUse[i] == i ){
 			nLayers--;
-			InstrumentLayer *pLayer = m_pInstrument->get_component(m_nSelectedComponent)->get_layer( i );
+			InstrumentLayer *pLayer = pCompo->get_layer( i );
 			if ( pLayer ) {
 				pLayer->set_start_velocity( nLayers * velocityrange);
 				pLayer->set_end_velocity( nLayers * velocityrange + velocityrange );
@@ -1055,9 +1061,14 @@ void InstrumentEditor::setAutoVelocity()
 void InstrumentEditor::labelCompoClicked( ClickableLabel* pRef )
 {
 	UNUSED( pRef );
-
-	DrumkitComponent* pComponent = Hydrogen::get_instance()->getSong()->get_component( m_nSelectedComponent );
-
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	if ( pSong == nullptr ) {
+		return;
+	}
+	DrumkitComponent* pComponent = pSong->getComponent( m_nSelectedComponent );
+	if ( pComponent != nullptr ) {
+		return;
+	}
 	QString sOldName = pComponent->get_name();
 	bool bIsOkPressed;
 	QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "New component name" ), QLineEdit::Normal, sOldName, &bIsOkPressed );
@@ -1264,7 +1275,7 @@ void InstrumentEditor::update()
 int InstrumentEditor::findFreeDrumkitComponentId( int startingPoint )
 {
 	bool bFoundFreeSlot = true;
-	std::vector<DrumkitComponent*>* pDrumkitComponentList = Hydrogen::get_instance()->getSong()->get_components();
+	std::vector<DrumkitComponent*>* pDrumkitComponentList = Hydrogen::get_instance()->getSong()->getComponents();
 	for (std::vector<DrumkitComponent*>::iterator it = pDrumkitComponentList->begin() ; it != pDrumkitComponentList->end(); ++it) {
 		DrumkitComponent* pDrumkitComponent = *it;
 		if( pDrumkitComponent->get_id() == startingPoint ) {
@@ -1292,7 +1303,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 			QString sNewName = QInputDialog::getText( this, "Hydrogen", tr( "Component name" ), QLineEdit::Normal, "New Component", &bIsOkPressed );
 			if ( bIsOkPressed  ) {
 				DrumkitComponent* pDrumkitComponent = new DrumkitComponent( findFreeDrumkitComponentId(), sNewName );
-				pEngine->getSong()->get_components()->push_back( pDrumkitComponent );
+				pEngine->getSong()->getComponents()->push_back( pDrumkitComponent );
 
 				//InstrumentComponent* instrument_component = new InstrumentComponent( dm_component->get_id() );
 				//instrument_component->set_gain( 1.0f );
@@ -1316,15 +1327,15 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 		}
 	}
 	else if( sSelectedAction.compare("delete") == 0 ) {
-		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->get_components();
+		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->getComponents();
 
 		if(pDrumkitComponents->size() == 1){
 			return;
 		}
 
-		DrumkitComponent* pDrumkitComponent = pEngine->getSong()->get_component( m_nSelectedComponent );
+		DrumkitComponent* pDrumkitComponent = pEngine->getSong()->getComponent( m_nSelectedComponent );
 
-		InstrumentList* pInstruments = pEngine->getSong()->get_instrument_list();
+		InstrumentList* pInstruments = pEngine->getSong()->getInstrumentList();
 		for ( int n = ( int )pInstruments->size() - 1; n >= 0; n-- ) {
 			Instrument* pInstrument = pInstruments->get( n );
 			for( int o = 0 ; o < pInstrument->get_components()->size() ; o++ ) {
@@ -1361,7 +1372,7 @@ void InstrumentEditor::compoChangeAddDelete(QAction* pAction)
 	}
 	else {
 		m_nSelectedComponent = -1;
-		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->get_components();
+		std::vector<DrumkitComponent*>* pDrumkitComponents = pEngine->getSong()->getComponents();
 		for (std::vector<DrumkitComponent*>::iterator it = pDrumkitComponents->begin() ; it != pDrumkitComponents->end(); ++it) {
 			DrumkitComponent* pDrumkitComponent = *it;
 			if( pDrumkitComponent->get_name().compare( sSelectedAction ) == 0) {
@@ -1408,7 +1419,7 @@ void InstrumentEditor::rubberbandbpmchangeEvent()
 	Song *song = pEngine->getSong();
 	assert(song);
 	if(song){
-		InstrumentList *pSongInstrList = song->get_instrument_list();
+		InstrumentList *pSongInstrList = song->getInstrumentList();
 		assert(pSongInstrList);
 		for ( unsigned nInstr = 0; nInstr < pSongInstrList->size(); ++nInstr ) {
 			Instrument *pInstr = pSongInstrList->get( nInstr );

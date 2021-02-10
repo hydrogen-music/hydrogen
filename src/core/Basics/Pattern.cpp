@@ -37,9 +37,10 @@ namespace H2Core
 
 const char* Pattern::__class_name = "Pattern";
 
-Pattern::Pattern( const QString& name, const QString& info, const QString& category, int length )
+Pattern::Pattern( const QString& name, const QString& info, const QString& category, int length, int denominator )
 	: Object( __class_name )
 	, __length( length )
+	, __denominator( denominator)
 	, __name( name )
 	, __info( info )
 	, __category( category )
@@ -49,6 +50,7 @@ Pattern::Pattern( const QString& name, const QString& info, const QString& categ
 Pattern::Pattern( Pattern* other )
 	: Object( __class_name )
 	, __length( other->get_length() )
+	, __denominator( other->get_denominator() )
 	, __name( other->get_name() )
 	, __info( other->get_info() )
 	, __category( other->get_category() )
@@ -92,7 +94,8 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 	    node->read_string( "name", nullptr, false, false ),
 	    node->read_string( "info", "", false, false ),
 	    node->read_string( "category", "unknown", false, false ),
-	    node->read_int( "size", -1, false, false )
+	    node->read_int( "size", -1, false, false ),
+	    node->read_int( "denominator", 4, false, false )
 	);
 	// FIXME support legacy xml element pattern_name, should once be removed
 	if ( pattern->get_name().isEmpty() ) {
@@ -135,6 +138,7 @@ void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly ) const
 	pattern_node.write_string( "info", __info );
 	pattern_node.write_string( "category", __category );
 	pattern_node.write_int( "size", __length );
+	pattern_node.write_int( "denominator", __denominator );
 	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
 	int id = ( instrumentOnly == nullptr ? -1 : instrumentOnly->get_id() );
 	for( auto it=__notes.cbegin(); it!=__notes.cend(); ++it ) {

@@ -37,7 +37,7 @@ class LCDCombo : public QWidget, public H2Core::Object
 		H2_OBJECT
 		Q_OBJECT
 	public:
-		explicit LCDCombo( QWidget *pParent, int digits = 5 );
+		explicit LCDCombo( QWidget *pParent, int digits = 5, bool bAllowMenuOverflow = false );
 		~LCDCombo();
 
 		bool addItem( const QString &text );
@@ -61,6 +61,11 @@ class LCDCombo : public QWidget, public H2Core::Object
 		QMenu *pop;
 		int size;
 		int active;
+		/** Allows for the entries in #pop to be larger than the
+			display itself. Only the first #size characters will be 
+			displayed.*/
+		bool m_bAllowMenuOverflow;
+		
 		static const QString SEPARATOR;
 
 		virtual void mousePressEvent( QMouseEvent *ev );

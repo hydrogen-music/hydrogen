@@ -60,7 +60,7 @@ void exportSong( const QString &songFile, const QString &fileName )
 	
 	pHydrogen->setSong( pSong );
 
-	InstrumentList *pInstrumentList = pSong->get_instrument_list();
+	InstrumentList *pInstrumentList = pSong->getInstrumentList();
 	for (auto i = 0; i < pInstrumentList->size(); i++) {
 		pInstrumentList->get(i)->set_currently_exported( true );
 	}

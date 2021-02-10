@@ -295,7 +295,7 @@ void PlaylistDialog::addSong()
 void PlaylistDialog::addCurrentSong()
 {
 	Song *	pSong = Hydrogen::get_instance()->getSong();
-	QString filename = 	pSong->get_filename();
+	QString filename = 	pSong->getFilename();
 
 	if (filename == "") {
 		// just in case!
@@ -746,7 +746,7 @@ void PlaylistDialog::nodePlayBTN( Button* ref )
 		QString sFilename = "";
 		sFilename = m_pPlaylistItem->text ( 0 );
 
-		if( sFilename == pEngine->getSong()->get_filename()){
+		if( sFilename == pEngine->getSong()->getFilename()){
 			pEngine->sequencer_play();
 			return;
 		}

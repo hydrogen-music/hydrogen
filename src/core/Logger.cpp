@@ -168,15 +168,15 @@ void Logger::log( unsigned level, const QString& class_name, const char* func_na
 
 unsigned Logger::parse_log_level( const char* level ) {
 	unsigned log_level = Logger::None;
-	if( 0 == strncasecmp( level, __levels[0], sizeof( __levels[0] ) ) ) {
+	if( 0 == strncasecmp( level, __levels[0], strlen( __levels[0] ) ) ) {
 		log_level = Logger::None;
-	} else if ( 0 == strncasecmp( level, __levels[1], sizeof( __levels[1] ) ) ) {
+	} else if ( 0 == strncasecmp( level, __levels[1], strlen( __levels[1] ) ) ) {
 		log_level = Logger::Error;
-	} else if ( 0 == strncasecmp( level, __levels[2], sizeof( __levels[2] ) ) ) {
+	} else if ( 0 == strncasecmp( level, __levels[2], strlen( __levels[2] ) ) ) {
 		log_level = Logger::Error | Logger::Warning;
-	} else if ( 0 == strncasecmp( level, __levels[3], sizeof( __levels[3] ) ) ) {
+	} else if ( 0 == strncasecmp( level, __levels[3], strlen( __levels[3] ) ) ) {
 		log_level = Logger::Error | Logger::Warning | Logger::Info;
-	} else if ( 0 == strncasecmp( level, __levels[4], sizeof( __levels[4] ) ) ) {
+	} else if ( 0 == strncasecmp( level, __levels[4], strlen( __levels[4] ) ) ) {
 		log_level = Logger::Error | Logger::Warning | Logger::Info | Logger::Debug;
 	} else {
 #ifdef HAVE_SSCANF

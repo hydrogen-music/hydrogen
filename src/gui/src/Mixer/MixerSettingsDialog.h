@@ -20,45 +20,30 @@
  *
  */
 
-#ifndef PATTERN_PROPERTIES_DIALOG_H
-#define PATTERN_PROPERTIES_DIALOG_H
+#ifndef MIXER_SETTINGS_DIALOG_H
+#define MIXER_SETTINGS_DIALOG_H
 
 
-#include <QtGui>
-#include <QtWidgets>
+#include "ui_MixerSettingsDialog_UI.h"
 
-#include "ui_PatternPropertiesDialog_UI.h"
-
-namespace H2Core
-{
-	class Pattern;
-}
+#include <core/Object.h>
 
 ///
-///Pattern Properties Dialog
+/// Mixer Settings Dialog
 ///
-class PatternPropertiesDialog : public QDialog, public Ui_PatternPropertiesDialog_UI
+class MixerSettingsDialog : public QDialog, private Ui_MixerSettingsDialog_UI, public H2Core::Object
 {
+	H2_OBJECT
 	Q_OBJECT
 	public:
-		PatternPropertiesDialog( QWidget* parent, H2Core::Pattern* pattern, int nselectedPattern, bool save );
-
-		~PatternPropertiesDialog();
-
-		/// Does some name check
-		void defaultNameCheck( QString , bool);
+		explicit MixerSettingsDialog( QWidget* parent );
+		~MixerSettingsDialog();
 
 	private slots:
-		void on_cancelBtn_clicked();
 		void on_okBtn_clicked();
-
-	private:
-		H2Core::Pattern *pattern;
-		int __nselectedPattern;
-		bool __savepattern;
+		void on_cancelBtn_clicked();
+		void panLawChanged();
 };
 
-
 #endif
-
 

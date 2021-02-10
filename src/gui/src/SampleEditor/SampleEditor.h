@@ -109,7 +109,7 @@ class SampleEditor : public QDialog, public Ui_SampleEditor_UI, public H2Core::O
 		double m_divider;
 		float m_fZoomfactor;
 		unsigned m_pDetailFrame;
-		QString m_pLineColor;
+		QString m_sLineColor;
 
 		bool m_bOnewayStart;
 		bool m_bOnewayLoop;

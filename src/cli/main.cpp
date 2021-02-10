@@ -234,13 +234,13 @@ int main(int argc, char *argv[])
 			preferences->m_sAudioDriver = "Auto";
 		}
 		else if (sSelectedDriver == "jack") {
-			preferences->m_sAudioDriver = "Jack";
+			preferences->m_sAudioDriver = "JACK";
 		}
 		else if ( sSelectedDriver == "oss" ) {
-			preferences->m_sAudioDriver = "Oss";
+			preferences->m_sAudioDriver = "OSS";
 		}
 		else if ( sSelectedDriver == "alsa" ) {
-			preferences->m_sAudioDriver = "Alsa";
+			preferences->m_sAudioDriver = "ALSA";
 		}
 		else if (sSelectedDriver == "CoreAudio") {
 			preferences->m_sAudioDriver = "CoreAudio";
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
 			 * here we make it save that hydrogen start in a jacksession case
 			 * every time with jack as audio driver
 			 */
-			preferences->m_sAudioDriver = "Jack";
+			preferences->m_sAudioDriver = "JACK";
 
 		}
 		/* the use of applicationFilePath() make it
@@ -334,8 +334,8 @@ int main(int argc, char *argv[])
 			/* Still not loaded */
 			if (! pSong) {
 				___INFOLOG("Starting with empty song");
-				pSong = Song::get_empty_song();
-				pSong->set_filename( "" );
+				pSong = Song::getEmptySong();
+				pSong->setFilename( "" );
 			}
 
 			pHydrogen->setSong( pSong );
@@ -378,7 +378,7 @@ int main(int argc, char *argv[])
 		
 		bool ExportMode = false;
 		if ( ! outFilename.isEmpty() ) {
-			InstrumentList *pInstrumentList = pSong->get_instrument_list();
+			InstrumentList *pInstrumentList = pSong->getInstrumentList();
 			for (auto i = 0; i < pInstrumentList->size(); i++) {
 				pInstrumentList->get(i)->set_currently_exported( true );
 			}
@@ -428,6 +428,9 @@ int main(int argc, char *argv[])
 			case EVENT_QUIT: // Shutdown if indicated by a
 							 // corresponding OSC message.
 				quit = true;
+				break;
+			default:
+				// EVENT_STATE, EVENT_PATTERN_CHANGED, etc are ignored
 				break;
 			}
 		}

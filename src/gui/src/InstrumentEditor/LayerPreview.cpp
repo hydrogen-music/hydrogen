@@ -170,7 +170,7 @@ void LayerPreview::selectedInstrumentChangedEvent()
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if (pSong != nullptr) {
-		InstrumentList *pInstrList = pSong->get_instrument_list();
+		InstrumentList *pInstrList = pSong->getInstrumentList();
 		int nInstr = Hydrogen::get_instance()->getSelectedInstrumentNumber();
 		if ( nInstr >= (int)pInstrList->size() ) {
 			nInstr = -1;
@@ -230,6 +230,10 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 	m_bMouseGrab = false;
 	setCursor( QCursor( Qt::ArrowCursor ) );
 
+	if ( m_pInstrument == nullptr ) {
+		return;
+	}
+
 	/*
 	 * We want the tooltip to still show if mouse pointer
 	 * is over an active layer's boundary
@@ -237,7 +241,7 @@ void LayerPreview::mouseReleaseEvent(QMouseEvent *ev)
 	InstrumentComponent *pCompo = m_pInstrument->get_component( m_nSelectedComponent );
 	if ( pCompo ) {
 		InstrumentLayer *pLayer = pCompo->get_layer( m_nSelectedLayer );
-		
+
 		if ( pLayer ) {
 			int x1 = (int)( pLayer->get_start_velocity() * width() );
 			int x2 = (int)( pLayer->get_end_velocity() * width() );

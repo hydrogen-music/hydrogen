@@ -10,9 +10,6 @@
     <height>555</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Form1</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
     <widget class="QTabWidget" name="TabWidget2">
@@ -32,7 +29,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_1">
       <attribute name="title">
@@ -62,7 +59,7 @@
           </size>
          </property>
          <property name="text">
-          <string>&amp;Reopen last used song</string>
+          <string>Reopen last used &amp;song</string>
          </property>
          <property name="shortcut">
           <string>Alt+R</string>
@@ -78,7 +75,7 @@
           </size>
          </property>
          <property name="text">
-          <string>&amp;Reopen last used playlist</string>
+          <string>Reopen last used &amp;playlist</string>
          </property>
          <property name="shortcut">
           <string>Alt+R</string>
@@ -88,21 +85,21 @@
        <item>
         <widget class="QCheckBox" name="useRelativePlaylistPathsCheckbox">
          <property name="text">
-          <string>Use relative paths for playlist</string>
+          <string>Use &amp;relative paths for playlist</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="hideKeyboardCursor">
          <property name="text">
-          <string>Hide keyboard input cursor</string>
+          <string>&amp;Hide keyboard input cursor</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="useLashCheckbox">
          <property name="text">
-          <string>Use lash</string>
+          <string>Use &amp;LASH</string>
          </property>
         </widget>
        </item>
@@ -384,45 +381,45 @@
              </property>
             </widget>
            </item>
-		   <item row="4" column="0">
-			 <widget class="QLabel" name="jackBBTSyncLbl">
-			   <property name="minimumSize">
-				 <size>
-				   <width>0</width>
-				   <height>22</height>
-				 </size>
-			   </property>
-			   <property name="text">
-				 <string>BBT sync method</string>
-			   </property>
-			   <property name="toolTip">
-				 <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
-			   </property>
-			 </widget>
-		   </item>
-		   <item row="4" column="1">	 
-			 <widget class="QComboBox" name="jackBBTSyncComboBox">
-			   <property name="minimumSize">
-				 <size>
-				   <width>0</width>
-				   <height>22</height>
-				 </size>
-			   </property>
-			   <property name="toolTip">
-				 <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
-			   </property>
-			   <item>
-				 <property name="text">
-				   <string>constant measure</string>
-				 </property>
-			   </item>
-			   <item>
-				 <property name="text">
-				   <string>matching bars</string>
-				 </property>
-			   </item>
-			 </widget>
-		   </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="jackBBTSyncLbl">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
+             </property>
+             <property name="text">
+              <string>BBT sync method</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QComboBox" name="jackBBTSyncComboBox">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Specifies the variable, which has to remain constant in order to guarantee a working synchronization and relocation in the presence of another Jack timebase master.</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>constant measure</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>matching bars</string>
+              </property>
+             </item>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>
@@ -433,7 +430,7 @@
            <item>
             <widget class="QCheckBox" name="connectDefaultsCheckBox">
              <property name="text">
-              <string>Connect to &amp;Default Output Pair</string>
+              <string>Connect to &amp;default JACK output ports</string>
              </property>
              <property name="shortcut">
               <string>Alt+D</string>
@@ -443,10 +440,17 @@
            <item>
             <widget class="QCheckBox" name="trackOutsCheckBox">
              <property name="text">
-              <string>Create per-instrument outputs</string>
+              <string>Create &amp;per-instrument JACK output ports</string>
              </property>
              <property name="shortcut">
               <string>Alt+D</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="enableTimebaseCheckBox">
+             <property name="text">
+              <string>Enable JACK &amp;timebase master support</string>
              </property>
             </widget>
            </item>
@@ -605,7 +609,7 @@
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
-       <string>&amp;Midi System</string>
+       <string>&amp;MIDI System</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
@@ -615,7 +619,7 @@
            <item>
             <widget class="QLabel" name="textLabel1_5">
              <property name="text">
-              <string>Midi driver</string>
+              <string>MIDI driver</string>
              </property>
             </widget>
            </item>
@@ -781,7 +785,7 @@
            <item>
             <widget class="QCheckBox" name="m_pIgnoreNoteOffCheckBox">
              <property name="text">
-              <string>Ignore note-off</string>
+              <string>&amp;Ignore note-off</string>
              </property>
             </widget>
            </item>
@@ -790,14 +794,14 @@
          <item>
           <widget class="QCheckBox" name="m_pEnableMidiFeedbackCheckBox">
            <property name="text">
-            <string>Enable midi feedback</string>
+            <string>&amp;Enable MIDI feedback</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QCheckBox" name="m_pDiscardMidiMsgCheckbox">
            <property name="text">
-            <string>Discard midi messages after action has been triggered</string>
+            <string>&amp;Discard MIDI messages after action has been triggered</string>
            </property>
           </widget>
          </item>
@@ -806,7 +810,7 @@
            <item>
             <widget class="QCheckBox" name="m_pFixedMapping">
              <property name="text">
-              <string>Use output note as input note</string>
+              <string>&amp;Use output note as input note</string>
              </property>
             </widget>
            </item>
@@ -823,104 +827,129 @@
       <attribute name="title">
        <string>&amp;OSC</string>
       </attribute>
-      <widget class="QWidget" name="oscWidget" native="true">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>30</y>
-         <width>441</width>
-         <height>121</height>
-        </rect>
-       </property>
-       <widget class="QWidget" name="gridLayoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>30</y>
-          <width>441</width>
-          <height>41</height>
-         </rect>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Incoming port</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="1" column="3">
-          <widget class="QSpinBox" name="incomingOscPortSpinBox">
-           <property name="toolTip">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="maximum">
-            <number>20000</number>
-           </property>
-           <property name="value">
-            <number>9000</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QCheckBox" name="enableOscFeedbackCheckbox">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>10</y>
-          <width>441</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>22</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Enable OSC &amp;feedback</string>
-        </property>
-        <property name="shortcut">
-         <string>Alt+R</string>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QCheckBox" name="enableOscCheckbox">
+      <widget class="QWidget" name="oscWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
          <y>10</y>
-         <width>441</width>
-         <height>22</height>
+         <width>541</width>
+         <height>141</height>
         </rect>
        </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>22</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>&amp;Enable OSC support</string>
-       </property>
-       <property name="shortcut">
-        <string>Alt+R</string>
-       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
+          <item>
+           <widget class="QCheckBox" name="enableOscCheckbox">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>&amp;Enable OSC support</string>
+            </property>
+            <property name="shortcut">
+             <string>Alt+R</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="enableOscFeedbackCheckbox">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>22</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Enable OSC &amp;feedback</string>
+            </property>
+            <property name="shortcut">
+             <string>Alt+R</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <property name="verticalSpacing">
+             <number>0</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Incoming port</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QSpinBox" name="incomingOscPortSpinBox">
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Port which will be used to receive incoming OSC messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="maximum">
+               <number>20000</number>
+              </property>
+              <property name="value">
+               <number>9000</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_9">
+            <property name="spacing">
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="oscTemporaryPortLabel">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="oscTemporaryPort">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>68</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
      </widget>
      <widget class="QWidget" name="tab_4">

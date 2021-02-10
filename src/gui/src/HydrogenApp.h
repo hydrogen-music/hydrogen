@@ -26,6 +26,7 @@
 #include <core/config.h>
 #include <core/Object.h>
 #include <core/Globals.h>
+#include <core/Preferences.h>
 
 #include "EventListener.h"
 
@@ -97,6 +98,9 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		void showDirector();
 		void showSampleEditor( QString name, int mSelectedComponemt, int mSelectedLayer );
 
+		bool hideKeyboardCursor();
+		void setHideKeyboardCursor( bool bHidden );
+
 		Mixer*				getMixer();
 		MainForm*			getMainForm();
 		SongEditorPanel*		getSongEditorPanel();
@@ -124,7 +128,6 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		void closeFXProperties();
 
 		void onDrumkitLoad( QString name );
-		void enableDestructiveRecMode();
 
 		void cleanupTemporaryFiles();
 
@@ -211,6 +214,8 @@ class HydrogenApp : public QObject, public EventListener, public H2Core::Object
 		QTabWidget *				m_pTab;
 		QSplitter *					m_pSplitter;
 		QVBoxLayout *				m_pMainVBox;
+
+		bool						m_bHideKeyboardCursor;
 
 		// implement EngineListener interface
 		void engineError(uint nErrorCode);
@@ -312,5 +317,23 @@ inline InstrumentRack* HydrogenApp::getInstrumentRack()
 {
 	return m_pInstrumentRack;
 }
+
+inline bool HydrogenApp::hideKeyboardCursor()
+{
+	return m_bHideKeyboardCursor;
+}
+
+inline void HydrogenApp::setHideKeyboardCursor( bool bHidden )
+{
+	if ( bHidden && ! m_bHideKeyboardCursor ) {
+		H2Core::Preferences *pPref = H2Core::Preferences::get_instance();
+		if ( pPref->hideKeyboardCursor() ) {
+			m_bHideKeyboardCursor = true;
+		}
+	} else {
+		m_bHideKeyboardCursor = bHidden;
+	}
+}
+
 
 #endif

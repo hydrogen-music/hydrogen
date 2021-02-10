@@ -159,7 +159,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	// instrument name widget
 	m_pNameWidget = new InstrumentNameWidget( this );
 	m_pNameWidget->move( 6, 128 );
-	m_pNameWidget->setToolTip( tr( "Instrument name (double click to edit)" ) );
+	m_pNameWidget->setToolTip( tr( "Instrument name" ) );
 	connect( m_pNameWidget, SIGNAL( doubleClicked () ), this, SLOT( nameClicked() ) );
 	connect( m_pNameWidget, SIGNAL( clicked () ), this, SLOT( nameSelected() ) );
 
@@ -216,11 +216,11 @@ void MixerLine::click(Button *ref) {
 	Song *song = (Hydrogen::get_instance())->getSong();
 
 	if (ref == m_pMuteBtn) {
-		song->set_is_modified(true);
+		song->setIsModified(true);
 		emit muteBtnClicked(this);
 	}
 	else if (ref == m_pSoloBtn) {
-		song->set_is_modified(true);
+		song->setIsModified(true);
 		emit soloBtnClicked(this);
 	}
 	else if (ref == m_pPlaySampleBtn) {
@@ -239,7 +239,7 @@ void MixerLine::rightClick(Button *ref)
 void MixerLine::faderChanged(Fader *ref)
 {
 	Song *pSong = (Hydrogen::get_instance())->getSong();
-	pSong->set_is_modified( true );
+	pSong->setIsModified( true );
 	emit volumeChanged(this);
 
 	double value = (double) ref->getValue();
@@ -342,23 +342,12 @@ void MixerLine::nameSelected() {
 void MixerLine::panChanged(Rotary *ref)
 {
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	pSong->set_is_modified( true );
+	pSong->setIsModified( true );
 	emit panChanged( this );
-
-	float panValue = ref->getValue();
-	float pan_L, pan_R;
-	if (panValue > 0.5) {
-		pan_L = (1.0 - panValue) * 2.0;
-		pan_R = 1.0;
-	} else {
-		pan_L = 1.0;
-		pan_R = panValue * 2.0;
-	}
-
-	char m_pFaderPos[100];
-	snprintf( m_pFaderPos, 99, "%#.2fL, %#.2fR",  pan_L, pan_R);
-	HydrogenApp::get_instance()->setStatusBarMessage( tr( "Set instr. pan [%1]" ).arg( m_pFaderPos ), 2000 );
-	m_pPanRotary->setToolTip( QString("Pan ") + QString( m_pFaderPos ) );
+	/** Do not update tooltip nor print status message in the old fashion panL and panL style
+	 *	since inconsistent with new pan implementation. The resultant pan depends also on note pan.
+	 *	The rotary widget valuetip is enough to read the value.
+	 */
 }
 
 float MixerLine::getPan()
@@ -370,17 +359,10 @@ void MixerLine::setPan(float fValue)
 {
 	if ( fValue != m_pPanRotary->getValue() ) {
 		m_pPanRotary->setValue( fValue );
-		float pan_L, pan_R;
-		if (fValue > 0.5) {
-			pan_L = (1.0 - fValue) * 2.0;
-			pan_R = 1.0;
-		} else {
-			pan_L = 1.0;
-			pan_R = fValue * 2.0;
-		}
-		char m_pFaderPos[100];
-		snprintf( m_pFaderPos, 99,"Pan %#.2fL, %#.2fR",  pan_L, pan_R);
-		m_pPanRotary->setToolTip( QString( m_pFaderPos ) );
+		/** Do not update tooltip in the old fashion panL and panL style
+		 * since inconsistent with new pan implementation. The resultant pan depends also on note pan.
+		 * The rotary widget valuetip is enough to read the value.
+		 */
 	}
 }
 
@@ -551,11 +533,11 @@ void ComponentMixerLine::click(Button *ref) {
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 
 	if (ref == m_pMuteBtn) {
-		pSong->set_is_modified( true );
+		pSong->setIsModified( true );
 		emit muteBtnClicked(this);
 	}
 	else if (ref == m_pSoloBtn) {
-		pSong->set_is_modified( true );
+		pSong->setIsModified( true );
 		emit soloBtnClicked(this);
 	}
 }
@@ -563,7 +545,7 @@ void ComponentMixerLine::click(Button *ref) {
 void ComponentMixerLine::faderChanged(Fader *ref)
 {
 	Song *pSong = (Hydrogen::get_instance())->getSong();
-	pSong->set_is_modified( true );
+	pSong->setIsModified( true );
 	emit volumeChanged(this);
 
 	double value = (double) ref->getValue();
@@ -735,9 +717,12 @@ void MasterMixerLine::muteClicked(Button* pBtn)
 
 void MasterMixerLine::faderChanged(MasterFader *ref)
 {
-	Song *pSong = (Hydrogen::get_instance())->getSong();
-	pSong->set_is_modified( true );
+	m_pMasterFader->setValue( ref->getValue() );
+
 	emit volumeChanged(this);
+
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	pSong->setIsModified( true );
 
 	double value = (double) ref->getValue();
 	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set master volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
@@ -837,10 +822,10 @@ void MasterMixerLine::updateMixerLine()
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
 	if ( pSong ) {
-		m_pHumanizeTimeRotary->setValue( pSong->get_humanize_time_value() );
-		m_pHumanizeVelocityRotary->setValue( pSong->get_humanize_velocity_value() );
-		m_pSwingRotary->setValue( pSong->get_swing_factor() );
-		m_pMuteBtn->setPressed( pSong->__is_muted );
+		m_pHumanizeTimeRotary->setValue( pSong->getHumanizeTimeValue() );
+		m_pHumanizeVelocityRotary->setValue( pSong->getHumanizeVelocityValue() );
+		m_pSwingRotary->setValue( pSong->getSwingFactor() );
+		m_pMuteBtn->setPressed( pSong->getIsMuted() );
 	}
 	else {
 		WARNINGLOG( "pSong == NULL ");
@@ -856,15 +841,15 @@ void MasterMixerLine::rotaryChanged( Rotary *pRef )
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
 	if ( pRef == m_pHumanizeTimeRotary ) {
-		pEngine->getSong()->set_humanize_time_value( fVal );
+		pEngine->getSong()->setHumanizeTimeValue( fVal );
 		sMsg = tr( "Set hum. time parameter [%1]").arg( fVal, 0, 'f', 2 ); //not too long for display
 	}
 	else if ( pRef == m_pHumanizeVelocityRotary ) {
-		pEngine->getSong()->set_humanize_velocity_value( fVal );
+		pEngine->getSong()->setHumanizeVelocityValue( fVal );
 		sMsg = tr( "Set hum. vel. parameter [%1]").arg( fVal, 0, 'f', 2 );//not too long for display
 	}
 	else if ( pRef == m_pSwingRotary ) {
-		pEngine->getSong()->set_swing_factor( fVal );
+		pEngine->getSong()->setSwingFactor( fVal );
 		sMsg = tr( "Set swing factor [%1]").arg( fVal, 0, 'f', 2 );
 	}
 	else {
@@ -932,7 +917,7 @@ void FxMixerLine::click(Button *ref) {
 	Song *pSong = Hydrogen::get_instance()->getSong();
 
 	if (ref == activeBtn ) {
-		pSong->set_is_modified( true );
+		pSong->setIsModified( true );
 		emit activeBtnClicked( this );
 	}
 }
@@ -955,7 +940,7 @@ void FxMixerLine::faderChanged(Fader *ref)
 	}
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	pSong->set_is_modified( true );
+	pSong->setIsModified( true );
 	emit volumeChanged( this );
 }
 
@@ -1181,7 +1166,7 @@ void LadspaFXMixerLine::rotaryChanged(Rotary *ref)
 	m_fMaxPeak = 0.0;
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
-	pSong->set_is_modified( true );
+	pSong->setIsModified( true );
 	emit volumeChanged(this);
 	
 	double value = (double) ref->getValue();

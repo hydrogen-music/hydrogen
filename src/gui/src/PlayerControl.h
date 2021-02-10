@@ -100,7 +100,6 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 
 	private slots:
 		void recBtnClicked(Button* ref);
-		void recBtnRightClicked(Button* ref);
 		void playBtnClicked(Button* ref);
 		void stopBtnClicked(Button* ref);
 		void updatePlayerControl();
@@ -152,7 +151,6 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 
 		Button *m_pRwdBtn;
 		ToggleButton *m_pRecBtn;
-		ToggleButton *m_pRecDelBtn;
 		ToggleButton *m_pPlayBtn;
 		Button *m_pStopBtn;
 		Button *m_pFfwdBtn;
@@ -163,6 +161,9 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		ToggleButton *m_pLiveModeBtn;
 
 		//beatcounter
+		/** Store the tool tip of the beat counter since it gets
+			overwritten during deactivation.*/
+		QString m_sBConoffBtnToolTip;
 		ToggleButton *m_pBConoffBtn;
 		ToggleButton *m_pBCSpaceBtn;
 		ToggleButton *m_pBCSetPlayBtn;
@@ -178,6 +179,7 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		ToggleButton *m_pJackTransportBtn;
 		//jack time master
 		ToggleButton *m_pJackMasterBtn;
+		QString m_sJackMasterModeToolTip;
 		//~ jack time master
 		Button *m_pBPMUpBtn;
 		Button *m_pBPMDownBtn;
