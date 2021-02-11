@@ -126,11 +126,13 @@ class FunctionalTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testExportVelocityAutomationAudio );
 	CPPUNIT_TEST( testExportVelocityAutomationMIDISMF0 );
 	CPPUNIT_TEST( testExportVelocityAutomationMIDISMF1 );
-	CPPUNIT_TEST( testPrintMessages );
+	// CPPUNIT_TEST( testPrintMessages );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
 
+	/** Intended for manual verification of the Print() methods of
+		some basic core classes.*/
 	void testPrintMessages()
 	{
 		std::cout << std::endl;
@@ -140,30 +142,29 @@ class FunctionalTest : public CppUnit::TestCase {
 		auto pSong = Song::load( sSongFile );
 		std::cout << pSong << std::endl;
 		auto pVelocityAutomationPath = pSong->getVelocityAutomationPath();
-		// std::cout << pVelocityAutomationPath << std::endl;
+		std::cout << pVelocityAutomationPath << std::endl;
 		auto pInstrumentList = pSong->getInstrumentList();
-		// std::cout << pInstrumentList << std::endl;
+		std::cout << pInstrumentList << std::endl;
 		auto pInstrument = pInstrumentList->get( 0 );
-		// std::cout << pInstrument << std::endl;
+		std::cout << pInstrument << std::endl;
 		auto pADSR = pInstrument->get_adsr();
-		// std::cout << pADSR << std::endl;
+		std::cout << pADSR << std::endl;
 		auto pInstrumentComponent = pInstrument->get_component( 0 );
-		// std::cout << pInstrumentComponent << std::endl;
+		std::cout << pInstrumentComponent << std::endl;
 		auto pInstrumentLayer = pInstrumentComponent->get_layer( 0 );
-		// std::cout << pInstrumentLayer << std::endl;
+		std::cout << pInstrumentLayer << std::endl;
 		auto pSample = pInstrumentLayer->get_sample();
-		// std::cout << pSample << std::endl;
+		std::cout << pSample << std::endl;
 		auto pPatternList = pSong->getPatternList();
-		// std::cout << pPatternList << std::endl;
+		std::cout << pPatternList << std::endl;
 		auto pPattern = pPatternList->get( 0 );
-		// std::cout << pPattern << std::endl;
+		std::cout << pPattern << std::endl;
 		auto pNote = pPattern->find_note( 0, -1, pInstrument, false );
-		// std::cout << pNote << std::endl;
+		std::cout << pNote << std::endl;
 		auto pDrumkit = Drumkit::load( sDrumkitFile, true );
-		// std::cout << pDrumkit << std::endl;
+		std::cout << pDrumkit << std::endl;
 		auto pDrumkitComponent = (*pDrumkit->get_components())[ 0 ];
-		// std::cout << pDrumkitComponent << std::endl;
-		std::cout << std::endl;
+		std::cout << pDrumkitComponent << std::endl;
 	}
 
 	void testExportAudio()
