@@ -246,6 +246,59 @@ Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 	return note;
 }
 
+QString Note::toQString( const QString& sPrefix ) const {
+	QString s = Logger::printIndention;
+	QString sOutput = QString( "%1[Note]\n" ).arg( sPrefix )
+		.append( QString( "%1%2instrument_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __instrument_id ) )
+		.append( QString( "%1%2specific_compo_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __specific_compo_id ) )
+		.append( QString( "%1%2position: %3\n" ).arg( sPrefix ).arg( s ).arg( __position ) )
+		.append( QString( "%1%2velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __velocity ) )
+		.append( QString( "%1%2pan_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __pan_l ) )
+		.append( QString( "%1%2pan_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __pan_r ) )
+		.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
+		.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch ) )
+		.append( QString( "%1%2key: %3\n" ).arg( sPrefix ).arg( s ).arg( __key ) )
+		.append( QString( "%1%2octave: %3\n" ).arg( sPrefix ).arg( s ).arg( __octave ) )
+		.append( QString( "%1" ).arg( __adsr->toQString( sPrefix + s ) ) )
+		.append( QString( "%1%2lead_lag: %3\n" ).arg( sPrefix ).arg( s ).arg( __lead_lag ) )
+		.append( QString( "%1%2cut_off: %3\n" ).arg( sPrefix ).arg( s ).arg( __cut_off ) )
+		.append( QString( "%1%2resonance: %3\n" ).arg( sPrefix ).arg( s ).arg( __resonance ) )
+		.append( QString( "%1%2humanize_delay: %3\n" ).arg( sPrefix ).arg( s ).arg( __humanize_delay ) )
+		.append( QString( "%1%2key: %3\n" ).arg( sPrefix ).arg( s ).arg( __key ) )
+		.append( QString( "%1%2bpfb_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __bpfb_l ) )
+		.append( QString( "%1%2bpfb_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __bpfb_r ) )
+		.append( QString( "%1%2lpfb_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __lpfb_l ) )
+		.append( QString( "%1%2lpfb_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __lpfb_r ) )
+		.append( QString( "%1%2pattern_idx: %3\n" ).arg( sPrefix ).arg( s ).arg( __pattern_idx ) )
+		.append( QString( "%1%2midi_msg: %3\n" ).arg( sPrefix ).arg( s ).arg( __midi_msg ) )
+		.append( QString( "%1%2note_off: %3\n" ).arg( sPrefix ).arg( s ).arg( __note_off ) )
+		.append( QString( "%1%2just_recorded: %3\n" ).arg( sPrefix ).arg( s ).arg( __just_recorded ) )
+		.append( QString( "%1%2probability: %3\n" ).arg( sPrefix ).arg( s ).arg( __probability ) )
+		.append( QString( "%1" ).arg( __instrument->toQString( sPrefix + s ) ) );
+
+	sOutput.append( QString( "%1%2layers_selected:\n" )
+					.arg( sPrefix ).arg( s ) );
+	for ( auto ll : __layers_selected ) {
+		sOutput.append( QString( "%1%2%3 : selected layer: %4, sample position: %5\n" )
+						.arg( sPrefix ).arg( s + s )
+						.arg( ll.first )
+						.arg( ll.second->SelectedLayer )
+						.arg( ll.second->SamplePosition ) );
+	}
+	
+	return sOutput;
+}
+
+void Note::Print() const {
+	DEBUGLOG( toQString( "" ) );
+}
+std::ostream& operator<<( std::ostream& os, const Note& note ) {
+	return os << note.toQString( "" ).toLocal8Bit().data() << std::endl;
+}
+std::ostream& operator<<( std::ostream& os, const Note* note ) {
+	return os << note->toQString( "" ).toLocal8Bit().data() << std::endl;
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

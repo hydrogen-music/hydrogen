@@ -24,7 +24,7 @@
 #define H2C_INSTRUMENT_LIST_H
 
 #include <vector>
-
+#include <iostream>
 #include <core/Object.h>
 
 namespace H2Core
@@ -181,9 +181,20 @@ class InstrumentList : public H2Core::Object
 		 */
 		void set_default_midi_out_notes();
 
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix ) const;
+		/** Prints content of toQString() via DEBUGLOG*/
+		void Print() const;
+
 	private:
 		std::vector<Instrument*> __instruments;            ///< the list of instruments
 };
+
+std::ostream& operator<<( std::ostream& os, const InstrumentList& instrumentList );
+std::ostream& operator<<( std::ostream& os, const InstrumentList* instrumentList );
 
 // DEFINITIONS
 

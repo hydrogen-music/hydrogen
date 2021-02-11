@@ -25,6 +25,7 @@
 
 #include <core/Object.h>
 #include <core/Basics/Instrument.h>
+#include <iostream>
 
 #define KEY_MIN                 0
 #define KEY_MAX                 11
@@ -296,6 +297,14 @@ class Note : public H2Core::Object
 		 * \param val_r the right channel value
 		 */
 		void compute_lr_values( float* val_l, float* val_r );
+
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix ) const;
+		/** Prints content of toQString() via DEBUGLOG*/
+		void Print() const;
 
 	private:
 		Instrument*		__instrument;   ///< the instrument to be played by this note
@@ -573,6 +582,9 @@ inline void Note::compute_lr_values( float* val_l, float* val_r )
 	*val_l = __lpfb_l;
 	*val_r = __lpfb_r;
 }
+
+std::ostream& operator<<( std::ostream& os, const Note& note );
+std::ostream& operator<<( std::ostream& os, const Note* note );
 
 };
 

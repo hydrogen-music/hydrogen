@@ -138,4 +138,28 @@ void DrumkitComponent::save_to( XMLNode* node )
 	ComponentNode.write_float( "volume", __volume );
 }
 
+QString DrumkitComponent::toQString( const QString& sPrefix ) const {
+	QString s = Logger::printIndention;
+	QString sOutput = QString( "%1[DrumkitComponent]\n" ).arg( sPrefix )
+		.append( QString( "%1%2id: %3\n" ).arg( sPrefix ).arg( s ).arg( __id ) )
+		.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
+		.append( QString( "%1%2volume: %3\n" ).arg( sPrefix ).arg( s ).arg( __volume ) )
+		.append( QString( "%1%2muted: %3\n" ).arg( sPrefix ).arg( s ).arg( __muted ) )
+		.append( QString( "%1%2soloed: %3\n" ).arg( sPrefix ).arg( s ).arg( __soloed ) )
+		.append( QString( "%1%2peak_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __peak_l ) )
+		.append( QString( "%1%2peak_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __peak_r ) );
+	
+	return sOutput;
+}
+ 
+void DrumkitComponent::Print() const {
+	DEBUGLOG( toQString( "" ) );
+}
+std::ostream& operator<<( std::ostream& os, const DrumkitComponent& drumkitComponent ) {
+	return os << drumkitComponent.toQString( "" ).toLocal8Bit().data() << std::endl;
+}
+std::ostream& operator<<( std::ostream& os, const DrumkitComponent* drumkitComponent ) {
+	return os << drumkitComponent->toQString( "" ).toLocal8Bit().data() << std::endl;
+}
+
 };

@@ -24,7 +24,7 @@
 #define H2C_INSTRUMENT_LAYER_H
 
 #include <memory>
-
+#include <iostream>
 #include <core/Object.h>
 
 namespace H2Core
@@ -106,6 +106,14 @@ namespace H2Core
 		 */
 		static InstrumentLayer* load_from( XMLNode* node, const QString& dk_path );
 
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix ) const;
+		/** Prints content of toQString() via DEBUGLOG*/
+		void Print() const;
+
 	private:
 		float __gain;               ///< ratio between the input sample and the output signal, 1.0 by default
 		float __pitch;              ///< the frequency of the sample, 0.0 by default which means output pitch is the same as input pitch
@@ -113,6 +121,9 @@ namespace H2Core
 		float __end_velocity;       ///< the end velocity of the sample, 1.0 by default
 		std::shared_ptr<Sample> __sample;           ///< the underlaying sample
 	};
+
+	std::ostream& operator<<( std::ostream& os, const InstrumentLayer& instrumentLayer );
+	std::ostream& operator<<( std::ostream& os, const InstrumentLayer* instrumentLayer );
 
 	// DEFINITIONS
 

@@ -117,6 +117,10 @@ class Logger {
 		 */
 		friend void* loggerThread_func( void* param );
 
+		/** String used to format the debugging string output of some
+			core classes.*/
+		static QString printIndention;
+
 	private:
 		/**
 		 * Object holding the current H2Core::Logger

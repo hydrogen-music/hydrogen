@@ -101,6 +101,28 @@ void InstrumentLayer::save_to( XMLNode* node )
 	layer_node.write_float( "pitch", __pitch );
 }
 
+QString InstrumentLayer::toQString( const QString& sPrefix ) const {
+	QString s = Logger::printIndention;
+	QString sOutput = QString( "%1[InstrumentLayer]\n" ).arg( sPrefix )
+		.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
+		.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch ) )
+		.append( QString( "%1%2start_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __start_velocity ) )
+		.append( QString( "%1%2end_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __end_velocity ) )
+		.append( QString( "%1" ).arg( __sample->toQString( sPrefix + s ) ) );
+	
+	return sOutput;
+}
+ 
+void InstrumentLayer::Print() const {
+	DEBUGLOG( toQString( "" ) );
+}
+std::ostream& operator<<( std::ostream& os, const InstrumentLayer& instrumentLayer ) {
+	return os << instrumentLayer.toQString( "" ).toLocal8Bit().data() << std::endl;
+}
+std::ostream& operator<<( std::ostream& os, const InstrumentLayer* instrumentLayer ) {
+	return os << instrumentLayer->toQString( "" ).toLocal8Bit().data() << std::endl;
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

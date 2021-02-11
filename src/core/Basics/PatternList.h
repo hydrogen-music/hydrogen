@@ -24,7 +24,7 @@
 #define H2C_PATTERN_LIST_H
 
 #include <vector>
-
+#include <iostream>
 #include <core/Object.h>
 #include <core/AudioEngine.h>
 
@@ -160,10 +160,21 @@ class AudioEngineLocking;
 		 */
 		int longest_pattern_length();
 
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix ) const;
+		/** Prints content of toQString() via DEBUGLOG*/
+		void Print() const;
+
 	private:
 		std::vector<Pattern*> __patterns;            ///< the list of patterns
 
 };
+
+std::ostream& operator<<( std::ostream& os, const PatternList& patternList );
+std::ostream& operator<<( std::ostream& os, const PatternList* patternList );
 
 // DEFINITIONS
 

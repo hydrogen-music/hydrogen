@@ -24,7 +24,7 @@
 #define H2C_PATTERN_H
 
 #include <set>
-
+#include <iostream>
 #include <core/Object.h>
 #include <core/Basics/Note.h>
 
@@ -194,6 +194,14 @@ class Pattern : public H2Core::Object
 		 */
 		void save_to( XMLNode* node, const Instrument* instrumentOnly = nullptr ) const;
 
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix ) const;
+		/** Prints content of toQString() via DEBUGLOG*/
+		void Print() const;
+
 	private:
 		int __length;                                           ///< the length of the pattern
 		int __denominator;                                           ///< the meter denominator of the pattern used in meter (eg 4/4)
@@ -211,6 +219,9 @@ class Pattern : public H2Core::Object
 		 */
 		static Pattern* load_from( XMLNode* node, InstrumentList* instruments );
 };
+
+std::ostream& operator<<( std::ostream& os, const Pattern& pattern );
+std::ostream& operator<<( std::ostream& os, const Pattern* pattern );
 
 #define FOREACH_NOTE_CST_IT_BEGIN_END(_notes,_it) \
 	for( Pattern::notes_cst_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end(); (_it)++ )

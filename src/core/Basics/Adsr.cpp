@@ -164,6 +164,31 @@ float ADSR::release()
 	return __release_value;
 }
 
+QString ADSR::toQString( const QString& sPrefix ) const {
+	QString s = Logger::printIndention;
+	QString sOutput = QString( "%1[ADSR]\n" ).arg( sPrefix )
+		.append( QString( "%1%2attack: %3\n" ).arg( sPrefix ).arg( s ).arg( __attack ) )
+		.append( QString( "%1%2decay: %3\n" ).arg( sPrefix ).arg( s ).arg( __decay ) )
+		.append( QString( "%1%2sustain: %3\n" ).arg( sPrefix ).arg( s ).arg( __sustain ) )
+		.append( QString( "%1%2release: %3\n" ).arg( sPrefix ).arg( s ).arg( __release ) )
+		.append( QString( "%1%2state: %3\n" ).arg( sPrefix ).arg( s ).arg( __state ) )
+		.append( QString( "%1%2ticks: %3\n" ).arg( sPrefix ).arg( s ).arg( __ticks ) )
+		.append( QString( "%1%2value: %3\n" ).arg( sPrefix ).arg( s ).arg( __value ) )
+		.append( QString( "%1%2release_value: %3\n" ).arg( sPrefix ).arg( s ).arg( __release_value ) );
+	
+	return sOutput;
+}
+
+void ADSR::Print() const {
+	DEBUGLOG( toQString( "" ) );
+}
+std::ostream& operator<<( std::ostream& os, const ADSR& adsr ) {
+	return os << adsr.toQString( "" ).toLocal8Bit().data() << std::endl;
+}
+std::ostream& operator<<( std::ostream& os, const ADSR* adsr ) {
+	return os << adsr->toQString( "" ).toLocal8Bit().data() << std::endl;
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

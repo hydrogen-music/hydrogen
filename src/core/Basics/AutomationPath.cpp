@@ -102,16 +102,29 @@ bool operator!=(const AutomationPath &lhs, const AutomationPath &rhs)
 	return !(lhs==rhs);
 }
 
-std::ostream &operator<< (std::ostream &o, const AutomationPath &p)
-{
-	o << "<AutomationPath("<<p.get_min()<<","<<p.get_max()<<","<<p.get_default()<<",[";
-	for (auto i = p.begin(); i != p.end(); ++i) {
-		o << "(" << i->first << "," << i->second << "),";
+QString AutomationPath::toQString( const QString& sPrefix ) const {
+	QString s = Logger::printIndention;
+	QString sOutput = QString( "%1[AutomationPath]\n" ).arg( sPrefix )
+		.append( QString( "%1%2min: %3\n" ).arg( sPrefix ).arg( s ).arg( _min ) )
+		.append( QString( "%1%2max: %3\n" ).arg( sPrefix ).arg( s ).arg( _max ) )
+		.append( QString( "%1%2def: %3\n" ).arg( sPrefix ).arg( s ).arg( _def ) )
+		.append( QString( "%1%2points:\n" ).arg( sPrefix ).arg( s ) );
+	for ( auto pp : _points ) {
+		sOutput.append( QString( "%1%2%3 : %4\n" ).arg( sPrefix ).arg( s ).arg( pp.first ).arg( pp.second ) );
 	}
-	o << "]>";
-	return o;
+	
+	return sOutput;
 }
-
+ 
+void AutomationPath::Print() const {
+	DEBUGLOG( toQString( "" ) );
+}
+std::ostream& operator<<( std::ostream& os, const AutomationPath& automationPath ) {
+	return os << automationPath.toQString( "" ).toLocal8Bit().data() << std::endl;
+}
+std::ostream& operator<<( std::ostream& os, const AutomationPath* automationPath ) {
+	return os << automationPath->toQString( "" ).toLocal8Bit().data() << std::endl;
+}
 
 /**
  * \brief Find point near specific location

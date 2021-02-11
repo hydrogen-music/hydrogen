@@ -155,6 +155,8 @@ MainForm::MainForm( QApplication * pQApplication, const QString& songFilename, c
 		
 	}
 
+	pSong->Print();
+
 	showDevelWarning();
 	h2app = new HydrogenApp( this, pSong );
 	h2app->addEventListener( this );
