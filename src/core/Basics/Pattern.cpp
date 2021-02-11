@@ -34,6 +34,8 @@
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Legacy.h>
 
+#include <numeric>
+
 namespace H2Core
 {
 
@@ -293,6 +295,37 @@ void Pattern::extand_with_flattened_virtual_patterns( PatternList* patterns )
 		patterns->add( *it );
 	}
 }
+
+/// Calculate the minimum resolution that can be used to accurately represent the pattern.
+int Pattern::get_minimum_resolution() const
+{
+	int nDenominator = 0;
+	for ( auto it : __notes ) {
+		int nPos = it.first;
+		nDenominator = std::gcd( nDenominator, nPos );
+	}
+	return m_nResolution / nDenominator;
+}
+
+/// Retime a pattern to a given resolution. This adjusts the positions of all notes to fit.
+int Pattern::retime_to_resolution( int nResolution )
+{
+	std::list< Note *> notes;
+	for ( auto it : __notes ) {
+		notes.push_back( it.second );
+	}
+
+	__notes.clear();
+
+	for ( auto pNote : notes ) {
+		int nPos = pNote->get_position() * nResolution / m_nResolution;
+		pNote->set_position( nPos );
+		__notes.insert( std::make_pair( nPos, pNote ) );
+	}
+	__length = __length * nResolution / m_nResolution;
+	m_nResolution = nResolution;
+}
+
 
 };
 

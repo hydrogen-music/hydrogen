@@ -208,7 +208,12 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	painter.drawLine( 0, 0, m_nRulerWidth, 0 );
 	painter.drawLine( 0, m_nRulerHeight - 1, m_nRulerWidth - 1, m_nRulerHeight - 1);
 
-	uint nQuarter = Hydrogen::get_instance()->getSong()->getResolution();
+	uint nQuarter;
+	if ( m_pPattern ) {
+		nQuarter = m_pPattern->get_resolution();
+	} else {
+		nQuarter = Hydrogen::get_instance()->getSong()->getResolution();
+	}
 
 	for ( int i = 0; i < 64 ; i++ ) {
 		int nText_x = 20 + nQuarter / 4 * i * m_nGridWidth;

@@ -202,6 +202,12 @@ class Pattern : public H2Core::Object
 		/// This does not alter the length of the pattern or the position of notes
 		void set_resolution( int nResolution );
 
+		/// Calculate the minimum resolution that can be used to accurately represent the pattern.
+		int get_minimum_resolution() const;
+
+		/// Retime a pattern to a given resolution. This adjusts the positions of all notes to fit.
+		int retime_to_resolution( int nResolution );
+
 	private:
 		int __length;                                           ///< the length of the pattern
 		int __denominator;                                      ///< the meter denominator of the pattern used in meter (eg 4/4)

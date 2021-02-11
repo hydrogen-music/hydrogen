@@ -2318,7 +2318,7 @@ void SongEditorPositionRuler::paintEvent( QPaintEvent *ev )
 	}
 	else {
 		// nessun pattern, uso la grandezza di default
-		fPos += (float)pHydrogen->getTickPosition() / (float)MAX_NOTES;
+		fPos += (float)pHydrogen->getTickPosition() / (float)pHydrogen->getSong()->getDefaultPatternSize();
 	}
 
 	if ( pHydrogen->getSong()->getMode() == Song::PATTERN_MODE ) {
