@@ -50,7 +50,7 @@ NotePropertiesRuler::NotePropertiesRuler( QWidget *parent, PatternEditorPanel *p
 	m_Mode = mode;
 
 	m_nGridWidth = (Preferences::get_instance())->getPatternEditorGridWidth();
-	m_nEditorWidth = m_nMargin + m_nGridWidth * ( MAX_NOTES * 4 );
+	m_nEditorWidth = m_nMargin + m_nGridWidth * ( Hydrogen::get_instance()->getSong()->getDefaultPatternSize() );
 
 	m_fLastSetValue = 0.0;
 	m_bValueHasBeenSet = false;
@@ -797,6 +797,7 @@ void NotePropertiesRuler::paintEvent( QPaintEvent *ev)
 
 void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 {
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( !isVisible() ) {
 		return;
 	}
@@ -815,9 +816,11 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 							pStyle->m_patternEditor_backgroundColor.getGreen() - 20,
 							pStyle->m_patternEditor_backgroundColor.getBlue() - 20 );
 
-	unsigned nNotes = MAX_NOTES;
+	unsigned nNotes;
 	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
+	} else {
+		nNotes = pHydrogen->getSong()->getDefaultPatternSize();
 	}
 
 	QPainter p( pixmap );
@@ -834,8 +837,8 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 
 	// draw velocity lines
 	if (m_pPattern != nullptr) {
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		Song *pSong = Hydrogen::get_instance()->getSong();
+		int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
+		Song *pSong = pHydrogen->getSong();
 
 		QPen selectedPen( selectedNoteColor( pStyle ) );
 		selectedPen.setWidth( 2 );
@@ -888,6 +891,7 @@ void NotePropertiesRuler::createVelocityBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 {
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( !isVisible() ) {
 		return;
 	}
@@ -908,9 +912,11 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 
 	QPainter p( pixmap );
 
-	unsigned nNotes = MAX_NOTES;
-	if (m_pPattern) {
+	unsigned nNotes;
+	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
+	} else {
+		nNotes = pHydrogen->getSong()->getDefaultPatternSize();
 	}
 	p.fillRect( 0, 0, m_nMargin + nNotes * m_nGridWidth, height(), backgroundColor );
 
@@ -922,8 +928,8 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 	drawGridLines( p, Qt::DotLine );
 
 	if ( m_pPattern ) {
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		Song *pSong = Hydrogen::get_instance()->getSong();
+		int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
+		Song *pSong = pHydrogen->getSong();
 		QPen selectedPen( selectedNoteColor( pStyle ) );
 		selectedPen.setWidth( 2 );
 
@@ -978,6 +984,7 @@ void NotePropertiesRuler::createPanBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 {
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( !isVisible() ) {
 		return;
 	}
@@ -998,9 +1005,11 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 
 	QPainter p( pixmap );
 
-	unsigned nNotes = MAX_NOTES;
-	if (m_pPattern) {
+	unsigned nNotes;
+	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
+	} else {
+		nNotes = pHydrogen->getSong()->getDefaultPatternSize();
 	}
 	p.fillRect( 0, 0, m_nMargin + nNotes * m_nGridWidth, height(), backgroundColor );
 
@@ -1012,8 +1021,8 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 	drawGridLines( p, Qt::DotLine );
 
 	if ( m_pPattern ) {
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		Song *pSong = Hydrogen::get_instance()->getSong();
+		int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
+		Song *pSong = pHydrogen->getSong();
 		QPen selectedPen( selectedNoteColor( pStyle ) );
 		selectedPen.setWidth( 2 );
 
@@ -1090,6 +1099,7 @@ void NotePropertiesRuler::createLeadLagBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 {
+	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	if ( !isVisible() ) {
 		return;
 	}
@@ -1108,9 +1118,11 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 							pStyle->m_patternEditor_backgroundColor.getGreen() - 100,
 							pStyle->m_patternEditor_backgroundColor.getBlue() - 100 );
 
-	unsigned nNotes = MAX_NOTES;
-	if (m_pPattern) {
+	unsigned nNotes;
+	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
+	} else {
+		nNotes = pHydrogen->getSong()->getDefaultPatternSize();
 	}
 	QPainter p( pixmap );
 
@@ -1158,8 +1170,8 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 	//paint the octave
 	if ( m_pPattern ) {
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		Song *pSong = Hydrogen::get_instance()->getSong();
+		int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
+		Song *pSong = pHydrogen->getSong();
 		QPen selectedPen( selectedNoteColor( pStyle ) );
 		selectedPen.setWidth( 2 );
 
@@ -1181,8 +1193,8 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 	//paint the note
 	if ( m_pPattern ) {
-		int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-		Song *pSong = Hydrogen::get_instance()->getSong();
+		int nSelectedInstrument = pHydrogen->getSelectedInstrumentNumber();
+		Song *pSong = pHydrogen->getSong();
 		QPen selectedPen( selectedNoteColor( pStyle ) );
 		selectedPen.setWidth( 2 );
 
@@ -1225,9 +1237,9 @@ void NotePropertiesRuler::createNoteKeyBackground(QPixmap *pixmap)
 
 void NotePropertiesRuler::updateEditor( bool bPatternOnly )
 {
-	Hydrogen *pEngine = Hydrogen::get_instance();
-	PatternList *pPatternList = pEngine->getSong()->getPatternList();
-	int nSelectedPatternNumber = pEngine->getSelectedPatternNumber();
+	Hydrogen *pHydrogen= Hydrogen::get_instance();
+	PatternList *pPatternList = pHydrogen->getSong()->getPatternList();
+	int nSelectedPatternNumber = pHydrogen->getSelectedPatternNumber();
 	if ( (nSelectedPatternNumber != -1) && ( (uint)nSelectedPatternNumber < pPatternList->size() ) ) {
 		m_pPattern = pPatternList->get( nSelectedPatternNumber );
 	}
@@ -1241,7 +1253,7 @@ void NotePropertiesRuler::updateEditor( bool bPatternOnly )
 		m_nEditorWidth = m_nMargin + m_pPattern->get_length() * m_nGridWidth;
 	}
 	else {
-		m_nEditorWidth =  m_nMargin + MAX_NOTES * m_nGridWidth;
+		m_nEditorWidth =  m_nMargin + pHydrogen->getSong()->getDefaultPatternSize() * m_nGridWidth;
 	}
 
 	if ( !m_bNeedsUpdate ) {

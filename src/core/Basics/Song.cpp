@@ -67,7 +67,7 @@ const char* Song::__class_name = "Song";
 Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume )
 	: Object( __class_name )
 	, m_bIsMuted( false )
-	, m_resolution( 48 )
+	, m_resolution( nDefaultResolutionTPQN )
 	, m_fBpm( fBpm )
 	, m_sName( sName )
 	, m_sAuthor( sAuthor )
@@ -689,6 +689,7 @@ Song* SongReader::readSong( const QString& sFileName )
 
 	float fBpm = LocalFileMng::readXmlFloat( songNode, "bpm", 120 );
 	Hydrogen::get_instance()->setNewBpmJTM( fBpm );
+	int nResolution = LocalFileMng::readXmlFloat( songNode, "resolution", Song::nDefaultResolutionTPQN );
 	float fVolume = LocalFileMng::readXmlFloat( songNode, "volume", 0.5 );
 	float fMetronomeVolume = LocalFileMng::readXmlFloat( songNode, "metronomeVolume", 0.5 );
 	QString sName( LocalFileMng::readXmlString( songNode, "name", "Untitled Song" ) );
@@ -724,6 +725,7 @@ Song* SongReader::readSong( const QString& sFileName )
 	float fSwingFactor = LocalFileMng::readXmlFloat( songNode, "swing_factor", 0.0 );
 
 	pSong = new Song( sName, sAuthor, fBpm, fVolume );
+	pSong->setResolution( nResolution );
 	pSong->setMetronomeVolume( fMetronomeVolume );
 	pSong->setNotes( sNotes );
 	pSong->setLicense( sLicense );

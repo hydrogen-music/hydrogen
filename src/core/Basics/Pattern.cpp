@@ -27,6 +27,8 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/PatternList.h>
 #include <core/AudioEngine.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
 
 #include <core/Helpers/Xml.h>
 #include <core/Helpers/Filesystem.h>
@@ -39,12 +41,18 @@ const char* Pattern::__class_name = "Pattern";
 
 Pattern::Pattern( const QString& name, const QString& info, const QString& category, int length, int denominator )
 	: Object( __class_name )
-	, __length( length )
 	, __denominator( denominator)
 	, __name( name )
 	, __info( info )
 	, __category( category )
 {
+	m_nResolution = H2Core::Song::nDefaultResolutionTPQN;
+	// Default to a pattern length of a whole note.
+	if ( length <= 0 ) {
+		__length = 4 * m_nResolution;
+	} else {
+		__length = length;
+	}
 }
 
 Pattern::Pattern( Pattern* other )
@@ -101,6 +109,7 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 	if ( pattern->get_name().isEmpty() ) {
 	    pattern->set_name( node->read_string( "pattern_name", "unknown", false, false ) );
 	}
+	pattern->set_resolution( node->read_int( "resolution", Song::nDefaultResolutionTPQN ) );
 	XMLNode note_list_node = node->firstChildElement( "noteList" );
 	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
@@ -139,6 +148,7 @@ void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly ) const
 	pattern_node.write_string( "category", __category );
 	pattern_node.write_int( "size", __length );
 	pattern_node.write_int( "denominator", __denominator );
+	pattern_node.write_int( "resolution", m_nResolution );
 	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
 	int id = ( instrumentOnly == nullptr ? -1 : instrumentOnly->get_id() );
 	for( auto it=__notes.cbegin(); it!=__notes.cend(); ++it ) {

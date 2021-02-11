@@ -27,6 +27,8 @@
 #include "../Selection.h"
 
 #include <core/Object.h>
+#include <core/Hydrogen.h>
+#include <core/Basics/Song.h>
 
 #include <QtGui>
 #if QT_VERSION >= 0x050000
@@ -141,7 +143,7 @@ protected:
 		else {
 			nBase = 4;
 		}
-		return 4 * MAX_NOTES / ( nBase * m_nResolution );
+		return 4 * H2Core::Hydrogen::get_instance()->getSong()->getResolution() * 4 / ( nBase * m_nResolution );
 	}
 
 	uint m_nEditorHeight;

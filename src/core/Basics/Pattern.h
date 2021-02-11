@@ -63,7 +63,8 @@ class Pattern : public H2Core::Object
 		 * \param length the length of the pattern
 		 * \param denominator the denominator for meter representation (eg 4/4)
 		 */
-		Pattern( const QString& name="Pattern", const QString& info="", const QString& category="not_categorized", int length=MAX_NOTES, int denominator=4 );
+		Pattern( const QString& name="Pattern", const QString& info="", const QString& category="not_categorized",
+				 int length=-1, int denominator=4 );
 		/** copy constructor */
 		Pattern( Pattern* other );
 		/** destructor */
@@ -194,9 +195,16 @@ class Pattern : public H2Core::Object
 		 */
 		void save_to( XMLNode* node, const Instrument* instrumentOnly = nullptr ) const;
 
+		/// Get resolution of the pattern, in ticks per quarter-note
+		int get_resolution() const;
+
+		/// Set resolution, in ticks per quarter-note.
+		/// This does not alter the length of the pattern or the position of notes
+		void set_resolution( int nResolution );
+
 	private:
 		int __length;                                           ///< the length of the pattern
-		int __denominator;                                           ///< the meter denominator of the pattern used in meter (eg 4/4)
+		int __denominator;                                      ///< the meter denominator of the pattern used in meter (eg 4/4)
 		QString __name;                                         ///< the name of thepattern
 		QString __category;                                     ///< the category of the pattern
 		QString __info;											///< a description of the pattern
@@ -210,6 +218,9 @@ class Pattern : public H2Core::Object
 		 * \return a new Pattern instance
 		 */
 		static Pattern* load_from( XMLNode* node, InstrumentList* instruments );
+
+		int m_nResolution;                                      ///< Resolution in ticks per quarter-note
+
 };
 
 #define FOREACH_NOTE_CST_IT_BEGIN_END(_notes,_it) \
@@ -322,7 +333,18 @@ inline void Pattern::flattened_virtual_patterns_clear()
 	__flattened_virtual_patterns.clear();
 }
 
+inline int Pattern::get_resolution() const
+{
+	return m_nResolution;
+}
+
+inline void Pattern::set_resolution( int nResolution )
+{
+	m_nResolution = nResolution;
+}
+
 };
+
 
 #endif // H2C_PATTERN_H
 

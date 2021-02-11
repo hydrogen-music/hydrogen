@@ -1510,7 +1510,7 @@ void Sampler::preview_instrument(Instrument* pInstr )
 	m_pPreviewInstrument = pInstr;
 	pInstr->set_is_preview_instrument(true);
 
-	Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.5, 0.5, MAX_NOTES, 0 );
+	Note *pPreviewNote = new Note( m_pPreviewInstrument, 0, 1.0, 0.5, 0.5, -1, 0 );
 
 	noteOn( pPreviewNote );	// exclusive note
 	AudioEngine::get_instance()->unlock();

@@ -573,7 +573,9 @@ void SongEditorPanel::newPatBtnClicked( Button* btn )
 
 	if ( pDialog->exec() == QDialog::Accepted ) {
 		SE_insertPatternAction* pAction =
-				new SE_insertPatternAction( pEngine->getSelectedPatternNumber() + 1, new Pattern( pNewPattern->get_name() , pNewPattern->get_info(), pNewPattern->get_category() ) );
+			new SE_insertPatternAction( pEngine->getSelectedPatternNumber() + 1,
+										new Pattern( pNewPattern->get_name() , pNewPattern->get_info(),
+													 pNewPattern->get_category(),  4 * pSong->getResolution()) );
 		HydrogenApp::get_instance()->m_pUndoStack->push(  pAction );
 	}
 
