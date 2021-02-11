@@ -23,6 +23,7 @@
 #ifndef H2C_SAMPLE_H
 #define H2C_SAMPLE_H
 
+#include <iostream>
 #include <memory>
 #include <vector>
 #include <sndfile.h>
@@ -60,6 +61,7 @@ class EnvelopePoint : public H2Core::Object
 		EnvelopePoint( int f, int v );
 		/** copy constructor */
 		EnvelopePoint( EnvelopePoint* other );
+		QString toQString( const QString& sPrefix ) const;
 };
 
 class Sample : public H2Core::Object
@@ -100,6 +102,7 @@ class Sample : public H2Core::Object
 				{
 					return ( start_frame==b.start_frame && loop_frame==b.loop_frame && end_frame==b.end_frame && count==b.count && mode==b.mode );
 				}
+				QString toQString( const QString& sPrefix ) const;
 		};
 
 		/** set of rubberband configuration flags */
@@ -123,6 +126,7 @@ class Sample : public H2Core::Object
 				{
 					return ( use==b.use && divider==b.divider && c_settings==b.c_settings && pitch==b.pitch );
 				}
+				QString toQString( const QString& sPrefix ) const;
 		};
 
 		/**
@@ -318,6 +322,14 @@ class Sample : public H2Core::Object
 		/** \return mode member of #__loops as a string */
 		QString get_loop_mode_string() const;
 
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix ) const;
+		/** Prints content of toQString() via DEBUGLOG*/
+		void Print() const;
+
 	private:
 		QString				__filepath;          ///< filepath of the sample
 		int					__frames;            ///< number of frames in this sample
@@ -332,6 +344,9 @@ class Sample : public H2Core::Object
 		/** loop modes string */
 		static const std::vector<QString> __loop_modes;
 };
+
+std::ostream& operator<<( std::ostream& os, const Sample& sample );
+std::ostream& operator<<( std::ostream& os, const Sample* sample );
 
 // DEFINITIONS
 

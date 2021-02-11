@@ -23,12 +23,22 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <QString>
-#include <core/Basics/Song.h>
 #include <core/EventQueue.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
+#include <core/Basics/Adsr.h>
+#include <core/Basics/AutomationPath.h>
+#include <core/Basics/Drumkit.h>
+#include <core/Basics/DrumkitComponent.h>
+#include <core/Basics/InstrumentLayer.h>
 #include <core/Basics/InstrumentList.h>
+#include <core/Basics/InstrumentComponent.h>
 #include <core/Basics/Instrument.h>
+#include <core/Basics/Note.h>
+#include <core/Basics/Pattern.h>
+#include <core/Basics/PatternList.h>
+#include <core/Basics/Sample.h>
+#include <core/Basics/Song.h>
 #include <core/Smf/SMF.h>
 #include "TestHelper.h"
 #include "assertions/File.h"
@@ -116,9 +126,45 @@ class FunctionalTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testExportVelocityAutomationAudio );
 	CPPUNIT_TEST( testExportVelocityAutomationMIDISMF0 );
 	CPPUNIT_TEST( testExportVelocityAutomationMIDISMF1 );
+	CPPUNIT_TEST( testPrintMessages );
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
+
+	void testPrintMessages()
+	{
+		std::cout << std::endl;
+		auto sSongFile = H2TEST_FILE( "functional/test.h2song" );
+		auto sDrumkitFile = H2TEST_FILE( "/drumkits/baseKit" );
+
+		auto pSong = Song::load( sSongFile );
+		std::cout << pSong << std::endl;
+		auto pVelocityAutomationPath = pSong->getVelocityAutomationPath();
+		// std::cout << pVelocityAutomationPath << std::endl;
+		auto pInstrumentList = pSong->getInstrumentList();
+		// std::cout << pInstrumentList << std::endl;
+		auto pInstrument = pInstrumentList->get( 0 );
+		// std::cout << pInstrument << std::endl;
+		auto pADSR = pInstrument->get_adsr();
+		// std::cout << pADSR << std::endl;
+		auto pInstrumentComponent = pInstrument->get_component( 0 );
+		// std::cout << pInstrumentComponent << std::endl;
+		auto pInstrumentLayer = pInstrumentComponent->get_layer( 0 );
+		// std::cout << pInstrumentLayer << std::endl;
+		auto pSample = pInstrumentLayer->get_sample();
+		// std::cout << pSample << std::endl;
+		auto pPatternList = pSong->getPatternList();
+		// std::cout << pPatternList << std::endl;
+		auto pPattern = pPatternList->get( 0 );
+		// std::cout << pPattern << std::endl;
+		auto pNote = pPattern->find_note( 0, -1, pInstrument, false );
+		// std::cout << pNote << std::endl;
+		auto pDrumkit = Drumkit::load( sDrumkitFile, true );
+		// std::cout << pDrumkit << std::endl;
+		auto pDrumkitComponent = (*pDrumkit->get_components())[ 0 ];
+		// std::cout << pDrumkitComponent << std::endl;
+		std::cout << std::endl;
+	}
 
 	void testExportAudio()
 	{

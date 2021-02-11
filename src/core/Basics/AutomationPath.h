@@ -23,7 +23,7 @@
 #define H2C_AUTOMATION_PATH_H
 
 #include <core/Object.h>
-
+#include <iostream>
 #include <map>
 
 #if __cplusplus <= 199711L
@@ -73,9 +73,19 @@ class AutomationPath : private Object
 
 	iterator find(float x);
 	iterator move(iterator &in, float x, float y);
+	
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 * every new line
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix ) const;
+	/** Prints content of toQString() via DEBUGLOG*/
+	void Print() const;
+
 };
 
-std::ostream &operator<< (std::ostream &o, const AutomationPath &p);
+std::ostream& operator<< ( std::ostream &os, const AutomationPath& p );
+std::ostream& operator<< ( std::ostream &os, const AutomationPath* p);
 
 };
 

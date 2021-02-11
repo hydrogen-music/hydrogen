@@ -24,6 +24,7 @@
 #define H2C_DRUMKIT_H
 
 #include <core/Object.h>
+#include <iostream>
 
 namespace H2Core
 {
@@ -225,6 +226,14 @@ class Drumkit : public H2Core::Object
 		std::vector<DrumkitComponent*>* get_components();
 		void set_components( std::vector<DrumkitComponent*>* components );
 
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix ) const;
+		/** Prints content of toQString() via DEBUGLOG*/
+		void Print() const;
+
 	private:
 		QString __path;					///< absolute drumkit path
 		QString __name;					///< drumkit name
@@ -249,6 +258,9 @@ class Drumkit : public H2Core::Object
 		static Drumkit* load_from( XMLNode* node, const QString& dk_path );
 		std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
 };
+
+std::ostream& operator<<( std::ostream& os, const Drumkit& drumkit );
+std::ostream& operator<<( std::ostream& os, const Drumkit* drumkit );
 
 // DEFINITIONS
 

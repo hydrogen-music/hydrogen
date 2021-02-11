@@ -655,6 +655,74 @@ void Song::setPanLawKNorm( float fKNorm ) {
 		m_fPanLawKNorm = Sampler::K_NORM_DEFAULT;
 	}
 }
+ 
+QString Song::toQString( const QString& sPrefix ) const {
+	QString s = Logger::printIndention;
+	QString sOutput = QString( "%1[Song]\n" ).arg( sPrefix )
+		.append( QString( "%1%2m_bIsMuted: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsMuted ) )
+				.append( QString( "%1%2m_resolution: %3\n" ).arg( sPrefix ).arg( s ).arg( m_resolution ) )
+				.append( QString( "%1%2m_fBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fBpm ) )
+				.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sName ) )
+				.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sAuthor ) )
+				.append( QString( "%1%2m_fVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fVolume ) )
+				.append( QString( "%1%2m_fMetronomeVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fMetronomeVolume ) )
+				.append( QString( "%1%2m_sNotes: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sNotes ) )
+		.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s ) ) )
+		.append( QString( "%1%2m_pPatternGroupSequence:\n" ).arg( sPrefix ).arg( s ) );
+
+	for ( auto pp : *m_pPatternGroupSequence ) {
+		if ( pp != nullptr ) {
+			sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s + s ) ) );
+		}
+	}
+
+	sOutput.append( QString( "%1" ).arg( m_pInstrumentList->toQString( sPrefix + s ) ) )
+		.append( QString( "%1%2m_pComponents:\n" ).arg( sPrefix ).arg( s ) );
+
+	for ( auto cc : *m_pComponents ) {
+		if ( cc != nullptr ) {
+			sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s ) ) );
+		}
+	}
+	
+	sOutput.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sFilename ) )
+		.append( QString( "%1%2m_bIsLoopEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsLoopEnabled ) )
+		.append( QString( "%1%2m_fHumanizeTimeValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fHumanizeTimeValue ) )
+		.append( QString( "%1%2m_fHumanizeVelocityValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fHumanizeVelocityValue ) )
+		.append( QString( "%1%2m_fSwingFactor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fSwingFactor ) )
+		.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) )
+		.append( QString( "%1%2m_latestRoundRobins\n" ).arg( sPrefix ).arg( s ) );
+
+	for ( auto mm : m_latestRoundRobins ) {
+		sOutput.append( QString( "%1%2%3 : %4\n" ).arg( sPrefix ).arg( s ).arg( mm.first ).arg( mm.second ) );
+	}
+
+	sOutput.append( QString( "%1%2m_songMode: %3\n" ).arg( sPrefix ).arg( s ).arg( m_songMode ) )
+		.append( QString( "%1%2m_sPlaybackTrackFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPlaybackTrackFilename ) )
+		.append( QString( "%1%2m_bPlaybackTrackEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bPlaybackTrackEnabled ) )
+		.append( QString( "%1%2m_fPlaybackTrackVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPlaybackTrackVolume ) )
+		.append( QString( "%1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix + s ) ) )
+		.append( QString( "%1%2m_sLicense: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sLicense ) );
+	if ( m_actionMode == ActionMode::selectMode ) {
+		sOutput.append( QString( "%1%2m_actionMode: 0\n" ).arg( sPrefix ).arg( s ) );
+	} else if ( m_actionMode == ActionMode::drawMode ) {
+		sOutput.append( QString( "%1%2m_actionMode: 1\n" ).arg( sPrefix ).arg( s ) );
+	}
+	sOutput.append( QString( "%1%2m_nPanLawType: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPanLawType ) )
+		.append( QString( "%1%2m_fPanLawKNorm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPanLawKNorm ) );
+	
+	return sOutput;
+}
+ 
+void Song::Print() const {
+	DEBUGLOG( toQString( "" ) );
+}
+std::ostream& operator<<( std::ostream& os, const Song& song ) {
+	return os << song.toQString( "" ).toLocal8Bit().data() << std::endl;
+}
+std::ostream& operator<<( std::ostream& os, const Song* song ) {
+	return os << song->toQString( "" ).toLocal8Bit().data() << std::endl;
+}
 
 ///
 /// Reads a song.

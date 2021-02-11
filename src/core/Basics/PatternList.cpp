@@ -251,6 +251,28 @@ int PatternList::longest_pattern_length() {
 	return nMax;
 }
 
+QString PatternList::toQString( const QString& sPrefix ) const {
+	QString s = Logger::printIndention;
+	QString sOutput = QString( "%1[PatternList]\n" ).arg( sPrefix );
+	for ( auto pp : __patterns ) {
+		if ( pp != nullptr ) {
+			sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s ) ) );
+		}
+	}
+	
+	return sOutput;
+}
+ 
+void PatternList::Print() const {
+	DEBUGLOG( toQString( "" ) );
+}
+std::ostream& operator<<( std::ostream& os, const PatternList& patternList ) {
+	return os << patternList.toQString( "" ).toLocal8Bit().data() << std::endl;
+}
+std::ostream& operator<<( std::ostream& os, const PatternList* patternList ) {
+	return os << patternList->toQString( "" ).toLocal8Bit().data() << std::endl;
+}
+ 
 }
 
 

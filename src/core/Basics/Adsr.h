@@ -24,6 +24,7 @@
 #define H2C_ADSR_H
 
 #include <core/Object.h>
+#include <iostream>
 
 namespace H2Core
 {
@@ -97,6 +98,14 @@ class ADSR : private Object
 		 * */
 		float release();
 
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix ) const;
+		/** Prints content of toQString() via DEBUGLOG*/
+		void Print() const;
+
 	private:
 		unsigned int __attack;		///< Attack tick count
 		unsigned int __decay;		///< Decay tick count
@@ -116,6 +125,9 @@ class ADSR : private Object
 		float __release_value;  ///< value when the release state was entered
 		void normalise();
 };
+
+std::ostream& operator<<( std::ostream& os, const ADSR& adsr );
+std::ostream& operator<<( std::ostream& os, const ADSR* adsr );
 
 // DEFINITIONS
 

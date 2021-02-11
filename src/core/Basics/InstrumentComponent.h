@@ -25,7 +25,7 @@
 
 #include <cassert>
 #include <vector>
-
+#include <iostream>
 #include <core/Object.h>
 
 namespace H2Core
@@ -63,6 +63,14 @@ class InstrumentComponent : public H2Core::Object
 		/** @param layers Sets #m_nMaxLayers.*/
 		static void			setMaxLayers( int layers );
 
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix ) const;
+		/** Prints content of toQString() via DEBUGLOG*/
+		void Print() const;
+
 	private:
 		/** Component ID of the drumkit. It is set by
 		    set_drumkit_componentID() and
@@ -80,6 +88,9 @@ class InstrumentComponent : public H2Core::Object
 		static int			m_nMaxLayers;
 		std::vector<InstrumentLayer*>	__layers;
 };
+
+std::ostream& operator<<( std::ostream& os, const InstrumentComponent& instrumentComponent );
+std::ostream& operator<<( std::ostream& os, const InstrumentComponent* instrumentComponent );
 
 // DEFINITIONS
 /** Sets the component ID #__related_drumkit_componentID

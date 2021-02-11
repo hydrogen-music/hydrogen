@@ -25,7 +25,7 @@
 
 #include <cassert>
 #include <inttypes.h>
-
+#include <iostream>
 #include <core/Object.h>
 
 namespace H2Core
@@ -74,6 +74,14 @@ class DrumkitComponent : public H2Core::Object
 		float						get_out_L( int nBufferPos );
 		float						get_out_R( int nBufferPos );
 
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix ) const;
+		/** Prints content of toQString() via DEBUGLOG*/
+		void Print() const;
+
 	private:
 		int		__id;
 	        /** Name of the DrumkitComponent. It is set by
@@ -89,6 +97,9 @@ class DrumkitComponent : public H2Core::Object
 		float *		__out_L;
 		float *		__out_R;
 };
+
+std::ostream& operator<<( std::ostream& os, const DrumkitComponent& drumkitComponent );
+std::ostream& operator<<( std::ostream& os, const DrumkitComponent* drumkitComponent );
 
 // DEFINITIONS
 /** Sets the name of the DrumkitComponent #__name.

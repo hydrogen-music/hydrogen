@@ -24,7 +24,7 @@
 #define H2C_INSTRUMENT_H
 
 #include <cassert>
-
+#include <iostream>
 #include <core/Object.h>
 #include <core/Basics/Adsr.h>
 
@@ -276,6 +276,14 @@ class Instrument : public H2Core::Object
 		bool has_missing_samples() const { return m_bHasMissingSamples; }
 		void set_missing_samples( bool bHasMissingSamples ) { m_bHasMissingSamples = bHasMissingSamples; }
 
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix ) const;
+		/** Prints content of toQString() via DEBUGLOG*/
+		void Print() const;
+
 	private:
 	        /** Identifier of an instrument, which should be
 		    unique. It is set by set_id() and accessed via
@@ -317,6 +325,10 @@ class Instrument : public H2Core::Object
 		bool					__current_instr_for_export;		///< is the instrument currently being exported?
 		bool 					m_bHasMissingSamples;	///< does the instrument have missing sample files?
 };
+
+std::ostream& operator<<( std::ostream& os, const Instrument& instrument );
+std::ostream& operator<<( std::ostream& os, const Instrument* instrument );
+
 // DEFINITIONS
 /** Sets the name of the Instrument #__name.
  * \param name New name. */

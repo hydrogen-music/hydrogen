@@ -41,6 +41,8 @@ unsigned Logger::__bit_msk = 0;
 Logger* Logger::__instance=nullptr;
 const char* Logger::__levels[] = { "None", "Error", "Warning", "Info", "Debug" };
 
+QString Logger::printIndention = "  ";
+
 pthread_t loggerThread;
 
 void* loggerThread_func( void* param ) {

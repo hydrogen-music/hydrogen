@@ -28,6 +28,7 @@
 #include <QDomNode>
 #include <vector>
 #include <map>
+#include <iostream>
 
 #include <core/Object.h>
 
@@ -203,6 +204,14 @@ class Song : public H2Core::Object
 		void setPanLawKNorm( float fKNorm );
 		float getPanLawKNorm() const;
 
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix ) const;
+		/** Prints content of toQString() via DEBUGLOG*/
+		void Print() const;
+
 	private:
 
 		bool m_bIsMuted;
@@ -284,6 +293,9 @@ class Song : public H2Core::Object
 		float m_fPanLawKNorm;
 
 };
+
+std::ostream& operator<<( std::ostream& os, const Song& song );
+std::ostream& operator<<( std::ostream& os, const Song* song );
 
 inline bool Song::getIsMuted() const
 {
