@@ -256,26 +256,36 @@ void InstrumentList::set_default_midi_out_notes()
 	}
 }
 
-QString InstrumentList::toQString( const QString& sPrefix ) const {
+QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Logger::printIndention;
-	QString sOutput = QString( "%1[InstrumentList]\n" ).arg( sPrefix );
-	for ( auto ii : __instruments ) {
-		if ( ii != nullptr ) {
-			sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s ) ) );
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[InstrumentList]\n" ).arg( sPrefix );
+		for ( auto ii : __instruments ) {
+			if ( ii != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s, bShort ) ) );
+			}
+		}
+	} else {
+		sOutput = QString( "[InstrumentList] " );
+		for ( auto ii : __instruments ) {
+			if ( ii != nullptr ) {
+				sOutput.append( QString( "(%1: %2) " ).arg( ii->get_id() ).arg( ii->get_name() ) );
+			}
 		}
 	}
 	
 	return sOutput;
 }
  
-void InstrumentList::Print() const {
-	DEBUGLOG( toQString( "" ) );
+void InstrumentList::Print( bool bShort ) const {
+	DEBUGLOG( toQString( "", bShort ) );
 }
 std::ostream& operator<<( std::ostream& os, const InstrumentList& instrumentList ) {
-	return os << instrumentList.toQString( "" ).toLocal8Bit().data() << std::endl;
+	return os << instrumentList.toQString( "", true ).toLocal8Bit().data() << std::endl;
 }
 std::ostream& operator<<( std::ostream& os, const InstrumentList* instrumentList ) {
-	return os << instrumentList->toQString( "" ).toLocal8Bit().data() << std::endl;
+	return os << instrumentList->toQString( "", true ).toLocal8Bit().data() << std::endl;
 }
 
 };

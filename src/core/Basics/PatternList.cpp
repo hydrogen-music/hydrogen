@@ -251,26 +251,37 @@ int PatternList::longest_pattern_length() {
 	return nMax;
 }
 
-QString PatternList::toQString( const QString& sPrefix ) const {
+QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Logger::printIndention;
-	QString sOutput = QString( "%1[PatternList]\n" ).arg( sPrefix );
-	for ( auto pp : __patterns ) {
-		if ( pp != nullptr ) {
-			sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s ) ) );
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[PatternList]\n" ).arg( sPrefix );
+		for ( auto pp : __patterns ) {
+			if ( pp != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s, bShort ) ) );
+			}
 		}
+	} else {
+		sOutput = QString( "[PatternList] " );
+		for ( auto pp : __patterns ) {
+			if ( pp != nullptr ) {
+				sOutput.append( QString( "[%1] " ).arg( pp->toQString( sPrefix + s, bShort ) ) );
+			}
+		}
+		sOutput.append( "]" );
 	}
 	
 	return sOutput;
 }
  
-void PatternList::Print() const {
-	DEBUGLOG( toQString( "" ) );
+void PatternList::Print( bool bShort ) const {
+	DEBUGLOG( toQString( "", bShort ) );
 }
 std::ostream& operator<<( std::ostream& os, const PatternList& patternList ) {
-	return os << patternList.toQString( "" ).toLocal8Bit().data() << std::endl;
+	return os << patternList.toQString( "", true ).toLocal8Bit().data() << std::endl;
 }
 std::ostream& operator<<( std::ostream& os, const PatternList* patternList ) {
-	return os << patternList->toQString( "" ).toLocal8Bit().data() << std::endl;
+	return os << patternList->toQString( "", true ).toLocal8Bit().data() << std::endl;
 }
  
 }

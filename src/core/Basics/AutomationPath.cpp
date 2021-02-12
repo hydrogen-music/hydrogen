@@ -102,28 +102,42 @@ bool operator!=(const AutomationPath &lhs, const AutomationPath &rhs)
 	return !(lhs==rhs);
 }
 
-QString AutomationPath::toQString( const QString& sPrefix ) const {
+QString AutomationPath::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Logger::printIndention;
-	QString sOutput = QString( "%1[AutomationPath]\n" ).arg( sPrefix )
-		.append( QString( "%1%2min: %3\n" ).arg( sPrefix ).arg( s ).arg( _min ) )
-		.append( QString( "%1%2max: %3\n" ).arg( sPrefix ).arg( s ).arg( _max ) )
-		.append( QString( "%1%2def: %3\n" ).arg( sPrefix ).arg( s ).arg( _def ) )
-		.append( QString( "%1%2points:\n" ).arg( sPrefix ).arg( s ) );
-	for ( auto pp : _points ) {
-		sOutput.append( QString( "%1%2%3 : %4\n" ).arg( sPrefix ).arg( s ).arg( pp.first ).arg( pp.second ) );
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[AutomationPath]\n" ).arg( sPrefix )
+			.append( QString( "%1%2min: %3\n" ).arg( sPrefix ).arg( s ).arg( _min ) )
+			.append( QString( "%1%2max: %3\n" ).arg( sPrefix ).arg( s ).arg( _max ) )
+			.append( QString( "%1%2def: %3\n" ).arg( sPrefix ).arg( s ).arg( _def ) )
+			.append( QString( "%1%2points:\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto pp : _points ) {
+			sOutput.append( QString( "%1%2%3 : %4\n" ).arg( sPrefix ).arg( s ).arg( pp.first ).arg( pp.second ) );
+		}
+	} else {
+		
+		sOutput = QString( "[AutomationPath]" )
+			.append( QString( " min: %1" ).arg( _min ) )
+			.append( QString( ", max: %1" ).arg( _max ) )
+			.append( QString( ", def: %1" ).arg( _def ) )
+			.append( QString( ", [points: " ) );
+		for ( auto pp : _points ) {
+			sOutput.append( QString( "(%1: %4) " ).arg( pp.first ).arg( pp.second ) );
+		}
+		sOutput.append( "]" );
 	}
 	
 	return sOutput;
 }
  
-void AutomationPath::Print() const {
-	DEBUGLOG( toQString( "" ) );
+void AutomationPath::Print( bool bShort ) const {
+	DEBUGLOG( toQString( "", bShort ) );
 }
 std::ostream& operator<<( std::ostream& os, const AutomationPath& automationPath ) {
-	return os << automationPath.toQString( "" ).toLocal8Bit().data() << std::endl;
+	return os << automationPath.toQString( "", true ).toLocal8Bit().data() << std::endl;
 }
 std::ostream& operator<<( std::ostream& os, const AutomationPath* automationPath ) {
-	return os << automationPath->toQString( "" ).toLocal8Bit().data() << std::endl;
+	return os << automationPath->toQString( "", true ).toLocal8Bit().data() << std::endl;
 }
 
 /**

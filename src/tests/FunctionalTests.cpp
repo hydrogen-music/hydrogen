@@ -135,36 +135,52 @@ class FunctionalTest : public CppUnit::TestCase {
 		some basic core classes.*/
 	void testPrintMessages()
 	{
-		std::cout << std::endl;
 		auto sSongFile = H2TEST_FILE( "functional/test.h2song" );
 		auto sDrumkitFile = H2TEST_FILE( "/drumkits/baseKit" );
 
 		auto pSong = Song::load( sSongFile );
-		std::cout << pSong << std::endl;
 		auto pVelocityAutomationPath = pSong->getVelocityAutomationPath();
-		std::cout << pVelocityAutomationPath << std::endl;
 		auto pInstrumentList = pSong->getInstrumentList();
-		std::cout << pInstrumentList << std::endl;
 		auto pInstrument = pInstrumentList->get( 0 );
-		std::cout << pInstrument << std::endl;
 		auto pADSR = pInstrument->get_adsr();
-		std::cout << pADSR << std::endl;
 		auto pInstrumentComponent = pInstrument->get_component( 0 );
-		std::cout << pInstrumentComponent << std::endl;
 		auto pInstrumentLayer = pInstrumentComponent->get_layer( 0 );
-		std::cout << pInstrumentLayer << std::endl;
 		auto pSample = pInstrumentLayer->get_sample();
-		std::cout << pSample << std::endl;
 		auto pPatternList = pSong->getPatternList();
-		std::cout << pPatternList << std::endl;
 		auto pPattern = pPatternList->get( 0 );
-		std::cout << pPattern << std::endl;
 		auto pNote = pPattern->find_note( 0, -1, pInstrument, false );
-		std::cout << pNote << std::endl;
 		auto pDrumkit = Drumkit::load( sDrumkitFile, true );
-		std::cout << pDrumkit << std::endl;
 		auto pDrumkitComponent = (*pDrumkit->get_components())[ 0 ];
-		std::cout << pDrumkitComponent << std::endl;
+
+		// std::cout << std::endl;
+		// std::cout << pVelocityAutomationPath->toQString( "", true ).toLocal8Bit().data() << std::endl;
+		// std::cout << pInstrumentList->toQString( "", true ).toLocal8Bit().data() << std::endl;
+		// std::cout << pInstrument->toQString( "", true ).toLocal8Bit().data() << std::endl;
+		// std::cout << pADSR->toQString( "", true ).toLocal8Bit().data() << std::endl;
+		// std::cout << pInstrumentComponent->toQString( "", true ).toLocal8Bit().data() << std::endl;
+		// std::cout << pInstrumentLayer->toQString( "", true ).toLocal8Bit().data() << std::endl;
+		// std::cout << pSample->toQString( "", true ).toLocal8Bit().data() << std::endl;
+		// std::cout << pPatternList->toQString( "", true ).toLocal8Bit().data() << std::endl;
+		// std::cout << pPattern->toQString( "", true ).toLocal8Bit().data() << std::endl;
+		// std::cout << pNote->toQString( "", true ).toLocal8Bit().data() << std::endl;
+		// std::cout << pDrumkitComponent->toQString( "", true ).toLocal8Bit().data() << std::endl;
+		// std::cout << pDrumkit->toQString( "", true ).toLocal8Bit().data() << std::endl;
+		// std::cout << pSong->toQString( "", true ).toLocal8Bit().data() << std::endl;
+
+		// std::cout << std::endl;
+		// std::cout << pVelocityAutomationPath->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// std::cout << pInstrumentList->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// std::cout << pInstrument->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// std::cout << pADSR->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// std::cout << pInstrumentComponent->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// std::cout << pInstrumentLayer->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// std::cout << pSample->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// std::cout << pPatternList->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// std::cout << pPattern->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// std::cout << pNote->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// std::cout << pDrumkitComponent->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// std::cout << pDrumkit->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// std::cout << pSong->toQString( "", false ).toLocal8Bit().data() << std::endl;
 	}
 
 	void testExportAudio()
