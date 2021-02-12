@@ -73,10 +73,10 @@ DrumPatternEditor::~DrumPatternEditor()
 
 void DrumPatternEditor::updateEditor( bool bPatternOnly )
 {
-	Hydrogen* engine = Hydrogen::get_instance();
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
 
 	// check engine state
-	int state = engine->getState();
+	int state = pHydrogen->getState();
 	if ( (state != STATE_READY) && (state != STATE_PLAYING) ) {
 		ERRORLOG( "FIXME: skipping pattern editor update (state should be READY or PLAYING)" );
 		return;
@@ -88,7 +88,7 @@ void DrumPatternEditor::updateEditor( bool bPatternOnly )
 		m_nEditorWidth = m_nMargin + m_nGridWidth * m_pPattern->get_length();
 	}
 	else {
-		m_nEditorWidth = m_nMargin + m_nGridWidth * MAX_NOTES;
+		m_nEditorWidth = m_nMargin + m_nGridWidth * pHydrogen->getSong()->getDefaultPatternSize();
 	}
 	resize( m_nEditorWidth, height() );
 
@@ -1159,16 +1159,18 @@ void DrumPatternEditor::__draw_grid( QPainter& p )
 	drawGridLines( p );
 
 	static const UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	int nNotes = MAX_NOTES;
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	int nNotes;
 	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
+	} else {
+		nNotes = pSong->getDefaultPatternSize();
 	}
 	
 	// fill the first half of the rect with a solid color
 	static const QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
 	static const QColor selectedRowColor( pStyle->m_patternEditor_selectedRowColor.getRed(), pStyle->m_patternEditor_selectedRowColor.getGreen(), pStyle->m_patternEditor_selectedRowColor.getBlue() );
 	int nSelectedInstrument = Hydrogen::get_instance()->getSelectedInstrumentNumber();
-	Song *pSong = Hydrogen::get_instance()->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
 	for ( uint i = 0; i < (uint)nInstruments; i++ ) {
 		uint y = m_nGridHeight * i + 1;
@@ -1190,12 +1192,14 @@ void DrumPatternEditor::__create_background( QPainter& p)
 	static const QColor alternateRowColor( pStyle->m_patternEditor_alternateRowColor.getRed(), pStyle->m_patternEditor_alternateRowColor.getGreen(), pStyle->m_patternEditor_alternateRowColor.getBlue() );
 	static const QColor lineColor( pStyle->m_patternEditor_lineColor.getRed(), pStyle->m_patternEditor_lineColor.getGreen(), pStyle->m_patternEditor_lineColor.getBlue() );
 
-	int nNotes = MAX_NOTES;
+	Song *pSong = Hydrogen::get_instance()->getSong();
+	int nNotes;
 	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
+	} else {
+		nNotes = pSong->getDefaultPatternSize();
 	}
 
-	Song *pSong = Hydrogen::get_instance()->getSong();
 	int nInstruments = pSong->getInstrumentList()->size();
 
 	if ( m_nEditorHeight != (int)( m_nGridHeight * nInstruments ) ) {

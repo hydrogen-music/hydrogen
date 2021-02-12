@@ -374,6 +374,7 @@ void InstrumentLine::functionFillNotes( int every )
 
 	PatternEditorPanel *pPatternEditorPanel = HydrogenApp::get_instance()->getPatternEditorPanel();
 	DrumPatternEditor *pPatternEditor = pPatternEditorPanel->getDrumPatternEditor();
+	Pattern* pCurrentPattern = getCurrentPattern();
 	int nBase;
 	if ( pPatternEditor->isUsingTriplets() ) {
 		nBase = 3;
@@ -381,14 +382,12 @@ void InstrumentLine::functionFillNotes( int every )
 	else {
 		nBase = 4;
 	}
-	int nResolution = 4 * MAX_NOTES * every / ( nBase * pPatternEditor->getResolution() );
-
+	int nResolution = 4 * pCurrentPattern->get_resolution() * 4 * every / ( nBase * pPatternEditor->getResolution() );
 
 	Song *pSong = pEngine->getSong();
 
 	QStringList notePositions;
 
-	Pattern* pCurrentPattern = getCurrentPattern();
 	if (pCurrentPattern != nullptr) {
 		int nPatternSize = pCurrentPattern->get_length();
 		int nSelectedInstrument = pEngine->getSelectedInstrumentNumber();

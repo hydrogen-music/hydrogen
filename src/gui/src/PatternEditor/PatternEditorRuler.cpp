@@ -58,7 +58,8 @@ PatternEditorRuler::PatternEditorRuler( QWidget* parent )
 	m_pPattern = nullptr;
 	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
 
-	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
+	// The ruler is always set to be 4 whole notes in size, regardless of the actual pattern length. Should it be variable?
+	m_nRulerWidth = 20 + m_nGridWidth * ( Song::nDefaultResolutionTPQN * 4 * 4 );
 	m_nRulerHeight = 25;
 
 	resize( m_nRulerWidth, m_nRulerHeight );
@@ -207,7 +208,12 @@ void PatternEditorRuler::paintEvent( QPaintEvent *ev)
 	painter.drawLine( 0, 0, m_nRulerWidth, 0 );
 	painter.drawLine( 0, m_nRulerHeight - 1, m_nRulerWidth - 1, m_nRulerHeight - 1);
 
-	uint nQuarter = 48;
+	uint nQuarter;
+	if ( m_pPattern ) {
+		nQuarter = m_pPattern->get_resolution();
+	} else {
+		nQuarter = Hydrogen::get_instance()->getSong()->getResolution();
+	}
 
 	for ( int i = 0; i < 64 ; i++ ) {
 		int nText_x = 20 + nQuarter / 4 * i * m_nGridWidth;
@@ -241,7 +247,13 @@ void PatternEditorRuler::zoomIn()
 	{
 		m_nGridWidth *= 1.5;
 	}
-	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
+	int nRes;
+	if ( m_pPattern ) {
+		nRes = m_pPattern->get_resolution();
+	} else {
+		nRes = Hydrogen::get_instance()->getSong()->getResolution();
+	}
+	m_nRulerWidth = 20 + m_nGridWidth * ( nRes * 4 * 4 );
 	resize(  QSize(m_nRulerWidth, m_nRulerHeight ));
 	delete m_pBackground;
 	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
@@ -255,20 +267,26 @@ void PatternEditorRuler::zoomIn()
 void PatternEditorRuler::zoomOut()
 {
 	if ( m_nGridWidth > 1.5 ) {
-		if (m_nGridWidth > 3){
+		if (m_nGridWidth > 3) {
 			m_nGridWidth /= 2;
-		}else
-		{
+		} else {
 			m_nGridWidth /= 1.5;
 		}
-	m_nRulerWidth = 20 + m_nGridWidth * ( MAX_NOTES * 4 );
-	resize( QSize(m_nRulerWidth, m_nRulerHeight) );
-	delete m_pBackground;
-	m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
-	UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
-	QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
-	m_pBackground->fill( backgroundColor );
-	update();
+		int nRes;
+		if ( m_pPattern ) {
+			nRes = m_pPattern->get_resolution();
+		} else {
+			nRes = Hydrogen::get_instance()->getSong()->getResolution();
+		}
+		m_nRulerWidth = 20 + m_nGridWidth * ( nRes * 4 * 4 );
+
+		resize( QSize(m_nRulerWidth, m_nRulerHeight) );
+		delete m_pBackground;
+		m_pBackground = new QPixmap( m_nRulerWidth, m_nRulerHeight );
+		UIStyle *pStyle = Preferences::get_instance()->getDefaultUIStyle();
+		QColor backgroundColor( pStyle->m_patternEditor_backgroundColor.getRed(), pStyle->m_patternEditor_backgroundColor.getGreen(), pStyle->m_patternEditor_backgroundColor.getBlue() );
+		m_pBackground->fill( backgroundColor );
+		update();
 	}
 }
 

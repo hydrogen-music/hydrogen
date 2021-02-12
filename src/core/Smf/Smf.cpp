@@ -204,7 +204,6 @@ std::vector<char> SMF::getBuffer()
 
 // :::::::::::::::::::...
 
-constexpr unsigned int TPQN = 192;
 constexpr unsigned int DRUM_CHANNEL = 9;
 constexpr unsigned int NOTE_LENGTH = 12;
 
@@ -379,7 +378,8 @@ SMF1Writer::~SMF1Writer()
 
 
 SMF* SMF1Writer::createSMF( Song* pSong ){
-	SMF* pSmf =  new SMF( 1, TPQN );	
+	// TODO: MIDI export uses a TPQN 4 times as high as it should be. We should fix that.
+	SMF* pSmf =  new SMF( 1, pSong->getResolution() * 4 );
 	// Standard MIDI format 1 files should have the first track being the tempo map
 	// which is a track that contains global meta events only.
 
@@ -534,7 +534,7 @@ SMF0Writer::~SMF0Writer()
 
 SMF* SMF0Writer::createSMF( Song* pSong ){
 	// MIDI files format 0 have all their events in one track
-	SMF* pSmf =  new SMF( 0, TPQN );	
+	SMF* pSmf =  new SMF( 0, pSong->getResolution() * 4 );
 	m_pTrack = createTrack0( pSong );
 	pSmf->addTrack( m_pTrack );
 	return pSmf;

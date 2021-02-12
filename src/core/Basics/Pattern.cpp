@@ -27,10 +27,14 @@
 #include <core/Basics/Note.h>
 #include <core/Basics/PatternList.h>
 #include <core/AudioEngine.h>
+#include <core/Basics/Song.h>
+#include <core/Hydrogen.h>
 
 #include <core/Helpers/Xml.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Legacy.h>
+
+#include <numeric>
 
 namespace H2Core
 {
@@ -39,12 +43,18 @@ const char* Pattern::__class_name = "Pattern";
 
 Pattern::Pattern( const QString& name, const QString& info, const QString& category, int length, int denominator )
 	: Object( __class_name )
-	, __length( length )
 	, __denominator( denominator)
 	, __name( name )
 	, __info( info )
 	, __category( category )
 {
+	m_nResolution = H2Core::Song::nDefaultResolutionTPQN;
+	// Default to a pattern length of a whole note.
+	if ( length <= 0 ) {
+		__length = 4 * m_nResolution;
+	} else {
+		__length = length;
+	}
 }
 
 Pattern::Pattern( Pattern* other )
@@ -101,6 +111,7 @@ Pattern* Pattern::load_from( XMLNode* node, InstrumentList* instruments )
 	if ( pattern->get_name().isEmpty() ) {
 	    pattern->set_name( node->read_string( "pattern_name", "unknown", false, false ) );
 	}
+	pattern->set_resolution( node->read_int( "resolution", Song::nDefaultResolutionTPQN ) );
 	XMLNode note_list_node = node->firstChildElement( "noteList" );
 	if ( !note_list_node.isNull() ) {
 		XMLNode note_node = note_list_node.firstChildElement( "note" );
@@ -139,6 +150,7 @@ void Pattern::save_to( XMLNode* node, const Instrument* instrumentOnly ) const
 	pattern_node.write_string( "category", __category );
 	pattern_node.write_int( "size", __length );
 	pattern_node.write_int( "denominator", __denominator );
+	pattern_node.write_int( "resolution", m_nResolution );
 	XMLNode note_list_node =  pattern_node.createNode( "noteList" );
 	int id = ( instrumentOnly == nullptr ? -1 : instrumentOnly->get_id() );
 	for( auto it=__notes.cbegin(); it!=__notes.cend(); ++it ) {
@@ -283,6 +295,37 @@ void Pattern::extand_with_flattened_virtual_patterns( PatternList* patterns )
 		patterns->add( *it );
 	}
 }
+
+/// Calculate the minimum resolution that can be used to accurately represent the pattern.
+int Pattern::get_minimum_resolution() const
+{
+	int nDenominator = 1;
+	for ( auto it : __notes ) {
+		int nPos = it.first;
+		nDenominator = std::gcd( nDenominator, nPos );
+	}
+	return m_nResolution / nDenominator;
+}
+
+/// Retime a pattern to a given resolution. This adjusts the positions of all notes to fit.
+int Pattern::retime_to_resolution( int nResolution )
+{
+	std::list< Note *> notes;
+	for ( auto it : __notes ) {
+		notes.push_back( it.second );
+	}
+
+	__notes.clear();
+
+	for ( auto pNote : notes ) {
+		int nPos = pNote->get_position() * nResolution / m_nResolution;
+		pNote->set_position( nPos );
+		__notes.insert( std::make_pair( nPos, pNote ) );
+	}
+	__length = __length * nResolution / m_nResolution;
+	m_nResolution = nResolution;
+}
+
 
 };
 

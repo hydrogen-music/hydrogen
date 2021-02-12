@@ -60,11 +60,15 @@ class Song : public H2Core::Object
 			SONG_MODE
 		};
 
+		static constexpr int nDefaultResolutionTPQN = 48;
+
 		Song( const QString& sName, const QString& sAuthor, float fBpm, float fVolume );
 		~Song();
 
 		static Song* getEmptySong();
 		static Song* getDefaultSong();
+
+		int getDefaultPatternSize() const;
 
 		bool getIsMuted() const;
 		void setIsMuted( bool bIsMuted );
@@ -284,6 +288,11 @@ class Song : public H2Core::Object
 		float m_fPanLawKNorm;
 
 };
+
+inline int Song::getDefaultPatternSize() const
+{
+	return getResolution() * 4;
+}
 
 inline bool Song::getIsMuted() const
 {

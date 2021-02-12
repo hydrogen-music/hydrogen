@@ -1738,7 +1738,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 		// PATTERN MODE
 		else if ( pSong->getMode() == Song::PATTERN_MODE )	{
 
-			int nPatternSize = MAX_NOTES;
+			int nPatternSize = pSong->getDefaultPatternSize();
 
 			// If the user chose to playback the pattern she focuses,
 			// use it to overwrite `m_pPlayingPatterns`.
@@ -1802,7 +1802,7 @@ inline int audioEngine_updateNoteQueue( unsigned nFrames )
 		//////////////////////////////////////////////////////////////
 		// Metronome
 		// Only trigger the metronome at a predefined rate.
-		if ( m_nPatternTickPosition % 48 == 0 ) {
+		if ( m_nPatternTickPosition % pSong->getResolution() == 0 ) {
 			float fPitch;
 			float fVelocity;
 			
@@ -1934,8 +1934,8 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 	std::vector<PatternList*> *pPatternColumns = pSong->getPatternGroupVector();
 	int nColumns = pPatternColumns->size();
 
-	// Sum the lengths of all pattern columns and use the macro
-	// MAX_NOTES in case some of them are of size zero. If the
+	// Sum the lengths of all pattern columns and use the default length
+	// in case some of them are of size zero. If the
 	// supplied value nTick is bigger than this and doesn't belong to
 	// the next pattern column, we just found the pattern list we were
 	// searching for.
@@ -1945,7 +1945,7 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 		if ( pColumn->size() != 0 ) {
 			nPatternSize = pColumn->longest_pattern_length();
 		} else {
-			nPatternSize = MAX_NOTES;
+			nPatternSize = pSong->getDefaultPatternSize();
 		}
 
 		if ( ( nTick >= nTotalTick ) && ( nTick < nTotalTick + nPatternSize ) ) {
@@ -1971,7 +1971,7 @@ inline int findPatternInTick( int nTick, bool bLoopMode, int* pPatternStartTick 
 			if ( pColumn->size() != 0 ) {
 				nPatternSize = pColumn->longest_pattern_length();
 			} else {
-				nPatternSize = MAX_NOTES;
+				nPatternSize = pSong->getDefaultPatternSize();
 			}
 
 			if ( ( nLoopTick >= nTotalTick )
@@ -2562,16 +2562,16 @@ void Hydrogen::addRealtimeNote(	int		instrument,
 	UNUSED( pitch );
 
 	Preferences *pPreferences = Preferences::get_instance();
+	Song *pSong = getSong();
 	unsigned int nRealColumn = 0;
 	unsigned res = pPreferences->getPatternEditorGridResolution();
 	int nBase = pPreferences->isPatternEditorUsingTriplets() ? 3 : 4;
-	int scalar = ( 4 * MAX_NOTES ) / ( res * nBase );
+	int scalar = ( 4 * pSong->getResolution() * 4 ) / ( res * nBase );
 	bool hearnote = forcePlay;
 	int currentPatternNumber;
 
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 
-	Song *pSong = getSong();
 	if ( !pPreferences->__playselectedinstrument ) {
 		if ( instrument >= ( int ) pSong->getInstrumentList()->size() ) {
 			// unused instrument
@@ -3336,7 +3336,7 @@ long Hydrogen::getTickForPosition( int pos )
 		{
 			nPatternSize = pColumn->longest_pattern_length();
 		} else {
-			nPatternSize = MAX_NOTES;
+			nPatternSize = pSong->getDefaultPatternSize();
 		}
 		totalTick += nPatternSize;
 	}
@@ -3753,19 +3753,19 @@ long Hydrogen::getPatternLength( int nPattern )
 		if ( pSong->getIsLoopEnabled() ) {
 			nPattern = nPattern % nPatternGroups;
 		} else {
-			return MAX_NOTES;
+			return pSong->getDefaultPatternSize();
 		}
 	}
 
 	if ( nPattern < 1 ){
-		return MAX_NOTES;
+		return pSong->getDefaultPatternSize();
 	}
 
 	PatternList* pPatternList = pColumns->at( nPattern - 1 );
 	if ( pPatternList->size() > 0 ) {
 		return pPatternList->longest_pattern_length();
 	} else {
-		return MAX_NOTES;
+		return pSong->getDefaultPatternSize();
 	}
 }
 

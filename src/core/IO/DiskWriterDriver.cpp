@@ -169,7 +169,7 @@ void* diskWriterDriver_thread( void* param )
 		if ( pColumn->size() != 0 ) {
 			nPatternSize = pColumn->longest_pattern_length();
 		} else {
-			nPatternSize = MAX_NOTES;
+			nPatternSize = 4 * pSong->getResolution();
 		}
 		
 		// check pattern bpm if timeline bpm is in use

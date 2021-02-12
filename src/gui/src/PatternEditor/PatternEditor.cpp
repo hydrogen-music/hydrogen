@@ -63,7 +63,7 @@ PatternEditor::PatternEditor( QWidget *pParent, const char *sClassName,
 	m_bCopyNotMove = false;
 
 	m_nGridWidth = Preferences::get_instance()->getPatternEditorGridWidth();
-	m_nEditorWidth = m_nMargin + m_nGridWidth * ( MAX_NOTES * 4 );
+	m_nEditorWidth = m_nMargin + m_nGridWidth * ( 4 * Hydrogen::get_instance()->getSong()->getDefaultPatternSize() );
 
 	setFocusPolicy(Qt::StrongFocus);
 
@@ -333,9 +333,11 @@ void PatternEditor::drawGridLines( QPainter &p, Qt::PenStyle style ) const
 	};
 
 	int nGranularity = granularity() * m_nResolution;
-	int nNotes = MAX_NOTES;
+	int nNotes;
 	if ( m_pPattern ) {
 		nNotes = m_pPattern->get_length();
+	} else {
+		nNotes = Hydrogen::get_instance()->getSong()->getDefaultPatternSize();
 	}
 	int nMaxX = m_nGridWidth * nNotes + m_nMargin;
 

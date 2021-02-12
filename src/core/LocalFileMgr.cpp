@@ -357,6 +357,8 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 	QDomNode songNode = doc.createElement( "song" );
 
 	LocalFileMng::writeXmlString( songNode, "version", QString( get_version().c_str() ) );
+	LocalFileMng::writeXmlString( songNode, "resolution", QString("%1").arg( pSong->getResolution() ) );
+
 	LocalFileMng::writeXmlString( songNode, "bpm", QString("%1").arg( pSong->getBpm() ) );
 	LocalFileMng::writeXmlString( songNode, "volume", QString("%1").arg( pSong->getVolume() ) );
 	LocalFileMng::writeXmlString( songNode, "metronomeVolume", QString("%1").arg( pSong->getMetronomeVolume() ) );
@@ -366,7 +368,7 @@ int SongWriter::writeSong( Song * pSong, const QString& filename )
 	LocalFileMng::writeXmlString( songNode, "license", pSong->getLicense() );
 	LocalFileMng::writeXmlBool( songNode, "loopEnabled", pSong->getIsLoopEnabled() );
 	LocalFileMng::writeXmlBool( songNode, "patternModeMode", Preferences::get_instance()->patternModePlaysSelected());
-	
+
 	LocalFileMng::writeXmlString( songNode, "playbackTrackFilename", QString("%1").arg( pSong->getPlaybackTrackFilename() ) );
 	LocalFileMng::writeXmlBool( songNode, "playbackTrackEnabled", pSong->getPlaybackTrackEnabled() );
 	LocalFileMng::writeXmlString( songNode, "playbackTrackVolume", QString("%1").arg( pSong->getPlaybackTrackVolume() ) );

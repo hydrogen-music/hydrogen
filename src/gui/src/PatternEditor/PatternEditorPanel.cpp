@@ -522,7 +522,7 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	// restore grid resolution
 	int nIndex;
 	int nRes = pPref->getPatternEditorGridResolution();
-	if ( nRes == MAX_NOTES ) {
+	if ( nRes > 64 ) {
 		nIndex = 11;
 	} else if ( pPref->isPatternEditorUsingTriplets() == false ) {
 		switch ( nRes ) {
@@ -629,7 +629,9 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 	bool bUseTriplets = false;
 
 	if ( nSelected == 11 ) {
-		nResolution = MAX_NOTES;
+		// Highest possible grid resolution: use the full resolution of the pattern
+		int nRes = m_pPattern? m_pPattern->get_resolution() : Song::nDefaultResolutionTPQN;
+		nResolution = nRes * 4;
 	}
 	else if ( nSelected > 4 ) {
 		bUseTriplets = true;
@@ -649,7 +651,13 @@ void PatternEditorPanel::gridResolutionChanged( int nSelected )
 	m_pNoteProbabilityEditor->setResolution( nResolution, bUseTriplets );
 	m_pNotePanEditor->setResolution( nResolution, bUseTriplets );
 
-	m_nCursorIncrement = ( bUseTriplets ? 4 : 3 ) * MAX_NOTES / ( nResolution * 3 );
+	int nPatternRes;
+	if ( m_pPattern ) {
+		nPatternRes = m_pPattern->get_resolution();
+	} else {
+		nPatternRes = Hydrogen::get_instance()->getSong()->getResolution();
+	}
+	m_nCursorIncrement = ( bUseTriplets ? 4 : 3 ) * nPatternRes * 4 / ( nResolution * 3 );
 	m_nCursorPosition = m_nCursorIncrement * ( m_nCursorPosition / m_nCursorIncrement );
 
 	Preferences::get_instance()->setPatternEditorGridResolution( nResolution );

@@ -81,12 +81,12 @@ PianoRollEditor::~PianoRollEditor()
 
 void PianoRollEditor::updateEditor( bool bPatternOnly )
 {
-	//	uint nEditorWidth;
 	if ( m_pPattern ) {
 		m_nEditorWidth = m_nMargin + m_nGridWidth * m_pPattern->get_length();
 	}
 	else {
-		m_nEditorWidth = m_nMargin + m_nGridWidth * MAX_NOTES;
+		Song *pSong = Hydrogen::get_instance()->getSong();
+		m_nEditorWidth = m_nMargin + m_nGridWidth * pSong->getDefaultPatternSize();
 	}
 	if ( !bPatternOnly ) {
 		m_bNeedsBackgroundUpdate = true;

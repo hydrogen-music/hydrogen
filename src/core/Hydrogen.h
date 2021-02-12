@@ -309,8 +309,8 @@ public:
 		 *
 		 * The function will loop over all and sums up their
 		 * Pattern::__length. If one of the Pattern is NULL or no
-		 * Pattern is present one of the PatternList, #MAX_NOTES will
-		 * be added instead.
+		 * Pattern is present one of the PatternList, the default 
+		 * pattern length will be added instead.
 		 *
 		 * The driver should be LOCKED when calling this!
 		 *
