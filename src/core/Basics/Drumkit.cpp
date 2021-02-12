@@ -608,36 +608,58 @@ bool Drumkit::install( const QString& path )
 #endif
 }
 
-QString Drumkit::toQString( const QString& sPrefix ) const {
+QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Logger::printIndention;
-	QString sOutput = QString( "%1[Drumkit]\n" ).arg( sPrefix )
-		.append( QString( "%1%2path: %3\n" ).arg( sPrefix ).arg( s ).arg( __path ) )
-				.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
-				.append( QString( "%1%2author: %3\n" ).arg( sPrefix ).arg( s ).arg( __author ) )
-				.append( QString( "%1%2info: %3\n" ).arg( sPrefix ).arg( s ).arg( __info ) )
-				.append( QString( "%1%2license: %3\n" ).arg( sPrefix ).arg( s ).arg( __license ) )
-				.append( QString( "%1%2image: %3\n" ).arg( sPrefix ).arg( s ).arg( __image ) )
-				.append( QString( "%1%2imageLicense: %3\n" ).arg( sPrefix ).arg( s ).arg( __imageLicense ) )
-				.append( QString( "%1%2samples_loaded: %3\n" ).arg( sPrefix ).arg( s ).arg( __samples_loaded ) )
-		.append( QString( "%1" ).arg( __instruments->toQString( sPrefix + s ) ) )
-		.append( QString( "%1%2components:\n" ).arg( sPrefix ).arg( s ) );
-	for ( auto cc : *__components ) {
-		if ( cc != nullptr ) {
-			sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s ) ) );
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Drumkit]\n" ).arg( sPrefix )
+			.append( QString( "%1%2path: %3\n" ).arg( sPrefix ).arg( s ).arg( __path ) )
+			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
+			.append( QString( "%1%2author: %3\n" ).arg( sPrefix ).arg( s ).arg( __author ) )
+			.append( QString( "%1%2info: %3\n" ).arg( sPrefix ).arg( s ).arg( __info ) )
+			.append( QString( "%1%2license: %3\n" ).arg( sPrefix ).arg( s ).arg( __license ) )
+			.append( QString( "%1%2image: %3\n" ).arg( sPrefix ).arg( s ).arg( __image ) )
+			.append( QString( "%1%2imageLicense: %3\n" ).arg( sPrefix ).arg( s ).arg( __imageLicense ) )
+			.append( QString( "%1%2samples_loaded: %3\n" ).arg( sPrefix ).arg( s ).arg( __samples_loaded ) )
+			.append( QString( "%1" ).arg( __instruments->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2components:\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto cc : *__components ) {
+			if ( cc != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
+			}
 		}
+	} else {
+		
+		sOutput = QString( "[Drumkit]" )
+			.append( QString( ", path: %1" ).arg( __path ) )
+			.append( QString( ", name: %1" ).arg( __name ) )
+			.append( QString( ", author: %1" ).arg( __author ) )
+			.append( QString( ", info: %1" ).arg( __info ) )
+			.append( QString( ", license: %1" ).arg( __license ) )
+			.append( QString( ", image: %1" ).arg( __image ) )
+			.append( QString( ", imageLicense: %1" ).arg( __imageLicense ) )
+			.append( QString( ", samples_loaded: %1" ).arg( __samples_loaded ) )
+			.append( QString( ", [%1]" ).arg( __instruments->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( ", components: [ " ) );
+		for ( auto cc : *__components ) {
+			if ( cc != nullptr ) {
+				sOutput.append( QString( "[%1]" ).arg( cc->toQString( sPrefix + s + s, bShort ).replace( "\n", " " ) ) );
+			}
+		}
+		sOutput.append( "]\n" );
 	}
 	
 	return sOutput;
 }
  
-void Drumkit::Print() const {
-	DEBUGLOG( toQString( "" ) );
+void Drumkit::Print( bool bShort ) const {
+	DEBUGLOG( toQString( "", bShort ) );
 }
 std::ostream& operator<<( std::ostream& os, const Drumkit& drumkit ) {
-	return os << drumkit.toQString( "" ).toLocal8Bit().data() << std::endl;
+	return os << drumkit.toQString( "", true ).toLocal8Bit().data() << std::endl;
 }
 std::ostream& operator<<( std::ostream& os, const Drumkit* drumkit ) {
-	return os << drumkit->toQString( "" ).toLocal8Bit().data() << std::endl;
+	return os << drumkit->toQString( "", true ).toLocal8Bit().data() << std::endl;
 }
 
 };

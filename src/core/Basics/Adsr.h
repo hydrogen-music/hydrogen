@@ -101,11 +101,18 @@ class ADSR : private Object
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
+		 * \param bShort Instead of the whole content of all classes
+		 * stored as members just a single unique identifier will be
+		 * displayed without line breaks.
+		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix ) const;
-		/** Prints content of toQString() via DEBUGLOG*/
-		void Print() const;
-
+		QString toQString( const QString& sPrefix, bool bShort = true ) const;
+		/** Prints content of toQString() via DEBUGLOG
+		 *
+		 * \param bShort Whether to display the content of the member
+		 * class variables and to use line breaks.
+		 */
+		void Print( bool bShort = true ) const;
 	private:
 		unsigned int __attack;		///< Attack tick count
 		unsigned int __decay;		///< Decay tick count

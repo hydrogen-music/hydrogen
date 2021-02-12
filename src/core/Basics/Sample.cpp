@@ -692,67 +692,79 @@ bool Sample::write( const QString& path, int format )
 	return true;
 }
 
-QString EnvelopePoint::toQString( const QString& sPrefix ) const {
-	QString sOutput = QString( "%1frame: %2\n" ).arg( sPrefix ).arg( frame )
-		.append( QString( "%1value: %2\n" ).arg( sPrefix ).arg( value ) );
+QString Sample::Loops::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Logger::printIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Loops]\n" ).arg( sPrefix )
+			.append( QString( "%1%2start_frame: %3\n" ).arg( sPrefix ).arg( s ).arg( start_frame ) )
+			.append( QString( "%1%2loop_frame: %3\n" ).arg( sPrefix ).arg( s ).arg( loop_frame ) )
+			.append( QString( "%1%2end_frame: %3\n" ).arg( sPrefix ).arg( s ).arg( end_frame ) )
+			.append( QString( "%1%2count: %3\n" ).arg( sPrefix ).arg( s ).arg( count ) )
+			.append( QString( "%1%2mode: %3\n" ).arg( sPrefix ).arg( s ).arg( mode ) );
+	} else {
+		sOutput = QString( "[Loops]" )
+			.append( QString( " start_frame: %1" ).arg( start_frame ) )
+			.append( QString( ", loop_frame: %1" ).arg( loop_frame ) )
+			.append( QString( ", end_frame: %1" ).arg( end_frame ) )
+			.append( QString( ", count: %1" ).arg( count ) )
+			.append( QString( ", mode: %1" ).arg( mode ) );
+	}
 
 	return sOutput;
 }
 
-QString Sample::Loops::toQString( const QString& sPrefix ) const {
+QString Sample::Rubberband::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Logger::printIndention;
-	QString sOutput = QString( "%1[Loops]\n" ).arg( sPrefix )
-		.append( QString( "%1%2start_frame: %3\n" ).arg( sPrefix ).arg( s ).arg( start_frame ) )
-		.append( QString( "%1%2loop_frame: %3\n" ).arg( sPrefix ).arg( s ).arg( loop_frame ) )
-		.append( QString( "%1%2end_frame: %3\n" ).arg( sPrefix ).arg( s ).arg( end_frame ) )
-		.append( QString( "%1%2count: %3\n" ).arg( sPrefix ).arg( s ).arg( count ) )
-		.append( QString( "%1%2mode: %3\n" ).arg( sPrefix ).arg( s ).arg( mode ) );
-
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Rubberband]\n" ).arg( sPrefix )
+			.append( QString( "%1%2use: %3\n" ).arg( sPrefix ).arg( s ).arg( use ) )
+			.append( QString( "%1%2divider: %3\n" ).arg( sPrefix ).arg( s ).arg( divider ) )
+			.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s ).arg( pitch ) )
+			.append( QString( "%1%2c_settings: %3\n" ).arg( sPrefix ).arg( s ).arg( c_settings ) );
+	} else {
+		sOutput = QString( "[Rubberband]" )
+			.append( QString( " use: %1" ).arg( use ) )
+			.append( QString( ", divider: %1" ).arg( divider ) )
+			.append( QString( ", pitch: %1" ).arg( pitch ) )
+			.append( QString( ", c_settings: %1" ).arg( c_settings ) );
+	}
 	return sOutput;
 }
 
-QString Sample::Rubberband::toQString( const QString& sPrefix ) const {
+QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
 	QString s = Logger::printIndention;
-	QString sOutput = QString( "%1[Rubberband]\n" ).arg( sPrefix )
-		.append( QString( "%1%2use: %3\n" ).arg( sPrefix ).arg( s ).arg( use ) )
-		.append( QString( "%1%2divider: %3\n" ).arg( sPrefix ).arg( s ).arg( divider ) )
-		.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s ).arg( pitch ) )
-		.append( QString( "%1%2c_settings: %3\n" ).arg( sPrefix ).arg( s ).arg( c_settings ) );
-
-	return sOutput;
-}
-
-QString Sample::toQString( const QString& sPrefix ) const {
-	QString s = Logger::printIndention;
-	QString sOutput = QString( "%1[Sample]\n" ).arg( sPrefix )
-		.append( QString( "%1%2filepath: %3\n" ).arg( sPrefix ).arg( s ).arg( __filepath ) )
-		.append( QString( "%1%2frames: %3\n" ).arg( sPrefix ).arg( s ).arg( __frames ) )
-		.append( QString( "%1%2sample_rate: %3\n" ).arg( sPrefix ).arg( s ).arg( __sample_rate ) )
-		.append( QString( "%1%2is_modified: %3\n" ).arg( sPrefix ).arg( s ).arg( __is_modified ) );
-
-	// sOutput.append( QString( "%1%2[PanEnvelope]:\n" ).arg( sPrefix ).arg( s ) );
-	// for ( auto pp : __pan_envelope ) {
-	// 	sOutput.append( pp->toQString( s + s ) );
-	// }
-	// sOutput.append( QString( "%1%2[VelocityEnvelope]:\n" ).arg( sPrefix ).arg( s ) );
-	// for ( auto pp : __velocity_envelope ) {
-	// 	sOutput.append( pp->toQString( s + s ) );
-	// }
-
-	sOutput.append( QString( "%1" ).arg( __loops.toQString( sPrefix + s ) ) )
-		.append( QString( "%1" ).arg( __rubberband.toQString( sPrefix + s ) ) );
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Sample]\n" ).arg( sPrefix )
+			.append( QString( "%1%2filepath: %3\n" ).arg( sPrefix ).arg( __filepath ) )
+			.append( QString( "%1%2frames: %3\n" ).arg( sPrefix ).arg( __frames ) )
+			.append( QString( "%1%2sample_rate: %3\n" ).arg( sPrefix ).arg( __sample_rate ) )
+			.append( QString( "%1%2is_modified: %3\n" ).arg( sPrefix ).arg( __is_modified ) )
+			.append( QString( "%1" ).arg( __loops.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1" ).arg( __rubberband.toQString( sPrefix + s, bShort ) ) );
+	} else {
+		sOutput = QString( "[Sample]" )
+			.append( QString( " filepath: %1" ).arg( __filepath ) )
+			.append( QString( ", frames: %1" ).arg( __frames ) )
+			.append( QString( ", sample_rate: %1" ).arg( __sample_rate ) )
+			.append( QString( ", is_modified: %1" ).arg( __is_modified ) )
+			.append( QString( ", [%1]" ).arg( __loops.toQString( sPrefix + s, bShort ) ) )
+			.append( QString( ", [%1]\n" ).arg( __rubberband.toQString( sPrefix + s, bShort ) ) );
+	}
 	
 	return sOutput;
 }
  
-void Sample::Print() const {
-	DEBUGLOG( toQString( "" ) );
+void Sample::Print( bool bShort ) const {
+	DEBUGLOG( toQString( "", bShort ) );
 }
 std::ostream& operator<<( std::ostream& os, const Sample& sample ) {
-	return os << sample.toQString( "" ).toLocal8Bit().data() << std::endl;
+	return os << sample.toQString( "", true ).toLocal8Bit().data() << std::endl;
 }
 std::ostream& operator<<( std::ostream& os, const Sample* sample ) {
-	return os << sample->toQString( "" ).toLocal8Bit().data() << std::endl;
+	return os << sample->toQString( "", true ).toLocal8Bit().data() << std::endl;
 }
 
 #ifdef H2CORE_HAVE_RUBBERBAND

@@ -159,14 +159,21 @@ class AudioEngineLocking;
 		 * \return pattern length in ticks, -1 if list is empty
 		 */
 		int longest_pattern_length();
-
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
 		 * every new line
+		 * \param bShort Instead of the whole content of all classes
+		 * stored as members just a single unique identifier will be
+		 * displayed without line breaks.
+		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix ) const;
-		/** Prints content of toQString() via DEBUGLOG*/
-		void Print() const;
+		QString toQString( const QString& sPrefix, bool bShort = true ) const;
+		/** Prints content of toQString() via DEBUGLOG
+		 *
+		 * \param bShort Whether to display the content of the member
+		 * class variables and to use line breaks.
+		 */
+		void Print( bool bShort = true ) const;
 
 	private:
 		std::vector<Pattern*> __patterns;            ///< the list of patterns
