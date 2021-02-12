@@ -299,7 +299,7 @@ void Pattern::extand_with_flattened_virtual_patterns( PatternList* patterns )
 /// Calculate the minimum resolution that can be used to accurately represent the pattern.
 int Pattern::get_minimum_resolution() const
 {
-	int nDenominator = 0;
+	int nDenominator = 1;
 	for ( auto it : __notes ) {
 		int nPos = it.first;
 		nDenominator = std::gcd( nDenominator, nPos );
