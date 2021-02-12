@@ -233,7 +233,7 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		void revertPatternPropertiesDialogSettings(QString oldPatternName, QString oldPatternInfo, QString oldPatternCategory, int patternNr);
 		void loadPatternAction( QString filename, int position);
 		void fillRangeWithPattern(FillRange* r, int nPattern);
-		void patternPopup_copyAction( QString patternFilename, int patternposition );
+		void patternPopup_duplicateAction( QString patternFilename, int patternposition );
 		int getGridHeight() { return m_nGridHeight; }
 
 	public slots:
@@ -243,7 +243,7 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		void patternPopup_load();
 		void patternPopup_properties();
 		void patternPopup_delete();
-		void patternPopup_copy();
+		void patternPopup_duplicate();
 		void patternPopup_fill();
 		void patternPopup_virtualPattern();
 		void inlineEditingFinished();
