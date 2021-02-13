@@ -26,6 +26,7 @@
 
 #include <QtGui>
 #include <QtWidgets>
+#include <QTextBrowser>
 
 #include "ui_about_dialog.h"
 
