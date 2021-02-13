@@ -70,9 +70,7 @@ class InstrumentLine : public PixmapWidget
 		void functionFillEveryTwelveNotes();
 		void functionFillEverySixteenNotes();
 		void functionFillNotes( int every );
-		void functionCopyInstrumentPattern();
 		void functionCopyAllInstrumentPatterns();
-		void functionPasteInstrumentPattern();
 		void functionPasteAllInstrumentPatterns();
 		void functionPasteInstrumentPatternExec(int patternID);
 
@@ -89,8 +87,6 @@ class InstrumentLine : public PixmapWidget
 	private:
 		QMenu *m_pFunctionPopup;
 		QMenu *m_pFunctionPopupSub;
-		QMenu *m_pCopyPopupSub;
-		QMenu *m_pPastePopupSub;
 		QLabel *m_pNameLbl;
 		bool m_bIsSelected;
 		int m_nInstrumentNumber;	///< The related instrument number

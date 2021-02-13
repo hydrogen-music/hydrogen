@@ -122,15 +122,8 @@ InstrumentLine::InstrumentLine(QWidget* pParent)
 	m_pFunctionPopup->addSeparator();
 
 	m_pFunctionPopup->addAction( tr( "Select notes" ), this, &InstrumentLine::selectInstrumentNotes );
-	m_pCopyPopupSub = new QMenu( tr( "Copy notes ..." ), m_pFunctionPopup );
-	m_pCopyPopupSub->addAction( tr( "Only for this pattern" ), this, SLOT( functionCopyInstrumentPattern() ) );
-	m_pCopyPopupSub->addAction( tr( "For all patterns" ), this, SLOT( functionCopyAllInstrumentPatterns() ) );
-	m_pFunctionPopup->addMenu( m_pCopyPopupSub );
-
-	m_pPastePopupSub = new QMenu( tr( "Paste notes ..." ), m_pFunctionPopup );
-	m_pPastePopupSub->addAction( tr( "Only for this pattern" ), this, SLOT( functionPasteInstrumentPattern() ) );
-	m_pPastePopupSub->addAction( tr( "For all patterns" ), this, SLOT( functionPasteAllInstrumentPatterns() ) );
-	m_pFunctionPopup->addMenu( m_pPastePopupSub );
+	m_pFunctionPopup->addAction( tr( "Copy notes (all patterns)"), this, SLOT( functionCopyAllInstrumentPatterns() ) );
+	m_pFunctionPopup->addAction( tr( "Paste notes (all patterns)" ), this, SLOT( functionPasteAllInstrumentPatterns() ) );
 
 	m_pFunctionPopup->addSeparator();
 	m_pFunctionPopup->addAction( tr( "Rename instrument" ), this, SLOT( functionRenameInstrument() ) );
@@ -294,18 +287,6 @@ void InstrumentLine::functionClearNotes()
 	}
 }
 
-void InstrumentLine::functionCopyInstrumentPattern()
-{
-	Hydrogen * pEngine = Hydrogen::get_instance();
-	int selectedPatternNr = pEngine->getSelectedPatternNumber();
-	Song *song = pEngine->getSong();
-	assert(song);
-
-	// Serialize & put to clipboard
-	QString serialized = song->copyInstrumentLineToString( selectedPatternNr, m_nInstrumentNumber );
-	QClipboard *clipboard = QApplication::clipboard();
-	clipboard->setText(serialized);
-}
 
 void InstrumentLine::functionCopyAllInstrumentPatterns()
 {
@@ -319,13 +300,6 @@ void InstrumentLine::functionCopyAllInstrumentPatterns()
 	clipboard->setText(serialized);
 }
 
-void InstrumentLine::functionPasteInstrumentPattern()
-{
-	Hydrogen * pEngine = Hydrogen::get_instance();
-	int selectedPatternNr = pEngine->getSelectedPatternNumber();
-
-	functionPasteInstrumentPatternExec(selectedPatternNr);
-}
 
 void InstrumentLine::functionPasteAllInstrumentPatterns()
 {
