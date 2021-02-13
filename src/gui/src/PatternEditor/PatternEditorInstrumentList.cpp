@@ -570,6 +570,9 @@ PatternEditorInstrumentList::PatternEditorInstrumentList( QWidget *parent, Patte
 	connect( m_pUpdateTimer, SIGNAL( timeout() ), this, SLOT( updateInstrumentLines() ) );
 	m_pUpdateTimer->start(50);
 
+	QScrollArea *pScrollArea = dynamic_cast< QScrollArea *>( parentWidget()->parentWidget() );
+	assert( pScrollArea );
+	m_pDragScroller = new DragScroller( pScrollArea );
 }
 
 
@@ -758,7 +761,9 @@ void PatternEditorInstrumentList::mouseMoveEvent(QMouseEvent *event)
 	pMimeData->setText( sText );
 	pDrag->setMimeData( pMimeData);
 
+	m_pDragScroller->startDrag();
 	pDrag->exec( Qt::CopyAction | Qt::MoveAction );
+	m_pDragScroller->endDrag();
 
 	// propago l'evento
 	QWidget::mouseMoveEvent(event);

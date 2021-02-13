@@ -1188,6 +1188,10 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 
 	HydrogenApp::get_instance()->addEventListener( this );
 
+	QScrollArea *pScrollArea = dynamic_cast< QScrollArea * >( parentWidget()->parentWidget() );
+	assert( pScrollArea );
+	m_pDragScroller = new DragScroller( pScrollArea );
+
 	createBackground();
 	update();
 }
@@ -2073,10 +2077,13 @@ void SongEditorPatternList::mouseMoveEvent(QMouseEvent *event)
 	pDrag->setMimeData( pMimeData);
 	//drag->setPixmap(iconPixmap);
 
+	m_pDragScroller->startDrag();
 	pDrag->exec( Qt::CopyAction | Qt::MoveAction );
+	m_pDragScroller->endDrag();
 
 	QWidget::mouseMoveEvent(event);
 }
+
 
 void SongEditorPatternList::timelineUpdateEvent( int nEvent ){
 	HydrogenApp::get_instance()->getSongEditorPanel()->updateAll();

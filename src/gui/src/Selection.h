@@ -133,7 +133,7 @@ public:
 		}
 	}
 
-	void startDrag( QMouseEvent *ev ) {
+	void startDrag() {
 		if ( m_pTimer == nullptr ) {
 			m_pTimer = new QTimer( this );
 			m_pTimer->setInterval( m_nInterval );
@@ -488,7 +488,7 @@ public:
 		if ( m_pDragScroller == nullptr ) {
 			m_pDragScroller = new DragScroller( m_pWidget->findScrollArea() );
 		}
-		m_pDragScroller->startDrag( ev );
+		m_pDragScroller->startDrag();
 
 		if ( ev->button() == Qt::LeftButton) {
 			QRect r = QRect( m_pClickEvent->pos(), ev->pos() );

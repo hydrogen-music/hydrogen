@@ -268,6 +268,8 @@ class SongEditorPatternList : public QWidget, public H2Core::Object, public Even
 		QMenu *				m_pPatternPopup;
 		QLineEdit *			m_pLineEdit;
 		H2Core::Pattern *	m_pPatternBeingEdited;
+
+		DragScroller *		m_pDragScroller;
 		
 		void inlineEditPatternName( int row );
 

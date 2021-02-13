@@ -32,6 +32,7 @@
 
 #include <core/Object.h>
 #include "../Widgets/PixmapWidget.h"
+#include "../Selection.h"
 
 namespace H2Core
 {
@@ -130,6 +131,7 @@ class PatternEditorInstrumentList : public QWidget, public H2Core::Object {
 		uint m_nEditorHeight;
 		InstrumentLine* m_pInstrumentLine[MAX_INSTRUMENTS];
 		QTimer *m_pUpdateTimer;
+		DragScroller *m_pDragScroller;
 
 		QPoint __drag_start_position;
 
