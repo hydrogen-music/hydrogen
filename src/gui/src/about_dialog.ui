@@ -126,7 +126,7 @@
     <attribute name="title">
      <string>&amp;Authors</string>
     </attribute>
-    <widget class="QTextEdit" name="authorsText">
+    <widget class="QTextBrowser" name="authorsText">
      <property name="geometry">
       <rect>
        <x>10</x>
