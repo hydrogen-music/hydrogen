@@ -21,6 +21,7 @@
  */
 
 #include <core/Version.h>
+#include "AboutDialogContributorList.h"
 #include "AboutDialog.h"
 #include "Skin.h"
 
@@ -74,7 +75,19 @@ AboutDialog::AboutDialog(QWidget* parent)
 	}
 	sAuthors += "</ul></br>";
 
-	sAuthors += "<b>" + tr( "Contributors" ) + ":</b>";
+	AboutDialogContributorList contributors;
+	auto pContributorList = contributors.getContributorList();
+
+	sAuthors += "<b>" + tr( "Recent contributors" ) + ":</b>";
+	sAuthors += "<ul>";
+
+	for ( const auto& tt : *pContributorList ) {
+		sAuthors += "<li><p>";
+		sAuthors += tt;
+		sAuthors += "</p></li>";
+	}
+	sAuthors += "</ul></br>";
+
 	sAuthors += "<p><a href='https://github.com/hydrogen-music/hydrogen/graphs/contributors' style='color: #EEE;'>" + tr( "A full list of all contributors can be found on" ) +
 		" Github</a></p>";
 	
