@@ -326,7 +326,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 			true
 	);
 	m_pBPMUpBtn->move( 12, 5 );
-	connect( m_pBPMUpBtn, SIGNAL( clicked( Button* ) ), this, SLOT(bpmButtonClicked( Button* ) ) );
+	connect( m_pBPMUpBtn, SIGNAL( clicked( Button* ) ), m_pLCDBPMSpinbox, SLOT(upButtonClicked() ) );
 
 	m_pBPMDownBtn = new Button(
 			pBPMPanel,
@@ -338,7 +338,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 			true
 	);
 	m_pBPMDownBtn->move( 12, 14 );
-	connect( m_pBPMDownBtn, SIGNAL( clicked( Button* ) ), this, SLOT(bpmButtonClicked( Button* ) ) );
+	connect( m_pBPMDownBtn, SIGNAL( clicked( Button* ) ), m_pLCDBPMSpinbox, SLOT(downButtonClicked() ) );
 
 	m_pRubberBPMChange = new ToggleButton(
 			pBPMPanel,
@@ -945,16 +945,6 @@ void PlayerControl::bpmClicked()
 	}
 	else {
 		// user entered nothing or pressed Cancel
-	}
-}
-
-
-void PlayerControl::bpmButtonClicked( Button* pBtn )
-{
-	if ( pBtn == m_pBPMUpBtn ) {
-		m_pLCDBPMSpinbox->upBtnClicked();
-	} else {
-		m_pLCDBPMSpinbox->downBtnClicked();
 	}
 }
 

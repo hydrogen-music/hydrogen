@@ -378,13 +378,13 @@ void LCDSpinBox::decrementValue()
 	}
 }
 
-void LCDSpinBox::upBtnClicked()
+void LCDSpinBox::upButtonClicked()
 {
 	incrementValue();
 	emit changed(this);
 }
 
-void LCDSpinBox::downBtnClicked()
+void LCDSpinBox::downButtonClicked()
 {
 	decrementValue();
 	emit changed(this);

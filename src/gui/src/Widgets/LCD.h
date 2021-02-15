@@ -115,16 +115,14 @@ class LCDSpinBox : public QWidget, public H2Core::Object
 
 		virtual void wheelEvent( QWheelEvent *ev );
 
-		// richiamati da PlayerControl
-		void upBtnClicked();
-		void downBtnClicked();
-
 	signals:
 		void changed(LCDSpinBox *pRef);
 		void spinboxClicked();
 
 	public slots:
 		void displayClicked( LCDDisplay *pRef );
+		void upButtonClicked();
+		void downButtonClicked();
 
 	private:
 		/**

@@ -110,7 +110,6 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		void jackMasterBtnClicked(Button* ref);
 		//~ jack time master
 		void bpmChanged();
-		void bpmButtonClicked( Button *pRef );
 		void bpmClicked();
 		void FFWDBtnClicked(Button *pRef);
 		void RewindBtnClicked(Button *pRef);
