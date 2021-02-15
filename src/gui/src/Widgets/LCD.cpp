@@ -318,7 +318,7 @@ void LCDDisplay::digitClicked()
 const char* LCDSpinBox::__class_name = "LCDSpinBox";
 
 // used in PlayerControl
-LCDSpinBox::LCDSpinBox( QWidget *pParent, int nDigits, LCDSpinBoxType type, int nMin, int nMax )
+LCDSpinBox::LCDSpinBox( QWidget *pParent, LCDDigit::LCDType lcdType, int nDigits, LCDSpinBoxType type, int nMin, int nMax )
  : QWidget( pParent )
  , Object( __class_name )
  , m_type( type )
@@ -326,7 +326,7 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, int nDigits, LCDSpinBoxType type, int 
  , m_nMinValue( nMin )
  , m_nMaxValue( nMax )
 {
-	m_pDisplay = new LCDDisplay( this, LCDDigit::LARGE_GRAY, nDigits );
+	m_pDisplay = new LCDDisplay( this, lcdType, nDigits );
 	connect( m_pDisplay, SIGNAL( displayClicked(LCDDisplay*) ), this, SLOT( displayClicked(LCDDisplay*) ) );
 
 	resize( m_pDisplay->width(), m_pDisplay->height() );

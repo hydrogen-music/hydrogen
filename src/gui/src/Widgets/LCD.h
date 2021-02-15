@@ -107,7 +107,7 @@ class LCDSpinBox : public QWidget, public H2Core::Object
 			FLOAT
 		};
 
-		LCDSpinBox( QWidget *pParent, int nDigits, LCDSpinBoxType type, int nMin = -1, int nMax = -1 );
+		LCDSpinBox( QWidget *pParent, LCDDigit::LCDType lcdType, int nDigits, LCDSpinBoxType type, int nMin = -1, int nMax = -1 );
 		~LCDSpinBox();
 
 		void setValue( float nValue );
