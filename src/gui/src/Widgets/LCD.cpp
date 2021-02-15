@@ -350,12 +350,12 @@ void LCDSpinBox::incrementValue()
 {
 	switch( m_type ) {
 		case INTEGER:
-			if ( m_nMaxValue != -1 && m_fValue < m_nMaxValue ) {
+			if ( m_nMaxValue == -1 || m_fValue < m_nMaxValue ) {
 				setValue( m_fValue + 1);
 			}
 			break;
 		case FLOAT:
-			if ( m_nMaxValue != -1 && m_fValue < (float)m_nMaxValue ) {
+			if ( m_nMaxValue == -1 || m_fValue < (float)m_nMaxValue ) {
 				setValue( m_fValue + 1.0);
 			}
 			break;
@@ -366,12 +366,12 @@ void LCDSpinBox::decrementValue()
 {
 	switch( m_type ) {
 		case INTEGER:
-			if ( m_nMinValue != -1 && m_fValue > m_nMinValue ) {
+			if ( m_nMinValue == -1 || m_fValue > m_nMinValue ) {
 				setValue( m_fValue -1);
 			}
 			break;
 		case FLOAT:
-			if ( m_nMinValue != -1 && m_fValue > m_nMinValue ) {
+			if ( m_nMinValue == -1 || m_fValue > m_nMinValue ) {
 				setValue( m_fValue - 1.0);
 			}
 			break;
