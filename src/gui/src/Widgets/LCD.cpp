@@ -346,7 +346,7 @@ LCDSpinBox::~LCDSpinBox()
 }
 
 
-void LCDSpinBox::upBtnClicked()
+void LCDSpinBox::incrementValue()
 {
 	switch( m_type ) {
 		case INTEGER:
@@ -360,11 +360,9 @@ void LCDSpinBox::upBtnClicked()
 			}
 			break;
 	}
-
-	emit changed(this);
 }
 
-void LCDSpinBox::downBtnClicked()
+void LCDSpinBox::decrementValue()
 {
 	switch( m_type ) {
 		case INTEGER:
@@ -378,6 +376,17 @@ void LCDSpinBox::downBtnClicked()
 			}
 			break;
 	}
+}
+
+void LCDSpinBox::upBtnClicked()
+{
+	incrementValue();
+	emit changed(this);
+}
+
+void LCDSpinBox::downBtnClicked()
+{
+	decrementValue();
 	emit changed(this);
 }
 
@@ -415,26 +424,11 @@ void LCDSpinBox::wheelEvent ( QWheelEvent *ev )
 	ev->accept();
 
 	if ( ev->angleDelta().y() > 0 ) {
-		switch( m_type ) {
-			case INTEGER:
-				setValue( m_fValue + 1);
-				break;
-			case FLOAT:
-				setValue( m_fValue + 1.0);
-				break;
-		}
-
+		incrementValue();
 		emit changed(this);
 	}
 	else {
-		switch( m_type ) {
-			case INTEGER:
-				setValue( m_fValue -1);
-				break;
-			case FLOAT:
-				setValue( m_fValue - 1.0);
-				break;
-		}
+		decrementValue();
 		emit changed(this);
 	}
 }

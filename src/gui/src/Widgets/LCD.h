@@ -127,6 +127,15 @@ class LCDSpinBox : public QWidget, public H2Core::Object
 		void displayClicked( LCDDisplay *pRef );
 
 	private:
+		/**
+		 * Increment the value, with bounds checking
+		 */
+		void incrementValue();
+		/**
+		 * Decrement the value, with bounds checking
+		 */
+		void decrementValue();
+
 		LCDSpinBoxType m_type;
 		LCDDisplay* m_pDisplay;
 
