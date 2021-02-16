@@ -63,6 +63,12 @@ public:
 	//! At a minimum, the widget's own update() method should be called.
 	virtual void updateWidget() = 0;
 
+	//! Inform the client that we're deselecting elements.
+	virtual bool checkDeselectElements( std::vector<SelectionIndex> &elements ) {
+		return true;
+	}
+
+
 	//! @name User-level mouse events
 	//! Inform client of user-level mouse actions.
 	//!
@@ -89,7 +95,6 @@ public:
 	virtual void startMouseMove( QMouseEvent *ev ) {}
 	virtual void endMouseGesture() {}
 	//! @}
-
 
 	//! Find the QScrollArea, if any, which contains the widget. This will be used to scroll the widget during
 	//! drag operations.
@@ -321,7 +326,10 @@ public:
 	}
 
 	void removeFromSelection( Elem e ) {
-		m_pSelectionGroup->m_selectedElements.erase( e );
+		std::vector<Elem> v { e };
+		if ( m_pWidget->checkDeselectElements( v ) ) {
+			m_pSelectionGroup->m_selectedElements.erase( e );
+		}
 	}
 
 	void addToSelection( Elem e ) {
@@ -329,7 +337,11 @@ public:
 	}
 
 	void clearSelection() {
-		m_pSelectionGroup->m_selectedElements.clear();
+		std::vector<Elem> v ( m_pSelectionGroup->m_selectedElements.begin(),
+							  m_pSelectionGroup->m_selectedElements.end() );
+		if ( m_pWidget->checkDeselectElements( v ) ) {
+			m_pSelectionGroup->m_selectedElements.clear();
+		}
 	}
 
 	//! @name Selection iteration
@@ -465,9 +477,9 @@ public:
 			for ( Elem e : elems) {
 				if ( m_pSelectionGroup->m_selectedElements.find( e )
 					 == m_pSelectionGroup->m_selectedElements.end() ) {
-					m_pSelectionGroup->m_selectedElements.insert( e );
+					addToSelection( e );
 				} else {
-					m_pSelectionGroup->m_selectedElements.erase( e );
+					removeFromSelection( e );
 				}
 			}
 			updateWidgetGroup();
@@ -475,7 +487,7 @@ public:
 			if ( ev->button() != Qt::RightButton && !m_pSelectionGroup->m_selectedElements.empty() ) {
 				// Click without control or right button, and
 				// non-empty selection, will just clear selection
-				m_pSelectionGroup->m_selectedElements.clear();
+				clearSelection();
 				updateWidgetGroup();
 			} else if ( ev->button() == Qt::RightButton && m_pSelectionGroup->m_selectedElements.empty() ) {
 				// Right-clicking with an emply selection will first attempt to select anything at the click
@@ -483,7 +495,7 @@ public:
 				QRect r = QRect( ev->pos(), ev->pos() );
 				std::vector<Elem> elems = m_pWidget->elementsIntersecting( r );
 				for ( Elem e : elems) {
-					m_pSelectionGroup->m_selectedElements.insert( e );
+					addToSelection( e );
 				}
 				m_pWidget->mouseClickEvent( ev );
 			} else {
@@ -544,14 +556,18 @@ public:
 		if ( m_selectionState == MouseLasso) {
 			m_lasso.setBottomRight( ev->pos() );
 
-			// Clear and rebuild selection.
-			m_pSelectionGroup->m_selectedElements.clear();
 			if ( ev->modifiers() & Qt::ControlModifier ) {
+				// Start with previously selected elements
 				m_pSelectionGroup->m_selectedElements = m_checkpointSelectedElements;
+			} else {
+				// Clear and rebuild selection
+				m_pSelectionGroup->m_selectedElements.clear();
 			}
 			auto selected = m_pWidget->elementsIntersecting( m_lasso );
 			for ( auto s : selected ) {
-				m_pSelectionGroup->m_selectedElements.insert( s );
+				if ( m_checkpointSelectedElements.find( s ) == m_checkpointSelectedElements.end() ) {
+					addToSelection( s );
+				}
 			}
 			updateWidgetGroup();
 
@@ -672,7 +688,7 @@ public:
 			// Key: Escape: cancel any lasso or move/copy in progress; or clear any selection.
 			if ( m_selectionState == Idle ) {
 				if ( !m_pSelectionGroup->m_selectedElements.empty() ) {
-					m_pSelectionGroup->m_selectedElements.clear();
+					clearSelection();
 					updateWidgetGroup();
 					return true;
 				}
@@ -705,7 +721,7 @@ public:
 			m_lasso = m_keyboardCursorStart.united( m_pWidget->getKeyboardCursorRect() );
 
 			// Clear and rebuild selection
-			m_pSelectionGroup->m_selectedElements.clear();
+			clearSelection();
 			auto selected = m_pWidget->elementsIntersecting( m_lasso );
 			for ( auto s : selected ) {
 				m_pSelectionGroup->m_selectedElements.insert( s );

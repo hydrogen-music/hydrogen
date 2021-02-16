@@ -41,6 +41,7 @@
 #include "../HydrogenApp.h"
 #include "../EventListener.h"
 #include "PatternEditorPanel.h"
+#include "UndoActions.h"
 
 
 using namespace std;
@@ -283,6 +284,78 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 }
 
 
+bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements )
+{
+	//	Hydrogen *pH = Hydrogen::get_instance();
+	std::set< Note *> duplicates;
+	for ( Note *pNote : elements ) {
+		qDebug() << "Note: " << pNote;
+		if ( duplicates.find( pNote ) != duplicates.end() ) {
+			// Already marked pNote as a duplicate of some other pNote. Skip it.
+			continue;
+		}
+		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, pNote->get_position() ) {
+			// Find duplicate?
+			if ( it->second != pNote ) {
+				Note *pOtherNote = it->second;
+				if ( pOtherNote->get_instrument() == pNote->get_instrument()
+					 && pOtherNote->get_notekey_pitch() == pNote->get_notekey_pitch() ) {
+					duplicates.insert( pOtherNote );
+				}
+			}
+		}
+	}
+	if ( !duplicates.empty() ) {
+		Preferences *pPreferences = Preferences::get_instance();
+		bool bOk = true;
+
+		if ( pPreferences->getShowNoteOverwriteWarning() ) {
+			QString sMsg ( tr( "Placing these notes here will overwrite %1 duplicate notes." ) );
+			QMessageBox messageBox ( QMessageBox::Warning, "Hydrogen", sMsg.arg( duplicates.size() ),
+									 QMessageBox::Cancel | QMessageBox::Ok, this );
+			messageBox.setCheckBox( new QCheckBox( tr( "Don't show this message again" ) ) );
+			messageBox.checkBox()->setChecked( false );
+			bOk = messageBox.exec() == QMessageBox::Ok;
+			if ( messageBox.checkBox()->isChecked() ) {
+				pPreferences->setShowNoteOverwriteWarning( false );
+			}
+		}
+
+		if ( bOk ) {
+			Hydrogen *pHydrogen = Hydrogen::get_instance();
+			InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
+			QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
+
+			pUndo->beginMacro( tr( "Overwrite notes" ) );
+			for ( Note *pNote : duplicates ) {
+				// TODO: this should be its own undo action so that we can make undo re-select the right
+				// notes, and also make sure we delete the correct notes (and successfully add duplicate
+				// notes)
+				pUndo->push( new SE_addOrDeleteNoteAction( pNote->get_position(),
+														   pInstrumentList->index( pNote->get_instrument() ),
+														   m_nSelectedPatternNumber,
+														   pNote->get_length(),
+														   pNote->get_velocity(),
+														   pNote->get_pan_l(),
+														   pNote->get_pan_r(),
+														   pNote->get_lead_lag(),
+														   pNote->get_key(),
+														   pNote->get_octave(),
+														   true, // noteExisted
+														   false, // listen
+														   false,
+														   false,
+														   pNote->get_note_off() ) );
+			}
+			pUndo->endMacro();
+		} else {
+			return false;
+		}
+	}
+	return true;
+}
+
+
 void PatternEditor::updatePatternInfo() {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
@@ -436,8 +509,10 @@ void PatternEditor::validateSelection()
 			valid.insert( it->second );
 		}
 	}
-	m_selection.clearSelection();
-	for (auto i : valid ) {
-		m_selection.addToSelection( i );
+	for (auto i : m_selection ) {
+		if ( valid.find(i) == valid.end()) {
+			qDebug() << "XXX Removed invalid selected item?";
+			m_selection.removeFromSelection( i );
+		}
 	}
 }

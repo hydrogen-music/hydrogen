@@ -96,6 +96,9 @@ public:
 		updateEditor( true );
 	}
 
+	//! Deselecting notes
+	virtual bool checkDeselectElements( std::vector<SelectionIndex> &elements ) override;
+
 	//! Change the mouse cursor during mouse gestures
 	virtual void startMouseLasso( QMouseEvent *ev ) override {
 		setCursor( Qt::CrossCursor );
