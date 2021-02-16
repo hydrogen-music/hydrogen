@@ -78,13 +78,13 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void compoChangeAddDelete(QAction*);
 		void onClick(Button*);
 
-		void muteGroupBtnClicked(Button *pRef);
+		void muteGroupLCDChanged(LCDSpinBox *pRef);
 		void onIsStopNoteCheckBoxClicked( bool on );
 		void onIsApplyVelocityCheckBoxClicked( bool on);
-		void midiOutChannelBtnClicked(Button *pRef);
+		void midiOutChannelLCDChanged(LCDSpinBox *pRef);
 		void midiOutNoteLCDChanged(LCDSpinBox *pRef);
 
-		void hihatGroupClicked(Button *pRef);
+		void hihatGroupLCDChanged(LCDSpinBox *pRef);
 		void hihatMinRangeLCDChanged(LCDSpinBox *pRef);
 		void hihatMaxRangeLCDChanged(LCDSpinBox *pRef);
 
@@ -129,12 +129,12 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		QCheckBox *m_pApplyVelocity;
 
 		// Instrument mute group
-		LCDDisplay *m_pMuteGroupLCD;
+		LCDSpinBox *m_pMuteGroupLCD;
 		Button *m_pAddMuteGroupBtn;
 		Button *m_pDelMuteGroupBtn;
 
 		// Instrument midi out
-		LCDDisplay *m_pMidiOutChannelLCD;
+		LCDSpinBox *m_pMidiOutChannelLCD;
 		Button *m_pAddMidiOutChannelBtn;
 		Button *m_pDelMidiOutChannelBtn;
 
@@ -144,7 +144,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		// Instrument hihat
 
-		LCDDisplay *m_pHihatGroupLCD;
+		LCDSpinBox *m_pHihatGroupLCD;
 		Button *m_pAddHihatGroupBtn;
 		Button *m_pDelHihatGroupBtn;
 

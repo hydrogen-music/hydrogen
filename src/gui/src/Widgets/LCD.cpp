@@ -350,12 +350,13 @@ void LCDSpinBox::incrementValue()
 {
 	switch( m_type ) {
 		case INTEGER:
-			if ( m_nMaxValue == -1 || m_fValue < m_nMaxValue ) {
+		case INTEGER_MIN_OFF:
+			if ( m_nMaxValue == m_nMinValue || m_fValue < m_nMaxValue ) {
 				setValue( m_fValue + 1);
 			}
 			break;
 		case FLOAT:
-			if ( m_nMaxValue == -1 || m_fValue < (float)m_nMaxValue ) {
+			if ( m_nMaxValue == m_nMinValue || m_fValue < (float)m_nMaxValue ) {
 				setValue( m_fValue + 1.0);
 			}
 			break;
@@ -366,12 +367,13 @@ void LCDSpinBox::decrementValue()
 {
 	switch( m_type ) {
 		case INTEGER:
-			if ( m_nMinValue == -1 || m_fValue > m_nMinValue ) {
-				setValue( m_fValue -1);
+		case INTEGER_MIN_OFF:
+			if ( m_nMaxValue == m_nMinValue || m_fValue > m_nMinValue ) {
+				setValue( m_fValue - 1);
 			}
 			break;
 		case FLOAT:
-			if ( m_nMinValue == -1 || m_fValue > m_nMinValue ) {
+			if ( m_nMaxValue == m_nMinValue || m_fValue > (float)m_nMinValue ) {
 				setValue( m_fValue - 1.0);
 			}
 			break;
@@ -398,6 +400,17 @@ void LCDSpinBox::setValue( float nValue )
 			if ( nValue != m_fValue ) {
 				m_fValue = (int)nValue;
 				m_pDisplay->setText( QString( "%1" ).arg( m_fValue ) );
+			}
+			break;
+
+		case INTEGER_MIN_OFF:
+			if ( nValue != m_fValue ) {
+				m_fValue = (int)nValue;
+				QString sValue = QString("%1").arg( m_fValue );
+				if ( m_nMaxValue != m_nMinValue && (int)m_fValue == m_nMinValue ) {
+					sValue = "Off";
+				}
+				m_pDisplay->setText( sValue );
 			}
 			break;
 

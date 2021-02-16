@@ -97,6 +97,9 @@ class LCDDisplay : public QWidget, public H2Core::Object
 };
 
 
+///
+/// Simple spinbox widget using an LCDDisplay
+///
 class LCDSpinBox : public QWidget, public H2Core::Object
 {
     H2_OBJECT
@@ -104,9 +107,20 @@ class LCDSpinBox : public QWidget, public H2Core::Object
 	public:
 		enum LCDSpinBoxType {
 			INTEGER,
+			INTEGER_MIN_OFF,
 			FLOAT
 		};
 
+		/**
+		 * Create a new LCDSpinBox
+		 *
+		 * @param pParent Parent widget
+		 * @param lcdType Style of LCD characters to use
+		 * @param nDigits Width of the display, in characters
+		 * @param type Type of values used in the spinbox
+		 * @param nMin Minimum value (equal to nMax to disable bounds checking)
+		 * @param nMax Maximum value (equal to nMin to disable bounds checking)
+		 */
 		LCDSpinBox( QWidget *pParent, LCDDigit::LCDType lcdType, int nDigits, LCDSpinBoxType type, int nMin = -1, int nMax = -1 );
 		~LCDSpinBox();
 
