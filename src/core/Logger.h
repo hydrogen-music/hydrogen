@@ -27,6 +27,7 @@
 #include <list>
 #include <pthread.h>
 
+#include <QDebug>
 #include <core/config.h>
 
 class QString;
@@ -149,6 +150,13 @@ class Logger {
 		static int hextoi( const char* str, long len );
 #endif // HAVE_SSCANF
 };
+
+
+template <class X>
+QDebug operator<<( QDebug d, X *x ) {
+	d << ( x ? x->toQString( "", true ) : "(nullptr)" );
+	return d;
+}
 
 };
 
