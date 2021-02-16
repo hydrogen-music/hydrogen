@@ -138,8 +138,10 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 
 
 	///
-	m_pMidiOutNoteLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
+	m_pMidiOutNoteLCD = new LCDSpinBox( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4, LCDSpinBox::INTEGER, MIDI_OUT_NOTE_MIN, MIDI_OUT_NOTE_MAX );
 	m_pMidiOutNoteLCD->move( 160, 261 );
+	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
+	connect( m_pMidiOutNoteLCD, SIGNAL( changed(LCDSpinBox*) ), this, SLOT( midiOutNoteLCDChanged(LCDSpinBox*) ) );
 
 	m_pAddMidiOutNoteBtn = new Button(
 							   m_pInstrumentProp,
@@ -150,11 +152,10 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 							   false,
 							   true
 							   );
-	m_pMidiOutNoteLCD->setToolTip(QString(tr("Midi out note")));
 
 
 	m_pAddMidiOutNoteBtn->move( 202, 260 );
-	connect( m_pAddMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );
+	connect( m_pAddMidiOutNoteBtn, SIGNAL( clicked(Button*) ), m_pMidiOutNoteLCD, SLOT( upButtonClicked() ) );
 
 
 	m_pDelMidiOutNoteBtn = new Button(
@@ -167,7 +168,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 							   true
 							   );
 	m_pDelMidiOutNoteBtn->move( 202, 269 );
-	connect( m_pDelMidiOutNoteBtn, SIGNAL( clicked(Button*) ), this, SLOT( midiOutNoteBtnClicked(Button*) ) );
+	connect( m_pDelMidiOutNoteBtn, SIGNAL( clicked(Button*) ), m_pMidiOutNoteLCD, SLOT( downButtonClicked() ) );
 
 	/////////////
 
@@ -306,8 +307,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	m_pDelHihatGroupBtn->move( 69, 315 );
 	connect( m_pDelHihatGroupBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatGroupClicked(Button*) ) );
 
-	m_pHihatMinRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
+	m_pHihatMinRangeLCD = new LCDSpinBox( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4, LCDSpinBox::INTEGER, 0, 127 );
 	m_pHihatMinRangeLCD->move( 137, 307 );
+	connect( m_pHihatMinRangeLCD, SIGNAL( changed(LCDSpinBox*) ), this, SLOT( hihatMinRangeLCDChanged(LCDSpinBox*) ) );
 
 	m_pAddHihatMinRangeBtn = new Button(
 								 m_pInstrumentProp,
@@ -319,7 +321,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 true
 								 );
 	m_pAddHihatMinRangeBtn->move( 179, 306 );
-	connect( m_pAddHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
+	connect( m_pAddHihatMinRangeBtn, SIGNAL( clicked(Button*) ), m_pHihatMinRangeLCD, SLOT( upButtonClicked() ) );
 
 	m_pDelHihatMinRangeBtn = new Button(
 								 m_pInstrumentProp,
@@ -331,7 +333,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 true
 								 );
 	m_pDelHihatMinRangeBtn->move( 179, 315 );
-	connect( m_pDelHihatMinRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMinRangeBtnClicked(Button*) ) );
+	connect( m_pDelHihatMinRangeBtn, SIGNAL( clicked(Button*) ), m_pHihatMinRangeLCD, SLOT( downButtonClicked() ) );
 
 
 	m_pHihatMaxRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
@@ -626,8 +628,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		m_pMidiOutChannelLCD->setText( sMidiOutChannel );
 
 		//midi out note
-		QString sMidiOutNote = QString("%1").arg( m_pInstrument->get_midi_out_note() );
-		m_pMidiOutNoteLCD->setText( sMidiOutNote );
+		m_pMidiOutNoteLCD->setValue( m_pInstrument->get_midi_out_note() );
 
 		// hihat
 		QString sHHGroup = QString("%1").arg( m_pInstrument->get_hihat_grp() );
@@ -635,8 +636,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 			sHHGroup = "Off";
 		}
 		m_pHihatGroupLCD->setText( sHHGroup );
-		QString sHiHatMinRange = QString("%1").arg( m_pInstrument->get_lower_cc() );
-		m_pHihatMinRangeLCD->setText( sHiHatMinRange );
+		m_pHihatMinRangeLCD->setValue( m_pInstrument->get_lower_cc() );
 		QString sHiHatMaxRange = QString("%1").arg( m_pInstrument->get_higher_cc() );
 		m_pHihatMaxRangeLCD->setText( sHiHatMaxRange );
 
@@ -1239,16 +1239,11 @@ void InstrumentEditor::midiOutChannelBtnClicked(Button *pRef)
 	selectedInstrumentChangedEvent();	// force an update
 }
 
-void InstrumentEditor::midiOutNoteBtnClicked(Button *pRef)
+void InstrumentEditor::midiOutNoteLCDChanged(LCDSpinBox *pRef)
 {
 	assert( m_pInstrument );
 
-	if (pRef == m_pAddMidiOutNoteBtn ) {
-		m_pInstrument->set_midi_out_note( m_pInstrument->get_midi_out_note() + 1);
-	}
-	else if (pRef == m_pDelMidiOutNoteBtn ) {
-		m_pInstrument->set_midi_out_note( m_pInstrument->get_midi_out_note() - 1);
-	}
+	m_pInstrument->set_midi_out_note( (int) pRef->getValue() );
 
 	selectedInstrumentChangedEvent();	// force an update
 }
@@ -1494,16 +1489,11 @@ void InstrumentEditor::hihatGroupClicked(Button *pRef)
 	selectedInstrumentChangedEvent();   // force an update
 }
 
-void InstrumentEditor::hihatMinRangeBtnClicked(Button *pRef)
+void InstrumentEditor::hihatMinRangeLCDChanged(LCDSpinBox *pRef)
 {
 	assert( m_pInstrument );
 
-	if ( pRef == m_pAddHihatMinRangeBtn && m_pInstrument->get_lower_cc() < 127 ){
-		m_pInstrument->set_lower_cc( m_pInstrument->get_lower_cc() + 1 );
-	}
-	else if ( pRef == m_pDelHihatMinRangeBtn && m_pInstrument->get_lower_cc() > 0 ){
-		m_pInstrument->set_lower_cc( m_pInstrument->get_lower_cc() - 1 );
-	}
+	m_pInstrument->set_lower_cc( (int) pRef->getValue() );
 
 	selectedInstrumentChangedEvent();	// force an update
 }

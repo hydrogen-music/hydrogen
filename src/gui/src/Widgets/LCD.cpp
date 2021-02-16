@@ -322,7 +322,7 @@ LCDSpinBox::LCDSpinBox( QWidget *pParent, LCDDigit::LCDType lcdType, int nDigits
  : QWidget( pParent )
  , Object( __class_name )
  , m_type( type )
- , m_fValue( 0 )
+ , m_fValue( -1 )  // Hack to make sure setValue sets the LCD's text
  , m_nMinValue( nMin )
  , m_nMaxValue( nMax )
 {

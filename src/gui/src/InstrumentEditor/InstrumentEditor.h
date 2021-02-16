@@ -34,6 +34,7 @@
 
 class Fader;
 class LCDDisplay;
+class LCDSpinBox;
 class Button;
 class ToggleButton;
 class ClickableLabel;
@@ -81,10 +82,10 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		void onIsStopNoteCheckBoxClicked( bool on );
 		void onIsApplyVelocityCheckBoxClicked( bool on);
 		void midiOutChannelBtnClicked(Button *pRef);
-		void midiOutNoteBtnClicked(Button *pRef);
+		void midiOutNoteLCDChanged(LCDSpinBox *pRef);
 
 		void hihatGroupClicked(Button *pRef);
-		void hihatMinRangeBtnClicked(Button *pRef);
+		void hihatMinRangeLCDChanged(LCDSpinBox *pRef);
 		void hihatMaxRangeBtnClicked(Button *pRef);
 
 		void pSampleSelectionChanged( int );
@@ -137,7 +138,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		Button *m_pAddMidiOutChannelBtn;
 		Button *m_pDelMidiOutChannelBtn;
 
-		LCDDisplay *m_pMidiOutNoteLCD;
+		LCDSpinBox *m_pMidiOutNoteLCD;
 		Button *m_pAddMidiOutNoteBtn;
 		Button *m_pDelMidiOutNoteBtn;
 
@@ -147,7 +148,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		Button *m_pAddHihatGroupBtn;
 		Button *m_pDelHihatGroupBtn;
 
-		LCDDisplay *m_pHihatMinRangeLCD;
+		LCDSpinBox *m_pHihatMinRangeLCD;
 		Button *m_pAddHihatMinRangeBtn;
 		Button *m_pDelHihatMinRangeBtn;
 
