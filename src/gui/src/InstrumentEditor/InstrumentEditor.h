@@ -86,7 +86,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 
 		void hihatGroupClicked(Button *pRef);
 		void hihatMinRangeLCDChanged(LCDSpinBox *pRef);
-		void hihatMaxRangeBtnClicked(Button *pRef);
+		void hihatMaxRangeLCDChanged(LCDSpinBox *pRef);
 
 		void pSampleSelectionChanged( int );
 
@@ -152,7 +152,7 @@ class InstrumentEditor : public QWidget, public H2Core::Object, public EventList
 		Button *m_pAddHihatMinRangeBtn;
 		Button *m_pDelHihatMinRangeBtn;
 
-		LCDDisplay *m_pHihatMaxRangeLCD;
+		LCDSpinBox *m_pHihatMaxRangeLCD;
 		Button *m_pAddHihatMaxRangeBtn;
 		Button *m_pDelHihatMaxRangeBtn;
 

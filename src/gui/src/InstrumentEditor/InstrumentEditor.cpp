@@ -336,8 +336,9 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 	connect( m_pDelHihatMinRangeBtn, SIGNAL( clicked(Button*) ), m_pHihatMinRangeLCD, SLOT( downButtonClicked() ) );
 
 
-	m_pHihatMaxRangeLCD = new LCDDisplay( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4 );
+	m_pHihatMaxRangeLCD = new LCDSpinBox( m_pInstrumentProp, LCDDigit::SMALL_BLUE, 4, LCDSpinBox::INTEGER, 0, 127 );
 	m_pHihatMaxRangeLCD->move( 202, 307 );
+	connect( m_pHihatMaxRangeLCD, SIGNAL( changed(LCDSpinBox*) ), this, SLOT( hihatMaxRangeLCDChanged(LCDSpinBox*) ) );
 
 	m_pAddHihatMaxRangeBtn = new Button(
 								 m_pInstrumentProp,
@@ -349,7 +350,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 true
 								 );
 	m_pAddHihatMaxRangeBtn->move( 244, 306 );
-	connect( m_pAddHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
+	connect( m_pAddHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), m_pHihatMaxRangeLCD, SLOT( upButtonClicked() ) );
 
 	m_pDelHihatMaxRangeBtn = new Button(
 								 m_pInstrumentProp,
@@ -361,7 +362,7 @@ InstrumentEditor::InstrumentEditor( QWidget* pParent )
 								 true
 								 );
 	m_pDelHihatMaxRangeBtn->move( 244, 315 );
-	connect( m_pDelHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), this, SLOT( hihatMaxRangeBtnClicked(Button*) ) );
+	connect( m_pDelHihatMaxRangeBtn, SIGNAL( clicked(Button*) ), m_pHihatMaxRangeLCD, SLOT( downButtonClicked() ) );
 
 	//
 
@@ -637,8 +638,7 @@ void InstrumentEditor::selectedInstrumentChangedEvent()
 		}
 		m_pHihatGroupLCD->setText( sHHGroup );
 		m_pHihatMinRangeLCD->setValue( m_pInstrument->get_lower_cc() );
-		QString sHiHatMaxRange = QString("%1").arg( m_pInstrument->get_higher_cc() );
-		m_pHihatMaxRangeLCD->setText( sHiHatMaxRange );
+		m_pHihatMaxRangeLCD->setValue( m_pInstrument->get_higher_cc() );
 
 		// see instrument.h
 		m_sampleSelectionAlg->select( m_pInstrument->sample_selection_alg(), false);
@@ -1498,16 +1498,11 @@ void InstrumentEditor::hihatMinRangeLCDChanged(LCDSpinBox *pRef)
 	selectedInstrumentChangedEvent();	// force an update
 }
 
-void InstrumentEditor::hihatMaxRangeBtnClicked(Button *pRef)
+void InstrumentEditor::hihatMaxRangeLCDChanged(LCDSpinBox *pRef)
 {
 	assert( m_pInstrument );
 
-	if ( pRef == m_pAddHihatMaxRangeBtn && m_pInstrument->get_higher_cc() < 127 ){
-		m_pInstrument->set_higher_cc( m_pInstrument->get_higher_cc() + 1);
-	}
-	else if ( pRef == m_pDelHihatMaxRangeBtn && m_pInstrument->get_higher_cc() > 0 ){
-		m_pInstrument->set_higher_cc( m_pInstrument->get_higher_cc() - 1);
-	}
+	m_pInstrument->set_higher_cc( (int) pRef->getValue() );
 
 	selectedInstrumentChangedEvent();	// force an update
 }
