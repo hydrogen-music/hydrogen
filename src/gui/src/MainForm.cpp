@@ -1683,7 +1683,6 @@ void MainForm::initKeyInstMap()
 
 bool MainForm::eventFilter( QObject *o, QEvent *e )
 {
-	UNUSED( o );
 	if ( e->type() == QEvent::FileOpen ) {
 		// Mac OS always opens files (including via double click in Finder) via a FileOpenEvent.
 		QFileOpenEvent *fe = dynamic_cast<QFileOpenEvent*>(e);
@@ -1716,9 +1715,26 @@ bool MainForm::eventFilter( QObject *o, QEvent *e )
 		Hydrogen* pHydrogen = Hydrogen::get_instance();
 		switch (k->key()) {
 		case Qt::Key_Space:
-			onPlayStopAccelEvent();
-			return true; // eat event
 
+			switch ( k->modifiers() ) {
+			case Qt::NoModifier:
+				onPlayStopAccelEvent();
+				break;
+
+#ifndef Q_OS_MACX
+			case Qt::ControlModifier:
+				startPlaybackAtCursor( o );
+				break;
+			}
+#else
+			case Qt::AltModifier:
+				startPlaybackAtCursor( o );
+				break;
+			}
+#endif
+			
+			return true; // eat event
+			break;
 
 		case Qt::Key_Comma:
 			pHydrogen->handleBeatCounter();
@@ -2235,4 +2251,54 @@ void MainForm::action_banks_properties()
 	// Cleaning up the last pInfo we did not deleted due to the break
 	// statement.
 	delete pDrumkitInfo;
+}
+
+void MainForm::startPlaybackAtCursor( QObject* pObject ) {
+
+	Hydrogen* pHydrogen = Hydrogen::get_instance();
+	HydrogenApp* pApp = HydrogenApp::get_instance();
+	Song* pSong = pHydrogen->getSong();
+
+	if ( pObject->inherits( "SongEditorPanel" ) ) {
+			
+		if ( pSong->getMode() != Song::SONG_MODE ) {
+			pHydrogen->getCoreActionController()->activateSongMode( true, false );
+			pApp->getPlayerControl()->songModeActivationEvent( 1 );
+		}
+
+		int nCursorColumn = pApp->getSongEditorPanel()->getSongEditor()->getCursorColumn();
+		pHydrogen->getCoreActionController()->relocate( nCursorColumn );
+			
+	} else if ( pObject->inherits( "PatternEditorPanel" ) ) {
+		// Covers both the PatternEditor and the
+		// NotePropertiesRuler.
+			
+		if ( pSong->getMode() != Song::PATTERN_MODE ) {
+			pHydrogen->getCoreActionController()->activateSongMode( false, false );
+			pApp->getPlayerControl()->songModeActivationEvent( 0 );
+		}
+
+		// To provide a similar behaviour as when pressing
+		// [backspace], transport is relocated to the beginning of
+		// the song.
+		float fTickSize = pHydrogen->getAudioOutput()->m_transport.m_fTickSize;
+		int nCursorColumn = pApp->getPatternEditorPanel()->getCursorPosition();
+
+		// While updating the note queue the audio engine does add
+		// a "lookahead" to the position in order to avoid playing
+		// notes twice. This has to be taken into account or the
+		// note we start the playback at will be omitted.
+		if ( nCursorColumn > 0 ) {
+			nCursorColumn -= pHydrogen->calculateLookahead( fTickSize ) / fTickSize;
+		}
+		AudioEngine::get_instance()->locate( nCursorColumn * fTickSize );
+	} else {
+		ERRORLOG( QString( "Unknown object class" ) );
+	}
+
+	int nState = pHydrogen->getState();
+	if ( nState == STATE_READY ) {
+		pHydrogen->sequencer_play();
+		HydrogenApp::get_instance()->setStatusBarMessage(tr("Playing."), 5000);
+	}
 }
