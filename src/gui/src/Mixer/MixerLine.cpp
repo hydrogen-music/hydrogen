@@ -175,7 +175,7 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	m_pFader->setAction( pAction );
 
 
-	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
+	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_GRAY, 4 );
 	m_pPeakLCD->move( 10, 106 );
 	m_pPeakLCD->setText( "0.00" );
 	QPalette lcdPalette;
@@ -203,10 +203,10 @@ void MixerLine::updateMixerLine()
 		snprintf(tmp, 19, "%#.2f", (double)m_fMaxPeak );
 		m_pPeakLCD->setText(tmp);
 		if ( m_fMaxPeak > 1.0 ) {
-			m_pPeakLCD->setSmallRed();
+			m_pPeakLCD->setType( LCDDigit::SMALL_RED );
 		}
 		else {
-			m_pPeakLCD->setSmallBlue();
+			m_pPeakLCD->setType( LCDDigit::SMALL_GRAY );
 		}
 	}
 	m_nPeakTimer++;
@@ -283,10 +283,10 @@ void MixerLine::setPeak_L( float peak ) {
 			snprintf(tmp, 19, "%#.2f", peak);
 			m_pPeakLCD->setText( tmp );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setSmallRed();
+				m_pPeakLCD->setType( LCDDigit::SMALL_RED );
 			}
 			else {
-				m_pPeakLCD->setSmallBlue();
+				m_pPeakLCD->setType( LCDDigit::SMALL_GRAY );
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -309,10 +309,10 @@ void MixerLine::setPeak_R( float peak ) {
 			snprintf(tmp, 19, "%#.2f", peak);
 			m_pPeakLCD->setText( tmp );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setSmallRed();
+				m_pPeakLCD->setType( LCDDigit::SMALL_RED );
 			}
 			else {
-				m_pPeakLCD->setSmallBlue();
+				m_pPeakLCD->setType( LCDDigit::SMALL_GRAY );
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -483,7 +483,7 @@ ComponentMixerLine::ComponentMixerLine(QWidget* parent, int CompoID)
 	//m_pFader->setAction( pAction );
 
 
-	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
+	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_GRAY, 4 );
 	m_pPeakLCD->move( 10, 106 );
 	m_pPeakLCD->setText( "0.00" );
 	QPalette lcdPalette;
@@ -513,10 +513,10 @@ void ComponentMixerLine::updateMixerLine()
 		snprintf(tmp, 19, "%#.2f", (double)m_fMaxPeak );
 		m_pPeakLCD->setText(tmp);
 		if ( m_fMaxPeak > 1.0 ) {
-			m_pPeakLCD->setSmallRed();
+			m_pPeakLCD->setType( LCDDigit::SMALL_RED );
 		}
 		else {
-			m_pPeakLCD->setSmallBlue();
+			m_pPeakLCD->setType( LCDDigit::SMALL_GRAY );
 		}
 	}
 	m_nPeakTimer++;
@@ -582,10 +582,10 @@ void ComponentMixerLine::setPeak_L( float peak ) {
 			snprintf(tmp, 19, "%#.2f", peak);
 			m_pPeakLCD->setText( tmp );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setSmallRed();
+				m_pPeakLCD->setType( LCDDigit::SMALL_RED );
 			}
 			else {
-				m_pPeakLCD->setSmallBlue();
+				m_pPeakLCD->setType( LCDDigit::SMALL_GRAY );
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -608,11 +608,11 @@ void ComponentMixerLine::setPeak_R( float peak ) {
 			snprintf(tmp, 19, "%#.2f", peak);
 			m_pPeakLCD->setText( tmp );
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setSmallRed();
+				m_pPeakLCD->setType( LCDDigit::SMALL_RED );
 			}
 			else {
-				m_pPeakLCD->setSmallBlue();
-		}
+				m_pPeakLCD->setType( LCDDigit::SMALL_GRAY );
+			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
 		}
@@ -659,7 +659,7 @@ MasterMixerLine::MasterMixerLine(QWidget* parent)
 	Action* pAction = new Action("MASTER_VOLUME_ABSOLUTE");
 	m_pMasterFader->setAction( pAction );
 
-	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
+	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_GRAY, 4 );
 	m_pPeakLCD->move( 23, 53 );
 	m_pPeakLCD->setText( "0.00" );
 	QPalette lcdPalette;
@@ -736,10 +736,10 @@ void MasterMixerLine::setPeak_L(float peak)
 			snprintf(tmp, 19, "%#.2f", peak);
 			m_pPeakLCD->setText(tmp);
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setSmallRed();
+				m_pPeakLCD->setType( LCDDigit::SMALL_RED );
 			}
 			else {
-				m_pPeakLCD->setSmallBlue();
+				m_pPeakLCD->setType( LCDDigit::SMALL_GRAY );
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -762,10 +762,10 @@ void MasterMixerLine::setPeak_R(float peak) {
 			snprintf(tmp, 19,"%#.2f", peak);
 			m_pPeakLCD->setText(tmp);
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setSmallRed();
+				m_pPeakLCD->setType( LCDDigit::SMALL_RED );
 			}
 			else {
-				m_pPeakLCD->setSmallBlue();
+				m_pPeakLCD->setType( LCDDigit::SMALL_GRAY );
 			}
 			m_fMaxPeak = peak;
 			m_nPeakTimer = 0;
@@ -792,10 +792,10 @@ void MasterMixerLine::updateMixerLine()
 		snprintf(tmp, 19, "%#.2f", m_fMaxPeak );
 		m_pPeakLCD->setText(tmp);
 		if ( m_fMaxPeak > 1.0 ) {
-			m_pPeakLCD->setSmallRed();
+			m_pPeakLCD->setType( LCDDigit::SMALL_RED );
 		}
 		else {
-			m_pPeakLCD->setSmallBlue();
+			m_pPeakLCD->setType( LCDDigit::SMALL_GRAY );
 		}
 	}
 	m_nPeakTimer++;
@@ -879,7 +879,7 @@ FxMixerLine::FxMixerLine(QWidget* parent)
 	m_pNameWidget->move( 2, 106 );
 	m_pNameWidget->setText( tr( "Master output" ) );
 
-	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4 );
+	m_pPeakLCD = new LCDDisplay( this, LCDDigit::SMALL_GRAY, 4 );
 	m_pPeakLCD->move( 2, MIXERLINE_LABEL_H );
 	m_pPeakLCD->setText( "0.00" );
 }
@@ -913,10 +913,10 @@ void FxMixerLine::faderChanged(Fader *ref)
 	snprintf( tmp, 19, "%#.2f", m_fMaxPeak );
 	m_pPeakLCD->setText( tmp );
 	if ( m_fMaxPeak > 1.0 ) {
-		m_pPeakLCD->setSmallRed();
+		m_pPeakLCD->setType( LCDDigit::SMALL_RED );
 	}
 	else {
-		m_pPeakLCD->setSmallBlue();
+		m_pPeakLCD->setType( LCDDigit::SMALL_GRAY );
 	}
 
 	Song *pSong = Hydrogen::get_instance()->getSong();
@@ -943,10 +943,10 @@ void FxMixerLine::setPeak_L( float peak )
 			snprintf(tmp, 19,"%#.2f", peak);
 			m_pPeakLCD->setText(tmp);
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setSmallRed();
+				m_pPeakLCD->setType( LCDDigit::SMALL_RED );
 			}
 			else {
-				m_pPeakLCD->setSmallBlue();
+				m_pPeakLCD->setType( LCDDigit::SMALL_GRAY );
 			}
 
 			m_fMaxPeak = peak;
@@ -968,10 +968,10 @@ void FxMixerLine::setPeak_R(float peak)
 			snprintf(tmp, 19, "%#.2f", peak);
 			m_pPeakLCD->setText(tmp);
 			if ( peak > 1.0 ) {
-				m_pPeakLCD->setSmallRed();
+				m_pPeakLCD->setType( LCDDigit::SMALL_RED );
 			}
 			else {
-				m_pPeakLCD->setSmallBlue();
+				m_pPeakLCD->setType( LCDDigit::SMALL_GRAY );
 			}
 
 			m_fMaxPeak = peak;
@@ -1096,7 +1096,7 @@ LadspaFXMixerLine::LadspaFXMixerLine(QWidget* parent)
 	connect( m_pEditBtn, SIGNAL( clicked(Button*) ), this, SLOT( click(Button*) ) );
 
 	// instrument name widget
-	m_pNameLCD = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 13 );
+	m_pNameLCD = new LCDDisplay( this, LCDDigit::SMALL_GRAY, 13 );
 	m_pNameLCD->move( 11, 9 );
 	m_pNameLCD->setText( "No name" );
 	m_pNameLCD->setToolTip( tr( "Ladspa FX name" ) );

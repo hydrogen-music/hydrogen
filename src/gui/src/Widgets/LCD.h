@@ -40,8 +40,9 @@ class LCDDigit : public QWidget, public H2Core::Object
 		enum LCDType {
 			SMALL_BLUE,
 			SMALL_RED,
+			SMALL_GRAY,
 			LARGE_GRAY,
-			SMALL_GRAY
+			MEDIUM_GRAY
 		};
 
 		LCDDigit( QWidget *pParent, LCDType type );
@@ -49,8 +50,8 @@ class LCDDigit : public QWidget, public H2Core::Object
 
 		void set( char ch );
 
-		void setSmallRed();
-		void setSmallBlue();
+		void setType( LCDType type );
+		LCDType getType() { return m_type; };
 
 	signals:
 		void digitClicked();
@@ -58,8 +59,9 @@ class LCDDigit : public QWidget, public H2Core::Object
 	private:
 		static QPixmap *m_pSmallBlueFontSet;
 		static QPixmap *m_pSmallRedFontSet;
-		static QPixmap *m_pLargeGrayFontSet;
 		static QPixmap *m_pSmallGrayFontSet;
+		static QPixmap *m_pLargeGrayFontSet;
+		static QPixmap *m_pMediumGrayFontSet;
 
 		int m_nCol;
 		int m_nRow;
@@ -82,8 +84,8 @@ class LCDDisplay : public QWidget, public H2Core::Object
 		void setText( const QString& sMsg );
 		QString getText() {	return m_sMsg;	}
 
-		void setSmallRed();
-		void setSmallBlue();
+		void setType( LCDDigit::LCDType type );
+		LCDDigit::LCDType getType() { return m_pDisplay[ 0 ]->getType(); };
 
 	public slots:
 		void digitClicked();

@@ -31,7 +31,7 @@ RotaryTooltip::RotaryTooltip( QPoint pos )
 {
 	UNUSED( pos );
 
-	m_pDisplay = new LCDDisplay( this, LCDDigit::SMALL_BLUE, 4);
+	m_pDisplay = new LCDDisplay( this, LCDDigit::SMALL_GRAY, 4);
 	m_pDisplay->move( 0, 0 );
 	resize( m_pDisplay->size() );
 

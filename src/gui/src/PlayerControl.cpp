@@ -88,7 +88,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pTimeDisplayS->move( 95, 12 );
 	m_pTimeDisplayS->setText( "00" );
 
-	m_pTimeDisplayMS = new LCDDisplay( pControlsPanel, LCDDigit::SMALL_GRAY, 3 );
+	m_pTimeDisplayMS = new LCDDisplay( pControlsPanel, LCDDigit::MEDIUM_GRAY, 3 );
 	m_pTimeDisplayMS->move( 122, 16 );
 	m_pTimeDisplayMS->setText( "000" );
 
@@ -240,11 +240,11 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pBCDisplayZ->setText( "--" );
 
 
-	m_pBCDisplayT = new LCDDisplay( m_pControlsBCPanel, LCDDigit::SMALL_GRAY, 1 );
+	m_pBCDisplayT = new LCDDisplay( m_pControlsBCPanel, LCDDigit::MEDIUM_GRAY, 1 );
 	m_pBCDisplayT->move( 23, 26 );
 	m_pBCDisplayT->setText( "4" );
 
-	m_pBCDisplayB = new LCDDisplay( m_pControlsBCPanel, LCDDigit::SMALL_GRAY, 2 );
+	m_pBCDisplayB = new LCDDisplay( m_pControlsBCPanel, LCDDigit::MEDIUM_GRAY, 2 );
 	m_pBCDisplayB->move( 39, 26 );
 // set display from 4 to 04. fix against qt4 transparent problem
 //	m_pBCDisplayB->setText( "4" );
@@ -469,7 +469,7 @@ PlayerControl::PlayerControl(QWidget *parent)
 	m_pShowInstrumentRackBtn->setText( tr( "Instrument rack" ) );
 	connect( m_pShowInstrumentRackBtn, SIGNAL( clicked(Button*) ), this, SLOT( showButtonClicked( Button*)) );
 
-	m_pStatusLabel = new LCDDisplay(pLcdBackGround , LCDDigit::SMALL_BLUE, 30, true );
+	m_pStatusLabel = new LCDDisplay(pLcdBackGround , LCDDigit::SMALL_GRAY, 30, true );
 	m_pStatusLabel->move( 7, 25 );
 
 

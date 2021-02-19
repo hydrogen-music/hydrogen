@@ -256,7 +256,7 @@ void LadspaFXProperties::updateControls()
 				sValue = QString("%1").arg( pControlPort->fControlValue, 0, 'f', 0);
 			}
 
-			LCDDisplay *pLCD = new LCDDisplay( m_pFrame, LCDDigit::SMALL_BLUE, 4 );
+			LCDDisplay *pLCD = new LCDDisplay( m_pFrame, LCDDigit::SMALL_GRAY, 4 );
 			pLCD->move( nInputControl_X, 40 );
 			pLCD->setText( sValue );
 			pLCD->show();

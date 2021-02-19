@@ -27,8 +27,9 @@
 
 QPixmap* LCDDigit::m_pSmallBlueFontSet = nullptr;
 QPixmap* LCDDigit::m_pSmallRedFontSet = nullptr;
-QPixmap* LCDDigit::m_pLargeGrayFontSet = nullptr;
 QPixmap* LCDDigit::m_pSmallGrayFontSet = nullptr;
+QPixmap* LCDDigit::m_pLargeGrayFontSet = nullptr;
+QPixmap* LCDDigit::m_pMediumGrayFontSet = nullptr;
 
 const char* LCDDigit::__class_name = "LCDDigit";
 
@@ -42,6 +43,7 @@ LCDDigit::LCDDigit( QWidget * pParent, LCDType type )
 	switch ( m_type ) {
 		case SMALL_BLUE:
 		case SMALL_RED:
+		case SMALL_GRAY:
 			resize( 8, 11 );
 			break;
 
@@ -49,7 +51,7 @@ LCDDigit::LCDDigit( QWidget * pParent, LCDType type )
 			resize( 14, 16 );
 			break;
 
-		case SMALL_GRAY:
+		case MEDIUM_GRAY:
 		resize( 12, 11 );
 		break;
 }
@@ -77,6 +79,16 @@ LCDDigit::LCDDigit( QWidget * pParent, LCDType type )
 		}
 	}
 
+	// Small gray FontSet image
+	if (m_pSmallGrayFontSet == nullptr ) {
+		QString sSmallGrayFontSet = Skin::getImagePath() + "/lcd/LCDSmallGrayFontSet.png";
+		m_pSmallGrayFontSet = new QPixmap();
+		bool ok = m_pSmallGrayFontSet->load( sSmallGrayFontSet );
+		if( ok == false ) {
+			ERRORLOG( "Error loading pixmap" );
+		}
+	}
+
 	// Large gray FontSet image
 	if (m_pLargeGrayFontSet == nullptr ) {
 		QString sLargeGrayFontSet = Skin::getImagePath() + "/lcd/LCDLargeGrayFontSet.png";
@@ -87,11 +99,11 @@ LCDDigit::LCDDigit( QWidget * pParent, LCDType type )
 		}
 	}
 
-	// Small gray FontSet image
-	if (m_pSmallGrayFontSet == nullptr ) {
-		QString sSmallGrayFontSet = Skin::getImagePath() + "/lcd/LCDSmallGrayFontSet.png";
-		m_pSmallGrayFontSet = new QPixmap();
-		bool ok = m_pSmallGrayFontSet->load( sSmallGrayFontSet );
+	// Medium gray FontSet image
+	if (m_pMediumGrayFontSet == nullptr ) {
+		QString sMediumGrayFontSet = Skin::getImagePath() + "/lcd/LCDMediumGrayFontSet.png";
+		m_pMediumGrayFontSet = new QPixmap();
+		bool ok = m_pMediumGrayFontSet->load( sMediumGrayFontSet );
 		if( ok == false ) {
 			ERRORLOG( "Error loading pixmap" );
 		}
@@ -137,12 +149,16 @@ void LCDDigit::paintEvent(QPaintEvent *ev)
 			painter.drawPixmap( rect(), *m_pSmallRedFontSet, QRect( x, y, width(), height() ) );
 			break;
 
+		case SMALL_GRAY:
+			painter.drawPixmap( rect(), *m_pSmallGrayFontSet, QRect( x, y, width(), height() ) );
+			break;
+
 		case LARGE_GRAY:
 			painter.drawPixmap( rect(), *m_pLargeGrayFontSet, QRect( x, y, width(), height() ) );
 			break;
 
-		case SMALL_GRAY:
-			painter.drawPixmap( rect(), *m_pSmallGrayFontSet, QRect( x, y, width(), height() ) );
+		case MEDIUM_GRAY:
+			painter.drawPixmap( rect(), *m_pMediumGrayFontSet, QRect( x, y, width(), height() ) );
 			break;
 
 		default:
@@ -174,23 +190,13 @@ void LCDDigit::set( char ch )
 }
 
 
-void LCDDigit::setSmallRed()
+void LCDDigit::setType( LCDType type )
 {
-	if ( m_type != SMALL_RED ) {
-		m_type = SMALL_RED;
+	if ( m_type != type ) {
+		m_type = type;
 		update();
 	}
 }
-
-
-void LCDDigit::setSmallBlue()
-{
-	if ( m_type != SMALL_BLUE ) {
-		m_type = SMALL_BLUE;
-		update();
-	}
-}
-
 
 
 // ::::::::::::::::::
@@ -207,7 +213,7 @@ LCDDisplay::LCDDisplay( QWidget * pParent, LCDDigit::LCDType type, int nDigits, 
 
 	for ( int n = 0; n < nDigits; n++ ) {
 		LCDDigit *pDigit = new LCDDigit( this, type );
-		if ( ( type == LCDDigit::LARGE_GRAY ) || ( type == LCDDigit::SMALL_GRAY ) ) {
+		if ( ( type == LCDDigit::LARGE_GRAY ) || ( type == LCDDigit::MEDIUM_GRAY ) ) {
 			pDigit->move( pDigit->width() * n, 0 );
 		}
 		else {
@@ -217,7 +223,7 @@ LCDDisplay::LCDDisplay( QWidget * pParent, LCDDigit::LCDType type, int nDigits, 
 		m_pDisplay.push_back( pDigit );
 	}
 
-	if ( ( type == LCDDigit::LARGE_GRAY ) || ( type == LCDDigit::SMALL_GRAY ) ) {
+	if ( ( type == LCDDigit::LARGE_GRAY ) || ( type == LCDDigit::MEDIUM_GRAY ) ) {
 		int w = m_pDisplay[ 0 ]->width() * nDigits;
 		int h = m_pDisplay[ 0 ]->height();
 
@@ -293,17 +299,10 @@ void LCDDisplay::setText( const QString& sMsg )
 
 
 
-void LCDDisplay::setSmallRed()
+void LCDDisplay::setType( LCDDigit::LCDType type )
 {
 	for ( uint i = 0; i < m_pDisplay.size(); i++) {
-		m_pDisplay[ i ]->setSmallRed();
-	}
-}
-
-void LCDDisplay::setSmallBlue()
-{
-	for ( uint i = 0; i < m_pDisplay.size(); i++) {
-		m_pDisplay[ i ]->setSmallBlue();
+		m_pDisplay[ i ]->setType( type );
 	}
 }
 
