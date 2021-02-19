@@ -30,6 +30,7 @@
 #include <core/Object.h>
 
 #include <vector>
+#include <limits>
 
 class LCDDigit : public QWidget, public H2Core::Object
 {
@@ -118,10 +119,10 @@ class LCDSpinBox : public QWidget, public H2Core::Object
 		 * @param lcdType Style of LCD characters to use
 		 * @param nDigits Width of the display, in characters
 		 * @param type Type of values used in the spinbox
-		 * @param nMin Minimum value (equal to nMax to disable bounds checking)
-		 * @param nMax Maximum value (equal to nMin to disable bounds checking)
+		 * @param fMin Minimum value, -inf (default) to disable bounds checking
+		 * @param fMax Maximum value, +inf (default) to disable bounds checking
 		 */
-		LCDSpinBox( QWidget *pParent, LCDDigit::LCDType lcdType, int nDigits, LCDSpinBoxType type, int nMin = -1, int nMax = -1 );
+		LCDSpinBox( QWidget *pParent, LCDDigit::LCDType lcdType, int nDigits, LCDSpinBoxType type, float fMin = -std::numeric_limits<float>::infinity(), float fMax = std::numeric_limits<float>::infinity());
 		~LCDSpinBox();
 
 		void setValue( float nValue );
@@ -152,8 +153,8 @@ class LCDSpinBox : public QWidget, public H2Core::Object
 		LCDDisplay* m_pDisplay;
 
 		float m_fValue;
-		int m_nMinValue;
-		int m_nMaxValue;
+		float m_fMinValue;
+		float m_fMaxValue;
 };
 
 

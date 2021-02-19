@@ -318,13 +318,13 @@ void LCDDisplay::digitClicked()
 const char* LCDSpinBox::__class_name = "LCDSpinBox";
 
 // used in PlayerControl
-LCDSpinBox::LCDSpinBox( QWidget *pParent, LCDDigit::LCDType lcdType, int nDigits, LCDSpinBoxType type, int nMin, int nMax )
+LCDSpinBox::LCDSpinBox( QWidget *pParent, LCDDigit::LCDType lcdType, int nDigits, LCDSpinBoxType type, float fMin, float fMax )
  : QWidget( pParent )
  , Object( __class_name )
  , m_type( type )
  , m_fValue( -1 )  // Hack to make sure setValue sets the LCD's text
- , m_nMinValue( nMin )
- , m_nMaxValue( nMax )
+ , m_fMinValue( fMin )
+ , m_fMaxValue( fMax )
 {
 	m_pDisplay = new LCDDisplay( this, lcdType, nDigits );
 	connect( m_pDisplay, SIGNAL( displayClicked(LCDDisplay*) ), this, SLOT( displayClicked(LCDDisplay*) ) );
@@ -351,14 +351,10 @@ void LCDSpinBox::incrementValue()
 	switch( m_type ) {
 		case INTEGER:
 		case INTEGER_MIN_OFF:
-			if ( m_nMaxValue == m_nMinValue || m_fValue < m_nMaxValue ) {
-				setValue( m_fValue + 1);
-			}
+			setValue( (int) std::fmin( m_fValue + 1, m_fMaxValue ) );
 			break;
 		case FLOAT:
-			if ( m_nMaxValue == m_nMinValue || m_fValue < (float)m_nMaxValue ) {
-				setValue( m_fValue + 1.0);
-			}
+			setValue( std::fmin( m_fValue + 1.0, m_fMaxValue ) );
 			break;
 	}
 }
@@ -368,14 +364,10 @@ void LCDSpinBox::decrementValue()
 	switch( m_type ) {
 		case INTEGER:
 		case INTEGER_MIN_OFF:
-			if ( m_nMaxValue == m_nMinValue || m_fValue > m_nMinValue ) {
-				setValue( m_fValue - 1);
-			}
+			setValue( (int) std::fmax( m_fValue - 1, m_fMinValue ) );
 			break;
 		case FLOAT:
-			if ( m_nMaxValue == m_nMinValue || m_fValue > (float)m_nMinValue ) {
-				setValue( m_fValue - 1.0);
-			}
+			setValue( std::fmax( m_fValue - 1.0, m_fMinValue ) );
 			break;
 	}
 }
@@ -393,21 +385,24 @@ void LCDSpinBox::downButtonClicked()
 }
 
 
-void LCDSpinBox::setValue( float nValue )
+void LCDSpinBox::setValue( float fValue )
 {
 	switch ( m_type ) {
 		case INTEGER:
-			if ( nValue != m_fValue ) {
-				m_fValue = (int)nValue;
+			if ( fValue != m_fValue ) {
+				m_fValue = (int) fValue;
 				m_pDisplay->setText( QString( "%1" ).arg( m_fValue ) );
 			}
 			break;
 
 		case INTEGER_MIN_OFF:
-			if ( nValue != m_fValue ) {
-				m_fValue = (int)nValue;
+			if ( fValue != m_fValue ) {
+				m_fValue = (int) fValue;
 				QString sValue = QString("%1").arg( m_fValue );
-				if ( m_nMaxValue != m_nMinValue && (int)m_fValue == m_nMinValue ) {
+				// If the minimum is not -inf, and the current value equals the
+				// minimum, show "Off" instead of a number.
+				if ( m_fMinValue != -std::numeric_limits<float>::infinity()
+						&& (int) m_fValue == (int) m_fMinValue ) {
 					sValue = "Off";
 				}
 				m_pDisplay->setText( sValue );
@@ -415,8 +410,8 @@ void LCDSpinBox::setValue( float nValue )
 			break;
 
 		case FLOAT:
-			if ( nValue != m_fValue ) {
-				m_fValue = nValue;
+			if ( fValue != m_fValue ) {
+				m_fValue = fValue;
 				QString floatString;
  				floatString.setNum( m_fValue , 'f' , 6 );
 				m_pDisplay->setText( floatString );
