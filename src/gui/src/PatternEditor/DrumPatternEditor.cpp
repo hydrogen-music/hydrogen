@@ -1651,7 +1651,10 @@ void  DrumPatternEditor::functionDropInstrumentUndoAction( int nTargetInstrument
 void  DrumPatternEditor::functionDropInstrumentRedoAction( QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, std::vector<int>* AddedComponents)
 {
 		Instrument *pNewInstrument = Instrument::load_instrument( sDrumkitName, sInstrumentName );
-		if( pNewInstrument == nullptr ){
+		if( pNewInstrument->get_name() == "Empty Instrument" &&
+			pNewInstrument->get_drumkit_name() == "" ){
+			// Under normal circumstances this should not been reached.
+			QMessageBox::critical( this, "Hydrogen", tr( "Unable to load instrument" ) );
 			return;
 		}
 
