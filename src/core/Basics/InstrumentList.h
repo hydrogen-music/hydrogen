@@ -24,7 +24,6 @@
 #define H2C_INSTRUMENT_LIST_H
 
 #include <vector>
-#include <iostream>
 #include <core/Object.h>
 
 namespace H2Core
@@ -188,20 +187,11 @@ class InstrumentList : public H2Core::Object
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const;
-		/** Prints content of toQString() via DEBUGLOG
-		 *
-		 * \param bShort Whether to display the content of the member
-		 * class variables and to use line breaks.
-		 */
-		void Print( bool bShort = true ) const;
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 		std::vector<Instrument*> __instruments;            ///< the list of instruments
 };
-
-std::ostream& operator<<( std::ostream& os, const InstrumentList& instrumentList );
-std::ostream& operator<<( std::ostream& os, const InstrumentList* instrumentList );
 
 // DEFINITIONS
 

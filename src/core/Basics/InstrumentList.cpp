@@ -277,16 +277,6 @@ QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
 	
 	return sOutput;
 }
- 
-void InstrumentList::Print( bool bShort ) const {
-	DEBUGLOG( toQString( "", bShort ) );
-}
-std::ostream& operator<<( std::ostream& os, const InstrumentList& instrumentList ) {
-	return os << instrumentList.toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
-std::ostream& operator<<( std::ostream& os, const InstrumentList* instrumentList ) {
-	return os << instrumentList->toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
 
 };
 

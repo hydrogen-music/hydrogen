@@ -758,16 +758,6 @@ QString Song::toQString( const QString& sPrefix, bool bShort ) const {
 	
 	return sOutput;
 }
- 
-void Song::Print( bool bShort ) const {
-	DEBUGLOG( toQString( "", bShort ) );
-}
-std::ostream& operator<<( std::ostream& os, const Song& song ) {
-	return os << song.toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
-std::ostream& operator<<( std::ostream& os, const Song* song ) {
-	return os << song->toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
 
 ///
 /// Reads a song.

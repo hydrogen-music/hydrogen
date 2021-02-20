@@ -24,7 +24,6 @@
 #define H2C_PATTERN_LIST_H
 
 #include <vector>
-#include <iostream>
 #include <core/Object.h>
 #include <core/AudioEngine.h>
 
@@ -167,21 +166,12 @@ class AudioEngineLocking;
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const;
-		/** Prints content of toQString() via DEBUGLOG
-		 *
-		 * \param bShort Whether to display the content of the member
-		 * class variables and to use line breaks.
-		 */
-		void Print( bool bShort = true ) const;
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 		std::vector<Pattern*> __patterns;            ///< the list of patterns
 
 };
-
-std::ostream& operator<<( std::ostream& os, const PatternList& patternList );
-std::ostream& operator<<( std::ostream& os, const PatternList* patternList );
 
 // DEFINITIONS
 

@@ -24,7 +24,6 @@
 #define H2C_INSTRUMENT_H
 
 #include <cassert>
-#include <iostream>
 #include <core/Object.h>
 #include <core/Basics/Adsr.h>
 
@@ -283,13 +282,7 @@ class Instrument : public H2Core::Object
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const;
-		/** Prints content of toQString() via DEBUGLOG
-		 *
-		 * \param bShort Whether to display the content of the member
-		 * class variables and to use line breaks.
-		 */
-		void Print( bool bShort = true ) const;
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 	        /** Identifier of an instrument, which should be
@@ -332,9 +325,6 @@ class Instrument : public H2Core::Object
 		bool					__current_instr_for_export;		///< is the instrument currently being exported?
 		bool 					m_bHasMissingSamples;	///< does the instrument have missing sample files?
 };
-
-std::ostream& operator<<( std::ostream& os, const Instrument& instrument );
-std::ostream& operator<<( std::ostream& os, const Instrument* instrument );
 
 // DEFINITIONS
 /** Sets the name of the Instrument #__name.

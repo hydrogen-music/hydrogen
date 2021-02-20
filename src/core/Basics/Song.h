@@ -28,7 +28,6 @@
 #include <QDomNode>
 #include <vector>
 #include <map>
-#include <iostream>
 
 #include <core/Object.h>
 
@@ -211,13 +210,7 @@ class Song : public H2Core::Object
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const;
-		/** Prints content of toQString() via DEBUGLOG
-		 *
-		 * \param bShort Whether to display the content of the member
-		 * class variables and to use line breaks.
-		 */
-		void Print( bool bShort = true ) const;
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 
@@ -300,9 +293,6 @@ class Song : public H2Core::Object
 		float m_fPanLawKNorm;
 
 };
-
-std::ostream& operator<<( std::ostream& os, const Song& song );
-std::ostream& operator<<( std::ostream& os, const Song* song );
 
 inline bool Song::getIsMuted() const
 {

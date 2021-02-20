@@ -157,6 +157,23 @@ void Object::write_objects_map_to( std::ostream& out ) {
 #endif
 }
 
+QString Object::toQString( const QString& sPrefix, bool bShort ) const {
+	return QString( "[%1] instances alive: %2" )
+		.arg( class_name() ).arg( count_active() );
+}
+
+void Object::Print( bool bShort ) const {
+	DEBUGLOG( toQString( "", bShort ) );
+}
+
+std::ostream& operator<<( std::ostream& os, const Object& object ) {
+	return os << object.toQString( "", true ).toLocal8Bit().data() << std::endl;
+}
+
+std::ostream& operator<<( std::ostream& os, const Object* object ) {
+	return os << object->toQString( "", true ).toLocal8Bit().data() << std::endl;
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

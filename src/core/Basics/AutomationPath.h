@@ -23,7 +23,6 @@
 #define H2C_AUTOMATION_PATH_H
 
 #include <core/Object.h>
-#include <iostream>
 #include <map>
 
 #if __cplusplus <= 199711L
@@ -33,7 +32,7 @@
 namespace H2Core
 {
 
-class AutomationPath : private Object
+class AutomationPath : public Object
 {
 	H2_OBJECT
 
@@ -82,18 +81,8 @@ class AutomationPath : private Object
 	 * displayed without line breaks.
 	 *
 	 * \return String presentation of current object.*/
-	QString toQString( const QString& sPrefix, bool bShort = true ) const;
-	/** Prints content of toQString() via DEBUGLOG
-	 *
-	 * \param bShort Whether to display the content of the member
-	 * class variables and to use line breaks.
-	 */
-	void Print( bool bShort = true ) const;
+	QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 };
-
-std::ostream& operator<< ( std::ostream &os, const AutomationPath& p );
-std::ostream& operator<< ( std::ostream &os, const AutomationPath* p);
-
 };
 
 #endif

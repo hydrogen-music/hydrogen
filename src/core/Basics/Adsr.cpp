@@ -192,16 +192,6 @@ QString ADSR::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
-void ADSR::Print( bool bShort ) const {
-	DEBUGLOG( toQString( "", bShort ) );
-}
-std::ostream& operator<<( std::ostream& os, const ADSR& adsr ) {
-	return os << adsr.toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
-std::ostream& operator<<( std::ostream& os, const ADSR* adsr ) {
-	return os << adsr->toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
-
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

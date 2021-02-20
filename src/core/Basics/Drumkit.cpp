@@ -651,16 +651,6 @@ QString Drumkit::toQString( const QString& sPrefix, bool bShort ) const {
 	
 	return sOutput;
 }
- 
-void Drumkit::Print( bool bShort ) const {
-	DEBUGLOG( toQString( "", bShort ) );
-}
-std::ostream& operator<<( std::ostream& os, const Drumkit& drumkit ) {
-	return os << drumkit.toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
-std::ostream& operator<<( std::ostream& os, const Drumkit* drumkit ) {
-	return os << drumkit->toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
 
 };
 

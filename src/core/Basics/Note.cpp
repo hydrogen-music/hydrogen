@@ -326,16 +326,6 @@ QString Note::toQString( const QString& sPrefix, bool bShort ) const {
 	return sOutput;
 }
 
-void Note::Print( bool bShort ) const {
-	DEBUGLOG( toQString( "", bShort ) );
-}
-std::ostream& operator<<( std::ostream& os, const Note& note ) {
-	return os << note.toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
-std::ostream& operator<<( std::ostream& os, const Note* note ) {
-	return os << note->toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
-
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

@@ -24,7 +24,6 @@
 #define H2C_INSTRUMENT_LAYER_H
 
 #include <memory>
-#include <iostream>
 #include <core/Object.h>
 
 namespace H2Core
@@ -113,13 +112,7 @@ namespace H2Core
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const;
-		/** Prints content of toQString() via DEBUGLOG
-		 *
-		 * \param bShort Whether to display the content of the member
-		 * class variables and to use line breaks.
-		 */
-		void Print( bool bShort = true ) const;
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 		float __gain;               ///< ratio between the input sample and the output signal, 1.0 by default
@@ -128,9 +121,6 @@ namespace H2Core
 		float __end_velocity;       ///< the end velocity of the sample, 1.0 by default
 		std::shared_ptr<Sample> __sample;           ///< the underlaying sample
 	};
-
-	std::ostream& operator<<( std::ostream& os, const InstrumentLayer& instrumentLayer );
-	std::ostream& operator<<( std::ostream& os, const InstrumentLayer* instrumentLayer );
 
 	// DEFINITIONS
 
