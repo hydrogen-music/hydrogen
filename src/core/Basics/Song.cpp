@@ -657,7 +657,7 @@ void Song::setPanLawKNorm( float fKNorm ) {
 }
  
 QString Song::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Logger::printIndention;
+	QString s = Object::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Song]\n" ).arg( sPrefix )

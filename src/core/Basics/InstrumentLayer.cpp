@@ -102,7 +102,7 @@ void InstrumentLayer::save_to( XMLNode* node )
 }
 
 QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Logger::printIndention;
+	QString s = Object::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[InstrumentLayer]\n" ).arg( sPrefix )

@@ -48,6 +48,7 @@ bool Object::__count = false;
 unsigned Object::__objects_count = 0;
 pthread_mutex_t Object::__mutex;
 Object::object_map_t Object::__objects_map;
+QString Object::sPrintIndention = "  ";
 
 int Object::bootstrap( Logger* logger, bool count ) {
 	if( __logger==nullptr && logger!=nullptr ) {

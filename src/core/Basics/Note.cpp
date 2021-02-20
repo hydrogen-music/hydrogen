@@ -247,7 +247,7 @@ Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 }
 
 QString Note::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Logger::printIndention;
+	QString s = Object::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Note]\n" ).arg( sPrefix )

@@ -693,7 +693,7 @@ bool Sample::write( const QString& path, int format )
 }
 
 QString Sample::Loops::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Logger::printIndention;
+	QString s = Object::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Loops]\n" ).arg( sPrefix )
@@ -715,7 +715,7 @@ QString Sample::Loops::toQString( const QString& sPrefix, bool bShort ) const {
 }
 
 QString Sample::Rubberband::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Logger::printIndention;
+	QString s = Object::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Rubberband]\n" ).arg( sPrefix )
@@ -734,7 +734,7 @@ QString Sample::Rubberband::toQString( const QString& sPrefix, bool bShort ) con
 }
 
 QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Logger::printIndention;
+	QString s = Object::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Sample]\n" ).arg( sPrefix )
