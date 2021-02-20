@@ -430,7 +430,7 @@ InstrumentComponent* Instrument::get_component( int DrumkitComponentID )
 }
 
 QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Logger::printIndention;
+	QString s = Object::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[Instrument]\n" ).arg( sPrefix )

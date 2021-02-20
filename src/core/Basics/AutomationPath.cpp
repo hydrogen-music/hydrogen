@@ -103,7 +103,7 @@ bool operator!=(const AutomationPath &lhs, const AutomationPath &rhs)
 }
 
 QString AutomationPath::toQString( const QString& sPrefix, bool bShort ) const {
-	QString s = Logger::printIndention;
+	QString s = Object::sPrintIndention;
 	QString sOutput;
 	if ( ! bShort ) {
 		sOutput = QString( "%1[AutomationPath]\n" ).arg( sPrefix )

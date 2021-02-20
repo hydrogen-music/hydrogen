@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <QtCore>
+#include <QDebug>
 
 namespace H2Core {
 
@@ -68,6 +69,10 @@ class Object {
 		 */
 		static int bootstrap( Logger* logger, bool count=false );
 		static Logger* logger()                 { return __logger; }            ///< return the logger instance
+
+		/** String used to format the debugging string output of some
+			core classes.*/
+		static QString sPrintIndention;
 
 		/** Formatted string version for debugging purposes.
 		 * \param sPrefix String prefix which will be added in front of
@@ -118,6 +123,17 @@ class Object {
 
 std::ostream& operator<<( std::ostream& os, const Object& object );
 std::ostream& operator<<( std::ostream& os, const Object* object );
+
+template <class X>
+QDebug operator<<( QDebug d, X *x ) {
+	d << ( x ? x->toQString( "", true ) : "(nullptr)" );
+	return d;
+}
+template <class X>
+QDebug operator<<( QDebug d, std::shared_ptr<X> x ) {
+	d << ( x ? x->toQString( "", true ) : "(nullptr)" );
+	return d;
+}
 
 // Object inherited class declaration macro
 #define H2_OBJECT                                                       \

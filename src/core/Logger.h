@@ -28,7 +28,6 @@
 #include <pthread.h>
 #include <memory>
 
-#include <QDebug>
 #include <core/config.h>
 
 class QString;
@@ -119,10 +118,6 @@ class Logger {
 		 */
 		friend void* loggerThread_func( void* param );
 
-		/** String used to format the debugging string output of some
-			core classes.*/
-		static QString printIndention;
-
 	private:
 		/**
 		 * Object holding the current H2Core::Logger
@@ -151,18 +146,6 @@ class Logger {
 		static int hextoi( const char* str, long len );
 #endif // HAVE_SSCANF
 };
-
-
-template <class X>
-QDebug operator<<( QDebug d, X *x ) {
-	d << ( x ? x->toQString( "", true ) : "(nullptr)" );
-	return d;
-}
-template <class X>
-QDebug operator<<( QDebug d, std::shared_ptr<X> x ) {
-	d << ( x ? x->toQString( "", true ) : "(nullptr)" );
-	return d;
-}
 
 };
 
