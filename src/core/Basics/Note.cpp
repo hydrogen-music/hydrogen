@@ -246,6 +246,86 @@ Note* Note::load_from( XMLNode* node, InstrumentList* instruments )
 	return note;
 }
 
+QString Note::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Object::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Note]\n" ).arg( sPrefix )
+			.append( QString( "%1%2instrument_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __instrument_id ) )
+			.append( QString( "%1%2specific_compo_id: %3\n" ).arg( sPrefix ).arg( s ).arg( __specific_compo_id ) )
+			.append( QString( "%1%2position: %3\n" ).arg( sPrefix ).arg( s ).arg( __position ) )
+			.append( QString( "%1%2velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __velocity ) )
+			.append( QString( "%1%2pan_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __pan_l ) )
+			.append( QString( "%1%2pan_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __pan_r ) )
+			.append( QString( "%1%2length: %3\n" ).arg( sPrefix ).arg( s ).arg( __length ) )
+			.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch ) )
+			.append( QString( "%1%2key: %3\n" ).arg( sPrefix ).arg( s ).arg( __key ) )
+			.append( QString( "%1%2octave: %3\n" ).arg( sPrefix ).arg( s ).arg( __octave ) )
+			.append( QString( "%1" ).arg( __adsr->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2lead_lag: %3\n" ).arg( sPrefix ).arg( s ).arg( __lead_lag ) )
+			.append( QString( "%1%2cut_off: %3\n" ).arg( sPrefix ).arg( s ).arg( __cut_off ) )
+			.append( QString( "%1%2resonance: %3\n" ).arg( sPrefix ).arg( s ).arg( __resonance ) )
+			.append( QString( "%1%2humanize_delay: %3\n" ).arg( sPrefix ).arg( s ).arg( __humanize_delay ) )
+			.append( QString( "%1%2key: %3\n" ).arg( sPrefix ).arg( s ).arg( __key ) )
+			.append( QString( "%1%2bpfb_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __bpfb_l ) )
+			.append( QString( "%1%2bpfb_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __bpfb_r ) )
+			.append( QString( "%1%2lpfb_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __lpfb_l ) )
+			.append( QString( "%1%2lpfb_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __lpfb_r ) )
+			.append( QString( "%1%2pattern_idx: %3\n" ).arg( sPrefix ).arg( s ).arg( __pattern_idx ) )
+			.append( QString( "%1%2midi_msg: %3\n" ).arg( sPrefix ).arg( s ).arg( __midi_msg ) )
+			.append( QString( "%1%2note_off: %3\n" ).arg( sPrefix ).arg( s ).arg( __note_off ) )
+			.append( QString( "%1%2just_recorded: %3\n" ).arg( sPrefix ).arg( s ).arg( __just_recorded ) )
+			.append( QString( "%1%2probability: %3\n" ).arg( sPrefix ).arg( s ).arg( __probability ) )
+			.append( QString( "%1" ).arg( __instrument->toQString( sPrefix + s, bShort ) ) );
+		sOutput.append( QString( "%1%2layers_selected:\n" )
+						.arg( sPrefix ).arg( s ) );
+		for ( auto ll : __layers_selected ) {
+			sOutput.append( QString( "%1%2%3 : selected layer: %4, sample position: %5\n" )
+							.arg( sPrefix ).arg( s + s )
+							.arg( ll.first )
+							.arg( ll.second->SelectedLayer )
+							.arg( ll.second->SamplePosition ) );
+		}
+	} else {
+
+		sOutput = QString( "[Note]" )
+			.append( QString( ", instrument_id: %1" ).arg( __instrument_id ) )
+			.append( QString( ", specific_compo_id: %1" ).arg( __specific_compo_id ) )
+			.append( QString( ", position: %1" ).arg( __position ) )
+			.append( QString( ", velocity: %1" ).arg( __velocity ) )
+			.append( QString( ", pan_l: %1" ).arg( __pan_l ) )
+			.append( QString( ", pan_r: %1" ).arg( __pan_r ) )
+			.append( QString( ", length: %1" ).arg( __length ) )
+			.append( QString( ", pitch: %1" ).arg( __pitch ) )
+			.append( QString( ", key: %1" ).arg( __key ) )
+			.append( QString( ", octave: %1" ).arg( __octave ) )
+			.append( QString( ", [%1" ).arg( __adsr->toQString( sPrefix + s, bShort ).replace( "\n", "]" ) ) )
+			.append( QString( ", lead_lag: %1" ).arg( __lead_lag ) )
+			.append( QString( ", cut_off: %1" ).arg( __cut_off ) )
+			.append( QString( ", resonance: %1" ).arg( __resonance ) )
+			.append( QString( ", humanize_delay: %1" ).arg( __humanize_delay ) )
+			.append( QString( ", key: %1" ).arg( __key ) )
+			.append( QString( ", bpfb_l: %1" ).arg( __bpfb_l ) )
+			.append( QString( ", bpfb_r: %1" ).arg( __bpfb_r ) )
+			.append( QString( ", lpfb_l: %1" ).arg( __lpfb_l ) )
+			.append( QString( ", lpfb_r: %1" ).arg( __lpfb_r ) )
+			.append( QString( ", pattern_idx: %1" ).arg( __pattern_idx ) )
+			.append( QString( ", midi_msg: %1" ).arg( __midi_msg ) )
+			.append( QString( ", note_off: %1" ).arg( __note_off ) )
+			.append( QString( ", just_recorded: %1" ).arg( __just_recorded ) )
+			.append( QString( ", probability: %1" ).arg( __probability ) )
+			.append( QString( ", instrument: %1" ).arg( __instrument->get_name() ) )
+			.append( QString( ", layers_selected:" ) );
+		for ( auto ll : __layers_selected ) {
+			sOutput.append( QString( "%1 : selected layer: %2, sample position: %3" )
+							.arg( ll.first )
+							.arg( ll.second->SelectedLayer )
+							.arg( ll.second->SamplePosition ) );
+		}
+	}
+	return sOutput;
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

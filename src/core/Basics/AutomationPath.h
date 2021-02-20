@@ -23,7 +23,6 @@
 #define H2C_AUTOMATION_PATH_H
 
 #include <core/Object.h>
-
 #include <map>
 
 #if __cplusplus <= 199711L
@@ -33,7 +32,7 @@
 namespace H2Core
 {
 
-class AutomationPath : private Object
+class AutomationPath : public Object
 {
 	H2_OBJECT
 
@@ -73,10 +72,17 @@ class AutomationPath : private Object
 
 	iterator find(float x);
 	iterator move(iterator &in, float x, float y);
+	
+	/** Formatted string version for debugging purposes.
+	 * \param sPrefix String prefix which will be added in front of
+	 * every new line
+	 * \param bShort Instead of the whole content of all classes
+	 * stored as members just a single unique identifier will be
+	 * displayed without line breaks.
+	 *
+	 * \return String presentation of current object.*/
+	QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 };
-
-std::ostream &operator<< (std::ostream &o, const AutomationPath &p);
-
 };
 
 #endif

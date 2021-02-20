@@ -101,6 +101,28 @@ void InstrumentLayer::save_to( XMLNode* node )
 	layer_node.write_float( "pitch", __pitch );
 }
 
+QString InstrumentLayer::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Object::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[InstrumentLayer]\n" ).arg( sPrefix )
+			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
+			.append( QString( "%1%2pitch: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch ) )
+			.append( QString( "%1%2start_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __start_velocity ) )
+			.append( QString( "%1%2end_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __end_velocity ) )
+			.append( QString( "%1" ).arg( __sample->toQString( sPrefix + s, bShort ) ) );
+	} else {
+		sOutput = QString( "[InstrumentLayer]" )
+			.append( QString( " gain: %1" ).arg( __gain ) )
+			.append( QString( ", pitch: %1" ).arg( __pitch ) )
+			.append( QString( ", start_velocity: %1" ).arg( __start_velocity ) )
+			.append( QString( ", end_velocity: %1" ).arg( __end_velocity ) )
+			.append( QString( ", sample: %1\n" ).arg( __sample->get_filepath() ) );
+	}
+	
+	return sOutput;
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

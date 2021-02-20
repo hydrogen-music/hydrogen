@@ -256,6 +256,28 @@ void InstrumentList::set_default_midi_out_notes()
 	}
 }
 
+QString InstrumentList::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Object::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[InstrumentList]\n" ).arg( sPrefix );
+		for ( auto ii : __instruments ) {
+			if ( ii != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( ii->toQString( sPrefix + s, bShort ) ) );
+			}
+		}
+	} else {
+		sOutput = QString( "[InstrumentList] " );
+		for ( auto ii : __instruments ) {
+			if ( ii != nullptr ) {
+				sOutput.append( QString( "(%1: %2) " ).arg( ii->get_id() ).arg( ii->get_name() ) );
+			}
+		}
+	}
+	
+	return sOutput;
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */
