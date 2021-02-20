@@ -646,6 +646,11 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 
 }
 
+void PatternEditorInstrumentList::dragEnterEvent(QDragEnterEvent *event)
+{
+	event->acceptProposedAction();
+}
+
 void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 {
 	//WARNINGLOG("Drop!");
@@ -666,7 +671,12 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 	QString sText = event->mimeData()->text();
 	
 
-	if(sText.startsWith("Songs:") || sText.startsWith("Patterns:") || sText.startsWith("move pattern:") || sText.startsWith("drag pattern:")) return;
+	if ( sText.startsWith("Songs:") ||
+		 sText.startsWith("Patterns:") ||
+		 sText.startsWith("move pattern:") ||
+		 sText.startsWith("drag pattern:") ) {
+		return;
+	}
 
 	if (sText.startsWith("move instrument:")) {
 
@@ -709,7 +719,9 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 				"X > 181": border between the instrument names on the left and the grid
 				Because the right part of the grid starts above the name column, we have to subtract the difference
 		*/
-		if (  event->pos().x() > 181 ) nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
+		if (  event->pos().x() > 181 ) {
+			nTargetInstrument = ( event->pos().y() - 90 )  / m_nGridHeight ;
+		}
 
 		Hydrogen *engine = Hydrogen::get_instance();
 		if( nTargetInstrument > engine->getSong()->getInstrumentList()->size() ){
