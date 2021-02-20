@@ -126,7 +126,7 @@ class FunctionalTest : public CppUnit::TestCase {
 	CPPUNIT_TEST( testExportVelocityAutomationAudio );
 	CPPUNIT_TEST( testExportVelocityAutomationMIDISMF0 );
 	CPPUNIT_TEST( testExportVelocityAutomationMIDISMF1 );
-	// CPPUNIT_TEST( testPrintMessages );
+	// CPPUNIT_TEST( testPrintMessages ); // MANUAL
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -152,35 +152,52 @@ class FunctionalTest : public CppUnit::TestCase {
 		auto pDrumkit = Drumkit::load( sDrumkitFile, true );
 		auto pDrumkitComponent = (*pDrumkit->get_components())[ 0 ];
 
-		// std::cout << std::endl;
-		// std::cout << pVelocityAutomationPath->toQString( "", true ).toLocal8Bit().data() << std::endl;
-		// std::cout << pInstrumentList->toQString( "", true ).toLocal8Bit().data() << std::endl;
-		// std::cout << pInstrument->toQString( "", true ).toLocal8Bit().data() << std::endl;
-		// std::cout << pADSR->toQString( "", true ).toLocal8Bit().data() << std::endl;
-		// std::cout << pInstrumentComponent->toQString( "", true ).toLocal8Bit().data() << std::endl;
-		// std::cout << pInstrumentLayer->toQString( "", true ).toLocal8Bit().data() << std::endl;
-		// std::cout << pSample->toQString( "", true ).toLocal8Bit().data() << std::endl;
-		// std::cout << pPatternList->toQString( "", true ).toLocal8Bit().data() << std::endl;
-		// std::cout << pPattern->toQString( "", true ).toLocal8Bit().data() << std::endl;
-		// std::cout << pNote->toQString( "", true ).toLocal8Bit().data() << std::endl;
-		// std::cout << pDrumkitComponent->toQString( "", true ).toLocal8Bit().data() << std::endl;
-		// std::cout << pDrumkit->toQString( "", true ).toLocal8Bit().data() << std::endl;
-		// std::cout << pSong->toQString( "", true ).toLocal8Bit().data() << std::endl;
+		std::cout << std::endl;
+		std::cout << pVelocityAutomationPath << std::endl;
+		std::cout << pInstrumentList << std::endl;
+		std::cout << pInstrument << std::endl;
+		std::cout << pADSR << std::endl;
+		std::cout << pInstrumentComponent << std::endl;
+		std::cout << pInstrumentLayer << std::endl;
+		std::cout << pSample << std::endl;
+		std::cout << pPatternList << std::endl;
+		std::cout << pPattern << std::endl;
+		std::cout << pNote << std::endl;
+		std::cout << pDrumkitComponent << std::endl;
+		std::cout << pDrumkit << std::endl;
+		std::cout << pSong << std::endl;
+		std::cout << Hydrogen::get_instance() << std::endl;
+ 
+		qDebug() << pVelocityAutomationPath;
+		qDebug() << pInstrumentList;
+		qDebug() << pInstrument;
+		qDebug() << pADSR;
+		qDebug() << pInstrumentComponent;
+		qDebug() << pInstrumentLayer;
+		qDebug() << pSample;
+		qDebug() << pPatternList;
+		qDebug() << pPattern;
+		qDebug() << pNote;
+		qDebug() << pDrumkitComponent;
+		qDebug() << pDrumkit;
+		qDebug() << pSong;
+		qDebug() << Hydrogen::get_instance();
+ 
+		// 	std::cout << std::endl;
+		// 	std::cout << pVelocityAutomationPath->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// 	std::cout << pInstrumentList->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// 	std::cout << pInstrument->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// 	std::cout << pADSR->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// 	std::cout << pInstrumentComponent->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// 	std::cout << pInstrumentLayer->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// 	std::cout << pSample->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// 	std::cout << pPatternList->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// 	std::cout << pPattern->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// 	std::cout << pNote->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// 	std::cout << pDrumkitComponent->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// 	std::cout << pDrumkit->toQString( "", false ).toLocal8Bit().data() << std::endl;
+		// 	std::cout << pSong->toQString( "", false ).toLocal8Bit().data() << std::endl;
 
-		// std::cout << std::endl;
-		// std::cout << pVelocityAutomationPath->toQString( "", false ).toLocal8Bit().data() << std::endl;
-		// std::cout << pInstrumentList->toQString( "", false ).toLocal8Bit().data() << std::endl;
-		// std::cout << pInstrument->toQString( "", false ).toLocal8Bit().data() << std::endl;
-		// std::cout << pADSR->toQString( "", false ).toLocal8Bit().data() << std::endl;
-		// std::cout << pInstrumentComponent->toQString( "", false ).toLocal8Bit().data() << std::endl;
-		// std::cout << pInstrumentLayer->toQString( "", false ).toLocal8Bit().data() << std::endl;
-		// std::cout << pSample->toQString( "", false ).toLocal8Bit().data() << std::endl;
-		// std::cout << pPatternList->toQString( "", false ).toLocal8Bit().data() << std::endl;
-		// std::cout << pPattern->toQString( "", false ).toLocal8Bit().data() << std::endl;
-		// std::cout << pNote->toQString( "", false ).toLocal8Bit().data() << std::endl;
-		// std::cout << pDrumkitComponent->toQString( "", false ).toLocal8Bit().data() << std::endl;
-		// std::cout << pDrumkit->toQString( "", false ).toLocal8Bit().data() << std::endl;
-		// std::cout << pSong->toQString( "", false ).toLocal8Bit().data() << std::endl;
 	}
 
 	void testExportAudio()

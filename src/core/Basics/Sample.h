@@ -23,7 +23,6 @@
 #ifndef H2C_SAMPLE_H
 #define H2C_SAMPLE_H
 
-#include <iostream>
 #include <memory>
 #include <vector>
 #include <sndfile.h>
@@ -328,13 +327,7 @@ class Sample : public H2Core::Object
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const;
-		/** Prints content of toQString() via DEBUGLOG
-		 *
-		 * \param bShort Whether to display the content of the member
-		 * class variables and to use line breaks.
-		 */
-		void Print( bool bShort = true ) const;
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 	private:
 		QString				__filepath;          ///< filepath of the sample
 		int					__frames;            ///< number of frames in this sample
@@ -349,9 +342,6 @@ class Sample : public H2Core::Object
 		/** loop modes string */
 		static const std::vector<QString> __loop_modes;
 };
-
-std::ostream& operator<<( std::ostream& os, const Sample& sample );
-std::ostream& operator<<( std::ostream& os, const Sample* sample );
 
 // DEFINITIONS
 

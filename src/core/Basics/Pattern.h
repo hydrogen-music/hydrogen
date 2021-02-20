@@ -24,7 +24,6 @@
 #define H2C_PATTERN_H
 
 #include <set>
-#include <iostream>
 #include <core/Object.h>
 #include <core/Basics/Note.h>
 
@@ -201,13 +200,7 @@ class Pattern : public H2Core::Object
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const;
-		/** Prints content of toQString() via DEBUGLOG
-		 *
-		 * \param bShort Whether to display the content of the member
-		 * class variables and to use line breaks.
-		 */
-		void Print( bool bShort = true ) const;
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 		int __length;                                           ///< the length of the pattern
@@ -226,9 +219,6 @@ class Pattern : public H2Core::Object
 		 */
 		static Pattern* load_from( XMLNode* node, InstrumentList* instruments );
 };
-
-std::ostream& operator<<( std::ostream& os, const Pattern& pattern );
-std::ostream& operator<<( std::ostream& os, const Pattern* pattern );
 
 #define FOREACH_NOTE_CST_IT_BEGIN_END(_notes,_it) \
 	for( Pattern::notes_cst_it_t _it=(_notes)->begin(); (_it)!=(_notes)->end(); (_it)++ )

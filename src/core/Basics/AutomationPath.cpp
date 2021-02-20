@@ -129,16 +129,6 @@ QString AutomationPath::toQString( const QString& sPrefix, bool bShort ) const {
 	
 	return sOutput;
 }
- 
-void AutomationPath::Print( bool bShort ) const {
-	DEBUGLOG( toQString( "", bShort ) );
-}
-std::ostream& operator<<( std::ostream& os, const AutomationPath& automationPath ) {
-	return os << automationPath.toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
-std::ostream& operator<<( std::ostream& os, const AutomationPath* automationPath ) {
-	return os << automationPath->toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
 
 /**
  * \brief Find point near specific location

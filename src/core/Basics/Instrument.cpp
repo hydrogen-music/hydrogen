@@ -528,16 +528,6 @@ QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
 		
 	return sOutput;
 }
- 
-void Instrument::Print( bool bShort ) const {
-	DEBUGLOG( toQString( "", bShort ) );
-}
-std::ostream& operator<<( std::ostream& os, const Instrument& instrument ) {
-	return os << instrument.toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
-std::ostream& operator<<( std::ostream& os, const Instrument* instrument ) {
-	return os << instrument->toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
 
 };
 

@@ -25,7 +25,6 @@
 
 #include <core/Object.h>
 #include <core/Basics/Instrument.h>
-#include <iostream>
 
 #define KEY_MIN                 0
 #define KEY_MAX                 11
@@ -305,13 +304,7 @@ class Note : public H2Core::Object
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const;
-		/** Prints content of toQString() via DEBUGLOG
-		 *
-		 * \param bShort Whether to display the content of the member
-		 * class variables and to use line breaks.
-		 */
-		void Print( bool bShort = true ) const;
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 		Instrument*		__instrument;   ///< the instrument to be played by this note
@@ -589,9 +582,6 @@ inline void Note::compute_lr_values( float* val_l, float* val_r )
 	*val_l = __lpfb_l;
 	*val_r = __lpfb_r;
 }
-
-std::ostream& operator<<( std::ostream& os, const Note& note );
-std::ostream& operator<<( std::ostream& os, const Note* note );
 
 };
 

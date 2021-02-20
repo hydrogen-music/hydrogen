@@ -351,16 +351,6 @@ QString Pattern::toQString( const QString& sPrefix, bool bShort ) const {
 	}	
 	return sOutput;
 }
- 
-void Pattern::Print( bool bShort ) const {
-	DEBUGLOG( toQString( "", bShort ) );
-}
-std::ostream& operator<<( std::ostream& os, const Pattern& pattern ) {
-	return os << pattern.toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
-std::ostream& operator<<( std::ostream& os, const Pattern* pattern ) {
-	return os << pattern->toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
 
 };
 

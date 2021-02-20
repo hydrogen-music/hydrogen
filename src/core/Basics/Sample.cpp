@@ -756,16 +756,6 @@ QString Sample::toQString( const QString& sPrefix, bool bShort ) const {
 	
 	return sOutput;
 }
- 
-void Sample::Print( bool bShort ) const {
-	DEBUGLOG( toQString( "", bShort ) );
-}
-std::ostream& operator<<( std::ostream& os, const Sample& sample ) {
-	return os << sample.toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
-std::ostream& operator<<( std::ostream& os, const Sample* sample ) {
-	return os << sample->toQString( "", true ).toLocal8Bit().data() << std::endl;
-}
 
 #ifdef H2CORE_HAVE_RUBBERBAND
 static double compute_pitch_scale( const Sample::Rubberband& rb )

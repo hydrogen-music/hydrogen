@@ -25,7 +25,6 @@
 
 #include <cassert>
 #include <inttypes.h>
-#include <iostream>
 #include <core/Object.h>
 
 namespace H2Core
@@ -81,13 +80,7 @@ class DrumkitComponent : public H2Core::Object
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const;
-		/** Prints content of toQString() via DEBUGLOG
-		 *
-		 * \param bShort Whether to display the content of the member
-		 * class variables and to use line breaks.
-		 */
-		void Print( bool bShort = true ) const;
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 	private:
 		int		__id;
 	        /** Name of the DrumkitComponent. It is set by
@@ -103,9 +96,6 @@ class DrumkitComponent : public H2Core::Object
 		float *		__out_L;
 		float *		__out_R;
 };
-
-std::ostream& operator<<( std::ostream& os, const DrumkitComponent& drumkitComponent );
-std::ostream& operator<<( std::ostream& os, const DrumkitComponent* drumkitComponent );
 
 // DEFINITIONS
 /** Sets the name of the DrumkitComponent #__name.

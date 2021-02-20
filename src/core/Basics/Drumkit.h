@@ -24,7 +24,6 @@
 #define H2C_DRUMKIT_H
 
 #include <core/Object.h>
-#include <iostream>
 
 namespace H2Core
 {
@@ -233,13 +232,7 @@ class Drumkit : public H2Core::Object
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const;
-		/** Prints content of toQString() via DEBUGLOG
-		 *
-		 * \param bShort Whether to display the content of the member
-		 * class variables and to use line breaks.
-		 */
-		void Print( bool bShort = true ) const;
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 		QString __path;					///< absolute drumkit path
@@ -265,9 +258,6 @@ class Drumkit : public H2Core::Object
 		static Drumkit* load_from( XMLNode* node, const QString& dk_path );
 		std::vector<DrumkitComponent*>* __components;  ///< list of drumkit component
 };
-
-std::ostream& operator<<( std::ostream& os, const Drumkit& drumkit );
-std::ostream& operator<<( std::ostream& os, const Drumkit* drumkit );
 
 // DEFINITIONS
 

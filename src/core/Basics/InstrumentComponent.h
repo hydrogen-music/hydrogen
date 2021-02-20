@@ -25,7 +25,6 @@
 
 #include <cassert>
 #include <vector>
-#include <iostream>
 #include <core/Object.h>
 
 namespace H2Core
@@ -70,13 +69,7 @@ class InstrumentComponent : public H2Core::Object
 		 * displayed without line breaks.
 		 *
 		 * \return String presentation of current object.*/
-		QString toQString( const QString& sPrefix, bool bShort = true ) const;
-		/** Prints content of toQString() via DEBUGLOG
-		 *
-		 * \param bShort Whether to display the content of the member
-		 * class variables and to use line breaks.
-		 */
-		void Print( bool bShort = true ) const;
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 		/** Component ID of the drumkit. It is set by
@@ -95,9 +88,6 @@ class InstrumentComponent : public H2Core::Object
 		static int			m_nMaxLayers;
 		std::vector<InstrumentLayer*>	__layers;
 };
-
-std::ostream& operator<<( std::ostream& os, const InstrumentComponent& instrumentComponent );
-std::ostream& operator<<( std::ostream& os, const InstrumentComponent* instrumentComponent );
 
 // DEFINITIONS
 /** Sets the component ID #__related_drumkit_componentID
