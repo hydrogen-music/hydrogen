@@ -26,6 +26,7 @@
 #include <cassert>
 #include <list>
 #include <pthread.h>
+#include <memory>
 
 #include <QDebug>
 #include <core/config.h>
@@ -154,6 +155,11 @@ class Logger {
 
 template <class X>
 QDebug operator<<( QDebug d, X *x ) {
+	d << ( x ? x->toQString( "", true ) : "(nullptr)" );
+	return d;
+}
+template <class X>
+QDebug operator<<( QDebug d, std::shared_ptr<X> x ) {
 	d << ( x ? x->toQString( "", true ) : "(nullptr)" );
 	return d;
 }
