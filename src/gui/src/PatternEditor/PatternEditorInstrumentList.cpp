@@ -646,27 +646,25 @@ void PatternEditorInstrumentList::updateInstrumentLines()
 
 }
 
-
-
-
-void PatternEditorInstrumentList::dragEnterEvent(QDragEnterEvent *event)
-{
-	INFOLOG( "[dragEnterEvent]" );
-	if ( event->mimeData()->hasFormat("text/plain") ) {
-		Song *song = (Hydrogen::get_instance())->getSong();
-		int nInstruments = song->getInstrumentList()->size();
-		if ( nInstruments < MAX_INSTRUMENTS ) {
-			event->acceptProposedAction();
-		}
-	}
-}
-
-
 void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 {
 	//WARNINGLOG("Drop!");
+	if ( ! event->mimeData()->hasFormat("text/plain") ) {
+		event->ignore();
+		return;
+	}
+	
+	Song* pSong = Hydrogen::get_instance()->getSong();
+	int nInstruments = pSong->getInstrumentList()->size();
+	if ( nInstruments >= MAX_INSTRUMENTS ) {
+		event->ignore();
+		QMessageBox::critical( this, "Hydrogen", tr( "Unable to insert further instruments. Maximum possible number" ) +
+							   QString( ": %1" ).arg( MAX_INSTRUMENTS ) );
+		return;
+	}
+	
 	QString sText = event->mimeData()->text();
-
+	
 
 	if(sText.startsWith("Songs:") || sText.startsWith("Patterns:") || sText.startsWith("move pattern:") || sText.startsWith("drag pattern:")) return;
 
