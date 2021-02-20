@@ -1163,7 +1163,7 @@ SongEditorPatternList::SongEditorPatternList( QWidget *parent )
 	m_playingPattern_off_Pixmap.load( Skin::getImagePath() + "/songEditor/playingPattern_off.png" );
 
 	m_pPatternPopup = new QMenu( this );
-	m_pPatternPopup->addAction( tr("Copy"),  this, SLOT( patternPopup_copy() ) );
+	m_pPatternPopup->addAction( tr("Duplicate"),  this, SLOT( patternPopup_duplicate() ) );
 	m_pPatternPopup->addAction( tr("Delete"),  this, SLOT( patternPopup_delete() ) );
 	m_pPatternPopup->addAction( tr("Fill/Clear..."),  this, SLOT( patternPopup_fill() ) );
 	m_pPatternPopup->addAction( tr("Properties"),  this, SLOT( patternPopup_properties() ) );
@@ -1772,7 +1772,7 @@ void SongEditorPatternList::restoreDeletedPatternsFromList( QString patternFilen
 }
 
 
-void SongEditorPatternList::patternPopup_copy()
+void SongEditorPatternList::patternPopup_duplicate()
 {
 	Hydrogen *pHydrogen = Hydrogen::get_instance();
 	Song *pSong = pHydrogen->getSong();
@@ -1789,7 +1789,7 @@ void SongEditorPatternList::patternPopup_copy()
 			QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 			return;
 		}
-		SE_copyPatternAction *action = new SE_copyPatternAction( filePath, nSelectedPattern + 1 );
+		SE_duplicatePatternAction *action = new SE_duplicatePatternAction( filePath, nSelectedPattern + 1 );
 		HydrogenApp *hydrogenApp = HydrogenApp::get_instance();
 		hydrogenApp->m_pUndoStack->push( action );
 	}
@@ -1801,7 +1801,7 @@ void SongEditorPatternList::patternPopup_copy()
 }
 
 
-void SongEditorPatternList::patternPopup_copyAction( QString patternFilename, int patternposition )
+void SongEditorPatternList::patternPopup_duplicateAction( QString patternFilename, int patternposition )
 {
 	Hydrogen *engine = Hydrogen::get_instance();
 	Song *pSong = engine->getSong();

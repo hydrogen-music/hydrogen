@@ -141,6 +141,41 @@ void InstrumentComponent::save_to( XMLNode* node, int component_id )
 	}
 }
 
+QString InstrumentComponent::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Object::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[InstrumentComponent]\n" ).arg( sPrefix )
+			.append( QString( "%1%2related_drumkit_componentID: %3\n" ).arg( sPrefix ).arg( s ).arg( __related_drumkit_componentID ) )
+			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
+			.append( QString( "%1%2m_nMaxLayers: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nMaxLayers ) )
+			.append( QString( "%1%2layers:\n" ).arg( sPrefix ).arg( s ) );
+	
+		for ( auto ll : __layers ) {
+			if ( ll != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( ll->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+	} else {
+		sOutput = QString( "[InstrumentComponent]" )
+			.append( QString( " related_drumkit_componentID: %1" ).arg( __related_drumkit_componentID ) )
+			.append( QString( ", gain: %1" ).arg( __gain ) )
+			.append( QString( ", m_nMaxLayers: %1" ).arg( m_nMaxLayers ) )
+			.append( QString( ", [layers:" ) );
+	
+		for ( auto ll : __layers ) {
+			if ( ll != nullptr ) {
+				sOutput.append( QString( " [%1" ).arg( ll->toQString( sPrefix + s + s, bShort ).replace( "\n", "]" ) ) );
+			}
+		}
+
+		sOutput.append( "]\n" );
+
+	}
+	
+	return sOutput;
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

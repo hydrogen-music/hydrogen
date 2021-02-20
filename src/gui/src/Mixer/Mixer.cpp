@@ -29,6 +29,7 @@
 #include "../InstrumentEditor/InstrumentEditorPanel.h"
 #include "../Widgets/Button.h"
 #include "../Widgets/PixmapWidget.h"
+#include "MixerSettingsDialog.h"
 
 #include <core/AudioEngine.h>
 #include <core/Hydrogen.h>
@@ -107,6 +108,18 @@ Mixer::Mixer( QWidget* pParent )
 	m_pMasterLine = new MasterMixerLine( nullptr );
 	m_pMasterLine->move( 0, 0 );
 	connect( m_pMasterLine, SIGNAL( volumeChanged(MasterMixerLine*) ), this, SLOT( masterVolumeChanged(MasterMixerLine*) ) );
+	
+	m_pOpenMixerSettingsBtn = new Button(
+			m_pMasterLine,
+			"/mixerPanel/openMixerSettings_over.png",
+			"/mixerPanel/openMixerSettings_off.png",
+			"/mixerPanel/openMixerSettings_over.png",
+			QSize(17, 17)
+	);
+	m_pOpenMixerSettingsBtn->move( 96, 6 );
+	m_pOpenMixerSettingsBtn->setToolTip( tr( "Mixer Settings" ) );
+	connect( m_pOpenMixerSettingsBtn, SIGNAL( clicked( Button* ) ), this, SLOT( openMixerSettingsDialog( Button* ) ) );
+
 
 	m_pShowFXPanelBtn = new ToggleButton(
 			m_pMasterLine,
@@ -816,4 +829,9 @@ void Mixer::getPeaksInMixerLine( uint nMixerLine, float& fPeak_L, float& fPeak_R
 		fPeak_L = 0;
 		fPeak_R = 0;
 	}
+}
+
+void Mixer::openMixerSettingsDialog( Button* ref ) {
+	MixerSettingsDialog mixerSettingsDialog( this ); // use this as *parent because button makes smaller fonts
+	mixerSettingsDialog.exec();
 }

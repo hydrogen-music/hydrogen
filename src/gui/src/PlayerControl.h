@@ -96,11 +96,18 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		virtual void tempoChangedEvent( int nValue ) override;
 		virtual void jackTransportActivationEvent( int nValue ) override;
 		virtual void jackTimebaseActivationEvent( int nValue ) override;
+		/**
+		 * Shared GUI update when activating Song or Pattern mode via
+		 * button click or via OSC command.
+		 *
+		 * @param nValue If 0, Pattern mode will be activate. Else,
+		 * Song mode will be activated instead.
+		 */
+		void songModeActivationEvent( int nValue ) override;
 													
 
 	private slots:
 		void recBtnClicked(Button* ref);
-		void recBtnRightClicked(Button* ref);
 		void playBtnClicked(Button* ref);
 		void stopBtnClicked(Button* ref);
 		void updatePlayerControl();
@@ -133,14 +140,6 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 
 	private:
 		/**
-		 * Shared GUI update when activating Song or Pattern mode via
-		 * button click or via OSC command.
-		 *
-		 * @param nValue If 0, Pattern mode will be activate. Else,
-		 * Song mode will be activated instead.
-		 */
-		void songModeActivationEvent( int nValue ) override;
-		/**
 		 * Shared GUI update when activating loop mode via button
 		 * click or via OSC command.
 		 *
@@ -152,7 +151,6 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 
 		Button *m_pRwdBtn;
 		ToggleButton *m_pRecBtn;
-		ToggleButton *m_pRecDelBtn;
 		ToggleButton *m_pPlayBtn;
 		Button *m_pStopBtn;
 		Button *m_pFfwdBtn;
@@ -181,6 +179,7 @@ class PlayerControl : public QLabel, public EventListener, public H2Core::Object
 		ToggleButton *m_pJackTransportBtn;
 		//jack time master
 		ToggleButton *m_pJackMasterBtn;
+		QString m_sJackMasterModeToolTip;
 		//~ jack time master
 		Button *m_pBPMUpBtn;
 		Button *m_pBPMDownBtn;

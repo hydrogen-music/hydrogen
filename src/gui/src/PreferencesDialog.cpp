@@ -160,6 +160,7 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
 	connect(trackOutsCheckBox, SIGNAL(toggled(bool)), this, SLOT(toggleTrackOutsCheckBox( bool )));
 
 	connectDefaultsCheckBox->setChecked( pPref->m_bJackConnectDefaults );
+	enableTimebaseCheckBox->setChecked( pPref->m_bJackTimebaseEnabled );
 
 	switch ( pPref->m_JackTrackOutputMode ) {
 	case Preferences::JackTrackOutputMode::postFader:
@@ -432,14 +433,14 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->m_sAudioDriver = "Auto";
 	}
 	else if (driverComboBox->currentText() == "JACK" ) {
-		pPref->m_sAudioDriver = "Jack";
+		pPref->m_sAudioDriver = "JACK";
 	}
 	else if (driverComboBox->currentText() == "ALSA" ) {
-		pPref->m_sAudioDriver = "Alsa";
+		pPref->m_sAudioDriver = "ALSA";
 		pPref->m_sAlsaAudioDevice = m_pAudioDeviceTxt->text();
 	}
 	else if (driverComboBox->currentText() == "OSS" ) {
-		pPref->m_sAudioDriver = "Oss";
+		pPref->m_sAudioDriver = "OSS";
 		pPref->m_sOSSDevice = m_pAudioDeviceTxt->text();
 	}
 	else if (driverComboBox->currentText() == "PortAudio" ) {
@@ -457,6 +458,7 @@ void PreferencesDialog::on_okBtn_clicked()
 
 	// JACK
 	pPref->m_bJackConnectDefaults = connectDefaultsCheckBox->isChecked();
+	pPref->m_bJackTimebaseEnabled = enableTimebaseCheckBox->isChecked();
 
 	switch ( trackOutputComboBox->currentIndex() ) {
 	case 0: 
@@ -509,10 +511,10 @@ void PreferencesDialog::on_okBtn_clicked()
 		pPref->m_sMidiDriver = "PortMidi";
 	}
 	else if ( m_pMidiDriverComboBox->currentText() == "CoreMIDI" ) {
-		pPref->m_sMidiDriver = "CoreMidi";
+		pPref->m_sMidiDriver = "CoreMIDI";
 	}
 	else if ( m_pMidiDriverComboBox->currentText() == "JACK-MIDI" ) {
-		pPref->m_sMidiDriver = "JackMidi";
+		pPref->m_sMidiDriver = "JACK-MIDI";
 	}
 
 
@@ -691,28 +693,43 @@ void PreferencesDialog::updateDriverInfo()
 				.append( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name() )
 				.append( "</b> " ).append( tr( "selected") );
 		}
-		m_pAudioDeviceTxt->setEnabled(false);
+		m_pAudioDeviceTxt->setEnabled( true );
 		m_pAudioDeviceTxt->setText( "" );
-		bufferSizeSpinBox->setEnabled( false );
-		sampleRateComboBox->setEnabled( false );
+		bufferSizeSpinBox->setEnabled( true );
+		sampleRateComboBox->setEnabled( true );
 		trackOutputComboBox->setEnabled( false );
 		connectDefaultsCheckBox->setEnabled( false );
+		enableTimebaseCheckBox->setEnabled( false );
 		trackOutsCheckBox->setEnabled( false );
 		jackBBTSyncComboBox->setEnabled( false );
 		jackBBTSyncLbl->setEnabled( false );
 
 		if ( std::strcmp( H2Core::Hydrogen::get_instance()->getAudioOutput()->class_name(),
 						  "JackAudioDriver" ) == 0 ) {
+			trackOutputComboBox->setEnabled( true );
+			connectDefaultsCheckBox->setEnabled( true );
+			enableTimebaseCheckBox->setEnabled( true );
+			trackOutsCheckBox->setEnabled( true );
+			jackBBTSyncComboBox->setEnabled( true );
+			jackBBTSyncLbl->setEnabled( true );
 			trackOutputComboBox->show();
 			trackOutputLbl->show();
 			connectDefaultsCheckBox->show();
 			trackOutsCheckBox->show();
+			enableTimebaseCheckBox->show();
 			jackBBTSyncComboBox->show();
 			jackBBTSyncLbl->show();
 		} else {
+			trackOutputComboBox->setEnabled( false );
+			connectDefaultsCheckBox->setEnabled( false );
+			enableTimebaseCheckBox->setEnabled( false );
+			trackOutsCheckBox->setEnabled( false );
+			jackBBTSyncComboBox->setEnabled( false );
+			jackBBTSyncLbl->setEnabled( false );
 			trackOutputComboBox->hide();
 			trackOutputLbl->hide();
 			connectDefaultsCheckBox->hide();
+			enableTimebaseCheckBox->hide();
 			trackOutsCheckBox->hide();
 			jackBBTSyncComboBox->hide();
 			jackBBTSyncLbl->hide();
@@ -734,6 +751,7 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
 		connectDefaultsCheckBox->hide();
+		enableTimebaseCheckBox->hide();
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
@@ -754,11 +772,13 @@ void PreferencesDialog::updateDriverInfo()
 		bufferSizeSpinBox->setEnabled(false);
 		sampleRateComboBox->setEnabled(false);
 		trackOutputComboBox->setEnabled( true );
-		connectDefaultsCheckBox->setEnabled(true);
+		connectDefaultsCheckBox->setEnabled( true );
+		enableTimebaseCheckBox->setEnabled( true );
 		trackOutsCheckBox->setEnabled( true );
 		trackOutputComboBox->show();
 		trackOutputLbl->show();
 		connectDefaultsCheckBox->show();
+		enableTimebaseCheckBox->show();
 		trackOutsCheckBox->show();
 		jackBBTSyncComboBox->show();
 		jackBBTSyncLbl->show();
@@ -779,6 +799,7 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
 		connectDefaultsCheckBox->hide();
+		enableTimebaseCheckBox->hide();
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
@@ -799,6 +820,7 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutsCheckBox->hide();
 		trackOutputLbl->hide();
 		connectDefaultsCheckBox->hide();
+		enableTimebaseCheckBox->hide();
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
@@ -819,6 +841,7 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
 		connectDefaultsCheckBox->hide();
+		enableTimebaseCheckBox->hide();
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();
@@ -839,6 +862,7 @@ void PreferencesDialog::updateDriverInfo()
 		trackOutputComboBox->hide();
 		trackOutputLbl->hide();
 		connectDefaultsCheckBox->hide();
+		enableTimebaseCheckBox->hide();
 		trackOutsCheckBox->hide();
 		jackBBTSyncComboBox->hide();
 		jackBBTSyncLbl->hide();

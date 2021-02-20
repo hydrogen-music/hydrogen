@@ -429,6 +429,106 @@ InstrumentComponent* Instrument::get_component( int DrumkitComponentID )
 	return nullptr;
 }
 
+QString Instrument::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Object::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Instrument]\n" ).arg( sPrefix )
+			.append( QString( "%1%2id: %3\n" ).arg( sPrefix ).arg( s ).arg( __id ) )
+			.append( QString( "%1%2name: %3\n" ).arg( sPrefix ).arg( s ).arg( __name ) )
+			.append( QString( "%1%2drumkit_name: %3\n" ).arg( sPrefix ).arg( s ).arg( __drumkit_name ) )
+			.append( QString( "%1%2gain: %3\n" ).arg( sPrefix ).arg( s ).arg( __gain ) )
+			.append( QString( "%1%2volume: %3\n" ).arg( sPrefix ).arg( s ).arg( __volume ) )
+			.append( QString( "%1%2pan_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __pan_l ) )
+			.append( QString( "%1%2pan_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __pan_r ) )
+			.append( QString( "%1%2peak_l: %3\n" ).arg( sPrefix ).arg( s ).arg( __peak_l ) )
+			.append( QString( "%1%2peak_r: %3\n" ).arg( sPrefix ).arg( s ).arg( __peak_r ) )
+			.append( QString( "%1" ).arg( __adsr->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2filter_active: %3\n" ).arg( sPrefix ).arg( s ).arg( __filter_active ) )
+			.append( QString( "%1%2filter_cutoff: %3\n" ).arg( sPrefix ).arg( s ).arg( __filter_cutoff ) )
+			.append( QString( "%1%2filter_resonance: %3\n" ).arg( sPrefix ).arg( s ).arg( __filter_resonance ) )
+			.append( QString( "%1%2random_pitch_factor: %3\n" ).arg( sPrefix ).arg( s ).arg( __random_pitch_factor ) )
+			.append( QString( "%1%2pitch_offset: %3\n" ).arg( sPrefix ).arg( s ).arg( __pitch_offset ) )
+			.append( QString( "%1%2midi_out_note: %3\n" ).arg( sPrefix ).arg( s ).arg( __midi_out_note ) )
+			.append( QString( "%1%2midi_out_channel: %3\n" ).arg( sPrefix ).arg( s ).arg( __midi_out_channel ) )
+			.append( QString( "%1%2stop_notes: %3\n" ).arg( sPrefix ).arg( s ).arg( __stop_notes ) )
+			.append( QString( "%1%2sample_selection_alg: %3\n" ).arg( sPrefix ).arg( s ).arg( __sample_selection_alg ) )
+			.append( QString( "%1%2active: %3\n" ).arg( sPrefix ).arg( s ).arg( __active ) )
+			.append( QString( "%1%2soloed: %3\n" ).arg( sPrefix ).arg( s ).arg( __soloed ) )
+			.append( QString( "%1%2muted: %3\n" ).arg( sPrefix ).arg( s ).arg( __muted ) )
+			.append( QString( "%1%2mute_group: %3\n" ).arg( sPrefix ).arg( s ).arg( __mute_group ) )
+			.append( QString( "%1%2queued: %3\n" ).arg( sPrefix ).arg( s ).arg( __queued ) ) ;
+		sOutput.append( QString( "%1%2fx_level: [ " ).arg( sPrefix ).arg( s ) );
+		for ( auto ff : __fx_level ) {
+			sOutput.append( QString( "%1 " ).arg( ff ) );
+		}
+		sOutput.append( QString( "]\n" ) )
+			.append( QString( "%1%2hihat_grp: %3\n" ).arg( sPrefix ).arg( s ).arg( __hihat_grp ) )
+			.append( QString( "%1%2lower_cc: %3\n" ).arg( sPrefix ).arg( s ).arg( __lower_cc ) )
+			.append( QString( "%1%2higher_cc: %3\n" ).arg( sPrefix ).arg( s ).arg( __higher_cc ) )
+			.append( QString( "%1%2is_preview_instrument: %3\n" ).arg( sPrefix ).arg( s ).arg( __is_preview_instrument ) )
+			.append( QString( "%1%2is_metronome_instrument: %3\n" ).arg( sPrefix ).arg( s ).arg( __is_metronome_instrument ) )
+			.append( QString( "%1%2apply_velocity: %3\n" ).arg( sPrefix ).arg( s ).arg( __apply_velocity ) )
+			.append( QString( "%1%2current_instr_for_export: %3\n" ).arg( sPrefix ).arg( s ).arg( __current_instr_for_export ) )
+			.append( QString( "%1%2m_bHasMissingSamples: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bHasMissingSamples ) )
+			.append( QString( "%1%2components:\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto cc : *__components ) {
+			if ( cc != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+	} else {
+		
+		sOutput = QString( "[Instrument]" )
+			.append( QString( " id: %1" ).arg( __id ) )
+			.append( QString( ", name: %1" ).arg( __name ) )
+			.append( QString( ", drumkit_name: %1" ).arg( __drumkit_name ) )
+			.append( QString( ", gain: %1" ).arg( __gain ) )
+			.append( QString( ", volume: %1" ).arg( __volume ) )
+			.append( QString( ", pan_l: %1" ).arg( __pan_l ) )
+			.append( QString( ", pan_r: %1" ).arg( __pan_r ) )
+			.append( QString( ", peak_l: %1" ).arg( __peak_l ) )
+			.append( QString( ", peak_r: %1" ).arg( __peak_r ) )
+			.append( QString( ", [%1" ).arg( __adsr->toQString( sPrefix + s, bShort ).replace( "\n", "]" ) ) )
+			.append( QString( ", filter_active: %1" ).arg( __filter_active ) )
+			.append( QString( ", filter_cutoff: %1" ).arg( __filter_cutoff ) )
+			.append( QString( ", filter_resonance: %1" ).arg( __filter_resonance ) )
+			.append( QString( ", random_pitch_factor: %1" ).arg( __random_pitch_factor ) )
+			.append( QString( ", pitch_offset: %1" ).arg( __pitch_offset ) )
+			.append( QString( ", midi_out_note: %1" ).arg( __midi_out_note ) )
+			.append( QString( ", midi_out_channel: %1" ).arg( __midi_out_channel ) )
+			.append( QString( ", stop_notes: %1" ).arg( __stop_notes ) )
+			.append( QString( ", sample_selection_alg: %1" ).arg( __sample_selection_alg ) )
+			.append( QString( ", active: %1" ).arg( __active ) )
+			.append( QString( ", soloed: %1" ).arg( __soloed ) )
+			.append( QString( ", muted: %1" ).arg( __muted ) )
+			.append( QString( ", mute_group: %1" ).arg( __mute_group ) )
+			.append( QString( ", queued: %1" ).arg( __queued ) ) ;
+		sOutput.append( QString( ", fx_level: [ " ) );
+		for ( auto ff : __fx_level ) {
+			sOutput.append( QString( "%1 " ).arg( ff ) );
+		}
+		sOutput.append( QString( "]" ) )
+			.append( QString( ", hihat_grp: %1" ).arg( __hihat_grp ) )
+			.append( QString( ", lower_cc: %1" ).arg( __lower_cc ) )
+			.append( QString( ", higher_cc: %1" ).arg( __higher_cc ) )
+			.append( QString( ", is_preview_instrument: %1" ).arg( __is_preview_instrument ) )
+			.append( QString( ", is_metronome_instrument: %1" ).arg( __is_metronome_instrument ) )
+			.append( QString( ", apply_velocity: %1" ).arg( __apply_velocity ) )
+			.append( QString( ", current_instr_for_export: %1" ).arg( __current_instr_for_export ) )
+			.append( QString( ", m_bHasMissingSamples: %1" ).arg( m_bHasMissingSamples ) )
+			.append( QString( ", components: [" ) );
+		for ( auto cc : *__components ) {
+			if ( cc != nullptr ) {
+				sOutput.append( QString( " %1" ).arg( cc->get_drumkit_componentID() ) );
+			}
+		}
+		sOutput.append(" ]\n");
+	}
+		
+	return sOutput;
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

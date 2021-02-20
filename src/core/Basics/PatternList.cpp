@@ -251,6 +251,29 @@ int PatternList::longest_pattern_length() {
 	return nMax;
 }
 
+QString PatternList::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Object::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[PatternList]\n" ).arg( sPrefix );
+		for ( auto pp : __patterns ) {
+			if ( pp != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s, bShort ) ) );
+			}
+		}
+	} else {
+		sOutput = QString( "[PatternList] " );
+		for ( auto pp : __patterns ) {
+			if ( pp != nullptr ) {
+				sOutput.append( QString( "[%1] " ).arg( pp->toQString( sPrefix + s, bShort ) ) );
+			}
+		}
+		sOutput.append( "]" );
+	}
+	
+	return sOutput;
+}
+ 
 }
 
 

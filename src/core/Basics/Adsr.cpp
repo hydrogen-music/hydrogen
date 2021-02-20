@@ -164,6 +164,34 @@ float ADSR::release()
 	return __release_value;
 }
 
+QString ADSR::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Object::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[ADSR]\n" ).arg( sPrefix )
+			.append( QString( "%1%2attack: %3\n" ).arg( sPrefix ).arg( s ).arg( __attack ) )
+			.append( QString( "%1%2decay: %3\n" ).arg( sPrefix ).arg( s ).arg( __decay ) )
+			.append( QString( "%1%2sustain: %3\n" ).arg( sPrefix ).arg( s ).arg( __sustain ) )
+			.append( QString( "%1%2release: %3\n" ).arg( sPrefix ).arg( s ).arg( __release ) )
+			.append( QString( "%1%2state: %3\n" ).arg( sPrefix ).arg( s ).arg( __state ) )
+			.append( QString( "%1%2ticks: %3\n" ).arg( sPrefix ).arg( s ).arg( __ticks ) )
+			.append( QString( "%1%2value: %3\n" ).arg( sPrefix ).arg( s ).arg( __value ) )
+			.append( QString( "%1%2release_value: %3\n" ).arg( sPrefix ).arg( s ).arg( __release_value ) );
+	} else {
+		sOutput = QString( "[ADSR]" )
+			.append( QString( " attack: %1" ).arg( __attack ) )
+			.append( QString( ", decay: %1" ).arg( __decay ) )
+			.append( QString( ", sustain: %1" ).arg( __sustain ) )
+			.append( QString( ", release: %1" ).arg( __release ) )
+			.append( QString( ", state: %1" ).arg( __state ) )
+			.append( QString( ", ticks: %1" ).arg( __ticks ) )
+			.append( QString( ", value: %1" ).arg( __value ) )
+			.append( QString( ", release_value: %1\n" ).arg( __release_value ) );
+	}
+	
+	return sOutput;
+}
+
 };
 
 /* vim: set softtabstop=4 noexpandtab: */

@@ -288,8 +288,31 @@ void JackAudioDriver::calculateFrameOffset(long long oldFrame)
 
 void JackAudioDriver::relocateUsingBBT()
 {
+	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
+		ERRORLOG( "This function should not have been called with JACK timebase disabled in the Preferences" );
+		return;
+	}
 	if ( m_timebaseState != Timebase::Slave ) {
 		ERRORLOG( QString( "Relocation using BBT information can only be used in the presence of another Jack timebase master" ) );
+		return;
+	}
+
+	// Sometime the JACK server does send seemingly random nuisance.
+	if ( m_JackTransportPos.beat_type < 1 ||
+		 m_JackTransportPos.bar < 1 ||
+		 m_JackTransportPos.beat < 1 ||
+		 m_JackTransportPos.beats_per_bar < 1 ||
+		 m_JackTransportPos.beats_per_minute < MIN_BPM ||
+		 m_JackTransportPos.beats_per_minute > MAX_BPM ||
+		 m_JackTransportPos.ticks_per_beat < 1 ) {
+		ERRORLOG( QString( "Unsupported to BBT content. beat_type: %1, bar: %2, beat: %3, beats_per_bar: %4, beats_per_minute: %5, ticks_per_beat: %6" )
+				  .arg( m_JackTransportPos.beat_type < 1 )
+				  .arg( m_JackTransportPos.bar < 1 )
+				  .arg( m_JackTransportPos.beat < 1 )
+				  .arg( m_JackTransportPos.beats_per_bar < 1 )
+				  .arg( m_JackTransportPos.beats_per_minute < MIN_BPM )
+				  .arg( m_JackTransportPos.beats_per_minute > MAX_BPM )
+				  .arg( m_JackTransportPos.ticks_per_beat < 1 ) );
 		return;
 	}
 
@@ -418,6 +441,8 @@ void JackAudioDriver::updateTransportInfo()
 	     Preferences::USE_JACK_TRANSPORT ){
 		return;
 	}
+
+	const bool bTimebaseEnabled = Preferences::get_instance()->m_bJackTimebaseEnabled;
 	
 	// jack_transport_query() (jack/transport.h) queries the
 	// current transport state and position. If called from the
@@ -457,29 +482,31 @@ void JackAudioDriver::updateTransportInfo()
 	// printState();
 	
 	m_currentPos = m_JackTransportPos.frame;
-	
-	// Update the status regrading JACK timebase master.
-	if ( m_JackTransportState != JackTransportStopped ) {
-		if ( m_nTimebaseTracking > 1 ) {
-			m_nTimebaseTracking--;
-		} else if ( m_nTimebaseTracking == 1 ) {
-			// JackTimebaseCallback not called anymore -> timebase client
+
+	if ( bTimebaseEnabled ) {
+		// Update the status regrading JACK timebase master.
+		if ( m_JackTransportState != JackTransportStopped ) {
+			if ( m_nTimebaseTracking > 1 ) {
+				m_nTimebaseTracking--;
+			} else if ( m_nTimebaseTracking == 1 ) {
+				// JackTimebaseCallback not called anymore -> timebase client
+				m_nTimebaseTracking = 0;
+				m_timebaseState = Timebase::Slave;
+			}
+		}
+		if ( m_nTimebaseTracking == 0 && 
+			 !(m_JackTransportPos.valid & JackPositionBBT) ) {
+			// No external timebase master anymore -> regular client
+			m_nTimebaseTracking = -1;
+			m_timebaseState = Timebase::None;
+		} else if ( m_nTimebaseTracking < 0 && 
+					(m_JackTransportPos.valid & JackPositionBBT) ) {
+			// External timebase master detected -> timebase client
 			m_nTimebaseTracking = 0;
 			m_timebaseState = Timebase::Slave;
 		}
 	}
-	if ( m_nTimebaseTracking == 0 && 
-				!(m_JackTransportPos.valid & JackPositionBBT) ) {
-		// No external timebase master anymore -> regular client
-		m_nTimebaseTracking = -1;
-		m_timebaseState = Timebase::None;
-	} else if ( m_nTimebaseTracking < 0 && 
-				(m_JackTransportPos.valid & JackPositionBBT) ) {
-		// External timebase master detected -> timebase client
-		m_nTimebaseTracking = 0;
-		m_timebaseState = Timebase::Slave;
-	}
-
+		
 	Hydrogen* pHydrogen = Hydrogen::get_instance();
 	
 	// The relocation could be either triggered by an user interaction
@@ -490,7 +517,7 @@ void JackAudioDriver::updateTransportInfo()
 		// is in pattern mode.
 		pHydrogen->resetPatternStartTick();
 
-		if ( m_timebaseState != Timebase::Slave ) {
+		if ( !bTimebaseEnabled || m_timebaseState != Timebase::Slave ) {
 			m_transport.m_nFrames = m_JackTransportPos.frame;
 		
 			// There maybe was an offset introduced when passing a
@@ -501,7 +528,7 @@ void JackAudioDriver::updateTransportInfo()
 		}
 	}
 
-	if ( m_timebaseState == Timebase::Slave ){
+	if ( bTimebaseEnabled && m_timebaseState == Timebase::Slave ){
 		// There is a JACK timebase master and it's not us. If it
 		// provides a tempo that differs from the local one, we will
 		// use the former instead.
@@ -517,13 +544,17 @@ void JackAudioDriver::updateTransportInfo()
 		pHydrogen->setTimelineBpm();
 	}
 
-	if ( m_timebaseState == Timebase::Slave ) {
+	if ( bTimebaseEnabled && m_timebaseState == Timebase::Slave ) {
 		m_previousJackTransportPos = m_JackTransportPos;
 	}
 }
 
 bool JackAudioDriver::compareAdjacentBBT() const
 {
+	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
+		ERRORLOG( "This function should not have been called with JACK timebase disabled in the Preferences" );
+	}
+	
 	if ( m_JackTransportPos.beats_per_minute !=
 		 m_previousJackTransportPos.beats_per_minute ) {
 		INFOLOG( QString( "Change in tempo from [%1] to [%2]" )
@@ -874,7 +905,8 @@ int JackAudioDriver::init( unsigned bufferSize )
 #endif
 
 	if ( pPreferences->m_bJackTransportMode == Preferences::USE_JACK_TRANSPORT &&
-		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER ){
+		 pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER &&
+		 pPreferences->m_bJackTimebaseEnabled ){
 		initTimebaseMaster();
 	}
 	
@@ -1142,6 +1174,11 @@ void JackAudioDriver::initTimebaseMaster()
 	if ( m_pClient == nullptr ) {
 		return;
 	}
+	
+	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
+		ERRORLOG( "This function should not have been called with JACK timebase disabled in the Preferences" );
+		return;
+	}
 
 	Preferences* pPreferences = Preferences::get_instance();
 	if ( pPreferences->m_bJackMasterMode == Preferences::USE_JACK_TIME_MASTER) {
@@ -1193,6 +1230,11 @@ void JackAudioDriver::releaseTimebaseMaster()
 		return;
 	}
 
+	if ( ! Preferences::get_instance()->m_bJackTimebaseEnabled ) {
+		ERRORLOG( "This function should not have been called with JACK timebase disabled in the Preferences" );
+		return;
+	}
+	
 	jack_release_timebase( m_pClient );
 	
 	if ( m_JackTransportPos.valid & JackPositionBBT ) {
@@ -1324,6 +1366,14 @@ void JackAudioDriver::JackTimebaseCallback(jack_transport_state_t state,
     
 	// Tell Hydrogen it is still timebase master.
 	pDriver->m_nTimebaseTracking = 2;
+}
+
+	
+JackAudioDriver::Timebase JackAudioDriver::getTimebaseState() const {
+	if ( Preferences::get_instance()->m_bJackTimebaseEnabled ) {
+		return m_timebaseState;
+	}
+	return Timebase::None;
 }
 
 void JackAudioDriver::printState() const {

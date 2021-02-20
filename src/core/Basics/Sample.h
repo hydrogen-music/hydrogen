@@ -100,6 +100,7 @@ class Sample : public H2Core::Object
 				{
 					return ( start_frame==b.start_frame && loop_frame==b.loop_frame && end_frame==b.end_frame && count==b.count && mode==b.mode );
 				}
+				QString toQString( const QString& sPrefix, bool bShort ) const;
 		};
 
 		/** set of rubberband configuration flags */
@@ -123,6 +124,7 @@ class Sample : public H2Core::Object
 				{
 					return ( use==b.use && divider==b.divider && c_settings==b.c_settings && pitch==b.pitch );
 				}
+				QString toQString( const QString& sPrefix, bool bShort ) const;
 		};
 
 		/**
@@ -317,7 +319,15 @@ class Sample : public H2Core::Object
 		static Loops::LoopMode parse_loop_mode( const QString& string );
 		/** \return mode member of #__loops as a string */
 		QString get_loop_mode_string() const;
-
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \param bShort Instead of the whole content of all classes
+		 * stored as members just a single unique identifier will be
+		 * displayed without line breaks.
+		 *
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 	private:
 		QString				__filepath;          ///< filepath of the sample
 		int					__frames;            ///< number of frames in this sample

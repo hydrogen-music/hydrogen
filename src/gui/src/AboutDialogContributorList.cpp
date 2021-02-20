@@ -1,3 +1,5 @@
+// This file was automatically created by the update_contributors.sh
+// script. Please don't modify it by hand. 
 /*
  * Hydrogen
  * Copyright(c) 2002-2008 by Alex >Comix< Cominu [comix@users.sourceforge.net]
@@ -19,36 +21,25 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+#include "AboutDialogContributorList.h"
 
-#ifndef ABOUT__DIALOG_H
-#define ABOUT__DIALOG_H
+const char* AboutDialogContributorList::__class_name = "AboutDialogContributorList";
 
+AboutDialogContributorList::AboutDialogContributorList() : H2Core::Object( __class_name ) {
 
-#include <QtGui>
-#include <QtWidgets>
-#include <QTextBrowser>
-
-#include "ui_about_dialog.h"
-
-class AboutDialog : public QDialog, public Ui_AboutDialog_UI
-{
-Q_OBJECT
-public:
-	explicit AboutDialog(QWidget* parent);
-	~AboutDialog();
-
-private slots:
-	void on_okBtn_clicked();
-
-private:
-	class Author {
-		public:
-			QString m_sName;
-			QString m_sEmail;
-			QString m_sInfo;
-
-			Author( QString sName, QString sEmail, QString sInfo ) : m_sName( sName ), m_sEmail( sEmail ), m_sInfo( sInfo ) {}
-	};
+	std::vector<QString> v{
+"theGreatWhiteShark"
+,"Sebastian Moors"
+,"Colin McEwan"
+,"oddtime"
+,"Olivier Humbert"
+,"Clara Hobbs"
+,"Przemysław Sitek"
+,"Jérémy Zurcher"
+,"freddii"
+,"David Runge"
 };
+	m_pContributorList = std::make_shared<std::vector<QString>>(v);
+}
 
-#endif
+AboutDialogContributorList::~AboutDialogContributorList() {}

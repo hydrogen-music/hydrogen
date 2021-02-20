@@ -46,6 +46,7 @@
 #include <core/Helpers/Xml.h>
 #include <core/Helpers/Filesystem.h>
 #include <core/Hydrogen.h>
+#include <core/Sampler/Sampler.h>
 
 #ifdef H2CORE_HAVE_OSC
 #include <core/NsmClient.h>
@@ -90,7 +91,8 @@ Song::Song( const QString& sName, const QString& sAuthor, float fBpm, float fVol
 	, m_pVelocityAutomationPath( nullptr )
 	, m_sLicense( "" )
 	, m_actionMode( ActionMode::selectMode )
-
+	, m_nPanLawType ( Sampler::RATIO_STRAIGHT_POLYGONAL )
+	, m_fPanLawKNorm ( Sampler::K_NORM_DEFAULT )
 {
 	INFOLOG( QString( "INIT '%1'" ).arg( sName ) );
 
@@ -645,6 +647,118 @@ const QString SongReader::getPath ( const QString& sFilename ) const
 	return nullptr;
 }
 
+void Song::setPanLawKNorm( float fKNorm ) {
+	if ( fKNorm >= 0. ) {
+		m_fPanLawKNorm = fKNorm;
+	} else {
+		WARNINGLOG("negative kNorm. Set default" );
+		m_fPanLawKNorm = Sampler::K_NORM_DEFAULT;
+	}
+}
+ 
+QString Song::toQString( const QString& sPrefix, bool bShort ) const {
+	QString s = Object::sPrintIndention;
+	QString sOutput;
+	if ( ! bShort ) {
+		sOutput = QString( "%1[Song]\n" ).arg( sPrefix )
+			.append( QString( "%1%2m_bIsMuted: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsMuted ) )
+			.append( QString( "%1%2m_resolution: %3\n" ).arg( sPrefix ).arg( s ).arg( m_resolution ) )
+			.append( QString( "%1%2m_fBpm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fBpm ) )
+			.append( QString( "%1%2m_sName: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sName ) )
+			.append( QString( "%1%2m_sAuthor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sAuthor ) )
+			.append( QString( "%1%2m_fVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fVolume ) )
+			.append( QString( "%1%2m_fMetronomeVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fMetronomeVolume ) )
+			.append( QString( "%1%2m_sNotes: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sNotes ) )
+			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s ) ) )
+			.append( QString( "%1%2m_pPatternGroupSequence:\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto pp : *m_pPatternGroupSequence ) {
+			if ( pp != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+		sOutput.append( QString( "%1" ).arg( m_pInstrumentList->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_pComponents:\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto cc : *m_pComponents ) {
+			if ( cc != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s ) ) );
+			}
+		}
+		sOutput.append( QString( "%1%2m_sFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sFilename ) )
+			.append( QString( "%1%2m_bIsLoopEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsLoopEnabled ) )
+			.append( QString( "%1%2m_fHumanizeTimeValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fHumanizeTimeValue ) )
+			.append( QString( "%1%2m_fHumanizeVelocityValue: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fHumanizeVelocityValue ) )
+			.append( QString( "%1%2m_fSwingFactor: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fSwingFactor ) )
+			.append( QString( "%1%2m_bIsModified: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bIsModified ) )
+			.append( QString( "%1%2m_latestRoundRobins\n" ).arg( sPrefix ).arg( s ) );
+		for ( auto mm : m_latestRoundRobins ) {
+			sOutput.append( QString( "%1%2%3 : %4\n" ).arg( sPrefix ).arg( s ).arg( mm.first ).arg( mm.second ) );
+		}
+		sOutput.append( QString( "%1%2m_songMode: %3\n" ).arg( sPrefix ).arg( s ).arg( m_songMode ) )
+			.append( QString( "%1%2m_sPlaybackTrackFilename: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sPlaybackTrackFilename ) )
+			.append( QString( "%1%2m_bPlaybackTrackEnabled: %3\n" ).arg( sPrefix ).arg( s ).arg( m_bPlaybackTrackEnabled ) )
+			.append( QString( "%1%2m_fPlaybackTrackVolume: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPlaybackTrackVolume ) )
+			.append( QString( "%1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( "%1%2m_sLicense: %3\n" ).arg( sPrefix ).arg( s ).arg( m_sLicense ) );
+		if ( m_actionMode == ActionMode::selectMode ) {
+			sOutput.append( QString( "%1%2m_actionMode: 0\n" ).arg( sPrefix ).arg( s ) );
+		} else if ( m_actionMode == ActionMode::drawMode ) {
+			sOutput.append( QString( "%1%2m_actionMode: 1\n" ).arg( sPrefix ).arg( s ) );
+		}
+		sOutput.append( QString( "%1%2m_nPanLawType: %3\n" ).arg( sPrefix ).arg( s ).arg( m_nPanLawType ) )
+			.append( QString( "%1%2m_fPanLawKNorm: %3\n" ).arg( sPrefix ).arg( s ).arg( m_fPanLawKNorm ) );
+	} else {
+		
+		sOutput = QString( "[Song]" )
+			.append( QString( ", m_bIsMuted: %1" ).arg( m_bIsMuted ) )
+			.append( QString( ", m_resolution: %1" ).arg( m_resolution ) )
+			.append( QString( ", m_fBpm: %1" ).arg( m_fBpm ) )
+			.append( QString( ", m_sName: %1" ).arg( m_sName ) )
+			.append( QString( ", m_sAuthor: %1" ).arg( m_sAuthor ) )
+			.append( QString( ", m_fVolume: %1" ).arg( m_fVolume ) )
+			.append( QString( ", m_fMetronomeVolume: %1" ).arg( m_fMetronomeVolume ) )
+			.append( QString( ", m_sNotes: %1" ).arg( m_sNotes ) )
+			.append( QString( "%1" ).arg( m_pPatternList->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( ", m_pPatternGroupSequence:" ) );
+		for ( auto pp : *m_pPatternGroupSequence ) {
+			if ( pp != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( pp->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+		sOutput.append( QString( "%1" ).arg( m_pInstrumentList->toQString( sPrefix + s, bShort ) ) )
+			.append( QString( ", m_pComponents:" ) );
+		for ( auto cc : *m_pComponents ) {
+			if ( cc != nullptr ) {
+				sOutput.append( QString( "%1" ).arg( cc->toQString( sPrefix + s + s, bShort ) ) );
+			}
+		}
+		sOutput.append( QString( ", m_sFilename: %1" ).arg( m_sFilename ) )
+			.append( QString( ", m_bIsLoopEnabled: %1" ).arg( m_bIsLoopEnabled ) )
+			.append( QString( ", m_fHumanizeTimeValue: %1" ).arg( m_fHumanizeTimeValue ) )
+			.append( QString( ", m_fHumanizeVelocityValue: %1" ).arg( m_fHumanizeVelocityValue ) )
+			.append( QString( ", m_fSwingFactor: %1" ).arg( m_fSwingFactor ) )
+			.append( QString( ", m_bIsModified: %1" ).arg( m_bIsModified ) )
+			.append( QString( ", m_latestRoundRobins" ) );
+		for ( auto mm : m_latestRoundRobins ) {
+			sOutput.append( QString( ", %1 : %4" ).arg( mm.first ).arg( mm.second ) );
+		}
+		sOutput.append( QString( ", m_songMode: %1" ).arg( m_songMode ) )
+			.append( QString( ", m_sPlaybackTrackFilename: %1" ).arg( m_sPlaybackTrackFilename ) )
+			.append( QString( ", m_bPlaybackTrackEnabled: %1" ).arg( m_bPlaybackTrackEnabled ) )
+			.append( QString( ", m_fPlaybackTrackVolume: %1" ).arg( m_fPlaybackTrackVolume ) )
+			.append( QString( "%1" ).arg( m_pVelocityAutomationPath->toQString( sPrefix + s ) ) )
+			.append( QString( ", m_sLicense: %1" ).arg( m_sLicense ) );
+		if ( m_actionMode == ActionMode::selectMode ) {
+			sOutput.append( QString( ", m_actionMode: 0" ) );
+		} else if ( m_actionMode == ActionMode::drawMode ) {
+			sOutput.append( QString( ", m_actionMode: 1" ) );
+		}
+		sOutput.append( QString( ", m_nPanLawType: %1" ).arg( m_nPanLawType ) )
+			.append( QString( ", m_fPanLawKNorm: %1" ).arg( m_fPanLawKNorm ) );
+	}
+	
+	return sOutput;
+}
+
 ///
 /// Reads a song.
 /// return nullptr = error reading song file.
@@ -725,6 +839,52 @@ Song* SongReader::readSong( const QString& sFileName )
 	pSong->setPlaybackTrackEnabled( bPlaybackTrackEnabled );
 	pSong->setPlaybackTrackVolume( fPlaybackTrackVolume );
 	pSong->setActionMode( actionMode );
+	
+	// pan law
+	QString sPanLawType( LocalFileMng::readXmlString( songNode, "pan_law_type", "RATIO_STRAIGHT_POLYGONAL" ) );
+	if ( sPanLawType == "RATIO_STRAIGHT_POLYGONAL" ) {
+		pSong->setPanLawType( Sampler::RATIO_STRAIGHT_POLYGONAL );
+	} else if ( sPanLawType == "RATIO_CONST_POWER" ) {
+		pSong->setPanLawType( Sampler::RATIO_CONST_POWER );
+	} else if ( sPanLawType == "RATIO_CONST_SUM" ) {
+		pSong->setPanLawType( Sampler::RATIO_CONST_SUM );
+	} else if ( sPanLawType == "LINEAR_STRAIGHT_POLYGONAL" ) {
+		pSong->setPanLawType( Sampler::LINEAR_STRAIGHT_POLYGONAL );
+	} else if ( sPanLawType == "LINEAR_CONST_POWER" ) {
+		pSong->setPanLawType( Sampler::LINEAR_CONST_POWER );
+	} else if ( sPanLawType == "LINEAR_CONST_SUM" ) {
+		pSong->setPanLawType( Sampler::LINEAR_CONST_SUM );
+	} else if ( sPanLawType == "POLAR_STRAIGHT_POLYGONAL" ) {
+		pSong->setPanLawType( Sampler::POLAR_STRAIGHT_POLYGONAL );
+	} else if ( sPanLawType == "POLAR_CONST_POWER" ) {
+		pSong->setPanLawType( Sampler::POLAR_CONST_POWER );
+	} else if ( sPanLawType == "POLAR_CONST_SUM" ) {
+		pSong->setPanLawType( Sampler::POLAR_CONST_SUM );
+	} else if ( sPanLawType == "QUADRATIC_STRAIGHT_POLYGONAL" ) {
+		pSong->setPanLawType( Sampler::QUADRATIC_STRAIGHT_POLYGONAL );
+	} else if ( sPanLawType == "QUADRATIC_CONST_POWER" ) {
+		pSong->setPanLawType( Sampler::QUADRATIC_CONST_POWER );
+	} else if ( sPanLawType == "QUADRATIC_CONST_SUM" ) {
+		pSong->setPanLawType( Sampler::QUADRATIC_CONST_SUM );
+	} else if ( sPanLawType == "LINEAR_CONST_K_NORM" ) {
+		pSong->setPanLawType( Sampler::LINEAR_CONST_K_NORM );
+	} else if ( sPanLawType == "POLAR_CONST_K_NORM" ) {
+		pSong->setPanLawType( Sampler::POLAR_CONST_K_NORM );
+	} else if ( sPanLawType == "RATIO_CONST_K_NORM" ) {
+		pSong->setPanLawType( Sampler::RATIO_CONST_K_NORM );
+	} else if ( sPanLawType == "QUADRATIC_CONST_K_NORM" ) {
+		pSong->setPanLawType( Sampler::QUADRATIC_CONST_K_NORM );
+	} else {
+		pSong->setPanLawType( Sampler::RATIO_STRAIGHT_POLYGONAL );
+		WARNINGLOG( "Unknown pan law type in import song. Set default." );
+	}
+
+	float fPanLawKNorm = LocalFileMng::readXmlFloat( songNode, "pan_law_k_norm", Sampler::K_NORM_DEFAULT );
+	if ( fPanLawKNorm <= 0.0 ) {
+		fPanLawKNorm = Sampler::K_NORM_DEFAULT;
+		WARNINGLOG( "Invalid pan law k in import song (<= 0). Set default k." );
+	}
+	pSong->setPanLawKNorm( fPanLawKNorm );
 
 	QDomNode componentListNode = songNode.firstChildElement( "componentList" );
 	if ( ( ! componentListNode.isNull()  ) ) {

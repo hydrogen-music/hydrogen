@@ -205,48 +205,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 	__show_drum_btn->setToolTip( tr( "Show piano roll editor" ) );
 	connect( __show_drum_btn, SIGNAL( clicked( Button* ) ), this, SLOT( showDrumEditorBtnClick( Button* ) ) );
 
-	__recpredelete = new QComboBox( nullptr );
-	__recpredelete->setFixedSize( 130, 20 );
-	__recpredelete->move( 2, 1 );
-	__recpredelete->addItem ( QString( "On play" ));
-	__recpredelete->addItem ( QString( "On rec: once fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/1 fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/2 fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/4 fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/8 fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/16 fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/32 fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/64 fp" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/64" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/32" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/16" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/8" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/4" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/2" ) );
-	__recpredelete->addItem ( QString( "On rec: 1/1" ) );
-	__recpredelete->addItem ( QString( "On rec: once" ) );
-	__recpredelete->update();
-	__recpredelete->setToolTip( tr( "destructive mode pre delete settings" ) );
-	editor_top_hbox_2->addWidget( __recpredelete );
-	connect( __recpredelete, SIGNAL( currentIndexChanged( int ) ), this, SLOT( recPreDeleteSelect( int ) ) );
-
-	__recpostdelete = new QComboBox( nullptr );
-	__recpostdelete->setFixedSize( 60, 20 );
-	__recpostdelete->move( 2, 1 );
-	__recpostdelete->addItem ( QString( "off" ) );
-	__recpostdelete->addItem ( QString( "1/64" ) );
-	__recpostdelete->addItem ( QString( "1/32" ) );
-	__recpostdelete->addItem ( QString( "1/16" ) );
-	__recpostdelete->addItem ( QString( "1/8" ) );
-	__recpostdelete->addItem ( QString( "1/4" ) );
-	__recpostdelete->addItem ( QString( "1/2" ) );
-	__recpostdelete->addItem ( QString( "1/1" ) );
-	__recpostdelete->update();
-	__recpostdelete->setToolTip( tr( "destructive mode post delete settings" ) );
-	editor_top_hbox_2->addWidget( __recpostdelete );
-	connect( __recpostdelete, SIGNAL( currentIndexChanged( int ) ), this, SLOT( recPostDeleteSelect( int ) ) );
-
-
 	// zoom-in btn
 	Button *zoom_in_btn = new Button(
 			nullptr,
@@ -589,11 +547,6 @@ PatternEditorPanel::PatternEditorPanel( QWidget *pParent )
 		}
 	}
 	__resolution_combo->select( nIndex );
-
-	//set pre delete
-	__recpredelete->setCurrentIndex( pPref->m_nRecPreDelete );
-	__recpostdelete->setCurrentIndex( pPref->m_nRecPostDelete );
-	displayorHidePrePostCB();
 
 	// LAYOUT
 	QVBoxLayout *pVBox = new QVBoxLayout();
@@ -1176,41 +1129,6 @@ void PatternEditorPanel::propertiesComboChanged( int nSelected )
 	*/
 	else {
 		ERRORLOG( QString( "unhandled value : %1" ).arg( nSelected ) );
-	}
-}
-
-
-void PatternEditorPanel::recPreDeleteSelect( int index )
-{
-	Preferences::get_instance()->m_nRecPreDelete = index;
-	if( index>=9 && index <=15 ){
-		__recpostdelete->show();
-	}else{
-		__recpostdelete->hide();
-	}
-}
-
-
-void PatternEditorPanel::recPostDeleteSelect( int index )
-{
-	Preferences::get_instance()->m_nRecPostDelete = index;
-}
-
-
-void PatternEditorPanel::displayorHidePrePostCB()
-{
-	int index = __recpredelete->currentIndex();
-	if( Preferences::get_instance()->getDestructiveRecord() ){
-		__recpostdelete->show();
-		if( index>=8 && index <=14 ){
-			__recpostdelete->show();
-		}else{
-			__recpostdelete->hide();
-		}
-		__recpredelete->show();
-	}else{
-		__recpostdelete->hide();
-		__recpredelete->hide();
 	}
 }
 

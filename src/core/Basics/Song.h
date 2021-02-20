@@ -197,6 +197,20 @@ class Song : public H2Core::Object
 		 */
 		bool hasMissingSamples() const;
 		void clearMissingSamples();
+		
+		void setPanLawType( int nPanLawType );
+		int getPanLawType() const;
+		void setPanLawKNorm( float fKNorm );
+		float getPanLawKNorm() const;
+		/** Formatted string version for debugging purposes.
+		 * \param sPrefix String prefix which will be added in front of
+		 * every new line
+		 * \param bShort Instead of the whole content of all classes
+		 * stored as members just a single unique identifier will be
+		 * displayed without line breaks.
+		 *
+		 * \return String presentation of current object.*/
+		QString toQString( const QString& sPrefix, bool bShort = true ) const override;
 
 	private:
 
@@ -273,6 +287,10 @@ class Song : public H2Core::Object
 
 		/** Stores the type of interaction with the SongEditor. */
 		ActionMode		m_actionMode;
+		
+		int m_nPanLawType;
+		// k such that L^k+R^k = 1. Used in constant k-Norm pan law
+		float m_fPanLawKNorm;
 
 };
 
@@ -514,6 +532,18 @@ inline void Song::setPlaybackTrackVolume( const float fVolume )
 
 inline Song::ActionMode Song::getActionMode() const {
 	return m_actionMode;
+}
+
+inline void Song::setPanLawType( int nPanLawType ) {
+	m_nPanLawType = nPanLawType;
+}
+
+inline int Song::getPanLawType() const {
+	return m_nPanLawType;
+} 
+
+inline float Song::getPanLawKNorm() const {
+	return m_fPanLawKNorm;
 }
 
 /**
