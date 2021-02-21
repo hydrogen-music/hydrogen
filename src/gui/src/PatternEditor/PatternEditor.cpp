@@ -303,15 +303,11 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 			continue;
 		}
 		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, pNote->get_position() ) {
-			// Find duplicate?
-			if ( it->second != pNote ) {
-				if ( pNote->match( it->second ) ) {
-					if ( m_selection.isSelected( it->second ) ) {
-						// Two notes are selected at the same position. This means they must have been duplicates when the selection began.
-						// XXX Must keep only one.
-					}
-					duplicates.insert( it->second );
-				}
+			// Duplicate note of a selected note is anything occupying the same position. Multiple notes
+			// sharing the same location might be selected; we count these as duplicates too. They will appear
+			// in both the duplicates and selection lists.
+			if ( it->second != pNote && pNote->match( it->second ) ) {
+				duplicates.insert( it->second );
 			}
 		}
 	}
@@ -335,36 +331,13 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 			Hydrogen *pHydrogen = Hydrogen::get_instance();
 			InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
 			QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-#if 0
-			pUndo->beginMacro( tr( "Overwrite notes" ) );
-			for ( Note *pNote : duplicates ) {
-				// TODO: this should be its own undo action so that we can make undo re-select the right
-				// notes, and also make sure we delete the correct notes (and successfully add duplicate
-				// notes)
-				pUndo->push( new SE_addOrDeleteNoteAction( pNote->get_position(),
-														   pInstrumentList->index( pNote->get_instrument() ),
-														   m_nSelectedPatternNumber,
-														   pNote->get_length(),
-														   pNote->get_velocity(),
-														   pNote->get_pan_l(),
-														   pNote->get_pan_r(),
-														   pNote->get_lead_lag(),
-														   pNote->get_key(),
-														   pNote->get_octave(),
-														   true, // noteExisted
-														   false, // listen
-														   false,
-														   false,
-														   pNote->get_note_off() ) );
-			}
-			pUndo->endMacro();
-#else
+
 			std::vector< Note *>overwritten;
 			for ( Note *pNote : duplicates ) {
 				overwritten.push_back( pNote );
 			}
 			pUndo->push( new SE_deselectAndOverwriteNotesAction( elements, overwritten ) );
-#endif
+
 		} else {
 			return false;
 		}
@@ -381,13 +354,16 @@ void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &sel
 	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	Pattern::notes_t *pNotes = const_cast< Pattern::notes_t *>( m_pPattern->get_notes() );
 	for ( auto pSelectedNote : selected ) {
+		m_selection.removeFromSelection( pSelectedNote, /* bCheck=*/false );
 		bool bFoundExact = false;
-		for ( auto it = pNotes->begin(); it != pNotes->end(); ) {
+		int nPosition = pSelectedNote->get_position();
+		for ( auto it = pNotes->lower_bound( nPosition ); it != pNotes->end() && it->first == nPosition; ) {
 			Note *pNote = it->second;
 			if ( !bFoundExact && notesMatchExactly( pNote, pSelectedNote ) ) {
 				// Found an exact match. We keep this.
 				bFoundExact = true;
-			} else if ( pSelectedNote->match( pNote ) ) {
+				++it;
+			} else if ( pSelectedNote->match( pNote ) && pNote->get_position() == pSelectedNote->get_position() ) {
 				// Something else occupying the same position (which may or may not be an exact duplicate)
 				it = pNotes->erase( it );
 			} else {
@@ -397,7 +373,6 @@ void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &sel
 		}
 	}
 	AudioEngine::get_instance()->unlock();
-	m_selection.clearSelection();
 
 }
 
@@ -406,12 +381,23 @@ void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> 
 												   std::vector< H2Core::Note *> &overwritten )
 {
 	// Restore previously-overwritten notes, and select notes that were selected before.
-	m_selection.clearSelection();
+	m_selection.clearSelection( /* bCheck=*/false );
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
 	for ( auto pNote : overwritten ) {
 		Note *pNewNote = new Note( pNote );
 		m_pPattern->insert_note( pNewNote );
-		m_selection.addToSelection( pNewNote );
 	}
+	// Select the previously-selected notes
+	for ( auto pNote : selected ) {
+		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, pNote->get_position() ) {
+			if ( notesMatchExactly( it->second, pNote ) ) {
+				m_selection.addToSelection( it->second );
+				break;
+			}
+		}
+	}
+	AudioEngine::get_instance()->unlock();
+	m_pPatternEditorPanel->updateEditors();
 }
 
 
@@ -570,8 +556,7 @@ void PatternEditor::validateSelection()
 	}
 	for (auto i : m_selection ) {
 		if ( valid.find(i) == valid.end()) {
-			qDebug() << "XXX Removed invalid selected item?";
-			m_selection.removeFromSelection( i );
+			m_selection.removeFromSelection( i, /* bCheck=*/false );
 		}
 	}
 }

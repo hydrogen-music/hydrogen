@@ -325,9 +325,9 @@ public:
 		return m_pSelectionGroup->m_selectedElements.find( e ) != m_pSelectionGroup->m_selectedElements.end();
 	}
 
-	void removeFromSelection( Elem e ) {
+	void removeFromSelection( Elem e, bool bCheck = true ) {
 		std::vector<Elem> v { e };
-		if ( m_pWidget->checkDeselectElements( v ) ) {
+		if ( !bCheck || m_pWidget->checkDeselectElements( v ) ) {
 			m_pSelectionGroup->m_selectedElements.erase( e );
 		}
 	}
@@ -336,10 +336,10 @@ public:
 		m_pSelectionGroup->m_selectedElements.insert( e );
 	}
 
-	void clearSelection() {
+	void clearSelection( bool bCheck = true ) {
 		std::vector<Elem> v ( m_pSelectionGroup->m_selectedElements.begin(),
 							  m_pSelectionGroup->m_selectedElements.end() );
-		if ( m_pWidget->checkDeselectElements( v ) ) {
+		if ( !bCheck || m_pWidget->checkDeselectElements( v ) ) {
 			m_pSelectionGroup->m_selectedElements.clear();
 		}
 	}

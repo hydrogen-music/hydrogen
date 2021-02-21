@@ -587,7 +587,7 @@ class SE_deselectAndOverwriteNotesAction : public QUndoCommand
 {
 public:
 	SE_deselectAndOverwriteNotesAction( std::vector< H2Core::Note *> &selected, std::vector< H2Core::Note *> &overwritten ) {
-		setText( QObject::tr( "Overwrite %1 notes" ).arg( m_overwritten.size() ) );
+		setText( QObject::tr( "Overwrite %1 notes" ).arg( overwritten.size() ) );
 		for ( auto pNote : selected ) {
 			m_selected.push_back( new H2Core::Note ( pNote ) );
 		}

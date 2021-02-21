@@ -418,7 +418,7 @@ void DrumPatternEditor::moveNoteAction( int nColumn,
 		Note *pNewNote = new Note( pFoundNote, pToInstrument );
 
 		if ( m_selection.isSelected( pFoundNote) ) {
-			m_selection.removeFromSelection( pFoundNote );
+			m_selection.removeFromSelection( pFoundNote, /* bCheck=*/false  );
 			m_selection.addToSelection( pNewNote );
 		}
 		pNewNote->set_position( nNewColumn );
