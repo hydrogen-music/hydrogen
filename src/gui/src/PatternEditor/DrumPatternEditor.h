@@ -29,6 +29,7 @@
 #include "PatternEditor.h"
 
 #include <core/Object.h>
+#include <core/Helpers/Filesystem.h>
 
 #include <QtGui>
 #include <QtWidgets>
@@ -95,7 +96,11 @@ class DrumPatternEditor : public PatternEditor
 		void functionRandomVelocityAction( QStringList noteVeloValue, int nSelectedInstrument, int selectedPatternNumber );
 		void functionMoveInstrumentAction( int nSourceInstrument,  int nTargetInstrument );
 		void functionDropInstrumentUndoAction( int nTargetInstrument, std::vector<int>* AddedComponents );
-		void functionDropInstrumentRedoAction(QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, std::vector<int>* AddedComponents );
+		/**
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
+		 */
+		void functionDropInstrumentRedoAction(QString sDrumkitName, QString sInstrumentName, int nTargetInstrument, std::vector<int>* AddedComponents, H2Core::Filesystem::Lookup lookup );
 		void functionDeleteInstrumentUndoAction(  std::list< H2Core::Note* > noteList, int nSelectedInstrument, QString instrumentName, QString drumkitName );
 		void functionAddEmptyInstrumentUndo();
 		void functionAddEmptyInstrumentRedo();

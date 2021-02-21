@@ -698,7 +698,7 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 			event->acceptProposedAction();
 			return;
 		}
-
+		
 		SE_moveInstrumentAction *action = new SE_moveInstrumentAction( nSourceInstrument, nTargetInstrument );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
@@ -710,8 +710,9 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 		sText = sText.remove(0,QString("importInstrument:").length());
 
 		QStringList tokens = sText.split( "::" );
-		QString sDrumkitName = tokens.at( 0 );
-		QString sInstrumentName = tokens.at( 1 );
+		QString sDrumkitScope = tokens.at( 0 );
+		QString sDrumkitName = tokens.at( 1 );
+		QString sInstrumentName = tokens.at( 2 );
 
 		int nTargetInstrument = event->pos().y() / m_nGridHeight;
 
@@ -728,7 +729,16 @@ void PatternEditorInstrumentList::dropEvent(QDropEvent *event)
 			nTargetInstrument = engine->getSong()->getInstrumentList()->size();
 		}
 
-		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitName, sInstrumentName, nTargetInstrument);
+		// Check whether the drumkit was chosen amongst the system's
+		// or user's set.
+		H2Core::Filesystem::Lookup lookup;
+	  	if ( sDrumkitScope == "system" ) {
+			lookup = H2Core::Filesystem::Lookup::system;
+		} else {
+			lookup = H2Core::Filesystem::Lookup::user;
+		}
+
+		SE_dragInstrumentAction *action = new SE_dragInstrumentAction( sDrumkitName, sInstrumentName, nTargetInstrument, lookup );
 		HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
 		event->acceptProposedAction();

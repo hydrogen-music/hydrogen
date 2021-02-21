@@ -454,8 +454,15 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 
 		QString sDrumkitName = __sound_library_tree->currentItem()->parent()->text(0);
 		QString sInstrumentName = ( __sound_library_tree->currentItem()->text(0) ).remove( 0, __sound_library_tree->currentItem()->text(0).indexOf( "] " ) + 2 );
+		QString sDrumkitScope;
+		if ( __sound_library_tree->currentItem()->parent()->parent() == __system_drumkits_item ) {
+			sDrumkitScope = "system";
+		} else {
+			sDrumkitScope = "user";
+		}
 
-		QString sText = "importInstrument:" + sDrumkitName + "::" + sInstrumentName;
+		QString sText = "importInstrument:" + sDrumkitScope + "::" +
+			sDrumkitName + "::" + sInstrumentName;
 
 		QDrag *pDrag = new QDrag(this);
 		QMimeData *pMimeData = new QMimeData;
