@@ -24,6 +24,7 @@
 #define H2C_DRUMKIT_H
 
 #include <core/Object.h>
+#include <core/Helpers/Filesystem.h>
 
 namespace H2Core
 {
@@ -72,10 +73,12 @@ class Drumkit : public H2Core::Object
 		 * \param dk_name Name of the Drumkit.
 		 * \param load_samples Automatically load sample data
 		 * if set to true.
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
 		 *
 		 * \return A Drumkit on success, nullptr otherwise.
 		 */
-		static Drumkit* load_by_name( const QString& dk_name, const bool load_samples = false );
+		static Drumkit* load_by_name( const QString& dk_name, const bool load_samples = false, Filesystem::Lookup lookup = Filesystem::Lookup::stacked );
 		/**
 		 * Load a Drumkit from a file.
 		 *

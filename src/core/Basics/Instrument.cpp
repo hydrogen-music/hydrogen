@@ -27,7 +27,6 @@
 #include <core/AudioEngine.h>
 
 #include <core/Helpers/Xml.h>
-#include <core/Helpers/Filesystem.h>
 
 #include <core/Basics/Adsr.h>
 #include <core/Basics/Sample.h>
@@ -151,10 +150,10 @@ Instrument::~Instrument()
 	__adsr = nullptr;
 }
 
-Instrument* Instrument::load_instrument( const QString& drumkit_name, const QString& instrument_name )
+Instrument* Instrument::load_instrument( const QString& drumkit_name, const QString& instrument_name, Filesystem::Lookup lookup )
 {
 	Instrument* pInstrument = new Instrument();
-	pInstrument->load_from( drumkit_name, instrument_name, false );
+	pInstrument->load_from( drumkit_name, instrument_name, false, lookup );
 	return pInstrument;
 }
 
@@ -256,9 +255,9 @@ void Instrument::load_from( Drumkit* pDrumkit, Instrument* pInstrument, bool is_
 	}
 }
 
-void Instrument::load_from( const QString& dk_name, const QString& instrument_name, bool is_live )
+void Instrument::load_from( const QString& dk_name, const QString& instrument_name, bool is_live, Filesystem::Lookup lookup )
 {
-	Drumkit* pDrumkit = Drumkit::load_by_name( dk_name );
+	Drumkit* pDrumkit = Drumkit::load_by_name( dk_name, false, lookup );
 	if ( !pDrumkit ) {
 		return;
 	}

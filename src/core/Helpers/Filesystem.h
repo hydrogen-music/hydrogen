@@ -23,6 +23,26 @@ namespace H2Core
 						 is_writable=0x08,
 						 is_executable=0x10
 		};
+		
+	/** Whenever a drumkit is loaded by name a collision between a
+	 * user and a system drumkit carrying the same name can
+	 * occur.
+	 */
+	enum class Lookup {
+		/** First, looks in the system drumkits and, afterwards, in
+		 * the user drumkits. In case both sets contain a member
+		 * sharing the requested name, the user one will override the
+		 * system one.
+		 *
+		 * This is the way Hydrogen <= 1.1 were handling all look ups.
+		 */
+		stacked = 0,
+		/** Only search the user drumkits.*/
+		user = 1,
+		/** Only search the system drumkits.*/
+		system = 2
+	};
+
 		static const QString songs_ext;
 		static const QString scripts_ext;
 		static const QString patterns_ext;
@@ -167,11 +187,13 @@ namespace H2Core
 		 *   H2Core::Drumkit under session management it has to match
 		 *   the second-level "name" node within the
 		 *   #DRUMKIT_XML file.
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
 		 *
 		 * \returns Full path to the folder containing the samples of
 		 *   the H2Core::Drumkit corresponding to \a dk_name.
 		 */
-		static QString drumkit_path_search( const QString& dk_name );
+		static QString drumkit_path_search( const QString& dk_name, Lookup lookup = Lookup::stacked );
 		/**
 		 * returns the directory holding the named drumkit searching within user then system drumkits
 		 * \param dk_name the drumkit name

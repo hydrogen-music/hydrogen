@@ -42,7 +42,6 @@
 #include <core/Basics/InstrumentLayer.h>
 
 #include <core/Helpers/Xml.h>
-#include <core/Helpers/Filesystem.h>
 #include <core/Helpers/Legacy.h>
 
 namespace H2Core
@@ -86,10 +85,10 @@ Drumkit::~Drumkit()
 		delete __instruments;
 	}
 }
-	
-Drumkit* Drumkit::load_by_name ( const QString& dk_name, const bool load_samples )
+
+Drumkit* Drumkit::load_by_name( const QString& dk_name, const bool load_samples, Filesystem::Lookup lookup )
 {
-	QString dir = Filesystem::drumkit_path_search( dk_name );
+	QString dir = Filesystem::drumkit_path_search( dk_name, lookup );
 	if ( dir.isEmpty() ) {
 		return nullptr;
 	}

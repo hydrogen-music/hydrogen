@@ -611,7 +611,7 @@ QString Filesystem::drumkit_usr_path( const QString& dk_name )
 {
 	return usr_drumkits_dir() + dk_name;
 }
-QString Filesystem::drumkit_path_search( const QString& dk_name )
+QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup )
 {
 
 #ifdef H2CORE_HAVE_OSC
@@ -663,15 +663,22 @@ QString Filesystem::drumkit_path_search( const QString& dk_name )
 	}
 			
 #endif
-	if( usr_drumkit_list().contains( dk_name ) ){
-		return usr_drumkits_dir() + dk_name;
+	
+	if ( lookup == Lookup::stacked || lookup == Lookup::user ) {
+		if( usr_drumkit_list().contains( dk_name ) ){
+			return usr_drumkits_dir() + dk_name;
+		}
+	}
+
+	if ( lookup == Lookup::stacked || lookup == Lookup::system ) {
+		if( sys_drumkit_list().contains( dk_name ) ){
+			return sys_drumkits_dir() + dk_name;
+		}
 	}
 	
-	if( sys_drumkit_list().contains( dk_name ) ){
-		return sys_drumkits_dir() + dk_name;
-	}
-	
-	ERRORLOG( QString( "drumkit %1 not found" ).arg( dk_name ) );
+	ERRORLOG( QString( "drumkit %1 not found using lookup type [%2]" )
+			  .arg( dk_name )
+			  .arg( static_cast<int>(lookup)));
 	return QString("");
 }
 
