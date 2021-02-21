@@ -6,6 +6,8 @@
 #include <QDebug>
 #include <QUndoCommand>
 #include <QPoint>
+#include <vector>
+
 #include <core/Basics/Note.h>
 #include <core/Basics/Pattern.h>
 #include <core/Basics/AutomationPath.h>
@@ -578,6 +580,44 @@ private:
 	bool __isInstrumentMode;
 	bool __isDelete;
 	bool __isNoteOff;
+};
+
+// Deselect some notes and overwrite them
+class SE_deselectAndOverwriteNotesAction : public QUndoCommand
+{
+public:
+	SE_deselectAndOverwriteNotesAction( std::vector< H2Core::Note *> &selected, std::vector< H2Core::Note *> &overwritten ) {
+		setText( QObject::tr( "Overwrite %1 notes" ).arg( m_overwritten.size() ) );
+		for ( auto pNote : selected ) {
+			m_selected.push_back( new H2Core::Note ( pNote ) );
+		}
+		for ( auto pNote : overwritten ) {
+			m_overwritten.push_back( new H2Core::Note ( pNote ) );
+		}
+	}
+
+	~SE_deselectAndOverwriteNotesAction() {
+		for ( auto pNote : m_selected ) {
+			delete pNote;
+		}
+		for ( auto pNote : m_overwritten ) {
+			delete pNote;
+		}
+	}
+
+	virtual void undo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
+			->undoDeselectAndOverwriteNotes( m_selected, m_overwritten );
+	}
+
+	virtual void redo() {
+		HydrogenApp::get_instance()->getPatternEditorPanel()->getDrumPatternEditor()
+			->deselectAndOverwriteNotes( m_selected, m_overwritten );
+	}
+
+private:
+	std::vector< H2Core::Note *> m_selected;
+	std::vector< H2Core::Note *> m_overwritten;
 };
 
 

@@ -112,6 +112,14 @@ public:
 		unsetCursor();
 	}
 
+	//! Do two notes match exactly, from the pattern editor's point of view?
+	//! They match if all user-editable properties are the same.
+	bool notesMatchExactly( H2Core::Note *pNoteA, H2Core::Note *pNoteB ) const;
+
+	void deselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected, std::vector< H2Core::Note *> &overwritten );
+
+	void undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected, std::vector< H2Core::Note *> &overwritten );
+
 	//! Raw Qt mouse events are passed to the Selection
 	virtual void mousePressEvent( QMouseEvent *ev ) override;
 	virtual void mouseMoveEvent( QMouseEvent *ev ) override;

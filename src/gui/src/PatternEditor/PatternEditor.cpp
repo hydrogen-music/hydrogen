@@ -283,13 +283,21 @@ void PatternEditor::updateModifiers( QInputEvent *ev ) {
 	}
 }
 
+bool PatternEditor::notesMatchExactly( Note *pNoteA, Note *pNoteB ) const {
+	return ( pNoteA->match( pNoteB->get_instrument(), pNoteB->get_key(), pNoteB->get_octave() )
+			 && pNoteA->get_position() == pNoteB->get_position()
+			 && pNoteA->get_velocity() == pNoteB->get_velocity()
+			 && pNoteA->get_pan_r() == pNoteB->get_pan_r()
+			 && pNoteA->get_pan_l() == pNoteB->get_pan_l()
+			 && pNoteA->get_lead_lag() == pNoteB->get_lead_lag()
+			 && pNoteA->get_probability() == pNoteB->get_probability() );
+}
 
 bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements )
 {
 	//	Hydrogen *pH = Hydrogen::get_instance();
 	std::set< Note *> duplicates;
 	for ( Note *pNote : elements ) {
-		qDebug() << "Note: " << pNote;
 		if ( duplicates.find( pNote ) != duplicates.end() ) {
 			// Already marked pNote as a duplicate of some other pNote. Skip it.
 			continue;
@@ -297,10 +305,12 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 		FOREACH_NOTE_CST_IT_BOUND( m_pPattern->get_notes(), it, pNote->get_position() ) {
 			// Find duplicate?
 			if ( it->second != pNote ) {
-				Note *pOtherNote = it->second;
-				if ( pOtherNote->get_instrument() == pNote->get_instrument()
-					 && pOtherNote->get_notekey_pitch() == pNote->get_notekey_pitch() ) {
-					duplicates.insert( pOtherNote );
+				if ( pNote->match( it->second ) ) {
+					if ( m_selection.isSelected( it->second ) ) {
+						// Two notes are selected at the same position. This means they must have been duplicates when the selection began.
+						// XXX Must keep only one.
+					}
+					duplicates.insert( it->second );
 				}
 			}
 		}
@@ -325,7 +335,7 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 			Hydrogen *pHydrogen = Hydrogen::get_instance();
 			InstrumentList *pInstrumentList = pHydrogen->getSong()->getInstrumentList();
 			QUndoStack *pUndo = HydrogenApp::get_instance()->m_pUndoStack;
-
+#if 0
 			pUndo->beginMacro( tr( "Overwrite notes" ) );
 			for ( Note *pNote : duplicates ) {
 				// TODO: this should be its own undo action so that we can make undo re-select the right
@@ -348,11 +358,60 @@ bool PatternEditor::checkDeselectElements( std::vector<SelectionIndex> &elements
 														   pNote->get_note_off() ) );
 			}
 			pUndo->endMacro();
+#else
+			std::vector< Note *>overwritten;
+			for ( Note *pNote : duplicates ) {
+				overwritten.push_back( pNote );
+			}
+			pUndo->push( new SE_deselectAndOverwriteNotesAction( elements, overwritten ) );
+#endif
 		} else {
 			return false;
 		}
 	}
 	return true;
+}
+
+
+void PatternEditor::deselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected,
+											   std::vector< H2Core::Note *> &overwritten )
+{
+	// Iterate over all the notes in 'selected' and 'overwrite' by erasing any *other* notes occupying the
+	// same position.
+	AudioEngine::get_instance()->lock( RIGHT_HERE );
+	Pattern::notes_t *pNotes = const_cast< Pattern::notes_t *>( m_pPattern->get_notes() );
+	for ( auto pSelectedNote : selected ) {
+		bool bFoundExact = false;
+		for ( auto it = pNotes->begin(); it != pNotes->end(); ) {
+			Note *pNote = it->second;
+			if ( !bFoundExact && notesMatchExactly( pNote, pSelectedNote ) ) {
+				// Found an exact match. We keep this.
+				bFoundExact = true;
+			} else if ( pSelectedNote->match( pNote ) ) {
+				// Something else occupying the same position (which may or may not be an exact duplicate)
+				it = pNotes->erase( it );
+			} else {
+				// Any other note
+				++it;
+			}
+		}
+	}
+	AudioEngine::get_instance()->unlock();
+	m_selection.clearSelection();
+
+}
+
+
+void PatternEditor::undoDeselectAndOverwriteNotes( std::vector< H2Core::Note *> &selected,
+												   std::vector< H2Core::Note *> &overwritten )
+{
+	// Restore previously-overwritten notes, and select notes that were selected before.
+	m_selection.clearSelection();
+	for ( auto pNote : overwritten ) {
+		Note *pNewNote = new Note( pNote );
+		m_pPattern->insert_note( pNewNote );
+		m_selection.addToSelection( pNewNote );
+	}
 }
 
 

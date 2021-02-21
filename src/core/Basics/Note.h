@@ -290,6 +290,9 @@ class Note : public H2Core::Object
 		 */
 		bool match( Instrument* instrument, Key key, Octave octave ) const;
 
+		/** Return true if two notes match in instrument, key and octave. */
+		bool match( const Note *pNote ) const;
+
 		/**
 		 * compute left and right output based on filters
 		 * \param val_l the left channel value
@@ -553,6 +556,11 @@ inline void Note::set_midi_info( Key key, Octave octave, int msg )
 inline bool Note::match( Instrument* instrument, Key key, Octave octave ) const
 {
 	return ( ( __instrument==instrument ) && ( __key==key ) && ( __octave==octave ) );
+}
+
+inline bool Note::match( const Note *pNote ) const
+{
+	return match( pNote->__instrument, pNote->__key, pNote->__octave );
 }
 
 inline void Note::compute_lr_values( float* val_l, float* val_r )
