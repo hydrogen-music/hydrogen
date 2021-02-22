@@ -98,6 +98,10 @@ private:
 	void restore_background_color();
 	void change_background_color();
 
+	/** Whether the dialog was constructed via a click in the MainForm
+	 * or as part of the GUI.
+	 */
+	bool m_bInItsOwnDialog;
 };
 
 #endif

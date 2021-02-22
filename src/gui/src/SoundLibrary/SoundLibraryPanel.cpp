@@ -78,6 +78,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
  , __song_item( nullptr )
  , __pattern_item( nullptr )
  , __pattern_item_list( nullptr )
+ , m_bInItsOwnDialog( bInItsOwnDialog )
 {
 
 	//INFOLOG( "INIT" );
@@ -110,7 +111,7 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	connect( __sound_library_tree, SIGNAL( currentItemChanged ( QTreeWidgetItem*, QTreeWidgetItem* ) ), this, SLOT( on_DrumkitList_ItemChanged( QTreeWidgetItem*, QTreeWidgetItem* ) ) );
 	connect( __sound_library_tree, SIGNAL( itemActivated ( QTreeWidgetItem*, int ) ), this, SLOT( on_DrumkitList_itemActivated( QTreeWidgetItem*, int ) ) );
 	connect( __sound_library_tree, SIGNAL( leftClicked(QPoint) ), this, SLOT( on_DrumkitList_leftClicked(QPoint)) );
-	if( !bInItsOwnDialog ) {
+	if( ! m_bInItsOwnDialog ) {
 		connect( __sound_library_tree, SIGNAL( rightClicked(QPoint) ), this, SLOT( on_DrumkitList_rightClicked(QPoint)) );
 		connect( __sound_library_tree, SIGNAL( onMouseMove( QMouseEvent* ) ), this, SLOT( on_DrumkitList_mouseMove( QMouseEvent* ) ) );
 	}
@@ -187,12 +188,14 @@ void SoundLibraryPanel::updateDrumkitList()
 			__user_drumkit_info_list.push_back( pInfo );
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
 			pDrumkitItem->setText( 0, pInfo->get_name() );
-			InstrumentList *pInstrList = pInfo->get_instruments();
-			for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
-				Instrument *pInstr = pInstrList->get( nInstr );
-				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
-				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
-				pInstrumentItem->setToolTip( 0, pInstr->get_name() );
+			if ( ! m_bInItsOwnDialog ) {
+				InstrumentList *pInstrList = pInfo->get_instruments();
+				for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
+					Instrument *pInstr = pInstrList->get( nInstr );
+					QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
+					pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
+					pInstrumentItem->setToolTip( 0, pInstr->get_name() );
+				}
 			}
 		}
 	}
@@ -206,66 +209,70 @@ void SoundLibraryPanel::updateDrumkitList()
 			__system_drumkit_info_list.push_back( pInfo );
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
 			pDrumkitItem->setText( 0, pInfo->get_name() );
-			InstrumentList *pInstrList = pInfo->get_instruments();
-			for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
-				Instrument *pInstr = pInstrList->get( nInstr );
-				QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
-				pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
-				pInstrumentItem->setToolTip( 0, pInstr->get_name() );
+			if ( ! m_bInItsOwnDialog ) {
+				InstrumentList *pInstrList = pInfo->get_instruments();
+				for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
+					Instrument *pInstr = pInstrList->get( nInstr );
+					QTreeWidgetItem* pInstrumentItem = new QTreeWidgetItem( pDrumkitItem );
+					pInstrumentItem->setText( 0, QString( "[%1] " ).arg( nInstr + 1 ) + pInstr->get_name() );
+					pInstrumentItem->setToolTip( 0, pInstr->get_name() );
+				}
 			}
 		}
 	}
-	
-	//Songlist
-	QStringList songs = Filesystem::song_list_cleared();
-	if ( songs.size() > 0 ) {
-		__song_item = new QTreeWidgetItem( __sound_library_tree );
-		__song_item->setText( 0, tr( "Songs" ) );
-		__song_item->setToolTip( 0, tr("Double click to expand the list") );
-		__song_item->setExpanded( __expand_songs_list );
-		for (uint i = 0; i < songs.size(); i++) {
-			QTreeWidgetItem* pSongItem = new QTreeWidgetItem( __song_item );
-			QString song = songs[i];
-			pSongItem->setText( 0 , song.left( song.indexOf(".")) );
-			pSongItem->setToolTip( 0, song );
+
+	if ( ! m_bInItsOwnDialog ) {
+		//Songlist
+		QStringList songs = Filesystem::song_list_cleared();
+		if ( songs.size() > 0 ) {
+			__song_item = new QTreeWidgetItem( __sound_library_tree );
+			__song_item->setText( 0, tr( "Songs" ) );
+			__song_item->setToolTip( 0, tr("Double click to expand the list") );
+			__song_item->setExpanded( __expand_songs_list );
+			for (uint i = 0; i < songs.size(); i++) {
+				QTreeWidgetItem* pSongItem = new QTreeWidgetItem( __song_item );
+				QString song = songs[i];
+				pSongItem->setText( 0 , song.left( song.indexOf(".")) );
+				pSongItem->setToolTip( 0, song );
+			}
 		}
-	}
 
 
-	//Pattern list
-	QStringList patternDirList = Filesystem::pattern_drumkits();
-	if ( patternDirList.size() > 0 ) {
+		//Pattern list
+		QStringList patternDirList = Filesystem::pattern_drumkits();
+		if ( patternDirList.size() > 0 ) {
 		
-		__pattern_item = new QTreeWidgetItem( __sound_library_tree );
-		__pattern_item->setText( 0, tr( "Patterns" ) );
-		__pattern_item->setToolTip( 0, tr("Double click to expand the list") );
-		__pattern_item->setExpanded( __expand_pattern_list );
+			__pattern_item = new QTreeWidgetItem( __sound_library_tree );
+			__pattern_item->setText( 0, tr( "Patterns" ) );
+			__pattern_item->setToolTip( 0, tr("Double click to expand the list") );
+			__pattern_item->setExpanded( __expand_pattern_list );
 		
-		//this is the second step to push the mng.function
-		//SoundLibraryDatabase::create_instance();
-		SoundLibraryDatabase* db = SoundLibraryDatabase::get_instance();
-		soundLibraryInfoVector* allPatternDirList = db->getAllPatterns();
-		QStringList allCategoryNameList = db->getAllPatternCategories();
+			//this is the second step to push the mng.function
+			//SoundLibraryDatabase::create_instance();
+			SoundLibraryDatabase* db = SoundLibraryDatabase::get_instance();
+			soundLibraryInfoVector* allPatternDirList = db->getAllPatterns();
+			QStringList allCategoryNameList = db->getAllPatternCategories();
 
-		//now sorting via category
+			//now sorting via category
 
-		for (uint i = 0; i < allCategoryNameList.size(); ++i) {
-			QString categoryName = allCategoryNameList[i];
+			for (uint i = 0; i < allCategoryNameList.size(); ++i) {
+				QString categoryName = allCategoryNameList[i];
 
-			QTreeWidgetItem* pCategoryItem = new QTreeWidgetItem( __pattern_item );
-			pCategoryItem->setText( 0, categoryName  );
+				QTreeWidgetItem* pCategoryItem = new QTreeWidgetItem( __pattern_item );
+				pCategoryItem->setText( 0, categoryName  );
 
-			soundLibraryInfoVector::iterator mapIterator;
-			for( mapIterator=allPatternDirList->begin(); mapIterator != allPatternDirList->end(); mapIterator++ )
-			{
-				QString patternCategory = (*mapIterator)->getCategory();
-				if ( (patternCategory == categoryName) || (patternCategory.isEmpty() && categoryName == "No category") ){
-					QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
-					pPatternItem->setText( 0, (*mapIterator)->getName());
-					pPatternItem->setText( 1, (*mapIterator)->getPath() );
-					pPatternItem->setToolTip( 0, mng.getDrumkitNameForPattern( (*mapIterator)->getPath() ));
-					INFOLOG( "Path" +  (*mapIterator)->getPath() );
-				}
+				soundLibraryInfoVector::iterator mapIterator;
+				for( mapIterator=allPatternDirList->begin(); mapIterator != allPatternDirList->end(); mapIterator++ )
+					{
+						QString patternCategory = (*mapIterator)->getCategory();
+						if ( (patternCategory == categoryName) || (patternCategory.isEmpty() && categoryName == "No category") ){
+							QTreeWidgetItem* pPatternItem = new QTreeWidgetItem( pCategoryItem );
+							pPatternItem->setText( 0, (*mapIterator)->getName());
+							pPatternItem->setText( 1, (*mapIterator)->getPath() );
+							pPatternItem->setToolTip( 0, mng.getDrumkitNameForPattern( (*mapIterator)->getPath() ));
+							INFOLOG( "Path" +  (*mapIterator)->getPath() );
+						}
+					}
 			}
 		}
 	}
@@ -483,8 +490,6 @@ void SoundLibraryPanel::on_DrumkitList_mouseMove( QMouseEvent *event)
 
 void SoundLibraryPanel::on_drumkitLoadAction()
 {
-	restore_background_color();
-
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
 	// Whether we deal with a system or a user drumkit.
 	QString sDrumkitType = __sound_library_tree->currentItem()->parent()->text(0);
@@ -597,9 +602,9 @@ void SoundLibraryPanel::on_drumkitLoadAction()
 
 	InstrumentEditorPanel::get_instance()->notifyOfDrumkitChange();
 
-	__sound_library_tree->currentItem()->setBackground( 0, QColor( 50, 50, 50) );
 	QApplication::restoreOverrideCursor();
 
+	update_background_color();
 }
 
 
