@@ -1202,42 +1202,49 @@ void MainForm::action_instruments_onlineImportLibrary()
 void MainForm::action_instruments_saveLibrary()
 {
 	QString sDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitName();
+	Filesystem::Lookup lookup = Hydrogen::get_instance()->getCurrentDrumkitLookup();
 	Drumkit *pDrumkitInfo = nullptr;
 
-	//User drumkit list
-	QStringList usr_dks = Filesystem::usr_drumkit_list();
-	for (int i = 0; i < usr_dks.size(); ++i) {
-		QString absPath = Filesystem::usr_drumkits_dir() + usr_dks[i];
-		Drumkit *pInfo = Drumkit::load( absPath, false );
-		if (pInfo) {
-			if ( QString(pInfo->get_name() ) == sDrumkitName ){
-				pDrumkitInfo = pInfo;
-				break;
+	if ( lookup == Filesystem::Lookup::system ||
+		 lookup == Filesystem::Lookup::stacked ) {
+		// System drumkit list
+		QStringList sys_dks = Filesystem::sys_drumkit_list();
+		for (int i = 0; i < sys_dks.size(); ++i) {
+			QString absPath = Filesystem::sys_drumkits_dir() + sys_dks[i];
+			Drumkit *pInfo = Drumkit::load( absPath, false );
+			if (pInfo) {
+				if ( QString( pInfo->get_name() ) == sDrumkitName ){
+					pDrumkitInfo = pInfo;
+					break;
+				}
 			}
-		}
 		
-		// Since Drumkit::load() calls New Drumkit() internally, we
-		// have to take care of destroying it manually.
-		delete pInfo;
+			// Since Drumkit::load() calls New Drumkit() internally, we
+			// have to take care of destroying it manually.
+			delete pInfo;
+		}
 	}
 
-	// System drumkit list
-	QStringList sys_dks = Filesystem::sys_drumkit_list();
-	for (int i = 0; i < sys_dks.size(); ++i) {
-		QString absPath = Filesystem::sys_drumkits_dir() + sys_dks[i];
-		Drumkit *pInfo = Drumkit::load( absPath, false );
-		if (pInfo) {
-			if ( QString( pInfo->get_name() ) == sDrumkitName ){
-				pDrumkitInfo = pInfo;
-				break;
+	if ( lookup == Filesystem::Lookup::user ||
+		 lookup == Filesystem::Lookup::stacked ) {
+		//User drumkit list
+		QStringList usr_dks = Filesystem::usr_drumkit_list();
+		for (int i = 0; i < usr_dks.size(); ++i) {
+			QString absPath = Filesystem::usr_drumkits_dir() + usr_dks[i];
+			Drumkit *pInfo = Drumkit::load( absPath, false );
+			if (pInfo) {
+				if ( QString(pInfo->get_name() ) == sDrumkitName ){
+					pDrumkitInfo = pInfo;
+					break;
+				}
 			}
-		}
 		
-		// Since Drumkit::load() calls New Drumkit() internally, we
-		// have to take care of destroying it manually.
-		delete pInfo;
+			// Since Drumkit::load() calls New Drumkit() internally, we
+			// have to take care of destroying it manually.
+			delete pInfo;
+		}
 	}
-
+	
 	if ( pDrumkitInfo != nullptr ){
 		if( !H2Core::Drumkit::save( QString( pDrumkitInfo->get_name() ),
 									QString( pDrumkitInfo->get_author() ),
@@ -1248,20 +1255,18 @@ void MainForm::action_instruments_saveLibrary()
 									H2Core::Hydrogen::get_instance()->getSong()->getInstrumentList(),
 									H2Core::Hydrogen::get_instance()->getSong()->getComponents(),
 									true ) ) {
-			QMessageBox::information( this, "Hydrogen", tr ( "Saving of this library failed."));
+			QMessageBox::information( this, "Hydrogen", tr( "Saving of this library failed."));
 		}
 	}
 	else {
 		action_instruments_saveAsLibrary();
 	}
 
-	//HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->test_expandedItems();
 	HydrogenApp::get_instance()->getInstrumentRack()->getSoundLibraryPanel()->updateDrumkitList();
 
 	// Cleaning up the last pInfo we did not deleted due to the break
 	// statement.
 	delete pDrumkitInfo;
-
 }
 
 
@@ -2222,7 +2227,6 @@ void MainForm::action_banks_properties()
 	QString sDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitName();
 	Filesystem::Lookup lookup = Hydrogen::get_instance()->getCurrentDrumkitLookup();
 	Drumkit *pDrumkitInfo = nullptr;
-
 
 	if ( lookup == Filesystem::Lookup::system ||
 		 lookup == Filesystem::Lookup::stacked ) {
