@@ -130,6 +130,8 @@ SoundLibraryPanel::SoundLibraryPanel( QWidget *pParent, bool bInItsOwnDialog )
 	__expand_pattern_list = Preferences::get_instance()->__expandPatternItem;
 	__expand_songs_list = Preferences::get_instance()->__expandSongItem;
 
+	m_sMessageFailedPreDrumkitLoad = tr( "Drumkit registered in the current song can not be found on disk.\nPlease load an existing drumkit first.\nCurrent kit:" );
+
 	updateDrumkitList();
 }
 
@@ -776,7 +778,7 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 	}
 
 	if ( pPreDrumkitInfo == nullptr ){
-		QMessageBox::warning( this, "Hydrogen", tr( "Drumkit registered in the current song can not be found on disk.\nPlease load an existing drumkit first" ) );
+		QMessageBox::warning( this, "Hydrogen", m_sMessageFailedPreDrumkitLoad.append( QString( " [%1]").arg( sPreDrumkitName ) ) );
 		return;
 	}
 	assert( pPreDrumkitInfo );
