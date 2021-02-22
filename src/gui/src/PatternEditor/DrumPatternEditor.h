@@ -63,6 +63,7 @@ class DrumPatternEditor : public PatternEditor
 										float oldLeadLag,
 										int oldNoteKeyVal,
 										int oldOctaveKeyVal,
+										float probability,
 										bool listen,
 										bool isMidi,
 										bool isInstrumentMode,

@@ -108,6 +108,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int row,
 	float oldPan_L = 0.5f;
 	float oldPan_R = 0.5f;
 	float oldLeadLag = 0.0f;
+	float fProbability = 1.0f;
 	Note::Key oldNoteKeyVal = Note::C;
 	Note::Octave oldOctaveKeyVal = Note::P8;
 	bool isNoteOff = false;
@@ -129,6 +130,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int row,
 		oldNoteKeyVal = pOldNote->get_key();
 		oldOctaveKeyVal = pOldNote->get_octave();
 		isNoteOff = pOldNote->get_note_off();
+		fProbability = pOldNote->get_probability();
 	}
 
 	SE_addOrDeleteNoteAction *action = new SE_addOrDeleteNoteAction( nColumn,
@@ -141,6 +143,7 @@ void DrumPatternEditor::addOrRemoveNote( int nColumn, int nRealColumn, int row,
 																	 oldLeadLag,
 																	 oldNoteKeyVal,
 																	 oldOctaveKeyVal,
+																	 fProbability,
 																	 pOldNote != nullptr,
 																	 Preferences::get_instance()->getHearNewNotes(),
 																	 false,
@@ -192,6 +195,7 @@ void DrumPatternEditor::mouseClickEvent( QMouseEvent *ev )
 																			 pNote->get_lead_lag(),
 																			 pNote->get_key(),
 																			 pNote->get_octave(),
+																			 pNote->get_probability(),
 																			 true,
 																			 false,
 																			 false,
@@ -265,6 +269,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 												float oldLeadLag,
 												int oldNoteKeyVal,
 												int oldOctaveKeyVal,
+												float fProbability,
 												bool listen,
 												bool isMidi,
 												bool isInstrumentMode,
@@ -300,7 +305,8 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 				 || ( pNote->get_instrument() == pSelectedInstrument
 					  && pNote->get_key() == oldNoteKeyVal 
 					  && pNote->get_octave() == oldOctaveKeyVal
-					  && pNote->get_velocity() == oldVelocity ) ) {
+					  && pNote->get_velocity() == oldVelocity
+					  && pNote->get_probability() == fProbability ) ) {
 				delete pNote;
 				notes->erase( it );
 				bFound = true;
@@ -326,6 +332,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 			fPan_L = 0.5f;
 			fPan_R = 0.5f;
 			nLength = 1;
+			fProbability = 1.0;
 		}
 
 		float fPitch = 0.f;
@@ -334,6 +341,7 @@ void DrumPatternEditor::addOrDeleteNoteAction(	int nColumn,
 		pNote->set_note_off( isNoteOff );
 		if ( !isNoteOff ) {
 			pNote->set_lead_lag( oldLeadLag );
+			pNote->set_probability( fProbability );
 		}
 		pNote->set_key_octave( (Note::Key)oldNoteKeyVal, (Note::Octave)oldOctaveKeyVal );
 		pPattern->insert_note( pNote );
@@ -512,6 +520,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   pNote->get_lead_lag(),
 														   pNote->get_key(),
 														   pNote->get_octave(),
+														   pNote->get_probability(),
 														   true,
 														   false,
 														   false,
@@ -532,6 +541,7 @@ void DrumPatternEditor::selectionMoveEndEvent( QInputEvent *ev )
 														   pNote->get_lead_lag(),
 														   pNote->get_key(),
 														   pNote->get_octave(),
+														   pNote->get_probability(),
 														   false,
 														   false,
 														   false,
@@ -837,6 +847,7 @@ void DrumPatternEditor::deleteSelection()
 																 pNote->get_lead_lag(),
 																 pNote->get_key(),
 																 pNote->get_octave(),
+																 pNote->get_probability(),
 																 true, // noteExisted
 																 false, // listen
 																 false,
@@ -950,6 +961,7 @@ void DrumPatternEditor::paste()
 														   pNote->get_lead_lag(),
 														   pNote->get_key(),
 														   pNote->get_octave(),
+														   pNote->get_probability(),
 														   false, // isDelete
 														   false, // listen
 														   false, // isMidi

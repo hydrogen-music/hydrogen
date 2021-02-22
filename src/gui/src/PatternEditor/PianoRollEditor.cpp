@@ -444,6 +444,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 	float fPan_L = 0.5f;
 	float fPan_R = 0.5f;
 	float fLeadLag = 0.0f;
+	float fProbability = 1.0f;
 
 	if ( pOldNote && !bDoDelete ) {
 		// Found an old note, but we don't want to delete, so just return.
@@ -461,6 +462,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 		fLeadLag = pOldNote->get_lead_lag();
 		notekey = pOldNote->get_key();
 		octave = pOldNote->get_octave();
+		fProbability = pOldNote->get_probability();
 	}
 
 	if ( pOldNote == nullptr ) {
@@ -485,6 +487,7 @@ void PianoRollEditor::addOrRemoveNote( int nColumn, int nRealColumn, int nLine,
 																					   fLeadLag,
 																					   notekey,
 																					   octave,
+																					   fProbability,
 																					   pOldNote != nullptr );
 	HydrogenApp::get_instance()->m_pUndoStack->push( action );
 
@@ -545,6 +548,7 @@ void PianoRollEditor::mouseClickEvent( QMouseEvent *ev ) {
 																								   pNote->get_lead_lag(),
 																								   pNote->get_key(),
 																								   pNote->get_octave(),
+																								   pNote->get_probability(),
 																								   pNote != nullptr );
 				HydrogenApp::get_instance()->m_pUndoStack->push( action );
 			} else {
@@ -631,6 +635,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 											 float oldLeadLag,
 											 int oldNoteKeyVal,
 											 int oldOctaveKeyVal,
+											 float fProbability,
 											 bool noteOff,
 											 bool isDelete )
 {
@@ -682,6 +687,7 @@ void PianoRollEditor::addOrDeleteNoteAction( int nColumn,
 			pNote->set_note_off( noteOff );
 			if(! noteOff) pNote->set_lead_lag( oldLeadLag );
 			pNote->set_key_octave( pressednotekey, pressedoctave );
+			pNote->set_probability( fProbability );
 			pPattern->insert_note( pNote );
 			if ( m_bSelectNewNotes ) {
 				m_selection.addToSelection( pNote );
@@ -982,6 +988,7 @@ void PianoRollEditor::deleteSelection()
 																			  pNote->get_lead_lag(),
 																			  pNote->get_key(),
 																			  pNote->get_octave(),
+																			  pNote->get_probability(),
 																			  true ) );
 				}
 			}
@@ -1094,6 +1101,7 @@ void PianoRollEditor::paste()
 																	pNote->get_lead_lag(),
 																	0,
 																	0,
+																	pNote->get_probability(),
 																	false ) );
 			}
 			delete pNote;
@@ -1343,7 +1351,7 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 				pUndo->push( new SE_addOrDeleteNotePianoRollAction( nNewPosition, nLine, nSelectedPatternNumber,
 																	nSelectedInstrumentNumber, pNote->get_length(), pNote->get_velocity(),
 																	pNote->get_pan_l(), pNote->get_pan_r(),
-																	pNote->get_lead_lag(), newKey, newOctave, false ) );
+																	pNote->get_lead_lag(), newKey, newOctave, pNote->get_probability(), false ) );
 			}
 		} else {
 			if ( bNoteInRange ) {
@@ -1352,7 +1360,7 @@ void PianoRollEditor::selectionMoveEndEvent( QInputEvent *ev ) {
 				pUndo->push( new SE_addOrDeleteNotePianoRollAction( pNote->get_position(), nLine - offset.y(),  nSelectedPatternNumber,
 																	nSelectedInstrumentNumber, pNote->get_length(), pNote->get_velocity(),
 																	pNote->get_pan_l(), pNote->get_pan_r(),
-																	pNote->get_lead_lag(), key, octave, true ) );
+																	pNote->get_lead_lag(), key, octave, pNote->get_probability(), true ) );
 			}
 		}
 	}
