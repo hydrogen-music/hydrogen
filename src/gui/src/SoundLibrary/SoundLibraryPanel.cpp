@@ -728,21 +728,24 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 
 	Drumkit* pPreDrumkitInfo = nullptr;
 
-	
-
-	// Find the currently loaded drumkit in the drumkit tree.
-	for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
-		Drumkit *prInfo = __system_drumkit_info_list[i];
-		if ( prInfo->get_name() == sPreDrumkitName ) {
-			pPreDrumkitInfo = prInfo;
-			break;
+	// Find the currently loaded drumkit in the drumkit tree and use
+	// the current lookup to decide whether to search in the system or
+	// the user folder.
+	if ( Hydrogen::get_instance()->getCurrentDrumkitLookup() == Filesystem::Lookup::system ) {
+		for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
+			Drumkit *prInfo = __system_drumkit_info_list[i];
+			if ( prInfo->get_name() == sPreDrumkitName ) {
+				pPreDrumkitInfo = prInfo;
+				break;
+			}
 		}
-	}
-	for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
-		Drumkit *prInfo = __user_drumkit_info_list[i];
-		if ( prInfo->get_name() == sPreDrumkitName ) {
-			pPreDrumkitInfo = prInfo;
-			break;
+	} else {
+		for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
+			Drumkit *prInfo = __user_drumkit_info_list[i];
+			if ( prInfo->get_name() == sPreDrumkitName ) {
+				pPreDrumkitInfo = prInfo;
+				break;
+			}
 		}
 	}
 
