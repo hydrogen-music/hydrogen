@@ -644,27 +644,36 @@ void SoundLibraryPanel::change_background_color()
 void SoundLibraryPanel::on_drumkitDeleteAction()
 {
 	QTreeWidgetItem* pItem = __sound_library_tree->currentItem();
-	QString itemName = QString("%1").arg(__sound_library_tree->currentItem()->text(0));
+	QString sDrumkitName = pItem->text(0);
 
-	//if we delete the current loaded drumkit we can get trouble with some empty pointers
-	// TODO this check is really unsafe
-	if ( pItem->text(0) == Hydrogen::get_instance()->getCurrentDrumkitName() ){
-		QMessageBox::warning( this, "Hydrogen", tr( "It is not possible to delete the currently loaded drumkit: \n  \"%1\".\nTo delete this drumkit first load another drumkit.").arg(itemName) );
-		return;
-	}
-
+	Filesystem::Lookup lookup;
 	if ( pItem->parent() == __system_drumkits_item ) {
-		QMessageBox::warning( this, "Hydrogen", tr( "\"%1\"is a system drumkit and can't be deleted.").arg(itemName) );
+		lookup = Filesystem::Lookup::system;
+	} else {
+		lookup = Filesystem::Lookup::user;
+	}
+
+	// If we delete the current loaded drumkit we can get trouble with some empty pointers
+	if ( pItem->text(0) == Hydrogen::get_instance()->getCurrentDrumkitName() &&
+		 lookup == Hydrogen::get_instance()->getCurrentDrumkitLookup() ){
+		QMessageBox::warning( this, "Hydrogen", tr( "It is not possible to delete the currently loaded drumkit: \n  \"%1\".\nTo delete this drumkit first load another drumkit.").arg(sDrumkitName) );
 		return;
 	}
 
-	int res = QMessageBox::warning( this, "Hydrogen", tr( "Warning, the \"%1\" drumkit will be deleted from disk.\nAre you sure?").arg(itemName), "&Ok", "&Cancel", nullptr, 1 );
+	if ( lookup == Filesystem::Lookup::system ) {
+		QMessageBox::warning( this, "Hydrogen", QString( "\"%1\" " )
+							  .arg(sDrumkitName)
+							  .append( tr( "is a system drumkit and can't be deleted.") ) );
+		return;
+	}
+
+	int res = QMessageBox::warning( this, "Hydrogen", tr( "Warning, the \"%1\" drumkit will be deleted from disk.\nAre you sure?").arg(sDrumkitName), "&Ok", "&Cancel", nullptr, 1 );
 	if ( res == 1 ) {
 		return;
 	}
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
-	bool success = Drumkit::remove( pItem->text(0) );
+	bool success = Drumkit::remove( pItem->text(0), lookup );
 	test_expandedItems();
 	updateDrumkitList();
 	QApplication::restoreOverrideCursor();

@@ -443,16 +443,16 @@ void Drumkit::set_components( std::vector<DrumkitComponent*>* components )
 	__components = components;
 }
 
-bool Drumkit::remove( const QString& dk_name )
+bool Drumkit::remove( const QString& sDrumkitName, Filesystem::Lookup lookup )
 {
-	QString dk_dir = Filesystem::drumkit_path_search( dk_name );
-	if( !Filesystem::drumkit_valid( dk_dir ) ) {
-		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( dk_dir ) );
+	QString sDrumkitDir = Filesystem::drumkit_path_search( sDrumkitName, lookup );
+	if( !Filesystem::drumkit_valid( sDrumkitDir ) ) {
+		ERRORLOG( QString( "%1 is not valid drumkit" ).arg( sDrumkitDir ) );
 		return false;
 	}
-	_INFOLOG( QString( "Removing drumkit: %1" ).arg( dk_dir ) );
-	if( !Filesystem::rm( dk_dir, true ) ) {
-		_ERRORLOG( QString( "Unable to remove drumkit: %1" ).arg( dk_dir ) );
+	_INFOLOG( QString( "Removing drumkit: %1" ).arg( sDrumkitDir ) );
+	if( !Filesystem::rm( sDrumkitDir, true ) ) {
+		_ERRORLOG( QString( "Unable to remove drumkit: %1" ).arg( sDrumkitDir ) );
 		return false;
 	}
 	return true;

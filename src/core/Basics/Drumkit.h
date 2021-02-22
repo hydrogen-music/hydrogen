@@ -183,9 +183,11 @@ class Drumkit : public H2Core::Object
 		/**
 		 * remove a drumkit from the disk
 		 * \param dk_name the drumkit name
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit.
 		 * \return true on success
 		 */
-		static bool remove( const QString& dk_name );
+		static bool remove( const QString& dk_name, Filesystem::Lookup lookup );
 
 		/** set __instruments, delete existing one */
 		void set_instruments( InstrumentList* instruments );
