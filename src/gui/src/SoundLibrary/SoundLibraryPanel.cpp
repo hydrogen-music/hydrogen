@@ -152,7 +152,7 @@ SoundLibraryPanel::~SoundLibraryPanel()
 
 void SoundLibraryPanel::updateDrumkitList()
 {
-	QString currentSL = Hydrogen::get_instance()->getCurrentDrumkitname();
+	QString currentSL = Hydrogen::get_instance()->getCurrentDrumkitName();
 
 	LocalFileMng mng;
 
@@ -622,7 +622,7 @@ void SoundLibraryPanel::restore_background_color()
 
 void SoundLibraryPanel::change_background_color()
 {
-	QString sCurDrumkitName =  Hydrogen::get_instance()->getCurrentDrumkitname();
+	QString sCurDrumkitName =  Hydrogen::get_instance()->getCurrentDrumkitName();
 
 	for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
 		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == sCurDrumkitName ){
@@ -648,7 +648,7 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 
 	//if we delete the current loaded drumkit we can get trouble with some empty pointers
 	// TODO this check is really unsafe
-	if ( pItem->text(0) == Hydrogen::get_instance()->getCurrentDrumkitname() ){
+	if ( pItem->text(0) == Hydrogen::get_instance()->getCurrentDrumkitName() ){
 		QMessageBox::warning( this, "Hydrogen", tr( "It is not possible to delete the currently loaded drumkit: \n  \"%1\".\nTo delete this drumkit first load another drumkit.").arg(itemName) );
 		return;
 	}
@@ -690,17 +690,17 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 	// Whether we deal with a system or a user drumkit.
 	QString sDrumkitType = __sound_library_tree->currentItem()->parent()->text(0);
 
-	Drumkit *drumkitInfo = nullptr;
+	Drumkit* pDrumkitInfo = nullptr;
 
-	// Find the drumkit in the list. If the drumkit was listed as a
-	// "System drumkit", it won't be searched in the user ones and
-	// vice versa.
+	// Find the selected drumkit in the drumkit tree. If it was listed
+	// as a "System drumkit", it won't be searched in the user ones
+	// and vice versa.
 	if ( sDrumkitType == __system_drumkits_item->text(0) ) {
 		
 		for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
 			Drumkit *pInfo = __system_drumkit_info_list[i];
 			if ( pInfo->get_name() == sDrumkitName ) {
-				drumkitInfo = pInfo;
+				pDrumkitInfo = pInfo;
 				break;
 			}
 		}
@@ -709,7 +709,7 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 		for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
 			Drumkit*pInfo = __user_drumkit_info_list[i];
 			if ( pInfo->get_name() == sDrumkitName ) {
-				drumkitInfo = pInfo;
+				pDrumkitInfo = pInfo;
 				break;
 			}
 		}
@@ -719,40 +719,41 @@ void SoundLibraryPanel::on_drumkitPropertiesAction()
 		return;
 	}
 	
-	if( !drumkitInfo ) {
+	if( ! pDrumkitInfo ) {
 		ERRORLOG( QString( "Unable to find drumkit [%1]" ).arg( sDrumkitName ) );
 		return;
 	}
 
-	QString sPreDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitname();
+	QString sPreDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitName();
 
-	Drumkit *preDrumkitInfo = nullptr;
+	Drumkit* pPreDrumkitInfo = nullptr;
+
 	
 
-	// find the drumkit in the list
+	// Find the currently loaded drumkit in the drumkit tree.
 	for ( uint i = 0; i < __system_drumkit_info_list.size(); i++ ) {
 		Drumkit *prInfo = __system_drumkit_info_list[i];
 		if ( prInfo->get_name() == sPreDrumkitName ) {
-			preDrumkitInfo = prInfo;
+			pPreDrumkitInfo = prInfo;
 			break;
 		}
 	}
 	for ( uint i = 0; i < __user_drumkit_info_list.size(); i++ ) {
 		Drumkit *prInfo = __user_drumkit_info_list[i];
 		if ( prInfo->get_name() == sPreDrumkitName ) {
-			preDrumkitInfo = prInfo;
+			pPreDrumkitInfo = prInfo;
 			break;
 		}
 	}
 
-	if ( preDrumkitInfo == nullptr ){
+	if ( pPreDrumkitInfo == nullptr ){
 		QMessageBox::warning( this, "Hydrogen", QString( "The current loaded song missing his soundlibrary.\nPlease load a existing soundlibrary first") );
 		return;
 	}
-	assert( preDrumkitInfo );
+	assert( pPreDrumkitInfo );
 	
 	//open the soundlibrary save dialog
-	SoundLibraryPropertiesDialog dialog( this , drumkitInfo, preDrumkitInfo );
+	SoundLibraryPropertiesDialog dialog( this , pDrumkitInfo, pPreDrumkitInfo );
 	dialog.exec();
 }
 

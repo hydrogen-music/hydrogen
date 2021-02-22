@@ -517,7 +517,7 @@ void InstrumentLine::functionDeleteInstrument()
 	std::list< Note* > noteList;
 
 	QString sInstrumentName =  pSelectedInstrument->get_name();
-	QString sDrumkitName = pHydrogen->getCurrentDrumkitname();
+	QString sDrumkitName = pHydrogen->getCurrentDrumkitName();
 
 	for ( int i = 0; i < pSong->getPatternList()->size(); i++ ) {
 		H2Core::Pattern *pPattern = pSong->getPatternList()->get(i);

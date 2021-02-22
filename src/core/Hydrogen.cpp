@@ -3082,7 +3082,12 @@ int Hydrogen::loadDrumkit( Drumkit *pDrumkitInfo, bool conditional )
 	}
 
 	INFOLOG( pDrumkitInfo->get_name() );
-	m_currentDrumkit = pDrumkitInfo->get_name();
+	m_sCurrentDrumkitName = pDrumkitInfo->get_name();
+	if ( pDrumkitInfo->isUserDrumkit() ) {
+		m_currentDrumkitLookup = Filesystem::Lookup::user;
+	} else {
+		m_currentDrumkitLookup = Filesystem::Lookup::system;
+	}
 
 	std::vector<DrumkitComponent*>* pSongCompoList= getSong()->getComponents();
 	std::vector<DrumkitComponent*>* pDrumkitCompoList = pDrumkitInfo->get_components();

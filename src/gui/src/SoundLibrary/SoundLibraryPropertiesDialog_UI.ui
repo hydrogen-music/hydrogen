@@ -10,9 +10,6 @@
     <height>653</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Dialog</string>
-  </property>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>

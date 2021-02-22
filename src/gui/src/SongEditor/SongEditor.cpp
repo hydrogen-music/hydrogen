@@ -1521,7 +1521,7 @@ void SongEditorPatternList::patternPopup_load()
 	}
 	QString patternPath = fd.selectedFiles().first();
 
-	QString prevPatternPath = Files::savePatternTmp( pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
+	QString prevPatternPath = Files::savePatternTmp( pattern->get_name(), pattern, song, engine->getCurrentDrumkitName() );
 	if ( prevPatternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		return;
@@ -1575,12 +1575,12 @@ void SongEditorPatternList::patternPopup_save()
 	Song *song = engine->getSong();
 	Pattern *pattern = song->getPatternList()->get( engine->getSelectedPatternNumber() );
 
-	QString path = Files::savePatternNew( pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
+	QString path = Files::savePatternNew( pattern->get_name(), pattern, song, engine->getCurrentDrumkitName() );
 	if ( path.isEmpty() ) {
 		if ( QMessageBox::information( this, "Hydrogen", tr( "The pattern-file exists. \nOverwrite the existing pattern?"), tr("&Ok"), tr("&Cancel"), nullptr, 1 ) != 0 ) {
 			return;
 		}
-		path = Files::savePatternOver( pattern->get_name(), pattern, song, engine->getCurrentDrumkitname() );
+		path = Files::savePatternOver( pattern->get_name(), pattern, song, engine->getCurrentDrumkitName() );
 	}
 
 	if ( path.isEmpty() ) {
@@ -1660,7 +1660,7 @@ void SongEditorPatternList::patternPopup_delete()
 	int patternPosition = pHydrogen->getSelectedPatternNumber();
 	Pattern *pattern = pSong->getPatternList()->get( patternPosition );
 
-	QString patternPath = Files::savePatternTmp( pattern->get_name(), pattern, pSong, pHydrogen->getCurrentDrumkitname() );
+	QString patternPath = Files::savePatternTmp( pattern->get_name(), pattern, pSong, pHydrogen->getCurrentDrumkitName() );
 	if ( patternPath.isEmpty() ) {
 		QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 		return;
@@ -1784,7 +1784,7 @@ void SongEditorPatternList::patternPopup_duplicate()
 	PatternPropertiesDialog *dialog = new PatternPropertiesDialog( this, pNewPattern, nSelectedPattern, true );
 
 	if ( dialog->exec() == QDialog::Accepted ) {
-		QString filePath = Files::savePatternTmp( pNewPattern->get_name(), pNewPattern, pSong, pHydrogen->getCurrentDrumkitname() );
+		QString filePath = Files::savePatternTmp( pNewPattern->get_name(), pNewPattern, pSong, pHydrogen->getCurrentDrumkitName() );
 		if ( filePath.isEmpty() ) {
 			QMessageBox::warning( this, "Hydrogen", tr("Could not save pattern to temporary directory.") );
 			return;

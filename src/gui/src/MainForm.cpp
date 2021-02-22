@@ -803,7 +803,7 @@ void MainForm::action_file_export_pattern_as()
 
 	QString originalName = pPattern->get_name();
 	pPattern->set_name( fileInfo.baseName() );
-	QString path = Files::savePatternPath( filePath, pPattern, pSong, pEngine->getCurrentDrumkitname() );
+	QString path = Files::savePatternPath( filePath, pPattern, pSong, pEngine->getCurrentDrumkitName() );
 	pPattern->set_name( originalName );
 
 	if ( path.isEmpty() ) {
@@ -1156,7 +1156,7 @@ void MainForm::functionDeleteInstrument(int instrument)
 	PatternList *pPatternList = pSong->getPatternList();
 
 	QString instrumentName =  pSelectedInstrument->get_name();
-	QString drumkitName = pEngine->getCurrentDrumkitname();
+	QString drumkitName = pEngine->getCurrentDrumkitName();
 
 	for ( int i = 0; i < pPatternList->size(); i++ ) {
 		const H2Core::Pattern *pPattern = pSong->getPatternList()->get(i);
@@ -1201,7 +1201,7 @@ void MainForm::action_instruments_onlineImportLibrary()
 
 void MainForm::action_instruments_saveLibrary()
 {
-	QString sDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitname();
+	QString sDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitName();
 	Drumkit *pDrumkitInfo = nullptr;
 
 	//User drumkit list
@@ -2219,7 +2219,7 @@ bool MainForm::handleSelectNextPrevSongOnPlaylist( int step )
 
 void MainForm::action_banks_properties()
 {
-	QString sDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitname();
+	QString sDrumkitName = Hydrogen::get_instance()->getCurrentDrumkitName();
 	Drumkit *pDrumkitInfo = nullptr;
 
 	//User drumkit list

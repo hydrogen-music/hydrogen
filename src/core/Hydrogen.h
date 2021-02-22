@@ -372,11 +372,14 @@ public:
 		    deleted anyway.*/
 		void			removeInstrument( int instrumentnumber, bool conditional );
 
-		/** Return the name of the current Drumkit.*/
-		QString			m_currentDrumkit;
-
-		const QString&		getCurrentDrumkitname();
-		void			setCurrentDrumkitname( const QString& currentdrumkitname );
+		/** \return m_sCurrentDrumkitName */
+		const QString&	getCurrentDrumkitName();
+		/** \param sName sets m_sCurrentDrumkitName */
+		void			setCurrentDrumkitName( const QString& sName );
+		/** \return m_currentDrumkitLookup */
+		Filesystem::Lookup	getCurrentDrumkitLookup();
+		/** \param lookup sets m_currentDrumkitLookup */
+		void			setCurrentDrumkitLookup( Filesystem::Lookup lookup );
 
 		void			raiseError( unsigned nErrorCode );
 
@@ -788,6 +791,12 @@ private:
 	 * Local instance of the CoreActionController object.
 	 */ 
 	CoreActionController* 	m_pCoreActionController;
+
+	/** Name of the currently used Drumkit.*/
+	QString			m_sCurrentDrumkitName;
+	/** Whether the current Drumkit is located at user or system
+		level.*/
+	Filesystem::Lookup	m_currentDrumkitLookup;
 	
 	/// Deleting instruments too soon leads to potential crashes.
 	std::list<Instrument*> 	__instrument_death_row; 
@@ -841,19 +850,26 @@ inline CoreActionController* Hydrogen::getCoreActionController() const
 }
 
 
-inline const QString& Hydrogen::getCurrentDrumkitname()
+inline const QString& Hydrogen::getCurrentDrumkitName()
 {
-	return m_currentDrumkit;
+	return m_sCurrentDrumkitName;
+}
+inline void Hydrogen::setCurrentDrumkitName( const QString& sName )
+{
+	m_sCurrentDrumkitName = sName;
+}
+inline Filesystem::Lookup Hydrogen::getCurrentDrumkitLookup()
+{
+	return m_currentDrumkitLookup;
+}
+inline void Hydrogen::setCurrentDrumkitLookup( Filesystem::Lookup lookup )
+{
+	m_currentDrumkitLookup = lookup;
 }
 
 inline bool Hydrogen::getIsExportSessionActive() const
 {
 	return m_bExportSessionIsActive;
-}
-
-inline void Hydrogen::setCurrentDrumkitname( const QString& currentdrumkitname )
-{
-	this->m_currentDrumkit = currentdrumkitname;
 }
 
 inline bool Hydrogen::getPlaybackTrackState() const
