@@ -494,6 +494,7 @@ public:
 							   float oldLeadLag,
 							   int oldNoteKeyVal,
 							   int oldOctaveKeyVal,
+							   float probability,
 							   bool isDelete,
 							   bool listen,
 							   bool isMidi,
@@ -515,6 +516,7 @@ public:
 		__oldLeadLag = oldLeadLag;
 		__oldNoteKeyVal = oldNoteKeyVal;
 		__oldOctaveKeyVal = oldOctaveKeyVal;
+		__probability = probability;
 		__listen = listen;
 		__isMidi = isMidi;
 		__isInstrumentMode = isInstrumentMode;
@@ -536,6 +538,7 @@ public:
 												__oldLeadLag,
 												__oldNoteKeyVal,
 												__oldOctaveKeyVal,
+												__probability,
 												__listen,
 												__isMidi,
 												__isInstrumentMode,
@@ -556,6 +559,7 @@ public:
 												__oldLeadLag,
 												__oldNoteKeyVal,
 												__oldOctaveKeyVal,
+												__probability,
 												__listen,
 												__isMidi,
 												__isInstrumentMode,
@@ -573,6 +577,7 @@ private:
 	float __oldLeadLag;
 	int __oldNoteKeyVal;
 	int __oldOctaveKeyVal;
+	float __probability;
 	bool __listen;
 	bool __isMidi;
 	bool __isInstrumentMode;
@@ -594,12 +599,12 @@ public:
 	virtual void undo()
 	{
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, false, false, false, true, !__isDelete ) ;
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, 1.0f, false, false, false, true, !__isDelete ) ;
 	}
 	virtual void redo()
 	{
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, false, false, false, true, __isDelete );
+		h2app->getPatternEditorPanel()->getDrumPatternEditor()->addOrDeleteNoteAction( __nColumn, __nRow, __selectedPatternNumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, 1.0f, false, false, false, true, __isDelete );
 	}
 private:
 	int __nColumn;
@@ -992,6 +997,7 @@ public:
 									   float oldLeadLag,
 									   int oldNoteKeyVal,
 									   int oldOctaveKeyVal,
+									   float fProbability,
 									   bool isDelete ) {
 		setText( QObject::tr( "Add piano roll note ( %1, %2 )" ).arg( nColumn ).arg( pressedLine ) );
 		__nColumn = nColumn;
@@ -1005,6 +1011,7 @@ public:
 		__oldLeadLag = oldLeadLag;
 		__oldNoteKeyVal = oldNoteKeyVal;
 		__oldOctaveKeyVal = oldOctaveKeyVal;
+		__probability = fProbability;
 		__isDelete = isDelete;
 
 	}
@@ -1023,6 +1030,7 @@ public:
 																					 __oldLeadLag,
 																					 __oldNoteKeyVal,
 																					 __oldOctaveKeyVal,
+																					 __probability,
 																					 false,
 																					 !__isDelete );
 	}
@@ -1041,6 +1049,7 @@ public:
 																					 __oldLeadLag,
 																					 __oldNoteKeyVal,
 																					 __oldOctaveKeyVal,
+																					 __probability,
 																					 false,
 																					 __isDelete );
 	}
@@ -1056,6 +1065,7 @@ private:
 	float __oldLeadLag;
 	int __oldNoteKeyVal;
 	int __oldOctaveKeyVal;
+	float __probability;
 	bool __isDelete;
 };
 
@@ -1073,13 +1083,13 @@ public:
 	{
 		//qDebug() << "Add off note Note Undo ";
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0 , true, true );
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0 , 1.0f, true, true );
 	}
 	virtual void redo()
 	{
 		//qDebug() << "Add off note Note Redo " ;
 		HydrogenApp* h2app = HydrogenApp::get_instance();
-		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, true, false );
+		h2app->getPatternEditorPanel()->getPianoRollEditor()->addOrDeleteNoteAction( __nColumn, __pressedLine, __selectedPatternNumber,  __nSelectedInstrumentnumber, -1, 0.8f, 0.5f, 0.5f, 0.0, 0, 0, 1.0f, true, false );
 
 	}
 private:
