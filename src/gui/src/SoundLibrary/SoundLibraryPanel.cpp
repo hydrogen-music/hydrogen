@@ -152,8 +152,6 @@ SoundLibraryPanel::~SoundLibraryPanel()
 
 void SoundLibraryPanel::updateDrumkitList()
 {
-	QString currentSL = Hydrogen::get_instance()->getCurrentDrumkitName();
-
 	LocalFileMng mng;
 
 	__sound_library_tree->clear();
@@ -189,9 +187,6 @@ void SoundLibraryPanel::updateDrumkitList()
 			__user_drumkit_info_list.push_back( pInfo );
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __user_drumkits_item );
 			pDrumkitItem->setText( 0, pInfo->get_name() );
-			if ( QString(pInfo->get_name() ) == currentSL ){
-				pDrumkitItem->setBackground( 0, QColor( 50, 50, 50) );
-			}
 			InstrumentList *pInstrList = pInfo->get_instruments();
 			for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
 				Instrument *pInstr = pInstrList->get( nInstr );
@@ -211,9 +206,6 @@ void SoundLibraryPanel::updateDrumkitList()
 			__system_drumkit_info_list.push_back( pInfo );
 			QTreeWidgetItem* pDrumkitItem = new QTreeWidgetItem( __system_drumkits_item );
 			pDrumkitItem->setText( 0, pInfo->get_name() );
-			if ( QString( pInfo->get_name() ) == currentSL ){
-				pDrumkitItem->setBackground( 0, QColor( 50, 50, 50) );
-			}
 			InstrumentList *pInstrList = pInfo->get_instruments();
 			for ( uint nInstr = 0; nInstr < pInstrList->size(); ++nInstr ) {
 				Instrument *pInstr = pInstrList->get( nInstr );
@@ -277,8 +269,8 @@ void SoundLibraryPanel::updateDrumkitList()
 			}
 		}
 	}
-
-
+	
+	update_background_color();
 }
 
 
@@ -624,21 +616,22 @@ void SoundLibraryPanel::change_background_color()
 {
 	QString sCurDrumkitName =  Hydrogen::get_instance()->getCurrentDrumkitName();
 
-	for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
-		if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == sCurDrumkitName ){
-			( __system_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
-			break;
+	if ( Hydrogen::get_instance()->getCurrentDrumkitLookup() == Filesystem::Lookup::system ) {
+		for (int i = 0; i < __system_drumkits_item->childCount() ; i++){
+			if ( ( __system_drumkits_item->child( i ) )->text( 0 ) == sCurDrumkitName ){
+				( __system_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
+				break;
+			}
 		}
-	}
-
-	for (int i = 0; i < __user_drumkits_item->childCount() ; i++){
-		if ( ( __user_drumkits_item->child( i ))->text( 0 ) == sCurDrumkitName ){
-			( __user_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
-			break;
+	} else {
+		for (int i = 0; i < __user_drumkits_item->childCount() ; i++){
+			if ( ( __user_drumkits_item->child( i ))->text( 0 ) == sCurDrumkitName ){
+				( __user_drumkits_item->child( i ) )->setBackground( 0, QColor( 50, 50, 50)  );
+				break;
+			}
 		}
 	}
 }
-
 
 
 void SoundLibraryPanel::on_drumkitDeleteAction()
