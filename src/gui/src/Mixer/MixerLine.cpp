@@ -129,9 +129,9 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 
 	// FX send
 	uint y = 0;
-	for (uint i = 0; i < MAX_FX; i++) {
-		m_pKnob[i] = new Knob(this, tr("FX %1 send").arg(i+1), true);
-		pAction = new Action(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number(i+1) ));
+	for ( uint i = 0; i < MAX_FX; i++ ) {
+		m_pKnob[i] = new Knob( this, tr( "FX %1 send" ).arg( i + 1 ), true );
+		pAction = new Action(QString( "EFFECT%1_LEVEL_ABSOLUTE" ).arg( QString::number( i + 1 ) ) );
 		pAction->setParameter1( QString::number( nInstr ) );
 		m_pKnob[i]->setAction( pAction );
 		if ( (i % 2) == 0 ) {
@@ -159,7 +159,6 @@ MixerLine::MixerLine(QWidget* parent, int nInstr)
 	// instrument name widget
 	m_pNameWidget = new InstrumentNameWidget( this );
 	m_pNameWidget->move( 6, 128 );
-	m_pNameWidget->setToolTip( tr( "Instrument name" ) );
 	connect( m_pNameWidget, SIGNAL( doubleClicked () ), this, SLOT( nameClicked() ) );
 	connect( m_pNameWidget, SIGNAL( clicked () ), this, SLOT( nameSelected() ) );
 
@@ -245,9 +244,7 @@ void MixerLine::faderChanged(Fader *ref)
 	double value = (double) ref->getValue();
 	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set instrument volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
 
-	char m_pVolumePos[7];
-	snprintf( m_pVolumePos, 6," %#.2f", value);
-	ref->setToolTip( tr("Volume") + QString( m_pVolumePos ) );
+	ref->setToolTip( tr( "Volume" ) + QString( " %1" ).arg( value, 0, 'f', 2 ) );
 }
 
 bool MixerLine::isMuteClicked() {
@@ -271,12 +268,9 @@ float MixerLine::getVolume()
 	return m_pFader->getValue();
 }
 
-void MixerLine::setVolume( float value )
-{
+void MixerLine::setVolume( float value ) {
 	m_pFader->setValue( value );
-	char m_pVolumePos[7];
-	snprintf( m_pVolumePos, 6," %#.2f", value);
-	m_pFader->setToolTip( tr("Volume") + QString( m_pVolumePos ) );
+	m_pFader->setToolTip( tr( "Volume" ) + QString( " %1" ).arg( value, 0, 'f', 2 ) );
 }
 
 void MixerLine::setPeak_L( float peak ) {
@@ -542,8 +536,7 @@ void ComponentMixerLine::click(Button *ref) {
 	}
 }
 
-void ComponentMixerLine::faderChanged(Fader *ref)
-{
+void ComponentMixerLine::faderChanged(Fader *ref) {
 	Song *pSong = (Hydrogen::get_instance())->getSong();
 	pSong->setIsModified( true );
 	emit volumeChanged(this);
@@ -551,9 +544,7 @@ void ComponentMixerLine::faderChanged(Fader *ref)
 	double value = (double) ref->getValue();
 	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set main volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
 
-	char m_pVolumePos[7];
-	snprintf( m_pVolumePos, 6," %#.2f", value);
-	ref->setToolTip(tr("Volume") + QString( m_pVolumePos ) );
+	ref->setToolTip( tr( "Volume" ) + QString( " %1" ).arg( value, 0, 'f', 2 ) );	
 }
 
 bool ComponentMixerLine::isMuteClicked() {
@@ -577,12 +568,9 @@ float ComponentMixerLine::getVolume()
 	return m_pFader->getValue();
 }
 
-void ComponentMixerLine::setVolume( float value )
-{
+void ComponentMixerLine::setVolume( float value ) {
 	m_pFader->setValue( value );
-	char m_pVolumePos[7];
-	snprintf( m_pVolumePos, 6," %#.2f", value);
-	m_pFader->setToolTip(tr("Volume") + QString( m_pVolumePos ) );
+	m_pFader->setToolTip( tr( "Volume" ) + QString( " %1" ).arg( value, 0, 'f', 2 ) );	
 }
 
 void ComponentMixerLine::setPeak_L( float peak ) {
@@ -726,9 +714,8 @@ void MasterMixerLine::faderChanged(MasterFader *ref)
 
 	double value = (double) ref->getValue();
 	( HydrogenApp::get_instance() )->setStatusBarMessage( tr( "Set master volume [%1]" ).arg( value, 0, 'f', 2 ), 2000 );
-	char m_pVolumePos[7];
-	snprintf( m_pVolumePos, 6," %#.2f", value);
-	ref->setToolTip( tr("Volume") + QString( m_pVolumePos ) );
+
+	ref->setToolTip( tr( "Volume" ) + QString( " %1" ).arg( value, 0, 'f', 2 ) );
 }
 
 float MasterMixerLine::getVolume()
@@ -736,12 +723,9 @@ float MasterMixerLine::getVolume()
 	return m_pMasterFader->getValue();
 }
 
-void MasterMixerLine::setVolume( float value )
-{		printf("arr\n");
+void MasterMixerLine::setVolume( float value ) {
 	m_pMasterFader->setValue( value );
-	char m_pVolumePos[7];
-	snprintf( m_pVolumePos, 6," %#.2f", value);
-	m_pMasterFader->setToolTip(tr("Volume") + QString( m_pVolumePos ) );
+	m_pMasterFader->setToolTip( tr( "Volume" ) + QString( " %1" ).arg( value, 0, 'f', 2 ) );
 }
 
 void MasterMixerLine::setPeak_L(float peak)
