@@ -197,8 +197,10 @@ namespace H2Core
 		/**
 		 * returns the directory holding the named drumkit searching within user then system drumkits
 		 * \param dk_name the drumkit name
+		 * \param lookup Where to search (system/user folder or both)
+		 * for the drumkit. 
 		 */
-		static QString drumkit_dir_search( const QString& dk_name );
+		static QString drumkit_dir_search( const QString& dk_name, Lookup lookup );
 		/**
 		 * returns true if the path contains a usable drumkit
 		 * \param dk_path the root drumkit location

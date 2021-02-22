@@ -681,12 +681,20 @@ QString Filesystem::drumkit_path_search( const QString& dk_name, Lookup lookup )
 			  .arg( static_cast<int>(lookup)));
 	return QString("");
 }
-
-QString Filesystem::drumkit_dir_search( const QString& dk_name )
+QString Filesystem::drumkit_dir_search( const QString& dk_name, Lookup lookup )
 {
-	if( usr_drumkit_list().contains( dk_name ) ) return usr_drumkits_dir();
-	if( sys_drumkit_list().contains( dk_name ) ) return sys_drumkits_dir();
-	ERRORLOG( QString( "drumkit %1 not found" ).arg( dk_name ) );
+	if ( lookup == Lookup::user || lookup == Lookup::stacked ) {
+		if ( usr_drumkit_list().contains( dk_name ) ) {
+			return usr_drumkits_dir();
+		}
+	}
+	if ( lookup == Lookup::system || lookup == Lookup::stacked ) {
+		if( sys_drumkit_list().contains( dk_name ) ) {
+			return sys_drumkits_dir();
+		}
+	}
+	ERRORLOG( QString( "drumkit %1 not found with lookup mode [%2]" )
+			  .arg( dk_name ).arg( static_cast<int>(lookup) ) );
 	return "";
 }
 bool Filesystem::drumkit_valid( const QString& dk_path )

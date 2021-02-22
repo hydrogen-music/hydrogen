@@ -678,7 +678,13 @@ void SoundLibraryPanel::on_drumkitDeleteAction()
 void SoundLibraryPanel::on_drumkitExportAction()
 {
 	QString sDrumkitName = __sound_library_tree->currentItem()->text(0);
-	SoundLibraryExportDialog exportDialog( this, sDrumkitName );
+	Filesystem::Lookup lookup;
+	if ( __sound_library_tree->currentItem()->parent()->text(0) == __system_drumkits_item->text(0) ) {
+		lookup = Filesystem::Lookup::system;
+	} else {
+		lookup = Filesystem::Lookup::user;
+	}
+	SoundLibraryExportDialog exportDialog( this, sDrumkitName, lookup );
 	exportDialog.exec();
 }
 
